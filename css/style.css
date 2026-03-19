@@ -354,11 +354,11 @@ body {
     gap: 48px;
     align-items: center;
   }
-  .about-row-reverse {
-    direction: rtl;
+  .about-row-desktop-reverse .about-text-block {
+    order: 2;
   }
-  .about-row-reverse > * {
-    direction: ltr;
+  .about-row-desktop-reverse .about-img-block {
+    order: 1;
   }
 }
 

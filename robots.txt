@@ -1,0 +1,13 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://eatthis.berlin/sitemap.xml
+
+# Crawl-delay (optional, für Respekt gegenüber Server)
+Crawl-delay: 1
+
+# Disallow admin areas (falls vorhanden)
+Disallow: /admin/
+Disallow: /private/

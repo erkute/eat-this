@@ -1,22 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#FFFFFF">
-  <title>Contact — EAT THIS Berlin</title>
-  <meta name="description" content="Kontaktiere EAT THIS.">
+  <meta name="robots" content="index, follow">
+  <title>Kontakt — EAT THIS Berlin | Schreib uns</title>
+  <meta name="description" content="Kontaktiere EAT THIS — Schreib uns Restaurant-Tipps, Feedback oder sag einfach Hallo. Wir freuen uns von dir zu hören.">
+  <link rel="canonical" href="https://eatthis.berlin/contact.html">
+  
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="EAT THIS">
+  <meta property="og:title" content="Kontakt — EAT THIS Berlin">
+  <meta property="og:description" content="Kontaktiere EAT THIS — Schreib uns deine Restaurant-Tipps oder Feedback.">
+  <meta property="og:url" content="https://eatthis.berlin/contact.html">
+  <meta property="og:locale" content="de_DE">
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/pages.css">
+  
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ContactPage",
+        "@id": "https://eatthis.berlin/contact.html",
+        "url": "https://eatthis.berlin/contact.html",
+        "name": "Kontakt — EAT THIS Berlin",
+        "description": "Kontaktiere EAT THIS für Restaurant-Tipps, Feedback oder allgemeine Anfragen.",
+        "isPartOf": { "@id": "https://eatthis.berlin/#website" }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://eatthis.berlin" },
+          { "@type": "ListItem", "position": 2, "name": "Kontakt", "item": "https://eatthis.berlin/contact.html" }
+        ]
+      },
+      {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "email": "hello@eatthis.berlin",
+        "availableLanguage": ["German", "English"],
+        "areaServed": "DE"
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
 
   <nav class="navbar" id="navbar">
     <a href="index.html" class="navbar-brand">
-      <img src="pics/logo.png" alt="EAT THIS" class="brand-logo">
+      <img src="pics/logo.webp" alt="EAT THIS" class="brand-logo">
     </a>
     <div class="navbar-links">
       <a href="index.html#must-eats">Must Eats</a>

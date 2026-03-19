@@ -1,0 +1,16 @@
+{
+  "name": "eat-this",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "optimize": "node scripts/optimize-images.js",
+    "update-html": "node scripts/update-html-paths.js"
+  },
+  "keywords": ["food-blog", "berlin", "seo"],
+  "author": "EAT THIS",
+  "license": "ISC",
+  "description": "EAT THIS - Berlin Food Blog",
+  "dependencies": {
+    "sharp": "^0.34.5"
+  }
+}

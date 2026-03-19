@@ -275,15 +275,14 @@ body {
   display: grid;
   grid-template-columns: 1fr;
   gap: 40px;
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
-  align-items: start;
 }
 .about-left {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 .about-label {
   display: inline-block;
@@ -300,7 +299,7 @@ body {
 .about-right {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 .about-images {
   display: flex;
@@ -314,13 +313,14 @@ body {
 }
 .about-img {
   width: 100%;
-  aspect-ratio: 3/4;
+  height: auto;
   object-fit: cover;
 }
 .about-img-caption {
   font-size: 12px;
   color: var(--gray-400);
   font-style: italic;
+}
 }
 .about-title {
   font-size: clamp(2rem, 4.5vw, 3.2rem);
@@ -342,28 +342,26 @@ body {
 
 @media (min-width: 768px) {
   .about-inner {
-    display: flex;
+    grid-template-columns: 1fr 1fr;
     gap: 48px;
     padding: 0 48px;
   }
-  .about-left {
-    flex: 0 0 35%;
-  }
   .about-images {
-    flex: 1;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    align-items: start;
+    gap: 20px;
+    align-content: start;
   }
   .about-right {
     grid-column: 1 / -1;
+  }
+  .about-img {
+    aspect-ratio: 3/4;
   }
 }
 
 @media (max-width: 767px) {
   .about-inner {
-    grid-template-columns: 1fr;
     padding: 0 24px;
     gap: 32px;
   }

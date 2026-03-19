@@ -965,6 +965,25 @@ div.custom-marker {
 .insta-follow:hover {
   color: var(--orange);
 }
+.insta-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.insta-badge {
+  display: flex;
+}
+.insta-badge-img {
+  width: 120px;
+  height: auto;
+  border-radius: 8px;
+  border: 2px solid var(--black);
+  transition: transform 0.2s, border-color 0.2s;
+}
+.insta-badge:hover .insta-badge-img {
+  transform: translateY(-2px);
+  border-color: var(--orange);
+}
 .insta-embeds {
   display: flex;
   flex-direction: column;

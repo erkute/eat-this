@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { name: 'Clärchens Ballhaus', district: 'Mitte', type: 'Traditionell', mustEat: 'Wiener Schnitzel mit Kartoffelsalat', address: 'Auguststraße 24, 10117 Berlin', lat: 52.5254, lng: 13.3970 },
       { name: 'Borchardt', district: 'Mitte', type: 'Deutsch/Schnitzel', mustEat: 'Wiener Schnitzel', address: 'Französische Str. 47, 10117 Berlin', lat: 52.5145, lng: 13.3912 },
       { name: 'ITA Bistro', district: 'Mitte', type: 'Bistro', mustEat: 'Cacio e Pepe', address: 'Rochstraße 3, 10178 Berlin', lat: 52.5236, lng: 13.4042 },
-      { name: 'Standard', district: 'Mitte', type: 'Pizza', mustEat: 'Pizza', address: 'Templiner Str. 7, 10119 Berlin', lat: 52.5281, lng: 13.3878 },
+      { name: 'Standard', district: 'Mitte', type: 'Pizza', mustEat: 'Pizza', address: 'Torstraße 102, 10119 Berlin', lat: 52.5281, lng: 13.3878 },
       { name: 'Sway', district: 'Mitte', type: 'Weinbar', mustEat: 'Naturweine & Tapas-Platte', address: 'Linienstraße 40, 10119 Berlin', lat: 52.5264, lng: 13.3975 },
       { name: 'Le Balto', district: 'Mitte', type: 'Weinbar', mustEat: 'Französischer Naturwein & Cheese-Board', address: 'Krausnickstr. 10, 10115 Berlin', lat: 52.5307, lng: 13.3956 },
       { name: 'SOFI', district: 'Mitte', type: 'Bäckerei', mustEat: 'Sourdough Croissant', address: 'Sophienstraße 5, 10178 Berlin', lat: 52.5247, lng: 13.3965 },

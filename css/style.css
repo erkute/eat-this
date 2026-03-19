@@ -268,7 +268,7 @@ body {
    ABOUT SECTION
    ============================================ */
 .about-section {
-  padding: 100px 0;
+  padding: 60px 0;
   overflow: hidden;
 }
 .about-inner {
@@ -376,7 +376,7 @@ body {
    MUST EATS SECTION
    ============================================ */
 .must-eats-section {
-  padding: 100px 24px 120px;
+  padding: 60px 24px 80px;
   background: var(--off-white);
   border-top: 1px solid var(--black);
   border-bottom: 1px solid var(--black);
@@ -490,7 +490,7 @@ body {
    FOOD MAP SECTION
    ============================================ */
 .map-section {
-  padding: 100px 0 80px;
+  padding: 60px 0 40px;
   border-top: 1px solid var(--black);
   border-bottom: 1px solid var(--black);
   position: relative;
@@ -626,7 +626,7 @@ div.custom-marker {
    NEWS SECTION
    ============================================ */
 .news-section {
-  padding: 140px 0 120px;
+  padding: 80px 0 60px;
   border-top: 1px solid var(--black);
 }
 .news-header {
@@ -867,7 +867,7 @@ div.custom-marker {
    INSTAGRAM SECTION
    ============================================ */
 .insta-section {
-  padding: 80px 24px;
+  padding: 60px 24px;
   border-top: 1px solid var(--black);
 }
 .insta-inner {
@@ -929,7 +929,7 @@ div.custom-marker {
    NEWSLETTER SECTION
    ============================================ */
 .newsletter-section {
-  padding: 140px 24px;
+  padding: 80px 24px;
   border-top: 1px solid var(--black);
 }
 .newsletter-inner {

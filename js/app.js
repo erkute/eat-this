@@ -384,6 +384,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     newsModal.classList.add('active');
     document.body.style.overflow = 'hidden';
+
+    const modalInner = newsModal.querySelector('.news-modal');
+    if (modalInner) modalInner.scrollTop = 0;
   }
 
   function closeNewsModal() {

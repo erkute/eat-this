@@ -613,6 +613,17 @@ div.custom-marker {
   min-width: 220px;
   max-width: 260px;
 }
+.map-popup-district {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--white);
+  background: var(--black);
+  padding: 3px 8px;
+  display: inline-block;
+  margin-bottom: 8px;
+}
 .map-popup-type {
   font-size: 10px;
   font-weight: 700;
@@ -1490,7 +1501,41 @@ div.custom-marker {
   display: block;
   font-size: 12px;
   color: var(--gray-400);
+  margin-bottom: 16px;
+}
+.news-modal-share {
+  display: flex;
+  gap: 8px;
   margin-bottom: 20px;
+}
+.share-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0,0,0,0.15);
+  border-radius: 4px;
+  background: var(--white);
+  color: var(--black);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.share-btn:hover {
+  background: var(--black);
+  border-color: var(--black);
+  color: var(--white);
+}
+.share-twitter:hover {
+  background: #000;
+}
+.share-whatsapp:hover {
+  background: #25D366;
+  border-color: #25D366;
+}
+.share-native:hover {
+  background: var(--orange);
+  border-color: var(--orange);
 }
 .news-modal-content {
   font-size: 15px;

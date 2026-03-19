@@ -615,36 +615,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- News Filter ---
-  const newsFilters = document.querySelectorAll('.news-filter');
-  const newsFeatured = document.querySelector('.news-featured');
-  const newsCards = document.querySelectorAll('.news-card');
-
-  if (newsFilters.length) {
-    newsFilters.forEach(filter => {
-      filter.addEventListener('click', () => {
-        newsFilters.forEach(f => f.classList.remove('active'));
-        filter.classList.add('active');
-
-        const category = filter.dataset.filter;
-
-        if (newsFeatured) {
-          const featuredCat = newsFeatured.dataset.category;
-          newsFeatured.style.display = (category === 'all' || featuredCat === category) ? '' : 'none';
-        }
-
-        newsCards.forEach(card => {
-          const cardCat = card.dataset.category;
-          if (category === 'all' || cardCat === category) {
-            card.classList.remove('hidden');
-          } else {
-            card.classList.add('hidden');
-          }
-        });
-      });
-    });
-  }
-
   // --- Back to Top ---
   const backToTop = document.getElementById('backToTop');
   if (backToTop) {

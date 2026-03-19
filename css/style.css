@@ -124,6 +124,14 @@ body {
   border-radius: 2px;
   transition: background 0.2s, color 0.2s, transform 0.2s !important;
 }
+.navbar-insta {
+  display: flex;
+  align-items: center;
+  padding-bottom: 0 !important;
+}
+.navbar-insta::after {
+  display: none !important;
+}
 .navbar-cta:hover {
   background: var(--orange) !important;
   transform: translateY(-1px);
@@ -1066,8 +1074,8 @@ div.custom-marker {
 .footer-grid {
   display: flex;
   flex-direction: column;
-  gap: 64px;
-  padding: 64px 24px;
+  gap: 32px;
+  padding: 40px 24px;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -1076,11 +1084,11 @@ div.custom-marker {
   flex-direction: column;
 }
 .footer-brand {
-  font-size: clamp(3rem, 8vw, 6rem);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 900;
   letter-spacing: -0.04em;
   line-height: 0.9;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 .footer-brand span {
   display: block;
@@ -1089,9 +1097,9 @@ div.custom-marker {
   color: var(--orange);
 }
 .footer-tagline {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--gray-500);
-  margin-bottom: 32px;
+  margin-bottom: 0;
   letter-spacing: 0.05em;
 }
 .footer-socials {
@@ -1117,7 +1125,7 @@ div.custom-marker {
 .footer-nav-group {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 24px;
 }
 .footer-nav-col {
   display: flex;
@@ -1144,8 +1152,8 @@ div.custom-marker {
 .footer-bottom {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px;
+  gap: 12px;
+  padding: 16px 24px;
   border-top: 1px solid rgba(0,0,0,0.08);
   max-width: 1200px;
   margin: 0 auto;

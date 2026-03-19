@@ -360,6 +360,9 @@ body {
   .about-row-desktop-reverse .about-img-block {
     order: 1;
   }
+  .about-img {
+    max-width: 90%;
+  }
 }
 
 @media (max-width: 767px) {

@@ -314,7 +314,7 @@ body {
 }
 .about-img {
   width: 100%;
-  aspect-ratio: 4/3;
+  aspect-ratio: 3/4;
   object-fit: cover;
 }
 .about-img-caption {
@@ -342,14 +342,22 @@ body {
 
 @media (min-width: 768px) {
   .about-inner {
-    grid-template-columns: 1fr 1fr;
+    display: flex;
     gap: 48px;
     padding: 0 48px;
   }
+  .about-left {
+    flex: 0 0 35%;
+  }
   .about-images {
-    display: flex;
-    flex-direction: column;
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 24px;
+    align-items: start;
+  }
+  .about-right {
+    grid-column: 1 / -1;
   }
 }
 

@@ -4,23 +4,6 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // --- Intersection Observer for scroll reveals ---
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-      }
-    });
-  }, {
-    threshold: 0.12,
-    rootMargin: '0px 0px -40px 0px'
-  });
-
-  document.querySelectorAll(
-    '.reveal, .reveal-left, .reveal-right, .reveal-scale, ' +
-    '.reveal-up, .reveal-fade, .reveal-stagger'
-  ).forEach(el => revealObserver.observe(el));
-
   // --- Navbar scroll state ---
   const navbar = document.getElementById('navbar');
 

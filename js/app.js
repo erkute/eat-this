@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { name: 'Common', district: 'Neukölln', type: 'Café', mustEat: 'Pour Over & Banana Bread', address: 'Friedelstraße 14, 12047 Berlin', lat: 52.4845, lng: 13.4276 },
       { name: 'Pan Africa Restaurant', district: 'Neukölln', type: 'Afrikanisch', mustEat: 'Injera mit Doro Wot', address: 'Karl-Marx-Straße 109, 12043 Berlin', lat: 52.4754, lng: 13.4391 },
       { name: 'The Barn Café', district: 'Neukölln', type: 'Café', mustEat: 'Single Origin Filter Coffee', address: 'Friedelstraße 10, 12047 Berlin', lat: 52.4844, lng: 13.4272 },
-      { name: 'onette', district: 'Neukölln', type: 'Amerikanisch', mustEat: 'Buttermilk Pancakes', address: 'Richardstraße 28, 12043 Berlin', lat: 52.4769, lng: 13.4375 },
+      { name: 'onette', district: 'Schöneberg', type: 'Amerikanisch', mustEat: 'Buttermilk Pancakes', address: 'Grunewaldstr. 11, 10781 Berlin', lat: 52.4769, lng: 13.4375 },
       { name: 'La Bolognina', district: 'Neukölln', type: 'Pasta', mustEat: 'Tagliatelle al Ragù', address: 'Friedelstraße 48, 12047 Berlin', lat: 52.4848, lng: 13.4315 },
       { name: 'DoubleEye', district: 'Schöneberg', type: 'Café', mustEat: 'Doppelter Espresso & Kuchen', address: 'Hauptstraße 77, 10827 Berlin', lat: 52.4864, lng: 13.3538 },
       { name: 'Frühstück 3000', district: 'Schöneberg', type: 'Frühstück', mustEat: 'Full English Breakfast', address: 'Fuggerstraße 20, 10777 Berlin', lat: 52.4962, lng: 13.3558 },

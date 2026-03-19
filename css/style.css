@@ -1001,6 +1001,18 @@ body {
   max-width: 100% !important;
 }
 
+@media (max-width: 767px) {
+  .insta-badge-img {
+    width: 80px;
+  }
+  .insta-label {
+    font-size: 14px;
+  }
+  .insta-follow {
+    font-size: 16px;
+  }
+}
+
 @media (min-width: 768px) {
   .insta-section { padding: 100px 48px; }
   .insta-embeds {

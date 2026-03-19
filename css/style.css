@@ -944,7 +944,7 @@ div.custom-marker {
 .insta-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 40px;
 }
 .insta-label {
@@ -965,24 +965,22 @@ div.custom-marker {
 .insta-follow:hover {
   color: var(--orange);
 }
-.insta-header-left {
+.insta-header-right {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-.insta-badge {
+.insta-badge-link {
   display: flex;
+  align-items: center;
 }
 .insta-badge-img {
-  width: 120px;
+  width: 60px;
   height: auto;
-  border-radius: 8px;
-  border: 2px solid var(--black);
-  transition: transform 0.2s, border-color 0.2s;
+  transition: transform 0.2s;
 }
-.insta-badge:hover .insta-badge-img {
-  transform: translateY(-2px);
-  border-color: var(--orange);
+.insta-badge-link:hover .insta-badge-img {
+  transform: scale(1.05);
 }
 .insta-embeds {
   display: flex;

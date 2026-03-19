@@ -513,7 +513,18 @@ body {
   font-size: 12px;
   color: var(--gray-400);
   font-weight: 400;
-  margin-bottom: 8px;
+  margin-bottom: 0;
+}
+.eat-card-district2 {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--white);
+  background: var(--black);
+  padding: 2px 6px;
+  margin-top: 4px;
 }
 .eat-card-price {
   display: inline-block;

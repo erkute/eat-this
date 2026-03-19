@@ -481,35 +481,6 @@ body {
   padding: 5px 10px;
   border-radius: 4px;
 }
-.eat-card-cart {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  width: 40px;
-  height: 40px;
-  background: var(--white);
-  border: none;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
-  color: var(--black);
-  opacity: 0;
-  transform: scale(0.8);
-}
-.eat-card:hover .eat-card-cart {
-  opacity: 1;
-  transform: scale(1);
-}
-.eat-card-cart:hover {
-  background: var(--orange);
-  color: var(--white);
-  transform: scale(1.1) !important;
-  box-shadow: 0 6px 16px rgba(255,59,0,0.3);
-}
 .eat-card-body {
   padding: 16px 16px 20px;
 }

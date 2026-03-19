@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#FFFFFF">
+  <title>EAT THIS — Berlin Food Blog</title>
+  <meta name="description" content="A curated guide to Berlin's most essential dishes. We'll tell you what to eat.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a href="#" class="navbar-brand">
+      <img src="pics/logo.png" alt="EAT THIS" class="brand-logo">
+    </a>
+    <div class="navbar-links">
+      <a href="#must-eats">Must Eats</a>
+      <a href="#map">Map</a>
+      <a href="#news">News</a>
+      <a href="#newsletter" class="navbar-cta">Subscribe</a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#must-eats">Must Eats</a>
+    <a href="#map">Map</a>
+    <a href="#news">News</a>
+    <a href="#newsletter">Subscribe</a>
+  </div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-bg">
+      <img src="pics/glas.jpg" alt="Berlin Food">
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+
+      <h1 class="hero-logo">EAT<br>THIS</h1>
+      <span class="hero-tagline">We'll tell you what to eat</span>
+    </div>
+  </header>
+
+  <!-- ABOUT SECTION -->
+  <section class="about-section">
+    <div class="about-inner">
+      <div class="about-left reveal">
+        <span class="about-label">Wer sind wir?</span>
+        <h2 class="about-title">Ein Gericht.<br>Ein Restaurant.</h2>
+        <p class="about-text">Keine Listen. Keine Rankings. Jedes Restaurant hat ein Gericht, das du essen musst. Genau das zeigen wir dir.</p>
+        <p class="about-text">Wir kommen aus Berlin. Wir kennen die Szene. Wir wissen, wo der Burger am besten schmeckt, wo das Ramen dich umhaut und wo du das Croissant findest, das dein Leben verändert.</p>
+      </div>
+      
+      <div class="about-center">
+        <div class="about-carousel">
+          <div class="about-carousel-item active">
+            <img src="pics/tisch.jpg" alt="">
+          </div>
+          <div class="about-carousel-item">
+            <img src="pics/food/IMG_1085.jpeg" alt="">
+          </div>
+          <div class="about-carousel-item">
+            <img src="pics/food/IMG_3006.jpeg" alt="">
+          </div>
+        </div>
+      </div>
+      
+      <div class="about-right reveal">
+        <h2 class="about-title">Was als Nächstes?</h2>
+        <p class="about-text">Berlin ist erst der Anfang. Wir haben Lust auf mehr.</p>
+        <p class="about-text about-cities">Istanbul. Amsterdam. Paris. Und irgendwann die ganze Welt.</p>
+        <p class="about-text">Gutes Essen ist kein Zufall. Es verdient Empfehlungen, die wirklich stimmen.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MUST EATS -->
+  <section class="must-eats-section" id="must-eats">
+    <div class="must-eats-header">
+      <p class="section-label reveal">Berlin</p>
+      <h2 class="must-eats-title reveal" style="transition-delay:0.1s">Must Eats</h2>
+      <p class="must-eats-subtitle reveal" style="transition-delay:0.2s">The dishes you can't leave Berlin without trying.</p>
+    </div>
+    <div class="must-eats-grid reveal-stagger">
+      <article class="eat-card" data-dish="Breakfast Plate" data-restaurant="SOFI" data-district="Mitte" data-price="€" data-desc="Das perfekte Frühstück: Eggs Benedict, Avocado Toast und ein Flat White. Mehr braucht man nicht." data-rating-price="5" data-rating-perf="5" data-rating-taste="5" data-rating-look="5" data-img="pics/food/IMG_0079.jpeg">
+        <div class="eat-card-img">
+          <img src="pics/food/IMG_0079.jpeg" alt="Breakfast Plate" loading="lazy">
+          <span class="eat-card-price">€</span>
+          <button class="eat-card-cart" aria-label="Add to list" onclick="event.stopPropagation()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </button>
+        </div>
+        <div class="eat-card-body">
+          <h3 class="eat-card-dish">Breakfast Plate</h3>
+          <p class="eat-card-restaurant">SOFI</p>
+        </div>
+      </article>
+      <article class="eat-card" data-dish="Donuts" data-restaurant="Atelier Dough" data-district="Prenzlauer Berg" data-price="€" data-desc="Fluffige, handgemachte Donuts. Matcha, Salted Caramel, Biscoff — jeder Bissen ein Highlight." data-rating-price="5" data-rating-perf="4" data-rating-taste="5" data-rating-look="5" data-img="pics/food/IMG_1085.jpeg">
+        <div class="eat-card-img">
+          <img src="pics/food/IMG_1085.jpeg" alt="Donuts" loading="lazy">
+          <span class="eat-card-price">€</span>
+          <button class="eat-card-cart" aria-label="Add to list" onclick="event.stopPropagation()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </button>
+        </div>
+        <div class="eat-card-body">
+          <h3 class="eat-card-dish">Donuts</h3>
+          <p class="eat-card-restaurant">Atelier Dough</p>
+        </div>
+      </article>
+      <article class="eat-card" data-dish="Pancakes" data-restaurant="Kitten Deli" data-district="Prenzlauer Berg" data-price="€" data-desc="Buttrige Pancakes mit frischem Obst und Ahornsirup. Sonntag = Pancake Tag." data-rating-price="5" data-rating-perf="5" data-rating-taste="5" data-rating-look="4" data-img="pics/food/IMG_3006.jpeg">
+        <div class="eat-card-img">
+          <img src="pics/food/IMG_3006.jpeg" alt="Pancakes" loading="lazy">
+          <span class="eat-card-price">€</span>
+          <button class="eat-card-cart" aria-label="Add to list" onclick="event.stopPropagation()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </button>
+        </div>
+        <div class="eat-card-body">
+          <h3 class="eat-card-dish">Pancakes</h3>
+          <p class="eat-card-restaurant">Kitten Deli</p>
+        </div>
+      </article>
+      <article class="eat-card" data-dish="Cake" data-restaurant="Julius" data-district="Mitte" data-price="€€" data-desc="hausgemachten Kuchen — von Schokolade bis Zitrone. Immer frisch, immer perfekt." data-rating-price="4" data-rating-perf="4" data-rating-taste="5" data-rating-look="5" data-img="pics/food/IMG_3542.jpeg">
+        <div class="eat-card-img">
+          <img src="pics/food/IMG_3542.jpeg" alt="Cake" loading="lazy">
+          <span class="eat-card-price">€€</span>
+          <button class="eat-card-cart" aria-label="Add to list" onclick="event.stopPropagation()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </button>
+        </div>
+        <div class="eat-card-body">
+          <h3 class="eat-card-dish">Cake</h3>
+          <p class="eat-card-restaurant">Julius</p>
+        </div>
+      </article>
+      <article class="eat-card" data-dish="Breakfast Plate" data-restaurant="SOFI" data-district="Mitte" data-price="€" data-desc="Das perfekte Frühstück: Eggs Benedict, Avocado Toast und ein Flat White. Mehr braucht man nicht." data-rating-price="5" data-rating-perf="5" data-rating-taste="5" data-rating-look="5" data-img="pics/food/IMG_0072.jpeg">
+        <div class="eat-card-img">
+          <img src="pics/food/IMG_0072.jpeg" alt="Breakfast Plate" loading="lazy">
+          <span class="eat-card-price">€</span>
+          <button class="eat-card-cart" aria-label="Add to list" onclick="event.stopPropagation()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </button>
+        </div>
+        <div class="eat-card-body">
+          <h3 class="eat-card-dish">Breakfast Plate</h3>
+          <p class="eat-card-restaurant">SOFI</p>
+        </div>
+      </article>
+      <article class="eat-card" data-dish="Banh Mi" data-restaurant="Saveur de Bánh Mì" data-district="Neukölln" data-price="€" data-desc="Das beste Bánh Mì in Berlin. Knuspriges Brot, frisches Gemüse, perfekt gewürztes Fleisch." data-rating-price="5" data-rating-perf="5" data-rating-taste="5" data-rating-look="4" data-img="pics/food/IMG_4462.jpeg">
+        <div class="eat-card-img">
+          <img src="pics/food/IMG_4462.jpeg" alt="Banh Mi" loading="lazy">
+          <span class="eat-card-price">€</span>
+          <button class="eat-card-cart" aria-label="Add to list" onclick="event.stopPropagation()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </button>
+        </div>
+        <div class="eat-card-body">
+          <h3 class="eat-card-dish">Banh Mi</h3>
+          <p class="eat-card-restaurant">Saveur de Bánh Mì</p>
+        </div>
+      </article>
+      <article class="eat-card" data-dish="Pizza" data-restaurant="SORI Ramen" data-district="Prenzlauer Berg" data-price="€" data-desc="Pizza wie sie sein sollte: knuspriger Teig, frische Zutaten, perfekter Käse." data-rating-price="3" data-rating-perf="5" data-rating-taste="5" data-rating-look="4" data-img="pics/food/IMG_8504.jpeg">
+        <div class="eat-card-img">
+          <img src="pics/food/IMG_8504.jpeg" alt="Pizza" loading="lazy">
+          <span class="eat-card-price">€</span>
+          <button class="eat-card-cart" aria-label="Add to list" onclick="event.stopPropagation()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </button>
+        </div>
+        <div class="eat-card-body">
+          <h3 class="eat-card-dish">Pizza</h3>
+          <p class="eat-card-restaurant">SORI Ramen</p>
+        </div>
+      </article>
+      <article class="eat-card" data-dish="Sandwich" data-restaurant="Kitten Deli" data-district="Prenzlauer Berg" data-price="€" data-desc="Das Reuben Sandwich ist der absolute Hammer. Perfekt gegrillt, mega lecker." data-rating-price="4" data-rating-perf="4" data-rating-taste="4" data-rating-look="5" data-img="pics/food/IMG_7397 (1).jpeg">
+        <div class="eat-card-img">
+          <img src="pics/food/IMG_7397 (1).jpeg" alt="Sandwich" loading="lazy">
+          <span class="eat-card-price">€</span>
+          <button class="eat-card-cart" aria-label="Add to list" onclick="event.stopPropagation()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </button>
+        </div>
+        <div class="eat-card-body">
+          <h3 class="eat-card-dish">Sandwich</h3>
+          <p class="eat-card-restaurant">Kitten Deli</p>
+        </div>
+      </article>
+      <article class="eat-card" data-dish="Banh Mi" data-restaurant="Saveur de Bánh Mì" data-district="Neukölln" data-price="€" data-desc="Das beste Bánh Mì in Berlin. Knuspriges Brot, frisches Gemüse, perfekt gewürztes Fleisch." data-rating-price="5" data-rating-perf="5" data-rating-taste="5" data-rating-look="4" data-img="pics/food/5293503b-a49e-4d01-a753-56666956a98f.jpeg">
+        <div class="eat-card-img">
+          <img src="pics/food/5293503b-a49e-4d01-a753-56666956a98f.jpeg" alt="Banh Mi" loading="lazy">
+          <span class="eat-card-price">€</span>
+          <button class="eat-card-cart" aria-label="Add to list" onclick="event.stopPropagation()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </button>
+        </div>
+        <div class="eat-card-body">
+          <h3 class="eat-card-dish">Banh Mi</h3>
+          <p class="eat-card-restaurant">Saveur de Bánh Mì</p>
+        </div>
+      </article>
+      <article class="eat-card" data-dish="Banh Mi" data-restaurant="Saveur de Bánh Mì" data-district="Neukölln" data-price="€" data-desc="Das beste Bánh Mì in Berlin. Knuspriges Brot, frisches Gemüse, perfekt gewürztes Fleisch." data-rating-price="5" data-rating-perf="5" data-rating-taste="5" data-rating-look="4" data-img="pics/food/24c34d79-4c9b-4704-974a-761aec75cba3.jpeg">
+        <div class="eat-card-img">
+          <img src="pics/food/24c34d79-4c9b-4704-974a-761aec75cba3.jpeg" alt="Banh Mi" loading="lazy">
+          <span class="eat-card-price">€</span>
+          <button class="eat-card-cart" aria-label="Add to list" onclick="event.stopPropagation()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </button>
+        </div>
+        <div class="eat-card-body">
+          <h3 class="eat-card-dish">Banh Mi</h3>
+          <p class="eat-card-restaurant">Saveur de Bánh Mì</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- NEWS / BLOG -->
+  <section class="news-section" id="news">
+    <div class="news-header">
+      <div class="news-header-top">
+        <div>
+          <p class="section-label reveal">Berlin</p>
+          <h2 class="news-title reveal" style="transition-delay:0.1s">Food News</h2>
+        </div>
+        <a href="#" class="news-all-link reveal" style="transition-delay:0.2s">View All →</a>
+      </div>
+      <div class="news-filters reveal" style="transition-delay:0.3s">
+        <button class="news-filter active" data-filter="all">All</button>
+        <button class="news-filter" data-filter="openings">Openings</button>
+        <button class="news-filter" data-filter="culture">Culture</button>
+        <button class="news-filter" data-filter="guides">Guides</button>
+        <button class="news-filter" data-filter="events">Events</button>
+      </div>
+    </div>
+
+    <!-- Featured Article -->
+    <article class="news-featured reveal-up" data-category="openings" data-title="Berlins neue Ramen-Welle: Warum die Hauptstadt jetzt das ultimative Nudel-Haus hat" data-img="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&h=700&fit=crop" data-category-label="Openings" data-date="15. März 2026" data-excerpt="Drei neue Ramen-Läden haben in den letzten Wochen ihre Türen geöffnet — und alle setzen auf handgezogene Nudeln und 18-stündige Brühen. Wir haben alle drei getestet." data-content="<p>Berlin erlebt gerade eine Ramen-Revolution. In den letzten vier Wochen haben drei neue Restaurants eröffnet, die sich ausschließlich auf japanische Nudelsuppen spezialisiert haben — und alle drei setzen auf handgezogene Nudeln und Brühen, die bis zu 18 Stunden köcheln.</p><h4>Fukagawa Ramen — Prenzlauer Berg</h4><p>Das kleinste der drei Lokale sitzt in der Lychener Straße und bietet nur 16 Plätze. Die Tonkotsu-Brühe ist cremiger als alles, was wir je in Berlin probiert haben. Der Besitzer lernte sein Handwerk in Fukuoka und brachte das Original-Rezept mit. Empfehlung: Spicy Miso Ramen mit Extra-Chashu.</p><h4>Cocolo Ramen — Kreuzberg</h4><p>Am Paul-Lincke-Ufer eröffnet Cocolo sein zweites Berliner Lokal. Die Shinjuku-style Ramen hier sind leichter als die von Fukagawa, aber dafür aromatischer. Die Eier sind perfekt — halb durch, saftig, mit Soja mariniert. Tipp: Komm früh, die Wartezeiten am Wochenende sind lang.</p><h4>Wen Cheng Ramen — Friedrichshain</h4><p>Die große Überraschung: Wen Cheng, bekannt für seine Biang Biang Nudeln, hat eine Ramen-Pop-up-Ecke eingerichtet. Die fusion-Ramen mit chinesischen Einflüssen sind anders als alles andere. Die Dan-Dan-Ramen mit Sichuan-Pfeffer sind ein Muss für Abenteuerlustige.</p><h4>Unser Fazit</h4><p>Berlin hat jetzt drei Adressen, die mit Tokio mithalten können. Alle drei sind es wert, aber wenn du nur eine wählen musst: Fukagawa für Authentizität, Cocolo für Atmosphäre, Wen Cheng für Innovation.</p>">
+      <a href="#" class="news-featured-link">
+        <div class="news-featured-img">
+          <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&h=700&fit=crop" alt="Berlins neue Ramen-Welle" loading="lazy">
+        </div>
+        <div class="news-featured-body">
+          <span class="news-featured-badge">Featured</span>
+          <span class="news-featured-category">Openings</span>
+          <h3 class="news-featured-headline">Berlins neue Ramen-Welle: Warum die Hauptstadt jetzt das ultimative Nudel-Haus hat</h3>
+          <p class="news-featured-excerpt">Drei neue Ramen-Läden haben in den letzten Wochen ihre Türen geöffnet — und alle setzen auf handgezogene Nudeln und 18-stündige Brühen. Wir haben alle drei getestet.</p>
+          <div class="news-featured-meta">
+            <time datetime="2026-03-15">15. März 2026</time>
+            <span class="news-featured-read">5 Min. Lesezeit</span>
+          </div>
+        </div>
+      </a>
+    </article>
+
+    <!-- News Grid -->
+    <div class="news-grid reveal-stagger">
+
+      <!-- Article 2 -->
+      <article class="news-card" data-category="openings" data-title="Markthalle Neun bekommt einen neuen Street-Food-Floor" data-img="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=600&h=400&fit=crop" data-category-label="Openings" data-date="14. März 2026" data-excerpt="Die beliebte Markthalle in Kreuzberg erweitert: Im zweiten Stock entsteht ein komplett neuer Bereich für internationale Street Food-Händler." data-content="<p>Die Markthalle Neun in Kreuzberg, seit Jahren ein Fixpunkt der Berliner Food-Szene, bekommt im Sommer 2026 einen kompletten neuen Floor. Im zweiten Stockwerk entsteht ein 800 Quadratmeter großer Street-Food-Bereich mit Platz für 20 Händler.</p><h4>Was erwartet dich?</h4><p>Die Auswahl ist international: Vietnamesische Phở, mexikanische Tacos, äthiopische Injera, libanesische Falafel und natürlich deutsches Flammkuchen. Jeder Stand wird von einem anderen Betreiber geführt — viele davon sind Berliner Street-Food-Veteranen, die bisher nur auf Märkten unterwegs waren.</p><h4>Das Konzept</h4><p>Keine Sitzplätze an den Ständen. Stattdessen gibt es eine große gemeinsame Esshalle mit langen Holztischen — wie in einer asiatischen Markthalle. Bier gibt es vom Fass, Wein aus Berliner Naturwein-Lieferanten.</p><h4>Eröffnung</h4><p>Geplant ist die Eröffnung für Juli 2026. Die ersten Händler stehen bereits fest, weitere Bewerbungen laufen noch. Tipp: Melde dich für den Newsletter der Markthalle an, um Early-Access zu bekommen.</p>">
+        <a href="#" class="news-card-link">
+          <div class="news-card-img">
+            <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=600&h=400&fit=crop" alt="Markthalle Neun" loading="lazy">
+          </div>
+          <div class="news-card-body">
+            <div class="news-card-top">
+              <span class="news-card-category">Openings</span>
+              <time class="news-card-date" datetime="2026-03-14">14. März</time>
+            </div>
+            <h3 class="news-card-headline">Markthalle Neun bekommt einen neuen Street-Food-Floor</h3>
+            <p class="news-card-excerpt">Die beliebte Markthalle in Kreuzberg erweitert: Im zweiten Stock entsteht ein komplett neuer Bereich für internationale Street Food-Händler.</p>
+          </div>
+        </a>
+      </article>
+
+      <!-- Article 3 -->
+      <article class="news-card" data-category="culture" data-title="Berlin hat jetzt 8 Michelin-Sterne-Restaurants — und keines kostet über 150€" data-img="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&h=400&fit=crop" data-category-label="Culture" data-date="13. März 2026" data-excerpt="Die neue Michelin-Guide-Ausgabe ehrt Berlins demokratische Fine-Dining-Szene. Fine Dining muss nicht teuer sein." data-content="<p>Die neue Ausgabe des Michelin Guide Berlin 2026 ist erschienen — und sie enthält eine klare Botschaft: Berlin ist die demokratischste Fine-Dining-Stadt Europas. Keines der 8 Sterne-Restaurants verlangt mehr als 150 Euro für ein vollständiges Abendmenü.</p><h4>Die Neue</h4><p>Der größte Überraschung ist Natura, das erst im vergangenen Jahr eröffnet hat. René Redzepis Berliner Ableger bekam direkt einen Stern — und das bei einem Menüpreis von nur 89 Euro. Die Kritik spricht von revolutionärer Nachhaltigkeit auf dem Teller.</p><h4>Die Beständigen</h4><p>CODA Dessert Dining verteidigt seinen Stern mit einem 7-Gang-Dessert-Tasting für 95 Euro. Otto in Mitte bietet ein saisonales 5-Gang-Menü für 78 Euro — einer der günstigsten Sterne Deutschlands.</p><h4>Warum Berlin?</h4><p>Die Antwort ist einfach: niedrigere Mieten als München oder Hamburg, eine internationale Koch-Szene, und Gäste, die bereit sind, für Qualität zu zahlen — aber nicht für Status. Berliner Fine-Dining ist kein Aushängeschild, sondern gelebte Überzeugung.</p>">
+        <a href="#" class="news-card-link">
+          <div class="news-card-img">
+            <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&h=400&fit=crop" alt="Fine Dining" loading="lazy">
+          </div>
+          <div class="news-card-body">
+            <div class="news-card-top">
+              <span class="news-card-category">Culture</span>
+              <time class="news-card-date" datetime="2026-03-13">13. März</time>
+            </div>
+            <h3 class="news-card-headline">Berlin hat jetzt 8 Michelin-Sterne-Restaurants — und keines kostet über 150€</h3>
+            <p class="news-card-excerpt">Die neue Michelin-Guide-Ausgabe ehrt Berlins demokratische Fine-Dining-Szene. Fine Dining muss nicht teuer sein.</p>
+          </div>
+        </a>
+      </article>
+
+      <!-- Article 4 -->
+      <article class="news-card" data-category="guides" data-title="Die 10 besten Donut-Shops in Berlin — von Brooklyn bis Thai-Style" data-img="https://images.unsplash.com/photo-1555992336-fb0d29498b13?w=600&h=400&fit=crop" data-category-label="Guides" data-date="12. März 2026" data-excerpt="Berlin ist zur Donut-Hauptstadt Europas geworden. Wir haben 20 Shops probiert und die besten zehn ausgewählt." data-content="<p>Berlin hat in den letzten drei Jahren eine Donut-Revolution erlebt. Von 2 Shops auf über 30 — und die Qualität ist besser denn je. Wir haben alle 20 probiert und die besten zehn ausgewählt.</p><h4>1. Atelier Dough — Prenzlauer Berg</h4><p>Die unangefochtene Nummer eins. Die Donuts hier sind handgematcht, die Rezepte werden monatlich aktualisiert. Der Matcha-Donut ist legendär, der Salted-Caramel-Donut ist ein Gedicht. Tipp: Komm morgens, nachmittags ist oft alles ausverkauft.</p><h4>2. Momo Mochi Donut — Prenzlauer Berg</h4><p>Mochi-Donuts, also Donuts aus Klebreismehl, sind der heiße Trend. Momo macht die besten in Berlin: chewy, süß, aber nicht zu schwer. Die Ube-Variante (lila Süßkartoffel) ist ein Instagram-Hit.</p><h4>3. Brammibal's — Neukölln</h4><p>Veganer Donuts, die niemand vegan nennen würde. Die Konsistenz ist perfekt, die Glasuren kreativ. Der Lemon-Poppy-Seed ist unser Favorit.</p><h4>4. The Dough Club — Mitte</h4><p>Brooklyn-style Donuts in Berlin: groß, üppig, dekadent. Die Füllungen reichen von Pistazien-Creme bis Biscoff. Nicht für jeden Tag, aber perfekt für besondere Anlässe.</p><h4>5-10</h4><p>Die restlichen sechs auf unserer Liste: Holy Sugar, Da Capo, Jones Ice Cream (ja, die haben auch Donuts), Zeit für Brot, Roamers Coffee und Five Elephant. Details findest du in unserem vollständigen Guide.</p>">
+        <a href="#" class="news-card-link">
+          <div class="news-card-img">
+            <img src="https://images.unsplash.com/photo-1555992336-fb0d29498b13?w=600&h=400&fit=crop" alt="Berlin Donuts" loading="lazy">
+          </div>
+          <div class="news-card-body">
+            <div class="news-card-top">
+              <span class="news-card-category">Guides</span>
+              <time class="news-card-date" datetime="2026-03-12">12. März</time>
+            </div>
+            <h3 class="news-card-headline">Die 10 besten Donut-Shops in Berlin — von Brooklyn bis Thai-Style</h3>
+            <p class="news-card-excerpt">Berlin ist zur Donut-Hauptstadt Europas geworden. Wir haben 20 Shops probiert und die besten zehn ausgewählt.</p>
+          </div>
+        </a>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- FOOD MAP -->
+  <section class="map-section" id="map">
+    <div class="map-header">
+      <p class="section-label reveal">Navigate</p>
+      <h2 class="map-title reveal" style="transition-delay:0.1s">The Food Map</h2>
+      <p class="map-subtitle reveal" style="transition-delay:0.2s">Every Must Eat pinned. Tap a spot, eat it all.</p>
+    </div>
+    <div class="map-container" id="foodMap"></div>
+  </section>
+
+  <!-- INSTAGRAM -->
+  <section class="insta-section">
+    <div class="insta-inner">
+      <div class="insta-top">
+        <span class="insta-label">Follow Us</span>
+        <a href="https://www.instagram.com/eatthisdotcom/" target="_blank" rel="noopener" class="insta-follow">
+          @eatthisdotcom
+        </a>
+      </div>
+      <div class="insta-embeds reveal" style="transition-delay:0.15s">
+        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/DIR9SwMoqkJ/" data-instgrm-version="14" style="max-width:100%;min-width:300px;"></blockquote>
+        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/Cx3RwYJti0d/" data-instgrm-version="14" style="max-width:100%;min-width:300px;"></blockquote>
+        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/DKEdeCsoqXC/" data-instgrm-version="14" style="max-width:100%;min-width:300px;"></blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="newsletter-section" id="newsletter">
+    <div class="newsletter-inner">
+      <p class="section-label reveal">Free</p>
+      <h2 class="newsletter-title reveal" style="transition-delay:0.1s">Get the best of Berlin on your plate</h2>
+      <p class="newsletter-desc reveal" style="transition-delay:0.15s">New Must Eats, fresh openings, hidden spots, and food news — delivered to your inbox. No spam, just good taste.</p>
+      <form class="newsletter-form reveal" style="transition-delay:0.2s" id="newsletterForm">
+        <input class="newsletter-input" type="email" placeholder="your@email.com" required>
+        <button class="newsletter-btn" type="submit">Subscribe</button>
+      </form>
+      <p class="newsletter-success" id="newsletterSuccess">You're in. First bite coming soon.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <!-- Brand -->
+        <div class="footer-brand-block">
+          <h2 class="footer-brand"><span>EAT</span><span class="footer-brand-accent">THIS</span></h2>
+          <p class="footer-tagline">We'll tell you what to eat</p>
+          <div class="footer-socials">
+            <a href="https://www.instagram.com/eatthisdotcom/" class="footer-social" aria-label="Instagram" target="_blank" rel="noopener">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>
+            </a>
+            <a href="#" class="footer-social" aria-label="TikTok">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1 0-5.78 2.93 2.93 0 0 1 .88.13V9a6.34 6.34 0 0 0-1-.07A6.33 6.33 0 0 0 3 15.13a6.34 6.34 0 0 0 10.86 4.37V13a8.31 8.31 0 0 0 5.73 2.23V11.8a4.85 4.85 0 0 1-2-.61V6.69h.73Z"/></svg>
+            </a>
+            <a href="#" class="footer-social" aria-label="Twitter/X">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="#" class="footer-social" aria-label="YouTube">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14c1.88.55 9.38.55 9.38.55s7.5 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81zM9.55 15.57V8.43L15.82 12z"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Nav Columns -->
+        <div class="footer-nav-group">
+          <div class="footer-nav-col">
+            <h4 class="footer-nav-title">Explore</h4>
+            <a href="#must-eats">Must Eats</a>
+            <a href="#news">News</a>
+            <a href="#map">Food Map</a>
+          </div>
+          <div class="footer-nav-col">
+            <h4 class="footer-nav-title">Company</h4>
+            <a href="#">About</a>
+            <a href="#">Contact</a>
+            <a href="#">Advertise</a>
+            <a href="#">Press</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="footer-bottom">
+        <div class="footer-bottom-left">
+          <span>&copy; 2026 EAT THIS. All rights reserved.</span>
+        </div>
+        <div class="footer-bottom-right">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Cookies</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+      <span>↑</span>
+    </button>
+  </footer>
+
+  <!-- MUST EAT MODAL -->
+  <div class="modal-overlay" id="eatModal">
+    <div class="modal">
+      <button class="modal-close" id="modalClose">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="modal-img">
+        <img id="modalImg" src="" alt="">
+      </div>
+      <div class="modal-body">
+        <span class="modal-district" id="modalDistrict"></span>
+        <h3 class="modal-dish" id="modalDish"></h3>
+        <p class="modal-restaurant" id="modalRestaurant"></p>
+        <p class="modal-desc" id="modalDesc"></p>
+        <a class="modal-maps-btn" id="modalMapsBtn" href="#" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Open in Maps
+        </a>
+        <div class="modal-ratings">
+          <div class="modal-rating-row">
+            <span class="modal-rating-label">Flavor</span>
+            <div class="stars" id="starFlavor"></div>
+          </div>
+          <div class="modal-rating-row">
+            <span class="modal-rating-label">Worth the Pic</span>
+            <div class="stars" id="starGram"></div>
+          </div>
+          <div class="modal-rating-row">
+            <span class="modal-rating-label">Value</span>
+            <div class="stars" id="starPocket"></div>
+          </div>
+          <div class="modal-rating-row">
+            <span class="modal-rating-label">Go Back</span>
+            <div class="stars" id="starComeback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEWS ARTICLE MODAL -->
+  <div class="news-modal-overlay" id="newsModal">
+    <div class="news-modal">
+      <button class="news-modal-close" id="newsModalClose">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="news-modal-img">
+        <img id="newsModalImg" src="" alt="">
+      </div>
+      <div class="news-modal-body">
+        <span class="news-modal-category" id="newsModalCategory"></span>
+        <h2 class="news-modal-title" id="newsModalTitle"></h2>
+        <time class="news-modal-date" id="newsModalDate"></time>
+        <div class="news-modal-content" id="newsModalContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <script async src="https://www.instagram.com/embed.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

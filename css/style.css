@@ -302,32 +302,14 @@ body {
   flex-direction: column;
   gap: 24px;
 }
-.about-center {
+.about-images {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
 }
-.about-carousel {
+.about-img {
   width: 100%;
-  max-width: 400px;
-  aspect-ratio: 3/4;
-  position: relative;
-  overflow: hidden;
-}
-.about-carousel-item {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.8s ease;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-}
-.about-carousel-item.active {
-  opacity: 1;
-}
-.about-carousel-item img {
-  width: 100%;
-  height: 100%;
+  aspect-ratio: 4/3;
   object-fit: cover;
 }
 .about-title {

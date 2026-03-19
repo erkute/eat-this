@@ -35,28 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- About section carousel on scroll ---
-  const aboutSection = document.querySelector('.about-section');
-  const aboutCarouselItems = document.querySelectorAll('.about-carousel-item');
-  let currentCarouselIndex = 0;
-
-  if (aboutSection && aboutCarouselItems.length) {
-    window.addEventListener('scroll', () => {
-      const rect = aboutSection.getBoundingClientRect();
-      const sectionHeight = aboutSection.offsetHeight;
-      const scrollProgress = -rect.top / sectionHeight;
-      
-      if (scrollProgress > 0 && scrollProgress < 1) {
-        const newIndex = Math.floor(scrollProgress * aboutCarouselItems.length) % aboutCarouselItems.length;
-        if (newIndex !== currentCarouselIndex) {
-          aboutCarouselItems[currentCarouselIndex].classList.remove('active');
-          aboutCarouselItems[newIndex].classList.add('active');
-          currentCarouselIndex = newIndex;
-        }
-      }
-    }, { passive: true });
-  }
-
   // --- Newsletter form ---
   const form = document.getElementById('newsletterForm');
   const success = document.getElementById('newsletterSuccess');

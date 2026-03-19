@@ -237,6 +237,11 @@
       <a href="#map">Map</a>
       <a href="#news">News</a>
       <a href="#newsletter" class="navbar-cta">Subscribe</a>
+      <a href="#" class="search-trigger" id="searchTrigger" aria-label="Suchen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </a>
       <a href="https://www.instagram.com/eatthisdotcom/" target="_blank" rel="noopener" aria-label="Instagram" class="navbar-insta">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>
       </a>
@@ -252,6 +257,7 @@
     <a href="#map">Map</a>
     <a href="#news">News</a>
     <a href="#newsletter">Subscribe</a>
+    <a href="#" id="mobileSearchTrigger">Suchen</a>
     <a href="https://www.instagram.com/eatthisdotcom/" target="_blank" rel="noopener">Instagram</a>
   </div>
 
@@ -634,6 +640,89 @@
           </button>
         </div>
         <div class="news-modal-content" id="newsModalContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COOKIE CONSENT -->
+  <div class="cookie-banner" id="cookieBanner">
+    <div class="cookie-banner-inner">
+      <p class="cookie-banner-text">
+        Wir verwenden Cookies, um dir die bestmögliche Erfahrung auf unserer Website zu bieten. 
+        Mehr dazu in unserer <a href="cookies.html">Cookie-Richtlinie</a>.
+      </p>
+      <div class="cookie-banner-actions">
+        <button class="cookie-btn cookie-btn-accept" id="cookieAccept">Alle akzeptieren</button>
+        <button class="cookie-btn cookie-btn-settings" id="cookieSettings">Einstellungen</button>
+        <button class="cookie-btn cookie-btn-decline" id="cookieDecline">Nur notwendige</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cookie Settings Modal -->
+  <div class="cookie-settings-overlay" id="cookieSettingsOverlay">
+    <div class="cookie-settings">
+      <h3 class="cookie-settings-title">Cookie-Einstellungen</h3>
+      <p class="cookie-settings-subtitle">Passe an, welche Cookies wir verwenden dürfen.</p>
+      
+      <div class="cookie-category">
+        <div class="cookie-category-header">
+          <span class="cookie-category-name">Notwendige Cookies</span>
+          <label class="toggle-switch">
+            <input type="checkbox" checked disabled>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <p class="cookie-category-desc">Diese Cookies sind für die Grundfunktionen der Website erforderlich und können nicht deaktiviert werden.</p>
+      </div>
+      
+      <div class="cookie-category">
+        <div class="cookie-category-header">
+          <span class="cookie-category-name">Analyse (Google Analytics)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="cookieAnalytics">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <p class="cookie-category-desc">Helfen uns zu verstehen, wie Besucher mit unserer Website interagieren. Anonymisierte Daten.</p>
+      </div>
+      
+      <div class="cookie-category">
+        <div class="cookie-category-header">
+          <span class="cookie-category-name">Marketing (Instagram Embeds)</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="cookieMarketing">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <p class="cookie-category-desc">Ermöglichen das Anzeigen von Instagram-Embeds. Erfordert Zustimmung laut DSGVO.</p>
+      </div>
+      
+      <div class="cookie-settings-actions">
+        <button class="cookie-btn cookie-btn-accept" id="cookieSave">Auswahl speichern</button>
+        <button class="cookie-btn cookie-btn-decline" id="cookieSettingsClose">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" class="search-input" id="searchInput" placeholder="Wonach hast du Appetit?" autocomplete="off">
+        <button class="search-close" id="searchClose" aria-label="Schließen">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="search-results" id="searchResults">
+        <div class="search-hint">
+          Tippe um zu suchen...
+        </div>
       </div>
     </div>
   </div>

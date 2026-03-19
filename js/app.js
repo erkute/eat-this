@@ -4,6 +4,327 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // ============================================
+  // COOKIE CONSENT
+  // ============================================
+  const cookieBanner = document.getElementById('cookieBanner');
+  const cookieSettingsOverlay = document.getElementById('cookieSettingsOverlay');
+  const cookieAccept = document.getElementById('cookieAccept');
+  const cookieDecline = document.getElementById('cookieDecline');
+  const cookieSettings = document.getElementById('cookieSettings');
+  const cookieSave = document.getElementById('cookieSave');
+  const cookieSettingsClose = document.getElementById('cookieSettingsClose');
+  const cookieAnalytics = document.getElementById('cookieAnalytics');
+  const cookieMarketing = document.getElementById('cookieMarketing');
+
+  const COOKIE_CONSENT_KEY = 'eatthis_cookie_consent';
+
+  function getCookieConsent() {
+    const stored = localStorage.getItem(COOKIE_CONSENT_KEY);
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  function setCookieConsent(consent) {
+    localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify({
+      ...consent,
+      timestamp: Date.now()
+    }));
+  }
+
+  function showCookieBanner() {
+    if (cookieBanner) {
+      setTimeout(() => {
+        cookieBanner.classList.add('show');
+      }, 1500);
+    }
+  }
+
+  function hideCookieBanner() {
+    if (cookieBanner) {
+      cookieBanner.classList.remove('show');
+    }
+  }
+
+  function openCookieSettings() {
+    if (cookieSettingsOverlay) {
+      const consent = getCookieConsent();
+      if (cookieAnalytics) cookieAnalytics.checked = consent?.analytics || false;
+      if (cookieMarketing) cookieMarketing.checked = consent?.marketing || false;
+      cookieSettingsOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeCookieSettings() {
+    if (cookieSettingsOverlay) {
+      cookieSettingsOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  function handleCookieAccept(consent = { necessary: true, analytics: true, marketing: true }) {
+    setCookieConsent(consent);
+    hideCookieBanner();
+    applyCookieConsent(consent);
+  }
+
+  function applyCookieConsent(consent) {
+    if (consent.analytics) {
+      console.log('Analytics cookies enabled');
+    }
+    if (consent.marketing) {
+      console.log('Marketing cookies enabled');
+    }
+  }
+
+  const existingConsent = getCookieConsent();
+  if (!existingConsent) {
+    showCookieBanner();
+  } else {
+    applyCookieConsent(existingConsent);
+  }
+
+  if (cookieAccept) {
+    cookieAccept.addEventListener('click', () => handleCookieAccept());
+  }
+
+  if (cookieDecline) {
+    cookieDecline.addEventListener('click', () => handleCookieAccept({
+      necessary: true,
+      analytics: false,
+      marketing: false
+    }));
+  }
+
+  if (cookieSettings) {
+    cookieSettings.addEventListener('click', openCookieSettings);
+  }
+
+  if (cookieSettingsClose) {
+    cookieSettingsClose.addEventListener('click', closeCookieSettings);
+  }
+
+  if (cookieSettingsOverlay) {
+    cookieSettingsOverlay.addEventListener('click', (e) => {
+      if (e.target === cookieSettingsOverlay) closeCookieSettings();
+    });
+  }
+
+  if (cookieSave) {
+    cookieSave.addEventListener('click', () => {
+      const consent = {
+        necessary: true,
+        analytics: cookieAnalytics?.checked || false,
+        marketing: cookieMarketing?.checked || false
+      };
+      handleCookieAccept(consent);
+      closeCookieSettings();
+    });
+  }
+
+  // ============================================
+  // SEARCH
+  // ============================================
+  const searchOverlay = document.getElementById('searchOverlay');
+  const searchInput = document.getElementById('searchInput');
+  const searchResults = document.getElementById('searchResults');
+  const searchClose = document.getElementById('searchClose');
+  const searchTrigger = document.getElementById('searchTrigger');
+  const mobileSearchTrigger = document.getElementById('mobileSearchTrigger');
+
+  const mustEatsData = [
+    { dish: 'Breakfast Plate', restaurant: 'SOFI', district: 'Mitte', price: '€', img: 'pics/food/IMG_0079.webp', type: 'must-eat' },
+    { dish: 'Donuts', restaurant: 'Atelier Dough', district: 'Kreuzberg', price: '€', img: 'pics/food/IMG_1085.webp', type: 'must-eat' },
+    { dish: 'Pancakes', restaurant: 'Kitten Deli', district: 'Kreuzberg', price: '€', img: 'pics/food/IMG_3006.webp', type: 'must-eat' },
+    { dish: 'Cake', restaurant: 'Julius', district: 'Wedding', price: '€€', img: 'pics/food/IMG_3542.webp', type: 'must-eat' },
+    { dish: 'Banh Mi', restaurant: 'Saveur de Bánh Mì', district: 'Schöneberg', price: '€', img: 'pics/food/IMG_4462.webp', type: 'must-eat' },
+    { dish: 'Pizza', restaurant: 'Standard', district: 'Mitte', price: '€€', img: 'pics/food/IMG_8504.webp', type: 'must-eat' },
+    { dish: 'Sandwich', restaurant: 'Kitten Deli', district: 'Kreuzberg', price: '€', img: 'pics/food/IMG_7397 (1).webp', type: 'must-eat' }
+  ];
+
+  const newsData = [
+    { title: 'Berlins neue Ramen-Welle: Warum die Hauptstadt jetzt das ultimative Nudel-Haus hat', category: 'Openings', date: '15. März 2026', img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&h=700&fit=crop', type: 'news' },
+    { title: 'Markthalle Neun bekommt einen neuen Street-Food-Floor', category: 'Openings', date: '14. März 2026', img: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=1200&h=700&fit=crop', type: 'news' },
+    { title: 'Berlin hat jetzt 8 Michelin-Sterne-Restaurants — und keines kostet über 150€', category: 'Culture', date: '13. März 2026', img: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&h=700&fit=crop', type: 'news' },
+    { title: 'Die 10 besten Donut-Shops in Berlin — von Brooklyn bis Thai-Style', category: 'Guides', date: '12. März 2026', img: 'https://images.unsplash.com/photo-1555992336-fb0d29498b13?w=1200&h=700&fit=crop', type: 'news' }
+  ];
+
+  function openSearch() {
+    if (searchOverlay) {
+      searchOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => {
+        if (searchInput) searchInput.focus();
+      }, 100);
+    }
+  }
+
+  function closeSearch() {
+    if (searchOverlay) {
+      searchOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+      if (searchInput) searchInput.value = '';
+      if (searchResults) {
+        searchResults.innerHTML = '<div class="search-hint">Tippe um zu suchen...</div>';
+      }
+    }
+  }
+
+  function search(query) {
+    const q = query.toLowerCase().trim();
+    
+    if (!q) {
+      searchResults.innerHTML = '<div class="search-hint">Tippe um zu suchen...</div>';
+      return;
+    }
+
+    const results = [];
+    const queryWords = q.split(' ').filter(w => w.length > 1);
+
+    mustEatsData.forEach(item => {
+      const searchable = `${item.dish} ${item.restaurant} ${item.district}`.toLowerCase();
+      const matches = queryWords.every(word => searchable.includes(word));
+      if (matches) {
+        results.push({ ...item, matchScore: queryWords.filter(word => searchable.includes(word)).length });
+      }
+    });
+
+    newsData.forEach(item => {
+      const searchable = `${item.title} ${item.category} ${item.date}`.toLowerCase();
+      const matches = queryWords.every(word => searchable.includes(word));
+      if (matches) {
+        results.push({ ...item, matchScore: queryWords.filter(word => searchable.includes(word)).length });
+      }
+    });
+
+    results.sort((a, b) => b.matchScore - a.matchScore);
+
+    if (results.length === 0) {
+      searchResults.innerHTML = `
+        <div class="search-no-results">
+          <p>Keine Ergebnisse für "${query}"</p>
+          <span>Versuche einen anderen Suchbegriff</span>
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+    const mustEatsResults = results.filter(r => r.type === 'must-eat');
+    const newsResults_arr = results.filter(r => r.type === 'news');
+
+    if (mustEatsResults.length > 0) {
+      html += '<div class="search-section-title">Must Eats</div>';
+      mustEatsResults.slice(0, 5).forEach(item => {
+        html += `
+          <div class="search-result-item" data-type="must-eat" data-index="${mustEatsData.indexOf(item)}">
+            <img src="${item.img}" alt="${item.dish}" class="search-result-img">
+            <div class="search-result-content">
+              <div class="search-result-dish">${item.dish}</div>
+              <div class="search-result-restaurant">${item.restaurant} · ${item.district} · ${item.price}</div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    if (newsResults_arr.length > 0) {
+      html += '<div class="search-section-title">News</div>';
+      newsResults_arr.slice(0, 3).forEach(item => {
+        html += `
+          <div class="search-result-item" data-type="news" data-title="${item.title}">
+            <img src="${item.img}" alt="${item.title}" class="search-result-img">
+            <div class="search-result-content">
+              <div class="search-result-title">${item.title}</div>
+              <div class="search-result-meta">${item.category} · ${item.date}</div>
+            </div>
+            <span class="search-result-type">News</span>
+          </div>
+        `;
+      });
+    }
+
+    searchResults.innerHTML = html;
+
+    searchResults.querySelectorAll('.search-result-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const type = item.dataset.type;
+        if (type === 'must-eat') {
+          const index = parseInt(item.dataset.index);
+          const card = document.querySelectorAll('.eat-card')[index];
+          if (card) {
+            closeSearch();
+            setTimeout(() => card.click(), 300);
+          }
+        } else if (type === 'news') {
+          closeSearch();
+          const title = item.dataset.title;
+          const articles = document.querySelectorAll('.news-featured, .news-card');
+          articles.forEach(article => {
+            if (article.dataset.title === title) {
+              setTimeout(() => {
+                const link = article.querySelector('a');
+                if (link) link.click();
+              }, 300);
+            }
+          });
+        }
+      });
+    });
+  }
+
+  if (searchTrigger) {
+    searchTrigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      openSearch();
+    });
+  }
+
+  if (mobileSearchTrigger) {
+    mobileSearchTrigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      openSearch();
+    });
+  }
+
+  if (searchClose) {
+    searchClose.addEventListener('click', closeSearch);
+  }
+
+  if (searchOverlay) {
+    searchOverlay.addEventListener('click', (e) => {
+      if (e.target === searchOverlay) closeSearch();
+    });
+  }
+
+  if (searchInput) {
+    let debounceTimer;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        search(e.target.value);
+      }, 200);
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeSearch();
+      closeCookieSettings();
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      openSearch();
+    }
+  });
+
   // --- Navbar scroll state ---
   const navbar = document.getElementById('navbar');
 

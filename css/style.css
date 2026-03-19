@@ -693,19 +693,19 @@ body {
    NEWS SECTION
    ============================================ */
 .news-section {
-  padding: 80px 0 60px;
+  padding: 60px 0 40px;
   border-top: 1px solid var(--black);
 }
 .news-header {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px 56px;
+  padding: 0 24px 24px;
 }
 .news-header-top {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: 36px;
+  margin-bottom: 0;
 }
 .news-title {
   font-size: clamp(2.5rem, 7vw, 5rem);

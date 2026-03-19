@@ -591,6 +591,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     L.control.zoom({ position: 'bottomright' }).addTo(foodMap);
 
+    const logoIcon = L.icon({
+      iconUrl: 'pics/logo.webp',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+      popupAnchor: [0, -20]
+    });
+
     spots.forEach((spot, i) => {
       setTimeout(() => {
         const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(spot.name + ', ' + spot.address);
@@ -602,8 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
           '<div class="map-popup-address">' + spot.address + '</div>' +
           '<a href="' + mapsUrl + '" target="_blank" rel="noopener" class="map-popup-btn">Open in Maps</a>' +
           '</div>';
-        const icon = L.divIcon({ className: 'custom-marker', iconSize: [20, 20], iconAnchor: [10, 10], popupAnchor: [0, -14] });
-        const marker = L.marker([spot.lat, spot.lng], { icon }).addTo(foodMap);
+        const marker = L.marker([spot.lat, spot.lng], { icon: logoIcon }).addTo(foodMap);
         marker.bindPopup(popupContent, { closeButton: false, maxWidth: 260 });
       }, i * 50);
     });

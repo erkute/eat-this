@@ -297,8 +297,8 @@ body {
 }
 .about-img {
   width: 100%;
-  aspect-ratio: 4/3;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
 }
 .about-img-caption {
   font-size: 12px;

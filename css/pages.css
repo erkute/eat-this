@@ -1,0 +1,153 @@
+/* ============================================
+   PAGE STYLES (About, Contact, Advertise, Press)
+   ============================================ */
+
+.page-hero {
+  padding: 140px 24px 60px;
+  background: var(--off-white);
+  border-bottom: 1px solid var(--black);
+}
+.page-hero-inner {
+  max-width: 700px;
+  margin: 0 auto;
+}
+.page-hero-label {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 16px;
+}
+.page-hero-title {
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  margin-bottom: 12px;
+}
+.page-hero-subtitle {
+  font-size: 16px;
+  color: var(--gray-500);
+}
+
+/* Content */
+.page-content {
+  padding: 60px 24px 100px;
+}
+.page-content-inner {
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+.page-text-block h2 {
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.page-text-block p {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--gray-600);
+  margin-bottom: 12px;
+}
+.page-text-block p:last-child {
+  margin-bottom: 0;
+}
+
+/* Features (Advertise) */
+.page-features {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+.page-feature {
+  padding: 24px;
+  border: 1px solid var(--gray-100);
+  border-radius: 8px;
+}
+.page-feature h3 {
+  font-size: 1rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+.page-feature p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--gray-500);
+}
+
+/* Contact Box */
+.page-contact-box {
+  padding: 32px;
+  background: var(--off-white);
+  border-radius: 8px;
+  text-align: center;
+}
+.page-contact-email {
+  display: inline-block;
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--black);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.page-contact-email:hover {
+  color: var(--orange);
+}
+.page-contact-note {
+  font-size: 13px;
+  color: var(--gray-400);
+  margin-top: 8px;
+}
+
+/* List (Press) */
+.page-list {
+  list-style: none;
+  padding: 0;
+}
+.page-list li {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--gray-600);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+.page-list li:last-child {
+  border-bottom: none;
+}
+
+/* Download Button */
+.page-download-btn {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 20px;
+  background: var(--black);
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.page-download-btn:hover {
+  background: var(--orange);
+}
+
+/* Desktop */
+@media (min-width: 768px) {
+  .page-hero {
+    padding: 160px 48px 80px;
+  }
+  .page-content {
+    padding: 80px 48px 120px;
+  }
+  .page-features {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

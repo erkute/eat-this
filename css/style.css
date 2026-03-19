@@ -379,7 +379,7 @@ body {
     padding: 0 48px;
   }
   .about-row {
-    grid-template-columns: 55% 45%;
+    grid-template-columns: 60% 40%;
     gap: 64px;
     align-items: center;
   }

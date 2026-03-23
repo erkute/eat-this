@@ -2713,7 +2713,7 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 10001;
+  z-index: 9995;
   background: var(--black);
   border-top: none;
   padding: 8px 0;
@@ -2785,13 +2785,13 @@ body {
     height: auto;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    z-index: 1;
+    z-index: 9990;
     flex: none;
   }
   
   .app-page.active {
     display: block;
-    z-index: 0;
+    z-index: 9995;
   }
   
   .app-page[data-page="start"] .hero {

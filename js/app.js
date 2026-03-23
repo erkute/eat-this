@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setInterval(() => {
         idx = (idx + 1) % images.length;
         img.src = images[idx];
-      }, 3000);
+      }, 1500);
     }
   });
 

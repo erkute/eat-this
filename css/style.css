@@ -1654,6 +1654,12 @@ body {
   color: var(--black);
   position: relative;
   overflow: hidden;
+  display: none;
+}
+@media (max-width: 767px) {
+  .footer {
+    display: block;
+  }
 }
 .footer-grid {
   display: flex;
@@ -2574,10 +2580,6 @@ body {
   
   .app-footer-item span {
     font-size: 9px;
-  }
-  
-  .footer {
-    display: none;
   }
   
   /* Map page mobile */

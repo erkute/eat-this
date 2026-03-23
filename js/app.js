@@ -499,7 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { name: 'FOERSTERS FEINE BIERE', district: 'Lichterfelde', type: 'Bier-Spezialitäten', mustEat: 'Craft Beer Tasting', address: 'Königsberger Str. 40, 12207 Berlin', lat: 52.4530, lng: 13.3678 },
     ];
 
-    const foodMap = L.map('foodMap', {
+    foodMap = L.map('foodMap', {
       zoomControl: false,
       attributionControl: false,
     }).setView([52.5050, 13.4100], 12);
@@ -617,10 +617,6 @@ document.addEventListener('DOMContentLoaded', () => {
           hideSpotDetail();
         }
       });
-    }
-
-    function hideSpotDetail() {
-      foodMap.closePopup();
     }
 
     spots.forEach((spot, i) => {

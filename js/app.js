@@ -108,9 +108,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchOverlay) {
       searchOverlay.classList.add('active');
       document.body.style.overflow = 'hidden';
+      // On desktop focus immediately; on mobile wait for slide-up animation
+      // to finish before focusing so the iOS keyboard doesn't hide the sheet
       setTimeout(() => {
         if (searchInput) searchInput.focus();
-      }, 100);
+      }, window.innerWidth > 767 ? 100 : 400);
     }
   }
 

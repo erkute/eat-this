@@ -884,15 +884,19 @@ body {
   z-index: 1000;
   width: 40px;
   height: 40px;
-  background: var(--white);
-  border: 1px solid var(--gray-200);
+  background: var(--black);
+  border: none;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   transition: all 0.2s;
+}
+
+.map-location-btn-fixed svg {
+  stroke: var(--white);
 }
 
 .map-location-btn-fixed:hover {
@@ -2707,8 +2711,12 @@ body {
     top: 10px;
     left: 10px;
     right: auto;
-    background: var(--white);
-    border: 1px solid var(--gray-200);
+    background: var(--black);
+    border: none;
+  }
+  
+  .app-page[data-page="map"] .map-location-btn-fixed svg {
+    stroke: var(--white);
   }
   
   /* News page - Magazine style */

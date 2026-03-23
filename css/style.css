@@ -879,8 +879,8 @@ body {
 
 .map-location-btn-fixed {
   position: absolute;
-  bottom: 35px;
-  left: 10px;
+  top: 10px;
+  right: 10px;
   z-index: 1000;
   width: 40px;
   height: 40px;
@@ -2697,12 +2697,10 @@ body {
   
   .app-page[data-page="map"] .leaflet-control-zoom {
     bottom: 110px !important;
+    top: auto !important;
+    right: 10px !important;
+    left: auto !important;
     z-index: 500;
-  }
-  
-  .app-page[data-page="map"] .map-location-btn-fixed {
-    bottom: 55px;
-    left: 10px;
   }
   
   /* News page - Magazine style */

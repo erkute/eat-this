@@ -3281,9 +3281,11 @@ body {
 @media (max-width: 767px) {
   .login-modal {
     align-items: center;
+    bottom: 70px;
   }
   .login-modal-content {
     width: 95%;
+    max-width: 360px;
     padding: 24px 20px;
     border-radius: 20px;
     animation: slideUp 0.3s var(--ease);

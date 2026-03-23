@@ -2717,10 +2717,11 @@ body {
   .app-page[data-page="newsletter"] .newsletter-inner,
   .app-page[data-page="news"] .news-header {
     padding: 16px;
-    background: transparent;
+    background: var(--white);
     text-align: left;
     border: none;
     margin: 0;
+    display: block !important;
   }
   
   .app-page[data-page="musts"] .must-eats-title,
@@ -2731,6 +2732,7 @@ body {
     letter-spacing: -0.02em;
     line-height: 1;
     margin: 0;
+    display: block !important;
   }
   
   .app-page[data-page="musts"] .section-label {
@@ -2739,6 +2741,12 @@ body {
     margin-top: 0;
     display: block !important;
     font-size: 10px !important;
+  }
+  
+  .app-page[data-page="musts"] .must-eats-logo-img {
+    max-width: 200px;
+    display: block;
+    margin: 8px 0 0;
   }
   
   .app-page[data-page="musts"] .must-eats-subtitle,

@@ -642,6 +642,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (spotDetailClose) {
       spotDetailClose.addEventListener('click', hideSpotDetail);
     }
+    
+    // Close spot detail when clicking on map background
+    const mapContainer = document.getElementById('foodMap');
+    if (mapContainer) {
+      mapContainer.addEventListener('click', (e) => {
+        if (e.target === mapContainer || e.target.classList.contains('leaflet-pane') || e.target.classList.contains('leaflet-map-pane')) {
+          hideSpotDetail();
+        }
+      });
+    }
 
     // Filter functionality
     const filterBtns = document.querySelectorAll('.map-filter-btn');

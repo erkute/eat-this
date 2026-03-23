@@ -648,7 +648,7 @@ body {
   transform: translateY(100%);
   transition: transform 0.3s var(--ease-out);
   z-index: 100;
-  max-height: 45vh;
+  max-height: 25vh;
   overflow-y: auto;
 }
 
@@ -877,6 +877,15 @@ body {
   padding: 8px;
 }
 
+.map-location-btn.loading svg {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .map-location-btn:active {
   background: var(--gray-200);
 }
@@ -897,7 +906,7 @@ body {
   }
   
   .spot-detail {
-    max-height: 50vh;
+    max-height: 30vh;
   }
   
   .spot-detail-name {

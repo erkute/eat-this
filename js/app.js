@@ -658,26 +658,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Location button
     const mapLocationBtn = document.getElementById('mapLocationBtn');
+    let userMarker = null;
+    
     if (mapLocationBtn) {
       mapLocationBtn.addEventListener('click', () => {
-        if ('geolocation' in navigator) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const userLat = position.coords.latitude;
-              const userLng = position.coords.longitude;
-              foodMap.setView([userLat, userLng], 14, { animate: true });
-            },
-            (error) => {
-              let msg = 'Standort konnte nicht ermittelt werden';
-              if (error.code === 1) msg = 'Bitte Standortzugriff erlauben';
-              if (error.code === 2) msg = 'Standort nicht verfügbar';
-              alert(msg);
-            },
-            { enableHighAccuracy: true, timeout: 10000 }
-          );
-        } else {
+        if (!navigator.geolocation) {
           alert('Geolocation wird von diesem Gerät nicht unterstützt');
+          return;
         }
+        
+        mapLocationBtn.classList.add('loading');
+        
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            mapLocationBtn.classList.remove('loading');
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+            
+            if (userMarker) {
+              userMarker.setLatLng([userLat, userLng]);
+            } else {
+              userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(foodMap);
+            }
+            
+            foodMap.setView([userLat, userLng], 14, { animate: true });
+          },
+          (error) => {
+            mapLocationBtn.classList.remove('loading');
+            let msg = 'Standort konnte nicht ermittelt werden';
+            if (error.code === 1) {
+              msg = 'Standortzugriff erlauben in den Einstellungen';
+            } else if (error.code === 2) {
+              msg = 'Standort nicht verfügbar';
+            }
+            alert(msg);
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
       });
     }
 

@@ -2157,7 +2157,7 @@ body {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 2000;
+  z-index: 10002;
   background: rgba(0,0,0,0);
   display: flex;
   align-items: center;
@@ -2272,36 +2272,6 @@ body {
 .modal-maps-btn:hover {
   background: var(--orange);
   transform: translateY(-1px);
-}
-.modal-ratings {
-  border-top: 1px solid var(--gray-100);
-  padding-top: 16px;
-}
-.modal-rating-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 0;
-}
-.modal-rating-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--gray-600);
-}
-.stars {
-  display: flex;
-  gap: 6px;
-}
-.star {
-  width: 24px;
-  height: 24px;
-  transition: transform 0.2s var(--ease);
-}
-.star.filled {
-  color: var(--orange);
-}
-.star.empty {
-  color: var(--gray-200);
 }
 
 @media (min-width: 768px) {
@@ -2713,7 +2683,7 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 9995;
+  z-index: 10001;
   background: var(--black);
   border-top: none;
   padding: 8px 0;

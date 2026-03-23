@@ -2791,7 +2791,7 @@ body {
   
   .app-page.active {
     display: block;
-    z-index: 2;
+    z-index: 0;
   }
   
   .app-page[data-page="start"] .hero {

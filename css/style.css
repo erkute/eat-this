@@ -2585,11 +2585,11 @@ body {
   left: 0;
   right: 0;
   z-index: 1000;
-  background: var(--white);
-  border-top: 1px solid var(--gray-100);
+  background: var(--black);
+  border-top: none;
   padding: 8px 0;
   padding-bottom: max(8px, env(safe-area-inset-bottom));
-  box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
 }
 
 .app-footer-nav {
@@ -2606,7 +2606,7 @@ body {
   align-items: center;
   gap: 4px;
   padding: 6px 12px;
-  color: var(--gray-400);
+  color: rgba(255,255,255,0.6);
   transition: color 0.2s var(--ease);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -2618,16 +2618,22 @@ body {
   width: 24px;
   height: 24px;
   transition: transform 0.2s var(--ease);
+  stroke: rgba(255,255,255,0.6);
 }
 
 .app-footer-item span {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.02em;
+  color: rgba(255,255,255,0.6);
 }
 
 .app-footer-item.active {
   color: var(--orange);
+}
+
+.app-footer-item.active svg {
+  stroke: var(--orange);
 }
 
 .app-footer-item:active svg {
@@ -2639,6 +2645,11 @@ body {
     display: block;
   }
   
+  .app-pages {
+    display: block;
+    height: auto;
+  }
+  
   .app-page {
     display: none;
     position: fixed;
@@ -2646,7 +2657,9 @@ body {
     left: 0;
     right: 0;
     bottom: 70px;
+    width: 100%;
     height: auto;
+    flex: none;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -2659,8 +2672,8 @@ body {
   .app-page[data-page="start"] .hero {
     position: relative;
     width: 100%;
-    height: calc(100vh - 130px);
-    min-height: 350px;
+    height: calc(100vh - 100px);
+    min-height: 300px;
   }
   
   .app-page[data-page="start"] .hero-slides {
@@ -2678,7 +2691,7 @@ body {
   
   .app-page[data-page="start"] .hero-content {
     height: 100%;
-    padding: 10vh 20px 18vh;
+    padding: 5vh 20px 12vh;
     justify-content: flex-end;
     align-items: center;
     text-align: center;
@@ -2743,10 +2756,14 @@ body {
     font-size: 10px !important;
   }
   
+  .app-page[data-page="musts"] .must-eats-section {
+    padding: 0;
+  }
+  
   .app-page[data-page="musts"] .must-eats-logo-img {
     max-width: 200px;
     display: block;
-    margin: 8px 0 0;
+    margin: 0;
   }
   
   .app-page[data-page="musts"] .must-eats-subtitle,
@@ -2828,7 +2845,7 @@ body {
   }
   
   .app-page[data-page="news"] .news-featured-img {
-    height: 280px;
+    height: 180px;
     margin: 0;
   }
   

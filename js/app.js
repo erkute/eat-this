@@ -615,10 +615,13 @@ document.addEventListener('DOMContentLoaded', () => {
           foodMap.setView([userLat, userLng], 13);
         },
         (error) => {
-          console.log('Location access denied or unavailable');
+          console.log('Location access denied or unavailable:', error.message);
+          foodMap.setView([52.52, 13.405], 13);
         },
-        { enableHighAccuracy: true, timeout: 5000 }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
+    } else {
+      foodMap.setView([52.52, 13.405], 13);
     }
 
     const logoIcon = L.icon({
@@ -716,10 +719,15 @@ document.addEventListener('DOMContentLoaded', () => {
               foodMap.setView([userLat, userLng], 14, { animate: true });
             },
             (error) => {
-              alert('Standort konnte nicht ermittelt werden');
+              let msg = 'Standort konnte nicht ermittelt werden';
+              if (error.code === 1) msg = 'Bitte Standortzugriff erlauben';
+              if (error.code === 2) msg = 'Standort nicht verfügbar';
+              alert(msg);
             },
-            { enableHighAccuracy: true }
+            { enableHighAccuracy: true, timeout: 10000 }
           );
+        } else {
+          alert('Geolocation wird von diesem Gerät nicht unterstützt');
         }
       });
     }

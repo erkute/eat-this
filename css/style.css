@@ -238,6 +238,7 @@ body {
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
   will-change: transform;
+  touch-action: none;
 }
 
 /* Hero Slider */
@@ -2566,6 +2567,10 @@ body {
     z-index: 9995;
   }
   
+  .app-page[data-page="start"] {
+    overflow: hidden;
+  }
+
   .app-page[data-page="start"] .hero {
     position: relative;
     width: 100%;

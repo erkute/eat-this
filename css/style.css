@@ -795,95 +795,6 @@ body {
   transform: translateY(0);
 }
 
-/* Leaflet Popup Styles */
-.leaflet-popup-content-wrapper {
-  border-radius: 8px;
-  padding: 0;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
-}
-
-.leaflet-popup-content {
-  margin: 0;
-  font-family: var(--font);
-  min-width: 200px;
-}
-
-.leaflet-popup-close-button {
-  top: 8px !important;
-  right: 8px !important;
-  font-size: 20px !important;
-  color: var(--gray-600) !important;
-}
-
-.spot-popup {
-  padding: 12px;
-}
-
-.spot-popup-header {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.spot-popup-district {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--orange);
-}
-
-.spot-popup-type {
-  font-size: 10px;
-  color: var(--gray-600);
-}
-
-.spot-popup-name {
-  font-size: 16px;
-  font-weight: 900;
-  margin-bottom: 8px;
-  line-height: 1.2;
-}
-
-.spot-popup-musteat {
-  font-size: 13px;
-  margin-bottom: 8px;
-  padding: 8px;
-  background: var(--gray-50);
-  border-left: 3px solid var(--orange);
-}
-
-.spot-popup-label {
-  font-weight: 700;
-}
-
-.spot-popup-address {
-  font-size: 12px;
-  color: var(--gray-600);
-  margin-bottom: 12px;
-}
-
-.spot-popup-btn {
-  display: block;
-  width: 100%;
-  padding: 10px 16px;
-  background: var(--black);
-  color: var(--white);
-  text-align: center;
-  font-size: 13px;
-  font-weight: 600;
-  text-decoration: none;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.spot-popup-btn:hover {
-  background: var(--orange);
-}
-
-.spot-detail-content {
-  padding: 0;
-}
 
 /* Receipt Style */
 .spot-receipt {
@@ -1128,54 +1039,6 @@ body {
     min-height: 300px;
   }
   
-  .leaflet-popup-content-wrapper {
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  
-  .leaflet-popup-content {
-    margin: 0;
-    min-width: 200px;
-  }
-  
-  .spot-popup {
-    padding: 16px;
-  }
-
-  .spot-popup-type {
-    font-size: 10px;
-    color: var(--gray-600);
-  }
-
-  .spot-popup-name {
-    font-size: 16px;
-    font-weight: 900;
-    margin-bottom: 6px;
-    line-height: 1.2;
-  }
-
-  .spot-popup-musteat {
-    font-size: 12px;
-    margin-bottom: 4px;
-  }
-
-  .spot-popup-label {
-    font-weight: 700;
-  }
-
-  .spot-popup-address {
-    font-size: 11px;
-    color: var(--gray-600);
-    margin-bottom: 8px;
-  }
-
-  .spot-popup-btn {
-    display: inline-block;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--black);
-    text-decoration: underline;
-  }
 }
 
 /* Leaflet Overrides */
@@ -1205,81 +1068,6 @@ body {
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
 }
 
-/* Popup */
-.leaflet-popup-content-wrapper {
-  border-radius: 8px !important;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
-  padding: 0 !important;
-}
-.leaflet-popup-content {
-  margin: 0 !important;
-  font-family: var(--font) !important;
-}
-.leaflet-popup-tip {
-  box-shadow: none !important;
-}
-.map-popup {
-  padding: 16px 20px;
-  min-width: 220px;
-  max-width: 260px;
-}
-.map-popup-district {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--white);
-  background: var(--black);
-  padding: 3px 8px;
-  display: inline-block;
-  margin-bottom: 8px;
-}
-.map-popup-type {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--orange);
-  margin-bottom: 6px;
-}
-.map-popup-name {
-  font-size: 1.05rem;
-  font-weight: 900;
-  letter-spacing: -0.01em;
-  margin-bottom: 8px;
-  line-height: 1.2;
-}
-.map-popup-musteat {
-  font-size: 13px;
-  color: var(--black);
-  margin-bottom: 6px;
-  line-height: 1.4;
-}
-.map-popup-address {
-  font-size: 11px;
-  color: var(--gray-600);
-  margin-bottom: 12px;
-  line-height: 1.4;
-}
-.map-popup-btn {
-  display: inline-block;
-  margin-top: 10px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--black);
-  background: var(--gray-50);
-  border: 1.5px solid var(--black);
-  padding: 8px 14px;
-  text-decoration: none;
-  border-radius: 3px;
-  transition: background 0.2s, color 0.2s;
-}
-.map-popup-btn:hover {
-  background: var(--black);
-  color: var(--white);
-}
 
 @media (min-width: 768px) {
   .map-section { padding: 140px 0 100px; }
@@ -2492,7 +2280,7 @@ body {
 .search-overlay {
   position: fixed;
   inset: 0;
-  z-index: 2001;
+  z-index: 20000;
   background: rgba(0,0,0,0);
   display: flex;
   align-items: flex-start;

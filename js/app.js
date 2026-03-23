@@ -94,13 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchTrigger = document.getElementById('searchTrigger');
 
   const mustEatsData = [
-    { dish: 'Breakfast Plate', restaurant: 'SOFI', district: 'Mitte', price: '€', img: 'pics/food/IMG_0079.webp', type: 'must-eat' },
-    { dish: 'Donuts', restaurant: 'Atelier Dough', district: 'Kreuzberg', price: '€', img: 'pics/food/IMG_1085.webp', type: 'must-eat' },
-    { dish: 'Pancakes', restaurant: 'Kitten Deli', district: 'Kreuzberg', price: '€', img: 'pics/food/IMG_3006.webp', type: 'must-eat' },
-    { dish: 'Cake', restaurant: 'Julius', district: 'Wedding', price: '€€', img: 'pics/food/IMG_3542.webp', type: 'must-eat' },
-    { dish: 'Banh Mi', restaurant: 'Saveur de Bánh Mì', district: 'Schöneberg', price: '€', img: 'pics/food/IMG_4462.webp', type: 'must-eat' },
-    { dish: 'Pizza', restaurant: 'Standard', district: 'Mitte', price: '€€', img: 'pics/food/IMG_8504.webp', type: 'must-eat' },
-    { dish: 'Sandwich', restaurant: 'Kitten Deli', district: 'Kreuzberg', price: '€', img: 'pics/food/IMG_7397 (1).webp', type: 'must-eat' }
+    { dish: 'Banh Mi', restaurant: 'Saveur de Bánh Mì', district: 'Schöneberg', price: '€', img: 'pics/food/eat/ban.png', type: 'must-eat' }
   ];
 
   const newsData = [
@@ -178,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
       html += '<div class="search-section-title">Must Eats</div>';
       mustEatsResults.slice(0, 5).forEach(item => {
         html += `
-          <div class="search-result-item" data-type="must-eat" data-index="${mustEatsData.indexOf(item)}">
+          <div class="search-result-item" data-type="must-eat" data-dish="${item.dish}" data-restaurant="${item.restaurant}">
             <img src="${item.img}" alt="${item.dish}" class="search-result-img">
             <div class="search-result-content">
               <div class="search-result-dish">${item.dish}</div>
@@ -216,12 +210,12 @@ document.addEventListener('DOMContentLoaded', () => {
             navigateToPage('musts');
             window.location.hash = 'musts';
             setTimeout(() => {
-              const index = parseInt(item.dataset.index);
-              const cards = document.querySelectorAll('.eat-card');
-              const card = cards[index];
-              if (card) {
-                card.click();
-              }
+              const dish = item.dataset.dish;
+              const restaurant = item.dataset.restaurant;
+              const card = Array.from(document.querySelectorAll('.eat-card')).find(
+                c => c.dataset.dish === dish && c.dataset.restaurant === restaurant
+              );
+              if (card) card.click();
             }, 400);
           }, 100);
         } else if (type === 'news') {
@@ -231,14 +225,14 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.hash = 'news';
             setTimeout(() => {
               const title = item.dataset.title;
-              const articles = document.querySelectorAll('.news-featured, .news-card');
-              articles.forEach(article => {
-                if (article.dataset.title === title) {
-                  const link = article.querySelector('a');
-                  if (link) link.click();
-                }
-              });
-            }, 400);
+              const article = Array.from(document.querySelectorAll('.news-featured, .news-card')).find(
+                a => a.dataset.title === title
+              );
+              if (article) {
+                const link = article.querySelector('a');
+                if (link) link.click();
+              }
+            }, 500);
           }, 100);
         }
       });

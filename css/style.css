@@ -877,7 +877,29 @@ body {
   padding: 8px;
 }
 
-.map-location-btn.loading svg {
+.map-location-btn-fixed {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+  width: 40px;
+  height: 40px;
+  background: var(--white);
+  border: 2px solid var(--black);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: all 0.2s;
+}
+
+.map-location-btn-fixed:hover {
+  background: var(--gray-100);
+}
+
+.map-location-btn-fixed.loading svg {
   animation: spin 1s linear infinite;
 }
 

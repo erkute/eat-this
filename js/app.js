@@ -657,7 +657,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Location button
-    const mapLocationBtn = document.getElementById('mapLocationBtn');
+    const mapLocationBtn = document.getElementById('mapLocationBtnFixed');
     let userMarker = null;
     
     if (mapLocationBtn) {

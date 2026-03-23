@@ -11,6 +11,19 @@ if (window.innerWidth <= 767 && screen.orientation && screen.orientation.lock) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // Alternating images for eat cards
+  const alternatingImages = document.querySelectorAll('.alternating-img');
+  alternatingImages.forEach(img => {
+    const images = JSON.parse(img.dataset.images || '[]');
+    if (images.length > 1) {
+      let idx = 0;
+      setInterval(() => {
+        idx = (idx + 1) % images.length;
+        img.src = images[idx];
+      }, 3000);
+    }
+  });
+
   // ============================================
   // HERO SLIDER
   // ============================================

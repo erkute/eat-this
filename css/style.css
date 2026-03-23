@@ -2142,7 +2142,7 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 9999;
+  z-index: 5000;
   background: var(--white);
   border-top: 2px solid var(--black);
   padding: 20px 24px;
@@ -2158,6 +2158,7 @@ body {
   .cookie-banner {
     padding: 16px;
     padding-bottom: max(16px, env(safe-area-inset-bottom));
+    bottom: 70px;
   }
   
   .cookie-banner.show {
@@ -2231,7 +2232,7 @@ body {
 .cookie-settings-overlay {
   position: fixed;
   inset: 0;
-  z-index: 3001;
+  z-index: 6000;
   background: rgba(0,0,0,0);
   display: flex;
   align-items: center;
@@ -2666,7 +2667,7 @@ body {
   
   .app-page.active {
     display: block;
-    z-index: 20;
+    z-index: 10;
   }
   
   .app-page[data-page="start"] .hero {
@@ -2989,7 +2990,7 @@ body {
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 10000;
   align-items: center;
   justify-content: center;
 }

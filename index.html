@@ -399,9 +399,59 @@
 
     </div>
   </section>
-      </div>
+
+    <div class="app-page" data-page="map">
+      <section class="map-section" id="map">
+        <div class="map-header">
+          <p class="section-label">Navigate</p>
+          <h2 class="map-title">The Food Map</h2>
+          <p class="map-subtitle">Every Must Eat pinned. Tap a spot, eat it all.</p>
+        </div>
+        <div class="map-filters">
+          <button class="map-filter-btn active" data-filter="all">Alle</button>
+          <button class="map-filter-btn" data-filter="Café">Café</button>
+          <button class="map-filter-btn" data-filter="Restaurant">Restaurant</button>
+          <button class="map-filter-btn" data-filter="Burger">Burger</button>
+          <button class="map-filter-btn" data-filter="Pizza">Pizza</button>
+          <button class="map-filter-btn" data-filter="Fine Dining">Fine Dining</button>
+          <button class="map-filter-btn" data-filter="Bäckerei">Bäckerei</button>
+          <button class="map-filter-btn" data-filter="Frühstück">Frühstück</button>
+          <button class="map-filter-btn" data-filter="Japanisch">Japanisch</button>
+        </div>
+        <div class="map-container" id="foodMap">
+          <button class="map-location-btn-fixed" id="mapLocationBtnFixed" aria-label="Mein Standort">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </button>
+        </div>
+        <div class="map-spot-overlay" id="mapSpotOverlay">
+          <div class="map-spot-card" id="mapSpotCard">
+            <button class="map-spot-close" id="mapSpotClose">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+            <div class="map-spot-content" id="mapSpotContent"></div>
+          </div>
+        </div>
+      </section>
     </div>
-  </section>
+
+    <div class="app-page" data-page="newsletter">
+      <section class="newsletter-section" id="newsletter">
+        <div class="newsletter-inner">
+          <p class="section-label reveal">Free</p>
+          <h2 class="newsletter-title reveal" style="transition-delay:0.1s">Dein Essen. Deine Stadt.</h2>
+          <p class="newsletter-desc reveal" style="transition-delay:0.15s">Die besten Gerichte, die coolesten Neueröffnungen und echte Geheimtipps – direkt in dein Postfach. Kein Spam, nur guter Geschmack.</p>
+          <form class="newsletter-form reveal" style="transition-delay:0.2s" id="newsletterForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+            <input class="newsletter-input" type="email" name="email" placeholder="Deine E-Mail" required autocomplete="email">
+            <button class="newsletter-btn" type="submit">Abonnieren</button>
+          </form>
+          <p class="newsletter-success" id="newsletterSuccess">Super, du bist dabei!</p>
+        </div>
+      </section>
     </div>
 
   </div>

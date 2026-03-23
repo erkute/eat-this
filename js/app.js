@@ -2,6 +2,13 @@
    EAT THIS — Interactions & Animations
    ============================================ */
 
+// Lock to portrait mode on mobile
+if (window.innerWidth <= 767 && screen.orientation && screen.orientation.lock) {
+  screen.orientation.lock('portrait').catch(() => {});
+} else if (window.innerWidth <= 767 && window.screen.orientation && window.screen.orientation.lock) {
+  window.screen.orientation.lock('portrait').catch(() => {});
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
   // ============================================

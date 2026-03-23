@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://eatthis.berlin/sitemap.xml
+Sitemap: https://www.eatthisdot.com/sitemap.xml
 
 # Crawl-delay (optional, für Respekt gegenüber Server)
 Crawl-delay: 1

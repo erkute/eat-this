@@ -1,49 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://eatthis.berlin/</loc>
+    <loc>https://www.eatthisdot.com/</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://eatthis.berlin/about.html</loc>
+    <loc>https://www.eatthisdot.com/about.html</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://eatthis.berlin/contact.html</loc>
+    <loc>https://www.eatthisdot.com/contact.html</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://eatthis.berlin/advertise.html</loc>
+    <loc>https://www.eatthisdot.com/advertise.html</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://eatthis.berlin/press.html</loc>
+    <loc>https://www.eatthisdot.com/press.html</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://eatthis.berlin/privacy.html</loc>
+    <loc>https://www.eatthisdot.com/privacy.html</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://eatthis.berlin/terms.html</loc>
+    <loc>https://www.eatthisdot.com/terms.html</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://eatthis.berlin/cookies.html</loc>
+    <loc>https://www.eatthisdot.com/cookies.html</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>

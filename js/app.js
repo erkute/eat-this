@@ -74,7 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchResults = document.getElementById('searchResults');
   const searchClose = document.getElementById('searchClose');
   const searchTrigger = document.getElementById('searchTrigger');
-  const mobileSearchTrigger = document.getElementById('mobileSearchTrigger');
 
   const mustEatsData = [
     { dish: 'Breakfast Plate', restaurant: 'SOFI', district: 'Mitte', price: '€', img: 'pics/food/IMG_0079.webp', type: 'must-eat' },
@@ -219,13 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (searchTrigger) {
     searchTrigger.addEventListener('click', (e) => {
-      e.preventDefault();
-      openSearch();
-    });
-  }
-
-  if (mobileSearchTrigger) {
-    mobileSearchTrigger.addEventListener('click', (e) => {
       e.preventDefault();
       openSearch();
     });

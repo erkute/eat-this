@@ -2864,22 +2864,26 @@ body {
   }
   
   /* Map page mobile */
+  .app-page[data-page="map"] {
+    overflow: hidden;
+  }
+
   .app-page[data-page="map"] .map-section {
+    position: absolute;
+    inset: 0;
     padding: 0;
     border: none;
-    height: 100%;
     display: flex;
     flex-direction: column;
   }
-  
+
   .app-page[data-page="map"] .map-filters {
     flex-shrink: 0;
   }
-  
+
   .app-page[data-page="map"] .map-container {
     flex: 1;
-    height: 100%;
-    min-height: 300px;
+    min-height: 0;
   }
   
   .app-page[data-page="map"] .leaflet-container {

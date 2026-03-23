@@ -3,10 +3,8 @@
    ============================================ */
 
 // Lock to portrait mode on mobile
-if (window.innerWidth <= 767 && screen.orientation && screen.orientation.lock) {
+if (window.innerWidth <= 767 && screen.orientation?.lock) {
   screen.orientation.lock('portrait').catch(() => {});
-} else if (window.innerWidth <= 767 && window.screen.orientation && window.screen.orientation.lock) {
-  window.screen.orientation.lock('portrait').catch(() => {});
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -509,12 +507,16 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    try {
+      foodMap = L.map('foodMap', {
+        zoomControl: false,
+        attributionControl: false,
+      }).setView([52.5050, 13.4100], 11);
+    } catch (e) {
+      console.error('Map init failed:', e);
+      return;
+    }
     mapInitialized = true;
-
-    foodMap = L.map('foodMap', {
-      zoomControl: false,
-      attributionControl: false,
-    }).setView([52.5050, 13.4100], 11);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
@@ -586,8 +588,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const markers = [];
-    const spotDetail = document.getElementById('spotDetail');
-    const spotDetailContent = document.getElementById('spotDetailContent');
     const mapSpotOverlay = document.getElementById('mapSpotOverlay');
     const mapSpotContent = document.getElementById('mapSpotContent');
     const mapSpotClose = document.getElementById('mapSpotClose');
@@ -641,12 +641,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       markers.push(marker);
     });
-    
-    const spotDetailClose = null;
-    
-    if (spotDetailClose) {
-      spotDetailClose.addEventListener('click', hideSpotDetail);
-    }
     
     // Close spot detail when clicking on map background
     const mapContainer = document.getElementById('foodMap');
@@ -725,42 +719,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     setTimeout(() => foodMap.invalidateSize(), 100);
-  }
-
-  // --- Back to Top ---
-  const backToTop = document.getElementById('backToTop');
-  if (backToTop) {
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 600) {
-        backToTop.classList.add('visible');
-      } else {
-        backToTop.classList.remove('visible');
-      }
-    }, { passive: true });
-
-    backToTop.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  }
-
-  // --- Instagram Embeds (lazy load) ---
-  const instaSection = document.querySelector('.insta-section');
-  if (instaSection) {
-    const instagramObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const script = document.createElement('script');
-          script.src = 'https://www.instagram.com/embed.js';
-          script.async = true;
-          script.onload = () => {
-            if (window.instgrm) window.instgrm.Embeds.process();
-          };
-          document.body.appendChild(script);
-          instagramObserver.unobserve(instaSection);
-        }
-      });
-    }, { rootMargin: '200px' });
-    instagramObserver.observe(instaSection);
   }
 
   // --- News Article Modal ---

@@ -606,28 +606,52 @@ document.addEventListener('DOMContentLoaded', () => {
       iconAnchor: [10, 10]
     });
 
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userLat = position.coords.latitude;
-          const userLng = position.coords.longitude;
-          L.marker([userLat, userLng], { icon: userIcon }).addTo(foodMap);
-          foodMap.setView([userLat, userLng], 13);
-        },
-        (error) => {
-          let errorMsg = 'Standort nicht verfügbar';
-          if (error.code === 1) errorMsg = 'Standort-Zugriff verweigert. Bitte in den Browser-Einstellungen erlauben.';
-          if (error.code === 2) errorMsg = 'Standort-Signal nicht gefunden ( Indoor?).';
-          if (error.code === 3) errorMsg = 'Standort-Abfrage timeout.';
-          console.log('Geolocation error:', errorMsg);
-          alert(errorMsg);
-          foodMap.setView([52.52, 13.405], 13);
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
-      );
-    } else {
-      alert('Geolocation wird von diesem Browser nicht unterstützt.');
-      foodMap.setView([52.52, 13.405], 13);
+    // Try to get user location
+    const defaultCenter = [52.52, 13.405];
+    let locationFound = false;
+    
+    function setDefaultView() {
+      if (!locationFound) {
+        foodMap.setView(defaultCenter, 13);
+      }
+    }
+    
+    // Set default view after 3 seconds as fallback
+    setTimeout(setDefaultView, 3000);
+    
+    try {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            locationFound = true;
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+            
+            // Check if location is in Berlin area (rough check)
+            if (userLat > 52.3 && userLat < 52.7 && userLng > 13.1 && userLng < 13.8) {
+              L.marker([userLat, userLng], { icon: userIcon }).addTo(foodMap);
+              foodMap.setView([userLat, userLng], 13, { animate: true });
+            } else {
+              // User is outside Berlin, show Berlin anyway
+              setDefaultView();
+            }
+          },
+          (error) => {
+            console.log('Geolocation error:', error.message);
+            setDefaultView();
+          },
+          {
+            enableHighAccuracy: false,
+            timeout: 10000,
+            maximumAge: 300000
+          }
+        );
+      } else {
+        setDefaultView();
+      }
+    } catch (e) {
+      console.log('Geolocation exception:', e);
+      setDefaultView();
     }
 
     const logoIcon = L.icon({

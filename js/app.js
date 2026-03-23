@@ -22,40 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================
-  // COOKIE CONSENT
-  // ============================================
-  const cookieBanner = document.getElementById('cookieBanner');
-  const cookieSettingsOverlay = document.getElementById('cookieSettingsOverlay');
-  const cookieAccept = document.getElementById('cookieAccept');
-  const cookieDecline = document.getElementById('cookieDecline');
-  const cookieSettings = document.getElementById('cookieSettings');
-  const cookieSave = document.getElementById('cookieSave');
-  const cookieSettingsClose = document.getElementById('cookieSettingsClose');
-  const cookieAnalytics = document.getElementById('cookieAnalytics');
-  const cookieMarketing = document.getElementById('cookieMarketing');
-
-  const COOKIE_CONSENT_KEY = 'eatthis_cookie_consent';
-
-  function getCookieConsent() {
-    const stored = localStorage.getItem(COOKIE_CONSENT_KEY);
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  }
-
-  function setCookieConsent(consent) {
-    localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify({
-      ...consent,
-      timestamp: Date.now()
-    }));
-  }
-  
-  // ============================================
   // NOTIFICATIONS
   // ============================================
   function showNotification(message, duration = 3000) {
@@ -100,97 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
   document.head.appendChild(notificationStyle);
   
-  function showCookieBanner() {
-    if (cookieBanner) {
-      setTimeout(() => {
-        cookieBanner.classList.add('show');
-      }, 500);
-    }
-  }
-
-  function hideCookieBanner() {
-    if (cookieBanner) {
-      cookieBanner.classList.remove('show');
-    }
-  }
-
-  function openCookieSettings() {
-    if (cookieSettingsOverlay) {
-      const consent = getCookieConsent();
-      if (cookieAnalytics) cookieAnalytics.checked = consent?.analytics || false;
-      if (cookieMarketing) cookieMarketing.checked = consent?.marketing || false;
-      cookieSettingsOverlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-  }
-
-  function closeCookieSettings() {
-    if (cookieSettingsOverlay) {
-      cookieSettingsOverlay.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-  }
-
-  function handleCookieAccept(consent = { necessary: true, analytics: true, marketing: true }) {
-    setCookieConsent(consent);
-    hideCookieBanner();
-    applyCookieConsent(consent);
-  }
-
-  function applyCookieConsent(consent) {
-    if (consent.analytics) {
-      console.log('Analytics cookies enabled');
-    }
-    if (consent.marketing) {
-      console.log('Marketing cookies enabled');
-    }
-  }
-
-  const existingConsent = getCookieConsent();
-  if (!existingConsent) {
-    showCookieBanner();
-  } else {
-    applyCookieConsent(existingConsent);
-  }
-
-  if (cookieAccept) {
-    cookieAccept.addEventListener('click', () => handleCookieAccept());
-  }
-
-  if (cookieDecline) {
-    cookieDecline.addEventListener('click', () => handleCookieAccept({
-      necessary: true,
-      analytics: false,
-      marketing: false
-    }));
-  }
-
-  if (cookieSettings) {
-    cookieSettings.addEventListener('click', openCookieSettings);
-  }
-
-  if (cookieSettingsClose) {
-    cookieSettingsClose.addEventListener('click', closeCookieSettings);
-  }
-
-  if (cookieSettingsOverlay) {
-    cookieSettingsOverlay.addEventListener('click', (e) => {
-      if (e.target === cookieSettingsOverlay) closeCookieSettings();
-    });
-  }
-
-  if (cookieSave) {
-    cookieSave.addEventListener('click', () => {
-      const consent = {
-        necessary: true,
-        analytics: cookieAnalytics?.checked || false,
-        marketing: cookieMarketing?.checked || false
-      };
-      handleCookieAccept(consent);
-      closeCookieSettings();
-    });
-  }
-
   // ============================================
   // SEARCH
   // ============================================

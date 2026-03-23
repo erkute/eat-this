@@ -551,7 +551,7 @@ body {
   left: 12px;
   background: var(--black);
   color: var(--white);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -576,7 +576,7 @@ body {
 }
 .eat-card-district2 {
   display: inline-block;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -591,14 +591,6 @@ body {
   font-weight: 800;
   color: var(--orange);
   letter-spacing: 0.02em;
-}
-
-@media (min-width: 768px) {
-  .must-eats-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .must-eats-section { padding: 140px 48px 160px; }
-}
-@media (min-width: 1024px) {
-  .must-eats-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
 /* ============================================
@@ -714,8 +706,8 @@ body {
   position: absolute;
   top: 12px;
   right: 12px;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1118,8 +1110,8 @@ body {
   }
   
   .map-filter-btn {
-    padding: 6px 12px;
-    font-size: 11px;
+    padding: 8px 14px;
+    font-size: 12px;
   }
   
   .map-container {
@@ -1134,41 +1126,40 @@ body {
   
   .leaflet-popup-content {
     margin: 0;
-    min-width: 240px;
+    min-width: 200px;
   }
   
   .spot-popup {
     padding: 16px;
   }
-  }
-  
+
   .spot-popup-type {
     font-size: 10px;
     color: var(--gray-600);
   }
-  
+
   .spot-popup-name {
     font-size: 16px;
     font-weight: 900;
     margin-bottom: 6px;
     line-height: 1.2;
   }
-  
+
   .spot-popup-musteat {
     font-size: 12px;
     margin-bottom: 4px;
   }
-  
+
   .spot-popup-label {
     font-weight: 700;
   }
-  
+
   .spot-popup-address {
     font-size: 11px;
     color: var(--gray-600);
     margin-bottom: 8px;
   }
-  
+
   .spot-popup-btn {
     display: inline-block;
     font-size: 11px;
@@ -1181,8 +1172,8 @@ body {
 /* Leaflet Overrides */
 #foodMap {
   width: 100% !important;
-  height: 500px !important;
-  min-height: 500px !important;
+  height: 50vh !important;
+  min-height: 350px !important;
 }
 .leaflet-container {
   width: 100% !important;
@@ -1224,7 +1215,7 @@ body {
   max-width: 260px;
 }
 .map-popup-district {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -1285,7 +1276,7 @@ body {
   .map-section { padding: 140px 0 100px; }
   .map-header { padding: 0 48px 48px; }
   .map-container { height: 600px; }
-  #foodMap { height: 600px !important; min-height: 600px !important; }
+  #foodMap { height: 60vh !important; min-height: 400px !important; }
 }
 
 /* ============================================
@@ -2391,8 +2382,8 @@ body {
   margin-bottom: 20px;
 }
 .share-btn {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2639,21 +2630,22 @@ body {
    APP PAGES CONTAINER
    ============================================ */
 .app-pages {
-  display: flex;
+  display: block;
   height: 100%;
 }
 
 .app-page {
-  flex: 0 0 100%;
+  display: none !important;
   width: 100%;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 60px - 70px);
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  transition: transform 0.3s var(--ease-out);
-  isolation: isolate;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
+  padding-bottom: 70px;
+}
+
+.app-page.active {
+  display: block !important;
 }
 
 .app-page .about-section,
@@ -2685,7 +2677,7 @@ body {
    APP FOOTER NAVIGATION (Mobile)
    ============================================ */
 .app-footer {
-  display: none;
+  display: block;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -2710,19 +2702,20 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
+  gap: 3px;
+  padding: 8px 12px;
   color: rgba(255,255,255,0.6);
   transition: color 0.2s var(--ease);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   border: none;
   background: none;
+  min-width: 48px;
 }
 
 .app-footer-item svg {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   transition: transform 0.2s var(--ease);
   stroke: rgba(255,255,255,0.6);
 }
@@ -2747,27 +2740,21 @@ body {
 }
 
 @media (max-width: 767px) {
-  .app-footer {
-    display: block;
+  .app-footer-item span {
+    font-size: 10px;
   }
   
   .app-page {
-    display: none;
     position: fixed;
     top: 60px;
     left: 0;
     right: 0;
     bottom: 70px;
-    width: 100%;
     height: auto;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
     z-index: 9990;
-    flex: none;
   }
   
   .app-page.active {
-    display: block;
     z-index: 9995;
   }
   
@@ -2808,19 +2795,9 @@ body {
   }
   
   .app-page[data-page="start"] .hero-logo {
-    max-width: 520px;
-    margin-bottom: 20px;
-  }
-  
-  .app-page[data-page="start"] .hero-logo {
     width: 100%;
     max-width: 100%;
     margin-bottom: 16px;
-  }
-  
-  .app-page[data-page="start"] .hero-logo {
-    max-width: 520px;
-    margin-bottom: 12px;
   }
   
   .app-page[data-page="start"] .hero-tagline {
@@ -2886,10 +2863,6 @@ body {
     display: none;
   }
   
-  .app-footer-item span {
-    font-size: 9px;
-  }
-  
   /* Map page mobile */
   .app-page[data-page="map"] .map-section {
     padding: 0;
@@ -2905,13 +2878,13 @@ body {
   
   .app-page[data-page="map"] .map-container {
     flex: 1;
-    height: auto;
-    min-height: 0;
+    height: 100%;
+    min-height: 300px;
   }
   
   .app-page[data-page="map"] .leaflet-container {
-    height: 100%;
-    min-height: 300px;
+    height: 100% !important;
+    width: 100%;
   }
   
   .app-page[data-page="map"] .leaflet-control-zoom {
@@ -3114,7 +3087,7 @@ body {
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 10000;
+  z-index: 10002;
   align-items: center;
   justify-content: center;
 }
@@ -3306,10 +3279,14 @@ body {
 }
 
 @media (max-width: 767px) {
+  .login-modal {
+    align-items: center;
+  }
   .login-modal-content {
     width: 95%;
     padding: 24px 20px;
     border-radius: 20px;
+    animation: slideUp 0.3s var(--ease);
   }
   
   .login-logo img {

@@ -402,12 +402,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --- Food Map (Leaflet) ---
-  const mapContainer = document.getElementById('foodMap');
-  console.log('Map container:', mapContainer, 'L defined:', typeof L !== 'undefined');
   let foodMap = null;
+  let mapInitialized = false;
 
-  if (mapContainer && typeof L !== 'undefined') {
-    const spots = [
+  const spots = [
       { name: 'NOVEMBER Brasserie', district: 'Mitte', type: 'Japanisch/Gehoben', mustEat: 'Miso Seabass', address: 'Rosenthaler Str. 68, 10119 Berlin', lat: 52.5272, lng: 13.3988 },
       { name: 'LIU 成都味道面馆', district: 'Mitte', type: 'Sichuan-Nudeln', mustEat: 'Dan Dan Nudeln mit Sichuan-Pfeffer', address: 'Koppenplatz 2, 10115 Berlin', lat: 52.5303, lng: 13.3978 },
       { name: 'Father Carpenter', district: 'Mitte', type: 'Brunch/Café', mustEat: 'Ricotta Hotcakes mit Maple Syrup', address: 'Münzstr. 21, 10178 Berlin', lat: 52.5256, lng: 13.4019 },
@@ -499,10 +497,24 @@ document.addEventListener('DOMContentLoaded', () => {
       { name: 'FOERSTERS FEINE BIERE', district: 'Lichterfelde', type: 'Bier-Spezialitäten', mustEat: 'Craft Beer Tasting', address: 'Königsberger Str. 40, 12207 Berlin', lat: 52.4530, lng: 13.3678 },
     ];
 
+  function initFoodMap() {
+    if (mapInitialized || typeof L === 'undefined') return;
+    const mapEl = document.getElementById('foodMap');
+    if (!mapEl) return;
+
+    // Ensure the container is visible and has dimensions before initializing
+    const rect = mapEl.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      setTimeout(initFoodMap, 100);
+      return;
+    }
+
+    mapInitialized = true;
+
     foodMap = L.map('foodMap', {
       zoomControl: false,
       attributionControl: false,
-    }).setView([52.5050, 13.4100], 12);
+    }).setView([52.5050, 13.4100], 11);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
@@ -712,22 +724,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Invalidate map size when page becomes visible
-    function invalidateMapSize() {
-      setTimeout(() => {
-        foodMap.invalidateSize();
-      }, 100);
-    }
-
-    const mapPage = document.querySelector('.app-page[data-page="map"]');
-    if (mapPage) {
-      const observer = new MutationObserver(() => {
-        if (mapPage.classList.contains('active')) {
-          invalidateMapSize();
-        }
-      });
-      observer.observe(mapPage, { attributes: true, attributeFilter: ['class'] });
-    }
+    setTimeout(() => foodMap.invalidateSize(), 100);
   }
 
   // --- Back to Top ---
@@ -862,6 +859,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- App Page Navigation ---
+  let isMobile = window.innerWidth <= 767;
   const appFooter = document.getElementById('appFooter');
   const appPages = document.querySelectorAll('.app-page');
   const navbarBrand = document.querySelector('.navbar-brand');
@@ -880,8 +878,14 @@ document.addEventListener('DOMContentLoaded', () => {
         page.classList.remove('hidden');
         
         // Invalidate map size when map page becomes active
-        if (pageName === 'map' && typeof foodMap !== 'undefined' && foodMap) {
-          setTimeout(() => foodMap.invalidateSize(), 100);
+        if (pageName === 'map') {
+          setTimeout(() => {
+            if (typeof initFoodMap === 'function') initFoodMap();
+            if (foodMap) {
+              foodMap.invalidateSize();
+              setTimeout(() => { if (foodMap) foodMap.invalidateSize(); }, 300);
+            }
+          }, 100);
         }
       } else {
         page.classList.remove('active');
@@ -898,7 +902,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (appFooter && appPages.length) {
-    const appFooterItems = document.querySelectorAll('.app-footer-item');
+    const appFooterItems = document.querySelectorAll('.app-footer-item[data-target]');
 
     appFooterItems.forEach(item => {
       item.addEventListener('click', (e) => {

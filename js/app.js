@@ -5,6 +5,23 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // ============================================
+  // HERO SLIDER
+  // ============================================
+  const heroSlides = document.querySelectorAll('.hero-slide');
+  if (heroSlides.length > 0) {
+    let currentSlide = 0;
+    const slideInterval = 800;
+    
+    function nextSlide() {
+      heroSlides[currentSlide].classList.remove('active');
+      currentSlide = (currentSlide + 1) % heroSlides.length;
+      heroSlides[currentSlide].classList.add('active');
+    }
+    
+    setInterval(nextSlide, slideInterval);
+  }
+
+  // ============================================
   // COOKIE CONSENT
   // ============================================
   const cookieBanner = document.getElementById('cookieBanner');
@@ -42,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (cookieBanner) {
       setTimeout(() => {
         cookieBanner.classList.add('show');
-      }, 1500);
+      }, 500);
     }
   }
 
@@ -325,36 +342,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // --- Navbar scroll state ---
+  // --- Navbar scroll state (disabled for app mode) ---
   const navbar = document.getElementById('navbar');
 
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 60) {
-      navbar.classList.add('scrolled');
-    } else {
-      navbar.classList.remove('scrolled');
+  function updateNavbar() {
+    if (window.innerWidth > 767) {
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 60) {
+          navbar.classList.add('scrolled');
+        } else {
+          navbar.classList.remove('scrolled');
+        }
+      }, { passive: true });
     }
-  }, { passive: true });
-
-  // --- Mobile menu ---
-  const hamburger = document.getElementById('hamburger');
-  const mobileMenu = document.getElementById('mobileMenu');
-
-  if (hamburger && mobileMenu) {
-    hamburger.addEventListener('click', () => {
-      hamburger.classList.toggle('active');
-      mobileMenu.classList.toggle('active');
-      document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
-    });
-
-    mobileMenu.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        hamburger.classList.remove('active');
-        mobileMenu.classList.remove('active');
-        document.body.style.overflow = '';
-      });
-    });
   }
+  updateNavbar();
 
   // --- Newsletter form ---
   const form = document.getElementById('newsletterForm');
@@ -372,17 +374,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Smooth anchor scroll with offset ---
+  // --- Anchor links for non-app navigation (desktop) ---
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', (e) => {
       const href = anchor.getAttribute('href');
       if (href === '#') return;
-      const target = document.querySelector(href);
-      if (target) {
-        e.preventDefault();
-        const offset = 80;
-        const top = target.getBoundingClientRect().top + window.scrollY - offset;
-        window.scrollTo({ top, behavior: 'smooth' });
+      
+      const targetPage = anchor.closest('.app-page');
+      if (targetPage) return;
+      
+      if (window.innerWidth > 767) {
+        const target = document.querySelector(href);
+        if (target) {
+          e.preventDefault();
+          const offset = 80;
+          const top = target.getBoundingClientRect().top + window.scrollY - offset;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
       }
     });
   });
@@ -545,7 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { name: 'Beuster', district: 'Neukölln', type: 'Brasserie', mustEat: 'Steak Frites', address: 'Weserstraße 32, 12045 Berlin', lat: 52.4850, lng: 13.4356 },
       { name: 'jaja', district: 'Neukölln', type: 'Bistro/Wein', mustEat: 'Naturwein & Snacks', address: 'Lenaustraße 14, 12047 Berlin', lat: 52.4847, lng: 13.4285 },
       { name: 'Schüsseldienst', district: 'Neukölln', type: 'Bowls', mustEat: 'Açaí Bowl', address: 'Weserstraße 59, 12045 Berlin', lat: 52.4841, lng: 13.4385 },
-      { name: 'goldies', district: 'Neukölln', type: 'Burger', mustEat: 'Double Smashburger', address: 'Kienitzer Str. 2, 12047 Berlin', lat: 52.4818, lng: 13.4302 },
+      { name: 'goldies', district: 'Kreuzberg', type: 'Burger', mustEat: 'Double Smashburger', address: 'Graefestraße 93, 10967 Berlin', lat: 52.4905, lng: 13.4200 },
       { name: 'Berlin Burger International', district: 'Neukölln', type: 'Burger', mustEat: 'Classic Cheeseburger', address: 'Pannierstraße 5, 12047 Berlin', lat: 52.4799, lng: 13.4355 },
       { name: 'Lucky Katsu', district: 'Neukölln', type: 'Japanisch', mustEat: 'Tonkatsu Curry', address: 'Weserstraße 45, 12045 Berlin', lat: 52.4845, lng: 13.4370 },
       { name: 'CODA Dessert Dining', district: 'Neukölln', type: 'Fine Dining', mustEat: '7-Gang Dessert-Tasting-Menü', address: 'Friedelstraße 47, 12047 Berlin', lat: 52.4847, lng: 13.4312 },
@@ -553,16 +561,15 @@ document.addEventListener('DOMContentLoaded', () => {
       { name: 'Common', district: 'Neukölln', type: 'Café', mustEat: 'Pour Over & Banana Bread', address: 'Friedelstraße 14, 12047 Berlin', lat: 52.4845, lng: 13.4276 },
       { name: 'Pan Africa Restaurant', district: 'Neukölln', type: 'Afrikanisch', mustEat: 'Injera mit Doro Wot', address: 'Karl-Marx-Straße 109, 12043 Berlin', lat: 52.4754, lng: 13.4391 },
       { name: 'The Barn Café', district: 'Neukölln', type: 'Café', mustEat: 'Single Origin Filter Coffee', address: 'Friedelstraße 10, 12047 Berlin', lat: 52.4844, lng: 13.4272 },
-      { name: 'onette', district: 'Schöneberg', type: 'Amerikanisch', mustEat: 'Buttermilk Pancakes', address: 'Grunewaldstr. 11, 10781 Berlin', lat: 52.4769, lng: 13.4375 },
+      { name: 'onette', district: 'Schöneberg', type: 'Amerikanisch', mustEat: 'Buttermilk Pancakes', address: 'Grunewaldstraße 11, 10781 Berlin', lat: 52.4848, lng: 13.3490 },
       { name: 'La Bolognina', district: 'Neukölln', type: 'Pasta', mustEat: 'Tagliatelle al Ragù', address: 'Friedelstraße 48, 12047 Berlin', lat: 52.4848, lng: 13.4315 },
-      { name: 'DoubleEye', district: 'Schöneberg', type: 'Café', mustEat: 'Doppelter Espresso & Kuchen', address: 'Hauptstraße 77, 10827 Berlin', lat: 52.4864, lng: 13.3538 },
-      { name: 'Frühstück 3000', district: 'Schöneberg', type: 'Frühstück', mustEat: 'Full English Breakfast', address: 'Fuggerstraße 20, 10777 Berlin', lat: 52.4962, lng: 13.3558 },
+      { name: 'DoubleEye', district: 'Schöneberg', type: 'Café', mustEat: 'Doppelter Espresso & Kuchen', address: 'Akazienstraße 22, 10823 Berlin', lat: 52.4880, lng: 13.3541 },
+      { name: 'Frühstück 3000', district: 'Schöneberg', type: 'Frühstück', mustEat: 'Full English Breakfast', address: 'Bülowstraße 101, 10783 Berlin', lat: 52.4928, lng: 13.3505 },
       { name: 'Sardinen Bar', district: 'Tiergarten', type: 'Restaurant', mustEat: 'Sardinen & Meeresfrüchte-Platte', address: 'Lützowstraße 81, 10785 Berlin', lat: 52.5035, lng: 13.3628 },
       { name: 'Jones Ice Cream', district: 'Schöneberg', type: 'Eis', mustEat: 'Salted Caramel Eis', address: 'Goltzstraße 3, 10781 Berlin', lat: 52.4948, lng: 13.3520 },
       { name: 'Österelli', district: 'Schöneberg', type: 'Österreichisch', mustEat: 'Käsespätzle', address: 'Fuggerstraße 23, 10777 Berlin', lat: 52.4963, lng: 13.3560 },
-      { name: 'AVIV 030', district: 'Neukölln', type: 'Levantinisch', mustEat: 'Falafel & Hummus Teller', address: 'Maaßenstraße 12, 10781 Berlin', lat: 52.4960, lng: 13.3536 },
-      { name: "Jules Geisberg", district: 'Schöneberg', type: 'Café', mustEat: 'Café Crème & Tarte Tatin', address: 'Geisbergstraße 12, 10777 Berlin', lat: 52.4969, lng: 13.3532 },
-      { name: "Philomeni's Greek Delicious", district: 'Schöneberg', type: 'Griechisch', mustEat: 'Souvlaki & Tzatziki', address: 'Hauptstraße 86, 10827 Berlin', lat: 52.4866, lng: 13.3548 },
+      { name: 'AVIV 030', district: 'Neukölln', type: 'Levantinisch', mustEat: 'Falafel & Hummus Teller', address: 'Richardstraße 76, 12043 Berlin', lat: 52.4820, lng: 13.4340 },
+      { name: "Jules Geisberg", district: 'Schöneberg', type: 'Café', mustEat: 'Café Crème & Tarte Tatin', address: 'Geisbergstraße 9, 10777 Berlin', lat: 52.4933, lng: 13.3500 },
       { name: 'Frau Mittenmang', district: 'Schöneberg', type: 'Deutsch/Modern', mustEat: 'Saisonales 3-Gang-Menü', address: 'Winterfeldtstraße 50, 10781 Berlin', lat: 52.4950, lng: 13.3578 },
       { name: 'Restaurant 893 Ryōtei', district: 'Charlottenburg', type: 'Japanische Fusion', mustEat: 'Omakase-Sushi', address: 'Kantstraße 134, 10625 Berlin', lat: 52.5054, lng: 13.3228 },
       { name: 'Enoiteca Il Calice', district: 'Charlottenburg', type: 'Italienisch', mustEat: 'Pasta mit Trüffel', address: 'Eislebener Str. 2, 10789 Berlin', lat: 52.5017, lng: 13.3358 },
@@ -585,11 +592,34 @@ document.addEventListener('DOMContentLoaded', () => {
       attributionControl: false,
     }).setView([52.5050, 13.4100], 12);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
     }).addTo(foodMap);
 
     L.control.zoom({ position: 'bottomright' }).addTo(foodMap);
+
+    // User location
+    const userIcon = L.divIcon({
+      className: 'user-location-marker',
+      html: '<div class="user-location-dot"></div>',
+      iconSize: [20, 20],
+      iconAnchor: [10, 10]
+    });
+
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+          L.marker([userLat, userLng], { icon: userIcon }).addTo(foodMap);
+          foodMap.setView([userLat, userLng], 13);
+        },
+        (error) => {
+          console.log('Location access denied or unavailable');
+        },
+        { enableHighAccuracy: true, timeout: 5000 }
+      );
+    }
 
     const logoIcon = L.icon({
       iconUrl: 'pics/logo.webp',
@@ -598,21 +628,118 @@ document.addEventListener('DOMContentLoaded', () => {
       popupAnchor: [0, -20]
     });
 
+    const markers = [];
+    const spotDetail = document.getElementById('spotDetail');
+    const spotDetailContent = document.getElementById('spotDetailContent');
+    const spotDetailClose = document.getElementById('spotDetailClose');
+
+    function showSpotDetail(spot) {
+      const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(spot.name + ', ' + spot.address);
+      spotDetailContent.innerHTML = `
+        <div class="spot-receipt">
+          <div class="spot-receipt-header">
+            <span class="spot-receipt-district">${spot.district}</span>
+            <span class="spot-receipt-type">${spot.type}</span>
+          </div>
+          <h3 class="spot-receipt-name">${spot.name}</h3>
+          <div class="spot-receipt-divider"></div>
+          <div class="spot-receipt-musteat-box">
+            <span class="spot-receipt-label">Eat This</span>
+            <p class="spot-receipt-musteat">${spot.mustEat}</p>
+          </div>
+          <div class="spot-receipt-divider"></div>
+          <p class="spot-receipt-address">${spot.address}</p>
+          <a href="${mapsUrl}" target="_blank" rel="noopener" class="spot-receipt-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            Open in Maps
+          </a>
+        </div>
+      `;
+      spotDetail.classList.add('open');
+    }
+
+    function hideSpotDetail() {
+      spotDetail.classList.remove('open');
+    }
+
     spots.forEach((spot, i) => {
-      setTimeout(() => {
-        const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(spot.name + ', ' + spot.address);
-        const popupContent = '<div class="map-popup">' +
-          '<div class="map-popup-district">' + spot.district + '</div>' +
-          '<div class="map-popup-name">' + spot.name + '</div>' +
-          '<div class="map-popup-type">' + spot.type + '</div>' +
-          '<div class="map-popup-musteat">\u2192 ' + spot.mustEat + '</div>' +
-          '<div class="map-popup-address">' + spot.address + '</div>' +
-          '<a href="' + mapsUrl + '" target="_blank" rel="noopener" class="map-popup-btn">Open in Maps</a>' +
-          '</div>';
-        const marker = L.marker([spot.lat, spot.lng], { icon: logoIcon }).addTo(foodMap);
-        marker.bindPopup(popupContent, { closeButton: false, maxWidth: 260 });
-      }, i * 50);
+      const marker = L.marker([spot.lat, spot.lng], { icon: logoIcon }).addTo(foodMap);
+      marker.spotType = spot.type;
+      marker.spotDistrict = spot.district;
+      marker.spotData = spot;
+      marker.on('click', () => {
+        showSpotDetail(spot);
+      });
+      markers.push(marker);
     });
+
+    if (spotDetailClose) {
+      spotDetailClose.addEventListener('click', hideSpotDetail);
+    }
+
+    // Filter functionality
+    const filterBtns = document.querySelectorAll('.map-filter-btn');
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filter;
+        
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        markers.forEach(marker => {
+          const type = marker.spotType;
+          const show = filter === 'all' || 
+                       type.toLowerCase().includes(filter.toLowerCase()) ||
+                       filter.toLowerCase().includes(type.toLowerCase().split('/')[0]);
+          
+          if (show) {
+            marker.addTo(foodMap);
+          } else {
+            marker.remove();
+          }
+        });
+      });
+    });
+
+    // Location button
+    const mapLocationBtn = document.getElementById('mapLocationBtn');
+    if (mapLocationBtn) {
+      mapLocationBtn.addEventListener('click', () => {
+        if ('geolocation' in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const userLat = position.coords.latitude;
+              const userLng = position.coords.longitude;
+              foodMap.setView([userLat, userLng], 14, { animate: true });
+            },
+            (error) => {
+              alert('Standort konnte nicht ermittelt werden');
+            },
+            { enableHighAccuracy: true }
+          );
+        }
+      });
+    }
+
+    // Invalidate map size when page becomes visible
+    function invalidateMapSize() {
+      setTimeout(() => {
+        foodMap.invalidateSize();
+      }, 100);
+    }
+
+    const mapPage = document.querySelector('.app-page[data-page="map"]');
+    if (mapPage) {
+      const observer = new MutationObserver(() => {
+        if (mapPage.classList.contains('active')) {
+          invalidateMapSize();
+        }
+      });
+      observer.observe(mapPage, { attributes: true, attributeFilter: ['class'] });
+    }
   }
 
   // --- Back to Top ---
@@ -744,6 +871,84 @@ document.addEventListener('DOMContentLoaded', () => {
         navigator.clipboard.writeText(currentShareData.url);
       }
     });
+  }
+
+  // --- App Page Navigation ---
+  const appFooter = document.getElementById('appFooter');
+  const appPages = document.querySelectorAll('.app-page');
+  const navbarBrand = document.querySelector('.navbar-brand');
+
+  let currentPage = 'start';
+
+  function navigateToPage(pageName) {
+    if (pageName === currentPage) return;
+    
+    const targetPage = document.querySelector(`.app-page[data-page="${pageName}"]`);
+    if (!targetPage) return;
+    
+    appPages.forEach(page => {
+      if (page.dataset.page === pageName) {
+        page.classList.add('active');
+        page.classList.remove('hidden');
+      } else {
+        page.classList.remove('active');
+        page.classList.add('hidden');
+      }
+    });
+
+    const appFooterItems = document.querySelectorAll('.app-footer-item');
+    appFooterItems.forEach(item => {
+      item.classList.toggle('active', item.dataset.target === pageName);
+    });
+
+    currentPage = pageName;
+  }
+
+  if (appFooter && appPages.length) {
+    const appFooterItems = document.querySelectorAll('.app-footer-item');
+
+    appFooterItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = item.dataset.target;
+        navigateToPage(target);
+        window.location.hash = target;
+      });
+    });
+
+    if (navbarBrand) {
+      navbarBrand.addEventListener('click', (e) => {
+        e.preventDefault();
+        navigateToPage('start');
+        window.location.hash = 'start';
+      });
+    }
+
+    function checkHash() {
+      const hash = window.location.hash.replace('#', '') || 'start';
+      const validPages = ['start', 'news', 'musts', 'map', 'newsletter'];
+      if (validPages.includes(hash)) {
+        navigateToPage(hash);
+      }
+    }
+
+    window.addEventListener('hashchange', checkHash);
+    checkHash();
+
+    function handleResize() {
+      isMobile = window.innerWidth <= 767;
+      
+      if (!isMobile) {
+        appPages.forEach(page => {
+          page.classList.remove('active', 'hidden');
+        });
+      } else {
+        navigateToPage(currentPage);
+      }
+    }
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
   }
 
 });

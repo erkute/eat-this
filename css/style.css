@@ -2213,7 +2213,7 @@ body {
 }
 .modal-img {
   width: 100%;
-  height: 160px;
+  height: 300px;
   overflow: hidden;
   position: relative;
 }
@@ -2223,7 +2223,7 @@ body {
   object-fit: cover;
 }
 .modal-body {
-  padding: 16px 20px 20px;
+  padding: 16px 20px 12px;
 }
 .modal-district {
   display: inline-block;
@@ -2259,7 +2259,7 @@ body {
   font-size: 13px;
   line-height: 1.5;
   color: var(--gray-600);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .modal-maps-btn {
   display: inline-flex;
@@ -2274,7 +2274,7 @@ body {
   padding: 10px 16px;
   text-decoration: none;
   transition: background 0.2s, transform 0.2s;
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
 .modal-maps-btn:hover {
   background: var(--orange);

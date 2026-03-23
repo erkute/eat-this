@@ -359,32 +359,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const modal = document.getElementById('eatModal');
   const modalClose = document.getElementById('modalClose');
 
-  const starSvg = '<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
-
-  function toStars(val) {
-    if (val <= 2) return 1;
-    if (val <= 3) return 2;
-    return 3;
-  }
-
-  function createStars(container, rating) {
-    container.innerHTML = '';
-    const stars = toStars(rating);
-    for (let i = 1; i <= 3; i++) {
-      const star = document.createElement('span');
-      star.className = 'star ' + (i <= stars ? 'filled' : 'empty');
-      star.style.transitionDelay = ((i - 1) * 0.08) + 's';
-      star.style.transform = 'scale(0)';
-      star.innerHTML = starSvg;
-      container.appendChild(star);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          star.style.transform = 'scale(1)';
-        });
-      });
-    }
-  }
-
   eatCards.forEach(card => {
     card.addEventListener('click', () => {
       const dish = card.dataset.dish;
@@ -404,11 +378,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('modalRestaurant').textContent = restaurant;
       document.getElementById('modalDesc').textContent = desc;
       document.getElementById('modalMapsBtn').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(restaurant + ', Berlin');
-
-      createStars(document.getElementById('starFlavor'), ratingTaste);
-      createStars(document.getElementById('starGram'), ratingLook);
-      createStars(document.getElementById('starPocket'), ratingPrice);
-      createStars(document.getElementById('starComeback'), ratingPerf);
 
       modal.classList.add('active');
       document.body.style.overflow = 'hidden';
@@ -436,6 +405,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Food Map (Leaflet) ---
   const mapContainer = document.getElementById('foodMap');
+  console.log('Map container:', mapContainer, 'L defined:', typeof L !== 'undefined');
+  let foodMap = null;
 
   if (mapContainer && typeof L !== 'undefined') {
     const spots = [
@@ -913,6 +884,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (page.dataset.page === pageName) {
         page.classList.add('active');
         page.classList.remove('hidden');
+        
+        // Invalidate map size when map page becomes active
+        if (pageName === 'map' && typeof foodMap !== 'undefined' && foodMap) {
+          setTimeout(() => foodMap.invalidateSize(), 100);
+        }
       } else {
         page.classList.remove('active');
         page.classList.add('hidden');

@@ -674,20 +674,148 @@ body {
   height: 20px;
 }
 
-/* Leaflet Popup Styles */
-.leaflet-popup-content-wrapper {
-  border-radius: 2px;
-  padding: 0;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+/* Map Spot Overlay */
+.map-spot-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
 }
 
-.leaflet-popup-content {
-  margin: 12px;
+.map-spot-overlay.active {
+  display: flex;
+}
+
+.map-spot-card {
+  position: relative;
+  background: var(--white);
+  width: 100%;
+  max-width: 400px;
+  border-radius: 16px 16px 0 0;
+  padding: 20px;
+  animation: slideUp 0.3s var(--ease);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.map-spot-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-100);
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.map-spot-close svg {
+  stroke: var(--black);
+}
+
+.map-spot-content {
   font-family: var(--font);
 }
 
+.map-spot-header {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.map-spot-district {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--orange);
+}
+
+.map-spot-type {
+  font-size: 11px;
+  color: var(--gray-600);
+}
+
+.map-spot-name {
+  font-size: 20px;
+  font-weight: 900;
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.map-spot-musteat {
+  font-size: 14px;
+  margin-bottom: 12px;
+  padding: 10px;
+  background: var(--gray-50);
+  border-left: 3px solid var(--orange);
+}
+
+.map-spot-label {
+  font-weight: 700;
+}
+
+.map-spot-address {
+  font-size: 13px;
+  color: var(--gray-600);
+  margin-bottom: 16px;
+}
+
+.map-spot-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 20px;
+  background: var(--black);
+  color: var(--white);
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 8px;
+}
+
+.map-spot-btn:hover {
+  background: var(--orange);
+}
+
+/* Leaflet Popup Styles */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  padding: 0;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  font-family: var(--font);
+  min-width: 200px;
+}
+
+.leaflet-popup-close-button {
+  top: 8px !important;
+  right: 8px !important;
+  font-size: 20px !important;
+  color: var(--gray-600) !important;
+}
+
 .spot-popup {
-  min-width: 180px;
+  padding: 12px;
 }
 
 .spot-popup-header {
@@ -697,7 +825,7 @@ body {
 }
 
 .spot-popup-district {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -705,20 +833,23 @@ body {
 }
 
 .spot-popup-type {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--gray-600);
 }
 
 .spot-popup-name {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 900;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
   line-height: 1.2;
 }
 
 .spot-popup-musteat {
-  font-size: 11px;
-  margin-bottom: 4px;
+  font-size: 13px;
+  margin-bottom: 8px;
+  padding: 8px;
+  background: var(--gray-50);
+  border-left: 3px solid var(--orange);
 }
 
 .spot-popup-label {
@@ -726,17 +857,27 @@ body {
 }
 
 .spot-popup-address {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--gray-600);
-  margin-bottom: 6px;
+  margin-bottom: 12px;
 }
 
 .spot-popup-btn {
-  display: inline-block;
-  font-size: 10px;
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--black);
+  color: var(--white);
+  text-align: center;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--black);
-  text-decoration: underline;
+  text-decoration: none;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.spot-popup-btn:hover {
+  background: var(--orange);
 }
 
 .spot-detail-content {
@@ -987,30 +1128,18 @@ body {
   }
   
   .leaflet-popup-content-wrapper {
-    border-radius: 2px;
-    padding: 0;
+    border-radius: 8px;
+    overflow: hidden;
   }
   
   .leaflet-popup-content {
-    margin: 12px;
+    margin: 0;
+    min-width: 240px;
   }
   
   .spot-popup {
-    font-family: var(--font);
+    padding: 16px;
   }
-  
-  .spot-popup-header {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-  
-  .spot-popup-district {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--orange);
   }
   
   .spot-popup-type {

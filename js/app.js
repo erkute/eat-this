@@ -594,44 +594,47 @@ document.addEventListener('DOMContentLoaded', () => {
     const markers = [];
     const spotDetail = document.getElementById('spotDetail');
     const spotDetailContent = document.getElementById('spotDetailContent');
-    const spotDetailClose = document.getElementById('spotDetailClose');
-
-    const customIcon = L.divIcon({
-      className: 'custom-spot-popup',
-      html: `<div class="custom-spot-label">${spot.name}</div>`,
-      iconSize: [120, 30],
-      iconAnchor: [60, -10]
-    });
+    const mapSpotOverlay = document.getElementById('mapSpotOverlay');
+    const mapSpotContent = document.getElementById('mapSpotContent');
+    const mapSpotClose = document.getElementById('mapSpotClose');
 
     function showSpotDetail(spot) {
       const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(spot.name + ', ' + spot.address);
       
-      const popupContent = `
-        <div class="leaflet-popup-content-wrapper">
-          <div class="leaflet-popup-content spot-popup">
-            <div class="spot-popup-header">
-              <span class="spot-popup-district">${spot.district}</span>
-              <span class="spot-popup-type">${spot.type}</span>
-            </div>
-            <h3 class="spot-popup-name">${spot.name}</h3>
-            <div class="spot-popup-musteat">
-              <span class="spot-popup-label">Eat This:</span> ${spot.mustEat}
-            </div>
-            <div class="spot-popup-address">${spot.address}</div>
-            <a href="${mapsUrl}" target="_blank" rel="noopener" class="spot-popup-btn">
-              Maps ↗
-            </a>
-          </div>
+      mapSpotContent.innerHTML = `
+        <div class="map-spot-header">
+          <span class="map-spot-district">${spot.district}</span>
+          <span class="map-spot-type">${spot.type}</span>
         </div>
+        <h3 class="map-spot-name">${spot.name}</h3>
+        <div class="map-spot-musteat">
+          <span class="map-spot-label">Eat This:</span> ${spot.mustEat}
+        </div>
+        <div class="map-spot-address">${spot.address}</div>
+        <a href="${mapsUrl}" target="_blank" rel="noopener" class="map-spot-btn">
+          In Maps öffnen
+        </a>
       `;
       
-      const popup = L.popup({
-        maxWidth: 280,
-        className: 'custom-spot-popup-wrapper'
-      })
-        .setLatLng([spot.lat, spot.lng])
-        .setContent(popupContent)
-        .openOn(foodMap);
+      mapSpotOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function hideSpotDetail() {
+      mapSpotOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    if (mapSpotClose) {
+      mapSpotClose.addEventListener('click', hideSpotDetail);
+    }
+    
+    if (mapSpotOverlay) {
+      mapSpotOverlay.addEventListener('click', (e) => {
+        if (e.target === mapSpotOverlay) {
+          hideSpotDetail();
+        }
+      });
     }
 
     function hideSpotDetail() {

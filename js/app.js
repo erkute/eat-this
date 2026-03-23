@@ -366,18 +366,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const district = card.dataset.district;
       const desc = card.dataset.desc;
       const img = card.dataset.img;
-      const ratingPrice = parseInt(card.dataset.ratingPrice);
-      const ratingPerf = parseInt(card.dataset.ratingPerf);
-      const ratingTaste = parseInt(card.dataset.ratingTaste);
-      const ratingLook = parseInt(card.dataset.ratingLook);
+      const address = card.dataset.address || '';
 
       document.getElementById('modalImg').src = img;
       document.getElementById('modalImg').alt = dish;
       document.getElementById('modalDistrict').textContent = district;
       document.getElementById('modalDish').textContent = dish;
       document.getElementById('modalRestaurant').textContent = restaurant;
+      document.getElementById('modalAddress').textContent = address;
       document.getElementById('modalDesc').textContent = desc;
-      document.getElementById('modalMapsBtn').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(restaurant + ', Berlin');
+      document.getElementById('modalMapsBtn').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(restaurant + ', ' + address);
 
       modal.classList.add('active');
       document.body.style.overflow = 'hidden';

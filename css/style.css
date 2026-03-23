@@ -2246,8 +2246,14 @@ body {
 .modal-restaurant {
   font-size: 13px;
   color: var(--gray-400);
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   font-weight: 600;
+}
+.modal-address {
+  font-size: 12px;
+  color: var(--gray-400);
+  margin-bottom: 10px;
+  font-weight: 400;
 }
 .modal-desc {
   font-size: 13px;
@@ -2287,7 +2293,7 @@ body {
 .news-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 2000;
+  z-index: 10002;
   background: rgba(0,0,0,0);
   display: flex;
   align-items: center;

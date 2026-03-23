@@ -596,36 +596,46 @@ document.addEventListener('DOMContentLoaded', () => {
     const spotDetailContent = document.getElementById('spotDetailContent');
     const spotDetailClose = document.getElementById('spotDetailClose');
 
+    const customIcon = L.divIcon({
+      className: 'custom-spot-popup',
+      html: `<div class="custom-spot-label">${spot.name}</div>`,
+      iconSize: [120, 30],
+      iconAnchor: [60, -10]
+    });
+
     function showSpotDetail(spot) {
       const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(spot.name + ', ' + spot.address);
-      spotDetailContent.innerHTML = `
-        <div class="spot-receipt">
-          <div class="spot-receipt-header">
-            <span class="spot-receipt-district">${spot.district}</span>
-            <span class="spot-receipt-type">${spot.type}</span>
+      
+      const popupContent = `
+        <div class="leaflet-popup-content-wrapper">
+          <div class="leaflet-popup-content spot-popup">
+            <div class="spot-popup-header">
+              <span class="spot-popup-district">${spot.district}</span>
+              <span class="spot-popup-type">${spot.type}</span>
+            </div>
+            <h3 class="spot-popup-name">${spot.name}</h3>
+            <div class="spot-popup-musteat">
+              <span class="spot-popup-label">Eat This:</span> ${spot.mustEat}
+            </div>
+            <div class="spot-popup-address">${spot.address}</div>
+            <a href="${mapsUrl}" target="_blank" rel="noopener" class="spot-popup-btn">
+              Maps ↗
+            </a>
           </div>
-          <h3 class="spot-receipt-name">${spot.name}</h3>
-          <div class="spot-receipt-divider"></div>
-          <div class="spot-receipt-musteat-box">
-            <span class="spot-receipt-label">Eat This</span>
-            <p class="spot-receipt-musteat">${spot.mustEat}</p>
-          </div>
-          <div class="spot-receipt-divider"></div>
-          <p class="spot-receipt-address">${spot.address}</p>
-          <a href="${mapsUrl}" target="_blank" rel="noopener" class="spot-receipt-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-              <circle cx="12" cy="10" r="3"/>
-            </svg>
-            Open in Maps
-          </a>
         </div>
       `;
-      spotDetail.classList.add('open');
+      
+      const popup = L.popup({
+        maxWidth: 280,
+        className: 'custom-spot-popup-wrapper'
+      })
+        .setLatLng([spot.lat, spot.lng])
+        .setContent(popupContent)
+        .openOn(foodMap);
     }
 
     function hideSpotDetail() {
-      spotDetail.classList.remove('open');
+      foodMap.closePopup();
     }
 
     spots.forEach((spot, i) => {

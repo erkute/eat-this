@@ -2427,8 +2427,9 @@ body {
   }
   
   .app-pages {
-    display: block;
-    height: auto;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
   
   .app-page {
@@ -2443,11 +2444,12 @@ body {
     flex: none;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    z-index: 1;
   }
   
   .app-page.active {
     display: block;
-    z-index: 10;
+    z-index: 2;
   }
   
   .app-page[data-page="start"] .hero {
@@ -2826,17 +2828,17 @@ body {
 }
 
 .login-logo {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .login-logo img {
-  width: 120px;
+  width: 180px;
   height: auto;
   margin: 0 auto;
 }
 
 .login-title {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 900;
   letter-spacing: -0.02em;
   color: var(--black);
@@ -2931,6 +2933,7 @@ body {
   background: var(--white);
   color: var(--black);
   border: 1.5px solid var(--gray-200);
+  margin-bottom: 12px;
 }
 
 .login-btn-google:hover {

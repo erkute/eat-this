@@ -1958,8 +1958,6 @@ body {
   opacity: 1;
   pointer-events: auto;
   background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
 }
 .modal {
   background: var(--white);
@@ -1992,8 +1990,6 @@ body {
   align-items: center;
   justify-content: center;
   transition: background 0.2s, transform 0.2s;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 .modal-close:hover {
   background: var(--orange);
@@ -2108,8 +2104,6 @@ body {
   opacity: 1;
   pointer-events: auto;
   background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 .news-modal {
   background: var(--white);
@@ -2143,8 +2137,6 @@ body {
   justify-content: center;
   cursor: pointer;
   transition: background 0.2s, transform 0.2s;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 .news-modal-close:hover {
   background: var(--orange);
@@ -2457,7 +2449,6 @@ body {
   height: calc(100vh - 60px - 70px);
   overflow-y: auto;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
   padding-bottom: 70px;
 }
 
@@ -2921,8 +2912,6 @@ body {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .login-modal-content {

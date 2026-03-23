@@ -1350,8 +1350,19 @@ body {
 .newsletter-section {
   padding: 80px 24px;
   border-top: 1px solid var(--black);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+.newsletter-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.85);
+  z-index: 0;
 }
 .newsletter-inner {
+  position: relative;
+  z-index: 1;
   max-width: 640px;
   margin: 0 auto;
   text-align: center;
@@ -2604,7 +2615,7 @@ body {
   }
   
   .app-page[data-page="map"] .leaflet-control-zoom {
-    bottom: 80px !important;
+    bottom: 110px !important;
     z-index: 500;
   }
   

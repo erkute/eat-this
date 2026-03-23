@@ -615,12 +615,18 @@ document.addEventListener('DOMContentLoaded', () => {
           foodMap.setView([userLat, userLng], 13);
         },
         (error) => {
-          console.log('Location access denied or unavailable:', error.message);
+          let errorMsg = 'Standort nicht verfügbar';
+          if (error.code === 1) errorMsg = 'Standort-Zugriff verweigert. Bitte in den Browser-Einstellungen erlauben.';
+          if (error.code === 2) errorMsg = 'Standort-Signal nicht gefunden ( Indoor?).';
+          if (error.code === 3) errorMsg = 'Standort-Abfrage timeout.';
+          console.log('Geolocation error:', errorMsg);
+          alert(errorMsg);
           foodMap.setView([52.52, 13.405], 13);
         },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
       );
     } else {
+      alert('Geolocation wird von diesem Browser nicht unterstützt.');
       foodMap.setView([52.52, 13.405], 13);
     }
 

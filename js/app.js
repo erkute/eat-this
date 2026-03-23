@@ -983,4 +983,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Cookie Consent
+  const cookieConsent = document.getElementById('cookieConsent');
+  const cookieAccept = document.getElementById('cookieAccept');
+  const cookieDecline = document.getElementById('cookieDecline');
+  
+  function closeCookieSettings() {
+    if (cookieConsent) {
+      cookieConsent.classList.remove('show');
+    }
+  }
+  
+  if (cookieConsent && !localStorage.getItem('cookieConsent')) {
+    setTimeout(() => {
+      cookieConsent.classList.add('show');
+    }, 1000);
+  }
+  
+  if (cookieAccept) {
+    cookieAccept.addEventListener('click', () => {
+      localStorage.setItem('cookieConsent', 'accepted');
+      closeCookieSettings();
+    });
+  }
+  
+  if (cookieDecline) {
+    cookieDecline.addEventListener('click', () => {
+      localStorage.setItem('cookieConsent', 'declined');
+      closeCookieSettings();
+    });
+  }
+
 });

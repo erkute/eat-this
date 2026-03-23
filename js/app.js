@@ -54,7 +54,52 @@ document.addEventListener('DOMContentLoaded', () => {
       timestamp: Date.now()
     }));
   }
-
+  
+  // ============================================
+  // NOTIFICATIONS
+  // ============================================
+  function showNotification(message, duration = 3000) {
+    let notification = document.querySelector('.notification');
+    if (!notification) {
+      notification = document.createElement('div');
+      notification.className = 'notification';
+      document.body.appendChild(notification);
+    }
+    
+    notification.textContent = message;
+    notification.classList.add('show');
+    
+    setTimeout(() => {
+      notification.classList.remove('show');
+    }, duration);
+  }
+  
+  // Add notification styles
+  const notificationStyle = document.createElement('style');
+  notificationStyle.textContent = `
+    .notification {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--black);
+      color: var(--white);
+      padding: 14px 24px;
+      border-radius: 100px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      z-index: 10000;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+    .notification.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  `;
+  document.head.appendChild(notificationStyle);
+  
   function showCookieBanner() {
     if (cookieBanner) {
       setTimeout(() => {
@@ -987,6 +1032,81 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('resize', handleResize);
     handleResize();
+    
+    // Login Modal
+    const loginModal = document.getElementById('loginModal');
+    const loginBackdrop = document.getElementById('loginBackdrop');
+    const loginClose = document.getElementById('loginClose');
+    const loginForm = document.getElementById('loginForm');
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    const appleLoginBtn = document.getElementById('appleLoginBtn');
+    
+    function openLoginModal() {
+      if (loginModal) {
+        loginModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+    
+    function closeLoginModal() {
+      if (loginModal) {
+        loginModal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+    
+    if (loginBackdrop) {
+      loginBackdrop.addEventListener('click', closeLoginModal);
+    }
+    
+    if (loginClose) {
+      loginClose.addEventListener('click', closeLoginModal);
+    }
+    
+    // Login button in footer
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+      loginBtn.addEventListener('click', openLoginModal);
+    }
+    
+    if (loginForm) {
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('loginName').value;
+        const email = document.getElementById('loginEmail').value;
+        
+        // Store user info (in production, send to backend)
+        localStorage.setItem('userName', name);
+        localStorage.setItem('userEmail', email);
+        localStorage.setItem('isLoggedIn', 'true');
+        
+        closeLoginModal();
+        showNotification('Willkommen, ' + name + '!');
+      });
+    }
+    
+    if (googleLoginBtn) {
+      googleLoginBtn.addEventListener('click', () => {
+        // Google Sign-In (requires Firebase setup)
+        alert('Google Login: Bitte Firebase konfigurieren für produktive Nutzung.');
+        closeLoginModal();
+      });
+    }
+    
+    if (appleLoginBtn) {
+      appleLoginBtn.addEventListener('click', () => {
+        // Apple Sign-In (requires Firebase setup)
+        alert('Apple Login: Bitte Firebase konfigurieren für produktive Nutzung.');
+        closeLoginModal();
+      });
+    }
+    
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && loginModal && loginModal.classList.contains('active')) {
+        closeLoginModal();
+      }
+    });
   }
 
 });

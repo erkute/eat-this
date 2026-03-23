@@ -3281,21 +3281,22 @@ body {
 @media (max-width: 767px) {
   .login-modal {
     align-items: center;
+    justify-content: center;
     bottom: 70px;
   }
   .login-modal-content {
-    width: 95%;
-    max-width: 360px;
-    padding: 24px 20px;
-    border-radius: 20px;
+    width: 85%;
+    max-width: 340px;
+    padding: 20px 18px;
+    border-radius: 16px;
     animation: slideUp 0.3s var(--ease);
   }
   
   .login-logo img {
-    width: 100px;
+    width: 80px;
   }
   
   .login-title {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
   }
 }

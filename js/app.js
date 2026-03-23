@@ -98,10 +98,10 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   const newsData = [
-    { title: 'Berlins neue Ramen-Welle: Warum die Hauptstadt jetzt das ultimative Nudel-Haus hat', category: 'Openings', date: '15. März 2026', img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&h=700&fit=crop', type: 'news' },
-    { title: 'Markthalle Neun bekommt einen neuen Street-Food-Floor', category: 'Openings', date: '14. März 2026', img: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=1200&h=700&fit=crop', type: 'news' },
-    { title: 'Berlin hat jetzt 8 Michelin-Sterne-Restaurants — und keines kostet über 150€', category: 'Culture', date: '13. März 2026', img: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&h=700&fit=crop', type: 'news' },
-    { title: 'Die 10 besten Donut-Shops in Berlin — von Brooklyn bis Thai-Style', category: 'Guides', date: '12. März 2026', img: 'https://images.unsplash.com/photo-1555992336-fb0d29498b13?w=1200&h=700&fit=crop', type: 'news' }
+    { title: 'Berlins neue Ramen-Welle: Warum die Hauptstadt jetzt das ultimative Nudel-Haus hat', category: 'Openings', date: '15. März 2026', img: 'pics/spots/ramen.webp', type: 'news' },
+    { title: 'Markthalle Neun bekommt einen neuen Street-Food-Floor', category: 'Openings', date: '14. März 2026', img: 'pics/spots/markthalle9.webp', type: 'news' },
+    { title: 'Berlin hat jetzt 8 Michelin-Sterne-Restaurants — und keines kostet über 150€', category: 'Culture', date: '13. März 2026', img: 'pics/spots/michelin.webp', type: 'news' },
+    { title: 'Die 10 besten Donut-Shops in Berlin — von Brooklyn bis Thai-Style', category: 'Guides', date: '12. März 2026', img: 'pics/spots/donuts.webp', type: 'news' }
   ];
 
   function openSearch() {

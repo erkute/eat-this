@@ -664,7 +664,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       markers.push(marker);
     });
-
+    
+    const spotDetailClose = null;
+    
     if (spotDetailClose) {
       spotDetailClose.addEventListener('click', hideSpotDetail);
     }

@@ -200,24 +200,35 @@ document.addEventListener('DOMContentLoaded', () => {
       item.addEventListener('click', () => {
         const type = item.dataset.type;
         if (type === 'must-eat') {
-          const index = parseInt(item.dataset.index);
-          const card = document.querySelectorAll('.eat-card')[index];
-          if (card) {
-            closeSearch();
-            setTimeout(() => card.click(), 300);
-          }
+          closeSearch();
+          setTimeout(() => {
+            navigateToPage('musts');
+            window.location.hash = 'musts';
+            setTimeout(() => {
+              const index = parseInt(item.dataset.index);
+              const cards = document.querySelectorAll('.eat-card');
+              const card = cards[index];
+              if (card) {
+                card.click();
+              }
+            }, 400);
+          }, 100);
         } else if (type === 'news') {
           closeSearch();
-          const title = item.dataset.title;
-          const articles = document.querySelectorAll('.news-featured, .news-card');
-          articles.forEach(article => {
-            if (article.dataset.title === title) {
-              setTimeout(() => {
-                const link = article.querySelector('a');
-                if (link) link.click();
-              }, 300);
-            }
-          });
+          setTimeout(() => {
+            navigateToPage('news');
+            window.location.hash = 'news';
+            setTimeout(() => {
+              const title = item.dataset.title;
+              const articles = document.querySelectorAll('.news-featured, .news-card');
+              articles.forEach(article => {
+                if (article.dataset.title === title) {
+                  const link = article.querySelector('a');
+                  if (link) link.click();
+                }
+              });
+            }, 400);
+          }, 100);
         }
       });
     });

@@ -2153,10 +2153,15 @@ body {
    SEARCH
    ============================================ */
 .search-trigger {
-  display: flex;
-  align-items: center;
-  padding: 0 !important;
-  color: var(--black) !important;
+  display: none;
+}
+@media (max-width: 767px) {
+  .search-trigger {
+    display: flex;
+    align-items: center;
+    padding: 0 !important;
+    color: var(--black) !important;
+  }
 }
 .search-trigger::after {
   display: none !important;

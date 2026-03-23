@@ -558,8 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
               setDefaultView();
             }
           },
-          (error) => {
-            console.log('Geolocation error:', error.message);
+          () => {
             setDefaultView();
           },
           {
@@ -572,7 +571,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setDefaultView();
       }
     } catch (e) {
-      console.log('Geolocation exception:', e);
       setDefaultView();
     }
 

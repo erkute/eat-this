@@ -85,36 +85,7 @@ body {
   width: auto;
   display: block;
 }
-.navbar-links {
-  display: none;
-  gap: 28px;
-  align-items: center;
-}
-.navbar-links a {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  position: relative;
-  padding-bottom: 2px;
-  transition: color 0.2s;
-}
-.navbar-links a::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 1.5px;
-  background: var(--orange);
-  transition: width 0.3s var(--ease);
-}
-.navbar-links a:hover::after {
-  width: 100%;
-}
-.navbar-links a:hover {
-  color: var(--orange);
-}
+
 .navbar-actions {
   display: flex;
   align-items: center;
@@ -384,11 +355,6 @@ body {
     height: 100%;
     object-fit: cover;
   }
-}
-.about-img-caption {
-  font-size: 12px;
-  color: var(--gray-400);
-  font-style: italic;
 }
 .about-footer {
   display: flex;
@@ -914,10 +880,6 @@ body {
   font-family: 'Courier New', Courier, monospace;
 }
 
-.spot-detail-btn:hover {
-  background: var(--orange);
-}
-
 /* User Location Marker */
 .user-location-marker {
   background: transparent;
@@ -957,7 +919,8 @@ body {
 
 .map-filter-btn {
   flex-shrink: 0;
-  padding: 8px 16px;
+  padding: 10px 16px;
+  min-height: 44px;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -2705,9 +2668,9 @@ body {
   }
   
   .app-page[data-page="map"] .leaflet-control-zoom {
-    bottom: 110px !important;
+    bottom: 32px !important;
     top: auto !important;
-    right: 10px !important;
+    right: 12px !important;
     left: auto !important;
     z-index: 500;
   }

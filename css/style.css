@@ -2074,7 +2074,7 @@ body {
   background: var(--black);
   color: var(--white);
   padding: 20px 24px;
-  z-index: 9999;
+  z-index: 10002;
   transform: translateY(100%);
   transition: transform 0.3s var(--ease);
 }

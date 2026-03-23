@@ -886,14 +886,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleResize() {
       isMobile = window.innerWidth <= 767;
-      
-      if (!isMobile) {
-        appPages.forEach(page => {
-          page.classList.remove('active', 'hidden');
-        });
-      } else {
-        navigateToPage(currentPage);
-      }
+      navigateToPage(currentPage);
     }
 
     window.addEventListener('resize', handleResize);

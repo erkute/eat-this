@@ -2520,6 +2520,10 @@ body {
 }
 
 @media (max-width: 767px) {
+  body {
+    background-color: #000;
+  }
+
   .app-footer-item span {
     font-size: 10px;
   }

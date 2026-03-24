@@ -2524,6 +2524,16 @@ body {
     background-color: #000;
   }
 
+  .navbar {
+    background: #fff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .app-footer {
+    box-shadow: none;
+  }
+
   .app-footer-item span {
     font-size: 10px;
   }

@@ -481,18 +481,17 @@ body {
 }
 
 .eat-card {
-  background: var(--white);
-  border: 1px solid var(--gray-100);
-  border-radius: 12px;
-  overflow: hidden;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
   cursor: pointer;
-  transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease), border-color 0.3s;
+  transition: none;
   position: relative;
 }
 .eat-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 24px 48px rgba(0,0,0,0.1);
-  border-color: var(--gray-200);
+  transform: none;
+  box-shadow: none;
 }
 .eat-card-img {
   width: 100%;
@@ -503,49 +502,34 @@ body {
 .eat-card-img img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transition: transform 0.6s var(--ease);
+  object-fit: contain;
+  transition: none;
 }
 .eat-card:hover .eat-card-img img {
-  transform: scale(1.08);
+  transform: none;
 }
 .eat-card-img img.hover-img {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 0.4s var(--ease);
-}
-.eat-card:hover .eat-card-img img.hover-img {
-  opacity: 1;
+  display: none;
 }
 .eat-card-district-badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background: var(--black);
-  color: var(--white);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  padding: 5px 10px;
-  border-radius: 4px;
+  display: none;
 }
 .eat-card-body {
-  padding: 16px 16px 20px;
+  padding: 6px 0 0;
 }
 .eat-card-dish {
-  font-size: clamp(0.95rem, 2vw, 1.1rem);
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
-  margin-bottom: 4px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  margin-bottom: 2px;
+  color: var(--black);
 }
 .eat-card-restaurant {
-  font-size: 12px;
-  color: var(--gray-400);
+  font-size: 11px;
+  color: #999;
   font-weight: 400;
   margin-bottom: 0;
 }

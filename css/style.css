@@ -2877,8 +2877,8 @@ body {
   cursor: pointer;
   font-size: inherit;
   font-family: inherit;
-  font-weight: 600;
-  color: var(--black);
+  font-weight: inherit;
+  color: inherit;
   text-decoration: underline;
   text-underline-offset: 2px;
 }

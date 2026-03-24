@@ -2528,6 +2528,7 @@ body {
     background: #fff;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+    min-height: 60px;
   }
 
   .app-footer {
@@ -2547,6 +2548,7 @@ body {
     height: auto;
     z-index: 9990;
     background: var(--white);
+    overscroll-behavior: none;
   }
   
   .app-page.active {

@@ -139,14 +139,30 @@
   background: var(--orange);
 }
 
-/* Desktop */
+/* Reset desktop app-frame styles for subpages */
 @media (min-width: 768px) {
+  body.subpage {
+    background: #fff;
+  }
+
+  body.subpage .navbar {
+    left: 0;
+    right: 0;
+    transform: none;
+    width: 100%;
+    max-width: none;
+    padding: 12px 48px;
+    height: auto;
+  }
+
   .page-hero {
     padding: 160px 48px 80px;
   }
+
   .page-content {
     padding: 80px 48px 120px;
   }
+
   .page-features {
     grid-template-columns: repeat(3, 1fr);
   }

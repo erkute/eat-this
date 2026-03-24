@@ -649,10 +649,41 @@
   <!-- COOKIE CONSENT -->
   <div class="cookie-consent" id="cookieConsent">
     <div class="cookie-content">
-      <p class="cookie-text">Wir verwenden Cookies, um dir das beste Erlebnis zu bieten. <a href="cookies.html">Mehr dazu</a></p>
+      <p class="cookie-text">Wir verwenden Cookies, um dir das beste Erlebnis zu bieten. <button class="cookie-info-trigger" id="cookieInfoTrigger">Mehr dazu</button></p>
       <div class="cookie-buttons">
         <button class="cookie-btn cookie-btn-accept" id="cookieAccept">Akzeptieren</button>
         <button class="cookie-btn cookie-btn-decline" id="cookieDecline">Ablehnen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COOKIE INFO MODAL -->
+  <div class="login-modal" id="cookieInfoModal">
+    <div class="login-modal-backdrop" id="cookieInfoBackdrop"></div>
+    <div class="login-modal-content cookie-info-modal-content">
+      <button class="login-modal-close" id="cookieInfoClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <h2 class="cookie-info-title">Cookie Policy</h2>
+      <div class="cookie-info-body">
+        <h3>Was sind Cookies?</h3>
+        <p>Cookies sind kleine Textdateien, die beim Besuch einer Website auf deinem Gerät gespeichert werden. Sie helfen, deine Einstellungen zu speichern und das Surferlebnis zu verbessern.</p>
+
+        <h3>Wie wir Cookies nutzen</h3>
+        <p>EAT THIS verwendet minimale Cookies, hauptsächlich von Drittanbietern:</p>
+        <ul>
+          <li><strong>Google Fonts</strong> — Schriften für bessere Typografie</li>
+          <li><strong>Leaflet / CartoDB</strong> — Kacheln für unsere Food Map</li>
+          <li><strong>Instagram / Meta</strong> — Eingebettete Posts</li>
+        </ul>
+
+        <h3>Cookies verwalten</h3>
+        <p>Du kannst Cookies jederzeit in deinen Browser-Einstellungen blockieren oder löschen. Einige Funktionen der Website können dadurch eingeschränkt sein.</p>
+
+        <h3>Kontakt</h3>
+        <p>Fragen? <a href="mailto:hello@eatthisdot.com">hello@eatthisdot.com</a></p>
       </div>
     </div>
   </div>

@@ -187,6 +187,12 @@ body {
   opacity: 1;
 }
 
+.navbar-links {
+  display: none;
+  align-items: center;
+  gap: 28px;
+}
+
 @media (min-width: 768px) {
   .navbar { padding: 12px 48px; }
   .navbar-links { display: flex; }
@@ -2863,6 +2869,20 @@ body {
 /* ============================================
    LOGIN MODAL
    ============================================ */
+/* Cookie Info Trigger Button */
+.cookie-info-trigger {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: 600;
+  color: var(--black);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .login-modal {
   display: none;
   position: fixed;
@@ -3377,4 +3397,48 @@ body {
   .app-page[data-page="newsletter"] .pricing-section {
     padding: 20px 20px;
   }
+}
+
+/* Cookie Info Modal Content */
+.cookie-info-modal-content {
+  text-align: left;
+  max-width: 480px;
+}
+.cookie-info-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  margin-bottom: 20px;
+  padding-right: 32px;
+}
+.cookie-info-body h3 {
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 20px 0 6px;
+  color: var(--black);
+}
+.cookie-info-body h3:first-child {
+  margin-top: 0;
+}
+.cookie-info-body p {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--gray-600);
+  margin: 0;
+}
+.cookie-info-body ul {
+  margin: 8px 0 0 16px;
+  padding: 0;
+}
+.cookie-info-body ul li {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--gray-600);
+  margin-bottom: 4px;
+}
+.cookie-info-body a {
+  color: var(--black);
+  font-weight: 600;
 }

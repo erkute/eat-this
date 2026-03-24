@@ -276,6 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape') {
       closeSearch();
       closeCookieSettings();
+      closeCookieInfoModal();
     }
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault();
@@ -969,6 +970,30 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Cookie Info Modal
+  const cookieInfoModal = document.getElementById('cookieInfoModal');
+  const cookieInfoTrigger = document.getElementById('cookieInfoTrigger');
+  const cookieInfoClose = document.getElementById('cookieInfoClose');
+  const cookieInfoBackdrop = document.getElementById('cookieInfoBackdrop');
+
+  function openCookieInfoModal() {
+    if (cookieInfoModal) {
+      cookieInfoModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeCookieInfoModal() {
+    if (cookieInfoModal) {
+      cookieInfoModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  if (cookieInfoTrigger) cookieInfoTrigger.addEventListener('click', openCookieInfoModal);
+  if (cookieInfoClose) cookieInfoClose.addEventListener('click', closeCookieInfoModal);
+  if (cookieInfoBackdrop) cookieInfoBackdrop.addEventListener('click', closeCookieInfoModal);
 
   // Cookie Consent
   const cookieConsent = document.getElementById('cookieConsent');

@@ -495,14 +495,13 @@ body {
 }
 .eat-card-img {
   width: 100%;
-  aspect-ratio: 1/1;
   overflow: hidden;
   position: relative;
 }
 .eat-card-img img {
   width: 100%;
-  height: 100%;
-  object-fit: contain;
+  height: auto;
+  display: block;
   transition: none;
 }
 .eat-card:hover .eat-card-img img {
@@ -545,7 +544,7 @@ body {
   margin-top: 4px;
 }
 .eat-card-price {
-  display: inline-block;
+  display: none;
   font-size: 13px;
   font-weight: 800;
   color: var(--orange);

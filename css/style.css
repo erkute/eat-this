@@ -2543,7 +2543,7 @@ body {
   .app-page[data-page="start"] .hero {
     position: relative;
     width: 100%;
-    height: 100%;
+    height: calc(100dvh - 130px);
     min-height: 400px;
   }
   
@@ -3149,7 +3149,7 @@ body {
   }
 
   .app-page[data-page="start"] .hero {
-    height: 100%;
+    height: calc(100dvh - 130px);
   }
 
   .app-page[data-page="start"] .hero-content {

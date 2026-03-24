@@ -127,9 +127,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function escapeHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   function search(query) {
     const q = query.toLowerCase().trim();
-    
+
     if (!q) {
       searchResults.innerHTML = '<div class="search-hint">Tippe um zu suchen...</div>';
       return;
@@ -159,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (results.length === 0) {
       searchResults.innerHTML = `
         <div class="search-no-results">
-          <p>Keine Ergebnisse für "${query}"</p>
+          <p>Keine Ergebnisse für &ldquo;${escapeHtml(query)}&rdquo;</p>
           <span>Versuche einen anderen Suchbegriff</span>
         </div>
       `;
@@ -677,7 +681,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mapLocationBtn) {
       mapLocationBtn.addEventListener('click', () => {
         if (!navigator.geolocation) {
-          alert('Geolocation wird von diesem Gerät nicht unterstützt');
+          showNotification('Geolocation wird von diesem Gerät nicht unterstützt');
           return;
         }
         
@@ -705,7 +709,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (error.code === 2) {
               msg = 'Standort nicht verfügbar';
             }
-            alert(msg);
+            showNotification(msg);
           },
           { enableHighAccuracy: true, timeout: 10000 }
         );
@@ -946,16 +950,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (googleLoginBtn) {
       googleLoginBtn.addEventListener('click', () => {
-        // Google Sign-In (requires Firebase setup)
-        alert('Google Login: Bitte Firebase konfigurieren für produktive Nutzung.');
+        showNotification('Google Login noch nicht verfügbar.');
         closeLoginModal();
       });
     }
-    
+
     if (appleLoginBtn) {
       appleLoginBtn.addEventListener('click', () => {
-        // Apple Sign-In (requires Firebase setup)
-        alert('Apple Login: Bitte Firebase konfigurieren für produktive Nutzung.');
+        showNotification('Apple Login noch nicht verfügbar.');
         closeLoginModal();
       });
     }

@@ -2815,6 +2815,10 @@ body {
     border-bottom: 1px solid var(--gray-100);
     display: block;
   }
+
+  .app-page[data-page="news"] .news-card:last-child {
+    border-bottom: none;
+  }
   
   .app-page[data-page="news"] .news-card-img {
     display: block;

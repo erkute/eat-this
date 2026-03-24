@@ -2543,7 +2543,7 @@ body {
   .app-page[data-page="start"] .hero {
     position: relative;
     width: 100%;
-    height: calc(100vh - 130px);
+    height: 100%;
     min-height: 400px;
   }
   
@@ -2568,7 +2568,7 @@ body {
     right: 0;
     bottom: 0;
     height: 100%;
-    padding: 10vh 20px 12vh;
+    padding: 10dvh 20px clamp(24px, 8dvh, 60px);
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -3149,7 +3149,7 @@ body {
   }
 
   .app-page[data-page="start"] .hero {
-    height: calc(100vh - 130px);
+    height: 100%;
   }
 
   .app-page[data-page="start"] .hero-content {

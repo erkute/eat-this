@@ -2603,7 +2603,7 @@ body {
   .app-page[data-page="map"] .map-header,
   .app-page[data-page="newsletter"] .newsletter-inner,
   .app-page[data-page="news"] .news-header {
-    padding: 16px 16px 36px;
+    padding: 16px 16px 24px;
     background: var(--white);
     text-align: left;
     border: none;
@@ -3175,7 +3175,7 @@ body {
 
   .app-page .must-eats-header,
   .app-page .news-header {
-    padding: 16px 16px 36px;
+    padding: 16px 16px 24px;
     background: var(--white);
     text-align: left;
     margin: 0;

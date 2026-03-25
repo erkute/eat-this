@@ -231,7 +231,7 @@ if (forgotPasswordBtn) {
         'auth/invalid-email':     'Ungültige E-Mail-Adresse.',
         'auth/too-many-requests': 'Zu viele Versuche — bitte kurz warten.',
       };
-      showError(map[err.code] ?? ('Fehler: ' + err.code));
+      showError(map[err.code] ?? 'Fehler beim Senden. Bitte erneut versuchen.');
     }
   });
 }

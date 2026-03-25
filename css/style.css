@@ -3622,6 +3622,18 @@ body {
   line-height: 1.4;
 }
 
+.login-success {
+  display: none;
+  font-size: 0.82rem;
+  color: #276749;
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: left;
+  line-height: 1.4;
+}
+
 /* Modus-Toggle-Link (Registrierung ↔ Anmeldung) */
 .login-forgot {
   margin: 2px 0 0;

@@ -59,6 +59,7 @@ const loginPassword  = document.getElementById('loginPassword');
 const loginSubmitText = document.getElementById('loginSubmitText');
 const loginModeToggle = document.getElementById('loginModeToggle');
 const loginError     = document.getElementById('loginError');
+const loginSuccess   = document.getElementById('loginSuccess');
 
 const profileAvatar  = document.getElementById('profileAvatar');
 const profileName    = document.getElementById('profileName');
@@ -115,6 +116,7 @@ function buildModeToggle(isRegister) {
 function setMode(register) {
   isRegisterMode = register;
   clearError();
+  clearSuccess();
 
   if (register) {
     if (loginTitle)      loginTitle.textContent      = 'Konto erstellen';
@@ -148,6 +150,17 @@ function showError(msg) {
 function clearError() {
   if (!loginError) return;
   loginError.style.display = 'none';
+}
+
+function showSuccess(msg) {
+  if (!loginSuccess) return;
+  loginSuccess.textContent = msg;
+  loginSuccess.style.display = 'block';
+}
+
+function clearSuccess() {
+  if (!loginSuccess) return;
+  loginSuccess.style.display = 'none';
 }
 
 function errorMessage(code) {
@@ -209,9 +222,11 @@ if (forgotPasswordBtn) {
     const email = loginEmail?.value.trim() ?? '';
     if (!email) { showError('Bitte gib zuerst deine E-Mail-Adresse ein.'); return; }
     try {
-      await sendPasswordResetEmail(auth, email);
-      showError('');
-      notify('Reset-Link wurde an ' + email + ' gesendet.');
+      await sendPasswordResetEmail(auth, email, {
+        url: 'https://www.eatthisdot.com/reset-password.html'
+      });
+      clearError();
+      showSuccess('Reset-Link wurde an ' + email + ' gesendet. Bitte prüfe dein Postfach.');
     } catch (err) {
       const map = {
         'auth/user-not-found':    'Kein Konto mit dieser E-Mail-Adresse.',

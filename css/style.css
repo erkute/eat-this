@@ -2914,12 +2914,12 @@ body {
 .login-modal-content {
   position: relative;
   width: 90%;
-  max-width: 400px;
+  max-width: 380px;
   max-height: min(90dvh, 90vh);
   overflow-y: auto;
   background: var(--white);
-  border-radius: 24px;
-  padding: 32px 24px;
+  border-radius: 20px;
+  padding: 24px 22px;
   text-align: center;
 }
 
@@ -2950,39 +2950,39 @@ body {
 }
 
 .login-logo {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .login-logo img {
-  width: 180px;
+  width: 72px;
   height: auto;
   margin: 0 auto;
 }
 
 .login-title {
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   font-weight: 900;
   letter-spacing: -0.02em;
   color: var(--black);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .login-subtitle {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--gray-400);
-  margin-bottom: 24px;
-  line-height: 1.5;
+  margin-bottom: 16px;
+  line-height: 1.4;
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .login-field input {
   width: 100%;
-  padding: 14px 16px;
+  padding: 11px 14px;
   border: 1.5px solid var(--gray-200);
   border-radius: 12px;
   font-size: 1rem;
@@ -3002,7 +3002,7 @@ body {
 
 .login-btn {
   width: 100%;
-  padding: 14px 20px;
+  padding: 11px 18px;
   border: none;
   border-radius: 12px;
   font-size: 1rem;
@@ -3038,7 +3038,7 @@ body {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin: 20px 0;
+  margin: 14px 0;
   color: var(--gray-400);
   font-size: 0.85rem;
 }
@@ -3055,7 +3055,7 @@ body {
   background: var(--white);
   color: var(--black);
   border: 1.5px solid var(--gray-200);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .login-btn-google:hover {
@@ -3074,7 +3074,7 @@ body {
 }
 
 .login-terms {
-  margin-top: 20px;
+  margin-top: 14px;
   font-size: 0.75rem;
   color: var(--gray-400);
   line-height: 1.5;

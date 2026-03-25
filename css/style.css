@@ -3623,6 +3623,26 @@ body {
 }
 
 /* Modus-Toggle-Link (Registrierung ↔ Anmeldung) */
+.login-forgot {
+  margin: 2px 0 0;
+  text-align: right;
+}
+
+.login-forgot-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.8rem;
+  font-family: var(--font);
+  color: var(--gray-400);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.login-forgot-btn:hover {
+  color: var(--black);
+}
+
 .login-mode-toggle {
   margin: 14px 0 0;
   font-size: 0.85rem;

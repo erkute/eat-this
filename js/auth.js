@@ -16,6 +16,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
+  sendPasswordResetEmail,
   onAuthStateChanged,
   signOut,
   updateProfile
@@ -64,7 +65,9 @@ const profileName    = document.getElementById('profileName');
 const profileEmail   = document.getElementById('profileEmail');
 const logoutBtn      = document.getElementById('logoutBtn');
 
-const googleLoginBtn = document.getElementById('googleLoginBtn');
+const googleLoginBtn   = document.getElementById('googleLoginBtn');
+const loginForgot      = document.getElementById('loginForgot');
+const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
 // ─── Zustand ──────────────────────────────────────────────────────────────────
 let isRegisterMode = true;
 
@@ -119,12 +122,14 @@ function setMode(register) {
     if (nameField)       nameField.style.display     = '';
     if (loginName)       loginName.required           = true;
     if (loginSubmitText) loginSubmitText.textContent = 'Konto erstellen';
+    if (loginForgot)     loginForgot.style.display   = 'none';
   } else {
     if (loginTitle)      loginTitle.textContent      = 'Willkommen zurück';
     if (loginSubtitle)   loginSubtitle.textContent   = 'Melde dich mit deiner E-Mail-Adresse an.';
     if (nameField)       nameField.style.display     = 'none';
     if (loginName)       loginName.required           = false;
     if (loginSubmitText) loginSubmitText.textContent = 'Anmelden';
+    if (loginForgot)     loginForgot.style.display   = '';
   }
 
   buildModeToggle(register);
@@ -193,6 +198,27 @@ if (loginForm) {
       if (msg) showError(msg);
     } finally {
       if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+}
+
+// ─── Passwort vergessen ───────────────────────────────────────────────────────
+if (forgotPasswordBtn) {
+  forgotPasswordBtn.addEventListener('click', async () => {
+    clearError();
+    const email = loginEmail?.value.trim() ?? '';
+    if (!email) { showError('Bitte gib zuerst deine E-Mail-Adresse ein.'); return; }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      showError('');
+      notify('Reset-Link wurde an ' + email + ' gesendet.');
+    } catch (err) {
+      const map = {
+        'auth/user-not-found':    'Kein Konto mit dieser E-Mail-Adresse.',
+        'auth/invalid-email':     'Ungültige E-Mail-Adresse.',
+        'auth/too-many-requests': 'Zu viele Versuche — bitte kurz warten.',
+      };
+      showError(map[err.code] ?? 'Fehler beim Senden. Bitte erneut versuchen.');
     }
   });
 }

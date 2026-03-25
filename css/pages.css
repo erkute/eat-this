@@ -1,6 +1,36 @@
 /* ============================================
-   PAGE STYLES (About, Contact, Advertise, Press)
+   PAGE STYLES
    ============================================ */
+
+.subpage-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  z-index: 100;
+  padding: 0 20px;
+}
+.subpage-nav-back {
+  position: absolute;
+  left: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--black);
+  text-decoration: none;
+  opacity: 0.6;
+}
+.subpage-nav-back:hover { opacity: 1; }
+.subpage-nav-logo img {
+  height: 32px;
+  width: auto;
+}
+.page-hero { padding-top: 96px; }
 
 .page-hero {
   padding: 140px 24px 60px;

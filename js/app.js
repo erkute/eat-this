@@ -995,6 +995,28 @@ document.addEventListener('DOMContentLoaded', () => {
   if (cookieInfoClose) cookieInfoClose.addEventListener('click', closeCookieInfoModal);
   if (cookieInfoBackdrop) cookieInfoBackdrop.addEventListener('click', closeCookieInfoModal);
 
+  // AGB Modal
+  const agbModal = document.getElementById('agbModal');
+  const agbTrigger = document.getElementById('agbTrigger');
+  const agbClose = document.getElementById('agbClose');
+  const agbBackdrop = document.getElementById('agbBackdrop');
+  function openAgbModal() { if (agbModal) { agbModal.classList.add('active'); document.body.style.overflow = 'hidden'; } }
+  function closeAgbModal() { if (agbModal) { agbModal.classList.remove('active'); document.body.style.overflow = ''; } }
+  if (agbTrigger) agbTrigger.addEventListener('click', openAgbModal);
+  if (agbClose) agbClose.addEventListener('click', closeAgbModal);
+  if (agbBackdrop) agbBackdrop.addEventListener('click', closeAgbModal);
+
+  // Datenschutz Modal
+  const datenschutzModal = document.getElementById('datenschutzModal');
+  const datenschutzTrigger = document.getElementById('datenschutzTrigger');
+  const datenschutzClose = document.getElementById('datenschutzClose');
+  const datenschutzBackdrop = document.getElementById('datenschutzBackdrop');
+  function openDatenschutzModal() { if (datenschutzModal) { datenschutzModal.classList.add('active'); document.body.style.overflow = 'hidden'; } }
+  function closeDatenschutzModal() { if (datenschutzModal) { datenschutzModal.classList.remove('active'); document.body.style.overflow = ''; } }
+  if (datenschutzTrigger) datenschutzTrigger.addEventListener('click', openDatenschutzModal);
+  if (datenschutzClose) datenschutzClose.addEventListener('click', closeDatenschutzModal);
+  if (datenschutzBackdrop) datenschutzBackdrop.addEventListener('click', closeDatenschutzModal);
+
   // Cookie Consent
   const cookieConsent = document.getElementById('cookieConsent');
   const cookieAccept = document.getElementById('cookieAccept');

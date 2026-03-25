@@ -527,13 +527,6 @@
         </svg>
         <span>Karte</span>
       </a>
-      <a href="#newsletter" class="app-footer-item" data-target="newsletter">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="2" y="4" width="20" height="16" rx="2"/>
-          <path d="M22 4L12 13 2 4"/>
-        </svg>
-        <span>Newsletter</span>
-      </a>
       <button class="app-footer-item" id="loginBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -670,11 +663,13 @@
         </svg>
         <span>Mit Apple anmelden</span>
       </button>
-      
+
       <p class="login-terms">
-        Mit der Anmeldung stimmst du unseren 
-        <a href="terms.html">AGB</a> und <a href="privacy.html">Datenschutz</a> zu.
+        Mit der Anmeldung stimmst du unseren
+        <button class="login-terms-link" id="agbTrigger">AGB</button> und
+        <button class="login-terms-link" id="datenschutzTrigger">Datenschutz</button> zu.
       </p>
+
     </div>
   </div>
 
@@ -690,6 +685,52 @@
   </div>
 
   <!-- COOKIE INFO MODAL -->
+  <!-- AGB MODAL -->
+  <div class="login-modal" id="agbModal">
+    <div class="login-modal-backdrop" id="agbBackdrop"></div>
+    <div class="login-modal-content cookie-info-modal-content">
+      <button class="login-modal-close" id="agbClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <h2 class="cookie-info-title">Allgemeine Geschäftsbedingungen</h2>
+      <div class="cookie-info-body">
+        <h3>Geltungsbereich</h3>
+        <p>Diese AGB gelten für die Nutzung der EAT THIS-Plattform, einschließlich aller Inhalte, Funktionen und Dienste.</p>
+        <h3>Nutzung</h3>
+        <p>EAT THIS ist ein redaktioneller Food-Guide für Berlin. Die Inhalte dienen ausschließlich zur Information und stellen keine kommerzielle Empfehlung dar.</p>
+        <h3>Haftung</h3>
+        <p>Wir übernehmen keine Gewähr für die Aktualität, Vollständigkeit oder Richtigkeit der bereitgestellten Informationen.</p>
+        <h3>Kontakt</h3>
+        <p>Bei Fragen: <a href="mailto:hello@eatthisdot.com">hello@eatthisdot.com</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATENSCHUTZ MODAL -->
+  <div class="login-modal" id="datenschutzModal">
+    <div class="login-modal-backdrop" id="datenschutzBackdrop"></div>
+    <div class="login-modal-content cookie-info-modal-content">
+      <button class="login-modal-close" id="datenschutzClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <h2 class="cookie-info-title">Datenschutz</h2>
+      <div class="cookie-info-body">
+        <h3>Verantwortlicher</h3>
+        <p>EAT THIS, Berlin. Kontakt: <a href="mailto:hello@eatthisdot.com">hello@eatthisdot.com</a></p>
+        <h3>Datenerhebung</h3>
+        <p>Bei der Anmeldung speichern wir deinen Namen und deine E-Mail-Adresse zur Verwaltung deines Accounts.</p>
+        <h3>Cookies</h3>
+        <p>Wir verwenden technisch notwendige Cookies sowie Cookies von Drittanbietern (Karte, Schriften). Details findest du in unserer Cookie Policy.</p>
+        <h3>Deine Rechte</h3>
+        <p>Du hast jederzeit das Recht auf Auskunft, Berichtigung und Löschung deiner Daten. Anfragen an: <a href="mailto:hello@eatthisdot.com">hello@eatthisdot.com</a></p>
+      </div>
+    </div>
+  </div>
+
   <div class="login-modal" id="cookieInfoModal">
     <div class="login-modal-backdrop" id="cookieInfoBackdrop"></div>
     <div class="login-modal-content cookie-info-modal-content">

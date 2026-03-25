@@ -440,7 +440,7 @@ body {
 .must-eats-header {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px 24px;
+  padding: 0 24px 72px;
 }
 .section-label {
   font-size: 10px;
@@ -472,7 +472,7 @@ body {
 
 @media (min-width: 768px) {
   .must-eats-section { padding: 140px 0 100px; }
-  .must-eats-header { padding: 0 48px 48px; }
+  .must-eats-header { padding: 0 48px 72px; }
   .must-eats-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 0; }
 }
 
@@ -2603,7 +2603,7 @@ body {
   .app-page[data-page="map"] .map-header,
   .app-page[data-page="newsletter"] .newsletter-inner,
   .app-page[data-page="news"] .news-header {
-    padding: 16px;
+    padding: 16px 16px 36px;
     background: var(--white);
     text-align: left;
     border: none;
@@ -3175,7 +3175,7 @@ body {
 
   .app-page .must-eats-header,
   .app-page .news-header {
-    padding: 16px 16px 8px;
+    padding: 16px 16px 36px;
     background: var(--white);
     text-align: left;
     margin: 0;

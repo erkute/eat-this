@@ -1003,6 +1003,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function openAgbModal() { if (agbModal) { agbModal.classList.add('active'); document.body.style.overflow = 'hidden'; } }
   function closeAgbModal() { if (agbModal) { agbModal.classList.remove('active'); document.body.style.overflow = ''; } }
   if (agbTrigger) agbTrigger.addEventListener('click', openAgbModal);
+  const agbFromBurger = document.getElementById('openAgbFromBurger');
+  if (agbFromBurger) agbFromBurger.addEventListener('click', () => { closeBurger(); openAgbModal(); });
   if (agbClose) agbClose.addEventListener('click', closeAgbModal);
   if (agbBackdrop) agbBackdrop.addEventListener('click', closeAgbModal);
 
@@ -1014,6 +1016,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function openDatenschutzModal() { if (datenschutzModal) { datenschutzModal.classList.add('active'); document.body.style.overflow = 'hidden'; } }
   function closeDatenschutzModal() { if (datenschutzModal) { datenschutzModal.classList.remove('active'); document.body.style.overflow = ''; } }
   if (datenschutzTrigger) datenschutzTrigger.addEventListener('click', openDatenschutzModal);
+  const datenschutzFromBurger = document.getElementById('openDatenschutzFromBurger');
+  if (datenschutzFromBurger) datenschutzFromBurger.addEventListener('click', () => { closeBurger(); openDatenschutzModal(); });
   if (datenschutzClose) datenschutzClose.addEventListener('click', closeDatenschutzModal);
   if (datenschutzBackdrop) datenschutzBackdrop.addEventListener('click', closeDatenschutzModal);
 

@@ -3484,7 +3484,7 @@ body {
 .burger-drawer {
   position: fixed;
   inset: 0;
-  z-index: 1100;
+  z-index: 10000;
   display: flex;
   justify-content: flex-end;
   pointer-events: none;
@@ -3556,9 +3556,15 @@ body {
   font-size: 0.75rem;
   color: var(--gray-400);
 }
-.burger-drawer-footer a {
+.burger-drawer-footer a, .burger-drawer-footer-btn {
   color: var(--gray-400);
   text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
+  cursor: pointer;
 }
 .burger-drawer-footer span {
   color: var(--gray-400);

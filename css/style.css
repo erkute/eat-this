@@ -3504,11 +3504,12 @@ body {
   position: relative;
   width: 280px;
   max-width: 85vw;
-  height: 100%;
+  height: 100dvh;
   background: var(--white);
   display: flex;
   flex-direction: column;
   padding: 24px 0;
+  overflow-y: auto;
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
 }
@@ -3550,7 +3551,7 @@ body {
 }
 .burger-drawer-footer {
   margin-top: auto;
-  padding: 24px 32px;
+  padding: 24px 32px calc(24px + env(safe-area-inset-bottom));
   display: flex;
   gap: 12px;
   font-size: 0.75rem;

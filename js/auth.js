@@ -222,9 +222,7 @@ if (forgotPasswordBtn) {
     const email = loginEmail?.value.trim() ?? '';
     if (!email) { showError('Bitte gib zuerst deine E-Mail-Adresse ein.'); return; }
     try {
-      await sendPasswordResetEmail(auth, email, {
-        url: 'https://www.eatthisdot.com/reset-password.html'
-      });
+      await sendPasswordResetEmail(auth, email);
       clearError();
       showSuccess('Reset-Link wurde an ' + email + ' gesendet. Bitte prüfe dein Postfach.');
     } catch (err) {

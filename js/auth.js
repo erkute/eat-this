@@ -16,7 +16,6 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
-  OAuthProvider,
   onAuthStateChanged,
   signOut,
   updateProfile
@@ -38,9 +37,6 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-const appleProvider = new OAuthProvider('apple.com');
-appleProvider.addScope('name');
-appleProvider.addScope('email');
 
 // ─── DOM-Referenzen ───────────────────────────────────────────────────────────
 const loginModal     = document.getElementById('loginModal');
@@ -69,8 +65,6 @@ const profileEmail   = document.getElementById('profileEmail');
 const logoutBtn      = document.getElementById('logoutBtn');
 
 const googleLoginBtn = document.getElementById('googleLoginBtn');
-const appleLoginBtn  = document.getElementById('appleLoginBtn');
-
 // ─── Zustand ──────────────────────────────────────────────────────────────────
 let isRegisterMode = true;
 
@@ -209,22 +203,6 @@ if (googleLoginBtn) {
     clearError();
     try {
       await signInWithPopup(auth, googleProvider);
-      const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? 'du';
-      notify('Hey ' + firstName + ', schön dich zu sehen!');
-      closeLoginModal();
-    } catch (err) {
-      const msg = errorMessage(err.code);
-      if (msg) showError(msg);
-    }
-  });
-}
-
-// ─── Apple Login ──────────────────────────────────────────────────────────────
-if (appleLoginBtn) {
-  appleLoginBtn.addEventListener('click', async () => {
-    clearError();
-    try {
-      await signInWithPopup(auth, appleProvider);
       const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? 'du';
       notify('Hey ' + firstName + ', schön dich zu sehen!');
       closeLoginModal();

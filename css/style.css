@@ -3063,15 +3063,6 @@ body {
   border-color: var(--gray-300);
 }
 
-.login-btn-apple {
-  background: var(--black);
-  color: var(--white);
-  margin-top: 4px;
-}
-
-.login-btn-apple:hover {
-  background: var(--gray-800);
-}
 
 .login-terms {
   margin-top: 14px;
@@ -3144,10 +3135,6 @@ body {
   }
   .login-btn-google {
     margin-bottom: 8px;
-  }
-  .login-btn-apple {
-    margin-top: 0;
-    margin-bottom: 0;
   }
   .login-terms {
     margin-top: 14px;

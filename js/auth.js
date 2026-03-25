@@ -71,6 +71,7 @@ const loginForgot      = document.getElementById('loginForgot');
 const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
 // ─── Zustand ──────────────────────────────────────────────────────────────────
 let isRegisterMode = true;
+let isRegistering  = false;
 
 // ─── Modal öffnen / schließen ─────────────────────────────────────────────────
 function openLoginModal() {
@@ -197,8 +198,10 @@ if (loginForm) {
 
     try {
       if (isRegisterMode) {
+        isRegistering = true;
         const cred = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(cred.user, { displayName: name });
+        isRegistering = false;
         const firstName = name.split(' ')[0];
         const initials  = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
         if (loginBtnLabel) loginBtnLabel.textContent = firstName;
@@ -214,6 +217,7 @@ if (loginForm) {
       }
       closeLoginModal();
     } catch (err) {
+      isRegistering = false;
       const msg = errorMessage(err.code);
       if (msg) showError(msg);
     } finally {
@@ -271,6 +275,8 @@ if (logoutBtn) {
 // ─── Auth-Zustand beobachten ──────────────────────────────────────────────────
 onAuthStateChanged(auth, (user) => {
   if (user) {
+    if (isRegistering) return;
+
     const displayName = user.displayName || user.email.split('@')[0];
     const firstName   = displayName.split(' ')[0];
     const initials    = displayName.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();

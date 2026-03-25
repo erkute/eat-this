@@ -199,8 +199,13 @@ if (loginForm) {
       if (isRegisterMode) {
         const cred = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(cred.user, { displayName: name });
-        if (loginBtnLabel) loginBtnLabel.textContent = name.split(' ')[0];
+        const firstName = name.split(' ')[0];
+        const initials  = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+        if (loginBtnLabel) loginBtnLabel.textContent = firstName;
         loginBtn?.classList.add('logged-in');
+        if (profileAvatar) profileAvatar.textContent = initials;
+        if (profileName)   profileName.textContent   = 'Hey, ' + name + '!';
+        if (profileEmail)  profileEmail.textContent  = email;
         notify('Willkommen bei EAT THIS, ' + name + '!');
       } else {
         await signInWithEmailAndPassword(auth, email, password);

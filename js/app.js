@@ -97,12 +97,13 @@ document.addEventListener('DOMContentLoaded', () => {
     { dish: 'Banh Mi', restaurant: 'Saveur de Bánh Mì', district: 'Schöneberg', price: '€', img: 'pics/food/eat/ban.png', type: 'must-eat' }
   ];
 
-  const newsData = [
-    { title: 'Berlins neue Ramen-Welle: Warum die Hauptstadt jetzt das ultimative Nudel-Haus hat', category: 'Openings', date: '15. März 2026', img: 'pics/spots/ramen.webp', type: 'news' },
-    { title: 'Markthalle Neun bekommt einen neuen Street-Food-Floor', category: 'Openings', date: '14. März 2026', img: 'pics/spots/markthalle9.webp', type: 'news' },
-    { title: 'Berlin hat jetzt 8 Michelin-Sterne-Restaurants — und keines kostet über 150€', category: 'Culture', date: '13. März 2026', img: 'pics/spots/michelin.webp', type: 'news' },
-    { title: 'Die 10 besten Donut-Shops in Berlin — von Brooklyn bis Thai-Style', category: 'Guides', date: '12. März 2026', img: 'pics/spots/donuts.webp', type: 'news' }
-  ];
+  const newsData = Array.from(document.querySelectorAll('.news-card')).map(card => ({
+    title: card.dataset.title || '',
+    category: card.dataset.categoryLabel || '',
+    date: card.dataset.date || '',
+    img: card.dataset.img || '',
+    type: 'news'
+  }));
 
   function openSearch() {
     if (searchOverlay) {

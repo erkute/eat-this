@@ -339,49 +339,64 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- Eat card tilt effect on mouse move (desktop) ---
+  // --- 3D Retro Eat Card: tilt + flip ---
   const eatCards = document.querySelectorAll('.eat-card');
 
   eatCards.forEach(card => {
+    const shell = card.querySelector('.eat-card-shell');
+    const flipEl = card.querySelector('.eat-card-flip');
+    const shineFront = card.querySelector('.eat-card-front .eat-card-shine');
+    const shineBack  = card.querySelector('.eat-card-back .eat-card-shine');
+    let isFlipped = false;
+    let curX = 0, curY = 0, tgtX = 0, tgtY = 0;
+    let raf = null;
+
+    function animateTilt() {
+      curX += (tgtX - curX) * 0.12;
+      curY += (tgtY - curY) * 0.12;
+      if (shell) shell.style.transform = `rotateX(${curX}deg) rotateY(${curY}deg)`;
+      if (Math.abs(tgtX - curX) > 0.01 || Math.abs(tgtY - curY) > 0.01) {
+        raf = requestAnimationFrame(animateTilt);
+      } else {
+        raf = null;
+      }
+    }
+
     card.addEventListener('mousemove', (e) => {
       if (window.innerWidth < 768) return;
       const rect = card.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
-      card.style.transform = `translateY(-4px) perspective(600px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg)`;
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      tgtX = ((e.clientY - cy) / (rect.height / 2)) * -12;
+      tgtY = ((e.clientX - cx) / (rect.width / 2)) * 12;
+      // Shine
+      const px = ((e.clientX - rect.left) / rect.width) * 100;
+      const py = ((e.clientY - rect.top) / rect.height) * 100;
+      const shineEl = isFlipped ? shineBack : shineFront;
+      if (shineEl) shineEl.style.background = `radial-gradient(circle at ${px}% ${py}%, rgba(255,255,255,0.14) 0%, transparent 65%)`;
+      if (!raf) raf = requestAnimationFrame(animateTilt);
     });
 
     card.addEventListener('mouseleave', () => {
-      card.style.transform = '';
+      tgtX = 0; tgtY = 0;
+      if (shineFront) shineFront.style.background = '';
+      if (shineBack) shineBack.style.background = '';
+      if (!raf) raf = requestAnimationFrame(animateTilt);
+    });
+
+    // Click on card → flip (maps button handles itself via <a href>)
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.eat-card-maps-btn')) return;
+      isFlipped = !isFlipped;
+      if (flipEl) flipEl.classList.toggle('flipped', isFlipped);
+      tgtX = 0; tgtY = 0;
+      if (!raf) raf = requestAnimationFrame(animateTilt);
     });
   });
 
-  // --- Must Eat Modal ---
+  // --- Must Eat Modal (kept for other potential uses) ---
   const modal = document.getElementById('eatModal');
   const modalClose = document.getElementById('modalClose');
-
-  eatCards.forEach(card => {
-    card.addEventListener('click', () => {
-      const dish = card.dataset.dish;
-      const restaurant = card.dataset.restaurant;
-      const district = card.dataset.district;
-      const desc = card.dataset.desc;
-      const img = card.dataset.img;
-      const address = card.dataset.address || '';
-
-      document.getElementById('modalImg').src = img;
-      document.getElementById('modalImg').alt = dish;
-      document.getElementById('modalDistrict').textContent = district;
-      document.getElementById('modalDish').textContent = dish;
-      document.getElementById('modalRestaurant').textContent = restaurant;
-      document.getElementById('modalAddress').textContent = address;
-      document.getElementById('modalDesc').textContent = desc;
-      document.getElementById('modalMapsBtn').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(restaurant + ', ' + address);
-
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    });
-  });
 
   function closeModal() {
     modal.classList.remove('active');

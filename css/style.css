@@ -464,7 +464,7 @@ body {
 .must-eats-grid {
   padding: 0 24px;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 200px));
   gap: 16px;
   max-width: 1200px;
   margin: 0 auto;
@@ -480,78 +480,284 @@ body {
   .must-eats-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
 }
 
+/* ── 3D Retro Card ── */
 .eat-card {
   background: transparent;
   border: none;
-  border-radius: 0;
   overflow: visible;
   cursor: pointer;
-  transition: none;
   position: relative;
 }
-.eat-card:hover {
-  transform: none;
-  box-shadow: none;
-}
-.eat-card-img {
+
+/* Scene: sets perspective */
+.eat-card-scene {
   width: 100%;
-  aspect-ratio: 963 / 831;
+  perspective: 900px;
+}
+
+/* Shell: receives the tilt transform */
+.eat-card-shell {
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.08s ease-out;
+  will-change: transform;
+}
+
+/* Flip wrapper */
+.eat-card-flip {
+  width: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);
+  aspect-ratio: 3/4;
+  min-height: 240px;
+}
+.eat-card-flip.flipped {
+  transform: rotateY(180deg);
+}
+
+/* Shared face styles */
+.eat-card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+
+/* Shine layer */
+.eat-card-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  border-radius: 14px;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.08) 40%, transparent 70%);
+  transition: background 0.1s;
+}
+
+/* ── FRONT FACE ── */
+.eat-card-front {
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.7);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Grain + scanlines */
+.eat-card-front::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.055'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+.eat-card-front::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.016) 3px, rgba(0,0,0,0.016) 4px);
+  pointer-events: none;
+}
+
+.eat-card-img-wrap {
+  flex: 1;
   overflow: hidden;
   position: relative;
+  min-height: 0;
+  background: rgba(230,235,240,0.45);
 }
-.eat-card-img img {
+.eat-card-img-wrap img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   display: block;
-  transition: none;
+  filter: sepia(8%) saturate(1.05) contrast(1.02);
+  transition: opacity 0.4s ease;
 }
-.eat-card:hover .eat-card-img img {
-  transform: none;
-}
-.eat-card-img img.hover-img {
-  display: none;
-}
-.eat-card-district-badge {
-  display: none;
-}
+
+/* Front body */
 .eat-card-body {
-  padding: 6px 0 0;
+  padding: 8px 12px 11px;
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  border-top: 1px solid rgba(255,255,255,0.8);
+  position: relative;
+  z-index: 11;
 }
 .eat-card-dish {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  margin-bottom: 1px;
+  color: var(--black);
+}
+.eat-card-restaurant {
+  font-size: 10px;
+  color: #aaa;
+  font-weight: 400;
+  margin-bottom: 0;
+}
+.eat-card-divider {
+  border: none;
+  border-top: 1.5px dashed rgba(0,0,0,0.12);
+  margin: 7px 0;
+}
+.eat-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.eat-card-flip-hint {
+  font-size: 9px;
+  color: #bbb;
+  letter-spacing: 0.04em;
+}
+
+/* ── BACK FACE ── */
+.eat-card-back {
+  transform: rotateY(180deg);
+  background: #111;
+  overflow: hidden;
+}
+
+/* Full-bleed background image */
+.eat-card-back-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: sepia(10%) saturate(1.1) brightness(0.75);
+  z-index: 0;
+}
+
+/* Frosted glass overlay at bottom */
+.eat-card-back-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 11px 9px;
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid rgba(255,255,255,0.85);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.eat-card-back-dish {
   font-family: 'Oswald', sans-serif;
   font-size: 1.1rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
-  line-height: 1.1;
-  margin-bottom: 2px;
+  letter-spacing: 0.03em;
   color: var(--black);
+  text-align: center;
+  margin-bottom: 1px;
+  position: relative;
+  z-index: 2;
 }
-.eat-card-restaurant {
-  font-size: 11px;
-  color: #999;
-  font-weight: 400;
-  margin-bottom: 0;
+.eat-card-back-restaurant {
+  font-size: 8.5px;
+  color: #aaa;
+  text-align: center;
+  letter-spacing: 0.04em;
+  margin-bottom: 5px;
+  position: relative;
+  z-index: 2;
 }
-.eat-card-district2 {
-  display: inline-block;
-  font-size: 10px;
+.eat-card-divider-dark {
+  border-top-color: rgba(0,0,0,0.1);
+  margin-bottom: 5px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Info rows */
+.eat-card-info-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 2;
+}
+.eat-card-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+.eat-card-info-label {
+  font-size: 8px;
   font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--white);
+  color: #bbb;
+  flex-shrink: 0;
+}
+.eat-card-info-val {
+  font-family: 'Space Mono', 'Courier New', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--black);
+  text-align: right;
+}
+.eat-card-stat-orange { color: var(--orange); }
+
+.eat-card-back-desc {
+  font-size: 9px;
+  line-height: 1.5;
+  color: #aaa;
+  text-align: center;
+  flex: 1;
+  position: relative;
+  z-index: 2;
+}
+
+.eat-card-maps-btn {
+  margin-top: 6px;
+  width: 100%;
+  padding: 7px;
   background: var(--black);
-  padding: 2px 6px;
-  margin-top: 4px;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  position: relative;
+  z-index: 2;
+  transition: background 0.2s;
 }
-.eat-card-price {
-  display: none;
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--orange);
-  letter-spacing: 0.02em;
+.eat-card-maps-btn:hover {
+  background: #222;
 }
+
+/* Legacy unused classes — kept for selector safety */
+.eat-card-district-badge { display: none; }
+.eat-card-price { display: none; }
 
 /* ============================================
    FOOD MAP SECTION

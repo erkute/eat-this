@@ -23,19 +23,14 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
 // ─── Firebase Config ──────────────────────────────────────────────────────────
-// 👇 Diese Werte durch deine eigenen aus der Firebase Console ersetzen
 const firebaseConfig = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+  apiKey:            "AIzaSyDs0361Db_lwHGW9WZfT5ivj-WIB4fyUw0",
+  authDomain:        "eat-this-8a13b.firebaseapp.com",
+  projectId:         "eat-this-8a13b",
+  storageBucket:     "eat-this-8a13b.firebasestorage.app",
+  messagingSenderId: "768781457409",
+  appId:             "1:768781457409:web:607ff46bfa4599d6b08800"
 };
-
-if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-  console.warn('[EAT THIS Auth] Firebase nicht konfiguriert — trage deine Firebase-Daten in js/auth.js ein.');
-}
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);

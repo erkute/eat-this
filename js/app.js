@@ -57,7 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
       notification.classList.remove('show');
     }, duration);
   }
-  
+  window.showNotification = showNotification;
+
   // Add notification styles
   const notificationStyle = document.createElement('style');
   notificationStyle.textContent = `
@@ -898,78 +899,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', handleResize);
     handleResize();
     
-    // Login Modal
-    const loginModal = document.getElementById('loginModal');
-    const loginBackdrop = document.getElementById('loginBackdrop');
-    const loginClose = document.getElementById('loginClose');
-    const loginForm = document.getElementById('loginForm');
-    const googleLoginBtn = document.getElementById('googleLoginBtn');
-    const appleLoginBtn = document.getElementById('appleLoginBtn');
-    
-    function openLoginModal() {
-      if (loginModal) {
-        loginModal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      }
-    }
-    
-    function closeLoginModal() {
-      if (loginModal) {
-        loginModal.classList.remove('active');
-        document.body.style.overflow = '';
-      }
-    }
-    
-    if (loginBackdrop) {
-      loginBackdrop.addEventListener('click', closeLoginModal);
-    }
-    
-    if (loginClose) {
-      loginClose.addEventListener('click', closeLoginModal);
-    }
-    
-    // Login button in footer
-    const loginBtn = document.getElementById('loginBtn');
-    if (loginBtn) {
-      loginBtn.addEventListener('click', openLoginModal);
-    }
-    
-    if (loginForm) {
-      loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = document.getElementById('loginName').value;
-        const email = document.getElementById('loginEmail').value;
-        
-        // Store user info (in production, send to backend)
-        localStorage.setItem('userName', name);
-        localStorage.setItem('userEmail', email);
-        localStorage.setItem('isLoggedIn', 'true');
-        
-        closeLoginModal();
-        showNotification('Willkommen, ' + name + '!');
-      });
-    }
-    
-    if (googleLoginBtn) {
-      googleLoginBtn.addEventListener('click', () => {
-        showNotification('Google Login noch nicht verfügbar.');
-        closeLoginModal();
-      });
-    }
-
-    if (appleLoginBtn) {
-      appleLoginBtn.addEventListener('click', () => {
-        showNotification('Apple Login noch nicht verfügbar.');
-        closeLoginModal();
-      });
-    }
-    
-    // Close modal on Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && loginModal && loginModal.classList.contains('active')) {
-        closeLoginModal();
-      }
-    });
   }
 
   // Cookie Info Modal

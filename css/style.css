@@ -3570,3 +3570,76 @@ body {
 .burger-drawer-footer span {
   color: var(--gray-400);
 }
+
+/* ============================================
+   AUTH — Neue Elemente
+   ============================================ */
+
+/* Fehlermeldung im Login-Formular */
+.login-error {
+  display: none;
+  font-size: 0.82rem;
+  color: #e53e3e;
+  background: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: left;
+  line-height: 1.4;
+}
+
+/* Modus-Toggle-Link (Registrierung ↔ Anmeldung) */
+.login-mode-toggle {
+  margin: 14px 0 0;
+  font-size: 0.85rem;
+  color: var(--gray-400);
+}
+
+.login-mode-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  font-family: var(--font);
+  color: var(--black);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.login-mode-link:hover {
+  color: var(--orange);
+}
+
+/* Profil-Avatar (Initialen-Kreis) */
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--black);
+  color: var(--white);
+  font-size: 1.4rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  letter-spacing: -0.02em;
+}
+
+/* Footer-Button eingeloggter Zustand */
+.app-footer-item.logged-in span {
+  color: var(--orange);
+  font-weight: 700;
+}
+
+.app-footer-item.logged-in svg {
+  stroke: var(--orange);
+}
+
+@media (max-width: 767px) {
+  .login-error {
+    font-size: 0.78rem;
+    padding: 8px 10px;
+  }
+}

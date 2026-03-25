@@ -3484,7 +3484,7 @@ body {
 .burger-drawer {
   position: fixed;
   inset: 0;
-  z-index: 10000;
+  z-index: 10002;
   display: flex;
   justify-content: flex-end;
   pointer-events: none;

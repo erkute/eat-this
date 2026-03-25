@@ -202,13 +202,7 @@ if (loginForm) {
         const cred = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(cred.user, { displayName: name });
         isRegistering = false;
-        const firstName = name.split(' ')[0];
-        const initials  = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
-        if (loginBtnLabel) loginBtnLabel.textContent = firstName;
-        loginBtn?.classList.add('logged-in');
-        if (profileAvatar) profileAvatar.textContent = initials;
-        if (profileName)   profileName.textContent   = 'Hey, ' + name + '!';
-        if (profileEmail)  profileEmail.textContent  = email;
+        applyLoggedInUI(cred.user);
         notify('Willkommen bei EAT THIS, ' + name + '!');
       } else {
         await signInWithEmailAndPassword(auth, email, password);
@@ -273,23 +267,25 @@ if (logoutBtn) {
 }
 
 // ─── Auth-Zustand beobachten ──────────────────────────────────────────────────
+function applyLoggedInUI(user) {
+  const displayName = user.displayName || user.email.split('@')[0];
+  const firstName   = displayName.split(' ')[0];
+  const initials    = displayName.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+
+  if (loginBtnLabel) loginBtnLabel.textContent = firstName;
+  loginBtn?.classList.add('logged-in');
+
+  if (authView)      authView.style.display    = 'none';
+  if (profileView)   profileView.style.display = 'block';
+  if (profileAvatar) profileAvatar.textContent = initials;
+  if (profileName)   profileName.textContent   = 'Hey, ' + displayName + '!';
+  if (profileEmail)  profileEmail.textContent  = user.email;
+}
+
 onAuthStateChanged(auth, (user) => {
   if (user) {
     if (isRegistering) return;
-
-    const displayName = user.displayName || user.email.split('@')[0];
-    const firstName   = displayName.split(' ')[0];
-    const initials    = displayName.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
-
-    if (loginBtnLabel) loginBtnLabel.textContent = firstName;
-    loginBtn?.classList.add('logged-in');
-
-    if (authView)      authView.style.display    = 'none';
-    if (profileView)   profileView.style.display = 'block';
-    if (profileAvatar) profileAvatar.textContent = initials;
-    if (profileName)   profileName.textContent   = 'Hey, ' + displayName + '!';
-    if (profileEmail)  profileEmail.textContent  = user.email;
-
+    applyLoggedInUI(user);
   } else {
     if (loginBtnLabel) loginBtnLabel.textContent = 'Anmelden';
     loginBtn?.classList.remove('logged-in');

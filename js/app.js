@@ -1017,6 +1017,34 @@ document.addEventListener('DOMContentLoaded', () => {
   if (datenschutzClose) datenschutzClose.addEventListener('click', closeDatenschutzModal);
   if (datenschutzBackdrop) datenschutzBackdrop.addEventListener('click', closeDatenschutzModal);
 
+  // Burger Menu
+  const burgerBtn = document.getElementById('burgerBtn');
+  const burgerDrawer = document.getElementById('burgerDrawer');
+  const burgerClose = document.getElementById('burgerClose');
+  const burgerBackdrop = document.getElementById('burgerBackdrop');
+
+  function openBurger() { burgerDrawer.classList.add('active'); document.body.style.overflow = 'hidden'; }
+  function closeBurger() { burgerDrawer.classList.remove('active'); document.body.style.overflow = ''; }
+  if (burgerBtn) burgerBtn.addEventListener('click', openBurger);
+  if (burgerClose) burgerClose.addEventListener('click', closeBurger);
+  if (burgerBackdrop) burgerBackdrop.addEventListener('click', closeBurger);
+
+  function makeInfoModal(id) {
+    const modal = document.getElementById(id + 'Modal');
+    const closeBtn = document.getElementById(id + 'Close');
+    const backdrop = document.getElementById(id + 'Backdrop');
+    const trigger = document.getElementById('open' + id.charAt(0).toUpperCase() + id.slice(1));
+    function open() { closeBurger(); if (modal) { modal.classList.add('active'); document.body.style.overflow = 'hidden'; } }
+    function close() { if (modal) { modal.classList.remove('active'); document.body.style.overflow = ''; } }
+    if (trigger) trigger.addEventListener('click', open);
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    if (backdrop) backdrop.addEventListener('click', close);
+  }
+  makeInfoModal('about');
+  makeInfoModal('contact');
+  makeInfoModal('press');
+  makeInfoModal('impressum');
+
   // Cookie Consent
   const cookieConsent = document.getElementById('cookieConsent');
   const cookieAccept = document.getElementById('cookieAccept');

@@ -3457,3 +3457,109 @@ body {
   color: var(--black);
   font-weight: 600;
 }
+
+/* ── BURGER MENU ─────────────────────────────────── */
+.burger-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+.burger-btn span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--black);
+  border-radius: 2px;
+  transition: 0.2s;
+}
+
+/* Drawer */
+.burger-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.burger-drawer.active {
+  opacity: 1;
+  pointer-events: all;
+}
+.burger-drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+}
+.burger-drawer-panel {
+  position: relative;
+  width: 280px;
+  max-width: 85vw;
+  height: 100%;
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.burger-drawer.active .burger-drawer-panel {
+  transform: translateX(0);
+}
+.burger-drawer-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--black);
+}
+.burger-nav {
+  display: flex;
+  flex-direction: column;
+  margin-top: 60px;
+  padding: 0 32px;
+  gap: 4px;
+}
+.burger-nav-item {
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: var(--black);
+  cursor: pointer;
+  padding: 10px 0;
+  letter-spacing: -0.02em;
+  transition: opacity 0.15s;
+}
+.burger-nav-item:hover {
+  opacity: 0.5;
+}
+.burger-drawer-footer {
+  margin-top: auto;
+  padding: 24px 32px;
+  display: flex;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: var(--gray-400);
+}
+.burger-drawer-footer a {
+  color: var(--gray-400);
+  text-decoration: none;
+}
+.burger-drawer-footer span {
+  color: var(--gray-400);
+}

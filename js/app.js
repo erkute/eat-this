@@ -663,20 +663,24 @@ document.addEventListener('DOMContentLoaded', () => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0xffffff);
 
-    // Globe sphere — flat (no lighting)
+    // Globe sphere — Lambert material + satellite texture
     const globeGeo = new THREE.SphereGeometry(1, 64, 64);
-    const globeMat = new THREE.MeshBasicMaterial({ color: 0x3d7ab5 });
+    const globeMat = new THREE.MeshLambertMaterial({ color: 0x2266aa });
     const globe = new THREE.Mesh(globeGeo, globeMat);
     globe.rotation.x = 0.3;
     scene.add(globe);
 
-    // Load map texture asynchronously
-    buildGlobeTexture().then(texCanvas => {
-      const tex = new THREE.CanvasTexture(texCanvas);
-      globeMat.map = tex;
-      globeMat.color.set(0xffffff);
-      globeMat.needsUpdate = true;
-    }).catch(() => {});
+    // Subtle lighting — no harsh highlights, just enough for depth
+    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    const sun = new THREE.DirectionalLight(0xfff0e0, 0.8);
+    sun.position.set(5, 2, 4);
+    scene.add(sun);
+
+    // Load NASA Blue Marble satellite texture
+    new THREE.TextureLoader().load(
+      'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/textures/land_ocean_ice_cloud_2048.jpg',
+      tex => { globeMat.map = tex; globeMat.color.set(0xffffff); globeMat.needsUpdate = true; }
+    );
 
     let phase = 'idle';
     let phaseStart = null;
@@ -757,71 +761,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tick();
   }
 
-  async function buildGlobeTexture() {
-    const W = 2048, H = 1024;
-    const offscreen = document.createElement('canvas');
-    offscreen.width = W;
-    offscreen.height = H;
-    const ctx = offscreen.getContext('2d');
-
-    // Ocean — deep atlas blue
-    ctx.fillStyle = '#3d7ab5';
-    ctx.fillRect(0, 0, W, H);
-
-    // Graticule — subtle darker blue lines
-    ctx.strokeStyle = 'rgba(40,90,150,0.35)';
-    ctx.lineWidth = 1;
-    for (let lng = -180; lng <= 180; lng += 30) {
-      const x = (lng + 180) / 360 * W;
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-    }
-    for (let lat = -90; lat <= 90; lat += 30) {
-      const y = (90 - lat) / 180 * H;
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-    }
-
-    // Fetch country polygons
-    const resp = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
-    const topo = await resp.json();
-
-    if (typeof topojson !== 'undefined') {
-      const countries = topojson.feature(topo, topo.objects.countries);
-
-      // Land fill — classic atlas yellow-tan
-      ctx.fillStyle = '#d4c882';
-      for (const feat of countries.features) {
-        globeDrawGeo(ctx, feat.geometry, W, H, true);
-      }
-
-      // Country borders
-      ctx.strokeStyle = '#a89858';
-      ctx.lineWidth = 1.5;
-      for (const feat of countries.features) {
-        globeDrawGeo(ctx, feat.geometry, W, H, false);
-      }
-    }
-
-    return offscreen;
-  }
-
-  function globeDrawGeo(ctx, geom, W, H, fill) {
-    if (!geom) return;
-    const polys = geom.type === 'Polygon' ? [geom.coordinates] :
-                  geom.type === 'MultiPolygon' ? geom.coordinates : [];
-    for (const poly of polys) {
-      ctx.beginPath();
-      for (const ring of poly) {
-        let first = true;
-        for (const [lng, lat] of ring) {
-          const x = (lng + 180) / 360 * W;
-          const y = (90 - lat) / 180 * H;
-          if (first) { ctx.moveTo(x, y); first = false; }
-          else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-      }
-      if (fill) ctx.fill(); else ctx.stroke();
-    }
+  function _globeTextureRemoved() {
   }
 
   function initFoodMap() {

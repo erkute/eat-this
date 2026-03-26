@@ -1225,28 +1225,30 @@ body {
   z-index: 1000;
   width: 40px;
   height: 40px;
-  background: var(--white);
-  border: none;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.18);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   transition: all 0.18s;
 }
 
 .map-location-btn-fixed svg {
-  stroke: var(--black);
+  stroke: rgba(255,255,255,0.9);
 }
 
 .map-location-btn-fixed:active {
   transform: scale(0.93);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  background: rgba(0,0,0,0.65);
 }
 
 .map-location-btn-fixed:hover {
-  background: var(--gray-100);
+  background: rgba(0,0,0,0.65);
 }
 
 .map-location-btn-fixed.loading svg {
@@ -2965,18 +2967,44 @@ body {
     right: 12px !important;
     left: auto !important;
     z-index: 500;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .app-page[data-page="map"] .leaflet-control-zoom-in,
+  .app-page[data-page="map"] .leaflet-control-zoom-out {
+    background: rgba(0,0,0,0.5) !important;
+    border: 1px solid rgba(255,255,255,0.18) !important;
+    color: rgba(255,255,255,0.9) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    font-size: 18px !important;
+    line-height: 36px !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+    margin-bottom: 4px !important;
+    display: block !important;
+    text-align: center !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4) !important;
+  }
+
+  .app-page[data-page="map"] .leaflet-control-zoom-in:hover,
+  .app-page[data-page="map"] .leaflet-control-zoom-out:hover {
+    background: rgba(0,0,0,0.7) !important;
+    color: white !important;
   }
   
   .app-page[data-page="map"] .map-location-btn-fixed {
     top: 10px;
     left: 10px;
     right: auto;
-    background: var(--white);
-    border: none;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.18);
   }
 
   .app-page[data-page="map"] .map-location-btn-fixed svg {
-    stroke: var(--black);
+    stroke: rgba(255,255,255,0.9);
   }
   
   /* News page - Magazine style */

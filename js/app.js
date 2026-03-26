@@ -638,12 +638,48 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.appendChild(glCanvas);
 
     const pulseStyle = document.createElement('style');
-    pulseStyle.textContent = '';
+    pulseStyle.textContent = `
+      @keyframes globeMeteor1 {
+        0%   { transform:translate(0,0) rotate(-42deg); opacity:0; }
+        4%   { opacity:1; }
+        20%  { opacity:0.85; }
+        28%  { opacity:0; }
+        100% { transform:translate(-520px,380px) rotate(-42deg); opacity:0; }
+      }
+      @keyframes globeMeteor2 {
+        0%   { transform:translate(0,0) rotate(-38deg); opacity:0; }
+        5%   { opacity:0.8; }
+        24%  { opacity:0.7; }
+        32%  { opacity:0; }
+        100% { transform:translate(-380px,280px) rotate(-38deg); opacity:0; }
+      }
+      @keyframes globeMeteor3 {
+        0%   { transform:translate(0,0) rotate(-45deg); opacity:0; }
+        3%   { opacity:0.9; }
+        16%  { opacity:0.8; }
+        22%  { opacity:0; }
+        100% { transform:translate(-300px,220px) rotate(-45deg); opacity:0; }
+      }
+    `;
     document.head.appendChild(pulseStyle);
 
-    // Hide location button during globe
+    // Meteors — moving across the globe overlay
+    [
+      { top:'8%',  left:'82%', w:'130px', h:'2px',   delay:'0.8s', dur:'7s',  anim:'globeMeteor1' },
+      { top:'22%', left:'90%', w:'85px',  h:'1.5px', delay:'4s',   dur:'9s',  anim:'globeMeteor2' },
+      { top:'58%', left:'76%', w:'65px',  h:'1.5px', delay:'2.5s', dur:'11s', anim:'globeMeteor3' },
+    ].forEach(m => {
+      const el = document.createElement('div');
+      el.style.cssText = `position:absolute;top:${m.top};left:${m.left};width:${m.w};height:${m.h};border-radius:2px;background:linear-gradient(90deg,rgba(255,255,255,0.95),rgba(255,255,255,0));opacity:0;pointer-events:none;animation:${m.anim} ${m.dur} linear ${m.delay} infinite;`;
+      overlay.appendChild(el);
+    });
+
+
+    // Hide location button + zoom control during globe
     const locBtn = document.getElementById('mapLocationBtnFixed');
     if (locBtn) locBtn.style.display = 'none';
+    const zoomCtrl = document.querySelector('.leaflet-control-zoom');
+    if (zoomCtrl) zoomCtrl.style.display = 'none';
 
     mapEl.appendChild(overlay);
 
@@ -665,17 +701,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Stars — random points in space
     const starGeo = new THREE.BufferGeometry();
-    const starPos = new Float32Array(3000);
-    for (let i = 0; i < 3000; i += 3) {
+    const starPos = new Float32Array(18000);
+    for (let i = 0; i < 18000; i += 3) {
       const theta = Math.random() * 2 * Math.PI;
       const phi = Math.acos(2 * Math.random() - 1);
-      const r = 80 + Math.random() * 20;
+      const r = 70 + Math.random() * 30;
       starPos[i]   = r * Math.sin(phi) * Math.cos(theta);
       starPos[i+1] = r * Math.sin(phi) * Math.sin(theta);
       starPos[i+2] = r * Math.cos(phi);
     }
     starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-    scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.18 })));
+    scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.22 })));
 
     // Subtle lighting — no harsh highlights, just enough for depth
     scene.add(new THREE.AmbientLight(0xffffff, 0.55));
@@ -758,6 +794,7 @@ document.addEventListener('DOMContentLoaded', () => {
           pulseStyle.remove();
           renderer.dispose();
           if (locBtn) locBtn.style.display = '';
+          if (zoomCtrl) zoomCtrl.style.display = '';
           onComplete();
           return;
         }

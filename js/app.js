@@ -633,6 +633,17 @@ document.addEventListener('DOMContentLoaded', () => {
       overlay.appendChild(el);
     });
 
+    const logoImg = document.createElement('img');
+    logoImg.src = 'pics/logo.png';
+    logoImg.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(60vw,280px);height:auto;pointer-events:none;z-index:501;opacity:0;transition:opacity 0.8s ease 0.3s;';
+    overlay.appendChild(logoImg);
+
+    const logoText = document.createElement('div');
+    logoText.textContent = "don't tap the glass";
+    logoText.style.cssText = 'position:absolute;top:calc(50% + min(30vw,140px) - 65px);left:50%;transform:translateX(-50%);color:#ff3333;font-family:Inter,system-ui,sans-serif;font-size:clamp(18px,4.5vw,24px);font-weight:500;letter-spacing:0.5px;pointer-events:none;z-index:501;opacity:0;transition:opacity 0.8s ease 0.3s;';
+    overlay.appendChild(logoText);
+    setTimeout(() => { logoImg.style.opacity = '1'; logoText.style.opacity = '1'; }, 100);
+
 
     // Hide location button, zoom control and filters during globe; expand foodMap to full screen
     mapEl.classList.add('globe-active');
@@ -649,8 +660,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const aspect = w / h;
     // Portrait (mobile): keep globe just inside horizontal FOV
     // Landscape (desktop/tablet): bring globe much closer to fill screen height
-    const globeStartZ = aspect >= 1 ? 4.5 : 7.0;
-    const globeEndZ   = aspect >= 1 ? 1.2 : 1.5;
+    const globeStartZ = aspect >= 1 ? 5.5 : 6.8;
+    const globeEndZ   = aspect >= 1 ? 2.5 : 2.5;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(38, aspect, 0.1, 1000);
@@ -746,7 +757,7 @@ document.addEventListener('DOMContentLoaded', () => {
         rotY += 0.004;
         globe.rotation.y = rotY;
       } else if (phase === 'zoom') {
-        const duration = 2600;
+        const duration = 1800;
         const p = Math.min((Date.now() - phaseStart) / duration, 1);
         globe.rotation.y = lerp(alignStartY, alignTargetY, easeOut5(p));
         globe.rotation.x = lerp(alignStartX, globe._targetX || 0.3, easeOut5(p));
@@ -757,6 +768,8 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (phase === 'fade') {
         const p = Math.min((Date.now() - phaseStart) / 700, 1);
         overlay.style.opacity = String(1 - p);
+        logoImg.style.opacity = String(1 - p);
+        logoText.style.opacity = String(1 - p);
         if (p >= 1) {
           cancelAnimationFrame(animFrame);
           overlay.remove();

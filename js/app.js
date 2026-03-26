@@ -339,15 +339,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- 3D Retro Eat Card: tilt + flip ---
+  // --- 3D Retro Eat Card: expand → flip → collapse state machine ---
+  // Uses a portal (fixed element on body) to escape the overflow:hidden parent.
   const eatCards = document.querySelectorAll('.eat-card');
 
+  const eatBackdrop = document.createElement('div');
+  eatBackdrop.className = 'eat-card-backdrop';
+  document.body.appendChild(eatBackdrop);
+
+  let activeCard   = null;   // card element currently expanded
+  let activePortal = null;   // the fixed portal div on body
+  let cardState    = 0;      // 0: idle, 1: expanded, 2: expanded+flipped
+
+  function collapseActiveCard() {
+    if (!activeCard || !activePortal) return;
+    const card   = activeCard;
+    const portal = activePortal;
+
+    // Unflip
+    portal.querySelector('.eat-card-flip')?.classList.remove('flipped');
+
+    // Animate portal back to its original fixed position (left/top set at expand time)
+    portal.style.transition = 'transform 0.42s cubic-bezier(0.32, 0, 0.67, 0), box-shadow 0.42s ease';
+    portal.style.transform  = 'translate(0, 0) scale(1)';
+    portal.style.boxShadow  = '';
+
+    eatBackdrop.classList.remove('active');
+
+    activeCard   = null;
+    activePortal = null;
+    cardState    = 0;
+
+    setTimeout(() => {
+      const scene = portal.querySelector('.eat-card-scene');
+      if (scene) card.appendChild(scene);
+      card.style.opacity       = '';
+      card.style.pointerEvents = '';
+      portal.remove();
+    }, 440);
+  }
+
+  eatBackdrop.addEventListener('click', collapseActiveCard);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') collapseActiveCard(); });
+
   eatCards.forEach(card => {
-    const shell = card.querySelector('.eat-card-shell');
-    const flipEl = card.querySelector('.eat-card-flip');
+    // Captured at setup time — DOM references survive being moved to portal
+    const shell      = card.querySelector('.eat-card-shell');
     const shineFront = card.querySelector('.eat-card-front .eat-card-shine');
     const shineBack  = card.querySelector('.eat-card-back .eat-card-shine');
-    let isFlipped = false;
     let curX = 0, curY = 0, tgtX = 0, tgtY = 0;
     let raf = null;
 
@@ -363,34 +402,96 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     card.addEventListener('mousemove', (e) => {
-      if (window.innerWidth < 768) return;
+      if (window.innerWidth < 768 || activeCard === card) return;
       const rect = card.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
       tgtX = ((e.clientY - cy) / (rect.height / 2)) * -12;
       tgtY = ((e.clientX - cx) / (rect.width / 2)) * 12;
-      // Shine
       const px = ((e.clientX - rect.left) / rect.width) * 100;
       const py = ((e.clientY - rect.top) / rect.height) * 100;
-      const shineEl = isFlipped ? shineBack : shineFront;
+      const shineEl = shineFront;
       if (shineEl) shineEl.style.background = `radial-gradient(circle at ${px}% ${py}%, rgba(255,255,255,0.14) 0%, transparent 65%)`;
       if (!raf) raf = requestAnimationFrame(animateTilt);
     });
 
     card.addEventListener('mouseleave', () => {
+      if (activeCard === card) return;
       tgtX = 0; tgtY = 0;
       if (shineFront) shineFront.style.background = '';
-      if (shineBack) shineBack.style.background = '';
+      if (shineBack)  shineBack.style.background  = '';
       if (!raf) raf = requestAnimationFrame(animateTilt);
     });
 
-    // Click on card → flip (maps button handles itself via <a href>)
     card.addEventListener('click', (e) => {
       if (e.target.closest('.eat-card-maps-btn')) return;
-      isFlipped = !isFlipped;
-      if (flipEl) flipEl.classList.toggle('flipped', isFlipped);
-      tgtX = 0; tgtY = 0;
-      if (!raf) raf = requestAnimationFrame(animateTilt);
+
+      // Another card is open → collapse it, don't open this one immediately
+      if (activeCard && activeCard !== card) {
+        collapseActiveCard();
+        return;
+      }
+
+      if (cardState === 0) {
+        // ── State 0 → 1: fly to viewport center via portal ──
+        const rect    = card.getBoundingClientRect();
+        const targetW = Math.min(340, window.innerWidth * 0.85);
+        const scale   = targetW / rect.width;
+        const dx      = window.innerWidth  / 2 - (rect.left + rect.width  / 2);
+        const dy      = window.innerHeight / 2 - (rect.top  + rect.height / 2);
+
+        const scene  = card.querySelector('.eat-card-scene');
+        const flipEl = scene.querySelector('.eat-card-flip');
+        flipEl?.classList.remove('flipped');
+
+        // Build portal at exact card position (will animate out from here)
+        const port = document.createElement('div');
+        port.className = 'eat-card-portal';
+        port.style.cssText = [
+          `position:fixed`,
+          `left:${rect.left}px`,
+          `top:${rect.top}px`,
+          `width:${rect.width}px`,
+          `height:${rect.height}px`,
+          `z-index:9997`,
+          `cursor:pointer`,
+          `transform-origin:center center`,
+          `transform:translate(0,0) scale(1)`,
+          `transition:none`,
+        ].join(';');
+
+        port.appendChild(scene);       // move (not clone) scene into portal
+        document.body.appendChild(port);
+        card.style.opacity       = '0';
+        card.style.pointerEvents = 'none';
+
+        activeCard   = card;
+        activePortal = port;
+        cardState    = 1;
+
+        port.offsetHeight; // force reflow before transition
+
+        port.style.transition = 'transform 0.48s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.48s ease';
+        port.style.transform  = `translate(${dx}px, ${dy}px) scale(${scale})`;
+        port.style.boxShadow  = '0 32px 80px rgba(0,0,0,0.35), 0 8px 24px rgba(0,0,0,0.2)';
+
+        eatBackdrop.classList.add('active');
+
+        // Portal handles its own clicks (state 1 → 2 → 0)
+        port.addEventListener('click', (pe) => {
+          if (pe.target.closest('.eat-card-maps-btn')) return;
+          pe.stopPropagation();
+          if (cardState === 1) {
+            cardState = 2;
+            port.querySelector('.eat-card-flip')?.classList.add('flipped');
+          } else if (cardState === 2) {
+            collapseActiveCard();
+          }
+        });
+
+        tgtX = 0; tgtY = 0;
+        if (!raf) raf = requestAnimationFrame(animateTilt);
+      }
     });
   });
 

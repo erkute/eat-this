@@ -480,6 +480,23 @@ body {
   .must-eats-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
 }
 
+/* ── Eat Card Backdrop ── */
+.eat-card-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9996;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+.eat-card-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* ── 3D Retro Card ── */
 .eat-card {
   background: transparent;
@@ -487,6 +504,22 @@ body {
   overflow: visible;
   cursor: pointer;
   position: relative;
+}
+.eat-card.is-expanded {
+  /* Scene is moved to portal; card is a placeholder */
+  cursor: pointer;
+}
+
+/* Portal: fixed wrapper that holds the scene while it's animated */
+.eat-card-portal {
+  overflow: visible;
+}
+.eat-card-portal .eat-card-scene {
+  width: 100%;
+  height: 100%;
+}
+.eat-card-portal .eat-card-flip {
+  height: 100%;
 }
 
 /* Scene: sets perspective */

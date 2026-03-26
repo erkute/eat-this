@@ -441,6 +441,13 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px 72px;
+  text-align: center;
+}
+.must-eats-header-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 0;
 }
 .section-label {
   font-size: 10px;
@@ -448,7 +455,10 @@ body {
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--orange);
-  margin-bottom: 20px;
+  margin-bottom: 8px;
+}
+.must-eats-header .section-label {
+  text-align: center;
 }
 .must-eats-title {
   font-size: clamp(2.5rem, 7vw, 5rem);
@@ -783,13 +793,19 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px 48px;
-  text-align: center;
+}
+.map-header-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 0;
 }
 .map-title {
   font-size: clamp(2.5rem, 7vw, 5rem);
   font-weight: 900;
   letter-spacing: -0.04em;
   line-height: 0.95;
+  text-transform: uppercase;
 }
 .map-subtitle {
   font-size: 14px;
@@ -1352,6 +1368,7 @@ body {
   font-weight: 900;
   letter-spacing: -0.04em;
   line-height: 0.95;
+  text-transform: uppercase;
 }
 .news-all-link {
   font-size: 11px;
@@ -2901,6 +2918,15 @@ body {
   .app-page[data-page="news"] .news-header {
     padding: 16px 16px 24px;
     background: var(--white);
+    text-align: center;
+    border: none;
+    margin: 0;
+    display: block !important;
+  }
+
+  .app-page[data-page="map"] .map-header {
+    padding: 16px 16px 24px;
+    background: var(--white);
     text-align: left;
     border: none;
     margin: 0;
@@ -2916,6 +2942,7 @@ body {
     line-height: 1;
     margin: 0;
     display: block !important;
+    text-transform: uppercase;
   }
   
   .app-page[data-page="musts"] .section-label {
@@ -2933,7 +2960,7 @@ body {
   .app-page[data-page="musts"] .must-eats-logo-img {
     max-width: 200px;
     display: block;
-    margin: 0;
+    margin: 0 auto;
   }
   
   .app-page[data-page="musts"] .must-eats-subtitle,
@@ -3048,6 +3075,7 @@ body {
     line-height: 1;
     margin-bottom: 4px;
     font-family: var(--font);
+    text-transform: uppercase;
   }
   
   .app-page[data-page="news"] .section-label {
@@ -3544,8 +3572,16 @@ body {
     padding: 0;
   }
 
-  .app-page .must-eats-header,
-  .app-page .news-header {
+  .app-page .must-eats-header {
+    padding: 16px 16px 24px;
+    background: var(--white);
+    text-align: center;
+    margin: 0;
+    border: none;
+  }
+
+  .app-page .news-header,
+  .app-page .map-header {
     padding: 16px 16px 24px;
     background: var(--white);
     text-align: left;
@@ -3561,6 +3597,16 @@ body {
     line-height: 1.1;
     margin: 0;
     display: block !important;
+    text-transform: uppercase;
+  }
+
+  .app-page[data-page="musts"] .section-label {
+    text-align: center;
+  }
+
+  .app-page[data-page="musts"] .must-eats-logo-img {
+    display: block;
+    margin: 0 auto;
   }
 
   .app-page .section-label {
@@ -3569,6 +3615,16 @@ body {
     margin-bottom: 4px;
     margin-top: 0;
     display: block !important;
+    text-align: left;
+  }
+
+  .app-page[data-page="musts"] .section-label {
+    text-align: center;
+  }
+
+  .app-page[data-page="map"] .section-label,
+  .app-page[data-page="news"] .section-label {
+    text-align: left;
   }
 
   .app-page .must-eats-subtitle,
@@ -3578,9 +3634,9 @@ body {
   }
 
   .app-page .must-eats-logo-img {
-    max-width: 160px;
+    max-width: 200px;
     display: block;
-    margin: 0;
+    margin: 0 auto;
   }
 
   /* ---- Eat This: 2-column grid, compact cards ---- */
@@ -3609,6 +3665,21 @@ body {
     flex-direction: column;
   }
 
+  .app-page[data-page="map"] .map-header {
+    padding: 10px 24px 0 !important;
+    text-align: left !important;
+  }
+
+  .app-page[data-page="map"] .section-label {
+    margin-top: 0;
+    margin-bottom: 2px;
+    text-align: left;
+  }
+
+  .app-page[data-page="map"] .map-subtitle {
+    display: none !important;
+  }
+
   .app-page[data-page="map"] .map-title {
     font-size: 1.5rem;
     font-weight: 900;
@@ -3616,10 +3687,43 @@ body {
     line-height: 1.1;
     margin: 0;
     display: block !important;
+    text-transform: uppercase;
+  }
+
+  /* Desktop zoom buttons — same dark glass style as mobile */
+  .app-page[data-page="map"] .leaflet-control-zoom {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .app-page[data-page="map"] .leaflet-control-zoom-in,
+  .app-page[data-page="map"] .leaflet-control-zoom-out {
+    background: rgba(0,0,0,0.5) !important;
+    border: 1px solid rgba(255,255,255,0.18) !important;
+    color: rgba(255,255,255,0.9) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    font-size: 18px !important;
+    line-height: 36px !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+    margin-bottom: 4px !important;
+    display: block !important;
+    text-align: center !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4) !important;
+  }
+
+  .app-page[data-page="map"] .leaflet-control-zoom-in:hover,
+  .app-page[data-page="map"] .leaflet-control-zoom-out:hover {
+    background: rgba(0,0,0,0.7) !important;
+    color: white !important;
   }
 
   .app-page[data-page="map"] .map-filters {
     flex-shrink: 0;
+    padding-top: 6px;
+    padding-bottom: 6px;
   }
 
   .app-page[data-page="map"] .map-container {

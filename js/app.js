@@ -649,8 +649,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const aspect = w / h;
     // Portrait (mobile): keep globe just inside horizontal FOV
     // Landscape (desktop/tablet): bring globe much closer to fill screen height
-    const globeStartZ = aspect >= 1 ? 3.0 : 7.0;
-    const globeEndZ   = aspect >= 1 ? 1.0 : 1.5;
+    const globeStartZ = aspect >= 1 ? 4.5 : 7.0;
+    const globeEndZ   = aspect >= 1 ? 1.2 : 1.5;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(38, aspect, 0.1, 1000);

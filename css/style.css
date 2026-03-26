@@ -526,42 +526,65 @@ body {
   overflow: hidden;
 }
 
-/* Shine layer */
+/* Shine layer — liquid specular highlight */
 .eat-card-shine {
   position: absolute;
   inset: 0;
   z-index: 20;
   border-radius: 14px;
   pointer-events: none;
-  background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.08) 40%, transparent 70%);
-  transition: background 0.1s;
+  background:
+    linear-gradient(135deg,
+      rgba(255,255,255,0.55) 0%,
+      rgba(255,255,255,0.12) 30%,
+      transparent 55%),
+    linear-gradient(to bottom,
+      rgba(255,255,255,0.18) 0%,
+      transparent 60%);
+  transition: background 0.08s;
 }
 
-/* ── FRONT FACE ── */
+/* ── FRONT FACE — Liquid Glass ── */
 .eat-card-front {
-  background: rgba(255,255,255,0.55);
-  backdrop-filter: blur(18px) saturate(180%);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
-  border: 1px solid rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(38px) saturate(220%) brightness(1.05);
+  -webkit-backdrop-filter: blur(38px) saturate(220%) brightness(1.05);
+  border: 1px solid rgba(255,255,255,0.55);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.85),
+    inset 0 -1px 0 rgba(255,255,255,0.18),
+    inset 1px 0 rgba(255,255,255,0.28),
+    inset -1px 0 rgba(255,255,255,0.14),
+    0 8px 32px rgba(0,0,0,0.13),
+    0 2px 8px rgba(0,0,0,0.07);
   display: flex;
   flex-direction: column;
 }
 
-/* Grain + scanlines */
+/* Liquid glass top-edge specular */
 .eat-card-front::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 10;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.055'/%3E%3C/svg%3E");
+  border-radius: 14px;
+  background: linear-gradient(170deg,
+    rgba(255,255,255,0.22) 0%,
+    rgba(255,255,255,0.06) 35%,
+    transparent 60%);
   pointer-events: none;
 }
+/* Liquid bottom inner shadow */
 .eat-card-front::after {
   content: '';
   position: absolute;
-  inset: 0;
+  bottom: 0; left: 0; right: 0;
+  height: 40%;
   z-index: 9;
-  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.016) 3px, rgba(0,0,0,0.016) 4px);
+  border-radius: 0 0 14px 14px;
+  background: linear-gradient(to bottom,
+    transparent,
+    rgba(200,215,235,0.08));
   pointer-events: none;
 }
 
@@ -570,24 +593,24 @@ body {
   overflow: hidden;
   position: relative;
   min-height: 0;
-  background: rgba(230,235,240,0.45);
+  background: rgba(200,215,230,0.12);
 }
 .eat-card-img-wrap img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   display: block;
-  filter: sepia(8%) saturate(1.05) contrast(1.02);
   transition: opacity 0.4s ease;
 }
 
-/* Front body */
+/* Front body — liquid glass pill */
 .eat-card-body {
   padding: 8px 12px 11px;
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: blur(12px) saturate(160%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  border-top: 1px solid rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(28px) saturate(200%) brightness(1.08);
+  -webkit-backdrop-filter: blur(28px) saturate(200%) brightness(1.08);
+  border-top: 1px solid rgba(255,255,255,0.75);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
   position: relative;
   z-index: 11;
 }
@@ -603,7 +626,7 @@ body {
 }
 .eat-card-restaurant {
   font-size: 10px;
-  color: #aaa;
+  color: rgba(80,80,90,0.75);
   font-weight: 400;
   margin-bottom: 0;
 }
@@ -623,11 +646,18 @@ body {
   letter-spacing: 0.04em;
 }
 
-/* ── BACK FACE ── */
+/* ── BACK FACE — Liquid Glass ── */
 .eat-card-back {
   transform: rotateY(180deg);
-  background: #111;
+  background: #0a0a0a;
   overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.45);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.7),
+    inset 0 -1px 0 rgba(255,255,255,0.15),
+    inset 1px 0 rgba(255,255,255,0.22),
+    inset -1px 0 rgba(255,255,255,0.1),
+    0 8px 32px rgba(0,0,0,0.18);
 }
 
 /* Full-bleed background image */
@@ -638,21 +668,37 @@ body {
   height: 100%;
   object-fit: cover;
   display: block;
-  filter: sepia(10%) saturate(1.1) brightness(0.75);
+  filter: brightness(0.82) saturate(1.1);
   z-index: 0;
 }
 
-/* Frosted glass overlay at bottom */
+/* Liquid glass overlay covering the whole back */
+.eat-card-back::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(165deg,
+    rgba(255,255,255,0.18) 0%,
+    rgba(255,255,255,0.04) 40%,
+    transparent 65%);
+  pointer-events: none;
+}
+
+/* Liquid glass info panel at bottom */
 .eat-card-back-overlay {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   padding: 10px 11px 9px;
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-top: 1px solid rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(40px) saturate(220%) brightness(1.1);
+  -webkit-backdrop-filter: blur(40px) saturate(220%) brightness(1.1);
+  border-top: 1px solid rgba(255,255,255,0.65);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -1px 0 rgba(255,255,255,0.1);
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -665,15 +711,15 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: var(--black);
+  color: rgba(255,255,255,0.97);
   text-align: center;
   margin-bottom: 1px;
   position: relative;
   z-index: 2;
 }
 .eat-card-back-restaurant {
-  font-size: 8.5px;
-  color: #aaa;
+  font-size: 9px;
+  color: rgba(255,255,255,0.75);
   text-align: center;
   letter-spacing: 0.04em;
   margin-bottom: 5px;
@@ -681,7 +727,7 @@ body {
   z-index: 2;
 }
 .eat-card-divider-dark {
-  border-top-color: rgba(0,0,0,0.1);
+  border-top-color: rgba(255,255,255,0.2);
   margin-bottom: 5px;
   position: relative;
   z-index: 2;
@@ -707,14 +753,14 @@ body {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #bbb;
+  color: rgba(255,255,255,0.55);
   flex-shrink: 0;
 }
 .eat-card-info-val {
   font-family: 'Space Mono', 'Courier New', monospace;
   font-size: 9.5px;
   font-weight: 700;
-  color: var(--black);
+  color: rgba(255,255,255,0.95);
   text-align: right;
 }
 .eat-card-stat-orange { color: var(--orange); }
@@ -733,10 +779,15 @@ body {
   margin-top: 6px;
   width: 100%;
   padding: 7px;
-  background: var(--black);
-  border: none;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.45);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    0 2px 8px rgba(0,0,0,0.15);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 6px;
-  color: #fff;
+  color: rgba(255,255,255,0.95);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -749,10 +800,13 @@ body {
   text-decoration: none;
   position: relative;
   z-index: 2;
-  transition: background 0.2s;
+  transition: background 0.2s, box-shadow 0.2s;
 }
 .eat-card-maps-btn:hover {
-  background: #222;
+  background: rgba(255,255,255,0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.65),
+    0 4px 12px rgba(0,0,0,0.2);
 }
 
 /* Legacy unused classes — kept for selector safety */

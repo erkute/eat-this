@@ -658,17 +658,51 @@ document.addEventListener('DOMContentLoaded', () => {
     const camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 1000);
     camera.position.z = 3.4;
 
-    const renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: true });
+    const renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: true, alpha: false });
     renderer.setSize(w, h);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0xffffff);
 
-    // Globe sphere — flat material (no lighting), starts ocean blue
+    // Globe sphere — Phong material for realistic 3D look
     const globeGeo = new THREE.SphereGeometry(1, 64, 64);
-    const globeMat = new THREE.MeshBasicMaterial({ color: 0x89cde8 });
+    const globeMat = new THREE.MeshPhongMaterial({
+      color: 0x3d7ab5,
+      specular: 0x88bbdd,
+      shininess: 18,
+    });
     const globe = new THREE.Mesh(globeGeo, globeMat);
     globe.rotation.x = 0.3;
     scene.add(globe);
+
+    // Atmosphere glow — Fresnel rim shader
+    const atmosMat = new THREE.ShaderMaterial({
+      vertexShader: `
+        varying vec3 vNormal;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vNormal;
+        void main() {
+          float rim = pow(1.0 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
+          gl_FragColor = vec4(0.35, 0.6, 1.0, rim * 0.75);
+        }
+      `,
+      transparent: true,
+      depthWrite: false,
+      side: THREE.FrontSide,
+    });
+    const atmos = new THREE.Mesh(new THREE.SphereGeometry(1.12, 32, 32), atmosMat);
+    atmos.rotation.x = 0.3;
+    scene.add(atmos);
+
+    // Lighting — sun from upper right
+    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+    const sun = new THREE.DirectionalLight(0xfff5e8, 1.2);
+    sun.position.set(5, 3, 3);
+    scene.add(sun);
 
     // Load map texture asynchronously
     buildGlobeTexture().then(texCanvas => {
@@ -704,11 +738,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const targetLat = (userLat !== undefined ? userLat : 52.5) * Math.PI / 180;
 
       alignStartY = rotY;
-      // Three.js SphereGeometry UV is offset by -90°: front face at rotY=0 shows lng -90°W.
-      // Correct formula: rotY = -(π/2 + lngRad) to bring longitude lngRad to front.
+      // Three.js SphereGeometry UV offset: front at rotY=0 shows lng -90°W.
+      // To show longitude L: rotY = -(π/2 + L_rad)
       alignTargetY = rotY + shortestDelta(rotY, -(Math.PI / 2 + targetLng));
       alignStartX = globe.rotation.x;
-      globe._targetX = -targetLat + 0.3;
+      // Positive rotX tilts north pole toward camera → shows northern latitudes
+      globe._targetX = targetLat;
 
       setTimeout(() => { if (typeof initFoodMap === 'function') initFoodMap(); }, 50);
     }
@@ -729,11 +764,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (phase === 'idle') {
         rotY += 0.004;
         globe.rotation.y = rotY;
+        atmos.rotation.y = rotY;
       } else if (phase === 'zoom') {
         const duration = 2600;
         const p = Math.min((Date.now() - phaseStart) / duration, 1);
         globe.rotation.y = lerp(alignStartY, alignTargetY, easeOut5(p));
         globe.rotation.x = lerp(alignStartX, globe._targetX || 0.3, easeOut5(p));
+        atmos.rotation.y = globe.rotation.y;
+        atmos.rotation.x = globe.rotation.x;
         rotY = globe.rotation.y;
         // Zoom in but keep globe fully visible (3.4 → 2.0)
         camera.position.z = 3.4 - easeOut3(p) * 1.4;
@@ -763,12 +801,12 @@ document.addEventListener('DOMContentLoaded', () => {
     offscreen.height = H;
     const ctx = offscreen.getContext('2d');
 
-    // Ocean — Google Maps blue
-    ctx.fillStyle = '#89cde8';
+    // Ocean — deep atlas blue
+    ctx.fillStyle = '#3d7ab5';
     ctx.fillRect(0, 0, W, H);
 
-    // Graticule (grid lines) — subtle
-    ctx.strokeStyle = 'rgba(80,155,195,0.3)';
+    // Graticule — subtle darker blue lines
+    ctx.strokeStyle = 'rgba(40,90,150,0.35)';
     ctx.lineWidth = 1;
     for (let lng = -180; lng <= 180; lng += 30) {
       const x = (lng + 180) / 360 * W;
@@ -786,14 +824,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof topojson !== 'undefined') {
       const countries = topojson.feature(topo, topo.objects.countries);
 
-      // Land fill — Google Maps cream/green-tinted land
-      ctx.fillStyle = '#e8e0d0';
+      // Land fill — classic atlas yellow-tan
+      ctx.fillStyle = '#d4c882';
       for (const feat of countries.features) {
         globeDrawGeo(ctx, feat.geometry, W, H, true);
       }
 
       // Country borders
-      ctx.strokeStyle = '#c0b8a8';
+      ctx.strokeStyle = '#a89858';
       ctx.lineWidth = 1.5;
       for (const feat of countries.features) {
         globeDrawGeo(ctx, feat.geometry, W, H, false);

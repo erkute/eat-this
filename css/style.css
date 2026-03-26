@@ -2971,12 +2971,12 @@ body {
     top: 10px;
     left: 10px;
     right: auto;
-    background: var(--black);
+    background: var(--white);
     border: none;
   }
-  
+
   .app-page[data-page="map"] .map-location-btn-fixed svg {
-    stroke: var(--white);
+    stroke: var(--black);
   }
   
   /* News page - Magazine style */

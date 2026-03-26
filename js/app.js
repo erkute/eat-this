@@ -586,8 +586,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const mapEl = document.getElementById('foodMap');
     if (!mapEl) { onComplete(); return; }
 
-    const w = mapEl.clientWidth || 390;
-    const h = mapEl.clientHeight || 520;
+    const w = window.innerWidth || 390;
+    const h = window.innerHeight || 520;
 
     // Overlay — space background
     const overlay = document.createElement('div');
@@ -634,7 +634,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // Hide location button + zoom control during globe
+    // Hide location button, zoom control and filters during globe; expand foodMap to full screen
+    mapEl.classList.add('globe-active');
+    mapEl.style.cssText = 'position:fixed;inset:0;z-index:9990;width:100%!important;height:100%!important;min-height:0!important';
+    const mapPage = document.querySelector('.app-page[data-page="map"]');
+    if (mapPage) mapPage.classList.add('globe-active');
     const locBtn = document.getElementById('mapLocationBtnFixed');
     if (locBtn) locBtn.style.display = 'none';
     const zoomCtrl = document.querySelector('.leaflet-control-zoom');
@@ -644,7 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 1000);
-    camera.position.z = 3.4;
+    camera.position.z = 4.8;
 
     const renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: true, alpha: false });
     renderer.setSize(w, h);
@@ -741,8 +745,8 @@ document.addEventListener('DOMContentLoaded', () => {
         globe.rotation.y = lerp(alignStartY, alignTargetY, easeOut5(p));
         globe.rotation.x = lerp(alignStartX, globe._targetX || 0.3, easeOut5(p));
         rotY = globe.rotation.y;
-        // Zoom in but keep globe fully visible (3.4 → 2.0)
-        camera.position.z = 3.4 - easeOut3(p) * 1.4;
+        // Zoom in but keep globe fully visible (4.8 → 3.2)
+        camera.position.z = 4.8 - easeOut3(p) * 1.6;
         if (p >= 1) { phase = 'fade'; phaseStart = Date.now(); }
       } else if (phase === 'fade') {
         const p = Math.min((Date.now() - phaseStart) / 700, 1);
@@ -752,6 +756,9 @@ document.addEventListener('DOMContentLoaded', () => {
           overlay.remove();
           pulseStyle.remove();
           renderer.dispose();
+          mapEl.classList.remove('globe-active');
+          mapEl.style.cssText = '';
+          if (mapPage) mapPage.classList.remove('globe-active');
           if (locBtn) locBtn.style.display = '';
           if (zoomCtrl) zoomCtrl.style.display = '';
           onComplete();

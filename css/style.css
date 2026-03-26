@@ -58,7 +58,7 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 9999;
   padding: 10px 24px;
   display: flex;
   align-items: center;
@@ -480,6 +480,14 @@ body {
   .must-eats-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
 }
 
+/* ── Globe active: hide Leaflet controls and map UI ── */
+#foodMap.globe-active .leaflet-control-container {
+  display: none;
+}
+.app-page[data-page="map"].globe-active .map-filters {
+  display: none !important;
+}
+
 /* ── Eat Card Backdrop ── */
 .eat-card-backdrop {
   position: fixed;
@@ -707,7 +715,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #bbb;
+  color: #888;
   flex-shrink: 0;
 }
 .eat-card-info-val {
@@ -2958,8 +2966,17 @@ body {
   .app-page[data-page="map"] .map-container {
     flex: 1;
     min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  
+
+  .app-page[data-page="map"] #foodMap {
+    height: 100% !important;
+    width: 100% !important;
+    min-height: 0 !important;
+  }
+
   .app-page[data-page="map"] .leaflet-container {
     height: 100% !important;
     width: 100%;

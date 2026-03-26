@@ -630,79 +630,122 @@ document.addEventListener('DOMContentLoaded', () => {
     const w = mapEl.clientWidth || 390;
     const h = mapEl.clientHeight || 520;
 
+    // Overlay — ocean blue background
     const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:absolute;inset:0;z-index:500;background:#05071a;overflow:hidden';
-    const canvas = document.createElement('canvas');
-    overlay.appendChild(canvas);
+    overlay.style.cssText = 'position:absolute;inset:0;z-index:500;background:#aacbde;overflow:hidden;cursor:pointer';
+
+    const glCanvas = document.createElement('canvas');
+    overlay.appendChild(glCanvas);
+
+    // "Tap to explore" hint
+    const hint = document.createElement('div');
+    hint.style.cssText = 'position:absolute;bottom:20px;left:0;right:0;text-align:center;font-family:-apple-system,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.7);pointer-events:none';
+    hint.textContent = 'Tap to explore';
+    overlay.appendChild(hint);
+
+    const pulseStyle = document.createElement('style');
+    pulseStyle.textContent = '@keyframes globeHint{0%,100%{opacity:0.4}50%{opacity:1}}';
+    hint.style.animation = 'globeHint 2s ease-in-out infinite';
+    document.head.appendChild(pulseStyle);
+
     mapEl.appendChild(overlay);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 1000);
-    camera.position.z = 2.8;
+    // Wider FOV + camera further back so the full globe fits nicely
+    const camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 1000);
+    camera.position.z = 3.4;
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    const renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: true });
     renderer.setSize(w, h);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x05071a);
+    renderer.setClearColor(0xaacbde);
 
-    // Stars
-    const starPos = [];
-    for (let i = 0; i < 2000; i++) {
-      starPos.push((Math.random() - 0.5) * 200, (Math.random() - 0.5) * 200, -Math.random() * 100 - 10);
-    }
-    const starGeo = new THREE.BufferGeometry();
-    starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
-    scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.15 })));
-
-    // Globe
+    // Globe sphere — starts ocean blue, texture applied async
     const globeGeo = new THREE.SphereGeometry(1, 64, 64);
-    const globeMat = new THREE.MeshPhongMaterial({ color: 0x1a3a6a, specular: 0x223355, shininess: 25 });
+    const globeMat = new THREE.MeshPhongMaterial({ color: 0xb0cede, specular: 0xffffff, shininess: 10 });
     const globe = new THREE.Mesh(globeGeo, globeMat);
-    globe.rotation.x = 0.4;
+    globe.rotation.x = 0.3;
     scene.add(globe);
 
-    // Atmosphere glow
-    const atmMat = new THREE.MeshPhongMaterial({ color: 0x3366ff, transparent: true, opacity: 0.1, side: THREE.FrontSide });
-    scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.04, 64, 64), atmMat));
-
     // Lights
-    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
-    const sun = new THREE.DirectionalLight(0xffeedd, 1.5);
-    sun.position.set(5, 3, 5);
-    scene.add(sun);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+    const dir = new THREE.DirectionalLight(0xfff8f0, 0.5);
+    dir.position.set(4, 2, 3);
+    scene.add(dir);
 
-    // Load earth texture (blue fallback if unavailable)
-    new THREE.TextureLoader().load(
-      'https://raw.githubusercontent.com/mrdoob/three.js/r128/examples/textures/planets/earth_atmos_2048.jpg',
-      tex => { globeMat.map = tex; globeMat.needsUpdate = true; },
-      undefined,
-      () => {}
-    );
+    // Load map texture asynchronously
+    buildGlobeTexture().then(texCanvas => {
+      const tex = new THREE.CanvasTexture(texCanvas);
+      globeMat.map = tex;
+      globeMat.color.set(0xffffff);
+      globeMat.needsUpdate = true;
+    }).catch(() => {});
 
-    let startTime = Date.now();
-    let phase = 'spin';
+    let phase = 'idle';
+    let phaseStart = null;
+    let rotY = 0;
     let animFrame;
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    function easeOut3(t) { return 1 - Math.pow(1 - t, 3); }
+    function easeOut5(t) { return 1 - Math.pow(1 - t, 5); }
+    function shortestDelta(from, to) {
+      let d = ((to - from) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+      if (d > Math.PI) d -= 2 * Math.PI;
+      return d;
+    }
+
+    let alignStartY, alignTargetY, alignStartX, userLat, userLng;
+
+    function startZoom() {
+      if (phase !== 'idle') return;
+      phase = 'zoom';
+      phaseStart = Date.now();
+      hint.style.display = 'none';
+
+      const targetLng = (userLng !== undefined ? userLng : 13.4) * Math.PI / 180;
+      const targetLat = (userLat !== undefined ? userLat : 52.5) * Math.PI / 180;
+
+      alignStartY = rotY;
+      alignTargetY = rotY + shortestDelta(rotY, -targetLng);
+      alignStartX = globe.rotation.x;
+      globe._targetX = -targetLat + 0.3;
+
+      setTimeout(() => { if (typeof initFoodMap === 'function') initFoodMap(); }, 50);
+    }
+
+    overlay.addEventListener('click', startZoom);
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => { userLat = pos.coords.latitude; userLng = pos.coords.longitude; },
+        () => {},
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
+      );
+    }
 
     function tick() {
       animFrame = requestAnimationFrame(tick);
-      const t = (Date.now() - startTime) / 1000;
 
-      if (phase === 'spin') {
-        globe.rotation.y = t * 0.55;
-        if (t > 2.2) { phase = 'zoom'; startTime = Date.now(); }
+      if (phase === 'idle') {
+        rotY += 0.004;
+        globe.rotation.y = rotY;
       } else if (phase === 'zoom') {
-        const p = Math.min(t / 1.4, 1);
-        const ease = 1 - Math.pow(1 - p, 3);
-        camera.position.z = 2.8 - ease * 2.1;
-        globe.rotation.y += 0.005;
-        if (p >= 1) { phase = 'fade'; startTime = Date.now(); }
+        const duration = 2600;
+        const p = Math.min((Date.now() - phaseStart) / duration, 1);
+        globe.rotation.y = lerp(alignStartY, alignTargetY, easeOut5(p));
+        globe.rotation.x = lerp(alignStartX, globe._targetX || 0.3, easeOut5(p));
+        rotY = globe.rotation.y;
+        // Zoom in but keep globe fully visible (3.4 → 2.0)
+        camera.position.z = 3.4 - easeOut3(p) * 1.4;
+        if (p >= 1) { phase = 'fade'; phaseStart = Date.now(); }
       } else if (phase === 'fade') {
-        const p = Math.min(t / 0.7, 1);
+        const p = Math.min((Date.now() - phaseStart) / 700, 1);
         overlay.style.opacity = String(1 - p);
-        globe.rotation.y += 0.003;
         if (p >= 1) {
           cancelAnimationFrame(animFrame);
           overlay.remove();
+          pulseStyle.remove();
           renderer.dispose();
           onComplete();
           return;
@@ -711,6 +754,73 @@ document.addEventListener('DOMContentLoaded', () => {
       renderer.render(scene, camera);
     }
     tick();
+  }
+
+  async function buildGlobeTexture() {
+    const W = 2048, H = 1024;
+    const offscreen = document.createElement('canvas');
+    offscreen.width = W;
+    offscreen.height = H;
+    const ctx = offscreen.getContext('2d');
+
+    // Ocean
+    ctx.fillStyle = '#7db3cc';
+    ctx.fillRect(0, 0, W, H);
+
+    // Graticule (grid lines)
+    ctx.strokeStyle = 'rgba(100,160,195,0.45)';
+    ctx.lineWidth = 1;
+    for (let lng = -180; lng <= 180; lng += 30) {
+      const x = (lng + 180) / 360 * W;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let lat = -90; lat <= 90; lat += 30) {
+      const y = (90 - lat) / 180 * H;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+
+    // Fetch country polygons
+    const resp = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+    const topo = await resp.json();
+
+    if (typeof topojson !== 'undefined') {
+      const countries = topojson.feature(topo, topo.objects.countries);
+
+      // Land fill — warm parchment matching CartoDB light
+      ctx.fillStyle = '#ede8dc';
+      for (const feat of countries.features) {
+        globeDrawGeo(ctx, feat.geometry, W, H, true);
+      }
+
+      // Country borders
+      ctx.strokeStyle = '#c8c0b0';
+      ctx.lineWidth = 1.5;
+      for (const feat of countries.features) {
+        globeDrawGeo(ctx, feat.geometry, W, H, false);
+      }
+    }
+
+    return offscreen;
+  }
+
+  function globeDrawGeo(ctx, geom, W, H, fill) {
+    if (!geom) return;
+    const polys = geom.type === 'Polygon' ? [geom.coordinates] :
+                  geom.type === 'MultiPolygon' ? geom.coordinates : [];
+    for (const poly of polys) {
+      ctx.beginPath();
+      for (const ring of poly) {
+        let first = true;
+        for (const [lng, lat] of ring) {
+          const x = (lng + 180) / 360 * W;
+          const y = (90 - lat) / 180 * H;
+          if (first) { ctx.moveTo(x, y); first = false; }
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+      }
+      if (fill) ctx.fill(); else ctx.stroke();
+    }
   }
 
   function initFoodMap() {
@@ -1112,12 +1222,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Globe intro → then init map
         if (pageName === 'map') {
-          // Start Leaflet init in background while globe plays
-          setTimeout(() => {
-            if (typeof initFoodMap === 'function') initFoodMap();
-          }, 200);
-          // Show globe, invalidate map size when globe fades out
           showGlobeIntro(() => {
+            // Called after globe fades (or immediately on repeat visits)
+            if (typeof initFoodMap === 'function') initFoodMap();
             if (foodMap) {
               foodMap.invalidateSize();
               setTimeout(() => { if (foodMap) foodMap.invalidateSize(); }, 300);

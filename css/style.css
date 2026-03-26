@@ -1160,43 +1160,51 @@ body {
 
 .map-filters {
   display: flex;
-  gap: 8px;
+  gap: 3px;
   padding: 12px 16px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
   background: var(--white);
   border-bottom: 1px solid var(--gray-100);
 }
 
-.map-filters::-webkit-scrollbar {
+.map-filters-track {
+  display: flex;
+  gap: 2px;
+  background: #efefef;
+  border-radius: 12px;
+  padding: 3px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  width: 100%;
+}
+
+.map-filters-track::-webkit-scrollbar {
   display: none;
 }
 
 .map-filter-btn {
   flex-shrink: 0;
-  padding: 10px 16px;
-  min-height: 44px;
+  padding: 8px 14px;
+  border-radius: 9px;
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  border: 1.5px solid var(--black);
-  border-radius: 20px;
-  background: var(--white);
-  color: var(--black);
+  font-weight: 700;
+  color: #888;
+  background: transparent;
+  border: none;
   cursor: pointer;
-  transition: all 0.2s var(--ease);
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  white-space: nowrap;
 }
 
 .map-filter-btn:hover {
-  background: var(--black);
-  color: var(--white);
+  color: #444;
 }
 
 .map-filter-btn.active {
-  background: var(--black);
-  color: var(--white);
+  background: var(--white);
+  color: var(--black);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
 
 .map-location-btn {

@@ -630,16 +630,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const w = mapEl.clientWidth || 390;
     const h = mapEl.clientHeight || 520;
 
-    // Overlay — ocean blue background
+    // Overlay — white background like Google Maps
     const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:absolute;inset:0;z-index:500;background:#aacbde;overflow:hidden;cursor:pointer';
+    overlay.style.cssText = 'position:absolute;inset:0;z-index:500;background:#ffffff;overflow:hidden;cursor:pointer';
 
     const glCanvas = document.createElement('canvas');
     overlay.appendChild(glCanvas);
 
     // "Tap to explore" hint
     const hint = document.createElement('div');
-    hint.style.cssText = 'position:absolute;bottom:20px;left:0;right:0;text-align:center;font-family:-apple-system,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.7);pointer-events:none';
+    hint.style.cssText = 'position:absolute;bottom:20px;left:0;right:0;text-align:center;font-family:-apple-system,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;pointer-events:none';
     hint.textContent = 'Tap to explore';
     overlay.appendChild(hint);
 
@@ -648,30 +648,27 @@ document.addEventListener('DOMContentLoaded', () => {
     hint.style.animation = 'globeHint 2s ease-in-out infinite';
     document.head.appendChild(pulseStyle);
 
+    // Hide location button during globe
+    const locBtn = document.getElementById('mapLocationBtnFixed');
+    if (locBtn) locBtn.style.display = 'none';
+
     mapEl.appendChild(overlay);
 
     const scene = new THREE.Scene();
-    // Wider FOV + camera further back so the full globe fits nicely
     const camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 1000);
     camera.position.z = 3.4;
 
     const renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: true });
     renderer.setSize(w, h);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0xaacbde);
+    renderer.setClearColor(0xffffff);
 
-    // Globe sphere — starts ocean blue, texture applied async
+    // Globe sphere — flat material (no lighting), starts ocean blue
     const globeGeo = new THREE.SphereGeometry(1, 64, 64);
-    const globeMat = new THREE.MeshPhongMaterial({ color: 0xb0cede, specular: 0xffffff, shininess: 10 });
+    const globeMat = new THREE.MeshBasicMaterial({ color: 0x89cde8 });
     const globe = new THREE.Mesh(globeGeo, globeMat);
     globe.rotation.x = 0.3;
     scene.add(globe);
-
-    // Lights
-    scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-    const dir = new THREE.DirectionalLight(0xfff8f0, 0.5);
-    dir.position.set(4, 2, 3);
-    scene.add(dir);
 
     // Load map texture asynchronously
     buildGlobeTexture().then(texCanvas => {
@@ -707,7 +704,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const targetLat = (userLat !== undefined ? userLat : 52.5) * Math.PI / 180;
 
       alignStartY = rotY;
-      alignTargetY = rotY + shortestDelta(rotY, -targetLng);
+      // Three.js SphereGeometry UV is offset by -90°: front face at rotY=0 shows lng -90°W.
+      // Correct formula: rotY = -(π/2 + lngRad) to bring longitude lngRad to front.
+      alignTargetY = rotY + shortestDelta(rotY, -(Math.PI / 2 + targetLng));
       alignStartX = globe.rotation.x;
       globe._targetX = -targetLat + 0.3;
 
@@ -747,6 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
           overlay.remove();
           pulseStyle.remove();
           renderer.dispose();
+          if (locBtn) locBtn.style.display = '';
           onComplete();
           return;
         }
@@ -763,12 +763,12 @@ document.addEventListener('DOMContentLoaded', () => {
     offscreen.height = H;
     const ctx = offscreen.getContext('2d');
 
-    // Ocean
-    ctx.fillStyle = '#7db3cc';
+    // Ocean — Google Maps blue
+    ctx.fillStyle = '#89cde8';
     ctx.fillRect(0, 0, W, H);
 
-    // Graticule (grid lines)
-    ctx.strokeStyle = 'rgba(100,160,195,0.45)';
+    // Graticule (grid lines) — subtle
+    ctx.strokeStyle = 'rgba(80,155,195,0.3)';
     ctx.lineWidth = 1;
     for (let lng = -180; lng <= 180; lng += 30) {
       const x = (lng + 180) / 360 * W;
@@ -786,14 +786,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof topojson !== 'undefined') {
       const countries = topojson.feature(topo, topo.objects.countries);
 
-      // Land fill — warm parchment matching CartoDB light
-      ctx.fillStyle = '#ede8dc';
+      // Land fill — Google Maps cream/green-tinted land
+      ctx.fillStyle = '#e8e0d0';
       for (const feat of countries.features) {
         globeDrawGeo(ctx, feat.geometry, W, H, true);
       }
 
       // Country borders
-      ctx.strokeStyle = '#c8c0b0';
+      ctx.strokeStyle = '#c0b8a8';
       ctx.lineWidth = 1.5;
       for (const feat of countries.features) {
         globeDrawGeo(ctx, feat.geometry, W, H, false);

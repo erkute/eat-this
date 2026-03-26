@@ -1011,7 +1011,7 @@ body {
 }
 
 .map-spot-btn:hover {
-  background: var(--orange);
+  background: #333;
   transform: translateY(-1px);
 }
 

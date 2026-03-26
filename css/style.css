@@ -572,30 +572,10 @@ body {
 
 /* ── FRONT FACE ── */
 .eat-card-front {
-  background: rgba(255,255,255,0.55);
-  backdrop-filter: blur(18px) saturate(180%);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  background: #fff;
   border: 1px solid rgba(255,255,255,0.7);
   display: flex;
   flex-direction: column;
-}
-
-/* Grain + scanlines */
-.eat-card-front::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 10;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.055'/%3E%3C/svg%3E");
-  pointer-events: none;
-}
-.eat-card-front::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 9;
-  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.016) 3px, rgba(0,0,0,0.016) 4px);
-  pointer-events: none;
 }
 
 .eat-card-img-wrap {
@@ -610,16 +590,12 @@ body {
   height: 100%;
   object-fit: contain;
   display: block;
-  filter: sepia(8%) saturate(1.05) contrast(1.02);
-  transition: opacity 0.4s ease;
 }
 
 /* Front body */
 .eat-card-body {
   padding: 8px 12px 11px;
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: blur(12px) saturate(160%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  background: #fff;
   border-top: 1px solid rgba(255,255,255,0.8);
   position: relative;
   z-index: 11;

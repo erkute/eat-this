@@ -793,8 +793,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     mapInitialized = true;
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19,
+      attribution: '© Esri',
     }).addTo(foodMap);
 
     L.control.zoom({ position: 'bottomright' }).addTo(foodMap);

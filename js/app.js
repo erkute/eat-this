@@ -630,22 +630,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const w = mapEl.clientWidth || 390;
     const h = mapEl.clientHeight || 520;
 
-    // Overlay — white background like Google Maps
+    // Overlay — space background
     const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:absolute;inset:0;z-index:500;background:#ffffff;overflow:hidden;cursor:pointer';
+    overlay.style.cssText = 'position:absolute;inset:0;z-index:500;background:#000000;overflow:hidden;cursor:pointer';
 
     const glCanvas = document.createElement('canvas');
     overlay.appendChild(glCanvas);
 
-    // "Tap to explore" hint
-    const hint = document.createElement('div');
-    hint.style.cssText = 'position:absolute;bottom:20px;left:0;right:0;text-align:center;font-family:-apple-system,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#aaa;pointer-events:none';
-    hint.textContent = 'Tap to explore';
-    overlay.appendChild(hint);
-
     const pulseStyle = document.createElement('style');
-    pulseStyle.textContent = '@keyframes globeHint{0%,100%{opacity:0.4}50%{opacity:1}}';
-    hint.style.animation = 'globeHint 2s ease-in-out infinite';
+    pulseStyle.textContent = '';
     document.head.appendChild(pulseStyle);
 
     // Hide location button during globe
@@ -661,7 +654,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: true, alpha: false });
     renderer.setSize(w, h);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0xffffff);
+    renderer.setClearColor(0x000000);
 
     // Globe sphere — Lambert material + satellite texture
     const globeGeo = new THREE.SphereGeometry(1, 64, 64);
@@ -669,6 +662,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const globe = new THREE.Mesh(globeGeo, globeMat);
     globe.rotation.x = 0.3;
     scene.add(globe);
+
+    // Stars — random points in space
+    const starGeo = new THREE.BufferGeometry();
+    const starPos = new Float32Array(3000);
+    for (let i = 0; i < 3000; i += 3) {
+      const theta = Math.random() * 2 * Math.PI;
+      const phi = Math.acos(2 * Math.random() - 1);
+      const r = 80 + Math.random() * 20;
+      starPos[i]   = r * Math.sin(phi) * Math.cos(theta);
+      starPos[i+1] = r * Math.sin(phi) * Math.sin(theta);
+      starPos[i+2] = r * Math.cos(phi);
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.18 })));
 
     // Subtle lighting — no harsh highlights, just enough for depth
     scene.add(new THREE.AmbientLight(0xffffff, 0.55));
@@ -702,7 +709,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (phase !== 'idle') return;
       phase = 'zoom';
       phaseStart = Date.now();
-      hint.style.display = 'none';
 
       const targetLng = (userLng !== undefined ? userLng : 13.4) * Math.PI / 180;
       const targetLat = (userLat !== undefined ? userLat : 52.5) * Math.PI / 180;

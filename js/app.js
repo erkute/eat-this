@@ -618,6 +618,101 @@ document.addEventListener('DOMContentLoaded', () => {
       { name: 'FOERSTERS FEINE BIERE', district: 'Lichterfelde', type: 'Bier-Spezialitäten', mustEat: 'Craft Beer Tasting', address: 'Königsberger Str. 40, 12207 Berlin', lat: 52.4530, lng: 13.3678 },
     ];
 
+  let globeShown = false;
+
+  function showGlobeIntro(onComplete) {
+    if (typeof THREE === 'undefined' || globeShown) { onComplete(); return; }
+    globeShown = true;
+
+    const mapEl = document.getElementById('foodMap');
+    if (!mapEl) { onComplete(); return; }
+
+    const w = mapEl.clientWidth || 390;
+    const h = mapEl.clientHeight || 520;
+
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:absolute;inset:0;z-index:500;background:#05071a;overflow:hidden';
+    const canvas = document.createElement('canvas');
+    overlay.appendChild(canvas);
+    mapEl.appendChild(overlay);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 1000);
+    camera.position.z = 2.8;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x05071a);
+
+    // Stars
+    const starPos = [];
+    for (let i = 0; i < 2000; i++) {
+      starPos.push((Math.random() - 0.5) * 200, (Math.random() - 0.5) * 200, -Math.random() * 100 - 10);
+    }
+    const starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
+    scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.15 })));
+
+    // Globe
+    const globeGeo = new THREE.SphereGeometry(1, 64, 64);
+    const globeMat = new THREE.MeshPhongMaterial({ color: 0x1a3a6a, specular: 0x223355, shininess: 25 });
+    const globe = new THREE.Mesh(globeGeo, globeMat);
+    globe.rotation.x = 0.4;
+    scene.add(globe);
+
+    // Atmosphere glow
+    const atmMat = new THREE.MeshPhongMaterial({ color: 0x3366ff, transparent: true, opacity: 0.1, side: THREE.FrontSide });
+    scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.04, 64, 64), atmMat));
+
+    // Lights
+    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+    const sun = new THREE.DirectionalLight(0xffeedd, 1.5);
+    sun.position.set(5, 3, 5);
+    scene.add(sun);
+
+    // Load earth texture (blue fallback if unavailable)
+    new THREE.TextureLoader().load(
+      'https://raw.githubusercontent.com/mrdoob/three.js/r128/examples/textures/planets/earth_atmos_2048.jpg',
+      tex => { globeMat.map = tex; globeMat.needsUpdate = true; },
+      undefined,
+      () => {}
+    );
+
+    let startTime = Date.now();
+    let phase = 'spin';
+    let animFrame;
+
+    function tick() {
+      animFrame = requestAnimationFrame(tick);
+      const t = (Date.now() - startTime) / 1000;
+
+      if (phase === 'spin') {
+        globe.rotation.y = t * 0.55;
+        if (t > 2.2) { phase = 'zoom'; startTime = Date.now(); }
+      } else if (phase === 'zoom') {
+        const p = Math.min(t / 1.4, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        camera.position.z = 2.8 - ease * 2.1;
+        globe.rotation.y += 0.005;
+        if (p >= 1) { phase = 'fade'; startTime = Date.now(); }
+      } else if (phase === 'fade') {
+        const p = Math.min(t / 0.7, 1);
+        overlay.style.opacity = String(1 - p);
+        globe.rotation.y += 0.003;
+        if (p >= 1) {
+          cancelAnimationFrame(animFrame);
+          overlay.remove();
+          renderer.dispose();
+          onComplete();
+          return;
+        }
+      }
+      renderer.render(scene, camera);
+    }
+    tick();
+  }
+
   function initFoodMap() {
     if (mapInitialized || typeof L === 'undefined') return;
     const mapEl = document.getElementById('foodMap');
@@ -1015,15 +1110,19 @@ document.addEventListener('DOMContentLoaded', () => {
         page.classList.add('active');
         page.classList.remove('hidden');
         
-        // Invalidate map size when map page becomes active
+        // Globe intro → then init map
         if (pageName === 'map') {
+          // Start Leaflet init in background while globe plays
           setTimeout(() => {
             if (typeof initFoodMap === 'function') initFoodMap();
+          }, 200);
+          // Show globe, invalidate map size when globe fades out
+          showGlobeIntro(() => {
             if (foodMap) {
               foodMap.invalidateSize();
               setTimeout(() => { if (foodMap) foodMap.invalidateSize(); }, 300);
             }
-          }, 100);
+          });
         }
       } else {
         page.classList.remove('active');

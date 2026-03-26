@@ -663,46 +663,12 @@ document.addEventListener('DOMContentLoaded', () => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0xffffff);
 
-    // Globe sphere — Phong material for realistic 3D look
+    // Globe sphere — flat (no lighting)
     const globeGeo = new THREE.SphereGeometry(1, 64, 64);
-    const globeMat = new THREE.MeshPhongMaterial({
-      color: 0x3d7ab5,
-      specular: 0x88bbdd,
-      shininess: 18,
-    });
+    const globeMat = new THREE.MeshBasicMaterial({ color: 0x3d7ab5 });
     const globe = new THREE.Mesh(globeGeo, globeMat);
     globe.rotation.x = 0.3;
     scene.add(globe);
-
-    // Atmosphere glow — Fresnel rim shader
-    const atmosMat = new THREE.ShaderMaterial({
-      vertexShader: `
-        varying vec3 vNormal;
-        void main() {
-          vNormal = normalize(normalMatrix * normal);
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        varying vec3 vNormal;
-        void main() {
-          float rim = pow(1.0 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
-          gl_FragColor = vec4(0.35, 0.6, 1.0, rim * 0.75);
-        }
-      `,
-      transparent: true,
-      depthWrite: false,
-      side: THREE.FrontSide,
-    });
-    const atmos = new THREE.Mesh(new THREE.SphereGeometry(1.12, 32, 32), atmosMat);
-    atmos.rotation.x = 0.3;
-    scene.add(atmos);
-
-    // Lighting — sun from upper right
-    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
-    const sun = new THREE.DirectionalLight(0xfff5e8, 1.2);
-    sun.position.set(5, 3, 3);
-    scene.add(sun);
 
     // Load map texture asynchronously
     buildGlobeTexture().then(texCanvas => {
@@ -764,14 +730,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (phase === 'idle') {
         rotY += 0.004;
         globe.rotation.y = rotY;
-        atmos.rotation.y = rotY;
       } else if (phase === 'zoom') {
         const duration = 2600;
         const p = Math.min((Date.now() - phaseStart) / duration, 1);
         globe.rotation.y = lerp(alignStartY, alignTargetY, easeOut5(p));
         globe.rotation.x = lerp(alignStartX, globe._targetX || 0.3, easeOut5(p));
-        atmos.rotation.y = globe.rotation.y;
-        atmos.rotation.x = globe.rotation.x;
         rotY = globe.rotation.y;
         // Zoom in but keep globe fully visible (3.4 → 2.0)
         camera.position.z = 3.4 - easeOut3(p) * 1.4;

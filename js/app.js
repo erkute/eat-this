@@ -745,8 +745,8 @@ document.addEventListener('DOMContentLoaded', () => {
         globe.rotation.y = lerp(alignStartY, alignTargetY, easeOut5(p));
         globe.rotation.x = lerp(alignStartX, globe._targetX || 0.3, easeOut5(p));
         rotY = globe.rotation.y;
-        // Zoom in but keep globe fully visible (4.8 → 3.2)
-        camera.position.z = 4.8 - easeOut3(p) * 1.6;
+        // Zoom in close to the globe surface (4.8 → 1.5)
+        camera.position.z = 4.8 - easeOut3(p) * 3.3;
         if (p >= 1) { phase = 'fade'; phaseStart = Date.now(); }
       } else if (phase === 'fade') {
         const p = Math.min((Date.now() - phaseStart) / 700, 1);

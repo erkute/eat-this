@@ -539,7 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { name: 'Le Balto', district: 'Mitte', type: 'Weinbar', mustEat: 'Französischer Naturwein & Cheese-Board', address: 'Krausnickstr. 10, 10115 Berlin', lat: 52.5307, lng: 13.3956 },
       { name: 'SOFI', district: 'Mitte', type: 'Bäckerei', mustEat: 'Sourdough Croissant', address: 'Sophienstraße 5, 10178 Berlin', lat: 52.5247, lng: 13.3965 },
       { name: 'Capvin Rosenhöfe', district: 'Mitte', type: 'Pizza', mustEat: 'Napoli-Pizza mit Bärlauch', address: 'Rosenthaler Str. 36, 10178 Berlin', lat: 52.5253, lng: 13.4006 },
-      { name: 'Atelier Dough', district: 'Kreuzberg', type: 'Donuts', mustEat: 'Matcha Donut', address: 'Alte Schönhauser Str. 40, 10119 Berlin', lat: 52.5282, lng: 13.4030 },
+      { name: 'Atelier Dough', district: 'Mitte', type: 'Donuts', mustEat: 'Matcha Donut', address: 'Alte Schönhauser Str. 40, 10119 Berlin', lat: 52.5282, lng: 13.4030 },
       { name: 'Chipperfield Kantine', district: 'Mitte', type: 'Lunch', mustEat: 'Tagesmenü der Kantine', address: 'Ebertstraße 27, 10117 Berlin', lat: 52.5108, lng: 13.3754 },
       { name: 'Westberlin', district: 'Kreuzberg', type: 'Café', mustEat: 'Flat White & Avocado Toast', address: 'Friedrichstraße 215, 10969 Berlin', lat: 52.4993, lng: 13.3889 },
       { name: 'Gnam Pasta Factory', district: 'Mitte', type: 'Pasta', mustEat: 'Truffle Tagliatelle', address: 'Zimmerstraße 91, 10117 Berlin', lat: 52.5075, lng: 13.3868 },
@@ -555,7 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { name: 'Gazzo', district: 'Prenzlauer Berg', type: 'Pizza', mustEat: 'Pizza mit Nduja & Ricotta', address: 'Schönhauser Allee 50, 10437 Berlin', lat: 52.5427, lng: 13.4133 },
       { name: 'DONGNAM Coffee Lab', district: 'Prenzlauer Berg', type: 'Café', mustEat: 'Pour Over & Matcha Latte', address: 'Knaackstraße 26, 10405 Berlin', lat: 52.5374, lng: 13.4201 },
       { name: 'Momo Mochi Donut', district: 'Prenzlauer Berg', type: 'Süßes', mustEat: 'Mochi Donuts (alle Sorten)', address: 'Kollwitzstraße 36, 10405 Berlin', lat: 52.5382, lng: 13.4190 },
-      { name: 'Kitten Deli', district: 'Kreuzberg', type: 'Restaurant', mustEat: 'Reuben Sandwich', address: 'Raumerstraße 31, 10437 Berlin', lat: 52.5410, lng: 13.4126 },
+      { name: 'Kitten Deli', district: 'Prenzlauer Berg', type: 'Restaurant', mustEat: 'Reuben Sandwich', address: 'Raumerstraße 31, 10437 Berlin', lat: 52.5410, lng: 13.4126 },
       { name: 'Estelle', district: 'Prenzlauer Berg', type: 'Restaurant', mustEat: 'Tartare & Wein', address: 'Danziger Str. 1, 10435 Berlin', lat: 52.5415, lng: 13.4118 },
       { name: 'SORI Ramen', district: 'Prenzlauer Berg', type: 'Ramen', mustEat: 'Spicy Miso Ramen', address: 'Eberswalder Str. 5, 10437 Berlin', lat: 52.5409, lng: 13.4118 },
       { name: 'Material', district: 'Mitte', type: 'Café', mustEat: 'Specialty Coffee & Kardamom-Bun', address: 'Choriner Str. 18, 10119 Berlin', lat: 52.5294, lng: 13.4021 },
@@ -658,6 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Try to get user location
     const defaultCenter = [52.52, 13.405];
     let locationFound = false;
+    let userMarker = null;
     
     function setDefaultView() {
       if (!locationFound) {
@@ -678,7 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Check if location is in Berlin area (rough check)
             if (userLat > 52.3 && userLat < 52.7 && userLng > 13.1 && userLng < 13.8) {
-              L.marker([userLat, userLng], { icon: userIcon }).addTo(foodMap);
+              userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(foodMap);
               foodMap.setView([userLat, userLng], 13, { animate: true });
             } else {
               // User is outside Berlin, show Berlin anyway
@@ -713,24 +714,87 @@ document.addEventListener('DOMContentLoaded', () => {
     const mapSpotContent = document.getElementById('mapSpotContent');
     const mapSpotClose = document.getElementById('mapSpotClose');
 
+    function getSpotPhoto(type) {
+      const t = type.toLowerCase();
+      if (t.includes('burger')) return 'pics/burgers.webp';
+      if (t.includes('ramen') || t.includes('udon') || t.includes('sushi') || t.includes('japanisch')) return 'pics/spots/ramen.webp';
+      if (t.includes('donuts') || t.includes('mochi') || t.includes('süß')) return 'pics/spots/donuts.webp';
+      if (t.includes('wein') || t.includes('weinbar') || t.includes('bistro/wein')) return 'pics/wein.webp';
+      if (t.includes('café') || t.includes('cafe') || t.includes('coffee') || t.includes('kaffee') || t.includes('tee')) return 'pics/glas.webp';
+      if (t.includes('dessert') || t.includes('eis')) return 'pics/dessert.webp';
+      if (t.includes('fisch') || t.includes('sardinen') || t.includes('austern') || t.includes('meeresfrüchte')) return 'pics/fisch.webp';
+      if (t.includes('bäckerei') || t.includes('brunch') || t.includes('frühstück')) return 'pics/tisch.webp';
+      return 'pics/teller.webp';
+    }
+
+    function getSpotCategory(type) {
+      const t = type.toLowerCase();
+      if (t.includes('café') || t.includes('cafe') || t.includes('coffee') || t.includes('kaffee') || t.includes('tee &') || t === 'pflanzliches café') return 'café';
+      if (t.includes('bäckerei') || t === 'frühstück' || t.includes('brunch') || t === 'donuts') return 'breakfast';
+      if (t === 'burger') return 'fastfood';
+      if (t === 'lunch') return 'lunch';
+      return 'dinner';
+    }
+
     function showSpotDetail(spot) {
       const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(spot.name + ', ' + spot.address);
-      
-      mapSpotContent.innerHTML = `
-        <div class="map-spot-header">
-          <span class="map-spot-district">${spot.district}</span>
-          <span class="map-spot-type">${spot.type}</span>
-        </div>
-        <h3 class="map-spot-name">${spot.name}</h3>
-        <div class="map-spot-musteat">
-          <span class="map-spot-label">Eat This:</span> ${spot.mustEat}
-        </div>
-        <div class="map-spot-address">${spot.address}</div>
-        <a href="${mapsUrl}" target="_blank" rel="noopener" class="map-spot-btn">
-          In Maps öffnen
-        </a>
-      `;
-      
+      const photo = getSpotPhoto(spot.type);
+
+      const card = document.getElementById('mapSpotCard');
+      mapSpotContent.innerHTML = '';
+
+      const img = document.createElement('img');
+      img.src = photo;
+      img.className = 'map-spot-photo';
+      img.alt = spot.name;
+      img.loading = 'lazy';
+
+      const body = document.createElement('div');
+      body.className = 'map-spot-body';
+
+      const header = document.createElement('div');
+      header.className = 'map-spot-header';
+      const districtSpan = document.createElement('span');
+      districtSpan.className = 'map-spot-district';
+      districtSpan.textContent = spot.district;
+      const typeSpan = document.createElement('span');
+      typeSpan.className = 'map-spot-type';
+      typeSpan.textContent = spot.type;
+      header.appendChild(districtSpan);
+      header.appendChild(typeSpan);
+
+      const name = document.createElement('h3');
+      name.className = 'map-spot-name';
+      name.textContent = spot.name;
+
+      const musteat = document.createElement('div');
+      musteat.className = 'map-spot-musteat';
+      const label = document.createElement('span');
+      label.className = 'map-spot-label';
+      label.textContent = 'Eat This: ';
+      musteat.appendChild(label);
+      musteat.appendChild(document.createTextNode(spot.mustEat));
+
+      const address = document.createElement('div');
+      address.className = 'map-spot-address';
+      address.textContent = spot.address;
+
+      const btn = document.createElement('a');
+      btn.href = mapsUrl;
+      btn.target = '_blank';
+      btn.rel = 'noopener';
+      btn.className = 'map-spot-btn';
+      btn.textContent = 'Google Maps';
+
+      body.appendChild(header);
+      body.appendChild(name);
+      body.appendChild(musteat);
+      body.appendChild(address);
+      body.appendChild(btn);
+
+      mapSpotContent.appendChild(img);
+      mapSpotContent.appendChild(body);
+
       mapSpotOverlay.classList.add('active');
       document.body.style.overflow = 'hidden';
     }
@@ -783,11 +847,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.classList.add('active');
         
         markers.forEach(marker => {
-          const type = marker.spotType;
-          const show = filter === 'all' || 
-                       type.toLowerCase().includes(filter.toLowerCase()) ||
-                       filter.toLowerCase().includes(type.toLowerCase().split('/')[0]);
-          
+          const show = filter === 'all' || getSpotCategory(marker.spotType) === filter;
           if (show) {
             marker.addTo(foodMap);
           } else {
@@ -799,7 +859,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Location button
     const mapLocationBtn = document.getElementById('mapLocationBtnFixed');
-    let userMarker = null;
     
     if (mapLocationBtn) {
       mapLocationBtn.addEventListener('click', () => {

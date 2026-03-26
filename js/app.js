@@ -374,6 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const scene = portal.querySelector('.eat-card-scene');
       if (scene) card.appendChild(scene);
       card.style.opacity       = '';
+      card.style.visibility    = '';
       card.style.pointerEvents = '';
       portal.remove();
     }, 440);
@@ -463,6 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
         port.appendChild(scene);       // move (not clone) scene into portal
         document.body.appendChild(port);
         card.style.opacity       = '0';
+        card.style.visibility    = 'hidden';
         card.style.pointerEvents = 'none';
 
         activeCard   = card;
@@ -484,6 +486,8 @@ document.addEventListener('DOMContentLoaded', () => {
           if (cardState === 1) {
             cardState = 2;
             port.querySelector('.eat-card-flip')?.classList.add('flipped');
+            port.style.transition = 'transform 0.48s cubic-bezier(0.16, 1, 0.3, 1)';
+            port.style.boxShadow = '';
           } else if (cardState === 2) {
             collapseActiveCard();
           }

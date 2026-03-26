@@ -513,6 +513,7 @@ body {
 /* Portal: fixed wrapper that holds the scene while it's animated */
 .eat-card-portal {
   overflow: visible;
+  border-radius: 14px;
 }
 .eat-card-portal .eat-card-scene {
   width: 100%;
@@ -681,7 +682,7 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 10px 11px 9px;
+  padding: 7px 10px 8px;
   background: rgba(255,255,255,0.72);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -705,17 +706,17 @@ body {
   z-index: 2;
 }
 .eat-card-back-restaurant {
-  font-size: 8.5px;
-  color: #aaa;
+  font-size: 8px;
+  color: #444;
   text-align: center;
   letter-spacing: 0.04em;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
   position: relative;
   z-index: 2;
 }
 .eat-card-divider-dark {
   border-top-color: rgba(0,0,0,0.1);
-  margin-bottom: 5px;
+  margin: 3px 0 4px;
   position: relative;
   z-index: 2;
 }
@@ -753,11 +754,11 @@ body {
 .eat-card-stat-orange { color: var(--orange); }
 
 .eat-card-back-desc {
-  font-size: 9px;
-  line-height: 1.5;
-  color: #aaa;
+  font-size: 8px;
+  line-height: 1.45;
+  color: #777;
   text-align: center;
-  flex: 1;
+  margin-bottom: 5px;
   position: relative;
   z-index: 2;
 }

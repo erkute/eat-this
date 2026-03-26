@@ -384,46 +384,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keydown', e => { if (e.key === 'Escape') collapseActiveCard(); });
 
   eatCards.forEach(card => {
-    // Captured at setup time — DOM references survive being moved to portal
-    const shell      = card.querySelector('.eat-card-shell');
-    const shineFront = card.querySelector('.eat-card-front .eat-card-shine');
-    const shineBack  = card.querySelector('.eat-card-back .eat-card-shine');
-    let curX = 0, curY = 0, tgtX = 0, tgtY = 0;
-    let raf = null;
-
-    function animateTilt() {
-      curX += (tgtX - curX) * 0.12;
-      curY += (tgtY - curY) * 0.12;
-      if (shell) shell.style.transform = `rotateX(${curX}deg) rotateY(${curY}deg)`;
-      if (Math.abs(tgtX - curX) > 0.01 || Math.abs(tgtY - curY) > 0.01) {
-        raf = requestAnimationFrame(animateTilt);
-      } else {
-        raf = null;
-      }
-    }
-
-    card.addEventListener('mousemove', (e) => {
-      if (window.innerWidth < 768 || activeCard === card) return;
-      const rect = card.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      tgtX = ((e.clientY - cy) / (rect.height / 2)) * -12;
-      tgtY = ((e.clientX - cx) / (rect.width / 2)) * 12;
-      const px = ((e.clientX - rect.left) / rect.width) * 100;
-      const py = ((e.clientY - rect.top) / rect.height) * 100;
-      const shineEl = shineFront;
-      if (shineEl) shineEl.style.background = `radial-gradient(circle at ${px}% ${py}%, rgba(255,255,255,0.14) 0%, transparent 65%)`;
-      if (!raf) raf = requestAnimationFrame(animateTilt);
-    });
-
-    card.addEventListener('mouseleave', () => {
-      if (activeCard === card) return;
-      tgtX = 0; tgtY = 0;
-      if (shineFront) shineFront.style.background = '';
-      if (shineBack)  shineBack.style.background  = '';
-      if (!raf) raf = requestAnimationFrame(animateTilt);
-    });
-
     card.addEventListener('click', (e) => {
       if (e.target.closest('.eat-card-maps-btn')) return;
 

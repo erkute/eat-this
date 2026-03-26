@@ -1,0 +1,198 @@
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; background: #f5f5f5; }
+  .page-title { font-size: 15px; font-weight: 700; color: #111; padding: 20px 20px 4px; }
+  .page-sub { font-size: 13px; color: #888; padding: 0 20px 20px; }
+
+  .filter-option {
+    background: white;
+    border-radius: 16px;
+    margin: 0 16px 20px;
+    overflow: hidden;
+    border: 2.5px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .filter-option:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  .filter-option.selected { border-color: #FF6B35; box-shadow: 0 4px 24px rgba(255,107,53,0.25); }
+
+  .option-label { padding: 14px 16px 0; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #999; }
+  .option-desc { padding: 4px 16px 12px; font-size: 12px; color: #666; border-bottom: 1px solid #f0f0f0; }
+
+  /* MAP MOCK */
+  .map-mock {
+    height: 90px;
+    background: #e8e4dc;
+    position: relative;
+    overflow: hidden;
+  }
+  .map-mock::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255,255,255,0.25) 20px, rgba(255,255,255,0.25) 21px),
+      repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(255,255,255,0.25) 30px, rgba(255,255,255,0.25) 31px);
+  }
+  .map-road { position: absolute; background: white; opacity: 0.65; border-radius: 2px; }
+  .map-dot { position: absolute; width: 20px; height: 20px; background: #111; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 7px; color: white; font-weight: 900; }
+
+  /* ── B1: Classic iOS ── */
+  .b1-wrap { padding: 14px; background: white; }
+  .b1 {
+    display: flex;
+    background: #efefef;
+    border-radius: 12px;
+    padding: 3px;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .b1::-webkit-scrollbar { display: none; }
+  .b1-btn {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #888;
+    white-space: nowrap;
+    transition: all 0.18s;
+  }
+  .b1-btn.active {
+    background: white;
+    color: #111;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+
+  /* ── B2: Orange active ── */
+  .b2-wrap { padding: 14px; background: white; }
+  .b2 {
+    display: flex;
+    background: #f5f5f5;
+    border-radius: 12px;
+    padding: 3px;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .b2::-webkit-scrollbar { display: none; }
+  .b2-btn {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #888;
+    white-space: nowrap;
+    transition: all 0.18s;
+  }
+  .b2-btn.active {
+    background: #FF6B35;
+    color: white;
+    box-shadow: 0 2px 10px rgba(255,107,53,0.35);
+  }
+
+  /* ── B3: Dark/Editorial ── */
+  .b3-wrap { padding: 14px; background: white; }
+  .b3 {
+    display: flex;
+    background: #111;
+    border-radius: 12px;
+    padding: 3px;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .b3::-webkit-scrollbar { display: none; }
+  .b3-btn {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #666;
+    white-space: nowrap;
+    transition: all 0.18s;
+  }
+  .b3-btn.active {
+    background: white;
+    color: #111;
+  }
+
+  .select-hint { text-align: center; font-size: 11px; color: #bbb; padding: 0 16px 24px; font-weight: 500; }
+</style>
+
+<div class="page-title">Segmented Control — welche Variante?</div>
+<div class="page-sub">Gleiches Konzept, 3 verschiedene Farb-Looks</div>
+
+<!-- B1 -->
+<div class="filter-option" data-choice="b1" onclick="toggleSelect(this)">
+  <div class="option-label">B1 — Classic (iOS-Style)</div>
+  <div class="option-desc">Grauer Hintergrund, weißes aktives Segment. Vertraut & clean.</div>
+  <div class="map-mock">
+    <div class="map-road" style="top:42%;left:0;right:0;height:12px;"></div>
+    <div class="map-road" style="top:0;bottom:0;left:38%;width:9px;"></div>
+    <div class="map-dot" style="top:22%;left:25%">ET</div>
+    <div class="map-dot" style="top:58%;left:58%">ET</div>
+    <div class="map-dot" style="top:18%;left:72%">ET</div>
+  </div>
+  <div class="b1-wrap">
+    <div class="b1">
+      <div class="b1-btn active">All</div>
+      <div class="b1-btn">Breakfast</div>
+      <div class="b1-btn">Lunch</div>
+      <div class="b1-btn">Dinner</div>
+      <div class="b1-btn">Café</div>
+      <div class="b1-btn">Fast Food</div>
+    </div>
+  </div>
+</div>
+
+<!-- B2 -->
+<div class="filter-option" data-choice="b2" onclick="toggleSelect(this)">
+  <div class="option-label">B2 — Orange Active</div>
+  <div class="option-desc">Aktives Segment in der Brand-Farbe Orange. Auffällig & markant.</div>
+  <div class="map-mock">
+    <div class="map-road" style="top:42%;left:0;right:0;height:12px;"></div>
+    <div class="map-road" style="top:0;bottom:0;left:38%;width:9px;"></div>
+    <div class="map-dot" style="top:22%;left:25%">ET</div>
+    <div class="map-dot" style="top:58%;left:58%">ET</div>
+    <div class="map-dot" style="top:18%;left:72%">ET</div>
+  </div>
+  <div class="b2-wrap">
+    <div class="b2">
+      <div class="b2-btn active">All</div>
+      <div class="b2-btn">Breakfast</div>
+      <div class="b2-btn">Lunch</div>
+      <div class="b2-btn">Dinner</div>
+      <div class="b2-btn">Café</div>
+      <div class="b2-btn">Fast Food</div>
+    </div>
+  </div>
+</div>
+
+<!-- B3 -->
+<div class="filter-option" data-choice="b3" onclick="toggleSelect(this)">
+  <div class="option-label">B3 — Dark / Editorial</div>
+  <div class="option-desc">Schwarzer Track, weißes aktives Segment. Editorial & mutig — passt zum Brand.</div>
+  <div class="map-mock">
+    <div class="map-road" style="top:42%;left:0;right:0;height:12px;"></div>
+    <div class="map-road" style="top:0;bottom:0;left:38%;width:9px;"></div>
+    <div class="map-dot" style="top:22%;left:25%">ET</div>
+    <div class="map-dot" style="top:58%;left:58%">ET</div>
+    <div class="map-dot" style="top:18%;left:72%">ET</div>
+  </div>
+  <div class="b3-wrap">
+    <div class="b3">
+      <div class="b3-btn active">All</div>
+      <div class="b3-btn">Breakfast</div>
+      <div class="b3-btn">Lunch</div>
+      <div class="b3-btn">Dinner</div>
+      <div class="b3-btn">Café</div>
+      <div class="b3-btn">Fast Food</div>
+    </div>
+  </div>
+</div>
+
+<div class="select-hint">Klick auf eine Option um sie zu markieren</div>

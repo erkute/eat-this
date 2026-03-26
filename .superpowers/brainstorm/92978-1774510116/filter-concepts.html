@@ -1,0 +1,218 @@
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; background: #f5f5f5; }
+  .page-title { font-size: 15px; font-weight: 700; color: #111; padding: 20px 20px 4px; }
+  .page-sub { font-size: 13px; color: #888; padding: 0 20px 20px; }
+
+  /* ── OPTION CARD WRAPPER ── */
+  .filter-option {
+    background: white;
+    border-radius: 16px;
+    margin: 0 16px 20px;
+    overflow: hidden;
+    border: 2.5px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .filter-option:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  .filter-option.selected { border-color: #FF6B35; box-shadow: 0 4px 24px rgba(255,107,53,0.25); }
+
+  .option-label {
+    padding: 14px 16px 0;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #999;
+  }
+  .option-desc {
+    padding: 4px 16px 14px;
+    font-size: 12px;
+    color: #666;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  /* ── MAP HEADER MOCK ── */
+  .map-mock {
+    height: 120px;
+    background: #e8e4dc;
+    position: relative;
+    overflow: hidden;
+  }
+  .map-mock::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255,255,255,0.3) 20px, rgba(255,255,255,0.3) 21px),
+      repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(255,255,255,0.3) 30px, rgba(255,255,255,0.3) 31px);
+  }
+  .map-road { position: absolute; background: white; opacity: 0.7; border-radius: 2px; }
+  .map-dot { position: absolute; width: 22px; height: 22px; background: #111; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; color: white; font-weight: 900; }
+
+  /* ── OPTION A: Emoji Pill Tabs ── */
+  .filter-a {
+    display: flex;
+    gap: 7px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    background: white;
+  }
+  .filter-a::-webkit-scrollbar { display: none; }
+  .fa-btn {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    border: 1.5px solid #e0e0e0;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 64px;
+  }
+  .fa-btn .emoji { font-size: 18px; line-height: 1; }
+  .fa-btn .txt { font-size: 10px; font-weight: 700; color: #999; letter-spacing: 0.02em; }
+  .fa-btn.active { background: #111; border-color: #111; }
+  .fa-btn.active .txt { color: white; }
+
+  /* ── OPTION B: Segmented Pill ── */
+  .filter-b-wrap {
+    padding: 12px 14px;
+    background: white;
+  }
+  .filter-b {
+    display: flex;
+    background: #f0f0f0;
+    border-radius: 12px;
+    padding: 3px;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filter-b::-webkit-scrollbar { display: none; }
+  .fb-btn {
+    flex-shrink: 0;
+    padding: 8px 13px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #666;
+    white-space: nowrap;
+    transition: all 0.2s;
+    letter-spacing: 0.01em;
+  }
+  .fb-btn.active {
+    background: white;
+    color: #111;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+
+  /* ── OPTION C: Icon + Underline Tabs ── */
+  .filter-c {
+    display: flex;
+    background: white;
+    border-bottom: 1px solid #f0f0f0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filter-c::-webkit-scrollbar { display: none; }
+  .fc-btn {
+    flex: 1;
+    flex-shrink: 0;
+    min-width: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 10px 10px 0;
+    border-bottom: 2.5px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .fc-btn .emoji { font-size: 20px; }
+  .fc-btn .txt { font-size: 10px; font-weight: 700; color: #aaa; letter-spacing: 0.03em; padding-bottom: 8px; }
+  .fc-btn.active { border-bottom-color: #FF6B35; }
+  .fc-btn.active .txt { color: #111; }
+
+  .select-hint {
+    text-align: center;
+    font-size: 11px;
+    color: #bbb;
+    padding: 0 16px 24px;
+    font-weight: 500;
+  }
+</style>
+
+<div class="page-title">Wie sollen die Filter aussehen?</div>
+<div class="page-sub">3 Design-Richtungen — klick auf eine um sie auszuwählen</div>
+
+<!-- OPTION A -->
+<div class="filter-option" data-choice="a" onclick="toggleSelect(this)">
+  <div class="option-label">A — Emoji Pill Cards</div>
+  <div class="option-desc">Jeder Filter als kompakte Karte mit Emoji + Label. Verspielt & modern.</div>
+  <div class="map-mock">
+    <div class="map-road" style="top:40%;left:0;right:0;height:14px;"></div>
+    <div class="map-road" style="top:0;bottom:0;left:35%;width:10px;"></div>
+    <div class="map-dot" style="top:30%;left:28%">ET</div>
+    <div class="map-dot" style="top:55%;left:60%">ET</div>
+    <div class="map-dot" style="top:20%;left:70%">ET</div>
+  </div>
+  <div class="filter-a">
+    <div class="fa-btn active"><span class="emoji">✦</span><span class="txt">All</span></div>
+    <div class="fa-btn"><span class="emoji">🥐</span><span class="txt">Breakfast</span></div>
+    <div class="fa-btn"><span class="emoji">🥗</span><span class="txt">Lunch</span></div>
+    <div class="fa-btn"><span class="emoji">🍷</span><span class="txt">Dinner</span></div>
+    <div class="fa-btn"><span class="emoji">☕</span><span class="txt">Café</span></div>
+    <div class="fa-btn"><span class="emoji">🍔</span><span class="txt">Fast Food</span></div>
+  </div>
+</div>
+
+<!-- OPTION B -->
+<div class="filter-option" data-choice="b" onclick="toggleSelect(this)">
+  <div class="option-label">B — Segmented Control</div>
+  <div class="option-desc">iOS-style, kompakt & clean. Professionell, minimalistisch.</div>
+  <div class="map-mock">
+    <div class="map-road" style="top:40%;left:0;right:0;height:14px;"></div>
+    <div class="map-road" style="top:0;bottom:0;left:35%;width:10px;"></div>
+    <div class="map-dot" style="top:30%;left:28%">ET</div>
+    <div class="map-dot" style="top:55%;left:60%">ET</div>
+    <div class="map-dot" style="top:20%;left:70%">ET</div>
+  </div>
+  <div class="filter-b-wrap">
+    <div class="filter-b">
+      <div class="fb-btn active">All</div>
+      <div class="fb-btn">Breakfast</div>
+      <div class="fb-btn">Lunch</div>
+      <div class="fb-btn">Dinner</div>
+      <div class="fb-btn">Café</div>
+      <div class="fb-btn">Fast Food</div>
+    </div>
+  </div>
+</div>
+
+<!-- OPTION C -->
+<div class="filter-option" data-choice="c" onclick="toggleSelect(this)">
+  <div class="option-label">C — Tab Bar mit Emoji + Underline</div>
+  <div class="option-desc">Tabs mit Emoji oben, aktiver oranger Unterstrich. Klar & navigationsfreundlich.</div>
+  <div class="map-mock">
+    <div class="map-road" style="top:40%;left:0;right:0;height:14px;"></div>
+    <div class="map-road" style="top:0;bottom:0;left:35%;width:10px;"></div>
+    <div class="map-dot" style="top:30%;left:28%">ET</div>
+    <div class="map-dot" style="top:55%;left:60%">ET</div>
+    <div class="map-dot" style="top:20%;left:70%">ET</div>
+  </div>
+  <div class="filter-c">
+    <div class="fc-btn active"><span class="emoji">✦</span><span class="txt">All</span></div>
+    <div class="fc-btn"><span class="emoji">🥐</span><span class="txt">Breakfast</span></div>
+    <div class="fc-btn"><span class="emoji">🥗</span><span class="txt">Lunch</span></div>
+    <div class="fc-btn"><span class="emoji">🍷</span><span class="txt">Dinner</span></div>
+    <div class="fc-btn"><span class="emoji">☕</span><span class="txt">Café</span></div>
+    <div class="fc-btn"><span class="emoji">🍔</span><span class="txt">Fast Food</span></div>
+  </div>
+</div>
+
+<div class="select-hint">Klick auf eine Option um sie zu markieren</div>

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Design Variations – Eat This</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #000000;
+    --white: #FFFFFF;
+    --off-white: #FAFAFA;
+    --gray-50: #F5F5F5;
+    --gray-100: #E8E8E8;
+    --gray-400: #888888;
+    --gray-600: #555555;
+    --orange: #FF3B00;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #111;
+    color: #fff;
+    min-height: 100vh;
+    padding: 40px 24px 60px;
+  }
+
+  .page-title {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 8px;
+  }
+
+  .page-subtitle {
+    text-align: center;
+    font-size: 28px;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+
+  .page-hint {
+    text-align: center;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 48px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .variation-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .variation-name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: center;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .variation-desc {
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+
+  .card-wrap {
+    cursor: pointer;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    transition: border-color 0.2s, transform 0.2s;
+    padding: 2px;
+  }
+
+  .card-wrap:hover {
+    border-color: var(--orange);
+    transform: translateY(-4px);
+  }
+
+  .card-wrap.selected {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 2px rgba(255, 59, 0, 0.25);
+  }
+
+  .selected-badge {
+    display: none;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--orange);
+  }
+
+  .card-wrap.selected .selected-badge {
+    display: block;
+  }
+
+  /* ============================================================
+     VARIATION A — Full Glass Overlay
+     Image fills entire card, frosted glass panel at bottom
+  ============================================================ */
+  .card-a {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/5;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #1a1a1a;
+  }
+
+  .card-a img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .card-a-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 16px 18px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-top: 1px solid rgba(255,255,255,0.18);
+  }
+
+  .card-a-district {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    background: rgba(255,59,0,0.9);
+    padding: 3px 7px;
+    border-radius: 2px;
+    margin-bottom: 8px;
+  }
+
+  .card-a-dish {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 3px;
+  }
+
+  .card-a-restaurant {
+    font-size: 11px;
+    color: rgba(255,255,255,0.65);
+    font-weight: 400;
+  }
+
+  /* ============================================================
+     VARIATION B — Dark Glass with Glow
+     Dark neon feel, orange accent glow, editorial
+  ============================================================ */
+  .card-b {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/5;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #050505;
+  }
+
+  .card-b-img {
+    width: 100%;
+    height: 62%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .card-b-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 40%, #050505 100%);
+  }
+
+  .card-b-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: saturate(1.1) brightness(0.9);
+  }
+
+  .card-b-body {
+    padding: 14px 18px 20px;
+  }
+
+  .card-b-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--orange);
+    background: rgba(255, 59, 0, 0.12);
+    border: 1px solid rgba(255, 59, 0, 0.3);
+    padding: 4px 8px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+
+  .card-b-badge::before {
+    content: '';
+    display: block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--orange);
+    box-shadow: 0 0 6px var(--orange);
+  }
+
+  .card-b-dish {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 4px;
+    text-shadow: 0 0 20px rgba(255,59,0,0.2);
+  }
+
+  .card-b-restaurant {
+    font-size: 11px;
+    color: #555;
+    font-weight: 400;
+    margin-bottom: 14px;
+  }
+
+  .card-b-glass {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-b-price {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--orange);
+  }
+
+  .card-b-district {
+    font-size: 10px;
+    color: #444;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  /* ============================================================
+     VARIATION C — Minimal with Glass Accent Badge
+     Clean, brand-consistent, glass as subtle accent
+  ============================================================ */
+  .card-c {
+    width: 100%;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .card-c-img {
+    width: 100%;
+    aspect-ratio: 963/831;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .card-c-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: #f0f0f0;
+  }
+
+  .card-c-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+
+  .card-c-body {
+    padding: 12px 14px 14px;
+  }
+
+  .card-c-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .card-c-dish {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #000;
+    line-height: 1.1;
+  }
+
+  .card-c-price {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--orange);
+  }
+
+  .card-c-restaurant {
+    font-size: 11px;
+    color: #999;
+    font-weight: 400;
+    margin-bottom: 8px;
+  }
+
+  .card-c-footer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card-c-district {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #fff;
+    background: #000;
+    padding: 2px 6px;
+  }
+</style>
+</head>
+<body>
+
+<p class="page-title">Eat This — Berlin</p>
+<h1 class="page-subtitle">3 Card Design Variations</h1>
+<p class="page-hint">Klick auf eine Karte um sie auszuwählen</p>
+
+<div class="grid">
+
+  <!-- VARIATION A -->
+  <div>
+    <p class="variation-label">Variation A</p>
+    <p class="variation-name">Full Glass</p>
+    <p class="variation-desc">Bild füllt die Karte, Infos hinter Glaseffekt</p>
+    <div class="card-wrap" onclick="selectCard(this, 'a')">
+      <div class="card-a">
+        <img src="/pics/food/ban.webp" alt="Banh Mi">
+        <div class="card-a-overlay">
+          <span class="card-a-district">Schöneberg</span>
+          <div class="card-a-dish">Banh Mi</div>
+          <div class="card-a-restaurant">Saveur de Bánh Mì</div>
+        </div>
+      </div>
+      <div class="selected-badge">✓ Ausgewählt</div>
+    </div>
+  </div>
+
+  <!-- VARIATION B -->
+  <div>
+    <p class="variation-label">Variation B</p>
+    <p class="variation-name">Dark Glass</p>
+    <p class="variation-desc">Dunkle Karte, Orange-Glow, Editorial-Look</p>
+    <div class="card-wrap" onclick="selectCard(this, 'b')">
+      <div class="card-b">
+        <div class="card-b-img">
+          <img src="/pics/food/ban.webp" alt="Banh Mi">
+        </div>
+        <div class="card-b-body">
+          <div class="card-b-badge">Eat This</div>
+          <div class="card-b-dish">Banh Mi</div>
+          <div class="card-b-restaurant">Saveur de Bánh Mì</div>
+          <div class="card-b-glass">
+            <span class="card-b-price">€</span>
+            <span class="card-b-district">Schöneberg</span>
+          </div>
+        </div>
+      </div>
+      <div class="selected-badge">✓ Ausgewählt</div>
+    </div>
+  </div>
+
+  <!-- VARIATION C -->
+  <div>
+    <p class="variation-label">Variation C</p>
+    <p class="variation-name">Minimal Glass Badge</p>
+    <p class="variation-desc">Clean & markenkonform, Glass als subtiler Akzent</p>
+    <div class="card-wrap" onclick="selectCard(this, 'c')">
+      <div class="card-c">
+        <div class="card-c-img">
+          <img src="/pics/food/ban.webp" alt="Banh Mi">
+          <span class="card-c-badge">Eat This</span>
+        </div>
+        <div class="card-c-body">
+          <div class="card-c-top">
+            <div class="card-c-dish">Banh Mi</div>
+            <div class="card-c-price">€</div>
+          </div>
+          <div class="card-c-restaurant">Saveur de Bánh Mì</div>
+          <div class="card-c-footer">
+            <span class="card-c-district">Schöneberg</span>
+          </div>
+        </div>
+      </div>
+      <div class="selected-badge">✓ Ausgewählt</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function selectCard(el, choice) {
+    document.querySelectorAll('.card-wrap').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    // Log to events if helper is available
+    if (window.__logEvent) window.__logEvent({ type: 'click', choice, text: 'Variation ' + choice.toUpperCase() });
+  }
+</script>
+</body>
+</html>

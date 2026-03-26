@@ -533,8 +533,6 @@ body {
 .eat-card-shell {
   width: 100%;
   transform-style: preserve-3d;
-  transition: transform 0.08s ease-out;
-  will-change: transform;
 }
 
 /* Flip wrapper */
@@ -556,18 +554,8 @@ body {
   inset: 0;
   border-radius: 14px;
   backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  -webkit-backdrop-visibility: hidden;
   overflow: hidden;
-}
-
-/* Shine layer */
-.eat-card-shine {
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  border-radius: 14px;
-  pointer-events: none;
-  background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.08) 40%, transparent 70%);
 }
 
 /* ── FRONT FACE ── */

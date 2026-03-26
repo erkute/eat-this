@@ -433,9 +433,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         port.offsetHeight; // force reflow before transition
 
-        port.style.transition = 'transform 0.48s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.48s ease';
+        port.style.transition = 'transform 0.48s cubic-bezier(0.16, 1, 0.3, 1)';
         port.style.transform  = `translate(${dx}px, ${dy}px) scale(${scale})`;
-        port.style.boxShadow  = '0 32px 80px rgba(0,0,0,0.35), 0 8px 24px rgba(0,0,0,0.2)';
 
         eatBackdrop.classList.add('active');
 

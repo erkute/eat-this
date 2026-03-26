@@ -656,7 +656,7 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 7px 10px 8px;
+  padding: 5px 8px 6px;
   background: rgba(255,255,255,0.72);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -680,7 +680,7 @@ body {
   z-index: 2;
 }
 .eat-card-back-restaurant {
-  font-size: 8px;
+  font-size: 6.5px;
   color: #444;
   text-align: center;
   letter-spacing: 0.04em;
@@ -711,7 +711,7 @@ body {
   gap: 4px;
 }
 .eat-card-info-label {
-  font-size: 8px;
+  font-size: 6.5px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -720,15 +720,17 @@ body {
 }
 .eat-card-info-val {
   font-family: 'Space Mono', 'Courier New', monospace;
-  font-size: 9.5px;
+  font-size: 6.5px;
   font-weight: 700;
   color: var(--black);
   text-align: right;
+  white-space: nowrap;
+  min-width: 0;
 }
 .eat-card-stat-orange { color: var(--orange); }
 
 .eat-card-back-desc {
-  font-size: 8px;
+  font-size: 6.5px;
   line-height: 1.45;
   color: #777;
   text-align: center;
@@ -738,14 +740,14 @@ body {
 }
 
 .eat-card-maps-btn {
-  margin-top: 6px;
+  margin-top: 4px;
   width: 100%;
-  padding: 7px;
+  padding: 5px;
   background: var(--black);
   border: none;
-  border-radius: 6px;
+  border-radius: 5px;
   color: #fff;
-  font-size: 9px;
+  font-size: 6.5px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -2895,7 +2897,6 @@ body {
   
   /* Common header styles for all app pages */
   .app-page[data-page="musts"] .must-eats-header,
-  .app-page[data-page="map"] .map-header,
   .app-page[data-page="newsletter"] .newsletter-inner,
   .app-page[data-page="news"] .news-header {
     padding: 16px 16px 24px;
@@ -3606,16 +3607,6 @@ body {
     border: none;
     display: flex;
     flex-direction: column;
-  }
-
-  .app-page[data-page="map"] .map-header {
-    flex-shrink: 0;
-    padding: 16px 16px 8px;
-    background: var(--white);
-    text-align: left;
-    margin: 0;
-    border: none;
-    display: block !important;
   }
 
   .app-page[data-page="map"] .map-title {

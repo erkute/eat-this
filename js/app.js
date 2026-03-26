@@ -646,9 +646,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     mapEl.appendChild(overlay);
 
+    const aspect = w / h;
+    // Portrait (mobile): keep globe just inside horizontal FOV
+    // Landscape (desktop/tablet): bring globe much closer to fill screen height
+    const globeStartZ = aspect >= 1 ? 3.0 : 7.0;
+    const globeEndZ   = aspect >= 1 ? 1.0 : 1.5;
+
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 1000);
-    camera.position.z = 4.8;
+    const camera = new THREE.PerspectiveCamera(38, aspect, 0.1, 1000);
+    camera.position.z = globeStartZ;
 
     const renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: true, alpha: false });
     renderer.setSize(w, h);
@@ -745,8 +751,8 @@ document.addEventListener('DOMContentLoaded', () => {
         globe.rotation.y = lerp(alignStartY, alignTargetY, easeOut5(p));
         globe.rotation.x = lerp(alignStartX, globe._targetX || 0.3, easeOut5(p));
         rotY = globe.rotation.y;
-        // Zoom in close to the globe surface (4.8 → 1.5)
-        camera.position.z = 4.8 - easeOut3(p) * 3.3;
+        // Zoom in close to globe surface (responsive start/end)
+        camera.position.z = globeStartZ - easeOut3(p) * (globeStartZ - globeEndZ);
         if (p >= 1) { phase = 'fade'; phaseStart = Date.now(); }
       } else if (phase === 'fade') {
         const p = Math.min((Date.now() - phaseStart) / 700, 1);

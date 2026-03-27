@@ -77,13 +77,13 @@ let isRegistering  = false;
 function openLoginModal() {
   if (!loginModal) return;
   loginModal.classList.add('active');
-  document.body.style.overflow = 'hidden';
+  window.bodyOverflow?.lock();
 }
 
 function closeLoginModal() {
   if (!loginModal) return;
   loginModal.classList.remove('active');
-  document.body.style.overflow = '';
+  window.bodyOverflow?.unlock();
   clearError();
 }
 

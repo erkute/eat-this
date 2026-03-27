@@ -1673,93 +1673,6 @@ body {
 }
 
 /* ============================================
-   NEWSLETTER SECTION
-   ============================================ */
-.newsletter-section {
-  padding: 80px 24px;
-  border-top: 1px solid var(--black);
-}
-.newsletter-inner {
-  max-width: 640px;
-  margin: 0 auto;
-  text-align: center;
-}
-.newsletter-title {
-  font-size: clamp(2rem, 5vw, 3.2rem);
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  margin-bottom: 16px;
-  line-height: 1.05;
-}
-.newsletter-desc {
-  font-size: 15px;
-  color: var(--gray-600);
-  margin-bottom: 40px;
-  line-height: 1.7;
-  max-width: 480px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.newsletter-form {
-  display: flex;
-  gap: 0;
-  max-width: 480px;
-  margin: 0 auto;
-}
-.newsletter-input {
-  flex: 1;
-  padding: 16px 20px;
-  font-size: 15px;
-  font-family: var(--font);
-  border: 2px solid var(--black);
-  border-right: none;
-  background: var(--white);
-  outline: none;
-  transition: border-color 0.2s;
-}
-.newsletter-input::placeholder {
-  color: var(--gray-300);
-}
-.newsletter-input:focus {
-  border-color: var(--orange);
-}
-.newsletter-btn {
-  padding: 16px 28px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  background: var(--black);
-  color: var(--white);
-  border: 2px solid var(--black);
-  cursor: pointer;
-  font-family: var(--font);
-  transition: background 0.2s, border-color 0.2s;
-  white-space: nowrap;
-}
-.newsletter-btn:hover {
-  background: var(--orange);
-  border-color: var(--orange);
-}
-.newsletter-success {
-  display: none;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--orange);
-  margin-top: 20px;
-  letter-spacing: 0.02em;
-  animation: fadeInUp 0.4s var(--ease);
-}
-.newsletter-success.show {
-  display: block;
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ============================================
    PRICING SECTION
    ============================================ */
 .pricing-section {
@@ -1971,8 +1884,6 @@ body {
 }
 
 @media (min-width: 768px) {
-  .newsletter-section { padding: 180px 48px; }
-  .newsletter-form { max-width: 520px; }
 }
 
 /* ============================================
@@ -2726,8 +2637,7 @@ body {
 .app-page .about-section,
 .app-page .must-eats-section,
 .app-page .news-section,
-.app-page .map-section,
-.app-page .newsletter-section {
+.app-page .map-section {
   min-height: 100%;
 }
 
@@ -2910,7 +2820,6 @@ body {
   
   /* Common header styles for all app pages */
   .app-page[data-page="musts"] .must-eats-header,
-  .app-page[data-page="newsletter"] .newsletter-inner,
   .app-page[data-page="news"] .news-header {
     padding: 16px 16px 24px;
     background: var(--white);
@@ -3212,22 +3121,6 @@ body {
     color: var(--gray-400);
   }
   
-  .app-page[data-page="newsletter"] .newsletter-section {
-    padding: 16px;
-  }
-  
-  .app-page[data-page="newsletter"] .newsletter-inner {
-    padding: 0;
-    text-align: left;
-  }
-  
-  .app-page[data-page="newsletter"] .newsletter-title {
-    font-size: 1.5rem;
-  }
-  
-  .app-page[data-page="newsletter"] .pricing-section {
-    padding: 24px 16px;
-  }
 }
 
 /* ============================================
@@ -3563,8 +3456,7 @@ body {
 
   /* ---- Compact section headers (no large padding) ---- */
   .app-page .must-eats-section,
-  .app-page .news-section,
-  .app-page .newsletter-section {
+  .app-page .news-section {
     padding: 0;
   }
 
@@ -3823,50 +3715,6 @@ body {
     margin-bottom: 6px;
   }
 
-  /* ---- Newsletter ---- */
-  .app-page[data-page="newsletter"] .newsletter-section {
-    padding: 32px 20px 24px;
-    border-top: none;
-  }
-
-  .app-page[data-page="newsletter"] .newsletter-inner {
-    max-width: 100%;
-    text-align: left;
-    padding: 0;
-  }
-
-  .app-page[data-page="newsletter"] .newsletter-title {
-    font-size: 1.5rem;
-    letter-spacing: -0.02em;
-    margin-bottom: 10px;
-  }
-
-  .app-page[data-page="newsletter"] .newsletter-desc {
-    font-size: 13px;
-    margin-bottom: 20px;
-    max-width: 100%;
-    text-align: left;
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  .app-page[data-page="newsletter"] .newsletter-form {
-    max-width: 100%;
-  }
-
-  .app-page[data-page="newsletter"] .newsletter-input {
-    padding: 12px 14px;
-    font-size: 14px;
-  }
-
-  .app-page[data-page="newsletter"] .newsletter-btn {
-    padding: 12px 18px;
-    font-size: 10px;
-  }
-
-  .app-page[data-page="newsletter"] .pricing-section {
-    padding: 20px 20px;
-  }
 }
 
 /* Cookie Info Modal Content */

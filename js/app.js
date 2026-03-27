@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
       unlock() { count = Math.max(0, count - 1); if (!count) document.body.style.overflow = ''; }
     };
   })();
+  window.bodyOverflow = bodyOverflow;
 
   // Alternating images for eat cards — store IDs so they can be cleared
   let altImgIntervals = [];
@@ -315,22 +316,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   updateNavbar();
-
-  // --- Newsletter form ---
-  const form = document.getElementById('newsletterForm');
-  const success = document.getElementById('newsletterSuccess');
-
-  if (form && success) {
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const input = form.querySelector('input');
-      if (input.value) {
-        form.style.display = 'none';
-        success.classList.add('show');
-        input.value = '';
-      }
-    });
-  }
 
   // --- Anchor links for non-app navigation (desktop) ---
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -1253,7 +1238,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkHash() {
       const hash = window.location.hash.replace('#', '') || 'start';
-      const validPages = ['start', 'news', 'musts', 'map', 'newsletter'];
+      const validPages = ['start', 'news', 'musts', 'map'];
       if (validPages.includes(hash)) {
         navigateToPage(hash);
       }

@@ -3891,6 +3891,7 @@ body {
 
 /* Scroll hint */
 .start-scroll-hint {
+  display: none;
   text-align: center;
   padding: 16px 0;
   border-bottom: 1px solid var(--gray-100);

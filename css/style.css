@@ -2669,7 +2669,7 @@ body {
   }
   
   .app-page[data-page="start"] {
-    background: #1a1a1a;
+    background: var(--white);
   }
 
   .app-page[data-page="start"] .hero {
@@ -3348,7 +3348,7 @@ body {
   }
 
   .app-page[data-page="start"] {
-    background: #1a1a1a;
+    background: var(--white);
   }
 
   .app-page[data-page="start"] .hero {
@@ -3912,7 +3912,7 @@ body {
 }
 
 /* Section wrapper */
-.start-scroll-content { background: var(--white); padding-bottom: 60px; }
+.start-scroll-content { background: var(--white); padding-bottom: 120px; }
 
 .start-section {
   padding: 52px 24px;

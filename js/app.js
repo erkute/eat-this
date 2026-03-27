@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchTrigger = document.getElementById('searchTrigger');
 
   const mustEatsData = [
-    { dish: 'Banh Mi', restaurant: 'Saveur de Bánh Mì', district: 'Schöneberg', price: '€', img: 'pics/food/eat/ban.png', type: 'must-eat' }
+    { dish: 'Banh Mi', restaurant: 'Saveur de Bánh Mì', district: 'Schöneberg', price: '€', img: 'pics/food/eat/ban.webp', type: 'must-eat' }
   ];
 
   const newsData = Array.from(document.querySelectorAll('.news-card')).map(card => ({
@@ -698,7 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load NASA Blue Marble satellite texture
     new THREE.TextureLoader().load(
-      'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/textures/land_ocean_ice_cloud_2048.jpg',
+      'pics/globe.webp',
       tex => { globeMat.map = tex; globeMat.color.set(0xffffff); globeMat.needsUpdate = true; }
     );
 

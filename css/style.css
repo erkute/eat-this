@@ -2563,7 +2563,6 @@ body {
 }
 
 .app-page[data-page="start"] {
-  height: auto;
   min-height: calc(100vh - 60px - 70px);
 }
 
@@ -3913,7 +3912,7 @@ body {
 }
 
 /* Section wrapper */
-.start-scroll-content { background: var(--white); }
+.start-scroll-content { background: var(--white); padding-bottom: 60px; }
 
 .start-section {
   padding: 52px 24px;

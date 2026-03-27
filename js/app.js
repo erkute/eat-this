@@ -9,16 +9,29 @@ if (window.innerWidth <= 767 && screen.orientation?.lock) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // Alternating images for eat cards
+  // ============================================
+  // BODY OVERFLOW MANAGER
+  // Prevents scroll-state conflicts when multiple modals are used
+  // ============================================
+  const bodyOverflow = (() => {
+    let count = 0;
+    return {
+      lock()   { count++; document.body.style.overflow = 'hidden'; },
+      unlock() { count = Math.max(0, count - 1); if (!count) document.body.style.overflow = ''; }
+    };
+  })();
+
+  // Alternating images for eat cards — store IDs so they can be cleared
+  let altImgIntervals = [];
   const alternatingImages = document.querySelectorAll('.alternating-img');
   alternatingImages.forEach(img => {
     const images = JSON.parse(img.dataset.images || '[]');
     if (images.length > 1) {
       let idx = 0;
-      setInterval(() => {
+      altImgIntervals.push(setInterval(() => {
         idx = (idx + 1) % images.length;
         img.src = images[idx];
-      }, 1500);
+      }, 1500));
     }
   });
 
@@ -26,17 +39,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // HERO SLIDER
   // ============================================
   const heroSlides = document.querySelectorAll('.hero-slide');
+  let heroInterval = null;
   if (heroSlides.length > 0) {
     let currentSlide = 0;
     const slideInterval = 800;
-    
+
     function nextSlide() {
       heroSlides[currentSlide].classList.remove('active');
       currentSlide = (currentSlide + 1) % heroSlides.length;
       heroSlides[currentSlide].classList.add('active');
     }
-    
-    setInterval(nextSlide, slideInterval);
+
+    heroInterval = setInterval(nextSlide, slideInterval);
   }
 
   // ============================================
@@ -109,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function openSearch() {
     if (searchOverlay) {
       searchOverlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
+      bodyOverflow.lock();
       // On desktop focus immediately; on mobile wait for slide-up animation
       // to finish before focusing so the iOS keyboard doesn't hide the sheet
       setTimeout(() => {
@@ -121,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function closeSearch() {
     if (searchOverlay) {
       searchOverlay.classList.remove('active');
-      document.body.style.overflow = '';
+      bodyOverflow.unlock();
       if (searchInput) searchInput.value = '';
       if (searchResults) {
         searchResults.innerHTML = '<div class="search-hint">Tippe um zu suchen...</div>';
@@ -146,17 +160,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     mustEatsData.forEach(item => {
       const searchable = `${item.dish} ${item.restaurant} ${item.district}`.toLowerCase();
-      const matches = queryWords.every(word => searchable.includes(word));
-      if (matches) {
-        results.push({ ...item, matchScore: queryWords.filter(word => searchable.includes(word)).length });
+      const matchScore = queryWords.filter(word => searchable.includes(word)).length;
+      if (matchScore === queryWords.length) {
+        results.push({ ...item, matchScore });
       }
     });
 
     newsData.forEach(item => {
       const searchable = `${item.title} ${item.category} ${item.date}`.toLowerCase();
-      const matches = queryWords.every(word => searchable.includes(word));
-      if (matches) {
-        results.push({ ...item, matchScore: queryWords.filter(word => searchable.includes(word)).length });
+      const matchScore = queryWords.filter(word => searchable.includes(word)).length;
+      if (matchScore === queryWords.length) {
+        results.push({ ...item, matchScore });
       }
     });
 
@@ -180,11 +194,11 @@ document.addEventListener('DOMContentLoaded', () => {
       html += '<div class="search-section-title">Must Eats</div>';
       mustEatsResults.slice(0, 5).forEach(item => {
         html += `
-          <div class="search-result-item" data-type="must-eat" data-dish="${item.dish}" data-restaurant="${item.restaurant}">
-            <img src="${item.img}" alt="${item.dish}" class="search-result-img">
+          <div class="search-result-item" data-type="must-eat" data-dish="${escapeHtml(item.dish)}" data-restaurant="${escapeHtml(item.restaurant)}">
+            <img src="${escapeHtml(item.img)}" alt="${escapeHtml(item.dish)}" class="search-result-img">
             <div class="search-result-content">
-              <div class="search-result-dish">${item.dish}</div>
-              <div class="search-result-restaurant">${item.restaurant} · ${item.district} · ${item.price}</div>
+              <div class="search-result-dish">${escapeHtml(item.dish)}</div>
+              <div class="search-result-restaurant">${escapeHtml(item.restaurant)} · ${escapeHtml(item.district)} · ${escapeHtml(item.price)}</div>
             </div>
           </div>
         `;
@@ -195,11 +209,11 @@ document.addEventListener('DOMContentLoaded', () => {
       html += '<div class="search-section-title">News</div>';
       newsResults_arr.slice(0, 3).forEach(item => {
         html += `
-          <div class="search-result-item" data-type="news" data-title="${item.title}">
-            <img src="${item.img}" alt="${item.title}" class="search-result-img">
+          <div class="search-result-item" data-type="news" data-title="${escapeHtml(item.title)}">
+            <img src="${escapeHtml(item.img)}" alt="${escapeHtml(item.title)}" class="search-result-img">
             <div class="search-result-content">
-              <div class="search-result-title">${item.title}</div>
-              <div class="search-result-meta">${item.category} · ${item.date}</div>
+              <div class="search-result-title">${escapeHtml(item.title)}</div>
+              <div class="search-result-meta">${escapeHtml(item.category)} · ${escapeHtml(item.date)}</div>
             </div>
             <span class="search-result-type">News</span>
           </div>
@@ -452,8 +466,6 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
 
-        tgtX = 0; tgtY = 0;
-        if (!raf) raf = requestAnimationFrame(animateTilt);
       }
     });
   });
@@ -464,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function closeModal() {
     modal.classList.remove('active');
-    document.body.style.overflow = '';
+    bodyOverflow.unlock();
   }
 
   if (modalClose) {
@@ -789,9 +801,6 @@ document.addEventListener('DOMContentLoaded', () => {
     tick();
   }
 
-  function _globeTextureRemoved() {
-  }
-
   function initFoodMap() {
     if (mapInitialized || typeof L === 'undefined') return;
     const mapEl = document.getElementById('foodMap');
@@ -810,7 +819,7 @@ document.addEventListener('DOMContentLoaded', () => {
         attributionControl: false,
       }).setView([52.5050, 13.4100], 11);
     } catch (e) {
-      console.error('Map init failed:', e);
+      showNotification('Karte konnte nicht geladen werden');
       return;
     }
     mapInitialized = true;
@@ -971,12 +980,12 @@ document.addEventListener('DOMContentLoaded', () => {
       mapSpotContent.appendChild(body);
 
       mapSpotOverlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
+      bodyOverflow.lock();
     }
 
     function hideSpotDetail() {
       mapSpotOverlay.classList.remove('active');
-      document.body.style.overflow = '';
+      bodyOverflow.unlock();
     }
 
     if (mapSpotClose) {
@@ -1103,7 +1112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     newsModal.classList.add('active');
-    document.body.style.overflow = 'hidden';
+    bodyOverflow.lock();
 
     const modalInner = newsModal.querySelector('.news-modal');
     if (modalInner) modalInner.scrollTop = 0;
@@ -1111,7 +1120,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function closeNewsModal() {
     newsModal.classList.remove('active');
-    document.body.style.overflow = '';
+    bodyOverflow.unlock();
   }
 
   newsArticles.forEach(article => {
@@ -1181,6 +1190,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function navigateToPage(pageName) {
     if (pageName === currentPage) return;
+
+    // Clear start-page intervals when leaving
+    if (currentPage === 'start' && pageName !== 'start') {
+      if (heroInterval) { clearInterval(heroInterval); heroInterval = null; }
+      altImgIntervals.forEach(id => clearInterval(id));
+      altImgIntervals = [];
+    }
     
     const targetPage = document.querySelector(`.app-page[data-page="${pageName}"]`);
     if (!targetPage) return;
@@ -1246,9 +1262,13 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('hashchange', checkHash);
     checkHash();
 
+    let resizeTimer;
     function handleResize() {
-      isMobile = window.innerWidth <= 767;
-      navigateToPage(currentPage);
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        isMobile = window.innerWidth <= 767;
+        navigateToPage(currentPage);
+      }, 150);
     }
 
     window.addEventListener('resize', handleResize);
@@ -1256,83 +1276,67 @@ document.addEventListener('DOMContentLoaded', () => {
     
   }
 
-  // Cookie Info Modal
-  const cookieInfoModal = document.getElementById('cookieInfoModal');
-  const cookieInfoTrigger = document.getElementById('cookieInfoTrigger');
-  const cookieInfoClose = document.getElementById('cookieInfoClose');
-  const cookieInfoBackdrop = document.getElementById('cookieInfoBackdrop');
-
-  function openCookieInfoModal() {
-    if (cookieInfoModal) {
-      cookieInfoModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
+  // ============================================
+  // MODAL FACTORY
+  // Creates open/close for any modal with consistent bodyOverflow handling
+  // ============================================
+  function createModal(modalEl, opts = {}) {
+    if (!modalEl) return { open: () => {}, close: () => {} };
+    function open() { modalEl.classList.add('active'); bodyOverflow.lock(); }
+    function close() { modalEl.classList.remove('active'); bodyOverflow.unlock(); }
+    if (opts.closeBtn) opts.closeBtn.addEventListener('click', close);
+    if (opts.backdrop) opts.backdrop.addEventListener('click', close);
+    if (opts.trigger) opts.trigger.addEventListener('click', open);
+    return { open, close };
   }
-
-  function closeCookieInfoModal() {
-    if (cookieInfoModal) {
-      cookieInfoModal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-  }
-
-  if (cookieInfoTrigger) cookieInfoTrigger.addEventListener('click', openCookieInfoModal);
-  if (cookieInfoClose) cookieInfoClose.addEventListener('click', closeCookieInfoModal);
-  if (cookieInfoBackdrop) cookieInfoBackdrop.addEventListener('click', closeCookieInfoModal);
-
-  // AGB Modal
-  const agbModal = document.getElementById('agbModal');
-  const agbTrigger = document.getElementById('agbTrigger');
-  const agbClose = document.getElementById('agbClose');
-  const agbBackdrop = document.getElementById('agbBackdrop');
-  function openAgbModal() { if (agbModal) { agbModal.classList.add('active'); document.body.style.overflow = 'hidden'; } }
-  function closeAgbModal() { if (agbModal) { agbModal.classList.remove('active'); document.body.style.overflow = ''; } }
-  if (agbTrigger) agbTrigger.addEventListener('click', openAgbModal);
-  const agbFromBurger = document.getElementById('openAgbFromBurger');
-  if (agbFromBurger) agbFromBurger.addEventListener('click', () => { closeBurger(); openAgbModal(); });
-  if (agbClose) agbClose.addEventListener('click', closeAgbModal);
-  if (agbBackdrop) agbBackdrop.addEventListener('click', closeAgbModal);
-
-  // Datenschutz Modal
-  const datenschutzModal = document.getElementById('datenschutzModal');
-  const datenschutzTrigger = document.getElementById('datenschutzTrigger');
-  const datenschutzClose = document.getElementById('datenschutzClose');
-  const datenschutzBackdrop = document.getElementById('datenschutzBackdrop');
-  function openDatenschutzModal() { if (datenschutzModal) { datenschutzModal.classList.add('active'); document.body.style.overflow = 'hidden'; } }
-  function closeDatenschutzModal() { if (datenschutzModal) { datenschutzModal.classList.remove('active'); document.body.style.overflow = ''; } }
-  if (datenschutzTrigger) datenschutzTrigger.addEventListener('click', openDatenschutzModal);
-  const datenschutzFromBurger = document.getElementById('openDatenschutzFromBurger');
-  if (datenschutzFromBurger) datenschutzFromBurger.addEventListener('click', () => { closeBurger(); openDatenschutzModal(); });
-  if (datenschutzClose) datenschutzClose.addEventListener('click', closeDatenschutzModal);
-  if (datenschutzBackdrop) datenschutzBackdrop.addEventListener('click', closeDatenschutzModal);
 
   // Burger Menu
-  const burgerBtn = document.getElementById('burgerBtn');
   const burgerDrawer = document.getElementById('burgerDrawer');
-  const burgerClose = document.getElementById('burgerClose');
-  const burgerBackdrop = document.getElementById('burgerBackdrop');
+  const burger = createModal(burgerDrawer, {
+    trigger: document.getElementById('burgerBtn'),
+    closeBtn: document.getElementById('burgerClose'),
+    backdrop: document.getElementById('burgerBackdrop'),
+  });
+  function openBurger() { burger.open(); }
+  function closeBurger() { burger.close(); }
 
-  function openBurger() { burgerDrawer.classList.add('active'); document.body.style.overflow = 'hidden'; }
-  function closeBurger() { burgerDrawer.classList.remove('active'); document.body.style.overflow = ''; }
-  if (burgerBtn) burgerBtn.addEventListener('click', openBurger);
-  if (burgerClose) burgerClose.addEventListener('click', closeBurger);
-  if (burgerBackdrop) burgerBackdrop.addEventListener('click', closeBurger);
+  // Cookie Info Modal
+  const cookieInfoModalEl = document.getElementById('cookieInfoModal');
+  const cookieInfoModal = createModal(cookieInfoModalEl, {
+    trigger: document.getElementById('cookieInfoTrigger'),
+    closeBtn: document.getElementById('cookieInfoClose'),
+    backdrop: document.getElementById('cookieInfoBackdrop'),
+  });
+  function closeCookieInfoModal() { cookieInfoModal.close(); }
 
-  function makeInfoModal(id) {
-    const modal = document.getElementById(id + 'Modal');
-    const closeBtn = document.getElementById(id + 'Close');
-    const backdrop = document.getElementById(id + 'Backdrop');
-    const trigger = document.getElementById('open' + id.charAt(0).toUpperCase() + id.slice(1));
-    function open() { closeBurger(); if (modal) { modal.classList.add('active'); document.body.style.overflow = 'hidden'; } }
-    function close() { if (modal) { modal.classList.remove('active'); document.body.style.overflow = ''; } }
-    if (trigger) trigger.addEventListener('click', open);
-    if (closeBtn) closeBtn.addEventListener('click', close);
-    if (backdrop) backdrop.addEventListener('click', close);
-  }
-  makeInfoModal('about');
-  makeInfoModal('contact');
-  makeInfoModal('press');
-  makeInfoModal('impressum');
+  // AGB Modal
+  const agbModal = createModal(document.getElementById('agbModal'), {
+    trigger: document.getElementById('agbTrigger'),
+    closeBtn: document.getElementById('agbClose'),
+    backdrop: document.getElementById('agbBackdrop'),
+  });
+  const agbFromBurger = document.getElementById('openAgbFromBurger');
+  if (agbFromBurger) agbFromBurger.addEventListener('click', () => { closeBurger(); agbModal.open(); });
+
+  // Datenschutz Modal
+  const datenschutzModal = createModal(document.getElementById('datenschutzModal'), {
+    trigger: document.getElementById('datenschutzTrigger'),
+    closeBtn: document.getElementById('datenschutzClose'),
+    backdrop: document.getElementById('datenschutzBackdrop'),
+  });
+  const datenschutzFromBurger = document.getElementById('openDatenschutzFromBurger');
+  if (datenschutzFromBurger) datenschutzFromBurger.addEventListener('click', () => { closeBurger(); datenschutzModal.open(); });
+
+  // Info modals (about, contact, press, impressum) — opened from burger
+  ['about', 'contact', 'press', 'impressum'].forEach(id => {
+    const cap = id.charAt(0).toUpperCase() + id.slice(1);
+    const m = createModal(document.getElementById(id + 'Modal'), {
+      closeBtn: document.getElementById(id + 'Close'),
+      backdrop: document.getElementById(id + 'Backdrop'),
+    });
+    const trigger = document.getElementById('open' + cap);
+    if (trigger) trigger.addEventListener('click', () => { closeBurger(); m.open(); });
+  });
 
   // Cookie Consent
   const cookieConsent = document.getElementById('cookieConsent');

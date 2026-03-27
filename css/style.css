@@ -775,10 +775,6 @@ body {
   background: #222;
 }
 
-/* Legacy unused classes — kept for selector safety */
-.eat-card-district-badge { display: none; }
-.eat-card-price { display: none; }
-
 /* ============================================
    FOOD MAP SECTION
    ============================================ */

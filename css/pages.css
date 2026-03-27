@@ -30,8 +30,6 @@
   height: 32px;
   width: auto;
 }
-.page-hero { padding-top: 96px; }
-
 .page-hero {
   padding: 140px 24px 60px;
   background: var(--off-white);

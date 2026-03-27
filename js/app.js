@@ -809,9 +809,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     mapInitialized = true;
 
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
-      attribution: '© Esri',
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
+      subdomains: 'abcd',
     }).addTo(foodMap);
 
     L.control.zoom({ position: 'bottomright' }).addTo(foodMap);

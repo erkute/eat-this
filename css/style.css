@@ -215,7 +215,7 @@ body {
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
   will-change: transform;
-  touch-action: none;
+  touch-action: pan-y;
 }
 
 /* Hero Slider */
@@ -2537,6 +2537,7 @@ body {
   height: calc(100vh - 60px - 70px);
   overflow-y: auto;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   padding-bottom: 70px;
 }
 

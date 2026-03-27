@@ -2670,7 +2670,6 @@ body {
   }
   
   .app-page[data-page="start"] {
-    overflow: hidden;
     background: #1a1a1a;
   }
 
@@ -3350,7 +3349,6 @@ body {
   }
 
   .app-page[data-page="start"] {
-    overflow: hidden;
     background: #1a1a1a;
   }
 

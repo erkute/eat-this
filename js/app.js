@@ -872,7 +872,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const logoIcon = L.icon({
-      iconUrl: 'pics/logo.webp',
+      iconUrl: 'pics/eat.webp',
       iconSize: [32, 32],
       iconAnchor: [16, 16],
       popupAnchor: [0, -20]

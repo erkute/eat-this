@@ -111,27 +111,27 @@ body {
   padding: 0;
   cursor: pointer;
 }
-.navbar-cta {
-  background: var(--black) !important;
-  color: var(--white) !important;
-  padding: 8px 18px !important;
+.navbar .navbar-cta {
+  background: var(--black);
+  color: var(--white);
+  padding: 8px 18px;
   border-radius: 2px;
-  transition: background 0.2s, color 0.2s, transform 0.2s !important;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
 }
-.navbar-insta {
+.navbar .navbar-insta {
   display: flex;
   align-items: center;
-  padding-bottom: 0 !important;
+  padding-bottom: 0;
 }
-.navbar-insta::after {
-  display: none !important;
+.navbar .navbar-insta::after {
+  display: none;
 }
-.navbar-cta:hover {
-  background: var(--orange) !important;
+.navbar .navbar-cta:hover {
+  background: var(--orange);
   transform: translateY(-1px);
 }
-.navbar-cta::after {
-  display: none !important;
+.navbar .navbar-cta::after {
+  display: none;
 }
 
 /* Hamburger */
@@ -2434,12 +2434,12 @@ body {
   .search-trigger {
     display: flex;
     align-items: center;
-    padding: 0 !important;
-    color: var(--black) !important;
+    padding: 0;
+    color: var(--black);
   }
 }
 .search-trigger::after {
-  display: none !important;
+  display: none;
 }
 .search-trigger svg {
   width: 18px;
@@ -2826,7 +2826,7 @@ body {
     text-align: center;
     border: none;
     margin: 0;
-    display: block !important;
+    display: block;
   }
 
   .app-page[data-page="map"] .map-header {
@@ -2835,9 +2835,9 @@ body {
     text-align: left;
     border: none;
     margin: 0;
-    display: block !important;
+    display: block;
   }
-  
+
   .app-page[data-page="musts"] .must-eats-title,
   .app-page[data-page="map"] .map-title,
   .app-page[data-page="news"] .news-title {
@@ -2846,16 +2846,16 @@ body {
     letter-spacing: -0.02em;
     line-height: 1;
     margin: 0;
-    display: block !important;
+    display: block;
     text-transform: uppercase;
   }
-  
+
   .app-page[data-page="musts"] .section-label {
     color: var(--orange);
     margin-bottom: 6px;
     margin-top: 0;
-    display: block !important;
-    font-size: 10px !important;
+    display: block;
+    font-size: 10px;
   }
   
   .app-page[data-page="musts"] .must-eats-section {
@@ -3484,7 +3484,7 @@ body {
     letter-spacing: -0.02em;
     line-height: 1.1;
     margin: 0;
-    display: block !important;
+    display: block;
     text-transform: uppercase;
   }
 
@@ -3498,11 +3498,11 @@ body {
   }
 
   .app-page .section-label {
-    font-size: 10px !important;
+    font-size: 10px;
     color: var(--orange);
     margin-bottom: 4px;
     margin-top: 0;
-    display: block !important;
+    display: block;
     text-align: left;
   }
 
@@ -3554,8 +3554,8 @@ body {
   }
 
   .app-page[data-page="map"] .map-header {
-    padding: 10px 24px 0 !important;
-    text-align: left !important;
+    padding: 10px 24px 0;
+    text-align: left;
   }
 
   .app-page[data-page="map"] .section-label {
@@ -3565,7 +3565,7 @@ body {
   }
 
   .app-page[data-page="map"] .map-subtitle {
-    display: none !important;
+    display: none;
   }
 
   .app-page[data-page="map"] .map-title {
@@ -3574,7 +3574,7 @@ body {
     letter-spacing: -0.02em;
     line-height: 1.1;
     margin: 0;
-    display: block !important;
+    display: block;
     text-transform: uppercase;
   }
 

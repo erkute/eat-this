@@ -631,7 +631,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const logoImg = document.createElement('img');
-    logoImg.src = 'pics/logo.png';
+    logoImg.src = 'pics/logo.webp';
     logoImg.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(60vw,280px);height:auto;pointer-events:none;z-index:501;opacity:0;transition:opacity 0.8s ease 0.3s;';
     overlay.appendChild(logoImg);
 

@@ -3963,24 +3963,13 @@ body {
   margin-top: 1em;
 }
 
-/* Editorial two-column row */
+/* Editorial row – single column on all screen sizes */
 .start-editorial-row {
   display: flex;
   flex-direction: column;
   gap: 28px;
 }
 .start-editorial-text { flex: 1; }
-
-@media (min-width: 768px) {
-  .start-editorial-row {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 48px;
-  }
-  .start-editorial-row--reverse {
-    flex-direction: row-reverse;
-  }
-}
 
 /* Images */
 .start-img {
@@ -3989,15 +3978,14 @@ body {
   display: block;
   border-radius: 2px;
 }
-.start-img.tall  { height: 260px; }
-.start-img.medium { height: 200px; }
-.start-img.wide  { height: 220px; }
+.start-img.tall   { height: 320px; }
+.start-img.medium { height: 240px; }
+.start-img.wide   { height: 280px; }
 
 @media (min-width: 768px) {
-  .start-editorial-row .start-img.tall {
-    width: 280px;
-    flex-shrink: 0;
-  }
+  .start-img.tall   { height: 480px; }
+  .start-img.medium { height: 360px; }
+  .start-img.wide   { height: 420px; }
 }
 
 /* Philosophie numbered list */

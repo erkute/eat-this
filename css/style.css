@@ -2675,7 +2675,7 @@ body {
   .app-page[data-page="start"] .hero {
     position: relative;
     width: 100%;
-    height: calc(100dvh - 130px);
+    height: 100%;
     min-height: 400px;
   }
   
@@ -3352,7 +3352,7 @@ body {
   }
 
   .app-page[data-page="start"] .hero {
-    height: calc(100dvh - 130px);
+    height: 100%;
   }
 
   .app-page[data-page="start"] .hero-content {
@@ -4033,4 +4033,19 @@ body {
   color: var(--black);
   margin-top: 20px;
   margin-bottom: 8px;
+}
+
+/* Hero scroll hint */
+.hero-scroll-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  color: rgba(255,255,255,0.45);
+  animation: heroScrollBounce 2s ease-in-out infinite;
+}
+@keyframes heroScrollBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(5px); }
 }

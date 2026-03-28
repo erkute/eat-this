@@ -41,16 +41,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================
   const heroSlides = document.querySelectorAll('.hero-slide');
   let heroInterval = null;
+  let currentSlide = 0;
+  const slideInterval = 800;
+
+  function nextSlide() {
+    if (!heroSlides.length) return;
+    heroSlides[currentSlide].classList.remove('active');
+    currentSlide = (currentSlide + 1) % heroSlides.length;
+    heroSlides[currentSlide].classList.add('active');
+  }
+
   if (heroSlides.length > 0) {
-    let currentSlide = 0;
-    const slideInterval = 800;
-
-    function nextSlide() {
-      heroSlides[currentSlide].classList.remove('active');
-      currentSlide = (currentSlide + 1) % heroSlides.length;
-      heroSlides[currentSlide].classList.add('active');
-    }
-
     heroInterval = setInterval(nextSlide, slideInterval);
   }
 
@@ -1182,6 +1183,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (heroInterval) { clearInterval(heroInterval); heroInterval = null; }
       altImgIntervals.forEach(id => clearInterval(id));
       altImgIntervals = [];
+    }
+
+    // Restart hero slider when returning to start
+    if (pageName === 'start' && heroSlides.length > 0 && !heroInterval) {
+      heroInterval = setInterval(nextSlide, slideInterval);
     }
     
     const targetPage = document.querySelector(`.app-page[data-page="${pageName}"]`);

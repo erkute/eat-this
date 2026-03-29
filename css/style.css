@@ -299,32 +299,30 @@ body {
 
 /* Hero register button */
 .hero-register-btn {
-  margin-top: 24px;
+  margin-top: 28px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(255,255,255,0.15);
-  color: var(--white);
-  border: 1.5px solid rgba(255,255,255,0.5);
-  border-radius: 100px;
-  padding: 11px 24px;
-  font-size: 0.85rem;
-  font-weight: 700;
+  gap: 10px;
+  background: var(--white);
+  color: var(--black);
+  border: none;
+  border-radius: var(--radius);
+  padding: 13px 28px;
+  font-size: 0.7rem;
+  font-weight: 800;
   font-family: var(--font);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   cursor: pointer;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  transition: background 0.2s, color 0.2s;
 }
 .hero-register-btn:hover {
-  background: rgba(255,255,255,0.25);
-  border-color: rgba(255,255,255,0.9);
-  transform: translateY(-2px);
+  background: var(--orange);
+  color: var(--white);
 }
 .hero-register-btn svg {
   transition: transform 0.2s;
+  flex-shrink: 0;
 }
 .hero-register-btn:hover svg {
   transform: translateX(4px);
@@ -4001,42 +3999,49 @@ body {
 /* Join CTA section */
 .start-join-section {
   text-align: center;
+  background: var(--black) !important;
 }
 .start-join-section .start-section-label {
   display: block;
   margin-left: auto;
   margin-right: auto;
   width: fit-content;
+  background: var(--orange);
+  color: var(--white);
 }
 .start-join-section .start-section-title {
   margin-top: 4px;
+  color: var(--white);
 }
 .start-join-section .start-section-body {
   max-width: 340px;
-  margin: 0 auto 28px;
+  margin: 0 auto 32px;
+  color: rgba(255,255,255,0.55);
 }
 .start-join-btn {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: var(--black);
-  color: var(--white);
+  background: var(--white);
+  color: var(--black);
   border: none;
-  border-radius: 100px;
-  padding: 14px 28px;
-  font-size: 1rem;
-  font-weight: 700;
+  border-radius: var(--radius);
+  padding: 13px 28px;
+  font-size: 0.7rem;
+  font-weight: 800;
   font-family: var(--font);
-  letter-spacing: -0.01em;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
+  transition: background 0.2s, color 0.2s;
 }
 .start-join-btn:hover {
-  background: var(--gray-800);
-  transform: translateY(-2px);
+  background: var(--orange);
+  color: var(--white);
 }
 .start-join-btn svg {
   transition: transform 0.2s;
+  flex-shrink: 0;
 }
 .start-join-btn:hover svg {
   transform: translateX(4px);

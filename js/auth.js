@@ -10,6 +10,7 @@
 // 4. Kopiere die firebaseConfig und ersetze die Werte unten
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app-check.js';
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -38,6 +39,11 @@ const firebaseConfig = {
 const app       = initializeApp(firebaseConfig);
 const auth      = getAuth(app);
 const functions = getFunctions(app);
+
+initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6LdG2ZwsAAAAAM6XvEOuQHmIRLAs3CdPiu-l5cwz'),
+  isTokenAutoRefreshEnabled: true,
+});
 
 console.log('[EAT THIS] auth.js v3 loaded');
 
@@ -240,15 +246,16 @@ if (forgotPasswordBtn) {
     submitBtn.disabled = true;
 
     try {
-      console.log('[EAT THIS] sendPasswordReset calling Cloud Function for', email);
       const sendPasswordReset = httpsCallable(functions, 'sendPasswordReset');
-      const result = await sendPasswordReset({ email });
-      console.log('[EAT THIS] sendPasswordReset result:', result);
+      await sendPasswordReset({ email });
       clearError();
       showSuccess('Falls ein Konto existiert, haben wir dir einen Link geschickt. Bitte prüfe dein Postfach.');
     } catch (err) {
-      console.error('[EAT THIS] sendPasswordReset error:', err);
-      showError('Fehler beim Senden. Bitte erneut versuchen.');
+      if (err?.code === 'functions/resource-exhausted') {
+        showError('Zu viele Versuche — bitte in einer Stunde erneut versuchen.');
+      } else {
+        showError('Fehler beim Senden. Bitte erneut versuchen.');
+      }
     } finally {
       submitBtn.disabled = false;
     }

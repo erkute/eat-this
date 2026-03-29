@@ -1,0 +1,18 @@
+{
+  "name": "eat-this-functions",
+  "description": "Firebase Cloud Functions — EAT THIS",
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^7.2.2",
+    "resend": "^4.0.0"
+  }
+}

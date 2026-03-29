@@ -16,11 +16,14 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
-  sendPasswordResetEmail,
   onAuthStateChanged,
   signOut,
   updateProfile
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import {
+  getFunctions,
+  httpsCallable,
+} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js';
 
 // ─── Firebase Config ──────────────────────────────────────────────────────────
 const firebaseConfig = {
@@ -32,8 +35,11 @@ const firebaseConfig = {
   appId:             "1:768781457409:web:607ff46bfa4599d6b08800"
 };
 
-const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const app       = initializeApp(firebaseConfig);
+const auth      = getAuth(app);
+const functions = getFunctions(app);
+
+console.log('[EAT THIS] auth.js v3 loaded');
 
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
@@ -204,6 +210,9 @@ if (loginForm) {
         isRegistering = false;
         applyLoggedInUI(cred.user);
         notify('Willkommen bei EAT THIS, ' + name + '!');
+        console.log('[EAT THIS] sendVerificationEmail calling Cloud Function');
+        const sendVerificationEmail = httpsCallable(functions, 'sendVerificationEmail');
+        sendVerificationEmail({ displayName: name }).catch((e) => console.error('[EAT THIS] sendVerificationEmail error:', e));
       } else {
         await signInWithEmailAndPassword(auth, email, password);
         const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? 'du';
@@ -226,17 +235,22 @@ if (forgotPasswordBtn) {
     clearError();
     const email = loginEmail?.value.trim() ?? '';
     if (!email) { showError('Bitte gib zuerst deine E-Mail-Adresse ein.'); return; }
+
+    const submitBtn = forgotPasswordBtn;
+    submitBtn.disabled = true;
+
     try {
-      await sendPasswordResetEmail(auth, email);
+      console.log('[EAT THIS] sendPasswordReset calling Cloud Function for', email);
+      const sendPasswordReset = httpsCallable(functions, 'sendPasswordReset');
+      const result = await sendPasswordReset({ email });
+      console.log('[EAT THIS] sendPasswordReset result:', result);
       clearError();
-      showSuccess('Reset-Link wurde an ' + email + ' gesendet. Bitte prüfe dein Postfach.');
+      showSuccess('Falls ein Konto existiert, haben wir dir einen Link geschickt. Bitte prüfe dein Postfach.');
     } catch (err) {
-      const map = {
-        'auth/user-not-found':    'Kein Konto mit dieser E-Mail-Adresse.',
-        'auth/invalid-email':     'Ungültige E-Mail-Adresse.',
-        'auth/too-many-requests': 'Zu viele Versuche — bitte kurz warten.',
-      };
-      showError(map[err.code] ?? 'Fehler beim Senden. Bitte erneut versuchen.');
+      console.error('[EAT THIS] sendPasswordReset error:', err);
+      showError('Fehler beim Senden. Bitte erneut versuchen.');
+    } finally {
+      submitBtn.disabled = false;
     }
   });
 }

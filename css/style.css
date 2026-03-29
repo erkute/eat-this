@@ -3965,6 +3965,50 @@ body {
   margin-top: 1em;
 }
 
+/* Join CTA section */
+.start-join-section {
+  text-align: center;
+}
+.start-join-section .start-section-label {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: fit-content;
+}
+.start-join-section .start-section-title {
+  margin-top: 4px;
+}
+.start-join-section .start-section-body {
+  max-width: 340px;
+  margin: 0 auto 28px;
+}
+.start-join-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  border-radius: 100px;
+  padding: 14px 28px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: var(--font);
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.start-join-btn:hover {
+  background: var(--gray-800);
+  transform: translateY(-2px);
+}
+.start-join-btn svg {
+  transition: transform 0.2s;
+}
+.start-join-btn:hover svg {
+  transform: translateX(4px);
+}
+
 /* Editorial row – single column on all screen sizes */
 .start-editorial-row {
   display: flex;

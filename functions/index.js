@@ -46,7 +46,7 @@ function getResend() {
 
 // ─── 1. E-Mail bestätigen — von auth.js nach updateProfile aufgerufen ─────────
 exports.sendVerificationEmail = onCall(
-  { secrets: [RESEND_API_KEY], enforceAppCheck: true },
+  { secrets: [RESEND_API_KEY] },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Nicht eingeloggt.');
@@ -72,7 +72,7 @@ exports.sendVerificationEmail = onCall(
 
 // ─── 2. Passwort zurücksetzen — von auth.js aufgerufen ────────────────────────
 exports.sendPasswordReset = onCall(
-  { secrets: [RESEND_API_KEY], enforceAppCheck: true },
+  { secrets: [RESEND_API_KEY] },
   async (request) => {
     const email = request.data.email?.trim();
     if (!email) {
@@ -122,7 +122,7 @@ exports.sendPasswordReset = onCall(
 
 // ─── 3. E-Mail-Adresse ändern — von Profileinstellungen aufgerufen ────────────
 exports.sendEmailChange = onCall(
-  { secrets: [RESEND_API_KEY], enforceAppCheck: true },
+  { secrets: [RESEND_API_KEY] },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Nicht eingeloggt.');
@@ -153,7 +153,7 @@ exports.sendEmailChange = onCall(
 
 // ─── 4. 2FA aktiviert — nach MFA-Enrollment aufgerufen ───────────────────────
 exports.sendMfaNotification = onCall(
-  { secrets: [RESEND_API_KEY], enforceAppCheck: true },
+  { secrets: [RESEND_API_KEY] },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Nicht eingeloggt.');

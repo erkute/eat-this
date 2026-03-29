@@ -299,33 +299,32 @@ body {
 
 /* Hero register button */
 .hero-register-btn {
-  margin-top: 28px;
+  margin-top: 24px;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  background: rgba(255,255,255,0.12);
+  gap: 8px;
+  background: rgba(255,255,255,0.15);
   color: var(--white);
-  border: 1.5px solid rgba(255,255,255,0.55);
-  border-radius: var(--radius);
-  padding: 13px 28px;
-  font-size: 0.7rem;
-  font-weight: 800;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  border-radius: 100px;
+  padding: 11px 24px;
+  font-size: 0.85rem;
+  font-weight: 700;
   font-family: var(--font);
-  letter-spacing: 0.18em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
 }
 .hero-register-btn:hover {
-  background: var(--white);
-  border-color: var(--white);
-  color: var(--black);
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.9);
+  transform: translateY(-2px);
 }
 .hero-register-btn svg {
   transition: transform 0.2s;
-  flex-shrink: 0;
 }
 .hero-register-btn:hover svg {
   transform: translateX(4px);

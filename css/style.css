@@ -297,6 +297,39 @@ body {
   line-height: inherit;
 }
 
+/* Hero register button */
+.hero-register-btn {
+  margin-top: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.15);
+  color: var(--white);
+  border: 1.5px solid rgba(255,255,255,0.5);
+  border-radius: 100px;
+  padding: 11px 24px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: var(--font);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+.hero-register-btn:hover {
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.9);
+  transform: translateY(-2px);
+}
+.hero-register-btn svg {
+  transition: transform 0.2s;
+}
+.hero-register-btn:hover svg {
+  transform: translateX(4px);
+}
+
 @media (min-width: 768px) {
   .hero-content { padding: 10vh 48px 12vh; }
   .hero-logo { font-size: clamp(6rem, 18vw, 16rem); }

@@ -3999,45 +3999,43 @@ body {
 /* Join CTA section */
 .start-join-section {
   text-align: center;
-  background: var(--black) !important;
+  border-top: 3px solid var(--orange) !important;
+  background: var(--white) !important;
 }
 .start-join-section .start-section-label {
   display: block;
   margin-left: auto;
   margin-right: auto;
   width: fit-content;
-  background: var(--orange);
-  color: var(--white);
 }
 .start-join-section .start-section-title {
   margin-top: 4px;
-  color: var(--white);
+  color: var(--black);
 }
 .start-join-section .start-section-body {
   max-width: 340px;
   margin: 0 auto 32px;
-  color: rgba(255,255,255,0.55);
+  color: var(--gray-600);
 }
 .start-join-btn {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: var(--white);
-  color: var(--black);
+  background: var(--orange);
+  color: var(--white);
   border: none;
   border-radius: var(--radius);
-  padding: 13px 28px;
+  padding: 14px 32px;
   font-size: 0.7rem;
   font-weight: 800;
   font-family: var(--font);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: filter 0.15s;
 }
 .start-join-btn:hover {
-  background: var(--orange);
-  color: var(--white);
+  filter: brightness(0.88);
 }
 .start-join-btn svg {
   transition: transform 0.2s;

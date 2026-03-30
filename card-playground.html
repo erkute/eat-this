@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Must Eat Card — Design Playground</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Space+Grotesk:wght@400;500;700&family=Bebas+Neue&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --bg:#111; --surf:#1a1a1a; --brd:#2a2a2a; --txt:#e0e0e0; --dim:#888; --acc:#ff5a1f; --pw:310px; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--txt); display:flex; height:100vh; overflow:hidden; }
+
+.panel { width:var(--pw); min-width:var(--pw); background:var(--surf); border-right:1px solid var(--brd); display:flex; flex-direction:column; overflow:hidden; }
+.ph { padding:14px 14px 10px; border-bottom:1px solid var(--brd); flex-shrink:0; }
+.ph-title { font-size:10px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--acc); margin-bottom:2px; }
+.ph-sub { font-size:9px; color:var(--dim); }
+.pb { flex:1; overflow-y:auto; padding:12px; }
+.pb::-webkit-scrollbar { width:3px; }
+.pb::-webkit-scrollbar-thumb { background:var(--brd); border-radius:2px; }
+.sec-lbl { font-size:9px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); margin-bottom:8px; display:block; }
+hr.d { border:none; border-top:1px solid var(--brd); margin:11px 0; }
+
+.pg { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:4px; }
+.pb-btn { background:var(--bg); border:1.5px solid var(--brd); border-radius:7px; padding:7px 5px 6px; cursor:pointer; text-align:center; color:var(--txt); font-family:'Inter',sans-serif; transition:all .15s; }
+.pb-btn:hover { border-color:var(--acc); background:rgba(255,90,31,.07); }
+.pb-btn.on { border-color:var(--acc); background:rgba(255,90,31,.14); color:var(--acc); }
+.pb-icon { font-size:14px; display:block; margin-bottom:2px; }
+.pb-name { font-size:9px; font-weight:600; line-height:1.2; }
+.pb-sub  { font-size:8px; font-weight:400; color:var(--dim); display:block; margin-top:1px; }
+.pb-btn.on .pb-sub { color:inherit; opacity:.7; }
+
+.cr { display:flex; align-items:center; gap:7px; margin-bottom:7px; }
+.cn { font-size:9.5px; color:var(--txt); min-width:88px; flex-shrink:0; }
+.cn-sm { font-size:9px; color:var(--dim); min-width:88px; flex-shrink:0; }
+input[type=color] { width:28px; height:22px; border:1.5px solid var(--brd); border-radius:4px; background:none; cursor:pointer; padding:2px; flex-shrink:0; }
+input[type=range] { -webkit-appearance:none; flex:1; height:3px; background:var(--brd); border-radius:2px; outline:none; cursor:pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:11px; height:11px; border-radius:50%; background:var(--acc); cursor:pointer; }
+.rv { font-size:9px; color:var(--dim); min-width:26px; text-align:right; }
+select { background:var(--bg); border:1.5px solid var(--brd); border-radius:5px; color:var(--txt); font-family:'Inter',sans-serif; font-size:9.5px; padding:5px 7px; width:100%; cursor:pointer; outline:none; margin-bottom:7px; }
+select:focus { border-color:var(--acc); }
+.tr { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
+.tn { font-size:9.5px; color:var(--txt); }
+.tog { position:relative; width:30px; height:17px; }
+.tog input { display:none; }
+.ts { position:absolute; inset:0; background:var(--brd); border-radius:10px; cursor:pointer; transition:.2s; }
+.ts::before { content:''; position:absolute; width:11px; height:11px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s; }
+.tog input:checked + .ts { background:var(--acc); }
+.tog input:checked + .ts::before { transform:translateX(13px); }
+.szrow { display:flex; gap:5px; }
+.szbtn { flex:1; background:var(--bg); border:1.5px solid var(--brd); border-radius:5px; color:var(--dim); font-size:10px; font-weight:700; padding:5px 0; cursor:pointer; font-family:'Inter',sans-serif; transition:all .15s; text-align:center; }
+.szbtn.on { border-color:var(--acc); color:var(--acc); background:rgba(255,90,31,.08); }
+
+/* card bg swatch row */
+.bgrow { display:flex; gap:5px; margin-bottom:7px; }
+.bgcell { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; }
+.bgcell-lbl { font-size:8px; color:var(--dim); text-align:center; white-space:nowrap; overflow:hidden; max-width:80px; }
+.bgcell input[type=color] { width:100%; height:26px; border-radius:5px; }
+
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+.mh { padding:9px 16px; border-bottom:1px solid var(--brd); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.zb { display:flex; gap:4px; margin-left:8px; }
+.zbtn { background:var(--surf); border:1.5px solid var(--brd); border-radius:4px; color:var(--txt); font-size:10px; padding:3px 7px; cursor:pointer; transition:all .15s; font-family:'Inter',sans-serif; }
+.zbtn:hover, .zbtn.on { border-color:var(--acc); color:var(--acc); }
+.pa { flex:1; overflow:auto; display:flex; align-items:flex-start; justify-content:center; padding:40px 20px 60px; background:#ECEAE6; }
+.cc { display:flex; gap:28px; flex-wrap:wrap; justify-content:center; align-items:flex-start; transform-origin:top center; transition:transform .2s; }
+.cw { flex-shrink:0; }
+.clbl { font-size:8px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:#888; text-align:center; margin-bottom:7px; }
+.cw-sm { width:115px; }
+.cw-md { width:155px; }
+.cw-lg { width:195px; }
+.pbar { border-top:1px solid var(--brd); padding:9px 14px; display:flex; align-items:center; gap:10px; flex-shrink:0; background:var(--surf); }
+.ptxt { flex:1; font-size:9.5px; color:var(--dim); font-style:italic; line-height:1.5; }
+.cpybtn { background:var(--acc); border:none; border-radius:6px; color:#fff; font-family:'Inter',sans-serif; font-size:10px; font-weight:600; padding:6px 12px; cursor:pointer; white-space:nowrap; flex-shrink:0; transition:all .15s; }
+.cpybtn:hover { opacity:.85; }
+.cpybtn.done { background:#22c55e; }
+.maps-btn { display:inline-flex; align-items:center; gap:3px; background:none; border:1px solid currentColor; border-radius:20px; padding:2px 6px 2px 4px; cursor:pointer; text-decoration:none; flex-shrink:0; opacity:.55; transition:opacity .15s, transform .15s; }
+.maps-btn:hover { opacity:1; transform:scale(1.05); }
+.maps-btn-txt { font-family:'Inter',sans-serif; font-size:.34rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
+
+/* ── Lightbox ── */
+.lb-overlay { position:fixed; inset:0; background:rgba(10,10,10,.82); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); opacity:0; transition:opacity .28s ease; cursor:pointer; }
+.lb-inner { cursor:default; transform-origin:center center; }
+.lb-close { position:fixed; top:16px; right:20px; background:none; border:none; color:#fff; font-size:22px; cursor:pointer; opacity:.7; line-height:1; padding:4px; }
+.lb-close:hover { opacity:1; }
+@media (max-width:600px) { .lb-overlay { padding:12px; } }
+</style>
+</head>
+<body>
+
+<aside class="panel">
+  <div class="ph">
+    <div class="ph-title">Must Eat Card</div>
+    <div class="ph-sub">Design Playground · Vorlagen-treu</div>
+  </div>
+  <div class="pb">
+    <span class="sec-lbl">Stil wählen</span>
+    <div class="pg">
+      <button class="pb-btn on" id="p-poster"><span class="pb-icon">🍝</span><span class="pb-name">Pasta Night</span><span class="pb-sub">Riesige Typo oben</span></button>
+      <button class="pb-btn" id="p-lunch"><span class="pb-icon">🥪</span><span class="pb-name">Lunch Time</span><span class="pb-sub">Weiß + Rot</span></button>
+      <button class="pb-btn" id="p-ferrari"><span class="pb-icon">🏎️</span><span class="pb-name">Ferrari F40</span><span class="pb-sub">Cream Specs-Poster</span></button>
+      <button class="pb-btn" id="p-sopranos"><span class="pb-icon">🎬</span><span class="pb-name">Sopranos</span><span class="pb-sub">Film-Poster</span></button>
+      <button class="pb-btn" id="p-heloki"><span class="pb-icon">📋</span><span class="pb-name">Heloki</span><span class="pb-sub">Weiß Katalog</span></button>
+      <button class="pb-btn" id="p-sando-dark"><span class="pb-icon">🌑</span><span class="pb-name">Sando Dark</span><span class="pb-sub">Dunkel, Riesen-Typo</span></button>
+      <button class="pb-btn" id="p-sando-light"><span class="pb-icon">🍱</span><span class="pb-name">Sando Light</span><span class="pb-sub">Linen, Typo unten</span></button>
+      <button class="pb-btn" id="p-weekly"><span class="pb-icon">⭕</span><span class="pb-name">Weekly Taste</span><span class="pb-sub">Handschrift Minimal</span></button>
+      <button class="pb-btn" id="p-plated"><span class="pb-icon">🍽️</span><span class="pb-name">Plated</span><span class="pb-sub">Editorial Serif</span></button>
+    </div>
+
+    <hr class="d">
+    <span class="sec-lbl">Karten-Hintergründe</span>
+    <div class="bgrow">
+      <div class="bgcell">
+        <span class="bgcell-lbl">Bánh Mì</span>
+        <input type="color" id="c-bg0" value="#EDEBE4">
+      </div>
+      <div class="bgcell">
+        <span class="bgcell-lbl">All In.</span>
+        <input type="color" id="c-bg1" value="#EDEBE4">
+      </div>
+      <div class="bgcell">
+        <span class="bgcell-lbl">Bar Basta</span>
+        <input type="color" id="c-bg2" value="#EDEBE4">
+      </div>
+    </div>
+
+    <hr class="d">
+    <span class="sec-lbl">Farben</span>
+    <div class="cr"><span class="cn">Bild-Bereich</span><input type="color" id="c-imgbg" value="#E84010"></div>
+    <div class="cr"><span class="cn">Akzent / Hauptfarbe</span><input type="color" id="c-acc" value="#CC2200"></div>
+    <div class="cr"><span class="cn">Text</span><input type="color" id="c-txt" value="#111111"></div>
+
+    <hr class="d">
+    <span class="sec-lbl">Schriftart</span>
+    <select id="c-font">
+      <option value="Anton">Anton — Display Bold</option>
+      <option value="Bebas Neue">Bebas Neue — Condensed</option>
+      <option value="Playfair Display">Playfair Display — Serif</option>
+      <option value="Space Grotesk">Space Grotesk — Grotesk</option>
+      <option value="Inter">Inter — Clean Sans</option>
+      <option value="Caveat">Caveat — Handschrift</option>
+    </select>
+
+    <hr class="d">
+    <span class="sec-lbl">Schriftgrößen</span>
+    <div class="cr">
+      <span class="cn">Gericht</span>
+      <input type="range" id="c-szdish" min="10" max="44" step="0.5" value="30">
+      <span class="rv" id="c-szdish-v">30</span>
+    </div>
+    <div class="cr">
+      <span class="cn">Restaurant</span>
+      <input type="range" id="c-szrest" min="4" max="16" step="0.5" value="6.5">
+      <span class="rv" id="c-szrest-v">6.5</span>
+    </div>
+    <div class="cr">
+      <span class="cn">Beschreibung</span>
+      <input type="range" id="c-szdesc" min="3" max="11" step="0.5" value="5.5">
+      <span class="rv" id="c-szdesc-v">5.5</span>
+    </div>
+
+    <hr class="d">
+    <span class="sec-lbl">Foto</span>
+    <div class="cr">
+      <span class="cn">Größe</span>
+      <input type="range" id="c-imgpct" min="28" max="72" step="1" value="55">
+      <span class="rv" id="c-imgpct-v">55%</span>
+    </div>
+    <div class="tr"><span class="tn">Foto komplett (kein Zuschnitt)</span><label class="tog"><input type="checkbox" id="c-contain"><span class="ts"></span></label></div>
+
+    <hr class="d">
+    <span class="sec-lbl">Form</span>
+    <div class="cr">
+      <span class="cn">Ecken</span>
+      <input type="range" id="c-rad" min="0" max="20" value="0">
+      <span class="rv" id="c-rad-v">0px</span>
+    </div>
+    <div class="tr"><span class="tn">Schatten</span><label class="tog"><input type="checkbox" id="c-shd"><span class="ts"></span></label></div>
+
+    <hr class="d">
+    <span class="sec-lbl">Bildausschnitt (oben ↔ unten)</span>
+    <div class="cr">
+      <span class="cn-sm">Bánh Mì</span>
+      <input type="range" id="c-pos0" min="0" max="100" step="1" value="50">
+      <span class="rv" id="c-pos0-v">50%</span>
+    </div>
+    <div class="cr">
+      <span class="cn-sm">All In.</span>
+      <input type="range" id="c-pos1" min="0" max="100" step="1" value="50">
+      <span class="rv" id="c-pos1-v">50%</span>
+    </div>
+    <div class="cr">
+      <span class="cn-sm">Bar Basta</span>
+      <input type="range" id="c-pos2" min="0" max="100" step="1" value="50">
+      <span class="rv" id="c-pos2-v">50%</span>
+    </div>
+
+    <hr class="d">
+    <span class="sec-lbl">Kartengröße</span>
+    <div class="szrow">
+      <button class="szbtn" id="sz-sm">S</button>
+      <button class="szbtn on" id="sz-md">M</button>
+      <button class="szbtn" id="sz-lg">L</button>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="mh">
+    <div style="display:flex;align-items:center">
+      <span style="font-size:9px;color:var(--dim)">Zoom</span>
+      <div class="zb">
+        <button class="zbtn" id="z75">75%</button>
+        <button class="zbtn on" id="z100">100%</button>
+        <button class="zbtn" id="z125">125%</button>
+        <button class="zbtn" id="z150">150%</button>
+      </div>
+    </div>
+    <div style="font-size:9px;color:var(--dim)">Hover für Effekt</div>
+  </div>
+  <div class="pa"><div class="cc" id="cc"></div></div>
+  <div class="pbar">
+    <div class="ptxt" id="ptxt">Lade…</div>
+    <button class="cpybtn" id="cpybtn">Kopieren</button>
+  </div>
+</main>
+
+<script>
+'use strict';
+const CARDS = [
+  { rest:'Saveur de Bánh Mì', dish:'Banh Mi (V)',        desc:'Crispy baguette, fresh vegetables, perfectly seasoned — fully vegan.',  img:'pics/food/eat/ban.webp',       district:'Schöneberg',  mapsQ:'Saveur+de+B%C3%A1nh+M%C3%AC+Akazienstra%C3%9Fe+24+Berlin' },
+  { rest:'All In.',           dish:'Twin Cheese Burger', desc:'Two perfect patties, juicy meat, golden brioche bun.',                    img:'pics/food/eat/allin.webp',     district:'Prenzlauer Berg', mapsQ:'All+In+Sch%C3%B6nhauser+Allee+173+Berlin' },
+  { rest:'Bar Basta',         dish:'Spicy Thai Sausage', desc:'Bold spices, perfectly grilled. A dish that stays with you.',             img:'pics/food/eat/barbasta.webp',  district:'Mitte',           mapsQ:'Bar+Basta+Berlin' },
+];
+
+const PRESETS = {
+  poster:      { style:'poster',      cardBgs:['#EDEBE4','#EDEBE4','#EDEBE4'], imgBg:'#E84010', acc:'#CC2200', txt:'#111111', font:'Anton',            szDish:30, szRest:6.5, szDesc:5.5, imgPct:55, rad:0, shd:false, contain:false, imgPosY:[50,50,50] },
+  lunch:       { style:'lunch',       cardBgs:['#FFFFFF','#FFFFFF','#FFFFFF'], imgBg:'#FFFFFF', acc:'#CC2200', txt:'#111111', font:'Anton',            szDish:34, szRest:6,   szDesc:5.5, imgPct:44, rad:0, shd:false, contain:false, imgPosY:[50,50,50] },
+  ferrari:     { style:'ferrari',     cardBgs:['#EDEAE0','#EDEAE0','#EDEAE0'], imgBg:'#CC2200', acc:'#CC2200', txt:'#111111', font:'Space Grotesk',    szDish:22, szRest:6.5, szDesc:5.5, imgPct:50, rad:0, shd:false, contain:false, imgPosY:[50,50,50] },
+  sopranos:    { style:'sopranos',    cardBgs:['#F0EDE5','#F0EDE5','#F0EDE5'], imgBg:'#C85050', acc:'#111111', txt:'#111111', font:'Space Grotesk',    szDish:20, szRest:6.5, szDesc:5.5, imgPct:48, rad:0, shd:false, contain:false, imgPosY:[50,50,50] },
+  heloki:      { style:'heloki',      cardBgs:['#FFFFFF','#FFFFFF','#FFFFFF'], imgBg:'#FFFFFF', acc:'#111111', txt:'#111111', font:'Space Grotesk',    szDish:18, szRest:6.5, szDesc:5,   imgPct:44, rad:0, shd:false, contain:false, imgPosY:[50,50,50] },
+  'sando-dark':  { style:'sando-dark',  cardBgs:['#0D0D0D','#0D0D0D','#0D0D0D'], imgBg:'#181818', acc:'#FFFFFF', txt:'#FFFFFF', font:'Bebas Neue',    szDish:30, szRest:6,   szDesc:5.5, imgPct:54, rad:4, shd:false, contain:false, imgPosY:[50,50,50] },
+  'sando-light': { style:'sando-light', cardBgs:['#E8E4DC','#E8E4DC','#E8E4DC'], imgBg:'#E8E4DC', acc:'#111111', txt:'#111111', font:'Bebas Neue',    szDish:32, szRest:6,   szDesc:5,   imgPct:50, rad:0, shd:false, contain:false, imgPosY:[50,50,50] },
+  weekly:      { style:'weekly',      cardBgs:['#F5F4F0','#F5F4F0','#F5F4F0'], imgBg:'#F5F4F0', acc:'#2C2C2C', txt:'#2C2C2C', font:'Caveat',           szDish:26, szRest:5.5, szDesc:5.5, imgPct:70, rad:8, shd:false, contain:false, imgPosY:[50,50,50] },
+  plated:      { style:'plated',      cardBgs:['#FFFFFF','#FFFFFF','#FFFFFF'], imgBg:'#FFFFFF', acc:'#4A5C3E', txt:'#1A1A1A', font:'Playfair Display', szDish:14, szRest:6.5, szDesc:5,   imgPct:52, rad:6, shd:false, contain:false, imgPosY:[50,50,50] },
+};
+
+const STYLE_NAMES = {
+  poster:      'Pasta Night — Riesige Typo, farbiger Bildblock',
+  lunch:       'Lunch Time — Weiß + Rot, Typo über Bild',
+  ferrari:     'Ferrari F40 — Cream Specs-Poster, roter Bildblock',
+  sopranos:    'Sopranos — Film-Poster, Farbblock mit Foto',
+  heloki:      'Heloki — Weißer Katalog, Datentabelle',
+  'sando-dark':  'Sando Dark — Dunkel, Riesentypo Bebas Neue',
+  'sando-light': 'Sando Light — Linen, Riesentypo unten',
+  weekly:      'Weekly Taste — Minimal, Handschrift, ovales Foto',
+  plated:      'Plated — Editorial, Serif, Besteck-Illustration',
+};
+
+let S = { ...PRESETS['poster'], size:'md' };
+// Deep-copy arrays
+S.cardBgs = S.cardBgs.slice();
+S.imgPosY = S.imgPosY.slice();
+let currentPosY = 50;
+
+const $ = id => document.getElementById(id);
+
+// ── Controls ──
+[0,1,2].forEach(function(i) {
+  $('c-bg' + i).oninput = function(e) { S.cardBgs[i] = e.target.value; render(); };
+});
+$('c-imgbg').oninput    = e => { S.imgBg   = e.target.value; render(); };
+$('c-acc').oninput      = e => { S.acc     = e.target.value; render(); };
+$('c-txt').oninput      = e => { S.txt     = e.target.value; render(); };
+$('c-font').onchange    = e => { S.font    = e.target.value; render(); };
+$('c-rad').oninput      = e => { S.rad = +e.target.value; $('c-rad-v').textContent = e.target.value+'px'; render(); };
+$('c-shd').onchange     = e => { S.shd     = e.target.checked; render(); };
+$('c-contain').onchange = e => { S.contain = e.target.checked; render(); };
+$('c-szdish').oninput   = e => { S.szDish = +e.target.value; $('c-szdish-v').textContent = e.target.value; render(); };
+$('c-szrest').oninput   = e => { S.szRest = +e.target.value; $('c-szrest-v').textContent = e.target.value; render(); };
+$('c-szdesc').oninput   = e => { S.szDesc = +e.target.value; $('c-szdesc-v').textContent = e.target.value; render(); };
+$('c-imgpct').oninput   = e => { S.imgPct = +e.target.value; $('c-imgpct-v').textContent = e.target.value+'%'; render(); };
+[0,1,2].forEach(function(i) {
+  $('c-pos' + i).oninput = function(e) { S.imgPosY[i] = +e.target.value; $('c-pos'+i+'-v').textContent = e.target.value+'%'; render(); };
+});
+
+Object.keys(PRESETS).forEach(k => {
+  $('p-'+k).onclick = () => {
+    S = { ...PRESETS[k], size: S.size };
+    S.cardBgs = PRESETS[k].cardBgs.slice();
+    S.imgPosY = PRESETS[k].imgPosY.slice();
+    syncControls();
+    document.querySelectorAll('.pb-btn').forEach(b => b.classList.remove('on'));
+    $('p-'+k).classList.add('on');
+    render();
+  };
+});
+
+['sm','md','lg'].forEach(s => {
+  $('sz-'+s).onclick = () => {
+    S.size = s;
+    document.querySelectorAll('.szbtn').forEach(b => b.classList.remove('on'));
+    $('sz-'+s).classList.add('on');
+    render();
+  };
+});
+
+['z75','z100','z125','z150'].forEach(id => {
+  $(id).onclick = () => {
+    $('cc').style.transform = 'scale(' + (+id.replace('z','') / 100) + ')';
+    document.querySelectorAll('.zbtn').forEach(b => b.classList.remove('on'));
+    $(id).classList.add('on');
+  };
+});
+
+$('cpybtn').onclick = () => {
+  navigator.clipboard.writeText($('ptxt').textContent).then(() => {
+    $('cpybtn').textContent = 'Kopiert!'; $('cpybtn').classList.add('done');
+    setTimeout(() => { $('cpybtn').textContent = 'Kopieren'; $('cpybtn').classList.remove('done'); }, 2000);
+  });
+};
+
+function syncControls() {
+  [0,1,2].forEach(function(i) { $('c-bg'+i).value = S.cardBgs[i]; });
+  $('c-imgbg').value   = S.imgBg;
+  $('c-acc').value     = S.acc;
+  $('c-txt').value     = S.txt;
+  $('c-font').value    = S.font;
+  $('c-rad').value     = S.rad;    $('c-rad-v').textContent   = S.rad + 'px';
+  $('c-shd').checked   = S.shd;
+  $('c-contain').checked = S.contain;
+  $('c-szdish').value  = S.szDish; $('c-szdish-v').textContent = S.szDish;
+  $('c-szrest').value  = S.szRest; $('c-szrest-v').textContent = S.szRest;
+  $('c-szdesc').value  = S.szDesc; $('c-szdesc-v').textContent = S.szDesc;
+  $('c-imgpct').value  = S.imgPct; $('c-imgpct-v').textContent = S.imgPct + '%';
+  [0,1,2].forEach(function(i) { $('c-pos'+i).value = S.imgPosY[i]; $('c-pos'+i+'-v').textContent = S.imgPosY[i]+'%'; });
+}
+
+// ── DOM helpers ──
+function el(tag, css, text) {
+  const e = document.createElement(tag);
+  if (css) e.style.cssText = css;
+  if (text !== undefined && text !== null) e.textContent = text;
+  return e;
+}
+function ff(font) {
+  return "'" + font + "'," + (font === 'Playfair Display' ? 'serif' : 'sans-serif');
+}
+function mkImg(src, alt) {
+  const i = document.createElement('img');
+  i.src = src; i.alt = alt;
+  i.style.width = '100%';
+  i.style.height = '100%';
+  i.style.objectFit = S.contain ? 'contain' : 'cover';
+  i.style.objectPosition = 'center ' + currentPosY + '%';
+  i.style.display = 'block';
+  return i;
+}
+function imgBox(c) {
+  const wrap = el('div', 'flex:0 0 ' + S.imgPct + '%;background:' + S.imgBg + ';overflow:hidden;');
+  wrap.append(mkImg(c.img, c.dish));
+  return wrap;
+}
+function imgBoxPad(c, pad) {
+  const wrap = el('div',
+    'flex:0 0 ' + S.imgPct + '%;background:' + S.imgBg + ';overflow:hidden;' +
+    'display:flex;align-items:center;justify-content:center;padding:' + pad + 'px;');
+  const i = document.createElement('img');
+  i.src = c.img; i.alt = c.dish;
+  i.style.maxWidth = '100%';
+  i.style.maxHeight = '100%';
+  i.style.objectFit = S.contain ? 'contain' : 'cover';
+  i.style.objectPosition = 'center';
+  i.style.display = 'block';
+  wrap.append(i);
+  return wrap;
+}
+
+function makePinSvg() {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('width','8'); svg.setAttribute('height','9'); svg.setAttribute('viewBox','0 0 24 26');
+  svg.setAttribute('fill','none'); svg.setAttribute('stroke','currentColor');
+  svg.setAttribute('stroke-width','2'); svg.setAttribute('stroke-linecap','round');
+  const pin = document.createElementNS(ns, 'path');
+  pin.setAttribute('d','M12 2a8 8 0 0 0-8 8c0 5.5 8 15 8 15s8-9.5 8-15a8 8 0 0 0-8-8z');
+  const dot = document.createElementNS(ns, 'circle');
+  dot.setAttribute('cx','12'); dot.setAttribute('cy','10'); dot.setAttribute('r','2.5');
+  dot.setAttribute('fill','currentColor'); dot.setAttribute('stroke','none');
+  svg.append(pin, dot);
+  return svg;
+}
+function mapsBtn(c, bgCss) {
+  const a = document.createElement('a');
+  a.href = 'https://www.google.com/maps/search/?api=1&query=' + c.mapsQ;
+  a.target = '_blank'; a.rel = 'noopener'; a.className = 'maps-btn';
+  if (bgCss) a.style.cssText = bgCss;
+  a.append(makePinSvg());
+  const span = document.createElement('span');
+  span.className = 'maps-btn-txt'; span.textContent = 'Maps';
+  a.append(span);
+  return a;
+}
+function makeForkSvg() {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns,'svg');
+  svg.setAttribute('viewBox','0 0 36 110'); svg.setAttribute('width','10'); svg.setAttribute('height','30');
+  svg.setAttribute('fill','none'); svg.setAttribute('stroke','currentColor');
+  svg.setAttribute('stroke-width','2'); svg.setAttribute('stroke-linecap','round');
+  [['9','6','9','40'],['18','6','18','40'],['27','6','27','40'],['18','54','18','104']].forEach(function(p) {
+    const l = document.createElementNS(ns,'line');
+    l.setAttribute('x1',p[0]); l.setAttribute('y1',p[1]); l.setAttribute('x2',p[2]); l.setAttribute('y2',p[3]);
+    svg.append(l);
+  });
+  const path = document.createElementNS(ns,'path'); path.setAttribute('d','M4 40 Q18 54 32 40'); svg.append(path);
+  return svg;
+}
+function makeKnifeSvg() {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns,'svg');
+  svg.setAttribute('viewBox','0 0 30 110'); svg.setAttribute('width','9'); svg.setAttribute('height','30');
+  svg.setAttribute('fill','none'); svg.setAttribute('stroke','currentColor');
+  svg.setAttribute('stroke-width','2'); svg.setAttribute('stroke-linecap','round');
+  const blade = document.createElementNS(ns,'path'); blade.setAttribute('d','M15 6 Q26 28 15 50'); svg.append(blade);
+  const handle = document.createElementNS(ns,'line');
+  handle.setAttribute('x1','15'); handle.setAttribute('y1','50'); handle.setAttribute('x2','15'); handle.setAttribute('y2','104');
+  svg.append(handle);
+  return svg;
+}
+
+// base card — accepts per-card bg
+function baseCard(cardBg, extra) {
+  const shd = S.shd ? 'box-shadow:5px 7px 0 rgba(0,0,0,.18);' : '';
+  return el('div',
+    'width:100%;aspect-ratio:59/92;border-radius:' + S.rad + 'px;overflow:hidden;' +
+    'display:flex;flex-direction:column;background:' + cardBg + ';cursor:pointer;' +
+    shd + (extra || ''));
+}
+function hover(card) {
+  card.style.transition = 'transform .2s, box-shadow .2s';
+  card.addEventListener('mouseenter', () => { card.style.transform='translateY(-5px) scale(1.03)'; card.style.boxShadow='0 22px 56px rgba(0,0,0,.38)'; });
+  card.addEventListener('mouseleave', () => { card.style.transform=''; card.style.boxShadow = S.shd ? '5px 7px 0 rgba(0,0,0,.18)' : ''; });
+}
+function autoScale(node, base, min) {
+  setTimeout(() => {
+    let fs = base; node.style.fontSize = fs + 'px';
+    while (node.scrollWidth > node.offsetWidth + 1 && fs > min) { fs -= 0.4; node.style.fontSize = fs + 'px'; }
+  }, 0);
+}
+
+// ── 1  PASTA NIGHT ──
+function buildPoster(c, cardBg) {
+  const card = baseCard(cardBg);
+  card.append(el('div',
+    'flex-shrink:0;padding:6px 8px 1px;text-align:center;font-family:\'Inter\',sans-serif;' +
+    'font-size:' + S.szRest + 'px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:' + S.acc + ';', c.rest));
+  const dish = el('div',
+    'flex-shrink:0;padding:0 5px 4px;text-align:center;font-family:' + ff(S.font) + ';' +
+    'font-size:' + S.szDish + 'px;line-height:.9;color:' + S.acc + ';text-transform:uppercase;white-space:nowrap;overflow:hidden;');
+  dish.textContent = c.dish;
+  card.append(dish); autoScale(dish, S.szDish, 10);
+  card.append(imgBox(c));
+  const bot = el('div','flex:1;padding:4px 8px 5px;display:flex;flex-direction:column;justify-content:space-between;');
+  bot.append(el('div','font-family:\'Inter\',sans-serif;font-size:' + S.szDesc + 'px;font-weight:300;color:#777;line-height:1.4;', c.desc));
+  const meta = el('div','display:flex;align-items:center;justify-content:space-between;margin-top:3px;');
+  meta.append(el('div','font-size:' + (S.szDesc*.85) + 'px;color:#aaa;', c.district));
+  meta.append(mapsBtn(c));
+  bot.append(meta); card.append(bot);
+  hover(card); return card;
+}
+
+// ── 2  LUNCH TIME ──
+function buildLunch(c, cardBg) {
+  const card = baseCard(cardBg);
+  card.append(el('div',
+    'flex-shrink:0;padding:7px 10px 2px;text-align:center;font-family:\'Inter\',sans-serif;' +
+    'font-size:' + S.szRest + 'px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:' + S.acc + ';', c.rest));
+  card.append(el('div',
+    'flex-shrink:0;padding:0 8px 4px;text-align:center;font-family:' + ff(S.font) + ';' +
+    'font-size:' + S.szDish + 'px;line-height:.88;color:' + S.acc + ';text-transform:uppercase;word-break:break-word;overflow:hidden;', c.dish));
+  card.append(imgBox(c));
+  const bot = el('div','flex:1;padding:4px 8px 6px;display:flex;flex-direction:column;justify-content:space-between;');
+  bot.append(el('div','font-size:' + S.szDesc + 'px;font-weight:300;color:#666;line-height:1.4;', c.desc));
+  const row = el('div','display:flex;align-items:center;justify-content:space-between;margin-top:3px;');
+  row.append(el('span','font-size:' + S.szRest + 'px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:' + S.acc + ';', c.district));
+  row.append(mapsBtn(c)); bot.append(row); card.append(bot);
+  hover(card); return card;
+}
+
+// ── 3  FERRARI F40 ──
+function buildFerrari(c, cardBg) {
+  const card = baseCard(cardBg);
+  const hdr = el('div','flex-shrink:0;padding:6px 8px 2px;display:flex;align-items:center;justify-content:space-between;gap:4px;');
+  hdr.append(el('div','font-family:\'Playfair Display\',serif;font-size:' + S.szRest + 'px;font-style:italic;color:' + S.txt + ';white-space:nowrap;overflow:hidden;flex:1;', c.rest));
+  const flag = el('div','display:flex;gap:1.5px;flex-shrink:0;');
+  ['#009246','#FFFFFF','#CE2B37'].forEach(col => flag.append(el('div','width:8px;height:5px;background:' + col + ';border-radius:1px;')));
+  hdr.append(flag); card.append(hdr);
+  const dish = el('div',
+    'flex-shrink:0;padding:1px 8px 3px;font-family:' + ff(S.font) + ';font-size:' + S.szDish + 'px;' +
+    'font-weight:700;line-height:.95;color:' + S.txt + ';text-transform:uppercase;white-space:nowrap;overflow:hidden;');
+  dish.textContent = c.dish; card.append(dish); autoScale(dish, S.szDish, 9);
+  card.append(imgBox(c));
+  const specs = el('div','flex:1;padding:4px 8px 5px;display:flex;flex-direction:column;justify-content:space-between;');
+  specs.append(el('div','font-size:' + S.szDesc + 'px;color:#888;line-height:1.35;margin-bottom:2px;', c.desc));
+  [['Kiez', c.district]].forEach(function(pair) {
+    const row = el('div','display:flex;justify-content:space-between;border-top:1px solid rgba(0,0,0,.08);padding-top:2px;margin-bottom:2px;');
+    row.append(el('span','font-size:' + (S.szDesc*.85) + 'px;color:#bbb;letter-spacing:.05em;text-transform:uppercase;font-family:\'Inter\',sans-serif;', pair[0]));
+    row.append(el('span','font-size:' + (S.szDesc*.85) + 'px;font-weight:600;color:' + S.txt + ';font-family:\'Inter\',sans-serif;', pair[1]));
+    specs.append(row);
+  });
+  const botRow = el('div','display:flex;align-items:center;justify-content:space-between;margin-top:2px;');
+  botRow.append(el('span','font-family:' + ff(S.font) + ';font-size:' + S.szRest + 'px;font-weight:700;color:' + S.acc + ';', 'EAT THIS'));
+  botRow.append(mapsBtn(c)); specs.append(botRow); card.append(specs);
+  hover(card); return card;
+}
+
+// ── 4  SOPRANOS ──
+function buildSopranos(c, cardBg) {
+  const card = baseCard(cardBg);
+  const meta = el('div','flex-shrink:0;padding:5px 8px 2px;display:flex;justify-content:space-between;');
+  meta.append(el('span','font-size:' + (S.szDesc*.8) + 'px;color:#c0c0c0;letter-spacing:.04em;font-family:\'Inter\',sans-serif;', c.district));
+  card.append(meta);
+  const dish = el('div',
+    'flex-shrink:0;padding:3px 8px 1px;text-align:center;font-family:' + ff(S.font) + ';' +
+    'font-size:' + S.szDish + 'px;font-weight:700;line-height:1.0;color:' + S.txt + ';white-space:nowrap;overflow:hidden;');
+  dish.textContent = c.dish; card.append(dish); autoScale(dish, S.szDish, 8);
+  card.append(el('div',
+    'flex-shrink:0;padding:1px 8px 4px;text-align:center;font-size:' + S.szRest + 'px;color:#999;font-style:italic;font-family:\'Playfair Display\',serif;',
+    'bei ' + c.rest));
+  card.append(imgBox(c));
+  const bot = el('div','flex:1;padding:5px 8px;display:flex;flex-direction:column;justify-content:space-between;');
+  bot.append(el('div','font-size:' + S.szDesc + 'px;color:#999;font-style:italic;line-height:1.4;font-family:\'Playfair Display\',serif;', c.desc));
+  const botRow = el('div','display:flex;align-items:center;justify-content:flex-end;margin-top:3px;');
+  botRow.append(mapsBtn(c)); bot.append(botRow); card.append(bot);
+  hover(card); return card;
+}
+
+// ── 5  HELOKI ──
+function buildHeloki(c, cardBg) {
+  const shd = S.shd ? 'box-shadow:3px 3px 0 #333;' : '';
+  const card = el('div',
+    'width:100%;aspect-ratio:59/92;border-radius:' + S.rad + 'px;overflow:hidden;' +
+    'display:flex;flex-direction:column;background:' + cardBg + ';cursor:pointer;border:1.5px solid #b0b0b0;' + shd);
+  const hdr = el('div','flex-shrink:0;padding:5px 7px;border-bottom:1.5px solid #111;display:flex;justify-content:space-between;align-items:baseline;');
+  hdr.append(el('span','font-size:' + S.szRest + 'px;color:#aaa;font-family:\'Inter\',sans-serif;letter-spacing:.03em;','(EAT THIS)'));
+  const restEl = el('span','font-family:' + ff(S.font) + ';font-size:' + (S.szRest*1.1) + 'px;font-weight:700;color:' + S.txt + ';letter-spacing:.02em;overflow:hidden;white-space:nowrap;max-width:54%;');
+  restEl.textContent = c.rest.toUpperCase(); hdr.append(restEl); card.append(hdr);
+  const dish = el('div',
+    'flex-shrink:0;padding:4px 7px 2px;font-family:' + ff(S.font) + ';font-size:' + S.szDish + 'px;font-weight:700;color:' + S.txt + ';text-transform:uppercase;white-space:nowrap;overflow:hidden;');
+  dish.textContent = c.dish; card.append(dish); autoScale(dish, S.szDish, 8);
+  card.append(imgBoxPad(c, 6));
+  const table = el('div','flex:1;border-top:1.5px solid #111;padding:3px 7px 5px;display:flex;flex-direction:column;justify-content:space-between;');
+  table.append(el('div','font-size:' + S.szDesc + 'px;color:#777;line-height:1.35;margin-bottom:2px;', c.desc));
+  [['KIEZ', c.district]].forEach(function(pair) {
+    const row = el('div','display:flex;justify-content:space-between;border-bottom:1px solid #e8e8e8;padding:1.5px 0;');
+    row.append(el('span','font-size:' + (S.szDesc*.82) + 'px;color:#aaa;letter-spacing:.08em;font-family:\'Inter\',sans-serif;', pair[0]));
+    row.append(el('span','font-size:' + (S.szDesc*.82) + 'px;font-weight:600;color:' + S.txt + ';font-family:\'Inter\',sans-serif;', pair[1]));
+    table.append(row);
+  });
+  const bot = el('div','display:flex;align-items:center;justify-content:space-between;margin-top:3px;');
+  bot.append(el('span','font-family:' + ff(S.font) + ';font-size:' + (S.szRest*1.1) + 'px;font-weight:700;color:' + S.txt + ';letter-spacing:.02em;','EAT THIS'));
+  bot.append(mapsBtn(c)); table.append(bot); card.append(table);
+  hover(card); return card;
+}
+
+// ── 6  SANDO DARK ──
+function buildSandoDark(c, cardBg) {
+  const card = baseCard(cardBg);
+  const top = el('div','flex-shrink:0;padding:6px 8px 1px;display:flex;justify-content:space-between;align-items:baseline;');
+  top.append(el('span','font-size:' + S.szRest + 'px;letter-spacing:.12em;text-transform:uppercase;color:#555;font-family:\'Inter\',sans-serif;','MUST EAT'));
+  const restEl = el('span','font-size:' + S.szRest + 'px;color:#555;font-family:\'Inter\',sans-serif;white-space:nowrap;overflow:hidden;max-width:55%;');
+  restEl.textContent = c.rest; top.append(restEl); card.append(top);
+  const dish = el('div',
+    'flex-shrink:0;padding:0 8px 3px;font-family:' + ff(S.font) + ';font-size:' + S.szDish + 'px;' +
+    'line-height:.88;color:' + S.acc + ';text-transform:uppercase;letter-spacing:.01em;white-space:nowrap;overflow:hidden;');
+  dish.textContent = c.dish; card.append(dish); autoScale(dish, S.szDish, 10);
+  card.append(imgBox(c));
+  const bot = el('div','flex:1;padding:4px 8px 6px;display:flex;flex-direction:column;justify-content:space-between;');
+  bot.append(el('div','font-size:' + S.szDesc + 'px;color:#666;line-height:1.4;font-family:\'Inter\',sans-serif;', c.desc));
+  const meta = el('div','display:flex;align-items:center;justify-content:space-between;margin-top:3px;');
+  meta.append(el('div','font-size:' + (S.szDesc*.85) + 'px;color:#555;', c.district));
+  meta.append(mapsBtn(c,'background:rgba(255,255,255,.1);'));
+  bot.append(meta); card.append(bot);
+  hover(card); return card;
+}
+
+// ── 7  SANDO LIGHT ──
+function buildSandoLight(c, cardBg) {
+  const card = baseCard(cardBg);
+  const top = el('div','flex-shrink:0;padding:6px 8px 1px;display:flex;justify-content:space-between;');
+  top.append(el('span','font-size:' + S.szRest + 'px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#888;font-family:\'Inter\',sans-serif;','SEASON SPECIAL'));
+  top.append(el('span','font-size:' + S.szRest + 'px;color:#888;font-family:\'Inter\',sans-serif;', c.rest));
+  card.append(top);
+  card.append(el('div','flex-shrink:0;padding:0 8px 3px;font-size:' + S.szDesc + 'px;color:#aaa;font-family:\'Inter\',sans-serif;letter-spacing:.04em;','FOR A LIMITED TIME'));
+  card.append(imgBoxPad(c, 6));
+  const bot = el('div','flex:1;padding:3px 8px 6px;display:flex;flex-direction:column;justify-content:flex-end;border-top:2px solid ' + S.acc + ';');
+  const dish = el('div',
+    'font-family:' + ff(S.font) + ';font-size:' + S.szDish + 'px;line-height:.9;color:' + S.txt + ';text-transform:uppercase;letter-spacing:.01em;white-space:nowrap;overflow:hidden;');
+  dish.textContent = c.dish; bot.append(dish); autoScale(dish, S.szDish, 9);
+  const sub = el('div','display:flex;align-items:center;justify-content:space-between;margin-top:4px;');
+  sub.append(el('span','font-size:' + (S.szDesc*.85) + 'px;color:#888;font-family:\'Inter\',sans-serif;font-weight:600;letter-spacing:.06em;text-transform:uppercase;','THE ART OF · EAT THIS'));
+  sub.append(mapsBtn(c)); bot.append(sub); card.append(bot);
+  hover(card); return card;
+}
+
+// ── 8  WEEKLY TASTE ──
+function buildWeekly(c, cardBg) {
+  const card = baseCard(cardBg, 'align-items:center;padding:9px 9px 7px;');
+  card.append(el('div','font-size:' + S.szRest + 'px;letter-spacing:.06em;color:#c0c0c0;font-family:\'Inter\',sans-serif;margin-bottom:3px;align-self:flex-start;', c.rest));
+  const words = c.dish.split(' ');
+  const w1 = words[0];
+  const w2 = words.slice(1).join(' ');
+  const d1 = el('div',
+    'font-family:' + ff(S.font) + ';font-size:' + S.szDish + 'px;line-height:.92;color:' + S.acc + ';' +
+    'text-transform:uppercase;text-align:center;white-space:nowrap;overflow:hidden;width:100%;margin-bottom:4px;');
+  d1.textContent = w1; card.append(d1);
+  // Oval — size driven by imgPct (as % of card width)
+  const imgWrap = el('div',
+    'width:' + S.imgPct + '%;aspect-ratio:1/1;border-radius:50%;overflow:hidden;flex-shrink:0;background:' + S.imgBg + ';');
+  imgWrap.append(mkImg(c.img, c.dish)); card.append(imgWrap);
+  if (w2) {
+    const d2 = el('div',
+      'font-family:' + ff(S.font) + ';font-size:' + S.szDish + 'px;line-height:.92;color:' + S.acc + ';' +
+      'text-transform:uppercase;text-align:center;white-space:nowrap;overflow:hidden;width:100%;margin-top:4px;margin-bottom:3px;');
+    d2.textContent = w2; card.append(d2);
+  }
+  card.append(el('div','font-size:' + S.szDesc + 'px;color:#aaa;text-align:center;line-height:1.4;font-family:\'Inter\',sans-serif;flex:1;margin-top:3px;', c.desc));
+  const bot = el('div','display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:4px;');
+  bot.append(el('span','font-size:' + (S.szDesc*.85) + 'px;color:#c0c0c0;', c.district));
+  bot.append(mapsBtn(c)); card.append(bot);
+  hover(card); return card;
+}
+
+// ── 9  PLATED ──
+function buildPlated(c, cardBg) {
+  const card = baseCard(cardBg);
+  const topRow = el('div','flex-shrink:0;padding:7px 8px 2px;display:flex;justify-content:space-between;align-items:flex-start;gap:4px;');
+  const dishBlock = document.createElement('div');
+  const dishItalic = el('div','font-family:\'Playfair Display\',serif;font-size:' + (S.szDish*.58) + 'px;font-style:italic;color:' + S.txt + ';line-height:1.2;');
+  dishItalic.textContent = c.dish; dishBlock.append(dishItalic);
+  dishBlock.append(el('div','font-size:' + (S.szDesc*.85) + 'px;color:#aaa;font-style:italic;font-family:\'Playfair Display\',serif;','(' + c.district + ')'));
+  topRow.append(dishBlock);
+  const restEl = el('div','font-size:' + S.szRest + 'px;font-weight:700;color:' + S.acc + ';text-align:right;white-space:nowrap;font-family:\'Space Grotesk\',sans-serif;text-transform:uppercase;letter-spacing:.05em;line-height:1.3;');
+  restEl.textContent = c.rest; topRow.append(restEl); card.append(topRow);
+  card.append(el('div','height:1px;background:#eee;margin:0 8px;flex-shrink:0;'));
+  const imgRow = el('div','flex:0 0 ' + S.imgPct + '%;display:flex;align-items:center;justify-content:center;gap:5px;padding:5px 8px;');
+  const forkDiv = el('div','color:#d0d0d0;flex-shrink:0;'); forkDiv.append(makeForkSvg());
+  const knifeDiv = el('div','color:#d0d0d0;flex-shrink:0;'); knifeDiv.append(makeKnifeSvg());
+  const imgWrap = el('div','flex:1;aspect-ratio:1/1;border-radius:50%;overflow:hidden;background:' + S.imgBg + ';');
+  imgWrap.append(mkImg(c.img, c.dish));
+  imgRow.append(forkDiv, imgWrap, knifeDiv); card.append(imgRow);
+  card.append(el('div','height:1px;background:#eee;margin:0 8px;flex-shrink:0;'));
+  const bot = el('div','flex:1;padding:4px 8px 6px;display:flex;flex-direction:column;justify-content:space-between;');
+  bot.append(el('div','font-size:' + S.szDesc + 'px;color:#888;line-height:1.4;font-family:\'Playfair Display\',serif;font-style:italic;', c.desc));
+  const botRow = el('div','display:flex;align-items:center;justify-content:space-between;margin-top:3px;');
+  botRow.append(el('span','font-family:\'Playfair Display\',serif;font-size:' + (S.szRest*1.4) + 'px;font-style:italic;font-weight:700;color:' + S.acc + ';','Eat This'));
+  botRow.append(mapsBtn(c)); bot.append(botRow); card.append(bot);
+  hover(card); return card;
+}
+
+const BUILDERS = {
+  poster:        buildPoster,
+  lunch:         buildLunch,
+  ferrari:       buildFerrari,
+  sopranos:      buildSopranos,
+  heloki:        buildHeloki,
+  'sando-dark':  buildSandoDark,
+  'sando-light': buildSandoLight,
+  weekly:        buildWeekly,
+  plated:        buildPlated,
+};
+
+function openLightbox(card) {
+  const overlay = document.createElement('div');
+  overlay.className = 'lb-overlay';
+  const inner = document.createElement('div');
+  inner.className = 'lb-inner';
+  const clone = card.cloneNode(true);
+  clone.style.transition = 'none';
+  clone.style.transform = '';
+  clone.style.boxShadow = '0 30px 80px rgba(0,0,0,.55)';
+  const targetW = Math.min(380, window.innerWidth * 0.9);
+  clone.style.width = targetW + 'px';
+  inner.append(clone);
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'lb-close'; closeBtn.textContent = '✕';
+  overlay.append(inner, closeBtn);
+  document.body.append(overlay);
+  requestAnimationFrame(function() { overlay.style.opacity = '1'; });
+  function close() {
+    overlay.style.opacity = '0';
+    setTimeout(function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 300);
+    document.removeEventListener('keydown', onKey);
+  }
+  function onKey(e) { if (e.key === 'Escape') close(); }
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) close(); });
+  closeBtn.addEventListener('click', close);
+  inner.addEventListener('click', function(e) { e.stopPropagation(); });
+  document.addEventListener('keydown', onKey);
+}
+
+function render() {
+  const cc = $('cc');
+  while (cc.firstChild) cc.removeChild(cc.firstChild);
+  const builder = BUILDERS[S.style] || buildPoster;
+  CARDS.forEach(function(c, i) {
+    currentPosY = S.imgPosY[i];
+    const w = document.createElement('div');
+    w.className = 'cw cw-' + S.size;
+    const lbl = document.createElement('div');
+    lbl.className = 'clbl'; lbl.textContent = c.rest.toUpperCase();
+    const card = builder(c, S.cardBgs[i]);
+    card.addEventListener('click', function() { openLightbox(card); });
+    w.append(lbl, card);
+    cc.append(w);
+  });
+  updatePrompt();
+}
+
+function updatePrompt() {
+  const P = PRESETS[S.style] || {};
+  const parts = ['Stil: ' + (STYLE_NAMES[S.style] || S.style)];
+  if (S.imgBg !== P.imgBg) parts.push('Bild BG: ' + S.imgBg);
+  if (S.acc   !== P.acc)   parts.push('Akzent: '  + S.acc);
+  if (S.font  !== P.font)  parts.push('Schrift: '  + S.font);
+  if (S.rad   !== P.rad)   parts.push('Ecken: '    + S.rad + 'px');
+  $('ptxt').textContent = 'Must Eat Cards — ' + parts.join(', ') + '.';
+}
+
+render();
+</script>
+</body>
+</html>

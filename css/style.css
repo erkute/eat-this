@@ -3445,35 +3445,43 @@ body {
 
   .app-page[data-page="musts"] .must-eats-grid {
     grid-template-columns: repeat(2, 1fr);
-    padding: 8px 8px 40px;
-    gap: 6px;
+    padding: 4px 4px 40px;
+    gap: 4px;
     max-width: none;
     margin: 0 auto;
   }
 
   .app-page[data-page="musts"] .eat-card-flip {
     aspect-ratio: auto;
-    min-height: 180px;
+    min-height: 220px;
   }
 
   .app-page[data-page="musts"] .cf-dish {
-    font-size: 0.95rem;
+    font-size: 1.0rem;
   }
 
   .app-page[data-page="musts"] .cf-label {
-    font-size: 0.55rem;
+    font-size: 0.6rem;
   }
 
   .app-page[data-page="musts"] .cf-desc {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
   }
 
   .app-page[data-page="musts"] .cf-district {
-    font-size: 0.55rem;
+    font-size: 0.6rem;
   }
 
   .app-page[data-page="musts"] .cf-maps-pill-txt {
-    font-size: 0.32rem;
+    font-size: 0.35rem;
+  }
+
+  .app-page[data-page="musts"] .cf-top-area {
+    padding: 5px 8px 8px;
+  }
+
+  .app-page[data-page="musts"] .cf-bottom-bar {
+    padding: 4px 8px 6px;
   }
 
   @media (min-width: 480px) {

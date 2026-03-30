@@ -638,7 +638,7 @@ body {
 /* Restaurant — tiny above dish, centered */
 .cf-label {
   font-family: 'Inter', sans-serif;
-  font-size: 0.42rem;
+  font-size: 0.52rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -724,7 +724,7 @@ body {
   opacity: 0.7;
   transition: opacity .15s, transform .15s;
 }
-.cf-maps-pill { margin-bottom: 8px; }
+.cf-maps-pill { margin-bottom: 4px; }
 .cf-maps-pill:hover { opacity: 1; transform: scale(1.05); }
 .cf-maps-pill-txt {
   font-family: 'Inter', sans-serif;
@@ -3444,8 +3444,19 @@ body {
 
   .app-page[data-page="musts"] .must-eats-grid {
     grid-template-columns: repeat(2, 1fr);
-    padding: 16px 24px 40px;
-    gap: 28px;
+    padding: 16px 20px 40px;
+    gap: 24px;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 480px) {
+    .app-page[data-page="musts"] .must-eats-grid {
+      grid-template-columns: repeat(3, 1fr);
+      padding: 16px 24px 40px;
+      gap: 28px;
+      max-width: none;
+    }
   }
 
   /* ---- Map: fill available space, no scroll ---- */

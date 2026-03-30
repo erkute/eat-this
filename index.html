@@ -224,8 +224,8 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Oswald:wght@700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"></noscript>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700;900&family=Oswald:wght@700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700;900&family=Oswald:wght@700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"></noscript>
   <link rel="stylesheet" href="css/leaflet.css" />
   <link rel="stylesheet" href="css/style.css">
 
@@ -442,34 +442,26 @@
             <div class="eat-card-flip">
               <!-- FRONT -->
               <div class="eat-card-face eat-card-front">
-                <div class="eat-card-shine"></div>
-                <div class="eat-card-img-wrap">
-                  <img src="pics/food/eat/ban.webp" alt="Banh Mi" class="alternating-img" data-images='["pics/food/eat/ban.webp","pics/food/eat/ban2.webp"]' loading="lazy">
-                </div>
-                <div class="eat-card-body">
-                  <h3 class="eat-card-dish">Banh Mi</h3>
-                  <p class="eat-card-restaurant">Saveur de Bánh Mì</p>
-                  <div class="eat-card-meta"></div>
+                <div class="cf">
+                  <div class="cf-top-area">
+                    <div class="cf-label">Saveur de Bánh Mì</div>
+                    <div class="cf-dish">Banh Mi</div>
+                    <a class="cf-maps-top" href="https://www.google.com/maps/search/?api=1&query=Saveur+de+B%C3%A1nh+M%C3%AC%2C+Akazienstra%C3%9Fe+24%2C+10823+Berlin" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="#EA4335" stroke="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    </a>
+                  </div>
+                  <div class="cf-img-wrap">
+                    <img src="pics/food/eat/ban.webp" alt="Banh Mi" loading="lazy" style="transform:scale(0.75);transform-origin:center center;">
+                  </div>
+                  <div class="cf-bottom-bar">
+                    <div class="cf-desc">Das beste Bánh Mì in Berlin. Knuspriges Brot, frisches Gemüse, perfekt gewürztes Fleisch.</div>
+                  </div>
                 </div>
               </div>
               <!-- BACK -->
               <div class="eat-card-face eat-card-back">
-                <div class="eat-card-shine"></div>
-                <img class="eat-card-back-img" src="pics/food/ban3.webp" alt="Banh Mi">
-                <div class="eat-card-back-overlay">
-                  <div class="eat-card-back-restaurant">Saveur de Bánh Mì</div>
-                  <hr class="eat-card-divider eat-card-divider-dark">
-                  <div class="eat-card-back-desc">Das beste Bánh Mì in Berlin. Knuspriges Brot, frisches Gemüse, perfekt gewürztes Fleisch.</div>
-                  <div class="eat-card-info-rows">
-                    <div class="eat-card-info-row">
-                      <span class="eat-card-info-label">Adresse</span>
-                      <span class="eat-card-info-val">Akazienstr. 24</span>
-                    </div>
-                  </div>
-                  <a class="eat-card-maps-btn" href="https://www.google.com/maps/search/?api=1&query=Saveur+de+B%C3%A1nh+M%C3%AC%2C+Akazienstra%C3%9Fe+24%2C+10823+Berlin" target="_blank" rel="noopener" onclick="event.stopPropagation()">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    Google Maps
-                  </a>
+                <div class="cb-poster">
+                  <img src="pics/logo2.webp" alt="EAT THIS">
                 </div>
               </div>
             </div>
@@ -482,34 +474,26 @@
             <div class="eat-card-flip">
               <!-- FRONT -->
               <div class="eat-card-face eat-card-front">
-                <div class="eat-card-shine"></div>
-                <div class="eat-card-img-wrap">
-                  <img src="pics/food/eat/allin.webp" alt="Twin Cheese" class="alternating-img" data-images='["pics/food/eat/allin.webp"]' loading="lazy" style="object-fit:cover;">
-                </div>
-                <div class="eat-card-body">
-                  <h3 class="eat-card-dish">Twin Cheese</h3>
-                  <p class="eat-card-restaurant">All In.</p>
-                  <div class="eat-card-meta"></div>
+                <div class="cf">
+                  <div class="cf-top-area">
+                    <div class="cf-label">All In.</div>
+                    <div class="cf-dish">Twin Cheese</div>
+                    <a class="cf-maps-top" href="https://www.google.com/maps/search/?api=1&query=All+In.%2C+Sch%C3%B6nhauser+Allee+173%2C+10119+Berlin" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="#EA4335" stroke="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    </a>
+                  </div>
+                  <div class="cf-img-wrap">
+                    <img src="pics/food/eat/allin.webp" alt="Twin Cheese" loading="lazy">
+                  </div>
+                  <div class="cf-bottom-bar">
+                    <div class="cf-desc">Zwei perfekte Patties, saftiges Fleisch, goldenes Brioche. Ein Burger ohne Kompromisse.</div>
+                  </div>
                 </div>
               </div>
               <!-- BACK -->
               <div class="eat-card-face eat-card-back">
-                <div class="eat-card-shine"></div>
-                <img class="eat-card-back-img" src="pics/food/allin3.webp" alt="Twin Cheese">
-                <div class="eat-card-back-overlay">
-                  <div class="eat-card-back-restaurant">All In.</div>
-                  <hr class="eat-card-divider eat-card-divider-dark">
-                  <div class="eat-card-back-desc">Twin Cheese von All In. — zwei perfekte Patties, saftiges Fleisch, goldenes Brioche. Ein Burger, der keine Kompromisse macht.</div>
-                  <div class="eat-card-info-rows">
-                    <div class="eat-card-info-row">
-                      <span class="eat-card-info-label">Adresse</span>
-                      <span class="eat-card-info-val">Schönhauser Allee 173</span>
-                    </div>
-                  </div>
-                  <a class="eat-card-maps-btn" href="https://www.google.com/maps/search/?api=1&query=All+In.%2C+Sch%C3%B6nhauser+Allee+173%2C+10119+Berlin" target="_blank" rel="noopener" onclick="event.stopPropagation()">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    Google Maps
-                  </a>
+                <div class="cb-poster">
+                  <img src="pics/logo2.webp" alt="EAT THIS">
                 </div>
               </div>
             </div>
@@ -522,34 +506,26 @@
             <div class="eat-card-flip">
               <!-- FRONT -->
               <div class="eat-card-face eat-card-front">
-                <div class="eat-card-shine"></div>
-                <div class="eat-card-img-wrap">
-                  <img src="pics/food/eat/barbasta.webp" alt="Spicy Thai Sausage" class="alternating-img" data-images='["pics/food/eat/barbasta.webp"]' loading="lazy" style="object-fit:cover;">
-                </div>
-                <div class="eat-card-body">
-                  <h3 class="eat-card-dish">Spicy Thai Sausage</h3>
-                  <p class="eat-card-restaurant">Bar Basta</p>
-                  <div class="eat-card-meta"></div>
+                <div class="cf">
+                  <div class="cf-top-area">
+                    <div class="cf-label">Bar Basta</div>
+                    <div class="cf-dish">Spicy Thai Sausage</div>
+                    <a class="cf-maps-top" href="https://www.google.com/maps/search/?api=1&query=Bar+Basta+Berlin" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="#EA4335" stroke="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    </a>
+                  </div>
+                  <div class="cf-img-wrap">
+                    <img src="pics/food/eat/barbasta.webp" alt="Spicy Thai Sausage" loading="lazy">
+                  </div>
+                  <div class="cf-bottom-bar">
+                    <div class="cf-desc">Kräftig gewürzt, perfekt gegrillt, mit echtem Kick. Ein Gericht, das im Gedächtnis bleibt.</div>
+                  </div>
                 </div>
               </div>
               <!-- BACK -->
               <div class="eat-card-face eat-card-back">
-                <div class="eat-card-shine"></div>
-                <img class="eat-card-back-img" src="pics/food/barbasta3.webp" alt="Spicy Thai Sausage">
-                <div class="eat-card-back-overlay">
-                  <div class="eat-card-back-restaurant">Bar Basta</div>
-                  <hr class="eat-card-divider eat-card-divider-dark">
-                  <div class="eat-card-back-desc">Die Spicy Thai Sausage von Bar Basta — kräftig gewürzt, perfekt gegrillt, mit Kick. Ein Gericht, das im Gedächtnis bleibt.</div>
-                  <div class="eat-card-info-rows">
-                    <div class="eat-card-info-row">
-                      <span class="eat-card-info-label">Adresse</span>
-                      <span class="eat-card-info-val">Bar Basta, Berlin</span>
-                    </div>
-                  </div>
-                  <a class="eat-card-maps-btn" href="https://www.google.com/maps/search/?api=1&query=Bar+Basta+Berlin" target="_blank" rel="noopener" onclick="event.stopPropagation()">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    Google Maps
-                  </a>
+                <div class="cb-poster">
+                  <img src="pics/logo2.webp" alt="EAT THIS">
                 </div>
               </div>
             </div>

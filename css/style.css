@@ -508,19 +508,20 @@ body {
   padding: 0 24px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 200px));
-  gap: 16px;
+  gap: 36px;
   max-width: 1200px;
   margin: 0 auto;
+  justify-content: center;
 }
 
 @media (min-width: 768px) {
   .must-eats-section { padding: 140px 0 100px; }
   .must-eats-header { padding: 0 48px 72px; }
-  .must-eats-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 0; }
+  .must-eats-grid { grid-template-columns: repeat(3, minmax(0, 200px)); gap: 48px; padding: 0; }
 }
 
 @media (min-width: 1024px) {
-  .must-eats-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .must-eats-grid { grid-template-columns: repeat(4, minmax(0, 200px)); gap: 56px; }
 }
 
 /* ── Globe active: hide Leaflet controls and map UI ── */
@@ -580,10 +581,11 @@ body {
   perspective: 900px;
 }
 
-/* Shell: receives the tilt transform */
+/* Shell: receives tilt + flip transform from JS */
 .eat-card-shell {
   width: 100%;
   transform-style: preserve-3d;
+  will-change: transform;
 }
 
 /* Flip wrapper */
@@ -591,9 +593,9 @@ body {
   width: 100%;
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);
   aspect-ratio: 3/4;
   min-height: 240px;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .eat-card-flip.flipped {
   transform: rotateY(180deg);
@@ -603,210 +605,156 @@ body {
 .eat-card-face {
   position: absolute;
   inset: 0;
-  border-radius: 14px;
+  border-radius: 10px;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   overflow: hidden;
   z-index: 1;
 }
 
-/* ── FRONT FACE ── */
-.eat-card-front {
-  background: #fff;
-  border: 1px solid rgba(255,255,255,0.7);
+/* ── FRONT FACE — Cars & Films Poster ── */
+.eat-card-front { z-index: 2; }
+
+.cf {
+  width: 100%; height: 100%;
+  background: #EDEBE4;
   display: flex;
   flex-direction: column;
-  z-index: 2;
-}
-
-.eat-card-img-wrap {
-  flex: 1;
+  align-items: stretch;
+  padding: 0;
+  position: relative;
   overflow: hidden;
-  position: relative;
-  min-height: 0;
-  background: rgba(230,235,240,0.45);
-}
-.eat-card-img-wrap img {
-  width: calc(100% - 32px);
-  height: calc(100% - 28px);
-  object-fit: contain;
-  display: block;
-  margin: 14px auto 14px;
 }
 
-/* Front body */
-.eat-card-body {
-  padding: 8px 12px 11px;
-  background: #fff;
-  border-top: 1px solid rgba(255,255,255,0.8);
-  position: relative;
-  z-index: 11;
-}
-.eat-card-dish {
-  font-family: 'Oswald', sans-serif;
-  font-size: 1.15rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  line-height: 1;
-  margin-bottom: 1px;
-  color: var(--black);
-}
-.eat-card-restaurant {
-  font-size: 10px;
-  color: #aaa;
-  font-weight: 400;
-  margin-bottom: 0;
-}
-.eat-card-divider {
-  border: none;
-  border-top: 1.5px dashed rgba(0,0,0,0.12);
-  margin: 7px 0;
-}
-.eat-card-meta {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-.eat-card-flip-hint {
-  font-size: 9px;
-  color: #bbb;
-  letter-spacing: 0.04em;
-}
-
-/* ── BACK FACE ── */
-.eat-card-back {
-  transform: rotateY(180deg);
-  background: #111;
-  overflow: hidden;
-  z-index: 1;
-}
-
-/* Full-bleed background image */
-.eat-card-back-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  filter: sepia(10%) saturate(1.1) brightness(0.75);
-  z-index: 0;
-}
-
-/* Frosted glass overlay at bottom */
-.eat-card-back-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 5px 8px 6px;
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-top: 1px solid rgba(255,255,255,0.85);
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-}
-
-
-.eat-card-back-dish {
-  font-family: 'Oswald', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--black);
-  text-align: center;
-  margin-bottom: 1px;
-  position: relative;
-  z-index: 2;
-}
-.eat-card-back-restaurant {
-  font-size: 6.5px;
-  color: #444;
-  text-align: center;
-  letter-spacing: 0.04em;
-  margin-bottom: 4px;
-  position: relative;
-  z-index: 2;
-}
-.eat-card-divider-dark {
-  border-top-color: rgba(0,0,0,0.1);
-  margin: 3px 0 4px;
-  position: relative;
-  z-index: 2;
-}
-
-/* Info rows */
-.eat-card-info-rows {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin-bottom: 6px;
-  position: relative;
-  z-index: 2;
-}
-.eat-card-info-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 4px;
-}
-.eat-card-info-label {
-  font-size: 6.5px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #888;
+/* Top cream area: restaurant + dish name + maps icon */
+.cf-top-area {
   flex-shrink: 0;
-}
-.eat-card-info-val {
-  font-family: 'Space Mono', 'Courier New', monospace;
-  font-size: 6.5px;
-  font-weight: 700;
-  color: var(--black);
-  text-align: right;
-  white-space: nowrap;
-  min-width: 0;
-}
-.eat-card-stat-orange { color: var(--orange); }
-
-.eat-card-back-desc {
-  font-size: 6.5px;
-  line-height: 1.45;
-  color: #777;
-  text-align: center;
-  margin-bottom: 5px;
+  padding: 7px 8px 5px;
   position: relative;
-  z-index: 2;
 }
-
-.eat-card-maps-btn {
-  margin-top: 4px;
-  width: 100%;
-  padding: 5px;
-  background: var(--black);
-  border: none;
-  border-radius: 5px;
-  color: #fff;
-  font-size: 6.5px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
+.cf-maps-top {
+  position: absolute;
+  top: 6px;
+  right: 7px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 4px;
   text-decoration: none;
-  position: relative;
-  z-index: 2;
-  transition: background 0.2s;
+  flex-shrink: 0;
 }
-.eat-card-maps-btn:hover {
-  background: #222;
+
+/* Restaurant — tiny above dish, centered */
+.cf-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.38rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 1px;
+  text-align: center;
+}
+
+/* Dish name — PASTA NIGHT style, huge Anton, centered */
+.cf-dish {
+  font-family: 'Anton', sans-serif;
+  font-weight: 400;
+  font-size: 1.55rem;
+  letter-spacing: 0.01em;
+  line-height: 0.92;
+  color: #8B1A1A;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* Photo — fixed height, framed, fully visible */
+.cf-img-wrap {
+  flex: 0 0 63%;
+  min-height: 0;
+  overflow: hidden;
+  background: #8B1A1A;
+  padding: 10px;
+  margin: 0 8px;
+  width: calc(100% - 16px);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cf-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  display: block;
+}
+
+/* Bottom bar */
+.cf-bottom-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  padding: 5px 8px 6px;
+  border-top: 1.5px solid rgba(0,0,0,0.12);
+  margin: 0 8px;
+  width: calc(100% - 16px);
+  box-sizing: border-box;
+}
+.cf-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.46rem;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  color: #333;
+  line-height: 1.45;
+}
+.cf-bar-divider {
+  width: 1px;
+  height: 14px;
+  background: rgba(0,0,0,0.2);
+  flex-shrink: 0;
+  margin: 0 6px;
+}
+
+/* Maps button */
+.cf-maps-btn {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.cf-maps-btn svg { flex-shrink: 0; }
+.cf-maps-btn span {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.42rem;
+  font-weight: 500;
+  color: #333;
+  letter-spacing: 0.01em;
+}
+
+/* ── BACK FACE — Dark Red + Logo ── */
+.eat-card-back {
+  transform: rotateY(180deg);
+  background: #8B0000;
+  overflow: hidden;
+  z-index: 1;
+}
+.cb-poster {
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cb-poster img {
+  width: 65%;
+  display: block;
+  filter: brightness(0) invert(1);
+  opacity: 0.92;
 }
 
 /* ============================================

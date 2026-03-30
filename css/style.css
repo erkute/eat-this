@@ -507,8 +507,8 @@ body {
 .must-eats-grid {
   padding: 0 24px;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 200px));
-  gap: 36px;
+  grid-template-columns: repeat(2, minmax(0, 130px));
+  gap: 120px;
   max-width: 1200px;
   margin: 0 auto;
   justify-content: center;
@@ -517,11 +517,11 @@ body {
 @media (min-width: 768px) {
   .must-eats-section { padding: 140px 0 100px; }
   .must-eats-header { padding: 0 48px 72px; }
-  .must-eats-grid { grid-template-columns: repeat(3, minmax(0, 200px)); gap: 48px; padding: 0; }
+  .must-eats-grid { grid-template-columns: repeat(3, minmax(0, 130px)); gap: 140px; padding: 0; }
 }
 
 @media (min-width: 1024px) {
-  .must-eats-grid { grid-template-columns: repeat(4, minmax(0, 200px)); gap: 56px; }
+  .must-eats-grid { grid-template-columns: repeat(4, minmax(0, 130px)); gap: 160px; }
 }
 
 /* ── Globe active: hide Leaflet controls and map UI ── */
@@ -565,7 +565,7 @@ body {
 /* Portal: fixed wrapper that holds the scene while it's animated */
 .eat-card-portal {
   overflow: visible;
-  border-radius: 14px;
+  border-radius: 9px;
 }
 .eat-card-portal .eat-card-scene {
   width: 100%;
@@ -593,9 +593,11 @@ body {
   width: 100%;
   position: relative;
   transform-style: preserve-3d;
-  aspect-ratio: 3/4;
-  min-height: 240px;
+  aspect-ratio: 59/92;
+  min-height: 160px;
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 9px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.12), 0 12px 32px rgba(0,0,0,0.1);
 }
 .eat-card-flip.flipped {
   transform: rotateY(180deg);
@@ -605,7 +607,7 @@ body {
 .eat-card-face {
   position: absolute;
   inset: 0;
-  border-radius: 10px;
+  border-radius: 9px;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   overflow: hidden;
@@ -617,7 +619,7 @@ body {
 
 .cf {
   width: 100%; height: 100%;
-  background: #EDEBE4;
+  background: #FFFFFF;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -626,35 +628,21 @@ body {
   overflow: hidden;
 }
 
-/* Top cream area: restaurant + dish name + maps icon */
+/* Top cream area: restaurant + dish name */
 .cf-top-area {
   flex-shrink: 0;
-  padding: 7px 8px 5px;
+  padding: 5px 7px 10px;
   position: relative;
-}
-.cf-maps-top {
-  position: absolute;
-  top: 6px;
-  right: 7px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  background: #fff;
-  border-radius: 4px;
-  text-decoration: none;
-  flex-shrink: 0;
 }
 
 /* Restaurant — tiny above dish, centered */
 .cf-label {
   font-family: 'Inter', sans-serif;
-  font-size: 0.38rem;
-  font-weight: 400;
-  letter-spacing: 0.08em;
+  font-size: 0.42rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #888;
+  color: #000000;
   margin-bottom: 1px;
   text-align: center;
 }
@@ -663,54 +651,87 @@ body {
 .cf-dish {
   font-family: 'Anton', sans-serif;
   font-weight: 400;
-  font-size: 1.55rem;
+  font-size: 1.25rem;
   letter-spacing: 0.01em;
   line-height: 0.92;
-  color: #8B1A1A;
+  color: #000000;
   text-transform: uppercase;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Photo — fixed height, framed, fully visible */
+/* Photo — fixed height, cover fill */
 .cf-img-wrap {
-  flex: 0 0 63%;
+  flex: 0 0 62%;
   min-height: 0;
   overflow: hidden;
-  background: #8B1A1A;
-  padding: 10px;
-  margin: 0 8px;
-  width: calc(100% - 16px);
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: #e5d0a4;
 }
 .cf-img-wrap img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center center;
   display: block;
 }
 
 /* Bottom bar */
 .cf-bottom-bar {
-  flex-shrink: 0;
+  flex: 1;
+  padding: 4px 7px 5px;
   display: flex;
-  align-items: flex-start;
-  padding: 5px 8px 6px;
-  border-top: 1.5px solid rgba(0,0,0,0.12);
-  margin: 0 8px;
-  width: calc(100% - 16px);
-  box-sizing: border-box;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 0;
 }
 .cf-desc {
   font-family: 'Inter', sans-serif;
-  font-size: 0.46rem;
+  font-size: 0.6rem;
   font-weight: 300;
-  letter-spacing: 0.01em;
-  color: #333;
-  line-height: 1.45;
+  color: #000;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cf-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+.cf-district {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.52rem;
+  color: #000;
+}
+/* Pill maps button (shared with playground) */
+.cf-maps-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: 1px solid currentColor;
+  border-radius: 20px;
+  padding: 2px 6px 2px 4px;
+  text-decoration: none;
+  flex-shrink: 0;
+  color: #000;
+  opacity: 0.7;
+  transition: opacity .15s, transform .15s;
+}
+.cf-maps-pill { margin-bottom: 8px; }
+.cf-maps-pill:hover { opacity: 1; transform: scale(1.05); }
+.cf-maps-pill-txt {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.3rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 .cf-bar-divider {
   width: 1px;
@@ -737,10 +758,10 @@ body {
   letter-spacing: 0.01em;
 }
 
-/* ── BACK FACE — Dark Red + Logo ── */
+/* ── BACK FACE — Dark + Logo ── */
 .eat-card-back {
   transform: rotateY(180deg);
-  background: #8B0000;
+  background: #111111;
   overflow: hidden;
   z-index: 1;
 }
@@ -3423,8 +3444,8 @@ body {
 
   .app-page[data-page="musts"] .must-eats-grid {
     grid-template-columns: repeat(2, 1fr);
-    padding: 12px 16px 16px;
-    gap: 12px;
+    padding: 16px 24px 40px;
+    gap: 28px;
   }
 
   /* ---- Map: fill available space, no scroll ---- */

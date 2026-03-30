@@ -3457,23 +3457,23 @@ body {
   }
 
   .app-page[data-page="musts"] .cf-dish {
-    font-size: 1.0rem;
+    font-size: 0.85rem;
   }
 
   .app-page[data-page="musts"] .cf-label {
-    font-size: 0.6rem;
+    font-size: 0.55rem;
   }
 
   .app-page[data-page="musts"] .cf-desc {
-    font-size: 0.75rem;
+    font-size: 0.68rem;
   }
 
   .app-page[data-page="musts"] .cf-district {
-    font-size: 0.6rem;
+    font-size: 0.55rem;
   }
 
   .app-page[data-page="musts"] .cf-maps-pill-txt {
-    font-size: 0.35rem;
+    font-size: 0.32rem;
   }
 
   .app-page[data-page="musts"] .cf-top-area {

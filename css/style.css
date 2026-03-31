@@ -1228,53 +1228,113 @@ body {
   padding: 4px 0;
 }
 
-.map-filters {
-  display: flex;
-  gap: 3px;
-  padding: 12px 16px;
-  background: var(--white);
-  border-bottom: 1px solid var(--gray-100);
+/* ── Map Filter Dropdown ── */
+.map-filter-wrap {
+  position: relative;
+  align-self: flex-end;
 }
 
-.map-filters-track {
+.map-filter-trigger {
   display: flex;
-  gap: 2px;
-  background: #efefef;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  background: var(--black);
+  color: var(--white);
+  border: none;
   border-radius: 12px;
-  padding: 3px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  width: 100%;
-}
-
-.map-filters-track::-webkit-scrollbar {
-  display: none;
-}
-
-.map-filter-btn {
-  flex-shrink: 0;
-  padding: 8px 14px;
-  border-radius: 9px;
   font-size: 12px;
   font-weight: 700;
-  color: #888;
-  background: transparent;
-  border: none;
+  letter-spacing: 0.03em;
   cursor: pointer;
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  font-family: var(--font);
+  transition: background 0.15s;
   white-space: nowrap;
 }
 
-.map-filter-btn:hover {
-  color: #444;
+.map-filter-trigger:hover {
+  background: #222;
 }
 
-.map-filter-btn.active {
-  background: var(--white);
-  color: var(--black);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+.map-filter-trigger-count {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.55;
+}
+
+.map-filter-chevron {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.map-filter-wrap.open .map-filter-chevron {
+  transform: rotate(180deg);
+}
+
+.map-filter-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 170px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.06);
+  padding: 6px;
+  display: none;
+  flex-direction: column;
+  gap: 1px;
+  z-index: 500;
+}
+
+.map-filter-wrap.open .map-filter-dropdown {
+  display: flex;
+  animation: dropIn 0.18s ease;
+}
+
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);    }
+}
+
+.map-filter-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 9px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: background 0.12s, color 0.12s;
+  text-align: left;
+}
+
+.map-filter-option:hover {
+  background: #f4f4f4;
+  color: #111;
+}
+
+.map-filter-option.active {
+  background: #111;
+  color: #fff;
+}
+
+.map-filter-option.active .map-filter-option-count {
+  opacity: 0.55;
+  color: #fff;
+}
+
+.map-filter-option-count {
+  font-size: 11px;
+  font-weight: 500;
+  color: #aaa;
+  margin-left: 8px;
 }
 
 .map-location-btn {

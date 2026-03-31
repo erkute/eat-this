@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let mapInitialized = false;
 
   const spots = [
-      { name: 'NOVEMBER Brasserie', district: 'Prenzlauer Berg', type: 'Japanese Brasserie', address: 'Danziger Str. 26, 10435 Berlin', lat: 52.54, lng: 13.4171 },
+      { name: 'NOVEMBER Brasserie', district: 'Prenzlauer Berg', type: 'Japanese Brasserie', address: 'Danziger Str. 26, 10435 Berlin', lat: 52.54, lng: 13.4171, photo: 'pics/location/november.jpg' },
       { name: 'LIU 成都味道面馆', district: 'Mitte', type: 'Sichuan Chinese', address: 'Kronenstraße 72, 10117 Berlin', lat: 52.5112, lng: 13.3875 },
       { name: 'Father Carpenter', district: 'Mitte', type: 'Cafe/Coffee', address: 'Münzstr 21, 10178 Berlin', lat: 52.5248, lng: 13.4067 },
       { name: 'Berta Restaurant', district: 'Kreuzberg', type: 'Israeli-Mediterranean', address: 'Stresemannstraße 99, 10963 Berlin', lat: 52.5059, lng: 13.3802 },
@@ -947,23 +947,63 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Filter functionality
-    const filterBtns = document.querySelectorAll('.map-filter-btn');
-    filterBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const filter = btn.dataset.filter;
-        
-        filterBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
+    // Filter dropdown — populate counts
+    const filterCategories = ['all', 'breakfast', 'lunch', 'dinner', 'café', 'fastfood'];
+    filterCategories.forEach(cat => {
+      const el = document.getElementById('count-' + cat);
+      if (el) {
+        el.textContent = cat === 'all'
+          ? spots.length
+          : spots.filter(s => getSpotCategory(s.type) === cat).length;
+      }
+    });
+    const triggerCount = document.getElementById('mapFilterCount');
+    if (triggerCount) triggerCount.textContent = spots.length;
+
+    // Dropdown toggle
+    const filterWrap     = document.getElementById('mapFilterWrap');
+    const filterTrigger  = document.getElementById('mapFilterTrigger');
+    const filterDropdown = document.getElementById('mapFilterDropdown');
+    const filterLabel    = document.getElementById('mapFilterLabel');
+
+    function closeFilterDropdown() {
+      if (filterWrap) filterWrap.classList.remove('open');
+      if (filterTrigger) filterTrigger.setAttribute('aria-expanded', 'false');
+    }
+
+    if (filterTrigger) {
+      filterTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = filterWrap.classList.toggle('open');
+        filterTrigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+    }
+
+    document.addEventListener('click', (e) => {
+      if (filterWrap && !filterWrap.contains(e.target)) closeFilterDropdown();
+    });
+
+    // Filter option selection
+    const filterOptions = document.querySelectorAll('.map-filter-option');
+    filterOptions.forEach(opt => {
+      opt.addEventListener('click', () => {
+        const filter = opt.dataset.filter;
+
+        filterOptions.forEach(o => o.classList.remove('active'));
+        opt.classList.add('active');
+
+        if (filterLabel) filterLabel.textContent = opt.querySelector('span').textContent;
+        if (triggerCount) {
+          const countEl = opt.querySelector('.map-filter-option-count');
+          triggerCount.textContent = countEl ? countEl.textContent : '';
+        }
+
         markers.forEach(marker => {
           const show = filter === 'all' || getSpotCategory(marker.spotType) === filter;
-          if (show) {
-            marker.addTo(foodMap);
-          } else {
-            marker.remove();
-          }
+          if (show) { marker.addTo(foodMap); } else { marker.remove(); }
         });
+
+        closeFilterDropdown();
       });
     });
 

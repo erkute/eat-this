@@ -574,6 +574,37 @@ body {
 .eat-card-portal .eat-card-flip {
   height: 100%;
 }
+/* Portal keeps same font sizes as the grid cards */
+.eat-card-portal .cf-dish {
+  font-size: 1.25rem;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.eat-card-portal .cf-label {
+  font-size: 0.58rem;
+}
+.eat-card-portal .cf-desc {
+  font-size: 0.7rem;
+  line-height: 1.4;
+  -webkit-line-clamp: 2;
+}
+.eat-card-portal .cf-district {
+  font-size: 0.58rem;
+}
+.eat-card-portal .cf-img-wrap {
+  flex: 0 0 52%;
+}
+.eat-card-portal .cf-top-area {
+  padding: 6px 8px 6px;
+}
+.eat-card-portal .cf-bottom-bar {
+  padding: 6px 8px 8px;
+}
 
 /* Scene: sets perspective */
 .eat-card-scene {
@@ -672,7 +703,7 @@ body {
 .cf-img-wrap img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center center;
   display: block;
 }
@@ -2789,7 +2820,69 @@ body {
   .app-page.hidden {
     display: none;
   }
-  
+
+  /* Eat This card grid — mobile (real devices ≤767px) */
+  .app-page[data-page="musts"] .must-eats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 8px 8px 40px;
+    gap: 8px;
+    max-width: none;
+    margin: 0;
+  }
+
+  .app-page[data-page="musts"] .eat-card-flip {
+    aspect-ratio: 59/92;
+    min-height: 0;
+  }
+
+  .app-page[data-page="musts"] .eat-card-face {
+    overflow: hidden;
+  }
+
+  .app-page[data-page="musts"] .cf {
+    overflow: hidden;
+  }
+
+  .app-page[data-page="musts"] .cf-img-wrap {
+    flex: 0 0 52%;
+  }
+
+  .app-page[data-page="musts"] .cf-dish {
+    font-size: 1.25rem;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .app-page[data-page="musts"] .cf-label {
+    font-size: 0.58rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app-page[data-page="musts"] .cf-desc {
+    font-size: 0.7rem;
+    line-height: 1.4;
+    -webkit-line-clamp: 2;
+  }
+
+  .app-page[data-page="musts"] .cf-district {
+    font-size: 0.58rem;
+  }
+
+  .app-page[data-page="musts"] .cf-top-area {
+    padding: 6px 8px 6px;
+  }
+
+  .app-page[data-page="musts"] .cf-bottom-bar {
+    padding: 6px 8px 8px;
+  }
+
   /* Map page mobile */
   .app-page[data-page="map"] {
     overflow: hidden;
@@ -3445,35 +3538,55 @@ body {
 
   .app-page[data-page="musts"] .must-eats-grid {
     grid-template-columns: repeat(2, 1fr);
-    padding: 4px 4px 40px;
-    gap: 4px;
+    padding: 8px 8px 40px;
+    gap: 8px;
     max-width: none;
     margin: 0 auto;
   }
 
   .app-page[data-page="musts"] .eat-card-flip {
-    aspect-ratio: auto;
-    min-height: 240px;
+    aspect-ratio: 59/92;
+    min-height: 0;
   }
 
   .app-page[data-page="musts"] .eat-card-face {
-    overflow: visible;
+    overflow: hidden;
+  }
+
+  .app-page[data-page="musts"] .cf {
+    overflow: hidden;
+  }
+
+  .app-page[data-page="musts"] .cf-img-wrap {
+    flex: 0 0 52%;
   }
 
   .app-page[data-page="musts"] .cf-dish {
-    font-size: 0.75rem;
+    font-size: 1.25rem;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .app-page[data-page="musts"] .cf-label {
-    font-size: 0.55rem;
+    font-size: 0.58rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .app-page[data-page="musts"] .cf-desc {
-    font-size: 0.68rem;
+    font-size: 0.7rem;
+    line-height: 1.4;
+    -webkit-line-clamp: 2;
   }
 
   .app-page[data-page="musts"] .cf-district {
-    font-size: 0.55rem;
+    font-size: 0.58rem;
   }
 
   .app-page[data-page="musts"] .cf-maps-pill-txt {
@@ -3481,11 +3594,11 @@ body {
   }
 
   .app-page[data-page="musts"] .cf-top-area {
-    padding: 5px 8px 8px;
+    padding: 6px 8px 6px;
   }
 
   .app-page[data-page="musts"] .cf-bottom-bar {
-    padding: 4px 8px 6px;
+    padding: 6px 8px 8px;
   }
 
   @media (min-width: 480px) {

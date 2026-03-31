@@ -380,6 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const scene = card.querySelector('.eat-card-scene');
       const port = document.createElement('div');
+      port.className = 'eat-card-portal';
       port.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;z-index:9997;cursor:pointer;transform-origin:center center;transform:translate(0,0) scale(1);transition:none;transform-style:preserve-3d;`;
       port.appendChild(scene);
       document.body.appendChild(port);

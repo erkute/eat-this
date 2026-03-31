@@ -843,11 +843,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getSpotCategory(type) {
       const t = type.toLowerCase();
-      if (t.includes('café') || t.includes('cafe') || t.includes('coffee') || t.includes('kaffee') || t.includes('tee &') || t === 'pflanzliches café') return 'café';
-      if (t.includes('bäckerei') || t === 'frühstück' || t.includes('brunch') || t === 'donuts') return 'breakfast';
-      if (t === 'burger') return 'fastfood';
-      if (t === 'lunch') return 'lunch';
-      return 'dinner';
+      if (t.includes('cafe') || t.includes('café') || t.includes('coffee') || t.includes('kaffee')) return 'café';
+      if (t.includes('bakery') || t.includes('bäckerei') || t.includes('patisserie') || t.includes('brunch') || t.includes('breakfast') || t.includes('donuts')) return 'bakery';
+      if (t.includes('pizza')) return 'pizza';
+      if (t.includes('japanese') || t.includes('ramen') || t.includes('udon') || t.includes('sushi') || t.includes('izakaya')) return 'japanese';
+      if (t.includes('italian') || t.includes('pasta')) return 'italian';
+      if (t.includes('wine') || t.includes('wein')) return 'wine';
+      if (t.includes('chinese') || t.includes('sichuan') || t.includes('thai') || t.includes('noodles')) return 'asian';
+      if (t.includes('burger') || t.includes('fast food')) return 'burgers';
+      if (t.includes('dessert') || t.includes('ice cream')) return 'dessert';
+      return null;
     }
 
     function showSpotDetail(spot) {
@@ -948,7 +953,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Filter dropdown — populate counts
-    const filterCategories = ['all', 'breakfast', 'lunch', 'dinner', 'café', 'fastfood'];
+    const filterCategories = ['all', 'café', 'bakery', 'pizza', 'japanese', 'italian', 'wine', 'asian', 'burgers', 'dessert'];
     filterCategories.forEach(cat => {
       const el = document.getElementById('count-' + cat);
       if (el) {
@@ -999,7 +1004,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         markers.forEach(marker => {
-          const show = filter === 'all' || getSpotCategory(marker.spotType) === filter;
+          const cat = getSpotCategory(marker.spotType);
+          const show = filter === 'all' || cat === filter;
           if (show) { marker.addTo(foodMap); } else { marker.remove(); }
         });
 

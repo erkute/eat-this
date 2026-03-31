@@ -251,6 +251,7 @@ if (forgotPasswordBtn) {
       clearError();
       showSuccess('Falls ein Konto existiert, haben wir dir einen Link geschickt. Bitte prüfe dein Postfach.');
     } catch (err) {
+      console.error('[EAT THIS] sendPasswordReset error:', err?.code, err?.message, err);
       if (err?.code === 'functions/resource-exhausted') {
         showError('Zu viele Versuche — bitte in einer Stunde erneut versuchen.');
       } else {

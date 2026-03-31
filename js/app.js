@@ -581,7 +581,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const logoText = document.createElement('div');
     logoText.textContent = "u can touch this";
-    logoText.style.cssText = 'position:absolute;top:calc(50% + min(30vw,140px) - 65px);left:50%;transform:translateX(-50%);color:#ff3333;font-family:Inter,system-ui,sans-serif;font-size:clamp(18px,4.5vw,24px);font-weight:500;letter-spacing:0.5px;pointer-events:none;z-index:501;opacity:0;transition:opacity 0.8s ease 0.3s;';
+    logoText.style.cssText = 'position:absolute;top:calc(50% + min(30vw,140px) - 65px);left:50%;transform:translateX(-50%);color:#fff;font-family:Inter,system-ui,sans-serif;font-size:clamp(18px,4.5vw,24px);font-weight:700;letter-spacing:0.5px;pointer-events:none;z-index:501;opacity:0;transition:opacity 0.8s ease 0.3s;white-space:nowrap;text-shadow:0 0 8px #ff6600, 0 0 20px #ff4400, 0 0 40px #ff2200, 0 0 80px #ff0000;animation:flamePulse 1.5s ease-in-out infinite;';
+    const flameStyle = document.createElement('style');
+    flameStyle.textContent = '@keyframes flamePulse{0%,100%{text-shadow:0 0 8px #ff6600,0 0 20px #ff4400,0 0 40px #ff2200,0 0 80px #ff0000}50%{text-shadow:0 0 12px #ffaa00,0 0 30px #ff6600,0 0 60px #ff3300,0 0 100px #ff1100}}';
+    document.head.appendChild(flameStyle);
     overlay.appendChild(logoText);
     setTimeout(() => { logoImg.style.opacity = '1'; logoText.style.opacity = '1'; }, 100);
 

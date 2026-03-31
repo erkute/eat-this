@@ -895,7 +895,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.target = '_blank';
       btn.rel = 'noopener';
       btn.className = 'map-spot-btn';
-      btn.textContent = 'In Google Maps öffnen';
+      btn.textContent = 'Open in Maps';
 
       body.appendChild(typeBadge);
       body.appendChild(name);

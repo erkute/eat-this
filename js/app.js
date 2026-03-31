@@ -852,10 +852,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showSpotDetail(spot) {
       const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(spot.name + ', ' + spot.address);
-      const photo = getSpotPhoto(spot.type);
+      // spot.photo: optionales individuelles Bild aus pics/location/, z.B. 'pics/location/november.webp'
+      const photo = spot.photo || getSpotPhoto(spot.type);
 
-      const card = document.getElementById('mapSpotCard');
       mapSpotContent.innerHTML = '';
+
+      // Image wrapper with district badge
+      const imgWrap = document.createElement('div');
+      imgWrap.className = 'map-spot-img-wrap';
 
       const img = document.createElement('img');
       img.src = photo;
@@ -863,19 +867,20 @@ document.addEventListener('DOMContentLoaded', () => {
       img.alt = spot.name;
       img.loading = 'lazy';
 
+      const districtBadge = document.createElement('div');
+      districtBadge.className = 'map-spot-district-badge';
+      districtBadge.textContent = spot.district;
+
+      imgWrap.appendChild(img);
+      imgWrap.appendChild(districtBadge);
+
+      // Card body
       const body = document.createElement('div');
       body.className = 'map-spot-body';
 
-      const header = document.createElement('div');
-      header.className = 'map-spot-header';
-      const districtSpan = document.createElement('span');
-      districtSpan.className = 'map-spot-district';
-      districtSpan.textContent = spot.district;
-      const typeSpan = document.createElement('span');
-      typeSpan.className = 'map-spot-type';
-      typeSpan.textContent = spot.type;
-      header.appendChild(districtSpan);
-      header.appendChild(typeSpan);
+      const typeBadge = document.createElement('span');
+      typeBadge.className = 'map-spot-type-badge';
+      typeBadge.textContent = spot.type;
 
       const name = document.createElement('h3');
       name.className = 'map-spot-name';
@@ -890,14 +895,14 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.target = '_blank';
       btn.rel = 'noopener';
       btn.className = 'map-spot-btn';
-      btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="flex-shrink:0"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>In Google Maps öffnen';
+      btn.textContent = 'In Google Maps öffnen';
 
-      body.appendChild(header);
+      body.appendChild(typeBadge);
       body.appendChild(name);
       body.appendChild(address);
       body.appendChild(btn);
 
-      mapSpotContent.appendChild(img);
+      mapSpotContent.appendChild(imgWrap);
       mapSpotContent.appendChild(body);
 
       mapSpotOverlay.classList.add('active');

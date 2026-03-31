@@ -823,7 +823,7 @@ body {
 .map-header {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px 48px;
+  padding: 0 24px 28px;
 }
 .map-header-top {
   display: flex;
@@ -850,7 +850,7 @@ body {
   background: var(--gray-50);
   position: relative;
   z-index: 1;
-  margin-top: 32px;
+  margin-top: 16px;
 }
 
 /* Spot Detail Bottom Sheet */

@@ -843,15 +843,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getSpotCategory(type) {
       const t = type.toLowerCase();
-      if (t.includes('cafe') || t.includes('café') || t.includes('coffee') || t.includes('kaffee')) return 'café';
+      // Coffee & Café
+      if (t.includes('cafe') || t.includes('café') || t.includes('coffee') || t.includes('kaffee') || t.includes('luncheonette')) return 'café';
+      // Bakery
       if (t.includes('bakery') || t.includes('bäckerei') || t.includes('patisserie') || t.includes('brunch') || t.includes('breakfast') || t.includes('donuts')) return 'bakery';
+      // Pizza (before Italian to catch Italian/Pizza)
       if (t.includes('pizza')) return 'pizza';
+      // Japanese
       if (t.includes('japanese') || t.includes('ramen') || t.includes('udon') || t.includes('sushi') || t.includes('izakaya')) return 'japanese';
+      // Italian (after pizza)
       if (t.includes('italian') || t.includes('pasta')) return 'italian';
-      if (t.includes('wine') || t.includes('wein')) return 'wine';
-      if (t.includes('chinese') || t.includes('sichuan') || t.includes('thai') || t.includes('noodles')) return 'asian';
+      // Wine & Bars
+      if (t.includes('wine') || t.includes('wein') || t === 'gastropub' || t === 'dive bar' || t === 'bar/restaurant') return 'wine';
+      // Asian
+      if (t.includes('chinese') || t.includes('sichuan') || t.includes('thai') || t.includes('noodles') || t.includes('indian')) return 'asian';
+      // Burgers
       if (t.includes('burger') || t.includes('fast food')) return 'burgers';
+      // Dessert
       if (t.includes('dessert') || t.includes('ice cream')) return 'dessert';
+      // Mediterranean
+      if (t.includes('israeli') || t.includes('middle eastern') || t.includes('mediterranean') || t.includes('greek')) return 'mediterranean';
+      // European (French, German, Austrian, Swiss, Modern European, Brasserie, Bistro, Seafood)
+      if (t.includes('french') || t.includes('german') || t.includes('european') || t.includes('austrian') || t.includes('swiss') || t.includes('brasserie') || t.includes('bistro') || t.includes('seafood')) return 'european';
       return null;
     }
 
@@ -953,7 +966,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Filter dropdown — populate counts
-    const filterCategories = ['all', 'café', 'bakery', 'pizza', 'japanese', 'italian', 'wine', 'asian', 'burgers', 'dessert'];
+    const filterCategories = ['all', 'café', 'bakery', 'pizza', 'japanese', 'italian', 'wine', 'asian', 'european', 'mediterranean', 'burgers', 'dessert'];
     filterCategories.forEach(cat => {
       const el = document.getElementById('count-' + cat);
       if (el) {

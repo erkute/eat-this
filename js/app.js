@@ -846,20 +846,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getSpotCategory(type) {
       const t = type.toLowerCase();
-      // Dessert
-      if (t.includes('dessert') || t.includes('eis') || t.includes('ice cream') || t.includes('donuts')) return 'dessert';
-      // Cafe
-      if (t.includes('cafe') || t.includes('café') || t.includes('coffee') || t.includes('kaffee') || t.includes('tee') || t.includes('luncheonette')) return 'cafe';
+      // Dessert (only if ice cream or explicit dessert, not donuts)
+      if (t.includes('ice cream') || t === 'dessert') return 'dessert';
+      // Cafe (only coffee/tea, not if breakfast-related)
+      if ((t.includes('coffee') || t.includes('kaffee') || t.includes('tee')) && !t.includes('breakfast') && !t.includes('brunch')) return 'cafe';
       // Fast Food
-      if (t.includes('fast food') || t.includes('burger')) return 'fast-food';
-      // Breakfast
-      if (t.includes('bakery') || t.includes('bäckerei') || t.includes('patisserie') || t.includes('brunch') || t.includes('breakfast')) return 'breakfast';
-      // Fine Dining
-      if (t.includes('fine dining') || t === 'gastropub' || t.includes('fine') || t.includes('restaurant')) return 'fine-dining';
-      // Lunch (Italian/Pizza, Pasta, Japanese, Asian, etc.)
+      if (t.includes('burger') || t === 'fast food') return 'fast-food';
+      // Breakfast (bakery, brunch, breakfast, patisserie)
+      if (t.includes('bakery') || t.includes('bäckerei') || t.includes('brunch') || t.includes('breakfast') || t.includes('patisserie')) return 'breakfast';
+      // Fine Dining (explicit fine dining, gastropub)
+      if (t.includes('fine dining') || t === 'gastropub') return 'fine-dining';
+      // Lunch (Pizza, Pasta, Japanese, Asian cuisines)
       if (t.includes('pizza') || t.includes('pasta') || t.includes('japanese') || t.includes('ramen') || t.includes('udon') || t.includes('sushi') || t.includes('izakaya') || t.includes('chinese') || t.includes('sichuan') || t.includes('thai') || t.includes('noodles') || t.includes('indian') || t.includes('korean') || t.includes('vietnamese') || t.includes('asian')) return 'lunch';
-      // Dinner (Wine bars, European, Mediterranean, etc.)
-      if (t.includes('wine') || t.includes('wein') || t.includes('bar') || t.includes('french') || t.includes('german') || t.includes('european') || t.includes('austrian') || t.includes('swiss') || t.includes('brasserie') || t.includes('bistro') || t.includes('seafood') || t.includes('italian') || t.includes('israeli') || t.includes('middle eastern') || t.includes('mediterranean') || t.includes('greek') || t.includes('african')) return 'dinner';
+      // Dinner (Wine, Bars, European, Mediterranean, etc.)
+      if (t.includes('wine') || t.includes('wein') || t.includes('bar') || t.includes('luncheonette') || t.includes('french') || t.includes('german') || t.includes('european') || t.includes('austrian') || t.includes('swiss') || t.includes('brasserie') || t.includes('bistro') || t.includes('seafood') || t.includes('italian') || t.includes('israeli') || t.includes('middle eastern') || t.includes('mediterranean') || t.includes('greek') || t.includes('african')) return 'dinner';
       return null;
     }
 
@@ -1011,10 +1011,15 @@ document.addEventListener('DOMContentLoaded', () => {
           triggerCount.textContent = countEl ? countEl.textContent : '';
         }
 
+        console.log('Filter:', filter);
         markers.forEach(marker => {
           const cat = getSpotCategory(marker.spotType);
           const show = filter === 'all' || cat === filter;
-          if (show) { marker.addTo(foodMap); } else { marker.remove(); }
+          if (show) { 
+            if (!foodMap.hasLayer(marker)) marker.addTo(foodMap); 
+          } else { 
+            marker.removeFrom(foodMap); 
+          }
         });
 
         closeFilterDropdown();

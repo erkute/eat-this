@@ -429,93 +429,93 @@ document.addEventListener('DOMContentLoaded', () => {
   let mapInitialized = false;
 
   const spots = [
-      { name: 'NOVEMBER Brasserie', district: 'Prenzlauer Berg', type: 'Japanese Brasserie', address: 'Danziger Str. 26, 10435 Berlin', lat: 52.54, lng: 13.4171, photo: 'pics/location/november.jpg' },
-      { name: 'LIU 成都味道面馆', district: 'Mitte', type: 'Sichuan Chinese', address: 'Kronenstraße 72, 10117 Berlin', lat: 52.5112, lng: 13.3875 },
-      { name: 'Father Carpenter', district: 'Mitte', type: 'Cafe/Coffee', address: 'Münzstr 21, 10178 Berlin', lat: 52.5248, lng: 13.4067 },
-      { name: 'Berta Restaurant', district: 'Kreuzberg', type: 'Israeli-Mediterranean', address: 'Stresemannstraße 99, 10963 Berlin', lat: 52.5059, lng: 13.3802 },
-      { name: 'Clärchens Ballhaus', district: 'Mitte', type: 'German/Dance Hall', address: 'Auguststraße 24, 10117 Berlin', lat: 52.5266, lng: 13.3969 },
-      { name: 'Borchardt', district: 'Mitte', type: 'French-German', address: 'Französische Str. 47, 10117 Berlin', lat: 52.515, lng: 13.3904 },
-      { name: 'ITA Bistro', district: 'Prenzlauer Berg', type: 'Fusion/Bistro', address: 'Lettestraße 9, 10437 Berlin', lat: 52.5438, lng: 13.4182 },
-      { name: 'Sway', district: 'Kreuzberg', type: 'Wine bar/Snacks', address: 'Pannierstraße 29, 12047 Berlin', lat: 52.4906, lng: 13.4349 },
-      { name: 'Le Balto', district: 'Kreuzberg', type: 'Wine bar', address: 'Hobrechtstraße 28, 12047 Berlin', lat: 52.4909, lng: 13.4263 },
-      { name: 'SOFI', district: 'Mitte', type: 'Bakery', address: 'Sophienstraße 21, 10178 Berlin', lat: 52.5262, lng: 13.4008 },
-      { name: 'Capvin Rosenhöfe', district: 'Mitte', type: 'Italian/Pizza', address: 'Rosenthaler Straße 36, 10178 Berlin', lat: 52.5246, lng: 13.4029 },
-      { name: 'Atelier Dough', district: 'Kreuzberg', type: 'Bakery/Donuts', address: 'Glogauer Str. 9, 10999 Berlin', lat: 52.4932, lng: 13.437 },
-      { name: 'Chipperfield Kantine', district: 'Mitte', type: 'Cafe/Canteen', address: 'Joachimstr. 11, 10119 Berlin', lat: 52.5283, lng: 13.4008 },
-      { name: 'Westberlin', district: 'Kreuzberg', type: 'Cafe/Bar', address: 'Alexandrinenstrasse 118-121, 10969 Berlin', lat: 52.5007, lng: 13.4006 },
-      { name: 'Gnam Pasta Factory', district: 'Kreuzberg', type: 'Italian/Pasta', address: 'Kottbusser Damm 6, 10967 Berlin', lat: 52.4944, lng: 13.4209 },
-      { name: 'Shōdo Udon Lab', district: 'Friedrichshain', type: 'Japanese/Udon', address: 'Simon-Dach-Str. 41, 10245 Berlin', lat: 52.5114, lng: 13.4571 },
-      { name: 'Bonanza Coffee Heroes', district: 'Prenzlauer Berg', type: 'Coffee/Cafe', address: 'Oderberger Str. 35, 10435 Berlin', lat: 52.5399, lng: 13.4054 },
-      { name: 'Crapulix', district: 'Steglitz', type: 'Patisserie/Cafe', address: 'Schildhornstraße 87, 12163 Berlin', lat: 52.4627, lng: 13.3204 },
-      { name: 'The Grain', district: 'Prenzlauer Berg', type: 'Pizza', address: 'Gleimstraße 38, 10437 Berlin', lat: 52.5476, lng: 13.4105 },
-      { name: 'GEMELLO', district: 'Prenzlauer Berg', type: 'Vegan Pizza', address: 'Lettestr. 6A, 10437 Berlin', lat: 52.5435, lng: 13.4189 },
-      { name: 'Fukagawa Ramen', district: 'Prenzlauer Berg', type: 'Japanese/Ramen', address: 'Wörtherstr. 22, 10405 Berlin', lat: 52.5357, lng: 13.4212 },
-      { name: 'Wen Cheng 1', district: 'Prenzlauer Berg', type: 'Chinese/Noodles', address: 'Schönhauser Allee 65, 10437 Berlin', lat: 52.5463, lng: 13.4135 },
-      { name: 'otto', district: 'Prenzlauer Berg', type: 'Modern/Seafood', address: 'Oderberger Str. 56, 10435 Berlin', lat: 52.5382, lng: 13.4102 },
-      { name: 'Sasaya', district: 'Prenzlauer Berg', type: 'Japanese', address: 'Lychener Str. 50, 10437 Berlin', lat: 52.5443, lng: 13.4186 },
-      { name: 'Gazzo', district: 'Kreuzberg', type: 'Pizza', address: 'Hobrechtstrasse 57, 12047 Berlin', lat: 52.4911, lng: 13.4259 },
-      { name: 'DONGNAM Coffee Lab', district: 'Charlottenburg', type: 'Coffee', address: 'Kurfürstendamm 105, 10711 Berlin', lat: 52.498, lng: 13.2947 },
-      { name: 'Momo Mochi Donut', district: 'Prenzlauer Berg', type: 'Bakery/Donuts', address: 'Heinrich-Roller-Straße 10, 10405 Berlin', lat: 52.5298, lng: 13.4246 },
-      { name: 'Kitten Deli', district: 'Kreuzberg', type: 'Israeli', address: 'Friedelstraße 30, 12047 Berlin', lat: 52.4929, lng: 13.4283 },
-      { name: 'Estelle', district: 'Prenzlauer Berg', type: 'Modern European', address: 'Kopenhagener Str. 12A, 10437 Berlin', lat: 52.549, lng: 13.4097 },
-      { name: 'SORI Ramen', district: 'Prenzlauer Berg', type: 'Japanese/Ramen', address: 'Wisbyer Str. 3, 10439 Berlin', lat: 52.5533, lng: 13.4157 },
-      { name: 'Material', district: 'Prenzlauer Berg', type: 'Cafe/Wine', address: 'Schönhauser Allee 156, 10435 Berlin', lat: 52.5374, lng: 13.4118 },
-      { name: 'Boutique de LA MAISON', district: 'Kreuzberg', type: 'French Bakery', address: 'Urbanstr. 70A, 10967 Berlin', lat: 52.4882, lng: 13.4231 },
-      { name: 'Sfera', district: 'Neukölln', type: 'Vegan Cafe', address: 'Schudomastraße 44, 12055 Berlin', lat: 52.4739, lng: 13.4506 },
-      { name: 'AKKURAT Café', district: 'Kreuzberg', type: 'Coffee/Cafe', address: 'Besselstraße 13, 10969 Berlin', lat: 52.5048, lng: 13.394 },
-      { name: 'Sotto', district: 'Wedding', type: 'Italian', address: 'Neue Hochstraße 25, 13347 Berlin', lat: 52.5428, lng: 13.3764 },
-      { name: 'JOHANN Bäckerei', district: 'Schöneberg', type: 'Bakery', address: 'Gleditschstraße 47, 10781 Berlin', lat: 52.4925, lng: 13.3553 },
-      { name: 'Albatross Bäckerei', district: 'Kreuzberg', type: 'Bakery', address: 'Graefestrasse 66/67, 10967 Berlin', lat: 52.4913, lng: 13.4166 },
-      { name: 'Larb Koi', district: 'Friedrichshain', type: 'Thai', address: 'Krossener Str. 15, 10245 Berlin', lat: 52.5107, lng: 13.4571 },
-      { name: 'Mamida', district: 'Prenzlauer Berg', type: 'Pizza', address: 'Dunckerstraße 80A, 10437 Berlin', lat: 52.5431, lng: 13.4211 },
-      { name: 'Cocolo Ramen X-berg', district: 'Kreuzberg', type: 'Japanese/Ramen', address: 'Graefestraße 11, 10967 Berlin', lat: 52.4938, lng: 13.4181 },
-      { name: 'Alt Berliner Wirtshaus Henne', district: 'Kreuzberg', type: 'German/Chicken', address: 'Leuschnerdamm 25, 10999 Berlin', lat: 52.4989, lng: 13.4228 },
-      { name: 'ORA Restaurant & Wine Bar', district: 'Kreuzberg', type: 'Wine Bar', address: 'Oranienplatz 14, 10999 Berlin', lat: 52.4995, lng: 13.4206 },
-      { name: 'St. Bart', district: 'Kreuzberg', type: 'Gastropub', address: 'Graefestraße 71, 10967 Berlin', lat: 52.4918, lng: 13.4175 },
-      { name: 'Taktil', district: 'Neukölln', type: 'Bakery', address: 'Nogatstr. 38, 12051 Berlin', lat: 52.4694, lng: 13.4337 },
-      { name: 'Companion Tee & Kaffee', district: 'Neukölln', type: 'Cafe', address: 'Weserstraße 166, 12045 Berlin', lat: 52.4834, lng: 13.4411 },
-      { name: 'Concierge Coffee', district: 'Kreuzberg', type: 'Coffee', address: 'Paul-Lincke-Ufer 39-40, 10999 Berlin', lat: 52.4961, lng: 13.4223 },
-      { name: 'Knödelwirtschaft NORD', district: 'Prenzlauer Berg', type: 'German/Dumplings', address: 'Stargarder Str. 3, 10437 Berlin', lat: 52.5474, lng: 13.4143 },
-      { name: 'Tribeca Ice Cream', district: 'Prenzlauer Berg', type: 'Ice Cream', address: 'Rykestr. 40, 10405 Berlin', lat: 52.5374, lng: 13.421 },
-      { name: 'Chungking Noodles', district: 'Kreuzberg', type: 'Chinese', address: 'Reichenberger Str. 35, 10999 Berlin', lat: 52.4973, lng: 13.4233 },
-      { name: 'Babka & Krantz', district: 'Steglitz', type: 'Jewish Bakery', address: 'Hackerstraße 1, 12161 Berlin', lat: 52.4671, lng: 13.3253 },
-      { name: 'Anima', district: 'Friedrichshain', type: 'Bar/Restaurant', address: 'Mühlenstraße 61-63, 10243 Berlin', lat: 52.5056, lng: 13.4381 },
-      { name: 'La Côte', district: 'Neukölln', type: 'Wine & Food', address: 'Kienitzer Straße 95, 12049 Berlin', lat: 52.4759, lng: 13.426 },
-      { name: 'Barra', district: 'Neukölln', type: 'Italian', address: 'Okerstraße 2, 12049 Berlin', lat: 52.4743, lng: 13.427 },
-      { name: 'Beuster', district: 'Neukölln', type: 'Brasserie', address: 'Weserstraße 32, 12045 Berlin', lat: 52.485, lng: 13.4356 },
-      { name: 'jaja', district: 'Neukölln', type: 'Wine Bar', address: 'Weichselstraße 7, 12043 Berlin', lat: 52.4842, lng: 13.4331 },
-      { name: 'Schüsseldienst', district: 'Schöneberg', type: 'Fast Food', address: 'Akazienstraße 7, 10823 Berlin', lat: 52.4873, lng: 13.3551 },
-      { name: 'goldies', district: 'Kreuzberg', type: 'Burgers', address: 'Oranienstr. 6, 10997 Berlin', lat: 52.4999, lng: 13.4251 },
-      { name: 'Berlin Burger International', district: 'Kreuzberg', type: 'Burgers', address: 'Pannierstraße 5, 12047 Berlin', lat: 52.4799, lng: 13.4355 },
-      { name: 'Lucky Katsu', district: 'Charlottenburg', type: 'Japanese/Chicken', address: 'Leibnizstraße 70B, 10625 Berlin', lat: 52.5066, lng: 13.3137 },
-      { name: 'CODA Dessert Dining', district: 'Kreuzberg', type: 'Dessert', address: 'Friedelstraße 47, 12047 Berlin', lat: 52.4847, lng: 13.4312 },
-      { name: "L'Eustache", district: 'Neukölln', type: 'French', address: 'Weisestr. 49, 12049 Berlin', lat: 52.4767, lng: 13.4243 },
-      { name: 'Common', district: 'Neukölln', type: 'Bakery/Pizza', address: 'Karl-Marx-Straße 176, 12043 Berlin', lat: 52.4744, lng: 13.44 },
-      { name: 'Pan Africa Restaurant', district: 'Neukölln', type: 'African', address: 'Kirchhofstr. 41, 12055 Berlin', lat: 52.4723, lng: 13.4428 },
-      { name: 'The Barn Café', district: 'Mitte', type: 'Coffee', address: 'Auguststr. 58, 10119 Berlin', lat: 52.5274, lng: 13.3983 },
-      { name: 'onette', district: 'Schöneberg', type: 'Luncheonette', address: 'Grunewaldstraße 11, 10781 Berlin', lat: 52.4902, lng: 13.3553 },
-      { name: 'La Bolognina', district: 'Neukölln', type: 'Italian', address: 'Donaustraße 107, 12043 Berlin', lat: 52.4825, lng: 13.4356 },
-      { name: 'DoubleEye', district: 'Schöneberg', type: 'Coffee/Cafe', address: 'Akazienstraße 22, 10823 Berlin', lat: 52.488, lng: 13.354 },
-      { name: 'Frühstück 3000', district: 'Schöneberg', type: 'Breakfast/Brunch', address: 'Bülowstraße 101, 10783 Berlin', lat: 52.4992, lng: 13.3567 },
-      { name: 'Sardinen Bar', district: 'Schöneberg', type: 'Seafood', address: 'Grunewaldstr. 79, 10823 Berlin', lat: 52.4898, lng: 13.3539 },
-      { name: 'Jones Ice Cream', district: 'Schöneberg', type: 'Ice Cream', address: 'Goltzstr. 3, 10781 Berlin', lat: 52.4904, lng: 13.3535 },
-      { name: 'Österelli', district: 'Charlottenburg', type: 'Austrian', address: 'Bismarckstraße 6, 10625 Berlin', lat: 52.5126, lng: 13.3183 },
-      { name: 'AVIV 030', district: 'Neukölln', type: 'Middle Eastern', address: 'Richardstr. 76, 12043 Berlin', lat: 52.4749, lng: 13.4448 },
-      { name: 'Jules Geisberg', district: 'Schöneberg', type: 'Coffee/Cafe', address: 'Geisbergstraße 9, 10777 Berlin', lat: 52.4974, lng: 13.3421 },
-      { name: "Philomeni's Greek Delicious", district: 'Charlottenburg', type: 'Greek', address: 'Knesebeckstraße 97, 10623 Berlin', lat: 52.5097, lng: 13.3233 },
-      { name: 'Frau Mittenmang', district: 'Prenzlauer Berg', type: 'Mediterranean', address: 'Rodenbergstr. 37, 10439 Berlin', lat: 52.5503, lng: 13.4193 },
-      { name: 'Restaurant 893 Ryōtei', district: 'Charlottenburg', type: 'Japanese', address: 'Kantstraße 135, 10623 Berlin', lat: 52.5059, lng: 13.3168 },
-      { name: 'Enoiteca Il Calice', district: 'Charlottenburg', type: 'Italian/Wine', address: 'Walter-Benjamin-Platz 4, 10629 Berlin', lat: 52.5019, lng: 13.3149 },
-      { name: "Gingi's Izakaya", district: 'Prenzlauer Berg', type: 'Japanese', address: 'Rykestr. 45, 10405 Berlin', lat: 52.5366, lng: 13.4203 },
-      { name: 'Diener Tattersall', district: 'Charlottenburg', type: 'Dive Bar', address: 'Grolmanstraße 47, 10623 Berlin', lat: 52.5047, lng: 13.324 },
-      { name: 'Maître Philippe & Filles', district: 'Wilmersdorf', type: 'French Deli', address: 'Emser Str. 42, 10719 Berlin', lat: 52.4971, lng: 13.32 },
-      { name: "La Cantine d'Augusta", district: 'Schöneberg', type: 'French', address: 'Langenscheidtstr. 6/6a, 10827 Berlin', lat: 52.4891, lng: 13.3622 },
-      { name: 'Châlet Suisse', district: 'Dahlem', type: 'Swiss', address: 'Clayallee 99, 14195 Berlin', lat: 52.4547, lng: 13.2728 },
-      { name: 'Spice Junction', district: 'Schöneberg', type: 'Indian', address: 'Bülowstraße 44, 10783 Berlin', lat: 52.4955, lng: 13.3657 },
-      { name: 'aerde restaurant', district: 'Kreuzberg', type: 'Modern European', address: 'Am Lokdepot 6, 10965 Berlin', lat: 52.487, lng: 13.3736 },
-      { name: "Shaniu's House of Noodles", district: 'Wilmersdorf', type: 'Chinese', address: 'Pariser Str. 58, 10719 Berlin', lat: 52.4962, lng: 13.3278 },
-      { name: 'Julius', district: 'Wedding', type: 'German/Fine Dining', address: 'Gerichtstraße 31, 13347 Berlin', lat: 52.545, lng: 13.3682 },
-      { name: 'Jungbluth', district: 'Steglitz', type: 'Modern European', address: 'Lepsiusstr. 63, 12163 Berlin', lat: 52.4604, lng: 13.3173 },
+      { name: 'NOVEMBER Brasserie', district: 'Prenzlauer Berg', type: 'Japanese Brasserie', address: 'Danziger Str. 26, 10435 Berlin', lat: 52.54, lng: 13.4171, photo: 'pics/location/november.jpg', categories: ['Lunch', 'Dinner'] },
+      { name: 'LIU 成都味道面馆', district: 'Mitte', type: 'Sichuan Chinese', address: 'Kronenstraße 72, 10117 Berlin', lat: 52.5112, lng: 13.3875, categories: ['Lunch', 'Dinner'] },
+      { name: 'Father Carpenter', district: 'Mitte', type: 'Cafe/Coffee', address: 'Münzstr 21, 10178 Berlin', lat: 52.5248, lng: 13.4067, categories: ['Breakfast', 'Cafe'] },
+      { name: 'Berta Restaurant', district: 'Kreuzberg', type: 'Israeli-Mediterranean', address: 'Stresemannstraße 99, 10963 Berlin', lat: 52.5059, lng: 13.3802, categories: ['Lunch', 'Dinner'] },
+      { name: 'Clärchens Ballhaus', district: 'Mitte', type: 'German/Dance Hall', address: 'Auguststraße 24, 10117 Berlin', lat: 52.5266, lng: 13.3969, categories: ['Dinner'] },
+      { name: 'Borchardt', district: 'Mitte', type: 'French-German', address: 'Französische Str. 47, 10117 Berlin', lat: 52.515, lng: 13.3904, categories: ['Dinner'] },
+      { name: 'ITA Bistro', district: 'Prenzlauer Berg', type: 'Fusion/Bistro', address: 'Lettestraße 9, 10437 Berlin', lat: 52.5438, lng: 13.4182, categories: ['Lunch', 'Dinner'] },
+      { name: 'Sway', district: 'Kreuzberg', type: 'Wine bar/Snacks', address: 'Pannierstraße 29, 12047 Berlin', lat: 52.4906, lng: 13.4349, categories: ['Dinner'] },
+      { name: 'Le Balto', district: 'Kreuzberg', type: 'Wine bar', address: 'Hobrechtstraße 28, 12047 Berlin', lat: 52.4909, lng: 13.4263, categories: ['Dinner'] },
+      { name: 'SOFI', district: 'Mitte', type: 'Bakery', address: 'Sophienstraße 21, 10178 Berlin', lat: 52.5262, lng: 13.4008, categories: ['Breakfast', 'Cafe'] },
+      { name: 'Capvin Rosenhöfe', district: 'Mitte', type: 'Italian/Pizza', address: 'Rosenthaler Straße 36, 10178 Berlin', lat: 52.5246, lng: 13.4029, categories: ['Lunch', 'Dinner'] },
+      { name: 'Atelier Dough', district: 'Kreuzberg', type: 'Bakery/Donuts', address: 'Glogauer Str. 9, 10999 Berlin', lat: 52.4932, lng: 13.437, categories: ['Breakfast', 'Dessert'] },
+      { name: 'Chipperfield Kantine', district: 'Mitte', type: 'Cafe/Canteen', address: 'Joachimstr. 11, 10119 Berlin', lat: 52.5283, lng: 13.4008, categories: ['Breakfast', 'Cafe', 'Lunch'] },
+      { name: 'Westberlin', district: 'Kreuzberg', type: 'Cafe/Bar', address: 'Alexandrinenstrasse 118-121, 10969 Berlin', lat: 52.5007, lng: 13.4006, categories: ['Cafe'] },
+      { name: 'Gnam Pasta Factory', district: 'Kreuzberg', type: 'Italian/Pasta', address: 'Kottbusser Damm 6, 10967 Berlin', lat: 52.4944, lng: 13.4209, categories: ['Lunch', 'Dinner'] },
+      { name: 'Shōdo Udon Lab', district: 'Friedrichshain', type: 'Japanese/Udon', address: 'Simon-Dach-Str. 41, 10245 Berlin', lat: 52.5114, lng: 13.4571, categories: ['Lunch', 'Dinner'] },
+      { name: 'Bonanza Coffee Heroes', district: 'Prenzlauer Berg', type: 'Coffee/Cafe', address: 'Oderberger Str. 35, 10435 Berlin', lat: 52.5399, lng: 13.4054, categories: ['Cafe'] },
+      { name: 'Crapulix', district: 'Steglitz', type: 'Patisserie/Cafe', address: 'Schildhornstraße 87, 12163 Berlin', lat: 52.4627, lng: 13.3204, categories: ['Breakfast', 'Cafe', 'Dessert'] },
+      { name: 'The Grain', district: 'Prenzlauer Berg', type: 'Pizza', address: 'Gleimstraße 38, 10437 Berlin', lat: 52.5476, lng: 13.4105, categories: ['Lunch', 'Dinner'] },
+      { name: 'GEMELLO', district: 'Prenzlauer Berg', type: 'Vegan Pizza', address: 'Lettestr. 6A, 10437 Berlin', lat: 52.5435, lng: 13.4189, categories: ['Lunch', 'Dinner'] },
+      { name: 'Fukagawa Ramen', district: 'Prenzlauer Berg', type: 'Japanese/Ramen', address: 'Wörtherstr. 22, 10405 Berlin', lat: 52.5357, lng: 13.4212, categories: ['Lunch', 'Dinner'] },
+      { name: 'Wen Cheng 1', district: 'Prenzlauer Berg', type: 'Chinese/Noodles', address: 'Schönhauser Allee 65, 10437 Berlin', lat: 52.5463, lng: 13.4135, categories: ['Lunch', 'Dinner'] },
+      { name: 'otto', district: 'Prenzlauer Berg', type: 'Modern/Seafood', address: 'Oderberger Str. 56, 10435 Berlin', lat: 52.5382, lng: 13.4102, categories: ['Dinner'] },
+      { name: 'Sasaya', district: 'Prenzlauer Berg', type: 'Japanese', address: 'Lychener Str. 50, 10437 Berlin', lat: 52.5443, lng: 13.4186, categories: ['Lunch', 'Dinner'] },
+      { name: 'Gazzo', district: 'Kreuzberg', type: 'Pizza', address: 'Hobrechtstrasse 57, 12047 Berlin', lat: 52.4911, lng: 13.4259, categories: ['Lunch', 'Dinner'] },
+      { name: 'DONGNAM Coffee Lab', district: 'Charlottenburg', type: 'Coffee', address: 'Kurfürstendamm 105, 10711 Berlin', lat: 52.498, lng: 13.2947, categories: ['Cafe'] },
+      { name: 'Momo Mochi Donut', district: 'Prenzlauer Berg', type: 'Bakery/Donuts', address: 'Heinrich-Roller-Straße 10, 10405 Berlin', lat: 52.5298, lng: 13.4246, categories: ['Breakfast', 'Dessert'] },
+      { name: 'Kitten Deli', district: 'Kreuzberg', type: 'Israeli', address: 'Friedelstraße 30, 12047 Berlin', lat: 52.4929, lng: 13.4283, categories: ['Lunch'] },
+      { name: 'Estelle', district: 'Prenzlauer Berg', type: 'Modern European', address: 'Kopenhagener Str. 12A, 10437 Berlin', lat: 52.549, lng: 13.4097, categories: ['Dinner'] },
+      { name: 'SORI Ramen', district: 'Prenzlauer Berg', type: 'Japanese/Ramen', address: 'Wisbyer Str. 3, 10439 Berlin', lat: 52.5533, lng: 13.4157, categories: ['Lunch', 'Dinner'] },
+      { name: 'Material', district: 'Prenzlauer Berg', type: 'Cafe/Wine', address: 'Schönhauser Allee 156, 10435 Berlin', lat: 52.5374, lng: 13.4118, categories: ['Cafe', 'Dinner'] },
+      { name: 'Boutique de LA MAISON', district: 'Kreuzberg', type: 'French Bakery', address: 'Urbanstr. 70A, 10967 Berlin', lat: 52.4882, lng: 13.4231, categories: ['Breakfast', 'Cafe'] },
+      { name: 'Sfera', district: 'Neukölln', type: 'Vegan Cafe', address: 'Schudomastraße 44, 12055 Berlin', lat: 52.4739, lng: 13.4506, categories: ['Cafe', 'Lunch'] },
+      { name: 'AKKURAT Café', district: 'Kreuzberg', type: 'Coffee/Cafe', address: 'Besselstraße 13, 10969 Berlin', lat: 52.5048, lng: 13.394, categories: ['Cafe'] },
+      { name: 'Sotto', district: 'Wedding', type: 'Italian', address: 'Neue Hochstraße 25, 13347 Berlin', lat: 52.5428, lng: 13.3764, categories: ['Lunch', 'Dinner'] },
+      { name: 'JOHANN Bäckerei', district: 'Schöneberg', type: 'Bakery', address: 'Gleditschstraße 47, 10781 Berlin', lat: 52.4925, lng: 13.3553, categories: ['Breakfast', 'Cafe'] },
+      { name: 'Albatross Bäckerei', district: 'Kreuzberg', type: 'Bakery', address: 'Graefestrasse 66/67, 10967 Berlin', lat: 52.4913, lng: 13.4166, categories: ['Breakfast', 'Cafe'] },
+      { name: 'Larb Koi', district: 'Friedrichshain', type: 'Thai', address: 'Krossener Str. 15, 10245 Berlin', lat: 52.5107, lng: 13.4571, categories: ['Lunch', 'Dinner'] },
+      { name: 'Mamida', district: 'Prenzlauer Berg', type: 'Pizza', address: 'Dunckerstraße 80A, 10437 Berlin', lat: 52.5431, lng: 13.4211, categories: ['Lunch', 'Dinner'] },
+      { name: 'Cocolo Ramen X-berg', district: 'Kreuzberg', type: 'Japanese/Ramen', address: 'Graefestraße 11, 10967 Berlin', lat: 52.4938, lng: 13.4181, categories: ['Lunch', 'Dinner'] },
+      { name: 'Alt Berliner Wirtshaus Henne', district: 'Kreuzberg', type: 'German/Chicken', address: 'Leuschnerdamm 25, 10999 Berlin', lat: 52.4989, lng: 13.4228, categories: ['Dinner'] },
+      { name: 'ORA Restaurant & Wine Bar', district: 'Kreuzberg', type: 'Wine Bar', address: 'Oranienplatz 14, 10999 Berlin', lat: 52.4995, lng: 13.4206, categories: ['Dinner'] },
+      { name: 'St. Bart', district: 'Kreuzberg', type: 'Gastropub', address: 'Graefestraße 71, 10967 Berlin', lat: 52.4918, lng: 13.4175, categories: ['Dinner'] },
+      { name: 'Taktil', district: 'Neukölln', type: 'Bakery', address: 'Nogatstr. 38, 12051 Berlin', lat: 52.4694, lng: 13.4337, categories: ['Breakfast', 'Cafe'] },
+      { name: 'Companion Tee & Kaffee', district: 'Neukölln', type: 'Cafe', address: 'Weserstraße 166, 12045 Berlin', lat: 52.4834, lng: 13.4411, categories: ['Cafe'] },
+      { name: 'Concierge Coffee', district: 'Kreuzberg', type: 'Coffee', address: 'Paul-Lincke-Ufer 39-40, 10999 Berlin', lat: 52.4961, lng: 13.4223, categories: ['Cafe'] },
+      { name: 'Knödelwirtschaft NORD', district: 'Prenzlauer Berg', type: 'German/Dumplings', address: 'Stargarder Str. 3, 10437 Berlin', lat: 52.5474, lng: 13.4143, categories: ['Lunch', 'Dinner'] },
+      { name: 'Tribeca Ice Cream', district: 'Prenzlauer Berg', type: 'Ice Cream', address: 'Rykestr. 40, 10405 Berlin', lat: 52.5374, lng: 13.421, categories: ['Dessert'] },
+      { name: 'Chungking Noodles', district: 'Kreuzberg', type: 'Chinese', address: 'Reichenberger Str. 35, 10999 Berlin', lat: 52.4973, lng: 13.4233, categories: ['Lunch', 'Dinner'] },
+      { name: 'Babka & Krantz', district: 'Steglitz', type: 'Jewish Bakery', address: 'Hackerstraße 1, 12161 Berlin', lat: 52.4671, lng: 13.3253, categories: ['Breakfast', 'Cafe', 'Dessert'] },
+      { name: 'Anima', district: 'Friedrichshain', type: 'Bar/Restaurant', address: 'Mühlenstraße 61-63, 10243 Berlin', lat: 52.5056, lng: 13.4381, categories: ['Lunch', 'Dinner'] },
+      { name: 'La Côte', district: 'Neukölln', type: 'Wine & Food', address: 'Kienitzer Straße 95, 12049 Berlin', lat: 52.4759, lng: 13.426, categories: ['Dinner'] },
+      { name: 'Barra', district: 'Neukölln', type: 'Italian', address: 'Okerstraße 2, 12049 Berlin', lat: 52.4743, lng: 13.427, categories: ['Lunch', 'Dinner'] },
+      { name: 'Beuster', district: 'Neukölln', type: 'Brasserie', address: 'Weserstraße 32, 12045 Berlin', lat: 52.485, lng: 13.4356, categories: ['Dinner'] },
+      { name: 'jaja', district: 'Neukölln', type: 'Wine Bar', address: 'Weichselstraße 7, 12043 Berlin', lat: 52.4842, lng: 13.4331, categories: ['Dinner'] },
+      { name: 'Schüsseldienst', district: 'Schöneberg', type: 'Fast Food', address: 'Akazienstraße 7, 10823 Berlin', lat: 52.4873, lng: 13.3551, categories: ['Fast Food'] },
+      { name: 'goldies', district: 'Kreuzberg', type: 'Burgers', address: 'Oranienstr. 6, 10997 Berlin', lat: 52.4999, lng: 13.4251, categories: ['Fast Food'] },
+      { name: 'Berlin Burger International', district: 'Kreuzberg', type: 'Burgers', address: 'Pannierstraße 5, 12047 Berlin', lat: 52.4799, lng: 13.4355, categories: ['Fast Food'] },
+      { name: 'Lucky Katsu', district: 'Charlottenburg', type: 'Japanese/Chicken', address: 'Leibnizstraße 70B, 10625 Berlin', lat: 52.5066, lng: 13.3137, categories: ['Lunch', 'Dinner'] },
+      { name: 'CODA Dessert Dining', district: 'Kreuzberg', type: 'Dessert', address: 'Friedelstraße 47, 12047 Berlin', lat: 52.4847, lng: 13.4312, categories: ['Dinner', 'Dessert'] },
+      { name: "L'Eustache", district: 'Neukölln', type: 'French', address: 'Weisestr. 49, 12049 Berlin', lat: 52.4767, lng: 13.4243, categories: ['Dinner'] },
+      { name: 'Common', district: 'Neukölln', type: 'Bakery/Pizza', address: 'Karl-Marx-Straße 176, 12043 Berlin', lat: 52.4744, lng: 13.44, categories: ['Breakfast', 'Lunch'] },
+      { name: 'Pan Africa Restaurant', district: 'Neukölln', type: 'African', address: 'Kirchhofstr. 41, 12055 Berlin', lat: 52.4723, lng: 13.4428, categories: ['Lunch', 'Dinner'] },
+      { name: 'The Barn Café', district: 'Mitte', type: 'Coffee', address: 'Auguststr. 58, 10119 Berlin', lat: 52.5274, lng: 13.3983, categories: ['Cafe'] },
+      { name: 'onette', district: 'Schöneberg', type: 'Luncheonette', address: 'Grunewaldstraße 11, 10781 Berlin', lat: 52.4902, lng: 13.3553, categories: ['Lunch'] },
+      { name: 'La Bolognina', district: 'Neukölln', type: 'Italian', address: 'Donaustraße 107, 12043 Berlin', lat: 52.4825, lng: 13.4356, categories: ['Lunch', 'Dinner'] },
+      { name: 'DoubleEye', district: 'Schöneberg', type: 'Coffee/Cafe', address: 'Akazienstraße 22, 10823 Berlin', lat: 52.488, lng: 13.354, categories: ['Cafe'] },
+      { name: 'Frühstück 3000', district: 'Schöneberg', type: 'Breakfast/Brunch', address: 'Bülowstraße 101, 10783 Berlin', lat: 52.4992, lng: 13.3567, categories: ['Breakfast'] },
+      { name: 'Sardinen Bar', district: 'Schöneberg', type: 'Seafood', address: 'Grunewaldstr. 79, 10823 Berlin', lat: 52.4898, lng: 13.3539, categories: ['Dinner'] },
+      { name: 'Jones Ice Cream', district: 'Schöneberg', type: 'Ice Cream', address: 'Goltzstr. 3, 10781 Berlin', lat: 52.4904, lng: 13.3535, categories: ['Dessert'] },
+      { name: 'Österelli', district: 'Charlottenburg', type: 'Austrian', address: 'Bismarckstraße 6, 10625 Berlin', lat: 52.5126, lng: 13.3183, categories: ['Dinner'] },
+      { name: 'AVIV 030', district: 'Neukölln', type: 'Middle Eastern', address: 'Richardstr. 76, 12043 Berlin', lat: 52.4749, lng: 13.4448, categories: ['Lunch', 'Dinner'] },
+      { name: 'Jules Geisberg', district: 'Schöneberg', type: 'Coffee/Cafe', address: 'Geisbergstraße 9, 10777 Berlin', lat: 52.4974, lng: 13.3421, categories: ['Cafe'] },
+      { name: "Philomeni's Greek Delicious", district: 'Charlottenburg', type: 'Greek', address: 'Knesebeckstraße 97, 10623 Berlin', lat: 52.5097, lng: 13.3233, categories: ['Lunch', 'Dinner'] },
+      { name: 'Frau Mittenmang', district: 'Prenzlauer Berg', type: 'Mediterranean', address: 'Rodenbergstr. 37, 10439 Berlin', lat: 52.5503, lng: 13.4193, categories: ['Lunch', 'Dinner'] },
+      { name: 'Restaurant 893 Ryōtei', district: 'Charlottenburg', type: 'Japanese', address: 'Kantstraße 135, 10623 Berlin', lat: 52.5059, lng: 13.3168, categories: ['Lunch', 'Dinner'] },
+      { name: 'Enoiteca Il Calice', district: 'Charlottenburg', type: 'Italian/Wine', address: 'Walter-Benjamin-Platz 4, 10629 Berlin', lat: 52.5019, lng: 13.3149, categories: ['Lunch', 'Dinner'] },
+      { name: "Gingi's Izakaya", district: 'Prenzlauer Berg', type: 'Japanese', address: 'Rykestr. 45, 10405 Berlin', lat: 52.5366, lng: 13.4203, categories: ['Lunch', 'Dinner'] },
+      { name: 'Diener Tattersall', district: 'Charlottenburg', type: 'Dive Bar', address: 'Grolmanstraße 47, 10623 Berlin', lat: 52.5047, lng: 13.324, categories: ['Dinner'] },
+      { name: 'Maître Philippe & Filles', district: 'Wilmersdorf', type: 'French Deli', address: 'Emser Str. 42, 10719 Berlin', lat: 52.4971, lng: 13.32, categories: ['Lunch'] },
+      { name: "La Cantine d'Augusta", district: 'Schöneberg', type: 'French', address: 'Langenscheidtstr. 6/6a, 10827 Berlin', lat: 52.4891, lng: 13.3622, categories: ['Dinner'] },
+      { name: 'Châlet Suisse', district: 'Dahlem', type: 'Swiss', address: 'Clayallee 99, 14195 Berlin', lat: 52.4547, lng: 13.2728, categories: ['Dinner'] },
+      { name: 'Spice Junction', district: 'Schöneberg', type: 'Indian', address: 'Bülowstraße 44, 10783 Berlin', lat: 52.4955, lng: 13.3657, categories: ['Lunch', 'Dinner'] },
+      { name: 'aerde restaurant', district: 'Kreuzberg', type: 'Modern European', address: 'Am Lokdepot 6, 10965 Berlin', lat: 52.487, lng: 13.3736, categories: ['Dinner'] },
+      { name: "Shaniu's House of Noodles", district: 'Wilmersdorf', type: 'Chinese', address: 'Pariser Str. 58, 10719 Berlin', lat: 52.4962, lng: 13.3278, categories: ['Lunch', 'Dinner'] },
+      { name: 'Julius', district: 'Wedding', type: 'German/Fine Dining', address: 'Gerichtstraße 31, 13347 Berlin', lat: 52.545, lng: 13.3682, categories: ['Dinner', 'Fine Dining'] },
+      { name: 'Jungbluth', district: 'Steglitz', type: 'Modern European', address: 'Lepsiusstr. 63, 12163 Berlin', lat: 52.4604, lng: 13.3173, categories: ['Dinner'] },
     ];
 
   let globeShown = false;
@@ -944,6 +944,7 @@ document.addEventListener('DOMContentLoaded', () => {
       marker.spotType = spot.type;
       marker.spotDistrict = spot.district;
       marker.spotData = spot;
+      marker.spotCategories = spot.categories || [];
       marker.on('click', () => {
         showSpotDetail(spot);
       });
@@ -961,13 +962,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Filter dropdown — populate counts
-    const filterCategories = ['all', 'breakfast', 'lunch', 'dinner', 'fine-dining', 'fast-food', 'cafe', 'dessert'];
+    const filterCategories = ['Breakfast', 'Lunch', 'Dinner', 'Fine Dining', 'Fast Food', 'Cafe', 'Dessert'];
+    const countAll = document.getElementById('count-all');
+    if (countAll) countAll.textContent = spots.length;
     filterCategories.forEach(cat => {
-      const el = document.getElementById('count-' + cat);
+      const countId = 'count-' + cat.toLowerCase().replace(/\s+/g, '-');
+      const el = document.getElementById(countId);
       if (el) {
-        el.textContent = cat === 'all'
-          ? spots.length
-          : spots.filter(s => getSpotCategory(s.type) === cat).length;
+        el.textContent = spots.filter(s => s.categories && s.categories.includes(cat)).length;
       }
     });
     const triggerCount = document.getElementById('mapFilterCount');
@@ -1012,8 +1014,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         markers.forEach(marker => {
-          const cat = getSpotCategory(marker.spotType);
-          const show = filter === 'all' || cat === filter;
+          const cats = marker.spotCategories || [];
+          const show = filter === 'all' || cats.includes(filter);
           if (show) { 
             if (!foodMap.hasLayer(marker)) marker.addTo(foodMap); 
           } else { 

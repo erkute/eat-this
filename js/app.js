@@ -682,6 +682,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     overlay.addEventListener('click', startZoom);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && phase === 'idle') startZoom();
+    });
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(

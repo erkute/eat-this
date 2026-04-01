@@ -846,28 +846,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getSpotCategory(type) {
       const t = type.toLowerCase();
-      // Coffee & Café
-      if (t.includes('cafe') || t.includes('café') || t.includes('coffee') || t.includes('kaffee') || t.includes('luncheonette')) return 'café';
-      // Bakery
-      if (t.includes('bakery') || t.includes('bäckerei') || t.includes('patisserie') || t.includes('brunch') || t.includes('breakfast') || t.includes('donuts')) return 'bakery';
-      // Pizza (before Italian to catch Italian/Pizza)
-      if (t.includes('pizza')) return 'pizza';
-      // Japanese
-      if (t.includes('japanese') || t.includes('ramen') || t.includes('udon') || t.includes('sushi') || t.includes('izakaya')) return 'japanese';
-      // Italian (after pizza)
-      if (t.includes('italian') || t.includes('pasta')) return 'italian';
-      // Wine & Bars
-      if (t.includes('wine') || t.includes('wein') || t === 'gastropub' || t === 'dive bar' || t === 'bar/restaurant') return 'wine';
-      // Asian
-      if (t.includes('chinese') || t.includes('sichuan') || t.includes('thai') || t.includes('noodles') || t.includes('indian')) return 'asian';
-      // Burgers
-      if (t.includes('burger') || t.includes('fast food')) return 'burgers';
       // Dessert
-      if (t.includes('dessert') || t.includes('ice cream')) return 'dessert';
-      // Mediterranean
-      if (t.includes('israeli') || t.includes('middle eastern') || t.includes('mediterranean') || t.includes('greek')) return 'mediterranean';
-      // European (French, German, Austrian, Swiss, Modern European, Brasserie, Bistro, Seafood)
-      if (t.includes('french') || t.includes('german') || t.includes('european') || t.includes('austrian') || t.includes('swiss') || t.includes('brasserie') || t.includes('bistro') || t.includes('seafood')) return 'european';
+      if (t.includes('dessert') || t.includes('eis') || t.includes('ice cream') || t.includes('donuts')) return 'dessert';
+      // Cafe
+      if (t.includes('cafe') || t.includes('café') || t.includes('coffee') || t.includes('kaffee') || t.includes('tee') || t.includes('luncheonette')) return 'cafe';
+      // Fast Food
+      if (t.includes('fast food') || t.includes('burger')) return 'fast-food';
+      // Breakfast
+      if (t.includes('bakery') || t.includes('bäckerei') || t.includes('patisserie') || t.includes('brunch') || t.includes('breakfast')) return 'breakfast';
+      // Fine Dining
+      if (t.includes('fine dining') || t === 'gastropub' || t.includes('fine') || t.includes('restaurant')) return 'fine-dining';
+      // Lunch (Italian/Pizza, Pasta, Japanese, Asian, etc.)
+      if (t.includes('pizza') || t.includes('pasta') || t.includes('japanese') || t.includes('ramen') || t.includes('udon') || t.includes('sushi') || t.includes('izakaya') || t.includes('chinese') || t.includes('sichuan') || t.includes('thai') || t.includes('noodles') || t.includes('indian') || t.includes('korean') || t.includes('vietnamese') || t.includes('asian')) return 'lunch';
+      // Dinner (Wine bars, European, Mediterranean, etc.)
+      if (t.includes('wine') || t.includes('wein') || t.includes('bar') || t.includes('french') || t.includes('german') || t.includes('european') || t.includes('austrian') || t.includes('swiss') || t.includes('brasserie') || t.includes('bistro') || t.includes('seafood') || t.includes('italian') || t.includes('israeli') || t.includes('middle eastern') || t.includes('mediterranean') || t.includes('greek') || t.includes('african')) return 'dinner';
       return null;
     }
 
@@ -969,7 +961,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Filter dropdown — populate counts
-    const filterCategories = ['all', 'café', 'bakery', 'pizza', 'japanese', 'italian', 'wine', 'asian', 'european', 'mediterranean', 'burgers', 'dessert'];
+    const filterCategories = ['all', 'breakfast', 'lunch', 'dinner', 'fine-dining', 'fast-food', 'cafe', 'dessert'];
     filterCategories.forEach(cat => {
       const el = document.getElementById('count-' + cat);
       if (el) {

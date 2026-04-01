@@ -176,6 +176,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
+    spots.forEach(item => {
+      const searchable = `${item.name} ${item.type} ${item.district} ${(item.categories || []).join(' ')}`.toLowerCase();
+      const matchScore = queryWords.filter(word => searchable.includes(word)).length;
+      if (matchScore === queryWords.length) {
+        results.push({ type: 'spot', name: item.name, district: item.district, categories: item.categories || [], matchScore, spotData: item });
+      }
+    });
+
     results.sort((a, b) => b.matchScore - a.matchScore);
 
     if (results.length === 0) {
@@ -191,6 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let html = '';
     const mustEatsResults = results.filter(r => r.type === 'must-eat');
     const newsResults_arr = results.filter(r => r.type === 'news');
+    const spotResults = results.filter(r => r.type === 'spot');
 
     if (mustEatsResults.length > 0) {
       html += '<div class="search-section-title">Must Eats</div>';
@@ -218,6 +227,21 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="search-result-meta">${escapeHtml(item.category)} · ${escapeHtml(item.date)}</div>
             </div>
             <span class="search-result-type">News</span>
+          </div>
+        `;
+      });
+    }
+
+    if (spotResults.length > 0) {
+      html += '<div class="search-section-title">Restaurants</div>';
+      spotResults.slice(0, 5).forEach(item => {
+        html += `
+          <div class="search-result-item" data-type="spot" data-name="${escapeHtml(item.name)}">
+            <div class="search-result-content">
+              <div class="search-result-dish">${escapeHtml(item.name)}</div>
+              <div class="search-result-restaurant">${escapeHtml(item.district)} · ${(item.categories || []).map(c => escapeHtml(c)).join(', ')}</div>
+            </div>
+            <span class="search-result-type">Map</span>
           </div>
         `;
       });
@@ -257,6 +281,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (link) link.click();
               }
             }, 500);
+          }, 100);
+        } else if (type === 'spot') {
+          closeSearch();
+          setTimeout(() => {
+            navigateToPage('map');
+            window.location.hash = 'map';
+            setTimeout(() => {
+              const spotName = item.dataset.name;
+              const spot = spots.find(s => s.name === spotName);
+              if (spot && typeof showSpotDetail === 'function') showSpotDetail(spot);
+            }, 800);
           }, 100);
         }
       });

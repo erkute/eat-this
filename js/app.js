@@ -1017,7 +1017,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (show) { 
             if (!foodMap.hasLayer(marker)) marker.addTo(foodMap); 
           } else { 
-            marker.removeFrom(foodMap); 
+            foodMap.removeLayer(marker); 
           }
         });
 

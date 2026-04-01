@@ -484,7 +484,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { name: 'Barra', district: 'Neukölln', type: 'Italian', address: 'Okerstraße 2, 12049 Berlin', lat: 52.4743, lng: 13.427, categories: ['Lunch', 'Dinner'] },
       { name: 'Beuster', district: 'Neukölln', type: 'Brasserie', address: 'Weserstraße 32, 12045 Berlin', lat: 52.485, lng: 13.4356, categories: ['Dinner'] },
       { name: 'jaja', district: 'Neukölln', type: 'Wine Bar', address: 'Weichselstraße 7, 12043 Berlin', lat: 52.4842, lng: 13.4331, categories: ['Dinner'] },
-      { name: 'Schüsseldienst', district: 'Schöneberg', type: 'Fast Food', address: 'Akazienstraße 7, 10823 Berlin', lat: 52.4873, lng: 13.3551, categories: ['Fast Food'] },
+      { name: 'Schüsseldienst', district: 'Schöneberg', type: 'Fast Food', address: 'Akazienstraße 7, 10823 Berlin', lat: 52.4873, lng: 13.3551, categories: ['Lunch'] },
       { name: 'goldies', district: 'Kreuzberg', type: 'Burgers', address: 'Oranienstr. 6, 10997 Berlin', lat: 52.4999, lng: 13.4251, categories: ['Fast Food'] },
       { name: 'Berlin Burger International', district: 'Kreuzberg', type: 'Burgers', address: 'Pannierstraße 5, 12047 Berlin', lat: 52.4799, lng: 13.4355, categories: ['Fast Food'] },
       { name: 'Lucky Katsu', district: 'Charlottenburg', type: 'Japanese/Chicken', address: 'Leibnizstraße 70B, 10625 Berlin', lat: 52.5066, lng: 13.3137, categories: ['Lunch', 'Dinner'] },

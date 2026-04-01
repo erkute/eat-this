@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
               const spotName = item.dataset.name;
               const spot = spots.find(s => s.name === spotName);
-              if (spot && typeof showSpotDetail === 'function') showSpotDetail(spot);
+              if (spot && typeof window._showSpotDetail === 'function') window._showSpotDetail(spot);
             }, 800);
           }, 100);
         }
@@ -862,6 +862,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const markers = [];
+    window._mapMarkers = markers;
     const mapSpotOverlay = document.getElementById('mapSpotOverlay');
     const mapSpotContent = document.getElementById('mapSpotContent');
     const mapSpotClose = document.getElementById('mapSpotClose');
@@ -956,6 +957,7 @@ document.addEventListener('DOMContentLoaded', () => {
       mapSpotOverlay.classList.add('active');
       bodyOverflow.lock();
     }
+    window._showSpotDetail = showSpotDetail;
 
     function hideSpotDetail() {
       mapSpotOverlay.classList.remove('active');

@@ -514,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { name: 'Spice Junction', district: 'Schöneberg', type: 'Indian', address: 'Bülowstraße 44, 10783 Berlin', lat: 52.4955, lng: 13.3657, categories: ['Lunch', 'Dinner'] },
       { name: 'aerde restaurant', district: 'Kreuzberg', type: 'Modern European', address: 'Am Lokdepot 6, 10965 Berlin', lat: 52.487, lng: 13.3736, categories: ['Dinner'] },
       { name: "Shaniu's House of Noodles", district: 'Wilmersdorf', type: 'Chinese', address: 'Pariser Str. 58, 10719 Berlin', lat: 52.4962, lng: 13.3278, categories: ['Lunch', 'Dinner'] },
-      { name: 'Julius', district: 'Wedding', type: 'German/Fine Dining', address: 'Gerichtstraße 31, 13347 Berlin', lat: 52.545, lng: 13.3682, categories: ['Dinner', 'Fine Dining'] },
+      { name: 'Julius', district: 'Wedding', type: 'German/Fine Dining', address: 'Gerichtstraße 31, 13347 Berlin', lat: 52.545, lng: 13.3682, categories: ['Dinner'] },
       { name: 'Jungbluth', district: 'Steglitz', type: 'Modern European', address: 'Lepsiusstr. 63, 12163 Berlin', lat: 52.4604, lng: 13.3173, categories: ['Dinner'] },
     ];
 
@@ -962,7 +962,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Filter dropdown — populate counts
-    const filterCategories = ['Breakfast', 'Lunch', 'Dinner', 'Fine Dining', 'Fast Food', 'Cafe', 'Dessert'];
+    const filterCategories = ['Breakfast', 'Lunch', 'Dinner', 'Fast Food', 'Cafe', 'Dessert'];
     const countAll = document.getElementById('count-all');
     if (countAll) countAll.textContent = spots.length;
     filterCategories.forEach(cat => {

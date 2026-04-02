@@ -616,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const logoText = document.createElement('div');
     logoText.textContent = "Press Start";
-    logoText.style.cssText = 'position:absolute;top:calc(50% + min(30vw,140px) - 100px);left:50%;transform:translateX(-50%);color:#fff;font-family:Inter,system-ui,sans-serif;font-size:clamp(18px,4.5vw,24px);font-weight:700;letter-spacing:0.5px;pointer-events:none;z-index:501;opacity:0;transition:opacity 0.8s ease 0.3s;white-space:nowrap;';
+    logoText.style.cssText = 'position:absolute;top:calc(50% + min(30vw,140px) - 80px);left:50%;transform:translateX(-50%);color:#fff;font-family:Inter,system-ui,sans-serif;font-size:clamp(18px,4.5vw,24px);font-weight:700;letter-spacing:0.5px;pointer-events:none;z-index:501;opacity:0;transition:opacity 0.8s ease 0.3s;white-space:nowrap;';
     overlay.appendChild(logoText);
     setTimeout(() => { logoImg.style.opacity = '1'; logoText.style.opacity = '1'; }, 100);
 

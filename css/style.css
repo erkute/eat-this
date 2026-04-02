@@ -3698,7 +3698,6 @@ body {
   .app-page[data-page="map"] .map-header {
     padding: 10px 24px 0;
     text-align: left;
-    margin-bottom: -10px;
   }
 
   .app-page[data-page="map"] .section-label {
@@ -4335,4 +4334,9 @@ body {
 @keyframes heroScrollBounce {
   0%, 100% { transform: translateX(-50%) translateY(0); }
   50%       { transform: translateX(-50%) translateY(5px); }
+}
+@media (max-width: 767px) {
+  .app-page[data-page="map"] .map-header {
+    margin-bottom: -10px;
+  }
 }

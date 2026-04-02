@@ -5,17 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#000000">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-  <meta name="screen-orientation" content="portrait">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
   <title>EAT THIS — We tell you what to eat | Berlin Food Guide</title>
   <meta name="description" content="EAT THIS ist der Berlin Food Guide mit einer einfachen Regel: ein Gericht pro Restaurant — das eine, das du bestellen musst. Selbst besucht, kein Sponsored Content.">
-  <meta name="keywords" content="Berlin Food Guide, Berlin Restaurant Empfehlungen, Must Eat Berlin, ein Gericht pro Restaurant, beste Restaurants Berlin, Berlin essen gehen, Restaurant Tipps Berlin">
   <meta name="author" content="EAT THIS">
-  <meta name="geo.region" content="DE-BE">
-  <meta name="geo.placename" content="Berlin">
   <link rel="canonical" href="https://www.eatthisdot.com">
   
   <meta property="og:type" content="website">
@@ -120,9 +116,6 @@
           "@type": "WebPage",
           "@id": "https://www.eatthisdot.com/#article/ramen-berlin"
         },
-        "articleSection": "Openings",
-        "keywords": "Berlin, Ramen, Restaurants, Food Guide, Nudeln",
-        "wordCount": 450,
         "inLanguage": "de-DE"
       },
       {
@@ -134,9 +127,10 @@
         "dateModified": "2026-03-14",
         "author": { "@id": "https://www.eatthisdot.com/#organization" },
         "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
-        "articleSection": "Openings",
-        "keywords": "Berlin, Street Food, Markthalle Neun, Kreuzberg",
-        "wordCount": 320,
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": "https://www.eatthisdot.com/#article/markthalle9"
+        },
         "inLanguage": "de-DE"
       },
       {
@@ -148,9 +142,10 @@
         "dateModified": "2026-03-13",
         "author": { "@id": "https://www.eatthisdot.com/#organization" },
         "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
-        "articleSection": "Culture",
-        "keywords": "Berlin, Michelin, Fine Dining, Restaurants",
-        "wordCount": 380,
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": "https://www.eatthisdot.com/#article/michelin-berlin"
+        },
         "inLanguage": "de-DE"
       },
       {
@@ -162,9 +157,10 @@
         "dateModified": "2026-03-12",
         "author": { "@id": "https://www.eatthisdot.com/#organization" },
         "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
-        "articleSection": "Guides",
-        "keywords": "Berlin, Donuts, Food Guide, Prenzlauer Berg",
-        "wordCount": 520,
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": "https://www.eatthisdot.com/#article/donuts-berlin"
+        },
         "inLanguage": "de-DE"
       },
       {
@@ -221,6 +217,10 @@
     ]
   }
   </script>
+  
+  <link rel="icon" type="image/webp" href="pics/logo.webp">
+  <link rel="apple-touch-icon" href="pics/logo.webp">
+  <link rel="manifest" href="manifest.json">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -436,7 +436,7 @@
           <p class="must-eats-subtitle reveal" style="transition-delay:0.2s">The dishes you can't leave Berlin without trying.</p>
         </div>
     <div class="must-eats-grid reveal-stagger">
-      <article class="eat-card" data-dish="Banh Mi" data-restaurant="Saveur de Bánh Mì" data-district="Schöneberg" data-price="€" data-desc="Das beste Bánh Mì in Berlin. Knuspriges Brot, frisches Gemüse, perfekt gewürztes Fleisch." data-rating-price="5" data-rating-perf="5" data-rating-taste="5" data-rating-look="4" data-img="pics/musteats/ban.webp" data-img2="pics/musteats/ban.webp" data-address="Akazienstraße 24, 10823 Berlin">
+      <article class="eat-card" data-dish="Banh Mi" data-restaurant="Saveur de Bánh Mì" data-district="Schöneberg" data-price="€" data-desc="Das beste Bánh Mì in Berlin. Knuspriges Brot, frisches Gemüse, perfekt gewürztes Fleisch." data-img="pics/musteats/ban.webp" data-address="Akazienstraße 24, 10823 Berlin">
         <div class="eat-card-scene">
           <div class="eat-card-shell">
             <div class="eat-card-flip">
@@ -472,7 +472,7 @@
           </div>
         </div>
       </article>
-      <article class="eat-card" data-dish="Twin Cheese" data-restaurant="All In." data-district="Prenzlauer Berg" data-price="€€" data-desc="Twin Cheese von All In. — zwei perfekte Patties, saftiges Fleisch, goldenes Brioche. Ein Burger, der keine Kompromisse macht." data-rating-price="4" data-rating-perf="5" data-rating-taste="5" data-rating-look="5" data-img="pics/musteats/allin.webp" data-img2="pics/musteats/allin.webp" data-address="Schönhauser Allee 173">
+      <article class="eat-card" data-dish="Twin Cheese" data-restaurant="All In." data-district="Prenzlauer Berg" data-price="€€" data-desc="Twin Cheese von All In. — zwei perfekte Patties, saftiges Fleisch, goldenes Brioche. Ein Burger, der keine Kompromisse macht." data-img="pics/musteats/allin.webp" data-address="Schönhauser Allee 173">
         <div class="eat-card-scene">
           <div class="eat-card-shell">
             <div class="eat-card-flip">
@@ -508,7 +508,7 @@
           </div>
         </div>
       </article>
-      <article class="eat-card" data-dish="Spicy Thai Sausage" data-restaurant="Bar Basta" data-district="Mitte" data-price="€€" data-desc="Die Spicy Thai Sausage von Bar Basta — kräftig gewürzt, perfekt gegrillt, mit Kick. Ein Gericht, das im Gedächtnis bleibt." data-rating-price="4" data-rating-perf="5" data-rating-taste="5" data-rating-look="5" data-img="pics/musteats/barbasta.webp" data-img2="pics/musteats/barbasta.webp" data-address="Bar Basta, Berlin">
+      <article class="eat-card" data-dish="Spicy Thai Sausage" data-restaurant="Bar Basta" data-district="Mitte" data-price="€€" data-desc="Die Spicy Thai Sausage von Bar Basta — kräftig gewürzt, perfekt gegrillt, mit Kick. Ein Gericht, das im Gedächtnis bleibt." data-img="pics/musteats/barbasta.webp" data-address="Bar Basta, Berlin">
         <div class="eat-card-scene">
           <div class="eat-card-shell">
             <div class="eat-card-flip">

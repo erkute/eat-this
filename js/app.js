@@ -22,20 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
   })();
   window.bodyOverflow = bodyOverflow;
 
-  // Alternating images for eat cards — store IDs so they can be cleared
-  let altImgIntervals = [];
-  const alternatingImages = document.querySelectorAll('.alternating-img');
-  alternatingImages.forEach(img => {
-    const images = JSON.parse(img.dataset.images || '[]');
-    if (images.length > 1) {
-      let idx = 0;
-      altImgIntervals.push(setInterval(() => {
-        idx = (idx + 1) % images.length;
-        img.src = images[idx];
-      }, 1500));
-    }
-  });
-
   // ============================================
   // HERO SLIDER
   // ============================================

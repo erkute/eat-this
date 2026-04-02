@@ -40,10 +40,10 @@ const app       = initializeApp(firebaseConfig);
 const auth      = getAuth(app);
 const functions = getFunctions(app);
 
-initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider('6LdG2ZwsAAAAAM6XvEOuQHmIRLAs3CdPiu-l5cwz'),
-  isTokenAutoRefreshEnabled: true,
-});
+// initializeAppCheck(app, {
+//   provider: new ReCaptchaV3Provider('6LdG2ZwsAAAAAM6XvEOuQHmIRLAs3CdPiu-l5cwz'),
+//   isTokenAutoRefreshEnabled: true,
+// });
 
 console.log('[EAT THIS] auth.js v3 loaded');
 
@@ -202,7 +202,8 @@ if (loginForm) {
     const password = loginPassword?.value       ?? '';
     const name     = loginName?.value.trim()   ?? '';
 
-    if (!email || !password) return;
+    if (!email) { showError('Bitte gib deine E-Mail-Adresse ein.'); return; }
+    if (!password) { showError('Bitte gib dein Passwort ein.'); return; }
     if (isRegisterMode && !name) { showError('Bitte gib deinen Namen ein.'); return; }
 
     const submitBtn = loginForm.querySelector('button[type="submit"]');

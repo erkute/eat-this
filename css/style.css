@@ -3036,19 +3036,15 @@ body {
 .login-btn-primary {
   background: var(--black);
   color: var(--white);
+  transition: transform 0.1s;
 }
 
-.login-btn-primary:hover {
-  background: var(--gray-800);
-  transform: translateY(-1px);
+.login-btn-primary:active {
+  transform: scale(0.97);
 }
 
 .login-btn-primary svg {
   transition: transform 0.2s;
-}
-
-.login-btn-primary:hover svg {
-  transform: translateX(4px);
 }
 
 .login-divider {

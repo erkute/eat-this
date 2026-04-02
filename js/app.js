@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let heroInterval = null;
   let currentSlide = 0;
   const slideInterval = 800;
+  let altImgIntervals = [];
 
   function nextSlide() {
     if (!heroSlides.length) return;

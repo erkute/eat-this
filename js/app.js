@@ -888,6 +888,10 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     }
 
     function showSpotDetail(spot) {
+      if (foodMap) {
+        foodMap.flyTo([spot.lat, spot.lng], 15, { animate: true, duration: 1 });
+      }
+      
       const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(spot.name + ', ' + spot.address);
       // spot.photo: optionales individuelles Bild aus pics/location/, z.B. 'pics/location/november.webp'
       const photo = spot.photo || getSpotPhoto(spot.type);

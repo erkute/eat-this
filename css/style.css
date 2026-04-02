@@ -4337,6 +4337,6 @@ body {
 }
 @media (max-width: 767px) {
   .app-page[data-page="map"] .map-header {
-    margin-bottom: -10px;
+    margin-bottom: -15px;
   }
 }

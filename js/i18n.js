@@ -263,7 +263,7 @@ function renderNewsCards() {
   const grid = document.querySelector('.news-grid');
   if (!grid) return;
 
-  const articles = TRANSLATIONS[_lang].news.articles;
+  const articles = (TRANSLATIONS[_lang] && TRANSLATIONS[_lang].news && TRANSLATIONS[_lang].news.articles) || [];
 
   grid.innerHTML = articles.map(a => {
     const safeTitle = a.title.replace(/"/g, '&quot;');
@@ -279,7 +279,7 @@ function renderNewsCards() {
       ` data-excerpt="${safeExcerpt}"`,
       ` data-content="${safeContent}">`,
       `<a href="#">`,
-      `<div class="news-card-img"><img src="${a.img}" alt="${a.alt}" loading="lazy"></div>`,
+      `<div class="news-card-img"><img src="${a.img}" alt="${a.alt.replace(/"/g, '&quot;')}" loading="lazy"></div>`,
       `<div class="news-card-body">`,
       `<div class="news-card-top">`,
       `<span class="news-card-category">${a.categoryLabel}</span>`,

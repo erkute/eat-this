@@ -115,14 +115,12 @@ function buildModeToggle(isRegister) {
   if (!loginModeToggle) return;
   loginModeToggle.textContent = '';
 
-  const label = document.createTextNode(isRegister ? 'Bereits registriert? ' : 'Neu hier? ');
-  const btn   = document.createElement('button');
+  const btn = document.createElement('button');
   btn.type      = 'button';
   btn.className = 'login-mode-link';
-  btn.textContent = isRegister ? 'Anmelden' : 'Konto erstellen';
+  btn.textContent = window.i18n.t(isRegister ? 'modals.login.toggleToLogin' : 'modals.login.toggleToRegister');
   btn.addEventListener('click', () => setMode(!isRegister));
 
-  loginModeToggle.appendChild(label);
   loginModeToggle.appendChild(btn);
 }
 
@@ -132,18 +130,18 @@ function setMode(register) {
   clearSuccess();
 
   if (register) {
-    if (loginTitle)      loginTitle.textContent      = 'Konto erstellen';
-    if (loginSubtitle)   loginSubtitle.textContent   = 'Registriere dich, um die besten Gerichte in Berlin zu entdecken.';
+    if (loginTitle)      loginTitle.textContent      = window.i18n.t('modals.login.titleRegister');
+    if (loginSubtitle)   loginSubtitle.textContent   = window.i18n.t('modals.login.subtitleRegister');
     if (nameField)       nameField.style.display     = '';
     if (loginName)       loginName.required           = true;
-    if (loginSubmitText) loginSubmitText.textContent = 'Konto erstellen';
+    if (loginSubmitText) loginSubmitText.textContent = window.i18n.t('modals.login.submitRegister');
     if (loginForgot)     loginForgot.style.display   = 'none';
   } else {
-    if (loginTitle)      loginTitle.textContent      = 'Willkommen zurück';
-    if (loginSubtitle)   loginSubtitle.textContent   = 'Melde dich mit deiner E-Mail-Adresse an.';
+    if (loginTitle)      loginTitle.textContent      = window.i18n.t('modals.login.titleLogin');
+    if (loginSubtitle)   loginSubtitle.textContent   = window.i18n.t('modals.login.subtitleLogin');
     if (nameField)       nameField.style.display     = 'none';
     if (loginName)       loginName.required           = false;
-    if (loginSubmitText) loginSubmitText.textContent = 'Anmelden';
+    if (loginSubmitText) loginSubmitText.textContent = window.i18n.t('modals.login.submitLogin');
     if (loginForgot)     loginForgot.style.display   = '';
   }
 
@@ -177,19 +175,20 @@ function clearSuccess() {
 }
 
 function errorMessage(code) {
+  const e = window.i18n.t('modals.login.errors');
   const map = {
-    'auth/email-already-in-use':    'Diese E-Mail ist bereits registriert.',
-    'auth/invalid-email':           'Ungültige E-Mail-Adresse.',
-    'auth/weak-password':           'Passwort zu schwach (mind. 6 Zeichen).',
-    'auth/wrong-password':          'Falsches Passwort.',
-    'auth/user-not-found':          'Kein Konto mit dieser E-Mail-Adresse.',
-    'auth/invalid-credential':      'E-Mail oder Passwort falsch.',
-    'auth/too-many-requests':       'Zu viele Versuche — bitte kurz warten.',
-    'auth/network-request-failed':  'Netzwerkfehler — bitte erneut versuchen.',
+    'auth/email-already-in-use':    e.emailInUse,
+    'auth/invalid-email':           e.invalidEmail,
+    'auth/weak-password':           e.weakPassword,
+    'auth/wrong-password':          e.wrongPassword,
+    'auth/user-not-found':          e.userNotFound,
+    'auth/invalid-credential':      e.invalidCredential,
+    'auth/too-many-requests':       e.tooManyRequests,
+    'auth/network-request-failed':  e.networkFailed,
     'auth/popup-closed-by-user':    '',
     'auth/cancelled-popup-request': '',
   };
-  return map[code] ?? 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.';
+  return map[code] ?? e.generic;
 }
 
 // ─── Formular: E-Mail + Passwort ──────────────────────────────────────────────
@@ -202,9 +201,9 @@ if (loginForm) {
     const password = loginPassword?.value       ?? '';
     const name     = loginName?.value.trim()   ?? '';
 
-    if (!email) { showError('Bitte gib deine E-Mail-Adresse ein.'); return; }
-    if (!password) { showError('Bitte gib dein Passwort ein.'); return; }
-    if (isRegisterMode && !name) { showError('Bitte gib deinen Namen ein.'); return; }
+    if (!email) { showError(window.i18n.t('modals.login.errors.emailRequired')); return; }
+    if (!password) { showError(window.i18n.t('modals.login.errors.passwordRequired')); return; }
+    if (isRegisterMode && !name) { showError(window.i18n.t('modals.login.errors.nameRequired')); return; }
 
     const submitBtn = loginForm.querySelector('button[type="submit"]');
     if (submitBtn) submitBtn.disabled = true;
@@ -216,14 +215,14 @@ if (loginForm) {
         await updateProfile(cred.user, { displayName: name });
         isRegistering = false;
         applyLoggedInUI(cred.user);
-        notify('Willkommen bei EAT THIS, ' + name + '!');
+        notify(window.i18n.t('modals.login.notifications.welcome').replace('{name}', name));
         console.log('[EAT THIS] sendVerificationEmail calling Cloud Function');
         const sendVerificationEmail = httpsCallable(functions, 'sendVerificationEmail');
         sendVerificationEmail({ displayName: name }).catch((e) => console.error('[EAT THIS] sendVerificationEmail error:', e));
       } else {
         await signInWithEmailAndPassword(auth, email, password);
         const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? 'du';
-        notify('Hey ' + firstName + ', schön dich zu sehen!');
+        notify(window.i18n.t('modals.login.notifications.signedIn').replace('{name}', firstName));
       }
       closeLoginModal();
     } catch (err) {
@@ -241,7 +240,7 @@ if (forgotPasswordBtn) {
   forgotPasswordBtn.addEventListener('click', async () => {
     clearError();
     const email = loginEmail?.value.trim() ?? '';
-    if (!email) { showError('Bitte gib zuerst deine E-Mail-Adresse ein.'); return; }
+    if (!email) { showError(window.i18n.t('modals.login.errors.emailRequiredFirst')); return; }
 
     const submitBtn = forgotPasswordBtn;
     submitBtn.disabled = true;
@@ -250,13 +249,13 @@ if (forgotPasswordBtn) {
       const sendPasswordReset = httpsCallable(functions, 'sendPasswordReset');
       await sendPasswordReset({ email });
       clearError();
-      showSuccess('Falls ein Konto existiert, haben wir dir einen Link geschickt. Bitte prüfe dein Postfach.');
+      showSuccess(window.i18n.t('modals.login.forgotSuccess'));
     } catch (err) {
       console.error('[EAT THIS] sendPasswordReset error:', err?.code, err?.message, err);
       if (err?.code === 'functions/resource-exhausted') {
-        showError('Zu viele Versuche — bitte in einer Stunde erneut versuchen.');
+        showError(window.i18n.t('modals.login.errors.tooManyRequestsLong'));
       } else {
-        showError('Fehler beim Senden. Bitte erneut versuchen.');
+        showError(window.i18n.t('modals.login.errors.sendFailed'));
       }
     } finally {
       submitBtn.disabled = false;
@@ -270,8 +269,8 @@ if (googleLoginBtn) {
     clearError();
     try {
       await signInWithPopup(auth, googleProvider);
-      const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? 'du';
-      notify('Hey ' + firstName + ', schön dich zu sehen!');
+      const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? '';
+      notify(window.i18n.t('modals.login.notifications.signedIn').replace('{name}', firstName));
       closeLoginModal();
     } catch (err) {
       const msg = errorMessage(err.code);
@@ -285,7 +284,7 @@ if (logoutBtn) {
   logoutBtn.addEventListener('click', async () => {
     await signOut(auth);
     closeLoginModal();
-    notify('Du wurdest abgemeldet.');
+    notify(window.i18n.t('modals.login.notifications.signedOut'));
   });
 }
 
@@ -310,7 +309,7 @@ onAuthStateChanged(auth, (user) => {
     if (isRegistering) return;
     applyLoggedInUI(user);
   } else {
-    if (loginBtnLabel) loginBtnLabel.textContent = 'Anmelden';
+    if (loginBtnLabel) loginBtnLabel.textContent = window.i18n.t('footer.signIn');
     loginBtn?.classList.remove('logged-in');
 
     if (authView)    authView.style.display    = '';

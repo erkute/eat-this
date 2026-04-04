@@ -829,6 +829,14 @@ body {
   padding: 14px 16px 16px;
 }
 
+.map-spot-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
 .map-spot-type-badge {
   display: inline-block;
   font-size: 10px;
@@ -837,9 +845,25 @@ body {
   background: #f2f2f2;
   padding: 3px 9px;
   border-radius: 6px;
-  margin-bottom: 8px;
   font-family: var(--font);
   letter-spacing: 0.02em;
+}
+
+.map-spot-price-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #111;
+  background: #e8e8e8;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-family: var(--font);
+  letter-spacing: 0.04em;
+}
+
+.map-spot-btn-row {
+  display: flex;
+  gap: 8px;
 }
 
 .map-spot-name {
@@ -877,7 +901,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 7px;
-  width: 100%;
+  flex: 1;
   padding: 12px 16px;
   background: #111;
   color: #fff;
@@ -897,6 +921,15 @@ body {
 
 .map-spot-btn:active {
   transform: translateY(0);
+}
+
+.map-spot-btn--secondary {
+  background: #f2f2f2;
+  color: #111;
+}
+
+.map-spot-btn--secondary:hover {
+  background: #e0e0e0;
 }
 
 

@@ -703,8 +703,7 @@ body {
 .map-nearby {
   background: #f8f8f8;
   border-top: 1px solid #ebebeb;
-  padding: 12px 16px;
-  padding-bottom: max(80px, calc(66px + env(safe-area-inset-bottom)));
+  padding: 12px 16px 14px;
 }
 
 .map-nearby-label {
@@ -2825,6 +2824,14 @@ body {
     justify-content: center;
   }
 
+  .app-page[data-page="map"] .map-nearby {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+  }
+
   .app-page[data-page="map"] #foodMap {
     height: 100% !important;
     width: 100% !important;
@@ -3607,6 +3614,14 @@ body {
   .app-page[data-page="map"] .map-container {
     flex: 1;
     min-height: 0;
+  }
+
+  .app-page[data-page="map"] .map-nearby {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
   }
 
   .app-page[data-page="map"] .leaflet-container {

@@ -3,16 +3,16 @@
   "configurations": [
     {
       "name": "serve (npx)",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "."],
-      "port": 3000,
+      "runtimeExecutable": "/usr/local/bin/node",
+      "runtimeArgs": ["/tmp/serve-install/lib/node_modules/serve/build/main.js", "."],
+      "port": 3456,
       "autoPort": true
     },
     {
       "name": "python http.server",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8080"],
-      "port": 8080
+      "runtimeExecutable": "/usr/bin/python3",
+      "runtimeArgs": ["-m", "http.server", "8081"],
+      "port": 8081
     }
   ]
 }

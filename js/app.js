@@ -97,9 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchClose = document.getElementById('searchClose');
   const searchTrigger = document.getElementById('searchTrigger');
 
-  const mustEatsData = [
-    { dish: 'Banh Mi', restaurant: 'Saveur de Bánh Mì', district: 'Schöneberg', price: '€', img: 'pics/food/eat/ban.webp', type: 'must-eat' }
-  ];
+  const mustEatsData = Array.from(document.querySelectorAll('.eat-card')).map(card => ({
+    dish: card.dataset.dish || '',
+    restaurant: card.dataset.restaurant || '',
+    district: card.dataset.district || '',
+    price: card.dataset.price || '',
+    img: card.dataset.img || '',
+    type: 'must-eat'
+  }));
 
   const newsData = Array.from(document.querySelectorAll('.news-card')).map(card => ({
     title: card.dataset.title || '',

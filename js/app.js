@@ -833,7 +833,8 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       subdomains: 'abcd',
     }).addTo(foodMap);
 
-    L.control.zoom({ position: 'bottomright' }).addTo(foodMap);
+    document.getElementById('mapZoomIn').addEventListener('click', () => foodMap.zoomIn());
+    document.getElementById('mapZoomOut').addEventListener('click', () => foodMap.zoomOut());
 
     // User location
     const userIcon = L.divIcon({

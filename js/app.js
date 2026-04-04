@@ -869,6 +869,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
             if (userLat > 52.3 && userLat < 52.7 && userLng > 13.1 && userLng < 13.8) {
               userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(foodMap);
               foodMap.setView([userLat, userLng], 13, { animate: true });
+              showNearbyStrip(userLat, userLng);
             } else {
               // User is outside Berlin, show Berlin anyway
               setDefaultView();
@@ -1019,6 +1020,71 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     }
     window._showSpotDetail = showSpotDetail;
 
+    function haversineDistance(lat1, lng1, lat2, lng2) {
+      const R = 6371000;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function showNearbyStrip(userLat, userLng) {
+      const nearbyEl = document.getElementById('mapNearby');
+      const scrollEl = document.getElementById('mapNearbyScroll');
+      if (!nearbyEl || !scrollEl) return;
+
+      const sorted = spots
+        .map(s => ({ ...s, dist: haversineDistance(userLat, userLng, s.lat, s.lng) }))
+        .sort((a, b) => a.dist - b.dist)
+        .slice(0, 3);
+
+      while (scrollEl.firstChild) scrollEl.removeChild(scrollEl.firstChild);
+
+      sorted.forEach(spot => {
+        const distM = Math.round(spot.dist);
+        const distLabel = distM < 1000 ? distM + 'm' : (spot.dist / 1000).toFixed(1) + 'km';
+        const photo = spot.photo || getSpotPhoto(spot.type);
+
+        const card = document.createElement('div');
+        card.className = 'map-nearby-card';
+
+        const img = document.createElement('img');
+        img.className = 'map-nearby-card-img';
+        img.src = photo;
+        img.alt = spot.name;
+        img.loading = 'lazy';
+
+        const body = document.createElement('div');
+        body.className = 'map-nearby-card-body';
+
+        const dist = document.createElement('span');
+        dist.className = 'map-nearby-card-dist';
+        dist.textContent = distLabel;
+
+        const name = document.createElement('div');
+        name.className = 'map-nearby-card-name';
+        name.textContent = spot.name;
+
+        const meta = document.createElement('div');
+        meta.className = 'map-nearby-card-meta';
+        meta.textContent = spot.type + (spot.price ? ' · ' + spot.price : '');
+
+        body.appendChild(dist);
+        body.appendChild(name);
+        body.appendChild(meta);
+        card.appendChild(img);
+        card.appendChild(body);
+
+        card.addEventListener('click', () => showSpotDetail(spot));
+
+        scrollEl.appendChild(card);
+      });
+
+      nearbyEl.style.display = '';
+    }
+
     function hideSpotDetail() {
       mapSpotOverlay.classList.remove('active');
       bodyOverflow.unlock();
@@ -1149,6 +1215,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
             }
             
             foodMap.setView([userLat, userLng], 14, { animate: true });
+            showNearbyStrip(userLat, userLng);
           },
           (error) => {
             mapLocationBtn.classList.remove('loading');

@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
       bodyOverflow.unlock();
       if (searchInput) searchInput.value = '';
       if (searchResults) {
-        searchResults.innerHTML = '<div class="search-hint">Tippe um zu suchen...</div>';
+        searchResults.innerHTML = `<div class="search-hint">${window.i18n ? window.i18n.t('search.hint') : 'Start typing to search...'}</div>`; // i18n: static translation key, safe
       }
     }
   }
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const q = query.toLowerCase().trim();
 
     if (!q) {
-      searchResults.innerHTML = '<div class="search-hint">Tippe um zu suchen...</div>';
+      searchResults.innerHTML = `<div class="search-hint">${window.i18n ? window.i18n.t('search.hint') : 'Start typing to search...'}</div>`;
       return;
     }
 
@@ -174,12 +174,9 @@ document.addEventListener('DOMContentLoaded', () => {
     results.sort((a, b) => b.matchScore - a.matchScore);
 
     if (results.length === 0) {
-      searchResults.innerHTML = `
-        <div class="search-no-results">
-          <p>Keine Ergebnisse für &ldquo;${escapeHtml(query)}&rdquo;</p>
-          <span>Versuche einen anderen Suchbegriff</span>
-        </div>
-      `;
+      const _noRes = window.i18n ? window.i18n.t('search.noResults') : 'No results for';
+      const _noResSub = window.i18n ? window.i18n.t('search.noResultsSub') : 'Try a different search term';
+      searchResults.innerHTML = `<div class="search-no-results"><p>${_noRes} &ldquo;${escapeHtml(query)}&rdquo;</p><span>${_noResSub}</span></div>`;
       return;
     }
 
@@ -774,7 +771,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         attributionControl: false,
       }).setView([52.5050, 13.4100], 11);
     } catch (e) {
-      showNotification('Karte konnte nicht geladen werden');
+      showNotification(window.i18n ? window.i18n.t('map.errorMapLoad') : 'Could not load map');
       return;
     }
     mapInitialized = true;
@@ -1138,15 +1135,19 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     bodyOverflow.unlock();
   }
 
-  newsArticles.forEach(article => {
-    const link = article.querySelector('a');
-    if (link) {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        openNewsModal(article);
-      });
-    }
-  });
+  function bindNewsCards() {
+    document.querySelectorAll('.news-card').forEach(card => {
+      const link = card.querySelector('a');
+      if (link) {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          openNewsModal(card);
+        });
+      }
+    });
+  }
+  bindNewsCards();
+  window._bindNewsCards = bindNewsCards;
 
   if (newsModalClose) {
     newsModalClose.addEventListener('click', closeNewsModal);

@@ -1144,58 +1144,28 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         el.textContent = spots.filter(s => s.categories && s.categories.includes(cat)).length;
       }
     });
-    const triggerCount = document.getElementById('mapFilterCount');
-    if (triggerCount) triggerCount.textContent = spots.length;
+    // Set "All" count
+    const countAllEl = document.getElementById('count-all');
+    if (countAllEl) countAllEl.textContent = spots.length;
 
-    // Dropdown toggle
-    const filterWrap     = document.getElementById('mapFilterWrap');
-    const filterTrigger  = document.getElementById('mapFilterTrigger');
-    const filterDropdown = document.getElementById('mapFilterDropdown');
-    const filterLabel    = document.getElementById('mapFilterLabel');
+    // Filter tab selection
+    const filterTabs = document.querySelectorAll('.map-filter-tab');
+    filterTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const filter = tab.dataset.filter;
 
-    function closeFilterDropdown() {
-      if (filterWrap) filterWrap.classList.remove('open');
-      if (filterTrigger) filterTrigger.setAttribute('aria-expanded', 'false');
-    }
-
-    if (filterTrigger) {
-      filterTrigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isOpen = filterWrap.classList.toggle('open');
-        filterTrigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-      });
-    }
-
-    document.addEventListener('click', (e) => {
-      if (filterWrap && !filterWrap.contains(e.target)) closeFilterDropdown();
-    });
-
-    // Filter option selection
-    const filterOptions = document.querySelectorAll('.map-filter-option');
-    filterOptions.forEach(opt => {
-      opt.addEventListener('click', () => {
-        const filter = opt.dataset.filter;
-
-        filterOptions.forEach(o => o.classList.remove('active'));
-        opt.classList.add('active');
-
-        if (filterLabel) filterLabel.textContent = opt.querySelector('span').textContent;
-        if (triggerCount) {
-          const countEl = opt.querySelector('.map-filter-option-count');
-          triggerCount.textContent = countEl ? countEl.textContent : '';
-        }
+        filterTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
 
         markers.forEach(marker => {
           const cats = marker.spotCategories || [];
           const show = filter === 'all' || cats.includes(filter);
-          if (show) { 
-            if (!foodMap.hasLayer(marker)) marker.addTo(foodMap); 
-          } else { 
-            foodMap.removeLayer(marker); 
+          if (show) {
+            if (!foodMap.hasLayer(marker)) marker.addTo(foodMap);
+          } else {
+            foodMap.removeLayer(marker);
           }
         });
-
-        closeFilterDropdown();
       });
     });
 

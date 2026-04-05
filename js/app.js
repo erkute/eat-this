@@ -1084,6 +1084,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       });
 
       nearbyEl.style.display = '';
+      document.querySelector('.map-section')?.classList.add('map-has-nearby');
     }
 
     function hideSpotDetail() {

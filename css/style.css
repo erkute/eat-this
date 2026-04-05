@@ -795,6 +795,11 @@ body {
   flex-direction: column;
   gap: 4px;
   pointer-events: auto;
+  transition: bottom 0.25s ease;
+}
+
+.map-has-nearby .map-zoom-btns {
+  bottom: 148px;
 }
 
 .map-zoom-btn {

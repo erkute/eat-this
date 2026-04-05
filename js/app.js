@@ -1085,6 +1085,13 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
 
       nearbyEl.style.display = '';
       document.querySelector('.map-section')?.classList.add('map-has-nearby');
+
+      // Position zoom buttons exactly above the strip using real measured height
+      requestAnimationFrame(() => {
+        const stripH = nearbyEl.offsetHeight;
+        const zoomBtns = document.querySelector('.map-zoom-btns');
+        if (zoomBtns) zoomBtns.style.bottom = (stripH + 12) + 'px';
+      });
     }
 
     function hideSpotDetail() {

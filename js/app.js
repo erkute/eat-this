@@ -1519,21 +1519,75 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
   mustLightbox.appendChild(mustLightboxInner);
   document.body.appendChild(mustLightbox);
 
-  function openMustCard(src, alt) {
+  let mustActiveCard = null;
+
+  function openMustCard(cardEl, src, alt) {
+    mustActiveCard = cardEl;
     mustLightboxImg.src = src;
     mustLightboxImg.alt = alt;
-    mustLightbox.classList.remove('closing');
+
+    const rect = cardEl.getBoundingClientRect();
+    const targetW = Math.min(window.innerWidth * 0.76, 390);
+    const startX = rect.left + rect.width / 2 - window.innerWidth / 2;
+    const startY = rect.top + rect.height / 2 - window.innerHeight / 2;
+    const startScale = rect.width / targetW;
+
+    // Set start position before making visible
+    mustLightboxInner.style.transition = 'none';
+    mustLightboxInner.style.transform = `translate(${startX}px, ${startY}px) scale(${startScale}) rotate(-14deg)`;
+    mustLightboxInner.style.opacity = '0';
+
     mustLightbox.classList.add('active');
     bodyOverflow.lock();
+
+    // offsetHeight read forces synchronous reflow so the start state is committed
+    mustLightboxInner.offsetHeight; // eslint-disable-line no-unused-expressions
+
+    mustLightboxInner.style.transition = 'transform 0.52s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease';
+    mustLightboxInner.style.transform = 'translate(0,0) scale(1) rotate(3deg)';
+    mustLightboxInner.style.opacity = '1';
+
+    setTimeout(() => {
+      mustLightboxInner.style.transition = 'transform 0.16s ease-out';
+      mustLightboxInner.style.transform = 'translate(0,0) scale(1) rotate(0deg)';
+    }, 520);
   }
 
+  let mustClosing = false;
+
   function closeMustCard() {
-    if (!mustLightbox.classList.contains('active')) return;
-    mustLightbox.classList.add('closing');
-    setTimeout(() => {
-      mustLightbox.classList.remove('active', 'closing');
+    if (!mustLightbox.classList.contains('active') || mustClosing) return;
+    mustClosing = true;
+    const cardEl = mustActiveCard;
+
+    if (cardEl) {
+      const rect = cardEl.getBoundingClientRect();
+      const targetW = Math.min(window.innerWidth * 0.76, 390);
+      const endX = rect.left + rect.width / 2 - window.innerWidth / 2;
+      const endY = rect.top + rect.height / 2 - window.innerHeight / 2;
+      const endScale = rect.width / targetW;
+
+      // Reflow to commit current state before starting close transition
+      mustLightboxInner.offsetHeight; // eslint-disable-line no-unused-expressions
+
+      mustLightboxInner.style.transition = 'transform 0.36s cubic-bezier(0.55, 0, 1, 0.45), opacity 0.18s ease';
+      mustLightboxInner.style.transform = `translate(${endX}px, ${endY}px) scale(${endScale}) rotate(10deg)`;
+      mustLightboxInner.style.opacity = '0';
+
+      setTimeout(() => {
+        mustLightbox.classList.remove('active');
+        mustLightboxInner.style.cssText = '';
+        mustActiveCard = null;
+        mustClosing = false;
+        bodyOverflow.unlock();
+      }, 380);
+    } else {
+      mustLightbox.classList.remove('active');
+      mustLightboxInner.style.cssText = '';
+      mustActiveCard = null;
+      mustClosing = false;
       bodyOverflow.unlock();
-    }, 220);
+    }
   }
 
   document.querySelectorAll('.must-card').forEach(card => {
@@ -1551,29 +1605,24 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       touchMoved = false;
     }, { passive: true });
     card.addEventListener('touchmove', e => {
-      if (Math.abs(e.touches[0].clientX - touchStartX) > 8 ||
-          Math.abs(e.touches[0].clientY - touchStartY) > 8) {
-        touchMoved = true;
-      }
+      const dx = e.touches[0].clientX - touchStartX;
+      const dy = e.touches[0].clientY - touchStartY;
+      if (Math.sqrt(dx * dx + dy * dy) > 10) touchMoved = true;
     }, { passive: true });
     card.addEventListener('touchend', e => {
       if (touchMoved) return;
       e.preventDefault();
-      openMustCard(
-        card.querySelector('.must-card-img').src,
-        card.querySelector('.must-card-img').alt
-      );
+      const img = card.querySelector('.must-card-img');
+      openMustCard(card, img.src, img.alt);
     }, { passive: false });
     card.addEventListener('click', () => {
-      openMustCard(
-        card.querySelector('.must-card-img').src,
-        card.querySelector('.must-card-img').alt
-      );
+      const img = card.querySelector('.must-card-img');
+      openMustCard(card, img.src, img.alt);
     });
   });
 
-  mustLightbox.addEventListener('touchend', e => { e.preventDefault(); closeMustCard(); }, { passive: false });
-  mustLightbox.addEventListener('click', closeMustCard);
+  mustLightbox.addEventListener('touchend', e => { e.preventDefault(); e.stopPropagation(); closeMustCard(); }, { passive: false });
+  mustLightbox.addEventListener('click', e => { e.stopPropagation(); closeMustCard(); });
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeMustCard();

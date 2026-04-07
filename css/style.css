@@ -347,16 +347,17 @@ body {
   user-select: none;
   -webkit-user-select: none;
   outline: none;
+  background: transparent;
+  border-radius: 4.5%;
+  overflow: hidden;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 .must-card-clip {
   width: 100%;
   height: 100%;
   clip-path: inset(0 round 4.5%);
   pointer-events: none;
-}
-.must-card:hover {
-  transform: scale(1.05) rotate(-2deg) translateY(-6px);
-  box-shadow: 0 16px 48px rgba(0,0,0,0.28);
 }
 .must-card:active {
   transform: scale(0.96) rotate(0deg);
@@ -373,19 +374,13 @@ body {
 
 /* ── Must-eat card lightbox ── */
 .must-card-lightbox {
+  display: none;
   position: fixed;
   inset: 0;
-  z-index: 9990;
-  display: flex;
+  z-index: 10010;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.28s ease;
-  perspective: 900px;
-  -webkit-tap-highlight-color: transparent;
-  outline: none;
 }
 .must-card-lightbox::before {
   content: '';
@@ -394,66 +389,27 @@ body {
   background: rgba(0,0,0,0.84);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+  opacity: 0;
+  transition: opacity 0.28s ease;
 }
 .must-card-lightbox.active {
-  opacity: 1;
+  display: flex;
   pointer-events: auto;
+}
+.must-card-lightbox.active::before {
+  opacity: 1;
 }
 .must-card-lightbox-inner {
   position: relative;
   z-index: 1;
   max-width: min(76vw, 390px);
-  max-height: 88vh;
-  width: auto;
+  width: 100%;
 }
 .must-card-lightbox-img {
   width: 100%;
   display: block;
   clip-path: inset(0 round 4.5%);
-  box-shadow:
-    0 40px 120px rgba(0,0,0,0.75);
-}
-
-@keyframes mustCardFlyIn {
-  0% {
-    transform: scale(0.04) rotate(-18deg) translateY(60px);
-    opacity: 0;
-    filter: blur(6px);
-  }
-  18% {
-    opacity: 1;
-    filter: blur(0);
-  }
-  65% {
-    transform: scale(1.13) rotate(3deg) translateY(-10px);
-  }
-  82% {
-    transform: scale(0.95) rotate(-1.5deg) translateY(4px);
-  }
-  100% {
-    transform: scale(1) rotate(0deg) translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes mustCardFlyOut {
-  0% {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-    filter: blur(0);
-  }
-  100% {
-    transform: scale(0.05) rotate(14deg) translateY(40px);
-    opacity: 0;
-    filter: blur(4px);
-  }
-}
-
-.must-card-lightbox.active .must-card-lightbox-inner {
-  animation: mustCardFlyIn 0.58s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-.must-card-lightbox.closing .must-card-lightbox-inner {
-  animation: mustCardFlyOut 0.22s ease-in forwards;
+  box-shadow: 0 40px 120px rgba(0,0,0,0.75);
 }
 
 /* ── Globe active: hide Leaflet controls and map UI ── */

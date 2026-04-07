@@ -343,6 +343,8 @@ body {
               box-shadow 0.22s ease;
   transform-origin: center 90%;
   will-change: transform;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .must-card:hover {
   transform: scale(1.05) rotate(-2deg) translateY(-6px);

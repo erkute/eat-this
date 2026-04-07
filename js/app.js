@@ -1507,6 +1507,17 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
   }
 
   document.querySelectorAll('.must-card').forEach(card => {
+    let touchMoved = false;
+    card.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
+    card.addEventListener('touchmove', () => { touchMoved = true; }, { passive: true });
+    card.addEventListener('touchend', e => {
+      if (touchMoved) return;
+      e.preventDefault();
+      openMustCard(
+        card.querySelector('.must-card-img').src,
+        card.querySelector('.must-card-img').alt
+      );
+    });
     card.addEventListener('click', () => {
       openMustCard(
         card.querySelector('.must-card-img').src,
@@ -1515,6 +1526,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     });
   });
 
+  mustLightbox.addEventListener('touchend', e => { e.preventDefault(); closeMustCard(); });
   mustLightbox.addEventListener('click', closeMustCard);
 
   document.addEventListener('keydown', e => {

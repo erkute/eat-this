@@ -2798,7 +2798,7 @@ body {
   /* Eat This card grid — mobile (real devices ≤767px) */
   .app-page[data-page="musts"] .must-eats-grid {
     grid-template-columns: repeat(2, 1fr);
-    padding: 8px 8px 40px;
+    padding: 8px 8px max(40px, calc(env(safe-area-inset-bottom) + 24px));
     gap: 8px;
     max-width: none;
     margin: 0;
@@ -3513,7 +3513,7 @@ body {
 
   .app-page[data-page="musts"] .must-eats-grid {
     grid-template-columns: repeat(2, 1fr);
-    padding: 8px 8px 40px;
+    padding: 8px 8px max(40px, calc(env(safe-area-inset-bottom) + 24px));
     gap: 8px;
     max-width: none;
     margin: 0 auto;
@@ -3579,7 +3579,7 @@ body {
   @media (min-width: 480px) {
     .app-page[data-page="musts"] .must-eats-grid {
       grid-template-columns: repeat(2, 1fr);
-      padding: 12px 14px 40px;
+      padding: 12px 14px max(40px, calc(env(safe-area-inset-bottom) + 24px));
       gap: 12px;
       max-width: 800px;
     }

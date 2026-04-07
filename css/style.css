@@ -346,6 +346,7 @@ body {
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   -webkit-user-select: none;
+  outline: none;
 }
 .must-card-clip {
   width: 100%;
@@ -383,6 +384,8 @@ body {
   pointer-events: none;
   transition: opacity 0.28s ease;
   perspective: 900px;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 .must-card-lightbox::before {
   content: '';

@@ -427,9 +427,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   eatCards.forEach(card => {
-    let touchMoved = false;
-    card.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
-    card.addEventListener('touchmove', () => { touchMoved = true; }, { passive: true });
+    let touchStartX = 0, touchStartY = 0, touchMoved = false;
+    card.addEventListener('touchstart', e => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchMoved = false;
+    }, { passive: true });
+    card.addEventListener('touchmove', e => {
+      if (Math.abs(e.touches[0].clientX - touchStartX) > 8 ||
+          Math.abs(e.touches[0].clientY - touchStartY) > 8) {
+        touchMoved = true;
+      }
+    }, { passive: true });
     card.addEventListener('touchend', e => {
       if (touchMoved) return;
       if (e.target.closest('a')) return;
@@ -1535,9 +1544,18 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     card.insertBefore(clip, img);
     clip.appendChild(img);
 
-    let touchMoved = false;
-    card.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
-    card.addEventListener('touchmove', () => { touchMoved = true; }, { passive: true });
+    let touchStartX = 0, touchStartY = 0, touchMoved = false;
+    card.addEventListener('touchstart', e => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchMoved = false;
+    }, { passive: true });
+    card.addEventListener('touchmove', e => {
+      if (Math.abs(e.touches[0].clientX - touchStartX) > 8 ||
+          Math.abs(e.touches[0].clientY - touchStartY) > 8) {
+        touchMoved = true;
+      }
+    }, { passive: true });
     card.addEventListener('touchend', e => {
       if (touchMoved) return;
       e.preventDefault();

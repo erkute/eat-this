@@ -322,6 +322,11 @@ body {
   margin: 0 auto;
   justify-content: center;
 }
+.must-eats-grid > .must-card:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  max-width: 50%;
+  justify-self: center;
+}
 
 @media (min-width: 768px) {
   .must-eats-section { padding: 140px 0 100px; }

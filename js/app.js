@@ -1476,6 +1476,51 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     if (trigger) trigger.addEventListener('click', () => { closeBurger(); m.open(); });
   });
 
+  // ============================================
+  // MUST-EAT CARD LIGHTBOX (flying card)
+  // ============================================
+  const mustLightbox = document.createElement('div');
+  mustLightbox.className = 'must-card-lightbox';
+  const mustLightboxInner = document.createElement('div');
+  mustLightboxInner.className = 'must-card-lightbox-inner';
+  const mustLightboxImg = document.createElement('img');
+  mustLightboxImg.className = 'must-card-lightbox-img';
+  mustLightboxInner.appendChild(mustLightboxImg);
+  mustLightbox.appendChild(mustLightboxInner);
+  document.body.appendChild(mustLightbox);
+
+  function openMustCard(src, alt) {
+    mustLightboxImg.src = src;
+    mustLightboxImg.alt = alt;
+    mustLightbox.classList.remove('closing');
+    mustLightbox.classList.add('active');
+    bodyOverflow.lock();
+  }
+
+  function closeMustCard() {
+    if (!mustLightbox.classList.contains('active')) return;
+    mustLightbox.classList.add('closing');
+    setTimeout(() => {
+      mustLightbox.classList.remove('active', 'closing');
+      bodyOverflow.unlock();
+    }, 220);
+  }
+
+  document.querySelectorAll('.must-card').forEach(card => {
+    card.addEventListener('click', () => {
+      openMustCard(
+        card.querySelector('.must-card-img').src,
+        card.querySelector('.must-card-img').alt
+      );
+    });
+  });
+
+  mustLightbox.addEventListener('click', closeMustCard);
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeMustCard();
+  });
+
   // Cookie Consent
   const cookieConsent = document.getElementById('cookieConsent');
   const cookieAccept = document.getElementById('cookieAccept');

@@ -338,6 +338,7 @@ body {
   cursor: pointer;
   position: relative;
   aspect-ratio: 1509 / 2163;
+  clip-path: inset(0 round 4.5%);
   transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
               box-shadow 0.22s ease;
   transform-origin: center 90%;
@@ -2583,7 +2584,6 @@ body {
   height: calc(100vh - 60px - 70px);
   overflow-y: auto;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
   padding-bottom: 70px;
 }
 

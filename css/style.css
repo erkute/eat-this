@@ -485,6 +485,10 @@ body {
   overflow: visible;
   cursor: pointer;
   position: relative;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .eat-card.is-expanded {
   /* Scene is moved to portal; card is a placeholder */

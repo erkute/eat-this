@@ -388,40 +388,61 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   eatBackdrop.addEventListener('click', collapseCard);
+  eatBackdrop.addEventListener('touchend', e => { e.preventDefault(); collapseCard(); }, { passive: false });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') collapseCard(); });
 
+  function expandCard(card) {
+    const rect = card.getBoundingClientRect();
+    const targetW = Math.min(340, window.innerWidth * 0.85);
+    const scale = targetW / rect.width;
+    const dx = window.innerWidth / 2 - (rect.left + rect.width / 2);
+    const dy = window.innerHeight / 2 - (rect.top + rect.height / 2);
+
+    const scene = card.querySelector('.eat-card-scene');
+    const port = document.createElement('div');
+    port.className = 'eat-card-portal';
+    port.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;z-index:9997;cursor:pointer;transform-origin:center center;transform:translate(0,0) scale(1);transition:none;transform-style:preserve-3d;`;
+    port.appendChild(scene);
+    document.body.appendChild(port);
+    card.style.opacity = '0'; card.style.visibility = 'hidden';
+    activeCard = card; activePortal = port;
+
+    port.offsetHeight;
+    port.style.transition = 'transform 0.48s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.48s ease';
+    port.style.transform = `translate(${dx}px,${dy}px) scale(${scale})`;
+    port.style.boxShadow = '0 32px 80px rgba(0,0,0,0.45), 0 8px 24px rgba(0,0,0,0.25)';
+    eatBackdrop.classList.add('active');
+
+    port.addEventListener('click', pe => {
+      if (pe.target.closest('a')) return;
+      pe.stopPropagation();
+      collapseCard();
+    });
+    port.addEventListener('touchend', pe => {
+      if (pe.target.closest('a')) return;
+      pe.preventDefault();
+      pe.stopPropagation();
+      collapseCard();
+    }, { passive: false });
+  }
+
   eatCards.forEach(card => {
+    let touchMoved = false;
+    card.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
+    card.addEventListener('touchmove', () => { touchMoved = true; }, { passive: true });
+    card.addEventListener('touchend', e => {
+      if (touchMoved) return;
+      if (e.target.closest('a')) return;
+      e.preventDefault();
+      if (activeCard) { collapseCard(); return; }
+      expandCard(card);
+    }, { passive: false });
+
     card.addEventListener('click', (e) => {
       if (e.target.closest('a')) return;
       if (activeCard && activeCard !== card) { collapseCard(); return; }
       if (activeCard) { collapseCard(); return; }
-
-      const rect = card.getBoundingClientRect();
-      const targetW = Math.min(340, window.innerWidth * 0.85);
-      const scale = targetW / rect.width;
-      const dx = window.innerWidth / 2 - (rect.left + rect.width / 2);
-      const dy = window.innerHeight / 2 - (rect.top + rect.height / 2);
-
-      const scene = card.querySelector('.eat-card-scene');
-      const port = document.createElement('div');
-      port.className = 'eat-card-portal';
-      port.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;z-index:9997;cursor:pointer;transform-origin:center center;transform:translate(0,0) scale(1);transition:none;transform-style:preserve-3d;`;
-      port.appendChild(scene);
-      document.body.appendChild(port);
-      card.style.opacity = '0'; card.style.visibility = 'hidden';
-      activeCard = card; activePortal = port;
-
-      port.offsetHeight;
-      port.style.transition = 'transform 0.48s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.48s ease';
-      port.style.transform = `translate(${dx}px,${dy}px) scale(${scale})`;
-      port.style.boxShadow = '0 32px 80px rgba(0,0,0,0.45), 0 8px 24px rgba(0,0,0,0.25)';
-      eatBackdrop.classList.add('active');
-
-      port.addEventListener('click', pe => {
-        if (pe.target.closest('a')) return;
-        pe.stopPropagation();
-        collapseCard();
-      });
+      expandCard(card);
     });
   });
 

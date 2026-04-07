@@ -338,13 +338,14 @@ body {
   cursor: pointer;
   position: relative;
   aspect-ratio: 1509 / 2163;
-  clip-path: inset(0 round 4.5%);
   transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
               box-shadow 0.22s ease;
   transform-origin: center 90%;
   will-change: transform;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .must-card:hover {
   transform: scale(1.05) rotate(-2deg) translateY(-6px);
@@ -359,6 +360,8 @@ body {
   height: 100%;
   display: block;
   object-fit: contain;
+  border-radius: 4.5%;
+  pointer-events: none;
 }
 
 /* ── Must-eat card lightbox ── */

@@ -1506,6 +1506,8 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     }, 220);
   }
 
+  let mustOpenedByTouch = false;
+
   document.querySelectorAll('.must-card').forEach(card => {
     let touchMoved = false;
     card.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
@@ -1513,12 +1515,15 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     card.addEventListener('touchend', e => {
       if (touchMoved) return;
       e.preventDefault();
+      mustOpenedByTouch = true;
+      setTimeout(() => { mustOpenedByTouch = false; }, 500);
       openMustCard(
         card.querySelector('.must-card-img').src,
         card.querySelector('.must-card-img').alt
       );
     });
     card.addEventListener('click', () => {
+      if (mustOpenedByTouch) return;
       openMustCard(
         card.querySelector('.must-card-img').src,
         card.querySelector('.must-card-img').alt
@@ -1526,8 +1531,15 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     });
   });
 
-  mustLightbox.addEventListener('touchend', e => { e.preventDefault(); closeMustCard(); });
-  mustLightbox.addEventListener('click', closeMustCard);
+  mustLightbox.addEventListener('touchend', e => {
+    e.preventDefault();
+    if (mustOpenedByTouch) return;
+    closeMustCard();
+  });
+  mustLightbox.addEventListener('click', () => {
+    if (mustOpenedByTouch) return;
+    closeMustCard();
+  });
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeMustCard();

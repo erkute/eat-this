@@ -1507,6 +1507,13 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
   }
 
   document.querySelectorAll('.must-card').forEach(card => {
+    // Wrap img in clip div so clip-path is on a non-interactive child (iOS Safari bug: clip-path on interactive element blocks touch)
+    const img = card.querySelector('.must-card-img');
+    const clip = document.createElement('div');
+    clip.className = 'must-card-clip';
+    card.insertBefore(clip, img);
+    clip.appendChild(img);
+
     let touchMoved = false;
     card.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
     card.addEventListener('touchmove', () => { touchMoved = true; }, { passive: true });

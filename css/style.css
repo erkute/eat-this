@@ -2549,10 +2549,10 @@ body {
 .app-page {
   display: none !important;
   width: 100%;
-  height: calc(100vh - 60px - 70px);
+  height: calc(100vh - 60px - 70px - env(safe-area-inset-bottom));
   overflow-y: auto;
   overflow-x: hidden;
-  padding-bottom: 70px;
+  padding-bottom: 16px;
 }
 
 .app-page.active {
@@ -3402,7 +3402,7 @@ body {
 
   /* App pages fill height between navbar and footer */
   .app-page {
-    height: calc(100vh - 60px - 70px);
+    height: calc(100vh - 60px - 70px - env(safe-area-inset-bottom));
     background: var(--white);
   }
 

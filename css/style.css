@@ -2549,10 +2549,10 @@ body {
 .app-page {
   display: none !important;
   width: 100%;
-  height: calc(100vh - 60px - 70px - env(safe-area-inset-bottom));
+  height: calc(100vh - 60px);
   overflow-y: auto;
   overflow-x: hidden;
-  padding-bottom: 16px;
+  padding-bottom: max(80px, calc(61px + env(safe-area-inset-bottom)));
 }
 
 .app-page.active {
@@ -2577,7 +2577,7 @@ body {
 }
 
 .app-page[data-page="start"] {
-  min-height: calc(100vh - 60px - 70px);
+  min-height: calc(100vh - 60px);
 }
 
 /* ============================================
@@ -2671,7 +2671,7 @@ body {
     top: 60px;
     left: 0;
     right: 0;
-    bottom: 70px;
+    bottom: max(70px, calc(61px + env(safe-area-inset-bottom)));
     height: auto;
     z-index: 9990;
     background: var(--white);
@@ -3402,7 +3402,8 @@ body {
 
   /* App pages fill height between navbar and footer */
   .app-page {
-    height: calc(100vh - 60px - 70px - env(safe-area-inset-bottom));
+    height: calc(100vh - 60px);
+    padding-bottom: max(80px, calc(61px + env(safe-area-inset-bottom)));
     background: var(--white);
   }
 

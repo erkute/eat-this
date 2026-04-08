@@ -407,7 +407,7 @@ body {
 .must-card-lightbox-inner {
   position: relative;
   z-index: 1;
-  max-width: min(76vw, 390px);
+  max-width: min(92vw, calc(88vh * (1509 / 2163)));
   width: 100%;
 }
 .must-card-lightbox-img {

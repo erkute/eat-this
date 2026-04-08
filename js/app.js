@@ -1527,14 +1527,14 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     mustLightboxImg.alt = alt;
 
     const rect = cardEl.getBoundingClientRect();
-    const targetW = Math.min(window.innerWidth * 0.76, 390);
+    const targetW = Math.min(window.innerWidth * 0.92, window.innerHeight * 0.88 * 1509 / 2163);
     const startX = rect.left + rect.width / 2 - window.innerWidth / 2;
     const startY = rect.top + rect.height / 2 - window.innerHeight / 2;
     const startScale = rect.width / targetW;
 
     // Set start position before making visible
     mustLightboxInner.style.transition = 'none';
-    mustLightboxInner.style.transform = `translate(${startX}px, ${startY}px) scale(${startScale}) rotate(-14deg)`;
+    mustLightboxInner.style.transform = `translate(${startX}px, ${startY}px) scale(${startScale}) rotate(-18deg)`;
     mustLightboxInner.style.opacity = '0';
 
     mustLightbox.classList.add('active');
@@ -1543,14 +1543,14 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     // offsetHeight read forces synchronous reflow so the start state is committed
     mustLightboxInner.offsetHeight; // eslint-disable-line no-unused-expressions
 
-    mustLightboxInner.style.transition = 'transform 0.52s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease';
-    mustLightboxInner.style.transform = 'translate(0,0) scale(1) rotate(3deg)';
+    mustLightboxInner.style.transition = 'transform 0.56s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease';
+    mustLightboxInner.style.transform = 'translate(0,0) scale(1) rotate(4deg)';
     mustLightboxInner.style.opacity = '1';
 
     setTimeout(() => {
-      mustLightboxInner.style.transition = 'transform 0.16s ease-out';
+      mustLightboxInner.style.transition = 'transform 0.2s ease-out';
       mustLightboxInner.style.transform = 'translate(0,0) scale(1) rotate(0deg)';
-    }, 520);
+    }, 560);
   }
 
   let mustClosing = false;
@@ -1562,7 +1562,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
 
     if (cardEl) {
       const rect = cardEl.getBoundingClientRect();
-      const targetW = Math.min(window.innerWidth * 0.76, 390);
+      const targetW = Math.min(window.innerWidth * 0.92, window.innerHeight * 0.88 * 1509 / 2163);
       const endX = rect.left + rect.width / 2 - window.innerWidth / 2;
       const endY = rect.top + rect.height / 2 - window.innerHeight / 2;
       const endScale = rect.width / targetW;

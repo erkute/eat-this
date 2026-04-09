@@ -1870,7 +1870,6 @@ body {
   display: block !important;
 }
 
-.app-page .must-eats-section,
 .app-page .map-section {
   min-height: 100%;
 }
@@ -2105,17 +2104,23 @@ body {
     display: none;
   }
 
+  /* Remove redundant padding-bottom — on mobile the container already stops above the footer */
+  .app-page[data-page="news"],
+  .app-page[data-page="musts"] {
+    padding-bottom: 0;
+  }
+
   /* Must-eats grid — mobile */
   .app-page[data-page="musts"] .must-eats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-    padding: 8px 8px max(40px, calc(env(safe-area-inset-bottom) + 24px));
+    padding: 8px 8px max(16px, calc(env(safe-area-inset-bottom) + 8px));
     max-width: none;
     margin: 0;
   }
   .app-page[data-page="musts"] .must-eats-grid .must-card:nth-child(odd):last-child {
     grid-column: 1 / -1;
-    justify-self: center;
+    justify-self: start;
     width: calc(50% - 4px);
   }
 

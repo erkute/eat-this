@@ -1526,6 +1526,9 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     mustLightboxImg.src = src;
     mustLightboxImg.alt = alt;
 
+    // Hide the original card so it doesn't show through during animation
+    cardEl.style.visibility = 'hidden';
+
     const rect = cardEl.getBoundingClientRect();
     const cardRatio = 1449 / 2163;
     const targetW = Math.min(window.innerWidth * 0.90, window.innerHeight * 0.90 * cardRatio);
@@ -1580,6 +1583,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       setTimeout(() => {
         mustLightbox.classList.remove('active', 'closing');
         mustLightboxInner.style.cssText = '';
+        if (cardEl) cardEl.style.visibility = '';
         mustActiveCard = null;
         mustClosing = false;
         bodyOverflow.unlock();

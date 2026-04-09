@@ -1527,7 +1527,8 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     mustLightboxImg.alt = alt;
 
     const rect = cardEl.getBoundingClientRect();
-    const targetW = Math.min(window.innerWidth * 0.76, 390);
+    const cardRatio = 1449 / 2163;
+    const targetW = Math.min(window.innerWidth * 0.90, window.innerHeight * 0.90 * cardRatio);
     const startX = rect.left + rect.width / 2 - window.innerWidth / 2;
     const startY = rect.top + rect.height / 2 - window.innerHeight / 2;
     const startScale = rect.width / targetW;
@@ -1562,7 +1563,8 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
 
     if (cardEl) {
       const rect = cardEl.getBoundingClientRect();
-      const targetW = Math.min(window.innerWidth * 0.76, 390);
+      const cardRatio = 1449 / 2163;
+      const targetW = Math.min(window.innerWidth * 0.90, window.innerHeight * 0.90 * cardRatio);
       const endX = rect.left + rect.width / 2 - window.innerWidth / 2;
       const endY = rect.top + rect.height / 2 - window.innerHeight / 2;
       const endScale = rect.width / targetW;

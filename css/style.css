@@ -274,23 +274,8 @@ body {
 }
 
 /* ============================================
-   MUST EATS / EAT THIS SECTION
+   SHARED LABELS
    ============================================ */
-.must-eats-section {
-  padding: 60px 0 40px;
-}
-.must-eats-header {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px 72px;
-  text-align: center;
-}
-.must-eats-header-top {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-bottom: 0;
-}
 .section-label {
   font-size: 10px;
   font-weight: 700;
@@ -299,88 +284,92 @@ body {
   color: var(--orange);
   margin-bottom: 8px;
 }
+
+/* ============================================
+   MUST EATS SECTION
+   ============================================ */
+.must-eats-section {
+  padding: 60px 0 60px;
+}
+.must-eats-header {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 16px 40px;
+  text-align: center;
+}
 .must-eats-header .section-label {
   text-align: center;
 }
-.must-eats-title {
-  font-size: clamp(2.5rem, 7vw, 5rem);
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 0.95;
+.must-eats-logo-img {
+  max-width: 220px;
+  display: block;
+  margin: 0 auto;
 }
 .must-eats-subtitle {
   font-size: 14px;
   color: var(--gray-400);
   font-weight: 400;
+  margin-top: 10px;
 }
+
+/* Grid */
 .must-eats-grid {
-  padding: 0 24px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  max-width: 900px;
+  gap: 10px;
+  padding: 0 10px 40px;
+  max-width: 700px;
   margin: 0 auto;
-  justify-content: center;
 }
-/* Center the lone last card when there's an odd number */
 .must-eats-grid .must-card:nth-child(odd):last-child {
   grid-column: 1 / -1;
   justify-self: center;
-  width: calc(50% - 12px);
+  width: calc(50% - 5px);
 }
-
-@media (min-width: 768px) {
-  .must-eats-section { padding: 140px 0 100px; }
-  .must-eats-header { padding: 0 48px 72px; }
-  .must-eats-grid { gap: 32px; }
-  .must-eats-grid .must-card:nth-child(odd):last-child { width: calc(50% - 16px); }
+@media (min-width: 600px) {
+  .must-eats-section { padding: 100px 0 80px; }
+  .must-eats-grid { gap: 14px; padding: 0 16px 40px; }
+  .must-eats-grid .must-card:nth-child(odd):last-child { width: calc(50% - 7px); }
 }
-
 @media (min-width: 1024px) {
-  .must-eats-grid { gap: 40px; }
-  .must-eats-grid .must-card:nth-child(odd):last-child { width: calc(50% - 20px); }
+  .must-eats-section { padding: 140px 0 100px; }
+  .must-eats-grid { gap: 18px; padding: 0 20px 40px; max-width: 800px; }
+  .must-eats-grid .must-card:nth-child(odd):last-child { width: calc(50% - 9px); }
 }
 
-/* ── Must-eat image cards ── */
+/* Cards */
 .must-card {
   cursor: pointer;
   position: relative;
   aspect-ratio: 1449 / 2163;
-  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.22s ease;
-  transform-origin: center 90%;
-  will-change: transform;
+  border-radius: 6%;
+  overflow: hidden;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   -webkit-user-select: none;
-  outline: none;
-  background: transparent;
-  border-radius: 4.5%;
-  overflow: hidden;
+  will-change: transform;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  transition: transform 0.15s ease;
+}
+.must-card:active {
+  transform: scale(0.97);
 }
 .must-card-clip {
   width: 100%;
   height: 100%;
-  clip-path: inset(0 round 4.5%);
   pointer-events: none;
-}
-.must-card:active {
-  transform: scale(0.96) rotate(0deg);
-  transition-duration: 0.08s;
 }
 .must-card-img {
   width: 100%;
   height: 100%;
   display: block;
   object-fit: cover;
-  border-radius: 4.5%;
   pointer-events: none;
 }
 
-/* ── Must-eat card lightbox ── */
+/* Lightbox */
 .must-card-lightbox {
   display: none;
   position: fixed;
@@ -394,9 +383,9 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.84);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   opacity: 0;
   transition: opacity 0.28s ease;
 }
@@ -410,14 +399,14 @@ body {
 .must-card-lightbox-inner {
   position: relative;
   z-index: 1;
-  max-width: min(76vw, 390px);
-  width: 100%;
+  /* fill ~90% of the shorter viewport axis */
+  width: min(90vw, calc(90vh * (1449 / 2163)));
 }
 .must-card-lightbox-img {
   width: 100%;
   display: block;
-  clip-path: inset(0 round 4.5%);
-  box-shadow: 0 40px 120px rgba(0,0,0,0.75);
+  border-radius: 6%;
+  box-shadow: 0 40px 120px rgba(0,0,0,0.8);
 }
 
 /* ── Globe active: hide Leaflet controls and map UI ── */
@@ -2073,7 +2062,6 @@ body {
     display: block;
   }
 
-  .app-page[data-page="musts"] .must-eats-title,
   .app-page[data-page="map"] .map-title,
   .app-page[data-page="news"] .news-title {
     font-size: 1.8rem;
@@ -2092,17 +2080,17 @@ body {
     display: block;
     font-size: 10px;
   }
-  
+
   .app-page[data-page="musts"] .must-eats-section {
     padding: 0;
   }
-  
+
   .app-page[data-page="musts"] .must-eats-logo-img {
-    max-width: 200px;
+    max-width: 180px;
     display: block;
     margin: 0 auto;
   }
-  
+
   .app-page[data-page="musts"] .must-eats-subtitle,
   .app-page[data-page="map"] .map-subtitle,
   .app-page[data-page="news"] .news-subtitle {
@@ -2113,11 +2101,11 @@ body {
     display: none;
   }
 
-  /* Eat This card grid — mobile (real devices ≤767px) */
+  /* Must-eats grid — mobile */
   .app-page[data-page="musts"] .must-eats-grid {
     grid-template-columns: repeat(2, 1fr);
-    padding: 8px 8px max(40px, calc(env(safe-area-inset-bottom) + 24px));
     gap: 8px;
+    padding: 8px 8px max(40px, calc(env(safe-area-inset-bottom) + 24px));
     max-width: none;
     margin: 0;
   }
@@ -2125,59 +2113,6 @@ body {
     grid-column: 1 / -1;
     justify-self: center;
     width: calc(50% - 4px);
-  }
-
-  .app-page[data-page="musts"] .eat-card-flip {
-    aspect-ratio: 59/92;
-    min-height: 0;
-  }
-
-  .app-page[data-page="musts"] .eat-card-face {
-    overflow: hidden;
-  }
-
-  .app-page[data-page="musts"] .cf {
-    overflow: hidden;
-  }
-
-  .app-page[data-page="musts"] .cf-img-wrap {
-    flex: 0 0 52%;
-  }
-
-  .app-page[data-page="musts"] .cf-dish {
-    font-size: 1.25rem;
-    white-space: normal;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .app-page[data-page="musts"] .cf-label {
-    font-size: 0.58rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .app-page[data-page="musts"] .cf-desc {
-    font-size: 0.68rem;
-    line-height: 1.4;
-    -webkit-line-clamp: 2;
-  }
-
-  .app-page[data-page="musts"] .cf-district {
-    font-size: 0.58rem;
-  }
-
-  .app-page[data-page="musts"] .cf-top-area {
-    padding: 6px 8px 6px;
-  }
-
-  .app-page[data-page="musts"] .cf-bottom-bar {
-    padding: 6px 8px 8px;
   }
 
   /* Map page mobile */
@@ -2779,7 +2714,6 @@ body {
     justify-content: space-between;
   }
 
-  .app-page .must-eats-title,
   .app-page .news-title {
     font-size: 1.5rem;
     font-weight: 900;
@@ -2795,6 +2729,7 @@ body {
   }
 
   .app-page[data-page="musts"] .must-eats-logo-img {
+    max-width: 180px;
     display: block;
     margin: 0 auto;
   }
@@ -2824,100 +2759,32 @@ body {
     display: none;
   }
 
-  .app-page .must-eats-logo-img {
-    max-width: 200px;
-    display: block;
-    margin: 0 auto;
-  }
-
-  /* ---- Eat This: 2-column grid, compact cards ---- */
+  /* Must-eats grid — desktop app */
   .app-page[data-page="musts"] .must-eats-section {
     padding: 0;
   }
 
   .app-page[data-page="musts"] .must-eats-grid {
     grid-template-columns: repeat(2, 1fr);
-    padding: 8px 8px max(40px, calc(env(safe-area-inset-bottom) + 24px));
-    gap: 8px;
+    gap: 10px;
+    padding: 10px 10px max(40px, calc(env(safe-area-inset-bottom) + 24px));
     max-width: none;
     margin: 0 auto;
   }
   .app-page[data-page="musts"] .must-eats-grid .must-card:nth-child(odd):last-child {
     grid-column: 1 / -1;
     justify-self: center;
-    width: calc(50% - 4px);
-  }
-
-  .app-page[data-page="musts"] .eat-card-flip {
-    aspect-ratio: 59/92;
-    min-height: 0;
-  }
-
-  .app-page[data-page="musts"] .eat-card-face {
-    overflow: hidden;
-  }
-
-  .app-page[data-page="musts"] .cf {
-    overflow: hidden;
-  }
-
-  .app-page[data-page="musts"] .cf-img-wrap {
-    flex: 0 0 52%;
-  }
-
-  .app-page[data-page="musts"] .cf-dish {
-    font-size: 1.25rem;
-    white-space: normal;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    -webkit-line-clamp: 2;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .app-page[data-page="musts"] .cf-label {
-    font-size: 0.58rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .app-page[data-page="musts"] .cf-desc {
-    font-size: 0.68rem;
-    line-height: 1.4;
-    -webkit-line-clamp: 2;
-  }
-
-  .app-page[data-page="musts"] .cf-district {
-    font-size: 0.58rem;
-  }
-
-  .app-page[data-page="musts"] .cf-maps-pill-txt {
-    font-size: 0.32rem;
-  }
-
-  .app-page[data-page="musts"] .cf-top-area {
-    padding: 6px 8px 6px;
-  }
-
-  .app-page[data-page="musts"] .cf-bottom-bar {
-    padding: 6px 8px 8px;
+    width: calc(50% - 5px);
   }
 
   @media (min-width: 480px) {
     .app-page[data-page="musts"] .must-eats-grid {
-      grid-template-columns: repeat(2, 1fr);
-      padding: 12px 14px max(40px, calc(env(safe-area-inset-bottom) + 24px));
       gap: 12px;
+      padding: 12px 14px max(40px, calc(env(safe-area-inset-bottom) + 24px));
       max-width: 800px;
     }
     .app-page[data-page="musts"] .must-eats-grid .must-card:nth-child(odd):last-child {
       width: calc(50% - 6px);
-    }
-
-    .app-page[data-page="musts"] .eat-card-flip {
-      min-height: 200px;
     }
   }
 

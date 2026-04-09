@@ -585,6 +585,7 @@ body {
 
 /* Nearby Bottom Sheet */
 .map-nearby {
+  display: none; /* hidden until JS shows it */
   background: #fff;
   border-top: 1px solid #ebebeb;
 }
@@ -2172,6 +2173,7 @@ body {
   }
 
   .app-page[data-page="map"] .map-nearby {
+    display: block; /* override base display:none — visibility via transform */
     position: absolute;
     bottom: 0;
     left: 0;
@@ -2182,8 +2184,7 @@ body {
     border-top: none;
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -2px 20px rgba(0,0,0,0.12);
-    transform: translateY(100%);
-    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    transform: translateY(100%); /* hidden initially, JS animates in */
     max-height: calc(100% - 100px);
     overflow: hidden;
   }

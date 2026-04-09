@@ -1079,10 +1079,11 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         candidates = spots.filter(s => s.categories && s.categories.includes(activeFilter));
       }
 
+      const maxCards = isMobileLayout() ? 9 : 3;
       const sorted = candidates
         .map(s => ({ ...s, dist: haversineDistance(nearbyUserLat, nearbyUserLng, s.lat, s.lng) }))
         .sort((a, b) => a.dist - b.dist)
-        .slice(0, 9);
+        .slice(0, maxCards);
 
       while (cardsEl.firstChild) cardsEl.removeChild(cardsEl.firstChild);
 
@@ -1133,35 +1134,37 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       });
     }
 
-    function setNearbySheetState(state, skipAnim) {
+    function isMobileLayout() {
+      return window.matchMedia('(max-width: 767px)').matches;
+    }
+
+    function setNearbySheetState(state) {
       const sheet = document.getElementById('mapNearby');
       if (!sheet) return;
 
       nearbySheetState = state;
 
-      // Use rAF so layout is ready before we measure offsetHeight
+      if (!isMobileLayout()) return; // desktop: no transform needed
+
+      // Double-rAF: first frame ensures CSS transform:translateY(100%) was painted,
+      // second frame sets inline transform so browser animates the difference.
       requestAnimationFrame(() => {
         const sheetH = sheet.offsetHeight || 300;
         let targetY;
-        if (state === 'peek')     targetY = sheetH - NEARBY_SNAP_PEEK;
-        else if (state === 'mid') targetY = sheetH - NEARBY_SNAP_MID;
+        if (state === 'peek')          targetY = sheetH - NEARBY_SNAP_PEEK;
+        else if (state === 'mid')      targetY = sheetH - NEARBY_SNAP_MID;
         else if (state === 'expanded') targetY = 0;
-        else targetY = sheetH; // hidden
+        else                           targetY = sheetH;
 
-        if (skipAnim) {
-          sheet.style.transition = 'none';
-          sheet.style.transform = `translateY(${targetY}px)`;
-          // Re-enable transition next frame
-          requestAnimationFrame(() => { sheet.style.transition = ''; });
-        } else {
+        requestAnimationFrame(() => {
           sheet.style.transition = 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)';
-          sheet.style.transform = `translateY(${targetY}px)`;
-        }
+          sheet.style.transform  = `translateY(${targetY}px)`;
 
-        const zoomBtns = document.querySelector('.map-zoom-btns');
-        if (zoomBtns) {
-          zoomBtns.style.bottom = (state !== 'hidden') ? (NEARBY_SNAP_MID + 16) + 'px' : '';
-        }
+          const zoomBtns = document.querySelector('.map-zoom-btns');
+          if (zoomBtns) {
+            zoomBtns.style.bottom = (state !== 'hidden') ? (NEARBY_SNAP_MID + 16) + 'px' : '';
+          }
+        });
       });
     }
 
@@ -1272,8 +1275,21 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
 
       renderNearbyCards(nearbyCurrentFilter);
       document.querySelector('.map-section')?.classList.add('map-has-nearby');
-      setupNearbySwipe(nearbyEl);
-      setNearbySheetState('mid');
+
+      if (isMobileLayout()) {
+        // Mobile: bottom sheet with swipe gestures
+        setupNearbySwipe(nearbyEl);
+        setNearbySheetState('mid');
+      } else {
+        // Desktop: show as normal strip below the map
+        nearbyEl.style.display = 'block';
+        nearbySheetState = 'mid';
+        requestAnimationFrame(() => {
+          const zoomBtns = document.querySelector('.map-zoom-btns');
+          const stripH = nearbyEl.offsetHeight;
+          if (zoomBtns) zoomBtns.style.bottom = (stripH + 12) + 'px';
+        });
+      }
     }
 
     function hideSpotDetail() {

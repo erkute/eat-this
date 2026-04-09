@@ -1061,17 +1061,27 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    function showNearbyStrip(userLat, userLng) {
-      const nearbyEl = document.getElementById('mapNearby');
-      const scrollEl = document.getElementById('mapNearbyScroll');
-      if (!nearbyEl || !scrollEl) return;
+    // ---- Bottom Sheet: Nearby ----
+    let _nearbyLat = null, _nearbyLng = null;
+    let _sheetState = 'hidden'; // 'hidden' | 'peek' | 'mid' | 'expanded'
+    let _sheetReady = false;
+
+    const PEEK_PX = 56;   // handle (28) + label row (28)
+    const MID_PX  = 210;  // header + ~1 card row
+
+    function _renderNearbyGrid() {
+      const gridEl = document.getElementById('mapNearbyGrid');
+      if (!gridEl || _nearbyLat === null) return;
+
+      const activeFilter = document.querySelector('.map-filter-tab.active')?.dataset.filter || 'all';
 
       const sorted = spots
-        .map(s => ({ ...s, dist: haversineDistance(userLat, userLng, s.lat, s.lng) }))
+        .map(s => ({ ...s, dist: haversineDistance(_nearbyLat, _nearbyLng, s.lat, s.lng) }))
+        .filter(s => activeFilter === 'all' || (s.categories || []).includes(activeFilter))
         .sort((a, b) => a.dist - b.dist)
-        .slice(0, 3);
+        .slice(0, 9);
 
-      while (scrollEl.firstChild) scrollEl.removeChild(scrollEl.firstChild);
+      while (gridEl.firstChild) gridEl.removeChild(gridEl.firstChild);
 
       sorted.forEach(spot => {
         const distM = Math.round(spot.dist);
@@ -1079,27 +1089,27 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         const photo = spot.photo || getSpotPhoto(spot.type);
 
         const card = document.createElement('div');
-        card.className = 'map-nearby-card';
+        card.className = 'map-nearby-grid-card';
 
         const img = document.createElement('img');
-        img.className = 'map-nearby-card-img';
+        img.className = 'map-nearby-grid-card-img';
         img.src = photo;
         img.alt = spot.name;
         img.loading = 'lazy';
 
         const body = document.createElement('div');
-        body.className = 'map-nearby-card-body';
+        body.className = 'map-nearby-grid-card-body';
 
         const dist = document.createElement('span');
-        dist.className = 'map-nearby-card-dist';
+        dist.className = 'map-nearby-grid-card-dist';
         dist.textContent = distLabel;
 
         const name = document.createElement('div');
-        name.className = 'map-nearby-card-name';
+        name.className = 'map-nearby-grid-card-name';
         name.textContent = spot.name;
 
         const meta = document.createElement('div');
-        meta.className = 'map-nearby-card-meta';
+        meta.className = 'map-nearby-grid-card-meta';
         meta.textContent = spot.type + (spot.price ? ' · ' + spot.price : '');
 
         body.appendChild(dist);
@@ -1109,19 +1119,96 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         card.appendChild(body);
 
         card.addEventListener('click', () => showSpotDetail(spot));
-
-        scrollEl.appendChild(card);
+        gridEl.appendChild(card);
       });
+    }
 
-      nearbyEl.style.display = '';
-      document.querySelector('.map-section')?.classList.add('map-has-nearby');
+    function _snapSheet(state, animate = true) {
+      const sheet = document.getElementById('mapNearby');
+      if (!sheet) return;
+      _sheetState = state;
+      const h = sheet.offsetHeight;
+      const y = state === 'peek' ? h - PEEK_PX
+              : state === 'mid'  ? h - MID_PX
+              : state === 'expanded' ? 0
+              : h; // hidden
+      sheet.style.transition = animate
+        ? 'transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)'
+        : 'none';
+      sheet.style.transform = `translateY(${Math.max(0, y)}px)`;
 
-      // Position zoom buttons exactly above the strip using real measured height
-      requestAnimationFrame(() => {
-        const stripH = nearbyEl.offsetHeight;
-        const zoomBtns = document.querySelector('.map-zoom-btns');
-        if (zoomBtns) zoomBtns.style.bottom = (stripH + 12) + 'px';
+      // Keep zoom buttons above visible sheet edge
+      const zoomBtns = document.querySelector('.map-zoom-btns');
+      if (zoomBtns) {
+        const visible = state === 'peek' ? PEEK_PX : state === 'mid' ? MID_PX : state === 'expanded' ? h : 0;
+        zoomBtns.style.bottom = (visible + 12) + 'px';
+      }
+    }
+
+    function _initSheetDrag() {
+      const sheet  = document.getElementById('mapNearby');
+      const handle = document.getElementById('mapNearbyHandle');
+      if (!sheet || !handle) return;
+
+      let startY = 0, startTranslate = 0, lastY = 0, lastT = 0, vel = 0, dragging = false;
+
+      handle.addEventListener('touchstart', e => {
+        dragging = true;
+        startY = e.touches[0].clientY;
+        startTranslate = new DOMMatrix(getComputedStyle(sheet).transform).m42;
+        lastY = startY;
+        lastT = Date.now();
+        vel = 0;
+        sheet.style.transition = 'none';
+      }, { passive: true });
+
+      handle.addEventListener('touchmove', e => {
+        if (!dragging) return;
+        const y = e.touches[0].clientY;
+        const newY = Math.max(0, startTranslate + (y - startY));
+        sheet.style.transform = `translateY(${newY}px)`;
+        const now = Date.now(), dt = now - lastT;
+        if (dt > 0) vel = (y - lastY) / dt;
+        lastY = y; lastT = now;
+      }, { passive: true });
+
+      handle.addEventListener('touchend', () => {
+        if (!dragging) return;
+        dragging = false;
+        const curY = new DOMMatrix(getComputedStyle(sheet).transform).m42;
+        const h = sheet.offsetHeight;
+
+        let next;
+        if (vel > 0.5) {
+          // fast swipe down → go to next lower state
+          next = _sheetState === 'expanded' ? 'mid' : 'peek';
+        } else if (vel < -0.5) {
+          // fast swipe up → go to next higher state
+          next = _sheetState === 'peek' ? 'mid' : 'expanded';
+        } else {
+          // snap to nearest snap point
+          const pts = { peek: h - PEEK_PX, mid: h - MID_PX, expanded: 0 };
+          const nearest = Object.entries(pts).sort((a, b) => Math.abs(curY - a[1]) - Math.abs(curY - b[1]))[0][0];
+          next = nearest;
+        }
+        _snapSheet(next);
       });
+    }
+
+    function showNearbyStrip(lat, lng) {
+      _nearbyLat = lat;
+      _nearbyLng = lng;
+      _renderNearbyGrid();
+
+      if (!_sheetReady) {
+        _sheetReady = true;
+        // Remove CSS transform so inline style takes full control
+        const sheet = document.getElementById('mapNearby');
+        if (sheet) sheet.style.transform = `translateY(${sheet.scrollHeight}px)`;
+        _initSheetDrag();
+      }
+      // Double rAF: first frame lets grid paint, second measures correct height
+      requestAnimationFrame(() => requestAnimationFrame(() => _snapSheet('mid')));
     }
 
     function hideSpotDetail() {
@@ -1196,6 +1283,9 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
             foodMap.removeLayer(marker);
           }
         });
+
+        // Re-render nearby grid to respect new filter
+        if (_nearbyLat !== null) _renderNearbyGrid();
       });
     });
 

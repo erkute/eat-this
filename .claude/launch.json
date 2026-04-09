@@ -3,10 +3,9 @@
   "configurations": [
     {
       "name": "serve (npx)",
-      "runtimeExecutable": "/usr/local/bin/node",
-      "runtimeArgs": ["/tmp/serve-install/lib/node_modules/serve/build/main.js", "."],
-      "port": 3456,
-      "autoPort": true
+      "runtimeExecutable": "/usr/local/bin/npx",
+      "runtimeArgs": ["serve", ".", "--listen", "62135"],
+      "port": 62135
     },
     {
       "name": "python http.server",

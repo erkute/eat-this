@@ -1133,84 +1133,56 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       });
     }
 
-    function setNearbySheetState(state) {
+    function setNearbySheetState(state, skipAnim) {
       const sheet = document.getElementById('mapNearby');
       if (!sheet) return;
 
       nearbySheetState = state;
-      sheet.classList.remove('nearby-peek', 'nearby-mid', 'nearby-expanded');
-      if (state === 'peek') sheet.classList.add('nearby-peek');
-      else if (state === 'mid') sheet.classList.add('nearby-mid');
-      else if (state === 'expanded') sheet.classList.add('nearby-expanded');
 
-      // Clear any inline transform set during drag
-      sheet.style.transform = '';
+      // Use rAF so layout is ready before we measure offsetHeight
+      requestAnimationFrame(() => {
+        const sheetH = sheet.offsetHeight || 300;
+        let targetY;
+        if (state === 'peek')     targetY = sheetH - NEARBY_SNAP_PEEK;
+        else if (state === 'mid') targetY = sheetH - NEARBY_SNAP_MID;
+        else if (state === 'expanded') targetY = 0;
+        else targetY = sheetH; // hidden
 
-      // Keep zoom buttons above the mid-state peek height
-      const zoomBtns = document.querySelector('.map-zoom-btns');
-      if (zoomBtns) {
-        zoomBtns.style.bottom = (state === 'hidden') ? '' : (NEARBY_SNAP_MID + 16) + 'px';
-      }
+        if (skipAnim) {
+          sheet.style.transition = 'none';
+          sheet.style.transform = `translateY(${targetY}px)`;
+          // Re-enable transition next frame
+          requestAnimationFrame(() => { sheet.style.transition = ''; });
+        } else {
+          sheet.style.transition = 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)';
+          sheet.style.transform = `translateY(${targetY}px)`;
+        }
+
+        const zoomBtns = document.querySelector('.map-zoom-btns');
+        if (zoomBtns) {
+          zoomBtns.style.bottom = (state !== 'hidden') ? (NEARBY_SNAP_MID + 16) + 'px' : '';
+        }
+      });
     }
 
     function setupNearbySwipe(sheet) {
-      const dragArea = document.getElementById('mapNearbyDragArea');
+      // Drag zone = handle area + label row
+      const dragArea = sheet.querySelector('.map-nearby-drag-area');
+      const labelRow = sheet.querySelector('.map-nearby-label');
       if (!dragArea || dragArea._swipeReady) return;
       dragArea._swipeReady = true;
 
       let isDragging = false;
       let startY = 0;
-      let dragStartTranslateY = 0;
+      let dragStartY = 0; // translateY at drag start (pixels)
       let lastY = 0;
       let lastTime = 0;
       let velocity = 0;
 
-      function readTranslateY() {
-        const m = new DOMMatrix(window.getComputedStyle(sheet).transform);
-        return m.m42;
-      }
-
-      function statePixels(state) {
-        const h = sheet.offsetHeight || 300;
-        if (state === 'peek') return h - NEARBY_SNAP_PEEK;
-        if (state === 'mid') return h - NEARBY_SNAP_MID;
-        if (state === 'expanded') return 0;
-        return h;
-      }
-
-      dragArea.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        startY = e.touches[0].clientY;
-        dragStartTranslateY = readTranslateY();
-        lastY = startY;
-        lastTime = Date.now();
-        velocity = 0;
-        sheet.style.transition = 'none';
-        sheet.classList.remove('nearby-peek', 'nearby-mid', 'nearby-expanded');
-        sheet.style.transform = `translateY(${dragStartTranslateY}px)`;
-      }, { passive: true });
-
-      dragArea.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        const ty = e.touches[0].clientY;
-        const now = Date.now();
-        const dt = now - lastTime;
-        if (dt > 0) velocity = (ty - lastY) / dt;
-        lastY = ty;
-        lastTime = now;
-        const newY = Math.max(0, dragStartTranslateY + (ty - startY));
-        sheet.style.transform = `translateY(${newY}px)`;
-      }, { passive: true });
-
-      dragArea.addEventListener('touchend', () => {
-        if (!isDragging) return;
-        isDragging = false;
-
-        const currentY = readTranslateY();
+      function snapToState(currentY) {
         const sheetH = sheet.offsetHeight || 300;
-
         let newState;
-        const V = 0.4; // velocity threshold px/ms
+        const V = 0.3;
 
         if (velocity > V) {
           newState = nearbySheetState === 'expanded' ? 'mid' : 'peek';
@@ -1225,9 +1197,70 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
           newState = pts[0].state;
         }
 
+        nearbySheetState = newState;
+        const sheetH2 = sheet.offsetHeight || 300;
+        let targetY;
+        if (newState === 'peek')     targetY = sheetH2 - NEARBY_SNAP_PEEK;
+        else if (newState === 'mid') targetY = sheetH2 - NEARBY_SNAP_MID;
+        else targetY = 0;
+
+        // Force reflow so browser registers current position before animating
+        sheet.offsetHeight; // eslint-disable-line no-unused-expressions
         sheet.style.transition = 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)';
-        setNearbySheetState(newState);
-      });
+        sheet.style.transform = `translateY(${targetY}px)`;
+      }
+
+      function onStart(clientY) {
+        isDragging = true;
+        startY = clientY;
+        // Read current translateY from inline style (set during previous drag/snap)
+        const cur = new DOMMatrix(window.getComputedStyle(sheet).transform).m42;
+        dragStartY = isNaN(cur) ? (sheet.offsetHeight || 300) : cur;
+        lastY = startY;
+        lastTime = Date.now();
+        velocity = 0;
+        sheet.style.transition = 'none';
+      }
+
+      function onMove(clientY) {
+        if (!isDragging) return;
+        const now = Date.now();
+        const dt = now - lastTime;
+        if (dt > 0) velocity = (clientY - lastY) / dt;
+        lastY = clientY;
+        lastTime = now;
+        const newY = Math.max(0, dragStartY + (clientY - startY));
+        sheet.style.transform = `translateY(${newY}px)`;
+      }
+
+      function onEnd() {
+        if (!isDragging) return;
+        isDragging = false;
+        const currentY = new DOMMatrix(window.getComputedStyle(sheet).transform).m42;
+        snapToState(currentY);
+      }
+
+      // Touch events (mobile)
+      dragArea.addEventListener('touchstart', (e) => onStart(e.touches[0].clientY), { passive: true });
+      dragArea.addEventListener('touchmove',  (e) => { e.preventDefault(); onMove(e.touches[0].clientY); }, { passive: false });
+      dragArea.addEventListener('touchend',   onEnd, { passive: true });
+
+      // Pointer events (desktop / stylus)
+      dragArea.addEventListener('pointerdown', (e) => { dragArea.setPointerCapture(e.pointerId); onStart(e.clientY); });
+      dragArea.addEventListener('pointermove', (e) => { if (isDragging) onMove(e.clientY); });
+      dragArea.addEventListener('pointerup',   onEnd);
+      dragArea.addEventListener('pointercancel', onEnd);
+
+      // Also make label row draggable (bigger grab area)
+      if (labelRow) {
+        labelRow.addEventListener('touchstart', (e) => onStart(e.touches[0].clientY), { passive: true });
+        labelRow.addEventListener('touchmove',  (e) => { e.preventDefault(); onMove(e.touches[0].clientY); }, { passive: false });
+        labelRow.addEventListener('touchend',   onEnd, { passive: true });
+        labelRow.addEventListener('pointerdown', (e) => { labelRow.setPointerCapture(e.pointerId); onStart(e.clientY); });
+        labelRow.addEventListener('pointermove', (e) => { if (isDragging) onMove(e.clientY); });
+        labelRow.addEventListener('pointerup',   onEnd);
+        labelRow.addEventListener('pointercancel', onEnd);
+      }
     }
 
     function showNearbyStrip(userLat, userLng) {

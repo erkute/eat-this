@@ -618,6 +618,10 @@ body {
   text-transform: uppercase;
   color: #aaa;
   margin-bottom: 10px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .map-nearby-cards {
@@ -2184,19 +2188,7 @@ body {
     overflow: hidden;
   }
 
-  /* Bottom sheet snap states */
-  .app-page[data-page="map"] .map-nearby.nearby-peek {
-    transform: translateY(calc(100% - 56px));
-  }
-
-  .app-page[data-page="map"] .map-nearby.nearby-mid {
-    transform: translateY(calc(100% - 210px));
-  }
-
-  .app-page[data-page="map"] .map-nearby.nearby-expanded {
-    transform: translateY(0);
-    overflow-y: auto;
-  }
+  /* Snap states are handled via JS inline transforms */
 
   .app-page[data-page="map"] .map-nearby-inner {
     padding: 0 10px 16px;

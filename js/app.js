@@ -1061,17 +1061,58 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    function showNearbyStrip(userLat, userLng) {
-      const nearbyEl = document.getElementById('mapNearby');
-      const scrollEl = document.getElementById('mapNearbyScroll');
-      if (!nearbyEl || !scrollEl) return;
+    // ── Bottom Sheet ──────────────────────────────────────────────────────────
+    const bsEl    = document.getElementById('mapBottomSheet');
+    const bsLabel = document.getElementById('mapBsLabel');
+    const bsGrid  = document.getElementById('mapBsGrid');
+    let bsState   = 'hidden'; // 'hidden' | 'peek' | 'mid' | 'expanded'
+    let bsUserLat = null, bsUserLng = null;
+    let bsFilter  = 'all';
 
-      const sorted = spots
-        .map(s => ({ ...s, dist: haversineDistance(userLat, userLng, s.lat, s.lng) }))
+    function bsSnaps() {
+      const h = bsEl.offsetHeight;
+      return { peek: h - 56, mid: Math.max(0, h - 210), expanded: 0 };
+    }
+
+    function bsSetState(state, animated) {
+      if (!bsEl) return;
+      if (animated === false) {
+        bsEl.style.transition = 'none';
+        bsEl.offsetHeight; // force reflow
+      } else {
+        bsEl.style.transition = '';
+      }
+      const s = bsSnaps();
+      const ty = state === 'peek' ? s.peek : state === 'mid' ? s.mid : state === 'expanded' ? 0 : bsEl.offsetHeight;
+      bsEl.style.transform = `translateY(${ty}px)`;
+      bsState = state;
+      if (animated === false) {
+        bsEl.offsetHeight;
+        bsEl.style.transition = '';
+      }
+      const zoomBtns = document.querySelector('.map-zoom-btns');
+      if (zoomBtns) {
+        const offset = state === 'hidden' ? 32 : state === 'peek' ? 56 + 12 : state === 'mid' ? 210 + 12 : bsEl.offsetHeight + 12;
+        zoomBtns.style.bottom = offset + 'px';
+      }
+    }
+
+    function bsUpdateContent(userLat, userLng, filter) {
+      if (userLat != null) bsUserLat = userLat;
+      if (userLng != null) bsUserLng = userLng;
+      if (filter !== undefined) bsFilter = filter;
+      if (bsUserLat == null || !bsGrid) return;
+
+      const srcSpots = bsFilter === 'all'
+        ? spots
+        : spots.filter(s => s.categories && s.categories.includes(bsFilter));
+
+      const sorted = srcSpots
+        .map(s => ({ ...s, dist: haversineDistance(bsUserLat, bsUserLng, s.lat, s.lng) }))
         .sort((a, b) => a.dist - b.dist)
-        .slice(0, 3);
+        .slice(0, 9);
 
-      while (scrollEl.firstChild) scrollEl.removeChild(scrollEl.firstChild);
+      while (bsGrid.firstChild) bsGrid.removeChild(bsGrid.firstChild);
 
       sorted.forEach(spot => {
         const distM = Math.round(spot.dist);
@@ -1079,50 +1120,102 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         const photo = spot.photo || getSpotPhoto(spot.type);
 
         const card = document.createElement('div');
-        card.className = 'map-nearby-card';
+        card.className = 'map-bs-card';
 
         const img = document.createElement('img');
-        img.className = 'map-nearby-card-img';
+        img.className = 'map-bs-card-img';
         img.src = photo;
         img.alt = spot.name;
         img.loading = 'lazy';
 
         const body = document.createElement('div');
-        body.className = 'map-nearby-card-body';
+        body.className = 'map-bs-card-body';
 
         const dist = document.createElement('span');
-        dist.className = 'map-nearby-card-dist';
+        dist.className = 'map-bs-card-dist';
         dist.textContent = distLabel;
 
         const name = document.createElement('div');
-        name.className = 'map-nearby-card-name';
+        name.className = 'map-bs-card-name';
         name.textContent = spot.name;
 
         const meta = document.createElement('div');
-        meta.className = 'map-nearby-card-meta';
-        meta.textContent = spot.type + (spot.price ? ' · ' + spot.price : '');
+        meta.className = 'map-bs-card-meta';
+        meta.textContent = spot.type;
 
         body.appendChild(dist);
         body.appendChild(name);
         body.appendChild(meta);
         card.appendChild(img);
         card.appendChild(body);
-
         card.addEventListener('click', () => showSpotDetail(spot));
-
-        scrollEl.appendChild(card);
+        bsGrid.appendChild(card);
       });
 
-      nearbyEl.style.display = '';
-      document.querySelector('.map-section')?.classList.add('map-has-nearby');
-
-      // Position zoom buttons exactly above the strip using real measured height
-      requestAnimationFrame(() => {
-        const stripH = nearbyEl.offsetHeight;
-        const zoomBtns = document.querySelector('.map-zoom-btns');
-        if (zoomBtns) zoomBtns.style.bottom = (stripH + 12) + 'px';
-      });
+      if (bsLabel) {
+        bsLabel.textContent = bsFilter === 'all' ? '📍 In deiner Nähe' : '📍 ' + bsFilter + ' in deiner Nähe';
+      }
     }
+
+    function showNearbyStrip(userLat, userLng) {
+      bsUpdateContent(userLat, userLng, bsFilter);
+      bsSetState('mid');
+    }
+
+    // Swipe / drag on the handle area
+    if (bsEl) {
+      const handleArea = document.getElementById('mapBsHandleArea') || bsEl;
+      let dragStartY = 0, dragStartTy = 0, dragging = false;
+      let velY = 0, lastDragY = 0, lastDragT = 0;
+
+      function getTranslateY() {
+        const m = new DOMMatrix(window.getComputedStyle(bsEl).transform);
+        return m.m42;
+      }
+
+      handleArea.addEventListener('touchstart', e => {
+        dragging = true;
+        dragStartY = e.touches[0].clientY;
+        dragStartTy = getTranslateY();
+        lastDragY = dragStartY;
+        lastDragT = Date.now();
+        velY = 0;
+        bsEl.style.transition = 'none';
+      }, { passive: true });
+
+      handleArea.addEventListener('touchmove', e => {
+        if (!dragging) return;
+        e.preventDefault();
+        const cy = e.touches[0].clientY;
+        const s = bsSnaps();
+        let ty = dragStartTy + (cy - dragStartY);
+        ty = Math.max(s.expanded - 20, Math.min(s.peek + 40, ty));
+        bsEl.style.transform = `translateY(${ty}px)`;
+        const now = Date.now(), dt = now - lastDragT;
+        if (dt > 0) velY = (cy - lastDragY) / dt;
+        lastDragY = cy; lastDragT = now;
+      }, { passive: false });
+
+      function onDragEnd() {
+        if (!dragging) return;
+        dragging = false;
+        bsEl.style.transition = '';
+        const ty = getTranslateY();
+        const s = bsSnaps();
+        if (Math.abs(velY) > 0.4) {
+          // velocity snap: negative = upward flick
+          if (velY < 0) bsSetState(bsState === 'peek' ? 'mid' : 'expanded');
+          else          bsSetState(bsState === 'expanded' ? 'mid' : 'peek');
+        } else {
+          const dists = { peek: Math.abs(ty - s.peek), mid: Math.abs(ty - s.mid), expanded: Math.abs(ty - s.expanded) };
+          bsSetState(Object.keys(dists).reduce((a, b) => dists[a] <= dists[b] ? a : b));
+        }
+      }
+
+      handleArea.addEventListener('touchend',   onDragEnd);
+      handleArea.addEventListener('touchcancel', onDragEnd);
+    }
+    // ── End Bottom Sheet ──────────────────────────────────────────────────────
 
     function hideSpotDetail() {
       mapSpotOverlay.classList.remove('active');
@@ -1196,6 +1289,9 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
             foodMap.removeLayer(marker);
           }
         });
+
+        // Update bottom sheet if location is known
+        if (bsUserLat != null) bsUpdateContent(null, null, filter);
       });
     });
 

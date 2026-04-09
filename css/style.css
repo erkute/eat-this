@@ -669,6 +669,116 @@ body {
   text-overflow: ellipsis;
 }
 
+/* Map Bottom Sheet */
+.map-bottom-sheet {
+  display: none; /* shown only in app-page map mode via media query */
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.13);
+  transform: translateY(100%);
+  will-change: transform;
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  touch-action: pan-x;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.map-bs-handle-area {
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding-top: 8px;
+  cursor: grab;
+  flex-shrink: 0;
+}
+.map-bs-handle-area:active { cursor: grabbing; }
+
+.map-bs-handle {
+  width: 36px;
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.map-bs-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #aaa;
+}
+
+.map-bs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 0 10px 16px;
+  overflow: hidden;
+}
+
+.map-bs-card {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  cursor: pointer;
+  border: 1.5px solid #f0f0f0;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.map-bs-card:active { transform: scale(0.96); }
+
+.map-bs-card-img {
+  width: 100%;
+  height: 60px;
+  object-fit: cover;
+  display: block;
+  background: #ebebeb;
+}
+
+.map-bs-card-body {
+  padding: 5px 7px 7px;
+}
+
+.map-bs-card-dist {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  background: #111;
+  padding: 2px 5px;
+  border-radius: 20px;
+  margin-bottom: 3px;
+  letter-spacing: 0.03em;
+}
+
+.map-bs-card-name {
+  font-size: 11px;
+  font-weight: 800;
+  color: #111;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-bs-card-meta {
+  font-size: 9px;
+  color: #aaa;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Custom Zoom Buttons (outside Leaflet container to avoid z-index stacking issues) */
 .map-zoom-btns {
   position: absolute;
@@ -2145,22 +2255,8 @@ body {
     justify-content: center;
   }
 
-  .app-page[data-page="map"] .map-nearby {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 10;
-    padding: 8px 10px 10px;
-  }
-
-  .app-page[data-page="map"] .map-nearby-card {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .app-page[data-page="map"] .map-nearby-card-img {
-    height: 58px;
+  .app-page[data-page="map"] .map-bottom-sheet {
+    display: block;
   }
 
   .app-page[data-page="map"] #foodMap {
@@ -2843,12 +2939,8 @@ body {
     min-height: 0;
   }
 
-  .app-page[data-page="map"] .map-nearby {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 10;
+  .app-page[data-page="map"] .map-bottom-sheet {
+    display: block;
   }
 
   .app-page[data-page="map"] .leaflet-container {

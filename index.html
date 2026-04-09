@@ -534,9 +534,12 @@
           <button class="map-zoom-btn" id="mapZoomIn" aria-label="Zoom in">+</button>
           <button class="map-zoom-btn" id="mapZoomOut" aria-label="Zoom out">−</button>
         </div>
-        <div class="map-nearby" id="mapNearby" style="display:none">
-          <div class="map-nearby-label">📍 In deiner Nähe</div>
-          <div class="map-nearby-scroll" id="mapNearbyScroll"></div>
+        <div class="map-bottom-sheet" id="mapBottomSheet">
+          <div class="map-bs-handle-area" id="mapBsHandleArea">
+            <div class="map-bs-handle"></div>
+            <span class="map-bs-label" id="mapBsLabel">📍 In deiner Nähe</span>
+          </div>
+          <div class="map-bs-grid" id="mapBsGrid"></div>
         </div>
         <div class="map-spot-overlay" id="mapSpotOverlay">
           <div class="map-spot-card" id="mapSpotCard">

@@ -1572,12 +1572,13 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       // Reflow to commit current state before starting close transition
       mustLightboxInner.offsetHeight; // eslint-disable-line no-unused-expressions
 
-      mustLightboxInner.style.transition = 'transform 0.36s cubic-bezier(0.55, 0, 1, 0.45), opacity 0.18s ease';
+      // Fade backdrop out and fly card back simultaneously (no opacity on inner — card stays visible)
+      mustLightbox.classList.add('closing');
+      mustLightboxInner.style.transition = 'transform 0.36s cubic-bezier(0.55, 0, 1, 0.45)';
       mustLightboxInner.style.transform = `translate(${endX}px, ${endY}px) scale(${endScale}) rotate(10deg)`;
-      mustLightboxInner.style.opacity = '0';
 
       setTimeout(() => {
-        mustLightbox.classList.remove('active');
+        mustLightbox.classList.remove('active', 'closing');
         mustLightboxInner.style.cssText = '';
         mustActiveCard = null;
         mustClosing = false;

@@ -396,6 +396,10 @@ body {
 .must-card-lightbox.active::before {
   opacity: 1;
 }
+.must-card-lightbox.closing::before {
+  opacity: 0;
+  transition: opacity 0.36s ease;
+}
 .must-card-lightbox-inner {
   position: relative;
   z-index: 1;

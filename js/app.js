@@ -1079,7 +1079,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         .map(s => ({ ...s, dist: haversineDistance(_nearbyLat, _nearbyLng, s.lat, s.lng) }))
         .filter(s => activeFilter === 'all' || (s.categories || []).includes(activeFilter))
         .sort((a, b) => a.dist - b.dist)
-        .slice(0, 9);
+        .slice(0, 6);
 
       while (gridEl.firstChild) gridEl.removeChild(gridEl.firstChild);
 

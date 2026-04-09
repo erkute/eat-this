@@ -1061,17 +1061,38 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    function showNearbyStrip(userLat, userLng) {
-      const nearbyEl = document.getElementById('mapNearby');
-      const scrollEl = document.getElementById('mapNearbyScroll');
-      if (!nearbyEl || !scrollEl) return;
+    // --- Nearby Bottom Sheet State ---
+    let nearbyUserLat = null;
+    let nearbyUserLng = null;
+    let nearbyCurrentFilter = 'all';
+    let nearbySheetState = 'hidden';
+    const NEARBY_SNAP_PEEK = 56;
+    const NEARBY_SNAP_MID = 210;
 
-      const sorted = spots
-        .map(s => ({ ...s, dist: haversineDistance(userLat, userLng, s.lat, s.lng) }))
+    function renderNearbyCards(filter) {
+      const cardsEl = document.getElementById('mapNearbyScroll');
+      if (!cardsEl || nearbyUserLat === null) return;
+
+      const activeFilter = filter || nearbyCurrentFilter;
+      let candidates = spots;
+      if (activeFilter !== 'all') {
+        candidates = spots.filter(s => s.categories && s.categories.includes(activeFilter));
+      }
+
+      const sorted = candidates
+        .map(s => ({ ...s, dist: haversineDistance(nearbyUserLat, nearbyUserLng, s.lat, s.lng) }))
         .sort((a, b) => a.dist - b.dist)
-        .slice(0, 3);
+        .slice(0, 9);
 
-      while (scrollEl.firstChild) scrollEl.removeChild(scrollEl.firstChild);
+      while (cardsEl.firstChild) cardsEl.removeChild(cardsEl.firstChild);
+
+      if (sorted.length === 0) {
+        const empty = document.createElement('div');
+        empty.style.cssText = 'grid-column:1/-1;padding:6px 0;color:#aaa;font-size:11px';
+        empty.textContent = 'Keine Restaurants gefunden';
+        cardsEl.appendChild(empty);
+        return;
+      }
 
       sorted.forEach(spot => {
         const distM = Math.round(spot.dist);
@@ -1107,21 +1128,119 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         body.appendChild(meta);
         card.appendChild(img);
         card.appendChild(body);
-
         card.addEventListener('click', () => showSpotDetail(spot));
-
-        scrollEl.appendChild(card);
+        cardsEl.appendChild(card);
       });
+    }
 
-      nearbyEl.style.display = '';
+    function setNearbySheetState(state) {
+      const sheet = document.getElementById('mapNearby');
+      if (!sheet) return;
+
+      nearbySheetState = state;
+      sheet.classList.remove('nearby-peek', 'nearby-mid', 'nearby-expanded');
+      if (state === 'peek') sheet.classList.add('nearby-peek');
+      else if (state === 'mid') sheet.classList.add('nearby-mid');
+      else if (state === 'expanded') sheet.classList.add('nearby-expanded');
+
+      // Clear any inline transform set during drag
+      sheet.style.transform = '';
+
+      // Keep zoom buttons above the mid-state peek height
+      const zoomBtns = document.querySelector('.map-zoom-btns');
+      if (zoomBtns) {
+        zoomBtns.style.bottom = (state === 'hidden') ? '' : (NEARBY_SNAP_MID + 16) + 'px';
+      }
+    }
+
+    function setupNearbySwipe(sheet) {
+      const dragArea = document.getElementById('mapNearbyDragArea');
+      if (!dragArea || dragArea._swipeReady) return;
+      dragArea._swipeReady = true;
+
+      let isDragging = false;
+      let startY = 0;
+      let dragStartTranslateY = 0;
+      let lastY = 0;
+      let lastTime = 0;
+      let velocity = 0;
+
+      function readTranslateY() {
+        const m = new DOMMatrix(window.getComputedStyle(sheet).transform);
+        return m.m42;
+      }
+
+      function statePixels(state) {
+        const h = sheet.offsetHeight || 300;
+        if (state === 'peek') return h - NEARBY_SNAP_PEEK;
+        if (state === 'mid') return h - NEARBY_SNAP_MID;
+        if (state === 'expanded') return 0;
+        return h;
+      }
+
+      dragArea.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        startY = e.touches[0].clientY;
+        dragStartTranslateY = readTranslateY();
+        lastY = startY;
+        lastTime = Date.now();
+        velocity = 0;
+        sheet.style.transition = 'none';
+        sheet.classList.remove('nearby-peek', 'nearby-mid', 'nearby-expanded');
+        sheet.style.transform = `translateY(${dragStartTranslateY}px)`;
+      }, { passive: true });
+
+      dragArea.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const ty = e.touches[0].clientY;
+        const now = Date.now();
+        const dt = now - lastTime;
+        if (dt > 0) velocity = (ty - lastY) / dt;
+        lastY = ty;
+        lastTime = now;
+        const newY = Math.max(0, dragStartTranslateY + (ty - startY));
+        sheet.style.transform = `translateY(${newY}px)`;
+      }, { passive: true });
+
+      dragArea.addEventListener('touchend', () => {
+        if (!isDragging) return;
+        isDragging = false;
+
+        const currentY = readTranslateY();
+        const sheetH = sheet.offsetHeight || 300;
+
+        let newState;
+        const V = 0.4; // velocity threshold px/ms
+
+        if (velocity > V) {
+          newState = nearbySheetState === 'expanded' ? 'mid' : 'peek';
+        } else if (velocity < -V) {
+          newState = nearbySheetState === 'peek' ? 'mid' : 'expanded';
+        } else {
+          const pts = [
+            { state: 'peek',     y: sheetH - NEARBY_SNAP_PEEK },
+            { state: 'mid',      y: sheetH - NEARBY_SNAP_MID },
+            { state: 'expanded', y: 0 },
+          ].sort((a, b) => Math.abs(currentY - a.y) - Math.abs(currentY - b.y));
+          newState = pts[0].state;
+        }
+
+        sheet.style.transition = 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)';
+        setNearbySheetState(newState);
+      });
+    }
+
+    function showNearbyStrip(userLat, userLng) {
+      const nearbyEl = document.getElementById('mapNearby');
+      if (!nearbyEl) return;
+
+      nearbyUserLat = userLat;
+      nearbyUserLng = userLng;
+
+      renderNearbyCards(nearbyCurrentFilter);
       document.querySelector('.map-section')?.classList.add('map-has-nearby');
-
-      // Position zoom buttons exactly above the strip using real measured height
-      requestAnimationFrame(() => {
-        const stripH = nearbyEl.offsetHeight;
-        const zoomBtns = document.querySelector('.map-zoom-btns');
-        if (zoomBtns) zoomBtns.style.bottom = (stripH + 12) + 'px';
-      });
+      setupNearbySwipe(nearbyEl);
+      setNearbySheetState('mid');
     }
 
     function hideSpotDetail() {
@@ -1196,6 +1315,12 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
             foodMap.removeLayer(marker);
           }
         });
+
+        // Update nearby strip if location is known
+        if (nearbyUserLat !== null) {
+          nearbyCurrentFilter = filter;
+          renderNearbyCards(filter);
+        }
       });
     });
 

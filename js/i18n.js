@@ -52,68 +52,8 @@ const TRANSLATIONS = {
     news: {
       sectionLabel: 'Berlin',
       sectionTitle: 'Food News',
-      articles: [
-        {
-          id: 'bun-society',
-          title: 'The Bun Society: Why This Smashburger Spot in Kreuzberg Makes You Forget All the Others',
-          excerpt: 'Same Same But Different — smashburgers with Korean, Thai and Middle Eastern flavours. The Bussin Bulgogi is a revelation.',
-          category: 'guides',
-          categoryLabel: 'Guides',
-          date: 'March 24',
-          dateISO: '2026-03-24',
-          img: 'https://cdn.sanity.io/images/ehwjnjr2/production/d548181d7f33dbb0cf102a12de9a1319d8919433-550x440.jpg',
-          alt: 'The Bun Society Kreuzberg',
-          content: '<p>Berlin feels like it has a smashburger spot on every corner. But The Bun Society in Kreuzberg does something different: they combine the crispy, lacy-edged patties of the American smashburger format with flavours from Southeast Asia, Korea and the Middle East. The result is one of the most exciting burger menus in the city.</p><h4>The Address</h4><p>Adalbertstra\u00dfe 23 in Kreuzberg \u2014 the spot is unassuming, the queue outside says it all. Open Thursday to Sunday, making it the perfect weekend destination.</p><h4>What to Order</h4><p>The Bussin Bulgogi is the star: Korean beef, sweet-salty-umami, with perfect crust edges on the patty. Also worth trying: the Banging Bangkok with a Thai profile and the Gochu Chick with Korean gochujang. Eight burgers on the menu \u2014 all have their reason to exist.</p><h4>The Concept</h4><p>The Bun Society positions itself with the slogan "Same Same But Different". Fresh ingredients, globally influenced recipes, but the familiar comfort-food soul of the burger stays intact. 5.0 stars from 160 reviews is no coincidence.</p><h4>Our Verdict</h4><p>If you think you\'ve already had the best smashburger in Berlin, give The Bun Society a visit. Thursday to Sunday, Adalbertstra\u00dfe 23, Kreuzberg. Also available on Uber Eats.</p>',
-        },
-        {
-          id: 'ramen-berlin',
-          title: "Berlin's New Ramen Wave: Why the Capital Now Has the Ultimate Noodle House",
-          excerpt: 'Three new ramen spots have opened in the past few weeks — all using hand-pulled noodles and 18-hour broths. We tested all three.',
-          category: 'openings',
-          categoryLabel: 'Openings',
-          date: 'March 15',
-          dateISO: '2026-03-15',
-          img: 'https://cdn.sanity.io/images/ehwjnjr2/production/4a093270fafe206bf962d550d5195f5ae454857c-800x533.webp',
-          alt: "Berlin's new ramen wave",
-          content: '<p>Berlin is going through a ramen revolution. In the last four weeks, three new restaurants have opened that focus exclusively on Japanese noodle soups \u2014 and all three use hand-pulled noodles and broths that simmer for up to 18 hours.</p><h4>Fukagawa Ramen \u2014 Prenzlauer Berg</h4><p>The smallest of the three sits on Lychener Stra\u00dfe with only 16 seats. The tonkotsu broth is creamier than anything we\'ve tried in Berlin. The owner learned his craft in Fukuoka and brought the original recipe with him. Recommendation: Spicy Miso Ramen with extra chashu.</p><h4>Cocolo Ramen \u2014 Kreuzberg</h4><p>Cocolo opens its second Berlin location on Paul-Lincke-Ufer. The Shinjuku-style ramen here are lighter than Fukagawa\'s but more aromatic. The eggs are perfect \u2014 soft, juicy, soy-marinated. Tip: come early, weekend wait times are long.</p><h4>Wen Cheng Ramen \u2014 Friedrichshain</h4><p>The big surprise: Wen Cheng, known for its Biang Biang noodles, has set up a ramen pop-up corner. The fusion ramen with Chinese influences is unlike anything else. The Dan-Dan Ramen with Sichuan pepper is a must for adventurous eaters.</p><h4>Our Verdict</h4><p>Berlin now has three addresses that can hold their own against Tokyo. All three are worth it \u2014 but if you can only pick one: Fukagawa for authenticity, Cocolo for atmosphere, Wen Cheng for innovation.</p>',
-        },
-        {
-          id: 'markthalle9',
-          title: 'Markthalle Neun Is Getting a New Street Food Floor',
-          excerpt: 'The beloved market hall in Kreuzberg is expanding: the second floor is getting a brand new area for international street food vendors.',
-          category: 'openings',
-          categoryLabel: 'Openings',
-          date: 'March 14',
-          dateISO: '2026-03-14',
-          img: 'https://cdn.sanity.io/images/ehwjnjr2/production/4dd41f1c2a6c56c5d5b199af627835df71a3d890-800x533.webp',
-          alt: 'Markthalle Neun',
-          content: '<p>Markthalle Neun in Kreuzberg \u2014 a fixture of Berlin\'s food scene for years \u2014 is getting an entirely new floor in summer 2026. The second storey will become an 800 square metre street food area with space for 20 vendors.</p><h4>What to Expect</h4><p>The selection is international: Vietnamese ph\u1edf, Mexican tacos, Ethiopian injera, Lebanese falafel and of course German Flammkuchen. Each stall will be run by a different operator \u2014 many of them Berlin street food veterans who have only ever traded at markets.</p><h4>The Concept</h4><p>No seating at the stalls. Instead, a large shared dining hall with long wooden tables \u2014 like an Asian market hall. Beer on tap, wine from Berlin natural wine suppliers.</p><h4>Opening</h4><p>The opening is planned for July 2026. The first vendors are already confirmed, further applications are still open. Tip: sign up for the Markthalle newsletter to get early access.</p>',
-        },
-        {
-          id: 'michelin-berlin',
-          title: 'Berlin Now Has 8 Michelin-Starred Restaurants \u2014 And None Cost More Than \u20ac150',
-          excerpt: "The new Michelin Guide edition celebrates Berlin's democratic fine dining scene. Fine dining doesn't have to be expensive.",
-          category: 'culture',
-          categoryLabel: 'Culture',
-          date: 'March 13',
-          dateISO: '2026-03-13',
-          img: 'https://cdn.sanity.io/images/ehwjnjr2/production/27f528f46cd70ba6d129f3928d99dad7f2f01760-1919x1079.webp',
-          alt: 'Fine Dining',
-          content: '<p>The new Michelin Guide Berlin 2026 edition is out \u2014 and it sends a clear message: Berlin is the most democratic fine dining city in Europe. None of the 8 starred restaurants charges more than \u20ac150 for a full dinner menu.</p><h4>The Newcomer</h4><p>The biggest surprise is Natura, which only opened last year. Ren\u00e9 Redzepi\'s Berlin outpost received a star immediately \u2014 at a menu price of just \u20ac89. Critics speak of revolutionary sustainability on the plate.</p><h4>The Consistent Ones</h4><p>CODA Dessert Dining defends its star with a 7-course dessert tasting for \u20ac95. Otto in Mitte offers a seasonal 5-course menu for \u20ac78 \u2014 one of the most affordable Michelin stars in Germany.</p><h4>Why Berlin?</h4><p>The answer is simple: lower rents than Munich or Hamburg, an international chef scene, and diners who are willing to pay for quality \u2014 but not for status. Berlin fine dining is not a status symbol; it\'s lived conviction.</p>',
-        },
-        {
-          id: 'donuts-berlin',
-          title: 'The 10 Best Donut Shops in Berlin \u2014 From Brooklyn Style to Thai',
-          excerpt: 'Berlin has become the donut capital of Europe. We tried 20 shops and picked the best ten.',
-          category: 'guides',
-          categoryLabel: 'Guides',
-          date: 'March 12',
-          dateISO: '2026-03-12',
-          img: 'https://cdn.sanity.io/images/ehwjnjr2/production/3618e7e5f686d662205f9744403afe4ae09ce419-800x600.webp',
-          alt: 'Berlin Donuts',
-          content: '<p>Berlin has experienced a donut revolution over the past three years. From 2 shops to over 30 \u2014 and the quality is better than ever. We tried all 20 and picked the best ten.</p><h4>1. Atelier Dough \u2014 Prenzlauer Berg</h4><p>The undisputed number one. The donuts here are hand-crafted, the recipes updated monthly. The matcha donut is legendary, the salted caramel donut is poetry. Tip: come in the morning \u2014 afternoons often sell out.</p><h4>2. Momo Mochi Donut \u2014 Prenzlauer Berg</h4><p>Mochi donuts \u2014 made from glutinous rice flour \u2014 are the hot trend. Momo makes the best in Berlin: chewy, sweet but not heavy. The ube variant (purple sweet potato) is an Instagram hit.</p><h4>3. Brammibal\'s \u2014 Neuk\u00f6lln</h4><p>Vegan donuts that nobody would call vegan. The texture is perfect, the glazes creative. The lemon poppy seed is our favourite.</p><h4>4. The Dough Club \u2014 Mitte</h4><p>Brooklyn-style donuts in Berlin: large, generous, decadent. Fillings range from pistachio cream to Biscoff. Not for every day, but perfect for special occasions.</p><h4>5\u201310</h4><p>The remaining six on our list: Holy Sugar, Da Capo, Jones Ice Cream (yes, they have donuts too), Zeit f\u00fcr Brot, Roamers Coffee and Five Elephant. Find the details in our full guide.</p>',
-        },
-      ],
+      errorLoad: 'Could not load articles. Please try again later.',
+      // removed: articles[] — content lives in Sanity CMS only
     },
     map: {
       sectionLabel: 'Find',
@@ -310,29 +250,21 @@ function buildNewsCardHtml(a) {
   ].join('');
 }
 
-// Renders news cards. Fetches from Sanity CMS, falls back to static TRANSLATIONS.
+// Renders news cards. Source of truth: Sanity CMS only.
 async function renderNewsCards() {
   const grid = document.querySelector('.news-grid');
   if (!grid) return;
 
-  if (window.CMS) {
-    try {
-      const articles = await window.CMS.fetchNews(_lang);
-      if (articles && articles.length) {
-        // safe: all values escaped by buildNewsCardHtml; HTML structure is hardcoded
-        grid.innerHTML = articles.map(buildNewsCardHtml).join('');
-        if (typeof window._bindNewsCards === 'function') window._bindNewsCards();
-        return;
-      }
-    } catch (e) {
-      console.warn('[CMS] News fetch failed, using static fallback:', e.message);
-    }
-  }
+  const articles = window.CMS ? await window.CMS.fetchNews(_lang) : null;
 
-  // Static fallback from TRANSLATIONS constant
-  const articles = (TRANSLATIONS[_lang]?.news?.articles) || [];
-  // safe: values from TRANSLATIONS constant, escaped by buildNewsCardHtml
-  grid.innerHTML = articles.map(a => buildNewsCardHtml({ ...a, imageUrl: a.img })).join('');
+  if (articles && articles.length) {
+    // safe: all values escaped by buildNewsCardHtml; HTML structure is hardcoded
+    grid.innerHTML = articles.map(buildNewsCardHtml).join('');
+    if (typeof window._bindNewsCards === 'function') window._bindNewsCards();
+  } else {
+    const msg = TRANSLATIONS[_lang]?.news?.errorLoad || 'Could not load articles.';
+    grid.innerHTML = `<p class="news-error">${msg}</p>`;
+  }
 }
 
 function setLang(lang) {

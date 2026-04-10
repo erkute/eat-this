@@ -1152,27 +1152,26 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
 
       let startY = 0, startTranslate = 0, lastY = 0, lastT = 0, vel = 0, dragging = false;
 
-      handle.addEventListener('touchstart', e => {
+      function dragStart(clientY) {
         dragging = true;
-        startY = e.touches[0].clientY;
+        startY = clientY;
         startTranslate = new DOMMatrix(getComputedStyle(sheet).transform).m42;
         lastY = startY;
         lastT = Date.now();
         vel = 0;
         sheet.style.transition = 'none';
-      }, { passive: true });
+      }
 
-      handle.addEventListener('touchmove', e => {
+      function dragMove(clientY) {
         if (!dragging) return;
-        const y = e.touches[0].clientY;
-        const newY = Math.max(0, startTranslate + (y - startY));
+        const newY = Math.max(0, startTranslate + (clientY - startY));
         sheet.style.transform = `translateY(${newY}px)`;
         const now = Date.now(), dt = now - lastT;
-        if (dt > 0) vel = (y - lastY) / dt;
-        lastY = y; lastT = now;
-      }, { passive: true });
+        if (dt > 0) vel = (clientY - lastY) / dt;
+        lastY = clientY; lastT = now;
+      }
 
-      handle.addEventListener('touchend', () => {
+      function dragEnd() {
         if (!dragging) return;
         dragging = false;
         const curY = new DOMMatrix(getComputedStyle(sheet).transform).m42;
@@ -1192,7 +1191,20 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
           next = nearest;
         }
         _snapSheet(next);
+      }
+
+      // Touch events
+      handle.addEventListener('touchstart', e => dragStart(e.touches[0].clientY), { passive: true });
+      handle.addEventListener('touchmove', e => dragMove(e.touches[0].clientY), { passive: true });
+      handle.addEventListener('touchend', dragEnd);
+
+      // Mouse events (desktop)
+      handle.addEventListener('mousedown', e => {
+        e.preventDefault();
+        dragStart(e.clientY);
       });
+      document.addEventListener('mousemove', e => { if (dragging) dragMove(e.clientY); });
+      document.addEventListener('mouseup', dragEnd);
     }
 
     function showNearbyStrip(lat, lng) {

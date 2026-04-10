@@ -3,14 +3,44 @@
   "short_name": "EAT THIS",
   "description": "Ein Gericht pro Restaurant — das eine, das du bestellen musst.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#000000",
   "theme_color": "#000000",
+  "categories": ["food", "lifestyle", "travel"],
   "icons": [
+    {
+      "src": "pics/eat.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "pics/eat.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
     {
       "src": "pics/logo.webp",
       "sizes": "512x512",
-      "type": "image/webp"
+      "type": "image/webp",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Food Map",
+      "short_name": "Map",
+      "url": "/?page=map",
+      "icons": [{ "src": "pics/eat.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Must-Eats",
+      "short_name": "Eat This",
+      "url": "/?page=musts",
+      "icons": [{ "src": "pics/eat.png", "sizes": "192x192" }]
     }
   ]
 }

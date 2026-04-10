@@ -36,10 +36,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!heroSlides.length) return;
     heroSlides[currentSlide].classList.remove('active');
     currentSlide = (currentSlide + 1) % heroSlides.length;
-    heroSlides[currentSlide].classList.add('active');
+    const next = heroSlides[currentSlide];
+    // Lazy-load: set background-image from data-src on first show
+    if (next.dataset.src) {
+      next.style.backgroundImage = `url('${next.dataset.src}')`;
+      delete next.dataset.src;
+    }
+    next.classList.add('active');
   }
 
   if (heroSlides.length > 0) {
+    // Preload the second slide immediately so first transition is seamless
+    const second = heroSlides[1];
+    if (second?.dataset.src) {
+      second.style.backgroundImage = `url('${second.dataset.src}')`;
+      delete second.dataset.src;
+    }
     heroInterval = setInterval(nextSlide, slideInterval);
   }
 

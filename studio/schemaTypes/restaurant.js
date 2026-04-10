@@ -56,6 +56,12 @@ export default {
       title: 'Website',
       type: 'url',
     },
+    {
+      name: 'image',
+      title: 'Photo',
+      type: 'image',
+      options: { hotspot: true },
+    },
   ],
   preview: {
     select: { title: 'name', subtitle: 'district' },

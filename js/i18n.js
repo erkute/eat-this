@@ -296,7 +296,7 @@ function buildNewsCardHtml(a) {
     ` data-category-label="${esc(a.categoryLabel)}"`,
     ` data-date="${esc(dateLabel)}"`,
     ` data-excerpt="${esc(a.excerpt)}"`,
-    ` data-content="${esc(a.content)}">`,
+    ` data-content="${esc(Array.isArray(a.content) ? JSON.stringify(a.content) : (a.content || ''))}">`,
     `<a href="#">`,
     `<div class="news-card-img"><img src="${esc(imgSrc)}" alt="${esc(a.alt || a.title)}" loading="lazy"></div>`,
     `<div class="news-card-body">`,

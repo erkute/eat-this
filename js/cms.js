@@ -75,7 +75,8 @@ window.CMS = {
       lat,
       lng,
       mapsUrl,
-      website
+      website,
+      "photo": image.asset->url
     }`;
     return sanityFetch(query);
   },

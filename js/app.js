@@ -1266,19 +1266,50 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
   const newsArticles = document.querySelectorAll('.news-featured, .news-card');
   let currentShareData = { title: '', text: '', url: window.location.href };
 
+  function portableTextToHtml(blocks) {
+    if (!Array.isArray(blocks)) return String(blocks || '');
+    const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return blocks.map(block => {
+      if (block._type !== 'block' || !block.children) return '';
+      const inner = block.children.map(span => {
+        let text = esc(span.text || '');
+        const marks = span.marks || [];
+        if (marks.includes('strong'))    text = `<strong>${text}</strong>`;
+        if (marks.includes('em'))        text = `<em>${text}</em>`;
+        if (marks.includes('underline')) text = `<u>${text}</u>`;
+        return text;
+      }).join('');
+      switch (block.style) {
+        case 'h2':         return `<h2>${inner}</h2>`;
+        case 'h3':         return `<h3>${inner}</h3>`;
+        case 'blockquote': return `<blockquote>${inner}</blockquote>`;
+        default:           return `<p>${inner}</p>`;
+      }
+    }).join('');
+  }
+
   function openNewsModal(article) {
     const title = article.dataset.title;
     const img = article.dataset.img;
     const category = article.dataset.categoryLabel;
     const date = article.dataset.date;
-    const content = article.dataset.content;
+    const rawContent = article.dataset.content || '';
+
+    let contentHtml;
+    try {
+      const parsed = JSON.parse(rawContent);
+      contentHtml = portableTextToHtml(parsed);
+    } catch (_) {
+      const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      contentHtml = `<p>${esc(rawContent)}</p>`;
+    }
 
     document.getElementById('newsModalImg').src = img;
     document.getElementById('newsModalImg').alt = title;
     document.getElementById('newsModalCategory').textContent = category;
     document.getElementById('newsModalTitle').textContent = title;
     document.getElementById('newsModalDate').textContent = date;
-    document.getElementById('newsModalContent').innerHTML = content;
+    document.getElementById('newsModalContent').innerHTML = contentHtml;
 
     currentShareData = {
       title: title,

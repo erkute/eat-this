@@ -1298,10 +1298,12 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     let contentHtml;
     try {
       const parsed = JSON.parse(rawContent);
+      // Portable Text array from new rich-text field
       contentHtml = portableTextToHtml(parsed);
     } catch (_) {
-      const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      contentHtml = `<p>${esc(rawContent)}</p>`;
+      // Legacy plain-text content (may already contain HTML tags from import)
+      contentHtml = rawContent.includes('<') ? rawContent
+        : rawContent.split(/\n\n+/).map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
     }
 
     document.getElementById('newsModalImg').src = img;

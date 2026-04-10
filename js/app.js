@@ -1507,6 +1507,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     appFooterItems.forEach(item => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
+        window.closeLoginModal?.();
         const target = item.dataset.target;
         navigateToPage(target);
         window.location.hash = target;

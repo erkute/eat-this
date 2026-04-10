@@ -510,11 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
           img.className = 'must-card-img';
           img.loading   = 'lazy';
 
-          const clip = document.createElement('div');
-          clip.className = 'must-card-clip';
-
           wrapper.appendChild(img);
-          wrapper.appendChild(clip);
           fragment.appendChild(wrapper);
         });
         grid.appendChild(fragment);
@@ -535,6 +531,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
       console.warn('[CMS] Restaurants fetch failed:', e.message);
     }
+
+    // Bind must-card lightbox handlers now that cards are in the DOM
+    bindMustCards();
   })();
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -856,12 +855,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     const mapSpotClose = document.getElementById('mapSpotClose');
 
     function getSpotPhoto(type) {
-      const t = (type || '').toLowerCase();
-      if (t.includes('coffee') || t.includes('cafe')) return 'pics/glas.webp';
-      if (t.includes('sweets') || t.includes('dessert')) return 'pics/dessert.webp';
-      if (t.includes('breakfast')) return 'pics/tisch.webp';
-      if (t.includes('dinner')) return 'pics/teller.webp';
-      return 'pics/teller.webp';
+      return 'pics/eat.webp';
     }
 
     function getSpotCategory(type) {
@@ -1620,36 +1614,42 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     }
   }
 
-  document.querySelectorAll('.must-card').forEach(card => {
-    // Wrap img in clip div so clip-path is on a non-interactive child (iOS Safari bug: clip-path on interactive element blocks touch)
-    const img = card.querySelector('.must-card-img');
-    const clip = document.createElement('div');
-    clip.className = 'must-card-clip';
-    card.insertBefore(clip, img);
-    clip.appendChild(img);
+  function bindMustCards() {
+    document.querySelectorAll('.must-card').forEach(card => {
+      // Wrap img in clip div (iOS Safari: clip-path on interactive element blocks touch)
+      const img = card.querySelector('.must-card-img');
+      if (!img) return;
+      // Only wrap if not already inside a clip
+      if (!img.parentElement.classList.contains('must-card-clip')) {
+        const clip = document.createElement('div');
+        clip.className = 'must-card-clip';
+        card.insertBefore(clip, img);
+        clip.appendChild(img);
+      }
 
-    let touchStartX = 0, touchStartY = 0, touchMoved = false;
-    card.addEventListener('touchstart', e => {
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-      touchMoved = false;
-    }, { passive: true });
-    card.addEventListener('touchmove', e => {
-      const dx = e.touches[0].clientX - touchStartX;
-      const dy = e.touches[0].clientY - touchStartY;
-      if (Math.sqrt(dx * dx + dy * dy) > 10) touchMoved = true;
-    }, { passive: true });
-    card.addEventListener('touchend', e => {
-      if (touchMoved) return;
-      e.preventDefault();
-      const img = card.querySelector('.must-card-img');
-      openMustCard(card, img.src, img.alt);
-    }, { passive: false });
-    card.addEventListener('click', () => {
-      const img = card.querySelector('.must-card-img');
-      openMustCard(card, img.src, img.alt);
+      let touchStartX = 0, touchStartY = 0, touchMoved = false;
+      card.addEventListener('touchstart', e => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchMoved = false;
+      }, { passive: true });
+      card.addEventListener('touchmove', e => {
+        const dx = e.touches[0].clientX - touchStartX;
+        const dy = e.touches[0].clientY - touchStartY;
+        if (Math.sqrt(dx * dx + dy * dy) > 10) touchMoved = true;
+      }, { passive: true });
+      card.addEventListener('touchend', e => {
+        if (touchMoved) return;
+        e.preventDefault();
+        const img = card.querySelector('.must-card-img');
+        openMustCard(card, img.src, img.alt);
+      }, { passive: false });
+      card.addEventListener('click', () => {
+        const img = card.querySelector('.must-card-img');
+        openMustCard(card, img.src, img.alt);
+      });
     });
-  });
+  }
 
   mustLightbox.addEventListener('touchend', e => { e.preventDefault(); e.stopPropagation(); closeMustCard(); }, { passive: false });
   mustLightbox.addEventListener('click', e => { e.stopPropagation(); closeMustCard(); });

@@ -41,7 +41,7 @@ window.CMS = {
       categoryLabel,
       "date": date,
       "dateISO": date,
-      "imageRef": image.asset->_id,
+      "imageUrl": image.asset->url,
       alt,
       excerpt,
       content
@@ -57,7 +57,6 @@ window.CMS = {
       restaurant,
       district,
       price,
-      "imageRef": image.asset->_id,
       "imageUrl": image.asset->url,
       order
     }`;

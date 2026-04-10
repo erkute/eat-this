@@ -1,0 +1,85 @@
+// ─── Sanity CMS Client ────────────────────────────────────────────────────────
+// Fetches content from Sanity. Project: eat-this (ehwjnjr2 / production)
+// Uses the public read-only CDN — no API key needed for published content.
+
+const SANITY_PROJECT  = 'ehwjnjr2';
+const SANITY_DATASET  = 'production';
+const SANITY_API_VER  = '2024-01-01';
+const SANITY_CDN      = `https://${SANITY_PROJECT}.apicdn.sanity.io/v${SANITY_API_VER}/data/query/${SANITY_DATASET}`;
+
+async function sanityFetch(query) {
+  const url = `${SANITY_CDN}?query=${encodeURIComponent(query)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Sanity fetch failed: ${res.status}`);
+  const json = await res.json();
+  return json.result;
+}
+
+// Build a CDN image URL from a Sanity image asset reference.
+// ref example: "image-Tb9Ew8CXIwaY6R1kjMvI0uRR-2000x3000-jpg"
+function sanityImageUrl(ref, { width } = {}) {
+  if (!ref) return '';
+  const parts = ref.split('-');
+  const ext   = parts.pop();
+  const dims  = parts.pop();
+  const id    = parts.slice(1).join('-');
+  let url = `https://cdn.sanity.io/images/${SANITY_PROJECT}/${SANITY_DATASET}/${id}-${dims}.${ext}`;
+  if (width) url += `?w=${width}&auto=format`;
+  return url;
+}
+
+// ─── Public API ───────────────────────────────────────────────────────────────
+
+window.CMS = {
+  /** Fetch all published news articles, newest first. */
+  fetchNews(lang = 'en') {
+    const query = `*[_type == "newsArticle" && language == "${lang}"] | order(date desc) {
+      _id,
+      "id": slug.current,
+      title,
+      category,
+      categoryLabel,
+      "date": date,
+      "dateISO": date,
+      "imageRef": image.asset->_id,
+      alt,
+      excerpt,
+      content
+    }`;
+    return sanityFetch(query);
+  },
+
+  /** Fetch all must-eat cards, sorted by order field. */
+  fetchMustEats() {
+    const query = `*[_type == "mustEat"] | order(order asc) {
+      _id,
+      dish,
+      restaurant,
+      district,
+      price,
+      "imageRef": image.asset->_id,
+      "imageUrl": image.asset->url,
+      order
+    }`;
+    return sanityFetch(query);
+  },
+
+  /** Fetch all map restaurants. */
+  fetchRestaurants() {
+    const query = `*[_type == "restaurant"] | order(name asc) {
+      _id,
+      name,
+      district,
+      address,
+      categories,
+      price,
+      lat,
+      lng,
+      mapsUrl,
+      website
+    }`;
+    return sanityFetch(query);
+  },
+
+  imageUrl: sanityImageUrl,
+};

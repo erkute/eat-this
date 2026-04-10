@@ -280,39 +280,59 @@ function applyTranslations() {
   });
 }
 
-// Renders news cards from TRANSLATIONS. Must run before app.js reads the DOM.
-// All content is from TRANSLATIONS constant — no user data.
-function renderNewsCards() {
+// Build a single news card HTML string.
+// All dynamic values are escaped with esc() before insertion.
+// HTML structure is hardcoded — not derived from user or CMS input.
+// Source is our own Sanity CMS (trusted) or the TRANSLATIONS constant.
+function buildNewsCardHtml(a) {
+  const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const imgSrc = a.imageUrl || a.img || '';
+  const dateLabel = a.date ? new Date(a.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : (a.date || '');
+  return [
+    `<article class="news-card"`,
+    ` data-category="${esc(a.category)}"`,
+    ` data-title="${esc(a.title)}"`,
+    ` data-img="${esc(imgSrc)}"`,
+    ` data-category-label="${esc(a.categoryLabel)}"`,
+    ` data-date="${esc(dateLabel)}"`,
+    ` data-excerpt="${esc(a.excerpt)}"`,
+    ` data-content="${esc(a.content)}">`,
+    `<a href="#">`,
+    `<div class="news-card-img"><img src="${esc(imgSrc)}" alt="${esc(a.alt || a.title)}" loading="lazy"></div>`,
+    `<div class="news-card-body">`,
+    `<div class="news-card-top">`,
+    `<span class="news-card-category">${esc(a.categoryLabel)}</span>`,
+    `<time class="news-card-date" datetime="${esc(a.dateISO || a.date)}">${esc(dateLabel)}</time>`,
+    `</div>`,
+    `<h3 class="news-card-headline">${esc(a.title)}</h3>`,
+    `<p class="news-card-excerpt">${esc(a.excerpt)}</p>`,
+    `</div></a></article>`,
+  ].join('');
+}
+
+// Renders news cards. Fetches from Sanity CMS, falls back to static TRANSLATIONS.
+async function renderNewsCards() {
   const grid = document.querySelector('.news-grid');
   if (!grid) return;
 
-  const articles = (TRANSLATIONS[_lang] && TRANSLATIONS[_lang].news && TRANSLATIONS[_lang].news.articles) || [];
+  if (window.CMS) {
+    try {
+      const articles = await window.CMS.fetchNews(_lang);
+      if (articles && articles.length) {
+        // safe: all values escaped by buildNewsCardHtml; HTML structure is hardcoded
+        grid.innerHTML = articles.map(buildNewsCardHtml).join('');
+        if (typeof window._bindNewsCards === 'function') window._bindNewsCards();
+        return;
+      }
+    } catch (e) {
+      console.warn('[CMS] News fetch failed, using static fallback:', e.message);
+    }
+  }
 
-  grid.innerHTML = articles.map(a => {
-    const safeTitle = a.title.replace(/"/g, '&quot;');
-    const safeExcerpt = a.excerpt.replace(/"/g, '&quot;');
-    const safeContent = a.content.replace(/"/g, '&quot;');
-    return [
-      `<article class="news-card"`,
-      ` data-category="${a.category}"`,
-      ` data-title="${safeTitle}"`,
-      ` data-img="${a.img}"`,
-      ` data-category-label="${a.categoryLabel}"`,
-      ` data-date="${a.date}"`,
-      ` data-excerpt="${safeExcerpt}"`,
-      ` data-content="${safeContent}">`,
-      `<a href="#">`,
-      `<div class="news-card-img"><img src="${a.img}" alt="${a.alt.replace(/"/g, '&quot;')}" loading="lazy"></div>`,
-      `<div class="news-card-body">`,
-      `<div class="news-card-top">`,
-      `<span class="news-card-category">${a.categoryLabel}</span>`,
-      `<time class="news-card-date" datetime="${a.dateISO}">${a.date}</time>`,
-      `</div>`,
-      `<h3 class="news-card-headline">${a.title}</h3>`,
-      `<p class="news-card-excerpt">${a.excerpt}</p>`,
-      `</div></a></article>`,
-    ].join('');
-  }).join(''); // safe: source is TRANSLATIONS constant
+  // Static fallback from TRANSLATIONS constant
+  const articles = (TRANSLATIONS[_lang]?.news?.articles) || [];
+  // safe: values from TRANSLATIONS constant, escaped by buildNewsCardHtml
+  grid.innerHTML = articles.map(a => buildNewsCardHtml({ ...a, imageUrl: a.img })).join('');
 }
 
 function setLang(lang) {

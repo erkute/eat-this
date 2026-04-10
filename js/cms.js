@@ -9,10 +9,15 @@ const SANITY_CDN      = `https://${SANITY_PROJECT}.apicdn.sanity.io/v${SANITY_AP
 
 async function sanityFetch(query) {
   const url = `${SANITY_CDN}?query=${encodeURIComponent(query)}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Sanity fetch failed: ${res.status}`);
-  const json = await res.json();
-  return json.result;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    return json?.result ?? null;
+  } catch (err) {
+    console.warn('[CMS] Fetch failed:', err.message);
+    return null;
+  }
 }
 
 // Build a CDN image URL from a Sanity image asset reference.
@@ -41,7 +46,7 @@ window.CMS = {
       categoryLabel,
       "date": date,
       "dateISO": date,
-      "imageUrl": image.asset->url,
+      "imageUrl": image.asset->url + "?w=900&auto=format&q=80",
       alt,
       excerpt,
       content
@@ -57,7 +62,7 @@ window.CMS = {
       restaurant,
       district,
       price,
-      "imageUrl": image.asset->url,
+      "imageUrl": image.asset->url + "?w=600&auto=format&q=80",
       order
     }`;
     return sanityFetch(query);
@@ -76,7 +81,7 @@ window.CMS = {
       lng,
       mapsUrl,
       website,
-      "photo": image.asset->url
+      "photo": image.asset->url + "?w=800&auto=format&q=80"
     }`;
     return sanityFetch(query);
   },

@@ -45,7 +45,6 @@ const functions = getFunctions(app);
 //   isTokenAutoRefreshEnabled: true,
 // });
 
-console.log('[EAT THIS] auth.js v3 loaded');
 
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
@@ -216,9 +215,8 @@ if (loginForm) {
         isRegistering = false;
         applyLoggedInUI(cred.user);
         notify(window.i18n.t('modals.login.notifications.welcome').replace('{name}', name));
-        console.log('[EAT THIS] sendVerificationEmail calling Cloud Function');
         const sendVerificationEmail = httpsCallable(functions, 'sendVerificationEmail');
-        sendVerificationEmail({ displayName: name }).catch((e) => console.error('[EAT THIS] sendVerificationEmail error:', e));
+        sendVerificationEmail({ displayName: name }).catch(() => {});
       } else {
         await signInWithEmailAndPassword(auth, email, password);
         const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? 'du';

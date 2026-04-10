@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const heroSlides = document.querySelectorAll('.hero-slide');
   let heroInterval = null;
   let currentSlide = 0;
-  const slideInterval = 800;
+  const slideInterval = 4000;
   let altImgIntervals = [];
 
   function nextSlide() {
@@ -507,8 +507,9 @@ document.addEventListener('DOMContentLoaded', () => {
           const img = document.createElement('img');
           img.src       = c.imageUrl || '';
           img.alt       = c.dish     || '';
-          img.className = 'must-card-img';
-          img.loading   = 'lazy';
+          img.className  = 'must-card-img';
+          img.loading    = 'lazy';
+          img.decoding   = 'async';
 
           wrapper.appendChild(img);
           fragment.appendChild(wrapper);
@@ -1392,6 +1393,18 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     });
   }
 
+  // --- Lazy Script Loader ---
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
   // --- App Page Navigation ---
   let isMobile = window.innerWidth <= 767;
   const appFooter = document.getElementById('appFooter');
@@ -1423,15 +1436,22 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         page.classList.add('active');
         page.classList.remove('hidden');
         
-        // Globe intro → then init map
+        // Globe intro → then init map (lazy-load Leaflet + Three.js on first visit)
         if (pageName === 'map') {
-          showGlobeIntro(() => {
-            // Called after globe fades (or immediately on repeat visits)
+          Promise.all([
+            loadScript('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'),
+            loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'),
+          ]).then(() => {
+            showGlobeIntro(() => {
+              cmsReady.then(() => { if (typeof initFoodMap === 'function') initFoodMap(); });
+              if (foodMap) {
+                foodMap.invalidateSize();
+                setTimeout(() => { if (foodMap) foodMap.invalidateSize(); }, 300);
+              }
+            });
+          }).catch(() => {
+            // Fallback: try map without globe
             cmsReady.then(() => { if (typeof initFoodMap === 'function') initFoodMap(); });
-            if (foodMap) {
-              foodMap.invalidateSize();
-              setTimeout(() => { if (foodMap) foodMap.invalidateSize(); }, 300);
-            }
           });
         }
       } else {

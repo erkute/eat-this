@@ -5,3 +5,6 @@ node_modules/
 .superpowers/
 *.csv
 *.py
+docs/superpowers/
+studio/node_modules/
+studio/.sanity/

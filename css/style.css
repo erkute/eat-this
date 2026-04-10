@@ -2130,6 +2130,7 @@ body {
 
   .app-page[data-page="musts"] .must-eats-section {
     padding: 0;
+    min-height: 0;
   }
 
   .app-page[data-page="musts"] .must-eats-logo-img {
@@ -2215,6 +2216,7 @@ body {
   /* News page - Magazine style */
   .app-page[data-page="news"] .news-section {
     padding: 0;
+    min-height: 0;
     background: var(--white);
   }
   

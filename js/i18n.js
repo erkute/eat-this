@@ -340,8 +340,9 @@ function setLang(lang) {
   _lang = lang;
   localStorage.setItem('lang', lang);
   applyTranslations();
-  renderNewsCards();
-  if (typeof window._bindNewsCards === 'function') window._bindNewsCards();
+  renderNewsCards().then(() => {
+    if (typeof window._bindNewsCards === 'function') window._bindNewsCards();
+  });
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────

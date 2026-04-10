@@ -7,58 +7,6 @@ if (window.innerWidth <= 767 && screen.orientation?.lock) {
   screen.orientation.lock('portrait').catch(() => {});
 }
 
-// ─── CMS Bootstrap ────────────────────────────────────────────────────────────
-// Load Must-Eats and Restaurants from Sanity before DOMContentLoaded handlers run.
-(async () => {
-  if (!window.CMS) return;
-
-  // Must-Eat cards — built with DOM APIs (no innerHTML)
-  try {
-    const cards = await window.CMS.fetchMustEats();
-    const grid = document.getElementById('mustEatsGrid');
-    if (grid && cards && cards.length) {
-      const fragment = document.createDocumentFragment();
-      cards.forEach(c => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'must-card eat-card';
-        wrapper.dataset.dish       = c.dish       || '';
-        wrapper.dataset.restaurant = c.restaurant || '';
-        wrapper.dataset.district   = c.district   || '';
-        wrapper.dataset.price      = c.price      || '';
-        wrapper.dataset.img        = c.imageUrl   || '';
-
-        const img = document.createElement('img');
-        img.src     = c.imageUrl || '';
-        img.alt     = c.dish     || '';
-        img.className = 'must-card-img';
-        img.loading   = 'lazy';
-
-        const clip = document.createElement('div');
-        clip.className = 'must-card-clip';
-
-        wrapper.appendChild(img);
-        wrapper.appendChild(clip);
-        fragment.appendChild(wrapper);
-      });
-      grid.appendChild(fragment);
-    }
-  } catch (e) {
-    console.warn('[CMS] Must-Eats fetch failed:', e.message);
-  }
-
-  // Restaurants — populate global spots array for the map
-  try {
-    const restaurants = await window.CMS.fetchRestaurants();
-    if (restaurants && restaurants.length) {
-      spots = restaurants.map(r => ({
-        ...r,
-        type: (r.categories || []).join(' · '),
-      }));
-    }
-  } catch (e) {
-    console.warn('[CMS] Restaurants fetch failed:', e.message);
-  }
-})();
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -537,6 +485,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let spots = []; // populated from Sanity CMS on page load
 
+  // ─── CMS Bootstrap (inside DOMContentLoaded so spots is in scope) ─────────
+  const cmsReady = (async () => {
+    if (!window.CMS) return;
+
+    // Must-Eat cards
+    try {
+      const cards = await window.CMS.fetchMustEats();
+      const grid = document.getElementById('mustEatsGrid');
+      if (grid && cards && cards.length) {
+        const fragment = document.createDocumentFragment();
+        cards.forEach(c => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'must-card eat-card';
+          wrapper.dataset.dish       = c.dish       || '';
+          wrapper.dataset.restaurant = c.restaurant || '';
+          wrapper.dataset.district   = c.district   || '';
+          wrapper.dataset.price      = c.price      || '';
+          wrapper.dataset.img        = c.imageUrl   || '';
+
+          const img = document.createElement('img');
+          img.src       = c.imageUrl || '';
+          img.alt       = c.dish     || '';
+          img.className = 'must-card-img';
+          img.loading   = 'lazy';
+
+          const clip = document.createElement('div');
+          clip.className = 'must-card-clip';
+
+          wrapper.appendChild(img);
+          wrapper.appendChild(clip);
+          fragment.appendChild(wrapper);
+        });
+        grid.appendChild(fragment);
+      }
+    } catch (e) {
+      console.warn('[CMS] Must-Eats fetch failed:', e.message);
+    }
+
+    // Restaurants
+    try {
+      const restaurants = await window.CMS.fetchRestaurants();
+      if (restaurants && restaurants.length) {
+        spots = restaurants.map(r => ({
+          ...r,
+          type: (r.categories || []).join(' · '),
+        }));
+      }
+    } catch (e) {
+      console.warn('[CMS] Restaurants fetch failed:', e.message);
+    }
+  })();
+  // ─────────────────────────────────────────────────────────────────────────
 
   let globeShown = false;
 
@@ -699,7 +699,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       // Positive rotX tilts north pole toward camera → shows northern latitudes
       globe._targetX = targetLat;
 
-      setTimeout(() => { if (typeof initFoodMap === 'function') initFoodMap(); }, 50);
+      cmsReady.then(() => { setTimeout(() => { if (typeof initFoodMap === 'function') initFoodMap(); }, 50); });
     }
 
     overlay.addEventListener('click', startZoom);
@@ -1400,7 +1400,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         if (pageName === 'map') {
           showGlobeIntro(() => {
             // Called after globe fades (or immediately on repeat visits)
-            if (typeof initFoodMap === 'function') initFoodMap();
+            cmsReady.then(() => { if (typeof initFoodMap === 'function') initFoodMap(); });
             if (foodMap) {
               foodMap.invalidateSize();
               setTimeout(() => { if (foodMap) foodMap.invalidateSize(); }, 300);

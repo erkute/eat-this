@@ -1,14 +1,18 @@
 import { test, expect } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  await page.goto('/');
+  const cookieBtn = page.locator('#cookieAccept');
+  if (await cookieBtn.isVisible()) await cookieBtn.click();
+});
+
 test.describe('Navigation', () => {
   test('homepage loads and shows hero', async ({ page }) => {
-    await page.goto('/');
     await expect(page).toHaveTitle(/EAT THIS/);
     await expect(page.locator('.hero-slide.active')).toBeVisible();
   });
 
   test('footer nav tabs are visible', async ({ page }) => {
-    await page.goto('/');
     await expect(page.locator('#appFooter')).toBeVisible();
     await expect(page.locator('[data-target="map"]')).toBeVisible();
     await expect(page.locator('[data-target="musts"]')).toBeVisible();

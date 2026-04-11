@@ -49,9 +49,13 @@ document.addEventListener('DOMContentLoaded', () => {
   function _openLoginModal()  { if (_loginModal) { _loginModal.classList.add('active');    bodyOverflow.lock(); } }
   function _closeLoginModal() { if (_loginModal) { _loginModal.classList.remove('active'); bodyOverflow.unlock(); } }
 
-  if (_loginBtn)      _loginBtn.addEventListener('click',  _openLoginModal);
-  if (_loginClose)    _loginClose.addEventListener('click', _closeLoginModal);
-  if (_loginBackdrop) _loginBackdrop.addEventListener('click', _closeLoginModal);
+  if (_loginBtn)   _loginBtn.addEventListener('click', _openLoginModal);
+  if (_loginClose) _loginClose.addEventListener('click', _closeLoginModal);
+  // Click on modal overlay (outside content) closes it — works reliably in both
+  // production and automated tests (no force:true needed)
+  if (_loginModal) _loginModal.addEventListener('click', (e) => {
+    if (!e.target.closest('.login-modal-content')) _closeLoginModal();
+  });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && _loginModal?.classList.contains('active')) _closeLoginModal();
   });

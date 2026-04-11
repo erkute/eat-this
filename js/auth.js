@@ -249,7 +249,6 @@ if (forgotPasswordBtn) {
       clearError();
       showSuccess(window.i18n.t('modals.login.forgotSuccess'));
     } catch (err) {
-      console.error('[EAT THIS] sendPasswordReset error:', err?.code, err?.message, err);
       if (err?.code === 'functions/resource-exhausted') {
         showError(window.i18n.t('modals.login.errors.tooManyRequestsLong'));
       } else {

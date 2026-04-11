@@ -2,8 +2,21 @@
    EAT THIS — Interactions & Animations
    ============================================ */
 
+const CONFIG = {
+  MOBILE_BREAKPOINT:          767,   // px — matches CSS @media (max-width: 767px)
+  SLIDE_INTERVAL:            4000,   // ms — hero carousel speed
+  NOTIFICATION_DURATION:     3000,   // ms — toast auto-dismiss
+  SEARCH_DEBOUNCE:            200,   // ms — keyup debounce
+  SEARCH_FOCUS_DESKTOP:       100,   // ms — focus delay on desktop
+  SEARCH_FOCUS_MOBILE:        400,   // ms — focus delay on mobile (wait for keyboard)
+  GEO_TIMEOUT:              10000,   // ms — GPS timeout
+  GEO_FALLBACK_DELAY:        3000,   // ms — show Berlin if no GPS after this
+  GEO_MAX_AGE:             300000,   // ms — reuse cached GPS position (5 min)
+  BERLIN_CENTER:      [52.52, 13.405],
+};
+
 // Lock to portrait mode on mobile
-if (window.innerWidth <= 767 && screen.orientation?.lock) {
+if (window.innerWidth <= CONFIG.MOBILE_BREAKPOINT && screen.orientation?.lock) {
   screen.orientation.lock('portrait').catch(() => {});
 }
 
@@ -29,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const heroSlides = document.querySelectorAll('.hero-slide');
   let heroInterval = null;
   let currentSlide = 0;
-  const slideInterval = 4000;
+  const slideInterval = CONFIG.SLIDE_INTERVAL;
   let altImgIntervals = [];
 
   function nextSlide() {
@@ -58,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================
   // NOTIFICATIONS
   // ============================================
-  function showNotification(message, duration = 3000) {
+  function showNotification(message, duration = CONFIG.NOTIFICATION_DURATION) {
     let notification = document.querySelector('.notification');
     if (!notification) {
       notification = document.createElement('div');
@@ -135,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // to finish before focusing so the iOS keyboard doesn't hide the sheet
       setTimeout(() => {
         if (searchInput) searchInput.focus();
-      }, window.innerWidth > 767 ? 100 : 400);
+      }, window.innerWidth > CONFIG.MOBILE_BREAKPOINT ? CONFIG.SEARCH_FOCUS_DESKTOP : CONFIG.SEARCH_FOCUS_MOBILE);
     }
   }
 
@@ -323,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
         search(e.target.value);
-      }, 200);
+      }, CONFIG.SEARCH_DEBOUNCE);
     });
   }
 
@@ -343,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const navbar = document.getElementById('navbar');
 
   function updateNavbar() {
-    if (window.innerWidth > 767) {
+    if (window.innerWidth > CONFIG.MOBILE_BREAKPOINT) {
       window.addEventListener('scroll', () => {
         if (window.scrollY > 60) {
           navbar.classList.add('scrolled');
@@ -364,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const targetPage = anchor.closest('.app-page');
       if (targetPage) return;
       
-      if (window.innerWidth > 767) {
+      if (window.innerWidth > CONFIG.MOBILE_BREAKPOINT) {
         const target = document.querySelector(href);
         if (target) {
           e.preventDefault();
@@ -613,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const logoText = document.createElement('div');
     logoText.textContent = "Press Start";
-    const mobileOffset = window.innerWidth <= 768 ? '90px' : '100px';
+    const mobileOffset = window.innerWidth <= CONFIG.MOBILE_BREAKPOINT ? '90px' : '100px';
 logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${mobileOffset});left:50%;transform:translateX(-50%);color:#fff;font-family:Inter,system-ui,sans-serif;font-size:clamp(18px,4.5vw,24px);font-weight:700;letter-spacing:0.5px;pointer-events:none;z-index:501;opacity:0;transition:opacity 0.8s ease 0.3s;white-space:nowrap;`;
     overlay.appendChild(logoText);
     setTimeout(() => { logoImg.style.opacity = '1'; logoText.style.opacity = '1'; }, 100);
@@ -807,7 +820,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     });
 
     // Try to get user location
-    const defaultCenter = [52.52, 13.405];
+    const defaultCenter = CONFIG.BERLIN_CENTER;
     let locationFound = false;
     let userMarker = null;
     
@@ -817,8 +830,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       }
     }
     
-    // Set default view after 3 seconds as fallback
-    setTimeout(setDefaultView, 3000);
+    setTimeout(setDefaultView, CONFIG.GEO_FALLBACK_DELAY);
     
     try {
       if (navigator.geolocation) {
@@ -843,8 +855,8 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
           },
           {
             enableHighAccuracy: false,
-            timeout: 10000,
-            maximumAge: 300000
+            timeout: CONFIG.GEO_TIMEOUT,
+            maximumAge: CONFIG.GEO_MAX_AGE
           }
         );
       } else {
@@ -1418,7 +1430,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
   }
 
   // --- App Page Navigation ---
-  let isMobile = window.innerWidth <= 767;
+  let isMobile = window.innerWidth <= CONFIG.MOBILE_BREAKPOINT;
   const appFooter = document.getElementById('appFooter');
   const appPages = document.querySelectorAll('.app-page');
   const navbarBrand = document.querySelector('.navbar-brand');
@@ -1516,7 +1528,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     function handleResize() {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
-        isMobile = window.innerWidth <= 767;
+        isMobile = window.innerWidth <= CONFIG.MOBILE_BREAKPOINT;
         navigateToPage(currentPage);
       }, 150);
     }

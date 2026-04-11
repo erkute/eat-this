@@ -37,6 +37,30 @@ document.addEventListener('DOMContentLoaded', () => {
   window.bodyOverflow = bodyOverflow;
 
   // ============================================
+  // LOGIN MODAL — Firebase-independent open/close
+  // auth.js sets the same handlers but may fail in CI due to external imports.
+  // These handlers run unconditionally so the modal always works.
+  // ============================================
+  const _loginModal    = document.getElementById('loginModal');
+  const _loginBackdrop = document.getElementById('loginBackdrop');
+  const _loginClose    = document.getElementById('loginClose');
+  const _loginBtn      = document.getElementById('loginBtn');
+
+  function _openLoginModal()  { if (_loginModal) { _loginModal.classList.add('active');    bodyOverflow.lock(); } }
+  function _closeLoginModal() { if (_loginModal) { _loginModal.classList.remove('active'); bodyOverflow.unlock(); } }
+
+  if (_loginBtn)      _loginBtn.addEventListener('click',  _openLoginModal);
+  if (_loginClose)    _loginClose.addEventListener('click', _closeLoginModal);
+  if (_loginBackdrop) _loginBackdrop.addEventListener('click', _closeLoginModal);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && _loginModal?.classList.contains('active')) _closeLoginModal();
+  });
+
+  // Expose so auth.js can delegate if needed
+  window.openLoginModal  = window.openLoginModal  || _openLoginModal;
+  window.closeLoginModal = window.closeLoginModal || _closeLoginModal;
+
+  // ============================================
   // HERO SLIDER
   // ============================================
   const heroSlides = document.querySelectorAll('.hero-slide');

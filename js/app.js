@@ -3,16 +3,16 @@
    ============================================ */
 
 const CONFIG = {
-  MOBILE_BREAKPOINT:          767,   // px — matches CSS @media (max-width: 767px)
-  SLIDE_INTERVAL:            4000,   // ms — hero carousel speed
-  NOTIFICATION_DURATION:     3000,   // ms — toast auto-dismiss
-  SEARCH_DEBOUNCE:            200,   // ms — keyup debounce
-  SEARCH_FOCUS_DESKTOP:       100,   // ms — focus delay on desktop
-  SEARCH_FOCUS_MOBILE:        400,   // ms — focus delay on mobile (wait for keyboard)
-  GEO_TIMEOUT:              15000,   // ms — GPS timeout
-  GEO_FALLBACK_DELAY:       16000,   // ms — show Berlin only after GPS timeout + 1s
-  GEO_MAX_AGE:              60000,   // ms — reuse cached GPS position (1 min only)
-  BERLIN_CENTER:      [52.52, 13.405],
+  MOBILE_BREAKPOINT: 767, // px — matches CSS @media (max-width: 767px)
+  SLIDE_INTERVAL: 4000, // ms — hero carousel speed
+  NOTIFICATION_DURATION: 3000, // ms — toast auto-dismiss
+  SEARCH_DEBOUNCE: 200, // ms — keyup debounce
+  SEARCH_FOCUS_DESKTOP: 100, // ms — focus delay on desktop
+  SEARCH_FOCUS_MOBILE: 400, // ms — focus delay on mobile (wait for keyboard)
+  GEO_TIMEOUT: 5000, // ms — GPS timeout
+  GEO_FALLBACK_DELAY: 6000, // ms — show Berlin only after GPS timeout + 1s
+  GEO_MAX_AGE: 60000, // ms — reuse cached GPS position (1 min only)
+  BERLIN_CENTER: [52.52, 13.405],
 };
 
 // Lock to portrait mode on mobile
@@ -20,9 +20,7 @@ if (window.innerWidth <= CONFIG.MOBILE_BREAKPOINT && screen.orientation?.lock) {
   screen.orientation.lock('portrait').catch(() => {});
 }
 
-
 document.addEventListener('DOMContentLoaded', () => {
-
   // ============================================
   // BODY OVERFLOW MANAGER
   // Prevents scroll-state conflicts when multiple modals are used
@@ -30,8 +28,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const bodyOverflow = (() => {
     let count = 0;
     return {
-      lock()   { count++; document.body.style.overflow = 'hidden'; },
-      unlock() { count = Math.max(0, count - 1); if (!count) document.body.style.overflow = ''; }
+      lock() {
+        count++;
+        document.body.style.overflow = 'hidden';
+      },
+      unlock() {
+        count = Math.max(0, count - 1);
+        if (!count) document.body.style.overflow = '';
+      },
     };
   })();
   window.bodyOverflow = bodyOverflow;
@@ -41,27 +45,38 @@ document.addEventListener('DOMContentLoaded', () => {
   // auth.js sets the same handlers but may fail in CI due to external imports.
   // These handlers run unconditionally so the modal always works.
   // ============================================
-  const _loginModal    = document.getElementById('loginModal');
+  const _loginModal = document.getElementById('loginModal');
   const _loginBackdrop = document.getElementById('loginBackdrop');
-  const _loginClose    = document.getElementById('loginClose');
-  const _loginBtn      = document.getElementById('loginBtn');
+  const _loginClose = document.getElementById('loginClose');
+  const _loginBtn = document.getElementById('loginBtn');
 
-  function _openLoginModal()  { if (_loginModal) { _loginModal.classList.add('active');    bodyOverflow.lock(); } }
-  function _closeLoginModal() { if (_loginModal) { _loginModal.classList.remove('active'); bodyOverflow.unlock(); } }
+  function _openLoginModal() {
+    if (_loginModal) {
+      _loginModal.classList.add('active');
+      bodyOverflow.lock();
+    }
+  }
+  function _closeLoginModal() {
+    if (_loginModal) {
+      _loginModal.classList.remove('active');
+      bodyOverflow.unlock();
+    }
+  }
 
-  if (_loginBtn)   _loginBtn.addEventListener('click', _openLoginModal);
+  if (_loginBtn) _loginBtn.addEventListener('click', _openLoginModal);
   if (_loginClose) _loginClose.addEventListener('click', _closeLoginModal);
   // Click on modal overlay (outside content) closes it — works reliably in both
   // production and automated tests (no force:true needed)
-  if (_loginModal) _loginModal.addEventListener('click', (e) => {
-    if (!e.target.closest('.login-modal-content')) _closeLoginModal();
-  });
+  if (_loginModal)
+    _loginModal.addEventListener('click', (e) => {
+      if (!e.target.closest('.login-modal-content')) _closeLoginModal();
+    });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && _loginModal?.classList.contains('active')) _closeLoginModal();
   });
 
   // Expose so auth.js can delegate if needed
-  window.openLoginModal  = window.openLoginModal  || _openLoginModal;
+  window.openLoginModal = window.openLoginModal || _openLoginModal;
   window.closeLoginModal = window.closeLoginModal || _closeLoginModal;
 
   // ============================================
@@ -106,10 +121,10 @@ document.addEventListener('DOMContentLoaded', () => {
       notification.className = 'notification';
       document.body.appendChild(notification);
     }
-    
+
     notification.textContent = message;
     notification.classList.add('show');
-    
+
     setTimeout(() => {
       notification.classList.remove('show');
     }, duration);
@@ -141,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   `;
   document.head.appendChild(notificationStyle);
-  
+
   // ============================================
   // SEARCH
   // ============================================
@@ -151,21 +166,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchClose = document.getElementById('searchClose');
   const searchTrigger = document.getElementById('searchTrigger');
 
-  const mustEatsData = Array.from(document.querySelectorAll('.eat-card')).map(card => ({
+  const mustEatsData = Array.from(document.querySelectorAll('.eat-card')).map((card) => ({
     dish: card.dataset.dish || '',
     restaurant: card.dataset.restaurant || '',
     district: card.dataset.district || '',
     price: card.dataset.price || '',
     img: card.dataset.img || '',
-    type: 'must-eat'
+    type: 'must-eat',
   }));
 
-  const newsData = Array.from(document.querySelectorAll('.news-card')).map(card => ({
+  const newsData = Array.from(document.querySelectorAll('.news-card')).map((card) => ({
     title: card.dataset.title || '',
     category: card.dataset.categoryLabel || '',
     date: card.dataset.date || '',
     img: card.dataset.img || '',
-    type: 'news'
+    type: 'news',
   }));
 
   function openSearch() {
@@ -174,9 +189,14 @@ document.addEventListener('DOMContentLoaded', () => {
       bodyOverflow.lock();
       // On desktop focus immediately; on mobile wait for slide-up animation
       // to finish before focusing so the iOS keyboard doesn't hide the sheet
-      setTimeout(() => {
-        if (searchInput) searchInput.focus();
-      }, window.innerWidth > CONFIG.MOBILE_BREAKPOINT ? CONFIG.SEARCH_FOCUS_DESKTOP : CONFIG.SEARCH_FOCUS_MOBILE);
+      setTimeout(
+        () => {
+          if (searchInput) searchInput.focus();
+        },
+        window.innerWidth > CONFIG.MOBILE_BREAKPOINT
+          ? CONFIG.SEARCH_FOCUS_DESKTOP
+          : CONFIG.SEARCH_FOCUS_MOBILE
+      );
     }
   }
 
@@ -192,7 +212,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function escapeHtml(str) {
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
   function search(query) {
@@ -204,29 +228,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const results = [];
-    const queryWords = q.split(' ').filter(w => w.length > 1);
+    const queryWords = q.split(' ').filter((w) => w.length > 1);
 
-    mustEatsData.forEach(item => {
+    mustEatsData.forEach((item) => {
       const searchable = `${item.dish} ${item.restaurant} ${item.district}`.toLowerCase();
-      const matchScore = queryWords.filter(word => searchable.includes(word)).length;
+      const matchScore = queryWords.filter((word) => searchable.includes(word)).length;
       if (matchScore === queryWords.length) {
         results.push({ ...item, matchScore });
       }
     });
 
-    newsData.forEach(item => {
+    newsData.forEach((item) => {
       const searchable = `${item.title} ${item.category} ${item.date}`.toLowerCase();
-      const matchScore = queryWords.filter(word => searchable.includes(word)).length;
+      const matchScore = queryWords.filter((word) => searchable.includes(word)).length;
       if (matchScore === queryWords.length) {
         results.push({ ...item, matchScore });
       }
     });
 
-    spots.forEach(item => {
-      const searchable = `${item.name} ${item.type} ${item.district} ${(item.categories || []).join(' ')}`.toLowerCase();
-      const matchScore = queryWords.filter(word => searchable.includes(word)).length;
+    spots.forEach((item) => {
+      const searchable =
+        `${item.name} ${item.type} ${item.district} ${(item.categories || []).join(' ')}`.toLowerCase();
+      const matchScore = queryWords.filter((word) => searchable.includes(word)).length;
       if (matchScore === queryWords.length) {
-        results.push({ type: 'spot', name: item.name, district: item.district, categories: item.categories || [], matchScore, spotData: item });
+        results.push({
+          type: 'spot',
+          name: item.name,
+          district: item.district,
+          categories: item.categories || [],
+          matchScore,
+          spotData: item,
+        });
       }
     });
 
@@ -234,19 +266,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (results.length === 0) {
       const _noRes = window.i18n ? window.i18n.t('search.noResults') : 'No results for';
-      const _noResSub = window.i18n ? window.i18n.t('search.noResultsSub') : 'Try a different search term';
+      const _noResSub = window.i18n
+        ? window.i18n.t('search.noResultsSub')
+        : 'Try a different search term';
       searchResults.innerHTML = `<div class="search-no-results"><p>${_noRes} &ldquo;${escapeHtml(query)}&rdquo;</p><span>${_noResSub}</span></div>`;
       return;
     }
 
     let html = '';
-    const mustEatsResults = results.filter(r => r.type === 'must-eat');
-    const newsResults_arr = results.filter(r => r.type === 'news');
-    const spotResults = results.filter(r => r.type === 'spot');
+    const mustEatsResults = results.filter((r) => r.type === 'must-eat');
+    const newsResults_arr = results.filter((r) => r.type === 'news');
+    const spotResults = results.filter((r) => r.type === 'spot');
 
     if (mustEatsResults.length > 0) {
       html += '<div class="search-section-title">Must Eats</div>';
-      mustEatsResults.slice(0, 5).forEach(item => {
+      mustEatsResults.slice(0, 5).forEach((item) => {
         html += `
           <div class="search-result-item" data-type="must-eat" data-dish="${escapeHtml(item.dish)}" data-restaurant="${escapeHtml(item.restaurant)}">
             <img src="${escapeHtml(item.img)}" alt="${escapeHtml(item.dish)}" class="search-result-img">
@@ -261,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (newsResults_arr.length > 0) {
       html += '<div class="search-section-title">News</div>';
-      newsResults_arr.slice(0, 3).forEach(item => {
+      newsResults_arr.slice(0, 3).forEach((item) => {
         html += `
           <div class="search-result-item" data-type="news" data-title="${escapeHtml(item.title)}">
             <img src="${escapeHtml(item.img)}" alt="${escapeHtml(item.title)}" class="search-result-img">
@@ -277,12 +311,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (spotResults.length > 0) {
       html += '<div class="search-section-title">Restaurants</div>';
-      spotResults.slice(0, 5).forEach(item => {
+      spotResults.slice(0, 5).forEach((item) => {
         html += `
           <div class="search-result-item" data-type="spot" data-name="${escapeHtml(item.name)}">
             <div class="search-result-content">
               <div class="search-result-dish">${escapeHtml(item.name)}</div>
-              <div class="search-result-restaurant">${escapeHtml(item.district)} · ${(item.categories || []).map(c => escapeHtml(c)).join(', ')}</div>
+              <div class="search-result-restaurant">${escapeHtml(item.district)} · ${(item.categories || []).map((c) => escapeHtml(c)).join(', ')}</div>
             </div>
             <span class="search-result-type">Map</span>
           </div>
@@ -292,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     searchResults.innerHTML = html;
 
-    searchResults.querySelectorAll('.search-result-item').forEach(item => {
+    searchResults.querySelectorAll('.search-result-item').forEach((item) => {
       item.addEventListener('click', () => {
         const type = item.dataset.type;
         if (type === 'must-eat') {
@@ -304,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
               const dish = item.dataset.dish;
               const restaurant = item.dataset.restaurant;
               const card = Array.from(document.querySelectorAll('.eat-card')).find(
-                c => c.dataset.dish === dish && c.dataset.restaurant === restaurant
+                (c) => c.dataset.dish === dish && c.dataset.restaurant === restaurant
               );
               if (card) card.click();
             }, 400);
@@ -316,9 +350,9 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.hash = 'news';
             setTimeout(() => {
               const title = item.dataset.title;
-              const article = Array.from(document.querySelectorAll('.news-featured, .news-card')).find(
-                a => a.dataset.title === title
-              );
+              const article = Array.from(
+                document.querySelectorAll('.news-featured, .news-card')
+              ).find((a) => a.dataset.title === title);
               if (article) {
                 const link = article.querySelector('a');
                 if (link) link.click();
@@ -332,8 +366,9 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.hash = 'map';
             setTimeout(() => {
               const spotName = item.dataset.name;
-              const spot = spots.find(s => s.name === spotName);
-              if (spot && typeof window._showSpotDetail === 'function') window._showSpotDetail(spot);
+              const spot = spots.find((s) => s.name === spotName);
+              if (spot && typeof window._showSpotDetail === 'function')
+                window._showSpotDetail(spot);
             }, 800);
           }, 100);
         }
@@ -385,26 +420,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateNavbar() {
     if (window.innerWidth > CONFIG.MOBILE_BREAKPOINT) {
-      window.addEventListener('scroll', () => {
-        if (window.scrollY > 60) {
-          navbar.classList.add('scrolled');
-        } else {
-          navbar.classList.remove('scrolled');
-        }
-      }, { passive: true });
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (window.scrollY > 60) {
+            navbar.classList.add('scrolled');
+          } else {
+            navbar.classList.remove('scrolled');
+          }
+        },
+        { passive: true }
+      );
     }
   }
   updateNavbar();
 
   // --- Anchor links for non-app navigation (desktop) ---
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener('click', (e) => {
       const href = anchor.getAttribute('href');
       if (href === '#') return;
-      
+
       const targetPage = anchor.closest('.app-page');
       if (targetPage) return;
-      
+
       if (window.innerWidth > CONFIG.MOBILE_BREAKPOINT) {
         const target = document.querySelector(href);
         if (target) {
@@ -423,27 +462,41 @@ document.addEventListener('DOMContentLoaded', () => {
   eatBackdrop.className = 'eat-card-backdrop';
   document.body.appendChild(eatBackdrop);
 
-  let activeCard = null, activePortal = null;
+  let activeCard = null,
+    activePortal = null;
 
   function collapseCard() {
     if (!activeCard || !activePortal) return;
-    const card = activeCard, portal = activePortal;
-    portal.style.transition = 'transform 0.42s cubic-bezier(0.32, 0, 0.67, 0), box-shadow 0.42s ease';
+    const card = activeCard,
+      portal = activePortal;
+    portal.style.transition =
+      'transform 0.42s cubic-bezier(0.32, 0, 0.67, 0), box-shadow 0.42s ease';
     portal.style.transform = 'translate(0,0) scale(1)';
     portal.style.boxShadow = 'none';
     eatBackdrop.classList.remove('active');
-    activeCard = null; activePortal = null;
+    activeCard = null;
+    activePortal = null;
     setTimeout(() => {
       const scene = portal.querySelector('.eat-card-scene');
       if (scene) card.appendChild(scene);
-      card.style.opacity = ''; card.style.visibility = '';
+      card.style.opacity = '';
+      card.style.visibility = '';
       portal.remove();
     }, 430);
   }
 
   eatBackdrop.addEventListener('click', collapseCard);
-  eatBackdrop.addEventListener('touchend', e => { e.preventDefault(); collapseCard(); }, { passive: false });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') collapseCard(); });
+  eatBackdrop.addEventListener(
+    'touchend',
+    (e) => {
+      e.preventDefault();
+      collapseCard();
+    },
+    { passive: false }
+  );
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') collapseCard();
+  });
 
   function expandCard(card) {
     const rect = card.getBoundingClientRect();
@@ -458,8 +511,10 @@ document.addEventListener('DOMContentLoaded', () => {
     port.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;z-index:9997;cursor:pointer;transform-origin:center center;transform:translate(0,0) scale(1);transition:none;transform-style:preserve-3d;`;
     port.appendChild(scene);
     document.body.appendChild(port);
-    card.style.opacity = '0'; card.style.visibility = 'hidden';
-    activeCard = card; activePortal = port;
+    card.style.opacity = '0';
+    card.style.visibility = 'hidden';
+    activeCard = card;
+    activePortal = port;
 
     port.offsetHeight;
     port.style.transition = 'transform 0.48s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.48s ease';
@@ -467,44 +522,73 @@ document.addEventListener('DOMContentLoaded', () => {
     port.style.boxShadow = '0 32px 80px rgba(0,0,0,0.45), 0 8px 24px rgba(0,0,0,0.25)';
     eatBackdrop.classList.add('active');
 
-    port.addEventListener('click', pe => {
+    port.addEventListener('click', (pe) => {
       if (pe.target.closest('a')) return;
       pe.stopPropagation();
       collapseCard();
     });
-    port.addEventListener('touchend', pe => {
-      if (pe.target.closest('a')) return;
-      pe.preventDefault();
-      pe.stopPropagation();
-      collapseCard();
-    }, { passive: false });
+    port.addEventListener(
+      'touchend',
+      (pe) => {
+        if (pe.target.closest('a')) return;
+        pe.preventDefault();
+        pe.stopPropagation();
+        collapseCard();
+      },
+      { passive: false }
+    );
   }
 
-  eatCards.forEach(card => {
-    let touchStartX = 0, touchStartY = 0, touchMoved = false;
-    card.addEventListener('touchstart', e => {
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
+  eatCards.forEach((card) => {
+    let touchStartX = 0,
+      touchStartY = 0,
       touchMoved = false;
-    }, { passive: true });
-    card.addEventListener('touchmove', e => {
-      if (Math.abs(e.touches[0].clientX - touchStartX) > 8 ||
-          Math.abs(e.touches[0].clientY - touchStartY) > 8) {
-        touchMoved = true;
-      }
-    }, { passive: true });
-    card.addEventListener('touchend', e => {
-      if (touchMoved) return;
-      if (e.target.closest('a')) return;
-      e.preventDefault();
-      if (activeCard) { collapseCard(); return; }
-      expandCard(card);
-    }, { passive: false });
+    card.addEventListener(
+      'touchstart',
+      (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchMoved = false;
+      },
+      { passive: true }
+    );
+    card.addEventListener(
+      'touchmove',
+      (e) => {
+        if (
+          Math.abs(e.touches[0].clientX - touchStartX) > 8 ||
+          Math.abs(e.touches[0].clientY - touchStartY) > 8
+        ) {
+          touchMoved = true;
+        }
+      },
+      { passive: true }
+    );
+    card.addEventListener(
+      'touchend',
+      (e) => {
+        if (touchMoved) return;
+        if (e.target.closest('a')) return;
+        e.preventDefault();
+        if (activeCard) {
+          collapseCard();
+          return;
+        }
+        expandCard(card);
+      },
+      { passive: false }
+    );
 
     card.addEventListener('click', (e) => {
       if (e.target.closest('a')) return;
-      if (activeCard && activeCard !== card) { collapseCard(); return; }
-      if (activeCard) { collapseCard(); return; }
+      if (activeCard && activeCard !== card) {
+        collapseCard();
+        return;
+      }
+      if (activeCard) {
+        collapseCard();
+        return;
+      }
       expandCard(card);
     });
   });
@@ -548,21 +632,21 @@ document.addEventListener('DOMContentLoaded', () => {
       const grid = document.getElementById('mustEatsGrid');
       if (grid && cards && cards.length) {
         const fragment = document.createDocumentFragment();
-        cards.forEach(c => {
+        cards.forEach((c) => {
           const wrapper = document.createElement('div');
           wrapper.className = 'must-card eat-card';
-          wrapper.dataset.dish       = c.dish       || '';
+          wrapper.dataset.dish = c.dish || '';
           wrapper.dataset.restaurant = c.restaurant || '';
-          wrapper.dataset.district   = c.district   || '';
-          wrapper.dataset.price      = c.price      || '';
-          wrapper.dataset.img        = c.imageUrl   || '';
+          wrapper.dataset.district = c.district || '';
+          wrapper.dataset.price = c.price || '';
+          wrapper.dataset.img = c.imageUrl || '';
 
           const img = document.createElement('img');
-          img.src       = c.imageUrl || '';
-          img.alt       = c.dish     || '';
-          img.className  = 'must-card-img';
-          img.loading    = 'lazy';
-          img.decoding   = 'async';
+          img.src = c.imageUrl || '';
+          img.alt = c.dish || '';
+          img.className = 'must-card-img';
+          img.loading = 'lazy';
+          img.decoding = 'async';
 
           wrapper.appendChild(img);
           fragment.appendChild(wrapper);
@@ -577,7 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const restaurants = await window.CMS.fetchRestaurants();
       if (restaurants && restaurants.length) {
-        spots = restaurants.map(r => ({
+        spots = restaurants.map((r) => ({
           ...r,
           type: (r.categories || []).join(' · '),
         }));
@@ -594,18 +678,25 @@ document.addEventListener('DOMContentLoaded', () => {
   let globeShown = false;
 
   function showGlobeIntro(onComplete) {
-    if (typeof THREE === 'undefined' || globeShown) { onComplete(); return; }
+    if (typeof THREE === 'undefined' || globeShown) {
+      onComplete();
+      return;
+    }
     globeShown = true;
 
     const mapEl = document.getElementById('foodMap');
-    if (!mapEl) { onComplete(); return; }
+    if (!mapEl) {
+      onComplete();
+      return;
+    }
 
     const w = window.innerWidth || 390;
     const h = window.innerHeight || 520;
 
     // Overlay — space background
     const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:absolute;inset:0;z-index:500;background:#000000;overflow:hidden;cursor:pointer';
+    overlay.style.cssText =
+      'position:absolute;inset:0;z-index:500;background:#000000;overflow:hidden;cursor:pointer';
 
     const glCanvas = document.createElement('canvas');
     overlay.appendChild(glCanvas);
@@ -638,10 +729,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Meteors — moving across the globe overlay
     [
-      { top:'8%',  left:'82%', w:'130px', h:'2px',   delay:'0.8s', dur:'7s',  anim:'globeMeteor1' },
-      { top:'22%', left:'90%', w:'85px',  h:'1.5px', delay:'4s',   dur:'9s',  anim:'globeMeteor2' },
-      { top:'58%', left:'76%', w:'65px',  h:'1.5px', delay:'2.5s', dur:'11s', anim:'globeMeteor3' },
-    ].forEach(m => {
+      {
+        top: '8%',
+        left: '82%',
+        w: '130px',
+        h: '2px',
+        delay: '0.8s',
+        dur: '7s',
+        anim: 'globeMeteor1',
+      },
+      {
+        top: '22%',
+        left: '90%',
+        w: '85px',
+        h: '1.5px',
+        delay: '4s',
+        dur: '9s',
+        anim: 'globeMeteor2',
+      },
+      {
+        top: '58%',
+        left: '76%',
+        w: '65px',
+        h: '1.5px',
+        delay: '2.5s',
+        dur: '11s',
+        anim: 'globeMeteor3',
+      },
+    ].forEach((m) => {
       const el = document.createElement('div');
       el.style.cssText = `position:absolute;top:${m.top};left:${m.left};width:${m.w};height:${m.h};border-radius:2px;background:linear-gradient(90deg,rgba(255,255,255,0.95),rgba(255,255,255,0));opacity:0;pointer-events:none;animation:${m.anim} ${m.dur} linear ${m.delay} infinite;`;
       overlay.appendChild(el);
@@ -649,20 +764,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const logoImg = document.createElement('img');
     logoImg.src = 'pics/logo.webp';
-    logoImg.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(60vw,280px);height:auto;pointer-events:none;z-index:501;opacity:0;transition:opacity 0.8s ease 0.3s;';
+    logoImg.style.cssText =
+      'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(60vw,280px);height:auto;pointer-events:none;z-index:501;opacity:0;transition:opacity 0.8s ease 0.3s;';
     overlay.appendChild(logoImg);
 
     const logoText = document.createElement('div');
-    logoText.textContent = "Press Start";
+    logoText.textContent = 'Press Start';
     const mobileOffset = window.innerWidth <= CONFIG.MOBILE_BREAKPOINT ? '90px' : '100px';
-logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${mobileOffset});left:50%;transform:translateX(-50%);color:#fff;font-family:Inter,system-ui,sans-serif;font-size:clamp(18px,4.5vw,24px);font-weight:700;letter-spacing:0.5px;pointer-events:none;z-index:501;opacity:0;transition:opacity 0.8s ease 0.3s;white-space:nowrap;`;
+    logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${mobileOffset});left:50%;transform:translateX(-50%);color:#fff;font-family:Inter,system-ui,sans-serif;font-size:clamp(18px,4.5vw,24px);font-weight:700;letter-spacing:0.5px;pointer-events:none;z-index:501;opacity:0;transition:opacity 0.8s ease 0.3s;white-space:nowrap;`;
     overlay.appendChild(logoText);
-    setTimeout(() => { logoImg.style.opacity = '1'; logoText.style.opacity = '1'; }, 100);
-
+    setTimeout(() => {
+      logoImg.style.opacity = '1';
+      logoText.style.opacity = '1';
+    }, 100);
 
     // Hide location button, zoom control and filters during globe; expand foodMap to full screen
     mapEl.classList.add('globe-active');
-    mapEl.style.cssText = 'position:fixed;inset:0;z-index:9990;width:100%!important;height:100%!important;min-height:0!important';
+    mapEl.style.cssText =
+      'position:fixed;inset:0;z-index:9990;width:100%!important;height:100%!important;min-height:0!important';
     const mapPage = document.querySelector('.app-page[data-page="map"]');
     if (mapPage) mapPage.classList.add('globe-active');
     const locBtn = document.getElementById('mapLocationBtnFixed');
@@ -676,7 +795,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     // Portrait (mobile): keep globe just inside horizontal FOV
     // Landscape (desktop/tablet): bring globe much closer to fill screen height
     const globeStartZ = aspect >= 1 ? 5.5 : 6.8;
-    const globeEndZ   = aspect >= 1 ? 2.5 : 2.5;
+    const globeEndZ = aspect >= 1 ? 2.5 : 2.5;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(38, aspect, 0.1, 1000);
@@ -701,9 +820,9 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       const theta = Math.random() * 2 * Math.PI;
       const phi = Math.acos(2 * Math.random() - 1);
       const r = 70 + Math.random() * 30;
-      starPos[i]   = r * Math.sin(phi) * Math.cos(theta);
-      starPos[i+1] = r * Math.sin(phi) * Math.sin(theta);
-      starPos[i+2] = r * Math.cos(phi);
+      starPos[i] = r * Math.sin(phi) * Math.cos(theta);
+      starPos[i + 1] = r * Math.sin(phi) * Math.sin(theta);
+      starPos[i + 2] = r * Math.cos(phi);
     }
     starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
     scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.22 })));
@@ -715,21 +834,28 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     scene.add(sun);
 
     // Load NASA Blue Marble satellite texture
-    new THREE.TextureLoader().load(
-      'pics/globe.webp',
-      tex => { globeMat.map = tex; globeMat.color.set(0xffffff); globeMat.needsUpdate = true; }
-    );
+    new THREE.TextureLoader().load('pics/globe.webp', (tex) => {
+      globeMat.map = tex;
+      globeMat.color.set(0xffffff);
+      globeMat.needsUpdate = true;
+    });
 
     let phase = 'idle';
     let phaseStart = null;
     let rotY = 0;
     let animFrame;
 
-    function lerp(a, b, t) { return a + (b - a) * t; }
-    function easeOut3(t) { return 1 - Math.pow(1 - t, 3); }
-    function easeOut5(t) { return 1 - Math.pow(1 - t, 5); }
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+    function easeOut3(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+    function easeOut5(t) {
+      return 1 - Math.pow(1 - t, 5);
+    }
     function shortestDelta(from, to) {
-      let d = ((to - from) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+      let d = (((to - from) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
       if (d > Math.PI) d -= 2 * Math.PI;
       return d;
     }
@@ -741,8 +867,8 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       phase = 'zoom';
       phaseStart = Date.now();
 
-      const targetLng = (userLng !== undefined ? userLng : 13.4) * Math.PI / 180;
-      const targetLat = (userLat !== undefined ? userLat : 52.5) * Math.PI / 180;
+      const targetLng = ((userLng !== undefined ? userLng : 13.4) * Math.PI) / 180;
+      const targetLat = ((userLat !== undefined ? userLat : 52.5) * Math.PI) / 180;
 
       alignStartY = rotY;
       // Three.js SphereGeometry UV offset: front at rotY=0 shows lng -90°W.
@@ -752,7 +878,11 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       // Positive rotX tilts north pole toward camera → shows northern latitudes
       globe._targetX = targetLat;
 
-      cmsReady.then(() => { setTimeout(() => { if (typeof initFoodMap === 'function') initFoodMap(); }, 50); });
+      cmsReady.then(() => {
+        setTimeout(() => {
+          if (typeof initFoodMap === 'function') initFoodMap();
+        }, 50);
+      });
     }
 
     overlay.addEventListener('click', startZoom);
@@ -762,7 +892,10 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        pos => { userLat = pos.coords.latitude; userLng = pos.coords.longitude; },
+        (pos) => {
+          userLat = pos.coords.latitude;
+          userLng = pos.coords.longitude;
+        },
         () => {},
         { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
       );
@@ -782,7 +915,10 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         rotY = globe.rotation.y;
         // Zoom in close to globe surface (responsive start/end)
         camera.position.z = globeStartZ - easeOut3(p) * (globeStartZ - globeEndZ);
-        if (p >= 1) { phase = 'fade'; phaseStart = Date.now(); }
+        if (p >= 1) {
+          phase = 'fade';
+          phaseStart = Date.now();
+        }
       } else if (phase === 'fade') {
         const p = Math.min((Date.now() - phaseStart) / 700, 1);
         overlay.style.opacity = String(1 - p);
@@ -823,7 +959,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       foodMap = L.map('foodMap', {
         zoomControl: false,
         attributionControl: false,
-      }).setView([52.5050, 13.4100], 11);
+      }).setView([52.505, 13.41], 11);
     } catch {
       showNotification(window.i18n ? window.i18n.t('map.errorMapLoad') : 'Could not load map');
       return;
@@ -832,7 +968,8 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
+      attribution:
+        '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
       subdomains: 'abcd',
     }).addTo(foodMap);
 
@@ -851,14 +988,14 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       className: 'user-location-marker',
       html: '<div class="user-location-dot"></div>',
       iconSize: [20, 20],
-      iconAnchor: [10, 10]
+      iconAnchor: [10, 10],
     });
 
     // Try to get user location
     const defaultCenter = CONFIG.BERLIN_CENTER;
     let locationFound = false;
     let userMarker = null;
-    
+
     function setDefaultView() {
       if (!locationFound) {
         locationFound = true;
@@ -867,45 +1004,67 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       }
     }
 
-    let fallbackTimer = setTimeout(setDefaultView, CONFIG.GEO_FALLBACK_DELAY);
-    
+    let fallbackTimer = setTimeout(() => {
+      console.log('[GEO] fallback timer fired');
+      setDefaultView();
+    }, CONFIG.GEO_FALLBACK_DELAY);
+
     try {
       if (navigator.geolocation) {
+        console.log('[GEO] calling getCurrentPosition');
         navigator.geolocation.getCurrentPosition(
           (position) => {
             clearTimeout(fallbackTimer);
-            locationFound = true;
             const userLat = position.coords.latitude;
             const userLng = position.coords.longitude;
-            
+            const inBerlin = userLat > 52.3 && userLat < 52.7 && userLng > 13.1 && userLng < 13.8;
+            console.log('[GEO] success', userLat, userLng, 'inBerlin:', inBerlin);
+
             // Check if location is in Berlin area (rough check)
-            if (userLat > 52.3 && userLat < 52.7 && userLng > 13.1 && userLng < 13.8) {
+            if (inBerlin) {
+              locationFound = true;
               userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(foodMap);
               foodMap.setView([userLat, userLng], 13);
               showNearbyStrip(userLat, userLng);
               // After the sheet snaps to mid (double rAF in showNearbyStrip), fly with sheet offset
-              requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(() => {
-                flyToWithSheetOffset(userLat, userLng, 13);
-              })));
+              requestAnimationFrame(() =>
+                requestAnimationFrame(() =>
+                  requestAnimationFrame(() => {
+                    flyToWithSheetOffset(userLat, userLng, 13);
+                  })
+                )
+              );
             } else {
-              // User is outside Berlin, show Berlin with nearby strip
+              // User is outside Berlin — locationFound is still false, so setDefaultView works
               setDefaultView();
             }
           },
-          () => {
+          (err) => {
             clearTimeout(fallbackTimer);
+            console.log('[GEO] error code:', err.code, err.message);
+            const msgs = {
+              1: window.i18n ? window.i18n.t('map.locationDenied') : 'Location access denied',
+              2: window.i18n ? window.i18n.t('map.locationUnavailable') : 'Location unavailable',
+              3: window.i18n ? window.i18n.t('map.locationTimeout') : 'Location timeout',
+            };
+            showNotification(
+              msgs[err.code] ||
+                (window.i18n ? window.i18n.t('map.locationError') : 'Could not get location')
+            );
             setDefaultView();
           },
           {
-            enableHighAccuracy: false,
+            enableHighAccuracy: true,
             timeout: CONFIG.GEO_TIMEOUT,
-            maximumAge: CONFIG.GEO_MAX_AGE
+            maximumAge: CONFIG.GEO_MAX_AGE,
           }
         );
       } else {
+        console.log('[GEO] navigator.geolocation not available');
         setDefaultView();
       }
-    } catch {
+    } catch (e) {
+      console.log('[GEO] exception:', e);
       setDefaultView();
     }
 
@@ -913,7 +1072,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       iconUrl: 'pics/eat.png',
       iconSize: [32, 32],
       iconAnchor: [16, 16],
-      popupAnchor: [0, -20]
+      popupAnchor: [0, -20],
     });
 
     const markers = [];
@@ -929,10 +1088,16 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     function flyToWithSheetOffset(lat, lng, zoom) {
       if (!foodMap) return;
       const sheet = document.getElementById('mapNearby');
-      const sheetVisible = _sheetState === 'expanded' ? (sheet ? sheet.offsetHeight : 0)
-                         : _sheetState === 'mid' ? MID_PX
-                         : _sheetState === 'peek' ? PEEK_PX
-                         : 0;
+      const sheetVisible =
+        _sheetState === 'expanded'
+          ? sheet
+            ? sheet.offsetHeight
+            : 0
+          : _sheetState === 'mid'
+            ? MID_PX
+            : _sheetState === 'peek'
+              ? PEEK_PX
+              : 0;
       if (sheetVisible > 20) {
         const targetPoint = foodMap.project([lat, lng], zoom);
         const adjustedPoint = L.point(targetPoint.x, targetPoint.y + sheetVisible / 2);
@@ -948,7 +1113,10 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         flyToWithSheetOffset(spot.lat, spot.lng, 15);
       }
 
-      const mapsUrl = spot.mapsUrl || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(spot.name + ', ' + spot.address));
+      const mapsUrl =
+        spot.mapsUrl ||
+        'https://www.google.com/maps/search/?api=1&query=' +
+          encodeURIComponent(spot.name + ', ' + spot.address);
       const photo = spot.photo || getSpotPhoto(spot.type);
 
       while (mapSpotContent.firstChild) mapSpotContent.removeChild(mapSpotContent.firstChild);
@@ -992,7 +1160,9 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       const openStatus = isOpenNow(spot.openingHours);
       if (openStatus !== null) {
         const statusBadge = document.createElement('span');
-        statusBadge.className = 'map-spot-status-badge' + (openStatus ? ' map-spot-status-badge--open' : ' map-spot-status-badge--closed');
+        statusBadge.className =
+          'map-spot-status-badge' +
+          (openStatus ? ' map-spot-status-badge--open' : ' map-spot-status-badge--closed');
         statusBadge.textContent = openStatus ? 'Geöffnet' : 'Geschlossen';
         metaRow.appendChild(statusBadge);
       }
@@ -1051,7 +1221,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         const hoursEl = document.createElement('div');
         hoursEl.className = 'map-spot-hours';
         hoursEl.innerHTML = spot.openingHours
-          .map(h => `<span class="map-spot-hours-row"><b>${h.days}</b>${h.hours}</span>`)
+          .map((h) => `<span class="map-spot-hours-row"><b>${h.days}</b>${h.hours}</span>`)
           .join('');
         body.appendChild(hoursEl);
       }
@@ -1081,21 +1251,24 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
 
     function haversineDistance(lat1, lng1, lat2, lng2) {
       const R = 6371000;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLng = (lng2 - lng1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) ** 2 +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLng / 2) ** 2;
+      const dLat = ((lat2 - lat1) * Math.PI) / 180;
+      const dLng = ((lng2 - lng1) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos((lat1 * Math.PI) / 180) *
+          Math.cos((lat2 * Math.PI) / 180) *
+          Math.sin(dLng / 2) ** 2;
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
     // ---- Bottom Sheet: Nearby ----
-    let _nearbyLat = null, _nearbyLng = null;
+    let _nearbyLat = null,
+      _nearbyLng = null;
     let _sheetState = 'hidden'; // 'hidden' | 'peek' | 'mid' | 'expanded'
     let _sheetReady = false;
 
-    const PEEK_PX = 56;   // handle (28) + label row (28)
-    const MID_PX  = 240;  // header + 1 card row redesigned
+    const PEEK_PX = 56; // handle (28) + label row (28)
+    const MID_PX = 240; // header + 1 card row redesigned
 
     function isOpenNow(openingHours) {
       if (!openingHours || !openingHours.length) return null;
@@ -1103,44 +1276,71 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       const dayOfWeek = now.getDay(); // 0=Sun
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
       const dayMap = {
-        'so':0,'sun':0,'sunday':0,'sonntag':0,
-        'mo':1,'mon':1,'monday':1,'montag':1,
-        'di':2,'tue':2,'tuesday':2,'dienstag':2,
-        'mi':3,'wed':3,'wednesday':3,'mittwoch':3,
-        'do':4,'thu':4,'thursday':4,'donnerstag':4,
-        'fr':5,'fri':5,'friday':5,'freitag':5,
-        'sa':6,'sat':6,'saturday':6,'samstag':6,
+        so: 0,
+        sun: 0,
+        sunday: 0,
+        sonntag: 0,
+        mo: 1,
+        mon: 1,
+        monday: 1,
+        montag: 1,
+        di: 2,
+        tue: 2,
+        tuesday: 2,
+        dienstag: 2,
+        mi: 3,
+        wed: 3,
+        wednesday: 3,
+        mittwoch: 3,
+        do: 4,
+        thu: 4,
+        thursday: 4,
+        donnerstag: 4,
+        fr: 5,
+        fri: 5,
+        friday: 5,
+        freitag: 5,
+        sa: 6,
+        sat: 6,
+        saturday: 6,
+        samstag: 6,
       };
-      function toDayNum(s) { return dayMap[s.toLowerCase().trim()] ?? null; }
-      function toMins(t) { const [h,m] = t.split(':').map(Number); return h*60+(m||0); }
+      function toDayNum(s) {
+        return dayMap[s.toLowerCase().trim()] ?? null;
+      }
+      function toMins(t) {
+        const [h, m] = t.split(':').map(Number);
+        return h * 60 + (m || 0);
+      }
       let hasMatchingDay = false;
       for (const slot of openingHours) {
         const days = (slot.days || '').trim();
         const hours = (slot.hours || '').toLowerCase().trim();
         let match = false;
-        const dl = days.toLowerCase().replace(/\s/g,'');
-        if (['täglich','daily','mo–so','mo-so','mon–sun','mon-sun','7days'].includes(dl)) {
+        const dl = days.toLowerCase().replace(/\s/g, '');
+        if (['täglich', 'daily', 'mo–so', 'mo-so', 'mon–sun', 'mon-sun', '7days'].includes(dl)) {
           match = true;
         } else if (days.includes('–') || (days.includes('-') && days.length > 3)) {
           const sep = days.includes('–') ? '–' : '-';
-          const [s, e] = days.split(sep).map(p => toDayNum(p));
+          const [s, e] = days.split(sep).map((p) => toDayNum(p));
           if (s !== null && e !== null) {
             match = s <= e ? dayOfWeek >= s && dayOfWeek <= e : dayOfWeek >= s || dayOfWeek <= e;
           }
         } else {
-          match = days.split(',').some(d => toDayNum(d) === dayOfWeek);
+          match = days.split(',').some((d) => toDayNum(d) === dayOfWeek);
         }
         if (!match) continue;
         hasMatchingDay = true;
         if (hours === 'closed' || hours === 'geschlossen' || hours === 'ruhetag') continue;
         const sep = hours.includes('–') ? '–' : '-';
-        const parts = hours.split(sep).map(p => p.trim());
+        const parts = hours.split(sep).map((p) => p.trim());
         if (parts.length === 2) {
           const open = toMins(parts[0]);
           const close = toMins(parts[1]);
-          const isOpen = close > open
-            ? currentMinutes >= open && currentMinutes < close
-            : currentMinutes >= open || currentMinutes < close;
+          const isOpen =
+            close > open
+              ? currentMinutes >= open && currentMinutes < close
+              : currentMinutes >= open || currentMinutes < close;
           if (isOpen) return true;
         }
       }
@@ -1151,17 +1351,18 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       const gridEl = document.getElementById('mapNearbyGrid');
       if (!gridEl || _nearbyLat === null) return;
 
-      const activeFilter = document.querySelector('.map-filter-tab.active')?.dataset.filter || 'all';
+      const activeFilter =
+        document.querySelector('.map-filter-tab.active')?.dataset.filter || 'all';
 
       const sorted = spots
-        .map(s => ({ ...s, dist: haversineDistance(_nearbyLat, _nearbyLng, s.lat, s.lng) }))
-        .filter(s => activeFilter === 'all' || (s.categories || []).includes(activeFilter))
+        .map((s) => ({ ...s, dist: haversineDistance(_nearbyLat, _nearbyLng, s.lat, s.lng) }))
+        .filter((s) => activeFilter === 'all' || (s.categories || []).includes(activeFilter))
         .sort((a, b) => a.dist - b.dist)
         .slice(0, 30);
 
       while (gridEl.firstChild) gridEl.removeChild(gridEl.firstChild);
 
-      sorted.forEach(spot => {
+      sorted.forEach((spot) => {
         const distM = Math.round(spot.dist);
         const distLabel = distM < 1000 ? distM + 'm' : (spot.dist / 1000).toFixed(1) + 'km';
         const photo = spot.photo || getSpotPhoto(spot.type);
@@ -1223,7 +1424,11 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         const openStatus = isOpenNow(spot.openingHours);
         if (openStatus !== null) {
           const badge = document.createElement('span');
-          badge.className = 'map-nearby-grid-card-status' + (openStatus ? ' map-nearby-grid-card-status--open' : ' map-nearby-grid-card-status--closed');
+          badge.className =
+            'map-nearby-grid-card-status' +
+            (openStatus
+              ? ' map-nearby-grid-card-status--open'
+              : ' map-nearby-grid-card-status--closed');
           badge.textContent = openStatus ? 'Geöffnet' : 'Geschlossen';
           body.appendChild(badge);
         }
@@ -1244,32 +1449,38 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       if (!sheet) return;
       _sheetState = state;
       const h = sheet.offsetHeight;
-      const y = state === 'peek' ? h - PEEK_PX
-              : state === 'mid'  ? h - MID_PX
-              : state === 'expanded' ? 0
+      const y =
+        state === 'peek'
+          ? h - PEEK_PX
+          : state === 'mid'
+            ? h - MID_PX
+            : state === 'expanded'
+              ? 0
               : h; // hidden
-      sheet.style.transition = animate
-        ? 'transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)'
-        : 'none';
+      sheet.style.transition = animate ? 'transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)' : 'none';
       sheet.style.transform = `translateY(${Math.max(0, y)}px)`;
 
       // Keep zoom buttons above visible sheet edge, animated in sync with sheet
       const zoomBtns = document.querySelector('.map-zoom-btns');
       if (zoomBtns) {
-        const visible = state === 'peek' ? PEEK_PX : state === 'mid' ? MID_PX : state === 'expanded' ? h : 0;
-        zoomBtns.style.transition = animate
-          ? 'bottom 0.4s cubic-bezier(0.32, 0.72, 0, 1)'
-          : 'none';
-        zoomBtns.style.bottom = (visible + 12) + 'px';
+        const visible =
+          state === 'peek' ? PEEK_PX : state === 'mid' ? MID_PX : state === 'expanded' ? h : 0;
+        zoomBtns.style.transition = animate ? 'bottom 0.4s cubic-bezier(0.32, 0.72, 0, 1)' : 'none';
+        zoomBtns.style.bottom = visible + 12 + 'px';
       }
     }
 
     function _initSheetDrag() {
-      const sheet  = document.getElementById('mapNearby');
+      const sheet = document.getElementById('mapNearby');
       const handle = document.getElementById('mapNearbyHandle');
       if (!sheet || !handle) return;
 
-      let startY = 0, startTranslate = 0, lastY = 0, lastT = 0, vel = 0, dragging = false;
+      let startY = 0,
+        startTranslate = 0,
+        lastY = 0,
+        lastT = 0,
+        vel = 0,
+        dragging = false;
 
       function dragStart(clientY) {
         dragging = true;
@@ -1285,9 +1496,11 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         if (!dragging) return;
         const newY = Math.max(0, startTranslate + (clientY - startY));
         sheet.style.transform = `translateY(${newY}px)`;
-        const now = Date.now(), dt = now - lastT;
+        const now = Date.now(),
+          dt = now - lastT;
         if (dt > 0) vel = (clientY - lastY) / dt;
-        lastY = clientY; lastT = now;
+        lastY = clientY;
+        lastT = now;
       }
 
       function dragEnd() {
@@ -1306,31 +1519,43 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         } else {
           // snap to nearest snap point
           const pts = { peek: h - PEEK_PX, mid: h - MID_PX, expanded: 0 };
-          const nearest = Object.entries(pts).sort((a, b) => Math.abs(curY - a[1]) - Math.abs(curY - b[1]))[0][0];
+          const nearest = Object.entries(pts).sort(
+            (a, b) => Math.abs(curY - a[1]) - Math.abs(curY - b[1])
+          )[0][0];
           next = nearest;
         }
         _snapSheet(next);
       }
 
       // Touch events — full sheet is draggable
-      sheet.addEventListener('touchstart', e => {
-        // Don't hijack scrolling inside the grid
-        if (e.target.closest('#mapNearbyGrid')) return;
-        dragStart(e.touches[0].clientY);
-      }, { passive: true });
-      sheet.addEventListener('touchmove', e => {
-        if (e.target.closest('#mapNearbyGrid')) return;
-        dragMove(e.touches[0].clientY);
-      }, { passive: true });
+      sheet.addEventListener(
+        'touchstart',
+        (e) => {
+          // Don't hijack scrolling inside the grid
+          if (e.target.closest('#mapNearbyGrid')) return;
+          dragStart(e.touches[0].clientY);
+        },
+        { passive: true }
+      );
+      sheet.addEventListener(
+        'touchmove',
+        (e) => {
+          if (e.target.closest('#mapNearbyGrid')) return;
+          dragMove(e.touches[0].clientY);
+        },
+        { passive: true }
+      );
       sheet.addEventListener('touchend', dragEnd);
 
       // Mouse events (desktop) — full sheet
-      sheet.addEventListener('mousedown', e => {
+      sheet.addEventListener('mousedown', (e) => {
         if (e.target.closest('#mapNearbyGrid')) return;
         e.preventDefault();
         dragStart(e.clientY);
       });
-      document.addEventListener('mousemove', e => { if (dragging) dragMove(e.clientY); });
+      document.addEventListener('mousemove', (e) => {
+        if (dragging) dragMove(e.clientY);
+      });
       document.addEventListener('mouseup', dragEnd);
     }
 
@@ -1358,7 +1583,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     if (mapSpotClose) {
       mapSpotClose.addEventListener('click', hideSpotDetail);
     }
-    
+
     if (mapSpotOverlay) {
       mapSpotOverlay.addEventListener('click', (e) => {
         if (e.target === mapSpotOverlay) {
@@ -1378,12 +1603,16 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       });
       markers.push(marker);
     });
-    
+
     // Close spot detail when clicking on map background
     const mapContainer = document.getElementById('foodMap');
     if (mapContainer) {
       mapContainer.addEventListener('click', (e) => {
-        if (e.target === mapContainer || e.target.classList.contains('leaflet-pane') || e.target.classList.contains('leaflet-map-pane')) {
+        if (
+          e.target === mapContainer ||
+          e.target.classList.contains('leaflet-pane') ||
+          e.target.classList.contains('leaflet-map-pane')
+        ) {
           hideSpotDetail();
         }
       });
@@ -1393,11 +1622,11 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     const filterCategories = ['Dinner', 'Lunch', 'Coffee', 'Breakfast', 'Sweets', 'Pizza'];
     const countAll = document.getElementById('count-all');
     if (countAll) countAll.textContent = spots.length;
-    filterCategories.forEach(cat => {
+    filterCategories.forEach((cat) => {
       const countId = 'count-' + cat.toLowerCase().replace(/\s+/g, '-');
       const el = document.getElementById(countId);
       if (el) {
-        el.textContent = spots.filter(s => s.categories && s.categories.includes(cat)).length;
+        el.textContent = spots.filter((s) => s.categories && s.categories.includes(cat)).length;
       }
     });
     // Set "All" count
@@ -1406,14 +1635,14 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
 
     // Filter tab selection
     const filterTabs = document.querySelectorAll('.map-filter-tab');
-    filterTabs.forEach(tab => {
+    filterTabs.forEach((tab) => {
       tab.addEventListener('click', () => {
         const filter = tab.dataset.filter;
 
-        filterTabs.forEach(t => t.classList.remove('active'));
+        filterTabs.forEach((t) => t.classList.remove('active'));
         tab.classList.add('active');
 
-        markers.forEach(marker => {
+        markers.forEach((marker) => {
           const cats = marker.spotCategories || [];
           const show = filter === 'all' || cats.includes(filter);
           if (show) {
@@ -1434,28 +1663,28 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
 
     // Location button
     const mapLocationBtn = document.getElementById('mapLocationBtnFixed');
-    
+
     if (mapLocationBtn) {
       mapLocationBtn.addEventListener('click', () => {
         if (!navigator.geolocation) {
           showNotification('Geolocation wird von diesem Gerät nicht unterstützt');
           return;
         }
-        
+
         mapLocationBtn.classList.add('loading');
-        
+
         navigator.geolocation.getCurrentPosition(
           (position) => {
             mapLocationBtn.classList.remove('loading');
             const userLat = position.coords.latitude;
             const userLng = position.coords.longitude;
-            
+
             if (userMarker) {
               userMarker.setLatLng([userLat, userLng]);
             } else {
               userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(foodMap);
             }
-            
+
             flyToWithSheetOffset(userLat, userLng, 14);
             showNearbyStrip(userLat, userLng);
           },
@@ -1469,7 +1698,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
             }
             showNotification(msg);
           },
-          { enableHighAccuracy: true, timeout: 10000 }
+          { enableHighAccuracy: false, timeout: 10000, maximumAge: 30000 }
         );
       });
     }
@@ -1485,24 +1714,36 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
 
   function portableTextToHtml(blocks) {
     if (!Array.isArray(blocks)) return String(blocks || '');
-    const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return blocks.map(block => {
-      if (block._type !== 'block' || !block.children) return '';
-      const inner = block.children.map(span => {
-        let text = esc(span.text || '');
-        const marks = span.marks || [];
-        if (marks.includes('strong'))    text = `<strong>${text}</strong>`;
-        if (marks.includes('em'))        text = `<em>${text}</em>`;
-        if (marks.includes('underline')) text = `<u>${text}</u>`;
-        return text;
-      }).join('');
-      switch (block.style) {
-        case 'h2':         return `<h2>${inner}</h2>`;
-        case 'h3':         return `<h3>${inner}</h3>`;
-        case 'blockquote': return `<blockquote>${inner}</blockquote>`;
-        default:           return `<p>${inner}</p>`;
-      }
-    }).join('');
+    const esc = (s) =>
+      String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    return blocks
+      .map((block) => {
+        if (block._type !== 'block' || !block.children) return '';
+        const inner = block.children
+          .map((span) => {
+            let text = esc(span.text || '');
+            const marks = span.marks || [];
+            if (marks.includes('strong')) text = `<strong>${text}</strong>`;
+            if (marks.includes('em')) text = `<em>${text}</em>`;
+            if (marks.includes('underline')) text = `<u>${text}</u>`;
+            return text;
+          })
+          .join('');
+        switch (block.style) {
+          case 'h2':
+            return `<h2>${inner}</h2>`;
+          case 'h3':
+            return `<h3>${inner}</h3>`;
+          case 'blockquote':
+            return `<blockquote>${inner}</blockquote>`;
+          default:
+            return `<p>${inner}</p>`;
+        }
+      })
+      .join('');
   }
 
   function openNewsModal(article) {
@@ -1519,8 +1760,12 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       contentHtml = portableTextToHtml(parsed);
     } catch {
       // Legacy plain-text content (may already contain HTML tags from import)
-      contentHtml = rawContent.includes('<') ? rawContent
-        : rawContent.split(/\n\n+/).map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+      contentHtml = rawContent.includes('<')
+        ? rawContent
+        : rawContent
+            .split(/\n\n+/)
+            .map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`)
+            .join('');
     }
 
     document.getElementById('newsModalImg').src = img;
@@ -1533,7 +1778,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     currentShareData = {
       title: title,
       text: article.dataset.excerpt || title,
-      url: window.location.href
+      url: window.location.href,
     };
 
     newsModal.classList.add('active');
@@ -1549,7 +1794,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
   }
 
   function bindNewsCards() {
-    document.querySelectorAll('.news-card').forEach(card => {
+    document.querySelectorAll('.news-card').forEach((card) => {
       const link = card.querySelector('a');
       if (link) {
         link.addEventListener('click', (e) => {
@@ -1612,11 +1857,14 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
   // --- Lazy Script Loader (with optional SRI integrity check) ---
   function loadScript(src, integrity) {
     return new Promise((resolve, reject) => {
-      if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+      if (document.querySelector(`script[src="${src}"]`)) {
+        resolve();
+        return;
+      }
       const s = document.createElement('script');
       s.src = src;
       if (integrity) {
-        s.integrity   = integrity;
+        s.integrity = integrity;
         s.crossOrigin = 'anonymous';
       }
       s.onload = resolve;
@@ -1637,8 +1885,11 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
 
     // Clear start-page intervals when leaving
     if (currentPage === 'start' && pageName !== 'start') {
-      if (heroInterval) { clearInterval(heroInterval); heroInterval = null; }
-      altImgIntervals.forEach(id => clearInterval(id));
+      if (heroInterval) {
+        clearInterval(heroInterval);
+        heroInterval = null;
+      }
+      altImgIntervals.forEach((id) => clearInterval(id));
       altImgIntervals = [];
     }
 
@@ -1646,34 +1897,46 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     if (pageName === 'start' && heroSlides.length > 0 && !heroInterval) {
       heroInterval = setInterval(nextSlide, slideInterval);
     }
-    
+
     const targetPage = document.querySelector(`.app-page[data-page="${pageName}"]`);
     if (!targetPage) return;
-    
-    appPages.forEach(page => {
+
+    appPages.forEach((page) => {
       if (page.dataset.page === pageName) {
         page.classList.add('active');
         page.classList.remove('hidden');
-        
+
         // Globe intro → then init map (lazy-load Leaflet + Three.js on first visit)
         if (pageName === 'map') {
           Promise.all([
-            loadScript('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-              'sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH'),
-            loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
-              'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu'),
-          ]).then(() => {
-            showGlobeIntro(() => {
-              cmsReady.then(() => { if (typeof initFoodMap === 'function') initFoodMap(); });
-              if (foodMap) {
-                foodMap.invalidateSize();
-                setTimeout(() => { if (foodMap) foodMap.invalidateSize(); }, 300);
-              }
+            loadScript(
+              'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+              'sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH'
+            ),
+            loadScript(
+              'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
+              'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu'
+            ),
+          ])
+            .then(() => {
+              showGlobeIntro(() => {
+                cmsReady.then(() => {
+                  if (typeof initFoodMap === 'function') initFoodMap();
+                });
+                if (foodMap) {
+                  foodMap.invalidateSize();
+                  setTimeout(() => {
+                    if (foodMap) foodMap.invalidateSize();
+                  }, 300);
+                }
+              });
+            })
+            .catch(() => {
+              // Fallback: try map without globe
+              cmsReady.then(() => {
+                if (typeof initFoodMap === 'function') initFoodMap();
+              });
             });
-          }).catch(() => {
-            // Fallback: try map without globe
-            cmsReady.then(() => { if (typeof initFoodMap === 'function') initFoodMap(); });
-          });
         }
       } else {
         page.classList.remove('active');
@@ -1682,7 +1945,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     });
 
     const appFooterItems = document.querySelectorAll('.app-footer-item');
-    appFooterItems.forEach(item => {
+    appFooterItems.forEach((item) => {
       item.classList.toggle('active', item.dataset.target === pageName);
     });
 
@@ -1692,7 +1955,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
   if (appFooter && appPages.length) {
     const appFooterItems = document.querySelectorAll('.app-footer-item[data-target]');
 
-    appFooterItems.forEach(item => {
+    appFooterItems.forEach((item) => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
         window.closeLoginModal?.();
@@ -1731,7 +1994,6 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
 
     window.addEventListener('resize', handleResize);
     handleResize();
-    
   }
 
   // ============================================
@@ -1740,8 +2002,14 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
   // ============================================
   function createModal(modalEl, opts = {}) {
     if (!modalEl) return { open: () => {}, close: () => {} };
-    function open() { modalEl.classList.add('active'); bodyOverflow.lock(); }
-    function close() { modalEl.classList.remove('active'); bodyOverflow.unlock(); }
+    function open() {
+      modalEl.classList.add('active');
+      bodyOverflow.lock();
+    }
+    function close() {
+      modalEl.classList.remove('active');
+      bodyOverflow.unlock();
+    }
     if (opts.closeBtn) opts.closeBtn.addEventListener('click', close);
     if (opts.backdrop) opts.backdrop.addEventListener('click', close);
     if (opts.trigger) opts.trigger.addEventListener('click', open);
@@ -1755,7 +2023,9 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     closeBtn: document.getElementById('burgerClose'),
     backdrop: document.getElementById('burgerBackdrop'),
   });
-  function closeBurger() { burger.close(); }
+  function closeBurger() {
+    burger.close();
+  }
 
   // Cookie Info Modal
   const cookieInfoModalEl = document.getElementById('cookieInfoModal');
@@ -1764,7 +2034,9 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     closeBtn: document.getElementById('cookieInfoClose'),
     backdrop: document.getElementById('cookieInfoBackdrop'),
   });
-  function closeCookieInfoModal() { cookieInfoModal.close(); }
+  function closeCookieInfoModal() {
+    cookieInfoModal.close();
+  }
 
   // AGB Modal
   const agbModal = createModal(document.getElementById('agbModal'), {
@@ -1773,7 +2045,11 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     backdrop: document.getElementById('agbBackdrop'),
   });
   const agbFromBurger = document.getElementById('openAgbFromBurger');
-  if (agbFromBurger) agbFromBurger.addEventListener('click', () => { closeBurger(); agbModal.open(); });
+  if (agbFromBurger)
+    agbFromBurger.addEventListener('click', () => {
+      closeBurger();
+      agbModal.open();
+    });
 
   // Datenschutz Modal
   const datenschutzModal = createModal(document.getElementById('datenschutzModal'), {
@@ -1782,17 +2058,25 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     backdrop: document.getElementById('datenschutzBackdrop'),
   });
   const datenschutzFromBurger = document.getElementById('openDatenschutzFromBurger');
-  if (datenschutzFromBurger) datenschutzFromBurger.addEventListener('click', () => { closeBurger(); datenschutzModal.open(); });
+  if (datenschutzFromBurger)
+    datenschutzFromBurger.addEventListener('click', () => {
+      closeBurger();
+      datenschutzModal.open();
+    });
 
   // Info modals (about, contact, press, impressum) — opened from burger
-  ['about', 'contact', 'press', 'impressum'].forEach(id => {
+  ['about', 'contact', 'press', 'impressum'].forEach((id) => {
     const cap = id.charAt(0).toUpperCase() + id.slice(1);
     const m = createModal(document.getElementById(id + 'Modal'), {
       closeBtn: document.getElementById(id + 'Close'),
       backdrop: document.getElementById(id + 'Backdrop'),
     });
     const trigger = document.getElementById('open' + cap);
-    if (trigger) trigger.addEventListener('click', () => { closeBurger(); m.open(); });
+    if (trigger)
+      trigger.addEventListener('click', () => {
+        closeBurger();
+        m.open();
+      });
   });
 
   // ============================================
@@ -1820,7 +2104,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
 
     const rect = cardEl.getBoundingClientRect();
     const cardRatio = 1449 / 2163;
-    const targetW = Math.min(window.innerWidth * 0.90, window.innerHeight * 0.90 * cardRatio);
+    const targetW = Math.min(window.innerWidth * 0.9, window.innerHeight * 0.9 * cardRatio);
     const startX = rect.left + rect.width / 2 - window.innerWidth / 2;
     const startY = rect.top + rect.height / 2 - window.innerHeight / 2;
     const startScale = rect.width / targetW;
@@ -1836,7 +2120,8 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     // offsetHeight read forces synchronous reflow so the start state is committed
     mustLightboxInner.offsetHeight; // force reflow so start state commits before transition
 
-    mustLightboxInner.style.transition = 'transform 0.52s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease';
+    mustLightboxInner.style.transition =
+      'transform 0.52s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease';
     mustLightboxInner.style.transform = 'translate(0,0) scale(1) rotate(3deg)';
     mustLightboxInner.style.opacity = '1';
 
@@ -1856,7 +2141,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     if (cardEl) {
       const rect = cardEl.getBoundingClientRect();
       const cardRatio = 1449 / 2163;
-      const targetW = Math.min(window.innerWidth * 0.90, window.innerHeight * 0.90 * cardRatio);
+      const targetW = Math.min(window.innerWidth * 0.9, window.innerHeight * 0.9 * cardRatio);
       const endX = rect.left + rect.width / 2 - window.innerWidth / 2;
       const endY = rect.top + rect.height / 2 - window.innerHeight / 2;
       const endScale = rect.width / targetW;
@@ -1887,7 +2172,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
   }
 
   function bindMustCards() {
-    document.querySelectorAll('.must-card').forEach(card => {
+    document.querySelectorAll('.must-card').forEach((card) => {
       // Wrap img in clip div (iOS Safari: clip-path on interactive element blocks touch)
       const img = card.querySelector('.must-card-img');
       if (!img) return;
@@ -1899,23 +2184,37 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         clip.appendChild(img);
       }
 
-      let touchStartX = 0, touchStartY = 0, touchMoved = false;
-      card.addEventListener('touchstart', e => {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
+      let touchStartX = 0,
+        touchStartY = 0,
         touchMoved = false;
-      }, { passive: true });
-      card.addEventListener('touchmove', e => {
-        const dx = e.touches[0].clientX - touchStartX;
-        const dy = e.touches[0].clientY - touchStartY;
-        if (Math.sqrt(dx * dx + dy * dy) > 10) touchMoved = true;
-      }, { passive: true });
-      card.addEventListener('touchend', e => {
-        if (touchMoved) return;
-        e.preventDefault();
-        const img = card.querySelector('.must-card-img');
-        openMustCard(card, img.src, img.alt);
-      }, { passive: false });
+      card.addEventListener(
+        'touchstart',
+        (e) => {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+          touchMoved = false;
+        },
+        { passive: true }
+      );
+      card.addEventListener(
+        'touchmove',
+        (e) => {
+          const dx = e.touches[0].clientX - touchStartX;
+          const dy = e.touches[0].clientY - touchStartY;
+          if (Math.sqrt(dx * dx + dy * dy) > 10) touchMoved = true;
+        },
+        { passive: true }
+      );
+      card.addEventListener(
+        'touchend',
+        (e) => {
+          if (touchMoved) return;
+          e.preventDefault();
+          const img = card.querySelector('.must-card-img');
+          openMustCard(card, img.src, img.alt);
+        },
+        { passive: false }
+      );
       card.addEventListener('click', () => {
         const img = card.querySelector('.must-card-img');
         openMustCard(card, img.src, img.alt);
@@ -1923,10 +2222,21 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     });
   }
 
-  mustLightbox.addEventListener('touchend', e => { e.preventDefault(); e.stopPropagation(); closeMustCard(); }, { passive: false });
-  mustLightbox.addEventListener('click', e => { e.stopPropagation(); closeMustCard(); });
+  mustLightbox.addEventListener(
+    'touchend',
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeMustCard();
+    },
+    { passive: false }
+  );
+  mustLightbox.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeMustCard();
+  });
 
-  document.addEventListener('keydown', e => {
+  document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeMustCard();
   });
 
@@ -1934,31 +2244,30 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
   const cookieConsent = document.getElementById('cookieConsent');
   const cookieAccept = document.getElementById('cookieAccept');
   const cookieDecline = document.getElementById('cookieDecline');
-  
+
   function closeCookieSettings() {
     if (cookieConsent) {
       cookieConsent.classList.remove('show');
     }
   }
-  
+
   if (cookieConsent && !localStorage.getItem('cookieConsent')) {
     setTimeout(() => {
       cookieConsent.classList.add('show');
     }, 1000);
   }
-  
+
   if (cookieAccept) {
     cookieAccept.addEventListener('click', () => {
       localStorage.setItem('cookieConsent', 'accepted');
       closeCookieSettings();
     });
   }
-  
+
   if (cookieDecline) {
     cookieDecline.addEventListener('click', () => {
       localStorage.setItem('cookieConsent', 'declined');
       closeCookieSettings();
     });
   }
-
 });

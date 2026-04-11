@@ -1,37 +1,43 @@
-name: Deploy to GitHub Pages
+name: Deploy to Firebase
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: firebase-deploy
+  cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  lint-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-        
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          path: '.'
-          
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          node-version: 20
+          cache: npm
+
+      - name: Install root dependencies (ESLint)
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Install Functions dependencies
+        run: npm ci
+        working-directory: functions
+
+      - name: Deploy Hosting + Functions
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: eat-this-8a13b
+          channelId: live

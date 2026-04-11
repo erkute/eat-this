@@ -1,8 +1,29 @@
 {
   "name": "eat-this",
   "version": "1.0.0",
-  "keywords": ["food-blog", "berlin", "seo"],
+  "keywords": [
+    "food-blog",
+    "berlin",
+    "seo"
+  ],
   "author": "EAT THIS",
   "license": "ISC",
-  "description": "EAT THIS - Berlin Food Blog"
+  "description": "EAT THIS - Berlin Food Blog",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint js/",
+    "lint:fix": "eslint js/ --fix",
+    "format": "prettier --write \"js/**/*.js\" \"functions/index.js\" \"functions/templates.js\"",
+    "format:check": "prettier --check \"js/**/*.js\"",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.59.1",
+    "eslint": "^10.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.2"
+  }
 }

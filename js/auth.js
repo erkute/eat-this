@@ -40,10 +40,10 @@ const app       = initializeApp(firebaseConfig);
 const auth      = getAuth(app);
 const functions = getFunctions(app);
 
-// initializeAppCheck(app, {
-//   provider: new ReCaptchaV3Provider('6LdG2ZwsAAAAAM6XvEOuQHmIRLAs3CdPiu-l5cwz'),
-//   isTokenAutoRefreshEnabled: true,
-// });
+initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6LdG2ZwsAAAAAM6XvEOuQHmIRLAs3CdPiu-l5cwz'),
+  isTokenAutoRefreshEnabled: true,
+});
 
 
 const googleProvider = new GoogleAuthProvider();

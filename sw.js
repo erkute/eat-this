@@ -138,3 +138,53 @@ function offlineFallback(request) {
   if (request.mode === 'navigate') return caches.match('/index.html');
   return new Response('', { status: 503 });
 }
+
+// ─── Background Sync ─────────────────────────────────────────────────────────
+// When a user saves a favourite while offline, the action is queued here
+// and retried automatically when connectivity is restored.
+const SYNC_TAG = 'fav-sync';
+
+self.addEventListener('sync', event => {
+  if (event.tag === SYNC_TAG) {
+    event.waitUntil(flushFavQueue());
+  }
+});
+
+async function flushFavQueue() {
+  const db = await openFavDB();
+  const tx = db.transaction('queue', 'readwrite');
+  const store = tx.objectStore('queue');
+  const items = await idbGetAll(store);
+
+  for (const item of items) {
+    try {
+      const method = item.action === 'add' ? 'PUT' : 'DELETE';
+      const res = await fetch(`/api/favourites/${item.spotId}`, { method });
+      if (res.ok) {
+        store.delete(item.id);
+      }
+    } catch {
+      // Will retry on next sync event
+    }
+  }
+}
+
+// Minimal IndexedDB helpers — no library needed
+function openFavDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('eat-this-favs', 1);
+    req.onupgradeneeded = e => {
+      e.target.result.createObjectStore('queue', { keyPath: 'id', autoIncrement: true });
+    };
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror  = e => reject(e.target.error);
+  });
+}
+
+function idbGetAll(store) {
+  return new Promise((resolve, reject) => {
+    const req = store.getAll();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror   = () => reject(req.error);
+  });
+}

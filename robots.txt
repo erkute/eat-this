@@ -1,13 +1,6 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
+Disallow: /functions/
+Disallow: /studio/
 
-# Sitemap
 Sitemap: https://www.eatthisdot.com/sitemap.xml
-
-# Crawl-delay (optional, für Respekt gegenüber Server)
-Crawl-delay: 1
-
-# Disallow admin areas (falls vorhanden)
-Disallow: /admin/
-Disallow: /private/

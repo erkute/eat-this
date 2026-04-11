@@ -15,7 +15,7 @@ async function sanityFetch(query) {
     const json = await res.json();
     return json?.result ?? null;
   } catch (err) {
-    console.warn('[CMS] Fetch failed:', err.message);
+    console.warn('[CMS] Fetch failed:', err.message); // eslint-disable-line no-console
     return null;
   }
 }
@@ -81,6 +81,9 @@ window.CMS = {
       lng,
       mapsUrl,
       website,
+      reservationUrl,
+      openingHours,
+      tip,
       "photo": image.asset->url + "?w=800&auto=format&q=80"
     }`;
     return sanityFetch(query);

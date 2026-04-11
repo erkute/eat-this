@@ -541,8 +541,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         grid.appendChild(fragment);
       }
-    } catch (e) {
-      console.warn('[CMS] Must-Eats fetch failed:', e.message);
+    } catch (err) {
+      console.warn('[CMS] Must-Eats fetch failed:', err.message); // eslint-disable-line no-console
     }
 
     // Restaurants
@@ -554,8 +554,8 @@ document.addEventListener('DOMContentLoaded', () => {
           type: (r.categories || []).join(' · '),
         }));
       }
-    } catch (e) {
-      console.warn('[CMS] Restaurants fetch failed:', e.message);
+    } catch (err) {
+      console.warn('[CMS] Restaurants fetch failed:', err.message); // eslint-disable-line no-console
     }
 
     // Bind must-card lightbox handlers now that cards are in the DOM
@@ -796,7 +796,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         zoomControl: false,
         attributionControl: false,
       }).setView([52.5050, 13.4100], 11);
-    } catch (e) {
+    } catch {
       showNotification(window.i18n ? window.i18n.t('map.errorMapLoad') : 'Could not load map');
       return;
     }
@@ -862,7 +862,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       } else {
         setDefaultView();
       }
-    } catch (e) {
+    } catch {
       setDefaultView();
     }
 
@@ -879,27 +879,8 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     const mapSpotContent = document.getElementById('mapSpotContent');
     const mapSpotClose = document.getElementById('mapSpotClose');
 
-    function getSpotPhoto(type) {
+    function getSpotPhoto() {
       return 'pics/eat.png';
-    }
-
-    function getSpotCategory(type) {
-      const t = type.toLowerCase();
-      // Dessert
-      if (t.includes('dessert') || t.includes('ice cream') || t.includes('donuts')) return 'dessert';
-      // Cafe
-      if (t.includes('cafe') || t.includes('café') || t.includes('coffee') || t.includes('kaffee') || t.includes('tee') || t.includes('luncheonette')) return 'cafe';
-      // Fast Food
-      if (t.includes('burger') || t.includes('fast food')) return 'fast-food';
-      // Breakfast
-      if (t.includes('bakery') || t.includes('bäckerei') || t.includes('brunch') || t.includes('breakfast') || t.includes('patisserie')) return 'breakfast';
-      // Fine Dining
-      if (t.includes('fine dining') || t.includes('gastropub')) return 'fine-dining';
-      // Lunch - Pizza, Pasta, Japanese, Asian
-      if (t.includes('pizza') || t.includes('pasta') || t.includes('japanese') || t.includes('ramen') || t.includes('udon') || t.includes('sushi') || t.includes('izakaya') || t.includes('chinese') || t.includes('sichuan') || t.includes('thai') || t.includes('noodles') || t.includes('indian') || t.includes('korean') || t.includes('vietnamese')) return 'lunch';
-      // Dinner - Wine, Bars, European, Mediterranean, etc.
-      if (t.includes('wine') || t.includes('wein') || t.includes('bar') || t.includes('french') || t.includes('german') || t.includes('european') || t.includes('austrian') || t.includes('swiss') || t.includes('brasserie') || t.includes('bistro') || t.includes('seafood') || t.includes('italian') || t.includes('israeli') || t.includes('middle eastern') || t.includes('mediterranean') || t.includes('greek') || t.includes('african')) return 'dinner';
-      return null;
     }
 
     function showSpotDetail(spot) {
@@ -977,9 +958,49 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         btnRow.appendChild(webBtn);
       }
 
+      if (spot.reservationUrl) {
+        const resBtn = document.createElement('a');
+        resBtn.href = spot.reservationUrl;
+        resBtn.target = '_blank';
+        resBtn.rel = 'noopener';
+        resBtn.className = 'map-spot-btn map-spot-btn--reservation';
+        resBtn.textContent = 'Reserve';
+        btnRow.appendChild(resBtn);
+      }
+
       body.appendChild(metaRow);
       body.appendChild(name);
       body.appendChild(addressEl);
+
+      if (spot.tip) {
+        const tipEl = document.createElement('div');
+        tipEl.className = 'map-spot-tip';
+        tipEl.textContent = '✦ ' + spot.tip;
+        body.appendChild(tipEl);
+      }
+
+      if (spot.openingHours && spot.openingHours.length) {
+        const hoursEl = document.createElement('div');
+        hoursEl.className = 'map-spot-hours';
+        hoursEl.innerHTML = spot.openingHours
+          .map(h => `<span class="map-spot-hours-row"><b>${h.days}</b>${h.hours}</span>`)
+          .join('');
+        body.appendChild(hoursEl);
+      }
+
+      // Favourite button
+      const favBtn = document.createElement('button');
+      favBtn.type = 'button';
+      favBtn.className = 'map-spot-fav-btn';
+      favBtn.setAttribute('aria-label', 'Save to favourites');
+      const spotId = spot._id || spot.name.replace(/\s+/g, '-').toLowerCase();
+      favBtn.dataset.favId = spotId;
+      const isFaved = window._favSpots?.has(spotId);
+      favBtn.textContent = isFaved ? '\u2665' : '\u2661';
+      favBtn.classList.toggle('map-spot-fav-btn--active', !!isFaved);
+      favBtn.addEventListener('click', () => window._toggleFav(spotId, spot.name, favBtn));
+      imgWrap.appendChild(favBtn);
+
       body.appendChild(btnRow);
 
       mapSpotContent.appendChild(imgWrap);
@@ -1179,7 +1200,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       });
     }
 
-    spots.forEach((spot, i) => {
+    spots.forEach((spot, _i) => {
       const marker = L.marker([spot.lat, spot.lng], { icon: logoIcon }).addTo(foodMap);
       marker.spotType = spot.type;
       marker.spotDistrict = spot.district;
@@ -1288,7 +1309,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
   // --- News Article Modal ---
   const newsModal = document.getElementById('newsModal');
   const newsModalClose = document.getElementById('newsModalClose');
-  const newsArticles = document.querySelectorAll('.news-featured, .news-card');
+  document.querySelectorAll('.news-featured, .news-card');
   let currentShareData = { title: '', text: '', url: window.location.href };
 
   function portableTextToHtml(blocks) {
@@ -1325,7 +1346,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       const parsed = JSON.parse(rawContent);
       // Portable Text array from new rich-text field
       contentHtml = portableTextToHtml(parsed);
-    } catch (_) {
+    } catch {
       // Legacy plain-text content (may already contain HTML tags from import)
       contentHtml = rawContent.includes('<') ? rawContent
         : rawContent.split(/\n\n+/).map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
@@ -1408,7 +1429,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       if (navigator.share) {
         try {
           await navigator.share(currentShareData);
-        } catch (err) {
+        } catch {
           // User cancelled or error
         }
       } else {
@@ -1417,12 +1438,16 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     });
   }
 
-  // --- Lazy Script Loader ---
-  function loadScript(src) {
+  // --- Lazy Script Loader (with optional SRI integrity check) ---
+  function loadScript(src, integrity) {
     return new Promise((resolve, reject) => {
       if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
       const s = document.createElement('script');
       s.src = src;
+      if (integrity) {
+        s.integrity   = integrity;
+        s.crossOrigin = 'anonymous';
+      }
       s.onload = resolve;
       s.onerror = reject;
       document.head.appendChild(s);
@@ -1430,7 +1455,6 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
   }
 
   // --- App Page Navigation ---
-  let isMobile = window.innerWidth <= CONFIG.MOBILE_BREAKPOINT;
   const appFooter = document.getElementById('appFooter');
   const appPages = document.querySelectorAll('.app-page');
   const navbarBrand = document.querySelector('.navbar-brand');
@@ -1463,8 +1487,10 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         // Globe intro → then init map (lazy-load Leaflet + Three.js on first visit)
         if (pageName === 'map') {
           Promise.all([
-            loadScript('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'),
-            loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'),
+            loadScript('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+              'sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH'),
+            loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
+              'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu'),
           ]).then(() => {
             showGlobeIntro(() => {
               cmsReady.then(() => { if (typeof initFoodMap === 'function') initFoodMap(); });
@@ -1528,7 +1554,6 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     function handleResize() {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
-        isMobile = window.innerWidth <= CONFIG.MOBILE_BREAKPOINT;
         navigateToPage(currentPage);
       }, 150);
     }
@@ -1559,7 +1584,6 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     closeBtn: document.getElementById('burgerClose'),
     backdrop: document.getElementById('burgerBackdrop'),
   });
-  function openBurger() { burger.open(); }
   function closeBurger() { burger.close(); }
 
   // Cookie Info Modal
@@ -1639,7 +1663,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     bodyOverflow.lock();
 
     // offsetHeight read forces synchronous reflow so the start state is committed
-    mustLightboxInner.offsetHeight; // eslint-disable-line no-unused-expressions
+    mustLightboxInner.offsetHeight; // force reflow so start state commits before transition
 
     mustLightboxInner.style.transition = 'transform 0.52s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease';
     mustLightboxInner.style.transform = 'translate(0,0) scale(1) rotate(3deg)';
@@ -1667,7 +1691,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       const endScale = rect.width / targetW;
 
       // Reflow to commit current state before starting close transition
-      mustLightboxInner.offsetHeight; // eslint-disable-line no-unused-expressions
+      mustLightboxInner.offsetHeight; // force reflow so start state commits before transition
 
       // Fade backdrop out and fly card back simultaneously (no opacity on inner — card stays visible)
       mustLightbox.classList.add('closing');

@@ -9,7 +9,7 @@ function esc(s) {
 }
 
 // Shared assets (absolute URLs, must be live on eatthisdot.com)
-const LOGO  = 'https://www.eatthisdot.com/pics/logo.png';
+const LOGO  = 'https://www.eatthisdot.com/pics/eat-email.png';
 const PHOTO = 'https://www.eatthisdot.com/pics/about/0477e049b54b21c5fb7ea43d5a97ac2b.webp';
 const SITE  = 'https://www.eatthisdot.com';
 const FROM_DOMAIN = 'eatthisdot.com';

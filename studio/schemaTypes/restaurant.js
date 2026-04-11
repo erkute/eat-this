@@ -62,6 +62,45 @@ export default {
       type: 'image',
       options: { hotspot: true },
     },
+    {
+      name: 'reservationUrl',
+      title: 'Reservation Link (Resy, OpenTable, etc.)',
+      type: 'url',
+    },
+    {
+      name: 'openingHours',
+      title: 'Opening Hours',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          name: 'daySlot',
+          fields: [
+            {
+              name: 'days',
+              title: 'Days',
+              type: 'string',
+              description: 'e.g. "Mon–Fri" or "Saturday"',
+            },
+            {
+              name: 'hours',
+              title: 'Hours',
+              type: 'string',
+              description: 'e.g. "12:00–22:00" or "closed"',
+            },
+          ],
+          preview: {
+            select: { title: 'days', subtitle: 'hours' },
+          },
+        },
+      ],
+    },
+    {
+      name: 'tip',
+      title: 'Insider Tip',
+      type: 'string',
+      description: 'Short recommendation shown in the map popup',
+    },
   ],
   preview: {
     select: { title: 'name', subtitle: 'district' },

@@ -983,7 +983,70 @@ body {
   background: #e0e0e0;
 }
 
+.map-spot-btn--reservation {
+  background: #FF3B00;
+  color: #fff;
+}
 
+.map-spot-btn--reservation:hover {
+  background: #e03400;
+}
+
+.map-spot-fav-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.9);
+  color: #aaa;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  transition: color 0.2s, transform 0.15s;
+}
+
+.map-spot-fav-btn:hover {
+  color: #FF3B00;
+  transform: scale(1.1);
+}
+
+.map-spot-fav-btn--active {
+  color: #FF3B00;
+}
+
+.map-spot-tip {
+  font-size: 12px;
+  color: #FF3B00;
+  font-weight: 600;
+  margin: 8px 0 4px;
+  letter-spacing: 0.2px;
+}
+
+.map-spot-hours {
+  font-size: 12px;
+  color: #666;
+  margin: 8px 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.map-spot-hours-row {
+  display: flex;
+  gap: 8px;
+}
+
+.map-spot-hours-row b {
+  min-width: 80px;
+  color: #333;
+}
 
 /* User Location Marker */
 .user-location-marker {

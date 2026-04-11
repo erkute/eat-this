@@ -1214,10 +1214,13 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         : 'none';
       sheet.style.transform = `translateY(${Math.max(0, y)}px)`;
 
-      // Keep zoom buttons above visible sheet edge
+      // Keep zoom buttons above visible sheet edge, animated in sync with sheet
       const zoomBtns = document.querySelector('.map-zoom-btns');
       if (zoomBtns) {
         const visible = state === 'peek' ? PEEK_PX : state === 'mid' ? MID_PX : state === 'expanded' ? h : 0;
+        zoomBtns.style.transition = animate
+          ? 'bottom 0.4s cubic-bezier(0.32, 0.72, 0, 1)'
+          : 'none';
         zoomBtns.style.bottom = (visible + 12) + 'px';
       }
     }

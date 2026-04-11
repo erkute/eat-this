@@ -866,13 +866,14 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         showNearbyStrip(defaultCenter[0], defaultCenter[1]);
       }
     }
-    
-    setTimeout(setDefaultView, CONFIG.GEO_FALLBACK_DELAY);
+
+    let fallbackTimer = setTimeout(setDefaultView, CONFIG.GEO_FALLBACK_DELAY);
     
     try {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
+            clearTimeout(fallbackTimer);
             locationFound = true;
             const userLat = position.coords.latitude;
             const userLng = position.coords.longitude;

@@ -15,7 +15,9 @@ test.describe('Login Modal', () => {
 
   test('modal closes on backdrop click', async ({ page }) => {
     await page.locator('#loginBtn').click();
-    await page.locator('#loginBackdrop').click();
+    await expect(page.locator('#loginModal')).toHaveClass(/active/);
+    // Backdrop is behind the modal — use force:true to bypass actionability check
+    await page.locator('#loginBackdrop').click({ force: true });
     await expect(page.locator('#loginModal')).not.toHaveClass(/active/);
   });
 

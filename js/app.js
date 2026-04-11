@@ -843,8 +843,12 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
             // Check if location is in Berlin area (rough check)
             if (userLat > 52.3 && userLat < 52.7 && userLng > 13.1 && userLng < 13.8) {
               userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(foodMap);
-              foodMap.setView([userLat, userLng], 13, { animate: true });
+              foodMap.setView([userLat, userLng], 13);
               showNearbyStrip(userLat, userLng);
+              // After the sheet snaps to mid (double rAF in showNearbyStrip), fly with sheet offset
+              requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(() => {
+                flyToWithSheetOffset(userLat, userLng, 13);
+              })));
             } else {
               // User is outside Berlin, show Berlin anyway
               setDefaultView();
@@ -1046,6 +1050,55 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     const PEEK_PX = 56;   // handle (28) + label row (28)
     const MID_PX  = 240;  // header + 1 card row redesigned
 
+    function isOpenNow(openingHours) {
+      if (!openingHours || !openingHours.length) return null;
+      const now = new Date();
+      const dayOfWeek = now.getDay(); // 0=Sun
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      const dayMap = {
+        'so':0,'sun':0,'sunday':0,'sonntag':0,
+        'mo':1,'mon':1,'monday':1,'montag':1,
+        'di':2,'tue':2,'tuesday':2,'dienstag':2,
+        'mi':3,'wed':3,'wednesday':3,'mittwoch':3,
+        'do':4,'thu':4,'thursday':4,'donnerstag':4,
+        'fr':5,'fri':5,'friday':5,'freitag':5,
+        'sa':6,'sat':6,'saturday':6,'samstag':6,
+      };
+      function toDayNum(s) { return dayMap[s.toLowerCase().trim()] ?? null; }
+      function toMins(t) { const [h,m] = t.split(':').map(Number); return h*60+(m||0); }
+      for (const slot of openingHours) {
+        const days = (slot.days || '').trim();
+        const hours = (slot.hours || '').toLowerCase().trim();
+        // Determine if today matches
+        let match = false;
+        const dl = days.toLowerCase().replace(/\s/g,'');
+        if (['täglich','daily','mo–so','mo-so','mon–sun','mon-sun','7days'].includes(dl)) {
+          match = true;
+        } else if (days.includes('–') || (days.includes('-') && days.length > 3)) {
+          const sep = days.includes('–') ? '–' : '-';
+          const [s, e] = days.split(sep).map(p => toDayNum(p));
+          if (s !== null && e !== null) {
+            match = s <= e ? dayOfWeek >= s && dayOfWeek <= e : dayOfWeek >= s || dayOfWeek <= e;
+          }
+        } else {
+          match = days.split(',').some(d => toDayNum(d) === dayOfWeek);
+        }
+        if (!match) continue;
+        if (hours === 'closed' || hours === 'geschlossen' || hours === 'ruhetag') return false;
+        const sep = hours.includes('–') ? '–' : '-';
+        const parts = hours.split(sep).map(p => p.trim());
+        if (parts.length === 2) {
+          const open = toMins(parts[0]);
+          const close = toMins(parts[1]);
+          return close > open
+            ? currentMinutes >= open && currentMinutes < close
+            : currentMinutes >= open || currentMinutes < close;
+        }
+        return null;
+      }
+      return null;
+    }
+
     function _renderNearbyGrid() {
       const gridEl = document.getElementById('mapNearbyGrid');
       if (!gridEl || _nearbyLat === null) return;
@@ -1119,17 +1172,12 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         body.appendChild(nameRow);
         body.appendChild(meta);
 
-        if (spot.openingHours && spot.openingHours.length) {
-          const hoursEl = document.createElement('div');
-          hoursEl.className = 'map-nearby-grid-card-hours';
-          const label = document.createElement('span');
-          label.className = 'map-nearby-grid-card-hours-label';
-          label.textContent = 'Hours';
-          const val = document.createElement('span');
-          val.textContent = ' · ' + (spot.openingHours[0].hours || '');
-          hoursEl.appendChild(label);
-          hoursEl.appendChild(val);
-          body.appendChild(hoursEl);
+        const openStatus = isOpenNow(spot.openingHours);
+        if (openStatus !== null) {
+          const badge = document.createElement('span');
+          badge.className = 'map-nearby-grid-card-status' + (openStatus ? ' map-nearby-grid-card-status--open' : ' map-nearby-grid-card-status--closed');
+          badge.textContent = openStatus ? 'Geöffnet' : 'Geschlossen';
+          body.appendChild(badge);
         }
 
         card.appendChild(imgWrap);

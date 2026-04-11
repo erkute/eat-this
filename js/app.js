@@ -861,7 +861,9 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     
     function setDefaultView() {
       if (!locationFound) {
+        locationFound = true;
         foodMap.setView(defaultCenter, 13);
+        showNearbyStrip(defaultCenter[0], defaultCenter[1]);
       }
     }
     
@@ -885,7 +887,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
                 flyToWithSheetOffset(userLat, userLng, 13);
               })));
             } else {
-              // User is outside Berlin, show Berlin anyway
+              // User is outside Berlin, show Berlin with nearby strip
               setDefaultView();
             }
           },

@@ -883,9 +883,26 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       return 'pics/eat.png';
     }
 
+    function flyToWithSheetOffset(lat, lng, zoom) {
+      if (!foodMap) return;
+      const sheet = document.getElementById('mapNearby');
+      const sheetVisible = _sheetState === 'expanded' ? (sheet ? sheet.offsetHeight : 0)
+                         : _sheetState === 'mid' ? MID_PX
+                         : _sheetState === 'peek' ? PEEK_PX
+                         : 0;
+      if (sheetVisible > 20) {
+        const targetPoint = foodMap.project([lat, lng], zoom);
+        const adjustedPoint = L.point(targetPoint.x, targetPoint.y + sheetVisible / 2);
+        const adjustedLatLng = foodMap.unproject(adjustedPoint, zoom);
+        foodMap.flyTo(adjustedLatLng, zoom, { animate: true, duration: 1 });
+      } else {
+        foodMap.flyTo([lat, lng], zoom, { animate: true, duration: 1 });
+      }
+    }
+
     function showSpotDetail(spot) {
       if (foodMap) {
-        foodMap.flyTo([spot.lat, spot.lng], 15, { animate: true, duration: 1 });
+        flyToWithSheetOffset(spot.lat, spot.lng, 15);
       }
 
       const mapsUrl = spot.mapsUrl || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(spot.name + ', ' + spot.address));
@@ -1027,7 +1044,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     let _sheetReady = false;
 
     const PEEK_PX = 56;   // handle (28) + label row (28)
-    const MID_PX  = 210;  // header + ~1 card row
+    const MID_PX  = 240;  // header + 1 card row redesigned
 
     function _renderNearbyGrid() {
       const gridEl = document.getElementById('mapNearbyGrid');
@@ -1039,7 +1056,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         .map(s => ({ ...s, dist: haversineDistance(_nearbyLat, _nearbyLng, s.lat, s.lng) }))
         .filter(s => activeFilter === 'all' || (s.categories || []).includes(activeFilter))
         .sort((a, b) => a.dist - b.dist)
-        .slice(0, 6);
+        .slice(0, 30);
 
       while (gridEl.firstChild) gridEl.removeChild(gridEl.firstChild);
 
@@ -1047,9 +1064,14 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         const distM = Math.round(spot.dist);
         const distLabel = distM < 1000 ? distM + 'm' : (spot.dist / 1000).toFixed(1) + 'km';
         const photo = spot.photo || getSpotPhoto(spot.type);
+        const spotId = spot._id || spot.name.replace(/\s+/g, '-').toLowerCase();
 
         const card = document.createElement('div');
         card.className = 'map-nearby-grid-card';
+
+        // Image area with distance badge overlay
+        const imgWrap = document.createElement('div');
+        imgWrap.className = 'map-nearby-grid-card-img-wrap';
 
         const img = document.createElement('img');
         img.className = 'map-nearby-grid-card-img';
@@ -1057,28 +1079,66 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         img.alt = spot.name;
         img.loading = 'lazy';
 
+        const distBadge = document.createElement('span');
+        distBadge.className = 'map-nearby-grid-card-dist';
+        distBadge.textContent = distLabel;
+
+        imgWrap.appendChild(img);
+        imgWrap.appendChild(distBadge);
+
+        // Card body: name row (name + heart), meta, hours
         const body = document.createElement('div');
         body.className = 'map-nearby-grid-card-body';
 
-        const dist = document.createElement('span');
-        dist.className = 'map-nearby-grid-card-dist';
-        dist.textContent = distLabel;
+        const nameRow = document.createElement('div');
+        nameRow.className = 'map-nearby-grid-card-name-row';
 
         const name = document.createElement('div');
         name.className = 'map-nearby-grid-card-name';
         name.textContent = spot.name;
 
+        const favBtn = document.createElement('button');
+        favBtn.type = 'button';
+        favBtn.className = 'map-nearby-grid-card-fav';
+        favBtn.setAttribute('aria-label', 'Speichern');
+        const isFaved = window._favSpots?.has(spotId);
+        favBtn.textContent = isFaved ? '\u2665' : '\u2661';
+        if (isFaved) favBtn.classList.add('map-nearby-grid-card-fav--active');
+        favBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          window._toggleFav(spotId, spot.name, favBtn);
+        });
+
+        nameRow.appendChild(name);
+        nameRow.appendChild(favBtn);
+
         const meta = document.createElement('div');
         meta.className = 'map-nearby-grid-card-meta';
         meta.textContent = spot.type + (spot.price ? ' · ' + spot.price : '');
 
-        body.appendChild(dist);
-        body.appendChild(name);
+        body.appendChild(nameRow);
         body.appendChild(meta);
-        card.appendChild(img);
+
+        if (spot.openingHours && spot.openingHours.length) {
+          const hoursEl = document.createElement('div');
+          hoursEl.className = 'map-nearby-grid-card-hours';
+          const label = document.createElement('span');
+          label.className = 'map-nearby-grid-card-hours-label';
+          label.textContent = 'Hours';
+          const val = document.createElement('span');
+          val.textContent = ' · ' + (spot.openingHours[0].hours || '');
+          hoursEl.appendChild(label);
+          hoursEl.appendChild(val);
+          body.appendChild(hoursEl);
+        }
+
+        card.appendChild(imgWrap);
         card.appendChild(body);
 
-        card.addEventListener('click', () => showSpotDetail(spot));
+        card.addEventListener('click', () => {
+          flyToWithSheetOffset(spot.lat, spot.lng, 15);
+          showSpotDetail(spot);
+        });
         gridEl.appendChild(card);
       });
     }
@@ -1153,13 +1213,21 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         _snapSheet(next);
       }
 
-      // Touch events
-      handle.addEventListener('touchstart', e => dragStart(e.touches[0].clientY), { passive: true });
-      handle.addEventListener('touchmove', e => dragMove(e.touches[0].clientY), { passive: true });
-      handle.addEventListener('touchend', dragEnd);
+      // Touch events — full sheet is draggable
+      sheet.addEventListener('touchstart', e => {
+        // Don't hijack scrolling inside the grid
+        if (e.target.closest('#mapNearbyGrid')) return;
+        dragStart(e.touches[0].clientY);
+      }, { passive: true });
+      sheet.addEventListener('touchmove', e => {
+        if (e.target.closest('#mapNearbyGrid')) return;
+        dragMove(e.touches[0].clientY);
+      }, { passive: true });
+      sheet.addEventListener('touchend', dragEnd);
 
-      // Mouse events (desktop)
-      handle.addEventListener('mousedown', e => {
+      // Mouse events (desktop) — full sheet
+      sheet.addEventListener('mousedown', e => {
+        if (e.target.closest('#mapNearbyGrid')) return;
         e.preventDefault();
         dragStart(e.clientY);
       });
@@ -1256,8 +1324,12 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
           }
         });
 
-        // Re-render nearby grid to respect new filter
-        if (_nearbyLat !== null) _renderNearbyGrid();
+        // Re-render nearby grid to respect new filter, scroll back to start
+        if (_nearbyLat !== null) {
+          _renderNearbyGrid();
+          const gridEl = document.getElementById('mapNearbyGrid');
+          if (gridEl) gridEl.scrollLeft = 0;
+        }
       });
     });
 
@@ -1285,7 +1357,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
               userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(foodMap);
             }
             
-            foodMap.setView([userLat, userLng], 14, { animate: true });
+            flyToWithSheetOffset(userLat, userLng, 14);
             showNearbyStrip(userLat, userLng);
           },
           (error) => {

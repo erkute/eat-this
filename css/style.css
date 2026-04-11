@@ -614,76 +614,156 @@ body {
   text-transform: uppercase;
   color: #aaa;
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-/* Grid layout (used in app bottom-sheet mode) */
+.map-nearby-swipe-hint {
+  font-size: 13px;
+  font-weight: 300;
+  color: #d0d0d0;
+  line-height: 1;
+  animation: swipeNudge 2s ease-in-out infinite;
+  display: inline-block;
+  pointer-events: none;
+  user-select: none;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+@keyframes swipeNudge {
+  0%, 100% { transform: translateX(0); opacity: 0.6; }
+  50%       { transform: translateX(4px); opacity: 1; }
+}
+
+/* Grid layout — horizontal scroll carousel */
 .map-nearby-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-direction: row;
   gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
   padding: 0 0 4px;
 }
+.map-nearby-grid::-webkit-scrollbar { display: none; }
 
 .map-nearby-grid-card {
+  flex: 0 0 calc((100% - 8px) / 3.15);
+  scroll-snap-align: start;
   background: #fff;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-  border: 1.5px solid #f0f0f0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.09);
+  border: 1px solid #efefef;
   cursor: pointer;
-  transition: transform 0.15s;
+  transition: transform 0.15s, box-shadow 0.15s;
   display: flex;
   flex-direction: column;
 }
-.map-nearby-grid-card:active { transform: scale(0.96); }
+.map-nearby-grid-card:active {
+  transform: scale(0.95);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+}
 
+/* Image + distance badge */
+.map-nearby-grid-card-img-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
 .map-nearby-grid-card-img {
   width: 100%;
-  height: 72px;
-  flex-shrink: 0;
+  height: 84px;
   object-fit: cover;
   display: block;
   background: #ebebeb;
 }
-
-.map-nearby-grid-card-body {
-  padding: 5px 6px 7px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-}
-
 .map-nearby-grid-card-dist {
-  display: inline-block;
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
   font-size: 8px;
   font-weight: 700;
   color: #fff;
-  background: #111;
-  padding: 1px 5px;
+  background: rgba(0,0,0,0.62);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 2px 6px;
   border-radius: 20px;
-  margin-bottom: 3px;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
+  pointer-events: none;
 }
 
+/* Card body */
+.map-nearby-grid-card-body {
+  padding: 7px 7px 8px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Name row with heart */
+.map-nearby-grid-card-name-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
 .map-nearby-grid-card-name {
+  flex: 1;
+  min-width: 0;
   font-size: 11px;
   font-weight: 800;
   color: #111;
-  line-height: 1.2;
+  line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.map-nearby-grid-card-fav {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  line-height: 1;
+  color: #ccc;
+  padding: 0;
+  margin-top: 1px;
+  transition: color 0.15s, transform 0.12s;
+}
+.map-nearby-grid-card-fav--active { color: #FF3B00; }
+.map-nearby-grid-card-fav:active { transform: scale(0.82); }
 
 .map-nearby-grid-card-meta {
   font-size: 9px;
-  color: #aaa;
-  margin-top: 1px;
+  color: #bbb;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.3;
 }
+.map-nearby-grid-card-hours {
+  font-size: 8.5px;
+  color: #999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.map-nearby-grid-card-hours-label {
+  font-weight: 700;
+  color: #777;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 7.5px;
+}
+
 
 /* ---- Bottom Sheet (app map page — all viewports) ---- */
 .app-page[data-page="map"] .map-nearby {
@@ -695,7 +775,7 @@ body {
   background: #fff;
   border-radius: 20px 20px 0 0;
   box-shadow: 0 -3px 24px rgba(0,0,0,0.10);
-  padding: 0 12px 20px;
+  padding: 0 12px 10px;
   transform: translateY(100%);
   transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
   will-change: transform;
@@ -994,8 +1074,8 @@ body {
 
 .map-spot-fav-btn {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  bottom: 12px;
+  right: 12px;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -1032,15 +1112,17 @@ body {
 .map-spot-hours {
   font-size: 12px;
   color: #666;
-  margin: 8px 0 4px;
+  margin: 8px 0 18px;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
 .map-spot-hours-row {
-  display: flex;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .map-spot-hours-row b {

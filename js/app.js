@@ -950,6 +950,14 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
         metaRow.appendChild(priceBadge);
       }
 
+      const openStatus = isOpenNow(spot.openingHours);
+      if (openStatus !== null) {
+        const statusBadge = document.createElement('span');
+        statusBadge.className = 'map-spot-status-badge' + (openStatus ? ' map-spot-status-badge--open' : ' map-spot-status-badge--closed');
+        statusBadge.textContent = openStatus ? 'Geöffnet' : 'Geschlossen';
+        metaRow.appendChild(statusBadge);
+      }
+
       const name = document.createElement('h3');
       name.className = 'map-spot-name';
       name.textContent = spot.name;

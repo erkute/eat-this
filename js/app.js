@@ -9,9 +9,9 @@ const CONFIG = {
   SEARCH_DEBOUNCE:            200,   // ms — keyup debounce
   SEARCH_FOCUS_DESKTOP:       100,   // ms — focus delay on desktop
   SEARCH_FOCUS_MOBILE:        400,   // ms — focus delay on mobile (wait for keyboard)
-  GEO_TIMEOUT:              10000,   // ms — GPS timeout
-  GEO_FALLBACK_DELAY:        3000,   // ms — show Berlin if no GPS after this
-  GEO_MAX_AGE:             300000,   // ms — reuse cached GPS position (5 min)
+  GEO_TIMEOUT:              15000,   // ms — GPS timeout
+  GEO_FALLBACK_DELAY:       16000,   // ms — show Berlin only after GPS timeout + 1s
+  GEO_MAX_AGE:              60000,   // ms — reuse cached GPS position (1 min only)
   BERLIN_CENTER:      [52.52, 13.405],
 };
 
@@ -893,6 +893,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
             }
           },
           () => {
+            clearTimeout(fallbackTimer);
             setDefaultView();
           },
           {

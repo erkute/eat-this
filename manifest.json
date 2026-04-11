@@ -33,13 +33,13 @@
     {
       "name": "Food Map",
       "short_name": "Map",
-      "url": "/?page=map",
+      "url": "/#map",
       "icons": [{ "src": "pics/eat.png", "sizes": "192x192" }]
     },
     {
       "name": "Must-Eats",
       "short_name": "Eat This",
-      "url": "/?page=musts",
+      "url": "/#musts",
       "icons": [{ "src": "pics/eat.png", "sizes": "192x192" }]
     }
   ]

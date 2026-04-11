@@ -811,6 +811,13 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     document.getElementById('mapZoomIn').addEventListener('click', () => foodMap.zoomIn());
     document.getElementById('mapZoomOut').addEventListener('click', () => foodMap.zoomOut());
 
+    // Pre-position zoom buttons above where the sheet will snap to mid (240px)
+    const zoomBtnsInit = document.querySelector('.map-zoom-btns');
+    if (zoomBtnsInit) {
+      zoomBtnsInit.style.transition = 'none';
+      zoomBtnsInit.style.bottom = '252px'; // MID_PX (240) + 12
+    }
+
     // User location
     const userIcon = L.divIcon({
       className: 'user-location-marker',

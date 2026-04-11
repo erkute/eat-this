@@ -1163,7 +1163,7 @@ document.addEventListener('DOMContentLoaded', () => {
         statusBadge.className =
           'map-spot-status-badge' +
           (openStatus ? ' map-spot-status-badge--open' : ' map-spot-status-badge--closed');
-        statusBadge.textContent = openStatus ? 'Geöffnet' : 'Geschlossen';
+        statusBadge.textContent = openStatus ? 'Open' : 'Closed';
         metaRow.appendChild(statusBadge);
       }
 
@@ -1429,7 +1429,7 @@ document.addEventListener('DOMContentLoaded', () => {
             (openStatus
               ? ' map-nearby-grid-card-status--open'
               : ' map-nearby-grid-card-status--closed');
-          badge.textContent = openStatus ? 'Geöffnet' : 'Geschlossen';
+          badge.textContent = openStatus ? 'Open' : 'Closed';
           body.appendChild(badge);
         }
 

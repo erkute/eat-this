@@ -19,7 +19,6 @@ const STATIC_ASSETS = [
   '/js/i18n.js',
   '/js/app.js',
   '/js/auth.js',
-  '/pics/eat.webp',
   '/pics/eat.png',
   '/pics/logo.webp',
   '/pics/logo2.webp',

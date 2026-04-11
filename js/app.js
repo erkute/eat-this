@@ -855,7 +855,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     }
 
     const logoIcon = L.icon({
-      iconUrl: 'pics/eat.webp',
+      iconUrl: 'pics/eat.png',
       iconSize: [32, 32],
       iconAnchor: [16, 16],
       popupAnchor: [0, -20]
@@ -868,7 +868,7 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
     const mapSpotClose = document.getElementById('mapSpotClose');
 
     function getSpotPhoto(type) {
-      return 'pics/eat.webp';
+      return 'pics/eat.png';
     }
 
     function getSpotCategory(type) {

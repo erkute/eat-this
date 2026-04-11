@@ -1074,10 +1074,10 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
       };
       function toDayNum(s) { return dayMap[s.toLowerCase().trim()] ?? null; }
       function toMins(t) { const [h,m] = t.split(':').map(Number); return h*60+(m||0); }
+      let hasMatchingDay = false;
       for (const slot of openingHours) {
         const days = (slot.days || '').trim();
         const hours = (slot.hours || '').toLowerCase().trim();
-        // Determine if today matches
         let match = false;
         const dl = days.toLowerCase().replace(/\s/g,'');
         if (['täglich','daily','mo–so','mo-so','mon–sun','mon-sun','7days'].includes(dl)) {
@@ -1092,19 +1092,20 @@ logoText.style.cssText = `position:absolute;top:calc(50% + min(30vw,140px) - ${m
           match = days.split(',').some(d => toDayNum(d) === dayOfWeek);
         }
         if (!match) continue;
-        if (hours === 'closed' || hours === 'geschlossen' || hours === 'ruhetag') return false;
+        hasMatchingDay = true;
+        if (hours === 'closed' || hours === 'geschlossen' || hours === 'ruhetag') continue;
         const sep = hours.includes('–') ? '–' : '-';
         const parts = hours.split(sep).map(p => p.trim());
         if (parts.length === 2) {
           const open = toMins(parts[0]);
           const close = toMins(parts[1]);
-          return close > open
+          const isOpen = close > open
             ? currentMinutes >= open && currentMinutes < close
             : currentMinutes >= open || currentMinutes < close;
+          if (isOpen) return true;
         }
-        return null;
       }
-      return null;
+      return hasMatchingDay ? false : null;
     }
 
     function _renderNearbyGrid() {

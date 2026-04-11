@@ -35,9 +35,6 @@ jobs:
         working-directory: functions
 
       - name: Deploy Hosting + Functions
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: eat-this-8a13b
-          channelId: live
+        run: npx firebase deploy --only hosting,functions --project eat-this-8a13b --non-interactive --token "$FIREBASE_TOKEN"
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}

@@ -1349,7 +1349,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       }
-      return hasMatchingDay ? false : null;
+      return false;
     }
 
     function _renderNearbyGrid() {

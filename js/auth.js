@@ -116,15 +116,17 @@ document.addEventListener('keydown', (e) => {
 // ─── Modus-Toggle: sicherer DOM-Aufbau ────────────────────────────────────────
 function buildModeToggle(isRegister) {
   if (!loginModeToggle) return;
-  loginModeToggle.textContent = '';
 
-  const btn = document.createElement('button');
-  btn.type      = 'button';
-  btn.className = 'login-mode-link';
+  let btn = loginModeToggle.querySelector('.login-mode-link');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.type      = 'button';
+    btn.className = 'login-mode-link';
+    loginModeToggle.appendChild(btn);
+  }
+
   btn.textContent = window.i18n.t(isRegister ? 'modals.login.toggleToLogin' : 'modals.login.toggleToRegister');
-  btn.addEventListener('click', () => setMode(!isRegister));
-
-  loginModeToggle.appendChild(btn);
+  btn.onclick = () => setMode(!isRegister);
 }
 
 function setMode(register) {

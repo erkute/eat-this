@@ -69,7 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // production and automated tests (no force:true needed)
   if (_loginModal)
     _loginModal.addEventListener('click', (e) => {
-      if (!e.target.closest('.login-modal-content')) _closeLoginModal();
+      const insideContent = e.composedPath().some(el => el.classList?.contains('login-modal-content'));
+      if (!insideContent) _closeLoginModal();
     });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && _loginModal?.classList.contains('active')) _closeLoginModal();

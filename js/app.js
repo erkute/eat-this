@@ -665,8 +665,6 @@ document.addEventListener('DOMContentLoaded', () => {
           ...r,
           type: (r.categories || []).join(' · '),
         }));
-        // Re-render nearby grid if location was already set before spots loaded (race condition)
-        if (_nearbyLat !== null) _renderNearbyGrid();
       }
     } catch (err) {
       console.warn('[CMS] Restaurants fetch failed:', err.message); // eslint-disable-line no-console
@@ -978,18 +976,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('mapZoomIn').addEventListener('click', () => foodMap.zoomIn());
     document.getElementById('mapZoomOut').addEventListener('click', () => foodMap.zoomOut());
 
-    // Collapse sheet to peek when tapping on the map — keeps zoom buttons close to nearby strip
-    foodMap.on('click', () => {
-      if (_sheetState === 'mid' || _sheetState === 'expanded') {
-        _snapSheet('peek');
-      }
-    });
-
-    // Pre-position zoom buttons at peek height to avoid flash before _snapSheet fires
+    // Pre-position zoom buttons above where the sheet will snap to mid (240px)
     const zoomBtnsInit = document.querySelector('.map-zoom-btns');
     if (zoomBtnsInit) {
       zoomBtnsInit.style.transition = 'none';
-      zoomBtnsInit.style.bottom = PEEK_PX + 12 + 'px'; // safe low default, corrected by _snapSheet
+      zoomBtnsInit.style.bottom = '252px'; // MID_PX (240) + 12
     }
 
     // User location
@@ -1341,19 +1332,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!match) continue;
         hasMatchingDay = true;
         if (hours === 'closed' || hours === 'geschlossen' || hours === 'ruhetag') continue;
-        const sep = hours.includes('–') ? '–' : '-';
-        const parts = hours.split(sep).map((p) => p.trim());
-        if (parts.length === 2) {
-          const open = toMins(parts[0]);
-          const close = toMins(parts[1]);
-          const isOpen =
-            close > open
-              ? currentMinutes >= open && currentMinutes < close
-              : currentMinutes >= open || currentMinutes < close;
-          if (isOpen) return true;
+        // Support comma-separated time windows e.g. "12:00-15:00, 18:00-22:00"
+        const windows = hours.split(',').map((w) => w.trim()).filter(Boolean);
+        for (const window of windows) {
+          const sep = window.includes('–') ? '–' : '-';
+          const parts = window.split(sep).map((p) => p.trim());
+          if (parts.length === 2) {
+            const open = toMins(parts[0]);
+            // 00:00 closing = midnight = end of day (1440), not start of day (0)
+            const close = toMins(parts[1]) || 24 * 60;
+            const isOpen =
+              close > open
+                ? currentMinutes >= open && currentMinutes < close
+                : currentMinutes >= open || currentMinutes < close;
+            if (isOpen) return true;
+          }
         }
       }
-      return false;
+      return hasMatchingDay ? false : null;
     }
 
     function _renderNearbyGrid() {
@@ -1472,9 +1468,8 @@ document.addEventListener('DOMContentLoaded', () => {
       // Keep zoom buttons above visible sheet edge, animated in sync with sheet
       const zoomBtns = document.querySelector('.map-zoom-btns');
       if (zoomBtns) {
-        // Clamp to actual sheet height — if sheet is shorter than MID_PX it's fully visible
         const visible =
-          state === 'peek' ? Math.min(PEEK_PX, h) : state === 'mid' ? Math.min(MID_PX, h) : state === 'expanded' ? h : 0;
+          state === 'peek' ? PEEK_PX : state === 'mid' ? MID_PX : state === 'expanded' ? h : 0;
         zoomBtns.style.transition = animate ? 'bottom 0.4s cubic-bezier(0.32, 0.72, 0, 1)' : 'none';
         zoomBtns.style.bottom = visible + 12 + 'px';
       }

@@ -1447,6 +1447,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         gridEl.appendChild(card);
       });
+
+      // Show "Swipe for more" hint if there are more cards than visible
+      const moreEl = document.getElementById('mapNearbyMore');
+      if (moreEl) {
+        moreEl.classList.toggle('visible', sorted.length > 3);
+      }
     }
 
     function _snapSheet(state, animate = true) {
@@ -1468,8 +1474,9 @@ document.addEventListener('DOMContentLoaded', () => {
       // Keep zoom buttons above visible sheet edge, animated in sync with sheet
       const zoomBtns = document.querySelector('.map-zoom-btns');
       if (zoomBtns) {
+        // Clamp to actual sheet height so buttons sit tight above the visible edge
         const visible =
-          state === 'peek' ? PEEK_PX : state === 'mid' ? MID_PX : state === 'expanded' ? h : 0;
+          state === 'peek' ? Math.min(PEEK_PX, h) : state === 'mid' ? Math.min(MID_PX, h) : state === 'expanded' ? h : 0;
         zoomBtns.style.transition = animate ? 'bottom 0.4s cubic-bezier(0.32, 0.72, 0, 1)' : 'none';
         zoomBtns.style.bottom = visible + 12 + 'px';
       }
@@ -1567,6 +1574,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function showNearbyStrip(lat, lng) {
       _nearbyLat = lat;
       _nearbyLng = lng;
+      // Apply i18n label
+      const nearbyTitle = document.getElementById('mapNearbyTitle');
+      if (nearbyTitle && window.i18n) nearbyTitle.textContent = window.i18n.t('map.nearby');
+      const nearbyMore = document.getElementById('mapNearbyMore');
+      if (nearbyMore && window.i18n) nearbyMore.textContent = window.i18n.t('map.nearbyMore');
       _renderNearbyGrid();
 
       if (!_sheetReady) {
@@ -1577,7 +1589,20 @@ document.addEventListener('DOMContentLoaded', () => {
         _initSheetDrag();
       }
       // Double rAF: first frame lets grid paint, second measures correct height
-      requestAnimationFrame(() => requestAnimationFrame(() => _snapSheet('mid')));
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        _snapSheet('mid');
+        // Register map click → peek only after sheet is settled (800ms safety window)
+        if (foodMap && !foodMap._eatThisClickBound) {
+          foodMap._eatThisClickBound = true;
+          setTimeout(() => {
+            foodMap.on('click', () => {
+              if (_sheetState === 'mid' || _sheetState === 'expanded') {
+                _snapSheet('peek');
+              }
+            });
+          }, 800);
+        }
+      }));
     }
 
     function hideSpotDetail() {

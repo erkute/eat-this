@@ -65,6 +65,12 @@ const TRANSLATIONS = {
       filterAll: 'All',
       myLocationAriaLabel: 'My location',
       errorMapLoad: 'Could not load map',
+      locationDenied: 'Location access denied',
+      locationUnavailable: 'Location unavailable',
+      locationTimeout: 'Location timeout',
+      locationError: 'Could not get location',
+      nearby: 'Nearby',
+      nearbyMore: 'Swipe for more',
     },
     footer: {
       start: 'Start',

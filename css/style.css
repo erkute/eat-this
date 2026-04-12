@@ -619,6 +619,31 @@ body {
   justify-content: space-between;
 }
 
+.map-nearby-more {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #ccc;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.map-nearby-more.visible {
+  opacity: 1;
+}
+
+/* Fade-out on the right to hint at more content */
+.map-nearby-grid-wrap {
+  position: relative;
+}
+.map-nearby-grid-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 40px; height: 100%;
+  background: linear-gradient(to right, transparent, #fff);
+  pointer-events: none;
+}
+
 .map-nearby-swipe-hint {
   font-size: 13px;
   font-weight: 300;

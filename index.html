@@ -1,854 +1,1349 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#000000">
-  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  
-  <title>EAT THIS — Probably the best food guide you know - We tell you what to eat</title>
-  <meta name="description" content="Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must-Eats on the interactive map &amp; hunt down the best dishes in the city. Taste it all!">
-  <meta name="author" content="EAT THIS">
-  <link rel="canonical" href="https://www.eatthisdot.com">
-  
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="EAT THIS">
-  <meta property="og:title" content="EAT THIS — Probably the best food guide you know - We tell you what to eat">
-  <meta property="og:description" content="Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must-Eats on the interactive map &amp; hunt down the best dishes in the city. Taste it all!">
-  <meta property="og:url" content="https://www.eatthisdot.com">
-  <meta property="og:image" content="https://www.eatthisdot.com/pics/table.jpg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="1200">
-  <meta property="og:image:alt" content="EAT THIS — Berlin Food Guide">
-  <meta property="og:locale" content="de_DE">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:site" content="@eatthisdotcom">
-  <meta name="twitter:title" content="EAT THIS — Probably the best food guide you know - We tell you what to eat">
-  <meta name="twitter:description" content="Just Order This: Your curated Berlin food guide. Collect all Eat Cards &amp; discover Must-Eats on the interactive map. Taste it all!">
-  <meta name="twitter:image" content="https://www.eatthisdot.com/pics/table.jpg">
-  
-  <link rel="sitemap" type="application/xml" title="XML Sitemap" href="sitemap.xml">
-  
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
+    <title>EAT THIS — Probably the best food guide you know - We tell you what to eat</title>
+    <meta
+      name="description"
+      content="Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must-Eats on the interactive map &amp; hunt down the best dishes in the city. Taste it all!"
+    />
+    <meta name="author" content="EAT THIS" />
+    <link rel="canonical" href="https://www.eatthisdot.com" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="EAT THIS" />
+    <meta
+      property="og:title"
+      content="EAT THIS — Probably the best food guide you know - We tell you what to eat"
+    />
+    <meta
+      property="og:description"
+      content="Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must-Eats on the interactive map &amp; hunt down the best dishes in the city. Taste it all!"
+    />
+    <meta property="og:url" content="https://www.eatthisdot.com" />
+    <meta property="og:image" content="https://www.eatthisdot.com/pics/table.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="1200" />
+    <meta property="og:image:alt" content="EAT THIS — Berlin Food Guide" />
+    <meta property="og:locale" content="de_DE" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@eatthisdotcom" />
+    <meta
+      name="twitter:title"
+      content="EAT THIS — Probably the best food guide you know - We tell you what to eat"
+    />
+    <meta
+      name="twitter:description"
+      content="Just Order This: Your curated Berlin food guide. Collect all Eat Cards &amp; discover Must-Eats on the interactive map. Taste it all!"
+    />
+    <meta name="twitter:image" content="https://www.eatthisdot.com/pics/table.jpg" />
+
+    <link rel="sitemap" type="application/xml" title="XML Sitemap" href="sitemap.xml" />
+
+    <script type="application/ld+json">
       {
-        "@type": "Organization",
-        "@id": "https://www.eatthisdot.com/#organization",
-        "name": "EAT THIS",
-        "url": "https://www.eatthisdot.com",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://www.eatthisdot.com/pics/eat.png",
-          "width": 1055,
-          "height": 1024
-        },
-        "description": "EAT THIS ist Berlins kuratierter Food Guide: Eat Cards, Must-Eats & interaktive Berlin Food Map. Entdecke die besten Gerichte der Stadt. Gegründet in Berlin.",
-        "sameAs": [
-          "https://www.instagram.com/eatthisdotcom/",
-          "https://twitter.com/eatthisdotcom"
-        ],
-        "contactPoint": {
-          "@type": "ContactPoint",
-          "email": "hello@eatthisdot.com",
-          "contactType": "customer service"
-        }
-      },
-      {
-        "@type": "WebSite",
-        "@id": "https://www.eatthisdot.com/#website",
-        "url": "https://www.eatthisdot.com",
-        "name": "EAT THIS — Probably the best food guide you know",
-        "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
-        "description": "Berlins kuratierter Food Guide: Eat Cards, Must-Eats & interaktive Berlin Food Map.",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": {
-            "@type": "EntryPoint",
-            "urlTemplate": "https://www.eatthisdot.com/search?q={search_term_string}"
-          },
-          "query-input": "required name=search_term_string"
-        }
-      },
-      {
-        "@type": "WebPage",
-        "@id": "https://www.eatthisdot.com/#webpage",
-        "url": "https://www.eatthisdot.com",
-        "name": "EAT THIS — Probably the best food guide you know - We tell you what to eat",
-        "description": "Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must-Eats on the interactive map & hunt down the best dishes in the city. Taste it all!",
-        "primaryImageOfPage": {
-          "@type": "ImageObject",
-          "url": "https://www.eatthisdot.com/pics/table.jpg",
-          "width": 1200,
-          "height": 1200
-        },
-        "isPartOf": { "@id": "https://www.eatthisdot.com/#website" },
-        "about": { "@id": "https://www.eatthisdot.com/#organization" },
-        "mainEntity": { "@id": "https://www.eatthisdot.com/#organization" }
-      },
-      {
-        "@type": "BreadcrumbList",
-        "itemListElement": [
+        "@context": "https://schema.org",
+        "@graph": [
           {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "https://www.eatthisdot.com"
+            "@type": "Organization",
+            "@id": "https://www.eatthisdot.com/#organization",
+            "name": "EAT THIS",
+            "url": "https://www.eatthisdot.com",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://www.eatthisdot.com/pics/logo.png",
+              "width": 1055,
+              "height": 1024
+            },
+            "description": "Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must-Eats on the interactive map &amp; hunt down the best dishes in the city. Taste it all!",
+            "sameAs": [
+              "https://www.instagram.com/eatthisdotcom/",
+              "https://twitter.com/eatthisdotcom"
+            ],
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "email": "hello@eatthisdot.com",
+              "contactType": "customer service"
+            }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://www.eatthisdot.com/#website",
+            "url": "https://www.eatthisdot.com",
+            "name": "EAT THIS — Probably the best food guide you know",
+            "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
+            "description": "Berlins kuratierter Food Guide: Eat Cards, Must-Eats & interaktive Berlin Food Map.",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://www.eatthisdot.com/search?q={search_term_string}"
+              },
+              "query-input": "required name=search_term_string"
+            }
+          },
+          {
+            "@type": "WebPage",
+            "@id": "https://www.eatthisdot.com/#webpage",
+            "url": "https://www.eatthisdot.com",
+            "name": "EAT THIS — Probably the best food guide you know - We tell you what to eat",
+            "description": "Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must-Eats on the interactive map & hunt down the best dishes in the city. Taste it all!",
+            "primaryImageOfPage": {
+              "@type": "ImageObject",
+              "url": "https://www.eatthisdot.com/pics/table.jpg",
+              "width": 1200,
+              "height": 1200
+            },
+            "isPartOf": { "@id": "https://www.eatthisdot.com/#website" },
+            "about": { "@id": "https://www.eatthisdot.com/#organization" },
+            "mainEntity": { "@id": "https://www.eatthisdot.com/#organization" }
+          },
+          {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://www.eatthisdot.com"
+              }
+            ]
+          },
+          {
+            "@type": "Blog",
+            "name": "EAT THIS Food News",
+            "description": "Aktuelle Food News aus Berlin",
+            "url": "https://www.eatthisdot.com/#news",
+            "publisher": { "@id": "https://www.eatthisdot.com/#organization" }
+          },
+          {
+            "@type": "BlogPosting",
+            "headline": "Berlins neue Ramen-Welle: Warum die Hauptstadt jetzt das ultimative Nudel-Haus hat",
+            "description": "Drei neue Ramen-Läden haben in den letzten Wochen ihre Türen geöffnet — und alle setzen auf handgezogene Nudeln und 18-stündige Brühen.",
+            "image": "https://cdn.sanity.io/images/ehwjnjr2/production/4a093270fafe206bf962d550d5195f5ae454857c-800x533.webp",
+            "datePublished": "2026-03-15",
+            "dateModified": "2026-03-15",
+            "author": { "@id": "https://www.eatthisdot.com/#organization" },
+            "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": "https://www.eatthisdot.com/#article/ramen-berlin"
+            },
+            "inLanguage": "de-DE"
+          },
+          {
+            "@type": "BlogPosting",
+            "headline": "Markthalle Neun bekommt einen neuen Street-Food-Floor",
+            "description": "Die beliebte Markthalle in Kreuzberg erweitert: Im zweiten Stock entsteht ein komplett neuer Bereich für internationale Street Food-Händler.",
+            "image": "https://cdn.sanity.io/images/ehwjnjr2/production/4dd41f1c2a6c56c5d5b199af627835df71a3d890-800x533.webp",
+            "datePublished": "2026-03-14",
+            "dateModified": "2026-03-14",
+            "author": { "@id": "https://www.eatthisdot.com/#organization" },
+            "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": "https://www.eatthisdot.com/#article/markthalle9"
+            },
+            "inLanguage": "de-DE"
+          },
+          {
+            "@type": "BlogPosting",
+            "headline": "Berlin hat jetzt 8 Michelin-Sterne-Restaurants — und keines kostet über 150€",
+            "description": "Die neue Michelin-Guide-Ausgabe ehrt Berlins demokratische Fine-Dining-Szene.",
+            "image": "https://cdn.sanity.io/images/ehwjnjr2/production/27f528f46cd70ba6d129f3928d99dad7f2f01760-1919x1079.webp",
+            "datePublished": "2026-03-13",
+            "dateModified": "2026-03-13",
+            "author": { "@id": "https://www.eatthisdot.com/#organization" },
+            "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": "https://www.eatthisdot.com/#article/michelin-berlin"
+            },
+            "inLanguage": "de-DE"
+          },
+          {
+            "@type": "BlogPosting",
+            "headline": "Die 10 besten Donut-Shops in Berlin — von Brooklyn bis Thai-Style",
+            "description": "Berlin ist zur Donut-Hauptstadt Europas geworden. Wir haben 20 Shops probiert und die besten zehn ausgewählt.",
+            "image": "https://cdn.sanity.io/images/ehwjnjr2/production/3618e7e5f686d662205f9744403afe4ae09ce419-800x600.webp",
+            "datePublished": "2026-03-12",
+            "dateModified": "2026-03-12",
+            "author": { "@id": "https://www.eatthisdot.com/#organization" },
+            "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": "https://www.eatthisdot.com/#article/donuts-berlin"
+            },
+            "inLanguage": "de-DE"
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Was ist EAT THIS?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "EAT THIS ist ein kuratierter Food Guide für Berlin. Wir empfehlen nicht 50 mittelmäßige Restaurants, sondern das eine Gericht, das du an jedem Ort unbedingt probieren musst."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Wie wählt ihr die Restaurants aus?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Wir testen jedes Gericht persönlich. Wir sprechen mit Köchen, Besitzern und Stammgästen. Keine bezahlten Platzierungen, keine gesponserten Inhalte."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Ist EAT THIS kostenlos?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Ja, alle Empfehlungen auf www.eatthisdot.com sind komplett kostenlos. Wir finanzieren uns durch ausgewählte Partnerschaften mit Restaurants, die transparent gekennzeichnet sind."
+                }
+              }
+            ]
+          },
+          {
+            "@type": "LocalBusiness",
+            "@id": "https://www.eatthisdot.com/#localbusiness",
+            "name": "EAT THIS",
+            "description": "Dein kuratierter Guide für die besten Gerichte in Berlin.",
+            "url": "https://www.eatthisdot.com",
+            "image": "https://www.eatthisdot.com/pics/logo.webp",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Berlin",
+              "addressRegion": "Berlin",
+              "postalCode": "10115",
+              "addressCountry": "DE"
+            },
+            "areaServed": {
+              "@type": "City",
+              "name": "Berlin"
+            },
+            "sameAs": ["https://www.instagram.com/eatthisdotcom/"]
           }
-        ]
-      },
-      {
-        "@type": "Blog",
-        "name": "EAT THIS Food News",
-        "description": "Aktuelle Food News aus Berlin",
-        "url": "https://www.eatthisdot.com/#news",
-        "publisher": { "@id": "https://www.eatthisdot.com/#organization" }
-      },
-      {
-        "@type": "BlogPosting",
-        "headline": "Berlins neue Ramen-Welle: Warum die Hauptstadt jetzt das ultimative Nudel-Haus hat",
-        "description": "Drei neue Ramen-Läden haben in den letzten Wochen ihre Türen geöffnet — und alle setzen auf handgezogene Nudeln und 18-stündige Brühen.",
-        "image": "https://cdn.sanity.io/images/ehwjnjr2/production/4a093270fafe206bf962d550d5195f5ae454857c-800x533.webp",
-        "datePublished": "2026-03-15",
-        "dateModified": "2026-03-15",
-        "author": { "@id": "https://www.eatthisdot.com/#organization" },
-        "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
-        "mainEntityOfPage": {
-          "@type": "WebPage",
-          "@id": "https://www.eatthisdot.com/#article/ramen-berlin"
-        },
-        "inLanguage": "de-DE"
-      },
-      {
-        "@type": "BlogPosting",
-        "headline": "Markthalle Neun bekommt einen neuen Street-Food-Floor",
-        "description": "Die beliebte Markthalle in Kreuzberg erweitert: Im zweiten Stock entsteht ein komplett neuer Bereich für internationale Street Food-Händler.",
-        "image": "https://cdn.sanity.io/images/ehwjnjr2/production/4dd41f1c2a6c56c5d5b199af627835df71a3d890-800x533.webp",
-        "datePublished": "2026-03-14",
-        "dateModified": "2026-03-14",
-        "author": { "@id": "https://www.eatthisdot.com/#organization" },
-        "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
-        "mainEntityOfPage": {
-          "@type": "WebPage",
-          "@id": "https://www.eatthisdot.com/#article/markthalle9"
-        },
-        "inLanguage": "de-DE"
-      },
-      {
-        "@type": "BlogPosting",
-        "headline": "Berlin hat jetzt 8 Michelin-Sterne-Restaurants — und keines kostet über 150€",
-        "description": "Die neue Michelin-Guide-Ausgabe ehrt Berlins demokratische Fine-Dining-Szene.",
-        "image": "https://cdn.sanity.io/images/ehwjnjr2/production/27f528f46cd70ba6d129f3928d99dad7f2f01760-1919x1079.webp",
-        "datePublished": "2026-03-13",
-        "dateModified": "2026-03-13",
-        "author": { "@id": "https://www.eatthisdot.com/#organization" },
-        "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
-        "mainEntityOfPage": {
-          "@type": "WebPage",
-          "@id": "https://www.eatthisdot.com/#article/michelin-berlin"
-        },
-        "inLanguage": "de-DE"
-      },
-      {
-        "@type": "BlogPosting",
-        "headline": "Die 10 besten Donut-Shops in Berlin — von Brooklyn bis Thai-Style",
-        "description": "Berlin ist zur Donut-Hauptstadt Europas geworden. Wir haben 20 Shops probiert und die besten zehn ausgewählt.",
-        "image": "https://cdn.sanity.io/images/ehwjnjr2/production/3618e7e5f686d662205f9744403afe4ae09ce419-800x600.webp",
-        "datePublished": "2026-03-12",
-        "dateModified": "2026-03-12",
-        "author": { "@id": "https://www.eatthisdot.com/#organization" },
-        "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
-        "mainEntityOfPage": {
-          "@type": "WebPage",
-          "@id": "https://www.eatthisdot.com/#article/donuts-berlin"
-        },
-        "inLanguage": "de-DE"
-      },
-      {
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "Was ist EAT THIS?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "EAT THIS ist ein kuratierter Food Guide für Berlin. Wir empfehlen nicht 50 mittelmäßige Restaurants, sondern das eine Gericht, das du an jedem Ort unbedingt probieren musst."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Wie wählt ihr die Restaurants aus?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Wir testen jedes Gericht persönlich. Wir sprechen mit Köchen, Besitzern und Stammgästen. Keine bezahlten Platzierungen, keine gesponserten Inhalte."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Ist EAT THIS kostenlos?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Ja, alle Empfehlungen auf www.eatthisdot.com sind komplett kostenlos. Wir finanzieren uns durch ausgewählte Partnerschaften mit Restaurants, die transparent gekennzeichnet sind."
-            }
-          }
-        ]
-      },
-      {
-        "@type": "LocalBusiness",
-        "@id": "https://www.eatthisdot.com/#localbusiness",
-        "name": "EAT THIS",
-        "description": "Dein kuratierter Guide für die besten Gerichte in Berlin.",
-        "url": "https://www.eatthisdot.com",
-        "image": "https://www.eatthisdot.com/pics/logo.webp",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Berlin",
-          "addressRegion": "Berlin",
-          "postalCode": "10115",
-          "addressCountry": "DE"
-        },
-        "areaServed": {
-          "@type": "City",
-          "name": "Berlin"
-        },
-        "sameAs": [
-          "https://www.instagram.com/eatthisdotcom/"
         ]
       }
-    ]
-  }
-  </script>
-  
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="icon" type="image/png" sizes="192x192" href="pics/favicon-192.png">
-  <link rel="apple-touch-icon" sizes="192x192" href="pics/favicon-192.png">
-  <link rel="manifest" href="manifest.json">
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700;900&family=Oswald:wght@700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700;900&family=Oswald:wght@700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"></noscript>
-  <link rel="stylesheet" href="css/leaflet.css" />
-  <link rel="stylesheet" href="css/style.css">
+    </script>
 
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-8EWFYGPNTT"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-8EWFYGPNTT');
-</script>
-</head>
-<body>
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="icon" type="image/png" sizes="192x192" href="pics/favicon-192.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="pics/favicon-192.png" />
+    <link rel="manifest" href="manifest.json" />
 
-  <!-- NAVBAR -->
-  <nav class="navbar" id="navbar">
-    <a href="#" class="navbar-brand" data-page="start">
-      <img src="pics/eat.png" alt="EAT THIS" class="brand-logo" width="36" height="36" decoding="async">
-    </a>
-    <div class="navbar-actions">
-      <div class="lang-switcher" id="langSwitcher">
-        <button class="lang-btn active" data-lang="en">EN</button>
-        <button class="lang-btn" data-lang="de">DE</button>
-      </div>
-      <button class="search-trigger" id="searchTrigger" aria-label="Search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-      </button>
-      <a href="https://www.instagram.com/eatthisdotcom/" target="_blank" rel="noopener" aria-label="Instagram" class="navbar-insta">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700;900&family=Oswald:wght@700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <noscript
+      ><link
+        href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700;900&family=Oswald:wght@700&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet"
+    /></noscript>
+    <link rel="stylesheet" href="css/leaflet.css" />
+    <link rel="stylesheet" href="css/style.css" />
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8EWFYGPNTT"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'G-8EWFYGPNTT');
+    </script>
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar">
+      <a href="#" class="navbar-brand" data-page="start">
+        <img
+          src="pics/eat.png"
+          alt="EAT THIS"
+          class="brand-logo"
+          width="36"
+          height="36"
+          decoding="async"
+        />
       </a>
-      <button class="burger-btn" id="burgerBtn" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </nav>
-
-  <!-- APP PAGES CONTAINER -->
-  <div class="app-pages" id="appPages">
-    
-    <div class="app-page active" data-page="start">
-      <header class="hero hero-slider">
-        <div class="hero-slides">
-          <div class="hero-slide active" style="background-image: url('pics/Hero/05e18532829d1d4f30ff9d70bd9b4cd8.webp')"></div>
-          <div class="hero-slide" data-src="pics/Hero/0af3f3c51111b7a925e1455f084ab6c7.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/0b98ca87a7942a765b9d885142a8ab13.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/13dbb25dc4e8fbd1584701d05859588a.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/154ba6462942d2cab095af671fbcd40e.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/29d7aa54d8ffcf0dcc1426984185b5a2.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/2c39cfefea60c548195903dab89d1cde.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/2f45b3358f0948ed01acfef053d910bb.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/3a2cb084d9456a420793635c6f2ad35e.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/3c177a8934963944fb51890a8cf4f21a.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/3ffdbd4f8c48f4295ab10c871ed0099d.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/455d85f75016ebc3feb0306b693187ce.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/4d73fc254a2a746143840c9cc7c52c70.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/5647d8f5b41bef51e275a076a86c751c.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/57b7635862db7cca0b87fe0d432be140.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/5bf402a504aa95d0e48a03ce16206b14.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/5fb05385b8fcc33f736eb2af73370917.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/66fd51afb0db2321ffe109907b030f68.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/6b2203db8c7fc64698e320645c979c03.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/6b3f1261cb0ca1859e703dec6b8f7ca3.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/6cda34b02b6ed081e78a95acc0a5d73e.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/7065458924baf987fd69437a4b133e49.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/751f9b026aeaed5d9f67042ca0b36e8e.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/7b9648e22f4e559f7fb15deb5c173d72.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/7e5d7acfb5b891659ab849208254ffab.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/84fe9c9ae2f22b11d5e3a23aeee712b7.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/878fbe9dc54a8378f106ece3dffca0e8.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/890f91203de5deeeeb21246562c93002.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/898e8fabc76d845f2a35396c1f3ba5ca.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/9bcf7ab7b0bd4e44ad04141f0ab3f9d4.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/a0ca7afe113ab3af8f1c1674aec49020.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/ab035e836e38d9f41c87941c9e51d915.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/ab4521ba6203f123ea16fc593f2ac89d.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/b22f7d8cf07046f1e733ca6451346c8a.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/bf6cac97c16846adeff01e64ea7eb196.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/c094f937b9ccdf85615b86f78d993ae0.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/c31a6ea2a387eaacf08e5f88c1c86871.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/c5b2c8aa94d97002dc44382fda1e0c41.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/ce70c88f507cb747c9ab7e4374db5ba2.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/e1551ee1c830b7b4ab02d23ed0496efd.webp"></div>
-          <div class="hero-slide" data-src="pics/Hero/fbcc4533fa400b0b55c0d621a158e3a1.webp"></div>
+      <div class="navbar-actions">
+        <div class="lang-switcher" id="langSwitcher">
+          <button class="lang-btn active" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="de">DE</button>
         </div>
-        <div class="hero-overlay"></div>
+        <button class="search-trigger" id="searchTrigger" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </button>
+        <a
+          href="https://www.instagram.com/eatthisdotcom/"
+          target="_blank"
+          rel="noopener"
+          aria-label="Instagram"
+          class="navbar-insta"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="2" y="2" width="20" height="20" rx="5" />
+            <circle cx="12" cy="12" r="5" />
+            <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none" />
+          </svg>
+        </a>
+        <button class="burger-btn" id="burgerBtn" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- APP PAGES CONTAINER -->
+    <div class="app-pages" id="appPages">
+      <div class="app-page active" data-page="start">
+        <header class="hero hero-slider">
+          <div class="hero-slides">
+            <div
+              class="hero-slide active"
+              style="background-image: url('pics/Hero/05e18532829d1d4f30ff9d70bd9b4cd8.webp')"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/0af3f3c51111b7a925e1455f084ab6c7.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/0b98ca87a7942a765b9d885142a8ab13.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/13dbb25dc4e8fbd1584701d05859588a.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/154ba6462942d2cab095af671fbcd40e.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/29d7aa54d8ffcf0dcc1426984185b5a2.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/2c39cfefea60c548195903dab89d1cde.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/2f45b3358f0948ed01acfef053d910bb.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/3a2cb084d9456a420793635c6f2ad35e.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/3c177a8934963944fb51890a8cf4f21a.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/3ffdbd4f8c48f4295ab10c871ed0099d.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/455d85f75016ebc3feb0306b693187ce.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/4d73fc254a2a746143840c9cc7c52c70.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/5647d8f5b41bef51e275a076a86c751c.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/57b7635862db7cca0b87fe0d432be140.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/5bf402a504aa95d0e48a03ce16206b14.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/5fb05385b8fcc33f736eb2af73370917.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/66fd51afb0db2321ffe109907b030f68.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/6b2203db8c7fc64698e320645c979c03.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/6b3f1261cb0ca1859e703dec6b8f7ca3.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/6cda34b02b6ed081e78a95acc0a5d73e.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/7065458924baf987fd69437a4b133e49.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/751f9b026aeaed5d9f67042ca0b36e8e.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/7b9648e22f4e559f7fb15deb5c173d72.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/7e5d7acfb5b891659ab849208254ffab.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/84fe9c9ae2f22b11d5e3a23aeee712b7.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/878fbe9dc54a8378f106ece3dffca0e8.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/890f91203de5deeeeb21246562c93002.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/898e8fabc76d845f2a35396c1f3ba5ca.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/9bcf7ab7b0bd4e44ad04141f0ab3f9d4.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/a0ca7afe113ab3af8f1c1674aec49020.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/ab035e836e38d9f41c87941c9e51d915.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/ab4521ba6203f123ea16fc593f2ac89d.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/b22f7d8cf07046f1e733ca6451346c8a.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/bf6cac97c16846adeff01e64ea7eb196.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/c094f937b9ccdf85615b86f78d993ae0.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/c31a6ea2a387eaacf08e5f88c1c86871.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/c5b2c8aa94d97002dc44382fda1e0c41.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/ce70c88f507cb747c9ab7e4374db5ba2.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/e1551ee1c830b7b4ab02d23ed0496efd.webp"
+            ></div>
+            <div
+              class="hero-slide"
+              data-src="pics/Hero/fbcc4533fa400b0b55c0d621a158e3a1.webp"
+            ></div>
+          </div>
+          <div class="hero-overlay"></div>
           <div class="hero-content">
-          <img src="pics/logo.webp" alt="EAT THIS" class="hero-logo" width="280" height="80" decoding="async" sizes="(max-width: 767px) 60vw, 280px">
-          <h1 class="hero-tagline" data-i18n="hero.tagline">We tell you what to eat</h1>
-          <button class="hero-register-btn" onclick="openLoginModal()">
-            <span data-i18n="hero.cta">Create account</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-        <div class="hero-scroll-hint">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-      </header>
-
-      <!-- SCROLL SECTIONS -->
-      <div class="start-scroll-content">
-
-        <!-- Scroll hint (mobile only) -->
-        <div class="start-scroll-hint">
-          <div class="start-scroll-hint-line"></div>
-          <div class="start-scroll-hint-text">Scroll</div>
-        </div>
-
-        <!-- 1. Intro -->
-    <div class="start-section">
-  <div class="start-editorial-row">
-    <div class="start-editorial-text">
-      <span class="start-section-label" data-i18n="start.section1Label">Eat This</span>
-      <h2 class="start-section-title" data-i18n="start.section1Title">Probably the best food guide you know.</h2>
-      <p class="start-section-body" data-i18n="start.section1Body">The most curated selection of Must-Eats in Berlin. Discover the city via our interactive map and start building your deck.</p>
-    </div>
-    <img src="pics/about/0477e049b54b21c5fb7ea43d5a97ac2b.webp" alt="Eat This Berlin" class="start-img tall" loading="lazy">
-  </div>
-</div>
-
-<div class="start-section start-section--alt">
-  <div class="start-editorial-row start-editorial-row--reverse">
-    <div class="start-editorial-text">
-      <span class="start-section-label" data-i18n="start.section2Label">The Concept</span>
-      <h2 class="start-section-title" data-i18n="start.section2Title">Just order this.</h2>
-      <div class="start-section-body">
-        <p data-i18n="start.section2Body1">We hunt down the outstanding dishes. Every Must-Eat Card in your collection represents a recommendation we stand behind—from single iconic plates to entire "Menu Approved" spots.</p>
-        <p data-i18n="start.section2Body2">Register to unlock your first Booster Pack including 10 free Must-Eat Cards. Collect them all, explore the map, and master the Berlin food scene.</p>
-      </div>
-    </div>
-    <img src="pics/about/2a5614a1b1dbbcb45d32b02206a80f7c.webp" alt="Must-Eat Cards" class="start-img tall" loading="lazy">
-  </div>
-</div>
-
-<div class="start-section">
-  <span class="start-section-label" data-i18n="start.section4Label">Our Standards</span>
-  <img src="pics/about/4efa8f0aee650ef411786278bc822d26.webp" alt="Curation" class="start-img wide" loading="lazy">
-  <div class="start-philo-list">
-    <div class="start-philo-item">
-      <div class="start-philo-num">01</div>
-      <div>
-        <div class="start-philo-title" data-i18n="start.philo1Title">Pure Curation.</div>
-        <div class="start-philo-text" data-i18n="start.philo1Text">One rule: only the best food. We visit, we taste, we select. If it's not outstanding, it doesn't get a card.</div>
-      </div>
-    </div>
-    <div class="start-philo-item">
-      <div class="start-philo-num">02</div>
-      <div>
-        <div class="start-philo-title" data-i18n="start.philo2Title">The Deck.</div>
-        <div class="start-philo-text" data-i18n="start.philo2Text">Hundreds of Must-Eats to discover. Build your personal archive of the city's finest restaurants and cafés.</div>
-      </div>
-    </div>
-    <div class="start-philo-item">
-      <div class="start-philo-num">03</div>
-      <div>
-        <div class="start-philo-title" data-i18n="start.philo3Title">Always Independent.</div>
-        <div class="start-philo-text" data-i18n="start.philo3Text">No paid placements. We tell you what to eat based on quality, nothing else.</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="start-section start-section--alt">
-  <span class="start-section-label" data-i18n="start.section6Label">What's next</span>
-  <h2 class="start-section-title" data-i18n="start.section6Title">Berlin is just<br>the first deck.</h2>
-  <p class="start-section-body" data-i18n="start.section6Body1">We are expanding city by city. More decks, more Must-Eats, and exclusive Merch coming soon.</p>
-  <p class="start-cities" data-i18n="start.section6Cities">Istanbul, Amsterdam, Paris — we’re on it.</p>
-</div>
-
-      </div>
-      <!-- END SCROLL SECTIONS -->
-    </div>
-
-    <div class="app-page" data-page="musts">
-      <section class="must-eats-section" id="must-eats">
-        <div class="must-eats-header">
-          <p class="section-label reveal" data-i18n="musts.sectionLabel">Berlin</p>
-          <img src="pics/logo2.webp" alt="EAT THIS" class="must-eats-logo-img" loading="lazy" decoding="async">
-          <p class="must-eats-subtitle reveal" style="transition-delay:0.2s" data-i18n="musts.subtitle">The dishes you can't leave Berlin without trying.</p>
-        </div>
-    <div class="must-eats-grid reveal-stagger" id="mustEatsGrid">
-      <!-- populated by js/cms.js -->
-    </div>
-  </section>
-    </div>
-
-    <div class="app-page" data-page="news">
-      <section class="news-section" id="news">
-        <div class="news-header">
-          <div class="news-header-top">
-              <p class="section-label reveal" data-i18n="news.sectionLabel">Berlin</p>
-              <h2 class="news-title reveal" style="transition-delay:0.1s" data-i18n="news.sectionTitle">Food News</h2>
-          </div>
-        </div>
-
-    <!-- News Grid -->
-    <div class="news-grid reveal-stagger">
-      <!-- populated by js/i18n.js -->
-    </div>
-  </section>
-
-    </div><!-- /.app-page[news] -->
-
-    <div class="app-page" data-page="map">
-      <section class="map-section" id="map">
-        <div class="map-header">
-          <div class="map-header-top">
-            <p class="section-label" data-i18n="map.sectionLabel">Find</p>
-            <h2 class="map-title" data-i18n="map.sectionTitle">Eat Around</h2>
-          </div>
-          <div class="map-filter-tabs" id="mapFilterTabs" role="tablist">
-            <button class="map-filter-tab active" data-filter="all" role="tab">
-              <span data-i18n="map.filterAll">All</span><span class="map-filter-tab-count" id="count-all"></span>
-            </button>
-            <button class="map-filter-tab" data-filter="Dinner" role="tab">
-              <span>Dinner</span><span class="map-filter-tab-count" id="count-dinner"></span>
-            </button>
-            <button class="map-filter-tab" data-filter="Lunch" role="tab">
-              <span>Lunch</span><span class="map-filter-tab-count" id="count-lunch"></span>
-            </button>
-            <button class="map-filter-tab" data-filter="Coffee" role="tab">
-              <span>Coffee</span><span class="map-filter-tab-count" id="count-coffee"></span>
-            </button>
-            <button class="map-filter-tab" data-filter="Breakfast" role="tab">
-              <span>Breakfast</span><span class="map-filter-tab-count" id="count-breakfast"></span>
-            </button>
-            <button class="map-filter-tab" data-filter="Sweets" role="tab">
-              <span>Sweets</span><span class="map-filter-tab-count" id="count-sweets"></span>
-            </button>
-            <button class="map-filter-tab" data-filter="Pizza" role="tab">
-              <span>Pizza</span><span class="map-filter-tab-count" id="count-pizza"></span>
-            </button>
-          </div>
-        </div>
-        <div class="map-container" id="foodMap">
-          <button class="map-location-btn-fixed" id="mapLocationBtnFixed" aria-label="My location" data-i18n-aria="map.myLocationAriaLabel">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <circle cx="12" cy="12" r="4"/>
-              <line x1="12" y1="2" x2="12" y2="6"/>
-              <line x1="12" y1="18" x2="12" y2="22"/>
-              <line x1="2" y1="12" x2="6" y2="12"/>
-              <line x1="18" y1="12" x2="22" y2="12"/>
-            </svg>
-          </button>
-        </div>
-        <div class="map-zoom-btns">
-          <button class="map-zoom-btn" id="mapZoomIn" aria-label="Zoom in">+</button>
-          <button class="map-zoom-btn" id="mapZoomOut" aria-label="Zoom out">−</button>
-        </div>
-        <div class="map-nearby" id="mapNearby">
-          <div class="map-nearby-handle" id="mapNearbyHandle">
-            <div class="map-nearby-handle-bar"></div>
-          </div>
-          <div class="map-nearby-label">
-            <span id="mapNearbyTitle">In deiner Nähe</span>
-            <span class="map-nearby-more" id="mapNearbyMore">Swipe for more</span>
-          </div>
-          <div class="map-nearby-grid" id="mapNearbyGrid"></div>
-        </div>
-        <div class="map-spot-overlay" id="mapSpotOverlay">
-          <div class="map-spot-card" id="mapSpotCard">
-            <button class="map-spot-close" id="mapSpotClose" aria-label="Close">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            <img
+              src="pics/logo.webp"
+              alt="EAT THIS"
+              class="hero-logo"
+              width="280"
+              height="80"
+              decoding="async"
+              sizes="(max-width: 767px) 60vw, 280px"
+            />
+            <h1 class="hero-tagline" data-i18n="hero.tagline">We tell you what to eat</h1>
+            <button class="hero-register-btn" onclick="openLoginModal()">
+              <span data-i18n="hero.cta">Create account</span>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
               </svg>
             </button>
-            <div class="map-spot-content" id="mapSpotContent"></div>
+          </div>
+          <div class="hero-scroll-hint">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
+        </header>
+
+        <!-- SCROLL SECTIONS -->
+        <div class="start-scroll-content">
+          <!-- Scroll hint (mobile only) -->
+          <div class="start-scroll-hint">
+            <div class="start-scroll-hint-line"></div>
+            <div class="start-scroll-hint-text">Scroll</div>
+          </div>
+
+          <!-- 1. Intro -->
+          <div class="start-section">
+            <div class="start-editorial-row">
+              <div class="start-editorial-text">
+                <span class="start-section-label" data-i18n="start.section1Label">Eat This</span>
+                <h2 class="start-section-title" data-i18n="start.section1Title">
+                  Probably the best food guide you know.
+                </h2>
+                <p class="start-section-body" data-i18n="start.section1Body">
+                  The most curated selection of Must-Eats in Berlin. Discover the city via our
+                  interactive map and start building your deck.
+                </p>
+              </div>
+              <img
+                src="pics/about/0477e049b54b21c5fb7ea43d5a97ac2b.webp"
+                alt="Eat This Berlin"
+                class="start-img tall"
+                loading="lazy"
+              />
+            </div>
+          </div>
+
+          <div class="start-section start-section--alt">
+            <div class="start-editorial-row start-editorial-row--reverse">
+              <div class="start-editorial-text">
+                <span class="start-section-label" data-i18n="start.section2Label">The Concept</span>
+                <h2 class="start-section-title" data-i18n="start.section2Title">
+                  Just order this.
+                </h2>
+                <div class="start-section-body">
+                  <p data-i18n="start.section2Body1">
+                    We hunt down the outstanding dishes. Every Must-Eat Card in your collection
+                    represents a recommendation we stand behind—from single iconic plates to entire
+                    "Menu Approved" spots.
+                  </p>
+                  <p data-i18n="start.section2Body2">
+                    Register to unlock your first Booster Pack including 10 free Must-Eat Cards.
+                    Collect them all, explore the map, and master the Berlin food scene.
+                  </p>
+                </div>
+              </div>
+              <img
+                src="pics/about/2a5614a1b1dbbcb45d32b02206a80f7c.webp"
+                alt="Must-Eat Cards"
+                class="start-img tall"
+                loading="lazy"
+              />
+            </div>
+          </div>
+
+          <div class="start-section">
+            <span class="start-section-label" data-i18n="start.section4Label">Our Standards</span>
+            <img
+              src="pics/about/4efa8f0aee650ef411786278bc822d26.webp"
+              alt="Curation"
+              class="start-img wide"
+              loading="lazy"
+            />
+            <div class="start-philo-list">
+              <div class="start-philo-item">
+                <div class="start-philo-num">01</div>
+                <div>
+                  <div class="start-philo-title" data-i18n="start.philo1Title">Pure Curation.</div>
+                  <div class="start-philo-text" data-i18n="start.philo1Text">
+                    One rule: only the best food. We visit, we taste, we select. If it's not
+                    outstanding, it doesn't get a card.
+                  </div>
+                </div>
+              </div>
+              <div class="start-philo-item">
+                <div class="start-philo-num">02</div>
+                <div>
+                  <div class="start-philo-title" data-i18n="start.philo2Title">The Deck.</div>
+                  <div class="start-philo-text" data-i18n="start.philo2Text">
+                    Hundreds of Must-Eats to discover. Build your personal archive of the city's
+                    finest restaurants and cafés.
+                  </div>
+                </div>
+              </div>
+              <div class="start-philo-item">
+                <div class="start-philo-num">03</div>
+                <div>
+                  <div class="start-philo-title" data-i18n="start.philo3Title">
+                    Always Independent.
+                  </div>
+                  <div class="start-philo-text" data-i18n="start.philo3Text">
+                    No paid placements. We tell you what to eat based on quality, nothing else.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="start-section start-section--alt">
+            <span class="start-section-label" data-i18n="start.section6Label">What's next</span>
+            <h2 class="start-section-title" data-i18n="start.section6Title">
+              Berlin is just<br />the first deck.
+            </h2>
+            <p class="start-section-body" data-i18n="start.section6Body1">
+              We are expanding city by city. More decks, more Must-Eats, and exclusive Merch coming
+              soon.
+            </p>
+            <p class="start-cities" data-i18n="start.section6Cities">
+              Istanbul, Amsterdam, Paris — we’re on it.
+            </p>
           </div>
         </div>
-      </section>
+        <!-- END SCROLL SECTIONS -->
+      </div>
+
+      <div class="app-page" data-page="musts">
+        <section class="must-eats-section" id="must-eats">
+          <div class="must-eats-header">
+            <p class="section-label reveal" data-i18n="musts.sectionLabel">Berlin</p>
+            <img
+              src="pics/logo2.webp"
+              alt="EAT THIS"
+              class="must-eats-logo-img"
+              loading="lazy"
+              decoding="async"
+            />
+            <p
+              class="must-eats-subtitle reveal"
+              style="transition-delay: 0.2s"
+              data-i18n="musts.subtitle"
+            >
+              The dishes you can't leave Berlin without trying.
+            </p>
+          </div>
+          <div class="must-eats-grid reveal-stagger" id="mustEatsGrid">
+            <!-- populated by js/cms.js -->
+          </div>
+        </section>
+      </div>
+
+      <div class="app-page" data-page="news">
+        <section class="news-section" id="news">
+          <div class="news-header">
+            <div class="news-header-top">
+              <p class="section-label reveal" data-i18n="news.sectionLabel">Berlin</p>
+              <h2
+                class="news-title reveal"
+                style="transition-delay: 0.1s"
+                data-i18n="news.sectionTitle"
+              >
+                Food News
+              </h2>
+            </div>
+          </div>
+
+          <!-- News Grid -->
+          <div class="news-grid reveal-stagger">
+            <!-- populated by js/i18n.js -->
+          </div>
+        </section>
+      </div>
+      <!-- /.app-page[news] -->
+
+      <div class="app-page" data-page="map">
+        <section class="map-section" id="map">
+          <div class="map-header">
+            <div class="map-header-top">
+              <p class="section-label" data-i18n="map.sectionLabel">Find</p>
+              <h2 class="map-title" data-i18n="map.sectionTitle">Eat Around</h2>
+            </div>
+            <div class="map-filter-tabs" id="mapFilterTabs" role="tablist">
+              <button class="map-filter-tab active" data-filter="all" role="tab">
+                <span data-i18n="map.filterAll">All</span
+                ><span class="map-filter-tab-count" id="count-all"></span>
+              </button>
+              <button class="map-filter-tab" data-filter="Dinner" role="tab">
+                <span>Dinner</span><span class="map-filter-tab-count" id="count-dinner"></span>
+              </button>
+              <button class="map-filter-tab" data-filter="Lunch" role="tab">
+                <span>Lunch</span><span class="map-filter-tab-count" id="count-lunch"></span>
+              </button>
+              <button class="map-filter-tab" data-filter="Coffee" role="tab">
+                <span>Coffee</span><span class="map-filter-tab-count" id="count-coffee"></span>
+              </button>
+              <button class="map-filter-tab" data-filter="Breakfast" role="tab">
+                <span>Breakfast</span
+                ><span class="map-filter-tab-count" id="count-breakfast"></span>
+              </button>
+              <button class="map-filter-tab" data-filter="Sweets" role="tab">
+                <span>Sweets</span><span class="map-filter-tab-count" id="count-sweets"></span>
+              </button>
+              <button class="map-filter-tab" data-filter="Pizza" role="tab">
+                <span>Pizza</span><span class="map-filter-tab-count" id="count-pizza"></span>
+              </button>
+            </div>
+          </div>
+          <div class="map-container" id="foodMap">
+            <button
+              class="map-location-btn-fixed"
+              id="mapLocationBtnFixed"
+              aria-label="My location"
+              data-i18n-aria="map.myLocationAriaLabel"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              >
+                <circle cx="12" cy="12" r="4" />
+                <line x1="12" y1="2" x2="12" y2="6" />
+                <line x1="12" y1="18" x2="12" y2="22" />
+                <line x1="2" y1="12" x2="6" y2="12" />
+                <line x1="18" y1="12" x2="22" y2="12" />
+              </svg>
+            </button>
+          </div>
+          <div class="map-zoom-btns">
+            <button class="map-zoom-btn" id="mapZoomIn" aria-label="Zoom in">+</button>
+            <button class="map-zoom-btn" id="mapZoomOut" aria-label="Zoom out">−</button>
+          </div>
+          <div class="map-nearby" id="mapNearby">
+            <div class="map-nearby-handle" id="mapNearbyHandle">
+              <div class="map-nearby-handle-bar"></div>
+            </div>
+            <div class="map-nearby-label">
+              <span id="mapNearbyTitle">In deiner Nähe</span>
+              <span class="map-nearby-more" id="mapNearbyMore">Swipe for more</span>
+            </div>
+            <div class="map-nearby-grid" id="mapNearbyGrid"></div>
+          </div>
+          <div class="map-spot-overlay" id="mapSpotOverlay">
+            <div class="map-spot-card" id="mapSpotCard">
+              <button class="map-spot-close" id="mapSpotClose" aria-label="Close">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+              <div class="map-spot-content" id="mapSpotContent"></div>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
 
-  </div>
-
-  <!-- APP FOOTER NAVIGATION -->
-  <nav class="app-footer" id="appFooter">
-    <div class="app-footer-nav">
-      <a href="#start" class="app-footer-item active" data-target="start">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9 22 9 12 15 12 15 22"/>
-        </svg>
-        <span data-i18n="footer.start">Start</span>
-      </a>
-      <a href="#news" class="app-footer-item" data-target="news">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
-          <path d="M18 14h-8"/>
-          <path d="M15 18h-5"/>
-          <path d="M10 6h8v4h-8V6Z"/>
-        </svg>
-        <span data-i18n="footer.news">News</span>
-      </a>
-      <a href="#must-eats" class="app-footer-item" data-target="musts">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
-          <path d="M7 2v20"/>
-          <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
-        </svg>
-        <span data-i18n="footer.musts">Eat This</span>
-      </a>
-      <a href="#map" class="app-footer-item" data-target="map">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
-          <line x1="9" y1="3" x2="9" y2="18"/>
-          <line x1="15" y1="6" x2="15" y2="21"/>
-        </svg>
-        <span data-i18n="footer.map">Map</span>
-      </a>
-      <button class="app-footer-item" id="loginBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
-        </svg>
-        <span data-i18n="footer.signIn">Sign In</span>
-      </button>
-    </div>
-  </nav>
-
-  <!-- MUST EAT MODAL -->
-  <div class="modal-overlay" id="eatModal">
-    <div class="modal">
-      <button class="modal-close" id="modalClose" aria-label="Close">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-      <div class="modal-img">
-        <img id="modalImg" src="" alt="">
-      </div>
-      <div class="modal-body">
-        <span class="modal-district" id="modalDistrict"></span>
-        <h3 class="modal-dish" id="modalDish"></h3>
-        <p class="modal-restaurant" id="modalRestaurant"></p>
-        <p class="modal-address" id="modalAddress"></p>
-        <p class="modal-desc" id="modalDesc"></p>
-        <a class="modal-maps-btn" id="modalMapsBtn" href="#" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          Open in Maps
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- NEWS ARTICLE MODAL -->
-  <div class="news-modal-overlay" id="newsModal">
-    <button class="news-modal-close" id="newsModalClose" aria-label="Close">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-    <div class="news-modal">
-      <div class="news-modal-img">
-        <img id="newsModalImg" src="" alt="">
-      </div>
-      <div class="news-modal-body">
-        <span class="news-modal-category" id="newsModalCategory"></span>
-        <h2 class="news-modal-title" id="newsModalTitle"></h2>
-        <time class="news-modal-date" id="newsModalDate"></time>
-        <div class="news-modal-share" id="newsModalShare">
-          <button class="share-btn share-twitter" id="shareTwitter" aria-label="Share on Twitter">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-          </button>
-          <button class="share-btn share-whatsapp" id="shareWhatsapp" aria-label="Share on WhatsApp">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          </button>
-          <button class="share-btn share-native" id="shareNative" aria-label="Share">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          </button>
-        </div>
-        <div class="news-modal-content" id="newsModalContent"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SEARCH -->
-  <div class="search-overlay" id="searchOverlay">
-    <div class="search-container">
-      <div class="search-input-wrapper">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <input type="text" class="search-input" id="searchInput" placeholder="What are you craving?" autocomplete="off" data-i18n-placeholder="search.placeholder">
-        <button class="search-close" id="searchClose" aria-label="Close">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    <!-- APP FOOTER NAVIGATION -->
+    <nav class="app-footer" id="appFooter">
+      <div class="app-footer-nav">
+        <a href="#start" class="app-footer-item active" data-target="start">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
           </svg>
+          <span data-i18n="footer.start">Start</span>
+        </a>
+        <a href="#news" class="app-footer-item" data-target="news">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"
+            />
+            <path d="M18 14h-8" />
+            <path d="M15 18h-5" />
+            <path d="M10 6h8v4h-8V6Z" />
+          </svg>
+          <span data-i18n="footer.news">News</span>
+        </a>
+        <a href="#must-eats" class="app-footer-item" data-target="musts">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+            <path d="M7 2v20" />
+            <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+          </svg>
+          <span data-i18n="footer.musts">Eat This</span>
+        </a>
+        <a href="#map" class="app-footer-item" data-target="map">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+            <line x1="9" y1="3" x2="9" y2="18" />
+            <line x1="15" y1="6" x2="15" y2="21" />
+          </svg>
+          <span data-i18n="footer.map">Map</span>
+        </a>
+        <button class="app-footer-item" id="loginBtn">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          <span data-i18n="footer.signIn">Sign In</span>
         </button>
       </div>
-      <div class="search-results" id="searchResults">
-        <div class="search-hint" data-i18n="search.hint">Start typing to search...</div>
+    </nav>
+
+    <!-- MUST EAT MODAL -->
+    <div class="modal-overlay" id="eatModal">
+      <div class="modal">
+        <button class="modal-close" id="modalClose" aria-label="Close">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+        <div class="modal-img">
+          <img id="modalImg" src="" alt="" />
+        </div>
+        <div class="modal-body">
+          <span class="modal-district" id="modalDistrict"></span>
+          <h3 class="modal-dish" id="modalDish"></h3>
+          <p class="modal-restaurant" id="modalRestaurant"></p>
+          <p class="modal-address" id="modalAddress"></p>
+          <p class="modal-desc" id="modalDesc"></p>
+          <a class="modal-maps-btn" id="modalMapsBtn" href="#" target="_blank" rel="noopener">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            Open in Maps
+          </a>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- BURGER MENU DRAWER -->
-  <div class="burger-drawer" id="burgerDrawer">
-    <div class="burger-drawer-backdrop" id="burgerBackdrop"></div>
-    <div class="burger-drawer-panel">
-      <button class="burger-drawer-close" id="burgerClose" aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    <!-- NEWS ARTICLE MODAL -->
+    <div class="news-modal-overlay" id="newsModal">
+      <button class="news-modal-close" id="newsModalClose" aria-label="Close">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
         </svg>
       </button>
-      <nav class="burger-nav">
-        <button class="burger-nav-item" id="openAbout">About</button>
-        <button class="burger-nav-item" id="openContact">Contact</button>
-        <button class="burger-nav-item" id="openPress">Press</button>
-        <button class="burger-nav-item" id="openImpressum">Impressum</button>
-      </nav>
-      <div class="burger-drawer-footer">
-        <button class="burger-drawer-footer-btn" id="openDatenschutzFromBurger" data-i18n="modals.datenschutz.title">Privacy Policy</button>
-        <span>·</span>
-        <button class="burger-drawer-footer-btn" id="openAgbFromBurger" data-i18n="modals.agb.title">Terms & Conditions</button>
+      <div class="news-modal">
+        <div class="news-modal-img">
+          <img id="newsModalImg" src="" alt="" />
+        </div>
+        <div class="news-modal-body">
+          <span class="news-modal-category" id="newsModalCategory"></span>
+          <h2 class="news-modal-title" id="newsModalTitle"></h2>
+          <time class="news-modal-date" id="newsModalDate"></time>
+          <div class="news-modal-share" id="newsModalShare">
+            <button class="share-btn share-twitter" id="shareTwitter" aria-label="Share on Twitter">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+                />
+              </svg>
+            </button>
+            <button
+              class="share-btn share-whatsapp"
+              id="shareWhatsapp"
+              aria-label="Share on WhatsApp"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
+                />
+              </svg>
+            </button>
+            <button class="share-btn share-native" id="shareNative" aria-label="Share">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+              </svg>
+            </button>
+          </div>
+          <div class="news-modal-content" id="newsModalContent"></div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- ABOUT MODAL -->
-  <div class="login-modal" id="aboutModal">
-    <div class="login-modal-backdrop" id="aboutBackdrop"></div>
-    <div class="login-modal-content cookie-info-modal-content">
-      <button class="login-modal-close" id="aboutClose" aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-      <h2 class="cookie-info-title" data-i18n="modals.about.title">One dish. That's it.</h2>
-      <div class="cookie-info-body" data-i18n-html="modals.about.body"></div>
-    </div>
-  </div>
-
-  <!-- CONTACT MODAL -->
-  <div class="login-modal" id="contactModal">
-    <div class="login-modal-backdrop" id="contactBackdrop"></div>
-    <div class="login-modal-content cookie-info-modal-content">
-      <button class="login-modal-close" id="contactClose" aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-      <h2 class="cookie-info-title" data-i18n="modals.contact.title">Get in touch</h2>
-      <div class="cookie-info-body" data-i18n-html="modals.contact.body"></div>
-    </div>
-  </div>
-
-  <!-- PRESS MODAL -->
-  <div class="login-modal" id="pressModal">
-    <div class="login-modal-backdrop" id="pressBackdrop"></div>
-    <div class="login-modal-content cookie-info-modal-content">
-      <button class="login-modal-close" id="pressClose" aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-      <h2 class="cookie-info-title" data-i18n="modals.press.title">Press & Media</h2>
-      <div class="cookie-info-body" data-i18n-html="modals.press.body"></div>
-    </div>
-  </div>
-
-  <!-- IMPRESSUM MODAL -->
-  <div class="login-modal" id="impressumModal">
-    <div class="login-modal-backdrop" id="impressumBackdrop"></div>
-    <div class="login-modal-content cookie-info-modal-content">
-      <button class="login-modal-close" id="impressumClose" aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-      <h2 class="cookie-info-title" data-i18n="modals.impressum.title">Impressum</h2>
-      <div class="cookie-info-body" data-i18n-html="modals.impressum.body"></div>
-    </div>
-  </div>
-
-  <!-- LOGIN MODAL -->
-  <div class="login-modal" id="loginModal">
-    <div class="login-modal-backdrop" id="loginBackdrop"></div>
-    <div class="login-modal-content">
-      <button class="login-modal-close" id="loginClose" aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-
-      <div class="login-logo">
-        <img src="pics/logo.webp" alt="EAT THIS" loading="lazy" decoding="async">
-      </div>
-
-      <!-- AUTH VIEW (nicht eingeloggt) -->
-      <div id="authView">
-        <h2 class="login-title" id="loginTitle" data-i18n="modals.login.titleRegister">Create account</h2>
-        <p class="login-subtitle" id="loginSubtitle" data-i18n="modals.login.subtitleRegister">Sign up to discover the best dishes in Berlin.</p>
-
-        <form class="login-form" id="loginForm" novalidate>
-          <div class="login-field" id="nameField">
-            <input type="text" id="loginName" placeholder="Name" autocomplete="name" data-i18n-placeholder="modals.login.namePlaceholder">
-          </div>
-          <div class="login-field">
-            <input type="email" id="loginEmail" placeholder="Email" required autocomplete="email" data-i18n-placeholder="modals.login.emailPlaceholder">
-          </div>
-          <div class="login-field">
-            <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password" minlength="6" data-i18n-placeholder="modals.login.passwordPlaceholder">
-          </div>
-          <p class="login-forgot" id="loginForgot" style="display:none">
-            <button type="button" class="login-forgot-btn" id="forgotPasswordBtn" data-i18n="modals.login.forgotPassword">Forgot password?</button>
-          </p>
-          <p class="login-error" id="loginError"></p>
-          <p class="login-success" id="loginSuccess"></p>
-          <button type="submit" class="login-btn login-btn-primary">
-            <span id="loginSubmitText" data-i18n="modals.login.submitRegister">Create account</span>
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+    <!-- SEARCH -->
+    <div class="search-overlay" id="searchOverlay">
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            class="search-input"
+            id="searchInput"
+            placeholder="What are you craving?"
+            autocomplete="off"
+            data-i18n-placeholder="search.placeholder"
+          />
+          <button class="search-close" id="searchClose" aria-label="Close">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
-        </form>
+        </div>
+        <div class="search-results" id="searchResults">
+          <div class="search-hint" data-i18n="search.hint">Start typing to search...</div>
+        </div>
+      </div>
+    </div>
 
-        <p class="login-mode-toggle" id="loginModeToggle"></p>
+    <!-- BURGER MENU DRAWER -->
+    <div class="burger-drawer" id="burgerDrawer">
+      <div class="burger-drawer-backdrop" id="burgerBackdrop"></div>
+      <div class="burger-drawer-panel">
+        <button class="burger-drawer-close" id="burgerClose" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+        <nav class="burger-nav">
+          <button class="burger-nav-item" id="openAbout">About</button>
+          <button class="burger-nav-item" id="openContact">Contact</button>
+          <button class="burger-nav-item" id="openPress">Press</button>
+          <button class="burger-nav-item" id="openImpressum">Impressum</button>
+        </nav>
+        <div class="burger-drawer-footer">
+          <button
+            class="burger-drawer-footer-btn"
+            id="openDatenschutzFromBurger"
+            data-i18n="modals.datenschutz.title"
+          >
+            Privacy Policy
+          </button>
+          <span>·</span>
+          <button
+            class="burger-drawer-footer-btn"
+            id="openAgbFromBurger"
+            data-i18n="modals.agb.title"
+          >
+            Terms & Conditions
+          </button>
+        </div>
+      </div>
+    </div>
 
-        <div class="login-divider">
-          <span data-i18n="modals.login.dividerOr">or</span>
+    <!-- ABOUT MODAL -->
+    <div class="login-modal" id="aboutModal">
+      <div class="login-modal-backdrop" id="aboutBackdrop"></div>
+      <div class="login-modal-content cookie-info-modal-content">
+        <button class="login-modal-close" id="aboutClose" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+        <h2 class="cookie-info-title" data-i18n="modals.about.title">One dish. That's it.</h2>
+        <div class="cookie-info-body" data-i18n-html="modals.about.body"></div>
+      </div>
+    </div>
+
+    <!-- CONTACT MODAL -->
+    <div class="login-modal" id="contactModal">
+      <div class="login-modal-backdrop" id="contactBackdrop"></div>
+      <div class="login-modal-content cookie-info-modal-content">
+        <button class="login-modal-close" id="contactClose" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+        <h2 class="cookie-info-title" data-i18n="modals.contact.title">Get in touch</h2>
+        <div class="cookie-info-body" data-i18n-html="modals.contact.body"></div>
+      </div>
+    </div>
+
+    <!-- PRESS MODAL -->
+    <div class="login-modal" id="pressModal">
+      <div class="login-modal-backdrop" id="pressBackdrop"></div>
+      <div class="login-modal-content cookie-info-modal-content">
+        <button class="login-modal-close" id="pressClose" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+        <h2 class="cookie-info-title" data-i18n="modals.press.title">Press & Media</h2>
+        <div class="cookie-info-body" data-i18n-html="modals.press.body"></div>
+      </div>
+    </div>
+
+    <!-- IMPRESSUM MODAL -->
+    <div class="login-modal" id="impressumModal">
+      <div class="login-modal-backdrop" id="impressumBackdrop"></div>
+      <div class="login-modal-content cookie-info-modal-content">
+        <button class="login-modal-close" id="impressumClose" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+        <h2 class="cookie-info-title" data-i18n="modals.impressum.title">Impressum</h2>
+        <div class="cookie-info-body" data-i18n-html="modals.impressum.body"></div>
+      </div>
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div class="login-modal" id="loginModal">
+      <div class="login-modal-backdrop" id="loginBackdrop"></div>
+      <div class="login-modal-content">
+        <button class="login-modal-close" id="loginClose" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+
+        <div class="login-logo">
+          <img src="pics/logo.webp" alt="EAT THIS" loading="lazy" decoding="async" />
         </div>
 
-        <button class="login-btn login-btn-google" id="googleLoginBtn">
-          <svg viewBox="0 0 24 24" width="20" height="20">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-          </svg>
-          <span data-i18n="modals.login.googleBtn">Continue with Google</span>
-        </button>
+        <!-- AUTH VIEW (nicht eingeloggt) -->
+        <div id="authView">
+          <h2 class="login-title" id="loginTitle" data-i18n="modals.login.titleRegister">
+            Create account
+          </h2>
+          <p class="login-subtitle" id="loginSubtitle" data-i18n="modals.login.subtitleRegister">
+            Sign up to discover the best dishes in Berlin.
+          </p>
 
-        <p class="login-terms">
-          <span data-i18n="modals.login.termsText">By signing up, you agree to our</span>
-          <button class="login-terms-link" id="agbTrigger" data-i18n="modals.login.termsLink">Terms</button> and
-          <button class="login-terms-link" id="datenschutzTrigger" data-i18n="modals.login.privacyLink">Privacy Policy</button>.
+          <form class="login-form" id="loginForm" novalidate>
+            <div class="login-field" id="nameField">
+              <input
+                type="text"
+                id="loginName"
+                placeholder="Name"
+                autocomplete="name"
+                data-i18n-placeholder="modals.login.namePlaceholder"
+              />
+            </div>
+            <div class="login-field">
+              <input
+                type="email"
+                id="loginEmail"
+                placeholder="Email"
+                required
+                autocomplete="email"
+                data-i18n-placeholder="modals.login.emailPlaceholder"
+              />
+            </div>
+            <div class="login-field">
+              <input
+                type="password"
+                id="loginPassword"
+                placeholder="Password"
+                required
+                autocomplete="current-password"
+                minlength="6"
+                data-i18n-placeholder="modals.login.passwordPlaceholder"
+              />
+            </div>
+            <p class="login-forgot" id="loginForgot" style="display: none">
+              <button
+                type="button"
+                class="login-forgot-btn"
+                id="forgotPasswordBtn"
+                data-i18n="modals.login.forgotPassword"
+              >
+                Forgot password?
+              </button>
+            </p>
+            <p class="login-error" id="loginError"></p>
+            <p class="login-success" id="loginSuccess"></p>
+            <button type="submit" class="login-btn login-btn-primary">
+              <span id="loginSubmitText" data-i18n="modals.login.submitRegister"
+                >Create account</span
+              >
+              <svg
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </button>
+          </form>
+
+          <p class="login-mode-toggle" id="loginModeToggle"></p>
+
+          <div class="login-divider">
+            <span data-i18n="modals.login.dividerOr">or</span>
+          </div>
+
+          <button class="login-btn login-btn-google" id="googleLoginBtn">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <path
+                fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              />
+            </svg>
+            <span data-i18n="modals.login.googleBtn">Continue with Google</span>
+          </button>
+
+          <p class="login-terms">
+            <span data-i18n="modals.login.termsText">By signing up, you agree to our</span>
+            <button class="login-terms-link" id="agbTrigger" data-i18n="modals.login.termsLink">
+              Terms
+            </button>
+            and
+            <button
+              class="login-terms-link"
+              id="datenschutzTrigger"
+              data-i18n="modals.login.privacyLink"
+            >
+              Privacy Policy</button
+            >.
+          </p>
+        </div>
+
+        <!-- PROFIL VIEW (eingeloggt) -->
+        <div id="profileView" style="display: none">
+          <div class="profile-avatar" id="profileAvatar"></div>
+          <h2 class="login-title" id="profileName"></h2>
+          <p class="login-subtitle" id="profileEmail"></p>
+          <button class="login-btn login-btn-primary" id="logoutBtn" style="margin-top: 16px">
+            <span>Abmelden</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- COOKIE CONSENT -->
+    <div class="cookie-consent" id="cookieConsent">
+      <div class="cookie-content">
+        <p class="cookie-text">
+          <span data-i18n="cookie.text">We use cookies to give you the best experience.</span>
+          <button class="cookie-info-trigger" id="cookieInfoTrigger" data-i18n="cookie.moreInfo">
+            Learn more
+          </button>
         </p>
+        <div class="cookie-buttons">
+          <button class="cookie-btn cookie-btn-accept" id="cookieAccept" data-i18n="cookie.accept">
+            Accept
+          </button>
+          <button
+            class="cookie-btn cookie-btn-decline"
+            id="cookieDecline"
+            data-i18n="cookie.decline"
+          >
+            Decline
+          </button>
+        </div>
       </div>
+    </div>
 
-      <!-- PROFIL VIEW (eingeloggt) -->
-      <div id="profileView" style="display:none">
-        <div class="profile-avatar" id="profileAvatar"></div>
-        <h2 class="login-title" id="profileName"></h2>
-        <p class="login-subtitle" id="profileEmail"></p>
-        <button class="login-btn login-btn-primary" id="logoutBtn" style="margin-top:16px">
-          <span>Abmelden</span>
+    <!-- COOKIE INFO MODAL -->
+    <!-- AGB MODAL -->
+    <div class="login-modal" id="agbModal">
+      <div class="login-modal-backdrop" id="agbBackdrop"></div>
+      <div class="login-modal-content cookie-info-modal-content">
+        <button class="login-modal-close" id="agbClose" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
         </button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- COOKIE CONSENT -->
-  <div class="cookie-consent" id="cookieConsent">
-    <div class="cookie-content">
-      <p class="cookie-text"><span data-i18n="cookie.text">We use cookies to give you the best experience.</span> <button class="cookie-info-trigger" id="cookieInfoTrigger" data-i18n="cookie.moreInfo">Learn more</button></p>
-      <div class="cookie-buttons">
-        <button class="cookie-btn cookie-btn-accept" id="cookieAccept" data-i18n="cookie.accept">Accept</button>
-        <button class="cookie-btn cookie-btn-decline" id="cookieDecline" data-i18n="cookie.decline">Decline</button>
+        <h2 class="cookie-info-title" data-i18n="modals.agb.title">
+          Allgemeine Geschäftsbedingungen
+        </h2>
+        <div class="cookie-info-body" data-i18n-html="modals.agb.body"></div>
       </div>
     </div>
-  </div>
 
-  <!-- COOKIE INFO MODAL -->
-  <!-- AGB MODAL -->
-  <div class="login-modal" id="agbModal">
-    <div class="login-modal-backdrop" id="agbBackdrop"></div>
-    <div class="login-modal-content cookie-info-modal-content">
-      <button class="login-modal-close" id="agbClose" aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-      <h2 class="cookie-info-title" data-i18n="modals.agb.title">Allgemeine Geschäftsbedingungen</h2>
-      <div class="cookie-info-body" data-i18n-html="modals.agb.body"></div>
+    <!-- DATENSCHUTZ MODAL -->
+    <div class="login-modal" id="datenschutzModal">
+      <div class="login-modal-backdrop" id="datenschutzBackdrop"></div>
+      <div class="login-modal-content cookie-info-modal-content">
+        <button class="login-modal-close" id="datenschutzClose" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+        <h2 class="cookie-info-title" data-i18n="modals.datenschutz.title">Datenschutz</h2>
+        <div class="cookie-info-body" data-i18n-html="modals.datenschutz.body"></div>
+      </div>
     </div>
-  </div>
 
-  <!-- DATENSCHUTZ MODAL -->
-  <div class="login-modal" id="datenschutzModal">
-    <div class="login-modal-backdrop" id="datenschutzBackdrop"></div>
-    <div class="login-modal-content cookie-info-modal-content">
-      <button class="login-modal-close" id="datenschutzClose" aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-      <h2 class="cookie-info-title" data-i18n="modals.datenschutz.title">Datenschutz</h2>
-      <div class="cookie-info-body" data-i18n-html="modals.datenschutz.body"></div>
+    <div class="login-modal" id="cookieInfoModal">
+      <div class="login-modal-backdrop" id="cookieInfoBackdrop"></div>
+      <div class="login-modal-content cookie-info-modal-content">
+        <button class="login-modal-close" id="cookieInfoClose" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+        <h2 class="cookie-info-title" data-i18n="modals.cookies.title">Cookie Policy</h2>
+        <div class="cookie-info-body" data-i18n-html="modals.cookies.body"></div>
+      </div>
     </div>
-  </div>
 
-  <div class="login-modal" id="cookieInfoModal">
-    <div class="login-modal-backdrop" id="cookieInfoBackdrop"></div>
-    <div class="login-modal-content cookie-info-modal-content">
-      <button class="login-modal-close" id="cookieInfoClose" aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-      <h2 class="cookie-info-title" data-i18n="modals.cookies.title">Cookie Policy</h2>
-      <div class="cookie-info-body" data-i18n-html="modals.cookies.body"></div>
-    </div>
-  </div>
-
-  <script defer src="js/cms.js"></script>
-  <script defer src="js/i18n.js"></script>
-  <script defer src="js/app.js?v=5"></script>
-  <script type="module" src="js/auth.js?v=3"></script>
-  <script type="module" src="js/favourites.js"></script>
-  <script type="module" src="js/perf.js"></script>
-  <script type="module" src="js/sentry.js"></script>
-  <script type="module" src="js/notifications.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {});
-      });
-    }
-  </script>
-</body>
+    <script defer src="js/cms.js"></script>
+    <script defer src="js/i18n.js"></script>
+    <script defer src="js/app.js?v=5"></script>
+    <script type="module" src="js/auth.js?v=3"></script>
+    <script type="module" src="js/favourites.js"></script>
+    <script type="module" src="js/perf.js"></script>
+    <script type="module" src="js/sentry.js"></script>
+    <script type="module" src="js/notifications.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
+  </body>
 </html>

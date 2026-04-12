@@ -1333,10 +1333,10 @@ document.addEventListener('DOMContentLoaded', () => {
         hasMatchingDay = true;
         if (hours === 'closed' || hours === 'geschlossen' || hours === 'ruhetag') continue;
         // Support comma-separated time windows e.g. "12:00-15:00, 18:00-22:00"
-        const windows = hours.split(',').map((w) => w.trim()).filter(Boolean);
-        for (const window of windows) {
-          const sep = window.includes('–') ? '–' : '-';
-          const parts = window.split(sep).map((p) => p.trim());
+        const timeWindows = hours.split(',').map((w) => w.trim()).filter(Boolean);
+        for (const tw of timeWindows) {
+          const sep = tw.includes('–') ? '–' : '-';
+          const parts = tw.split(sep).map((p) => p.trim());
           if (parts.length === 2) {
             const open = toMins(parts[0]);
             // 00:00 closing = midnight = end of day (1440), not start of day (0)

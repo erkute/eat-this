@@ -665,6 +665,8 @@ document.addEventListener('DOMContentLoaded', () => {
           ...r,
           type: (r.categories || []).join(' · '),
         }));
+        // Re-render nearby grid if location was already set before spots loaded (race condition)
+        if (_nearbyLat !== null) _renderNearbyGrid();
       }
     } catch (err) {
       console.warn('[CMS] Restaurants fetch failed:', err.message); // eslint-disable-line no-console
@@ -976,11 +978,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('mapZoomIn').addEventListener('click', () => foodMap.zoomIn());
     document.getElementById('mapZoomOut').addEventListener('click', () => foodMap.zoomOut());
 
-    // Pre-position zoom buttons above where the sheet will snap to mid (240px)
+    // Collapse sheet to peek when tapping on the map — keeps zoom buttons close to nearby strip
+    foodMap.on('click', () => {
+      if (_sheetState === 'mid' || _sheetState === 'expanded') {
+        _snapSheet('peek');
+      }
+    });
+
+    // Pre-position zoom buttons at peek height to avoid flash before _snapSheet fires
     const zoomBtnsInit = document.querySelector('.map-zoom-btns');
     if (zoomBtnsInit) {
       zoomBtnsInit.style.transition = 'none';
-      zoomBtnsInit.style.bottom = '252px'; // MID_PX (240) + 12
+      zoomBtnsInit.style.bottom = PEEK_PX + 12 + 'px'; // safe low default, corrected by _snapSheet
     }
 
     // User location
@@ -1344,7 +1353,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (isOpen) return true;
         }
       }
-      return hasMatchingDay ? false : null;
+      return false;
     }
 
     function _renderNearbyGrid() {
@@ -1463,8 +1472,9 @@ document.addEventListener('DOMContentLoaded', () => {
       // Keep zoom buttons above visible sheet edge, animated in sync with sheet
       const zoomBtns = document.querySelector('.map-zoom-btns');
       if (zoomBtns) {
+        // Clamp to actual sheet height — if sheet is shorter than MID_PX it's fully visible
         const visible =
-          state === 'peek' ? PEEK_PX : state === 'mid' ? MID_PX : state === 'expanded' ? h : 0;
+          state === 'peek' ? Math.min(PEEK_PX, h) : state === 'mid' ? Math.min(MID_PX, h) : state === 'expanded' ? h : 0;
         zoomBtns.style.transition = animate ? 'bottom 0.4s cubic-bezier(0.32, 0.72, 0, 1)' : 'none';
         zoomBtns.style.bottom = visible + 12 + 'px';
       }

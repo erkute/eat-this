@@ -33,8 +33,8 @@ async function loadFavourites(uid) {
     document.querySelectorAll('[data-fav-id]').forEach(btn => {
       setFavBtnState(btn, window._favSpots.has(btn.dataset.favId));
     });
-  } catch {
-    // Silently ignore — user loses fav state for this session only
+  } catch (err) {
+    console.error('[favourites] loadFavourites failed:', err);
   }
 }
 
@@ -62,17 +62,100 @@ window._toggleFav = async function toggleFav(spotId, spotName, btn) {
     if (typeof window.showNotification === 'function') {
       window.showNotification(next ? `${spotName} gespeichert` : `${spotName} entfernt`);
     }
-  } catch {
+  } catch (err) {
+    console.error('[favourites] toggleFav failed:', err);
     // Revert on error
     setFavBtnState(btn, !next);
+    if (typeof window.showNotification === 'function') {
+      window.showNotification('Fehler beim Speichern – bitte erneut versuchen');
+    }
   }
 };
+
+function renderProfileFavourites() {
+  const grid    = document.getElementById('profileFavsGrid');
+  const countEl = document.getElementById('profileFavsCount');
+  if (!grid) return;
+
+  const favIds   = [...window._favSpots];
+  const allSpots = window._allSpots || [];
+
+  if (countEl) {
+    countEl.textContent   = favIds.length > 0 ? favIds.length : '';
+    countEl.style.display = favIds.length > 0 ? '' : 'none';
+  }
+
+  grid.replaceChildren();
+
+  if (favIds.length === 0) {
+    const empty = document.createElement('p');
+    empty.className   = 'profile-favs-empty';
+    empty.textContent = 'Noch keine Orte gespeichert \u2661';
+    grid.appendChild(empty);
+    return;
+  }
+
+  favIds.forEach((spotId) => {
+    const spot = allSpots.find(
+      (s) => (s._id || s.name.replace(/\s+/g, '-').toLowerCase()) === spotId
+    );
+
+    const card = document.createElement('button');
+    card.type      = 'button';
+    card.className = 'profile-fav-card';
+
+    const imgWrap = document.createElement('div');
+    imgWrap.className = 'profile-fav-img';
+
+    if (spot?.photo) {
+      const img = document.createElement('img');
+      img.src     = spot.photo;
+      img.alt     = spot.name;
+      img.loading = 'lazy';
+      imgWrap.appendChild(img);
+    } else {
+      imgWrap.classList.add('profile-fav-img--placeholder');
+      imgWrap.textContent = '\u2665';
+    }
+
+    const info = document.createElement('div');
+    info.className = 'profile-fav-info';
+
+    const nameEl = document.createElement('span');
+    nameEl.className   = 'profile-fav-name';
+    nameEl.textContent = spot?.name || spotId;
+    info.appendChild(nameEl);
+
+    if (spot?.district) {
+      const distEl = document.createElement('span');
+      distEl.className   = 'profile-fav-district';
+      distEl.textContent = spot.district;
+      info.appendChild(distEl);
+    }
+
+    card.appendChild(imgWrap);
+    card.appendChild(info);
+
+    card.addEventListener('click', () => {
+      if (spot && typeof window._showSpotDetail === 'function') {
+        window.closeLoginModal?.();
+        window._navigateToPage?.('map');
+        window._showSpotDetail(spot);
+      }
+    });
+
+    grid.appendChild(card);
+  });
+}
+
+window._renderProfileFavourites = renderProfileFavourites;
 
 // Load favourites whenever auth state changes
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    loadFavourites(user.uid);
+    loadFavourites(user.uid).then(renderProfileFavourites);
   } else {
     window._favSpots = new Set();
+    renderProfileFavourites();
   }
 });

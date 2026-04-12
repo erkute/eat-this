@@ -40,10 +40,13 @@ const app       = initializeApp(firebaseConfig);
 const auth      = getAuth(app);
 const functions = getFunctions(app);
 
-initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider('6LdG2ZwsAAAAAM6XvEOuQHmIRLAs3CdPiu-l5cwz'),
-  isTokenAutoRefreshEnabled: true,
-});
+// App Check nur auf der Produktionsseite aktivieren (nicht auf localhost)
+if (!['localhost', '127.0.0.1'].includes(window.location.hostname)) {
+  initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider('6LdG2ZwsAAAAAM6XvEOuQHmIRLAs3CdPiu-l5cwz'),
+    isTokenAutoRefreshEnabled: true,
+  });
+}
 
 
 const googleProvider = new GoogleAuthProvider();
@@ -89,6 +92,7 @@ function openLoginModal() {
   if (!loginModal) return;
   loginModal.classList.add('active');
   window.bodyOverflow?.lock();
+  window._renderProfileFavourites?.();
 }
 
 function closeLoginModal() {
@@ -270,6 +274,7 @@ if (googleLoginBtn) {
       notify(window.i18n.t('modals.login.notifications.signedIn').replace('{name}', firstName));
       closeLoginModal();
     } catch (err) {
+      console.error('[auth] Google login error:', err.code, err);
       const msg = errorMessage(err.code);
       if (msg) showError(msg);
     }

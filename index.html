@@ -771,7 +771,6 @@
             </div>
             <div class="map-nearby-label">
               <span id="mapNearbyTitle">In deiner Nähe</span>
-              <span class="map-nearby-more" id="mapNearbyMore">Swipe for more</span>
             </div>
             <div class="map-nearby-grid" id="mapNearbyGrid"></div>
           </div>
@@ -1249,10 +1248,21 @@
 
         <!-- PROFIL VIEW (eingeloggt) -->
         <div id="profileView" style="display: none">
-          <div class="profile-avatar" id="profileAvatar"></div>
-          <h2 class="login-title" id="profileName"></h2>
-          <p class="login-subtitle" id="profileEmail"></p>
-          <button class="login-btn login-btn-primary" id="logoutBtn" style="margin-top: 16px">
+          <div class="profile-header">
+            <div class="profile-avatar" id="profileAvatar"></div>
+            <div class="profile-info">
+              <h2 class="profile-name" id="profileName"></h2>
+              <p class="profile-email" id="profileEmail"></p>
+            </div>
+          </div>
+          <div class="profile-favs-section">
+            <div class="profile-favs-header">
+              <span class="profile-favs-title">Gespeicherte Orte</span>
+              <span class="profile-favs-count" id="profileFavsCount"></span>
+            </div>
+            <div class="profile-favs-grid" id="profileFavsGrid"></div>
+          </div>
+          <button class="login-btn login-btn-primary" id="logoutBtn">
             <span>Abmelden</span>
           </button>
         </div>

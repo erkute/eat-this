@@ -665,6 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
           ...r,
           type: (r.categories || []).join(' · '),
         }));
+        window._allSpots = spots;
       }
     } catch (err) {
       console.warn('[CMS] Restaurants fetch failed:', err.message); // eslint-disable-line no-console
@@ -1248,6 +1249,7 @@ document.addEventListener('DOMContentLoaded', () => {
       bodyOverflow.lock();
     }
     window._showSpotDetail = showSpotDetail;
+    window._navigateToPage = navigateToPage;
 
     function haversineDistance(lat1, lng1, lat2, lng2) {
       const R = 6371000;
@@ -1448,10 +1450,12 @@ document.addEventListener('DOMContentLoaded', () => {
         gridEl.appendChild(card);
       });
 
-      // Show "Swipe for more" hint if there are more cards than visible
-      const moreEl = document.getElementById('mapNearbyMore');
-      if (moreEl) {
-        moreEl.classList.toggle('visible', sorted.length > 3);
+      // Nudge-scroll: scroll slightly right then back to hint at more content
+      if (sorted.length > 3) {
+        setTimeout(() => {
+          gridEl.scrollTo({ left: 40, behavior: 'smooth' });
+          setTimeout(() => gridEl.scrollTo({ left: 0, behavior: 'smooth' }), 400);
+        }, 600);
       }
     }
 
@@ -1577,8 +1581,6 @@ document.addEventListener('DOMContentLoaded', () => {
       // Apply i18n label
       const nearbyTitle = document.getElementById('mapNearbyTitle');
       if (nearbyTitle && window.i18n) nearbyTitle.textContent = window.i18n.t('map.nearby');
-      const nearbyMore = document.getElementById('mapNearbyMore');
-      if (nearbyMore && window.i18n) nearbyMore.textContent = window.i18n.t('map.nearbyMore');
       _renderNearbyGrid();
 
       if (!_sheetReady) {

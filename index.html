@@ -793,6 +793,106 @@
           </div>
         </section>
       </div>
+
+      <!-- ═══════════════════════════════════════════
+           PROFILE PAGE
+           ═══════════════════════════════════════════ -->
+      <div class="app-page" data-page="profile" id="profilePage">
+
+        <!-- Logged-out state -->
+        <div class="profile-auth-prompt" id="profileAuthPrompt">
+          <div class="profile-auth-prompt-inner">
+            <div class="profile-auth-icon">&#128100;</div>
+            <h2 class="profile-auth-title" data-i18n="profile.signInTitle">Sign in to see your profile</h2>
+            <p class="profile-auth-sub" data-i18n="profile.signInSub">Save restaurants, collect your Must Eat deck and manage your account.</p>
+            <button class="btn btn--primary" id="profileSignInBtn" data-i18n="auth.signIn">Sign In</button>
+          </div>
+        </div>
+
+        <!-- Logged-in state -->
+        <div class="profile-content" id="profileContent" hidden>
+
+          <div class="profile-header">
+            <div class="profile-avatar" id="profileAvatar">
+              <span id="profileAvatarInitial">?</span>
+            </div>
+            <div class="profile-header-info">
+              <h1 class="profile-name" id="profileName">&#8212;</h1>
+              <p class="profile-email" id="profileEmail">&#8212;</p>
+            </div>
+          </div>
+
+          <div class="profile-tabs" role="tablist">
+            <button class="profile-tab active" role="tab" data-tab="deck"
+                    aria-selected="true" data-i18n="profile.tab.deck">Mein Deck</button>
+            <button class="profile-tab" role="tab" data-tab="saved"
+                    aria-selected="false" data-i18n="profile.tab.saved">Gespeichert</button>
+            <button class="profile-tab" role="tab" data-tab="settings"
+                    aria-selected="false" data-i18n="profile.tab.settings">Einstellungen</button>
+          </div>
+
+          <!-- Tab: Deck -->
+          <div class="profile-tab-panel active" data-panel="deck" role="tabpanel">
+            <div class="profile-deck-header">
+              <span class="profile-deck-count" id="profileDeckCount"></span>
+            </div>
+            <div class="profile-deck-grid" id="profileDeckGrid"></div>
+            <div class="profile-booster-teaser">
+              <div class="profile-booster-teaser-text">
+                <strong data-i18n="profile.booster.title">&#127921; Booster Packs &#8212; Coming Soon</strong>
+                <span data-i18n="profile.booster.sub">Erweitere dein Deck mit exklusiven Gerichten</span>
+              </div>
+              <span class="profile-booster-badge">Coming Soon</span>
+            </div>
+          </div>
+
+          <!-- Tab: Gespeichert -->
+          <div class="profile-tab-panel" data-panel="saved" role="tabpanel" hidden>
+            <div class="profile-favs-grid" id="profileFavsGrid"></div>
+            <p class="profile-saved-empty" id="profileSavedEmpty" hidden
+               data-i18n="profile.saved.empty">Du hast noch keine Restaurants gespeichert.</p>
+          </div>
+
+          <!-- Tab: Einstellungen -->
+          <div class="profile-tab-panel" data-panel="settings" role="tabpanel" hidden>
+            <div class="profile-settings">
+
+              <div class="profile-settings-section">
+                <h3 class="profile-settings-section-title">Account</h3>
+                <div class="profile-settings-field">
+                  <label class="profile-settings-label">Anzeigename</label>
+                  <div class="profile-settings-row">
+                    <input type="text" class="profile-settings-input"
+                           id="profileDisplayNameInput" placeholder="Dein Name" autocomplete="name" />
+                    <button class="profile-settings-save-btn" id="profileSaveNameBtn">Speichern</button>
+                  </div>
+                  <p class="profile-settings-feedback" id="profileNameFeedback" hidden></p>
+                </div>
+                <div class="profile-settings-field">
+                  <label class="profile-settings-label">E-Mail</label>
+                  <p class="profile-settings-value" id="profileSettingsEmail">&#8212;</p>
+                </div>
+              </div>
+
+              <div class="profile-settings-section">
+                <h3 class="profile-settings-section-title">Sicherheit</h3>
+                <button class="profile-settings-action-btn"
+                        id="profileResetPasswordBtn">Passwort zur&#252;cksetzen</button>
+                <p class="profile-settings-feedback" id="profilePasswordFeedback" hidden></p>
+              </div>
+
+              <div class="profile-settings-section profile-settings-section--danger">
+                <h3 class="profile-settings-section-title">Danger Zone</h3>
+                <button class="profile-settings-signout-btn" id="profileSignOutBtn">Abmelden</button>
+                <button class="profile-settings-delete-btn"
+                        id="profileDeleteAccountBtn">Account l&#246;schen</button>
+              </div>
+
+            </div>
+          </div>
+
+        </div><!-- /profile-content -->
+      </div><!-- /profile page -->
     </div>
 
     <!-- ═══════════════════════════════════════════

@@ -2837,39 +2837,21 @@ body {
    DESKTOP APP FRAME (≥ 768px)
    ============================================ */
 @media (min-width: 768px) {
-  body {
-    background: #0f0f0f;
-  }
+  body { background: #000; }
 
-  /* Center navbar */
   .navbar {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 480px;
-    height: 60px;
-    padding: 0 12px;
-    display: flex;
-    align-items: center;
-    background: #ffffff;
+    left: 0; right: 0; transform: none;
+    width: 100%; max-width: none;
+    height: 60px; padding: 0 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: #fff;
   }
 
-  /* Center app content, push down below fixed navbar */
   .app-pages {
-    max-width: 480px;
-    margin: 60px auto 0;
-    box-shadow: 0 0 80px rgba(0,0,0,0.7);
+    max-width: none; margin: 60px 0 0; box-shadow: none;
   }
 
-  /* Center footer nav */
-  .app-footer {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 480px;
-  }
+  .app-footer { display: none; } /* replaced by new site-footer */
 
   /* App pages fill height between navbar and footer */
   .app-page {

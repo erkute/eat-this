@@ -3995,3 +3995,202 @@ body {
 
   .site-footer-copy { font-size: 11px; color: #333; }
 }
+
+/* ══════════════════════════════════════════════
+   PROFILE PAGE
+   ══════════════════════════════════════════════ */
+
+/* Auth prompt (logged-out state) */
+.profile-auth-prompt {
+  display: flex; align-items: center; justify-content: center;
+  height: calc(100dvh - 60px); padding: 32px; text-align: center;
+}
+.profile-auth-prompt-inner { max-width: 340px; }
+.profile-auth-icon { font-size: 48px; margin-bottom: 16px; }
+.profile-auth-title {
+  font-size: 20px; font-weight: 800;
+  margin-bottom: 10px; letter-spacing: -0.02em;
+}
+.profile-auth-sub {
+  font-size: 14px; color: var(--gray-600);
+  line-height: 1.6; margin-bottom: 24px;
+}
+
+/* Profile content (logged-in state) */
+.profile-content { overflow-y: auto; height: calc(100dvh - 60px); }
+
+/* Profile header */
+.profile-header {
+  display: flex; align-items: center; gap: 16px;
+  padding: 28px 20px 20px; border-bottom: 1px solid var(--gray-100);
+}
+.profile-avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--orange); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700; flex-shrink: 0;
+}
+.profile-name { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 2px; }
+.profile-email { font-size: 13px; color: var(--gray-600); }
+
+/* Tab navigation */
+.profile-tabs {
+  display: flex; border-bottom: 1px solid var(--gray-100);
+  padding: 0 20px; overflow-x: auto; scrollbar-width: none;
+}
+.profile-tabs::-webkit-scrollbar { display: none; }
+.profile-tab {
+  flex-shrink: 0; background: none;
+  border: none; border-bottom: 2px solid transparent;
+  padding: 14px 16px; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--gray-400); cursor: pointer; font-family: inherit;
+  transition: color 0.15s, border-color 0.15s; white-space: nowrap;
+}
+.profile-tab.active { color: var(--orange); border-bottom-color: var(--orange); }
+
+/* Tab panels */
+.profile-tab-panel { padding: 24px 20px; }
+.profile-tab-panel[hidden] { display: none; }
+
+/* Deck grid */
+.profile-deck-header {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 16px;
+}
+.profile-deck-count {
+  font-size: 11px; color: var(--gray-400); font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.profile-deck-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+
+@media (min-width: 768px) {
+  .profile-deck-grid { grid-template-columns: repeat(6, 1fr); gap: 14px; }
+  .profile-tab-panel { padding: 32px; }
+  .profile-header { padding: 36px 32px 24px; }
+  .profile-tabs { padding: 0 32px; }
+}
+
+/* Deck cards */
+.profile-deck-card {
+  cursor: pointer; border-radius: 8px; overflow: hidden;
+  background: var(--gray-50); border: 1px solid var(--gray-100);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.profile-deck-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  border-color: var(--orange);
+}
+.profile-deck-card-img {
+  width: 100%; aspect-ratio: 3/4; object-fit: cover;
+  display: block; background: var(--gray-100);
+}
+.profile-deck-card-body { padding: 6px 8px 8px; }
+.profile-deck-card-name {
+  font-size: 10px; font-weight: 700; color: var(--black);
+  line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.profile-deck-card-rest {
+  font-size: 9px; color: var(--gray-400);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Booster teaser */
+.profile-booster-teaser {
+  margin-top: 24px; padding: 14px 18px;
+  background: #fff8f6; border: 1px dashed var(--orange);
+  border-radius: 10px; display: flex;
+  align-items: center; justify-content: space-between; gap: 16px;
+}
+.profile-booster-teaser-text {
+  display: flex; flex-direction: column; gap: 3px; font-size: 13px;
+}
+.profile-booster-teaser-text strong { color: var(--orange); }
+.profile-booster-teaser-text span { font-size: 12px; color: var(--gray-600); }
+.profile-booster-badge {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--gray-400);
+  border: 1px solid var(--gray-200); border-radius: 4px; padding: 3px 8px;
+  white-space: nowrap;
+}
+
+/* Saved/Favs tab — styles for favourites.js rendered cards */
+.profile-fav-card {
+  display: flex; align-items: center; gap: 12px; padding: 12px; width: 100%;
+  background: var(--gray-50); border: 1px solid var(--gray-100);
+  border-radius: 10px; cursor: pointer; text-align: left;
+  transition: border-color 0.15s; font-family: inherit; font-size: inherit;
+}
+.profile-fav-card:hover { border-color: var(--orange); }
+.profile-fav-img {
+  width: 52px; height: 52px; border-radius: 8px;
+  overflow: hidden; flex-shrink: 0; background: var(--gray-100);
+  display: flex; align-items: center; justify-content: center;
+}
+.profile-fav-img img { width: 100%; height: 100%; object-fit: cover; }
+.profile-fav-img--placeholder { font-size: 20px; color: var(--orange); }
+.profile-fav-info { display: flex; flex-direction: column; gap: 2px; }
+.profile-fav-name { font-size: 13px; font-weight: 700; color: var(--black); }
+.profile-fav-district { font-size: 11px; color: var(--gray-400); }
+
+/* Saved grid layout */
+.profile-favs-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 768px) {
+  .profile-favs-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; max-width: 800px; }
+}
+.profile-saved-empty {
+  font-size: 14px; color: var(--gray-400);
+  text-align: center; padding: 48px 0; line-height: 1.6;
+}
+
+/* Settings tab */
+.profile-settings { display: flex; flex-direction: column; gap: 32px; max-width: 480px; }
+.profile-settings-section { display: flex; flex-direction: column; gap: 14px; }
+.profile-settings-section-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--gray-400);
+  padding-bottom: 10px; border-bottom: 1px solid var(--gray-100);
+}
+.profile-settings-field { display: flex; flex-direction: column; gap: 6px; }
+.profile-settings-label { font-size: 12px; font-weight: 600; color: var(--gray-600); }
+.profile-settings-value { font-size: 14px; color: var(--gray-400); }
+.profile-settings-row { display: flex; gap: 8px; }
+.profile-settings-input {
+  flex: 1; padding: 10px 12px; border: 1px solid var(--gray-200);
+  border-radius: 6px; font-size: 14px; font-family: inherit;
+  color: var(--black); background: var(--white); outline: none;
+  transition: border-color 0.15s;
+}
+.profile-settings-input:focus { border-color: var(--orange); }
+.profile-settings-save-btn {
+  padding: 10px 16px; background: var(--black); color: var(--white);
+  border: none; border-radius: 6px; font-size: 13px; font-weight: 600;
+  font-family: inherit; cursor: pointer; white-space: nowrap;
+  transition: background 0.15s;
+}
+.profile-settings-save-btn:hover { background: #333; }
+.profile-settings-feedback { font-size: 12px; color: var(--gray-600); }
+.profile-settings-action-btn {
+  background: none; border: 1px solid var(--gray-200);
+  border-radius: 6px; padding: 10px 16px; font-size: 13px; font-weight: 600;
+  font-family: inherit; cursor: pointer; color: var(--black); width: fit-content;
+  transition: border-color 0.15s;
+}
+.profile-settings-action-btn:hover { border-color: var(--black); }
+.profile-settings-section--danger .profile-settings-section-title {
+  color: #c0392b; border-bottom-color: rgba(192,57,43,0.15);
+}
+.profile-settings-signout-btn,
+.profile-settings-delete-btn {
+  background: none; border: 1px solid var(--gray-200);
+  border-radius: 6px; padding: 10px 16px; font-size: 13px; font-weight: 600;
+  font-family: inherit; cursor: pointer; width: fit-content;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.profile-settings-signout-btn { color: var(--black); }
+.profile-settings-signout-btn:hover { background: var(--gray-50); border-color: var(--black); }
+.profile-settings-delete-btn { color: #c0392b; border-color: rgba(192,57,43,0.3); }
+.profile-settings-delete-btn:hover { background: rgba(192,57,43,0.06); border-color: #c0392b; }

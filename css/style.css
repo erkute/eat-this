@@ -90,18 +90,31 @@ body {
   align-items: center;
   gap: 16px;
 }
-.navbar-actions .search-trigger,
-.navbar-actions .navbar-insta {
+.navbar-icon-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 36px;
   height: 36px;
+  background: none;
+  border: none;
+  cursor: pointer;
   color: var(--black);
-  transition: color 0.2s;
+  padding: 0;
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+  -webkit-tap-highlight-color: transparent;
 }
-.navbar .navbar-insta::after {
-  display: none;
+.navbar-icon-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+}
+.navbar-icon-btn:hover {
+  color: var(--orange);
+}
+.navbar-icon-btn.active {
+  color: var(--orange);
 }
 
 /* ============================================
@@ -2170,7 +2183,7 @@ body {
 
 @media (max-width: 767px) {
   body {
-    background-color: #000;
+    background-color: #fff;
   }
 
   .navbar {
@@ -2193,7 +2206,7 @@ body {
     top: 60px;
     left: 0;
     right: 0;
-    bottom: max(70px, calc(61px + env(safe-area-inset-bottom)));
+    bottom: env(safe-area-inset-bottom, 0px);
     height: auto;
     z-index: 9990;
     background: var(--white);
@@ -2211,7 +2224,7 @@ body {
   .app-page[data-page="start"] .hero {
     position: relative;
     width: 100%;
-    height: calc(100dvh - 130px);
+    height: calc(100dvh - 60px);
     min-height: 400px;
   }
   
@@ -2860,8 +2873,8 @@ body {
 
   /* App pages fill height between navbar and footer */
   .app-page {
-    height: calc(100vh - 60px);
-    padding-bottom: max(80px, calc(61px + env(safe-area-inset-bottom)));
+    height: calc(100dvh - 60px);
+    padding-bottom: 0;
     background: var(--white);
   }
 
@@ -2870,7 +2883,7 @@ body {
   }
 
   .app-page[data-page="start"] .hero {
-    height: calc(100dvh - 130px);
+    height: calc(100dvh - 60px);
   }
 
   .app-page[data-page="start"] .hero-content {
@@ -2996,7 +3009,7 @@ body {
 
   .app-page[data-page="map"] .map-section {
     position: absolute;
-    inset: 0 0 73px;
+    inset: 0;
     min-height: 0;
     padding: 0;
     border: none;
@@ -3278,6 +3291,17 @@ body {
 .burger-nav-item:hover {
   opacity: 0.5;
 }
+.burger-nav-item--sm {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gray-400);
+  padding: 6px 0;
+}
+.burger-nav-divider {
+  height: 1px;
+  background: var(--gray-100);
+  margin: 8px 0;
+}
 .burger-drawer-footer {
   margin-top: auto;
   padding: 24px 32px calc(24px + env(safe-area-inset-bottom));
@@ -3298,6 +3322,47 @@ body {
 }
 .burger-drawer-footer span {
   color: var(--gray-400);
+}
+.burger-utils {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 32px 0;
+  gap: 2px;
+  border-top: 1px solid var(--gray-100);
+  margin-top: 16px;
+}
+.burger-util-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--gray-400);
+  cursor: pointer;
+  padding: 10px 0;
+  text-decoration: none;
+  transition: color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.burger-util-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  flex-shrink: 0;
+}
+.burger-util-btn:hover {
+  color: var(--black);
+}
+.burger-lang-row {
+  padding: 16px 32px 0;
+}
+.burger-lang-row .lang-switcher {
+  background: var(--gray-100);
+  display: inline-flex;
 }
 
 /* ============================================

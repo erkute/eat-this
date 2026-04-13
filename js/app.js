@@ -1718,8 +1718,14 @@ document.addEventListener('DOMContentLoaded', () => {
               userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(foodMap);
             }
 
-            flyToWithSheetOffset(userLat, userLng, 14);
             showNearbyStrip(userLat, userLng);
+            requestAnimationFrame(() =>
+              requestAnimationFrame(() =>
+                requestAnimationFrame(() => {
+                  flyToWithSheetOffset(userLat, userLng, 14);
+                })
+              )
+            );
           },
           (error) => {
             mapLocationBtn.classList.remove('loading');
@@ -1977,32 +1983,65 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    const appFooterItems = document.querySelectorAll('.app-footer-item');
-    appFooterItems.forEach((item) => {
-      item.classList.toggle('active', item.dataset.target === pageName);
-    });
+    // Update header icon button active states
+    const navNewsBtn = document.getElementById('navNewsBtn');
+    const navMapBtn = document.getElementById('navMapBtn');
+    const navMustsBtn = document.getElementById('navMustsBtn');
+    if (navNewsBtn) navNewsBtn.classList.toggle('active', pageName === 'news');
+    if (navMapBtn) navMapBtn.classList.toggle('active', pageName === 'map');
+    if (navMustsBtn) navMustsBtn.classList.toggle('active', pageName === 'musts');
 
     currentPage = pageName;
   }
 
-  if (appFooter && appPages.length) {
-    const appFooterItems = document.querySelectorAll('.app-footer-item[data-target]');
-
-    appFooterItems.forEach((item) => {
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.closeLoginModal?.();
-        const target = item.dataset.target;
-        navigateToPage(target);
-        window.location.hash = target;
-      });
-    });
-
+  if (appPages.length) {
     if (navbarBrand) {
       navbarBrand.addEventListener('click', (e) => {
         e.preventDefault();
         navigateToPage('start');
         window.location.hash = 'start';
+      });
+    }
+
+    // Header icon buttons
+    const navNewsBtn = document.getElementById('navNewsBtn');
+    const navMapBtn = document.getElementById('navMapBtn');
+    const navMustsBtn = document.getElementById('navMustsBtn');
+    if (navNewsBtn) {
+      navNewsBtn.addEventListener('click', () => {
+        navigateToPage('news');
+        window.location.hash = 'news';
+      });
+    }
+    if (navMapBtn) {
+      navMapBtn.addEventListener('click', () => {
+        navigateToPage('map');
+        window.location.hash = 'map';
+      });
+    }
+    if (navMustsBtn) {
+      navMustsBtn.addEventListener('click', () => {
+        navigateToPage('musts');
+        window.location.hash = 'musts';
+      });
+    }
+
+    // Burger menu page navigation (News)
+    document.querySelectorAll('.burger-page-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        closeBurger?.();
+        const page = btn.dataset.page;
+        navigateToPage(page);
+        window.location.hash = page;
+      });
+    });
+
+    // Burger search trigger
+    const burgerSearchTrigger = document.getElementById('burgerSearchTrigger');
+    if (burgerSearchTrigger) {
+      burgerSearchTrigger.addEventListener('click', () => {
+        closeBurger?.();
+        setTimeout(() => openSearch?.(), 200);
       });
     }
 

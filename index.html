@@ -289,36 +289,26 @@
         />
       </a>
       <div class="navbar-actions">
-        <div class="lang-switcher" id="langSwitcher">
-          <button class="lang-btn active" data-lang="en">EN</button>
-          <button class="lang-btn" data-lang="de">DE</button>
-        </div>
-        <button class="search-trigger" id="searchTrigger" aria-label="Search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        <button class="navbar-icon-btn" id="navNewsBtn" aria-label="News">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+            <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
           </svg>
         </button>
-        <a
-          href="https://www.instagram.com/eatthisdotcom/"
-          target="_blank"
-          rel="noopener"
-          aria-label="Instagram"
-          class="navbar-insta"
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <rect x="2" y="2" width="20" height="20" rx="5" />
-            <circle cx="12" cy="12" r="5" />
-            <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none" />
+        <button class="navbar-icon-btn" id="navMapBtn" aria-label="Map">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+            <line x1="9" y1="3" x2="9" y2="18"/>
+            <line x1="15" y1="6" x2="15" y2="21"/>
           </svg>
-        </a>
+        </button>
+        <button class="navbar-icon-btn" id="navMustsBtn" aria-label="Eat This">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+            <path d="M7 2v20"/>
+            <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+          </svg>
+        </button>
         <button class="burger-btn" id="burgerBtn" aria-label="Menu">
           <span></span><span></span><span></span>
         </button>
@@ -797,86 +787,6 @@
     </div>
 
     <!-- APP FOOTER NAVIGATION -->
-    <nav class="app-footer" id="appFooter">
-      <div class="app-footer-nav">
-        <a href="#start" class="app-footer-item active" data-target="start">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-            <polyline points="9 22 9 12 15 12 15 22" />
-          </svg>
-          <span data-i18n="footer.start">Start</span>
-        </a>
-        <a href="#news" class="app-footer-item" data-target="news">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path
-              d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"
-            />
-            <path d="M18 14h-8" />
-            <path d="M15 18h-5" />
-            <path d="M10 6h8v4h-8V6Z" />
-          </svg>
-          <span data-i18n="footer.news">News</span>
-        </a>
-        <a href="#must-eats" class="app-footer-item" data-target="musts">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
-            <path d="M7 2v20" />
-            <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
-          </svg>
-          <span data-i18n="footer.musts">Eat This</span>
-        </a>
-        <a href="#map" class="app-footer-item" data-target="map">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
-            <line x1="9" y1="3" x2="9" y2="18" />
-            <line x1="15" y1="6" x2="15" y2="21" />
-          </svg>
-          <span data-i18n="footer.map">Map</span>
-        </a>
-        <button class="app-footer-item" id="loginBtn">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-          <span data-i18n="footer.signIn">Sign In</span>
-        </button>
-      </div>
-    </nav>
 
     <!-- MUST EAT MODAL -->
     <div class="modal-overlay" id="eatModal">
@@ -1032,11 +942,40 @@
           </svg>
         </button>
         <nav class="burger-nav">
-          <button class="burger-nav-item" id="openAbout">About</button>
-          <button class="burger-nav-item" id="openContact">Contact</button>
-          <button class="burger-nav-item" id="openPress">Press</button>
-          <button class="burger-nav-item" id="openImpressum">Impressum</button>
+          <button class="burger-nav-item burger-nav-item--sm" id="openAbout">About</button>
+          <button class="burger-nav-item burger-nav-item--sm" id="openContact">Contact</button>
+          <button class="burger-nav-item burger-nav-item--sm" id="openPress">Press</button>
+          <button class="burger-nav-item burger-nav-item--sm" id="openImpressum">Impressum</button>
         </nav>
+        <div class="burger-utils">
+          <button class="burger-util-btn" id="burgerSearchTrigger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <span data-i18n="search.placeholder">Search</span>
+          </button>
+          <a href="https://www.instagram.com/eatthisdotcom/" target="_blank" rel="noopener" class="burger-util-btn burger-util-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5"/>
+              <circle cx="12" cy="12" r="5"/>
+              <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/>
+            </svg>
+            Instagram
+          </a>
+          <button class="burger-util-btn" id="loginBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span data-i18n="footer.signIn">Sign In</span>
+          </button>
+        </div>
+        <div class="burger-lang-row">
+          <div class="lang-switcher" id="langSwitcher">
+            <button class="lang-btn active" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="de">DE</button>
+          </div>
+        </div>
         <div class="burger-drawer-footer">
           <button
             class="burger-drawer-footer-btn"

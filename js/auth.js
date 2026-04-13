@@ -105,6 +105,17 @@ function closeLoginModal() {
 window.openLoginModal  = openLoginModal;
 window.closeLoginModal = closeLoginModal;
 
+window._signOut = async () => {
+  await signOut(auth);
+  closeLoginModal();
+  notify(window.i18n.t('modals.login.notifications.signedOut'));
+};
+
+window._sendPasswordReset = async (email) => {
+  const sendPasswordReset = httpsCallable(functions, 'sendPasswordReset');
+  await sendPasswordReset({ email });
+};
+
 if (loginBtn)      loginBtn.addEventListener('click', openLoginModal);
 if (loginClose)    loginClose.addEventListener('click', closeLoginModal);
 if (loginBackdrop) loginBackdrop.addEventListener('click', closeLoginModal);
@@ -322,6 +333,9 @@ onAuthStateChanged(auth, (user) => {
 
     loginForm?.reset();
     setMode(true);
+  }
+  if (window._initProfilePage) {
+    window._initProfilePage(user || null);
   }
 });
 

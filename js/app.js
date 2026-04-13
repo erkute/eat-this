@@ -2356,4 +2356,45 @@ document.addEventListener('DOMContentLoaded', () => {
       closeCookieSettings();
     });
   }
+
+  // ── Site footer navigation links ──
+  document.querySelectorAll('.site-footer-link[data-page]').forEach(btn => {
+    btn.addEventListener('click', () => navigateToPage(btn.dataset.page));
+  });
+
+  // ── Footer logo link ──
+  const footerLogoLink = document.querySelector('.site-footer-logo[data-page]');
+  if (footerLogoLink) {
+    footerLogoLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      navigateToPage(footerLogoLink.dataset.page);
+    });
+  }
+
+  // ── Footer language toggle ──
+  function updateFooterLangButtons(lang) {
+    const de = document.getElementById('footerLangDe');
+    const en = document.getElementById('footerLangEn');
+    if (de) de.classList.toggle('active', lang === 'de');
+    if (en) en.classList.toggle('active', lang === 'en');
+  }
+
+  const footerLangDe = document.getElementById('footerLangDe');
+  const footerLangEn = document.getElementById('footerLangEn');
+
+  if (footerLangDe) {
+    footerLangDe.addEventListener('click', () => {
+      window.i18n && window.i18n.setLang('de');
+      updateFooterLangButtons('de');
+    });
+  }
+  if (footerLangEn) {
+    footerLangEn.addEventListener('click', () => {
+      window.i18n && window.i18n.setLang('en');
+      updateFooterLangButtons('en');
+    });
+  }
+
+  // Sync footer lang buttons with current language on page load
+  updateFooterLangButtons(window.i18n ? window.i18n.currentLang() : 'en');
 });

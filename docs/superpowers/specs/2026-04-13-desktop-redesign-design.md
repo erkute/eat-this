@@ -152,21 +152,78 @@ Full-page view, accessible via Profile icon in navbar. Three tabs:
 
 ---
 
-## 8. Files to Change
+## 8. Static Content Pages → Full Pages via CMS
 
-| File | Change |
-|------|--------|
-| `css/style.css` | Remove 480px desktop constraints; add full-width desktop styles for all pages; add footer styles; add profile page styles |
-| `index.html` | Widen navbar padding; add footer HTML; add profile page HTML; add profile nav icon |
-| `js/app.js` | Add profile page navigation; wire up tab switching |
-| `js/profile.js` | New file: profile page logic (tabs, deck rendering, settings) |
+The following pages are currently hardcoded HTML inside modal overlays. They are converted to:
+1. **Full-page views** (`data-page="about"`, `data-page="contact"`, etc.) — same page-switching model as Hero/News/Map
+2. **CMS-editable** via Sanity — content managed in the Studio, fetched client-side via `cms.js`
+
+### Pages to migrate
+
+| Page | Current | New `data-page` | CMS document type |
+|------|---------|-----------------|-------------------|
+| About | Modal `#aboutModal` | `about` | `staticPage` (slug: `about`) |
+| Contact | Modal `#contactModal` | `contact` | `staticPage` (slug: `contact`) |
+| Press | Modal `#pressModal` | `press` | `staticPage` (slug: `press`) |
+| Impressum | Modal `#impressumModal` | `impressum` | `staticPage` (slug: `impressum`) |
+| Datenschutz | Modal `#datenschutzModal` | `datenschutz` | `staticPage` (slug: `datenschutz`) |
+| AGB | Modal `#agbModal` | `agb` | `staticPage` (slug: `agb`) |
+
+### Sanity Schema: `staticPage`
+
+```js
+// schemas/staticPage.js
+{
+  name: 'staticPage',
+  title: 'Static Page',
+  type: 'document',
+  fields: [
+    { name: 'slug', type: 'slug', title: 'Slug' },           // e.g. "impressum"
+    { name: 'title', type: 'string', title: 'Title' },        // e.g. "Impressum"
+    { name: 'titleDe', type: 'string', title: 'Title (DE)' },
+    { name: 'body', type: 'array', of: [{ type: 'block' }], title: 'Content (EN)' },
+    { name: 'bodyDe', type: 'array', of: [{ type: 'block' }], title: 'Content (DE)' },
+  ]
+}
+```
+
+### Navigation to these pages
+- Footer links (About, Contact, Press, Impressum, Datenschutz, AGB) navigate to the respective `data-page` instead of opening a modal
+- Burger menu links do the same
+- Back navigation: a "← Back" button or breadcrumb returns to the previous page
+- These pages get the footer at the bottom
+
+### Layout of static pages
+- Max-width `~800px` centered within the full viewport (readable prose width)
+- Portable Text rendered as semantic HTML (`<h2>`, `<p>`, `<ul>`, etc.)
+- Same background and typography as the rest of the app
+- Language-aware: renders `body` (EN) or `bodyDe` (DE) based on active language
+
+### CMS fetch
+- Added to `cms.js` as `fetchStaticPage(slug)` — fetches by slug on page navigation
+- Content cached in memory after first fetch (no re-fetch on re-visit within session)
+- Fallback: if CMS fetch fails, show a plain error message ("Content unavailable")
 
 ---
 
-## 9. Out of Scope
+## 9. Files to Change
+
+| File | Change |
+|------|--------|
+| `css/style.css` | Remove 480px desktop constraints; add full-width desktop styles for all pages; add footer styles; add profile page styles; add static page styles |
+| `index.html` | Widen navbar padding; add footer HTML; add profile page HTML; add profile nav icon; add static page HTML shells; remove hardcoded modal content for About/Contact/Press/Impressum/Datenschutz/AGB |
+| `js/app.js` | Add profile page navigation; wire up tab switching; add static page navigation + rendering |
+| `js/cms.js` | Add `fetchStaticPage(slug)` GROQ query + in-memory cache |
+| `js/profile.js` | New file: profile page logic (tabs, deck rendering, settings) |
+| `sanity/schemas/staticPage.js` | New Sanity schema for CMS-editable static pages |
+| `sanity/sanity.config.js` | Register `staticPage` schema |
+
+---
+
+## 10. Out of Scope
 
 - Booster Pack purchasing (placeholder only)
 - Profile picture upload
 - Push notification settings on profile page
 - Any changes to mobile (≤767px) layout
-- Any CMS schema changes
+- Rich text editor beyond standard Portable Text blocks (no custom components)

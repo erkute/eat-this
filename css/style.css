@@ -3136,6 +3136,28 @@ body {
     margin-bottom: 6px;
   }
 
+  /* ---- News: desktop 4-column grid ---- */
+  .app-page[data-page="news"] .news-section {
+    padding: 0 32px 40px;
+    overflow-y: auto;
+    height: calc(100dvh - 60px);
+  }
+
+  .app-page[data-page="news"] .news-header {
+    padding: 32px 0 20px;
+    margin-bottom: 24px;
+  }
+
+  .app-page[data-page="news"] .news-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .app-page[data-page="news"] .news-featured {
+    grid-column: span 2;
+  }
+
 }
 
 /* Cookie Info Modal Content */

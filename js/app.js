@@ -2025,6 +2025,16 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.hash = 'musts';
       });
     }
+    const navProfileBtn = document.getElementById('navProfileBtn');
+    if (navProfileBtn) {
+      navProfileBtn.addEventListener('click', () => {
+        if (window._currentUser) {
+          showPage('profile');
+        } else {
+          window.openLoginModal && window.openLoginModal();
+        }
+      });
+    }
 
     // Burger menu page navigation (News)
     document.querySelectorAll('.burger-page-btn').forEach((btn) => {

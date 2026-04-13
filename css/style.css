@@ -3068,6 +3068,59 @@ body {
     width: 100%;
   }
 
+  /* ---- Map: desktop nearby carousel — 6 cards + right-fade ---- */
+
+  /* Always visible at bottom on desktop — no slide-up sheet */
+  .app-page[data-page="map"] .map-nearby {
+    transform: translateY(0);
+    transition: none;
+    border-radius: 16px 16px 0 0;
+    padding: 16px 24px 20px;
+  }
+
+  /* Hide drag handle on desktop */
+  .app-page[data-page="map"] .map-nearby-handle {
+    display: none;
+  }
+
+  /* 6.4 divisor: ~6 cards visible + partial 7th as peek */
+  .app-page[data-page="map"] .map-nearby-grid-card {
+    flex: 0 0 calc((100% - 8px * 5) / 6.4);
+  }
+
+  /* Taller image on desktop */
+  .app-page[data-page="map"] .map-nearby-grid-card-img {
+    height: 120px;
+  }
+
+  /* Larger text on desktop */
+  .app-page[data-page="map"] .map-nearby-grid-card-name { font-size: 13px; }
+  .app-page[data-page="map"] .map-nearby-grid-card-meta { font-size: 11px; }
+  .app-page[data-page="map"] .map-nearby-grid-card-hours { font-size: 10px; }
+
+  /* Right-fade gradient to hint more cards exist */
+  .app-page[data-page="map"] .map-nearby-grid-wrapper {
+    position: relative;
+  }
+  .app-page[data-page="map"] .map-nearby-grid-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 80px;
+    background: linear-gradient(to right, transparent, #fff);
+    pointer-events: none;
+  }
+
+  /* Shrink map height to account for always-visible nearby strip */
+  .app-page[data-page="map"] .map-container {
+    height: calc(100dvh - 60px - 180px);
+  }
+
+  .app-page[data-page="map"] .map-nearby-label {
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
   /* ---- News: single column ---- */
   .app-page[data-page="news"] .news-section {
     padding: 0;

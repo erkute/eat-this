@@ -2983,6 +2983,33 @@ body {
     }
   }
 
+  /* ---- Must Eats: desktop 5-column grid ---- */
+  .app-page[data-page="musts"] .must-eats-section {
+    padding: 0 32px 40px;
+    overflow-y: auto;
+    height: calc(100dvh - 60px);
+  }
+
+  .app-page[data-page="musts"] .must-eats-header {
+    padding: 32px 0 20px;
+    text-align: left;
+    margin-bottom: 24px;
+  }
+
+  .app-page[data-page="musts"] .must-eats-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    padding: 0;
+    max-width: none;
+  }
+
+  /* Remove the odd-last-child centering hack (not needed at 5 cols) */
+  .app-page[data-page="musts"] .must-eats-grid .must-card:nth-child(odd):last-child {
+    grid-column: auto;
+    justify-self: auto;
+    width: auto;
+  }
+
   /* ---- Map: fill available space, no scroll ---- */
   .app-page[data-page="map"] {
     overflow: hidden;

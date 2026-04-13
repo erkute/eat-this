@@ -2029,7 +2029,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navProfileBtn) {
       navProfileBtn.addEventListener('click', () => {
         if (window._currentUser) {
-          showPage('profile');
+          navigateToPage('profile');
+          window.location.hash = 'profile';
         } else {
           window.openLoginModal && window.openLoginModal();
         }

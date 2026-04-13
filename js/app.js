@@ -1990,6 +1990,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navNewsBtn) navNewsBtn.classList.toggle('active', pageName === 'news');
     if (navMapBtn) navMapBtn.classList.toggle('active', pageName === 'map');
     if (navMustsBtn) navMustsBtn.classList.toggle('active', pageName === 'musts');
+    const navProfileBtnEl = document.getElementById('navProfileBtn');
+    if (navProfileBtnEl) navProfileBtnEl.classList.toggle('active', pageName === 'profile');
 
     currentPage = pageName;
   }
@@ -2025,6 +2027,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.hash = 'musts';
       });
     }
+
     const navProfileBtn = document.getElementById('navProfileBtn');
     if (navProfileBtn) {
       navProfileBtn.addEventListener('click', () => {

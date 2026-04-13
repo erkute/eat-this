@@ -309,6 +309,7 @@ function applyLoggedInUI(user) {
 }
 
 onAuthStateChanged(auth, (user) => {
+  window._currentUser = user || null;
   if (user) {
     if (isRegistering) return;
     applyLoggedInUI(user);

@@ -1742,17 +1742,38 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    spots.forEach((spot, _i) => {
+    function addSpotMarker(spot) {
       const marker = L.marker([spot.lat, spot.lng], { icon: logoIcon }).addTo(foodMap);
       marker.spotType = spot.type;
       marker.spotDistrict = spot.district;
       marker.spotData = spot;
       marker.spotCategories = spot.categories || [];
-      marker.on('click', () => {
-        showSpotDetail(spot);
-      });
+      marker.on('click', () => showSpotDetail(spot));
       markers.push(marker);
-    });
+    }
+
+    spots.forEach(addSpotMarker);
+
+    // Fallback: if CMS data wasn't ready when initFoodMap ran (e.g. slow mobile
+    // network caused cmsReady to resolve with an empty restaurants response),
+    // try fetching restaurants directly and inject them after the fact.
+    if (spots.length === 0 && window.CMS) {
+      window.CMS.fetchRestaurants().then((restaurants) => {
+        if (!restaurants || !restaurants.length) return;
+        spots = restaurants.map((r) => ({ ...r, type: (r.categories || []).join(' · ') }));
+        window._allSpots = spots;
+        spots.forEach(addSpotMarker);
+        // Update filter counts
+        const countAllEl = document.getElementById('count-all');
+        if (countAllEl) countAllEl.textContent = spots.length;
+        // Re-render grid if the nearby strip is already showing
+        if (_nearbyLat !== null) {
+          _renderNearbyGrid();
+          const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+          if (!isDesktop) _snapSheet('mid', true);
+        }
+      }).catch(() => {});
+    }
 
     // Close spot detail when clicking on map background
     const mapContainer = document.getElementById('foodMap');

@@ -2491,35 +2491,47 @@ body {
     background: var(--white);
   }
 
+  .app-page[data-page="news"] .news-ticker {
+    display: flex;
+  }
+
   .app-page[data-page="news"] .news-header {
-    padding: 12px 16px 12px;
+    padding: 10px 16px 8px;
     background: var(--white);
-    border-bottom: 2px solid var(--black);
+    border-bottom: 3px solid var(--black);
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
+    margin: 0;
+    text-align: left;
   }
 
-  .app-page[data-page="news"] .news-title {
-    font-family: 'Anton', sans-serif;
-    font-size: 2rem;
-    font-weight: 400;
-    letter-spacing: 0.01em;
-    line-height: 1;
-    margin: 0;
-    text-transform: uppercase;
+  .app-page[data-page="news"] .news-header-top {
+    margin-bottom: 0;
   }
 
   .app-page[data-page="news"] .section-label {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.3em;
     text-transform: uppercase;
-    color: var(--orange);
-    margin-bottom: 5px;
+    color: var(--darkred);
+    margin-bottom: 0;
+    display: block;
   }
 
   .app-page[data-page="news"] .news-subtitle { display: none; }
+
+  .app-page[data-page="news"] .news-title {
+    font-size: clamp(2.8rem, 10vw, 5rem);
+    font-weight: 900;
+    letter-spacing: -0.08em;
+    line-height: 0.85;
+    margin: 0;
+    text-transform: uppercase;
+    color: var(--black);
+    font-family: var(--font);
+  }
 
   .app-page[data-page="news"] .news-grid {
     padding: 0;

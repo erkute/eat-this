@@ -1388,7 +1388,6 @@ body {
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: #fff;
-  gap: 32px;
   overflow: hidden;
   white-space: nowrap;
 }
@@ -2495,6 +2494,7 @@ body {
 
   .app-page[data-page="news"] .news-ticker {
     display: flex;
+    gap: 32px;
   }
 
   .app-page[data-page="news"] .news-header {
@@ -3018,7 +3018,7 @@ body {
     margin: 0 auto;
   }
 
-  .app-page .section-label {
+  .app-page:not([data-page="news"]) .section-label {
     font-size: 10px;
     color: var(--orange);
     margin-bottom: 4px;
@@ -3208,6 +3208,7 @@ body {
 
   .app-page[data-page="news"] .news-ticker {
     display: flex;
+    gap: 32px;
   }
 
   .app-page[data-page="news"] .news-header {

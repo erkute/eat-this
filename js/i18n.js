@@ -77,7 +77,7 @@ const TRANSLATIONS = {
       news: 'News',
       musts: 'Eat This',
       map: 'Map',
-      signIn: 'Sign In',
+      signIn: 'Login / Register',
     },
     search: {
       placeholder: 'What are you craving?',

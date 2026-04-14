@@ -128,8 +128,7 @@ window._deleteAccount = async () => {
 
 if (loginBtn)      loginBtn.addEventListener('click', () => {
   if (loginBtn.classList.contains('logged-in')) {
-    document.getElementById('burgerDrawer')?.classList.remove('open');
-    document.body.classList.remove('burger-open');
+    window._closeBurger?.();
     window._navigateToPage?.('profile');
   } else {
     openLoginModal();

@@ -2267,6 +2267,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function closeBurger() {
     burger.close();
   }
+  window._closeBurger = closeBurger;
 
   // Static page back buttons
   document.querySelectorAll('.static-page-back[data-back]').forEach(btn => {

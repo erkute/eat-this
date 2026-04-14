@@ -1962,8 +1962,27 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+  function populateTicker() {
+    const ticker = document.querySelector('.news-ticker');
+    if (!ticker) return;
+    const titles = Array.from(document.querySelectorAll('.news-card[data-title]'))
+      .map((c) => c.dataset.title)
+      .filter(Boolean);
+    if (!titles.length) return;
+    const track = document.createElement('div');
+    track.className = 'news-ticker-track';
+    [...titles, ...titles].forEach((t) => {
+      const span = document.createElement('span');
+      span.textContent = t;
+      track.appendChild(span);
+    });
+    ticker.textContent = '';
+    ticker.appendChild(track);
+  }
+
   bindNewsCards();
-  window._bindNewsCards = bindNewsCards;
+  populateTicker();
+  window._bindNewsCards = () => { bindNewsCards(); populateTicker(); };
 
   if (newsModalClose) {
     newsModalClose.addEventListener('click', closeNewsModal);

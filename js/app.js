@@ -20,6 +20,69 @@ if (window.innerWidth <= CONFIG.MOBILE_BREAKPOINT && screen.orientation?.lock) {
   screen.orientation.lock('portrait').catch(() => {});
 }
 
+const STATIC_PAGE_SLUGS = ['about', 'contact', 'press', 'impressum', 'datenschutz', 'agb'];
+
+/**
+ * Render Sanity Portable Text blocks to a DocumentFragment.
+ * Handles: h2, h3, paragraph, bullet list, numbered list, strong, em.
+ * All text content set via textContent (XSS-safe).
+ */
+function renderPortableText(blocks) {
+  if (!blocks || !blocks.length) return document.createDocumentFragment();
+
+  const fragment = document.createDocumentFragment();
+  let currentList = null;
+  let currentListType = null;
+
+  const closeList = () => {
+    if (currentList) { fragment.appendChild(currentList); currentList = null; currentListType = null; }
+  };
+
+  const buildInline = (children) => {
+    const span = document.createElement('span');
+    (children || []).forEach(child => {
+      const marks = child.marks || [];
+      let node = document.createTextNode(child.text || '');
+      marks.slice().reverse().forEach(mark => {
+        const wrapper = document.createElement(
+          mark === 'strong' ? 'strong' : mark === 'em' ? 'em' : 'span'
+        );
+        wrapper.appendChild(node);
+        node = wrapper;
+      });
+      span.appendChild(node);
+    });
+    return span;
+  };
+
+  blocks.forEach(block => {
+    if (block._type !== 'block') { closeList(); return; }
+
+    if (block.listItem) {
+      const listTag = block.listItem === 'number' ? 'ol' : 'ul';
+      if (currentListType !== listTag) {
+        closeList();
+        currentList = document.createElement(listTag);
+        currentListType = listTag;
+      }
+      const li = document.createElement('li');
+      li.appendChild(buildInline(block.children));
+      currentList.appendChild(li);
+      return;
+    }
+
+    closeList();
+
+    const tag = block.style === 'h2' ? 'h2' : block.style === 'h3' ? 'h3' : 'p';
+    const el = document.createElement(tag);
+    el.appendChild(buildInline(block.children));
+    fragment.appendChild(el);
+  });
+
+  closeList();
+  return fragment;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // ============================================
   // BODY OVERFLOW MANAGER
@@ -1919,6 +1982,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let currentPage = 'start';
 
+  async function loadStaticPage(slug) {
+    // Build element IDs: "datenschutz" → "staticPageDatenschutz"
+    const idBase  = 'staticPage' + slug.charAt(0).toUpperCase() + slug.slice(1);
+    const titleEl = document.getElementById(idBase + '-title');
+    const bodyEl  = document.getElementById(idBase + '-body');
+    if (!titleEl || !bodyEl) return;
+
+    // Show loading state
+    bodyEl.textContent = '';
+    const loading = document.createElement('span');
+    loading.className = 'static-page-loading';
+    loading.textContent = 'Loading\u2026';
+    bodyEl.appendChild(loading);
+
+    const lang = (window.i18n && window.i18n.currentLang) ? window.i18n.currentLang() : 'de';
+    const page = await window.CMS.fetchStaticPage(slug);
+
+    bodyEl.textContent = ''; // clear loading
+
+    if (!page) {
+      const err = document.createElement('p');
+      err.style.color = '#999';
+      err.textContent = 'Inhalt konnte nicht geladen werden.';
+      bodyEl.appendChild(err);
+      return;
+    }
+
+    titleEl.textContent = (lang === 'de' && page.titleDe) ? page.titleDe : (page.title || '');
+    const blocks = (lang === 'de' && page.bodyDe && page.bodyDe.length) ? page.bodyDe : (page.body || []);
+    bodyEl.appendChild(renderPortableText(blocks));
+  }
+
   function navigateToPage(pageName) {
     if (pageName === currentPage) return;
 
@@ -1994,6 +2089,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navProfileBtnEl) navProfileBtnEl.classList.toggle('active', pageName === 'profile');
 
     currentPage = pageName;
+
+    // Track navigation history for back button
+    window._prevPage    = window._currentPage || 'start';
+    window._currentPage = pageName;
+
+    // Load CMS content for static pages
+    if (STATIC_PAGE_SLUGS.includes(pageName)) {
+      loadStaticPage(pageName);
+    }
   }
 
   if (appPages.length) {
@@ -2113,6 +2217,13 @@ document.addEventListener('DOMContentLoaded', () => {
     burger.close();
   }
 
+  // Static page back buttons
+  document.querySelectorAll('.static-page-back[data-back]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      navigateToPage(window._prevPage || 'start');
+    });
+  });
+
   // Cookie Info Modal
   const cookieInfoModalEl = document.getElementById('cookieInfoModal');
   const cookieInfoModal = createModal(cookieInfoModalEl, {
@@ -2150,19 +2261,24 @@ document.addEventListener('DOMContentLoaded', () => {
       datenschutzModal.open();
     });
 
-  // Info modals (about, contact, press, impressum) — opened from burger
-  ['about', 'contact', 'press', 'impressum'].forEach((id) => {
-    const cap = id.charAt(0).toUpperCase() + id.slice(1);
-    const m = createModal(document.getElementById(id + 'Modal'), {
-      closeBtn: document.getElementById(id + 'Close'),
-      backdrop: document.getElementById(id + 'Backdrop'),
-    });
+  // Static page navigation from burger drawer
+  ['about', 'contact', 'press', 'impressum'].forEach((slug) => {
+    const cap = slug.charAt(0).toUpperCase() + slug.slice(1);
     const trigger = document.getElementById('open' + cap);
-    if (trigger)
+    if (trigger) {
       trigger.addEventListener('click', () => {
         closeBurger();
-        m.open();
+        navigateToPage(slug);
       });
+    }
+    // Keep the modal wired for any remaining references, but navigation takes priority
+    const modal = document.getElementById(slug + 'Modal');
+    if (modal) {
+      createModal(modal, {
+        closeBtn: document.getElementById(slug + 'Close'),
+        backdrop: document.getElementById(slug + 'Backdrop'),
+      });
+    }
   });
 
   // ============================================

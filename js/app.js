@@ -1661,12 +1661,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const _isDesktop = window.matchMedia('(min-width: 768px)').matches;
       if (!_sheetReady) {
         _sheetReady = true;
-        // On mobile: hide the sheet initially so it can slide up
-        // On desktop: CSS keeps it visible (translateY(0)), no hide needed
-        if (!_isDesktop) {
-          const sheet = document.getElementById('mapNearby');
-          if (sheet) sheet.style.transform = `translateY(${sheet.offsetHeight - PEEK_PX}px)`;
-        }
+        // Start at peek position so the sheet can animate up to mid
+        const sheet = document.getElementById('mapNearby');
+        if (sheet) sheet.style.transform = `translateY(${sheet.offsetHeight - PEEK_PX}px)`;
         _initSheetDrag();
       }
       // Double rAF: first frame lets grid paint, second measures correct height

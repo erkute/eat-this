@@ -3245,7 +3245,7 @@ body {
 
   /* Hide drag handle on desktop */
   .app-page[data-page="map"] .map-nearby-handle {
-    display: none;
+    display: flex;
   }
 
   /* 6 columns on desktop */

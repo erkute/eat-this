@@ -4194,3 +4194,15 @@ body {
 .profile-settings-signout-btn:hover { background: var(--gray-50); border-color: var(--black); }
 .profile-settings-delete-btn { color: #c0392b; border-color: rgba(192,57,43,0.3); }
 .profile-settings-delete-btn:hover { background: rgba(192,57,43,0.06); border-color: #c0392b; }
+
+@media (min-width: 768px) {
+  /* ── Hero: constrain start-page content sections to readable width ── */
+  .app-page[data-page="start"] .start-section {
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 32px;
+    padding-right: 32px;
+    box-sizing: border-box;
+  }
+}

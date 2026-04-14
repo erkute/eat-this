@@ -110,6 +110,7 @@ window._signOut = async () => {
   await signOut(auth);
   closeLoginModal();
   notify(window.i18n.t('modals.login.notifications.signedOut'));
+  window._navigateToPage?.('start');
 };
 
 window._sendPasswordReset = async (email) => {
@@ -320,6 +321,7 @@ if (logoutBtn) {
     await signOut(auth);
     closeLoginModal();
     notify(window.i18n.t('modals.login.notifications.signedOut'));
+    window._navigateToPage?.('start');
   });
 }
 

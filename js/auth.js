@@ -258,6 +258,7 @@ if (loginForm) {
         notify(window.i18n.t('modals.login.notifications.signedIn').replace('{name}', firstName));
       }
       closeLoginModal();
+      window._navigateToPage?.('profile');
     } catch (err) {
       isRegistering = false;
       const msg = errorMessage(err.code);
@@ -304,6 +305,7 @@ if (googleLoginBtn) {
       const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? '';
       notify(window.i18n.t('modals.login.notifications.signedIn').replace('{name}', firstName));
       closeLoginModal();
+      window._navigateToPage?.('profile');
     } catch (err) {
       console.error('[auth] Google login error:', err.code, err);
       const msg = errorMessage(err.code);

@@ -13,10 +13,9 @@ test.describe('Navigation', () => {
   });
 
   test('footer nav tabs are visible', async ({ page }) => {
-    await expect(page.locator('#appFooter')).toBeVisible();
-    await expect(page.locator('[data-target="map"]')).toBeVisible();
-    await expect(page.locator('[data-target="musts"]')).toBeVisible();
-    await expect(page.locator('[data-target="news"]')).toBeVisible();
+    await expect(page.locator('#navMapBtn')).toBeVisible();
+    await expect(page.locator('#navMustsBtn')).toBeVisible();
+    await expect(page.locator('#navNewsBtn')).toBeVisible();
   });
 
   test('navigates to Must-Eats page', async ({ page }) => {

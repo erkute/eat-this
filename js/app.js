@@ -1345,7 +1345,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const PEEK_PX = 32;  // handle bar always visible — minimum state
     const MID_PX = 240;  // 1 card row visible
-    const EXPANDED_PX = 540; // 3 card rows (capped dynamically to leave map visible)
+    const EXPANDED_PX = 520; // 3×3 = 9 cards on mobile (capped dynamically to leave map visible)
 
     function isOpenNow(openingHours) {
       if (!openingHours || !openingHours.length) return null;
@@ -1659,17 +1659,24 @@ document.addEventListener('DOMContentLoaded', () => {
       _renderNearbyGrid();
 
       const _isDesktop = window.matchMedia('(min-width: 768px)').matches;
+
+      if (_isDesktop) {
+        // Desktop sidebar: always visible, no snap/drag needed
+        const sheet = document.getElementById('mapNearby');
+        if (sheet) sheet.style.transform = 'none';
+        return;
+      }
+
+      // Mobile: bottom sheet behavior
       if (!_sheetReady) {
         _sheetReady = true;
-        // Start at peek position so the sheet can animate up to mid
         const sheet = document.getElementById('mapNearby');
         if (sheet) sheet.style.transform = `translateY(${sheet.offsetHeight - PEEK_PX}px)`;
         _initSheetDrag();
       }
       // Double rAF: first frame lets grid paint, second measures correct height
       requestAnimationFrame(() => requestAnimationFrame(() => {
-        // Start at mid (1 row visible) on both mobile and desktop
-        _snapSheet('mid', !_isDesktop);
+        _snapSheet('mid', true);
         // Register map click → peek only after sheet is settled (800ms safety window)
         if (foodMap && !foodMap._eatThisClickBound) {
           foodMap._eatThisClickBound = true;

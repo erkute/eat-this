@@ -2651,10 +2651,10 @@ body {
     background: none;
   }
   .app-page[data-page="news"] .news-card .news-card-headline {
-    font-size: clamp(1.7rem, 6.5vw, 2.3rem);
+    font-size: clamp(1.25rem, 5vw, 1.7rem);
     font-weight: 900;
-    letter-spacing: -0.055em;
-    line-height: 0.92;
+    letter-spacing: -0.04em;
+    line-height: 1.0;
     text-transform: uppercase;
     color: var(--black);
     display: block;

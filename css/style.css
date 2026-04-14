@@ -2926,7 +2926,8 @@ body {
   .login-modal {
     align-items: center;
     justify-content: center;
-    bottom: 70px;
+    /* bottom stays 0 (from inset:0) so backdrop covers full viewport */
+    padding-bottom: 70px; /* push content above the nav bar */
   }
   .login-modal-content {
     width: 90%;

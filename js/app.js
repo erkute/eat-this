@@ -1158,9 +1158,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const isDesktop = window.matchMedia('(min-width: 768px)').matches;
 
       if (isDesktop) {
-        // The map container has margin-right: 360px so the Leaflet viewport already
-        // excludes the sidebar — flyTo naturally centres in the visible map area.
-        foodMap.flyTo([lat, lng], zoom, { animate: true, duration: 1 });
+        // The map is full-width (sidebar overlaps the right 360px).
+        // To centre the spot in the visible map area (left of sidebar),
+        // shift the Leaflet centre 180px to the RIGHT of the target —
+        // so the target appears 180px LEFT of the map centre = visual centre.
+        const targetPoint = foodMap.project([lat, lng], zoom);
+        const adjustedPoint = L.point(targetPoint.x + 180, targetPoint.y);
+        const adjustedLatLng = foodMap.unproject(adjustedPoint, zoom);
+        foodMap.flyTo(adjustedLatLng, zoom, { animate: true, duration: 1 });
         return;
       }
 
@@ -1676,6 +1681,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const nearbyTitle = document.getElementById('mapNearbyTitle');
       if (nearbyTitle && window.i18n) nearbyTitle.textContent = window.i18n.t('map.nearby');
       _renderNearbyGrid();
+      // Safety net: if CMS data didn't arrive yet (e.g. slow mobile network),
+      // re-render once cmsReady resolves and spots become available.
+      if (!spots.length) {
+        cmsReady.then(() => {
+          if (spots.length > 0 && _nearbyLat !== null) {
+            _renderNearbyGrid();
+            _snapSheet('mid', true);
+          }
+        });
+      }
 
       const _isDesktop = window.matchMedia('(min-width: 768px)').matches;
 

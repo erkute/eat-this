@@ -649,6 +649,7 @@
               Istanbul, Amsterdam, Paris — we’re on it.
             </p>
           </div>
+
         </div>
         <!-- END SCROLL SECTIONS -->
       </div>
@@ -958,65 +959,41 @@
         </div>
       </div>
     
-    <!-- ═══════════════════════════════════════════
-         SITE FOOTER (desktop only — hidden on mobile via CSS)
-         ═══════════════════════════════════════════ -->
-    <footer class="site-footer" id="siteFooter" aria-label="Site footer">
-      <div class="site-footer-grid">
+    </div>
 
-        <!-- Brand column -->
-        <div class="site-footer-brand">
-          <a href="#" class="site-footer-logo-link" data-page="start" aria-label="Eat This home">
-            <img src="pics/logo2.webp" alt="EAT THIS" class="site-footer-logo-img" />
-          </a>
-          <p class="site-footer-tagline">We tell you what to eat.</p>
-          <a href="https://www.instagram.com/eatthisdotcom/" target="_blank"
-             rel="noopener noreferrer" class="site-footer-ig" aria-label="Instagram @eatthisdotcom">
-            <span class="site-footer-ig-icon" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                <circle cx="12" cy="12" r="4"/>
-                <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/>
-              </svg>
-            </span>
-            <span class="site-footer-ig-handle">@eatthisdotcom</span>
-          </a>
-        </div>
-
-        <!-- Company column -->
-        <div class="site-footer-col">
-          <h3 class="site-footer-col-title">Company</h3>
+    <!-- SITE FOOTER TEMPLATE — stamped into every non-map page by app.js -->
+    <template id="siteFooterTpl">
+      <div class="site-footer" role="contentinfo" aria-label="Site footer">
+        <a href="#" class="site-footer-logo-link" data-page="start" aria-label="Eat This home">
+          <img src="pics/logo2.webp" alt="EAT THIS" class="site-footer-logo-img" />
+        </a>
+        <nav class="site-footer-links" aria-label="Footer navigation">
           <button class="site-footer-link" data-page="about">About</button>
           <button class="site-footer-link" data-page="contact">Contact</button>
           <button class="site-footer-link" data-page="press">Press</button>
-        </div>
-
-        <!-- Legal column -->
-        <div class="site-footer-col">
-          <h3 class="site-footer-col-title">Legal</h3>
+          <span class="site-footer-divider" aria-hidden="true"></span>
           <button class="site-footer-link" data-page="impressum">Impressum</button>
           <button class="site-footer-link" data-page="datenschutz">Datenschutz</button>
           <button class="site-footer-link" data-page="agb">AGB</button>
-        </div>
-
-        <!-- Language column -->
-        <div class="site-footer-col">
-          <h3 class="site-footer-col-title">Language</h3>
+        </nav>
+        <div class="site-footer-meta">
+          <a href="https://www.instagram.com/eatthisdotcom/" target="_blank"
+             rel="noopener noreferrer" class="site-footer-ig" aria-label="Instagram @eatthisdotcom">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/>
+            </svg>
+            <span>@eatthisdotcom</span>
+          </a>
           <div class="site-footer-lang">
-            <button class="site-footer-lang-btn" id="footerLangDe">DE</button>
-            <button class="site-footer-lang-btn" id="footerLangEn">EN</button>
+            <button class="site-footer-lang-btn" data-lang="de">DE</button>
+            <button class="site-footer-lang-btn" data-lang="en">EN</button>
           </div>
         </div>
-
+        <p class="site-footer-copy">&copy; 2026 Eat This. All rights reserved.</p>
       </div>
-
-      <div class="site-footer-bottom">
-        <span class="site-footer-copy">&copy; 2026 Eat This. All rights reserved.</span>
-      </div>
-    </footer>
-    </div>
-
-    <!-- APP FOOTER NAVIGATION -->
+    </template>
 
     <!-- MUST EAT MODAL -->
     <div class="modal-overlay" id="eatModal">

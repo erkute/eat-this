@@ -743,7 +743,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let globeShown = false;
 
   function showGlobeIntro(onComplete) {
-    if (typeof THREE === 'undefined' || globeShown) {
+    // TEMPORARILY DISABLED FOR TESTING — re-enable by removing this early return
+    onComplete();
+    return;
+    if (typeof THREE === 'undefined' || globeShown) { // eslint-disable-line no-unreachable
       onComplete();
       return;
     }
@@ -2502,49 +2505,44 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ── Site footer navigation links ──
-  document.querySelectorAll('.site-footer-link[data-page]').forEach(btn => {
-    btn.addEventListener('click', () => navigateToPage(btn.dataset.page));
+  // ── Stamp footer into every non-map page ──
+  const siteFooterTpl = document.getElementById('siteFooterTpl');
+  if (siteFooterTpl) {
+    document.querySelectorAll('.app-page:not([data-page="map"])').forEach(page => {
+      const clone = siteFooterTpl.content.cloneNode(true);
+      // Start page: footer goes inside the scroll content div
+      const target = page.dataset.page === 'start'
+        ? page.querySelector('.start-scroll-content')
+        : page;
+      if (target) target.appendChild(clone);
+    });
+  }
+
+  // ── Footer event delegation (handles all stamped instances) ──
+  document.addEventListener('click', (e) => {
+    // Nav links
+    const navBtn = e.target.closest('.site-footer-link[data-page]');
+    if (navBtn) { navigateToPage(navBtn.dataset.page); return; }
+
+    // Logo link
+    const logoLink = e.target.closest('.site-footer-logo-link[data-page]');
+    if (logoLink) { e.preventDefault(); navigateToPage(logoLink.dataset.page); return; }
+
+    // Language buttons
+    const langBtn = e.target.closest('.site-footer-lang-btn[data-lang]');
+    if (langBtn) {
+      const lang = langBtn.dataset.lang;
+      window.i18n && window.i18n.setLang(lang);
+      updateFooterLangButtons(lang);
+      if (window._currentPage && STATIC_PAGE_SLUGS.includes(window._currentPage)) {
+        loadStaticPage(window._currentPage);
+      }
+    }
   });
 
-  // ── Footer logo link ──
-  const footerLogoLink = document.querySelector('.site-footer-logo[data-page]');
-  if (footerLogoLink) {
-    footerLogoLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      navigateToPage(footerLogoLink.dataset.page);
-    });
-  }
-
-  // ── Footer language toggle ──
   function updateFooterLangButtons(lang) {
-    const de = document.getElementById('footerLangDe');
-    const en = document.getElementById('footerLangEn');
-    if (de) de.classList.toggle('active', lang === 'de');
-    if (en) en.classList.toggle('active', lang === 'en');
-  }
-
-  const footerLangDe = document.getElementById('footerLangDe');
-  const footerLangEn = document.getElementById('footerLangEn');
-
-  if (footerLangDe) {
-    footerLangDe.addEventListener('click', () => {
-      window.i18n && window.i18n.setLang('de');
-      updateFooterLangButtons('de');
-      // Re-render current static page in new language
-      if (window._currentPage && STATIC_PAGE_SLUGS.includes(window._currentPage)) {
-        loadStaticPage(window._currentPage);
-      }
-    });
-  }
-  if (footerLangEn) {
-    footerLangEn.addEventListener('click', () => {
-      window.i18n && window.i18n.setLang('en');
-      updateFooterLangButtons('en');
-      // Re-render current static page in new language
-      if (window._currentPage && STATIC_PAGE_SLUGS.includes(window._currentPage)) {
-        loadStaticPage(window._currentPage);
-      }
+    document.querySelectorAll('.site-footer-lang-btn[data-lang]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === lang);
     });
   }
 

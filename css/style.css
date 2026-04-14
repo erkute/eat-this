@@ -4292,11 +4292,9 @@ body {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;
 }
 .profile-fav-district { font-size: 10px; color: rgba(255,255,255,0.70); display: block; }
-.profile-fav-type { font-size: 10px; color: rgba(255,255,255,0.55); display: none; }
 @media (min-width: 768px) {
   .profile-fav-name { font-size: 13px; }
   .profile-fav-district { font-size: 11px; }
-  .profile-fav-type { display: block; font-size: 10px; margin-top: 2px; }
   .profile-fav-card-overlay { padding: 24px 10px 9px; }
 }
 .profile-saved-empty {

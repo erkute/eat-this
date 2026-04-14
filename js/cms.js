@@ -35,6 +35,8 @@ function sanityImageUrl(ref, { width } = {}) {
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
+const _staticPageCache = {};
+
 window.CMS = {
   /** Fetch all published news articles, newest first. */
   fetchNews(lang = 'en') {
@@ -90,4 +92,13 @@ window.CMS = {
   },
 
   imageUrl: sanityImageUrl,
+
+  /** Fetch a single static page by slug, with in-memory cache. */
+  async fetchStaticPage(slug) {
+    if (_staticPageCache[slug]) return _staticPageCache[slug];
+    const query = `*[_type == "staticPage" && slug.current == "${slug}"][0]{ title, titleDe, body, bodyDe }`;
+    const page = await sanityFetch(query);
+    if (page) _staticPageCache[slug] = page;
+    return page;
+  },
 };

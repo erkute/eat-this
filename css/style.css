@@ -4407,6 +4407,15 @@ body {
   padding: 0;
   background: var(--white);
   min-height: 100dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: auto;
+}
+
+/* Ensure <html> doesn't block scroll on article pages */
+html:has(body.article-standalone) {
+  overflow-y: auto;
+  overscroll-behavior: auto;
 }
 
 /* Sticky top header with logo + back link */

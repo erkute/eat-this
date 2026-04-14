@@ -1158,11 +1158,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const isDesktop = window.matchMedia('(min-width: 768px)').matches;
 
       if (isDesktop) {
-        // On desktop the sidebar is 360px on the right — offset map center left
-        const targetPoint = foodMap.project([lat, lng], zoom);
-        const adjustedPoint = L.point(targetPoint.x - 180, targetPoint.y);
-        const adjustedLatLng = foodMap.unproject(adjustedPoint, zoom);
-        foodMap.flyTo(adjustedLatLng, zoom, { animate: true, duration: 1 });
+        // The map container has margin-right: 360px so the Leaflet viewport already
+        // excludes the sidebar — flyTo naturally centres in the visible map area.
+        foodMap.flyTo([lat, lng], zoom, { animate: true, duration: 1 });
         return;
       }
 
@@ -1324,6 +1322,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     window._showSpotDetail = showSpotDetail;
     window._navigateToPage = navigateToPage;
+    window._mapSnapSheet = _snapSheet;
 
     // Handle spot pending from favourites navigation (map wasn't ready yet)
     if (window._pendingFavSpot) {
@@ -1607,20 +1606,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const curY = new DOMMatrix(getComputedStyle(sheet).transform).m42;
         const h = sheet.offsetHeight;
 
-        const expandedPx = Math.min(EXPANDED_PX, h - 140);
         let next;
         if (vel > 0.5) {
-          // fast swipe down → step down, peek is minimum
+          // fast swipe down → step down
           next = _sheetState === 'expanded' ? 'mid' : 'peek';
         } else if (vel < -0.5) {
           // fast swipe up → step up
           next = _sheetState === 'peek' ? 'mid' : 'expanded';
-        } else {
-          // snap to nearest of 3 snap points
+        } else if (_sheetState === 'expanded') {
+          // In expanded: h is the full expanded height — snap points are reliable
+          const expandedPx = Math.min(EXPANDED_PX, h - 140);
           const pts = { peek: h - PEEK_PX, mid: h - MID_PX, expanded: h - expandedPx };
           next = Object.entries(pts).sort(
             (a, b) => Math.abs(curY - a[1]) - Math.abs(curY - b[1])
           )[0][0];
+        } else {
+          // In mid or peek: h is the non-expanded height.
+          // expanded snap point from h would be wrong (h changes when class is added),
+          // so use positional heuristic: if user dragged above mid position → expand.
+          const midY = h - MID_PX;   // e.g. ~9px when h≈249
+          const peekY = h - PEEK_PX; // e.g. ~217px
+          if (curY <= midY) {
+            next = 'expanded';                        // dragged to/above mid → expand
+          } else if (curY >= (midY + peekY) / 2) {
+            next = 'peek';
+          } else {
+            next = 'mid';
+          }
         }
         _snapSheet(next);
       }
@@ -2149,6 +2161,10 @@ document.addEventListener('DOMContentLoaded', () => {
                   setTimeout(() => {
                     if (foodMap) foodMap.invalidateSize();
                   }, 300);
+                  // Re-snap sheet to mid when returning to map (mobile only)
+                  if (!window.matchMedia('(min-width: 768px)').matches && window._mapSnapSheet) {
+                    requestAnimationFrame(() => window._mapSnapSheet('mid', false));
+                  }
                 }
               });
             })

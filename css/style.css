@@ -4568,4 +4568,8 @@ html:has(body.article-standalone) {
   .news-article-hero-no-img {
     padding: 40px 48px 28px;
   }
+
+  .news-modal-title {
+    font-size: clamp(1.4rem, 3.2vw, 2.6rem);
+  }
 }

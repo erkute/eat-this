@@ -2245,7 +2245,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (agbFromBurger)
     agbFromBurger.addEventListener('click', () => {
       closeBurger();
-      agbModal.open();
+      navigateToPage('agb');
     });
 
   // Datenschutz Modal
@@ -2258,10 +2258,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (datenschutzFromBurger)
     datenschutzFromBurger.addEventListener('click', () => {
       closeBurger();
-      datenschutzModal.open();
+      navigateToPage('datenschutz');
     });
 
-  // Static page navigation from burger drawer
+  // Static page navigation from burger drawer (about/contact/press/impressum)
+  // Modal HTML for these slugs still exists but is no longer opened — removed in Task 16.
   ['about', 'contact', 'press', 'impressum'].forEach((slug) => {
     const cap = slug.charAt(0).toUpperCase() + slug.slice(1);
     const trigger = document.getElementById('open' + cap);
@@ -2269,14 +2270,6 @@ document.addEventListener('DOMContentLoaded', () => {
       trigger.addEventListener('click', () => {
         closeBurger();
         navigateToPage(slug);
-      });
-    }
-    // Keep the modal wired for any remaining references, but navigation takes priority
-    const modal = document.getElementById(slug + 'Modal');
-    if (modal) {
-      createModal(modal, {
-        closeBtn: document.getElementById(slug + 'Close'),
-        backdrop: document.getElementById(slug + 'Backdrop'),
       });
     }
   });
@@ -2502,12 +2495,20 @@ document.addEventListener('DOMContentLoaded', () => {
     footerLangDe.addEventListener('click', () => {
       window.i18n && window.i18n.setLang('de');
       updateFooterLangButtons('de');
+      // Re-render current static page in new language
+      if (window._currentPage && STATIC_PAGE_SLUGS.includes(window._currentPage)) {
+        loadStaticPage(window._currentPage);
+      }
     });
   }
   if (footerLangEn) {
     footerLangEn.addEventListener('click', () => {
       window.i18n && window.i18n.setLang('en');
       updateFooterLangButtons('en');
+      // Re-render current static page in new language
+      if (window._currentPage && STATIC_PAGE_SLUGS.includes(window._currentPage)) {
+        loadStaticPage(window._currentPage);
+      }
     });
   }
 

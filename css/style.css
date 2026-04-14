@@ -3065,8 +3065,6 @@ body {
   /* ---- Must Eats: desktop 5-column grid ---- */
   .app-page[data-page="musts"] .must-eats-section {
     padding: 0 32px 40px;
-    overflow-y: auto;
-    height: calc(100dvh - 60px);
   }
 
   .app-page[data-page="musts"] .must-eats-header {
@@ -3290,8 +3288,6 @@ body {
   /* ── EDITORIAL NEWS GRID — desktop ── */
   .app-page[data-page="news"] .news-section {
     padding: 0;
-    overflow-y: auto;
-    height: calc(100dvh - 60px);
   }
 
   .app-page[data-page="news"] .news-header {
@@ -4236,7 +4232,7 @@ body {
 }
 
 /* Profile content (logged-in state) */
-.profile-content { overflow-y: auto; height: calc(100dvh - 60px); }
+.profile-content { min-height: calc(100dvh - 180px); }
 
 /* Profile header */
 .profile-header {

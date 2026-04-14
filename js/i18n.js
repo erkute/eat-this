@@ -165,6 +165,8 @@ const TRANSLATIONS = {
       },
     },
     profile: {
+      signInTitle: 'Sign in to EAT THIS',
+      signInSub:   'Save restaurants, collect your Must Eat deck and manage your account.',
       tab:     { deck: 'My Deck', saved: 'Saved', settings: 'Settings' },
       saved:   { empty: 'You have no saved restaurants yet.' },
       deck:    { boosterSection: 'Booster Packs', unlockBtn: 'Unlock', comingSoon: 'Coming Soon' },
@@ -191,6 +193,8 @@ const TRANSLATIONS = {
 })();
 
 // DE profile overrides
+TRANSLATIONS.de.profile.signInTitle     = 'Bei EAT THIS anmelden';
+TRANSLATIONS.de.profile.signInSub       = 'Speichere Restaurants, sammel dein Must Eat Deck und verwalte deinen Account.';
 TRANSLATIONS.de.profile.tab.deck        = 'Mein Deck';
 TRANSLATIONS.de.profile.tab.saved       = 'Gespeichert';
 TRANSLATIONS.de.profile.tab.settings    = 'Einstellungen';

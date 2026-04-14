@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  if (_loginBtn) _loginBtn.addEventListener('click', _openLoginModal);
+  // loginBtn is handled by auth.js (navigates to profile or opens modal)
   if (_loginClose) _loginClose.addEventListener('click', _closeLoginModal);
   // Click on modal overlay (outside content) closes it — works reliably in both
   // production and automated tests (no force:true needed)

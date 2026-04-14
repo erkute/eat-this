@@ -5,6 +5,9 @@ test.beforeEach(async ({ page }) => {
   // Dismiss cookie banner if visible
   const cookieBtn = page.locator('#cookieAccept');
   if (await cookieBtn.isVisible()) await cookieBtn.click();
+  // Open burger menu so #loginBtn is visible
+  await page.locator('#burgerBtn').click();
+  await page.locator('#loginBtn').waitFor({ state: 'visible' });
 });
 
 test.describe('Login Modal', () => {

@@ -176,9 +176,8 @@ function initProfilePage(user) {
   if (!user) {
     if (authPrompt) authPrompt.style.display = 'none';
     if (content)    content.hidden = true;
-    // Navigate away and open login modal instead of showing the auth prompt
+    // Navigate back to start without opening login modal
     window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'start' } }));
-    setTimeout(() => window.openLoginModal?.(), 50);
     return;
   }
 

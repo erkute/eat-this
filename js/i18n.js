@@ -234,12 +234,13 @@ function applyTranslations() {
 // All dynamic values are escaped with esc() before insertion.
 // HTML structure is hardcoded — not derived from user or CMS input.
 // Source is our own Sanity CMS (trusted) or the TRANSLATIONS constant.
-function buildNewsCardHtml(a) {
+function buildNewsCardHtml(a, i) {
   const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const imgSrc = a.imageUrl || a.img || '';
   const dateLabel = a.date ? new Date(a.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : (a.date || '');
   return [
     `<article class="news-card"`,
+    ` data-index="${i}"`,
     ` data-category="${esc(a.category)}"`,
     ` data-title="${esc(a.title)}"`,
     ` data-img="${esc(imgSrc)}"`,

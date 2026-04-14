@@ -1835,17 +1835,45 @@ document.addEventListener('DOMContentLoaded', () => {
           })
           .join('');
         switch (block.style) {
-          case 'h2':
-            return `<h2>${inner}</h2>`;
-          case 'h3':
-            return `<h3>${inner}</h3>`;
-          case 'blockquote':
-            return `<blockquote>${inner}</blockquote>`;
-          default:
-            return `<p>${inner}</p>`;
+          case 'h2': return inner ? `<h2>${inner}</h2>` : '';
+          case 'h3': return inner ? `<h3>${inner}</h3>` : '';
+          case 'blockquote': return inner ? `<blockquote>${inner}</blockquote>` : '';
+          default: return inner ? `<p>${inner}</p>` : '';
         }
       })
       .join('');
+  }
+
+  function buildRecCardEl(card, allCards) {
+    const art = document.createElement('article');
+    art.className = 'news-rec-card';
+    const a = document.createElement('a');
+    a.href = '#';
+    const imgWrap = document.createElement('div');
+    imgWrap.className = 'news-rec-img';
+    const img = document.createElement('img');
+    img.src = card.dataset.img || '';
+    img.alt = card.dataset.title || '';
+    img.loading = 'lazy';
+    imgWrap.appendChild(img);
+    const body = document.createElement('div');
+    body.className = 'news-rec-body';
+    const cat = document.createElement('span');
+    cat.className = 'news-rec-category';
+    cat.textContent = card.dataset.categoryLabel || '';
+    const hl = document.createElement('h4');
+    hl.className = 'news-rec-headline';
+    hl.textContent = card.dataset.title || '';
+    body.appendChild(cat);
+    body.appendChild(hl);
+    a.appendChild(imgWrap);
+    a.appendChild(body);
+    art.appendChild(a);
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      openNewsModal(card);
+    });
+    return art;
   }
 
   function openNewsModal(article) {
@@ -1858,16 +1886,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let contentHtml;
     try {
       const parsed = JSON.parse(rawContent);
-      // Portable Text array from new rich-text field
       contentHtml = portableTextToHtml(parsed);
     } catch {
-      // Legacy plain-text content (may already contain HTML tags from import)
       contentHtml = rawContent.includes('<')
         ? rawContent
-        : rawContent
-            .split(/\n\n+/)
-            .map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`)
-            .join('');
+        : rawContent.split(/\n\n+/).map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
     }
 
     document.getElementById('newsModalImg').src = img;
@@ -1875,7 +1898,22 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('newsModalCategory').textContent = category;
     document.getElementById('newsModalTitle').textContent = title;
     document.getElementById('newsModalDate').textContent = date;
-    document.getElementById('newsModalContent').innerHTML = contentHtml;
+    document.getElementById('newsModalContent').innerHTML = contentHtml; // safe: portableTextToHtml escapes all user data
+
+    // Recommendations
+    const allCards = [...document.querySelectorAll('.news-card')];
+    const others = allCards.filter((c) => c.dataset.title !== title).slice(0, 3);
+    const moreSection = document.getElementById('newsArticleMore');
+    const moreGrid = document.getElementById('newsArticleMoreGrid');
+    if (moreSection && moreGrid) {
+      moreGrid.textContent = '';
+      if (others.length) {
+        others.forEach((c) => moreGrid.appendChild(buildRecCardEl(c, allCards)));
+        moreSection.hidden = false;
+      } else {
+        moreSection.hidden = true;
+      }
+    }
 
     currentShareData = {
       title: title,
@@ -1885,9 +1923,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     newsModal.classList.add('active');
     bodyOverflow.lock();
-
-    const modalInner = newsModal.querySelector('.news-modal');
-    if (modalInner) modalInner.scrollTop = 0;
+    newsModal.scrollTop = 0;
   }
 
   function closeNewsModal() {

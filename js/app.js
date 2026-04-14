@@ -2181,8 +2181,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const navProfileBtn = document.getElementById('navProfileBtn');
     if (navProfileBtn) {
       navProfileBtn.addEventListener('click', () => {
-        navigateToPage('profile');
-        window.location.hash = 'profile';
+        if (window._currentUser) {
+          navigateToPage('profile');
+          window.location.hash = 'profile';
+        } else {
+          window.openLoginModal?.();
+        }
       });
     }
 

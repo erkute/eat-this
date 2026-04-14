@@ -4506,19 +4506,9 @@ html:has(body.article-standalone) {
   letter-spacing: 0.04em;
 }
 
-/* Footer anchor links (not JS-driven buttons) */
+/* Footer anchor links (not JS-driven buttons) — keep site-footer-link color */
 .article-standalone-footer .site-footer-link {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: inherit;
-  font: inherit;
-  padding: 0;
   text-decoration: none;
-}
-
-.article-standalone-footer .site-footer-link:hover {
-  text-decoration: underline;
 }
 
 /* ── Desktop overrides ── */

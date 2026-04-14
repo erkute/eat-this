@@ -1340,12 +1340,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---- Bottom Sheet: Nearby ----
     let _nearbyLat = null,
       _nearbyLng = null;
-    let _sheetState = 'hidden'; // 'hidden' | 'peek' | 'mid' | 'expanded'
+    let _sheetState = 'peek'; // 'peek' | 'mid' | 'expanded'
     let _sheetReady = false;
 
-    const PEEK_PX = 56; // unused snap — kept for zoom-btn compat
+    const PEEK_PX = 32;  // handle bar always visible — minimum state
     const MID_PX = 240;  // 1 card row visible
-    const EXPANDED_PX = 540; // 3 card rows visible
+    const EXPANDED_PX = 540; // 3 card rows (capped dynamically to leave map visible)
 
     function isOpenNow(openingHours) {
       if (!openingHours || !openingHours.length) return null;
@@ -1540,12 +1540,14 @@ document.addEventListener('DOMContentLoaded', () => {
       _sheetState = state;
       sheet.classList.toggle('sheet--expanded', state === 'expanded');
       const h = sheet.offsetHeight;
+      // Cap expanded so at least 140px of map is always visible above the sheet
+      const expandedPx = Math.min(EXPANDED_PX, h - 140);
       const y =
         state === 'mid'
           ? h - MID_PX
           : state === 'expanded'
-            ? h - EXPANDED_PX
-            : h; // hidden
+            ? h - expandedPx
+            : h - PEEK_PX; // peek — handle always visible, never fully hidden
       sheet.style.transition = animate ? 'transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)' : 'none';
       sheet.style.transform = `translateY(${Math.max(0, y)}px)`;
 
@@ -1553,7 +1555,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const zoomBtns = document.querySelector('.map-zoom-btns');
       if (zoomBtns) {
         const visible =
-          state === 'mid' ? MID_PX : state === 'expanded' ? EXPANDED_PX : 0;
+          state === 'mid' ? MID_PX : state === 'expanded' ? expandedPx : PEEK_PX;
         zoomBtns.style.transition = animate ? 'bottom 0.4s cubic-bezier(0.32, 0.72, 0, 1)' : 'none';
         zoomBtns.style.bottom = visible + 12 + 'px';
       }
@@ -1598,16 +1600,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const curY = new DOMMatrix(getComputedStyle(sheet).transform).m42;
         const h = sheet.offsetHeight;
 
+        const expandedPx = Math.min(EXPANDED_PX, h - 140);
         let next;
         if (vel > 0.5) {
-          // fast swipe down → go to next lower state
-          next = _sheetState === 'expanded' ? 'mid' : 'hidden';
+          // fast swipe down → step down, peek is minimum
+          next = _sheetState === 'expanded' ? 'mid' : 'peek';
         } else if (vel < -0.5) {
-          // fast swipe up → go to next higher state
-          next = _sheetState === 'hidden' ? 'mid' : 'expanded';
+          // fast swipe up → step up
+          next = _sheetState === 'peek' ? 'mid' : 'expanded';
         } else {
           // snap to nearest of 3 snap points
-          const pts = { hidden: h, mid: h - MID_PX, expanded: h - EXPANDED_PX };
+          const pts = { peek: h - PEEK_PX, mid: h - MID_PX, expanded: h - expandedPx };
           next = Object.entries(pts).sort(
             (a, b) => Math.abs(curY - a[1]) - Math.abs(curY - b[1])
           )[0][0];
@@ -1662,7 +1665,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // On desktop: CSS keeps it visible (translateY(0)), no hide needed
         if (!_isDesktop) {
           const sheet = document.getElementById('mapNearby');
-          if (sheet) sheet.style.transform = `translateY(${sheet.offsetHeight}px)`;
+          if (sheet) sheet.style.transform = `translateY(${sheet.offsetHeight - PEEK_PX}px)`;
         }
         _initSheetDrag();
       }
@@ -1676,7 +1679,7 @@ document.addEventListener('DOMContentLoaded', () => {
           setTimeout(() => {
             foodMap.on('click', () => {
               if (_sheetState === 'mid' || _sheetState === 'expanded') {
-                _snapSheet('hidden');
+                _snapSheet('peek');
               }
             });
           }, 800);

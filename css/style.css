@@ -767,15 +767,15 @@ body {
   background: rgba(192,57,43,0.10);
 }
 
-/* Grid wrapper: scrollable only when sheet is expanded */
+/* Grid wrapper: always scrollable so user can scroll in any state */
 .map-nearby-grid-wrapper {
-  overflow-y: hidden;
+  overflow-y: auto;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  max-height: 200px; /* 1 row in mid state */
 }
 .map-nearby.sheet--expanded .map-nearby-grid-wrapper {
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  max-height: 460px; /* 3 rows + padding */
+  max-height: 460px; /* 3 rows in expanded state */
 }
 
 /* ---- Bottom Sheet (app map page — all viewports) ---- */

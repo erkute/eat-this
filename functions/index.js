@@ -196,3 +196,16 @@ exports.sendMfaNotification = onCall(
     return { success: true };
   }
 );
+
+// Auto-unlock Starter Pack on registration
+exports.onUserCreate = require('firebase-functions').auth.user().onCreate(async (user) => {
+  try {
+    await admin.firestore()
+      .collection('userPacks').doc(user.uid)
+      .collection('packs').doc('starter')
+      .set({ unlockedAt: Date.now(), source: 'signup' });
+    logger.info('[onUserCreate] Starter pack unlocked for', user.uid);
+  } catch (err) {
+    logger.error('[onUserCreate] Failed:', err);
+  }
+});

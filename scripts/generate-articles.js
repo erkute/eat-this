@@ -94,7 +94,33 @@ function formatDate(dateStr, lang = 'en') {
   });
 }
 
-function generateArticleHtml(article) {
+function generateRelatedHtml(related) {
+  if (!related || !related.length) return '';
+  const cards = related.map(r => {
+    const slug = (r.slug || '').replace(/[^a-z0-9-_]/gi, '-');
+    const imgSrc = r.imageUrl ? `${r.imageUrl}?w=600&auto=format&q=80` : '';
+    const imgHtml = imgSrc
+      ? `<div class="news-rec-img"><img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(r.alt || r.title)}" loading="lazy"></div>`
+      : '';
+    return `<div class="news-rec-card">
+      <a href="/news/${escapeHtml(slug)}">
+        ${imgHtml}
+        <div class="news-rec-body">
+          <span class="news-rec-category">${escapeHtml(r.categoryLabel || r.category || '')}</span>
+          <h3 class="news-rec-headline">${escapeHtml(r.title || '')}</h3>
+        </div>
+      </a>
+    </div>`;
+  }).join('');
+  return `<section class="news-article-more" aria-label="More articles">
+    <div class="news-article-more-inner">
+      <p class="news-article-more-label">More to read</p>
+      <div class="news-article-more-grid">${cards}</div>
+    </div>
+  </section>`;
+}
+
+function generateArticleHtml(article, related = []) {
   const slug        = article.slug;
   const canonical   = `https://www.eatthisdot.com/news/${encodeURIComponent(slug)}`;
   const metaTitle   = article.seo?.metaTitle   || article.title || '';
@@ -106,6 +132,7 @@ function generateArticleHtml(article) {
     ? '<meta name="robots" content="noindex,nofollow">'
     : '';
   const contentHtml    = portableTextToHtml(article.content);
+  const relatedHtml    = generateRelatedHtml(related);
   const dateFormatted  = formatDate(article.date, article.language);
   const categoryLabel  = escapeHtml(article.categoryLabel || article.category || '');
   const lang           = article.language || 'en';
@@ -198,6 +225,8 @@ function generateArticleHtml(article) {
     </article>
   </main>
 
+  ${relatedHtml}
+
   <footer class="site-footer article-standalone-footer" role="contentinfo">
     <a href="/" class="site-footer-logo-link" aria-label="Eat This home">
       <img src="/pics/logo2.webp" alt="EAT THIS" class="site-footer-logo-img">
@@ -243,7 +272,10 @@ async function main() {
       continue;
     }
     const safeSlug = article.slug.replace(/[^a-z0-9-_]/gi, '-');
-    const html = generateArticleHtml({ ...article, slug: safeSlug });
+    const related = articles
+      .filter(a => a.slug !== article.slug)
+      .slice(0, 3);
+    const html = generateArticleHtml({ ...article, slug: safeSlug }, related);
     writeFileSync(join(newsDir, `${safeSlug}.html`), html, 'utf-8');
     console.log(`  ✓ /news/${safeSlug}.html`);
     generated++;

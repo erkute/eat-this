@@ -1365,7 +1365,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--orange);
+  color: var(--darkred);
   transition: color 0.2s;
   white-space: nowrap;
 }
@@ -1443,7 +1443,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--orange);
+  color: var(--darkred);
 }
 .news-card-date {
   font-size: 12px;
@@ -1938,7 +1938,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--orange);
+  color: var(--darkred);
   display: block;
   margin-bottom: 6px;
 }

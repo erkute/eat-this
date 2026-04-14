@@ -4206,3 +4206,37 @@ body {
     box-sizing: border-box;
   }
 }
+
+/* ═══════════════════════════════════════════
+   STATIC PAGES (About, Contact, Press, etc.)
+   ═══════════════════════════════════════════ */
+.static-page { overflow-y: auto; height: calc(100dvh - 60px); background: var(--white); }
+.static-page-inner { max-width: 760px; margin: 0 auto; padding: 32px 20px 80px; }
+
+@media (min-width: 768px) {
+  .static-page-inner { padding: 48px 32px 80px; }
+}
+
+.static-page-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none; padding: 0; margin-bottom: 28px;
+  font-size: 13px; font-weight: 600; color: var(--gray-400);
+  cursor: pointer; font-family: inherit; transition: color 0.15s;
+}
+.static-page-back:hover { color: var(--black); }
+
+.static-page-title {
+  font-size: 28px; font-weight: 900; letter-spacing: -0.03em;
+  line-height: 1.1; margin-bottom: 32px; text-transform: uppercase;
+}
+@media (min-width: 768px) { .static-page-title { font-size: 40px; } }
+
+.static-page-body { font-size: 15px; line-height: 1.8; color: var(--black); }
+.static-page-body h2 { font-size: 20px; font-weight: 800; margin: 32px 0 12px; letter-spacing: -0.02em; }
+.static-page-body h3 { font-size: 16px; font-weight: 700; margin: 24px 0 8px; }
+.static-page-body p  { margin-bottom: 16px; color: var(--gray-600); }
+.static-page-body ul, .static-page-body ol { margin: 0 0 16px 20px; color: var(--gray-600); }
+.static-page-body li { margin-bottom: 6px; }
+.static-page-body a  { color: var(--orange); text-decoration: underline; }
+.static-page-body strong { color: var(--black); font-weight: 700; }
+.static-page-loading { color: var(--gray-400); font-size: 14px; padding: 20px 0; display: block; }

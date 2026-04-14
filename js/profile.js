@@ -45,47 +45,113 @@ function populateProfileHeader(user) {
 
 /* ── Deck ── */
 async function renderDeck() {
-  const grid    = document.getElementById('profileDeckGrid');
-  const countEl = document.getElementById('profileDeckCount');
-  if (!grid) return;
+  const packList    = document.getElementById('profilePackList');
+  const boosterSect = document.getElementById('profileBoosterSection');
+  const boosterGrid = document.getElementById('profileBoosterGrid');
+  if (!packList) return;
 
-  let items = [];
-  try { items = await window.CMS.fetchMustEats(); }
-  catch (e) { grid.textContent = 'Karten konnten nicht geladen werden.'; return; }
+  packList.textContent = '';
 
-  if (countEl) countEl.textContent = items.length + ' Karten';
+  let allPacks = [];
+  try { allPacks = await window.CMS.fetchCardPacks() || []; }
+  catch (e) { return; }
 
-  const fragment = document.createDocumentFragment();
-  items.forEach(item => {
-    const imgUrl = item.imageUrl ? window.CMS.imageUrl(item.imageUrl, { width: 200 }) : '';
-    const card = document.createElement('div');
-    card.className = 'profile-deck-card';
-    card.title = item.dish || '';
+  const unlockedSlugs = window._userUnlockedPacks || new Set();
+  const lang          = window.i18n ? window.i18n.currentLang() : 'en';
+  const unlockedPacks = allPacks.filter(p => unlockedSlugs.has(p.slug));
+  const premiumPacks  = allPacks.filter(p => p.packType === 'premium' && !unlockedSlugs.has(p.slug));
 
-    const img = document.createElement(imgUrl ? 'img' : 'div');
-    img.className = 'profile-deck-card-img';
-    if (imgUrl) { img.src = imgUrl; img.alt = item.dish || ''; img.loading = 'lazy'; }
+  unlockedPacks.forEach(pack => {
+    const title   = (lang === 'de' && pack.titleDe) ? pack.titleDe : pack.title;
+    const section = document.createElement('div');
+    section.className = 'profile-pack-section';
 
-    const body = document.createElement('div');
-    body.className = 'profile-deck-card-body';
+    const header  = document.createElement('div');
+    header.className = 'profile-pack-header';
+    const titleEl = document.createElement('h3');
+    titleEl.className   = 'profile-pack-title';
+    titleEl.textContent = title;
+    header.appendChild(titleEl);
+    section.appendChild(header);
 
-    const name = document.createElement('div');
-    name.className = 'profile-deck-card-name';
-    name.textContent = item.dish || '\u2014';
+    const row = document.createElement('div');
+    row.className = 'profile-pack-row';
 
-    const rest = document.createElement('div');
-    rest.className = 'profile-deck-card-rest';
-    rest.textContent = item.restaurant || '';
+    (pack.cards || []).forEach(card => {
+      const cardEl = document.createElement('div');
+      cardEl.className        = 'profile-pack-card must-card eat-card';
+      cardEl.dataset.img        = card.imageUrl || '';
+      cardEl.dataset.dish       = card.dish || '';
+      cardEl.dataset.restaurant = card.restaurant || '';
+      cardEl.dataset.district   = card.district || '';
+      cardEl.dataset.price      = card.cardPrice || '';
 
-    body.appendChild(name);
-    body.appendChild(rest);
-    card.appendChild(img);
-    card.appendChild(body);
-    fragment.appendChild(card);
+      const img     = document.createElement('img');
+      img.src       = card.imageUrl || '';
+      img.alt       = card.dish || '';
+      img.loading   = 'lazy';
+      img.className = 'must-card-img';
+      cardEl.appendChild(img);
+      row.appendChild(cardEl);
+    });
+
+    section.appendChild(row);
+    packList.appendChild(section);
   });
-  grid.textContent = '';
-  grid.appendChild(fragment);
+
+  if (boosterSect && boosterGrid) {
+    if (premiumPacks.length > 0) {
+      boosterSect.hidden   = false;
+      boosterGrid.textContent = '';
+
+      premiumPacks.forEach(pack => {
+        const title  = (lang === 'de' && pack.titleDe) ? pack.titleDe : pack.title;
+        const packEl = document.createElement('div');
+        packEl.className = 'profile-booster-pack';
+
+        const cover = document.createElement('div');
+        cover.className = 'profile-booster-pack-cover';
+        if (pack.coverImageUrl) {
+          const img   = document.createElement('img');
+          img.src     = pack.coverImageUrl;
+          img.alt     = title;
+          img.loading = 'lazy';
+          cover.appendChild(img);
+        }
+
+        const nameEl       = document.createElement('div');
+        nameEl.className   = 'profile-booster-pack-name';
+        nameEl.textContent = title;
+
+        const btn       = document.createElement('button');
+        btn.type        = 'button';
+        btn.className   = 'profile-booster-pack-btn';
+        btn.textContent = window.i18n ? window.i18n.t('profile.deck.unlockBtn') : 'Unlock';
+        btn.disabled    = true; // Phase 2: Stripe not wired yet
+
+        packEl.appendChild(cover);
+        packEl.appendChild(nameEl);
+
+        if (pack.price) {
+          const priceEl       = document.createElement('div');
+          priceEl.className   = 'profile-booster-pack-price';
+          priceEl.textContent = '\u20AC' + Number(pack.price).toFixed(2);
+          packEl.appendChild(priceEl);
+        }
+
+        packEl.appendChild(btn);
+        boosterGrid.appendChild(packEl);
+      });
+    } else {
+      boosterSect.hidden = true;
+    }
+  }
+
+  if (typeof window._bindMustCards === 'function') window._bindMustCards();
 }
+
+// Expose globally so packs.js can call after Firestore loads
+window._renderDeck = renderDeck;
 
 /* ── Saved restaurants — delegate to favourites.js ── */
 function renderSaved() {
@@ -175,8 +241,8 @@ function initProfilePage(user) {
     _profileInited = true;
     initProfileTabs();
     initSettings(user);
-    renderDeck();
   }
+  renderDeck();
 
   renderSaved();
 }

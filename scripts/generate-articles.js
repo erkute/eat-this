@@ -25,14 +25,7 @@ async function fetchArticles() {
     "imageUrl": image.asset->url,
     alt,
     excerpt,
-    content[] {
-      ...,
-      _type == "image" => {
-        "assetUrl": asset->url,
-        alt,
-        caption
-      }
-    },
+    content,
     seo {
       metaTitle,
       metaDescription,
@@ -57,6 +50,7 @@ function escapeHtml(str) {
 }
 
 function portableTextToHtml(blocks) {
+  if (typeof blocks === 'string') return blocks;
   if (!Array.isArray(blocks)) return '';
   return blocks.map(block => {
     // Inline image block

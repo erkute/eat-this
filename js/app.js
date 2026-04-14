@@ -109,9 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // These handlers run unconditionally so the modal always works.
   // ============================================
   const _loginModal = document.getElementById('loginModal');
-  const _loginBackdrop = document.getElementById('loginBackdrop');
   const _loginClose = document.getElementById('loginClose');
-  const _loginBtn = document.getElementById('loginBtn');
 
   function _openLoginModal() {
     if (_loginModal) {

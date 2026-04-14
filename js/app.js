@@ -1946,8 +1946,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const link = card.querySelector('a');
       if (link) {
         link.addEventListener('click', (e) => {
-          e.preventDefault();
-          openNewsModal(card);
+          const href = link.getAttribute('href');
+          // Only prevent default and open modal for hash links (no-slug fallback)
+          if (!href || href === '#') {
+            e.preventDefault();
+            openNewsModal(card);
+          }
+          // Otherwise allow natural navigation to /news/slug
         });
       }
     });

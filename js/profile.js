@@ -174,12 +174,11 @@ function initProfilePage(user) {
   const signInBtn  = document.getElementById('profileSignInBtn');
 
   if (!user) {
-    if (authPrompt) authPrompt.style.display = 'flex';
+    if (authPrompt) authPrompt.style.display = 'none';
     if (content)    content.hidden = true;
-    if (signInBtn && !signInBtn._bound) {
-      signInBtn._bound = true;
-      signInBtn.addEventListener('click', () => window.openLoginModal && window.openLoginModal());
-    }
+    // Navigate away and open login modal instead of showing the auth prompt
+    window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'start' } }));
+    setTimeout(() => window.openLoginModal?.(), 50);
     return;
   }
 

@@ -2849,15 +2849,33 @@ body {
 
   .app-pages {
     max-width: none; margin: 60px 0 0; box-shadow: none;
+    height: calc(100dvh - 60px);
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .app-footer { display: none; } /* replaced by new site-footer */
 
-  /* App pages fill height between navbar and footer */
+  /* App pages: natural height so footer follows content */
   .app-page {
-    height: calc(100dvh - 60px);
+    height: auto;
+    min-height: calc(100dvh - 60px);
     padding-bottom: 0;
     background: var(--white);
+    overflow-y: visible;
+    overflow-x: hidden;
+  }
+
+  /* Map page fills viewport exactly — no external scroll, no footer */
+  .app-page[data-page="map"] {
+    height: calc(100dvh - 60px);
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Hide footer when map page is active */
+  .app-pages:has(.app-page[data-page="map"].active) .site-footer {
+    display: none !important;
   }
 
   .app-page[data-page="start"] {
@@ -3922,12 +3940,18 @@ body {
 .site-footer { display: none; }
 
 @media (min-width: 768px) {
+  /* Static pages: let app-pages container scroll, no internal scroll */
+  .static-page {
+    height: auto;
+    overflow-y: visible;
+  }
+
   .site-footer {
     display: block;
-    background: #0a0a0a;
-    border-top: 1px solid #1a1a1a;
+    background: var(--white);
+    border-top: 1px solid var(--gray-100);
     padding: 48px 32px 24px;
-    color: #fff;
+    color: var(--black);
   }
 
   .site-footer-grid {
@@ -3939,61 +3963,61 @@ body {
 
   .site-footer-logo {
     display: flex; align-items: center; gap: 8px;
-    text-decoration: none; color: #fff;
+    text-decoration: none; color: var(--black);
     font-size: 14px; font-weight: 900;
     letter-spacing: 0.04em; text-transform: uppercase;
     margin-bottom: 14px;
   }
 
   .site-footer-tagline {
-    font-size: 12px; color: #555; line-height: 1.7;
+    font-size: 12px; color: var(--gray-400); line-height: 1.7;
     margin-bottom: 16px; max-width: 240px;
   }
 
   .site-footer-ig {
     display: inline-flex; align-items: center; gap: 7px;
-    font-size: 12px; color: #888; text-decoration: none;
-    background: #1a1a1a; border: 1px solid #2a2a2a;
+    font-size: 12px; color: var(--gray-600); text-decoration: none;
+    background: var(--gray-50); border: 1px solid var(--gray-100);
     border-radius: 6px; padding: 6px 12px;
     transition: color 0.15s, border-color 0.15s;
   }
-  .site-footer-ig:hover { color: #FF3B00; border-color: #FF3B00; }
+  .site-footer-ig:hover { color: var(--orange); border-color: var(--orange); }
 
   .site-footer-col { display: flex; flex-direction: column; }
 
   .site-footer-col-title {
     font-size: 10px; font-weight: 700;
     letter-spacing: 0.12em; text-transform: uppercase;
-    color: #444; margin-bottom: 14px;
+    color: var(--gray-400); margin-bottom: 14px;
   }
 
   .site-footer-link {
     background: none; border: none; padding: 0;
-    margin-bottom: 10px; font-size: 13px; color: #666;
+    margin-bottom: 10px; font-size: 13px; color: var(--gray-600);
     cursor: pointer; text-align: left; font-family: inherit;
     transition: color 0.15s; line-height: 1.4;
   }
-  .site-footer-link:hover { color: #FF3B00; }
+  .site-footer-link:hover { color: var(--orange); }
 
   .site-footer-lang {
-    display: flex; border: 1px solid #2a2a2a;
+    display: flex; border: 1px solid var(--gray-200);
     border-radius: 6px; overflow: hidden; width: fit-content;
   }
 
   .site-footer-lang-btn {
     background: none; border: none; padding: 6px 14px;
-    font-size: 12px; font-weight: 600; color: #666;
+    font-size: 12px; font-weight: 600; color: var(--gray-600);
     cursor: pointer; font-family: inherit; letter-spacing: 0.04em;
     transition: background 0.15s, color 0.15s;
   }
-  .site-footer-lang-btn.active { background: #FF3B00; color: #fff; }
+  .site-footer-lang-btn.active { background: var(--orange); color: #fff; }
 
   .site-footer-bottom {
-    border-top: 1px solid #1a1a1a; padding-top: 20px;
+    border-top: 1px solid var(--gray-100); padding-top: 20px;
     display: flex; align-items: center; justify-content: space-between;
   }
 
-  .site-footer-copy { font-size: 11px; color: #333; }
+  .site-footer-copy { font-size: 11px; color: var(--gray-400); }
 }
 
 /* ══════════════════════════════════════════════

@@ -133,6 +133,13 @@ function renderProfileFavourites() {
       overlay.appendChild(distEl);
     }
 
+    if (spot?.type) {
+      const typeEl = document.createElement('span');
+      typeEl.className   = 'profile-fav-type';
+      typeEl.textContent = spot.type;
+      overlay.appendChild(typeEl);
+    }
+
     card.appendChild(overlay);
 
     card.addEventListener('click', () => {

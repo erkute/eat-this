@@ -3253,6 +3253,7 @@ body {
     top: 0;
     right: 0;
     bottom: 0;
+    left: auto; /* clear base rule's left:0 so sidebar anchors to right */
     width: 360px;
     height: auto;
     transform: none !important;

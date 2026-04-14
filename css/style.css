@@ -2577,7 +2577,7 @@ body {
   .app-page[data-page="news"] .news-header {
     padding: 10px 16px 8px;
     background: var(--white);
-    border-bottom: 3px solid var(--black);
+    border-bottom: none;
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
@@ -2592,10 +2592,11 @@ body {
   .app-page[data-page="news"] .section-label {
     font-size: 8px;
     font-weight: 800;
-    letter-spacing: 0.3em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--black);
-    margin-bottom: 0;
+    margin: 0 0 2px 0;
+    padding: 0;
     display: block;
   }
 
@@ -2665,7 +2666,7 @@ body {
   .app-page[data-page="news"] .news-card .news-card-headline {
     font-size: clamp(1.25rem, 5vw, 1.7rem);
     font-weight: 900;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.02em;
     line-height: 1.1;
     text-transform: uppercase;
     color: var(--black);

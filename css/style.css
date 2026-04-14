@@ -781,6 +781,36 @@ body {
   background: rgba(192,57,43,0.10);
 }
 
+/* ---- Expanded sheet: vertical grid layout ---- */
+.map-nearby.sheet--expanded {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.map-nearby.sheet--expanded .map-nearby-grid-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+}
+.map-nearby.sheet--expanded .map-nearby-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  overflow-x: hidden;
+  scroll-snap-type: none;
+  padding: 0 0 24px;
+  gap: 8px;
+}
+.map-nearby.sheet--expanded .map-nearby-grid-card {
+  flex: none;
+  width: 100%;
+}
+@media (min-width: 768px) {
+  .map-nearby.sheet--expanded .map-nearby-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
 
 /* ---- Bottom Sheet (app map page — all viewports) ---- */
 .app-page[data-page="map"] .map-nearby {

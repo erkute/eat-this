@@ -10,7 +10,7 @@ const CONFIG = {
   SEARCH_FOCUS_DESKTOP: 100, // ms — focus delay on desktop
   SEARCH_FOCUS_MOBILE: 400, // ms — focus delay on mobile (wait for keyboard)
   GEO_TIMEOUT: 5000, // ms — GPS timeout
-  GEO_FALLBACK_DELAY: 6000, // ms — show Berlin only after GPS timeout + 1s
+  GEO_FALLBACK_DELAY: 0, // ms — show Berlin immediately, GPS overrides if available
   GEO_MAX_AGE: 60000, // ms — reuse cached GPS position (1 min only)
   BERLIN_CENTER: [52.52, 13.405],
 };
@@ -1439,7 +1439,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .map((s) => ({ ...s, dist: haversineDistance(_nearbyLat, _nearbyLng, s.lat, s.lng) }))
         .filter((s) => activeFilter === 'all' || (s.categories || []).includes(activeFilter))
         .sort((a, b) => a.dist - b.dist)
-        .slice(0, 30);
+;
 
       while (gridEl.firstChild) gridEl.removeChild(gridEl.firstChild);
 
@@ -1537,6 +1537,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const sheet = document.getElementById('mapNearby');
       if (!sheet) return;
       _sheetState = state;
+      sheet.classList.toggle('sheet--expanded', state === 'expanded');
       const h = sheet.offsetHeight;
       const y =
         state === 'peek'

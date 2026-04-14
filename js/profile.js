@@ -2,7 +2,7 @@
  * profile.js — Profile page logic
  * Dependencies (globals):
  *   window._currentUser          — set by auth.js onAuthStateChanged
- *   window.CMS                   — cms.js (fetchMustEats, imageUrl)
+ *   window.CMS                   — cms.js (fetchCardPacks)
  *   window._renderProfileFavourites — favourites.js
  *   window._signOut              — auth.js
  *   window._sendPasswordReset    — auth.js

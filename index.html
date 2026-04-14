@@ -834,16 +834,10 @@
 
           <!-- Tab: Deck -->
           <div class="profile-tab-panel active" data-panel="deck" role="tabpanel">
-            <div class="profile-deck-header">
-              <span class="profile-deck-count" id="profileDeckCount"></span>
-            </div>
-            <div class="profile-deck-grid" id="profileDeckGrid"></div>
-            <div class="profile-booster-teaser">
-              <div class="profile-booster-teaser-text">
-                <strong data-i18n="profile.booster.title">&#127921; Booster Packs &#8212; Coming Soon</strong>
-                <span data-i18n="profile.booster.sub">Erweitere dein Deck mit exklusiven Gerichten</span>
-              </div>
-              <span class="profile-booster-badge">Coming Soon</span>
+            <div id="profilePackList"></div>
+            <div class="profile-booster-section" id="profileBoosterSection" hidden>
+              <h3 class="profile-booster-section-title" data-i18n="profile.deck.boosterSection">Booster Packs</h3>
+              <div class="profile-booster-grid" id="profileBoosterGrid"></div>
             </div>
           </div>
 
@@ -1478,6 +1472,7 @@
     <script defer src="js/app.js?v=5"></script>
     <script type="module" src="js/auth.js?v=3"></script>
     <script type="module" src="js/favourites.js"></script>
+    <script type="module" src="js/packs.js"></script>
     <script src="js/profile.js"></script>
     <script type="module" src="js/perf.js"></script>
     <script type="module" src="js/sentry.js"></script>

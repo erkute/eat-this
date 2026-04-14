@@ -3259,9 +3259,13 @@ body {
     grid-column: 1;
     grid-row: 2;
     height: 100%;
+    display: block; /* override flex centering so map fills full cell */
+    min-height: 0;
   }
+  /* Zoom buttons: keep inside the map area (left of sidebar) */
   .app-page[data-page="map"] .map-zoom-btns {
-    /* stays absolutely positioned within map-section */
+    right: 376px; /* sidebar width (360) + 16px gap */
+    bottom: 32px;
   }
   .app-page[data-page="map"] .map-nearby {
     grid-column: 2;
@@ -3296,6 +3300,13 @@ body {
   .app-page[data-page="map"] .map-nearby-label {
     font-size: 12px;
     padding: 12px 12px 10px;
+  }
+  .app-page[data-page="map"] .map-filter-tab {
+    font-size: 13px;
+    padding: 10px 18px 12px;
+  }
+  .app-page[data-page="map"] .map-filter-tab-count {
+    font-size: 11px;
   }
 
   /* ── News: Editorial Magazine Desktop ── */

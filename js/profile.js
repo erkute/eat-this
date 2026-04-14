@@ -1,14 +1,19 @@
 /**
  * profile.js — Profile page logic
  * Dependencies (globals):
- *   window._currentUser     — set by auth.js onAuthStateChanged
- *   window.CMS              — cms.js (fetchMustEats, imageUrl)
+ *   window._currentUser          — set by auth.js onAuthStateChanged
+ *   window.CMS                   — cms.js (fetchMustEats, imageUrl)
  *   window._renderProfileFavourites — favourites.js
- *   window._signOut         — auth.js
- *   window._sendPasswordReset — auth.js
- *   window.navigateToPage   — app.js
- *   window.openLoginModal   — auth.js
+ *   window._signOut              — auth.js
+ *   window._sendPasswordReset    — auth.js
+ *   window._updateDisplayName    — auth.js
+ *   window._deleteAccount        — auth.js
+ *   window._navigateToPage       — app.js
+ *   window.openLoginModal        — auth.js
  */
+
+/* ── One-time init guard: tabs and settings listeners are registered only once ── */
+let _profileInited = false;
 
 /* ── Tab switching ── */
 function initProfileTabs() {
@@ -28,11 +33,11 @@ function initProfileTabs() {
 
 /* ── Header ── */
 function populateProfileHeader(user) {
-  const displayName = user.displayName || user.email.split('@')[0];
+  const displayName = user.displayName || (user.email || '').split('@')[0];
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   set('profileName', displayName);
-  set('profileEmail', user.email);
-  set('profileSettingsEmail', user.email);
+  set('profileEmail', user.email || '');
+  set('profileSettingsEmail', user.email || '');
   set('profileAvatarInitial', displayName.charAt(0).toUpperCase());
   const input = document.getElementById('profileDisplayNameInput');
   if (input) input.value = user.displayName || '';
@@ -46,7 +51,7 @@ async function renderDeck() {
 
   let items = [];
   try { items = await window.CMS.fetchMustEats(); }
-  catch (e) { grid.textContent = 'Could not load deck.'; return; }
+  catch (e) { grid.textContent = 'Karten konnten nicht geladen werden.'; return; }
 
   if (countEl) countEl.textContent = items.length + ' Karten';
 
@@ -87,7 +92,7 @@ function renderSaved() {
   window._renderProfileFavourites && window._renderProfileFavourites();
 }
 
-/* ── Settings ── */
+/* ── Settings (registered once via _profileInited guard) ── */
 function initSettings(user) {
   // Save display name
   const saveBtn      = document.getElementById('profileSaveNameBtn');
@@ -136,8 +141,9 @@ function initSettings(user) {
   if (deleteBtn) {
     deleteBtn.addEventListener('click', () => {
       if (!window.confirm('Bist du sicher? Dein Account wird dauerhaft gel\u00F6scht.')) return;
+      if (!window._deleteAccount) return;
       window._deleteAccount()
-        .then(() => { window.navigateToPage && window.navigateToPage('start'); })
+        .then(() => { window._navigateToPage && window._navigateToPage('start'); })
         .catch(() => { window.alert('Fehler. Bitte neu einloggen und erneut versuchen.'); });
     });
   }
@@ -163,10 +169,16 @@ function initProfilePage(user) {
   if (content)    content.hidden = false;
 
   populateProfileHeader(user);
-  initProfileTabs();
-  renderDeck();
+
+  // Listeners registered once only — guard against repeated onAuthStateChanged calls
+  if (!_profileInited) {
+    _profileInited = true;
+    initProfileTabs();
+    initSettings(user);
+    renderDeck();
+  }
+
   renderSaved();
-  initSettings(user);
 }
 
 window._initProfilePage    = initProfilePage;

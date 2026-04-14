@@ -4272,68 +4272,77 @@ body {
 .profile-tab-panel { padding: 24px 20px; }
 .profile-tab-panel[hidden] { display: none; }
 
-/* Deck grid */
-.profile-deck-header {
-  display: flex; align-items: center;
-  justify-content: space-between; margin-bottom: 16px;
+/* ── Profile Deck: Pack Sections ───────────────────────────────────────── */
+#profilePackList {
+  display: flex; flex-direction: column; gap: 32px;
 }
-.profile-deck-count {
-  font-size: 11px; color: var(--gray-400); font-weight: 600;
-  letter-spacing: 0.06em; text-transform: uppercase;
+.profile-pack-section {
+  display: flex; flex-direction: column; gap: 12px;
 }
-.profile-deck-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+.profile-pack-header {
+  display: flex; align-items: center; padding: 0 2px;
 }
-
+.profile-pack-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--gray-400); margin: 0;
+}
+.profile-pack-row {
+  display: flex; gap: 8px; overflow-x: auto;
+  scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+  padding-bottom: 6px;
+}
+.profile-pack-row::-webkit-scrollbar { display: none; }
+.profile-pack-card {
+  flex: 0 0 calc(33.33% - 6px); scroll-snap-align: start;
+  border-radius: 10px; overflow: hidden; cursor: pointer;
+  background: var(--gray-100); transition: transform 0.15s, box-shadow 0.15s;
+}
+.profile-pack-card:hover {
+  transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+}
+.profile-pack-card .must-card-img {
+  width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block;
+}
 @media (min-width: 768px) {
-  .profile-deck-grid { grid-template-columns: repeat(6, 1fr); gap: 14px; }
-  .profile-tab-panel { padding: 32px; }
-  .profile-header { padding: 36px 32px 24px; }
-  .profile-tabs { padding: 0 32px; }
+  .profile-pack-card { flex: 0 0 160px; }
 }
 
-/* Deck cards */
-.profile-deck-card {
-  cursor: pointer; border-radius: 8px; overflow: hidden;
-  background: var(--gray-50); border: 1px solid var(--gray-100);
-  transition: transform 0.15s, box-shadow 0.15s;
+/* ── Booster Packs Section ──────────────────────────────────────────────── */
+.profile-booster-section {
+  margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--gray-100);
 }
-.profile-deck-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  border-color: var(--orange);
+.profile-booster-section-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--gray-400); margin: 0 0 16px;
 }
-.profile-deck-card-img {
-  width: 100%; aspect-ratio: 3/4; object-fit: cover;
-  display: block; background: var(--gray-100);
+.profile-booster-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
 }
-.profile-deck-card-body { padding: 6px 8px 8px; }
-.profile-deck-card-name {
-  font-size: 10px; font-weight: 700; color: var(--black);
-  line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+@media (min-width: 768px) {
+  .profile-booster-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
 }
-.profile-deck-card-rest {
-  font-size: 9px; color: var(--gray-400);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+.profile-booster-pack {
+  border-radius: 12px; overflow: hidden; background: var(--gray-50);
+  border: 1px solid var(--gray-100); display: flex; flex-direction: column;
 }
-
-/* Booster teaser */
-.profile-booster-teaser {
-  margin-top: 24px; padding: 14px 18px;
-  background: #fff8f6; border: 1px dashed var(--orange);
-  border-radius: 10px; display: flex;
-  align-items: center; justify-content: space-between; gap: 16px;
+.profile-booster-pack-cover {
+  width: 100%; aspect-ratio: 3/4; background: var(--gray-100); overflow: hidden;
 }
-.profile-booster-teaser-text {
-  display: flex; flex-direction: column; gap: 3px; font-size: 13px;
+.profile-booster-pack-cover img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  filter: blur(6px) brightness(0.7); transform: scale(1.05);
 }
-.profile-booster-teaser-text strong { color: var(--orange); }
-.profile-booster-teaser-text span { font-size: 12px; color: var(--gray-600); }
-.profile-booster-badge {
-  font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--gray-400);
-  border: 1px solid var(--gray-200); border-radius: 4px; padding: 3px 8px;
-  white-space: nowrap;
+.profile-booster-pack-name {
+  font-size: 12px; font-weight: 700; color: var(--black); padding: 10px 12px 4px; line-height: 1.3;
+}
+.profile-booster-pack-price {
+  font-size: 11px; color: var(--gray-400); padding: 0 12px 6px;
+}
+.profile-booster-pack-btn {
+  margin: 8px 12px 12px; padding: 8px 0; width: calc(100% - 24px);
+  background: var(--black); color: #fff; border: none; border-radius: 8px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  cursor: not-allowed; opacity: 0.35; font-family: inherit;
 }
 
 /* Saved/Favs tab — styles for favourites.js rendered cards */

@@ -110,7 +110,7 @@ window._signOut = async () => {
   await signOut(auth);
   closeLoginModal();
   notify(window.i18n.t('modals.login.notifications.signedOut'));
-  window._navigateToPage?.('start');
+  window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'start' } }));
 };
 
 window._sendPasswordReset = async (email) => {
@@ -129,7 +129,7 @@ window._deleteAccount = async () => {
 if (loginBtn)      loginBtn.addEventListener('click', () => {
   if (loginBtn.classList.contains('logged-in')) {
     window._closeBurger?.();
-    window._navigateToPage?.('profile');
+    window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
   } else {
     openLoginModal();
   }
@@ -257,7 +257,7 @@ if (loginForm) {
         notify(window.i18n.t('modals.login.notifications.signedIn').replace('{name}', firstName));
       }
       closeLoginModal();
-      window._navigateToPage?.('profile');
+      window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
     } catch (err) {
       isRegistering = false;
       const msg = errorMessage(err.code);
@@ -304,7 +304,7 @@ if (googleLoginBtn) {
       const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? '';
       notify(window.i18n.t('modals.login.notifications.signedIn').replace('{name}', firstName));
       closeLoginModal();
-      window._navigateToPage?.('profile');
+      window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
     } catch (err) {
       console.error('[auth] Google login error:', err.code, err);
       const msg = errorMessage(err.code);
@@ -319,7 +319,7 @@ if (logoutBtn) {
     await signOut(auth);
     closeLoginModal();
     notify(window.i18n.t('modals.login.notifications.signedOut'));
-    window._navigateToPage?.('start');
+    window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'start' } }));
   });
 }
 

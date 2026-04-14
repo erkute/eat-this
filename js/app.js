@@ -2216,7 +2216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkHash() {
       const hash = window.location.hash.replace('#', '') || 'start';
-      const validPages = ['start', 'news', 'musts', 'map'];
+      const validPages = ['start', 'news', 'musts', 'map', 'profile'];
       if (validPages.includes(hash)) {
         navigateToPage(hash);
       }
@@ -2224,6 +2224,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('hashchange', checkHash);
     checkHash();
+
+    // Allow any module (auth.js etc.) to navigate by dispatching this event
+    window.addEventListener('navigate', (e) => {
+      if (e.detail?.page) navigateToPage(e.detail.page);
+    });
 
     let resizeTimer;
     function handleResize() {

@@ -16,7 +16,8 @@
     "format": "prettier --write \"js/**/*.js\" \"functions/index.js\" \"functions/templates.js\"",
     "format:check": "prettier --check \"js/**/*.js\"",
     "test": "playwright test --passWithNoTests",
-    "test:ui": "playwright test --ui"
+    "test:ui": "playwright test --ui",
+    "build:articles": "node scripts/generate-articles.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

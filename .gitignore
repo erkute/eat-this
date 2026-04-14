@@ -8,3 +8,6 @@ node_modules/
 docs/superpowers/
 studio/node_modules/
 studio/.sanity/
+
+# Generated article pages (built by scripts/generate-articles.js, deployed via firebase deploy)
+/news/

@@ -127,14 +127,9 @@ window._deleteAccount = async () => {
 };
 
 if (loginBtn)      loginBtn.addEventListener('click', () => {
-  if (loginBtn.classList.contains('logged-in')) {
-    // Already signed in → go to profile, close burger if open
-    document.getElementById('burgerDrawer')?.classList.remove('open');
-    document.body.classList.remove('burger-open');
-    window._navigateToPage?.('profile');
-  } else {
-    openLoginModal();
-  }
+  document.getElementById('burgerDrawer')?.classList.remove('open');
+  document.body.classList.remove('burger-open');
+  window._navigateToPage?.('profile');
 });
 if (loginClose)    loginClose.addEventListener('click', closeLoginModal);
 if (loginBackdrop) loginBackdrop.addEventListener('click', closeLoginModal);

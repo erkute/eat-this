@@ -1378,6 +1378,22 @@ body {
   flex-wrap: wrap;
 }
 
+/* News Ticker */
+.news-ticker {
+  display: none;
+  background: var(--darkred);
+  padding: 7px 20px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #fff;
+  gap: 32px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.news-ticker span::before { content: "— "; }
+
 /* News Grid */
 .news-grid {
   font-size: 13px;

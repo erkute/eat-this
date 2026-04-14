@@ -45,13 +45,13 @@ export default {
     },
     {
       name: 'image',
-      title: 'Image',
+      title: 'Hero Image',
       type: 'image',
       options: { hotspot: true },
     },
     {
       name: 'alt',
-      title: 'Image Alt Text',
+      title: 'Hero Image Alt Text',
       type: 'string',
     },
     {
@@ -80,6 +80,59 @@ export default {
               { title: 'Underline', value: 'underline' },
             ],
           },
+        },
+        {
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            {
+              name: 'alt',
+              title: 'Alt Text',
+              type: 'string',
+              description: 'Describe the image for screen readers and SEO',
+            },
+            {
+              name: 'caption',
+              title: 'Caption',
+              type: 'string',
+              description: 'Optional caption shown below the image',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'seo',
+      title: 'SEO',
+      type: 'object',
+      fields: [
+        {
+          name: 'metaTitle',
+          title: 'Meta Title',
+          type: 'string',
+          description: 'Leave empty to use article title. Max 60 characters.',
+          validation: Rule => Rule.max(60),
+        },
+        {
+          name: 'metaDescription',
+          title: 'Meta Description',
+          type: 'text',
+          rows: 3,
+          description: 'Leave empty to use excerpt. Max 160 characters.',
+          validation: Rule => Rule.max(160),
+        },
+        {
+          name: 'ogImage',
+          title: 'Social Sharing Image',
+          type: 'image',
+          description: 'Leave empty to use hero image. Ideal: 1200×630px.',
+        },
+        {
+          name: 'noIndex',
+          title: 'Hide from search engines',
+          type: 'boolean',
+          initialValue: false,
+          description: 'Check to prevent Google from indexing this article.',
         },
       ],
     },

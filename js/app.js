@@ -20,6 +20,69 @@ if (window.innerWidth <= CONFIG.MOBILE_BREAKPOINT && screen.orientation?.lock) {
   screen.orientation.lock('portrait').catch(() => {});
 }
 
+const STATIC_PAGE_SLUGS = ['about', 'contact', 'press', 'impressum', 'datenschutz', 'agb'];
+
+/**
+ * Render Sanity Portable Text blocks to a DocumentFragment.
+ * Handles: h2, h3, paragraph, bullet list, numbered list, strong, em.
+ * All text content set via textContent (XSS-safe).
+ */
+function renderPortableText(blocks) {
+  if (!blocks || !blocks.length) return document.createDocumentFragment();
+
+  const fragment = document.createDocumentFragment();
+  let currentList = null;
+  let currentListType = null;
+
+  const closeList = () => {
+    if (currentList) { fragment.appendChild(currentList); currentList = null; currentListType = null; }
+  };
+
+  const buildInline = (children) => {
+    const span = document.createElement('span');
+    (children || []).forEach(child => {
+      const marks = child.marks || [];
+      let node = document.createTextNode(child.text || '');
+      marks.slice().reverse().forEach(mark => {
+        const wrapper = document.createElement(
+          mark === 'strong' ? 'strong' : mark === 'em' ? 'em' : 'span'
+        );
+        wrapper.appendChild(node);
+        node = wrapper;
+      });
+      span.appendChild(node);
+    });
+    return span;
+  };
+
+  blocks.forEach(block => {
+    if (block._type !== 'block') { closeList(); return; }
+
+    if (block.listItem) {
+      const listTag = block.listItem === 'number' ? 'ol' : 'ul';
+      if (currentListType !== listTag) {
+        closeList();
+        currentList = document.createElement(listTag);
+        currentListType = listTag;
+      }
+      const li = document.createElement('li');
+      li.appendChild(buildInline(block.children));
+      currentList.appendChild(li);
+      return;
+    }
+
+    closeList();
+
+    const tag = block.style === 'h2' ? 'h2' : block.style === 'h3' ? 'h3' : 'p';
+    const el = document.createElement(tag);
+    el.appendChild(buildInline(block.children));
+    fragment.appendChild(el);
+  });
+
+  closeList();
+  return fragment;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // ============================================
   // BODY OVERFLOW MANAGER
@@ -1772,17 +1835,45 @@ document.addEventListener('DOMContentLoaded', () => {
           })
           .join('');
         switch (block.style) {
-          case 'h2':
-            return `<h2>${inner}</h2>`;
-          case 'h3':
-            return `<h3>${inner}</h3>`;
-          case 'blockquote':
-            return `<blockquote>${inner}</blockquote>`;
-          default:
-            return `<p>${inner}</p>`;
+          case 'h2': return inner ? `<h2>${inner}</h2>` : '';
+          case 'h3': return inner ? `<h3>${inner}</h3>` : '';
+          case 'blockquote': return inner ? `<blockquote>${inner}</blockquote>` : '';
+          default: return inner ? `<p>${inner}</p>` : '';
         }
       })
       .join('');
+  }
+
+  function buildRecCardEl(card, allCards) {
+    const art = document.createElement('article');
+    art.className = 'news-rec-card';
+    const a = document.createElement('a');
+    a.href = '#';
+    const imgWrap = document.createElement('div');
+    imgWrap.className = 'news-rec-img';
+    const img = document.createElement('img');
+    img.src = card.dataset.img || '';
+    img.alt = card.dataset.title || '';
+    img.loading = 'lazy';
+    imgWrap.appendChild(img);
+    const body = document.createElement('div');
+    body.className = 'news-rec-body';
+    const cat = document.createElement('span');
+    cat.className = 'news-rec-category';
+    cat.textContent = card.dataset.categoryLabel || '';
+    const hl = document.createElement('h4');
+    hl.className = 'news-rec-headline';
+    hl.textContent = card.dataset.title || '';
+    body.appendChild(cat);
+    body.appendChild(hl);
+    a.appendChild(imgWrap);
+    a.appendChild(body);
+    art.appendChild(a);
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      openNewsModal(card);
+    });
+    return art;
   }
 
   function openNewsModal(article) {
@@ -1795,16 +1886,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let contentHtml;
     try {
       const parsed = JSON.parse(rawContent);
-      // Portable Text array from new rich-text field
       contentHtml = portableTextToHtml(parsed);
     } catch {
-      // Legacy plain-text content (may already contain HTML tags from import)
       contentHtml = rawContent.includes('<')
         ? rawContent
-        : rawContent
-            .split(/\n\n+/)
-            .map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`)
-            .join('');
+        : rawContent.split(/\n\n+/).map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
     }
 
     document.getElementById('newsModalImg').src = img;
@@ -1812,7 +1898,22 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('newsModalCategory').textContent = category;
     document.getElementById('newsModalTitle').textContent = title;
     document.getElementById('newsModalDate').textContent = date;
-    document.getElementById('newsModalContent').innerHTML = contentHtml;
+    document.getElementById('newsModalContent').innerHTML = contentHtml; // safe: portableTextToHtml escapes all user data
+
+    // Recommendations
+    const allCards = [...document.querySelectorAll('.news-card')];
+    const others = allCards.filter((c) => c.dataset.title !== title).slice(0, 3);
+    const moreSection = document.getElementById('newsArticleMore');
+    const moreGrid = document.getElementById('newsArticleMoreGrid');
+    if (moreSection && moreGrid) {
+      moreGrid.textContent = '';
+      if (others.length) {
+        others.forEach((c) => moreGrid.appendChild(buildRecCardEl(c, allCards)));
+        moreSection.hidden = false;
+      } else {
+        moreSection.hidden = true;
+      }
+    }
 
     currentShareData = {
       title: title,
@@ -1822,9 +1923,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     newsModal.classList.add('active');
     bodyOverflow.lock();
-
-    const modalInner = newsModal.querySelector('.news-modal');
-    if (modalInner) modalInner.scrollTop = 0;
+    newsModal.scrollTop = 0;
   }
 
   function closeNewsModal() {
@@ -1919,6 +2018,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let currentPage = 'start';
 
+  async function loadStaticPage(slug) {
+    // Build element IDs: "datenschutz" → "staticPageDatenschutz"
+    const idBase  = 'staticPage' + slug.charAt(0).toUpperCase() + slug.slice(1);
+    const titleEl = document.getElementById(idBase + '-title');
+    const bodyEl  = document.getElementById(idBase + '-body');
+    if (!titleEl || !bodyEl) return;
+
+    // Show loading state
+    bodyEl.textContent = '';
+    const loading = document.createElement('span');
+    loading.className = 'static-page-loading';
+    loading.textContent = 'Loading\u2026';
+    bodyEl.appendChild(loading);
+
+    const lang = (window.i18n && window.i18n.currentLang) ? window.i18n.currentLang() : 'de';
+    const page = await window.CMS.fetchStaticPage(slug);
+
+    bodyEl.textContent = ''; // clear loading
+
+    if (!page) {
+      const err = document.createElement('p');
+      err.style.color = '#999';
+      err.textContent = 'Inhalt konnte nicht geladen werden.';
+      bodyEl.appendChild(err);
+      return;
+    }
+
+    titleEl.textContent = (lang === 'de' && page.titleDe) ? page.titleDe : (page.title || '');
+    const blocks = (lang === 'de' && page.bodyDe && page.bodyDe.length) ? page.bodyDe : (page.body || []);
+    bodyEl.appendChild(renderPortableText(blocks));
+  }
+
   function navigateToPage(pageName) {
     if (pageName === currentPage) return;
 
@@ -1990,8 +2121,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navNewsBtn) navNewsBtn.classList.toggle('active', pageName === 'news');
     if (navMapBtn) navMapBtn.classList.toggle('active', pageName === 'map');
     if (navMustsBtn) navMustsBtn.classList.toggle('active', pageName === 'musts');
+    const navProfileBtnEl = document.getElementById('navProfileBtn');
+    if (navProfileBtnEl) navProfileBtnEl.classList.toggle('active', pageName === 'profile');
 
     currentPage = pageName;
+
+    // Track navigation history for back button
+    window._prevPage    = window._currentPage || 'start';
+    window._currentPage = pageName;
+
+    // Load CMS content for static pages
+    if (STATIC_PAGE_SLUGS.includes(pageName)) {
+      loadStaticPage(pageName);
+    }
   }
 
   if (appPages.length) {
@@ -2023,6 +2165,18 @@ document.addEventListener('DOMContentLoaded', () => {
       navMustsBtn.addEventListener('click', () => {
         navigateToPage('musts');
         window.location.hash = 'musts';
+      });
+    }
+
+    const navProfileBtn = document.getElementById('navProfileBtn');
+    if (navProfileBtn) {
+      navProfileBtn.addEventListener('click', () => {
+        if (window._currentUser) {
+          navigateToPage('profile');
+          window.location.hash = 'profile';
+        } else {
+          window.openLoginModal && window.openLoginModal();
+        }
       });
     }
 
@@ -2099,6 +2253,13 @@ document.addEventListener('DOMContentLoaded', () => {
     burger.close();
   }
 
+  // Static page back buttons
+  document.querySelectorAll('.static-page-back[data-back]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      navigateToPage(window._prevPage || 'start');
+    });
+  });
+
   // Cookie Info Modal
   const cookieInfoModalEl = document.getElementById('cookieInfoModal');
   const cookieInfoModal = createModal(cookieInfoModalEl, {
@@ -2120,7 +2281,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (agbFromBurger)
     agbFromBurger.addEventListener('click', () => {
       closeBurger();
-      agbModal.open();
+      navigateToPage('agb');
     });
 
   // Datenschutz Modal
@@ -2133,22 +2294,20 @@ document.addEventListener('DOMContentLoaded', () => {
   if (datenschutzFromBurger)
     datenschutzFromBurger.addEventListener('click', () => {
       closeBurger();
-      datenschutzModal.open();
+      navigateToPage('datenschutz');
     });
 
-  // Info modals (about, contact, press, impressum) — opened from burger
-  ['about', 'contact', 'press', 'impressum'].forEach((id) => {
-    const cap = id.charAt(0).toUpperCase() + id.slice(1);
-    const m = createModal(document.getElementById(id + 'Modal'), {
-      closeBtn: document.getElementById(id + 'Close'),
-      backdrop: document.getElementById(id + 'Backdrop'),
-    });
+  // Static page navigation from burger drawer (about/contact/press/impressum)
+  // Modal HTML for these slugs still exists but is no longer opened — removed in Task 16.
+  ['about', 'contact', 'press', 'impressum'].forEach((slug) => {
+    const cap = slug.charAt(0).toUpperCase() + slug.slice(1);
     const trigger = document.getElementById('open' + cap);
-    if (trigger)
+    if (trigger) {
       trigger.addEventListener('click', () => {
         closeBurger();
-        m.open();
+        navigateToPage(slug);
       });
+    }
   });
 
   // ============================================
@@ -2342,4 +2501,53 @@ document.addEventListener('DOMContentLoaded', () => {
       closeCookieSettings();
     });
   }
+
+  // ── Site footer navigation links ──
+  document.querySelectorAll('.site-footer-link[data-page]').forEach(btn => {
+    btn.addEventListener('click', () => navigateToPage(btn.dataset.page));
+  });
+
+  // ── Footer logo link ──
+  const footerLogoLink = document.querySelector('.site-footer-logo[data-page]');
+  if (footerLogoLink) {
+    footerLogoLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      navigateToPage(footerLogoLink.dataset.page);
+    });
+  }
+
+  // ── Footer language toggle ──
+  function updateFooterLangButtons(lang) {
+    const de = document.getElementById('footerLangDe');
+    const en = document.getElementById('footerLangEn');
+    if (de) de.classList.toggle('active', lang === 'de');
+    if (en) en.classList.toggle('active', lang === 'en');
+  }
+
+  const footerLangDe = document.getElementById('footerLangDe');
+  const footerLangEn = document.getElementById('footerLangEn');
+
+  if (footerLangDe) {
+    footerLangDe.addEventListener('click', () => {
+      window.i18n && window.i18n.setLang('de');
+      updateFooterLangButtons('de');
+      // Re-render current static page in new language
+      if (window._currentPage && STATIC_PAGE_SLUGS.includes(window._currentPage)) {
+        loadStaticPage(window._currentPage);
+      }
+    });
+  }
+  if (footerLangEn) {
+    footerLangEn.addEventListener('click', () => {
+      window.i18n && window.i18n.setLang('en');
+      updateFooterLangButtons('en');
+      // Re-render current static page in new language
+      if (window._currentPage && STATIC_PAGE_SLUGS.includes(window._currentPage)) {
+        loadStaticPage(window._currentPage);
+      }
+    });
+  }
+
+  // Sync footer lang buttons with current language on page load
+  updateFooterLangButtons(window.i18n ? window.i18n.currentLang() : 'en');
 });

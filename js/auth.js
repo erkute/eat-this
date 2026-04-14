@@ -19,7 +19,8 @@ import {
   GoogleAuthProvider,
   onAuthStateChanged,
   signOut,
-  updateProfile
+  updateProfile,
+  deleteUser
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import {
   getFunctions,
@@ -104,6 +105,25 @@ function closeLoginModal() {
 
 window.openLoginModal  = openLoginModal;
 window.closeLoginModal = closeLoginModal;
+
+window._signOut = async () => {
+  await signOut(auth);
+  closeLoginModal();
+  notify(window.i18n.t('modals.login.notifications.signedOut'));
+};
+
+window._sendPasswordReset = async (email) => {
+  const sendPasswordReset = httpsCallable(functions, 'sendPasswordReset');
+  await sendPasswordReset({ email });
+};
+
+window._updateDisplayName = async (name) => {
+  await updateProfile(auth.currentUser, { displayName: name });
+};
+
+window._deleteAccount = async () => {
+  await deleteUser(auth.currentUser);
+};
 
 if (loginBtn)      loginBtn.addEventListener('click', openLoginModal);
 if (loginClose)    loginClose.addEventListener('click', closeLoginModal);
@@ -309,6 +329,7 @@ function applyLoggedInUI(user) {
 }
 
 onAuthStateChanged(auth, (user) => {
+  window._currentUser = user || null;
   if (user) {
     if (isRegistering) return;
     applyLoggedInUI(user);
@@ -321,6 +342,9 @@ onAuthStateChanged(auth, (user) => {
 
     loginForm?.reset();
     setMode(true);
+  }
+  if (window._initProfilePage) {
+    window._initProfilePage(user || null);
   }
 });
 

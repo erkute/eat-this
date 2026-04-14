@@ -198,7 +198,7 @@ exports.sendMfaNotification = onCall(
 );
 
 // Auto-unlock Starter Pack on registration
-exports.onUserCreate = require('firebase-functions').auth.user().onCreate(async (user) => {
+exports.onUserCreate = require('firebase-functions/v1').auth.user().onCreate(async (user) => {
   try {
     await admin.firestore()
       .collection('userPacks').doc(user.uid)

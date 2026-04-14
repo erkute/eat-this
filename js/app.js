@@ -1650,16 +1650,21 @@ document.addEventListener('DOMContentLoaded', () => {
       if (nearbyTitle && window.i18n) nearbyTitle.textContent = window.i18n.t('map.nearby');
       _renderNearbyGrid();
 
+      const _isDesktop = window.matchMedia('(min-width: 768px)').matches;
       if (!_sheetReady) {
         _sheetReady = true;
-        // Remove CSS transform so inline style takes full control
-        const sheet = document.getElementById('mapNearby');
-        if (sheet) sheet.style.transform = `translateY(${sheet.scrollHeight}px)`;
+        // On mobile: hide the sheet initially so it can slide up
+        // On desktop: CSS keeps it visible (translateY(0)), no hide needed
+        if (!_isDesktop) {
+          const sheet = document.getElementById('mapNearby');
+          if (sheet) sheet.style.transform = `translateY(${sheet.scrollHeight}px)`;
+        }
         _initSheetDrag();
       }
       // Double rAF: first frame lets grid paint, second measures correct height
       requestAnimationFrame(() => requestAnimationFrame(() => {
-        _snapSheet('mid');
+        // Desktop: always show full panel; mobile: show mid-state (bottom 240 px)
+        _snapSheet(_isDesktop ? 'expanded' : 'mid', !_isDesktop);
         // Register map click → peek only after sheet is settled (800ms safety window)
         if (foodMap && !foodMap._eatThisClickBound) {
           foodMap._eatThisClickBound = true;

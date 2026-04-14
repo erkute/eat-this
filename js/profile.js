@@ -52,7 +52,7 @@ async function renderDeck() {
 
   packList.textContent = '';
 
-  let allPacks = [];
+  let allPacks;
   try { allPacks = await window.CMS.fetchCardPacks() || []; }
   catch (e) { return; }
 

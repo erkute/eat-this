@@ -745,8 +745,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function showGlobeIntro(onComplete) {
     // TEMPORARILY DISABLED FOR TESTING — re-enable by removing this early return
     onComplete();
-    return;
-    if (typeof THREE === 'undefined' || globeShown) { // eslint-disable-line no-unreachable
+    return; // eslint-disable-line no-unreachable
+    /* eslint-disable no-unreachable */
+    if (typeof THREE === 'undefined' || globeShown) {
       onComplete();
       return;
     }
@@ -1009,6 +1010,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderer.render(scene, camera);
     }
     tick();
+    /* eslint-enable no-unreachable */
   }
 
   function initFoodMap() {

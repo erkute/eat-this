@@ -2605,8 +2605,8 @@ body {
   .app-page[data-page="news"] .news-title {
     font-size: clamp(2.8rem, 10vw, 5rem);
     font-weight: 900;
-    letter-spacing: 0.02em;
-    line-height: 0.9;
+    letter-spacing: -0.08em;
+    line-height: 0.85;
     margin: 0;
     text-transform: uppercase;
     color: var(--black);

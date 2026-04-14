@@ -2534,136 +2534,108 @@ body {
   }
 
   .app-page[data-page="news"] .news-grid {
-    padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: 2px;
+    background: #ccc;
+    padding: 0;
+  }
+
+  /* All cards: bold text, tight */
+  .app-page[data-page="news"] .news-card {
     background: var(--white);
-  }
-
-  /* Hero card */
-  .app-page[data-page="news"] .news-card:nth-child(1) {
     display: block;
-    border-bottom: 1px solid var(--gray-100);
+    overflow: hidden;
   }
+  .app-page[data-page="news"] .news-card > a {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+  }
+  .app-page[data-page="news"] .news-card-top {
+    margin-bottom: 6px;
+  }
+  .app-page[data-page="news"] .news-card-category {
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--darkred);
+  }
+  .app-page[data-page="news"] .news-card-date { display: none; }
+  .app-page[data-page="news"] .news-card-excerpt { display: none; }
 
+  /* Hero card (1st): show image + overlay headline */
+  .app-page[data-page="news"] .news-card:nth-child(1) {
+    position: relative;
+    background: var(--black);
+  }
+  .app-page[data-page="news"] .news-card:nth-child(1) > a {
+    position: relative;
+  }
   .app-page[data-page="news"] .news-card:nth-child(1) .news-card-img {
     display: block;
     width: 100%;
     aspect-ratio: 16/9;
-    height: auto;
+    overflow: hidden;
   }
-
   .app-page[data-page="news"] .news-card:nth-child(1) .news-card-img img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    filter: brightness(0.4);
   }
-
   .app-page[data-page="news"] .news-card:nth-child(1) .news-card-body {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
     padding: 14px 16px 18px;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 60%, transparent);
   }
-
-  .app-page[data-page="news"] .news-card:nth-child(1) .news-card-top {
-    margin-bottom: 8px;
+  .app-page[data-page="news"] .news-card:nth-child(1) .news-card-category {
+    color: var(--darkred);
+    margin-bottom: 6px;
   }
-
   .app-page[data-page="news"] .news-card:nth-child(1) .news-card-headline {
-    font-family: 'Anton', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 400;
-    letter-spacing: 0.01em;
-    line-height: 1.1;
-    -webkit-line-clamp: 4;
-    margin-bottom: 8px;
-  }
-
-  .app-page[data-page="news"] .news-card:nth-child(1) .news-card-excerpt {
-    display: -webkit-box;
-    font-size: 14px;
-    color: var(--gray-600);
-    line-height: 1.55;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  /* Cards 2+ — compact horizontal rows */
-  .app-page[data-page="news"] .news-card:nth-child(n+2) {
-    border-bottom: 1px solid var(--gray-100);
-  }
-
-  /* Grid on the <a> so img + body are actual grid children */
-  .app-page[data-page="news"] .news-card:nth-child(n+2) > a {
-    display: grid;
-    grid-template-columns: 96px 1fr;
-    min-height: 84px;
-    width: 100%;
-  }
-
-  .app-page[data-page="news"] .news-card:last-child {
-    border-bottom: none;
-    padding-bottom: max(24px, env(safe-area-inset-bottom));
-  }
-
-  .app-page[data-page="news"] .news-card:nth-child(n+2) .news-card-img {
-    width: 96px;
-    height: 100%;
-    min-height: 84px;
-    aspect-ratio: auto;
-  }
-
-  .app-page[data-page="news"] .news-card:nth-child(n+2) .news-card-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .app-page[data-page="news"] .news-card:nth-child(n+2) .news-card-body {
-    padding: 10px 12px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .app-page[data-page="news"] .news-card:nth-child(n+2) .news-card-top {
-    margin-bottom: 4px;
-  }
-
-  .app-page[data-page="news"] .news-card:nth-child(n+2) .news-card-headline {
-    font-size: 0.9rem;
-    font-weight: 800;
-    line-height: 1.25;
-    letter-spacing: -0.01em;
-    -webkit-line-clamp: 3;
-    margin-bottom: 0;
-  }
-
-  .app-page[data-page="news"] .news-card:nth-child(n+2) .news-card-excerpt {
-    display: none;
-  }
-
-  /* Shared card meta */
-  .app-page[data-page="news"] .news-card-category {
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
+    font-size: clamp(1.8rem, 7vw, 2.4rem);
+    font-weight: 900;
+    letter-spacing: -0.055em;
+    line-height: 0.92;
     text-transform: uppercase;
-    color: var(--orange);
+    color: #fff;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+    display: block;
   }
 
-  .app-page[data-page="news"] .news-card-date {
-    font-size: 10px;
-    color: var(--gray-400);
-  }
+  /* Cards 2-3: black/white alternating text cards */
+  .app-page[data-page="news"] .news-card:nth-child(2) { background: var(--black); }
+  .app-page[data-page="news"] .news-card:nth-child(2) .news-card-headline { color: #fff; }
+  .app-page[data-page="news"] .news-card:nth-child(3) { background: var(--white); }
 
-  .app-page[data-page="news"] .news-card .news-card-img img {
-    transition: transform 0.5s var(--ease);
+  /* All non-hero cards: hide image, bold text body */
+  .app-page[data-page="news"] .news-card:nth-child(n+2) .news-card-img { display: none; }
+  .app-page[data-page="news"] .news-card:nth-child(n+2) .news-card-body {
+    padding: 16px;
+    position: static;
+    background: none;
   }
+  .app-page[data-page="news"] .news-card:nth-child(n+2) .news-card-headline {
+    font-size: clamp(1.4rem, 5vw, 1.9rem);
+    font-weight: 900;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    color: var(--black);
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
+  .app-page[data-page="news"] .news-card:nth-child(2) .news-card-headline { color: #fff; }
 
-  .app-page[data-page="news"] .news-card:hover .news-card-img img {
-    transform: scale(1.04);
-  }
+  /* Card 5 (darkred accent) */
+  .app-page[data-page="news"] .news-card:nth-child(5) { background: var(--darkred); }
+  .app-page[data-page="news"] .news-card:nth-child(5) .news-card-category { color: rgba(255,255,255,0.5); }
+  .app-page[data-page="news"] .news-card:nth-child(5) .news-card-headline { color: #fff; }
 
 }
 

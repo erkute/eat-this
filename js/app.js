@@ -1044,11 +1044,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('mapZoomIn').addEventListener('click', () => foodMap.zoomIn());
     document.getElementById('mapZoomOut').addEventListener('click', () => foodMap.zoomOut());
 
-    // Pre-position zoom buttons above where the sheet will snap to mid (240px)
+    // Pre-position zoom buttons above the sheet (mobile only — desktop uses CSS)
     const zoomBtnsInit = document.querySelector('.map-zoom-btns');
-    if (zoomBtnsInit) {
+    if (zoomBtnsInit && !window.matchMedia('(min-width: 768px)').matches) {
       zoomBtnsInit.style.transition = 'none';
-      zoomBtnsInit.style.bottom = '252px'; // MID_PX (240) + 12
+      zoomBtnsInit.style.bottom = (MID_PX + 12) + 'px';
     }
 
     // User location
@@ -1558,9 +1558,9 @@ document.addEventListener('DOMContentLoaded', () => {
       sheet.style.transition = animate ? 'transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)' : 'none';
       sheet.style.transform = `translateY(${Math.max(0, y)}px)`;
 
-      // Keep zoom buttons above visible sheet edge, animated in sync with sheet
+      // Keep zoom buttons above visible sheet edge (mobile only — desktop uses CSS)
       const zoomBtns = document.querySelector('.map-zoom-btns');
-      if (zoomBtns) {
+      if (zoomBtns && !window.matchMedia('(min-width: 768px)').matches) {
         const visible =
           state === 'mid' ? MID_PX : state === 'expanded' ? expandedPx : PEEK_PX;
         zoomBtns.style.transition = animate ? 'bottom 0.4s cubic-bezier(0.32, 0.72, 0, 1)' : 'none';

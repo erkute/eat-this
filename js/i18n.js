@@ -268,7 +268,7 @@ function buildNewsCardHtml(a, i) {
     ` data-date="${esc(dateLabel)}"`,
     ` data-excerpt="${esc(a.excerpt)}"`,
     ` data-content="${esc(Array.isArray(a.content) ? JSON.stringify(a.content) : (a.content || ''))}">`,
-    `<a href="#">`,
+    `<a href="${a.id ? `/news/${a.id}` : '#'}">`,
     `<div class="news-card-img"><img src="${esc(imgSrc)}" alt="${esc(a.alt || a.title)}" loading="lazy"></div>`,
     `<div class="news-card-body">`,
     `<div class="news-card-top">`,

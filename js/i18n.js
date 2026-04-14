@@ -164,6 +164,12 @@ const TRANSLATIONS = {
         forgotSuccess: "If an account exists, we've sent you a link. Please check your inbox.",
       },
     },
+    profile: {
+      tab:     { deck: 'My Deck', saved: 'Saved', settings: 'Settings' },
+      saved:   { empty: 'You have no saved restaurants yet.' },
+      deck:    { boosterSection: 'Booster Packs', unlockBtn: 'Unlock', comingSoon: 'Coming Soon' },
+      booster: { title: 'Booster Packs - Coming Soon', sub: 'Expand your deck with exclusive dishes' },
+    },
   },
 
   // DE skeleton — all keys mirror EN; fill values when launching German version
@@ -183,6 +189,16 @@ const TRANSLATIONS = {
   }
   TRANSLATIONS.de = deepCopy(TRANSLATIONS.en);
 })();
+
+// DE profile overrides
+TRANSLATIONS.de.profile.tab.deck        = 'Mein Deck';
+TRANSLATIONS.de.profile.tab.saved       = 'Gespeichert';
+TRANSLATIONS.de.profile.tab.settings    = 'Einstellungen';
+TRANSLATIONS.de.profile.saved.empty     = 'Du hast noch keine Restaurants gespeichert.';
+TRANSLATIONS.de.profile.deck.unlockBtn  = 'Freischalten';
+TRANSLATIONS.de.profile.deck.comingSoon = 'Demnächst';
+TRANSLATIONS.de.profile.booster.title   = 'Booster Packs - Demnächst';
+TRANSLATIONS.de.profile.booster.sub     = 'Erweitere dein Deck mit exklusiven Gerichten';
 
 // ─── ENGINE ───────────────────────────────────────────────────────────────
 

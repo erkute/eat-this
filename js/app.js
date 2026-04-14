@@ -2455,6 +2455,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+  window._bindMustCards = bindMustCards;
 
   mustLightbox.addEventListener(
     'touchend',

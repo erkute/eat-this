@@ -1318,6 +1318,13 @@ document.addEventListener('DOMContentLoaded', () => {
     window._showSpotDetail = showSpotDetail;
     window._navigateToPage = navigateToPage;
 
+    // Handle spot pending from favourites navigation (map wasn't ready yet)
+    if (window._pendingFavSpot) {
+      const pending = window._pendingFavSpot;
+      window._pendingFavSpot = null;
+      setTimeout(() => showSpotDetail(pending), 50);
+    }
+
     function haversineDistance(lat1, lng1, lat2, lng2) {
       const R = 6371000;
       const dLat = ((lat2 - lat1) * Math.PI) / 180;

@@ -136,10 +136,15 @@ function renderProfileFavourites() {
     card.appendChild(overlay);
 
     card.addEventListener('click', () => {
-      if (spot && typeof window._showSpotDetail === 'function') {
-        window.closeLoginModal?.();
-        window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'map' } }));
+      if (!spot) return;
+      window.closeLoginModal?.();
+      window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'map' } }));
+      if (typeof window._showSpotDetail === 'function') {
+        // Map already initialized — show immediately
         setTimeout(() => window._showSpotDetail(spot), 50);
+      } else {
+        // Map not yet initialized — store pending, picked up after initFoodMap
+        window._pendingFavSpot = spot;
       }
     });
 

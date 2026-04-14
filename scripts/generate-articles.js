@@ -15,7 +15,7 @@ const SANITY_API_VER = '2024-01-01';
 const SANITY_CDN = `https://${SANITY_PROJECT}.apicdn.sanity.io/v${SANITY_API_VER}/data/query/${SANITY_DATASET}`;
 
 async function fetchArticles() {
-  const query = `*[_type == "newsArticle"] | order(date desc) {
+  const query = `*[_type == "newsArticle" && !(_id in path("drafts.**"))] | order(date desc) {
     "slug": slug.current,
     title,
     language,
@@ -52,7 +52,8 @@ function escapeHtml(str) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function portableTextToHtml(blocks) {
@@ -91,16 +92,17 @@ function portableTextToHtml(blocks) {
   }).filter(Boolean).join('\n');
 }
 
-function formatDate(dateStr) {
+function formatDate(dateStr, lang = 'en') {
   if (!dateStr) return '';
-  return new Date(dateStr).toLocaleDateString('en-US', {
+  const locale = lang === 'de' ? 'de-DE' : 'en-US';
+  return new Date(dateStr + 'T00:00:00').toLocaleDateString(locale, {
     year: 'numeric', month: 'long', day: 'numeric',
   });
 }
 
 function generateArticleHtml(article) {
   const slug        = article.slug;
-  const canonical   = `https://www.eatthisdot.com/news/${slug}`;
+  const canonical   = `https://www.eatthisdot.com/news/${encodeURIComponent(slug)}`;
   const metaTitle   = article.seo?.metaTitle   || article.title || '';
   const metaDesc    = article.seo?.metaDescription || article.excerpt || '';
   const rawOgImage  = article.seo?.ogImageUrl  || article.imageUrl  || '';
@@ -110,7 +112,7 @@ function generateArticleHtml(article) {
     ? '<meta name="robots" content="noindex,nofollow">'
     : '';
   const contentHtml    = portableTextToHtml(article.content);
-  const dateFormatted  = formatDate(article.date);
+  const dateFormatted  = formatDate(article.date, article.language);
   const categoryLabel  = escapeHtml(article.categoryLabel || article.category || '');
   const lang           = article.language || 'en';
 
@@ -126,7 +128,7 @@ function generateArticleHtml(article) {
       'name': 'Eat This Berlin',
       'url': 'https://www.eatthisdot.com',
     },
-  });
+  }).replace(/<\//g, '<\\/');
 
   const heroHtml = heroImage
     ? `<div class="news-article-hero">
@@ -190,7 +192,7 @@ function generateArticleHtml(article) {
         </div>
         <h1 class="news-modal-title">${escapeHtml(article.title)}</h1>
         <div class="news-article-share">
-          <button class="news-share-btn" onclick="(function(){ const u='${canonical}'; if(navigator.share){navigator.share({title:'${escapeHtml(metaTitle)}',url:u})}else{navigator.clipboard.writeText(u)} })()">
+          <button class="news-share-btn" data-share-url="${canonical}" data-share-title="${escapeHtml(metaTitle)}">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
             Share
           </button>
@@ -218,6 +220,16 @@ function generateArticleHtml(article) {
     <p class="site-footer-copy">&copy; 2026 Eat This. All rights reserved.</p>
   </footer>
 
+  <script>
+    (function() {
+      var btn = document.querySelector('.news-share-btn[data-share-url]');
+      if (btn) btn.addEventListener('click', function() {
+        var u = this.dataset.shareUrl, t = this.dataset.shareTitle;
+        if (navigator.share) navigator.share({ title: t, url: u });
+        else navigator.clipboard.writeText(u);
+      });
+    })();
+  </script>
 </body>
 </html>`;
 }
@@ -236,9 +248,10 @@ async function main() {
       console.warn(`  ⚠ Skipping article without slug: "${article.title}"`);
       continue;
     }
+    const safeSlug = article.slug.replace(/[^a-z0-9-_]/gi, '-');
     const html = generateArticleHtml(article);
-    writeFileSync(join(newsDir, `${article.slug}.html`), html, 'utf-8');
-    console.log(`  ✓ /news/${article.slug}.html`);
+    writeFileSync(join(newsDir, `${safeSlug}.html`), html, 'utf-8');
+    console.log(`  ✓ /news/${safeSlug}.html`);
     generated++;
   }
 

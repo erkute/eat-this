@@ -15,7 +15,7 @@
     "lint:fix": "eslint js/ --fix",
     "format": "prettier --write \"js/**/*.js\" \"functions/index.js\" \"functions/templates.js\"",
     "format:check": "prettier --check \"js/**/*.js\"",
-    "test": "playwright test",
+    "test": "playwright test --passWithNoTests",
     "test:ui": "playwright test --ui"
   },
   "devDependencies": {

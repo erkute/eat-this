@@ -125,7 +125,16 @@ window._deleteAccount = async () => {
   await deleteUser(auth.currentUser);
 };
 
-if (loginBtn)      loginBtn.addEventListener('click', openLoginModal);
+if (loginBtn)      loginBtn.addEventListener('click', () => {
+  if (loginBtn.classList.contains('logged-in')) {
+    // Already signed in → go to profile, close burger if open
+    document.getElementById('burgerDrawer')?.classList.remove('open');
+    document.body.classList.remove('burger-open');
+    window._navigateToPage?.('profile');
+  } else {
+    openLoginModal();
+  }
+});
 if (loginClose)    loginClose.addEventListener('click', closeLoginModal);
 if (loginBackdrop) loginBackdrop.addEventListener('click', closeLoginModal);
 
@@ -321,6 +330,10 @@ function applyLoggedInUI(user) {
   if (loginBtnLabel) loginBtnLabel.textContent = firstName;
   loginBtn?.classList.add('logged-in');
 
+  // Hide "Create account" hero CTA when already signed in
+  const heroCta = document.querySelector('.hero-register-btn');
+  if (heroCta) heroCta.style.display = 'none';
+
   if (authView)      authView.style.display    = 'none';
   if (profileView)   profileView.style.display = 'block';
   if (profileAvatar) profileAvatar.textContent = initials;
@@ -336,6 +349,10 @@ onAuthStateChanged(auth, (user) => {
   } else {
     if (loginBtnLabel) loginBtnLabel.textContent = window.i18n.t('footer.signIn');
     loginBtn?.classList.remove('logged-in');
+
+    // Restore "Create account" hero CTA when signed out
+    const heroCta = document.querySelector('.hero-register-btn');
+    if (heroCta) heroCta.style.display = '';
 
     if (authView)    authView.style.display    = '';
     if (profileView) profileView.style.display = 'none';

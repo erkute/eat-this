@@ -1343,8 +1343,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let _sheetState = 'hidden'; // 'hidden' | 'peek' | 'mid' | 'expanded'
     let _sheetReady = false;
 
-    const PEEK_PX = 56; // handle (28) + label row (28)
-    const MID_PX = 240; // header + 1 card row redesigned
+    const PEEK_PX = 56; // unused snap — kept for zoom-btn compat
+    const MID_PX = 240;  // 1 card row visible
+    const EXPANDED_PX = 540; // 3 card rows visible
 
     function isOpenNow(openingHours) {
       if (!openingHours || !openingHours.length) return null;
@@ -1540,22 +1541,19 @@ document.addEventListener('DOMContentLoaded', () => {
       sheet.classList.toggle('sheet--expanded', state === 'expanded');
       const h = sheet.offsetHeight;
       const y =
-        state === 'peek'
-          ? h - PEEK_PX
-          : state === 'mid'
-            ? h - MID_PX
-            : state === 'expanded'
-              ? 0
-              : h; // hidden
+        state === 'mid'
+          ? h - MID_PX
+          : state === 'expanded'
+            ? h - EXPANDED_PX
+            : h; // hidden
       sheet.style.transition = animate ? 'transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)' : 'none';
       sheet.style.transform = `translateY(${Math.max(0, y)}px)`;
 
       // Keep zoom buttons above visible sheet edge, animated in sync with sheet
       const zoomBtns = document.querySelector('.map-zoom-btns');
       if (zoomBtns) {
-        // Clamp to actual sheet height so buttons sit tight above the visible edge
         const visible =
-          state === 'peek' ? Math.min(PEEK_PX, h) : state === 'mid' ? Math.min(MID_PX, h) : state === 'expanded' ? h : 0;
+          state === 'mid' ? MID_PX : state === 'expanded' ? EXPANDED_PX : 0;
         zoomBtns.style.transition = animate ? 'bottom 0.4s cubic-bezier(0.32, 0.72, 0, 1)' : 'none';
         zoomBtns.style.bottom = visible + 12 + 'px';
       }
@@ -1603,17 +1601,16 @@ document.addEventListener('DOMContentLoaded', () => {
         let next;
         if (vel > 0.5) {
           // fast swipe down → go to next lower state
-          next = _sheetState === 'expanded' ? 'mid' : 'peek';
+          next = _sheetState === 'expanded' ? 'mid' : 'hidden';
         } else if (vel < -0.5) {
           // fast swipe up → go to next higher state
-          next = _sheetState === 'peek' ? 'mid' : 'expanded';
+          next = _sheetState === 'hidden' ? 'mid' : 'expanded';
         } else {
-          // snap to nearest snap point
-          const pts = { peek: h - PEEK_PX, mid: h - MID_PX, expanded: 0 };
-          const nearest = Object.entries(pts).sort(
+          // snap to nearest of 3 snap points
+          const pts = { hidden: h, mid: h - MID_PX, expanded: h - EXPANDED_PX };
+          next = Object.entries(pts).sort(
             (a, b) => Math.abs(curY - a[1]) - Math.abs(curY - b[1])
           )[0][0];
-          next = nearest;
         }
         _snapSheet(next);
       }
@@ -1665,21 +1662,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // On desktop: CSS keeps it visible (translateY(0)), no hide needed
         if (!_isDesktop) {
           const sheet = document.getElementById('mapNearby');
-          if (sheet) sheet.style.transform = `translateY(${sheet.scrollHeight}px)`;
+          if (sheet) sheet.style.transform = `translateY(${sheet.offsetHeight}px)`;
         }
         _initSheetDrag();
       }
       // Double rAF: first frame lets grid paint, second measures correct height
       requestAnimationFrame(() => requestAnimationFrame(() => {
-        // Desktop: always show full panel; mobile: show mid-state (bottom 240 px)
-        _snapSheet(_isDesktop ? 'expanded' : 'mid', !_isDesktop);
+        // Start at mid (1 row visible) on both mobile and desktop
+        _snapSheet('mid', !_isDesktop);
         // Register map click → peek only after sheet is settled (800ms safety window)
         if (foodMap && !foodMap._eatThisClickBound) {
           foodMap._eatThisClickBound = true;
           setTimeout(() => {
             foodMap.on('click', () => {
               if (_sheetState === 'mid' || _sheetState === 'expanded') {
-                _snapSheet('peek');
+                _snapSheet('hidden');
               }
             });
           }, 800);

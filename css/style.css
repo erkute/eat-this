@@ -630,29 +630,15 @@ body {
   justify-content: space-between;
 }
 
-/* Grid layout — horizontal scroll carousel */
+/* Grid layout — always vertical, 3 cols mobile / 6 cols desktop */
 .map-nearby-grid {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  /* Extra right padding so last card doesn't flush the edge */
-  padding: 0 20px 4px 0;
-}
-.map-nearby-grid::-webkit-scrollbar { display: none; }
-
-/* Right gradient fade — hints at more cards */
-.map-nearby-grid::after {
-  content: '';
-  flex: 0 0 1px; /* tiny spacer so ::after renders in flex context */
+  padding: 0 0 16px;
 }
 
 .map-nearby-grid-card {
-  flex: 0 0 calc((100% - 8px) / 3.2);
-  scroll-snap-align: start;
   background: #fff;
   border-radius: 12px;
   overflow: hidden;
@@ -781,35 +767,15 @@ body {
   background: rgba(192,57,43,0.10);
 }
 
-/* ---- Expanded sheet: vertical grid layout ---- */
-.map-nearby.sheet--expanded {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+/* Grid wrapper: scrollable only when sheet is expanded */
+.map-nearby-grid-wrapper {
+  overflow-y: hidden;
+  overflow-x: hidden;
 }
 .map-nearby.sheet--expanded .map-nearby-grid-wrapper {
-  flex: 1;
   overflow-y: auto;
-  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  min-height: 0;
-}
-.map-nearby.sheet--expanded .map-nearby-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  overflow-x: hidden;
-  scroll-snap-type: none;
-  padding: 0 0 24px;
-  gap: 8px;
-}
-.map-nearby.sheet--expanded .map-nearby-grid-card {
-  flex: none;
-  width: 100%;
-}
-@media (min-width: 768px) {
-  .map-nearby.sheet--expanded .map-nearby-grid {
-    grid-template-columns: repeat(6, 1fr);
-  }
+  max-height: 460px; /* 3 rows + padding */
 }
 
 /* ---- Bottom Sheet (app map page — all viewports) ---- */
@@ -3282,9 +3248,9 @@ body {
     display: none;
   }
 
-  /* 6.4 divisor: ~6 cards visible + partial 7th as peek */
-  .app-page[data-page="map"] .map-nearby-grid-card {
-    flex: 0 0 calc((100% - 8px * 5) / 6.4);
+  /* 6 columns on desktop */
+  .app-page[data-page="map"] .map-nearby-grid {
+    grid-template-columns: repeat(6, 1fr);
   }
 
   /* Taller image on desktop */
@@ -3297,13 +3263,14 @@ body {
   .app-page[data-page="map"] .map-nearby-grid-card-meta { font-size: 11px; }
   .app-page[data-page="map"] .map-nearby-grid-card-hours { font-size: 10px; }
 
-  .app-page[data-page="map"] .map-nearby-grid-wrapper {
-    position: relative;
+  /* Taller scroll area on desktop (expanded) */
+  .app-page[data-page="map"] .map-nearby.sheet--expanded .map-nearby-grid-wrapper {
+    max-height: 600px;
   }
 
-  /* Shrink map height to account for always-visible nearby strip */
+  /* Shrink map height to account for mid-state strip */
   .app-page[data-page="map"] .map-container {
-    height: calc(100dvh - 60px - 180px);
+    height: calc(100dvh - 60px - 240px);
   }
 
   .app-page[data-page="map"] .map-nearby-label {

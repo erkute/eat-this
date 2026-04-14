@@ -70,6 +70,23 @@ window.CMS = {
     return sanityFetch(query);
   },
 
+  /** Fetch all card packs with their cards, ordered by display order. */
+  fetchCardPacks() {
+    const query = `*[_type == "cardPack"] | order(order asc) {
+      _id, title, titleDe,
+      "slug": slug.current,
+      packType,
+      "coverImageUrl": coverImage.asset->url + "?w=400&auto=format&q=80",
+      price,
+      "cards": cards[]{
+        "imageUrl": image.asset->url + "?w=600&auto=format&q=80",
+        dish, restaurant, district, "cardPrice": price
+      },
+      order
+    }`;
+    return sanityFetch(query);
+  },
+
   /** Fetch all map restaurants. */
   fetchRestaurants() {
     const query = `*[_type == "restaurant"] | order(name asc) {

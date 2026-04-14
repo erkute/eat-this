@@ -249,7 +249,7 @@ async function main() {
       continue;
     }
     const safeSlug = article.slug.replace(/[^a-z0-9-_]/gi, '-');
-    const html = generateArticleHtml(article);
+    const html = generateArticleHtml({ ...article, slug: safeSlug });
     writeFileSync(join(newsDir, `${safeSlug}.html`), html, 'utf-8');
     console.log(`  ✓ /news/${safeSlug}.html`);
     generated++;

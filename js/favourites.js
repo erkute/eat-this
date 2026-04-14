@@ -104,43 +104,42 @@ function renderProfileFavourites() {
     card.type      = 'button';
     card.className = 'profile-fav-card';
 
-    const imgWrap = document.createElement('div');
-    imgWrap.className = 'profile-fav-img';
-
     if (spot?.photo) {
       const img = document.createElement('img');
-      img.src     = spot.photo;
-      img.alt     = spot.name;
-      img.loading = 'lazy';
-      imgWrap.appendChild(img);
+      img.src       = spot.photo;
+      img.alt       = spot?.name || spotId;
+      img.loading   = 'lazy';
+      img.className = 'profile-fav-card-img';
+      card.appendChild(img);
     } else {
-      imgWrap.classList.add('profile-fav-img--placeholder');
-      imgWrap.textContent = '\u2665';
+      const ph = document.createElement('div');
+      ph.className   = 'profile-fav-card-placeholder';
+      ph.textContent = '\u2665';
+      card.appendChild(ph);
     }
 
-    const info = document.createElement('div');
-    info.className = 'profile-fav-info';
+    const overlay = document.createElement('div');
+    overlay.className = 'profile-fav-card-overlay';
 
     const nameEl = document.createElement('span');
     nameEl.className   = 'profile-fav-name';
     nameEl.textContent = spot?.name || spotId;
-    info.appendChild(nameEl);
+    overlay.appendChild(nameEl);
 
     if (spot?.district) {
       const distEl = document.createElement('span');
       distEl.className   = 'profile-fav-district';
       distEl.textContent = spot.district;
-      info.appendChild(distEl);
+      overlay.appendChild(distEl);
     }
 
-    card.appendChild(imgWrap);
-    card.appendChild(info);
+    card.appendChild(overlay);
 
     card.addEventListener('click', () => {
       if (spot && typeof window._showSpotDetail === 'function') {
         window.closeLoginModal?.();
-        window._navigateToPage?.('map');
-        window._showSpotDetail(spot);
+        window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'map' } }));
+        setTimeout(() => window._showSpotDetail(spot), 50);
       }
     });
 

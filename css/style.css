@@ -4345,30 +4345,44 @@ body {
   cursor: not-allowed; opacity: 0.35; font-family: inherit;
 }
 
-/* Saved/Favs tab — styles for favourites.js rendered cards */
+/* Saved/Favs tab — photo card layout */
+.profile-favs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+@media (min-width: 600px) {
+  .profile-favs-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 900px) {
+  .profile-favs-grid { grid-template-columns: repeat(4, 1fr); }
+}
 .profile-fav-card {
-  display: flex; align-items: center; gap: 12px; padding: 12px; width: 100%;
-  background: var(--gray-50); border: 1px solid var(--gray-100);
-  border-radius: 10px; cursor: pointer; text-align: left;
-  transition: border-color 0.15s; font-family: inherit; font-size: inherit;
+  position: relative; border-radius: 12px; overflow: hidden;
+  aspect-ratio: 3/4; cursor: pointer; background: var(--gray-100);
+  border: none; padding: 0; width: 100%;
+  transition: transform 0.15s, box-shadow 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
-.profile-fav-card:hover { border-color: var(--orange); }
-.profile-fav-img {
-  width: 52px; height: 52px; border-radius: 8px;
-  overflow: hidden; flex-shrink: 0; background: var(--gray-100);
-  display: flex; align-items: center; justify-content: center;
+.profile-fav-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.18); }
+.profile-fav-card-img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
 }
-.profile-fav-img img { width: 100%; height: 100%; object-fit: cover; }
-.profile-fav-img--placeholder { font-size: 20px; color: var(--orange); }
-.profile-fav-info { display: flex; flex-direction: column; gap: 2px; }
-.profile-fav-name { font-size: 13px; font-weight: 700; color: var(--black); }
-.profile-fav-district { font-size: 11px; color: var(--gray-400); }
-
-/* Saved grid layout */
-.profile-favs-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
-@media (min-width: 768px) {
-  .profile-favs-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; max-width: 800px; }
+.profile-fav-card-placeholder {
+  width: 100%; height: 100%; display: flex; align-items: center;
+  justify-content: center; font-size: 28px; color: var(--gray-300);
 }
+.profile-fav-card-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 28px 10px 10px;
+  background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.profile-fav-name {
+  font-size: 12px; font-weight: 700; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.profile-fav-district { font-size: 10px; color: rgba(255,255,255,0.65); }
 .profile-saved-empty {
   font-size: 14px; color: var(--gray-400);
   text-align: center; padding: 48px 0; line-height: 1.6;

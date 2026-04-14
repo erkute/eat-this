@@ -19,7 +19,8 @@ import {
   GoogleAuthProvider,
   onAuthStateChanged,
   signOut,
-  updateProfile
+  updateProfile,
+  deleteUser
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import {
   getFunctions,
@@ -114,6 +115,14 @@ window._signOut = async () => {
 window._sendPasswordReset = async (email) => {
   const sendPasswordReset = httpsCallable(functions, 'sendPasswordReset');
   await sendPasswordReset({ email });
+};
+
+window._updateDisplayName = async (name) => {
+  await updateProfile(auth.currentUser, { displayName: name });
+};
+
+window._deleteAccount = async () => {
+  await deleteUser(auth.currentUser);
 };
 
 if (loginBtn)      loginBtn.addEventListener('click', openLoginModal);

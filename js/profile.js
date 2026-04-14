@@ -99,7 +99,7 @@ function initSettings(user) {
       const newName = nameInput.value.trim();
       if (!newName) return;
       try {
-        await user.updateProfile({ displayName: newName });
+        await window._updateDisplayName(newName);
         if (nameFeedback) { nameFeedback.textContent = 'Gespeichert \u2713'; nameFeedback.hidden = false; }
         const nameEl = document.getElementById('profileName');
         const initEl = document.getElementById('profileAvatarInitial');
@@ -136,7 +136,7 @@ function initSettings(user) {
   if (deleteBtn) {
     deleteBtn.addEventListener('click', () => {
       if (!window.confirm('Bist du sicher? Dein Account wird dauerhaft gel\u00F6scht.')) return;
-      user.delete()
+      window._deleteAccount()
         .then(() => { window.navigateToPage && window.navigateToPage('start'); })
         .catch(() => { window.alert('Fehler. Bitte neu einloggen und erneut versuchen.'); });
     });

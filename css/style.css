@@ -772,6 +772,7 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y; /* override sheet's touch-action:none so grid scrolls */
   max-height: 200px; /* 1 row in mid state */
 }
 .map-nearby.sheet--expanded .map-nearby-grid-wrapper {

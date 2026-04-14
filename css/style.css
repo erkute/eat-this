@@ -4280,7 +4280,10 @@ body {
 }
 .profile-pack-title {
   font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--gray-400); margin: 0;
+  text-transform: uppercase; color: var(--gray-400); margin: 0; flex: 1;
+}
+.profile-pack-count {
+  font-size: 10px; color: var(--gray-400); opacity: 0.5;
 }
 .profile-pack-row {
   display: flex; gap: 8px; overflow-x: auto;

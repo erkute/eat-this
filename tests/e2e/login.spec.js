@@ -18,7 +18,9 @@ test.describe('Login Modal', () => {
 
   test('modal closes on backdrop click', async ({ page }) => {
     await page.locator('#loginBtn').click();
-    await page.locator('#loginBackdrop').click();
+    await expect(page.locator('#loginModal')).toHaveClass(/active/);
+    // Click the overlay area outside the modal content (top-left corner)
+    await page.locator('#loginModal').click({ position: { x: 10, y: 10 } });
     await expect(page.locator('#loginModal')).not.toHaveClass(/active/);
   });
 

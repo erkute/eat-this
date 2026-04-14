@@ -1155,17 +1155,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function flyToWithSheetOffset(lat, lng, zoom) {
       if (!foodMap) return;
-      const sheet = document.getElementById('mapNearby');
+      const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+
+      if (isDesktop) {
+        // On desktop the sidebar is 360px on the right — offset map center left
+        const targetPoint = foodMap.project([lat, lng], zoom);
+        const adjustedPoint = L.point(targetPoint.x - 180, targetPoint.y);
+        const adjustedLatLng = foodMap.unproject(adjustedPoint, zoom);
+        foodMap.flyTo(adjustedLatLng, zoom, { animate: true, duration: 1 });
+        return;
+      }
+
+      // Mobile: offset upward for the bottom sheet
       const sheetVisible =
         _sheetState === 'expanded'
-          ? sheet
-            ? sheet.offsetHeight
-            : 0
+          ? Math.min(EXPANDED_PX, (document.getElementById('mapNearby')?.offsetHeight || 600) - 140)
           : _sheetState === 'mid'
             ? MID_PX
-            : _sheetState === 'peek'
-              ? PEEK_PX
-              : 0;
+            : PEEK_PX;
       if (sheetVisible > 20) {
         const targetPoint = foodMap.project([lat, lng], zoom);
         const adjustedPoint = L.point(targetPoint.x, targetPoint.y + sheetVisible / 2);

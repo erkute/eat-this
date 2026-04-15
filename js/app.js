@@ -2041,14 +2041,12 @@ document.addEventListener('DOMContentLoaded', () => {
       url: window.location.href,
     };
 
-    newsModal.classList.add('active');
-    bodyOverflow.lock();
+    navigateToPage('news-article');
     newsModal.scrollTop = 0;
   }
 
   function closeNewsModal() {
-    newsModal.classList.remove('active');
-    bodyOverflow.unlock();
+    navigateToPage('news');
   }
 
   function bindNewsCards() {
@@ -2091,12 +2089,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (newsModalClose) {
     newsModalClose.addEventListener('click', closeNewsModal);
-  }
-
-  if (newsModal) {
-    newsModal.addEventListener('click', (e) => {
-      if (e.target === newsModal) closeNewsModal();
-    });
   }
 
   document.addEventListener('keydown', (e) => {

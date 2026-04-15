@@ -1738,31 +1738,16 @@ body {
    NEWS ARTICLE MODAL
    ============================================ */
 /* ── FULL-PAGE ARTICLE ───────────────────────── */
-.news-modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 10002;
-  background: var(--white);
-  overflow-y: auto;
-  overflow-x: hidden;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.35s var(--ease);
-}
-.news-modal-overlay.active {
-  opacity: 1;
-  pointer-events: auto;
-}
-
 /* Back button */
-.news-modal-close {
-  position: fixed;
+.news-article-back {
+  position: sticky;
   top: 16px;
   left: 16px;
-  z-index: 10003;
+  z-index: 10;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  margin: 16px 0 -8px 16px;
   padding: 8px 16px 8px 12px;
   background: rgba(255,255,255,0.92);
   backdrop-filter: blur(10px);
@@ -1776,7 +1761,7 @@ body {
   transition: background 0.2s, border-color 0.2s;
   letter-spacing: -0.01em;
 }
-.news-modal-close:hover {
+.news-article-back:hover {
   background: var(--black);
   color: var(--white);
   border-color: var(--black);

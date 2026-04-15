@@ -2230,6 +2230,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
+    // Scroll target page back to top on every navigation.
+    // rAF needed: browser may restore the old scrollTop after display:none→block.
+    if (targetPage && pageName !== 'map') {
+      targetPage.scrollTop = 0;
+      requestAnimationFrame(() => { targetPage.scrollTop = 0; });
+    }
+
     // Update header icon button active states
     const navNewsBtn = document.getElementById('navNewsBtn');
     const navMapBtn = document.getElementById('navMapBtn');

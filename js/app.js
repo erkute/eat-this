@@ -688,6 +688,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let spots = []; // populated from Sanity CMS on page load
 
+  // ─── JSON-LD: inject fresh BlogPosting entries from Sanity ──────────────────
+  async function updateNewsJsonLd() {
+    const el = document.getElementById('siteJsonLd');
+    if (!el || !window.CMS) return;
+    try {
+      const articles = await window.CMS.fetchNews('de');
+      if (!articles || !articles.length) return;
+      const data = JSON.parse(el.textContent);
+      // Remove any stale BlogPosting entries
+      data['@graph'] = data['@graph'].filter(n => n['@type'] !== 'BlogPosting');
+      // Add latest 5 articles
+      const lang = document.documentElement.lang || 'en';
+      const postings = articles.slice(0, 5).map(a => ({
+        '@type': 'BlogPosting',
+        headline: a.title,
+        description: a.excerpt || '',
+        image: a.imageUrl || '',
+        datePublished: a.dateISO || a.date,
+        dateModified: a.dateISO || a.date,
+        author: { '@id': 'https://www.eatthisdot.com/#organization' },
+        publisher: { '@id': 'https://www.eatthisdot.com/#organization' },
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': `https://www.eatthisdot.com/#article/${a.id}`,
+        },
+        inLanguage: lang === 'de' ? 'de-DE' : 'en-US',
+      }));
+      data['@graph'].push(...postings);
+      el.textContent = JSON.stringify(data);
+    } catch { /* non-critical */ }
+  }
+
   // ─── CMS Bootstrap (inside DOMContentLoaded so spots is in scope) ─────────
   const cmsReady = (async () => {
     if (!window.CMS) return;
@@ -739,6 +771,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Bind must-card lightbox handlers now that cards are in the DOM
     bindMustCards();
+
+    // Update JSON-LD with fresh news from Sanity (non-blocking)
+    updateNewsJsonLd();
   })();
   // ─────────────────────────────────────────────────────────────────────────
 

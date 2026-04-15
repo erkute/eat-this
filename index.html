@@ -58,7 +58,7 @@
 
     <link rel="sitemap" type="application/xml" title="XML Sitemap" href="sitemap.xml" />
 
-    <script type="application/ld+json">
+    <script type="application/ld+json" id="siteJsonLd">
       {
         "@context": "https://schema.org",
         "@graph": [
@@ -69,7 +69,7 @@
             "url": "https://www.eatthisdot.com",
             "logo": {
               "@type": "ImageObject",
-              "url": "https://www.eatthisdot.com/pics/logo.png",
+              "url": "https://www.eatthisdot.com/pics/logo.webp",
               "width": 1055,
               "height": 1024
             },
@@ -133,66 +133,6 @@
             "description": "Aktuelle Food News aus Berlin",
             "url": "https://www.eatthisdot.com/#news",
             "publisher": { "@id": "https://www.eatthisdot.com/#organization" }
-          },
-          {
-            "@type": "BlogPosting",
-            "headline": "Berlins neue Ramen-Welle: Warum die Hauptstadt jetzt das ultimative Nudel-Haus hat",
-            "description": "Drei neue Ramen-Läden haben in den letzten Wochen ihre Türen geöffnet — und alle setzen auf handgezogene Nudeln und 18-stündige Brühen.",
-            "image": "https://cdn.sanity.io/images/ehwjnjr2/production/4a093270fafe206bf962d550d5195f5ae454857c-800x533.webp",
-            "datePublished": "2026-03-15",
-            "dateModified": "2026-03-15",
-            "author": { "@id": "https://www.eatthisdot.com/#organization" },
-            "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
-            "mainEntityOfPage": {
-              "@type": "WebPage",
-              "@id": "https://www.eatthisdot.com/#article/ramen-berlin"
-            },
-            "inLanguage": "de-DE"
-          },
-          {
-            "@type": "BlogPosting",
-            "headline": "Markthalle Neun bekommt einen neuen Street-Food-Floor",
-            "description": "Die beliebte Markthalle in Kreuzberg erweitert: Im zweiten Stock entsteht ein komplett neuer Bereich für internationale Street Food-Händler.",
-            "image": "https://cdn.sanity.io/images/ehwjnjr2/production/4dd41f1c2a6c56c5d5b199af627835df71a3d890-800x533.webp",
-            "datePublished": "2026-03-14",
-            "dateModified": "2026-03-14",
-            "author": { "@id": "https://www.eatthisdot.com/#organization" },
-            "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
-            "mainEntityOfPage": {
-              "@type": "WebPage",
-              "@id": "https://www.eatthisdot.com/#article/markthalle9"
-            },
-            "inLanguage": "de-DE"
-          },
-          {
-            "@type": "BlogPosting",
-            "headline": "Berlin hat jetzt 8 Michelin-Sterne-Restaurants — und keines kostet über 150€",
-            "description": "Die neue Michelin-Guide-Ausgabe ehrt Berlins demokratische Fine-Dining-Szene.",
-            "image": "https://cdn.sanity.io/images/ehwjnjr2/production/27f528f46cd70ba6d129f3928d99dad7f2f01760-1919x1079.webp",
-            "datePublished": "2026-03-13",
-            "dateModified": "2026-03-13",
-            "author": { "@id": "https://www.eatthisdot.com/#organization" },
-            "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
-            "mainEntityOfPage": {
-              "@type": "WebPage",
-              "@id": "https://www.eatthisdot.com/#article/michelin-berlin"
-            },
-            "inLanguage": "de-DE"
-          },
-          {
-            "@type": "BlogPosting",
-            "headline": "Die 10 besten Donut-Shops in Berlin — von Brooklyn bis Thai-Style",
-            "description": "Berlin ist zur Donut-Hauptstadt Europas geworden. Wir haben 20 Shops probiert und die besten zehn ausgewählt.",
-            "image": "https://cdn.sanity.io/images/ehwjnjr2/production/3618e7e5f686d662205f9744403afe4ae09ce419-800x600.webp",
-            "datePublished": "2026-03-12",
-            "dateModified": "2026-03-12",
-            "author": { "@id": "https://www.eatthisdot.com/#organization" },
-            "publisher": { "@id": "https://www.eatthisdot.com/#organization" },
-            "mainEntityOfPage": {
-              "@type": "WebPage",
-              "@id": "https://www.eatthisdot.com/#article/donuts-berlin"
-            },
-            "inLanguage": "de-DE"
           },
           {
             "@type": "FAQPage",
@@ -321,11 +261,19 @@
     <div class="app-pages" id="appPages">
       <div class="app-page active" data-page="start">
         <header class="hero hero-slider">
-          <div class="hero-slides">
+          <div class="hero-slides" role="img" aria-label="Berlin food photography">
             <div
               class="hero-slide active"
               style="background-image: url('pics/Hero/05e18532829d1d4f30ff9d70bd9b4cd8.webp')"
-            ></div>
+            >
+              <img
+                src="pics/Hero/05e18532829d1d4f30ff9d70bd9b4cd8.webp"
+                alt="Berlin food — EAT THIS"
+                class="hero-slide-img"
+                fetchpriority="high"
+                decoding="async"
+              />
+            </div>
             <div
               class="hero-slide"
               data-src="pics/Hero/0af3f3c51111b7a925e1455f084ab6c7.webp"

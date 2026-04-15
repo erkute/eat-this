@@ -658,23 +658,23 @@
                 ><span class="map-filter-tab-count" id="count-all"></span>
               </button>
               <button class="map-filter-tab" data-filter="Dinner" role="tab">
-                <span>Dinner</span><span class="map-filter-tab-count" id="count-dinner"></span>
+                <span data-i18n="map.filterDinner">Dinner</span><span class="map-filter-tab-count" id="count-dinner"></span>
               </button>
               <button class="map-filter-tab" data-filter="Lunch" role="tab">
-                <span>Lunch</span><span class="map-filter-tab-count" id="count-lunch"></span>
+                <span data-i18n="map.filterLunch">Lunch</span><span class="map-filter-tab-count" id="count-lunch"></span>
               </button>
               <button class="map-filter-tab" data-filter="Coffee" role="tab">
-                <span>Coffee</span><span class="map-filter-tab-count" id="count-coffee"></span>
+                <span data-i18n="map.filterCoffee">Coffee</span><span class="map-filter-tab-count" id="count-coffee"></span>
               </button>
               <button class="map-filter-tab" data-filter="Breakfast" role="tab">
-                <span>Breakfast</span
+                <span data-i18n="map.filterBreakfast">Breakfast</span
                 ><span class="map-filter-tab-count" id="count-breakfast"></span>
               </button>
               <button class="map-filter-tab" data-filter="Sweets" role="tab">
-                <span>Sweets</span><span class="map-filter-tab-count" id="count-sweets"></span>
+                <span data-i18n="map.filterSweets">Sweets</span><span class="map-filter-tab-count" id="count-sweets"></span>
               </button>
               <button class="map-filter-tab" data-filter="Pizza" role="tab">
-                <span>Pizza</span><span class="map-filter-tab-count" id="count-pizza"></span>
+                <span data-i18n="map.filterPizza">Pizza</span><span class="map-filter-tab-count" id="count-pizza"></span>
               </button>
             </div>
           </div>
@@ -711,7 +711,7 @@
               <div class="map-nearby-handle-bar"></div>
             </div>
             <div class="map-nearby-label">
-              <span id="mapNearbyTitle">In deiner Nähe</span>
+              <span id="mapNearbyTitle" data-i18n="map.nearby">Nearby</span>
             </div>
             <div class="map-nearby-grid-wrapper">
               <div class="map-nearby-grid" id="mapNearbyGrid"></div>
@@ -902,13 +902,13 @@
           <img src="pics/logo2.webp" alt="EAT THIS" class="site-footer-logo-img" />
         </a>
         <nav class="site-footer-links" aria-label="Footer navigation">
-          <button class="site-footer-link" data-page="about">About</button>
-          <button class="site-footer-link" data-page="contact">Contact</button>
-          <button class="site-footer-link" data-page="press">Press</button>
+          <button class="site-footer-link" data-page="about" data-i18n="footer.about">About</button>
+          <button class="site-footer-link" data-page="contact" data-i18n="footer.contact">Contact</button>
+          <button class="site-footer-link" data-page="press" data-i18n="footer.press">Press</button>
           <span class="site-footer-divider" aria-hidden="true"></span>
-          <button class="site-footer-link" data-page="impressum">Impressum</button>
-          <button class="site-footer-link" data-page="datenschutz">Datenschutz</button>
-          <button class="site-footer-link" data-page="agb">AGB</button>
+          <button class="site-footer-link" data-page="impressum" data-i18n="footer.impressum">Impressum</button>
+          <button class="site-footer-link" data-page="datenschutz" data-i18n="footer.datenschutz">Privacy</button>
+          <button class="site-footer-link" data-page="agb" data-i18n="footer.agb">Terms</button>
         </nav>
         <div class="site-footer-meta">
           <a href="https://www.instagram.com/eatthisdotcom/" target="_blank"
@@ -925,7 +925,7 @@
             <button class="site-footer-lang-btn" data-lang="en">EN</button>
           </div>
         </div>
-        <p class="site-footer-copy">&copy; 2026 Eat This. All rights reserved.</p>
+        <p class="site-footer-copy" data-i18n="footer.copyright">&copy; 2026 Eat This. All rights reserved.</p>
       </div>
     </template>
 
@@ -979,7 +979,7 @@
           <line x1="19" y1="12" x2="5" y2="12"/>
           <polyline points="12 19 5 12 12 5"/>
         </svg>
-        Back
+        <span data-i18n="news.back">Back</span>
       </button>
       <article class="news-article">
         <div class="news-article-hero">
@@ -1016,7 +1016,7 @@
         </div>
         <section class="news-article-more" id="newsArticleMore" hidden>
           <div class="news-article-more-inner">
-            <p class="news-article-more-label">More from Eat This</p>
+            <p class="news-article-more-label" data-i18n="news.more">More from Eat This</p>
             <div class="news-article-more-grid" id="newsArticleMoreGrid"></div>
           </div>
         </section>
@@ -1070,10 +1070,10 @@
           </svg>
         </button>
         <nav class="burger-nav">
-          <button class="burger-nav-item burger-nav-item--sm" id="openAbout">About</button>
-          <button class="burger-nav-item burger-nav-item--sm" id="openContact">Contact</button>
-          <button class="burger-nav-item burger-nav-item--sm" id="openPress">Press</button>
-          <button class="burger-nav-item burger-nav-item--sm" id="openImpressum">Impressum</button>
+          <button class="burger-nav-item burger-nav-item--sm" id="openAbout" data-i18n="burger.about">About</button>
+          <button class="burger-nav-item burger-nav-item--sm" id="openContact" data-i18n="burger.contact">Contact</button>
+          <button class="burger-nav-item burger-nav-item--sm" id="openPress" data-i18n="burger.press">Press</button>
+          <button class="burger-nav-item burger-nav-item--sm" id="openImpressum" data-i18n="burger.impressum">Impressum</button>
         </nav>
         <div class="burger-utils">
           <button class="burger-util-btn" id="burgerSearchTrigger">

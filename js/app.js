@@ -2697,6 +2697,8 @@ document.addEventListener('DOMContentLoaded', () => {
         : page;
       if (target) target.appendChild(clone);
     });
+    // Apply translations to newly stamped footer elements
+    window.i18n && window.i18n.applyTranslations();
   }
 
   // ── Footer event delegation (handles all stamped instances) ──

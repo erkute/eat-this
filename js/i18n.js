@@ -57,12 +57,20 @@ const TRANSLATIONS = {
       sectionLabel: 'Berlin',
       sectionTitle: 'Food News',
       errorLoad: 'Could not load articles. Please try again later.',
+      back: 'Back',
+      more: 'More from Eat This',
       // removed: articles[] — content lives in Sanity CMS only
     },
     map: {
       sectionLabel: 'Find',
       sectionTitle: 'Eat Around',
       filterAll: 'All',
+      filterDinner: 'Dinner',
+      filterLunch: 'Lunch',
+      filterCoffee: 'Coffee',
+      filterBreakfast: 'Breakfast',
+      filterSweets: 'Sweets',
+      filterPizza: 'Pizza',
       myLocationAriaLabel: 'My location',
       errorMapLoad: 'Could not load map',
       locationDenied: 'Location access denied',
@@ -78,6 +86,19 @@ const TRANSLATIONS = {
       musts: 'Eat This',
       map: 'Map',
       signIn: 'Login / Register',
+      about: 'About',
+      contact: 'Contact',
+      press: 'Press',
+      impressum: 'Impressum',
+      datenschutz: 'Privacy',
+      agb: 'Terms',
+      copyright: '\u00a9 2026 Eat This. All rights reserved.',
+    },
+    burger: {
+      about: 'About',
+      contact: 'Contact',
+      press: 'Press',
+      impressum: 'Impressum',
     },
     search: {
       placeholder: 'What are you craving?',
@@ -235,6 +256,82 @@ TRANSLATIONS.de.profile.settings.tryAgain           = 'Fehler. Bitte erneut vers
 TRANSLATIONS.de.profile.settings.deleteConfirm      = 'Bist du sicher? Dein Account wird dauerhaft gel\u00F6scht.';
 TRANSLATIONS.de.profile.settings.deleteError        = 'Fehler. Bitte neu einloggen und erneut versuchen.';
 
+// DE hero overrides
+TRANSLATIONS.de.hero.tagline = 'Wir sagen dir, was du essen sollst';
+TRANSLATIONS.de.hero.cta     = 'Konto erstellen';
+
+// DE start page overrides
+TRANSLATIONS.de.start.section1Title  = 'Wahrscheinlich der beste Food-Guide, den du kennst.';
+TRANSLATIONS.de.start.section1Body   = 'Die kuratierteste Auswahl an Must-Eats in Berlin. Entdecke die Stadt auf unserer interaktiven Karte und starte dein Deck.';
+TRANSLATIONS.de.start.section2Label  = 'Das Konzept';
+TRANSLATIONS.de.start.section2Title  = 'Bestell genau das.';
+TRANSLATIONS.de.start.section2Body1  = 'Wir sp\u00fcren herausragende Gerichte auf. Jede Must-Eat-Karte in deiner Sammlung steht f\u00fcr eine Empfehlung, hinter der wir stehen \u2013 von einzelnen ikonischen Tellern bis hin zu ganzen \u201eMenu Approved\u201c-Spots.';
+TRANSLATIONS.de.start.section2Body2  = 'Registriere dich, um dein erstes Booster Pack mit 10 kostenlosen Must-Eat-Karten freizuschalten. Sammle sie alle, erkunde die Karte und meistere die Berliner Food-Szene.';
+TRANSLATIONS.de.start.section3Label  = 'Account';
+TRANSLATIONS.de.start.section3Title  = 'Sei der Erste.';
+TRANSLATIONS.de.start.section3Body   = 'Erstelle einen Account und erhalte 10 kostenlose Must-Eat-Karten f\u00fcr deine Sammlung.';
+TRANSLATIONS.de.start.section3Cta   = 'Konto erstellen';
+TRANSLATIONS.de.start.section4Label  = 'Unsere Standards';
+TRANSLATIONS.de.start.philo1Title    = 'Reine Kuration.';
+TRANSLATIONS.de.start.philo1Text     = 'Eine Regel: nur das beste Essen. Wir besuchen, wir kosten, wir w\u00e4hlen aus. Wenn es nicht au\u00dferordentlich ist, bekommt es keine Karte.';
+TRANSLATIONS.de.start.philo2Title    = 'Das Deck.';
+TRANSLATIONS.de.start.philo2Text     = 'Hunderte von Must-Eats zu entdecken. Baue dein pers\u00f6nliches Archiv der feinsten Restaurants und Caf\u00e9s der Stadt.';
+TRANSLATIONS.de.start.philo3Title    = 'Immer unabh\u00e4ngig.';
+TRANSLATIONS.de.start.philo3Text     = 'Keine bezahlten Platzierungen. Wir sagen dir, was du essen sollst \u2013 auf Basis von Qualit\u00e4t, nichts sonst.';
+TRANSLATIONS.de.start.section5Label  = 'Wie wir ausw\u00e4hlen';
+TRANSLATIONS.de.start.section5Title  = 'Nur das Beste kommt ins Deck.';
+TRANSLATIONS.de.start.section5Body1  = 'Wir besuchen jeden Ort selbst und sprechen mit den K\u00f6chen, um die Gerichte zu finden, die wirklich herausragen. Wenn wir es nochmal bestellen w\u00fcrden, kommt es auf die Liste.';
+TRANSLATIONS.de.start.section5Body2  = 'So kuratieren wir.';
+TRANSLATIONS.de.start.section6Label  = 'Was kommt';
+TRANSLATIONS.de.start.section6Title  = 'Berlin ist erst der Anfang.';
+TRANSLATIONS.de.start.section6Body1  = 'Wir expandieren Stadt f\u00fcr Stadt. Mehr Decks, mehr Must-Eats und exklusives Merch kommen bald.';
+TRANSLATIONS.de.start.section6Cities = 'Istanbul, Amsterdam, Paris \u2013 wir sind dran.';
+TRANSLATIONS.de.start.section6Body2  = 'Gleicher Anspruch, andere St\u00e4dte.';
+
+// DE musts overrides
+TRANSLATIONS.de.musts.subtitle = 'Die Gerichte, die du in Berlin nicht verpassen darfst.';
+
+// DE news overrides
+TRANSLATIONS.de.news.errorLoad = 'Artikel konnten nicht geladen werden. Bitte versuche es sp\u00e4ter erneut.';
+TRANSLATIONS.de.news.back      = 'Zur\u00fcck';
+TRANSLATIONS.de.news.more      = 'Mehr von Eat This';
+
+// DE map overrides
+TRANSLATIONS.de.map.filterAll       = 'Alle';
+TRANSLATIONS.de.map.filterCoffee    = 'Kaffee';
+TRANSLATIONS.de.map.filterBreakfast = 'Fr\u00fchst\u00fcck';
+TRANSLATIONS.de.map.filterSweets    = 'S\u00fc\u00dfes';
+TRANSLATIONS.de.map.nearby          = 'In deiner N\u00e4he';
+TRANSLATIONS.de.map.nearbyMore      = 'Mehr entdecken';
+TRANSLATIONS.de.map.locationDenied      = 'Standortzugriff verweigert';
+TRANSLATIONS.de.map.locationUnavailable = 'Standort nicht verf\u00fcgbar';
+TRANSLATIONS.de.map.locationTimeout     = 'Standort-Zeitlimit';
+TRANSLATIONS.de.map.locationError       = 'Standort konnte nicht ermittelt werden';
+
+// DE footer overrides
+TRANSLATIONS.de.footer.signIn      = 'Anmelden / Registrieren';
+TRANSLATIONS.de.footer.about       = '\u00dcber uns';
+TRANSLATIONS.de.footer.contact     = 'Kontakt';
+TRANSLATIONS.de.footer.press       = 'Presse';
+TRANSLATIONS.de.footer.copyright   = '\u00a9 2026 Eat This. Alle Rechte vorbehalten.';
+
+// DE burger menu overrides
+TRANSLATIONS.de.burger.about    = '\u00dcber uns';
+TRANSLATIONS.de.burger.contact  = 'Kontakt';
+TRANSLATIONS.de.burger.press    = 'Presse';
+
+// DE cookie overrides
+TRANSLATIONS.de.cookie.text     = 'Wir verwenden Cookies, um dir das beste Erlebnis zu bieten.';
+TRANSLATIONS.de.cookie.moreInfo = 'Mehr erfahren';
+TRANSLATIONS.de.cookie.accept   = 'Akzeptieren';
+TRANSLATIONS.de.cookie.decline  = 'Ablehnen';
+
+// DE search overrides
+TRANSLATIONS.de.search.placeholder  = 'Worauf hast du Hunger?';
+TRANSLATIONS.de.search.hint         = 'Tippen zum Suchen\u2026';
+TRANSLATIONS.de.search.noResults    = 'Keine Ergebnisse f\u00fcr';
+TRANSLATIONS.de.search.noResultsSub = 'Versuche einen anderen Suchbegriff';
+
 // ─── ENGINE ───────────────────────────────────────────────────────────────
 
 let _lang = localStorage.getItem('lang') || 'en';
@@ -288,7 +385,8 @@ function applyTranslations() {
 function buildNewsCardHtml(a, i) {
   const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const imgSrc = a.imageUrl || a.img || '';
-  const dateLabel = a.date ? new Date(a.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : (a.date || '');
+  const dateLocale = _lang === 'de' ? 'de-DE' : 'en-US';
+  const dateLabel = a.date ? new Date(a.date).toLocaleDateString(dateLocale, { month: 'long', day: 'numeric' }) : (a.date || '');
   return [
     `<article class="news-card"`,
     ` data-index="${i}"`,
@@ -352,4 +450,4 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-window.i18n = { t, setLang, currentLang, renderNewsCards };
+window.i18n = { t, setLang, currentLang, renderNewsCards, applyTranslations };

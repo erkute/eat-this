@@ -327,7 +327,7 @@ TRANSLATIONS.de.cookie.accept   = 'Akzeptieren';
 TRANSLATIONS.de.cookie.decline  = 'Ablehnen';
 
 // DE search overrides
-TRANSLATIONS.de.search.placeholder  = 'Worauf hast du Hunger?';
+TRANSLATIONS.de.search.placeholder  = 'Worauf hast du Appetit?';
 TRANSLATIONS.de.search.hint         = 'Tippen zum Suchen\u2026';
 TRANSLATIONS.de.search.noResults    = 'Keine Ergebnisse f\u00fcr';
 TRANSLATIONS.de.search.noResultsSub = 'Versuche einen anderen Suchbegriff';

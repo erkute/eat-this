@@ -1023,6 +1023,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Sheet size constants — used throughout initFoodMap (must be declared before use)
+    const PEEK_PX = 32;     // handle bar always visible — minimum state
+    const MID_PX = 240;     // 1 card row visible
+    const EXPANDED_PX = 520; // 3×3 = 9 cards on mobile (capped dynamically to leave map visible)
+
     try {
       foodMap = L.map('foodMap', {
         zoomControl: false,
@@ -1353,10 +1358,6 @@ document.addEventListener('DOMContentLoaded', () => {
       _nearbyLng = null;
     let _sheetState = 'peek'; // 'peek' | 'mid' | 'expanded'
     let _sheetReady = false;
-
-    const PEEK_PX = 32;  // handle bar always visible — minimum state
-    const MID_PX = 240;  // 1 card row visible
-    const EXPANDED_PX = 520; // 3×3 = 9 cards on mobile (capped dynamically to leave map visible)
 
     function isOpenNow(openingHours) {
       if (!openingHours || !openingHours.length) return null;
@@ -2182,17 +2183,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Globe intro → then init map (lazy-load Leaflet + Three.js on first visit)
         if (pageName === 'map') {
-          Promise.all([
-            loadScript(
-              'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-              'sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH'
-            ),
-            loadScript(
-              'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
-              'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu'
-            ),
-          ])
+          // Load Leaflet first — required for map, must finish before initFoodMap.
+          // Three.js is only needed for the globe (currently disabled) so load it
+          // in the background without blocking map startup. On slow mobile networks
+          // Three.js (644 KB) was delaying the map by several seconds.
+          loadScript(
+            'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+            'sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH'
+          )
             .then(() => {
+              // Three.js: load in background so globe is ready when re-enabled.
+              // showGlobeIntro already guards against THREE being undefined.
+              loadScript(
+                'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
+                'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu'
+              ).catch(() => {}); // non-critical — globe handles missing THREE
+
               showGlobeIntro(() => {
                 cmsReady.then(() => {
                   if (typeof initFoodMap === 'function') initFoodMap();

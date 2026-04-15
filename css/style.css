@@ -2926,19 +2926,15 @@ body {
   .login-modal {
     align-items: center;
     justify-content: center;
-    /* bottom stays 0 (from inset:0) so backdrop covers full viewport */
-    padding-bottom: 70px; /* push content above the nav bar */
   }
   .login-modal-content {
-    width: 90%;
+    width: 92%;
     max-width: 360px;
-    /* dvh = actual viewport ohne Safari-Chrome */
-    max-height: calc(100dvh - 100px);
+    max-height: min(82dvh, 82vh);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     padding: 20px 18px 18px;
     border-radius: 20px;
-    animation: slideUp 0.3s var(--ease);
   }
   /* Logo komplett verstecken auf Mobile — spart ~70px */
   .login-logo {

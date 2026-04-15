@@ -19,6 +19,8 @@ const PRECACHE_ASSETS = [
   '/manifest.json',
   '/css/style.css',
   '/css/leaflet.css',
+  '/js/analytics.js',
+  '/js/sw-register.js',
   '/js/cms.js',
   '/js/i18n.js',
   '/js/app.js?v=8',

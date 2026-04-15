@@ -141,6 +141,10 @@ document.addEventListener('DOMContentLoaded', () => {
   window.openLoginModal = window.openLoginModal || _openLoginModal;
   window.closeLoginModal = window.closeLoginModal || _closeLoginModal;
 
+  // Hero CTA button — replaces inline onclick (CSP compliance)
+  const heroRegisterBtn = document.getElementById('heroRegisterBtn');
+  if (heroRegisterBtn) heroRegisterBtn.addEventListener('click', _openLoginModal);
+
   // ============================================
   // HERO SLIDER
   // ============================================
@@ -1297,9 +1301,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (spot.openingHours && spot.openingHours.length) {
         const hoursEl = document.createElement('div');
         hoursEl.className = 'map-spot-hours';
-        hoursEl.innerHTML = spot.openingHours
-          .map((h) => `<span class="map-spot-hours-row"><b>${h.days}</b>${h.hours}</span>`)
-          .join('');
+        spot.openingHours.forEach((h) => {
+          const row = document.createElement('span');
+          row.className = 'map-spot-hours-row';
+          const bold = document.createElement('b');
+          bold.textContent = h.days || '';
+          row.appendChild(bold);
+          row.appendChild(document.createTextNode(h.hours || ''));
+          hoursEl.appendChild(row);
+        });
         body.appendChild(hoursEl);
       }
 
@@ -2592,6 +2602,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape') closeMustCard();
   });
 
+  // ── Analytics (DSGVO-konform: nur nach Zustimmung) ───────────────────────────
+  let analyticsLoaded = false;
+  function loadAnalytics() {
+    if (analyticsLoaded) return;
+    analyticsLoaded = true;
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-8EWFYGPNTT';
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    const gtag = function() { window.dataLayer.push(arguments); };
+    gtag('js', new Date());
+    gtag('config', 'G-8EWFYGPNTT');
+  }
+  // If already consented on a previous visit, load immediately
+  if (localStorage.getItem('cookieConsent') === 'accepted') loadAnalytics();
+
   // Cookie Consent
   const cookieConsent = document.getElementById('cookieConsent');
   const cookieAccept = document.getElementById('cookieAccept');
@@ -2612,6 +2639,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (cookieAccept) {
     cookieAccept.addEventListener('click', () => {
       localStorage.setItem('cookieConsent', 'accepted');
+      loadAnalytics();
       closeCookieSettings();
     });
   }

@@ -7,7 +7,7 @@
 // Bump this when deploying breaking changes that must invalidate all caches.
 // Normally stale-while-revalidate handles updates automatically — this is
 // only needed for emergency cache clears.
-const CACHE_VERSION = 'eat-this-v14';
+const CACHE_VERSION = 'eat-this-v15';
 const CACHE_SHELL   = `${CACHE_VERSION}-shell`;
 const CACHE_IMAGES  = `${CACHE_VERSION}-images`;
 
@@ -25,6 +25,12 @@ const PRECACHE_ASSETS = [
   '/js/i18n.js',
   '/js/app.js?v=8',
   '/js/auth.js',
+  '/js/favourites.js',
+  '/js/packs.js',
+  '/js/profile.js',
+  '/js/notifications.js',
+  '/js/perf.js',
+  '/js/sentry.js',
   '/favicon.ico',
   '/pics/eat.webp',
   '/pics/favicon-192.png',
@@ -141,52 +147,3 @@ function offlineFallback(request) {
   return new Response('', { status: 503 });
 }
 
-// ─── Background Sync ─────────────────────────────────────────────────────────
-// When a user saves a favourite while offline, the action is queued here
-// and retried automatically when connectivity is restored.
-const SYNC_TAG = 'fav-sync';
-
-self.addEventListener('sync', event => {
-  if (event.tag === SYNC_TAG) {
-    event.waitUntil(flushFavQueue());
-  }
-});
-
-async function flushFavQueue() {
-  const db = await openFavDB();
-  const tx = db.transaction('queue', 'readwrite');
-  const store = tx.objectStore('queue');
-  const items = await idbGetAll(store);
-
-  for (const item of items) {
-    try {
-      const method = item.action === 'add' ? 'PUT' : 'DELETE';
-      const res = await fetch(`/api/favourites/${item.spotId}`, { method });
-      if (res.ok) {
-        store.delete(item.id);
-      }
-    } catch {
-      // Will retry on next sync event
-    }
-  }
-}
-
-// Minimal IndexedDB helpers — no library needed
-function openFavDB() {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open('eat-this-favs', 1);
-    req.onupgradeneeded = e => {
-      e.target.result.createObjectStore('queue', { keyPath: 'id', autoIncrement: true });
-    };
-    req.onsuccess = e => resolve(e.target.result);
-    req.onerror  = e => reject(e.target.error);
-  });
-}
-
-function idbGetAll(store) {
-  return new Promise((resolve, reject) => {
-    const req = store.getAll();
-    req.onsuccess = () => resolve(req.result);
-    req.onerror   = () => reject(req.error);
-  });
-}

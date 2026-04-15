@@ -22,6 +22,9 @@
     />
     <meta name="author" content="EAT THIS" />
     <link rel="canonical" href="https://www.eatthisdot.com" />
+    <link rel="alternate" hreflang="en" href="https://www.eatthisdot.com" />
+    <link rel="alternate" hreflang="de" href="https://www.eatthisdot.com" />
+    <link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="EAT THIS" />
@@ -38,7 +41,8 @@
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="1200" />
     <meta property="og:image:alt" content="EAT THIS — Berlin Food Guide" />
-    <meta property="og:locale" content="de_DE" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="de_DE" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@eatthisdotcom" />
@@ -264,9 +268,7 @@
     <link rel="stylesheet" href="css/leaflet.css" />
     <link rel="stylesheet" href="css/style.css" />
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8EWFYGPNTT"></script>
-    <script src="js/analytics.js"></script>
+    <!-- Google Analytics: loaded only after cookie consent (see app.js loadAnalytics) -->
   </head>
   <body>
     <!-- NAVBAR -->
@@ -497,7 +499,7 @@
               sizes="(max-width: 767px) 60vw, 280px"
             />
             <h1 class="hero-tagline" data-i18n="hero.tagline">We tell you what to eat</h1>
-            <button class="hero-register-btn" onclick="openLoginModal()">
+            <button class="hero-register-btn" id="heroRegisterBtn">
               <span data-i18n="hero.cta">Create account</span>
               <svg
                 width="14"

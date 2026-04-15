@@ -1723,6 +1723,11 @@ document.addEventListener('DOMContentLoaded', () => {
           }, 800);
         }
       }));
+      // Belt-and-suspenders: rAF can be throttled on mobile Safari during Leaflet tile-load.
+      // If the sheet is still at peek after 300ms, force it to mid.
+      setTimeout(() => {
+        if (_sheetState === 'peek') _snapSheet('mid', true);
+      }, 300);
     }
 
     function hideSpotDetail() {

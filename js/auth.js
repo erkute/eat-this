@@ -310,6 +310,7 @@ if (googleLoginBtn) {
       closeLoginModal();
       window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('[auth] Google login error:', err.code, err);
       const msg = errorMessage(err.code);
       if (msg) showError(msg);

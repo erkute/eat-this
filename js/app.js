@@ -741,9 +741,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let globeShown = false;
 
   function showGlobeIntro(onComplete) {
-    // TEMPORARILY DISABLED FOR TESTING — re-enable by removing this early return
+    // TEMPORARILY DISABLED — re-enable by removing this early return
     onComplete();
-    return; // eslint-disable-line no-unreachable
+    return;
     /* eslint-disable no-unreachable */
     if (typeof THREE === 'undefined' || globeShown) {
       onComplete();
@@ -1077,21 +1077,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    let fallbackTimer = setTimeout(() => {
-      console.log('[GEO] fallback timer fired');
+    const fallbackTimer = setTimeout(() => {
       setDefaultView();
     }, CONFIG.GEO_FALLBACK_DELAY);
 
     try {
       if (navigator.geolocation) {
-        console.log('[GEO] calling getCurrentPosition');
         navigator.geolocation.getCurrentPosition(
           (position) => {
             clearTimeout(fallbackTimer);
             const userLat = position.coords.latitude;
             const userLng = position.coords.longitude;
             const inBerlin = userLat > 52.3 && userLat < 52.7 && userLng > 13.1 && userLng < 13.8;
-            console.log('[GEO] success', userLat, userLng, 'inBerlin:', inBerlin);
 
             // Check if location is in Berlin area (rough check)
             if (inBerlin) {
@@ -1114,7 +1111,6 @@ document.addEventListener('DOMContentLoaded', () => {
           },
           (err) => {
             clearTimeout(fallbackTimer);
-            console.log('[GEO] error code:', err.code, err.message);
             const msgs = {
               1: window.i18n ? window.i18n.t('map.locationDenied') : 'Location access denied',
               2: window.i18n ? window.i18n.t('map.locationUnavailable') : 'Location unavailable',
@@ -1133,11 +1129,9 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         );
       } else {
-        console.log('[GEO] navigator.geolocation not available');
         setDefaultView();
       }
-    } catch (e) {
-      console.log('[GEO] exception:', e);
+    } catch {
       setDefaultView();
     }
 
@@ -1401,7 +1395,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const [h, m] = t.split(':').map(Number);
         return h * 60 + (m || 0);
       }
-      let hasMatchingDay = false;
       for (const slot of openingHours) {
         const days = (slot.days || '').trim();
         const hours = (slot.hours || '').toLowerCase().trim();
@@ -1419,7 +1412,6 @@ document.addEventListener('DOMContentLoaded', () => {
           match = days.split(',').some((d) => toDayNum(d) === dayOfWeek);
         }
         if (!match) continue;
-        hasMatchingDay = true;
         if (hours === 'closed' || hours === 'geschlossen' || hours === 'ruhetag') continue;
         // Support comma-separated time windows e.g. "12:00-15:00, 18:00-22:00"
         const timeWindows = hours.split(',').map((w) => w.trim()).filter(Boolean);
@@ -1927,7 +1919,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .join('');
   }
 
-  function buildRecCardEl(card, allCards) {
+  function buildRecCardEl(card, _allCards) {
     const art = document.createElement('article');
     art.className = 'news-rec-card';
     const a = document.createElement('a');
@@ -2119,7 +2111,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- App Page Navigation ---
-  const appFooter = document.getElementById('appFooter');
   const appPages = document.querySelectorAll('.app-page');
   const navbarBrand = document.querySelector('.navbar-brand');
 
@@ -2401,7 +2392,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // AGB Modal
-  const agbModal = createModal(document.getElementById('agbModal'), {
+  createModal(document.getElementById('agbModal'), {
     trigger: document.getElementById('agbTrigger'),
     closeBtn: document.getElementById('agbClose'),
     backdrop: document.getElementById('agbBackdrop'),
@@ -2414,7 +2405,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
   // Datenschutz Modal
-  const datenschutzModal = createModal(document.getElementById('datenschutzModal'), {
+  createModal(document.getElementById('datenschutzModal'), {
     trigger: document.getElementById('datenschutzTrigger'),
     closeBtn: document.getElementById('datenschutzClose'),
     backdrop: document.getElementById('datenschutzBackdrop'),

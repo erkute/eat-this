@@ -34,6 +34,7 @@ async function loadFavourites(uid) {
       setFavBtnState(btn, window._favSpots.has(btn.dataset.favId));
     });
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error('[favourites] loadFavourites failed:', err);
   }
 }
@@ -63,6 +64,7 @@ window._toggleFav = async function toggleFav(spotId, spotName, btn) {
       window.showNotification(next ? `${spotName} gespeichert` : `${spotName} entfernt`);
     }
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error('[favourites] toggleFav failed:', err);
     // Revert on error
     setFavBtnState(btn, !next);

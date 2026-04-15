@@ -35,8 +35,6 @@ function sanityImageUrl(ref, { width } = {}) {
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-const _staticPageCache = {};
-
 window.CMS = {
   /** Fetch all published news articles, newest first. */
   fetchNews(lang = 'en') {

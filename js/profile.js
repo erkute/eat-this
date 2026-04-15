@@ -55,7 +55,7 @@ async function renderDeck() {
   // ── Starter pack: Must Eat cards from CMS ─────────────────────────────────
   let cards = [];
   try { cards = await window.CMS.fetchMustEats() || []; }
-  catch (e) { /* fail silently */ }
+  catch (_e) { /* fail silently */ }
 
   if (cards.length === 0) return;
 
@@ -128,7 +128,7 @@ function initSettings(user) {
         const initEl = document.getElementById('profileAvatarInitial');
         if (nameEl) nameEl.textContent = newName;
         if (initEl) initEl.textContent = newName.charAt(0).toUpperCase();
-      } catch (e) {
+      } catch (_e) {
         if (nameFeedback) { nameFeedback.textContent = 'Fehler beim Speichern.'; nameFeedback.hidden = false; }
       }
     });
@@ -142,7 +142,7 @@ function initSettings(user) {
       try {
         window._sendPasswordReset && await window._sendPasswordReset(user.email);
         if (pwFeedback) { pwFeedback.textContent = 'E-Mail gesendet \u2713'; pwFeedback.hidden = false; }
-      } catch (e) {
+      } catch (_e) {
         if (pwFeedback) { pwFeedback.textContent = 'Fehler. Bitte erneut versuchen.'; pwFeedback.hidden = false; }
       }
     });
@@ -171,8 +171,6 @@ function initSettings(user) {
 function initProfilePage(user) {
   const authPrompt = document.getElementById('profileAuthPrompt');
   const content    = document.getElementById('profileContent');
-  const signInBtn  = document.getElementById('profileSignInBtn');
-
   if (!user) {
     if (authPrompt) authPrompt.style.display = 'none';
     if (content)    content.hidden = true;

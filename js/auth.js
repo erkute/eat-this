@@ -79,6 +79,10 @@ const loginSuccess   = document.getElementById('loginSuccess');
 const profileAvatar  = document.getElementById('profileAvatar');
 const profileName    = document.getElementById('profileName');
 const profileEmail   = document.getElementById('profileEmail');
+
+const profileAvatarModal = document.getElementById('profileAvatarModal');
+const profileNameModal   = document.getElementById('profileNameModal');
+const profileEmailModal  = document.getElementById('profileEmailModal');
 const logoutBtn      = document.getElementById('logoutBtn');
 
 const googleLoginBtn   = document.getElementById('googleLoginBtn');
@@ -325,9 +329,9 @@ if (logoutBtn) {
 
 // ─── Auth-Zustand beobachten ──────────────────────────────────────────────────
 function applyLoggedInUI(user) {
-  const displayName = user.displayName || user.email.split('@')[0];
-  const firstName   = displayName.split(' ')[0];
-  const initials    = displayName.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  const displayName = user.displayName || (user.email || '').split('@')[0] || 'User';
+  const firstName   = displayName.split(' ')[0] || displayName;
+  const initials    = displayName.split(' ').filter(Boolean).map(w => w[0]).slice(0, 2).join('').toUpperCase() || '?';
 
   if (loginBtnLabel) loginBtnLabel.textContent = firstName;
   loginBtn?.classList.add('logged-in');
@@ -341,6 +345,9 @@ function applyLoggedInUI(user) {
   if (profileAvatar) profileAvatar.textContent = initials;
   if (profileName)   profileName.textContent   = 'Hey, ' + displayName + '!';
   if (profileEmail)  profileEmail.textContent  = user.email;
+  if (profileAvatarModal) profileAvatarModal.textContent = initials;
+  if (profileNameModal)   profileNameModal.textContent   = 'Hey, ' + displayName + '!';
+  if (profileEmailModal)  profileEmailModal.textContent  = user.email;
 }
 
 onAuthStateChanged(auth, (user) => {

@@ -176,8 +176,11 @@ function initProfilePage(user) {
   if (!user) {
     if (authPrompt) authPrompt.style.display = 'none';
     if (content)    content.hidden = true;
-    // Navigate back to start without opening login modal
-    window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'start' } }));
+    // Only navigate away if the profile page is currently active
+    const profilePage = document.querySelector('.app-page[data-page="profile"]');
+    if (profilePage && profilePage.classList.contains('active')) {
+      window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'start' } }));
+    }
     return;
   }
 

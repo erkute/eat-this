@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const spotResults = results.filter((r) => r.type === 'spot');
 
     if (mustEatsResults.length > 0) {
-      html += '<div class="search-section-title">Must Eats</div>';
+      html += `<div class="search-section-title">${window.i18n.t('search.mustEats')}</div>`;
       mustEatsResults.slice(0, 5).forEach((item) => {
         html += `
           <div class="search-result-item" data-type="must-eat" data-dish="${escapeHtml(item.dish)}" data-restaurant="${escapeHtml(item.restaurant)}">
@@ -360,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (newsResults_arr.length > 0) {
-      html += '<div class="search-section-title">News</div>';
+      html += `<div class="search-section-title">${window.i18n.t('search.news')}</div>`;
       newsResults_arr.slice(0, 3).forEach((item) => {
         html += `
           <div class="search-result-item" data-type="news" data-title="${escapeHtml(item.title)}">
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (spotResults.length > 0) {
-      html += '<div class="search-section-title">Restaurants</div>';
+      html += `<div class="search-section-title">${window.i18n.t('search.restaurants')}</div>`;
       spotResults.slice(0, 5).forEach((item) => {
         html += `
           <div class="search-result-item" data-type="spot" data-name="${escapeHtml(item.name)}">
@@ -1279,7 +1279,7 @@ document.addEventListener('DOMContentLoaded', () => {
         statusBadge.className =
           'map-spot-status-badge' +
           (openStatus ? ' map-spot-status-badge--open' : ' map-spot-status-badge--closed');
-        statusBadge.textContent = openStatus ? 'Open' : 'Closed';
+        statusBadge.textContent = openStatus ? window.i18n.t('map.open') : window.i18n.t('map.closed');
         metaRow.appendChild(statusBadge);
       }
 
@@ -1299,7 +1299,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.target = '_blank';
       btn.rel = 'noopener';
       btn.className = 'map-spot-btn';
-      btn.textContent = 'Open in Maps';
+      btn.textContent = window.i18n.t('map.openInMaps');
       btnRow.appendChild(btn);
 
       if (spot.website) {
@@ -1318,7 +1318,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resBtn.target = '_blank';
         resBtn.rel = 'noopener';
         resBtn.className = 'map-spot-btn map-spot-btn--reservation';
-        resBtn.textContent = 'Reserve';
+        resBtn.textContent = window.i18n.t('map.reserve');
         btnRow.appendChild(resBtn);
       }
 

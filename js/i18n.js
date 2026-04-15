@@ -79,6 +79,10 @@ const TRANSLATIONS = {
       locationError: 'Could not get location',
       nearby: 'Nearby',
       nearbyMore: 'Swipe for more',
+      open: 'Open',
+      closed: 'Closed',
+      openInMaps: 'Open in Maps',
+      reserve: 'Reserve',
     },
     footer: {
       start: 'Start',
@@ -105,6 +109,9 @@ const TRANSLATIONS = {
       hint: 'Start typing to search...',
       noResults: 'No results for',
       noResultsSub: 'Try a different search term',
+      mustEats: 'Must Eats',
+      news: 'News',
+      restaurants: 'Restaurants',
     },
     cookie: {
       text: 'We use cookies to give you the best experience.',
@@ -307,6 +314,13 @@ TRANSLATIONS.de.map.locationDenied      = 'Standortzugriff verweigert';
 TRANSLATIONS.de.map.locationUnavailable = 'Standort nicht verf\u00fcgbar';
 TRANSLATIONS.de.map.locationTimeout     = 'Standort-Zeitlimit';
 TRANSLATIONS.de.map.locationError       = 'Standort konnte nicht ermittelt werden';
+TRANSLATIONS.de.map.open        = 'Ge\u00f6ffnet';
+TRANSLATIONS.de.map.closed      = 'Geschlossen';
+TRANSLATIONS.de.map.openInMaps  = 'In Maps \u00f6ffnen';
+TRANSLATIONS.de.map.reserve     = 'Reservieren';
+
+// DE search overrides (section titles)
+TRANSLATIONS.de.search.restaurants = 'Restaurants';
 
 // DE footer overrides
 TRANSLATIONS.de.footer.signIn      = 'Anmelden / Registrieren';

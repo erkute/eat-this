@@ -1832,8 +1832,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Re-render nearby grid to respect new filter, scroll back to start
         if (_nearbyLat !== null) {
           _renderNearbyGrid();
-          const gridEl = document.getElementById('mapNearbyGrid');
-          if (gridEl) gridEl.scrollLeft = 0;
+          requestAnimationFrame(() => {
+            const wrapper = document.querySelector('.map-nearby-grid-wrapper');
+            if (wrapper) wrapper.scrollTop = 0;
+          });
         }
       });
     });

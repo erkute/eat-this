@@ -45,10 +45,6 @@ body {
 /* ============================================
    SCROLL ANIMATIONS
    ============================================ */
-.reveal, .reveal-stagger > * {
-  opacity: 1 !important;
-  transform: none !important;
-}
 
 /* ============================================
    NAVBAR
@@ -771,7 +767,7 @@ body {
 .map-nearby-grid-wrapper {
   overflow-y: auto;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
+
   touch-action: pan-y; /* override sheet's touch-action:none so grid scrolls */
   max-height: 200px; /* 1 row in mid state */
 }
@@ -882,21 +878,6 @@ body {
 }
 
 
-@keyframes meteor1 {
-  0%   { transform: translate(0, 0) rotate(-42deg); opacity: 0; }
-  3%   { opacity: 1; }
-  18%  { opacity: 0.9; }
-  25%  { opacity: 0; }
-  100% { transform: translate(-560px, 400px) rotate(-42deg); opacity: 0; }
-}
-
-@keyframes meteor2 {
-  0%   { transform: translate(0, 0) rotate(-38deg); opacity: 0; }
-  4%   { opacity: 0.8; }
-  22%  { opacity: 0.7; }
-  30%  { opacity: 0; }
-  100% { transform: translate(-420px, 300px) rotate(-38deg); opacity: 0; }
-}
 
 .map-spot-card {
   position: relative;
@@ -1189,7 +1170,7 @@ body {
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
+
   border-bottom: 1px solid var(--gray-100);
   margin-top: 8px;
   touch-action: pan-x;
@@ -2932,7 +2913,7 @@ body {
     max-width: 360px;
     max-height: min(82dvh, 82vh);
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+  
     padding: 20px 18px 18px;
     border-radius: 20px;
   }
@@ -2981,7 +2962,7 @@ body {
   .cookie-info-modal-content {
     max-height: calc(100dvh - 100px);
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+  
   }
 }
 
@@ -4453,7 +4434,7 @@ body {
   background: var(--white);
   min-height: 100dvh;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+
   overscroll-behavior: auto;
 }
 

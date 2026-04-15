@@ -8,3 +8,8 @@ node_modules/
 docs/superpowers/
 studio/node_modules/
 studio/.sanity/
+
+# Build artifacts & caches
+.firebase/
+playwright-report/
+test-results/

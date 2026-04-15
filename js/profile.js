@@ -123,13 +123,13 @@ function initSettings(user) {
       if (!newName) return;
       try {
         await window._updateDisplayName(newName);
-        if (nameFeedback) { nameFeedback.textContent = 'Gespeichert \u2713'; nameFeedback.hidden = false; }
+        if (nameFeedback) { nameFeedback.textContent = window.i18n.t('profile.settings.savedFeedback'); nameFeedback.hidden = false; }
         const nameEl = document.getElementById('profileName');
         const initEl = document.getElementById('profileAvatarInitial');
         if (nameEl) nameEl.textContent = newName;
         if (initEl) initEl.textContent = newName.charAt(0).toUpperCase();
       } catch (_e) {
-        if (nameFeedback) { nameFeedback.textContent = 'Fehler beim Speichern.'; nameFeedback.hidden = false; }
+        if (nameFeedback) { nameFeedback.textContent = window.i18n.t('profile.settings.saveError'); nameFeedback.hidden = false; }
       }
     });
   }
@@ -141,9 +141,9 @@ function initSettings(user) {
     resetBtn.addEventListener('click', async () => {
       try {
         window._sendPasswordReset && await window._sendPasswordReset(user.email);
-        if (pwFeedback) { pwFeedback.textContent = 'E-Mail gesendet \u2713'; pwFeedback.hidden = false; }
+        if (pwFeedback) { pwFeedback.textContent = window.i18n.t('profile.settings.emailSent'); pwFeedback.hidden = false; }
       } catch (_e) {
-        if (pwFeedback) { pwFeedback.textContent = 'Fehler. Bitte erneut versuchen.'; pwFeedback.hidden = false; }
+        if (pwFeedback) { pwFeedback.textContent = window.i18n.t('profile.settings.tryAgain'); pwFeedback.hidden = false; }
       }
     });
   }
@@ -158,11 +158,11 @@ function initSettings(user) {
   const deleteBtn = document.getElementById('profileDeleteAccountBtn');
   if (deleteBtn) {
     deleteBtn.addEventListener('click', () => {
-      if (!window.confirm('Bist du sicher? Dein Account wird dauerhaft gel\u00F6scht.')) return;
+      if (!window.confirm(window.i18n.t('profile.settings.deleteConfirm'))) return;
       if (!window._deleteAccount) return;
       window._deleteAccount()
         .then(() => { window._navigateToPage && window._navigateToPage('start'); })
-        .catch(() => { window.alert('Fehler. Bitte neu einloggen und erneut versuchen.'); });
+        .catch(() => { window.alert(window.i18n.t('profile.settings.deleteError')); });
     });
   }
 }

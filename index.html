@@ -788,32 +788,39 @@
               <div class="profile-settings-section">
                 <h3 class="profile-settings-section-title">Account</h3>
                 <div class="profile-settings-field">
-                  <label class="profile-settings-label">Anzeigename</label>
+                  <label class="profile-settings-label" data-i18n="profile.settings.displayName">Display name</label>
                   <div class="profile-settings-row">
                     <input type="text" class="profile-settings-input"
-                           id="profileDisplayNameInput" placeholder="Dein Name" autocomplete="name" />
-                    <button class="profile-settings-save-btn" id="profileSaveNameBtn">Speichern</button>
+                           id="profileDisplayNameInput"
+                           placeholder="Your name"
+                           data-i18n-placeholder="profile.settings.displayNamePlaceholder"
+                           autocomplete="name" />
+                    <button class="profile-settings-save-btn" id="profileSaveNameBtn"
+                            data-i18n="profile.settings.saveBtn">Save</button>
                   </div>
                   <p class="profile-settings-feedback" id="profileNameFeedback" hidden></p>
                 </div>
                 <div class="profile-settings-field">
-                  <label class="profile-settings-label">E-Mail</label>
+                  <label class="profile-settings-label" data-i18n="profile.settings.email">Email</label>
                   <p class="profile-settings-value" id="profileSettingsEmail">&#8212;</p>
                 </div>
               </div>
 
               <div class="profile-settings-section">
-                <h3 class="profile-settings-section-title">Sicherheit</h3>
+                <h3 class="profile-settings-section-title" data-i18n="profile.settings.security">Security</h3>
                 <button class="profile-settings-action-btn"
-                        id="profileResetPasswordBtn">Passwort zur&#252;cksetzen</button>
+                        id="profileResetPasswordBtn"
+                        data-i18n="profile.settings.resetPassword">Reset password</button>
                 <p class="profile-settings-feedback" id="profilePasswordFeedback" hidden></p>
               </div>
 
               <div class="profile-settings-section profile-settings-section--danger">
                 <h3 class="profile-settings-section-title">Danger Zone</h3>
-                <button class="profile-settings-signout-btn" id="profileSignOutBtn">Abmelden</button>
+                <button class="profile-settings-signout-btn" id="profileSignOutBtn"
+                        data-i18n="profile.settings.signOut">Sign out</button>
                 <button class="profile-settings-delete-btn"
-                        id="profileDeleteAccountBtn">Account l&#246;schen</button>
+                        id="profileDeleteAccountBtn"
+                        data-i18n="profile.settings.deleteAccount">Delete account</button>
               </div>
 
             </div>
@@ -1320,7 +1327,7 @@
           </div>
           <div class="profile-favs-section">
             <div class="profile-favs-header">
-              <span class="profile-favs-title">Gespeicherte Orte</span>
+              <span class="profile-favs-title" data-i18n="profile.saved.title">Saved Places</span>
               <span class="profile-favs-count" id="profileFavsCount"></span>
             </div>
             <div class="profile-favs-grid" id="profileFavsGrid"></div>

@@ -168,9 +168,25 @@ const TRANSLATIONS = {
       signInTitle: 'Sign in to EAT THIS',
       signInSub:   'Save restaurants, collect your Must Eat deck and manage your account.',
       tab:     { deck: 'My Deck', saved: 'Saved', settings: 'Settings' },
-      saved:   { empty: 'You have no saved restaurants yet.' },
+      saved:   { empty: 'You have no saved restaurants yet.', title: 'Saved Places' },
       deck:    { boosterSection: 'Booster Packs', unlockBtn: 'Unlock', comingSoon: 'Coming Soon' },
       booster: { title: 'Booster Packs - Coming Soon', sub: 'Expand your deck with exclusive dishes' },
+      settings: {
+        displayName:        'Display name',
+        displayNamePlaceholder: 'Your name',
+        saveBtn:            'Save',
+        email:              'Email',
+        security:           'Security',
+        resetPassword:      'Reset password',
+        signOut:            'Sign out',
+        deleteAccount:      'Delete account',
+        savedFeedback:      'Saved \u2713',
+        saveError:          'Error saving.',
+        emailSent:          'Email sent \u2713',
+        tryAgain:           'Error. Please try again.',
+        deleteConfirm:      'Are you sure? Your account will be permanently deleted.',
+        deleteError:        'Error. Please log in again and try again.',
+      },
     },
   },
 
@@ -199,10 +215,25 @@ TRANSLATIONS.de.profile.tab.deck        = 'Mein Deck';
 TRANSLATIONS.de.profile.tab.saved       = 'Gespeichert';
 TRANSLATIONS.de.profile.tab.settings    = 'Einstellungen';
 TRANSLATIONS.de.profile.saved.empty     = 'Du hast noch keine Restaurants gespeichert.';
+TRANSLATIONS.de.profile.saved.title     = 'Gespeicherte Orte';
 TRANSLATIONS.de.profile.deck.unlockBtn  = 'Freischalten';
 TRANSLATIONS.de.profile.deck.comingSoon = 'Demnächst';
 TRANSLATIONS.de.profile.booster.title   = 'Booster Packs - Demnächst';
 TRANSLATIONS.de.profile.booster.sub     = 'Erweitere dein Deck mit exklusiven Gerichten';
+TRANSLATIONS.de.profile.settings.displayName        = 'Anzeigename';
+TRANSLATIONS.de.profile.settings.displayNamePlaceholder = 'Dein Name';
+TRANSLATIONS.de.profile.settings.saveBtn            = 'Speichern';
+TRANSLATIONS.de.profile.settings.email              = 'E-Mail';
+TRANSLATIONS.de.profile.settings.security           = 'Sicherheit';
+TRANSLATIONS.de.profile.settings.resetPassword      = 'Passwort zur\u00FCcksetzen';
+TRANSLATIONS.de.profile.settings.signOut            = 'Abmelden';
+TRANSLATIONS.de.profile.settings.deleteAccount      = 'Account l\u00F6schen';
+TRANSLATIONS.de.profile.settings.savedFeedback      = 'Gespeichert \u2713';
+TRANSLATIONS.de.profile.settings.saveError          = 'Fehler beim Speichern.';
+TRANSLATIONS.de.profile.settings.emailSent          = 'E-Mail gesendet \u2713';
+TRANSLATIONS.de.profile.settings.tryAgain           = 'Fehler. Bitte erneut versuchen.';
+TRANSLATIONS.de.profile.settings.deleteConfirm      = 'Bist du sicher? Dein Account wird dauerhaft gel\u00F6scht.';
+TRANSLATIONS.de.profile.settings.deleteError        = 'Fehler. Bitte neu einloggen und erneut versuchen.';
 
 // ─── ENGINE ───────────────────────────────────────────────────────────────
 

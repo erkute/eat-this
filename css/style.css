@@ -779,10 +779,69 @@ body {
   overflow-x: hidden;
 
   touch-action: pan-y; /* override sheet's touch-action:none so grid scrolls */
-  max-height: 200px; /* 1 row in mid state */
+  max-height: 350px; /* 2 rows in mid state (6 cards default) */
 }
 .map-nearby.sheet--expanded .map-nearby-grid-wrapper {
-  max-height: 450px; /* 3 rows × 3 cols = 9 cards */
+  max-height: 520px; /* 3+ rows in expanded state */
+}
+
+/* Map toolbar: search + open toggle */
+.map-nearby-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 10px;
+  touch-action: manipulation;
+}
+.map-search-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.map-search-icon {
+  position: absolute;
+  left: 9px;
+  color: #999;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+.map-search-input {
+  width: 100%;
+  padding: 7px 10px 7px 30px;
+  font-size: 12px;
+  font-family: inherit;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  background: #fff;
+  outline: none;
+  color: var(--black);
+  -webkit-appearance: none;
+}
+.map-search-input:focus {
+  border-color: var(--black);
+}
+.map-search-input::placeholder {
+  color: #bbb;
+}
+.map-open-toggle {
+  flex-shrink: 0;
+  padding: 7px 11px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  background: #fff;
+  color: #666;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.map-open-toggle--active {
+  background: #1a8a3a;
+  color: #fff;
+  border-color: #1a8a3a;
 }
 
 /* ---- Bottom Sheet (app map page — all viewports) ---- */

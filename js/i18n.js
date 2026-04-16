@@ -62,8 +62,10 @@ const TRANSLATIONS = {
       // removed: articles[] — content lives in Sanity CMS only
     },
     map: {
-      sectionLabel: 'Find',
-      sectionTitle: 'Eat Around',
+      sectionLabel: 'Map',
+      sectionTitle: '',
+      searchPlaceholder: 'Restaurant, district, pizza…',
+      openNow: 'Open now',
       filterAll: 'All',
       filterDinner: 'Dinner',
       filterLunch: 'Lunch',
@@ -314,6 +316,9 @@ TRANSLATIONS.de.map.locationDenied      = 'Standortzugriff verweigert';
 TRANSLATIONS.de.map.locationUnavailable = 'Standort nicht verf\u00fcgbar';
 TRANSLATIONS.de.map.locationTimeout     = 'Standort-Zeitlimit';
 TRANSLATIONS.de.map.locationError       = 'Standort konnte nicht ermittelt werden';
+TRANSLATIONS.de.map.sectionLabel      = 'Map';
+TRANSLATIONS.de.map.searchPlaceholder = 'Restaurant, Bezirk, Pizza…';
+TRANSLATIONS.de.map.openNow           = 'Geöffnet';
 TRANSLATIONS.de.map.open        = 'Ge\u00f6ffnet';
 TRANSLATIONS.de.map.closed      = 'Geschlossen';
 TRANSLATIONS.de.map.openInMaps  = 'In Maps \u00f6ffnen';

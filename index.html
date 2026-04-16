@@ -649,8 +649,7 @@
         <section class="map-section" id="map">
           <div class="map-header">
             <div class="map-header-top">
-              <p class="section-label" data-i18n="map.sectionLabel">Find</p>
-              <h2 class="map-title" data-i18n="map.sectionTitle">Eat Around</h2>
+              <p class="section-label" data-i18n="map.sectionLabel">Map</p>
             </div>
             <div class="map-filter-tabs" id="mapFilterTabs" role="tablist">
               <button class="map-filter-tab active" data-filter="all" role="tab">
@@ -712,6 +711,15 @@
             </div>
             <div class="map-nearby-label">
               <span id="mapNearbyTitle" data-i18n="map.nearby">Nearby</span>
+            </div>
+            <div class="map-nearby-toolbar">
+              <div class="map-search-wrap">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="map-search-icon">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="mapSearchInput" class="map-search-input" placeholder="Restaurant, Bezirk, Pizza…" data-i18n-placeholder="map.searchPlaceholder" autocomplete="off" />
+              </div>
+              <button type="button" id="mapOpenToggle" class="map-open-toggle" data-i18n="map.openNow">Open now</button>
             </div>
             <div class="map-nearby-grid-wrapper">
               <div class="map-nearby-grid" id="mapNearbyGrid"></div>

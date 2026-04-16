@@ -1064,8 +1064,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Sheet size constants — used throughout initFoodMap (must be declared before use)
     const PEEK_PX = 32;     // handle bar always visible — minimum state
-    const MID_PX = 240;     // 1 card row visible
-    const EXPANDED_PX = 520; // 3×3 = 9 cards on mobile (capped dynamically to leave map visible)
+    const MID_PX = 430;     // 2 card rows visible (6 cards default)
+    const EXPANDED_PX = 600; // 3+ rows visible (capped dynamically to leave map visible)
 
     try {
       foodMap = L.map('foodMap', {
@@ -1397,6 +1397,8 @@ document.addEventListener('DOMContentLoaded', () => {
       _nearbyLng = null;
     let _sheetState = 'peek'; // 'peek' | 'mid' | 'expanded'
     let _sheetReady = false;
+    let _mapSearchQuery = '';
+    let _mapOpenOnly = false;
 
     function isOpenNow(openingHours) {
       if (!openingHours || !openingHours.length) return null;
@@ -1485,11 +1487,20 @@ document.addEventListener('DOMContentLoaded', () => {
       const activeFilter =
         document.querySelector('.map-filter-tab.active')?.dataset.filter || 'all';
 
+      const searchQ = _mapSearchQuery.toLowerCase().trim();
       const sorted = spots
         .map((s) => ({ ...s, dist: haversineDistance(_nearbyLat, _nearbyLng, s.lat, s.lng) }))
         .filter((s) => activeFilter === 'all' || (s.categories || []).includes(activeFilter))
-        .sort((a, b) => a.dist - b.dist)
-;
+        .filter((s) => {
+          if (!searchQ) return true;
+          const haystack = `${s.name} ${s.district} ${s.type} ${(s.categories || []).join(' ')}`.toLowerCase();
+          return searchQ.split(' ').filter(Boolean).every((w) => haystack.includes(w));
+        })
+        .filter((s) => {
+          if (!_mapOpenOnly) return true;
+          return isOpenNow(s.openingHours) === true;
+        })
+        .sort((a, b) => a.dist - b.dist);
 
       while (gridEl.firstChild) gridEl.removeChild(gridEl.firstChild);
 
@@ -1560,7 +1571,9 @@ document.addEventListener('DOMContentLoaded', () => {
             (openStatus
               ? ' map-nearby-grid-card-status--open'
               : ' map-nearby-grid-card-status--closed');
-          badge.textContent = openStatus ? 'Open' : 'Closed';
+          badge.textContent = openStatus
+            ? (window.i18n ? window.i18n.t('map.open') : 'Open')
+            : (window.i18n ? window.i18n.t('map.closed') : 'Closed');
           body.appendChild(badge);
         }
 
@@ -1574,13 +1587,6 @@ document.addEventListener('DOMContentLoaded', () => {
         gridEl.appendChild(card);
       });
 
-      // Nudge-scroll: scroll slightly right then back to hint at more content
-      if (sorted.length > 3) {
-        setTimeout(() => {
-          gridEl.scrollTo({ left: 40, behavior: 'smooth' });
-          setTimeout(() => gridEl.scrollTo({ left: 0, behavior: 'smooth' }), 400);
-        }, 600);
-      }
     }
 
     function _snapSheet(state, animate = true) {
@@ -1684,8 +1690,8 @@ document.addEventListener('DOMContentLoaded', () => {
       sheet.addEventListener(
         'touchstart',
         (e) => {
-          // Don't hijack scrolling inside the grid
-          if (e.target.closest('#mapNearbyGrid')) return;
+          // Don't hijack scrolling inside the grid or interaction with toolbar
+          if (e.target.closest('#mapNearbyGrid') || e.target.closest('.map-nearby-toolbar')) return;
           dragStart(e.touches[0].clientY);
         },
         { passive: true }
@@ -1693,7 +1699,7 @@ document.addEventListener('DOMContentLoaded', () => {
       sheet.addEventListener(
         'touchmove',
         (e) => {
-          if (e.target.closest('#mapNearbyGrid')) return;
+          if (e.target.closest('#mapNearbyGrid') || e.target.closest('.map-nearby-toolbar')) return;
           dragMove(e.touches[0].clientY);
         },
         { passive: true }
@@ -1876,6 +1882,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
+
+    // Map search input
+    const mapSearchInput = document.getElementById('mapSearchInput');
+    if (mapSearchInput) {
+      mapSearchInput.addEventListener('input', () => {
+        _mapSearchQuery = mapSearchInput.value;
+        if (_nearbyLat !== null) _renderNearbyGrid();
+      });
+    }
+
+    // Open-now toggle
+    const mapOpenToggle = document.getElementById('mapOpenToggle');
+    if (mapOpenToggle) {
+      mapOpenToggle.addEventListener('click', () => {
+        _mapOpenOnly = !_mapOpenOnly;
+        mapOpenToggle.classList.toggle('map-open-toggle--active', _mapOpenOnly);
+        if (_nearbyLat !== null) {
+          _renderNearbyGrid();
+          requestAnimationFrame(() => {
+            const wrapper = document.querySelector('.map-nearby-grid-wrapper');
+            if (wrapper) wrapper.scrollTop = 0;
+          });
+        }
+      });
+    }
 
     // Location button
     const mapLocationBtn = document.getElementById('mapLocationBtnFixed');

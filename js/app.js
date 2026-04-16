@@ -1064,7 +1064,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Sheet size constants — used throughout initFoodMap (must be declared before use)
     const PEEK_PX = 96;     // handle + toolbar always visible — minimum state
-    const MID_PX = 430;     // 2 card rows visible (6 cards default)
+    const MID_PX = 380;     // 4 list rows visible on mobile
     const EXPANDED_PX = 600; // 3+ rows visible (capped dynamically to leave map visible)
 
     try {
@@ -1510,75 +1510,101 @@ document.addEventListener('DOMContentLoaded', () => {
         const photo = spot.photo || getSpotPhoto(spot.type);
         const spotId = spot._id || spot.name.replace(/\s+/g, '-').toLowerCase();
 
-        const card = document.createElement('div');
-        card.className = 'map-nearby-grid-card';
-
-        // Image area with distance badge overlay
-        const imgWrap = document.createElement('div');
-        imgWrap.className = 'map-nearby-grid-card-img-wrap';
-
-        const img = document.createElement('img');
-        img.className = 'map-nearby-grid-card-img';
-        img.src = photo;
-        img.alt = spot.name;
-        img.loading = 'lazy';
-
-        const distBadge = document.createElement('span');
-        distBadge.className = 'map-nearby-grid-card-dist';
-        distBadge.textContent = distLabel;
-
-        imgWrap.appendChild(img);
-        imgWrap.appendChild(distBadge);
-
-        // Card body: name row (name + heart), meta, hours
-        const body = document.createElement('div');
-        body.className = 'map-nearby-grid-card-body';
-
-        const nameRow = document.createElement('div');
-        nameRow.className = 'map-nearby-grid-card-name-row';
-
-        const name = document.createElement('div');
-        name.className = 'map-nearby-grid-card-name';
-        name.textContent = spot.name;
-
-        const favBtn = document.createElement('button');
-        favBtn.type = 'button';
-        favBtn.className = 'map-nearby-grid-card-fav';
-        favBtn.setAttribute('aria-label', 'Speichern');
-        const isFaved = window._favSpots?.has(spotId);
-        favBtn.textContent = isFaved ? '\u2665' : '\u2661';
-        if (isFaved) favBtn.classList.add('map-nearby-grid-card-fav--active');
-        favBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          window._toggleFav(spotId, spot.name, favBtn);
-        });
-
-        nameRow.appendChild(name);
-        nameRow.appendChild(favBtn);
-
-        const meta = document.createElement('div');
-        meta.className = 'map-nearby-grid-card-meta';
-        meta.textContent = spot.type + (spot.price ? ' · ' + spot.price : '');
-
-        body.appendChild(nameRow);
-        body.appendChild(meta);
-
+        const isMobile = !window.matchMedia('(min-width: 768px)').matches;
         const openStatus = isOpenNow(spot.openingHours);
-        if (openStatus !== null) {
-          const badge = document.createElement('span');
-          badge.className =
-            'map-nearby-grid-card-status' +
-            (openStatus
-              ? ' map-nearby-grid-card-status--open'
-              : ' map-nearby-grid-card-status--closed');
-          badge.textContent = openStatus
-            ? (window.i18n ? window.i18n.t('map.open') : 'Open')
-            : (window.i18n ? window.i18n.t('map.closed') : 'Closed');
-          body.appendChild(badge);
-        }
 
-        card.appendChild(imgWrap);
-        card.appendChild(body);
+        const card = document.createElement('div');
+        card.className = isMobile ? 'map-nearby-list-row' : 'map-nearby-grid-card';
+
+        if (isMobile) {
+          // List row: thumbnail left, text right
+          const thumb = document.createElement('div');
+          thumb.className = 'map-list-thumb';
+          const thumbImg = document.createElement('img');
+          thumbImg.src = photo;
+          thumbImg.alt = spot.name;
+          thumbImg.loading = 'lazy';
+          thumb.appendChild(thumbImg);
+
+          const info = document.createElement('div');
+          info.className = 'map-list-info';
+
+          const topRow = document.createElement('div');
+          topRow.className = 'map-list-top';
+
+          const nameEl = document.createElement('span');
+          nameEl.className = 'map-list-name';
+          nameEl.textContent = spot.name;
+          topRow.appendChild(nameEl);
+
+          if (openStatus !== null) {
+            const badge = document.createElement('span');
+            badge.className = 'map-list-status' + (openStatus ? ' map-list-status--open' : ' map-list-status--closed');
+            badge.textContent = openStatus
+              ? (window.i18n ? window.i18n.t('map.open') : 'Open')
+              : (window.i18n ? window.i18n.t('map.closed') : 'Closed');
+            topRow.appendChild(badge);
+          }
+
+          const metaEl = document.createElement('div');
+          metaEl.className = 'map-list-meta';
+          metaEl.textContent = spot.type + (spot.price ? ' · ' + spot.price : '') + ' · ' + distLabel;
+
+          info.appendChild(topRow);
+          info.appendChild(metaEl);
+
+          const favBtn = document.createElement('button');
+          favBtn.type = 'button';
+          favBtn.className = 'map-list-fav';
+          favBtn.setAttribute('aria-label', 'Speichern');
+          const isFaved = window._favSpots?.has(spotId);
+          favBtn.textContent = isFaved ? '\u2665' : '\u2661';
+          if (isFaved) favBtn.classList.add('map-nearby-grid-card-fav--active');
+          favBtn.addEventListener('click', (e) => { e.stopPropagation(); window._toggleFav(spotId, spot.name, favBtn); });
+
+          card.appendChild(thumb);
+          card.appendChild(info);
+          card.appendChild(favBtn);
+        } else {
+          // Desktop grid card (unchanged)
+          const imgWrap = document.createElement('div');
+          imgWrap.className = 'map-nearby-grid-card-img-wrap';
+          const img = document.createElement('img');
+          img.className = 'map-nearby-grid-card-img';
+          img.src = photo; img.alt = spot.name; img.loading = 'lazy';
+          const distBadge = document.createElement('span');
+          distBadge.className = 'map-nearby-grid-card-dist';
+          distBadge.textContent = distLabel;
+          imgWrap.appendChild(img); imgWrap.appendChild(distBadge);
+
+          const body = document.createElement('div');
+          body.className = 'map-nearby-grid-card-body';
+          const nameRow = document.createElement('div');
+          nameRow.className = 'map-nearby-grid-card-name-row';
+          const name = document.createElement('div');
+          name.className = 'map-nearby-grid-card-name';
+          name.textContent = spot.name;
+          const favBtn = document.createElement('button');
+          favBtn.type = 'button';
+          favBtn.className = 'map-nearby-grid-card-fav';
+          favBtn.setAttribute('aria-label', 'Speichern');
+          const isFaved = window._favSpots?.has(spotId);
+          favBtn.textContent = isFaved ? '\u2665' : '\u2661';
+          if (isFaved) favBtn.classList.add('map-nearby-grid-card-fav--active');
+          favBtn.addEventListener('click', (e) => { e.stopPropagation(); window._toggleFav(spotId, spot.name, favBtn); });
+          nameRow.appendChild(name); nameRow.appendChild(favBtn);
+          const meta = document.createElement('div');
+          meta.className = 'map-nearby-grid-card-meta';
+          meta.textContent = spot.type + (spot.price ? ' · ' + spot.price : '');
+          body.appendChild(nameRow); body.appendChild(meta);
+          if (openStatus !== null) {
+            const badge = document.createElement('span');
+            badge.className = 'map-nearby-grid-card-status' + (openStatus ? ' map-nearby-grid-card-status--open' : ' map-nearby-grid-card-status--closed');
+            badge.textContent = openStatus ? (window.i18n ? window.i18n.t('map.open') : 'Open') : (window.i18n ? window.i18n.t('map.closed') : 'Closed');
+            body.appendChild(badge);
+          }
+          card.appendChild(imgWrap); card.appendChild(body);
+        }
 
         card.addEventListener('click', () => {
           flyToWithSheetOffset(spot.lat, spot.lng, 15);

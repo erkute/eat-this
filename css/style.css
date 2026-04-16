@@ -543,26 +543,17 @@ body {
 }
 .map-section-label {
   display: flex;
-  align-items: center;
-  gap: 0;
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  align-items: baseline;
+  gap: 6px;
   margin-top: 0;
   line-height: 1;
 }
 .map-city-label {
   color: #FF3B00;
-}
-.map-label-divider {
-  display: inline-block;
-  width: 1px;
-  height: 12px;
-  background: #FF3B00;
-  margin: 0 8px;
-  opacity: 0.5;
-  flex-shrink: 0;
+  font-size: 0.55em;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
 }
 .map-label-text {
   color: var(--black);
@@ -879,7 +870,7 @@ body {
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.12);
   overflow: hidden;
-  z-index: 100;
+  z-index: 9999;
   min-width: 120px;
 }
 .map-filter-dropdown-menu.open {

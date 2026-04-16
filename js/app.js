@@ -1874,31 +1874,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (filterBtn && filterMenu) {
-      filterBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        filterMenu.classList.toggle('open');
-      });
+      // Move menu to body so it floats above all sheet overflow/reflow
+      document.body.appendChild(filterMenu);
+
+      function _positionMenu() {
+        const r = filterBtn.getBoundingClientRect();
+        filterMenu.style.position = 'fixed';
+        filterMenu.style.top = (r.bottom + 6) + 'px';
+        filterMenu.style.left = r.left + 'px';
+        filterMenu.style.bottom = 'auto';
+      }
+
+      function _openMenu() {
+        _positionMenu();
+        filterMenu.classList.add('open');
+      }
+      function _closeMenu() {
+        filterMenu.classList.remove('open');
+      }
+
+      filterBtn.addEventListener('click', (e) => { e.stopPropagation(); filterMenu.classList.contains('open') ? _closeMenu() : _openMenu(); });
       filterBtn.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
+      filterBtn.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); filterMenu.classList.contains('open') ? _closeMenu() : _openMenu(); });
 
       filterOptions.forEach((opt) => {
-        opt.addEventListener('click', (e) => {
-          e.stopPropagation();
-          _applyFilter(opt.dataset.value);
-        });
+        opt.addEventListener('click', (e) => { e.stopPropagation(); _applyFilter(opt.dataset.value); });
         opt.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
-        opt.addEventListener('touchend', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          _applyFilter(opt.dataset.value);
-        });
+        opt.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); _applyFilter(opt.dataset.value); });
       });
 
-      // Close on outside click
       document.addEventListener('click', (e) => {
-        if (!e.target.closest('#mapFilterDropdown')) {
-          filterMenu.classList.remove('open');
-        }
+        if (!e.target.closest('#mapFilterDropdown') && !e.target.closest('#mapFilterMenu')) _closeMenu();
       });
+      document.addEventListener('touchstart', (e) => {
+        if (!e.target.closest('#mapFilterDropdown') && !e.target.closest('#mapFilterMenu')) _closeMenu();
+      }, { passive: true });
     }
 
 

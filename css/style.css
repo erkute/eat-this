@@ -2591,7 +2591,7 @@ body {
     display: block;
   }
   .app-page[data-page="map"] .map-title {
-    font-size: clamp(1.6rem, 7vw, 2.2rem);
+    font-size: clamp(1.2rem, 5.5vw, 1.7rem);
     letter-spacing: -0.05em;
     line-height: 0.88;
   }

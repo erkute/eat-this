@@ -651,12 +651,16 @@ body {
   gap: 8px;
   padding: 0 0 16px;
 }
-/* Mobile list mode: single column */
+/* Mobile list mode: single column, rows stretch to fill available height */
 .map-nearby-grid--list {
   display: flex;
   flex-direction: column;
   gap: 0;
   padding: 0;
+  height: 100%;
+}
+.map-nearby-grid--list .map-nearby-list-row {
+  flex: 1;
 }
 
 .map-nearby-grid-card {
@@ -793,7 +797,7 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 14px 16px;
+  padding: 10px 14px;
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   background: #fff;
@@ -866,7 +870,7 @@ body {
   overflow-x: hidden;
 
   touch-action: pan-y; /* override sheet's touch-action:none so grid scrolls */
-  max-height: 240px; /* 3 list rows in mid state */
+  max-height: 300px; /* 3 list rows in mid state */
 }
 .map-nearby.sheet--expanded .map-nearby-grid-wrapper {
   max-height: 520px;

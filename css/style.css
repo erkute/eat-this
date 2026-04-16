@@ -792,8 +792,8 @@ body {
 .map-nearby-list-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 13px 14px;
+  gap: 14px;
+  padding: 14px 16px;
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   background: #fff;
@@ -802,8 +802,8 @@ body {
 .map-nearby-list-row:active { background: #f8f8f8; }
 .map-list-thumb {
   flex-shrink: 0;
-  width: 60px;
-  height: 60px;
+  width: 72px;
+  height: 72px;
   border-radius: 10px;
   overflow: hidden;
   background: #ebebeb;
@@ -824,7 +824,7 @@ body {
   gap: 6px;
 }
 .map-list-name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--black);
   white-space: nowrap;
@@ -832,7 +832,7 @@ body {
   text-overflow: ellipsis;
 }
 .map-list-meta {
-  font-size: 10px;
+  font-size: 11px;
   color: #aaa;
   margin-top: 2px;
   white-space: nowrap;

@@ -619,7 +619,7 @@ body {
 .map-nearby-handle {
   display: none; /* only shown in app bottom-sheet mode */
   justify-content: center;
-  padding: 10px 0 8px;
+  padding: 14px 0 12px;
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;

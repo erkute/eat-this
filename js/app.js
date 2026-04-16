@@ -1063,7 +1063,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Sheet size constants — used throughout initFoodMap (must be declared before use)
-    const PEEK_PX = 32;     // handle bar always visible — minimum state
+    const PEEK_PX = 96;     // handle + toolbar always visible — minimum state
     const MID_PX = 430;     // 2 card rows visible (6 cards default)
     const EXPANDED_PX = 600; // 3+ rows visible (capped dynamically to leave map visible)
 
@@ -1690,7 +1690,6 @@ document.addEventListener('DOMContentLoaded', () => {
       sheet.addEventListener(
         'touchstart',
         (e) => {
-          // Don't hijack scrolling inside the grid or interaction with toolbar
           if (e.target.closest('#mapNearbyGrid') || e.target.closest('.map-nearby-toolbar')) return;
           dragStart(e.touches[0].clientY);
         },
@@ -1708,6 +1707,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.closest('.map-nearby-toolbar')) return;
         dragEnd();
       });
+
+      // Also allow swipe-up from the map container itself
+      const mapContainer = document.getElementById('foodMap');
+      if (mapContainer) {
+        mapContainer.addEventListener('touchstart', (e) => {
+          dragStart(e.touches[0].clientY);
+        }, { passive: true });
+        mapContainer.addEventListener('touchmove', (e) => {
+          dragMove(e.touches[0].clientY);
+        }, { passive: true });
+        mapContainer.addEventListener('touchend', () => dragEnd());
+      }
 
       // Mouse events (desktop) — full sheet
       sheet.addEventListener('mousedown', (e) => {

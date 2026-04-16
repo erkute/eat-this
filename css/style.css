@@ -785,8 +785,8 @@ body {
 .map-nearby-list-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
+  gap: 12px;
+  padding: 12px 14px;
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   background: #fff;
@@ -795,9 +795,9 @@ body {
 .map-nearby-list-row:active { background: #f8f8f8; }
 .map-list-thumb {
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
   overflow: hidden;
   background: #ebebeb;
 }
@@ -817,7 +817,7 @@ body {
   gap: 6px;
 }
 .map-list-name {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--black);
   white-space: nowrap;
@@ -859,7 +859,7 @@ body {
   overflow-x: hidden;
 
   touch-action: pan-y; /* override sheet's touch-action:none so grid scrolls */
-  max-height: 280px; /* 4 list rows in mid state */
+  max-height: 320px; /* 4 list rows in mid state */
 }
 .map-nearby.sheet--expanded .map-nearby-grid-wrapper {
   max-height: 520px;

@@ -253,7 +253,7 @@ body {
   display: block !important;
   width: 70%;
   max-width: 500px;
-  margin: 0 auto 16px;
+  margin: 0 auto 4px;
 }
 .hero-slides { display: none !important; }
 .hero-overlay { display: none !important; }
@@ -274,13 +274,13 @@ body {
 
 /* Hero register button */
 .hero-register-btn {
-  margin-top: 24px;
+  margin-top: 20px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.25);
   color: #1a1a1a;
-  border: 1.5px solid rgba(0,0,0,0.25);
+  border: 1.5px solid rgba(255,255,255,0.6);
   border-radius: 100px;
   padding: 11px 24px;
   font-size: 0.85rem;
@@ -289,23 +289,23 @@ body {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   transition: background 0.2s, border-color 0.2s, transform 0.2s;
 }
 .hero-register-btn:hover {
-  background: rgba(0,0,0,0.15);
-  border-color: rgba(0,0,0,0.55);
+  background: rgba(255,255,255,0.4);
+  border-color: rgba(255,255,255,0.9);
   transform: translateY(-2px);
 }
 [data-theme="dark"] .hero-register-btn {
-  background: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.2);
   color: #fff;
   border-color: rgba(255,255,255,0.5);
 }
 [data-theme="dark"] .hero-register-btn:hover {
-  background: rgba(255,255,255,0.25);
-  border-color: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.32);
+  border-color: rgba(255,255,255,0.85);
   color: #fff;
 }
 .hero-register-btn svg {
@@ -323,7 +323,7 @@ body {
 /* ── Desktop hero: full-bleed, centered ── */
 @media (min-width: 1024px) {
   .hero {
-    background-size: contain;
+    background-size: cover;
     background-position: center center;
   }
   .hero-content {
@@ -335,7 +335,7 @@ body {
   /* Desktop: larger logo and button sizing only */
   .hero-logo--desktop {
     width: clamp(320px, 36vw, 700px);
-    margin: 0 auto 20px;
+    margin: 0 auto 4px;
   }
   .hero-tagline {
     font-size: clamp(0.7rem, 1vw, 1rem);

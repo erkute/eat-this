@@ -2610,14 +2610,17 @@ body {
     display: block;
   }
   .app-page[data-page="map"] .map-section-label {
-    font-size: 22px;
-    letter-spacing: -0.01em;
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    font-weight: 900;
+    letter-spacing: -0.06em;
+    line-height: 0.85;
     text-transform: uppercase;
-    font-style: italic;
+    font-style: normal;
   }
   .app-page[data-page="map"] .map-label-divider {
-    height: 18px;
-    margin: 0 10px;
+    height: 16px;
+    margin: 0 8px;
+    align-self: center;
   }
 
   .app-page[data-page="map"] .map-title,

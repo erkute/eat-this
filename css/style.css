@@ -161,6 +161,7 @@ body {
   background-color: #efefef;
   background-image: url('../pics/hero-desktop.png');
   background-size: cover;
+  background-repeat: no-repeat;
   background-position: center;
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
@@ -261,7 +262,7 @@ body {
   font-weight: 600;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--darkred);
+  color: #1a1a1a;
   text-align: center;
   margin: 0;
   line-height: inherit;
@@ -269,7 +270,7 @@ body {
 /* Dark mode: overlay back, white text */
 [data-theme="dark"] .hero-overlay { display: block !important; }
 [data-theme="dark"] .hero-logo--desktop { filter: brightness(0) invert(1); }
-[data-theme="dark"] .hero-tagline { color: var(--darkred); }
+[data-theme="dark"] .hero-tagline { color: rgba(255,255,255,0.85); }
 
 /* Hero register button */
 .hero-register-btn {
@@ -344,6 +345,14 @@ body {
     margin-top: 28px;
     padding: 14px 36px;
     font-size: 0.88rem;
+  }
+}
+
+/* ── Mobile hero: full plate visible ── */
+@media (max-width: 1023px) {
+  .hero {
+    background-size: auto 65%;
+    background-position: center 25%;
   }
 }
 

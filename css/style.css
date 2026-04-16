@@ -627,7 +627,7 @@ body {
 .map-nearby-handle {
   display: none; /* only shown in app bottom-sheet mode */
   justify-content: center;
-  padding: 8px 0 4px;
+  padding: 10px 0 8px;
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
@@ -806,7 +806,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 12px 10px;
+  padding: 4px 12px 12px;
   touch-action: manipulation;
 }
 .map-search-wrap {

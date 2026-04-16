@@ -1890,6 +1890,14 @@ document.addEventListener('DOMContentLoaded', () => {
         _mapSearchQuery = mapSearchInput.value;
         if (_nearbyLat !== null) _renderNearbyGrid();
       });
+      // iOS Safari: touch-action:none on the sheet blocks input focus — force it
+      mapSearchInput.addEventListener('touchstart', (e) => {
+        e.stopPropagation();
+      }, { passive: true });
+      mapSearchInput.addEventListener('touchend', (e) => {
+        e.stopPropagation();
+        mapSearchInput.focus();
+      });
     }
 
     // Open-now toggle

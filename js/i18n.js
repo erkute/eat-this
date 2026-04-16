@@ -66,7 +66,7 @@ const TRANSLATIONS = {
       sectionLabel: 'Map',
       sectionTitle: '',
       searchPlaceholder: 'Restaurant, district, pizza…',
-      openNow: 'Open now',
+      openNow: 'Open',
       filterAll: 'All',
       filterDinner: 'Dinner',
       filterLunch: 'Lunch',
@@ -319,7 +319,7 @@ TRANSLATIONS.de.map.locationTimeout     = 'Standort-Zeitlimit';
 TRANSLATIONS.de.map.locationError       = 'Standort konnte nicht ermittelt werden';
 TRANSLATIONS.de.map.sectionLabel      = 'Map';
 TRANSLATIONS.de.map.searchPlaceholder = 'Restaurant, Bezirk, Pizza…';
-TRANSLATIONS.de.map.openNow           = 'Geöffnet';
+TRANSLATIONS.de.map.openNow           = 'Offen';
 TRANSLATIONS.de.map.open        = 'Ge\u00f6ffnet';
 TRANSLATIONS.de.map.closed      = 'Geschlossen';
 TRANSLATIONS.de.map.openInMaps  = 'In Maps \u00f6ffnen';

@@ -541,6 +541,13 @@ body {
 .map-header-top {
   margin-bottom: 0;
 }
+.map-section-label {
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  color: var(--black) !important;
+  letter-spacing: -0.02em;
+  margin-top: 0;
+}
 .map-title {
   font-size: clamp(2.5rem, 7vw, 5rem);
   font-weight: 900;
@@ -823,6 +830,22 @@ body {
 }
 .map-search-input::placeholder {
   color: #bbb;
+}
+.map-filter-select {
+  flex-shrink: 0;
+  padding: 7px 24px 7px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 8px center;
+  color: #444;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  max-width: 90px;
 }
 .map-open-toggle {
   flex-shrink: 0;
@@ -1384,6 +1407,7 @@ body {
   .map-header { padding: 0 48px 48px; }
   .map-container { height: 600px; }
   #foodMap { height: 60vh !important; min-height: 400px !important; }
+  .map-section-label { font-size: 36px !important; }
 }
 
 /* ============================================

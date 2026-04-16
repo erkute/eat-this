@@ -1484,8 +1484,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const gridEl = document.getElementById('mapNearbyGrid');
       if (!gridEl || _nearbyLat === null) return;
 
-      const activeFilter =
-        document.querySelector('.map-filter-tab.active')?.dataset.filter || 'all';
+      const activeFilter = document.getElementById('mapFilterSelect')?.value || 'all';
 
       const searchQ = _mapSearchQuery.toLowerCase().trim();
       const sorted = spots
@@ -1838,29 +1837,11 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Filter dropdown — populate counts
-    const filterCategories = ['Dinner', 'Lunch', 'Coffee', 'Breakfast', 'Sweets', 'Pizza'];
-    const countAll = document.getElementById('count-all');
-    if (countAll) countAll.textContent = spots.length;
-    filterCategories.forEach((cat) => {
-      const countId = 'count-' + cat.toLowerCase().replace(/\s+/g, '-');
-      const el = document.getElementById(countId);
-      if (el) {
-        el.textContent = spots.filter((s) => s.categories && s.categories.includes(cat)).length;
-      }
-    });
-    // Set "All" count
-    const countAllEl = document.getElementById('count-all');
-    if (countAllEl) countAllEl.textContent = spots.length;
-
-    // Filter tab selection
-    const filterTabs = document.querySelectorAll('.map-filter-tab');
-    filterTabs.forEach((tab) => {
-      tab.addEventListener('click', () => {
-        const filter = tab.dataset.filter;
-
-        filterTabs.forEach((t) => t.classList.remove('active'));
-        tab.classList.add('active');
+    // Filter dropdown
+    const filterSelectEl = document.getElementById('mapFilterSelect');
+    if (filterSelectEl) {
+      filterSelectEl.addEventListener('change', () => {
+        const filter = filterSelectEl.value;
 
         markers.forEach((marker) => {
           const cats = marker.spotCategories || [];
@@ -1872,7 +1853,6 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
 
-        // Re-render nearby grid to respect new filter, scroll back to start
         if (_nearbyLat !== null) {
           _renderNearbyGrid();
           requestAnimationFrame(() => {
@@ -1881,7 +1861,7 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         }
       });
-    });
+    }
 
     // Map search input
     const mapSearchInput = document.getElementById('mapSearchInput');

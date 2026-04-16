@@ -649,32 +649,7 @@
         <section class="map-section" id="map">
           <div class="map-header">
             <div class="map-header-top">
-              <p class="section-label" data-i18n="map.sectionLabel">Map</p>
-            </div>
-            <div class="map-filter-tabs" id="mapFilterTabs" role="tablist">
-              <button class="map-filter-tab active" data-filter="all" role="tab">
-                <span data-i18n="map.filterAll">All</span
-                ><span class="map-filter-tab-count" id="count-all"></span>
-              </button>
-              <button class="map-filter-tab" data-filter="Dinner" role="tab">
-                <span data-i18n="map.filterDinner">Dinner</span><span class="map-filter-tab-count" id="count-dinner"></span>
-              </button>
-              <button class="map-filter-tab" data-filter="Lunch" role="tab">
-                <span data-i18n="map.filterLunch">Lunch</span><span class="map-filter-tab-count" id="count-lunch"></span>
-              </button>
-              <button class="map-filter-tab" data-filter="Coffee" role="tab">
-                <span data-i18n="map.filterCoffee">Coffee</span><span class="map-filter-tab-count" id="count-coffee"></span>
-              </button>
-              <button class="map-filter-tab" data-filter="Breakfast" role="tab">
-                <span data-i18n="map.filterBreakfast">Breakfast</span
-                ><span class="map-filter-tab-count" id="count-breakfast"></span>
-              </button>
-              <button class="map-filter-tab" data-filter="Sweets" role="tab">
-                <span data-i18n="map.filterSweets">Sweets</span><span class="map-filter-tab-count" id="count-sweets"></span>
-              </button>
-              <button class="map-filter-tab" data-filter="Pizza" role="tab">
-                <span data-i18n="map.filterPizza">Pizza</span><span class="map-filter-tab-count" id="count-pizza"></span>
-              </button>
+              <p class="section-label map-section-label" data-i18n="map.sectionLabel">Map</p>
             </div>
           </div>
           <div class="map-container" id="foodMap">
@@ -716,6 +691,15 @@
                 </svg>
                 <input type="text" id="mapSearchInput" class="map-search-input" placeholder="Restaurant, Bezirk, Pizza…" data-i18n-placeholder="map.searchPlaceholder" autocomplete="off" />
               </div>
+              <select id="mapFilterSelect" class="map-filter-select">
+                <option value="all" data-i18n="map.filterAll">All</option>
+                <option value="Dinner" data-i18n="map.filterDinner">Dinner</option>
+                <option value="Lunch" data-i18n="map.filterLunch">Lunch</option>
+                <option value="Coffee" data-i18n="map.filterCoffee">Coffee</option>
+                <option value="Breakfast" data-i18n="map.filterBreakfast">Breakfast</option>
+                <option value="Sweets" data-i18n="map.filterSweets">Sweets</option>
+                <option value="Pizza" data-i18n="map.filterPizza">Pizza</option>
+              </select>
               <button type="button" id="mapOpenToggle" class="map-open-toggle" data-i18n="map.openNow">Open now</button>
             </div>
             <div class="map-nearby-grid-wrapper">

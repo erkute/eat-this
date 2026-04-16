@@ -1703,7 +1703,10 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         { passive: true }
       );
-      sheet.addEventListener('touchend', dragEnd);
+      sheet.addEventListener('touchend', (e) => {
+        if (e.target.closest('.map-nearby-toolbar')) return;
+        dragEnd();
+      });
 
       // Mouse events (desktop) — full sheet
       sheet.addEventListener('mousedown', (e) => {

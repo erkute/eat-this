@@ -548,7 +548,7 @@ body {
   color: #FF3B00;
   letter-spacing: 0.06em;
   text-transform: none;
-  margin-bottom: 2px;
+  margin-bottom: -4px;
 }
 .map-section-label {
   font-size: 20px !important;

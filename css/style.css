@@ -940,10 +940,10 @@ body {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
-  background: #fff;
-  border: 1px solid #e0e0e0;
+  background: #1c1c1c;
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.55);
   overflow: hidden;
   z-index: 9999;
   min-width: 120px;
@@ -961,13 +961,13 @@ body {
   text-align: left;
   background: none;
   border: none;
-  color: #444;
+  color: rgba(255,255,255,0.75);
   cursor: pointer;
 }
 .map-filter-option:hover,
 .map-filter-option.active {
-  background: #f4f4f4;
-  color: var(--black);
+  background: rgba(255,255,255,0.09);
+  color: #fff;
 }
 .map-open-toggle {
   flex-shrink: 0;
@@ -996,15 +996,78 @@ body {
   left: 0;
   right: 0;
   z-index: 10;
-  background: #fff;
+  background: #111;
   border-radius: 20px 20px 0 0;
-  box-shadow: 0 -3px 24px rgba(0,0,0,0.10);
+  box-shadow: 0 -3px 24px rgba(0,0,0,0.40);
   padding: 0 12px 10px;
   transform: translateY(100%);
   transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
   will-change: transform;
   touch-action: none;
   overflow: hidden;
+}
+
+/* ---- Dark sheet: handle + toolbar overrides ---- */
+.app-page[data-page="map"] .map-nearby-handle-bar {
+  background: rgba(255,255,255,0.22);
+}
+.app-page[data-page="map"] .map-search-input {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.15);
+  color: #fff;
+}
+.app-page[data-page="map"] .map-search-input:focus {
+  border-color: rgba(255,255,255,0.5);
+}
+.app-page[data-page="map"] .map-search-input::placeholder {
+  color: rgba(255,255,255,0.35);
+}
+.app-page[data-page="map"] .map-search-icon {
+  color: rgba(255,255,255,0.45);
+}
+.app-page[data-page="map"] .map-filter-dropdown-btn {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.85);
+}
+.app-page[data-page="map"] .map-open-toggle {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.85);
+}
+.app-page[data-page="map"] .map-open-toggle--active {
+  background: #1a8a3a;
+  border-color: #1a8a3a;
+  color: #fff;
+}
+
+/* ---- Dark sheet: list rows ---- */
+.app-page[data-page="map"] .map-nearby-list-row {
+  background: transparent;
+  border-bottom-color: rgba(255,255,255,0.07);
+}
+.app-page[data-page="map"] .map-nearby-list-row:active {
+  background: rgba(255,255,255,0.06);
+}
+.app-page[data-page="map"] .map-list-thumb {
+  background: #2a2a2a;
+}
+.app-page[data-page="map"] .map-list-name {
+  color: #fff;
+}
+.app-page[data-page="map"] .map-list-meta {
+  color: rgba(255,255,255,0.45);
+}
+.app-page[data-page="map"] .map-list-fav {
+  color: rgba(255,255,255,0.25);
+}
+.app-page[data-page="map"] .map-list-status--open {
+  color: #4cd97b;
+  background: rgba(76,217,123,0.15);
+}
+.app-page[data-page="map"] .map-list-status--closed {
+  color: #ff6b6b;
+  background: rgba(255,107,107,0.15);
 }
 
 .app-page[data-page="map"] .map-nearby-handle {

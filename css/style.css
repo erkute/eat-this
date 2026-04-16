@@ -838,21 +838,58 @@ body {
 .map-search-input::placeholder {
   color: #bbb;
 }
-.map-filter-select {
+.map-filter-dropdown {
+  position: relative;
   flex-shrink: 0;
-  padding: 7px 24px 7px 10px;
+}
+.map-filter-dropdown-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 10px;
   font-size: 11px;
   font-weight: 700;
   font-family: inherit;
   border: 1px solid #e0e0e0;
   border-radius: 20px;
-  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 8px center;
+  background: #fff;
   color: #444;
   cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  outline: none;
-  max-width: 90px;
+  white-space: nowrap;
+}
+.map-filter-dropdown-menu {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  overflow: hidden;
+  z-index: 100;
+  min-width: 120px;
+}
+.map-filter-dropdown-menu.open {
+  display: block;
+}
+.map-filter-option {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #444;
+  cursor: pointer;
+}
+.map-filter-option:hover,
+.map-filter-option.active {
+  background: #f4f4f4;
+  color: var(--black);
 }
 .map-open-toggle {
   flex-shrink: 0;

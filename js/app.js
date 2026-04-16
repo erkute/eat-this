@@ -1399,6 +1399,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let _sheetReady = false;
     let _mapSearchQuery = '';
     let _mapOpenOnly = false;
+    let _mapActiveFilter = 'all';
 
     function isOpenNow(openingHours) {
       if (!openingHours || !openingHours.length) return null;
@@ -1484,7 +1485,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const gridEl = document.getElementById('mapNearbyGrid');
       if (!gridEl || _nearbyLat === null) return;
 
-      const activeFilter = document.getElementById('mapFilterSelect')?.value || 'all';
+      const activeFilter = _mapActiveFilter;
 
       const searchQ = _mapSearchQuery.toLowerCase().trim();
       const sorted = spots
@@ -1840,33 +1841,69 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Filter dropdown
-    const filterSelectEl = document.getElementById('mapFilterSelect');
-    if (filterSelectEl) {
-      filterSelectEl.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
-      filterSelectEl.addEventListener('touchend', (e) => { e.stopPropagation(); });
-      filterSelectEl.addEventListener('change', () => {
-        const filter = filterSelectEl.value;
+    // Custom filter dropdown
+    const filterBtn = document.getElementById('mapFilterBtn');
+    const filterMenu = document.getElementById('mapFilterMenu');
+    const filterLabel = document.getElementById('mapFilterLabel');
+    const filterOptions = document.querySelectorAll('.map-filter-option');
 
-        markers.forEach((marker) => {
-          const cats = marker.spotCategories || [];
-          const show = filter === 'all' || cats.includes(filter);
-          if (show) {
-            if (!foodMap.hasLayer(marker)) marker.addTo(foodMap);
-          } else {
-            foodMap.removeLayer(marker);
-          }
+    function _applyFilter(value) {
+      _mapActiveFilter = value;
+      // Update label
+      const chosen = document.querySelector(`.map-filter-option[data-value="${value}"]`);
+      if (filterLabel && chosen) filterLabel.textContent = chosen.textContent.trim();
+      // Update active state
+      filterOptions.forEach((o) => o.classList.toggle('active', o.dataset.value === value));
+      // Close menu
+      if (filterMenu) filterMenu.classList.remove('open');
+      // Filter markers
+      markers.forEach((marker) => {
+        const cats = marker.spotCategories || [];
+        const show = value === 'all' || cats.includes(value);
+        if (show) { if (!foodMap.hasLayer(marker)) marker.addTo(foodMap); }
+        else { foodMap.removeLayer(marker); }
+      });
+      // Re-render grid
+      if (_nearbyLat !== null) {
+        _renderNearbyGrid();
+        requestAnimationFrame(() => {
+          const wrapper = document.querySelector('.map-nearby-grid-wrapper');
+          if (wrapper) wrapper.scrollTop = 0;
         });
+      }
+    }
 
-        if (_nearbyLat !== null) {
-          _renderNearbyGrid();
-          requestAnimationFrame(() => {
-            const wrapper = document.querySelector('.map-nearby-grid-wrapper');
-            if (wrapper) wrapper.scrollTop = 0;
-          });
+    if (filterBtn && filterMenu) {
+      filterBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        filterMenu.classList.toggle('open');
+      });
+      filterBtn.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
+
+      filterOptions.forEach((opt) => {
+        opt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          _applyFilter(opt.dataset.value);
+        });
+        opt.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
+        opt.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          _applyFilter(opt.dataset.value);
+        });
+      });
+
+      // Close on outside click
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#mapFilterDropdown')) {
+          filterMenu.classList.remove('open');
         }
       });
     }
+
+    // Override _renderNearbyGrid activeFilter to use _activeFilter
+    const _origRender = _renderNearbyGrid;
+    window._getMapActiveFilter = () => _activeFilter;
 
     // Map search input
     const mapSearchInput = document.getElementById('mapSearchInput');

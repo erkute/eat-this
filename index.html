@@ -691,15 +691,21 @@
                 </svg>
                 <input type="text" id="mapSearchInput" class="map-search-input" placeholder="Restaurant, Bezirk, Pizza…" data-i18n-placeholder="map.searchPlaceholder" autocomplete="off" />
               </div>
-              <select id="mapFilterSelect" class="map-filter-select">
-                <option value="all" data-i18n="map.filterAll">All</option>
-                <option value="Dinner" data-i18n="map.filterDinner">Dinner</option>
-                <option value="Lunch" data-i18n="map.filterLunch">Lunch</option>
-                <option value="Coffee" data-i18n="map.filterCoffee">Coffee</option>
-                <option value="Breakfast" data-i18n="map.filterBreakfast">Breakfast</option>
-                <option value="Sweets" data-i18n="map.filterSweets">Sweets</option>
-                <option value="Pizza" data-i18n="map.filterPizza">Pizza</option>
-              </select>
+              <div class="map-filter-dropdown" id="mapFilterDropdown">
+                <button type="button" class="map-filter-dropdown-btn" id="mapFilterBtn">
+                  <span id="mapFilterLabel" data-i18n="map.filterAll">All</span>
+                  <svg viewBox="0 0 10 6" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg>
+                </button>
+                <div class="map-filter-dropdown-menu" id="mapFilterMenu">
+                  <button type="button" class="map-filter-option active" data-value="all" data-i18n="map.filterAll">All</button>
+                  <button type="button" class="map-filter-option" data-value="Dinner" data-i18n="map.filterDinner">Dinner</button>
+                  <button type="button" class="map-filter-option" data-value="Lunch" data-i18n="map.filterLunch">Lunch</button>
+                  <button type="button" class="map-filter-option" data-value="Coffee" data-i18n="map.filterCoffee">Coffee</button>
+                  <button type="button" class="map-filter-option" data-value="Breakfast" data-i18n="map.filterBreakfast">Breakfast</button>
+                  <button type="button" class="map-filter-option" data-value="Sweets" data-i18n="map.filterSweets">Sweets</button>
+                  <button type="button" class="map-filter-option" data-value="Pizza" data-i18n="map.filterPizza">Pizza</button>
+                </div>
+              </div>
               <button type="button" id="mapOpenToggle" class="map-open-toggle" data-i18n="map.openNow">Open now</button>
             </div>
             <div class="map-nearby-grid-wrapper">

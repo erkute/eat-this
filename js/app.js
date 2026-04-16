@@ -1064,7 +1064,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Sheet size constants — used throughout initFoodMap (must be declared before use)
     const PEEK_PX = 96;     // handle + toolbar always visible — minimum state
-    const MID_PX = 420;     // 3 list rows + toolbar visible on mobile
+    const MID_PX = 450;     // 3 list rows + toolbar visible on mobile
     const EXPANDED_PX = 600; // 3+ rows visible (capped dynamically to leave map visible)
 
     try {
@@ -1092,7 +1092,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const zoomBtnsInit = document.querySelector('.map-zoom-btns');
     if (zoomBtnsInit && !window.matchMedia('(min-width: 768px)').matches) {
       zoomBtnsInit.style.transition = 'none';
-      zoomBtnsInit.style.bottom = (MID_PX + 12) + 'px';
+      zoomBtnsInit.style.bottom = (MID_PX + 8) + 'px';
     }
 
     // User location
@@ -1639,7 +1639,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const visible =
           state === 'mid' ? MID_PX : state === 'expanded' ? expandedPx : PEEK_PX;
         zoomBtns.style.transition = animate ? 'bottom 0.4s cubic-bezier(0.32, 0.72, 0, 1)' : 'none';
-        zoomBtns.style.bottom = visible + 12 + 'px';
+        zoomBtns.style.bottom = visible + 8 + 'px';
       }
     }
 

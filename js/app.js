@@ -1840,6 +1840,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Filter dropdown
     const filterSelectEl = document.getElementById('mapFilterSelect');
     if (filterSelectEl) {
+      filterSelectEl.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
+      filterSelectEl.addEventListener('touchend', (e) => { e.stopPropagation(); });
       filterSelectEl.addEventListener('change', () => {
         const filter = filterSelectEl.value;
 

@@ -2602,12 +2602,22 @@ body {
   }
 
   .app-page[data-page="map"] .map-header {
-    padding: 16px 16px 0;
+    padding: 18px 16px 14px;
     background: var(--white);
     text-align: left;
     border: none;
     margin: 0;
     display: block;
+  }
+  .app-page[data-page="map"] .map-section-label {
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    font-style: italic;
+  }
+  .app-page[data-page="map"] .map-label-divider {
+    height: 18px;
+    margin: 0 10px;
   }
 
   .app-page[data-page="map"] .map-title,

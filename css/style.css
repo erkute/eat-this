@@ -340,6 +340,7 @@ body {
   .hero-tagline {
     font-size: clamp(0.7rem, 1vw, 1rem);
     letter-spacing: 0.3em;
+    text-shadow: 0 1px 8px rgba(255,255,255,0.9), 0 0px 20px rgba(255,255,255,0.7);
   }
   .hero-register-btn {
     margin-top: 28px;
@@ -2740,7 +2741,7 @@ body {
     right: 0;
     bottom: 0;
     height: 100%;
-    padding: 10dvh 20px clamp(24px, 8dvh, 60px);
+    padding: 10dvh 20px clamp(80px, 18dvh, 140px);
     display: flex;
     flex-direction: column;
     justify-content: flex-end;

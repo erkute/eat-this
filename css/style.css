@@ -244,6 +244,7 @@ body {
   display: block;
   margin: 0 auto 16px;
 }
+.hero-logo--desktop { display: none !important; }
 .hero-tagline {
   font-size: clamp(0.65rem, 2.5vw, 1rem);
   font-weight: 600;
@@ -301,8 +302,10 @@ body {
     padding: 0 7vw 8vh;
     justify-content: flex-end;
   }
-  .hero-logo {
-    width: clamp(420px, 44vw, 800px);
+  .hero-logo--mobile { display: none !important; }
+  .hero-logo--desktop {
+    display: block !important;
+    width: clamp(320px, 36vw, 700px);
     max-width: none;
     margin: 0 auto 20px;
   }
@@ -310,11 +313,48 @@ body {
     text-align: center;
     font-size: clamp(0.7rem, 1vw, 1rem);
     letter-spacing: 0.3em;
+    color: #1a1a1a;
   }
   .hero-register-btn {
     margin-top: 28px;
     padding: 14px 36px;
     font-size: 0.88rem;
+    background: rgba(0,0,0,0.08);
+    color: #1a1a1a;
+    border-color: rgba(0,0,0,0.25);
+  }
+  .hero-register-btn:hover {
+    background: rgba(0,0,0,0.15);
+    border-color: rgba(0,0,0,0.55);
+    color: #000;
+  }
+  /* Plate image background, hide slideshow */
+  .hero-slides { display: none; }
+  .hero-overlay { display: none; }
+  .hero {
+    background-image: url('../pics/hero-desktop.jpg');
+    background-size: cover;
+    background-position: center;
+    background-color: #efefef;
+  }
+  /* Dark mode desktop: restore slideshow, white text */
+  [data-theme="dark"] .hero-slides { display: block; }
+  [data-theme="dark"] .hero-overlay { display: block; }
+  [data-theme="dark"] .hero {
+    background-image: none;
+    background-color: #1a1a1a;
+  }
+  [data-theme="dark"] .hero-logo--desktop { filter: brightness(0) invert(1); }
+  [data-theme="dark"] .hero-tagline { color: rgba(255,255,255,0.7); }
+  [data-theme="dark"] .hero-register-btn {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border-color: rgba(255,255,255,0.5);
+  }
+  [data-theme="dark"] .hero-register-btn:hover {
+    background: rgba(255,255,255,0.25);
+    border-color: rgba(255,255,255,0.9);
+    color: #fff;
   }
 }
 
@@ -3586,11 +3626,7 @@ body {
   color: #ffffff;
 }
 
-/* Navbar logo in dark mode */
-[data-theme="dark"] .navbar:not([data-active-page="start"]) .navbar-brand img,
-[data-theme="dark"] .navbar .navbar-brand img {
-  filter: brightness(0) invert(1);
-}
+/* Navbar logo: eat.webp is a black circle — visible on both light and dark backgrounds */
 [data-theme="dark"] .navbar:not(.scrolled) {
   background: rgba(13, 13, 13, 0.85);
 }

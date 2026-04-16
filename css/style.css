@@ -353,7 +353,7 @@ body {
   .hero {
     background-image: url('../pics/hero-mobile.png');
     background-size: cover;
-    background-position: center center;
+    background-position: center 15%;
   }
 }
 

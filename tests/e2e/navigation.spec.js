@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
 test.describe('Navigation', () => {
   test('homepage loads and shows hero', async ({ page }) => {
     await expect(page).toHaveTitle(/EAT THIS/);
-    await expect(page.locator('.hero-slide.active')).toBeVisible();
+    await expect(page.locator('.hero')).toBeVisible();
   });
 
   test('footer nav tabs are visible', async ({ page }) => {

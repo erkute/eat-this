@@ -348,11 +348,12 @@ body {
   }
 }
 
-/* ── Mobile hero: full plate visible ── */
+/* ── Mobile hero: portrait plate image, full plate visible ── */
 @media (max-width: 1023px) {
   .hero {
-    background-size: auto 65%;
-    background-position: center 25%;
+    background-image: url('../pics/hero-mobile.png');
+    background-size: cover;
+    background-position: center center;
   }
 }
 

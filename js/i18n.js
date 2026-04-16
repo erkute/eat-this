@@ -107,6 +107,9 @@ const TRANSLATIONS = {
       press: 'Press',
       impressum: 'Impressum',
     },
+    theme: {
+      darkMode: 'Dark Mode',
+    },
     search: {
       placeholder: 'What are you craving?',
       hint: 'Start typing to search...',
@@ -339,6 +342,9 @@ TRANSLATIONS.de.footer.copyright   = '\u00a9 2026 Eat This. Alle Rechte vorbehal
 TRANSLATIONS.de.burger.about    = '\u00dcber uns';
 TRANSLATIONS.de.burger.contact  = 'Kontakt';
 TRANSLATIONS.de.burger.press    = 'Presse';
+
+// DE theme overrides
+TRANSLATIONS.de.theme = { darkMode: 'Dark Mode' };
 
 // DE cookie overrides
 TRANSLATIONS.de.cookie.text     = 'Wir verwenden Cookies, um dir das beste Erlebnis zu bieten.';

@@ -1064,7 +1064,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Sheet size constants — used throughout initFoodMap (must be declared before use)
     const PEEK_PX = 96;     // handle + toolbar always visible — minimum state
-    const MID_PX = 440;     // 3 list rows + toolbar visible on mobile
+    const MID_PX = 420;     // 3 list rows + toolbar visible on mobile
     const EXPANDED_PX = 600; // 3+ rows visible (capped dynamically to leave map visible)
 
     try {

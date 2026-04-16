@@ -797,18 +797,19 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   background: #fff;
   transition: background 0.12s;
+  min-height: 88px;
 }
 .map-nearby-list-row:active { background: #f8f8f8; }
 .map-list-thumb {
   flex-shrink: 0;
-  width: 72px;
-  height: 72px;
-  border-radius: 10px;
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
   overflow: hidden;
   background: #ebebeb;
 }
@@ -825,30 +826,31 @@ body {
 .map-list-top {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
 }
 .map-list-name {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 800;
   color: var(--black);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: -0.01em;
 }
 .map-list-meta {
-  font-size: 11px;
-  color: #aaa;
-  margin-top: 2px;
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .map-list-status {
   flex-shrink: 0;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
-  padding: 2px 5px;
-  border-radius: 3px;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 .map-list-status--open { color: #1a8a3a; background: rgba(26,138,58,0.12); }
 .map-list-status--closed { color: #c0392b; background: rgba(192,57,43,0.10); }
@@ -856,10 +858,10 @@ body {
   flex-shrink: 0;
   background: none;
   border: none;
-  font-size: 16px;
-  color: #ccc;
+  font-size: 20px;
+  color: #ddd;
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
   line-height: 1;
 }
 .map-list-fav.map-nearby-grid-card-fav--active { color: #FF3B00; }
@@ -870,7 +872,7 @@ body {
   overflow-x: hidden;
 
   touch-action: pan-y; /* override sheet's touch-action:none so grid scrolls */
-  max-height: 300px; /* 3 list rows in mid state */
+  max-height: 270px; /* 3 list rows × ~90px */
 }
 .map-nearby.sheet--expanded .map-nearby-grid-wrapper {
   max-height: 520px;

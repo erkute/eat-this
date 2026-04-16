@@ -62,6 +62,7 @@ const TRANSLATIONS = {
       // removed: articles[] — content lives in Sanity CMS only
     },
     map: {
+      cityLabel: 'Berlin',
       sectionLabel: 'Map',
       sectionTitle: '',
       searchPlaceholder: 'Restaurant, district, pizza…',

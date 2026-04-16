@@ -3280,6 +3280,40 @@ body {
   color: rgba(255, 255, 255, 0.8);
 }
 
+/* Burger Drawer */
+[data-theme="dark"] .burger-drawer-panel {
+  background: #141414;
+}
+[data-theme="dark"] .burger-drawer-close {
+  color: rgba(255, 255, 255, 0.7);
+}
+[data-theme="dark"] .burger-nav-item {
+  color: rgba(255, 255, 255, 0.9);
+}
+[data-theme="dark"] .burger-nav-item--sm {
+  color: rgba(255, 255, 255, 0.4);
+}
+[data-theme="dark"] .burger-nav-divider {
+  background: rgba(255, 255, 255, 0.07);
+}
+[data-theme="dark"] .burger-utils {
+  border-top-color: rgba(255, 255, 255, 0.07);
+}
+[data-theme="dark"] .burger-util-btn {
+  color: rgba(255, 255, 255, 0.5);
+}
+[data-theme="dark"] .burger-util-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+[data-theme="dark"] .burger-drawer-footer {
+  color: rgba(255, 255, 255, 0.25);
+}
+[data-theme="dark"] .burger-drawer-footer a,
+[data-theme="dark"] .burger-drawer-footer-btn,
+[data-theme="dark"] .burger-drawer-footer span {
+  color: rgba(255, 255, 255, 0.25);
+}
+
 /* ============================================
    DESKTOP APP FRAME (≥ 768px)
    ============================================ */

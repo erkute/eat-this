@@ -3525,6 +3525,74 @@ body {
   border-top-color: rgba(255, 255, 255, 0.07);
 }
 
+/* App page backgrounds — override all media-query white backgrounds */
+[data-theme="dark"] .app-page {
+  background: #0d0d0d;
+}
+[data-theme="dark"] .app-page[data-page="start"] {
+  background: #0d0d0d;
+}
+[data-theme="dark"] .app-page .must-eats-header {
+  background: #0d0d0d;
+}
+[data-theme="dark"] .app-page .news-header {
+  background: #0d0d0d;
+}
+[data-theme="dark"] .app-page .map-header {
+  background: #0d0d0d;
+}
+[data-theme="dark"] .app-page[data-page="musts"] .must-eats-header {
+  background: #0d0d0d;
+}
+[data-theme="dark"] .app-page[data-page="news"] .news-header {
+  background: #0d0d0d;
+}
+[data-theme="dark"] .app-page[data-page="map"] .map-header {
+  background: #0d0d0d;
+}
+[data-theme="dark"] .must-eats-subtitle,
+[data-theme="dark"] .news-subtitle {
+  color: rgba(255, 255, 255, 0.5);
+}
+[data-theme="dark"] .must-eats-title,
+[data-theme="dark"] .news-title {
+  color: #ffffff;
+}
+
+/* News article internals */
+[data-theme="dark"] .news-article-back {
+  background: rgba(20, 20, 20, 0.92);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-theme="dark"] .news-article-back:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+[data-theme="dark"] .news-article-more-grid {
+  background: #111111;
+}
+
+/* Food card front face (fallback bg) */
+[data-theme="dark"] .cf {
+  background: #1a1a1a;
+}
+
+/* Article standalone page */
+[data-theme="dark"] .article-standalone {
+  background: #0d0d0d;
+}
+[data-theme="dark"] .article-page-header {
+  background: #111111;
+}
+[data-theme="dark"] .article-page-back {
+  color: rgba(255, 255, 255, 0.75);
+}
+[data-theme="dark"] .article-page-back:hover {
+  color: var(--orange);
+}
+
 /* ============================================
    DESKTOP APP FRAME (≥ 768px)
    ============================================ */

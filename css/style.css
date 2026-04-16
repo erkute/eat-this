@@ -337,13 +337,11 @@ body {
     background-position: center center;
     background-color: #efefef;
   }
-  /* Dark mode desktop: restore slideshow, white text */
-  [data-theme="dark"] .hero-slides { display: block; }
-  [data-theme="dark"] .hero-overlay { display: block; }
+  /* Dark mode desktop: same plate image with dark overlay, white text */
   [data-theme="dark"] .hero {
-    background-image: none;
-    background-color: #1a1a1a;
+    background-image: url('../pics/hero-desktop.png');
   }
+  [data-theme="dark"] .hero-overlay { display: block; }
   [data-theme="dark"] .hero-logo--desktop { filter: brightness(0) invert(1); }
   [data-theme="dark"] .hero-tagline { color: rgba(255,255,255,0.7); }
   [data-theme="dark"] .hero-register-btn {

@@ -332,9 +332,9 @@ body {
   .hero-slides { display: none; }
   .hero-overlay { display: none; }
   .hero {
-    background-image: url('../pics/hero-desktop.jpg');
+    background-image: url('../pics/hero-desktop.png');
     background-size: cover;
-    background-position: center;
+    background-position: center center;
     background-color: #efefef;
   }
   /* Dark mode desktop: restore slideshow, white text */
@@ -374,9 +374,6 @@ body {
 [data-theme="dark"][data-active-page="start"] .navbar:not(.scrolled) .burger-btn:hover {
   background: rgba(255, 255, 255, 0.12);
   color: #ffffff;
-}
-[data-theme="dark"][data-active-page="start"] .navbar:not(.scrolled) .navbar-brand img {
-  filter: brightness(0) invert(1);
 }
 [data-active-page="start"] .navbar.scrolled {
   background: rgba(255, 255, 255, 0.96);

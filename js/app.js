@@ -104,6 +104,69 @@ document.addEventListener('DOMContentLoaded', () => {
   window.bodyOverflow = bodyOverflow;
 
   // ============================================
+  // THEME — Dark / Light mode
+  // ============================================
+  function initTheme() {
+    const root = document.documentElement;
+
+    function applyTheme(dark, persist) {
+      if (dark) {
+        root.setAttribute('data-theme', 'dark');
+      } else {
+        root.setAttribute('data-theme', 'light');
+      }
+      if (persist) {
+        localStorage.setItem('theme', dark ? 'dark' : 'light');
+      }
+      syncToggles(dark);
+    }
+
+    function syncToggles(dark) {
+      ['themeToggleBurger', 'themeToggleFooter'].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) el.setAttribute('aria-pressed', dark ? 'true' : 'false');
+      });
+    }
+
+    function isDark() {
+      return root.getAttribute('data-theme') === 'dark';
+    }
+
+    function wireToggle(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('click', function () {
+        applyTheme(!isDark(), true);
+      });
+    }
+
+    // Wire burger toggle (always in DOM)
+    wireToggle('themeToggleBurger');
+
+    // Footer toggle is inside a <template> stamped later — wire on first stamp
+    const footerObserver = new MutationObserver(function () {
+      const footerToggle = document.getElementById('themeToggleFooter');
+      if (footerToggle) {
+        wireToggle('themeToggleFooter');
+        footerObserver.disconnect();
+      }
+    });
+    footerObserver.observe(document.body, { childList: true, subtree: true });
+
+    // React to OS preference change (only when no explicit user choice saved)
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+      if (!localStorage.getItem('theme')) {
+        applyTheme(e.matches, false);
+      }
+    });
+
+    // Sync toggle visual state to whatever the no-flash script already set
+    syncToggles(isDark());
+  }
+
+  initTheme();
+
+  // ============================================
   // LOGIN MODAL — Firebase-independent open/close
   // auth.js sets the same handlers but may fail in CI due to external imports.
   // These handlers run unconditionally so the modal always works.

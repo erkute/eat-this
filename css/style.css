@@ -3314,6 +3314,116 @@ body {
   color: rgba(255, 255, 255, 0.25);
 }
 
+/* News section */
+[data-theme="dark"] .news-card-headline {
+  color: #ffffff;
+}
+[data-theme="dark"] .news-card-excerpt {
+  color: rgba(255, 255, 255, 0.5);
+}
+[data-theme="dark"] .news-card-date {
+  color: rgba(255, 255, 255, 0.35);
+}
+[data-theme="dark"] .news-title {
+  color: #ffffff;
+}
+[data-theme="dark"] .news-article-more {
+  background: #111111;
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+[data-theme="dark"] .news-article-more-label {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Article body */
+[data-theme="dark"] .news-article-content {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-theme="dark"] .news-article-content h2,
+[data-theme="dark"] .news-article-content h3,
+[data-theme="dark"] .news-article-content h4 {
+  color: #ffffff;
+}
+[data-theme="dark"] .news-article-content blockquote {
+  color: rgba(255, 255, 255, 0.5);
+}
+[data-theme="dark"] .news-modal-content {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-theme="dark"] .news-modal-content h2,
+[data-theme="dark"] .news-modal-content h3 {
+  color: #ffffff;
+}
+[data-theme="dark"] .news-article-hero-no-img {
+  background: #111111;
+}
+[data-theme="dark"] .news-modal-title {
+  color: #ffffff;
+}
+[data-theme="dark"] .news-modal-share {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .news-article-share {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .news-share-btn {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+}
+[data-theme="dark"] .news-share-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+[data-theme="dark"] .share-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Must Eat modal */
+[data-theme="dark"] .modal {
+  background: #1a1a1a;
+}
+[data-theme="dark"] .modal-dish {
+  color: #ffffff;
+}
+[data-theme="dark"] .modal-restaurant,
+[data-theme="dark"] .modal-address {
+  color: rgba(255, 255, 255, 0.4);
+}
+[data-theme="dark"] .modal-desc {
+  color: rgba(255, 255, 255, 0.6);
+}
+[data-theme="dark"] .modal-maps-btn {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+[data-theme="dark"] .modal-maps-btn:hover {
+  background: var(--orange);
+}
+
+/* Search modal */
+[data-theme="dark"] .search-container {
+  background: #1a1a1a;
+}
+[data-theme="dark"] .search-input-wrapper {
+  border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+[data-theme="dark"] .search-input {
+  background: transparent;
+  color: #ffffff;
+}
+[data-theme="dark"] .search-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Map section border */
+[data-theme="dark"] .map-section {
+  border-top-color: rgba(255, 255, 255, 0.1);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
 /* ============================================
    DESKTOP APP FRAME (≥ 768px)
    ============================================ */

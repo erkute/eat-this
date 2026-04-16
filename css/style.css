@@ -3240,6 +3240,47 @@ body {
 }
 
 /* ============================================
+   DARK MODE — [data-theme="dark"] overrides
+   ============================================ */
+
+/* Body */
+[data-theme="dark"] body {
+  background: #0d0d0d;
+  color: #ffffff;
+}
+
+/* Navbar */
+[data-theme="dark"] .navbar {
+  background: rgba(15, 15, 15, 0.85);
+}
+[data-theme="dark"] .navbar.scrolled {
+  background: rgba(15, 15, 15, 0.98);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+}
+[data-theme="dark"] .navbar-icon-btn {
+  color: rgba(255, 255, 255, 0.85);
+}
+[data-theme="dark"] .burger-btn span {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* Language switcher */
+[data-theme="dark"] .lang-switcher {
+  background: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .lang-btn {
+  color: rgba(255, 255, 255, 0.4);
+}
+[data-theme="dark"] .lang-btn.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+[data-theme="dark"] .lang-btn:hover:not(.active) {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ============================================
    DESKTOP APP FRAME (≥ 768px)
    ============================================ */
 @media (min-width: 768px) {

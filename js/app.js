@@ -1901,9 +1901,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Override _renderNearbyGrid activeFilter to use _activeFilter
-    const _origRender = _renderNearbyGrid;
-    window._getMapActiveFilter = () => _activeFilter;
 
     // Map search input
     const mapSearchInput = document.getElementById('mapSearchInput');

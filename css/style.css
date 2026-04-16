@@ -3559,6 +3559,17 @@ body {
   color: #ffffff;
 }
 
+/* High-specificity overrides — beat app-page media-query rules (0,3,0) */
+[data-theme="dark"] .app-page[data-page="news"] .news-title {
+  color: #ffffff;
+}
+[data-theme="dark"] .app-page[data-page="news"] .section-label {
+  color: rgba(255, 255, 255, 0.5);
+}
+[data-theme="dark"] .news-grid {
+  color: rgba(255, 255, 255, 0.85);
+}
+
 /* News article internals */
 [data-theme="dark"] .news-article-back {
   background: rgba(20, 20, 20, 0.92);

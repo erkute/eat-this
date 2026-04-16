@@ -541,6 +541,15 @@ body {
 .map-header-top {
   margin-bottom: 0;
 }
+.map-city-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #FF3B00;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  margin-bottom: 2px;
+}
 .map-section-label {
   font-size: 20px !important;
   font-weight: 900 !important;
@@ -1407,6 +1416,7 @@ body {
   .map-header { padding: 0 48px 48px; }
   .map-container { height: 600px; }
   #foodMap { height: 60vh !important; min-height: 400px !important; }
+  .map-city-label { font-size: 14px; }
   .map-section-label { font-size: 36px !important; }
 }
 

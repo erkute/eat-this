@@ -1503,6 +1503,8 @@ document.addEventListener('DOMContentLoaded', () => {
         .sort((a, b) => a.dist - b.dist);
 
       while (gridEl.firstChild) gridEl.removeChild(gridEl.firstChild);
+      const isMobileView = !window.matchMedia('(min-width: 768px)').matches;
+      gridEl.classList.toggle('map-nearby-grid--list', isMobileView);
 
       sorted.forEach((spot) => {
         const distM = Math.round(spot.dist);
@@ -1510,13 +1512,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const photo = spot.photo || getSpotPhoto(spot.type);
         const spotId = spot._id || spot.name.replace(/\s+/g, '-').toLowerCase();
 
-        const isMobile = !window.matchMedia('(min-width: 768px)').matches;
         const openStatus = isOpenNow(spot.openingHours);
 
         const card = document.createElement('div');
-        card.className = isMobile ? 'map-nearby-list-row' : 'map-nearby-grid-card';
+        card.className = isMobileView ? 'map-nearby-list-row' : 'map-nearby-grid-card';
 
-        if (isMobile) {
+        if (isMobileView) {
           // List row: thumbnail left, text right
           const thumb = document.createElement('div');
           thumb.className = 'map-list-thumb';

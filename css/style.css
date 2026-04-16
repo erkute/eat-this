@@ -651,6 +651,13 @@ body {
   gap: 8px;
   padding: 0 0 16px;
 }
+/* Mobile list mode: single column */
+.map-nearby-grid--list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+}
 
 .map-nearby-grid-card {
   background: #fff;

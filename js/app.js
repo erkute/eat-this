@@ -122,9 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function syncToggles(dark) {
-      ['themeToggleBurger', 'themeToggleFooter'].forEach(function (id) {
-        const el = document.getElementById(id);
-        if (el) el.setAttribute('aria-pressed', dark ? 'true' : 'false');
+      const burger = document.getElementById('themeToggleBurger');
+      if (burger) burger.setAttribute('aria-pressed', dark ? 'true' : 'false');
+      document.querySelectorAll('.site-footer .theme-toggle').forEach(function (el) {
+        el.setAttribute('aria-pressed', dark ? 'true' : 'false');
       });
     }
 
@@ -132,26 +133,20 @@ document.addEventListener('DOMContentLoaded', () => {
       return root.getAttribute('data-theme') === 'dark';
     }
 
-    function wireToggle(id) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.addEventListener('click', function () {
+    // Wire burger toggle (always in DOM)
+    const burgerToggle = document.getElementById('themeToggleBurger');
+    if (burgerToggle) {
+      burgerToggle.addEventListener('click', function () {
         applyTheme(!isDark(), true);
       });
     }
 
-    // Wire burger toggle (always in DOM)
-    wireToggle('themeToggleBurger');
-
-    // Footer toggle is inside a <template> stamped later — wire on first stamp
-    const footerObserver = new MutationObserver(function () {
-      const footerToggle = document.getElementById('themeToggleFooter');
-      if (footerToggle) {
-        wireToggle('themeToggleFooter');
-        footerObserver.disconnect();
+    // Footer toggles are stamped from a template into multiple pages — use event delegation
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('.site-footer .theme-toggle')) {
+        applyTheme(!isDark(), true);
       }
     });
-    footerObserver.observe(document.body, { childList: true, subtree: true });
 
     // React to OS preference change (only when no explicit user choice saved)
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
@@ -2349,6 +2344,26 @@ document.addEventListener('DOMContentLoaded', () => {
     bodyEl.appendChild(renderPortableText(blocks));
   }
 
+  // Track active page on <html> for CSS (transparent navbar over hero, etc.)
+  function setActivePage(pageName) {
+    document.documentElement.setAttribute('data-active-page', pageName);
+    const navbar = document.querySelector('.navbar');
+    if (pageName === 'start') {
+      const startEl = document.querySelector('.app-page[data-page="start"]');
+      if (startEl && navbar) {
+        navbar.classList.toggle('scrolled', startEl.scrollTop > 60);
+        startEl._navScrollHandler = () => navbar.classList.toggle('scrolled', startEl.scrollTop > 60);
+        startEl.addEventListener('scroll', startEl._navScrollHandler, { passive: true });
+      }
+    } else {
+      const prevStart = document.querySelector('.app-page[data-page="start"]');
+      if (prevStart && prevStart._navScrollHandler) {
+        prevStart.removeEventListener('scroll', prevStart._navScrollHandler);
+      }
+      if (navbar) navbar.classList.remove('scrolled');
+    }
+  }
+
   function navigateToPage(pageName) {
     if (pageName === currentPage) return;
 
@@ -2440,6 +2455,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navProfileBtnEl) navProfileBtnEl.classList.toggle('active', pageName === 'profile');
 
     currentPage = pageName;
+    setActivePage(pageName);
 
     // Track navigation history for back button
     window._prevPage    = window._currentPage || 'start';
@@ -2524,6 +2540,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('hashchange', checkHash);
     checkHash();
+    // Ensure initial page is reflected (checkHash skips start→start since guard fires)
+    if (currentPage === 'start') setActivePage('start');
 
     // Allow any module (auth.js etc.) to navigate by dispatching this event
     window.addEventListener('navigate', (e) => {

@@ -940,10 +940,10 @@ body {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
-  background: #1c1c1c;
-  border: 1px solid rgba(255,255,255,0.12);
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
   border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.55);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
   overflow: hidden;
   z-index: 9999;
   min-width: 120px;
@@ -961,13 +961,13 @@ body {
   text-align: left;
   background: none;
   border: none;
-  color: rgba(255,255,255,0.75);
+  color: #444;
   cursor: pointer;
 }
 .map-filter-option:hover,
 .map-filter-option.active {
-  background: rgba(255,255,255,0.09);
-  color: #fff;
+  background: #f4f4f4;
+  color: #000;
 }
 .map-open-toggle {
   flex-shrink: 0;
@@ -3424,6 +3424,21 @@ body {
 [data-theme="dark"] .app-page[data-page="map"] .map-list-status--closed {
   color: #ff6b6b;
   background: rgba(255, 107, 107, 0.15);
+}
+
+/* Map filter dropdown — dark mode */
+[data-theme="dark"] .map-filter-dropdown-menu {
+  background: #1c1c1c;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.55);
+}
+[data-theme="dark"] .map-filter-option {
+  color: rgba(255, 255, 255, 0.75);
+}
+[data-theme="dark"] .map-filter-option:hover,
+[data-theme="dark"] .map-filter-option.active {
+  background: rgba(255, 255, 255, 0.09);
+  color: #ffffff;
 }
 
 /* ============================================

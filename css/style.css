@@ -3441,6 +3441,90 @@ body {
   color: #ffffff;
 }
 
+/* ── Theme Toggle (iOS-style) ── */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.theme-toggle-track {
+  position: relative;
+  width: 40px;
+  height: 24px;
+  background: #cccccc;
+  border-radius: 999px;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.theme-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+  transition: left 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  line-height: 1;
+}
+.theme-toggle-thumb::after {
+  content: '☀️';
+}
+.theme-toggle-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--gray-400);
+}
+
+/* Dark active state */
+[data-theme="dark"] .theme-toggle-track {
+  background: var(--orange);
+}
+[data-theme="dark"] .theme-toggle-thumb {
+  left: 19px;
+}
+[data-theme="dark"] .theme-toggle-thumb::after {
+  content: '🌙';
+}
+[data-theme="dark"] .theme-toggle-label {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Footer toggle — on permanent dark bg */
+.site-footer .theme-toggle-track {
+  background: rgba(255, 255, 255, 0.2);
+}
+.site-footer .theme-toggle-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+[data-theme="dark"] .site-footer .theme-toggle-track {
+  background: var(--orange);
+}
+
+/* Burger theme row */
+.burger-theme-row {
+  padding: 12px 32px 8px;
+  border-top: 1px solid var(--gray-100);
+  margin-top: 8px;
+}
+[data-theme="dark"] .burger-theme-row {
+  border-top-color: rgba(255, 255, 255, 0.07);
+}
+
 /* ============================================
    DESKTOP APP FRAME (≥ 768px)
    ============================================ */

@@ -2740,6 +2740,12 @@ body {
     overscroll-behavior: none;
   }
 
+  /* Pages ending with site-footer: let the footer own the bottom clearance so
+     its black bg covers the tab-bar gap. Remove app-page padding-bottom here. */
+  .app-page:has(.site-footer) {
+    padding-bottom: 0;
+  }
+
   .app-page.active {
     z-index: auto;
   }
@@ -5184,7 +5190,9 @@ body {
    ══════════════════════════════════════════════ */
 .site-footer {
   background: var(--black);
-  padding: 48px 24px 28px;
+  /* Bottom padding: enough for tab-bar + safe area so black bg covers the gap.
+     On desktop (no tab bar) a simple 28px is enough — overridden below. */
+  padding: 48px 24px max(80px, calc(60px + env(safe-area-inset-bottom, 0px)));
   text-align: center;
   display: flex;
   flex-direction: column;

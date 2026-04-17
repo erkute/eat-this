@@ -2695,7 +2695,8 @@ body {
      Use !important — the global rule has overflow-y:auto which the browser
      keeps even when we set overflow-x:clip (clip not reliably supported). */
   .app-pages {
-    margin-top: 60px;
+    /* 60px navbar + safe-area-inset-top (notch/Dynamic Island ~47px) */
+    margin-top: calc(60px + env(safe-area-inset-top, 0px));
     height: auto !important;
     overflow: visible !important;
   }
@@ -2733,7 +2734,7 @@ body {
      restaurant list. Accept URL bar won't auto-hide here. */
   .app-page[data-page="map"] {
     position: fixed !important;
-    top: 60px;
+    top: calc(60px + env(safe-area-inset-top, 0px));
     left: 0;
     right: 0;
     bottom: 0;

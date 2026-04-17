@@ -215,10 +215,9 @@ function buildNewsSitemap(articles) {
   });
 
   return `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n` +
-    `        xmlns:news="http://www.google.com/schemas/sitemaps-news/0.9">\n\n` +
-    (entries.join('\n\n') || '  <!-- No articles in the last 30 days -->') +
-    `\n\n</urlset>\n`;
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemaps-news/0.9">\n` +
+    (entries.join('\n') || '  <!-- No articles in the last 30 days -->') +
+    `\n</urlset>\n`;
 }
 
 function buildSitemap(articles) {
@@ -268,10 +267,9 @@ function buildSitemap(articles) {
   }
 
   return `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n` +
-    `        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n\n` +
-    entries.join('\n\n') +
-    `\n\n</urlset>\n`;
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n` +
+    entries.join('\n') +
+    `\n</urlset>\n`;
 }
 
 async function main() {

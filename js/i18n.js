@@ -336,6 +336,8 @@ TRANSLATIONS.de.footer.signIn      = 'Anmelden / Registrieren';
 TRANSLATIONS.de.footer.about       = '\u00dcber uns';
 TRANSLATIONS.de.footer.contact     = 'Kontakt';
 TRANSLATIONS.de.footer.press       = 'Presse';
+TRANSLATIONS.de.footer.datenschutz = 'Datenschutz';
+TRANSLATIONS.de.footer.agb         = 'AGB';
 TRANSLATIONS.de.footer.copyright   = '\u00a9 2026 Eat This. Alle Rechte vorbehalten.';
 
 // DE burger menu overrides

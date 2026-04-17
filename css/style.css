@@ -3883,9 +3883,6 @@ body {
 [data-theme="dark"] #foodMap {
   background: #1a1a1a;
 }
-[data-theme="dark"] #foodMap .leaflet-tile-pane {
-  filter: invert(1) hue-rotate(180deg) brightness(0.88) contrast(0.92) saturate(0.8);
-}
 
 /* Map sidebar borders */
 [data-theme="dark"] .map-nearby {

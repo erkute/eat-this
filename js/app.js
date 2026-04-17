@@ -169,6 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', dark ? 'dark' : 'light');
       }
       syncToggles(dark);
+      document.dispatchEvent(new CustomEvent('themechange', { detail: { dark } }));
     }
 
     function syncToggles(dark) {
@@ -892,10 +893,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let globeShown = false;
 
   function showGlobeIntro(onComplete) {
-    // TEMPORARILY DISABLED — re-enable by removing this early return
-    onComplete();
-    return;
-    /* eslint-disable no-unreachable */
     if (typeof THREE === 'undefined' || globeShown) {
       onComplete();
       return;
@@ -1190,12 +1187,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     mapInitialized = true;
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      attribution:
-        '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
-      subdomains: 'abcd',
-    }).addTo(foodMap);
+    function mapTileUrl(dark) {
+      return dark
+        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+    }
+    const mapTileAttribution =
+      '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>';
+
+    let activeTileLayer = L.tileLayer(
+      mapTileUrl(document.documentElement.getAttribute('data-theme') === 'dark'),
+      { maxZoom: 19, attribution: mapTileAttribution, subdomains: 'abcd' }
+    ).addTo(foodMap);
+
+    document.addEventListener('themechange', (e) => {
+      if (!foodMap) return;
+      foodMap.removeLayer(activeTileLayer);
+      activeTileLayer = L.tileLayer(
+        mapTileUrl(e.detail.dark),
+        { maxZoom: 19, attribution: mapTileAttribution, subdomains: 'abcd' }
+      ).addTo(foodMap);
+    });
 
     document.getElementById('mapZoomIn').addEventListener('click', () => foodMap.zoomIn());
     document.getElementById('mapZoomOut').addEventListener('click', () => foodMap.zoomOut());
@@ -2611,13 +2623,12 @@ document.addEventListener('DOMContentLoaded', () => {
             'sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH'
           )
             .then(() => {
-              // Three.js: load in background so globe is ready when re-enabled.
-              // showGlobeIntro already guards against THREE being undefined.
-              loadScript(
+              return loadScript(
                 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
                 'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu'
-              ).catch(() => {}); // non-critical — globe handles missing THREE
-
+              ).catch(() => {}); // non-critical — globe skips gracefully if THREE missing
+            })
+            .then(() => {
               showGlobeIntro(() => {
                 cmsReady.then(() => {
                   if (typeof initFoodMap === 'function') initFoodMap();
@@ -2696,7 +2707,7 @@ document.addEventListener('DOMContentLoaded', () => {
       navbarBrand.addEventListener('click', (e) => {
         e.preventDefault();
         navigateToPage('start');
-        window.location.hash = 'start';
+        history.replaceState(null, '', '/');
       });
     }
 

@@ -2865,9 +2865,6 @@ body {
     min-height: 0;
     z-index: 9990;
     overflow: hidden !important;
-    /* Match sheet background so the area behind Safari's URL bar
-       shows the sheet color rather than dark map tiles */
-    background: #f8f8f8;
   }
 
   .app-page[data-page="map"].active {
@@ -3072,10 +3069,7 @@ body {
     border: 1px solid rgba(255,255,255,0.18);
   }
 
-  /* Fade-out overlay on non-scrolling parent — doesn't affect scroll bounds */
-  .app-page[data-page="map"] .map-nearby {
-    position: relative;
-  }
+  /* Fade-out overlay — .map-nearby is already position:absolute so ::after works directly */
   .app-page[data-page="map"] .map-nearby::after {
     content: '';
     position: absolute;
@@ -3931,9 +3925,6 @@ body {
 }
 
 /* Map bottom sheet — dark mode */
-[data-theme="dark"] .app-page[data-page="map"] {
-  background: #111111;
-}
 [data-theme="dark"] .app-page[data-page="map"] .map-nearby::after {
   background: linear-gradient(to bottom, transparent, #111111);
 }

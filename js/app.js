@@ -1042,6 +1042,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     mapEl.appendChild(overlay);
 
+    // Safety timeout: if globe animation hangs (WebGL stall, low memory),
+    // clean up and hand off to the map after 12 s.
+    let animFrame, renderer; // hoisted so timeout can reference them
+    const globeTimeout = setTimeout(() => {
+      if (animFrame) cancelAnimationFrame(animFrame);
+      if (renderer) try { renderer.dispose(); } catch {}
+      overlay.remove();
+      mapEl.classList.remove('globe-active');
+      mapEl.style.cssText = '';
+      if (mapPage) mapPage.classList.remove('globe-active');
+      if (locBtn) locBtn.style.display = '';
+      if (zoomCtrl) zoomCtrl.style.display = '';
+      onComplete();
+    }, 12000);
+
     const aspect = w / h;
     // Portrait (mobile): keep globe just inside horizontal FOV
     // Landscape (desktop/tablet): bring globe much closer to fill screen height
@@ -1052,10 +1067,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const camera = new THREE.PerspectiveCamera(38, aspect, 0.1, 1000);
     camera.position.z = globeStartZ;
 
-    const renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: true, alpha: false });
-    renderer.setSize(w, h);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000);
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: true, alpha: false });
+      renderer.setSize(w, h);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setClearColor(0x000000);
+    } catch {
+      clearTimeout(globeTimeout);
+      overlay.remove();
+      mapEl.classList.remove('globe-active');
+      mapEl.style.cssText = '';
+      if (mapPage) mapPage.classList.remove('globe-active');
+      onComplete();
+      return;
+    }
 
     // Globe sphere — Lambert material + satellite texture
     const globeGeo = new THREE.SphereGeometry(1, 64, 64);
@@ -1094,7 +1119,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let phase = 'idle';
     let phaseStart = null;
     let rotY = 0;
-    let animFrame;
 
     function lerp(a, b, t) {
       return a + (b - a) * t;
@@ -1176,6 +1200,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logoImg.style.opacity = String(1 - p);
         logoText.style.opacity = String(1 - p);
         if (p >= 1) {
+          clearTimeout(globeTimeout);
           cancelAnimationFrame(animFrame);
           overlay.remove();
           renderer.dispose();

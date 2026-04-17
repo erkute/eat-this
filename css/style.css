@@ -340,16 +340,7 @@ body {
   transform: translateY(-2px);
 }
 
-/* Dark mode — slightly more opaque so it pops on dark hero */
-[data-theme="dark"] .hero-register-btn {
-  background: rgba(255,255,255,0.14);
-  color: rgba(255,255,255,0.95);
-  border-color: rgba(255,255,255,0.4);
-}
-[data-theme="dark"] .hero-register-btn:hover {
-  background: rgba(255,255,255,0.24);
-  border-color: rgba(255,255,255,0.65);
-}
+/* Same glass style in both light and dark mode — no override needed */
 
 .hero-register-btn svg {
   position: relative; /* above ::before */

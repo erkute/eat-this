@@ -4673,6 +4673,7 @@ body {
   z-index: 10002;
   display: flex;
   justify-content: flex-end;
+  align-items: flex-start;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.25s;
@@ -4684,13 +4685,17 @@ body {
 .burger-drawer-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
 }
 .burger-drawer-panel {
   position: relative;
   width: 280px;
   max-width: 85vw;
-  height: 100dvh;
+  /* Leave a gap at the bottom so the blurred backdrop shows behind
+     the Safari URL bar, giving the Liquid Glass something to tint. */
+  height: calc(100dvh - env(safe-area-inset-bottom, 0px) - 28px);
   background: var(--white);
   display: flex;
   flex-direction: column;

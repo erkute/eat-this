@@ -13,8 +13,11 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"
     />
-    <!-- No theme-color so iOS 26 Safari uses its Liquid Glass
-         transparent/adaptive URL bar instead of a solid color. -->
+    <!-- theme-color set for both light and dark mode so iOS 26 Safari
+         Liquid Glass has a base to tint from. Without it, Safari falls
+         back to opaque black in dark mode. -->
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <meta
       name="robots"
       content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"

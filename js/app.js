@@ -20,7 +20,7 @@ if (window.innerWidth <= CONFIG.MOBILE_BREAKPOINT && screen.orientation?.lock) {
   screen.orientation.lock('portrait').catch(() => {});
 }
 
-const STATIC_PAGE_SLUGS = ['about', 'contact', 'press', 'impressum', 'datenschutz', 'agb', 'editorial'];
+const STATIC_PAGE_SLUGS = ['about', 'contact', 'press', 'impressum', 'datenschutz', 'agb'];
 
 /**
  * Render Sanity Portable Text blocks to a DocumentFragment.

@@ -227,7 +227,6 @@ function buildSitemap(articles) {
     { loc: '/about',      priority: '0.5', changefreq: 'monthly' },
     { loc: '/contact',    priority: '0.4', changefreq: 'monthly' },
     { loc: '/press',      priority: '0.4', changefreq: 'monthly' },
-    { loc: '/editorial',  priority: '0.5', changefreq: 'monthly' },
     { loc: '/impressum',  priority: '0.2', changefreq: 'yearly'  },
     { loc: '/datenschutz',priority: '0.2', changefreq: 'yearly'  },
     { loc: '/agb',        priority: '0.2', changefreq: 'yearly'  },

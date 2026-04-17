@@ -132,7 +132,7 @@ window.CMS = {
 
   /** Fetch a single static page by slug — always fresh from Sanity. */
   async fetchStaticPage(slug) {
-    const ALLOWED = ['about', 'contact', 'press', 'impressum', 'datenschutz', 'agb', 'editorial'];
+    const ALLOWED = ['about', 'contact', 'press', 'impressum', 'datenschutz', 'agb'];
     if (!ALLOWED.includes(slug)) return null;
     const query = `*[_type == "staticPage" && slug.current == "${slug}"][0]{ title, titleDe, body, bodyDe }`;
     return sanityFetch(query);

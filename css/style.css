@@ -159,7 +159,7 @@ body {
   position: relative;
   overflow: hidden;
   background-color: #efefef;
-  background-image: url('../pics/hero-desktop.png');
+  background-image: url('../pics/hero-desktop.webp');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -436,7 +436,7 @@ body {
 /* ── Mobile hero: portrait plate image, full plate visible ── */
 @media (max-width: 1023px) {
   .hero {
-    background-image: url('../pics/hero-mobile.png');
+    background-image: url('../pics/hero-mobile.webp');
     background-size: cover;
     background-position: center 15%;
   }

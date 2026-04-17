@@ -175,6 +175,52 @@ function cleanNewsDir(dir) {
   } catch { /* dir may not exist yet */ }
 }
 
+// Google News sitemap — separate file, uses the news-specific namespace.
+// Per Google's spec, only articles from the last 2 days SHOULD be listed, but
+// they're accepted for up to 30 days. We use 30 so the file is rarely empty
+// for a site with monthly-ish publishing cadence.
+function buildNewsSitemap(articles) {
+  const cutoffMs = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const fresh = articles.filter(a => {
+    if (!a.slug || a.seo?.noIndex || !a.date) return false;
+    const t = Date.parse(a.date);
+    return Number.isFinite(t) && t >= cutoffMs;
+  });
+
+  // Dedupe by slug — Sanity stores DE + EN versions as separate documents but
+  // they share a slug and map to the same /news/[slug] shell. Keep the first.
+  const bySlug = new Map();
+  for (const a of fresh) {
+    const slug = a.slug.replace(/[^a-z0-9-_]/gi, '-');
+    if (!bySlug.has(slug)) bySlug.set(slug, a);
+  }
+
+  const entries = Array.from(bySlug.values()).map(a => {
+    const slug = a.slug.replace(/[^a-z0-9-_]/gi, '-');
+    const pubDate = toIso8601(a.date);
+    const lang = a.language === 'de' ? 'de' : 'en';
+    return (
+      `  <url>\n` +
+      `    <loc>${SITE_URL}/news/${slug}</loc>\n` +
+      `    <news:news>\n` +
+      `      <news:publication>\n` +
+      `        <news:name>Eat This Berlin</news:name>\n` +
+      `        <news:language>${lang}</news:language>\n` +
+      `      </news:publication>\n` +
+      `      <news:publication_date>${pubDate}</news:publication_date>\n` +
+      `      <news:title>${escapeHtml(a.title || '')}</news:title>\n` +
+      `    </news:news>\n` +
+      `  </url>`
+    );
+  });
+
+  return `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n` +
+    `        xmlns:news="http://www.google.com/schemas/sitemaps-news/0.9">\n\n` +
+    (entries.join('\n\n') || '  <!-- No articles in the last 30 days -->') +
+    `\n\n</urlset>\n`;
+}
+
 function buildSitemap(articles) {
   const today = new Date().toISOString().slice(0, 10);
   const staticPages = [
@@ -263,6 +309,12 @@ async function main() {
   const sitemap = buildSitemap(articles.filter(a => a.slug));
   writeFileSync(join(PROJECT_ROOT, 'sitemap.xml'), sitemap, 'utf-8');
   console.log(`Wrote sitemap.xml with ${articles.length} article entries`);
+
+  // Google News sitemap — last 30 days only
+  const newsSitemap = buildNewsSitemap(articles);
+  writeFileSync(join(PROJECT_ROOT, 'news-sitemap.xml'), newsSitemap, 'utf-8');
+  const freshCount = (newsSitemap.match(/<url>/g) || []).length;
+  console.log(`Wrote news-sitemap.xml with ${freshCount} fresh article(s)`);
 }
 
 main().catch(err => {

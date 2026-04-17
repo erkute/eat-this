@@ -4,3 +4,4 @@ Disallow: /functions/
 Disallow: /studio/
 
 Sitemap: https://www.eatthisdot.com/sitemap.xml
+Sitemap: https://www.eatthisdot.com/news-sitemap.xml

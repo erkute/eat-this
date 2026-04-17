@@ -833,6 +833,89 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch { /* non-critical */ }
   }
 
+  // ─── Restaurant schema helpers ─────────────────────────────────────────────
+  function _normalizeOpeningHours(slots) {
+    // Sanity: [{ days: "Mo–Fr", hours: "12:00–22:00" }, …]
+    // Schema.org: ["Mo-Fr 12:00-22:00", …] — dashes must be ASCII hyphens
+    if (!Array.isArray(slots)) return [];
+    return slots
+      .map(s => {
+        const days  = String(s?.days  || '').replace(/[–—−]/g, '-').trim();
+        const hours = String(s?.hours || '').replace(/[–—−]/g, '-').trim();
+        if (!days || !hours || /closed|geschlossen/i.test(hours)) return null;
+        return `${days} ${hours}`;
+      })
+      .filter(Boolean);
+  }
+
+  function _restaurantToSchema(r) {
+    const id = `https://www.eatthisdot.com/#restaurant/${encodeURIComponent(r._id || r.name || '')}`;
+    const cuisines = Array.isArray(r.categories) ? r.categories : [];
+    const out = {
+      '@type': 'Restaurant',
+      '@id': id,
+      name: r.name,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: r.address || '',
+        addressLocality: 'Berlin',
+        addressCountry: 'DE',
+      },
+    };
+    if (typeof r.lat === 'number' && typeof r.lng === 'number') {
+      out.geo = { '@type': 'GeoCoordinates', latitude: r.lat, longitude: r.lng };
+    }
+    if (r.photo)          out.image = r.photo;
+    if (r.website)        out.url = r.website;
+    if (r.mapsUrl)        out.hasMap = r.mapsUrl;
+    if (r.reservationUrl) out.acceptsReservations = true;
+    if (r.price)          out.priceRange = r.price;
+    if (cuisines.length)  out.servesCuisine = cuisines;
+    const oh = _normalizeOpeningHours(r.openingHours);
+    if (oh.length)        out.openingHours = oh;
+    return out;
+  }
+
+  function updateRestaurantsJsonLd(restaurants) {
+    const el = document.getElementById('siteJsonLd');
+    if (!el || !Array.isArray(restaurants) || !restaurants.length) return;
+    try {
+      const data = JSON.parse(el.textContent);
+      if (!Array.isArray(data['@graph'])) return;
+      data['@graph'] = data['@graph'].filter(n => n['@type'] !== 'ItemList' && n['@type'] !== 'Restaurant');
+
+      // Embed up to 50 restaurants as first-class entities for rich results
+      const entries = restaurants.slice(0, 50).map(_restaurantToSchema);
+      data['@graph'].push(...entries);
+
+      // Plus an ItemList that points at them — gives Google a ranked list
+      data['@graph'].push({
+        '@type': 'ItemList',
+        '@id': 'https://www.eatthisdot.com/#restaurant-list',
+        name: 'Curated Berlin Restaurants — EAT THIS',
+        numberOfItems: entries.length,
+        itemListElement: entries.map((e, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          item: { '@id': e['@id'] },
+        })),
+      });
+      el.textContent = JSON.stringify(data);
+    } catch { /* non-critical */ }
+  }
+
+  function setActiveRestaurantSchema(r) {
+    // Remove any previous active-restaurant block
+    const prev = document.getElementById('activeRestaurantLd');
+    if (prev) prev.remove();
+    if (!r) return;
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'activeRestaurantLd';
+    script.textContent = JSON.stringify(_restaurantToSchema(r));
+    document.head.appendChild(script);
+  }
+
   // ─── CMS Bootstrap (inside DOMContentLoaded so spots is in scope) ─────────
   const cmsReady = (async () => {
     if (!window.CMS) return;
@@ -877,6 +960,7 @@ document.addEventListener('DOMContentLoaded', () => {
           type: (r.categories || []).join(' · '),
         }));
         window._allSpots = spots;
+        updateRestaurantsJsonLd(restaurants);
       }
     } catch (err) {
       console.warn('[CMS] Restaurants fetch failed:', err.message); // eslint-disable-line no-console
@@ -1491,6 +1575,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       mapSpotOverlay.classList.add('active');
       bodyOverflow.lock();
+      setActiveRestaurantSchema(spot);
     }
     window._showSpotDetail = showSpotDetail;
     window._navigateToPage = navigateToPage;
@@ -1934,6 +2019,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function hideSpotDetail() {
       mapSpotOverlay.classList.remove('active');
       bodyOverflow.unlock();
+      setActiveRestaurantSchema(null);
     }
 
     if (mapSpotClose) {
@@ -1968,6 +2054,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!restaurants || !restaurants.length) return;
         spots = restaurants.map((r) => ({ ...r, type: (r.categories || []).join(' · ') }));
         window._allSpots = spots;
+        updateRestaurantsJsonLd(restaurants);
         spots.forEach(addSpotMarker);
         // Update filter counts
         const countAllEl = document.getElementById('count-all');

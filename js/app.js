@@ -1156,7 +1156,6 @@ document.addEventListener('DOMContentLoaded', () => {
       renderer.render(scene, camera);
     }
     tick();
-    /* eslint-enable no-unreachable */
   }
 
   function initFoodMap() {
@@ -2702,6 +2701,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // When on a /news/[slug] path, reset to / before setting the hash —
+  // otherwise hash = 'news' would append to the slug URL (/news/slug#news).
+  function _resetArticlePath() {
+    if (window.location.pathname !== '/') {
+      history.pushState({}, '', '/');
+    }
+  }
+
   if (appPages.length) {
     if (navbarBrand) {
       navbarBrand.addEventListener('click', (e) => {
@@ -2715,13 +2722,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const navNewsBtn = document.getElementById('navNewsBtn');
     const navMapBtn = document.getElementById('navMapBtn');
     const navMustsBtn = document.getElementById('navMustsBtn');
-    // When on a /news/[slug] path, reset to / before setting the hash —
-    // otherwise hash = 'news' would append to the slug URL (/news/slug#news).
-    function _resetArticlePath() {
-      if (window.location.pathname !== '/') {
-        history.pushState({}, '', '/');
-      }
-    }
 
     if (navNewsBtn) {
       navNewsBtn.addEventListener('click', () => {

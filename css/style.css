@@ -2772,13 +2772,21 @@ body {
     position: static;
     /* contain: allows normal scroll + URL-bar auto-hide, but blocks pull-to-refresh */
     overscroll-behavior: contain;
-    /* black so any overscroll/bounce area below body matches footer */
+    background: var(--white);
+  }
+
+  html[data-theme="dark"] {
+    /* black so overscroll/bounce area matches the dark footer */
     background: var(--black);
   }
 
   body {
     overflow-x: unset;
     overscroll-behavior: contain;
+    background-color: var(--white);
+  }
+
+  html[data-theme="dark"] body {
     background-color: var(--black);
   }
 

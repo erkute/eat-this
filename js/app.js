@@ -2795,16 +2795,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ensure initial page is reflected (checkHash skips start→start since guard fires)
     if (currentPage === 'start') setActivePage('start');
 
-    // Handle direct navigation to /news/[slug]
+    // Handle direct URL navigation — /news/[slug] and static pages
     const _initPath = window.location.pathname;
     if (_initPath.startsWith('/news/')) {
       const _initSlug = _initPath.slice(6);
       // Go straight to the article page — skip the news-list flash.
-      // Also set _pendingArticleSlug as a fallback in case news cards
-      // happen to load before the CMS response arrives.
       window._pendingArticleSlug = _initSlug;
       navigateToPage('news-article');
       _openArticleBySlugFromCMS(_initSlug);
+    } else {
+      // Static pages: /about, /contact, /press, /impressum, /datenschutz, /agb
+      const _staticSlug = STATIC_PAGE_SLUGS.find(s => _initPath === '/' + s);
+      if (_staticSlug) {
+        navigateToPage(_staticSlug);
+      }
     }
 
     // Allow any module (auth.js etc.) to navigate by dispatching this event
@@ -2856,10 +2860,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   window._closeBurger = closeBurger;
 
-  // Static page back buttons
+  // Static page back buttons — use browser back so the user returns to
+  // wherever they came from; fall back to home if there's no history.
   document.querySelectorAll('.static-page-back[data-back]').forEach(btn => {
     btn.addEventListener('click', () => {
-      navigateToPage(window._prevPage || 'start');
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = '/';
+      }
     });
   });
 
@@ -2884,31 +2893,24 @@ document.addEventListener('DOMContentLoaded', () => {
   if (agbFromBurger)
     agbFromBurger.addEventListener('click', () => {
       closeBurger();
-      navigateToPage('agb');
+      window.location.href = '/agb';
     });
 
-  // Datenschutz Modal
-  createModal(document.getElementById('datenschutzModal'), {
-    trigger: document.getElementById('datenschutzTrigger'),
-    closeBtn: document.getElementById('datenschutzClose'),
-    backdrop: document.getElementById('datenschutzBackdrop'),
-  });
   const datenschutzFromBurger = document.getElementById('openDatenschutzFromBurger');
   if (datenschutzFromBurger)
     datenschutzFromBurger.addEventListener('click', () => {
       closeBurger();
-      navigateToPage('datenschutz');
+      window.location.href = '/datenschutz';
     });
 
   // Static page navigation from burger drawer (about/contact/press/impressum)
-  // Modal HTML for these slugs still exists but is no longer opened — removed in Task 16.
   ['about', 'contact', 'press', 'impressum'].forEach((slug) => {
     const cap = slug.charAt(0).toUpperCase() + slug.slice(1);
     const trigger = document.getElementById('open' + cap);
     if (trigger) {
       trigger.addEventListener('click', () => {
         closeBurger();
-        navigateToPage(slug);
+        window.location.href = '/' + slug;
       });
     }
   });
@@ -3160,13 +3162,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Footer event delegation (handles all stamped instances) ──
   document.addEventListener('click', (e) => {
-    // Nav links
+    // Nav links — static pages and main sections
     const navBtn = e.target.closest('.site-footer-link[data-page]');
-    if (navBtn) { navigateToPage(navBtn.dataset.page); return; }
+    if (navBtn) {
+      const page = navBtn.dataset.page;
+      // Static pages get their own URL; main sections use hash on root
+      if (STATIC_PAGE_SLUGS.includes(page)) {
+        window.location.href = '/' + page;
+      } else {
+        _resetArticlePath();
+        navigateToPage(page);
+        window.location.hash = page;
+      }
+      return;
+    }
 
-    // Logo link
+    // Logo link — always go home
     const logoLink = e.target.closest('.site-footer-logo-link[data-page]');
-    if (logoLink) { e.preventDefault(); navigateToPage(logoLink.dataset.page); return; }
+    if (logoLink) { e.preventDefault(); window.location.href = '/'; return; }
 
     // Language buttons
     const langBtn = e.target.closest('.site-footer-lang-btn[data-lang]');

@@ -51,17 +51,32 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+// Sanity stores dates as "YYYY-MM-DD"; schema.org wants ISO 8601 with a time
+// part and a timezone offset. Anchor at 09:00 Europe/Berlin so Google accepts
+// the value. Offset picked by month (CET +01:00 / CEST +02:00, rough DST).
+function toIso8601(dateStr) {
+  if (!dateStr) return '';
+  if (/T\d{2}:\d{2}/.test(dateStr)) return dateStr; // already has a time part
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.test(dateStr) ? dateStr.split('-') : null;
+  if (!m) return '';
+  const [y, mo, d] = m;
+  const monthNum = parseInt(mo, 10);
+  const offset = monthNum >= 4 && monthNum <= 9 ? '+02:00' : '+01:00';
+  return `${y}-${mo}-${d}T09:00:00${offset}`;
+}
+
 function buildJsonLd(article, canonical, ogImage) {
   const metaTitle = article.seo?.metaTitle || article.title || '';
   const metaDesc  = article.seo?.metaDescription || article.excerpt || '';
+  const datePublished = toIso8601(article.date);
   return JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
     'headline': metaTitle,
     'description': metaDesc,
     'image': ogImage,
-    'datePublished': article.date || '',
-    'dateModified': article.date || '',
+    'datePublished': datePublished,
+    'dateModified': datePublished,
     'author': {
       '@type': 'Organization',
       'name': 'Eat This Berlin',

@@ -4071,10 +4071,10 @@ body {
   background: var(--orange);
 }
 /* Footer toggle — light bg */
-[data-theme="light"] .site-footer .theme-toggle-track {
+html:not([data-theme="dark"]) .site-footer .theme-toggle-track {
   background: #cccccc;
 }
-[data-theme="light"] .site-footer .theme-toggle-label {
+html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   color: rgba(0, 0, 0, 0.45);
 }
 
@@ -5393,42 +5393,42 @@ body {
 }
 
 /* ── Light mode footer ── */
-[data-theme="light"] .site-footer {
+html:not([data-theme="dark"]) .site-footer {
   background: var(--white);
   border-top: 1px solid rgba(0,0,0,0.08);
 }
-[data-theme="light"] .site-footer-logo-img {
+html:not([data-theme="dark"]) .site-footer-logo-img {
   filter: none;
 }
-[data-theme="light"] .site-footer-link {
+html:not([data-theme="dark"]) .site-footer-link {
   color: rgba(0,0,0,0.4);
 }
-[data-theme="light"] .site-footer-link:hover {
+html:not([data-theme="dark"]) .site-footer-link:hover {
   color: var(--black);
 }
-[data-theme="light"] .site-footer-divider {
+html:not([data-theme="dark"]) .site-footer-divider {
   background: rgba(0,0,0,0.12);
 }
-[data-theme="light"] .site-footer-ig {
+html:not([data-theme="dark"]) .site-footer-ig {
   color: rgba(0,0,0,0.4);
 }
-[data-theme="light"] .site-footer-ig:hover {
+html:not([data-theme="dark"]) .site-footer-ig:hover {
   color: var(--black);
 }
-[data-theme="light"] .site-footer-lang {
+html:not([data-theme="dark"]) .site-footer-lang {
   border-color: rgba(0,0,0,0.12);
 }
-[data-theme="light"] .site-footer-lang-btn {
+html:not([data-theme="dark"]) .site-footer-lang-btn {
   color: rgba(0,0,0,0.35);
 }
-[data-theme="light"] .site-footer-lang-btn.active {
+html:not([data-theme="dark"]) .site-footer-lang-btn.active {
   background: rgba(0,0,0,0.06);
   color: var(--black);
 }
-[data-theme="light"] .site-footer-lang-btn:hover:not(.active) {
+html:not([data-theme="dark"]) .site-footer-lang-btn:hover:not(.active) {
   color: rgba(0,0,0,0.6);
 }
-[data-theme="light"] .site-footer-copy {
+html:not([data-theme="dark"]) .site-footer-copy {
   color: rgba(0,0,0,0.25);
 }
 

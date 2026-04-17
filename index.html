@@ -5,7 +5,7 @@
       (function () {
         var s = localStorage.getItem('theme');
         var dark = s === 'dark' || (!s && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
       }());
     </script>
     <meta charset="UTF-8" />

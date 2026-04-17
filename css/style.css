@@ -2676,10 +2676,7 @@ body {
 
 @media (max-width: 767px) {
   /* Match kino.de/familie.de: html+body need zero CSS constraints for
-     Safari to use window scroll and auto-hide the URL bar on scroll.
-     overflow-x:hidden on html/body forces overflow-y:auto and creates
-     a root scroll container that breaks Safari's URL-bar-hide mechanism.
-     position:relative on html also interferes with Safari's scroll model. */
+     Safari to use window scroll and auto-hide the URL bar on scroll. */
   html {
     overflow-x: unset;
     position: static;
@@ -2689,7 +2686,8 @@ body {
   body {
     overflow-x: unset;
     overscroll-behavior: auto;
-    background-color: #fff;
+    /* black so the area behind footer and any padding matches the footer */
+    background-color: var(--black);
   }
 
   /* Natural window scroll so Safari URL bar auto-hides on scroll.
@@ -2722,33 +2720,20 @@ body {
     overflow: visible !important;
     background: var(--white);
     overscroll-behavior: none;
-    padding-bottom: max(80px, calc(60px + env(safe-area-inset-bottom, 0px)));
+    /* no padding-bottom — site-footer has its own safe-area padding */
   }
 
   .app-page.active {
     z-index: auto;
   }
 
-  /* Map needs fixed layout — no window scroll, no URL-bar-hide */
+  /* Map page uses same natural flow so URL bar can hide on scroll.
+     The inner .map-container keeps its own sizing for Leaflet. */
   .app-page[data-page="map"] {
-    position: fixed;
-    top: 60px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: auto;
-    z-index: 9990;
-    overflow: hidden;
+    height: auto !important;
+    min-height: calc(100dvh - 60px);
+    overflow: visible !important;
     padding-bottom: 0;
-  }
-
-  .app-page[data-page="map"].active {
-    z-index: 9995;
-  }
-
-  /* Prevent window scroll when map is active */
-  body:has(.app-page[data-page="map"].active) {
-    overflow: hidden;
   }
   
   .app-page[data-page="start"] {

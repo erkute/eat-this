@@ -5184,7 +5184,7 @@ body {
    ══════════════════════════════════════════════ */
 .site-footer {
   background: var(--black);
-  padding: 48px 24px max(80px, calc(env(safe-area-inset-bottom) + 72px));
+  padding: 48px 24px 28px;
   text-align: center;
   display: flex;
   flex-direction: column;

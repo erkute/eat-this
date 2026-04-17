@@ -2865,6 +2865,9 @@ body {
     min-height: 0;
     z-index: 9990;
     overflow: hidden !important;
+    /* Match sheet background so the area behind Safari's URL bar
+       shows the sheet color rather than dark map tiles */
+    background: #f8f8f8;
   }
 
   .app-page[data-page="map"].active {
@@ -3913,6 +3916,9 @@ body {
 }
 
 /* Map bottom sheet — dark mode */
+[data-theme="dark"] .app-page[data-page="map"] {
+  background: #111111;
+}
 [data-theme="dark"] .app-page[data-page="map"] .map-nearby {
   background: #111111;
   box-shadow: 0 -3px 24px rgba(0, 0, 0, 0.40);

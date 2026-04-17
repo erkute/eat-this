@@ -1044,11 +1044,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Safety timeout: if globe animation hangs (WebGL stall, low memory),
     // clean up and hand off to the map after 12 s.
-    let animFrame, renderer, autoAdvanceTimer; // hoisted so nested closures can reference them
+    let animFrame, renderer; // hoisted so nested closures can reference them
     const globeTimeout = setTimeout(() => {
       clearTimeout(autoAdvanceTimer);
       if (animFrame) cancelAnimationFrame(animFrame);
-      if (renderer) try { renderer.dispose(); } catch {}
+      if (renderer) try { renderer.dispose(); } catch (_e) { /* ignore dispose errors */ }
       overlay.remove();
       mapEl.classList.remove('globe-active');
       mapEl.style.cssText = '';
@@ -1170,7 +1170,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'Enter' && phase === 'idle') startZoom();
     });
     // Auto-advance after 3.5 s so the globe never blocks the map on slow/Safari devices
-    autoAdvanceTimer = setTimeout(startZoom, 3500);
+    const autoAdvanceTimer = setTimeout(startZoom, 3500);
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(

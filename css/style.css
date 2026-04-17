@@ -3068,7 +3068,8 @@ body {
   
   /* ── News page — Mobile Magazine ── */
   .app-page[data-page="news"] .news-section {
-    padding: 0;
+    /* Clear the fixed navbar + iOS safe area so "Berlin / Food News" isn't hidden */
+    padding: calc(60px + env(safe-area-inset-top, 0px)) 0 0;
     min-height: 0;
     background: var(--white);
   }

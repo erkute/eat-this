@@ -2655,14 +2655,6 @@ document.addEventListener('DOMContentLoaded', () => {
           // Three.js is only needed for the globe (currently disabled) so load it
           // in the background without blocking map startup. On slow mobile networks
           // Three.js (644 KB) was delaying the map by several seconds.
-          // Leaflet CSS — only needed on the map page. Load once, idempotent.
-          if (!document.querySelector('link[data-leaflet-css]')) {
-            const lfCss = document.createElement('link');
-            lfCss.rel = 'stylesheet';
-            lfCss.href = 'css/leaflet.css';
-            lfCss.setAttribute('data-leaflet-css', '');
-            document.head.appendChild(lfCss);
-          }
           loadScript(
             'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
             'sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH'

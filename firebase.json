@@ -96,7 +96,11 @@
       }
     ],
     "rewrites": [
+      { "source": "/news",       "destination": "/index.html" },
       { "source": "/news/**",    "destination": "/index.html" },
+      { "source": "/map",        "destination": "/index.html" },
+      { "source": "/musts",      "destination": "/index.html" },
+      { "source": "/profile",    "destination": "/index.html" },
       { "source": "/about",      "destination": "/index.html" },
       { "source": "/contact",    "destination": "/index.html" },
       { "source": "/press",      "destination": "/index.html" },

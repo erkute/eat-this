@@ -488,7 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
           closeSearch();
           setTimeout(() => {
             navigateToPage('musts');
-            window.location.hash = 'musts';
+            _pushPage('musts');
             setTimeout(() => {
               const dish = item.dataset.dish;
               const restaurant = item.dataset.restaurant;
@@ -502,7 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
           closeSearch();
           setTimeout(() => {
             navigateToPage('news');
-            window.location.hash = 'news';
+            _pushPage('news');
             setTimeout(() => {
               const title = item.dataset.title;
               const article = Array.from(
@@ -518,7 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
           closeSearch();
           setTimeout(() => {
             navigateToPage('map');
-            window.location.hash = 'map';
+            _pushPage('map');
             setTimeout(() => {
               const spotName = item.dataset.name;
               const spot = spots.find((s) => s.name === spotName);
@@ -2439,9 +2439,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function closeNewsModal() {
     _restoreDefaultMeta();
     navigateToPage('news');
-    if (window.location.pathname.startsWith('/news/')) {
-      history.pushState({ page: 'news' }, '', '/');
-      window.location.hash = 'news';
+    if (window.location.pathname !== '/news') {
+      history.pushState({ page: 'news' }, '', '/news');
     }
   }
 
@@ -2764,13 +2763,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // When on a /news/[slug] path, reset to / before setting the hash —
-  // otherwise hash = 'news' would append to the slug URL (/news/slug#news).
-  function _resetArticlePath() {
-    if (window.location.pathname !== '/') {
-      history.pushState({}, '', '/');
-    }
+  const _MAIN_PAGES = ['start', 'news', 'musts', 'map', 'profile'];
+
+  // Push a clean URL for a main section (e.g. /news, /map). history.pushState
+  // always sets the full path so there's no risk of hash-appending to slug URLs.
+  function _pushPage(page) {
+    history.pushState({ page }, '', page === 'start' ? '/' : '/' + page);
   }
+
+  // Kept for call-site compatibility — no longer needs to reset article paths
+  // because _pushPage uses absolute paths via pushState.
+  function _resetArticlePath() {}
 
   if (appPages.length) {
     if (navbarBrand) {
@@ -2788,23 +2791,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (navNewsBtn) {
       navNewsBtn.addEventListener('click', () => {
-        _resetArticlePath();
         navigateToPage('news');
-        window.location.hash = 'news';
+        _pushPage('news');
       });
     }
     if (navMapBtn) {
       navMapBtn.addEventListener('click', () => {
-        _resetArticlePath();
         navigateToPage('map');
-        window.location.hash = 'map';
+        _pushPage('map');
       });
     }
     if (navMustsBtn) {
       navMustsBtn.addEventListener('click', () => {
-        _resetArticlePath();
         navigateToPage('musts');
-        window.location.hash = 'musts';
+        _pushPage('musts');
       });
     }
 
@@ -2812,23 +2812,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navProfileBtn) {
       navProfileBtn.addEventListener('click', () => {
         if (window._currentUser) {
-          _resetArticlePath();
           navigateToPage('profile');
-          window.location.hash = 'profile';
+          _pushPage('profile');
         } else {
           window.openLoginModal?.();
         }
       });
     }
 
-    // Burger menu page navigation (News)
+    // Burger menu page navigation
     document.querySelectorAll('.burger-page-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
         closeBurger?.();
         const page = btn.dataset.page;
-        _resetArticlePath();
         navigateToPage(page);
-        window.location.hash = page;
+        _pushPage(page);
       });
     });
 
@@ -2841,47 +2839,53 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    function checkHash() {
-      const hash = window.location.hash.replace('#', '') || 'start';
-      const validPages = ['start', 'news', 'musts', 'map', 'profile'];
-      if (validPages.includes(hash)) {
+    function checkPath() {
+      // Backwards compat: redirect old /#hash URLs to clean paths
+      const hash = window.location.hash.replace('#', '');
+      if (hash && _MAIN_PAGES.includes(hash)) {
+        history.replaceState({ page: hash }, '', hash === 'start' ? '/' : '/' + hash);
         navigateToPage(hash);
+        return;
       }
+      const path = window.location.pathname;
+      const page = path === '/' ? 'start' : path.replace(/^\//, '').split('/')[0];
+      if (_MAIN_PAGES.includes(page)) navigateToPage(page);
     }
 
-    window.addEventListener('hashchange', checkHash);
+    // Keep hashchange for backwards compat — old shared /#news links still work
+    window.addEventListener('hashchange', checkPath);
 
     window.addEventListener('popstate', () => {
       const path = window.location.pathname;
-      if (path.startsWith('/news/')) {
-        const slug = path.slice(6); // '/news/'.length
+      if (path.startsWith('/news/') && path.length > 6) {
+        const slug = path.slice(6);
         const card = document.querySelector(`.news-card[data-slug="${slug}"]`);
         if (card) openNewsModal(card);
         else _openArticleBySlugFromCMS(slug);
       } else {
         _restoreDefaultMeta();
-        const hash = window.location.hash.replace('#', '') || 'start';
-        navigateToPage(hash);
+        const page = path === '/' ? 'start' : path.replace(/^\//, '').split('/')[0];
+        if (_MAIN_PAGES.includes(page)) navigateToPage(page);
       }
     });
 
-    checkHash();
-    // Ensure initial page is reflected (checkHash skips start→start since guard fires)
+    checkPath();
     if (currentPage === 'start') setActivePage('start');
 
-    // Handle direct URL navigation — /news/[slug] and static pages
+    // Handle direct URL navigation — /news/[slug], main sections, and static pages
     const _initPath = window.location.pathname;
-    if (_initPath.startsWith('/news/')) {
+    if (_initPath.startsWith('/news/') && _initPath.length > 6) {
       const _initSlug = _initPath.slice(6);
-      // Go straight to the article page — skip the news-list flash.
       window._pendingArticleSlug = _initSlug;
       navigateToPage('news-article');
       _openArticleBySlugFromCMS(_initSlug);
     } else {
-      // Static pages: /about, /contact, /press, /impressum, /datenschutz, /agb
-      const _staticSlug = STATIC_PAGE_SLUGS.find(s => _initPath === '/' + s);
-      if (_staticSlug) {
-        navigateToPage(_staticSlug);
+      const _pathPage = _initPath === '/' ? null : _initPath.replace(/^\//, '').split('/')[0];
+      if (_pathPage && ['news', 'musts', 'map', 'profile'].includes(_pathPage)) {
+        navigateToPage(_pathPage);
+      } else {
+        const _staticSlug = STATIC_PAGE_SLUGS.find(s => _initPath === '/' + s);
+        if (_staticSlug) navigateToPage(_staticSlug);
       }
     }
 
@@ -3244,9 +3248,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (STATIC_PAGE_SLUGS.includes(page)) {
         window.location.href = '/' + page;
       } else {
-        _resetArticlePath();
         navigateToPage(page);
-        window.location.hash = page;
+        _pushPage(page);
       }
       return;
     }

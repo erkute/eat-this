@@ -1793,17 +1793,10 @@ document.addEventListener('DOMContentLoaded', () => {
         dragEnd();
       });
 
-      // Also allow swipe-up from the map container itself
-      const mapContainer = document.getElementById('foodMap');
-      if (mapContainer) {
-        mapContainer.addEventListener('touchstart', (e) => {
-          dragStart(e.touches[0].clientY);
-        }, { passive: true });
-        mapContainer.addEventListener('touchmove', (e) => {
-          dragMove(e.touches[0].clientY);
-        }, { passive: true });
-        mapContainer.addEventListener('touchend', () => dragEnd());
-      }
+      // Note: previously we bound touchstart/touchmove on #foodMap to let
+      // users swipe up from the map itself to raise the sheet. That broke
+      // normal Leaflet panning (sheet moved every time the user panned the
+      // map). Removed — users can still drag the sheet via its handle.
 
       // Mouse events (desktop) — full sheet
       sheet.addEventListener('mousedown', (e) => {

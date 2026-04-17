@@ -2245,8 +2245,12 @@ document.addEventListener('DOMContentLoaded', () => {
     a.appendChild(imgWrap);
     a.appendChild(body);
     art.appendChild(a);
-    // Navigate normally — full page load gives a clean scroll-to-top,
-    // a new page impression for analytics, and avoids in-page swap issues.
+    // Force a full page navigation so scroll starts at top and analytics
+    // records a new page impression — no SPA swap for rec cards.
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.href = a.href;
+    });
     return art;
   }
 
@@ -2365,6 +2369,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function _openArticleBySlugFromCMS(slug) {
+    // Clear pending slug immediately so _bindNewsCards doesn't also open it
+    if (window._pendingArticleSlug === slug) window._pendingArticleSlug = null;
     const lang = window.i18n?.currentLang?.() || 'en';
     const article = await window.CMS.fetchArticleBySlug(slug, lang);
     if (!article) return;
@@ -2688,20 +2694,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const navNewsBtn = document.getElementById('navNewsBtn');
     const navMapBtn = document.getElementById('navMapBtn');
     const navMustsBtn = document.getElementById('navMustsBtn');
+    // When on a /news/[slug] path, reset to / before setting the hash —
+    // otherwise hash = 'news' would append to the slug URL (/news/slug#news).
+    function _resetArticlePath() {
+      if (window.location.pathname !== '/') {
+        history.pushState({}, '', '/');
+      }
+    }
+
     if (navNewsBtn) {
       navNewsBtn.addEventListener('click', () => {
+        _resetArticlePath();
         navigateToPage('news');
         window.location.hash = 'news';
       });
     }
     if (navMapBtn) {
       navMapBtn.addEventListener('click', () => {
+        _resetArticlePath();
         navigateToPage('map');
         window.location.hash = 'map';
       });
     }
     if (navMustsBtn) {
       navMustsBtn.addEventListener('click', () => {
+        _resetArticlePath();
         navigateToPage('musts');
         window.location.hash = 'musts';
       });
@@ -2711,6 +2728,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navProfileBtn) {
       navProfileBtn.addEventListener('click', () => {
         if (window._currentUser) {
+          _resetArticlePath();
           navigateToPage('profile');
           window.location.hash = 'profile';
         } else {
@@ -2724,6 +2742,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.addEventListener('click', () => {
         closeBurger?.();
         const page = btn.dataset.page;
+        _resetArticlePath();
         navigateToPage(page);
         window.location.hash = page;
       });
@@ -2770,8 +2789,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const _initPath = window.location.pathname;
     if (_initPath.startsWith('/news/')) {
       const _initSlug = _initPath.slice(6);
-      navigateToPage('news');
+      // Go straight to the article page — skip the news-list flash.
+      // Also set _pendingArticleSlug as a fallback in case news cards
+      // happen to load before the CMS response arrives.
       window._pendingArticleSlug = _initSlug;
+      navigateToPage('news-article');
+      _openArticleBySlugFromCMS(_initSlug);
     }
 
     // Allow any module (auth.js etc.) to navigate by dispatching this event

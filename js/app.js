@@ -2907,6 +2907,17 @@ document.addEventListener('DOMContentLoaded', () => {
   function closeCookieSettings() {
     if (cookieConsent) {
       cookieConsent.classList.remove('show');
+      // The banner sliding in/out can trigger iOS Safari viewport adjustments that
+      // briefly change window.scrollY, causing the start-page navbar to flip to
+      // .scrolled (opaque). Re-sync after the CSS transition completes (300ms).
+      setTimeout(() => {
+        const navbar = document.querySelector('.navbar');
+        if (!navbar) return;
+        const activePage = document.documentElement.getAttribute('data-active-page');
+        if (activePage === 'start') {
+          navbar.classList.toggle('scrolled', window.scrollY > 60);
+        }
+      }, 350);
     }
   }
 
@@ -2919,8 +2930,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (cookieAccept) {
     cookieAccept.addEventListener('click', () => {
       localStorage.setItem('cookieConsent', 'accepted');
-      loadAnalytics();
       closeCookieSettings();
+      // Delay analytics load slightly so the banner finishes closing before
+      // cross-site scripts load — reduces chance of iOS Safari privacy banner
+      // appearing immediately on top of the start page.
+      setTimeout(loadAnalytics, 600);
     });
   }
 

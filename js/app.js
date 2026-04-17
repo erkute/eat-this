@@ -1044,8 +1044,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Safety timeout: if globe animation hangs (WebGL stall, low memory),
     // clean up and hand off to the map after 12 s.
-    let animFrame, renderer; // hoisted so timeout can reference them
+    let animFrame, renderer, autoAdvanceTimer; // hoisted so nested closures can reference them
     const globeTimeout = setTimeout(() => {
+      clearTimeout(autoAdvanceTimer);
       if (animFrame) cancelAnimationFrame(animFrame);
       if (renderer) try { renderer.dispose(); } catch {}
       overlay.remove();
@@ -1074,6 +1075,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderer.setClearColor(0x000000);
     } catch {
       clearTimeout(globeTimeout);
+      clearTimeout(autoAdvanceTimer);
       overlay.remove();
       mapEl.classList.remove('globe-active');
       mapEl.style.cssText = '';
@@ -1139,6 +1141,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startZoom() {
       if (phase !== 'idle') return;
+      clearTimeout(autoAdvanceTimer);
       phase = 'zoom';
       phaseStart = Date.now();
 
@@ -1161,9 +1164,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     overlay.addEventListener('click', startZoom);
+    // iOS Safari doesn't fire 'click' on divs — add touchend as fallback
+    overlay.addEventListener('touchend', (e) => { e.preventDefault(); startZoom(); }, { passive: false });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && phase === 'idle') startZoom();
     });
+    // Auto-advance after 3.5 s so the globe never blocks the map on slow/Safari devices
+    autoAdvanceTimer = setTimeout(startZoom, 3500);
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(

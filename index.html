@@ -8,6 +8,12 @@
         var s = localStorage.getItem('theme');
         var dark = s === 'dark' || (!s && window.matchMedia('(prefers-color-scheme: dark)').matches);
         document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+        var lang = localStorage.getItem('lang');
+        if (!lang) {
+          var nav = (navigator.language || 'en').toLowerCase();
+          lang = nav.indexOf('de') === 0 ? 'de' : 'en';
+        }
+        document.documentElement.lang = lang;
       }());
     </script>
     <meta charset="UTF-8" />
@@ -32,10 +38,11 @@
       content="Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must-Eats on the interactive map &amp; hunt down the best dishes in the city. Taste it all!"
     />
     <meta name="author" content="EAT THIS" />
-    <link rel="canonical" href="https://www.eatthisdot.com" />
-    <link rel="alternate" hreflang="en" href="https://www.eatthisdot.com" />
-    <link rel="alternate" hreflang="de" href="https://www.eatthisdot.com" />
-    <link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com" />
+    <link rel="canonical" href="https://www.eatthisdot.com/" />
+    <!-- Bilingual site with client-side language switching at the same URL.
+         hreflang only applies when each language has its own URL — adding
+         hreflang tags that all point to the same URL confuses Google. -->
+    <link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="EAT THIS" />
@@ -205,6 +212,18 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://ehwjnjr2.apicdn.sanity.io" crossorigin />
+    <link rel="preconnect" href="https://cdn.sanity.io" crossorigin />
+    <link rel="dns-prefetch" href="//a.basemaps.cartocdn.com" />
+    <link rel="dns-prefetch" href="//b.basemaps.cartocdn.com" />
+    <link rel="dns-prefetch" href="//c.basemaps.cartocdn.com" />
+    <link rel="dns-prefetch" href="//d.basemaps.cartocdn.com" />
+    <link rel="dns-prefetch" href="//unpkg.com" />
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com" />
+    <link rel="dns-prefetch" href="//www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="//www.google-analytics.com" />
+    <link rel="preload" as="image" href="pics/hero-desktop.webp" media="(min-width: 768px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="pics/hero-mobile.webp" media="(max-width: 767px)" fetchpriority="high" />
     <link
       href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700;900&family=Oswald:wght@700&family=Space+Mono:wght@400;700&display=swap"
       rel="stylesheet"
@@ -340,7 +359,10 @@
                 src="pics/about/0477e049b54b21c5fb7ea43d5a97ac2b.webp"
                 alt="Eat This Berlin"
                 class="start-img tall"
+                width="1200"
+                height="1200"
                 loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -368,7 +390,10 @@
                 src="pics/about/2a5614a1b1dbbcb45d32b02206a80f7c.webp"
                 alt="Must-Eat Cards"
                 class="start-img tall"
+                width="864"
+                height="1080"
                 loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -379,7 +404,10 @@
               src="pics/about/4efa8f0aee650ef411786278bc822d26.webp"
               alt="Curation"
               class="start-img wide"
+              width="1080"
+              height="1346"
               loading="lazy"
+              decoding="async"
             />
             <div class="start-philo-list">
               <div class="start-philo-item">
@@ -439,6 +467,8 @@
               src="pics/logo2.webp"
               alt="EAT THIS"
               class="must-eats-logo-img"
+              width="600"
+              height="190"
               loading="lazy"
               decoding="async"
             />
@@ -770,7 +800,7 @@
     <template id="siteFooterTpl">
       <div class="site-footer" role="contentinfo" aria-label="Site footer">
         <a href="#" class="site-footer-logo-link" data-page="start" aria-label="Eat This home">
-          <img src="pics/logo2.webp" alt="EAT THIS" class="site-footer-logo-img" />
+          <img src="pics/logo2.webp" alt="EAT THIS" class="site-footer-logo-img" width="180" height="57" loading="lazy" decoding="async" />
         </a>
         <nav class="site-footer-links" aria-label="Footer navigation">
           <button class="site-footer-link" data-page="about" data-i18n="footer.about">About</button>
@@ -1034,7 +1064,7 @@
         </button>
 
         <div class="login-logo">
-          <img src="pics/logo.webp" alt="EAT THIS" loading="lazy" decoding="async" />
+          <img src="pics/logo.webp" alt="EAT THIS" width="280" height="88" loading="lazy" decoding="async" />
         </div>
 
         <!-- AUTH VIEW (nicht eingeloggt) -->

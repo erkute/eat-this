@@ -13,6 +13,9 @@
   "hosting": {
     "public": ".",
     "cleanUrls": true,
+    "predeploy": [
+      "npm run build:articles"
+    ],
     "ignore": [
       "firebase.json",
       ".firebaserc",
@@ -22,7 +25,17 @@
       "functions/**",
       "email-templates/**",
       "scripts/**",
-      "docs/**"
+      "docs/**",
+      "pics/hero-desktop.png",
+      "pics/hero-mobile.png",
+      "pics/eat.png",
+      "pics/logo.png",
+      "pics/logo2.png",
+      "studio/**",
+      "tests/**",
+      "playwright.config.js",
+      "eslint.config.js",
+      "package*.json"
     ],
     "headers": [
       {

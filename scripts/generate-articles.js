@@ -98,9 +98,9 @@ function generateRelatedHtml(related) {
   if (!related || !related.length) return '';
   const cards = related.map(r => {
     const slug = (r.slug || '').replace(/[^a-z0-9-_]/gi, '-');
-    const imgSrc = r.imageUrl ? `${r.imageUrl}?w=600&auto=format&q=80` : '';
+    const imgSrc = r.imageUrl ? `${r.imageUrl}?w=600&h=400&fit=crop&auto=format&q=80` : '';
     const imgHtml = imgSrc
-      ? `<div class="news-rec-img"><img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(r.alt || r.title)}" loading="lazy"></div>`
+      ? `<div class="news-rec-img"><img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(r.alt || r.title)}" width="600" height="400" loading="lazy" decoding="async"></div>`
       : '';
     return `<div class="news-rec-card">
       <a href="/news/${escapeHtml(slug)}">
@@ -127,7 +127,7 @@ function generateArticleHtml(article, related = []) {
   const metaDesc    = article.seo?.metaDescription || article.excerpt || '';
   const rawOgImage  = article.seo?.ogImageUrl  || article.imageUrl  || '';
   const ogImage     = rawOgImage ? `${rawOgImage}?w=1200&h=630&fit=crop&auto=format` : '';
-  const heroImage   = article.imageUrl ? `${article.imageUrl}?w=1400&auto=format&q=85` : '';
+  const heroImage   = article.imageUrl ? `${article.imageUrl}?w=1400&h=788&fit=crop&auto=format&q=85` : '';
   const noIndexTag  = article.seo?.noIndex
     ? '<meta name="robots" content="noindex,nofollow">'
     : '';
@@ -144,16 +144,30 @@ function generateArticleHtml(article, related = []) {
     'description': metaDesc,
     'image': ogImage || heroImage,
     'datePublished': article.date || '',
+    'dateModified': article.date || '',
+    'author': {
+      '@type': 'Organization',
+      'name': 'Eat This Berlin',
+      'url': 'https://www.eatthisdot.com',
+    },
     'publisher': {
       '@type': 'Organization',
       'name': 'Eat This Berlin',
       'url': 'https://www.eatthisdot.com',
+      'logo': {
+        '@type': 'ImageObject',
+        'url': 'https://www.eatthisdot.com/pics/logo.webp',
+      },
+    },
+    'mainEntityOfPage': {
+      '@type': 'WebPage',
+      '@id': canonical,
     },
   }).replace(/<\//g, '<\\/');
 
   const heroHtml = heroImage
     ? `<div class="news-article-hero">
-        <img src="${heroImage}" alt="${escapeHtml(article.alt || article.title)}" loading="eager">
+        <img src="${heroImage}" alt="${escapeHtml(article.alt || article.title)}" width="1400" height="788" loading="eager" fetchpriority="high">
         <div class="news-article-hero-overlay">
           <div class="news-article-meta">
             <span class="news-modal-category">${categoryLabel}</span>

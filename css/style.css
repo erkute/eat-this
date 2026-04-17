@@ -1696,6 +1696,12 @@ body {
 }
 
 /* Leaflet Overrides */
+/* leaflet.css uses mix-blend-mode:plus-lighter to fix a Chromium artifact bug,
+   but it makes tiles invisible on white backgrounds (light mode) in Safari. */
+.leaflet-container img.leaflet-tile {
+  mix-blend-mode: normal !important;
+}
+
 #foodMap {
   width: 100% !important;
   height: 50vh !important;

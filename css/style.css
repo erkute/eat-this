@@ -2731,6 +2731,8 @@ body {
     height: auto !important;
     /* Fill viewport at minimum so short pages don't show body bg below */
     min-height: calc(100dvh - 60px);
+    /* Pad for fixed app-footer + safe-area-inset-bottom so last content is reachable */
+    padding-bottom: max(80px, calc(60px + env(safe-area-inset-bottom, 0px)));
     overflow: visible !important;
     background: var(--white);
     overscroll-behavior: none;
@@ -2972,7 +2974,7 @@ body {
   }
 
   .app-page[data-page="news"] .news-header {
-    padding: 10px 16px 8px;
+    padding: 20px 16px 8px;
     background: var(--white);
     border-bottom: none;
     display: flex;

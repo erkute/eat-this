@@ -274,83 +274,129 @@ body {
 [data-theme="dark"] .hero-tagline { color: rgba(255,255,255,0.85); }
 
 /* Hero register button */
-/* ── Liquid Glass Button — iOS 26 style ── */
+/* ══════════════════════════════════════════════
+   iOS 26 LIQUID GLASS BUTTON
+   Identical across light / dark mode, mobile / desktop.
+   Blur + saturation make the hero image bleed through
+   as a tinted lens. Two pseudo-elements layer the specular
+   highlights. box-shadow adds inner rim + outer depth.
+   ══════════════════════════════════════════════ */
 .hero-register-btn {
   position: relative;
   margin-top: 20px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   overflow: hidden;
+  isolation: isolate;           /* own stacking ctx for pseudo-elements */
 
-  /* Glass fill */
-  background: rgba(255,255,255,0.18);
-  color: rgba(255,255,255,0.95);
-  text-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  /* Nearly transparent — the backdrop does the colouring */
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.45);
 
-  /* Border: bright edge simulates glass rim */
-  border: 1px solid rgba(255,255,255,0.5);
+  /* Full glass rim */
+  border: 1px solid rgba(255,255,255,0.38);
   border-radius: 100px;
-  padding: 12px 26px;
+  padding: 13px 28px;
 
   font-size: 0.85rem;
   font-weight: 700;
   font-family: var(--font);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
 
-  /* Frosted glass blur + brightness/saturation tinting */
-  backdrop-filter: blur(28px) saturate(1.8) brightness(1.12);
-  -webkit-backdrop-filter: blur(28px) saturate(1.8) brightness(1.12);
+  /* The "lens" — heavy blur + colour amplification */
+  backdrop-filter: blur(40px) saturate(2.4) brightness(1.18);
+  -webkit-backdrop-filter: blur(40px) saturate(2.4) brightness(1.18);
 
-  /* Layered shadows: inner top highlight + outer depth */
+  /* Depth stack:
+     1. Bright top rim (specular edge)
+     2. Faint bottom inner shadow (depth)
+     3. Outer ambient shadow
+     4. Hard outer rim for definition */
   box-shadow:
-    inset 0 1.5px 1.5px rgba(255,255,255,0.75),
-    inset 0 -1px 1px rgba(0,0,0,0.08),
-    0 4px 20px rgba(0,0,0,0.18),
-    0 1px 4px rgba(0,0,0,0.1);
+    inset 0 1.5px 0   rgba(255,255,255,0.85),
+    inset 0 -1.5px 0  rgba(0,0,0,0.12),
+    inset 1px 0 0     rgba(255,255,255,0.18),
+    inset -1px 0 0    rgba(255,255,255,0.18),
+    0 6px 28px        rgba(0,0,0,0.22),
+    0 2px 6px         rgba(0,0,0,0.14),
+    0 0 0 0.5px       rgba(255,255,255,0.22);
 
-  transition: background 0.2s, box-shadow 0.2s, transform 0.18s;
+  transition: background 0.22s, box-shadow 0.22s,
+              transform 0.22s cubic-bezier(0.34,1.56,0.64,1),
+              backdrop-filter 0.22s;
+  will-change: transform;
 }
 
-/* Specular shine — diagonal highlight across top-left (the "wet glass" look) */
+/* ── Pseudo 1: curved top-half specular shine ──
+   Simulates the bright reflection on a glass pill from above */
 .hero-register-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 55%;
+  border-radius: 100px 100px 60% 60% / 100px 100px 90% 90%;
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.38) 0%,
+    rgba(255,255,255,0.04) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Pseudo 2: radial inner glow from top centre ──
+   The soft "light source above" halo */
+.hero-register-btn::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(
-    148deg,
-    rgba(255,255,255,0.45) 0%,
-    rgba(255,255,255,0.12) 35%,
-    transparent 60%
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 0%,
+    rgba(255,255,255,0.22) 0%,
+    transparent 70%
   );
   pointer-events: none;
+  z-index: 2;
+}
+
+/* Keep text & icon above the pseudo layers */
+.hero-register-btn span,
+.hero-register-btn svg {
+  position: relative;
+  z-index: 3;
 }
 
 .hero-register-btn:hover {
-  background: rgba(255,255,255,0.28);
-  border-color: rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.6);
+  backdrop-filter: blur(44px) saturate(2.8) brightness(1.22);
+  -webkit-backdrop-filter: blur(44px) saturate(2.8) brightness(1.22);
   box-shadow:
-    inset 0 1.5px 1.5px rgba(255,255,255,0.85),
-    inset 0 -1px 1px rgba(0,0,0,0.08),
-    0 8px 32px rgba(0,0,0,0.22),
-    0 2px 8px rgba(0,0,0,0.12);
-  transform: translateY(-2px);
+    inset 0 1.5px 0   rgba(255,255,255,0.95),
+    inset 0 -1.5px 0  rgba(0,0,0,0.1),
+    inset 1px 0 0     rgba(255,255,255,0.25),
+    inset -1px 0 0    rgba(255,255,255,0.25),
+    0 12px 40px       rgba(0,0,0,0.26),
+    0 4px 10px        rgba(0,0,0,0.14),
+    0 0 0 0.5px       rgba(255,255,255,0.45);
+  transform: translateY(-3px) scale(1.025);
 }
 
-/* Same glass style in both light and dark mode — no override needed */
+.hero-register-btn:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.1s;
+}
 
 .hero-register-btn svg {
-  position: relative; /* above ::before */
   transition: transform 0.2s;
 }
 .hero-register-btn:hover svg {
   transform: translateX(4px);
-}
-.hero-register-btn span {
-  position: relative; /* above ::before */
 }
 
 @media (min-width: 768px) {

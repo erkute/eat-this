@@ -1371,8 +1371,17 @@ document.addEventListener('DOMContentLoaded', () => {
       popupAnchor: [0, -20],
     });
 
+    const logoIconSelected = L.divIcon({
+      className: '',
+      html: '<div class="map-marker-selected"><img src="pics/eat.webp" width="36" height="36"></div>',
+      iconSize: [44, 44],
+      iconAnchor: [22, 22],
+      popupAnchor: [0, -24],
+    });
+
     const markers = [];
     window._mapMarkers = markers;
+    let _activeMarker = null;
     const mapSpotOverlay = document.getElementById('mapSpotOverlay');
     const mapSpotContent = document.getElementById('mapSpotContent');
     const mapSpotClose = document.getElementById('mapSpotClose');
@@ -1415,6 +1424,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showSpotDetail(spot) {
+      // Highlight the tapped marker; reset the previous one
+      const markerForSpot = markers.find(m => m.spotData === spot);
+      if (_activeMarker && _activeMarker !== markerForSpot) {
+        _activeMarker.setIcon(logoIcon);
+      }
+      if (markerForSpot) {
+        markerForSpot.setIcon(logoIconSelected);
+        _activeMarker = markerForSpot;
+      }
+
       if (foodMap) {
         flyToWithSheetOffset(spot.lat, spot.lng, 15);
       }

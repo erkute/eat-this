@@ -1728,6 +1728,28 @@ body {
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
 }
 
+/* Selected / last-viewed spot marker */
+.map-marker-selected {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #FF3B00;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 3px #fff, 0 4px 16px rgba(255,59,0,0.5);
+  animation: markerPulse 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.map-marker-selected img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+@keyframes markerPulse {
+  from { transform: scale(0.6); opacity: 0.4; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
 
 @media (min-width: 768px) {
   .map-section { padding: 140px 0 100px; }

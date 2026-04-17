@@ -2675,6 +2675,12 @@ body {
 }
 
 @media (max-width: 767px) {
+  /* overscroll-behavior:none on html/body blocks Safari's URL bar auto-hide.
+     Reset to auto so Safari can collapse the address bar on scroll. */
+  html, body {
+    overscroll-behavior: auto;
+  }
+
   body {
     background-color: #fff;
   }

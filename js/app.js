@@ -215,14 +215,18 @@ document.addEventListener('DOMContentLoaded', () => {
   function _openLoginModal() {
     if (_loginModal) {
       _loginModal.classList.add('active');
-      bodyOverflow.lock();
+      // No bodyOverflow.lock() — modal is position:fixed inset:0, full viewport,
+      // so background scroll is invisible. Lock causes iOS position:fixed jump.
     }
   }
   function _closeLoginModal() {
     if (_loginModal) {
       _loginModal.classList.remove('active');
-      bodyOverflow.unlock();
     }
+  }
+  // Prevent scroll-through while modal is open (same pattern as must-eat lightbox)
+  if (_loginModal) {
+    _loginModal.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
   }
 
   // loginBtn is handled by auth.js (navigates to profile or opens modal)

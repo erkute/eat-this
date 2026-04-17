@@ -96,14 +96,14 @@ let isRegistering  = false;
 function openLoginModal() {
   if (!loginModal) return;
   loginModal.classList.add('active');
-  window.bodyOverflow?.lock();
+  // No bodyOverflow.lock() — modal is position:fixed inset:0, full viewport.
+  // Locking body causes the iOS position:fixed scroll jump.
   window._renderProfileFavourites?.();
 }
 
 function closeLoginModal() {
   if (!loginModal) return;
   loginModal.classList.remove('active');
-  window.bodyOverflow?.unlock();
   clearError();
 }
 

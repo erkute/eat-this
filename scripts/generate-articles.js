@@ -160,6 +160,59 @@ function cleanNewsDir(dir) {
   } catch { /* dir may not exist yet */ }
 }
 
+function buildSitemap(articles) {
+  const today = new Date().toISOString().slice(0, 10);
+  const staticPages = [
+    { loc: '/',           priority: '1.0', changefreq: 'weekly'  },
+    { loc: '/about',      priority: '0.5', changefreq: 'monthly' },
+    { loc: '/contact',    priority: '0.4', changefreq: 'monthly' },
+    { loc: '/press',      priority: '0.4', changefreq: 'monthly' },
+    { loc: '/impressum',  priority: '0.2', changefreq: 'yearly'  },
+    { loc: '/datenschutz',priority: '0.2', changefreq: 'yearly'  },
+    { loc: '/agb',        priority: '0.2', changefreq: 'yearly'  },
+  ];
+
+  const entries = [];
+
+  for (const p of staticPages) {
+    entries.push(
+      `  <url>\n` +
+      `    <loc>${SITE_URL}${p.loc}</loc>\n` +
+      `    <lastmod>${today}</lastmod>\n` +
+      `    <changefreq>${p.changefreq}</changefreq>\n` +
+      `    <priority>${p.priority}</priority>\n` +
+      `  </url>`
+    );
+  }
+
+  for (const a of articles) {
+    if (!a.slug || a.seo?.noIndex) continue;
+    const slug = a.slug.replace(/[^a-z0-9-_]/gi, '-');
+    const lastmod = (a.date || today).slice(0, 10);
+    const imgBlock = a.imageUrl
+      ? `    <image:image>\n` +
+        `      <image:loc>${a.imageUrl}?w=1200&amp;auto=format</image:loc>\n` +
+        `      <image:title>${escapeHtml(a.title || '')}</image:title>\n` +
+        `    </image:image>\n`
+      : '';
+    entries.push(
+      `  <url>\n` +
+      `    <loc>${SITE_URL}/news/${slug}</loc>\n` +
+      `    <lastmod>${lastmod}</lastmod>\n` +
+      `    <changefreq>weekly</changefreq>\n` +
+      `    <priority>0.7</priority>\n` +
+      imgBlock +
+      `  </url>`
+    );
+  }
+
+  return `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n` +
+    `        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n\n` +
+    entries.join('\n\n') +
+    `\n\n</urlset>\n`;
+}
+
 async function main() {
   console.log('Loading index.html template…');
   const template = readFileSync(join(PROJECT_ROOT, 'index.html'), 'utf-8');
@@ -190,6 +243,11 @@ async function main() {
   }
 
   console.log(`\nDone. Generated ${generated} article shells → /news/`);
+
+  // Sitemap — regenerated every run so added/removed articles stay in sync
+  const sitemap = buildSitemap(articles.filter(a => a.slug));
+  writeFileSync(join(PROJECT_ROOT, 'sitemap.xml'), sitemap, 'utf-8');
+  console.log(`Wrote sitemap.xml with ${articles.length} article entries`);
 }
 
 main().catch(err => {

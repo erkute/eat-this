@@ -290,13 +290,13 @@ body {
   overflow: hidden;
   isolation: isolate;           /* own stacking ctx for pseudo-elements */
 
-  /* Nearly transparent — the backdrop does the colouring */
-  background: rgba(255,255,255,0.08);
+  /* Nearly invisible — backdrop does all the colouring */
+  background: rgba(255,255,255,0.03);
   color: #fff;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.45);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
 
   /* Full glass rim */
-  border: 1px solid rgba(255,255,255,0.38);
+  border: 1px solid rgba(255,255,255,0.28);
   border-radius: 100px;
   padding: 13px 28px;
 
@@ -341,8 +341,8 @@ body {
   border-radius: 100px 100px 60% 60% / 100px 100px 90% 90%;
   background: linear-gradient(
     180deg,
-    rgba(255,255,255,0.38) 0%,
-    rgba(255,255,255,0.04) 100%
+    rgba(255,255,255,0.22) 0%,
+    rgba(255,255,255,0.01) 100%
   );
   pointer-events: none;
   z-index: 1;
@@ -357,7 +357,7 @@ body {
   border-radius: inherit;
   background: radial-gradient(
     ellipse 80% 50% at 50% 0%,
-    rgba(255,255,255,0.22) 0%,
+    rgba(255,255,255,0.12) 0%,
     transparent 70%
   );
   pointer-events: none;
@@ -372,8 +372,8 @@ body {
 }
 
 .hero-register-btn:hover {
-  background: rgba(255,255,255,0.16);
-  border-color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.09);
+  border-color: rgba(255,255,255,0.5);
   backdrop-filter: blur(44px) saturate(2.8) brightness(1.22);
   -webkit-backdrop-filter: blur(44px) saturate(2.8) brightness(1.22);
   box-shadow:

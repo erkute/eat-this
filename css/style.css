@@ -4056,7 +4056,7 @@ body {
   color: rgba(255, 255, 255, 0.5);
 }
 
-/* Footer toggle — on permanent dark bg */
+/* Footer toggle — dark bg */
 .site-footer .theme-toggle-track {
   background: rgba(255, 255, 255, 0.2);
 }
@@ -4069,6 +4069,13 @@ body {
 }
 [data-theme="dark"] .site-footer .theme-toggle-track {
   background: var(--orange);
+}
+/* Footer toggle — light bg */
+[data-theme="light"] .site-footer .theme-toggle-track {
+  background: #cccccc;
+}
+[data-theme="light"] .site-footer .theme-toggle-label {
+  color: rgba(0, 0, 0, 0.45);
 }
 
 /* Burger theme row */

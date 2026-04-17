@@ -2704,6 +2704,10 @@ body {
   
   .app-page {
     position: relative;
+    /* Override global height/overflow so window (not container) scrolls */
+    height: auto;
+    overflow-y: visible;
+    overflow-x: hidden;
     background: var(--white);
     overscroll-behavior: none;
     padding-bottom: max(80px, calc(60px + env(safe-area-inset-bottom, 0px)));

@@ -2772,22 +2772,24 @@ body {
     position: static;
     /* contain: allows normal scroll + URL-bar auto-hide, but blocks pull-to-refresh */
     overscroll-behavior: contain;
-    background: var(--white);
-  }
-
-  html[data-theme="dark"] {
-    /* black so overscroll/bounce area matches the dark footer */
+    /* black so overscroll/bounce area below the black footer matches it */
     background: var(--black);
   }
 
   body {
     overflow-x: unset;
     overscroll-behavior: contain;
-    background-color: var(--white);
+    background-color: var(--black);
   }
 
-  html[data-theme="dark"] body {
-    background-color: var(--black);
+  /* app-pages gets explicit white/dark bg so no black bleeds through
+     content areas in light mode — html background only shows at the
+     very top/bottom overscroll bounce zones */
+  .app-pages {
+    background: var(--white);
+  }
+  html[data-theme="dark"] .app-pages {
+    background: var(--black);
   }
 
   /* Natural window scroll so Safari URL bar auto-hides on scroll.

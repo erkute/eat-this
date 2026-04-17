@@ -2304,18 +2304,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const isAlreadyOpen = currentPage === 'news-article';
 
     const doOpen = () => {
+      // Reset scroll BEFORE swapping content — this clears any scroll-anchor
+      // reference point so the browser doesn't try to hold position.
+      newsModal.scrollTop = 0;
+      window.scrollTo(0, 0);
+
       _applyNewsArticleContent(article);
 
       // Navigate (no-op if already on this page, but sets scroll + activates page)
       if (!isAlreadyOpen) navigateToPage('news-article');
 
-      // Always scroll to top
+      // Reset again after display/content change — rAF catches post-paint
+      // browser scroll restoration; setTimeout(0) catches anything after that.
       newsModal.scrollTop = 0;
       window.scrollTo(0, 0);
       requestAnimationFrame(() => {
         newsModal.scrollTop = 0;
         window.scrollTo(0, 0);
       });
+      setTimeout(() => {
+        newsModal.scrollTop = 0;
+        window.scrollTo(0, 0);
+      }, 0);
 
       // Update URL + meta
       const slug = article.dataset.slug || '';
@@ -2625,15 +2635,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Scroll back to top on every navigation.
-    // On mobile we use window scroll; on desktop the app-page container scrolls.
+    // Reset both the container and the window — mobile uses window scroll,
+    // desktop uses the app-page container, but resetting both is harmless and
+    // avoids edge cases (zoom levels, viewport size near breakpoint, etc.).
     if (targetPage && pageName !== 'map') {
-      if (!window.matchMedia('(min-width: 768px)').matches) {
-        window.scrollTo(0, 0);
-        requestAnimationFrame(() => window.scrollTo(0, 0));
-      } else {
+      targetPage.scrollTop = 0;
+      window.scrollTo(0, 0);
+      requestAnimationFrame(() => {
         targetPage.scrollTop = 0;
-        requestAnimationFrame(() => { targetPage.scrollTop = 0; });
-      }
+        window.scrollTo(0, 0);
+      });
+      // setTimeout(0) fires after the browser renders the display change,
+      // catching any scroll restoration the browser applies post-paint.
+      setTimeout(() => {
+        targetPage.scrollTop = 0;
+        window.scrollTo(0, 0);
+      }, 0);
     }
 
     // Update header icon button active states

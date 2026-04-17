@@ -2175,6 +2175,11 @@ body {
   min-height: 100vh;
 }
 
+/* Prevent browser scroll-anchoring from holding position when content swaps */
+.app-page[data-page="news-article"] {
+  overflow-anchor: none;
+}
+
 @keyframes newsArticleFadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }

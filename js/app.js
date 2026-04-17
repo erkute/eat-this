@@ -2245,11 +2245,8 @@ document.addEventListener('DOMContentLoaded', () => {
     a.appendChild(imgWrap);
     a.appendChild(body);
     art.appendChild(a);
-    a.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      openNewsModal(card);
-    });
+    // Navigate normally — full page load gives a clean scroll-to-top,
+    // a new page impression for analytics, and avoids in-page swap issues.
     return art;
   }
 

@@ -233,8 +233,9 @@
       href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700;900&family=Oswald:wght@700&family=Space+Mono:wght@400;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/leaflet.css" />
     <link rel="stylesheet" href="css/style.css" />
+    <!-- Leaflet CSS loaded lazily by app.js when the map page opens — keeps it off the critical path -->
+    <noscript><link rel="stylesheet" href="css/leaflet.css" /></noscript>
 
     <!-- Google Analytics: loaded only after cookie consent (see app.js loadAnalytics) -->
       <script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","headline":"File Asto Brings a Taste of Athens to Kreuzberg","description":"File Asto, the Greek‑inspired restaurant that already made itself popular in Kollwitzkiez, has opened a second home in Kreuzberg at Reichenberger Straße 125.","image":"https://cdn.sanity.io/images/ehwjnjr2/production/10d9fe07d8fbe7f0aed0840ea3f0cca67b721307-1000x625.jpg?w=1200&h=630&fit=crop&auto=format","datePublished":"2026-04-12","dateModified":"2026-04-12","author":{"@type":"Organization","name":"Eat This Berlin","url":"https://www.eatthisdot.com"},"publisher":{"@type":"Organization","name":"Eat This Berlin","url":"https://www.eatthisdot.com","logo":{"@type":"ImageObject","url":"https://www.eatthisdot.com/pics/logo.webp"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://www.eatthisdot.com/news/file-asto-brings-a-taste-of-athens-to-kreuzberg"},"inLanguage":"en"}</script>
@@ -296,16 +297,16 @@
               src="pics/logo.webp"
               alt="EAT THIS"
               class="hero-logo hero-logo--mobile"
-              width="280"
-              height="80"
+              width="888"
+              height="281"
               decoding="async"
             />
             <img
               src="pics/logo2.webp"
               alt="EAT THIS"
               class="hero-logo hero-logo--desktop"
-              width="600"
-              height="120"
+              width="1815"
+              height="576"
               decoding="async"
             />
             <h1 class="hero-tagline" data-i18n="hero.tagline">We tell you what to eat</h1>
@@ -473,8 +474,8 @@
               src="pics/logo2.webp"
               alt="EAT THIS"
               class="must-eats-logo-img"
-              width="600"
-              height="190"
+              width="1815"
+              height="576"
               loading="lazy"
               decoding="async"
             />
@@ -804,7 +805,7 @@
     <template id="siteFooterTpl">
       <div class="site-footer" role="contentinfo" aria-label="Site footer">
         <a href="#" class="site-footer-logo-link" data-page="start" aria-label="Eat This home">
-          <img src="pics/logo2.webp" alt="EAT THIS" class="site-footer-logo-img" width="180" height="57" loading="lazy" decoding="async" />
+          <img src="pics/logo2.webp" alt="EAT THIS" class="site-footer-logo-img" width="1815" height="576" loading="lazy" decoding="async" />
         </a>
         <nav class="site-footer-links" aria-label="Footer navigation">
           <button class="site-footer-link" data-page="about" data-i18n="footer.about">About</button>
@@ -1068,7 +1069,7 @@
         </button>
 
         <div class="login-logo">
-          <img src="pics/logo.webp" alt="EAT THIS" width="280" height="88" loading="lazy" decoding="async" />
+          <img src="pics/logo.webp" alt="EAT THIS" width="888" height="281" loading="lazy" decoding="async" />
         </div>
 
         <!-- AUTH VIEW (nicht eingeloggt) -->

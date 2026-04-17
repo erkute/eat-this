@@ -3072,10 +3072,25 @@ body {
     border: 1px solid rgba(255,255,255,0.18);
   }
 
-  /* Fade-out at bottom of restaurant list while scrolling */
-  .app-page[data-page="map"] .map-nearby-grid-wrapper {
-    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  /* Fade-out overlay on non-scrolling parent — doesn't affect scroll bounds */
+  .app-page[data-page="map"] .map-nearby {
+    position: relative;
+  }
+  .app-page[data-page="map"] .map-nearby::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    background: linear-gradient(to bottom, transparent, #f8f8f8);
+    pointer-events: none;
+    z-index: 3;
+  }
+  /* Bottom padding = fade height + Safari URL bar (~50px) + safe area
+     so the last item can fully scroll above both the fade and the URL bar */
+  .app-page[data-page="map"] .map-nearby-grid {
+    padding-bottom: max(120px, calc(72px + env(safe-area-inset-bottom, 0px)));
   }
 
   .app-page[data-page="map"] .map-location-btn-fixed svg {
@@ -3918,6 +3933,9 @@ body {
 /* Map bottom sheet — dark mode */
 [data-theme="dark"] .app-page[data-page="map"] {
   background: #111111;
+}
+[data-theme="dark"] .app-page[data-page="map"] .map-nearby::after {
+  background: linear-gradient(to bottom, transparent, #111111);
 }
 [data-theme="dark"] .app-page[data-page="map"] .map-nearby {
   background: #111111;

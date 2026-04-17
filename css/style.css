@@ -2874,6 +2874,11 @@ body {
   /* Disable window scroll when map is active so map can own the gestures */
   body:has(.app-page[data-page="map"].active) {
     overflow: hidden;
+    /* Safari shows body background behind URL bar — match the sheet color */
+    background: #f8f8f8;
+  }
+  [data-theme="dark"] body:has(.app-page[data-page="map"].active) {
+    background: #111111;
   }
   
   .app-page[data-page="start"] {

@@ -86,18 +86,39 @@ function renderPortableText(blocks) {
 document.addEventListener('DOMContentLoaded', () => {
   // ============================================
   // BODY OVERFLOW MANAGER
-  // Prevents scroll-state conflicts when multiple modals are used
+  // Prevents scroll-state conflicts when multiple modals are used.
+  // On mobile (window-scroll): uses position:fixed trick so iOS Safari
+  // scroll is reliably restored after any modal closes.
+  // On desktop (app-pages scroll): sets overflow:hidden on body.
   // ============================================
   const bodyOverflow = (() => {
     let count = 0;
+    let savedScrollY = 0;
+    const isMobile = () => window.innerWidth < 768;
     return {
       lock() {
         count++;
-        document.body.style.overflow = 'hidden';
+        if (count > 1) return; // already locked
+        if (isMobile()) {
+          savedScrollY = window.scrollY;
+          document.body.style.position = 'fixed';
+          document.body.style.top = `-${savedScrollY}px`;
+          document.body.style.width = '100%';
+        } else {
+          document.body.style.overflow = 'hidden';
+        }
       },
       unlock() {
         count = Math.max(0, count - 1);
-        if (!count) document.body.style.overflow = '';
+        if (count) return; // still locked by another modal
+        if (isMobile()) {
+          document.body.style.position = '';
+          document.body.style.top = '';
+          document.body.style.width = '';
+          window.scrollTo(0, savedScrollY);
+        } else {
+          document.body.style.overflow = '';
+        }
       },
     };
   })();

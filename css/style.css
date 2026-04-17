@@ -5385,6 +5385,46 @@ body {
   margin: 0;
 }
 
+/* ── Light mode footer ── */
+[data-theme="light"] .site-footer {
+  background: var(--white);
+  border-top: 1px solid rgba(0,0,0,0.08);
+}
+[data-theme="light"] .site-footer-logo-img {
+  filter: none;
+}
+[data-theme="light"] .site-footer-link {
+  color: rgba(0,0,0,0.4);
+}
+[data-theme="light"] .site-footer-link:hover {
+  color: var(--black);
+}
+[data-theme="light"] .site-footer-divider {
+  background: rgba(0,0,0,0.12);
+}
+[data-theme="light"] .site-footer-ig {
+  color: rgba(0,0,0,0.4);
+}
+[data-theme="light"] .site-footer-ig:hover {
+  color: var(--black);
+}
+[data-theme="light"] .site-footer-lang {
+  border-color: rgba(0,0,0,0.12);
+}
+[data-theme="light"] .site-footer-lang-btn {
+  color: rgba(0,0,0,0.35);
+}
+[data-theme="light"] .site-footer-lang-btn.active {
+  background: rgba(0,0,0,0.06);
+  color: var(--black);
+}
+[data-theme="light"] .site-footer-lang-btn:hover:not(.active) {
+  color: rgba(0,0,0,0.6);
+}
+[data-theme="light"] .site-footer-copy {
+  color: rgba(0,0,0,0.25);
+}
+
 @media (min-width: 768px) {
   /* Static pages: let app-pages container scroll, no internal scroll */
   .static-page {

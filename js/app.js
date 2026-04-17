@@ -2302,7 +2302,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function openNewsModal(article) {
     const articleEl = newsModal.querySelector('.news-article');
-    const isAlreadyOpen = currentPage === 'news-article';
+    // Only treat as "already open" if the page is showing real content —
+    // on init the page is blank, so skip the leave animation.
+    const hasContent = !!document.getElementById('newsModalTitle')?.textContent?.trim();
+    const isAlreadyOpen = currentPage === 'news-article' && hasContent;
 
     const doOpen = () => {
       // Reset scroll BEFORE swapping content — this clears any scroll-anchor
@@ -2391,7 +2394,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (link) {
         link.addEventListener('click', (e) => {
           e.preventDefault();
-          openNewsModal(card);
+          const slug = card.dataset.slug;
+          // Full page navigation — browser handles scroll-to-top, analytics
+          // gets a real page impression, no SPA scroll issues.
+          if (slug) {
+            window.location.href = '/news/' + slug;
+          } else {
+            openNewsModal(card); // fallback for cards without a slug
+          }
         });
       }
     });

@@ -13,3 +13,4 @@ studio/.sanity/
 .firebase/
 playwright-report/
 test-results/
+.claude/

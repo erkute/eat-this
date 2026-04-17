@@ -144,6 +144,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mapPage) mapPage.style.top = h + 'px';
   }
   syncNavbarOffset();
+  // Re-run after iOS Safari has finished resolving env(safe-area-inset-top).
+  // The first call at DOMContentLoaded may still read 0px for the safe area.
+  setTimeout(syncNavbarOffset, 80);
+  setTimeout(syncNavbarOffset, 400);
   window.addEventListener('resize', syncNavbarOffset);
 
   // ============================================
@@ -2516,6 +2520,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     currentPage = pageName;
     setActivePage(pageName);
+    // Re-sync after navbar state change (scrolled class removed/added by setActivePage)
+    syncNavbarOffset();
 
     // Track navigation history for back button
     window._prevPage    = window._currentPage || 'start';

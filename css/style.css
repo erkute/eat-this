@@ -3069,6 +3069,12 @@ body {
     border: 1px solid rgba(255,255,255,0.18);
   }
 
+  /* Fade-out at bottom of restaurant list while scrolling */
+  .app-page[data-page="map"] .map-nearby-grid-wrapper {
+    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  }
+
   .app-page[data-page="map"] .map-location-btn-fixed svg {
     stroke: rgba(255,255,255,0.9);
   }

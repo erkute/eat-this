@@ -83,6 +83,9 @@ function renderPortableText(blocks) {
   return fragment;
 }
 
+// Prevent browser from auto-restoring scroll position on hash navigation
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
 document.addEventListener('DOMContentLoaded', () => {
   // ============================================
   // BODY OVERFLOW MANAGER
@@ -2142,6 +2145,51 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.news-featured, .news-card');
   let currentShareData = { title: '', text: '', url: window.location.href };
 
+  // --- Meta tag helpers for SEO ---
+  const _defaultMeta = {
+    title: document.title,
+    description: document.querySelector('meta[name="description"]')?.content || '',
+    ogTitle: document.querySelector('meta[property="og:title"]')?.content || '',
+    ogDescription: document.querySelector('meta[property="og:description"]')?.content || '',
+    ogUrl: document.querySelector('meta[property="og:url"]')?.content || '',
+    ogImage: document.querySelector('meta[property="og:image"]')?.content || '',
+    canonical: document.querySelector('link[rel="canonical"]')?.href || '',
+  };
+
+  function _updateArticleMeta(title, excerpt, imgUrl, slug) {
+    document.title = `${title} — EAT THIS`;
+    const desc = excerpt || title;
+    const pageUrl = `https://www.eatthisdot.com/news/${slug}`;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute('content', desc);
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', `${title} — EAT THIS`);
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', desc);
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.setAttribute('content', pageUrl);
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    if (ogImage && imgUrl) ogImage.setAttribute('content', imgUrl);
+    const canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) canonical.setAttribute('href', pageUrl);
+  }
+
+  function _restoreDefaultMeta() {
+    document.title = _defaultMeta.title;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute('content', _defaultMeta.description);
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', _defaultMeta.ogTitle);
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', _defaultMeta.ogDescription);
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.setAttribute('content', _defaultMeta.ogUrl);
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    if (ogImage) ogImage.setAttribute('content', _defaultMeta.ogImage);
+    const canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) canonical.setAttribute('href', _defaultMeta.canonical);
+  }
+
   function portableTextToHtml(blocks) {
     if (!Array.isArray(blocks)) return String(blocks || '');
     const esc = (s) =>
@@ -2176,7 +2224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const art = document.createElement('article');
     art.className = 'news-rec-card';
     const a = document.createElement('a');
-    a.href = '#';
+    a.href = '/news/' + (card.dataset.slug || '#');
     const imgWrap = document.createElement('div');
     imgWrap.className = 'news-rec-img';
     const img = document.createElement('img');
@@ -2199,12 +2247,13 @@ document.addEventListener('DOMContentLoaded', () => {
     art.appendChild(a);
     a.addEventListener('click', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       openNewsModal(card);
     });
     return art;
   }
 
-  function openNewsModal(article) {
+  function _applyNewsArticleContent(article) {
     const title = article.dataset.title;
     const img = article.dataset.img;
     const category = article.dataset.categoryLabel;
@@ -2226,9 +2275,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('newsModalCategory').textContent = category;
     document.getElementById('newsModalTitle').textContent = title;
     document.getElementById('newsModalDate').textContent = date;
-    document.getElementById('newsModalContent').innerHTML = contentHtml; // safe: portableTextToHtml escapes all user data
+    // safe: portableTextToHtml escapes all user data
+    document.getElementById('newsModalContent').innerHTML = contentHtml; // safe-html
 
-    // Recommendations
     const allCards = [...document.querySelectorAll('.news-card')];
     const others = allCards.filter((c) => c.dataset.title !== title).slice(0, 3);
     const moreSection = document.getElementById('newsArticleMore');
@@ -2248,13 +2297,79 @@ document.addEventListener('DOMContentLoaded', () => {
       text: article.dataset.excerpt || title,
       url: window.location.href,
     };
+  }
 
-    navigateToPage('news-article');
-    newsModal.scrollTop = 0;
+  function openNewsModal(article) {
+    const articleEl = newsModal.querySelector('.news-article');
+    const isAlreadyOpen = currentPage === 'news-article';
+
+    const doOpen = () => {
+      _applyNewsArticleContent(article);
+
+      // Navigate (no-op if already on this page, but sets scroll + activates page)
+      if (!isAlreadyOpen) navigateToPage('news-article');
+
+      // Always scroll to top
+      newsModal.scrollTop = 0;
+      window.scrollTo(0, 0);
+      requestAnimationFrame(() => {
+        newsModal.scrollTop = 0;
+        window.scrollTo(0, 0);
+      });
+
+      // Update URL + meta
+      const slug = article.dataset.slug || '';
+      if (slug) {
+        history.pushState({ page: 'news-article', slug }, '', '/news/' + slug);
+        _updateArticleMeta(
+          article.dataset.title || '',
+          article.dataset.excerpt || '',
+          article.dataset.img || '',
+          slug
+        );
+      }
+
+      // Fade-in animation
+      if (articleEl) {
+        articleEl.classList.remove('news-article--leaving', 'news-article--entering');
+        requestAnimationFrame(() => {
+          articleEl.classList.add('news-article--entering');
+          setTimeout(() => articleEl.classList.remove('news-article--entering'), 300);
+        });
+      }
+    };
+
+    // Already reading → brief fade-out, then swap
+    if (isAlreadyOpen && articleEl) {
+      articleEl.classList.add('news-article--leaving');
+      setTimeout(doOpen, 160);
+    } else {
+      doOpen();
+    }
   }
 
   function closeNewsModal() {
+    _restoreDefaultMeta();
     navigateToPage('news');
+    if (window.location.pathname.startsWith('/news/')) {
+      history.pushState({ page: 'news' }, '', '/');
+      window.location.hash = 'news';
+    }
+  }
+
+  async function _openArticleBySlugFromCMS(slug) {
+    const lang = window.i18n?.currentLang?.() || 'en';
+    const article = await window.CMS.fetchArticleBySlug(slug, lang);
+    if (!article) return;
+    const fakeCard = document.createElement('div');
+    fakeCard.dataset.title = article.title || '';
+    fakeCard.dataset.img = article.imageUrl || '';
+    fakeCard.dataset.categoryLabel = article.categoryLabel || '';
+    fakeCard.dataset.date = article.date || '';
+    fakeCard.dataset.content = Array.isArray(article.content) ? JSON.stringify(article.content) : (article.content || '');
+    fakeCard.dataset.excerpt = article.excerpt || '';
+    fakeCard.dataset.slug = article.id || slug;
+    openNewsModal(fakeCard);
   }
 
   function bindNewsCards() {
@@ -2288,7 +2403,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   bindNewsCards();
   populateTicker();
-  window._bindNewsCards = () => { bindNewsCards(); populateTicker(); };
+  window._bindNewsCards = () => {
+    bindNewsCards();
+    populateTicker();
+    if (window._pendingArticleSlug) {
+      const slug = window._pendingArticleSlug;
+      window._pendingArticleSlug = null;
+      const card = document.querySelector(`.news-card[data-slug="${slug}"]`);
+      if (card) {
+        setTimeout(() => openNewsModal(card), 50);
+      } else {
+        _openArticleBySlugFromCMS(slug);
+      }
+    }
+  };
 
   if (newsModalClose) {
     newsModalClose.addEventListener('click', closeNewsModal);
@@ -2605,9 +2733,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.addEventListener('hashchange', checkHash);
+
+    window.addEventListener('popstate', () => {
+      const path = window.location.pathname;
+      if (path.startsWith('/news/')) {
+        const slug = path.slice(6); // '/news/'.length
+        const card = document.querySelector(`.news-card[data-slug="${slug}"]`);
+        if (card) openNewsModal(card);
+        else _openArticleBySlugFromCMS(slug);
+      } else {
+        _restoreDefaultMeta();
+        const hash = window.location.hash.replace('#', '') || 'start';
+        navigateToPage(hash);
+      }
+    });
+
     checkHash();
     // Ensure initial page is reflected (checkHash skips start→start since guard fires)
     if (currentPage === 'start') setActivePage('start');
+
+    // Handle direct navigation to /news/[slug]
+    const _initPath = window.location.pathname;
+    if (_initPath.startsWith('/news/')) {
+      const _initSlug = _initPath.slice(6);
+      navigateToPage('news');
+      window._pendingArticleSlug = _initSlug;
+    }
 
     // Allow any module (auth.js etc.) to navigate by dispatching this event
     window.addEventListener('navigate', (e) => {

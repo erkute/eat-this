@@ -2174,6 +2174,18 @@ body {
 .news-article {
   min-height: 100vh;
 }
+
+@keyframes newsArticleFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.news-article--entering {
+  animation: newsArticleFadeIn 0.25s ease forwards;
+}
+.news-article--leaving {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
 .news-article-hero {
   width: 100%;
   height: 55vw;

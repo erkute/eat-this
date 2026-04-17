@@ -1373,10 +1373,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const logoIconSelected = L.divIcon({
       className: '',
-      html: '<div class="map-marker-selected"><img src="pics/eat.webp" width="36" height="36"></div>',
-      iconSize: [44, 44],
-      iconAnchor: [22, 22],
-      popupAnchor: [0, -24],
+      html: '<div class="map-marker-selected"><img src="pics/eat.webp" width="32" height="32"></div>',
+      iconSize: [36, 36],
+      iconAnchor: [18, 18],
+      popupAnchor: [0, -20],
     });
 
     const markers = [];

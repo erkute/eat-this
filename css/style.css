@@ -2693,14 +2693,12 @@ body {
   }
 
   /* Natural window scroll so Safari URL bar auto-hides on scroll.
-     NOTE: overflow-x must use "clip" not "hidden" — using hidden with
-     visible on the other axis causes browsers to compute both as "auto",
-     which re-enables the internal scroll container we're trying to remove. */
+     Use !important — the global rule has overflow-y:auto which the browser
+     keeps even when we set overflow-x:clip (clip not reliably supported). */
   .app-pages {
     margin-top: 60px;
-    height: auto;
-    overflow-y: visible;
-    overflow-x: clip;
+    height: auto !important;
+    overflow: visible !important;
   }
 
   .navbar {
@@ -2720,12 +2718,8 @@ body {
   
   .app-page {
     position: relative;
-    /* Override global height/overflow so window (not container) scrolls.
-       Must use "clip" for x-axis — "hidden" would force overflow-y to "auto"
-       per CSS spec, re-enabling the internal scroll container. */
-    height: auto;
-    overflow-y: visible;
-    overflow-x: clip;
+    height: auto !important;
+    overflow: visible !important;
     background: var(--white);
     overscroll-behavior: none;
     padding-bottom: max(80px, calc(60px + env(safe-area-inset-bottom, 0px)));

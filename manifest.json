@@ -11,16 +11,22 @@
   "categories": ["food", "lifestyle", "travel"],
   "icons": [
     {
-      "src": "pics/eat.png",
+      "src": "pics/favicon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "pics/eat.png",
-      "sizes": "512x512",
+      "src": "pics/favicon-192.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
+    },
+    {
+      "src": "pics/eat.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any"
     },
     {
       "src": "pics/logo.webp",
@@ -30,7 +36,7 @@
     }
   ],
   "share_target": {
-    "action": "/#news",
+    "action": "/news",
     "method": "GET",
     "params": {
       "title": "title",
@@ -43,13 +49,13 @@
       "name": "Food Map",
       "short_name": "Map",
       "url": "/#map",
-      "icons": [{ "src": "pics/eat.png", "sizes": "192x192" }]
+      "icons": [{ "src": "pics/favicon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Must-Eats",
       "short_name": "Eat This",
       "url": "/#musts",
-      "icons": [{ "src": "pics/eat.png", "sizes": "192x192" }]
+      "icons": [{ "src": "pics/favicon-192.png", "sizes": "192x192" }]
     }
   ]
 }

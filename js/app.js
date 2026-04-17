@@ -1425,7 +1425,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showSpotDetail(spot) {
       // Highlight the tapped marker; reset the previous one
-      const markerForSpot = markers.find(m => m.spotData === spot);
+      const spotId = spot._id || spot.name;
+      const markerForSpot = markers.find(m => (m.spotData._id || m.spotData.name) === spotId);
       if (_activeMarker && _activeMarker !== markerForSpot) {
         _activeMarker.setIcon(logoIcon);
       }

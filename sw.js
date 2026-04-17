@@ -7,7 +7,7 @@
 // Bump this when deploying breaking changes that must invalidate all caches.
 // Normally stale-while-revalidate handles updates automatically — this is
 // only needed for emergency cache clears.
-const CACHE_VERSION = 'eat-this-v60';
+const CACHE_VERSION = 'eat-this-v61';
 const CACHE_SHELL   = `${CACHE_VERSION}-shell`;
 const CACHE_IMAGES  = `${CACHE_VERSION}-images`;
 
@@ -69,6 +69,10 @@ self.addEventListener('fetch', event => {
 
   if (request.method !== 'GET') return;
   if (!url.protocol.startsWith('http')) return;
+
+  // Pass map tiles straight to the browser — don't cache or intercept.
+  // iOS Safari has trouble with SW-intercepted cross-origin image requests.
+  if (url.hostname.includes('cartocdn.com') || url.hostname.includes('openstreetmap.org')) return;
 
   // Network-first: Sanity CMS + Firebase + Analytics (must be fresh)
   if (

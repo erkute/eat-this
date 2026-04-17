@@ -2687,14 +2687,15 @@ body {
   html {
     overflow-x: unset;
     position: static;
-    overscroll-behavior: auto;
+    /* contain: allows normal scroll + URL-bar auto-hide, but blocks pull-to-refresh */
+    overscroll-behavior: contain;
     /* black so any overscroll/bounce area below body matches footer */
     background: var(--black);
   }
 
   body {
     overflow-x: unset;
-    overscroll-behavior: auto;
+    overscroll-behavior: contain;
     background-color: var(--black);
   }
 

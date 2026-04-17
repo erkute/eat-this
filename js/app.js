@@ -112,10 +112,12 @@ document.addEventListener('DOMContentLoaded', () => {
         count = Math.max(0, count - 1);
         if (count) return; // still locked by another modal
         if (isMobile()) {
+          const restoreY = savedScrollY;
           document.body.style.position = '';
           document.body.style.top = '';
           document.body.style.width = '';
-          window.scrollTo(0, savedScrollY);
+          // rAF ensures iOS Safari reflow is complete before restoring scroll
+          requestAnimationFrame(() => window.scrollTo(0, restoreY));
         } else {
           document.body.style.overflow = '';
         }
@@ -123,6 +125,26 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   })();
   window.bodyOverflow = bodyOverflow;
+
+  // ============================================
+  // SYNC NAVBAR OFFSET
+  // CSS calc(60px + env(safe-area-inset-top, 0px)) can use the 0px fallback on
+  // iOS while @supports correctly adds the real safe-area (~59px on iPhone 16)
+  // to the navbar padding.  Measuring offsetHeight after render is the only
+  // reliable way to get the true navbar height and push content below it.
+  // ============================================
+  function syncNavbarOffset() {
+    if (window.matchMedia('(min-width: 768px)').matches) return;
+    const navbar    = document.querySelector('.navbar');
+    const appPages  = document.querySelector('.app-pages');
+    const mapPage   = document.querySelector('.app-page[data-page="map"]');
+    if (!navbar || !appPages) return;
+    const h = navbar.offsetHeight;
+    appPages.style.marginTop = h + 'px';
+    if (mapPage) mapPage.style.top = h + 'px';
+  }
+  syncNavbarOffset();
+  window.addEventListener('resize', syncNavbarOffset);
 
   // ============================================
   // THEME — Dark / Light mode
@@ -2699,6 +2721,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let mustActiveCard = null;
 
   function openMustCard(cardEl, src, alt) {
+    // Guard: touchend + click both fire on iOS → prevent double-open which would
+    // increment bodyOverflow.count to 2 and leave scroll permanently locked.
+    if (mustLightbox.classList.contains('active') || mustClosing) return;
     mustActiveCard = cardEl;
     mustLightboxImg.src = src;
     mustLightboxImg.alt = alt;

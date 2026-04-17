@@ -274,46 +274,92 @@ body {
 [data-theme="dark"] .hero-tagline { color: rgba(255,255,255,0.85); }
 
 /* Hero register button */
+/* ── Liquid Glass Button — iOS 26 style ── */
 .hero-register-btn {
+  position: relative;
   margin-top: 20px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255,255,255,0.25);
-  color: #1a1a1a;
-  border: 1.5px solid rgba(255,255,255,0.6);
+  overflow: hidden;
+
+  /* Glass fill */
+  background: rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.95);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.25);
+
+  /* Border: bright edge simulates glass rim */
+  border: 1px solid rgba(255,255,255,0.5);
   border-radius: 100px;
-  padding: 11px 24px;
+  padding: 12px 26px;
+
   font-size: 0.85rem;
   font-weight: 700;
   font-family: var(--font);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+
+  /* Frosted glass blur + brightness/saturation tinting */
+  backdrop-filter: blur(28px) saturate(1.8) brightness(1.12);
+  -webkit-backdrop-filter: blur(28px) saturate(1.8) brightness(1.12);
+
+  /* Layered shadows: inner top highlight + outer depth */
+  box-shadow:
+    inset 0 1.5px 1.5px rgba(255,255,255,0.75),
+    inset 0 -1px 1px rgba(0,0,0,0.08),
+    0 4px 20px rgba(0,0,0,0.18),
+    0 1px 4px rgba(0,0,0,0.1);
+
+  transition: background 0.2s, box-shadow 0.2s, transform 0.18s;
 }
+
+/* Specular shine — diagonal highlight across top-left (the "wet glass" look) */
+.hero-register-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    148deg,
+    rgba(255,255,255,0.45) 0%,
+    rgba(255,255,255,0.12) 35%,
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
 .hero-register-btn:hover {
-  background: rgba(255,255,255,0.4);
-  border-color: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.28);
+  border-color: rgba(255,255,255,0.75);
+  box-shadow:
+    inset 0 1.5px 1.5px rgba(255,255,255,0.85),
+    inset 0 -1px 1px rgba(0,0,0,0.08),
+    0 8px 32px rgba(0,0,0,0.22),
+    0 2px 8px rgba(0,0,0,0.12);
   transform: translateY(-2px);
 }
+
+/* Dark mode — slightly more opaque so it pops on dark hero */
 [data-theme="dark"] .hero-register-btn {
-  background: rgba(255,255,255,0.2);
-  color: #fff;
-  border-color: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.95);
+  border-color: rgba(255,255,255,0.4);
 }
 [data-theme="dark"] .hero-register-btn:hover {
-  background: rgba(255,255,255,0.32);
-  border-color: rgba(255,255,255,0.85);
-  color: #fff;
+  background: rgba(255,255,255,0.24);
+  border-color: rgba(255,255,255,0.65);
 }
+
 .hero-register-btn svg {
+  position: relative; /* above ::before */
   transition: transform 0.2s;
 }
 .hero-register-btn:hover svg {
   transform: translateX(4px);
+}
+.hero-register-btn span {
+  position: relative; /* above ::before */
 }
 
 @media (min-width: 768px) {

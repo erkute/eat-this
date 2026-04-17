@@ -2744,7 +2744,8 @@ document.addEventListener('DOMContentLoaded', () => {
     mustLightboxInner.style.opacity = '0';
 
     mustLightbox.classList.add('active');
-    bodyOverflow.lock();
+    // No bodyOverflow.lock() — lightbox covers the full viewport so background
+    // scroll is invisible. Locking causes the position:fixed jump on iOS.
 
     // offsetHeight read forces synchronous reflow so the start state is committed
     mustLightboxInner.offsetHeight; // force reflow so start state commits before transition
@@ -2789,14 +2790,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cardEl) cardEl.style.visibility = '';
         mustActiveCard = null;
         mustClosing = false;
-        bodyOverflow.unlock();
       }, 380);
     } else {
       mustLightbox.classList.remove('active');
       mustLightboxInner.style.cssText = '';
       mustActiveCard = null;
       mustClosing = false;
-      bodyOverflow.unlock();
     }
   }
 
@@ -2852,6 +2851,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   window._bindMustCards = bindMustCards;
 
+  // Prevent scroll-through while lightbox is open (no body lock needed — lightbox
+  // covers the full viewport, so background scroll is invisible anyway)
+  mustLightbox.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
   mustLightbox.addEventListener(
     'touchend',
     (e) => {

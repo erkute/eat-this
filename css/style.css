@@ -2675,13 +2675,20 @@ body {
 }
 
 @media (max-width: 767px) {
-  /* overscroll-behavior:none on html/body blocks Safari's URL bar auto-hide.
-     Reset to auto so Safari can collapse the address bar on scroll. */
-  html, body {
+  /* Match kino.de/familie.de: html+body need zero CSS constraints for
+     Safari to use window scroll and auto-hide the URL bar on scroll.
+     overflow-x:hidden on html/body forces overflow-y:auto and creates
+     a root scroll container that breaks Safari's URL-bar-hide mechanism.
+     position:relative on html also interferes with Safari's scroll model. */
+  html {
+    overflow-x: unset;
+    position: static;
     overscroll-behavior: auto;
   }
 
   body {
+    overflow-x: unset;
+    overscroll-behavior: auto;
     background-color: #fff;
   }
 

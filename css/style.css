@@ -2679,6 +2679,14 @@ body {
     background-color: #fff;
   }
 
+  /* Natural window scroll so Safari URL bar auto-hides on scroll */
+  .app-pages {
+    margin-top: 60px;
+    height: auto;
+    overflow: visible;
+    overflow-x: hidden;
+  }
+
   .navbar {
     background: #fff;
     -webkit-backdrop-filter: none;
@@ -2695,19 +2703,36 @@ body {
   }
   
   .app-page {
+    position: relative;
+    background: var(--white);
+    overscroll-behavior: none;
+    padding-bottom: max(80px, calc(60px + env(safe-area-inset-bottom, 0px)));
+  }
+
+  .app-page.active {
+    z-index: auto;
+  }
+
+  /* Map needs fixed layout — no window scroll, no URL-bar-hide */
+  .app-page[data-page="map"] {
     position: fixed;
     top: 60px;
     left: 0;
     right: 0;
-    bottom: env(safe-area-inset-bottom, 0px);
+    bottom: 0;
     height: auto;
     z-index: 9990;
-    background: var(--white);
-    overscroll-behavior: none;
+    overflow: hidden;
+    padding-bottom: 0;
   }
-  
-  .app-page.active {
+
+  .app-page[data-page="map"].active {
     z-index: 9995;
+  }
+
+  /* Prevent window scroll when map is active */
+  body:has(.app-page[data-page="map"].active) {
+    overflow: hidden;
   }
   
   .app-page[data-page="start"] {

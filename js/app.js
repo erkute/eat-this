@@ -2348,17 +2348,32 @@ document.addEventListener('DOMContentLoaded', () => {
   function setActivePage(pageName) {
     document.documentElement.setAttribute('data-active-page', pageName);
     const navbar = document.querySelector('.navbar');
+    const isMobile = !window.matchMedia('(min-width: 768px)').matches;
     if (pageName === 'start') {
-      const startEl = document.querySelector('.app-page[data-page="start"]');
-      if (startEl && navbar) {
-        navbar.classList.toggle('scrolled', startEl.scrollTop > 60);
-        startEl._navScrollHandler = () => navbar.classList.toggle('scrolled', startEl.scrollTop > 60);
-        startEl.addEventListener('scroll', startEl._navScrollHandler, { passive: true });
+      if (isMobile) {
+        const updateNav = () => navbar && navbar.classList.toggle('scrolled', window.scrollY > 60);
+        updateNav();
+        window._startScrollHandler = updateNav;
+        window.addEventListener('scroll', updateNav, { passive: true });
+      } else {
+        const startEl = document.querySelector('.app-page[data-page="start"]');
+        if (startEl && navbar) {
+          navbar.classList.toggle('scrolled', startEl.scrollTop > 60);
+          startEl._navScrollHandler = () => navbar.classList.toggle('scrolled', startEl.scrollTop > 60);
+          startEl.addEventListener('scroll', startEl._navScrollHandler, { passive: true });
+        }
       }
     } else {
-      const prevStart = document.querySelector('.app-page[data-page="start"]');
-      if (prevStart && prevStart._navScrollHandler) {
-        prevStart.removeEventListener('scroll', prevStart._navScrollHandler);
+      if (isMobile) {
+        if (window._startScrollHandler) {
+          window.removeEventListener('scroll', window._startScrollHandler);
+          window._startScrollHandler = null;
+        }
+      } else {
+        const prevStart = document.querySelector('.app-page[data-page="start"]');
+        if (prevStart && prevStart._navScrollHandler) {
+          prevStart.removeEventListener('scroll', prevStart._navScrollHandler);
+        }
       }
       if (navbar) navbar.classList.remove('scrolled');
     }
@@ -2437,11 +2452,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Scroll target page back to top on every navigation.
-    // rAF needed: browser may restore the old scrollTop after display:none→block.
+    // Scroll back to top on every navigation.
+    // On mobile we use window scroll; on desktop the app-page container scrolls.
     if (targetPage && pageName !== 'map') {
-      targetPage.scrollTop = 0;
-      requestAnimationFrame(() => { targetPage.scrollTop = 0; });
+      if (!window.matchMedia('(min-width: 768px)').matches) {
+        window.scrollTo(0, 0);
+        requestAnimationFrame(() => window.scrollTo(0, 0));
+      } else {
+        targetPage.scrollTop = 0;
+        requestAnimationFrame(() => { targetPage.scrollTop = 0; });
+      }
     }
 
     // Update header icon button active states

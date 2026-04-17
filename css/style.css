@@ -2681,12 +2681,13 @@ body {
     overflow-x: unset;
     position: static;
     overscroll-behavior: auto;
+    /* black so any overscroll/bounce area below body matches footer */
+    background: var(--black);
   }
 
   body {
     overflow-x: unset;
     overscroll-behavior: auto;
-    /* black so the area behind footer and any padding matches the footer */
     background-color: var(--black);
   }
 

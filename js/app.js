@@ -310,31 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   window.showNotification = showNotification;
 
-  // Add notification styles
-  const notificationStyle = document.createElement('style');
-  notificationStyle.textContent = `
-    .notification {
-      position: fixed;
-      bottom: 100px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: var(--black);
-      color: var(--white);
-      padding: 14px 24px;
-      border-radius: 100px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      z-index: 10000;
-      opacity: 0;
-      transition: all 0.3s ease;
-      pointer-events: none;
-    }
-    .notification.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-  `;
-  document.head.appendChild(notificationStyle);
+  // Notification styles live in css/style.css (keeps CSP style-src strict)
 
   // ============================================
   // SEARCH
@@ -1000,31 +976,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const glCanvas = document.createElement('canvas');
     overlay.appendChild(glCanvas);
 
-    const pulseStyle = document.createElement('style');
-    pulseStyle.textContent = `
-      @keyframes globeMeteor1 {
-        0%   { transform:translate(0,0) rotate(-42deg); opacity:0; }
-        4%   { opacity:1; }
-        20%  { opacity:0.85; }
-        28%  { opacity:0; }
-        100% { transform:translate(-520px,380px) rotate(-42deg); opacity:0; }
-      }
-      @keyframes globeMeteor2 {
-        0%   { transform:translate(0,0) rotate(-38deg); opacity:0; }
-        5%   { opacity:0.8; }
-        24%  { opacity:0.7; }
-        32%  { opacity:0; }
-        100% { transform:translate(-380px,280px) rotate(-38deg); opacity:0; }
-      }
-      @keyframes globeMeteor3 {
-        0%   { transform:translate(0,0) rotate(-45deg); opacity:0; }
-        3%   { opacity:0.9; }
-        16%  { opacity:0.8; }
-        22%  { opacity:0; }
-        100% { transform:translate(-300px,220px) rotate(-45deg); opacity:0; }
-      }
-    `;
-    document.head.appendChild(pulseStyle);
+    // Globe meteor @keyframes live in css/style.css (keeps CSP style-src strict)
 
     // Meteors — moving across the globe overlay
     [
@@ -1226,7 +1178,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (p >= 1) {
           cancelAnimationFrame(animFrame);
           overlay.remove();
-          pulseStyle.remove();
           renderer.dispose();
           mapEl.classList.remove('globe-active');
           mapEl.style.cssText = '';

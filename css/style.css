@@ -3002,7 +3002,7 @@ body {
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--darkred);
-    margin: 0 0 2px -0.05em;
+    margin: 0 0 2px 0;
     padding: 0;
     display: block;
   }
@@ -3010,7 +3010,7 @@ body {
   .app-page[data-page="news"] .news-subtitle { display: none; }
 
   .app-page[data-page="news"] .news-title {
-    font-size: clamp(2.8rem, 10vw, 5rem);
+    font-size: clamp(2rem, 8vw, 3rem);
     font-weight: 900;
     letter-spacing: -0.08em;
     line-height: 0.85;

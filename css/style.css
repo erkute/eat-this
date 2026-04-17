@@ -4474,24 +4474,27 @@ body {
   }
 
   .app-page[data-page="news"] .news-title {
-    font-size: clamp(3.5rem, 7vw, 6rem);
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
     font-weight: 900;
     letter-spacing: -0.03em;
-    line-height: 0.88;
+    line-height: 0.95;
     text-transform: uppercase;
     margin: 0;
     color: var(--black);
     font-family: var(--font);
+    text-align: left;
   }
 
   .app-page[data-page="news"] .section-label {
     font-size: 8px;
     font-weight: 800;
-    letter-spacing: 0.3em;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--darkred);
-    margin-bottom: 4px;
+    margin: 0 0 4px 0;
+    padding: 0;
     text-align: left;
+    display: block;
   }
 
   /* Magazine grid: 4 equal columns, 2 rows */

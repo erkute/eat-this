@@ -313,6 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('onboardingOverlay');
     if (overlay) {
       overlay.hidden = false;
+      overlay.querySelector('.ob-next-btn')?.focus();
       window._obGoTo(1);
     }
   };
@@ -328,9 +329,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (obNext1) obNext1.addEventListener('click', () => window._obGoTo(2));
   if (obNext2) obNext2.addEventListener('click', () => window._obGoTo(3));
   if (obNext3) obNext3.addEventListener('click', () => window._obGoTo(4));
-  if (obSkip1) obSkip1.addEventListener('click', () => window._obGoTo(4));
-  if (obSkip2) obSkip2.addEventListener('click', () => window._obGoTo(4));
-  if (obSkip3) obSkip3.addEventListener('click', () => window._obGoTo(4));
+  if (obSkip1) obSkip1.addEventListener('click', () => { localStorage.setItem('onboardingComplete', '1'); window._obGoTo(4); });
+  if (obSkip2) obSkip2.addEventListener('click', () => { localStorage.setItem('onboardingComplete', '1'); window._obGoTo(4); });
+  if (obSkip3) obSkip3.addEventListener('click', () => { localStorage.setItem('onboardingComplete', '1'); window._obGoTo(4); });
 
   if (obOpenPackBtn) {
     obOpenPackBtn.addEventListener('click', () => {

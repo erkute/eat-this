@@ -569,10 +569,18 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
               const dish = item.dataset.dish;
               const restaurant = item.dataset.restaurant;
-              const card = Array.from(document.querySelectorAll('.eat-card')).find(
-                (c) => c.dataset.dish === dish && c.dataset.restaurant === restaurant
+              const slot = Array.from(document.querySelectorAll('.album-slot[data-dish]')).find(
+                (s) => s.dataset.dish === dish && s.dataset.restaurant === restaurant
               );
-              if (card) card.click();
+              if (slot) {
+                const idx = parseInt(slot.dataset.cardIndex, 10);
+                const page = Math.floor(idx / 9);
+                if (typeof window._albumGoTo === 'function') window._albumGoTo(page);
+                const albumCard = (window._albumCards || [])[idx];
+                if (albumCard && typeof window._openMustCard === 'function') {
+                  setTimeout(() => window._openMustCard(slot, albumCard.imageUrl || '', albumCard.dish || ''), 200);
+                }
+              }
             }, 400);
           }, 100);
         } else if (type === 'news') {
@@ -1026,6 +1034,10 @@ document.addEventListener('DOMContentLoaded', () => {
           const slotEl  = document.createElement('div');
           slotEl.className = 'album-slot ' + slotType;
           slotEl.dataset.cardIndex = String(idx);
+          if (card) {
+            slotEl.dataset.dish       = card.dish || '';
+            slotEl.dataset.restaurant = card.restaurant || '';
+          }
 
           const inner = document.createElement('div');
           inner.className = 'album-slot-inner';
@@ -1129,6 +1141,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window._renderAlbum        = renderAlbum;
     window._revealBlurredCards = revealBlurredCards;
+    window._albumGoTo          = albumGoTo;
 
     // Restaurants
     try {
@@ -3278,6 +3291,7 @@ document.addEventListener('DOMContentLoaded', () => {
       mustLightboxInner.style.transform = 'translate(0,0) scale(1) rotate(0deg)';
     }, 520);
   }
+  window._openMustCard = openMustCard;
 
   let mustClosing = false;
 

@@ -198,7 +198,7 @@ exports.sendMfaNotification = onCall(
 );
 
 // Auto-unlock Starter Pack on registration
-exports.subscribeNewsletter = onCall({ region: 'europe-west1' }, async (req) => {
+exports.subscribeNewsletter = onCall({ region: 'europe-west1', enforceAppCheck: true }, async (req) => {
   const { email } = req.data || {};
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email || !EMAIL_RE.test(email)) {

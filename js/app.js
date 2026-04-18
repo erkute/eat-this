@@ -326,14 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchClose = document.getElementById('searchClose');
   const searchTrigger = document.getElementById('searchTrigger');
 
-  const mustEatsData = Array.from(document.querySelectorAll('.eat-card')).map((card) => ({
-    dish: card.dataset.dish || '',
-    restaurant: card.dataset.restaurant || '',
-    district: card.dataset.district || '',
-    price: card.dataset.price || '',
-    img: card.dataset.img || '',
-    type: 'must-eat',
-  }));
+  let mustEatsData = [];
 
   const newsData = Array.from(document.querySelectorAll('.news-card')).map((card) => ({
     title: card.dataset.title || '',
@@ -910,6 +903,14 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const cards = await window.CMS.fetchMustEats(); // ordered by `order asc`
       window._albumCards = cards || [];
+      mustEatsData = (cards || []).map(c => ({
+        type: 'must-eat',
+        dish: c.dish || '',
+        restaurant: c.restaurant || '',
+        district: c.district || '',
+        price: c.price || '',
+        img: c.imageUrl || '',
+      }));
       renderAlbum();
     } catch (err) {
       console.warn('[CMS] Must-Eats fetch failed:', err.message); // eslint-disable-line no-console

@@ -31,7 +31,7 @@ test.describe('Onboarding', () => {
     await expect(page.locator('#obStep4')).toBeVisible();
   });
 
-  test('Open Booster Pack closes overlay', async ({ page }) => {
+  test('Open Starter Pack closes overlay', async ({ page }) => {
     await page.evaluate(() => window._obGoTo && window._obGoTo(4));
     await page.locator('#obOpenPackBtn').click();
     await expect(page.locator('#onboardingOverlay')).not.toBeVisible();

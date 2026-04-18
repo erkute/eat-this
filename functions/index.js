@@ -198,6 +198,25 @@ exports.sendMfaNotification = onCall(
 );
 
 // Auto-unlock Starter Pack on registration
+exports.subscribeNewsletter = onCall({ region: 'europe-west1' }, async (req) => {
+  const { email } = req.data || {};
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !EMAIL_RE.test(email)) {
+    throw new Error('invalid-email');
+  }
+  const db  = admin.firestore();
+  const ref = db.collection('newsletterSubscribers').doc(email.toLowerCase());
+  const doc = await ref.get();
+  if (doc.exists) return { status: 'already_subscribed' };
+  await ref.set({
+    email: email.toLowerCase(),
+    subscribedAt: Date.now(),
+    source: 'landing_page',
+  });
+  logger.info('[subscribeNewsletter] new subscriber:', email);
+  return { status: 'subscribed' };
+});
+
 exports.onUserCreate = require('firebase-functions/v1').auth.user().onCreate(async (user) => {
   try {
     await admin.firestore()

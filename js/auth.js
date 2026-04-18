@@ -40,6 +40,7 @@ const firebaseConfig = {
 const app       = initializeApp(firebaseConfig);
 const auth      = getAuth(app);
 const functions = getFunctions(app);
+window._functions = functions;
 
 // App Check nur auf der Produktionsseite aktivieren (nicht auf localhost)
 if (!['localhost', '127.0.0.1'].includes(window.location.hostname)) {

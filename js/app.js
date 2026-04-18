@@ -263,6 +263,43 @@ document.addEventListener('DOMContentLoaded', () => {
     heroExploreBtn.addEventListener('click', () => navigateToPage('musts'));
   }
 
+  const newsletterForm = document.getElementById('newsletterForm');
+  if (newsletterForm) {
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    newsletterForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const emailInput = document.getElementById('newsletterEmail');
+      const errorEl    = document.getElementById('newsletterError');
+      const successEl  = document.getElementById('newsletterSuccess');
+      const submitBtn  = document.getElementById('newsletterSubmit');
+      const email      = emailInput ? emailInput.value.trim() : '';
+
+      errorEl.hidden   = true;
+      successEl.hidden = true;
+
+      if (!email || !EMAIL_RE.test(email)) {
+        errorEl.hidden = false;
+        return;
+      }
+
+      submitBtn.disabled = true;
+      try {
+        const { httpsCallable } = await import(
+          'https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js'
+        );
+        const fn = httpsCallable(window._functions, 'subscribeNewsletter');
+        await fn({ email });
+        successEl.hidden = false;
+        if (emailInput) emailInput.value = '';
+      } catch {
+        errorEl.textContent = 'Something went wrong. Please try again.';
+        errorEl.hidden = false;
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  }
+
   // ============================================
   // HERO SLIDER
   // ============================================

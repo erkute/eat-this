@@ -351,7 +351,8 @@ function applyLoggedInUI(user) {
   if (profileEmailModal)  profileEmailModal.textContent  = user.email;
 
   window._currentUser = user;
-  if (typeof window._renderAlbum === 'function') window._renderAlbum();
+  if (typeof window._revealBlurredCards === 'function') window._revealBlurredCards();
+  else if (typeof window._renderAlbum === 'function') window._renderAlbum();
 }
 
 onAuthStateChanged(auth, (user) => {

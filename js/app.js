@@ -258,6 +258,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const heroRegisterBtn = document.getElementById('heroRegisterBtn');
   if (heroRegisterBtn) heroRegisterBtn.addEventListener('click', _openLoginModal);
 
+  const heroExploreBtn = document.getElementById('heroExploreBtn');
+  if (heroExploreBtn) {
+    heroExploreBtn.addEventListener('click', () => navigateToPage('musts'));
+  }
+
   // ============================================
   // HERO SLIDER
   // ============================================

@@ -43,4 +43,11 @@ test.describe('Navigation', () => {
     await expect(page.locator('#navProfileBtn .nav-label')).toBeVisible();
     await expect(page.locator('#navProfileBtn .nav-label')).toHaveText('Profile');
   });
+
+  test('hero explore-album button navigates to album', async ({ page }) => {
+    const btn = page.locator('#heroExploreBtn');
+    await expect(btn).toBeVisible();
+    await btn.click();
+    await expect(page.locator('.app-page[data-page="musts"]')).toHaveClass(/active/);
+  });
 });

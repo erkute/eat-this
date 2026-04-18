@@ -36,8 +36,11 @@ test.describe('Navigation', () => {
   test('navbar icons have visible labels', async ({ page }) => {
     await expect(page.locator('#navNewsBtn .nav-label')).toBeVisible();
     await expect(page.locator('#navNewsBtn .nav-label')).toHaveText('News');
+    await expect(page.locator('#navMapBtn .nav-label')).toBeVisible();
     await expect(page.locator('#navMapBtn .nav-label')).toHaveText('Map');
+    await expect(page.locator('#navMustsBtn .nav-label')).toBeVisible();
     await expect(page.locator('#navMustsBtn .nav-label')).toHaveText('Album');
+    await expect(page.locator('#navProfileBtn .nav-label')).toBeVisible();
     await expect(page.locator('#navProfileBtn .nav-label')).toHaveText('Profile');
   });
 });

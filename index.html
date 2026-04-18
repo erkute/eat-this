@@ -1340,6 +1340,127 @@
       </div>
     </div>
 
+    <!-- ONBOARDING OVERLAY -->
+<div class="ob-overlay" id="onboardingOverlay" hidden>
+
+  <div class="ob-panel">
+    <!-- Step 1: News -->
+    <div class="ob-step" id="obStep1">
+      <p class="ob-step-num">1 of 4</p>
+      <div class="ob-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+          <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
+        </svg>
+      </div>
+      <p class="ob-title">Berlin food news</p>
+      <p class="ob-body">New openings, hidden gems, guides.</p>
+      <div class="ob-dots">
+        <span class="ob-dot active"></span>
+        <span class="ob-dot"></span>
+        <span class="ob-dot"></span>
+        <span class="ob-dot"></span>
+      </div>
+      <div class="ob-footer">
+        <button class="ob-next-btn" id="obNext1">Next</button>
+        <button class="ob-skip-btn" id="obSkip1">Skip intro</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Map -->
+    <div class="ob-step" id="obStep2" hidden>
+      <p class="ob-step-num">2 of 4</p>
+      <div class="ob-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+          <line x1="9" y1="3" x2="9" y2="18"/>
+          <line x1="15" y1="6" x2="15" y2="21"/>
+        </svg>
+      </div>
+      <p class="ob-title">Spots on the map</p>
+      <p class="ob-body">Berlin's best food map. Filter by category.</p>
+      <div class="ob-dots">
+        <span class="ob-dot"></span>
+        <span class="ob-dot active"></span>
+        <span class="ob-dot"></span>
+        <span class="ob-dot"></span>
+      </div>
+      <div class="ob-footer">
+        <button class="ob-next-btn" id="obNext2">Next</button>
+        <button class="ob-skip-btn" id="obSkip2">Skip intro</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Album -->
+    <div class="ob-step" id="obStep3" hidden>
+      <p class="ob-step-num">3 of 4</p>
+      <div class="ob-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="M2 9h20"/>
+        </svg>
+      </div>
+      <p class="ob-title">Must-Eat Album</p>
+      <p class="ob-body">156 dishes. Collect them all.</p>
+      <div class="ob-dots">
+        <span class="ob-dot"></span>
+        <span class="ob-dot"></span>
+        <span class="ob-dot active"></span>
+        <span class="ob-dot"></span>
+      </div>
+      <div class="ob-footer">
+        <button class="ob-next-btn" id="obNext3">Next</button>
+        <button class="ob-skip-btn" id="obSkip3">Skip intro</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Booster Pack -->
+    <div class="ob-step" id="obStep4" hidden>
+      <p class="ob-step-num">4 of 4</p>
+      <div class="ob-icon ob-icon--star">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      </div>
+      <p class="ob-title">Your Booster Pack is ready.</p>
+      <p class="ob-body">10 free cards are waiting for you.</p>
+
+      <div class="ob-pack-wrap">
+        <div class="ob-pack-stack">
+          <div class="ob-pack-shadow ob-pack-shadow--far"></div>
+          <div class="ob-pack-shadow ob-pack-shadow--near"></div>
+          <div class="ob-pack-body">
+            <div class="ob-pack-stripe"></div>
+            <div class="ob-pack-brand">Eat This</div>
+            <div class="ob-pack-content">
+              <div class="ob-pack-num">10</div>
+              <div class="ob-pack-cards-lbl">Cards</div>
+              <div class="ob-pack-divider"></div>
+              <div class="ob-pack-type">Booster Pack</div>
+            </div>
+          </div>
+        </div>
+        <p class="ob-pack-tap">Tap to open</p>
+      </div>
+
+      <div class="ob-dots">
+        <span class="ob-dot"></span>
+        <span class="ob-dot"></span>
+        <span class="ob-dot"></span>
+        <span class="ob-dot active"></span>
+      </div>
+      <div class="ob-footer">
+        <button class="ob-next-btn" id="obOpenPackBtn">Open Booster Pack</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
     <script defer src="js/cms.js"></script>
     <script defer src="js/i18n.js"></script>
     <script defer src="js/app.js?v=12"></script>

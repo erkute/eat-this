@@ -256,6 +256,9 @@ if (loginForm) {
         notify(window.i18n.t('modals.login.notifications.welcome').replace('{name}', name));
         const sendVerificationEmail = httpsCallable(functions, 'sendVerificationEmail');
         sendVerificationEmail({ displayName: name }).catch(() => {});
+        setTimeout(() => {
+          if (typeof window.showOnboarding === 'function') window.showOnboarding();
+        }, 400);
       } else {
         await signInWithEmailAndPassword(auth, email, password);
         const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? 'du';

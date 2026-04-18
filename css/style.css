@@ -6118,3 +6118,231 @@ html:not([data-theme="dark"]) .site-footer-copy {
   color: #bbb;
   margin-top: 12px;
 }
+
+/* ============================================
+   ONBOARDING OVERLAY
+   ============================================ */
+.ob-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 10000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.ob-overlay[hidden] { display: none; }
+
+.ob-panel {
+  background: #fff;
+  width: 100%;
+  max-width: 480px;
+  border-radius: 20px 20px 0 0;
+  padding-bottom: 24px;
+  overflow: hidden;
+}
+
+.ob-step { padding: 28px 24px 0; text-align: center; }
+.ob-step[hidden] { display: none; }
+
+.ob-step-num {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 20px;
+}
+.ob-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 59, 0, 0.07);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+.ob-icon svg { width: 28px; height: 28px; stroke: var(--orange); }
+.ob-icon--star { background: rgba(255, 59, 0, 0.1); }
+
+.ob-title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--black);
+  margin-bottom: 8px;
+}
+.ob-body {
+  font-size: 13px;
+  color: var(--gray-400);
+  line-height: 1.6;
+  margin-bottom: 4px;
+}
+
+.ob-dots {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  padding: 12px 0 16px;
+}
+.ob-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #d4d4d4;
+}
+.ob-dot.active {
+  background: var(--orange);
+  width: 16px;
+  border-radius: 2px;
+}
+
+.ob-footer {
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ob-next-btn {
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  padding: 14px;
+  width: 100%;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: var(--radius);
+  font-family: var(--font);
+}
+.ob-skip-btn {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: #aaa;
+  cursor: pointer;
+  font-family: var(--font);
+  padding: 4px;
+}
+
+/* Booster pack visual */
+.ob-pack-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0 4px;
+}
+.ob-pack-stack {
+  position: relative;
+  width: 100px;
+  height: 149px;
+}
+.ob-pack-shadow {
+  position: absolute;
+  left: 50%;
+  width: 100px;
+  height: 149px;
+  border-radius: 4px;
+}
+.ob-pack-shadow--far  {
+  top: 8px;
+  background: #d8d8d8;
+  transform: translateX(-50%) rotate(-4deg);
+}
+.ob-pack-shadow--near {
+  top: 4px;
+  background: #e5e5e5;
+  transform: translateX(-50%) rotate(-2deg);
+}
+.ob-pack-body {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 149px;
+  border-radius: 4px;
+  background: #0a0a0a;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+.ob-pack-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  background: linear-gradient(135deg, var(--orange), #cc2a00);
+}
+.ob-pack-stripe::after {
+  content: '';
+  position: absolute;
+  bottom: -11px;
+  left: 0;
+  right: 0;
+  height: 22px;
+  background: #0a0a0a;
+  clip-path: polygon(0 100%, 100% 100%, 100% 0);
+}
+.ob-pack-brand {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #fff;
+}
+.ob-pack-content {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+.ob-pack-num {
+  font-size: 36px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -2px;
+  line-height: 1;
+}
+.ob-pack-cards-lbl {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+.ob-pack-divider {
+  width: 28px;
+  height: 1px;
+  background: #333;
+  margin: 3px 0;
+}
+.ob-pack-type {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #555;
+}
+.ob-pack-tap {
+  font-size: 10px;
+  color: #aaa;
+  font-weight: 600;
+}

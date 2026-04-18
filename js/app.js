@@ -300,6 +300,47 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ── Onboarding ──
+  window._obGoTo = function(step) {
+    [1, 2, 3, 4].forEach(n => {
+      const el = document.getElementById('obStep' + n);
+      if (el) el.hidden = (n !== step);
+    });
+  };
+
+  window.showOnboarding = function() {
+    if (localStorage.getItem('onboardingComplete')) return;
+    const overlay = document.getElementById('onboardingOverlay');
+    if (overlay) {
+      overlay.hidden = false;
+      window._obGoTo(1);
+    }
+  };
+
+  const obNext1 = document.getElementById('obNext1');
+  const obNext2 = document.getElementById('obNext2');
+  const obNext3 = document.getElementById('obNext3');
+  const obSkip1 = document.getElementById('obSkip1');
+  const obSkip2 = document.getElementById('obSkip2');
+  const obSkip3 = document.getElementById('obSkip3');
+  const obOpenPackBtn = document.getElementById('obOpenPackBtn');
+
+  if (obNext1) obNext1.addEventListener('click', () => window._obGoTo(2));
+  if (obNext2) obNext2.addEventListener('click', () => window._obGoTo(3));
+  if (obNext3) obNext3.addEventListener('click', () => window._obGoTo(4));
+  if (obSkip1) obSkip1.addEventListener('click', () => window._obGoTo(4));
+  if (obSkip2) obSkip2.addEventListener('click', () => window._obGoTo(4));
+  if (obSkip3) obSkip3.addEventListener('click', () => window._obGoTo(4));
+
+  if (obOpenPackBtn) {
+    obOpenPackBtn.addEventListener('click', () => {
+      const overlay = document.getElementById('onboardingOverlay');
+      if (overlay) overlay.hidden = true;
+      localStorage.setItem('onboardingComplete', '1');
+      navigateToPage('musts');
+    });
+  }
+
   // ============================================
   // HERO SLIDER
   // ============================================

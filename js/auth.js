@@ -349,6 +349,9 @@ function applyLoggedInUI(user) {
   if (profileAvatarModal) profileAvatarModal.textContent = initials;
   if (profileNameModal)   profileNameModal.textContent   = 'Hey, ' + displayName + '!';
   if (profileEmailModal)  profileEmailModal.textContent  = user.email;
+
+  window._currentUser = user;
+  if (typeof window._renderAlbum === 'function') window._renderAlbum();
 }
 
 onAuthStateChanged(auth, (user) => {
@@ -369,6 +372,9 @@ onAuthStateChanged(auth, (user) => {
 
     loginForm?.reset();
     setMode(true);
+
+    window._currentUser = null;
+    if (typeof window._renderAlbum === 'function') window._renderAlbum();
   }
   if (window._initProfilePage) {
     window._initProfilePage(user || null);

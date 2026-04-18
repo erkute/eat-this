@@ -901,36 +901,154 @@ document.addEventListener('DOMContentLoaded', () => {
   const cmsReady = (async () => {
     if (!window.CMS) return;
 
-    // Must-Eat cards
+    // Must-Eat Album
+    const ALBUM_TOTAL = 156;
+    const ALWAYS_VISIBLE = 11;
+    const SLOTS_PER_PAGE = 9;
+    window._albumCards = [];
+
     try {
-      const cards = await window.CMS.fetchMustEats();
-      const grid = document.getElementById('mustEatsGrid');
-      if (grid && cards && cards.length) {
-        const fragment = document.createDocumentFragment();
-        cards.forEach((c) => {
-          const wrapper = document.createElement('div');
-          wrapper.className = 'must-card eat-card';
-          wrapper.dataset.dish = c.dish || '';
-          wrapper.dataset.restaurant = c.restaurant || '';
-          wrapper.dataset.district = c.district || '';
-          wrapper.dataset.price = c.price || '';
-          wrapper.dataset.img = c.imageUrl || '';
-
-          const img = document.createElement('img');
-          img.src = c.imageUrl || '';
-          img.alt = c.dish || '';
-          img.className = 'must-card-img';
-          img.loading = 'lazy';
-          img.decoding = 'async';
-
-          wrapper.appendChild(img);
-          fragment.appendChild(wrapper);
-        });
-        grid.appendChild(fragment);
-      }
+      const cards = await window.CMS.fetchMustEats(); // ordered by `order asc`
+      window._albumCards = cards || [];
+      renderAlbum();
     } catch (err) {
       console.warn('[CMS] Must-Eats fetch failed:', err.message); // eslint-disable-line no-console
     }
+
+    function renderAlbum() {
+      const pagesEl = document.getElementById('albumPages');
+      const dotsEl  = document.getElementById('albumDots');
+      if (!pagesEl || !dotsEl) return;
+
+      const cards      = window._albumCards;
+      const isLoggedIn = !!(window._currentUser);
+      const totalPages = Math.ceil(ALBUM_TOTAL / SLOTS_PER_PAGE);
+
+      pagesEl.textContent = '';
+      dotsEl.textContent  = '';
+
+      for (let p = 0; p < totalPages; p++) {
+        const pageEl = document.createElement('div');
+        pageEl.className = 'album-page';
+
+        const grid = document.createElement('div');
+        grid.className = 'album-card-grid';
+
+        for (let s = 0; s < SLOTS_PER_PAGE; s++) {
+          const idx  = p * SLOTS_PER_PAGE + s;
+          const card = cards[idx];
+
+          let slotType;
+          if (!card)                     slotType = 'empty';
+          else if (idx < ALWAYS_VISIBLE) slotType = 'sharp';
+          else                           slotType = isLoggedIn ? 'sharp' : 'blurred';
+
+          const slotEl  = document.createElement('div');
+          slotEl.className = 'album-slot ' + slotType;
+          slotEl.dataset.cardIndex = String(idx);
+
+          const inner = document.createElement('div');
+          inner.className = 'album-slot-inner';
+
+          if (slotType !== 'empty' && card) {
+            const bg = document.createElement('div');
+            bg.className = 'album-slot-bg';
+            bg.style.backgroundImage = 'url(' + card.imageUrl + ')';
+            inner.appendChild(bg);
+          }
+
+          slotEl.appendChild(inner);
+          grid.appendChild(slotEl);
+        }
+
+        const footer  = document.createElement('div');
+        footer.className = 'album-page-footer';
+
+        const pageNum = document.createElement('span');
+        pageNum.className = 'album-page-num';
+        pageNum.textContent = (p + 1) + ' / ' + totalPages;
+
+        const ctaBtn = document.createElement('button');
+        ctaBtn.className = 'album-cta-btn album-cta';
+        ctaBtn.textContent = isLoggedIn ? 'Get More Packs' : 'Collect Them All';
+        ctaBtn.addEventListener('click', () => navigateToPage('profile'));
+
+        footer.appendChild(pageNum);
+        footer.appendChild(ctaBtn);
+        pageEl.appendChild(grid);
+        pageEl.appendChild(footer);
+        pagesEl.appendChild(pageEl);
+      }
+
+      // Dots
+      for (let i = 0; i < totalPages; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'album-dot' + (i === 0 ? ' active' : '');
+        if (i >= 3) {
+          dot.style.opacity = String(Math.max(0.04, 0.22 - (i - 3) * 0.06));
+          const sz = Math.max(2, 5 - (i - 3));
+          dot.style.width  = sz + 'px';
+          dot.style.height = sz + 'px';
+        }
+        dot.addEventListener('click', () => albumGoTo(i));
+        dotsEl.appendChild(dot);
+      }
+
+      updateAlbumProgress(isLoggedIn ? Math.min(cards.length, ALBUM_TOTAL) : ALWAYS_VISIBLE);
+    }
+
+    let _albumCur = 0;
+
+    function albumGoTo(n) {
+      const pagesEl = document.getElementById('albumPages');
+      const dots    = document.querySelectorAll('.album-dot');
+      _albumCur     = Math.max(0, Math.min(Math.ceil(ALBUM_TOTAL / SLOTS_PER_PAGE) - 1, n));
+      if (pagesEl) pagesEl.style.transform = 'translateX(-' + (_albumCur * 100) + '%)';
+      dots.forEach((d, i) => {
+        d.classList.remove('active', 'visited');
+        if (i === _albumCur)    d.classList.add('active');
+        else if (i < _albumCur) d.classList.add('visited');
+      });
+    }
+
+    function updateAlbumProgress(count) {
+      const fill    = document.getElementById('albumProgFill');
+      const countEl = document.getElementById('albumProgCount');
+      if (fill)    fill.style.width = ((count / ALBUM_TOTAL) * 100) + '%';
+      if (countEl) countEl.textContent = count + ' / ' + ALBUM_TOTAL;
+    }
+
+    function revealBlurredCards() {
+      document.querySelectorAll('.album-slot.blurred').forEach((slot, i) => {
+        setTimeout(() => slot.classList.add('revealed'), i * 80);
+      });
+    }
+
+    // Album swipe — touch + mouse
+    (function bindAlbumSwipe() {
+      const pagesEl = document.getElementById('albumPages');
+      if (!pagesEl) return;
+      let sx = 0, sy = 0;
+      pagesEl.addEventListener('touchstart', e => {
+        sx = e.touches[0].clientX;
+        sy = e.touches[0].clientY;
+      }, { passive: true });
+      pagesEl.addEventListener('touchend', e => {
+        const dx = sx - e.changedTouches[0].clientX;
+        const dy = Math.abs(sy - e.changedTouches[0].clientY);
+        if (Math.abs(dx) > dy && Math.abs(dx) > 40) albumGoTo(_albumCur + (dx > 0 ? 1 : -1));
+      });
+      let mx = 0, drag = false;
+      pagesEl.addEventListener('mousedown', e => { mx = e.clientX; drag = true; });
+      window.addEventListener('mouseup', e => {
+        if (!drag) return;
+        drag = false;
+        if (Math.abs(mx - e.clientX) > 40) albumGoTo(_albumCur + (mx - e.clientX > 0 ? 1 : -1));
+      });
+    }());
+
+    window._renderAlbum        = renderAlbum;
+    window._revealBlurredCards = revealBlurredCards;
 
     // Restaurants
     try {

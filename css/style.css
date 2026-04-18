@@ -588,6 +588,159 @@ body {
   .must-eats-grid .must-card:nth-child(odd):last-child { width: calc(50% - 9px); }
 }
 
+/* ============================================
+   MUST-EAT ALBUM
+   ============================================ */
+.album-progress-row {
+  background: #fff;
+  padding: 8px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.album-prog-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #bbb;
+  white-space: nowrap;
+}
+.album-prog-bar {
+  flex: 1;
+  height: 2px;
+  background: #e8e8e8;
+  border-radius: 1px;
+  overflow: hidden;
+}
+.album-prog-fill {
+  height: 100%;
+  background: var(--orange);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.album-prog-count {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--orange);
+  white-space: nowrap;
+}
+
+.album-viewport {
+  overflow: hidden;
+  background: #fafafa;
+}
+.album-pages {
+  display: flex;
+  transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: grab;
+  will-change: transform;
+}
+.album-pages:active { cursor: grabbing; }
+.album-page { min-width: 100%; }
+
+.album-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 14px 20px;
+}
+.album-slot {
+  aspect-ratio: 1449 / 2163;
+  position: relative;
+}
+.album-slot-inner {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 round 6%);
+  overflow: hidden;
+}
+
+.album-slot.sharp .album-slot-inner { background-color: #e0e0e0; }
+.album-slot.sharp .album-slot-bg {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
+.album-slot.blurred .album-slot-inner { background-color: #d8d8d8; }
+.album-slot.blurred .album-slot-bg {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(9px);
+  transform: scale(1.15);
+  opacity: 0.55;
+  transition: filter 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.album-slot.blurred.revealed .album-slot-bg {
+  filter: blur(0);
+  transform: scale(1);
+  opacity: 1;
+}
+
+.album-slot.empty .album-slot-inner { background: #ebebeb; }
+
+.album-page-footer {
+  background: #fff;
+  border-top: 1px solid #f0f0f0;
+  padding: 8px 20px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.album-page-num {
+  font-size: 9px;
+  color: #bbb;
+  font-weight: 600;
+}
+.album-cta-btn {
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  padding: 7px 14px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: var(--radius);
+  font-family: var(--font);
+}
+
+.album-dots-row {
+  background: #fff;
+  padding: 8px 20px 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+.album-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #d4d4d4;
+  transition: all 0.3s;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  flex-shrink: 0;
+}
+.album-dot.active {
+  background: var(--orange);
+  width: 16px;
+  border-radius: 2px;
+}
+.album-dot.visited {
+  background: var(--orange);
+  opacity: 0.3;
+}
+
 /* Cards */
 .must-card {
   cursor: pointer;

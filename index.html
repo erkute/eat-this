@@ -506,15 +506,24 @@
               loading="lazy"
               decoding="async"
             />
-            <p
-              class="must-eats-subtitle"
-              data-i18n="musts.subtitle"
-            >
-              The dishes you can't leave Berlin without trying.
-            </p>
           </div>
-          <div class="must-eats-grid reveal-stagger" id="mustEatsGrid">
-            <!-- populated by js/cms.js -->
+
+          <div class="album-progress-row">
+            <span class="album-prog-label">Progress</span>
+            <div class="album-prog-bar">
+              <div class="album-prog-fill" id="albumProgFill" style="width:0%"></div>
+            </div>
+            <span class="album-prog-count" id="albumProgCount">0 / 156</span>
+          </div>
+
+          <div class="album-viewport">
+            <div class="album-pages" id="albumPages">
+              <!-- populated by js/app.js -->
+            </div>
+          </div>
+
+          <div class="album-dots-row" id="albumDots">
+            <!-- populated by js/app.js -->
           </div>
         </section>
       </div>

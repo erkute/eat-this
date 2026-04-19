@@ -6717,6 +6717,12 @@ html:not([data-theme="dark"]) .site-footer-copy {
 /* ── MOBILE — Full-bleed image top + compact auth bottom ── */
 @media (max-width: 720px) {
   .wm-overlay { padding: 8px; align-items: center; overscroll-behavior: none; }
+  /* solid uniform backdrop on mobile – no blur variation */
+  .wm-backdrop {
+    background: rgba(18,18,18,0.82) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
   @keyframes wm-enter {
     from { opacity: 0; transform: translateY(20px) scale(0.97); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
@@ -6754,7 +6760,7 @@ html:not([data-theme="dark"]) .site-footer-copy {
   .wm-bg-img {
     width: 100%; height: 100%;
     object-fit: cover;
-    object-position: center 60%;
+    object-position: center 25%;
     display: block;
   }
   .wm-img-wrap::after {
@@ -6864,14 +6870,23 @@ html:not([data-theme="dark"]) .site-footer-copy {
 
   /* ── BOTTOM: compact auth panel ── */
   .wm-right {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     width: 100%;
     flex-shrink: 0;
     background: #fff;
     padding: 16px 18px 14px;
     position: relative;
+    text-align: center;
+    box-sizing: border-box;
   }
-  .wm-form-wrap { display: block; }
+  .wm-form-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
   .wm-form-title  { display: none !important; }
   .wm-form-sub    { display: none !important; }
   .wm-booster-hint { display: none !important; }
@@ -6951,12 +6966,14 @@ html:not([data-theme="dark"]) .site-footer-copy {
 
   .wm-mode-toggle {
     display: block !important;
+    width: 100%;
     margin: 7px 0 0 !important;
     text-align: center; font-size: 0.78rem; color: #777 !important;
   }
   .wm-mode-link { color: var(--black) !important; font-weight: 600; text-decoration: underline; }
 
   .wm-terms {
+    width: 100%;
     margin: 8px 0 0 !important;
     text-align: center; font-size: 0.62rem !important;
     color: #bbb !important; line-height: 1.4;

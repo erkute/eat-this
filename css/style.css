@@ -5349,52 +5349,87 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   transform: translateX(4px);
 }
 
-/* Editorial row – single column on all screen sizes */
+/* Editorial row – mobile: stacked, desktop: side-by-side */
 .start-editorial-row {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 0;
 }
-.start-editorial-text { flex: 1; }
+.start-editorial-text {
+  flex: 1;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .start-editorial-row {
+    flex-direction: row;
+    align-items: stretch;
+    min-height: 560px;
+  }
+  .start-editorial-row--reverse {
+    flex-direction: row-reverse;
+  }
+  .start-editorial-text {
+    flex: 1;
+    padding: 64px 56px;
+  }
+}
 
 /* Images */
 .start-img-wrap {
   overflow: hidden;
-  border-radius: 2px;
+  border-radius: 0;
   position: relative;
 }
-.start-img-wrap.tall   { height: 320px; }
-.start-img-wrap.medium { height: 240px; }
-.start-img-wrap.wide   { height: 280px; }
 
+/* Mobile: fixed heights */
+.start-img-wrap.tall   { height: 380px; }
+.start-img-wrap.medium { height: 280px; }
+.start-img-wrap.wide   { height: 320px; }
+
+/* Desktop default heights (outside editorial rows) */
 @media (min-width: 768px) {
-  .start-img-wrap.tall   { height: 480px; }
-  .start-img-wrap.medium { height: 360px; }
-  .start-img-wrap.wide   { height: 420px; }
+  .start-img-wrap.tall   { height: 520px; }
+  .start-img-wrap.medium { height: 380px; }
+  .start-img-wrap.wide   { height: 460px; }
+}
+
+/* Desktop inside editorial row: fill the row height */
+@media (min-width: 768px) {
+  .start-editorial-row .start-img-wrap {
+    flex: 0 0 48%;
+    height: auto !important;
+    min-height: 480px;
+  }
 }
 
 .start-img {
   width: 100%;
   object-fit: cover;
   display: block;
-  border-radius: 2px;
 }
-/* Inside a parallax wrap: image taller than container so it can shift */
+/* Inside a parallax wrap: image overflows for parallax movement */
 .start-img-wrap .start-img {
-  height: calc(100% + 120px);
-  margin-top: -60px;
-  border-radius: 0;
+  position: absolute;
+  top: -40px;
+  left: 0;
+  width: 100%;
+  height: calc(100% + 80px);
   will-change: transform;
 }
+
 /* Fallback heights for images without a wrap */
-.start-img.tall   { height: 320px; }
-.start-img.medium { height: 240px; }
-.start-img.wide   { height: 280px; }
+.start-img.tall   { height: 380px; }
+.start-img.medium { height: 280px; }
+.start-img.wide   { height: 320px; }
 
 @media (min-width: 768px) {
-  .start-img.tall   { height: 480px; }
-  .start-img.medium { height: 360px; }
-  .start-img.wide   { height: 420px; }
+  .start-img.tall   { height: 520px; }
+  .start-img.medium { height: 380px; }
+  .start-img.wide   { height: 460px; }
 }
 
 /* Philosophie numbered list */
@@ -5881,6 +5916,12 @@ html:not([data-theme="dark"]) .site-footer-copy {
     padding-right: 32px;
     box-sizing: border-box;
   }
+  /* Editorial sections go edge-to-edge — text/image handle own padding */
+  .app-page[data-page="start"] .start-section:has(.start-editorial-row) {
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -6319,6 +6360,7 @@ html:not([data-theme="dark"]) .site-footer-copy {
   align-items: center;
   justify-content: center;
   padding: 20px;
+  overscroll-behavior: none;
 }
 .wm-overlay.active {
   display: flex;

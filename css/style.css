@@ -363,7 +363,7 @@ body {
   .hero {
     background-image: url('../pics/hero_mobile.webp');
     background-size: 100% auto;
-    background-position: center -130px;
+    background-position: center top;
     background-repeat: no-repeat;
     background-color: transparent;
   }
@@ -3025,7 +3025,7 @@ body {
   .app-page[data-page="start"] .hero {
     position: relative;
     width: 100%;
-    height: calc(100vw * 2.159 - 130px) !important;
+    height: calc(100vw * 2.161) !important;
     min-height: unset !important;
   }
   

@@ -20,7 +20,10 @@ import {
   onAuthStateChanged,
   signOut,
   updateProfile,
-  deleteUser
+  deleteUser,
+  sendSignInLinkToEmail,
+  isSignInWithEmailLink,
+  signInWithEmailLink
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import {
   getFunctions,
@@ -51,6 +54,20 @@ if (!['localhost', '127.0.0.1'].includes(window.location.hostname)) {
   });
 }
 
+// ─── Email-Link Sign-In completion (magic link return) ────────────────────────
+if (isSignInWithEmailLink(auth, window.location.href)) {
+  let email = '';
+  try { email = localStorage.getItem('emailForSignIn') ?? ''; } catch (_) { /* localStorage blocked */ }
+  if (!email) email = window.prompt('Please confirm your email to complete sign-in:') ?? '';
+  if (email) {
+    signInWithEmailLink(auth, email, window.location.href)
+      .then(() => {
+        try { localStorage.removeItem('emailForSignIn'); } catch (_) { /* localStorage blocked */ }
+        window.history.replaceState(null, '', window.location.pathname);
+      })
+      .catch(err => console.error('[auth] Email link sign-in failed:', err));
+  }
+}
 
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
@@ -467,6 +484,7 @@ onAuthStateChanged(auth, (user) => {
   wmSetMode(true);
 
   wmClose?.addEventListener('click', wmDismiss);
+  document.getElementById('wmClosePhoto')?.addEventListener('click', wmDismiss);
   wmBackdrop?.addEventListener('click', wmDismiss);
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && wmOverlay?.classList.contains('active')) wmDismiss();
@@ -489,7 +507,30 @@ onAuthStateChanged(auth, (user) => {
   wmEmailForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     wmClearError();
-    const email    = wmEmail?.value.trim() ?? '';
+    const email     = wmEmail?.value.trim() ?? '';
+    const submitBtn = wmEmailForm.querySelector('button[type="submit"]');
+
+    // ── Mobile: magic-link (passwordless) ──────────────────────────────────────
+    if (window.innerWidth <= 720) {
+      if (!email) { wmShowError(window.i18n.t('modals.login.errors.emailRequired')); return; }
+      if (submitBtn) submitBtn.disabled = true;
+      try {
+        await sendSignInLinkToEmail(auth, email, {
+          url: 'https://www.eatthisdot.com',
+          handleCodeInApp: true,
+        });
+        try { localStorage.setItem('emailForSignIn', email); } catch (_) { /* localStorage blocked */ }
+        wmClearError();
+        wmShowSuccess('Check your inbox — we sent you a sign-in link! 📧');
+      } catch (err) {
+        wmShowError(err?.message ?? 'Something went wrong. Please try again.');
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+      return;
+    }
+
+    // ── Desktop: email + password ──────────────────────────────────────────────
     const password = wmPassword?.value ?? '';
     const name     = wmName?.value.trim() ?? '';
 
@@ -497,7 +538,6 @@ onAuthStateChanged(auth, (user) => {
     if (!password) { wmShowError(window.i18n.t('modals.login.errors.passwordRequired')); return; }
     if (wmIsRegister && !name) { wmShowError(window.i18n.t('modals.login.errors.nameRequired')); return; }
 
-    const submitBtn = wmEmailForm.querySelector('button[type="submit"]');
     if (submitBtn) submitBtn.disabled = true;
     try {
       if (wmIsRegister) {

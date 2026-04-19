@@ -6393,6 +6393,7 @@ html:not([data-theme="dark"]) .site-footer-copy {
 }
 .wm-close:hover { background: var(--gray-200); }
 .wm-close svg { stroke: var(--black); }
+.wm-close-photo { display: none; } /* shown mobile-only */
 .wm-form-wrap {
   width: 100%;
   max-width: 268px;
@@ -6535,6 +6536,7 @@ html:not([data-theme="dark"]) .site-footer-copy {
 
 /* ── MOBILE — Variante A: Foto+Headline → Benefits → Weißes Formular ── */
 @media (max-width: 720px) {
+  /* ── Bottom-sheet layer (not full viewport) ── */
   .wm-overlay { padding: 0; align-items: flex-end; }
   @keyframes wm-enter {
     from { opacity: 0; transform: translateY(40px); }
@@ -6545,41 +6547,63 @@ html:not([data-theme="dark"]) .site-footer-copy {
     max-width: 100%;
     width: 100%;
     height: auto;
-    max-height: 100dvh;
-    border-radius: 0;
+    max-height: 88dvh;
+    border-radius: 20px 20px 0 0;
   }
 
-  /* ── Photo: Headline overlaid at bottom ── */
+  /* ── Photo strip ── */
   .wm-left { width: 100%; flex-shrink: 0; }
-  .wm-img-wrap { height: min(34dvh, 230px); }
+  .wm-img-wrap { height: min(30dvh, 200px); }
   .wm-img-wrap::after {
-    background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 40%, rgba(0,0,0,0.68) 100%);
+    background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 45%, rgba(0,0,0,0.55) 100%);
   }
   .wm-bg-img { height: 100%; width: 100%; object-position: center 78%; }
   .wm-img-logo { width: 84px; }
   .wm-img-text { top: 14px; left: 16px; }
 
-  /* Headline on photo — mobile only */
+  /* Tagline sits below logo — cards at bottom stay visible */
   .wm-photo-tagline {
     display: block;
     position: absolute;
-    bottom: 13px;
+    top: 46px;
+    bottom: auto;
     left: 16px;
-    right: 16px;
+    right: 48px; /* don't overlap photo close btn */
     z-index: 2;
-    font-size: 1.0rem;
+    font-size: 0.85rem;
     font-weight: 800;
     color: #fff;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.02em;
     line-height: 1.2;
     font-family: 'Inter', sans-serif;
   }
 
-  /* ── Benefits strip — headline hidden, features shown ── */
+  /* X button on the photo (top-right of image) */
+  .wm-close-photo {
+    display: flex !important;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 3;
+    width: 28px;
+    height: 28px;
+    background: rgba(0,0,0,0.45) !important;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .wm-close-photo svg { stroke: #fff !important; }
+  /* Hide the right-panel X on mobile */
+  .wm-close:not(.wm-close-photo) { display: none !important; }
+
+  /* ── Benefits strip ── */
   .wm-headline { display: none; }
-  .wm-left-inner { padding: 11px 18px 13px; gap: 7px; }
+  .wm-left-inner { padding: 10px 18px 12px; gap: 6px; }
   .wm-left-intro { display: none; }
-  .wm-features { flex-direction: column; gap: 7px; }
+  .wm-features { flex-direction: column; gap: 6px; }
   .wm-feature { flex-direction: column; gap: 1px; }
   .wm-feature-head { gap: 6px; }
   .wm-feature-title { font-size: 0.74rem; }
@@ -6592,32 +6616,46 @@ html:not([data-theme="dark"]) .site-footer-copy {
   }
   .wm-num { font-size: 0.57rem; }
 
-  /* ── White form with all text visible ── */
+  /* ── Dark/black form ── */
   .wm-right {
-    background: #fff !important;
-    padding: 14px 18px 28px;
+    background: #0d0d0d !important;
+    padding: 14px 18px 32px;
     align-items: flex-start;
     justify-content: flex-start;
     overflow-y: auto;
   }
   .wm-form-wrap { max-width: 100%; }
-  .wm-close { background: var(--gray-100) !important; }
-  .wm-close svg { stroke: var(--black) !important; }
-  .wm-form-title { font-size: 1.2rem; color: var(--black) !important; margin-bottom: 2px; }
-  .wm-form-sub { display: block; font-size: 0.75rem; color: var(--gray-400) !important; margin-bottom: 6px; }
-  .wm-booster-hint { display: block; font-size: 0.68rem; color: #666 !important; margin-bottom: 12px; }
-  .wm-google { background: #fff !important; border-color: var(--gray-200) !important; color: var(--black) !important; font-size: 0.83rem; padding: 10px 12px; }
-  .wm-divider { color: var(--gray-400) !important; font-size: 0.72rem; margin: 8px 0; }
-  .wm-divider::before, .wm-divider::after { background: var(--gray-100) !important; }
+  .wm-form-title { font-size: 1.2rem; color: #fff !important; margin-bottom: 2px; }
+  .wm-form-sub { display: block; font-size: 0.75rem; color: rgba(255,255,255,0.4) !important; margin-bottom: 6px; }
+  .wm-booster-hint { display: block; font-size: 0.68rem; color: rgba(255,255,255,0.38) !important; margin-bottom: 12px; }
+  .wm-google {
+    background: rgba(255,255,255,0.07) !important;
+    border-color: rgba(255,255,255,0.14) !important;
+    color: #fff !important;
+    font-size: 0.83rem;
+    padding: 10px 12px;
+  }
+  .wm-google:hover { background: rgba(255,255,255,0.12) !important; }
+  .wm-divider { color: rgba(255,255,255,0.22) !important; font-size: 0.72rem; margin: 8px 0; }
+  .wm-divider::before, .wm-divider::after { background: rgba(255,255,255,0.1) !important; }
   .wm-email-form { gap: 6px; }
-  .wm-field input { background: #fff !important; border-color: var(--gray-200) !important; color: var(--black) !important; font-size: 0.83rem; padding: 9px 11px; }
-  .wm-field input::placeholder { color: var(--gray-400) !important; }
-  .wm-forgot button { color: var(--gray-400) !important; }
+  .wm-field input {
+    background: rgba(255,255,255,0.07) !important;
+    border-color: rgba(255,255,255,0.12) !important;
+    color: #fff !important;
+    font-size: 0.83rem;
+    padding: 9px 11px;
+  }
+  .wm-field input::placeholder { color: rgba(255,255,255,0.3) !important; }
   .wm-submit { font-size: 0.83rem; padding: 10px 16px; }
-  .wm-mode-toggle { margin-top: 9px; font-size: 0.76rem; color: var(--gray-400) !important; }
-  .wm-mode-link { color: var(--black) !important; }
-  .wm-terms { margin-top: 7px; font-size: 0.67rem; color: var(--gray-400) !important; }
-  .wm-terms-link { color: var(--black) !important; }
+  .wm-terms { margin-top: 8px; font-size: 0.67rem; color: rgba(255,255,255,0.28) !important; }
+  .wm-terms-link { color: rgba(255,255,255,0.6) !important; }
+
+  /* Hide name / password / mode toggle on mobile → magic-link flow */
+  #wmNameField     { display: none !important; }
+  #wmPasswordField { display: none !important; }
+  #wmForgot        { display: none !important; }
+  .wm-mode-toggle  { display: none !important; }
 }
 
 /* ── DARK MODE ── */

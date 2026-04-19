@@ -1442,6 +1442,11 @@
               <img src="pics/logo2.webp" alt="Eat This" class="wm-img-logo">
             </div>
             <p class="wm-photo-tagline">Probably the best food guide you know!</p>
+            <button class="wm-close wm-close-photo" id="wmClosePhoto" aria-label="Close">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           </div>
           <div class="wm-left-inner">
             <h2 class="wm-headline">Probably the best food guide you know!</h2>
@@ -1505,7 +1510,7 @@
               <div class="wm-field">
                 <input type="email" id="wmEmail" placeholder="Email" required autocomplete="email" aria-label="Email">
               </div>
-              <div class="wm-field">
+              <div class="wm-field" id="wmPasswordField">
                 <input type="password" id="wmPassword" placeholder="Password" required autocomplete="new-password" minlength="6" aria-label="Password">
               </div>
               <p class="wm-forgot" id="wmForgot" hidden>

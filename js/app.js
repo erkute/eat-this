@@ -2271,6 +2271,26 @@ function updateAlbumProgress(count) {
     const filterLabel = document.getElementById('mapFilterLabel');
     const filterOptions = document.querySelectorAll('.map-filter-option');
 
+    // Mobile: horizontal chip strip mirrored from dropdown options
+    const filterChips = document.getElementById('mapFilterChips');
+    if (filterChips && filterChips.childElementCount === 0) {
+      filterOptions.forEach((opt) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'map-filter-chip';
+        chip.dataset.value = opt.dataset.value;
+        if (opt.classList.contains('active')) chip.classList.add('active');
+        const i18n = opt.getAttribute('data-i18n');
+        if (i18n) chip.setAttribute('data-i18n', i18n);
+        chip.textContent = opt.textContent.trim();
+        chip.addEventListener('click', (e) => { e.stopPropagation(); _applyFilter(opt.dataset.value); });
+        chip.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
+        chip.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); _applyFilter(opt.dataset.value); });
+        filterChips.appendChild(chip);
+      });
+    }
+    const filterChipEls = filterChips ? filterChips.querySelectorAll('.map-filter-chip') : [];
+
     function _applyFilter(value) {
       _mapActiveFilter = value;
       // Update label
@@ -2278,6 +2298,10 @@ function updateAlbumProgress(count) {
       if (filterLabel && chosen) filterLabel.textContent = chosen.textContent.trim();
       // Update active state
       filterOptions.forEach((o) => o.classList.toggle('active', o.dataset.value === value));
+      filterChipEls.forEach((c) => c.classList.toggle('active', c.dataset.value === value));
+      // Auto-scroll active chip into view
+      const activeChip = filterChips && filterChips.querySelector('.map-filter-chip.active');
+      if (activeChip) activeChip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
       // Close menu
       if (filterMenu) filterMenu.classList.remove('open');
       // Filter markers

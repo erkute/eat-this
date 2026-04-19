@@ -584,6 +584,7 @@
                 </svg>
                 <input type="text" id="mapSearchInput" class="map-search-input" placeholder="Restaurant, Bezirk, Pizza…" data-i18n-placeholder="map.searchPlaceholder" autocomplete="off" />
               </div>
+              <div class="map-filter-chips" id="mapFilterChips" role="tablist" aria-label="Category filters"></div>
               <div class="map-filter-dropdown" id="mapFilterDropdown">
                 <button type="button" class="map-filter-dropdown-btn" id="mapFilterBtn">
                   <span id="mapFilterLabel" data-i18n="map.filterAll">All</span>
@@ -1443,9 +1444,14 @@
               <img src="pics/logo2.webp" alt="Eat This" class="wm-img-logo">
             </div>
             <p class="wm-photo-tagline">Probably the best food guide you know!</p>
+            <button class="wm-close wm-close-photo" id="wmClosePhoto" aria-label="Close">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           </div>
           <div class="wm-left-inner">
-            <h2 class="wm-headline">Probably the best food guide you know!</h2>
+            <h2 class="wm-headline">Probably the best <em>food guide</em> you know.</h2>
             <div class="wm-left-intro">
               <p class="wm-desc">The most curated selection of Must-Eats in Berlin. Discover the city via our interactive map and start building your deck.</p>
             </div>
@@ -1453,21 +1459,21 @@
               <div class="wm-feature">
                 <div class="wm-feature-head">
                   <span class="wm-num">01</span>
-                  <span class="wm-feature-title">Pure Curation.</span>
+                  <span class="wm-feature-title">Pure Curation</span>
                 </div>
                 <p class="wm-feature-desc">Only the best food. We visit, we taste, we select.</p>
               </div>
               <div class="wm-feature">
                 <div class="wm-feature-head">
                   <span class="wm-num">02</span>
-                  <span class="wm-feature-title">The Deck.</span>
+                  <span class="wm-feature-title">The Deck</span>
                 </div>
                 <p class="wm-feature-desc">Hundreds of Must-Eats to discover.</p>
               </div>
               <div class="wm-feature">
                 <div class="wm-feature-head">
                   <span class="wm-num">03</span>
-                  <span class="wm-feature-title">Explore the Map.</span>
+                  <span class="wm-feature-title">Explore the Map</span>
                 </div>
                 <p class="wm-feature-desc">Discover the city finest restaurants and cafés.</p>
               </div>
@@ -1505,7 +1511,7 @@
               <div class="wm-field">
                 <input type="email" id="wmEmail" placeholder="Email" required autocomplete="email" aria-label="Email">
               </div>
-              <div class="wm-field">
+              <div class="wm-field" id="wmPasswordField">
                 <input type="password" id="wmPassword" placeholder="Password" required autocomplete="new-password" minlength="6" aria-label="Password">
               </div>
               <p class="wm-forgot" id="wmForgot" hidden>

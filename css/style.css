@@ -1212,6 +1212,52 @@ body {
   border-color: #1a8a3a;
 }
 
+/* Mobile: horizontal chip filter strip (replaces dropdown on ≤767px) */
+.map-filter-chips { display: none; }
+@media (max-width: 767px) {
+  .map-filter-dropdown { display: none !important; }
+  .map-filter-chips {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 2px 18px 2px 0;
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 22px), transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 22px), transparent 100%);
+  }
+  .map-filter-chips::-webkit-scrollbar { display: none; }
+  .map-filter-chip {
+    flex-shrink: 0;
+    scroll-snap-align: center;
+    padding: 7px 13px;
+    font-size: 10.5px;
+    font-weight: 700;
+    font-family: inherit;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #888;
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  }
+  .map-filter-chip:active { transform: scale(0.96); }
+  .map-filter-chip.active {
+    background: var(--black, #000);
+    color: #fff;
+  }
+}
+[data-theme="dark"] .map-filter-chip { color: rgba(255,255,255,0.5); }
+[data-theme="dark"] .map-filter-chip.active { background: #fff; color: #000; }
+
 /* ---- Bottom Sheet (app map page — all viewports) ---- */
 .app-page[data-page="map"] .map-nearby {
   position: absolute;

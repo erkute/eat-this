@@ -254,17 +254,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.openLoginModal = window.openLoginModal || _openLoginModal;
   window.closeLoginModal = window.closeLoginModal || _closeLoginModal;
 
-  // Hero CTA button — replaces inline onclick (CSP compliance)
-  const heroRegisterBtn = document.getElementById('heroRegisterBtn');
-  if (heroRegisterBtn) {
-    heroRegisterBtn.addEventListener('click', () => {
-      if (typeof window._openUnlockInfo === 'function' && !window._currentUser) {
-        window._openUnlockInfo();
-      } else {
-        _openLoginModal();
-      }
-    });
-  }
 
   const heroExploreBtn = document.getElementById('heroExploreBtn');
   if (heroExploreBtn) {
@@ -1092,9 +1081,7 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
       }
-      // Locked slot: shake card first (1s), then open info modal
       shakeSlot(slotEl);
-      setTimeout(() => openUnlockInfo(), 1000);
     }
 
     function shakeSlot(slotEl) {
@@ -1104,98 +1091,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => slotEl.classList.remove('shake'), 1000);
     }
 
-    function openUnlockInfo() {
-      let modal = document.getElementById('unlockInfoModal');
-      if (!modal) modal = buildUnlockInfoModal();
-      modal.classList.add('show');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeUnlockInfo() {
-      const modal = document.getElementById('unlockInfoModal');
-      if (modal) modal.classList.remove('show');
-      document.body.style.overflow = '';
-    }
-
-    function buildUnlockInfoModal() {
-      const isLoggedIn = !!(window._currentUser);
-      const modal = document.createElement('div');
-      modal.id = 'unlockInfoModal';
-      modal.className = 'unlock-info-modal';
-
-      const backdrop = document.createElement('div');
-      backdrop.className = 'unlock-info-backdrop';
-      backdrop.addEventListener('click', closeUnlockInfo);
-
-      const card = document.createElement('div');
-      card.className = 'unlock-info-card';
-
-      const closeBtn = document.createElement('button');
-      closeBtn.className = 'unlock-info-close';
-      closeBtn.setAttribute('aria-label', 'Close');
-      closeBtn.textContent = '\u00D7';
-      closeBtn.addEventListener('click', closeUnlockInfo);
-
-      const title = document.createElement('h3');
-      title.className = 'unlock-info-title';
-      title.textContent = 'Join the Club';
-
-      const sub = document.createElement('p');
-      sub.className = 'unlock-info-sub';
-      sub.textContent = isLoggedIn
-        ? 'Get more booster packs to expand your deck.'
-        : 'Discover the city via our interactive map and start building your deck.';
-
-      const steps = document.createElement('ol');
-      steps.className = 'unlock-info-steps';
-      const stepDefs = isLoggedIn
-        ? [
-            { n: '01', t: 'Open free booster packs you\u2019ve earned' },
-            { n: '02', t: 'Buy additional booster packs to unlock more cards' },
-            { n: '03', t: 'Track your progress and complete the album' }
-          ]
-        : [
-            { n: '01', t: 'Sign in or create a free account' },
-            { n: '02', t: 'Open your free starter pack of 10 new cards' },
-            { n: '03', t: 'Collect more via booster packs' }
-          ];
-      stepDefs.forEach(({ n, t }) => {
-        const li = document.createElement('li');
-        const num = document.createElement('span');
-        num.className = 'unlock-info-step-n';
-        num.textContent = n;
-        const txt = document.createElement('span');
-        txt.className = 'unlock-info-step-t';
-        txt.textContent = t;
-        li.appendChild(num);
-        li.appendChild(txt);
-        steps.appendChild(li);
-      });
-
-      const cta = document.createElement('button');
-      cta.className = 'unlock-info-cta';
-      cta.textContent = isLoggedIn ? 'Open a Booster Pack' : 'Sign In';
-      cta.addEventListener('click', () => {
-        closeUnlockInfo();
-        if (isLoggedIn) {
-          if (typeof navigateToPage === 'function') navigateToPage('profile');
-        } else if (typeof window.openLoginModal === 'function') {
-          window.openLoginModal();
-        }
-      });
-
-      card.appendChild(closeBtn);
-      card.appendChild(title);
-      card.appendChild(sub);
-      card.appendChild(steps);
-      card.appendChild(cta);
-      modal.appendChild(backdrop);
-      modal.appendChild(card);
-      document.body.appendChild(modal);
-      return modal;
-    }
-
-    function updateAlbumProgress(count) {
+function updateAlbumProgress(count) {
       const countEl = document.getElementById('albumProgCount');
       if (countEl) countEl.textContent = String(count);
     }
@@ -1204,7 +1100,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window._renderAlbum        = renderAlbum;
     window._revealBlurredCards = revealBlurredCards;
-    window._openUnlockInfo     = openUnlockInfo;
 
     // Restaurants
     try {

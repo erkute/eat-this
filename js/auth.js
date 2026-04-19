@@ -373,7 +373,7 @@ onAuthStateChanged(auth, (user) => {
         if (!localStorage.getItem('wm_dismissed')) {
           setTimeout(() => document.getElementById('welcomeModal')?.classList.add('active'), 1000);
         }
-      } catch {}
+      } catch (_) { /* localStorage blocked */ }
     }
   }
 
@@ -424,7 +424,7 @@ onAuthStateChanged(auth, (user) => {
 
   function wmDismiss() {
     wmOverlay?.classList.remove('active');
-    try { localStorage.setItem('wm_dismissed', '1'); } catch {}
+    try { localStorage.setItem('wm_dismissed', '1'); } catch (_) { /* localStorage blocked */ }
   }
 
   window.openWelcomeModal  = () => wmOverlay?.classList.add('active');

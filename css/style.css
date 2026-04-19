@@ -5389,7 +5389,7 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   .start-editorial-row {
     flex-direction: row;
     align-items: stretch;
-    min-height: 100svh; /* full viewport — each section owns the screen */
+    min-height: 75svh; /* generous but not over-cropped */
   }
   .start-editorial-row--reverse {
     flex-direction: row-reverse;
@@ -5424,7 +5424,7 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
 @media (min-width: 768px) {
   .start-editorial-row .start-img-wrap {
     flex: 0 0 58%;
-    min-height: 100svh;
+    min-height: 75svh; /* was 100svh — less zoom, more of the image visible */
     border-radius: 16px;
   }
 }
@@ -5948,6 +5948,14 @@ html:not([data-theme="dark"]) .site-footer-copy {
   .app-page[data-page="start"] .start-section:has(.start-editorial-row) {
     max-width: 100%;
     padding: 80px 0; /* vertical gap creates chapter breaks; no horizontal padding */
+  }
+  /* Philo section: tighter bottom so gap to section 5 isn't so large */
+  .app-page[data-page="start"] .start-section:has(.start-philo-list) {
+    padding-bottom: 24px;
+  }
+  /* Section 6 (What's next): more bottom space before newsletter */
+  .app-page[data-page="start"] .start-section:last-of-type:not(:has(.start-editorial-row)) {
+    padding-bottom: 100px;
   }
 }
 

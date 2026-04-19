@@ -468,9 +468,9 @@
 
           <!-- NEWSLETTER SECTION -->
           <section class="newsletter-section" id="newsletterSection">
-            <p class="newsletter-eyebrow">Stay in the loop</p>
-            <p class="newsletter-title">New Must-Eats, every week.</p>
-            <p class="newsletter-sub">
+            <p class="newsletter-eyebrow" data-i18n="newsletter.eyebrow">Stay in the loop</p>
+            <p class="newsletter-title" data-i18n="newsletter.title">New Must-Eats, every week.</p>
+            <p class="newsletter-sub" data-i18n="newsletter.sub">
               Get the latest Berlin spots delivered to your inbox — plus a free bonus card pack.
             </p>
             <form class="newsletter-form" id="newsletterForm" novalidate>
@@ -479,12 +479,13 @@
                 id="newsletterEmail"
                 type="email"
                 placeholder="your@email.com"
+                data-i18n-placeholder="newsletter.placeholder"
                 autocomplete="email"
               />
-              <button class="newsletter-btn" id="newsletterSubmit" type="submit">Subscribe</button>
+              <button class="newsletter-btn" id="newsletterSubmit" type="submit" data-i18n="newsletter.cta">Subscribe</button>
             </form>
-            <p class="newsletter-error" id="newsletterError" hidden>Please enter a valid email address.</p>
-            <p class="newsletter-success" id="newsletterSuccess" hidden>You're in! Check your inbox.</p>
+            <p class="newsletter-error" id="newsletterError" hidden data-i18n="newsletter.error">Please enter a valid email address.</p>
+            <p class="newsletter-success" id="newsletterSuccess" hidden data-i18n="newsletter.success">You're in! Check your inbox.</p>
           </section>
 
         <!-- END SCROLL SECTIONS -->

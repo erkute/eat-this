@@ -380,7 +380,7 @@ body {
   }
 
   [data-theme="dark"] .hero-mobile-logo {
-    filter: brightness(0) invert(1) drop-shadow(0 2px 16px rgba(0,0,0,0.5));
+    filter: drop-shadow(0 2px 16px rgba(0,0,0,0.5));
   }
 }
 

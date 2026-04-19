@@ -1552,11 +1552,10 @@ function updateAlbumProgress(count) {
       popupAnchor: [0, -20],
     });
 
-    const logoIconSelected = L.divIcon({
-      className: '',
-      html: '<div class="map-marker-selected"><img src="pics/eat.webp" width="32" height="32"></div>',
-      iconSize: [36, 36],
-      iconAnchor: [18, 18],
+    const logoIconSelected = L.icon({
+      iconUrl: 'pics/point_red.webp',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
       popupAnchor: [0, -20],
     });
 

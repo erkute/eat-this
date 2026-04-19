@@ -377,28 +377,13 @@ body {
     width: 82%;
     z-index: 10;
     pointer-events: none;
-    /* Black text + thin white stroke */
-    filter:
-      drop-shadow(1.5px  0    0 #fff)
-      drop-shadow(-1.5px 0    0 #fff)
-      drop-shadow(0      1.5px 0 #fff)
-      drop-shadow(0     -1.5px 0 #fff)
-      drop-shadow(1px    1px  0 #fff)
-      drop-shadow(-1px   1px  0 #fff)
-      drop-shadow(1px   -1px  0 #fff)
-      drop-shadow(-1px  -1px  0 #fff);
+    /* Light mode: white text, no stroke */
+    filter: brightness(0) invert(1);
   }
 
   [data-theme="dark"] .hero-mobile-logo {
-    filter:
-      drop-shadow(1.5px  0    0 #fff)
-      drop-shadow(-1.5px 0    0 #fff)
-      drop-shadow(0      1.5px 0 #fff)
-      drop-shadow(0     -1.5px 0 #fff)
-      drop-shadow(1px    1px  0 #fff)
-      drop-shadow(-1px   1px  0 #fff)
-      drop-shadow(1px   -1px  0 #fff)
-      drop-shadow(-1px  -1px  0 #fff);
+    /* Dark mode: original black text, no stroke */
+    filter: none;
   }
 }
 

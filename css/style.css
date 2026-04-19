@@ -390,7 +390,7 @@ body {
 @media (min-width: 1024px) {
   .hero-brand-block {
     position: absolute;
-    top: 50%;
+    top: 28%;
     left: 50%;
     transform: translate(-50%, -50%);
     display: flex;

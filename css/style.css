@@ -377,28 +377,28 @@ body {
     width: 82%;
     z-index: 10;
     pointer-events: none;
-    /* Black text + white stroke for readability on red */
+    /* Black text + thin white stroke */
     filter:
-      drop-shadow(3px  0   0 #fff)
-      drop-shadow(-3px 0   0 #fff)
-      drop-shadow(0    3px 0 #fff)
-      drop-shadow(0   -3px 0 #fff)
-      drop-shadow(2px  2px 0 #fff)
-      drop-shadow(-2px 2px 0 #fff)
-      drop-shadow(2px -2px 0 #fff)
-      drop-shadow(-2px -2px 0 #fff);
+      drop-shadow(1.5px  0    0 #fff)
+      drop-shadow(-1.5px 0    0 #fff)
+      drop-shadow(0      1.5px 0 #fff)
+      drop-shadow(0     -1.5px 0 #fff)
+      drop-shadow(1px    1px  0 #fff)
+      drop-shadow(-1px   1px  0 #fff)
+      drop-shadow(1px   -1px  0 #fff)
+      drop-shadow(-1px  -1px  0 #fff);
   }
 
   [data-theme="dark"] .hero-mobile-logo {
     filter:
-      drop-shadow(3px  0   0 #fff)
-      drop-shadow(-3px 0   0 #fff)
-      drop-shadow(0    3px 0 #fff)
-      drop-shadow(0   -3px 0 #fff)
-      drop-shadow(2px  2px 0 #fff)
-      drop-shadow(-2px 2px 0 #fff)
-      drop-shadow(2px -2px 0 #fff)
-      drop-shadow(-2px -2px 0 #fff);
+      drop-shadow(1.5px  0    0 #fff)
+      drop-shadow(-1.5px 0    0 #fff)
+      drop-shadow(0      1.5px 0 #fff)
+      drop-shadow(0     -1.5px 0 #fff)
+      drop-shadow(1px    1px  0 #fff)
+      drop-shadow(-1px   1px  0 #fff)
+      drop-shadow(1px   -1px  0 #fff)
+      drop-shadow(-1px  -1px  0 #fff);
   }
 }
 

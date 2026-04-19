@@ -361,7 +361,7 @@ body {
 /* ── Mobile hero: shift image up to hide EAT THIS text, logo overlay above plate ── */
 @media (max-width: 1023px) {
   .hero {
-    background-image: url('../pics/hero-mobile-new.png');
+    background-image: url('../pics/hero_mobile.webp');
     background-size: 100% auto;
     background-position: center -130px;
     background-repeat: no-repeat;
@@ -371,13 +371,12 @@ body {
   .hero-mobile-logo {
     display: block;
     position: absolute;
-    top: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 62%;
+    top: 155px;
+    left: 0;
+    width: 100%;
     z-index: 10;
     pointer-events: none;
-    filter: drop-shadow(0 2px 12px rgba(0,0,0,0.35));
+    filter: drop-shadow(0 2px 16px rgba(0,0,0,0.45));
   }
 }
 

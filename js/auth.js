@@ -420,17 +420,7 @@ function applyLoggedInUI(user) {
 onAuthStateChanged(auth, (user) => {
   window._currentUser = user || null;
 
-  // Welcome modal: show once for unauthenticated first-timers
-  if (!window._wmAuthResolved) {
-    window._wmAuthResolved = true;
-    if (!user) {
-      try {
-        if (!localStorage.getItem('wm_dismissed')) {
-          setTimeout(() => window.openWelcomeModal?.(), 2500);
-        }
-      } catch (_) { /* localStorage blocked */ }
-    }
-  }
+  // Welcome modal: no longer auto-opens on startup (removed per user request)
 
   if (user) {
     if (isRegistering) return;

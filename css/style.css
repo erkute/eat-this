@@ -4184,7 +4184,7 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   background: #0d0d0d;
 }
 [data-theme="dark"] .app-page .must-eats-header {
-  background: #0d0d0d;
+  background: #000;
 }
 [data-theme="dark"] .app-page .news-header {
   background: #0d0d0d;
@@ -4193,7 +4193,7 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   background: #0d0d0d;
 }
 [data-theme="dark"] .app-page[data-page="musts"] .must-eats-header {
-  background: #0d0d0d;
+  background: #000;
 }
 [data-theme="dark"] .app-page[data-page="news"] .news-header {
   background: #0d0d0d;

@@ -358,14 +358,14 @@ body {
   }
 }
 
-/* ── Mobile hero: full image visible, red bg fills remaining space ── */
+/* ── Mobile hero: portrait image, cover fills viewport cleanly ── */
 @media (max-width: 1023px) {
   .hero {
     background-image: url('../pics/hero-mobile-new.png');
-    background-size: contain;
+    background-size: cover;
     background-position: center top;
     background-repeat: no-repeat;
-    background-color: #C41E0A;
+    background-color: transparent;
   }
 }
 

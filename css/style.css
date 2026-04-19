@@ -358,12 +358,14 @@ body {
   }
 }
 
-/* ── Mobile hero: new image, full bleed ── */
+/* ── Mobile hero: full image visible, red bg fills remaining space ── */
 @media (max-width: 1023px) {
   .hero {
     background-image: url('../pics/hero-mobile-new.png');
-    background-size: cover;
-    background-position: center center;
+    background-size: contain;
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-color: #C41E0A;
   }
 }
 

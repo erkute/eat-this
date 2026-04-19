@@ -16,6 +16,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   onAuthStateChanged,
   signOut,
@@ -74,6 +76,21 @@ if (isSignInWithEmailLink(auth, window.location.href)) {
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
+// ─── Google Redirect result (mobile Safari returns here after OAuth) ──────────
+getRedirectResult(auth).then(result => {
+  if (!result?.user) return;
+  const firstName = result.user.displayName?.split(' ')[0] ?? '';
+  // Notify only after i18n is ready
+  const doNotify = () => {
+    try {
+      notify(window.i18n.t('modals.login.notifications.signedIn').replace('{name}', firstName));
+    } catch (_) {}
+    document.getElementById('wm-overlay')?.classList.remove('active');
+    window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
+  };
+  if (window.i18n) doNotify();
+  else window.addEventListener('i18nReady', doNotify, { once: true });
+}).catch(err => console.error('[auth] Redirect result error:', err));
 
 // ─── DOM-Referenzen ───────────────────────────────────────────────────────────
 const loginModal     = document.getElementById('loginModal');
@@ -264,6 +281,7 @@ function errorMessage(code) {
     'auth/network-request-failed':  e.networkFailed,
     'auth/popup-closed-by-user':    '',
     'auth/cancelled-popup-request': '',
+    'auth/operation-not-allowed':   'This sign-in method is not enabled. Please try again or contact support.',
   };
   return map[code] ?? e.generic;
 }
@@ -519,11 +537,18 @@ onAuthStateChanged(auth, (user) => {
   wmGoogleBtn?.addEventListener('click', async () => {
     wmClearError();
     try {
-      await signInWithPopup(auth, googleProvider);
-      const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? '';
-      notify(window.i18n.t('modals.login.notifications.signedIn').replace('{name}', firstName));
-      wmOverlay?.classList.remove('active');
-      window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+                    || window.innerWidth <= 720;
+      if (isMobile) {
+        // Safari blocks popups → use redirect flow; result handled by getRedirectResult above
+        await signInWithRedirect(auth, googleProvider);
+      } else {
+        await signInWithPopup(auth, googleProvider);
+        const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? '';
+        notify(window.i18n.t('modals.login.notifications.signedIn').replace('{name}', firstName));
+        wmOverlay?.classList.remove('active');
+        window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
+      }
     } catch (err) {
       const msg = errorMessage(err.code);
       if (msg) wmShowError(msg);

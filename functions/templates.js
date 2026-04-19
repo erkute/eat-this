@@ -191,9 +191,23 @@ function getMfaTemplate(displayName) {
   `);
 }
 
+function getNewsletterConfirmTemplate() {
+  return shell(`
+    <h1 style="margin:0 0 12px;font-size:32px;font-weight:900;color:#0a0a0a;line-height:1.05;letter-spacing:-1px;">Du bist dabei.</h1>
+    <p style="margin:0 0 28px;font-size:15px;color:#555;line-height:1.65;">
+      Wir schicken dir die besten Spots, neue Karten und Updates — direkt in dein Postfach. Kein Spam, versprochen.
+    </p>
+    ${divider}
+    ${ctaButton('Zur Website', 'https://www.eatthisdot.com')}
+    ${dividerTop}
+    ${noteBox('Du willst keine Mails mehr? Antworte einfach auf diese E-Mail mit "Abmelden".')}
+  `);
+}
+
 module.exports = {
   getVerificationTemplate,
   getPasswordResetTemplate,
   getEmailChangeTemplate,
   getMfaTemplate,
+  getNewsletterConfirmTemplate,
 };

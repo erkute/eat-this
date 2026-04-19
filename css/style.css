@@ -358,11 +358,11 @@ body {
   }
 }
 
-/* ── Mobile hero: full width cover, image can run longer than viewport ── */
+/* ── Mobile hero: full width, natural height — arm fully visible on scroll ── */
 @media (max-width: 1023px) {
   .hero {
     background-image: url('../pics/hero-mobile-new.png');
-    background-size: cover;
+    background-size: 100% auto;
     background-position: center top;
     background-repeat: no-repeat;
     background-color: transparent;
@@ -3010,8 +3010,8 @@ body {
   .app-page[data-page="start"] .hero {
     position: relative;
     width: 100%;
-    height: calc(100dvh - 60px);
-    min-height: 400px;
+    height: calc(100vw * 2.159) !important;
+    min-height: unset !important;
   }
   
   .app-page[data-page="start"] .hero-slides {

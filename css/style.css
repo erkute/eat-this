@@ -6655,32 +6655,32 @@ html:not([data-theme="dark"]) .site-footer-copy {
   }
   .wm-google:hover { background: #fafafa !important; }
 
-  /* ── 4. EMAIL PILL with gold JOIN button (flex-row pill) ── */
+  /* ── 4. EMAIL FORM stacked column ── */
   .wm-email-form {
     order: 4;
     margin: 0 24px;
     display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 0 !important;
-    background: #f5f5f5;
-    border: 1.5px solid #e8e8e8;
-    border-radius: 999px;
-    padding: 4px 4px 4px 18px;
-    position: relative;
-    transition: border-color .2s, background .2s;
-  }
-  .wm-email-form:focus-within {
-    border-color: #999;
-    background: #fff;
-  }
-  .wm-email-form .wm-field {
-    flex: 1;
-    min-width: 0;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
     background: none !important;
     border: none !important;
+    border-radius: 0 !important;
     padding: 0 !important;
+    position: static !important;
+  }
+  .wm-email-form .wm-field {
+    flex: none !important;
+    background: #f5f5f5 !important;
+    border: 1.5px solid #e8e8e8 !important;
+    border-radius: 999px !important;
+    padding: 4px 18px !important;
     display: block !important;
+    transition: border-color .2s, background .2s;
+  }
+  .wm-email-form .wm-field:focus-within {
+    border-color: #999;
+    background: #fff;
   }
   .wm-email-form .wm-field input {
     width: 100% !important;
@@ -6698,21 +6698,22 @@ html:not([data-theme="dark"]) .site-footer-copy {
     position: static !important;
     flex-shrink: 0;
     flex-grow: 0 !important;
-    width: auto !important;
+    width: 100% !important;
     margin: 0 !important;
     background: linear-gradient(135deg, #F8D24A 0%, #F2C230 50%, #DDA518 100%) !important;
     color: #5A3A00 !important;
     border: none !important;
     border-radius: 999px !important;
-    padding: 10px 14px !important;
-    font-size: 0.72rem !important;
+    padding: 15px 16px !important;
+    font-size: 0.92rem !important;
     font-weight: 800 !important;
     text-transform: none;
     letter-spacing: 0.01em;
     white-space: nowrap;
-    display: inline-flex !important;
+    display: flex !important;
     align-items: center !important;
-    gap: 6px !important;
+    justify-content: center !important;
+    gap: 8px !important;
     cursor: pointer;
     box-shadow:
       0 6px 18px rgba(221,165,24,0.45),
@@ -6721,13 +6722,13 @@ html:not([data-theme="dark"]) .site-footer-copy {
     transition: transform .15s ease, box-shadow .2s ease;
   }
   .wm-submit:hover { transform: translateY(-1px); }
-  .wm-submit svg { width: 12px !important; height: 12px !important; stroke: #5A3A00 !important; }
+  .wm-submit svg { width: 16px !important; height: 16px !important; stroke: #5A3A00 !important; }
 
-  /* Mode toggle — shown below the pill on mobile */
+  /* Mode toggle — shown below the form on mobile */
   .wm-mode-toggle {
     order: 5;
     display: block !important;
-    margin: 12px 24px 0 !important;
+    margin: 4px 24px 0 !important;
     text-align: center;
     font-size: 0.78rem;
     color: #666 !important;
@@ -6738,14 +6739,16 @@ html:not([data-theme="dark"]) .site-footer-copy {
     text-decoration: underline;
   }
 
-  /* Error / success messages — float below the pill */
+  /* Error / success messages — flow naturally in the column */
   .wm-email-form .wm-msg {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0; right: 0;
-    margin: 0;
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    margin: -2px 0 0 !important;
     font-size: 0.78rem;
-    text-align: center;
+    text-align: left;
+    padding: 0 6px;
   }
 
   /* ── 6. FEATURES with checkmarks ── */

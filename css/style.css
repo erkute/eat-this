@@ -6700,6 +6700,9 @@ html:not([data-theme="dark"]) .site-footer-copy {
   .wm-submit {
     position: static !important;
     flex-shrink: 0;
+    flex-grow: 0 !important;
+    width: auto !important;
+    margin: 0 !important;
     background: linear-gradient(135deg, #F8D24A 0%, #F2C230 50%, #DDA518 100%) !important;
     color: #5A3A00 !important;
     border: none !important;

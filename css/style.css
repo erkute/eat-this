@@ -393,7 +393,7 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -60%);
     width: 65%;
     max-width: 860px;
     filter: brightness(0) invert(1);
@@ -401,6 +401,23 @@ body {
   [data-theme="dark"] .hero-mobile-logo {
     filter: brightness(0) invert(1);
   }
+  .hero-desktop-tagline {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, 120%);
+    color: #fff;
+    font-size: clamp(0.75rem, 1.1vw, 1.1rem);
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    z-index: 10;
+  }
+}
+@media (max-width: 1023px) {
+  .hero-desktop-tagline { display: none; }
 }
 
 /* ── Solid navbar everywhere — no glass/blur ── */

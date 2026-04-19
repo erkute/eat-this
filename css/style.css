@@ -429,7 +429,7 @@ body {
     left: 50%;
     transform: translateX(-50%);
     color: #fff;
-    font-size: clamp(0.9rem, 4vw, 1.3rem);
+    font-size: clamp(0.75rem, 3vw, 1rem);
     font-weight: 600;
     letter-spacing: 0.28em;
     text-transform: uppercase;

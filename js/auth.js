@@ -408,7 +408,7 @@ onAuthStateChanged(auth, (user) => {
     if (!user) {
       try {
         if (!localStorage.getItem('wm_dismissed')) {
-          setTimeout(() => document.getElementById('welcomeModal')?.classList.add('active'), 1000);
+          setTimeout(() => window.openWelcomeModal?.(), 1000);
         }
       } catch (_) { /* localStorage blocked */ }
     }
@@ -461,10 +461,11 @@ onAuthStateChanged(auth, (user) => {
 
   function wmDismiss() {
     wmOverlay?.classList.remove('active');
+    _unlockBodyScroll();
     try { localStorage.setItem('wm_dismissed', '1'); } catch (_) { /* localStorage blocked */ }
   }
 
-  window.openWelcomeModal  = () => wmOverlay?.classList.add('active');
+  window.openWelcomeModal  = () => { _lockBodyScroll(); wmOverlay?.classList.add('active'); };
   window.closeWelcomeModal = wmDismiss;
 
   function wmShowError(msg)  { if (wmError)   { wmError.textContent   = msg; wmError.style.display   = 'block'; } }

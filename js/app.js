@@ -256,7 +256,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Hero CTA button — replaces inline onclick (CSP compliance)
   const heroRegisterBtn = document.getElementById('heroRegisterBtn');
-  if (heroRegisterBtn) heroRegisterBtn.addEventListener('click', _openLoginModal);
+  if (heroRegisterBtn) {
+    heroRegisterBtn.addEventListener('click', () => {
+      if (typeof window._openUnlockInfo === 'function' && !window._currentUser) {
+        window._openUnlockInfo();
+      } else {
+        _openLoginModal();
+      }
+    });
+  }
 
   const heroExploreBtn = document.getElementById('heroExploreBtn');
   if (heroExploreBtn) {
@@ -573,12 +581,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 (s) => s.dataset.dish === dish && s.dataset.restaurant === restaurant
               );
               if (slot) {
-                const idx = parseInt(slot.dataset.cardIndex, 10);
-                const page = Math.floor(idx / 9);
-                if (typeof window._albumGoTo === 'function') window._albumGoTo(page);
-                const albumCard = (window._albumCards || [])[idx];
+                const srcIdx = parseInt(slot.dataset.sourceIndex, 10);
+                slot.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const albumCard = (window._albumCards || [])[srcIdx];
                 if (albumCard && typeof window._openMustCard === 'function') {
-                  setTimeout(() => window._openMustCard(slot, albumCard.imageUrl || '', albumCard.dish || ''), 200);
+                  setTimeout(() => window._openMustCard(slot, albumCard.imageUrl || '', albumCard.dish || ''), 400);
                 }
               }
             }, 400);
@@ -982,9 +989,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!window.CMS) return;
 
     // Must-Eat Album
-    const ALBUM_TOTAL = 156;
+    const ALBUM_TOTAL = 150;
     const ALWAYS_VISIBLE = 11;
-    const SLOTS_PER_PAGE = 9;
     window._albumCards = [];
 
     try {
@@ -1004,144 +1010,201 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderAlbum() {
-      const pagesEl = document.getElementById('albumPages');
-      const dotsEl  = document.getElementById('albumDots');
-      if (!pagesEl || !dotsEl) return;
+      const gridEl = document.getElementById('albumGrid');
+      if (!gridEl) return;
 
-      const cards      = window._albumCards;
-      const isLoggedIn = !!(window._currentUser);
-      const totalPages = Math.ceil(ALBUM_TOTAL / SLOTS_PER_PAGE);
+      const cards = window._albumCards || [];
+      const available = Math.min(cards.length, ALBUM_TOTAL);
 
-      pagesEl.textContent = '';
-      dotsEl.textContent  = '';
+      gridEl.textContent = '';
 
-      for (let p = 0; p < totalPages; p++) {
-        const pageEl = document.createElement('div');
-        pageEl.className = 'album-page';
-
-        const grid = document.createElement('div');
-        grid.className = 'album-card-grid';
-
-        for (let s = 0; s < SLOTS_PER_PAGE; s++) {
-          const idx  = p * SLOTS_PER_PAGE + s;
-          const card = cards[idx];
-
-          let slotType;
-          if (!card)                     slotType = 'empty';
-          else if (idx < ALWAYS_VISIBLE) slotType = 'sharp';
-          else                           slotType = isLoggedIn ? 'sharp' : 'blurred';
-
-          const slotEl  = document.createElement('div');
-          slotEl.className = 'album-slot ' + slotType;
-          slotEl.dataset.cardIndex = String(idx);
-          if (card) {
-            slotEl.dataset.dish       = card.dish || '';
-            slotEl.dataset.restaurant = card.restaurant || '';
-          }
-
-          const inner = document.createElement('div');
-          inner.className = 'album-slot-inner';
-
-          if (slotType !== 'empty' && card) {
-            const bg = document.createElement('div');
-            bg.className = 'album-slot-bg';
-            bg.style.backgroundImage = 'url(' + card.imageUrl + ')';
-            inner.appendChild(bg);
-          }
-
-          slotEl.appendChild(inner);
-          grid.appendChild(slotEl);
+      // Distribute the `available` cards evenly across the first TOP_BAND slots
+      const TOP_BAND = 50;
+      const spread = available > 0 ? Math.min(TOP_BAND, ALBUM_TOTAL) : 0;
+      const cardPositions = {}; // slotIndex -> cardIndex
+      if (available > 0) {
+        for (let k = 0; k < available; k++) {
+          const pos = Math.min(spread - 1, Math.round((k + 0.5) * spread / available));
+          // if collision, shift forward until free
+          let p = pos;
+          while (cardPositions[p] !== undefined && p < spread) p++;
+          cardPositions[p] = k;
         }
-
-        const footer  = document.createElement('div');
-        footer.className = 'album-page-footer';
-
-        const pageNum = document.createElement('span');
-        pageNum.className = 'album-page-num';
-        pageNum.textContent = (p + 1) + ' / ' + totalPages;
-
-        const ctaBtn = document.createElement('button');
-        ctaBtn.className = 'album-cta-btn album-cta';
-        ctaBtn.textContent = isLoggedIn ? 'Get More Packs' : 'Collect Them All';
-        ctaBtn.addEventListener('click', () => navigateToPage('profile'));
-
-        footer.appendChild(pageNum);
-        footer.appendChild(ctaBtn);
-        pageEl.appendChild(grid);
-        pageEl.appendChild(footer);
-        pagesEl.appendChild(pageEl);
       }
 
-      // Dots
-      for (let i = 0; i < totalPages; i++) {
-        const dot = document.createElement('button');
-        dot.className = 'album-dot' + (i === 0 ? ' active' : '');
-        if (i >= 3) {
-          dot.style.opacity = String(Math.max(0.04, 0.22 - (i - 3) * 0.06));
-          const sz = Math.max(2, 5 - (i - 3));
-          dot.style.width  = sz + 'px';
-          dot.style.height = sz + 'px';
+      for (let i = 0; i < ALBUM_TOTAL; i++) {
+        const cardIdx = cardPositions[i];
+        const card = cardIdx !== undefined ? cards[cardIdx] : null;
+        const slotEl = document.createElement('div');
+        slotEl.className = 'album-slot ' + (card ? 'sharp' : 'empty');
+        slotEl.dataset.cardIndex = String(i);
+        if (card) {
+          slotEl.dataset.dish       = card.dish || '';
+          slotEl.dataset.restaurant = card.restaurant || '';
+          slotEl.dataset.sourceIndex = String(cardIdx);
         }
-        dot.addEventListener('click', () => albumGoTo(i));
-        dotsEl.appendChild(dot);
+
+        const inner = document.createElement('div');
+        inner.className = 'album-slot-inner';
+
+        if (card) {
+          const bg = document.createElement('div');
+          bg.className = 'album-slot-bg';
+          bg.style.backgroundImage = 'url(' + card.imageUrl + ')';
+          inner.appendChild(bg);
+        } else {
+          const back = document.createElement('div');
+          back.className = 'album-slot-back';
+          inner.appendChild(back);
+        }
+
+        slotEl.appendChild(inner);
+        bindAlbumSlotTap(slotEl);
+        gridEl.appendChild(slotEl);
       }
 
-      updateAlbumProgress(isLoggedIn ? Math.min(cards.length, ALBUM_TOTAL) : ALWAYS_VISIBLE);
+      updateAlbumProgress(available);
     }
 
-    let _albumCur = 0;
+    function bindAlbumSlotTap(slotEl) {
+      let sx = 0, sy = 0, moved = false;
+      slotEl.addEventListener('touchstart', (e) => {
+        sx = e.touches[0].clientX; sy = e.touches[0].clientY; moved = false;
+      }, { passive: true });
+      slotEl.addEventListener('touchmove', (e) => {
+        const dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
+        if (Math.sqrt(dx * dx + dy * dy) > 10) moved = true;
+      }, { passive: true });
+      slotEl.addEventListener('touchend', (e) => {
+        if (moved) return;
+        e.preventDefault();
+        handleAlbumSlotActivate(slotEl);
+      }, { passive: false });
+      slotEl.addEventListener('click', () => handleAlbumSlotActivate(slotEl));
+    }
 
-    function albumGoTo(n) {
-      const pagesEl = document.getElementById('albumPages');
-      const dots    = document.querySelectorAll('.album-dot');
-      _albumCur     = Math.max(0, Math.min(Math.ceil(ALBUM_TOTAL / SLOTS_PER_PAGE) - 1, n));
-      if (pagesEl) pagesEl.style.transform = 'translateX(-' + (_albumCur * 100) + '%)';
-      dots.forEach((d, i) => {
-        d.classList.remove('active', 'visited');
-        if (i === _albumCur)    d.classList.add('active');
-        else if (i < _albumCur) d.classList.add('visited');
+    function handleAlbumSlotActivate(slotEl) {
+      if (slotEl.classList.contains('sharp')) {
+        const srcIdx = parseInt(slotEl.dataset.sourceIndex, 10);
+        const card = (window._albumCards || [])[srcIdx];
+        if (card && typeof window._openMustCard === 'function') {
+          window._openMustCard(slotEl, card.imageUrl || '', card.dish || '');
+          return;
+        }
+      }
+      // Locked slot: shake card first (1s), then open info modal
+      shakeSlot(slotEl);
+      setTimeout(() => openUnlockInfo(), 1000);
+    }
+
+    function shakeSlot(slotEl) {
+      slotEl.classList.remove('shake');
+      void slotEl.offsetWidth;
+      slotEl.classList.add('shake');
+      setTimeout(() => slotEl.classList.remove('shake'), 1000);
+    }
+
+    function openUnlockInfo() {
+      let modal = document.getElementById('unlockInfoModal');
+      if (!modal) modal = buildUnlockInfoModal();
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeUnlockInfo() {
+      const modal = document.getElementById('unlockInfoModal');
+      if (modal) modal.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    function buildUnlockInfoModal() {
+      const isLoggedIn = !!(window._currentUser);
+      const modal = document.createElement('div');
+      modal.id = 'unlockInfoModal';
+      modal.className = 'unlock-info-modal';
+
+      const backdrop = document.createElement('div');
+      backdrop.className = 'unlock-info-backdrop';
+      backdrop.addEventListener('click', closeUnlockInfo);
+
+      const card = document.createElement('div');
+      card.className = 'unlock-info-card';
+
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'unlock-info-close';
+      closeBtn.setAttribute('aria-label', 'Close');
+      closeBtn.textContent = '\u00D7';
+      closeBtn.addEventListener('click', closeUnlockInfo);
+
+      const title = document.createElement('h3');
+      title.className = 'unlock-info-title';
+      title.textContent = 'Join the Club';
+
+      const sub = document.createElement('p');
+      sub.className = 'unlock-info-sub';
+      sub.textContent = isLoggedIn
+        ? 'Get more booster packs to expand your deck.'
+        : 'Discover the city via our interactive map and start building your deck.';
+
+      const steps = document.createElement('ol');
+      steps.className = 'unlock-info-steps';
+      const stepDefs = isLoggedIn
+        ? [
+            { n: '01', t: 'Open free booster packs you\u2019ve earned' },
+            { n: '02', t: 'Buy additional booster packs to unlock more cards' },
+            { n: '03', t: 'Track your progress and complete the album' }
+          ]
+        : [
+            { n: '01', t: 'Sign in or create a free account' },
+            { n: '02', t: 'Open your free starter pack of 10 new cards' },
+            { n: '03', t: 'Collect more via booster packs' }
+          ];
+      stepDefs.forEach(({ n, t }) => {
+        const li = document.createElement('li');
+        const num = document.createElement('span');
+        num.className = 'unlock-info-step-n';
+        num.textContent = n;
+        const txt = document.createElement('span');
+        txt.className = 'unlock-info-step-t';
+        txt.textContent = t;
+        li.appendChild(num);
+        li.appendChild(txt);
+        steps.appendChild(li);
       });
+
+      const cta = document.createElement('button');
+      cta.className = 'unlock-info-cta';
+      cta.textContent = isLoggedIn ? 'Open a Booster Pack' : 'Sign In';
+      cta.addEventListener('click', () => {
+        closeUnlockInfo();
+        if (isLoggedIn) {
+          if (typeof navigateToPage === 'function') navigateToPage('profile');
+        } else if (typeof window.openLoginModal === 'function') {
+          window.openLoginModal();
+        }
+      });
+
+      card.appendChild(closeBtn);
+      card.appendChild(title);
+      card.appendChild(sub);
+      card.appendChild(steps);
+      card.appendChild(cta);
+      modal.appendChild(backdrop);
+      modal.appendChild(card);
+      document.body.appendChild(modal);
+      return modal;
     }
 
     function updateAlbumProgress(count) {
-      const fill    = document.getElementById('albumProgFill');
       const countEl = document.getElementById('albumProgCount');
-      if (fill)    fill.style.width = ((count / ALBUM_TOTAL) * 100) + '%';
-      if (countEl) countEl.textContent = count + ' / ' + ALBUM_TOTAL;
+      if (countEl) countEl.textContent = String(count);
     }
 
-    function revealBlurredCards() {
-      document.querySelectorAll('.album-slot.blurred').forEach((slot, i) => {
-        setTimeout(() => slot.classList.add('revealed'), i * 80);
-      });
-    }
-
-    // Album swipe — touch + mouse
-    (function bindAlbumSwipe() {
-      const pagesEl = document.getElementById('albumPages');
-      if (!pagesEl) return;
-      let sx = 0, sy = 0;
-      pagesEl.addEventListener('touchstart', e => {
-        sx = e.touches[0].clientX;
-        sy = e.touches[0].clientY;
-      }, { passive: true });
-      pagesEl.addEventListener('touchend', e => {
-        const dx = sx - e.changedTouches[0].clientX;
-        const dy = Math.abs(sy - e.changedTouches[0].clientY);
-        if (Math.abs(dx) > dy && Math.abs(dx) > 40) albumGoTo(_albumCur + (dx > 0 ? 1 : -1));
-      });
-      let mx = 0, drag = false;
-      pagesEl.addEventListener('mousedown', e => { mx = e.clientX; drag = true; });
-      window.addEventListener('mouseup', e => {
-        if (!drag) return;
-        drag = false;
-        if (Math.abs(mx - e.clientX) > 40) albumGoTo(_albumCur + (mx - e.clientX > 0 ? 1 : -1));
-      });
-    }());
+    function revealBlurredCards() { /* no-op: all cards render sharp */ }
 
     window._renderAlbum        = renderAlbum;
     window._revealBlurredCards = revealBlurredCards;
-    window._albumGoTo          = albumGoTo;
+    window._openUnlockInfo     = openUnlockInfo;
 
     // Restaurants
     try {

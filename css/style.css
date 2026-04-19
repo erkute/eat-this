@@ -6688,293 +6688,249 @@ html:not([data-theme="dark"]) .site-footer-copy {
 /* ── wm-photo-tagline: mobile-only headline on photo ── */
 .wm-photo-tagline { display: none; }
 
-/* ── MOBILE — Variante 2 EDITORIAL: white centered card, gold JOIN, checkmarks ── */
+/* ── MOBILE — Full-bleed image top + compact auth bottom ── */
 @media (max-width: 720px) {
-  /* ── Centered floating layer ── */
-  .wm-overlay { padding: 8px; align-items: center; }
+  .wm-overlay { padding: 8px; align-items: center; overscroll-behavior: none; }
   @keyframes wm-enter {
     from { opacity: 0; transform: translateY(20px) scale(0.97); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
   }
+
+  /* Dialog: fixed height, column layout */
   .wm-dialog {
     flex-direction: column;
-    max-width: 380px;
+    max-width: 390px;
     width: 100%;
-    height: auto;
+    height: calc(100dvh - 16px);
     max-height: calc(100dvh - 16px);
-    background: #fff;
-    border-radius: 24px;
+    border-radius: 20px;
     overflow: hidden;
-    overflow-y: auto;
-    overscroll-behavior: none;
-    -webkit-overflow-scrolling: touch;
     box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+    overscroll-behavior: none;
   }
 
-  /* Flatten wrappers so each child becomes a flex-orderable item of .wm-dialog */
-  .wm-left       { display: contents; }
-  .wm-left-inner { display: contents; }
-  .wm-right      { display: contents; }
-  .wm-form-wrap  { display: contents; }
-
-  /* Hide elements not needed in v2 mobile */
-  .wm-photo-tagline { display: none !important; }
-  .wm-left-intro    { display: none !important; }
-  .wm-form-title    { display: none !important; }
-  .wm-form-sub      { display: none !important; }
-  .wm-booster-hint  { display: none !important; }
-  .wm-divider       { display: none !important; }
-  #wmNameField      { display: none !important; }
-  #wmPasswordField  { display: none !important; }
-  #wmForgot         { display: none !important; }
-  .wm-close:not(.wm-close-photo) { display: none !important; }
-
-  /* ── 1. PHOTO ── */
-  .wm-img-wrap {
-    order: 1;
-    width: 100%;
-    height: 210px;
-    flex-shrink: 0;
+  /* ── TOP: image fills remaining space ── */
+  .wm-left {
+    display: flex;
+    flex: 1;
+    min-height: 200px;
     position: relative;
+    overflow: hidden;
+    background: #111;
+  }
+  .wm-img-wrap {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
     overflow: hidden;
   }
   .wm-bg-img {
     width: 100%; height: 100%;
     object-fit: cover;
-    object-position: center 78%;
+    object-position: center 60%;
     display: block;
   }
   .wm-img-wrap::after {
     content: "";
     position: absolute; inset: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 35%, rgba(0,0,0,0.3) 100%);
+    background: linear-gradient(180deg,
+      rgba(0,0,0,0.38) 0%,
+      rgba(0,0,0,0.04) 30%,
+      rgba(0,0,0,0.52) 65%,
+      rgba(0,0,0,0.90) 100%
+    );
   }
+  .wm-photo-tagline { display: none !important; }
+
+  /* Logo at top of image */
   .wm-img-text {
     position: absolute;
-    top: 18px;
-    left: 50%;
-    right: auto;
+    top: 16px; left: 50%;
     transform: translateX(-50%);
     z-index: 3;
   }
   .wm-img-logo {
-    width: 110px;
-    filter: brightness(0) invert(1) drop-shadow(0 2px 8px rgba(0,0,0,0.55));
+    width: 100px;
+    filter: brightness(0) invert(1) drop-shadow(0 2px 8px rgba(0,0,0,0.6));
   }
+
+  /* Close button on image */
   .wm-close-photo {
     display: flex !important;
     position: absolute;
-    top: 12px; right: 12px;
-    z-index: 4;
+    top: 12px; right: 12px; z-index: 4;
     width: 28px; height: 28px;
-    background: rgba(0,0,0,0.45) !important;
+    background: rgba(0,0,0,0.4) !important;
     border-radius: 50%;
     align-items: center; justify-content: center;
-    border: none; cursor: pointer; flex-shrink: 0;
+    border: none; cursor: pointer;
   }
   .wm-close-photo svg { stroke: #fff !important; }
+  .wm-close:not(.wm-close-photo) { display: none !important; }
 
-  /* ── 2. HEADLINE ── */
+  /* Headline + features overlaid at bottom of image */
+  .wm-left-inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    position: absolute;
+    inset: 0; z-index: 2;
+    padding: 0 20px 20px;
+  }
+  .wm-left-intro { display: none !important; }
+
   .wm-headline {
-    order: 2;
     display: block !important;
-    margin: 18px 24px 14px;
-    font-size: 1.45rem;
+    margin: 0 0 12px !important;
+    font-size: 1.5rem;
     font-weight: 900;
-    color: var(--black) !important;
+    color: #fff !important;
     letter-spacing: -0.035em;
-    line-height: 1.0;
+    line-height: 1.05;
     font-family: 'Inter', sans-serif;
   }
-  .wm-headline em {
-    font-style: italic;
-    color: var(--orange);
-    font-weight: 800;
-  }
+  .wm-headline em { font-style: italic; color: #F8D24A; font-weight: 800; }
 
-  /* ── 3. GOOGLE BUTTON ── */
-  .wm-google {
-    order: 3;
-    margin: 0 24px 10px;
-    width: calc(100% - 48px);
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 12px;
-    padding: 15px 16px !important;
-    background: #fff !important;
-    color: var(--black) !important;
-    border: 1.5px solid #ececec !important;
-    border-radius: 999px !important;
-    font-size: 0.92rem !important;
-    font-weight: 700 !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-    cursor: pointer;
-  }
-  .wm-google:hover { background: #fafafa !important; }
-
-  /* ── 4. EMAIL FORM stacked column ── */
-  .wm-email-form {
-    order: 4;
-    margin: 0 24px;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 8px !important;
-    background: none !important;
-    border: none !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
-    position: static !important;
-  }
-  .wm-email-form .wm-field {
-    flex: none !important;
-    background: #f5f5f5 !important;
-    border: 1.5px solid #e8e8e8 !important;
-    border-radius: 999px !important;
-    padding: 4px 18px !important;
-    display: block !important;
-    transition: border-color .2s, background .2s;
-  }
-  .wm-email-form .wm-field:focus-within {
-    border-color: #999;
-    background: #fff;
-  }
-  .wm-email-form .wm-field input {
-    width: 100% !important;
-    border: none !important;
-    background: none !important;
-    color: var(--black) !important;
-    padding: 13px 0 !important;
-    font-size: 0.92rem !important;
-    outline: none;
-    font-family: inherit;
-  }
-  .wm-email-form .wm-field input::placeholder { color: #aaa !important; }
-
-  .wm-submit {
-    position: static !important;
-    flex-shrink: 0;
-    flex-grow: 0 !important;
-    width: 100% !important;
-    margin: 0 !important;
-    background: linear-gradient(135deg, #F8D24A 0%, #F2C230 50%, #DDA518 100%) !important;
-    color: #5A3A00 !important;
-    border: none !important;
-    border-radius: 999px !important;
-    padding: 15px 16px !important;
-    font-size: 0.92rem !important;
-    font-weight: 800 !important;
-    text-transform: none;
-    letter-spacing: 0.01em;
-    white-space: nowrap;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    cursor: pointer;
-    box-shadow:
-      0 6px 18px rgba(221,165,24,0.45),
-      0 2px 4px rgba(221,165,24,0.3),
-      inset 0 1px 0 rgba(255,255,255,0.5) !important;
-    transition: transform .15s ease, box-shadow .2s ease;
-  }
-  .wm-submit:hover { transform: translateY(-1px); }
-  .wm-submit svg { width: 16px !important; height: 16px !important; stroke: #5A3A00 !important; }
-
-  /* Mode toggle — shown below the form on mobile */
-  .wm-mode-toggle {
-    order: 5;
-    display: block !important;
-    margin: 4px 24px 0 !important;
-    text-align: center;
-    font-size: 0.78rem;
-    color: #666 !important;
-  }
-  .wm-mode-link {
-    color: var(--black) !important;
-    font-weight: 600;
-    text-decoration: underline;
-  }
-
-  /* Error / success messages — flow naturally in the column */
-  .wm-email-form .wm-msg {
-    position: static !important;
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    margin: -2px 0 0 !important;
-    font-size: 0.78rem;
-    text-align: left;
-    padding: 0 6px;
-  }
-
-  /* ── 6. FEATURES with checkmarks ── */
   .wm-features {
-    order: 6;
-    margin: 16px 24px 0;
-    padding-top: 14px;
-    border-top: 1px dashed #e0e0e0;
     display: flex !important;
     flex-direction: column !important;
-    gap: 9px;
+    gap: 6px;
+    margin: 0 !important;
+    padding-top: 12px !important;
+    border-top: 1px solid rgba(255,255,255,0.22) !important;
   }
   .wm-feature {
     display: block !important;
     position: relative;
-    padding: 0 0 0 22px !important;
-    background: none !important;
-    border: none !important;
+    padding: 0 0 0 20px !important;
+    background: none !important; border: none !important;
   }
   .wm-feature::before {
     content: "✓";
-    position: absolute;
-    left: 0; top: 3px;
-    color: var(--orange);
-    font-weight: 900;
-    font-size: 0.95rem;
-    line-height: 1;
+    position: absolute; left: 0; top: 2px;
+    color: #F8D24A; font-weight: 900;
+    font-size: 0.85rem; line-height: 1;
   }
   .wm-num { display: none !important; }
-  .wm-feature-head {
-    display: block !important;
-    padding: 0 !important;
-  }
+  .wm-feature-head { display: block !important; padding: 0 !important; }
   .wm-feature-title {
     display: block;
-    font-size: 0.82rem !important;
+    font-size: 0.78rem !important;
     font-weight: 800 !important;
-    color: var(--black) !important;
+    color: #fff !important;
     letter-spacing: -0.01em;
-    line-height: 1.25;
+    line-height: 1.2;
   }
   .wm-feature-desc {
     display: block !important;
-    font-size: 0.72rem !important;
-    color: #666 !important;
+    font-size: 0.68rem !important;
+    color: rgba(255,255,255,0.6) !important;
     font-weight: 500 !important;
-    line-height: 1.35 !important;
-    padding: 0 !important;
-    margin-top: 2px !important;
+    line-height: 1.3 !important;
+    padding: 0 !important; margin-top: 1px !important;
   }
 
-  /* ── 7. TERMS at the very bottom ── */
+  /* ── BOTTOM: compact auth panel ── */
+  .wm-right {
+    display: block;
+    flex-shrink: 0;
+    background: #fff;
+    padding: 16px 18px 14px;
+    position: relative;
+  }
+  .wm-form-wrap { display: block; }
+  .wm-form-title  { display: none !important; }
+  .wm-form-sub    { display: none !important; }
+  .wm-booster-hint { display: none !important; }
+  .wm-divider     { display: none !important; }
+  #wmNameField    { display: none !important; }
+  #wmPasswordField { display: none !important; }
+  #wmForgot       { display: none !important; }
+
+  .wm-google {
+    margin: 0 0 10px !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important; justify-content: center !important;
+    gap: 10px;
+    padding: 12px 16px !important;
+    background: #fff !important;
+    color: var(--black) !important;
+    border: 1.5px solid #e8e8e8 !important;
+    border-radius: 12px !important;
+    font-size: 0.9rem !important;
+    font-weight: 700 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    cursor: pointer;
+  }
+
+  .wm-email-form {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    background: none !important; border: none !important;
+    border-radius: 0 !important; padding: 0 !important;
+    position: static !important;
+  }
+  .wm-email-form .wm-field {
+    flex: none !important;
+    background: #f6f6f6 !important;
+    border: 1.5px solid #e8e8e8 !important;
+    border-radius: 10px !important;
+    padding: 0 14px !important;
+    display: block !important;
+    transition: border-color .2s, background .2s;
+  }
+  .wm-email-form .wm-field:focus-within { border-color: #aaa; background: #fff; }
+  .wm-email-form .wm-field input {
+    width: 100% !important; border: none !important;
+    background: none !important; color: var(--black) !important;
+    padding: 11px 0 !important; font-size: 0.9rem !important;
+    outline: none; font-family: inherit;
+  }
+  .wm-email-form .wm-field input::placeholder { color: #aaa !important; }
+  .wm-email-form .wm-msg {
+    position: static !important;
+    top: auto !important; left: auto !important; right: auto !important;
+    margin: -2px 0 0 !important; font-size: 0.75rem;
+    text-align: left; padding: 0 4px;
+  }
+
+  .wm-submit {
+    position: static !important; flex-shrink: 0;
+    width: 100% !important; margin: 0 !important;
+    background: var(--black) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 13px 16px !important;
+    font-size: 0.92rem !important; font-weight: 700 !important;
+    display: flex !important; align-items: center !important;
+    justify-content: center !important; gap: 8px !important;
+    cursor: pointer; box-shadow: none !important;
+    transition: opacity .15s;
+  }
+  .wm-submit:active { opacity: 0.85; }
+  .wm-submit svg { width: 16px !important; height: 16px !important; stroke: #fff !important; }
+
+  .wm-mode-toggle {
+    display: block !important;
+    margin: 7px 0 0 !important;
+    text-align: center; font-size: 0.78rem; color: #777 !important;
+  }
+  .wm-mode-link { color: var(--black) !important; font-weight: 600; text-decoration: underline; }
+
   .wm-terms {
-    order: 7;
-    margin: 16px 24px 22px !important;
-    text-align: center;
-    font-size: 0.65rem !important;
-    color: #999 !important;
-    line-height: 1.4;
+    margin: 8px 0 0 !important;
+    text-align: center; font-size: 0.62rem !important;
+    color: #bbb !important; line-height: 1.4;
   }
   .wm-terms-link {
-    color: var(--black) !important;
-    font-weight: 600 !important;
-    background: none !important;
-    border: none !important;
-    text-decoration: underline;
-    padding: 0 !important;
-    font-size: inherit !important;
+    color: #888 !important; font-weight: 600 !important;
+    background: none !important; border: none !important;
+    text-decoration: underline; padding: 0 !important; font-size: inherit !important;
   }
 }
 

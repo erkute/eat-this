@@ -408,7 +408,7 @@ onAuthStateChanged(auth, (user) => {
     if (!user) {
       try {
         if (!localStorage.getItem('wm_dismissed')) {
-          setTimeout(() => window.openWelcomeModal?.(), 1000);
+          setTimeout(() => window.openWelcomeModal?.(), 2500);
         }
       } catch (_) { /* localStorage blocked */ }
     }

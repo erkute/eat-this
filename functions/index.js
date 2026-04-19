@@ -198,7 +198,7 @@ exports.sendMfaNotification = onCall(
   }
 );
 
-exports.subscribeNewsletter = onCall({ region: 'europe-west1', enforceAppCheck: true, secrets: [RESEND_API_KEY] }, async (req) => {
+exports.subscribeNewsletter = onCall({ region: 'europe-west1', secrets: [RESEND_API_KEY] }, async (req) => {
   const { email } = req.data || {};
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email || !EMAIL_RE.test(email)) {

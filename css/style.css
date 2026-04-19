@@ -372,8 +372,9 @@ body {
     display: block;
     position: absolute;
     top: 36px;
-    left: 0;
-    width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 82%;
     z-index: 10;
     pointer-events: none;
     /* Black text + white stroke for readability on red */

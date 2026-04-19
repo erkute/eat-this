@@ -26,7 +26,7 @@ const TRANSLATIONS = {
     },
   start: {
       section1Label: 'Eat This',
-      section1Title: 'Probably the best food guide you know.',
+      section1Title: 'Probably the BEST food guide you know.',
       section1Body: 'The most curated selection of Must-Eats in Berlin. Discover the city via our interactive map and start building your deck.',
       section2Label: 'The Concept',
       section2Title: 'Just order this.',
@@ -39,15 +39,15 @@ const TRANSLATIONS = {
       section3Cta: 'Create account',
       section4Label: 'Our Standards',
       philo1Title: 'Pure Curation.',
-      philo1Text: "One rule: only the best food. We visit, we taste, we select. If it's not outstanding, it doesn't get a card.",
+      philo1Text: 'One rule: only the best food. We visit, we taste, we select.',
       philo2Title: 'The Deck.',
       philo2Text: "Hundreds of Must-Eats to discover. Build your personal archive of the city's finest restaurants and cafés.",
-      philo3Title: 'Always Independent.',
-      philo3Text: "No paid placements. We tell you what to eat based on quality, nothing else.",
+      philo3Title: 'Explore the Map.',
+      philo3Text: 'Discover the city dish by dish.',
       section5Label: 'How we choose',
       section5Title: 'Only the best makes the deck.',
-      section5Body1: 'We visit every place ourselves and talk to the chefs to find the dishes that stand out. If we would order it again, it makes the list.',
-      section5Body2: 'That’s how we curate.',
+      section5Body1: 'We visit every place ourselves and talk to the chefs to find the dishes that stand out.',
+      section5Body2: '',
       section6Label: "What's next",
       section6Title: 'Berlin is just the first deck.',
       section6Body1: 'We are expanding city by city. More decks, more Must-Eats, and exclusive Merch coming soon.',
@@ -137,7 +137,7 @@ const TRANSLATIONS = {
    modals: {
       about: {
         title: 'Just order this.',
-        body: '<h3>The Concept</h3><p>Eat This is a curated food guide for Berlin. We don’t just list places; we find the outstanding dishes you actually need to try.</p><h3>Must-Eat Cards</h3><p>Every recommendation is a card. Collect them, build your deck, and track your culinary journey through the city. New users receive a 10-card Booster Pack upon registration.</p><h3>Pure Curation</h3><p>We visit every spot, talk to the chefs, and only select what truly stands out. No paid content, no noise—just the best food.</p><h3>What’s Next</h3><p>Berlin is our starting point. Istanbul, Amsterdam, and Paris are coming soon. Same rules, different cities.</p>',
+        body: '<h3>Corrections Policy</h3><p>If we publish something wrong, we want to know. Email <a href="mailto:hello@eatthisdot.com">hello@eatthisdot.com</a> with the article and the correction. We aim to fix factual errors within 24 hours and add a visible note at the bottom of the article explaining what was changed and when. Small typos we silently fix; anything that changes the meaning of a piece gets a visible correction.</p><h3>Fact Checking and Sources</h3><p>Everything we write about a restaurant is based on at least one personal visit. Opening hours, addresses and prices are verified with the restaurant before publication and periodically re-checked. When we quote someone, we quote them on the record.</p><h3>Funding and Transparency</h3><p>EAT THIS is currently self-funded and free for readers. If and when we introduce paid partnerships, subscriptions, or sponsored content, they will always be labelled clearly and kept separate from our editorial recommendations. We are not owned by, invested in, or paid by any restaurant, restaurant group or food brand. Full company and contact details are in our Impressum.</p><h3>Editorial Contact</h3><p>Editorial questions, tips, corrections: <a href="mailto:hello@eatthisdot.com">hello@eatthisdot.com</a></p><h3>The Concept</h3><p>Eat This is a curated food guide for Berlin. We don\u2019t just list places; we find the outstanding dishes you actually need to try.</p><h3>Must-Eat Cards</h3><p>Every recommendation is a card. Collect them, build your deck, and track your culinary journey through the city. New users receive a 10-card Booster Pack upon registration.</p><h3>Pure Curation</h3><p>We visit every spot, talk to the chefs, and only select what truly stands out. No paid content, no noise\u2014just the best food.</p><h3>What\u2019s Next</h3><p>Berlin is our starting point. Istanbul, Amsterdam, and Paris are coming soon. Same rules, different cities.</p>',
       },
       contact: {
         title: 'Get in touch',
@@ -306,15 +306,15 @@ TRANSLATIONS.de.start.section3Body   = 'Erstelle einen Account und erhalte 10 ko
 TRANSLATIONS.de.start.section3Cta   = 'Konto erstellen';
 TRANSLATIONS.de.start.section4Label  = 'Unsere Standards';
 TRANSLATIONS.de.start.philo1Title    = 'Reine Kuration.';
-TRANSLATIONS.de.start.philo1Text     = 'Eine Regel: nur das beste Essen. Wir besuchen, wir kosten, wir w\u00e4hlen aus. Wenn es nicht au\u00dferordentlich ist, bekommt es keine Karte.';
+TRANSLATIONS.de.start.philo1Text     = 'Eine Regel: nur das beste Essen. Wir besuchen, wir kosten, wir w\u00e4hlen aus.';
 TRANSLATIONS.de.start.philo2Title    = 'Das Deck.';
 TRANSLATIONS.de.start.philo2Text     = 'Hunderte von Must-Eats zu entdecken. Baue dein pers\u00f6nliches Archiv der feinsten Restaurants und Caf\u00e9s der Stadt.';
-TRANSLATIONS.de.start.philo3Title    = 'Immer unabh\u00e4ngig.';
-TRANSLATIONS.de.start.philo3Text     = 'Keine bezahlten Platzierungen. Wir sagen dir, was du essen sollst \u2013 auf Basis von Qualit\u00e4t, nichts sonst.';
+TRANSLATIONS.de.start.philo3Title    = 'Erkunde die Karte.';
+TRANSLATIONS.de.start.philo3Text     = 'Entdecke die Stadt Gericht f\u00fcr Gericht.';
 TRANSLATIONS.de.start.section5Label  = 'Wie wir ausw\u00e4hlen';
 TRANSLATIONS.de.start.section5Title  = 'Nur das Beste kommt ins Deck.';
-TRANSLATIONS.de.start.section5Body1  = 'Wir besuchen jeden Ort selbst und sprechen mit den K\u00f6chen, um die Gerichte zu finden, die wirklich herausragen. Wenn wir es nochmal bestellen w\u00fcrden, kommt es auf die Liste.';
-TRANSLATIONS.de.start.section5Body2  = 'So kuratieren wir.';
+TRANSLATIONS.de.start.section5Body1  = 'Wir besuchen jeden Ort selbst und sprechen mit den K\u00f6chen, um die Gerichte zu finden, die wirklich herausragen.';
+TRANSLATIONS.de.start.section5Body2  = '';
 TRANSLATIONS.de.start.section6Label  = 'Was kommt';
 TRANSLATIONS.de.start.section6Title  = 'Berlin ist erst der Anfang.';
 TRANSLATIONS.de.start.section6Body1  = 'Wir expandieren Stadt f\u00fcr Stadt. Mehr Decks, mehr Must-Eats und exklusives Merch kommen bald.';

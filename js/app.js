@@ -3510,4 +3510,31 @@ function updateAlbumProgress(count) {
 
   // Sync footer lang buttons with current language on page load
   updateFooterLangButtons(window.i18n ? window.i18n.currentLang() : 'en');
+
+  // Parallax effect for start section images
+  (function initStartParallax() {
+    const startPage = document.querySelector('.app-page[data-page="start"]');
+    if (!startPage) return;
+
+    let rafId = null;
+
+    function applyParallax() {
+      rafId = null;
+      startPage.querySelectorAll('.start-img-wrap').forEach(wrap => {
+        const img = wrap.querySelector('.start-img');
+        if (!img) return;
+        const rect = wrap.getBoundingClientRect();
+        const pos = (rect.top + rect.height * 0.5 - window.innerHeight * 0.5) / window.innerHeight;
+        img.style.transform = `translateY(${pos * 40}px)`;
+      });
+    }
+
+    function scheduleParallax() {
+      if (!rafId) rafId = requestAnimationFrame(applyParallax);
+    }
+
+    window.addEventListener('scroll', scheduleParallax, { passive: true });
+    startPage.addEventListener('scroll', scheduleParallax, { passive: true });
+    applyParallax();
+  })();
 });

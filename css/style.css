@@ -371,12 +371,16 @@ body {
   .hero-mobile-logo {
     display: block;
     position: absolute;
-    top: 155px;
+    top: 60px;
     left: 0;
     width: 100%;
     z-index: 10;
     pointer-events: none;
-    filter: drop-shadow(0 2px 16px rgba(0,0,0,0.45));
+    filter: brightness(0) invert(1) drop-shadow(0 2px 16px rgba(0,0,0,0.5));
+  }
+
+  [data-theme="dark"] .hero-mobile-logo {
+    filter: brightness(0) invert(1) drop-shadow(0 2px 16px rgba(0,0,0,0.5));
   }
 }
 

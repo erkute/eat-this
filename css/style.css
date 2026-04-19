@@ -5250,7 +5250,10 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
 }
 
 /* Section wrapper */
-.start-scroll-content { background: var(--white); padding-bottom: 0; }
+.start-scroll-content { background: var(--white); padding-top: 56px; padding-bottom: 0; }
+@media (min-width: 768px) {
+  .start-scroll-content { padding-top: 100px; }
+}
 
 .start-section {
   padding: 52px 24px;

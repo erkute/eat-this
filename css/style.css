@@ -3623,10 +3623,10 @@ body {
   background: #0d0d0d;
 }
 [data-theme="dark"] .start-section {
-  border-bottom-color: rgba(255, 255, 255, 0.07);
+  /* No border — warm background contrast carries the visual break */
 }
 [data-theme="dark"] .start-section--alt {
-  background: #161616;
+  background: #181410; /* dark espresso warm tint vs near-black default */
 }
 [data-theme="dark"] .start-section-title {
   color: #ffffff;
@@ -5254,10 +5254,9 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
 
 .start-section {
   padding: 52px 24px;
-  border-bottom: 1px solid var(--gray-100);
+  /* No hard border — sections bleed via background color contrast */
 }
-.start-section:last-child { border-bottom: none; }
-.start-section--alt { background: var(--gray-50); }
+.start-section--alt { background: #FAF7F3; } /* warm cream, not cold gray */
 
 @media (min-width: 768px) {
   .start-section {
@@ -5385,23 +5384,23 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   position: relative;
 }
 
-/* Mobile: fixed heights */
-.start-img-wrap.tall   { height: 380px; }
-.start-img-wrap.medium { height: 280px; }
-.start-img-wrap.wide   { height: 320px; }
+/* Mobile: fixed heights — tall enough to show the full subject */
+.start-img-wrap.tall   { height: 480px; }
+.start-img-wrap.medium { height: 320px; }
+.start-img-wrap.wide   { height: 360px; }
 
 /* Desktop default heights (outside editorial rows) */
 @media (min-width: 768px) {
-  .start-img-wrap.tall   { height: 520px; }
-  .start-img-wrap.medium { height: 380px; }
-  .start-img-wrap.wide   { height: 460px; }
+  .start-img-wrap.tall   { height: 600px; }
+  .start-img-wrap.medium { height: 420px; }
+  .start-img-wrap.wide   { height: 500px; }
 }
 
 /* Desktop inside editorial row: fill the row height via flex stretch */
 @media (min-width: 768px) {
   .start-editorial-row .start-img-wrap {
     flex: 0 0 48%;
-    min-height: 480px;
+    min-height: 520px;
   }
 }
 
@@ -5410,14 +5409,15 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   object-fit: cover;
   display: block;
 }
-/* Inside a parallax wrap: image overflows for parallax movement */
+/* Inside a parallax wrap: 5% overflow each side for subtle parallax */
 .start-img-wrap .start-img {
   position: absolute;
-  top: -10%;
+  top: -5%;
   left: 0;
   width: 100%;
-  height: 120%;
+  height: 110%;
   object-fit: cover;
+  object-position: center center;
   will-change: transform;
 }
 

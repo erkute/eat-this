@@ -5397,11 +5397,10 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   .start-img-wrap.wide   { height: 460px; }
 }
 
-/* Desktop inside editorial row: fill the row height */
+/* Desktop inside editorial row: fill the row height via flex stretch */
 @media (min-width: 768px) {
   .start-editorial-row .start-img-wrap {
     flex: 0 0 48%;
-    height: auto !important;
     min-height: 480px;
   }
 }
@@ -5414,10 +5413,11 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
 /* Inside a parallax wrap: image overflows for parallax movement */
 .start-img-wrap .start-img {
   position: absolute;
-  top: -40px;
+  top: -10%;
   left: 0;
   width: 100%;
-  height: calc(100% + 80px);
+  height: 120%;
+  object-fit: cover;
   will-change: transform;
 }
 
@@ -6706,7 +6706,7 @@ html:not([data-theme="dark"]) .site-footer-copy {
     border-radius: 24px;
     overflow: hidden;
     overflow-y: auto;
-    overscroll-behavior: contain;
+    overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
     box-shadow: 0 30px 80px rgba(0,0,0,0.55);
   }

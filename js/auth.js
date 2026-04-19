@@ -511,6 +511,11 @@ onAuthStateChanged(auth, (user) => {
     if (e.key === 'Escape' && wmOverlay?.classList.contains('active')) wmDismiss();
   });
 
+  wmOverlay?.addEventListener('touchmove', (e) => {
+    const dialog = wmOverlay.querySelector('.wm-dialog');
+    if (!dialog || !dialog.contains(e.target)) e.preventDefault();
+  }, { passive: false });
+
   wmGoogleBtn?.addEventListener('click', async () => {
     wmClearError();
     try {

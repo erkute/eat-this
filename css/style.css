@@ -6416,8 +6416,6 @@ html:not([data-theme="dark"]) .site-footer-copy {
   color: #666;
   line-height: 1.55;
   margin-bottom: 16px;
-  border-left: 2px solid var(--orange);
-  padding-left: 10px;
 }
 .wm-google {
   width: 100%;
@@ -6567,7 +6565,6 @@ html:not([data-theme="dark"]) .site-footer-copy {
   .wm-form-title    { display: none !important; }
   .wm-form-sub      { display: none !important; }
   .wm-booster-hint  { display: none !important; }
-  .wm-mode-toggle   { display: none !important; }
   .wm-divider       { display: none !important; }
   #wmNameField      { display: none !important; }
   #wmPasswordField  { display: none !important; }
@@ -6707,11 +6704,12 @@ html:not([data-theme="dark"]) .site-footer-copy {
     color: #5A3A00 !important;
     border: none !important;
     border-radius: 999px !important;
-    padding: 10px 16px 10px 18px !important;
-    font-size: 0.78rem !important;
+    padding: 10px 14px !important;
+    font-size: 0.72rem !important;
     font-weight: 800 !important;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    text-transform: none;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
     display: inline-flex !important;
     align-items: center !important;
     gap: 6px !important;
@@ -6724,9 +6722,21 @@ html:not([data-theme="dark"]) .site-footer-copy {
   }
   .wm-submit:hover { transform: translateY(-1px); }
   .wm-submit svg { width: 12px !important; height: 12px !important; stroke: #5A3A00 !important; }
-  /* Replace "Create account" → "JOIN" */
-  .wm-submit #wmSubmitText { display: none !important; }
-  .wm-submit::before { content: "JOIN"; }
+
+  /* Mode toggle — shown below the pill on mobile */
+  .wm-mode-toggle {
+    order: 5;
+    display: block !important;
+    margin: 12px 24px 0 !important;
+    text-align: center;
+    font-size: 0.78rem;
+    color: #666 !important;
+  }
+  .wm-mode-link {
+    color: var(--black) !important;
+    font-weight: 600;
+    text-decoration: underline;
+  }
 
   /* Error / success messages — float below the pill */
   .wm-email-form .wm-msg {
@@ -6738,9 +6748,9 @@ html:not([data-theme="dark"]) .site-footer-copy {
     text-align: center;
   }
 
-  /* ── 5. FEATURES with checkmarks ── */
+  /* ── 6. FEATURES with checkmarks ── */
   .wm-features {
-    order: 5;
+    order: 6;
     margin: 16px 24px 0;
     padding-top: 14px;
     border-top: 1px dashed #e0e0e0;
@@ -6787,9 +6797,9 @@ html:not([data-theme="dark"]) .site-footer-copy {
     margin-top: 2px !important;
   }
 
-  /* ── 6. TERMS at the very bottom ── */
+  /* ── 7. TERMS at the very bottom ── */
   .wm-terms {
-    order: 6;
+    order: 7;
     margin: 16px 24px 22px !important;
     text-align: center;
     font-size: 0.65rem !important;

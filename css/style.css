@@ -358,15 +358,31 @@ body {
   }
 }
 
-/* ── Mobile hero: full image, starts flush below navbar ── */
+/* ── Mobile hero: shift image up to hide EAT THIS text, logo overlay above plate ── */
 @media (max-width: 1023px) {
   .hero {
     background-image: url('../pics/hero-mobile-new.png');
     background-size: 100% auto;
-    background-position: center top;
+    background-position: center -130px;
     background-repeat: no-repeat;
     background-color: transparent;
   }
+
+  .hero-mobile-logo {
+    display: block;
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 62%;
+    z-index: 10;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 12px rgba(0,0,0,0.35));
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-mobile-logo { display: none !important; }
 }
 
 /* ── Solid navbar everywhere — no glass/blur ── */
@@ -3010,7 +3026,7 @@ body {
   .app-page[data-page="start"] .hero {
     position: relative;
     width: 100%;
-    height: calc(100vw * 2.159) !important;
+    height: calc(100vw * 2.159 - 130px) !important;
     min-height: unset !important;
   }
   

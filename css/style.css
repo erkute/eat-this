@@ -3626,7 +3626,7 @@ body {
   /* No border — warm background contrast carries the visual break */
 }
 [data-theme="dark"] .start-section--alt {
-  background: #181410; /* dark espresso warm tint vs near-black default */
+  background: #1E1910; /* deeper espresso — more visible break vs near-black */
 }
 [data-theme="dark"] .start-section-title {
   color: #ffffff;
@@ -5263,7 +5263,7 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
 .start-section:has(.start-editorial-row) {
   padding: 0;
 }
-.start-section--alt { background: #FAF7F3; } /* warm cream, not cold gray */
+.start-section--alt { background: #F3EDE3; } /* warm parchment — visible contrast vs white */
 
 @media (min-width: 768px) {
   .start-section {
@@ -5420,11 +5420,12 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   .start-img-wrap.wide   { height: 500px; }
 }
 
-/* Desktop inside editorial row: image dominates at 58% */
+/* Desktop inside editorial row: image dominates at 58%, subtle radius */
 @media (min-width: 768px) {
   .start-editorial-row .start-img-wrap {
     flex: 0 0 58%;
     min-height: 100svh;
+    border-radius: 16px;
   }
 }
 
@@ -5943,10 +5944,10 @@ html:not([data-theme="dark"]) .site-footer-copy {
     padding-right: 32px;
     box-sizing: border-box;
   }
-  /* Editorial sections go edge-to-edge — text/image handle own padding */
+  /* Editorial sections: edge-to-edge image, but vertical breathing room */
   .app-page[data-page="start"] .start-section:has(.start-editorial-row) {
     max-width: 100%;
-    padding: 0;
+    padding: 80px 0; /* vertical gap creates chapter breaks; no horizontal padding */
   }
 }
 

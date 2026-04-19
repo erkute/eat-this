@@ -3523,6 +3523,11 @@ function updateAlbumProgress(count) {
       startPage.querySelectorAll('.start-img-wrap').forEach(wrap => {
         const img = wrap.querySelector('.start-img');
         if (!img) return;
+        // Desktop editorial rows use contain — no parallax needed
+        if (window.innerWidth >= 768 && wrap.closest('.start-editorial-row')) {
+          img.style.transform = '';
+          return;
+        }
         const rect = wrap.getBoundingClientRect();
         const pos = (rect.top + rect.height * 0.5 - window.innerHeight * 0.5) / window.innerHeight;
         img.style.transform = `translateY(${pos * 40}px)`;

@@ -114,17 +114,35 @@ let isRegisterMode = true;
 let isRegistering  = false;
 
 // ─── Modal öffnen / schließen ─────────────────────────────────────────────────
+let _modalScrollY = 0;
+
+function _lockBodyScroll() {
+  _modalScrollY = window.scrollY;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${_modalScrollY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+}
+
+function _unlockBodyScroll() {
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  window.scrollTo(0, _modalScrollY);
+}
+
 function openLoginModal() {
   if (!loginModal) return;
+  _lockBodyScroll();
   loginModal.classList.add('active');
-  // No bodyOverflow.lock() — modal is position:fixed inset:0, full viewport.
-  // Locking body causes the iOS position:fixed scroll jump.
   window._renderProfileFavourites?.();
 }
 
 function closeLoginModal() {
   if (!loginModal) return;
   loginModal.classList.remove('active');
+  _unlockBodyScroll();
   clearError();
 }
 

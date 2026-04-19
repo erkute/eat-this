@@ -3371,6 +3371,7 @@ body {
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  touch-action: none;
 }
 
 .login-modal-content {
@@ -3548,8 +3549,10 @@ body {
   .login-modal-content {
     width: 92%;
     max-width: 360px;
-    max-height: 90vh;
-    overflow-y: hidden;
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     padding: 16px 16px 14px;
     border-radius: 20px;
   }

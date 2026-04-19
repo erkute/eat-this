@@ -1088,7 +1088,12 @@ document.addEventListener('DOMContentLoaded', () => {
       slotEl.classList.remove('shake');
       void slotEl.offsetWidth;
       slotEl.classList.add('shake');
-      setTimeout(() => slotEl.classList.remove('shake'), 1000);
+      setTimeout(() => {
+        slotEl.classList.remove('shake');
+        if (!window._currentUser) {
+          (window.openWelcomeModal || window.openLoginModal)?.();
+        }
+      }, 1000);
     }
 
 function updateAlbumProgress(count) {
@@ -3016,7 +3021,7 @@ function updateAlbumProgress(count) {
           navigateToPage('profile');
           _pushPage('profile');
         } else {
-          window.openLoginModal?.();
+          (window.openWelcomeModal || window.openLoginModal)?.();
         }
       });
     }

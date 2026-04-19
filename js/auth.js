@@ -136,7 +136,8 @@ if (loginBtn)      loginBtn.addEventListener('click', () => {
     window._closeBurger?.();
     window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
   } else {
-    openLoginModal();
+    window._closeBurger?.();
+    (window.openWelcomeModal || openLoginModal)();
   }
 });
 if (loginClose)    loginClose.addEventListener('click', closeLoginModal);
@@ -355,12 +356,26 @@ function applyLoggedInUI(user) {
   if (profileEmailModal)  profileEmailModal.textContent  = user.email;
 
   window._currentUser = user;
+  document.getElementById('welcomeModal')?.classList.remove('active');
   if (typeof window._revealBlurredCards === 'function') window._revealBlurredCards();
   else if (typeof window._renderAlbum === 'function') window._renderAlbum();
 }
 
 onAuthStateChanged(auth, (user) => {
   window._currentUser = user || null;
+
+  // Welcome modal: show once for unauthenticated first-timers
+  if (!window._wmAuthResolved) {
+    window._wmAuthResolved = true;
+    if (!user) {
+      try {
+        if (!localStorage.getItem('wm_dismissed')) {
+          setTimeout(() => document.getElementById('welcomeModal')?.classList.add('active'), 1000);
+        }
+      } catch {}
+    }
+  }
+
   if (user) {
     if (isRegistering) return;
     applyLoggedInUI(user);
@@ -385,6 +400,156 @@ onAuthStateChanged(auth, (user) => {
     window._initProfilePage(user || null);
   }
 });
+
+// ─── Welcome Modal ────────────────────────────────────────────────────────────
+{
+  const wmOverlay    = document.getElementById('welcomeModal');
+  const wmBackdrop   = document.getElementById('wmBackdrop');
+  const wmClose      = document.getElementById('wmClose');
+  const wmGoogleBtn  = document.getElementById('wmGoogleBtn');
+  const wmEmailForm  = document.getElementById('wmEmailForm');
+  const wmNameField  = document.getElementById('wmNameField');
+  const wmName       = document.getElementById('wmName');
+  const wmEmail      = document.getElementById('wmEmail');
+  const wmPassword   = document.getElementById('wmPassword');
+  const wmForgot     = document.getElementById('wmForgot');
+  const wmForgotBtn  = document.getElementById('wmForgotBtn');
+  const wmError      = document.getElementById('wmError');
+  const wmSuccess    = document.getElementById('wmSuccess');
+  const wmSubmitText = document.getElementById('wmSubmitText');
+  const wmModeToggle = document.getElementById('wmModeToggle');
+
+  let wmIsRegister = true;
+
+  function wmDismiss() {
+    wmOverlay?.classList.remove('active');
+    try { localStorage.setItem('wm_dismissed', '1'); } catch {}
+  }
+
+  window.openWelcomeModal  = () => wmOverlay?.classList.add('active');
+  window.closeWelcomeModal = wmDismiss;
+
+  function wmShowError(msg)  { if (wmError)   { wmError.textContent   = msg; wmError.style.display   = 'block'; } }
+  function wmClearError()    { if (wmError)   { wmError.style.display   = 'none'; } }
+  function wmShowSuccess(msg){ if (wmSuccess) { wmSuccess.textContent = msg; wmSuccess.style.display = 'block'; } }
+  function wmClearSuccess()  { if (wmSuccess) { wmSuccess.style.display = 'none'; } }
+
+  function wmSetMode(register) {
+    wmIsRegister = register;
+    wmClearError(); wmClearSuccess();
+    if (register) {
+      if (wmNameField)    wmNameField.style.display = '';
+      if (wmName)         wmName.required = true;
+      if (wmSubmitText)   wmSubmitText.textContent = window.i18n?.t('modals.login.submitRegister') ?? 'Create account';
+      if (wmForgot)       wmForgot.hidden = true;
+      if (wmPassword)     wmPassword.autocomplete = 'new-password';
+    } else {
+      if (wmNameField)    wmNameField.style.display = 'none';
+      if (wmName)         wmName.required = false;
+      if (wmSubmitText)   wmSubmitText.textContent = window.i18n?.t('modals.login.submitLogin') ?? 'Sign in';
+      if (wmForgot)       wmForgot.hidden = false;
+      if (wmPassword)     wmPassword.autocomplete = 'current-password';
+    }
+    if (wmModeToggle) {
+      let btn = wmModeToggle.querySelector('.wm-mode-link');
+      if (!btn) {
+        btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'wm-mode-link';
+        wmModeToggle.appendChild(btn);
+      }
+      btn.textContent = window.i18n?.t(register ? 'modals.login.toggleToLogin' : 'modals.login.toggleToRegister')
+        ?? (register ? 'Already have an account? Sign in' : 'No account yet? Create one');
+      btn.onclick = () => wmSetMode(!register);
+    }
+  }
+  wmSetMode(true);
+
+  wmClose?.addEventListener('click', wmDismiss);
+  wmBackdrop?.addEventListener('click', wmDismiss);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && wmOverlay?.classList.contains('active')) wmDismiss();
+  });
+
+  wmGoogleBtn?.addEventListener('click', async () => {
+    wmClearError();
+    try {
+      await signInWithPopup(auth, googleProvider);
+      const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? '';
+      notify(window.i18n.t('modals.login.notifications.signedIn').replace('{name}', firstName));
+      wmOverlay?.classList.remove('active');
+      window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
+    } catch (err) {
+      const msg = errorMessage(err.code);
+      if (msg) wmShowError(msg);
+    }
+  });
+
+  wmEmailForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    wmClearError();
+    const email    = wmEmail?.value.trim() ?? '';
+    const password = wmPassword?.value ?? '';
+    const name     = wmName?.value.trim() ?? '';
+
+    if (!email)    { wmShowError(window.i18n.t('modals.login.errors.emailRequired')); return; }
+    if (!password) { wmShowError(window.i18n.t('modals.login.errors.passwordRequired')); return; }
+    if (wmIsRegister && !name) { wmShowError(window.i18n.t('modals.login.errors.nameRequired')); return; }
+
+    const submitBtn = wmEmailForm.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+    try {
+      if (wmIsRegister) {
+        isRegistering = true;
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(cred.user, { displayName: name });
+        isRegistering = false;
+        applyLoggedInUI(cred.user);
+        notify(window.i18n.t('modals.login.notifications.welcome').replace('{name}', name));
+        const sendVerificationEmail = httpsCallable(functions, 'sendVerificationEmail');
+        sendVerificationEmail({ displayName: name }).catch(() => {});
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+        const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? 'du';
+        notify(window.i18n.t('modals.login.notifications.signedIn').replace('{name}', firstName));
+      }
+      wmOverlay?.classList.remove('active');
+      window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
+    } catch (err) {
+      isRegistering = false;
+      const msg = errorMessage(err.code);
+      if (msg) wmShowError(msg);
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+
+  wmForgotBtn?.addEventListener('click', async () => {
+    wmClearError();
+    const email = wmEmail?.value.trim() ?? '';
+    if (!email) { wmShowError(window.i18n.t('modals.login.errors.emailRequiredFirst')); return; }
+    wmForgotBtn.disabled = true;
+    try {
+      const sendPasswordReset = httpsCallable(functions, 'sendPasswordReset');
+      await sendPasswordReset({ email });
+      wmClearError();
+      wmShowSuccess(window.i18n.t('modals.login.forgotSuccess'));
+    } catch (err) {
+      wmShowError(err?.code === 'functions/resource-exhausted'
+        ? window.i18n.t('modals.login.errors.tooManyRequestsLong')
+        : window.i18n.t('modals.login.errors.sendFailed'));
+    } finally {
+      wmForgotBtn.disabled = false;
+    }
+  });
+
+  document.getElementById('wmAgbTrigger')?.addEventListener('click', () => {
+    wmDismiss(); document.getElementById('agbTrigger')?.click();
+  });
+  document.getElementById('wmDatenschutzTrigger')?.addEventListener('click', () => {
+    wmDismiss(); document.getElementById('datenschutzTrigger')?.click();
+  });
+}
 
 // ─── Notification-Helfer ──────────────────────────────────────────────────────
 function notify(message) {

@@ -40,19 +40,21 @@ const firebaseConfig = {
   appId:             "1:768781457409:web:607ff46bfa4599d6b08800"
 };
 
-const app       = initializeApp(firebaseConfig);
-const auth      = getAuth(app);
-const functions = getFunctions(app);
-window._functions   = functions;
-window._functionsEU = getFunctions(app, 'europe-west1');
+const app = initializeApp(firebaseConfig);
 
-// App Check nur auf der Produktionsseite aktivieren (nicht auf localhost)
+// App Check MUST be initialized BEFORE any other Firebase service that uses tokens
+// (otherwise callable functions with enforceAppCheck:true return UNAUTHENTICATED).
 if (!['localhost', '127.0.0.1'].includes(window.location.hostname)) {
   initializeAppCheck(app, {
     provider: new ReCaptchaV3Provider('6LdG2ZwsAAAAAM6XvEOuQHmIRLAs3CdPiu-l5cwz'),
     isTokenAutoRefreshEnabled: true,
   });
 }
+
+const auth      = getAuth(app);
+const functions = getFunctions(app);
+window._functions   = functions;
+window._functionsEU = getFunctions(app, 'europe-west1');
 
 // ─── Email-Link Sign-In completion (magic link return) ────────────────────────
 if (isSignInWithEmailLink(auth, window.location.href)) {

@@ -6658,29 +6658,35 @@ html:not([data-theme="dark"]) .site-footer-copy {
   }
   .wm-google:hover { background: #fafafa !important; }
 
-  /* ── 4. EMAIL PILL with gold JOIN button ── */
+  /* ── 4. EMAIL PILL with gold JOIN button (flex-row pill) ── */
   .wm-email-form {
     order: 4;
     margin: 0 24px;
-    display: block !important;
-    position: relative;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
     gap: 0 !important;
-  }
-  .wm-email-form .wm-field {
     background: #f5f5f5;
     border: 1.5px solid #e8e8e8;
     border-radius: 999px;
-    padding: 4px 100px 4px 18px;
-    display: flex;
-    align-items: center;
+    padding: 4px 4px 4px 18px;
+    position: relative;
     transition: border-color .2s, background .2s;
   }
-  .wm-email-form .wm-field:focus-within {
+  .wm-email-form:focus-within {
     border-color: #999;
     background: #fff;
   }
-  .wm-email-form .wm-field input {
+  .wm-email-form .wm-field {
     flex: 1;
+    min-width: 0;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+  .wm-email-form .wm-field input {
+    width: 100% !important;
     border: none !important;
     background: none !important;
     color: var(--black) !important;
@@ -6692,8 +6698,8 @@ html:not([data-theme="dark"]) .site-footer-copy {
   .wm-email-form .wm-field input::placeholder { color: #aaa !important; }
 
   .wm-submit {
-    position: absolute;
-    right: 4px; top: 4px;
+    position: static !important;
+    flex-shrink: 0;
     background: linear-gradient(135deg, #F8D24A 0%, #F2C230 50%, #DDA518 100%) !important;
     color: #5A3A00 !important;
     border: none !important;
@@ -6719,8 +6725,15 @@ html:not([data-theme="dark"]) .site-footer-copy {
   .wm-submit #wmSubmitText { display: none !important; }
   .wm-submit::before { content: "JOIN"; }
 
-  /* Error / success messages */
-  .wm-msg { margin: 8px 24px 0; font-size: 0.78rem; }
+  /* Error / success messages — float below the pill */
+  .wm-email-form .wm-msg {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0; right: 0;
+    margin: 0;
+    font-size: 0.78rem;
+    text-align: center;
+  }
 
   /* ── 5. FEATURES with checkmarks ── */
   .wm-features {

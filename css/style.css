@@ -6761,17 +6761,17 @@ html:not([data-theme="dark"]) .site-footer-copy {
   .wm-bg-img {
     width: 100%; height: 100%;
     object-fit: cover;
-    object-position: center 25%;
+    object-position: center 65%;
     display: block;
   }
   .wm-img-wrap::after {
     content: "";
     position: absolute; inset: 0;
     background: linear-gradient(180deg,
-      rgba(0,0,0,0.38) 0%,
-      rgba(0,0,0,0.04) 30%,
-      rgba(0,0,0,0.52) 65%,
-      rgba(0,0,0,0.90) 100%
+      rgba(0,0,0,0.42) 0%,
+      rgba(0,0,0,0.18) 30%,
+      rgba(0,0,0,0.58) 65%,
+      rgba(0,0,0,0.92) 100%
     );
   }
   .wm-photo-tagline { display: none !important; }
@@ -6896,20 +6896,41 @@ html:not([data-theme="dark"]) .site-footer-copy {
   #wmPasswordField { display: none !important; }
   #wmForgot       { display: none !important; }
 
+  /* ── Divider "or" between Google and email ── */
+  .wm-divider {
+    display: flex !important;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+    margin: 0 0 0 !important;
+    color: #ccc !important;
+    font-size: 0.72rem !important;
+    font-weight: 500 !important;
+  }
+  .wm-divider::before, .wm-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e8e8e8 !important;
+  }
+
+  /* ── Uniform height: Google = field = submit = 50px ── */
   .wm-google {
-    margin: 0 0 10px !important;
+    margin: 0 0 8px !important;
     width: 100% !important;
+    height: 50px !important;
+    box-sizing: border-box !important;
     display: flex !important;
     align-items: center !important; justify-content: center !important;
     gap: 10px;
-    padding: 12px 16px !important;
+    padding: 0 16px !important;
     background: #fff !important;
     color: var(--black) !important;
-    border: 1.5px solid #e8e8e8 !important;
-    border-radius: 12px !important;
+    border: 1.5px solid #e0e0e0 !important;
+    border-radius: 14px !important;
     font-size: 0.9rem !important;
-    font-weight: 700 !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    font-weight: 600 !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
     cursor: pointer;
   }
 
@@ -6918,52 +6939,59 @@ html:not([data-theme="dark"]) .site-footer-copy {
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 8px !important;
-    margin: 0 !important;
+    width: 100% !important;
+    margin: 8px 0 0 !important;
     background: none !important; border: none !important;
     border-radius: 0 !important; padding: 0 !important;
     position: static !important;
   }
   .wm-email-form .wm-field {
     flex: none !important;
-    background: #f6f6f6 !important;
-    border: 1.5px solid #e8e8e8 !important;
-    border-radius: 10px !important;
-    padding: 0 14px !important;
-    display: block !important;
+    height: 50px !important;
+    box-sizing: border-box !important;
+    background: #f5f5f5 !important;
+    border: 1.5px solid #e0e0e0 !important;
+    border-radius: 14px !important;
+    padding: 0 16px !important;
+    display: flex !important;
+    align-items: center !important;
     transition: border-color .2s, background .2s;
   }
-  .wm-email-form .wm-field:focus-within { border-color: #aaa; background: #fff; }
+  .wm-email-form .wm-field:focus-within { border-color: #bbb; background: #fff; }
   .wm-email-form .wm-field input {
-    width: 100% !important; border: none !important;
+    flex: 1 !important; width: 100% !important; border: none !important;
     background: none !important; color: var(--black) !important;
-    padding: 11px 0 !important; font-size: 0.9rem !important;
+    padding: 0 !important; font-size: 0.9rem !important;
     outline: none; font-family: inherit;
     text-align: center !important;
   }
-  .wm-email-form .wm-field input::placeholder { color: #aaa !important; text-align: center; }
+  .wm-email-form .wm-field input::placeholder { color: #bbb !important; text-align: center; }
   .wm-email-form .wm-msg {
     position: static !important;
     top: auto !important; left: auto !important; right: auto !important;
-    margin: -2px 0 0 !important; font-size: 0.75rem;
-    text-align: left; padding: 0 4px;
+    margin: -4px 0 0 !important; font-size: 0.75rem;
+    text-align: center; padding: 0 4px;
   }
 
   .wm-submit {
     position: static !important; flex-shrink: 0;
     width: 100% !important; margin: 0 !important;
-    background: var(--black) !important;
-    color: #fff !important;
+    height: 50px !important;
+    box-sizing: border-box !important;
+    background: #F8D24A !important;
+    color: #111 !important;
     border: none !important;
-    border-radius: 12px !important;
-    padding: 13px 16px !important;
-    font-size: 0.92rem !important; font-weight: 700 !important;
+    border-radius: 14px !important;
+    padding: 0 16px !important;
+    font-size: 0.95rem !important; font-weight: 800 !important;
     display: flex !important; align-items: center !important;
     justify-content: center !important; gap: 8px !important;
-    cursor: pointer; box-shadow: none !important;
-    transition: opacity .15s;
+    cursor: pointer; box-shadow: 0 2px 8px rgba(248,210,74,0.35) !important;
+    transition: opacity .15s, box-shadow .15s;
+    letter-spacing: -0.01em;
   }
-  .wm-submit:active { opacity: 0.85; }
-  .wm-submit svg { width: 16px !important; height: 16px !important; stroke: #fff !important; }
+  .wm-submit:active { opacity: 0.88; }
+  .wm-submit svg { width: 16px !important; height: 16px !important; stroke: #111 !important; }
 
   .wm-mode-toggle {
     display: block !important;

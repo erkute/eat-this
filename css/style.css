@@ -421,7 +421,25 @@ body {
 }
 @media (max-width: 1023px) {
   .hero-brand-block { display: contents; }
-  .hero-desktop-tagline { display: none; }
+  .hero-desktop-tagline {
+    display: block;
+    position: absolute;
+    /* below logo: logo top(36px) + logo height(82vw × ratio 0.317) + gap */
+    top: calc(42px + 26vw);
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+  }
+  [data-theme="dark"] .hero-desktop-tagline {
+    color: #000;
+  }
 }
 
 /* ── Solid navbar everywhere — no glass/blur ── */

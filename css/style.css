@@ -358,12 +358,12 @@ body {
   }
 }
 
-/* ── Mobile hero: full image visible — offset 60px for fixed navbar ── */
+/* ── Mobile hero: full image, starts flush below navbar ── */
 @media (max-width: 1023px) {
   .hero {
     background-image: url('../pics/hero-mobile-new.png');
     background-size: 100% auto;
-    background-position: center 60px;
+    background-position: center top;
     background-repeat: no-repeat;
     background-color: transparent;
   }
@@ -3010,7 +3010,7 @@ body {
   .app-page[data-page="start"] .hero {
     position: relative;
     width: 100%;
-    height: calc(100vw * 2.159 + 60px) !important;
+    height: calc(100vw * 2.159) !important;
     min-height: unset !important;
   }
   

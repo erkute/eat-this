@@ -15,6 +15,15 @@ const TRANSLATIONS = {
       tagline: 'We tell you what to eat',
       cta: 'Create account',
     },
+    newsletter: {
+      eyebrow:     'Stay in the loop',
+      title:       'New Must-Eats, every week.',
+      sub:         'Get the latest Berlin spots delivered to your inbox — plus a free bonus card pack.',
+      placeholder: 'your@email.com',
+      cta:         'Subscribe',
+      error:       'Please enter a valid email address.',
+      success:     'You\'re in! Check your inbox.',
+    },
   start: {
       section1Label: 'Eat This',
       section1Title: 'Probably the best food guide you know.',
@@ -272,6 +281,17 @@ TRANSLATIONS.de.profile.settings.deleteError        = 'Fehler. Bitte neu einlogg
 // DE hero overrides
 TRANSLATIONS.de.hero.tagline = 'Wir sagen dir, was du essen sollst';
 TRANSLATIONS.de.hero.cta     = 'Konto erstellen';
+
+// DE newsletter
+TRANSLATIONS.de.newsletter = {
+  eyebrow:     'Immer up to date',
+  title:       'Neue Must-Eats, jede Woche.',
+  sub:         'Die besten neuen Spots aus Berlin — direkt in dein Postfach.',
+  placeholder: 'deine@email.com',
+  cta:         'Anmelden',
+  error:       'Bitte gib eine gültige E-Mail-Adresse ein.',
+  success:     'Du bist dabei! Schau in dein Postfach.',
+};
 
 // DE start page overrides
 TRANSLATIONS.de.start.section1Title  = 'Wahrscheinlich der beste Food-Guide, den du kennst.';

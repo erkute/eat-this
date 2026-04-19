@@ -461,8 +461,11 @@ body {
   min-height: 100%;
 }
 [data-theme="dark"] .app-page[data-page="musts"] .must-eats-section {
-  background: #111;
+  background: #000;
   color: #fff;
+}
+[data-theme="dark"] .app-page[data-page="musts"] {
+  background: #000;
 }
 .app-page[data-page="musts"] .must-eats-header {
   position: relative;
@@ -555,7 +558,7 @@ body {
   width: 100%;
   height: 100%;
   background-image: url('../pics/card-back.png');
-  background-size: cover;
+  background-size: 108%;
   background-position: center;
   background-repeat: no-repeat;
 }

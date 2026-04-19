@@ -5270,27 +5270,43 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   }
 }
 
-/* Section label (black pill) */
+/* Section label — editorial orange rule */
 .start-section-label {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--white);
-  background: var(--black);
-  padding: 4px 12px;
-  border-radius: 100px;
-  margin-bottom: 20px;
+  letter-spacing: 0.2em;
+  color: var(--orange);
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  margin-bottom: 24px;
+}
+.start-section-label::before {
+  content: '';
+  flex-shrink: 0;
+  width: 22px;
+  height: 2px;
+  background: var(--orange);
+}
+/* Join section keeps its own label style */
+.start-join-section .start-section-label {
+  color: var(--orange);
+}
+.start-join-section .start-section-label::before {
+  display: none;
 }
 
-/* Heading */
+/* Heading — editorial scale */
 .start-section-title {
-  font-size: clamp(1.6rem, 4vw, 2.8rem);
+  font-size: clamp(2rem, 4.5vw, 4.8rem);
   font-weight: 900;
   letter-spacing: -0.04em;
-  line-height: 1.05;
-  margin-bottom: 16px;
+  line-height: 1.0;
+  margin-bottom: 20px;
 }
 
 /* Body text */
@@ -5370,14 +5386,15 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   .start-editorial-row {
     flex-direction: row;
     align-items: stretch;
-    min-height: 560px;
+    min-height: 100svh; /* full viewport — each section owns the screen */
   }
   .start-editorial-row--reverse {
     flex-direction: row-reverse;
   }
   .start-editorial-text {
     flex: 1;
-    padding: 64px 56px;
+    padding: 80px 64px;
+    justify-content: center;
   }
 }
 
@@ -5400,11 +5417,11 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   .start-img-wrap.wide   { height: 500px; }
 }
 
-/* Desktop inside editorial row: fill the row height via flex stretch */
+/* Desktop inside editorial row: image dominates at 58% */
 @media (min-width: 768px) {
   .start-editorial-row .start-img-wrap {
-    flex: 0 0 48%;
-    min-height: 520px;
+    flex: 0 0 58%;
+    min-height: 100svh;
   }
 }
 
@@ -5440,38 +5457,41 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
 .start-philo-list {
   display: flex;
   flex-direction: column;
-  gap: 28px;
-  margin-top: 32px;
+  gap: 40px;
+  margin-top: 40px;
 }
 @media (min-width: 768px) {
   .start-philo-list {
-    max-width: 560px;
+    max-width: 640px;
     margin-left: auto;
     margin-right: auto;
   }
 }
 .start-philo-item {
   display: flex;
-  gap: 16px;
+  gap: 24px;
   align-items: flex-start;
 }
 .start-philo-num {
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 3rem;
+  font-weight: 900;
   color: var(--orange);
+  letter-spacing: -0.05em;
+  line-height: 1;
   flex-shrink: 0;
-  min-width: 24px;
-  padding-top: 3px;
+  min-width: 56px;
+  opacity: 0.85;
 }
 .start-philo-title {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  padding-top: 6px;
 }
 .start-philo-text {
-  font-size: 0.875rem;
-  line-height: 1.6;
+  font-size: 0.9rem;
+  line-height: 1.65;
   color: var(--gray-600);
 }
 

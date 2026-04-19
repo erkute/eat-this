@@ -6837,6 +6837,7 @@ html:not([data-theme="dark"]) .site-footer-copy {
   /* ── BOTTOM: compact auth panel ── */
   .wm-right {
     display: block;
+    width: 100%;
     flex-shrink: 0;
     background: #fff;
     padding: 16px 18px 14px;

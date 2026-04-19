@@ -425,13 +425,13 @@ body {
     display: block;
     position: absolute;
     /* below logo: logo top(36px) + logo height(82vw × ratio 0.317) + gap */
-    top: calc(42px + 26vw);
+    top: calc(30px + 24vw);
     left: 50%;
     transform: translateX(-50%);
     color: #fff;
-    font-size: 0.62rem;
-    font-weight: 600;
-    letter-spacing: 0.22em;
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     white-space: nowrap;
     z-index: 10;

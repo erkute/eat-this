@@ -6532,44 +6532,55 @@ html:not([data-theme="dark"]) .site-footer-copy {
 
 /* ── MOBILE ── */
 @media (max-width: 720px) {
-  .wm-overlay { padding: 0; align-items: flex-end; }
+  /* Centered floating card — no bottom sheet */
+  .wm-overlay { padding: 16px; align-items: center; }
   @keyframes wm-enter {
-    from { opacity: 0; transform: translateY(48px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
   }
   .wm-dialog {
     flex-direction: column;
-    max-width: 100%;
+    max-width: 400px;
     height: auto;
-    max-height: min(94dvh, 94vh);
-    border-radius: 20px 20px 0 0;
+    max-height: min(90dvh, 90vh);
+    border-radius: 20px;
   }
 
-  /* Photo strip — compact header only */
+  /* Photo — visible, good portion */
   .wm-left { width: 100%; flex-shrink: 0; }
-  .wm-img-wrap { height: 155px; }
+  .wm-img-wrap { height: 150px; }
   .wm-bg-img { height: 100%; width: 100%; object-position: center 65%; }
-  .wm-img-logo { width: 52px; }
+  .wm-img-logo { width: 48px; }
 
-  /* Hide all editorial text — not needed on mobile */
-  .wm-left-inner { display: none; }
+  /* Info: headline + feature titles only (no descriptions) */
+  .wm-left-inner { padding: 10px 16px 12px; gap: 6px; }
+  .wm-headline { font-size: 0.92rem; margin-bottom: 0; line-height: 1.2; }
+  .wm-left-intro { display: none; }
+  .wm-features { flex-direction: row; gap: 8px; flex-wrap: wrap; }
+  .wm-feature { flex-direction: row; align-items: center; gap: 5px; }
+  .wm-feature-desc { display: none; }
+  .wm-feature-head { gap: 4px; }
+  .wm-feature-title { font-size: 0.72rem; }
+  .wm-num { font-size: 0.58rem; }
 
-  /* Auth form — full width, clean */
+  /* Compact auth form */
   .wm-right {
-    padding: 22px 20px 32px;
+    padding: 12px 16px 18px;
     align-items: flex-start;
     justify-content: flex-start;
     overflow-y: auto;
   }
-  .wm-form-wrap { max-width: 100%; }
-  .wm-form-title { font-size: 1.5rem; margin-bottom: 2px; }
+  .wm-form-wrap { max-width: 100%; width: 300px; }
+  .wm-form-title { font-size: 1.2rem; margin-bottom: 1px; }
   .wm-form-sub { display: none; }
-  .wm-booster-hint { font-size: 0.70rem; margin-bottom: 14px; }
-  .wm-google { padding: 11px 14px; }
-  .wm-field input { padding: 10px 12px; }
-  .wm-submit { padding: 11px 16px; }
-  .wm-mode-toggle { margin-top: 10px; }
-  .wm-terms { margin-top: 8px; }
+  .wm-booster-hint { display: none; }
+  .wm-google { padding: 9px 12px; font-size: 0.81rem; }
+  .wm-divider { margin: 7px 0; font-size: 0.72rem; }
+  .wm-email-form { gap: 5px; }
+  .wm-field input { padding: 8px 10px; font-size: 0.81rem; }
+  .wm-submit { padding: 9px 14px; font-size: 0.82rem; margin-top: 1px; }
+  .wm-mode-toggle { margin-top: 7px; font-size: 0.76rem; }
+  .wm-terms { margin-top: 5px; font-size: 0.66rem; }
 }
 
 /* ── DARK MODE ── */

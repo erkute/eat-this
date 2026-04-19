@@ -98,6 +98,9 @@ body {
   height: auto;
   background: none;
   border: none;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
   cursor: pointer;
   color: var(--black);
   padding: 4px 0;
@@ -142,12 +145,9 @@ body {
   color: var(--orange);
 }
 @media (hover: hover) {
-  .navbar-icon-btn:hover::before {
-    opacity: 0.1;
-    transform: scale(1);
-  }
   .navbar-icon-btn:hover svg {
-    transform: scale(1.14) translateY(-1px);
+    transform: scale(1.18) translateY(-2px);
+    filter: drop-shadow(0 2px 6px rgba(255, 59, 0, 0.35));
   }
 }
 .navbar-icon-btn.active {
@@ -3564,10 +3564,9 @@ body {
   .login-modal-content {
     width: 92%;
     max-width: 360px;
-    max-height: min(82dvh, 82vh);
-    overflow-y: auto;
-  
-    padding: 20px 18px 18px;
+    max-height: 90vh;
+    overflow-y: hidden;
+    padding: 16px 16px 14px;
     border-radius: 20px;
   }
   /* Logo komplett verstecken auf Mobile — spart ~70px */
@@ -3580,35 +3579,35 @@ body {
   }
   .login-subtitle {
     font-size: 0.82rem;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
     line-height: 1.4;
   }
   .login-form {
-    gap: 8px;
+    gap: 6px;
     margin-bottom: 0;
   }
   .login-field input {
-    padding: 12px 14px;
+    padding: 10px 14px;
     font-size: 1rem;
     border-radius: 10px;
   }
   .login-btn {
-    padding: 12px 16px;
+    padding: 10px 16px;
     font-size: 0.95rem;
     border-radius: 10px;
   }
   .login-mode-toggle {
-    margin: 10px 0 0;
+    margin: 6px 0 0;
     font-size: 0.82rem;
   }
   .login-divider {
-    margin: 14px 0;
+    margin: 10px 0;
   }
   .login-btn-google {
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
   .login-terms {
-    margin-top: 14px;
+    margin-top: 10px;
     font-size: 0.72rem;
   }
   /* About / Impressum / AGB / Datenschutz / Kontakt Modals */
@@ -5378,12 +5377,35 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
 .start-editorial-text { flex: 1; }
 
 /* Images */
+.start-img-wrap {
+  overflow: hidden;
+  border-radius: 2px;
+  position: relative;
+}
+.start-img-wrap.tall   { height: 320px; }
+.start-img-wrap.medium { height: 240px; }
+.start-img-wrap.wide   { height: 280px; }
+
+@media (min-width: 768px) {
+  .start-img-wrap.tall   { height: 480px; }
+  .start-img-wrap.medium { height: 360px; }
+  .start-img-wrap.wide   { height: 420px; }
+}
+
 .start-img {
   width: 100%;
   object-fit: cover;
   display: block;
   border-radius: 2px;
 }
+/* Inside a parallax wrap: image taller than container so it can shift */
+.start-img-wrap .start-img {
+  height: calc(100% + 120px);
+  margin-top: -60px;
+  border-radius: 0;
+  will-change: transform;
+}
+/* Fallback heights for images without a wrap */
 .start-img.tall   { height: 320px; }
 .start-img.medium { height: 240px; }
 .start-img.wide   { height: 280px; }

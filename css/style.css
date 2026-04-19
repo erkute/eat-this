@@ -6534,128 +6534,257 @@ html:not([data-theme="dark"]) .site-footer-copy {
 /* ── wm-photo-tagline: mobile-only headline on photo ── */
 .wm-photo-tagline { display: none; }
 
-/* ── MOBILE — Variante A: Foto+Headline → Benefits → Weißes Formular ── */
+/* ── MOBILE — Variante 2 EDITORIAL: white centered card, gold JOIN, checkmarks ── */
 @media (max-width: 720px) {
-  /* ── Bottom-sheet layer (not full viewport) ── */
-  .wm-overlay { padding: 0; align-items: flex-end; }
+  /* ── Centered floating layer ── */
+  .wm-overlay { padding: 14px; align-items: center; }
   @keyframes wm-enter {
-    from { opacity: 0; transform: translateY(40px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
   }
   .wm-dialog {
     flex-direction: column;
-    max-width: 100%;
+    max-width: 380px;
     width: 100%;
     height: auto;
-    max-height: 88dvh;
-    border-radius: 20px 20px 0 0;
+    max-height: 92dvh;
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    overflow-y: auto;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.55);
   }
 
-  /* ── Photo strip ── */
-  .wm-left { width: 100%; flex-shrink: 0; }
-  .wm-img-wrap { height: min(30dvh, 200px); }
-  .wm-img-wrap::after {
-    background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 45%, rgba(0,0,0,0.55) 100%);
-  }
-  .wm-bg-img { height: 100%; width: 100%; object-position: center 78%; }
-  .wm-img-logo { width: 84px; }
-  .wm-img-text { top: 14px; left: 16px; }
+  /* Flatten wrappers so each child becomes a flex-orderable item of .wm-dialog */
+  .wm-left       { display: contents; }
+  .wm-left-inner { display: contents; }
+  .wm-right      { display: contents; }
+  .wm-form-wrap  { display: contents; }
 
-  /* Tagline sits below logo — cards at bottom stay visible */
-  .wm-photo-tagline {
+  /* Hide elements not needed in v2 mobile */
+  .wm-photo-tagline { display: none !important; }
+  .wm-left-intro    { display: none !important; }
+  .wm-form-title    { display: none !important; }
+  .wm-form-sub      { display: none !important; }
+  .wm-booster-hint  { display: none !important; }
+  .wm-mode-toggle   { display: none !important; }
+  .wm-divider       { display: none !important; }
+  #wmNameField      { display: none !important; }
+  #wmPasswordField  { display: none !important; }
+  #wmForgot         { display: none !important; }
+  .wm-close:not(.wm-close-photo) { display: none !important; }
+
+  /* ── 1. PHOTO ── */
+  .wm-img-wrap {
+    order: 1;
+    width: 100%;
+    height: 210px;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .wm-bg-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center 78%;
     display: block;
-    position: absolute;
-    top: 46px;
-    bottom: auto;
-    left: 16px;
-    right: 48px; /* don't overlap photo close btn */
-    z-index: 2;
-    font-size: 0.85rem;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-    font-family: 'Inter', sans-serif;
   }
-
-  /* X button on the photo (top-right of image) */
+  .wm-img-wrap::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 35%, rgba(0,0,0,0.3) 100%);
+  }
+  .wm-img-text {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+  }
+  .wm-img-logo {
+    width: 110px;
+    filter: brightness(0) invert(1) drop-shadow(0 2px 8px rgba(0,0,0,0.55));
+  }
   .wm-close-photo {
     display: flex !important;
     position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 3;
-    width: 28px;
-    height: 28px;
+    top: 12px; right: 12px;
+    z-index: 4;
+    width: 28px; height: 28px;
     background: rgba(0,0,0,0.45) !important;
     border-radius: 50%;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    cursor: pointer;
-    flex-shrink: 0;
+    align-items: center; justify-content: center;
+    border: none; cursor: pointer; flex-shrink: 0;
   }
   .wm-close-photo svg { stroke: #fff !important; }
-  /* Hide the right-panel X on mobile */
-  .wm-close:not(.wm-close-photo) { display: none !important; }
 
-  /* ── Benefits strip ── */
-  .wm-headline { display: none; }
-  .wm-left-inner { padding: 10px 18px 12px; gap: 6px; }
-  .wm-left-intro { display: none; }
-  .wm-features { flex-direction: column; gap: 6px; }
-  .wm-feature { flex-direction: column; gap: 1px; }
-  .wm-feature-head { gap: 6px; }
-  .wm-feature-title { font-size: 0.74rem; }
-  .wm-feature-desc {
+  /* ── 2. HEADLINE ── */
+  .wm-headline {
+    order: 2;
+    display: block !important;
+    margin: 18px 24px 14px;
+    font-size: 1.45rem;
+    font-weight: 900;
+    color: var(--black) !important;
+    letter-spacing: -0.035em;
+    line-height: 1.0;
+    font-family: 'Inter', sans-serif;
+  }
+  .wm-headline em {
+    font-style: italic;
+    color: var(--orange);
+    font-weight: 800;
+  }
+
+  /* ── 3. GOOGLE BUTTON ── */
+  .wm-google {
+    order: 3;
+    margin: 0 24px 10px;
+    width: calc(100% - 48px);
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px;
+    padding: 15px 16px !important;
+    background: #fff !important;
+    color: var(--black) !important;
+    border: 1.5px solid #ececec !important;
+    border-radius: 999px !important;
+    font-size: 0.92rem !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    cursor: pointer;
+  }
+  .wm-google:hover { background: #fafafa !important; }
+
+  /* ── 4. EMAIL PILL with gold JOIN button ── */
+  .wm-email-form {
+    order: 4;
+    margin: 0 24px;
+    display: block !important;
+    position: relative;
+    gap: 0 !important;
+  }
+  .wm-email-form .wm-field {
+    background: #fff;
+    border: 1.5px solid #ececec;
+    border-radius: 999px;
+    padding: 4px 100px 4px 18px;
+    display: flex;
+    align-items: center;
+    transition: border-color .2s;
+  }
+  .wm-email-form .wm-field:focus-within { border-color: #ccc; }
+  .wm-email-form .wm-field input {
+    flex: 1;
+    border: none !important;
+    background: none !important;
+    color: var(--black) !important;
+    padding: 13px 0 !important;
+    font-size: 0.92rem !important;
+    outline: none;
+    font-family: inherit;
+  }
+  .wm-email-form .wm-field input::placeholder { color: #aaa !important; }
+
+  .wm-submit {
+    position: absolute;
+    right: 4px; top: 4px;
+    background: linear-gradient(135deg, #F8D24A 0%, #F2C230 50%, #DDA518 100%) !important;
+    color: #5A3A00 !important;
+    border: none !important;
+    border-radius: 999px !important;
+    padding: 10px 16px 10px 18px !important;
+    font-size: 0.78rem !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    cursor: pointer;
+    box-shadow:
+      0 6px 18px rgba(221,165,24,0.45),
+      0 2px 4px rgba(221,165,24,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.5) !important;
+    transition: transform .15s ease, box-shadow .2s ease;
+  }
+  .wm-submit:hover { transform: translateY(-1px); }
+  .wm-submit svg { width: 12px !important; height: 12px !important; stroke: #5A3A00 !important; }
+  /* Replace "Create account" → "JOIN" */
+  .wm-submit #wmSubmitText { display: none !important; }
+  .wm-submit::before { content: "JOIN"; }
+
+  /* Error / success messages */
+  .wm-msg { margin: 8px 24px 0; font-size: 0.78rem; }
+
+  /* ── 5. FEATURES with checkmarks ── */
+  .wm-features {
+    order: 5;
+    margin: 16px 24px 0;
+    padding-top: 14px;
+    border-top: 1px dashed #e0e0e0;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 9px;
+  }
+  .wm-feature {
+    display: block !important;
+    position: relative;
+    padding: 0 0 0 22px !important;
+    background: none !important;
+    border: none !important;
+  }
+  .wm-feature::before {
+    content: "✓";
+    position: absolute;
+    left: 0; top: 3px;
+    color: var(--orange);
+    font-weight: 900;
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+  .wm-num { display: none !important; }
+  .wm-feature-head {
+    display: block !important;
+    padding: 0 !important;
+  }
+  .wm-feature-title {
     display: block;
-    font-size: 0.65rem;
-    padding-left: 22px;
-    color: rgba(255,255,255,0.45);
+    font-size: 0.82rem !important;
+    font-weight: 800 !important;
+    color: var(--black) !important;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+  }
+  .wm-feature-desc {
+    display: block !important;
+    font-size: 0.72rem !important;
+    color: #666 !important;
+    font-weight: 500 !important;
+    line-height: 1.35 !important;
+    padding: 0 !important;
+    margin-top: 2px !important;
+  }
+
+  /* ── 6. TERMS at the very bottom ── */
+  .wm-terms {
+    order: 6;
+    margin: 16px 24px 22px !important;
+    text-align: center;
+    font-size: 0.65rem !important;
+    color: #999 !important;
     line-height: 1.4;
   }
-  .wm-num { font-size: 0.57rem; }
-
-  /* ── Dark/black form ── */
-  .wm-right {
-    background: #0d0d0d !important;
-    padding: 14px 18px 32px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    overflow-y: auto;
+  .wm-terms-link {
+    color: var(--black) !important;
+    font-weight: 600 !important;
+    background: none !important;
+    border: none !important;
+    text-decoration: underline;
+    padding: 0 !important;
+    font-size: inherit !important;
   }
-  .wm-form-wrap { max-width: 100%; }
-  .wm-form-title { font-size: 1.2rem; color: #fff !important; margin-bottom: 2px; }
-  .wm-form-sub { display: block; font-size: 0.75rem; color: rgba(255,255,255,0.4) !important; margin-bottom: 6px; }
-  .wm-booster-hint { display: block; font-size: 0.68rem; color: rgba(255,255,255,0.38) !important; margin-bottom: 12px; }
-  .wm-google {
-    background: rgba(255,255,255,0.07) !important;
-    border-color: rgba(255,255,255,0.14) !important;
-    color: #fff !important;
-    font-size: 0.83rem;
-    padding: 10px 12px;
-  }
-  .wm-google:hover { background: rgba(255,255,255,0.12) !important; }
-  .wm-divider { color: rgba(255,255,255,0.22) !important; font-size: 0.72rem; margin: 8px 0; }
-  .wm-divider::before, .wm-divider::after { background: rgba(255,255,255,0.1) !important; }
-  .wm-email-form { gap: 6px; }
-  .wm-field input {
-    background: rgba(255,255,255,0.07) !important;
-    border-color: rgba(255,255,255,0.12) !important;
-    color: #fff !important;
-    font-size: 0.83rem;
-    padding: 9px 11px;
-  }
-  .wm-field input::placeholder { color: rgba(255,255,255,0.3) !important; }
-  .wm-submit { font-size: 0.83rem; padding: 10px 16px; }
-  .wm-terms { margin-top: 8px; font-size: 0.67rem; color: rgba(255,255,255,0.28) !important; }
-  .wm-terms-link { color: rgba(255,255,255,0.6) !important; }
-
-  /* Hide name / password / mode toggle on mobile → magic-link flow */
-  #wmNameField     { display: none !important; }
-  #wmPasswordField { display: none !important; }
-  #wmForgot        { display: none !important; }
-  .wm-mode-toggle  { display: none !important; }
 }
 
 /* ── DARK MODE ── */

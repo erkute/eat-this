@@ -6598,6 +6598,7 @@ html:not([data-theme="dark"]) .site-footer-copy {
     position: absolute;
     top: 18px;
     left: 50%;
+    right: auto;
     transform: translateX(-50%);
     z-index: 3;
   }
@@ -6666,15 +6667,18 @@ html:not([data-theme="dark"]) .site-footer-copy {
     gap: 0 !important;
   }
   .wm-email-form .wm-field {
-    background: #fff;
-    border: 1.5px solid #ececec;
+    background: #f5f5f5;
+    border: 1.5px solid #e8e8e8;
     border-radius: 999px;
     padding: 4px 100px 4px 18px;
     display: flex;
     align-items: center;
-    transition: border-color .2s;
+    transition: border-color .2s, background .2s;
   }
-  .wm-email-form .wm-field:focus-within { border-color: #ccc; }
+  .wm-email-form .wm-field:focus-within {
+    border-color: #999;
+    background: #fff;
+  }
   .wm-email-form .wm-field input {
     flex: 1;
     border: none !important;

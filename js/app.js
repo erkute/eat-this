@@ -284,12 +284,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const { httpsCallable } = await import(
           'https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js'
         );
+        if (!window._functionsEU) throw new Error('Newsletter service not ready. Please reload the page.');
         const fn = httpsCallable(window._functionsEU, 'subscribeNewsletter');
         await fn({ email });
         successEl.hidden = false;
         if (emailInput) emailInput.value = '';
-      } catch {
-        errorEl.textContent = 'Something went wrong. Please try again.';
+      } catch (err) {
+        console.error('[newsletter] subscription failed:', err?.code, err?.message, err);
+        errorEl.textContent = err?.message ?? 'Something went wrong. Please try again.';
         errorEl.hidden = false;
       } finally {
         submitBtn.disabled = false;

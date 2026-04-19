@@ -6530,57 +6530,94 @@ html:not([data-theme="dark"]) .site-footer-copy {
   padding: 0;
 }
 
-/* ── MOBILE ── */
+/* ── wm-photo-tagline: mobile-only headline on photo ── */
+.wm-photo-tagline { display: none; }
+
+/* ── MOBILE — Variante A: Foto+Headline → Benefits → Weißes Formular ── */
 @media (max-width: 720px) {
-  /* Centered floating card — no bottom sheet */
-  .wm-overlay { padding: 16px; align-items: center; }
+  .wm-overlay { padding: 0; align-items: flex-end; }
   @keyframes wm-enter {
-    from { opacity: 0; transform: translateY(20px) scale(0.97); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
   .wm-dialog {
     flex-direction: column;
-    max-width: 400px;
+    max-width: 100%;
+    width: 100%;
     height: auto;
-    max-height: min(90dvh, 90vh);
-    border-radius: 20px;
+    max-height: 100dvh;
+    border-radius: 0;
   }
 
-  /* Photo — visible, good portion */
+  /* ── Photo: Headline overlaid at bottom ── */
   .wm-left { width: 100%; flex-shrink: 0; }
-  .wm-img-wrap { height: 150px; }
-  .wm-bg-img { height: 100%; width: 100%; object-position: center 65%; }
-  .wm-img-logo { width: 48px; }
+  .wm-img-wrap { height: min(34dvh, 230px); }
+  .wm-img-wrap::after {
+    background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 40%, rgba(0,0,0,0.68) 100%);
+  }
+  .wm-bg-img { height: 100%; width: 100%; object-position: center 78%; }
+  .wm-img-logo { width: 84px; }
+  .wm-img-text { top: 14px; left: 16px; }
 
-  /* Info: headline + feature titles only (no descriptions) */
-  .wm-left-inner { padding: 10px 16px 12px; gap: 6px; }
-  .wm-headline { font-size: 0.92rem; margin-bottom: 0; line-height: 1.2; }
+  /* Headline on photo — mobile only */
+  .wm-photo-tagline {
+    display: block;
+    position: absolute;
+    bottom: 13px;
+    left: 16px;
+    right: 16px;
+    z-index: 2;
+    font-size: 1.0rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ── Benefits strip — headline hidden, features shown ── */
+  .wm-headline { display: none; }
+  .wm-left-inner { padding: 11px 18px 13px; gap: 7px; }
   .wm-left-intro { display: none; }
-  .wm-features { flex-direction: row; gap: 8px; flex-wrap: wrap; }
-  .wm-feature { flex-direction: row; align-items: center; gap: 5px; }
-  .wm-feature-desc { display: none; }
-  .wm-feature-head { gap: 4px; }
-  .wm-feature-title { font-size: 0.72rem; }
-  .wm-num { font-size: 0.58rem; }
+  .wm-features { flex-direction: column; gap: 7px; }
+  .wm-feature { flex-direction: column; gap: 1px; }
+  .wm-feature-head { gap: 6px; }
+  .wm-feature-title { font-size: 0.74rem; }
+  .wm-feature-desc {
+    display: block;
+    font-size: 0.65rem;
+    padding-left: 22px;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.4;
+  }
+  .wm-num { font-size: 0.57rem; }
 
-  /* Compact auth form */
+  /* ── White form with all text visible ── */
   .wm-right {
-    padding: 12px 16px 18px;
+    background: #fff !important;
+    padding: 14px 18px 28px;
     align-items: flex-start;
     justify-content: flex-start;
     overflow-y: auto;
   }
-  .wm-form-wrap { max-width: 100%; width: 300px; }
-  .wm-form-title { font-size: 1.2rem; margin-bottom: 1px; }
-  .wm-form-sub { display: none; }
-  .wm-booster-hint { display: none; }
-  .wm-google { padding: 9px 12px; font-size: 0.81rem; }
-  .wm-divider { margin: 7px 0; font-size: 0.72rem; }
-  .wm-email-form { gap: 5px; }
-  .wm-field input { padding: 8px 10px; font-size: 0.81rem; }
-  .wm-submit { padding: 9px 14px; font-size: 0.82rem; margin-top: 1px; }
-  .wm-mode-toggle { margin-top: 7px; font-size: 0.76rem; }
-  .wm-terms { margin-top: 5px; font-size: 0.66rem; }
+  .wm-form-wrap { max-width: 100%; }
+  .wm-close { background: var(--gray-100) !important; }
+  .wm-close svg { stroke: var(--black) !important; }
+  .wm-form-title { font-size: 1.2rem; color: var(--black) !important; margin-bottom: 2px; }
+  .wm-form-sub { display: block; font-size: 0.75rem; color: var(--gray-400) !important; margin-bottom: 6px; }
+  .wm-booster-hint { display: block; font-size: 0.68rem; color: #666 !important; margin-bottom: 12px; }
+  .wm-google { background: #fff !important; border-color: var(--gray-200) !important; color: var(--black) !important; font-size: 0.83rem; padding: 10px 12px; }
+  .wm-divider { color: var(--gray-400) !important; font-size: 0.72rem; margin: 8px 0; }
+  .wm-divider::before, .wm-divider::after { background: var(--gray-100) !important; }
+  .wm-email-form { gap: 6px; }
+  .wm-field input { background: #fff !important; border-color: var(--gray-200) !important; color: var(--black) !important; font-size: 0.83rem; padding: 9px 11px; }
+  .wm-field input::placeholder { color: var(--gray-400) !important; }
+  .wm-forgot button { color: var(--gray-400) !important; }
+  .wm-submit { font-size: 0.83rem; padding: 10px 16px; }
+  .wm-mode-toggle { margin-top: 9px; font-size: 0.76rem; color: var(--gray-400) !important; }
+  .wm-mode-link { color: var(--black) !important; }
+  .wm-terms { margin-top: 7px; font-size: 0.67rem; color: var(--gray-400) !important; }
+  .wm-terms-link { color: var(--black) !important; }
 }
 
 /* ── DARK MODE ── */

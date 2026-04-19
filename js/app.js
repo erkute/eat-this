@@ -254,9 +254,90 @@ document.addEventListener('DOMContentLoaded', () => {
   window.openLoginModal = window.openLoginModal || _openLoginModal;
   window.closeLoginModal = window.closeLoginModal || _closeLoginModal;
 
-  // Hero CTA button — replaces inline onclick (CSP compliance)
-  const heroRegisterBtn = document.getElementById('heroRegisterBtn');
-  if (heroRegisterBtn) heroRegisterBtn.addEventListener('click', _openLoginModal);
+
+  const heroExploreBtn = document.getElementById('heroExploreBtn');
+  if (heroExploreBtn) {
+    heroExploreBtn.addEventListener('click', () => navigateToPage('musts'));
+  }
+
+  const newsletterForm = document.getElementById('newsletterForm');
+  if (newsletterForm) {
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    newsletterForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const emailInput = document.getElementById('newsletterEmail');
+      const errorEl    = document.getElementById('newsletterError');
+      const successEl  = document.getElementById('newsletterSuccess');
+      const submitBtn  = document.getElementById('newsletterSubmit');
+      const email      = emailInput ? emailInput.value.trim() : '';
+
+      errorEl.hidden   = true;
+      successEl.hidden = true;
+
+      if (!email || !EMAIL_RE.test(email)) {
+        errorEl.hidden = false;
+        return;
+      }
+
+      submitBtn.disabled = true;
+      try {
+        const { httpsCallable } = await import(
+          'https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js'
+        );
+        const fn = httpsCallable(window._functions, 'subscribeNewsletter');
+        await fn({ email });
+        successEl.hidden = false;
+        if (emailInput) emailInput.value = '';
+      } catch {
+        errorEl.textContent = 'Something went wrong. Please try again.';
+        errorEl.hidden = false;
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  }
+
+  // ── Onboarding ──
+  window._obGoTo = function(step) {
+    [1, 2, 3, 4].forEach(n => {
+      const el = document.getElementById('obStep' + n);
+      if (el) el.hidden = (n !== step);
+    });
+  };
+
+  window.showOnboarding = function() {
+    if (localStorage.getItem('onboardingComplete')) return;
+    const overlay = document.getElementById('onboardingOverlay');
+    if (overlay) {
+      overlay.hidden = false;
+      overlay.querySelector('.ob-next-btn')?.focus();
+      window._obGoTo(1);
+    }
+  };
+
+  const obNext1 = document.getElementById('obNext1');
+  const obNext2 = document.getElementById('obNext2');
+  const obNext3 = document.getElementById('obNext3');
+  const obSkip1 = document.getElementById('obSkip1');
+  const obSkip2 = document.getElementById('obSkip2');
+  const obSkip3 = document.getElementById('obSkip3');
+  const obOpenPackBtn = document.getElementById('obOpenPackBtn');
+
+  if (obNext1) obNext1.addEventListener('click', () => window._obGoTo(2));
+  if (obNext2) obNext2.addEventListener('click', () => window._obGoTo(3));
+  if (obNext3) obNext3.addEventListener('click', () => window._obGoTo(4));
+  if (obSkip1) obSkip1.addEventListener('click', () => { localStorage.setItem('onboardingComplete', '1'); window._obGoTo(4); });
+  if (obSkip2) obSkip2.addEventListener('click', () => { localStorage.setItem('onboardingComplete', '1'); window._obGoTo(4); });
+  if (obSkip3) obSkip3.addEventListener('click', () => { localStorage.setItem('onboardingComplete', '1'); window._obGoTo(4); });
+
+  if (obOpenPackBtn) {
+    obOpenPackBtn.addEventListener('click', () => {
+      const overlay = document.getElementById('onboardingOverlay');
+      if (overlay) overlay.hidden = true;
+      localStorage.setItem('onboardingComplete', '1');
+      navigateToPage('musts');
+    });
+  }
 
   // ============================================
   // HERO SLIDER
@@ -321,14 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchClose = document.getElementById('searchClose');
   const searchTrigger = document.getElementById('searchTrigger');
 
-  const mustEatsData = Array.from(document.querySelectorAll('.eat-card')).map((card) => ({
-    dish: card.dataset.dish || '',
-    restaurant: card.dataset.restaurant || '',
-    district: card.dataset.district || '',
-    price: card.dataset.price || '',
-    img: card.dataset.img || '',
-    type: 'must-eat',
-  }));
+  let mustEatsData = [];
 
   const newsData = Array.from(document.querySelectorAll('.news-card')).map((card) => ({
     title: card.dataset.title || '',
@@ -492,10 +566,17 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
               const dish = item.dataset.dish;
               const restaurant = item.dataset.restaurant;
-              const card = Array.from(document.querySelectorAll('.eat-card')).find(
-                (c) => c.dataset.dish === dish && c.dataset.restaurant === restaurant
+              const slot = Array.from(document.querySelectorAll('.album-slot[data-dish]')).find(
+                (s) => s.dataset.dish === dish && s.dataset.restaurant === restaurant
               );
-              if (card) card.click();
+              if (slot) {
+                const srcIdx = parseInt(slot.dataset.sourceIndex, 10);
+                slot.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const albumCard = (window._albumCards || [])[srcIdx];
+                if (albumCard && typeof window._openMustCard === 'function') {
+                  setTimeout(() => window._openMustCard(slot, albumCard.imageUrl || '', albumCard.dish || ''), 400);
+                }
+              }
             }, 400);
           }, 100);
         } else if (type === 'news') {
@@ -896,36 +977,129 @@ document.addEventListener('DOMContentLoaded', () => {
   const cmsReady = (async () => {
     if (!window.CMS) return;
 
-    // Must-Eat cards
+    // Must-Eat Album
+    const ALBUM_TOTAL = 150;
+    const ALWAYS_VISIBLE = 11;
+    window._albumCards = [];
+
     try {
-      const cards = await window.CMS.fetchMustEats();
-      const grid = document.getElementById('mustEatsGrid');
-      if (grid && cards && cards.length) {
-        const fragment = document.createDocumentFragment();
-        cards.forEach((c) => {
-          const wrapper = document.createElement('div');
-          wrapper.className = 'must-card eat-card';
-          wrapper.dataset.dish = c.dish || '';
-          wrapper.dataset.restaurant = c.restaurant || '';
-          wrapper.dataset.district = c.district || '';
-          wrapper.dataset.price = c.price || '';
-          wrapper.dataset.img = c.imageUrl || '';
-
-          const img = document.createElement('img');
-          img.src = c.imageUrl || '';
-          img.alt = c.dish || '';
-          img.className = 'must-card-img';
-          img.loading = 'lazy';
-          img.decoding = 'async';
-
-          wrapper.appendChild(img);
-          fragment.appendChild(wrapper);
-        });
-        grid.appendChild(fragment);
-      }
+      const cards = await window.CMS.fetchMustEats(); // ordered by `order asc`
+      window._albumCards = cards || [];
+      mustEatsData = (cards || []).map(c => ({
+        type: 'must-eat',
+        dish: c.dish || '',
+        restaurant: c.restaurant || '',
+        district: c.district || '',
+        price: c.price || '',
+        img: c.imageUrl || '',
+      }));
+      renderAlbum();
     } catch (err) {
       console.warn('[CMS] Must-Eats fetch failed:', err.message); // eslint-disable-line no-console
     }
+
+    function renderAlbum() {
+      const gridEl = document.getElementById('albumGrid');
+      if (!gridEl) return;
+
+      const cards = window._albumCards || [];
+      const available = Math.min(cards.length, ALBUM_TOTAL);
+
+      gridEl.textContent = '';
+
+      // Distribute the `available` cards evenly across the first TOP_BAND slots
+      const TOP_BAND = 50;
+      const spread = available > 0 ? Math.min(TOP_BAND, ALBUM_TOTAL) : 0;
+      const cardPositions = {}; // slotIndex -> cardIndex
+      if (available > 0) {
+        for (let k = 0; k < available; k++) {
+          const pos = Math.min(spread - 1, Math.round((k + 0.5) * spread / available));
+          // if collision, shift forward until free
+          let p = pos;
+          while (cardPositions[p] !== undefined && p < spread) p++;
+          cardPositions[p] = k;
+        }
+      }
+
+      for (let i = 0; i < ALBUM_TOTAL; i++) {
+        const cardIdx = cardPositions[i];
+        const card = cardIdx !== undefined ? cards[cardIdx] : null;
+        const slotEl = document.createElement('div');
+        slotEl.className = 'album-slot ' + (card ? 'sharp' : 'empty');
+        slotEl.dataset.cardIndex = String(i);
+        if (card) {
+          slotEl.dataset.dish       = card.dish || '';
+          slotEl.dataset.restaurant = card.restaurant || '';
+          slotEl.dataset.sourceIndex = String(cardIdx);
+        }
+
+        const inner = document.createElement('div');
+        inner.className = 'album-slot-inner';
+
+        if (card) {
+          const bg = document.createElement('div');
+          bg.className = 'album-slot-bg';
+          bg.style.backgroundImage = 'url(' + card.imageUrl + ')';
+          inner.appendChild(bg);
+        } else {
+          const back = document.createElement('div');
+          back.className = 'album-slot-back';
+          inner.appendChild(back);
+        }
+
+        slotEl.appendChild(inner);
+        bindAlbumSlotTap(slotEl);
+        gridEl.appendChild(slotEl);
+      }
+
+      updateAlbumProgress(available);
+    }
+
+    function bindAlbumSlotTap(slotEl) {
+      let sx = 0, sy = 0, moved = false;
+      slotEl.addEventListener('touchstart', (e) => {
+        sx = e.touches[0].clientX; sy = e.touches[0].clientY; moved = false;
+      }, { passive: true });
+      slotEl.addEventListener('touchmove', (e) => {
+        const dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
+        if (Math.sqrt(dx * dx + dy * dy) > 10) moved = true;
+      }, { passive: true });
+      slotEl.addEventListener('touchend', (e) => {
+        if (moved) return;
+        e.preventDefault();
+        handleAlbumSlotActivate(slotEl);
+      }, { passive: false });
+      slotEl.addEventListener('click', () => handleAlbumSlotActivate(slotEl));
+    }
+
+    function handleAlbumSlotActivate(slotEl) {
+      if (slotEl.classList.contains('sharp')) {
+        const srcIdx = parseInt(slotEl.dataset.sourceIndex, 10);
+        const card = (window._albumCards || [])[srcIdx];
+        if (card && typeof window._openMustCard === 'function') {
+          window._openMustCard(slotEl, card.imageUrl || '', card.dish || '');
+          return;
+        }
+      }
+      shakeSlot(slotEl);
+    }
+
+    function shakeSlot(slotEl) {
+      slotEl.classList.remove('shake');
+      void slotEl.offsetWidth;
+      slotEl.classList.add('shake');
+      setTimeout(() => slotEl.classList.remove('shake'), 1000);
+    }
+
+function updateAlbumProgress(count) {
+      const countEl = document.getElementById('albumProgCount');
+      if (countEl) countEl.textContent = String(count);
+    }
+
+    function revealBlurredCards() { /* no-op: all cards render sharp */ }
+
+    window._renderAlbum        = renderAlbum;
+    window._revealBlurredCards = revealBlurredCards;
 
     // Restaurants
     try {
@@ -3075,6 +3249,7 @@ document.addEventListener('DOMContentLoaded', () => {
       mustLightboxInner.style.transform = 'translate(0,0) scale(1) rotate(0deg)';
     }, 520);
   }
+  window._openMustCard = openMustCard;
 
   let mustClosing = false;
 

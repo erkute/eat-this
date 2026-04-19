@@ -40,6 +40,7 @@ const firebaseConfig = {
 const app       = initializeApp(firebaseConfig);
 const auth      = getAuth(app);
 const functions = getFunctions(app);
+window._functions = functions;
 
 // App Check nur auf der Produktionsseite aktivieren (nicht auf localhost)
 if (!['localhost', '127.0.0.1'].includes(window.location.hostname)) {
@@ -255,6 +256,9 @@ if (loginForm) {
         notify(window.i18n.t('modals.login.notifications.welcome').replace('{name}', name));
         const sendVerificationEmail = httpsCallable(functions, 'sendVerificationEmail');
         sendVerificationEmail({ displayName: name }).catch(() => {});
+        setTimeout(() => {
+          if (typeof window.showOnboarding === 'function') window.showOnboarding();
+        }, 400);
       } else {
         await signInWithEmailAndPassword(auth, email, password);
         const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? 'du';
@@ -349,6 +353,10 @@ function applyLoggedInUI(user) {
   if (profileAvatarModal) profileAvatarModal.textContent = initials;
   if (profileNameModal)   profileNameModal.textContent   = 'Hey, ' + displayName + '!';
   if (profileEmailModal)  profileEmailModal.textContent  = user.email;
+
+  window._currentUser = user;
+  if (typeof window._revealBlurredCards === 'function') window._revealBlurredCards();
+  else if (typeof window._renderAlbum === 'function') window._renderAlbum();
 }
 
 onAuthStateChanged(auth, (user) => {
@@ -369,6 +377,9 @@ onAuthStateChanged(auth, (user) => {
 
     loginForm?.reset();
     setMode(true);
+
+    window._currentUser = null;
+    if (typeof window._renderAlbum === 'function') window._renderAlbum();
   }
   if (window._initProfilePage) {
     window._initProfilePage(user || null);

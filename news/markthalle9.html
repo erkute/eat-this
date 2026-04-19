@@ -237,7 +237,7 @@
     <link
       rel="preload"
       as="style"
-      href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700;900&family=Oswald:wght@700&family=Space+Mono:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700;900&family=Oswald:wght@700&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=Space+Mono:wght@400;700&display=swap"
     />
     <link rel="preconnect" href="https://ehwjnjr2.apicdn.sanity.io" crossorigin />
     <link rel="preconnect" href="https://cdn.sanity.io" crossorigin />
@@ -252,7 +252,7 @@
     <link rel="preload" as="image" href="pics/hero-desktop.webp" media="(min-width: 768px)" fetchpriority="high" />
     <link rel="preload" as="image" href="pics/hero-mobile.webp" media="(max-width: 767px)" fetchpriority="high" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700;900&family=Oswald:wght@700&family=Space+Mono:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700;900&family=Oswald:wght@700&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=Space+Mono:wght@400;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/leaflet.css" />
@@ -280,6 +280,7 @@
             <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
             <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
           </svg>
+          <span class="nav-label">News</span>
         </button>
         <button class="navbar-icon-btn" id="navMapBtn" aria-label="Map">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -287,6 +288,7 @@
             <line x1="9" y1="3" x2="9" y2="18"/>
             <line x1="15" y1="6" x2="15" y2="21"/>
           </svg>
+          <span class="nav-label">Map</span>
         </button>
         <button class="navbar-icon-btn" id="navMustsBtn" aria-label="Eat This">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -294,6 +296,7 @@
             <path d="M7 2v20"/>
             <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
           </svg>
+          <span class="nav-label">Album</span>
         </button>
         <button class="navbar-icon-btn" id="navProfileBtn" aria-label="Profile">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -301,6 +304,7 @@
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
             <circle cx="12" cy="7" r="4"/>
           </svg>
+          <span class="nav-label">Profile</span>
         </button>
         <button class="burger-btn" id="burgerBtn" aria-label="Menu">
           <span></span><span></span><span></span>
@@ -346,6 +350,9 @@
                 <line x1="5" y1="12" x2="19" y2="12" />
                 <polyline points="12 5 19 12 12 19" />
               </svg>
+            </button>
+            <button class="hero-explore-btn" id="heroExploreBtn">
+              Explore the Album
             </button>
           </div>
           <div class="hero-scroll-hint">
@@ -484,6 +491,27 @@
           </div>
 
         </div>
+<!-- NEWSLETTER SECTION -->
+<section class="newsletter-section" id="newsletterSection">
+  <p class="newsletter-eyebrow">Stay in the loop</p>
+  <p class="newsletter-title">New Must-Eats, every week.</p>
+  <p class="newsletter-sub">
+    Get the latest Berlin spots delivered to your inbox — plus a free bonus card pack.
+  </p>
+  <form class="newsletter-form" id="newsletterForm" novalidate>
+    <input
+      class="newsletter-input"
+      id="newsletterEmail"
+      type="email"
+      placeholder="your@email.com"
+      autocomplete="email"
+    />
+    <button class="newsletter-btn" id="newsletterSubmit" type="submit">Subscribe</button>
+  </form>
+  <p class="newsletter-error" id="newsletterError" hidden>Please enter a valid email address.</p>
+  <p class="newsletter-success" id="newsletterSuccess" hidden>You're in! Check your inbox.</p>
+  <p class="newsletter-fine">No spam. Unsubscribe anytime.</p>
+</section>
         <!-- END SCROLL SECTIONS -->
       </div>
 
@@ -500,15 +528,14 @@
               loading="lazy"
               decoding="async"
             />
-            <p
-              class="must-eats-subtitle"
-              data-i18n="musts.subtitle"
-            >
-              The dishes you can't leave Berlin without trying.
-            </p>
+            <div class="album-head-count">
+              <span class="album-head-n" id="albumProgCount">0</span>
+              <span class="album-head-total">/ 150</span>
+            </div>
           </div>
-          <div class="must-eats-grid reveal-stagger" id="mustEatsGrid">
-            <!-- populated by js/cms.js -->
+
+          <div class="album-grid" id="albumGrid">
+            <!-- populated by js/app.js -->
           </div>
         </section>
       </div>
@@ -1303,6 +1330,127 @@
         <div class="cookie-info-body" data-i18n-html="modals.cookies.body"></div>
       </div>
     </div>
+
+    <!-- ONBOARDING OVERLAY -->
+<div class="ob-overlay" id="onboardingOverlay" hidden role="dialog" aria-modal="true" aria-label="Welcome to Eat This">
+
+  <div class="ob-panel">
+    <!-- Step 1: News -->
+    <div class="ob-step" id="obStep1">
+      <p class="ob-step-num">1 of 4</p>
+      <div class="ob-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+          <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
+        </svg>
+      </div>
+      <p class="ob-title">Berlin food news</p>
+      <p class="ob-body">New openings, hidden gems, guides.</p>
+      <div class="ob-dots">
+        <span class="ob-dot active"></span>
+        <span class="ob-dot"></span>
+        <span class="ob-dot"></span>
+        <span class="ob-dot"></span>
+      </div>
+      <div class="ob-footer">
+        <button class="ob-next-btn" id="obNext1">Next</button>
+        <button class="ob-skip-btn" id="obSkip1">Skip intro</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Map -->
+    <div class="ob-step" id="obStep2" hidden>
+      <p class="ob-step-num">2 of 4</p>
+      <div class="ob-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+          <line x1="9" y1="3" x2="9" y2="18"/>
+          <line x1="15" y1="6" x2="15" y2="21"/>
+        </svg>
+      </div>
+      <p class="ob-title">Spots on the map</p>
+      <p class="ob-body">Berlin's best food map. Filter by category.</p>
+      <div class="ob-dots">
+        <span class="ob-dot"></span>
+        <span class="ob-dot active"></span>
+        <span class="ob-dot"></span>
+        <span class="ob-dot"></span>
+      </div>
+      <div class="ob-footer">
+        <button class="ob-next-btn" id="obNext2">Next</button>
+        <button class="ob-skip-btn" id="obSkip2">Skip intro</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Album -->
+    <div class="ob-step" id="obStep3" hidden>
+      <p class="ob-step-num">3 of 4</p>
+      <div class="ob-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="M2 9h20"/>
+        </svg>
+      </div>
+      <p class="ob-title">Must-Eat Album</p>
+      <p class="ob-body">156 dishes. Collect them all.</p>
+      <div class="ob-dots">
+        <span class="ob-dot"></span>
+        <span class="ob-dot"></span>
+        <span class="ob-dot active"></span>
+        <span class="ob-dot"></span>
+      </div>
+      <div class="ob-footer">
+        <button class="ob-next-btn" id="obNext3">Next</button>
+        <button class="ob-skip-btn" id="obSkip3">Skip intro</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Booster Pack -->
+    <div class="ob-step" id="obStep4" hidden>
+      <p class="ob-step-num">4 of 4</p>
+      <div class="ob-icon ob-icon--star">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      </div>
+      <p class="ob-title">Your Booster Pack is ready.</p>
+      <p class="ob-body">10 free cards are waiting for you.</p>
+
+      <div class="ob-pack-wrap">
+        <div class="ob-pack-stack">
+          <div class="ob-pack-shadow ob-pack-shadow--far"></div>
+          <div class="ob-pack-shadow ob-pack-shadow--near"></div>
+          <div class="ob-pack-body">
+            <div class="ob-pack-stripe"></div>
+            <div class="ob-pack-brand">Eat This</div>
+            <div class="ob-pack-content">
+              <div class="ob-pack-num">10</div>
+              <div class="ob-pack-cards-lbl">Cards</div>
+              <div class="ob-pack-divider"></div>
+              <div class="ob-pack-type">Booster Pack</div>
+            </div>
+          </div>
+        </div>
+        <p class="ob-pack-tap">Tap to open</p>
+      </div>
+
+      <div class="ob-dots">
+        <span class="ob-dot"></span>
+        <span class="ob-dot"></span>
+        <span class="ob-dot"></span>
+        <span class="ob-dot active"></span>
+      </div>
+      <div class="ob-footer">
+        <button class="ob-next-btn" id="obOpenPackBtn">Open Starter Pack</button>
+      </div>
+    </div>
+  </div>
+
+</div>
 
     <script defer src="js/cms.js"></script>
     <script defer src="js/i18n.js"></script>

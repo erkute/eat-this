@@ -284,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { httpsCallable } = await import(
           'https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js'
         );
-        const fn = httpsCallable(window._functions, 'subscribeNewsletter');
+        const fn = httpsCallable(window._functionsEU, 'subscribeNewsletter');
         await fn({ email });
         successEl.hidden = false;
         if (emailInput) emailInput.value = '';

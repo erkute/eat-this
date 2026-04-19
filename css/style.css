@@ -1111,6 +1111,9 @@ body {
   display: flex;
   align-items: center;
 }
+@media (max-width: 767px) {
+  .map-search-wrap { display: none !important; }
+}
 .map-search-icon {
   position: absolute;
   left: 9px;

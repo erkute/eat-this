@@ -538,11 +538,8 @@ body {
 }
 .album-slot.sharp .album-slot-inner {
   clip-path: inset(0 round 6%);
-}
-
-.album-slot.sharp .album-slot-inner {
-  background-color: #1a1a1a;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  background-color: transparent;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
 .album-slot.sharp .album-slot-bg {
   width: 100%;

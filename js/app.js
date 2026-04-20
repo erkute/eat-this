@@ -3269,6 +3269,7 @@ function updateAlbumProgress(count) {
   mustLightboxInner.className = 'must-card-lightbox-inner';
   const mustLightboxImg = document.createElement('img');
   mustLightboxImg.className = 'must-card-lightbox-img';
+  mustLightboxImg.alt = ''; // real alt is set when lightbox opens
   mustLightboxInner.appendChild(mustLightboxImg);
   mustLightbox.appendChild(mustLightboxInner);
   document.body.appendChild(mustLightbox);

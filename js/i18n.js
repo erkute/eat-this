@@ -6,6 +6,9 @@
 
 const TRANSLATIONS = {
   en: {
+    a11y: {
+      skip: 'Skip to content',
+    },
     nav: {
       searchAriaLabel: 'Search',
       menuAriaLabel: 'Menu',
@@ -250,6 +253,9 @@ const TRANSLATIONS = {
   }
   TRANSLATIONS.de = deepCopy(TRANSLATIONS.en);
 })();
+
+// DE a11y overrides
+TRANSLATIONS.de.a11y.skip = 'Zum Inhalt springen';
 
 // DE profile overrides
 TRANSLATIONS.de.profile.signInTitle     = 'Bei EAT THIS anmelden';

@@ -274,6 +274,7 @@
     <!-- Google Analytics: loaded only after cookie consent (see app.js loadAnalytics) -->
   </head>
   <body>
+    <a href="#appPages" class="skip-link" data-i18n="a11y.skip">Zum Inhalt springen</a>
     <!-- NAVBAR -->
     <nav class="navbar" id="navbar">
       <a href="#" class="navbar-brand" data-page="start">
@@ -741,7 +742,7 @@
       <div class="app-page static-page" data-page="about" id="staticPageAbout">
         <div class="static-page-inner">
 
-          <h1 class="static-page-title" id="staticPageAbout-title"></h1>
+          <h1 class="static-page-title" id="staticPageAbout-title">Über Eat This</h1>
           <div class="static-page-body" id="staticPageAbout-body">
             <span class="static-page-loading">Loading&#8230;</span>
           </div>
@@ -751,7 +752,7 @@
       <div class="app-page static-page" data-page="contact" id="staticPageContact">
         <div class="static-page-inner">
 
-          <h1 class="static-page-title" id="staticPageContact-title"></h1>
+          <h1 class="static-page-title" id="staticPageContact-title">Kontakt</h1>
           <div class="static-page-body" id="staticPageContact-body">
             <span class="static-page-loading">Loading&#8230;</span>
           </div>
@@ -761,7 +762,7 @@
       <div class="app-page static-page" data-page="press" id="staticPagePress">
         <div class="static-page-inner">
 
-          <h1 class="static-page-title" id="staticPagePress-title"></h1>
+          <h1 class="static-page-title" id="staticPagePress-title">Presse</h1>
           <div class="static-page-body" id="staticPagePress-body">
             <span class="static-page-loading">Loading&#8230;</span>
           </div>
@@ -771,7 +772,7 @@
       <div class="app-page static-page" data-page="impressum" id="staticPageImpressum">
         <div class="static-page-inner">
 
-          <h1 class="static-page-title" id="staticPageImpressum-title"></h1>
+          <h1 class="static-page-title" id="staticPageImpressum-title">Impressum</h1>
           <div class="static-page-body" id="staticPageImpressum-body">
             <span class="static-page-loading">Loading&#8230;</span>
           </div>
@@ -781,7 +782,7 @@
       <div class="app-page static-page" data-page="datenschutz" id="staticPageDatenschutz">
         <div class="static-page-inner">
 
-          <h1 class="static-page-title" id="staticPageDatenschutz-title"></h1>
+          <h1 class="static-page-title" id="staticPageDatenschutz-title">Datenschutz</h1>
           <div class="static-page-body" id="staticPageDatenschutz-body">
             <span class="static-page-loading">Loading&#8230;</span>
           </div>
@@ -791,7 +792,7 @@
       <div class="app-page static-page" data-page="agb" id="staticPageAgb">
         <div class="static-page-inner">
 
-          <h1 class="static-page-title" id="staticPageAgb-title"></h1>
+          <h1 class="static-page-title" id="staticPageAgb-title">AGB</h1>
           <div class="static-page-body" id="staticPageAgb-body">
             <span class="static-page-loading">Loading&#8230;</span>
           </div>
@@ -878,9 +879,9 @@
               </svg>
               <span>@eatthisdotcom</span>
             </a>
-            <div class="site-footer-lang">
-              <button class="site-footer-lang-btn" data-lang="de">DE</button>
-              <button class="site-footer-lang-btn" data-lang="en">EN</button>
+            <div class="site-footer-lang" role="group" aria-label="Language / Sprache">
+              <button class="site-footer-lang-btn" data-lang="de" aria-label="Deutsch">DE</button>
+              <button class="site-footer-lang-btn" data-lang="en" aria-label="English">EN</button>
             </div>
           </div>
         </div>
@@ -1015,9 +1016,9 @@
           </button>
         </div>
         <div class="burger-lang-row">
-          <div class="lang-switcher" id="langSwitcher">
-            <button class="lang-btn active" data-lang="en">EN</button>
-            <button class="lang-btn" data-lang="de">DE</button>
+          <div class="lang-switcher" id="langSwitcher" role="group" aria-label="Language / Sprache">
+            <button class="lang-btn active" data-lang="en" aria-label="English">EN</button>
+            <button class="lang-btn" data-lang="de" aria-label="Deutsch">DE</button>
           </div>
         </div>
         <div class="burger-drawer-footer">

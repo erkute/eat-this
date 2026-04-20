@@ -23,7 +23,7 @@
         // Works with strict CSP (no inline onload= attribute, uses DOM property).
         var l = document.createElement('link');
         l.rel = 'stylesheet';
-        l.href = 'css/style.css?v=20';
+        l.href = 'css/style.min.css?v=20';
         l.media = 'print';
         l.onload = function () { this.media = 'all'; this.onload = null; };
         document.head.appendChild(l);
@@ -301,15 +301,15 @@
     <!-- Preload starts download early; full stylesheet is activated non-blocking
          via the inline script above (media="print" → "all" trick). Keeps FCP fast
          because the initial render uses only the critical inline CSS. -->
-    <link rel="preload" as="style" href="css/style.css?v=20" />
-    <noscript><link rel="stylesheet" href="css/style.css?v=20" /></noscript>
-    <!-- leaflet.css loaded lazily by app.js when map page opens -->
+    <link rel="preload" as="style" href="css/style.min.css?v=20" />
+    <noscript><link rel="stylesheet" href="css/style.min.css?v=20" /></noscript>
+    <!-- leaflet.min.css loaded lazily by app.js when map page opens -->
 
     <!-- Preload critical JS so the browser fetches in parallel with HTML parse -->
-    <link rel="preload" as="script" href="js/app.js?v=20" />
-    <link rel="preload" as="script" href="js/cms.js" />
-    <link rel="preload" as="script" href="js/i18n.js" />
-    <link rel="modulepreload" href="js/auth.js?v=4" />
+    <link rel="preload" as="script" href="js/app.min.js?v=20" />
+    <link rel="preload" as="script" href="js/cms.min.js" />
+    <link rel="preload" as="script" href="js/i18n.min.js" />
+    <link rel="modulepreload" href="js/auth.min.js?v=4" />
 
     <!-- Google Analytics: loaded only after cookie consent (see app.js loadAnalytics) -->
       <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"NewsArticle","headline":"The Renaissance of the Food Court: Why You Need to Visit Kalle Halle","description":"For a long time, the words \"food court\" in Berlin brought to mind uninspired mall basements and soggy fries. That era is officially over. ","image":"https://cdn.sanity.io/images/ehwjnjr2/production/bb566da913b2cd22581c5d1d2d1dfc1185c1397c-1124x1106.png?w=1200&h=630&fit=crop&auto=format","datePublished":"2026-04-10T09:00:00+02:00","dateModified":"2026-04-10T09:00:00+02:00","author":{"@type":"Organization","name":"Eat This Berlin","url":"https://www.eatthisdot.com"},"publisher":{"@type":"Organization","name":"Eat This Berlin","url":"https://www.eatthisdot.com","logo":{"@type":"ImageObject","url":"https://www.eatthisdot.com/pics/logo.webp"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://www.eatthisdot.com/news/the-renaissance-of-the-food-court-why-you-need-to-visit-kalle-halle"},"inLanguage":"en"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://www.eatthisdot.com/"},{"@type":"ListItem","position":2,"name":"News","item":"https://www.eatthisdot.com/news"},{"@type":"ListItem","position":3,"name":"The Renaissance of the Food Court: Why You Need to Visit Kalle Halle","item":"https://www.eatthisdot.com/news/the-renaissance-of-the-food-court-why-you-need-to-visit-kalle-halle"}]}]}</script>
@@ -1448,13 +1448,13 @@
       </div>
     </div>
 
-    <script defer src="js/cms.js"></script>
-    <script defer src="js/i18n.js"></script>
-    <script defer src="js/app.js?v=20"></script>
-    <script type="module" src="js/auth.js?v=4"></script>
-    <script type="module" src="js/favourites.js"></script>
-    <script type="module" src="js/packs.js"></script>
-    <script defer src="js/profile.js"></script>
+    <script defer src="js/cms.min.js"></script>
+    <script defer src="js/i18n.min.js"></script>
+    <script defer src="js/app.min.js?v=20"></script>
+    <script type="module" src="js/auth.min.js?v=4"></script>
+    <script type="module" src="js/favourites.min.js"></script>
+    <script type="module" src="js/packs.min.js"></script>
+    <script defer src="js/profile.min.js"></script>
 
     <!-- Optional background scripts (error tracking, perf monitoring, push,
          service-worker registration) — deferred until after window.load so they
@@ -1464,8 +1464,8 @@
     <script>
       (function () {
         function loadLate() {
-          var mods = ['js/perf.js', 'js/sentry.js', 'js/notifications.js'];
-          var plain = ['js/sw-register.js'];
+          var mods = ['js/perf.min.js', 'js/sentry.min.js', 'js/notifications.min.js'];
+          var plain = ['js/sw-register.min.js'];
           mods.forEach(function (src) {
             var s = document.createElement('script');
             s.type = 'module';

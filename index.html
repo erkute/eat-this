@@ -657,7 +657,10 @@
                   <button type="button" class="map-filter-option" data-value="Pizza" data-i18n="map.filterPizza">Pizza</button>
                 </div>
               </div>
-              <button type="button" id="mapOpenToggle" class="map-open-toggle" data-i18n="map.openNow">Open</button>
+              <div id="mapOpenToggle" class="map-open-switch" role="switch" aria-checked="false" tabindex="0">
+                <div class="map-switch-track"><div class="map-switch-thumb"></div></div>
+                <span class="map-switch-label" data-i18n="map.openNow">Offen</span>
+              </div>
             </div>
             <div class="map-nearby-grid-wrapper">
               <div class="map-nearby-grid" id="mapNearbyGrid"></div>

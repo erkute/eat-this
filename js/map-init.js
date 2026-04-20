@@ -742,12 +742,53 @@
       return false;
     }
 
+    function minutesUntilOpen(openingHours) {
+      if (!openingHours || !openingHours.length) return null;
+      const now = new Date();
+      const dayOfWeek = now.getDay();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      const dayMap = { so:0,sun:0,sunday:0,sonntag:0,mo:1,mon:1,monday:1,montag:1,di:2,tue:2,tuesday:2,dienstag:2,mi:3,wed:3,wednesday:3,mittwoch:3,do:4,thu:4,thursday:4,donnerstag:4,fr:5,fri:5,friday:5,freitag:5,sa:6,sat:6,saturday:6,samstag:6 };
+      function toDayNum(s) { return dayMap[s.toLowerCase().trim()] ?? null; }
+      function toMins(t) { const [h, m] = t.split(':').map(Number); return h * 60 + (m || 0); }
+      function matchesDay(days, d) {
+        const dl = days.toLowerCase().replace(/\s/g, '');
+        if (['täglich','daily','mo–so','mo-so','mon–sun','mon-sun','7days'].includes(dl)) return true;
+        if (days.includes('–') || (days.includes('-') && days.length > 3)) {
+          const sep = days.includes('–') ? '–' : '-';
+          const [s, e] = days.split(sep).map((p) => toDayNum(p));
+          if (s !== null && e !== null) return s <= e ? d >= s && d <= e : d >= s || d <= e;
+        }
+        return days.split(',').some((x) => toDayNum(x) === d);
+      }
+      let earliest = null;
+      // Check today and the next 2 days to find next opening window
+      for (let offset = 0; offset <= 2; offset++) {
+        const checkDay = (dayOfWeek + offset) % 7;
+        for (const slot of openingHours) {
+          if (!matchesDay((slot.days || '').trim(), checkDay)) continue;
+          const hours = (slot.hours || '').toLowerCase().trim();
+          if (hours === 'closed' || hours === 'geschlossen' || hours === 'ruhetag') continue;
+          const timeWindows = hours.split(',').map((w) => w.trim()).filter(Boolean);
+          for (const tw of timeWindows) {
+            const sep = tw.includes('–') ? '–' : '-';
+            const parts = tw.split(sep).map((p) => p.trim());
+            if (parts.length === 2) {
+              const openMins = toMins(parts[0]);
+              const totalMins = offset * 24 * 60 + openMins - currentMinutes;
+              if (totalMins > 0 && (earliest === null || totalMins < earliest)) earliest = totalMins;
+            }
+          }
+        }
+        if (earliest !== null) break; // stop at first day with a result
+      }
+      return earliest;
+    }
+
     function _renderNearbyGrid() {
       const gridEl = document.getElementById('mapNearbyGrid');
       if (!gridEl || _nearbyLat === null) return;
 
       const activeFilter = _mapActiveFilter;
-
       const searchQ = _mapSearchQuery.toLowerCase().trim();
       const sorted = _m.spots
         .map((s) => ({ ...s, dist: haversineDistance(_nearbyLat, _nearbyLng, s.lat, s.lng) }))
@@ -757,124 +798,114 @@
           const haystack = `${s.name} ${s.district} ${s.type} ${(s.categories || []).join(' ')}`.toLowerCase();
           return searchQ.split(' ').filter(Boolean).every((w) => haystack.includes(w));
         })
-        .filter((s) => {
-          if (!_mapOpenOnly) return true;
-          return isOpenNow(s.openingHours) === true;
-        })
         .sort((a, b) => a.dist - b.dist);
 
-      while (gridEl.firstChild) gridEl.removeChild(gridEl.firstChild);
-      const isMobileView = !window.matchMedia('(min-width: 768px)').matches;
-      gridEl.classList.toggle('map-nearby-grid--list', isMobileView);
+      const openLabel = window.i18n ? window.i18n.t('map.open') : 'Open';
+      const closedLabel = window.i18n ? window.i18n.t('map.closed') : 'Closed';
 
-      sorted.forEach((spot) => {
+      const openCards = [];
+      const closedCards = [];
+
+      sorted.forEach((spot, idx) => {
         const distM = Math.round(spot.dist);
         const distLabel = distM < 1000 ? distM + 'm' : (spot.dist / 1000).toFixed(1) + 'km';
         const photo = spot.photo || getSpotPhoto(spot.type);
-        const spotId = spot._id || spot.name.replace(/\s+/g, '-').toLowerCase();
-
         const openStatus = isOpenNow(spot.openingHours);
 
         const card = document.createElement('div');
-        card.className = isMobileView ? 'map-nearby-list-row' : 'map-nearby-grid-card';
+        card.className = 'map-nearby-card' + (openStatus === false ? ' map-nearby-card--closed' : '');
+        card.dataset.idx = String(idx);
 
-        if (isMobileView) {
-          // List row: thumbnail left, text right
-          const thumb = document.createElement('div');
-          thumb.className = 'map-list-thumb';
-          const thumbImg = document.createElement('img');
-          thumbImg.src = photo;
-          thumbImg.alt = spot.name;
-          thumbImg.loading = 'lazy';
-          thumb.appendChild(thumbImg);
+        const img = document.createElement('img');
+        img.className = 'map-nearby-card-img';
+        img.src = photo;
+        img.alt = spot.name;
+        img.loading = 'lazy';
 
-          const info = document.createElement('div');
-          info.className = 'map-list-info';
+        const body = document.createElement('div');
+        body.className = 'map-nearby-card-body';
 
-          const topRow = document.createElement('div');
-          topRow.className = 'map-list-top';
+        const nameEl = document.createElement('div');
+        nameEl.className = 'map-nearby-card-name';
+        nameEl.textContent = spot.name;
 
-          const nameEl = document.createElement('span');
-          nameEl.className = 'map-list-name';
-          nameEl.textContent = spot.name;
-          topRow.appendChild(nameEl);
+        const cats = document.createElement('div');
+        cats.className = 'map-nearby-card-cats';
+        const catList = (spot.categories || []).filter(Boolean);
+        cats.textContent = catList.length ? catList.join(' · ') : (spot.type || '');
 
-          if (openStatus !== null) {
-            const badge = document.createElement('span');
-            badge.className = 'map-list-status' + (openStatus ? ' map-list-status--open' : ' map-list-status--closed');
-            badge.textContent = openStatus
-              ? (window.i18n ? window.i18n.t('map.open') : 'Open')
-              : (window.i18n ? window.i18n.t('map.closed') : 'Closed');
-            topRow.appendChild(badge);
+        const foot = document.createElement('div');
+        foot.className = 'map-nearby-card-foot';
+
+        const metaLeft = document.createElement('span');
+        metaLeft.className = 'map-nearby-card-meta';
+        metaLeft.textContent = (spot.price ? spot.price + ' · ' : '') + distLabel;
+
+        foot.appendChild(metaLeft);
+
+        if (openStatus === true) {
+          const statusEl = document.createElement('span');
+          statusEl.className = 'map-nearby-card-status map-nearby-card-status--open';
+          statusEl.textContent = openLabel;
+          foot.appendChild(statusEl);
+        } else if (openStatus === false) {
+          const statusCol = document.createElement('div');
+          statusCol.className = 'map-nearby-card-status-col';
+          const closedEl = document.createElement('span');
+          closedEl.className = 'map-nearby-card-status map-nearby-card-status--closed';
+          closedEl.textContent = closedLabel;
+          statusCol.appendChild(closedEl);
+          const minsUntil = minutesUntilOpen(spot.openingHours);
+          if (minsUntil !== null) {
+            const opensEl = document.createElement('span');
+            opensEl.className = 'map-nearby-card-opens';
+            opensEl.textContent = 'opens in ' + (minsUntil < 60 ? Math.round(minsUntil) + 'min' : Math.round(minsUntil / 60) + 'h');
+            statusCol.appendChild(opensEl);
           }
-
-          const metaEl = document.createElement('div');
-          metaEl.className = 'map-list-meta';
-          metaEl.textContent = spot.type + (spot.price ? ' · ' + spot.price : '') + ' · ' + distLabel;
-
-          info.appendChild(topRow);
-          info.appendChild(metaEl);
-
-          const favBtn = document.createElement('button');
-          favBtn.type = 'button';
-          favBtn.className = 'map-list-fav';
-          favBtn.setAttribute('aria-label', 'Speichern');
-          const isFaved = window._favSpots?.has(spotId);
-          favBtn.textContent = isFaved ? '\u2665' : '\u2661';
-          if (isFaved) favBtn.classList.add('map-nearby-grid-card-fav--active');
-          favBtn.addEventListener('click', (e) => { e.stopPropagation(); window._toggleFav(spotId, spot.name, favBtn); });
-
-          card.appendChild(thumb);
-          card.appendChild(info);
-          card.appendChild(favBtn);
-        } else {
-          // Desktop grid card (unchanged)
-          const imgWrap = document.createElement('div');
-          imgWrap.className = 'map-nearby-grid-card-img-wrap';
-          const img = document.createElement('img');
-          img.className = 'map-nearby-grid-card-img';
-          img.src = photo; img.alt = spot.name; img.loading = 'lazy';
-          const distBadge = document.createElement('span');
-          distBadge.className = 'map-nearby-grid-card-dist';
-          distBadge.textContent = distLabel;
-          imgWrap.appendChild(img); imgWrap.appendChild(distBadge);
-
-          const body = document.createElement('div');
-          body.className = 'map-nearby-grid-card-body';
-          const nameRow = document.createElement('div');
-          nameRow.className = 'map-nearby-grid-card-name-row';
-          const name = document.createElement('div');
-          name.className = 'map-nearby-grid-card-name';
-          name.textContent = spot.name;
-          const favBtn = document.createElement('button');
-          favBtn.type = 'button';
-          favBtn.className = 'map-nearby-grid-card-fav';
-          favBtn.setAttribute('aria-label', 'Speichern');
-          const isFaved = window._favSpots?.has(spotId);
-          favBtn.textContent = isFaved ? '\u2665' : '\u2661';
-          if (isFaved) favBtn.classList.add('map-nearby-grid-card-fav--active');
-          favBtn.addEventListener('click', (e) => { e.stopPropagation(); window._toggleFav(spotId, spot.name, favBtn); });
-          nameRow.appendChild(name); nameRow.appendChild(favBtn);
-          const meta = document.createElement('div');
-          meta.className = 'map-nearby-grid-card-meta';
-          meta.textContent = spot.type + (spot.price ? ' · ' + spot.price : '');
-          body.appendChild(nameRow); body.appendChild(meta);
-          if (openStatus !== null) {
-            const badge = document.createElement('span');
-            badge.className = 'map-nearby-grid-card-status' + (openStatus ? ' map-nearby-grid-card-status--open' : ' map-nearby-grid-card-status--closed');
-            badge.textContent = openStatus ? (window.i18n ? window.i18n.t('map.open') : 'Open') : (window.i18n ? window.i18n.t('map.closed') : 'Closed');
-            body.appendChild(badge);
-          }
-          card.appendChild(imgWrap); card.appendChild(body);
+          foot.appendChild(statusCol);
         }
+
+        body.appendChild(nameEl);
+        body.appendChild(cats);
+        body.appendChild(foot);
+        card.appendChild(img);
+        card.appendChild(body);
 
         card.addEventListener('click', () => {
           flyToWithSheetOffset(spot.lat, spot.lng, 15);
           showSpotDetail(spot);
         });
-        gridEl.appendChild(card);
+
+        if (openStatus === false) {
+          closedCards.push(card);
+        } else {
+          openCards.push(card);
+        }
       });
 
+      while (gridEl.firstChild) gridEl.removeChild(gridEl.firstChild);
+      gridEl.classList.remove('map-nearby-grid--list');
+
+      if (_mapOpenOnly && closedCards.length > 0) {
+        openCards.forEach((c) => gridEl.appendChild(c));
+        const divider = document.createElement('div');
+        divider.className = 'map-nearby-divider';
+        const line1 = document.createElement('div');
+        line1.className = 'map-nearby-divider-line';
+        const label = document.createElement('span');
+        label.className = 'map-nearby-divider-text';
+        label.textContent = 'Geschlossen';
+        const line2 = document.createElement('div');
+        line2.className = 'map-nearby-divider-line';
+        divider.appendChild(line1);
+        divider.appendChild(label);
+        divider.appendChild(line2);
+        gridEl.appendChild(divider);
+        closedCards.forEach((c) => gridEl.appendChild(c));
+      } else {
+        openCards.forEach((c) => gridEl.appendChild(c));
+        closedCards.forEach((c) => gridEl.appendChild(c));
+      }
     }
 
     function _snapSheet(state, animate = true) {
@@ -1117,6 +1148,7 @@
         // Update filter counts
         const countAllEl = document.getElementById('count-all');
         if (countAllEl) countAllEl.textContent = _m.spots.length;
+        _updateChipCounts();
         // Re-render grid if the nearby strip is already showing
         if (_nearbyLat !== null) {
           _renderNearbyGrid();
@@ -1146,7 +1178,7 @@
     const filterLabel = document.getElementById('mapFilterLabel');
     const filterOptions = document.querySelectorAll('.map-filter-option');
 
-    // Mobile: horizontal chip strip mirrored from dropdown options
+    // Filter chip strip — visible on both mobile and desktop
     const filterChips = document.getElementById('mapFilterChips');
     if (filterChips && filterChips.childElementCount === 0) {
       filterOptions.forEach((opt) => {
@@ -1157,7 +1189,14 @@
         if (opt.classList.contains('active')) chip.classList.add('active');
         const i18n = opt.getAttribute('data-i18n');
         if (i18n) chip.setAttribute('data-i18n', i18n);
-        chip.textContent = opt.textContent.trim();
+        const labelEl = document.createElement('span');
+        labelEl.className = 'map-filter-chip-label';
+        labelEl.textContent = opt.textContent.trim();
+        const countEl = document.createElement('span');
+        countEl.className = 'map-filter-chip-count';
+        countEl.textContent = '·';
+        chip.appendChild(labelEl);
+        chip.appendChild(countEl);
         chip.addEventListener('click', (e) => { e.stopPropagation(); _applyFilter(opt.dataset.value); });
         chip.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
         chip.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); _applyFilter(opt.dataset.value); });
@@ -1165,6 +1204,19 @@
       });
     }
     const filterChipEls = filterChips ? filterChips.querySelectorAll('.map-filter-chip') : [];
+
+    function _updateChipCounts() {
+      if (!filterChips || !_m.spots.length) return;
+      filterChipEls.forEach((chip) => {
+        const val = chip.dataset.value;
+        const count = val === 'all'
+          ? _m.spots.length
+          : _m.spots.filter((s) => (s.categories || []).includes(val)).length;
+        const countEl = chip.querySelector('.map-filter-chip-count');
+        if (countEl) countEl.textContent = count > 0 ? count : '';
+      });
+    }
+    _updateChipCounts();
 
     function _applyFilter(value) {
       _mapActiveFilter = value;
@@ -1252,12 +1304,13 @@
       });
     }
 
-    // Open-now toggle
+    // Open-now toggle switch
     const mapOpenToggle = document.getElementById('mapOpenToggle');
     if (mapOpenToggle) {
       mapOpenToggle.addEventListener('click', () => {
         _mapOpenOnly = !_mapOpenOnly;
-        mapOpenToggle.classList.toggle('map-open-toggle--active', _mapOpenOnly);
+        mapOpenToggle.classList.toggle('active', _mapOpenOnly);
+        mapOpenToggle.setAttribute('aria-checked', _mapOpenOnly ? 'true' : 'false');
         if (_nearbyLat !== null) {
           _renderNearbyGrid();
           requestAnimationFrame(() => {

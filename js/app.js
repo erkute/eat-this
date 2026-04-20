@@ -2841,6 +2841,15 @@ function updateAlbumProgress(count) {
     });
   }
 
+  // Load a stylesheet on demand — used to defer leaflet.css until the map page opens.
+  function loadStylesheet(href) {
+    if (document.querySelector(`link[rel="stylesheet"][href^="${href}"]`)) return;
+    const l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = href;
+    document.head.appendChild(l);
+  }
+
   // --- App Page Navigation ---
   const appPages = document.querySelectorAll('.app-page');
   const navbarBrand = document.querySelector('.navbar-brand');
@@ -2946,6 +2955,9 @@ function updateAlbumProgress(count) {
           // Three.js is only needed for the globe (currently disabled) so load it
           // in the background without blocking map startup. On slow mobile networks
           // Three.js (644 KB) was delaying the map by several seconds.
+          // leaflet.css is deferred out of <head> and injected here so it doesn't
+          // render-block the start / news / album pages.
+          loadStylesheet('css/leaflet.css');
           loadScript(
             'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
             'sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH'

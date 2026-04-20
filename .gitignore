@@ -15,3 +15,5 @@ playwright-report/
 test-results/
 .claude/
 .worktrees/
+js/*.min.js
+css/*.min.css

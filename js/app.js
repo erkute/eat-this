@@ -1659,8 +1659,8 @@ function updateAlbumProgress(count) {
           // Three.js (644 KB) was delaying the map by several seconds.
           // leaflet.css and map.css are deferred out of <head> and injected here so
           // they don't render-block the start / news / album pages.
-          loadStylesheet('css/map.css');
-          loadStylesheet('css/leaflet.css');
+          loadStylesheet('css/map.min.css');
+          loadStylesheet('css/leaflet.min.css');
           loadScript(
             'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
             'sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH'
@@ -1671,7 +1671,7 @@ function updateAlbumProgress(count) {
                 'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu'
               ).catch(() => {}); // non-critical — globe skips gracefully if THREE missing
             })
-            .then(() => loadScript('js/map-init.js'))
+            .then(() => loadScript('js/map-init.min.js'))
             .then(() => {
               window._mapFn.showGlobeIntro(() => {
                 cmsReady.then(() => {

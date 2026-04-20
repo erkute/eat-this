@@ -17,11 +17,14 @@
     "format:check": "prettier --check \"js/**/*.js\"",
     "test": "playwright test --pass-with-no-tests",
     "test:ui": "playwright test --ui",
-    "build:articles": "node scripts/generate-articles.js"
+    "build:articles": "node scripts/generate-articles.js",
+    "build:assets": "node scripts/build-assets.js",
+    "build": "npm run build:assets && npm run build:articles"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.59.1",
+    "esbuild": "^0.28.0",
     "eslint": "^10.2.0",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.4.0",

@@ -19,6 +19,14 @@
         }
         localStorage.setItem('lang', lang);
         document.documentElement.lang = lang;
+        // Non-blocking stylesheet: load via media="print" trick, swap to all on load.
+        // Works with strict CSP (no inline onload= attribute, uses DOM property).
+        var l = document.createElement('link');
+        l.rel = 'stylesheet';
+        l.href = 'css/style.css?v=20';
+        l.media = 'print';
+        l.onload = function () { this.media = 'all'; this.onload = null; };
+        document.head.appendChild(l);
       }());
     </script>
     <meta charset="UTF-8" />
@@ -239,13 +247,8 @@
     <link rel="apple-touch-icon" sizes="192x192" href="pics/favicon-192.png" />
     <link rel="manifest" href="manifest.json" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="preload"
-      as="style"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Silkscreen:wght@700&display=swap"
-    />
+    <!-- Fonts: self-hosted WOFF2, no third-party DNS/connect needed -->
+    <link rel="preload" as="font" type="font/woff2" href="fonts/inter-latin.woff2" crossorigin />
     <link rel="preconnect" href="https://ehwjnjr2.apicdn.sanity.io" crossorigin />
     <link rel="preconnect" href="https://cdn.sanity.io" crossorigin />
     <link rel="dns-prefetch" href="//a.basemaps.cartocdn.com" />
@@ -258,15 +261,52 @@
     <link rel="dns-prefetch" href="//www.google-analytics.com" />
     <link rel="preload" as="image" href="pics/hero_desktop.webp" media="(min-width: 768px)" fetchpriority="high" />
     <link rel="preload" as="image" href="pics/hero_mobile.webp" media="(max-width: 767px)" fetchpriority="high" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Silkscreen:wght@700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="css/leaflet.css" />
-    <link rel="stylesheet" href="css/style.css?v=17" />
+    <!-- Hero logo is the LCP element on mobile and desktop — preload with high priority. -->
+    <link rel="preload" as="image" href="pics/logo2.webp" fetchpriority="high" />
+    <!-- Critical above-the-fold CSS inlined; full stylesheet preloaded and
+         activated by app.js (defer) before DOMContentLoaded fires. -->
+    <style>
+      @font-face{font-family:'Inter';font-style:normal;font-weight:400 900;font-display:optional;src:url('fonts/inter-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+      @font-face{font-family:'Inter';font-style:normal;font-weight:400 900;font-display:optional;src:url('fonts/inter-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+      @font-face{font-family:'Silkscreen';font-style:normal;font-weight:700;font-display:optional;src:url('fonts/silkscreen-700-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+      @font-face{font-family:'Silkscreen';font-style:normal;font-weight:700;font-display:optional;src:url('fonts/silkscreen-700-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+      .skip-link{position:absolute;left:-9999px;top:0;z-index:10000;background:#000;color:#fff;padding:12px 18px;font-weight:700;text-decoration:none;border-radius:0 0 8px 0}
+      .skip-link:focus{left:0;outline:3px solid #ff0;outline-offset:2px}
+      *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+      html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:hidden;overscroll-behavior:none;position:relative}
+      body{overflow-x:hidden;max-width:100%;overscroll-behavior:none;background:#fff;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;color:#000;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;line-height:1.6}
+      img{max-width:100%;height:auto;display:block}
+      button{cursor:pointer;font-family:inherit;border:none;background:none}
+      a{text-decoration:none;color:inherit}
+      [data-theme="dark"] html,[data-theme="dark"] body{background:#000;color:#fff}
+      .navbar{position:fixed;top:0;left:0;right:0;z-index:9999;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;background:#fff}
+      [data-theme="dark"] .navbar{background:#000}
+      .navbar-actions{display:flex;align-items:center;gap:16px}
+      .navbar-icon-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:48px;background:none;border:none;color:#000;padding:4px 0;border-radius:8px;-webkit-tap-highlight-color:transparent}
+      [data-theme="dark"] .navbar-icon-btn{color:#fff}
+      .navbar-icon-btn svg{width:20px;height:20px;stroke:currentColor;flex-shrink:0}
+      .hero{height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background-color:#efefef;background-image:url('pics/hero_desktop.webp');background-size:cover;background-repeat:no-repeat;background-position:center;transform:translateZ(0);-webkit-transform:translateZ(0);will-change:transform;touch-action:pan-y}
+      @media(max-width:1023px){.hero{background-image:url('pics/hero_mobile.webp')}}
+      .hero-overlay{position:absolute;inset:0;display:none;z-index:1;pointer-events:none}
+      [data-theme="dark"] .hero-overlay{display:block;background:linear-gradient(to bottom,rgba(0,0,0,.15),rgba(0,0,0,.05) 30%,rgba(0,0,0,.3) 70%,rgba(0,0,0,.7))}
+      .hero-scroll-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:3;color:rgba(255,255,255,.45)}
+      .hero-mobile-logo{display:block;pointer-events:none;z-index:10;filter:brightness(0) invert(1)}
+      [data-theme="dark"] .hero-mobile-logo{filter:none}
+      .hero-desktop-tagline{display:block;color:#fff;letter-spacing:.28em;text-transform:uppercase;white-space:nowrap;pointer-events:none;z-index:10}
+      [data-theme="dark"] .hero-desktop-tagline{color:#000}
+      @media(max-width:1023px){.hero-mobile-logo{position:absolute;top:36px;left:50%;transform:translateX(-50%);width:82%}.hero-brand-block{display:contents}.hero-desktop-tagline{position:absolute;top:calc(36px + 26vw - 1px);left:50%;transform:translateX(-50%);font-size:clamp(.75rem,3vw,1rem);font-weight:700}}
+      @media(min-width:1024px){.hero-brand-block{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:10}.hero-mobile-logo{width:65vw;max-width:860px}[data-theme="dark"] .hero-mobile-logo{filter:brightness(0) invert(1)}.hero-desktop-tagline{font-size:clamp(.75rem,1.1vw,1.1rem);font-weight:600}}
+      @media(max-width:767px){.navbar{height:calc(60px + env(safe-area-inset-top,0px));min-height:calc(60px + env(safe-area-inset-top,0px));box-sizing:border-box}.app-pages{margin-top:calc(60px + env(safe-area-inset-top,0px))}}
+    </style>
+    <!-- Preload starts download early; full stylesheet is activated non-blocking
+         via the inline script above (media="print" → "all" trick). Keeps FCP fast
+         because the initial render uses only the critical inline CSS. -->
+    <link rel="preload" as="style" href="css/style.css?v=20" />
+    <noscript><link rel="stylesheet" href="css/style.css?v=20" /></noscript>
+    <!-- leaflet.css loaded lazily by app.js when map page opens -->
 
     <!-- Preload critical JS so the browser fetches in parallel with HTML parse -->
-    <link rel="preload" as="script" href="js/app.js?v=19" />
+    <link rel="preload" as="script" href="js/app.js?v=20" />
     <link rel="preload" as="script" href="js/cms.js" />
     <link rel="preload" as="script" href="js/i18n.js" />
     <link rel="modulepreload" href="js/auth.js?v=4" />
@@ -328,7 +368,7 @@
         <header class="hero">
           <div class="hero-overlay"></div>
           <div class="hero-brand-block">
-            <img class="hero-mobile-logo" src="pics/logo2.webp" alt="EAT THIS">
+            <img class="hero-mobile-logo" src="pics/logo2.webp" alt="EAT THIS" fetchpriority="high" decoding="async" width="1815" height="576">
             <p class="hero-desktop-tagline">We tell you what to eat</p>
           </div>
           <div class="hero-scroll-hint">
@@ -1306,7 +1346,7 @@
         <!-- LEFT: Editorial -->
         <div class="wm-left">
           <div class="wm-img-wrap">
-            <img src="pics/tablecard.webp" alt="Berlin food" class="wm-bg-img" loading="eager">
+            <img src="pics/tablecard.webp" alt="Berlin food" class="wm-bg-img" loading="lazy" decoding="async">
             <div class="wm-img-text">
               <img src="pics/logo2.webp" alt="Eat This" class="wm-img-logo">
             </div>
@@ -1410,14 +1450,42 @@
 
     <script defer src="js/cms.js"></script>
     <script defer src="js/i18n.js"></script>
-    <script defer src="js/app.js?v=19"></script>
+    <script defer src="js/app.js?v=20"></script>
     <script type="module" src="js/auth.js?v=4"></script>
     <script type="module" src="js/favourites.js"></script>
     <script type="module" src="js/packs.js"></script>
     <script defer src="js/profile.js"></script>
-    <script type="module" src="js/perf.js"></script>
-    <script type="module" src="js/sentry.js"></script>
-    <script type="module" src="js/notifications.js"></script>
-    <script src="js/sw-register.js"></script>
+
+    <!-- Optional background scripts (error tracking, perf monitoring, push,
+         service-worker registration) — deferred until after window.load so they
+         don't compete with first paint / initial interaction. Each pulls in
+         extra Firebase modules, which is where most of the pre-defer TBT came
+         from. -->
+    <script>
+      (function () {
+        function loadLate() {
+          var mods = ['js/perf.js', 'js/sentry.js', 'js/notifications.js'];
+          var plain = ['js/sw-register.js'];
+          mods.forEach(function (src) {
+            var s = document.createElement('script');
+            s.type = 'module';
+            s.src = src;
+            document.head.appendChild(s);
+          });
+          plain.forEach(function (src) {
+            var s = document.createElement('script');
+            s.src = src;
+            s.defer = true;
+            document.head.appendChild(s);
+          });
+        }
+        var schedule = window.requestIdleCallback || function (cb) { return setTimeout(cb, 1); };
+        if (document.readyState === 'complete') {
+          schedule(loadLate, { timeout: 3000 });
+        } else {
+          window.addEventListener('load', function () { schedule(loadLate, { timeout: 3000 }); }, { once: true });
+        }
+      }());
+    </script>
   </body>
 </html>

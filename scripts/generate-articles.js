@@ -132,7 +132,7 @@ function patchTemplate(template, article) {
   const rawOgImage = article.seo?.ogImageUrl || article.imageUrl || '';
   const ogImage    = rawOgImage
     ? `${rawOgImage}?w=1200&h=630&fit=crop&auto=format`
-    : `${SITE_URL}/pics/table.jpg`;
+    : `${SITE_URL}/pics/og-image.jpg`;
   const lang       = article.language || 'en';
   const locale     = lang === 'de' ? 'de_DE' : 'en_US';
   const jsonLd     = buildJsonLd(article, canonical, ogImage);

@@ -2,6 +2,9 @@
    EAT THIS — Interactions & Animations
    ============================================ */
 
+// Activate preloaded stylesheet immediately (avoids render-blocking <link> in head)
+document.querySelectorAll('link[rel="preload"][as="style"]').forEach(function(l){l.rel='stylesheet';});
+
 const CONFIG = {
   MOBILE_BREAKPOINT: 767, // px — matches CSS @media (max-width: 767px)
   SLIDE_INTERVAL: 4000, // ms — hero carousel speed

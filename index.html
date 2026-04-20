@@ -262,36 +262,8 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Silkscreen:wght@700&display=swap"
       rel="stylesheet"
     />
-    <!-- Critical CSS inlined — above-the-fold only (hero, navbar, body, theme).
-         Keeps first paint unblocked while full stylesheet loads async. -->
-    <style>
-      .skip-link{position:absolute;left:-9999px;top:0;z-index:10000;background:#000;color:#fff;padding:12px 18px;font-weight:700;text-decoration:none;border-radius:0 0 8px 0}
-      .skip-link:focus{left:0;outline:3px solid #ff0;outline-offset:2px}
-      *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-      html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:hidden;overscroll-behavior:none;position:relative}
-      body{overflow-x:hidden;max-width:100%;overscroll-behavior:none;background:#fff;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;color:#000;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;line-height:1.6}
-      img{max-width:100%;height:auto;display:block}
-      button{cursor:pointer;font-family:inherit;border:none;background:none}
-      a{text-decoration:none;color:inherit}
-      [data-theme="dark"] html,[data-theme="dark"] body{background:#000;color:#fff}
-      .navbar{position:fixed;top:0;left:0;right:0;z-index:9999;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;background:#fff}
-      [data-theme="dark"] .navbar{background:#000}
-      .navbar-actions{display:flex;align-items:center;gap:16px}
-      .navbar-icon-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:48px;background:none;border:none;color:#000;padding:4px 0;border-radius:8px;-webkit-tap-highlight-color:transparent}
-      [data-theme="dark"] .navbar-icon-btn{color:#fff}
-      .navbar-icon-btn svg{width:20px;height:20px;stroke:currentColor;flex-shrink:0}
-      .hero{height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background-color:#efefef;background-image:url('pics/hero_desktop.webp');background-size:cover;background-repeat:no-repeat;background-position:center;transform:translateZ(0);-webkit-transform:translateZ(0);will-change:transform;touch-action:pan-y}
-      @media (max-width:1023px){.hero{background-image:url('pics/hero_mobile.webp')}}
-      .app-pages{display:block;height:100%}
-      .app-page{display:none!important;width:100%;height:calc(100vh - 60px);overflow-y:auto;overflow-x:hidden}
-      .app-page.active{display:block!important}
-      .app-page:not([data-page="start"]) .hero{display:none!important}
-    </style>
-    <!-- Async stylesheet: browser prefetches without blocking render; onload
-         flips it to an active stylesheet. Fallback via <noscript> for JS-off. -->
-    <link rel="preload" as="style" href="css/style.css?v=18" onload="this.onload=null;this.rel='stylesheet'" />
-    <noscript><link rel="stylesheet" href="css/style.css?v=18" /></noscript>
-    <!-- Leaflet CSS is loaded lazily when the Map page is opened (see js/app.js) -->
+    <link rel="stylesheet" href="css/leaflet.css" />
+    <link rel="stylesheet" href="css/style.css?v=19" />
 
     <!-- Preload critical JS so the browser fetches in parallel with HTML parse -->
     <link rel="preload" as="script" href="js/app.js?v=19" />

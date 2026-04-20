@@ -48,7 +48,7 @@ const app = initializeApp(firebaseConfig);
 // (otherwise callable functions with enforceAppCheck:true return UNAUTHENTICATED).
 if (!['localhost', '127.0.0.1'].includes(window.location.hostname)) {
   initializeAppCheck(app, {
-    provider: new ReCaptchaEnterpriseProvider('6LdG2ZwsAAAAAM6XvEOuQHmIRLAs3CdPiu-l5cwz'),
+    provider: new ReCaptchaEnterpriseProvider('6LfHd8AsAAAAAFC-9VoSQyGNmmVDsWPvpn9wb-OO'),
     isTokenAutoRefreshEnabled: true,
   });
 }

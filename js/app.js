@@ -979,6 +979,34 @@ document.addEventListener('DOMContentLoaded', () => {
   const cmsReady = (async () => {
     if (!window.CMS) return;
 
+    // Hero settings — runs first so images load early
+    try {
+      const hero = await window.CMS.fetchHeroSettings();
+      if (hero) {
+        if (hero.tagline) {
+          const taglineEl = document.querySelector('.hero-desktop-tagline');
+          if (taglineEl) taglineEl.textContent = hero.tagline;
+        }
+        if (hero.desktopImageUrl || hero.mobileImageUrl) {
+          const style = document.createElement('style');
+          style.textContent =
+            `.hero { background-image: url('${hero.desktopImageUrl || ''}'); }\n` +
+            `@media (max-width: 1023px) { .hero { background-image: url('${hero.mobileImageUrl || hero.desktopImageUrl || ''}'); } }`;
+          document.head.appendChild(style);
+        }
+      }
+    } catch (err) {
+      console.warn('[CMS] Hero settings fetch failed:', err.message); // eslint-disable-line no-console
+    }
+
+    // Start page content
+    try {
+      const startData = await window.CMS.fetchStartContent();
+      if (startData && window.i18n) window.i18n.applyStartContent(startData);
+    } catch (err) {
+      console.warn('[CMS] Start content fetch failed:', err.message); // eslint-disable-line no-console
+    }
+
     // Must-Eat Album
     const ALBUM_TOTAL = 150;
     const ALWAYS_VISIBLE = 11;

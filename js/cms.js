@@ -39,41 +39,48 @@ function sanityImageUrl(ref, { width } = {}) {
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 window.CMS = {
-  /** Fetch all published news articles, newest first. */
-  fetchNews(lang = 'en') {
-    const query = `*[_type == "newsArticle" && language == "${lang}"] | order(date desc) {
+  /** Fetch all published news articles with bilingual fields (EN + DE). */
+  fetchNews() {
+    const query = `*[_type == "newsArticle"] | order(date desc) {
       _id,
       "id": slug.current,
-      title,
+      title, titleDe,
       category,
-      categoryLabel,
+      categoryLabel, categoryLabelDe,
       "date": date,
       "dateISO": date,
       "imageUrl": image.asset->url + "?w=900&auto=format&q=80",
       alt,
-      excerpt,
-      content
+      excerpt, excerptDe,
+      content, contentDe
     }`;
     return sanityFetch(query);
   },
 
-  /** Fetch a single news article by slug. */
+  /** Fetch a single news article by slug, projected to the given language. */
   fetchArticleBySlug(slug, lang = 'en') {
-    const query = `*[_type == "newsArticle" && slug.current == $slug && language == $lang][0] {
+    const de = lang === 'de';
+    const query = `*[_type == "newsArticle" && slug.current == $slug][0] {
       _id,
       "id": slug.current,
-      title,
+      "title": ${de ? 'coalesce(titleDe, title)' : 'title'},
       category,
-      categoryLabel,
+      "categoryLabel": ${de ? 'coalesce(categoryLabelDe, categoryLabel)' : 'categoryLabel'},
       "date": date,
       "dateISO": date,
       "imageUrl": image.asset->url + "?w=900&auto=format&q=80",
       alt,
-      excerpt,
-      content,
+      "excerpt": ${de ? 'coalesce(excerptDe, excerpt)' : 'excerpt'},
+      "content": ${de ? 'coalesce(contentDe, content)' : 'content'},
       seo
     }`;
-    return sanityFetch(query, { slug, lang });
+    return sanityFetch(query, { slug });
+  },
+
+  /** Fetch the singleton start page content. */
+  fetchStartContent() {
+    const query = `*[_type == "startContent"][0]`;
+    return sanityFetch(query);
   },
 
   /** Fetch all must-eat cards, sorted by order field. */
@@ -124,6 +131,16 @@ window.CMS = {
       openingHours,
       tip,
       "photo": image.asset->url + "?w=800&auto=format&q=80"
+    }`;
+    return sanityFetch(query);
+  },
+
+  /** Fetch the singleton hero settings document. */
+  fetchHeroSettings() {
+    const query = `*[_type == "heroSettings"][0] {
+      tagline,
+      "desktopImageUrl": desktopImage.asset->url + "?w=1920&auto=format&q=85",
+      "mobileImageUrl": mobileImage.asset->url + "?w=900&auto=format&q=85"
     }`;
     return sanityFetch(query);
   },

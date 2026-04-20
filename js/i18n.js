@@ -387,6 +387,7 @@ TRANSLATIONS.de.search.noResultsSub = 'Versuche einen anderen Suchbegriff';
 // ─── ENGINE ───────────────────────────────────────────────────────────────
 
 let _lang = localStorage.getItem('lang') || 'en';
+let _articlesCache = null; // bilingual articles, fetched once
 
 function t(keyPath) {
   const keys = keyPath.split('.');
@@ -463,20 +464,30 @@ function buildNewsCardHtml(a, i) {
   ].join('');
 }
 
-// Renders news cards. Source of truth: Sanity CMS only.
+// Renders news cards. Fetches once and caches — re-renders instantly on language switch.
+// All dynamic values are escaped by buildNewsCardHtml; HTML structure is hardcoded (XSS-safe).
 async function renderNewsCards() {
   const grid = document.querySelector('.news-grid');
   if (!grid) return;
 
-  const articles = window.CMS ? await window.CMS.fetchNews(_lang) : null;
+  if (!_articlesCache && window.CMS) {
+    _articlesCache = await window.CMS.fetchNews();
+  }
 
-  if (articles && articles.length) {
-    // safe: all values escaped by buildNewsCardHtml; HTML structure is hardcoded
-    grid.innerHTML = articles.map(buildNewsCardHtml).join('');
+  if (_articlesCache && _articlesCache.length) {
+    const isDe = _lang === 'de';
+    const localized = _articlesCache.map(a => ({
+      ...a,
+      title:         (isDe && a.titleDe)         ? a.titleDe         : a.title,
+      categoryLabel: (isDe && a.categoryLabelDe) ? a.categoryLabelDe : a.categoryLabel,
+      excerpt:       (isDe && a.excerptDe)       ? a.excerptDe       : a.excerpt,
+      content:       (isDe && a.contentDe)       ? a.contentDe       : a.content,
+    }));
+    grid.innerHTML = localized.map(buildNewsCardHtml).join(''); // safe: see buildNewsCardHtml
     if (typeof window._bindNewsCards === 'function') window._bindNewsCards();
   } else {
     const msg = TRANSLATIONS[_lang]?.news?.errorLoad || 'Could not load articles.';
-    grid.innerHTML = `<p class="news-error">${msg}</p>`;
+    grid.innerHTML = `<p class="news-error">${msg}</p>`; // safe: msg is from TRANSLATIONS constant
   }
 }
 
@@ -503,4 +514,57 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-window.i18n = { t, setLang, currentLang, renderNewsCards, applyTranslations };
+// Merges CMS startContent fields into TRANSLATIONS and re-renders all data-i18n elements.
+function applyStartContent(d) {
+  if (!d) return;
+  const map = [
+    ['s1LabelEn',    'en', 'start', 'section1Label'],
+    ['s1LabelDe',    'de', 'start', 'section1Label'],
+    ['s1TitleEn',    'en', 'start', 'section1Title'],
+    ['s1TitleDe',    'de', 'start', 'section1Title'],
+    ['s1BodyEn',     'en', 'start', 'section1Body'],
+    ['s1BodyDe',     'de', 'start', 'section1Body'],
+    ['s2LabelEn',    'en', 'start', 'section2Label'],
+    ['s2LabelDe',    'de', 'start', 'section2Label'],
+    ['s2TitleEn',    'en', 'start', 'section2Title'],
+    ['s2TitleDe',    'de', 'start', 'section2Title'],
+    ['s2Body1En',    'en', 'start', 'section2Body1'],
+    ['s2Body1De',    'de', 'start', 'section2Body1'],
+    ['s2Body2En',    'en', 'start', 'section2Body2'],
+    ['s2Body2De',    'de', 'start', 'section2Body2'],
+    ['philoLabelEn', 'en', 'start', 'section4Label'],
+    ['philoLabelDe', 'de', 'start', 'section4Label'],
+    ['philo1TitleEn','en', 'start', 'philo1Title'],
+    ['philo1TitleDe','de', 'start', 'philo1Title'],
+    ['philo1TextEn', 'en', 'start', 'philo1Text'],
+    ['philo1TextDe', 'de', 'start', 'philo1Text'],
+    ['philo2TitleEn','en', 'start', 'philo2Title'],
+    ['philo2TitleDe','de', 'start', 'philo2Title'],
+    ['philo2TextEn', 'en', 'start', 'philo2Text'],
+    ['philo2TextDe', 'de', 'start', 'philo2Text'],
+    ['philo3TitleEn','en', 'start', 'philo3Title'],
+    ['philo3TitleDe','de', 'start', 'philo3Title'],
+    ['philo3TextEn', 'en', 'start', 'philo3Text'],
+    ['philo3TextDe', 'de', 'start', 'philo3Text'],
+    ['s5LabelEn',    'en', 'start', 'section5Label'],
+    ['s5LabelDe',    'de', 'start', 'section5Label'],
+    ['s5TitleEn',    'en', 'start', 'section5Title'],
+    ['s5TitleDe',    'de', 'start', 'section5Title'],
+    ['s5BodyEn',     'en', 'start', 'section5Body1'],
+    ['s5BodyDe',     'de', 'start', 'section5Body1'],
+    ['s6LabelEn',    'en', 'start', 'section6Label'],
+    ['s6LabelDe',    'de', 'start', 'section6Label'],
+    ['s6TitleEn',    'en', 'start', 'section6Title'],
+    ['s6TitleDe',    'de', 'start', 'section6Title'],
+    ['s6BodyEn',     'en', 'start', 'section6Body1'],
+    ['s6BodyDe',     'de', 'start', 'section6Body1'],
+    ['s6CitiesEn',   'en', 'start', 'section6Cities'],
+    ['s6CitiesDe',   'de', 'start', 'section6Cities'],
+  ];
+  for (const [cmsKey, lang, section, key] of map) {
+    if (d[cmsKey]) TRANSLATIONS[lang][section][key] = d[cmsKey];
+  }
+  applyTranslations();
+}
+
+window.i18n = { t, setLang, currentLang, renderNewsCards, applyTranslations, applyStartContent };

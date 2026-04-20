@@ -256,7 +256,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/leaflet.css" />
-    <link rel="stylesheet" href="css/style.css?v=12" />
+    <link rel="stylesheet" href="css/style.css?v=17" />
 
     <!-- Google Analytics: loaded only after cookie consent (see app.js loadAnalytics) -->
       <script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","headline":"The Bun Society: Warum dieser Smashburger-Spot in Kreuzberg alle anderen vergessen lässt","description":"Same Same But Different – Smashburger mit koreanischen, thailändischen und nahöstlichen Aromen. Der Bussin Bulgogi ist eine Offenbarung.","image":"https://cdn.sanity.io/images/ehwjnjr2/production/d548181d7f33dbb0cf102a12de9a1319d8919433-550x440.jpg?w=1200&h=630&fit=crop&auto=format","datePublished":"2026-03-24T09:00:00+01:00","dateModified":"2026-03-24T09:00:00+01:00","author":{"@type":"Organization","name":"Eat This Berlin","url":"https://www.eatthisdot.com"},"publisher":{"@type":"Organization","name":"Eat This Berlin","url":"https://www.eatthisdot.com","logo":{"@type":"ImageObject","url":"https://www.eatthisdot.com/pics/logo.webp"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://www.eatthisdot.com/news/bun-society"},"inLanguage":"de"}</script>
@@ -313,24 +313,9 @@
       <div class="app-page active" data-page="start">
         <header class="hero">
           <div class="hero-overlay"></div>
-          <div class="hero-content">
-            <img
-              src="pics/logo.webp"
-              alt="EAT THIS"
-              class="hero-logo hero-logo--mobile"
-              width="888"
-              height="281"
-              decoding="async"
-            />
-            <img
-              src="pics/logo2.webp"
-              alt="EAT THIS"
-              class="hero-logo hero-logo--desktop"
-              width="1815"
-              height="576"
-              decoding="async"
-            />
-            <h1 class="hero-tagline" data-i18n="hero.tagline">We tell you what to eat</h1>
+          <div class="hero-brand-block">
+            <img class="hero-mobile-logo" src="pics/logo2.webp" alt="EAT THIS">
+            <p class="hero-desktop-tagline">We tell you what to eat</p>
           </div>
           <div class="hero-scroll-hint">
             <svg
@@ -369,9 +354,10 @@
               </div>
               <div class="start-img-wrap tall">
                 <img
-                  src="pics/about/dinner.png"
+                  src="pics/about/tablecard.png"
                   alt="Eat This Berlin"
                   class="start-img"
+                  style="object-position: center 72%"
                   loading="lazy"
                   decoding="async"
                 />
@@ -412,17 +398,6 @@
 
           <div class="start-section">
             <span class="start-section-label" data-i18n="start.section4Label">Our Standards</span>
-            <div class="start-img-wrap wide">
-              <img
-                src="pics/about/tablecard.png"
-                alt="Curation"
-                class="start-img"
-                width="1080"
-                height="1346"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
             <div class="start-philo-list">
               <div class="start-philo-item">
                 <div class="start-philo-num">01</div>
@@ -471,9 +446,10 @@
               </div>
               <div class="start-img-wrap tall">
                 <img
-                  src="pics/about/tablecard.png"
+                  src="pics/about/dinner.png"
                   alt="Curation process"
                   class="start-img"
+                  style="object-position: center 60%"
                   loading="lazy"
                   decoding="async"
                 />
@@ -1418,7 +1394,7 @@
     <script defer src="js/cms.js"></script>
     <script defer src="js/i18n.js"></script>
     <script defer src="js/app.js?v=19"></script>
-    <script type="module" src="js/auth.js?v=3"></script>
+    <script type="module" src="js/auth.js?v=4"></script>
     <script type="module" src="js/favourites.js"></script>
     <script type="module" src="js/packs.js"></script>
     <script defer src="js/profile.js"></script>

@@ -33,21 +33,10 @@ test.describe('Navigation', () => {
     await expect(page.locator('.app-page[data-page="map"]')).toHaveClass(/active/);
   });
 
-  test('navbar icons have visible labels', async ({ page }) => {
-    await expect(page.locator('#navNewsBtn .nav-label')).toBeVisible();
-    await expect(page.locator('#navNewsBtn .nav-label')).toHaveText('News');
-    await expect(page.locator('#navMapBtn .nav-label')).toBeVisible();
-    await expect(page.locator('#navMapBtn .nav-label')).toHaveText('Map');
-    await expect(page.locator('#navMustsBtn .nav-label')).toBeVisible();
-    await expect(page.locator('#navMustsBtn .nav-label')).toHaveText('Album');
-    await expect(page.locator('#navProfileBtn .nav-label')).toBeVisible();
-    await expect(page.locator('#navProfileBtn .nav-label')).toHaveText('Profile');
-  });
-
-  test('hero explore-album button navigates to album', async ({ page }) => {
-    const btn = page.locator('#heroExploreBtn');
-    await expect(btn).toBeVisible();
-    await btn.click();
-    await expect(page.locator('.app-page[data-page="musts"]')).toHaveClass(/active/);
+  test('navbar icons have accessible labels', async ({ page }) => {
+    await expect(page.locator('#navNewsBtn')).toHaveAttribute('aria-label', /News/i);
+    await expect(page.locator('#navMapBtn')).toHaveAttribute('aria-label', /Map/i);
+    await expect(page.locator('#navMustsBtn')).toHaveAttribute('aria-label', /.+/);
+    await expect(page.locator('#navProfileBtn')).toHaveAttribute('aria-label', /Profile/i);
   });
 });

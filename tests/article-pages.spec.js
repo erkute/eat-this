@@ -55,12 +55,16 @@ test.describe('Article shell pages', () => {
     const slug = slugs[0];
     await page.goto(`/news/${slug}`);
 
-    // Multiple JSON-LD scripts exist (site schema + article schema) — find the article one
+    // Multiple JSON-LD scripts exist (site schema + article schema). The article
+    // schema wraps NewsArticle + BreadcrumbList inside @graph, so search nested.
     const blocks = await page.locator('script[type="application/ld+json"]').allTextContents();
-    const articleLd = blocks
+    const parsed = blocks
       .map(t => { try { return JSON.parse(t); } catch { return null; } })
-      .filter(Boolean)
-      .find(obj => obj['@type'] === 'NewsArticle');
+      .filter(Boolean);
+    const candidates = parsed.flatMap(obj =>
+      Array.isArray(obj['@graph']) ? obj['@graph'] : [obj]
+    );
+    const articleLd = candidates.find(obj => obj && obj['@type'] === 'NewsArticle');
 
     expect(articleLd, 'expected a NewsArticle JSON-LD block in the head').toBeTruthy();
     expect(articleLd.headline).toBeTruthy();

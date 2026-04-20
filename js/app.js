@@ -2955,8 +2955,9 @@ function updateAlbumProgress(count) {
           // Three.js is only needed for the globe (currently disabled) so load it
           // in the background without blocking map startup. On slow mobile networks
           // Three.js (644 KB) was delaying the map by several seconds.
-          // leaflet.css is deferred out of <head> and injected here so it doesn't
-          // render-block the start / news / album pages.
+          // leaflet.css and map.css are deferred out of <head> and injected here so
+          // they don't render-block the start / news / album pages.
+          loadStylesheet('css/map.css');
           loadStylesheet('css/leaflet.css');
           loadScript(
             'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',

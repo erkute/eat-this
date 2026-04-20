@@ -7,7 +7,7 @@
 // Bump this when deploying breaking changes that must invalidate all caches.
 // Normally stale-while-revalidate handles updates automatically — this is
 // only needed for emergency cache clears.
-const CACHE_VERSION = 'eat-this-v68';
+const CACHE_VERSION = 'eat-this-v69';
 const CACHE_SHELL   = `${CACHE_VERSION}-shell`;
 const CACHE_IMAGES  = `${CACHE_VERSION}-images`;
 
@@ -18,6 +18,7 @@ const PRECACHE_ASSETS = [
   '/index.html',
   '/manifest.json',
   '/css/style.css',
+  '/css/map.css',
   '/css/leaflet.css',
   '/js/analytics.js',
   '/js/sw-register.js',

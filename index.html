@@ -281,6 +281,7 @@
       .app-page{display:none!important;width:100%;height:calc(100vh - 60px);overflow-y:auto;overflow-x:hidden}
       .app-page.active{display:block!important}
       .app-page:not([data-page="start"]) .hero{display:none!important}
+      @media(max-width:767px){.navbar{height:calc(60px + env(safe-area-inset-top,0px));min-height:calc(60px + env(safe-area-inset-top,0px));box-sizing:border-box}.app-pages{margin-top:calc(60px + env(safe-area-inset-top,0px));height:auto!important;overflow:visible!important}.app-page{height:auto!important;min-height:calc(100dvh - 60px);overflow:visible!important}}
     </style>
     <link rel="preload" as="style" href="css/style.css?v=20" />
     <noscript><link rel="stylesheet" href="css/style.css?v=20" /></noscript>

@@ -538,7 +538,7 @@ onAuthStateChanged(auth, (user) => {
         await signInWithPopup(auth, googleProvider);
         const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? '';
         notify(window.i18n.t('modals.login.notifications.signedIn').replace('{name}', firstName));
-        wmOverlay?.classList.remove('active');
+        wmDismiss();
         window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
       }
     } catch (err) {
@@ -597,7 +597,7 @@ onAuthStateChanged(auth, (user) => {
         const firstName = auth.currentUser?.displayName?.split(' ')[0] ?? 'du';
         notify(window.i18n.t('modals.login.notifications.signedIn').replace('{name}', firstName));
       }
-      wmOverlay?.classList.remove('active');
+      wmDismiss();
       window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
     } catch (err) {
       isRegistering = false;

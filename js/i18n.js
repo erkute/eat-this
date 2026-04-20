@@ -449,6 +449,17 @@ function applyTranslations() {
   });
 }
 
+// Build a responsive srcset from a Sanity image URL that includes `?w=...`.
+// Returns { src, srcset } — src stays as the largest so non-srcset browsers
+// still get the full-quality image.
+function _responsiveSanitySrc(url, widths = [400, 700, 900, 1200]) {
+  if (!url || !/[?&]w=\d+/.test(url)) return { src: url, srcset: '' };
+  const base = url.replace(/([?&])w=\d+/, '$1w=__W__');
+  const srcset = widths.map(w => `${base.replace('__W__', w)} ${w}w`).join(', ');
+  const src = base.replace('__W__', widths[widths.length - 1]);
+  return { src, srcset };
+}
+
 // Build a single news card HTML string.
 // All dynamic values are escaped with esc() before insertion.
 // HTML structure is hardcoded — not derived from user or CMS input.
@@ -456,8 +467,14 @@ function applyTranslations() {
 function buildNewsCardHtml(a, i) {
   const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const imgSrc = a.imageUrl || a.img || '';
+  const { src: respSrc, srcset } = _responsiveSanitySrc(imgSrc);
+  // News cards are ~100vw on mobile, 50vw on tablet, 33vw on desktop (3-col grid).
+  const sizes = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw';
   const dateLocale = _lang === 'de' ? 'de-DE' : 'en-US';
   const dateLabel = a.date ? new Date(a.date).toLocaleDateString(dateLocale, { month: 'long', day: 'numeric' }) : (a.date || '');
+  const imgAttrs = srcset
+    ? `src="${esc(respSrc)}" srcset="${esc(srcset)}" sizes="${esc(sizes)}"`
+    : `src="${esc(imgSrc)}"`;
   return [
     `<article class="news-card"`,
     ` data-index="${i}"`,
@@ -470,7 +487,7 @@ function buildNewsCardHtml(a, i) {
     ` data-content="${esc(Array.isArray(a.content) ? JSON.stringify(a.content) : (a.content || ''))}"`,
     ` data-slug="${esc(a.id)}">`,
     `<a href="${a.id ? `/news/${a.id}` : '#'}">`,
-    `<div class="news-card-img"><img src="${esc(imgSrc)}" alt="${esc(a.alt || a.title)}" loading="lazy"></div>`,
+    `<div class="news-card-img"><img ${imgAttrs} alt="${esc(a.alt || a.title)}" loading="lazy"></div>`,
     `<div class="news-card-body">`,
     `<div class="news-card-top">`,
     `<span class="news-card-category">${esc(a.categoryLabel)}</span>`,

@@ -287,10 +287,15 @@
       .navbar-icon-btn svg{width:20px;height:20px;stroke:currentColor;flex-shrink:0}
       .hero{height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background-color:#efefef;background-image:url('pics/hero_desktop.webp');background-size:cover;background-repeat:no-repeat;background-position:center;transform:translateZ(0);-webkit-transform:translateZ(0);will-change:transform;touch-action:pan-y}
       @media(max-width:1023px){.hero{background-image:url('pics/hero_mobile.webp')}}
+      .hero-overlay{position:absolute;inset:0;display:none;z-index:1;pointer-events:none}
+      [data-theme="dark"] .hero-overlay{display:block;background:linear-gradient(to bottom,rgba(0,0,0,.15),rgba(0,0,0,.05) 30%,rgba(0,0,0,.3) 70%,rgba(0,0,0,.7))}
+      .hero-scroll-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:3;color:rgba(255,255,255,.45)}
       .hero-mobile-logo{display:block;pointer-events:none;z-index:10;filter:brightness(0) invert(1)}
       [data-theme="dark"] .hero-mobile-logo{filter:none}
-      @media(max-width:1023px){.hero-mobile-logo{position:absolute;top:36px;left:50%;transform:translateX(-50%);width:82%}}
-      @media(min-width:1024px){.hero-brand-block{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:10}.hero-mobile-logo{width:65vw;max-width:860px}[data-theme="dark"] .hero-mobile-logo{filter:brightness(0) invert(1)}}
+      .hero-desktop-tagline{display:block;color:#fff;letter-spacing:.28em;text-transform:uppercase;white-space:nowrap;pointer-events:none;z-index:10}
+      [data-theme="dark"] .hero-desktop-tagline{color:#000}
+      @media(max-width:1023px){.hero-mobile-logo{position:absolute;top:36px;left:50%;transform:translateX(-50%);width:82%}.hero-brand-block{display:contents}.hero-desktop-tagline{position:absolute;top:calc(36px + 26vw - 1px);left:50%;transform:translateX(-50%);font-size:clamp(.75rem,3vw,1rem);font-weight:700}}
+      @media(min-width:1024px){.hero-brand-block{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:10}.hero-mobile-logo{width:65vw;max-width:860px}[data-theme="dark"] .hero-mobile-logo{filter:brightness(0) invert(1)}.hero-desktop-tagline{font-size:clamp(.75rem,1.1vw,1.1rem);font-weight:600}}
       @media(max-width:767px){.navbar{height:calc(60px + env(safe-area-inset-top,0px));min-height:calc(60px + env(safe-area-inset-top,0px));box-sizing:border-box}.app-pages{margin-top:calc(60px + env(safe-area-inset-top,0px))}}
     </style>
     <!-- Preload starts download early; full stylesheet is activated non-blocking

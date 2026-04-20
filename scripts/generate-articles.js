@@ -69,33 +69,47 @@ function buildJsonLd(article, canonical, ogImage) {
   const metaTitle = article.seo?.metaTitle || article.title || '';
   const metaDesc  = article.seo?.metaDescription || article.excerpt || '';
   const datePublished = toIso8601(article.date);
+  // Emit an @graph so the NewsArticle and its BreadcrumbList share one block.
+  // Google picks up breadcrumbs from this structure and shows them in SERP.
   return JSON.stringify({
     '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
-    'headline': metaTitle,
-    'description': metaDesc,
-    'image': ogImage,
-    'datePublished': datePublished,
-    'dateModified': datePublished,
-    'author': {
-      '@type': 'Organization',
-      'name': 'Eat This Berlin',
-      'url': SITE_URL,
-    },
-    'publisher': {
-      '@type': 'Organization',
-      'name': 'Eat This Berlin',
-      'url': SITE_URL,
-      'logo': {
-        '@type': 'ImageObject',
-        'url': `${SITE_URL}/pics/logo.webp`,
+    '@graph': [
+      {
+        '@type': 'NewsArticle',
+        'headline': metaTitle,
+        'description': metaDesc,
+        'image': ogImage,
+        'datePublished': datePublished,
+        'dateModified': datePublished,
+        'author': {
+          '@type': 'Organization',
+          'name': 'Eat This Berlin',
+          'url': SITE_URL,
+        },
+        'publisher': {
+          '@type': 'Organization',
+          'name': 'Eat This Berlin',
+          'url': SITE_URL,
+          'logo': {
+            '@type': 'ImageObject',
+            'url': `${SITE_URL}/pics/logo.webp`,
+          },
+        },
+        'mainEntityOfPage': {
+          '@type': 'WebPage',
+          '@id': canonical,
+        },
+        'inLanguage': article.language || 'en',
       },
-    },
-    'mainEntityOfPage': {
-      '@type': 'WebPage',
-      '@id': canonical,
-    },
-    'inLanguage': article.language || 'en',
+      {
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          { '@type': 'ListItem', 'position': 1, 'name': 'Home',     'item': `${SITE_URL}/` },
+          { '@type': 'ListItem', 'position': 2, 'name': 'News',     'item': `${SITE_URL}/news` },
+          { '@type': 'ListItem', 'position': 3, 'name': metaTitle,  'item': canonical },
+        ],
+      },
+    ],
   }).replace(/<\//g, '<\\/');
 }
 

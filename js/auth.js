@@ -10,7 +10,7 @@
 // 4. Kopiere die firebaseConfig und ersetze die Werte unten
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app-check.js';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app-check.js';
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -48,7 +48,7 @@ const app = initializeApp(firebaseConfig);
 // (otherwise callable functions with enforceAppCheck:true return UNAUTHENTICATED).
 if (!['localhost', '127.0.0.1'].includes(window.location.hostname)) {
   initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider('6LdG2ZwsAAAAAM6XvEOuQHmIRLAs3CdPiu-l5cwz'),
+    provider: new ReCaptchaEnterpriseProvider('6LdG2ZwsAAAAAM6XvEOuQHmIRLAs3CdPiu-l5cwz'),
     isTokenAutoRefreshEnabled: true,
   });
 }

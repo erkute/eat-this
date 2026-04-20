@@ -79,7 +79,12 @@ window.CMS = {
 
   /** Fetch the singleton start page content. */
   fetchStartContent() {
-    const query = `*[_type == "startContent"][0]`;
+    const query = `*[_type == "startContent"][0]{
+      ...,
+      "s1ImageUrl": s1Image.asset->url + "?w=900&auto=format&q=85",
+      "s2ImageUrl": s2Image.asset->url + "?w=900&auto=format&q=85",
+      "s5ImageUrl": s5Image.asset->url + "?w=900&auto=format&q=85"
+    }`;
     return sanityFetch(query);
   },
 

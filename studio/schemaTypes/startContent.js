@@ -19,6 +19,7 @@ export default defineType({
     defineField({name: 's1TitleDe', title: 'Überschrift (DE)', type: 'string', group: 's1'}),
     defineField({name: 's1BodyEn', title: 'Text (EN)', type: 'text', rows: 3, group: 's1'}),
     defineField({name: 's1BodyDe', title: 'Text (DE)', type: 'text', rows: 3, group: 's1'}),
+    defineField({name: 's1Image', title: 'Bild', type: 'image', group: 's1', options: {hotspot: true}}),
 
     // ── Section 2: Konzept ────────────────────────────────────────────────────
     defineField({name: 's2LabelEn', title: 'Label (EN)', type: 'string', group: 's2'}),
@@ -29,6 +30,7 @@ export default defineType({
     defineField({name: 's2Body1De', title: 'Absatz 1 (DE)', type: 'text', rows: 3, group: 's2'}),
     defineField({name: 's2Body2En', title: 'Absatz 2 (EN)', type: 'text', rows: 3, group: 's2'}),
     defineField({name: 's2Body2De', title: 'Absatz 2 (DE)', type: 'text', rows: 3, group: 's2'}),
+    defineField({name: 's2Image', title: 'Bild', type: 'image', group: 's2', options: {hotspot: true}}),
 
     // ── Section 3: Philosophy ─────────────────────────────────────────────────
     defineField({name: 'philoLabelEn', title: 'Label (EN)', type: 'string', group: 'philo'}),
@@ -53,6 +55,7 @@ export default defineType({
     defineField({name: 's5TitleDe', title: 'Überschrift (DE)', type: 'string', group: 's5'}),
     defineField({name: 's5BodyEn', title: 'Text (EN)', type: 'text', rows: 3, group: 's5'}),
     defineField({name: 's5BodyDe', title: 'Text (DE)', type: 'text', rows: 3, group: 's5'}),
+    defineField({name: 's5Image', title: 'Bild', type: 'image', group: 's5', options: {hotspot: true}}),
 
     // ── Section 6: Ausblick ───────────────────────────────────────────────────
     defineField({name: 's6LabelEn', title: 'Label (EN)', type: 'string', group: 's6'}),

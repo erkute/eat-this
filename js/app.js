@@ -1002,7 +1002,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start page content
     try {
       const startData = await window.CMS.fetchStartContent();
-      if (startData && window.i18n) window.i18n.applyStartContent(startData);
+      if (startData) {
+        if (window.i18n) window.i18n.applyStartContent(startData);
+        [['s1ImageUrl', 'startImg1'], ['s2ImageUrl', 'startImg2'], ['s5ImageUrl', 'startImg5']].forEach(([key, id]) => {
+          if (startData[key]) {
+            const el = document.getElementById(id);
+            if (el) el.src = startData[key];
+          }
+        });
+      }
     } catch (err) {
       console.warn('[CMS] Start content fetch failed:', err.message); // eslint-disable-line no-console
     }

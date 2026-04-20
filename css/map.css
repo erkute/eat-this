@@ -952,8 +952,9 @@
   background: linear-gradient(to bottom, transparent, #111111);
 }
 [data-theme="dark"] .app-page[data-page="map"] .map-nearby {
-  background: #111111;
+  background: #1c1c1e;
   box-shadow: 0 -3px 24px rgba(0, 0, 0, 0.40);
+  border-left: 1px solid rgba(255, 255, 255, 0.10);
 }
 [data-theme="dark"] .app-page[data-page="map"] .map-nearby-handle-bar {
   background: rgba(255, 255, 255, 0.22);

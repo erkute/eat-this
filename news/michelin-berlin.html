@@ -1346,6 +1346,9 @@
       <div class="wm-backdrop" id="wmBackdrop"></div>
       <div class="wm-dialog">
 
+        <!-- Full-screen hero background -->
+        <img src="pics/login/Black screen.png" alt="" class="wm-hero-img" decoding="async">
+
         <!-- Close -->
         <button class="wm-close" id="wmClose" aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
@@ -1353,19 +1356,14 @@
           </svg>
         </button>
 
-        <!-- Hero: photo + logo + headline -->
-        <div class="wm-hero">
-          <img src="pics/login/Black screen.png" alt="" class="wm-hero-img" decoding="async">
-          <div class="wm-hero-logo-wrap">
-            <img src="pics/login/eat 1.png" alt="Eat This" class="wm-hero-logo">
-          </div>
-          <div class="wm-hero-caption">
-            <p class="wm-hero-headline">Hundreds of Must Eats<br>to discover</p>
-          </div>
+        <!-- Logo centred top -->
+        <div class="wm-hero-logo-wrap">
+          <img src="pics/login/eat 1.png" alt="Eat This" class="wm-hero-logo">
         </div>
 
-        <!-- Landing: 3 CTA buttons -->
+        <!-- Landing: headline + 3 CTAs overlaid on photo -->
         <div class="wm-landing" id="wmLanding">
+          <p class="wm-hero-headline">Hundreds of Must Eats<br>to discover</p>
           <button class="wm-cta-primary" id="wmSignupCta">Sign up</button>
           <button class="wm-cta-google" id="wmGoogleBtn">
             <img src="pics/login/Google.png" alt="" class="wm-google-icon" width="18" height="18">

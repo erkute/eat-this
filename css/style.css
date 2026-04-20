@@ -4893,108 +4893,78 @@ html:not([data-theme="dark"]) .site-footer-copy {
 }
 
 /* ============================================
-   WELCOME MODAL — Neukundenakquise (v2)
+   WELCOME MODAL — Neukundenakquise (v3)
    ============================================ */
 .wm-overlay {
   display: none;
   position: fixed;
   inset: 0;
   z-index: 10003;
-  align-items: flex-end;
+  align-items: stretch;
   justify-content: center;
   overscroll-behavior: none;
 }
-.wm-overlay.active {
-  display: flex;
-}
+.wm-overlay.active { display: flex; }
 .wm-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(0,0,0,0.55);
   touch-action: none;
 }
 @keyframes wm-enter {
-  from { opacity: 0; transform: translateY(36px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: scale(1.04); }
+  to   { opacity: 1; transform: scale(1); }
 }
 .wm-dialog {
   position: relative;
-  display: flex;
-  flex-direction: column;
   width: 100%;
+  height: 100dvh;
   max-width: 440px;
-  max-height: 92dvh;
-  border-radius: 24px 24px 0 0;
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 -8px 48px rgba(0,0,0,0.22);
-  animation: wm-enter 0.38s cubic-bezier(0.22,1,0.36,1) both;
+  animation: wm-enter 0.32s cubic-bezier(0.22,1,0.36,1) both;
 }
 
-/* ── Hero image ── */
-.wm-hero {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4/3;
-  flex-shrink: 0;
-  overflow: hidden;
-  background: #111;
-}
+/* ── Full-screen background image ── */
 .wm-hero-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: center top;
   display: block;
+  z-index: 0;
 }
-.wm-hero::after {
+
+/* ── Gradient scrim over photo for legibility ── */
+.wm-dialog::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 45%, rgba(0,0,0,0.55) 100%);
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.18) 0%,
+    rgba(0,0,0,0.0)  30%,
+    rgba(0,0,0,0.0)  50%,
+    rgba(0,0,0,0.45) 75%,
+    rgba(0,0,0,0.70) 100%
+  );
   pointer-events: none;
 }
-.wm-hero-logo-wrap {
-  position: absolute;
-  top: 18px;
-  left: 20px;
-  z-index: 2;
-}
-.wm-hero-logo {
-  width: 80px;
-  height: auto;
-  display: block;
-}
-.wm-hero-caption {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  right: 20px;
-  z-index: 2;
-}
-.wm-hero-headline {
-  font-size: 1.5rem;
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-  color: #fff;
-  margin: 0;
-}
 
-/* ── Close button (floats over hero) ── */
+/* ── Close button ── */
 .wm-close {
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: 16px;
+  right: 16px;
   z-index: 10;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: rgba(0,0,0,0.38);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: none;
   display: flex;
   align-items: center;
@@ -5006,49 +4976,76 @@ html:not([data-theme="dark"]) .site-footer-copy {
 .wm-close:hover { background: rgba(0,0,0,0.55); }
 .wm-close svg { stroke: #fff; }
 
-/* ── Landing panel — 3 CTAs ── */
+/* ── Logo centred top ── */
+.wm-hero-logo-wrap {
+  position: absolute;
+  top: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+.wm-hero-logo {
+  width: 88px;
+  height: auto;
+  display: block;
+}
+
+/* ── Landing: headline + 3 CTAs overlaid on photo ── */
 .wm-landing[hidden] { display: none !important; }
 .wm-landing {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
   display: flex;
   flex-direction: column;
+  align-items: stretch;
+  padding: 0 22px 48px;
   gap: 10px;
-  padding: 22px 20px 32px;
-  background: #fff;
-  flex-shrink: 0;
+}
+.wm-hero-headline {
+  font-size: clamp(1.75rem, 7.5vw, 2.3rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  color: #fff;
+  text-align: center;
+  margin: 0 0 18px;
 }
 .wm-cta-primary {
   width: 100%;
-  padding: 15px;
+  padding: 16px;
   border: none;
-  border-radius: 14px;
-  background: #111;
-  color: #fff;
+  border-radius: 999px;
+  background: rgba(255, 251, 230, 0.95);
+  color: #111;
   font-family: var(--font);
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.1s;
+  transition: opacity 0.18s, transform 0.1s;
 }
-.wm-cta-primary:active { transform: scale(0.98); }
+.wm-cta-primary:active { transform: scale(0.98); opacity: 0.9; }
 .wm-cta-google {
   width: 100%;
-  padding: 13px 15px;
-  border: 1.5px solid #e0e0e0;
-  border-radius: 14px;
-  background: #fff;
-  color: #111;
+  padding: 15px;
+  border: 1.5px solid rgba(255,255,255,0.55);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
   font-family: var(--font);
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition: background 0.18s;
 }
-.wm-cta-google:hover { background: #f7f7f7; }
+.wm-cta-google:hover { background: rgba(255,255,255,0.14); }
 .wm-google-icon {
   width: 18px;
   height: 18px;
@@ -5059,23 +5056,26 @@ html:not([data-theme="dark"]) .site-footer-copy {
   padding: 8px;
   background: none;
   border: none;
-  color: #888;
+  color: rgba(255,255,255,0.75);
   font-family: var(--font);
-  font-size: 0.88rem;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 600;
   text-align: center;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color 0.18s;
 }
-.wm-cta-text:hover { color: #333; }
+.wm-cta-text:hover { color: #fff; }
 
-/* ── Form panel (hidden until Sign up / Log in) ── */
+/* ── Form panel (slides in over the photo) ── */
 .wm-form-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   scrollbar-width: none;
-  flex: 1;
+  background: #fff;
 }
 .wm-form-panel::-webkit-scrollbar { display: none; }
 .wm-form-panel[hidden] { display: none !important; }
@@ -5083,24 +5083,24 @@ html:not([data-theme="dark"]) .site-footer-copy {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 14px 18px 4px;
+  padding: 18px 18px 6px;
   background: none;
   border: none;
-  color: #999;
+  color: #888;
   font-family: var(--font);
   font-size: 0.82rem;
   cursor: pointer;
   transition: color 0.18s;
-  align-self: flex-start;
+  flex-shrink: 0;
 }
 .wm-back:hover { color: #333; }
 .wm-form-wrap {
-  padding: 10px 20px 28px;
+  padding: 10px 22px 32px;
   display: flex;
   flex-direction: column;
 }
 .wm-form-title {
-  font-size: 1.55rem;
+  font-size: 1.65rem;
   font-weight: 900;
   letter-spacing: -0.04em;
   color: #111;
@@ -5120,10 +5120,10 @@ html:not([data-theme="dark"]) .site-footer-copy {
 }
 .wm-field input {
   width: 100%;
-  padding: 12px 14px;
+  padding: 13px 15px;
   border: 1.5px solid #e0e0e0;
-  border-radius: 12px;
-  font-size: 0.88rem;
+  border-radius: 14px;
+  font-size: 0.9rem;
   font-family: var(--font);
   background: #fff;
   color: #111;
@@ -5141,18 +5141,14 @@ html:not([data-theme="dark"]) .site-footer-copy {
   text-decoration: underline;
   font-family: var(--font);
 }
-.wm-msg {
-  font-size: 0.79rem;
-  display: none;
-  line-height: 1.4;
-}
-.wm-error { color: #c0392b; }
-.wm-success { color: #1e8449; }
+.wm-msg { font-size: 0.79rem; display: none; line-height: 1.4; }
+.wm-error  { color: #c0392b; }
+.wm-success{ color: #1e8449; }
 .wm-submit {
   width: 100%;
-  padding: 14px 16px;
+  padding: 15px;
   border-radius: 14px;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 700;
   font-family: var(--font);
   background: #111;
@@ -5162,7 +5158,7 @@ html:not([data-theme="dark"]) .site-footer-copy {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  transition: opacity 0.2s, transform 0.1s;
+  transition: opacity 0.18s, transform 0.1s;
   margin-top: 4px;
   cursor: pointer;
 }
@@ -5197,20 +5193,14 @@ html:not([data-theme="dark"]) .site-footer-copy {
 }
 
 /* ── Dark mode ── */
-[data-theme="dark"] .wm-dialog { background: #111; }
-[data-theme="dark"] .wm-landing { background: #111; }
-[data-theme="dark"] .wm-cta-primary { background: #fff; color: #111; }
-[data-theme="dark"] .wm-cta-google { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); color: #fff; }
-[data-theme="dark"] .wm-cta-google:hover { background: rgba(255,255,255,0.1); }
-[data-theme="dark"] .wm-cta-text { color: rgba(255,255,255,0.45); }
-[data-theme="dark"] .wm-cta-text:hover { color: rgba(255,255,255,0.85); }
+[data-theme="dark"] .wm-form-panel { background: #111; }
 [data-theme="dark"] .wm-form-title { color: #fff; }
 [data-theme="dark"] .wm-booster-hint { color: rgba(255,255,255,0.42); }
 [data-theme="dark"] .wm-field input { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.1); color: #fff; }
 [data-theme="dark"] .wm-field input::placeholder { color: rgba(255,255,255,0.28); }
 [data-theme="dark"] .wm-forgot button { color: rgba(255,255,255,0.38); }
 [data-theme="dark"] .wm-submit { background: #fff; color: #111; }
-[data-theme="dark"] .wm-back { color: rgba(255,255,255,0.38); }
+[data-theme="dark"] .wm-back { color: rgba(255,255,255,0.4); }
 [data-theme="dark"] .wm-back:hover { color: rgba(255,255,255,0.8); }
 [data-theme="dark"] .wm-mode-toggle { color: rgba(255,255,255,0.45); }
 [data-theme="dark"] .wm-mode-link { color: #fff; font-weight: 700; }
@@ -5219,14 +5209,14 @@ html:not([data-theme="dark"]) .site-footer-copy {
 [data-theme="dark"] .wm-error { color: #ff6b6b; }
 [data-theme="dark"] .wm-success { color: #4cde80; }
 
-/* ── Desktop: centered card with full border-radius ── */
+/* ── Desktop: centred card ── */
 @media (min-width: 521px) {
-  .wm-overlay { align-items: center; padding: 20px; }
+  .wm-overlay { align-items: center; justify-content: center; }
   .wm-dialog {
-    border-radius: 24px;
-    max-height: 86dvh;
-    box-shadow: 0 32px 80px rgba(0,0,0,0.35);
+    height: min(780px, 92dvh);
+    border-radius: 20px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.45);
+    overflow: hidden;
   }
-  .wm-hero { aspect-ratio: 3/2; }
+  .wm-hero-logo-wrap { top: 44px; }
 }
-

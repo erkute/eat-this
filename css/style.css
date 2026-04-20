@@ -4979,13 +4979,13 @@ html:not([data-theme="dark"]) .site-footer-copy {
 /* ── Logo centred top ── */
 .wm-hero-logo-wrap {
   position: absolute;
-  top: 52px;
+  top: 18px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
 }
 .wm-hero-logo {
-  width: 88px;
+  width: 60px;
   height: auto;
   display: block;
 }

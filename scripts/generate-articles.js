@@ -123,7 +123,58 @@ function replaceMetaContent(html, anchorAttr, newContent) {
   return html.replace(re, `$1${escapeHtml(newContent)}$2`);
 }
 
-function patchTemplate(template, article) {
+// Pick up to 3 related articles for a given target: same-language siblings first,
+// then fill with the next most-recent cross-language posts. Excludes the target
+// itself (by slug). The articles array is already sorted by date desc.
+function pickRelatedArticles(target, all, limit = 3) {
+  const targetSlug = target.slug;
+  const targetLang = target.language || 'de';
+  const seen = new Set([targetSlug]);
+  const pool = [];
+
+  // Prefer same-language first
+  for (const a of all) {
+    if (!a.slug || a.seo?.noIndex) continue;
+    if (seen.has(a.slug)) continue;
+    if ((a.language || 'de') !== targetLang) continue;
+    seen.add(a.slug);
+    pool.push(a);
+    if (pool.length >= limit) return pool;
+  }
+  // Backfill with other languages if needed
+  for (const a of all) {
+    if (!a.slug || a.seo?.noIndex) continue;
+    if (seen.has(a.slug)) continue;
+    seen.add(a.slug);
+    pool.push(a);
+    if (pool.length >= limit) return pool;
+  }
+  return pool;
+}
+
+// HTML for a single related-article card. Mirrors the SPA's buildRecCardEl
+// markup so styles from css/style.css (.news-rec-card) apply unchanged.
+function buildRecCardHtml(a) {
+  const slug = a.slug.replace(/[^a-z0-9-_]/gi, '-');
+  const href = `/news/${slug}`;
+  const img = a.imageUrl ? `${a.imageUrl}?w=700&auto=format` : '';
+  const title = escapeHtml(a.title || '');
+  const alt = escapeHtml(a.alt || a.title || '');
+  const cat = escapeHtml(a.categoryLabel || '');
+  return (
+    `<article class="news-rec-card">` +
+      `<a href="${href}">` +
+        `<div class="news-rec-img"><img src="${img}" alt="${alt}" loading="lazy" /></div>` +
+        `<div class="news-rec-body">` +
+          `<span class="news-rec-category">${cat}</span>` +
+          `<h4 class="news-rec-headline">${title}</h4>` +
+        `</div>` +
+      `</a>` +
+    `</article>`
+  );
+}
+
+function patchTemplate(template, article, allArticles) {
   const slug       = article.slug;
   const canonical  = `${SITE_URL}/news/${slug}`;
   const rawTitle   = article.seo?.metaTitle || article.title || '';
@@ -201,6 +252,23 @@ function patchTemplate(template, article) {
   // Inject article JSON-LD right before </head> (additive — keeps site Org/LocalBusiness LD)
   const articleLdTag = `    <script type="application/ld+json">${jsonLd}</script>\n  `;
   html = html.replace(/<\/head>/i, `${articleLdTag}</head>`);
+
+  // Related articles — inject crawlable sibling links into the "More from
+  // Eat This" section. The SPA overwrites this grid client-side, but static
+  // HTML (and crawlers pre-JS-exec) see these pre-rendered cards for internal
+  // link equity + discovery. Also unhide the section by default.
+  const related = pickRelatedArticles(article, allArticles || [], 3);
+  if (related.length) {
+    const cardsHtml = related.map(buildRecCardHtml).join('');
+    html = html.replace(
+      /<section\s+class="news-article-more"\s+id="newsArticleMore"\s+hidden>/i,
+      '<section class="news-article-more" id="newsArticleMore">'
+    );
+    html = html.replace(
+      /(<div\s+class="news-article-more-grid"\s+id="newsArticleMoreGrid">)\s*(<\/div>)/i,
+      `$1${cardsHtml}$2`
+    );
+  }
 
   return html;
 }
@@ -345,7 +413,7 @@ async function main() {
     if (seen.has(safeSlug)) continue;
     seen.add(safeSlug);
 
-    const html = patchTemplate(template, { ...article, slug: safeSlug });
+    const html = patchTemplate(template, { ...article, slug: safeSlug }, articles);
     writeFileSync(join(newsDir, `${safeSlug}.html`), html, 'utf-8');
     console.log(`  ✓ /news/${safeSlug}.html`);
     generated++;

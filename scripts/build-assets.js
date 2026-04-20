@@ -16,6 +16,7 @@ const JS_SOURCES = [
   'js/i18n.js',
   'js/cms.js',
   'js/auth.js',
+  'js/auth-loader.js',
   'js/favourites.js',
   'js/packs.js',
   'js/profile.js',

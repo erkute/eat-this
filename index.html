@@ -1422,10 +1422,9 @@
     <script defer src="js/cms.min.js"></script>
     <script defer src="js/i18n.min.js"></script>
     <script defer src="js/app.min.js?v=20"></script>
-    <script type="module" src="js/auth.min.js?v=5"></script>
-    <script type="module" src="js/favourites.min.js"></script>
-    <script type="module" src="js/packs.min.js"></script>
-    <script defer src="js/profile.min.js"></script>
+    <!-- Auth + feature modules loaded after window.load via auth-loader
+         to keep Firebase SDK out of the initial render critical path. -->
+    <script defer src="js/auth-loader.min.js"></script>
 
     <!-- Optional background scripts (error tracking, perf monitoring, push,
          service-worker registration) — deferred until after window.load so they

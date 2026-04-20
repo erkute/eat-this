@@ -8,11 +8,16 @@
         var s = localStorage.getItem('theme');
         var dark = s === 'dark' || (!s && window.matchMedia('(prefers-color-scheme: dark)').matches);
         document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-        var lang = localStorage.getItem('lang');
-        if (!lang) {
-          var nav = (navigator.language || 'en').toLowerCase();
-          lang = nav.indexOf('de') === 0 ? 'de' : 'en';
+        // Language priority: URL ?lang= > localStorage > browser > 'de' (Berlin-first default).
+        // ?lang= wins so shared EN links always render EN, even for returning DE users.
+        var url = new URLSearchParams(window.location.search);
+        var lang = url.get('lang');
+        if (lang !== 'de' && lang !== 'en') lang = localStorage.getItem('lang');
+        if (lang !== 'de' && lang !== 'en') {
+          var nav = (navigator.language || 'de').toLowerCase();
+          lang = nav.indexOf('de') === 0 ? 'de' : (nav.indexOf('en') === 0 ? 'en' : 'de');
         }
+        localStorage.setItem('lang', lang);
         document.documentElement.lang = lang;
       }());
     </script>
@@ -39,10 +44,12 @@
     />
     <meta name="author" content="EAT THIS" />
     <link rel="canonical" href="https://www.eatthisdot.com/news/michelin-berlin" />
-    <!-- Bilingual site with client-side language switching at the same URL.
-         hreflang only applies when each language has its own URL — adding
-         hreflang tags that all point to the same URL confuses Google. -->
-    <link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/" />
+    <!-- Bilingual URLs: DE is the default (canonical root), EN uses ?lang=en.
+         JS switches client-side but keeps the URL in sync so crawlers and
+         shared links see the intended language. -->
+    <link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/news/michelin-berlin" />
+    <link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/news/michelin-berlin?lang=en" />
+    <link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/news/michelin-berlin" />
 
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="EAT THIS" />
@@ -60,7 +67,7 @@
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Berlin Now Has 8 Michelin-Starred Restaurants — And None Cost More Than €150" />
     <meta property="og:locale" content="en_US" />
-    <meta property="og:locale:alternate" content="de_DE" />
+    <meta property="og:locale:alternate" content="en_US" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@eatthisdotcom" />

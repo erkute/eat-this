@@ -143,6 +143,22 @@ function patchTemplate(template, article) {
     `<link rel="canonical" href="${canonical}" />`
   );
 
+  // hreflang: point each article's DE/EN/x-default alternates to its own URL.
+  // Template defaults to the homepage URLs — overwrite with article-specific.
+  html = html
+    .replace(
+      /<link\s+rel="alternate"\s+hreflang="de"[^>]*>/i,
+      `<link rel="alternate" hreflang="de" href="${canonical}" />`
+    )
+    .replace(
+      /<link\s+rel="alternate"\s+hreflang="en"[^>]*>/i,
+      `<link rel="alternate" hreflang="en" href="${canonical}?lang=en" />`
+    )
+    .replace(
+      /<link\s+rel="alternate"\s+hreflang="x-default"[^>]*>/i,
+      `<link rel="alternate" hreflang="x-default" href="${canonical}" />`
+    );
+
   // OG + Twitter tags
   html = replaceMetaContent(html, 'property="og:type"',         'article');
   html = replaceMetaContent(html, 'property="og:title"',        pageTitle);
@@ -242,10 +258,21 @@ function buildSitemap(articles) {
 
   const entries = [];
 
+  // hreflang alternates in sitemap — each URL lists its DE (canonical) +
+  // EN (?lang=en) variants so Google indexes both.
+  function altBlock(loc) {
+    return (
+      `    <xhtml:link rel="alternate" hreflang="de" href="${SITE_URL}${loc}"/>\n` +
+      `    <xhtml:link rel="alternate" hreflang="en" href="${SITE_URL}${loc}?lang=en"/>\n` +
+      `    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_URL}${loc}"/>\n`
+    );
+  }
+
   for (const p of staticPages) {
     entries.push(
       `  <url>\n` +
       `    <loc>${SITE_URL}${p.loc}</loc>\n` +
+      altBlock(p.loc) +
       `    <lastmod>${today}</lastmod>\n` +
       `    <changefreq>${p.changefreq}</changefreq>\n` +
       `    <priority>${p.priority}</priority>\n` +
@@ -266,6 +293,7 @@ function buildSitemap(articles) {
     entries.push(
       `  <url>\n` +
       `    <loc>${SITE_URL}/news/${slug}</loc>\n` +
+      altBlock(`/news/${slug}`) +
       `    <lastmod>${lastmod}</lastmod>\n` +
       `    <changefreq>weekly</changefreq>\n` +
       `    <priority>0.7</priority>\n` +
@@ -275,7 +303,7 @@ function buildSitemap(articles) {
   }
 
   return `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n` +
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n` +
     entries.join('\n') +
     `\n</urlset>\n`;
 }

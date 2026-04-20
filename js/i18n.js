@@ -386,7 +386,19 @@ TRANSLATIONS.de.search.noResultsSub = 'Versuche einen anderen Suchbegriff';
 
 // ─── ENGINE ───────────────────────────────────────────────────────────────
 
-let _lang = localStorage.getItem('lang') || 'en';
+// Must match the priority used in the inline bootstrap script in index.html.
+// URL ?lang= wins (shareable EN links); otherwise localStorage; otherwise
+// browser language; otherwise 'de' (Berlin-first default).
+let _lang = (function () {
+  const fromUrl = new URLSearchParams(window.location.search).get('lang');
+  if (fromUrl === 'de' || fromUrl === 'en') return fromUrl;
+  const stored = localStorage.getItem('lang');
+  if (stored === 'de' || stored === 'en') return stored;
+  const nav = (navigator.language || 'de').toLowerCase();
+  if (nav.indexOf('de') === 0) return 'de';
+  if (nav.indexOf('en') === 0) return 'en';
+  return 'de';
+})();
 let _articlesCache = null; // bilingual articles, fetched once
 
 function t(keyPath) {
@@ -425,6 +437,12 @@ function applyTranslations() {
   });
 
   document.documentElement.lang = _lang;
+
+  // Keep og:locale in sync so a share from an ?lang=en session carries EN locale.
+  const ogLocale = document.querySelector('meta[property="og:locale"]');
+  const ogAlt    = document.querySelector('meta[property="og:locale:alternate"]');
+  if (ogLocale) ogLocale.setAttribute('content', _lang === 'de' ? 'de_DE' : 'en_US');
+  if (ogAlt)    ogAlt.setAttribute('content',    _lang === 'de' ? 'en_US' : 'de_DE');
 
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === _lang);
@@ -495,7 +513,15 @@ function setLang(lang) {
   if (!TRANSLATIONS[lang]) return;
   _lang = lang;
   localStorage.setItem('lang', lang);
-  applyTranslations();
+  // Keep URL in sync so shared links carry the chosen language.
+  // DE = canonical (no param); EN = ?lang=en.
+  try {
+    const url = new URL(window.location.href);
+    if (lang === 'en') url.searchParams.set('lang', 'en');
+    else url.searchParams.delete('lang');
+    window.history.replaceState(null, '', url.toString());
+  } catch { /* non-critical: URL sync failure shouldn't block translation */ }
+  applyTranslations(); // also syncs <html lang> and og:locale
   renderNewsCards().then(() => {
     if (typeof window._bindNewsCards === 'function') window._bindNewsCards();
   });

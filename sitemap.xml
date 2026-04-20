@@ -1,49 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://www.eatthisdot.com/</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/"/>
     <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.eatthisdot.com/about</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/about"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/about?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/about"/>
     <lastmod>2026-04-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.eatthisdot.com/contact</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/contact"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/contact?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/contact"/>
     <lastmod>2026-04-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://www.eatthisdot.com/press</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/press"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/press?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/press"/>
     <lastmod>2026-04-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://www.eatthisdot.com/impressum</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/impressum"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/impressum?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/impressum"/>
     <lastmod>2026-04-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
   <url>
     <loc>https://www.eatthisdot.com/datenschutz</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/datenschutz"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/datenschutz?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/datenschutz"/>
     <lastmod>2026-04-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
   <url>
     <loc>https://www.eatthisdot.com/agb</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/agb"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/agb?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/agb"/>
     <lastmod>2026-04-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
   <url>
     <loc>https://www.eatthisdot.com/news/file-asto-brings-a-taste-of-athens-to-kreuzberg</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/news/file-asto-brings-a-taste-of-athens-to-kreuzberg"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/news/file-asto-brings-a-taste-of-athens-to-kreuzberg?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/news/file-asto-brings-a-taste-of-athens-to-kreuzberg"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -54,6 +78,9 @@
   </url>
   <url>
     <loc>https://www.eatthisdot.com/news/the-renaissance-of-the-food-court-why-you-need-to-visit-kalle-halle</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/news/the-renaissance-of-the-food-court-why-you-need-to-visit-kalle-halle"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/news/the-renaissance-of-the-food-court-why-you-need-to-visit-kalle-halle?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/news/the-renaissance-of-the-food-court-why-you-need-to-visit-kalle-halle"/>
     <lastmod>2026-04-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -64,6 +91,9 @@
   </url>
   <url>
     <loc>https://www.eatthisdot.com/news/bun-society</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/news/bun-society"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/news/bun-society?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/news/bun-society"/>
     <lastmod>2026-03-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -74,6 +104,9 @@
   </url>
   <url>
     <loc>https://www.eatthisdot.com/news/ramen-berlin</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/news/ramen-berlin"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/news/ramen-berlin?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/news/ramen-berlin"/>
     <lastmod>2026-03-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -84,6 +117,9 @@
   </url>
   <url>
     <loc>https://www.eatthisdot.com/news/markthalle9</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/news/markthalle9"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/news/markthalle9?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/news/markthalle9"/>
     <lastmod>2026-03-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -94,6 +130,9 @@
   </url>
   <url>
     <loc>https://www.eatthisdot.com/news/michelin-berlin</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/news/michelin-berlin"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/news/michelin-berlin?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/news/michelin-berlin"/>
     <lastmod>2026-03-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -104,6 +143,9 @@
   </url>
   <url>
     <loc>https://www.eatthisdot.com/news/donuts-berlin</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/news/donuts-berlin"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/news/donuts-berlin?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/news/donuts-berlin"/>
     <lastmod>2026-03-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

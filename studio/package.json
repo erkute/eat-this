@@ -28,6 +28,9 @@
     "prettier": "^3.5",
     "typescript": "^5.8"
   },
+  "overrides": {
+    "js-yaml": "^3.14.2"
+  },
   "prettier": {
     "bracketSpacing": false,
     "printWidth": 100,

@@ -84,7 +84,9 @@ getRedirectResult(auth).then(result => {
   const doNotify = () => {
     try {
       notify(window.i18n.t('modals.login.notifications.signedIn').replace('{name}', firstName));
-    } catch (_) {}
+    } catch (_) {
+      // i18n missing key: silently skip notification
+    }
     document.getElementById('wm-overlay')?.classList.remove('active');
     window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
   };

@@ -7,7 +7,7 @@
 // Bump this when deploying breaking changes that must invalidate all caches.
 // Normally stale-while-revalidate handles updates automatically — this is
 // only needed for emergency cache clears.
-const CACHE_VERSION = 'eat-this-v64';
+const CACHE_VERSION = 'eat-this-v65';
 const CACHE_SHELL   = `${CACHE_VERSION}-shell`;
 const CACHE_IMAGES  = `${CACHE_VERSION}-images`;
 
@@ -23,7 +23,7 @@ const PRECACHE_ASSETS = [
   '/js/sw-register.js',
   '/js/cms.js',
   '/js/i18n.js',
-  '/js/app.js?v=12',
+  '/js/app.js?v=19',
   '/js/auth.js',
   '/js/favourites.js',
   '/js/packs.js',
@@ -86,10 +86,12 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Cache-first: images (Hero, about, local pics — large, rarely change)
+  // Cache-first: images (hero, about, local pics — large, rarely change).
+  // Match any image file under /pics/ so hero_desktop.webp, about/*.webp, etc.
+  // all get the long-lived image cache.
   if (
-    url.pathname.startsWith('/pics/Hero/') ||
-    url.pathname.startsWith('/pics/about/')
+    url.pathname.startsWith('/pics/') &&
+    /\.(webp|png|jpe?g|svg|gif|avif)$/i.test(url.pathname)
   ) {
     event.respondWith(cacheFirst(request, CACHE_IMAGES));
     return;

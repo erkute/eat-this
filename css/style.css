@@ -5218,5 +5218,5 @@ html:not([data-theme="dark"]) .site-footer-copy {
     box-shadow: 0 32px 80px rgba(0,0,0,0.45);
     overflow: hidden;
   }
-  .wm-hero-logo-wrap { top: 44px; }
+  .wm-hero-logo-wrap { top: 20px; }
 }

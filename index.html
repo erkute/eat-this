@@ -261,6 +261,8 @@
     <link rel="dns-prefetch" href="//www.google-analytics.com" />
     <link rel="preload" as="image" href="pics/hero_desktop.webp" media="(min-width: 768px)" fetchpriority="high" />
     <link rel="preload" as="image" href="pics/hero_mobile.webp" media="(max-width: 767px)" fetchpriority="high" />
+    <!-- Hero logo is the LCP element on mobile and desktop — preload with high priority. -->
+    <link rel="preload" as="image" href="pics/logo2.webp" fetchpriority="high" />
     <!-- Critical above-the-fold CSS inlined; full stylesheet preloaded and
          activated by app.js (defer) before DOMContentLoaded fires. -->
     <style>
@@ -285,6 +287,10 @@
       .navbar-icon-btn svg{width:20px;height:20px;stroke:currentColor;flex-shrink:0}
       .hero{height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background-color:#efefef;background-image:url('pics/hero_desktop.webp');background-size:cover;background-repeat:no-repeat;background-position:center;transform:translateZ(0);-webkit-transform:translateZ(0);will-change:transform;touch-action:pan-y}
       @media(max-width:1023px){.hero{background-image:url('pics/hero_mobile.webp')}}
+      .hero-mobile-logo{display:block;pointer-events:none;z-index:10;filter:brightness(0) invert(1)}
+      [data-theme="dark"] .hero-mobile-logo{filter:none}
+      @media(max-width:1023px){.hero-mobile-logo{position:absolute;top:36px;left:50%;transform:translateX(-50%);width:82%}}
+      @media(min-width:1024px){.hero-brand-block{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:10}.hero-mobile-logo{width:65vw;max-width:860px}[data-theme="dark"] .hero-mobile-logo{filter:brightness(0) invert(1)}}
       @media(max-width:767px){.navbar{height:calc(60px + env(safe-area-inset-top,0px));min-height:calc(60px + env(safe-area-inset-top,0px));box-sizing:border-box}.app-pages{margin-top:calc(60px + env(safe-area-inset-top,0px))}}
     </style>
     <!-- Preload starts download early; full stylesheet is activated non-blocking
@@ -356,7 +362,7 @@
         <header class="hero">
           <div class="hero-overlay"></div>
           <div class="hero-brand-block">
-            <img class="hero-mobile-logo" src="pics/logo2.webp" alt="EAT THIS">
+            <img class="hero-mobile-logo" src="pics/logo2.webp" alt="EAT THIS" fetchpriority="high" decoding="async" width="1815" height="576">
             <p class="hero-desktop-tagline">We tell you what to eat</p>
           </div>
           <div class="hero-scroll-hint">

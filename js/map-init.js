@@ -449,14 +449,10 @@
       const isDesktop = window.matchMedia('(min-width: 768px)').matches;
 
       if (isDesktop) {
-        // The map is full-width (sidebar overlaps the right 360px).
-        // To centre the spot in the visible map area (left of sidebar),
-        // shift the Leaflet centre 180px to the RIGHT of the target —
-        // so the target appears 180px LEFT of the map centre = visual centre.
-        const targetPoint = foodMap.project([lat, lng], zoom);
-        const adjustedPoint = L.point(targetPoint.x + 180, targetPoint.y);
-        const adjustedLatLng = foodMap.unproject(adjustedPoint, zoom);
-        foodMap.flyTo(adjustedLatLng, zoom, { animate: true, duration: 1 });
+        // Desktop map is narrowed to calc(100% - 360px) so the sidebar sits
+        // beside it, not over it. The container centre is already the visual
+        // centre — no horizontal offset needed.
+        foodMap.flyTo([lat, lng], zoom, { animate: true, duration: 1 });
         return;
       }
 

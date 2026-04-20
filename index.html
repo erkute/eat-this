@@ -1443,9 +1443,37 @@
     <script type="module" src="js/favourites.js"></script>
     <script type="module" src="js/packs.js"></script>
     <script defer src="js/profile.js"></script>
-    <script type="module" src="js/perf.js"></script>
-    <script type="module" src="js/sentry.js"></script>
-    <script type="module" src="js/notifications.js"></script>
-    <script defer src="js/sw-register.js"></script>
+
+    <!-- Optional background scripts (error tracking, perf monitoring, push,
+         service-worker registration) — deferred until after window.load so they
+         don't compete with first paint / initial interaction. Each pulls in
+         extra Firebase modules, which is where most of the pre-defer TBT came
+         from. -->
+    <script>
+      (function () {
+        function loadLate() {
+          var mods = ['js/perf.js', 'js/sentry.js', 'js/notifications.js'];
+          var plain = ['js/sw-register.js'];
+          mods.forEach(function (src) {
+            var s = document.createElement('script');
+            s.type = 'module';
+            s.src = src;
+            document.head.appendChild(s);
+          });
+          plain.forEach(function (src) {
+            var s = document.createElement('script');
+            s.src = src;
+            s.defer = true;
+            document.head.appendChild(s);
+          });
+        }
+        var schedule = window.requestIdleCallback || function (cb) { return setTimeout(cb, 1); };
+        if (document.readyState === 'complete') {
+          schedule(loadLate, { timeout: 3000 });
+        } else {
+          window.addEventListener('load', function () { schedule(loadLate, { timeout: 3000 }); }, { once: true });
+        }
+      }());
+    </script>
   </body>
 </html>

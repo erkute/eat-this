@@ -19,6 +19,14 @@
         }
         localStorage.setItem('lang', lang);
         document.documentElement.lang = lang;
+        // Non-blocking stylesheet: load via media="print" trick, swap to all on load.
+        // Works with strict CSP (no inline onload= attribute, uses DOM property).
+        var l = document.createElement('link');
+        l.rel = 'stylesheet';
+        l.href = 'css/style.css?v=20';
+        l.media = 'print';
+        l.onload = function () { this.media = 'all'; this.onload = null; };
+        document.head.appendChild(l);
       }());
     </script>
     <meta charset="UTF-8" />
@@ -279,11 +287,11 @@
       @media(max-width:1023px){.hero{background-image:url('pics/hero_mobile.webp')}}
       @media(max-width:767px){.navbar{height:calc(60px + env(safe-area-inset-top,0px));min-height:calc(60px + env(safe-area-inset-top,0px));box-sizing:border-box}.app-pages{margin-top:calc(60px + env(safe-area-inset-top,0px))}}
     </style>
-    <!-- Preload starts download early; render-blocking stylesheet waits for it.
-         On fast connections style.css is already cached when the parser reaches
-         the stylesheet link, so render-blocking cost is near zero. -->
+    <!-- Preload starts download early; full stylesheet is activated non-blocking
+         via the inline script above (media="print" → "all" trick). Keeps FCP fast
+         because the initial render uses only the critical inline CSS. -->
     <link rel="preload" as="style" href="css/style.css?v=20" />
-    <link rel="stylesheet" href="css/style.css?v=20" />
+    <noscript><link rel="stylesheet" href="css/style.css?v=20" /></noscript>
     <!-- leaflet.css loaded lazily by app.js when map page opens -->
 
     <!-- Preload critical JS so the browser fetches in parallel with HTML parse -->

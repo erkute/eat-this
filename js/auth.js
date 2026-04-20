@@ -466,16 +466,34 @@ onAuthStateChanged(auth, (user) => {
   const wmSuccess    = document.getElementById('wmSuccess');
   const wmSubmitText = document.getElementById('wmSubmitText');
   const wmModeToggle = document.getElementById('wmModeToggle');
+  // v2 landing ↔ form panel
+  const wmLanding    = document.getElementById('wmLanding');
+  const wmFormPanel  = document.getElementById('wmFormPanel');
+  const wmSignupCta  = document.getElementById('wmSignupCta');
+  const wmLoginCta   = document.getElementById('wmLoginCta');
+  const wmBackBtn    = document.getElementById('wmBackBtn');
 
   let wmIsRegister = true;
+
+  function wmShowLanding() {
+    if (wmLanding)   wmLanding.hidden   = false;
+    if (wmFormPanel) wmFormPanel.hidden = true;
+  }
+
+  function wmShowForm(register) {
+    wmSetMode(register);
+    if (wmLanding)   wmLanding.hidden   = true;
+    if (wmFormPanel) wmFormPanel.hidden = false;
+  }
 
   function wmDismiss() {
     wmOverlay?.classList.remove('active');
     _unlockBodyScroll();
+    wmShowLanding(); // reset to landing for next open
     try { localStorage.setItem('wm_dismissed', '1'); } catch (_) { /* localStorage blocked */ }
   }
 
-  window.openWelcomeModal  = () => { _lockBodyScroll(); wmOverlay?.classList.add('active'); };
+  window.openWelcomeModal  = () => { _lockBodyScroll(); wmShowLanding(); wmOverlay?.classList.add('active'); };
   window.closeWelcomeModal = wmDismiss;
 
   function wmShowError(msg)  { if (wmError)   { wmError.textContent   = msg; wmError.style.display   = 'block'; } }
@@ -515,8 +533,12 @@ onAuthStateChanged(auth, (user) => {
   wmSetMode(true);
 
   wmClose?.addEventListener('click', wmDismiss);
-  document.getElementById('wmClosePhoto')?.addEventListener('click', wmDismiss);
   wmBackdrop?.addEventListener('click', wmDismiss);
+
+  // Landing → form panel
+  wmSignupCta?.addEventListener('click', () => wmShowForm(true));
+  wmLoginCta?.addEventListener('click',  () => wmShowForm(false));
+  wmBackBtn?.addEventListener('click',   () => wmShowLanding());
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && wmOverlay?.classList.contains('active')) wmDismiss();
   });

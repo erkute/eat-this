@@ -5007,6 +5007,7 @@ html:not([data-theme="dark"]) .site-footer-copy {
 .wm-close svg { stroke: #fff; }
 
 /* ── Landing panel — 3 CTAs ── */
+.wm-landing[hidden] { display: none !important; }
 .wm-landing {
   display: flex;
   flex-direction: column;

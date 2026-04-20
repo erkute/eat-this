@@ -258,6 +258,12 @@
     <link rel="stylesheet" href="css/leaflet.css" />
     <link rel="stylesheet" href="css/style.css?v=17" />
 
+    <!-- Preload critical JS so the browser fetches in parallel with HTML parse -->
+    <link rel="preload" as="script" href="js/app.js?v=19" />
+    <link rel="preload" as="script" href="js/cms.js" />
+    <link rel="preload" as="script" href="js/i18n.js" />
+    <link rel="modulepreload" href="js/auth.js?v=4" />
+
     <!-- Google Analytics: loaded only after cookie consent (see app.js loadAnalytics) -->
       <script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","headline":"The 10 Best Donut Shops in Berlin — From Brooklyn Style to Thai","description":"Berlin has become the donut capital of Europe. We tried 20 shops and picked the best ten.","image":"https://cdn.sanity.io/images/ehwjnjr2/production/3618e7e5f686d662205f9744403afe4ae09ce419-800x600.webp?w=1200&h=630&fit=crop&auto=format","datePublished":"2026-03-12T09:00:00+01:00","dateModified":"2026-03-12T09:00:00+01:00","author":{"@type":"Organization","name":"Eat This Berlin","url":"https://www.eatthisdot.com"},"publisher":{"@type":"Organization","name":"Eat This Berlin","url":"https://www.eatthisdot.com","logo":{"@type":"ImageObject","url":"https://www.eatthisdot.com/pics/logo.webp"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://www.eatthisdot.com/news/donuts-berlin"},"inLanguage":"en"}</script>
   </head>

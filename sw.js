@@ -76,6 +76,10 @@ self.addEventListener('fetch', event => {
   // iOS Safari has trouble with SW-intercepted cross-origin image requests.
   if (url.hostname.includes('cartocdn.com') || url.hostname.includes('openstreetmap.org')) return;
 
+  // Google iframe bootstrap (reCAPTCHA, apis.google.com) — let the browser
+  // fetch directly; these requests aren't in connect-src by design.
+  if (url.hostname === 'apis.google.com') return;
+
   // Network-first: Sanity CMS + Firebase + Analytics (must be fresh)
   if (
     url.hostname.includes('sanity.io') ||

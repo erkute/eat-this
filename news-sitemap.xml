@@ -16,10 +16,10 @@
     <news:news>
       <news:publication>
         <news:name>Eat This Berlin</news:name>
-        <news:language>de</news:language>
+        <news:language>en</news:language>
       </news:publication>
       <news:publication_date>2026-04-10T09:00:00+02:00</news:publication_date>
-      <news:title>Die Renaissance des Food Courts: Warum du die Kalle Halle besuchen musst</news:title>
+      <news:title>The Renaissance of the Food Court: Why You Need to Visit Kalle Halle</news:title>
     </news:news>
   </url>
   <url>
@@ -27,10 +27,54 @@
     <news:news>
       <news:publication>
         <news:name>Eat This Berlin</news:name>
-        <news:language>de</news:language>
+        <news:language>en</news:language>
       </news:publication>
       <news:publication_date>2026-03-24T09:00:00+01:00</news:publication_date>
-      <news:title>The Bun Society: Warum dieser Smashburger-Spot in Kreuzberg alle anderen vergessen lässt</news:title>
+      <news:title>The Bun Society: Why This Smashburger Spot in Kreuzberg Makes You Forget All the Others</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://www.eatthisdot.com/news/ramen-berlin</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Eat This Berlin</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-03-15T09:00:00+01:00</news:publication_date>
+      <news:title>Berlin's New Ramen Wave: Why the Capital Now Has the Ultimate Noodle House</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://www.eatthisdot.com/news/markthalle9</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Eat This Berlin</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-03-14T09:00:00+01:00</news:publication_date>
+      <news:title>Markthalle Neun Is Getting a New Street Food Floor</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://www.eatthisdot.com/news/michelin-berlin</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Eat This Berlin</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-03-13T09:00:00+01:00</news:publication_date>
+      <news:title>Berlin Now Has 8 Michelin-Starred Restaurants — And None Cost More Than €150</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://www.eatthisdot.com/news/donuts-berlin</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Eat This Berlin</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-03-12T09:00:00+01:00</news:publication_date>
+      <news:title>The 10 Best Donut Shops in Berlin — From Brooklyn Style to Thai</news:title>
     </news:news>
   </url>
 </urlset>

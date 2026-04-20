@@ -1093,9 +1093,14 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    z-index: 10; /* above map-container (z-index:1) — column flex stretches map to full width, so sidebar must stack on top */
   }
-  /* Map fills left side: flex:1 already set, just add right margin for sidebar */
-  .app-page[data-page="map"] .map-container {
+  /* Map fills left side. Parent is flex-column so cross-axis stretches to full width;
+     width:calc keeps the map visually within its area instead of bleeding under the sidebar.
+     !important is required because the base #foodMap rule uses !important on width. */
+  .app-page[data-page="map"] .map-container,
+  .app-page[data-page="map"] #foodMap {
+    width: calc(100% - 360px) !important;
     margin-right: 360px;
     flex: 1;
     min-height: 0;

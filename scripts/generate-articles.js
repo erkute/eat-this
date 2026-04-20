@@ -150,7 +150,15 @@ function patchTemplate(template, article) {
   html = replaceMetaContent(html, 'property="og:url"',          canonical);
   html = replaceMetaContent(html, 'property="og:image"',        ogImage);
   html = replaceMetaContent(html, 'property="og:image:alt"',    rawTitle);
+  html = replaceMetaContent(html, 'property="og:image:height"', '630');
   html = replaceMetaContent(html, 'property="og:locale"',       locale);
+
+  // Inject article headline as a crawlable <h1> — SPA overwrites this on
+  // client-side nav, but search engines and no-JS clients see the real title.
+  html = html.replace(
+    /<h1(\s+[^>]*id="newsModalTitle"[^>]*)>[\s\S]*?<\/h1>/i,
+    `<h1$1>${escapeHtml(rawTitle)}</h1>`
+  );
   html = replaceMetaContent(html, 'name="twitter:title"',       pageTitle);
   html = replaceMetaContent(html, 'name="twitter:description"', metaDesc);
   html = replaceMetaContent(html, 'name="twitter:image"',       ogImage);

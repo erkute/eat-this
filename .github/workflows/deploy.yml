@@ -43,6 +43,6 @@ jobs:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
       - name: Deploy Functions
-        run: firebase deploy --only functions --project eat-this-8a13b --non-interactive --token "$FIREBASE_TOKEN"
+        run: firebase deploy --only functions --project eat-this-8a13b --non-interactive --force --token "$FIREBASE_TOKEN"
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}

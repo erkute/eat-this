@@ -36,7 +36,7 @@ export interface NewsArticleSeo {
   noIndex?: boolean
 }
 
-export type PortableTextBlock = Record<string, unknown>
+export type PortableTextBlock = { _type: string; _key?: string } & Record<string, unknown>
 
 export interface NewsArticle {
   _id: string

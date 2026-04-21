@@ -13,7 +13,19 @@ export default {
       name: 'slug',
       title: 'Slug',
       type: 'slug',
-      options: { source: 'name', maxLength: 96 },
+      options: {
+        source: 'name',
+        maxLength: 96,
+        slugify: input =>
+          input
+            .toLowerCase()
+            .replace(/ä/g, 'ae')
+            .replace(/ö/g, 'oe')
+            .replace(/ü/g, 'ue')
+            .replace(/ß/g, 'ss')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, ''),
+      },
       validation: Rule => Rule.required(),
     },
     {
@@ -28,6 +40,7 @@ export default {
       name: 'seo',
       title: 'SEO',
       type: 'object',
+      options: { collapsible: true, collapsed: true },
       fields: [
         {
           name: 'metaTitle',

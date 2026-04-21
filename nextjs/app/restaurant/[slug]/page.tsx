@@ -2,9 +2,8 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getRestaurantBySlug, getAllRestaurantSlugs } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
+import { SITE_URL } from '@/lib/constants'
 import styles from './RestaurantDetail.module.css'
-
-const SITE_URL = 'https://www.eatthisdot.com'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -36,6 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description,
+    robots: r.seo?.noIndex ? 'noindex,nofollow' : undefined,
     alternates: { canonical: `${SITE_URL}/restaurant/${slug}` },
     openGraph: {
       title,
@@ -72,7 +72,7 @@ export default async function RestaurantPage({ params }: PageProps) {
         addressCountry: 'DE',
       },
     }),
-    ...(r.lat && r.lng && {
+    ...(r.lat != null && r.lng != null && {
       geo: {
         '@type': 'GeoCoordinates',
         latitude: r.lat,
@@ -88,7 +88,7 @@ export default async function RestaurantPage({ params }: PageProps) {
       <main className={styles.page}>
         <div className={styles.hero}>
           {r.photo && (
-            <img src={r.photo} alt={r.name} className={styles.heroImage} />
+            <img src={r.photo} alt={r.name} className={styles.heroImage} fetchPriority="high" />
           )}
         </div>
 

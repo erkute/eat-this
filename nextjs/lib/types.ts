@@ -7,6 +7,7 @@ export interface RestaurantSeo {
   metaTitle?: string
   metaDescription?: string
   ogImageUrl?: string
+  noIndex?: boolean
 }
 
 export interface Restaurant {

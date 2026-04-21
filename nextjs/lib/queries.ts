@@ -19,7 +19,8 @@ export const restaurantBySlugQuery = `
     seo {
       metaTitle,
       metaDescription,
-      "ogImageUrl": ogImage.asset->url
+      "ogImageUrl": ogImage.asset->url,
+      noIndex
     }
   }
 `

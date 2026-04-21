@@ -3,9 +3,8 @@ import type { Metadata } from 'next'
 import { PortableText } from '@portabletext/react'
 import { getArticleBySlug, getAllArticleSlugs } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
+import { SITE_URL } from '@/lib/constants'
 import styles from './NewsArticle.module.css'
-
-const SITE_URL = 'https://www.eatthisdot.com'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -25,7 +24,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   const a = await getArticleBySlug(slug)
   if (!a) return {}
 
-  const de = lang === 'de'
+  const de = lang !== 'en'
   const title = a.seo?.metaTitle || (de ? a.titleDe || a.title : a.title)
   const description =
     a.seo?.metaDescription ||
@@ -51,7 +50,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
       title: `${title} | Eat This Berlin`,
       description,
       url: `${SITE_URL}/news/${slug}`,
-      images: [{ url: image, width: 1200, height: 630 }],
+      images: [{ url: image, width: 1200, height: 630, alt: title }],
       type: 'article',
       publishedTime: a.date,
       locale: de ? 'de_DE' : 'en_US',
@@ -65,7 +64,7 @@ export default async function NewsArticlePage({ params, searchParams }: PageProp
   const a = await getArticleBySlug(slug)
   if (!a) notFound()
 
-  const de = lang === 'de'
+  const de = lang !== 'en'
   const title = de ? a.titleDe || a.title : a.title
   const excerpt = de ? a.excerptDe || a.excerpt : a.excerpt
   const content = de ? a.contentDe || a.content : a.content
@@ -113,9 +112,10 @@ export default async function NewsArticlePage({ params, searchParams }: PageProp
 
           {a.imageUrl && (
             <img
-              src={`${a.imageUrl}?w=1200&auto=format&q=85`}
+              src={a.imageUrl}
               alt={a.alt || title}
               className={styles.heroImage}
+              fetchPriority="high"
             />
           )}
 

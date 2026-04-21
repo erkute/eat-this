@@ -64,6 +64,12 @@ export default {
           description: 'Leave empty to use restaurant photo. Ideal: 1200x630px.',
           options: { hotspot: true },
         },
+        {
+          name: 'noIndex',
+          title: 'Hide from search engines',
+          type: 'boolean',
+          initialValue: false,
+        },
       ],
     },
     {

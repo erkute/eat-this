@@ -2415,19 +2415,28 @@ body {
 
 /* Start sections (about / contact / press / impressum pages) */
 [data-theme="dark"] .start-scroll-content {
-  background: #0d0d0d;
+  background: #000000;
 }
 [data-theme="dark"] .start-section {
-  /* No border — warm background contrast carries the visual break */
+  background: #000000;
 }
 [data-theme="dark"] .start-section--alt {
-  background: #1E1910; /* deeper espresso — more visible break vs near-black */
+  background: #FEF9C3;
 }
 [data-theme="dark"] .start-section-title {
   color: #ffffff;
 }
 [data-theme="dark"] .start-section-body {
   color: rgba(255, 255, 255, 0.6);
+}
+[data-theme="dark"] .start-section--alt .start-section-title {
+  color: #1a1a1a;
+}
+[data-theme="dark"] .start-section--alt .start-section-body {
+  color: rgba(0, 0, 0, 0.65);
+}
+[data-theme="dark"] .start-section--alt .start-section-label {
+  color: var(--orange);
 }
 [data-theme="dark"] .start-join-section .start-section-title {
   color: #ffffff;
@@ -3817,7 +3826,7 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
 .start-section:has(.start-editorial-row) {
   padding: 0;
 }
-.start-section--alt { background: #F3EDE3; } /* warm parchment — visible contrast vs white */
+.start-section--alt { background: #FEF9C3; }
 
 @media (min-width: 768px) {
   .start-section {
@@ -3904,6 +3913,13 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+/* Mobile: show image above text in reversed rows */
+@media (max-width: 767px) {
+  .start-editorial-row--reverse .start-img-wrap {
+    order: -1;
+  }
 }
 
 @media (min-width: 768px) {

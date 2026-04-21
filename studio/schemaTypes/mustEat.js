@@ -22,9 +22,24 @@ export default {
       type: 'string',
       hidden: true,
     },
-    { name: 'district', type: 'string', hidden: true },
-    { name: 'price', type: 'string', hidden: true },
-    { name: 'description', type: 'text', hidden: true },
+    {
+      name: 'district',
+      title: 'Bezirk',
+      type: 'string',
+    },
+    {
+      name: 'price',
+      title: 'Preis',
+      type: 'string',
+      description: 'z.B. €, €€, €€€',
+    },
+    {
+      name: 'description',
+      title: 'Beschreibung',
+      type: 'text',
+      rows: 2,
+      description: 'Kurze Beschreibung des Gerichts',
+    },
     {
       name: 'image',
       title: 'Card Image',

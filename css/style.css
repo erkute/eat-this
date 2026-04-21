@@ -4894,20 +4894,9 @@ html:not([data-theme="dark"]) .site-footer-copy {
   max-width: 440px;
   overflow: hidden;
   animation: wm-enter 0.32s cubic-bezier(0.22,1,0.36,1) both;
-  display: flex;
-  flex-direction: column;
-  background: #fff;
 }
 
-/* ── Image section ── */
-.wm-image-wrap {
-  position: relative;
-  flex: 0 0 55%;
-  min-height: 0;
-  overflow: hidden;
-}
-
-/* ── Food photo inside image section ── */
+/* ── Full-screen background image ── */
 .wm-hero-img {
   position: absolute;
   inset: 0;
@@ -4919,8 +4908,22 @@ html:not([data-theme="dark"]) .site-footer-copy {
   z-index: 0;
 }
 
-/* ── No gradient scrim (content is no longer overlaid on photo) ── */
-.wm-dialog::after { content: none; }
+/* ── Gradient scrim over photo for legibility ── */
+.wm-dialog::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.18) 0%,
+    rgba(0,0,0,0.0)  30%,
+    rgba(0,0,0,0.0)  50%,
+    rgba(0,0,0,0.45) 75%,
+    rgba(0,0,0,0.70) 100%
+  );
+  pointer-events: none;
+}
 
 /* ── Close button ── */
 .wm-close {
@@ -4959,36 +4962,36 @@ html:not([data-theme="dark"]) .site-footer-copy {
   display: block;
 }
 
-/* ── Landing: headline + 3 CTAs in white section below image ── */
+/* ── Landing: headline + 3 CTAs overlaid on photo ── */
 .wm-landing[hidden] { display: none !important; }
 .wm-landing {
-  flex: 1;
-  min-height: 0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  justify-content: flex-start;
-  padding: 28px 22px max(36px, env(safe-area-inset-bottom, 36px));
+  padding: 0 22px 48px;
   gap: 10px;
-  background: #fff;
-  overflow-y: auto;
 }
 .wm-hero-headline {
-  font-size: clamp(1.5rem, 6vw, 2rem);
+  font-size: clamp(1.75rem, 7.5vw, 2.3rem);
   font-weight: 900;
   letter-spacing: -0.04em;
   line-height: 1.1;
-  color: #111;
+  color: #fff;
   text-align: center;
-  margin: 0 0 14px;
+  margin: 0 0 18px;
 }
 .wm-cta-primary {
   width: 100%;
   padding: 16px;
   border: none;
   border-radius: 999px;
-  background: #111;
-  color: #fff;
+  background: rgba(255, 251, 230, 0.95);
+  color: #111;
   font-family: var(--font);
   font-size: 1rem;
   font-weight: 700;
@@ -4996,15 +4999,14 @@ html:not([data-theme="dark"]) .site-footer-copy {
   cursor: pointer;
   transition: opacity 0.18s, transform 0.1s;
 }
-.wm-cta-primary:hover { opacity: 0.85; }
 .wm-cta-primary:active { transform: scale(0.98); opacity: 0.9; }
 .wm-cta-google {
   width: 100%;
   padding: 15px;
-  border: 1.5px solid rgba(0,0,0,0.18);
+  border: 1.5px solid rgba(255,255,255,0.55);
   border-radius: 999px;
-  background: #fff;
-  color: #111;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
   font-family: var(--font);
   font-size: 0.95rem;
   font-weight: 600;
@@ -5015,7 +5017,7 @@ html:not([data-theme="dark"]) .site-footer-copy {
   cursor: pointer;
   transition: background 0.18s;
 }
-.wm-cta-google:hover { background: rgba(0,0,0,0.05); }
+.wm-cta-google:hover { background: rgba(255,255,255,0.14); }
 .wm-google-icon {
   width: 18px;
   height: 18px;
@@ -5026,7 +5028,7 @@ html:not([data-theme="dark"]) .site-footer-copy {
   padding: 8px;
   background: none;
   border: none;
-  color: rgba(0,0,0,0.45);
+  color: rgba(255,255,255,0.75);
   font-family: var(--font);
   font-size: 0.9rem;
   font-weight: 600;
@@ -5034,7 +5036,7 @@ html:not([data-theme="dark"]) .site-footer-copy {
   cursor: pointer;
   transition: color 0.18s;
 }
-.wm-cta-text:hover { color: rgba(0,0,0,0.75); }
+.wm-cta-text:hover { color: #fff; }
 
 /* ── Form panel (slides in over the photo) ── */
 .wm-form-panel {
@@ -5163,15 +5165,6 @@ html:not([data-theme="dark"]) .site-footer-copy {
 }
 
 /* ── Dark mode ── */
-[data-theme="dark"] .wm-dialog { background: #111; }
-[data-theme="dark"] .wm-landing { background: #111; }
-[data-theme="dark"] .wm-hero-headline { color: #fff; }
-[data-theme="dark"] .wm-cta-primary { background: #fff; color: #111; }
-[data-theme="dark"] .wm-cta-primary:hover { opacity: 0.9; }
-[data-theme="dark"] .wm-cta-google { border-color: rgba(255,255,255,0.25); background: transparent; color: #fff; }
-[data-theme="dark"] .wm-cta-google:hover { background: rgba(255,255,255,0.08); }
-[data-theme="dark"] .wm-cta-text { color: rgba(255,255,255,0.5); }
-[data-theme="dark"] .wm-cta-text:hover { color: rgba(255,255,255,0.85); }
 [data-theme="dark"] .wm-form-panel { background: #111; }
 [data-theme="dark"] .wm-form-title { color: #fff; }
 [data-theme="dark"] .wm-booster-hint { color: rgba(255,255,255,0.42); }
@@ -5197,8 +5190,5 @@ html:not([data-theme="dark"]) .site-footer-copy {
     box-shadow: 0 32px 80px rgba(0,0,0,0.45);
     overflow: hidden;
   }
-  .wm-image-wrap { flex: 0 0 57%; }
   .wm-hero-logo-wrap { top: 20px; }
-  .wm-landing { padding: 32px 28px 36px; }
-  .wm-hero-headline { font-size: 1.9rem; margin-bottom: 18px; }
 }

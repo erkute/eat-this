@@ -374,7 +374,7 @@ body {
     background-size: 100% auto;
     background-position: center top;
     background-repeat: no-repeat;
-    background-color: transparent;
+    background-color: #1a1a1a;
   }
 
   .hero-mobile-logo {
@@ -752,13 +752,7 @@ body {
   box-shadow: 0 40px 120px rgba(0,0,0,0.8);
 }
 
-/* ── Globe active: hide Leaflet controls and map UI ── */
-#foodMap.globe-active .leaflet-control-container {
-  display: none;
-}
-.app-page[data-page="map"].globe-active .map-filters {
-  display: none !important;
-}
+
 
 /* ── Eat Card Backdrop ── */
 .eat-card-backdrop {
@@ -4542,28 +4536,6 @@ html:not([data-theme="dark"]) .site-footer-copy {
   transform: translateX(-50%) translateY(0);
 }
 
-/* ── Globe intro meteor animations ── */
-@keyframes globeMeteor1 {
-  0%   { transform: translate(0, 0) rotate(-42deg); opacity: 0; }
-  4%   { opacity: 1; }
-  20%  { opacity: 0.85; }
-  28%  { opacity: 0; }
-  100% { transform: translate(-520px, 380px) rotate(-42deg); opacity: 0; }
-}
-@keyframes globeMeteor2 {
-  0%   { transform: translate(0, 0) rotate(-38deg); opacity: 0; }
-  5%   { opacity: 0.8; }
-  24%  { opacity: 0.7; }
-  32%  { opacity: 0; }
-  100% { transform: translate(-380px, 280px) rotate(-38deg); opacity: 0; }
-}
-@keyframes globeMeteor3 {
-  0%   { transform: translate(0, 0) rotate(-45deg); opacity: 0; }
-  3%   { opacity: 0.9; }
-  16%  { opacity: 0.8; }
-  22%  { opacity: 0; }
-  100% { transform: translate(-300px, 220px) rotate(-45deg); opacity: 0; }
-}
 
 /* ============================================
    NEWSLETTER SECTION

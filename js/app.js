@@ -1665,33 +1665,21 @@ function updateAlbumProgress(count) {
             'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
             'sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH'
           )
-            .then(() => {
-              return loadScript(
-                'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
-                'sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu'
-              ).catch(() => {}); // non-critical — globe skips gracefully if THREE missing
-            })
             .then(() => loadScript('js/map-init.min.js'))
             .then(() => {
-              window._mapFn.showGlobeIntro(() => {
-                cmsReady.then(() => {
-                  if (typeof window._mapFn?.initFoodMap === 'function') window._mapFn.initFoodMap();
-                });
-                const fm = window._eatMap.foodMap;
-                if (fm) {
-                  fm.invalidateSize();
-                  setTimeout(() => {
-                    window._eatMap.foodMap?.invalidateSize();
-                  }, 300);
-                  // Re-snap sheet on return — desktop guard inside _snapSheet clears inline transform
-                  if (window._mapSnapSheet) {
-                    requestAnimationFrame(() => window._mapSnapSheet('mid', false));
-                  }
-                }
+              cmsReady.then(() => {
+                if (typeof window._mapFn?.initFoodMap === 'function') window._mapFn.initFoodMap();
               });
+              const fm = window._eatMap.foodMap;
+              if (fm) {
+                fm.invalidateSize();
+                setTimeout(() => { window._eatMap.foodMap?.invalidateSize(); }, 300);
+                if (window._mapSnapSheet) {
+                  requestAnimationFrame(() => window._mapSnapSheet('mid', false));
+                }
+              }
             })
             .catch(() => {
-              // Fallback: try map without globe
               cmsReady.then(() => {
                 if (typeof window._mapFn?.initFoodMap === 'function') window._mapFn.initFoodMap();
               });
@@ -1736,6 +1724,12 @@ function updateAlbumProgress(count) {
     setActivePage(pageName);
     // Re-sync after navbar state change (scrolled class removed/added by setActivePage)
     syncNavbarOffset();
+
+    // Update theme-color so Safari URL bar matches page background.
+    // Map has light Leaflet tiles → force dark bar. All other pages use
+    // transparent so Safari auto-adapts to the hero/page background.
+    const _tcMeta = document.querySelector('meta[name="theme-color"]');
+    if (_tcMeta) _tcMeta.setAttribute('content', pageName === 'map' ? '#0d0d0d' : 'transparent');
 
     // Track navigation history for back button
     window._prevPage    = window._currentPage || 'start';
@@ -2171,12 +2165,14 @@ function updateAlbumProgress(count) {
   function closeCookieSettings() {
     if (!cookieConsent) return;
     cookieConsent.classList.remove('show');
-    // After slide-out: force Safari URL-bar chrome to repaint (otherwise it
-    // stays black). Scroll by 1px and back — imperceptible, reliable repaint.
+    // After slide-out: force Safari to re-evaluate URL-bar chrome color by
+    // toggling theme-color. More reliable than scroll +1/-1 repaint trick.
     setTimeout(() => {
-      window.scrollTo(0, window.scrollY + 1);
-      requestAnimationFrame(() => window.scrollTo(0, window.scrollY - 1));
-      // Re-sync navbar opacity (banner slide can cause a scrollY blip).
+      const tc = document.querySelector('meta[name="theme-color"]');
+      if (tc) {
+        tc.setAttribute('content', '#000000');
+        requestAnimationFrame(() => tc.setAttribute('content', 'transparent'));
+      }
       const navbar = document.querySelector('.navbar');
       if (!navbar) return;
       if (document.documentElement.getAttribute('data-active-page') === 'start') {

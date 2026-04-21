@@ -4899,9 +4899,11 @@ html:not([data-theme="dark"]) .site-footer-copy {
 /* ── Full-screen background image ── */
 .wm-hero-img {
   position: absolute;
-  inset: 0;
+  top: -8%;
+  left: 0;
+  right: 0;
   width: 100%;
-  height: 100%;
+  height: 108%;
   object-fit: cover;
   object-position: center top;
   display: block;

@@ -5,7 +5,7 @@ export const spaBodyHTML = `    <a href="#appPages" class="skip-link" data-i18n=
     <nav class="navbar" id="navbar">
       <a href="#" class="navbar-brand" data-page="start">
         <img
-          src="pics/eat.webp"
+          src="/pics/eat.webp"
           alt="EAT THIS"
           class="brand-logo"
           width="36"
@@ -53,7 +53,7 @@ export const spaBodyHTML = `    <a href="#appPages" class="skip-link" data-i18n=
         <header class="hero">
           <div class="hero-overlay"></div>
           <div class="hero-brand-block">
-            <img class="hero-mobile-logo" src="pics/logo2.webp" alt="EAT THIS" fetchpriority="high" decoding="sync" width="1815" height="576">
+            <img class="hero-mobile-logo" src="/pics/logo2.webp" alt="EAT THIS" fetchpriority="high" decoding="sync" width="1815" height="576">
             <p class="hero-desktop-tagline">We tell you what to eat</p>
           </div>
           <div class="hero-scroll-hint">
@@ -94,7 +94,7 @@ export const spaBodyHTML = `    <a href="#appPages" class="skip-link" data-i18n=
               <div class="start-img-wrap tall">
                 <img
                   id="startImg1"
-                  src="pics/about/tablecard.webp"
+                  src="/pics/about/tablecard.webp"
                   alt="Eat This Berlin"
                   class="start-img"
                   style="object-position: center 72%"
@@ -127,7 +127,7 @@ export const spaBodyHTML = `    <a href="#appPages" class="skip-link" data-i18n=
               <div class="start-img-wrap tall">
                 <img
                   id="startImg2"
-                  src="pics/about/cards.webp"
+                  src="/pics/about/cards.webp"
                   alt="Must-Eat Cards"
                   class="start-img"
                   loading="lazy"
@@ -188,7 +188,7 @@ export const spaBodyHTML = `    <a href="#appPages" class="skip-link" data-i18n=
               <div class="start-img-wrap tall">
                 <img
                   id="startImg5"
-                  src="pics/about/dinner.webp"
+                  src="/pics/about/dinner.webp"
                   alt="Curation process"
                   class="start-img"
                   style="object-position: center 60%"
@@ -241,7 +241,7 @@ export const spaBodyHTML = `    <a href="#appPages" class="skip-link" data-i18n=
           <div class="must-eats-header">
             <p class="section-label reveal" data-i18n="musts.sectionLabel">Berlin</p>
             <img
-              src="pics/logo2.webp"
+              src="/pics/logo2.webp"
               alt="EAT THIS"
               class="must-eats-logo-img"
               width="1815"
@@ -578,7 +578,7 @@ export const spaBodyHTML = `    <a href="#appPages" class="skip-link" data-i18n=
     <template id="siteFooterTpl">
       <div class="site-footer" role="contentinfo" aria-label="Site footer">
         <a href="#" class="site-footer-logo-link" data-page="start" aria-label="Eat This home">
-          <img src="pics/logo2.webp" alt="EAT THIS" class="site-footer-logo-img" width="1815" height="576" loading="lazy" decoding="async" />
+          <img src="/pics/logo2.webp" alt="EAT THIS" class="site-footer-logo-img" width="1815" height="576" loading="lazy" decoding="async" />
         </a>
         <nav class="site-footer-links" aria-label="Footer navigation">
           <button class="site-footer-link" data-page="about" data-i18n="footer.about">About</button>
@@ -1032,7 +1032,7 @@ export const spaBodyHTML = `    <a href="#appPages" class="skip-link" data-i18n=
       <div class="wm-dialog">
 
         <!-- Full-screen hero background -->
-        <img src="pics/login/Black screen.webp" alt="" class="wm-hero-img" decoding="async">
+        <img src="/pics/login/Black screen.webp" alt="" class="wm-hero-img" decoding="async">
 
         <!-- Close -->
         <button class="wm-close" id="wmClose" aria-label="Close">
@@ -1043,7 +1043,7 @@ export const spaBodyHTML = `    <a href="#appPages" class="skip-link" data-i18n=
 
         <!-- Logo centred top -->
         <div class="wm-hero-logo-wrap">
-          <img src="pics/login/eat 1.webp" alt="Eat This" class="wm-hero-logo">
+          <img src="/pics/login/eat 1.webp" alt="Eat This" class="wm-hero-logo">
         </div>
 
         <!-- Landing: headline + 3 CTAs overlaid on photo -->
@@ -1051,7 +1051,7 @@ export const spaBodyHTML = `    <a href="#appPages" class="skip-link" data-i18n=
           <p class="wm-hero-headline">Hundreds of Must Eats<br>to discover</p>
           <button class="wm-cta-primary" id="wmSignupCta" data-i18n="modals.login.landingSignup">Sign up</button>
           <button class="wm-cta-google" id="wmGoogleBtn">
-            <img src="pics/login/Google.webp" alt="" class="wm-google-icon" width="18" height="18">
+            <img src="/pics/login/Google.webp" alt="" class="wm-google-icon" width="18" height="18">
             <span data-i18n="modals.login.googleBtn">Continue with Google</span>
           </button>
           <button class="wm-cta-text" id="wmLoginCta" data-i18n="modals.login.landingLogin">Log in</button>

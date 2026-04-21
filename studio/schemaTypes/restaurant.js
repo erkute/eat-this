@@ -10,6 +10,69 @@ export default {
       validation: Rule => Rule.required(),
     },
     {
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      options: {
+        source: 'name',
+        maxLength: 96,
+        slugify: input =>
+          input
+            .toLowerCase()
+            .replace(/ä/g, 'ae')
+            .replace(/ö/g, 'oe')
+            .replace(/ü/g, 'ue')
+            .replace(/ß/g, 'ss')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, ''),
+      },
+      validation: Rule => Rule.required(),
+    },
+    {
+      name: 'description',
+      title: 'Description',
+      type: 'text',
+      rows: 4,
+      description: 'Shown on the restaurant detail page. Max 300 characters.',
+      validation: Rule => Rule.max(300),
+    },
+    {
+      name: 'seo',
+      title: 'SEO',
+      type: 'object',
+      options: { collapsible: true, collapsed: true },
+      fields: [
+        {
+          name: 'metaTitle',
+          title: 'Meta Title',
+          type: 'string',
+          description: 'Leave empty to use restaurant name. Max 60 characters.',
+          validation: Rule => Rule.max(60),
+        },
+        {
+          name: 'metaDescription',
+          title: 'Meta Description',
+          type: 'text',
+          rows: 2,
+          description: 'Leave empty to use description. Max 160 characters.',
+          validation: Rule => Rule.max(160),
+        },
+        {
+          name: 'ogImage',
+          title: 'Social Sharing Image',
+          type: 'image',
+          description: 'Leave empty to use restaurant photo. Ideal: 1200x630px.',
+          options: { hotspot: true },
+        },
+        {
+          name: 'noIndex',
+          title: 'Hide from search engines',
+          type: 'boolean',
+          initialValue: false,
+        },
+      ],
+    },
+    {
       name: 'district',
       title: 'District',
       type: 'string',

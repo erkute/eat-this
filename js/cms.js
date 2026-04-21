@@ -68,7 +68,7 @@ window.CMS = {
       "categoryLabel": ${de ? 'coalesce(categoryLabelDe, categoryLabel)' : 'categoryLabel'},
       "date": date,
       "dateISO": date,
-      "imageUrl": image.asset->url + "?w=900&auto=format&q=80",
+      "imageUrl": image.asset->url + "?w=1800&auto=format&q=85",
       alt,
       "excerpt": ${de ? 'coalesce(excerptDe, excerpt)' : 'excerpt'},
       "content": ${de ? 'coalesce(contentDe, content)' : 'content'},

@@ -35,7 +35,7 @@
         } catch (_) {}
       }());
     </script>
-    <link rel="stylesheet" href="css/style.min.css?v=21">
+    <link rel="stylesheet" href="css/style.min.css?v=22">
     <meta charset="UTF-8" />
     <meta
       name="viewport"
@@ -327,8 +327,8 @@
     <!-- Preload starts download early; full stylesheet is activated non-blocking
          via the inline script above (media="print" → "all" trick). Keeps FCP fast
          because the initial render uses only the critical inline CSS. -->
-    <link rel="preload" as="style" href="css/style.min.css?v=21" />
-    <noscript><link rel="stylesheet" href="css/style.min.css?v=21" /></noscript>
+    <link rel="preload" as="style" href="css/style.min.css?v=22" />
+    <noscript><link rel="stylesheet" href="css/style.min.css?v=22" /></noscript>
     <!-- leaflet.min.css loaded lazily by app.js when map page opens -->
 
     <!-- Preload critical JS so the browser fetches in parallel with HTML parse -->
@@ -1371,22 +1371,24 @@
       <div class="wm-backdrop" id="wmBackdrop"></div>
       <div class="wm-dialog">
 
-        <!-- Full-screen hero background -->
-        <img src="pics/login/Black screen.webp" alt="" class="wm-hero-img" decoding="async">
+        <!-- Image section -->
+        <div class="wm-image-wrap">
+          <img src="pics/login/Black screen.webp" alt="" class="wm-hero-img" decoding="async">
 
-        <!-- Close -->
-        <button class="wm-close" id="wmClose" aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
+          <!-- Close -->
+          <button class="wm-close" id="wmClose" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
 
-        <!-- Logo centred top -->
-        <div class="wm-hero-logo-wrap">
-          <img src="pics/login/eat 1.webp" alt="Eat This" class="wm-hero-logo">
+          <!-- Logo centred top -->
+          <div class="wm-hero-logo-wrap">
+            <img src="pics/login/eat 1.webp" alt="Eat This" class="wm-hero-logo">
+          </div>
         </div>
 
-        <!-- Landing: headline + 3 CTAs overlaid on photo -->
+        <!-- Landing: headline + 3 CTAs in white section below image -->
         <div class="wm-landing" id="wmLanding">
           <p class="wm-hero-headline">Hundreds of Must Eats<br>to discover</p>
           <button class="wm-cta-primary" id="wmSignupCta" data-i18n="modals.login.landingSignup">Sign up</button>

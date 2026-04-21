@@ -174,6 +174,27 @@ export const allNewsArticlesQuery = `
   }
 `
 
+// Must-Eat cards for a specific restaurant
+export const mustEatsByRestaurantQuery = `
+  *[_type == "mustEat" && restaurantRef._ref == $restaurantId] | order(order asc) {
+    _id,
+    dish,
+    "photo": image.asset->url + "?w=800&auto=format&q=80",
+    order
+  }
+`
+
+// All Must-Eat cards — for album/overview
+export const allMustEatsQuery = `
+  *[_type == "mustEat"] | order(order asc) {
+    _id,
+    dish,
+    "restaurant": restaurantRef->{ _id, name, "slug": slug.current, district },
+    "photo": image.asset->url + "?w=800&auto=format&q=80",
+    order
+  }
+`
+
 // Sitemap — all slugs for restaurants + articles
 export const sitemapQuery = `
   {

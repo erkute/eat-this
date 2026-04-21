@@ -10,12 +10,6 @@ export default {
       validation: Rule => Rule.required(),
     },
     {
-      name: 'mustEatDish',
-      title: 'Must-Eat Dish',
-      type: 'string',
-      description: 'Das eine Gericht, das man bestellen muss',
-    },
-    {
       name: 'slug',
       title: 'Slug',
       type: 'slug',

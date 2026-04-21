@@ -10,21 +10,17 @@ export default {
       validation: Rule => Rule.required(),
     },
     {
-      name: 'restaurant',
+      name: 'restaurantRef',
       title: 'Restaurant',
-      type: 'string',
+      type: 'reference',
+      to: [{type: 'restaurant'}],
       validation: Rule => Rule.required(),
     },
     {
-      name: 'district',
-      title: 'District',
+      name: 'restaurant',
+      title: 'Restaurant (alt)',
       type: 'string',
-    },
-    {
-      name: 'price',
-      title: 'Price Range',
-      type: 'string',
-      description: 'E.g. €, €€, €€€',
+      hidden: true,
     },
     {
       name: 'image',
@@ -48,6 +44,6 @@ export default {
     },
   ],
   preview: {
-    select: { title: 'dish', subtitle: 'restaurant', media: 'image' },
+    select: { title: 'dish', subtitle: 'restaurantRef.name', media: 'image' },
   },
 }

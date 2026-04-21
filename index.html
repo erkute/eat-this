@@ -33,16 +33,9 @@
             });
           }
         } catch (_) {}
-        // Non-blocking stylesheet: load via media="print" trick, swap to all on load.
-        // Works with strict CSP (no inline onload= attribute, uses DOM property).
-        var l = document.createElement('link');
-        l.rel = 'stylesheet';
-        l.href = 'css/style.min.css?v=21';
-        l.media = 'print';
-        l.onload = function () { this.media = 'all'; this.onload = null; };
-        document.head.appendChild(l);
       }());
     </script>
+    <link rel="stylesheet" href="css/style.min.css?v=21">
     <meta charset="UTF-8" />
     <meta
       name="viewport"

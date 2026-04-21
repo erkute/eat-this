@@ -1106,4 +1106,9 @@ export const spaBodyHTML = `    <a href="#appPages" class="skip-link" data-i18n=
       </div>
     </div>
 
+
+    <script defer src="/js/cms.min.js"></script>
+    <script defer src="/js/i18n.min.js"></script>
+    <script defer src="/js/app.min.js?v=20"></script>
+    <script defer src="/js/auth-loader.min.js"></script>
 `;

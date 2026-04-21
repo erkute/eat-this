@@ -53,16 +53,6 @@ export default function SPALayout({ children }: { children: React.ReactNode }) {
       {/* SPA body content */}
       {children}
 
-      {/* Scripts in original defer order — plain tags preserve execution order,
-          unlike next/script afterInteractive which does not guarantee it. */}
-      {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-      <script defer src="/js/cms.min.js" />
-      {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-      <script defer src="/js/i18n.min.js" />
-      {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-      <script defer src="/js/app.min.js?v=20" />
-      {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-      <script defer src="/js/auth-loader.min.js" />
     </>
   )
 }

@@ -124,7 +124,7 @@ export const spaBodyHTML = `    <a href="#appPages" class="skip-link" data-i18n=
                   </p>
                 </div>
               </div>
-              <div class="start-img-wrap tall">
+              <div class="start-img-wrap tall" id="cardsImgWrap">
                 <img
                   id="startImg2"
                   src="/pics/about/cards.webp"

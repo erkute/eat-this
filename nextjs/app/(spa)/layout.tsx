@@ -38,7 +38,7 @@ export default function SPALayout({ children }: { children: React.ReactNode }) {
     <>
       {/* Full SPA stylesheet — hoisted to <head> by Next.js */}
       {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/css/style.min.css?v=21" />
+      <link rel="stylesheet" href="/css/style.min.css?v=21" precedence="default" />
 
       {/* Preconnect for Sanity CDN */}
       <link rel="preconnect" href="https://ehwjnjr2.apicdn.sanity.io" crossOrigin="anonymous" />

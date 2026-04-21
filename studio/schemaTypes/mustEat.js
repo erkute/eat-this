@@ -22,6 +22,9 @@ export default {
       type: 'string',
       hidden: true,
     },
+    { name: 'district', type: 'string', hidden: true },
+    { name: 'price', type: 'string', hidden: true },
+    { name: 'description', type: 'text', hidden: true },
     {
       name: 'image',
       title: 'Card Image',

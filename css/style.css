@@ -2413,12 +2413,8 @@ body {
   background: #000000;
 }
 
-/* Start sections — Palette 5: Ink + Blush + Rose */
-/* Dark mode */
+/* Start section — dark mode */
 [data-theme="dark"] .start-scroll-content {
-  background: #0F0A0D;
-}
-[data-theme="dark"] .start-section {
   background: #0F0A0D;
 }
 [data-theme="dark"] .start-section--alt {
@@ -3822,20 +3818,14 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   .start-scroll-hint { display: none; }
 }
 
-/* Section wrapper — Palette 5: #FFFBFC base, #FDE8EF alt */
+/* Section wrapper */
 .start-scroll-content { background: #FFFBFC; padding-top: 56px; padding-bottom: 0; }
 @media (min-width: 768px) {
   .start-scroll-content { padding-top: 100px; }
 }
 
-.start-section {
-  padding: 52px 24px;
-  /* No hard border — sections bleed via background color contrast */
-}
-/* On mobile, editorial rows handle their own spacing */
-.start-section:has(.start-editorial-row) {
-  padding: 0;
-}
+.start-section { padding: 52px 24px; }
+.start-section:has(.start-editorial-row) { padding: 0; }
 .start-section--alt { background: #FDE8EF; }
 
 @media (min-width: 768px) {
@@ -3846,7 +3836,7 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   }
 }
 
-/* Section label — Palette 5 Rose */
+/* Section label */
 .start-section-label {
   display: inline-flex;
   align-items: center;
@@ -3856,9 +3846,6 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: #C8375A;
-  background: none;
-  padding: 0;
-  border-radius: 0;
   margin-bottom: 24px;
 }
 .start-section-label::before {

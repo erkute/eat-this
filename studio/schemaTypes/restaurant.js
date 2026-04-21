@@ -106,6 +106,13 @@ export default {
       type: 'string',
     },
     {
+      name: 'bezirkRef',
+      title: 'Bezirk',
+      type: 'reference',
+      to: [{ type: 'bezirk' }],
+      description: 'Berliner Bezirk (verknüpft)',
+    },
+    {
       name: 'address',
       title: 'Address',
       type: 'string',

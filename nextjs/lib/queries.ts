@@ -3,7 +3,12 @@ export const restaurantBySlugQuery = `
     _id,
     name,
     "slug": slug.current,
+    isOpen,
+    isClosed,
+    cuisineType,
+    shortDescription,
     district,
+    "bezirk": bezirkRef->{ _id, name, "slug": slug.current },
     address,
     categories,
     price,
@@ -57,4 +62,97 @@ export const allArticleSlugsQuery = `
   *[_type == "newsArticle" && defined(slug.current)] {
     "slug": slug.current
   }
+`
+
+// All restaurants for map — lightweight projection
+export const allRestaurantsQuery = `
+  *[_type == "restaurant" && isOpen != false] | order(name asc) {
+    _id,
+    name,
+    "slug": slug.current,
+    isOpen,
+    isClosed,
+    cuisineType,
+    shortDescription,
+    district,
+    "bezirk": bezirkRef->{ _id, name, "slug": slug.current },
+    address,
+    categories,
+    price,
+    lat,
+    lng,
+    tip,
+    "photo": image.asset->url + "?w=800&auto=format&q=80"
+  }
+`
+
+// Restaurants filtered by Bezirk slug
+export const restaurantsByBezirkQuery = `
+  *[_type == "restaurant" && isOpen != false && bezirkRef->slug.current == $bezirkSlug] | order(name asc) {
+    _id,
+    name,
+    "slug": slug.current,
+    cuisineType,
+    shortDescription,
+    district,
+    categories,
+    price,
+    lat,
+    lng,
+    tip,
+    "photo": image.asset->url + "?w=800&auto=format&q=80"
+  }
+`
+
+// Restaurants filtered by category string
+export const restaurantsByCategoryQuery = `
+  *[_type == "restaurant" && isOpen != false && $category in categories] | order(name asc) {
+    _id,
+    name,
+    "slug": slug.current,
+    cuisineType,
+    shortDescription,
+    district,
+    "bezirk": bezirkRef->{ _id, name, "slug": slug.current },
+    categories,
+    price,
+    lat,
+    lng,
+    tip,
+    "photo": image.asset->url + "?w=800&auto=format&q=80"
+  }
+`
+
+// Latest 10 restaurants added
+export const latestRestaurantsQuery = `
+  *[_type == "restaurant" && isOpen != false] | order(_createdAt desc) [0...10] {
+    _id,
+    name,
+    "slug": slug.current,
+    cuisineType,
+    shortDescription,
+    district,
+    "bezirk": bezirkRef->{ _id, name, "slug": slug.current },
+    categories,
+    price,
+    lat,
+    lng,
+    tip,
+    "photo": image.asset->url + "?w=800&auto=format&q=80"
+  }
+`
+
+// All Bezirke for navigation/filter
+export const allBezirkeQuery = `
+  *[_type == "bezirk"] | order(name asc) {
+    _id,
+    name,
+    "slug": slug.current,
+    description
+  }
+`
+
+// All distinct categories used across restaurants
+export const allCategoriesQuery = `
+  array::unique(*[_type == "restaurant" && isOpen != false].categories[])
 `

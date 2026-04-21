@@ -1,4 +1,6 @@
 import { MetadataRoute } from 'next'
+
+export const revalidate = 0
 import { client } from '@/lib/sanity'
 import { SITE_URL } from '@/lib/constants'
 

@@ -17,5 +17,5 @@ export const metadata: Metadata = {
 export default function SPAHomePage() {
   // display:contents makes this wrapper transparent to the layout engine.
   // eslint-disable-next-line react/no-danger
-  return <div style={{ display: 'contents' }} dangerouslySetInnerHTML={{ __html: spaBodyHTML }} />
+  return <div style={{ display: 'contents' }} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: spaBodyHTML }} />
 }

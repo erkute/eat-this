@@ -5,5 +5,5 @@ import { spaBodyHTML } from '../spa-content'
 // More-specific routes (/news/[slug], /restaurant/[slug]) take priority.
 export default function SPACatchAllPage() {
   // eslint-disable-next-line react/no-danger
-  return <div style={{ display: 'contents' }} dangerouslySetInnerHTML={{ __html: spaBodyHTML }} />
+  return <div style={{ display: 'contents' }} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: spaBodyHTML }} />
 }

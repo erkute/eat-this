@@ -2413,30 +2413,40 @@ body {
   background: #000000;
 }
 
-/* Start sections (about / contact / press / impressum pages) */
+/* Start sections — Palette 5: Ink + Blush + Rose */
+/* Dark mode */
 [data-theme="dark"] .start-scroll-content {
-  background: #000000;
+  background: #0F0A0D;
 }
 [data-theme="dark"] .start-section {
-  background: #000000;
+  background: #0F0A0D;
 }
 [data-theme="dark"] .start-section--alt {
-  background: #FEF9C3;
+  background: #FDEAEF;
 }
 [data-theme="dark"] .start-section-title {
   color: #ffffff;
 }
 [data-theme="dark"] .start-section-body {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.55);
+}
+[data-theme="dark"] .start-section-label {
+  color: #D4547A;
+}
+[data-theme="dark"] .start-section-label::before {
+  background: #D4547A;
 }
 [data-theme="dark"] .start-section--alt .start-section-title {
-  color: #1a1a1a;
+  color: #1A0812;
 }
 [data-theme="dark"] .start-section--alt .start-section-body {
-  color: rgba(0, 0, 0, 0.65);
+  color: rgba(0, 0, 0, 0.6);
 }
 [data-theme="dark"] .start-section--alt .start-section-label {
-  color: var(--orange);
+  color: #C8375A;
+}
+[data-theme="dark"] .start-section--alt .start-section-label::before {
+  background: #C8375A;
 }
 [data-theme="dark"] .start-join-section .start-section-title {
   color: #ffffff;
@@ -3826,7 +3836,12 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
 .start-section:has(.start-editorial-row) {
   padding: 0;
 }
-.start-section--alt { background: #FEF9C3; }
+/* Light mode: Palette 5 */
+.start-scroll-content { background: #FFFBFC; }
+.start-section--alt { background: #FDE8EF; }
+.start-section-label { color: #C8375A; }
+.start-section-label::before { background: #C8375A; }
+.start-join-section .start-section-label { color: #C8375A; }
 
 @media (min-width: 768px) {
   .start-section {
@@ -3913,13 +3928,6 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-/* Mobile: show image above text in reversed rows */
-@media (max-width: 767px) {
-  .start-editorial-row--reverse .start-img-wrap {
-    order: -1;
-  }
 }
 
 @media (min-width: 768px) {

@@ -19,6 +19,20 @@
         }
         localStorage.setItem('lang', lang);
         document.documentElement.lang = lang;
+        // Auth hint: apply cached login state immediately so the login button
+        // renders correctly before Firebase SDK loads (prevents late visual paint).
+        try {
+          var ah = JSON.parse(localStorage.getItem('_authHint') || 'null');
+          if (ah && ah.n) {
+            document.addEventListener('DOMContentLoaded', function () {
+              var lb = document.getElementById('loginBtn');
+              if (!lb) return;
+              lb.classList.add('logged-in');
+              var sp = lb.querySelector('span');
+              if (sp) sp.textContent = ah.n;
+            });
+          }
+        } catch (_) {}
         // Non-blocking stylesheet: load via media="print" trick, swap to all on load.
         // Works with strict CSP (no inline onload= attribute, uses DOM property).
         var l = document.createElement('link');

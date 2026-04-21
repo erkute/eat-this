@@ -426,8 +426,16 @@ onAuthStateChanged(auth, (user) => {
 
   if (user) {
     if (isRegistering) return;
+    // Cache auth state so the login button renders correctly on next page load
+    // before Firebase SDK is available (avoids late visual paint / Speed Index hit).
+    try {
+      const dn = user.displayName || (user.email || '').split('@')[0] || 'User';
+      const fn = dn.split(' ')[0] || dn;
+      localStorage.setItem('_authHint', JSON.stringify({ n: fn }));
+    } catch (_) { /* storage blocked */ }
     applyLoggedInUI(user);
   } else {
+    try { localStorage.removeItem('_authHint'); } catch (_) {}
     if (loginBtnLabel) loginBtnLabel.textContent = window.i18n.t('footer.signIn');
     loginBtn?.classList.remove('logged-in');
 
@@ -484,6 +492,8 @@ onAuthStateChanged(auth, (user) => {
     wmSetMode(register);
     if (wmLanding)   wmLanding.hidden   = true;
     if (wmFormPanel) wmFormPanel.hidden = false;
+    // scroll dialog back to top so form title is visible
+    wmOverlay?.querySelector('.wm-dialog')?.scrollTo({ top: 0 });
   }
 
   function wmDismiss() {

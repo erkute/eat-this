@@ -33,16 +33,9 @@
             });
           }
         } catch (_) {}
-        // Non-blocking stylesheet: load via media="print" trick, swap to all on load.
-        // Works with strict CSP (no inline onload= attribute, uses DOM property).
-        var l = document.createElement('link');
-        l.rel = 'stylesheet';
-        l.href = 'css/style.min.css?v=21';
-        l.media = 'print';
-        l.onload = function () { this.media = 'all'; this.onload = null; };
-        document.head.appendChild(l);
       }());
     </script>
+    <link rel="stylesheet" href="css/style.min.css?v=21">
     <meta charset="UTF-8" />
     <meta
       name="viewport"
@@ -287,11 +280,30 @@
       .skip-link{position:absolute;left:-9999px;top:0;z-index:10000;background:#000;color:#fff;padding:12px 18px;font-weight:700;text-decoration:none;border-radius:0 0 8px 0}
       .skip-link:focus{left:0;outline:3px solid #ff0;outline-offset:2px}
       *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-      html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:hidden;overscroll-behavior:none;position:relative}
+      html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overscroll-behavior:none;position:relative}
       body{overflow-x:hidden;max-width:100%;overscroll-behavior:none;background:#fff;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;color:#000;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;line-height:1.6}
       img{max-width:100%;height:auto;display:block}
       button{cursor:pointer;font-family:inherit;border:none;background:none}
       a{text-decoration:none;color:inherit}
+      .navbar{position:fixed;top:0;left:0;right:0;z-index:9999;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:10px 24px;border-bottom:1px solid transparent}
+      .navbar-actions{display:flex;align-items:center;gap:16px}
+      .navbar-icon-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;width:48px;background:none;border:none;cursor:pointer;padding:4px 0;color:#000}
+      .navbar-icon-btn svg{width:20px;height:20px}
+      .navbar-icon-btn::after{content:'';position:absolute;bottom:0;left:50%;width:4px;height:4px;border-radius:50%;background:transparent;transform:translateX(-50%) scale(0)}
+      .burger-btn{display:flex;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;background:none;border:none;cursor:pointer;padding:4px}
+      .burger-btn span{display:block;width:20px;height:2px;background:#000;border-radius:2px}
+      [data-theme="dark"] .navbar{background:#0d0d0d}
+      [data-theme="dark"] .navbar-icon-btn{color:rgba(255,255,255,0.85)}
+      [data-theme="dark"] .burger-btn span{background:rgba(255,255,255,0.85)}
+      .hero{position:relative;overflow:hidden}
+      @media(max-width:1023px){.hero-brand-block{display:contents}.hero-mobile-logo{display:block;position:absolute;top:36px;left:50%;transform:translateX(-50%);width:82%;z-index:10;pointer-events:none;filter:brightness(0) invert(1)}[data-theme="dark"] .hero-mobile-logo{filter:none}}
+      @media(min-width:1024px){.hero-brand-block{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:10}.hero-mobile-logo{position:static;width:65vw;max-width:860px;filter:brightness(0) invert(1)}}
+      .cookie-consent{transform:translateY(100%);position:fixed;bottom:0;left:0;right:0}
+      .burger-drawer{opacity:0;pointer-events:none}
+      .search-overlay{opacity:0;pointer-events:none}
+      .modal-overlay{opacity:0;pointer-events:none}
+      .modal{transform:translateY(100%);opacity:0}
+      .eat-card-backdrop{opacity:0;pointer-events:none}
       [data-theme="dark"] html,[data-theme="dark"] body{background:#000;color:#fff}
       .navbar{position:fixed;top:0;left:0;right:0;z-index:9999;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;background:#fff}
       [data-theme="dark"] .navbar{background:#000}
@@ -382,7 +394,7 @@
         <header class="hero">
           <div class="hero-overlay"></div>
           <div class="hero-brand-block">
-            <img class="hero-mobile-logo" src="pics/logo2.webp" alt="EAT THIS" fetchpriority="high" decoding="async" width="1815" height="576">
+            <img class="hero-mobile-logo" src="pics/logo2.webp" alt="EAT THIS" fetchpriority="high" decoding="sync" width="1815" height="576">
             <p class="hero-desktop-tagline">We tell you what to eat</p>
           </div>
           <div class="hero-scroll-hint">

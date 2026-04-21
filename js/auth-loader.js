@@ -12,7 +12,7 @@
 
 (function () {
   function loadAuth() {
-    return import('/js/auth.min.js').then(function () {
+    return import('/js/auth.min.js?v=6').then(function () {
       import('/js/favourites.min.js');
       import('/js/packs.min.js');
       import('/js/profile.min.js');

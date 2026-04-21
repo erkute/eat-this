@@ -477,11 +477,22 @@ onAuthStateChanged(auth, (user) => {
   // v2 landing ↔ form panel
   const wmLanding    = document.getElementById('wmLanding');
   const wmFormPanel  = document.getElementById('wmFormPanel');
+  const wmFormTitle  = document.getElementById('wmFormTitle');
+  const wmBoosterHint= document.getElementById('wmBoosterHint');
   const wmSignupCta  = document.getElementById('wmSignupCta');
   const wmLoginCta   = document.getElementById('wmLoginCta');
   const wmBackBtn    = document.getElementById('wmBackBtn');
 
   let wmIsRegister = true;
+
+  // Prevent pinch-to-zoom while the modal is open (mobile)
+  const _wmVp = document.querySelector('meta[name="viewport"]');
+  function wmLockZoom() {
+    if (_wmVp) _wmVp.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+  }
+  function wmUnlockZoom() {
+    if (_wmVp) _wmVp.content = 'width=device-width, initial-scale=1.0, viewport-fit=cover';
+  }
 
   function wmShowLanding() {
     if (wmLanding)   wmLanding.hidden   = false;
@@ -499,11 +510,12 @@ onAuthStateChanged(auth, (user) => {
   function wmDismiss() {
     wmOverlay?.classList.remove('active');
     _unlockBodyScroll();
+    wmUnlockZoom();
     wmShowLanding(); // reset to landing for next open
     try { localStorage.setItem('wm_dismissed', '1'); } catch (_) { /* localStorage blocked */ }
   }
 
-  window.openWelcomeModal  = () => { _lockBodyScroll(); wmShowLanding(); wmOverlay?.classList.add('active'); };
+  window.openWelcomeModal  = () => { _lockBodyScroll(); wmLockZoom(); wmShowLanding(); wmOverlay?.classList.add('active'); };
   window.closeWelcomeModal = wmDismiss;
 
   function wmShowError(msg)  { if (wmError)   { wmError.textContent   = msg; wmError.style.display   = 'block'; } }
@@ -517,13 +529,17 @@ onAuthStateChanged(auth, (user) => {
     if (register) {
       if (wmNameField)    wmNameField.style.display = '';
       if (wmName)         wmName.required = true;
-      if (wmSubmitText)   wmSubmitText.textContent = window.i18n?.t('modals.login.submitRegister') ?? 'Create account';
+      if (wmFormTitle)    wmFormTitle.textContent    = window.i18n?.t('modals.login.titleRegister')    ?? 'Create account';
+      if (wmBoosterHint)  wmBoosterHint.textContent  = window.i18n?.t('modals.login.subtitleRegister') ?? 'Get your first Starter Pack \u2014 10 Must-Eat Cards, free.';
+      if (wmSubmitText)   wmSubmitText.textContent   = window.i18n?.t('modals.login.submitRegister')   ?? 'Create account';
       if (wmForgot)       wmForgot.hidden = true;
       if (wmPassword)     wmPassword.autocomplete = 'new-password';
     } else {
       if (wmNameField)    wmNameField.style.display = 'none';
       if (wmName)         wmName.required = false;
-      if (wmSubmitText)   wmSubmitText.textContent = window.i18n?.t('modals.login.submitLogin') ?? 'Sign in';
+      if (wmFormTitle)    wmFormTitle.textContent    = window.i18n?.t('modals.login.titleLogin')    ?? 'Welcome back';
+      if (wmBoosterHint)  wmBoosterHint.textContent  = window.i18n?.t('modals.login.subtitleLogin') ?? 'Sign in to your account.';
+      if (wmSubmitText)   wmSubmitText.textContent   = window.i18n?.t('modals.login.submitLogin')   ?? 'Sign in';
       if (wmForgot)       wmForgot.hidden = false;
       if (wmPassword)     wmPassword.autocomplete = 'current-password';
     }
@@ -541,6 +557,15 @@ onAuthStateChanged(auth, (user) => {
     }
   }
   wmSetMode(true);
+
+  // Re-run wmSetMode on language switch so submit button + toggle text stay in sync
+  const _baseApplyTranslations = window.i18n?.applyTranslations;
+  if (typeof _baseApplyTranslations === 'function') {
+    window.i18n.applyTranslations = function() {
+      _baseApplyTranslations.call(window.i18n);
+      wmSetMode(wmIsRegister);
+    };
+  }
 
   wmClose?.addEventListener('click', wmDismiss);
   wmBackdrop?.addEventListener('click', wmDismiss);

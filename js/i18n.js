@@ -168,9 +168,9 @@ const TRANSLATIONS = {
       },
       login: {
         titleRegister: 'Create account',
-        subtitleRegister: 'Sign up to discover the best dishes in Berlin.',
-        titleLogin: 'Sign in',
-        subtitleLogin: 'Welcome back.',
+        subtitleRegister: 'Get your first Starter Pack \u2014 10 Must-Eat Cards, free.',
+        titleLogin: 'Welcome back',
+        subtitleLogin: 'Sign in to your account.',
         namePlaceholder: 'Name',
         emailPlaceholder: 'Email',
         passwordPlaceholder: 'Password',
@@ -180,10 +180,14 @@ const TRANSLATIONS = {
         googleBtn: 'Continue with Google',
         termsText: 'By signing up, you agree to our',
         termsLink: 'Terms',
+        termsAnd: 'and',
         privacyLink: 'Privacy Policy',
         dividerOr: 'or',
-        toggleToLogin: 'Already have an account? Sign in',
-        toggleToRegister: 'New here? Create account',
+        toggleToLogin: 'Already have an account? Log in',
+        toggleToRegister: 'New here? Sign up',
+        landingSignup: 'Sign up',
+        landingLogin: 'Log in',
+        backBtn: 'Back',
         logoutBtn: 'Sign out',
         errors: {
           emailRequired:       'Please enter your email address.',
@@ -369,6 +373,51 @@ TRANSLATIONS.de.footer.agb         = 'AGB';
 TRANSLATIONS.de.modals.datenschutz.title = 'Datenschutz';
 TRANSLATIONS.de.modals.agb.title         = 'AGB';
 TRANSLATIONS.de.footer.copyright   = '\u00a9 2026 Eat This. Alle Rechte vorbehalten.';
+
+// DE welcome modal overrides
+TRANSLATIONS.de.modals.login.titleRegister      = 'Konto erstellen';
+TRANSLATIONS.de.modals.login.subtitleRegister   = 'Hol dir dein erstes Starter Pack \u2013 10 Must-Eat Cards, kostenlos.';
+TRANSLATIONS.de.modals.login.titleLogin         = 'Willkommen zur\u00FCck';
+TRANSLATIONS.de.modals.login.subtitleLogin      = 'Melde dich bei deinem Konto an.';
+TRANSLATIONS.de.modals.login.namePlaceholder    = 'Name';
+TRANSLATIONS.de.modals.login.emailPlaceholder   = 'E-Mail';
+TRANSLATIONS.de.modals.login.passwordPlaceholder = 'Passwort';
+TRANSLATIONS.de.modals.login.forgotPassword     = 'Passwort vergessen?';
+TRANSLATIONS.de.modals.login.submitRegister     = 'Konto erstellen';
+TRANSLATIONS.de.modals.login.submitLogin        = 'Anmelden';
+TRANSLATIONS.de.modals.login.googleBtn          = 'Mit Google anmelden';
+TRANSLATIONS.de.modals.login.termsText          = 'Mit der Registrierung stimmst du unseren';
+TRANSLATIONS.de.modals.login.termsLink          = 'AGB';
+TRANSLATIONS.de.modals.login.termsAnd           = 'und der';
+TRANSLATIONS.de.modals.login.privacyLink        = 'Datenschutzerkl\u00E4rung';
+TRANSLATIONS.de.modals.login.toggleToLogin      = 'Schon dabei? Einloggen';
+TRANSLATIONS.de.modals.login.toggleToRegister   = 'Noch kein Konto? Registrieren';
+TRANSLATIONS.de.modals.login.landingSignup      = 'Registrieren';
+TRANSLATIONS.de.modals.login.landingLogin       = 'Einloggen';
+TRANSLATIONS.de.modals.login.backBtn            = 'Zur\u00FCck';
+TRANSLATIONS.de.modals.login.logoutBtn          = 'Abmelden';
+TRANSLATIONS.de.modals.login.errors = {
+  emailRequired:       'Bitte gib deine E-Mail-Adresse ein.',
+  passwordRequired:    'Bitte gib dein Passwort ein.',
+  nameRequired:        'Bitte gib deinen Namen ein.',
+  emailRequiredFirst:  'Bitte gib zuerst deine E-Mail-Adresse ein.',
+  emailInUse:          'Diese E-Mail-Adresse ist bereits registriert.',
+  invalidEmail:        'Ung\u00FCltige E-Mail-Adresse.',
+  weakPassword:        'Passwort zu schwach (mind. 6 Zeichen).',
+  wrongPassword:       'Falsches Passwort.',
+  userNotFound:        'Kein Konto mit dieser E-Mail-Adresse.',
+  invalidCredential:   'E-Mail oder Passwort falsch.',
+  tooManyRequests:     'Zu viele Versuche \u2013 bitte warte einen Moment.',
+  tooManyRequestsLong: 'Zu viele Versuche \u2013 bitte in einer Stunde erneut versuchen.',
+  networkFailed:       'Netzwerkfehler \u2013 bitte erneut versuchen.',
+  sendFailed:          'Fehler beim Senden \u2013 bitte erneut versuchen.',
+  generic:             'Ein Fehler ist aufgetreten. Bitte erneut versuchen.',
+};
+TRANSLATIONS.de.modals.login.notifications = {
+  welcome:   'Willkommen bei EAT THIS, {name}!',
+  signedIn:  'Hey {name}, sch\u00F6n dich zu sehen!',
+  signedOut: 'Du wurdest abgemeldet.',
+};
 
 // DE burger menu overrides
 TRANSLATIONS.de.burger.about    = '\u00dcber uns';

@@ -2169,36 +2169,26 @@ function updateAlbumProgress(count) {
   const cookieDecline = document.getElementById('cookieDecline');
 
   function closeCookieSettings() {
-    if (cookieConsent) {
-      cookieConsent.classList.remove('show');
-      // After the CSS slide-out transition (300ms), force Safari to repaint its
-      // URL-bar chrome — otherwise it goes black until the next scroll event.
-      // Toggle theme-color transparent→#000→transparent in a rAF pair forces repaint.
-      setTimeout(() => {
-        const metaTheme = document.querySelector('meta[name="theme-color"]');
-        if (metaTheme) {
-          metaTheme.content = '#000000';
-          requestAnimationFrame(() => { metaTheme.content = 'transparent'; });
-        }
-        // Re-sync navbar opacity in case the slide triggered a scrollY blip.
-        const navbar = document.querySelector('.navbar');
-        if (!navbar) return;
-        const activePage = document.documentElement.getAttribute('data-active-page');
-        if (activePage === 'start') {
-          navbar.classList.toggle('scrolled', window.scrollY > 60);
-        }
-      }, 350);
-    }
+    if (!cookieConsent) return;
+    cookieConsent.classList.remove('show');
+    // After slide-out: force Safari URL-bar chrome to repaint (otherwise it
+    // stays black). Scroll by 1px and back — imperceptible, reliable repaint.
+    setTimeout(() => {
+      window.scrollTo(0, window.scrollY + 1);
+      requestAnimationFrame(() => window.scrollTo(0, window.scrollY - 1));
+      // Re-sync navbar opacity (banner slide can cause a scrollY blip).
+      const navbar = document.querySelector('.navbar');
+      if (!navbar) return;
+      if (document.documentElement.getAttribute('data-active-page') === 'start') {
+        navbar.classList.toggle('scrolled', window.scrollY > 60);
+      }
+    }, 350);
   }
 
-  // Show cookie banner on first visit.
-  // Use requestAnimationFrame to guarantee the banner is in the DOM and
-  // composited before we trigger the CSS transition — prevents the race where
-  // classList.add('show') fires before the browser has painted the hidden state.
   if (cookieConsent && !localStorage.getItem('cookieConsent')) {
     setTimeout(() => {
-      requestAnimationFrame(() => cookieConsent.classList.add('show'));
-    }, 800);
+      cookieConsent.classList.add('show');
+    }, 1500);
   }
 
   if (cookieAccept) {

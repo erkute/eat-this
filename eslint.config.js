@@ -3,6 +3,7 @@ import prettierConfig from 'eslint-config-prettier';
 import globals from 'globals';
 
 export default [
+  { ignores: ['node_modules/', 'functions/node_modules/', 'studio/', '**/*.min.js'] },
   js.configs.recommended,
   prettierConfig,
   {
@@ -22,6 +23,5 @@ export default [
       'no-var': 'error',
       'prefer-const': 'warn',
     },
-    ignores: ['node_modules/', 'functions/node_modules/', 'studio/'],
   },
 ];

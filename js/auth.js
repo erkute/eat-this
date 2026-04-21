@@ -435,7 +435,7 @@ onAuthStateChanged(auth, (user) => {
     } catch (_) { /* storage blocked */ }
     applyLoggedInUI(user);
   } else {
-    try { localStorage.removeItem('_authHint'); } catch (_) {}
+    try { localStorage.removeItem('_authHint'); } catch (_) { /* storage blocked */ }
     if (loginBtnLabel) loginBtnLabel.textContent = window.i18n.t('footer.signIn');
     loginBtn?.classList.remove('logged-in');
 

@@ -20,7 +20,7 @@
   }
 
   // Detect magic-link or OAuth-redirect returns that need auth ASAP.
-  var needsEarly = window.location.search.includes('oobCode=');
+  let needsEarly = window.location.search.includes('oobCode=');
   if (!needsEarly) {
     try {
       // Firebase stores pending redirect state in sessionStorage.
@@ -36,7 +36,7 @@
   }
 
   // Normal path: defer until after page load + idle.
-  var schedule = window.requestIdleCallback
+  const schedule = window.requestIdleCallback
     ? function (cb) { window.requestIdleCallback(cb, { timeout: 3000 }); }
     : function (cb) { setTimeout(cb, 1); };
 

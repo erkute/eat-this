@@ -292,10 +292,11 @@
       img{max-width:100%;height:auto;display:block}
       button{cursor:pointer;font-family:inherit;border:none;background:none}
       a{text-decoration:none;color:inherit}
-      .navbar{position:fixed;top:0;left:0;right:0;z-index:9999;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:10px 24px}
+      .navbar{position:fixed;top:0;left:0;right:0;z-index:9999;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:10px 24px;border-bottom:1px solid transparent}
       .navbar-actions{display:flex;align-items:center;gap:16px}
       .navbar-icon-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;width:48px;background:none;border:none;cursor:pointer;padding:4px 0;color:#000}
       .navbar-icon-btn svg{width:20px;height:20px}
+      .navbar-icon-btn::after{content:'';position:absolute;bottom:0;left:50%;width:4px;height:4px;border-radius:50%;background:transparent;transform:translateX(-50%) scale(0)}
       .burger-btn{display:flex;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;background:none;border:none;cursor:pointer;padding:4px}
       .burger-btn span{display:block;width:20px;height:2px;background:#000;border-radius:2px}
       [data-theme="dark"] .navbar{background:#0d0d0d}

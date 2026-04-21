@@ -2171,10 +2171,16 @@ function updateAlbumProgress(count) {
   function closeCookieSettings() {
     if (cookieConsent) {
       cookieConsent.classList.remove('show');
-      // The banner sliding in/out can trigger iOS Safari viewport adjustments that
-      // briefly change window.scrollY, causing the start-page navbar to flip to
-      // .scrolled (opaque). Re-sync after the CSS transition completes (300ms).
+      // After the CSS slide-out transition (300ms), force Safari to repaint its
+      // URL-bar chrome — otherwise it goes black until the next scroll event.
+      // Toggle theme-color transparent→#000→transparent in a rAF pair forces repaint.
       setTimeout(() => {
+        const metaTheme = document.querySelector('meta[name="theme-color"]');
+        if (metaTheme) {
+          metaTheme.content = '#000000';
+          requestAnimationFrame(() => { metaTheme.content = 'transparent'; });
+        }
+        // Re-sync navbar opacity in case the slide triggered a scrollY blip.
         const navbar = document.querySelector('.navbar');
         if (!navbar) return;
         const activePage = document.documentElement.getAttribute('data-active-page');
@@ -2185,10 +2191,14 @@ function updateAlbumProgress(count) {
     }
   }
 
+  // Show cookie banner on first visit.
+  // Use requestAnimationFrame to guarantee the banner is in the DOM and
+  // composited before we trigger the CSS transition — prevents the race where
+  // classList.add('show') fires before the browser has painted the hidden state.
   if (cookieConsent && !localStorage.getItem('cookieConsent')) {
     setTimeout(() => {
-      cookieConsent.classList.add('show');
-    }, 1000);
+      requestAnimationFrame(() => cookieConsent.classList.add('show'));
+    }, 800);
   }
 
   if (cookieAccept) {

@@ -1,28 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
   <url>
-    <loc>https://www.eatthisdot.com/news/file-asto-brings-a-taste-of-athens-to-kreuzberg</loc>
-    <news:news>
-      <news:publication>
-        <news:name>Eat This Berlin</news:name>
-        <news:language>en</news:language>
-      </news:publication>
-      <news:publication_date>2026-04-12T09:00:00+02:00</news:publication_date>
-      <news:title>File Asto Brings a Taste of Athens to Kreuzberg</news:title>
-    </news:news>
-  </url>
-  <url>
-    <loc>https://www.eatthisdot.com/news/the-renaissance-of-the-food-court-why-you-need-to-visit-kalle-halle</loc>
-    <news:news>
-      <news:publication>
-        <news:name>Eat This Berlin</news:name>
-        <news:language>en</news:language>
-      </news:publication>
-      <news:publication_date>2026-04-10T09:00:00+02:00</news:publication_date>
-      <news:title>The Renaissance of the Food Court: Why You Need to Visit Kalle Halle</news:title>
-    </news:news>
-  </url>
-  <url>
     <loc>https://www.eatthisdot.com/news/bun-society</loc>
     <news:news>
       <news:publication>

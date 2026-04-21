@@ -64,32 +64,6 @@
     <priority>0.2</priority>
   </url>
   <url>
-    <loc>https://www.eatthisdot.com/news/file-asto-brings-a-taste-of-athens-to-kreuzberg</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/news/file-asto-brings-a-taste-of-athens-to-kreuzberg"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/news/file-asto-brings-a-taste-of-athens-to-kreuzberg?lang=en"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/news/file-asto-brings-a-taste-of-athens-to-kreuzberg"/>
-    <lastmod>2026-04-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <image:image>
-      <image:loc>https://cdn.sanity.io/images/ehwjnjr2/production/10d9fe07d8fbe7f0aed0840ea3f0cca67b721307-1000x625.jpg?w=1200&amp;auto=format</image:loc>
-      <image:title>File Asto Brings a Taste of Athens to Kreuzberg</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.eatthisdot.com/news/the-renaissance-of-the-food-court-why-you-need-to-visit-kalle-halle</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/news/the-renaissance-of-the-food-court-why-you-need-to-visit-kalle-halle"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/news/the-renaissance-of-the-food-court-why-you-need-to-visit-kalle-halle?lang=en"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/news/the-renaissance-of-the-food-court-why-you-need-to-visit-kalle-halle"/>
-    <lastmod>2026-04-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <image:image>
-      <image:loc>https://cdn.sanity.io/images/ehwjnjr2/production/bb566da913b2cd22581c5d1d2d1dfc1185c1397c-1124x1106.png?w=1200&amp;auto=format</image:loc>
-      <image:title>The Renaissance of the Food Court: Why You Need to Visit Kalle Halle</image:title>
-    </image:image>
-  </url>
-  <url>
     <loc>https://www.eatthisdot.com/news/bun-society</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/news/bun-society"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/news/bun-society?lang=en"/>
@@ -98,47 +72,8 @@
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <image:image>
-      <image:loc>https://cdn.sanity.io/images/ehwjnjr2/production/d548181d7f33dbb0cf102a12de9a1319d8919433-550x440.jpg?w=1200&amp;auto=format</image:loc>
+      <image:loc>https://cdn.sanity.io/images/ehwjnjr2/production/443f9dc03ae4630561f39f23166a8fa6e5236044-1218x1116.png?w=1200&amp;auto=format</image:loc>
       <image:title>The Bun Society: Why This Smashburger Spot in Kreuzberg Makes You Forget All the Others</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.eatthisdot.com/news/ramen-berlin</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/news/ramen-berlin"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/news/ramen-berlin?lang=en"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/news/ramen-berlin"/>
-    <lastmod>2026-03-15</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <image:image>
-      <image:loc>https://cdn.sanity.io/images/ehwjnjr2/production/4a093270fafe206bf962d550d5195f5ae454857c-800x533.webp?w=1200&amp;auto=format</image:loc>
-      <image:title>Berlin&#39;s New Ramen Wave: Why the Capital Now Has the Ultimate Noodle House</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.eatthisdot.com/news/markthalle9</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/news/markthalle9"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/news/markthalle9?lang=en"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/news/markthalle9"/>
-    <lastmod>2026-03-14</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <image:image>
-      <image:loc>https://cdn.sanity.io/images/ehwjnjr2/production/4dd41f1c2a6c56c5d5b199af627835df71a3d890-800x533.webp?w=1200&amp;auto=format</image:loc>
-      <image:title>Markthalle Neun Is Getting a New Street Food Floor</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.eatthisdot.com/news/michelin-berlin</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.eatthisdot.com/news/michelin-berlin"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.eatthisdot.com/news/michelin-berlin?lang=en"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.eatthisdot.com/news/michelin-berlin"/>
-    <lastmod>2026-03-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <image:image>
-      <image:loc>https://cdn.sanity.io/images/ehwjnjr2/production/27f528f46cd70ba6d129f3928d99dad7f2f01760-1919x1079.webp?w=1200&amp;auto=format</image:loc>
-      <image:title>Berlin Now Has 8 Michelin-Starred Restaurants — And None Cost More Than €150</image:title>
     </image:image>
   </url>
   <url>
@@ -150,7 +85,7 @@
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <image:image>
-      <image:loc>https://cdn.sanity.io/images/ehwjnjr2/production/3618e7e5f686d662205f9744403afe4ae09ce419-800x600.webp?w=1200&amp;auto=format</image:loc>
+      <image:loc>https://cdn.sanity.io/images/ehwjnjr2/production/ff99acb46e891882fa48a14d3e53b01c8768bc7d-3828x2536.heif?w=1200&amp;auto=format</image:loc>
       <image:title>The 10 Best Donut Shops in Berlin — From Brooklyn Style to Thai</image:title>
     </image:image>
   </url>

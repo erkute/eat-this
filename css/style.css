@@ -3839,9 +3839,6 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
 /* Light mode: Palette 5 */
 .start-scroll-content { background: #FFFBFC; }
 .start-section--alt { background: #FDE8EF; }
-.start-section-label { color: #C8375A; }
-.start-section-label::before { background: #C8375A; }
-.start-join-section .start-section-label { color: #C8375A; }
 
 @media (min-width: 768px) {
   .start-section {
@@ -3851,7 +3848,7 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   }
 }
 
-/* Section label — editorial orange rule */
+/* Section label — Palette 5 Rose */
 .start-section-label {
   display: inline-flex;
   align-items: center;
@@ -3860,7 +3857,7 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: var(--orange);
+  color: #C8375A;
   background: none;
   padding: 0;
   border-radius: 0;
@@ -3871,11 +3868,11 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   flex-shrink: 0;
   width: 22px;
   height: 2px;
-  background: var(--orange);
+  background: #C8375A;
 }
 /* Join section keeps its own label style */
 .start-join-section .start-section-label {
-  color: var(--orange);
+  color: #C8375A;
 }
 .start-join-section .start-section-label::before {
   display: none;

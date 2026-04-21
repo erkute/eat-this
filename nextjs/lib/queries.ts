@@ -35,12 +35,13 @@ export const articleBySlugQuery = `
   *[_type == "newsArticle" && slug.current == $slug][0] {
     _id,
     "slug": slug.current,
-    title, titleDe,
+    "title": coalesce(title, titleDe),
+    titleDe,
     category,
     categoryLabel, categoryLabelDe,
     date,
     "imageUrl": image.asset->url + "?w=1200&auto=format&q=85",
-    alt,
+    "alt": coalesce(image.alt, alt),
     excerpt, excerptDe,
     content, contentDe,
     seo {

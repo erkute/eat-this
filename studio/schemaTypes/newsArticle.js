@@ -1,161 +1,188 @@
 import {defineField, defineType} from 'sanity'
 
+// Shared Portable Text config reused in DE + EN content fields
+const contentBlocks = [
+  {
+    type: 'block',
+    styles: [
+      {title: 'Fließtext', value: 'normal'},
+      {title: 'Überschrift H2', value: 'h2'},
+      {title: 'Überschrift H3', value: 'h3'},
+      {title: 'Zitat', value: 'blockquote'},
+    ],
+    marks: {
+      decorators: [
+        {title: 'Fett', value: 'strong'},
+        {title: 'Kursiv', value: 'em'},
+        {title: 'Unterstrichen', value: 'underline'},
+      ],
+      annotations: [
+        {
+          name: 'link',
+          type: 'object',
+          title: 'Link',
+          fields: [
+            {
+              name: 'href',
+              type: 'url',
+              title: 'URL',
+              validation: (Rule) => Rule.uri({scheme: ['http', 'https', 'mailto']}),
+            },
+            {
+              name: 'blank',
+              type: 'boolean',
+              title: 'In neuem Tab öffnen',
+              initialValue: true,
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    type: 'image',
+    title: 'Bild einfügen',
+    // Sanity CDN liefert automatisch WebP via ?auto=format — kein manuelles Konvertieren nötig
+    options: {hotspot: true, accept: 'image/*'},
+    fields: [
+      {
+        name: 'alt',
+        title: 'Alt-Text',
+        type: 'string',
+        description: 'Kurze Bildbeschreibung für SEO & Barrierefreiheit',
+        validation: (Rule) => Rule.required().warning('Alt-Text fehlt — bitte ausfüllen'),
+      },
+      {
+        name: 'caption',
+        title: 'Bildunterschrift (optional)',
+        type: 'string',
+      },
+    ],
+  },
+]
+
 export default defineType({
   name: 'newsArticle',
-  title: 'News Article',
+  title: 'News-Artikel',
   type: 'document',
   groups: [
-    {name: 'english', title: '🇬🇧 English'},
+    {name: 'meta', title: '⚙️ Allgemein', default: true},
     {name: 'german', title: '🇩🇪 Deutsch'},
-    {name: 'meta', title: 'Meta'},
-    {name: 'seo', title: 'SEO'},
+    {name: 'english', title: '🇬🇧 Englisch'},
+    {name: 'seo', title: '🔍 SEO'},
   ],
   fields: [
-    // ── Shared ────────────────────────────────────────────────────────────────
-    defineField({
-      name: 'slug',
-      title: 'Slug',
-      type: 'slug',
-      group: 'meta',
-      options: {source: 'title', maxLength: 96},
-      validation: (Rule) => Rule.required(),
-    }),
+    // ── Allgemein ─────────────────────────────────────────────────────────────
     defineField({
       name: 'date',
-      title: 'Date',
+      title: 'Veröffentlichungsdatum',
       type: 'date',
       group: 'meta',
+      options: {dateFormat: 'DD.MM.YYYY'},
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'category',
-      title: 'Category (internal)',
+      title: 'Kategorie',
       type: 'string',
       group: 'meta',
-      options: {list: ['guides', 'openings', 'culture'], layout: 'radio'},
+      options: {
+        list: [
+          {title: 'Eröffnungen', value: 'openings'},
+          {title: 'Guides', value: 'guides'},
+          {title: 'Kultur', value: 'culture'},
+        ],
+        layout: 'radio',
+      },
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'image',
-      title: 'Hero Image',
+      title: 'Aufmacher-Bild',
       type: 'image',
       group: 'meta',
-      options: {hotspot: true},
-    }),
-    defineField({
-      name: 'alt',
-      title: 'Hero Image Alt Text',
-      type: 'string',
-      group: 'meta',
-    }),
-
-    // ── English ───────────────────────────────────────────────────────────────
-    defineField({
-      name: 'title',
-      title: 'Title (EN)',
-      type: 'string',
-      group: 'english',
+      description: 'Wird automatisch als WebP ausgeliefert. Empfohlen: min. 1200 × 800 px.',
+      options: {hotspot: true, accept: 'image/*'},
+      fields: [
+        {
+          name: 'alt',
+          title: 'Alt-Text',
+          type: 'string',
+          description: 'Kurze Bildbeschreibung — wichtig für SEO & Barrierefreiheit',
+          validation: (Rule) => Rule.required().warning('Alt-Text fehlt'),
+        },
+      ],
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'categoryLabel',
-      title: 'Category Label (EN)',
+      name: 'slug',
+      title: 'URL-Slug',
+      type: 'slug',
+      group: 'meta',
+      options: {source: 'titleDe', maxLength: 96},
+      description: 'Wird automatisch aus dem DE-Titel generiert',
+      validation: (Rule) => Rule.required(),
+    }),
+
+    // ── Deutsch (primär) ──────────────────────────────────────────────────────
+    defineField({
+      name: 'titleDe',
+      title: 'Titel',
+      type: 'string',
+      group: 'german',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'categoryLabelDe',
+      title: 'Kategorie-Label',
+      type: 'string',
+      group: 'german',
+      description: 'z.B. „Eröffnungen", „Guides", „Kultur"',
+    }),
+    defineField({
+      name: 'excerptDe',
+      title: 'Teaser',
+      type: 'text',
+      group: 'german',
+      rows: 3,
+      description: 'Kurze Zusammenfassung — erscheint in der News-Übersicht',
+    }),
+    defineField({
+      name: 'contentDe',
+      title: 'Inhalt',
+      type: 'array',
+      group: 'german',
+      of: contentBlocks,
+    }),
+
+    // ── Englisch (optional) ───────────────────────────────────────────────────
+    defineField({
+      name: 'title',
+      title: 'Title',
       type: 'string',
       group: 'english',
-      description: 'Displayed label, e.g. "Openings", "Guides", "Culture"',
+      description: 'Falls leer, wird der DE-Titel als Fallback verwendet',
+    }),
+    defineField({
+      name: 'categoryLabel',
+      title: 'Category Label',
+      type: 'string',
+      group: 'english',
+      description: 'e.g. "Openings", "Guides", "Culture"',
     }),
     defineField({
       name: 'excerpt',
-      title: 'Excerpt (EN)',
+      title: 'Excerpt',
       type: 'text',
       group: 'english',
       rows: 3,
     }),
     defineField({
       name: 'content',
-      title: 'Full Content (EN)',
+      title: 'Content',
       type: 'array',
       group: 'english',
-      of: [
-        {
-          type: 'block',
-          styles: [
-            {title: 'Normal', value: 'normal'},
-            {title: 'Heading 2', value: 'h2'},
-            {title: 'Heading 3', value: 'h3'},
-            {title: 'Quote', value: 'blockquote'},
-          ],
-          marks: {
-            decorators: [
-              {title: 'Bold', value: 'strong'},
-              {title: 'Italic', value: 'em'},
-              {title: 'Underline', value: 'underline'},
-            ],
-          },
-        },
-        {
-          type: 'image',
-          options: {hotspot: true},
-          fields: [
-            {name: 'alt', title: 'Alt Text', type: 'string'},
-            {name: 'caption', title: 'Caption', type: 'string'},
-          ],
-        },
-      ],
-    }),
-
-    // ── Deutsch ───────────────────────────────────────────────────────────────
-    defineField({
-      name: 'titleDe',
-      title: 'Titel (DE)',
-      type: 'string',
-      group: 'german',
-    }),
-    defineField({
-      name: 'categoryLabelDe',
-      title: 'Kategorie-Label (DE)',
-      type: 'string',
-      group: 'german',
-      description: 'Angezeigtes Label, z.B. „Eröffnungen", „Guides", „Kultur"',
-    }),
-    defineField({
-      name: 'excerptDe',
-      title: 'Teaser (DE)',
-      type: 'text',
-      group: 'german',
-      rows: 3,
-    }),
-    defineField({
-      name: 'contentDe',
-      title: 'Vollständiger Inhalt (DE)',
-      type: 'array',
-      group: 'german',
-      of: [
-        {
-          type: 'block',
-          styles: [
-            {title: 'Normal', value: 'normal'},
-            {title: 'Heading 2', value: 'h2'},
-            {title: 'Heading 3', value: 'h3'},
-            {title: 'Quote', value: 'blockquote'},
-          ],
-          marks: {
-            decorators: [
-              {title: 'Bold', value: 'strong'},
-              {title: 'Italic', value: 'em'},
-              {title: 'Underline', value: 'underline'},
-            ],
-          },
-        },
-        {
-          type: 'image',
-          options: {hotspot: true},
-          fields: [
-            {name: 'alt', title: 'Alt Text', type: 'string'},
-            {name: 'caption', title: 'Caption', type: 'string'},
-          ],
-        },
-      ],
+      of: contentBlocks,
     }),
 
     // ── SEO ───────────────────────────────────────────────────────────────────
@@ -167,35 +194,53 @@ export default defineType({
       fields: [
         {
           name: 'metaTitle',
-          title: 'Meta Title',
+          title: 'Meta-Titel',
           type: 'string',
-          description: 'Leave empty to use article title. Max 60 characters.',
+          description: 'Leer lassen → Artikel-Titel wird verwendet. Max. 60 Zeichen.',
           validation: (Rule) => Rule.max(60),
         },
         {
           name: 'metaDescription',
-          title: 'Meta Description',
+          title: 'Meta-Beschreibung',
           type: 'text',
           rows: 3,
-          description: 'Leave empty to use excerpt. Max 160 characters.',
+          description: 'Leer lassen → Teaser wird verwendet. Max. 160 Zeichen.',
           validation: (Rule) => Rule.max(160),
         },
         {
           name: 'ogImage',
-          title: 'Social Sharing Image',
+          title: 'Social-Sharing-Bild',
           type: 'image',
-          description: 'Leave empty to use hero image. Ideal: 1200×630px.',
+          description: 'Leer lassen → Aufmacher-Bild wird genutzt. Ideal: 1200×630 px. Wird automatisch als WebP geliefert.',
+          options: {accept: 'image/*'},
         },
         {
           name: 'noIndex',
-          title: 'Hide from search engines',
+          title: 'Aus Suchmaschinen ausblenden',
           type: 'boolean',
           initialValue: false,
         },
       ],
     }),
   ],
+
   preview: {
-    select: {title: 'title', subtitle: 'categoryLabel', media: 'image'},
+    select: {
+      titleDe: 'titleDe',
+      title: 'title',
+      date: 'date',
+      media: 'image',
+      category: 'category',
+    },
+    prepare({titleDe, title, date, media, category}) {
+      const icons = {openings: '🏠', guides: '📖', culture: '🎭'}
+      const icon = icons[category] || '📰'
+      const displayTitle = titleDe || title || 'Kein Titel'
+      return {
+        title: `${icon} ${displayTitle}`,
+        subtitle: date || 'Kein Datum',
+        media,
+      }
+    },
   },
 })

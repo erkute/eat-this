@@ -156,3 +156,34 @@ export const allBezirkeQuery = `
 export const allCategoriesQuery = `
   array::unique(*[_type == "restaurant" && isOpen != false].categories[])
 `
+
+// All news articles — newest first
+export const allNewsArticlesQuery = `
+  *[_type == "newsArticle"] | order(date desc) {
+    _id,
+    "slug": slug.current,
+    "title": coalesce(title, titleDe),
+    titleDe,
+    category,
+    categoryLabel, categoryLabelDe,
+    date,
+    "imageUrl": image.asset->url + "?w=800&auto=format&q=80",
+    "alt": coalesce(image.alt, alt),
+    excerpt, excerptDe,
+    "author": author->{ name, "slug": slug.current, "photo": image.asset->url }
+  }
+`
+
+// Sitemap — all slugs for restaurants + articles
+export const sitemapQuery = `
+  {
+    "restaurants": *[_type == "restaurant" && defined(slug.current)] {
+      "slug": slug.current,
+      _updatedAt
+    },
+    "articles": *[_type == "newsArticle" && defined(slug.current)] {
+      "slug": slug.current,
+      _updatedAt
+    }
+  }
+`

@@ -7,5 +7,7 @@ import heroSettings from './heroSettings'
 import startContent from './startContent'
 import author from './author'
 import bezirk from './bezirk'
+import category from './category'
+import city from './city'
 
-export const schemaTypes = [heroSettings, startContent, newsArticle, mustEat, restaurant, bezirk, author, staticPage, cardPack]
+export const schemaTypes = [heroSettings, startContent, newsArticle, mustEat, restaurant, bezirk, category, city, author, staticPage, cardPack]

@@ -10,6 +10,12 @@ export default {
       validation: Rule => Rule.required(),
     },
     {
+      name: 'mustEatDish',
+      title: 'Must-Eat Dish',
+      type: 'string',
+      description: 'Das eine Gericht, das man bestellen muss',
+    },
+    {
       name: 'slug',
       title: 'Slug',
       type: 'slug',
@@ -159,6 +165,31 @@ export default {
       title: 'Photo',
       type: 'image',
       options: { hotspot: true },
+    },
+    {
+      name: 'gallery',
+      title: 'Galerie',
+      type: 'array',
+      of: [
+        {
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            {
+              name: 'alt',
+              title: 'Alt-Text',
+              type: 'string',
+              description: 'Kurze Bildbeschreibung für SEO & Barrierefreiheit',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'lastReviewed',
+      title: 'Zuletzt besucht',
+      type: 'date',
+      options: { dateFormat: 'DD.MM.YYYY' },
     },
     {
       name: 'reservationUrl',

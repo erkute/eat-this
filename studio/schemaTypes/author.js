@@ -27,8 +27,19 @@ export default defineType({
     defineField({
       name: 'bio',
       title: 'Bio',
-      type: 'text',
-      rows: 3,
+      type: 'array',
+      of: [
+        {
+          type: 'block',
+          styles: [{title: 'Normal', value: 'normal'}],
+          marks: {
+            decorators: [
+              {title: 'Fett', value: 'strong'},
+              {title: 'Kursiv', value: 'em'},
+            ],
+          },
+        },
+      ],
     }),
   ],
   preview: {

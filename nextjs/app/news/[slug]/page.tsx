@@ -4,6 +4,7 @@ import { PortableText } from '@portabletext/react'
 import { getArticleBySlug, getAllArticleSlugs } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
+import SiteNav from '@/app/components/SiteNav'
 import styles from './NewsArticle.module.css'
 
 interface PageProps {
@@ -93,6 +94,7 @@ export default async function NewsArticlePage({ params, searchParams }: PageProp
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+      <SiteNav />
       <main className={styles.page}>
         <article className={styles.article}>
           <header className={styles.header}>

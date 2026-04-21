@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { getRestaurantBySlug, getAllRestaurantSlugs } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
+import SiteNav from '@/app/components/SiteNav'
 import styles from './RestaurantDetail.module.css'
 
 interface PageProps {
@@ -85,6 +86,7 @@ export default async function RestaurantPage({ params }: PageProps) {
     <>
       {/* JSON-LD: serializeJsonLd sanitizes output — safe inline structured data */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+      <SiteNav />
       <main className={styles.page}>
         <div className={styles.hero}>
           {r.photo && (
@@ -99,6 +101,13 @@ export default async function RestaurantPage({ params }: PageProps) {
               {r.district && <span className={styles.district}>{r.district}</span>}
               {r.price && <span className={styles.price}>{r.price}</span>}
             </div>
+            {r.categories && r.categories.length > 0 && (
+              <div className={styles.categories}>
+                {r.categories.map((cat: string) => (
+                  <span key={cat} className={styles.category}>{cat}</span>
+                ))}
+              </div>
+            )}
           </header>
 
           {r.description && <p className={styles.description}>{r.description}</p>}

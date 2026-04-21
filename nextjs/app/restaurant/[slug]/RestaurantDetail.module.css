@@ -52,6 +52,23 @@
   font-weight: 600;
 }
 
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.category {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--gray-600);
+  border: 1px solid var(--gray-200);
+  padding: 3px 8px;
+}
+
 .description {
   font-size: 1.0625rem;
   line-height: 1.7;

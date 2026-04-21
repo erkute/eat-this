@@ -115,6 +115,13 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'alt',
+      title: 'Alt-Text (veraltet)',
+      type: 'string',
+      group: 'meta',
+      hidden: true,
+    }),
+    defineField({
       name: 'slug',
       title: 'URL-Slug',
       type: 'slug',

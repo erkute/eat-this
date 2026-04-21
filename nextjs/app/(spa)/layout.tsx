@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: 'EAT THIS — Probably the best food guide you know - We tell you what to eat',
@@ -54,16 +53,16 @@ export default function SPALayout({ children }: { children: React.ReactNode }) {
       {/* SPA body content */}
       {children}
 
-      {/* Core SPA scripts — loaded after page is interactive */}
-      <Script src="/js/cms.min.js" strategy="afterInteractive" />
-      <Script src="/js/i18n.min.js" strategy="afterInteractive" />
-      <Script src="/js/app.min.js?v=20" strategy="afterInteractive" />
-      <Script src="/js/auth-loader.min.js" strategy="afterInteractive" />
-
-      {/* Background scripts — loaded on idle after window.load */}
-      <Script src="/js/sentry.min.js" strategy="lazyOnload" />
-      <Script src="/js/sw-register.min.js" strategy="lazyOnload" />
-      <Script src="/js/notifications.min.js" strategy="lazyOnload" />
+      {/* Scripts in original defer order — plain tags preserve execution order,
+          unlike next/script afterInteractive which does not guarantee it. */}
+      {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+      <script defer src="/js/cms.min.js" />
+      {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+      <script defer src="/js/i18n.min.js" />
+      {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+      <script defer src="/js/app.min.js?v=20" />
+      {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+      <script defer src="/js/auth-loader.min.js" />
     </>
   )
 }

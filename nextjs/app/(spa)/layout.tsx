@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { I18nProvider } from '@/lib/i18n'
 import { AuthProvider } from '@/lib/auth'
+import SiteNav from '@/app/components/SiteNav'
 import BridgeI18n from './BridgeI18n'
 import BridgeAuth from './BridgeAuth'
 
@@ -59,6 +60,7 @@ export default function SPALayout({ children }: { children: React.ReactNode }) {
         <I18nProvider>
           <BridgeI18n />
           <BridgeAuth />
+          <SiteNav />
           {children}
         </I18nProvider>
       </AuthProvider>

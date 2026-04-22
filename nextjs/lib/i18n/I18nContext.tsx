@@ -122,8 +122,14 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
 // ─── Hook ──────────────────────────────────────────────────────────────────
 
+// Stable DE fallback for components rendered outside <I18nProvider> (e.g. restaurant pages).
+const I18N_FALLBACK: I18nContextValue = {
+  lang: 'de',
+  t: (keyPath) => resolvePath(translations['de'], keyPath),
+  setLang: () => {},
+  applyTranslations: () => {},
+};
+
 export function useTranslation(): I18nContextValue {
-  const ctx = useContext(I18nContext);
-  if (!ctx) throw new Error('useTranslation must be used inside <I18nProvider>');
-  return ctx;
+  return useContext(I18nContext) ?? I18N_FALLBACK;
 }

@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { getArticleBySlug, getAllArticleSlugs } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
-import { spaBodyHTML } from '../../spa-content'
+import SPAShell from '../../SPAShell'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -91,7 +91,7 @@ export default async function NewsArticlePage({ params, searchParams }: PageProp
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-      <div style={{ display: 'contents' }} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: spaBodyHTML }} />
+      <SPAShell />
     </>
   )
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { spaBodyHTML } from './spa-content'
+import SPAShell from './SPAShell'
 
 export const metadata: Metadata = {
   alternates: {
@@ -12,10 +12,6 @@ export const metadata: Metadata = {
   },
 }
 
-// Renders the vanilla-JS SPA shell for the homepage.
-// spaBodyHTML is a trusted static constant (not user input).
 export default function SPAHomePage() {
-  // display:contents makes this wrapper transparent to the layout engine.
-  // eslint-disable-next-line react/no-danger
-  return <div style={{ display: 'contents' }} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: spaBodyHTML }} />
+  return <SPAShell />;
 }

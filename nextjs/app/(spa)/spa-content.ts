@@ -1,77 +1,12 @@
 // Auto-extracted from index.html body — trusted static content, not user input.
 // Keep in sync with index.html when the SPA body changes.
-export const spaBodyHTML = `    <a href="#appPages" class="skip-link" data-i18n="a11y.skip">Zum Inhalt springen</a>
-    <!-- NAVBAR -->
-    <nav class="navbar" id="navbar">
-      <a href="#" class="navbar-brand" data-page="start">
-        <img
-          src="/pics/eat.webp"
-          alt="EAT THIS"
-          class="brand-logo"
-          width="36"
-          height="36"
-          decoding="async"
-        />
-      </a>
-      <div class="navbar-actions">
-        <button class="navbar-icon-btn" id="navNewsBtn" aria-label="News">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
-            <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
-          </svg>
-        </button>
-        <button class="navbar-icon-btn" id="navMapBtn" aria-label="Map">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
-            <line x1="9" y1="3" x2="9" y2="18"/>
-            <line x1="15" y1="6" x2="15" y2="21"/>
-          </svg>
-        </button>
-        <button class="navbar-icon-btn" id="navMustsBtn" aria-label="Eat This">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
-            <path d="M7 2v20"/>
-            <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
-          </svg>
-        </button>
-        <button class="navbar-icon-btn" id="navProfileBtn" aria-label="Profile">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
-          </svg>
-        </button>
-        <button class="burger-btn" id="burgerBtn" aria-label="Menu">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
-    </nav>
+//
+// SiteNav, HeroSection, and SiteFooter are now React components (see app/components/).
+// This file exposes the remaining HTML as template strings rendered by SPAShell.
 
-    <!-- APP PAGES CONTAINER -->
-    <div class="app-pages" id="appPages">
-      <div class="app-page active" data-page="start">
-        <header class="hero">
-          <div class="hero-overlay"></div>
-          <div class="hero-brand-block">
-            <img class="hero-mobile-logo" src="/pics/logo2.webp" alt="EAT THIS" fetchpriority="high" decoding="sync" width="1815" height="576">
-            <p class="hero-desktop-tagline">We tell you what to eat</p>
-          </div>
-          <div class="hero-scroll-hint">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </div>
-        </header>
-
-        <!-- SCROLL SECTIONS -->
-        <div class="start-scroll-content">
+// Inner content of <div class="start-scroll-content"> on the start page.
+// SiteFooter is appended as a React component after this block in SPAShell.
+export const startScrollInnerHTML = `
           <!-- Scroll hint (mobile only) -->
           <div class="start-scroll-hint">
             <div class="start-scroll-hint-line"></div>
@@ -232,10 +167,11 @@ export const spaBodyHTML = `    <a href="#appPages" class="skip-link" data-i18n=
             <p class="newsletter-success" id="newsletterSuccess" hidden data-i18n="newsletter.success">You're in! Check your inbox.</p>
           </section>
 
-        <!-- END SCROLL SECTIONS -->
-        </div>
-      </div>
+        <!-- END SCROLL SECTIONS -->`;
 
+// All app-page blocks except the start page.
+// Rendered inside app-pages div in SPAShell (display:contents wrapper).
+export const otherPagesHTML = `
       <div class="app-page" data-page="musts">
         <section class="must-eats-section" id="must-eats">
           <div class="must-eats-header">
@@ -571,53 +507,11 @@ export const spaBodyHTML = `    <a href="#appPages" class="skip-link" data-i18n=
           </section>
         </article>
       </div><!-- /news-article-page -->
+`;
 
-    </div>
-
-    <!-- SITE FOOTER TEMPLATE — stamped into every non-map page by app.js -->
-    <template id="siteFooterTpl">
-      <div class="site-footer" role="contentinfo" aria-label="Site footer">
-        <a href="#" class="site-footer-logo-link" data-page="start" aria-label="Eat This home">
-          <img src="/pics/logo2.webp" alt="EAT THIS" class="site-footer-logo-img" width="1815" height="576" loading="lazy" decoding="async" />
-        </a>
-        <nav class="site-footer-links" aria-label="Footer navigation">
-          <button class="site-footer-link" data-page="about" data-i18n="footer.about">About</button>
-          <button class="site-footer-link" data-page="contact" data-i18n="footer.contact">Contact</button>
-          <button class="site-footer-link" data-page="press" data-i18n="footer.press">Press</button>
-          <span class="site-footer-divider" aria-hidden="true"></span>
-          <button class="site-footer-link" data-page="impressum" data-i18n="footer.impressum">Impressum</button>
-          <button class="site-footer-link" data-page="datenschutz" data-i18n="footer.datenschutz">Privacy</button>
-          <button class="site-footer-link" data-page="agb" data-i18n="footer.agb">Terms</button>
-        </nav>
-        <div class="site-footer-meta">
-          <div class="site-footer-meta-row">
-            <button type="button" class="theme-toggle" id="themeToggleFooter" aria-label="Toggle dark mode">
-              <span class="theme-toggle-track">
-                <span class="theme-toggle-thumb"></span>
-              </span>
-              <span class="theme-toggle-label" data-i18n="theme.darkMode">Dark Mode</span>
-            </button>
-          </div>
-          <div class="site-footer-meta-row">
-            <a href="https://www.instagram.com/eatthisdotcom/" target="_blank"
-               rel="noopener noreferrer" class="site-footer-ig" aria-label="Instagram @eatthisdotcom">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                <circle cx="12" cy="12" r="4"/>
-                <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/>
-              </svg>
-              <span>@eatthisdotcom</span>
-            </a>
-            <div class="site-footer-lang" role="group" aria-label="Language / Sprache">
-              <button class="site-footer-lang-btn" data-lang="de" aria-label="Deutsch">DE</button>
-              <button class="site-footer-lang-btn" data-lang="en" aria-label="English">EN</button>
-            </div>
-          </div>
-        </div>
-        <p class="site-footer-copy" data-i18n="footer.copyright">&copy; 2026 Eat This. All rights reserved.</p>
-      </div>
-    </template>
-
+// Modals, drawers, onboarding overlay, welcome modal, and vanilla JS scripts.
+// Footer template removed — SiteFooter is now a React component.
+export const templatesAndModalsHTML = `
     <!-- MUST EAT MODAL -->
     <div class="modal-overlay" id="eatModal">
       <div class="modal">

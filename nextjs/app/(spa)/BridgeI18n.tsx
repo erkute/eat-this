@@ -48,15 +48,25 @@ export default function BridgeI18n() {
   // run and re-install the React wrapper, so callers of window.i18n.setLang
   // always go through React state.
   useEffect(() => {
-    // Capture vanilla methods whenever a fresh vanilla window.i18n appears.
-    if (window.i18n?.setLang && window.i18n.setLang !== vanillaRef.current.setLang) {
-      vanillaRef.current.setLang = window.i18n.setLang;
+    // Capture vanilla methods, but never capture our own React wrapper
+    // (tagged with __isReactBridge) — that would cause recursive setLang calls.
+    const maybeVanillaSetLang = window.i18n?.setLang as
+      | ((l: Lang) => void) & { __isReactBridge?: boolean }
+      | undefined;
+    if (maybeVanillaSetLang && !maybeVanillaSetLang.__isReactBridge) {
+      vanillaRef.current.setLang = maybeVanillaSetLang;
     }
     if (window.i18n?.applyStartContent) {
       vanillaRef.current.applyStartContent = window.i18n.applyStartContent;
     }
 
     const install = () => {
+      const wrappedSetLang = ((newLang: Lang) => {
+        setLang(newLang);
+        vanillaRef.current.setLang?.(newLang);
+      }) as ((l: Lang) => void) & { __isReactBridge: boolean };
+      wrappedSetLang.__isReactBridge = true;
+
       window.i18n = {
         t,
         currentLang: () => lang,
@@ -65,10 +75,7 @@ export default function BridgeI18n() {
           window._bindNewsCards?.();
         },
         applyStartContent: vanillaRef.current.applyStartContent,
-        setLang: (newLang: Lang) => {
-          setLang(newLang);
-          vanillaRef.current.setLang?.(newLang);
-        },
+        setLang: wrappedSetLang,
       };
     };
     install();
@@ -78,16 +85,17 @@ export default function BridgeI18n() {
     const timers = [50, 200, 600, 1500].map(ms =>
       window.setTimeout(() => {
         const current = window.i18n;
-        if (current && current.setLang && !(current as { __reactBridge?: boolean }).__reactBridge) {
-          if (!vanillaRef.current.setLang) vanillaRef.current.setLang = current.setLang;
-          if (current.applyStartContent) vanillaRef.current.applyStartContent = current.applyStartContent;
-          install();
-          (window.i18n as { __reactBridge?: boolean }).__reactBridge = true;
-        }
+        const currentSetLang = current?.setLang as
+          | ((l: Lang) => void) & { __isReactBridge?: boolean }
+          | undefined;
+        // If the current setLang is already our wrapper, nothing to do.
+        if (!current || !currentSetLang || currentSetLang.__isReactBridge) return;
+        // A fresh vanilla window.i18n has replaced ours — capture and re-wrap.
+        vanillaRef.current.setLang = currentSetLang;
+        if (current.applyStartContent) vanillaRef.current.applyStartContent = current.applyStartContent;
+        install();
       }, ms),
     );
-    // Mark the initial install too.
-    (window.i18n as { __reactBridge?: boolean }).__reactBridge = true;
 
     return () => { timers.forEach(t => window.clearTimeout(t)); };
   }, [lang, t, setLang, applyTranslations]);

@@ -1,29 +1,35 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { setRequestLocale } from 'next-intl/server'
 import { getArticleBySlug, getAllArticleSlugs } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
+import { routing } from '@/i18n/routing'
 import SPAShell from '../../SPAShell'
 
 interface PageProps {
-  params: Promise<{ slug: string }>
-  searchParams: Promise<{ lang?: string }>
+  params: Promise<{ locale: string; slug: string }>
 }
 
 export async function generateStaticParams() {
   const slugs = await getAllArticleSlugs()
-  return slugs.map(slug => ({ slug }))
+  return routing.locales.flatMap(locale =>
+    slugs.map(slug => ({ locale, slug })),
+  )
 }
 
 export const revalidate = 3600
 
-export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
-  const { slug } = await params
-  const { lang } = await searchParams
+function localeUrl(locale: string, path: string): string {
+  return locale === 'de' ? `${SITE_URL}${path}` : `${SITE_URL}/${locale}${path}`
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale, slug } = await params
   const a = await getArticleBySlug(slug)
   if (!a) return {}
 
-  const de = lang !== 'en'
+  const de = locale === 'de'
   const title = a.seo?.metaTitle || (de ? a.titleDe || a.title : a.title)
   const description =
     a.seo?.metaDescription ||
@@ -34,21 +40,24 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
     ? `${baseImage}?w=1200&h=630&fit=crop&auto=format`
     : `${SITE_URL}/pics/og-image.jpg`
 
+  const canonical = localeUrl(locale, `/news/${slug}`)
+
   return {
     title,
     description,
     robots: a.seo?.noIndex ? 'noindex,nofollow' : 'index,follow',
     alternates: {
-      canonical: `${SITE_URL}/news/${slug}`,
+      canonical,
       languages: {
-        de: `${SITE_URL}/news/${slug}`,
-        en: `${SITE_URL}/news/${slug}?lang=en`,
+        de: localeUrl('de', `/news/${slug}`),
+        en: localeUrl('en', `/news/${slug}`),
+        'x-default': localeUrl('de', `/news/${slug}`),
       },
     },
     openGraph: {
       title: `${title} | Eat This Berlin`,
       description,
-      url: `${SITE_URL}/news/${slug}`,
+      url: canonical,
       images: [{ url: image, width: 1200, height: 630, alt: title }],
       type: 'article',
       publishedTime: a.date,
@@ -57,13 +66,13 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   }
 }
 
-export default async function NewsArticlePage({ params, searchParams }: PageProps) {
-  const { slug } = await params
-  const { lang } = await searchParams
+export default async function NewsArticlePage({ params }: PageProps) {
+  const { locale, slug } = await params
+  setRequestLocale(locale)
   const a = await getArticleBySlug(slug)
   if (!a) notFound()
 
-  const de = lang !== 'en'
+  const de = locale === 'de'
   const title = de ? a.titleDe || a.title : a.title
   const excerpt = de ? a.excerptDe || a.excerpt : a.excerpt
 
@@ -82,14 +91,13 @@ export default async function NewsArticlePage({ params, searchParams }: PageProp
       url: SITE_URL,
       logo: { '@type': 'ImageObject', url: `${SITE_URL}/pics/logo.webp` },
     },
-    mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/news/${slug}` },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': localeUrl(locale, `/news/${slug}`) },
     inLanguage: de ? 'de' : 'en',
   })
 
-  // SPA shell — app.min.js reads /news/<slug> and loads the article automatically.
-  // JSON-LD and metadata are SSR'd for SEO; visual rendering is handled by the SPA.
   return (
     <>
+      {/* JSON-LD: serializeJsonLd escapes </ sequences — safe inline */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       <SPAShell activePage="news-article" />
     </>

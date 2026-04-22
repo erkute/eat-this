@@ -1,12 +1,13 @@
 'use client';
 
 import { useTranslation } from '@/lib/i18n';
+import LocaleLink from './LocaleLink';
 
 export default function SiteFooter() {
   const { t, lang, setLang } = useTranslation();
   return (
     <div className="site-footer" role="contentinfo" aria-label="Site footer">
-      <a href="/" className="site-footer-logo-link" data-page="start" aria-label="Eat This home">
+      <LocaleLink href="/" className="site-footer-logo-link" data-page="start" aria-label="Eat This home">
         <img
           src="/pics/logo2.webp"
           alt="EAT THIS"
@@ -16,15 +17,15 @@ export default function SiteFooter() {
           loading="lazy"
           decoding="async"
         />
-      </a>
+      </LocaleLink>
       <nav className="site-footer-links" aria-label="Footer navigation">
-        <a href="/about" className="site-footer-link" data-page="about">{t('footer.about')}</a>
-        <a href="/contact" className="site-footer-link" data-page="contact">{t('footer.contact')}</a>
-        <a href="/press" className="site-footer-link" data-page="press">{t('footer.press')}</a>
+        <LocaleLink href="/about" className="site-footer-link" data-page="about">{t('footer.about')}</LocaleLink>
+        <LocaleLink href="/contact" className="site-footer-link" data-page="contact">{t('footer.contact')}</LocaleLink>
+        <LocaleLink href="/press" className="site-footer-link" data-page="press">{t('footer.press')}</LocaleLink>
         <span className="site-footer-divider" aria-hidden="true"></span>
-        <a href="/impressum" className="site-footer-link" data-page="impressum">{t('footer.impressum')}</a>
-        <a href="/datenschutz" className="site-footer-link" data-page="datenschutz">{t('footer.datenschutz')}</a>
-        <a href="/agb" className="site-footer-link" data-page="agb">{t('footer.agb')}</a>
+        <LocaleLink href="/impressum" className="site-footer-link" data-page="impressum">{t('footer.impressum')}</LocaleLink>
+        <LocaleLink href="/datenschutz" className="site-footer-link" data-page="datenschutz">{t('footer.datenschutz')}</LocaleLink>
+        <LocaleLink href="/agb" className="site-footer-link" data-page="agb">{t('footer.agb')}</LocaleLink>
       </nav>
       <div className="site-footer-meta">
         <div className="site-footer-meta-row">

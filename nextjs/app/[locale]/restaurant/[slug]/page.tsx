@@ -1,24 +1,32 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { setRequestLocale } from 'next-intl/server'
 import { getRestaurantBySlug, getAllRestaurantSlugs } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
+import { routing } from '@/i18n/routing'
 import SiteNav from '@/app/components/SiteNav'
 import styles from './RestaurantDetail.module.css'
 
 interface PageProps {
-  params: Promise<{ slug: string }>
+  params: Promise<{ locale: string; slug: string }>
 }
 
 export async function generateStaticParams() {
   const slugs = await getAllRestaurantSlugs()
-  return slugs.map(slug => ({ slug }))
+  return routing.locales.flatMap(locale =>
+    slugs.map(slug => ({ locale, slug })),
+  )
 }
 
 export const revalidate = 3600
 
+function localeUrl(locale: string, path: string): string {
+  return locale === 'de' ? `${SITE_URL}${path}` : `${SITE_URL}/${locale}${path}`
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params
+  const { locale, slug } = await params
   const r = await getRestaurantBySlug(slug)
   if (!r) return {}
 
@@ -33,24 +41,34 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ? `${baseImage}?w=1200&h=630&fit=crop&auto=format`
     : `${SITE_URL}/pics/og-image.jpg`
 
+  const canonical = localeUrl(locale, `/restaurant/${slug}`)
+
   return {
     title,
     description,
     robots: r.seo?.noIndex ? 'noindex,nofollow' : undefined,
-    alternates: { canonical: `${SITE_URL}/restaurant/${slug}` },
+    alternates: {
+      canonical,
+      languages: {
+        de: localeUrl('de', `/restaurant/${slug}`),
+        en: localeUrl('en', `/restaurant/${slug}`),
+        'x-default': localeUrl('de', `/restaurant/${slug}`),
+      },
+    },
     openGraph: {
       title,
       description,
-      url: `${SITE_URL}/restaurant/${slug}`,
+      url: canonical,
       images: [{ url: image, width: 1200, height: 630, alt: r.name }],
       type: 'website',
-      locale: 'de_DE',
+      locale: locale === 'de' ? 'de_DE' : 'en_US',
     },
   }
 }
 
 export default async function RestaurantPage({ params }: PageProps) {
-  const { slug } = await params
+  const { locale, slug } = await params
+  setRequestLocale(locale)
   const r = await getRestaurantBySlug(slug)
   if (!r) notFound()
 

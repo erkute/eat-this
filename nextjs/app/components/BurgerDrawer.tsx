@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslation } from '@/lib/i18n';
+import LocaleLink from './LocaleLink';
 
 export default function BurgerDrawer() {
   const { t, lang, setLang } = useTranslation();
@@ -15,10 +16,10 @@ export default function BurgerDrawer() {
           </svg>
         </button>
         <nav className="burger-nav">
-          <a href="/about" className="burger-nav-item burger-nav-item--sm" id="openAbout">{t('burger.about')}</a>
-          <a href="/contact" className="burger-nav-item burger-nav-item--sm" id="openContact">{t('burger.contact')}</a>
-          <a href="/press" className="burger-nav-item burger-nav-item--sm" id="openPress">{t('burger.press')}</a>
-          <a href="/impressum" className="burger-nav-item burger-nav-item--sm" id="openImpressum">{t('burger.impressum')}</a>
+          <LocaleLink href="/about" className="burger-nav-item burger-nav-item--sm" id="openAbout">{t('burger.about')}</LocaleLink>
+          <LocaleLink href="/contact" className="burger-nav-item burger-nav-item--sm" id="openContact">{t('burger.contact')}</LocaleLink>
+          <LocaleLink href="/press" className="burger-nav-item burger-nav-item--sm" id="openPress">{t('burger.press')}</LocaleLink>
+          <LocaleLink href="/impressum" className="burger-nav-item burger-nav-item--sm" id="openImpressum">{t('burger.impressum')}</LocaleLink>
         </nav>
         <div className="burger-utils">
           <button className="burger-util-btn" id="burgerSearchTrigger">
@@ -79,21 +80,21 @@ export default function BurgerDrawer() {
           </div>
         </div>
         <div className="burger-drawer-footer">
-          <a
+          <LocaleLink
             href="/datenschutz"
             className="burger-drawer-footer-btn"
             id="openDatenschutzFromBurger"
           >
             {t('modals.datenschutz.title')}
-          </a>
+          </LocaleLink>
           <span>·</span>
-          <a
+          <LocaleLink
             href="/agb"
             className="burger-drawer-footer-btn"
             id="openAgbFromBurger"
           >
             {t('modals.agb.title')}
-          </a>
+          </LocaleLink>
         </div>
       </div>
     </div>

@@ -1,10 +1,15 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
-import { I18nProvider } from '@/lib/i18n'
+import { setRequestLocale } from 'next-intl/server'
+import { notFound } from 'next/navigation'
+import { hasLocale } from 'next-intl'
+import { routing } from '@/i18n/routing'
 import { AuthProvider } from '@/lib/auth'
 import SiteNav from '@/app/components/SiteNav'
 import BridgeI18n from './BridgeI18n'
 import BridgeAuth from './BridgeAuth'
+
+const SITE_URL = 'https://www.eatthisdot.com'
 
 export const metadata: Metadata = {
   title: 'EAT THIS — Probably the best food guide you know - We tell you what to eat',
@@ -12,11 +17,11 @@ export const metadata: Metadata = {
     "Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must-Eats on the interactive map & hunt down the best dishes in the city. Taste it all!",
   robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
   alternates: {
-    canonical: 'https://www.eatthisdot.com/',
+    canonical: SITE_URL + '/',
     languages: {
-      de: 'https://www.eatthisdot.com/',
-      en: 'https://www.eatthisdot.com/?lang=en',
-      'x-default': 'https://www.eatthisdot.com/',
+      de: SITE_URL + '/',
+      en: SITE_URL + '/en',
+      'x-default': SITE_URL + '/',
     },
   },
   openGraph: {
@@ -25,8 +30,8 @@ export const metadata: Metadata = {
     title: 'EAT THIS — Probably the best food guide you know - We tell you what to eat',
     description:
       "Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must-Eats on the interactive map & hunt down the best dishes in the city. Taste it all!",
-    url: 'https://www.eatthisdot.com',
-    images: [{ url: 'https://www.eatthisdot.com/pics/og-image.jpg', width: 1200, height: 630, alt: 'EAT THIS — Berlin Food Guide' }],
+    url: SITE_URL,
+    images: [{ url: SITE_URL + '/pics/og-image.jpg', width: 1200, height: 630, alt: 'EAT THIS — Berlin Food Guide' }],
     locale: 'de_DE',
   },
   twitter: {
@@ -35,43 +40,43 @@ export const metadata: Metadata = {
     title: 'EAT THIS — Probably the best food guide you know - We tell you what to eat',
     description:
       "Just Order This: Your curated Berlin food guide. Collect all Eat Cards & discover Must-Eats on the interactive map. Taste it all!",
-    images: ['https://www.eatthisdot.com/pics/og-image.jpg'],
+    images: [SITE_URL + '/pics/og-image.jpg'],
   },
 }
 
-export default function SPALayout({ children }: { children: React.ReactNode }) {
+export default async function SPALayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+  if (!hasLocale(routing.locales, locale)) notFound()
+  setRequestLocale(locale)
+
   return (
     <>
       {/* Full SPA stylesheet — hoisted to <head> by Next.js */}
       {/* eslint-disable-next-line @next/next/no-css-tags */}
       <link rel="stylesheet" href="/css/style.min.css?v=24" precedence="default" />
 
-      {/* Preconnect for Sanity CDN */}
       <link rel="preconnect" href="https://ehwjnjr2.apicdn.sanity.io" crossOrigin="anonymous" />
       <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
 
-      {/* Manifest + favicon */}
       <link rel="manifest" href="/manifest.json" />
       <link rel="icon" type="image/x-icon" href="/favicon.ico" />
       <link rel="icon" type="image/png" sizes="192x192" href="/pics/favicon-192.png" />
       <link rel="apple-touch-icon" sizes="192x192" href="/pics/favicon-192.png" />
 
-      {/* SPA body content — wrapped in i18n + auth context */}
       <AuthProvider>
-        <I18nProvider>
-          <BridgeI18n />
-          <BridgeAuth />
-          <SiteNav />
-          {children}
-        </I18nProvider>
+        <BridgeI18n />
+        <BridgeAuth />
+        <SiteNav />
+        {children}
       </AuthProvider>
 
-      {/* Legacy SPA scripts — load AFTER React hydrates so they don't mutate
-          the DOM before hydration and trigger mismatches. The shim patches
-          addEventListener so late-registered DOMContentLoaded handlers still
-          fire (the event has already dispatched by the time these load).
-          Remove once the migration off app.min.js / i18n.min.js / cms.min.js
-          is complete. */}
+      {/* Legacy SPA scripts — load AFTER React hydrates. Will be removed in Phase B. */}
       <Script src="/js/legacy-domready-shim.js" strategy="afterInteractive" />
       <Script src="/js/cms.min.js" strategy="afterInteractive" />
       <Script src="/js/i18n.min.js" strategy="afterInteractive" />

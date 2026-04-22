@@ -1,17 +1,26 @@
 import type { Metadata } from 'next'
+import { setRequestLocale } from 'next-intl/server'
 import SPAShell from './SPAShell'
+
+const SITE_URL = 'https://www.eatthisdot.com'
 
 export const metadata: Metadata = {
   alternates: {
-    canonical: 'https://www.eatthisdot.com/',
+    canonical: SITE_URL + '/',
     languages: {
-      de: 'https://www.eatthisdot.com/',
-      en: 'https://www.eatthisdot.com/?lang=en',
-      'x-default': 'https://www.eatthisdot.com/',
+      de: SITE_URL + '/',
+      en: SITE_URL + '/en',
+      'x-default': SITE_URL + '/',
     },
   },
 }
 
-export default function SPAHomePage() {
-  return <SPAShell />;
+export default async function SPAHomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+  setRequestLocale(locale)
+  return <SPAShell />
 }

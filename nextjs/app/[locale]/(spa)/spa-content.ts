@@ -390,70 +390,11 @@ export const templatesAndModalsHTML = `
     </div>
 
     <!-- BURGER MENU DRAWER is now rendered by <BurgerDrawer /> React component -->
-
-    <!-- ABOUT MODAL -->
-    <div class="login-modal" id="aboutModal">
-      <div class="login-modal-backdrop" id="aboutBackdrop"></div>
-      <div class="login-modal-content cookie-info-modal-content">
-        <button class="login-modal-close" id="aboutClose" aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-        <h2 class="cookie-info-title" data-i18n="modals.about.title">One dish. That's it.</h2>
-        <div class="cookie-info-body" data-i18n-html="modals.about.body"></div>
-      </div>
-    </div>
-
-    <!-- CONTACT MODAL -->
-    <div class="login-modal" id="contactModal">
-      <div class="login-modal-backdrop" id="contactBackdrop"></div>
-      <div class="login-modal-content cookie-info-modal-content">
-        <button class="login-modal-close" id="contactClose" aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-        <h2 class="cookie-info-title" data-i18n="modals.contact.title">Get in touch</h2>
-        <div class="cookie-info-body" data-i18n-html="modals.contact.body"></div>
-      </div>
-    </div>
-
-    <!-- PRESS MODAL -->
-    <div class="login-modal" id="pressModal">
-      <div class="login-modal-backdrop" id="pressBackdrop"></div>
-      <div class="login-modal-content cookie-info-modal-content">
-        <button class="login-modal-close" id="pressClose" aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-        <h2 class="cookie-info-title" data-i18n="modals.press.title">Press & Media</h2>
-        <div class="cookie-info-body" data-i18n-html="modals.press.body"></div>
-      </div>
-    </div>
-
-    <!-- IMPRESSUM MODAL -->
-    <div class="login-modal" id="impressumModal">
-      <div class="login-modal-backdrop" id="impressumBackdrop"></div>
-      <div class="login-modal-content cookie-info-modal-content">
-        <button class="login-modal-close" id="impressumClose" aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-        <h2 class="cookie-info-title" data-i18n="modals.impressum.title">Impressum</h2>
-        <div class="cookie-info-body" data-i18n-html="modals.impressum.body"></div>
-      </div>
-    </div>
-
-    <!-- LOGIN MODAL -->
+    <!-- About/Contact/Press/Impressum/Datenschutz modals removed in Phase B:
+         the burger menu now links directly to the full React pages at /about,
+         /contact, /press, /impressum, /datenschutz. agbTrigger stays — still
+         used to open the AGB modal below. -->
     <button id="agbTrigger" hidden aria-hidden="true"></button>
-    <button id="datenschutzTrigger" hidden aria-hidden="true"></button>
 
     <!-- COOKIE CONSENT -->
     <div class="cookie-consent" id="cookieConsent">
@@ -497,21 +438,9 @@ export const templatesAndModalsHTML = `
       </div>
     </div>
 
-    <!-- DATENSCHUTZ MODAL -->
-    <div class="login-modal" id="datenschutzModal">
-      <div class="login-modal-backdrop" id="datenschutzBackdrop"></div>
-      <div class="login-modal-content cookie-info-modal-content">
-        <button class="login-modal-close" id="datenschutzClose" aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-        <h2 class="cookie-info-title" data-i18n="modals.datenschutz.title">Datenschutz</h2>
-        <div class="cookie-info-body" data-i18n-html="modals.datenschutz.body"></div>
-      </div>
-    </div>
+    <!-- Datenschutz modal removed — full page at /datenschutz -->
 
+    <!-- COOKIE INFO MODAL -->
     <div class="login-modal" id="cookieInfoModal">
       <div class="login-modal-backdrop" id="cookieInfoBackdrop"></div>
       <div class="login-modal-content cookie-info-modal-content">

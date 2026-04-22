@@ -1,9 +1,9 @@
 import HeroSection from '@/app/components/HeroSection';
 import SiteFooter from '@/app/components/SiteFooter';
 import NewsSection from '@/app/components/NewsSection';
+import StartSections from '@/app/components/StartSections';
 import { getAllNewsArticles } from '@/lib/sanity.server';
 import {
-  startScrollInnerHTML,
   pagesBeforeNewsHTML,
   pagesAfterNewsHTML,
   templatesAndModalsHTML,
@@ -25,7 +25,7 @@ export default async function SPAShell() {
         <div className="app-page active" data-page="start" suppressHydrationWarning>
           <HeroSection />
           <div className="start-scroll-content">
-            <RawHtml html={startScrollInnerHTML} />
+            <StartSections />
             <SiteFooter />
           </div>
         </div>

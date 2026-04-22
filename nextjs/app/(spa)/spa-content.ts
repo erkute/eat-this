@@ -1,177 +1,13 @@
 // Auto-extracted from index.html body — trusted static content, not user input.
 // Keep in sync with index.html when the SPA body changes.
 //
-// SiteNav, HeroSection, and SiteFooter are now React components (see app/components/).
-// This file exposes the remaining HTML as template strings rendered by SPAShell.
+// SiteNav, HeroSection, SiteFooter, StartSections, and NewsSection are React
+// components (see app/components/). This file exposes the remaining HTML as
+// template strings rendered by SPAShell.
 
-// Inner content of <div class="start-scroll-content"> on the start page.
-// SiteFooter is appended as a React component after this block in SPAShell.
-export const startScrollInnerHTML = `
-          <!-- Scroll hint (mobile only) -->
-          <div class="start-scroll-hint">
-            <div class="start-scroll-hint-line"></div>
-            <div class="start-scroll-hint-text">Scroll</div>
-          </div>
-
-          <!-- 1. Intro -->
-          <div class="start-section">
-            <div class="start-editorial-row">
-              <div class="start-editorial-text">
-                <span class="start-section-label" data-i18n="start.section1Label">Eat This</span>
-                <h2 class="start-section-title" data-i18n="start.section1Title">
-                  Probably the BEST food guide you know.
-                </h2>
-                <p class="start-section-body" data-i18n="start.section1Body">
-                  The most curated selection of Must-Eats in Berlin. Discover the city via our
-                  interactive map and start building your deck.
-                </p>
-              </div>
-              <div class="start-img-wrap tall">
-                <img
-                  id="startImg1"
-                  src="/pics/about/tablecard.webp"
-                  alt="Eat This Berlin"
-                  class="start-img"
-                  style="object-position: center 72%"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div class="start-section start-section--alt">
-            <div class="start-editorial-row start-editorial-row--reverse">
-              <div class="start-editorial-text">
-                <span class="start-section-label" data-i18n="start.section2Label">The Concept</span>
-                <h2 class="start-section-title" data-i18n="start.section2Title">
-                  Just order this.
-                </h2>
-                <div class="start-section-body">
-                  <p data-i18n="start.section2Body1">
-                    We hunt down the outstanding dishes. Every Must-Eat Card in your collection
-                    represents a recommendation we stand behind—from single iconic plates to entire
-                    "Menu Approved" spots.
-                  </p>
-                  <p data-i18n="start.section2Body2">
-                    Register to unlock your first Booster Pack including 10 free Must-Eat Cards.
-                    Collect them all, explore the map, and master the Berlin food scene.
-                  </p>
-                </div>
-              </div>
-              <div class="start-img-wrap tall" id="cardsImgWrap">
-                <img
-                  id="startImg2"
-                  src="/pics/about/cards.webp"
-                  alt="Must-Eat Cards"
-                  class="start-img"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div class="start-section">
-            <span class="start-section-label" data-i18n="start.section4Label">Our Standards</span>
-            <div class="start-philo-list">
-              <div class="start-philo-item">
-                <div class="start-philo-num">01</div>
-                <div>
-                  <div class="start-philo-title" data-i18n="start.philo1Title">Pure Curation.</div>
-                  <div class="start-philo-text" data-i18n="start.philo1Text">
-                    One rule: only the best food. We visit, we taste, we select. If it's not
-                    outstanding, it doesn't get a card.
-                  </div>
-                </div>
-              </div>
-              <div class="start-philo-item">
-                <div class="start-philo-num">02</div>
-                <div>
-                  <div class="start-philo-title" data-i18n="start.philo2Title">The Deck.</div>
-                  <div class="start-philo-text" data-i18n="start.philo2Text">
-                    Hundreds of Must-Eats to discover. Build your personal archive of the city's
-                    finest restaurants and cafés.
-                  </div>
-                </div>
-              </div>
-              <div class="start-philo-item">
-                <div class="start-philo-num">03</div>
-                <div>
-                  <div class="start-philo-title" data-i18n="start.philo3Title">
-                    Always Independent.
-                  </div>
-                  <div class="start-philo-text" data-i18n="start.philo3Text">
-                    No paid placements. We tell you what to eat based on quality, nothing else.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="start-section">
-            <div class="start-editorial-row">
-              <div class="start-editorial-text">
-                <span class="start-section-label" data-i18n="start.section5Label">How we choose</span>
-                <h2 class="start-section-title" data-i18n="start.section5Title">
-                  Only the best makes the deck.
-                </h2>
-                <p class="start-section-body" data-i18n="start.section5Body1">
-                  We visit every place ourselves and talk to the chefs to find the dishes that stand out.
-                </p>
-              </div>
-              <div class="start-img-wrap tall">
-                <img
-                  id="startImg5"
-                  src="/pics/about/dinner.webp"
-                  alt="Curation process"
-                  class="start-img"
-                  style="object-position: center 60%"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div class="start-section start-section--alt">
-            <span class="start-section-label" data-i18n="start.section6Label">What's next</span>
-            <h2 class="start-section-title" data-i18n="start.section6Title">
-              Berlin is just<br />the first deck.
-            </h2>
-            <p class="start-section-body" data-i18n="start.section6Body1">
-              We are expanding city by city. More decks, more Must-Eats, and exclusive Merch coming
-              soon.
-            </p>
-          </div>
-
-          <!-- NEWSLETTER SECTION -->
-          <section class="newsletter-section" id="newsletterSection">
-            <p class="newsletter-eyebrow" data-i18n="newsletter.eyebrow">Stay in the loop</p>
-            <p class="newsletter-title" data-i18n="newsletter.title">New Must-Eats, every week.</p>
-            <p class="newsletter-sub" data-i18n="newsletter.sub">
-              Get the latest Berlin spots delivered to your inbox — plus a free bonus card pack.
-            </p>
-            <form class="newsletter-form" id="newsletterForm" novalidate>
-              <input
-                class="newsletter-input"
-                id="newsletterEmail"
-                type="email"
-                placeholder="your@email.com"
-                data-i18n-placeholder="newsletter.placeholder"
-                autocomplete="email"
-              />
-              <button class="newsletter-btn" id="newsletterSubmit" type="submit" data-i18n="newsletter.cta">Subscribe</button>
-            </form>
-            <p class="newsletter-error" id="newsletterError" hidden data-i18n="newsletter.error">Please enter a valid email address.</p>
-            <p class="newsletter-success" id="newsletterSuccess" hidden data-i18n="newsletter.success">You're in! Check your inbox.</p>
-          </section>
-
-        <!-- END SCROLL SECTIONS -->`;
-
-// All app-page blocks except the start page.
+// App-page blocks rendered BEFORE the news page.
 // Rendered inside app-pages div in SPAShell (display:contents wrapper).
-export const otherPagesHTML = `
+export const pagesBeforeNewsHTML = `
       <div class="app-page" data-page="musts">
         <section class="must-eats-section" id="must-eats">
           <div class="must-eats-header">
@@ -196,32 +32,10 @@ export const otherPagesHTML = `
           </div>
         </section>
       </div>
+`;
 
-      <div class="app-page" data-page="news">
-        <section class="news-section" id="news">
-          <div class="news-header">
-            <div class="news-header-top">
-              <p class="section-label reveal" data-i18n="news.sectionLabel">Berlin</p>
-              <h2
-                class="news-title"
-                data-i18n="news.sectionTitle"
-              >
-                Food News
-              </h2>
-            </div>
-          </div>
-
-          <!-- News ticker — populated by JS after cards load -->
-          <div class="news-ticker" aria-hidden="true"></div>
-
-          <!-- News Grid -->
-          <div class="news-grid reveal-stagger">
-            <!-- populated by js/i18n.js -->
-          </div>
-        </section>
-      </div>
-      <!-- /.app-page[news] -->
-
+// App-page blocks rendered AFTER the news page (news is now a React component).
+export const pagesAfterNewsHTML = `
       <div class="app-page" data-page="map">
         <section class="map-section" id="map">
           <div class="map-container" id="foodMap">
@@ -999,10 +813,4 @@ export const templatesAndModalsHTML = `
 
       </div>
     </div>
-
-
-    <script defer src="/js/cms.min.js"></script>
-    <script defer src="/js/i18n.min.js"></script>
-    <script defer src="/js/app.min.js?v=20"></script>
-    <script defer src="/js/auth-loader.min.js"></script>
 `;

@@ -34,24 +34,23 @@ export default function BridgeI18n() {
   const { lang, t, setLang, applyTranslations } = useTranslation();
 
   // Sync React → window.i18n on every lang change.
-  // Vanilla-only functions (renderNewsCards, applyStartContent) are preserved
-  // so app.min.js callers keep working unchanged.
+  // News cards are now React-rendered, so renderNewsCards is a no-op that just
+  // re-binds the legacy ticker/reveal logic against the React DOM.
   useEffect(() => {
-    // Capture vanilla refs before overwriting so the new setLang closure can
-    // still delegate to the original vanilla engine (news card re-rendering, etc.)
     const vanillaSetLang = window.i18n?.setLang;
-    const vanillaRenderNewsCards = window.i18n?.renderNewsCards;
     const vanillaApplyStartContent = window.i18n?.applyStartContent;
 
     window.i18n = {
       t,
       currentLang: () => lang,
       applyTranslations,
-      renderNewsCards: vanillaRenderNewsCards,
+      renderNewsCards: async () => {
+        window._bindNewsCards?.();
+      },
       applyStartContent: vanillaApplyStartContent,
       setLang: (newLang: Lang) => {
         setLang(newLang);           // update React state (triggers re-render)
-        vanillaSetLang?.(newLang);  // run vanilla engine (DOM update, news cards)
+        vanillaSetLang?.(newLang);  // run vanilla engine (DOM update, etc.)
       },
     };
   }, [lang, t, setLang, applyTranslations]);

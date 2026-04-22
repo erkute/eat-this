@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { I18nProvider } from '@/lib/i18n'
 import { AuthProvider } from '@/lib/auth'
 import SiteNav from '@/app/components/SiteNav'
@@ -65,6 +66,17 @@ export default function SPALayout({ children }: { children: React.ReactNode }) {
         </I18nProvider>
       </AuthProvider>
 
+      {/* Legacy SPA scripts — load AFTER React hydrates so they don't mutate
+          the DOM before hydration and trigger mismatches. The shim patches
+          addEventListener so late-registered DOMContentLoaded handlers still
+          fire (the event has already dispatched by the time these load).
+          Remove once the migration off app.min.js / i18n.min.js / cms.min.js
+          is complete. */}
+      <Script src="/js/legacy-domready-shim.js" strategy="afterInteractive" />
+      <Script src="/js/cms.min.js" strategy="afterInteractive" />
+      <Script src="/js/i18n.min.js" strategy="afterInteractive" />
+      <Script src="/js/app.min.js?v=20" strategy="afterInteractive" />
+      <Script src="/js/auth-loader.min.js" strategy="afterInteractive" />
     </>
   )
 }

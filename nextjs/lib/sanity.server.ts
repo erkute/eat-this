@@ -4,6 +4,7 @@ import {
   allRestaurantSlugsQuery,
   articleBySlugQuery,
   allArticleSlugsQuery,
+  allNewsArticlesQuery,
 } from './queries'
 import type { Restaurant, NewsArticle } from './types'
 
@@ -39,4 +40,12 @@ export async function getAllArticleSlugs(): Promise<string[]> {
     { next: { revalidate: 3600 } }
   )
   return results.map(a => a.slug)
+}
+
+export async function getAllNewsArticles(): Promise<NewsArticle[]> {
+  return client.fetch<NewsArticle[]>(
+    allNewsArticlesQuery,
+    {},
+    { next: { revalidate: 3600, tags: ['news'] } }
+  )
 }

@@ -5,98 +5,11 @@
 // components (see app/components/). This file exposes the remaining HTML as
 // template strings rendered by SPAShell.
 
-// App-page blocks rendered AFTER the news page (news is now a React component).
-export const pagesAfterNewsHTML = `
-      <div class="app-page" data-page="map">
-        <section class="map-section" id="map">
-          <div class="map-container" id="foodMap">
-            <button
-              class="map-location-btn-fixed"
-              id="mapLocationBtnFixed"
-              aria-label="My location"
-              data-i18n-aria="map.myLocationAriaLabel"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                width="18"
-                height="18"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-              >
-                <circle cx="12" cy="12" r="4" />
-                <line x1="12" y1="2" x2="12" y2="6" />
-                <line x1="12" y1="18" x2="12" y2="22" />
-                <line x1="2" y1="12" x2="6" y2="12" />
-                <line x1="18" y1="12" x2="22" y2="12" />
-              </svg>
-            </button>
-          </div>
-          <div class="map-zoom-btns">
-            <button class="map-zoom-btn" id="mapZoomIn" aria-label="Zoom in">+</button>
-            <button class="map-zoom-btn" id="mapZoomOut" aria-label="Zoom out">−</button>
-          </div>
-          <div class="map-nearby" id="mapNearby">
-            <div class="map-nearby-handle" id="mapNearbyHandle">
-              <div class="map-nearby-handle-bar"></div>
-            </div>
-            <div class="map-nearby-toolbar">
-              <div class="map-search-wrap">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="map-search-icon">
-                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-                <input type="text" id="mapSearchInput" class="map-search-input" placeholder="Restaurant, Bezirk, Pizza…" data-i18n-placeholder="map.searchPlaceholder" autocomplete="off" />
-              </div>
-              <div class="map-filter-chips" id="mapFilterChips" role="tablist" aria-label="Category filters"></div>
-              <div class="map-filter-dropdown" id="mapFilterDropdown">
-                <button type="button" class="map-filter-dropdown-btn" id="mapFilterBtn">
-                  <span id="mapFilterLabel" data-i18n="map.filterAll">All</span>
-                  <svg viewBox="0 0 10 6" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg>
-                </button>
-                <div class="map-filter-dropdown-menu" id="mapFilterMenu">
-                  <button type="button" class="map-filter-option active" data-value="all" data-i18n="map.filterAll">All</button>
-                  <button type="button" class="map-filter-option" data-value="Dinner" data-i18n="map.filterDinner">Dinner</button>
-                  <button type="button" class="map-filter-option" data-value="Lunch" data-i18n="map.filterLunch">Lunch</button>
-                  <button type="button" class="map-filter-option" data-value="Coffee" data-i18n="map.filterCoffee">Coffee</button>
-                  <button type="button" class="map-filter-option" data-value="Breakfast" data-i18n="map.filterBreakfast">Breakfast</button>
-                  <button type="button" class="map-filter-option" data-value="Sweets" data-i18n="map.filterSweets">Sweets</button>
-                  <button type="button" class="map-filter-option" data-value="Pizza" data-i18n="map.filterPizza">Pizza</button>
-                </div>
-              </div>
-              <div id="mapOpenToggle" class="map-open-switch" role="switch" aria-checked="false" tabindex="0">
-                <div class="map-switch-track"><div class="map-switch-thumb"></div></div>
-                <span class="map-switch-label" data-i18n="map.openNow">Offen</span>
-              </div>
-            </div>
-            <div class="map-nearby-grid-wrapper">
-              <div class="map-nearby-grid" id="mapNearbyGrid"></div>
-            </div>
-          </div>
-          <div class="map-spot-overlay" id="mapSpotOverlay">
-            <div class="map-spot-card" id="mapSpotCard">
-              <button class="map-spot-close" id="mapSpotClose" aria-label="Close">
-                <svg
-                  viewBox="0 0 24 24"
-                  width="20"
-                  height="20"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-              <div class="map-spot-content" id="mapSpotContent"></div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <!-- ═══════════════════════════════════════════
-           PROFILE PAGE
-           ═══════════════════════════════════════════ -->
+// Profile page shell — populated client-side by auth.min.js after hydration.
+// Still raw HTML because the tab panels / saved / settings fields are all
+// imperatively filled by legacy JS. Will become <ProfileSection /> when the
+// auth.min.js UI is ported.
+export const profilePageHTML = `
       <div class="app-page" data-page="profile" id="profilePage">
 
         <!-- Logged-in state -->

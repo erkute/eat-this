@@ -80,7 +80,7 @@ export default async function SPALayout({
       <Script src="/js/legacy-domready-shim.js" strategy="afterInteractive" />
       <Script src="/js/legacy-locale-shim.js" strategy="beforeInteractive" />
       <Script src="/js/cms.min.js" strategy="afterInteractive" />
-      <Script src="/js/i18n.min.js" strategy="afterInteractive" />
+      {/* i18n.min.js dropped in Phase C — BridgeI18n provides window.i18n. */}
       <Script src="/js/app.min.js?v=21" strategy="afterInteractive" />
       <Script src="/js/auth-loader.min.js" strategy="afterInteractive" />
     </>

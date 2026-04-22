@@ -31,12 +31,21 @@ export function useTranslation(): I18nContextValue {
   const t = useTranslations();
   const pathname = usePathname();
 
+  // Legacy consumers (auth.min.js) expect the raw string — including {name} /
+  // {mail} placeholders — so they can do their own substitution. next-intl
+  // otherwise tries to ICU-format any key containing `{...}` and throws if no
+  // values are passed. Fall back to t.raw() to preserve the placeholders.
   const tWrapped = useCallback(
     (keyPath: string) => {
       try {
         return t(keyPath);
       } catch {
-        return keyPath;
+        try {
+          const raw = t.raw(keyPath);
+          return typeof raw === 'string' ? raw : keyPath;
+        } catch {
+          return keyPath;
+        }
       }
     },
     [t],

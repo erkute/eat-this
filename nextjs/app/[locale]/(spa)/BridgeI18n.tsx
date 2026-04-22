@@ -74,7 +74,10 @@ export default function BridgeI18n() {
         renderNewsCards: async () => {
           window._bindNewsCards?.();
         },
-        applyStartContent: vanillaRef.current.applyStartContent,
+        // i18n.min.js used to override the start-page strings from a CMS fetch.
+        // Start page is now React-rendered from translations.ts, so a noop is
+        // safe — app.min.js still calls this after fetching CMS start content.
+        applyStartContent: vanillaRef.current.applyStartContent ?? (() => {}),
         setLang: wrappedSetLang,
       };
     };

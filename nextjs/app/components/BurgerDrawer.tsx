@@ -41,12 +41,15 @@ export default function BurgerDrawer() {
             </svg>
             Instagram
           </a>
-          <button className="burger-util-btn" id="loginBtn">
+          {/* Pre-hydration bootstrap in layout.tsx may set .logged-in + username
+              from the _authHint localStorage snapshot, so suppress hydration
+              warnings on this button and its label span. */}
+          <button className="burger-util-btn" id="loginBtn" suppressHydrationWarning>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
               <circle cx="12" cy="7" r="4"/>
             </svg>
-            <span>{t('footer.signIn')}</span>
+            <span suppressHydrationWarning>{t('footer.signIn')}</span>
           </button>
         </div>
         <div className="burger-theme-row">

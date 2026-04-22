@@ -77,16 +77,16 @@ Three tiny shims in `public/js/` that make vanilla SPA JS (`app.min.js`, `map-in
 
 SiteFooter rendered by each page component directly (MustsSection, NewsSection, ProfileSection, StaticPages, NewsArticleShell). Map page excluded — no footer by design.
 
-Note: `CookieConsent.tsx` uses `data-i18n-html` attributes on body divs so the legacy `i18n.min.js` still fills the AGB/Datenschutz/cookie HTML — this is intentional until Phase C.
+Note: `CookieConsent.tsx` AGB/Datenschutz/cookie modal bodies are now React-rendered via `MODAL_BODIES` in `lib/i18n/translations.ts`. No more `data-i18n-html` attributes.
 
-## Phase C — next steps (replacing legacy JS)
+## Phase C — progress
 
-Goal: drop all minified legacy bundles (`app.min.js`, `map-init.min.js`, `cms.min.js`, `i18n.min.js`, `auth.min.js`) and the two shims (`legacy-domready-shim.js`, `legacy-locale-shim.js`).
+Goal: drop all minified legacy bundles (`app.min.js`, `map-init.min.js`, `cms.min.js`, `i18n.min.js`, `auth.min.js`) and the two shims.
 
-Priority order:
-1. **i18n.min.js** — drop as soon as all `data-i18n`, `data-i18n-placeholder`, `data-i18n-html`, `data-i18n-aria` attributes are removed from JSX. Already done for most; remaining: `CookieConsent.tsx` (3 data-i18n-html). Replace by switching to React-rendered body content.
-2. **cms.min.js** — fetches news articles and static pages. Already replaced by RSC (Sanity server queries in `lib/sanity.server.ts`). May still have dead references via `window.CMS` — audit before dropping.
-3. **auth.min.js** — Firebase auth, profile page, welcome modal, onboarding. Biggest piece. Replace WelcomeModal form handling, ProfileSection data population, and OnboardingOverlay with React/Firebase SDK calls.
-4. **app.min.js** — SPA router, news card binder, must-eat album renderer, map spot overlay, search. Break apart by feature; replace each independently.
+Status:
+1. **i18n.min.js** — ✅ DROPPED. `BridgeI18n` covers `window.i18n`. All `data-i18n*` attributes removed.
+2. **auth.min.js** — ✅ DROPPED. `WelcomeModal.tsx` handles auth UI. `BridgeAuth` covers all `window._*` globals and auth-state side effects. `firebase-init.min.js` bridges CDN SDK for remaining legacy scripts (favourites/packs/profile). `openLoginModal` / `openWelcomeModal` both open `#welcomeModal`.
+3. **cms.min.js** — ⏸ BLOCKED. `app.min.js` still calls `window.CMS.*` (fetchMustEats, fetchRestaurants, fetchHeroSettings). Must drop after app.min.js.
+4. **app.min.js** — next priority. SPA router, news card binder, must-eat album renderer, map spot overlay, search. Break apart by feature; replace each independently.
 5. **map-init.min.js** — Leaflet init, marker placement, nearby grid. Replace with `react-leaflet` or similar.
-6. Shims drop automatically once app.min.js is gone (no more pathname parsing needed).
+6. Shims drop automatically once app.min.js is gone.

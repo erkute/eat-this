@@ -1,10 +1,47 @@
 'use client';
 
 import { useTranslation } from '@/lib/i18n';
+import { MODAL_BODIES, MODAL_CONTACT_EMAIL, type ModalBodySection } from '@/lib/i18n/translations';
+
+// Renders a paragraph string, substituting {mail} with a mailto anchor.
+function Paragraph({ text }: { text: string }) {
+  if (!text.includes('{mail}')) return <p>{text}</p>;
+  const [before, after] = text.split('{mail}');
+  return (
+    <p>
+      {before}
+      <a href={`mailto:${MODAL_CONTACT_EMAIL}`}>{MODAL_CONTACT_EMAIL}</a>
+      {after}
+    </p>
+  );
+}
+
+function ModalBody({ sections }: { sections: ModalBodySection[] }) {
+  return (
+    <div className="cookie-info-body">
+      {sections.map((s, i) => (
+        <div key={i}>
+          <h3>{s.h}</h3>
+          <Paragraph text={s.p} />
+          {s.list && (
+            <ul>
+              {s.list.map((item, j) => (
+                <li key={j}>
+                  <strong>{item.strong}</strong>
+                  {item.text}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 // Cookie consent banner + cookie-info / AGB / Datenschutz modals.
-// app.min.js wires all button IDs. Modal bodies are rendered from the hardcoded
-// translations constant — safe to inject as HTML (not user input).
+// app.min.js wires all button IDs. Modal bodies are now rendered as React JSX
+// from the static MODAL_BODIES constant (no HTML injection, no i18n DOM fill).
 // agbTrigger + datenschutzTrigger are hidden buttons clicked programmatically
 // by the welcomeModal signup flow (wmAgbTrigger → agbTrigger → agbModal open).
 export default function CookieConsent() {
@@ -45,8 +82,7 @@ export default function CookieConsent() {
             </svg>
           </button>
           <h2 className="cookie-info-title">{t('modals.agb.title')}</h2>
-          {/* body filled by i18n.min.js via data-i18n-html */}
-          <div className="cookie-info-body" data-i18n-html="modals.agb.body"></div>
+          <ModalBody sections={MODAL_BODIES.agb} />
         </div>
       </div>
 
@@ -61,8 +97,7 @@ export default function CookieConsent() {
             </svg>
           </button>
           <h2 className="cookie-info-title">{t('modals.datenschutz.title')}</h2>
-          {/* body filled by i18n.min.js via data-i18n-html */}
-          <div className="cookie-info-body" data-i18n-html="modals.datenschutz.body"></div>
+          <ModalBody sections={MODAL_BODIES.datenschutz} />
         </div>
       </div>
 
@@ -77,8 +112,7 @@ export default function CookieConsent() {
             </svg>
           </button>
           <h2 className="cookie-info-title">{t('modals.cookies.title')}</h2>
-          {/* body filled by i18n.min.js via data-i18n-html */}
-          <div className="cookie-info-body" data-i18n-html="modals.cookies.body"></div>
+          <ModalBody sections={MODAL_BODIES.cookies} />
         </div>
       </div>
     </>

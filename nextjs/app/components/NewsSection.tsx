@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useTranslation } from '@/lib/i18n';
+import SiteFooter from './SiteFooter';
 import type { NewsArticle } from '@/lib/types';
 
 interface NewsSectionProps {
@@ -101,6 +102,7 @@ export default function NewsSection({ articles, isActive = false }: NewsSectionP
           )}
         </div>
       </section>
+      <SiteFooter />
     </div>
   );
 }

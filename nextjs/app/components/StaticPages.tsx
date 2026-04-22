@@ -3,6 +3,7 @@
 import { useTranslation } from '@/lib/i18n'
 import { PortableTextRenderer } from '@/lib/PortableTextRenderer'
 import type { StaticPageDoc } from '@/lib/types'
+import SiteFooter from './SiteFooter'
 
 const SLUG_ORDER = ['about', 'contact', 'press', 'impressum', 'datenschutz', 'agb'] as const
 
@@ -25,6 +26,7 @@ function StaticPage({ doc, isActive }: { doc: StaticPageDoc; isActive: boolean }
           <PortableTextRenderer blocks={body} />
         </div>
       </div>
+      <SiteFooter />
     </div>
   )
 }

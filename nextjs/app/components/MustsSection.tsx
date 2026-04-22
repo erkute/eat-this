@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslation } from '@/lib/i18n';
+import SiteFooter from './SiteFooter';
 
 interface Props {
   isActive?: boolean;
@@ -37,6 +38,7 @@ export default function MustsSection({ isActive = false }: Props) {
           {/* populated client-side by app.min.js _renderAlbum */}
         </div>
       </section>
+      <SiteFooter />
     </div>
   );
 }

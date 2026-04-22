@@ -8,22 +8,12 @@ import MustsSection from '@/app/components/MustsSection';
 import MapSection from '@/app/components/MapSection';
 import NewsArticleShell from '@/app/components/NewsArticleShell';
 import ProfileSection from '@/app/components/ProfileSection';
+import EatModal from '@/app/components/EatModal';
+import SearchOverlay from '@/app/components/SearchOverlay';
+import CookieConsent from '@/app/components/CookieConsent';
+import OnboardingOverlay from '@/app/components/OnboardingOverlay';
+import WelcomeModal from '@/app/components/WelcomeModal';
 import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server';
-import { templatesAndModalsHTML } from './spa-content';
-
-// display:contents makes the wrapper invisible to CSS layout — children participate
-// directly in the parent's formatting context, preserving flex/grid and CSS child selectors.
-function RawHtml({ html }: { html: string }) {
-  return <div style={{ display: 'contents' }} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: html }} />;
-}
-
-// Injects the `active` class into the .app-page block matching `slug` within a
-// raw HTML template string. Mirrors what app.min.js's m() would do client-side,
-// but runs at SSR so the correct page is visible on first paint (no flash).
-function withActive(html: string, slug: string): string {
-  const re = new RegExp(`(<div class="app-page)([^"]*)(" data-page="${slug}")`);
-  return html.replace(re, (_, pre, classes, post) => `${pre}${classes} active${post}`);
-}
 
 // Renders the full SPA shell. Used by page.tsx, [...slug]/page.tsx, and news/[slug]/page.tsx.
 export default async function SPAShell({ activePage = 'start' }: { activePage?: string } = {}) {
@@ -52,7 +42,11 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
         <NewsArticleShell isActive={activePage === 'news-article'} />
       </div>
       <BurgerDrawer />
-      <RawHtml html={templatesAndModalsHTML} />
+      <EatModal />
+      <SearchOverlay />
+      <CookieConsent />
+      <OnboardingOverlay />
+      <WelcomeModal />
     </>
   );
 }

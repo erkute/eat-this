@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslation } from '@/lib/i18n';
+import SiteFooter from './SiteFooter';
 
 interface Props {
   isActive?: boolean;
@@ -102,6 +103,7 @@ export default function ProfileSection({ isActive = false }: Props) {
           </div>
         </div>
       </div>
+      <SiteFooter />
     </div>
   );
 }

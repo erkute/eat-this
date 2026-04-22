@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useTranslation } from '@/lib/i18n';
 
 export default function BurgerDrawer() {
@@ -16,10 +15,10 @@ export default function BurgerDrawer() {
           </svg>
         </button>
         <nav className="burger-nav">
-          <Link href="/about" className="burger-nav-item burger-nav-item--sm" id="openAbout">{t('burger.about')}</Link>
-          <Link href="/contact" className="burger-nav-item burger-nav-item--sm" id="openContact">{t('burger.contact')}</Link>
-          <Link href="/press" className="burger-nav-item burger-nav-item--sm" id="openPress">{t('burger.press')}</Link>
-          <Link href="/impressum" className="burger-nav-item burger-nav-item--sm" id="openImpressum">{t('burger.impressum')}</Link>
+          <a href="/about" className="burger-nav-item burger-nav-item--sm" id="openAbout">{t('burger.about')}</a>
+          <a href="/contact" className="burger-nav-item burger-nav-item--sm" id="openContact">{t('burger.contact')}</a>
+          <a href="/press" className="burger-nav-item burger-nav-item--sm" id="openPress">{t('burger.press')}</a>
+          <a href="/impressum" className="burger-nav-item burger-nav-item--sm" id="openImpressum">{t('burger.impressum')}</a>
         </nav>
         <div className="burger-utils">
           <button className="burger-util-btn" id="burgerSearchTrigger">
@@ -80,21 +79,21 @@ export default function BurgerDrawer() {
           </div>
         </div>
         <div className="burger-drawer-footer">
-          <Link
+          <a
             href="/datenschutz"
             className="burger-drawer-footer-btn"
             id="openDatenschutzFromBurger"
           >
             {t('modals.datenschutz.title')}
-          </Link>
+          </a>
           <span>·</span>
-          <Link
+          <a
             href="/agb"
             className="burger-drawer-footer-btn"
             id="openAgbFromBurger"
           >
             {t('modals.agb.title')}
-          </Link>
+          </a>
         </div>
       </div>
     </div>

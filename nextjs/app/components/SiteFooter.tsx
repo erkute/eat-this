@@ -1,13 +1,12 @@
 'use client';
 
-import Link from 'next/link';
 import { useTranslation } from '@/lib/i18n';
 
 export default function SiteFooter() {
   const { t, lang, setLang } = useTranslation();
   return (
     <div className="site-footer" role="contentinfo" aria-label="Site footer">
-      <Link href="/" className="site-footer-logo-link" data-page="start" aria-label="Eat This home">
+      <a href="/" className="site-footer-logo-link" data-page="start" aria-label="Eat This home">
         <img
           src="/pics/logo2.webp"
           alt="EAT THIS"
@@ -17,15 +16,15 @@ export default function SiteFooter() {
           loading="lazy"
           decoding="async"
         />
-      </Link>
+      </a>
       <nav className="site-footer-links" aria-label="Footer navigation">
-        <Link href="/about" className="site-footer-link" data-page="about">{t('footer.about')}</Link>
-        <Link href="/contact" className="site-footer-link" data-page="contact">{t('footer.contact')}</Link>
-        <Link href="/press" className="site-footer-link" data-page="press">{t('footer.press')}</Link>
+        <a href="/about" className="site-footer-link" data-page="about">{t('footer.about')}</a>
+        <a href="/contact" className="site-footer-link" data-page="contact">{t('footer.contact')}</a>
+        <a href="/press" className="site-footer-link" data-page="press">{t('footer.press')}</a>
         <span className="site-footer-divider" aria-hidden="true"></span>
-        <Link href="/impressum" className="site-footer-link" data-page="impressum">{t('footer.impressum')}</Link>
-        <Link href="/datenschutz" className="site-footer-link" data-page="datenschutz">{t('footer.datenschutz')}</Link>
-        <Link href="/agb" className="site-footer-link" data-page="agb">{t('footer.agb')}</Link>
+        <a href="/impressum" className="site-footer-link" data-page="impressum">{t('footer.impressum')}</a>
+        <a href="/datenschutz" className="site-footer-link" data-page="datenschutz">{t('footer.datenschutz')}</a>
+        <a href="/agb" className="site-footer-link" data-page="agb">{t('footer.agb')}</a>
       </nav>
       <div className="site-footer-meta">
         <div className="site-footer-meta-row">

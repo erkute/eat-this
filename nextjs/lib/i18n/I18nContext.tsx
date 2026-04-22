@@ -9,7 +9,8 @@
 
 import { useCallback } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { usePathname, useRouter } from '@/i18n/navigation';
+import { usePathname } from '@/i18n/navigation';
+import { routing } from '@/i18n/routing';
 import type { Lang } from './translations';
 
 interface I18nContextValue {
@@ -28,7 +29,6 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 export function useTranslation(): I18nContextValue {
   const lang = useLocale() as Lang;
   const t = useTranslations();
-  const router = useRouter();
   const pathname = usePathname();
 
   const tWrapped = useCallback(
@@ -42,12 +42,19 @@ export function useTranslation(): I18nContextValue {
     [t],
   );
 
+  // Full-page reload so legacy app.min.js / i18n.min.js re-initialize for the
+  // new locale. Soft-nav (router.replace) would leave stale DOMContentLoaded
+  // state. Remove once Phase B lands and legacy JS is gone.
   const setLang = useCallback(
     (newLang: Lang) => {
       if (newLang === lang) return;
-      router.replace(pathname, { locale: newLang });
+      document.cookie = `NEXT_LOCALE=${newLang}; path=/; max-age=${60 * 60 * 24 * 365}`;
+      try { localStorage.setItem('lang', newLang); } catch {}
+      const target =
+        newLang === routing.defaultLocale ? pathname : `/${newLang}${pathname}`;
+      window.location.assign(target);
     },
-    [lang, router, pathname],
+    [lang, pathname],
   );
 
   const applyTranslations = useCallback(() => {

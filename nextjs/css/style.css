@@ -1989,6 +1989,27 @@ body {
     border: 1px solid rgba(255,255,255,0.18);
   }
 
+  /* Hide search/nearby panel until globe intro finishes, to avoid a brief
+     flash of the empty search bar before Leaflet is ready. map-init.min.js
+     adds .map-ready to .app-page[data-page="map"] when the globe fades out. */
+  .app-page[data-page="map"] .map-nearby,
+  .app-page[data-page="map"] .map-search-wrap,
+  .app-page[data-page="map"] .map-nearby-toolbar,
+  .app-page[data-page="map"] .map-zoom-btns,
+  .app-page[data-page="map"] .map-location-btn-fixed {
+    opacity: 0;
+    transition: opacity 0.35s ease-out;
+    pointer-events: none;
+  }
+  .app-page[data-page="map"].map-ready .map-nearby,
+  .app-page[data-page="map"].map-ready .map-search-wrap,
+  .app-page[data-page="map"].map-ready .map-nearby-toolbar,
+  .app-page[data-page="map"].map-ready .map-zoom-btns,
+  .app-page[data-page="map"].map-ready .map-location-btn-fixed {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
   /* Fade-out overlay — .map-nearby is already position:absolute so ::after works directly */
   .app-page[data-page="map"] .map-nearby::after {
     content: '';

@@ -25,6 +25,11 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  /* Prevent white rubber-band bounce on mobile dark mode: html must match body */
+  background-color: var(--off-white);
+}
+html[data-theme="dark"] {
+  background-color: var(--black);
 }
 
 body {

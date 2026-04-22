@@ -390,11 +390,13 @@ export const templatesAndModalsHTML = `
     </div>
 
     <!-- BURGER MENU DRAWER is now rendered by <BurgerDrawer /> React component -->
-    <!-- About/Contact/Press/Impressum/Datenschutz modals removed in Phase B:
-         the burger menu now links directly to the full React pages at /about,
-         /contact, /press, /impressum, /datenschutz. agbTrigger stays — still
-         used to open the AGB modal below. -->
+    <!-- About/Contact/Press/Impressum modals removed in Phase B: the burger
+         menu links directly to the full React pages at /about, /contact, etc.
+         agbTrigger + datenschutzTrigger stay — the welcome-modal registration
+         flow's wmAgbTrigger / wmDatenschutzTrigger click them to open the
+         inline Terms/Privacy modals without leaving the signup. -->
     <button id="agbTrigger" hidden aria-hidden="true"></button>
+    <button id="datenschutzTrigger" hidden aria-hidden="true"></button>
 
     <!-- COOKIE CONSENT -->
     <div class="cookie-consent" id="cookieConsent">
@@ -438,7 +440,22 @@ export const templatesAndModalsHTML = `
       </div>
     </div>
 
-    <!-- Datenschutz modal removed — full page at /datenschutz -->
+    <!-- DATENSCHUTZ MODAL — kept for welcome-modal's wmDatenschutzTrigger.
+         Full /datenschutz page exists too; this is the inline version for
+         signup. -->
+    <div class="login-modal" id="datenschutzModal">
+      <div class="login-modal-backdrop" id="datenschutzBackdrop"></div>
+      <div class="login-modal-content cookie-info-modal-content">
+        <button class="login-modal-close" id="datenschutzClose" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+        <h2 class="cookie-info-title" data-i18n="modals.datenschutz.title">Datenschutz</h2>
+        <div class="cookie-info-body" data-i18n-html="modals.datenschutz.body"></div>
+      </div>
+    </div>
 
     <!-- COOKIE INFO MODAL -->
     <div class="login-modal" id="cookieInfoModal">

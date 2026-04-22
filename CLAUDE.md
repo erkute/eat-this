@@ -55,7 +55,7 @@ Three tiny shims in `public/js/` that make vanilla SPA JS (`app.min.js`, `map-in
 
 5. **`setLang` must full-reload.** Don't try to soft-nav on locale switch while `app.min.js` / `map-init.min.js` / `i18n.min.js` are still loaded — their DOMContentLoaded-bound init will not re-run and the page goes half-stale.
 
-6. **Do not reintroduce dead modals.** The raw-HTML modals for About/Contact/Press/Impressum/Datenschutz in `app/[locale]/(spa)/spa-content.ts` were removed (Phase B); the burger menu now links to the full React pages at `/about`, `/contact`, etc. (`StaticPages` component). Only the `agbModal`, `cookieInfoModal`, `welcomeModal`, `eatModal` are still live.
+6. **Do not reintroduce dead modals.** The raw-HTML modals for About/Contact/Press/Impressum in `app/[locale]/(spa)/spa-content.ts` were removed (Phase B); the burger menu links directly to the full React pages at `/about`, `/contact`, etc. (`StaticPages` component). Still live: `agbModal`, `datenschutzModal`, `cookieInfoModal`, `welcomeModal`, `eatModal` — the AGB and Datenschutz modals specifically are kept because the welcome-modal signup flow (`wmAgbTrigger`, `wmDatenschutzTrigger` in `auth.min.js`) opens them inline so users don't lose their registration state.
 
 ## Phase B migration (legacy → React) — in progress
 

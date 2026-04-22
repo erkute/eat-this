@@ -6,10 +6,10 @@ import StaticPages from '@/app/components/StaticPages';
 import BurgerDrawer from '@/app/components/BurgerDrawer';
 import MustsSection from '@/app/components/MustsSection';
 import MapSection from '@/app/components/MapSection';
+import NewsArticleShell from '@/app/components/NewsArticleShell';
 import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server';
 import {
   profilePageHTML,
-  newsArticlePageHTML,
   templatesAndModalsHTML,
 } from './spa-content';
 
@@ -51,7 +51,7 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
         <MapSection isActive={activePage === 'map'} />
         <RawHtml html={withActive(profilePageHTML, activePage)} />
         <StaticPages pages={staticPages} activeSlug={activePage} />
-        <RawHtml html={withActive(newsArticlePageHTML, activePage)} />
+        <NewsArticleShell isActive={activePage === 'news-article'} />
       </div>
       <BurgerDrawer />
       <RawHtml html={templatesAndModalsHTML} />

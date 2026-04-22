@@ -4,9 +4,9 @@ import NewsSection from '@/app/components/NewsSection';
 import StartSections from '@/app/components/StartSections';
 import StaticPages from '@/app/components/StaticPages';
 import BurgerDrawer from '@/app/components/BurgerDrawer';
+import MustsSection from '@/app/components/MustsSection';
 import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server';
 import {
-  pagesBeforeNewsHTML,
   pagesAfterNewsHTML,
   newsArticlePageHTML,
   templatesAndModalsHTML,
@@ -45,7 +45,7 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
             <SiteFooter />
           </div>
         </div>
-        <RawHtml html={withActive(pagesBeforeNewsHTML, activePage)} />
+        <MustsSection isActive={activePage === 'musts'} />
         <NewsSection articles={newsArticles} isActive={activePage === 'news'} />
         <RawHtml html={withActive(pagesAfterNewsHTML, activePage)} />
         <StaticPages pages={staticPages} activeSlug={activePage} />

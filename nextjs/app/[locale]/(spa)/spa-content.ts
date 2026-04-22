@@ -5,35 +5,6 @@
 // components (see app/components/). This file exposes the remaining HTML as
 // template strings rendered by SPAShell.
 
-// App-page blocks rendered BEFORE the news page.
-// Rendered inside app-pages div in SPAShell (display:contents wrapper).
-export const pagesBeforeNewsHTML = `
-      <div class="app-page" data-page="musts">
-        <section class="must-eats-section" id="must-eats">
-          <div class="must-eats-header">
-            <p class="section-label reveal" data-i18n="musts.sectionLabel">Berlin</p>
-            <img
-              src="/pics/logo2.webp"
-              alt="EAT THIS"
-              class="must-eats-logo-img"
-              width="1815"
-              height="576"
-              loading="lazy"
-              decoding="async"
-            />
-            <div class="album-head-count">
-              <span class="album-head-n" id="albumProgCount">0</span>
-              <span class="album-head-total">/ 150</span>
-            </div>
-          </div>
-
-          <div class="album-grid" id="albumGrid">
-            <!-- populated by js/app.js -->
-          </div>
-        </section>
-      </div>
-`;
-
 // App-page blocks rendered AFTER the news page (news is now a React component).
 export const pagesAfterNewsHTML = `
       <div class="app-page" data-page="map">

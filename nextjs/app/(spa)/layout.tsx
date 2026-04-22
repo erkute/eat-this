@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { I18nProvider } from '@/lib/i18n'
+import BridgeI18n from './BridgeI18n'
 
 export const metadata: Metadata = {
   title: 'EAT THIS — Probably the best food guide you know - We tell you what to eat',
@@ -50,8 +52,11 @@ export default function SPALayout({ children }: { children: React.ReactNode }) {
       <link rel="icon" type="image/png" sizes="192x192" href="/pics/favicon-192.png" />
       <link rel="apple-touch-icon" sizes="192x192" href="/pics/favicon-192.png" />
 
-      {/* SPA body content */}
-      {children}
+      {/* SPA body content — wrapped in i18n context */}
+      <I18nProvider>
+        <BridgeI18n />
+        {children}
+      </I18nProvider>
 
     </>
   )

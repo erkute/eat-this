@@ -324,8 +324,53 @@ export const pagesAfterNewsHTML = `
 `;
 
 // Modals, drawers, onboarding overlay, welcome modal, and vanilla JS scripts.
-// Footer template removed — SiteFooter is now a React component.
+// Footer template — app.min.js stamps this into every non-map .app-page that
+// does not already contain a .site-footer. Start page uses the React SiteFooter;
+// news/static/musts/profile/etc. pages get the stamped template.
 export const templatesAndModalsHTML = `
+    <template id="siteFooterTpl">
+      <div class="site-footer" role="contentinfo" aria-label="Site footer">
+        <a href="#" class="site-footer-logo-link" data-page="start" aria-label="Eat This home">
+          <img src="/pics/logo2.webp" alt="EAT THIS" class="site-footer-logo-img" width="1815" height="576" loading="lazy" decoding="async" />
+        </a>
+        <nav class="site-footer-links" aria-label="Footer navigation">
+          <button class="site-footer-link" data-page="about" data-i18n="footer.about">About</button>
+          <button class="site-footer-link" data-page="contact" data-i18n="footer.contact">Contact</button>
+          <button class="site-footer-link" data-page="press" data-i18n="footer.press">Press</button>
+          <span class="site-footer-divider" aria-hidden="true"></span>
+          <button class="site-footer-link" data-page="impressum" data-i18n="footer.impressum">Impressum</button>
+          <button class="site-footer-link" data-page="datenschutz" data-i18n="footer.datenschutz">Privacy</button>
+          <button class="site-footer-link" data-page="agb" data-i18n="footer.agb">Terms</button>
+        </nav>
+        <div class="site-footer-meta">
+          <div class="site-footer-meta-row">
+            <button type="button" class="theme-toggle" aria-label="Toggle dark mode">
+              <span class="theme-toggle-track">
+                <span class="theme-toggle-thumb"></span>
+              </span>
+              <span class="theme-toggle-label" data-i18n="theme.darkMode">Dark Mode</span>
+            </button>
+          </div>
+          <div class="site-footer-meta-row">
+            <a href="https://www.instagram.com/eatthisdotcom/" target="_blank"
+               rel="noopener noreferrer" class="site-footer-ig" aria-label="Instagram @eatthisdotcom">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/>
+              </svg>
+              <span>@eatthisdotcom</span>
+            </a>
+            <div class="site-footer-lang" role="group" aria-label="Language / Sprache">
+              <button class="site-footer-lang-btn" data-lang="de" aria-label="Deutsch">DE</button>
+              <button class="site-footer-lang-btn" data-lang="en" aria-label="English">EN</button>
+            </div>
+          </div>
+        </div>
+        <p class="site-footer-copy" data-i18n="footer.copyright">&copy; 2026 Eat This. All rights reserved.</p>
+      </div>
+    </template>
+
     <!-- MUST EAT MODAL -->
     <div class="modal-overlay" id="eatModal">
       <div class="modal">

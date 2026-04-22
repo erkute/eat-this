@@ -1,14 +1,41 @@
 'use client';
 
-// 4-step onboarding overlay shown to first-time users.
-// auth.min.js controls visibility and step transitions via IDs.
-// Text is English-only (no i18n keys exist for onboarding steps).
+import { useState, useEffect, useCallback } from 'react';
+
 export default function OnboardingOverlay() {
+  const [visible, setVisible] = useState(false);
+  const [step, setStep] = useState(1);
+
+  const goTo = useCallback((s: number) => setStep(s), []);
+
+  const show = useCallback(() => {
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('onboardingComplete')) return;
+    setStep(1);
+    setVisible(true);
+  }, []);
+
+  const skipToFinal = useCallback(() => {
+    localStorage.setItem('onboardingComplete', '1');
+    setStep(4);
+  }, []);
+
+  const finish = useCallback(() => {
+    setVisible(false);
+    localStorage.setItem('onboardingComplete', '1');
+    window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'musts' } }));
+  }, []);
+
+  // Override app.min.js globals so WelcomeModal (and legacy callers) use React state.
+  useEffect(() => {
+    window._obGoTo = goTo;
+    window.showOnboarding = show;
+  }, [goTo, show]);
+
   return (
-    <div className="ob-overlay" id="onboardingOverlay" hidden role="dialog" aria-modal={true} aria-label="Welcome to Eat This">
+    <div className="ob-overlay" id="onboardingOverlay" hidden={!visible} role="dialog" aria-modal={true} aria-label="Welcome to Eat This">
       <div className="ob-panel">
 
-        <div className="ob-step" id="obStep1">
+        <div className="ob-step" id="obStep1" hidden={step !== 1}>
           <p className="ob-step-num">1 of 4</p>
           <div className="ob-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
@@ -25,12 +52,12 @@ export default function OnboardingOverlay() {
             <span className="ob-dot"></span>
           </div>
           <div className="ob-footer">
-            <button className="ob-next-btn" id="obNext1">Next</button>
-            <button className="ob-skip-btn" id="obSkip1">Skip intro</button>
+            <button className="ob-next-btn" id="obNext1" onClick={() => goTo(2)}>Next</button>
+            <button className="ob-skip-btn" id="obSkip1" onClick={skipToFinal}>Skip intro</button>
           </div>
         </div>
 
-        <div className="ob-step" id="obStep2" hidden>
+        <div className="ob-step" id="obStep2" hidden={step !== 2}>
           <p className="ob-step-num">2 of 4</p>
           <div className="ob-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
@@ -48,12 +75,12 @@ export default function OnboardingOverlay() {
             <span className="ob-dot"></span>
           </div>
           <div className="ob-footer">
-            <button className="ob-next-btn" id="obNext2">Next</button>
-            <button className="ob-skip-btn" id="obSkip2">Skip intro</button>
+            <button className="ob-next-btn" id="obNext2" onClick={() => goTo(3)}>Next</button>
+            <button className="ob-skip-btn" id="obSkip2" onClick={skipToFinal}>Skip intro</button>
           </div>
         </div>
 
-        <div className="ob-step" id="obStep3" hidden>
+        <div className="ob-step" id="obStep3" hidden={step !== 3}>
           <p className="ob-step-num">3 of 4</p>
           <div className="ob-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
@@ -70,12 +97,12 @@ export default function OnboardingOverlay() {
             <span className="ob-dot"></span>
           </div>
           <div className="ob-footer">
-            <button className="ob-next-btn" id="obNext3">Next</button>
-            <button className="ob-skip-btn" id="obSkip3">Skip intro</button>
+            <button className="ob-next-btn" id="obNext3" onClick={() => goTo(4)}>Next</button>
+            <button className="ob-skip-btn" id="obSkip3" onClick={skipToFinal}>Skip intro</button>
           </div>
         </div>
 
-        <div className="ob-step" id="obStep4" hidden>
+        <div className="ob-step" id="obStep4" hidden={step !== 4}>
           <p className="ob-step-num">4 of 4</p>
           <div className="ob-icon ob-icon--star">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
@@ -108,7 +135,7 @@ export default function OnboardingOverlay() {
             <span className="ob-dot active"></span>
           </div>
           <div className="ob-footer">
-            <button className="ob-next-btn" id="obOpenPackBtn">Open Starter Pack</button>
+            <button className="ob-next-btn" id="obOpenPackBtn" onClick={finish}>Open Starter Pack</button>
           </div>
         </div>
 

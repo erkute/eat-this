@@ -6,6 +6,8 @@ import { hasLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import { AuthProvider } from '@/lib/auth'
 import SiteNav from '@/app/components/SiteNav'
+import NotificationToast from '@/app/components/NotificationToast'
+import OnboardingOverlay from '@/app/components/OnboardingOverlay'
 import BridgeI18n from './BridgeI18n'
 import BridgeAuth from './BridgeAuth'
 
@@ -73,6 +75,8 @@ export default async function SPALayout({
         <BridgeI18n />
         <BridgeAuth />
         <SiteNav />
+        <NotificationToast />
+        <OnboardingOverlay />
         {children}
       </AuthProvider>
 

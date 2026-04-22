@@ -47,10 +47,16 @@ export default function WelcomeModal() {
 
   const clearMessages = useCallback(() => { showError(''); showSuccess(''); }, [showError, showSuccess]);
 
+  const resetToLanding = useCallback(() => {
+    document.getElementById('wmLanding')?.removeAttribute('hidden');
+    document.getElementById('wmFormPanel')?.setAttribute('hidden', '');
+  }, []);
+
   const close = useCallback(() => {
     overlayRef.current?.classList.remove('active');
     clearMessages();
-  }, [clearMessages]);
+    resetToLanding();
+  }, [clearMessages, resetToLanding]);
 
   const open = useCallback(() => overlayRef.current?.classList.add('active'), []);
 
@@ -252,9 +258,6 @@ export default function WelcomeModal() {
     agbTrigger?.addEventListener('click', onAgb);
     dsTrigger?.addEventListener('click',  onDs);
     document.addEventListener('keydown', onKeydown);
-
-    // Default to signup mode when form first shown
-    showPanel('signup');
 
     return () => {
       form?.removeEventListener('submit',  onSubmit);

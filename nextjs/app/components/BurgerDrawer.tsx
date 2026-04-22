@@ -1,10 +1,60 @@
 'use client';
 
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from '@/lib/i18n';
+import { useAuth } from '@/lib/auth';
 import LocaleLink from './LocaleLink';
 
 export default function BurgerDrawer() {
   const { t, lang, setLang } = useTranslation();
+  const { user } = useAuth();
+  const [isDark, setIsDark] = useState(false);
+
+  const handleLoginBtn = useCallback(() => {
+    // Close burger drawer first
+    document.getElementById('burgerDrawer')?.classList.remove('active');
+    document.body.style.overflow = '';
+    if (user) {
+      window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
+    } else {
+      window.openWelcomeModal?.();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const dark = stored ? stored === 'dark' : prefersDark;
+    setIsDark(dark);
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+
+    // Stay in sync with system pref changes when no stored preference.
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onSysPref = (e: MediaQueryListEvent) => {
+      if (!localStorage.getItem('theme')) {
+        setIsDark(e.matches);
+        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      }
+    };
+    mq.addEventListener('change', onSysPref);
+
+    // Stay in sync with other theme-toggle buttons (e.g. site footer).
+    const onThemeChange = (e: Event) => setIsDark((e as CustomEvent).detail.dark);
+    document.addEventListener('themechange', onThemeChange);
+
+    return () => {
+      mq.removeEventListener('change', onSysPref);
+      document.removeEventListener('themechange', onThemeChange);
+    };
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    const next = !isDark;
+    setIsDark(next);
+    document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light');
+    localStorage.setItem('theme', next ? 'dark' : 'light');
+    document.dispatchEvent(new CustomEvent('themechange', { detail: { dark: next } }));
+  }, [isDark]);
   return (
     <div className="burger-drawer" id="burgerDrawer">
       <div className="burger-drawer-backdrop" id="burgerBackdrop"></div>
@@ -44,7 +94,7 @@ export default function BurgerDrawer() {
           {/* Pre-hydration bootstrap in layout.tsx may set .logged-in + username
               from the _authHint localStorage snapshot, so suppress hydration
               warnings on this button and its label span. */}
-          <button className="burger-util-btn" id="loginBtn" suppressHydrationWarning>
+          <button className="burger-util-btn" id="loginBtn" onClick={handleLoginBtn} suppressHydrationWarning>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
               <circle cx="12" cy="7" r="4"/>
@@ -53,7 +103,7 @@ export default function BurgerDrawer() {
           </button>
         </div>
         <div className="burger-theme-row">
-          <button type="button" className="theme-toggle" id="themeToggleBurger" aria-label="Toggle dark mode" suppressHydrationWarning>
+          <button type="button" className="theme-toggle" id="themeToggleBurger" aria-label="Toggle dark mode" aria-pressed={isDark} onClick={toggleTheme} suppressHydrationWarning>
             <span className="theme-toggle-track">
               <span className="theme-toggle-thumb"></span>
             </span>

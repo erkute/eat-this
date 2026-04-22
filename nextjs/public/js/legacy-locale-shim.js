@@ -41,8 +41,24 @@
 
   var origPush = history.pushState;
   var origReplace = history.replaceState;
+
+  function sameUrl(url) {
+    if (typeof url !== 'string') return false;
+    try {
+      var resolved = new URL(url, window.location.href).href;
+      return resolved === window.location.href;
+    } catch (_) { return false; }
+  }
+
   history.pushState = function (state, title, url) {
-    return origPush.call(this, state, title, prefix(url));
+    var target = prefix(url);
+    // Skip duplicate entries — app.min.js pushes /news/<slug> on the initial
+    // render of /en/news/<slug>, which would double the history stack and
+    // break the browser back button.
+    if (sameUrl(target)) {
+      return origReplace.call(this, state, title, target);
+    }
+    return origPush.call(this, state, title, target);
   };
   history.replaceState = function (state, title, url) {
     return origReplace.call(this, state, title, prefix(url));

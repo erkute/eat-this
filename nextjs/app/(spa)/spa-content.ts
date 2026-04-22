@@ -214,71 +214,10 @@ export const pagesAfterNewsHTML = `
         </div><!-- /profile-content -->
       </div><!-- /profile page -->
 
-      <!-- ═══════════════════════════════════════════
-           STATIC PAGES (CMS-backed)
-           ═══════════════════════════════════════════ -->
+`;
 
-      <div class="app-page static-page" data-page="about" id="staticPageAbout">
-        <div class="static-page-inner">
-
-          <h1 class="static-page-title" id="staticPageAbout-title">Über Eat This</h1>
-          <div class="static-page-body" id="staticPageAbout-body">
-            <span class="static-page-loading">Loading&#8230;</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="app-page static-page" data-page="contact" id="staticPageContact">
-        <div class="static-page-inner">
-
-          <h1 class="static-page-title" id="staticPageContact-title">Kontakt</h1>
-          <div class="static-page-body" id="staticPageContact-body">
-            <span class="static-page-loading">Loading&#8230;</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="app-page static-page" data-page="press" id="staticPagePress">
-        <div class="static-page-inner">
-
-          <h1 class="static-page-title" id="staticPagePress-title">Presse</h1>
-          <div class="static-page-body" id="staticPagePress-body">
-            <span class="static-page-loading">Loading&#8230;</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="app-page static-page" data-page="impressum" id="staticPageImpressum">
-        <div class="static-page-inner">
-
-          <h1 class="static-page-title" id="staticPageImpressum-title">Impressum</h1>
-          <div class="static-page-body" id="staticPageImpressum-body">
-            <span class="static-page-loading">Loading&#8230;</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="app-page static-page" data-page="datenschutz" id="staticPageDatenschutz">
-        <div class="static-page-inner">
-
-          <h1 class="static-page-title" id="staticPageDatenschutz-title">Datenschutz</h1>
-          <div class="static-page-body" id="staticPageDatenschutz-body">
-            <span class="static-page-loading">Loading&#8230;</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="app-page static-page" data-page="agb" id="staticPageAgb">
-        <div class="static-page-inner">
-
-          <h1 class="static-page-title" id="staticPageAgb-title">AGB</h1>
-          <div class="static-page-body" id="staticPageAgb-body">
-            <span class="static-page-loading">Loading&#8230;</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- NEWS ARTICLE PAGE -->
+// News-article page shell — populated at runtime by app.min.js.
+export const newsArticlePageHTML = `
       <div class="app-page news-article-page" data-page="news-article" id="newsModal">
         <article class="news-article">
           <div class="news-article-hero">

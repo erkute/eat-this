@@ -195,6 +195,17 @@ export const allMustEatsQuery = `
   }
 `
 
+// All static pages (about, contact, press, impressum, datenschutz, agb)
+export const allStaticPagesQuery = `
+  *[_type == "staticPage" && defined(slug.current)] {
+    "slug": slug.current,
+    title,
+    titleDe,
+    body,
+    bodyDe
+  }
+`
+
 // Sitemap — all slugs for restaurants + articles
 export const sitemapQuery = `
   {

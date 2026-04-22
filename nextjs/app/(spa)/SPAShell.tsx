@@ -2,10 +2,12 @@ import HeroSection from '@/app/components/HeroSection';
 import SiteFooter from '@/app/components/SiteFooter';
 import NewsSection from '@/app/components/NewsSection';
 import StartSections from '@/app/components/StartSections';
-import { getAllNewsArticles } from '@/lib/sanity.server';
+import StaticPages from '@/app/components/StaticPages';
+import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server';
 import {
   pagesBeforeNewsHTML,
   pagesAfterNewsHTML,
+  newsArticlePageHTML,
   templatesAndModalsHTML,
 } from './spa-content';
 
@@ -17,7 +19,10 @@ function RawHtml({ html }: { html: string }) {
 
 // Renders the full SPA shell. Used by page.tsx, [...slug]/page.tsx, and news/[slug]/page.tsx.
 export default async function SPAShell() {
-  const newsArticles = await getAllNewsArticles();
+  const [newsArticles, staticPages] = await Promise.all([
+    getAllNewsArticles(),
+    getAllStaticPages(),
+  ]);
 
   return (
     <>
@@ -32,6 +37,8 @@ export default async function SPAShell() {
         <RawHtml html={pagesBeforeNewsHTML} />
         <NewsSection articles={newsArticles} />
         <RawHtml html={pagesAfterNewsHTML} />
+        <StaticPages pages={staticPages} />
+        <RawHtml html={newsArticlePageHTML} />
       </div>
       <RawHtml html={templatesAndModalsHTML} />
     </>

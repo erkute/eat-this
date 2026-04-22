@@ -7,11 +7,9 @@ import BurgerDrawer from '@/app/components/BurgerDrawer';
 import MustsSection from '@/app/components/MustsSection';
 import MapSection from '@/app/components/MapSection';
 import NewsArticleShell from '@/app/components/NewsArticleShell';
+import ProfileSection from '@/app/components/ProfileSection';
 import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server';
-import {
-  profilePageHTML,
-  templatesAndModalsHTML,
-} from './spa-content';
+import { templatesAndModalsHTML } from './spa-content';
 
 // display:contents makes the wrapper invisible to CSS layout — children participate
 // directly in the parent's formatting context, preserving flex/grid and CSS child selectors.
@@ -49,7 +47,7 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
         <MustsSection isActive={activePage === 'musts'} />
         <NewsSection articles={newsArticles} isActive={activePage === 'news'} />
         <MapSection isActive={activePage === 'map'} />
-        <RawHtml html={withActive(profilePageHTML, activePage)} />
+        <ProfileSection isActive={activePage === 'profile'} />
         <StaticPages pages={staticPages} activeSlug={activePage} />
         <NewsArticleShell isActive={activePage === 'news-article'} />
       </div>

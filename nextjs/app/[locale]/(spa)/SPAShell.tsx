@@ -13,13 +13,14 @@ import SearchOverlay from '@/app/components/SearchOverlay';
 import CookieConsent from '@/app/components/CookieConsent';
 import OnboardingOverlay from '@/app/components/OnboardingOverlay';
 import WelcomeModal from '@/app/components/WelcomeModal';
-import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server';
+import { getAllNewsArticles, getAllStaticPages, getAllMustEats } from '@/lib/sanity.server';
 
 // Renders the full SPA shell. Used by page.tsx, [...slug]/page.tsx, and news/[slug]/page.tsx.
 export default async function SPAShell({ activePage = 'start' }: { activePage?: string } = {}) {
-  const [newsArticles, staticPages] = await Promise.all([
+  const [newsArticles, staticPages, mustEats] = await Promise.all([
     getAllNewsArticles(),
     getAllStaticPages(),
+    getAllMustEats(),
   ]);
 
   const startActive = activePage === 'start';
@@ -34,7 +35,7 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
             <SiteFooter />
           </div>
         </div>
-        <MustsSection isActive={activePage === 'musts'} />
+        <MustsSection isActive={activePage === 'musts'} cards={mustEats} />
         <NewsSection articles={newsArticles} isActive={activePage === 'news'} />
         <MapSection isActive={activePage === 'map'} />
         <ProfileSection isActive={activePage === 'profile'} />

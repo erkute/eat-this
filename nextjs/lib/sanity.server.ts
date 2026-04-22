@@ -6,8 +6,9 @@ import {
   allArticleSlugsQuery,
   allNewsArticlesQuery,
   allStaticPagesQuery,
+  allMustEatsAlbumQuery,
 } from './queries'
-import type { Restaurant, NewsArticle, StaticPageDoc } from './types'
+import type { Restaurant, NewsArticle, StaticPageDoc, MustEatAlbumCard } from './types'
 
 export async function getRestaurantBySlug(slug: string): Promise<Restaurant | null> {
   return client.fetch<Restaurant | null>(
@@ -56,5 +57,13 @@ export async function getAllStaticPages(): Promise<StaticPageDoc[]> {
     allStaticPagesQuery,
     {},
     { next: { revalidate: 3600, tags: ['staticPage'] } }
+  )
+}
+
+export async function getAllMustEats(): Promise<MustEatAlbumCard[]> {
+  return client.fetch<MustEatAlbumCard[]>(
+    allMustEatsAlbumQuery,
+    {},
+    { next: { revalidate: 3600, tags: ['mustEat'] } }
   )
 }

@@ -195,6 +195,20 @@ export const allMustEatsQuery = `
   }
 `
 
+// Must-Eat album grid — matches legacy window.CMS.fetchMustEats projection
+export const allMustEatsAlbumQuery = `
+  *[_type == "mustEat"] | order(order asc) {
+    _id,
+    dish,
+    restaurant,
+    district,
+    price,
+    "imageUrl": image.asset->url + "?w=600&auto=format&q=80",
+    "restaurantSlug": restaurantRef->slug.current,
+    order
+  }
+`
+
 // All static pages (about, contact, press, impressum, datenschutz, agb)
 export const allStaticPagesQuery = `
   *[_type == "staticPage" && defined(slug.current)] {

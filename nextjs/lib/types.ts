@@ -64,3 +64,14 @@ export interface StaticPageDoc {
   body?: PortableTextBlock[]
   bodyDe?: PortableTextBlock[]
 }
+
+export interface MustEatAlbumCard {
+  _id: string
+  dish: string
+  restaurant: string
+  district?: string
+  price?: string
+  imageUrl: string
+  restaurantSlug?: string
+  order?: number
+}

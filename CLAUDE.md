@@ -55,15 +55,38 @@ Three tiny shims in `public/js/` that make vanilla SPA JS (`app.min.js`, `map-in
 
 5. **`setLang` must full-reload.** Don't try to soft-nav on locale switch while `app.min.js` / `map-init.min.js` / `i18n.min.js` are still loaded — their DOMContentLoaded-bound init will not re-run and the page goes half-stale.
 
-6. **Do not reintroduce dead modals.** The raw-HTML modals for About/Contact/Press/Impressum in `app/[locale]/(spa)/spa-content.ts` were removed (Phase B); the burger menu links directly to the full React pages at `/about`, `/contact`, etc. (`StaticPages` component). Still live: `agbModal`, `datenschutzModal`, `cookieInfoModal`, `welcomeModal`, `eatModal` — the AGB and Datenschutz modals specifically are kept because the welcome-modal signup flow (`wmAgbTrigger`, `wmDatenschutzTrigger` in `auth.min.js`) opens them inline so users don't lose their registration state.
+6. **Do not reintroduce dead modals.** The raw-HTML modals for About/Contact/Press/Impressum were removed in Phase B; the burger menu links directly to the full React pages at `/about`, `/contact`, etc. (`StaticPages` component). Still live: `agbModal`, `datenschutzModal`, `cookieInfoModal`, `welcomeModal`, `eatModal` — all now React components. The AGB and Datenschutz modals are specifically kept because the welcome-modal signup flow (`wmAgbTrigger`, `wmDatenschutzTrigger` in `auth.min.js`) opens them inline so users don't lose their registration state.
 
-## Phase B migration (legacy → React) — in progress
+## Phase B migration — COMPLETE (commit aee4bc0)
 
-Remaining raw-HTML chunks in `app/[locale]/(spa)/spa-content.ts`:
-- Musts-page shell (album container)
-- Map-page shell (search, filter chips, nearby grid, spot overlay)
-- Profile-page shell (~180 lines)
-- News-article template (empty, filled by `app.min.js`)
-- Live modals (AGB, CookieInfo, Welcome, Eat), site-footer `<template>` (stamped by app.min.js into every non-map page)
+`spa-content.ts` is deleted. All HTML migrated to React components:
 
-Goal end state: delete `spa-content.ts`, `app.min.js`, `map-init.min.js`, `cms.min.js`, `i18n.min.js`, both locale/domready shims; replace with React components. When all `data-i18n-html` callsites are gone, `i18n.min.js` can be dropped immediately — next-intl covers everything else.
+| Component | File |
+|---|---|
+| MustsSection | `app/components/MustsSection.tsx` |
+| MapSection | `app/components/MapSection.tsx` |
+| NewsSection | `app/components/NewsSection.tsx` |
+| NewsArticleShell | `app/components/NewsArticleShell.tsx` |
+| ProfileSection | `app/components/ProfileSection.tsx` |
+| StaticPages | `app/components/StaticPages.tsx` |
+| EatModal | `app/components/EatModal.tsx` |
+| SearchOverlay | `app/components/SearchOverlay.tsx` |
+| CookieConsent (+AGB/Datenschutz/CookieInfo modals) | `app/components/CookieConsent.tsx` |
+| OnboardingOverlay | `app/components/OnboardingOverlay.tsx` |
+| WelcomeModal | `app/components/WelcomeModal.tsx` |
+
+SiteFooter rendered by each page component directly (MustsSection, NewsSection, ProfileSection, StaticPages, NewsArticleShell). Map page excluded — no footer by design.
+
+Note: `CookieConsent.tsx` uses `data-i18n-html` attributes on body divs so the legacy `i18n.min.js` still fills the AGB/Datenschutz/cookie HTML — this is intentional until Phase C.
+
+## Phase C — next steps (replacing legacy JS)
+
+Goal: drop all minified legacy bundles (`app.min.js`, `map-init.min.js`, `cms.min.js`, `i18n.min.js`, `auth.min.js`) and the two shims (`legacy-domready-shim.js`, `legacy-locale-shim.js`).
+
+Priority order:
+1. **i18n.min.js** — drop as soon as all `data-i18n`, `data-i18n-placeholder`, `data-i18n-html`, `data-i18n-aria` attributes are removed from JSX. Already done for most; remaining: `CookieConsent.tsx` (3 data-i18n-html). Replace by switching to React-rendered body content.
+2. **cms.min.js** — fetches news articles and static pages. Already replaced by RSC (Sanity server queries in `lib/sanity.server.ts`). May still have dead references via `window.CMS` — audit before dropping.
+3. **auth.min.js** — Firebase auth, profile page, welcome modal, onboarding. Biggest piece. Replace WelcomeModal form handling, ProfileSection data population, and OnboardingOverlay with React/Firebase SDK calls.
+4. **app.min.js** — SPA router, news card binder, must-eat album renderer, map spot overlay, search. Break apart by feature; replace each independently.
+5. **map-init.min.js** — Leaflet init, marker placement, nearby grid. Replace with `react-leaflet` or similar.
+6. Shims drop automatically once app.min.js is gone (no more pathname parsing needed).

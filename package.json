@@ -11,15 +11,12 @@
   "description": "EAT THIS - Berlin Food Blog",
   "type": "module",
   "scripts": {
-    "lint": "eslint js/",
-    "lint:fix": "eslint js/ --fix",
-    "format": "prettier --write \"js/**/*.js\" \"functions/index.js\" \"functions/templates.js\"",
-    "format:check": "prettier --check \"js/**/*.js\"",
+    "lint": "npm run lint --prefix nextjs",
     "test": "playwright test --pass-with-no-tests",
     "test:ui": "playwright test --ui",
-    "build:articles": "node scripts/generate-articles.js",
-    "build:assets": "node scripts/build-assets.js",
-    "build": "npm run build:assets && npm run build:articles"
+    "format": "prettier --write \"functions/**/*.js\" \"scripts/**/*.{js,mjs}\"",
+    "format:check": "prettier --check \"functions/**/*.js\" \"scripts/**/*.{js,mjs}\"",
+    "build:articles": "node scripts/generate-articles.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

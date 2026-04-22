@@ -1,16 +1,25 @@
-name: Deploy to Firebase
+name: Deploy Firebase Functions
+
+# Main site (www.eatthisdot.com) is deployed by Firebase App Hosting on every
+# push to main. This workflow only handles Cloud Functions (auth emails,
+# newsletter, Sanity webhook) which App Hosting does not cover.
 
 on:
   push:
     branches: [main]
+    paths:
+      - 'functions/**'
+      - '.github/workflows/deploy.yml'
+      - 'firebase.json'
+      - '.firebaserc'
   workflow_dispatch:
 
 concurrency:
-  group: firebase-deploy
+  group: firebase-functions-deploy
   cancel-in-progress: true
 
 jobs:
-  lint-and-deploy:
+  deploy-functions:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -23,12 +32,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-
-      - name: Install root dependencies (ESLint)
-        run: npm ci
-
-      - name: Lint
-        run: npm run lint
+          cache-dependency-path: functions/package-lock.json
 
       - name: Install Functions dependencies
         run: npm ci
@@ -36,11 +40,6 @@ jobs:
 
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
-
-      - name: Deploy Hosting
-        run: firebase deploy --only hosting --project eat-this-8a13b --non-interactive --token "$FIREBASE_TOKEN"
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
       - name: Deploy Functions
         run: firebase deploy --only functions --project eat-this-8a13b --non-interactive --force --token "$FIREBASE_TOKEN"

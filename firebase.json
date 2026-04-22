@@ -13,9 +13,6 @@
   "hosting": {
     "public": ".",
     "cleanUrls": true,
-    "predeploy": [
-      "npm run build"
-    ],
     "ignore": [
       "firebase.json",
       ".firebaserc",

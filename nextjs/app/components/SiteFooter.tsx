@@ -3,7 +3,7 @@
 import { useTranslation } from '@/lib/i18n';
 
 export default function SiteFooter() {
-  const { t, lang } = useTranslation();
+  const { t, lang, setLang } = useTranslation();
   return (
     <div className="site-footer" role="contentinfo" aria-label="Site footer">
       <a href="#" className="site-footer-logo-link" data-page="start" aria-label="Eat This home">
@@ -51,8 +51,24 @@ export default function SiteFooter() {
             <span>@eatthisdotcom</span>
           </a>
           <div className="site-footer-lang" role="group" aria-label="Language / Sprache">
-            <button className={`site-footer-lang-btn${lang === 'de' ? ' active' : ''}`} data-lang="de" aria-label="Deutsch" suppressHydrationWarning>DE</button>
-            <button className={`site-footer-lang-btn${lang === 'en' ? ' active' : ''}`} data-lang="en" aria-label="English" suppressHydrationWarning>EN</button>
+            <button
+              className={`site-footer-lang-btn${lang === 'de' ? ' active' : ''}`}
+              data-lang="de"
+              aria-label="Deutsch"
+              onClick={() => setLang('de')}
+              suppressHydrationWarning
+            >
+              DE
+            </button>
+            <button
+              className={`site-footer-lang-btn${lang === 'en' ? ' active' : ''}`}
+              data-lang="en"
+              aria-label="English"
+              onClick={() => setLang('en')}
+              suppressHydrationWarning
+            >
+              EN
+            </button>
           </div>
         </div>
       </div>

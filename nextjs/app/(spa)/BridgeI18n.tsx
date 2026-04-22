@@ -13,7 +13,7 @@
  * Remove this file once the SPA migration is complete and i18n.min.js is gone.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import type { Lang } from '@/lib/i18n';
 
@@ -32,27 +32,64 @@ declare global {
 
 export default function BridgeI18n() {
   const { lang, t, setLang, applyTranslations } = useTranslation();
+  // Remember the vanilla methods the first time we see them (after
+  // i18n.min.js loads via afterInteractive and overwrites window.i18n).
+  const vanillaRef = useRef<{
+    setLang?: (l: Lang) => void;
+    applyStartContent?: (d: Record<string, string>) => void;
+  }>({});
 
   // Sync React → window.i18n on every lang change.
   // News cards are now React-rendered, so renderNewsCards is a no-op that just
   // re-binds the legacy ticker/reveal logic against the React DOM.
+  //
+  // i18n.min.js loads AFTER hydration (next/script strategy="afterInteractive")
+  // and overwrites window.i18n wholesale. We capture its methods each time we
+  // run and re-install the React wrapper, so callers of window.i18n.setLang
+  // always go through React state.
   useEffect(() => {
-    const vanillaSetLang = window.i18n?.setLang;
-    const vanillaApplyStartContent = window.i18n?.applyStartContent;
+    // Capture vanilla methods whenever a fresh vanilla window.i18n appears.
+    if (window.i18n?.setLang && window.i18n.setLang !== vanillaRef.current.setLang) {
+      vanillaRef.current.setLang = window.i18n.setLang;
+    }
+    if (window.i18n?.applyStartContent) {
+      vanillaRef.current.applyStartContent = window.i18n.applyStartContent;
+    }
 
-    window.i18n = {
-      t,
-      currentLang: () => lang,
-      applyTranslations,
-      renderNewsCards: async () => {
-        window._bindNewsCards?.();
-      },
-      applyStartContent: vanillaApplyStartContent,
-      setLang: (newLang: Lang) => {
-        setLang(newLang);           // update React state (triggers re-render)
-        vanillaSetLang?.(newLang);  // run vanilla engine (DOM update, etc.)
-      },
+    const install = () => {
+      window.i18n = {
+        t,
+        currentLang: () => lang,
+        applyTranslations,
+        renderNewsCards: async () => {
+          window._bindNewsCards?.();
+        },
+        applyStartContent: vanillaRef.current.applyStartContent,
+        setLang: (newLang: Lang) => {
+          setLang(newLang);
+          vanillaRef.current.setLang?.(newLang);
+        },
+      };
     };
+    install();
+
+    // Re-install a few times over the first second — i18n.min.js / app.min.js
+    // may load after this effect runs and overwrite window.i18n.
+    const timers = [50, 200, 600, 1500].map(ms =>
+      window.setTimeout(() => {
+        const current = window.i18n;
+        if (current && current.setLang && !(current as { __reactBridge?: boolean }).__reactBridge) {
+          if (!vanillaRef.current.setLang) vanillaRef.current.setLang = current.setLang;
+          if (current.applyStartContent) vanillaRef.current.applyStartContent = current.applyStartContent;
+          install();
+          (window.i18n as { __reactBridge?: boolean }).__reactBridge = true;
+        }
+      }, ms),
+    );
+    // Mark the initial install too.
+    (window.i18n as { __reactBridge?: boolean }).__reactBridge = true;
+
+    return () => { timers.forEach(t => window.clearTimeout(t)); };
   }, [lang, t, setLang, applyTranslations]);
 
   // Sync vanilla JS → React when .lang-btn clicks update localStorage

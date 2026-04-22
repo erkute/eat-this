@@ -3,7 +3,8 @@
 import { useTranslation } from '@/lib/i18n';
 
 // Cookie consent banner + cookie-info / AGB / Datenschutz modals.
-// app.min.js wires all button IDs; i18n.min.js fills data-i18n-html bodies.
+// app.min.js wires all button IDs. Modal bodies are rendered from the hardcoded
+// translations constant — safe to inject as HTML (not user input).
 // agbTrigger + datenschutzTrigger are hidden buttons clicked programmatically
 // by the welcomeModal signup flow (wmAgbTrigger → agbTrigger → agbModal open).
 export default function CookieConsent() {

@@ -593,6 +593,36 @@
         body.appendChild(tipEl);
       }
 
+      if (spot.mustEats && spot.mustEats.length) {
+        const meWrap = document.createElement('div');
+        meWrap.className = 'map-spot-musteats';
+        const meLabel = document.createElement('div');
+        meLabel.className = 'map-spot-musteats-label';
+        meLabel.textContent = 'Must Eat';
+        meWrap.appendChild(meLabel);
+        const meCards = document.createElement('div');
+        meCards.className = 'map-spot-musteats-cards';
+        spot.mustEats.forEach((me) => {
+          const card = document.createElement('div');
+          card.className = 'map-spot-musteat-card must-eat-card';
+          card.style.cursor = 'pointer';
+          const meImg = document.createElement('img');
+          meImg.src = me.photo || '';
+          meImg.alt = me.dish || '';
+          meImg.className = 'must-eat-card__img';
+          meImg.loading = 'lazy';
+          card.appendChild(meImg);
+          card.addEventListener('click', () => {
+            if (typeof window._openMustCard === 'function') {
+              window._openMustCard(card, me.photo || '', me.dish || '');
+            }
+          });
+          meCards.appendChild(card);
+        });
+        meWrap.appendChild(meCards);
+        body.appendChild(meWrap);
+      }
+
       if (spot.openingHours && spot.openingHours.length) {
         const hoursEl = document.createElement('div');
         hoursEl.className = 'map-spot-hours';

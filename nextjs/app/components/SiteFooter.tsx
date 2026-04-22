@@ -28,7 +28,7 @@ export default function SiteFooter() {
       </nav>
       <div className="site-footer-meta">
         <div className="site-footer-meta-row">
-          <button type="button" className="theme-toggle" id="themeToggleFooter" aria-label="Toggle dark mode">
+          <button type="button" className="theme-toggle" id="themeToggleFooter" aria-label="Toggle dark mode" suppressHydrationWarning>
             <span className="theme-toggle-track">
               <span className="theme-toggle-thumb"></span>
             </span>

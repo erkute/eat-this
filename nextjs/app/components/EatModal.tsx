@@ -14,7 +14,7 @@ export default function EatModal() {
         </button>
         <div className="modal-img">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img id="modalImg" src="" alt="" />
+          <img id="modalImg" src={undefined} alt="" />
         </div>
         <div className="modal-body">
           <span className="modal-district" id="modalDistrict"></span>

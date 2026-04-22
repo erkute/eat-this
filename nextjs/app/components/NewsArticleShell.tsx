@@ -23,7 +23,7 @@ export default function NewsArticleShell({ isActive = false }: Props) {
       <article className="news-article">
         <div className="news-article-hero">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img id="newsModalImg" src="" alt="" />
+          <img id="newsModalImg" src={undefined} alt="" />
         </div>
         <div className="news-article-body">
           <div className="news-article-meta">

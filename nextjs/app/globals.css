@@ -51,3 +51,12 @@ a {
   text-decoration: none;
   color: inherit;
 }
+
+/* Prevent FOUC flash of overlays that only become visible via a toggled class.
+   Lives here (inlined by Next.js) instead of style.min.css so the rule is
+   applied before the external stylesheet loads on first paint. */
+.map-spot-overlay:not(.active),
+.search-overlay:not(.active),
+.burger-drawer:not(.active) {
+  display: none;
+}

@@ -10,7 +10,7 @@ function pageId(slug: string) {
   return 'staticPage' + slug.charAt(0).toUpperCase() + slug.slice(1)
 }
 
-function StaticPage({ doc }: { doc: StaticPageDoc }) {
+function StaticPage({ doc, isActive }: { doc: StaticPageDoc; isActive: boolean }) {
   const { lang } = useTranslation()
   const de = lang === 'de'
   const title = (de ? doc.titleDe : doc.title) || doc.title || doc.titleDe || ''
@@ -18,7 +18,7 @@ function StaticPage({ doc }: { doc: StaticPageDoc }) {
   const id = pageId(doc.slug)
 
   return (
-    <div className="app-page static-page" data-page={doc.slug} id={id} data-static-ssr="1">
+    <div className={`app-page static-page${isActive ? ' active' : ''}`} data-page={doc.slug} id={id} data-static-ssr="1">
       <div className="static-page-inner">
         <h1 className="static-page-title" id={`${id}-title`}>{title}</h1>
         <div className="static-page-body" id={`${id}-body`}>
@@ -29,14 +29,14 @@ function StaticPage({ doc }: { doc: StaticPageDoc }) {
   )
 }
 
-export default function StaticPages({ pages }: { pages: StaticPageDoc[] }) {
+export default function StaticPages({ pages, activeSlug }: { pages: StaticPageDoc[]; activeSlug?: string }) {
   const bySlug = new Map(pages.map(p => [p.slug, p]))
   return (
     <>
       {SLUG_ORDER.map(slug => {
         const doc = bySlug.get(slug)
         if (!doc) return null
-        return <StaticPage key={slug} doc={doc} />
+        return <StaticPage key={slug} doc={doc} isActive={slug === activeSlug} />
       })}
     </>
   )

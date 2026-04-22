@@ -6,6 +6,7 @@ import type { NewsArticle } from '@/lib/types';
 
 interface NewsSectionProps {
   articles: NewsArticle[];
+  isActive?: boolean;
 }
 
 function formatDate(iso: string | undefined, lang: 'de' | 'en'): string {
@@ -18,7 +19,7 @@ function formatDate(iso: string | undefined, lang: 'de' | 'en'): string {
   });
 }
 
-export default function NewsSection({ articles }: NewsSectionProps) {
+export default function NewsSection({ articles, isActive = false }: NewsSectionProps) {
   const { t, lang } = useTranslation();
   const de = lang === 'de';
   const tickerSlotRef = useRef<HTMLDivElement>(null);
@@ -37,7 +38,7 @@ export default function NewsSection({ articles }: NewsSectionProps) {
   }, [articles, lang]);
 
   return (
-    <div className="app-page" data-page="news" suppressHydrationWarning>
+    <div className={`app-page${isActive ? ' active' : ''}`} data-page="news" suppressHydrationWarning>
       <section className="news-section" id="news">
         <div className="news-header">
           <div className="news-header-top">

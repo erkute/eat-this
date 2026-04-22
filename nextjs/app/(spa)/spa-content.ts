@@ -389,78 +389,7 @@ export const templatesAndModalsHTML = `
       </div>
     </div>
 
-    <!-- BURGER MENU DRAWER -->
-    <div class="burger-drawer" id="burgerDrawer">
-      <div class="burger-drawer-backdrop" id="burgerBackdrop"></div>
-      <div class="burger-drawer-panel">
-        <button class="burger-drawer-close" id="burgerClose" aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-        <nav class="burger-nav">
-          <button class="burger-nav-item burger-nav-item--sm" id="openAbout" data-i18n="burger.about">About</button>
-          <button class="burger-nav-item burger-nav-item--sm" id="openContact" data-i18n="burger.contact">Contact</button>
-          <button class="burger-nav-item burger-nav-item--sm" id="openPress" data-i18n="burger.press">Press</button>
-          <button class="burger-nav-item burger-nav-item--sm" id="openImpressum" data-i18n="burger.impressum">Impressum</button>
-        </nav>
-        <div class="burger-utils">
-          <button class="burger-util-btn" id="burgerSearchTrigger">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <span data-i18n="search.placeholder">Search</span>
-          </button>
-          <a href="https://www.instagram.com/eatthisdotcom/" target="_blank" rel="noopener noreferrer" class="burger-util-btn burger-util-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5"/>
-              <circle cx="12" cy="12" r="5"/>
-              <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/>
-            </svg>
-            Instagram
-          </a>
-          <button class="burger-util-btn" id="loginBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
-            <span data-i18n="footer.signIn">Sign In</span>
-          </button>
-        </div>
-        <div class="burger-theme-row">
-          <button type="button" class="theme-toggle" id="themeToggleBurger" aria-label="Toggle dark mode">
-            <span class="theme-toggle-track">
-              <span class="theme-toggle-thumb"></span>
-            </span>
-            <span class="theme-toggle-label" data-i18n="theme.darkMode">Dark Mode</span>
-          </button>
-        </div>
-        <div class="burger-lang-row">
-          <div class="lang-switcher" id="langSwitcher" role="group" aria-label="Language / Sprache">
-            <button class="lang-btn active" data-lang="en" aria-label="English">EN</button>
-            <button class="lang-btn" data-lang="de" aria-label="Deutsch">DE</button>
-          </div>
-        </div>
-        <div class="burger-drawer-footer">
-          <button
-            class="burger-drawer-footer-btn"
-            id="openDatenschutzFromBurger"
-            data-i18n="modals.datenschutz.title"
-          >
-            Privacy Policy
-          </button>
-          <span>·</span>
-          <button
-            class="burger-drawer-footer-btn"
-            id="openAgbFromBurger"
-            data-i18n="modals.agb.title"
-          >
-            Terms & Conditions
-          </button>
-        </div>
-      </div>
-    </div>
+    <!-- BURGER MENU DRAWER is now rendered by <BurgerDrawer /> React component -->
 
     <!-- ABOUT MODAL -->
     <div class="login-modal" id="aboutModal">

@@ -91,7 +91,7 @@ export default async function NewsArticlePage({ params, searchParams }: PageProp
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-      <SPAShell />
+      <SPAShell activePage="news-article" />
     </>
   )
 }

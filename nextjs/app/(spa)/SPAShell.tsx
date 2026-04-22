@@ -3,6 +3,7 @@ import SiteFooter from '@/app/components/SiteFooter';
 import NewsSection from '@/app/components/NewsSection';
 import StartSections from '@/app/components/StartSections';
 import StaticPages from '@/app/components/StaticPages';
+import BurgerDrawer from '@/app/components/BurgerDrawer';
 import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server';
 import {
   pagesBeforeNewsHTML,
@@ -17,29 +18,40 @@ function RawHtml({ html }: { html: string }) {
   return <div style={{ display: 'contents' }} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
+// Injects the `active` class into the .app-page block matching `slug` within a
+// raw HTML template string. Mirrors what app.min.js's m() would do client-side,
+// but runs at SSR so the correct page is visible on first paint (no flash).
+function withActive(html: string, slug: string): string {
+  const re = new RegExp(`(<div class="app-page)([^"]*)(" data-page="${slug}")`);
+  return html.replace(re, (_, pre, classes, post) => `${pre}${classes} active${post}`);
+}
+
 // Renders the full SPA shell. Used by page.tsx, [...slug]/page.tsx, and news/[slug]/page.tsx.
-export default async function SPAShell() {
+export default async function SPAShell({ activePage = 'start' }: { activePage?: string } = {}) {
   const [newsArticles, staticPages] = await Promise.all([
     getAllNewsArticles(),
     getAllStaticPages(),
   ]);
 
+  const startActive = activePage === 'start';
+
   return (
     <>
       <div className="app-pages" id="appPages" suppressHydrationWarning>
-        <div className="app-page active" data-page="start" suppressHydrationWarning>
+        <div className={`app-page${startActive ? ' active' : ''}`} data-page="start" suppressHydrationWarning>
           <HeroSection />
           <div className="start-scroll-content">
             <StartSections />
             <SiteFooter />
           </div>
         </div>
-        <RawHtml html={pagesBeforeNewsHTML} />
-        <NewsSection articles={newsArticles} />
-        <RawHtml html={pagesAfterNewsHTML} />
-        <StaticPages pages={staticPages} />
-        <RawHtml html={newsArticlePageHTML} />
+        <RawHtml html={withActive(pagesBeforeNewsHTML, activePage)} />
+        <NewsSection articles={newsArticles} isActive={activePage === 'news'} />
+        <RawHtml html={withActive(pagesAfterNewsHTML, activePage)} />
+        <StaticPages pages={staticPages} activeSlug={activePage} />
+        <RawHtml html={withActive(newsArticlePageHTML, activePage)} />
       </div>
+      <BurgerDrawer />
       <RawHtml html={templatesAndModalsHTML} />
     </>
   );

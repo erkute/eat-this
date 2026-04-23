@@ -6,6 +6,18 @@ const intlMiddleware = createMiddleware(routing);
 
 export default function middleware(req: NextRequest) {
   const { searchParams, pathname } = req.nextUrl;
+
+  // Apex → www 308 redirect. Firebase App Hosting passes the real host via
+  // x-forwarded-host; fall back to the Host header for local dev.
+  const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? '';
+  if (host === 'eatthisdot.com') {
+    const url = req.nextUrl.clone();
+    url.host = 'www.eatthisdot.com';
+    url.protocol = 'https:';
+    url.port = '';
+    return NextResponse.redirect(url, 308);
+  }
+
   const legacyLang = searchParams.get('lang');
 
   // Legacy ?lang=en / ?lang=de — honor explicit intent, overriding any cookie.

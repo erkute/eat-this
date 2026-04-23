@@ -1,0 +1,1633 @@
+[
+  {
+    "_id": "restaurant-aerde-restaurant",
+    "name": "aerde restaurant",
+    "cuisineType": "European / Creative",
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-akkurat-caf",
+    "name": "AKKURAT Café",
+    "cuisineType": "Café",
+    "description": null,
+    "rawTypes": [
+      "cafe",
+      "coffee_shop",
+      "brunch_restaurant",
+      "food_store",
+      "restaurant",
+      "food",
+      "store",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-albatross-b-ckerei",
+    "name": "Albatross Bäckerei",
+    "cuisineType": "Bakery",
+    "description": "Schlichtes Café mit süßen und herzhaften Backwaren sowie Sandwiches, hausgemachtem Brot und Kaffee.",
+    "rawTypes": [
+      "bakery",
+      "food_store",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-alt-berliner-wirtshaus-henne",
+    "name": "Alt Berliner Wirtshaus Henne",
+    "cuisineType": "German",
+    "description": "1908 gegründetes Lokal für Brathähnchen mit Kartoffel- oder Krautsalat.",
+    "rawTypes": [
+      "german_restaurant",
+      "european_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-anima",
+    "name": "Anima",
+    "cuisineType": "Bar",
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "food",
+      "bar",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-ari-s",
+    "name": "Ari's",
+    "cuisineType": "Peruvian",
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "peruvian_restaurant",
+      "diner",
+      "breakfast_restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-atelier-dough",
+    "name": "Atelier Dough",
+    "cuisineType": "Bakery",
+    "description": null,
+    "rawTypes": [
+      "donut_shop",
+      "bakery",
+      "food_store",
+      "food",
+      "point_of_interest",
+      "store",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-aviv-030",
+    "name": "AVIV 030",
+    "cuisineType": "Israeli / Mediterranean",
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-babka-krantz",
+    "name": "Babka & Krantz",
+    "cuisineType": "Bakery",
+    "description": null,
+    "rawTypes": [
+      "pastry_shop",
+      "bakery",
+      "dessert_shop",
+      "confectionery",
+      "food_store",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-bar-basta",
+    "name": "Bar Basta",
+    "cuisineType": "Italian",
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-barra",
+    "name": "Barra",
+    "cuisineType": "European / Natural Wine",
+    "description": "Exklusive Speisen und natürliche Weine in einem gemütlichen, minimalistischen Restaurant mit Bar und Gemeinschaftstischen.",
+    "rawTypes": [
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-bergmanns",
+    "name": "Bergmanns",
+    "cuisineType": "German",
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-berlin-burger-international",
+    "name": "Berlin Burger International",
+    "cuisineType": "Burgers",
+    "description": "Hippe Burgerbar mit hausgemachten Gerichten und frischem Belag, unverputzten Wänden und Tischen im Freien.",
+    "rawTypes": [
+      "hamburger_restaurant",
+      "fast_food_restaurant",
+      "halal_restaurant",
+      "snack_bar",
+      "meal_takeaway",
+      "american_restaurant",
+      "restaurant",
+      "point_of_interest",
+      "food",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-berta-restaurant",
+    "name": "Berta Restaurant",
+    "cuisineType": "Bar",
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "food",
+      "bar",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-bertie",
+    "name": "Bertie",
+    "cuisineType": "American",
+    "description": null,
+    "rawTypes": [
+      "american_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-beuster",
+    "name": "Beuster",
+    "cuisineType": "Bar",
+    "description": "Feinkost, Beefsteak Tatar und Muscheln sowie kreative Cocktails in einem hippen Lokal im Retrostil.",
+    "rawTypes": [
+      "restaurant",
+      "bar",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-boii-boii",
+    "name": "Boii Boii",
+    "cuisineType": "Thai",
+    "description": null,
+    "rawTypes": [
+      "thai_restaurant",
+      "chinese_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-bonanza-coffee-heroes",
+    "name": "Bonanza Coffee Heroes",
+    "cuisineType": "Coffee",
+    "description": "Avantgardistische kleine Kaffeebar im Bohemian-Chic-Stil mit selbst geröstetem Kaffee, Kuchen und Keksen.",
+    "rawTypes": [
+      "coffee_shop",
+      "cafe",
+      "food_store",
+      "food",
+      "store",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-borchardt",
+    "name": "Borchardt",
+    "cuisineType": "German",
+    "description": "Typische lokale Gerichte, Desserts und Wein in einem vornehmen, historischen Restaurant mit Terrasse.",
+    "rawTypes": [
+      "german_restaurant",
+      "french_restaurant",
+      "european_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-bottega-seppel",
+    "name": "Bottega Seppel",
+    "cuisineType": "Wine Bar",
+    "description": null,
+    "rawTypes": [
+      "wine_bar",
+      "bar",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-boutique-de-la-maison",
+    "name": "Boutique de LA MAISON",
+    "cuisineType": "Bakery",
+    "description": null,
+    "rawTypes": [
+      "bakery",
+      "sandwich_shop",
+      "coffee_shop",
+      "cafe",
+      "pastry_shop",
+      "dessert_shop",
+      "confectionery",
+      "food_store",
+      "meal_takeaway",
+      "store",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-buya-ramen-factory",
+    "name": "Buya Ramen Factory",
+    "cuisineType": "Japanese / Ramen",
+    "description": "Großes Lokal für japanische Suppen mit hausgemachten Nudeln sowie vegane Optionen, Sake und kleine Gerichte.",
+    "rawTypes": [
+      "ramen_restaurant",
+      "japanese_izakaya_restaurant",
+      "beer_garden",
+      "vegan_restaurant",
+      "vegetarian_restaurant",
+      "japanese_restaurant",
+      "bar",
+      "restaurant",
+      "point_of_interest",
+      "food",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-caligari",
+    "name": "Caligari",
+    "cuisineType": "Italian",
+    "description": "Wechselnde kreative Antipasti, Pasta- und italienische Hauptgerichte in coolem, rustikal-elegantem Ambiente.",
+    "rawTypes": [
+      "italian_restaurant",
+      "bistro",
+      "coffee_shop",
+      "cafe",
+      "bar",
+      "food_store",
+      "store",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-capvin-rosenh-fe",
+    "name": "Capvin Rosenhöfe",
+    "cuisineType": "Italian / Pizza",
+    "description": "Modernes, grünes Gartenlokal mit italienischen Antipasti, hausgemachter Pasta sowie Kuchen, Wein und Kaffee.",
+    "rawTypes": [
+      "pizza_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-ch-let-suisse",
+    "name": "Châlet Suisse",
+    "cuisineType": "European",
+    "description": "Gehobene deutsche, französische und schweizerische Küche in elegantem Landhaus mit großer Sommerterrasse.",
+    "rawTypes": [
+      "swiss_restaurant",
+      "european_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-chipperfield-kantine",
+    "name": "Chipperfield Kantine",
+    "cuisineType": "Café",
+    "description": "Tagsüber geöffnetes Lokal mit Café-Karte, schickem Speiseraum mit Betonwänden und Sitzplätzen im Freien.",
+    "rawTypes": [
+      "cafeteria",
+      "cafe",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-chungking-noodles",
+    "name": "Chungking Noodles",
+    "cuisineType": "Chinese / Sichuan",
+    "description": null,
+    "rawTypes": [
+      "noodle_shop",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-cocolo-ramen-mitte",
+    "name": "Cocolo Ramen Mitte",
+    "cuisineType": "Japanese / Ramen",
+    "description": null,
+    "rawTypes": [
+      "ramen_restaurant",
+      "japanese_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-coda-dessert-dining",
+    "name": "CODA Dessert Dining",
+    "cuisineType": "Bar",
+    "description": "Stilvolles Lokal für kunstvoll kreierte und angerichtete Desserts, Menüs mit passendem Wein und Cocktails.",
+    "rawTypes": [
+      "fine_dining_restaurant",
+      "cocktail_bar",
+      "bar",
+      "dessert_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-common",
+    "name": "Common",
+    "cuisineType": "Café",
+    "description": null,
+    "rawTypes": [
+      "cafe",
+      "pizza_delivery",
+      "meal_takeaway",
+      "meal_delivery",
+      "food_delivery",
+      "bar",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-companion-tee-kaffee",
+    "name": "Companion Tea & Coffee",
+    "cuisineType": "Café",
+    "description": null,
+    "rawTypes": [
+      "cafe",
+      "coffee_shop",
+      "tea_store",
+      "wholesaler",
+      "food_store",
+      "food",
+      "store",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-concierge-coffee",
+    "name": "Concierge Coffee",
+    "cuisineType": "Coffee",
+    "description": "Gemütliches Café im schicken Industriestil mit Getränkespezialitäten wie Cappuccino und Matcha-Latte zum Mitnehmen.",
+    "rawTypes": [
+      "coffee_shop",
+      "cafe",
+      "food_store",
+      "food",
+      "store",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-crapulix",
+    "name": "Crapulix",
+    "cuisineType": "Bakery",
+    "description": null,
+    "rawTypes": [
+      "bakery",
+      "cafe",
+      "food_store",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-diener-tattersall",
+    "name": "Diener Tattersall",
+    "cuisineType": "German",
+    "description": "Gemütliches Restaurant mit Schnitzeln, Buletten und anderen bodenständigen Gerichten in traditionellem Ambiente.",
+    "rawTypes": [
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-doubleeye",
+    "name": "DoubleEye",
+    "cuisineType": "Coffee",
+    "description": "Hippes Café für Kaffeespezialitäten, „Cold Drip“- und „Iced“-Espresso, hausgemachtes Gebäck und Puddingtörtchen.",
+    "rawTypes": [
+      "coffee_shop",
+      "cafe",
+      "food_store",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-doyum-restaurant",
+    "name": "Doyum Restaurant",
+    "cuisineType": "Turkish",
+    "description": "Lebhaftes türkisches Grillrestaurant für Döner Kebab und Dürüm-Wraps sowie Reisgerichte und bunte Salate.",
+    "rawTypes": [
+      "turkish_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-engelsbecken",
+    "name": "Engelsbecken",
+    "cuisineType": "German",
+    "description": "Schnitzel, vegane Kuchen und bayerische Biere in einem ungezwungenen Restaurant mit Straßenterrasse.",
+    "rawTypes": [
+      "german_restaurant",
+      "bavarian_restaurant",
+      "european_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-enoiteca-il-calice",
+    "name": "IL CALICE",
+    "cuisineType": "Italian",
+    "description": "Gehobene italienische Küche in elegantem Ambiente und Weine aus dem eigenen Weinkontor.",
+    "rawTypes": [
+      "italian_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-estelle",
+    "name": "Estelle",
+    "cuisineType": "Wine Bar",
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "bistro",
+      "wine_bar",
+      "brunch_restaurant",
+      "cafe",
+      "cocktail_bar",
+      "pizza_restaurant",
+      "bar",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-father-carpenter",
+    "name": "Father Carpenter",
+    "cuisineType": "Café",
+    "description": "Hippes Café mit Tischen in einem eleganten Innenhof sowie Kaffeespezialitäten und innovativen Brunchspeisen.",
+    "rawTypes": [
+      "breakfast_restaurant",
+      "coffee_roastery",
+      "meal_takeaway",
+      "cafe",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-file-asto",
+    "name": "File Asto",
+    "cuisineType": null,
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-five-elephant",
+    "name": "Five Elephant",
+    "cuisineType": "Café",
+    "description": "Vor der Weltkarte auf der weißen Wand wird fair gehandelter Kaffee sowie der berühmte Käsekuchen serviert.",
+    "rawTypes": [
+      "cafe",
+      "coffee_roastery",
+      "coffee_shop",
+      "cake_shop",
+      "bakery",
+      "food_store",
+      "wholesaler",
+      "manufacturer",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-fr-hst-ck-3000",
+    "name": "Frühstück 3000",
+    "cuisineType": "Breakfast & Brunch",
+    "description": "Hippes Frühstückslokal mit raffinierten Klassikern und saisonalen Spezialitäten, dazu Cocktails und Kaffee.",
+    "rawTypes": [
+      "breakfast_restaurant",
+      "brunch_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-frau-mittenmang",
+    "name": "Frau Mittenmang",
+    "cuisineType": "German",
+    "description": "Charmantes, schummriges Restaurant mit Terrasse, einfallsreicher internationaler Speisekarte, Desserts und Wein.",
+    "rawTypes": [
+      "german_restaurant",
+      "european_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-freundschaft",
+    "name": "Freundschaft",
+    "cuisineType": "Bar",
+    "description": "Gemütliche, freundliche Bar mit Meeresfrüchten und Fleischplatten sowie einer Auswahl an Weinen.",
+    "rawTypes": [
+      "bar",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-gazzo",
+    "name": "Gazzo",
+    "cuisineType": "Italian / Pizza",
+    "description": "Trendiges Restaurant für Sauerteigpizzas mit Zutaten von ausgewählten Herstellern sowie Bier und Cocktails.",
+    "rawTypes": [
+      "pizza_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-gemello",
+    "name": "GEMELLO",
+    "cuisineType": "Italian / Pizza",
+    "description": null,
+    "rawTypes": [
+      "meal_takeaway",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-gnam-pasta-factory",
+    "name": "Gnam Pasta Factory",
+    "cuisineType": "Italian",
+    "description": null,
+    "rawTypes": [
+      "italian_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-hasir",
+    "name": "Hasir",
+    "cuisineType": "Turkish",
+    "description": "Klassische türkische Meze und Grillspezialitäten im orientalischen Lokal mit Wandmalereien und blauen Fliesen.",
+    "rawTypes": [
+      "turkish_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-imren-grill-restaurant",
+    "name": "Imren Grill & Restaurant",
+    "cuisineType": "Turkish",
+    "description": null,
+    "rawTypes": [
+      "turkish_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-ita-bistro",
+    "name": "ITA Bistro",
+    "cuisineType": "Italian",
+    "description": null,
+    "rawTypes": [
+      "bistro",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-jaja",
+    "name": "jaja",
+    "cuisineType": "Wine Bar",
+    "description": null,
+    "rawTypes": [
+      "bistro",
+      "wine_bar",
+      "bar",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-johann-b-ckerei",
+    "name": "JOHANN Bäckerei",
+    "cuisineType": "Bakery",
+    "description": null,
+    "rawTypes": [
+      "bakery",
+      "deli",
+      "cafe",
+      "pastry_shop",
+      "dessert_shop",
+      "confectionery",
+      "point_of_interest",
+      "food_store",
+      "store",
+      "food",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-jolie-bistrot",
+    "name": "Jolie Bistrot",
+    "cuisineType": "French",
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-jones-ice-cream",
+    "name": "Jones Ice Cream",
+    "cuisineType": "Ice Cream",
+    "description": "Angesagte Eisdiele mit kreativen Eissorten, die in hausgemachten Eiswaffeln oder auf Keksen serviert werden.",
+    "rawTypes": [
+      "ice_cream_shop",
+      "dessert_shop",
+      "confectionery",
+      "food_store",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-jules-geisberg",
+    "name": "Jules Geisberg",
+    "cuisineType": "Café",
+    "description": null,
+    "rawTypes": [
+      "cafe",
+      "point_of_interest",
+      "food",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-julius",
+    "name": "Julius",
+    "cuisineType": "Wine Bar",
+    "description": null,
+    "rawTypes": [
+      "fine_dining_restaurant",
+      "wine_bar",
+      "bar",
+      "cafe",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-jungbluth",
+    "name": "Jungbluth",
+    "cuisineType": "German",
+    "description": "Überraschungsmenüs mit kreativen Fleisch-, Fisch- und vegetarischen Gerichten und deutschen Weinen.",
+    "rawTypes": [
+      "fine_dining_restaurant",
+      "german_restaurant",
+      "european_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-kanal61",
+    "name": "Kanal61",
+    "cuisineType": null,
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-kitten-deli",
+    "name": "Kitten Deli",
+    "cuisineType": "Bakery",
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "bakery",
+      "food_store",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-kn-delwirtschaft-nord",
+    "name": "Knödelwirtschaft NORD",
+    "cuisineType": "German / Austrian",
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-kur-me",
+    "name": "Kuréme",
+    "cuisineType": "Korean",
+    "description": null,
+    "rawTypes": [
+      "korean_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-la-bolognina",
+    "name": "La Bolognina",
+    "cuisineType": "Italian",
+    "description": null,
+    "rawTypes": [
+      "italian_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-la-c-te",
+    "name": "La Côte",
+    "cuisineType": "Bar",
+    "description": "Gemütliches Restaurant mit südeuropäischer Küche, darunter Fleisch und Fisch, sowie Gerichten zum Teilen.",
+    "rawTypes": [
+      "restaurant",
+      "cocktail_bar",
+      "bar",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-la-cantine-d-augusta",
+    "name": "La Cantine d'Augusta",
+    "cuisineType": "French",
+    "description": "Brunch, französischer Käse und Wein sowie Fondue und Raclette, serviert an einem langen Tisch oder am Tresen.",
+    "rawTypes": [
+      "french_restaurant",
+      "wine_bar",
+      "fondue_restaurant",
+      "restaurant",
+      "food",
+      "bar",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-lala",
+    "name": "LALA Restaurant",
+    "cuisineType": "Bar",
+    "description": "Kreative türkische Hauptgerichte und Meze in zwanglosem Lokal mit Bar und Straßenterrasse.",
+    "rawTypes": [
+      "restaurant",
+      "bar",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-le-balto",
+    "name": "Le Balto",
+    "cuisineType": "Wine Bar",
+    "description": null,
+    "rawTypes": [
+      "wine_bar",
+      "bar",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-liu-du",
+    "name": "LIU 成都味道",
+    "cuisineType": "Chinese",
+    "description": "Nudelgerichte aus der Sichuan-Küche in einem zwanglosen, kleinen Lokal mit lebhafter Atmosphäre.",
+    "rawTypes": [
+      "noodle_shop",
+      "chinese_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-mamida",
+    "name": "Mamida",
+    "cuisineType": "Italian / Pizza",
+    "description": "Hippes Lokal mit lebhafter Atmosphäre, in dem Sauerteig-Pizza, Wein und Craftbier angeboten werden.",
+    "rawTypes": [
+      "pizza_restaurant",
+      "italian_restaurant",
+      "meal_takeaway",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-material",
+    "name": "Material",
+    "cuisineType": "Café",
+    "description": null,
+    "rawTypes": [
+      "cafe",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-nanum",
+    "name": "NaNum",
+    "cuisineType": "Korean",
+    "description": "Gehobene koreanische Küche auf trendigem Geschirr in einem hellen Restaurant mit Empore und grüner Terrasse.",
+    "rawTypes": [
+      "fine_dining_restaurant",
+      "korean_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-november-brasserie",
+    "name": "NOVEMBER Brasserie",
+    "cuisineType": "Japanese",
+    "description": null,
+    "rawTypes": [
+      "japanese_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-onette",
+    "name": "onette",
+    "cuisineType": "Wine Bar",
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "wine_bar",
+      "german_restaurant",
+      "european_restaurant",
+      "bar",
+      "american_restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-ora-restaurant-wine-bar",
+    "name": "ORA Restaurant & Wine Bar",
+    "cuisineType": "Wine Bar",
+    "description": "Saisonale europäische Gerichte und eine umfangreiche Weinkarte in einer umgebauten Apotheke aus dem 19. Jh.",
+    "rawTypes": [
+      "restaurant",
+      "wine_bar",
+      "bar",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-otto",
+    "name": "otto",
+    "cuisineType": "European / Seasonal",
+    "description": "Kleine saisonale Gerichte und Wein in einem gemütlichen Restaurant im Industriestil mit begrünter Terrasse.",
+    "rawTypes": [
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-philomeni-s-greek-delicious",
+    "name": "Philomeni's Greek Delicious",
+    "cuisineType": "Greek",
+    "description": null,
+    "rawTypes": [
+      "greek_restaurant",
+      "deli",
+      "food_store",
+      "restaurant",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-pinci",
+    "name": "Pinci",
+    "cuisineType": "Italian",
+    "description": null,
+    "rawTypes": [
+      "italian_restaurant",
+      "bistro",
+      "liquor_store",
+      "cafe",
+      "bar",
+      "store",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-pluto",
+    "name": "Pluto",
+    "cuisineType": "Wine Bar",
+    "description": null,
+    "rawTypes": [
+      "wine_bar",
+      "bar",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-restaurant-893-ry-tei",
+    "name": "893 Ryōtei",
+    "cuisineType": "Japanese",
+    "description": "Trendiges Restaurant für Sushi und Sashimi, mit offener Küche und modernem Ambiente.",
+    "rawTypes": [
+      "japanese_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-restaurant-jolesch",
+    "name": "Restaurant Jolesch",
+    "cuisineType": "Austrian",
+    "description": "Restaurant mit österreichischer Küche und Gebäck in einem roten Speiseraum mit großen Kunstwerken an den Wänden.",
+    "rawTypes": [
+      "austrian_restaurant",
+      "catering_service",
+      "liquor_store",
+      "wine_bar",
+      "food_delivery",
+      "european_restaurant",
+      "bar",
+      "store",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "service",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-san",
+    "name": "SAN",
+    "cuisineType": "Japanese",
+    "description": null,
+    "rawTypes": [
+      "japanese_restaurant",
+      "restaurant",
+      "point_of_interest",
+      "food",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-sardinen-bar",
+    "name": "Sardinen Bar",
+    "cuisineType": "Wine Bar",
+    "description": "Modernes, auf eingelegte Sardinen spezialisiertes Feinkostbistro in städtischem Ambiente mit Onlineshop.",
+    "rawTypes": [
+      "restaurant",
+      "wine_bar",
+      "supplier",
+      "bar",
+      "point_of_interest",
+      "manufacturer",
+      "store",
+      "food",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-sasaya",
+    "name": "Sasaya",
+    "cuisineType": "Japanese",
+    "description": "Japanisches Restaurant mit Sushi-Koch, der vor den Augen der Gäste Maki, Nigiri und Rollen zubereitet.",
+    "rawTypes": [
+      "japanese_restaurant",
+      "sushi_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-sathutu",
+    "name": "Sathutu",
+    "cuisineType": "Sri Lankan",
+    "description": null,
+    "rawTypes": [
+      "sri_lankan_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-saveur-de-b-nh-m",
+    "name": "Saveur de Bánh Mì",
+    "cuisineType": "Vietnamese",
+    "description": null,
+    "rawTypes": [
+      "bistro",
+      "sandwich_shop",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-sch-sseldienst",
+    "name": "Schüsseldienst",
+    "cuisineType": "Modern / Bowls",
+    "description": "Innovative Bowls und Sandwiches in einem zwanglosen, schnörkellosen Restaurant mit Gerichten zum Mitnehmen.",
+    "rawTypes": [
+      "restaurant",
+      "meal_takeaway",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-schmidt-z-ko",
+    "name": "Schmidt Z & KO",
+    "cuisineType": null,
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "liquor_store",
+      "educational_institution",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-sfera",
+    "name": "Sfera",
+    "cuisineType": null,
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "point_of_interest",
+      "food",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-sh-do-udon-lab",
+    "name": "Shōdo Udon Lab",
+    "cuisineType": "Japanese",
+    "description": null,
+    "rawTypes": [
+      "japanese_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-smash-d-eatery-x-forn-simsim",
+    "name": "Smash’d Eatery x Forn SimSim",
+    "cuisineType": "Middle Eastern / Burgers",
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-sofi",
+    "name": "SOFI",
+    "cuisineType": "Bakery",
+    "description": "Beliebte, minimalistische Bäckerei mit Brotspezialitäten, Gebäckstücken, Kuchen und Kaffee.",
+    "rawTypes": [
+      "bakery",
+      "food_store",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-soi-co-plant-based-cafe",
+    "name": "Soi & Co. Plant-Based Cafe",
+    "cuisineType": "Café",
+    "description": null,
+    "rawTypes": [
+      "cafe",
+      "pastry_shop",
+      "bakery",
+      "dessert_shop",
+      "confectionery",
+      "grocery_store",
+      "food_store",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-soopoollim",
+    "name": "soopoollim",
+    "cuisineType": "Korean",
+    "description": null,
+    "rawTypes": [
+      "korean_restaurant",
+      "tea_house",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-sori-ramen",
+    "name": "SORI Ramen",
+    "cuisineType": "Japanese / Ramen",
+    "description": null,
+    "rawTypes": [
+      "ramen_restaurant",
+      "japanese_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-spumante",
+    "name": "Spumante",
+    "cuisineType": "Ice Cream",
+    "description": null,
+    "rawTypes": [
+      "bistro",
+      "ice_cream_shop",
+      "dessert_shop",
+      "confectionery",
+      "restaurant",
+      "point_of_interest",
+      "food_store",
+      "store",
+      "food",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-st-bart",
+    "name": "St. Bart",
+    "cuisineType": "Bar",
+    "description": "Moderne Gastropub-Gerichte und Austern in einer Bar mit Küche und dezentem Fliesendekor.",
+    "rawTypes": [
+      "gastropub",
+      "pub",
+      "bar",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-sterelli",
+    "name": "Österelli",
+    "cuisineType": "Austrian",
+    "description": null,
+    "rawTypes": [
+      "austrian_restaurant",
+      "catering_service",
+      "european_restaurant",
+      "food_delivery",
+      "event_venue",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "service",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-stoke",
+    "name": "stoke",
+    "cuisineType": null,
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-story-coffee-r-sterei-p-berg",
+    "name": "Story Coffee Rösterei P-Berg",
+    "cuisineType": "Coffee",
+    "description": null,
+    "rawTypes": [
+      "coffee_shop",
+      "cafe",
+      "food_store",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-sway",
+    "name": "SWAY",
+    "cuisineType": "Wine Bar",
+    "description": null,
+    "rawTypes": [
+      "wine_bar",
+      "bar",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-tacos-el-rey",
+    "name": "Tacos el Rey",
+    "cuisineType": "Mexican",
+    "description": null,
+    "rawTypes": [
+      "taco_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-taktil",
+    "name": "Taktil",
+    "cuisineType": "Bakery",
+    "description": null,
+    "rawTypes": [
+      "bakery",
+      "food_store",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-takumi-nine-1",
+    "name": "TAKUMI NINE 1",
+    "cuisineType": "Japanese / Ramen",
+    "description": "Japanisches Restaurant für Ramen-Suppen in modernem Ambiente mit geradlinigen Holzmöbeln. Nur Bargeldzahlung.",
+    "rawTypes": [
+      "ramen_restaurant",
+      "asian_restaurant",
+      "japanese_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-teller-berlin",
+    "name": "Teller Berlin",
+    "cuisineType": null,
+    "description": null,
+    "rawTypes": [
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-the-barn-caf",
+    "name": "The Barn Café",
+    "cuisineType": "Café",
+    "description": "Schick-rustikales Café mit Tee- und Kaffeespezialitäten, frischem Gebäck und Sandwiches sowie eigener Rösterei.",
+    "rawTypes": [
+      "cafe",
+      "coffee_roastery",
+      "coffee_shop",
+      "food_store",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-the-grain",
+    "name": "The Grain",
+    "cuisineType": "Italian / Pizza",
+    "description": null,
+    "rawTypes": [
+      "pizza_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-tribeca-ice-cream",
+    "name": "Tribeca Ice Cream",
+    "cuisineType": "Korean",
+    "description": null,
+    "rawTypes": [
+      "korean_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-trio",
+    "name": "Trio",
+    "cuisineType": "European",
+    "description": null,
+    "rawTypes": [
+      "european_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-w-pizza-mitte",
+    "name": "W Pizza Mitte",
+    "cuisineType": "Italian / Pizza",
+    "description": null,
+    "rawTypes": [
+      "pizza_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-wen-cheng-1",
+    "name": "Wen Cheng 1",
+    "cuisineType": "Vegetarian",
+    "description": "Bao Buns und Nudel-Bowls in einem Restaurant mit coolem Ambiente, offener Küche und Tischen am Gehweg.",
+    "rawTypes": [
+      "chinese_noodle_restaurant",
+      "noodle_shop",
+      "meal_delivery",
+      "vegetarian_restaurant",
+      "meal_takeaway",
+      "food_delivery",
+      "asian_restaurant",
+      "chinese_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-westberlin",
+    "name": "westberlin",
+    "cuisineType": "Coffee",
+    "description": "Modernes Café mit auffälligem Design, kreativen Kaffeegetränken, Kuchen, leichten Mittagsgerichten und hipper Musik.",
+    "rawTypes": [
+      "coffee_shop",
+      "cafe",
+      "book_store",
+      "food_store",
+      "store",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-zeit-caf",
+    "name": "ZEIT Café",
+    "cuisineType": "Café",
+    "description": null,
+    "rawTypes": [
+      "cafe",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  },
+  {
+    "_id": "restaurant-zum-heiligen-teufel",
+    "name": "Zum Heiligen Teufel",
+    "cuisineType": "Italian",
+    "description": "Ungezwungenes Restaurant mit traditioneller italienischer Küche in einfacher Umgebung.",
+    "rawTypes": [
+      "italian_restaurant",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ]
+  }
+]

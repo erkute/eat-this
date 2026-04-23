@@ -31,6 +31,7 @@ export default function OnboardingOverlay() {
     window.showOnboarding = show;
   }, [goTo, show]);
 
+
   return (
     <div className="ob-overlay" id="onboardingOverlay" hidden={!visible} role="dialog" aria-modal={true} aria-label="Welcome to Eat This">
       <div className="ob-panel">
@@ -142,4 +143,10 @@ export default function OnboardingOverlay() {
       </div>
     </div>
   );
+}
+
+declare global {
+  interface Window {
+    _obGoTo?: (step: number) => void;
+  }
 }

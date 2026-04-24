@@ -93,3 +93,10 @@ a {
 .burger-drawer:not(.active) {
   display: none;
 }
+
+/* Map page is position:fixed and owns the full viewport below the top nav.
+   Override the generic .app-page padding-bottom (reserved for fixed tab bars)
+   so the bottom sheet reaches the bottom of the screen without a gap. */
+.app-page[data-page="map"] {
+  padding-bottom: 0 !important;
+}

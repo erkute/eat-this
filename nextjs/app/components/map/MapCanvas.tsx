@@ -46,7 +46,7 @@ const MapCanvas = forwardRef<MapRef, MapCanvasProps>(({ onMove, onMapClick, chil
       }}
       onClick={() => onMapClick?.()}
     >
-      <NavigationControl position="top-right" showCompass={false} />
+      <NavigationControl position="bottom-right" showCompass={false} />
       {children}
     </Map>
   )

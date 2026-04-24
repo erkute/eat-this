@@ -67,20 +67,10 @@ function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
       <div className={styles.rowSide}>
         {distance && <span className={styles.rowDistance}>{distance}</span>}
         {status.label && (
-          <span className={`${styles.rowStatus} ${status.isOpen ? styles.rowStatusOpen : styles.rowStatusClosed}`}>
-            {status.isOpen ? (
-              <span className={styles.rowStatusMain}>{t('map.open')}</span>
-            ) : (
-              <>
-                <span className={styles.rowStatusMain}>{t('map.closed')}</span>
-                {(() => {
-                  const sub = status.label.replace(new RegExp(`^${t('map.closed')}\\s*·\\s*`), '')
-                  return sub && sub !== t('map.closed')
-                    ? <span className={styles.rowStatusSub}>{sub}</span>
-                    : null
-                })()}
-              </>
-            )}
+          <span className={`${styles.doorSign} ${styles.doorSignMini} ${status.isOpen ? styles.doorSignOpen : styles.doorSignClosed}`}>
+            <span className={styles.doorSignText}>
+              {status.isOpen ? t('map.open') : t('map.closed')}
+            </span>
           </span>
         )}
       </div>

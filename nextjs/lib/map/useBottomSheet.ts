@@ -3,16 +3,18 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 
 export type SheetSnap = 'peek' | 'mid' | 'full'
 
-const PEEK_VISIBLE_PX = 68 // handle + list header visible when collapsed (toolbar floats above map)
-// Cap the expanded sheet so a strip of map stays visible. Approx:
-// handle (12) + toolbar search+chips (~100) + list header (~34) + 4 rows (~84 each) ≈ 480
-const FULL_VISIBLE_PX = 480
+const PEEK_VISIBLE_PX = 68 // handle + first row peek when collapsed (toolbar floats above map)
+// Mid/full: handle (~36) + 3 rows (~74 each) + 4th-row teaser (~30).
+// This is also the cap — the sheet never expands beyond this.
+const MID_VISIBLE_PX = 300
 const MOBILE_MAX = 1023.98
 
 function snapToPx(snap: SheetSnap, sheetH: number): number {
   switch (snap) {
-    case 'full': return Math.max(0, sheetH - FULL_VISIBLE_PX)
-    case 'mid':  return Math.max(sheetH - FULL_VISIBLE_PX, sheetH * 0.5)
+    // Full and mid share the same upper bound — the sheet never pulls higher
+    // than "4 rows visible" so the map stays the dominant surface.
+    case 'full':
+    case 'mid':  return Math.max(0, sheetH - MID_VISIBLE_PX)
     case 'peek': return Math.max(0, sheetH - PEEK_VISIBLE_PX)
   }
 }
@@ -38,6 +40,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   const [dragging, setDragging] = useState(false)
   const sheetNode = useRef<HTMLDivElement | null>(null)
   const handleRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement | null>(null)
   const dragRef   = useRef<{ startY: number; basePx: number; pointerId: number } | null>(null)
   const snapRef   = useRef<SheetSnap>(initial)
   snapRef.current = snap
@@ -105,7 +108,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const d = dragRef.current
       if (!d) return
       const h = sheet.getBoundingClientRect().height
-      const upperCap = Math.max(0, h - FULL_VISIBLE_PX)
+      const upperCap = Math.max(0, h - MID_VISIBLE_PX)
       const next = Math.max(upperCap, Math.min(h - 40, d.basePx + (e.clientY - d.startY)))
       applyY(next)
     }
@@ -114,7 +117,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       if (!d) return
       try { handle.releasePointerCapture(d.pointerId) } catch { /* noop */ }
       const h = sheet.getBoundingClientRect().height
-      const upperCap = Math.max(0, h - FULL_VISIBLE_PX)
+      const upperCap = Math.max(0, h - MID_VISIBLE_PX)
       const finalPx = Math.max(upperCap, Math.min(h - 40, d.basePx + (e.clientY - d.startY)))
       dragRef.current = null
       setDragging(false)
@@ -133,8 +136,90 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     }
   }, [snap, applyY])
 
+  // Content-area drag: allow swiping on the list itself to expand/collapse the
+  // sheet, but only when it wouldn't conflict with in-list scrolling.
+  // - Sheet not at 'full' → swipe takes over (list isn't really scrollable yet).
+  // - Sheet at 'full' and scrollTop === 0 and swipe is downward → drag sheet down.
+  // - Otherwise → let the list scroll normally.
+  useEffect(() => {
+    const content = contentRef.current
+    const sheet   = sheetNode.current
+    if (!content || !sheet) return
+
+    let touchState: {
+      startY: number
+      basePx: number
+      intercepted: boolean
+      decided: boolean
+    } | null = null
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (!isMobile()) return
+      if (e.touches.length !== 1) return
+      const h = sheet.getBoundingClientRect().height
+      touchState = {
+        startY: e.touches[0].clientY,
+        basePx: snapToPx(snapRef.current, h),
+        intercepted: false,
+        decided: false,
+      }
+    }
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!touchState) return
+      const dy = e.touches[0].clientY - touchState.startY
+
+      if (!touchState.decided) {
+        if (Math.abs(dy) < 6) return // wait for meaningful gesture
+        const atTop = content.scrollTop <= 0
+        const atFull = snapRef.current === 'full'
+        if (!atFull) {
+          touchState.intercepted = true
+        } else if (atTop && dy > 0) {
+          touchState.intercepted = true
+        } else {
+          touchState.intercepted = false
+        }
+        touchState.decided = true
+        if (touchState.intercepted) setDragging(true)
+      }
+
+      if (!touchState.intercepted) return
+
+      e.preventDefault()
+      const h = sheet.getBoundingClientRect().height
+      const upperCap = Math.max(0, h - MID_VISIBLE_PX)
+      const next = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
+      applyY(next)
+    }
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (!touchState) return
+      if (touchState.intercepted) {
+        const h = sheet.getBoundingClientRect().height
+        const upperCap = Math.max(0, h - MID_VISIBLE_PX)
+        const dy = (e.changedTouches[0]?.clientY ?? touchState.startY) - touchState.startY
+        const finalPx = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
+        setDragging(false)
+        setSnap(pxToNearestSnap(finalPx, h))
+      }
+      touchState = null
+    }
+
+    content.addEventListener('touchstart', onTouchStart, { passive: true })
+    content.addEventListener('touchmove',  onTouchMove,  { passive: false })
+    content.addEventListener('touchend',   onTouchEnd)
+    content.addEventListener('touchcancel', onTouchEnd)
+    return () => {
+      content.removeEventListener('touchstart', onTouchStart)
+      content.removeEventListener('touchmove',  onTouchMove)
+      content.removeEventListener('touchend',   onTouchEnd)
+      content.removeEventListener('touchcancel', onTouchEnd)
+    }
+  }, [applyY])
+
   const collapse = useCallback(() => setSnap('peek'), [])
   const expand   = useCallback(() => setSnap('mid'),  [])
 
-  return { sheetRef, handleRef, snap, setSnap, dragging, collapse, expand }
+  return { sheetRef, handleRef, contentRef, snap, setSnap, dragging, collapse, expand }
 }

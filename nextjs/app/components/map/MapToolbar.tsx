@@ -41,6 +41,26 @@ export default function MapToolbar({
   const wrapClass = variant === 'desktop' ? styles.toolbarDesktop : styles.toolbarMobile
   const { t } = useTranslation()
 
+  if (variant === 'mobile') {
+    return (
+      <div className={wrapClass}>
+        <div className={styles.toolbar}>
+          <div className={styles.toolbarPills}>
+            <OpenNowToggle active={openOnly} onChange={onOpenOnly} />
+            <BezirkFilter bezirke={bezirke} active={bezirk} onChange={onBezirk} />
+            <div className={styles.toolbarSpacer} />
+            <LayerToggle active={layer} onChange={onLayer} inline />
+          </div>
+          {showCategory && (
+            <div className={styles.toolbarCatsRow}>
+              <CategoryFilter active={category} onChange={onCategory} />
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={wrapClass}>
       <div className={styles.toolbar}>
@@ -56,20 +76,9 @@ export default function MapToolbar({
             />
           </div>
           <OpenNowToggle active={openOnly} onChange={onOpenOnly} />
-          {variant === 'desktop' && (
-            <>
-              <BezirkFilter bezirke={bezirke} active={bezirk} onChange={onBezirk} />
-              {showCategory && <CategoryFilter active={category} onChange={onCategory} />}
-            </>
-          )}
+          <BezirkFilter bezirke={bezirke} active={bezirk} onChange={onBezirk} />
+          {showCategory && <CategoryFilter active={category} onChange={onCategory} />}
         </div>
-
-        {variant === 'mobile' && (
-          <div className={styles.toolbarRow}>
-            <BezirkFilter bezirke={bezirke} active={bezirk} onChange={onBezirk} />
-            {showCategory && <CategoryFilter active={category} onChange={onCategory} />}
-          </div>
-        )}
       </div>
     </div>
   )

@@ -17,6 +17,7 @@ import RestaurantDetail from './map/RestaurantDetail'
 import MustEatDetail from './map/MustEatDetail'
 import UserLocationMarker from './map/UserLocationMarker'
 import MapToolbar from './map/MapToolbar'
+import LayerToggle from './map/LayerToggle'
 import { auth } from '@/lib/firebase/config'
 import styles from './map/map.module.css'
 
@@ -36,7 +37,7 @@ export default function MapSection({ isActive = false }: Props) {
   const { location, request: requestLocation } = useUserLocation()
   const uid = auth.currentUser?.uid ?? null
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
-  const { sheetRef, handleRef, snap, setSnap, dragging } = useBottomSheet('mid')
+  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging } = useBottomSheet('mid')
   // Remember the sheet snap from before a detail opens so we can restore it on close.
   const returnSnapRef = useRef<typeof snap | null>(null)
 
@@ -249,7 +250,7 @@ export default function MapSection({ isActive = false }: Props) {
           <MapToolbar variant="desktop" {...toolbarProps} />
 
           <div className={styles.body}>
-            <div className={styles.mapWrap}>
+            <div className={`${styles.mapWrap} ${layer === 'mustEats' ? styles.mapWrapNoCats : ''}`}>
               <MapCanvas ref={mapRef} onMove={updateBounds} onMapClick={handleMapClick}>
                 {layer === 'restaurants' && displayedRestaurants.map(r => (
                   <RestaurantMarker
@@ -320,7 +321,7 @@ export default function MapSection({ isActive = false }: Props) {
 
               {layer === 'restaurants' ? (
                 <>
-                  <div className={styles.listHeader}>
+                  <div className={`${styles.listHeader} ${styles.listHeaderDesktopOnly}`}>
                     <div className={styles.listTitle}>
                       {(() => {
                         const n = (search.trim() ? displayedRestaurants : visibleRestaurants).length
@@ -329,7 +330,7 @@ export default function MapSection({ isActive = false }: Props) {
                     </div>
                     {location && !search.trim() && <div className={styles.listCount}>{t('map.nearYou')}</div>}
                   </div>
-                  <div className={styles.listScroll}>
+                  <div ref={contentRef} className={styles.listScroll}>
                     <RestaurantList
                       restaurants={search.trim() ? displayedRestaurants : visibleRestaurants}
                       userLocation={location}
@@ -345,7 +346,7 @@ export default function MapSection({ isActive = false }: Props) {
                       {unlockedIds.size}/{mustEats.length} {t('map.mustEatsUnlocked')}
                     </div>
                   </div>
-                  <div className={styles.listScroll}>
+                  <div ref={contentRef} className={styles.listScroll}>
                     {displayedMustEats.length === 0 ? (
                       <div className={styles.empty}>{t('map.noMustEatsMatch')}</div>
                     ) : (

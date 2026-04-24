@@ -78,7 +78,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   // Re-sync on resize
   useEffect(() => {
     const onResize = () => {
-      const el = sheetRef.current
+      const el = sheetNode.current
       if (!el || !isMobile()) return
       const h = el.getBoundingClientRect().height
       applyY(snapToPx(snap, h))
@@ -90,7 +90,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   // Drag handlers on the grab handle
   useEffect(() => {
     const handle = handleRef.current
-    const sheet  = sheetRef.current
+    const sheet  = sheetNode.current
     if (!handle || !sheet) return
 
     const onDown = (e: PointerEvent) => {

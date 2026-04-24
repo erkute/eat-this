@@ -16,6 +16,7 @@ export async function GET() {
   )
 
   const urls = articles
+    .filter(a => a.slug && a.title && a.date)
     .map(({ slug, title, date }) => `
   <url>
     <loc>${SITE_URL}/news/${slug}</loc>

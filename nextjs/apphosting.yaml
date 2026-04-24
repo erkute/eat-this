@@ -3,3 +3,10 @@ runConfig:
   maxInstances: 10
   minInstances: 0
   concurrency: 80
+
+env:
+  - variable: SANITY_REVALIDATE_SECRET
+    secret: SANITY_REVALIDATE_SECRET
+    availability:
+      - RUNTIME
+

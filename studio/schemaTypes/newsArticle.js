@@ -1,4 +1,9 @@
 import {defineField, defineType} from 'sanity'
+import {PortableTextInputWithPaste} from '../lib/portableTextPaste'
+
+// Custom input: auto-converts pasted HTML or Markdown into Portable Text
+// (headings, bold, italic, links, blockquote). Applied to contentDe + content below.
+const contentInputComponents = {input: PortableTextInputWithPaste}
 
 // Shared Portable Text config reused in DE + EN content fields
 const contentBlocks = [
@@ -167,6 +172,7 @@ export default defineType({
       type: 'array',
       group: 'german',
       of: contentBlocks,
+      components: contentInputComponents,
     }),
 
     // ── Englisch (optional) ───────────────────────────────────────────────────
@@ -197,6 +203,7 @@ export default defineType({
       type: 'array',
       group: 'english',
       of: contentBlocks,
+      components: contentInputComponents,
     }),
 
     // ── SEO ───────────────────────────────────────────────────────────────────

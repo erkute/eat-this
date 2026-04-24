@@ -17,18 +17,20 @@ interface MapBounds {
 
 interface MapCanvasProps {
   onMove?: (bounds: MapBounds) => void
+  onMapClick?: () => void
   children?: React.ReactNode
 }
 
-const MapCanvas = forwardRef<MapRef, MapCanvasProps>(({ onMove, children }, ref) => {
+const MapCanvas = forwardRef<MapRef, MapCanvasProps>(({ onMove, onMapClick, children }, ref) => {
   const [isDark, setIsDark] = useState(false)
 
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    setIsDark(mq.matches)
-    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches)
-    mq.addEventListener('change', handler)
-    return () => mq.removeEventListener('change', handler)
+    const el = document.documentElement
+    const update = () => setIsDark(el.getAttribute('data-theme') === 'dark')
+    update()
+    const mo = new MutationObserver(update)
+    mo.observe(el, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => mo.disconnect()
   }, [])
 
   return (
@@ -42,6 +44,7 @@ const MapCanvas = forwardRef<MapRef, MapCanvasProps>(({ onMove, children }, ref)
         const b = e.target.getBounds()
         onMove({ north: b.getNorth(), south: b.getSouth(), east: b.getEast(), west: b.getWest() })
       }}
+      onClick={() => onMapClick?.()}
     >
       <NavigationControl position="top-right" showCompass={false} />
       {children}

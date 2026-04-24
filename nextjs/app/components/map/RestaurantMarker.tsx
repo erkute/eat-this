@@ -1,6 +1,7 @@
 'use client'
 import { Marker } from 'react-map-gl/maplibre'
 import type { MapRestaurant } from '@/lib/types'
+import styles from './map.module.css'
 
 interface RestaurantMarkerProps {
   restaurant: MapRestaurant
@@ -9,6 +10,12 @@ interface RestaurantMarkerProps {
 }
 
 export default function RestaurantMarker({ restaurant, isSelected, onClick }: RestaurantMarkerProps) {
+  const className = [
+    styles.pinLogo,
+    isSelected && styles.pinLogoActive,
+    restaurant.mustEatCount > 0 && styles.pinLogoHasMust,
+  ].filter(Boolean).join(' ')
+
   return (
     <Marker
       longitude={restaurant.lng}
@@ -22,19 +29,11 @@ export default function RestaurantMarker({ restaurant, isSelected, onClick }: Re
       <div
         role="button"
         aria-label={restaurant.name}
-        style={{
-          width:        isSelected ? 16 : 12,
-          height:       isSelected ? 16 : 12,
-          borderRadius: '50%',
-          background:   isSelected ? '#ff6b35' : '#e85d2f',
-          border:       '2px solid white',
-          boxShadow:    isSelected
-            ? '0 0 0 3px rgba(255,107,53,0.35)'
-            : '0 1px 4px rgba(0,0,0,0.3)',
-          cursor:     'pointer',
-          transition: 'all 0.15s',
-        }}
-      />
+        className={className}
+        style={{ position: 'relative' }}
+      >
+        <img src="/pics/logo.png" alt="" draggable={false} />
+      </div>
     </Marker>
   )
 }

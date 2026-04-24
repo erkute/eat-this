@@ -1,15 +1,50 @@
 'use client'
+import { useState } from 'react'
 import { Marker } from 'react-map-gl/maplibre'
 import type { MapMustEat } from '@/lib/types'
+import type { UserLocation } from '@/lib/map/useUserLocation'
+import { haversineDistance } from '@/lib/map/distance'
+import styles from './map.module.css'
 
 interface MustEatMarkerProps {
   mustEat: MapMustEat
   isUnlocked: boolean
   isSelected: boolean
+  userLocation?: UserLocation | null
   onClick: (mustEat: MapMustEat) => void
 }
 
-export default function MustEatMarker({ mustEat, isUnlocked, isSelected, onClick }: MustEatMarkerProps) {
+// Proximity vibration starts at this distance and ramps up to 1 at 0 m away.
+const PROXIMITY_START_METERS = 500
+
+export default function MustEatMarker({
+  mustEat,
+  isUnlocked,
+  isSelected,
+  userLocation,
+  onClick,
+}: MustEatMarkerProps) {
+  const [wiggling, setWiggling] = useState(false)
+
+  const distance = userLocation
+    ? haversineDistance(userLocation.lat, userLocation.lng, mustEat.restaurant.lat, mustEat.restaurant.lng)
+    : null
+
+  // 0 = no vibrate (too far or unlocked), 1 = maximum (right on top).
+  const proximityIntensity = !isUnlocked && distance !== null
+    ? Math.max(0, Math.min(1, 1 - distance / PROXIMITY_START_METERS))
+    : 0
+
+  const vibrating = proximityIntensity > 0.02
+
+  const className = [
+    styles.cardMarker,
+    isSelected && styles.cardMarkerActive,
+    isUnlocked && !isSelected && styles.cardMarkerDiscovered,
+    !isUnlocked && wiggling && styles.cardWiggling,
+    vibrating && styles.cardMarkerVibrating,
+  ].filter(Boolean).join(' ')
+
   return (
     <Marker
       longitude={mustEat.restaurant.lng}
@@ -17,47 +52,18 @@ export default function MustEatMarker({ mustEat, isUnlocked, isSelected, onClick
       anchor="bottom"
       onClick={e => {
         e.originalEvent.stopPropagation()
+        if (!isUnlocked) setWiggling(true)
         onClick(mustEat)
       }}
     >
       <div
         role="button"
-        aria-label={isUnlocked ? mustEat.dish : 'Hidden Must-Eat'}
-        style={{
-          width:      40,
-          height:     56,
-          borderRadius: 6,
-          overflow:   'hidden',
-          cursor:     'pointer',
-          boxShadow:  isSelected
-            ? '0 0 0 3px #e85d2f, 0 4px 12px rgba(0,0,0,0.3)'
-            : '0 2px 8px rgba(0,0,0,0.25)',
-          transition: 'box-shadow 0.15s',
-          border:     '2px solid white',
-          position:   'relative',
-        }}
+        aria-label={`Must-Eat at ${mustEat.restaurant.name}`}
+        className={className}
+        style={vibrating ? { ['--vibrate-intensity' as string]: proximityIntensity.toFixed(3) } : undefined}
+        onAnimationEnd={() => setWiggling(false)}
       >
-        {isUnlocked ? (
-          <img src={mustEat.image} alt={mustEat.dish} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        ) : (
-          <div style={{
-            width:       '100%',
-            height:      '100%',
-            background:  'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-            display:     'flex',
-            alignItems:  'center',
-            justifyContent: 'center',
-          }}>
-            <div style={{
-              position:            'absolute',
-              inset:               3,
-              border:              '1px solid rgba(255,255,255,0.15)',
-              borderRadius:        3,
-              backgroundImage:     'repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 8px)',
-            }} />
-            <span style={{ fontSize: 18, position: 'relative', zIndex: 1 }}>?</span>
-          </div>
-        )}
+        <img src="/pics/card-back.webp" alt="" draggable={false} />
       </div>
     </Marker>
   )

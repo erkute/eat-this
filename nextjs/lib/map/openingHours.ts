@@ -50,20 +50,36 @@ function fmt(totalMins: number): string {
   return `${String(Math.floor(totalMins / 60)).padStart(2, '0')}:${String(totalMins % 60).padStart(2, '0')}`
 }
 
+export interface OpenStatusLabels {
+  open?: string
+  closed?: string
+  opens?: string
+  closes?: string
+  unitH?: string
+  unitMin?: string
+}
+
 export function getOpenStatus(
   openingHours: OpeningHourSlot[],
-  now: Date = new Date()
+  now: Date = new Date(),
+  l: OpenStatusLabels = {}
 ): OpenStatus {
+  const L = {
+    open:   l.open   ?? 'Open',
+    closed: l.closed ?? 'Closed',
+    opens:  l.opens  ?? 'Opens',
+    closes: l.closes ?? 'Closes',
+    unitH:   l.unitH   ?? 'h',
+    unitMin: l.unitMin ?? 'min',
+  }
   const today      = now.getDay() as DayIndex
   const currentMin = now.getHours() * 60 + now.getMinutes()
 
+  // 1. Currently open? / Opens later today?
   for (const slot of openingHours) {
     if (!parseDays(slot.days).includes(today)) continue
-
     const range = parseTimeRange(slot.hours)
-    if (!range) {
-      return { isOpen: false, label: 'Closed today', minutesUntilChange: null }
-    }
+    if (!range) continue
 
     if (currentMin >= range.open && currentMin < range.close) {
       const left = range.close - currentMin
@@ -71,24 +87,41 @@ export function getOpenStatus(
       return {
         isOpen: true,
         label:  h > 0
-          ? `Open · Closes ${fmt(range.close)} (${h}h)`
-          : `Open · Closes ${fmt(range.close)}`,
+          ? `${L.open} · ${L.closes} ${fmt(range.close)} (${h}${L.unitH})`
+          : `${L.open} · ${L.closes} ${fmt(range.close)}`,
         minutesUntilChange: left,
-      }
-    }
-
-    if (currentMin < range.open) {
-      const until = range.open - currentMin
-      const h     = Math.floor(until / 60)
-      return {
-        isOpen: false,
-        label:  h > 0
-          ? `Closed · Opens ${fmt(range.open)} (in ${h}h)`
-          : `Closed · Opens ${fmt(range.open)}`,
-        minutesUntilChange: until,
       }
     }
   }
 
-  return { isOpen: false, label: 'Closed', minutesUntilChange: null }
+  // 2. Scan next 7 days (including later today) for the next opening slot.
+  let next: { dayOffset: number; openMin: number } | null = null
+  for (let offset = 0; offset < 7 && !next; offset++) {
+    const day = ((today + offset) % 7) as DayIndex
+    for (const slot of openingHours) {
+      if (!parseDays(slot.days).includes(day)) continue
+      const range = parseTimeRange(slot.hours)
+      if (!range) continue
+      if (offset === 0 && range.open <= currentMin) continue
+      if (!next || range.open < next.openMin) {
+        next = { dayOffset: offset, openMin: range.open }
+      }
+    }
+  }
+
+  if (!next) {
+    return { isOpen: false, label: L.closed, minutesUntilChange: null }
+  }
+
+  const minutesUntil = next.dayOffset * 24 * 60 + next.openMin - currentMin
+  const h = Math.floor(minutesUntil / 60)
+  const when = h > 0
+    ? `${L.opens} ${fmt(next.openMin)} (in ${h}${L.unitH})`
+    : `${L.opens} ${fmt(next.openMin)} (in ${minutesUntil}${L.unitMin})`
+
+  return {
+    isOpen: false,
+    label: `${L.closed} · ${when}`,
+    minutesUntilChange: minutesUntil,
+  }
 }

@@ -3,6 +3,8 @@ import type { MapRestaurant, OpenStatus } from '@/lib/types'
 import { haversineDistance, formatDistance } from '@/lib/map/distance'
 import { getOpenStatus } from '@/lib/map/openingHours'
 import type { UserLocation } from '@/lib/map/useUserLocation'
+import { useTranslation } from '@/lib/i18n'
+import styles from './map.module.css'
 
 interface ItemProps {
   restaurant: MapRestaurant
@@ -12,8 +14,17 @@ interface ItemProps {
 }
 
 function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
+  const { t } = useTranslation()
+  const statusLabels = {
+    open: t('map.open'),
+    closed: t('map.closed'),
+    opens: t('map.opens'),
+    closes: t('map.closes'),
+    unitH: t('map.unitsH'),
+    unitMin: t('map.unitsMin'),
+  }
   const status: OpenStatus = restaurant.openingHours
-    ? getOpenStatus(restaurant.openingHours)
+    ? getOpenStatus(restaurant.openingHours, new Date(), statusLabels)
     : { isOpen: false, label: '', minutesUntilChange: null }
 
   const distance = userLocation
@@ -22,45 +33,55 @@ function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
 
   return (
     <button
+      className={`${styles.row} ${isSelected ? styles.rowActive : ''}`}
       onClick={() => onClick(restaurant)}
-      style={{
-        display:       'flex',
-        gap:           10,
-        padding:       '10px 12px',
-        background:    isSelected ? 'rgba(232,93,47,0.08)' : 'transparent',
-        border:        'none',
-        borderBottom:  '1px solid var(--border, #eee)',
-        cursor:        'pointer',
-        textAlign:     'left',
-        width:         '100%',
-        alignItems:    'center',
-      }}
     >
-      {restaurant.photo && (
-        <img
-          src={restaurant.photo}
-          alt={restaurant.name}
-          style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }}
-        />
+      {restaurant.photo ? (
+        <img src={restaurant.photo} alt="" className={styles.rowPhoto} loading="lazy" />
+      ) : (
+        <div className={styles.rowPhotoPlaceholder} aria-hidden="true">🍽</div>
       )}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2, color: 'var(--text)' }}>
-          {restaurant.name}
-          {restaurant.mustEatCount > 0 && (
-            <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, background: '#e85d2f', color: '#fff', borderRadius: 4, padding: '1px 5px' }}>
-              Must-Eat
-            </span>
-          )}
+
+      <div className={styles.rowMain}>
+        <div className={styles.rowName}>{restaurant.name}</div>
+        <div className={styles.rowMeta}>
+          {[restaurant.district, restaurant.price].filter(Boolean).join(' · ')}
         </div>
-        <div style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {restaurant.district && <span>{restaurant.district}</span>}
-          {restaurant.price    && <span>{restaurant.price}</span>}
-          {distance            && <span>{distance}</span>}
-        </div>
-        {status.label && (
-          <div style={{ fontSize: 11, marginTop: 2, color: status.isOpen ? '#4caf50' : '#999' }}>
-            {status.label}
+        {(restaurant.categories?.length || restaurant.mustEatCount > 0) && (
+          <div className={styles.rowTags}>
+            {restaurant.categories?.slice(0, 3).map(c => (
+              <span key={c} className={styles.rowTag}>{c}</span>
+            ))}
+            {restaurant.mustEatCount > 0 && (
+              <img
+                src="/pics/card-back.webp"
+                alt="Must-Eat"
+                className={styles.rowMustBadge}
+                draggable={false}
+              />
+            )}
           </div>
+        )}
+      </div>
+
+      <div className={styles.rowSide}>
+        {distance && <span className={styles.rowDistance}>{distance}</span>}
+        {status.label && (
+          <span className={`${styles.rowStatus} ${status.isOpen ? styles.rowStatusOpen : styles.rowStatusClosed}`}>
+            {status.isOpen ? (
+              <span className={styles.rowStatusMain}>{t('map.open')}</span>
+            ) : (
+              <>
+                <span className={styles.rowStatusMain}>{t('map.closed')}</span>
+                {(() => {
+                  const sub = status.label.replace(new RegExp(`^${t('map.closed')}\\s*·\\s*`), '')
+                  return sub && sub !== t('map.closed')
+                    ? <span className={styles.rowStatusSub}>{sub}</span>
+                    : null
+                })()}
+              </>
+            )}
+          </span>
         )}
       </div>
     </button>
@@ -75,13 +96,14 @@ interface RestaurantListProps {
 }
 
 export default function RestaurantList({ restaurants, userLocation, selectedId, onSelect }: RestaurantListProps) {
+  const { t } = useTranslation()
+  if (restaurants.length === 0) {
+    return (
+      <div className={styles.empty}>{t('map.nothingInArea')}</div>
+    )
+  }
   return (
-    <div style={{ overflowY: 'auto', flex: 1 }}>
-      {restaurants.length === 0 && (
-        <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 13 }}>
-          No restaurants in this area
-        </div>
-      )}
+    <>
       {restaurants.map(r => (
         <Item
           key={r._id}
@@ -91,6 +113,6 @@ export default function RestaurantList({ restaurants, userLocation, selectedId, 
           onClick={onSelect}
         />
       ))}
-    </div>
+    </>
   )
 }

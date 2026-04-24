@@ -1,0 +1,1685 @@
+/* ============================================================
+   Map module — all styling for the /map page lives here.
+   Uses semantic tokens from globals.css so dark mode just works.
+   ============================================================ */
+
+/* -------------------- Shell & layout -------------------- */
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--surface-bg);
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  height: 100%;
+  padding: 24px;
+  color: var(--text-primary);
+  background: var(--surface-bg);
+  font-family: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Courier New', monospace;
+  image-rendering: pixelated;
+}
+.loadingCard {
+  width: 96px;
+  aspect-ratio: 1449 / 2163;
+  background: url('/pics/card-back.webp') center/contain no-repeat;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
+  animation: loadingFlip 1.4s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+@keyframes loadingFlip {
+  0%, 100% { transform: rotate(-4deg) scale(1); }
+  50%      { transform: rotate(4deg)  scale(1.04); }
+}
+.loadingTitle {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--text-primary);
+}
+.loadingBar {
+  position: relative;
+  width: min(240px, 70%);
+  height: 16px;
+  background: var(--surface-raised);
+  border: 3px solid var(--accent);
+  overflow: hidden;
+  image-rendering: pixelated;
+  box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.2);
+}
+.loadingBarFill {
+  position: absolute;
+  inset: 0;
+  width: 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      var(--accent) 0 10px,
+      color-mix(in srgb, var(--accent) 70%, #000) 10px 12px
+    );
+  animation: loadingFill 1.4s steps(12) infinite;
+}
+@keyframes loadingFill {
+  0%   { width: 0; }
+  100% { width: 100%; }
+}
+.loadingSub {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  animation: loadingBlink 1s steps(2) infinite;
+}
+@keyframes loadingBlink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0.35; }
+}
+
+/* Toolbar — single-row on desktop, two-row on mobile.
+   Rendered twice: once above body on desktop, once inside sheet header on mobile. */
+.toolbar {
+  flex-shrink: 0;
+  padding: 6px 10px 8px;
+  background: var(--surface-card);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 6;
+}
+.toolbarRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.toolbarDesktop {
+  display: none;
+}
+.toolbarMobile {
+  display: block;
+}
+@media (max-width: 1023.98px) {
+  /* Float the toolbar as a glass overlay at the top of the map, out of the sheet. */
+  .toolbarMobile {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    z-index: 7;
+    pointer-events: auto;
+  }
+  .toolbarMobile .toolbar {
+    background: var(--surface-overlay);
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    box-shadow: var(--shadow-md);
+    padding: 6px 8px 8px;
+  }
+}
+@media (min-width: 1024px) {
+  .toolbarDesktop {
+    display: block;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .toolbarMobile { display: none; }
+
+  .toolbarDesktop .toolbar {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+  }
+}
+
+.search {
+  position: relative;
+  flex: 1 1 140px;
+  min-width: 120px;
+}
+@media (min-width: 1024px) {
+  .search {
+    /* Dominate the toolbar width on desktop — take all remaining space */
+    flex: 1 1 auto;
+    min-width: 320px;
+  }
+}
+.search::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  opacity: 0.45;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>") center/contain no-repeat;
+  pointer-events: none;
+}
+.searchInput {
+  width: 100%;
+  padding: 8px 12px 8px 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.searchInput::placeholder { color: var(--text-muted); }
+.searchInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* Segmented layer toggle */
+.segmented {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 3px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  gap: 2px;
+}
+.segBtn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+.segBtn:hover { color: var(--text-primary); }
+.segBtnActive {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.segBtnActive:hover { color: #fff; }
+.segCount {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  letter-spacing: 0.02em;
+}
+.segBtn:not(.segBtnActive) .segCount {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Category chips */
+.chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0;
+  padding: 0 20px 2px 2px;
+  scroll-snap-type: x proximity;
+  min-width: 0;
+  flex: 1 1 auto;
+  mask-image: linear-gradient(to right, black 0, black calc(100% - 18px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 0, black calc(100% - 18px), transparent 100%);
+}
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  appearance: none;
+  flex: 0 0 auto;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  scroll-snap-align: start;
+}
+.chip:hover { color: var(--text-primary); border-color: var(--text-muted); }
+.chipActive {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0.15) 100%
+    );
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(8px) saturate(1.3);
+  -webkit-backdrop-filter: blur(8px) saturate(1.3);
+}
+.chipActive:hover { color: var(--text-primary); }
+html[data-theme="dark"] .chipActive {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.16) 0%,
+      rgba(255, 255, 255, 0.04) 100%
+    );
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18),
+    0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* -------------------- Map body -------------------- */
+
+.body {
+  flex: 1;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr); /* mobile: single row, sheet floats on top */
+  grid-template-columns: 1fr;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr) 420px;
+  }
+}
+
+.mapWrap {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+}
+.mapWrap :global(.maplibregl-ctrl-attrib) {
+  font-size: 10px;
+  background: var(--surface-overlay);
+  color: var(--text-muted);
+}
+.mapWrap :global(.maplibregl-ctrl-attrib a) { color: var(--text-secondary); }
+
+.fab {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  z-index: 6;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--surface-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (max-width: 1023.98px) {
+  .fab {
+    /* Sit below the floating mobile toolbar */
+    top: 124px;
+  }
+}
+.fab:hover { color: var(--accent); }
+
+/* Compact language toggle, floats below the location FAB on the map. */
+.langSwitch {
+  position: absolute;
+  left: 14px;
+  top: 68px;
+  z-index: 6;
+  display: inline-flex;
+  background: var(--surface-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 2px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+@media (max-width: 1023.98px) {
+  .langSwitch { top: 178px; }
+}
+.langBtn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.langBtn:hover { color: var(--text-primary); }
+.langBtnActive {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0.15) 100%
+    );
+  color: var(--text-primary);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.04);
+}
+html[data-theme="dark"] .langBtnActive {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.16) 0%,
+      rgba(255, 255, 255, 0.04) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+}
+.fabIcon {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* -------------------- List column / sheet -------------------- */
+
+.list {
+  background: var(--surface-card);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Desktop: list is a side panel */
+@media (min-width: 1024px) {
+  .list {
+    border-left: 1px solid var(--border-subtle);
+  }
+}
+
+/* Mobile: list is an absolutely-positioned draggable bottom sheet.
+   Height matches the max-expanded sheet (FULL_VISIBLE_PX in useBottomSheet)
+   so content inside never extends below the sheet's visible area. */
+@media (max-width: 1023.98px) {
+  .list {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 480px;
+    max-height: calc(100% - 12px);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transform: translateY(var(--sheet-y, calc(100% - 68px)));
+    z-index: 4;
+  }
+  .listDragging { transition: none; }
+}
+
+.handle {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 6px;
+  cursor: grab;
+  /* Prevent the browser from hijacking the drag as a page scroll. */
+  touch-action: none;
+  -ms-touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.handle::before {
+  content: '';
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-strong);
+}
+@media (min-width: 1024px) {
+  .handle { display: none; }
+}
+
+.listHeader {
+  flex-shrink: 0;
+  padding: 6px 16px 10px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.listTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.listCount {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.listScroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 12px;
+  /* Extra bottom padding so the last row can scroll past the fade zone
+     and be fully visible when the user reaches the end of the list. */
+  padding-bottom: calc(44px + env(safe-area-inset-bottom, 0px));
+  -webkit-overflow-scrolling: touch;
+  /* Cap scroll viewport to the sheet's visible area so content below the
+     overflow-hidden clip edge is actually reachable via scrolling. */
+  max-height: calc(var(--sheet-visible-px, 100%) - 56px);
+  /* UX: soft fade at the bottom signals "there's more — keep scrolling". */
+  mask-image: linear-gradient(
+    to bottom,
+    black 0,
+    black calc(100% - 28px),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    black 0,
+    black calc(100% - 28px),
+    transparent 100%
+  );
+}
+
+.empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* Restaurant row */
+.row {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  width: 100%;
+  appearance: none;
+  color: inherit;
+  font: inherit;
+}
+.row:hover { background: var(--surface-bg); }
+.rowActive {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.rowActive:hover { background: var(--accent-soft); }
+
+.rowPhoto {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--surface-bg);
+  display: block;
+  flex-shrink: 0;
+}
+.rowPhotoCard {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  object-fit: contain;
+  background: var(--surface-bg);
+  display: block;
+  padding: 3px;
+  flex-shrink: 0;
+}
+.rowPhotoPlaceholder {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  background: var(--surface-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 22px;
+}
+
+.rowMain {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.rowName {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.rowMeta {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rowTags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.rowTag {
+  font-size: 10.5px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--surface-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+.rowMustBadge {
+  width: 16px;
+  height: 23px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.rowSide {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.rowDistance {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.rowStatus {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 4px 9px;
+  border-radius: 10px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  text-align: center;
+  max-width: 120px;
+}
+.rowStatusMain {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 10px;
+}
+.rowStatusSub {
+  font-weight: 500;
+  font-size: 9.5px;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+.rowStatusOpen {
+  background: rgba(34, 139, 34, 0.15);
+  color: #1f7a1f;
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+html[data-theme="dark"] .rowStatusOpen { color: #6ad46a; }
+.rowStatusClosed {
+  background: rgba(200, 35, 35, 0.15);
+  color: #c42323;
+}
+html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
+
+/* -------------------- Markers on the map -------------------- */
+
+/* Restaurant pin */
+.pin {
+  position: relative;
+  width: 28px;
+  height: 34px;
+  cursor: pointer;
+  transform-origin: bottom center;
+  transition: transform 0.15s;
+}
+.pin:hover { transform: scale(1.1); }
+.pinActive { transform: scale(1.15); }
+.pinBody {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+}
+
+/* Must-Eat polaroid marker */
+.card {
+  width: 52px;
+  height: 72px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface-card);
+  border: 2px solid #fff;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  position: relative;
+  transform-origin: bottom center;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.card:hover { transform: scale(1.08); }
+.cardActive {
+  border-color: var(--accent);
+  transform: scale(1.12);
+  box-shadow: 0 6px 18px rgba(255, 59, 0, 0.4);
+}
+.cardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.cardLocked .cardImg {
+  filter: blur(4px) saturate(0.6) brightness(0.7);
+}
+.cardLock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.35);
+}
+.cardLockIcon {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+/* -------------------- Detail panels (sheet cards) -------------------- */
+
+@keyframes detailIn {
+  from { transform: translateY(16px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.detailClose {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  font-size: 16px;
+  line-height: 1;
+  backdrop-filter: blur(6px);
+}
+.detailClose:hover { background: rgba(0, 0, 0, 0.75); }
+@media (min-width: 1024px) {
+  /* On desktop the close button sits in its own top-right corner — push the
+     right-column content down further so the X has a clear breathing zone. */
+  .detailRight { padding: 72px 24px 20px 24px; }
+  .detailClose { top: 16px; right: 18px; }
+}
+
+.detailHero {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  max-height: 26dvh;
+  background: var(--surface-bg);
+  display: block;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.detailHeroPlaceholder {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  max-height: 26dvh;
+  background: linear-gradient(135deg, var(--surface-bg), var(--surface-raised));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 32px;
+  flex-shrink: 0;
+}
+@media (min-width: 1024px) {
+  .detailHero, .detailHeroPlaceholder { max-height: 32dvh; }
+}
+
+.detailBody {
+  padding: 12px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  overflow: hidden;
+}
+@media (min-width: 1024px) {
+  .detailBody {
+    padding: 14px 18px 16px;
+    gap: 9px;
+  }
+}
+/* When the total content is still taller than the viewport, let only the
+   middle (hours/tip/description/must-eats) scroll — header, status and
+   action buttons stay visible. */
+.detailScroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 -4px;
+  padding: 0 4px;
+}
+.detailScroll::-webkit-scrollbar { width: 4px; }
+.detailScroll::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 2px;
+}
+
+.detailDistrict {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: -2px;
+}
+.detailDescription {
+  font-size: 13px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.detailName {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+  margin: 0;
+}
+.detailSub {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.detailRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.detailDot { color: var(--text-muted); }
+
+.detailTags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.detailTag {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--surface-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.detailActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+.btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btnPrimary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.btnPrimary:hover {
+  background: #e53500;
+  border-color: #e53500;
+  color: #fff;
+}
+.btnPrimary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: var(--border-strong);
+  border-color: var(--border-strong);
+  color: var(--text-muted);
+}
+
+/* Google Maps button — ghost/transparent with the official multicolor G.
+   Uses Gotham if the user has it installed, Inter as a close fallback. */
+.btnGoogle {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  font-family: 'Gotham', 'Gotham SSm A', 'Gotham SSm B', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 10px 16px 10px 14px;
+  gap: 10px;
+}
+.btnGoogle:hover {
+  background: var(--surface-bg);
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+.googleLogo {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: block;
+}
+
+/* Website button — ghost with a subtle accent hover, stroke globe icon. */
+.btnWebsite {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 10px 16px 10px 14px;
+  gap: 8px;
+}
+.btnWebsite:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btnIcon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: block;
+  stroke-width: 2;
+}
+
+.unlockHint {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 8px 10px;
+  background: var(--surface-bg);
+  border-radius: 10px;
+  text-align: center;
+}
+
+/* Must-eat specific hero: portrait polaroid feel */
+.mustHero {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background: var(--surface-bg);
+  object-fit: cover;
+  display: block;
+}
+
+.lockedOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+}
+.lockedOverlay svg {
+  width: 28px;
+  height: 28px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.heroWrap {
+  position: relative;
+}
+
+/* ========== Logo marker for restaurants ========== */
+.pinLogo {
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: transform 0.15s, filter 0.15s;
+  transform-origin: center bottom;
+  position: relative;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+}
+.pinLogo:hover { transform: scale(1.1); }
+.pinLogoActive {
+  transform: scale(1.2);
+  filter: drop-shadow(0 3px 6px rgba(255, 59, 0, 0.55));
+}
+.pinLogoHasMust::after {
+  /* Mini Must-Eat card-back overlayed on the pin — signals the restaurant
+     has at least one Must-Eat attached. */
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 12px;
+  height: 17px;
+  background: url('/pics/card-back.webp') center/contain no-repeat;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+  transform: rotate(8deg);
+  z-index: 1;
+}
+.pinLogo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+/* ========== Card-back marker for Must-Eats ========== */
+.cardMarker {
+  width: 42px;
+  height: 62px;
+  cursor: pointer;
+  transform-origin: bottom center;
+  transition: transform 0.18s, filter 0.18s;
+  position: relative;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+.cardMarker:hover { transform: scale(1.1); }
+.cardMarkerActive {
+  transform: scale(1.2);
+  filter: drop-shadow(0 3px 6px rgba(255, 59, 0, 0.5));
+}
+.cardMarker img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.cardMarkerDiscovered {
+  filter: drop-shadow(0 2px 6px rgba(255, 59, 0, 0.55));
+}
+
+/* Proximity vibration on the Must-Eat map marker — strong when user is
+   right on top of the restaurant, subtle when ~500 m away. */
+.cardMarkerVibrating {
+  --vibrate-intensity: 0;
+  animation: markerVibrate calc(0.9s - 0.7s * var(--vibrate-intensity)) ease-in-out infinite;
+}
+.cardMarkerVibrating:hover {
+  /* Don't override the hover scale from .cardMarker — just keep vibrating. */
+  transform: scale(1.1);
+}
+@keyframes markerVibrate {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  20% {
+    transform:
+      translate(calc(var(--vibrate-intensity) * -3px), calc(var(--vibrate-intensity) * 1px))
+      rotate(calc(var(--vibrate-intensity) * -3deg));
+  }
+  40% {
+    transform:
+      translate(calc(var(--vibrate-intensity) * 3px), calc(var(--vibrate-intensity) * -1px))
+      rotate(calc(var(--vibrate-intensity) * 3deg));
+  }
+  60% {
+    transform:
+      translate(calc(var(--vibrate-intensity) * -2px), calc(var(--vibrate-intensity) * 1.5px))
+      rotate(calc(var(--vibrate-intensity) * -2deg));
+  }
+  80% {
+    transform:
+      translate(calc(var(--vibrate-intensity) * 2px), calc(var(--vibrate-intensity) * -1.5px))
+      rotate(calc(var(--vibrate-intensity) * 1.5deg));
+  }
+}
+
+/* ========== User location marker (full-body pixel avatar above pulsing dot) ========== */
+.userLoc {
+  position: relative;
+  width: 42px;
+  height: 64px;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.userLocAvatar {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
+  image-rendering: pixelated;
+  z-index: 2;
+}
+
+/* ========== Floating layer toggle on the map ========== */
+.layerFloat {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+@media (max-width: 1023.98px) {
+  .layerFloat {
+    /* Sit below the floating toolbar on mobile */
+    top: calc(8px + 108px);
+  }
+}
+.layerTabs {
+  display: inline-flex;
+  background: var(--surface-overlay);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 3px;
+  box-shadow: var(--shadow-md);
+}
+.layerTab {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.15s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+.layerTab:hover { color: var(--text-primary); }
+/* Glass-style active — frosted inner surface + subtle highlight, no red fill */
+.layerTabActive {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0.15) 100%
+    );
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(8px) saturate(1.3);
+  -webkit-backdrop-filter: blur(8px) saturate(1.3);
+  color: var(--text-primary);
+}
+.layerTabActive:hover { color: var(--text-primary); }
+html[data-theme="dark"] .layerTabActive {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.16) 0%,
+      rgba(255, 255, 255, 0.04) 100%
+    );
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18),
+    0 1px 3px rgba(0, 0, 0, 0.35);
+}
+.layerIcon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.layerCardIcon {
+  width: 18px;
+  height: 26px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+.layerLogoIcon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 50%;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+.layerTabIcon {
+  padding: 6px 10px;
+  gap: 0;
+}
+.layerTabActive .layerLogoIcon,
+.layerTabActive .layerCardIcon {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+}
+
+/* ========== Bezirk dropdown (styled native select) ========== */
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: 0 0 auto;
+  padding: 8px 28px 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>")
+    no-repeat right 10px center / 10px 10px,
+    var(--surface-raised);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  max-width: 170px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  line-height: 1.3;
+}
+.select:hover { color: var(--text-primary); border-color: var(--text-muted); }
+.selectActive {
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>")
+    no-repeat right 10px center / 10px 10px,
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0.15) 100%
+    );
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(8px) saturate(1.3);
+  -webkit-backdrop-filter: blur(8px) saturate(1.3);
+}
+.selectActive:hover { color: var(--text-primary); }
+html[data-theme="dark"] .selectActive {
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>")
+    no-repeat right 10px center / 10px 10px,
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.16) 0%,
+      rgba(255, 255, 255, 0.04) 100%
+    );
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18),
+    0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* ========== Open-now toggle chip ========== */
+.openChip {
+  appearance: none;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 11px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.openChip:hover { color: var(--text-primary); border-color: var(--text-muted); }
+.openChipActive {
+  background: #1f7a1f;
+  color: #fff;
+  border-color: #1f7a1f;
+}
+.openChipActive:hover { color: #fff; }
+.openDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+}
+.openChipActive .openDot {
+  background: #fff;
+  opacity: 1;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.25);
+}
+
+/* ========== Centered detail modal ==========
+   Mobile: vertikal + horizontal zentriert, Luft rundum für Tap-to-dismiss,
+   einspaltig (Bild oben, Info unten).
+   Desktop: breiter, zweispaltig (Bild+Meta links, Hours/Actions rechts). */
+.detail {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 32px);
+  max-width: 520px;
+  max-height: calc(100% - 48px);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  border-radius: 14px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-subtle);
+  z-index: 7;
+  overflow: hidden;
+  animation: detailPop 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+.detailLeft,
+.detailRight {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.detailLeft {
+  flex-shrink: 0; /* mobile: size to content so info doesn't overflow hero */
+}
+.detailRight {
+  min-height: 0; /* mobile: take remaining space, internal scroll handles overflow */
+}
+.detailRightHead {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 4px;
+}
+/* Mobile-only elements keep their natural display on mobile; desktop-only hidden. */
+.detailDesktopOnly { display: none; }
+@media (min-width: 1024px) {
+  .detailMobileOnly { display: none !important; }
+  .detailDesktopOnly { display: flex; }
+}
+.detailLeftInfo {
+  padding: 12px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.detailRight {
+  padding: 12px 16px 14px;
+  gap: 8px;
+  flex: 1 1 auto;
+}
+@media (max-width: 1023.98px) {
+  .detail {
+    width: calc(100% - 24px);
+    max-width: 420px;
+    max-height: calc(100% - 48px);
+  }
+  .detailRight {
+    border-top: 1px solid var(--border-subtle);
+  }
+}
+
+@media (min-width: 1024px) {
+  .detail {
+    flex-direction: row;
+    max-width: 780px;
+    max-height: calc(100% - 48px);
+  }
+  .detailLeft {
+    flex: 1 1 50%;
+    border-right: 1px solid var(--border-subtle);
+  }
+  .detailRight {
+    flex: 1 1 50%;
+    padding: 72px 24px 20px 24px;
+    gap: 10px;
+  }
+  .detailLeftInfo {
+    padding: 14px 16px 16px;
+  }
+}
+
+/* Must-Eat detail: tighter width — the card hero is ~220px and the rest is text,
+   so a narrower panel keeps attention on the card without big side whitespace.
+   Placed AFTER the desktop `.detail` rule so its max-width override wins. */
+/* Use .detail.detailNarrow double-class selector to beat the desktop media rule
+   on specificity, regardless of source order. */
+.detail.detailNarrow {
+  max-width: 280px;
+  flex-direction: column;
+}
+.detailNarrow .mustCardBackHero,
+.detailNarrow .mustCardFlip {
+  padding: 12px 12px 2px;
+}
+.detailNarrow .mustCardBackTap {
+  max-width: 220px;
+}
+@keyframes detailPop {
+  from { transform: translate(-50%, -50%) scale(0.95); opacity: 0; }
+  to   { transform: translate(-50%, -50%) scale(1);    opacity: 1; }
+}
+
+/* ========== Restaurant detail: opening hours + categories + must-eats ========== */
+.sectionLabel {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin: 2px 0 4px;
+}
+
+.hoursList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+}
+.hoursRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 4px 0;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.hoursRow:last-child { border-bottom: 0; }
+.hoursDay {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.hoursTime {
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.hoursStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  letter-spacing: 0.01em;
+  background: transparent;
+}
+.hoursStatus::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.hoursStatusOpen { color: #1f7a1f; }
+.hoursStatusClosed { color: #c42323; }
+html[data-theme="dark"] .hoursStatusOpen { color: #6ad46a; }
+html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
+
+.tipBlock {
+  border-left: 3px solid var(--accent);
+  padding: 7px 10px;
+  background: var(--surface-bg);
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  border-radius: 0 8px 8px 0;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Must-Eat mini cards inside restaurant detail */
+.mustGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 8px;
+}
+.mustCard {
+  aspect-ratio: 1449 / 2163;
+  border-radius: 0;
+  overflow: visible;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  background: url('/pics/card-back.webp') center/contain no-repeat;
+  position: relative;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+  transition: transform 0.15s, filter 0.15s;
+}
+.mustCard:hover { transform: translateY(-2px); }
+
+@keyframes cardWiggle {
+  0%   { transform: rotate(0); }
+  15%  { transform: rotate(-6deg) scale(1.04); }
+  30%  { transform: rotate(5deg)  scale(1.04); }
+  45%  { transform: rotate(-4deg) scale(1.03); }
+  60%  { transform: rotate(3deg)  scale(1.02); }
+  75%  { transform: rotate(-1deg) scale(1.01); }
+  100% { transform: rotate(0)     scale(1); }
+}
+.cardWiggling {
+  animation: cardWiggle 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+.cardWiggling:hover { transform: none; } /* don't fight the animation */
+.mustCardFront {
+  background: var(--surface-bg);
+  border-radius: 6%;
+  overflow: hidden;
+}
+.mustCardFront img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.mustCardLabel {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 14px 6px 5px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  text-align: left;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ========== Must-Eat detail: full flipped card ========== */
+.mustHero {
+  width: 100%;
+  max-height: 58dvh;
+  aspect-ratio: 1449 / 2163;
+  object-fit: cover;
+  display: block;
+  background: #111 url('/pics/card-back.webp') center/cover no-repeat;
+  margin: 0 auto;
+}
+.mustCardFlip {
+  width: 100%;
+  background: var(--surface-card);
+  padding: 16px 16px 0;
+  display: flex;
+  justify-content: center;
+}
+.mustCardFlip img {
+  max-width: 100%;
+  max-height: 52dvh;
+  width: auto;
+  height: auto;
+  aspect-ratio: 1449 / 2163;
+  object-fit: cover;
+  border-radius: 6%;
+  box-shadow: var(--shadow-md);
+  animation: mustFlip 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  display: block;
+}
+@keyframes mustFlip {
+  0%   { transform: rotateY(90deg); opacity: 0; }
+  100% { transform: rotateY(0);     opacity: 1; }
+}
+.mustCardBackHero {
+  width: 100%;
+  padding: 14px 16px 4px;
+  display: flex;
+  justify-content: center;
+  background: transparent;
+  --vibrate-intensity: 0;
+  /* Speeds up from 1.2s (far) to 0.22s (on top). Duration is interpolated. */
+  --vibrate-duration: calc(1.2s - 0.98s * var(--vibrate-intensity));
+}
+.mustCardBackTap {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: url('/pics/card-back.webp') center/contain no-repeat;
+  width: 100%;
+  max-width: 240px;
+  aspect-ratio: 1449 / 2163;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+  cursor: not-allowed;
+  transform-origin: center center;
+  animation: cardVibrate var(--vibrate-duration) ease-in-out infinite;
+}
+.mustCardBackTap:disabled { opacity: 1; } /* we still want full visibility */
+.mustCardBackTappable {
+  cursor: pointer;
+  filter: drop-shadow(0 6px 16px rgba(255, 59, 0, 0.45));
+}
+.mustCardBackTappable:hover {
+  animation-duration: 0.18s;
+}
+@keyframes cardVibrate {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0);
+  }
+  20% {
+    transform:
+      translate(calc(var(--vibrate-intensity) * -2.4px), calc(var(--vibrate-intensity) * 0.8px))
+      rotate(calc(var(--vibrate-intensity) * -1.6deg));
+  }
+  40% {
+    transform:
+      translate(calc(var(--vibrate-intensity) * 2.4px), calc(var(--vibrate-intensity) * -0.8px))
+      rotate(calc(var(--vibrate-intensity) * 1.6deg));
+  }
+  60% {
+    transform:
+      translate(calc(var(--vibrate-intensity) * -1.6px), calc(var(--vibrate-intensity) * 1.2px))
+      rotate(calc(var(--vibrate-intensity) * -1.2deg));
+  }
+  80% {
+    transform:
+      translate(calc(var(--vibrate-intensity) * 1.6px), calc(var(--vibrate-intensity) * -1.2px))
+      rotate(calc(var(--vibrate-intensity) * 1deg));
+  }
+}

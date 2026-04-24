@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local handoff / session notes (not for deploy)
+MAP_REDESIGN_HANDOFF.md

@@ -1,7 +1,19 @@
 'use client'
 import type { MapCategory } from '@/lib/types'
+import { useTranslation } from '@/lib/i18n'
+import styles from './map.module.css'
 
 const CATEGORIES: MapCategory[] = ['All', 'Dinner', 'Lunch', 'Breakfast', 'Coffee', 'Sweets', 'Pizza']
+
+const LABEL_KEY: Record<MapCategory, string> = {
+  All:       'map.filterAll',
+  Dinner:    'map.filterDinner',
+  Lunch:     'map.filterLunch',
+  Breakfast: 'map.filterBreakfast',
+  Coffee:    'map.filterCoffee',
+  Sweets:    'map.filterSweets',
+  Pizza:     'map.filterPizza',
+}
 
 interface CategoryFilterProps {
   active: MapCategory
@@ -9,27 +21,23 @@ interface CategoryFilterProps {
 }
 
 export default function CategoryFilter({ active, onChange }: CategoryFilterProps) {
+  const { t } = useTranslation()
   return (
-    <div style={{ display: 'flex', gap: 6, overflowX: 'auto', padding: '8px 12px', scrollbarWidth: 'none', flexShrink: 0 }}>
-      {CATEGORIES.map(cat => (
-        <button
-          key={cat}
-          onClick={() => onChange(cat)}
-          style={{
-            flexShrink:  0,
-            padding:     '4px 12px',
-            borderRadius: 20,
-            border:      active === cat ? 'none' : '1px solid var(--border, #ddd)',
-            background:  active === cat ? '#e85d2f' : 'transparent',
-            color:       active === cat ? '#fff' : 'var(--text, #333)',
-            fontSize:    13,
-            fontWeight:  active === cat ? 600 : 400,
-            cursor:      'pointer',
-          }}
-        >
-          {cat}
-        </button>
-      ))}
+    <div className={styles.chips} role="tablist" aria-label="Categories">
+      {CATEGORIES.map(cat => {
+        const isActive = active === cat
+        return (
+          <button
+            key={cat}
+            role="tab"
+            aria-selected={isActive}
+            className={`${styles.chip} ${isActive ? styles.chipActive : ''}`}
+            onClick={() => onChange(cat)}
+          >
+            {t(LABEL_KEY[cat])}
+          </button>
+        )
+      })}
     </div>
   )
 }

@@ -51,11 +51,6 @@ export default function MapToolbar({
             <div className={styles.toolbarSpacer} />
             <LayerToggle active={layer} onChange={onLayer} inline />
           </div>
-          {showCategory && (
-            <div className={styles.toolbarCatsRow}>
-              <CategoryFilter active={category} onChange={onCategory} />
-            </div>
-          )}
         </div>
       </div>
     )

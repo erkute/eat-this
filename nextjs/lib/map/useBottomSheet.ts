@@ -4,9 +4,9 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 export type SheetSnap = 'peek' | 'mid' | 'full'
 
 const PEEK_VISIBLE_PX = 68 // handle + first row peek when collapsed (toolbar floats above map)
-// Mid/full: handle (~36) + 3 rows (~74 each) + 4th-row teaser (~30).
-// This is also the cap — the sheet never expands beyond this.
-const MID_VISIBLE_PX = 300
+// Mid/full: handle (~36) + sheet-categories row (~44) + 3 rows (~74 each)
+// + 4th-row teaser (~30). This is also the cap — never expands beyond this.
+const MID_VISIBLE_PX = 350
 const MOBILE_MAX = 1023.98
 
 function snapToPx(snap: SheetSnap, sheetH: number): number {
@@ -50,10 +50,15 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     if (!el) return
     el.style.setProperty('--sheet-y', `${px}px`)
     const h = el.getBoundingClientRect().height
+    const visible = Math.max(0, h - px)
     // Visible sheet height = sheetHeight minus current translateY offset.
     // The listScroll inside can use this to cap itself so content below the
     // sheet's visible edge (clipped by overflow: hidden) can still be scrolled to.
-    el.style.setProperty('--sheet-visible-px', `${Math.max(0, h - px)}px`)
+    el.style.setProperty('--sheet-visible-px', `${visible}px`)
+    // Also expose to the map body so siblings (zoom controls, info button) can
+    // track the sheet's top edge and move with it.
+    const parent = el.parentElement
+    if (parent) parent.style.setProperty('--sheet-visible-px', `${visible}px`)
   }, [])
 
   // Callback ref so the snap is applied the moment the element attaches —
@@ -64,8 +69,10 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     if (el && isMobile()) {
       const h = el.getBoundingClientRect().height
       const px = snapToPx(snapRef.current, h)
+      const visible = Math.max(0, h - px)
       el.style.setProperty('--sheet-y', `${px}px`)
-      el.style.setProperty('--sheet-visible-px', `${Math.max(0, h - px)}px`)
+      el.style.setProperty('--sheet-visible-px', `${visible}px`)
+      el.parentElement?.style.setProperty('--sheet-visible-px', `${visible}px`)
     }
   }, [])
 
@@ -138,9 +145,12 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
 
   // Content-area drag: allow swiping on the list itself to expand/collapse the
   // sheet, but only when it wouldn't conflict with in-list scrolling.
-  // - Sheet not at 'full' → swipe takes over (list isn't really scrollable yet).
-  // - Sheet at 'full' and scrollTop === 0 and swipe is downward → drag sheet down.
-  // - Otherwise → let the list scroll normally.
+  //
+  // Rules (the max snap is 'mid' — sheet never goes higher than that):
+  // - At 'peek' → any swipe drags the sheet.
+  // - At 'mid' and swipe is DOWN at the top of the list → drag sheet down.
+  // - At 'mid' and swipe is UP → let the list scroll internally.
+  // - At 'mid' and swipe is DOWN but list is scrolled past top → let the list scroll.
   useEffect(() => {
     const content = contentRef.current
     const sheet   = sheetNode.current
@@ -172,12 +182,15 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       if (!touchState.decided) {
         if (Math.abs(dy) < 6) return // wait for meaningful gesture
         const atTop = content.scrollTop <= 0
-        const atFull = snapRef.current === 'full'
-        if (!atFull) {
+        const atPeek = snapRef.current === 'peek'
+        if (atPeek) {
+          // Sheet is collapsed → any swipe drags the sheet.
           touchState.intercepted = true
         } else if (atTop && dy > 0) {
+          // Expanded + at top of list + swipe down → drag sheet down.
           touchState.intercepted = true
         } else {
+          // Expanded + swipe up or list already scrolled → let list scroll.
           touchState.intercepted = false
         }
         touchState.decided = true

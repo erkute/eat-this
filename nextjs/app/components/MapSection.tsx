@@ -18,6 +18,7 @@ import MustEatDetail from './map/MustEatDetail'
 import UserLocationMarker from './map/UserLocationMarker'
 import MapToolbar from './map/MapToolbar'
 import LayerToggle from './map/LayerToggle'
+import CategoryFilter from './map/CategoryFilter'
 import { auth } from '@/lib/firebase/config'
 import styles from './map/map.module.css'
 
@@ -329,6 +330,9 @@ export default function MapSection({ isActive = false }: Props) {
                       })()}
                     </div>
                     {location && !search.trim() && <div className={styles.listCount}>{t('map.nearYou')}</div>}
+                  </div>
+                  <div className={styles.sheetCategories}>
+                    <CategoryFilter active={category} onChange={setCategory} />
                   </div>
                   <div ref={contentRef} className={styles.listScroll}>
                     <RestaurantList

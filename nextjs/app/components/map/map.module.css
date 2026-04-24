@@ -475,14 +475,19 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-group) {
   border-top: 1px solid rgba(255, 255, 255, 0.35) !important;
 }
 @media (max-width: 1023.98px) {
-  .mapWrap :global(.maplibregl-ctrl-bottom-right) {
-    right: 10px;
-    /* Sit just above the sheet at its default mid-snap (~300px visible). */
-    bottom: calc(310px + env(safe-area-inset-bottom, 0px));
-  }
+  .mapWrap :global(.maplibregl-ctrl-bottom-right),
   .mapWrap :global(.maplibregl-ctrl-bottom-left) {
-    left: 10px;
-    bottom: calc(310px + env(safe-area-inset-bottom, 0px));
+    /* Track the sheet's top edge — moves as the user drags the sheet.
+       The --sheet-visible-px var is set by useBottomSheet on .body. */
+    bottom: calc(var(--sheet-visible-px, 350px) + 10px + env(safe-area-inset-bottom, 0px));
+    transition: bottom 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .mapWrap :global(.maplibregl-ctrl-bottom-right) { right: 10px; }
+  .mapWrap :global(.maplibregl-ctrl-bottom-left)  { left: 10px; }
+  /* While the user actively drags, drop the transition so the control tracks 1:1. */
+  .body:has(.listDragging) .mapWrap :global(.maplibregl-ctrl-bottom-right),
+  .body:has(.listDragging) .mapWrap :global(.maplibregl-ctrl-bottom-left) {
+    transition: none;
   }
 }
 
@@ -710,8 +715,8 @@ html[data-theme="dark"] .langBtnActive {
   -webkit-overflow-scrolling: touch;
   /* Cap scroll viewport to the sheet's visible area so content below the
      overflow-hidden clip edge is actually reachable via scrolling.
-     Mobile: reserve handle (~36). */
-  max-height: calc(var(--sheet-visible-px, 100%) - 40px);
+     Mobile: reserve handle (~36) + sheet-categories row (~44). */
+  max-height: calc(var(--sheet-visible-px, 100%) - 88px);
 }
 
 .empty {
@@ -802,13 +807,15 @@ html[data-theme="dark"] .langBtnActive {
   gap: 3px;
 }
 .rowName {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: -0.025em;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.3;
+  line-height: 1.1;
+  text-transform: none;
 }
 .rowMeta {
   font-size: 12.5px;
@@ -852,7 +859,7 @@ html[data-theme="dark"] .langBtnActive {
   flex-shrink: 0;
 }
 @media (max-width: 1023.98px) {
-  .rowName { font-size: 14px; line-height: 1.25; }
+  .rowName { font-size: 15.5px; line-height: 1.1; letter-spacing: -0.03em; font-weight: 900; }
   .rowMeta { font-size: 11.5px; }
   .rowMain { gap: 2px; }
   .rowTags { margin-top: 1px; gap: 6px; }
@@ -1746,7 +1753,69 @@ html[data-theme="dark"] .selectActive {
   }
 }
 
-/* (sheetLayerToggle removed — layer toggle floats above the map now.) */
+/* Category filter row inside the sheet — mobile only, sits between handle
+   and the restaurant list so users can filter without reaching to the top.
+   Style: editorial tab strip. Inactive = muted uppercase text, active = black
+   text with orange underline-dot. No chrome — keeps the eye on the list. */
+.sheetCategories {
+  display: none;
+}
+@media (max-width: 1023.98px) {
+  .sheetCategories {
+    display: block;
+    flex-shrink: 0;
+    padding: 0 14px 8px;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 6px;
+  }
+  .sheetCategories .chips {
+    gap: 2px;
+    padding: 0 22px 0 0;
+    mask-image: linear-gradient(to right, black 0, black calc(100% - 26px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 0, black calc(100% - 26px), transparent 100%);
+  }
+  .sheetCategories .chip {
+    position: relative;
+    border: 0;
+    background: transparent;
+    padding: 8px 10px 10px;
+    height: auto;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-radius: 0;
+    box-shadow: none;
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.15s;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .sheetCategories .chip::after {
+    content: '';
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 2px;
+    height: 2px;
+    border-radius: 2px;
+    background: transparent;
+    transition: background 0.2s;
+  }
+  .sheetCategories .chip:hover { color: var(--text-primary); border: 0; }
+  .sheetCategories .chipActive,
+  .sheetCategories .chipActive:hover {
+    background: transparent;
+    color: var(--text-primary);
+    border: 0;
+    box-shadow: none;
+  }
+  .sheetCategories .chipActive::after {
+    background: var(--accent);
+  }
+}
 
 /* ========== Centered detail modal ==========
    Mobile: vertikal + horizontal zentriert, Luft rundum für Tap-to-dismiss,

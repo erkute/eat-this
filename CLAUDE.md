@@ -88,5 +88,5 @@ Status:
 2. **auth.min.js** — ✅ DROPPED. `WelcomeModal.tsx` handles auth UI. `BridgeAuth` covers all `window._*` globals and auth-state side effects. `firebase-init.min.js` bridges CDN SDK for remaining legacy scripts (favourites/packs/profile). `openLoginModal` / `openWelcomeModal` both open `#welcomeModal`.
 3. **cms.min.js** — ⏸ BLOCKED. `app.min.js` still calls `window.CMS.*` (fetchMustEats, fetchRestaurants, fetchHeroSettings). Must drop after app.min.js.
 4. **app.min.js** — next priority. SPA router, news card binder, must-eat album renderer, map spot overlay, search. Break apart by feature; replace each independently.
-5. **map-init.min.js** — Leaflet init, marker placement, nearby grid. Replace with `react-leaflet` or similar.
+5. **map-init.min.js** — ✅ REPLACED. `MapSection.tsx` is now a full react-map-gl + MapLibre implementation (Carto Positron/Dark Matter tiles, dark-mode detect, restaurant + Must-Eat layers, GPS-based viewport list, Firestore-persisted 200 m Must-Eat unlocks). No `<Script>` tag loads map-init.min.js — it was only fetched dynamically by `app.min.js`, so the file stays on disk until app.min.js is gone too. Hooks/components live under `lib/map/` and `app/components/map/`.
 6. Shims drop automatically once app.min.js is gone.

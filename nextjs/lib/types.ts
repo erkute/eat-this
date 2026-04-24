@@ -75,3 +75,59 @@ export interface MustEatAlbumCard {
   restaurantSlug?: string
   order?: number
 }
+
+export interface MapRestaurant {
+  _id: string
+  name: string
+  slug: string
+  isClosed: boolean
+  district?: string
+  bezirk?: { name: string }
+  address?: string
+  categories?: string[]
+  price?: string
+  lat: number
+  lng: number
+  mapsUrl?: string
+  website?: string
+  reservationUrl?: string
+  openingHours?: OpeningHourSlot[]
+  tip?: string
+  shortDescription?: string
+  photo?: string
+  mustEatCount: number
+}
+
+export interface MapMustEat {
+  _id: string
+  dish: string
+  description?: string
+  price?: string
+  image: string
+  restaurant: {
+    _id: string
+    name: string
+    slug: string
+    lat: number
+    lng: number
+    district?: string
+    address?: string
+  }
+}
+
+export type MapLayer = 'restaurants' | 'mustEats'
+
+export type MapCategory =
+  | 'All'
+  | 'Dinner'
+  | 'Lunch'
+  | 'Breakfast'
+  | 'Coffee'
+  | 'Sweets'
+  | 'Pizza'
+
+export interface OpenStatus {
+  isOpen: boolean
+  label: string
+  minutesUntilChange: number | null
+}

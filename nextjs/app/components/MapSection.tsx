@@ -1,109 +1,385 @@
-'use client';
-
-import { useTranslation } from '@/lib/i18n';
+'use client'
+import { useRef, useState, useMemo, useCallback, useEffect } from 'react'
+import type { MapRef } from 'react-map-gl/maplibre'
+import type { MapRestaurant, MapMustEat, MapLayer, MapCategory } from '@/lib/types'
+import { useMapData } from '@/lib/map/useMapData'
+import { useUserLocation } from '@/lib/map/useUserLocation'
+import { useBounds } from '@/lib/map/useBounds'
+import { useUnlockedMustEats } from '@/lib/map/useUnlockedMustEats'
+import { useBottomSheet } from '@/lib/map/useBottomSheet'
+import { getOpenStatus } from '@/lib/map/openingHours'
+import { useTranslation } from '@/lib/i18n'
+import MapCanvas from './map/MapCanvas'
+import RestaurantMarker from './map/RestaurantMarker'
+import MustEatMarker from './map/MustEatMarker'
+import RestaurantList from './map/RestaurantList'
+import RestaurantDetail from './map/RestaurantDetail'
+import MustEatDetail from './map/MustEatDetail'
+import UserLocationMarker from './map/UserLocationMarker'
+import MapToolbar from './map/MapToolbar'
+import { auth } from '@/lib/firebase/config'
+import styles from './map/map.module.css'
 
 interface Props {
-  isActive?: boolean;
+  isActive?: boolean
 }
 
-// Shell for the Map page. Leaflet + marker + nearby-grid population are
-// driven by map-init.min.js / app.min.js; this component only provides the
-// DOM contract (#foodMap, #mapNearby, #mapSpotOverlay and child IDs) so the
-// legacy init code keeps working. All strings go through next-intl.
+function districtOf(r: MapRestaurant): string | null {
+  return r.bezirk?.name ?? r.district ?? null
+}
+
 export default function MapSection({ isActive = false }: Props) {
-  const { t } = useTranslation();
-  const filters = [
-    { value: 'all', label: t('map.filterAll') },
-    { value: 'Dinner', label: t('map.filterDinner') },
-    { value: 'Lunch', label: t('map.filterLunch') },
-    { value: 'Coffee', label: t('map.filterCoffee') },
-    { value: 'Breakfast', label: t('map.filterBreakfast') },
-    { value: 'Sweets', label: t('map.filterSweets') },
-    { value: 'Pizza', label: t('map.filterPizza') },
-  ];
+  const mapRef = useRef<MapRef>(null)
+  const { t } = useTranslation()
+
+  const { restaurants, mustEats, loading } = useMapData()
+  const { location, request: requestLocation } = useUserLocation()
+  const uid = auth.currentUser?.uid ?? null
+  const { unlockedIds, unlock } = useUnlockedMustEats(uid)
+  const { sheetRef, handleRef, snap, setSnap, dragging } = useBottomSheet('mid')
+  // Remember the sheet snap from before a detail opens so we can restore it on close.
+  const returnSnapRef = useRef<typeof snap | null>(null)
+
+  const [layer,              setLayer]              = useState<MapLayer>('restaurants')
+  const [category,           setCategory]           = useState<MapCategory>('All')
+  const [search,             setSearch]             = useState('')
+  const [bezirk,             setBezirk]             = useState<string | null>(null)
+  const [openOnly,           setOpenOnly]           = useState(false)
+  const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
+  const [selectedMustEat,    setSelectedMustEat]    = useState<MapMustEat | null>(null)
+
+  /* ---------- Bezirk list + centroid map ---------- */
+  const { bezirkNames, bezirkCenters } = useMemo(() => {
+    const groups = new Map<string, { lat: number; lng: number; count: number }>()
+    for (const r of restaurants) {
+      const d = districtOf(r)
+      if (!d) continue
+      const g = groups.get(d)
+      if (g) { g.lat += r.lat; g.lng += r.lng; g.count += 1 }
+      else    { groups.set(d, { lat: r.lat, lng: r.lng, count: 1 }) }
+    }
+    const names: string[] = []
+    const centers = new Map<string, { lat: number; lng: number }>()
+    for (const [name, g] of groups) {
+      names.push(name)
+      centers.set(name, { lat: g.lat / g.count, lng: g.lng / g.count })
+    }
+    names.sort((a, b) => a.localeCompare(b, 'de'))
+    return { bezirkNames: names, bezirkCenters: centers }
+  }, [restaurants])
+
+  /* ---------- Filter pipeline (applied to markers + list) ---------- */
+  const filterRestaurant = useCallback((r: MapRestaurant): boolean => {
+    if (category !== 'All' && !r.categories?.includes(category)) return false
+    if (bezirk && districtOf(r) !== bezirk) return false
+    if (openOnly) {
+      if (!r.openingHours) return false
+      if (!getOpenStatus(r.openingHours).isOpen) return false
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      const hit =
+        r.name.toLowerCase().includes(q) ||
+        (districtOf(r) ?? '').toLowerCase().includes(q) ||
+        r.categories?.some(c => c.toLowerCase().includes(q))
+      if (!hit) return false
+    }
+    return true
+  }, [category, bezirk, openOnly, search])
+
+  const displayedRestaurants = useMemo(
+    () => restaurants.filter(filterRestaurant),
+    [restaurants, filterRestaurant]
+  )
+
+  const { updateBounds, visibleRestaurants } = useBounds(displayedRestaurants, location)
+
+  const displayedMustEats = useMemo(() => {
+    if (!search.trim()) return mustEats
+    const q = search.toLowerCase()
+    return mustEats.filter(
+      m =>
+        m.dish.toLowerCase().includes(q) ||
+        m.restaurant.name.toLowerCase().includes(q) ||
+        m.restaurant.district?.toLowerCase().includes(q)
+    )
+  }, [mustEats, search])
+
+  const restaurantMustEats = useMemo(() => {
+    if (!selectedRestaurant) return []
+    return mustEats.filter(m => m.restaurant._id === selectedRestaurant._id)
+  }, [mustEats, selectedRestaurant])
+
+  /* ---------- Handlers ---------- */
+  // Remember the camera state from before a detail-open flyTo so closing the
+  // detail can restore it (user can click through a filtered list without
+  // losing their bird's-eye overview).
+  const returnViewRef = useRef<{ lng: number; lat: number; zoom: number } | null>(null)
+
+  const rememberView = useCallback(() => {
+    if (selectedRestaurant || selectedMustEat) return // nested open — keep first stash
+    const m = mapRef.current
+    if (m) {
+      const c = m.getCenter()
+      returnViewRef.current = { lng: c.lng, lat: c.lat, zoom: m.getZoom() }
+    }
+    returnSnapRef.current = snap
+  }, [selectedRestaurant, selectedMustEat, snap])
+
+  const restoreView = useCallback(() => {
+    const v = returnViewRef.current
+    if (v) {
+      mapRef.current?.flyTo({ center: [v.lng, v.lat], zoom: v.zoom, duration: 500 })
+    }
+    const s = returnSnapRef.current
+    if (s) setSnap(s)
+    returnViewRef.current = null
+    returnSnapRef.current = null
+  }, [setSnap])
+
+  const handleRestaurantClick = useCallback((r: MapRestaurant) => {
+    rememberView()
+    setSelectedRestaurant(r)
+    setSelectedMustEat(null)
+    setSnap('peek')
+    mapRef.current?.flyTo({ center: [r.lng, r.lat], zoom: 15, duration: 500 })
+  }, [setSnap, rememberView])
+
+  const handleMustEatClick = useCallback((m: MapMustEat) => {
+    const isLocked = !unlockedIds.has(m._id)
+    rememberView()
+    const open = () => {
+      setSelectedMustEat(m)
+      setSelectedRestaurant(null)
+      setSnap('peek')
+      mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500 })
+    }
+    // Let the back-card wiggle animation play before the detail modal covers it.
+    if (isLocked) setTimeout(open, 420)
+    else open()
+  }, [setSnap, unlockedIds, rememberView])
+
+  const handleRestaurantClose = useCallback(() => {
+    setSelectedRestaurant(null)
+    restoreView()
+  }, [restoreView])
+
+  const handleMustEatClose = useCallback(() => {
+    setSelectedMustEat(null)
+    restoreView()
+  }, [restoreView])
+
+  const handleMapClick = useCallback(() => {
+    // Clicking the map also counts as dismissing the detail → restore view.
+    if (selectedRestaurant || selectedMustEat) restoreView()
+    setSelectedRestaurant(null)
+    setSelectedMustEat(null)
+    setSnap('peek')
+  }, [setSnap, selectedRestaurant, selectedMustEat, restoreView])
+
+  const handleBezirkChange = useCallback((name: string | null) => {
+    setBezirk(name)
+    if (name) {
+      const c = bezirkCenters.get(name)
+      if (c) mapRef.current?.flyTo({ center: [c.lng, c.lat], zoom: 13, duration: 600 })
+    }
+  }, [bezirkCenters])
+
+  const handleUnlock = useCallback(async () => {
+    if (!selectedMustEat) return
+    await unlock(selectedMustEat._id, selectedMustEat.restaurant._id, selectedMustEat.dish)
+  }, [selectedMustEat, unlock])
+
+  const handleLocateMe = useCallback(async () => {
+    const loc = await requestLocation()
+    if (loc) {
+      mapRef.current?.flyTo({ center: [loc.lng, loc.lat], zoom: 14, duration: 600 })
+    }
+  }, [requestLocation])
+
+  /* Auto-center on the user's position the first time the map page opens.
+     Ref guard handles React strict-mode double-mount so we don't double-prompt. */
+  const autoLocatedRef = useRef(false)
+  useEffect(() => {
+    if (autoLocatedRef.current) return
+    autoLocatedRef.current = true
+    let cancelled = false
+    requestLocation().then(loc => {
+      if (cancelled || !loc) return
+      const tryFly = () => {
+        if (mapRef.current) {
+          mapRef.current.flyTo({ center: [loc.lng, loc.lat], zoom: 14, duration: 600 })
+        } else {
+          setTimeout(tryFly, 120)
+        }
+      }
+      tryFly()
+    })
+    return () => { cancelled = true }
+  }, [requestLocation])
+
+  /* ---------- Render ---------- */
+  const toolbarProps = {
+    search, onSearch: setSearch,
+    category, onCategory: setCategory,
+    bezirke: bezirkNames, bezirk, onBezirk: handleBezirkChange,
+    openOnly, onOpenOnly: setOpenOnly,
+    showCategory: layer === 'restaurants',
+    layer, onLayer: setLayer,
+  }
 
   return (
-    <div className={`app-page${isActive ? ' active' : ''}`} data-page="map" suppressHydrationWarning>
-      <section className="map-section" id="map">
-        <div className="map-container" id="foodMap">
-          <button
-            className="map-location-btn-fixed"
-            id="mapLocationBtnFixed"
-            aria-label={t('map.myLocationAriaLabel')}
-          >
-            <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
-              <circle cx="12" cy="12" r="4" />
-              <line x1="12" y1="2" x2="12" y2="6" />
-              <line x1="12" y1="18" x2="12" y2="22" />
-              <line x1="2" y1="12" x2="6" y2="12" />
-              <line x1="18" y1="12" x2="22" y2="12" />
-            </svg>
-          </button>
-        </div>
-        <div className="map-zoom-btns">
-          <button className="map-zoom-btn" id="mapZoomIn" aria-label="Zoom in">+</button>
-          <button className="map-zoom-btn" id="mapZoomOut" aria-label="Zoom out">−</button>
-        </div>
-        <div className="map-nearby" id="mapNearby">
-          <div className="map-nearby-handle" id="mapNearbyHandle">
-            <div className="map-nearby-handle-bar"></div>
+    <div
+      className={`app-page${isActive ? ' active' : ''}`}
+      data-page="map"
+      suppressHydrationWarning
+    >
+      {loading ? (
+        <div className={styles.loading} role="status" aria-live="polite">
+          <div className={styles.loadingCard} aria-hidden="true" />
+          <div className={styles.loadingTitle}>{t('map.loadingTitle')}</div>
+          <div className={styles.loadingBar} aria-hidden="true">
+            <span className={styles.loadingBarFill} />
           </div>
-          <div className="map-nearby-toolbar">
-            <div className="map-search-wrap">
-              <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="map-search-icon">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              <input
-                type="text"
-                id="mapSearchInput"
-                className="map-search-input"
-                placeholder={t('map.searchPlaceholder')}
-                autoComplete="off"
-              />
-            </div>
-            <div className="map-filter-chips" id="mapFilterChips" role="tablist" aria-label="Category filters"></div>
-            <div className="map-filter-dropdown" id="mapFilterDropdown">
-              <button type="button" className="map-filter-dropdown-btn" id="mapFilterBtn">
-                <span id="mapFilterLabel">{t('map.filterAll')}</span>
-                <svg viewBox="0 0 10 6" width={10} height={6} fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round">
-                  <path d="M1 1l4 4 4-4" />
+          <div className={styles.loadingSub}>{t('map.loadingSub')}</div>
+        </div>
+      ) : (
+        <div className={styles.shell}>
+
+          <MapToolbar variant="desktop" {...toolbarProps} />
+
+          <div className={styles.body}>
+            <div className={styles.mapWrap}>
+              <MapCanvas ref={mapRef} onMove={updateBounds} onMapClick={handleMapClick}>
+                {layer === 'restaurants' && displayedRestaurants.map(r => (
+                  <RestaurantMarker
+                    key={r._id}
+                    restaurant={r}
+                    isSelected={selectedRestaurant?._id === r._id}
+                    onClick={handleRestaurantClick}
+                  />
+                ))}
+                {layer === 'mustEats' && displayedMustEats.map(m => (
+                  <MustEatMarker
+                    key={m._id}
+                    mustEat={m}
+                    isUnlocked={unlockedIds.has(m._id)}
+                    isSelected={selectedMustEat?._id === m._id}
+                    userLocation={location}
+                    onClick={handleMustEatClick}
+                  />
+                ))}
+                {location && <UserLocationMarker location={location} />}
+              </MapCanvas>
+
+              <button
+                type="button"
+                onClick={handleLocateMe}
+                aria-label="My location"
+                className={styles.fab}
+              >
+                <svg className={styles.fabIcon} viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="8" />
+                  <line x1="12" y1="2"  x2="12" y2="5" />
+                  <line x1="12" y1="19" x2="12" y2="22" />
+                  <line x1="2"  y1="12" x2="5"  y2="12" />
+                  <line x1="19" y1="12" x2="22" y2="12" />
+                  <circle cx="12" cy="12" r="2" fill="currentColor" />
                 </svg>
               </button>
-              <div className="map-filter-dropdown-menu" id="mapFilterMenu">
-                {filters.map(f => (
-                  <button
-                    key={f.value}
-                    type="button"
-                    className={`map-filter-option${f.value === 'all' ? ' active' : ''}`}
-                    data-value={f.value}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
+
+              <MapToolbar variant="mobile" {...toolbarProps} />
+
+              {selectedRestaurant && (
+                <RestaurantDetail
+                  restaurant={selectedRestaurant}
+                  mustEats={restaurantMustEats}
+                  unlockedIds={unlockedIds}
+                  userLocation={location}
+                  onClose={handleRestaurantClose}
+                  onMustEatClick={handleMustEatClick}
+                />
+              )}
+              {selectedMustEat && (
+                <MustEatDetail
+                  mustEat={selectedMustEat}
+                  userLocation={location}
+                  isUnlocked={unlockedIds.has(selectedMustEat._id)}
+                  onUnlock={handleUnlock}
+                  onClose={handleMustEatClose}
+                />
+              )}
             </div>
-            <div id="mapOpenToggle" className="map-open-switch" role="switch" aria-checked="false" tabIndex={0}>
-              <div className="map-switch-track"><div className="map-switch-thumb"></div></div>
-              <span className="map-switch-label">{t('map.openNow')}</span>
-            </div>
-          </div>
-          <div className="map-nearby-grid-wrapper">
-            <div className="map-nearby-grid" id="mapNearbyGrid"></div>
+
+            <aside
+              ref={sheetRef}
+              className={`${styles.list} ${dragging ? styles.listDragging : ''}`}
+              aria-label={layer === 'restaurants' ? 'Restaurants nearby' : 'Must-Eats'}
+            >
+              <div ref={handleRef} className={styles.handle} aria-hidden="true" />
+
+              {layer === 'restaurants' ? (
+                <>
+                  <div className={styles.listHeader}>
+                    <div className={styles.listTitle}>
+                      {(() => {
+                        const n = (search.trim() ? displayedRestaurants : visibleRestaurants).length
+                        return `${n} ${n === 1 ? t('map.restaurantOne') : t('map.restaurantMany')}`
+                      })()}
+                    </div>
+                    {location && !search.trim() && <div className={styles.listCount}>{t('map.nearYou')}</div>}
+                  </div>
+                  <div className={styles.listScroll}>
+                    <RestaurantList
+                      restaurants={search.trim() ? displayedRestaurants : visibleRestaurants}
+                      userLocation={location}
+                      selectedId={selectedRestaurant?._id ?? null}
+                      onSelect={handleRestaurantClick}
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className={styles.listHeader}>
+                    <div className={styles.listTitle}>
+                      {unlockedIds.size}/{mustEats.length} {t('map.mustEatsUnlocked')}
+                    </div>
+                  </div>
+                  <div className={styles.listScroll}>
+                    {displayedMustEats.length === 0 ? (
+                      <div className={styles.empty}>{t('map.noMustEatsMatch')}</div>
+                    ) : (
+                      displayedMustEats.map(m => (
+                        <button
+                          key={m._id}
+                          className={`${styles.row} ${selectedMustEat?._id === m._id ? styles.rowActive : ''}`}
+                          onClick={() => handleMustEatClick(m)}
+                        >
+                          <img
+                            src={unlockedIds.has(m._id) ? m.image : '/pics/card-back.webp'}
+                            alt=""
+                            className={unlockedIds.has(m._id) ? styles.rowPhoto : styles.rowPhotoCard}
+                            loading="lazy"
+                          />
+                          <div className={styles.rowMain}>
+                            <div className={styles.rowName}>
+                              {unlockedIds.has(m._id) ? m.dish : t('map.hiddenMustEat')}
+                            </div>
+                            <div className={styles.rowMeta}>
+                              {m.restaurant.name}{m.restaurant.district ? ` · ${m.restaurant.district}` : ''}
+                            </div>
+                          </div>
+                          <div className={styles.rowSide} />
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </>
+              )}
+            </aside>
           </div>
         </div>
-        <div className="map-spot-overlay" id="mapSpotOverlay">
-          <div className="map-spot-card" id="mapSpotCard">
-            <button className="map-spot-close" id="mapSpotClose" aria-label="Close">
-              <svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke="currentColor" strokeWidth={2}>
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-            <div className="map-spot-content" id="mapSpotContent"></div>
-          </div>
-        </div>
-      </section>
+      )}
     </div>
-  );
+  )
 }

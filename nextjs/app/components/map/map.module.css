@@ -771,9 +771,9 @@ html[data-theme="dark"] .langBtnActive {
 }
 @media (max-width: 1023.98px) {
   .row {
-    grid-template-columns: 62px 1fr auto;
+    grid-template-columns: 72px 1fr auto;
     gap: 12px;
-    padding: 10px 10px;
+    padding: 11px 10px;
     border-radius: 10px;
   }
 }
@@ -818,11 +818,11 @@ html[data-theme="dark"] .langBtnActive {
   .rowPhoto,
   .rowPhotoCard,
   .rowPhotoPlaceholder {
-    width: 62px;
-    height: 62px;
+    width: 72px;
+    height: 72px;
     border-radius: 8px;
   }
-  .rowPhotoPlaceholder { font-size: 20px; }
+  .rowPhotoPlaceholder { font-size: 22px; }
 }
 
 .rowMain {
@@ -1911,11 +1911,11 @@ html[data-theme="dark"] .selectActive {
     background: transparent;
     transition: background 0.2s;
   }
-  .sheetCategories .chip:hover { color: var(--text-primary); border: 0; }
+  .sheetCategories .chip:hover { color: var(--text-secondary); border: 0; }
   .sheetCategories .chipActive,
   .sheetCategories .chipActive:hover {
     background: transparent;
-    color: var(--text-primary);
+    color: #fff;
     border: 0;
     box-shadow: none;
   }
@@ -2039,7 +2039,10 @@ html[data-theme="dark"] .selectActive {
   .detail:not(.detailInSheet) { display: none !important; }
 }
 
-/* In-sheet detail layout: flat, full-width, no card chrome. */
+/* X-button right-aligned in detail sheet header */
+.listHeaderClose { justify-content: flex-end; }
+
+/* ── In-sheet detail: fresh flat layout ── */
 .detailInSheet {
   display: flex;
   flex-direction: column;
@@ -2048,16 +2051,56 @@ html[data-theme="dark"] .selectActive {
   width: 100%;
   animation: detailIn 0.18s ease;
 }
-.detailInSheet .detailRight {
-  flex: 0 0 auto;
-  min-height: 0;
+/* Wider hero in sheet */
+.detailInSheet .detailHero,
+.detailInSheet .detailHeroPlaceholder {
+  aspect-ratio: 4/3;
+  max-height: none;
+  width: 100%;
 }
+/* Bigger name */
+.detailInSheet .detailName {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.detailInSheet .detailLeftInfo {
+  padding: 14px 16px 6px;
+}
+/* Remove excess right-panel padding — children own their spacing */
+.detailInSheet .detailRight {
+  flex: 1;
+  min-height: 0;
+  padding: 0 16px;
+  gap: 0;
+}
+/* Hide desktop-only description block */
+.detailInSheet .detailRightHead { display: none; }
+/* Actions float above the hours/tip/must-eats block */
+.detailInSheet .detailActions {
+  order: -1;
+  margin-top: 0;
+  padding: 8px 0 14px;
+  gap: 8px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.detailInSheet .detailActions::-webkit-scrollbar { display: none; }
+/* Pill-shaped action buttons */
+.detailInSheet .detailActions .btn {
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 9px 18px;
+}
+/* Divider + breathing room before hours */
 .detailInSheet .detailScroll {
   overflow-y: visible;
   max-height: none;
-}
-.detailInSheet .detailActions {
-  padding-bottom: 16px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 14px;
 }
 .detailInSheet .mustCardBackTap { max-width: 180px; }
 

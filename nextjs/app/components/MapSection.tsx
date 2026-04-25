@@ -225,7 +225,7 @@ export default function MapSection({ isActive = false }: Props) {
     if (!content || content.scrollHeight === 0) return
     const HANDLE  = 36  // .handle min-height
     const HEADER  = 44  // .listHeader mobile height
-    const PADDING = 24  // bottom breathing room + safe area buffer
+    const PADDING = 48  // bottom breathing room + safe area buffer (home indicator)
     snapToVisiblePx(content.scrollHeight + HANDLE + HEADER + PADDING)
   }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, snapToVisiblePx, contentRef])
 
@@ -364,7 +364,7 @@ export default function MapSection({ isActive = false }: Props) {
 
               {layer === 'restaurants' && sheetView === 'detail' && selectedRestaurant ? (
                 <>
-                  <div className={styles.listHeader}>
+                  <div className={`${styles.listHeader} ${styles.listHeaderClose}`}>
                     <button
                       type="button"
                       className={styles.detailBack}
@@ -413,7 +413,7 @@ export default function MapSection({ isActive = false }: Props) {
                 </>
               ) : layer === 'mustEats' && sheetView === 'detail' && selectedMustEat ? (
                 <>
-                  <div className={styles.listHeader}>
+                  <div className={`${styles.listHeader} ${styles.listHeaderClose}`}>
                     <button
                       type="button"
                       className={styles.detailBack}

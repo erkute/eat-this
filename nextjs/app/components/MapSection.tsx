@@ -197,6 +197,9 @@ export default function MapSection({ isActive = false }: Props) {
     if (name) {
       const c = bezirkCenters.get(name)
       if (c) mapRef.current?.flyTo({ center: [c.lng, c.lat], zoom: 13, duration: 600, padding: getFlyPadding() })
+    } else {
+      // "Alle Bezirke" → zoom out to a city-wide overview of Berlin.
+      mapRef.current?.flyTo({ center: [13.405, 52.52], zoom: 10.5, duration: 700, padding: getFlyPadding() })
     }
   }, [bezirkCenters, getFlyPadding])
 

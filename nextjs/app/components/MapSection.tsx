@@ -276,7 +276,7 @@ export default function MapSection({ isActive = false }: Props) {
 
           <MapToolbar variant="desktop" {...toolbarProps} />
 
-          <div className={styles.body}>
+          <div className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}`}>
             <div className={styles.mapWrap}>
               <MapCanvas ref={mapRef} onMove={updateBounds} onMapClick={handleMapClick}>
                 {layer === 'restaurants' && displayedRestaurants.map(r => (

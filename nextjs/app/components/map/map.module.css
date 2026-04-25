@@ -537,7 +537,7 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-comp
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: top 0.25s ease, background 0.15s, color 0.15s, border-color 0.15s;
+  transition: top 0.25s ease, background 0.15s, color 0.15s, border-color 0.15s, opacity 0.18s ease;
 }
 html[data-theme="dark"] .fab {
   background: rgba(30, 30, 30, 0.35);
@@ -554,6 +554,18 @@ html[data-theme="dark"] .fab {
   }
 }
 .fab:hover { color: var(--accent); border-color: var(--accent); }
+
+/* Hide all floating map controls when restaurant detail is open in the sheet */
+@media (max-width: 1023.98px) {
+  .bodyDetailOpen .fab,
+  .bodyDetailOpen .toolbarMobile,
+  .bodyDetailOpen .mapWrap :global(.maplibregl-ctrl-bottom-right),
+  .bodyDetailOpen .mapWrap :global(.maplibregl-ctrl-bottom-left) {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+  }
+}
 
 /* Compact language toggle, floats below the location FAB on the map. */
 .langSwitch {

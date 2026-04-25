@@ -228,5 +228,15 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     snapRef.current = pxToNearestSnap(targetY, h)
   }, [applyY])
 
-  return { sheetRef, handleRef, contentRef, snap, setSnap, dragging, collapse, expand, snapToVisiblePx }
+  // Force CSS back to a specific snap immediately — handles the case where
+  // setSnap(s) is a no-op because s equals the current snap state.
+  const reapplySnap = useCallback((target: SheetSnap) => {
+    const el = sheetNode.current
+    if (!el || !isMobile()) return
+    const h = el.getBoundingClientRect().height
+    applyY(snapToPx(target, h))
+    snapRef.current = target
+  }, [applyY])
+
+  return { sheetRef, handleRef, contentRef, snap, setSnap, dragging, collapse, expand, snapToVisiblePx, reapplySnap }
 }

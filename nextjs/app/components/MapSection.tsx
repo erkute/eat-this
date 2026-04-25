@@ -41,7 +41,7 @@ export default function MapSection({ isActive = false }: Props) {
   const uid = auth.currentUser?.uid ?? null
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
-  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, snapToVisiblePx } = useBottomSheet('mid')
+  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, snapToVisiblePx, reapplySnap } = useBottomSheet('mid')
   // Remember the sheet snap from before a detail opens so we can restore it on close.
   const returnSnapRef = useRef<typeof snap | null>(null)
 
@@ -151,10 +151,13 @@ export default function MapSection({ isActive = false }: Props) {
       mapRef.current?.flyTo({ center: [v.lng, v.lat], zoom: v.zoom, duration: 500, padding: getFlyPadding() })
     }
     const s = returnSnapRef.current
-    if (s) setSnap(s)
+    if (s) {
+      setSnap(s)
+      reapplySnap(s)  // force CSS even if snap state didn't change (same-value setSnap is a no-op)
+    }
     returnViewRef.current = null
     returnSnapRef.current = null
-  }, [setSnap, getFlyPadding])
+  }, [setSnap, getFlyPadding, reapplySnap])
 
   const handleRestaurantClick = useCallback((r: MapRestaurant) => {
     rememberView()

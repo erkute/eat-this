@@ -2039,8 +2039,11 @@ html[data-theme="dark"] .selectActive {
   .detail:not(.detailInSheet) { display: none !important; }
 }
 
-/* X-button right-aligned in detail sheet header */
-.listHeaderClose { justify-content: flex-end; }
+/* X-button right-aligned in detail sheet header, extra bottom gap before content */
+.listHeaderClose {
+  justify-content: flex-end;
+  padding-bottom: 12px;
+}
 
 /* ── In-sheet detail: fresh flat layout ── */
 .detailInSheet {

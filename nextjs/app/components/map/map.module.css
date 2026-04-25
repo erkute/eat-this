@@ -1349,32 +1349,50 @@ html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 10px 16px;
-  border-radius: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
   font: inherit;
   font-size: 13px;
   font-weight: 600;
-  border: 1px solid var(--border-strong);
-  background: var(--surface-card);
+  border: 1px solid rgba(255, 255, 255, 0.50);
+  background: rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.65), 0 2px 8px rgba(17,24,39,0.10);
   color: var(--text-primary);
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
   text-decoration: none;
   letter-spacing: 0.01em;
 }
 .btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+  background: rgba(255, 255, 255, 0.42);
+  border-color: rgba(255, 255, 255, 0.70);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.80), 0 4px 12px rgba(17,24,39,0.14);
+  color: var(--text-primary);
+}
+html[data-theme="dark"] .btn {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 2px 8px rgba(0,0,0,0.35);
+}
+html[data-theme="dark"] .btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.26);
 }
 .btnPrimary {
   background: var(--accent);
   color: #fff;
   border-color: var(--accent);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 2px 8px rgba(255,76,0,0.30);
 }
 .btnPrimary:hover {
   background: #e53500;
   border-color: #e53500;
   color: #fff;
+  box-shadow: 0 4px 12px rgba(255,76,0,0.40);
 }
 .btnPrimary:disabled {
   opacity: 0.55;
@@ -1382,24 +1400,16 @@ html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
   background: var(--border-strong);
   border-color: var(--border-strong);
   color: var(--text-muted);
+  box-shadow: none;
 }
 
-/* Google Maps button — ghost/transparent with the official multicolor G.
-   Uses Gotham if the user has it installed, Inter as a close fallback. */
+/* Google Maps button — frosted base from .btn + Gotham font */
 .btnGoogle {
-  background: transparent;
-  color: var(--text-primary);
-  border-color: var(--border-strong);
   font-family: 'Gotham', 'Gotham SSm A', 'Gotham SSm B', 'Inter', ui-sans-serif, system-ui, sans-serif;
   font-weight: 600;
   letter-spacing: 0.02em;
-  padding: 10px 16px 10px 14px;
+  padding: 10px 16px 10px 12px;
   gap: 10px;
-}
-.btnGoogle:hover {
-  background: var(--surface-bg);
-  border-color: var(--text-muted);
-  color: var(--text-primary);
 }
 .googleLogo {
   width: 18px;
@@ -1408,20 +1418,10 @@ html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
   display: block;
 }
 
-/* Website button — ghost with a subtle accent hover, stroke globe icon. */
+/* Website button — frosted base from .btn */
 .btnWebsite {
-  background: transparent;
-  color: var(--text-primary);
-  border-color: var(--border-strong);
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  padding: 10px 16px 10px 14px;
+  padding: 10px 16px 10px 12px;
   gap: 8px;
-}
-.btnWebsite:hover {
-  background: var(--accent-soft);
-  border-color: var(--accent);
-  color: var(--accent);
 }
 .btnIcon {
   width: 16px;

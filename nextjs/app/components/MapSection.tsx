@@ -127,7 +127,7 @@ export default function MapSection({ isActive = false }: Props) {
   const getFlyPadding = useCallback(() => {
     if (typeof window === 'undefined') return undefined
     const isMobile = window.matchMedia('(max-width: 1023.98px)').matches
-    if (!isMobile) return { top: 0, bottom: 0, left: 0, right: 420 }
+    if (!isMobile) return undefined
     const sheetEl = document.querySelector<HTMLElement>('aside[aria-label]')
     const raw = sheetEl ? getComputedStyle(sheetEl).getPropertyValue('--sheet-visible-px').trim() : ''
     const visible = raw.endsWith('px') ? parseFloat(raw) : NaN
@@ -163,7 +163,8 @@ export default function MapSection({ isActive = false }: Props) {
     // On mobile the sheet shows the detail inline; on desktop the absolute modal handles it.
     if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches) {
       setSheetView('detail')
-      setSnap('full')
+      const needsFull = !!(r.openingHours?.length || r.tip || r.shortDescription || r.mustEatCount > 0)
+      setSnap(needsFull ? 'full' : 'mid')
     }
     mapRef.current?.flyTo({ center: [r.lng, r.lat], zoom: 15, duration: 500, padding: getFlyPadding() })
   }, [setSnap, rememberView, getFlyPadding])
@@ -176,7 +177,7 @@ export default function MapSection({ isActive = false }: Props) {
       setSelectedRestaurant(null)
       if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches) {
         setSheetView('detail')
-        setSnap('full')
+        setSnap(unlockedIds.has(m._id) ? 'full' : 'mid')
       }
       mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500, padding: getFlyPadding() })
     }
@@ -363,17 +364,6 @@ export default function MapSection({ isActive = false }: Props) {
                         <polyline points="15 18 9 12 15 6" />
                       </svg>
                     </button>
-                    <div className={`${styles.listTitle} ${styles.listTitleDetail}`}>{selectedRestaurant.name}</div>
-                    <button
-                      type="button"
-                      className={styles.detailBack}
-                      onClick={handleRestaurantClose}
-                      aria-label="Close"
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
-                    </button>
                   </div>
                   <div ref={contentRef} className={styles.listScroll}>
                     <RestaurantDetail
@@ -421,19 +411,6 @@ export default function MapSection({ isActive = false }: Props) {
                     >
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <polyline points="15 18 9 12 15 6" />
-                      </svg>
-                    </button>
-                    <div className={`${styles.listTitle} ${styles.listTitleDetail}`}>
-                      {unlockedIds.has(selectedMustEat._id) ? selectedMustEat.dish : selectedMustEat.restaurant.name}
-                    </div>
-                    <button
-                      type="button"
-                      className={styles.detailBack}
-                      onClick={handleMustEatClose}
-                      aria-label="Close"
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                       </svg>
                     </button>
                   </div>

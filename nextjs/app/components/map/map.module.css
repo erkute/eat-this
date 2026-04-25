@@ -714,48 +714,8 @@ html[data-theme="dark"] .langBtnActive {
   color: var(--text-muted);
 }
 
-/* Segmented control: "Auf der Karte" | "Alle" */
-.scopeToggle {
-  display: inline-flex;
-  background: var(--surface-bg);
-  border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  padding: 2px;
-  gap: 0;
-  flex-shrink: 0;
-}
-.scopeBtn {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  padding: 4px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  color: var(--text-muted);
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-  white-space: nowrap;
-}
-.scopeBtn:hover { color: var(--text-primary); }
-.scopeBtnActive,
-.scopeBtnActive:hover {
-  background: var(--surface-card);
-  color: var(--text-primary);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-html[data-theme="dark"] .scopeBtnActive,
-html[data-theme="dark"] .scopeBtnActive:hover {
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-}
-@media (max-width: 1023.98px) {
-  .scopeBtn {
-    font-size: 10.5px;
-    padding: 3px 9px;
-  }
-}
+/* (Scope toggle removed — list always shows all filtered restaurants;
+   the bezirk filter at the top controls scope.) */
 
 .listScroll {
   flex: 1;

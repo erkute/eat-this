@@ -47,7 +47,6 @@ export default function MapSection({ isActive = false }: Props) {
   const [search,             setSearch]             = useState('')
   const [bezirk,             setBezirk]             = useState<string | null>(null)
   const [openOnly,           setOpenOnly]           = useState(false)
-  const [listScope,          setListScope]          = useState<'visible' | 'all'>('visible')
   const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
   const [selectedMustEat,    setSelectedMustEat]    = useState<MapMustEat | null>(null)
 
@@ -95,7 +94,7 @@ export default function MapSection({ isActive = false }: Props) {
     [restaurants, filterRestaurant]
   )
 
-  const { updateBounds, visibleRestaurants } = useBounds(displayedRestaurants, location)
+  const { updateBounds } = useBounds(displayedRestaurants, location)
 
   const displayedMustEats = useMemo(() => {
     if (!search.trim()) return mustEats
@@ -336,53 +335,23 @@ export default function MapSection({ isActive = false }: Props) {
 
               {layer === 'restaurants' ? (
                 <>
-                  {(() => {
-                    const useAll = search.trim() !== '' || listScope === 'all'
-                    const list = useAll ? displayedRestaurants : visibleRestaurants
-                    return (
-                      <>
-                        <div className={styles.listHeader}>
-                          <div className={styles.listTitle}>
-                            {list.length}{' '}
-                            {list.length === 1 ? t('map.restaurantOne') : t('map.restaurantMany')}
-                          </div>
-                          {!search.trim() && (
-                            <div className={styles.scopeToggle} role="tablist" aria-label="List scope">
-                              <button
-                                type="button"
-                                role="tab"
-                                aria-selected={listScope === 'visible'}
-                                className={`${styles.scopeBtn} ${listScope === 'visible' ? styles.scopeBtnActive : ''}`}
-                                onClick={() => setListScope('visible')}
-                              >
-                                {t('map.scopeOnMap')}
-                              </button>
-                              <button
-                                type="button"
-                                role="tab"
-                                aria-selected={listScope === 'all'}
-                                className={`${styles.scopeBtn} ${listScope === 'all' ? styles.scopeBtnActive : ''}`}
-                                onClick={() => setListScope('all')}
-                              >
-                                {t('map.scopeAll')}
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                        <div className={styles.sheetCategories}>
-                          <CategoryFilter active={category} onChange={setCategory} />
-                        </div>
-                        <div ref={contentRef} className={styles.listScroll}>
-                          <RestaurantList
-                            restaurants={list}
-                            userLocation={location}
-                            selectedId={selectedRestaurant?._id ?? null}
-                            onSelect={handleRestaurantClick}
-                          />
-                        </div>
-                      </>
-                    )
-                  })()}
+                  <div className={styles.listHeader}>
+                    <div className={styles.listTitle}>
+                      {displayedRestaurants.length}{' '}
+                      {displayedRestaurants.length === 1 ? t('map.restaurantOne') : t('map.restaurantMany')}
+                    </div>
+                  </div>
+                  <div className={styles.sheetCategories}>
+                    <CategoryFilter active={category} onChange={setCategory} />
+                  </div>
+                  <div ref={contentRef} className={styles.listScroll}>
+                    <RestaurantList
+                      restaurants={displayedRestaurants}
+                      userLocation={location}
+                      selectedId={selectedRestaurant?._id ?? null}
+                      onSelect={handleRestaurantClick}
+                    />
+                  </div>
                 </>
               ) : (
                 <>

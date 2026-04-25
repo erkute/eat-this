@@ -618,7 +618,7 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  padding: 0 16px 40px;
+  padding: 0 8px 8px;
 }
 @media (min-width: 900px) {
   .album-grid  { grid-template-columns: repeat(6, 1fr); gap: 16px; padding: 0 40px 60px; }
@@ -4409,6 +4409,17 @@ html:not([data-theme="dark"]) .site-footer-copy {
   .profile-fav-district { font-size: 11px; }
   .profile-fav-card-overlay { padding: 24px 10px 9px; }
 }
+.profile-fav-remove {
+  position: absolute; top: 4px; right: 4px;
+  width: 22px; height: 22px;
+  background: rgba(0,0,0,0.55); border: none; border-radius: 50%;
+  color: #fff; font-size: 15px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; padding: 0;
+  transition: background 0.15s, opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.profile-fav-remove:hover { background: rgba(0,0,0,0.80); }
 .profile-saved-empty {
   font-size: 14px; color: var(--gray-400);
   text-align: center; padding: 48px 0; line-height: 1.6;

@@ -6,6 +6,7 @@ import { useMapData } from '@/lib/map/useMapData'
 import { useUserLocation } from '@/lib/map/useUserLocation'
 import { useBounds } from '@/lib/map/useBounds'
 import { useUnlockedMustEats } from '@/lib/map/useUnlockedMustEats'
+import { useFavorites } from '@/lib/map/useFavorites'
 import { useBottomSheet } from '@/lib/map/useBottomSheet'
 import { getOpenStatus } from '@/lib/map/openingHours'
 import { useTranslation } from '@/lib/i18n'
@@ -19,6 +20,7 @@ import UserLocationMarker from './map/UserLocationMarker'
 import MapToolbar from './map/MapToolbar'
 import LayerToggle from './map/LayerToggle'
 import CategoryFilter from './map/CategoryFilter'
+import OpenNowToggle from './map/OpenNowToggle'
 import { auth } from '@/lib/firebase/config'
 import styles from './map/map.module.css'
 
@@ -38,6 +40,7 @@ export default function MapSection({ isActive = false }: Props) {
   const { location, request: requestLocation } = useUserLocation()
   const uid = auth.currentUser?.uid ?? null
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
+  const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
   const { sheetRef, handleRef, contentRef, snap, setSnap, dragging } = useBottomSheet('mid')
   // Remember the sheet snap from before a detail opens so we can restore it on close.
   const returnSnapRef = useRef<typeof snap | null>(null)
@@ -49,6 +52,7 @@ export default function MapSection({ isActive = false }: Props) {
   const [openOnly,           setOpenOnly]           = useState(false)
   const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
   const [selectedMustEat,    setSelectedMustEat]    = useState<MapMustEat | null>(null)
+  const [sheetView,          setSheetView]          = useState<'list' | 'detail'>('list')
 
   /* ---------- Bezirk list + centroid map ---------- */
   const { bezirkNames, bezirkCenters } = useMemo(() => {
@@ -156,7 +160,8 @@ export default function MapSection({ isActive = false }: Props) {
     rememberView()
     setSelectedRestaurant(r)
     setSelectedMustEat(null)
-    setSnap('peek')
+    setSheetView('detail')
+    setSnap('mid')
     mapRef.current?.flyTo({ center: [r.lng, r.lat], zoom: 15, duration: 500, padding: getFlyPadding() })
   }, [setSnap, rememberView, getFlyPadding])
 
@@ -176,6 +181,7 @@ export default function MapSection({ isActive = false }: Props) {
 
   const handleRestaurantClose = useCallback(() => {
     setSelectedRestaurant(null)
+    setSheetView('list')
     restoreView()
   }, [restoreView])
 
@@ -189,6 +195,7 @@ export default function MapSection({ isActive = false }: Props) {
     if (selectedRestaurant || selectedMustEat) restoreView()
     setSelectedRestaurant(null)
     setSelectedMustEat(null)
+    setSheetView('list')
     setSnap('peek')
   }, [setSnap, selectedRestaurant, selectedMustEat, restoreView])
 
@@ -336,13 +343,51 @@ export default function MapSection({ isActive = false }: Props) {
             >
               <div ref={handleRef} className={styles.handle} aria-hidden="true" />
 
-              {layer === 'restaurants' ? (
+              {layer === 'restaurants' && sheetView === 'detail' && selectedRestaurant ? (
+                <>
+                  <div className={styles.listHeader}>
+                    <button
+                      type="button"
+                      className={styles.detailBack}
+                      onClick={handleRestaurantClose}
+                      aria-label={t('map.back') ?? 'Back'}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <polyline points="15 18 9 12 15 6" />
+                      </svg>
+                    </button>
+                    <div className={`${styles.listTitle} ${styles.listTitleDetail}`}>{selectedRestaurant.name}</div>
+                    <button
+                      type="button"
+                      className={styles.detailBack}
+                      onClick={handleRestaurantClose}
+                      aria-label="Close"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div ref={contentRef} className={styles.listScroll}>
+                    <RestaurantDetail
+                      restaurant={selectedRestaurant}
+                      mustEats={restaurantMustEats}
+                      unlockedIds={unlockedIds}
+                      userLocation={location}
+                      onClose={handleRestaurantClose}
+                      onMustEatClick={handleMustEatClick}
+                      inSheet
+                    />
+                  </div>
+                </>
+              ) : layer === 'restaurants' ? (
                 <>
                   <div className={styles.listHeader}>
                     <div className={styles.listTitle}>
                       {displayedRestaurants.length}{' '}
                       {displayedRestaurants.length === 1 ? t('map.restaurantOne') : t('map.restaurantMany')}
                     </div>
+                    <OpenNowToggle active={openOnly} onChange={setOpenOnly} />
                   </div>
                   <div className={styles.sheetCategories}>
                     <CategoryFilter active={category} onChange={setCategory} />
@@ -352,7 +397,9 @@ export default function MapSection({ isActive = false }: Props) {
                       restaurants={displayedRestaurants}
                       userLocation={location}
                       selectedId={selectedRestaurant?._id ?? null}
+                      favoriteIds={favoriteIds}
                       onSelect={handleRestaurantClick}
+                      onToggleFavorite={toggleFavorite}
                     />
                   </div>
                 </>

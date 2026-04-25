@@ -42,6 +42,7 @@ interface RestaurantDetailProps {
   userLocation: UserLocation | null
   onClose: () => void
   onMustEatClick: (m: MapMustEat) => void
+  inSheet?: boolean
 }
 
 export default function RestaurantDetail({
@@ -50,6 +51,7 @@ export default function RestaurantDetail({
   unlockedIds,
   onClose,
   onMustEatClick,
+  inSheet,
 }: RestaurantDetailProps) {
   const { t } = useTranslation()
   const status = restaurant.openingHours
@@ -66,15 +68,17 @@ export default function RestaurantDetail({
   const district = restaurant.bezirk?.name ?? restaurant.district
 
   return (
-    <div className={styles.detail} role="dialog" aria-label={restaurant.name}>
-      <button
-        type="button"
-        className={styles.detailClose}
-        aria-label="Close"
-        onClick={onClose}
-      >
-        ×
-      </button>
+    <div className={inSheet ? styles.detailInSheet : styles.detail} role={inSheet ? undefined : 'dialog'} aria-label={inSheet ? undefined : restaurant.name}>
+      {!inSheet && (
+        <button
+          type="button"
+          className={styles.detailClose}
+          aria-label="Close"
+          onClick={onClose}
+        >
+          ×
+        </button>
+      )}
 
       <div className={styles.detailLeft}>
         {restaurant.photo ? (

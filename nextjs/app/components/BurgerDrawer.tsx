@@ -103,7 +103,7 @@ export default function BurgerDrawer() {
           </button>
         </div>
         <div className="burger-theme-row">
-          <button type="button" className="theme-toggle" id="themeToggleBurger" aria-label="Toggle dark mode" aria-pressed={isDark} onClick={toggleTheme} suppressHydrationWarning>
+          <button type="button" className="theme-toggle" aria-label="Toggle dark mode" aria-pressed={isDark} onClick={toggleTheme} suppressHydrationWarning>
             <span className="theme-toggle-track">
               <span className="theme-toggle-thumb"></span>
             </span>

@@ -46,7 +46,6 @@ export default function MapToolbar({
       <div className={wrapClass}>
         <div className={styles.toolbar}>
           <div className={styles.toolbarPills}>
-            <OpenNowToggle active={openOnly} onChange={onOpenOnly} />
             <BezirkFilter bezirke={bezirke} active={bezirk} onChange={onBezirk} />
             <div className={styles.toolbarSpacer} />
             <LayerToggle active={layer} onChange={onLayer} inline />

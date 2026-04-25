@@ -721,13 +721,15 @@ html[data-theme="dark"] .langBtnActive {
   flex: 1;
   overflow-y: auto;
   padding: 0 12px;
-  /* A tiny tail so the last row has breathing room under the fade. */
-  padding-bottom: 8px;
+  /* On mobile with viewport-fit=cover the sheet extends to the physical screen
+     bottom, so add the home-indicator clearance as extra tail padding. */
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
   /* Cap scroll viewport to the sheet's visible area so content below the
      overflow-hidden clip edge is actually reachable via scrolling.
-     Mobile: reserve handle (~36) + listHeader (~30) + sheet-categories (~44). */
-  max-height: calc(var(--sheet-visible-px, 100%) - 116px);
+     Mobile: reserve handle (~36) + listHeader (~30) + sheet-categories (~44)
+     + home-indicator zone so the last row isn't hidden behind it. */
+  max-height: calc(var(--sheet-visible-px, 100%) - 116px - env(safe-area-inset-bottom, 0px));
 }
 
 .empty {
@@ -898,6 +900,24 @@ html[data-theme="dark"] .langBtnActive {
   font-weight: 500;
   color: var(--text-secondary);
 }
+.heartBtn {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 2px;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, transform 0.12s;
+  flex-shrink: 0;
+}
+.heartBtn svg { width: 15px; height: 15px; }
+.heartBtn:hover { color: #e53e3e; }
+.heartBtn:active { transform: scale(0.85); }
+.heartBtnActive { color: #e53e3e; }
+.heartBtnActive:hover { color: #c53030; }
 /* ========== Vintage door-sign ("OPEN"/"CLOSED" shop flip sign) ========== */
 /* Used by:
    - OpenNowToggle in the map toolbar (larger, interactive)
@@ -2000,6 +2020,58 @@ html[data-theme="dark"] .selectActive {
 @keyframes detailPop {
   from { transform: translate(-50%, -50%) scale(0.95); opacity: 0; }
   to   { transform: translate(-50%, -50%) scale(1);    opacity: 1; }
+}
+
+/* Mobile: hide the floating overlay — detail lives inside the sheet instead. */
+@media (max-width: 1023.98px) {
+  .detail:not(.detailInSheet) { display: none !important; }
+}
+
+/* In-sheet detail layout: flat, full-width, no card chrome. */
+.detailInSheet {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-card);
+  color: var(--text-primary);
+  width: 100%;
+  animation: detailIn 0.18s ease;
+}
+.detailInSheet .detailRight {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+.detailInSheet .detailScroll {
+  overflow-y: visible;
+  max-height: none;
+}
+.detailInSheet .detailActions {
+  padding-bottom: 16px;
+}
+
+/* Back / close buttons in the sheet detail header row. */
+.detailBack {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 4px 6px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.detailBack:hover { color: var(--text-primary); }
+.detailBack svg { width: 18px; height: 18px; }
+
+/* Restaurant name in detail header — truncate, centered. */
+.listTitleDetail {
+  flex: 1;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ========== Restaurant detail: opening hours + categories + must-eats ========== */

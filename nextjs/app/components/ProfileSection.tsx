@@ -2,6 +2,8 @@
 
 import { useTranslation } from '@/lib/i18n';
 import SiteFooter from './SiteFooter';
+import { useAuth } from '@/lib/auth';
+import { useFavorites } from '@/lib/map/useFavorites';
 
 interface Props {
   isActive?: boolean;
@@ -13,6 +15,9 @@ interface Props {
 // scaffolding and its i18n strings. IDs preserved for the legacy binder.
 export default function ProfileSection({ isActive = false }: Props) {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const uid = user?.uid ?? null;
+  const { favorites, favoriteIds, toggle: toggleFavorite } = useFavorites(uid);
   return (
     <div className={`app-page${isActive ? ' active' : ''}`} data-page="profile" id="profilePage" suppressHydrationWarning>
       {/* Logged-in state — auth.min.js unhides this when a user is present */}
@@ -50,10 +55,35 @@ export default function ProfileSection({ isActive = false }: Props) {
 
         {/* Tab: Saved */}
         <div className="profile-tab-panel" data-panel="saved" role="tabpanel" hidden>
-          <div className="profile-favs-grid" id="profileFavsGrid"></div>
-          <p className="profile-saved-empty" id="profileSavedEmpty" hidden>
-            {t('profile.saved.empty')}
-          </p>
+          {favorites.length === 0 ? (
+            <p className="profile-saved-empty">
+              {t('profile.saved.empty')}
+            </p>
+          ) : (
+            <div className="profile-favs-grid">
+              {favorites.map(f => (
+                <div key={f.restaurantId} className="profile-fav-card">
+                  {f.photo ? (
+                    <img src={f.photo} alt="" className="profile-fav-card-img" loading="lazy" />
+                  ) : (
+                    <div className="profile-fav-card-placeholder" aria-hidden="true">🍽</div>
+                  )}
+                  <div className="profile-fav-card-overlay">
+                    <span className="profile-fav-name">{f.name}</span>
+                    {f.district && <span className="profile-fav-district">{f.district}</span>}
+                  </div>
+                  <button
+                    type="button"
+                    className="profile-fav-remove"
+                    aria-label="Remove from saved"
+                    onClick={() => toggleFavorite({ _id: f.restaurantId, name: f.name, photo: f.photo, district: f.district })}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Tab: Settings */}

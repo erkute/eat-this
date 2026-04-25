@@ -207,6 +207,13 @@ export default function MapSection({ isActive = false }: Props) {
     setSnap('peek')
   }, [setSnap, selectedRestaurant, selectedMustEat, restoreView])
 
+  // When the user starts typing in the search, surface the list (mid snap) so
+  // they see the filtered results — typing into a hidden list is confusing.
+  const handleSearchChange = useCallback((v: string) => {
+    setSearch(v)
+    if (v && snap === 'peek' && sheetView === 'list') setSnap('mid')
+  }, [snap, sheetView, setSnap])
+
   const handleBezirkChange = useCallback((name: string | null) => {
     setBezirk(name)
     if (name) {
@@ -277,7 +284,7 @@ export default function MapSection({ isActive = false }: Props) {
 
   /* ---------- Render ---------- */
   const toolbarProps = {
-    search, onSearch: setSearch,
+    search, onSearch: handleSearchChange,
     category, onCategory: setCategory,
     bezirke: bezirkNames, bezirk, onBezirk: handleBezirkChange,
     openOnly, onOpenOnly: setOpenOnly,

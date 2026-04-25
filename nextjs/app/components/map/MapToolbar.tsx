@@ -68,7 +68,6 @@ export default function MapToolbar({
             )}
             <MobileSearch value={search} onChange={onSearch} />
             <BezirkFilter bezirke={bezirke} active={bezirk} onChange={onBezirk} />
-            <div className={styles.toolbarSpacer} />
             <LayerToggle active={layer} onChange={onLayer} inline />
           </div>
         </div>

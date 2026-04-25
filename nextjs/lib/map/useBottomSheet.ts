@@ -104,7 +104,10 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     const onDown = (e: PointerEvent) => {
       if (!isMobile()) return
       const h = sheet.getBoundingClientRect().height
-      dragRef.current = { startY: e.clientY, basePx: snapToPx(snap, h), pointerId: e.pointerId }
+      // Read actual CSS position so custom content-fit snap is the drag baseline.
+      const cssY = sheet.style.getPropertyValue('--sheet-y')
+      const basePx = cssY ? parseFloat(cssY) : snapToPx(snap, h)
+      dragRef.current = { startY: e.clientY, basePx, pointerId: e.pointerId }
       handle.setPointerCapture(e.pointerId)
       setDragging(true)
       e.preventDefault()
@@ -211,5 +214,19 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   const collapse = useCallback(() => setSnap('peek'), [])
   const expand   = useCallback(() => setSnap('mid'),  [])
 
-  return { sheetRef, handleRef, contentRef, snap, setSnap, dragging, collapse, expand }
+  // Snap the sheet to exactly fit `visiblePx` of content. Bypasses the three
+  // fixed snap points so the sheet hugs the detail content height precisely.
+  // Does NOT call setSnap — applyY drives CSS directly, snapRef tracks position
+  // for drag gestures. The sync useEffect won't override because snap state
+  // hasn't changed.
+  const snapToVisiblePx = useCallback((visiblePx: number) => {
+    const el = sheetNode.current
+    if (!el || !isMobile()) return
+    const h = el.getBoundingClientRect().height
+    const targetY = Math.max(FULL_TOP_PX, Math.min(h - PEEK_VISIBLE_PX, h - visiblePx))
+    applyY(targetY)
+    snapRef.current = pxToNearestSnap(targetY, h)
+  }, [applyY])
+
+  return { sheetRef, handleRef, contentRef, snap, setSnap, dragging, collapse, expand, snapToVisiblePx }
 }

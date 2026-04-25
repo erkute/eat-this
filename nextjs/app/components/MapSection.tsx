@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState, useMemo, useCallback, useEffect } from 'react'
+import { useRef, useState, useMemo, useCallback, useEffect, useLayoutEffect } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
 import type { MapRestaurant, MapMustEat, MapLayer, MapCategory } from '@/lib/types'
 import { useMapData } from '@/lib/map/useMapData'
@@ -41,7 +41,7 @@ export default function MapSection({ isActive = false }: Props) {
   const uid = auth.currentUser?.uid ?? null
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
-  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging } = useBottomSheet('mid')
+  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, snapToVisiblePx } = useBottomSheet('mid')
   // Remember the sheet snap from before a detail opens so we can restore it on close.
   const returnSnapRef = useRef<typeof snap | null>(null)
 
@@ -163,8 +163,6 @@ export default function MapSection({ isActive = false }: Props) {
     // On mobile the sheet shows the detail inline; on desktop the absolute modal handles it.
     if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches) {
       setSheetView('detail')
-      const needsFull = !!(r.openingHours?.length || r.tip || r.shortDescription || r.mustEatCount > 0)
-      setSnap(needsFull ? 'full' : 'mid')
     }
     mapRef.current?.flyTo({ center: [r.lng, r.lat], zoom: 15, duration: 500, padding: getFlyPadding() })
   }, [setSnap, rememberView, getFlyPadding])
@@ -177,7 +175,6 @@ export default function MapSection({ isActive = false }: Props) {
       setSelectedRestaurant(null)
       if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches) {
         setSheetView('detail')
-        setSnap(unlockedIds.has(m._id) ? 'full' : 'mid')
       }
       mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500, padding: getFlyPadding() })
     }
@@ -217,6 +214,20 @@ export default function MapSection({ isActive = false }: Props) {
       mapRef.current?.flyTo({ center: [13.405, 52.52], zoom: 10.5, duration: 700, padding: getFlyPadding() })
     }
   }, [bezirkCenters, getFlyPadding])
+
+  // After detail content renders, measure scrollHeight and snap the sheet to
+  // fit exactly — no whitespace, no clipping. useLayoutEffect fires after DOM
+  // update but before paint, so applyY sets the CSS var before the user sees it.
+  useLayoutEffect(() => {
+    if (sheetView !== 'detail') return
+    if (typeof window === 'undefined' || !window.matchMedia('(max-width: 1023.98px)').matches) return
+    const content = contentRef.current
+    if (!content || content.scrollHeight === 0) return
+    const HANDLE  = 36  // .handle min-height
+    const HEADER  = 44  // .listHeader mobile height
+    const PADDING = 24  // bottom breathing room + safe area buffer
+    snapToVisiblePx(content.scrollHeight + HANDLE + HEADER + PADDING)
+  }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, snapToVisiblePx, contentRef])
 
   const handleUnlock = useCallback(async () => {
     if (!selectedMustEat) return
@@ -358,10 +369,10 @@ export default function MapSection({ isActive = false }: Props) {
                       type="button"
                       className={styles.detailBack}
                       onClick={handleRestaurantClose}
-                      aria-label={t('map.back') ?? 'Back'}
+                      aria-label="Close"
                     >
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <polyline points="15 18 9 12 15 6" />
+                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                       </svg>
                     </button>
                   </div>
@@ -407,10 +418,10 @@ export default function MapSection({ isActive = false }: Props) {
                       type="button"
                       className={styles.detailBack}
                       onClick={handleMustEatClose}
-                      aria-label={t('map.back') ?? 'Back'}
+                      aria-label="Close"
                     >
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <polyline points="15 18 9 12 15 6" />
+                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                       </svg>
                     </button>
                   </div>

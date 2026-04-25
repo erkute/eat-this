@@ -7,7 +7,7 @@
 // Bump this when deploying breaking changes that must invalidate all caches.
 // Normally stale-while-revalidate handles updates automatically — this is
 // only needed for emergency cache clears.
-const CACHE_VERSION = 'eat-this-v76';
+const CACHE_VERSION = 'eat-this-v77';
 const CACHE_SHELL   = `${CACHE_VERSION}-shell`;
 const CACHE_IMAGES  = `${CACHE_VERSION}-images`;
 

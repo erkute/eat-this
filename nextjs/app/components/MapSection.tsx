@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState, useMemo, useCallback, useEffect, useLayoutEffect } from 'react'
+import { useRef, useState, useMemo, useCallback, useEffect } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
 import type { MapRestaurant, MapMustEat, MapLayer, MapCategory } from '@/lib/types'
 import { useMapData } from '@/lib/map/useMapData'
@@ -41,7 +41,7 @@ export default function MapSection({ isActive = false }: Props) {
   const uid = auth.currentUser?.uid ?? null
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
-  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, snapToVisiblePx, reapplySnap, configure } = useBottomSheet('mid')
+  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, reapplySnap, configure } = useBottomSheet('mid')
   // Remember the sheet snap from before a detail opens so we can restore it on close.
   const returnSnapRef = useRef<typeof snap | null>(null)
 
@@ -178,9 +178,13 @@ export default function MapSection({ isActive = false }: Props) {
     rememberView()
     const open = () => {
       setSelectedMustEat(m)
-      setSelectedRestaurant(null)
+      // Don't clear selectedRestaurant — when opened from inside a restaurant
+      // detail, closing the must-eat lands back on the restaurant detail (stack).
       if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches) {
         setSheetView('detail')
+        // Must-eat detail also owns its full-height layout (cream hero + sticky CTA),
+        // same as the restaurant detail.
+        setSnap('full')
       }
       mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500, padding: getFlyPadding() })
     }
@@ -197,9 +201,15 @@ export default function MapSection({ isActive = false }: Props) {
 
   const handleMustEatClose = useCallback(() => {
     setSelectedMustEat(null)
+    // If we were stacked on a restaurant detail, fall back to it instead of the list.
+    if (selectedRestaurant) {
+      // Re-center the map on the restaurant we came from so the detail re-opens "in place".
+      mapRef.current?.flyTo({ center: [selectedRestaurant.lng, selectedRestaurant.lat], zoom: 15, duration: 400, padding: getFlyPadding() })
+      return
+    }
     setSheetView('list')
     restoreView()
-  }, [restoreView])
+  }, [restoreView, selectedRestaurant, getFlyPadding])
 
   const handleMapClick = useCallback(() => {
     // Clicking the map also counts as dismissing the detail → restore view.
@@ -228,30 +238,9 @@ export default function MapSection({ isActive = false }: Props) {
     }
   }, [bezirkCenters, getFlyPadding])
 
-  // Snap the sheet to fit detail content exactly. Initial useLayoutEffect runs
-  // before paint so the user sees a single smooth animation. A ResizeObserver
-  // then re-measures whenever content changes height (hero image loading, font
-  // swap, etc.) so we never end up with overflow that scrolls when there is
-  // free space above the sheet.
-  useLayoutEffect(() => {
-    if (sheetView !== 'detail') return
-    // Restaurant detail uses the new full-height layout (sheet snaps to 'full' on click,
-    // RestaurantDetail handles its own internal scroll). Auto-fit only applies to must-eat detail.
-    if (selectedRestaurant) return
-    if (typeof window === 'undefined' || !window.matchMedia('(max-width: 1023.98px)').matches) return
-    const content = contentRef.current
-    if (!content) return
-    const HEADER  = 58  // .listHeaderClose: 12 + 34 (button) + 12
-    const PADDING = 48  // bottom breathing room + safe area buffer
-    const measure = () => {
-      if (content.scrollHeight === 0) return
-      snapToVisiblePx(content.scrollHeight + HEADER + PADDING)
-    }
-    measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(content)
-    return () => ro.disconnect()
-  }, [sheetView, selectedRestaurant, selectedMustEat?._id, snapToVisiblePx, contentRef])
+  // Detail views (restaurant + must-eat) snap to 'full' on click. Each detail
+  // component owns its own internal scroll + sticky footer, so no content-height
+  // auto-fit is needed.
 
   // Configure sheet drag behaviour based on view mode.
   // List → cap at mid (no full-screen list). Detail → locked (no drag, no handle).
@@ -398,7 +387,18 @@ export default function MapSection({ isActive = false }: Props) {
             >
               <div ref={handleRef} className={`${styles.handle}${sheetView === 'detail' ? ` ${styles.handleHidden}` : ''}`} aria-hidden="true" />
 
-              {layer === 'restaurants' && sheetView === 'detail' && selectedRestaurant ? (
+              {sheetView === 'detail' && selectedMustEat ? (
+                <div ref={contentRef} className={styles.detailMount}>
+                  <MustEatDetail
+                    mustEat={selectedMustEat}
+                    userLocation={location}
+                    isUnlocked={unlockedIds.has(selectedMustEat._id)}
+                    onUnlock={handleUnlock}
+                    onClose={handleMustEatClose}
+                    inSheet
+                  />
+                </div>
+              ) : sheetView === 'detail' && selectedRestaurant ? (
                 <div ref={contentRef} className={styles.detailMount}>
                   <RestaurantDetail
                     restaurant={selectedRestaurant}
@@ -429,34 +429,7 @@ export default function MapSection({ isActive = false }: Props) {
                       restaurants={displayedRestaurants}
                       userLocation={location}
                       selectedId={selectedRestaurant?._id ?? null}
-                      favoriteIds={favoriteIds}
                       onSelect={handleRestaurantClick}
-                      onToggleFavorite={toggleFavorite}
-                    />
-                  </div>
-                </>
-              ) : layer === 'mustEats' && sheetView === 'detail' && selectedMustEat ? (
-                <>
-                  <div className={`${styles.listHeader} ${styles.listHeaderClose}`}>
-                    <button
-                      type="button"
-                      className={styles.detailBack}
-                      onClick={handleMustEatClose}
-                      aria-label="Close"
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
-                    </button>
-                  </div>
-                  <div ref={contentRef} className={`${styles.listScroll} ${styles.listScrollNoCats}`}>
-                    <MustEatDetail
-                      mustEat={selectedMustEat}
-                      userLocation={location}
-                      isUnlocked={unlockedIds.has(selectedMustEat._id)}
-                      onUnlock={handleUnlock}
-                      onClose={handleMustEatClose}
-                      inSheet
                     />
                   </div>
                 </>

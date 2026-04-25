@@ -63,6 +63,15 @@ function GoogleLogo() {
   )
 }
 
+function PinIcon() {
+  return (
+    <svg className={styles.inlineLinkIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 2a8 8 0 0 0-8 8c0 5.5 8 12 8 12s8-6.5 8-12a8 8 0 0 0-8-8z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  )
+}
+
 function GlobeIcon() {
   return (
     <svg className={styles.inlineLinkIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -251,6 +260,11 @@ export default function RestaurantDetail({
               <p className={styles.detailDescription}>{restaurant.shortDescription}</p>
             )}
             <div className={styles.inlineLinks}>
+              {restaurant.mapsUrl && (
+                <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer" className={styles.inlineLink}>
+                  <PinIcon /> {t('map.googleMaps')}
+                </a>
+              )}
               {restaurant.website && (
                 <a href={restaurant.website} target="_blank" rel="noopener noreferrer" className={styles.inlineLink}>
                   <GlobeIcon /> {t('map.website')}
@@ -268,19 +282,6 @@ export default function RestaurantDetail({
           </div>
           <div className={styles.detailScroll}>{sections}</div>
         </div>
-        {restaurant.mapsUrl && (
-          <div className={styles.detailFooter}>
-            <a
-              href={restaurant.mapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${styles.btn} ${styles.btnGoogle}`}
-            >
-              <GoogleLogo />
-              <span>{t('map.googleMaps')}</span>
-            </a>
-          </div>
-        )}
       </div>
     )
   }

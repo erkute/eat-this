@@ -12,6 +12,10 @@
   background: var(--surface-bg);
   color: var(--text-primary);
   overflow: hidden;
+  /* Block page-level pinch-zoom on the map page — only vertical pan/scroll
+     is allowed on UI surfaces. The MapLibre canvas overrides this with
+     touch-action: none so the actual map still pinches & rotates. */
+  touch-action: pan-y;
 }
 
 .loading {
@@ -275,14 +279,19 @@
     padding: 3px 8px;
     border-radius: 999px;
   }
-  .toolbarPills .layerLogoIcon,
-  .toolbarPills .layerCardIcon {
-    width: 22px;
-    height: 22px;
+  .toolbarPills .layerTab {
+    /* Wide enough that 26-28 px icons sit comfortably and stay readable. */
+    min-width: 36px;
+    height: 30px;
+    padding: 2px 10px;
+  }
+  .toolbarPills .layerLogoIcon {
+    width: 26px;
+    height: 26px;
   }
   .toolbarPills .layerCardIcon {
-    width: 16px;
-    height: 22px;
+    width: 20px;
+    height: 28px;
   }
   .toolbarCatsRow {
     display: flex;
@@ -535,6 +544,13 @@ html[data-theme="dark"] .chipActive {
   }
 }
 
+/* MapLibre's own canvas claims pinch/pan/rotate gestures. The .shell parent
+   sets touch-action: pan-y to block page-level pinch-zoom; this override
+   re-allows the map to handle full multi-touch. */
+.mapWrap :global(.maplibregl-canvas-container),
+.mapWrap :global(.maplibregl-canvas) {
+  touch-action: none;
+}
 .mapWrap {
   position: relative;
   min-height: 0;
@@ -590,8 +606,10 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-group) {
   .mapWrap :global(.maplibregl-ctrl-bottom-left)  { left: 10px; }
 }
 
-/* Glass treatment for the compact attribution (ⓘ) button — dezent & klein. */
-.mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact) {
+/* Glass treatment for the compact attribution (ⓘ) button — dezent & klein.
+   Sizing is only forced in the COLLAPSED state; when MapLibre adds
+   .maplibregl-compact-show on click, the panel needs to grow to fit text. */
+.mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show)) {
   background: rgba(255, 255, 255, 0.28) !important;
   backdrop-filter: blur(14px) saturate(1.4);
   -webkit-backdrop-filter: blur(14px) saturate(1.4);
@@ -606,14 +624,34 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-group) {
   width: 18px;
   padding: 0 !important;
 }
-.mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact .maplibregl-ctrl-attrib-button) {
+.mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-button) {
   width: 18px !important;
   height: 18px !important;
   background-size: 12px 12px !important;
 }
-html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact) {
+/* Expanded attribution panel — readable card with glass background. */
+.mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact.maplibregl-compact-show) {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 12px !important;
+  padding: 6px 26px 6px 10px !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  width: auto;
+  height: auto;
+  box-shadow: 0 6px 16px rgba(17, 24, 39, 0.18);
+  font-size: 11px;
+}
+html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show)) {
   background: rgba(30, 30, 30, 0.35) !important;
   border-color: rgba(255, 255, 255, 0.14);
+}
+html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact.maplibregl-compact-show) {
+  background: rgba(30, 30, 30, 0.92) !important;
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #e5e7eb;
 }
 
 .fab {
@@ -1019,24 +1057,39 @@ html[data-theme="dark"] .langBtnActive {
   font-weight: 500;
   color: var(--text-secondary);
 }
-.heartBtn {
-  appearance: none;
-  background: none;
-  border: 0;
-  padding: 2px;
-  cursor: pointer;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.15s, transform 0.12s;
+/* Single status dot in the list row — replaces the old "Geöffnet/Geschlossen"
+   pill. Open = green (subtle blink ring), Closed = red. Pure indicator, no
+   text label (the screen reader gets the label via aria-label on the span). */
+.rowStatusDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
   flex-shrink: 0;
+  display: inline-block;
+  --dot-ring: 0, 0, 0;
 }
-.heartBtn svg { width: 15px; height: 15px; }
-.heartBtn:hover { color: #e53e3e; }
-.heartBtn:active { transform: scale(0.85); }
-.heartBtnActive { color: #e53e3e; }
-.heartBtnActive:hover { color: #c53030; }
+.rowStatusDotOpen {
+  background: #16a34a;
+  --dot-ring: 22, 163, 74;
+  animation: rowStatusDotBlink 2.4s ease-in-out infinite;
+}
+.rowStatusDotClosed {
+  background: #dc2626;
+  --dot-ring: 220, 38, 38;
+  box-shadow: 0 0 0 3px rgba(var(--dot-ring), 0.14);
+}
+@keyframes rowStatusDotBlink {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(var(--dot-ring), 0.18); }
+  50%      { box-shadow: 0 0 0 5px rgba(var(--dot-ring), 0.06); }
+}
+html[data-theme="dark"] .rowStatusDotOpen   {
+  background: #4ade80;
+  --dot-ring: 74, 222, 128;
+}
+html[data-theme="dark"] .rowStatusDotClosed {
+  background: #f87171;
+  --dot-ring: 248, 113, 113;
+}
 /* ========== Vintage door-sign ("OPEN"/"CLOSED" shop flip sign) ========== */
 /* Used by:
    - OpenNowToggle in the map toolbar (larger, interactive)
@@ -2039,11 +2092,26 @@ html[data-theme="dark"] .selectActive {
     font-weight: 700;
     border: 0;
     box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
   .sheetCategories .chipActive::after,
   .sheetCategories .chipActive:hover::after {
     background: var(--accent);
     transform: scaleX(1);
+  }
+  /* Dark mode — defensive overrides so the global dark .chipActive chrome
+     (translucent background, inset highlights) cannot bleed through into the
+     editorial tab strip. Result: just text + animated underline. */
+  html[data-theme="dark"] .sheetCategories .chip,
+  html[data-theme="dark"] .sheetCategories .chip:hover,
+  html[data-theme="dark"] .sheetCategories .chipActive,
+  html[data-theme="dark"] .sheetCategories .chipActive:hover {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 }
 
@@ -2251,13 +2319,20 @@ html[data-theme="dark"] .selectActive {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  /* Lock to vertical only — block any horizontal swipe gesture that could
+     pan the sheet sideways or hand-off to the OS back-swipe. */
+  touch-action: pan-y;
+  overscroll-behavior: contain;
 }
 .detailInSheetScroll {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   padding: 0 0 4px;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 .detailInSheetScroll::-webkit-scrollbar { width: 0; }
 .detailInSheetScroll > .detailScroll {
@@ -2436,6 +2511,221 @@ html[data-theme="dark"] .detailFooter .btn {
 html[data-theme="dark"] .detailFooter .btn:hover {
   background: rgba(255, 255, 255, 0.16);
   border-color: rgba(255, 255, 255, 0.28);
+}
+
+/* ── Must-Eat detail (in-sheet) ───────────────────────────────────────
+   Big & Bold layout: cream gradient hero with the freigestellte card-back
+   (white asset margin cropped via background-size: 118%) vibrating
+   continuously. Combined Card CTA at the bottom links to the restaurant. */
+.mustEatHero {
+  position: relative;
+  height: 440px;
+  background:
+    radial-gradient(60% 60% at 50% 30%, rgba(255, 200, 150, 0.55), rgba(255, 200, 150, 0) 70%),
+    linear-gradient(180deg, #faf7f2 0%, #f0e6dc 100%);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  --vibrate-intensity: 0.18;
+  --vibrate-duration: calc(1.2s - 0.98s * var(--vibrate-intensity));
+}
+html[data-theme="dark"] .mustEatHero {
+  background:
+    radial-gradient(60% 60% at 50% 30%, rgba(255, 140, 80, 0.20), rgba(255, 140, 80, 0) 70%),
+    linear-gradient(180deg, #1d1814 0%, #2a2218 100%);
+}
+/* Pulsing warm glow under the card */
+.mustEatGlow {
+  position: absolute;
+  left: 50%;
+  bottom: 32px;
+  width: 70%;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(255, 140, 60, 0.55), rgba(255, 140, 60, 0) 70%);
+  transform: translate(-50%, 0);
+  filter: blur(2px);
+  animation: mustEatGlowPulse 2.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes mustEatGlowPulse {
+  0%, 100% { opacity: 0.45; transform: translate(-50%, 0) scale(1); }
+  50%      { opacity: 0.85; transform: translate(-50%, 0) scale(1.08); }
+}
+/* Freigestellte card: white cream asset margin cropped via background-size > 100% */
+.mustEatCard {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  display: block;
+  width: 240px;
+  aspect-ratio: 1449 / 2163;
+  border-radius: 16px;
+  background: url('/pics/card-back.webp') center / 118% no-repeat transparent;
+  box-shadow:
+    0 8px 18px rgba(17, 24, 39, 0.18),
+    0 24px 50px rgba(17, 24, 39, 0.22);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+  transform-origin: center center;
+  animation: mustEatVibrate var(--vibrate-duration) ease-in-out infinite;
+}
+.mustEatCardCanUnlock {
+  box-shadow:
+    0 0 0 2px rgba(255, 76, 0, 0.20),
+    0 8px 22px rgba(255, 76, 0, 0.40),
+    0 24px 50px rgba(17, 24, 39, 0.22);
+}
+.mustEatCardTapping {
+  --vibrate-intensity: 1.4;
+  animation-duration: 0.08s;
+}
+@keyframes mustEatVibrate {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  20% {
+    transform:
+      translate(calc(var(--vibrate-intensity) * -2.4px), calc(var(--vibrate-intensity) * 0.8px))
+      rotate(calc(var(--vibrate-intensity) * -1.6deg));
+  }
+  40% {
+    transform:
+      translate(calc(var(--vibrate-intensity) * 2.4px), calc(var(--vibrate-intensity) * -0.8px))
+      rotate(calc(var(--vibrate-intensity) * 1.6deg));
+  }
+  60% {
+    transform:
+      translate(calc(var(--vibrate-intensity) * -1.6px), calc(var(--vibrate-intensity) * 1.2px))
+      rotate(calc(var(--vibrate-intensity) * -1.2deg));
+  }
+  80% {
+    transform:
+      translate(calc(var(--vibrate-intensity) * 1.6px), calc(var(--vibrate-intensity) * -1.2px))
+      rotate(calc(var(--vibrate-intensity) * 1deg));
+  }
+}
+/* Unlocked dish photo — same hero area, fills with the actual image. */
+.mustEatPhoto {
+  display: block;
+  width: 240px;
+  aspect-ratio: 1449 / 2163;
+  border-radius: 16px;
+  object-fit: cover;
+  box-shadow:
+    0 8px 18px rgba(17, 24, 39, 0.18),
+    0 24px 50px rgba(17, 24, 39, 0.22);
+  animation: mustEatFlipIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes mustEatFlipIn {
+  0%   { transform: rotateY(90deg); opacity: 0; }
+  100% { transform: rotateY(0);     opacity: 1; }
+}
+
+/* Body */
+.mustEatBody {
+  padding: 16px 18px 4px;
+}
+.mustEatEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.mustEatEyebrow svg { width: 12px; height: 12px; flex-shrink: 0; }
+.mustEatRestaurantName {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin: 6px 0 4px;
+  color: var(--text-primary);
+}
+.mustEatInfoRow {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin: 0;
+}
+.mustEatProgress {
+  margin-top: 14px;
+  height: 4px;
+  border-radius: 999px;
+  background: #fff0e6;
+  overflow: hidden;
+}
+html[data-theme="dark"] .mustEatProgress {
+  background: rgba(255, 76, 0, 0.18);
+}
+.mustEatProgressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #ff7a3a);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+.mustEatProgressLabel {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.mustEatDescription {
+  margin-top: 10px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+/* Combined Card CTA — single clickable card with locked-status eyebrow on top
+   and the actual call-to-action ("Restaurant ansehen →") below. */
+.mustEatCombined {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 4px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-card);
+  text-decoration: none;
+  color: var(--text-primary);
+  box-shadow:
+    0 1px 2px rgba(17, 24, 39, 0.04),
+    0 6px 16px rgba(17, 24, 39, 0.06);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.mustEatCombined:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent);
+  box-shadow:
+    0 1px 2px rgba(17, 24, 39, 0.06),
+    0 8px 20px rgba(17, 24, 39, 0.10);
+}
+.mustEatCombined:active { transform: translateY(0); }
+.mustEatCombinedTop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.mustEatCombinedTop svg { width: 12px; height: 12px; flex-shrink: 0; }
+.mustEatCombinedBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+.mustEatCombinedBottom svg {
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
 }
 /* Actions float above the hours/tip/must-eats block */
 .detailInSheet .detailActions {

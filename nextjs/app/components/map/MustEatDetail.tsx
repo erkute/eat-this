@@ -14,9 +14,10 @@ interface MustEatDetailProps {
   isUnlocked: boolean
   onUnlock: () => void
   onClose: () => void
+  inSheet?: boolean
 }
 
-export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnlock, onClose }: MustEatDetailProps) {
+export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnlock, onClose, inSheet }: MustEatDetailProps) {
   const { t } = useTranslation()
   const distance = userLocation
     ? haversineDistance(userLocation.lat, userLocation.lng, mustEat.restaurant.lat, mustEat.restaurant.lng)
@@ -32,19 +33,15 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
 
   return (
     <div
-      className={`${styles.detail} ${styles.detailNarrow}`}
+      className={inSheet ? styles.detailInSheet : `${styles.detail} ${styles.detailNarrow}`}
       role="dialog"
       aria-label={`Must-Eat at ${mustEat.restaurant.name}`}
-      style={{ maxWidth: 280, flexDirection: 'column' }}
     >
-      <button
-        type="button"
-        className={styles.detailClose}
-        aria-label="Close"
-        onClick={onClose}
-      >
-        ×
-      </button>
+      {!inSheet && (
+        <button type="button" className={styles.detailClose} aria-label="Close" onClick={onClose}>
+          ×
+        </button>
+      )}
 
       {isUnlocked ? (
         <div className={styles.mustCardFlip}>

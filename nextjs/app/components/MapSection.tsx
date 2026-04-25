@@ -174,7 +174,10 @@ export default function MapSection({ isActive = false }: Props) {
     const open = () => {
       setSelectedMustEat(m)
       setSelectedRestaurant(null)
-      setSnap('peek')
+      if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches) {
+        setSheetView('detail')
+        setSnap('full')
+      }
       mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500, padding: getFlyPadding() })
     }
     // Let the back-card wiggle animation play before the detail modal covers it.
@@ -190,6 +193,7 @@ export default function MapSection({ isActive = false }: Props) {
 
   const handleMustEatClose = useCallback(() => {
     setSelectedMustEat(null)
+    setSheetView('list')
     restoreView()
   }, [restoreView])
 
@@ -403,6 +407,44 @@ export default function MapSection({ isActive = false }: Props) {
                       favoriteIds={favoriteIds}
                       onSelect={handleRestaurantClick}
                       onToggleFavorite={toggleFavorite}
+                    />
+                  </div>
+                </>
+              ) : layer === 'mustEats' && sheetView === 'detail' && selectedMustEat ? (
+                <>
+                  <div className={styles.listHeader}>
+                    <button
+                      type="button"
+                      className={styles.detailBack}
+                      onClick={handleMustEatClose}
+                      aria-label={t('map.back') ?? 'Back'}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <polyline points="15 18 9 12 15 6" />
+                      </svg>
+                    </button>
+                    <div className={`${styles.listTitle} ${styles.listTitleDetail}`}>
+                      {unlockedIds.has(selectedMustEat._id) ? selectedMustEat.dish : selectedMustEat.restaurant.name}
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.detailBack}
+                      onClick={handleMustEatClose}
+                      aria-label="Close"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div ref={contentRef} className={styles.listScroll}>
+                    <MustEatDetail
+                      mustEat={selectedMustEat}
+                      userLocation={location}
+                      isUnlocked={unlockedIds.has(selectedMustEat._id)}
+                      onUnlock={handleUnlock}
+                      onClose={handleMustEatClose}
+                      inSheet
                     />
                   </div>
                 </>

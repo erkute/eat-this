@@ -771,9 +771,9 @@ html[data-theme="dark"] .langBtnActive {
 }
 @media (max-width: 1023.98px) {
   .row {
-    grid-template-columns: 52px 1fr auto;
-    gap: 10px;
-    padding: 6px 8px;
+    grid-template-columns: 62px 1fr auto;
+    gap: 12px;
+    padding: 10px 10px;
     border-radius: 10px;
   }
 }
@@ -818,11 +818,11 @@ html[data-theme="dark"] .langBtnActive {
   .rowPhoto,
   .rowPhotoCard,
   .rowPhotoPlaceholder {
-    width: 52px;
-    height: 52px;
+    width: 62px;
+    height: 62px;
     border-radius: 8px;
   }
-  .rowPhotoPlaceholder { font-size: 18px; }
+  .rowPhotoPlaceholder { font-size: 20px; }
 }
 
 .rowMain {
@@ -2059,6 +2059,7 @@ html[data-theme="dark"] .selectActive {
 .detailInSheet .detailActions {
   padding-bottom: 16px;
 }
+.detailInSheet .mustCardBackTap { max-width: 180px; }
 
 /* Back / close buttons in the sheet detail header row. */
 .detailBack {

@@ -354,6 +354,8 @@ export default function MapSection({ isActive = false }: Props) {
                   userLocation={location}
                   onClose={handleRestaurantClose}
                   onMustEatClick={handleMustEatClick}
+                  isFavorite={favoriteIds.has(selectedRestaurant._id)}
+                  onToggleFavorite={() => toggleFavorite(selectedRestaurant)}
                 />
               )}
               {selectedMustEat && (
@@ -396,6 +398,8 @@ export default function MapSection({ isActive = false }: Props) {
                       userLocation={location}
                       onClose={handleRestaurantClose}
                       onMustEatClick={handleMustEatClick}
+                      isFavorite={favoriteIds.has(selectedRestaurant._id)}
+                      onToggleFavorite={() => toggleFavorite(selectedRestaurant)}
                       inSheet
                     />
                   </div>

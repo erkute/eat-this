@@ -4,6 +4,7 @@ import CategoryFilter from './CategoryFilter'
 import BezirkFilter from './BezirkFilter'
 import OpenNowToggle from './OpenNowToggle'
 import LayerToggle from './LayerToggle'
+import MobileSearch from './MobileSearch'
 import { useTranslation } from '@/lib/i18n'
 import styles from './map.module.css'
 
@@ -46,6 +47,7 @@ export default function MapToolbar({
       <div className={wrapClass}>
         <div className={styles.toolbar}>
           <div className={styles.toolbarPills}>
+            <MobileSearch value={search} onChange={onSearch} />
             <BezirkFilter bezirke={bezirke} active={bezirk} onChange={onBezirk} />
             <div className={styles.toolbarSpacer} />
             <LayerToggle active={layer} onChange={onLayer} inline />

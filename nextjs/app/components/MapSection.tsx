@@ -118,6 +118,19 @@ export default function MapSection({ isActive = false }: Props) {
   // losing their bird's-eye overview).
   const returnViewRef = useRef<{ lng: number; lat: number; zoom: number } | null>(null)
 
+  // Padding the map should respect when centering on a point, so spots don't
+  // land behind the bottom sheet (mobile) or side panel (desktop).
+  const getFlyPadding = useCallback(() => {
+    if (typeof window === 'undefined') return undefined
+    const isMobile = window.matchMedia('(max-width: 1023.98px)').matches
+    if (!isMobile) return { top: 0, bottom: 0, left: 0, right: 420 }
+    const sheetEl = document.querySelector<HTMLElement>('aside[aria-label]')
+    const raw = sheetEl ? getComputedStyle(sheetEl).getPropertyValue('--sheet-visible-px').trim() : ''
+    const visible = raw.endsWith('px') ? parseFloat(raw) : NaN
+    const bottom = Number.isFinite(visible) && visible > 0 ? visible : 350
+    return { top: 60, bottom: bottom + 20, left: 20, right: 20 }
+  }, [])
+
   const rememberView = useCallback(() => {
     if (selectedRestaurant || selectedMustEat) return // nested open — keep first stash
     const m = mapRef.current
@@ -131,21 +144,21 @@ export default function MapSection({ isActive = false }: Props) {
   const restoreView = useCallback(() => {
     const v = returnViewRef.current
     if (v) {
-      mapRef.current?.flyTo({ center: [v.lng, v.lat], zoom: v.zoom, duration: 500 })
+      mapRef.current?.flyTo({ center: [v.lng, v.lat], zoom: v.zoom, duration: 500, padding: getFlyPadding() })
     }
     const s = returnSnapRef.current
     if (s) setSnap(s)
     returnViewRef.current = null
     returnSnapRef.current = null
-  }, [setSnap])
+  }, [setSnap, getFlyPadding])
 
   const handleRestaurantClick = useCallback((r: MapRestaurant) => {
     rememberView()
     setSelectedRestaurant(r)
     setSelectedMustEat(null)
     setSnap('peek')
-    mapRef.current?.flyTo({ center: [r.lng, r.lat], zoom: 15, duration: 500 })
-  }, [setSnap, rememberView])
+    mapRef.current?.flyTo({ center: [r.lng, r.lat], zoom: 15, duration: 500, padding: getFlyPadding() })
+  }, [setSnap, rememberView, getFlyPadding])
 
   const handleMustEatClick = useCallback((m: MapMustEat) => {
     const isLocked = !unlockedIds.has(m._id)
@@ -154,12 +167,12 @@ export default function MapSection({ isActive = false }: Props) {
       setSelectedMustEat(m)
       setSelectedRestaurant(null)
       setSnap('peek')
-      mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500 })
+      mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500, padding: getFlyPadding() })
     }
     // Let the back-card wiggle animation play before the detail modal covers it.
     if (isLocked) setTimeout(open, 420)
     else open()
-  }, [setSnap, unlockedIds, rememberView])
+  }, [setSnap, unlockedIds, rememberView, getFlyPadding])
 
   const handleRestaurantClose = useCallback(() => {
     setSelectedRestaurant(null)
@@ -183,9 +196,9 @@ export default function MapSection({ isActive = false }: Props) {
     setBezirk(name)
     if (name) {
       const c = bezirkCenters.get(name)
-      if (c) mapRef.current?.flyTo({ center: [c.lng, c.lat], zoom: 13, duration: 600 })
+      if (c) mapRef.current?.flyTo({ center: [c.lng, c.lat], zoom: 13, duration: 600, padding: getFlyPadding() })
     }
-  }, [bezirkCenters])
+  }, [bezirkCenters, getFlyPadding])
 
   const handleUnlock = useCallback(async () => {
     if (!selectedMustEat) return
@@ -195,9 +208,9 @@ export default function MapSection({ isActive = false }: Props) {
   const handleLocateMe = useCallback(async () => {
     const loc = await requestLocation()
     if (loc) {
-      mapRef.current?.flyTo({ center: [loc.lng, loc.lat], zoom: 14, duration: 600 })
+      mapRef.current?.flyTo({ center: [loc.lng, loc.lat], zoom: 14, duration: 600, padding: getFlyPadding() })
     }
-  }, [requestLocation])
+  }, [requestLocation, getFlyPadding])
 
   /* Auto-center on the user's position the first time the map page opens.
      Ref guard handles React strict-mode double-mount so we don't double-prompt. */
@@ -210,7 +223,7 @@ export default function MapSection({ isActive = false }: Props) {
       if (cancelled || !loc) return
       const tryFly = () => {
         if (mapRef.current) {
-          mapRef.current.flyTo({ center: [loc.lng, loc.lat], zoom: 14, duration: 600 })
+          mapRef.current.flyTo({ center: [loc.lng, loc.lat], zoom: 14, duration: 600, padding: getFlyPadding() })
         } else {
           setTimeout(tryFly, 120)
         }
@@ -251,7 +264,7 @@ export default function MapSection({ isActive = false }: Props) {
           <MapToolbar variant="desktop" {...toolbarProps} />
 
           <div className={styles.body}>
-            <div className={`${styles.mapWrap} ${layer === 'mustEats' ? styles.mapWrapNoCats : ''}`}>
+            <div className={styles.mapWrap}>
               <MapCanvas ref={mapRef} onMove={updateBounds} onMapClick={handleMapClick}>
                 {layer === 'restaurants' && displayedRestaurants.map(r => (
                   <RestaurantMarker

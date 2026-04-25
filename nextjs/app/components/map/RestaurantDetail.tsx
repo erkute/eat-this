@@ -286,9 +286,17 @@ export default function RestaurantDetail({
     )
   }
 
-  // Desktop floating overlay (unchanged structure)
+  // Desktop floating overlay — "Magazine" layout: 56/44 split, name overlaid
+  // on the photo (bottom-left, dark gradient), meta + status + description +
+  // inline links + sections all in the right column. Same design language as
+  // the mobile sheet (status pill, inline links, no button row).
+  const priceCatText = [
+    restaurant.price,
+    restaurant.categories?.slice(0, 3).join(' · '),
+  ].filter(Boolean).join(' · ')
+
   return (
-    <div className={styles.detail} role="dialog" aria-label={restaurant.name}>
+    <div className={`${styles.detail} ${styles.detailMagazine}`} role="dialog" aria-label={restaurant.name}>
       <button
         type="button"
         className={styles.detailClose}
@@ -298,92 +306,72 @@ export default function RestaurantDetail({
         ×
       </button>
 
-      <div className={styles.detailLeft}>
-        {heroEl}
-        <div className={styles.detailLeftInfo}>
-          <h3 className={styles.detailName}>{restaurant.name}</h3>
-          {(district || restaurant.price || restaurant.categories?.length) && (
-            <div className={styles.detailDistrict}>
-              {[
-                district,
-                restaurant.price,
-                restaurant.categories?.slice(0, 3).join(', '),
-              ].filter(Boolean).join(' · ')}
-            </div>
-          )}
+      <div
+        className={styles.detailLeft}
+        style={restaurant.photo ? ({ ['--hero-image' as string]: `url("${restaurant.photo}")` }) : undefined}
+        aria-label={restaurant.name}
+      >
+        {!restaurant.photo && (
+          <div className={styles.detailHeroPlaceholder} aria-hidden="true">🍽</div>
+        )}
+        {onToggleFavorite && (
+          <button
+            type="button"
+            className={`${styles.detailFavBtn} ${isFavorite ? styles.detailFavBtnActive : ''}`}
+            aria-label={isFavorite ? 'Remove from saved' : 'Save restaurant'}
+            aria-pressed={!!isFavorite}
+            onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
+          >
+            <svg viewBox="0 0 24 24" fill={isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </button>
+        )}
+        <div className={styles.detailHeroOverlay}>
+          <h3 className={styles.detailHeroName}>{restaurant.name}</h3>
+        </div>
+      </div>
+
+      <div className={styles.detailRight}>
+        {(district || priceCatText) && (
+          <div className={styles.detailDesktopMeta}>
+            {district && <div className={styles.detailDesktopMetaTop}>{district}</div>}
+            {priceCatText && <div className={styles.detailDesktopMetaBottom}>{priceCatText}</div>}
+          </div>
+        )}
           {status.label && (
             <span
-              className={`${styles.hoursStatus} ${
-                status.isOpen ? styles.hoursStatusOpen : styles.hoursStatusClosed
+              className={`${styles.statusPill} ${
+                status.isOpen ? styles.statusPillOpen : styles.statusPillClosed
               }`}
             >
               {status.label}
             </span>
           )}
           {restaurant.shortDescription && (
-            <p className={`${styles.detailDescription} ${styles.detailMobileOnly}`}>
-              {restaurant.shortDescription}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div className={styles.detailRight}>
-        {restaurant.shortDescription && (
-          <div className={`${styles.detailRightHead} ${styles.detailDesktopOnly}`}>
             <p className={styles.detailDescription}>{restaurant.shortDescription}</p>
+          )}
+          <div className={styles.inlineLinks}>
+            {restaurant.mapsUrl && (
+              <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer" className={styles.inlineLink}>
+                <PinIcon /> {t('map.googleMaps')}
+              </a>
+            )}
+            {restaurant.website && (
+              <a href={restaurant.website} target="_blank" rel="noopener noreferrer" className={styles.inlineLink}>
+                <GlobeIcon /> {t('map.website')}
+              </a>
+            )}
+            {restaurant.reservationUrl && (
+              <a href={restaurant.reservationUrl} target="_blank" rel="noopener noreferrer" className={styles.inlineLink}>
+                <CalendarIcon /> {t('map.reserve')}
+              </a>
+            )}
+            <button type="button" className={styles.inlineLink} onClick={handleShare}>
+              <ShareIcon /> {t('map.share')}
+            </button>
           </div>
-        )}
         <div className={styles.detailScroll}>{sections}</div>
-
-        <div className={styles.detailActions}>
-          {restaurant.mapsUrl && (
-            <a
-              href={restaurant.mapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${styles.btn} ${styles.btnGoogle}`}
-            >
-              <GoogleLogo />
-              <span>{t('map.googleMaps')}</span>
-            </a>
-          )}
-          {restaurant.website && (
-            <a
-              href={restaurant.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${styles.btn} ${styles.btnWebsite}`}
-            >
-              <svg
-                className={styles.btnIcon}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="12" r="9" />
-                <path d="M3 12h18" />
-                <path d="M12 3a14 14 0 0 1 0 18" />
-                <path d="M12 3a14 14 0 0 0 0 18" />
-              </svg>
-              <span>{t('map.website')}</span>
-            </a>
-          )}
-          {restaurant.reservationUrl && (
-            <a
-              href={restaurant.reservationUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.btn}
-            >
-              {t('map.reserve')}
-            </a>
-          )}
-        </div>
       </div>
     </div>
   )

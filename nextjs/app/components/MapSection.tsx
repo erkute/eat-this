@@ -125,9 +125,13 @@ export default function MapSection({ isActive = false }: Props) {
   // Padding the map should respect when centering on a point, so spots don't
   // land behind the bottom sheet (mobile) or side panel (desktop).
   const getFlyPadding = useCallback(() => {
-    if (typeof window === 'undefined') return undefined
+    if (typeof window === 'undefined') return { top: 60, bottom: 60, left: 40, right: 40 }
     const isMobile = window.matchMedia('(max-width: 1023.98px)').matches
-    if (!isMobile) return undefined
+    if (!isMobile) {
+      // Desktop: side-panel takes the right ~420 px, toolbar takes ~56 px on top.
+      // Pad the camera so the marker lands inside the visible viewport.
+      return { top: 80, bottom: 40, left: 40, right: 440 }
+    }
     const sheetEl = document.querySelector<HTMLElement>('aside[aria-label]')
     const raw = sheetEl ? getComputedStyle(sheetEl).getPropertyValue('--sheet-visible-px').trim() : ''
     const visible = raw.endsWith('px') ? parseFloat(raw) : NaN

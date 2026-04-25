@@ -2152,32 +2152,35 @@ html[data-theme="dark"] .selectActive {
   flex-shrink: 0;
 }
 
-/* Floating heart over hero image — frosted-glass pill, bottom-right */
+/* Floating heart over the hero — freigestellt, kein Kreis-Hintergrund.
+   Eine doppelte Drop-Shadow gibt dem Outline-Heart auf jedem Foto Halt. */
 .detailFavBtn {
   position: absolute;
-  right: 12px;
-  bottom: 12px;
+  right: 14px;
+  bottom: 14px;
   appearance: none;
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  background: rgba(0, 0, 0, 0.32);
-  -webkit-backdrop-filter: blur(14px) saturate(1.4);
-  backdrop-filter: blur(14px) saturate(1.4);
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  padding: 6px;
+  width: auto;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   cursor: pointer;
-  transition: color 0.15s, transform 0.12s, background 0.15s;
+  transition: color 0.15s, transform 0.12s;
   z-index: 2;
+  -webkit-tap-highlight-color: transparent;
+  filter:
+    drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45))
+    drop-shadow(0 4px 12px rgba(0, 0, 0, 0.30));
 }
-.detailFavBtn svg { width: 20px; height: 20px; }
-.detailFavBtn:hover { background: rgba(0, 0, 0, 0.45); }
+.detailFavBtn svg { width: 26px; height: 26px; }
+.detailFavBtn:hover { color: #ff8a99; }
 .detailFavBtn:active { transform: scale(0.9); }
-.detailFavBtnActive { color: #ff4757; }
-.detailFavBtnActive:hover { color: #ff2d3f; }
+.detailFavBtnActive { color: var(--accent); }
+.detailFavBtnActive:hover { color: #ff7a3a; }
 .detailLeft {
   flex-shrink: 0; /* mobile: size to content so info doesn't overflow hero */
 }
@@ -2235,6 +2238,155 @@ html[data-theme="dark"] .selectActive {
   }
   .detailLeftInfo {
     padding: 14px 16px 16px;
+  }
+}
+
+/* ── Desktop "Magazine" layout (variant A picked) ───────────────────────
+   56/44 split, full-bleed photo on the left with the restaurant name
+   overlaid at the bottom on a dark gradient. Bezirk · € · Kategorie + the
+   green status pill, description, inline links and sections all live in
+   the right column. Same vocabulary as the mobile sheet. */
+@media (min-width: 1024px) {
+  .detail.detailMagazine {
+    max-width: 920px;
+    /* Size to content; only fall back to internal scroll on truly tiny
+       browser heights. Cap at viewport-24 so the modal claims more room
+       before the right column needs to scroll. */
+    height: auto;
+    min-height: 480px;
+    max-height: calc(100% - 24px);
+  }
+  .detailMagazine .detailLeft {
+    flex: 0 0 56%;
+    border-right: 0;
+    display: block;
+    position: relative;
+    overflow: hidden;
+    /* Photo as a background image with a built-in dark gradient at the
+       bottom so the white name overlay stays readable. Background images
+       don't contribute to the column's intrinsic height — the right
+       column drives the modal's grow-to-content sizing. */
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.65) 100%),
+      var(--hero-image, none) center/cover no-repeat,
+      #1a1f24;
+  }
+  .detailMagazine .detailHeroPlaceholder {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: rgba(255,255,255,0.55);
+    font-size: 48px;
+    background: linear-gradient(135deg, #2a1f17, #1a1410);
+  }
+  .detailMagazine .detailHeroOverlay {
+    position: absolute;
+    left: 28px;
+    right: 28px;
+    bottom: 26px;
+    z-index: 2;
+  }
+  .detailMagazine .detailHeroName {
+    color: white;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin: 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  }
+  /* Magazine heart inherits the freigestellt base — same white outline +
+     drop-shadow on the photo as the mobile sheet. */
+  /* Glass close button sits at the modal's top-right (over the right col). */
+  .detailMagazine .detailClose {
+    background: rgba(255, 255, 255, 0.94);
+    color: #111;
+    border: 1px solid rgba(15, 17, 21, 0.08);
+    width: 34px;
+    height: 34px;
+    top: 14px;
+    right: 14px;
+    box-shadow:
+      0 1px 2px rgba(17, 24, 39, 0.06),
+      0 4px 12px rgba(17, 24, 39, 0.10);
+  }
+  .detailMagazine .detailClose:hover { background: white; }
+  html[data-theme="dark"] .detail.detailMagazine .detailClose {
+    background: rgba(30, 30, 30, 0.85);
+    color: #f3f4f6;
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.30),
+      0 4px 12px rgba(0, 0, 0, 0.45);
+  }
+  html[data-theme="dark"] .detail.detailMagazine .detailClose:hover {
+    background: rgba(40, 40, 40, 0.95);
+  }
+  /* Right column: padding + scroll all on a single block element. Modal
+     grows to content height; only when the modal hits its viewport-cap
+     does the right column overflow internally (no scrollbar visible until
+     it actually scrolls thanks to max-height: 100%). */
+  .detailMagazine .detailRight {
+    flex: 1 1 44%;
+    padding: 22px 26px 18px;
+    display: block;
+    min-width: 0;
+    gap: 0;
+    border-top: 0;
+    /* Hard viewport-relative cap so the column drives the modal's grow-to-
+       content sizing, AND has a definite max for internal scroll when the
+       browser is too short. Subtracts the modal's 24 px breathing room. */
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+  }
+  .detailMagazine .detailRight::-webkit-scrollbar { width: 0; }
+  /* Tighter section spacing in the right column so the whole detail still
+     fits without internal scroll on standard browser heights. */
+  .detailMagazine .detailScroll > section {
+    padding: 10px 0 4px;
+  }
+  /* Top-of-right-column meta — Bezirk on its own line, Preis + Kategorie
+     below. Small caps so the block reads as a header / dateline. */
+  .detailMagazine .detailDesktopMeta {
+    margin: 0 0 12px;
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.35;
+  }
+  .detailMagazine .detailDesktopMetaTop {
+    color: var(--text-primary);
+  }
+  .detailMagazine .detailDesktopMetaBottom {
+    color: var(--text-secondary);
+  }
+  /* Full description on desktop (no 2-line clamp like the mobile row). */
+  .detailMagazine .detailRight .detailDescription {
+    display: block;
+    overflow: visible;
+    -webkit-line-clamp: unset;
+    line-height: 1.55;
+    font-size: 14px;
+    margin: 12px 0 0;
+  }
+  .detailMagazine .detailScroll {
+    overflow-y: visible;
+    max-height: none;
+    padding: 0;
+  }
+  .detailMagazine .detailScroll > section {
+    padding: 14px 0 6px;
+  }
+  .detailMagazine .detailScroll .sectionLabel {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-transform: none;
+    color: var(--text-primary);
+    margin: 0 0 8px;
   }
 }
 
@@ -2370,26 +2522,8 @@ html[data-theme="dark"] .detailHeroClose {
   color: #fff;
 }
 
-/* In-sheet: white-glass favourite over hero (matches the close button) */
-.detailInSheet .detailFavBtn {
-  width: 38px;
-  height: 38px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  color: #1f2937;
-  box-shadow:
-    0 1px 2px rgba(17, 24, 39, 0.08),
-    0 4px 12px rgba(17, 24, 39, 0.10);
-}
-.detailInSheet .detailFavBtn:hover {
-  background: rgba(255, 255, 255, 1);
-}
-.detailInSheet .detailFavBtnActive { color: var(--accent); }
-html[data-theme="dark"] .detailInSheet .detailFavBtn {
-  background: rgba(30, 30, 30, 0.62);
-  border-color: rgba(255, 255, 255, 0.16);
-  color: #e5e7eb;
-}
+/* In-sheet heart inherits the base freigestellt treatment (white outline +
+   drop-shadow, accent fill when saved). No circle background. */
 
 /* Status pill — soft green capsule with glow dot */
 .statusPill {

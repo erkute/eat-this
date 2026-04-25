@@ -82,8 +82,8 @@ export default function MapSection({ isActive = false }: Props) {
       if (!r.openingHours) return false
       if (!getOpenStatus(r.openingHours).isOpen) return false
     }
-    if (search.trim()) {
-      const q = search.toLowerCase()
+    const q = search.trim().toLowerCase()
+    if (q) {
       const hit =
         r.name.toLowerCase().includes(q) ||
         (districtOf(r) ?? '').toLowerCase().includes(q) ||
@@ -101,8 +101,8 @@ export default function MapSection({ isActive = false }: Props) {
   const { updateBounds } = useBounds(displayedRestaurants, location)
 
   const displayedMustEats = useMemo(() => {
-    if (!search.trim()) return mustEats
-    const q = search.toLowerCase()
+    const q = search.trim().toLowerCase()
+    if (!q) return mustEats
     return mustEats.filter(
       m =>
         m.dish.toLowerCase().includes(q) ||

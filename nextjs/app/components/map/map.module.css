@@ -691,6 +691,9 @@ html[data-theme="dark"] .langBtnActive {
   border-radius: 3px;
   background: var(--border-strong);
 }
+.handleHidden {
+  display: none;
+}
 @media (min-width: 1024px) {
   .handle { display: none; }
 }
@@ -742,6 +745,11 @@ html[data-theme="dark"] .langBtnActive {
      Mobile: reserve handle (~36) + listHeader (~30) + sheet-categories (~44)
      + home-indicator zone so the last row isn't hidden behind it. */
   max-height: calc(var(--sheet-visible-px, 100%) - 116px - env(safe-area-inset-bottom, 0px));
+}
+/* Without the category-chips row (must-eat list, detail views): offset is
+   smaller so the scroll area fills all available space with no white gap. */
+.listScrollNoCats {
+  max-height: calc(var(--sheet-visible-px, 100%) - 72px - env(safe-area-inset-bottom, 0px));
 }
 
 .empty {

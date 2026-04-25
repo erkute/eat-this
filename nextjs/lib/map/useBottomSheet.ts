@@ -17,11 +17,10 @@ function snapToPx(snap: SheetSnap, sheetH: number): number {
   }
 }
 
-function pxToNearestSnap(px: number, sheetH: number): SheetSnap {
-  const snaps: SheetSnap[] = ['full', 'mid', 'peek']
-  let best: SheetSnap = 'peek'
+function pxToNearestSnap(px: number, sheetH: number, allowed: SheetSnap[] = ['full', 'mid', 'peek']): SheetSnap {
+  let best: SheetSnap = allowed[allowed.length - 1]
   let bestDist = Infinity
-  for (const s of snaps) {
+  for (const s of allowed) {
     const d = Math.abs(snapToPx(s, sheetH) - px)
     if (d < bestDist) { bestDist = d; best = s }
   }
@@ -33,15 +32,25 @@ function isMobile(): boolean {
   return window.matchMedia(`(max-width: ${MOBILE_MAX}px)`).matches
 }
 
+interface SheetConfig {
+  maxSnap: SheetSnap | null  // cap drag; null = allow full
+  locked: boolean            // disable all drag + hide handle
+}
+
 export function useBottomSheet(initial: SheetSnap = 'peek') {
   const [snap, setSnap] = useState<SheetSnap>(initial)
   const [dragging, setDragging] = useState(false)
   const sheetNode = useRef<HTMLDivElement | null>(null)
   const handleRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement | null>(null)
-  const dragRef   = useRef<{ startY: number; basePx: number; pointerId: number } | null>(null)
-  const snapRef   = useRef<SheetSnap>(initial)
+  const dragRef    = useRef<{ startY: number; basePx: number; pointerId: number } | null>(null)
+  const snapRef    = useRef<SheetSnap>(initial)
+  const configRef  = useRef<SheetConfig>({ maxSnap: null, locked: false })
   snapRef.current = snap
+
+  const configure = useCallback((cfg: Partial<SheetConfig>) => {
+    configRef.current = { ...configRef.current, ...cfg }
+  }, [])
 
   const applyY = useCallback((px: number) => {
     const el = sheetNode.current
@@ -102,7 +111,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     if (!handle || !sheet) return
 
     const onDown = (e: PointerEvent) => {
-      if (!isMobile()) return
+      if (!isMobile() || configRef.current.locked) return
       const h = sheet.getBoundingClientRect().height
       // Read actual CSS position so custom content-fit snap is the drag baseline.
       const cssY = sheet.style.getPropertyValue('--sheet-y')
@@ -115,8 +124,9 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     const onMove = (e: PointerEvent) => {
       const d = dragRef.current
       if (!d) return
+      const { maxSnap } = configRef.current
       const h = sheet.getBoundingClientRect().height
-      const upperCap = FULL_TOP_PX
+      const upperCap = maxSnap ? snapToPx(maxSnap, h) : FULL_TOP_PX
       const next = Math.max(upperCap, Math.min(h - 40, d.basePx + (e.clientY - d.startY)))
       applyY(next)
     }
@@ -124,12 +134,20 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const d = dragRef.current
       if (!d) return
       try { handle.releasePointerCapture(d.pointerId) } catch { /* noop */ }
+      const { maxSnap } = configRef.current
       const h = sheet.getBoundingClientRect().height
-      const upperCap = FULL_TOP_PX
-      const finalPx = Math.max(upperCap, Math.min(h - 40, d.basePx + (e.clientY - d.startY)))
+      const displacement = Math.abs(e.clientY - d.startY)
       dragRef.current = null
       setDragging(false)
-      setSnap(pxToNearestSnap(finalPx, h))
+      // Tap on handle when peeking → expand to mid
+      if (displacement < 6 && snapRef.current === 'peek') {
+        setSnap('mid')
+        return
+      }
+      const upperCap = maxSnap ? snapToPx(maxSnap, h) : FULL_TOP_PX
+      const finalPx = Math.max(upperCap, Math.min(h - 40, d.basePx + (e.clientY - d.startY)))
+      const allowed: SheetSnap[] = maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']
+      setSnap(pxToNearestSnap(finalPx, h, allowed))
     }
 
     handle.addEventListener('pointerdown',   onDown)
@@ -180,8 +198,9 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
         setDragging(true)
       }
       e.preventDefault()
+      const { maxSnap } = configRef.current
       const h = sheet.getBoundingClientRect().height
-      const upperCap = FULL_TOP_PX
+      const upperCap = maxSnap ? snapToPx(maxSnap, h) : FULL_TOP_PX
       const next = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
       applyY(next)
     }
@@ -189,12 +208,14 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     const onTouchEnd = (e: TouchEvent) => {
       if (!touchState) return
       if (touchState.active) {
+        const { maxSnap } = configRef.current
         const h = sheet.getBoundingClientRect().height
-        const upperCap = FULL_TOP_PX
+        const upperCap = maxSnap ? snapToPx(maxSnap, h) : FULL_TOP_PX
         const dy = (e.changedTouches[0]?.clientY ?? touchState.startY) - touchState.startY
         const finalPx = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
+        const allowed: SheetSnap[] = maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']
         setDragging(false)
-        setSnap(pxToNearestSnap(finalPx, h))
+        setSnap(pxToNearestSnap(finalPx, h, allowed))
       }
       touchState = null
     }
@@ -238,5 +259,5 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     snapRef.current = target
   }, [applyY])
 
-  return { sheetRef, handleRef, contentRef, snap, setSnap, dragging, collapse, expand, snapToVisiblePx, reapplySnap }
+  return { sheetRef, handleRef, contentRef, snap, setSnap, dragging, collapse, expand, snapToVisiblePx, reapplySnap, configure }
 }

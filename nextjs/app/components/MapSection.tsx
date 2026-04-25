@@ -41,7 +41,7 @@ export default function MapSection({ isActive = false }: Props) {
   const uid = auth.currentUser?.uid ?? null
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
-  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, snapToVisiblePx, reapplySnap } = useBottomSheet('mid')
+  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, snapToVisiblePx, reapplySnap, configure } = useBottomSheet('mid')
   // Remember the sheet snap from before a detail opens so we can restore it on close.
   const returnSnapRef = useRef<typeof snap | null>(null)
 
@@ -226,11 +226,20 @@ export default function MapSection({ isActive = false }: Props) {
     if (typeof window === 'undefined' || !window.matchMedia('(max-width: 1023.98px)').matches) return
     const content = contentRef.current
     if (!content || content.scrollHeight === 0) return
-    const HANDLE  = 36  // .handle min-height
-    const HEADER  = 44  // .listHeader mobile height
+    // In detail view handle is hidden, so only reserve the listHeaderClose height.
+    const HEADER  = 44  // .listHeaderClose mobile height
     const PADDING = 48  // bottom breathing room + safe area buffer (home indicator)
-    snapToVisiblePx(content.scrollHeight + HANDLE + HEADER + PADDING)
+    snapToVisiblePx(content.scrollHeight + HEADER + PADDING)
   }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, snapToVisiblePx, contentRef])
+
+  // Configure sheet drag behaviour based on view mode.
+  // List → cap at mid (no full-screen list). Detail → locked (no drag, no handle).
+  useEffect(() => {
+    configure(sheetView === 'detail'
+      ? { maxSnap: null, locked: true }
+      : { maxSnap: 'mid', locked: false }
+    )
+  }, [sheetView, configure])
 
   const handleUnlock = useCallback(async () => {
     if (!selectedMustEat) return
@@ -363,7 +372,7 @@ export default function MapSection({ isActive = false }: Props) {
               className={`${styles.list} ${dragging ? styles.listDragging : ''}`}
               aria-label={layer === 'restaurants' ? 'Restaurants nearby' : 'Must-Eats'}
             >
-              <div ref={handleRef} className={styles.handle} aria-hidden="true" />
+              <div ref={handleRef} className={`${styles.handle}${sheetView === 'detail' ? ` ${styles.handleHidden}` : ''}`} aria-hidden="true" />
 
               {layer === 'restaurants' && sheetView === 'detail' && selectedRestaurant ? (
                 <>
@@ -379,7 +388,7 @@ export default function MapSection({ isActive = false }: Props) {
                       </svg>
                     </button>
                   </div>
-                  <div ref={contentRef} className={styles.listScroll}>
+                  <div ref={contentRef} className={`${styles.listScroll} ${styles.listScrollNoCats}`}>
                     <RestaurantDetail
                       restaurant={selectedRestaurant}
                       mustEats={restaurantMustEats}
@@ -428,7 +437,7 @@ export default function MapSection({ isActive = false }: Props) {
                       </svg>
                     </button>
                   </div>
-                  <div ref={contentRef} className={styles.listScroll}>
+                  <div ref={contentRef} className={`${styles.listScroll} ${styles.listScrollNoCats}`}>
                     <MustEatDetail
                       mustEat={selectedMustEat}
                       userLocation={location}
@@ -446,7 +455,7 @@ export default function MapSection({ isActive = false }: Props) {
                       {unlockedIds.size}/{mustEats.length} {t('map.mustEatsUnlocked')}
                     </div>
                   </div>
-                  <div ref={contentRef} className={styles.listScroll}>
+                  <div ref={contentRef} className={`${styles.listScroll} ${styles.listScrollNoCats}`}>
                     {displayedMustEats.length === 0 ? (
                       <div className={styles.empty}>{t('map.noMustEatsMatch')}</div>
                     ) : (

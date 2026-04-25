@@ -4,9 +4,9 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 export type SheetSnap = 'peek' | 'mid' | 'full'
 
 const PEEK_VISIBLE_PX = 68 // handle + first row peek when collapsed (toolbar floats above map)
-// Mid/full: handle (~36) + sheet-categories row (~44) + 3 rows (~74 each)
-// + 4th-row teaser (~30). This is also the cap — never expands beyond this.
-const MID_VISIBLE_PX = 350
+// Mid/full: handle (~36) + listHeader (~30) + sheet-categories (~44)
+// + 3 rows (~70 each) + 4th-row teaser (~30). Also the upper cap.
+const MID_VISIBLE_PX = 380
 const MOBILE_MAX = 1023.98
 
 function snapToPx(snap: SheetSnap, sheetH: number): number {

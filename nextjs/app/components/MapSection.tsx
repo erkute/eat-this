@@ -164,8 +164,11 @@ export default function MapSection({ isActive = false }: Props) {
     setSelectedRestaurant(r)
     setSelectedMustEat(null)
     // On mobile the sheet shows the detail inline; on desktop the absolute modal handles it.
+    // Restaurant detail owns its full-height layout (hero + scroll + sticky CTA),
+    // so snap the sheet to 'full' instead of measuring scrollHeight to fit.
     if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches) {
       setSheetView('detail')
+      setSnap('full')
     }
     mapRef.current?.flyTo({ center: [r.lng, r.lat], zoom: 15, duration: 500, padding: getFlyPadding() })
   }, [setSnap, rememberView, getFlyPadding])
@@ -232,6 +235,9 @@ export default function MapSection({ isActive = false }: Props) {
   // free space above the sheet.
   useLayoutEffect(() => {
     if (sheetView !== 'detail') return
+    // Restaurant detail uses the new full-height layout (sheet snaps to 'full' on click,
+    // RestaurantDetail handles its own internal scroll). Auto-fit only applies to must-eat detail.
+    if (selectedRestaurant) return
     if (typeof window === 'undefined' || !window.matchMedia('(max-width: 1023.98px)').matches) return
     const content = contentRef.current
     if (!content) return
@@ -245,7 +251,7 @@ export default function MapSection({ isActive = false }: Props) {
     const ro = new ResizeObserver(measure)
     ro.observe(content)
     return () => ro.disconnect()
-  }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, snapToVisiblePx, contentRef])
+  }, [sheetView, selectedRestaurant, selectedMustEat?._id, snapToVisiblePx, contentRef])
 
   // Configure sheet drag behaviour based on view mode.
   // List → cap at mid (no full-screen list). Detail → locked (no drag, no handle).
@@ -393,33 +399,19 @@ export default function MapSection({ isActive = false }: Props) {
               <div ref={handleRef} className={`${styles.handle}${sheetView === 'detail' ? ` ${styles.handleHidden}` : ''}`} aria-hidden="true" />
 
               {layer === 'restaurants' && sheetView === 'detail' && selectedRestaurant ? (
-                <>
-                  <div className={`${styles.listHeader} ${styles.listHeaderClose}`}>
-                    <button
-                      type="button"
-                      className={styles.detailBack}
-                      onClick={handleRestaurantClose}
-                      aria-label="Close"
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
-                    </button>
-                  </div>
-                  <div ref={contentRef} className={`${styles.listScroll} ${styles.listScrollNoCats}`}>
-                    <RestaurantDetail
-                      restaurant={selectedRestaurant}
-                      mustEats={restaurantMustEats}
-                      unlockedIds={unlockedIds}
-                      userLocation={location}
-                      onClose={handleRestaurantClose}
-                      onMustEatClick={handleMustEatClick}
-                      isFavorite={favoriteIds.has(selectedRestaurant._id)}
-                      onToggleFavorite={() => toggleFavorite(selectedRestaurant)}
-                      inSheet
-                    />
-                  </div>
-                </>
+                <div ref={contentRef} className={styles.detailMount}>
+                  <RestaurantDetail
+                    restaurant={selectedRestaurant}
+                    mustEats={restaurantMustEats}
+                    unlockedIds={unlockedIds}
+                    userLocation={location}
+                    onClose={handleRestaurantClose}
+                    onMustEatClick={handleMustEatClick}
+                    isFavorite={favoriteIds.has(selectedRestaurant._id)}
+                    onToggleFavorite={() => toggleFavorite(selectedRestaurant)}
+                    inSheet
+                  />
+                </div>
               ) : layer === 'restaurants' ? (
                 <>
                   <div className={styles.listHeader}>

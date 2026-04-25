@@ -52,21 +52,60 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     configRef.current = { ...configRef.current, ...cfg }
   }, [])
 
+  // Last-set offset for maplibre controls; we re-apply it whenever new
+  // controls show up (maplibre mounts them asynchronously after the map ready
+  // event, which is usually AFTER the sheet has done its first applyY).
+  const lastControlOffsetRef = useRef<number>(0)
+
+  const updateControls = useCallback((root: HTMLElement, offsetPx: number) => {
+    root.querySelectorAll<HTMLElement>(
+      '.maplibregl-ctrl-bottom-right, .maplibregl-ctrl-bottom-left'
+    ).forEach(c => { c.style.bottom = `${offsetPx}px` })
+  }, [])
+
   const applyY = useCallback((px: number) => {
     const el = sheetNode.current
     if (!el) return
     el.style.setProperty('--sheet-y', `${px}px`)
     const h = el.getBoundingClientRect().height
     const visible = Math.max(0, h - px)
-    // Visible sheet height = sheetHeight minus current translateY offset.
-    // The listScroll inside can use this to cap itself so content below the
-    // sheet's visible edge (clipped by overflow: hidden) can still be scrolled to.
     el.style.setProperty('--sheet-visible-px', `${visible}px`)
-    // Also expose to the map body so siblings (zoom controls, info button) can
-    // track the sheet's top edge and move with it.
     const parent = el.parentElement
-    if (parent) parent.style.setProperty('--sheet-visible-px', `${visible}px`)
-  }, [])
+    if (parent) {
+      parent.style.setProperty('--sheet-visible-px', `${visible}px`)
+      const offset = visible + 10
+      lastControlOffsetRef.current = offset
+      updateControls(parent, offset)
+      // Maplibre may not have mounted its controls yet at the very first call
+      // (the map ready event is async). Retry after a short delay so the
+      // controls don't sit behind the sheet on first paint.
+      setTimeout(() => updateControls(parent, offset), 200)
+      setTimeout(() => updateControls(parent, offset), 800)
+    }
+  }, [updateControls])
+
+  // Watch for maplibre controls mounting after the sheet has already settled,
+  // and apply the latest offset so they don't sit behind the sheet on first paint.
+  useEffect(() => {
+    const el = sheetNode.current
+    const parent = el?.parentElement
+    if (!parent) return
+    const apply = () => {
+      // If applyY hasn't run yet, compute the current offset on the fly so
+      // freshly-mounted controls don't sit at the default `bottom: 0`.
+      let offset = lastControlOffsetRef.current
+      if (!offset && el && isMobile()) {
+        const h = el.getBoundingClientRect().height
+        const px = snapToPx(snapRef.current, h)
+        offset = Math.max(0, h - px) + 10
+      }
+      if (offset) updateControls(parent, offset)
+    }
+    apply()  // initial sweep — controls may already be in the DOM
+    const observer = new MutationObserver(apply)
+    observer.observe(parent, { childList: true, subtree: true })
+    return () => observer.disconnect()
+  }, [updateControls])
 
   // Callback ref so the snap is applied the moment the element attaches —
   // regular refs + effects race against the parent's `loading` gate that
@@ -79,9 +118,18 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const visible = Math.max(0, h - px)
       el.style.setProperty('--sheet-y', `${px}px`)
       el.style.setProperty('--sheet-visible-px', `${visible}px`)
-      el.parentElement?.style.setProperty('--sheet-visible-px', `${visible}px`)
+      const parent = el.parentElement
+      if (parent) {
+        parent.style.setProperty('--sheet-visible-px', `${visible}px`)
+        const offset = visible + 10
+        lastControlOffsetRef.current = offset
+        updateControls(parent, offset)
+        // Retry — maplibre might still be mounting its controls async
+        setTimeout(() => updateControls(parent, offset), 250)
+        setTimeout(() => updateControls(parent, offset), 1000)
+      }
     }
-  }, [])
+  }, [updateControls])
 
   // Sync CSS var when snap changes (non-dragging path)
   useEffect(() => {

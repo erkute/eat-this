@@ -225,19 +225,26 @@ export default function MapSection({ isActive = false }: Props) {
     }
   }, [bezirkCenters, getFlyPadding])
 
-  // After detail content renders, measure scrollHeight and snap the sheet to
-  // fit exactly — no whitespace, no clipping. useLayoutEffect fires after DOM
-  // update but before paint, so applyY sets the CSS var before the user sees it.
+  // Snap the sheet to fit detail content exactly. Initial useLayoutEffect runs
+  // before paint so the user sees a single smooth animation. A ResizeObserver
+  // then re-measures whenever content changes height (hero image loading, font
+  // swap, etc.) so we never end up with overflow that scrolls when there is
+  // free space above the sheet.
   useLayoutEffect(() => {
     if (sheetView !== 'detail') return
     if (typeof window === 'undefined' || !window.matchMedia('(max-width: 1023.98px)').matches) return
     const content = contentRef.current
-    if (!content || content.scrollHeight === 0) return
-    // In detail view handle is hidden, so only reserve the listHeaderClose height.
-    // Header = 12px top + 34px button + 12px bottom = 58px.
-    const HEADER  = 58
-    const PADDING = 48  // bottom breathing room + safe area buffer (home indicator)
-    snapToVisiblePx(content.scrollHeight + HEADER + PADDING)
+    if (!content) return
+    const HEADER  = 58  // .listHeaderClose: 12 + 34 (button) + 12
+    const PADDING = 48  // bottom breathing room + safe area buffer
+    const measure = () => {
+      if (content.scrollHeight === 0) return
+      snapToVisiblePx(content.scrollHeight + HEADER + PADDING)
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(content)
+    return () => ro.disconnect()
   }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, snapToVisiblePx, contentRef])
 
   // Configure sheet drag behaviour based on view mode.

@@ -580,20 +580,14 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-group) {
   border-top: 1px solid rgba(255, 255, 255, 0.35) !important;
 }
 @media (max-width: 1023.98px) {
-  .mapWrap :global(.maplibregl-ctrl-bottom-right),
-  .mapWrap :global(.maplibregl-ctrl-bottom-left) {
-    /* Track the sheet's top edge — moves as the user drags the sheet.
-       The --sheet-visible-px var is set by useBottomSheet on .body. */
-    bottom: calc(var(--sheet-visible-px, 380px) + 10px + env(safe-area-inset-bottom, 0px));
-    transition: bottom 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
-  }
+  /* useBottomSheet sets `bottom` inline on these so they ride above the sheet.
+     We deliberately don't transition: maplibre's internal layout work
+     interferes with CSS bottom transitions (computed value gets stuck on
+     intermediate frames). The drag path updates inline every frame for a 1:1
+     follow; programmatic snap changes get the new bottom instantly, which
+     matches the sheet's own snap animation closely enough. */
   .mapWrap :global(.maplibregl-ctrl-bottom-right) { right: 10px; }
   .mapWrap :global(.maplibregl-ctrl-bottom-left)  { left: 10px; }
-  /* While the user actively drags, drop the transition so the control tracks 1:1. */
-  .body:has(.listDragging) .mapWrap :global(.maplibregl-ctrl-bottom-right),
-  .body:has(.listDragging) .mapWrap :global(.maplibregl-ctrl-bottom-left) {
-    transition: none;
-  }
 }
 
 /* Glass treatment for the compact attribution (ⓘ) button — dezent & klein. */
@@ -762,10 +756,13 @@ html[data-theme="dark"] .langBtnActive {
     right: 0;
     bottom: 0;
     height: 100%;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
+    /* Border radius scales with --sheet-y so corners go flat the moment the
+       sheet hugs the global header (--sheet-y = 0). Below ~4px sheet-y
+       (multiplied by 4 = 16) the radius caps at the regular 16px. */
+    border-top-left-radius:  min(16px, calc(var(--sheet-y, 16px) * 4));
+    border-top-right-radius: min(16px, calc(var(--sheet-y, 16px) * 4));
     box-shadow: var(--shadow-lg);
-    transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1), border-radius 0.18s ease;
     transform: translateY(var(--sheet-y, calc(100% - 68px)));
     z-index: 4;
   }
@@ -2298,20 +2295,27 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
     0 1px 0 rgba(255, 255, 255, 0.08) inset,
     0 8px 20px rgba(0, 0, 0, 0.55);
 }
-/* In-sheet scroll area — no top divider (buttons sit right above without one).
-   Dividers live BETWEEN section blocks instead, with equal spacing above & below. */
+/* In-sheet scroll area — no dividers anywhere. Sections separated by bolder
+   labels and breathing room. Inspired by modern map detail panels: visual
+   hierarchy via type weight + space, not lines. */
 .detailInSheet .detailScroll {
   overflow-y: visible;
   max-height: none;
   padding-top: 0;
 }
 .detailInSheet .detailScroll > section {
-  padding: 16px 0;
+  padding: 14px 0 6px;
 }
 .detailInSheet .detailScroll > section:first-child { padding-top: 4px; }
 .detailInSheet .detailScroll > section:last-child  { padding-bottom: 4px; }
-.detailInSheet .detailScroll > section + section {
-  border-top: 1px solid var(--border-subtle);
+/* Promote section labels: prominent dark heading instead of muted all-caps */
+.detailInSheet .detailScroll .sectionLabel {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--text-primary);
+  margin: 0 0 8px;
 }
 .detailInSheet .mustCardBackTap { max-width: 180px; }
 

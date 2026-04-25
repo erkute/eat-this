@@ -141,35 +141,44 @@
     flex: 1 1 auto;
     min-width: 4px;
   }
-  /* Mobile search: collapsed icon + expanded input share BezirkFilter pill style */
-  .mobileSearchTrigger {
-    appearance: none;
-    flex-shrink: 0;
-    width: 36px;
-    height: 36px;
-    border-radius: 6px;
-    border: 1px solid var(--border-strong);
-    background: var(--surface-raised);
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: color 0.15s, border-color 0.15s;
-  }
-  .mobileSearchTrigger:hover { color: var(--text-primary); border-color: var(--text-muted); }
-  .mobileSearchTrigger svg { width: 18px; height: 18px; }
+  /* Mobile search: always visible glass pill that hints "type here".
+     Compact default (~140px), grows on focus. */
   .mobileSearchOpen {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
+    width: 140px;
     min-width: 0;
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 0 4px 0 10px;
+    padding: 0 4px 0 11px;
     height: 36px;
-    border: 1px solid var(--border-strong);
-    border-radius: 6px;
-    background: var(--surface-raised);
+    border-radius: 999px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.18) 100%),
+      rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    color: var(--text-primary);
+    backdrop-filter: blur(18px) saturate(1.5);
+    -webkit-backdrop-filter: blur(18px) saturate(1.5);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.85),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.04),
+      0 6px 16px rgba(17, 24, 39, 0.12),
+      0 2px 4px rgba(17, 24, 39, 0.06);
+    transition: width 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .mobileSearchOpen:focus-within {
+    width: 220px;
+  }
+  html[data-theme="dark"] .mobileSearchOpen {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 100%),
+      rgba(30, 30, 30, 0.55);
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.16),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.3),
+      0 8px 20px rgba(0, 0, 0, 0.45);
   }
   .mobileSearchIcon {
     width: 16px;
@@ -188,15 +197,14 @@
     outline: none;
     padding: 0;
   }
-  .mobileSearchInput::placeholder { color: var(--text-muted); }
   .mobileSearchClear {
     appearance: none;
     flex-shrink: 0;
     border: 0;
     background: transparent;
     color: var(--text-muted);
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border-radius: 999px;
     display: flex;
     align-items: center;
@@ -204,7 +212,7 @@
     cursor: pointer;
     transition: color 0.15s;
   }
-  .mobileSearchClear svg { width: 14px; height: 14px; }
+  .mobileSearchClear svg { width: 12px; height: 12px; }
   .mobileSearchClear:hover { color: var(--text-primary); }
   /* Compact glass segmented control that matches the other pills. */
   .toolbarPills .layerTabs {
@@ -2162,10 +2170,11 @@ html[data-theme="dark"] .selectActive {
   .detail:not(.detailInSheet) { display: none !important; }
 }
 
-/* X-button right-aligned in detail sheet header, extra bottom gap before content */
+/* X-button right-aligned in detail sheet header — equal padding above (where sheet edge ends)
+   and below (where the hero begins) so the close button feels balanced. */
 .listHeaderClose {
   justify-content: flex-end;
-  padding-bottom: 12px;
+  padding: 12px 14px !important;
 }
 
 /* ── In-sheet detail: fresh flat layout ── */
@@ -2233,20 +2242,39 @@ html[data-theme="dark"] .selectActive {
 /* Back / close buttons in the sheet detail header row. */
 .detailBack {
   appearance: none;
-  background: none;
-  border: 0;
-  padding: 4px 6px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
   cursor: pointer;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 999px;
   flex-shrink: 0;
-  transition: color 0.15s;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.18) 100%),
+    rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 4px 10px rgba(17, 24, 39, 0.10);
+  transition: transform 0.12s ease, color 0.15s;
 }
 .detailBack:hover { color: var(--text-primary); }
-.detailBack svg { width: 18px; height: 18px; }
+.detailBack:active { transform: scale(0.92); }
+.detailBack svg { width: 16px; height: 16px; }
+html[data-theme="dark"] .detailBack {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 100%),
+    rgba(30, 30, 30, 0.6);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 6px 14px rgba(0, 0, 0, 0.45);
+}
 
 /* Restaurant name in detail header — truncate, centered. */
 .listTitleDetail {

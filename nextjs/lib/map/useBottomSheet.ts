@@ -6,7 +6,7 @@ export type SheetSnap = 'peek' | 'mid' | 'full'
 const PEEK_VISIBLE_PX = 28  // just the grab handle pip visible when collapsed
 // Mid: ~4 list rows visible. Full: nearly full-screen with just a small map peek at top.
 const MID_VISIBLE_PX = 440
-const FULL_TOP_PX     = 72  // translateY offset for full snap (status bar + small map peek)
+const FULL_TOP_PX     = 12  // translateY offset for full snap — sheet sits just under the top nav
 const MOBILE_MAX = 1023.98
 
 function snapToPx(snap: SheetSnap, sheetH: number): number {

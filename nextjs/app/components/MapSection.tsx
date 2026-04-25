@@ -227,7 +227,8 @@ export default function MapSection({ isActive = false }: Props) {
     const content = contentRef.current
     if (!content || content.scrollHeight === 0) return
     // In detail view handle is hidden, so only reserve the listHeaderClose height.
-    const HEADER  = 44  // .listHeaderClose mobile height
+    // Header = 12px top + 34px button + 12px bottom = 58px.
+    const HEADER  = 58
     const PADDING = 48  // bottom breathing room + safe area buffer (home indicator)
     snapToVisiblePx(content.scrollHeight + HEADER + PADDING)
   }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, snapToVisiblePx, contentRef])

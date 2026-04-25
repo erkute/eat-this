@@ -160,8 +160,11 @@ export default function MapSection({ isActive = false }: Props) {
     rememberView()
     setSelectedRestaurant(r)
     setSelectedMustEat(null)
-    setSheetView('detail')
-    setSnap('mid')
+    // On mobile the sheet shows the detail inline; on desktop the absolute modal handles it.
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches) {
+      setSheetView('detail')
+      setSnap('full')
+    }
     mapRef.current?.flyTo({ center: [r.lng, r.lat], zoom: 15, duration: 500, padding: getFlyPadding() })
   }, [setSnap, rememberView, getFlyPadding])
 

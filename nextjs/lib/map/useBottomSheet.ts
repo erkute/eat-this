@@ -4,16 +4,14 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 export type SheetSnap = 'peek' | 'mid' | 'full'
 
 const PEEK_VISIBLE_PX = 68 // handle + first row peek when collapsed (toolbar floats above map)
-// Mid/full: handle (~36) + listHeader (~30) + sheet-categories (~44)
-// + 3 rows (~70 each) + 4th-row teaser (~30). Also the upper cap.
+// Mid: ~4 list rows visible. Full: nearly full-screen with just a small map peek at top.
 const MID_VISIBLE_PX = 380
+const FULL_TOP_PX     = 72  // translateY offset for full snap (status bar + small map peek)
 const MOBILE_MAX = 1023.98
 
 function snapToPx(snap: SheetSnap, sheetH: number): number {
   switch (snap) {
-    // Full and mid share the same upper bound — the sheet never pulls higher
-    // than "4 rows visible" so the map stays the dominant surface.
-    case 'full':
+    case 'full': return FULL_TOP_PX
     case 'mid':  return Math.max(0, sheetH - MID_VISIBLE_PX)
     case 'peek': return Math.max(0, sheetH - PEEK_VISIBLE_PX)
   }
@@ -115,7 +113,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const d = dragRef.current
       if (!d) return
       const h = sheet.getBoundingClientRect().height
-      const upperCap = Math.max(0, h - MID_VISIBLE_PX)
+      const upperCap = FULL_TOP_PX
       const next = Math.max(upperCap, Math.min(h - 40, d.basePx + (e.clientY - d.startY)))
       applyY(next)
     }
@@ -124,7 +122,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       if (!d) return
       try { handle.releasePointerCapture(d.pointerId) } catch { /* noop */ }
       const h = sheet.getBoundingClientRect().height
-      const upperCap = Math.max(0, h - MID_VISIBLE_PX)
+      const upperCap = FULL_TOP_PX
       const finalPx = Math.max(upperCap, Math.min(h - 40, d.basePx + (e.clientY - d.startY)))
       dragRef.current = null
       setDragging(false)
@@ -180,7 +178,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       }
       e.preventDefault()
       const h = sheet.getBoundingClientRect().height
-      const upperCap = Math.max(0, h - MID_VISIBLE_PX)
+      const upperCap = FULL_TOP_PX
       const next = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
       applyY(next)
     }
@@ -189,7 +187,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       if (!touchState) return
       if (touchState.active) {
         const h = sheet.getBoundingClientRect().height
-        const upperCap = Math.max(0, h - MID_VISIBLE_PX)
+        const upperCap = FULL_TOP_PX
         const dy = (e.changedTouches[0]?.clientY ?? touchState.startY) - touchState.startY
         const finalPx = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
         setDragging(false)

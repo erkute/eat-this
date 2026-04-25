@@ -143,62 +143,41 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     }
   }, [snap, applyY])
 
-  // Content-area drag: allow swiping on the list itself to expand/collapse the
-  // sheet, but only when it wouldn't conflict with in-list scrolling.
-  //
-  // Rules (the max snap is 'mid' — sheet never goes higher than that):
-  // - At 'peek' → any swipe drags the sheet.
-  // - At 'mid' and swipe is DOWN at the top of the list → drag sheet down.
-  // - At 'mid' and swipe is UP → let the list scroll internally.
-  // - At 'mid' and swipe is DOWN but list is scrolled past top → let the list scroll.
+  // Content-area drag: only attach a sheet-drag gesture to the list when the
+  // sheet is collapsed ('peek'). At 'mid' we DON'T register any touch
+  // listeners on the list at all — that way iOS Safari's native scroll
+  // physics work without interference.
   useEffect(() => {
     const content = contentRef.current
     const sheet   = sheetNode.current
     if (!content || !sheet) return
+    if (!isMobile()) return
+    if (snap !== 'peek') return
 
     let touchState: {
       startY: number
       basePx: number
-      intercepted: boolean
-      decided: boolean
+      active: boolean
     } | null = null
 
     const onTouchStart = (e: TouchEvent) => {
-      if (!isMobile()) return
       if (e.touches.length !== 1) return
       const h = sheet.getBoundingClientRect().height
       touchState = {
         startY: e.touches[0].clientY,
         basePx: snapToPx(snapRef.current, h),
-        intercepted: false,
-        decided: false,
+        active: false,
       }
     }
 
     const onTouchMove = (e: TouchEvent) => {
       if (!touchState) return
       const dy = e.touches[0].clientY - touchState.startY
-
-      if (!touchState.decided) {
-        if (Math.abs(dy) < 6) return // wait for meaningful gesture
-        const atTop = content.scrollTop <= 0
-        const atPeek = snapRef.current === 'peek'
-        if (atPeek) {
-          // Sheet is collapsed → any swipe drags the sheet.
-          touchState.intercepted = true
-        } else if (atTop && dy > 0) {
-          // Expanded + at top of list + swipe down → drag sheet down.
-          touchState.intercepted = true
-        } else {
-          // Expanded + swipe up or list already scrolled → let list scroll.
-          touchState.intercepted = false
-        }
-        touchState.decided = true
-        if (touchState.intercepted) setDragging(true)
+      if (!touchState.active) {
+        if (Math.abs(dy) < 6) return
+        touchState.active = true
+        setDragging(true)
       }
-
-      if (!touchState.intercepted) return
-
       e.preventDefault()
       const h = sheet.getBoundingClientRect().height
       const upperCap = Math.max(0, h - MID_VISIBLE_PX)
@@ -208,7 +187,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
 
     const onTouchEnd = (e: TouchEvent) => {
       if (!touchState) return
-      if (touchState.intercepted) {
+      if (touchState.active) {
         const h = sheet.getBoundingClientRect().height
         const upperCap = Math.max(0, h - MID_VISIBLE_PX)
         const dy = (e.changedTouches[0]?.clientY ?? touchState.startY) - touchState.startY
@@ -229,7 +208,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       content.removeEventListener('touchend',   onTouchEnd)
       content.removeEventListener('touchcancel', onTouchEnd)
     }
-  }, [applyY])
+  }, [applyY, snap])
 
   const collapse = useCallback(() => setSnap('peek'), [])
   const expand   = useCallback(() => setSnap('mid'),  [])

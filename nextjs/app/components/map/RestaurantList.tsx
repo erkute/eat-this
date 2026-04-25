@@ -67,10 +67,9 @@ function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
       <div className={styles.rowSide}>
         {distance && <span className={styles.rowDistance}>{distance}</span>}
         {status.label && (
-          <span className={`${styles.doorSign} ${styles.doorSignMini} ${status.isOpen ? styles.doorSignOpen : styles.doorSignClosed}`}>
-            <span className={styles.doorSignText}>
-              {status.isOpen ? t('map.open') : t('map.closed')}
-            </span>
+          <span className={`${styles.statusPill} ${status.isOpen ? styles.statusPillOpen : styles.statusPillClosed}`}>
+            <span className={styles.statusDot} aria-hidden="true" />
+            {status.isOpen ? t('map.open') : t('map.closed')}
           </span>
         )}
       </div>

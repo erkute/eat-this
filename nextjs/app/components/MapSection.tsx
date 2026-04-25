@@ -283,6 +283,7 @@ export default function MapSection({ isActive = false }: Props) {
     openOnly, onOpenOnly: setOpenOnly,
     showCategory: layer === 'restaurants',
     layer, onLayer: setLayer,
+    onLocate: handleLocateMe,
   }
 
   return (

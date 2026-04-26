@@ -1,0 +1,186 @@
+/* ════════════════════════════════════════════════════════════
+   Landing redesign — shared module styles
+   Mobile-first; @media(min-width:768px) for desktop overrides.
+   Colors:
+     CTA red    #b71c1c   primary action buttons
+     Mustard    #c8951a   sec-labels, highlights, FAQ icons
+     Yellow     #f5c518   booster-pack starburst (matches print)
+     Black      #1a1a1a   headlines + secondary buttons
+   ════════════════════════════════════════════════════════════ */
+
+.secLabel {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #c8951a;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+/* ── INTRO ─────────────────────────────────────────────────── */
+.intro {
+  padding: 32px 22px 28px;
+  background: #fff;
+  border-bottom: 1px solid #ece9e3;
+}
+.introHeadline {
+  font-size: 24px;
+  font-weight: 900;
+  color: #1a1a1a;
+  line-height: 1.12;
+  margin: 0 0 12px;
+  letter-spacing: -0.01em;
+}
+.introSubtitle {
+  font-size: 14px;
+  color: #888;
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .intro {
+    padding: 72px 80px 56px;
+  }
+  .introHeadline {
+    font-size: 38px;
+    margin-bottom: 14px;
+    line-height: 1.08;
+  }
+  .introSubtitle {
+    font-size: 16px;
+    line-height: 1.7;
+    max-width: 640px;
+  }
+}
+
+/* ── TICKER (airport boarding screen) ──────────────────────── */
+@keyframes landingTicker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.ticker {
+  overflow: hidden;
+  background: #0a0a0a;
+  border-top: 1px solid #1a1a1a;
+  border-bottom: 1px solid #1a1a1a;
+  padding: 9px 0;
+}
+.tickerTrack {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: landingTicker 55s linear infinite;
+}
+.tickerItem {
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 18px;
+  color: #f5c518;
+  text-shadow: 0 0 8px rgba(245, 197, 24, 0.55), 0 0 2px rgba(245, 197, 24, 0.9);
+  padding: 0 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tickerSep {
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 18px;
+  color: #f5c518;
+  text-shadow: 0 0 8px rgba(245, 197, 24, 0.55);
+  padding: 0 2px;
+  opacity: 0.55;
+}
+
+@media (min-width: 768px) {
+  .ticker { padding: 11px 0; }
+  .tickerItem,
+  .tickerSep { font-size: 22px; padding-left: 18px; padding-right: 18px; }
+  .tickerTrack { animation-duration: 65s; }
+}
+
+/* ── ABOUT ─────────────────────────────────────────────────── */
+.about {
+  padding: 28px 22px;
+  background: #fff;
+}
+.aboutHeadline {
+  font-size: 21px;
+  font-weight: 900;
+  color: #1a1a1a;
+  line-height: 1.18;
+  margin: 0 0 10px;
+  letter-spacing: -0.01em;
+}
+.aboutBody {
+  font-size: 14px;
+  color: #888;
+  line-height: 1.68;
+  margin: 0 0 8px;
+}
+
+@media (min-width: 768px) {
+  .about {
+    padding: 96px 80px;
+  }
+  .aboutHeadline {
+    font-size: 38px;
+    line-height: 1.12;
+    margin-bottom: 16px;
+  }
+  .aboutBody {
+    font-size: 16px;
+    line-height: 1.72;
+    max-width: 600px;
+  }
+}
+
+/* ── FAN CARDS ─────────────────────────────────────────────── */
+.fanWrap {
+  background: #fff;
+  overflow: visible;
+  padding: 8px 0 24px;
+}
+.fanStage {
+  position: relative;
+  height: 300px;
+  overflow: visible;
+}
+.fanCard {
+  width: 188px;
+  aspect-ratio: 2 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  margin-left: -94px;
+  transform-origin: bottom center;
+  transform: rotate(0deg);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.fanCard img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.fc1 { z-index: 1; }
+.fc2 { z-index: 2; }
+.fc3 { z-index: 3; }
+.fc4 { z-index: 4; }
+.fc5 { z-index: 5; }
+
+@media (min-width: 768px) {
+  .fanWrap {
+    padding: 0 0 96px;
+  }
+  .fanStage {
+    height: 360px;
+  }
+  .fanCard {
+    width: 240px;
+    margin-left: -120px;
+    border-radius: 14px;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}

@@ -21,7 +21,7 @@ import MustEatDetail from './map/MustEatDetail'
 import UserLocationMarker from './map/UserLocationMarker'
 import MapToolbar from './map/MapToolbar'
 import CategoryFilter from './map/CategoryFilter'
-import OpenNowToggle from './map/OpenNowToggle'
+import FilterDropdown, { type SortOption } from './map/FilterDropdown'
 import { auth } from '@/lib/firebase/config'
 import styles from './map/map.module.css'
 
@@ -64,6 +64,8 @@ export default function MapSection({ isActive = false }: Props) {
   const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
   const [selectedMustEat,    setSelectedMustEat]    = useState<MapMustEat | null>(null)
   const [sheetView,          setSheetView]          = useState<'list' | 'detail'>('list')
+  const [sort,               setSort]               = useState<'distance' | 'name'>('distance')
+  const [filterOpen,         setFilterOpen]         = useState(false)
 
   /* ---------- Bezirk list + centroid map ---------- */
   const { bezirkNames, bezirkCenters } = useMemo(() => {
@@ -107,10 +109,18 @@ export default function MapSection({ isActive = false }: Props) {
     return true
   }, [category, bezirk, openOnly, search])
 
-  const displayedRestaurants = useMemo(
-    () => restaurants.filter(filterRestaurant),
-    [restaurants, filterRestaurant]
-  )
+  const displayedRestaurants = useMemo(() => {
+    const filtered = restaurants.filter(filterRestaurant)
+    if (sort === 'name') {
+      return [...filtered].sort((a, b) => a.name.localeCompare(b.name, 'de'))
+    }
+    if (!location) return filtered
+    return [...filtered].sort((a, b) => {
+      const aD = haversineDistance(location.lat, location.lng, a.lat, a.lng)
+      const bD = haversineDistance(location.lat, location.lng, b.lat, b.lng)
+      return aD - bD
+    })
+  }, [restaurants, filterRestaurant, sort, location])
 
   const { updateBounds } = useBounds(displayedRestaurants, location)
 
@@ -480,17 +490,42 @@ export default function MapSection({ isActive = false }: Props) {
                 </div>
               ) : layer === 'restaurants' ? (
                 <>
-                  <div className={styles.listBanner}>
-                    <div className={styles.listCountGroup}>
-                      <span className={styles.listCountNum}>{displayedRestaurants.length}</span>
-                      <span className={styles.listCountLabel}>
+                  <div className={styles.listHeader}>
+                    <div className={styles.listHeaderRow}>
+                      <span className={styles.listHeaderCount}>
+                        {displayedRestaurants.length}{' '}
                         {displayedRestaurants.length === 1 ? t('map.restaurantOne') : t('map.restaurantMany')}
                       </span>
+                      <div className={styles.listHeaderActions}>
+                        <button
+                          type="button"
+                          className={`${styles.filterIconBtn} ${(openOnly || bezirk || sort !== 'distance') ? styles.filterIconBtnActive : ''}`}
+                          onClick={() => setFilterOpen(v => !v)}
+                          aria-label="Filter und Sortierung"
+                          aria-expanded={filterOpen}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <line x1="4" y1="6" x2="20" y2="6" />
+                            <line x1="7" y1="12" x2="17" y2="12" />
+                            <line x1="10" y1="18" x2="14" y2="18" />
+                          </svg>
+                          {(openOnly || bezirk || sort !== 'distance') && <span className={styles.filterActiveDot} aria-hidden="true" />}
+                        </button>
+                      </div>
                     </div>
-                    <OpenNowToggle active={openOnly} onChange={setOpenOnly} />
-                  </div>
-                  <div className={styles.sheetCategories}>
-                    <CategoryFilter active={category} onChange={setCategory} />
+                    <CategoryFilter active={category} onChange={setCategory} variant="tabs" />
+                    {filterOpen && (
+                      <FilterDropdown
+                        sort={sort}
+                        onSort={s => { setSort(s as SortOption) }}
+                        openOnly={openOnly}
+                        onOpenOnly={setOpenOnly}
+                        bezirke={bezirkNames}
+                        bezirk={bezirk}
+                        onBezirk={handleBezirkChange}
+                        onClose={() => setFilterOpen(false)}
+                      />
+                    )}
                   </div>
                   <div ref={contentRef} className={styles.listScroll}>
                     <RestaurantList

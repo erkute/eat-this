@@ -3871,3 +3871,92 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   transition: transform .2s;
 }
 .filterToggleOn .filterToggleThumb { transform: translateX(12px); }
+
+/* ── CategoryFilter tab-bar variant ─────────────────────── */
+.categoryTabs {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid #1f1f1f;
+}
+.categoryTabs::-webkit-scrollbar { display: none; }
+
+.categoryTab {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: #555;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+}
+.categoryTab:hover { color: #aaa; }
+
+.categoryTabActive {
+  color: #fff;
+  font-weight: 700;
+}
+.categoryTabActive::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #fff;
+  border-radius: 1px 1px 0 0;
+}
+
+/* ── New mobile list header ──────────────────────────────── */
+.listHeader {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.listHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px 8px;
+}
+
+.listHeaderCount {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.listHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filterIconBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1e1e1e;
+  border: none;
+  border-radius: 8px;
+  color: #888;
+  cursor: pointer;
+  position: relative;
+}
+.filterIconBtn:hover { color: #fff; }
+.filterIconBtnActive { color: #fff; }
+
+.filterActiveDot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 5px;
+  height: 5px;
+  background: #fff;
+  border-radius: 50%;
+  pointer-events: none;
+}

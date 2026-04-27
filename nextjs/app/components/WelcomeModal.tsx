@@ -27,6 +27,11 @@ export default function WelcomeModal() {
     window.openWelcomeModal  = open;
     window.closeWelcomeModal = close;
     window.openLoginModal    = open;
+    return () => {
+      window.openWelcomeModal  = undefined;
+      window.closeWelcomeModal = undefined;
+      window.openLoginModal    = undefined;
+    };
   }, [open, close]);
 
   // ─── Panel switching ───────────────────────────────────────────────────────
@@ -109,7 +114,7 @@ export default function WelcomeModal() {
   // ─── JSX ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="wm-overlay" id="welcomeModal" ref={overlayRef} aria-modal role="dialog" aria-label="Welcome to Eat This">
+    <div className="wm-overlay" id="welcomeModal" ref={overlayRef} aria-modal={true} role="dialog" aria-label="Welcome to Eat This">
       <div className="wm-backdrop" id="wmBackdrop"></div>
       <div className="wm-dialog">
 
@@ -211,8 +216,3 @@ export default function WelcomeModal() {
   );
 }
 
-declare global {
-  interface Window {
-    showOnboarding?: () => void;
-  }
-}

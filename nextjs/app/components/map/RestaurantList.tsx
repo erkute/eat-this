@@ -106,12 +106,9 @@ export default function RestaurantList({ restaurants, userLocation, selectedId, 
     )
   }
 
-  const withDist = restaurants
-    .map(r => ({ r, dist: haversineDistance(userLocation.lat, userLocation.lng, r.lat, r.lng) }))
-
   return (
     <>
-      {withDist.map(({ r }) => (
+      {restaurants.map(r => (
         <Item key={r._id} restaurant={r} userLocation={userLocation} isSelected={selectedId === r._id} onClick={onSelect} />
       ))}
     </>

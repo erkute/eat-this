@@ -36,7 +36,7 @@ export default function CategoryFilter({ active, onChange, variant = 'chips' }: 
             className={`${styles.categoryTab} ${active === c ? styles.categoryTabActive : ''}`}
             onClick={() => onChange(c)}
           >
-            {t(`map.filter${c}` as any)}
+            {t(LABEL_KEY[c])}
           </button>
         ))}
       </div>

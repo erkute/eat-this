@@ -35,6 +35,7 @@ function districtOf(r: MapRestaurant): string | null {
 
 export default function MapSection({ isActive = false }: Props) {
   const mapRef = useRef<MapRef>(null)
+  const filterBtnRef = useRef<HTMLButtonElement>(null)
   // Set true synchronously in any click handler that flies the camera so
   // the slow auto-locate Promise can't overwrite the user's selection.
   const userInteractedRef = useRef(false)
@@ -498,6 +499,7 @@ export default function MapSection({ isActive = false }: Props) {
                       </span>
                       <div className={styles.listHeaderActions}>
                         <button
+                          ref={filterBtnRef}
                           type="button"
                           className={`${styles.filterIconBtn} ${(openOnly || bezirk || sort !== 'distance') ? styles.filterIconBtnActive : ''}`}
                           onClick={() => setFilterOpen(v => !v)}
@@ -524,6 +526,7 @@ export default function MapSection({ isActive = false }: Props) {
                         bezirk={bezirk}
                         onBezirk={handleBezirkChange}
                         onClose={() => setFilterOpen(false)}
+                        anchorEl={filterBtnRef.current}
                       />
                     )}
                   </div>

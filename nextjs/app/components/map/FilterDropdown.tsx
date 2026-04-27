@@ -1,5 +1,6 @@
 'use client'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useLayoutEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import styles from './map.module.css'
 
 export type SortOption = 'distance' | 'name'
@@ -13,6 +14,7 @@ interface FilterDropdownProps {
   bezirk: string | null
   onBezirk: (b: string | null) => void
   onClose: () => void
+  anchorEl?: HTMLElement | null
 }
 
 function CheckIcon() {
@@ -24,20 +26,47 @@ function CheckIcon() {
 }
 
 export default function FilterDropdown({
-  sort, onSort, openOnly, onOpenOnly, bezirke, bezirk, onBezirk, onClose,
+  sort, onSort, openOnly, onOpenOnly, bezirke, bezirk, onBezirk, onClose, anchorEl,
 }: FilterDropdownProps) {
   const ref = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState<{ top: number; right: number } | null>(null)
 
+  // Compute fixed position from anchor element — same pattern as BezirkFilter
+  // so the `.list` overflow:hidden doesn't clip the dropdown.
+  useLayoutEffect(() => {
+    if (!anchorEl) return
+    const update = () => {
+      const r = anchorEl.getBoundingClientRect()
+      setPos({ top: r.bottom + 6, right: window.innerWidth - r.right })
+    }
+    update()
+    window.addEventListener('resize', update)
+    window.addEventListener('scroll', update, true)
+    return () => {
+      window.removeEventListener('resize', update)
+      window.removeEventListener('scroll', update, true)
+    }
+  }, [anchorEl])
+
+  // Outside-click + touchstart close (Fix 3: add touchstart alongside mousedown)
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
+    const handler = (e: MouseEvent | TouchEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) onClose()
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    document.addEventListener('mousedown', handler as EventListener)
+    document.addEventListener('touchstart', handler as EventListener)
+    return () => {
+      document.removeEventListener('mousedown', handler as EventListener)
+      document.removeEventListener('touchstart', handler as EventListener)
+    }
   }, [onClose])
 
-  return (
-    <div ref={ref} className={styles.filterDropdown}>
+  const dropdown = (
+    <div
+      ref={ref}
+      className={styles.filterDropdown}
+      style={pos ? { top: pos.top, right: pos.right } : undefined}
+    >
       <div className={styles.filterDropdownSection}>
         <div className={styles.filterDropdownLabel}>Sortieren</div>
         {(['distance', 'name'] as SortOption[]).map(opt => (
@@ -97,4 +126,9 @@ export default function FilterDropdown({
       )}
     </div>
   )
+
+  // Portal into document.body (same as BezirkFilter) so the sheet's
+  // overflow:hidden doesn't clip the fixed-positioned dropdown.
+  if (typeof document === 'undefined') return null
+  return createPortal(dropdown, document.body)
 }

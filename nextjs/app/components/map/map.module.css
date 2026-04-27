@@ -1011,18 +1011,8 @@ html[data-theme="dark"] .fab {
   }
 }
 
-/* ---- Legacy list header (used by must-eats layer) ---- */
-.listHeader {
-  flex-shrink: 0;
-  padding: 6px 16px 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
 @media (max-width: 1023.98px) {
   .listHeaderDesktopOnly { display: none; }
-  .listHeader { padding: 4px 14px 6px; }
 }
 .listTitle {
   font-size: 14px;
@@ -3801,11 +3791,11 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
 }
 
 /* ── FilterDropdown ─────────────────────────────────────── */
+/* Portaled into document.body (same as BezirkFilter) so the sheet's
+   overflow:hidden doesn't clip it. top/right come from inline style. */
 .filterDropdown {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  z-index: 50;
+  position: fixed;
+  z-index: 200;
   background: #1e1e1e;
   border: 1px solid #2a2a2a;
   border-radius: 14px;

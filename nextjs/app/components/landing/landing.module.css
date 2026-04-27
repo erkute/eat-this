@@ -885,7 +885,7 @@
 /* Flat oval red stamp — wider than tall so longer text fits on one line */
 .newsBadge {
   position: absolute;
-  top: -8px;
+  bottom: -10px;
   right: -22px;
   width: 96px;
   height: 52px;
@@ -978,7 +978,7 @@
     max-width: 880px;
   }
   .newsVisual { width: 200px; height: 300px; }
-  .newsBadge { width: 124px; height: 64px; top: -14px; right: -28px; }
+  .newsBadge { width: 124px; height: 64px; bottom: -14px; right: -28px; top: auto; }
   .newsBadgeText { font-size: 13px; }
   .newsCopy { flex: 1; align-items: flex-start; }
   .news h2 { font-size: 38px; line-height: 1.08; }

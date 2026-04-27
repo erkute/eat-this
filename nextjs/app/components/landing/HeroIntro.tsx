@@ -9,6 +9,7 @@ export default function HeroIntro() {
   const { sendLink, state, errorMessage } = useMagicLink();
   const [email, setEmail] = useState('');
 
+  // HeroIntro is a pure signup CTA — no content value for signed-in users (unlike BoosterPack/Newsletter)
   if (user) return null;
 
   return (

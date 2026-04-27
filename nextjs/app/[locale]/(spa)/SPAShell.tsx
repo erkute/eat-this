@@ -3,8 +3,7 @@ import SiteFooter from '@/app/components/SiteFooter';
 import NewsSection from '@/app/components/NewsSection';
 import StaticPages from '@/app/components/StaticPages';
 import Ticker from '@/app/components/landing/Ticker';
-import About from '@/app/components/landing/About';
-import FanCards from '@/app/components/landing/FanCards';
+import AboutFanRow from '@/app/components/landing/AboutFanRow';
 import USPs from '@/app/components/landing/USPs';
 import MemoryGame from '@/app/components/landing/MemoryGame';
 import MapTeaser from '@/app/components/landing/MapTeaser';
@@ -40,8 +39,7 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
         <div className={`app-page${startActive ? ' active' : ''}`} data-page="start" suppressHydrationWarning>
           <HeroSection />
           <div className="start-scroll-content">
-            <About />
-            <FanCards />
+            <AboutFanRow />
             <Ticker />
             <USPs />
             <MemoryGame />

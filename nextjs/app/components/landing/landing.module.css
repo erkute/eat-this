@@ -956,3 +956,124 @@
   }
   .heroSubmit:hover { background: #9a1818; }
 }
+
+/* ── ABOUT + FAN ROW (2-col on desktop) ────────────────────── */
+.aboutFanRow {
+  background: #fff;
+  /* mobile: stacked, children keep their own padding/spacing */
+}
+@media (min-width: 1024px) {
+  .aboutFanRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 96px 80px;
+    gap: 80px;
+    border-bottom: 1px solid #ece9e3;
+  }
+  /* Strip nested sections' padding on desktop — grid owns the page padding */
+  .aboutFanRow > section {
+    padding: 0;
+    background: transparent;
+  }
+  .aboutFanRow > section[class*="fanWrap"] {
+    padding-bottom: 0;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   DARK MODE — applies when [data-theme="dark"] is set on <html>
+   Dark palette:
+     #0a0a0a   page background (deepest)
+     #1a1a1a   card / panel surfaces
+     #2a2a2a   borders / dividers / inputs
+     #fff      primary text
+     #888      muted text (same as light, looks fine)
+     mustard #c8951a stays the brand accent
+   ════════════════════════════════════════════════════════════ */
+
+/* About + FanRow */
+:global([data-theme="dark"]) .aboutFanRow,
+:global([data-theme="dark"]) .about,
+:global([data-theme="dark"]) .fanWrap { background: #0a0a0a; }
+:global([data-theme="dark"]) .aboutFanRow { border-bottom-color: #2a2a2a; }
+:global([data-theme="dark"]) .aboutStats {
+  color: #888;
+  border-bottom-color: #2a2a2a;
+}
+:global([data-theme="dark"]) .aboutHeadline { color: #fff; }
+
+/* USPs */
+:global([data-theme="dark"]) .usps {
+  background: #0a0a0a;
+  border-bottom-color: #2a2a2a;
+}
+:global([data-theme="dark"]) .uspsHeadHeadline { color: #fff; }
+:global([data-theme="dark"]) .usp { border-color: #2a2a2a; }
+:global([data-theme="dark"]) .usp:last-child { border-bottom-color: #2a2a2a; }
+:global([data-theme="dark"]) .uspBody h3 { color: #fff; }
+
+/* Memory game */
+:global([data-theme="dark"]) .game {
+  background: #0a0a0a;
+  border-bottom-color: #2a2a2a;
+}
+:global([data-theme="dark"]) .gameHead h2 { color: #fff; }
+:global([data-theme="dark"]) .memBack { background-color: #2a2a2a; }
+
+/* Map teaser */
+:global([data-theme="dark"]) .mapTeaser {
+  background: #1a1a1a;
+  border-bottom-color: #2a2a2a;
+}
+:global([data-theme="dark"]) .mapTeaserHead h2 { color: #fff; }
+:global([data-theme="dark"]) .mapVideo {
+  background: #2a2a2a;
+  border-color: #333;
+  color: #555;
+}
+:global([data-theme="dark"]) .mapTab {
+  border-color: #2a2a2a;
+  color: #888;
+}
+:global([data-theme="dark"]) .mapTab.active {
+  background: #fff;
+  border-color: #fff;
+  color: #1a1a1a;
+}
+
+/* Booster pack — already dark; deepen the surface to separate from neighbours */
+:global([data-theme="dark"]) .pack {
+  background: #050505;
+  border-top-color: #1a1a1a;
+}
+
+/* Coming */
+:global([data-theme="dark"]) .coming {
+  background: #0a0a0a;
+  border-bottom-color: #2a2a2a;
+}
+:global([data-theme="dark"]) .coming h2 { color: #fff; }
+
+/* FAQ */
+:global([data-theme="dark"]) .faq {
+  background: #0a0a0a;
+  border-top-color: #2a2a2a;
+}
+:global([data-theme="dark"]) .faq h2 { color: #fff; }
+:global([data-theme="dark"]) .faqItem,
+:global([data-theme="dark"]) .faqItem:last-child { border-color: #2a2a2a; }
+:global([data-theme="dark"]) .faqQ { color: #fff; }
+
+/* Newsletter — mobile turns dark; desktop already dark */
+:global([data-theme="dark"]) .news {
+  background: #1a1209;
+  border-top-color: #2a1c10;
+}
+:global([data-theme="dark"]) .news h2 { color: #fff; }
+:global([data-theme="dark"]) .newsInput {
+  background: #2a2a2a;
+  border-color: #2a2a2a;
+  color: #fff;
+}
+:global([data-theme="dark"]) .newsInput::placeholder { color: #666; }

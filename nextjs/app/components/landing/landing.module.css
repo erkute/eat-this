@@ -893,40 +893,6 @@
   filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.5));
   transform: rotate(-6deg);
 }
-/* Flat oval red stamp — wider than tall so longer text fits on one line */
-.newsBadge {
-  position: absolute;
-  bottom: -10px;
-  right: -22px;
-  width: 96px;
-  height: 52px;
-  border-radius: 50%;
-  background: #b71c1c;
-  border: 2px solid #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: rotate(-10deg);
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
-}
-.newsBadge::before {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  border: 1px dashed rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
-}
-.newsBadgeText {
-  position: relative;
-  z-index: 1;
-  font-size: 11px;
-  font-weight: 900;
-  color: #fff;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
-  line-height: 1;
-}
 .newsCopy { display: flex; flex-direction: column; align-items: center; }
 .news .secLabel { color: #c8951a; }
 .news h2 {
@@ -989,8 +955,6 @@
     max-width: 880px;
   }
   .newsVisual { width: 200px; height: 300px; }
-  .newsBadge { width: 124px; height: 64px; bottom: -14px; right: -28px; top: auto; }
-  .newsBadgeText { font-size: 13px; }
   .newsCopy { flex: 1; align-items: flex-start; }
   .news h2 { font-size: 38px; line-height: 1.08; }
   .news p { font-size: 16px; line-height: 1.6; max-width: 480px; }

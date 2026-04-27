@@ -15,9 +15,6 @@ export default function Newsletter() {
             loading="lazy"
             decoding="async"
           />
-          <div className={styles.newsBadge}>
-            <span className={styles.newsBadgeText}>Bon Appetit</span>
-          </div>
         </div>
         <div className={styles.newsCopy}>
           <span className={styles.secLabel}>Newsletter</span>

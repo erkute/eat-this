@@ -3795,8 +3795,8 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
    anchored to the right of the .listHeader (which is position: relative). */
 .filterDropdown {
   position: absolute;
-  top: calc(100% + 4px);
-  right: 14px;
+  top: calc(100% + 6px);
+  right: 0;
   z-index: 50;
   background: var(--surface-raised);
   border: 1px solid var(--border-strong);
@@ -3933,6 +3933,7 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   display: flex;
   align-items: center;
   gap: 6px;
+  position: relative;
 }
 
 .filterIconBtn {

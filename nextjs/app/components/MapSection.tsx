@@ -530,7 +530,7 @@ export default function MapSection({ isActive = false }: Props) {
                             ref={filterBtnRef}
                             type="button"
                             className={`${styles.filterIconBtn} ${(openOnly || bezirk || sort !== 'distance') ? styles.filterIconBtnActive : ''}`}
-                            onClick={() => setFilterOpen(true)}
+                            onClick={() => setFilterOpen(v => !v)}
                             aria-label="Filter und Sortierung"
                             aria-expanded={filterOpen}
                           >
@@ -541,23 +541,23 @@ export default function MapSection({ isActive = false }: Props) {
                             </svg>
                             {(openOnly || bezirk || sort !== 'distance') && <span className={styles.filterActiveDot} aria-hidden="true" />}
                           </button>
+                          {filterOpen && (
+                            <FilterDropdown
+                              sort={sort}
+                              onSort={s => { setSort(s as SortOption) }}
+                              openOnly={openOnly}
+                              onOpenOnly={setOpenOnly}
+                              bezirke={bezirkNames}
+                              bezirk={bezirk}
+                              onBezirk={handleBezirkChange}
+                              onClose={() => setFilterOpen(false)}
+                              anchorEl={filterBtnRef.current}
+                            />
+                          )}
                         </div>
                       </div>
                     )}
                     <CategoryFilter active={category} onChange={setCategory} variant="tabs" />
-                    {filterOpen && (
-                      <FilterDropdown
-                        sort={sort}
-                        onSort={s => { setSort(s as SortOption) }}
-                        openOnly={openOnly}
-                        onOpenOnly={setOpenOnly}
-                        bezirke={bezirkNames}
-                        bezirk={bezirk}
-                        onBezirk={handleBezirkChange}
-                        onClose={() => setFilterOpen(false)}
-                        anchorEl={filterBtnRef.current}
-                      />
-                    )}
                   </div>
                   <div ref={contentRef} className={styles.listScroll}>
                     <RestaurantList

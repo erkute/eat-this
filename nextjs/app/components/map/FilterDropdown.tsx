@@ -48,10 +48,17 @@ export default function FilterDropdown({
     }
   }, [anchorEl])
 
-  // Outside-click + touchstart close (Fix 3: add touchstart alongside mousedown)
+  // Outside-click close. We exclude clicks on the anchor element (filter
+  // button) so its own onClick can toggle the dropdown without this listener
+  // racing it. React's e.stopPropagation() doesn't stop native events from
+  // reaching document-level listeners, so the anchor check is the reliable
+  // approach.
   useEffect(() => {
     const handler = (e: MouseEvent | TouchEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose()
+      const target = e.target as Node
+      if (ref.current && ref.current.contains(target)) return
+      if (anchorEl && anchorEl.contains(target)) return
+      onClose()
     }
     document.addEventListener('mousedown', handler as EventListener)
     document.addEventListener('touchstart', handler as EventListener)
@@ -59,7 +66,7 @@ export default function FilterDropdown({
       document.removeEventListener('mousedown', handler as EventListener)
       document.removeEventListener('touchstart', handler as EventListener)
     }
-  }, [onClose])
+  }, [onClose, anchorEl])
 
   const dropdown = (
     <div

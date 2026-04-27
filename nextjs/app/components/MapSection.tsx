@@ -19,7 +19,6 @@ import RestaurantList from './map/RestaurantList'
 import RestaurantDetail from './map/RestaurantDetail'
 import MustEatDetail from './map/MustEatDetail'
 import UserLocationMarker from './map/UserLocationMarker'
-import MapToolbar from './map/MapToolbar'
 import CategoryFilter from './map/CategoryFilter'
 import FilterDropdown, { type SortOption } from './map/FilterDropdown'
 import { auth } from '@/lib/firebase/config'
@@ -67,6 +66,7 @@ export default function MapSection({ isActive = false }: Props) {
   const [sheetView,          setSheetView]          = useState<'list' | 'detail'>('list')
   const [sort,               setSort]               = useState<'distance' | 'name'>('distance')
   const [filterOpen,         setFilterOpen]         = useState(false)
+  const [searchOpen,         setSearchOpen]         = useState(false)
 
   /* ---------- Bezirk list + centroid map ---------- */
   const { bezirkNames, bezirkCenters } = useMemo(() => {
@@ -382,11 +382,6 @@ export default function MapSection({ isActive = false }: Props) {
   }, [requestLocation])
 
   /* ---------- Render ---------- */
-  const toolbarProps = {
-    search, onSearch: handleSearchChange,
-    bezirke: bezirkNames, bezirk, onBezirk: handleBezirkChange,
-  }
-
   return (
     <div
       className={`app-page${isActive ? ' active' : ''}`}
@@ -407,7 +402,6 @@ export default function MapSection({ isActive = false }: Props) {
 
           <div className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}`}>
             <div className={styles.mapWrap}>
-              <MapToolbar variant="desktop" {...toolbarProps} />
               <MapCanvas ref={mapRef} onMove={handleMapMove} onMapClick={handleMapClick}>
                 {layer === 'restaurants' && displayedRestaurants.map(r => (
                   <RestaurantMarker
@@ -447,8 +441,6 @@ export default function MapSection({ isActive = false }: Props) {
                   <circle cx="12" cy="12" r="2" fill="currentColor" />
                 </svg>
               </button>
-
-              <MapToolbar variant="mobile" {...toolbarProps} />
 
               {/* Desktop floating modals removed — both mobile and desktop now
                   render the detail in the side panel / bottom sheet so the
@@ -492,31 +484,66 @@ export default function MapSection({ isActive = false }: Props) {
               ) : layer === 'restaurants' ? (
                 <>
                   <div className={styles.listHeader}>
-                    <div className={styles.listHeaderRow}>
-                      <span className={styles.listHeaderCount}>
-                        {displayedRestaurants.length}{' '}
-                        {displayedRestaurants.length === 1 ? t('map.restaurantOne') : t('map.restaurantMany')}
-                      </span>
-                      <div className={styles.listHeaderActions}>
+                    {searchOpen ? (
+                      <div className={styles.listHeaderRow}>
+                        <input
+                          type="text"
+                          autoFocus
+                          value={search}
+                          onChange={e => handleSearchChange(e.target.value)}
+                          placeholder={t('map.searchPlaceholder')}
+                          className={styles.searchInputInline}
+                          aria-label={t('nav.searchAriaLabel') ?? 'Search'}
+                        />
                         <button
-                          ref={filterBtnRef}
                           type="button"
-                          className={`${styles.filterIconBtn} ${(openOnly || bezirk || sort !== 'distance') ? styles.filterIconBtnActive : ''}`}
-                          onMouseDown={e => e.stopPropagation()}
-                          onTouchStart={e => e.stopPropagation()}
-                          onClick={() => setFilterOpen(v => !v)}
-                          aria-label="Filter und Sortierung"
-                          aria-expanded={filterOpen}
+                          className={styles.searchCloseBtn}
+                          onClick={() => { setSearchOpen(false); handleSearchChange('') }}
+                          aria-label="Suche schließen"
                         >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                            <line x1="4" y1="6" x2="20" y2="6" />
-                            <line x1="7" y1="12" x2="17" y2="12" />
-                            <line x1="10" y1="18" x2="14" y2="18" />
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                            <line x1="18" y1="6" x2="6" y2="18" />
                           </svg>
-                          {(openOnly || bezirk || sort !== 'distance') && <span className={styles.filterActiveDot} aria-hidden="true" />}
                         </button>
                       </div>
-                    </div>
+                    ) : (
+                      <div className={styles.listHeaderRow}>
+                        <span className={styles.listHeaderCount}>
+                          {displayedRestaurants.length}{' '}
+                          {displayedRestaurants.length === 1 ? t('map.restaurantOne') : t('map.restaurantMany')}
+                        </span>
+                        <div className={styles.listHeaderActions}>
+                          <button
+                            type="button"
+                            className={`${styles.filterIconBtn} ${search ? styles.filterIconBtnActive : ''}`}
+                            onClick={() => setSearchOpen(true)}
+                            aria-label="Suchen"
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                              <circle cx="11" cy="11" r="7" />
+                              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                            {search && <span className={styles.filterActiveDot} aria-hidden="true" />}
+                          </button>
+                          <button
+                            ref={filterBtnRef}
+                            type="button"
+                            className={`${styles.filterIconBtn} ${(openOnly || bezirk || sort !== 'distance') ? styles.filterIconBtnActive : ''}`}
+                            onClick={() => setFilterOpen(v => !v)}
+                            aria-label="Filter und Sortierung"
+                            aria-expanded={filterOpen}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                              <line x1="4" y1="6" x2="20" y2="6" />
+                              <line x1="7" y1="12" x2="17" y2="12" />
+                              <line x1="10" y1="18" x2="14" y2="18" />
+                            </svg>
+                            {(openOnly || bezirk || sort !== 'distance') && <span className={styles.filterActiveDot} aria-hidden="true" />}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <CategoryFilter active={category} onChange={setCategory} variant="tabs" />
                     {filterOpen && (
                       <FilterDropdown

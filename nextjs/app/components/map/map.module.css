@@ -1189,25 +1189,25 @@ html[data-theme="dark"] .listBanner {
 .listScroll {
   flex: 1;
   overflow-y: auto;
-  padding: 0 12px;
+  padding: 0;
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
 }
 /* Mobile only: cap scroll viewport to the sheet's visible area so content
    below the overflow-hidden clip edge is actually reachable via scrolling.
-   Numbers measured from the actual rendered heights:
-     handle:          36 px
-     listBanner:      ~52 px (padding 10+10 + content ~32 px)
-     sheetCategories: ~44 px (chip strip + bottom border)
-     mustEatsBack:    ~36 px (padding 10+10 + 12 px text)
-   Restaurant list reserves handle + banner + categories = 132 px.
-   Must-eat list reserves handle + back = 72 px. */
+   Heights after the slim-header redesign:
+     handle:          20 px (8 + 4 + 5 pill + ~3 buffer)
+     listHeaderRow:   ~38 px (count + 30px button + padding 4+6)
+     categoryTabs:    ~32 px (7+7 padding + 12 px text + 1 border)
+     mustEatsBack:    ~36 px
+   Restaurant list reserves handle + headerRow + tabs ≈ 90 px.
+   Must-eat list reserves handle + back ≈ 56 px. */
 @media (max-width: 1023.98px) {
   .listScroll {
-    max-height: calc(var(--sheet-visible-px, 100%) - 132px - env(safe-area-inset-bottom, 0px));
+    max-height: calc(var(--sheet-visible-px, 100%) - 90px - env(safe-area-inset-bottom, 0px));
   }
   .listScrollNoCats {
-    max-height: calc(var(--sheet-visible-px, 100%) - 72px - env(safe-area-inset-bottom, 0px));
+    max-height: calc(var(--sheet-visible-px, 100%) - 56px - env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -1246,12 +1246,13 @@ html[data-theme="dark"] .listBanner {
   gap: 12px;
   align-items: center;
   padding: 8px 14px;
-  border-radius: 12px;
+  border-radius: 0;
   cursor: pointer;
   transition: background 0.15s;
   text-align: left;
   background: transparent;
-  border: 1px solid transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
   width: 100%;
   appearance: none;
   color: inherit;
@@ -1261,8 +1262,7 @@ html[data-theme="dark"] .listBanner {
   .row {
     grid-template-columns: 72px 1fr auto;
     gap: 12px;
-    padding: 11px 10px;
-    border-radius: 10px;
+    padding: 10px 14px;
   }
 }
 .row:hover { background: var(--surface-bg); }
@@ -3881,6 +3881,8 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   cursor: pointer;
   white-space: nowrap;
   position: relative;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .categoryTab:hover { color: var(--text-secondary); }
 
@@ -3911,6 +3913,13 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   justify-content: space-between;
   padding: 4px 14px 6px;
 }
+/* Desktop: no drag handle above, so the icons need breathing room from the
+   panel top edge. */
+@media (min-width: 1024px) {
+  .listHeaderRow {
+    padding: 16px 16px 10px;
+  }
+}
 
 .listHeaderCount {
   font-size: 12px;
@@ -3936,6 +3945,8 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   color: var(--text-muted);
   cursor: pointer;
   position: relative;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .filterIconBtn:hover { color: var(--text-primary); }
 .filterIconBtnActive { color: var(--text-primary); border-color: var(--border-strong); }
@@ -3950,3 +3961,42 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   border-radius: 50%;
   pointer-events: none;
 }
+
+/* Inline search inside list header — replaces the count row when active.
+   font-size: 16px is required to prevent iOS Safari from auto-zooming on focus. */
+.searchInputInline {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.searchInputInline::placeholder { color: var(--text-muted); }
+.searchInputInline:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.searchCloseBtn {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  margin-left: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 8px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.searchCloseBtn:hover { color: var(--text-primary); background: var(--surface-bg); }

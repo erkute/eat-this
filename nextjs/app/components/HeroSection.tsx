@@ -22,7 +22,7 @@ export default function HeroSection() {
             Wahrscheinlich der beste Foodguide, den du kennst.
           </h2>
           <p className={landingStyles.heroDesktopSubtitle}>
-            Die kuratierteste Sammlung der besten Berliner Restaurants. Karte für Karte.
+            Eine kuratierte Sammlung der besten Berliner Restaurants und Cafés.
           </p>
           <HeroForm />
         </div>

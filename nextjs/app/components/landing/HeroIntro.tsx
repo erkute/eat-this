@@ -27,7 +27,7 @@ export default function HeroIntro() {
       ) : (
         <>
           <p className={styles.heroIntroSubtitle}>
-            Eine kuratierte Sammlung der besten Berliner Restaurants.
+            Eine kuratierte Sammlung der besten Berliner Restaurants und Cafés.
           </p>
           <form
             className={styles.heroIntroForm}

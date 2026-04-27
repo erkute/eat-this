@@ -226,7 +226,7 @@ body {
   position: relative;
   overflow: hidden;
   background-color: #efefef;
-  background-image: url('../pics/hero_desktop.webp');
+  background-image: url('../pics/hero_desktop1.webp');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -365,7 +365,7 @@ body {
   }
 }
 
-/* ── Mobile hero: shift image up to hide EAT THIS text, logo overlay above plate ── */
+/* ── Mobile hero: shift image up, crop bottom ── */
 @media (max-width: 1023px) {
   .hero {
     background-image: url('../pics/hero_mobile.webp');
@@ -1803,7 +1803,7 @@ body {
   .app-page[data-page="start"] .hero {
     position: relative;
     width: 100%;
-    height: calc(100vw * 2.161) !important;
+    height: calc(100dvh - 60px) !important;
     min-height: unset !important;
   }
   
@@ -4064,13 +4064,14 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 3;
-  color: rgba(255,255,255,0.45);
-  animation: heroScrollBounce 2s ease-in-out infinite;
+  z-index: 11;
+  color: rgba(255,255,255,0.7);
+  animation: heroScrollBounce 1.8s ease-in-out infinite;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.5));
 }
 @keyframes heroScrollBounce {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50%       { transform: translateX(-50%) translateY(5px); }
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.7; }
+  50%       { transform: translateX(-50%) translateY(7px); opacity: 1; }
 }
 
 /* ══════════════════════════════════════════════

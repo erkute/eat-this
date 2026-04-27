@@ -85,7 +85,7 @@ export default function MemoryGame() {
         <div>
           <span className={styles.secLabel}>Memory</span>
           <h2>Kennst du Berlins Must Eats?</h2>
-          <p>Finde alle {PAIR_COUNT} Paare — entdecke die Gerichte dahinter.</p>
+          <p>Finde alle {PAIR_COUNT} Paare - entdecke die Gerichte dahinter.</p>
         </div>
         <div className={styles.gameMeta}>
           <div className={styles.scoreboard}>
@@ -151,7 +151,7 @@ export default function MemoryGame() {
           </div>
           <div className={styles.memModalLabel}>Gut gemacht!</div>
           <h3>Du hast deine ersten {PAIR_COUNT} Berlin Must Eats entdeckt.</h3>
-          <p>Hol dir 10 weitere Karten — gratis nach Anmeldung.</p>
+          <p>Hol dir 10 weitere Karten - gratis nach Anmeldung.</p>
           <form className={styles.memModalForm} onSubmit={(e) => e.preventDefault()}>
             <input
               className={styles.memModalInput}

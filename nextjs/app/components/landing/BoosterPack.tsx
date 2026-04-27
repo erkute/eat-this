@@ -37,7 +37,7 @@ export default function BoosterPack() {
         </p>
         <ul className={styles.packBenefits}>
           <li>Zugriff auf die komplette Berlin-Map</li>
-          <li>Dein persönliches Deck — gespeichert</li>
+          <li>Dein persönliches Deck - gespeichert</li>
           <li>Sammle alle 150+ Must Eats</li>
         </ul>
         <div className={styles.tenBadge}>

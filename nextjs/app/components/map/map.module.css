@@ -35,6 +35,8 @@
   width: 96px;
   aspect-ratio: 1449 / 2163;
   background: white url('/pics/card-back.webp') center/contain no-repeat;
+  border-radius: 6%;
+  overflow: hidden;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
   animation: loadingFlip 1.4s ease-in-out infinite;
   transform-style: preserve-3d;
@@ -3137,6 +3139,7 @@ html[data-theme="dark"] .mustEatHero {
   aspect-ratio: 1449 / 2163;
   border-radius: 12px;
   background: white url('/pics/card-back.webp') center/contain no-repeat;
+  overflow: hidden;
   box-shadow: 0 12px 28px rgba(17, 24, 39, 0.22);
   cursor: pointer;
   user-select: none;
@@ -3649,8 +3652,8 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
 }
 .mustCard {
   aspect-ratio: 1449 / 2163;
-  border-radius: 0;
-  overflow: visible;
+  border-radius: 6%;
+  overflow: hidden;
   border: 0;
   padding: 0;
   cursor: pointer;
@@ -3708,6 +3711,8 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   object-fit: cover;
   display: block;
   background: white url('/pics/card-back.webp') center/contain no-repeat;
+  border-radius: 6%;
+  overflow: hidden;
   margin: 0 auto;
 }
 .mustCardFlip {
@@ -3748,6 +3753,8 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   border: 0;
   padding: 0;
   background: white url('/pics/card-back.webp') center/contain no-repeat;
+  border-radius: 6%;
+  overflow: hidden;
   width: 100%;
   max-width: 240px;
   aspect-ratio: 1449 / 2163;

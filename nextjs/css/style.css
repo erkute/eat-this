@@ -657,6 +657,8 @@ body {
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
+  border-radius: 6%;
+  overflow: hidden;
 }
 
 .album-slot.shake .album-slot-inner { animation: albumSlotShake 1s ease; }

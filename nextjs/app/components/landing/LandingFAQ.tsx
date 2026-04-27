@@ -8,13 +8,13 @@ const FAQS: { q: string; a: string | string[] }[] = [
     q: 'Was ist EAT THIS?',
     a: [
       'Wahrscheinlich der beste Foodguide, den du kennst.',
-      'Eine kuratierte Sammlung der besten Berliner Restaurants. Wir besuchen jeden Spot persönlich, probieren uns durch die Karte — und empfehlen am Ende ein oder mehrere Gerichte.',
+      'Eine kuratierte Sammlung der besten Berliner Restaurants. Wir besuchen jeden Spot persönlich, probieren uns durch die Karte - und empfehlen am Ende ein oder mehrere Gerichte.',
       'Jede Empfehlung landet als Must Eat Karte in deinem Deck. Du sammelst, entdeckst Berlin Gericht für Gericht. Was auch immer auf deiner Karte steht, du kannst es blind bestellen.',
     ],
   },
   {
     q: 'Was ist eine Must Eat Card?',
-    a: 'Eine Must Eat Card steht für ein konkretes Gericht an einem konkreten Ort — die eine Sache, die du dort bestellen musst.',
+    a: 'Eine Must Eat Card steht für ein konkretes Gericht an einem konkreten Ort - die eine Sache, die du dort bestellen musst.',
   },
   {
     q: 'Was ist der Unterschied zwischen einem Restaurant und einer Must Eat Card?',
@@ -30,11 +30,11 @@ const FAQS: { q: string; a: string | string[] }[] = [
   },
   {
     q: 'Welche Städte kommen als nächstes?',
-    a: 'Berlin ist erst der Anfang — dann folgen Amsterdam und Paris. Gleiche Regeln, andere Städte.',
+    a: 'Berlin ist erst der Anfang - dann folgen Amsterdam und Paris. Gleiche Regeln, andere Städte.',
   },
   {
     q: 'Kann ich ein Restaurant oder Gericht vorschlagen?',
-    a: 'Ja — schreib uns an hello@eatthisdot.com. Wir besuchen aber jeden Ort selbst, bevor wir eine Karte vergeben.',
+    a: 'Ja - schreib uns an hello@eatthisdot.com. Wir besuchen aber jeden Ort selbst, bevor wir eine Karte vergeben.',
   },
 ];
 

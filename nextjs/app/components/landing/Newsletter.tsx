@@ -20,7 +20,7 @@ export default function Newsletter() {
           <span className={styles.secLabel}>Newsletter</span>
           <h2>Gruß aus der Küche</h2>
           <p>
-            Neue Städte, neue Restaurants, neue Must Eats — direkt in dein Postfach,
+            Neue Städte, neue Restaurants, neue Must Eats - direkt in dein Postfach,
             bevor wir öffentlich davon erzählen.
           </p>
           <form className={styles.newsForm} onSubmit={(e) => e.preventDefault()}>

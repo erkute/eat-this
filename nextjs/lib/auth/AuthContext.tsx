@@ -14,6 +14,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   signOut as firebaseSignOut,
   updateProfile,
@@ -57,6 +58,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // This fires once immediately with the current user (from IndexedDB persistence),
   // then on every subsequent sign-in / sign-out.
   useEffect(() => {
+    // Process pending redirect from signInWithRedirect (mobile Google flow).
+    // Firebase v9+ also processes this internally before onAuthStateChanged
+    // fires, but calling explicitly surfaces errors and lets us announce a
+    // *fresh* sign-in (vs. silent session restore) so BridgeAuth can show the
+    // welcome notification + nav-to-profile that the in-modal handler can't
+    // run (the redirect navigated the page away before it had a chance).
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          window.dispatchEvent(
+            new CustomEvent('auth:redirectComplete', { detail: { user: result.user } }),
+          );
+        }
+      })
+      .catch((err: unknown) => {
+        const code = (err as { code?: string }).code ?? err;
+        console.warn('[auth] getRedirectResult failed:', code);
+      });
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setLoading(false);

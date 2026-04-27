@@ -1,3 +1,6 @@
+import HeroForm from '@/app/components/landing/HeroForm';
+import landingStyles from '@/app/components/landing/landing.module.css';
+
 export default function HeroSection() {
   return (
     <header className="hero">
@@ -13,6 +16,16 @@ export default function HeroSection() {
           height={576}
         />
         <p className="hero-desktop-tagline">We tell you what to eat</p>
+        {/* Desktop-only headline + signup form, overlaid on the hero image */}
+        <div className={landingStyles.heroDesktopExtra}>
+          <h2 className={landingStyles.heroDesktopHeadline}>
+            Wahrscheinlich der beste Foodguide, den du kennst.
+          </h2>
+          <p className={landingStyles.heroDesktopSubtitle}>
+            Die kuratierteste Sammlung der besten Berliner Restaurants. Karte für Karte.
+          </p>
+          <HeroForm />
+        </div>
       </div>
       <div className="hero-scroll-hint">
         <svg

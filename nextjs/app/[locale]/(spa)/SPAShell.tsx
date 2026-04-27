@@ -1,8 +1,18 @@
 import HeroSection from '@/app/components/HeroSection';
 import SiteFooter from '@/app/components/SiteFooter';
 import NewsSection from '@/app/components/NewsSection';
-import StartSections from '@/app/components/StartSections';
 import StaticPages from '@/app/components/StaticPages';
+import Ticker from '@/app/components/landing/Ticker';
+import HeroIntro from '@/app/components/landing/HeroIntro';
+import AboutFanRow from '@/app/components/landing/AboutFanRow';
+import Selection from '@/app/components/landing/Selection';
+import USPs from '@/app/components/landing/USPs';
+import MemoryGame from '@/app/components/landing/MemoryGame';
+import MapTeaser from '@/app/components/landing/MapTeaser';
+import BoosterPack from '@/app/components/landing/BoosterPack';
+import Coming from '@/app/components/landing/Coming';
+import LandingFAQ from '@/app/components/landing/LandingFAQ';
+import Newsletter from '@/app/components/landing/Newsletter';
 import BurgerDrawer from '@/app/components/BurgerDrawer';
 import MustsSection from '@/app/components/MustsSection';
 import MapSection from '@/app/components/MapSection';
@@ -30,8 +40,18 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
       <div className="app-pages" id="appPages" suppressHydrationWarning>
         <div className={`app-page${startActive ? ' active' : ''}`} data-page="start" suppressHydrationWarning>
           <HeroSection />
-          <div className="start-scroll-content">
-            <StartSections />
+          <div className="start-scroll-content" style={{ paddingTop: 0 }}>
+            <HeroIntro />
+            <Ticker />
+            <AboutFanRow />
+            <USPs />
+            <MemoryGame />
+            <MapTeaser />
+            <Selection />
+            <BoosterPack />
+            <Coming />
+            <LandingFAQ />
+            <Newsletter />
             <SiteFooter />
           </div>
         </div>

@@ -92,6 +92,25 @@ export default function BridgeAuth() {
     window.dispatchEvent(new CustomEvent('auth:changed', { detail: { user } }));
   }, [user, loading, t]);
 
+  // ─── Mobile Google-redirect post-completion ────────────────────────────────
+  // signInWithRedirect navigates the page away, so the close()/navigate logic
+  // in WelcomeModal's Google handler can't run. AuthContext fires
+  // 'auth:redirectComplete' once getRedirectResult resolves with a user — we
+  // pick it up here to deliver the same UX as the desktop popup flow.
+  useEffect(() => {
+    const onRedirectComplete = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { user?: import('firebase/auth').User } | undefined;
+      const u = detail?.user;
+      if (!u) return;
+      const first = (u.displayName ?? u.email ?? '').split(' ')[0] || t('footer.signIn');
+      window.showNotification?.(t('login.notifications.signedIn').replace('{name}', first));
+      document.getElementById('welcomeModal')?.classList.remove('active');
+      window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
+    };
+    window.addEventListener('auth:redirectComplete', onRedirectComplete);
+    return () => window.removeEventListener('auth:redirectComplete', onRedirectComplete);
+  }, [t]);
+
   return null;
 }
 

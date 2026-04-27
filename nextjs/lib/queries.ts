@@ -174,7 +174,7 @@ export const allNewsArticlesQuery = `
   }
 `
 
-// Must-Eat cards for a specific restaurant
+// Must Eat cards for a specific restaurant
 export const mustEatsByRestaurantQuery = `
   *[_type == "mustEat" && restaurantRef._ref == $restaurantId] | order(order asc) {
     _id,
@@ -184,7 +184,7 @@ export const mustEatsByRestaurantQuery = `
   }
 `
 
-// All Must-Eat cards — for album/overview
+// All Must Eat cards — for album/overview
 export const allMustEatsQuery = `
   *[_type == "mustEat"] | order(order asc) {
     _id,
@@ -195,7 +195,7 @@ export const allMustEatsQuery = `
   }
 `
 
-// Must-Eat album grid — matches legacy window.CMS.fetchMustEats projection
+// Must Eat album grid — matches legacy window.CMS.fetchMustEats projection
 export const allMustEatsAlbumQuery = `
   *[_type == "mustEat"] | order(order asc) {
     _id,

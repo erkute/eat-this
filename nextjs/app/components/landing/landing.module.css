@@ -1,0 +1,1267 @@
+/* ════════════════════════════════════════════════════════════
+   Landing redesign — shared module styles
+   Mobile-first; @media(min-width:768px) for desktop overrides.
+   Colors:
+     CTA red    #b71c1c   primary action buttons
+     Mustard    #c8951a   sec-labels, highlights, FAQ icons
+     Yellow     #f5c518   booster-pack starburst (matches print)
+     Black      #1a1a1a   headlines + secondary buttons
+   ════════════════════════════════════════════════════════════ */
+
+.secLabel {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #c8951a;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+/* ── INTRO ─────────────────────────────────────────────────── */
+.intro {
+  padding: 32px 22px 28px;
+  background: #fff;
+  border-bottom: 1px solid #ece9e3;
+}
+.introHeadline {
+  font-size: 24px;
+  font-weight: 900;
+  color: #1a1a1a;
+  line-height: 1.12;
+  margin: 0 0 12px;
+  letter-spacing: -0.01em;
+}
+.introSubtitle {
+  font-size: 14px;
+  color: #888;
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .intro {
+    padding: 72px 80px 56px;
+  }
+  .introHeadline {
+    font-size: 38px;
+    margin-bottom: 14px;
+    line-height: 1.08;
+  }
+  .introSubtitle {
+    font-size: 16px;
+    line-height: 1.7;
+    max-width: 640px;
+  }
+}
+
+/* ── TICKER (airport boarding screen) ──────────────────────── */
+@keyframes landingTicker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.ticker {
+  overflow: hidden;
+  background: #0a0a0a;
+  border-top: 1px solid #1a1a1a;
+  border-bottom: 1px solid #1a1a1a;
+  padding: 9px 0;
+}
+.tickerTrack {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: landingTicker 55s linear infinite;
+}
+.tickerItem {
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 18px;
+  color: #f5c518;
+  text-shadow: 0 0 8px rgba(245, 197, 24, 0.55), 0 0 2px rgba(245, 197, 24, 0.9);
+  padding: 0 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tickerSep {
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 18px;
+  color: #f5c518;
+  text-shadow: 0 0 8px rgba(245, 197, 24, 0.55);
+  padding: 0 2px;
+  opacity: 0.55;
+}
+
+@media (min-width: 768px) {
+  .ticker { padding: 11px 0; }
+  .tickerItem,
+  .tickerSep { font-size: 22px; padding-left: 18px; padding-right: 18px; }
+  .tickerTrack { animation-duration: 65s; }
+}
+@media (min-width: 1024px) {
+  .ticker { display: none; }
+}
+
+/* ── ABOUT ─────────────────────────────────────────────────── */
+.about {
+  padding: 28px 22px;
+  background: #fff;
+}
+/* Mobile: stats are rendered in <HeroIntro /> instead — hide here.
+   Desktop (≥1024px) shows the stats above "Das Konzept" again. */
+.aboutStats {
+  display: none;
+}
+.aboutHeadline {
+  font-size: 21px;
+  font-weight: 900;
+  color: #1a1a1a;
+  line-height: 1.18;
+  margin: 0 0 10px;
+  letter-spacing: -0.01em;
+}
+.aboutBody {
+  font-size: 14px;
+  color: #888;
+  line-height: 1.68;
+  margin: 0 0 8px;
+}
+
+@media (min-width: 768px) {
+  .about {
+    padding: 96px 80px;
+  }
+  .aboutStats {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #888;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #ece9e3;
+  }
+  .aboutHeadline {
+    font-size: 38px;
+    line-height: 1.12;
+    margin-bottom: 16px;
+  }
+  .aboutBody {
+    font-size: 16px;
+    line-height: 1.72;
+    max-width: 600px;
+  }
+}
+
+/* ── FAN CARDS ─────────────────────────────────────────────── */
+.fanWrap {
+  background: #fff;
+  overflow: visible;
+  padding: 8px 0 60px;
+}
+.fanStage {
+  position: relative;
+  height: 300px;
+  overflow: visible;
+}
+.fanCard {
+  width: 188px;
+  aspect-ratio: 2 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  margin-left: -94px;
+  transform-origin: bottom center;
+  transform: rotate(0deg);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.fanCard img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.fc1 { z-index: 1; }
+.fc2 { z-index: 2; }
+.fc3 { z-index: 3; }
+.fc4 { z-index: 4; }
+.fc5 { z-index: 5; }
+
+@media (min-width: 768px) {
+  .fanWrap {
+    padding: 0 0 96px;
+  }
+  .fanStage {
+    height: 360px;
+  }
+  .fanCard {
+    width: 240px;
+    margin-left: -120px;
+    border-radius: 14px;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+/* ── USPs ──────────────────────────────────────────────────── */
+.usps {
+  padding: 0 22px 24px;
+  background: #fff;
+  border-bottom: 1px solid #ece9e3;
+}
+.usp {
+  border-top: 1px solid #ddd8d2;
+  padding: 20px 0;
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.usp:last-child {
+  border-bottom: 1px solid #ddd8d2;
+}
+.uspNum {
+  font-size: 11px;
+  font-weight: 800;
+  color: #c8951a;
+  letter-spacing: 0.06em;
+  padding-top: 2px;
+}
+.uspBody h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 5px;
+}
+.uspBody p {
+  font-size: 13px;
+  color: #888;
+  line-height: 1.58;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .usps {
+    padding: 72px 80px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+  }
+  .usp {
+    border-top: none;
+    border-right: 1px solid #ece9e3;
+    padding: 0 40px;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .usp:first-child { padding-left: 0; }
+  .usp:last-child { padding-right: 0; border-right: none; border-bottom: none; }
+  .uspNum {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding-top: 0;
+  }
+  .uspBody h3 { font-size: 20px; font-weight: 900; }
+  .uspBody p { font-size: 14px; line-height: 1.65; }
+}
+
+/* ── MAP TEASER ────────────────────────────────────────────── */
+.mapTeaser {
+  padding: 28px 22px;
+  background: #faf8f4;
+  border-bottom: 1px solid #ece9e3;
+}
+.mapTeaserHead h2 {
+  font-size: 19px;
+  font-weight: 900;
+  color: #1a1a1a;
+  margin: 0 0 6px;
+}
+.mapTeaserHead p {
+  font-size: 13px;
+  color: #888;
+  margin: 0 0 16px;
+  line-height: 1.55;
+}
+.mapVideo {
+  background: #e8e5df;
+  border-radius: 12px;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  border: 1px solid #ece9e3;
+  font-size: 10px;
+  color: #bbb;
+}
+.mapTabs {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.mapTab {
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1.5px solid #ece9e3;
+  color: #888;
+  cursor: pointer;
+  background: transparent;
+}
+.mapTab.active {
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+  color: #fff;
+}
+
+@media (min-width: 768px) {
+  .mapTeaser { padding: 72px 80px; }
+  .mapTeaserHead h2 { font-size: 32px; margin-bottom: 8px; }
+  .mapTeaserHead p { font-size: 15px; max-width: 580px; margin-bottom: 28px; line-height: 1.65; }
+  .mapVideo { aspect-ratio: 16 / 8; margin-bottom: 16px; border-radius: 16px; font-size: 13px; }
+  .mapTab { padding: 10px 24px; border-radius: 24px; font-size: 13px; }
+}
+
+/* ── BOOSTER PACK ──────────────────────────────────────────── */
+.pack {
+  background: #1a1a1a;
+  border-top: 1px solid #222;
+  padding: 36px 22px 32px;
+}
+.pack .secLabel { color: #c8951a; }
+.packHeadline {
+  font-size: 26px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.08;
+  margin: 0 0 18px;
+  letter-spacing: -0.01em;
+}
+.packStage {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 8px;
+  height: 200px;
+  margin-bottom: 24px;
+}
+.packCard {
+  width: 108px;
+  aspect-ratio: 2 / 3;
+  flex-shrink: 0;
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.55));
+  cursor: pointer;
+}
+.packCard img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.packCopy {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 20px;
+  line-height: 1.55;
+}
+.packBenefits {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+}
+.packBenefits li {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 7px;
+  padding-left: 20px;
+  position: relative;
+}
+.packBenefits li::before {
+  content: '✓';
+  color: #c8951a;
+  font-weight: 800;
+  position: absolute;
+  left: 0;
+}
+
+/* Starburst sticker badge — matches printed booster pack */
+.tenBadge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.tenBadgeText {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.35;
+}
+.starburst {
+  position: relative;
+  flex-shrink: 0;
+  transform: rotate(-12deg);
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.28));
+  width: 104px;
+  height: 104px;
+}
+.starburst svg { display: block; width: 100%; height: 100%; }
+.starburstText {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #1a1a1a;
+  font-weight: 900;
+  line-height: 1;
+}
+.starburstNum {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  margin-bottom: 1px;
+}
+.starburstLabel {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1.18;
+  letter-spacing: 0.04em;
+}
+
+.packEmail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.packInput {
+  padding: 13px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  outline: none;
+  width: 100%;
+}
+.packInput::placeholder { color: #999; }
+.packSubmit {
+  padding: 13px;
+  background: #b71c1c;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .pack {
+    padding: 96px 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+  .packStageWrap {
+    grid-row: 1;
+    grid-column: 1;
+  }
+  .packStage {
+    height: auto;
+    gap: 20px;
+  }
+  .packCard.bc1 { width: 150px; }
+  .packCard.bc2 { width: 175px; }
+  .packCard.bc3 { width: 150px; }
+  .packCard {
+    width: auto;
+    filter: drop-shadow(0 20px 36px rgba(0, 0, 0, 0.75));
+  }
+  .packBody {
+    grid-row: 1;
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+  }
+  .packHeadline { font-size: 40px; line-height: 1.07; }
+  .packCopy { font-size: 16px; line-height: 1.7; }
+  .starburst { width: 140px; height: 140px; }
+  .starburstNum { font-size: 46px; margin-bottom: 2px; }
+  .starburstLabel { font-size: 11px; line-height: 1.18; letter-spacing: 0.06em; }
+  .tenBadge { gap: 22px; }
+  .tenBadgeText { font-size: 16px; }
+  .packEmail {
+    flex-direction: row;
+    max-width: 480px;
+  }
+  .packInput {
+    flex: 1;
+    border-radius: 10px 0 0 10px;
+  }
+  .packSubmit {
+    border-radius: 0 10px 10px 0;
+    padding: 14px 26px;
+    white-space: nowrap;
+  }
+}
+
+/* ── COMING (Berlin ist erst der Anfang) ───────────────────── */
+.coming {
+  padding: 28px 22px;
+  background: #fff;
+  border-bottom: 1px solid #ece9e3;
+}
+.coming h2 {
+  font-size: 21px;
+  font-weight: 900;
+  color: #1a1a1a;
+  line-height: 1.18;
+  margin: 0 0 10px;
+}
+.coming p {
+  font-size: 14px;
+  color: #888;
+  line-height: 1.68;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .coming {
+    padding: 88px 80px;
+    background: #faf8f4;
+  }
+  .coming h2 { font-size: 36px; line-height: 1.1; margin-bottom: 12px; }
+  .coming p { font-size: 16px; max-width: 680px; line-height: 1.7; }
+}
+
+/* ── MEMORY GAME ───────────────────────────────────────────── */
+.game {
+  padding: 36px 22px;
+  background: #fff;
+  border-bottom: 1px solid #ece9e3;
+  position: relative;
+  /* Optional snap target — only fires if a scroll-snap-type
+     container exists upstream; harmless otherwise. */
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+.gameHead h2 {
+  font-size: 19px;
+  font-weight: 900;
+  color: #1a1a1a;
+  margin: 0 0 6px;
+}
+.gameHead p {
+  font-size: 13px;
+  color: #888;
+  margin: 0 0 16px;
+}
+.gameGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.memCard {
+  aspect-ratio: 2 / 3;
+  cursor: pointer;
+  perspective: 800px;
+}
+.memInner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 10px;
+}
+.memCard.flipped .memInner { transform: rotateY(180deg); }
+.memCard.matched { pointer-events: none; }
+.memBack,
+.memFace {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+.memBack { background: transparent url('/pics/card-back.webp') center/contain no-repeat; }
+.memFace { transform: rotateY(180deg); }
+.memFace img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.gameMeta {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+  margin-bottom: 32px;
+}
+.scoreboard {
+  background: #0d0d0d;
+  border-radius: 8px;
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid #1a1a1a;
+}
+.scoreCell {
+  padding: 8px 14px;
+  text-align: center;
+  border-right: 1px solid #1a1a1a;
+}
+.scoreCell:last-child { border-right: none; }
+.scoreVal {
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 28px;
+  line-height: 1;
+  color: #f5c518;
+  text-shadow: 0 0 12px rgba(245, 197, 24, 0.6), 0 0 4px rgba(245, 197, 24, 0.4);
+  display: block;
+}
+.scoreLabel {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #333;
+  margin-top: 2px;
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .game { padding: 56px 80px 48px; }
+  .gameHead { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; }
+  .gameHead h2 { font-size: 30px; margin-bottom: 4px; }
+  .gameHead p { font-size: 14px; margin-bottom: 0; }
+  .gameMeta { margin-top: 0; margin-bottom: 0; align-self: flex-end; }
+  .gameGrid { grid-template-columns: repeat(6, 1fr); gap: 12px; }
+  .scoreCell { padding: 6px 16px; }
+  .scoreVal { font-size: 26px; }
+}
+
+/* ── MEMORY MODAL ──────────────────────────────────────────── */
+@keyframes memModalIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes memBackdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.memModal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.memModal.show { display: flex; }
+.memModalBd {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  animation: memBackdropIn 0.3s ease;
+}
+.memModalCard {
+  position: relative;
+  background: #fff;
+  border-radius: 20px;
+  padding: 34px 22px 26px;
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+  animation: memModalIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.memModalClose {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #888;
+  cursor: pointer;
+  padding: 8px 12px;
+  line-height: 1;
+}
+.memModalPack {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 6px;
+  margin-bottom: 16px;
+  height: 88px;
+}
+.memModalPack img {
+  height: 88px;
+  width: auto;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.18));
+}
+.memModalPack img:nth-child(2) { height: 96px; }
+.memModalLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #c8951a;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.memModalCard h3 {
+  font-size: 20px;
+  font-weight: 900;
+  color: #1a1a1a;
+  line-height: 1.18;
+  margin: 0 0 8px;
+}
+.memModalCard p {
+  font-size: 13px;
+  color: #888;
+  line-height: 1.55;
+  margin: 0 0 18px;
+}
+.memModalInput {
+  width: 100%;
+  padding: 13px 16px;
+  border: 1.5px solid #ece9e3;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  outline: none;
+  margin-bottom: 8px;
+}
+.memModalCta {
+  width: 100%;
+  padding: 14px;
+  background: #b71c1c;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .memModal { padding: 40px; }
+  .memModalCard { max-width: 520px; padding: 48px 56px 40px; border-radius: 24px; }
+  .memModalPack { gap: 8px; margin-bottom: 24px; height: 120px; }
+  .memModalPack img { height: 110px; }
+  .memModalPack img:nth-child(2) { height: 128px; }
+  .memModalLabel { font-size: 12px; letter-spacing: 0.14em; margin-bottom: 12px; }
+  .memModalCard h3 { font-size: 30px; line-height: 1.14; margin-bottom: 10px; letter-spacing: -0.01em; }
+  .memModalCard p { font-size: 15px; margin-bottom: 24px; }
+  .memModalForm { display: flex; gap: 8px; }
+  .memModalForm .memModalInput { flex: 1; margin-bottom: 0; padding: 14px 18px; }
+  .memModalForm .memModalCta { width: auto; padding: 14px 28px; white-space: nowrap; }
+}
+
+/* ── FAQ ───────────────────────────────────────────────────── */
+.faq {
+  padding: 28px 22px;
+  background: #fff;
+}
+.faq h2 {
+  font-size: 19px;
+  font-weight: 900;
+  color: #1a1a1a;
+  margin: 0 0 16px;
+}
+.faqItem {
+  border-top: 1px solid #ece9e3;
+  padding: 14px 0;
+  cursor: pointer;
+}
+.faqItem:last-child { border-bottom: 1px solid #ece9e3; }
+.faqRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+.faqQ {
+  font-size: 13px;
+  color: #1a1a1a;
+  font-weight: 500;
+  line-height: 1.4;
+  margin: 0;
+}
+.faqIcon {
+  color: #c8951a;
+  font-size: 18px;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+  user-select: none;
+}
+.faqA {
+  font-size: 12px;
+  color: #888;
+  line-height: 1.65;
+  padding-top: 8px;
+  display: none;
+  margin: 0;
+}
+.faqItem.open .faqA { display: block; }
+.faqItem.open .faqIcon { transform: rotate(45deg); }
+
+@media (min-width: 768px) {
+  .faq { padding: 80px 80px 96px; border-top: 1px solid #ece9e3; }
+  .faq h2 { font-size: 32px; margin-bottom: 36px; }
+  .faqItem { padding: 22px 0; }
+  .faqQ { font-size: 16px; }
+  .faqIcon { font-size: 20px; }
+  .faqA { font-size: 14px; line-height: 1.72; padding-top: 12px; max-width: 760px; }
+}
+
+/* ── NEWSLETTER ────────────────────────────────────────────── */
+.news {
+  padding: 44px 22px 48px;
+  background: #1a1209;
+  border-top: 1px solid #2a1c10;
+  position: relative;
+  overflow: hidden;
+}
+.news::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(192, 92, 46, 0.18) 0%, transparent 60%),
+    radial-gradient(60% 60% at 100% 100%, rgba(245, 197, 24, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.newsInner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 24px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+.newsVisual {
+  position: relative;
+  width: 144px;
+  height: 216px;
+  flex-shrink: 0;
+}
+.newsPack {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.5));
+  transform: rotate(-6deg);
+}
+.newsCopy { display: flex; flex-direction: column; align-items: center; }
+.news .secLabel { color: #c8951a; }
+.news h2 {
+  font-size: 26px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.1;
+  margin: 0 0 10px;
+  letter-spacing: -0.01em;
+}
+.news p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.55;
+  margin: 0 0 20px;
+}
+.newsForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 360px;
+}
+.newsInput {
+  padding: 13px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  outline: none;
+}
+.newsInput::placeholder { color: #999; }
+.newsBtn {
+  padding: 13px;
+  background: #b71c1c;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+.newsBtn:hover { background: #9a1818; }
+.newsNote {
+  display: block;
+  margin-top: 12px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.04em;
+}
+
+@media (min-width: 768px) {
+  .news { padding: 96px 80px; }
+  .newsInner {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 56px;
+    max-width: 880px;
+  }
+  .newsVisual { width: 200px; height: 300px; }
+  .newsCopy { flex: 1; align-items: flex-start; }
+  .news h2 { font-size: 38px; line-height: 1.08; }
+  .news p { font-size: 16px; line-height: 1.6; max-width: 480px; }
+  .newsForm { flex-direction: row; max-width: 480px; }
+  .newsInput { flex: 1; border-radius: 10px 0 0 10px; padding: 14px 18px; }
+  .newsBtn { padding: 14px 26px; border-radius: 0 10px 10px 0; white-space: nowrap; }
+  .newsNote { font-size: 12px; }
+}
+
+/* ── HERO overlay (desktop ≥1024px only) ───────────────────── */
+/* On mobile this content is rendered as a separate <HeroIntro /> section
+   below the hero image instead of being overlaid. */
+.heroDesktopExtra { display: none; }
+.heroDesktopHeadline { font-weight: 900; color: #fff; letter-spacing: -0.015em; }
+.heroDesktopSubtitle { color: #fff; }
+.heroForm { display: flex; }
+.heroInput {
+  border: none;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  outline: none;
+}
+.heroInput::placeholder { color: #aaa; }
+.heroSubmit {
+  background: #b71c1c;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+.heroSubmit:hover { background: #9a1818; }
+
+@media (min-width: 1024px) {
+  .heroDesktopExtra {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: 720px;
+    margin-top: 28px;
+  }
+  .heroDesktopHeadline {
+    font-size: clamp(30px, 3.2vw, 46px);
+    line-height: 1.04;
+    margin: 0 0 14px;
+    text-shadow: 0 2px 22px rgba(0, 0, 0, 0.75), 0 1px 4px rgba(0, 0, 0, 0.7);
+  }
+  .heroDesktopSubtitle {
+    font-size: 15px;
+    line-height: 1.5;
+    margin: 0 0 22px;
+    max-width: 520px;
+    text-shadow: 0 1px 16px rgba(0, 0, 0, 0.75), 0 1px 3px rgba(0, 0, 0, 0.7);
+  }
+  .heroForm {
+    flex-direction: row;
+    max-width: 440px;
+  }
+  .heroInput {
+    flex: 1;
+    padding: 14px 18px;
+    border-radius: 10px 0 0 10px;
+  }
+  .heroSubmit {
+    padding: 14px 24px;
+    border-radius: 0 10px 10px 0;
+    white-space: nowrap;
+  }
+}
+
+/* ── ABOUT + FAN ROW (2-col on desktop) ────────────────────── */
+.aboutFanRow {
+  background: #fff;
+  /* mobile: stacked, children keep their own padding/spacing */
+}
+@media (min-width: 1024px) {
+  .aboutFanRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 96px 80px;
+    gap: 80px;
+    border-bottom: 1px solid #ece9e3;
+  }
+  /* Strip nested sections' padding on desktop — grid owns the page padding */
+  .aboutFanRow > section {
+    padding: 0;
+    background: transparent;
+  }
+  .aboutFanRow > section[class*="fanWrap"] {
+    padding-bottom: 0;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   DARK MODE — applies when [data-theme="dark"] is set on <html>
+   Dark palette:
+     #0a0a0a   page background (deepest)
+     #1a1a1a   card / panel surfaces
+     #2a2a2a   borders / dividers / inputs
+     #fff      primary text
+     #888      muted text (same as light, looks fine)
+     mustard #c8951a stays the brand accent
+   ════════════════════════════════════════════════════════════ */
+
+/* About + FanRow */
+:global([data-theme="dark"]) .aboutFanRow,
+:global([data-theme="dark"]) .about,
+:global([data-theme="dark"]) .fanWrap { background: #0a0a0a; }
+:global([data-theme="dark"]) .aboutFanRow { border-bottom-color: #2a2a2a; }
+:global([data-theme="dark"]) .aboutStats {
+  color: #888;
+  border-bottom-color: #2a2a2a;
+}
+:global([data-theme="dark"]) .aboutHeadline { color: #fff; }
+
+/* USPs */
+:global([data-theme="dark"]) .usps {
+  background: #0a0a0a;
+  border-bottom-color: #2a2a2a;
+}
+:global([data-theme="dark"]) .usp { border-color: #2a2a2a; }
+:global([data-theme="dark"]) .usp:last-child { border-bottom-color: #2a2a2a; }
+:global([data-theme="dark"]) .uspBody h3 { color: #fff; }
+
+/* Memory game */
+:global([data-theme="dark"]) .game {
+  background: #0a0a0a;
+  border-bottom-color: #2a2a2a;
+}
+:global([data-theme="dark"]) .gameHead h2 { color: #fff; }
+:global([data-theme="dark"]) .memBack { background-color: transparent; }
+
+/* Map teaser */
+:global([data-theme="dark"]) .mapTeaser {
+  background: #1a1a1a;
+  border-bottom-color: #2a2a2a;
+}
+:global([data-theme="dark"]) .mapTeaserHead h2 { color: #fff; }
+:global([data-theme="dark"]) .mapVideo {
+  background: #2a2a2a;
+  border-color: #333;
+  color: #555;
+}
+:global([data-theme="dark"]) .mapTab {
+  border-color: #2a2a2a;
+  color: #888;
+}
+:global([data-theme="dark"]) .mapTab.active {
+  background: #fff;
+  border-color: #fff;
+  color: #1a1a1a;
+}
+
+/* Booster pack — already dark; deepen the surface to separate from neighbours */
+:global([data-theme="dark"]) .pack {
+  background: #050505;
+  border-top-color: #1a1a1a;
+}
+
+/* Coming */
+:global([data-theme="dark"]) .coming {
+  background: #0a0a0a;
+  border-bottom-color: #2a2a2a;
+}
+:global([data-theme="dark"]) .coming h2 { color: #fff; }
+
+/* FAQ */
+:global([data-theme="dark"]) .faq {
+  background: #0a0a0a;
+  border-top-color: #2a2a2a;
+}
+:global([data-theme="dark"]) .faq h2 { color: #fff; }
+:global([data-theme="dark"]) .faqItem,
+:global([data-theme="dark"]) .faqItem:last-child { border-color: #2a2a2a; }
+:global([data-theme="dark"]) .faqQ { color: #fff; }
+
+/* Newsletter — mobile turns dark; desktop already dark */
+:global([data-theme="dark"]) .news {
+  background: #1a1209;
+  border-top-color: #2a1c10;
+}
+:global([data-theme="dark"]) .news h2 { color: #fff; }
+:global([data-theme="dark"]) .newsInput {
+  background: #2a2a2a;
+  border-color: #2a2a2a;
+  color: #fff;
+}
+:global([data-theme="dark"]) .newsInput::placeholder { color: #666; }
+
+/* ── Mobile horizontal-scroll safety net ───────────────────────
+   Fan card outer corners and a few other transforms can bleed
+   1–6px past the viewport on small screens. Clip at the section
+   level so the page never gets a horizontal scrollbar/pan. */
+@media (max-width: 1023px) {
+  .aboutFanRow,
+  .about,
+  .fanWrap,
+  .usps,
+  .mapTeaser,
+  .pack,
+  .coming,
+  .faq,
+  .news {
+    overflow-x: clip;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   iOS Safari auto-zoom prevention — every <input>/<textarea>
+   under 16px triggers an annoying zoom-in that the user can't
+   undo without re-pinching. Bump every landing input to 16px on
+   mobile so the keyboard opens without zooming the viewport.
+   ──────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .heroInput,
+  .packInput,
+  .newsInput,
+  .memModalInput {
+    font-size: 16px;
+  }
+}
+
+
+/* ────────────────────────────────────────────────────────────
+   <HeroIntro /> — mobile-only section directly under the hero.
+   Shows stats label, headline, subtitle, and the email signup
+   form. Hidden on ≥1024px because the same content is overlaid
+   on the hero image via .heroDesktopExtra.
+   ──────────────────────────────────────────────────────────── */
+.heroIntro {
+  padding: 28px 22px 36px;
+  background: #fff;
+  border-bottom: 1px solid #ece9e3;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.heroIntroStats {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #c8951a;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.heroIntroHeadline {
+  font-size: 26px;
+  font-weight: 900;
+  color: #1a1a1a;
+  line-height: 1.1;
+  margin: 0 0 10px;
+  letter-spacing: -0.015em;
+}
+.heroIntroSubtitle {
+  font-size: 14px;
+  color: #888;
+  line-height: 1.55;
+  margin: 0 0 20px;
+}
+.heroIntroForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* Cap the form width on mobile so the CTA doesn't span the whole screen */
+  max-width: 300px;
+  width: 100%;
+  align-self: center;
+}
+.heroIntroInput {
+  padding: 13px 16px;
+  border: 1.5px solid #ece9e3;
+  border-radius: 10px;
+  font-size: 16px; /* iOS Safari auto-zoom guard */
+  color: #1a1a1a;
+  background: #fff;
+  outline: none;
+}
+.heroIntroInput::placeholder { color: #aaa; }
+.heroIntroSubmit {
+  padding: 13px;
+  background: #b71c1c;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.heroIntroSubmit:hover { background: #9a1818; }
+
+@media (min-width: 1024px) {
+  .heroIntro { display: none; }
+}
+
+/* Dark mode */
+:global([data-theme="dark"]) .heroIntro {
+  background: #0a0a0a;
+  border-bottom-color: #2a2a2a;
+}
+:global([data-theme="dark"]) .heroIntroHeadline { color: #fff; }
+:global([data-theme="dark"]) .heroIntroInput {
+  background: #1a1a1a;
+  border-color: #2a2a2a;
+  color: #fff;
+}
+:global([data-theme="dark"]) .heroIntroInput::placeholder { color: #555; }
+
+/* ── SELECTION (Wie wir auswählen — sits between Map and Booster) ── */
+.selection {
+  padding: 28px 22px;
+  background: #fff;
+  border-bottom: 1px solid #ece9e3;
+}
+.selectionHeadline {
+  font-size: 21px;
+  font-weight: 900;
+  color: #1a1a1a;
+  line-height: 1.18;
+  margin: 0 0 10px;
+  letter-spacing: -0.01em;
+}
+.selectionBody {
+  font-size: 14px;
+  color: #888;
+  line-height: 1.68;
+  margin: 0;
+}
+@media (min-width: 768px) {
+  .selection { padding: 88px 80px; }
+  .selectionHeadline { font-size: 32px; line-height: 1.1; }
+  .selectionBody { font-size: 16px; max-width: 600px; line-height: 1.65; }
+}
+:global([data-theme="dark"]) .selection {
+  background: #0a0a0a;
+  border-bottom-color: #2a2a2a;
+}
+:global([data-theme="dark"]) .selectionHeadline { color: #fff; }

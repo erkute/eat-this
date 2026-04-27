@@ -589,7 +589,7 @@
   -webkit-backface-visibility: hidden;
   overflow: hidden;
 }
-.memBack { background: white url('/pics/card-back.webp') center/contain no-repeat; }
+.memBack { background: transparent url('/pics/card-back.webp') center/contain no-repeat; }
 .memFace { transform: rotateY(180deg); }
 .memFace img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
@@ -1057,7 +1057,7 @@
   border-bottom-color: #2a2a2a;
 }
 :global([data-theme="dark"]) .gameHead h2 { color: #fff; }
-:global([data-theme="dark"]) .memBack { background-color: white; }
+
 
 /* Map teaser */
 :global([data-theme="dark"]) .mapTeaser {
@@ -1265,3 +1265,17 @@
   border-bottom-color: #2a2a2a;
 }
 :global([data-theme="dark"]) .selectionHeadline { color: #fff; }
+
+/* ── Magic-link CTA states ─────────────────────────────────────────── */
+.magicSent {
+  font-size: 14px;
+  color: #2d7a2d;
+  margin-top: 12px;
+}
+.magicError {
+  font-size: 13px;
+  color: #b91c1c;
+  margin-top: 8px;
+}
+:global([data-theme="dark"]) .magicSent  { color: #6fcf6f; }
+:global([data-theme="dark"]) .magicError { color: #fc8181; }

@@ -1,5 +1,8 @@
 'use client';
+
+import { useState } from 'react';
 import styles from './landing.module.css';
+import { useAuth, useMagicLink } from '@/lib/auth';
 
 const STARBURST_POINTS =
   '50,0 57.41,12.73 69.13,3.81 71.12,18.41 85.36,14.64 81.59,28.88 96.19,30.87 87.27,42.59 ' +
@@ -8,6 +11,10 @@ const STARBURST_POINTS =
   '0,50 12.73,42.59 3.81,30.87 18.41,28.88 14.64,14.64 28.88,18.41 30.87,3.81 42.59,12.73';
 
 export default function BoosterPack() {
+  const { user } = useAuth();
+  const { sendLink, state, errorMessage } = useMagicLink();
+  const [email, setEmail] = useState('');
+
   return (
     <section className={styles.pack}>
       <div className={styles.packStageWrap}>
@@ -66,17 +73,40 @@ export default function BoosterPack() {
             nach Anmeldung
           </span>
         </div>
-        <form className={styles.packEmail} onSubmit={(e) => e.preventDefault()}>
-          <input
-            className={styles.packInput}
-            type="email"
-            placeholder="deine@email.de"
-            aria-label="E-Mail-Adresse"
-          />
-          <button className={styles.packSubmit} type="submit">
-            Booster Pack sichern
-          </button>
-        </form>
+        {!user && (
+          state === 'sent' ? (
+            <p className={styles.magicSent}>
+              E-Mail unterwegs! Schau in dein Postfach und klick auf den Link.
+            </p>
+          ) : (
+            <>
+              <form
+                className={styles.packEmail}
+                onSubmit={(e) => { e.preventDefault(); sendLink(email); }}
+              >
+                <input
+                  className={styles.packInput}
+                  type="email"
+                  placeholder="deine@email.de"
+                  aria-label="E-Mail-Adresse"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                <button
+                  className={styles.packSubmit}
+                  type="submit"
+                  disabled={state === 'sending'}
+                >
+                  {state === 'sending' ? 'Wird gesendet…' : 'Booster Pack sichern'}
+                </button>
+              </form>
+              {state === 'error' && (
+                <p className={styles.magicError}>{errorMessage}</p>
+              )}
+            </>
+          )
+        )}
       </div>
     </section>
   );

@@ -16,7 +16,7 @@ const SITE_URL = 'https://www.eatthisdot.com'
 export const metadata: Metadata = {
   title: 'EAT THIS — Probably the best food guide you know - We tell you what to eat',
   description:
-    "Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must-Eats on the interactive map & hunt down the best dishes in the city. Taste it all!",
+    "Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must Eats on the interactive map & hunt down the best dishes in the city. Taste it all!",
   robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
   alternates: {
     canonical: SITE_URL + '/',
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     siteName: 'EAT THIS',
     title: 'EAT THIS — Probably the best food guide you know - We tell you what to eat',
     description:
-      "Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must-Eats on the interactive map & hunt down the best dishes in the city. Taste it all!",
+      "Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must Eats on the interactive map & hunt down the best dishes in the city. Taste it all!",
     url: SITE_URL,
     images: [{ url: SITE_URL + '/pics/og-image.jpg', width: 1200, height: 630, alt: 'EAT THIS — Berlin Food Guide' }],
     locale: 'de_DE',
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     site: '@eatthisdotcom',
     title: 'EAT THIS — Probably the best food guide you know - We tell you what to eat',
     description:
-      "Just Order This: Your curated Berlin food guide. Collect all Eat Cards & discover Must-Eats on the interactive map. Taste it all!",
+      "Just Order This: Your curated Berlin food guide. Collect all Eat Cards & discover Must Eats on the interactive map. Taste it all!",
     images: [SITE_URL + '/pics/og-image.jpg'],
   },
 }

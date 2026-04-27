@@ -38,7 +38,7 @@ export default function BoosterPack() {
         <ul className={styles.packBenefits}>
           <li>Zugriff auf die komplette Berlin-Map</li>
           <li>Dein persönliches Deck — gespeichert</li>
-          <li>Sammle alle 150+ Must-Eats</li>
+          <li>Sammle alle 150+ Must Eats</li>
         </ul>
         <div className={styles.tenBadge}>
           <div className={styles.starburst}>
@@ -54,7 +54,7 @@ export default function BoosterPack() {
             <div className={styles.starburstText}>
               <span className={styles.starburstNum}>10</span>
               <span className={styles.starburstLabel}>
-                Must-Eat
+                Must Eat
                 <br />
                 Karten
               </span>

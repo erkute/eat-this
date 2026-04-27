@@ -84,7 +84,7 @@ export default function MemoryGame() {
       <div className={styles.gameHead}>
         <div>
           <span className={styles.secLabel}>Memory</span>
-          <h2>Kennst du Berlins Must-Eats?</h2>
+          <h2>Kennst du Berlins Must Eats?</h2>
           <p>Finde alle {PAIR_COUNT} Paare — entdecke die Gerichte dahinter.</p>
         </div>
         <div className={styles.gameMeta}>
@@ -150,7 +150,7 @@ export default function MemoryGame() {
             <img src="/pics/booster/booster3.webp" alt="" />
           </div>
           <div className={styles.memModalLabel}>Gut gemacht!</div>
-          <h3>Du hast deine ersten {PAIR_COUNT} Berlin Must-Eats entdeckt.</h3>
+          <h3>Du hast deine ersten {PAIR_COUNT} Berlin Must Eats entdeckt.</h3>
           <p>Hol dir 10 weitere Karten — gratis nach Anmeldung.</p>
           <form className={styles.memModalForm} onSubmit={(e) => e.preventDefault()}>
             <input

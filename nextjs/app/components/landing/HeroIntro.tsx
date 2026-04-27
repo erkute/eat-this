@@ -8,7 +8,7 @@ export default function HeroIntro() {
   return (
     <section className={styles.heroIntro}>
       <span className={styles.heroIntroStats}>
-        Berlin · 150+ Must-Eats · 200+ Restaurants
+        Berlin · 150+ Must Eats · 200+ Restaurants
       </span>
       <h1 className={styles.heroIntroHeadline}>
         Wahrscheinlich der beste Foodguide, den du kennst.

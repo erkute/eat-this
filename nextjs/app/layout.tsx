@@ -10,7 +10,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: {
     template: '%s | Eat This Berlin',
-    default: 'Eat This Berlin — Must-Eat Guide',
+    default: 'Eat This Berlin — Must Eat Guide',
   },
   description: "The must-eat guide to Berlin's best dishes.",
   metadataBase: new URL('https://www.eatthisdot.com'),

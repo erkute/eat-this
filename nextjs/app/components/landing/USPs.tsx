@@ -10,7 +10,7 @@ const USPS = [
     num: '02',
     title: 'Das Deck',
     body:
-      'Über 150 Must-Eats in mehr als 200 Berliner Restaurants. Sammle die Karten, vervollständige dein Deck und kenne Berlin wie kein anderer.',
+      'Über 150 Must Eats in mehr als 200 Berliner Restaurants. Sammle die Karten, vervollständige dein Deck und kenne Berlin wie kein anderer.',
   },
   {
     num: '03',

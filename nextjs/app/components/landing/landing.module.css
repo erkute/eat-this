@@ -891,12 +891,6 @@
     width: 100%;
     max-width: 720px;
     margin-top: 28px;
-    padding: 28px 40px 32px;
-    /* Dim panel so white text stays legible on a bright food photo */
-    background: linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0.7) 100%);
-    border-radius: 18px;
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
   }
   .heroDesktopHeadline {
     font-size: clamp(30px, 3.2vw, 46px);
@@ -906,15 +900,16 @@
     line-height: 1.04;
     margin: 0 0 14px;
     letter-spacing: -0.015em;
-    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+    /* Heavier shadow stack so white headline reads on bright photo */
+    text-shadow: 0 2px 22px rgba(0, 0, 0, 0.75), 0 1px 4px rgba(0, 0, 0, 0.7);
   }
   .heroDesktopSubtitle {
     font-size: 15px;
-    color: rgba(255, 255, 255, 0.88);
+    color: #fff;
     line-height: 1.5;
     margin: 0 0 22px;
     max-width: 520px;
-    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 16px rgba(0, 0, 0, 0.75), 0 1px 3px rgba(0, 0, 0, 0.7);
   }
   .heroForm {
     display: flex;

@@ -3365,6 +3365,20 @@ html[data-theme="dark"] .mustEatHero {
   color: var(--text-muted);
 }
 
+.mustEatListLink {
+  display: block;
+  width: 100%;
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border, #1f1f1f);
+  color: #888;
+  font-size: 13px;
+  text-align: center;
+  cursor: pointer;
+}
+.mustEatListLink:hover { color: #fff; }
+
 /* Custom Bezirk dropdown panel — portaled via fixed positioning so the
    toolbar's overflow:hidden doesn't clip it. */
 .bezirkPanel {

@@ -188,16 +188,14 @@ export default function MapSection({ isActive = false }: Props) {
       setLayer('mustEats')
       setSelectedRestaurant(null)
       setSelectedMustEat(m)
-      setSheetView('list')
-      if (isMobile) setSnap('mid')
-      // Mobile: wait for the sheet to snap from 'full' (detail) to 'mid' so
-      // the padding reads the new visible height. Desktop: fly immediately.
-      const flyDelay = isMobile ? 320 : 0
-      const center = [m.restaurant.lng, m.restaurant.lat] as [number, number]
-      const padding = getFlyPadding('mid')
-      const fly = () => mapRef.current?.flyTo({ center, zoom: 15, duration: 500, padding })
-      if (flyDelay) setTimeout(fly, flyDelay)
-      else fly()
+      setSheetView('detail')
+      setSnap('full')
+      mapRef.current?.flyTo({
+        center: [m.restaurant.lng, m.restaurant.lat],
+        zoom: 15,
+        duration: 500,
+        padding: getFlyPadding('full'),
+      })
       return
     }
     const isLocked = !unlockedIds.has(m._id)
@@ -271,6 +269,14 @@ export default function MapSection({ isActive = false }: Props) {
       })
     }
   }, [selectedMustEat, selectedRestaurant, getFlyPadding, setSnap, reapplySnap])
+
+  const handleShowMustEatList = useCallback(() => {
+    setSelectedMustEat(null)
+    setLayer('mustEats')
+    setSheetView('list')
+    setSnap('mid')
+    reapplySnap('mid')
+  }, [setSnap, reapplySnap])
 
   const handleMapClick = useCallback(() => {
     // Tapping the map dismisses the detail. Keep the camera where the user
@@ -439,6 +445,7 @@ export default function MapSection({ isActive = false }: Props) {
                     onUnlock={handleUnlock}
                     onClose={handleMustEatClose}
                     onViewRestaurant={handleViewRestaurantFromMustEat}
+                    onShowMustEatList={handleShowMustEatList}
                     inSheet
                   />
                 </div>

@@ -15,6 +15,7 @@ interface MustEatDetailProps {
   isUnlocked: boolean
   onUnlock: () => void
   onClose: () => void
+  onViewRestaurant?: () => void
   inSheet?: boolean
 }
 
@@ -44,15 +45,7 @@ function UnlockIcon() {
   )
 }
 
-function ArrowIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M5 12h14M13 5l7 7-7 7" />
-    </svg>
-  )
-}
-
-export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnlock, onClose, inSheet }: MustEatDetailProps) {
+export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnlock, onClose, onViewRestaurant, inSheet }: MustEatDetailProps) {
   const { t } = useTranslation()
   const distance = userLocation
     ? haversineDistance(userLocation.lat, userLocation.lng, mustEat.restaurant.lat, mustEat.restaurant.lng)
@@ -65,18 +58,6 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
   const vibrateIntensity = distance === null
     ? 0.18
     : Math.max(0.18, Math.min(1, 1 - distance / 500))
-
-  // Distance still needed to reach the 200 m unlock radius.
-  const distToUnlock = distance === null
-    ? null
-    : Math.max(0, distance - UNLOCK_RADIUS_METERS)
-
-  // Progress toward unlock — 0 at >700 m (=500 m beyond radius), 1 inside the radius.
-  const progress = distance === null
-    ? 0
-    : distToUnlock === 0
-      ? 1
-      : Math.max(0, 1 - distToUnlock! / 500)
 
   const [tapping, setTapping] = useState(false)
   const handleCardClick = () => {
@@ -91,20 +72,6 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
 
   // ────────────────────── In-sheet (mobile) ──────────────────────
   if (inSheet) {
-    const lockedSubline = distance === null
-      ? t('map.enableLocation')
-      : canUnlock
-        ? t('map.revealHere')
-        : `noch ${formatDistance(distToUnlock!)} bis zum Reveal`
-
-    const ctaTopLine = isUnlocked
-      ? 'Freigeschaltet · Must-Eat'
-      : distance === null
-        ? 'Verschlossen'
-        : canUnlock
-          ? 'Bereit zum Aufdecken'
-          : `Verschlossen · noch ${formatDistance(distToUnlock!)}`
-
     return (
       <div className={styles.detailInSheet} role="dialog" aria-label={`Must-Eat at ${mustEat.restaurant.name}`}>
         <div className={styles.detailInSheetScroll}>
@@ -143,35 +110,69 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
             <p className={styles.mustEatInfoRow}>
               {isUnlocked
                 ? [mustEat.restaurant.name, mustEat.restaurant.district, mustEat.price].filter(Boolean).join(' · ')
-                : [mustEat.restaurant.district, mustEat.price, distance !== null ? `${formatDistance(distance)} entfernt` : null].filter(Boolean).join(' · ')}
+                : [mustEat.restaurant.district, mustEat.price].filter(Boolean).join(' · ')}
             </p>
 
             {!isUnlocked && (
               <>
-                <div className={styles.mustEatProgress}>
-                  <div className={styles.mustEatProgressFill} style={{ width: `${Math.round(progress * 100)}%` }} />
+                <div className={styles.mustEatExplainer}>
+                  <strong>Verschlossen.</strong> Plane deinen Besuch beim Restaurant — sobald du innerhalb von 200 m bist, deckt sich die Karte automatisch auf.
                 </div>
-                <div className={styles.mustEatProgressLabel}>{lockedSubline}</div>
+
+                <div className={styles.boosterOffer}>
+                  <img src="/pics/booster/booster5.webp" alt="" className={styles.boosterImg} loading="lazy" />
+                  <div className={styles.boosterInfo}>
+                    <div className={styles.boosterEyebrow}>Skip the Wait</div>
+                    <div className={styles.boosterTitle}>Booster Pack</div>
+                    <div className={styles.boosterDesc}>10 zufällige Must-Eats sofort freischalten — kein Hinlaufen nötig.</div>
+                    <button type="button" className={styles.boosterCta}>
+                      Pack holen · 0,99 €
+                    </button>
+                  </div>
+                </div>
               </>
             )}
 
             {isUnlocked && mustEat.description && (
               <p className={styles.mustEatDescription}>{mustEat.description}</p>
             )}
-          </div>
-        </div>
 
-        <div className={styles.detailFooter}>
-          <LocaleLink href={`/restaurant/${mustEat.restaurant.slug}`} className={styles.mustEatCombined}>
-            <span className={styles.mustEatCombinedTop}>
-              {isUnlocked ? <UnlockIcon /> : <LockIcon />}
-              {ctaTopLine}
-            </span>
-            <span className={styles.mustEatCombinedBottom}>
-              <span>{t('map.viewRestaurant')}</span>
-              <ArrowIcon />
-            </span>
-          </LocaleLink>
+            <div className={styles.mustEatLinks}>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${mustEat.restaurant.lat},${mustEat.restaurant.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.mustEatLink}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                <span>In Google Maps öffnen</span>
+              </a>
+              {onViewRestaurant ? (
+                <button type="button" onClick={onViewRestaurant} className={styles.mustEatLink}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M3 11l9-8 9 8v10a2 2 0 01-2 2h-4v-7H9v7H5a2 2 0 01-2-2V11z" />
+                  </svg>
+                  <span>Restaurant ansehen</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={styles.mustEatLinkArrow}>
+                    <path d="M5 12h14M13 5l7 7-7 7" />
+                  </svg>
+                </button>
+              ) : (
+                <LocaleLink href={`/restaurant/${mustEat.restaurant.slug}`} className={styles.mustEatLink}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M3 11l9-8 9 8v10a2 2 0 01-2 2h-4v-7H9v7H5a2 2 0 01-2-2V11z" />
+                  </svg>
+                  <span>Restaurant ansehen</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={styles.mustEatLinkArrow}>
+                    <path d="M5 12h14M13 5l7 7-7 7" />
+                  </svg>
+                </LocaleLink>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -235,16 +236,47 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
         )}
 
         {!isUnlocked && (
-          <div className={styles.unlockHint}>
-            {canUnlock
-              ? t('map.revealHere')
-              : distance !== null
-                ? `${formatDistance(distance)} ${t('map.awayToUnlock')}`
-                : t('map.enableLocation')}
-          </div>
+          <>
+            <div className={styles.unlockHint}>
+              {canUnlock
+                ? t('map.revealHere')
+                : distance !== null
+                  ? `${formatDistance(distance)} ${t('map.awayToUnlock')}`
+                  : t('map.enableLocation')}
+            </div>
+
+            <div className={styles.mustEatExplainer}>
+              <strong>So schaltest du es frei:</strong> Geh zum Restaurant — sobald du innerhalb von 200 m bist, deckt sich die Karte automatisch auf.
+            </div>
+
+            <div className={styles.boosterOffer}>
+              <img src="/pics/booster/booster5.webp" alt="" className={styles.boosterImg} loading="lazy" />
+              <div className={styles.boosterInfo}>
+                <div className={styles.boosterEyebrow}>Skip the Wait</div>
+                <div className={styles.boosterTitle}>Booster Pack</div>
+                <div className={styles.boosterDesc}>5 zufällige Must-Eats sofort freischalten — kein Hinlaufen nötig.</div>
+                <button type="button" className={styles.boosterCta}>
+                  Pack holen · 4,99 €
+                </button>
+              </div>
+            </div>
+          </>
         )}
 
         <div className={styles.detailActions}>
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${mustEat.restaurant.lat},${mustEat.restaurant.lng}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${styles.btn} ${styles.btnSecondary}`}
+            aria-label="In Google Maps öffnen"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ marginRight: 6, verticalAlign: 'middle' }}>
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            Google Maps
+          </a>
           {isUnlocked && (
             <LocaleLink
               href={`/restaurant/${mustEat.restaurant.slug}`}

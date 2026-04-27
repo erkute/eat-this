@@ -6,6 +6,8 @@ import type { UserLocation } from '@/lib/map/useUserLocation'
 import { useTranslation } from '@/lib/i18n'
 import styles from './map.module.css'
 
+const NEARBY_KM = 1.5
+
 interface ItemProps {
   restaurant: MapRestaurant
   userLocation: UserLocation | null
@@ -45,21 +47,24 @@ function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
       <div className={styles.rowMain}>
         <div className={styles.rowName}>{restaurant.name}</div>
         <div className={styles.rowMeta}>
-          {[restaurant.district, restaurant.price].filter(Boolean).join(' · ')}
-        </div>
-        {(restaurant.categories?.length || restaurant.mustEatCount > 0) && (
-          <div className={styles.rowTags}>
-            {restaurant.categories?.slice(0, 3).map(c => (
-              <span key={c} className={styles.rowTag}>{c}</span>
-            ))}
-            {restaurant.mustEatCount > 0 && (
+          <span>{[restaurant.district, restaurant.price].filter(Boolean).join(' · ')}</span>
+          {restaurant.mustEatCount > 0 && (
+            <>
+              <span className={styles.rowMetaDot} aria-hidden="true">·</span>
               <img
                 src="/pics/card-back.webp"
                 alt="Must-Eat"
                 className={styles.rowMustBadge}
                 draggable={false}
               />
-            )}
+            </>
+          )}
+        </div>
+        {restaurant.categories && restaurant.categories.length > 0 && (
+          <div className={styles.rowTags}>
+            <span className={styles.rowTagsText}>
+              {restaurant.categories.slice(0, 3).join(', ')}
+            </span>
           </div>
         )}
       </div>
@@ -68,10 +73,11 @@ function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
         {distance && <span className={styles.rowDistance}>{distance}</span>}
         {status.label && (
           <span
-            className={`${styles.rowStatusDot} ${status.isOpen ? styles.rowStatusDotOpen : styles.rowStatusDotClosed}`}
+            className={`${styles.rowStatusPill} ${status.isOpen ? styles.rowStatusPillOpen : styles.rowStatusPillClosed}`}
             role="status"
-            aria-label={status.isOpen ? t('map.open') : t('map.closed')}
-          />
+          >
+            {status.isOpen ? t('map.openNow') : t('map.closed')}
+          </span>
         )}
       </div>
     </button>
@@ -87,22 +93,46 @@ interface RestaurantListProps {
 
 export default function RestaurantList({ restaurants, userLocation, selectedId, onSelect }: RestaurantListProps) {
   const { t } = useTranslation()
+
   if (restaurants.length === 0) {
+    return <div className={styles.empty}>{t('map.nothingInArea')}</div>
+  }
+
+  if (!userLocation) {
     return (
-      <div className={styles.empty}>{t('map.nothingInArea')}</div>
+      <>
+        {restaurants.map(r => (
+          <Item key={r._id} restaurant={r} userLocation={null} isSelected={selectedId === r._id} onClick={onSelect} />
+        ))}
+      </>
     )
   }
+
+  const withDist = restaurants
+    .map(r => ({ r, dist: haversineDistance(userLocation.lat, userLocation.lng, r.lat, r.lng) }))
+    .sort((a, b) => a.dist - b.dist)
+
+  const nearby = withDist.filter(d => d.dist <= NEARBY_KM)
+  const farther = withDist.filter(d => d.dist > NEARBY_KM)
+
   return (
     <>
-      {restaurants.map(r => (
-        <Item
-          key={r._id}
-          restaurant={r}
-          userLocation={userLocation}
-          isSelected={selectedId === r._id}
-          onClick={onSelect}
-        />
-      ))}
+      {nearby.length > 0 && (
+        <>
+          <div className={styles.listSectionLabel}>{t('map.nearby')}</div>
+          {nearby.map(({ r }) => (
+            <Item key={r._id} restaurant={r} userLocation={userLocation} isSelected={selectedId === r._id} onClick={onSelect} />
+          ))}
+        </>
+      )}
+      {farther.length > 0 && (
+        <>
+          <div className={styles.listSectionLabel}>{t('map.nearbyAll')}</div>
+          {farther.map(({ r }) => (
+            <Item key={r._id} restaurant={r} userLocation={userLocation} isSelected={selectedId === r._id} onClick={onSelect} />
+          ))}
+        </>
+      )}
     </>
   )
 }

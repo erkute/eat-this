@@ -9,6 +9,7 @@ import { useUnlockedMustEats } from '@/lib/map/useUnlockedMustEats'
 import { useFavorites } from '@/lib/map/useFavorites'
 import { useBottomSheet } from '@/lib/map/useBottomSheet'
 import { getOpenStatus } from '@/lib/map/openingHours'
+import { haversineDistance, formatDistance } from '@/lib/map/distance'
 import { useTranslation } from '@/lib/i18n'
 import MapCanvas from './map/MapCanvas'
 import RestaurantMarker from './map/RestaurantMarker'
@@ -18,7 +19,6 @@ import RestaurantDetail from './map/RestaurantDetail'
 import MustEatDetail from './map/MustEatDetail'
 import UserLocationMarker from './map/UserLocationMarker'
 import MapToolbar from './map/MapToolbar'
-import LayerToggle from './map/LayerToggle'
 import CategoryFilter from './map/CategoryFilter'
 import OpenNowToggle from './map/OpenNowToggle'
 import { auth } from '@/lib/firebase/config'
@@ -34,16 +34,25 @@ function districtOf(r: MapRestaurant): string | null {
 
 export default function MapSection({ isActive = false }: Props) {
   const mapRef = useRef<MapRef>(null)
+  // Set true synchronously in any click handler that flies the camera so
+  // the slow auto-locate Promise can't overwrite the user's selection.
+  const userInteractedRef = useRef(false)
   const { t } = useTranslation()
 
-  const { restaurants, mustEats, loading } = useMapData()
+  const { restaurants, mustEats, loading: dataLoading } = useMapData()
+  // Hold the card-shuffle loading animation for at least a beat on first
+  // mount so users see the brand moment even when data resolves instantly.
+  const [minDelayElapsed, setMinDelayElapsed] = useState(false)
+  useEffect(() => {
+    const id = window.setTimeout(() => setMinDelayElapsed(true), 1100)
+    return () => window.clearTimeout(id)
+  }, [])
+  const loading = dataLoading || !minDelayElapsed
   const { location, request: requestLocation } = useUserLocation()
   const uid = auth.currentUser?.uid ?? null
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
-  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, reapplySnap, configure } = useBottomSheet('mid')
-  // Remember the sheet snap from before a detail opens so we can restore it on close.
-  const returnSnapRef = useRef<typeof snap | null>(null)
+  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, reapplySnap, snapToVisiblePx, configure } = useBottomSheet('mid')
 
   const [layer,              setLayer]              = useState<MapLayer>('restaurants')
   const [category,           setCategory]           = useState<MapCategory>('All')
@@ -74,21 +83,24 @@ export default function MapSection({ isActive = false }: Props) {
     return { bezirkNames: names, bezirkCenters: centers }
   }, [restaurants])
 
-  /* ---------- Filter pipeline (applied to markers + list) ---------- */
+  /* ---------- Filter pipeline (applied to markers + list) ----------
+     A non-empty search query overrides all other filters: the user expects
+     to find anything on the map regardless of the active bezirk/category/open
+     selection. Without a query, the filter chips apply normally. */
   const filterRestaurant = useCallback((r: MapRestaurant): boolean => {
-    if (category !== 'All' && !r.categories?.includes(category)) return false
-    if (bezirk && districtOf(r) !== bezirk) return false
-    if (openOnly) {
-      if (!r.openingHours) return false
-      if (!getOpenStatus(r.openingHours).isOpen) return false
-    }
     const q = search.trim().toLowerCase()
     if (q) {
       const hit =
         r.name.toLowerCase().includes(q) ||
         (districtOf(r) ?? '').toLowerCase().includes(q) ||
         r.categories?.some(c => c.toLowerCase().includes(q))
-      if (!hit) return false
+      return Boolean(hit)
+    }
+    if (category !== 'All' && !r.categories?.includes(category)) return false
+    if (bezirk && districtOf(r) !== bezirk) return false
+    if (openOnly) {
+      if (!r.openingHours) return false
+      if (!getOpenStatus(r.openingHours).isOpen) return false
     }
     return true
   }, [category, bezirk, openOnly, search])
@@ -102,14 +114,30 @@ export default function MapSection({ isActive = false }: Props) {
 
   const displayedMustEats = useMemo(() => {
     const q = search.trim().toLowerCase()
-    if (!q) return mustEats
-    return mustEats.filter(
-      m =>
-        m.dish.toLowerCase().includes(q) ||
-        m.restaurant.name.toLowerCase().includes(q) ||
-        m.restaurant.district?.toLowerCase().includes(q)
-    )
-  }, [mustEats, search])
+    const filtered = q
+      ? mustEats.filter(
+          m =>
+            m.dish.toLowerCase().includes(q) ||
+            m.restaurant.name.toLowerCase().includes(q) ||
+            m.restaurant.district?.toLowerCase().includes(q)
+        )
+      : mustEats
+    // Default sort: distance from Berlin Mitte (closest first). When a bezirk
+    // filter is active, items in that bezirk float to the top; everything
+    // else stays sorted by Mitte distance below them.
+    const MITTE_LAT = 52.52
+    const MITTE_LNG = 13.405
+    return [...filtered].sort((a, b) => {
+      if (bezirk) {
+        const aMatch = a.restaurant.district === bezirk
+        const bMatch = b.restaurant.district === bezirk
+        if (aMatch !== bMatch) return aMatch ? -1 : 1
+      }
+      const aD = haversineDistance(MITTE_LAT, MITTE_LNG, a.restaurant.lat, a.restaurant.lng)
+      const bD = haversineDistance(MITTE_LAT, MITTE_LNG, b.restaurant.lat, b.restaurant.lng)
+      return aD - bD
+    })
+  }, [mustEats, search, bezirk])
 
   const restaurantMustEats = useMemo(() => {
     if (!selectedRestaurant) return []
@@ -117,112 +145,141 @@ export default function MapSection({ isActive = false }: Props) {
   }, [mustEats, selectedRestaurant])
 
   /* ---------- Handlers ---------- */
-  // Remember the camera state from before a detail-open flyTo so closing the
-  // detail can restore it (user can click through a filtered list without
-  // losing their bird's-eye overview).
-  const returnViewRef = useRef<{ lng: number; lat: number; zoom: number } | null>(null)
-
   // Padding the map should respect when centering on a point, so spots don't
   // land behind the bottom sheet (mobile) or side panel (desktop).
-  const getFlyPadding = useCallback(() => {
+  // We derive the mobile bottom from the snap STATE rather than the DOM
+  // CSS variable so flyTo always uses the up-to-date target — reading from
+  // the DOM races the sheet's transform/animation tick.
+  const getFlyPadding = useCallback((targetSnap?: 'peek' | 'mid' | 'full') => {
     if (typeof window === 'undefined') return { top: 60, bottom: 60, left: 40, right: 40 }
     const isMobile = window.matchMedia('(max-width: 1023.98px)').matches
     if (!isMobile) {
-      // Desktop: side-panel takes the right ~420 px, toolbar takes ~56 px on top.
-      // Pad the camera so the marker lands inside the visible viewport.
-      return { top: 80, bottom: 40, left: 40, right: 440 }
+      // Desktop: the map canvas IS the left grid cell — the side panel is
+      // outside the canvas. Reserve a bit of room at top (toolbar) and bottom
+      // (zoom controls + FAB); horizontal stays symmetric so the marker lands
+      // at the column's geometric center.
+      return { top: 80, bottom: 100, left: 24, right: 24 }
     }
-    const sheetEl = document.querySelector<HTMLElement>('aside[aria-label]')
-    const raw = sheetEl ? getComputedStyle(sheetEl).getPropertyValue('--sheet-visible-px').trim() : ''
-    const visible = raw.endsWith('px') ? parseFloat(raw) : NaN
-    const bottom = Number.isFinite(visible) && visible > 0 ? visible : 350
-    return { top: 60, bottom: bottom + 20, left: 20, right: 20 }
-  }, [])
-
-  const rememberView = useCallback(() => {
-    if (selectedRestaurant || selectedMustEat) return // nested open — keep first stash
-    const m = mapRef.current
-    if (m) {
-      const c = m.getCenter()
-      returnViewRef.current = { lng: c.lng, lat: c.lat, zoom: m.getZoom() }
-    }
-    returnSnapRef.current = snap
-  }, [selectedRestaurant, selectedMustEat, snap])
-
-  const restoreView = useCallback(() => {
-    const v = returnViewRef.current
-    if (v) {
-      mapRef.current?.flyTo({ center: [v.lng, v.lat], zoom: v.zoom, duration: 500, padding: getFlyPadding() })
-    }
-    const s = returnSnapRef.current
-    if (s) {
-      setSnap(s)
-      reapplySnap(s)  // force CSS even if snap state didn't change (same-value setSnap is a no-op)
-    }
-    returnViewRef.current = null
-    returnSnapRef.current = null
-  }, [setSnap, getFlyPadding, reapplySnap])
+    const s = targetSnap ?? snap
+    let visible = 28 // peek
+    if (s === 'mid') visible = 440
+    else if (s === 'full') visible = window.innerHeight
+    return { top: 110, bottom: visible + 20, left: 20, right: 20 }
+  }, [snap])
 
   const handleRestaurantClick = useCallback((r: MapRestaurant) => {
-    rememberView()
+    userInteractedRef.current = true
     setSelectedRestaurant(r)
     setSelectedMustEat(null)
-    // On mobile the sheet shows the detail inline; on desktop the absolute modal handles it.
-    // Restaurant detail owns its full-height layout (hero + scroll + sticky CTA),
-    // so snap the sheet to 'full' instead of measuring scrollHeight to fit.
-    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches) {
-      setSheetView('detail')
-      setSnap('full')
-    }
+    // Both mobile sheet AND desktop sidebar render the detail inline now —
+    // desktop no longer uses a centered floating modal that hid the marker.
+    setSheetView('detail')
+    setSnap('full')
     mapRef.current?.flyTo({ center: [r.lng, r.lat], zoom: 15, duration: 500, padding: getFlyPadding() })
-  }, [setSnap, rememberView, getFlyPadding])
+  }, [setSnap, getFlyPadding])
 
   const handleMustEatClick = useCallback((m: MapMustEat) => {
+    userInteractedRef.current = true
+    const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
+    // Coming from a restaurant detail (mobile sheet OR desktop floating modal)
+    // → switch to mustEats layer + list view, fly to the must-eat. Same flow
+    // on both platforms.
+    if (selectedRestaurant) {
+      setLayer('mustEats')
+      setSelectedRestaurant(null)
+      setSelectedMustEat(m)
+      setSheetView('list')
+      if (isMobile) setSnap('mid')
+      // Mobile: wait for the sheet to snap from 'full' (detail) to 'mid' so
+      // the padding reads the new visible height. Desktop: fly immediately.
+      const flyDelay = isMobile ? 320 : 0
+      const center = [m.restaurant.lng, m.restaurant.lat] as [number, number]
+      const padding = getFlyPadding('mid')
+      const fly = () => mapRef.current?.flyTo({ center, zoom: 15, duration: 500, padding })
+      if (flyDelay) setTimeout(fly, flyDelay)
+      else fly()
+      return
+    }
     const isLocked = !unlockedIds.has(m._id)
-    rememberView()
     const open = () => {
       setSelectedMustEat(m)
-      // Don't clear selectedRestaurant — when opened from inside a restaurant
-      // detail, closing the must-eat lands back on the restaurant detail (stack).
-      if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches) {
-        setSheetView('detail')
-        // Must-eat detail also owns its full-height layout (cream hero + sticky CTA),
-        // same as the restaurant detail.
-        setSnap('full')
-      }
-      mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500, padding: getFlyPadding() })
+      setSheetView('detail')
+      setSnap('full')
+      mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500, padding: getFlyPadding(isMobile ? 'full' : undefined) })
     }
     // Let the back-card wiggle animation play before the detail modal covers it.
     if (isLocked) setTimeout(open, 420)
     else open()
-  }, [setSnap, unlockedIds, rememberView, getFlyPadding])
+  }, [setSnap, unlockedIds, getFlyPadding, selectedRestaurant])
 
   const handleRestaurantClose = useCallback(() => {
+    const r = selectedRestaurant
     setSelectedRestaurant(null)
     setSheetView('list')
-    restoreView()
-  }, [restoreView])
+    // Detail-open set snap to 'full' (or auto-sized custom px). Force back
+    // to 'mid' so the sheet drops to the standard list height.
+    setSnap('mid')
+    reapplySnap('mid')
+    // Stay centered on the just-closed restaurant — user wants to see WHERE
+    // it is on the map after dismissing the detail. Re-fly with the new
+    // (mid-snap) padding so the marker recenters above the smaller sheet.
+    if (r && mapRef.current) {
+      mapRef.current.flyTo({
+        center: [r.lng, r.lat],
+        zoom: 15,
+        duration: 350,
+        padding: getFlyPadding('mid'),
+      })
+    }
+  }, [selectedRestaurant, getFlyPadding, setSnap, reapplySnap])
+
+  const handleBackToRestaurants = useCallback(() => {
+    setLayer('restaurants')
+    setSelectedMustEat(null)
+    setSheetView('list')
+    setSnap('mid')
+    reapplySnap('mid')
+  }, [setSnap, reapplySnap])
+
+  const handleViewRestaurantFromMustEat = useCallback(() => {
+    if (!selectedMustEat) return
+    const restaurant = restaurants.find(r => r._id === selectedMustEat.restaurant._id)
+    if (!restaurant) return
+    setSelectedMustEat(null)
+    setLayer('restaurants')
+    handleRestaurantClick(restaurant)
+  }, [selectedMustEat, restaurants, handleRestaurantClick])
 
   const handleMustEatClose = useCallback(() => {
+    const m = selectedMustEat
     setSelectedMustEat(null)
     // If we were stacked on a restaurant detail, fall back to it instead of the list.
     if (selectedRestaurant) {
-      // Re-center the map on the restaurant we came from so the detail re-opens "in place".
       mapRef.current?.flyTo({ center: [selectedRestaurant.lng, selectedRestaurant.lat], zoom: 15, duration: 400, padding: getFlyPadding() })
       return
     }
     setSheetView('list')
-    restoreView()
-  }, [restoreView, selectedRestaurant, getFlyPadding])
+    setSnap('mid')
+    reapplySnap('mid')
+    // Stay centered on the just-closed must-eat — same as restaurant close.
+    if (m && mapRef.current) {
+      mapRef.current.flyTo({
+        center: [m.restaurant.lng, m.restaurant.lat],
+        zoom: 15,
+        duration: 350,
+        padding: getFlyPadding('mid'),
+      })
+    }
+  }, [selectedMustEat, selectedRestaurant, getFlyPadding, setSnap, reapplySnap])
 
   const handleMapClick = useCallback(() => {
-    // Clicking the map also counts as dismissing the detail → restore view.
-    if (selectedRestaurant || selectedMustEat) restoreView()
+    // Tapping the map dismisses the detail. Keep the camera where the user
+    // tapped — don't fly back to a remembered position.
     setSelectedRestaurant(null)
     setSelectedMustEat(null)
     setSheetView('list')
     setSnap('peek')
-  }, [setSnap, selectedRestaurant, selectedMustEat, restoreView])
+  }, [setSnap])
 
   // When the user starts typing in the search, surface the list (mid snap) so
   // they see the filtered results — typing into a hidden list is confusing.
@@ -232,19 +289,19 @@ export default function MapSection({ isActive = false }: Props) {
   }, [snap, sheetView, setSnap])
 
   const handleBezirkChange = useCallback((name: string | null) => {
+    userInteractedRef.current = true
     setBezirk(name)
+    // Reopen the list when a bezirk is picked so the user sees the filtered results.
+    if (sheetView === 'list') setSnap('mid')
     if (name) {
       const c = bezirkCenters.get(name)
       if (c) mapRef.current?.flyTo({ center: [c.lng, c.lat], zoom: 13, duration: 600, padding: getFlyPadding() })
     } else {
-      // "Alle Bezirke" → zoom out to a city-wide overview of Berlin.
-      mapRef.current?.flyTo({ center: [13.405, 52.52], zoom: 10.5, duration: 700, padding: getFlyPadding() })
+      // "Alle Bezirke" → centre on Berlin Mitte, tight enough that the inner
+      // ring (Mitte/Kreuzberg/Prenzlauer Berg) fills the viewport.
+      mapRef.current?.flyTo({ center: [13.405, 52.52], zoom: 11.6, duration: 700, padding: getFlyPadding() })
     }
-  }, [bezirkCenters, getFlyPadding])
-
-  // Detail views (restaurant + must-eat) snap to 'full' on click. Each detail
-  // component owns its own internal scroll + sticky footer, so no content-height
-  // auto-fit is needed.
+  }, [bezirkCenters, getFlyPadding, sheetView, setSnap])
 
   // Configure sheet drag behaviour based on view mode.
   // List → cap at mid (no full-screen list). Detail → locked (no drag, no handle).
@@ -255,12 +312,56 @@ export default function MapSection({ isActive = false }: Props) {
     )
   }, [sheetView, configure])
 
+  // Auto-size the sheet to detail content height (mobile only). When the
+  // detail content is shorter than the viewport, the sheet hugs the content
+  // instead of going full-screen — keeps the underlying restaurant marker
+  // visible and centered above the sheet edge.
+  useEffect(() => {
+    if (sheetView !== 'detail') return
+    if (typeof window === 'undefined') return
+    if (!window.matchMedia('(max-width: 1023.98px)').matches) return
+    // Use a small timeout (not RAF) so the measurement survives the cascade
+    // of state-driven re-renders triggered by setSelectedRestaurant +
+    // setSheetView('detail') + setSnap('full') firing in the same tick.
+    const id = window.setTimeout(() => {
+      const scrollEl = document.querySelector(`.${styles.detailInSheetScroll}`) as HTMLElement | null
+      const footerEl = document.querySelector(`.${styles.detailFooter}`) as HTMLElement | null
+      if (!scrollEl) return
+      // scrollEl has flex:1 + overflow:auto, so when content fits inside the
+      // current sheet height, scrollHeight returns the STRETCHED height
+      // (== clientHeight), not the actual content size. Sum the children's
+      // offsetHeights to get the real natural content height.
+      let childrenH = 0
+      for (const child of Array.from(scrollEl.children) as HTMLElement[]) {
+        childrenH += child.offsetHeight
+      }
+      const contentH = childrenH + (footerEl?.offsetHeight ?? 0)
+      const maxH = window.innerHeight * 0.94
+      const targetH = Math.min(contentH + 8, maxH)
+      snapToVisiblePx(targetH)
+      // Re-fly with padding for the new visible height so the marker is
+      // centered in the visible map area above the sheet.
+      const target = selectedRestaurant ?? selectedMustEat?.restaurant
+      if (target && mapRef.current) {
+        const center: [number, number] = [target.lng, target.lat]
+        mapRef.current.flyTo({
+          center,
+          zoom: 15,
+          duration: 350,
+          padding: { top: 110, bottom: targetH + 20, left: 20, right: 20 },
+        })
+      }
+    }, 80)
+    return () => window.clearTimeout(id)
+  }, [sheetView, selectedRestaurant, selectedMustEat, snapToVisiblePx])
+
   const handleUnlock = useCallback(async () => {
     if (!selectedMustEat) return
     await unlock(selectedMustEat._id, selectedMustEat.restaurant._id, selectedMustEat.dish)
   }, [selectedMustEat, unlock])
 
   const handleLocateMe = useCallback(async () => {
+    userInteractedRef.current = true
     const loc = await requestLocation()
     if (loc) {
       mapRef.current?.flyTo({ center: [loc.lng, loc.lat], zoom: 14, duration: 600, padding: getFlyPadding() })
@@ -268,7 +369,9 @@ export default function MapSection({ isActive = false }: Props) {
   }, [requestLocation, getFlyPadding])
 
   /* Auto-center on the user's position the first time the map page opens.
-     Ref guard handles React strict-mode double-mount so we don't double-prompt. */
+     Ref guard handles React strict-mode double-mount so we don't double-prompt.
+     userInteractedRef is set synchronously by click handlers — see top of
+     component — so this slow Promise can't overwrite the user's selection. */
   const autoLocatedRef = useRef(false)
   useEffect(() => {
     if (autoLocatedRef.current) return
@@ -276,6 +379,9 @@ export default function MapSection({ isActive = false }: Props) {
     let cancelled = false
     requestLocation().then(loc => {
       if (cancelled || !loc) return
+      // Skip the auto-fly if the user has already selected something — their
+      // click's flyTo would otherwise be overwritten by this delayed callback.
+      if (userInteractedRef.current) return
       const tryFly = () => {
         if (mapRef.current) {
           mapRef.current.flyTo({ center: [loc.lng, loc.lat], zoom: 14, duration: 600, padding: getFlyPadding() })
@@ -291,12 +397,7 @@ export default function MapSection({ isActive = false }: Props) {
   /* ---------- Render ---------- */
   const toolbarProps = {
     search, onSearch: handleSearchChange,
-    category, onCategory: setCategory,
     bezirke: bezirkNames, bezirk, onBezirk: handleBezirkChange,
-    openOnly, onOpenOnly: setOpenOnly,
-    showCategory: layer === 'restaurants',
-    layer, onLayer: setLayer,
-    onLocate: handleLocateMe,
   }
 
   return (
@@ -317,10 +418,9 @@ export default function MapSection({ isActive = false }: Props) {
       ) : (
         <div className={styles.shell}>
 
-          <MapToolbar variant="desktop" {...toolbarProps} />
-
           <div className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}`}>
             <div className={styles.mapWrap}>
+              <MapToolbar variant="desktop" {...toolbarProps} />
               <MapCanvas ref={mapRef} onMove={updateBounds} onMapClick={handleMapClick}>
                 {layer === 'restaurants' && displayedRestaurants.map(r => (
                   <RestaurantMarker
@@ -361,27 +461,9 @@ export default function MapSection({ isActive = false }: Props) {
 
               <MapToolbar variant="mobile" {...toolbarProps} />
 
-              {selectedRestaurant && (
-                <RestaurantDetail
-                  restaurant={selectedRestaurant}
-                  mustEats={restaurantMustEats}
-                  unlockedIds={unlockedIds}
-                  userLocation={location}
-                  onClose={handleRestaurantClose}
-                  onMustEatClick={handleMustEatClick}
-                  isFavorite={favoriteIds.has(selectedRestaurant._id)}
-                  onToggleFavorite={() => toggleFavorite(selectedRestaurant)}
-                />
-              )}
-              {selectedMustEat && (
-                <MustEatDetail
-                  mustEat={selectedMustEat}
-                  userLocation={location}
-                  isUnlocked={unlockedIds.has(selectedMustEat._id)}
-                  onUnlock={handleUnlock}
-                  onClose={handleMustEatClose}
-                />
-              )}
+              {/* Desktop floating modals removed — both mobile and desktop now
+                  render the detail in the side panel / bottom sheet so the
+                  selected marker stays visible on the map. */}
             </div>
 
             <aside
@@ -399,6 +481,7 @@ export default function MapSection({ isActive = false }: Props) {
                     isUnlocked={unlockedIds.has(selectedMustEat._id)}
                     onUnlock={handleUnlock}
                     onClose={handleMustEatClose}
+                    onViewRestaurant={handleViewRestaurantFromMustEat}
                     inSheet
                   />
                 </div>
@@ -418,10 +501,12 @@ export default function MapSection({ isActive = false }: Props) {
                 </div>
               ) : layer === 'restaurants' ? (
                 <>
-                  <div className={styles.listHeader}>
-                    <div className={styles.listTitle}>
-                      {displayedRestaurants.length}{' '}
-                      {displayedRestaurants.length === 1 ? t('map.restaurantOne') : t('map.restaurantMany')}
+                  <div className={styles.listBanner}>
+                    <div className={styles.listCountGroup}>
+                      <span className={styles.listCountNum}>{displayedRestaurants.length}</span>
+                      <span className={styles.listCountLabel}>
+                        {displayedRestaurants.length === 1 ? t('map.restaurantOne') : t('map.restaurantMany')}
+                      </span>
                     </div>
                     <OpenNowToggle active={openOnly} onChange={setOpenOnly} />
                   </div>
@@ -439,39 +524,103 @@ export default function MapSection({ isActive = false }: Props) {
                 </>
               ) : (
                 <>
-                  <div className={styles.listHeader}>
-                    <div className={styles.listTitle}>
-                      {unlockedIds.size}/{mustEats.length} {t('map.mustEatsUnlocked')}
-                    </div>
-                  </div>
+                  <button
+                    type="button"
+                    className={styles.mustEatsBack}
+                    onClick={handleBackToRestaurants}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M19 12H5M12 5l-7 7 7 7" />
+                    </svg>
+                    Restaurants
+                  </button>
                   <div ref={contentRef} className={`${styles.listScroll} ${styles.listScrollNoCats}`}>
                     {displayedMustEats.length === 0 ? (
                       <div className={styles.empty}>{t('map.noMustEatsMatch')}</div>
-                    ) : (
-                      displayedMustEats.map(m => (
-                        <button
-                          key={m._id}
-                          className={`${styles.row} ${selectedMustEat?._id === m._id ? styles.rowActive : ''}`}
-                          onClick={() => handleMustEatClick(m)}
-                        >
-                          <img
-                            src={unlockedIds.has(m._id) ? m.image : '/pics/card-back.webp'}
-                            alt=""
-                            className={unlockedIds.has(m._id) ? styles.rowPhoto : styles.rowPhotoCard}
-                            loading="lazy"
-                          />
-                          <div className={styles.rowMain}>
-                            <div className={styles.rowName}>
-                              {unlockedIds.has(m._id) ? m.dish : t('map.hiddenMustEat')}
-                            </div>
-                            <div className={styles.rowMeta}>
-                              {m.restaurant.name}{m.restaurant.district ? ` · ${m.restaurant.district}` : ''}
-                            </div>
+                    ) : (() => {
+                      // Render unlocked → locked, with the booster CTA injected
+                      // after the 10th item overall (or at the end if list shorter).
+                      const unlocked = displayedMustEats.filter(m => unlockedIds.has(m._id))
+                      const locked = displayedMustEats.filter(m => !unlockedIds.has(m._id))
+                      const total = unlocked.length + locked.length
+                      const insertAt = Math.min(10, total)
+                      const nodes: React.ReactNode[] = []
+                      let pos = 0
+                      const boosterNode = (
+                        <div key="booster" className={styles.boosterOfferList}>
+                          <img src="/pics/booster/booster5.webp" alt="" className={styles.boosterImg} loading="lazy" />
+                          <div className={styles.boosterInfo}>
+                            <div className={styles.boosterEyebrow}>Skip the Wait</div>
+                            <div className={styles.boosterTitle}>Booster Pack</div>
+                            <div className={styles.boosterDesc}>10 zufällige Must-Eats sofort freischalten — kein Hinlaufen nötig.</div>
+                            <button type="button" className={styles.boosterCta}>Pack holen · 0,99 €</button>
                           </div>
-                          <div className={styles.rowSide} />
-                        </button>
-                      ))
-                    )}
+                        </div>
+                      )
+                      const maybeInsertBooster = () => {
+                        if (pos === insertAt) nodes.push(boosterNode)
+                      }
+                      if (unlocked.length > 0) {
+                        nodes.push(<div key="lbl-u" className={styles.mustDeckSectionLabel}>Freigeschaltet</div>)
+                      }
+                      for (const m of unlocked) {
+                        nodes.push(
+                          <button
+                            key={m._id}
+                            className={`${styles.row} ${selectedMustEat?._id === m._id ? styles.rowActive : ''}`}
+                            onClick={() => handleMustEatClick(m)}
+                          >
+                            <img src={m.image} alt="" className={styles.mustDeckThumb} loading="lazy" />
+                            <div className={styles.rowMain}>
+                              <div className={styles.rowName}>{m.dish}</div>
+                              <div className={styles.mustDeckRestaurant}>{m.restaurant.name}</div>
+                              <div className={styles.rowMeta}>
+                                <span>{[m.restaurant.district, m.price].filter(Boolean).join(' · ')}</span>
+                              </div>
+                            </div>
+                            <div className={styles.rowSide} />
+                          </button>
+                        )
+                        pos++
+                        maybeInsertBooster()
+                      }
+                      if (locked.length > 0) {
+                        nodes.push(<div key="lbl-l" className={styles.mustDeckSectionLabel}>Noch nicht entdeckt</div>)
+                      }
+                      for (const m of locked) {
+                        const dist = location
+                          ? haversineDistance(location.lat, location.lng, m.restaurant.lat, m.restaurant.lng)
+                          : null
+                        nodes.push(
+                          <button
+                            key={m._id}
+                            className={`${styles.row} ${selectedMustEat?._id === m._id ? styles.rowActive : ''}`}
+                            onClick={() => handleMustEatClick(m)}
+                          >
+                            <div className={styles.mustDeckThumbWrap}>
+                              <img src="/pics/card_back.png" alt="" className={styles.mustDeckThumbCard} loading="lazy" />
+                            </div>
+                            <div className={styles.rowMain}>
+                              <div className={styles.rowName}>{m.restaurant.name}</div>
+                              <div className={styles.mustDeckRestaurant}>{m.restaurant.district}</div>
+                              <div className={styles.mustDeckLockedTag}>
+                                <svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                  <rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/>
+                                </svg>
+                                Verschlossen
+                              </div>
+                            </div>
+                            {dist !== null && (
+                              <div className={styles.mustDeckDist}>{formatDistance(dist)}</div>
+                            )}
+                            <div className={styles.rowSide} />
+                          </button>
+                        )
+                        pos++
+                        maybeInsertBooster()
+                      }
+                      return <>{nodes}</>
+                    })()}
                   </div>
                 </>
               )}

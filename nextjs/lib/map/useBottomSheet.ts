@@ -56,6 +56,9 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   // controls show up (maplibre mounts them asynchronously after the map ready
   // event, which is usually AFTER the sheet has done its first applyY).
   const lastControlOffsetRef = useRef<number>(0)
+  // Pending retry timers — cancelled on every new applyY so stale offsets
+  // from mid-drag calls never fire after a subsequent call has already settled.
+  const ctrlRetryTimers = useRef<ReturnType<typeof setTimeout>[]>([])
 
   const updateControls = useCallback((root: HTMLElement, offsetPx: number) => {
     root.querySelectorAll<HTMLElement>(
@@ -76,11 +79,13 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const offset = visible + 10
       lastControlOffsetRef.current = offset
       updateControls(parent, offset)
-      // Maplibre may not have mounted its controls yet at the very first call
-      // (the map ready event is async). Retry after a short delay so the
-      // controls don't sit behind the sheet on first paint.
-      setTimeout(() => updateControls(parent, offset), 200)
-      setTimeout(() => updateControls(parent, offset), 800)
+      // Cancel any pending retries from previous drag frames before scheduling
+      // new ones — prevents stale offsets from firing after the sheet settles.
+      ctrlRetryTimers.current.forEach(clearTimeout)
+      ctrlRetryTimers.current = [
+        setTimeout(() => updateControls(parent, offset), 200),
+        setTimeout(() => updateControls(parent, offset), 800),
+      ]
     }
   }, [updateControls])
 
@@ -125,8 +130,11 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
         lastControlOffsetRef.current = offset
         updateControls(parent, offset)
         // Retry — maplibre might still be mounting its controls async
-        setTimeout(() => updateControls(parent, offset), 250)
-        setTimeout(() => updateControls(parent, offset), 1000)
+        ctrlRetryTimers.current.forEach(clearTimeout)
+        ctrlRetryTimers.current = [
+          setTimeout(() => updateControls(parent, offset), 250),
+          setTimeout(() => updateControls(parent, offset), 1000),
+        ]
       }
     }
   }, [updateControls])

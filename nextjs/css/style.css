@@ -179,9 +179,7 @@ body {
   background: rgba(255, 59, 0, 0.08);
   border-radius: 10px;
 }
-.navbar-icon-btn.active::after {
-  transform: translateX(-50%) scale(1);
-}
+/* Active dot pip removed — frame alone signals the active state. */
 
 /* ============================================
    LANGUAGE SWITCHER

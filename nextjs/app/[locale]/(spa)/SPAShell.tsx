@@ -6,6 +6,13 @@ import Intro from '@/app/components/landing/Intro';
 import Ticker from '@/app/components/landing/Ticker';
 import About from '@/app/components/landing/About';
 import FanCards from '@/app/components/landing/FanCards';
+import USPs from '@/app/components/landing/USPs';
+import MemoryGame from '@/app/components/landing/MemoryGame';
+import MapTeaser from '@/app/components/landing/MapTeaser';
+import BoosterPack from '@/app/components/landing/BoosterPack';
+import Coming from '@/app/components/landing/Coming';
+import LandingFAQ from '@/app/components/landing/LandingFAQ';
+import Newsletter from '@/app/components/landing/Newsletter';
 import BurgerDrawer from '@/app/components/BurgerDrawer';
 import MustsSection from '@/app/components/MustsSection';
 import MapSection from '@/app/components/MapSection';
@@ -38,6 +45,13 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
             <Ticker />
             <About />
             <FanCards />
+            <USPs />
+            <MemoryGame />
+            <MapTeaser />
+            <BoosterPack />
+            <Coming />
+            <LandingFAQ />
+            <Newsletter />
             <SiteFooter />
           </div>
         </div>

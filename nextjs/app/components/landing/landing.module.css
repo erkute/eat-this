@@ -565,16 +565,14 @@
 
 /* ── MEMORY GAME ───────────────────────────────────────────── */
 .game {
-  padding: 28px 22px;
+  padding: 36px 22px;
   background: #fff;
   border-bottom: 1px solid #ece9e3;
   position: relative;
-  /* Anchor: section fills at least the viewport on mobile and centers
-     the game content vertically — user lands here, plays, scrolls on. */
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  /* Optional snap target — only fires if a scroll-snap-type
+     container exists upstream; harmless otherwise. */
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
 }
 .gameHead h2 {
   font-size: 19px;
@@ -658,12 +656,7 @@
 }
 
 @media (min-width: 768px) {
-  .game {
-    padding: 56px 80px 48px;
-    /* Reset mobile viewport-anchor — desktop sizes to content */
-    min-height: 0;
-    display: block;
-  }
+  .game { padding: 56px 80px 48px; }
   .gameHead { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; }
   .gameHead h2 { font-size: 30px; margin-bottom: 4px; }
   .gameHead p { font-size: 14px; margin-bottom: 0; }
@@ -913,6 +906,8 @@
   color: #c8951a;
   font-style: italic;
   font-weight: 800;
+  /* Compensate optical leading space caused by italic "Y" angle */
+  margin-left: -1px;
   margin-right: 4px;
   letter-spacing: 0.01em;
 }
@@ -1207,12 +1202,59 @@
   .about,
   .fanWrap,
   .usps,
-  .game,
   .mapTeaser,
   .pack,
   .coming,
   .faq,
   .news {
     overflow-x: clip;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   iOS Safari auto-zoom prevention — every <input>/<textarea>
+   under 16px triggers an annoying zoom-in that the user can't
+   undo without re-pinching. Bump every landing input to 16px on
+   mobile so the keyboard opens without zooming the viewport.
+   ──────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .heroInput,
+  .packInput,
+  .newsInput,
+  .memModalInput {
+    font-size: 16px;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   Mobile landscape — short viewport. The default
+   bottom:14vh + centered logo overlap each other when the phone
+   is rotated. Compact the overlay and pull it up.
+   ──────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) and (orientation: landscape) {
+  .heroDesktopExtra {
+    bottom: 6vh;
+    max-width: 360px;
+  }
+  .heroDesktopHeadline {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+  .heroDesktopSubtitle {
+    display: none;
+  }
+  .heroForm {
+    flex-direction: row;
+    gap: 0;
+  }
+  .heroInput {
+    flex: 1;
+    border-radius: 10px 0 0 10px;
+    padding: 11px 14px;
+  }
+  .heroSubmit {
+    border-radius: 0 10px 10px 0;
+    padding: 11px 18px;
+    white-space: nowrap;
   }
 }

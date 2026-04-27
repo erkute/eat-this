@@ -11,7 +11,7 @@ const CARD_IMAGES = [
   'https://cdn.sanity.io/images/ehwjnjr2/production/de27d072ad8d240ed1361d00b22b60525378375b-1449x2163.png',
 ];
 
-const ROTS_MOBILE = [-20, -10, 0, 10, 20];
+const ROTS_MOBILE = [-22, -11, 0, 11, 22];
 const ROTS_DESKTOP = [-36, -18, 0, 18, 36];
 
 // Rotation tied directly to element position in viewport: opening when scrolling down,
@@ -41,7 +41,11 @@ export default function FanCards() {
       return out;
     }
 
-    function update() {
+    let lastP = -1;
+    let rafPending = false;
+
+    function compute() {
+      rafPending = false;
       if (!stage) return;
       const rect = stage.getBoundingClientRect();
       const vh = window.innerHeight;
@@ -49,24 +53,37 @@ export default function FanCards() {
       const startY = vh * 0.75;
       const endY = vh * 0.45;
       const p = Math.max(0, Math.min(1, (startY - elemCenter) / (startY - endY)));
+      // Skip transform writes if rotation hasn't changed (cheap on 120Hz)
+      if (Math.abs(p - lastP) < 0.005) return;
+      lastP = p;
       const rots = window.innerWidth >= 768 ? ROTS_DESKTOP : ROTS_MOBILE;
       cards.forEach((card, i) => {
         const r = rots[i] ?? 0;
-        card.style.transform = `rotate(${(r * p).toFixed(2)}deg)`;
+        // translateZ(0) keeps the card on its own GPU layer — smoother on
+        // ProMotion devices. The rotate is the actual fan animation.
+        card.style.transform = `translateZ(0) rotate(${(r * p).toFixed(2)}deg)`;
       });
     }
 
+    // requestAnimationFrame throttle — collapses 120Hz scroll storms into
+    // one paint per frame and avoids forcing a layout on every event.
+    function schedule() {
+      if (rafPending) return;
+      rafPending = true;
+      requestAnimationFrame(compute);
+    }
+
     const scrollAncestors = getScrollAncestors(stage);
-    update();
+    schedule();
     scrollAncestors.forEach((s) =>
-      s.addEventListener('scroll', update, { passive: true })
+      s.addEventListener('scroll', schedule, { passive: true })
     );
-    window.addEventListener('resize', update, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
     return () => {
       scrollAncestors.forEach((s) =>
-        s.removeEventListener('scroll', update)
+        s.removeEventListener('scroll', schedule)
       );
-      window.removeEventListener('resize', update);
+      window.removeEventListener('resize', schedule);
     };
   }, []);
 

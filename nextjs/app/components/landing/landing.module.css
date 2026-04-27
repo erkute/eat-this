@@ -208,7 +208,9 @@
   border-bottom: 1px solid #ece9e3;
 }
 .uspsHead {
-  padding: 24px 0 20px;
+  padding: 28px 0 8px;
+  margin-top: 14px;
+  border-top: 1px solid #ddd8d2;
 }
 .uspsHead .secLabel { margin-bottom: 6px; }
 .uspsHeadHeadline {
@@ -265,7 +267,9 @@
   }
   .uspsHead {
     grid-column: 1 / -1;
-    padding: 0 0 36px;
+    padding: 36px 0 0;
+    margin-top: 28px;
+    border-top: 1px solid #ece9e3;
   }
   .uspsHeadHeadline { font-size: 32px; }
   .uspsHeadBody { font-size: 15px; max-width: 580px; }
@@ -1009,6 +1013,7 @@
   border-bottom-color: #2a2a2a;
 }
 :global([data-theme="dark"]) .uspsHeadHeadline { color: #fff; }
+:global([data-theme="dark"]) .uspsHead { border-top-color: #2a2a2a; }
 :global([data-theme="dark"]) .usp { border-color: #2a2a2a; }
 :global([data-theme="dark"]) .usp:last-child { border-bottom-color: #2a2a2a; }
 :global([data-theme="dark"]) .uspBody h3 { color: #fff; }

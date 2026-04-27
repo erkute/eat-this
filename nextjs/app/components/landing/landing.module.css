@@ -432,8 +432,6 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-width: 300px;
-  width: 100%;
 }
 .packInput {
   padding: 13px 16px;
@@ -881,7 +879,7 @@
   flex-direction: column;
   gap: 8px;
   width: 100%;
-  max-width: 300px;
+  max-width: 360px;
 }
 .newsInput {
   padding: 13px 16px;

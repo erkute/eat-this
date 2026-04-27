@@ -26,6 +26,21 @@ export default function FanCards() {
       stage.querySelectorAll<HTMLDivElement>(`.${styles.fanCard}`)
     );
 
+    // SPA layout has multiple auto-overflow ancestors (.app-page, .app-pages,
+    // body, html). Which one actually scrolls depends on viewport size and
+    // content length. Attach to all candidates instead of guessing.
+    function getScrollAncestors(el: HTMLElement | null): (HTMLElement | Window)[] {
+      const out: (HTMLElement | Window)[] = [];
+      let node = el?.parentElement;
+      while (node) {
+        const o = getComputedStyle(node).overflowY;
+        if (o === 'auto' || o === 'scroll') out.push(node);
+        node = node.parentElement;
+      }
+      out.push(window);
+      return out;
+    }
+
     function update() {
       if (!stage) return;
       const rect = stage.getBoundingClientRect();
@@ -41,11 +56,16 @@ export default function FanCards() {
       });
     }
 
+    const scrollAncestors = getScrollAncestors(stage);
     update();
-    window.addEventListener('scroll', update, { passive: true });
+    scrollAncestors.forEach((s) =>
+      s.addEventListener('scroll', update, { passive: true })
+    );
     window.addEventListener('resize', update, { passive: true });
     return () => {
-      window.removeEventListener('scroll', update);
+      scrollAncestors.forEach((s) =>
+        s.removeEventListener('scroll', update)
+      );
       window.removeEventListener('resize', update);
     };
   }, []);

@@ -878,3 +878,70 @@
   .newsInput { flex: 1; border-radius: 10px 0 0 10px; border: none; padding: 14px 18px; }
   .newsBtn { padding: 14px 26px; border-radius: 0 10px 10px 0; white-space: nowrap; }
 }
+
+/* ── HERO desktop overlay (≥1024px) ────────────────────────── */
+.heroDesktopExtra { display: none; }
+
+@media (min-width: 1024px) {
+  .heroDesktopExtra {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: 720px;
+    margin-top: 28px;
+    padding: 28px 40px 32px;
+    /* Dim panel so white text stays legible on a bright food photo */
+    background: linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0.7) 100%);
+    border-radius: 18px;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+  }
+  .heroDesktopHeadline {
+    font-size: clamp(30px, 3.2vw, 46px);
+    text-wrap: balance;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.04;
+    margin: 0 0 14px;
+    letter-spacing: -0.015em;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+  }
+  .heroDesktopSubtitle {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.5;
+    margin: 0 0 22px;
+    max-width: 520px;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+  }
+  .heroForm {
+    display: flex;
+    width: 100%;
+    max-width: 440px;
+  }
+  .heroInput {
+    flex: 1;
+    padding: 14px 18px;
+    border: none;
+    border-radius: 10px 0 0 10px;
+    font-size: 14px;
+    color: #1a1a1a;
+    background: #fff;
+    outline: none;
+  }
+  .heroInput::placeholder { color: #aaa; }
+  .heroSubmit {
+    padding: 14px 24px;
+    background: #b71c1c;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    border-radius: 0 10px 10px 0;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .heroSubmit:hover { background: #9a1818; }
+}

@@ -143,11 +143,11 @@ export default function MemoryGame() {
           </button>
           <div className={styles.memModalPack}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/booster/booster5.png" alt="" />
+            <img src="/pics/booster/booster5.webp" alt="" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/booster/booster2.png" alt="" />
+            <img src="/pics/booster/booster2.webp" alt="" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/booster/booster3.png" alt="" />
+            <img src="/pics/booster/booster3.webp" alt="" />
           </div>
           <div className={styles.memModalLabel}>Gut gemacht!</div>
           <h3>Du hast deine ersten {PAIR_COUNT} Berlin Must-Eats entdeckt.</h3>

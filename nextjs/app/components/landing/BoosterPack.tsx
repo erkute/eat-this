@@ -18,15 +18,15 @@ export default function BoosterPack() {
         <div className={styles.packStage}>
           <div className={`${styles.packCard} ${styles.bc1}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/booster/booster5.png" alt="" />
+            <img src="/pics/booster/booster5.webp" alt="" />
           </div>
           <div className={`${styles.packCard} ${styles.bc2}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/booster/booster2.png" alt="" />
+            <img src="/pics/booster/booster2.webp" alt="" />
           </div>
           <div className={`${styles.packCard} ${styles.bc3}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/booster/booster3.png" alt="" />
+            <img src="/pics/booster/booster3.webp" alt="" />
           </div>
         </div>
       </div>

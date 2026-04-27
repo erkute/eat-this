@@ -34,7 +34,7 @@ export default function Newsletter() {
               Abonnieren
             </button>
           </form>
-          <span className={styles.newsNote}>Gruß aus der Küche.</span>
+          <span className={styles.newsNote}>Yes, Chef!</span>
         </div>
       </div>
     </section>

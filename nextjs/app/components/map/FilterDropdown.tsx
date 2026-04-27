@@ -1,6 +1,5 @@
 'use client'
-import { useEffect, useRef, useLayoutEffect, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useRef } from 'react'
 import styles from './map.module.css'
 
 export type SortOption = 'distance' | 'name'
@@ -14,6 +13,7 @@ interface FilterDropdownProps {
   bezirk: string | null
   onBezirk: (b: string | null) => void
   onClose: () => void
+  /** Anchor element so outside-click can ignore taps on it. */
   anchorEl?: HTMLElement | null
 }
 
@@ -29,41 +29,9 @@ export default function FilterDropdown({
   sort, onSort, openOnly, onOpenOnly, bezirke, bezirk, onBezirk, onClose, anchorEl,
 }: FilterDropdownProps) {
   const ref = useRef<HTMLDivElement>(null)
-  const [pos, setPos] = useState<{ top: number; left: number } | null>(null)
 
-  // Compute fixed position from anchor element. Uses left+top (not right) so
-  // viewport-width quirks in mobile simulation can't push the dropdown off
-  // screen. Right-aligns with anchor by computing dropdown width offset, and
-  // clamps to viewport bounds so it stays visible regardless of anchor pos.
-  useLayoutEffect(() => {
-    if (!anchorEl) return
-    const update = () => {
-      const r = anchorEl.getBoundingClientRect()
-      const viewportW = document.documentElement.clientWidth || window.innerWidth
-      const viewportH = document.documentElement.clientHeight || window.innerHeight
-      const dropdownW = 220 // matches min-width 200 + border
-      // Right-aligned with anchor's right edge, but clamped to viewport
-      const idealLeft = r.right - dropdownW
-      const left = Math.max(8, Math.min(idealLeft, viewportW - dropdownW - 8))
-      // Below anchor, but if there's no room below, flip above
-      const idealTop = r.bottom + 6
-      const top = idealTop + 320 > viewportH ? Math.max(8, r.top - 320 - 6) : idealTop
-      setPos({ top, left })
-    }
-    update()
-    window.addEventListener('resize', update)
-    window.addEventListener('scroll', update, true)
-    return () => {
-      window.removeEventListener('resize', update)
-      window.removeEventListener('scroll', update, true)
-    }
-  }, [anchorEl])
-
-  // Outside-click close. We exclude clicks on the anchor element (filter
-  // button) so its own onClick can toggle the dropdown without this listener
-  // racing it. React's e.stopPropagation() doesn't stop native events from
-  // reaching document-level listeners, so the anchor check is the reliable
-  // approach.
+  // Outside-click close. Excludes clicks on the dropdown itself and on its
+  // anchor (filter button) so the toggle button works without racing.
   useEffect(() => {
     const handler = (e: MouseEvent | TouchEvent) => {
       const target = e.target as Node
@@ -79,12 +47,8 @@ export default function FilterDropdown({
     }
   }, [onClose, anchorEl])
 
-  const dropdown = (
-    <div
-      ref={ref}
-      className={styles.filterDropdown}
-      style={pos ? { top: pos.top, left: pos.left } : { visibility: 'hidden' }}
-    >
+  return (
+    <div ref={ref} className={styles.filterDropdown}>
       <div className={styles.filterDropdownSection}>
         <div className={styles.filterDropdownLabel}>Sortieren</div>
         {(['distance', 'name'] as SortOption[]).map(opt => (
@@ -144,9 +108,4 @@ export default function FilterDropdown({
       )}
     </div>
   )
-
-  // Portal into document.body (same as BezirkFilter) so the sheet's
-  // overflow:hidden doesn't clip the fixed-positioned dropdown.
-  if (typeof document === 'undefined') return null
-  return createPortal(dropdown, document.body)
 }

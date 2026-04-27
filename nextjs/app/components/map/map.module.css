@@ -3792,15 +3792,17 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
 
 /* ── FilterDropdown ─────────────────────────────────────── */
 /* Portaled into document.body (same as BezirkFilter) so the sheet's
-   overflow:hidden doesn't clip it. top/right come from inline style. */
+   anchored to the right of the .listHeader (which is position: relative). */
 .filterDropdown {
-  position: fixed;
-  z-index: 200;
-  background: #1e1e1e;
-  border: 1px solid #2a2a2a;
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 14px;
+  z-index: 50;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
   border-radius: 14px;
-  min-width: 200px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .6);
+  min-width: 220px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
   overflow: hidden;
 }
 

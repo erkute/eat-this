@@ -122,22 +122,23 @@ export default function MapSection({ isActive = false }: Props) {
             m.restaurant.district?.toLowerCase().includes(q)
         )
       : mustEats
-    // Default sort: distance from Berlin Mitte (closest first). When a bezirk
-    // filter is active, items in that bezirk float to the top; everything
-    // else stays sorted by Mitte distance below them.
-    const MITTE_LAT = 52.52
-    const MITTE_LNG = 13.405
+    // Default sort: distance from user location (closest first), falling back
+    // to Berlin Mitte when GPS is unavailable. When a bezirk filter is active,
+    // items in that bezirk float to the top; everything else stays sorted by
+    // distance below them.
+    const sortLat = location?.lat ?? 52.52
+    const sortLng = location?.lng ?? 13.405
     return [...filtered].sort((a, b) => {
       if (bezirk) {
         const aMatch = a.restaurant.district === bezirk
         const bMatch = b.restaurant.district === bezirk
         if (aMatch !== bMatch) return aMatch ? -1 : 1
       }
-      const aD = haversineDistance(MITTE_LAT, MITTE_LNG, a.restaurant.lat, a.restaurant.lng)
-      const bD = haversineDistance(MITTE_LAT, MITTE_LNG, b.restaurant.lat, b.restaurant.lng)
+      const aD = haversineDistance(sortLat, sortLng, a.restaurant.lat, a.restaurant.lng)
+      const bD = haversineDistance(sortLat, sortLng, b.restaurant.lat, b.restaurant.lng)
       return aD - bD
     })
-  }, [mustEats, search, bezirk])
+  }, [mustEats, search, bezirk, location])
 
   const restaurantMustEats = useMemo(() => {
     if (!selectedRestaurant) return []

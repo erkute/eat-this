@@ -38,7 +38,7 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
       <div className="app-pages" id="appPages" suppressHydrationWarning>
         <div className={`app-page${startActive ? ' active' : ''}`} data-page="start" suppressHydrationWarning>
           <HeroSection />
-          <div className="start-scroll-content">
+          <div className="start-scroll-content" style={{ paddingTop: 0 }}>
             <AboutFanRow />
             <USPs />
             <Ticker />

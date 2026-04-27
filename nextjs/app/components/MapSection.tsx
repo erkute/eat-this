@@ -52,7 +52,7 @@ export default function MapSection({ isActive = false }: Props) {
   const uid = auth.currentUser?.uid ?? null
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
-  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, reapplySnap, configure } = useBottomSheet('mid')
+  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, reapplySnap, snapToVisiblePx, configure } = useBottomSheet('mid')
 
   const [layer,              setLayer]              = useState<MapLayer>('restaurants')
   const [category,           setCategory]           = useState<MapCategory>('All')
@@ -312,6 +312,48 @@ export default function MapSection({ isActive = false }: Props) {
     )
   }, [sheetView, configure])
 
+  // Auto-size the sheet to detail content height (mobile only). When the
+  // detail content is shorter than the viewport, the sheet hugs the content
+  // instead of going full-screen — keeps the underlying restaurant marker
+  // visible and centered above the sheet edge.
+  useEffect(() => {
+    if (sheetView !== 'detail') return
+    if (typeof window === 'undefined') return
+    if (!window.matchMedia('(max-width: 1023.98px)').matches) return
+    // Use a small timeout (not RAF) so the measurement survives the cascade
+    // of state-driven re-renders triggered by setSelectedRestaurant +
+    // setSheetView('detail') + setSnap('full') firing in the same tick.
+    const id = window.setTimeout(() => {
+      const scrollEl = document.querySelector(`.${styles.detailInSheetScroll}`) as HTMLElement | null
+      const footerEl = document.querySelector(`.${styles.detailFooter}`) as HTMLElement | null
+      if (!scrollEl) return
+      // scrollEl has flex:1 + overflow:auto, so when content fits inside the
+      // current sheet height, scrollHeight returns the STRETCHED height
+      // (== clientHeight), not the actual content size. Sum the children's
+      // offsetHeights to get the real natural content height.
+      let childrenH = 0
+      for (const child of Array.from(scrollEl.children) as HTMLElement[]) {
+        childrenH += child.offsetHeight
+      }
+      const contentH = childrenH + (footerEl?.offsetHeight ?? 0)
+      const maxH = window.innerHeight * 0.94
+      const targetH = Math.min(contentH + 8, maxH)
+      snapToVisiblePx(targetH)
+      // Re-fly with padding for the new visible height so the marker is
+      // centered in the visible map area above the sheet.
+      const target = selectedRestaurant ?? selectedMustEat?.restaurant
+      if (target && mapRef.current) {
+        const center: [number, number] = [target.lng, target.lat]
+        mapRef.current.flyTo({
+          center,
+          zoom: 15,
+          duration: 350,
+          padding: { top: 110, bottom: targetH + 20, left: 20, right: 20 },
+        })
+      }
+    }, 80)
+    return () => window.clearTimeout(id)
+  }, [sheetView, selectedRestaurant, selectedMustEat, snapToVisiblePx])
 
   const handleUnlock = useCallback(async () => {
     if (!selectedMustEat) return

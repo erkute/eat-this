@@ -6,8 +6,6 @@ import type { UserLocation } from '@/lib/map/useUserLocation'
 import { useTranslation } from '@/lib/i18n'
 import styles from './map.module.css'
 
-const NEARBY_KM = 1.5
-
 interface ItemProps {
   restaurant: MapRestaurant
   userLocation: UserLocation | null
@@ -110,29 +108,12 @@ export default function RestaurantList({ restaurants, userLocation, selectedId, 
 
   const withDist = restaurants
     .map(r => ({ r, dist: haversineDistance(userLocation.lat, userLocation.lng, r.lat, r.lng) }))
-    .sort((a, b) => a.dist - b.dist)
-
-  const nearby = withDist.filter(d => d.dist <= NEARBY_KM)
-  const farther = withDist.filter(d => d.dist > NEARBY_KM)
 
   return (
     <>
-      {nearby.length > 0 && (
-        <>
-          <div className={styles.listSectionLabel}>{t('map.nearby')}</div>
-          {nearby.map(({ r }) => (
-            <Item key={r._id} restaurant={r} userLocation={userLocation} isSelected={selectedId === r._id} onClick={onSelect} />
-          ))}
-        </>
-      )}
-      {farther.length > 0 && (
-        <>
-          <div className={styles.listSectionLabel}>{t('map.nearbyAll')}</div>
-          {farther.map(({ r }) => (
-            <Item key={r._id} restaurant={r} userLocation={userLocation} isSelected={selectedId === r._id} onClick={onSelect} />
-          ))}
-        </>
-      )}
+      {withDist.map(({ r }) => (
+        <Item key={r._id} restaurant={r} userLocation={userLocation} isSelected={selectedId === r._id} onClick={onSelect} />
+      ))}
     </>
   )
 }

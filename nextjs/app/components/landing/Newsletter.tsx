@@ -20,8 +20,9 @@ export default function Newsletter() {
           <span className={styles.secLabel}>Newsletter</span>
           <h2>Sei zuerst dran.</h2>
           <p>
-            Neue Must-Eats, neue Städte, neue Decks — direkt in dein Postfach,
-            bevor wir öffentlich davon erzählen.
+            <em className={styles.newsHook}>Yes, Chef!</em> Neue Must-Eats,
+            neue Städte, neue Decks — direkt in dein Postfach, bevor wir
+            öffentlich davon erzählen.
           </p>
           <form className={styles.newsForm} onSubmit={(e) => e.preventDefault()}>
             <input
@@ -34,7 +35,6 @@ export default function Newsletter() {
               Abonnieren
             </button>
           </form>
-          <span className={styles.newsNote}>Yes, Chef!</span>
         </div>
       </div>
     </section>

@@ -1001,7 +1001,7 @@ html[data-theme="dark"] .fab {
 }
 @media (min-width: 1024px) {
   /* Remove the mobile-based cap so the scroll area fills the full panel height.
-     Applies to both restaurant list (.listScroll) and Must-Eat list
+     Applies to both restaurant list (.listScroll) and Must Eat list
      (.listScrollNoCats). */
   .listScroll,
   .listScrollNoCats {
@@ -1433,7 +1433,7 @@ html[data-theme="dark"] .listBanner {
   .rowTagsText { font-size: 10.5px; }
 }
 
-/* Must-Eat inline text badge */
+/* Must Eat inline text badge */
 .rowMustText {
   flex-shrink: 0;
   display: inline-block;
@@ -1724,7 +1724,7 @@ html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
 }
 
-/* Must-Eat polaroid marker */
+/* Must Eat polaroid marker */
 .card {
   width: 52px;
   height: 72px;
@@ -2072,8 +2072,8 @@ html[data-theme="dark"] .btn:hover {
   filter: drop-shadow(0 3px 6px rgba(255, 59, 0, 0.55));
 }
 .pinLogoHasMust::after {
-  /* Mini Must-Eat card-back overlayed on the pin — signals the restaurant
-     has at least one Must-Eat attached. */
+  /* Mini Must Eat card-back overlayed on the pin — signals the restaurant
+     has at least one Must Eat attached. */
   content: '';
   position: absolute;
   top: -4px;
@@ -2093,7 +2093,7 @@ html[data-theme="dark"] .btn:hover {
   border-radius: 50%;
 }
 
-/* ========== Card-back marker for Must-Eats ========== */
+/* ========== Card-back marker for Must Eats ========== */
 .cardMarker {
   width: 42px;
   height: 62px;
@@ -2118,7 +2118,7 @@ html[data-theme="dark"] .btn:hover {
   filter: drop-shadow(0 2px 6px rgba(255, 59, 0, 0.55));
 }
 
-/* Proximity vibration on the Must-Eat map marker — strong when user is
+/* Proximity vibration on the Must Eat map marker — strong when user is
    right on top of the restaurant, subtle when ~500 m away. */
 .cardMarkerVibrating {
   --vibrate-intensity: 0;
@@ -2795,7 +2795,7 @@ html[data-theme="dark"] .selectActive {
   }
 }
 
-/* Must-Eat detail: tighter width — the card hero is ~220px and the rest is text,
+/* Must Eat detail: tighter width — the card hero is ~220px and the rest is text,
    so a narrower panel keeps attention on the card without big side whitespace.
    Placed AFTER the desktop `.detail` rule so its max-width override wins. */
 /* Use .detail.detailNarrow double-class selector to beat the desktop media rule
@@ -3084,7 +3084,7 @@ html[data-theme="dark"] .detailFooter .btn:hover {
   border-color: rgba(255, 255, 255, 0.28);
 }
 
-/* ── Must-Eat detail (in-sheet) ───────────────────────────────────────
+/* ── Must Eat detail (in-sheet) ───────────────────────────────────────
    Big & Bold layout: cream gradient hero with the freigestellte card-back
    (white asset margin cropped via background-size: 118%) vibrating
    continuously. Combined Card CTA at the bottom links to the restaurant. */
@@ -3229,7 +3229,7 @@ html[data-theme="dark"] .mustEatHero {
   color: var(--text-secondary);
 }
 
-/* Explainer + Booster Pack offer (locked Must-Eats only) */
+/* Explainer + Booster Pack offer (locked Must Eats only) */
 .mustEatExplainer {
   margin-top: 10px;
   padding: 9px 12px;
@@ -3640,7 +3640,7 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   overflow: hidden;
 }
 
-/* Must-Eat mini cards inside restaurant detail */
+/* Must Eat mini cards inside restaurant detail */
 .mustGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
@@ -3699,7 +3699,7 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   text-overflow: ellipsis;
 }
 
-/* ========== Must-Eat detail: full flipped card ========== */
+/* ========== Must Eat detail: full flipped card ========== */
 .mustHero {
   width: 100%;
   max-height: 58dvh;

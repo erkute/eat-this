@@ -96,6 +96,9 @@
   .tickerSep { font-size: 22px; padding-left: 18px; padding-right: 18px; }
   .tickerTrack { animation-duration: 65s; }
 }
+@media (min-width: 1024px) {
+  .ticker { display: none; }
+}
 
 /* ── ABOUT ─────────────────────────────────────────────────── */
 .about {
@@ -586,7 +589,7 @@
   -webkit-backface-visibility: hidden;
   overflow: hidden;
 }
-.memBack { background: #2a2a2a url('/pics/card_back.png') center/cover; }
+.memBack { background: transparent url('/pics/card-back.webp') center/cover; }
 .memFace { transform: rotateY(180deg); }
 .memFace img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
@@ -1054,7 +1057,7 @@
   border-bottom-color: #2a2a2a;
 }
 :global([data-theme="dark"]) .gameHead h2 { color: #fff; }
-:global([data-theme="dark"]) .memBack { background-color: #2a2a2a; }
+:global([data-theme="dark"]) .memBack { background-color: transparent; }
 
 /* Map teaser */
 :global([data-theme="dark"]) .mapTeaser {

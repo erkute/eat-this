@@ -42,9 +42,9 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
           <HeroSection />
           <div className="start-scroll-content" style={{ paddingTop: 0 }}>
             <HeroIntro />
+            <Ticker />
             <AboutFanRow />
             <USPs />
-            <Ticker />
             <MemoryGame />
             <MapTeaser />
             <Selection />

@@ -1925,7 +1925,7 @@ body {
     display: none;
   }
 
-  /* Must-eats grid — mobile */
+  /* Must Eats grid — mobile */
   .app-page[data-page="musts"] .must-eats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
@@ -3183,7 +3183,7 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
     display: none;
   }
 
-  /* Must-eats grid — desktop app */
+  /* Must Eats grid — desktop app */
   .app-page[data-page="musts"] .must-eats-section {
     padding: 0;
   }

@@ -598,7 +598,7 @@ export default function MapSection({ isActive = false }: Props) {
                             onClick={() => handleMustEatClick(m)}
                           >
                             <div className={styles.mustDeckThumbWrap}>
-                              <img src="/pics/card_back.png" alt="" className={styles.mustDeckThumbCard} loading="lazy" />
+                              <img src="/pics/card-back.webp" alt="" className={styles.mustDeckThumbCard} loading="lazy" />
                             </div>
                             <div className={styles.rowMain}>
                               <div className={styles.rowName}>{m.restaurant.name}</div>

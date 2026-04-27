@@ -1,18 +1,22 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import { useAuth } from '@/lib/auth';
 
 export default function OnboardingOverlay() {
+  const { user, updateDisplayName } = useAuth();
   const [visible, setVisible] = useState(false);
-  const [step, setStep] = useState(1);
+  const [step, setStep]       = useState(1);
+  const [name, setName]       = useState('');
 
   const goTo = useCallback((s: number) => setStep(s), []);
 
   const show = useCallback(() => {
     if (typeof localStorage !== 'undefined' && localStorage.getItem('onboardingComplete')) return;
-    setStep(1);
+    setStep(user?.displayName ? 1 : 0);
+    setName('');
     setVisible(true);
-  }, []);
+  }, [user]);
 
   const skipToFinal = useCallback(() => {
     localStorage.setItem('onboardingComplete', '1');
@@ -25,17 +29,56 @@ export default function OnboardingOverlay() {
     window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'musts' } }));
   }, []);
 
-  // Override app.min.js globals so WelcomeModal (and legacy callers) use React state.
   useEffect(() => {
-    window._obGoTo = goTo;
+    window._obGoTo   = goTo;
     window.showOnboarding = show;
   }, [goTo, show]);
 
+  const handleNameSubmit = useCallback(async (e: FormEvent) => {
+    e.preventDefault();
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    try {
+      await updateDisplayName(trimmed);
+    } catch {
+      // non-fatal — continue to next step even if update fails
+    }
+    goTo(1);
+  }, [name, updateDisplayName, goTo]);
 
   return (
     <div className="ob-overlay" id="onboardingOverlay" hidden={!visible} role="dialog" aria-modal={true} aria-label="Welcome to Eat This">
       <div className="ob-panel">
 
+        {/* Step 0: Name (magic-link users only — shown when no displayName) */}
+        <div className="ob-step" id="obStep0" hidden={step !== 0}>
+          <div className="ob-icon ob-icon--star">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+          </div>
+          <p className="ob-title">What&apos;s your name?</p>
+          <p className="ob-body">We&apos;ll use it to personalise your experience.</p>
+          <form onSubmit={handleNameSubmit}>
+            <input
+              className="ob-name-input"
+              type="text"
+              placeholder="Your first name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoFocus
+              autoComplete="given-name"
+            />
+            <div className="ob-footer">
+              <button className="ob-next-btn" type="submit" disabled={!name.trim()}>
+                Continue
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Steps 1–4: unchanged */}
         <div className="ob-step" id="obStep1" hidden={step !== 1}>
           <p className="ob-step-num">1 of 4</p>
           <div className="ob-icon">
@@ -148,5 +191,6 @@ export default function OnboardingOverlay() {
 declare global {
   interface Window {
     _obGoTo?: (step: number) => void;
+    showOnboarding?: () => void;
   }
 }

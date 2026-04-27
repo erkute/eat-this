@@ -652,7 +652,7 @@ body {
 .album-slot-back {
   width: 100%;
   height: 100%;
-  background-color: white;
+  background-color: transparent;
   background-image: url('../pics/card-back.webp');
   background-size: contain;
   background-position: center;
@@ -4698,6 +4698,27 @@ html:not([data-theme="dark"]) .site-footer-copy {
 
 .ob-step { padding: 28px 24px 0; text-align: center; }
 .ob-step[hidden] { display: none; }
+
+.ob-name-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #1a1a1a;
+  background: #fff;
+  margin-bottom: 16px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.ob-name-input:focus { border-color: #b91c1c; }
+[data-theme="dark"] .ob-name-input {
+  background: #2a2a2a;
+  color: #f0f0f0;
+  border-color: #444;
+}
+[data-theme="dark"] .ob-name-input:focus { border-color: #e05252; }
 
 .ob-step-num {
   font-size: 9px;

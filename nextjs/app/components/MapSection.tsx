@@ -10,6 +10,7 @@ import { useFavorites } from '@/lib/map/useFavorites'
 import { useBottomSheet } from '@/lib/map/useBottomSheet'
 import { getOpenStatus } from '@/lib/map/openingHours'
 import { haversineDistance, formatDistance } from '@/lib/map/distance'
+import { applyFanOffset } from '@/lib/map/fanOffset'
 import { useTranslation } from '@/lib/i18n'
 import MapCanvas from './map/MapCanvas'
 import RestaurantMarker from './map/RestaurantMarker'
@@ -18,9 +19,8 @@ import RestaurantList from './map/RestaurantList'
 import RestaurantDetail from './map/RestaurantDetail'
 import MustEatDetail from './map/MustEatDetail'
 import UserLocationMarker from './map/UserLocationMarker'
-import MapToolbar from './map/MapToolbar'
 import CategoryFilter from './map/CategoryFilter'
-import OpenNowToggle from './map/OpenNowToggle'
+import FilterDropdown, { type SortOption } from './map/FilterDropdown'
 import { auth } from '@/lib/firebase/config'
 import styles from './map/map.module.css'
 
@@ -34,6 +34,7 @@ function districtOf(r: MapRestaurant): string | null {
 
 export default function MapSection({ isActive = false }: Props) {
   const mapRef = useRef<MapRef>(null)
+  const filterBtnRef = useRef<HTMLButtonElement>(null)
   // Set true synchronously in any click handler that flies the camera so
   // the slow auto-locate Promise can't overwrite the user's selection.
   const userInteractedRef = useRef(false)
@@ -52,8 +53,9 @@ export default function MapSection({ isActive = false }: Props) {
   const uid = auth.currentUser?.uid ?? null
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
-  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, reapplySnap, snapToVisiblePx, configure } = useBottomSheet('mid')
+  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, reapplySnap, configure } = useBottomSheet('mid')
 
+  const [mapZoom,            setMapZoom]            = useState(12)
   const [layer,              setLayer]              = useState<MapLayer>('restaurants')
   const [category,           setCategory]           = useState<MapCategory>('All')
   const [search,             setSearch]             = useState('')
@@ -62,6 +64,9 @@ export default function MapSection({ isActive = false }: Props) {
   const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
   const [selectedMustEat,    setSelectedMustEat]    = useState<MapMustEat | null>(null)
   const [sheetView,          setSheetView]          = useState<'list' | 'detail'>('list')
+  const [sort,               setSort]               = useState<'distance' | 'name'>('distance')
+  const [filterOpen,         setFilterOpen]         = useState(false)
+  const [searchOpen,         setSearchOpen]         = useState(false)
 
   /* ---------- Bezirk list + centroid map ---------- */
   const { bezirkNames, bezirkCenters } = useMemo(() => {
@@ -105,12 +110,25 @@ export default function MapSection({ isActive = false }: Props) {
     return true
   }, [category, bezirk, openOnly, search])
 
-  const displayedRestaurants = useMemo(
-    () => restaurants.filter(filterRestaurant),
-    [restaurants, filterRestaurant]
-  )
+  const displayedRestaurants = useMemo(() => {
+    const filtered = restaurants.filter(filterRestaurant)
+    if (sort === 'name') {
+      return [...filtered].sort((a, b) => a.name.localeCompare(b.name, 'de'))
+    }
+    if (!location) return filtered
+    return [...filtered].sort((a, b) => {
+      const aD = haversineDistance(location.lat, location.lng, a.lat, a.lng)
+      const bD = haversineDistance(location.lat, location.lng, b.lat, b.lng)
+      return aD - bD
+    })
+  }, [restaurants, filterRestaurant, sort, location])
 
   const { updateBounds } = useBounds(displayedRestaurants, location)
+
+  const handleMapMove = useCallback((bounds: Parameters<typeof updateBounds>[0]) => {
+    updateBounds(bounds)
+    if (mapRef.current) setMapZoom(mapRef.current.getMap().getZoom())
+  }, [updateBounds])
 
   const displayedMustEats = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -122,27 +140,33 @@ export default function MapSection({ isActive = false }: Props) {
             m.restaurant.district?.toLowerCase().includes(q)
         )
       : mustEats
-    // Default sort: distance from Berlin Mitte (closest first). When a bezirk
-    // filter is active, items in that bezirk float to the top; everything
-    // else stays sorted by Mitte distance below them.
-    const MITTE_LAT = 52.52
-    const MITTE_LNG = 13.405
+    // Default sort: distance from user location (closest first), falling back
+    // to Berlin Mitte when GPS is unavailable. When a bezirk filter is active,
+    // items in that bezirk float to the top; everything else stays sorted by
+    // distance below them.
+    const sortLat = location?.lat ?? 52.52
+    const sortLng = location?.lng ?? 13.405
     return [...filtered].sort((a, b) => {
       if (bezirk) {
         const aMatch = a.restaurant.district === bezirk
         const bMatch = b.restaurant.district === bezirk
         if (aMatch !== bMatch) return aMatch ? -1 : 1
       }
-      const aD = haversineDistance(MITTE_LAT, MITTE_LNG, a.restaurant.lat, a.restaurant.lng)
-      const bD = haversineDistance(MITTE_LAT, MITTE_LNG, b.restaurant.lat, b.restaurant.lng)
+      const aD = haversineDistance(sortLat, sortLng, a.restaurant.lat, a.restaurant.lng)
+      const bD = haversineDistance(sortLat, sortLng, b.restaurant.lat, b.restaurant.lng)
       return aD - bD
     })
-  }, [mustEats, search, bezirk])
+  }, [mustEats, search, bezirk, location])
 
   const restaurantMustEats = useMemo(() => {
     if (!selectedRestaurant) return []
     return mustEats.filter(m => m.restaurant._id === selectedRestaurant._id)
   }, [mustEats, selectedRestaurant])
+
+  const fannedMustEats = useMemo(
+    () => applyFanOffset(displayedMustEats, mapZoom),
+    [displayedMustEats, mapZoom]
+  )
 
   /* ---------- Handlers ---------- */
   // Padding the map should respect when centering on a point, so spots don't
@@ -188,16 +212,14 @@ export default function MapSection({ isActive = false }: Props) {
       setLayer('mustEats')
       setSelectedRestaurant(null)
       setSelectedMustEat(m)
-      setSheetView('list')
-      if (isMobile) setSnap('mid')
-      // Mobile: wait for the sheet to snap from 'full' (detail) to 'mid' so
-      // the padding reads the new visible height. Desktop: fly immediately.
-      const flyDelay = isMobile ? 320 : 0
-      const center = [m.restaurant.lng, m.restaurant.lat] as [number, number]
-      const padding = getFlyPadding('mid')
-      const fly = () => mapRef.current?.flyTo({ center, zoom: 15, duration: 500, padding })
-      if (flyDelay) setTimeout(fly, flyDelay)
-      else fly()
+      setSheetView('detail')
+      setSnap('full')
+      mapRef.current?.flyTo({
+        center: [m.restaurant.lng, m.restaurant.lat],
+        zoom: 15,
+        duration: 500,
+        padding: getFlyPadding('full'),
+      })
       return
     }
     const isLocked = !unlockedIds.has(m._id)
@@ -272,6 +294,14 @@ export default function MapSection({ isActive = false }: Props) {
     }
   }, [selectedMustEat, selectedRestaurant, getFlyPadding, setSnap, reapplySnap])
 
+  const handleShowMustEatList = useCallback(() => {
+    setSelectedMustEat(null)
+    setLayer('mustEats')
+    setSheetView('list')
+    setSnap('mid')
+    reapplySnap('mid')
+  }, [setSnap, reapplySnap])
+
   const handleMapClick = useCallback(() => {
     // Tapping the map dismisses the detail. Keep the camera where the user
     // tapped — don't fly back to a remembered position.
@@ -311,49 +341,6 @@ export default function MapSection({ isActive = false }: Props) {
       : { maxSnap: 'mid', locked: false }
     )
   }, [sheetView, configure])
-
-  // Auto-size the sheet to detail content height (mobile only). When the
-  // detail content is shorter than the viewport, the sheet hugs the content
-  // instead of going full-screen — keeps the underlying restaurant marker
-  // visible and centered above the sheet edge.
-  useEffect(() => {
-    if (sheetView !== 'detail') return
-    if (typeof window === 'undefined') return
-    if (!window.matchMedia('(max-width: 1023.98px)').matches) return
-    // Use a small timeout (not RAF) so the measurement survives the cascade
-    // of state-driven re-renders triggered by setSelectedRestaurant +
-    // setSheetView('detail') + setSnap('full') firing in the same tick.
-    const id = window.setTimeout(() => {
-      const scrollEl = document.querySelector(`.${styles.detailInSheetScroll}`) as HTMLElement | null
-      const footerEl = document.querySelector(`.${styles.detailFooter}`) as HTMLElement | null
-      if (!scrollEl) return
-      // scrollEl has flex:1 + overflow:auto, so when content fits inside the
-      // current sheet height, scrollHeight returns the STRETCHED height
-      // (== clientHeight), not the actual content size. Sum the children's
-      // offsetHeights to get the real natural content height.
-      let childrenH = 0
-      for (const child of Array.from(scrollEl.children) as HTMLElement[]) {
-        childrenH += child.offsetHeight
-      }
-      const contentH = childrenH + (footerEl?.offsetHeight ?? 0)
-      const maxH = window.innerHeight * 0.94
-      const targetH = Math.min(contentH + 8, maxH)
-      snapToVisiblePx(targetH)
-      // Re-fly with padding for the new visible height so the marker is
-      // centered in the visible map area above the sheet.
-      const target = selectedRestaurant ?? selectedMustEat?.restaurant
-      if (target && mapRef.current) {
-        const center: [number, number] = [target.lng, target.lat]
-        mapRef.current.flyTo({
-          center,
-          zoom: 15,
-          duration: 350,
-          padding: { top: 110, bottom: targetH + 20, left: 20, right: 20 },
-        })
-      }
-    }, 80)
-    return () => window.clearTimeout(id)
-  }, [sheetView, selectedRestaurant, selectedMustEat, snapToVisiblePx])
 
   const handleUnlock = useCallback(async () => {
     if (!selectedMustEat) return
@@ -395,11 +382,6 @@ export default function MapSection({ isActive = false }: Props) {
   }, [requestLocation])
 
   /* ---------- Render ---------- */
-  const toolbarProps = {
-    search, onSearch: handleSearchChange,
-    bezirke: bezirkNames, bezirk, onBezirk: handleBezirkChange,
-  }
-
   return (
     <div
       className={`app-page${isActive ? ' active' : ''}`}
@@ -420,8 +402,7 @@ export default function MapSection({ isActive = false }: Props) {
 
           <div className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}`}>
             <div className={styles.mapWrap}>
-              <MapToolbar variant="desktop" {...toolbarProps} />
-              <MapCanvas ref={mapRef} onMove={updateBounds} onMapClick={handleMapClick}>
+              <MapCanvas ref={mapRef} onMove={handleMapMove} onMapClick={handleMapClick}>
                 {layer === 'restaurants' && displayedRestaurants.map(r => (
                   <RestaurantMarker
                     key={r._id}
@@ -430,13 +411,15 @@ export default function MapSection({ isActive = false }: Props) {
                     onClick={handleRestaurantClick}
                   />
                 ))}
-                {layer === 'mustEats' && displayedMustEats.map(m => (
+                {layer === 'mustEats' && fannedMustEats.map(m => (
                   <MustEatMarker
                     key={m._id}
                     mustEat={m}
                     isUnlocked={unlockedIds.has(m._id)}
                     isSelected={selectedMustEat?._id === m._id}
                     userLocation={location}
+                    displayLat={m.displayLat}
+                    displayLng={m.displayLng}
                     onClick={handleMustEatClick}
                   />
                 ))}
@@ -459,8 +442,6 @@ export default function MapSection({ isActive = false }: Props) {
                 </svg>
               </button>
 
-              <MapToolbar variant="mobile" {...toolbarProps} />
-
               {/* Desktop floating modals removed — both mobile and desktop now
                   render the detail in the side panel / bottom sheet so the
                   selected marker stays visible on the map. */}
@@ -482,6 +463,7 @@ export default function MapSection({ isActive = false }: Props) {
                     onUnlock={handleUnlock}
                     onClose={handleMustEatClose}
                     onViewRestaurant={handleViewRestaurantFromMustEat}
+                    onShowMustEatList={handleShowMustEatList}
                     inSheet
                   />
                 </div>
@@ -501,17 +483,81 @@ export default function MapSection({ isActive = false }: Props) {
                 </div>
               ) : layer === 'restaurants' ? (
                 <>
-                  <div className={styles.listBanner}>
-                    <div className={styles.listCountGroup}>
-                      <span className={styles.listCountNum}>{displayedRestaurants.length}</span>
-                      <span className={styles.listCountLabel}>
-                        {displayedRestaurants.length === 1 ? t('map.restaurantOne') : t('map.restaurantMany')}
-                      </span>
-                    </div>
-                    <OpenNowToggle active={openOnly} onChange={setOpenOnly} />
-                  </div>
-                  <div className={styles.sheetCategories}>
-                    <CategoryFilter active={category} onChange={setCategory} />
+                  <div className={styles.listHeader}>
+                    {searchOpen ? (
+                      <div className={styles.listHeaderRow}>
+                        <input
+                          type="text"
+                          autoFocus
+                          value={search}
+                          onChange={e => handleSearchChange(e.target.value)}
+                          placeholder={t('map.searchPlaceholder')}
+                          className={styles.searchInputInline}
+                          aria-label={t('nav.searchAriaLabel') ?? 'Search'}
+                        />
+                        <button
+                          type="button"
+                          className={styles.searchCloseBtn}
+                          onClick={() => { setSearchOpen(false); handleSearchChange('') }}
+                          aria-label="Suche schließen"
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                          </svg>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className={styles.listHeaderRow}>
+                        <span className={styles.listHeaderCount}>
+                          {displayedRestaurants.length}{' '}
+                          {displayedRestaurants.length === 1 ? t('map.restaurantOne') : t('map.restaurantMany')}
+                        </span>
+                        <div className={styles.listHeaderActions}>
+                          <button
+                            type="button"
+                            className={`${styles.filterIconBtn} ${search ? styles.filterIconBtnActive : ''}`}
+                            onClick={() => setSearchOpen(true)}
+                            aria-label="Suchen"
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                              <circle cx="11" cy="11" r="7" />
+                              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                            {search && <span className={styles.filterActiveDot} aria-hidden="true" />}
+                          </button>
+                          <button
+                            ref={filterBtnRef}
+                            type="button"
+                            className={`${styles.filterIconBtn} ${(openOnly || bezirk || sort !== 'distance') ? styles.filterIconBtnActive : ''}`}
+                            onClick={() => setFilterOpen(v => !v)}
+                            aria-label="Filter und Sortierung"
+                            aria-expanded={filterOpen}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                              <line x1="4" y1="6" x2="20" y2="6" />
+                              <line x1="7" y1="12" x2="17" y2="12" />
+                              <line x1="10" y1="18" x2="14" y2="18" />
+                            </svg>
+                            {(openOnly || bezirk || sort !== 'distance') && <span className={styles.filterActiveDot} aria-hidden="true" />}
+                          </button>
+                          {filterOpen && (
+                            <FilterDropdown
+                              sort={sort}
+                              onSort={s => { setSort(s as SortOption) }}
+                              openOnly={openOnly}
+                              onOpenOnly={setOpenOnly}
+                              bezirke={bezirkNames}
+                              bezirk={bezirk}
+                              onBezirk={handleBezirkChange}
+                              onClose={() => setFilterOpen(false)}
+                              anchorEl={filterBtnRef.current}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    <CategoryFilter active={category} onChange={setCategory} variant="tabs" />
                   </div>
                   <div ref={contentRef} className={styles.listScroll}>
                     <RestaurantList

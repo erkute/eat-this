@@ -40,6 +40,7 @@ interface SheetConfig {
 export function useBottomSheet(initial: SheetSnap = 'peek') {
   const [snap, setSnap] = useState<SheetSnap>(initial)
   const [dragging, setDragging] = useState(false)
+  const [sheetMounted, setSheetMounted] = useState(false)
   const sheetNode = useRef<HTMLDivElement | null>(null)
   const handleRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement | null>(null)
@@ -117,6 +118,9 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   // defers mounting the sheet.
   const sheetRef = useCallback((el: HTMLDivElement | null) => {
     sheetNode.current = el
+    if (el) {
+      setSheetMounted(true)   // triggers re-run of the handle effect after delayed mount
+    }
     if (el && isMobile()) {
       const h = el.getBoundingClientRect().height
       const px = snapToPx(snapRef.current, h)
@@ -216,7 +220,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       handle.removeEventListener('pointerup',     onUp)
       handle.removeEventListener('pointercancel', onUp)
     }
-  }, [snap, applyY])
+  }, [snap, applyY, sheetMounted])
 
   // Content-area drag: only attach a sheet-drag gesture to the list when the
   // sheet is collapsed ('peek'). At 'mid' we DON'T register any touch

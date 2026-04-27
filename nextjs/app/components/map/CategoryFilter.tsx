@@ -17,11 +17,32 @@ const LABEL_KEY: Record<MapCategory, string> = {
 
 interface CategoryFilterProps {
   active: MapCategory
-  onChange: (cat: MapCategory) => void
+  onChange: (c: MapCategory) => void
+  variant?: 'chips' | 'tabs'
 }
 
-export default function CategoryFilter({ active, onChange }: CategoryFilterProps) {
+export default function CategoryFilter({ active, onChange, variant = 'chips' }: CategoryFilterProps) {
   const { t } = useTranslation()
+
+  if (variant === 'tabs') {
+    return (
+      <div className={styles.categoryTabs}>
+        {CATEGORIES.map(c => (
+          <button
+            key={c}
+            type="button"
+            role="tab"
+            aria-selected={active === c}
+            className={`${styles.categoryTab} ${active === c ? styles.categoryTabActive : ''}`}
+            onClick={() => onChange(c)}
+          >
+            {t(LABEL_KEY[c])}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div className={styles.chips} role="tablist" aria-label="Categories">
       {CATEGORIES.map(cat => {

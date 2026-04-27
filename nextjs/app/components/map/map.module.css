@@ -979,8 +979,8 @@ html[data-theme="dark"] .fab {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 14px 0 14px;
-  min-height: 36px;
+  padding: 8px 0 4px;
+  min-height: 20px;
   cursor: grab;
   /* Prevent the browser from hijacking the drag as a page scroll. */
   touch-action: none;
@@ -1011,18 +1011,8 @@ html[data-theme="dark"] .fab {
   }
 }
 
-/* ---- Legacy list header (used by must-eats layer) ---- */
-.listHeader {
-  flex-shrink: 0;
-  padding: 6px 16px 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
 @media (max-width: 1023.98px) {
   .listHeaderDesktopOnly { display: none; }
-  .listHeader { padding: 4px 14px 6px; }
 }
 .listTitle {
   font-size: 14px;
@@ -1199,25 +1189,25 @@ html[data-theme="dark"] .listBanner {
 .listScroll {
   flex: 1;
   overflow-y: auto;
-  padding: 0 12px;
+  padding: 0;
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
 }
 /* Mobile only: cap scroll viewport to the sheet's visible area so content
    below the overflow-hidden clip edge is actually reachable via scrolling.
-   Numbers measured from the actual rendered heights:
-     handle:          36 px
-     listBanner:      ~52 px (padding 10+10 + content ~32 px)
-     sheetCategories: ~44 px (chip strip + bottom border)
-     mustEatsBack:    ~36 px (padding 10+10 + 12 px text)
-   Restaurant list reserves handle + banner + categories = 132 px.
-   Must-eat list reserves handle + back = 72 px. */
+   Heights after the slim-header redesign:
+     handle:          20 px (8 + 4 + 5 pill + ~3 buffer)
+     listHeaderRow:   ~38 px (count + 30px button + padding 4+6)
+     categoryTabs:    ~32 px (7+7 padding + 12 px text + 1 border)
+     mustEatsBack:    ~36 px
+   Restaurant list reserves handle + headerRow + tabs ≈ 90 px.
+   Must-eat list reserves handle + back ≈ 56 px. */
 @media (max-width: 1023.98px) {
   .listScroll {
-    max-height: calc(var(--sheet-visible-px, 100%) - 132px - env(safe-area-inset-bottom, 0px));
+    max-height: calc(var(--sheet-visible-px, 100%) - 90px - env(safe-area-inset-bottom, 0px));
   }
   .listScrollNoCats {
-    max-height: calc(var(--sheet-visible-px, 100%) - 72px - env(safe-area-inset-bottom, 0px));
+    max-height: calc(var(--sheet-visible-px, 100%) - 56px - env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -1255,13 +1245,14 @@ html[data-theme="dark"] .listBanner {
   grid-template-columns: 64px 1fr auto;
   gap: 12px;
   align-items: center;
-  padding: 10px;
-  border-radius: 12px;
+  padding: 8px 14px;
+  border-radius: 0;
   cursor: pointer;
   transition: background 0.15s;
   text-align: left;
   background: transparent;
-  border: 1px solid transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
   width: 100%;
   appearance: none;
   color: inherit;
@@ -1271,8 +1262,7 @@ html[data-theme="dark"] .listBanner {
   .row {
     grid-template-columns: 72px 1fr auto;
     gap: 12px;
-    padding: 11px 10px;
-    border-radius: 10px;
+    padding: 10px 14px;
   }
 }
 .row:hover { background: var(--surface-bg); }
@@ -1413,13 +1403,15 @@ html[data-theme="dark"] .listBanner {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
+  justify-content: center;
   flex-shrink: 0;
+  gap: 2px;
 }
 .rowDistance {
-  font-size: 12px;
+  color: #bbb;
+  font-size: 11px;
   font-weight: 500;
-  color: var(--text-secondary);
+  text-align: right;
 }
 /* Italic comma-separated category text (replaces pill tags on desktop) */
 .rowTagsText {
@@ -1454,28 +1446,15 @@ html[data-theme="dark"] .listBanner {
 
 /* Status text pill — replaces the dot */
 .rowStatusPill {
-  flex-shrink: 0;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 9px;
-  border-radius: 99px;
-  white-space: nowrap;
-  line-height: 1.5;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
 }
 .rowStatusPillOpen {
-  background: rgba(22, 163, 74, 0.10);
-  color: #15803d;
-}
-html[data-theme="dark"] .rowStatusPillOpen {
-  background: rgba(74, 222, 128, 0.14);
-  color: #4ade80;
+  color: #4caf50;
 }
 .rowStatusPillClosed {
-  background: var(--surface-bg);
-  color: var(--text-muted);
-}
-@media (max-width: 1023.98px) {
-  .rowStatusPill { font-size: 10.5px; padding: 2px 7px; }
+  color: #e53935;
 }
 
 /* Single status dot in the list row — replaces the old "Geöffnet/Geschlossen"
@@ -3365,6 +3344,20 @@ html[data-theme="dark"] .mustEatHero {
   color: var(--text-muted);
 }
 
+.mustEatListLink {
+  display: block;
+  width: 100%;
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border, #1f1f1f);
+  color: #888;
+  font-size: 13px;
+  text-align: center;
+  cursor: pointer;
+}
+.mustEatListLink:hover { color: #fff; }
+
 /* Custom Bezirk dropdown panel — portaled via fixed positioning so the
    toolbar's overflow:hidden doesn't clip it. */
 .bezirkPanel {
@@ -3796,3 +3789,217 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
       rotate(calc(var(--vibrate-intensity) * 1deg));
   }
 }
+
+/* ── FilterDropdown ─────────────────────────────────────── */
+/* Portaled into document.body (same as BezirkFilter) so the sheet's
+   anchored to the right of the .listHeader (which is position: relative). */
+.filterDropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: 14px;
+  min-width: 220px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+  overflow: hidden;
+}
+
+.filterDropdownSection {
+  padding: 6px 0;
+}
+
+.filterDropdownLabel {
+  padding: 6px 14px 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.filterDropdownItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 9px 14px;
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: #aaa;
+  cursor: pointer;
+  text-align: left;
+}
+.filterDropdownItem:hover { background: #262626; color: #fff; }
+.filterDropdownItemActive { color: #fff; font-weight: 600; }
+
+.filterDropdownDivider {
+  height: 1px;
+  background: #282828;
+  margin: 0;
+}
+
+/* Toggle switch */
+.filterToggle {
+  width: 28px;
+  height: 16px;
+  border-radius: 8px;
+  background: #333;
+  position: relative;
+  flex-shrink: 0;
+  transition: background .2s;
+}
+.filterToggleOn { background: #4caf50; }
+.filterToggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform .2s;
+}
+.filterToggleOn .filterToggleThumb { transform: translateX(12px); }
+
+/* ── CategoryFilter tab-bar variant ─────────────────────── */
+.categoryTabs {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.categoryTabs::-webkit-scrollbar { display: none; }
+
+.categoryTab {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.categoryTab:hover { color: var(--text-secondary); }
+
+.categoryTabActive {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+.categoryTabActive::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--text-primary);
+  border-radius: 1px 1px 0 0;
+}
+
+/* ── New mobile list header ──────────────────────────────── */
+.listHeader {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.listHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 14px 6px;
+}
+/* Desktop: no drag handle above, so the icons need breathing room from the
+   panel top edge. */
+@media (min-width: 1024px) {
+  .listHeaderRow {
+    padding: 16px 16px 10px;
+  }
+}
+
+.listHeaderCount {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.listHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.filterIconBtn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+  position: relative;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.filterIconBtn:hover { color: var(--text-primary); }
+.filterIconBtnActive { color: var(--text-primary); border-color: var(--border-strong); }
+
+.filterActiveDot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 5px;
+  height: 5px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Inline search inside list header — replaces the count row when active.
+   font-size: 16px is required to prevent iOS Safari from auto-zooming on focus. */
+.searchInputInline {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.searchInputInline::placeholder { color: var(--text-muted); }
+.searchInputInline:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.searchCloseBtn {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  margin-left: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 8px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.searchCloseBtn:hover { color: var(--text-primary); background: var(--surface-bg); }

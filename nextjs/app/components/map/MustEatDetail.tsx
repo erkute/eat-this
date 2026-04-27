@@ -16,6 +16,7 @@ interface MustEatDetailProps {
   onUnlock: () => void
   onClose: () => void
   onViewRestaurant?: () => void
+  onShowMustEatList?: () => void
   inSheet?: boolean
 }
 
@@ -45,7 +46,7 @@ function UnlockIcon() {
   )
 }
 
-export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnlock, onClose, onViewRestaurant, inSheet }: MustEatDetailProps) {
+export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnlock, onClose, onViewRestaurant, onShowMustEatList, inSheet }: MustEatDetailProps) {
   const { t } = useTranslation()
   const distance = userLocation
     ? haversineDistance(userLocation.lat, userLocation.lng, mustEat.restaurant.lat, mustEat.restaurant.lng)
@@ -172,6 +173,16 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
                 </LocaleLink>
               )}
             </div>
+
+            {onShowMustEatList && (
+              <button
+                type="button"
+                className={styles.mustEatListLink}
+                onClick={onShowMustEatList}
+              >
+                Alle Must-Eats anzeigen
+              </button>
+            )}
           </div>
         </div>
       </div>

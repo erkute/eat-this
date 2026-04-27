@@ -10,6 +10,7 @@ import { useFavorites } from '@/lib/map/useFavorites'
 import { useBottomSheet } from '@/lib/map/useBottomSheet'
 import { getOpenStatus } from '@/lib/map/openingHours'
 import { haversineDistance, formatDistance } from '@/lib/map/distance'
+import { applyFanOffset } from '@/lib/map/fanOffset'
 import { useTranslation } from '@/lib/i18n'
 import MapCanvas from './map/MapCanvas'
 import RestaurantMarker from './map/RestaurantMarker'
@@ -54,6 +55,7 @@ export default function MapSection({ isActive = false }: Props) {
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
   const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, reapplySnap, configure } = useBottomSheet('mid')
 
+  const [mapZoom,            setMapZoom]            = useState(12)
   const [layer,              setLayer]              = useState<MapLayer>('restaurants')
   const [category,           setCategory]           = useState<MapCategory>('All')
   const [search,             setSearch]             = useState('')
@@ -112,6 +114,11 @@ export default function MapSection({ isActive = false }: Props) {
 
   const { updateBounds } = useBounds(displayedRestaurants, location)
 
+  const handleMapMove = useCallback((bounds: Parameters<typeof updateBounds>[0]) => {
+    updateBounds(bounds)
+    if (mapRef.current) setMapZoom(mapRef.current.getMap().getZoom())
+  }, [updateBounds])
+
   const displayedMustEats = useMemo(() => {
     const q = search.trim().toLowerCase()
     const filtered = q
@@ -144,6 +151,11 @@ export default function MapSection({ isActive = false }: Props) {
     if (!selectedRestaurant) return []
     return mustEats.filter(m => m.restaurant._id === selectedRestaurant._id)
   }, [mustEats, selectedRestaurant])
+
+  const fannedMustEats = useMemo(
+    () => applyFanOffset(displayedMustEats, mapZoom),
+    [displayedMustEats, mapZoom]
+  )
 
   /* ---------- Handlers ---------- */
   // Padding the map should respect when centering on a point, so spots don't
@@ -385,7 +397,7 @@ export default function MapSection({ isActive = false }: Props) {
           <div className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}`}>
             <div className={styles.mapWrap}>
               <MapToolbar variant="desktop" {...toolbarProps} />
-              <MapCanvas ref={mapRef} onMove={updateBounds} onMapClick={handleMapClick}>
+              <MapCanvas ref={mapRef} onMove={handleMapMove} onMapClick={handleMapClick}>
                 {layer === 'restaurants' && displayedRestaurants.map(r => (
                   <RestaurantMarker
                     key={r._id}
@@ -394,13 +406,15 @@ export default function MapSection({ isActive = false }: Props) {
                     onClick={handleRestaurantClick}
                   />
                 ))}
-                {layer === 'mustEats' && displayedMustEats.map(m => (
+                {layer === 'mustEats' && fannedMustEats.map(m => (
                   <MustEatMarker
                     key={m._id}
                     mustEat={m}
                     isUnlocked={unlockedIds.has(m._id)}
                     isSelected={selectedMustEat?._id === m._id}
                     userLocation={location}
+                    displayLat={m.displayLat}
+                    displayLng={m.displayLng}
                     onClick={handleMustEatClick}
                   />
                 ))}

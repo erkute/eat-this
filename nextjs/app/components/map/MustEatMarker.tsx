@@ -12,6 +12,8 @@ interface MustEatMarkerProps {
   isSelected: boolean
   userLocation?: UserLocation | null
   onClick: (mustEat: MapMustEat) => void
+  displayLat?: number
+  displayLng?: number
 }
 
 // Proximity vibration starts at this distance and ramps up to 1 at 0 m away.
@@ -23,6 +25,8 @@ export default function MustEatMarker({
   isSelected,
   userLocation,
   onClick,
+  displayLat,
+  displayLng,
 }: MustEatMarkerProps) {
   const [wiggling, setWiggling] = useState(false)
 
@@ -47,8 +51,8 @@ export default function MustEatMarker({
 
   return (
     <Marker
-      longitude={mustEat.restaurant.lng}
-      latitude={mustEat.restaurant.lat}
+      longitude={displayLng ?? mustEat.restaurant.lng}
+      latitude={displayLat ?? mustEat.restaurant.lat}
       anchor="bottom"
       onClick={e => {
         e.originalEvent.stopPropagation()

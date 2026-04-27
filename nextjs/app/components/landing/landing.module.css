@@ -617,7 +617,7 @@
 .gameMeta {
   display: flex;
   justify-content: center;
-  margin-top: 28px;
+  margin-top: 44px;
 }
 .scoreboard {
   background: #0d0d0d;
@@ -881,28 +881,37 @@
   filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.5));
   transform: rotate(-6deg);
 }
+/* Circle stamp / postal-seal badge — different shape from booster starburst */
 .newsBadge {
   position: absolute;
   top: -14px;
   right: -22px;
   width: 84px;
   height: 84px;
-  transform: rotate(14deg);
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.4));
-}
-.newsBadge svg { display: block; width: 100%; height: 100%; }
-.newsBadgeText {
-  position: absolute;
-  inset: 0;
+  border-radius: 50%;
+  background: #f5c518;
+  border: 2px solid #1a1a1a;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
+  transform: rotate(14deg);
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.4));
+}
+.newsBadge::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1.5px dashed #1a1a1a;
+  border-radius: 50%;
+}
+.newsBadgeText {
+  position: relative;
+  z-index: 1;
   font-size: 14px;
   font-weight: 900;
   color: #1a1a1a;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   line-height: 1;
 }
 .newsCopy { display: flex; flex-direction: column; align-items: center; }

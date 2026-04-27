@@ -3,10 +3,14 @@
 import { useState } from 'react';
 import styles from './landing.module.css';
 
-const FAQS: { q: string; a: string }[] = [
+const FAQS: { q: string; a: string | string[] }[] = [
   {
     q: 'Was ist EAT THIS?',
-    a: 'Wahrscheinlich der beste Foodguide, den du kennst. Die kuratierteste Sammlung der besten Berliner Restaurants — Karte für Karte.',
+    a: [
+      'Wahrscheinlich der beste Foodguide, den du kennst.',
+      'Eine kuratierte Sammlung der besten Berliner Restaurants. Wir besuchen jeden Spot persönlich, probieren uns durch die Karte — und empfehlen am Ende ein oder mehrere Gerichte.',
+      'Jede Empfehlung landet als Must Eat Karte in deinem Deck. Du sammelst, entdeckst Berlin Gericht für Gericht. Was auch immer auf deiner Karte steht, du kannst es blind bestellen.',
+    ],
   },
   {
     q: 'Was ist eine Must Eat Card?',
@@ -52,7 +56,9 @@ export default function LandingFAQ() {
               <p className={styles.faqQ}>{item.q}</p>
               <span className={styles.faqIcon}>+</span>
             </div>
-            <p className={styles.faqA}>{item.a}</p>
+            {Array.isArray(item.a)
+              ? item.a.map((para, j) => <p key={j} className={styles.faqA}>{para}</p>)
+              : <p className={styles.faqA}>{item.a}</p>}
           </div>
         );
       })}

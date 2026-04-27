@@ -34,7 +34,7 @@
 .loadingCard {
   width: 96px;
   aspect-ratio: 1449 / 2163;
-  background: url('/pics/card-back.webp') center/contain no-repeat;
+  background: white url('/pics/card-back.webp') center/contain no-repeat;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
   animation: loadingFlip 1.4s ease-in-out infinite;
   transform-style: preserve-3d;
@@ -1060,6 +1060,7 @@ html[data-theme="dark"] .fab {
   aspect-ratio: 1449 / 2163;
   border-radius: 5px;
   overflow: hidden;
+  background: white;
   box-shadow: 0 2px 12px rgba(0,0,0,0.28);
   animation: deckCardVibrate 2.8s ease-in-out infinite;
 }
@@ -2080,7 +2081,7 @@ html[data-theme="dark"] .btn:hover {
   right: -4px;
   width: 12px;
   height: 17px;
-  background: url('/pics/card-back.webp') center/contain no-repeat;
+  background: white url('/pics/card-back.webp') center/contain no-repeat;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
   transform: rotate(8deg);
   z-index: 1;
@@ -3135,7 +3136,7 @@ html[data-theme="dark"] .mustEatHero {
   width: 165px;
   aspect-ratio: 1449 / 2163;
   border-radius: 12px;
-  background: url('/pics/card-back.webp') center/contain no-repeat transparent;
+  background: white url('/pics/card-back.webp') center/contain no-repeat;
   box-shadow: 0 12px 28px rgba(17, 24, 39, 0.22);
   cursor: pointer;
   user-select: none;
@@ -3653,7 +3654,7 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   border: 0;
   padding: 0;
   cursor: pointer;
-  background: url('/pics/card-back.webp') center/contain no-repeat;
+  background: white url('/pics/card-back.webp') center/contain no-repeat;
   position: relative;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
   transition: transform 0.15s, filter 0.15s;
@@ -3706,7 +3707,7 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   aspect-ratio: 1449 / 2163;
   object-fit: cover;
   display: block;
-  background: transparent url('/pics/card-back.webp') center/contain no-repeat;
+  background: white url('/pics/card-back.webp') center/contain no-repeat;
   margin: 0 auto;
 }
 .mustCardFlip {
@@ -3746,7 +3747,7 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   appearance: none;
   border: 0;
   padding: 0;
-  background: url('/pics/card-back.webp') center/contain no-repeat;
+  background: white url('/pics/card-back.webp') center/contain no-repeat;
   width: 100%;
   max-width: 240px;
   aspect-ratio: 1449 / 2163;

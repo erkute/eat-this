@@ -31,14 +31,6 @@ export default function USPs() {
           </div>
         </div>
       ))}
-      <div className={styles.uspsHead}>
-        <span className={styles.secLabel}>Wie wir auswählen</span>
-        <h2 className={styles.uspsHeadHeadline}>Nur das Beste kommt ins Deck.</h2>
-        <p className={styles.uspsHeadBody}>
-          Wir besuchen jeden Ort selbst und sprechen mit den Köchen, um die Gerichte zu finden,
-          die wirklich herausragen.
-        </p>
-      </div>
     </section>
   );
 }

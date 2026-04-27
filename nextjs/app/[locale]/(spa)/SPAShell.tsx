@@ -5,6 +5,7 @@ import StaticPages from '@/app/components/StaticPages';
 import Ticker from '@/app/components/landing/Ticker';
 import HeroIntro from '@/app/components/landing/HeroIntro';
 import AboutFanRow from '@/app/components/landing/AboutFanRow';
+import Selection from '@/app/components/landing/Selection';
 import USPs from '@/app/components/landing/USPs';
 import MemoryGame from '@/app/components/landing/MemoryGame';
 import MapTeaser from '@/app/components/landing/MapTeaser';
@@ -46,6 +47,7 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
             <Ticker />
             <MemoryGame />
             <MapTeaser />
+            <Selection />
             <BoosterPack />
             <Coming />
             <LandingFAQ />

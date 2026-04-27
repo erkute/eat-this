@@ -29,15 +29,26 @@ export default function FilterDropdown({
   sort, onSort, openOnly, onOpenOnly, bezirke, bezirk, onBezirk, onClose, anchorEl,
 }: FilterDropdownProps) {
   const ref = useRef<HTMLDivElement>(null)
-  const [pos, setPos] = useState<{ top: number; right: number } | null>(null)
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null)
 
-  // Compute fixed position from anchor element — same pattern as BezirkFilter
-  // so the `.list` overflow:hidden doesn't clip the dropdown.
+  // Compute fixed position from anchor element. Uses left+top (not right) so
+  // viewport-width quirks in mobile simulation can't push the dropdown off
+  // screen. Right-aligns with anchor by computing dropdown width offset, and
+  // clamps to viewport bounds so it stays visible regardless of anchor pos.
   useLayoutEffect(() => {
     if (!anchorEl) return
     const update = () => {
       const r = anchorEl.getBoundingClientRect()
-      setPos({ top: r.bottom + 6, right: window.innerWidth - r.right })
+      const viewportW = document.documentElement.clientWidth || window.innerWidth
+      const viewportH = document.documentElement.clientHeight || window.innerHeight
+      const dropdownW = 220 // matches min-width 200 + border
+      // Right-aligned with anchor's right edge, but clamped to viewport
+      const idealLeft = r.right - dropdownW
+      const left = Math.max(8, Math.min(idealLeft, viewportW - dropdownW - 8))
+      // Below anchor, but if there's no room below, flip above
+      const idealTop = r.bottom + 6
+      const top = idealTop + 320 > viewportH ? Math.max(8, r.top - 320 - 6) : idealTop
+      setPos({ top, left })
     }
     update()
     window.addEventListener('resize', update)
@@ -72,7 +83,7 @@ export default function FilterDropdown({
     <div
       ref={ref}
       className={styles.filterDropdown}
-      style={pos ? { top: pos.top, right: pos.right } : undefined}
+      style={pos ? { top: pos.top, left: pos.left } : { visibility: 'hidden' }}
     >
       <div className={styles.filterDropdownSection}>
         <div className={styles.filterDropdownLabel}>Sortieren</div>

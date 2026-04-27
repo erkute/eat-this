@@ -31,7 +31,7 @@ export default function BridgeAuth() {
     window._signOut = async () => {
       await signOut();
       if (typeof window.showNotification === 'function') {
-        window.showNotification(t('login.notifications.signedOut'));
+        window.showNotification(t('modals.login.notifications.signedOut'));
       }
     };
     window._sendPasswordReset = async (email: string) => { await sendPasswordReset(email); };
@@ -103,7 +103,7 @@ export default function BridgeAuth() {
       const u = detail?.user;
       if (!u) return;
       const first = (u.displayName ?? u.email ?? '').split(' ')[0] || t('footer.signIn');
-      window.showNotification?.(t('login.notifications.signedIn').replace('{name}', first));
+      window.showNotification?.(t('modals.login.notifications.signedIn').replace('{name}', first));
       document.getElementById('welcomeModal')?.classList.remove('active');
       window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
     };

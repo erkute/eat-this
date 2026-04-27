@@ -979,8 +979,8 @@ html[data-theme="dark"] .fab {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 14px 0 14px;
-  min-height: 36px;
+  padding: 8px 0 4px;
+  min-height: 20px;
   cursor: grab;
   /* Prevent the browser from hijacking the drag as a page scroll. */
   touch-action: none;
@@ -3867,25 +3867,25 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   display: flex;
   overflow-x: auto;
   scrollbar-width: none;
-  border-bottom: 1px solid #1f1f1f;
+  border-bottom: 1px solid var(--border-subtle);
 }
 .categoryTabs::-webkit-scrollbar { display: none; }
 
 .categoryTab {
   flex-shrink: 0;
-  padding: 8px 14px;
+  padding: 7px 14px;
   background: none;
   border: none;
   font-size: 12px;
-  color: #555;
+  color: var(--text-muted);
   cursor: pointer;
   white-space: nowrap;
   position: relative;
 }
-.categoryTab:hover { color: #aaa; }
+.categoryTab:hover { color: var(--text-secondary); }
 
 .categoryTabActive {
-  color: #fff;
+  color: var(--text-primary);
   font-weight: 700;
 }
 .categoryTabActive::after {
@@ -3895,7 +3895,7 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   left: 0;
   right: 0;
   height: 2px;
-  background: #fff;
+  background: var(--text-primary);
   border-radius: 1px 1px 0 0;
 }
 
@@ -3909,13 +3909,13 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 14px 8px;
+  padding: 4px 14px 6px;
 }
 
 .listHeaderCount {
   font-size: 12px;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .listHeaderActions {
@@ -3925,28 +3925,28 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
 }
 
 .filterIconBtn {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1e1e1e;
-  border: none;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
   border-radius: 8px;
-  color: #888;
+  color: var(--text-muted);
   cursor: pointer;
   position: relative;
 }
-.filterIconBtn:hover { color: #fff; }
-.filterIconBtnActive { color: #fff; }
+.filterIconBtn:hover { color: var(--text-primary); }
+.filterIconBtnActive { color: var(--text-primary); border-color: var(--border-strong); }
 
 .filterActiveDot {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 4px;
+  right: 4px;
   width: 5px;
   height: 5px;
-  background: #fff;
+  background: var(--accent);
   border-radius: 50%;
   pointer-events: none;
 }

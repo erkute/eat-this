@@ -530,7 +530,7 @@ export default function MapSection({ isActive = false }: Props) {
                             ref={filterBtnRef}
                             type="button"
                             className={`${styles.filterIconBtn} ${(openOnly || bezirk || sort !== 'distance') ? styles.filterIconBtnActive : ''}`}
-                            onClick={() => setFilterOpen(v => !v)}
+                            onClick={() => setFilterOpen(true)}
                             aria-label="Filter und Sortierung"
                             aria-expanded={filterOpen}
                           >

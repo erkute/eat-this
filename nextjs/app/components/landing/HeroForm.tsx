@@ -12,7 +12,7 @@ export default function HeroForm() {
         aria-label="E-Mail-Adresse"
       />
       <button className={styles.heroSubmit} type="submit">
-        Kostenlos starten
+        Registriere dich
       </button>
     </form>
   );

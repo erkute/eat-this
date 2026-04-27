@@ -102,16 +102,10 @@
   padding: 28px 22px;
   background: #fff;
 }
+/* Mobile: stats are rendered in <HeroIntro /> instead — hide here.
+   Desktop (≥1024px) shows the stats above "Das Konzept" again. */
 .aboutStats {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  color: #888;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  margin-bottom: 22px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #ece9e3;
+  display: none;
 }
 .aboutHeadline {
   font-size: 21px;
@@ -133,9 +127,15 @@
     padding: 96px 80px;
   }
   .aboutStats {
+    display: block;
     font-size: 12px;
+    font-weight: 700;
+    color: #888;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
     margin-bottom: 32px;
     padding-bottom: 18px;
+    border-bottom: 1px solid #ece9e3;
   }
   .aboutHeadline {
     font-size: 38px;
@@ -902,15 +902,6 @@
   line-height: 1.55;
   margin: 0 0 20px;
 }
-.newsHook {
-  color: #c8951a;
-  font-style: italic;
-  font-weight: 800;
-  /* Compensate optical leading space caused by italic "Y" angle */
-  margin-left: -1px;
-  margin-right: 4px;
-  letter-spacing: 0.01em;
-}
 .newsForm {
   display: flex;
   flex-direction: column;
@@ -966,98 +957,57 @@
   .newsNote { font-size: 12px; }
 }
 
-/* ── HERO overlay (mobile + desktop) ───────────────────────── */
-/* Mobile: absolute-positioned at the bottom of the hero, since brand-block
-   is display:contents and doesn't establish a positioning context.
-   Desktop (≥1024px): static inside the centered brand-block. */
-.heroDesktopExtra {
-  position: absolute;
-  left: 50%;
-  bottom: 14vh;
-  transform: translateX(-50%);
-  width: calc(100% - 32px);
-  max-width: 380px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  z-index: 5;
-  pointer-events: auto;
-}
-.heroDesktopHeadline {
-  font-size: 22px;
-  text-wrap: balance;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1.1;
-  margin: 0 0 10px;
-  letter-spacing: -0.01em;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.75), 0 1px 4px rgba(0, 0, 0, 0.7);
-}
-.heroDesktopSubtitle {
-  font-size: 13px;
-  color: #fff;
-  line-height: 1.45;
-  margin: 0 0 16px;
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.75), 0 1px 3px rgba(0, 0, 0, 0.7);
-}
-.heroForm {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
-}
+/* ── HERO overlay (desktop ≥1024px only) ───────────────────── */
+/* On mobile this content is rendered as a separate <HeroIntro /> section
+   below the hero image instead of being overlaid. */
+.heroDesktopExtra { display: none; }
+.heroDesktopHeadline { font-weight: 900; color: #fff; letter-spacing: -0.015em; }
+.heroDesktopSubtitle { color: #fff; }
+.heroForm { display: flex; }
 .heroInput {
-  padding: 13px 16px;
   border: none;
-  border-radius: 10px;
   font-size: 14px;
   color: #1a1a1a;
   background: #fff;
   outline: none;
-  width: 100%;
 }
 .heroInput::placeholder { color: #aaa; }
 .heroSubmit {
-  padding: 13px;
   background: #b71c1c;
   color: #fff;
   font-size: 14px;
   font-weight: 700;
   border: none;
-  border-radius: 10px;
   cursor: pointer;
 }
 .heroSubmit:hover { background: #9a1818; }
 
 @media (min-width: 1024px) {
   .heroDesktopExtra {
-    position: static;
-    transform: none;
-    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
     width: 100%;
     max-width: 720px;
-    bottom: auto;
-    left: auto;
+    margin-top: 28px;
   }
   .heroDesktopHeadline {
     font-size: clamp(30px, 3.2vw, 46px);
     line-height: 1.04;
-    margin-bottom: 14px;
-    letter-spacing: -0.015em;
+    margin: 0 0 14px;
     text-shadow: 0 2px 22px rgba(0, 0, 0, 0.75), 0 1px 4px rgba(0, 0, 0, 0.7);
   }
   .heroDesktopSubtitle {
     font-size: 15px;
     line-height: 1.5;
-    margin-bottom: 22px;
+    margin: 0 0 22px;
     max-width: 520px;
     text-shadow: 0 1px 16px rgba(0, 0, 0, 0.75), 0 1px 3px rgba(0, 0, 0, 0.7);
   }
   .heroForm {
     flex-direction: row;
     max-width: 440px;
-    gap: 0;
   }
   .heroInput {
     flex: 1;
@@ -1226,35 +1176,84 @@
   }
 }
 
+
 /* ────────────────────────────────────────────────────────────
-   Mobile landscape — short viewport. The default
-   bottom:14vh + centered logo overlap each other when the phone
-   is rotated. Compact the overlay and pull it up.
+   <HeroIntro /> — mobile-only section directly under the hero.
+   Shows stats label, headline, subtitle, and the email signup
+   form. Hidden on ≥1024px because the same content is overlaid
+   on the hero image via .heroDesktopExtra.
    ──────────────────────────────────────────────────────────── */
-@media (max-width: 1023px) and (orientation: landscape) {
-  .heroDesktopExtra {
-    bottom: 6vh;
-    max-width: 360px;
-  }
-  .heroDesktopHeadline {
-    font-size: 18px;
-    margin-bottom: 8px;
-  }
-  .heroDesktopSubtitle {
-    display: none;
-  }
-  .heroForm {
-    flex-direction: row;
-    gap: 0;
-  }
-  .heroInput {
-    flex: 1;
-    border-radius: 10px 0 0 10px;
-    padding: 11px 14px;
-  }
-  .heroSubmit {
-    border-radius: 0 10px 10px 0;
-    padding: 11px 18px;
-    white-space: nowrap;
-  }
+.heroIntro {
+  padding: 28px 22px 36px;
+  background: #fff;
+  border-bottom: 1px solid #ece9e3;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
+.heroIntroStats {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #c8951a;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.heroIntroHeadline {
+  font-size: 26px;
+  font-weight: 900;
+  color: #1a1a1a;
+  line-height: 1.1;
+  margin: 0 0 10px;
+  letter-spacing: -0.015em;
+}
+.heroIntroSubtitle {
+  font-size: 14px;
+  color: #888;
+  line-height: 1.55;
+  margin: 0 0 20px;
+}
+.heroIntroForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.heroIntroInput {
+  padding: 13px 16px;
+  border: 1.5px solid #ece9e3;
+  border-radius: 10px;
+  font-size: 16px; /* iOS Safari auto-zoom guard */
+  color: #1a1a1a;
+  background: #fff;
+  outline: none;
+}
+.heroIntroInput::placeholder { color: #aaa; }
+.heroIntroSubmit {
+  padding: 13px;
+  background: #b71c1c;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.heroIntroSubmit:hover { background: #9a1818; }
+
+@media (min-width: 1024px) {
+  .heroIntro { display: none; }
+}
+
+/* Dark mode */
+:global([data-theme="dark"]) .heroIntro {
+  background: #0a0a0a;
+  border-bottom-color: #2a2a2a;
+}
+:global([data-theme="dark"]) .heroIntroHeadline { color: #fff; }
+:global([data-theme="dark"]) .heroIntroInput {
+  background: #1a1a1a;
+  border-color: #2a2a2a;
+  color: #fff;
+}
+:global([data-theme="dark"]) .heroIntroInput::placeholder { color: #555; }

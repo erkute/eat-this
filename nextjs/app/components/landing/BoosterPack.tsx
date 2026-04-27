@@ -13,7 +13,7 @@ export default function BoosterPack() {
       <div className={styles.packStageWrap}>
         <span className={styles.secLabel}>Booster Pack</span>
         <h2 className={styles.packHeadline}>
-          Sammle Berlins<br />beste Gerichte.
+          Sammle Berlins beste Gerichte.
         </h2>
         <div className={styles.packStage}>
           <div className={`${styles.packCard} ${styles.bc1}`}>
@@ -32,8 +32,8 @@ export default function BoosterPack() {
       </div>
       <div className={styles.packBody}>
         <p className={styles.packCopy}>
-          Registriere dich und schalte dein erstes Booster Pack frei. Sammle die Karten,
-          erkunde die Map und meistere die Berliner Food-Szene.
+          Registriere dich und schalte dein erstes Booster Pack frei. Sammle alle
+          Must Eats, erkunde die Map und meistere die Berliner Food-Szene.
         </p>
         <ul className={styles.packBenefits}>
           <li>Zugriff auf die komplette Berlin-Map</li>
@@ -74,7 +74,7 @@ export default function BoosterPack() {
             aria-label="E-Mail-Adresse"
           />
           <button className={styles.packSubmit} type="submit">
-            Booster Pack sichern — kostenlos
+            Booster Pack sichern
           </button>
         </form>
       </div>

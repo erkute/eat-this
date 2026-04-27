@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import styles from './landing.module.css';
 
-const TABS = ['In deiner Nähe', 'Bezirke', 'Must-Eat-Karten'];
+const TABS = ['In deiner Nähe', 'Bezirke', 'Must Eats'];
 
 export default function MapTeaser() {
   const [active, setActive] = useState(0);
@@ -14,7 +14,7 @@ export default function MapTeaser() {
         <h2>Die interaktive Karte</h2>
         <p>
           Finde Restaurants in deiner Nähe, filter nach Bezirk und entdecke einzelne
-          Must-Eat-Karten direkt auf der Karte.
+          Must Eats direkt auf der Karte.
         </p>
       </div>
       <div className={styles.mapVideo}>Video-Vorschau</div>

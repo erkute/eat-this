@@ -18,11 +18,10 @@ export default function Newsletter() {
         </div>
         <div className={styles.newsCopy}>
           <span className={styles.secLabel}>Newsletter</span>
-          <h2>Sei zuerst dran.</h2>
+          <h2>Gruß aus der Küche</h2>
           <p>
-            <em className={styles.newsHook}>Yes, Chef!</em> Neue Must-Eats,
-            neue Städte, neue Decks — direkt in dein Postfach, bevor wir
-            öffentlich davon erzählen.
+            Neue Städte, neue Restaurants, neue Must Eats — direkt in dein Postfach,
+            bevor wir öffentlich davon erzählen.
           </p>
           <form className={styles.newsForm} onSubmit={(e) => e.preventDefault()}>
             <input

@@ -9,16 +9,16 @@ const FAQS: { q: string; a: string }[] = [
     a: 'Wahrscheinlich der beste Foodguide, den du kennst. Die kuratierteste Sammlung der besten Berliner Restaurants — Karte für Karte.',
   },
   {
-    q: 'Was ist eine Must-Eat-Karte?',
-    a: 'Eine Must-Eat-Karte steht für ein konkretes Gericht an einem konkreten Ort — die eine Sache, die du dort bestellen musst.',
+    q: 'Was ist eine Must Eat Card?',
+    a: 'Eine Must Eat Card steht für ein konkretes Gericht an einem konkreten Ort — die eine Sache, die du dort bestellen musst.',
   },
   {
-    q: 'Was ist der Unterschied zwischen einem Restaurant und einer Must-Eat-Karte?',
-    a: 'Alle Restaurants auf unserer Karte wurden kuratiert und bilden die Lieblingsspots der Stadt. Wenn ein Gericht besonders heraussticht, bekommt es eine Must-Eat-Karte. Wir finden, du solltest genau dieses Gericht dort essen. Ein Restaurant kann mehrere Must-Eats haben.',
+    q: 'Was ist der Unterschied zwischen einem Restaurant und einer Must Eat Card?',
+    a: 'Alle Restaurants auf unserer Map wurden kuratiert und bilden die Lieblingsspots der Stadt. Wenn ein Gericht besonders heraussticht, bekommt es eine Must Eat Card. Wir finden, du solltest genau dieses Gericht dort essen. Ein Restaurant kann mehrere Must Eats haben.',
   },
   {
-    q: 'Wie wird entschieden, was eine Karte bekommt?',
-    a: 'Wir besuchen jeden Ort persönlich, sprechen mit den Köchinnen und Köchen und wählen nur aus, was wirklich heraussticht. Eine Regel: Ist es nicht herausragend, bekommt es keine Karte. Kein bezahlter Inhalt, keine Werbung.',
+    q: 'Wie wird entschieden, was eine Card bekommt?',
+    a: 'Wir besuchen jeden Ort persönlich, sprechen mit den Köchinnen und Köchen und wählen nur aus, was wirklich heraussticht. Eine Regel: Ist es nicht herausragend, bekommt es keine Card. Kein bezahlter Inhalt, keine Werbung.',
   },
   {
     q: 'Sind alle Empfehlungen wirklich unabhängig?',

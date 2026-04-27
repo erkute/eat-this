@@ -53,7 +53,7 @@ function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
               <span className={styles.rowMetaDot} aria-hidden="true">·</span>
               <img
                 src="/pics/card-back.webp"
-                alt="Must-Eat"
+                alt="Must Eat"
                 className={styles.rowMustBadge}
                 draggable={false}
               />

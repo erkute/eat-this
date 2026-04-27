@@ -16,7 +16,7 @@ export default function Newsletter() {
             decoding="async"
           />
           <div className={styles.newsBadge}>
-            <span className={styles.newsBadgeText}>Insider</span>
+            <span className={styles.newsBadgeText}>Bon Appetit</span>
           </div>
         </div>
         <div className={styles.newsCopy}>
@@ -37,7 +37,7 @@ export default function Newsletter() {
               Abonnieren
             </button>
           </form>
-          <span className={styles.newsNote}>Kein Spam. Jederzeit kündbar.</span>
+          <span className={styles.newsNote}>Frisch aus der Küche.</span>
         </div>
       </div>
     </section>

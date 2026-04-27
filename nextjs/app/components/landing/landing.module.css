@@ -153,7 +153,7 @@
 .fanWrap {
   background: #fff;
   overflow: visible;
-  padding: 8px 0 24px;
+  padding: 8px 0 60px;
 }
 .fanStage {
   position: relative;
@@ -370,12 +370,12 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  gap: 10px;
+  gap: 8px;
   height: 200px;
   margin-bottom: 24px;
 }
 .packCard {
-  width: 120px;
+  width: 108px;
   aspect-ratio: 2 / 3;
   flex-shrink: 0;
   filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.55));
@@ -1082,3 +1082,22 @@
   color: #fff;
 }
 :global([data-theme="dark"]) .newsInput::placeholder { color: #666; }
+
+/* ── Mobile horizontal-scroll safety net ───────────────────────
+   Fan card outer corners and a few other transforms can bleed
+   1–6px past the viewport on small screens. Clip at the section
+   level so the page never gets a horizontal scrollbar/pan. */
+@media (max-width: 1023px) {
+  .aboutFanRow,
+  .about,
+  .fanWrap,
+  .usps,
+  .game,
+  .mapTeaser,
+  .pack,
+  .coming,
+  .faq,
+  .news {
+    overflow-x: clip;
+  }
+}

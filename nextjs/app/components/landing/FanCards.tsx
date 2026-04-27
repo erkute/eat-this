@@ -11,7 +11,7 @@ const CARD_IMAGES = [
   'https://cdn.sanity.io/images/ehwjnjr2/production/de27d072ad8d240ed1361d00b22b60525378375b-1449x2163.png',
 ];
 
-const ROTS_MOBILE = [-22, -11, 0, 11, 22];
+const ROTS_MOBILE = [-16, -8, 0, 8, 16];
 const ROTS_DESKTOP = [-36, -18, 0, 18, 36];
 
 // Rotation tied directly to element position in viewport: opening when scrolling down,

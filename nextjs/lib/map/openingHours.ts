@@ -73,23 +73,54 @@ export function getOpenStatus(
     unitMin: l.unitMin ?? 'min',
   }
   const today      = now.getDay() as DayIndex
+  const yesterday  = ((today + 6) % 7) as DayIndex
   const currentMin = now.getHours() * 60 + now.getMinutes()
 
-  // 1. Currently open? / Opens later today?
+  // 1. Currently open?
+  // For overnight slots (close <= open, e.g. 11:00–01:00), the slot covers
+  // [open, 24:00) on day X and [00:00, close) on day X+1. Check both halves.
   for (const slot of openingHours) {
-    if (!parseDays(slot.days).includes(today)) continue
+    const days = parseDays(slot.days)
     const range = parseTimeRange(slot.hours)
     if (!range) continue
+    const isOvernight = range.close <= range.open
 
-    if (currentMin >= range.open && currentMin < range.close) {
-      const left = range.close - currentMin
-      const h    = Math.floor(left / 60)
-      return {
-        isOpen: true,
-        label:  h > 0
-          ? `${L.open} · ${L.closes} ${fmt(range.close)} (${h}${L.unitH})`
-          : `${L.open} · ${L.closes} ${fmt(range.close)}`,
-        minutesUntilChange: left,
+    if (!isOvernight) {
+      if (days.includes(today) && currentMin >= range.open && currentMin < range.close) {
+        const left = range.close - currentMin
+        const h    = Math.floor(left / 60)
+        return {
+          isOpen: true,
+          label:  h > 0
+            ? `${L.open} · ${L.closes} ${fmt(range.close)} (${h}${L.unitH})`
+            : `${L.open} · ${L.closes} ${fmt(range.close)}`,
+          minutesUntilChange: left,
+        }
+      }
+    } else {
+      // Late-evening half: started today, runs past midnight.
+      if (days.includes(today) && currentMin >= range.open) {
+        const left = (24 * 60 - currentMin) + range.close
+        const h    = Math.floor(left / 60)
+        return {
+          isOpen: true,
+          label:  h > 0
+            ? `${L.open} · ${L.closes} ${fmt(range.close)} (${h}${L.unitH})`
+            : `${L.open} · ${L.closes} ${fmt(range.close)}`,
+          minutesUntilChange: left,
+        }
+      }
+      // Early-morning half: opened yesterday, still running today.
+      if (days.includes(yesterday) && currentMin < range.close) {
+        const left = range.close - currentMin
+        const h    = Math.floor(left / 60)
+        return {
+          isOpen: true,
+          label:  h > 0
+            ? `${L.open} · ${L.closes} ${fmt(range.close)} (${h}${L.unitH})`
+            : `${L.open} · ${L.closes} ${fmt(range.close)}`,
+          minutesUntilChange: left,
+        }
       }
     }
   }

@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState, useMemo, useCallback, useEffect } from 'react'
+import { useRef, useState, useMemo, useCallback, useEffect, useLayoutEffect } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
 import type { MapRestaurant, MapMustEat, MapLayer, MapCategory } from '@/lib/types'
 import { useMapData } from '@/lib/map/useMapData'
@@ -104,13 +104,14 @@ export default function MapSection({ isActive = false }: Props) {
   const [filterOpen,         setFilterOpen]         = useState(false)
   const [searchOpen,         setSearchOpen]         = useState(false)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (sheetView !== 'detail') return
-    let cancelled = false
-    const id = requestAnimationFrame(() => {
-      if (!cancelled) requestAnimationFrame(snapDetailToContent)
-    })
-    return () => { cancelled = true; cancelAnimationFrame(id) }
+    // Run synchronously after DOM update so contentRef is set, then again
+    // on next frame after paint to catch cases where late layout (image
+    // reflow, font metrics) changes the measured height.
+    snapDetailToContent()
+    const id = requestAnimationFrame(snapDetailToContent)
+    return () => cancelAnimationFrame(id)
   }, [sheetView, selectedRestaurant, selectedMustEat, snapDetailToContent])
 
   /* Swipe-down-to-close on detail. Only initiates from the hero area

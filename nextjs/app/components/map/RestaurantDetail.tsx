@@ -234,7 +234,7 @@ export default function RestaurantDetail({
   if (inSheet) {
     return (
       <div className={styles.detailInSheet} role="dialog" aria-label={restaurant.name}>
-        <div className={styles.detailInSheetScroll}>
+        <div className={styles.detailInSheetScroll} data-detail-scroll>
           {heroEl}
           <div className={styles.detailLeftInfo}>
             <h3 className={styles.detailName}>{restaurant.name}</h3>

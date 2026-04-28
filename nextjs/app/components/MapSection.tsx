@@ -41,11 +41,11 @@ export default function MapSection({ isActive = false }: Props) {
   const { t } = useTranslation()
 
   const { restaurants, mustEats, loading: dataLoading } = useMapData()
-  // Hold the card-shuffle loading animation for at least a beat on first
-  // mount so users see the brand moment even when data resolves instantly.
+  // Hold the loading screen until the progress bar animation finishes (4 s) +
+  // a 200 ms grace period so the bar is visibly full before the map appears.
   const [minDelayElapsed, setMinDelayElapsed] = useState(false)
   useEffect(() => {
-    const id = window.setTimeout(() => setMinDelayElapsed(true), 1100)
+    const id = window.setTimeout(() => setMinDelayElapsed(true), 4200)
     return () => window.clearTimeout(id)
   }, [])
   const loading = dataLoading || !minDelayElapsed

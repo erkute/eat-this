@@ -47,6 +47,30 @@ export default function FilterDropdown({
     }
   }, [onClose, anchorEl])
 
+  // Cap dropdown height to the remaining viewport space below the anchor
+  // button so iOS Safari's bottom URL bar can never hide the last items.
+  // visualViewport reflects the *current* visible area (URL bar in/out),
+  // which `dvh` only approximates and lags on transitions.
+  useEffect(() => {
+    const recompute = () => {
+      const drop = ref.current
+      if (!drop || !anchorEl) return
+      const anchorBottom = anchorEl.getBoundingClientRect().bottom
+      const vh = window.visualViewport?.height ?? window.innerHeight
+      const remaining = vh - anchorBottom - 16 // 16 px breathing room
+      drop.style.maxHeight = `${Math.max(180, Math.floor(remaining))}px`
+    }
+    recompute()
+    window.addEventListener('resize', recompute)
+    window.visualViewport?.addEventListener('resize', recompute)
+    window.visualViewport?.addEventListener('scroll', recompute)
+    return () => {
+      window.removeEventListener('resize', recompute)
+      window.visualViewport?.removeEventListener('resize', recompute)
+      window.visualViewport?.removeEventListener('scroll', recompute)
+    }
+  }, [anchorEl])
+
   return (
     <div ref={ref} className={styles.filterDropdown}>
       <div className={styles.filterDropdownSection}>

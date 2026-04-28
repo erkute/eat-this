@@ -54,15 +54,40 @@ export default function MapSection({ isActive = false }: Props) {
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
   const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, reapplySnap, configure, snapToVisiblePx } = useBottomSheet('mid')
+  // Mirror the sheet element so we can read its current --sheet-visible-px
+  // (set by useBottomSheet on every applyY) for accurate flyTo padding.
+  const sheetElRef = useRef<HTMLDivElement | null>(null)
+  const setSheetRef = useCallback((el: HTMLDivElement | null) => {
+    sheetElRef.current = el
+    sheetRef(el)
+  }, [sheetRef])
 
   const snapDetailToContent = useCallback(() => {
     if (typeof window === 'undefined') return
     if (!window.matchMedia('(max-width: 1023.98px)').matches) return
-    const el = contentRef.current
-    if (!el) return
-    const contentH = el.scrollHeight
-    const maxH = Math.round(window.innerHeight * 0.88)
-    snapToVisiblePx(Math.min(contentH, maxH))
+    const mount = contentRef.current
+    if (!mount) return
+    // .detailInSheetScroll has flex:1 inside the sheet, so its scrollHeight
+    // returns max(content, container) — which is the *container* height when
+    // content fits. To get the natural content height we sum each child's
+    // offsetHeight. The scroller's vertical padding still counts.
+    const scroller = mount.querySelector<HTMLElement>('[data-detail-scroll]')
+    let contentH = 0
+    if (scroller) {
+      for (const child of Array.from(scroller.children)) {
+        contentH += (child as HTMLElement).offsetHeight
+      }
+      const cs = getComputedStyle(scroller)
+      contentH += parseFloat(cs.paddingTop || '0') + parseFloat(cs.paddingBottom || '0')
+    } else {
+      contentH = mount.scrollHeight
+    }
+    // Cap at 88svh — svh = the smallest possible viewport (Safari URL bar
+    // visible), so the sheet never extends past the bottom edge regardless
+    // of URL-bar state. 8 px is a small bottom breathing room.
+    const vh = window.visualViewport?.height ?? window.innerHeight
+    const maxH = Math.round(vh * 0.88)
+    snapToVisiblePx(Math.min(contentH + 8, maxH))
   }, [snapToVisiblePx, contentRef])
 
   const [mapZoom,            setMapZoom]            = useState(12)
@@ -203,11 +228,23 @@ export default function MapSection({ isActive = false }: Props) {
       // at the column's geometric center.
       return { top: 80, bottom: 100, left: 24, right: 24 }
     }
-    const s = targetSnap ?? snap
-    let visible = 28 // peek
-    if (s === 'mid') visible = 440
-    else if (s === 'full') visible = Math.round(window.innerHeight * 0.58)
-    return { top: 110, bottom: visible + 20, left: 20, right: 20 }
+    // When the caller specifies a target snap, use known pixel heights for
+    // that snap. Otherwise read the *actual* current sheet height from the
+    // CSS var the bottom-sheet hook sets — this is the only source of truth
+    // that handles drag in-progress AND the content-fit detail snap.
+    let visible: number
+    if (targetSnap) {
+      visible = targetSnap === 'peek' ? 28
+        : targetSnap === 'mid' ? 440
+        : Math.round(window.innerHeight * 0.58)
+    } else {
+      const cssVar = sheetElRef.current?.style.getPropertyValue('--sheet-visible-px')
+      const parsed = cssVar ? parseFloat(cssVar) : NaN
+      visible = Number.isFinite(parsed) && parsed > 0
+        ? parsed
+        : (snap === 'peek' ? 28 : snap === 'mid' ? 440 : Math.round(window.innerHeight * 0.58))
+    }
+    return { top: 110, bottom: Math.round(visible) + 20, left: 20, right: 20 }
   }, [snap])
 
   const handleRestaurantClick = useCallback((r: MapRestaurant) => {
@@ -479,7 +516,7 @@ export default function MapSection({ isActive = false }: Props) {
             </div>
 
             <aside
-              ref={sheetRef}
+              ref={setSheetRef}
               className={`${styles.list} ${dragging ? styles.listDragging : ''}`}
               aria-label={layer === 'restaurants' ? 'Restaurants nearby' : 'Must-Eats'}
             >

@@ -75,7 +75,7 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
   if (inSheet) {
     return (
       <div className={styles.detailInSheet} role="dialog" aria-label={`Must-Eat at ${mustEat.restaurant.name}`}>
-        <div className={styles.detailInSheetScroll}>
+        <div className={styles.detailInSheetScroll} data-detail-scroll>
           <div
             className={styles.mustEatHero}
             style={{ ['--vibrate-intensity' as string]: vibrateIntensity.toFixed(3) }}

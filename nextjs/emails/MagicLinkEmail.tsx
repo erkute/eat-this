@@ -80,10 +80,11 @@ export default function MagicLinkEmail({
               style={{
                 margin:        0,
                 color:         PALETTE.gold,
-                fontSize:      '11px',
-                letterSpacing: '0.18em',
+                fontSize:      '10px',
+                letterSpacing: '0.1em',
                 textTransform: 'uppercase',
                 fontWeight:    700,
+                whiteSpace:    'nowrap',
               }}
             >
               Berlin · 150+ Must Eats · 200+ Restaurants

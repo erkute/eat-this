@@ -397,6 +397,21 @@ export default function MapSection({ isActive = false }: Props) {
     return () => { cancelled = true }
   }, [requestLocation])
 
+  const prevActiveRef = useRef(false)
+  useEffect(() => {
+    const justActivated = isActive && !prevActiveRef.current
+    prevActiveRef.current = isActive
+    if (!justActivated) return
+    if (selectedRestaurant || selectedMustEat) return
+    if (!location) return
+    mapRef.current?.flyTo({
+      center: [location.lng, location.lat],
+      zoom: 14,
+      duration: 400,
+      padding: getFlyPadding(),
+    })
+  }, [isActive, selectedRestaurant, selectedMustEat, location, getFlyPadding])
+
   /* ---------- Render ---------- */
   return (
     <div

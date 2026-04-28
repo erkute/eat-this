@@ -67,27 +67,51 @@ export default function MapSection({ isActive = false }: Props) {
     if (!window.matchMedia('(max-width: 1023.98px)').matches) return
     const mount = contentRef.current
     if (!mount) return
-    // .detailInSheetScroll has flex:1 inside the sheet, so its scrollHeight
-    // returns max(content, container) — which is the *container* height when
-    // content fits. To get the natural content height we sum each child's
-    // offsetHeight. The scroller's vertical padding still counts.
     const scroller = mount.querySelector<HTMLElement>('[data-detail-scroll]')
-    let contentH = 0
-    if (scroller) {
+    if (!scroller) return
+
+    const measure = () => {
+      let h = 0
       for (const child of Array.from(scroller.children)) {
-        contentH += (child as HTMLElement).offsetHeight
+        h += (child as HTMLElement).offsetHeight
       }
       const cs = getComputedStyle(scroller)
-      contentH += parseFloat(cs.paddingTop || '0') + parseFloat(cs.paddingBottom || '0')
-    } else {
-      contentH = mount.scrollHeight
+      return h + parseFloat(cs.paddingTop || '0') + parseFloat(cs.paddingBottom || '0')
     }
-    // Cap at 95% of the *visual* viewport (Safari URL bar accounted for).
-    // For most restaurants the compressed layout fits well below this; the
-    // few content-heavy detail pages snap to ~95% and rely on the inner
-    // .detailInSheetScroll for the small remaining overflow.
+
+    // Cap at the sheet's actual maximum height — that's the ceiling we can
+    // ever snap to. (95 dvh visualViewport is theoretical; the sheet's
+    // container is `height: 100%` of the body, which is viewport minus the
+    // global header.)
     const vh = window.visualViewport?.height ?? window.innerHeight
-    const maxH = Math.round(vh * 0.95)
+    const sheetMaxH = sheetElRef.current?.getBoundingClientRect().height ?? Math.round(vh * 0.95)
+    const maxH = Math.min(sheetMaxH, Math.round(vh * 0.95))
+
+    let contentH = measure()
+
+    // If content overflows the sheet ceiling, dynamically shrink the hero
+    // image to claw back the missing pixels. Keeps a 140 px floor so the
+    // hero stays meaningful instead of collapsing. Restaurant detail uses
+    // .detailHeroWrap, must-eat detail uses .mustEatHero.
+    if (contentH > maxH - 8) {
+      const heroEl =
+        mount.querySelector<HTMLElement>(`.${styles.detailHeroWrap}`) ??
+        mount.querySelector<HTMLElement>(`.${styles.mustEatHero}`)
+      if (heroEl) {
+        const overflow = contentH - (maxH - 8)
+        const currentH = heroEl.offsetHeight
+        const newH = Math.max(140, currentH - overflow)
+        if (newH < currentH) {
+          heroEl.style.maxHeight = `${newH}px`
+          heroEl.style.height = `${newH}px`
+          // Also constrain the inner image element so it scales with the wrap.
+          const inner = heroEl.querySelector<HTMLElement>('img, [class*="detailHero"]:not([class*="Wrap"])')
+          if (inner) inner.style.maxHeight = `${newH}px`
+          contentH = measure()
+        }
+      }
+    }
+
     snapToVisiblePx(Math.min(contentH + 8, maxH))
   }, [snapToVisiblePx, contentRef])
 

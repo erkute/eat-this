@@ -12,15 +12,19 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.0.7",
     "@sanity/client": "^7.21.0",
     "@sanity/image-url": "^2.1.1",
     "firebase": "^12.12.1",
+    "firebase-admin": "^13.8.0",
     "maplibre-gl": "^5.24.0",
     "next": "15.5.15",
     "next-intl": "^4.9.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-map-gl": "^8.1.1"
+    "react-map-gl": "^8.1.1",
+    "resend": "^6.12.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

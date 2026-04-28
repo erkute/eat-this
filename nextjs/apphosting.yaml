@@ -10,3 +10,38 @@ env:
     availability:
       - RUNTIME
 
+  # Resend (Transactional Email)
+  - variable: RESEND_API_KEY
+    secret: RESEND_API_KEY
+    availability:
+      - RUNTIME
+  - variable: RESEND_FROM_EMAIL
+    value: hello@eatthisdot.com
+    availability:
+      - RUNTIME
+  - variable: RESEND_FROM_NAME
+    value: Eat This
+    availability:
+      - RUNTIME
+
+  # Firebase Admin SDK (server-side magic link generation)
+  - variable: FIREBASE_ADMIN_PROJECT_ID
+    value: eat-this-8a13b
+    availability:
+      - RUNTIME
+  - variable: FIREBASE_ADMIN_CLIENT_EMAIL
+    secret: FIREBASE_ADMIN_CLIENT_EMAIL
+    availability:
+      - RUNTIME
+  - variable: FIREBASE_ADMIN_PRIVATE_KEY
+    secret: FIREBASE_ADMIN_PRIVATE_KEY
+    availability:
+      - RUNTIME
+
+  # Public App URL (used as fallback for image asset base URL in emails)
+  - variable: NEXT_PUBLIC_APP_URL
+    value: https://www.eatthisdot.com
+    availability:
+      - RUNTIME
+      - BUILD
+

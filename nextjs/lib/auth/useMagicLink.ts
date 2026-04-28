@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { sendSignInLinkToEmail } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
 
 export type MagicLinkState = 'idle' | 'sending' | 'sent' | 'error';
 
 const ERROR_MESSAGES: Record<string, string> = {
-  'auth/invalid-email':          'Bitte gib eine gültige E-Mail-Adresse ein.',
-  'auth/too-many-requests':      'Zu viele Versuche – bitte warte einen Moment.',
-  'auth/network-request-failed': 'Netzwerkfehler – bitte erneut versuchen.',
+  'invalid-email':          'Bitte gib eine gültige E-Mail-Adresse ein.',
+  'send-failed':            'Wir konnten die E-Mail nicht zustellen. Bitte versuch es nochmal.',
+  'link-generation-failed': 'Etwas ist schiefgelaufen. Bitte versuch es nochmal.',
+  'email-misconfigured':    'Service-Fehler – bitte später nochmal versuchen.',
+  'network':                'Netzwerkfehler – bitte erneut versuchen.',
 };
 
 export function useMagicLink() {
@@ -21,15 +21,28 @@ export function useMagicLink() {
     setErrorMessage('');
     localStorage.setItem('emailForSignIn', email);
     try {
-      await sendSignInLinkToEmail(auth, email, {
-        url: window.location.origin + '/',
-        handleCodeInApp: true,
+      const response = await fetch('/api/auth/send-magic-link', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          email,
+          continueUrl: window.location.origin + '/',
+        }),
       });
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        localStorage.removeItem('emailForSignIn');
+        const code = (data as { error?: string }).error ?? '';
+        setErrorMessage(ERROR_MESSAGES[code] ?? 'Etwas ist schiefgelaufen. Versuch es nochmal.');
+        setState('error');
+        return;
+      }
+
       setState('sent');
-    } catch (err: unknown) {
+    } catch {
       localStorage.removeItem('emailForSignIn');
-      const code = (err as { code?: string }).code ?? '';
-      setErrorMessage(ERROR_MESSAGES[code] ?? 'Etwas ist schiefgelaufen. Versuch es nochmal.');
+      setErrorMessage(ERROR_MESSAGES['network']);
       setState('error');
     }
   }, []);

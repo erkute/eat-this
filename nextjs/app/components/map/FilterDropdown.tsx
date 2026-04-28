@@ -12,10 +12,14 @@ interface FilterDropdownProps {
   bezirke: string[]
   bezirk: string | null
   onBezirk: (b: string | null) => void
+  priceFilter: string | null
+  onPriceFilter: (p: string | null) => void
   onClose: () => void
   /** Anchor element so outside-click can ignore taps on it. */
   anchorEl?: HTMLElement | null
 }
+
+const PRICE_OPTIONS = ['€', '€€', '€€€', '€€€€'] as const
 
 function CheckIcon() {
   return (
@@ -26,7 +30,8 @@ function CheckIcon() {
 }
 
 export default function FilterDropdown({
-  sort, onSort, openOnly, onOpenOnly, bezirke, bezirk, onBezirk, onClose, anchorEl,
+  sort, onSort, openOnly, onOpenOnly, bezirke, bezirk, onBezirk,
+  priceFilter, onPriceFilter, onClose, anchorEl,
 }: FilterDropdownProps) {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -101,6 +106,30 @@ export default function FilterDropdown({
             <div className={styles.filterToggleThumb} />
           </div>
         </button>
+      </div>
+
+      <div className={styles.filterDropdownDivider} />
+      <div className={styles.filterDropdownSection}>
+        <div className={styles.filterDropdownLabel}>Preis</div>
+        <button
+          type="button"
+          className={`${styles.filterDropdownItem} ${priceFilter === null ? styles.filterDropdownItemActive : ''}`}
+          onClick={() => { onPriceFilter(null); onClose() }}
+        >
+          <span>Alle</span>
+          {priceFilter === null && <CheckIcon />}
+        </button>
+        {PRICE_OPTIONS.map(p => (
+          <button
+            key={p}
+            type="button"
+            className={`${styles.filterDropdownItem} ${priceFilter === p ? styles.filterDropdownItemActive : ''}`}
+            onClick={() => { onPriceFilter(p); onClose() }}
+          >
+            <span>{p}</span>
+            {priceFilter === p && <CheckIcon />}
+          </button>
+        ))}
       </div>
 
       {bezirke.length > 0 && (

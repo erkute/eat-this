@@ -3803,7 +3803,10 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   border-radius: 14px;
   min-width: 220px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
-  overflow: hidden;
+  max-height: min(65dvh, 460px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .filterDropdownSection {

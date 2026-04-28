@@ -588,12 +588,12 @@
 .memFace {
   position: absolute;
   inset: 0;
-  border-radius: min(12px, 7.2%);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  overflow: hidden;
 }
-.memBack { background: transparent url('/pics/card-back.webp') center/contain no-repeat; }
+.memBack {
+  background: transparent url('/pics/card-back.webp') center/contain no-repeat;
+}
 .memFace { transform: rotateY(180deg); }
 .memFace img { width: 100%; height: 100%; object-fit: cover; display: block; }
 

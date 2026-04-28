@@ -106,13 +106,46 @@ export default function MapSection({ isActive = false }: Props) {
 
   useLayoutEffect(() => {
     if (sheetView !== 'detail') return
-    // Run synchronously after DOM update so contentRef is set, then again
-    // on next frame after paint to catch cases where late layout (image
-    // reflow, font metrics) changes the measured height.
+    if (typeof window === 'undefined') return
+    // Initial snap after DOM is set + once after paint.
     snapDetailToContent()
     const id = requestAnimationFrame(snapDetailToContent)
-    return () => cancelAnimationFrame(id)
-  }, [sheetView, selectedRestaurant, selectedMustEat, snapDetailToContent])
+
+    // Re-snap whenever the detail content's measured height changes — covers
+    // hero image loading (was 0 px → now full size), font metrics settling,
+    // and any late layout shifts that would otherwise leave the sheet stuck
+    // at the initial under-measure size.
+    let ro: ResizeObserver | null = null
+    const mount = contentRef.current
+    const scroller = mount?.querySelector<HTMLElement>('[data-detail-scroll]') ?? null
+    if (scroller && typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => {
+        snapDetailToContent()
+      })
+      // Observe each direct child individually — the scroller itself has
+      // flex:1 so its own size doesn't change with content; the children's
+      // sizes do.
+      for (const child of Array.from(scroller.children)) {
+        ro.observe(child as HTMLElement)
+      }
+    }
+
+    // Re-snap when the hero image finishes loading (offsetHeight before load
+    // is tiny → snap measures wrong → user sees the sheet at the under-sized
+    // height with internal scroll). ResizeObserver catches most cases but
+    // an explicit load handler is the belt to RO's suspenders.
+    const onImgLoad = () => snapDetailToContent()
+    const heroImgs = mount?.querySelectorAll<HTMLImageElement>('img') ?? []
+    heroImgs.forEach(img => {
+      if (!img.complete) img.addEventListener('load', onImgLoad, { once: true })
+    })
+
+    return () => {
+      cancelAnimationFrame(id)
+      ro?.disconnect()
+      heroImgs.forEach(img => img.removeEventListener('load', onImgLoad))
+    }
+  }, [sheetView, selectedRestaurant, selectedMustEat, snapDetailToContent, contentRef])
 
   /* Swipe-down-to-close on detail. Only initiates from the hero area
      (top ~240 px) and only when the inner scroll is at the top — so users

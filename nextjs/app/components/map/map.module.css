@@ -3125,7 +3125,10 @@ html[data-theme="dark"] .mustEatHero {
   border: 0;
   padding: 0;
   display: block;
-  width: 165px;
+  /* Sized to fit fully inside the .mustEatHero (height: min(220px, 30dvh))
+     even with the 32 px glow padding at the bottom. 138 × 207 leaves ~6 px
+     breathing on top and bottom on the smallest mobile screens. */
+  width: 138px;
   aspect-ratio: 1449 / 2163;
   border-radius: 12px;
   background: transparent url('/pics/card-back.webp') center/contain no-repeat;
@@ -3174,7 +3177,9 @@ html[data-theme="dark"] .mustEatHero {
 /* Unlocked dish photo — same hero area, fills with the actual image. */
 .mustEatPhoto {
   display: block;
-  width: 240px;
+  /* Match the locked .mustEatCard sizing so the unlocked photo replaces it
+     in-place without overflowing the compact hero (min(220px, 30dvh)). */
+  width: 138px;
   aspect-ratio: 1449 / 2163;
   border-radius: 16px;
   object-fit: cover;

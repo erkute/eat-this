@@ -97,6 +97,7 @@ export default function MapSection({ isActive = false }: Props) {
   const [search,             setSearch]             = useState('')
   const [bezirk,             setBezirk]             = useState<string | null>(null)
   const [openOnly,           setOpenOnly]           = useState(false)
+  const [priceFilter,        setPriceFilter]        = useState<string | null>(null)
   const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
   const [selectedMustEat,    setSelectedMustEat]    = useState<MapMustEat | null>(null)
   const [sheetView,          setSheetView]          = useState<'list' | 'detail'>('list')
@@ -116,6 +117,15 @@ export default function MapSection({ isActive = false }: Props) {
   /* Swipe-down-to-close on detail. Only initiates from the hero area
      (top ~240 px) and only when the inner scroll is at the top — so users
      can still scroll the body content without triggering close. */
+
+  /* Filter / sort changes — reset list scroll to the top so the user always
+     sees the first results of the new filter, not where they happened to be
+     scrolled in the previous list. */
+  useEffect(() => {
+    if (sheetView !== 'list') return
+    const el = contentRef.current
+    if (el) el.scrollTop = 0
+  }, [sheetView, category, bezirk, priceFilter, openOnly, sort, search, layer, contentRef])
 
   /* ---------- Bezirk list + centroid map ---------- */
   const { bezirkNames, bezirkCenters } = useMemo(() => {
@@ -152,12 +162,13 @@ export default function MapSection({ isActive = false }: Props) {
     }
     if (category !== 'All' && !r.categories?.includes(category)) return false
     if (bezirk && districtOf(r) !== bezirk) return false
+    if (priceFilter && r.price !== priceFilter) return false
     if (openOnly) {
       if (!r.openingHours) return false
       if (!getOpenStatus(r.openingHours).isOpen) return false
     }
     return true
-  }, [category, bezirk, openOnly, search])
+  }, [category, bezirk, priceFilter, openOnly, search])
 
   const displayedRestaurants = useMemo(() => {
     const filtered = restaurants.filter(filterRestaurant)
@@ -252,15 +263,60 @@ export default function MapSection({ isActive = false }: Props) {
     return { top: 110, bottom: Math.round(visible) + 20, left: 20, right: 20 }
   }, [snap])
 
+  /* After the auto-fit detail sheet settles at its content height, re-centre
+     the camera so the marker actually lands above the (just-expanded) sheet.
+     The initial flyTo in click handlers uses an estimate ('full') and is
+     usually off — short detail (Crapulix) → too low; tall (Schüsseldienst) →
+     hidden behind the sheet. Reads --sheet-visible-px which is now accurate. */
+  useEffect(() => {
+    if (sheetView !== 'detail') return
+    if (typeof window === 'undefined') return
+    if (!window.matchMedia('(max-width: 1023.98px)').matches) return
+    const target = selectedRestaurant
+      ? { lat: selectedRestaurant.lat, lng: selectedRestaurant.lng }
+      : selectedMustEat
+        ? { lat: selectedMustEat.restaurant.lat, lng: selectedMustEat.restaurant.lng }
+        : null
+    if (!target) return
+    let cancelled = false
+    // Three frames: snapDetailToContent runs after two rAF; we recentre on
+    // the third, by which point --sheet-visible-px reflects the final size.
+    const id = requestAnimationFrame(() => {
+      if (cancelled) return
+      requestAnimationFrame(() => {
+        if (cancelled) return
+        requestAnimationFrame(() => {
+          if (cancelled || !mapRef.current) return
+          mapRef.current.easeTo({
+            center: [target.lng, target.lat],
+            duration: 320,
+            padding: getFlyPadding(),
+          })
+        })
+      })
+    })
+    return () => { cancelled = true; cancelAnimationFrame(id) }
+  }, [sheetView, selectedRestaurant, selectedMustEat, getFlyPadding])
+
   const handleRestaurantClick = useCallback((r: MapRestaurant) => {
     userInteractedRef.current = true
+    const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
     setSelectedRestaurant(r)
     setSelectedMustEat(null)
     // Both mobile sheet AND desktop sidebar render the detail inline now —
     // desktop no longer uses a centered floating modal that hid the marker.
     setSheetView('detail')
-    mapRef.current?.flyTo({ center: [r.lng, r.lat], zoom: 15, duration: 500, padding: getFlyPadding() })
-  }, [setSnap, getFlyPadding])
+    // Pass 'full' on mobile because the sheet is about to expand to the
+    // content-fit detail height (~58–95 % of viewport). Using current 'mid'
+    // padding here means the marker would be centred ABOVE where the detail
+    // sheet actually ends up — usually behind it.
+    mapRef.current?.flyTo({
+      center: [r.lng, r.lat],
+      zoom: 15,
+      duration: 500,
+      padding: getFlyPadding(isMobile ? 'full' : undefined),
+    })
+  }, [getFlyPadding])
 
   const handleMustEatClick = useCallback((m: MapMustEat) => {
     userInteractedRef.current = true
@@ -444,12 +500,19 @@ export default function MapSection({ isActive = false }: Props) {
       startY = null
       if (!active) return
       active = false
-      // Reset transition then trigger close or snap-back.
       if (dy > 110) {
-        if (selectedRestaurant) handleRestaurantClose()
-        else if (selectedMustEat) handleMustEatClose()
+        // Animate the sheet sliding off-screen first, then fire close so the
+        // detail content visibly slides away instead of vanishing in one frame.
+        // .list has `transition: transform 0.28s` and reads --sheet-y via
+        // translateY(), so changing the var animates the transform.
+        const sheetH = sheet.getBoundingClientRect().height
+        sheet.style.setProperty('--sheet-y', `${sheetH}px`)
+        window.setTimeout(() => {
+          if (selectedRestaurant) handleRestaurantClose()
+          else if (selectedMustEat) handleMustEatClose()
+        }, 240)
       } else {
-        // Snap back to the auto-sized detail height.
+        // Snap back smoothly to the auto-sized detail height.
         sheet.style.setProperty('--sheet-y', `${basePx}px`)
       }
     }
@@ -671,7 +734,7 @@ export default function MapSection({ isActive = false }: Props) {
                           <button
                             ref={filterBtnRef}
                             type="button"
-                            className={`${styles.filterIconBtn} ${(openOnly || bezirk || sort !== 'distance') ? styles.filterIconBtnActive : ''}`}
+                            className={`${styles.filterIconBtn} ${(openOnly || bezirk || priceFilter || sort !== 'distance') ? styles.filterIconBtnActive : ''}`}
                             onClick={() => setFilterOpen(v => !v)}
                             aria-label="Filter und Sortierung"
                             aria-expanded={filterOpen}
@@ -681,7 +744,7 @@ export default function MapSection({ isActive = false }: Props) {
                               <line x1="7" y1="12" x2="17" y2="12" />
                               <line x1="10" y1="18" x2="14" y2="18" />
                             </svg>
-                            {(openOnly || bezirk || sort !== 'distance') && <span className={styles.filterActiveDot} aria-hidden="true" />}
+                            {(openOnly || bezirk || priceFilter || sort !== 'distance') && <span className={styles.filterActiveDot} aria-hidden="true" />}
                           </button>
                           {filterOpen && (
                             <FilterDropdown
@@ -692,6 +755,8 @@ export default function MapSection({ isActive = false }: Props) {
                               bezirke={bezirkNames}
                               bezirk={bezirk}
                               onBezirk={handleBezirkChange}
+                              priceFilter={priceFilter}
+                              onPriceFilter={setPriceFilter}
                               onClose={() => setFilterOpen(false)}
                               anchorEl={filterBtnRef.current}
                             />

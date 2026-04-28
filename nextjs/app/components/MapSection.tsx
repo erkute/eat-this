@@ -53,7 +53,17 @@ export default function MapSection({ isActive = false }: Props) {
   const uid = auth.currentUser?.uid ?? null
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
-  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, reapplySnap, configure } = useBottomSheet('mid')
+  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, reapplySnap, configure, snapToVisiblePx } = useBottomSheet('mid')
+
+  const snapDetailToContent = useCallback(() => {
+    if (typeof window === 'undefined') return
+    if (!window.matchMedia('(max-width: 1023.98px)').matches) return
+    const el = contentRef.current
+    if (!el) return
+    const contentH = el.scrollHeight
+    const maxH = Math.round(window.innerHeight * 0.88)
+    snapToVisiblePx(Math.min(contentH, maxH))
+  }, [snapToVisiblePx, contentRef])
 
   const [mapZoom,            setMapZoom]            = useState(12)
   const [layer,              setLayer]              = useState<MapLayer>('restaurants')
@@ -67,6 +77,15 @@ export default function MapSection({ isActive = false }: Props) {
   const [sort,               setSort]               = useState<'distance' | 'name'>('distance')
   const [filterOpen,         setFilterOpen]         = useState(false)
   const [searchOpen,         setSearchOpen]         = useState(false)
+
+  useEffect(() => {
+    if (sheetView !== 'detail') return
+    let cancelled = false
+    const id = requestAnimationFrame(() => {
+      if (!cancelled) requestAnimationFrame(snapDetailToContent)
+    })
+    return () => { cancelled = true; cancelAnimationFrame(id) }
+  }, [sheetView, selectedRestaurant, selectedMustEat, snapDetailToContent])
 
   /* ---------- Bezirk list + centroid map ---------- */
   const { bezirkNames, bezirkCenters } = useMemo(() => {
@@ -187,7 +206,7 @@ export default function MapSection({ isActive = false }: Props) {
     const s = targetSnap ?? snap
     let visible = 28 // peek
     if (s === 'mid') visible = 440
-    else if (s === 'full') visible = window.innerHeight
+    else if (s === 'full') visible = Math.round(window.innerHeight * 0.58)
     return { top: 110, bottom: visible + 20, left: 20, right: 20 }
   }, [snap])
 
@@ -198,7 +217,6 @@ export default function MapSection({ isActive = false }: Props) {
     // Both mobile sheet AND desktop sidebar render the detail inline now —
     // desktop no longer uses a centered floating modal that hid the marker.
     setSheetView('detail')
-    setSnap('full')
     mapRef.current?.flyTo({ center: [r.lng, r.lat], zoom: 15, duration: 500, padding: getFlyPadding() })
   }, [setSnap, getFlyPadding])
 
@@ -213,7 +231,6 @@ export default function MapSection({ isActive = false }: Props) {
       setSelectedRestaurant(null)
       setSelectedMustEat(m)
       setSheetView('detail')
-      setSnap('full')
       mapRef.current?.flyTo({
         center: [m.restaurant.lng, m.restaurant.lat],
         zoom: 15,
@@ -226,7 +243,6 @@ export default function MapSection({ isActive = false }: Props) {
     const open = () => {
       setSelectedMustEat(m)
       setSheetView('detail')
-      setSnap('full')
       mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500, padding: getFlyPadding(isMobile ? 'full' : undefined) })
     }
     // Let the back-card wiggle animation play before the detail modal covers it.

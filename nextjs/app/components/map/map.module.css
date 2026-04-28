@@ -73,7 +73,7 @@
       var(--accent) 0 10px,
       color-mix(in srgb, var(--accent) 70%, #000) 10px 12px
     );
-  animation: loadingFill 1.4s steps(12) infinite;
+  animation: loadingFill 4s steps(16) forwards;
 }
 @keyframes loadingFill {
   0%   { width: 0; }
@@ -2822,10 +2822,14 @@ html[data-theme="dark"] .selectActive {
   animation: detailIn 0.18s ease;
 }
 /* Wider hero in sheet */
+.detailInSheet .detailHeroWrap {
+  max-height: 36dvh;
+  overflow: hidden;
+}
 .detailInSheet .detailHero,
 .detailInSheet .detailHeroPlaceholder {
   aspect-ratio: 4/3;
-  max-height: none;
+  max-height: 36dvh;
   width: 100%;
 }
 /* Desktop sidebar is narrower (420 px) than mobile, so a 4/3 hero is 315 px
@@ -2833,9 +2837,13 @@ html[data-theme="dark"] .selectActive {
    over 800 px. Tighten everything on desktop so the full detail fits in one
    viewport without internal scrolling. */
 @media (min-width: 1024px) {
+  .detailInSheet .detailHeroWrap {
+    max-height: 36dvh;
+  }
   .detailInSheet .detailHero,
   .detailInSheet .detailHeroPlaceholder {
     aspect-ratio: 2/1;
+    max-height: 36dvh;
   }
   .detailInSheet .detailLeftInfo {
     padding: 12px 16px 0;
@@ -3074,7 +3082,7 @@ html[data-theme="dark"] .detailFooter .btn:hover {
   position: relative;
   /* Shrunk so the rest of the detail (info + explainer + booster + footer)
      fits inside one viewport without scrolling. */
-  height: 280px;
+  height: min(280px, 38dvh);
   background:
     radial-gradient(60% 60% at 50% 30%, rgba(255, 200, 150, 0.55), rgba(255, 200, 150, 0) 70%),
     linear-gradient(180deg, #faf7f2 0%, #f0e6dc 100%);
@@ -3803,7 +3811,11 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   border-radius: 14px;
   min-width: 220px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
-  overflow: hidden;
+  max-height: min(65dvh, 460px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .filterDropdownSection {

@@ -14,6 +14,12 @@ interface MustEatMarkerProps {
   onClick: (mustEat: MapMustEat) => void
   displayLat?: number
   displayLng?: number
+  /** Card rotation in degrees for the fan effect. */
+  fanRotation?: number
+  /** Position in the fan (0 = leftmost). */
+  fanIndex?: number
+  /** Total cards in this fan group. */
+  fanCount?: number
 }
 
 // Proximity vibration starts at this distance and ramps up to 1 at 0 m away.
@@ -27,6 +33,9 @@ export default function MustEatMarker({
   onClick,
   displayLat,
   displayLng,
+  fanRotation = 0,
+  fanIndex = 0,
+  fanCount = 1,
 }: MustEatMarkerProps) {
   const [wiggling, setWiggling] = useState(false)
 
@@ -64,7 +73,15 @@ export default function MustEatMarker({
         role="button"
         aria-label={`Must-Eat at ${mustEat.restaurant.name}`}
         className={className}
-        style={vibrating ? { ['--vibrate-intensity' as string]: proximityIntensity.toFixed(3) } : undefined}
+        style={{
+          ...(vibrating ? { ['--vibrate-intensity' as string]: proximityIntensity.toFixed(3) } : null),
+          ...(fanCount > 1 ? {
+            ['--fan-rotation' as string]: `${fanRotation}deg`,
+            // Centre cards stack on top of the outer ones for a hand-of-cards
+            // look. Distance from centre → lower z; isSelected wins outright.
+            zIndex: isSelected ? 100 : 10 - Math.abs(fanIndex - (fanCount - 1) / 2),
+          } : null),
+        }}
         onAnimationEnd={() => setWiggling(false)}
       >
         <img src="/pics/card-back.webp" alt="" draggable={false} />

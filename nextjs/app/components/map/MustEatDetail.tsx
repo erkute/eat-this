@@ -109,9 +109,13 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
               {isUnlocked ? mustEat.dish : mustEat.restaurant.name}
             </h3>
             <p className={styles.mustEatInfoRow}>
-              {isUnlocked
-                ? [mustEat.restaurant.name, mustEat.restaurant.district, mustEat.price].filter(Boolean).join(' · ')
-                : [mustEat.restaurant.district, mustEat.price].filter(Boolean).join(' · ')}
+              {(isUnlocked
+                ? [mustEat.restaurant.name, mustEat.restaurant.district, mustEat.price]
+                : [mustEat.restaurant.district, mustEat.price]
+              )
+                .concat(distance !== null ? [formatDistance(distance)] : [])
+                .filter(Boolean)
+                .join(' · ')}
             </p>
 
             {!isUnlocked && (

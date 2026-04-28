@@ -82,11 +82,12 @@ export default function MapSection({ isActive = false }: Props) {
     } else {
       contentH = mount.scrollHeight
     }
-    // Cap at 88svh — svh = the smallest possible viewport (Safari URL bar
-    // visible), so the sheet never extends past the bottom edge regardless
-    // of URL-bar state. 8 px is a small bottom breathing room.
+    // Cap at 95% of the *visual* viewport (Safari URL bar accounted for).
+    // For most restaurants the compressed layout fits well below this; the
+    // few content-heavy detail pages snap to ~95% and rely on the inner
+    // .detailInSheetScroll for the small remaining overflow.
     const vh = window.visualViewport?.height ?? window.innerHeight
-    const maxH = Math.round(vh * 0.88)
+    const maxH = Math.round(vh * 0.95)
     snapToVisiblePx(Math.min(contentH + 8, maxH))
   }, [snapToVisiblePx, contentRef])
 
@@ -111,6 +112,10 @@ export default function MapSection({ isActive = false }: Props) {
     })
     return () => { cancelled = true; cancelAnimationFrame(id) }
   }, [sheetView, selectedRestaurant, selectedMustEat, snapDetailToContent])
+
+  /* Swipe-down-to-close on detail. Only initiates from the hero area
+     (top ~240 px) and only when the inner scroll is at the top — so users
+     can still scroll the body content without triggering close. */
 
   /* ---------- Bezirk list + centroid map ---------- */
   const { bezirkNames, bezirkCenters } = useMemo(() => {
@@ -395,6 +400,72 @@ export default function MapSection({ isActive = false }: Props) {
     )
   }, [sheetView, configure])
 
+  /* Swipe-down-to-close on detail. Mounts a touch listener on the sheet that
+     starts dragging when the user touches the hero area (top ~240 px) AND the
+     inner content scroll is at the top — so users can still scroll the body. */
+  useEffect(() => {
+    if (sheetView !== 'detail') return
+    if (typeof window === 'undefined') return
+    if (!window.matchMedia('(max-width: 1023.98px)').matches) return
+    const sheet = sheetElRef.current
+    const mount = contentRef.current
+    if (!sheet || !mount) return
+
+    let startY: number | null = null
+    let basePx = 0
+    let active = false
+
+    const onStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return
+      const sheetRect = sheet.getBoundingClientRect()
+      const offset = e.touches[0].clientY - sheetRect.top
+      // Only initiate from the hero region (avoids fighting body scrolls).
+      if (offset > 240) return
+      const scroller = mount.querySelector<HTMLElement>('[data-detail-scroll]')
+      if (scroller && scroller.scrollTop > 5) return
+      startY = e.touches[0].clientY
+      const cssY = sheet.style.getPropertyValue('--sheet-y')
+      basePx = cssY ? parseFloat(cssY) : 0
+      active = false
+    }
+
+    const onMove = (e: TouchEvent) => {
+      if (startY === null) return
+      const dy = e.touches[0].clientY - startY
+      if (dy < 0) return
+      if (!active && dy < 8) return
+      active = true
+      sheet.style.setProperty('--sheet-y', `${basePx + dy}px`)
+    }
+
+    const onEnd = (e: TouchEvent) => {
+      if (startY === null) return
+      const dy = (e.changedTouches[0]?.clientY ?? startY) - startY
+      startY = null
+      if (!active) return
+      active = false
+      // Reset transition then trigger close or snap-back.
+      if (dy > 110) {
+        if (selectedRestaurant) handleRestaurantClose()
+        else if (selectedMustEat) handleMustEatClose()
+      } else {
+        // Snap back to the auto-sized detail height.
+        sheet.style.setProperty('--sheet-y', `${basePx}px`)
+      }
+    }
+
+    sheet.addEventListener('touchstart', onStart, { passive: true })
+    sheet.addEventListener('touchmove', onMove, { passive: true })
+    sheet.addEventListener('touchend', onEnd)
+    sheet.addEventListener('touchcancel', onEnd)
+    return () => {
+      sheet.removeEventListener('touchstart', onStart)
+      sheet.removeEventListener('touchmove', onMove)
+      sheet.removeEventListener('touchend', onEnd)
+      sheet.removeEventListener('touchcancel', onEnd)
+    }
+  }, [sheetView, selectedRestaurant, selectedMustEat, handleRestaurantClose, handleMustEatClose, contentRef])
+
   const handleUnlock = useCallback(async () => {
     if (!selectedMustEat) return
     await unlock(selectedMustEat._id, selectedMustEat.restaurant._id, selectedMustEat.dish)
@@ -488,6 +559,9 @@ export default function MapSection({ isActive = false }: Props) {
                     userLocation={location}
                     displayLat={m.displayLat}
                     displayLng={m.displayLng}
+                    fanRotation={m.fanRotation}
+                    fanIndex={m.fanIndex}
+                    fanCount={m.fanCount}
                     onClick={handleMustEatClick}
                   />
                 ))}

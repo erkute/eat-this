@@ -1,14 +1,17 @@
+'use client';
+
 import styles from './landing.module.css';
+import { useTranslation } from '@/lib/i18n';
 
 export default function About() {
+  const { t } = useTranslation();
   return (
     <section className={styles.about}>
-      <span className={styles.aboutStats}>Berlin · 150+ Must Eats · 200+ Restaurants</span>
-      <span className={styles.secLabel}>Das Konzept</span>
-      <h2 className={styles.aboutHeadline}>Bestell genau das.</h2>
+      <span className={styles.aboutStats}>{t('landing.stats')}</span>
+      <span className={styles.secLabel}>{t('landing.aboutEyebrow')}</span>
+      <h2 className={styles.aboutHeadline}>{t('landing.aboutHeadline')}</h2>
       <p className={styles.aboutBody}>
-        Wir spüren herausragende Gerichte auf. Jedes Must Eat in deiner Sammlung
-        steht für eine Empfehlung, hinter der wir stehen.
+        {t('landing.aboutBody')}
       </p>
     </section>
   );

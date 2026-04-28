@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import styles from './landing.module.css';
 import { useAuth, useMagicLink } from '@/lib/auth';
+import { useTranslation } from '@/lib/i18n';
 
 const STARBURST_POINTS =
   '50,0 57.41,12.73 69.13,3.81 71.12,18.41 85.36,14.64 81.59,28.88 96.19,30.87 87.27,42.59 ' +
@@ -14,13 +15,14 @@ export default function BoosterPack() {
   const { user } = useAuth();
   const { sendLink, state, errorMessage } = useMagicLink();
   const [email, setEmail] = useState('');
+  const { t } = useTranslation();
 
   return (
     <section className={styles.pack}>
       <div className={styles.packStageWrap}>
-        <span className={styles.secLabel}>Booster Pack</span>
+        <span className={styles.secLabel}>{t('landing.boosterEyebrow')}</span>
         <h2 className={styles.packHeadline}>
-          Sammle Berlins beste Gerichte.
+          {t('landing.boosterHeadline')}
         </h2>
         <div className={styles.packStage}>
           <div className={`${styles.packCard} ${styles.bc1}`}>
@@ -39,13 +41,12 @@ export default function BoosterPack() {
       </div>
       <div className={styles.packBody}>
         <p className={styles.packCopy}>
-          Registriere dich und schalte dein erstes Booster Pack frei. Sammle alle
-          Must Eats, erkunde die Map und meistere die Berliner Food-Szene.
+          {t('landing.boosterCopy')}
         </p>
         <ul className={styles.packBenefits}>
-          <li>Zugriff auf die komplette Berlin-Map</li>
-          <li>Dein persönliches Deck - gespeichert</li>
-          <li>Sammle alle 150+ Must Eats</li>
+          <li>{t('landing.boosterBenefit1')}</li>
+          <li>{t('landing.boosterBenefit2')}</li>
+          <li>{t('landing.boosterBenefit3')}</li>
         </ul>
         <div className={styles.tenBadge}>
           <div className={styles.starburst}>
@@ -61,22 +62,22 @@ export default function BoosterPack() {
             <div className={styles.starburstText}>
               <span className={styles.starburstNum}>10</span>
               <span className={styles.starburstLabel}>
-                Must Eat
+                {t('landing.boosterStarburstLine1')}
                 <br />
-                Karten
+                {t('landing.boosterStarburstLine2')}
               </span>
             </div>
           </div>
           <span className={styles.tenBadgeText}>
-            Sofort freigeschaltet
+            {t('landing.boosterBadgeLine1')}
             <br />
-            nach Anmeldung
+            {t('landing.boosterBadgeLine2')}
           </span>
         </div>
         {!user && (
           state === 'sent' ? (
             <p className={styles.magicSent}>
-              E-Mail unterwegs! Schau in dein Postfach und klick auf den Link.
+              {t('landing.magicSent')}
             </p>
           ) : (
             <>
@@ -87,8 +88,8 @@ export default function BoosterPack() {
                 <input
                   className={styles.packInput}
                   type="email"
-                  placeholder="deine@email.de"
-                  aria-label="E-Mail-Adresse"
+                  placeholder={t('landing.boosterEmailPlaceholder')}
+                  aria-label={t('landing.emailAriaLabel')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -98,7 +99,7 @@ export default function BoosterPack() {
                   type="submit"
                   disabled={state === 'sending'}
                 >
-                  {state === 'sending' ? 'Wird gesendet…' : 'Booster Pack sichern'}
+                  {state === 'sending' ? t('landing.sending') : t('landing.boosterSubmit')}
                 </button>
               </form>
               {state === 'error' && (

@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import styles from './landing.module.css';
 import { useAuth, useMagicLink } from '@/lib/auth';
+import { useTranslation } from '@/lib/i18n';
 
 export default function Newsletter() {
   const { user } = useAuth();
   const { sendLink, state, errorMessage } = useMagicLink();
   const [email, setEmail] = useState('');
+  const { t } = useTranslation();
 
   return (
     <section className={styles.news}>
@@ -23,16 +25,13 @@ export default function Newsletter() {
           />
         </div>
         <div className={styles.newsCopy}>
-          <span className={styles.secLabel}>Newsletter</span>
-          <h2>Gruß aus der Küche</h2>
-          <p>
-            Neue Städte, neue Restaurants, neue Must Eats - direkt in dein Postfach,
-            bevor wir öffentlich davon erzählen.
-          </p>
+          <span className={styles.secLabel}>{t('landing.newsletterEyebrow')}</span>
+          <h2>{t('landing.newsletterHeadline')}</h2>
+          <p>{t('landing.newsletterBody')}</p>
           {!user && (
             state === 'sent' ? (
               <p className={styles.magicSent}>
-                E-Mail unterwegs! Schau in dein Postfach und klick auf den Link.
+                {t('landing.magicSent')}
               </p>
             ) : (
               <>
@@ -43,8 +42,8 @@ export default function Newsletter() {
                   <input
                     className={styles.newsInput}
                     type="email"
-                    placeholder="deine@email.de"
-                    aria-label="E-Mail-Adresse"
+                    placeholder={t('landing.newsletterEmailPlaceholder')}
+                    aria-label={t('landing.emailAriaLabel')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -54,7 +53,7 @@ export default function Newsletter() {
                     type="submit"
                     disabled={state === 'sending'}
                   >
-                    {state === 'sending' ? 'Wird gesendet…' : 'Abonnieren'}
+                    {state === 'sending' ? t('landing.sending') : t('landing.newsletterSubmit')}
                   </button>
                 </form>
                 {state === 'error' && (

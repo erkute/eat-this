@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import styles from './landing.module.css';
 import { useAuth, useMagicLink } from '@/lib/auth';
+import { useTranslation } from '@/lib/i18n';
 
 export default function HeroIntro() {
   const { user } = useAuth();
   const { sendLink, state, errorMessage } = useMagicLink();
   const [email, setEmail] = useState('');
+  const { t } = useTranslation();
 
   // HeroIntro is a pure signup CTA — no content value for signed-in users (unlike BoosterPack/Newsletter)
   if (user) return null;
@@ -15,19 +17,19 @@ export default function HeroIntro() {
   return (
     <section className={styles.heroIntro}>
       <span className={styles.heroIntroStats}>
-        Berlin · 150+ Must Eats · 200+ Restaurants
+        {t('landing.stats')}
       </span>
       <h1 className={styles.heroIntroHeadline}>
-        Wahrscheinlich der beste Foodguide, den du kennst.
+        {t('landing.heroHeadline')}
       </h1>
       {state === 'sent' ? (
         <p className={styles.magicSent}>
-          E-Mail unterwegs! Schau in dein Postfach und klick auf den Link.
+          {t('landing.heroSent')}
         </p>
       ) : (
         <>
           <p className={styles.heroIntroSubtitle}>
-            Eine kuratierte Sammlung der besten Berliner Restaurants und Cafés.
+            {t('landing.heroSubtitle')}
           </p>
           <form
             className={styles.heroIntroForm}
@@ -36,8 +38,8 @@ export default function HeroIntro() {
             <input
               className={styles.heroIntroInput}
               type="email"
-              placeholder="deine@email.de"
-              aria-label="E-Mail-Adresse"
+              placeholder={t('landing.heroEmailPlaceholder')}
+              aria-label={t('landing.emailAriaLabel')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -47,7 +49,7 @@ export default function HeroIntro() {
               type="submit"
               disabled={state === 'sending'}
             >
-              {state === 'sending' ? 'Wird gesendet…' : 'Registriere dich'}
+              {state === 'sending' ? t('landing.sending') : t('landing.heroSubmit')}
             </button>
           </form>
           {state === 'error' && (

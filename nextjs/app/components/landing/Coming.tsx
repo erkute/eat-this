@@ -1,14 +1,15 @@
+'use client';
+
 import styles from './landing.module.css';
+import { useTranslation } from '@/lib/i18n';
 
 export default function Coming() {
+  const { t } = useTranslation();
   return (
     <section className={styles.coming}>
-      <span className={styles.secLabel}>Was kommt</span>
-      <h2>Berlin ist erst der Anfang.</h2>
-      <p>
-        Wir expandieren Stadt für Stadt. Istanbul, Amsterdam und Tokio sind in Vorbereitung -
-        mehr Decks, mehr Must Eats und exklusives Merch.
-      </p>
+      <span className={styles.secLabel}>{t('landing.comingEyebrow')}</span>
+      <h2>{t('landing.comingHeadline')}</h2>
+      <p>{t('landing.comingBody')}</p>
     </section>
   );
 }

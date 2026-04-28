@@ -140,6 +140,11 @@
     padding-bottom: 18px;
     border-bottom: 1px solid #ece9e3;
   }
+}
+@media (min-width: 1024px) {
+  .aboutStats { display: none; }
+}
+@media (min-width: 768px) {
   .aboutHeadline {
     font-size: 38px;
     line-height: 1.12;
@@ -576,7 +581,6 @@
   position: relative;
   transform-style: preserve-3d;
   transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 10px;
 }
 .memCard.flipped .memInner { transform: rotateY(180deg); }
 .memCard.matched { pointer-events: none; }
@@ -584,7 +588,7 @@
 .memFace {
   position: absolute;
   inset: 0;
-  border-radius: 10px;
+  border-radius: min(12px, 7.2%);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   overflow: hidden;
@@ -1177,11 +1181,12 @@
    on the hero image via .heroDesktopExtra.
    ──────────────────────────────────────────────────────────── */
 .heroIntro {
-  padding: 28px 22px 32px;
+  padding: 40px 24px 44px;
   background: #fff;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: center;
+  text-align: center;
 }
 .heroIntroStats {
   display: block;
@@ -1193,25 +1198,24 @@
   margin-bottom: 14px;
 }
 .heroIntroHeadline {
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 900;
   color: #1a1a1a;
   line-height: 1.05;
-  margin: 0 0 12px;
+  margin: 0 0 14px;
   letter-spacing: -0.02em;
 }
 .heroIntroSubtitle {
   font-size: 15px;
   color: #555;
   line-height: 1.55;
-  margin: 0;
+  margin: 0 0 28px;
 }
 .heroIntroForm {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  /* Cap the form width on mobile so the CTA doesn't span the whole screen */
-  max-width: 300px;
+  max-width: 340px;
   width: 100%;
   align-self: center;
 }
@@ -1237,13 +1241,60 @@
 }
 .heroIntroSubmit:hover { background: #9a1818; }
 
+/* Desktop: editorial impact section below the hero */
 @media (min-width: 1024px) {
-  .heroIntro { display: none; }
+  .heroIntro {
+    padding: 80px 80px 72px;
+    align-items: center;
+    text-align: center;
+    border-bottom: 1px solid #ece9e3;
+  }
+  .heroIntroStats {
+    padding-bottom: 22px;
+    border-bottom: 1px solid #ece9e3;
+    width: 100%;
+    max-width: 680px;
+    margin-bottom: 28px;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+  }
+  .heroIntroHeadline {
+    font-size: clamp(40px, 4.5vw, 60px);
+    line-height: 1.03;
+    margin-bottom: 16px;
+    max-width: 800px;
+  }
+  .heroIntroSubtitle {
+    font-size: 17px;
+    max-width: 480px;
+    margin-bottom: 36px;
+    line-height: 1.6;
+  }
+  .heroIntroForm {
+    flex-direction: row;
+    max-width: 440px;
+    gap: 0;
+    align-self: center;
+  }
+  .heroIntroInput {
+    border-radius: 10px 0 0 10px;
+    font-size: 14px;
+    flex: 1;
+  }
+  .heroIntroSubmit {
+    border-radius: 0 10px 10px 0;
+    padding: 14px 24px;
+    white-space: nowrap;
+  }
 }
-/* Hide signup form on mobile — section is pure editorial, no CTA */
+/* Mobile: stats with separator, form visible */
 @media (max-width: 1023px) {
-  .heroIntroForm { display: none; }
-  .heroIntroStats { display: none; }
+  .heroIntroStats {
+    padding-bottom: 18px;
+    border-bottom: 1px solid #ece9e3;
+    width: 100%;
+    margin-bottom: 20px;
+  }
 }
 
 /* Dark mode */
@@ -1252,6 +1303,8 @@
   border-bottom-color: #2a2a2a;
 }
 :global([data-theme="dark"]) .heroIntroHeadline { color: #fff; }
+:global([data-theme="dark"]) .heroIntroStats { border-bottom-color: #2a2a2a; }
+:global([data-theme="dark"]) .heroIntroSubtitle { color: #888; }
 :global([data-theme="dark"]) .heroIntroInput {
   background: #1a1a1a;
   border-color: #2a2a2a;

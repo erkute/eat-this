@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import styles from './landing.module.css';
+import { useTranslation } from '@/lib/i18n';
 
 const ALL_CARDS = [
   { id: 'banh-mi',    img: 'https://cdn.sanity.io/images/ehwjnjr2/production/e74cc8257c7d0d37075e024274bd3a447ce8a6da-1449x2163.png' },
@@ -31,6 +32,7 @@ export default function MemoryGame() {
   const [moves, setMoves] = useState(0);
   const [locked, setLocked] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const { t } = useTranslation();
 
   // Build deck on the client only — avoids SSR/CSR shuffle mismatch
   useEffect(() => {
@@ -83,23 +85,23 @@ export default function MemoryGame() {
     <section className={styles.game}>
       <div className={styles.gameHead}>
         <div>
-          <span className={styles.secLabel}>Memory</span>
-          <h2>Kennst du Berlins Must Eats?</h2>
-          <p>Finde alle {PAIR_COUNT} Paare - entdecke die Gerichte dahinter.</p>
+          <span className={styles.secLabel}>{t('landing.memoryEyebrow')}</span>
+          <h2>{t('landing.memoryHeadline')}</h2>
+          <p>{t('landing.memorySubline')}</p>
         </div>
         <div className={styles.gameMeta}>
           <div className={styles.scoreboard}>
             <div className={styles.scoreCell}>
               <span className={styles.scoreVal}>{found}</span>
-              <span className={styles.scoreLabel}>Found</span>
+              <span className={styles.scoreLabel}>{t('landing.memoryFound')}</span>
             </div>
             <div className={styles.scoreCell}>
               <span className={styles.scoreVal}>{remaining}</span>
-              <span className={styles.scoreLabel}>Left</span>
+              <span className={styles.scoreLabel}>{t('landing.memoryLeft')}</span>
             </div>
             <div className={styles.scoreCell}>
               <span className={styles.scoreVal}>{moves}</span>
-              <span className={styles.scoreLabel}>Moves</span>
+              <span className={styles.scoreLabel}>{t('landing.memoryMoves')}</span>
             </div>
           </div>
         </div>
@@ -137,7 +139,7 @@ export default function MemoryGame() {
             type="button"
             className={styles.memModalClose}
             onClick={() => setModalOpen(false)}
-            aria-label="Schließen"
+            aria-label={t('landing.memoryModalClose')}
           >
             ×
           </button>
@@ -149,18 +151,18 @@ export default function MemoryGame() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/pics/booster/booster3.webp" alt="" />
           </div>
-          <div className={styles.memModalLabel}>Gut gemacht!</div>
-          <h3>Du hast deine ersten {PAIR_COUNT} Berlin Must Eats entdeckt.</h3>
-          <p>Hol dir 10 weitere Karten - gratis nach Anmeldung.</p>
+          <div className={styles.memModalLabel}>{t('landing.memoryModalLabel')}</div>
+          <h3>{t('landing.memoryModalHeadline')}</h3>
+          <p>{t('landing.memoryModalBody')}</p>
           <form className={styles.memModalForm} onSubmit={(e) => e.preventDefault()}>
             <input
               className={styles.memModalInput}
               type="email"
-              placeholder="deine@email.de"
-              aria-label="E-Mail-Adresse"
+              placeholder={t('landing.memoryModalEmailPlaceholder')}
+              aria-label={t('landing.emailAriaLabel')}
             />
             <button className={styles.memModalCta} type="submit">
-              Anmelden
+              {t('landing.memoryModalSubmit')}
             </button>
           </form>
         </div>

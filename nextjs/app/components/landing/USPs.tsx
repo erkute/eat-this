@@ -1,25 +1,28 @@
-import styles from './landing.module.css';
+'use client';
 
-const USPS = [
-  {
-    num: '01',
-    title: 'Reine Kuration',
-    body: 'Eine Regel: nur das beste Essen. Wir besuchen, wir kosten, wir wählen aus.',
-  },
-  {
-    num: '02',
-    title: 'Das Deck',
-    body:
-      'Über 150 Must Eats in mehr als 200 Berliner Restaurants. Sammle die Karten, vervollständige dein Deck und kenne Berlin wie kein anderer.',
-  },
-  {
-    num: '03',
-    title: 'Erkunde die Karte',
-    body: 'Entdecke die Stadt Gericht für Gericht.',
-  },
-];
+import styles from './landing.module.css';
+import { useTranslation } from '@/lib/i18n';
 
 export default function USPs() {
+  const { t } = useTranslation();
+  const USPS = [
+    {
+      num: '01',
+      title: t('landing.usp1Title'),
+      body: t('landing.usp1Body'),
+    },
+    {
+      num: '02',
+      title: t('landing.usp2Title'),
+      body: t('landing.usp2Body'),
+    },
+    {
+      num: '03',
+      title: t('landing.usp3Title'),
+      body: t('landing.usp3Body'),
+    },
+  ];
+
   return (
     <section className={styles.usps}>
       {USPS.map((u) => (

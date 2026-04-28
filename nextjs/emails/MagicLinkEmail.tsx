@@ -56,12 +56,12 @@ export default function MagicLinkEmail({
             maxWidth:        '560px',
           }}
         >
-          {/* HEADER — black band: wordmark + stats + tagline */}
+          {/* HEADER — black band: wordmark + stats */}
           <Section
             style={{
               backgroundColor: PALETTE.ink,
               borderRadius:    '20px',
-              padding:         '30px 24px 26px',
+              padding:         '30px 12px 26px',
               textAlign:       'center',
             }}
           >
@@ -76,19 +76,35 @@ export default function MagicLinkEmail({
                 height:   'auto',
               }}
             />
-            <Text
-              style={{
-                margin:        0,
-                color:         PALETTE.gold,
-                fontSize:      '10px',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                fontWeight:    700,
-                whiteSpace:    'nowrap',
-              }}
+            {/* Stats line — table-based nowrap for iOS Mail compatibility */}
+            <table
+              role="presentation"
+              cellPadding={0}
+              cellSpacing={0}
+              border={0}
+              align="center"
+              style={{ margin: '0 auto', borderCollapse: 'collapse' }}
             >
-              Berlin · 150+ Must Eats · 200+ Restaurants
-            </Text>
+              <tbody>
+                <tr>
+                  <td
+                    align="center"
+                    {...{ nowrap: 'nowrap' }}
+                    style={{
+                      color:         PALETTE.gold,
+                      fontSize:      '10px',
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      fontWeight:    700,
+                      whiteSpace:    'nowrap',
+                      lineHeight:    1.4,
+                    }}
+                  >
+                    Berlin · 150+ Must Eats · 200+ Restaurants
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </Section>
 
           {/* HERO — random booster pack + reveal copy */}

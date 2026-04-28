@@ -3815,6 +3815,7 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .filterDropdownSection {

@@ -97,11 +97,10 @@ export default function MapSection({ isActive = false }: Props) {
   const [search,             setSearch]             = useState('')
   const [bezirk,             setBezirk]             = useState<string | null>(null)
   const [openOnly,           setOpenOnly]           = useState(false)
-  const [priceFilter,        setPriceFilter]        = useState<string | null>(null)
   const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
   const [selectedMustEat,    setSelectedMustEat]    = useState<MapMustEat | null>(null)
   const [sheetView,          setSheetView]          = useState<'list' | 'detail'>('list')
-  const [sort,               setSort]               = useState<'distance' | 'name'>('distance')
+  const [sort,               setSort]               = useState<'distance' | 'name' | 'price'>('distance')
   const [filterOpen,         setFilterOpen]         = useState(false)
   const [searchOpen,         setSearchOpen]         = useState(false)
 
@@ -125,7 +124,7 @@ export default function MapSection({ isActive = false }: Props) {
     if (sheetView !== 'list') return
     const el = contentRef.current
     if (el) el.scrollTop = 0
-  }, [sheetView, category, bezirk, priceFilter, openOnly, sort, search, layer, contentRef])
+  }, [sheetView, category, bezirk, openOnly, sort, search, layer, contentRef])
 
   /* ---------- Bezirk list + centroid map ---------- */
   const { bezirkNames, bezirkCenters } = useMemo(() => {
@@ -162,18 +161,26 @@ export default function MapSection({ isActive = false }: Props) {
     }
     if (category !== 'All' && !r.categories?.includes(category)) return false
     if (bezirk && districtOf(r) !== bezirk) return false
-    if (priceFilter && r.price !== priceFilter) return false
     if (openOnly) {
       if (!r.openingHours) return false
       if (!getOpenStatus(r.openingHours).isOpen) return false
     }
     return true
-  }, [category, bezirk, priceFilter, openOnly, search])
+  }, [category, bezirk, openOnly, search])
 
   const displayedRestaurants = useMemo(() => {
     const filtered = restaurants.filter(filterRestaurant)
     if (sort === 'name') {
       return [...filtered].sort((a, b) => a.name.localeCompare(b.name, 'de'))
+    }
+    if (sort === 'price') {
+      // Ascending: € first, €€€€ last. Restaurants without a price land last.
+      const priceRank = (p?: string | null): number => p ? p.length : 99
+      return [...filtered].sort((a, b) => {
+        const d = priceRank(a.price) - priceRank(b.price)
+        if (d !== 0) return d
+        return a.name.localeCompare(b.name, 'de')
+      })
     }
     if (!location) return filtered
     return [...filtered].sort((a, b) => {
@@ -260,7 +267,10 @@ export default function MapSection({ isActive = false }: Props) {
         ? parsed
         : (snap === 'peek' ? 28 : snap === 'mid' ? 440 : Math.round(window.innerHeight * 0.58))
     }
-    return { top: 110, bottom: Math.round(visible) + 20, left: 20, right: 20 }
+    // top: 70 leaves room for the global header (~60 px) plus a tiny gap.
+    // Centring then matches the geometric centre of the actually-visible
+    // map area between the header bottom and the sheet top.
+    return { top: 70, bottom: Math.round(visible) + 20, left: 20, right: 20 }
   }, [snap])
 
   /* After the auto-fit detail sheet settles at its content height, re-centre
@@ -490,7 +500,12 @@ export default function MapSection({ isActive = false }: Props) {
       const dy = e.touches[0].clientY - startY
       if (dy < 0) return
       if (!active && dy < 8) return
-      active = true
+      if (!active) {
+        active = true
+        // Kill the transition while the finger drives the sheet so movement
+        // is 1:1 instead of stuttering through 0.28 s eases per frame.
+        sheet.style.transition = 'none'
+      }
       sheet.style.setProperty('--sheet-y', `${basePx + dy}px`)
     }
 
@@ -501,19 +516,30 @@ export default function MapSection({ isActive = false }: Props) {
       if (!active) return
       active = false
       if (dy > 110) {
-        // Animate the sheet sliding off-screen first, then fire close so the
-        // detail content visibly slides away instead of vanishing in one frame.
-        // .list has `transition: transform 0.28s` and reads --sheet-y via
-        // translateY(), so changing the var animates the transform.
+        // Re-enable the CSS transition on transform, then push the sheet
+        // off-screen so it eases out smoothly. After the ease completes,
+        // close the detail (state cleanup) — we kill the transition for
+        // that single frame so the sheet doesn't visibly snap back up to
+        // mid as the list re-renders.
+        sheet.style.transition = ''
         const sheetH = sheet.getBoundingClientRect().height
-        sheet.style.setProperty('--sheet-y', `${sheetH}px`)
+        requestAnimationFrame(() => {
+          sheet.style.setProperty('--sheet-y', `${sheetH}px`)
+        })
         window.setTimeout(() => {
+          sheet.style.transition = 'none'
           if (selectedRestaurant) handleRestaurantClose()
           else if (selectedMustEat) handleMustEatClose()
-        }, 240)
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => { sheet.style.transition = '' })
+          })
+        }, 260)
       } else {
         // Snap back smoothly to the auto-sized detail height.
-        sheet.style.setProperty('--sheet-y', `${basePx}px`)
+        sheet.style.transition = ''
+        requestAnimationFrame(() => {
+          sheet.style.setProperty('--sheet-y', `${basePx}px`)
+        })
       }
     }
 
@@ -734,7 +760,7 @@ export default function MapSection({ isActive = false }: Props) {
                           <button
                             ref={filterBtnRef}
                             type="button"
-                            className={`${styles.filterIconBtn} ${(openOnly || bezirk || priceFilter || sort !== 'distance') ? styles.filterIconBtnActive : ''}`}
+                            className={`${styles.filterIconBtn} ${(openOnly || bezirk || sort !== 'distance') ? styles.filterIconBtnActive : ''}`}
                             onClick={() => setFilterOpen(v => !v)}
                             aria-label="Filter und Sortierung"
                             aria-expanded={filterOpen}
@@ -744,7 +770,7 @@ export default function MapSection({ isActive = false }: Props) {
                               <line x1="7" y1="12" x2="17" y2="12" />
                               <line x1="10" y1="18" x2="14" y2="18" />
                             </svg>
-                            {(openOnly || bezirk || priceFilter || sort !== 'distance') && <span className={styles.filterActiveDot} aria-hidden="true" />}
+                            {(openOnly || bezirk || sort !== 'distance') && <span className={styles.filterActiveDot} aria-hidden="true" />}
                           </button>
                           {filterOpen && (
                             <FilterDropdown
@@ -755,8 +781,6 @@ export default function MapSection({ isActive = false }: Props) {
                               bezirke={bezirkNames}
                               bezirk={bezirk}
                               onBezirk={handleBezirkChange}
-                              priceFilter={priceFilter}
-                              onPriceFilter={setPriceFilter}
                               onClose={() => setFilterOpen(false)}
                               anchorEl={filterBtnRef.current}
                             />

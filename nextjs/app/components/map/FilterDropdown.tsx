@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'react'
 import styles from './map.module.css'
 
-export type SortOption = 'distance' | 'name'
+export type SortOption = 'distance' | 'name' | 'price'
 
 interface FilterDropdownProps {
   sort: SortOption
@@ -12,14 +12,10 @@ interface FilterDropdownProps {
   bezirke: string[]
   bezirk: string | null
   onBezirk: (b: string | null) => void
-  priceFilter: string | null
-  onPriceFilter: (p: string | null) => void
   onClose: () => void
   /** Anchor element so outside-click can ignore taps on it. */
   anchorEl?: HTMLElement | null
 }
-
-const PRICE_OPTIONS = ['€', '€€', '€€€', '€€€€'] as const
 
 function CheckIcon() {
   return (
@@ -30,8 +26,7 @@ function CheckIcon() {
 }
 
 export default function FilterDropdown({
-  sort, onSort, openOnly, onOpenOnly, bezirke, bezirk, onBezirk,
-  priceFilter, onPriceFilter, onClose, anchorEl,
+  sort, onSort, openOnly, onOpenOnly, bezirke, bezirk, onBezirk, onClose, anchorEl,
 }: FilterDropdownProps) {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -80,14 +75,14 @@ export default function FilterDropdown({
     <div ref={ref} className={styles.filterDropdown}>
       <div className={styles.filterDropdownSection}>
         <div className={styles.filterDropdownLabel}>Sortieren</div>
-        {(['distance', 'name'] as SortOption[]).map(opt => (
+        {(['distance', 'name', 'price'] as SortOption[]).map(opt => (
           <button
             key={opt}
             type="button"
             className={`${styles.filterDropdownItem} ${sort === opt ? styles.filterDropdownItemActive : ''}`}
             onClick={() => { onSort(opt); onClose() }}
           >
-            <span>{opt === 'distance' ? 'Distanz' : 'Name'}</span>
+            <span>{opt === 'distance' ? 'Distanz' : opt === 'name' ? 'Name' : 'Preis'}</span>
             {sort === opt && <CheckIcon />}
           </button>
         ))}
@@ -106,30 +101,6 @@ export default function FilterDropdown({
             <div className={styles.filterToggleThumb} />
           </div>
         </button>
-      </div>
-
-      <div className={styles.filterDropdownDivider} />
-      <div className={styles.filterDropdownSection}>
-        <div className={styles.filterDropdownLabel}>Preis</div>
-        <button
-          type="button"
-          className={`${styles.filterDropdownItem} ${priceFilter === null ? styles.filterDropdownItemActive : ''}`}
-          onClick={() => { onPriceFilter(null); onClose() }}
-        >
-          <span>Alle</span>
-          {priceFilter === null && <CheckIcon />}
-        </button>
-        {PRICE_OPTIONS.map(p => (
-          <button
-            key={p}
-            type="button"
-            className={`${styles.filterDropdownItem} ${priceFilter === p ? styles.filterDropdownItemActive : ''}`}
-            onClick={() => { onPriceFilter(p); onClose() }}
-          >
-            <span>{p}</span>
-            {priceFilter === p && <CheckIcon />}
-          </button>
-        ))}
       </div>
 
       {bezirke.length > 0 && (

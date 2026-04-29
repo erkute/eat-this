@@ -6,6 +6,7 @@ import type { MapRestaurant, MapMustEat, MapLayer, MapCategory } from '@/lib/typ
 import { useMapData } from '@/lib/map/useMapData'
 import { useUserLocation } from '@/lib/map/useUserLocation'
 import { useBounds } from '@/lib/map/useBounds'
+import { useClusters } from '@/lib/map/useClusters'
 import { useUnlockedMustEats } from '@/lib/map/useUnlockedMustEats'
 import { useFavorites } from '@/lib/map/useFavorites'
 import { useBottomSheet } from '@/lib/map/useBottomSheet'
@@ -15,6 +16,7 @@ import { applyFanOffset } from '@/lib/map/fanOffset'
 import { useTranslation } from '@/lib/i18n'
 import MapCanvas from './map/MapCanvas'
 import RestaurantMarker from './map/RestaurantMarker'
+import ClusterMarker from './map/ClusterMarker'
 import MustEatMarker from './map/MustEatMarker'
 import RestaurantList from './map/RestaurantList'
 import RestaurantDetail from './map/RestaurantDetail'
@@ -196,6 +198,22 @@ export default function MapSection({ isActive = false }: Props) {
   const [sort,               setSort]               = useState<'distance' | 'name' | 'price'>('distance')
   const [filterOpen,         setFilterOpen]         = useState(false)
   const [searchOpen,         setSearchOpen]         = useState(false)
+  // Onboarding pulse on the handle pip — fires once per browser the first
+  // time someone opens the map page, then never again (localStorage flag).
+  const [showHandlePing,     setShowHandlePing]     = useState(false)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (loading) return
+    try {
+      if (localStorage.getItem('eatthis-handle-ping-seen')) return
+    } catch { /* private mode etc. — just show the ping */ }
+    setShowHandlePing(true)
+    const timer = window.setTimeout(() => {
+      setShowHandlePing(false)
+      try { localStorage.setItem('eatthis-handle-ping-seen', '1') } catch {}
+    }, 4000)
+    return () => window.clearTimeout(timer)
+  }, [loading])
 
   useLayoutEffect(() => {
     if (sheetView !== 'detail') return
@@ -324,7 +342,8 @@ export default function MapSection({ isActive = false }: Props) {
     })
   }, [restaurants, filterRestaurant, sort, location])
 
-  const { updateBounds } = useBounds(displayedRestaurants, location)
+  const { bounds, updateBounds } = useBounds(displayedRestaurants, location)
+  const restaurantClusters = useClusters(displayedRestaurants, bounds, mapZoom)
 
   const handleMapMove = useCallback((bounds: Parameters<typeof updateBounds>[0]) => {
     updateBounds(bounds)
@@ -795,13 +814,31 @@ export default function MapSection({ isActive = false }: Props) {
           <div className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}${sheetView === 'list' && snap === 'full' ? ` ${styles.bodyListAtFull}` : ''}`}>
             <div className={styles.mapWrap}>
               <MapCanvas ref={mapRef} onMove={handleMapMove} onMapClick={handleMapClick}>
-                {layer === 'restaurants' && displayedRestaurants.map(r => (
-                  <RestaurantMarker
-                    key={r._id}
-                    restaurant={r}
-                    isSelected={selectedRestaurant?._id === r._id}
-                    onClick={handleRestaurantClick}
-                  />
+                {layer === 'restaurants' && restaurantClusters.map(p => (
+                  p.kind === 'cluster' ? (
+                    <ClusterMarker
+                      key={`c-${p.id}`}
+                      lat={p.lat}
+                      lng={p.lng}
+                      count={p.count}
+                      onClick={() => {
+                        userInteractedRef.current = true
+                        mapRef.current?.flyTo({
+                          center: [p.lng, p.lat],
+                          zoom: p.expansionZoom,
+                          duration: 400,
+                          padding: getFlyPadding(),
+                        })
+                      }}
+                    />
+                  ) : (
+                    <RestaurantMarker
+                      key={p.restaurant._id}
+                      restaurant={p.restaurant}
+                      isSelected={selectedRestaurant?._id === p.restaurant._id}
+                      onClick={handleRestaurantClick}
+                    />
+                  )
                 ))}
                 {layer === 'mustEats' && fannedMustEats.map(m => (
                   <MustEatMarker
@@ -849,7 +886,7 @@ export default function MapSection({ isActive = false }: Props) {
               }`}
               aria-label={layer === 'restaurants' ? 'Restaurants nearby' : 'Must-Eats'}
             >
-              <div ref={handleRef} className={`${styles.handle}${sheetView === 'detail' ? ` ${styles.handleHidden}` : ''}`} aria-hidden="true" />
+              <div ref={handleRef} className={`${styles.handle}${sheetView === 'detail' ? ` ${styles.handleHidden}` : ''}${showHandlePing ? ` ${styles.handlePing}` : ''}`} aria-hidden="true" />
 
               {sheetView === 'detail' && selectedMustEat ? (
                 <div ref={setContentRef} className={styles.detailMount}>

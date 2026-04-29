@@ -73,7 +73,7 @@
       var(--accent) 0 10px,
       color-mix(in srgb, var(--accent) 70%, #000) 10px 12px
     );
-  animation: loadingFill 4s steps(16) forwards;
+  animation: loadingFill 1.5s steps(12) forwards;
 }
 @keyframes loadingFill {
   0%   { width: 0; }

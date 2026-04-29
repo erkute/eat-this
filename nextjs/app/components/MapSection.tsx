@@ -64,11 +64,29 @@ export default function MapSection({ isActive = false }: Props) {
 
   const snapDetailToContent = useCallback(() => {
     if (typeof window === 'undefined') return
-    if (!window.matchMedia('(max-width: 1023.98px)').matches) return
     const mount = contentRef.current
     if (!mount) return
     const scroller = mount.querySelector<HTMLElement>('[data-detail-scroll]')
     if (!scroller) return
+
+    const isMobile = window.matchMedia('(max-width: 1023.98px)').matches
+
+    const heroEl =
+      mount.querySelector<HTMLElement>(`.${styles.detailHeroWrap}`) ??
+      mount.querySelector<HTMLElement>(`.${styles.mustEatHero}`)
+    const heroInner = heroEl?.querySelector<HTMLElement>(
+      'img, [class*="detailHero"]:not([class*="Wrap"])'
+    ) ?? null
+
+    // Reset any inline shrink applied for a previous (taller) detail so we
+    // measure at the natural CSS-defined hero size for THIS detail. Without
+    // this, navigating from Wen Cheng (heavy) → Crapulix (light) keeps the
+    // hero at the shrunken Wen Cheng height.
+    if (heroEl) {
+      heroEl.style.maxHeight = ''
+      heroEl.style.height = ''
+    }
+    if (heroInner) heroInner.style.maxHeight = ''
 
     const measure = () => {
       let h = 0
@@ -79,40 +97,41 @@ export default function MapSection({ isActive = false }: Props) {
       return h + parseFloat(cs.paddingTop || '0') + parseFloat(cs.paddingBottom || '0')
     }
 
-    // Cap at the sheet's actual maximum height — that's the ceiling we can
-    // ever snap to. (95 dvh visualViewport is theoretical; the sheet's
-    // container is `height: 100%` of the body, which is viewport minus the
-    // global header.)
+    // Available height ceiling.
+    // Mobile: min of the sheet's container height and 95 % of the visual
+    // viewport (Safari URL bar safe). Desktop: the sidebar's own height
+    // (100 % of .body, which is viewport minus the global header).
     const vh = window.visualViewport?.height ?? window.innerHeight
-    const sheetMaxH = sheetElRef.current?.getBoundingClientRect().height ?? Math.round(vh * 0.95)
-    const maxH = Math.min(sheetMaxH, Math.round(vh * 0.95))
+    const sheetH = sheetElRef.current?.getBoundingClientRect().height ?? Math.round(vh * 0.95)
+    const maxH = isMobile
+      ? Math.min(sheetH, Math.round(vh * 0.95))
+      : sheetH
 
     let contentH = measure()
 
-    // If content overflows the sheet ceiling, dynamically shrink the hero
-    // image to claw back the missing pixels. Keeps a 140 px floor so the
-    // hero stays meaningful instead of collapsing. Restaurant detail uses
-    // .detailHeroWrap, must-eat detail uses .mustEatHero.
-    if (contentH > maxH - 8) {
-      const heroEl =
-        mount.querySelector<HTMLElement>(`.${styles.detailHeroWrap}`) ??
-        mount.querySelector<HTMLElement>(`.${styles.mustEatHero}`)
-      if (heroEl) {
-        const overflow = contentH - (maxH - 8)
-        const currentH = heroEl.offsetHeight
-        const newH = Math.max(140, currentH - overflow)
-        if (newH < currentH) {
-          heroEl.style.maxHeight = `${newH}px`
-          heroEl.style.height = `${newH}px`
-          // Also constrain the inner image element so it scales with the wrap.
-          const inner = heroEl.querySelector<HTMLElement>('img, [class*="detailHero"]:not([class*="Wrap"])')
-          if (inner) inner.style.maxHeight = `${newH}px`
-          contentH = measure()
-        }
+    // If content overflows the available height, dynamically shrink the
+    // hero (.detailHeroWrap or .mustEatHero) by the overflow amount. 140 px
+    // floor keeps the hero meaningful. After the shrink, the body content
+    // fits exactly without scroll on desktop, and snaps to a smaller sheet
+    // on mobile (next step).
+    if (contentH > maxH - 8 && heroEl) {
+      const overflow = contentH - (maxH - 8)
+      const currentH = heroEl.offsetHeight
+      const newH = Math.max(140, currentH - overflow)
+      if (newH < currentH) {
+        heroEl.style.maxHeight = `${newH}px`
+        heroEl.style.height = `${newH}px`
+        if (heroInner) heroInner.style.maxHeight = `${newH}px`
+        contentH = measure()
       }
     }
 
-    snapToVisiblePx(Math.min(contentH + 8, maxH))
+    // Mobile only: snap the bottom sheet visible-px to the (now-fitting)
+    // content height. Desktop's sidebar is already a fixed-height column,
+    // CSS lays it out — no snap needed.
+    if (isMobile) {
+      snapToVisiblePx(Math.min(contentH + 8, maxH))
+    }
   }, [snapToVisiblePx, contentRef])
 
   const [mapZoom,            setMapZoom]            = useState(12)

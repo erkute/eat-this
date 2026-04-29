@@ -7,7 +7,7 @@ import LocaleLink from '@/app/components/LocaleLink'
 import { useTranslation } from '@/lib/i18n'
 import styles from './map.module.css'
 
-const UNLOCK_RADIUS_METERS = 200
+const UNLOCK_RADIUS_METERS = 300 // TEMP for testing — back to 200 once user confirms auto-unlock fires
 
 interface MustEatDetailProps {
   mustEat: MapMustEat

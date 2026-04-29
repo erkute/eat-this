@@ -257,6 +257,11 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     } | null = null
 
     const onTouchStart = (e: TouchEvent) => {
+      // Skip when the sheet is locked (= detail mode in MapSection). The
+      // detail view has its own swipe-down-to-close handler bound to the
+      // sheet element; running both handlers on the same gesture made them
+      // fight and left the sheet stuck near the bottom on Chrome mobile.
+      if (configRef.current.locked) return
       if (e.touches.length !== 1) return
       const h = sheet.getBoundingClientRect().height
       touchState = {

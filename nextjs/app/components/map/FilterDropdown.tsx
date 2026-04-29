@@ -72,15 +72,7 @@ export default function FilterDropdown({
   }, [anchorEl])
 
   return (
-    <div
-      ref={ref}
-      className={styles.filterDropdown}
-      // Stop the click from leaking to whatever sits underneath the
-      // dropdown — usually a list row that would then open as a detail.
-      // Don't stop touch events: that would break the dropdown's own
-      // native overflow-y scroll.
-      onClick={e => e.stopPropagation()}
-    >
+    <div ref={ref} className={styles.filterDropdown}>
       <div className={styles.filterDropdownSection}>
         <div className={styles.filterDropdownLabel}>Sortieren</div>
         {(['distance', 'name', 'price'] as SortOption[]).map(opt => (
@@ -88,7 +80,7 @@ export default function FilterDropdown({
             key={opt}
             type="button"
             className={`${styles.filterDropdownItem} ${sort === opt ? styles.filterDropdownItemActive : ''}`}
-            onClick={e => { e.stopPropagation(); onSort(opt); onClose() }}
+            onClick={() => { onSort(opt); onClose() }}
           >
             <span>{opt === 'distance' ? 'Distanz' : opt === 'name' ? 'Name' : 'Preis'}</span>
             {sort === opt && <CheckIcon />}
@@ -102,7 +94,7 @@ export default function FilterDropdown({
         <button
           type="button"
           className={styles.filterDropdownItem}
-          onClick={e => { e.stopPropagation(); onOpenOnly(!openOnly); onClose() }}
+          onClick={() => { onOpenOnly(!openOnly); onClose() }}
         >
           <span>Nur Geöffnete</span>
           <div className={`${styles.filterToggle} ${openOnly ? styles.filterToggleOn : ''}`}>
@@ -119,7 +111,7 @@ export default function FilterDropdown({
             <button
               type="button"
               className={`${styles.filterDropdownItem} ${bezirk === null ? styles.filterDropdownItemActive : ''}`}
-              onClick={e => { e.stopPropagation(); onBezirk(null); onClose() }}
+              onClick={() => { onBezirk(null); onClose() }}
             >
               <span>Alle</span>
               {bezirk === null && <CheckIcon />}
@@ -129,7 +121,7 @@ export default function FilterDropdown({
                 key={b}
                 type="button"
                 className={`${styles.filterDropdownItem} ${bezirk === b ? styles.filterDropdownItemActive : ''}`}
-                onClick={e => { e.stopPropagation(); onBezirk(b); onClose() }}
+                onClick={() => { onBezirk(b); onClose() }}
               >
                 <span>{b}</span>
                 {bezirk === b && <CheckIcon />}

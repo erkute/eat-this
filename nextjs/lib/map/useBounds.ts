@@ -36,5 +36,5 @@ export function useBounds(restaurants: MapRestaurant[], userLocation: UserLocati
     })
   }, [bounds, restaurants, userLocation])
 
-  return { bounds, updateBounds, visibleRestaurants }
+  return { updateBounds, visibleRestaurants }
 }

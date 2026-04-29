@@ -1,0 +1,69 @@
+/* Profile Deck — mirrors the look of the public Must-Eat album, but with
+ * 3D-flippable slots for the user's pack cards.
+ *
+ * Mobile: 3 cols, gap 12. Desktop ≥ 768px: 6 cols, gap 16. Slot aspect
+ * matches the Sanity card PNG (1449×2163 → 2:3).
+ *
+ * 3D flip caveat (Safari + preserve-3d): we cannot rely on overflow:hidden
+ * or clip-path on faces — both behave inconsistently inside preserve-3d.
+ * Instead, we set border-radius DIRECTLY on the front <img>; the back PNG
+ * has its rounded corners baked into the asset.
+ */
+
+.albumGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 0;
+  perspective: 1400px;
+}
+
+@media (min-width: 768px) {
+  .albumGrid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+  }
+}
+
+.slot {
+  position: relative;
+  aspect-ratio: 1449 / 2163;
+}
+
+.flipper {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Card-back image already has its rounded shape baked into the alpha,
+ * no CSS rounding needed (would double-round). */
+.faceBack {
+  /* visible at rotateY: 0 */
+}
+
+/* Front face: the freigestellte dish PNG. Add subtle radius (matches the
+ * legacy MustsSection's clip-path inset round 6%) and a soft drop shadow
+ * for depth. Rotated 180° so it's hidden until the flipper rotates to
+ * 180°, at which point the back goes away (backface-hidden). */
+.faceFront {
+  transform: rotateY(180deg);
+  border-radius: 6%;
+  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.28);
+}

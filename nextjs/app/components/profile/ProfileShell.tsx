@@ -8,7 +8,7 @@ import { usePack } from '@/lib/firebase/usePack';
 import { useFavorites } from '@/lib/map/useFavorites';
 import { functions } from '@/lib/firebase/config';
 import type { MustEatAlbumCard } from '@/lib/types';
-import BoosterPackOpener from './BoosterPackOpener';
+import ProfileDeck from './ProfileDeck';
 import styles from './profile.module.css';
 
 const ensureWelcomePackFn = httpsCallable<
@@ -77,7 +77,10 @@ export default function ProfileShell({ mustEats }: Props) {
           <TabBtn active={tab === 'settings'} onClick={() => setTab('settings')}>Einstellungen</TabBtn>
         </div>
 
-        <section className={styles.panel} role="tabpanel">
+        <section
+          className={tab === 'deck' ? styles.panelDeck : styles.panel}
+          role="tabpanel"
+        >
           {tab === 'deck'     && <DeckPanel pack={pack} mustEats={mustEats} />}
           {tab === 'saved'    && <SavedPanel uid={user.uid} />}
           {tab === 'settings' && <SettingsPanel email={user.email ?? ''} />}
@@ -133,7 +136,7 @@ function DeckPanel({ pack, mustEats }: { pack: ReturnType<typeof usePack>; mustE
     );
   }
 
-  return <BoosterPackOpener pack={pack.pack} mustEats={mustEats} />;
+  return <ProfileDeck pack={pack.pack} mustEats={mustEats} />;
 }
 
 // ── Saved panel ─────────────────────────────────────

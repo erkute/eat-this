@@ -26,11 +26,28 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // Booster packs (Feature C) — owner-readable, admin-only writes for now.
-    // Opening a pack will be handled by a callable function in Phase 3.
+    // Booster packs (Feature C) — owner-readable; client may create with a
+    // validated shape and update only to flip opened: false → true. Cards
+    // and createdAt are immutable after create.
     match /users/{uid}/packs/{packId} {
-      allow read:  if request.auth != null && request.auth.uid == uid;
-      allow write: if false;
+      allow read: if request.auth != null && request.auth.uid == uid;
+
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.opened == false
+        && request.resource.data.openedAt == null
+        && request.resource.data.mustEatIds is list
+        && request.resource.data.mustEatIds.size() > 0
+        && request.resource.data.mustEatIds.size() <= 20
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if request.auth != null
+        && request.auth.uid == uid
+        && resource.data.opened == false
+        && request.resource.data.opened == true
+        && request.resource.data.mustEatIds == resource.data.mustEatIds
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.openedAt == request.time;
     }
 
     match /{document=**} {

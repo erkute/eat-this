@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '@/lib/firebase/config';
+import { useAuth } from '@/lib/auth';
+import { openWelcomePack } from '@/lib/firebase/welcomePack';
 import type { MustEatAlbumCard } from '@/lib/types';
 import type { BoosterPack } from '@/lib/firebase/usePack';
 import styles from './ProfileDeck.module.css';
@@ -13,8 +13,6 @@ const SCROLL_PAUSE_MS = 650;
 const FLIP_DURATION_S = 0.7;
 const POST_FLIP_PAUSE_MS = 850;
 
-const openPackFn = httpsCallable<{ packId: string }, { ok: boolean }>(functions, 'openPack');
-
 interface Props {
   pack:     BoosterPack;
   mustEats: MustEatAlbumCard[];
@@ -23,6 +21,8 @@ interface Props {
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 export default function ProfileDeck({ pack, mustEats }: Props) {
+  const { user } = useAuth();
+
   // pack.mustEatIds → look up the full card data, drop any with no order
   const packCardsByOrder = useMemo(() => {
     const map = new Map<number, MustEatAlbumCard>();
@@ -52,12 +52,14 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
 
   useEffect(() => {
     if (pack.opened || triggered.current) return;
+    if (!user) return;
     if (sortedPackOrders.length === 0) return;
     triggered.current = true;
 
-    // Tell server (idempotent, transactional)
-    openPackFn({ packId: pack.id }).catch((err) => {
-      console.error('[profile-deck] openPack failed:', err);
+    // Mark the pack as opened in Firestore. Rules permit only the
+    // false → true transition; failures are non-fatal for the animation.
+    openWelcomePack(user.uid, pack.id).catch((err) => {
+      console.error('[profile-deck] openWelcomePack failed:', err);
     });
 
     let cancelled = false;
@@ -80,7 +82,7 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [pack.opened, pack.id, sortedPackOrders]);
+  }, [pack.opened, pack.id, sortedPackOrders, user]);
 
   return (
     <div className={styles.albumGrid}>

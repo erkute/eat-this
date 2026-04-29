@@ -2,19 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { httpsCallable } from 'firebase/functions';
 import { useAuth } from '@/lib/auth';
 import { usePack } from '@/lib/firebase/usePack';
 import { useFavorites } from '@/lib/map/useFavorites';
-import { functions } from '@/lib/firebase/config';
+import { createWelcomePack } from '@/lib/firebase/welcomePack';
 import type { MustEatAlbumCard } from '@/lib/types';
 import ProfileDeck from './ProfileDeck';
 import styles from './profile.module.css';
-
-const ensureWelcomePackFn = httpsCallable<
-  { packId: string },
-  { ok: boolean; status: 'exists' | 'created' }
->(functions, 'ensureWelcomePack');
 
 type Tab = 'deck' | 'saved' | 'settings';
 
@@ -26,8 +20,9 @@ export default function ProfileShell({ mustEats }: Props) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const pack = usePack(user?.uid ?? null);
-  const [tab, setTab] = useState<Tab>('deck');
-  const [ensureTried, setEnsureTried] = useState(false);
+  const [tab, setTab]                 = useState<Tab>('deck');
+  const [createBusy, setCreateBusy]   = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   // Bounce to home if the user lands here without a session. Done in an
   // effect so we don't trigger a router update during render.
@@ -36,14 +31,31 @@ export default function ProfileShell({ mustEats }: Props) {
   }, [loading, user, router]);
 
   // Backfill the welcome pack if it's missing — covers users who pre-date
-  // the onUserCreate trigger or whose signup race-conditioned out of it.
+  // onUserCreate or whose signup race-conditioned out of it.
   useEffect(() => {
-    if (!user || pack.status !== 'missing' || ensureTried) return;
-    setEnsureTried(true);
-    ensureWelcomePackFn({ packId: 'welcome' }).catch((err) => {
-      console.error('[profile] ensureWelcomePack failed:', err);
-    });
-  }, [user, pack.status, ensureTried]);
+    if (!user || pack.status !== 'missing' || createBusy || createError) return;
+    setCreateBusy(true);
+    createWelcomePack(user.uid, mustEats)
+      .then(() => {
+        setCreateBusy(false);
+      })
+      .catch((err: unknown) => {
+        const code = (err as { code?: string }).code ?? '';
+        // permission-denied means the doc already exists (rules block re-create) —
+        // benign; the snapshot subscription will pick it up momentarily.
+        if (code === 'permission-denied') {
+          setCreateBusy(false);
+          return;
+        }
+        console.error('[profile] createWelcomePack failed:', err);
+        setCreateBusy(false);
+        setCreateError('Konnten dein Pack gerade nicht anlegen.');
+      });
+  }, [user, pack.status, createBusy, createError, mustEats]);
+
+  const retryCreate = () => {
+    setCreateError(null);
+  };
 
   if (loading || !user) {
     return (
@@ -81,7 +93,7 @@ export default function ProfileShell({ mustEats }: Props) {
           className={tab === 'deck' ? styles.panelDeck : styles.panel}
           role="tabpanel"
         >
-          {tab === 'deck'     && <DeckPanel pack={pack} mustEats={mustEats} />}
+          {tab === 'deck'     && <DeckPanel pack={pack} mustEats={mustEats} createError={createError} onRetry={retryCreate} />}
           {tab === 'saved'    && <SavedPanel uid={user.uid} />}
           {tab === 'settings' && <SettingsPanel email={user.email ?? ''} />}
         </section>
@@ -108,7 +120,14 @@ function TabBtn({ active, onClick, children }: { active: boolean; onClick: () =>
 
 // ── Deck panel ──────────────────────────────────────
 
-function DeckPanel({ pack, mustEats }: { pack: ReturnType<typeof usePack>; mustEats: MustEatAlbumCard[] }) {
+interface DeckPanelProps {
+  pack:        ReturnType<typeof usePack>;
+  mustEats:    MustEatAlbumCard[];
+  createError: string | null;
+  onRetry:     () => void;
+}
+
+function DeckPanel({ pack, mustEats, createError, onRetry }: DeckPanelProps) {
   if (pack.status === 'loading' || pack.status === 'idle') {
     return (
       <div className={styles.deckPlaceholder}>
@@ -122,6 +141,18 @@ function DeckPanel({ pack, mustEats }: { pack: ReturnType<typeof usePack>; mustE
       <div className={styles.deckPlaceholder}>
         <h2 className={styles.title}>Da hat etwas geklemmt.</h2>
         <p className={styles.sub}>Wir konnten dein Booster Pack gerade nicht laden. Lade die Seite neu.</p>
+      </div>
+    );
+  }
+
+  if (createError) {
+    return (
+      <div className={styles.deckPlaceholder}>
+        <h2 className={styles.title}>Pack konnte nicht angelegt werden.</h2>
+        <p className={styles.sub}>{createError}</p>
+        <button type="button" className={styles.cta} onClick={onRetry}>
+          Nochmal versuchen
+        </button>
       </div>
     );
   }

@@ -1,5 +1,6 @@
 'use client'
 import { useRef, useState, useMemo, useCallback, useEffect, useLayoutEffect } from 'react'
+import { flushSync } from 'react-dom'
 import type { MapRef } from 'react-map-gl/maplibre'
 import type { MapRestaurant, MapMustEat, MapLayer, MapCategory } from '@/lib/types'
 import { useMapData } from '@/lib/map/useMapData'
@@ -53,7 +54,7 @@ export default function MapSection({ isActive = false }: Props) {
   const uid = auth.currentUser?.uid ?? null
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
-  const { sheetRef, handleRef, contentRef, snap, setSnap, dragging, reapplySnap, configure, snapToVisiblePx } = useBottomSheet('mid')
+  const { sheetRef, handleRef, contentRef, setContentRef, snap, setSnap, dragging, reapplySnap, configure, snapToVisiblePx } = useBottomSheet('mid')
   // Mirror the sheet element so we can read its current --sheet-visible-px
   // (set by useBottomSheet on every applyY) for accurate flyTo padding.
   const sheetElRef = useRef<HTMLDivElement | null>(null)
@@ -64,11 +65,29 @@ export default function MapSection({ isActive = false }: Props) {
 
   const snapDetailToContent = useCallback(() => {
     if (typeof window === 'undefined') return
-    if (!window.matchMedia('(max-width: 1023.98px)').matches) return
     const mount = contentRef.current
     if (!mount) return
     const scroller = mount.querySelector<HTMLElement>('[data-detail-scroll]')
     if (!scroller) return
+
+    const isMobile = window.matchMedia('(max-width: 1023.98px)').matches
+
+    const heroEl =
+      mount.querySelector<HTMLElement>(`.${styles.detailHeroWrap}`) ??
+      mount.querySelector<HTMLElement>(`.${styles.mustEatHero}`)
+    const heroInner = heroEl?.querySelector<HTMLElement>(
+      'img, [class*="detailHero"]:not([class*="Wrap"])'
+    ) ?? null
+
+    // Reset any inline shrink applied for a previous (taller) detail so we
+    // measure at the natural CSS-defined hero size for THIS detail. Without
+    // this, navigating from Wen Cheng (heavy) → Crapulix (light) keeps the
+    // hero at the shrunken Wen Cheng height.
+    if (heroEl) {
+      heroEl.style.maxHeight = ''
+      heroEl.style.height = ''
+    }
+    if (heroInner) heroInner.style.maxHeight = ''
 
     const measure = () => {
       let h = 0
@@ -79,40 +98,89 @@ export default function MapSection({ isActive = false }: Props) {
       return h + parseFloat(cs.paddingTop || '0') + parseFloat(cs.paddingBottom || '0')
     }
 
-    // Cap at the sheet's actual maximum height — that's the ceiling we can
-    // ever snap to. (95 dvh visualViewport is theoretical; the sheet's
-    // container is `height: 100%` of the body, which is viewport minus the
-    // global header.)
+    // Available height ceiling.
+    // Mobile: min of the sheet's container height and 95 % of the visual
+    // viewport (Safari URL bar safe). Desktop: the sidebar's own height
+    // (100 % of .body, which is viewport minus the global header).
     const vh = window.visualViewport?.height ?? window.innerHeight
-    const sheetMaxH = sheetElRef.current?.getBoundingClientRect().height ?? Math.round(vh * 0.95)
-    const maxH = Math.min(sheetMaxH, Math.round(vh * 0.95))
+    const sheetH = sheetElRef.current?.getBoundingClientRect().height ?? Math.round(vh * 0.95)
+    const maxH = isMobile
+      ? Math.min(sheetH, Math.round(vh * 0.95))
+      : sheetH
+
+    // Reset any inline shrink we previously applied to the must-eat mini-card
+    // grid so this detail measures at its natural sizes too.
+    const mustGridEl = mount.querySelector<HTMLElement>(`.${styles.mustGrid}`)
+    if (mustGridEl) mustGridEl.style.gridTemplateColumns = ''
 
     let contentH = measure()
 
-    // If content overflows the sheet ceiling, dynamically shrink the hero
-    // image to claw back the missing pixels. Keeps a 140 px floor so the
-    // hero stays meaningful instead of collapsing. Restaurant detail uses
-    // .detailHeroWrap, must-eat detail uses .mustEatHero.
-    if (contentH > maxH - 8) {
-      const heroEl =
-        mount.querySelector<HTMLElement>(`.${styles.detailHeroWrap}`) ??
-        mount.querySelector<HTMLElement>(`.${styles.mustEatHero}`)
-      if (heroEl) {
-        const overflow = contentH - (maxH - 8)
-        const currentH = heroEl.offsetHeight
-        const newH = Math.max(140, currentH - overflow)
-        if (newH < currentH) {
+    // Distribute overflow across two shrinkable elements before going to the
+    // absolute hero floor:
+    //   1. Hero photo (.detailHeroWrap or .mustEatHero) — primary visual,
+    //      keep above a generous comfortable floor so it stays a real photo.
+    //   2. Must-Eat mini-card grid (.mustGrid) — secondary visual, scale
+    //      down by widening grid auto-fill so cards are smaller.
+    // 16 px cushion guards against late-layout reflow (font metrics, etc.).
+    // Comfortable floors are set high (200 / 240) so the hero only takes a
+    // small bite of the overflow, and the must-eat grid (smaller cards)
+    // absorbs the rest. Falls through to absolute floor only when grid
+    // shrinking isn't enough.
+    const cushion = 16
+    const heroComfortableFloor = isMobile ? 200 : 240
+    const heroAbsoluteFloor    = isMobile ? 100 : 140
+
+    if (contentH > maxH - cushion && heroEl) {
+      // Stage 1: shrink hero down to its comfortable floor.
+      let overflow = contentH - (maxH - cushion)
+      const currentHeroH = heroEl.offsetHeight
+      const heroComfortableShrink = Math.max(0, currentHeroH - heroComfortableFloor)
+      const heroShrink = Math.min(overflow, heroComfortableShrink)
+      if (heroShrink > 0) {
+        const newH = currentHeroH - heroShrink
+        heroEl.style.maxHeight = `${newH}px`
+        heroEl.style.height = `${newH}px`
+        if (heroInner) heroInner.style.maxHeight = `${newH}px`
+        contentH = measure()
+        overflow = Math.max(0, contentH - (maxH - cushion))
+      }
+
+      // Stage 2: shrink must-eat grid (smaller mini cards) for the rest.
+      if (overflow > 0 && mustGridEl) {
+        const gridH = mustGridEl.offsetHeight
+        if (gridH > 0) {
+          const targetGridH = Math.max(60, gridH - overflow)
+          const ratio = targetGridH / gridH
+          // Default grid is `repeat(auto-fill, minmax(72px, 1fr))`. Scale
+          // the min column width proportionally; floor at 48 px so cards
+          // stay tappable.
+          const newMinPx = Math.max(48, Math.floor(72 * ratio))
+          mustGridEl.style.gridTemplateColumns = `repeat(auto-fill, minmax(${newMinPx}px, 1fr))`
+          contentH = measure()
+          overflow = Math.max(0, contentH - (maxH - cushion))
+        }
+      }
+
+      // Stage 3 (last resort): keep shrinking hero past the comfortable
+      // floor down to the absolute floor for very heavy content.
+      if (overflow > 0) {
+        const cur = heroEl.offsetHeight
+        const newH = Math.max(heroAbsoluteFloor, cur - overflow)
+        if (newH < cur) {
           heroEl.style.maxHeight = `${newH}px`
           heroEl.style.height = `${newH}px`
-          // Also constrain the inner image element so it scales with the wrap.
-          const inner = heroEl.querySelector<HTMLElement>('img, [class*="detailHero"]:not([class*="Wrap"])')
-          if (inner) inner.style.maxHeight = `${newH}px`
+          if (heroInner) heroInner.style.maxHeight = `${newH}px`
           contentH = measure()
         }
       }
     }
 
-    snapToVisiblePx(Math.min(contentH + 8, maxH))
+    // Mobile only: snap the bottom sheet visible-px to the (now-fitting)
+    // content height. Desktop's sidebar is already a fixed-height column,
+    // CSS lays it out — no snap needed.
+    if (isMobile) {
+      snapToVisiblePx(Math.min(contentH + 8, maxH))
+    }
   }, [snapToVisiblePx, contentRef])
 
   const [mapZoom,            setMapZoom]            = useState(12)
@@ -164,10 +232,17 @@ export default function MapSection({ isActive = false }: Props) {
       if (!img.complete) img.addEventListener('load', onImgLoad, { once: true })
     })
 
+    // iOS Safari's URL bar collapses/expands as the user scrolls — that
+    // changes visualViewport.height, which is part of our maxH. Re-fit
+    // whenever the viewport resizes so the shrink stays correct.
+    const onVvResize = () => snapDetailToContent()
+    window.visualViewport?.addEventListener('resize', onVvResize)
+
     return () => {
       cancelAnimationFrame(id)
       ro?.disconnect()
       heroImgs.forEach(img => img.removeEventListener('load', onImgLoad))
+      window.visualViewport?.removeEventListener('resize', onVvResize)
     }
   }, [sheetView, selectedRestaurant, selectedMustEat, snapDetailToContent, contentRef])
 
@@ -369,6 +444,11 @@ export default function MapSection({ isActive = false }: Props) {
   const handleRestaurantClick = useCallback((r: MapRestaurant) => {
     userInteractedRef.current = true
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
+    // Selecting a search result implicitly accepts it — clear the query so
+    // when the user later goes back to "alle Must-Eats" or the list, they
+    // see the full data set, not the still-filtered subset.
+    setSearch('')
+    setSearchOpen(false)
     setSelectedRestaurant(r)
     setSelectedMustEat(null)
     // Both mobile sheet AND desktop sidebar render the detail inline now —
@@ -389,6 +469,10 @@ export default function MapSection({ isActive = false }: Props) {
   const handleMustEatClick = useCallback((m: MapMustEat) => {
     userInteractedRef.current = true
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
+    // Selecting a search result accepts it — clear the query so subsequent
+    // navigation (e.g. tapping "alle Must-Eats") shows the full list.
+    setSearch('')
+    setSearchOpen(false)
     // Coming from a restaurant detail (mobile sheet OR desktop floating modal)
     // → switch to mustEats layer + list view, fly to the must-eat. Same flow
     // on both platforms.
@@ -564,6 +648,10 @@ export default function MapSection({ isActive = false }: Props) {
         // is 1:1 instead of stuttering through 0.28 s eases per frame.
         sheet.style.transition = 'none'
       }
+      // Block native scroll / pull-to-refresh during the drag so Chrome's
+      // mobile-emulation rubber-band can't fight our sheet movement and
+      // leave it stuck at the bottom on release.
+      if (e.cancelable) e.preventDefault()
       sheet.style.setProperty('--sheet-y', `${basePx + dy}px`)
     }
 
@@ -574,35 +662,44 @@ export default function MapSection({ isActive = false }: Props) {
       if (!active) return
       active = false
       if (dy > 110) {
-        // Re-enable the CSS transition on transform, then push the sheet
-        // off-screen so it eases out smoothly. After the ease completes,
-        // close the detail (state cleanup) — we kill the transition for
-        // that single frame so the sheet doesn't visibly snap back up to
-        // mid as the list re-renders.
-        sheet.style.transition = ''
+        // Two-phase animation:
+        //   Phase 1 (~180 ms): slide detail fully off-screen.
+        //   Phase 2 (~280 ms): swap content to list, slide sheet UP to mid.
+        // The user perceives "detail goes down, list comes up" — no visual
+        // pop or bounce of the detail content during the transition.
         const sheetH = sheet.getBoundingClientRect().height
+        sheet.style.transition = 'transform 0.18s ease-out'
         requestAnimationFrame(() => {
           sheet.style.setProperty('--sheet-y', `${sheetH}px`)
         })
         window.setTimeout(() => {
-          sheet.style.transition = 'none'
-          if (selectedRestaurant) handleRestaurantClose()
-          else if (selectedMustEat) handleMustEatClose()
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => { sheet.style.transition = '' })
+          // Sheet is now off-screen. Force the React re-render synchronously
+          // (flushSync) so the DOM swap detail → list COMPLETES before the
+          // browser paints the next frame. Without this, the up-animation
+          // would briefly paint with the OLD detail content visible (a
+          // ~16ms "Bup!" of the detail bouncing back up before list shows).
+          sheet.style.transition = 'transform 0.22s cubic-bezier(.2,.7,.2,1)'
+          flushSync(() => {
+            if (selectedRestaurant) handleRestaurantClose()
+            else if (selectedMustEat) handleMustEatClose()
           })
-        }, 260)
+          // Now content is list and --sheet-y is at mid (set by reapplySnap
+          // inside the close handler). Browser animates from off-screen
+          // (set in phase 1) up to mid, with list visible the whole time.
+          window.setTimeout(() => { sheet.style.transition = '' }, 240)
+        }, 180)
       } else {
         // Snap back smoothly to the auto-sized detail height.
-        sheet.style.transition = ''
+        sheet.style.transition = 'transform 0.18s ease-out'
         requestAnimationFrame(() => {
           sheet.style.setProperty('--sheet-y', `${basePx}px`)
         })
+        window.setTimeout(() => { sheet.style.transition = '' }, 200)
       }
     }
 
     sheet.addEventListener('touchstart', onStart, { passive: true })
-    sheet.addEventListener('touchmove', onMove, { passive: true })
+    sheet.addEventListener('touchmove', onMove, { passive: false })
     sheet.addEventListener('touchend', onEnd)
     sheet.addEventListener('touchcancel', onEnd)
     return () => {
@@ -744,7 +841,7 @@ export default function MapSection({ isActive = false }: Props) {
               <div ref={handleRef} className={`${styles.handle}${sheetView === 'detail' ? ` ${styles.handleHidden}` : ''}`} aria-hidden="true" />
 
               {sheetView === 'detail' && selectedMustEat ? (
-                <div ref={contentRef} className={styles.detailMount}>
+                <div ref={setContentRef} className={styles.detailMount}>
                   <MustEatDetail
                     mustEat={selectedMustEat}
                     userLocation={location}
@@ -757,7 +854,7 @@ export default function MapSection({ isActive = false }: Props) {
                   />
                 </div>
               ) : sheetView === 'detail' && selectedRestaurant ? (
-                <div ref={contentRef} className={styles.detailMount}>
+                <div ref={setContentRef} className={styles.detailMount}>
                   <RestaurantDetail
                     restaurant={selectedRestaurant}
                     mustEats={restaurantMustEats}
@@ -848,7 +945,7 @@ export default function MapSection({ isActive = false }: Props) {
                     )}
                     <CategoryFilter active={category} onChange={setCategory} variant="tabs" />
                   </div>
-                  <div ref={contentRef} className={styles.listScroll}>
+                  <div ref={setContentRef} className={styles.listScroll}>
                     <RestaurantList
                       restaurants={displayedRestaurants}
                       userLocation={location}
@@ -869,7 +966,7 @@ export default function MapSection({ isActive = false }: Props) {
                     </svg>
                     Restaurants
                   </button>
-                  <div ref={contentRef} className={`${styles.listScroll} ${styles.listScrollNoCats}`}>
+                  <div ref={setContentRef} className={`${styles.listScroll} ${styles.listScrollNoCats}`}>
                     {displayedMustEats.length === 0 ? (
                       <div className={styles.empty}>{t('map.noMustEatsMatch')}</div>
                     ) : (() => {

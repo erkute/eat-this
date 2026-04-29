@@ -41,9 +41,22 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   const [snap, setSnap] = useState<SheetSnap>(initial)
   const [dragging, setDragging] = useState(false)
   const [sheetMounted, setSheetMounted] = useState(false)
+  // Bumped whenever the content element re-mounts (sheetView list ↔ detail
+  // toggles). The touch-drag effect uses this as a useEffect dep so it
+  // re-attaches listeners onto the current contentRef.current element.
+  const [contentTick, setContentTick] = useState(0)
   const sheetNode = useRef<HTMLDivElement | null>(null)
   const handleRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement | null>(null)
+  // Wrap contentRef as a callback ref so we can detect (re-)mounts. Setting
+  // a state on each (re-)assignment forces the touch effect below to re-run
+  // and rebind to the new element.
+  const setContentRef = useCallback((el: HTMLDivElement | null) => {
+    if (el !== contentRef.current) {
+      contentRef.current = el
+      setContentTick(t => t + 1)
+    }
+  }, [])
   const dragRef    = useRef<{ startY: number; basePx: number; pointerId: number } | null>(null)
   const snapRef    = useRef<SheetSnap>(initial)
   const configRef  = useRef<SheetConfig>({ maxSnap: null, locked: false })
@@ -222,30 +235,40 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     }
   }, [snap, applyY, sheetMounted])
 
-  // Content-area drag: only attach a sheet-drag gesture to the list when the
-  // sheet is collapsed ('peek'). At 'mid' we DON'T register any touch
-  // listeners on the list at all — that way iOS Safari's native scroll
-  // physics work without interference.
+  // Content-area drag.
+  //   - At 'peek': drag in any direction (sheet handle is small, this is the
+  //     primary way to expand by tapping/dragging anywhere on the list).
+  //   - At 'mid' / 'full': only drag DOWN, and only when the list scroll is
+  //     at the top — that way iOS Safari's native scroll keeps working when
+  //     the user is scrolling through the list, but a downward swipe from
+  //     the top of the list collapses the whole sheet (header bar included).
   useEffect(() => {
+    void contentTick // re-run when the content element re-mounts
     const content = contentRef.current
     const sheet   = sheetNode.current
     if (!content || !sheet) return
     if (!isMobile()) return
-    if (snap !== 'peek') return
 
     let touchState: {
       startY: number
       basePx: number
       active: boolean
+      atScrollTop: boolean
     } | null = null
 
     const onTouchStart = (e: TouchEvent) => {
+      // Skip when the sheet is locked (= detail mode in MapSection). The
+      // detail view has its own swipe-down-to-close handler bound to the
+      // sheet element; running both handlers on the same gesture made them
+      // fight and left the sheet stuck near the bottom on Chrome mobile.
+      if (configRef.current.locked) return
       if (e.touches.length !== 1) return
       const h = sheet.getBoundingClientRect().height
       touchState = {
         startY: e.touches[0].clientY,
         basePx: snapToPx(snapRef.current, h),
         active: false,
+        atScrollTop: content.scrollTop <= 0,
       }
     }
 
@@ -254,6 +277,11 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const dy = e.touches[0].clientY - touchState.startY
       if (!touchState.active) {
         if (Math.abs(dy) < 6) return
+        const atPeek = snapRef.current === 'peek'
+        // At non-peek snaps, only allow sheet drag when the user is swiping
+        // DOWN AND the list is already at scrollTop=0. Otherwise it's a
+        // normal scroll gesture — leave the browser alone.
+        if (!atPeek && (dy < 0 || !touchState.atScrollTop)) return
         touchState.active = true
         setDragging(true)
       }
@@ -290,7 +318,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       content.removeEventListener('touchend',   onTouchEnd)
       content.removeEventListener('touchcancel', onTouchEnd)
     }
-  }, [applyY, snap])
+  }, [applyY, snap, contentTick])
 
   const collapse = useCallback(() => setSnap('peek'), [])
   const expand   = useCallback(() => setSnap('mid'),  [])
@@ -319,5 +347,13 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     snapRef.current = target
   }, [applyY])
 
-  return { sheetRef, handleRef, contentRef, snap, setSnap, dragging, collapse, expand, snapToVisiblePx, reapplySnap, configure }
+  return {
+    sheetRef,
+    handleRef,
+    /** Read-only ref object — for callers that need contentRef.current. */
+    contentRef,
+    /** Callback ref — pass to <div ref={...}> so we get re-mount notifications. */
+    setContentRef,
+    snap, setSnap, dragging, collapse, expand, snapToVisiblePx, reapplySnap, configure,
+  }
 }

@@ -10,8 +10,6 @@ import React, {
 } from 'react';
 import {
   onAuthStateChanged,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
@@ -23,8 +21,7 @@ import {
   deleteUser,
   type User,
 } from 'firebase/auth';
-import { httpsCallable } from 'firebase/functions';
-import { auth, functions } from '@/lib/firebase/config';
+import { auth } from '@/lib/firebase/config';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -32,11 +29,8 @@ export interface AuthContextValue {
   user: User | null;
   /** True while the initial auth state is being resolved from Firebase. */
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<User>;
-  signUp: (email: string, password: string, name: string) => Promise<User>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
-  sendPasswordReset: (email: string) => Promise<void>;
   updateDisplayName: (name: string) => Promise<void>;
   deleteAccount: () => Promise<void>;
 }
@@ -79,7 +73,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.warn('[auth] getRedirectResult failed:', code);
       });
 
-    // Handle magic link callback
+    // Handle magic link callback when user lands on / with auth params still
+    // attached (the /welcome page also handles this — this is a safety net for
+    // cases where the link bypasses /welcome entirely).
     if (isSignInWithEmailLink(auth, window.location.href)) {
       const email = localStorage.getItem('emailForSignIn') ?? '';
       signInWithEmailLink(auth, email, window.location.href)
@@ -105,19 +101,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // ─── Auth operations ─────────────────────────────────────────────────────
 
-  const signIn = useCallback(async (email: string, password: string): Promise<User> => {
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    return cred.user;
-  }, []);
-
-  const signUp = useCallback(async (email: string, password: string, name: string): Promise<User> => {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(cred.user, { displayName: name });
-    // Trigger welcome email via Cloud Function (fire-and-forget)
-    httpsCallable(functions, 'sendVerificationEmail')({ displayName: name }).catch(() => {});
-    return cred.user;
-  }, []);
-
   const signInWithGoogle = useCallback(async (): Promise<void> => {
     const isMobile = typeof navigator !== 'undefined' &&
       (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 720);
@@ -131,11 +114,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(async (): Promise<void> => {
     await firebaseSignOut(auth);
-  }, []);
-
-  const sendPasswordReset = useCallback(async (email: string): Promise<void> => {
-    const fn = httpsCallable(functions, 'sendPasswordReset');
-    await fn({ email });
   }, []);
 
   const updateDisplayName = useCallback(async (name: string): Promise<void> => {
@@ -156,15 +134,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       user,
       loading,
-      signIn,
-      signUp,
       signInWithGoogle,
       signOut,
-      sendPasswordReset,
       updateDisplayName,
       deleteAccount,
     }),
-    [user, loading, signIn, signUp, signInWithGoogle, signOut, sendPasswordReset, updateDisplayName, deleteAccount],
+    [user, loading, signInWithGoogle, signOut, updateDisplayName, deleteAccount],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

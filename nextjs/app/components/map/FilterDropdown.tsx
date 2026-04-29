@@ -75,14 +75,10 @@ export default function FilterDropdown({
     <div
       ref={ref}
       className={styles.filterDropdown}
-      // Stop touch + pointer + click events from leaking to the list rows
-      // underneath. Without this, tapping a dropdown item also fires a
-      // ghost-click on whatever row sits at the same screen point — which
-      // opened a random restaurant detail right after the user picked a
-      // filter.
-      onPointerDown={e => e.stopPropagation()}
-      onTouchStart={e => e.stopPropagation()}
-      onTouchEnd={e => e.stopPropagation()}
+      // Stop the click from leaking to whatever sits underneath the
+      // dropdown — usually a list row that would then open as a detail.
+      // Don't stop touch events: that would break the dropdown's own
+      // native overflow-y scroll.
       onClick={e => e.stopPropagation()}
     >
       <div className={styles.filterDropdownSection}>

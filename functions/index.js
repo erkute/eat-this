@@ -13,6 +13,7 @@ const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { defineSecret } = require('firebase-functions/params');
 const logger = require('firebase-functions/logger');
 const { Resend } = require('resend');
+const { createClient: createSanityClient } = require('@sanity/client');
 const {
   getVerificationTemplate,
   getPasswordResetTemplate,
@@ -22,6 +23,27 @@ const {
 } = require('./templates');
 
 admin.initializeApp();
+
+const sanity = createSanityClient({
+  projectId:  'ehwjnjr2',
+  dataset:    'production',
+  apiVersion: '2024-01-01',
+  useCdn:     true,
+});
+
+// Fisher–Yates over the full id list, keep first `count`.
+async function pickRandomMustEatIds(count) {
+  const ids = await sanity.fetch('*[_type == "mustEat" && defined(image.asset)]._id');
+  if (!Array.isArray(ids) || ids.length < count) {
+    throw new Error('not-enough-must-eats: have ' + (ids ? ids.length : 0) + ', need ' + count);
+  }
+  const shuffled = ids.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled.slice(0, count);
+}
 
 const RESEND_API_KEY = defineSecret('RESEND_API_KEY');
 
@@ -227,16 +249,80 @@ exports.subscribeNewsletter = onCall({ region: 'europe-west1', secrets: [RESEND_
   return { status: 'subscribed' };
 });
 
-// Auto-unlock Starter Pack on registration
+// Open a Booster Pack — flips opened=false → true, sets openedAt.
+// Idempotent: re-opening an already-opened pack is a no-op.
+exports.openPack = onCall(
+  { enforceAppCheck: true },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Sign in to open packs.');
+    }
+    const uid = request.auth.uid;
+    const packId = String(request.data?.packId ?? 'welcome');
 
+    const ref = admin.firestore()
+      .collection('users').doc(uid)
+      .collection('packs').doc(packId);
+
+    try {
+      await admin.firestore().runTransaction(async (tx) => {
+        const snap = await tx.get(ref);
+        if (!snap.exists) {
+          throw new HttpsError('not-found', 'Pack not found.');
+        }
+        if (snap.data().opened === true) return;
+        tx.update(ref, {
+          opened:   true,
+          openedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      });
+    } catch (err) {
+      if (err instanceof HttpsError) throw err;
+      logger.error('[openPack] tx failed:', err);
+      throw new HttpsError('internal', 'Failed to open pack.');
+    }
+    logger.info('[openPack] opened', packId, 'for', uid);
+    return { ok: true };
+  }
+);
+
+// On signup:
+//  1. Legacy starter unlock at userPacks/{uid}/packs/starter (curated map content)
+//  2. Welcome Booster Pack at users/{uid}/packs/welcome — 10 random Must Eats (Feature C)
 exports.onUserCreate = require('firebase-functions/v1').auth.user().onCreate(async (user) => {
+  const db = admin.firestore();
+
   try {
-    await admin.firestore()
+    await db
       .collection('userPacks').doc(user.uid)
       .collection('packs').doc('starter')
       .set({ unlockedAt: Date.now(), source: 'signup' });
     logger.info('[onUserCreate] Starter pack unlocked for', user.uid);
   } catch (err) {
-    logger.error('[onUserCreate] Failed:', err);
+    logger.error('[onUserCreate] Starter unlock failed:', err);
+  }
+
+  try {
+    const packRef = db
+      .collection('users').doc(user.uid)
+      .collection('packs').doc('welcome');
+
+    const existing = await packRef.get();
+    if (existing.exists) {
+      logger.info('[onUserCreate] Welcome pack already exists for', user.uid);
+      return;
+    }
+
+    const mustEatIds = await pickRandomMustEatIds(10);
+    await packRef.set({
+      opened:    false,
+      mustEatIds,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      openedAt:  null,
+      source:    'signup',
+    });
+    logger.info('[onUserCreate] Welcome booster pack created for', user.uid, 'with', mustEatIds.length, 'cards');
+  } catch (err) {
+    logger.error('[onUserCreate] Welcome booster pack creation failed:', err);
   }
 });

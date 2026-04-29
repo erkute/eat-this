@@ -1,13 +1,16 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
+import { routing } from '@/i18n/routing';
 import LocaleLink from './LocaleLink';
 
 export default function BurgerDrawer() {
   const { t, lang, setLang } = useTranslation();
   const { user } = useAuth();
+  const locale = useLocale();
   const [isDark, setIsDark] = useState(false);
 
   const handleLoginBtn = useCallback(() => {
@@ -15,11 +18,12 @@ export default function BurgerDrawer() {
     document.getElementById('burgerDrawer')?.classList.remove('active');
     document.body.style.overflow = '';
     if (user) {
-      window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
+      const href = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
+      window.location.assign(href);
     } else {
       window.openWelcomeModal?.();
     }
-  }, [user]);
+  }, [user, locale]);
 
   useEffect(() => {
     const stored = localStorage.getItem('theme');

@@ -24,10 +24,7 @@ export function useMagicLink() {
       const response = await fetch('/api/auth/send-magic-link', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          email,
-          continueUrl: window.location.origin + '/',
-        }),
+        body:    JSON.stringify({ email }),
       });
       const data = await response.json().catch(() => ({}));
 

@@ -1,12 +1,16 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth, useMagicLink } from '@/lib/auth';
+import { routing } from '@/i18n/routing';
 
 export default function WelcomeModal() {
   const { t } = useTranslation();
   const { signInWithGoogle } = useAuth();
+  const locale = useLocale();
+  const profileHref = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
   const { sendLink, state: magicState, errorMessage: magicError, reset: magicReset } = useMagicLink();
   const [email, setEmail] = useState('');
 
@@ -57,13 +61,13 @@ export default function WelcomeModal() {
     try {
       await signInWithGoogle();
       close();
-      window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
+      window.location.assign(profileHref);
     } catch {
       // user-cancelled or error — stay open
     } finally {
       if (sourceBtn) (sourceBtn as HTMLButtonElement).disabled = false;
     }
-  }, [signInWithGoogle, close]);
+  }, [signInWithGoogle, close, profileHref]);
 
   // ─── Wire DOM events ───────────────────────────────────────────────────────
 

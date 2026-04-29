@@ -11,7 +11,6 @@ import React, {
 import {
   onAuthStateChanged,
   signInWithPopup,
-  signInWithRedirect,
   getRedirectResult,
   isSignInWithEmailLink,
   signInWithEmailLink,
@@ -102,14 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ─── Auth operations ─────────────────────────────────────────────────────
 
   const signInWithGoogle = useCallback(async (): Promise<void> => {
-    const isMobile = typeof navigator !== 'undefined' &&
-      (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 720);
-    if (isMobile) {
-      // Safari blocks popups — use redirect flow; result handled by getRedirectResult on load.
-      await signInWithRedirect(auth, googleProvider);
-    } else {
-      await signInWithPopup(auth, googleProvider);
-    }
+    await signInWithPopup(auth, googleProvider);
   }, []);
 
   const signOut = useCallback(async (): Promise<void> => {

@@ -70,7 +70,9 @@
  * matches .album-slot.sharp depth style. */
 .faceFront {
   transform: rotateY(180deg);
-  border-radius: 6%;
+  /* clip-path handles rounding inside preserve-3d without the Safari
+   * white-corner artifact that border-radius + backface-visibility causes. */
+  clip-path: inset(0 round 6%);
   box-shadow: 0 4px 14px rgba(10, 10, 10, 0.35);
 }
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
   isSignInWithEmailLink,
@@ -105,7 +106,7 @@ export default function AuthActionPage() {
               Er ist abgelaufen oder wurde bereits verwendet. Starte
               den Login einfach noch einmal von der Startseite.
             </p>
-            <a href="/" className={styles.cta}>Zur Startseite</a>
+            <Link href="/" className={styles.cta}>Zur Startseite</Link>
           </>
         )}
 
@@ -113,7 +114,7 @@ export default function AuthActionPage() {
           <>
             <h1 className={styles.title}>{state.title}</h1>
             <p className={styles.sub}>{state.sub}</p>
-            <a href="/" className={styles.cta}>Zur Startseite</a>
+            <Link href="/" className={styles.cta}>Zur Startseite</Link>
           </>
         )}
       </section>

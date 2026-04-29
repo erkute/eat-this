@@ -21,7 +21,13 @@ export default function ProfileShell({ mustEats }: Props) {
   const pack = usePack(user?.uid ?? null);
   const [tab, setTab] = useState<Tab>('deck');
 
-  if (loading) {
+  // Bounce to home if the user lands here without a session. Done in an
+  // effect so we don't trigger a router update during render.
+  useEffect(() => {
+    if (!loading && !user) router.replace('/');
+  }, [loading, user, router]);
+
+  if (loading || !user) {
     return (
       <main className={styles.page}>
         <div className={styles.shell}>
@@ -31,11 +37,6 @@ export default function ProfileShell({ mustEats }: Props) {
         </div>
       </main>
     );
-  }
-
-  if (!user) {
-    if (typeof window !== 'undefined') router.replace('/');
-    return null;
   }
 
   const initial = (user.displayName || user.email || '?').trim().charAt(0).toUpperCase();

@@ -34,6 +34,16 @@ export default function OnboardingOverlay() {
     window.showOnboarding = show;
   }, [goTo, show]);
 
+  // Auto-show after the first auth resolution if the user hasn't completed
+  // onboarding yet. Replaces the auth:magicLinkComplete dispatch path that
+  // got broken when /welcome strips the signIn URL params before redirecting
+  // to /profile (the AuthContext safety-net never fires the event then).
+  useEffect(() => {
+    if (!user) return;
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('onboardingComplete')) return;
+    show();
+  }, [user, show]);
+
   const handleNameSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
     const trimmed = name.trim();

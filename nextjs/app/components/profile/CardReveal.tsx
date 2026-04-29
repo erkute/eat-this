@@ -12,22 +12,33 @@ interface Props {
 }
 
 export default function CardReveal({ card, delay, animate, onComplete }: Props) {
-  const inner = (
-    <>
-      {card.imageUrl
-        ? <img src={card.imageUrl} alt={card.dish} className={styles.revealCardImg} loading="lazy" />
-        : <div className={styles.revealCardPlaceholder} aria-hidden="true">🍽</div>}
-      <div className={styles.revealCardOverlay}>
-        <span className={styles.revealCardDish}>{card.dish}</span>
-        <span className={styles.revealCardSub}>
-          {card.restaurant}{card.district ? ` · ${card.district}` : ''}
-        </span>
-      </div>
-    </>
+  const art = card.imageUrl ? (
+    <img
+      src={card.imageUrl}
+      alt={card.dish}
+      className={styles.revealCardArt}
+      loading="lazy"
+    />
+  ) : (
+    <div className={styles.revealCardPlaceholder} aria-hidden="true">🍽</div>
+  );
+
+  const caption = (
+    <div className={styles.revealCardCaption}>
+      <span className={styles.revealCardDish}>{card.dish}</span>
+      <span className={styles.revealCardSub}>
+        {card.restaurant}{card.district ? ` · ${card.district}` : ''}
+      </span>
+    </div>
   );
 
   if (!animate) {
-    return <div className={styles.revealCard}>{inner}</div>;
+    return (
+      <div className={styles.revealCard}>
+        {art}
+        {caption}
+      </div>
+    );
   }
 
   return (
@@ -42,7 +53,8 @@ export default function CardReveal({ card, delay, animate, onComplete }: Props) 
       }}
       onAnimationComplete={onComplete}
     >
-      {inner}
+      {art}
+      {caption}
     </motion.div>
   );
 }

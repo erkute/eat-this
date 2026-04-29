@@ -467,55 +467,60 @@
 .revealGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 28px 16px;
+  align-items: start;
 }
 
+/* Sanity card images are freigestellte 2:3 PNGs — design (rounded edges,
+ * dish art, brand) baked into the alpha. Render them naked: no frame,
+ * no crop, no overlay. drop-shadow follows the alpha, not a rectangle. */
 .revealCard {
-  position: relative;
-  aspect-ratio: 3 / 4;
-  border-radius: 14px;
-  overflow: hidden;
-  background-color: #1A1A1A;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-  transform-origin: center;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  transform-origin: center bottom;
   will-change: transform, opacity;
 }
 
-.revealCardImg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.revealCardArt {
   display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1449 / 2163;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 18px rgba(10, 10, 10, 0.18))
+          drop-shadow(0 2px 4px rgba(10, 10, 10, 0.12));
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .revealCardPlaceholder {
-  position: absolute;
-  inset: 0;
+  width: 100%;
+  aspect-ratio: 1449 / 2163;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 42px;
   color: #6B6B6B;
-  background-color: #2A2A2A;
+  background-color: rgba(10, 10, 10, 0.04);
+  border-radius: 14px;
 }
 
-.revealCardOverlay {
-  position: absolute;
-  inset: auto 0 0 0;
-  padding: 32px 12px 12px;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.82) 100%);
-  color: #FFFFFF;
+.revealCardCaption {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding: 0 2px;
+  min-width: 0;
 }
 
 .revealCardDish {
   font-size: 13px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+  color: #0A0A0A;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -523,7 +528,9 @@
 
 .revealCardSub {
   font-size: 11px;
-  opacity: 0.85;
+  font-weight: 500;
+  line-height: 1.3;
+  color: #6B6B6B;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -555,7 +562,7 @@
   .packBtn { width: 240px; }
   .openerTitle { font-size: 26px; margin-top: 32px; }
   .openerSub { font-size: 15px; }
-  .revealGrid { grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .revealGrid { grid-template-columns: repeat(5, 1fr); gap: 32px 18px; }
   .revealCardDish { font-size: 14px; }
   .revealCardSub { font-size: 12px; }
 }

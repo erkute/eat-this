@@ -222,21 +222,24 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     }
   }, [snap, applyY, sheetMounted])
 
-  // Content-area drag: only attach a sheet-drag gesture to the list when the
-  // sheet is collapsed ('peek'). At 'mid' we DON'T register any touch
-  // listeners on the list at all — that way iOS Safari's native scroll
-  // physics work without interference.
+  // Content-area drag.
+  //   - At 'peek': drag in any direction (sheet handle is small, this is the
+  //     primary way to expand by tapping/dragging anywhere on the list).
+  //   - At 'mid' / 'full': only drag DOWN, and only when the list scroll is
+  //     at the top — that way iOS Safari's native scroll keeps working when
+  //     the user is scrolling through the list, but a downward swipe from
+  //     the top of the list collapses the whole sheet (header bar included).
   useEffect(() => {
     const content = contentRef.current
     const sheet   = sheetNode.current
     if (!content || !sheet) return
     if (!isMobile()) return
-    if (snap !== 'peek') return
 
     let touchState: {
       startY: number
       basePx: number
       active: boolean
+      atScrollTop: boolean
     } | null = null
 
     const onTouchStart = (e: TouchEvent) => {
@@ -246,6 +249,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
         startY: e.touches[0].clientY,
         basePx: snapToPx(snapRef.current, h),
         active: false,
+        atScrollTop: content.scrollTop <= 0,
       }
     }
 
@@ -254,6 +258,11 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const dy = e.touches[0].clientY - touchState.startY
       if (!touchState.active) {
         if (Math.abs(dy) < 6) return
+        const atPeek = snapRef.current === 'peek'
+        // At non-peek snaps, only allow sheet drag when the user is swiping
+        // DOWN AND the list is already at scrollTop=0. Otherwise it's a
+        // normal scroll gesture — leave the browser alone.
+        if (!atPeek && (dy < 0 || !touchState.atScrollTop)) return
         touchState.active = true
         setDragging(true)
       }

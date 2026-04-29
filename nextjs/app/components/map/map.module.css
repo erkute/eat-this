@@ -920,11 +920,30 @@ html[data-theme="dark"] .fab {
 }
 .bodyDetailOpen .fab,
 .bodyDetailOpen :global(.maplibregl-ctrl-top-left),
-.bodyDetailOpen :global(.maplibregl-ctrl-top-right) {
+.bodyDetailOpen :global(.maplibregl-ctrl-top-right),
+/* When list snaps to 'full' (under the global header), the sheet covers
+   the whole map area — FAB + attribution would be visually behind it.
+   Hide them too so taps don't fall through and there's no peeking pixel. */
+.bodyListAtFull .fab,
+.bodyListAtFull :global(.maplibregl-ctrl-top-left),
+.bodyListAtFull :global(.maplibregl-ctrl-top-right) {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
   transition: opacity 0.18s ease, visibility 0s;
+}
+
+/* When the list sheet is at 'peek' (only the handle visible), the list
+   header (count + filter + search + tab bar) would still poke into the
+   visible area — making the sheet look button-cluttered instead of a
+   clean grab handle. Fade those bits out for the peek state. */
+.listAtPeek .listHeader,
+.listAtPeek .listScroll,
+.listAtPeek .listScrollNoCats,
+.listAtPeek .mustEatsBack {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
 }
 @media (max-width: 1023.98px) {
   .bodyDetailOpen .fab,

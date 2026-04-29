@@ -4,8 +4,9 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 export type SheetSnap = 'peek' | 'mid' | 'full'
 
 const PEEK_VISIBLE_PX = 28  // just the grab handle pip visible when collapsed
-// Mid: ~4 list rows visible. Full: nearly full-screen with just a small map peek at top.
-const MID_VISIBLE_PX = 440
+// Mid: ~3 full restaurant rows + a sliver of the 4th, so the user can tell
+// the list scrolls. (handle 20 + count row 38 + tabs 32 + ~3.4 rows ≈ 480)
+const MID_VISIBLE_PX = 480
 const FULL_TOP_PX     = 0   // sheet hugs the top of the map body for content-heavy detail views
 const MOBILE_MAX = 1023.98
 

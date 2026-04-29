@@ -604,7 +604,7 @@ export default function MapSection({ isActive = false }: Props) {
   useEffect(() => {
     configure(sheetView === 'detail'
       ? { maxSnap: null, locked: true }
-      : { maxSnap: 'mid', locked: false }
+      : { maxSnap: null, locked: false } // list: allow drag up to full (under header)
     )
   }, [sheetView, configure])
 
@@ -783,7 +783,7 @@ export default function MapSection({ isActive = false }: Props) {
       ) : (
         <div className={styles.shell}>
 
-          <div className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}`}>
+          <div className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}${sheetView === 'list' && snap === 'full' ? ` ${styles.bodyListAtFull}` : ''}`}>
             <div className={styles.mapWrap}>
               <MapCanvas ref={mapRef} onMove={handleMapMove} onMapClick={handleMapClick}>
                 {layer === 'restaurants' && displayedRestaurants.map(r => (
@@ -835,7 +835,9 @@ export default function MapSection({ isActive = false }: Props) {
 
             <aside
               ref={setSheetRef}
-              className={`${styles.list} ${dragging ? styles.listDragging : ''}`}
+              className={`${styles.list} ${dragging ? styles.listDragging : ''}${
+                sheetView === 'list' && snap === 'peek' ? ` ${styles.listAtPeek}` : ''
+              }`}
               aria-label={layer === 'restaurants' ? 'Restaurants nearby' : 'Must-Eats'}
             >
               <div ref={handleRef} className={`${styles.handle}${sheetView === 'detail' ? ` ${styles.handleHidden}` : ''}`} aria-hidden="true" />

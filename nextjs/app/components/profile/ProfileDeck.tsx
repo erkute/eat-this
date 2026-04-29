@@ -56,12 +56,6 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
     if (sortedPackOrders.length === 0) return;
     triggered.current = true;
 
-    // Mark the pack as opened in Firestore. Rules permit only the
-    // false → true transition; failures are non-fatal for the animation.
-    openWelcomePack(user.uid, pack.id).catch((err) => {
-      console.error('[profile-deck] openWelcomePack failed:', err);
-    });
-
     let cancelled = false;
     (async () => {
       for (const order of sortedPackOrders) {
@@ -76,6 +70,14 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
           return next;
         });
         await sleep(POST_FLIP_PAUSE_MS);
+      }
+      // Mark opened only after the full animation completes so the Firestore
+      // update (pack.opened → true) doesn't retrigger the effect mid-loop and
+      // cancel the animation via the cleanup.
+      if (!cancelled) {
+        openWelcomePack(user.uid, pack.id).catch((err) => {
+          console.error('[profile-deck] openWelcomePack failed:', err);
+        });
       }
     })();
 

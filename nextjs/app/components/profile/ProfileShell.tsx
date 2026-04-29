@@ -8,6 +8,7 @@ import { useFavorites } from '@/lib/map/useFavorites';
 import { createWelcomePack } from '@/lib/firebase/welcomePack';
 import type { MustEatAlbumCard } from '@/lib/types';
 import ProfileDeck from './ProfileDeck';
+import SiteFooter from '../SiteFooter';
 import styles from './profile.module.css';
 
 type Tab = 'deck' | 'saved' | 'settings';
@@ -98,6 +99,7 @@ export default function ProfileShell({ mustEats }: Props) {
           {tab === 'settings' && <SettingsPanel email={user.email ?? ''} />}
         </section>
       </div>
+      <SiteFooter />
     </main>
   );
 }

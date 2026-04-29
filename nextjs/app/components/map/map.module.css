@@ -947,14 +947,17 @@ html[data-theme="dark"] .fab {
 /* When the list sheet is at 'peek' (only the handle visible), the list
    header (count + filter + search + tab bar) would still poke into the
    visible area — making the sheet look button-cluttered instead of a
-   clean grab handle. Fade those bits out for the peek state. */
-.listAtPeek .listHeader,
-.listAtPeek .listScroll,
-.listAtPeek .listScrollNoCats,
-.listAtPeek .mustEatsBack {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.18s ease;
+   clean grab handle. Fade those bits out for the peek state.
+   Mobile only — desktop has a fixed sidebar (no peek concept). */
+@media (max-width: 1023.98px) {
+  .listAtPeek .listHeader,
+  .listAtPeek .listScroll,
+  .listAtPeek .listScrollNoCats,
+  .listAtPeek .mustEatsBack {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+  }
 }
 @media (max-width: 1023.98px) {
   .bodyDetailOpen .fab,

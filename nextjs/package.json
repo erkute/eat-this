@@ -30,7 +30,8 @@
     "supercluster": "^8.0.1"
   },
   "optionalDependencies": {
-    "@parcel/watcher-linux-x64-glibc": "2.5.6"
+    "@parcel/watcher-linux-x64-glibc": "2.5.6",
+    "@swc/core-linux-x64-gnu": "1.15.30"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

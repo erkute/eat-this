@@ -33,25 +33,40 @@ const MapCanvas = forwardRef<MapRef, MapCanvasProps>(({ onMove, onMapClick, chil
     return () => mo.disconnect()
   }, [])
 
-  // MapLibre opens the compact attribution by default on mount. Collapse it so
-  // only the small ⓘ button stays visible until the user taps it.
+  // MapLibre opens the compact attribution by default on mount. Collapse it
+  // so only the small ⓘ button stays visible until the user taps it. Then
+  // observe attribute changes for ~3 s after we find the element, undoing
+  // any maplibre-internal re-open before user interaction.
   useEffect(() => {
-    const collapse = () => {
+    let observer: MutationObserver | null = null
+    let observerStart = 0
+    const collapseEl = (el: HTMLDetailsElement) => {
+      el.open = false
+      el.classList.remove('maplibregl-compact-show')
+    }
+    const findAndAttach = () => {
       const el = document.querySelector(
         'details.maplibregl-ctrl-attrib.maplibregl-compact'
       ) as HTMLDetailsElement | null
       if (!el) return false
-      el.open = false
-      el.classList.remove('maplibregl-compact-show')
+      collapseEl(el)
+      observerStart = Date.now()
+      observer = new MutationObserver(() => {
+        if (Date.now() - observerStart > 3000) { observer?.disconnect(); return }
+        if (el.open) collapseEl(el)
+      })
+      observer.observe(el, { attributes: true, attributeFilter: ['open', 'class'] })
       return true
     }
-    // Attribution mounts after the canvas — retry for up to ~1s in case of races.
     let tries = 0
     const id = window.setInterval(() => {
       tries += 1
-      if (collapse() || tries > 20) window.clearInterval(id)
+      if (findAndAttach() || tries > 30) window.clearInterval(id)
     }, 50)
-    return () => window.clearInterval(id)
+    return () => {
+      window.clearInterval(id)
+      observer?.disconnect()
+    }
   }, [])
 
   return (

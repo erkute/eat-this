@@ -639,6 +639,10 @@ export default function MapSection({ isActive = false }: Props) {
         // is 1:1 instead of stuttering through 0.28 s eases per frame.
         sheet.style.transition = 'none'
       }
+      // Block native scroll / pull-to-refresh during the drag so Chrome's
+      // mobile-emulation rubber-band can't fight our sheet movement and
+      // leave it stuck at the bottom on release.
+      if (e.cancelable) e.preventDefault()
       sheet.style.setProperty('--sheet-y', `${basePx + dy}px`)
     }
 
@@ -686,7 +690,7 @@ export default function MapSection({ isActive = false }: Props) {
     }
 
     sheet.addEventListener('touchstart', onStart, { passive: true })
-    sheet.addEventListener('touchmove', onMove, { passive: true })
+    sheet.addEventListener('touchmove', onMove, { passive: false })
     sheet.addEventListener('touchend', onEnd)
     sheet.addEventListener('touchcancel', onEnd)
     return () => {

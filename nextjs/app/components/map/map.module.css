@@ -3,6 +3,17 @@
    Uses semantic tokens from globals.css so dark mode just works.
    ============================================================ */
 
+/* Register --sheet-y as a typed length so CSS transitions can interpolate
+   it smoothly. Without @property, browsers treat custom-property changes
+   as "discrete" and `transform: translateY(var(--sheet-y))` snaps instead
+   of animating when the var changes. With this declaration the transform
+   transition (defined on .list below) actually animates between snaps. */
+@property --sheet-y {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
 /* -------------------- Shell & layout -------------------- */
 
 .shell {

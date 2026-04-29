@@ -110,14 +110,16 @@ export default function MapSection({ isActive = false }: Props) {
     let contentH = measure()
 
     // If content overflows the available height, dynamically shrink the
-    // hero (.detailHeroWrap or .mustEatHero) by the overflow amount. 140 px
-    // floor keeps the hero meaningful. After the shrink, the body content
-    // fits exactly without scroll on desktop, and snaps to a smaller sheet
-    // on mobile (next step).
-    if (contentH > maxH - 8 && heroEl) {
-      const overflow = contentH - (maxH - 8)
+    // hero (.detailHeroWrap or .mustEatHero) by the overflow amount.
+    // Floor 100 px on mobile so heavy content (Wen Cheng + similar) fits
+    // even on small iPhones; 140 px on desktop where there's more room.
+    // 16 px cushion guards against late-layout reflow (font metrics, etc.).
+    const cushion = 16
+    const heroFloor = isMobile ? 100 : 140
+    if (contentH > maxH - cushion && heroEl) {
+      const overflow = contentH - (maxH - cushion)
       const currentH = heroEl.offsetHeight
-      const newH = Math.max(140, currentH - overflow)
+      const newH = Math.max(heroFloor, currentH - overflow)
       if (newH < currentH) {
         heroEl.style.maxHeight = `${newH}px`
         heroEl.style.height = `${newH}px`
@@ -593,30 +595,34 @@ export default function MapSection({ isActive = false }: Props) {
       if (!active) return
       active = false
       if (dy > 110) {
-        // Re-enable the CSS transition on transform, then push the sheet
-        // off-screen so it eases out smoothly. After the ease completes,
-        // close the detail (state cleanup) — we kill the transition for
-        // that single frame so the sheet doesn't visibly snap back up to
-        // mid as the list re-renders.
-        sheet.style.transition = ''
+        // Two-phase animation:
+        //   Phase 1 (~180 ms): slide detail fully off-screen.
+        //   Phase 2 (~280 ms): swap content to list, slide sheet UP to mid.
+        // The user perceives "detail goes down, list comes up" — no visual
+        // pop or bounce of the detail content during the transition.
         const sheetH = sheet.getBoundingClientRect().height
+        sheet.style.transition = 'transform 0.18s ease-out'
         requestAnimationFrame(() => {
           sheet.style.setProperty('--sheet-y', `${sheetH}px`)
         })
         window.setTimeout(() => {
-          sheet.style.transition = 'none'
+          // Sheet is now off-screen. Hand off to the close handler which
+          // swaps detail → list and reapplies mid snap. We keep the
+          // transition active so the next applyY(midPx) animates the sheet
+          // UP smoothly (list slides in from below).
+          sheet.style.transition = 'transform 0.22s cubic-bezier(.2,.7,.2,1)'
           if (selectedRestaurant) handleRestaurantClose()
           else if (selectedMustEat) handleMustEatClose()
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => { sheet.style.transition = '' })
-          })
-        }, 260)
+          // After the up-anim completes, restore default transition.
+          window.setTimeout(() => { sheet.style.transition = '' }, 240)
+        }, 180)
       } else {
         // Snap back smoothly to the auto-sized detail height.
-        sheet.style.transition = ''
+        sheet.style.transition = 'transform 0.18s ease-out'
         requestAnimationFrame(() => {
           sheet.style.setProperty('--sheet-y', `${basePx}px`)
         })
+        window.setTimeout(() => { sheet.style.transition = '' }, 200)
       }
     }
 

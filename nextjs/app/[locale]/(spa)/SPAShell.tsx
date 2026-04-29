@@ -13,7 +13,6 @@ import BoosterPack from '@/app/components/landing/BoosterPack';
 import Coming from '@/app/components/landing/Coming';
 import LandingFAQ from '@/app/components/landing/LandingFAQ';
 import Newsletter from '@/app/components/landing/Newsletter';
-import BurgerDrawer from '@/app/components/BurgerDrawer';
 import MustsSection from '@/app/components/MustsSection';
 import MapSection from '@/app/components/MapSection';
 import NewsArticleShell from '@/app/components/NewsArticleShell';
@@ -60,7 +59,6 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
         <StaticPages pages={staticPages} activeSlug={activePage} />
         <NewsArticleShell isActive={activePage === 'news-article'} />
       </div>
-      <BurgerDrawer />
       <EatModal />
       <SearchOverlay />
       <CookieConsent />

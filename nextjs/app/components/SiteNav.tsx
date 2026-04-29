@@ -1,10 +1,36 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import LocaleLink from './LocaleLink';
 
 export default function SiteNav() {
   const { t } = useTranslation();
+
+  // Wire burger toggle here so it works on every (spa) route, including
+  // /profile which doesn't render SPAShell (and therefore no BurgerDrawer).
+  // On SPA pages app.min.js also attaches to these IDs — both are additive
+  // and idempotent (classList.add/remove is safe to call twice).
+  useEffect(() => {
+    const drawer   = document.getElementById('burgerDrawer');
+    const openBtn  = document.getElementById('burgerBtn');
+    const closeBtn = document.getElementById('burgerClose');
+    const backdrop = document.getElementById('burgerBackdrop');
+    if (!drawer) return; // not present on this route — nothing to wire
+
+    const open  = () => drawer.classList.add('active');
+    const close = () => drawer.classList.remove('active');
+
+    openBtn?.addEventListener('click', open);
+    closeBtn?.addEventListener('click', close);
+    backdrop?.addEventListener('click', close);
+    return () => {
+      openBtn?.removeEventListener('click', open);
+      closeBtn?.removeEventListener('click', close);
+      backdrop?.removeEventListener('click', close);
+    };
+  }, []);
+
   return (
     <>
       <a href="#appPages" className="skip-link">{t('a11y.skip')}</a>

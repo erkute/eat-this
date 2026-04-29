@@ -1,20 +1,16 @@
 /* Profile Deck — mirrors the look of the public Must-Eat album, but with
  * 3D-flippable slots for the user's pack cards.
  *
- * Mobile: 3 cols, gap 12. Desktop ≥ 768px: 6 cols, gap 16. Slot aspect
- * matches the Sanity card PNG (1449×2163 → 2:3).
- *
- * 3D flip caveat (Safari + preserve-3d): we cannot rely on overflow:hidden
- * or clip-path on faces — both behave inconsistently inside preserve-3d.
- * Instead, we set border-radius DIRECTLY on the front <img>; the back PNG
- * has its rounded corners baked into the asset.
+ * 3D flip caveat (Safari + preserve-3d): no overflow:hidden or clip-path on
+ * faces — both misbehave inside preserve-3d. Border-radius goes directly on
+ * the <img>; card-back PNG has its rounded corners baked in.
  */
 
 .albumGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  padding: 0;
+  padding: 4px 4px 32px;  /* 32px gap before SiteFooter */
   perspective: 1400px;
 }
 
@@ -22,6 +18,7 @@
   .albumGrid {
     grid-template-columns: repeat(6, 1fr);
     gap: 16px;
+    padding: 4px 4px 48px;
   }
 }
 
@@ -30,12 +27,23 @@
   aspect-ratio: 1449 / 2163;
 }
 
+/* Revealed slots get a pointer cursor and a subtle hover lift */
+.slotRevealed {
+  cursor: pointer;
+}
+
+.slotRevealed:hover .face.faceFront {
+  box-shadow: 0 10px 28px rgba(10, 10, 10, 0.38);
+  transform: rotateY(180deg) scale(1.03);
+}
+
 .flipper {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
   will-change: transform;
+  transition: box-shadow 0.15s;
 }
 
 .face {
@@ -52,18 +60,53 @@
   -webkit-user-drag: none;
 }
 
-/* Card-back image already has its rounded shape baked into the alpha,
- * no CSS rounding needed (would double-round). */
+/* card-back.webp has rounded corners baked in — no extra CSS rounding. */
 .faceBack {
   /* visible at rotateY: 0 */
 }
 
-/* Front face: the freigestellte dish PNG. Add subtle radius (matches the
- * legacy MustsSection's clip-path inset round 6%) and a soft drop shadow
- * for depth. Rotated 180° so it's hidden until the flipper rotates to
- * 180°, at which point the back goes away (backface-hidden). */
+/* Front face: freigestellte dish PNG. border-radius matches the legacy
+ * MustsSection clip-path (6% ≈ album-slot.sharp inset round). Shadow
+ * matches .album-slot.sharp depth style. */
 .faceFront {
   transform: rotateY(180deg);
   border-radius: 6%;
-  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.28);
+  box-shadow: 0 4px 14px rgba(10, 10, 10, 0.35);
+}
+
+/* ── Lightbox ─────────────────────────────────────── */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10010;
+  background: rgba(0, 0, 0, 0.82);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  cursor: zoom-out;
+}
+
+.lightboxImg {
+  max-height: 78vh;
+  max-width: min(420px, 88vw);
+  width: auto;
+  object-fit: contain;
+  border-radius: 6%;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+  cursor: default;
+  display: block;
+}
+
+.lightboxLabel {
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: center;
+  margin: 0;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }

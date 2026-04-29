@@ -26,25 +26,6 @@ export default function BurgerDrawer() {
   }, [user, locale]);
 
   useEffect(() => {
-    const drawer  = document.getElementById('burgerDrawer');
-    const openBtn = document.getElementById('burgerBtn');
-    const closeBtn  = document.getElementById('burgerClose');
-    const backdrop  = document.getElementById('burgerBackdrop');
-
-    const open  = () => { drawer?.classList.add('active'); document.body.style.overflow = 'hidden'; };
-    const close = () => { drawer?.classList.remove('active'); document.body.style.overflow = ''; };
-
-    openBtn?.addEventListener('click', open);
-    closeBtn?.addEventListener('click', close);
-    backdrop?.addEventListener('click', close);
-    return () => {
-      openBtn?.removeEventListener('click', open);
-      closeBtn?.removeEventListener('click', close);
-      backdrop?.removeEventListener('click', close);
-    };
-  }, []);
-
-  useEffect(() => {
     const stored = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const dark = stored ? stored === 'dark' : prefersDark;

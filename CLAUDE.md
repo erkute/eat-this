@@ -16,6 +16,16 @@ This repo is occasionally worked on in **multiple Claude sessions simultaneously
 - Confirm the commit range only contains your intended changes (`git log origin/main..HEAD --stat`).
 - If anything looks foreign, ask before pushing — `main` auto-deploys to Firebase App Hosting.
 
+## Pre-push hook (DO NOT bypass)
+
+`.git/hooks/pre-push` runs the **full** `npm run build` (~30–60 s) before any push that touches `nextjs/`. Mirrors Firebase App Hosting's build step exactly. If it exits non-zero, the push is aborted.
+
+Reason: a parallel session once shipped broken JSX (`<a href="/">` in `reset-password/page.tsx`) that compiled locally but failed Next.js's lint step → four Firebase rollouts in a row failed → no deploys for either session for hours. The hook makes that impossible.
+
+- **Never** run `git push --no-verify` without an explicit user request, even if the hook complains.
+- If the hook reports a build failure, fix the underlying code. The full log is at `/tmp/eat-this-prepush-build.log`.
+- Hook lives in `.git/hooks/pre-push` (shared across worktrees because they all use the same `.git` common dir).
+
 ## Deployment
 
 - `nextjs/` is the live app. Push to `main` → Firebase App Hosting auto-builds and deploys.

@@ -11,6 +11,7 @@ interface PageProps {
 const VALID_SLUGS = new Set([
   'map',
   'musts',
+  'news',
   'profile',
   'about',
   'contact',

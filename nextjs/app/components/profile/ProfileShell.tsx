@@ -74,33 +74,35 @@ export default function ProfileShell({ mustEats }: Props) {
   const name    = user.displayName || (user.email ?? '').split('@')[0] || 'Du';
 
   return (
-    <main className={styles.page}>
-      <div className={styles.shell}>
-        <header className={styles.header}>
-          <div className={styles.avatar} aria-hidden="true">{initial}</div>
-          <div className={styles.headerInfo}>
-            <h1 className={styles.name}>{name}</h1>
-            <p className={styles.email}>{user.email ?? ''}</p>
+    <>
+      <main className={styles.page}>
+        <div className={styles.shell}>
+          <header className={styles.header}>
+            <div className={styles.avatar} aria-hidden="true">{initial}</div>
+            <div className={styles.headerInfo}>
+              <h1 className={styles.name}>{name}</h1>
+              <p className={styles.email}>{user.email ?? ''}</p>
+            </div>
+          </header>
+
+          <div className={styles.tabs} role="tablist">
+            <TabBtn active={tab === 'deck'}     onClick={() => setTab('deck')}    >Deck</TabBtn>
+            <TabBtn active={tab === 'saved'}    onClick={() => setTab('saved')}   >Gespeichert</TabBtn>
+            <TabBtn active={tab === 'settings'} onClick={() => setTab('settings')}>Einstellungen</TabBtn>
           </div>
-        </header>
 
-        <div className={styles.tabs} role="tablist">
-          <TabBtn active={tab === 'deck'}     onClick={() => setTab('deck')}    >Deck</TabBtn>
-          <TabBtn active={tab === 'saved'}    onClick={() => setTab('saved')}   >Gespeichert</TabBtn>
-          <TabBtn active={tab === 'settings'} onClick={() => setTab('settings')}>Einstellungen</TabBtn>
+          <section
+            className={tab === 'deck' ? styles.panelDeck : styles.panel}
+            role="tabpanel"
+          >
+            {tab === 'deck'     && <DeckPanel pack={pack} mustEats={mustEats} createError={createError} onRetry={retryCreate} />}
+            {tab === 'saved'    && <SavedPanel uid={user.uid} />}
+            {tab === 'settings' && <SettingsPanel email={user.email ?? ''} />}
+          </section>
         </div>
-
-        <section
-          className={tab === 'deck' ? styles.panelDeck : styles.panel}
-          role="tabpanel"
-        >
-          {tab === 'deck'     && <DeckPanel pack={pack} mustEats={mustEats} createError={createError} onRetry={retryCreate} />}
-          {tab === 'saved'    && <SavedPanel uid={user.uid} />}
-          {tab === 'settings' && <SettingsPanel email={user.email ?? ''} />}
-        </section>
-      </div>
+      </main>
       <SiteFooter />
-    </main>
+    </>
   );
 }
 

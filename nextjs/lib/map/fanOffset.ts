@@ -17,12 +17,14 @@ export type MustEatWithDisplay<T extends MustEatInput> = T & {
   fanCount: number
 }
 
-// Total spread (degrees) for N cards. Subtle: 2 cards ≈ 16°, 3 ≈ 24°, 4 ≈ 30°,
-// capped at 36° so even big stacks stay legible. Each card's rotation =
-// -spread/2 + step * i.
+// Total spread (degrees) for N cards. 2 cards 30°, 3 cards 50°, 4 cards 65°,
+// capped at 80° so the outermost cards don't tip over. Each card's rotation
+// = -spread/2 + step * i, so 2 cards land at ±15°, 3 cards at ±25°/0°, etc.
+// Wider than the previous 8°/card because at low spread the cards stack too
+// densely and the back ones aren't tappable.
 function spreadFor(n: number): number {
   if (n <= 1) return 0
-  return Math.min(36, 8 * (n - 1))
+  return Math.min(80, 18 * (n - 1))
 }
 
 export function applyFanOffset<T extends MustEatInput>(

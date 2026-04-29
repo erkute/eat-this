@@ -73,7 +73,7 @@
       var(--accent) 0 10px,
       color-mix(in srgb, var(--accent) 70%, #000) 10px 12px
     );
-  animation: loadingFill 4s steps(16) forwards;
+  animation: loadingFill 1.5s steps(12) forwards;
 }
 @keyframes loadingFill {
   0%   { width: 0; }
@@ -874,10 +874,10 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-comp
 .fab {
   position: absolute;
   right: 12px;
-  /* Pinned at the top of the map area on mobile (out of the way of the
-     bottom sheet, doesn't move when sheet expands/contracts). Desktop
-     overrides below. */
-  top: 14px;
+  /* Mobile: bottom-right, riding the top edge of the sheet (Google-Maps
+     style). The +14 px offset puts it just above the sheet so it stays
+     touchable at every snap. Desktop overrides below. */
+  bottom: calc(var(--sheet-visible-px, 80px) + 14px);
   z-index: 6;
   width: 36px;
   height: 36px;

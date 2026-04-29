@@ -42,11 +42,12 @@ export default function MapSection({ isActive = false }: Props) {
   const { t } = useTranslation()
 
   const { restaurants, mustEats, loading: dataLoading } = useMapData()
-  // Hold the loading screen until the progress bar animation finishes (4 s) +
-  // a 200 ms grace period so the bar is visibly full before the map appears.
+  // Keep the card-shuffle brand moment but make it fast: 1.5 s bar fill +
+  // 100 ms grace = 1.6 s minimum. If data hasn't arrived by then we still
+  // wait; if data loads in 200 ms we still show ≈1.6 s of brand.
   const [minDelayElapsed, setMinDelayElapsed] = useState(false)
   useEffect(() => {
-    const id = window.setTimeout(() => setMinDelayElapsed(true), 4200)
+    const id = window.setTimeout(() => setMinDelayElapsed(true), 1600)
     return () => window.clearTimeout(id)
   }, [])
   const loading = dataLoading || !minDelayElapsed
@@ -54,7 +55,7 @@ export default function MapSection({ isActive = false }: Props) {
   const uid = auth.currentUser?.uid ?? null
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
-  const { sheetRef, handleRef, contentRef, setContentRef, snap, setSnap, dragging, reapplySnap, configure, snapToVisiblePx } = useBottomSheet('mid')
+  const { sheetRef, handleRef, contentRef, setContentRef, setHeaderRef, snap, setSnap, dragging, reapplySnap, configure, snapToVisiblePx } = useBottomSheet('mid')
   // Mirror the sheet element so we can read its current --sheet-visible-px
   // (set by useBottomSheet on every applyY) for accurate flyTo padding.
   const sheetElRef = useRef<HTMLDivElement | null>(null)
@@ -504,19 +505,18 @@ export default function MapSection({ isActive = false }: Props) {
     const r = selectedRestaurant
     setSelectedRestaurant(null)
     setSheetView('list')
-    // Detail-open set snap to 'full' (or auto-sized custom px). Force back
-    // to 'mid' so the sheet drops to the standard list height.
-    setSnap('mid')
-    reapplySnap('mid')
-    // Stay centered on the just-closed restaurant — user wants to see WHERE
-    // it is on the map after dismissing the detail. Re-fly with the new
-    // (mid-snap) padding so the marker recenters above the smaller sheet.
+    // Drop to peek so the user sees the marker on the map with no list
+    // covering anything — they were looking at this restaurant, now they
+    // can see WHERE it is. List is one drag away.
+    setSnap('peek')
+    reapplySnap('peek')
+    // Stay centered on the just-closed restaurant.
     if (r && mapRef.current) {
       mapRef.current.flyTo({
         center: [r.lng, r.lat],
         zoom: 15,
         duration: 350,
-        padding: getFlyPadding('mid'),
+        padding: getFlyPadding('peek'),
       })
     }
   }, [selectedRestaurant, getFlyPadding, setSnap, reapplySnap])
@@ -547,15 +547,15 @@ export default function MapSection({ isActive = false }: Props) {
       return
     }
     setSheetView('list')
-    setSnap('mid')
-    reapplySnap('mid')
-    // Stay centered on the just-closed must-eat — same as restaurant close.
+    // Drop to peek so the user sees the marker uncovered. List is one drag away.
+    setSnap('peek')
+    reapplySnap('peek')
     if (m && mapRef.current) {
       mapRef.current.flyTo({
         center: [m.restaurant.lng, m.restaurant.lat],
         zoom: 15,
         duration: 350,
-        padding: getFlyPadding('mid'),
+        padding: getFlyPadding('peek'),
       })
     }
   }, [selectedMustEat, selectedRestaurant, getFlyPadding, setSnap, reapplySnap])
@@ -871,7 +871,7 @@ export default function MapSection({ isActive = false }: Props) {
                 </div>
               ) : layer === 'restaurants' ? (
                 <>
-                  <div className={styles.listHeader}>
+                  <div ref={setHeaderRef} className={styles.listHeader}>
                     {searchOpen ? (
                       <div className={styles.listHeaderRow}>
                         <input

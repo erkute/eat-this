@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
@@ -19,6 +19,14 @@ type State =
   | { kind: 'error'; title: string; sub: string };
 
 export default function AuthActionPage() {
+  return (
+    <Suspense fallback={null}>
+      <AuthActionInner />
+    </Suspense>
+  );
+}
+
+function AuthActionInner() {
   const params = useSearchParams();
   const router = useRouter();
   const [state, setState] = useState<State>({ kind: 'processing' });

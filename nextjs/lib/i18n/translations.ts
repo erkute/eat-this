@@ -334,44 +334,6 @@ const en = {
       },
     },
   },
-  profile: {
-    signInTitle: "Sign in to EAT THIS",
-    signInSub: "Save restaurants, collect your Must Eat deck and manage your account.",
-    tab: {
-      deck: "My Deck",
-      saved: "Saved",
-      settings: "Settings",
-    },
-    saved: {
-      empty: "You have no saved restaurants yet.",
-      title: "Saved Places",
-    },
-    deck: {
-      boosterSection: "Booster Packs",
-      unlockBtn: "Unlock",
-      comingSoon: "Coming Soon",
-    },
-    booster: {
-      title: "Booster Packs - Coming Soon",
-      sub: "Expand your deck with exclusive dishes",
-    },
-    settings: {
-      displayName: "Display name",
-      displayNamePlaceholder: "Your name",
-      saveBtn: "Save",
-      email: "Email",
-      security: "Security",
-      resetPassword: "Reset password",
-      signOut: "Sign out",
-      deleteAccount: "Delete account",
-      savedFeedback: "Saved \u2713",
-      saveError: "Error saving.",
-      emailSent: "Email sent \u2713",
-      tryAgain: "Error. Please try again.",
-      deleteConfirm: "Are you sure? Your account will be permanently deleted.",
-      deleteError: "Error. Please log in again and try again.",
-    },
-  },
 };
 
 export type TranslationsShape = typeof en;
@@ -661,43 +623,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
         signedIn: "Hey {name}, sch\u00f6n dich zu sehen!",
         signedOut: "Du wurdest abgemeldet.",
       },
-    },
-  },
-  profile: {
-    signInTitle: "Bei EAT THIS anmelden",
-    signInSub: "Speichere Restaurants, sammel dein Must Eat Deck und verwalte deinen Account.",
-    tab: {
-      deck: "Mein Deck",
-      saved: "Gespeichert",
-      settings: "Einstellungen",
-    },
-    saved: {
-      empty: "Du hast noch keine Restaurants gespeichert.",
-      title: "Gespeicherte Orte",
-    },
-    deck: {
-      unlockBtn: "Freischalten",
-      comingSoon: "Demn\u00e4chst",
-    },
-    booster: {
-      title: "Booster Packs - Demn\u00e4chst",
-      sub: "Erweitere dein Deck mit exklusiven Gerichten",
-    },
-    settings: {
-      displayName: "Anzeigename",
-      displayNamePlaceholder: "Dein Name",
-      saveBtn: "Speichern",
-      email: "E-Mail",
-      security: "Sicherheit",
-      resetPassword: "Passwort zur\u00fccksetzen",
-      signOut: "Abmelden",
-      deleteAccount: "Account l\u00f6schen",
-      savedFeedback: "Gespeichert \u2713",
-      saveError: "Fehler beim Speichern.",
-      emailSent: "E-Mail gesendet \u2713",
-      tryAgain: "Fehler. Bitte erneut versuchen.",
-      deleteConfirm: "Bist du sicher? Dein Account wird dauerhaft gel\u00f6scht.",
-      deleteError: "Fehler. Bitte neu einloggen und erneut versuchen.",
     },
   },
 };

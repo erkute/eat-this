@@ -49,7 +49,7 @@ function AuthActionInner() {
       signInWithEmailLink(auth, email, url)
         .then(() => {
           localStorage.removeItem('emailForSignIn');
-          router.replace('/');
+          router.replace('/profile');
         })
         .catch(() => {
           setState({ kind: 'expired' });

@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     request.headers.get('origin') ||
     'https://www.eatthisdot.com';
 
-  const continueUrl = body.continueUrl || `${origin}/`;
+  const continueUrl = body.continueUrl || `${origin}/profile`;
 
   let magicLink: string;
   try {

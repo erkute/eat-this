@@ -17,7 +17,6 @@ import BurgerDrawer from '@/app/components/BurgerDrawer';
 import MustsSection from '@/app/components/MustsSection';
 import MapSection from '@/app/components/MapSection';
 import NewsArticleShell from '@/app/components/NewsArticleShell';
-import ProfileSection from '@/app/components/ProfileSection';
 import EatModal from '@/app/components/EatModal';
 import SearchOverlay from '@/app/components/SearchOverlay';
 import CookieConsent from '@/app/components/CookieConsent';
@@ -58,7 +57,6 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
         <MustsSection isActive={activePage === 'musts'} cards={mustEats} />
         <NewsSection articles={newsArticles} isActive={activePage === 'news'} />
         <MapSection isActive={activePage === 'map'} />
-        <ProfileSection isActive={activePage === 'profile'} />
         <StaticPages pages={staticPages} activeSlug={activePage} />
         <NewsArticleShell isActive={activePage === 'news-article'} />
       </div>

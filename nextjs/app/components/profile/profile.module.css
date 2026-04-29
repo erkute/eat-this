@@ -1,0 +1,561 @@
+/* Brand tokens — match auth-action page (cream / ink / gold / paper / muted) */
+
+.page {
+  min-height: 100dvh;
+  background-color: #F7F2E8;
+  padding: 32px 16px 80px;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  color: #0A0A0A;
+}
+
+.shell {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* ── Header ───────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #0A0A0A;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.headerInfo {
+  min-width: 0;
+}
+
+.name {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.email {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: #6B6B6B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Tabs ─────────────────────────────────────────── */
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background-color: #FFFFFF;
+  border-radius: 999px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6B6B6B;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.tab:hover {
+  color: #0A0A0A;
+}
+
+.tabActive {
+  background-color: #0A0A0A;
+  color: #FFFFFF;
+}
+
+.tabActive:hover {
+  color: #FFFFFF;
+}
+
+.panel {
+  background-color: #FFFFFF;
+  border-radius: 24px;
+  padding: 28px 22px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  min-height: 280px;
+}
+
+/* ── Deck panel (Phase 2 placeholder for Phase 3 reveal) ── */
+
+.deckPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 36px 12px;
+  min-height: 280px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #E5E5E5;
+  border-top-color: #0A0A0A;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.title {
+  margin: 14px 0 8px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.sub {
+  margin: 0 0 22px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #6B6B6B;
+  max-width: 420px;
+}
+
+.cta {
+  display: inline-block;
+  padding: 14px 28px;
+  background-color: #E8B82A;
+  color: #0A0A0A;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+
+.cta:hover {
+  background-color: #D4A726;
+}
+
+.ctaSecondary {
+  composes: cta;
+  background-color: #0A0A0A;
+  color: #FFFFFF;
+}
+
+.ctaSecondary:hover {
+  background-color: #1A1A1A;
+}
+
+.muted {
+  font-size: 13px;
+  color: #9A9A9A;
+  margin-top: 12px;
+}
+
+/* ── Empty / placeholder for Saved / Settings ── */
+
+.empty {
+  text-align: center;
+  padding: 36px 12px;
+  color: #6B6B6B;
+  font-size: 14px;
+}
+
+/* ── Saved tab — favorites grid ────────────────── */
+
+.savedGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.savedCard {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: 14px;
+  overflow: hidden;
+  background-color: #EDE6D6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.savedImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.savedPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  color: #6B6B6B;
+}
+
+.savedOverlay {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 28px 12px 12px;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.78) 100%);
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.savedName {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.savedDistrict {
+  font-size: 12px;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.savedRemove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.55);
+  color: #FFFFFF;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s;
+}
+
+.savedRemove:hover {
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+/* ── Settings tab ───────────────────────────────── */
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.settingsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settingsSectionDanger {
+  composes: settingsSection;
+  padding-top: 24px;
+  border-top: 1px solid #EFEAE0;
+}
+
+.settingsSectionTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9A9A9A;
+}
+
+.settingsField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settingsLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6B6B6B;
+}
+
+.settingsRow {
+  display: flex;
+  gap: 8px;
+}
+
+.settingsInput {
+  flex: 1;
+  padding: 11px 14px;
+  border: 1.5px solid #E5E0D2;
+  border-radius: 10px;
+  font-size: 16px;
+  background-color: #FAF7EE;
+  color: #0A0A0A;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.settingsInput:focus {
+  border-color: #0A0A0A;
+}
+
+.settingsValue {
+  margin: 0;
+  padding: 11px 14px;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  font-size: 15px;
+  color: #0A0A0A;
+  background-color: #F4EFE2;
+}
+
+.settingsBtn {
+  padding: 11px 20px;
+  background-color: #0A0A0A;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.settingsBtn:hover { background-color: #1A1A1A; }
+.settingsBtn:disabled { opacity: 0.5; cursor: default; }
+
+.settingsBtnSecondary {
+  composes: settingsBtn;
+  background-color: #FFFFFF;
+  color: #0A0A0A;
+  border: 1.5px solid #E5E0D2;
+}
+
+.settingsBtnSecondary:hover {
+  background-color: #FAF7EE;
+}
+
+.settingsBtnDanger {
+  composes: settingsBtn;
+  background-color: transparent;
+  color: #B71C1C;
+  border: 1.5px solid #F1D6D4;
+}
+
+.settingsBtnDanger:hover {
+  background-color: #FDF3F2;
+}
+
+.feedback {
+  margin: 0;
+  font-size: 13px;
+  color: #2E7D32;
+}
+
+.feedbackError {
+  composes: feedback;
+  color: #B71C1C;
+}
+
+/* ── Booster Pack Opener (Phase 3) ──────────────── */
+
+.openerStage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 12px 12px;
+  min-height: 360px;
+}
+
+.openerEyebrow {
+  margin: 0 0 16px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #C8951A;
+}
+
+.packBtn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: block;
+  width: 200px;
+  filter: drop-shadow(0 18px 40px rgba(10, 10, 10, 0.28));
+}
+
+.packBtn:focus-visible {
+  outline: 3px solid #E8B82A;
+  outline-offset: 8px;
+  border-radius: 12px;
+}
+
+.packArt {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.openerTitle {
+  margin: 28px 0 6px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.openerSub {
+  margin: 0;
+  font-size: 14px;
+  color: #6B6B6B;
+}
+
+/* ── Reveal stage (animated grid + final state) ── */
+
+.revealStage {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 28px;
+  padding: 4px 0 8px;
+  perspective: 1200px;
+}
+
+.revealGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.revealCard {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: 14px;
+  overflow: hidden;
+  background-color: #1A1A1A;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+.revealCardImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.revealCardPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
+  color: #6B6B6B;
+  background-color: #2A2A2A;
+}
+
+.revealCardOverlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 32px 12px 12px;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.82) 100%);
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.revealCardDish {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.revealCardSub {
+  font-size: 11px;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.revealCta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-top: 12px;
+}
+
+.revealCtaSub {
+  margin: 0;
+  font-size: 14px;
+  color: #6B6B6B;
+}
+
+@media (min-width: 768px) {
+  .page { padding: 56px 24px 96px; }
+  .header { gap: 18px; margin-bottom: 32px; }
+  .avatar { width: 64px; height: 64px; font-size: 26px; }
+  .name { font-size: 26px; }
+  .panel { padding: 36px 28px; }
+  .savedGrid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+  .openerStage { padding: 32px 16px 16px; }
+  .packBtn { width: 240px; }
+  .openerTitle { font-size: 26px; margin-top: 32px; }
+  .openerSub { font-size: 15px; }
+  .revealGrid { grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .revealCardDish { font-size: 14px; }
+  .revealCardSub { font-size: 12px; }
+}

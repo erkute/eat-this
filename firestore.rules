@@ -26,6 +26,13 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Booster packs (Feature C) — owner-readable, admin-only writes for now.
+    // Opening a pack will be handled by a callable function in Phase 3.
+    match /users/{uid}/packs/{packId} {
+      allow read:  if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

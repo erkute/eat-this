@@ -10,20 +10,27 @@
  * working unchanged.
  *
  * Auth-state side effects (loginBtn DOM, _authHint, _currentUser,
- * _revealBlurredCards, _initProfilePage) were previously handled by
- * auth.min.js's onAuthStateChanged callback — now owned here so that
- * auth.min.js can be dropped.
+ * _revealBlurredCards) were previously handled by auth.min.js's
+ * onAuthStateChanged callback — now owned here so that auth.min.js can be
+ * dropped.
  *
  * Remove this file once auth.min.js is fully migrated to React.
  */
 
 import { useEffect } from 'react';
+import { useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
+import { routing } from '@/i18n/routing';
+
+function localeProfileHref(locale: string) {
+  return locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
+}
 
 export default function BridgeAuth() {
   const { user, loading, signOut, sendPasswordReset, updateDisplayName, deleteAccount } = useAuth();
   const { t } = useTranslation();
+  const locale = useLocale();
 
   // ─── Expose auth operations to vanilla JS globals ──────────────────────────
 
@@ -56,7 +63,7 @@ export default function BridgeAuth() {
   useEffect(() => {
     if (loading) return;
 
-    // 1. Sync window._currentUser for legacy consumers (app.min.js, profile.min.js).
+    // 1. Sync window._currentUser for legacy consumers (app.min.js).
     window._currentUser = user ?? null;
 
     const loginBtn = document.getElementById('loginBtn');
@@ -85,10 +92,7 @@ export default function BridgeAuth() {
       try { localStorage.removeItem('_authHint'); } catch {}
     }
 
-    // 6. Notify profile page (profile.min.js defines _initProfilePage).
-    window._initProfilePage?.(user ?? null);
-
-    // 7. Dispatch for any other vanilla JS listeners.
+    // 6. Dispatch for any other vanilla JS listeners.
     window.dispatchEvent(new CustomEvent('auth:changed', { detail: { user } }));
   }, [user, loading, t]);
 
@@ -105,11 +109,11 @@ export default function BridgeAuth() {
       const first = (u.displayName ?? u.email ?? '').split(' ')[0] || t('footer.signIn');
       window.showNotification?.(t('modals.login.notifications.signedIn').replace('{name}', first));
       document.getElementById('welcomeModal')?.classList.remove('active');
-      window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'profile' } }));
+      window.location.assign(localeProfileHref(locale));
     };
     window.addEventListener('auth:redirectComplete', onRedirectComplete);
     return () => window.removeEventListener('auth:redirectComplete', onRedirectComplete);
-  }, [t]);
+  }, [t, locale]);
 
   // ─── Magic-Link post-completion ────────────────────────────────────────────
   useEffect(() => {
@@ -144,6 +148,5 @@ declare global {
     showNotification?: (msg: string) => void;
     _revealBlurredCards?: () => void;
     _renderAlbum?: () => void;
-    _initProfilePage?: (user: import('firebase/auth').User | null) => void;
   }
 }

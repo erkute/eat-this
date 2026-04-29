@@ -444,6 +444,11 @@ export default function MapSection({ isActive = false }: Props) {
   const handleRestaurantClick = useCallback((r: MapRestaurant) => {
     userInteractedRef.current = true
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
+    // Selecting a search result implicitly accepts it — clear the query so
+    // when the user later goes back to "alle Must-Eats" or the list, they
+    // see the full data set, not the still-filtered subset.
+    setSearch('')
+    setSearchOpen(false)
     setSelectedRestaurant(r)
     setSelectedMustEat(null)
     // Both mobile sheet AND desktop sidebar render the detail inline now —
@@ -464,6 +469,10 @@ export default function MapSection({ isActive = false }: Props) {
   const handleMustEatClick = useCallback((m: MapMustEat) => {
     userInteractedRef.current = true
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
+    // Selecting a search result accepts it — clear the query so subsequent
+    // navigation (e.g. tapping "alle Must-Eats") shows the full list.
+    setSearch('')
+    setSearchOpen(false)
     // Coming from a restaurant detail (mobile sheet OR desktop floating modal)
     // → switch to mustEats layer + list view, fly to the must-eat. Same flow
     // on both platforms.

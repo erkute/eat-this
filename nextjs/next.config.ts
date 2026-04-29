@@ -7,6 +7,7 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 const nextConfig: NextConfig = {
   output: "standalone",
   outputFileTracingRoot: path.resolve(__dirname),
+
 };
 
 export default withNextIntl(nextConfig);

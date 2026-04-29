@@ -3,18 +3,17 @@
 /**
  * BridgeAuth — bridges the React Auth context with the legacy window globals.
  *
- * During migration the vanilla JS (app.min.js, auth.min.js) still calls
- * window._signOut / window._sendPasswordReset / window._updateDisplayName /
- * window._deleteAccount / window.openWelcomeModal / window.closeWelcomeModal.
- * This component wires those globals to the React auth context so the UI keeps
- * working unchanged.
+ * During migration the vanilla JS (app.min.js, profile.min.js) still calls
+ * window._signOut / window._updateDisplayName / window._deleteAccount /
+ * window.openWelcomeModal / window.closeWelcomeModal. This component wires
+ * those globals to the React auth context so the UI keeps working unchanged.
  *
  * Auth-state side effects (loginBtn DOM, _authHint, _currentUser,
  * _revealBlurredCards, _initProfilePage) were previously handled by
  * auth.min.js's onAuthStateChanged callback — now owned here so that
  * auth.min.js can be dropped.
  *
- * Remove this file once auth.min.js is fully migrated to React.
+ * Remove this file once app.min.js / profile.min.js are fully migrated to React.
  */
 
 import { useEffect } from 'react';
@@ -22,7 +21,7 @@ import { useAuth } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
 
 export default function BridgeAuth() {
-  const { user, loading, signOut, sendPasswordReset, updateDisplayName, deleteAccount } = useAuth();
+  const { user, loading, signOut, updateDisplayName, deleteAccount } = useAuth();
   const { t } = useTranslation();
 
   // ─── Expose auth operations to vanilla JS globals ──────────────────────────
@@ -34,7 +33,6 @@ export default function BridgeAuth() {
         window.showNotification(t('modals.login.notifications.signedOut'));
       }
     };
-    window._sendPasswordReset = async (email: string) => { await sendPasswordReset(email); };
     window._updateDisplayName = async (name: string)  => { await updateDisplayName(name); };
     window._deleteAccount     = async ()               => { await deleteAccount(); };
 
@@ -48,7 +46,7 @@ export default function BridgeAuth() {
     // app.min.js used to define it pointing to #loginModal (removed); override
     // here so it opens the WelcomeModal instead.
     window.openLoginModal = openModal;
-  }, [signOut, sendPasswordReset, updateDisplayName, deleteAccount, t]);
+  }, [signOut, updateDisplayName, deleteAccount, t]);
 
   // ─── Auth-state side effects ───────────────────────────────────────────────
   // Replaces the onAuthStateChanged callback in auth.min.js.
@@ -134,7 +132,6 @@ declare global {
   interface Window {
     _currentUser?: import('firebase/auth').User | null;
     _signOut?: () => Promise<void>;
-    _sendPasswordReset?: (email: string) => Promise<void>;
     _updateDisplayName?: (name: string) => Promise<void>;
     _deleteAccount?: () => Promise<void>;
     openWelcomeModal?: () => void;

@@ -1,5 +1,17 @@
 # Project Rules
 
+## Aggressive cleanup is OK (no live traffic yet)
+
+This project has **no production users yet**. When you touch any area that contains legacy or dead code, **rip it out entirely** — don't leave compatibility shims, don't preserve "in case someone migrates", don't add deprecation paths. Examples:
+
+- Password-based auth methods (`signInWithEmailAndPassword`, `createUserWithEmailAndPassword`, `sendPasswordResetEmail`) → remove, only Magic Link + Google are used
+- Legacy `/reset-password*` URLs → no need for redirects, Firebase Console will be repointed
+- `window._sendPasswordReset` and similar globals from BridgeAuth → remove
+- Old translation keys that are no longer referenced → remove
+- Old static HTML at root (`reset-password.html`, etc.) → delete
+
+The user prefers a smaller, cleaner codebase over backwards compatibility for a userbase that doesn't exist. Re-confirm only if the change crosses obvious module boundaries.
+
 ## Git Hygiene (parallel sessions)
 
 This repo is occasionally worked on in **multiple Claude sessions simultaneously**. The working tree and git index are shared between them, which means one session's staged changes can accidentally be committed by another.

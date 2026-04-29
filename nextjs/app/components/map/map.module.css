@@ -2150,14 +2150,19 @@ html[data-theme="dark"] .btn:hover {
   width: 42px;
   height: 62px;
   cursor: pointer;
-  transform-origin: bottom center;
+  /* Rotate the marker itself (not just its inner img) so the BROWSER's
+     hit-test bounding box rotates with the visible card. With rotation
+     only on the img, the parent's bbox stayed unrotated and the centre
+     card's bbox covered all neighbours — making back cards untappable. */
+  transform: rotate(var(--fan-rotation, 0deg));
+  transform-origin: 50% 100%;
   transition: transform 0.18s, filter 0.18s;
   position: relative;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
 }
-.cardMarker:hover { transform: scale(1.1); }
+.cardMarker:hover { transform: rotate(var(--fan-rotation, 0deg)) scale(1.1); }
 .cardMarkerActive {
-  transform: scale(1.2);
+  transform: rotate(var(--fan-rotation, 0deg)) scale(1.2);
   filter: drop-shadow(0 3px 6px rgba(255, 59, 0, 0.5));
 }
 /* Cluster bubble — shows the count of restaurants collapsed at low zoom.
@@ -2197,26 +2202,22 @@ html[data-theme="dark"] .cluster {
   height: 100%;
   object-fit: contain;
   display: block;
-  /* Fan effect: rotate around bottom-centre so card bottoms stay anchored
-     on the restaurant point and only the tops fan out (like a hand of cards).
-     Default 0deg means no rotation for single-card markers. */
-  transform: rotate(var(--fan-rotation, 0deg));
-  transform-origin: 50% 100%;
-  transition: transform 0.2s;
+  /* Rotation now lives on .cardMarker itself (so hit-testing follows the
+     visible card). The img inherits visually because it's inside the
+     rotated parent. */
 }
 .cardMarkerDiscovered {
   filter: drop-shadow(0 2px 6px rgba(255, 59, 0, 0.55));
 }
 
 /* Proximity vibration on the Must Eat map marker — strong when user is
-   right on top of the restaurant, subtle when ~500 m away. */
+   right on top of the restaurant, subtle when ~500 m away. Applied to
+   the img inside so the parent .cardMarker keeps its fan rotation. */
 .cardMarkerVibrating {
   --vibrate-intensity: 0;
-  animation: markerVibrate calc(0.9s - 0.7s * var(--vibrate-intensity)) ease-in-out infinite;
 }
-.cardMarkerVibrating:hover {
-  /* Don't override the hover scale from .cardMarker — just keep vibrating. */
-  transform: scale(1.1);
+.cardMarkerVibrating img {
+  animation: markerVibrate calc(0.9s - 0.7s * var(--vibrate-intensity)) ease-in-out infinite;
 }
 @keyframes markerVibrate {
   0%, 100% { transform: translate(0, 0) rotate(0); }
@@ -3788,10 +3789,9 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   75%  { transform: rotate(-1deg) scale(1.01); }
   100% { transform: rotate(0)     scale(1); }
 }
-.cardWiggling {
+.cardWiggling img {
   animation: cardWiggle 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
 }
-.cardWiggling:hover { transform: none; } /* don't fight the animation */
 .mustCardFront {
   background: var(--surface-bg);
   border-radius: 6%;

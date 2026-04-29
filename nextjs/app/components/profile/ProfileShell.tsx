@@ -168,16 +168,13 @@ function SavedPanel({ uid }: { uid: string }) {
 type Feedback = { kind: 'success' | 'error'; text: string } | null;
 
 function SettingsPanel({ email }: { email: string }) {
-  const { user, updateDisplayName, sendPasswordReset, signOut, deleteAccount } = useAuth();
+  const { user, updateDisplayName, signOut, deleteAccount } = useAuth();
   const router = useRouter();
 
   const [nameInput, setNameInput] = useState(user?.displayName ?? '');
   const [savingName, setSavingName] = useState(false);
   const [nameFeedback, setNameFeedback] = useState<Feedback>(null);
-  const [pwFeedback, setPwFeedback] = useState<Feedback>(null);
-  const [pwBusy, setPwBusy] = useState(false);
 
-  // Keep input in sync if displayName updates from elsewhere.
   useEffect(() => { setNameInput(user?.displayName ?? ''); }, [user?.displayName]);
 
   const onSaveName = async () => {
@@ -192,20 +189,6 @@ function SettingsPanel({ email }: { email: string }) {
       setNameFeedback({ kind: 'error', text: 'Konnte nicht speichern. Versuche es erneut.' });
     } finally {
       setSavingName(false);
-    }
-  };
-
-  const onResetPassword = async () => {
-    if (!email) return;
-    setPwBusy(true);
-    setPwFeedback(null);
-    try {
-      await sendPasswordReset(email);
-      setPwFeedback({ kind: 'success', text: 'E-Mail unterwegs ✓' });
-    } catch {
-      setPwFeedback({ kind: 'error', text: 'Konnte nicht senden. Versuche es erneut.' });
-    } finally {
-      setPwBusy(false);
     }
   };
 
@@ -259,23 +242,6 @@ function SettingsPanel({ email }: { email: string }) {
           <span className={styles.settingsLabel}>E-Mail</span>
           <p className={styles.settingsValue}>{email || '—'}</p>
         </div>
-      </div>
-
-      <div className={styles.settingsSection}>
-        <h3 className={styles.settingsSectionTitle}>Sicherheit</h3>
-        <button
-          type="button"
-          className={styles.settingsBtnSecondary}
-          onClick={onResetPassword}
-          disabled={pwBusy || !email}
-        >
-          Passwort zurücksetzen
-        </button>
-        {pwFeedback && (
-          <p className={pwFeedback.kind === 'success' ? styles.feedback : styles.feedbackError}>
-            {pwFeedback.text}
-          </p>
-        )}
       </div>
 
       <div className={styles.settingsSectionDanger}>

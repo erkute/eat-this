@@ -45,9 +45,15 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   // toggles). The touch-drag effect uses this as a useEffect dep so it
   // re-attaches listeners onto the current contentRef.current element.
   const [contentTick, setContentTick] = useState(0)
+  const [headerTick, setHeaderTick] = useState(0)
   const sheetNode = useRef<HTMLDivElement | null>(null)
   const handleRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement | null>(null)
+  // Optional secondary drag zone — typically the list header (count row +
+  // tabs) so users can drag the sheet from anywhere up there, not only
+  // from the small handle pip. Movement threshold prevents tap-on-button
+  // from being interpreted as a drag.
+  const headerRef = useRef<HTMLDivElement | null>(null)
   // Wrap contentRef as a callback ref so we can detect (re-)mounts. Setting
   // a state on each (re-)assignment forces the touch effect below to re-run
   // and rebind to the new element.
@@ -55,6 +61,12 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     if (el !== contentRef.current) {
       contentRef.current = el
       setContentTick(t => t + 1)
+    }
+  }, [])
+  const setHeaderRef = useCallback((el: HTMLDivElement | null) => {
+    if (el !== headerRef.current) {
+      headerRef.current = el
+      setHeaderTick(t => t + 1)
     }
   }, [])
   const dragRef    = useRef<{ startY: number; basePx: number; pointerId: number } | null>(null)
@@ -320,6 +332,80 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     }
   }, [applyY, snap, contentTick])
 
+  // Header-area drag (count row + filter / search buttons + tabs).
+  // Like Google Maps, lets the user drag the sheet from anywhere up there,
+  // not only the small handle pip. 8 px movement threshold preserves
+  // tap-as-click on the buttons inside.
+  useEffect(() => {
+    void headerTick
+    const header = headerRef.current
+    const sheet = sheetNode.current
+    if (!header || !sheet) return
+    if (!isMobile()) return
+    if (configRef.current.locked) return
+
+    let touchState: {
+      startY: number
+      basePx: number
+      active: boolean
+    } | null = null
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (configRef.current.locked) return
+      if (e.touches.length !== 1) return
+      const h = sheet.getBoundingClientRect().height
+      touchState = {
+        startY: e.touches[0].clientY,
+        basePx: snapToPx(snapRef.current, h),
+        active: false,
+      }
+    }
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!touchState) return
+      const dy = e.touches[0].clientY - touchState.startY
+      if (!touchState.active) {
+        // 8 px threshold — below this it's a tap, leave the click event
+        // alone so buttons inside the header still receive their onClick.
+        if (Math.abs(dy) < 8) return
+        touchState.active = true
+        setDragging(true)
+      }
+      if (e.cancelable) e.preventDefault()
+      const { maxSnap } = configRef.current
+      const h = sheet.getBoundingClientRect().height
+      const upperCap = maxSnap ? snapToPx(maxSnap, h) : FULL_TOP_PX
+      const next = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
+      applyY(next)
+    }
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (!touchState) return
+      if (touchState.active) {
+        const { maxSnap } = configRef.current
+        const h = sheet.getBoundingClientRect().height
+        const upperCap = maxSnap ? snapToPx(maxSnap, h) : FULL_TOP_PX
+        const dy = (e.changedTouches[0]?.clientY ?? touchState.startY) - touchState.startY
+        const finalPx = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
+        const allowed: SheetSnap[] = maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']
+        setDragging(false)
+        setSnap(pxToNearestSnap(finalPx, h, allowed))
+      }
+      touchState = null
+    }
+
+    header.addEventListener('touchstart', onTouchStart, { passive: true })
+    header.addEventListener('touchmove', onTouchMove, { passive: false })
+    header.addEventListener('touchend', onTouchEnd)
+    header.addEventListener('touchcancel', onTouchEnd)
+    return () => {
+      header.removeEventListener('touchstart', onTouchStart)
+      header.removeEventListener('touchmove', onTouchMove)
+      header.removeEventListener('touchend', onTouchEnd)
+      header.removeEventListener('touchcancel', onTouchEnd)
+    }
+  }, [applyY, snap, headerTick])
+
   const collapse = useCallback(() => setSnap('peek'), [])
   const expand   = useCallback(() => setSnap('mid'),  [])
 
@@ -354,6 +440,8 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     contentRef,
     /** Callback ref — pass to <div ref={...}> so we get re-mount notifications. */
     setContentRef,
+    /** Callback ref for the list-header drag zone (counts/buttons/tabs). */
+    setHeaderRef,
     snap, setSnap, dragging, collapse, expand, snapToVisiblePx, reapplySnap, configure,
   }
 }

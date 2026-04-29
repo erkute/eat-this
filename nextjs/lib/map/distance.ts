@@ -15,3 +15,12 @@ export function formatDistance(meters: number): string {
   if (meters < 1000) return `${Math.round(meters)}m`
   return `${(meters / 1000).toFixed(1)}km`
 }
+
+/**
+ * Walking time at an average pedestrian pace of ~80 m/min (≈ 4.8 km/h).
+ * Returns minutes rounded up so a 240 m walk reads as "3 min" not "2 min".
+ */
+export function formatWalkingTime(meters: number): string {
+  const minutes = Math.max(1, Math.ceil(meters / 80))
+  return `${minutes} Min`
+}

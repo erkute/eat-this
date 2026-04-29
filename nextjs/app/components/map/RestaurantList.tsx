@@ -1,6 +1,6 @@
 'use client'
 import type { MapRestaurant, OpenStatus } from '@/lib/types'
-import { haversineDistance, formatDistance } from '@/lib/map/distance'
+import { haversineDistance, formatDistance, formatWalkingTime } from '@/lib/map/distance'
 import { getOpenStatus } from '@/lib/map/openingHours'
 import type { UserLocation } from '@/lib/map/useUserLocation'
 import { useTranslation } from '@/lib/i18n'
@@ -27,9 +27,11 @@ function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
     ? getOpenStatus(restaurant.openingHours, new Date(), statusLabels)
     : { isOpen: false, label: '', minutesUntilChange: null }
 
-  const distance = userLocation
-    ? formatDistance(haversineDistance(userLocation.lat, userLocation.lng, restaurant.lat, restaurant.lng))
+  const meters = userLocation
+    ? haversineDistance(userLocation.lat, userLocation.lng, restaurant.lat, restaurant.lng)
     : null
+  const distance = meters !== null ? formatDistance(meters) : null
+  const walkingTime = meters !== null ? formatWalkingTime(meters) : null
 
   return (
     <button
@@ -46,6 +48,14 @@ function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
         <div className={styles.rowName}>{restaurant.name}</div>
         <div className={styles.rowMeta}>
           <span>{[restaurant.district, restaurant.price].filter(Boolean).join(' · ')}</span>
+          {distance && (
+            <>
+              <span className={styles.rowMetaDot} aria-hidden="true">·</span>
+              <span>{distance}</span>
+              <span className={styles.rowMetaDot} aria-hidden="true">·</span>
+              <span>{walkingTime}</span>
+            </>
+          )}
           {restaurant.mustEatCount > 0 && (
             <>
               <span className={styles.rowMetaDot} aria-hidden="true">·</span>
@@ -68,7 +78,6 @@ function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
       </div>
 
       <div className={styles.rowSide}>
-        {distance && <span className={styles.rowDistance}>{distance}</span>}
         {status.label && (
           <span
             className={`${styles.rowStatusPill} ${status.isOpen ? styles.rowStatusPillOpen : styles.rowStatusPillClosed}`}

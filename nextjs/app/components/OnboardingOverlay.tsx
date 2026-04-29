@@ -1,10 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import { useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth';
+import { routing } from '@/i18n/routing';
 
 export default function OnboardingOverlay() {
   const { user, updateDisplayName } = useAuth();
+  const locale = useLocale();
   const [visible, setVisible] = useState(false);
   const [step, setStep]       = useState(1);
   const [name, setName]       = useState('');
@@ -26,8 +29,9 @@ export default function OnboardingOverlay() {
   const finish = useCallback(() => {
     setVisible(false);
     localStorage.setItem('onboardingComplete', '1');
-    window.dispatchEvent(new CustomEvent('navigate', { detail: { page: 'musts' } }));
-  }, []);
+    const profileHref = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
+    window.location.assign(profileHref);
+  }, [locale]);
 
   useEffect(() => {
     window._obGoTo   = goTo;

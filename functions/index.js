@@ -249,6 +249,48 @@ exports.subscribeNewsletter = onCall({ region: 'europe-west1', secrets: [RESEND_
   return { status: 'subscribed' };
 });
 
+// Backfill the welcome Booster Pack on demand. Idempotent — if the pack
+// already exists, no-op. Used by the profile page when usePack reports
+// 'missing' (which happens for users created before onUserCreate was wired
+// up, or whenever the auth trigger gets skipped/fails).
+exports.ensureWelcomePack = onCall(
+  { enforceAppCheck: true },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Sign in first.');
+    }
+    const uid    = request.auth.uid;
+    const packId = String(request.data?.packId ?? 'welcome');
+
+    const ref = admin.firestore()
+      .collection('users').doc(uid)
+      .collection('packs').doc(packId);
+
+    const existing = await ref.get();
+    if (existing.exists) {
+      return { ok: true, status: 'exists' };
+    }
+
+    let mustEatIds;
+    try {
+      mustEatIds = await pickRandomMustEatIds(10);
+    } catch (err) {
+      logger.error('[ensureWelcomePack] Sanity fetch failed for', uid, err);
+      throw new HttpsError('failed-precondition', 'Could not source cards.');
+    }
+
+    await ref.set({
+      opened:    false,
+      mustEatIds,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      openedAt:  null,
+      source:    'ensure-on-demand',
+    });
+    logger.info('[ensureWelcomePack] Created for', uid, 'with', mustEatIds.length, 'cards');
+    return { ok: true, status: 'created' };
+  }
+);
+
 // Open a Booster Pack — flips opened=false → true, sets openedAt.
 // Idempotent: re-opening an already-opened pack is a no-op.
 exports.openPack = onCall(

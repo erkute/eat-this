@@ -2,12 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { httpsCallable } from 'firebase/functions';
 import { useAuth } from '@/lib/auth';
 import { usePack } from '@/lib/firebase/usePack';
 import { useFavorites } from '@/lib/map/useFavorites';
+import { functions } from '@/lib/firebase/config';
 import type { MustEatAlbumCard } from '@/lib/types';
 import BoosterPackOpener from './BoosterPackOpener';
 import styles from './profile.module.css';
+
+const ensureWelcomePackFn = httpsCallable<
+  { packId: string },
+  { ok: boolean; status: 'exists' | 'created' }
+>(functions, 'ensureWelcomePack');
 
 type Tab = 'deck' | 'saved' | 'settings';
 
@@ -20,12 +27,23 @@ export default function ProfileShell({ mustEats }: Props) {
   const router = useRouter();
   const pack = usePack(user?.uid ?? null);
   const [tab, setTab] = useState<Tab>('deck');
+  const [ensureTried, setEnsureTried] = useState(false);
 
   // Bounce to home if the user lands here without a session. Done in an
   // effect so we don't trigger a router update during render.
   useEffect(() => {
     if (!loading && !user) router.replace('/');
   }, [loading, user, router]);
+
+  // Backfill the welcome pack if it's missing — covers users who pre-date
+  // the onUserCreate trigger or whose signup race-conditioned out of it.
+  useEffect(() => {
+    if (!user || pack.status !== 'missing' || ensureTried) return;
+    setEnsureTried(true);
+    ensureWelcomePackFn({ packId: 'welcome' }).catch((err) => {
+      console.error('[profile] ensureWelcomePack failed:', err);
+    });
+  }, [user, pack.status, ensureTried]);
 
   if (loading || !user) {
     return (

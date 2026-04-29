@@ -863,8 +863,10 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-comp
 .fab {
   position: absolute;
   right: 12px;
-  /* Mobile: track the sheet so FAB sits above the visible sheet edge. */
-  bottom: calc(var(--sheet-visible-px, 80px) + 14px);
+  /* Pinned at the top of the map area on mobile (out of the way of the
+     bottom sheet, doesn't move when sheet expands/contracts). Desktop
+     overrides below. */
+  top: 14px;
   z-index: 6;
   width: 36px;
   height: 36px;
@@ -889,7 +891,7 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-comp
      but the visible .maplibregl-ctrl-group is only 36 px (with 10 px of
      wrapper padding on the right). FAB right = 12 + 10 = 22 matches the
      group's center. Bottom: zoom bottom (12) + zoom h (80) + 6 gap = 98. */
-  .fab { right: 22px; bottom: 98px; }
+  .fab { right: 22px; bottom: 98px; top: auto; }
 }
 html[data-theme="dark"] .fab {
   background: rgba(30, 30, 30, 0.45);
@@ -909,11 +911,20 @@ html[data-theme="dark"] .fab {
   .mapWrap :global(.maplibregl-ctrl-bottom-right) { display: none; }
 }
 
-/* When detail sheet is open: fade out toolbar + FAB, delay pointer-events
-   restoration to prevent tap-through onto toolbar controls. */
+/* When detail sheet is open: fade out toolbar + FAB + map attribution.
+   Delay pointer-events restoration to prevent tap-through onto toolbar
+   controls. */
 .toolbarMobile {
   transition: opacity 0.18s ease, visibility 0s linear 0.25s;
   visibility: visible;
+}
+.bodyDetailOpen .fab,
+.bodyDetailOpen :global(.maplibregl-ctrl-top-left),
+.bodyDetailOpen :global(.maplibregl-ctrl-top-right) {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.18s ease, visibility 0s;
 }
 @media (max-width: 1023.98px) {
   .bodyDetailOpen .fab,

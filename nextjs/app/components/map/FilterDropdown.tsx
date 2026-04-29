@@ -47,6 +47,17 @@ export default function FilterDropdown({
     }
   }, [onClose, anchorEl])
 
+  // Block touchmove propagation so the sheet's header-drag handler never
+  // sees touches that start inside the dropdown — otherwise it calls
+  // e.preventDefault() on every move, killing the dropdown's native scroll.
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const stop = (e: TouchEvent) => e.stopPropagation()
+    el.addEventListener('touchmove', stop, { passive: true })
+    return () => el.removeEventListener('touchmove', stop)
+  }, [])
+
   // Cap dropdown height to the remaining viewport space below the anchor
   // button so iOS Safari's bottom URL bar can never hide the last items.
   // visualViewport reflects the *current* visible area (URL bar in/out),

@@ -7,7 +7,7 @@ import LocaleLink from '@/app/components/LocaleLink'
 import { useTranslation } from '@/lib/i18n'
 import styles from './map.module.css'
 
-const UNLOCK_RADIUS_METERS = 200
+const UNLOCK_RADIUS_METERS = 250
 
 interface MustEatDetailProps {
   mustEat: MapMustEat
@@ -55,7 +55,7 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
   const canUnlock = distance !== null && distance <= UNLOCK_RADIUS_METERS
 
   // Vibration ramps from a small idle baseline (0.18 — always perceptible)
-  // up to 1.0 right on top of the restaurant. Under 200 m it's unlockable.
+  // up to 1.0 right on top of the restaurant. Under 250 m it's unlockable.
   const vibrateIntensity = distance === null
     ? 0.18
     : Math.max(0.18, Math.min(1, 1 - distance / 500))
@@ -121,7 +121,7 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
             {!isUnlocked && (
               <>
                 <div className={styles.mustEatExplainer}>
-                  <strong>Verschlossen.</strong> Plane deinen Besuch beim Restaurant — sobald du innerhalb von 200 m bist, deckt sich die Karte automatisch auf.
+                  <strong>Verschlossen.</strong> Plane deinen Besuch beim Restaurant — sobald du innerhalb von 250 m bist, deckt sich die Karte automatisch auf.
                 </div>
 
                 <div className={styles.boosterOffer}>
@@ -261,7 +261,7 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
             </div>
 
             <div className={styles.mustEatExplainer}>
-              <strong>So schaltest du es frei:</strong> Geh zum Restaurant — sobald du innerhalb von 200 m bist, deckt sich die Karte automatisch auf.
+              <strong>So schaltest du es frei:</strong> Geh zum Restaurant — sobald du innerhalb von 250 m bist, deckt sich die Karte automatisch auf.
             </div>
 
             <div className={styles.boosterOffer}>

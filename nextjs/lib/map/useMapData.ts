@@ -1,7 +1,5 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { client } from '@/lib/sanity'
-import { mapRestaurantsQuery, mapMustEatsQuery } from './queries'
 import type { MapRestaurant, MapMustEat } from '../types'
 
 interface MapData {
@@ -18,13 +16,14 @@ export function useMapData(): MapData {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    Promise.all([
-      client.fetch<MapRestaurant[]>(mapRestaurantsQuery),
-      client.fetch<MapMustEat[]>(mapMustEatsQuery),
-    ])
-      .then(([r, m]) => {
-        setRestaurants(r)
-        setMustEats(m)
+    fetch('/api/map-data')
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
+      .then(({ restaurants, mustEats }) => {
+        setRestaurants(restaurants)
+        setMustEats(mustEats)
       })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))

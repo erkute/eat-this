@@ -802,21 +802,21 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-group) {
    terms — keep it visually unobtrusive but tappable. The visible icon stays
    small (14 px) but the touch target is 28 px so users can actually hit it. */
 .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show)) {
-  background: rgba(255, 255, 255, 0.4) !important;
+  background: rgba(255, 255, 255, 0.25) !important;
   border: 0 !important;
   box-shadow: none !important;
   border-radius: 999px !important;
-  min-height: 28px !important;
-  min-width: 28px !important;
-  height: 28px;
-  width: 28px;
+  min-height: 20px !important;
+  min-width: 20px !important;
+  height: 20px;
+  width: 20px;
   padding: 0 !important;
-  opacity: 0.6;
+  opacity: 0.4;
 }
 .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-button) {
-  width: 28px !important;
-  height: 28px !important;
-  background-size: 14px 14px !important;
+  width: 20px !important;
+  height: 20px !important;
+  background-size: 10px 10px !important;
   background-position: center !important;
 }
 .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-inner) {
@@ -832,16 +832,15 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-group) {
   backdrop-filter: blur(14px) saturate(1.4);
   border: 1px solid rgba(0, 0, 0, 0.08) !important;
   border-radius: 999px !important;
-  /* Same height (28 px) as the collapsed pill, just wider for the text.
-     22 px left padding leaves room for the absolutely-positioned button. */
-  padding: 0 12px 0 30px !important;
-  min-height: 28px !important;
+  /* Same height as collapsed pill (20px), wider for text. */
+  padding: 0 10px 0 24px !important;
+  min-height: 20px !important;
   min-width: 0 !important;
-  height: 28px;
+  height: 20px;
   width: auto;
   box-shadow: 0 4px 10px rgba(17, 24, 39, 0.14);
-  font-size: 11px;
-  line-height: 28px;
+  font-size: 10px;
+  line-height: 20px;
   opacity: 1;
   display: flex;
   align-items: center;
@@ -851,9 +850,9 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-group) {
   left: 0 !important;
   top: 0 !important;
   transform: none !important;
-  width: 28px !important;
-  height: 28px !important;
-  background-size: 14px 14px !important;
+  width: 20px !important;
+  height: 20px !important;
+  background-size: 10px 10px !important;
   background-position: center !important;
 }
 .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact.maplibregl-compact-show .maplibregl-ctrl-attrib-inner) {
@@ -951,6 +950,7 @@ html[data-theme="dark"] .fab {
    Mobile only — desktop has a fixed sidebar (no peek concept). */
 @media (max-width: 1023.98px) {
   .listAtPeek .listHeader,
+  .listAtPeek .listHeaderTabs,
   .listAtPeek .listScroll,
   .listAtPeek .listScrollNoCats,
   .listAtPeek .mustEatsBack {
@@ -1256,9 +1256,11 @@ html[data-theme="dark"] .listBanner {
 @media (max-width: 1023.98px) {
   .listScroll {
     max-height: calc(var(--sheet-visible-px, 100%) - 90px - env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   }
   .listScrollNoCats {
     max-height: calc(var(--sheet-visible-px, 100%) - 56px - env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -3977,6 +3979,12 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
 /* ── New mobile list header ──────────────────────────────── */
 .listHeader {
   position: relative;
+  flex-shrink: 0;
+}
+
+/* Zone C — category chip row. Sits between the header drag zone and the
+   list scroll. No drag handler here — native horizontal scroll only. */
+.listHeaderTabs {
   flex-shrink: 0;
 }
 

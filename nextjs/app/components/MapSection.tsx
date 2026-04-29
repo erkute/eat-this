@@ -23,6 +23,7 @@ import UserLocationMarker from './map/UserLocationMarker'
 import CategoryFilter from './map/CategoryFilter'
 import FilterDropdown, { type SortOption } from './map/FilterDropdown'
 import { auth } from '@/lib/firebase/config'
+import { onAuthStateChanged } from 'firebase/auth'
 import styles from './map/map.module.css'
 
 interface Props {
@@ -52,7 +53,8 @@ export default function MapSection({ isActive = false }: Props) {
   }, [])
   const loading = dataLoading || !minDelayElapsed
   const { location, request: requestLocation } = useUserLocation()
-  const uid = auth.currentUser?.uid ?? null
+  const [uid, setUid] = useState<string | null>(() => auth.currentUser?.uid ?? null)
+  useEffect(() => onAuthStateChanged(auth, u => setUid(u?.uid ?? null)), [])
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
   const { sheetRef, handleRef, contentRef, setContentRef, setHeaderRef, snap, setSnap, dragging, reapplySnap, configure, snapToVisiblePx } = useBottomSheet('mid')
@@ -721,8 +723,12 @@ export default function MapSection({ isActive = false }: Props) {
 
   const handleUnlock = useCallback(async () => {
     if (!selectedMustEat) return
+    if (!uid) {
+      ;(window as Window & { openWelcomeModal?: () => void }).openWelcomeModal?.()
+      return
+    }
     await unlock(selectedMustEat._id, selectedMustEat.restaurant._id, selectedMustEat.dish)
-  }, [selectedMustEat, unlock])
+  }, [selectedMustEat, uid, unlock])
 
   const handleLocateMe = useCallback(async () => {
     userInteractedRef.current = true
@@ -880,6 +886,7 @@ export default function MapSection({ isActive = false }: Props) {
                 </div>
               ) : layer === 'restaurants' ? (
                 <>
+                  {/* Zone B — count row + action buttons (drag handler attached, 8px threshold) */}
                   <div ref={setHeaderRef} className={styles.listHeader}>
                     {searchOpen ? (
                       <div className={styles.listHeaderRow}>
@@ -954,6 +961,9 @@ export default function MapSection({ isActive = false }: Props) {
                         </div>
                       </div>
                     )}
+                  </div>
+                  {/* Zone C — category chips: NO drag handler, pure native horizontal scroll */}
+                  <div className={styles.listHeaderTabs}>
                     <CategoryFilter active={category} onChange={setCategory} variant="tabs" />
                   </div>
                   <div ref={setContentRef} className={styles.listScroll}>

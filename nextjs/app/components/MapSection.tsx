@@ -569,13 +569,22 @@ export default function MapSection({ isActive = false }: Props) {
   }, [setSnap, reapplySnap])
 
   const handleMapClick = useCallback(() => {
-    // Tapping the map dismisses the detail. Keep the camera where the user
-    // tapped — don't fly back to a remembered position.
+    // Map-tap only does anything when a detail is open — close it. Don't
+    // collapse the list when the user just taps an empty bit of map and
+    // there's no detail to dismiss (Google-Maps behaviour).
+    if (!selectedRestaurant && !selectedMustEat) return
     setSelectedRestaurant(null)
     setSelectedMustEat(null)
     setSheetView('list')
-    setSnap('peek')
-  }, [setSnap])
+    // Mobile: drop sheet to peek so the user sees the freshly-tapped map
+    // area uncovered. Desktop has a fixed sidebar so the snap is irrelevant
+    // visually — leave snap state alone to avoid the .listAtPeek class
+    // ever flashing on (it's mobile-gated in CSS, but still cleaner not
+    // to set it).
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches) {
+      setSnap('peek')
+    }
+  }, [selectedRestaurant, selectedMustEat, setSnap])
 
   // When the user starts typing in the search, surface the list (mid snap) so
   // they see the filtered results — typing into a hidden list is confusing.

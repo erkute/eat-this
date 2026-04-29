@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { MapMustEat } from '@/lib/types'
 import { haversineDistance, formatDistance } from '@/lib/map/distance'
 import type { UserLocation } from '@/lib/map/useUserLocation'
@@ -70,6 +70,16 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
     setTapping(true)
     window.setTimeout(() => setTapping(false), 320)
   }
+
+  // Auto-unlock when the user enters the 200 m radius. The locked-state
+  // copy promises "deckt sich automatisch auf, sobald du innerhalb von
+  // 200 m bist" — make that promise true. Without this, users had to
+  // also physically tap the card while standing nearby.
+  useEffect(() => {
+    if (canUnlock && !isUnlocked) {
+      onUnlock()
+    }
+  }, [canUnlock, isUnlocked, onUnlock])
 
   // ────────────────────── In-sheet (mobile) ──────────────────────
   if (inSheet) {

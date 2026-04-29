@@ -262,9 +262,11 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     if (!isMobile()) return
 
     let touchState: {
+      startX: number
       startY: number
       basePx: number
       active: boolean
+      cancelled: boolean
       atScrollTop: boolean
     } | null = null
 
@@ -277,18 +279,27 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       if (e.touches.length !== 1) return
       const h = sheet.getBoundingClientRect().height
       touchState = {
+        startX: e.touches[0].clientX,
         startY: e.touches[0].clientY,
         basePx: snapToPx(snapRef.current, h),
         active: false,
+        cancelled: false,
         atScrollTop: content.scrollTop <= 0,
       }
     }
 
     const onTouchMove = (e: TouchEvent) => {
-      if (!touchState) return
+      if (!touchState || touchState.cancelled) return
+      const dx = e.touches[0].clientX - touchState.startX
       const dy = e.touches[0].clientY - touchState.startY
       if (!touchState.active) {
-        if (Math.abs(dy) < 6) return
+        if (Math.abs(dy) < 6 && Math.abs(dx) < 6) return
+        // Direction lock: horizontal wipes (e.g. category tabs scroll) must
+        // not be hijacked into a sheet drag.
+        if (Math.abs(dx) > Math.abs(dy)) {
+          touchState.cancelled = true
+          return
+        }
         const atPeek = snapRef.current === 'peek'
         // At non-peek snaps, only allow sheet drag when the user is swiping
         // DOWN AND the list is already at scrollTop=0. Otherwise it's a
@@ -345,9 +356,11 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     if (configRef.current.locked) return
 
     let touchState: {
+      startX: number
       startY: number
       basePx: number
       active: boolean
+      cancelled: boolean
     } | null = null
 
     const onTouchStart = (e: TouchEvent) => {
@@ -355,19 +368,28 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       if (e.touches.length !== 1) return
       const h = sheet.getBoundingClientRect().height
       touchState = {
+        startX: e.touches[0].clientX,
         startY: e.touches[0].clientY,
         basePx: snapToPx(snapRef.current, h),
         active: false,
+        cancelled: false,
       }
     }
 
     const onTouchMove = (e: TouchEvent) => {
-      if (!touchState) return
+      if (!touchState || touchState.cancelled) return
+      const dx = e.touches[0].clientX - touchState.startX
       const dy = e.touches[0].clientY - touchState.startY
       if (!touchState.active) {
-        // 8 px threshold — below this it's a tap, leave the click event
-        // alone so buttons inside the header still receive their onClick.
-        if (Math.abs(dy) < 8) return
+        // 8 px threshold — below this it's still a tap.
+        if (Math.abs(dy) < 8 && Math.abs(dx) < 8) return
+        // Direction lock: if the user is wiping HORIZONTALLY (e.g. across the
+        // category tabs), don't hijack the gesture for sheet drag. Let the
+        // native horizontal scroll continue.
+        if (Math.abs(dx) > Math.abs(dy)) {
+          touchState.cancelled = true
+          return
+        }
         touchState.active = true
         setDragging(true)
       }

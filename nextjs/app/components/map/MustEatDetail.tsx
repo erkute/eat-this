@@ -78,26 +78,31 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
         <div className={styles.detailInSheetScroll} data-detail-scroll>
           <div
             className={styles.mustEatHero}
-            style={{ ['--vibrate-intensity' as string]: vibrateIntensity.toFixed(3) }}
+            style={!isUnlocked ? { ['--vibrate-intensity' as string]: vibrateIntensity.toFixed(3) } : undefined}
           >
             <button type="button" className={styles.detailHeroClose} aria-label="Close" onClick={onClose}>
               <CloseIcon />
             </button>
-            <div className={styles.mustEatGlow} aria-hidden="true" />
             {isUnlocked ? (
-              <img
-                key={mustEat._id}
-                src={mustEat.image}
-                alt={mustEat.dish}
-                className={styles.mustEatPhoto}
-              />
+              <div className={styles.mustEatPhotoFlip} key={mustEat._id}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/pics/card-back.webp" alt="" className={styles.mustEatPhotoBack} aria-hidden="true" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={mustEat.image} alt={mustEat.dish} className={styles.mustEatPhotoFront} />
+              </div>
             ) : (
-              <button
-                type="button"
-                className={`${styles.mustEatCard} ${canUnlock ? styles.mustEatCardCanUnlock : ''} ${tapping ? styles.mustEatCardTapping : ''}`}
-                onClick={handleCardClick}
-                aria-label={canUnlock ? t('map.revealHere') : t('map.tooFarToReveal')}
-              />
+              <>
+                <div className={styles.mustEatGlow} aria-hidden="true" />
+                <button
+                  type="button"
+                  className={`${styles.mustEatCard} ${canUnlock ? styles.mustEatCardCanUnlock : ''} ${tapping ? styles.mustEatCardTapping : ''}`}
+                  onClick={handleCardClick}
+                  aria-label={canUnlock ? t('map.revealHere') : t('map.tooFarToReveal')}
+                />
+                {canUnlock && (
+                  <span className={styles.mustEatTapHint} aria-hidden="true">Tippen</span>
+                )}
+              </>
             )}
           </div>
 
@@ -121,7 +126,9 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
             {!isUnlocked && (
               <>
                 <div className={styles.mustEatExplainer}>
-                  <strong>Verschlossen.</strong> Plane deinen Besuch beim Restaurant — sobald du innerhalb von 250 m bist, deckt sich die Karte automatisch auf.
+                  {canUnlock
+                    ? <><strong>Du bist nah genug!</strong> Tippe auf die Karte, um dein Must-Eat aufzudecken.</>
+                    : <><strong>Verschlossen.</strong> Komm auf 250 m heran und tippe die Karte auf.</>}
                 </div>
 
                 <div className={styles.boosterOffer}>

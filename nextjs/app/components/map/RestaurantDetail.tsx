@@ -26,10 +26,7 @@ function MustEatMiniCard({
       aria-label={unlocked ? mustEat.dish : 'Locked Must-Eat'}
     >
       {unlocked && (
-        <>
-          <img src={mustEat.image} alt="" loading="lazy" />
-          <span className={styles.mustCardLabel}>{mustEat.dish}</span>
-        </>
+        <img src={mustEat.image} alt={mustEat.dish} loading="lazy" />
       )}
     </button>
   )

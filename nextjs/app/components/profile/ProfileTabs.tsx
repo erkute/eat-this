@@ -18,13 +18,11 @@ const TABS: { id: ProfileTab; label: string; pulse?: boolean }[] = [
 
 export default function ProfileTabs({ active, onChange }: Props) {
   return (
-    <div className={styles.tabs} role="tablist">
+    <div className={styles.tabs}>
       {TABS.map((tab) => (
         <button
           key={tab.id}
           type="button"
-          role="tab"
-          aria-selected={active === tab.id}
           className={`${styles.tab} ${active === tab.id ? styles.tabActive : ''}`}
           onClick={() => onChange(tab.id)}
         >

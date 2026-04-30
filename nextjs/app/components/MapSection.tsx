@@ -580,8 +580,14 @@ export default function MapSection({ isActive = false }: Props) {
     setSelectedRestaurant(null)
     setSelectedMustEat(null)
     setSheetView('list')
-    if (isMobile) setSnap('peek')
-  }, [selectedRestaurant, selectedMustEat, setSnap, snap])
+    if (isMobile) {
+      setSnap('peek')
+      // Force the CSS to peek even when React snap state was already 'peek'
+      // (snapDetailToContent updates snapRef without setSnap, so the React
+      // state may have ended up at 'peek' while CSS is at custom detail-height).
+      reapplySnap('peek')
+    }
+  }, [selectedRestaurant, selectedMustEat, setSnap, snap, reapplySnap])
 
   // When the user starts typing in the search, surface the list (mid snap) so
   // they see the filtered results — typing into a hidden list is confusing.

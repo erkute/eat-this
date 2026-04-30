@@ -28,10 +28,14 @@ export default function Selection() {
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const section = sectionRef.current;
+    const section: HTMLElement | null = sectionRef.current;
     if (!section) return;
+    // Narrow to a strictly-typed const so nested function declarations below
+    // (compute / schedule / onResize) keep the non-null type without needing
+    // assertions or arrow-function rewrites.
+    const sec: HTMLElement = section;
 
-    const cardEls = Array.from(section.querySelectorAll<HTMLElement>('[data-sel-card]'));
+    const cardEls = Array.from(sec.querySelectorAll<HTMLElement>('[data-sel-card]'));
     if (cardEls.length === 0) return;
 
     // Per-card offset = distance from card's natural left edge to viewport right
@@ -53,7 +57,7 @@ export default function Selection() {
 
     function compute() {
       raf = null;
-      const rect = section.getBoundingClientRect();
+      const rect = sec.getBoundingClientRect();
       const vh = window.innerHeight;
       const sectionCenter = rect.top + rect.height / 2;
 
@@ -105,7 +109,7 @@ export default function Selection() {
     measureOffsets();
     compute();
 
-    const ancestors = getScrollAncestors(section);
+    const ancestors = getScrollAncestors(sec);
     ancestors.forEach(a => a.addEventListener('scroll', schedule, { passive: true }));
     const appPage = document.querySelector<HTMLElement>('.app-page[data-page="start"]');
     if (appPage && !ancestors.includes(appPage)) {

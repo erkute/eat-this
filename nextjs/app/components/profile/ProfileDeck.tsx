@@ -18,6 +18,11 @@ interface Props {
   mustEats: MustEatAlbumCard[];
 }
 
+interface ExpandedState {
+  card: MustEatAlbumCard;
+  rect: DOMRect;
+}
+
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 export default function ProfileDeck({ pack, mustEats }: Props) {
@@ -43,7 +48,7 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
   );
 
   // Card that the user tapped to expand (null = none).
-  const [expanded, setExpanded] = useState<MustEatAlbumCard | null>(null);
+  const [expanded, setExpanded] = useState<ExpandedState | null>(null);
 
   const slotRefs  = useRef<Map<number, HTMLDivElement>>(new Map());
   const triggered = useRef(false);
@@ -104,7 +109,7 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
                 order={order}
                 card={card}
                 flipped={isRevealed}
-                onExpand={isRevealed ? () => setExpanded(card) : undefined}
+                onExpand={isRevealed ? (rect) => setExpanded({ card, rect }) : undefined}
                 slotRef={(el) => {
                   if (el) slotRefs.current.set(order, el);
                   else slotRefs.current.delete(order);
@@ -116,34 +121,64 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
         })}
       </div>
 
-      {/* Lightbox for tapped cards */}
       <AnimatePresence>
         {expanded && (
-          <motion.div
-            className={styles.lightbox}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => setExpanded(null)}
-            aria-modal="true"
-            role="dialog"
-          >
-            <motion.img
-              src={expanded.imageUrl}
-              alt={expanded.dish}
-              className={styles.lightboxImg}
-              initial={{ scale: 0.85 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.85 }}
-              transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-              onClick={(e) => e.stopPropagation()}
-            />
-            <p className={styles.lightboxLabel}>{expanded.dish}</p>
-          </motion.div>
+          <ExpandedOverlay
+            key={expanded.card._id}
+            expanded={expanded}
+            onClose={() => setExpanded(null)}
+          />
         )}
       </AnimatePresence>
     </>
+  );
+}
+
+// ── Expanded overlay — flies out from slot position ──────────────────
+
+interface ExpandedOverlayProps {
+  expanded: ExpandedState;
+  onClose:  () => void;
+}
+
+function ExpandedOverlay({ expanded, onClose }: ExpandedOverlayProps) {
+  const overlayW  = Math.min(420, window.innerWidth * 0.88);
+  const screenCx  = window.innerWidth / 2;
+  const screenCy  = window.innerHeight / 2;
+  const slotCx    = expanded.rect.left + expanded.rect.width / 2;
+  const slotCy    = expanded.rect.top  + expanded.rect.height / 2;
+  const fromX     = slotCx - screenCx;
+  const fromY     = slotCy - screenCy;
+  const fromScale = expanded.rect.width / overlayW;
+
+  // Same easing/duration on backdrop + card so the fly-out and fade-in
+  // resolve in lockstep — no off-rhythm "appear" feel.
+  const ease     = [0.32, 0.72, 0, 1] as const;
+  const duration = 0.5;
+
+  return (
+    <motion.div
+      className={styles.lightbox}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration, ease }}
+      onClick={onClose}
+      aria-modal="true"
+      role="dialog"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <motion.img
+        src={expanded.card.imageUrl}
+        alt={expanded.card.dish}
+        className={styles.lightboxImg}
+        initial={{ x: fromX, y: fromY, scale: fromScale }}
+        animate={{ x: 0, y: 0, scale: 1 }}
+        exit={{ x: fromX, y: fromY, scale: fromScale }}
+        transition={{ duration, ease }}
+        style={{ willChange: 'transform' }}
+      />
+    </motion.div>
   );
 }
 
@@ -153,7 +188,7 @@ interface FlipSlotProps {
   order:    number;
   card:     MustEatAlbumCard;
   flipped:  boolean;
-  onExpand: (() => void) | undefined;
+  onExpand: ((rect: DOMRect) => void) | undefined;
   slotRef:  (el: HTMLDivElement | null) => void;
 }
 
@@ -163,10 +198,12 @@ function FlipSlot({ order, card, flipped, onExpand, slotRef }: FlipSlotProps) {
       className={`${styles.slot}${flipped && onExpand ? ` ${styles.slotRevealed}` : ''}`}
       ref={slotRef}
       data-order={order}
-      onClick={onExpand}
+      onClick={onExpand ? (e) => onExpand((e.currentTarget as HTMLDivElement).getBoundingClientRect()) : undefined}
       role={onExpand ? 'button' : undefined}
       tabIndex={onExpand ? 0 : undefined}
-      onKeyDown={onExpand ? (e) => { if (e.key === 'Enter' || e.key === ' ') onExpand(); } : undefined}
+      onKeyDown={onExpand ? (e) => {
+        if (e.key === 'Enter' || e.key === ' ') onExpand((e.currentTarget as HTMLDivElement).getBoundingClientRect());
+      } : undefined}
     >
       <motion.div
         className={styles.flipper}
@@ -195,8 +232,16 @@ function FlipSlot({ order, card, flipped, onExpand, slotRef }: FlipSlotProps) {
 }
 
 function BackSlot() {
+  const [shaking, setShaking] = useState(false);
   return (
-    <div className={styles.slot}>
+    <div
+      className={`${styles.slot} ${styles.slotBack}${shaking ? ` ${styles.slotShake}` : ''}`}
+      role="button"
+      tabIndex={0}
+      onClick={() => setShaking(true)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setShaking(true); }}
+      onAnimationEnd={() => setShaking(false)}
+    >
       <div className={styles.flipper}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

@@ -31,6 +31,27 @@ export default function ProfileShell({ mustEats }: Props) {
     if (!loading && !user) router.replace('/');
   }, [loading, user, router]);
 
+  // Defeat any scroll lock that app.min.js (or another legacy script) sets
+  // on body — the profile page must always be scrollable. Watch for style
+  // mutations and reset, since the legacy code may run after our mount
+  // effect (Script strategy="afterInteractive").
+  useEffect(() => {
+    const resetIfLocked = () => {
+      if (document.body.style.overflow === 'hidden') {
+        document.body.style.overflow = '';
+      }
+      if (document.body.style.position === 'fixed') {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+      }
+    };
+    resetIfLocked();
+    const observer = new MutationObserver(resetIfLocked);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+    return () => observer.disconnect();
+  }, []);
+
   // Backfill the welcome pack if it's missing — covers users who pre-date
   // onUserCreate or whose signup race-conditioned out of it.
   useEffect(() => {
@@ -91,15 +112,21 @@ export default function ProfileShell({ mustEats }: Props) {
             <TabBtn active={tab === 'settings'} onClick={() => setTab('settings')}>Einstellungen</TabBtn>
           </div>
 
-          <section
-            className={tab === 'deck' ? styles.panelDeck : styles.panel}
-            role="tabpanel"
-          >
-            {tab === 'deck'     && <DeckPanel pack={pack} mustEats={mustEats} createError={createError} onRetry={retryCreate} />}
-            {tab === 'saved'    && <SavedPanel uid={user.uid} />}
-            {tab === 'settings' && <SettingsPanel email={user.email ?? ''} />}
-          </section>
+          {tab !== 'deck' && (
+            <section className={styles.panel} role="tabpanel">
+              {tab === 'saved'    && <SavedPanel uid={user.uid} />}
+              {tab === 'settings' && <SettingsPanel email={user.email ?? ''} />}
+            </section>
+          )}
         </div>
+
+        {/* Deck sits outside the shell so it can use the full viewport width,
+            matching the Must-Eat album-grid layout. */}
+        {tab === 'deck' && (
+          <section className={styles.deckRegion} role="tabpanel">
+            <DeckPanel pack={pack} mustEats={mustEats} createError={createError} onRetry={retryCreate} />
+          </section>
+        )}
       </main>
       <SiteFooter />
     </>

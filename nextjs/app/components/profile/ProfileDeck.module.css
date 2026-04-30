@@ -10,7 +10,10 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  padding: 4px 4px 32px;  /* 32px gap before SiteFooter */
+  /* Escape .page's 16px side padding so the grid reaches the viewport edges,
+     then apply the same side padding as the Must-Eat album-grid. */
+  padding: 0 8px 32px;
+  margin: 0 -16px;
   perspective: 1400px;
 }
 
@@ -18,7 +21,15 @@
   .albumGrid {
     grid-template-columns: repeat(6, 1fr);
     gap: 16px;
-    padding: 4px 4px 48px;
+    /* Escape .page's 24px side padding; 40px inset matches Must-Eat desktop. */
+    padding: 0 40px 60px;
+    margin: 0 -24px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .albumGrid {
+    padding: 0 64px 80px;
   }
 }
 
@@ -30,6 +41,24 @@
 /* Revealed slots get a pointer cursor and a subtle hover lift */
 .slotRevealed {
   cursor: pointer;
+}
+
+/* Locked back slots are tappable but show a shake to signal they're sealed */
+.slotBack {
+  cursor: pointer;
+}
+
+@keyframes slotShake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  15%       { transform: translate(-4px, 0) rotate(-2deg); }
+  35%       { transform: translate(4px, 0) rotate(2deg); }
+  55%       { transform: translate(-3px, 0) rotate(-1.5deg); }
+  75%       { transform: translate(2px, 0) rotate(1deg); }
+  90%       { transform: translate(-1px, 0) rotate(-0.4deg); }
+}
+
+.slotShake {
+  animation: slotShake 0.42s ease-in-out;
 }
 
 .slotRevealed:hover .face.faceFront {
@@ -60,9 +89,10 @@
   -webkit-user-drag: none;
 }
 
-/* card-back.webp has rounded corners baked in — no extra CSS rounding. */
+/* border-radius on the <img> itself is safe inside preserve-3d (unlike
+ * overflow:hidden on a wrapper, which causes Safari white-flash). */
 .faceBack {
-  /* visible at rotateY: 0 */
+  border-radius: 6%;
 }
 
 /* Front face: freigestellte dish PNG. border-radius matches the legacy
@@ -82,12 +112,12 @@
   position: fixed;
   inset: 0;
   z-index: 10010;
-  background: rgba(0, 0, 0, 0.82);
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
   padding: 24px;
   cursor: zoom-out;
 }
@@ -103,12 +133,8 @@
   display: block;
 }
 
-.lightboxLabel {
-  color: #FFFFFF;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-align: center;
-  margin: 0;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+/* ── Dark mode ─────────────────────────────────────── */
+
+:global(html[data-theme="dark"]) .albumGrid {
+  /* grid sits directly on the page background which dark mode handles */
 }

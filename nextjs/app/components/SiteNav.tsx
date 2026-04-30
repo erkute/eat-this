@@ -19,7 +19,12 @@ export default function SiteNav() {
     if (!drawer) return; // not present on this route — nothing to wire
 
     const open  = () => drawer.classList.add('active');
-    const close = () => drawer.classList.remove('active');
+    // Also clear any body overflow lock set by app.min.js's S.lock() so
+    // scroll is always restored when the burger closes via the React handler.
+    const close = () => {
+      drawer.classList.remove('active');
+      document.body.style.overflow = '';
+    };
 
     openBtn?.addEventListener('click', open);
     closeBtn?.addEventListener('click', close);

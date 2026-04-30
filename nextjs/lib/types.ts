@@ -131,13 +131,3 @@ export interface OpenStatus {
   label: string
   minutesUntilChange: number | null
 }
-
-export interface UserProfile {
-  uid: string;
-  avatarIndex: 1 | 2 | 3;
-  mustEatStatus: {
-    eaten: { [mustEatId: string]: true };
-  };
-  createdAt: number; // ms epoch
-  updatedAt: number;
-}

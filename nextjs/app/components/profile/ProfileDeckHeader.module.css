@@ -5,7 +5,15 @@
   text-align: center;
 }
 
+.heading {
+  margin: 0;
+  font-weight: inherit;
+  font-size: inherit;
+  display: block;
+}
+
 .label {
+  display: block;
   margin: 0 0 10px;
   font-size: 11px;
   letter-spacing: 0.18em;

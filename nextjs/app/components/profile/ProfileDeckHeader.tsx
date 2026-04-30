@@ -9,14 +9,19 @@ interface Props {
 
 export default function ProfileDeckHeader({ unlockedCount, totalSlots }: Props) {
   return (
-    <div className={styles.header}>
-      <p className={styles.label}>Deine Sammlung</p>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/pics/eat.webp" alt="EAT THIS" className={styles.logo} />
-      <span className={styles.count}>
-        <span className={styles.countN}>{unlockedCount}</span>
-        <span className={styles.countTotal}>/ {totalSlots}</span>
+    <header className={styles.header}>
+      <h2 className={styles.heading}>
+        <span className={styles.label}>Deine Sammlung</span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/pics/eat.webp" alt="EAT THIS" className={styles.logo} />
+      </h2>
+      <span
+        className={styles.count}
+        aria-label={`${unlockedCount} von ${totalSlots} Must-Eats freigeschaltet`}
+      >
+        <span className={styles.countN} aria-hidden="true">{unlockedCount}</span>
+        <span className={styles.countTotal} aria-hidden="true">/ {totalSlots}</span>
       </span>
-    </div>
+    </header>
   );
 }

@@ -70,7 +70,7 @@ export default function ProfileShell({ mustEats }: Props) {
   return (
     <>
       <main className={styles.page}>
-        <ProfileHeader user={user} avatarIndex={profile?.avatarIndex} />
+        <ProfileHeader user={user} />
         <ProfileTabs active={tab} onChange={setTab} />
 
         {tab === 'deck' && (

@@ -5,10 +5,19 @@
   text-align: center;
 }
 
+.city {
+  margin: 0 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #E8762A;
+}
+
 .logo {
   display: block;
   margin: 0 auto;
-  max-width: 180px;
+  max-width: 240px;
   height: auto;
   filter: brightness(0);
 }

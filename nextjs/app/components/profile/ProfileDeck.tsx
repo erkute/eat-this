@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import { openWelcomePack } from '@/lib/firebase/welcomePack';
@@ -13,6 +13,7 @@ const TOTAL_SLOTS        = 150;
 const SCROLL_PAUSE_MS    = 650;
 const FLIP_DURATION_S    = 0.7;
 const POST_FLIP_PAUSE_MS = 850;
+const CLOSE_DURATION_S   = 0.32;
 
 interface Props {
   pack:     BoosterPack;
@@ -20,8 +21,9 @@ interface Props {
 }
 
 interface ExpandedState {
-  card: MustEatAlbumCard;
-  rect: DOMRect;
+  card:  MustEatAlbumCard;
+  rect:  DOMRect;
+  order: number;
 }
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -50,6 +52,9 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
 
   // Card that the user tapped to expand (null = none).
   const [expanded, setExpanded] = useState<ExpandedState | null>(null);
+  // Order of the slot whose front-face should be hidden while the card is
+  // in the lightbox or still animating back (prevents the "ghost" duplicate).
+  const [hiddenSlotOrder, setHiddenSlotOrder] = useState<number | null>(null);
 
   const slotRefs  = useRef<Map<number, HTMLDivElement>>(new Map());
   const triggered = useRef(false);
@@ -87,13 +92,24 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
     return () => { cancelled = true; };
   }, [pack.opened, pack.id, sortedPackOrders, user]);
 
+  // Close handler — stable reference so memoized ExpandedOverlay doesn't re-render mid-flight.
+  const closeExpanded = useCallback(() => {
+    setExpanded(null);
+    // Reveal slot when the animated card starts its opacity fade (220 ms).
+    // From that point on, the slot is fully opaque underneath while the
+    // animated card crossfades to 0 — sub-pixel edges merge invisibly.
+    setTimeout(() => setHiddenSlotOrder(null), 220);
+  }, []);
+
   // Close expanded view on Escape.
   useEffect(() => {
     if (!expanded) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setExpanded(null); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeExpanded();
+    };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [expanded]);
+  }, [expanded, closeExpanded]);
 
   return (
     <>
@@ -111,7 +127,11 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
                 order={order}
                 card={card}
                 flipped={isRevealed}
-                onExpand={isRevealed ? (rect) => setExpanded({ card, rect }) : undefined}
+                hideCardFace={hiddenSlotOrder === order}
+                onExpand={isRevealed ? (rect) => {
+                    setHiddenSlotOrder(order);
+                    setExpanded({ card, rect, order });
+                  } : undefined}
                 slotRef={(el) => {
                   if (el) slotRefs.current.set(order, el);
                   else slotRefs.current.delete(order);
@@ -123,12 +143,18 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
         })}
       </div>
 
+      <div className={styles.teaser}>
+        <p className={styles.teaserCity}>BERLIN</p>
+        <p className={styles.teaserLine}>IST ERST DER ANFANG.</p>
+        <p className={styles.teaserSub}>Mehr Städte. Mehr Karten. Mehr Must Eats.</p>
+      </div>
+
       <AnimatePresence>
         {expanded && (
           <ExpandedOverlay
             key={expanded.card._id}
             expanded={expanded}
-            onClose={() => setExpanded(null)}
+            onClose={closeExpanded}
           />
         )}
       </AnimatePresence>
@@ -143,7 +169,7 @@ interface ExpandedOverlayProps {
   onClose:  () => void;
 }
 
-function ExpandedOverlay({ expanded, onClose }: ExpandedOverlayProps) {
+const ExpandedOverlay = memo(function ExpandedOverlay({ expanded, onClose }: ExpandedOverlayProps) {
   const overlayW  = Math.min(420, window.innerWidth * 0.88);
   const screenCx  = window.innerWidth / 2;
   const screenCy  = window.innerHeight / 2;
@@ -153,47 +179,63 @@ function ExpandedOverlay({ expanded, onClose }: ExpandedOverlayProps) {
   const fromY     = slotCy - screenCy;
   const fromScale = expanded.rect.width / overlayW;
 
-  // Deliberately slow grow so the card is visually "coming to the user".
-  const ease     = [0.25, 0.46, 0.45, 0.94] as const;
-  const duration = 1.8;
+  // Tilt as it flies out — toss feel. Capped at ±7°.
+  const tiltZ = Math.max(-7, Math.min(7, fromX * 0.025));
 
   return (
     <motion.div
-      className={styles.lightbox}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration, ease }}
+      className={styles.lightboxWrapper}
       onClick={onClose}
       aria-modal="true"
       role="dialog"
     >
+      <motion.div
+        className={styles.lightboxBg}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.18 }}
+      />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <motion.img
         src={expanded.card.imageUrl}
         alt={expanded.card.dish}
         className={styles.lightboxImg}
-        initial={{ x: fromX, y: fromY, scale: fromScale }}
-        animate={{ x: 0, y: 0, scale: 1 }}
-        exit={{ x: fromX, y: fromY, scale: fromScale }}
-        transition={{ duration, ease }}
-        style={{ willChange: 'transform' }}
+        initial={{ x: fromX, y: fromY, scale: fromScale, rotateZ: tiltZ, opacity: 1 }}
+        animate={{
+          x: 0, y: 0, scale: 1, rotateZ: 0, opacity: 1,
+          transition: { type: 'spring', stiffness: 280, damping: 26 },
+        }}
+        // Critically-damped spring back to the slot, plus a delayed opacity
+        // fade in the final 70 ms. The slot card is revealed at the start of
+        // the fade — both sit at the same position with the same image, so
+        // the crossfade hides any sub-pixel misalignment between the
+        // transform-scaled lightbox img and the natively-sized slot face.
+        exit={{
+          x: fromX, y: fromY, scale: fromScale, rotateZ: 0, opacity: 0,
+          transition: {
+            default: { type: 'spring', stiffness: 360, damping: 40, mass: 0.9 },
+            opacity: { delay: 0.22, duration: 0.07, ease: 'linear' },
+          },
+        }}
+        style={{ position: 'relative', zIndex: 1 }}
       />
     </motion.div>
   );
-}
+});
 
 // ── Slot variants ────────────────────────────────────────────────────
 
 interface FlipSlotProps {
-  order:    number;
-  card:     MustEatAlbumCard;
-  flipped:  boolean;
-  onExpand: ((rect: DOMRect) => void) | undefined;
-  slotRef:  (el: HTMLDivElement | null) => void;
+  order:        number;
+  card:         MustEatAlbumCard;
+  flipped:      boolean;
+  hideCardFace: boolean;
+  onExpand:     ((rect: DOMRect) => void) | undefined;
+  slotRef:      (el: HTMLDivElement | null) => void;
 }
 
-function FlipSlot({ order, card, flipped, onExpand, slotRef }: FlipSlotProps) {
+function FlipSlot({ order, card, flipped, hideCardFace, onExpand, slotRef }: FlipSlotProps) {
   return (
     <div
       className={`${styles.slot}${flipped && onExpand ? ` ${styles.slotRevealed}` : ''}`}
@@ -224,7 +266,7 @@ function FlipSlot({ order, card, flipped, onExpand, slotRef }: FlipSlotProps) {
         <img
           src={card.imageUrl}
           alt={card.dish}
-          className={`${styles.face} ${styles.faceFront}`}
+          className={`${styles.face} ${styles.faceFront}${hideCardFace ? ` ${styles.faceFrontHidden}` : ''}`}
           loading={flipped ? 'eager' : 'lazy'}
         />
       </motion.div>

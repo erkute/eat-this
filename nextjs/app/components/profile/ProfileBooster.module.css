@@ -1,0 +1,141 @@
+.wrap {
+  padding: 8px 16px 48px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.hero {
+  text-align: center;
+  padding: 16px 8px 28px;
+}
+.label {
+  margin: 0 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #E8762A;
+}
+.title {
+  margin: 0 0 8px;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #0A0A0A;
+}
+.intro {
+  margin: 0 auto;
+  max-width: 480px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #6B6B6B;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.pack {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: #FFFBED;
+  border: 1.5px solid #F0E0A8;
+  border-radius: 14px;
+}
+.packImg {
+  width: 64px;
+  height: auto;
+  flex-shrink: 0;
+  display: block;
+}
+.packInfo {
+  flex: 1;
+  min-width: 0;
+}
+.packName {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0A0A0A;
+}
+.packDesc {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: #6B6B6B;
+  line-height: 1.4;
+}
+.packFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.packPrice {
+  font-size: 18px;
+  font-weight: 900;
+  color: #0A0A0A;
+}
+.packBtn {
+  padding: 8px 14px;
+  background: #E5E0D2;
+  color: #9A8B6E;
+  border: none;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: not-allowed;
+}
+
+.footnote {
+  text-align: center;
+  font-size: 12px;
+  color: #9A8B6E;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .pack {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+  .packImg { width: 90px; }
+  .packFooter {
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* Dark Mode */
+:global(html[data-theme="dark"]) .title {
+  color: #f5f5f5;
+}
+:global(html[data-theme="dark"]) .intro {
+  color: #8a8a8a;
+}
+:global(html[data-theme="dark"]) .pack {
+  background: #1f1a0d;
+  border-color: #3a2f10;
+}
+:global(html[data-theme="dark"]) .packName {
+  color: #f5f5f5;
+}
+:global(html[data-theme="dark"]) .packDesc {
+  color: #8a8a8a;
+}
+:global(html[data-theme="dark"]) .packPrice {
+  color: #f5f5f5;
+}
+:global(html[data-theme="dark"]) .packBtn {
+  background: #2a2a2a;
+  color: #5a5a5a;
+}

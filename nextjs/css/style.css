@@ -43,7 +43,8 @@
 
 /* RESET */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:hidden;overscroll-behavior:none;position:relative}
+/* overflow-x:hidden + position:relative on <html> caused Chrome desktop to drop wheel-scroll on /profile (Safari and mobile worked fine). Both are redundant — body already has overflow-x:hidden and overscroll-behavior:none. Don't move them back. */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{overflow-x:hidden;max-width:100%;overscroll-behavior:none;background:#fff}
 img{max-width:100%;height:auto;display:block}
 iframe{max-width:100%}

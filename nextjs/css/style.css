@@ -2785,7 +2785,7 @@ body {
 }
 [data-theme="dark"] .navbar-icon-btn:hover,
 [data-theme="dark"] .navbar-icon-btn.active {
-  color: #ffffff;
+  color: var(--orange);
 }
 [data-theme="dark"] .navbar-icon-btn::after {
   background: #ffffff;
@@ -3512,7 +3512,12 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   height: 2px;
   background: var(--black);
   border-radius: 2px;
-  transition: 0.2s;
+  transition: background 0.2s;
+}
+/* Burger turns CTA red while the drawer is open — works in light and dark
+   modes since :has() reads the current DOM state regardless of theme. */
+body:has(.burger-drawer.active) .burger-btn span {
+  background: var(--orange);
 }
 
 /* Drawer */

@@ -50,6 +50,20 @@ service cloud.firestore {
         && request.resource.data.openedAt == request.time;
     }
 
+    match /userProfiles/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.uid == uid
+        && request.resource.data.avatarIndex is number
+        && request.resource.data.avatarIndex >= 1
+        && request.resource.data.avatarIndex <= 3;
+      allow update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.createdAt == resource.data.createdAt;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

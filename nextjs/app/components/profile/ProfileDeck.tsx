@@ -157,10 +157,9 @@ function ExpandedOverlay({ expanded, onClose }: ExpandedOverlayProps) {
   const fromY     = slotCy - screenCy;
   const fromScale = expanded.rect.width / overlayW;
 
-  // Same easing/duration on backdrop + card so the fly-out and fade-in
-  // resolve in lockstep — no off-rhythm "appear" feel.
-  const ease     = [0.32, 0.72, 0, 1] as const;
-  const duration = 0.5;
+  // Deliberately slow grow so the card is visually "coming to the user".
+  const ease     = [0.25, 0.46, 0.45, 0.94] as const;
+  const duration = 1.8;
 
   return (
     <motion.div

@@ -2,6 +2,8 @@
 
 import styles from './ProfileBooster.module.css';
 
+// Image picks (1, 2, 5) are intentional design selection — booster3.webp exists
+// but isn't shown here, booster4.webp doesn't exist. Don't "fix" the gap.
 const PACKS = [
   {
     id: 'classic',

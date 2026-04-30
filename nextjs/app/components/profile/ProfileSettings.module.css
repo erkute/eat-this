@@ -1,0 +1,154 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 8px 16px 48px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.sectionDanger {
+  composes: section;
+  padding-top: 24px;
+  border-top: 1px solid #EFEAE0;
+}
+.sectionTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9A9A9A;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6B6B6B;
+}
+.row {
+  display: flex;
+  gap: 8px;
+}
+.input {
+  flex: 1;
+  padding: 11px 14px;
+  border: 1.5px solid #E5E0D2;
+  border-radius: 10px;
+  font-size: 16px;
+  background: #FAF7EE;
+  color: #0A0A0A;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input:focus {
+  border-color: #0A0A0A;
+}
+.value {
+  margin: 0;
+  padding: 11px 14px;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  font-size: 15px;
+  color: #0A0A0A;
+  background: #F4EFE2;
+}
+
+.btn {
+  padding: 11px 20px;
+  background: #0A0A0A;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn:hover { background: #1A1A1A; }
+.btn:disabled { opacity: 0.5; cursor: default; }
+
+.btnSecondary {
+  composes: btn;
+  background: #FFFFFF;
+  color: #0A0A0A;
+  border: 1.5px solid #E5E0D2;
+}
+.btnSecondary:hover {
+  background: #FAF7EE;
+}
+
+.feedback {
+  margin: 0;
+  font-size: 13px;
+  color: #2E7D32;
+}
+.feedbackError {
+  composes: feedback;
+  color: #B71C1C;
+}
+
+.deleteHint {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: #9A9A9A;
+  line-height: 1.5;
+}
+.mailLink {
+  color: #0A0A0A;
+  text-decoration: underline;
+}
+
+/* Dark Mode */
+:global(html[data-theme="dark"]) .sectionTitle {
+  color: #8a8a8a;
+}
+:global(html[data-theme="dark"]) .label {
+  color: #8a8a8a;
+}
+:global(html[data-theme="dark"]) .input {
+  border-color: #2a2a2a;
+  background: #111111;
+  color: #f5f5f5;
+}
+:global(html[data-theme="dark"]) .input:focus {
+  border-color: #f5f5f5;
+}
+:global(html[data-theme="dark"]) .value {
+  color: #f5f5f5;
+  background: #111111;
+}
+:global(html[data-theme="dark"]) .btn {
+  background: #f5f5f5;
+  color: #0a0a0a;
+}
+:global(html[data-theme="dark"]) .btn:hover {
+  background: #d4d4d4;
+}
+:global(html[data-theme="dark"]) .btnSecondary {
+  background: #1a1a1a;
+  color: #f5f5f5;
+  border-color: #2a2a2a;
+}
+:global(html[data-theme="dark"]) .btnSecondary:hover {
+  background: #2a2a2a;
+}
+:global(html[data-theme="dark"]) .sectionDanger {
+  border-top-color: #2a2a2a;
+}
+:global(html[data-theme="dark"]) .deleteHint {
+  color: #5a5a5a;
+}
+:global(html[data-theme="dark"]) .mailLink {
+  color: #f5f5f5;
+}

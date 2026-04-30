@@ -360,6 +360,17 @@
   flex-shrink: 0;
   filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.55));
   cursor: pointer;
+  animation: packWobble 3.2s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+.packCard.bc1 { animation-delay: 0s; }
+.packCard.bc2 { animation-delay: 0.55s; }
+.packCard.bc3 { animation-delay: 1.1s; }
+@keyframes packWobble {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  20%       { transform: rotate(1.8deg) translateY(-2px); }
+  50%       { transform: rotate(-1.5deg) translateY(-1px); }
+  75%       { transform: rotate(1deg) translateY(-2px); }
 }
 .packCard img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .packCopy {
@@ -1314,9 +1325,16 @@
 
 /* ── SELECTION (Wie wir auswählen — sits between Map and Booster) ── */
 .selection {
-  padding: 28px 22px;
+  /* No horizontal padding on the section — children handle their own.
+     This lets .selectionCardsClip extend to the actual viewport edges so
+     cards visually emerge from the screen edge (not from inside padding). */
+  padding: 40px 0 48px;
   background: #fff;
   border-bottom: 1px solid #ece9e3;
+}
+.selectionText {
+  padding: 0 22px;
+  margin-bottom: 28px;
 }
 .selectionHeadline {
   font-size: 21px;
@@ -1332,16 +1350,59 @@
   line-height: 1.68;
   margin: 0;
 }
+
+/* Clip wrapper extends edge-to-edge of the viewport. overflow:hidden clips at
+   the actual screen edge so cards emerge from there. Internal padding gives
+   the cards their visible breathing room when at translateX(0). */
+.selectionCardsClip {
+  overflow: hidden;
+  padding: 0 22px 16px;
+}
+.selectionCards {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.selectionCard {
+  width: 120px;
+  aspect-ratio: 1449 / 2163;
+  flex-shrink: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.18);
+  will-change: transform;
+}
+.selectionCard img { width: 100%; height: 100%; object-fit: cover; display: block; }
 @media (min-width: 768px) {
-  .selection { padding: 88px 80px; }
+  .selection {
+    padding: 88px 0;
+    display: flex;
+    align-items: center;
+  }
+  .selectionText {
+    flex: 0 0 auto;
+    padding: 0 64px 0 80px;
+    max-width: 624px;
+    margin-bottom: 0;
+  }
+  /* Right column extends to the viewport right edge — no outside padding.
+     Inside padding-right gives the cards a 80px gap from screen edge at rest. */
+  .selectionCardsClip {
+    flex: 1;
+    padding: 0 80px 24px 0;
+  }
+  .selectionCards { gap: 18px; }
+  .selectionCard { width: 188px; }
   .selectionHeadline { font-size: 32px; line-height: 1.1; }
-  .selectionBody { font-size: 16px; max-width: 600px; line-height: 1.65; }
+  .selectionBody { font-size: 16px; line-height: 1.65; }
 }
 :global([data-theme="dark"]) .selection {
   background: #0a0a0a;
   border-bottom-color: #2a2a2a;
 }
 :global([data-theme="dark"]) .selectionHeadline { color: #fff; }
+:global([data-theme="dark"]) .selectionCard { box-shadow: 0 8px 22px rgba(0,0,0,0.5); }
 
 /* ── Magic-link CTA states ─────────────────────────────────────────── */
 .magicSent {

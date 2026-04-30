@@ -571,22 +571,17 @@ export default function MapSection({ isActive = false }: Props) {
   }, [setSnap, reapplySnap])
 
   const handleMapClick = useCallback(() => {
-    // Map-tap only does anything when a detail is open — close it. Don't
-    // collapse the list when the user just taps an empty bit of map and
-    // there's no detail to dismiss (Google-Maps behaviour).
-    if (!selectedRestaurant && !selectedMustEat) return
+    const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
+    if (!selectedRestaurant && !selectedMustEat) {
+      // No detail open — collapse the list to peek so the map is visible.
+      if (isMobile && snap !== 'peek') setSnap('peek')
+      return
+    }
     setSelectedRestaurant(null)
     setSelectedMustEat(null)
     setSheetView('list')
-    // Mobile: drop sheet to peek so the user sees the freshly-tapped map
-    // area uncovered. Desktop has a fixed sidebar so the snap is irrelevant
-    // visually — leave snap state alone to avoid the .listAtPeek class
-    // ever flashing on (it's mobile-gated in CSS, but still cleaner not
-    // to set it).
-    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches) {
-      setSnap('peek')
-    }
-  }, [selectedRestaurant, selectedMustEat, setSnap])
+    if (isMobile) setSnap('peek')
+  }, [selectedRestaurant, selectedMustEat, setSnap, snap])
 
   // When the user starts typing in the search, surface the list (mid snap) so
   // they see the filtered results — typing into a hidden list is confusing.
@@ -867,6 +862,7 @@ export default function MapSection({ isActive = false }: Props) {
                     onClose={handleMustEatClose}
                     onViewRestaurant={handleViewRestaurantFromMustEat}
                     onShowMustEatList={handleShowMustEatList}
+                    uid={uid}
                     inSheet
                   />
                 </div>
@@ -1006,7 +1002,17 @@ export default function MapSection({ isActive = false }: Props) {
                             <div className={styles.boosterEyebrow}>Skip the Wait</div>
                             <div className={styles.boosterTitle}>Booster Pack</div>
                             <div className={styles.boosterDesc}>10 zufällige Must-Eats sofort freischalten — kein Hinlaufen nötig.</div>
-                            <button type="button" className={styles.boosterCta}>Pack holen · 0,99 €</button>
+                            <button
+                              type="button"
+                              className={styles.boosterCta}
+                              onClick={() => {
+                                if (uid) {
+                                  window.location.href = '/profile'
+                                } else {
+                                  (window as Window & { openWelcomeModal?: () => void }).openWelcomeModal?.()
+                                }
+                              }}
+                            >Pack holen · 0,99 €</button>
                           </div>
                         </div>
                       )

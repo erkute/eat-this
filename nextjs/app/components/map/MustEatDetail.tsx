@@ -18,6 +18,7 @@ interface MustEatDetailProps {
   onViewRestaurant?: () => void
   onShowMustEatList?: () => void
   inSheet?: boolean
+  uid?: string | null
 }
 
 function CloseIcon() {
@@ -46,7 +47,7 @@ function UnlockIcon() {
   )
 }
 
-export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnlock, onClose, onViewRestaurant, onShowMustEatList, inSheet }: MustEatDetailProps) {
+export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnlock, onClose, onViewRestaurant, onShowMustEatList, inSheet, uid }: MustEatDetailProps) {
   const { t } = useTranslation()
   const distance = userLocation
     ? haversineDistance(userLocation.lat, userLocation.lng, mustEat.restaurant.lat, mustEat.restaurant.lng)
@@ -91,18 +92,12 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
                 <img src={mustEat.image} alt={mustEat.dish} className={styles.mustEatPhotoFront} />
               </div>
             ) : (
-              <>
-                <div className={styles.mustEatGlow} aria-hidden="true" />
-                <button
-                  type="button"
-                  className={`${styles.mustEatCard} ${canUnlock ? styles.mustEatCardCanUnlock : ''} ${tapping ? styles.mustEatCardTapping : ''}`}
-                  onClick={handleCardClick}
-                  aria-label={canUnlock ? t('map.revealHere') : t('map.tooFarToReveal')}
-                />
-                {canUnlock && (
-                  <span className={styles.mustEatTapHint} aria-hidden="true">Tippen</span>
-                )}
-              </>
+              <button
+                type="button"
+                className={`${styles.mustEatCard} ${canUnlock ? styles.mustEatCardCanUnlock : ''} ${tapping ? styles.mustEatCardTapping : ''}`}
+                onClick={handleCardClick}
+                aria-label={canUnlock ? t('map.revealHere') : t('map.tooFarToReveal')}
+              />
             )}
           </div>
 
@@ -125,19 +120,37 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
 
             {!isUnlocked && (
               <>
-                <div className={styles.mustEatExplainer}>
-                  {canUnlock
-                    ? <><strong>Du bist nah genug!</strong> Tippe auf die Karte, um dein Must-Eat aufzudecken.</>
-                    : <><strong>Verschlossen.</strong> Komm auf 250 m heran und tippe die Karte auf.</>}
-                </div>
+                {canUnlock ? (
+                  <div className={styles.mustEatCanUnlockBanner}>
+                    <div>
+                      <strong>Du bist nah genug!</strong>
+                      <span>Tippe auf die Karte, um dein Must-Eat aufzudecken.</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={styles.mustEatExplainer}>
+                    <strong>Verschlossen.</strong> Komm auf 250 m heran und tippe die Karte auf.
+                  </div>
+                )}
 
                 <div className={styles.boosterOffer}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/pics/booster/booster5.webp" alt="" className={styles.boosterImg} loading="lazy" />
                   <div className={styles.boosterInfo}>
                     <div className={styles.boosterEyebrow}>Skip the Wait</div>
                     <div className={styles.boosterTitle}>Booster Pack</div>
                     <div className={styles.boosterDesc}>10 zufällige Must-Eats sofort freischalten — kein Hinlaufen nötig.</div>
-                    <button type="button" className={styles.boosterCta}>
+                    <button
+                      type="button"
+                      className={styles.boosterCta}
+                      onClick={() => {
+                        if (uid) {
+                          window.location.href = '/profile'
+                        } else {
+                          (window as Window & { openWelcomeModal?: () => void }).openWelcomeModal?.()
+                        }
+                      }}
+                    >
                       Pack holen · 0,99 €
                     </button>
                   </div>
@@ -272,12 +285,23 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
             </div>
 
             <div className={styles.boosterOffer}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/pics/booster/booster5.webp" alt="" className={styles.boosterImg} loading="lazy" />
               <div className={styles.boosterInfo}>
                 <div className={styles.boosterEyebrow}>Skip the Wait</div>
                 <div className={styles.boosterTitle}>Booster Pack</div>
                 <div className={styles.boosterDesc}>5 zufällige Must-Eats sofort freischalten — kein Hinlaufen nötig.</div>
-                <button type="button" className={styles.boosterCta}>
+                <button
+                  type="button"
+                  className={styles.boosterCta}
+                  onClick={() => {
+                    if (uid) {
+                      window.location.href = '/profile'
+                    } else {
+                      (window as Window & { openWelcomeModal?: () => void }).openWelcomeModal?.()
+                    }
+                  }}
+                >
                   Pack holen · 4,99 €
                 </button>
               </div>

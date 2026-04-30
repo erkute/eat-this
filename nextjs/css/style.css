@@ -177,8 +177,6 @@ body {
 }
 .navbar-icon-btn.active {
   color: var(--orange);
-  background: rgba(255, 59, 0, 0.08);
-  border-radius: 10px;
 }
 /* Active dot pip removed — frame alone signals the active state. */
 
@@ -2791,9 +2789,6 @@ body {
 }
 [data-theme="dark"] .navbar-icon-btn::after {
   background: #ffffff;
-}
-[data-theme="dark"] .navbar-icon-btn.active {
-  background: rgba(255, 255, 255, 0.1);
 }
 [data-theme="dark"] .burger-btn {
   color: rgba(255, 255, 255, 0.75);

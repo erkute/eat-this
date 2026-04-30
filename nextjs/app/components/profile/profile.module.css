@@ -1,4 +1,4 @@
-/* Brand tokens — match auth-action page (cream / ink / gold / paper / muted) */
+/* Profile page wrapper + deck loading/error states. Sibling components own their own modules. */
 
 .page {
   min-height: 100dvh;
@@ -68,22 +68,6 @@
   background-color: #D4A726;
 }
 
-.ctaSecondary {
-  composes: cta;
-  background-color: #0A0A0A;
-  color: #FFFFFF;
-}
-
-.ctaSecondary:hover {
-  background-color: #1A1A1A;
-}
-
-.muted {
-  font-size: 13px;
-  color: #9A9A9A;
-  margin-top: 12px;
-}
-
 @media (min-width: 768px) {
   .page { padding: 88px 24px 96px; }
 }
@@ -102,8 +86,4 @@
 
 :global(html[data-theme="dark"]) .sub {
   color: #8a8a8a;
-}
-
-:global(html[data-theme="dark"]) .muted {
-  color: #5a5a5a;
 }

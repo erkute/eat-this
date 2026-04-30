@@ -13,6 +13,7 @@ export default function WelcomeModal() {
   const profileHref = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
   const { sendLink, state: magicState, errorMessage: magicError, reset: magicReset } = useMagicLink();
   const [email, setEmail] = useState('');
+  const [formMode, setFormMode] = useState<'login' | 'register'>('login');
 
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -40,7 +41,8 @@ export default function WelcomeModal() {
 
   // ─── Panel switching ───────────────────────────────────────────────────────
 
-  const showFormPanel = useCallback(() => {
+  const showFormPanel = useCallback((mode: 'login' | 'register') => {
+    setFormMode(mode);
     document.getElementById('wmLanding')?.setAttribute('hidden', '');
     document.getElementById('wmFormPanel')?.removeAttribute('hidden');
     magicReset();
@@ -83,8 +85,8 @@ export default function WelcomeModal() {
 
     const onClose  = () => close();
     const onBack   = () => goBack();
-    const onSignup = () => showFormPanel();
-    const onLogin  = () => showFormPanel();
+    const onSignup = () => showFormPanel('login');
+    const onLogin  = () => showFormPanel('register');
     const onGoogle = (e: Event) => handleGoogle(e.currentTarget as HTMLElement);
     const onAgb    = () => document.getElementById('agbTrigger')?.click();
     const onDs     = () => document.getElementById('datenschutzTrigger')?.click();
@@ -139,13 +141,13 @@ export default function WelcomeModal() {
         {/* Landing panel — unchanged visually */}
         <div className="wm-landing" id="wmLanding">
           <p className="wm-hero-headline">Hundreds of Must Eats<br />to discover</p>
-          <button className="wm-cta-primary" id="wmSignupCta">{t('modals.login.landingSignup')}</button>
+          <button className="wm-cta-primary" id="wmSignupCta">{t('modals.login.landingLogin')}</button>
           <button className="wm-cta-google" id="wmGoogleBtn">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/pics/login/Google.webp" alt="" className="wm-google-icon" width={18} height={18} />
             <span>{t('modals.login.googleBtn')}</span>
           </button>
-          <button className="wm-cta-text" id="wmLoginCta">{t('modals.login.emailCta')}</button>
+          <button className="wm-cta-text" id="wmLoginCta">{t('modals.login.toggleToRegister')}</button>
         </div>
 
         {/* Form panel — magic link only */}
@@ -158,8 +160,12 @@ export default function WelcomeModal() {
           </button>
 
           <div className="wm-form-wrap">
-            <h2 className="wm-form-title">{t('modals.login.titleRegister')}</h2>
-            <p className="wm-booster-hint">{t('modals.login.subtitleRegister')}</p>
+            <h2 className="wm-form-title">
+              {formMode === 'login' ? t('modals.login.titleLogin') : t('modals.login.titleRegister')}
+            </h2>
+            <p className="wm-booster-hint">
+              {formMode === 'login' ? t('modals.login.subtitleLogin') : t('modals.login.subtitleRegister')}
+            </p>
 
             {magicState === 'sent' ? (
               <div>

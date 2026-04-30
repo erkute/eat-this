@@ -87,13 +87,6 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'author',
-      title: 'Autor',
-      type: 'reference',
-      to: [{type: 'author'}],
-      group: 'meta',
-    }),
-    defineField({
       name: 'category',
       title: 'Kategorie',
       type: 'string',

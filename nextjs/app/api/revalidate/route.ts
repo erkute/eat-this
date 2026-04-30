@@ -85,12 +85,6 @@ export async function POST(req: NextRequest) {
       revalidateTag('staticPage')
       revalidated.push('tag:staticPage')
       break
-    case 'heroSettings':
-    case 'startContent':
-      revalidatePath('/')
-      revalidatePath('/en')
-      revalidated.push('path:/')
-      break
   }
 
   return NextResponse.json({ ok: true, type, slug, revalidated })

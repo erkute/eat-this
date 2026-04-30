@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { usePack } from '@/lib/firebase/usePack';
-import { useMustEatStatus } from '@/lib/firebase/useMustEatStatus';
 import { createWelcomePack } from '@/lib/firebase/welcomePack';
 import type { MustEatAlbumCard } from '@/lib/types';
 import ProfileHeader from './ProfileHeader';
@@ -24,7 +23,6 @@ export default function ProfileShell({ mustEats }: Props) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const pack = usePack(user?.uid ?? null);
-  const { profile, toggleEaten } = useMustEatStatus(user?.uid ?? null);
   const [tab, setTab] = useState<ProfileTab>('deck');
   const [createBusy, setCreateBusy] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
@@ -65,8 +63,6 @@ export default function ProfileShell({ mustEats }: Props) {
     );
   }
 
-  const eatenIds = profile?.mustEatStatus?.eaten ?? {};
-
   return (
     <>
       <main className={styles.page}>
@@ -77,8 +73,6 @@ export default function ProfileShell({ mustEats }: Props) {
           <DeckPanel
             pack={pack}
             mustEats={mustEats}
-            eatenIds={eatenIds}
-            onToggleEaten={toggleEaten}
             createError={createError}
             onRetry={() => setCreateError(null)}
           />
@@ -97,13 +91,11 @@ export default function ProfileShell({ mustEats }: Props) {
 interface DeckPanelProps {
   pack:        ReturnType<typeof usePack>;
   mustEats:    MustEatAlbumCard[];
-  eatenIds:    { [k: string]: true };
-  onToggleEaten: (mustEatId: string) => void;
   createError: string | null;
   onRetry:     () => void;
 }
 
-function DeckPanel({ pack, mustEats, eatenIds, onToggleEaten, createError, onRetry }: DeckPanelProps) {
+function DeckPanel({ pack, mustEats, createError, onRetry }: DeckPanelProps) {
   if (pack.status === 'loading' || pack.status === 'idle') {
     return (
       <div className={styles.deckPlaceholder}>
@@ -143,8 +135,6 @@ function DeckPanel({ pack, mustEats, eatenIds, onToggleEaten, createError, onRet
     <ProfileDeck
       pack={pack.pack}
       mustEats={mustEats}
-      eatenIds={eatenIds}
-      onToggleEaten={onToggleEaten}
     />
   );
 }

@@ -198,7 +198,7 @@ function DeckPanel({ pack, mustEats, createError, onRetry }: DeckPanelProps) {
     );
   }
 
-  return <ProfileDeck pack={pack.pack} mustEats={mustEats} />;
+  return <ProfileDeck pack={pack.pack} mustEats={mustEats} eatenIds={{}} onToggleEaten={() => {}} />;
 }
 
 // ── Saved panel ─────────────────────────────────────

@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth';
 import { openWelcomePack } from '@/lib/firebase/welcomePack';
 import type { MustEatAlbumCard } from '@/lib/types';
 import type { BoosterPack } from '@/lib/firebase/usePack';
+import ProfileDeckHeader from './ProfileDeckHeader';
 import styles from './ProfileDeck.module.css';
 
 const TOTAL_SLOTS        = 150;
@@ -16,6 +17,8 @@ const POST_FLIP_PAUSE_MS = 850;
 interface Props {
   pack:     BoosterPack;
   mustEats: MustEatAlbumCard[];
+  eatenIds: { [mustEatId: string]: true };
+  onToggleEaten: (mustEatId: string) => void;
 }
 
 interface ExpandedState {
@@ -25,7 +28,7 @@ interface ExpandedState {
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
-export default function ProfileDeck({ pack, mustEats }: Props) {
+export default function ProfileDeck({ pack, mustEats, eatenIds, onToggleEaten }: Props) {
   const { user } = useAuth();
 
   const packCardsByOrder = useMemo(() => {
@@ -96,6 +99,7 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
 
   return (
     <>
+      <ProfileDeckHeader unlockedCount={revealed.size} totalSlots={TOTAL_SLOTS} />
       <div className={styles.albumGrid}>
         {Array.from({ length: TOTAL_SLOTS }, (_, i) => {
           const order = i + 1;
@@ -109,7 +113,9 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
                 order={order}
                 card={card}
                 flipped={isRevealed}
+                eaten={!!eatenIds[card._id]}
                 onExpand={isRevealed ? (rect) => setExpanded({ card, rect }) : undefined}
+                onToggleEaten={() => onToggleEaten(card._id)}
                 slotRef={(el) => {
                   if (el) slotRefs.current.set(order, el);
                   else slotRefs.current.delete(order);
@@ -188,11 +194,13 @@ interface FlipSlotProps {
   order:    number;
   card:     MustEatAlbumCard;
   flipped:  boolean;
+  eaten:    boolean;
   onExpand: ((rect: DOMRect) => void) | undefined;
+  onToggleEaten: () => void;
   slotRef:  (el: HTMLDivElement | null) => void;
 }
 
-function FlipSlot({ order, card, flipped, onExpand, slotRef }: FlipSlotProps) {
+function FlipSlot({ order, card, flipped, eaten, onExpand, onToggleEaten, slotRef }: FlipSlotProps) {
   return (
     <div
       className={`${styles.slot}${flipped && onExpand ? ` ${styles.slotRevealed}` : ''}`}
@@ -227,6 +235,20 @@ function FlipSlot({ order, card, flipped, onExpand, slotRef }: FlipSlotProps) {
           loading={flipped ? 'eager' : 'lazy'}
         />
       </motion.div>
+      {flipped && (
+        <button
+          type="button"
+          className={`${styles.eatenChip} ${eaten ? styles.eatenChipActive : ''}`}
+          aria-label={eaten ? 'Als nicht gegessen markieren' : 'Als gegessen markieren'}
+          aria-pressed={eaten}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleEaten();
+          }}
+        >
+          {eaten ? '✓' : ''}
+        </button>
+      )}
     </div>
   );
 }

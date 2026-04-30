@@ -1,12 +1,15 @@
 .wrap {
   padding: 8px 16px 48px;
-  max-width: 720px;
+  max-width: 480px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
 }
 
 .hero {
   text-align: center;
-  padding: 16px 8px 28px;
 }
 .label {
   margin: 0 0 8px;
@@ -17,125 +20,151 @@
   color: #E8762A;
 }
 .title {
-  margin: 0 0 8px;
-  font-size: 26px;
+  margin: 0 0 6px;
+  font-size: 24px;
   font-weight: 900;
   letter-spacing: -0.02em;
   color: #0A0A0A;
 }
-.intro {
-  margin: 0 auto;
-  max-width: 480px;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #6B6B6B;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
-  margin-bottom: 18px;
-}
-
-.pack {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px;
-  background: #FFFBED;
-  border: 1.5px solid #F0E0A8;
-  border-radius: 14px;
-}
-.packImg {
-  width: 64px;
-  height: auto;
-  flex-shrink: 0;
-  display: block;
-}
-.packInfo {
-  flex: 1;
-  min-width: 0;
-}
-.packName {
-  margin: 0 0 4px;
-  font-size: 15px;
-  font-weight: 800;
-  color: #0A0A0A;
-}
-.packDesc {
-  margin: 0 0 10px;
-  font-size: 12px;
-  color: #6B6B6B;
+.subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(10, 10, 10, 0.5);
   line-height: 1.4;
 }
-.packFooter {
+
+/* ── Pack row: 3 portrait cards side by side ── */
+
+.packRow {
+  width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
+  justify-content: center;
 }
-.packPrice {
-  font-size: 18px;
-  font-weight: 900;
-  color: #0A0A0A;
+
+.packCard {
+  flex: 1;
+  padding: 0;
+  border: none;
+  border-radius: 10%;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s;
+  overflow: visible;
+  opacity: 1;
 }
-.packBtn {
-  padding: 8px 14px;
-  background: #E5E0D2;
-  color: #9A8B6E;
+.packCard:hover {
+  transform: scale(1.05);
+}
+.packCardActive {
+  transform: scale(1.08);
+}
+
+/* When a selection exists, dim + shrink the non-active cards */
+.packRowHasSelection .packCard:not(.packCardActive) {
+  transform: scale(0.88);
+  opacity: 0.45;
+}
+.packRowHasSelection .packCard:not(.packCardActive):hover {
+  transform: scale(0.93);
+  opacity: 0.65;
+}
+
+.packImg {
+  width: 100%;
+  aspect-ratio: 1449 / 2163;
+  display: block;
+  border-radius: 7%;
+  object-fit: cover;
+}
+
+/* ── Buy button ── */
+
+.buyBtn {
+  width: 100%;
+  padding: 16px;
+  background-color: #0A0A0A;
+  color: #FFFFFF;
   border: none;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
-  cursor: not-allowed;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.buyBtn:hover {
+  background-color: #E8762A;
+}
+.buyBtnSoon {
+  background-color: #9A8B6E;
+  cursor: default;
+}
+.buyBtnSoon:hover {
+  background-color: #9A8B6E;
 }
 
-.footnote {
-  text-align: center;
+/* ── Payment row ── */
+
+.paymentRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.payIcon {
+  height: 18px;
+  width: auto;
+  display: block;
+}
+.payIconMc {
+  height: 20px;
+  width: auto;
+  display: block;
+}
+.payDot {
+  color: rgba(10,10,10,0.25);
+  font-size: 14px;
+  line-height: 1;
+}
+.payLabel {
   font-size: 12px;
-  color: #9A8B6E;
-  margin: 0;
+  font-weight: 600;
+  color: rgba(10,10,10,0.5);
 }
 
-@media (min-width: 768px) {
-  .grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .pack {
-    flex-direction: column;
-    text-align: center;
-    align-items: center;
-  }
-  .packImg { width: 90px; }
-  .packFooter {
-    justify-content: center;
-    flex-direction: column;
-    gap: 8px;
-  }
-}
+/* ── Dark mode ── */
 
-/* Dark Mode */
 :global(html[data-theme="dark"]) .title {
   color: #f5f5f5;
 }
-:global(html[data-theme="dark"]) .intro {
-  color: #8a8a8a;
+:global(html[data-theme="dark"]) .subtitle {
+  color: rgba(245, 245, 245, 0.45);
 }
-:global(html[data-theme="dark"]) .pack {
-  background: #1f1a0d;
-  border-color: #3a2f10;
+
+:global(html[data-theme="dark"]) .buyBtn {
+  background-color: #f5f5f5;
+  color: #0a0a0a;
 }
-:global(html[data-theme="dark"]) .packName {
-  color: #f5f5f5;
+:global(html[data-theme="dark"]) .buyBtn:hover {
+  background-color: #E8762A;
+  color: #fff;
 }
-:global(html[data-theme="dark"]) .packDesc {
-  color: #8a8a8a;
+:global(html[data-theme="dark"]) .buyBtnSoon {
+  background-color: #3a3020;
+  color: rgba(245, 245, 245, 0.5);
 }
-:global(html[data-theme="dark"]) .packPrice {
-  color: #f5f5f5;
+:global(html[data-theme="dark"]) .buyBtnSoon:hover {
+  background-color: #3a3020;
 }
-:global(html[data-theme="dark"]) .packBtn {
-  background: #2a2a2a;
-  color: #5a5a5a;
+:global(html[data-theme="dark"]) .payDot {
+  color: rgba(245,245,245,0.2);
+}
+:global(html[data-theme="dark"]) .payLabel {
+  color: rgba(245,245,245,0.45);
+}
+:global(html[data-theme="dark"]) .payIcon text,
+:global(html[data-theme="dark"]) .payIcon text:last-child {
+  fill: rgba(245,245,245,0.7);
 }

@@ -10,7 +10,6 @@ interface PageProps {
 // triggers a real 404 instead of silently rendering the home view.
 const VALID_SLUGS = new Set([
   'map',
-  'musts',
   'news',
   'profile',
   'about',
@@ -21,7 +20,7 @@ const VALID_SLUGS = new Set([
   'agb',
 ])
 
-// Catch-all for SPA routes: /map, /musts, /profile, /about, etc.
+// Catch-all for SPA routes: /map, /profile, /about, etc.
 // More-specific routes (/news/[slug], /restaurant/[slug]) take priority.
 export default async function SPACatchAllPage({ params }: PageProps) {
   const { locale, slug } = await params

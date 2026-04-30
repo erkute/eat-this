@@ -12,7 +12,7 @@
   gap: 12px;
   /* Escape .page's 16px side padding so the grid reaches the viewport edges,
      then apply the same side padding as the Must-Eat album-grid. */
-  padding: 0 8px 32px;
+  padding: 0 8px 8px;
   margin: 0 -16px;
   perspective: 1400px;
 }
@@ -106,20 +106,78 @@
   box-shadow: 0 4px 14px rgba(10, 10, 10, 0.35);
 }
 
+/* Applied while the card is in the lightbox or spring-animating back.
+ * Hides the slot image so the animated card doesn't appear doubled.
+ * No transition on either direction — the animated card overlays the slot
+ * exactly when reveal happens, so visibility flip is invisible to the eye. */
+.faceFrontHidden {
+  opacity: 0;
+}
+
+/* ── "Berlin ist erst der Anfang" teaser ─────────── */
+
+.teaser {
+  padding: 32px 24px 32px;
+  text-align: center;
+}
+
+.teaserCity {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  font-weight: 700;
+  color: #E8762A;
+  text-transform: uppercase;
+}
+
+.teaserLine {
+  margin: 6px 0 0;
+  font-size: clamp(28px, 7vw, 42px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: #0A0A0A;
+  text-transform: uppercase;
+}
+
+.teaserSub {
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: rgba(10, 10, 10, 0.45);
+  line-height: 1.5;
+}
+
+:global(html[data-theme="dark"]) .teaserLine {
+  color: #f5f5f5;
+}
+:global(html[data-theme="dark"]) .teaserSub {
+  color: rgba(245, 245, 245, 0.4);
+}
+
+@media (min-width: 768px) {
+  .teaser {
+    padding: 40px 40px 64px;
+  }
+}
+
 /* ── Lightbox ─────────────────────────────────────── */
 
-.lightbox {
+.lightboxWrapper {
   position: fixed;
   inset: 0;
   z-index: 10010;
-  background: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
   cursor: zoom-out;
+}
+
+.lightboxBg {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  pointer-events: none;
 }
 
 .lightboxImg {
@@ -128,55 +186,15 @@
   width: auto;
   object-fit: contain;
   border-radius: 6%;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+  /* GPU-friendly drop-shadow stays cached across transforms; box-shadow
+   * forces a repaint every frame at full opacity = visible jitter. */
+  filter: drop-shadow(0 24px 48px rgba(0, 0, 0, 0.7));
   cursor: default;
   display: block;
-}
-
-/* Eaten-Chip — sehr dezent, kaum erkennbar (User-Wunsch) */
-.eatenChip {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 16px;
-  height: 16px;
-  padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0);
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 1;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s, transform 0.15s;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-/* Expanded hit area for thumb taps (visual chip stays 16x16) */
-.eatenChip::before {
-  content: '';
-  position: absolute;
-  inset: -8px;
-  /* explicit so the pseudo-element captures clicks even with parent transitions */
-  background: transparent;
-}
-.eatenChip:hover {
-  background: rgba(255, 255, 255, 0.4);
-}
-.eatenChipActive {
-  background: rgba(232, 184, 42, 0.85);
-  border-color: rgba(255, 255, 255, 0.7);
-  color: #0A0A0A;
-}
-.eatenChip:active {
-  transform: scale(0.85);
-}
-.eatenChip:focus-visible {
-  outline: 2px solid #FFFFFF;
-  outline-offset: 1px;
+  /* Promote to its own GPU layer so transforms don't repaint neighbours. */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* ── Dark mode ─────────────────────────────────────── */

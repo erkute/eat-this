@@ -7,37 +7,8 @@
   background: linear-gradient(180deg, #FAF6EC 0%, #F7F2E8 100%);
 }
 
-.manikin {
-  position: absolute;
-  pointer-events: none;
-  user-select: none;
-}
-.manikin img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
-.manikinTopRight {
-  top: 8px;
-  right: 14px;
-  width: 42px;
-  height: 42px;
-  transform: rotate(12deg);
-  opacity: 0.85;
-}
-.manikinMidLeft {
-  top: 38px;
-  left: 8px;
-  width: 34px;
-  height: 34px;
-  transform: rotate(-15deg);
-  opacity: 0.7;
-}
-
 .avatarWrap {
   flex-shrink: 0;
-  padding-left: 32px; /* gibt Manikin-mid-left Platz */
 }
 .avatar {
   width: 88px;
@@ -48,7 +19,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transform: rotate(-4deg);
   overflow: hidden;
 }
 .avatar img {
@@ -61,7 +31,6 @@
 .info {
   flex: 1;
   min-width: 0;
-  padding-right: 56px; /* gibt Manikin-top-right Platz */
 }
 .label {
   margin: 0 0 2px;
@@ -88,8 +57,6 @@
   .avatar { width: 104px; height: 104px; }
   .avatar img { width: 86px; height: 86px; }
   .name { font-size: 32px; }
-  .manikinTopRight { width: 54px; height: 54px; top: 14px; right: 22px; }
-  .manikinMidLeft { width: 42px; height: 42px; top: 50px; left: 16px; }
 }
 
 /* Dark Mode */

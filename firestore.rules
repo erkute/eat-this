@@ -11,6 +11,16 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
 
+    // User profile doc — owner-readable; writes restricted to the avatar
+    // field so the client can't bloat the doc with arbitrary fields.
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['avatar'])
+        && request.resource.data.avatar in [1, 2, 3];
+    }
+
     // Current paths used by the React app
     match /users/{uid}/favorites/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
@@ -48,33 +58,6 @@ service cloud.firestore {
         && request.resource.data.mustEatIds == resource.data.mustEatIds
         && request.resource.data.createdAt == resource.data.createdAt
         && request.resource.data.openedAt == request.time;
-    }
-
-    match /userProfiles/{uid} {
-      allow read: if request.auth != null && request.auth.uid == uid;
-
-      allow create: if request.auth != null
-        && request.auth.uid == uid
-        && request.resource.data.uid == uid
-        && request.resource.data.keys().hasOnly(['uid', 'avatarIndex', 'mustEatStatus', 'createdAt', 'updatedAt'])
-        && request.resource.data.avatarIndex is number
-        && request.resource.data.avatarIndex >= 1
-        && request.resource.data.avatarIndex <= 3
-        && request.resource.data.mustEatStatus is map
-        && request.resource.data.mustEatStatus.keys().hasOnly(['eaten'])
-        && request.resource.data.mustEatStatus.eaten is map;
-
-      allow update: if request.auth != null
-        && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['uid', 'avatarIndex', 'mustEatStatus', 'createdAt', 'updatedAt'])
-        && request.resource.data.uid == resource.data.uid
-        && request.resource.data.createdAt == resource.data.createdAt
-        && request.resource.data.avatarIndex is number
-        && request.resource.data.avatarIndex >= 1
-        && request.resource.data.avatarIndex <= 3
-        && request.resource.data.mustEatStatus is map
-        && request.resource.data.mustEatStatus.keys().hasOnly(['eaten'])
-        && request.resource.data.mustEatStatus.eaten is map;
     }
 
     match /{document=**} {

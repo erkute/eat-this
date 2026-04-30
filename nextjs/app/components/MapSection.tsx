@@ -780,6 +780,41 @@ export default function MapSection({ isActive = false }: Props) {
     })
   }, [isActive, selectedRestaurant, selectedMustEat, location, getFlyPadding])
 
+  // Deep-link: ?r=<slug> opens the matching restaurant detail directly.
+  // Used by profile favourites and any external link that wants to land
+  // on the map with a specific spot already open. Polls mapRef so the flyTo
+  // doesn't silently no-op if the canvas hasn't finished mounting yet.
+  const deepLinkConsumedRef = useRef(false)
+  useEffect(() => {
+    if (deepLinkConsumedRef.current) return
+    if (!isActive) return
+    if (restaurants.length === 0) return
+    const params = new URLSearchParams(window.location.search)
+    const slug = params.get('r')
+    if (!slug) return
+    const target = restaurants.find(r => r.slug === slug)
+    if (!target) return
+    deepLinkConsumedRef.current = true
+    // Strip the param from the URL so back/refresh doesn't re-trigger.
+    params.delete('r')
+    const next = window.location.pathname + (params.toString() ? `?${params}` : '') + window.location.hash
+    window.history.replaceState(null, '', next)
+    // Wait for the map canvas to mount before opening — otherwise the detail
+    // sheet opens but the flyTo silently no-ops and the marker stays off-screen.
+    let cancelled = false
+    const tryOpen = () => {
+      if (cancelled) return
+      if (mapRef.current) {
+        userInteractedRef.current = true
+        handleRestaurantClick(target)
+      } else {
+        setTimeout(tryOpen, 120)
+      }
+    }
+    tryOpen()
+    return () => { cancelled = true }
+  }, [isActive, restaurants, handleRestaurantClick])
+
   /* ---------- Render ---------- */
   return (
     <div

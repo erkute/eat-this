@@ -19,109 +19,324 @@
 
 .empty {
   text-align: center;
-  padding: 36px 12px;
+  padding: 36px 16px;
   color: #6B6B6B;
   font-size: 14px;
+  line-height: 1.5;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+/* ── List ── */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.row {
+  border-bottom: 1px solid rgba(10, 10, 10, 0.07);
+  padding: 12px 0;
+}
+.row:last-child {
+  border-bottom: none;
+}
+
+/* ── Main row (thumb + info + actions) ── */
+
+.main {
+  display: flex;
+  align-items: center;
   gap: 12px;
-  padding: 0 16px 32px;
-  max-width: 720px;
-  margin: 0 auto;
 }
 
-.card {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  border-radius: 14px;
-  overflow: hidden;
-  background: #EDE6D6;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-.img {
-  width: 100%;
-  height: 100%;
+.thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
   object-fit: cover;
+  flex-shrink: 0;
   display: block;
+  background: #EDE6D6;
 }
-.imgPlaceholder {
-  width: 100%;
-  height: 100%;
+.thumbPlaceholder {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: #EDE6D6;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 38px;
-  color: #6B6B6B;
+  font-size: 22px;
 }
 
-.overlay {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  padding: 28px 12px 12px;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.78) 100%);
-  color: #FFFFFF;
+.info {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 .name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
-  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: #0A0A0A;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .district {
   font-size: 12px;
-  opacity: 0.85;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: rgba(10, 10, 10, 0.5);
 }
 
-.remove {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 28px;
-  height: 28px;
+/* ── Action buttons ── */
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.mapBtn,
+.noteToggle,
+.removeBtn {
+  width: 36px;
+  height: 36px;
   border: none;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.55);
-  color: #FFFFFF;
-  font-size: 18px;
-  line-height: 1;
+  background: transparent;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s;
+  color: rgba(10, 10, 10, 0.45);
+  transition: background 0.13s, color 0.13s;
+  text-decoration: none;
 }
-.remove:hover {
-  background: rgba(0, 0, 0, 0.75);
+.mapBtn:hover,
+.noteToggle:hover {
+  background: rgba(10, 10, 10, 0.06);
+  color: #0A0A0A;
+}
+.noteToggleActive {
+  color: #E8762A;
+}
+.noteToggleActive:hover {
+  background: rgba(232, 118, 42, 0.1);
+  color: #E8762A;
+}
+.removeBtn:hover {
+  background: rgba(200, 40, 40, 0.08);
+  color: #c82828;
 }
 
+/* ── Confirm delete row ── */
+
+.confirmRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0 4px;
+}
+.confirmText {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0A0A0A;
+}
+.confirmYes {
+  padding: 6px 14px;
+  background: #c82828;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.13s;
+}
+.confirmYes:hover { background: #a81e1e; }
+.confirmNo {
+  padding: 6px 14px;
+  background: transparent;
+  color: #6B6B6B;
+  border: 1.5px solid #E5E0D2;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.13s;
+}
+.confirmNo:hover { background: #F4EFE2; color: #0A0A0A; }
+
+/* ── Note textarea ── */
+
+.noteArea {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1.5px solid #E5E0D2;
+  border-radius: 10px;
+  background: #FFFBED;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #0A0A0A;
+  resize: vertical;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.noteArea:focus {
+  border-color: #E8762A;
+}
+.noteArea::placeholder {
+  color: rgba(10, 10, 10, 0.35);
+}
+
+/* ── Desktop: card grid ── */
 @media (min-width: 768px) {
-  .grid {
-    grid-template-columns: repeat(3, 1fr);
+  .list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 16px;
-    padding: 0 40px 60px;
+    padding: 16px 40px 60px;
+    max-width: 960px;
+    margin: 0 auto;
+    /* reset list-style defaults */
+    list-style: none;
+  }
+
+  .row {
+    border-bottom: none;
+    border-radius: 16px;
+    background: #FFFBED;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Image becomes a full-width header */
+  .main {
+    flex-direction: column;
+    gap: 0;
+    align-items: stretch;
+  }
+
+  .thumb {
+    width: 100%;
+    height: 160px;
+    border-radius: 0;
+    flex-shrink: unset;
+    object-fit: cover;
+  }
+
+  .thumbPlaceholder {
+    width: 100%;
+    height: 160px;
+    border-radius: 0;
+    flex-shrink: unset;
+    font-size: 48px;
+  }
+
+  /* Name + district get their own padding block */
+  .info {
+    padding: 12px 16px 4px;
+  }
+
+  .name {
+    font-size: 16px;
+  }
+
+  /* Actions pin to bottom of the info block */
+  .actions {
+    padding: 4px 12px 10px;
+  }
+
+  .noteArea {
+    margin: 0 12px 12px;
+    width: calc(100% - 24px);
+    box-sizing: border-box;
+  }
+
+  .confirmRow {
+    padding: 4px 12px 12px;
   }
 }
 
-/* Dark Mode */
+@media (min-width: 1200px) {
+  .list {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 1200px;
+  }
+}
+
+/* ── Dark Mode ── */
+
+@media (min-width: 768px) {
+  :global(html[data-theme="dark"]) .row {
+    background: #1a1a14;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+  }
+}
+
 :global(html[data-theme="dark"]) .empty {
   color: #8a8a8a;
 }
-:global(html[data-theme="dark"]) .card {
-  background: #1a1a1a;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+:global(html[data-theme="dark"]) .row {
+  border-bottom-color: rgba(255, 255, 255, 0.07);
+}
+:global(html[data-theme="dark"]) .thumb,
+:global(html[data-theme="dark"]) .thumbPlaceholder {
+  background: #2a2a2a;
+}
+:global(html[data-theme="dark"]) .name {
+  color: #f5f5f5;
+}
+:global(html[data-theme="dark"]) .district {
+  color: rgba(245, 245, 245, 0.45);
+}
+:global(html[data-theme="dark"]) .mapBtn,
+:global(html[data-theme="dark"]) .noteToggle,
+:global(html[data-theme="dark"]) .removeBtn {
+  color: rgba(245, 245, 245, 0.4);
+}
+:global(html[data-theme="dark"]) .mapBtn:hover,
+:global(html[data-theme="dark"]) .noteToggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5f5f5;
+}
+:global(html[data-theme="dark"]) .noteArea {
+  background: #1a1a14;
+  border-color: #3a3020;
+  color: #f5f5f5;
+}
+:global(html[data-theme="dark"]) .noteArea:focus {
+  border-color: #E8762A;
+}
+:global(html[data-theme="dark"]) .noteArea::placeholder {
+  color: rgba(245, 245, 245, 0.3);
 }
 :global(html[data-theme="dark"]) .spinner {
   border-color: #2a2a2a;
   border-top-color: #f5f5f5;
+}
+:global(html[data-theme="dark"]) .confirmText {
+  color: #f5f5f5;
+}
+:global(html[data-theme="dark"]) .confirmNo {
+  border-color: #2a2a2a;
+  color: #8a8a8a;
+}
+:global(html[data-theme="dark"]) .confirmNo:hover {
+  background: #2a2a2a;
+  color: #f5f5f5;
 }

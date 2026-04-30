@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gesture Zone Mockup — Eat This Map</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 24px 16px 40px;
+    gap: 24px;
+  }
+
+  h1 {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    opacity: 0.7;
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .ctrl-btn {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: inherit;
+  }
+  .ctrl-btn:hover { background: rgba(255,255,255,0.2); }
+  .ctrl-btn.active { background: rgba(255,200,0,0.25); border-color: rgba(255,200,0,0.5); color: #ffd700; }
+
+  /* Phones row */
+  .phones-row {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-end;
+  }
+
+  .phone-label {
+    color: rgba(255,255,255,0.5);
+    font-size: 11px;
+    text-align: center;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Phone frame */
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; }
+
+  .phone {
+    width: 375px;
+    height: 812px;
+    background: #000;
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      0 0 0 2px #333,
+      0 0 0 4px #111,
+      0 30px 80px rgba(0,0,0,0.8);
+  }
+
+  /* Map background */
+  .map-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, #2d3561 0%, #1e2a4a 50%, #16213e 100%);
+    overflow: hidden;
+  }
+
+  /* Fake map tiles */
+  .map-bg::before {
+    content: '';
+    position: absolute;
+    inset: -10px;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Fake streets */
+  .map-street {
+    position: absolute;
+    background: rgba(255,255,255,0.07);
+    border-radius: 2px;
+  }
+
+  /* Fake restaurant markers */
+  .map-marker {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg) translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .map-marker.red { background: #e84c3d; box-shadow: 0 2px 8px rgba(232,76,61,0.5); }
+  .map-marker.orange { background: #f5a623; box-shadow: 0 2px 8px rgba(245,166,35,0.5); }
+
+  /* Status bar */
+  .status-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 10;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* Map nav header */
+  .map-header {
+    position: absolute;
+    top: 44px; left: 0; right: 0;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 10;
+  }
+
+  .map-header-btn {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: rgba(30, 30, 30, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    color: #fff;
+    transition: transform 0.1s;
+  }
+  .map-header-btn:active { transform: scale(0.93); }
+
+  .map-logo {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.02em;
+  }
+
+  /* GPS FAB */
+  .fab {
+    position: absolute;
+    right: 16px;
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: rgba(30, 30, 30, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    color: #5b9cf6;
+    z-index: 10;
+    transition: transform 0.1s;
+  }
+  .fab:active { transform: scale(0.93); }
+
+  /* ========== BOTTOM SHEET ========== */
+  .sheet {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    border-radius: 20px 20px 0 0;
+    background: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* Sheet top = 812 - sheet-height */
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    will-change: transform;
+    touch-action: none;
+    user-select: none;
+    z-index: 20;
+  }
+
+  /* Snap positions as CSS custom props */
+  .sheet[data-snap="peek"]  { transform: translateY(calc(var(--peek-offset, 620px))); }
+  .sheet[data-snap="mid"]   { transform: translateY(calc(var(--mid-offset, 300px))); }
+  .sheet[data-snap="full"]  { transform: translateY(calc(var(--full-offset, 60px))); }
+
+  /* ---- Zone A: Handle ---- */
+  .zone-handle {
+    flex-shrink: 0;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: ns-resize;
+    position: relative;
+  }
+  .handle-pip {
+    width: 36px; height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.2);
+    transition: background 0.15s, width 0.15s;
+  }
+  .zone-handle:hover .handle-pip,
+  .zone-handle.dragging .handle-pip {
+    background: rgba(255,255,255,0.45);
+    width: 48px;
+  }
+
+  /* ---- Zone B: Header row ---- */
+  .zone-header {
+    flex-shrink: 0;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    cursor: ns-resize;
+    position: relative;
+  }
+
+  .header-count {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    pointer-events: none;
+  }
+  .header-count span {
+    color: rgba(255,255,255,0.5);
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .header-actions {
+    display: flex; gap: 8px;
+    /* pointer-events: auto so buttons can be tapped */
+  }
+
+  .icon-btn {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    cursor: pointer;
+    color: #fff;
+    transition: background 0.12s, transform 0.1s;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,0.15); }
+  .icon-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
+
+  /* ---- Zone C: Tabs / Category Chips ---- */
+  .zone-tabs {
+    flex-shrink: 0;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 16px;
+    gap: 8px;
+    /* NO drag handler — pure native horizontal scroll */
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    cursor: ew-resize;
+  }
+  .zone-tabs::-webkit-scrollbar { display: none; }
+
+  .chip {
+    flex-shrink: 0;
+    height: 30px;
+    padding: 0 14px;
+    border-radius: 15px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.75);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+    white-space: nowrap;
+    display: flex; align-items: center;
+    font-family: inherit;
+  }
+  .chip.active {
+    background: rgba(232,76,61,0.2);
+    border-color: rgba(232,76,61,0.5);
+    color: #e84c3d;
+  }
+  .chip:hover { background: rgba(255,255,255,0.12); }
+
+  /* Separator */
+  .zone-sep {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+
+  /* ---- Zone D: List scroll ---- */
+  .zone-list {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    padding: 0;
+    cursor: default;
+  }
+  .zone-list::-webkit-scrollbar { width: 3px; }
+  .zone-list::-webkit-scrollbar-track { background: transparent; }
+  .zone-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  .restaurant-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .restaurant-row:hover { background: rgba(255,255,255,0.04); }
+  .restaurant-row:active { background: rgba(255,255,255,0.08); }
+
+  .row-thumb {
+    width: 52px; height: 52px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .row-info { flex: 1; min-width: 0; }
+  .row-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .row-meta {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 3px;
+  }
+
+  .row-must {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #e84c3d;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px rgba(232,76,61,0.6);
+  }
+
+  /* ========== ZONE OVERLAYS ========== */
+  .zone-overlay {
+    position: absolute;
+    left: 0; right: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.2s;
+    z-index: 30;
+  }
+  .zone-overlay.hidden { opacity: 0; }
+
+  .zone-badge {
+    position: absolute;
+    left: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(0,0,0,0.75);
+    border-radius: 6px;
+    padding: 3px 7px;
+    white-space: nowrap;
+  }
+
+  /* Zone A color */
+  .zone-a-hl { background: rgba(91, 192, 235, 0.18); border: 1px solid rgba(91, 192, 235, 0.5); }
+  .zone-a-hl .zone-badge { color: #5bc0eb; border: 1px solid rgba(91, 192, 235, 0.4); }
+
+  /* Zone B color */
+  .zone-b-hl { background: rgba(90, 200, 120, 0.18); border: 1px solid rgba(90, 200, 120, 0.5); }
+  .zone-b-hl .zone-badge { color: #5ac878; border: 1px solid rgba(90, 200, 120, 0.4); }
+
+  /* Zone C color */
+  .zone-c-hl { background: rgba(255, 179, 71, 0.18); border: 1px solid rgba(255, 179, 71, 0.5); }
+  .zone-c-hl .zone-badge { color: #ffb347; border: 1px solid rgba(255, 179, 71, 0.4); }
+
+  /* Zone D color */
+  .zone-d-hl { background: rgba(200, 100, 220, 0.10); border: 1px solid rgba(200, 100, 220, 0.35); }
+  .zone-d-hl .zone-badge { color: #c864dc; border: 1px solid rgba(200, 100, 220, 0.4); }
+
+  /* ========== LEGEND ========== */
+  .legend {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 16px 20px;
+    max-width: 375px;
+    width: 100%;
+  }
+
+  .legend-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 12px;
+  }
+
+  .legend-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 8px;
+    transition: background 0.12s;
+  }
+  .legend-row:last-child { margin-bottom: 0; }
+  .legend-row:hover { background: rgba(255,255,255,0.05); }
+
+  .legend-dot {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .dot-a { background: rgba(91, 192, 235, 0.25); color: #5bc0eb; }
+  .dot-b { background: rgba(90, 200, 120, 0.25); color: #5ac878; }
+  .dot-c { background: rgba(255, 179, 71, 0.25); color: #ffb347; }
+  .dot-d { background: rgba(200, 100, 220, 0.20); color: #c864dc; }
+
+  .legend-text { flex: 1; }
+  .legend-text strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+  .legend-text p {
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.5;
+  }
+
+  /* ========== DRAG FEEDBACK ========== */
+  .drag-indicator {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.75);
+    color: rgba(255,255,255,0.8);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 10px;
+    pointer-events: none;
+    z-index: 40;
+    opacity: 0;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+  }
+  .drag-indicator.show { opacity: 1; }
+
+  /* ========== SNAP POSITION INDICATORS ========== */
+  .snap-labels {
+    position: absolute;
+    right: -90px;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    pointer-events: none;
+  }
+  .snap-label {
+    position: absolute;
+    right: 0;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.6);
+    padding: 3px 7px;
+    white-space: nowrap;
+    transform: translateY(-50%);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .snap-label::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 1px;
+    background: rgba(255,255,255,0.2);
+    margin-right: 2px;
+  }
+
+  .snap-label.current {
+    background: rgba(232,76,61,0.2);
+    border-color: rgba(232,76,61,0.4);
+    color: #e84c3d;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: rgba(30,30,30,0.95);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    font-size: 13px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    z-index: 100;
+    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    pointer-events: none;
+    white-space: nowrap;
+    backdrop-filter: blur(12px);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Safe area bottom */
+  .safe-area-bottom {
+    height: 34px;
+    flex-shrink: 0;
+    background: #1a1a1a;
+  }
+</style>
+</head>
+<body>
+
+<h1>Gesture Zone Mockup — Eat This Map Bottom Sheet</h1>
+
+<div class="controls">
+  <button class="ctrl-btn active" id="btn-zones" onclick="toggleZones()">Zone-Highlighting</button>
+  <button class="ctrl-btn" id="btn-peek" onclick="snapTo('peek')">Snap: Peek</button>
+  <button class="ctrl-btn" id="btn-mid" onclick="snapTo('mid')">Snap: Mid</button>
+  <button class="ctrl-btn" id="btn-full" onclick="snapTo('full')">Snap: Full</button>
+</div>
+
+<div class="phones-row">
+  <div class="phone-wrap">
+    <div class="phone-label">iPhone 14 Pro — 375 × 812</div>
+    <div class="phone" id="phone">
+      <!-- Map background -->
+      <div class="map-bg">
+        <!-- Fake streets -->
+        <div class="map-street" style="top:35%;left:0;right:0;height:3px;transform:rotate(-2deg)"></div>
+        <div class="map-street" style="top:50%;left:0;right:0;height:5px;transform:rotate(1deg)"></div>
+        <div class="map-street" style="top:65%;left:0;right:0;height:2px;transform:rotate(-1deg)"></div>
+        <div class="map-street" style="left:30%;top:0;bottom:0;width:3px;transform:rotate(1deg)"></div>
+        <div class="map-street" style="left:60%;top:0;bottom:0;width:2px;transform:rotate(-0.5deg)"></div>
+
+        <!-- Fake markers -->
+        <div class="map-marker red" style="top:28%;left:25%;"></div>
+        <div class="map-marker orange" style="top:40%;left:58%;"></div>
+        <div class="map-marker red" style="top:55%;left:38%;"></div>
+      </div>
+
+      <!-- Status bar -->
+      <div class="status-bar">
+        <span>9:41</span>
+        <span style="display:flex;gap:5px;align-items:center;">
+          <span style="font-size:10px;">●●●●</span>
+          <span>📶</span>
+          <span>🔋</span>
+        </span>
+      </div>
+
+      <!-- Map header -->
+      <div class="map-header">
+        <div class="map-logo">eat this.</div>
+        <div style="display:flex;gap:8px;">
+          <div class="map-header-btn" title="Burger menu">☰</div>
+          <div class="map-header-btn" title="Profile">👤</div>
+        </div>
+      </div>
+
+      <!-- GPS FAB — position depends on snap -->
+      <div class="fab" id="fab" style="bottom: 210px;" title="GPS">⊕</div>
+
+      <!-- ========== BOTTOM SHEET ========== -->
+      <div class="sheet" id="sheet" data-snap="mid">
+
+        <!-- ZONE A: Handle -->
+        <div class="zone-handle" id="zone-a" title="Zone A — Drag handle">
+          <div class="handle-pip"></div>
+          <!-- Zone A overlay -->
+          <div class="zone-overlay zone-a-hl" id="ov-a" style="inset:0; border-radius: 20px 20px 0 0;">
+            <span class="zone-badge">A · Drag-only</span>
+          </div>
+        </div>
+
+        <!-- ZONE B: Header row -->
+        <div class="zone-header" id="zone-b" title="Zone B — Drag + tap buttons">
+          <div class="header-count">
+            119 <span>Restaurants</span>
+          </div>
+          <div class="header-actions" id="header-actions">
+            <button class="icon-btn" onclick="showToast('🔍 Search geöffnet')" title="Search">🔍</button>
+            <button class="icon-btn" onclick="showToast('⚙ Filter geöffnet')" title="Filter">⚙</button>
+          </div>
+          <!-- Zone B overlay -->
+          <div class="zone-overlay zone-b-hl" id="ov-b" style="inset:0;">
+            <span class="zone-badge">B · Drag + tap (8px threshold)</span>
+          </div>
+        </div>
+
+        <!-- ZONE C: Category chips -->
+        <div class="zone-tabs" id="zone-c" title="Zone C — Horizontal scroll only, NO sheet drag">
+          <button class="chip active" onclick="setChip(this)">Alle</button>
+          <button class="chip" onclick="setChip(this)">Dinner</button>
+          <button class="chip" onclick="setChip(this)">Lunch</button>
+          <button class="chip" onclick="setChip(this)">Brunch</button>
+          <button class="chip" onclick="setChip(this)">Cocktails</button>
+          <button class="chip" onclick="setChip(this)">Takeaway</button>
+          <button class="chip" onclick="setChip(this)">Vegan</button>
+          <button class="chip" onclick="setChip(this)">Pasta</button>
+          <button class="chip" onclick="setChip(this)">Sushi</button>
+        </div>
+
+        <!-- ZONE C overlay (rendered over tabs, pointer-events:none so chips still work) -->
+        <div class="zone-overlay zone-c-hl" id="ov-c" style="height:44px;top:76px;inset:auto 0 auto 0;position:absolute;">
+          <span class="zone-badge">C · Horizontal scroll only</span>
+        </div>
+
+        <div class="zone-sep"></div>
+
+        <!-- ZONE D: List -->
+        <div class="zone-list" id="zone-d" title="Zone D — Vertical scroll. Pull-down from top → peek">
+          <!-- Zone D overlay sticky at top -->
+          <div style="position:sticky;top:0;left:0;right:0;height:28px;pointer-events:none;z-index:5;">
+            <div class="zone-overlay zone-d-hl" id="ov-d" style="inset:0;">
+              <span class="zone-badge">D · Scroll · pull-down@top → peek</span>
+            </div>
+          </div>
+
+          <!-- Restaurant rows -->
+          <div class="restaurant-row" onclick="showToast('🍝 Trattoria Roma geöffnet')">
+            <div class="row-thumb">🍝</div>
+            <div class="row-info">
+              <div class="row-name">Trattoria Roma</div>
+              <div class="row-meta">Innere Stadt · €€ · 320m · 4 Min</div>
+            </div>
+            <div class="row-must" title="Must Eat"></div>
+          </div>
+          <div class="restaurant-row" onclick="showToast('🍣 Izakaya geöffnet')">
+            <div class="row-thumb">🍣</div>
+            <div class="row-info">
+              <div class="row-name">Izakaya</div>
+              <div class="row-meta">Neubau · €€€ · 870m · 11 Min</div>
+            </div>
+          </div>
+          <div class="restaurant-row" onclick="showToast('🥩 Steirereck geöffnet')">
+            <div class="row-thumb">🥩</div>
+            <div class="row-info">
+              <div class="row-name">Steirereck im Stadtpark</div>
+              <div class="row-meta">Landstraße · €€€€ · 1,2km · 14 Min</div>
+            </div>
+            <div class="row-must" title="Must Eat"></div>
+          </div>
+          <div class="restaurant-row" onclick="showToast('🌮 El Burro geöffnet')">
+            <div class="row-thumb">🌮</div>
+            <div class="row-info">
+              <div class="row-name">El Burro</div>
+              <div class="row-meta">Mariahilf · € · 540m · 7 Min</div>
+            </div>
+          </div>
+          <div class="restaurant-row" onclick="showToast('🍜 Pho Saigon geöffnet')">
+            <div class="row-thumb">🍜</div>
+            <div class="row-info">
+              <div class="row-name">Pho Saigon</div>
+              <div class="row-meta">Favoriten · € · 2,1km · 26 Min</div>
+            </div>
+          </div>
+          <div class="restaurant-row" onclick="showToast('🍔 Burger & Soul geöffnet')">
+            <div class="row-thumb">🍔</div>
+            <div class="row-info">
+              <div class="row-name">Burger & Soul</div>
+              <div class="row-meta">Alsergrund · €€ · 1,5km · 18 Min</div>
+            </div>
+          </div>
+          <div class="restaurant-row" onclick="showToast('🥗 Café Landtmann geöffnet')">
+            <div class="row-thumb">🥗</div>
+            <div class="row-info">
+              <div class="row-name">Café Landtmann</div>
+              <div class="row-meta">Innere Stadt · €€€ · 680m · 8 Min</div>
+            </div>
+            <div class="row-must" title="Must Eat"></div>
+          </div>
+          <div class="restaurant-row" onclick="showToast('🫕 Figlmüller geöffnet')">
+            <div class="row-thumb">🫕</div>
+            <div class="row-info">
+              <div class="row-name">Figlmüller Bäckerstraße</div>
+              <div class="row-meta">Innere Stadt · €€ · 450m · 6 Min</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="safe-area-bottom"></div>
+      </div>
+
+      <!-- Drag indicator overlay -->
+      <div class="drag-indicator" id="drag-indicator">↕ Sheet ziehen</div>
+
+      <!-- Snap position labels (outside phone, absolute) -->
+    </div><!-- /phone -->
+
+    <!-- Snap labels outside the phone clipping -->
+    <div style="position:relative;width:375px;height:0;">
+      <div style="position:absolute;left:375px;top:-812px;width:100px;height:812px;pointer-events:none;" id="snap-labels">
+        <div class="snap-label" id="lbl-full" style="top:60px;">Full</div>
+        <div class="snap-label" id="lbl-mid" style="top:300px;">Mid</div>
+        <div class="snap-label" id="lbl-peek" style="top:620px;">Peek</div>
+      </div>
+    </div>
+  </div><!-- /phone-wrap -->
+</div><!-- /phones-row -->
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-title">Gesture Zones — klick zum Highlight</div>
+  <div class="legend-row" onclick="pulseZone('a')">
+    <div class="legend-dot dot-a">A</div>
+    <div class="legend-text">
+      <strong>Zone A — Handle (Drag-only)</strong>
+      <p>Kein Threshold. Touch-down → sofort Drag. Kein Tap-Event registriert.</p>
+    </div>
+  </div>
+  <div class="legend-row" onclick="pulseZone('b')">
+    <div class="legend-dot dot-b">B</div>
+    <div class="legend-text">
+      <strong>Zone B — Header (Drag + Tap, 8px-Threshold)</strong>
+      <p>dy &lt; 8px → Tap (Search/Filter-Buttons feuern). dy ≥ 8px → Sheet-Drag. Kein Direction-Lock nötig — horizontal Touches kommen hier nicht vor.</p>
+    </div>
+  </div>
+  <div class="legend-row" onclick="pulseZone('c')">
+    <div class="legend-dot dot-c">C</div>
+    <div class="legend-text">
+      <strong>Zone C — Tabs (Horizontal Scroll only)</strong>
+      <p>KEIN Drag-Handler registriert. Native overflow-x: auto. iOS scrollt konfliktfrei.</p>
+    </div>
+  </div>
+  <div class="legend-row" onclick="pulseZone('d')">
+    <div class="legend-dot dot-d">D</div>
+    <div class="legend-text">
+      <strong>Zone D — Liste (Vertical Scroll + Overscroll-Peek)</strong>
+      <p>Normaler nativer Scroll. Nur wenn scrollTop === 0 + dy &gt; 0 (down-pull): Sheet → peek.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ========== STATE ==========
+  const SNAPS = { peek: 620, mid: 300, full: 60 };
+  let currentSnap = 'mid';
+  let zonesVisible = true;
+  let isDragging = false;
+  let dragStartY = 0;
+  let sheetStartOffset = 0;
+
+  const sheet = document.getElementById('sheet');
+  const fab = document.getElementById('fab');
+  const dragIndicator = document.getElementById('drag-indicator');
+
+  // ========== SNAP ==========
+  function snapTo(name, animate = true) {
+    currentSnap = name;
+    sheet.dataset.snap = name;
+    if (!animate) sheet.style.transition = 'none';
+    else sheet.style.transition = '';
+
+    // Update FAB position
+    const sheetH = 812 - SNAPS[name];
+    fab.style.bottom = (sheetH + 12) + 'px';
+
+    // Update snap labels
+    document.querySelectorAll('.snap-label').forEach(el => el.classList.remove('current'));
+    const lbl = document.getElementById('lbl-' + name);
+    if (lbl) lbl.classList.add('current');
+
+    // Update snap buttons
+    document.querySelectorAll('[id^="btn-"]').forEach(b => {
+      if (b.id === 'btn-' + name) b.classList.add('active');
+      else if (b.id !== 'btn-zones') b.classList.remove('active');
+    });
+    if (animate) setTimeout(() => sheet.style.transition = '', 350);
+  }
+
+  function nearestSnap(offset) {
+    let best = 'mid', bestDist = Infinity;
+    for (const [name, val] of Object.entries(SNAPS)) {
+      const d = Math.abs(offset - val);
+      if (d < bestDist) { bestDist = d; best = name; }
+    }
+    return best;
+  }
+
+  // ========== DRAG (mouse + touch) ==========
+  function getClientY(e) {
+    return e.touches ? e.touches[0].clientY : e.clientY;
+  }
+
+  function startDrag(e, zone) {
+    isDragging = true;
+    dragStartY = getClientY(e);
+    sheetStartOffset = SNAPS[currentSnap];
+    sheet.style.transition = 'none';
+    document.getElementById('zone-' + zone)?.querySelector('.handle-pip')?.parentElement?.classList.add('dragging');
+    dragIndicator.classList.add('show');
+    dragIndicator.textContent = 'Zone ' + zone.toUpperCase() + ' — dragging…';
+  }
+
+  function onDragMove(e) {
+    if (!isDragging) return;
+    const dy = getClientY(e) - dragStartY;
+    let offset = sheetStartOffset + dy;
+    offset = Math.max(40, Math.min(680, offset));
+    sheet.style.transform = `translateY(${offset}px)`;
+    fab.style.bottom = (812 - offset + 12) + 'px';
+    e.preventDefault();
+  }
+
+  function endDrag() {
+    if (!isDragging) return;
+    isDragging = false;
+    dragIndicator.classList.remove('show');
+    document.querySelectorAll('.zone-handle').forEach(z => z.classList.remove('dragging'));
+
+    // Figure out current offset
+    const transform = sheet.style.transform;
+    const match = transform.match(/translateY\(([^p]+)px\)/);
+    const offset = match ? parseFloat(match[1]) : SNAPS[currentSnap];
+    sheet.style.transform = '';
+    snapTo(nearestSnap(offset));
+  }
+
+  // Zone A: Handle — immediate drag
+  const zA = document.getElementById('zone-a');
+  zA.addEventListener('mousedown', e => { startDrag(e, 'a'); e.preventDefault(); });
+  zA.addEventListener('touchstart', e => { startDrag(e, 'a'); }, { passive: false });
+
+  // Zone B: Header — 8px threshold
+  const zB = document.getElementById('zone-b');
+  let bTouchStartY = 0;
+  let bDragStarted = false;
+  const THRESHOLD = 8;
+
+  zB.addEventListener('mousedown', e => {
+    if (e.target.closest('#header-actions')) return; // let buttons handle it
+    bTouchStartY = e.clientY;
+    bDragStarted = false;
+    const onMove = (ev) => {
+      if (!bDragStarted && Math.abs(ev.clientY - bTouchStartY) >= THRESHOLD) {
+        bDragStarted = true;
+        startDrag({ clientY: bTouchStartY }, 'b');
+      }
+      if (bDragStarted) onDragMove(ev);
+    };
+    const onUp = () => {
+      if (bDragStarted) endDrag();
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  });
+
+  zB.addEventListener('touchstart', e => {
+    if (e.target.closest('#header-actions')) return;
+    bTouchStartY = e.touches[0].clientY;
+    bDragStarted = false;
+  }, { passive: true });
+
+  zB.addEventListener('touchmove', e => {
+    if (e.target.closest('#header-actions')) return;
+    const dy = Math.abs(e.touches[0].clientY - bTouchStartY);
+    if (!bDragStarted && dy >= THRESHOLD) {
+      bDragStarted = true;
+      isDragging = true;
+      dragStartY = bTouchStartY;
+      sheetStartOffset = SNAPS[currentSnap];
+      sheet.style.transition = 'none';
+      dragIndicator.classList.add('show');
+      dragIndicator.textContent = 'Zone B — dragging…';
+    }
+    if (bDragStarted) onDragMove(e);
+  }, { passive: false });
+
+  zB.addEventListener('touchend', () => { if (bDragStarted) endDrag(); }, { passive: true });
+
+  // Zone D: List — pull-down from top → peek
+  const zD = document.getElementById('zone-d');
+  let listTouchStartY = 0;
+  let listPulling = false;
+
+  zD.addEventListener('touchstart', e => {
+    listTouchStartY = e.touches[0].clientY;
+    listPulling = false;
+  }, { passive: true });
+
+  zD.addEventListener('touchmove', e => {
+    const dy = e.touches[0].clientY - listTouchStartY;
+    if (zD.scrollTop === 0 && dy > 0 && !listPulling) {
+      listPulling = true;
+      showToast('↓ Pull-down → Snap zu Peek');
+      setTimeout(() => { if (currentSnap !== 'peek') snapTo('peek'); }, 300);
+    }
+  }, { passive: true });
+
+  // Global drag listeners
+  window.addEventListener('mousemove', onDragMove);
+  window.addEventListener('mouseup', endDrag);
+  window.addEventListener('touchmove', onDragMove, { passive: false });
+  window.addEventListener('touchend', endDrag);
+
+  // ========== ZONES TOGGLE ==========
+  function toggleZones() {
+    zonesVisible = !zonesVisible;
+    ['ov-a','ov-b','ov-c','ov-d'].forEach(id => {
+      document.getElementById(id)?.classList.toggle('hidden', !zonesVisible);
+    });
+    document.getElementById('btn-zones').classList.toggle('active', zonesVisible);
+  }
+
+  // ========== PULSE ZONE ==========
+  function pulseZone(z) {
+    if (!zonesVisible) { zonesVisible = true; toggleZones(); toggleZones(); zonesVisible = true; }
+    const el = document.getElementById('ov-' + z);
+    if (!el) return;
+    el.style.transition = 'opacity 0.1s';
+    el.style.opacity = '0';
+    setTimeout(() => {
+      el.style.opacity = '1';
+      el.style.transition = 'opacity 0.15s';
+    }, 100);
+    setTimeout(() => {
+      el.style.opacity = '0';
+      setTimeout(() => {
+        el.style.opacity = '1';
+        el.style.transition = 'opacity 0.4s';
+      }, 100);
+    }, 400);
+    // Also snap to mid so zone is visible
+    if (z === 'd' && currentSnap === 'peek') snapTo('mid');
+  }
+
+  // ========== CHIP SELECTION ==========
+  function setChip(el) {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ========== TOAST ==========
+  let toastTimer;
+  const toast = document.getElementById('toast');
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+  }
+
+  // ========== INIT ==========
+  snapTo('mid', false);
+</script>
+</body>
+</html>

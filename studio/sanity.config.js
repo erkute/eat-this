@@ -3,16 +3,6 @@ import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemaTypes'
 
-const STATIC_SLUGS = ['about', 'contact', 'press', 'impressum', 'datenschutz', 'agb']
-const STATIC_LABELS = {
-  about: 'About',
-  contact: 'Get in Touch',
-  press: 'Press & Media',
-  impressum: 'Impressum',
-  datenschutz: 'Datenschutz / Privacy Policy',
-  agb: 'AGB / Terms',
-}
-
 export default defineConfig({
   name: 'default',
   title: 'eat-this',
@@ -32,25 +22,7 @@ export default defineConfig({
             S.divider(),
 
             // ── Static Pages ─────────────────────────────────────────────
-            S.listItem()
-              .title('📄  Seiten')
-              .child(
-                S.list()
-                  .title('Seiten')
-                  .items(
-                    STATIC_SLUGS.map((slug) =>
-                      S.listItem()
-                        .title(STATIC_LABELS[slug])
-                        .id(slug)
-                        .child(
-                          S.documentList()
-                            .title(STATIC_LABELS[slug])
-                            .schemaType('staticPage')
-                            .filter(`_type == "staticPage" && slug.current == "${slug}"`),
-                        ),
-                    ),
-                  ),
-              ),
+            S.documentTypeListItem('staticPage').title('📄  Seiten'),
 
             S.divider(),
 

@@ -274,9 +274,51 @@
 
 /* ── MAP TEASER ────────────────────────────────────────────── */
 .mapTeaser {
-  padding: 28px 22px;
+  padding: 28px 22px 40px;
   background: #faf8f4;
   border-bottom: 1px solid #ece9e3;
+}
+.mapTeaserHead {
+  margin-bottom: 24px;
+}
+/* 3-up feature grid: stacked on mobile, columns on desktop */
+.mapFeatures {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+.mapFeature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 24px;
+}
+.mapFeatureFrame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.mapFeatureFrame img {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+  display: block;
+}
+.mapFeatureTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.mapFeatureBody {
+  font-size: 13px;
+  color: #888;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 280px;
 }
 .mapTeaserHead h2 {
   font-size: 19px;
@@ -324,7 +366,16 @@
 }
 
 @media (min-width: 768px) {
-  .mapTeaser { padding: 72px 80px; }
+  .mapTeaser { padding: 72px 80px 88px; }
+  .mapTeaserHead { margin-bottom: 48px; }
+  .mapFeatures {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+  }
+  .mapFeature { gap: 28px; }
+  .mapFeatureFrame img { max-width: 260px; }
+  .mapFeatureTitle { font-size: 18px; }
+  .mapFeatureBody { font-size: 14px; max-width: 320px; }
   .mapTeaserHead h2 { font-size: 32px; margin-bottom: 8px; }
   .mapTeaserHead p { font-size: 15px; max-width: 580px; margin-bottom: 28px; line-height: 1.65; }
   .mapVideo { aspect-ratio: 16 / 8; margin-bottom: 16px; border-radius: 16px; font-size: 13px; }
@@ -1100,6 +1151,7 @@
   border-bottom-color: #2a2a2a;
 }
 :global([data-theme="dark"]) .mapTeaserHead h2 { color: #fff; }
+:global([data-theme="dark"]) .mapFeatureTitle { color: #fff; }
 :global([data-theme="dark"]) .mapVideo {
   background: #2a2a2a;
   border-color: #333;
@@ -1361,7 +1413,7 @@
 .selectionCards {
   display: flex;
   align-items: flex-end;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 12px;
 }
 .selectionCard {
@@ -1392,7 +1444,7 @@
     flex: 1;
     padding: 0 80px 24px 0;
   }
-  .selectionCards { gap: 18px; }
+  .selectionCards { justify-content: flex-end; gap: 18px; }
   .selectionCard { width: 188px; }
   .selectionHeadline { font-size: 32px; line-height: 1.1; }
   .selectionBody { font-size: 16px; line-height: 1.65; }

@@ -64,13 +64,6 @@ export default function SiteNav() {
               <line x1="15" y1="6" x2="15" y2="21"/>
             </svg>
           </LocaleLink>
-          <LocaleLink href="/musts" className="navbar-icon-btn" id="navMustsBtn" aria-label="Eat This" suppressHydrationWarning>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
-              <path d="M7 2v20"/>
-              <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
-            </svg>
-          </LocaleLink>
           <LocaleLink href="/profile" className="navbar-icon-btn" id="navProfileBtn" aria-label="Profile" suppressHydrationWarning>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>

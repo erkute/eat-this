@@ -1,19 +1,16 @@
 'use client';
 
 import type { User } from 'firebase/auth';
+import { defaultAvatarFromUid, useUserProfile } from '@/lib/firebase/useUserProfile';
 import styles from './ProfileHeader.module.css';
-
-function avatarIndexFromUid(uid: string): 1 | 2 | 3 {
-  const slice = parseInt(uid.slice(0, 8), 16) || 0;
-  return ((slice % 3) + 1) as 1 | 2 | 3;
-}
 
 interface Props {
   user: User;
 }
 
 export default function ProfileHeader({ user }: Props) {
-  const idx = avatarIndexFromUid(user.uid);
+  const { profile } = useUserProfile(user.uid);
+  const idx = profile.avatar ?? defaultAvatarFromUid(user.uid);
   const name = user.displayName || (user.email ?? '').split('@')[0] || 'Du';
 
   return (

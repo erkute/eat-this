@@ -44,8 +44,8 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
             <AboutFanRow />
             <USPs />
             <MemoryGame />
-            <MapTeaser />
             <Selection />
+            <MapTeaser />
             <BoosterPack />
             <Coming />
             <LandingFAQ />

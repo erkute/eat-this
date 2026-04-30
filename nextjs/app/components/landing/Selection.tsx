@@ -4,10 +4,12 @@ import { useEffect, useRef } from 'react';
 import styles from './landing.module.css';
 import { useTranslation } from '@/lib/i18n';
 
+// Distinct from MemoryGame (banh-mi/thai/pizza/tomate/sabich/doener) and
+// FanCards (same 5 minus tomate). These three are unique to Selection.
 const CARDS = [
-  'https://cdn.sanity.io/images/ehwjnjr2/production/e74cc8257c7d0d37075e024274bd3a447ce8a6da-1449x2163.png',
-  'https://cdn.sanity.io/images/ehwjnjr2/production/70e13f906df3aa37dd062fc6d83034ded924b1ae-1449x2163.png',
-  'https://cdn.sanity.io/images/ehwjnjr2/production/7d58817e5ac7298642bdc2816944e5f64468e713-1449x2163.png',
+  'https://cdn.sanity.io/images/ehwjnjr2/production/b4d268a43fe8bf62708f6da1c36de049a17c225a-1449x2163.png',
+  'https://cdn.sanity.io/images/ehwjnjr2/production/1f84f4db53a6812e1f0790f0bb3fbefc8470ee4e-1449x2163.png',
+  'https://cdn.sanity.io/images/ehwjnjr2/production/05e51cb243c037e95496882f2a1c3d89e0dd65f7-1449x2163.png',
 ];
 
 // Same scroll-ancestor traversal as FanCards — proven to work in this SPA.

@@ -5,48 +5,47 @@ import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { routing } from '@/i18n/routing';
 import type { NewsArticle, MapRestaurant } from '@/lib/types';
-
-interface Props {
-  newsArticles: NewsArticle[];
-}
+import styles from './SearchOverlay.module.css';
 
 const MAX_RESULTS_PER_GROUP = 8;
 
-export default function SearchOverlay({ newsArticles }: Props) {
+// Self-contained global search. Lives in every layout that wants search
+// (the SPA layout and the profile layout). Opens via clicks on
+// `#burgerSearchTrigger` or any `eatthis:open-search` custom event.
+// Lazy-loads news + restaurants from /api/search-data on first open.
+export default function SearchOverlay() {
   const { t, lang } = useTranslation();
   const locale = useLocale();
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [news, setNews] = useState<NewsArticle[]>([]);
   const [restaurants, setRestaurants] = useState<MapRestaurant[]>([]);
-  const [restaurantsLoaded, setRestaurantsLoaded] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const [dataLoading, setDataLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const restaurantFetchStartedRef = useRef(false);
+  const fetchStartedRef = useRef(false);
 
   const close = useCallback(() => {
     setOpen(false);
     setQuery('');
   }, []);
 
-  // Wire the burger drawer trigger and any external "open search" events.
+  // Wire opening triggers — burger menu button + custom event hook.
   useEffect(() => {
     const onTrigger = () => setOpen(true);
 
     const trigger = document.getElementById('burgerSearchTrigger');
     trigger?.addEventListener('click', onTrigger);
-
-    // Also listen for a generic event so legacy nav buttons (or future
-    // entry points) can open the overlay without a hardcoded ID lookup.
-    const onCustom = () => setOpen(true);
-    document.addEventListener('eatthis:open-search', onCustom);
+    document.addEventListener('eatthis:open-search', onTrigger);
 
     return () => {
       trigger?.removeEventListener('click', onTrigger);
-      document.removeEventListener('eatthis:open-search', onCustom);
+      document.removeEventListener('eatthis:open-search', onTrigger);
     };
   }, []);
 
-  // When opened: close burger drawer, focus input, lock body scroll, lazy-load restaurants.
+  // On open: close burger, focus input, lock body scroll, lazy-load data.
   useEffect(() => {
     if (!open) return;
 
@@ -60,15 +59,18 @@ export default function SearchOverlay({ newsArticles }: Props) {
     };
     document.addEventListener('keydown', onKey);
 
-    if (!restaurantFetchStartedRef.current) {
-      restaurantFetchStartedRef.current = true;
-      fetch('/api/map-data')
+    if (!fetchStartedRef.current) {
+      fetchStartedRef.current = true;
+      setDataLoading(true);
+      fetch('/api/search-data')
         .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-        .then(({ restaurants }: { restaurants: MapRestaurant[] }) => {
-          setRestaurants(restaurants);
-          setRestaurantsLoaded(true);
+        .then(({ news, restaurants }: { news: NewsArticle[]; restaurants: MapRestaurant[] }) => {
+          setNews(news || []);
+          setRestaurants(restaurants || []);
+          setDataLoaded(true);
         })
-        .catch(() => setRestaurantsLoaded(true));
+        .catch(() => setDataLoaded(true))
+        .finally(() => setDataLoading(false));
     }
 
     return () => {
@@ -87,7 +89,7 @@ export default function SearchOverlay({ newsArticles }: Props) {
 
   const newsMatches = useMemo(() => {
     if (!trimmed) return [];
-    return newsArticles
+    return news
       .filter((a) => {
         const title = (lang === 'de' ? a.titleDe : a.title) || a.title;
         const excerpt = (lang === 'de' ? a.excerptDe : a.excerpt) || a.excerpt || '';
@@ -99,7 +101,7 @@ export default function SearchOverlay({ newsArticles }: Props) {
         );
       })
       .slice(0, MAX_RESULTS_PER_GROUP);
-  }, [newsArticles, trimmed, lang]);
+  }, [news, trimmed, lang]);
 
   const restaurantMatches = useMemo(() => {
     if (!trimmed) return [];
@@ -121,7 +123,7 @@ export default function SearchOverlay({ newsArticles }: Props) {
     trimmed.length > 0 &&
     newsMatches.length === 0 &&
     restaurantMatches.length === 0 &&
-    restaurantsLoaded;
+    dataLoaded;
 
   const goNews = useCallback(
     (slug: string) => {
@@ -141,7 +143,7 @@ export default function SearchOverlay({ newsArticles }: Props) {
 
   return (
     <div
-      className={`search-overlay${open ? ' active' : ''}`}
+      className={`${styles.wrapper}${open ? ` ${styles.wrapperOpen}` : ''}`}
       role="dialog"
       aria-modal={open}
       aria-hidden={!open}
@@ -149,40 +151,46 @@ export default function SearchOverlay({ newsArticles }: Props) {
         if (e.target === e.currentTarget) close();
       }}
     >
-      <div className="search-container">
-        <div className="search-input-wrapper">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <div className={styles.panel} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.inputRow}>
+          <svg className={styles.inputIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
           <input
             ref={inputRef}
             type="text"
-            className="search-input"
+            className={styles.input}
             placeholder={t('search.placeholder')}
             autoComplete="off"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <button
-            type="button"
-            className="search-close"
-            aria-label="Close"
-            onClick={close}
-          >
-            <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+          <button type="button" className={styles.closeBtn} aria-label="Schließen" onClick={close}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
 
-        <div className="search-results">
-          {!trimmed && <div className="search-hint">{t('search.hint')}</div>}
+        <div className={styles.results}>
+          {!trimmed && (
+            <div className={styles.hint}>
+              {t('search.hint')}
+            </div>
+          )}
+
+          {trimmed && dataLoading && !dataLoaded && (
+            <div className={styles.loadingRow}>
+              <span className={styles.spinner} aria-hidden="true" />
+              <span>Suche läuft …</span>
+            </div>
+          )}
 
           {newsMatches.length > 0 && (
             <>
-              <div className="search-section-title">News</div>
+              <div className={styles.sectionLabel}>News</div>
               {newsMatches.map((a) => {
                 const title = (lang === 'de' ? a.titleDe : a.title) || a.title;
                 const cat = (lang === 'de' ? a.categoryLabelDe : a.categoryLabel) || a.categoryLabel || '';
@@ -190,17 +198,22 @@ export default function SearchOverlay({ newsArticles }: Props) {
                   <button
                     key={a._id}
                     type="button"
-                    className="search-result-item"
+                    className={styles.item}
                     onClick={() => goNews(a.slug)}
                   >
-                    {a.imageUrl && (
+                    {a.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={a.imageUrl} alt="" className="search-result-img" loading="lazy" />
+                      <img src={a.imageUrl} alt="" className={styles.thumb} loading="lazy" />
+                    ) : (
+                      <div className={styles.thumbPlaceholder} aria-hidden="true">📰</div>
                     )}
-                    <div className="search-result-content">
-                      <div className="search-result-title">{title}</div>
-                      {cat && <div className="search-result-meta">{cat}</div>}
+                    <div className={styles.body}>
+                      <div className={styles.title}>{title}</div>
+                      {cat && <div className={styles.meta}>{cat}</div>}
                     </div>
+                    <svg className={styles.chevron} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
                   </button>
                 );
               })}
@@ -209,24 +222,29 @@ export default function SearchOverlay({ newsArticles }: Props) {
 
           {restaurantMatches.length > 0 && (
             <>
-              <div className="search-section-title">{t('search.restaurants') || 'Restaurants'}</div>
+              <div className={styles.sectionLabel}>Restaurants</div>
               {restaurantMatches.map((r) => {
                 const district = r.bezirk?.name || r.district || '';
                 return (
                   <button
                     key={r._id}
                     type="button"
-                    className="search-result-item"
+                    className={styles.item}
                     onClick={() => goRestaurant(r.slug)}
                   >
-                    {r.photo && (
+                    {r.photo ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={r.photo} alt="" className="search-result-img" loading="lazy" />
+                      <img src={r.photo} alt="" className={styles.thumb} loading="lazy" />
+                    ) : (
+                      <div className={styles.thumbPlaceholder} aria-hidden="true">🍽</div>
                     )}
-                    <div className="search-result-content">
-                      <div className="search-result-title">{r.name}</div>
-                      {district && <div className="search-result-meta">{district}</div>}
+                    <div className={styles.body}>
+                      <div className={styles.title}>{r.name}</div>
+                      {district && <div className={styles.meta}>{district}</div>}
                     </div>
+                    <svg className={styles.chevron} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
                   </button>
                 );
               })}
@@ -234,7 +252,9 @@ export default function SearchOverlay({ newsArticles }: Props) {
           )}
 
           {noResults && (
-            <div className="search-hint">{t('search.empty') || 'Nichts gefunden.'}</div>
+            <div className={styles.hint}>
+              {t('search.empty') || 'Nichts gefunden.'}
+            </div>
           )}
         </div>
       </div>

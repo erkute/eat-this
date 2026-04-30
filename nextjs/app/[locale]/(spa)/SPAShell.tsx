@@ -57,7 +57,7 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
         <NewsArticleShell isActive={activePage === 'news-article'} />
       </div>
       <EatModal />
-      <SearchOverlay newsArticles={newsArticles} />
+      <SearchOverlay />
       <CookieConsent />
       <OnboardingOverlay />
       <WelcomeModal />

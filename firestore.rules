@@ -52,16 +52,29 @@ service cloud.firestore {
 
     match /userProfiles/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
+
       allow create: if request.auth != null
         && request.auth.uid == uid
         && request.resource.data.uid == uid
+        && request.resource.data.keys().hasOnly(['uid', 'avatarIndex', 'mustEatStatus', 'createdAt', 'updatedAt'])
         && request.resource.data.avatarIndex is number
         && request.resource.data.avatarIndex >= 1
-        && request.resource.data.avatarIndex <= 3;
+        && request.resource.data.avatarIndex <= 3
+        && request.resource.data.mustEatStatus is map
+        && request.resource.data.mustEatStatus.keys().hasOnly(['eaten'])
+        && request.resource.data.mustEatStatus.eaten is map;
+
       allow update: if request.auth != null
         && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['uid', 'avatarIndex', 'mustEatStatus', 'createdAt', 'updatedAt'])
         && request.resource.data.uid == resource.data.uid
-        && request.resource.data.createdAt == resource.data.createdAt;
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.avatarIndex is number
+        && request.resource.data.avatarIndex >= 1
+        && request.resource.data.avatarIndex <= 3
+        && request.resource.data.mustEatStatus is map
+        && request.resource.data.mustEatStatus.keys().hasOnly(['eaten'])
+        && request.resource.data.mustEatStatus.eaten is map;
     }
 
     match /{document=**} {

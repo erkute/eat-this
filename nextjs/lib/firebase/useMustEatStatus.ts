@@ -1,14 +1,19 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from './config';
-import { ensureUserProfile, setEaten as setEatenFs } from './userProfile';
+import { ensureUserProfile, setEaten as setEatenFs, USER_PROFILES } from './userProfile';
 import type { UserProfile } from '@/lib/types';
 
 export function useMustEatStatus(uid: string | null) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const profileRef = useRef<UserProfile | null>(null);
+
+  useEffect(() => {
+    profileRef.current = profile;
+  }, [profile]);
 
   useEffect(() => {
     if (!uid) {
@@ -18,13 +23,19 @@ export function useMustEatStatus(uid: string | null) {
     }
     let cancelled = false;
     setLoading(true);
-    ensureUserProfile(uid).catch((err) => console.error('[userProfile] ensure failed:', err));
-    const ref = doc(db, 'userProfiles', uid);
+    const ref = doc(db, USER_PROFILES, uid);
     const unsub = onSnapshot(
       ref,
       (snap) => {
         if (cancelled) return;
-        setProfile(snap.exists() ? (snap.data() as UserProfile) : null);
+        if (snap.exists()) {
+          setProfile(snap.data() as UserProfile);
+        } else {
+          // First-time user — create the doc lazily here so we don't double-write
+          ensureUserProfile(uid).catch((err) =>
+            console.error('[userProfile] ensure failed:', err),
+          );
+        }
         setLoading(false);
       },
       (err) => {
@@ -41,12 +52,12 @@ export function useMustEatStatus(uid: string | null) {
   const toggleEaten = useCallback(
     async (mustEatId: string) => {
       if (!uid) return;
-      const isEaten = !!profile?.mustEatStatus.eaten[mustEatId];
+      const isEaten = !!profileRef.current?.mustEatStatus?.eaten?.[mustEatId];
       await setEatenFs(uid, mustEatId, !isEaten).catch((err) =>
         console.error('[useMustEatStatus] toggle failed:', err),
       );
     },
-    [uid, profile],
+    [uid],
   );
 
   return { profile, loading, toggleEaten };

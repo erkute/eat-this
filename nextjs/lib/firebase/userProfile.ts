@@ -2,7 +2,7 @@ import { doc, getDoc, setDoc, updateDoc, deleteField } from 'firebase/firestore'
 import { db } from './config';
 import type { UserProfile } from '@/lib/types';
 
-const USER_PROFILES = 'userProfiles';
+export const USER_PROFILES = 'userProfiles';
 
 export function avatarIndexFromUid(uid: string): 1 | 2 | 3 {
   // Deterministic: same uid -> always same avatar
@@ -23,7 +23,7 @@ export async function ensureUserProfile(uid: string): Promise<UserProfile> {
     createdAt: Date.now(),
     updatedAt: Date.now(),
   };
-  await setDoc(ref, fresh);
+  await setDoc(ref, fresh, { merge: true });
   return fresh;
 }
 

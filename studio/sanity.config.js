@@ -26,28 +26,6 @@ export default defineConfig({
         S.list()
           .title('Content')
           .items([
-            // ── Hero (Singleton) ──────────────────────────────────────────
-            S.listItem()
-              .title('🖼  Hero')
-              .id('heroSettings')
-              .child(
-                S.document()
-                  .schemaType('heroSettings')
-                  .documentId('heroSettings'),
-              ),
-
-            // ── Startseite (Singleton) ────────────────────────────────────
-            S.listItem()
-              .title('🏠  Startseite')
-              .id('startContent')
-              .child(
-                S.document()
-                  .schemaType('startContent')
-                  .documentId('startContent'),
-              ),
-
-            S.divider(),
-
             // ── News ─────────────────────────────────────────────────────
             S.documentTypeListItem('newsArticle').title('📰  News'),
 
@@ -79,7 +57,6 @@ export default defineConfig({
             // ── Other content types ───────────────────────────────────────
             S.documentTypeListItem('mustEat').title('🍽  Must-Eats'),
             S.documentTypeListItem('restaurant').title('📍  Restaurants'),
-            S.documentTypeListItem('cardPack').title('🃏  Card Packs'),
           ]),
     }),
     visionTool(),

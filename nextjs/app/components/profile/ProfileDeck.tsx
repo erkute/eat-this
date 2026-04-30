@@ -239,7 +239,7 @@ function FlipSlot({ order, card, flipped, eaten, onExpand, onToggleEaten, slotRe
         <button
           type="button"
           className={`${styles.eatenChip} ${eaten ? styles.eatenChipActive : ''}`}
-          aria-label={eaten ? 'Als nicht gegessen markieren' : 'Als gegessen markieren'}
+          aria-label={`${card.dish}: gegessen`}
           aria-pressed={eaten}
           onClick={(e) => {
             e.stopPropagation();

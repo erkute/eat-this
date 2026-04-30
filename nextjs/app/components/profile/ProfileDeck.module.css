@@ -155,6 +155,14 @@
   align-items: center;
   justify-content: center;
 }
+/* Expanded hit area for thumb taps (visual chip stays 16x16) */
+.eatenChip::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  /* explicit so the pseudo-element captures clicks even with parent transitions */
+  background: transparent;
+}
 .eatenChip:hover {
   background: rgba(255, 255, 255, 0.4);
 }

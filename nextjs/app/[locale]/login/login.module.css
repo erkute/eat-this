@@ -320,13 +320,11 @@
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
   }
 
-  /* Image keeps its natural aspect, fills the card width, shifted up
-     (negative top) so the plate sits in the upper third of the card —
-     no overlap with the form text below. The dark frame bg covers the
-     bottom area where the form sits. */
+  /* Image natural aspect, fills card width, slight upward shift so
+     the plate sits below the logo with breathing room around it. */
   .heroImg {
     inset: auto;
-    top: -80px;
+    top: -20px;
     left: 0;
     right: 0;
     width: 100%;
@@ -350,10 +348,21 @@
 
   .logoWrap { padding-top: 22px; }
   .logoMark { width: 54px; }
-  .heroHeadline { font-size: 26px; }
-  .heroSubtitle { font-size: 13px; }
-  .formWrap {
-    padding: 0 22px 26px;
-    max-width: none;
+  .heroHeadline {
+    font-size: 26px;
+    margin-bottom: 2px;
   }
+  .heroSubtitle {
+    font-size: 12px;
+    margin-bottom: 10px;
+    white-space: nowrap;
+  }
+  .formWrap {
+    padding: 0 22px 22px;
+    max-width: none;
+    gap: 6px;
+  }
+  .form { gap: 6px; }
+  .divider { margin: 0; }
+  .terms { margin-top: 8px; }
 }

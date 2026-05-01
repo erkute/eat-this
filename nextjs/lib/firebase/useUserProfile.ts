@@ -30,9 +30,14 @@ export function useUserProfile(uid: string | null) {
       ref,
       (snap) => {
         const data = snap.data();
-        const raw = data?.avatar;
-        const avatar: AvatarChoice | null = raw === 1 || raw === 2 || raw === 3 ? raw : null;
-        const onboardedAt = (data?.onboardedAt as Timestamp | undefined) ?? null;
+        const rawAvatar = data?.avatar;
+        const avatar: AvatarChoice | null =
+          rawAvatar === 1 || rawAvatar === 2 || rawAvatar === 3 ? rawAvatar : null;
+        const rawOnboardedAt = data?.onboardedAt;
+        const onboardedAt: Timestamp | null =
+          rawOnboardedAt != null && typeof (rawOnboardedAt as Timestamp).toDate === 'function'
+            ? (rawOnboardedAt as Timestamp)
+            : null;
         setProfile({ avatar, onboardedAt });
         setLoading(false);
       },

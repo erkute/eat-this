@@ -9,6 +9,8 @@ import {
   applyActionCode,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
+import { useLocale } from 'next-intl';
+import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import styles from './auth-action.module.css';
 
 type State =
@@ -29,6 +31,7 @@ export default function AuthActionPage() {
 function AuthActionInner() {
   const params = useSearchParams();
   const router = useRouter();
+  const locale = useLocale();
   const [state, setState] = useState<State>({ kind: 'processing' });
 
   useEffect(() => {
@@ -47,9 +50,9 @@ function AuthActionInner() {
         return;
       }
       signInWithEmailLink(auth, email, url)
-        .then(() => {
+        .then(async (result) => {
           localStorage.removeItem('emailForSignIn');
-          router.replace('/profile');
+          await postLoginRedirect(result.user.uid, router, locale);
         })
         .catch(() => {
           setState({ kind: 'expired' });
@@ -75,7 +78,7 @@ function AuthActionInner() {
 
     // resetPassword OR unknown — both flow into the same generic "expired" view
     setState({ kind: 'expired' });
-  }, [params, router]);
+  }, [params, router, locale]);
 
   return (
     <main className={styles.page}>
@@ -138,6 +141,7 @@ function NeedsEmailForm({
   setState: (s: State) => void;
 }) {
   const router = useRouter();
+  const locale = useLocale();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [busy,  setBusy]  = useState(false);
@@ -148,9 +152,9 @@ function NeedsEmailForm({
     setBusy(true);
     setError('');
     signInWithEmailLink(auth, email, href)
-      .then(() => {
+      .then(async (result) => {
         localStorage.removeItem('emailForSignIn');
-        router.replace('/');
+        await postLoginRedirect(result.user.uid, router, locale);
       })
       .catch((err: unknown) => {
         setBusy(false);

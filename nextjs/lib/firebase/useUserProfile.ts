@@ -1,24 +1,26 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, serverTimestamp, type Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 
 export type AvatarChoice = 1 | 2 | 3;
 
 export interface UserProfile {
-  avatar: AvatarChoice | null;
+  avatar:      AvatarChoice | null;
+  onboardedAt: Timestamp | null;
 }
 
 // Subscribes to the user's profile doc. `avatar: null` means the user
 // hasn't chosen one — UI falls back to a UID-derived default.
+// `onboardedAt: null` means the onboarding hasn't been completed.
 export function useUserProfile(uid: string | null) {
-  const [profile, setProfile] = useState<UserProfile>({ avatar: null });
+  const [profile, setProfile] = useState<UserProfile>({ avatar: null, onboardedAt: null });
   const [loading, setLoading] = useState<boolean>(!!uid);
 
   useEffect(() => {
     if (!uid) {
-      setProfile({ avatar: null });
+      setProfile({ avatar: null, onboardedAt: null });
       setLoading(false);
       return;
     }
@@ -30,7 +32,8 @@ export function useUserProfile(uid: string | null) {
         const data = snap.data();
         const raw = data?.avatar;
         const avatar: AvatarChoice | null = raw === 1 || raw === 2 || raw === 3 ? raw : null;
-        setProfile({ avatar });
+        const onboardedAt = (data?.onboardedAt as Timestamp | undefined) ?? null;
+        setProfile({ avatar, onboardedAt });
         setLoading(false);
       },
       () => setLoading(false),
@@ -46,7 +49,15 @@ export function useUserProfile(uid: string | null) {
     [uid],
   );
 
-  return { profile, loading, setAvatar };
+  const markOnboarded = useCallback(
+    async () => {
+      if (!uid) return;
+      await setDoc(doc(db, 'users', uid), { onboardedAt: serverTimestamp() }, { merge: true });
+    },
+    [uid],
+  );
+
+  return { profile, loading, setAvatar, markOnboarded };
 }
 
 // Deterministic fallback when the user hasn't picked an avatar yet.

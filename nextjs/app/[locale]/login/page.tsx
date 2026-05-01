@@ -49,6 +49,16 @@ export default function LoginPage() {
 
   return (
     <main className={styles.page}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/pics/login/Black screen.webp"
+        alt=""
+        className={styles.heroImg}
+        decoding="async"
+      />
+      <div className={styles.scrimTop} />
+      <div className={styles.scrimBottom} />
+
       <button
         type="button"
         className={styles.backBtn}
@@ -61,33 +71,16 @@ export default function LoginPage() {
         </svg>
       </button>
 
-      <section className={styles.hero}>
+      <div className={styles.logoWrap}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/pics/login/Black screen.webp"
-          alt=""
-          className={styles.heroImg}
-          decoding="async"
+          src="/pics/login/eat 1.webp"
+          alt="Eat This"
+          className={styles.logoMark}
         />
-        <div className={styles.heroScrim} />
-        <div className={styles.heroLogo}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/pics/login/eat 1.webp"
-            alt="Eat This"
-            className={styles.heroLogoMark}
-          />
-          <h1 className={styles.heroHeadline}>
-            Hundreds of Must Eats<br />to discover
-          </h1>
-        </div>
-      </section>
+      </div>
 
-      <section className={styles.body}>
-        <p className={styles.eyebrow}>Berlin · Food Guide</p>
-        <h2 className={styles.title}>{t('modals.login.titleLogin')}</h2>
-        <p className={styles.subtitle}>{t('modals.login.subtitleLogin')}</p>
-
+      <div className={styles.formWrap}>
         {magicState === 'sent' ? (
           <div className={styles.sentBox}>
             <p className={styles.sentTitle}>Check deine Inbox</p>
@@ -159,7 +152,7 @@ export default function LoginPage() {
           <a className={styles.termsLink} href={dsHref}>{t('modals.login.privacyLink')}</a>
           <span>.</span>
         </p>
-      </section>
+      </div>
     </main>
   );
 }

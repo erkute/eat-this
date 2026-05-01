@@ -21,7 +21,8 @@ export default function BurgerDrawer() {
       const href = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
       window.location.assign(href);
     } else {
-      window.openWelcomeModal?.();
+      const href = locale === routing.defaultLocale ? '/login' : `/${locale}/login`;
+      window.location.assign(href);
     }
   }, [user, locale]);
 

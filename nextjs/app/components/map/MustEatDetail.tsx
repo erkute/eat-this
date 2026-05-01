@@ -1,5 +1,7 @@
 'use client'
 import { useState } from 'react'
+import { useLocale } from 'next-intl'
+import { routing } from '@/i18n/routing'
 import type { MapMustEat } from '@/lib/types'
 import { haversineDistance, formatDistance } from '@/lib/map/distance'
 import type { UserLocation } from '@/lib/map/useUserLocation'
@@ -49,6 +51,7 @@ function UnlockIcon() {
 
 export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnlock, onClose, onViewRestaurant, onShowMustEatList, inSheet, uid }: MustEatDetailProps) {
   const { t } = useTranslation()
+  const locale = useLocale()
   const distance = userLocation
     ? haversineDistance(userLocation.lat, userLocation.lng, mustEat.restaurant.lat, mustEat.restaurant.lng)
     : null
@@ -147,7 +150,7 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
                         if (uid) {
                           window.location.href = '/profile'
                         } else {
-                          (window as Window & { openWelcomeModal?: () => void }).openWelcomeModal?.()
+                          window.location.assign(locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
                         }
                       }}
                     >
@@ -298,7 +301,7 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
                     if (uid) {
                       window.location.href = '/profile'
                     } else {
-                      (window as Window & { openWelcomeModal?: () => void }).openWelcomeModal?.()
+                      window.location.assign(locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
                     }
                   }}
                 >

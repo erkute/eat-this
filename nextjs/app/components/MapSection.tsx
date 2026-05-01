@@ -13,6 +13,8 @@ import { getOpenStatus } from '@/lib/map/openingHours'
 import { haversineDistance, formatDistance } from '@/lib/map/distance'
 import { applyFanOffset } from '@/lib/map/fanOffset'
 import { useTranslation } from '@/lib/i18n'
+import { useLocale } from 'next-intl'
+import { routing } from '@/i18n/routing'
 import MapCanvas from './map/MapCanvas'
 import RestaurantMarker from './map/RestaurantMarker'
 import MustEatMarker from './map/MustEatMarker'
@@ -41,6 +43,7 @@ export default function MapSection({ isActive = false }: Props) {
   // the slow auto-locate Promise can't overwrite the user's selection.
   const userInteractedRef = useRef(false)
   const { t } = useTranslation()
+  const locale = useLocale()
 
   const { restaurants, mustEats, loading: dataLoading } = useMapData()
   // Keep the card-shuffle brand moment but make it fast: 1.5 s bar fill +
@@ -725,7 +728,7 @@ export default function MapSection({ isActive = false }: Props) {
   const handleUnlock = useCallback(async () => {
     if (!selectedMustEat) return
     if (!uid) {
-      ;(window as Window & { openWelcomeModal?: () => void }).openWelcomeModal?.()
+      window.location.assign(locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
       return
     }
     await unlock(selectedMustEat._id, selectedMustEat.restaurant._id, selectedMustEat.dish)
@@ -1050,7 +1053,7 @@ export default function MapSection({ isActive = false }: Props) {
                                 if (uid) {
                                   window.location.href = '/profile'
                                 } else {
-                                  (window as Window & { openWelcomeModal?: () => void }).openWelcomeModal?.()
+                                  window.location.assign(locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
                                 }
                               }}
                             >Pack holen · 0,99 €</button>

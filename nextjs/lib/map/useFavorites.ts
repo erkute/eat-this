@@ -62,7 +62,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
 
   const toggle = useCallback(async (r: { _id: string; name: string; slug?: string; photo?: string; district?: string }) => {
     if (!uid) {
-      ;(window as unknown as { openWelcomeModal?: () => void }).openWelcomeModal?.()
+      window.location.assign('/login')
       return
     }
     const ref = doc(db, 'users', uid, 'favorites', r._id)

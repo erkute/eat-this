@@ -12,8 +12,6 @@ import {
   onAuthStateChanged,
   signInWithPopup,
   getRedirectResult,
-  isSignInWithEmailLink,
-  signInWithEmailLink,
   GoogleAuthProvider,
   signOut as firebaseSignOut,
   updateProfile,
@@ -71,25 +69,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const code = (err as { code?: string }).code ?? err;
         console.warn('[auth] getRedirectResult failed:', code);
       });
-
-    // Handle magic link callback when user lands on / with auth params still
-    // attached (the /welcome page also handles this — this is a safety net for
-    // cases where the link bypasses /welcome entirely).
-    if (isSignInWithEmailLink(auth, window.location.href)) {
-      const email = localStorage.getItem('emailForSignIn') ?? '';
-      signInWithEmailLink(auth, email, window.location.href)
-        .then((result) => {
-          localStorage.removeItem('emailForSignIn');
-          window.history.replaceState({}, '', window.location.pathname);
-          window.dispatchEvent(
-            new CustomEvent('auth:magicLinkComplete', { detail: { user: result.user } }),
-          );
-        })
-        .catch((err: unknown) => {
-          const code = (err as { code?: string }).code ?? err;
-          console.warn('[auth] signInWithEmailLink failed:', code);
-        });
-    }
 
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);

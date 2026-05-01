@@ -4,9 +4,9 @@
  * BridgeAuth — bridges the React Auth context with the legacy window globals.
  *
  * During migration the vanilla JS (app.min.js, profile.min.js) still calls
- * window._signOut / window._updateDisplayName / window._deleteAccount /
- * window.openWelcomeModal / window.closeWelcomeModal. This component wires
- * those globals to the React auth context so the UI keeps working unchanged.
+ * window._signOut / window._updateDisplayName / window._deleteAccount.
+ * This component wires those globals to the React auth context so the UI
+ * keeps working unchanged.
  *
  * Auth-state side effects (loginBtn DOM, _authHint, _currentUser,
  * _revealBlurredCards) were previously handled by auth.min.js's
@@ -42,17 +42,6 @@ export default function BridgeAuth() {
     };
     window._updateDisplayName = async (name: string)  => { await updateDisplayName(name); };
     window._deleteAccount     = async ()               => { await deleteAccount(); };
-
-    // WelcomeModal open/close — app.min.js calls these when profile icon is
-    // clicked without auth. The DOM modal is owned by WelcomeModal.tsx.
-    const openModal = () => document.getElementById('welcomeModal')?.classList.add('active');
-    const closeModal = () => document.getElementById('welcomeModal')?.classList.remove('active');
-    window.openWelcomeModal = openModal;
-    window.closeWelcomeModal = closeModal;
-    // favourites.min.js calls openLoginModal when user taps a fav without auth.
-    // app.min.js used to define it pointing to #loginModal (removed); override
-    // here so it opens the WelcomeModal instead.
-    window.openLoginModal = openModal;
   }, [signOut, updateDisplayName, deleteAccount, t]);
 
   // ─── Auth-state side effects ───────────────────────────────────────────────
@@ -106,25 +95,11 @@ export default function BridgeAuth() {
       if (!u) return;
       const first = (u.displayName ?? u.email ?? '').split(' ')[0] || t('footer.signIn');
       window.showNotification?.(t('modals.login.notifications.signedIn').replace('{name}', first));
-      document.getElementById('welcomeModal')?.classList.remove('active');
       window.location.assign(localeProfileHref(locale));
     };
     window.addEventListener('auth:redirectComplete', onRedirectComplete);
     return () => window.removeEventListener('auth:redirectComplete', onRedirectComplete);
   }, [t, locale]);
-
-  // ─── Magic-Link post-completion ────────────────────────────────────────────
-  useEffect(() => {
-    const onMagicLinkComplete = (e: Event) => {
-      const detail = (e as CustomEvent).detail as { user?: import('firebase/auth').User } | undefined;
-      const u = detail?.user;
-      if (!u) return;
-      const first = (u.displayName ?? u.email ?? '').split(' ')[0] || t('footer.signIn');
-      window.showNotification?.(t('modals.login.notifications.welcome').replace('{name}', first));
-    };
-    window.addEventListener('auth:magicLinkComplete', onMagicLinkComplete);
-    return () => window.removeEventListener('auth:magicLinkComplete', onMagicLinkComplete);
-  }, [t]);
 
   return null;
 }
@@ -137,10 +112,6 @@ declare global {
     _signOut?: () => Promise<void>;
     _updateDisplayName?: (name: string) => Promise<void>;
     _deleteAccount?: () => Promise<void>;
-    openWelcomeModal?: () => void;
-    closeWelcomeModal?: () => void;
-    openLoginModal?: () => void;
-    closeLoginModal?: () => void;
     showNotification?: (msg: string) => void;
     _revealBlurredCards?: () => void;
     _renderAlbum?: () => void;

@@ -49,6 +49,7 @@ export default function LoginPage() {
 
   return (
     <main className={styles.page}>
+      <div className={styles.frame}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/pics/login/Black screen.webp"
@@ -157,6 +158,7 @@ export default function LoginPage() {
           <a className={styles.termsLink} href={dsHref}>{t('modals.login.privacyLink')}</a>
           <span>.</span>
         </p>
+      </div>
       </div>
     </main>
   );

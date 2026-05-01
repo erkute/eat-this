@@ -463,9 +463,6 @@ body {
 [data-theme="dark"][data-active-page="start"] .navbar:not(.scrolled) .burger-btn:hover {
   color: #ffffff;
 }
-[data-theme="dark"][data-active-page="start"] .navbar:not(.scrolled) .burger-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-}
 [data-active-page="start"] .navbar.scrolled {
   background: #ffffff;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
@@ -3503,25 +3500,31 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   height: 36px;
   background: none;
   border: none;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
   cursor: pointer;
   padding: 4px;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: var(--black);
+  transition: color 0.25s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   -webkit-tap-highlight-color: transparent;
+}
+.burger-btn:focus,
+.burger-btn:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 .burger-btn span {
   display: block;
   width: 20px;
   height: 2px;
-  background: var(--black);
+  background: currentColor;
   border-radius: 2px;
-  transition: background 0.25s ease, width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 @media (hover: hover) {
   .burger-btn:hover {
     transform: scale(1.18) translateY(-2px);
-  }
-  .burger-btn:hover span {
-    background: var(--orange);
   }
   /* Middle line shortens for an "alive" feel — subtle but tactile. */
   .burger-btn:hover span:nth-child(2) {
@@ -3533,8 +3536,8 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
 }
 /* Burger turns CTA red while the drawer is open — works in light and dark
    modes since :has() reads the current DOM state regardless of theme. */
-body:has(.burger-drawer.active) .burger-btn span {
-  background: var(--orange);
+body:has(.burger-drawer.active) .burger-btn {
+  color: var(--orange);
 }
 
 /* Drawer */

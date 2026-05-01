@@ -7,6 +7,7 @@ import { useTranslation } from '@/lib/i18n';
 import { useAuth, useMagicLink } from '@/lib/auth';
 import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { routing } from '@/i18n/routing';
+import styles from './login.module.css';
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -15,9 +16,7 @@ export default function LoginPage() {
   const locale = useLocale();
   const { sendLink, state: magicState, errorMessage: magicError, reset: magicReset } = useMagicLink();
 
-  const [email, setEmail]       = useState('');
-  const [panel, setPanel]       = useState<'landing' | 'form'>('landing');
-  const [formMode, setFormMode] = useState<'login' | 'register'>('login');
+  const [email, setEmail]           = useState('');
   const [googleBusy, setGoogleBusy] = useState(false);
 
   // Already signed in? Route them straight away.
@@ -26,18 +25,14 @@ export default function LoginPage() {
     void postLoginRedirect(user.uid, router, locale);
   }, [user, loading, router, locale]);
 
-  const showFormPanel = useCallback((mode: 'login' | 'register') => {
-    setFormMode(mode);
-    magicReset();
-    setEmail('');
-    setPanel('form');
-  }, [magicReset]);
-
-  const goBack = useCallback(() => {
-    magicReset();
-    setEmail('');
-    setPanel('landing');
-  }, [magicReset]);
+  const handleBack = useCallback(() => {
+    if (window.history.length > 1) {
+      router.back();
+      return;
+    }
+    const home = locale === routing.defaultLocale ? '/' : `/${locale}`;
+    router.replace(home);
+  }, [router, locale]);
 
   const handleGoogle = useCallback(async () => {
     setGoogleBusy(true);
@@ -53,101 +48,118 @@ export default function LoginPage() {
   const dsHref  = locale === routing.defaultLocale ? '/datenschutz' : `/${locale}/datenschutz`;
 
   return (
-    <div className="wm-overlay active" aria-modal={false} role="region" aria-label="Login">
-      <div className="wm-dialog">
+    <main className={styles.page}>
+      <button
+        type="button"
+        className={styles.backBtn}
+        onClick={handleBack}
+        aria-label={t('modals.login.backBtn')}
+      >
+        <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="currentColor" strokeWidth={2.5}>
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+
+      <section className={styles.hero}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/pics/login/Black screen.webp" alt="" className="wm-hero-img" decoding="async" />
-
-        <div className="wm-hero-logo-wrap">
+        <img
+          src="/pics/login/Black screen.webp"
+          alt=""
+          className={styles.heroImg}
+          decoding="async"
+        />
+        <div className={styles.heroScrim} />
+        <div className={styles.heroLogo}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/pics/login/eat 1.webp" alt="Eat This" className="wm-hero-logo" />
+          <img
+            src="/pics/login/eat 1.webp"
+            alt="Eat This"
+            className={styles.heroLogoMark}
+          />
+          <h1 className={styles.heroHeadline}>
+            Hundreds of Must Eats<br />to discover
+          </h1>
         </div>
+      </section>
 
-        {panel === 'landing' && (
-          <div className="wm-landing">
-            <p className="wm-hero-headline">Hundreds of Must Eats<br />to discover</p>
-            <button className="wm-cta-primary" onClick={() => showFormPanel('login')}>
-              {t('modals.login.landingLogin')}
-            </button>
-            <button className="wm-cta-google" onClick={handleGoogle} disabled={googleBusy}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/pics/login/Google.webp" alt="" className="wm-google-icon" width={18} height={18} />
-              <span>{t('modals.login.googleBtn')}</span>
-            </button>
-            <button className="wm-cta-text" onClick={() => showFormPanel('register')}>
-              {t('modals.login.toggleToRegister')}
+      <section className={styles.body}>
+        <p className={styles.eyebrow}>Berlin · Food Guide</p>
+        <h2 className={styles.title}>{t('modals.login.titleLogin')}</h2>
+        <p className={styles.subtitle}>{t('modals.login.subtitleLogin')}</p>
+
+        {magicState === 'sent' ? (
+          <div className={styles.sentBox}>
+            <p className={styles.sentTitle}>Check deine Inbox</p>
+            <p className={styles.sentBody}>{t('modals.login.linkSentHint')}</p>
+            <button
+              type="button"
+              className={styles.sentLink}
+              onClick={() => { magicReset(); setEmail(''); }}
+            >
+              {t('modals.login.resendBtn')}
             </button>
           </div>
-        )}
-
-        {panel === 'form' && (
-          <div className="wm-form-panel">
-            <button className="wm-back" type="button" aria-label={t('modals.login.backBtn')} onClick={goBack}>
-              <svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="currentColor" strokeWidth={2.5}>
-                <polyline points="15 18 9 12 15 6" />
+        ) : (
+          <form
+            className={styles.form}
+            noValidate
+            onSubmit={(e) => { e.preventDefault(); sendLink(email); }}
+          >
+            <input
+              className={styles.input}
+              type="email"
+              placeholder={t('modals.login.emailPlaceholder')}
+              required
+              autoComplete="email"
+              aria-label="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            {magicState === 'error' && (
+              <p className={styles.error}>{magicError}</p>
+            )}
+            <button
+              type="submit"
+              className={styles.cta}
+              disabled={magicState === 'sending'}
+            >
+              <span>{t('modals.login.sendLinkBtn')}</span>
+              <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="currentColor" strokeWidth={2.5}>
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
               </svg>
-              <span>{t('modals.login.backBtn')}</span>
             </button>
-
-            <div className="wm-form-wrap">
-              <h2 className="wm-form-title">
-                {formMode === 'login' ? t('modals.login.titleLogin') : t('modals.login.titleRegister')}
-              </h2>
-              <p className="wm-booster-hint">
-                {formMode === 'login' ? t('modals.login.subtitleLogin') : t('modals.login.subtitleRegister')}
-              </p>
-
-              {magicState === 'sent' ? (
-                <div>
-                  <p className="wm-booster-hint">{t('modals.login.linkSentHint')}</p>
-                  <button
-                    type="button"
-                    className="wm-cta-text"
-                    onClick={() => { magicReset(); setEmail(''); }}
-                  >
-                    {t('modals.login.resendBtn')}
-                  </button>
-                </div>
-              ) : (
-                <form
-                  className="wm-email-form"
-                  noValidate
-                  onSubmit={(e) => { e.preventDefault(); sendLink(email); }}
-                >
-                  <div className="wm-field">
-                    <input
-                      type="email"
-                      placeholder={t('modals.login.emailPlaceholder')}
-                      required
-                      autoComplete="email"
-                      aria-label="Email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                  {magicState === 'error' && (
-                    <p className="wm-msg wm-error">{magicError}</p>
-                  )}
-                  <button type="submit" className="wm-submit" disabled={magicState === 'sending'}>
-                    <span>{t('modals.login.sendLinkBtn')}</span>
-                    <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="currentColor" strokeWidth={2.5}>
-                      <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
-                    </svg>
-                  </button>
-                </form>
-              )}
-
-              <p className="wm-terms">
-                <span>{t('modals.login.termsText')}</span>{' '}
-                <a className="wm-terms-link" href={agbHref}>{t('modals.login.termsLink')}</a>{' '}
-                <span>{t('modals.login.termsAnd')}</span>{' '}
-                <a className="wm-terms-link" href={dsHref}>{t('modals.login.privacyLink')}</a>
-                <span>.</span>
-              </p>
-            </div>
-          </div>
+          </form>
         )}
-      </div>
-    </div>
+
+        <div className={styles.divider}>oder</div>
+
+        <button
+          type="button"
+          className={styles.googleBtn}
+          onClick={handleGoogle}
+          disabled={googleBusy}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/pics/login/Google.webp"
+            alt=""
+            className={styles.googleIcon}
+            width={18}
+            height={18}
+          />
+          <span>{t('modals.login.googleBtn')}</span>
+        </button>
+
+        <p className={styles.terms}>
+          <span>{t('modals.login.termsText')}</span>{' '}
+          <a className={styles.termsLink} href={agbHref}>{t('modals.login.termsLink')}</a>{' '}
+          <span>{t('modals.login.termsAnd')}</span>{' '}
+          <a className={styles.termsLink} href={dsHref}>{t('modals.login.privacyLink')}</a>
+          <span>.</span>
+        </p>
+      </section>
+    </main>
   );
 }

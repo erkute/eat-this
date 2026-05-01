@@ -17,19 +17,12 @@
  */
 
 import { useEffect } from 'react';
-import { useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
-import { routing } from '@/i18n/routing';
-
-function localeProfileHref(locale: string) {
-  return locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
-}
 
 export default function BridgeAuth() {
   const { user, loading, signOut, updateDisplayName, deleteAccount } = useAuth();
   const { t } = useTranslation();
-  const locale = useLocale();
 
   // ─── Expose auth operations to vanilla JS globals ──────────────────────────
 
@@ -82,24 +75,6 @@ export default function BridgeAuth() {
     // 6. Dispatch for any other vanilla JS listeners.
     window.dispatchEvent(new CustomEvent('auth:changed', { detail: { user } }));
   }, [user, loading, t]);
-
-  // ─── Mobile Google-redirect post-completion ────────────────────────────────
-  // signInWithRedirect navigates the page away, so the close()/navigate logic
-  // in WelcomeModal's Google handler can't run. AuthContext fires
-  // 'auth:redirectComplete' once getRedirectResult resolves with a user — we
-  // pick it up here to deliver the same UX as the desktop popup flow.
-  useEffect(() => {
-    const onRedirectComplete = (e: Event) => {
-      const detail = (e as CustomEvent).detail as { user?: import('firebase/auth').User } | undefined;
-      const u = detail?.user;
-      if (!u) return;
-      const first = (u.displayName ?? u.email ?? '').split(' ')[0] || t('footer.signIn');
-      window.showNotification?.(t('modals.login.notifications.signedIn').replace('{name}', first));
-      window.location.assign(localeProfileHref(locale));
-    };
-    window.addEventListener('auth:redirectComplete', onRedirectComplete);
-    return () => window.removeEventListener('auth:redirectComplete', onRedirectComplete);
-  }, [t, locale]);
 
   return null;
 }

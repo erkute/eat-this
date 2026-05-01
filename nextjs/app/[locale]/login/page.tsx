@@ -85,7 +85,6 @@ export default function LoginPage() {
         <h1 className={styles.heroHeadline}>
           Hundreds of Must Eats<br />to discover
         </h1>
-        <p className={styles.heroSubtitle}>{t('modals.login.subtitleLogin')}</p>
 
         {magicState === 'sent' ? (
           <div className={styles.sentBox}>
@@ -152,11 +151,9 @@ export default function LoginPage() {
         </button>
 
         <p className={styles.terms}>
-          <span>{t('modals.login.termsText')}</span>{' '}
-          <a className={styles.termsLink} href={agbHref}>{t('modals.login.termsLink')}</a>{' '}
-          <span>{t('modals.login.termsAnd')}</span>{' '}
+          <a className={styles.termsLink} href={agbHref}>{t('modals.login.termsLink')}</a>
+          <span> · </span>
           <a className={styles.termsLink} href={dsHref}>{t('modals.login.privacyLink')}</a>
-          <span>.</span>
         </p>
       </div>
 

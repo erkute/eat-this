@@ -25,27 +25,31 @@
   overflow: hidden;
 }
 
-/* ── Hero image fills the frame ──────────────────────────── */
+/* ── Hero image fills the frame edge-to-edge; element a touch taller
+     than the frame so the plate sits slightly lower (overflow clipped). */
 .heroImg {
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 100%;
+  height: 108%;
   object-fit: cover;
   object-position: center;
   z-index: 0;
 }
 
-/* Top fade so the back button stays readable on bright images */
+/* Top fade — gives back button + centered logo enough contrast over the
+   image. Slightly stronger than before since both badges live on top of
+   the photo (no black-bar safety strip anymore). */
 .scrimTop {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 28%;
+  height: 32%;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
     rgba(0, 0, 0, 0.0) 100%
   );
   z-index: 1;
@@ -92,23 +96,26 @@
 .backBtn:hover { background: rgba(0, 0, 0, 0.62); }
 .backBtn:active { transform: scale(0.92); }
 
-/* ── Logo: top-center, prominent ─────────────────────────── */
+/* ── Logo: top-center, sits on the empty top strip (image shifted down) ── */
 .logoWrap {
-  position: relative;
-  z-index: 2;
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
   display: flex;
+  align-items: center;
   justify-content: center;
-  padding: max(18px, env(safe-area-inset-top, 0px)) 24px 0;
 }
 .logoMark {
-  width: 64px;
+  width: 60px;
   height: auto;
-  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.4));
 }
 
 /* ── Hero headline (sits just above the form, below the plate) ── */
 .heroHeadline {
-  margin: 0 0 4px;
+  margin: 0 0 14px;
   font-size: clamp(22px, 6vw, 28px);
   font-weight: 900;
   line-height: 1.05;
@@ -314,6 +321,7 @@
   line-height: 1.45;
   color: rgba(255, 255, 255, 0.55);
   text-align: center;
+  white-space: nowrap;
 }
 .termsLink {
   color: rgba(255, 255, 255, 0.85);
@@ -340,7 +348,6 @@
     max-width: 400px;
     height: min(90vh, 820px);
     aspect-ratio: 9 / 19;
-    background: #0d0d0d;
     border-radius: 28px;
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.22);
   }
@@ -348,37 +355,18 @@
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
   }
 
-  /* Image natural aspect, fills card width, slight upward shift so
-     the plate sits below the logo with breathing room around it. */
+  /* Image fills card; element taller than frame forces vertical "zoom"
+     so the plate sits a touch lower in the visible area. Bottom is
+     clipped by overflow: hidden on the frame. */
   .heroImg {
-    inset: auto;
-    top: -50px;
-    left: 0;
-    right: 0;
-    width: 100%;
-    height: auto;
-    object-fit: unset;
-  }
-  /* Top scrim is no longer needed — image sits on the dark frame, and the
-     back button has its own background. */
-  .scrimTop { display: none; }
-  /* Bottom scrim becomes a soft fade where image meets dark frame, so the
-     transition isn't a hard line. */
-  .scrimBottom {
-    height: 35%;
-    background: linear-gradient(
-      to bottom,
-      rgba(13, 13, 13, 0.0) 0%,
-      rgba(13, 13, 13, 0.95) 60%,
-      rgba(13, 13, 13, 1) 100%
-    );
+    height: 110%;
+    object-position: center;
   }
 
-  .logoWrap { padding-top: 22px; }
-  .logoMark { width: 54px; }
+  .logoMark { width: 60px; }
   .heroHeadline {
     font-size: 26px;
-    margin-bottom: 2px;
+    margin-bottom: 16px;
   }
   .heroSubtitle {
     font-size: 12px;

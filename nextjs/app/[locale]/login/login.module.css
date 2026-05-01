@@ -87,13 +87,26 @@
   position: relative;
   z-index: 2;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
   padding: max(22px, env(safe-area-inset-top, 0px)) 24px 0;
 }
 .logoMark {
   width: 76px;
   height: auto;
   filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.45));
+}
+.heroHeadline {
+  margin: 0;
+  font-size: clamp(24px, 6.5vw, 30px);
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: #fff;
+  text-align: center;
+  max-width: 320px;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.4);
 }
 
 /* ── Form area floats at the bottom, above the scrim ────── */
@@ -266,8 +279,12 @@
 
 /* ── Desktop: keep layout, just constrain + center ───────── */
 @media (min-width: 768px) {
-  .logoWrap { padding-top: 36px; }
+  .logoWrap {
+    padding-top: 36px;
+    gap: 22px;
+  }
   .logoMark { width: 88px; }
+  .heroHeadline { font-size: 34px; }
   .formWrap {
     padding: 0 22px 44px;
     max-width: 440px;

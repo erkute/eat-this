@@ -78,6 +78,9 @@ export default function LoginPage() {
           alt="Eat This"
           className={styles.logoMark}
         />
+        <h1 className={styles.heroHeadline}>
+          Hundreds of Must Eats<br />to discover
+        </h1>
       </div>
 
       <div className={styles.formWrap}>

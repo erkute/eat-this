@@ -87,9 +87,7 @@
   position: relative;
   z-index: 2;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
+  justify-content: center;
   padding: max(22px, env(safe-area-inset-top, 0px)) 24px 0;
 }
 .logoMark {
@@ -97,16 +95,25 @@
   height: auto;
   filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.45));
 }
+
+/* ── Hero headline (sits just above the form, below the plate) ── */
 .heroHeadline {
-  margin: 0;
-  font-size: clamp(24px, 6.5vw, 30px);
+  margin: 0 0 4px;
+  font-size: clamp(26px, 7vw, 32px);
   font-weight: 900;
-  line-height: 1.08;
+  line-height: 1.05;
   letter-spacing: -0.02em;
   color: #fff;
   text-align: center;
-  max-width: 320px;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
+}
+.heroSubtitle {
+  margin: 0 0 18px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.78);
+  text-align: center;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
 }
 
 /* ── Form area floats at the bottom, above the scrim ────── */
@@ -281,10 +288,10 @@
 @media (min-width: 768px) {
   .logoWrap {
     padding-top: 36px;
-    gap: 22px;
   }
   .logoMark { width: 88px; }
-  .heroHeadline { font-size: 34px; }
+  .heroHeadline { font-size: 36px; }
+  .heroSubtitle { font-size: 14px; }
   .formWrap {
     padding: 0 22px 44px;
     max-width: 440px;

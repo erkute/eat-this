@@ -11,7 +11,7 @@ export default function AuthActionLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="de">
+    <html lang="de" data-scroll-behavior="smooth">
       <body style={{ margin: 0, padding: 0, backgroundColor: '#F7F2E8' }}>
         {children}
       </body>

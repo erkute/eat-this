@@ -78,12 +78,14 @@ export default function LoginPage() {
           alt="Eat This"
           className={styles.logoMark}
         />
-        <h1 className={styles.heroHeadline}>
-          Hundreds of Must Eats<br />to discover
-        </h1>
       </div>
 
       <div className={styles.formWrap}>
+        <h1 className={styles.heroHeadline}>
+          Hundreds of Must Eats<br />to discover
+        </h1>
+        <p className={styles.heroSubtitle}>{t('modals.login.subtitleLogin')}</p>
+
         {magicState === 'sent' ? (
           <div className={styles.sentBox}>
             <p className={styles.sentTitle}>Check deine Inbox</p>

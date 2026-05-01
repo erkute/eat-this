@@ -295,7 +295,8 @@
 .termsLink:hover { color: #fff; }
 
 /* ── Desktop: keep layout, just constrain + center ───────── */
-/* ── Desktop: same mobile look, contained as a phone-shape card ─ */
+/* ── Desktop: phone-shape card; image natural aspect at top, plate
+     fully visible; dark fill below for the glass form to sit on ─── */
 @media (min-width: 768px) {
   .page {
     background: #faf8f3;
@@ -305,14 +306,13 @@
   }
   [data-theme="dark"] .page { background: #0a0a0a; }
 
-  /* Phone-aspect card — taller than wide so the portrait image fits
-     without aggressive cropping; plate sits naturally in the frame. */
   .frame {
     flex: 0 0 auto;
     width: 100%;
     max-width: 400px;
     height: min(90vh, 820px);
     aspect-ratio: 9 / 19;
+    background: #0d0d0d;
     border-radius: 28px;
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.22);
   }
@@ -320,17 +320,39 @@
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
   }
 
-  /* Same full-bleed photo as mobile — just framed by the card. */
+  /* Image keeps its natural aspect, fills the card width, anchored at the
+     top — plate fully visible, no zoom-crop. The bottom of the frame is
+     dark, so the glass form sits on solid color, not on the image. */
   .heroImg {
-    object-position: center 18%;
+    inset: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: auto;
+    object-fit: unset;
+  }
+  /* Top scrim is no longer needed — image sits on the dark frame, and the
+     back button has its own background. */
+  .scrimTop { display: none; }
+  /* Bottom scrim becomes a soft fade where image meets dark frame, so the
+     transition isn't a hard line. */
+  .scrimBottom {
+    height: 35%;
+    background: linear-gradient(
+      to bottom,
+      rgba(13, 13, 13, 0.0) 0%,
+      rgba(13, 13, 13, 0.95) 60%,
+      rgba(13, 13, 13, 1) 100%
+    );
   }
 
-  .logoWrap { padding-top: 26px; }
-  .logoMark { width: 72px; }
-  .heroHeadline { font-size: 28px; }
+  .logoWrap { padding-top: 22px; }
+  .logoMark { width: 54px; }
+  .heroHeadline { font-size: 26px; }
   .heroSubtitle { font-size: 13px; }
   .formWrap {
-    padding: 0 22px 28px;
+    padding: 0 22px 26px;
     max-width: none;
   }
 }

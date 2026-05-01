@@ -1,11 +1,27 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
+import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
+import { useAuth } from '@/lib/auth';
+import { routing } from '@/i18n/routing';
 import LocaleLink from './LocaleLink';
 
 export default function SiteNav() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const locale = useLocale();
+
+  // Header profile icon: route to /profile if signed in, otherwise /login.
+  // Native onClick beats app.min.js's #navProfileBtn handler (which used to
+  // open WelcomeModal — now a no-op). preventDefault stops the link's own
+  // navigation; window.location.assign wins regardless.
+  const handleProfileClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    const target = user ? '/profile' : '/login';
+    const href = locale === routing.defaultLocale ? target : `/${locale}${target}`;
+    window.location.assign(href);
+  }, [user, locale]);
 
   // Wire burger toggle here so it works on every (spa) route, including
   // /profile which doesn't render SPAShell (and therefore no BurgerDrawer).
@@ -64,12 +80,19 @@ export default function SiteNav() {
               <line x1="15" y1="6" x2="15" y2="21"/>
             </svg>
           </LocaleLink>
-          <LocaleLink href="/profile" className="navbar-icon-btn" id="navProfileBtn" aria-label="Profile" suppressHydrationWarning>
+          <a
+            href={locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`}
+            className="navbar-icon-btn"
+            id="navProfileBtn"
+            aria-label="Profile"
+            onClick={handleProfileClick}
+            suppressHydrationWarning
+          >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
               <circle cx="12" cy="7" r="4"/>
             </svg>
-          </LocaleLink>
+          </a>
           <button className="burger-btn" id="burgerBtn" aria-label="Menu">
             <span></span><span></span><span></span>
           </button>

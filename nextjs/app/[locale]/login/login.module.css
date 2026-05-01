@@ -320,12 +320,13 @@
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
   }
 
-  /* Image keeps its natural aspect, fills the card width, anchored at the
-     top — plate fully visible, no zoom-crop. The bottom of the frame is
-     dark, so the glass form sits on solid color, not on the image. */
+  /* Image keeps its natural aspect, fills the card width, shifted up
+     (negative top) so the plate sits in the upper third of the card —
+     no overlap with the form text below. The dark frame bg covers the
+     bottom area where the form sits. */
   .heroImg {
     inset: auto;
-    top: 0;
+    top: -80px;
     left: 0;
     right: 0;
     width: 100%;

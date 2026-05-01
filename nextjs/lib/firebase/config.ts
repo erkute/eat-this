@@ -9,7 +9,7 @@ import { getFunctions } from 'firebase/functions';
 
 const firebaseConfig = {
   apiKey:            'AIzaSyDs0361Db_lwHGW9WZfT5ivj-WIB4fyUw0',
-  authDomain:        'eat-this-8a13b.firebaseapp.com',
+  authDomain:        'auth.eatthisdot.com',
   projectId:         'eat-this-8a13b',
   storageBucket:     'eat-this-8a13b.firebasestorage.app',
   messagingSenderId: '768781457409',

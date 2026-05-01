@@ -159,6 +159,12 @@ export default function LoginPage() {
           <span>.</span>
         </p>
       </div>
+
+      {(googleBusy || (!loading && user)) && (
+        <div className={styles.loadingOverlay} aria-hidden="true">
+          <div className={styles.spinner} />
+        </div>
+      )}
       </div>
     </main>
   );

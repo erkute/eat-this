@@ -17,8 +17,12 @@ service cloud.firestore {
       allow read: if request.auth != null && request.auth.uid == uid;
       allow write: if request.auth != null
         && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['avatar'])
-        && request.resource.data.avatar in [1, 2, 3];
+        && request.resource.data.keys().hasOnly(['avatar', 'onboardedAt'])
+        && (!('avatar' in request.resource.data)
+            || request.resource.data.avatar == null
+            || request.resource.data.avatar in [1, 2, 3])
+        && (!('onboardedAt' in request.resource.data)
+            || request.resource.data.onboardedAt is timestamp);
     }
 
     // Current paths used by the React app

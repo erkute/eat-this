@@ -6,11 +6,12 @@
    ════════════════════════════════════════════════════════════ */
 
 .page {
-  min-height: 100dvh;
+  height: 100dvh;
   width: 100%;
   background: #0d0d0d;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* The "frame" wraps the entire login UI. On mobile it fills the viewport
@@ -97,10 +98,10 @@
   z-index: 2;
   display: flex;
   justify-content: center;
-  padding: max(22px, env(safe-area-inset-top, 0px)) 24px 0;
+  padding: max(18px, env(safe-area-inset-top, 0px)) 24px 0;
 }
 .logoMark {
-  width: 76px;
+  width: 64px;
   height: auto;
   filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.45));
 }
@@ -108,7 +109,7 @@
 /* ── Hero headline (sits just above the form, below the plate) ── */
 .heroHeadline {
   margin: 0 0 4px;
-  font-size: clamp(26px, 7vw, 32px);
+  font-size: clamp(22px, 6vw, 28px);
   font-weight: 900;
   line-height: 1.05;
   letter-spacing: -0.02em;
@@ -117,9 +118,9 @@
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
 }
 .heroSubtitle {
-  margin: 0 0 18px;
-  font-size: 13px;
-  line-height: 1.5;
+  margin: 0 0 14px;
+  font-size: 12px;
+  line-height: 1.45;
   color: rgba(255, 255, 255, 0.78);
   text-align: center;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
@@ -130,11 +131,11 @@
   position: relative;
   z-index: 2;
   margin-top: auto;
-  padding: 0 22px max(28px, env(safe-area-inset-bottom, 0px));
+  padding: 0 22px max(20px, env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
   max-width: 420px;
   align-self: center;
@@ -143,11 +144,11 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 .input {
   width: 100%;
-  padding: 15px 18px;
+  padding: 13px 16px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.1);
@@ -167,7 +168,7 @@
 
 .cta {
   width: 100%;
-  padding: 15px;
+  padding: 13px;
   background: #b71c1c;
   color: #fff;
   font-family: var(--font);
@@ -239,7 +240,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 4px 0;
+  margin: 2px 0;
   color: rgba(255, 255, 255, 0.55);
   font-size: 11px;
   font-weight: 600;
@@ -257,7 +258,7 @@
 /* ── Google button ───────────────────────────────────────── */
 .googleBtn {
   width: 100%;
-  padding: 14px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.95);
   color: #1a1a1a;
   font-family: var(--font);
@@ -280,9 +281,9 @@
 
 /* ── Terms (small print) ─────────────────────────────────── */
 .terms {
-  margin: 14px 0 0;
+  margin: 10px 0 0;
   font-size: 11px;
-  line-height: 1.55;
+  line-height: 1.45;
   color: rgba(255, 255, 255, 0.55);
   text-align: center;
 }
@@ -294,7 +295,7 @@
 .termsLink:hover { color: #fff; }
 
 /* ── Desktop: keep layout, just constrain + center ───────── */
-/* ── Desktop: stacked card — logo / plate banner / form ────── */
+/* ── Desktop: same mobile look, contained as a phone-shape card ─ */
 @media (min-width: 768px) {
   .page {
     background: #faf8f3;
@@ -304,135 +305,32 @@
   }
   [data-theme="dark"] .page { background: #0a0a0a; }
 
+  /* Phone-aspect card — taller than wide so the portrait image fits
+     without aggressive cropping; plate sits naturally in the frame. */
   .frame {
     flex: 0 0 auto;
     width: 100%;
-    max-width: 420px;
-    height: auto;
-    background: #fff;
-    border-radius: 24px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+    max-width: 400px;
+    height: min(90vh, 820px);
+    aspect-ratio: 9 / 19;
+    border-radius: 28px;
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.22);
   }
   [data-theme="dark"] .frame {
-    background: #131313;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
   }
 
-  /* Image becomes an inline banner — plate fully visible, no overlap. */
+  /* Same full-bleed photo as mobile — just framed by the card. */
   .heroImg {
-    position: relative;
-    inset: auto;
-    order: 2;
-    width: 100%;
-    height: 240px;
-    display: block;
-    object-position: center;
-  }
-  /* Scrims aren't needed on the light card. */
-  .scrimTop,
-  .scrimBottom { display: none; }
-
-  /* Back button still floats over the top — reposition relative to frame. */
-  .backBtn {
-    background: rgba(0, 0, 0, 0.55);
+    object-position: center 18%;
   }
 
-  /* Logo zone — above the image banner, on white. */
-  .logoWrap {
-    order: 1;
-    padding: 26px 24px 18px;
-  }
-  .logoMark {
-    width: 64px;
-    filter: none;
-  }
-
-  /* Form zone — below the image banner, on white. */
+  .logoWrap { padding-top: 26px; }
+  .logoMark { width: 72px; }
+  .heroHeadline { font-size: 28px; }
+  .heroSubtitle { font-size: 13px; }
   .formWrap {
-    order: 3;
-    margin-top: 0;
-    padding: 24px 28px 28px;
+    padding: 0 22px 28px;
     max-width: none;
   }
-  .heroHeadline {
-    margin-bottom: 6px;
-    font-size: 26px;
-    color: #1a1a1a;
-    text-shadow: none;
-  }
-  [data-theme="dark"] .heroHeadline { color: #fff; }
-  .heroSubtitle {
-    margin-bottom: 18px;
-    font-size: 13px;
-    color: #777;
-    text-shadow: none;
-  }
-  [data-theme="dark"] .heroSubtitle { color: rgba(255, 255, 255, 0.55); }
-
-  /* Light-theme form inputs (override mobile glassmorphism). */
-  .input {
-    background: #fff;
-    border: 1.5px solid #ece9e3;
-    color: #1a1a1a;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-  .input::placeholder { color: #aaa; }
-  .input:focus {
-    border-color: #b71c1c;
-    background: #fff;
-  }
-  [data-theme="dark"] .input {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.12);
-    color: #fff;
-  }
-  [data-theme="dark"] .input::placeholder { color: rgba(255, 255, 255, 0.35); }
-
-  .divider { color: #aaa; }
-  .divider::before,
-  .divider::after { background: #ece9e3; }
-  [data-theme="dark"] .divider { color: rgba(255, 255, 255, 0.4); }
-  [data-theme="dark"] .divider::before,
-  [data-theme="dark"] .divider::after { background: rgba(255, 255, 255, 0.12); }
-
-  .googleBtn {
-    background: #fff;
-    color: #1a1a1a;
-    border: 1.5px solid #ece9e3;
-  }
-  .googleBtn:hover:not(:disabled) {
-    background: #faf8f3;
-    border-color: #d6d2c8;
-  }
-  [data-theme="dark"] .googleBtn {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.12);
-    color: #fff;
-  }
-
-  .sentBox {
-    background: #fdf6e3;
-    border-color: #f3e1a8;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-  .sentTitle { color: #1a1a1a; }
-  .sentBody { color: #555; }
-  .sentLink { color: #b71c1c; }
-  [data-theme="dark"] .sentBox {
-    background: rgba(245, 197, 24, 0.08);
-    border-color: rgba(245, 197, 24, 0.25);
-  }
-  [data-theme="dark"] .sentTitle { color: #fff; }
-  [data-theme="dark"] .sentBody { color: rgba(255, 255, 255, 0.7); }
-
-  .error { color: #c0392b; }
-  [data-theme="dark"] .error { color: #ff6b6b; }
-
-  .terms { color: #999; }
-  .termsLink { color: #555; }
-  .termsLink:hover { color: #1a1a1a; }
-  [data-theme="dark"] .terms { color: rgba(255, 255, 255, 0.4); }
-  [data-theme="dark"] .termsLink { color: rgba(255, 255, 255, 0.7); }
 }

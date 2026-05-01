@@ -18,8 +18,6 @@ import NewsArticleShell from '@/app/components/NewsArticleShell';
 import EatModal from '@/app/components/EatModal';
 import SearchOverlay from '@/app/components/SearchOverlay';
 import CookieConsent from '@/app/components/CookieConsent';
-import OnboardingOverlay from '@/app/components/OnboardingOverlay';
-import WelcomeModal from '@/app/components/WelcomeModal';
 import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server';
 
 // Renders the full SPA shell. Used by page.tsx, [...slug]/page.tsx, and news/[slug]/page.tsx.
@@ -59,8 +57,6 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
       <EatModal />
       <SearchOverlay />
       <CookieConsent />
-      <OnboardingOverlay />
-      <WelcomeModal />
     </>
   );
 }

@@ -121,7 +121,6 @@ export default function BridgeAuth() {
       if (!u) return;
       const first = (u.displayName ?? u.email ?? '').split(' ')[0] || t('footer.signIn');
       window.showNotification?.(t('modals.login.notifications.welcome').replace('{name}', first));
-      window.showOnboarding?.();
     };
     window.addEventListener('auth:magicLinkComplete', onMagicLinkComplete);
     return () => window.removeEventListener('auth:magicLinkComplete', onMagicLinkComplete);

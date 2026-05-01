@@ -8,7 +8,6 @@ import { AuthProvider } from '@/lib/auth'
 import SiteNav from '@/app/components/SiteNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
 import NotificationToast from '@/app/components/NotificationToast'
-import OnboardingOverlay from '@/app/components/OnboardingOverlay'
 import BridgeI18n from './BridgeI18n'
 import BridgeAuth from './BridgeAuth'
 
@@ -78,7 +77,6 @@ export default async function SPALayout({
         <SiteNav />
         <BurgerDrawer />
         <NotificationToast />
-        <OnboardingOverlay />
         {children}
       </AuthProvider>
 

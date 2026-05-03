@@ -294,7 +294,7 @@ function ActiveCard({ card, phase, target, stackSize, onLanded, onFlightDone }: 
   const liftedW = Math.min(vpW * 0.88, 420, vpH * 0.78 * (1449 / 2163));
   const liftedH = liftedW * (2163 / 1449);
   const liftedX = vpW / 2 - liftedW / 2;
-  const liftedY = vpH / 2 - liftedH / 2 - vpH * 0.04;
+  const liftedY = vpH / 2 - liftedH / 2; // true viewport centre, same as ExpandedOverlay
 
   // Position-layer animate target.
   const positionTarget =

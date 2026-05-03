@@ -28,8 +28,7 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  /* Slight downward bias so the lifted card (which sits a hair above
-   * centre) doesn't crowd against the top of the stack visual. */
+  /* Slight downward bias — gives visual headroom above the stack. */
   margin-top: 2vh;
   /* Smooth slide-aside / scale-down while a card flies. Slightly slower
    * out than in so the next idle frame greets the user with a clean

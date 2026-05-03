@@ -79,47 +79,31 @@ export default function ProfileDeckStackOverlay({
 
   const handleStackClick = () => {
     if (phase !== 'idle' || topIndex >= cards.length) return;
-
-    // Request gyroscope permission on iOS 13+ — must be called from a
-    // user-gesture handler. Fire-and-forget: animation proceeds regardless;
-    // gyro activates for the lifted dwell if the user grants permission.
+    // Request gyroscope permission on iOS 13+ so the lifted card gets gyro
+    // tilt active during the dwell. Fire-and-forget — animation proceeds
+    // regardless.
     const DOE = DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> };
     if (typeof DOE.requestPermission === 'function') DOE.requestPermission().catch(() => {});
-
     setPhase('lifting');
-
-    // Kick off the scroll-to-slot RIGHT NOW (during lift+dwell). Browser
-    // smooth-scroll typically takes 300-800 ms; the lift+dwell window is
-    // ~2 s, so the slot is stationary in viewport centre well before the
-    // flight begins. No prediction maths, no scroll-during-flight sync —
-    // we measure the slot's actual rect at flight-start and target that.
     const card = cards[topIndex];
-    if (card && typeof card.order === 'number') {
-      scrollToSlot(card.order);
-    }
-
+    if (card && typeof card.order === 'number') scrollToSlot(card.order);
     window.setTimeout(() => setPhase('lifted'), LIFT_DURATION_MS);
   };
 
-  // Auto-advance from `lifted` → `flying` after the dwell. One-click flow:
-  // the user clicks the stack ONCE; the card lifts, flips, gives a
-  // tilt-able dwell, then automatically flies to its slot. By this point
-  // the deck has already finished scrolling, so the slot rect is stable
-  // and we use it directly as the flight target — no prediction.
+  // Auto-advance from lifted → flying after the dwell. The scroll-to-slot
+  // started at click time, so the slot is stationary by now.
   useEffect(() => {
     if (phase !== 'lifted') return;
     const t = window.setTimeout(() => {
       const card = cards[topIndex];
       if (!card || typeof card.order !== 'number') return;
-
       const targetRect = getSlotRect(card.order);
       if (!targetRect) return;
-
       setPhase('flying');
       setTarget(targetRect);
     }, LIFTED_DWELL_MS);
     return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- phase + topIndex are the meaningful gates; cards/getSlotRect are stable across the dwell.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, topIndex]);
 
   // Fired the instant the FlyingCard's position animation lands at the
@@ -172,13 +156,9 @@ export default function ProfileDeckStackOverlay({
             role={phase === 'idle' ? 'button' : undefined}
             tabIndex={phase === 'idle' ? 0 : undefined}
             aria-label={phase === 'idle' ? 'Karte aufdecken' : undefined}
-            onKeyDown={
-              phase === 'idle'
-                ? (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') handleStackClick();
-                  }
-                : undefined
-            }
+            onKeyDown={phase === 'idle' ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') handleStackClick();
+            } : undefined}
           >
             {Array.from({ length: baseStackCount }).map((_, layerIdx) => {
               const offset = layerIdx * LAYER_OFFSET_PX;
@@ -308,8 +288,10 @@ function ActiveCard({ card, phase, target, stackSize, onLanded, onFlightDone }: 
   const stackX = vpW / 2 - stackW / 2;
   const stackY = vpH / 2 + vpH * 0.02 - stackH / 2;
 
-  // Lifted "hero" position: centred, generously sized.
-  const liftedW = Math.max(220, Math.min(vpW * 0.55, vpH * 0.55, 360));
+  // Lifted "hero" — matches the ExpandedOverlay lightbox size so the zoom
+  // feels as deep as opening a revealed deck card (min(88vw, 420px), also
+  // constrained by 78vh so it never overflows on short screens).
+  const liftedW = Math.min(vpW * 0.88, 420, vpH * 0.78 * (1449 / 2163));
   const liftedH = liftedW * (2163 / 1449);
   const liftedX = vpW / 2 - liftedW / 2;
   const liftedY = vpH / 2 - liftedH / 2 - vpH * 0.04;

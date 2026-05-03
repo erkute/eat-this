@@ -9,9 +9,19 @@ import {
   applyActionCode,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { useLocale } from 'next-intl';
+import { routing } from '@/i18n/routing';
 import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import styles from './auth-action.module.css';
+
+// /welcome lives outside [locale], so there is no NextIntlClientProvider.
+// Read the locale from the cookie next-intl writes on every visit, fall back
+// to default. Used only for the post-login redirect URL.
+function detectLocale(): string {
+  if (typeof document === 'undefined') return routing.defaultLocale;
+  const m = document.cookie.match(/(?:^|;\s*)NEXT_LOCALE=([^;]+)/);
+  const v = m ? decodeURIComponent(m[1]) : '';
+  return (routing.locales as readonly string[]).includes(v) ? v : routing.defaultLocale;
+}
 
 type State =
   | { kind: 'processing' }
@@ -31,13 +41,13 @@ export default function AuthActionPage() {
 function AuthActionInner() {
   const params = useSearchParams();
   const router = useRouter();
-  const locale = useLocale();
   const [state, setState] = useState<State>({ kind: 'processing' });
 
   useEffect(() => {
     const mode    = params.get('mode');
     const oobCode = params.get('oobCode');
     const url     = window.location.href;
+    const locale  = detectLocale();
 
     if (mode === 'signIn') {
       if (!isSignInWithEmailLink(auth, url)) {
@@ -78,7 +88,7 @@ function AuthActionInner() {
 
     // resetPassword OR unknown — both flow into the same generic "expired" view
     setState({ kind: 'expired' });
-  }, [params, router, locale]);
+  }, [params, router]);
 
   return (
     <main className={styles.page}>
@@ -141,7 +151,6 @@ function NeedsEmailForm({
   setState: (s: State) => void;
 }) {
   const router = useRouter();
-  const locale = useLocale();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [busy,  setBusy]  = useState(false);
@@ -154,7 +163,7 @@ function NeedsEmailForm({
     signInWithEmailLink(auth, email, href)
       .then(async (result) => {
         localStorage.removeItem('emailForSignIn');
-        await postLoginRedirect(result.user.uid, router, locale);
+        await postLoginRedirect(result.user.uid, router, detectLocale());
       })
       .catch((err: unknown) => {
         setBusy(false);

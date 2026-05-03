@@ -4,6 +4,22 @@ import { useState } from 'react';
 import OnboardingFlow from '../onboarding/OnboardingFlow';
 import { type AvatarChoice } from '@/lib/firebase/useUserProfile';
 
+// Stub deck for the dev preview — repeats the lab's three Sanity samples to
+// reach 10 cards so the pack-open choreography has data without needing a
+// signed-in Firestore pack.
+const PREVIEW_PACK_CARDS = [
+  'https://cdn.sanity.io/images/ehwjnjr2/production/e74cc8257c7d0d37075e024274bd3a447ce8a6da-1449x2163.png?w=600&auto=format&q=80',
+  'https://cdn.sanity.io/images/ehwjnjr2/production/a12687e545c871243fe9e7648e1d649d03fe4a8a-1449x2163.png?w=600&auto=format&q=80',
+  'https://cdn.sanity.io/images/ehwjnjr2/production/f56c68c3f207f5a62a85ad6dfd2db1eed95c2188-1449x2163.png?w=600&auto=format&q=80',
+  'https://cdn.sanity.io/images/ehwjnjr2/production/e74cc8257c7d0d37075e024274bd3a447ce8a6da-1449x2163.png?w=600&auto=format&q=80',
+  'https://cdn.sanity.io/images/ehwjnjr2/production/a12687e545c871243fe9e7648e1d649d03fe4a8a-1449x2163.png?w=600&auto=format&q=80',
+  'https://cdn.sanity.io/images/ehwjnjr2/production/f56c68c3f207f5a62a85ad6dfd2db1eed95c2188-1449x2163.png?w=600&auto=format&q=80',
+  'https://cdn.sanity.io/images/ehwjnjr2/production/e74cc8257c7d0d37075e024274bd3a447ce8a6da-1449x2163.png?w=600&auto=format&q=80',
+  'https://cdn.sanity.io/images/ehwjnjr2/production/a12687e545c871243fe9e7648e1d649d03fe4a8a-1449x2163.png?w=600&auto=format&q=80',
+  'https://cdn.sanity.io/images/ehwjnjr2/production/f56c68c3f207f5a62a85ad6dfd2db1eed95c2188-1449x2163.png?w=600&auto=format&q=80',
+  'https://cdn.sanity.io/images/ehwjnjr2/production/e74cc8257c7d0d37075e024274bd3a447ce8a6da-1449x2163.png?w=600&auto=format&q=80',
+];
+
 // Dev-only design playground for the onboarding flow.
 // No auth, no Firestore writes — pure UI iteration.
 // `?reset=1` reloads with a fresh state.
@@ -31,6 +47,7 @@ export default function OnboardingPreviewPage() {
     <OnboardingFlow
       initialName=""
       initialAvatar={1 as AvatarChoice}
+      packCards={PREVIEW_PACK_CARDS}
       onUpdateName={(name) => console.info('[preview] onUpdateName', name)}
       onSetAvatar={(choice) => console.info('[preview] onSetAvatar', choice)}
       onFinish={() => setCompleted(true)}

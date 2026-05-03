@@ -1,0 +1,223 @@
+/* Dev-only animation lab. Not shipped to prod (gated in layout). */
+
+.page {
+  min-height: 100dvh;
+  background: #0a0a0a;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font, -apple-system, system-ui, sans-serif);
+}
+
+.stageWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  gap: 14px;
+}
+
+/* TCG Pocket-style stage: dark moody backdrop with radial vignette */
+.stage {
+  position: relative;
+  width: min(380px, 92vw, 50dvh);
+  aspect-ratio: 9 / 16;
+  background:
+    radial-gradient(ellipse at 50% 50%, #1d2535 0%, #0a0d18 70%, #050608 100%);
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+  perspective: 1500px;
+  perspective-origin: 50% 50%;
+}
+
+
+/* Subtle hex/dot pattern on the backdrop, like the reference */
+.stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.025) 0%, transparent 1.2%),
+    radial-gradient(circle at 80% 70%, rgba(255,255,255,0.025) 0%, transparent 1.2%),
+    radial-gradient(circle at 50% 90%, rgba(255,255,255,0.018) 0%, transparent 1.2%);
+  background-size: 48px 48px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* The big central light burst — white core fading to gold */
+.lightBurst {
+  position: absolute;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(255, 240, 180, 0.95) 8%,
+      rgba(255, 200, 60, 0.85) 18%,
+      rgba(255, 170, 30, 0.55) 32%,
+      rgba(255, 140, 20, 0.20) 50%,
+      rgba(255, 120, 10, 0.0) 70%);
+  filter: blur(2px);
+  mix-blend-mode: screen;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* Sparkle particles — small radial-glow embers that fly out radially.
+   Background gradient + box-shadow are set per-particle inline for color variety. */
+.sparkle {
+  position: absolute;
+  border-radius: 50%;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Full-stage white flash overlay at peak of explosion */
+.whiteFlash {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 248, 230, 1);
+  mix-blend-mode: screen;
+  z-index: 7;
+  pointer-events: none;
+  opacity: 0;
+  will-change: opacity;
+}
+
+/* Smoke / dust particles — soft blurred clouds that puff outward */
+.smoke {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(245, 230, 200, 0.6) 0%,
+    rgba(180, 160, 130, 0.35) 35%,
+    rgba(80, 70, 60, 0.18) 65%,
+    transparent 80%);
+  filter: blur(10px);
+  mix-blend-mode: screen;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Debris specks — tiny dark fragments scattered with the explosion */
+.debris {
+  position: absolute;
+  background: rgba(40, 25, 15, 0.85);
+  border-radius: 1px;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Per-card glow aura — yellow radial behind each card during reveal */
+.cardGlow {
+  position: absolute;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle,
+      rgba(255, 230, 130, 0.95) 0%,
+      rgba(255, 200, 60, 0.55) 30%,
+      rgba(255, 160, 30, 0.20) 55%,
+      rgba(255, 130, 20, 0.0) 75%);
+  filter: blur(6px);
+  mix-blend-mode: screen;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* Pack group — wraps fragments, handles zoom-in transform */
+.packGroup {
+  position: absolute;
+  z-index: 6;
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+}
+
+.packClickable {
+  cursor: pointer;
+  filter: drop-shadow(0 18px 30px rgba(120, 16, 16, 0.45));
+}
+.packClickable:active { transform: scale(0.97); }
+.packGroup:not(.packClickable) {
+  pointer-events: none;
+}
+
+/* Each pack fragment shows a different clipped portion of the pack image.
+   Composed together they look like the intact pack. Drop-shadow gives each
+   piece its own plastic 3D depth during the explosion. */
+.packFrag {
+  position: absolute;
+  inset: 0;
+  background: url('/pics/booster/booster1.webp') center / 100% 100% no-repeat;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 1px rgba(0, 0, 0, 0.7));
+  will-change: transform, opacity;
+}
+
+.cardSlot {
+  position: absolute;
+  z-index: 8;
+  cursor: pointer;
+  perspective: 800px;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+.cardFloat {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+@keyframes cardVibrate {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10%      { transform: translate(-0.4px, 0.25px) rotate(-0.25deg); }
+  20%      { transform: translate(0.35px, -0.3px) rotate(0.22deg); }
+  30%      { transform: translate(-0.3px, -0.2px) rotate(-0.15deg); }
+  40%      { transform: translate(0.4px, 0.18px) rotate(0.18deg); }
+  50%      { transform: translate(-0.25px, 0.35px) rotate(-0.22deg); }
+  60%      { transform: translate(0.2px, -0.4px) rotate(0.15deg); }
+  70%      { transform: translate(-0.4px, -0.18px) rotate(-0.18deg); }
+  80%      { transform: translate(0.3px, 0.3px) rotate(0.22deg); }
+  90%      { transform: translate(-0.2px, -0.2px) rotate(-0.18deg); }
+}
+
+.cardVibrating {
+  animation: cardVibrate 0.95s linear infinite;
+}
+
+.cardFlip {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.back {
+  background-image: url('/pics/card-back.webp');
+}
+
+.front {
+  transform: rotateY(180deg);
+}
+
+

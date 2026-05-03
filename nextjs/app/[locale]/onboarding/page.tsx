@@ -9,6 +9,8 @@ import {
   useUserProfile,
   type AvatarChoice,
 } from '@/lib/firebase/useUserProfile';
+import { usePack } from '@/lib/firebase/usePack';
+import { usePackCards } from '@/lib/firebase/usePackCards';
 import { routing } from '@/i18n/routing';
 import OnboardingFlow from './OnboardingFlow';
 
@@ -17,6 +19,13 @@ export default function OnboardingPage() {
   const router = useRouter();
   const locale = useLocale();
   const { profile, loading: profileLoading, setAvatar, markOnboarded } = useUserProfile(user?.uid ?? null);
+  // Welcome pack — created by onUserCreate trigger on signup. Slide 4's
+  // choreography needs the 10 mustEat IDs to resolve to image URLs.
+  const pack = usePack(user?.uid ?? null);
+  const packIds = pack.status === 'ready' ? pack.pack.mustEatIds : null;
+  const packCardsState = usePackCards(packIds);
+  const packCards =
+    packCardsState.status === 'ready' ? packCardsState.images : null;
 
   const profileHref = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
   const loginHref   = locale === routing.defaultLocale ? '/login'   : `/${locale}/login`;
@@ -52,6 +61,7 @@ export default function OnboardingPage() {
     <OnboardingFlow
       initialName={initialName}
       initialAvatar={initialAvatar}
+      packCards={packCards}
       onUpdateName={onUpdateName}
       onSetAvatar={onSetAvatar}
       onFinish={onFinish}

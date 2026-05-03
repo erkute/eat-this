@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { type AvatarChoice } from '@/lib/firebase/useUserProfile';
+import PackOpenChoreography, { warmUpOnboardingAudio } from './PackOpenChoreography';
 import styles from './onboarding.module.css';
 
 // Five visually distinct Must-Eat card PNGs from Sanity production for the
@@ -30,6 +31,10 @@ function seedRand(seed: number, i: number, salt: number): number {
 export interface OnboardingFlowProps {
   initialName:   string;
   initialAvatar: AvatarChoice;
+  // The user's 10 starter-pack card images (resolved Sanity URLs in deck order).
+  // null means the pack is still loading from Firestore/Sanity — Slide 4's
+  // "Pack öffnen" CTA stays disabled until this is non-null.
+  packCards:     string[] | null;
   onUpdateName:  (name: string) => Promise<void> | void;
   onSetAvatar:   (choice: AvatarChoice) => Promise<void> | void;
   onFinish:      () => Promise<void> | void;
@@ -38,6 +43,7 @@ export interface OnboardingFlowProps {
 export default function OnboardingFlow({
   initialName,
   initialAvatar,
+  packCards,
   onUpdateName,
   onSetAvatar,
   onFinish,
@@ -46,6 +52,9 @@ export default function OnboardingFlow({
   const [step, setStep]             = useState(0);
   const [name, setName]             = useState(initialName);
   const [avatarPick, setAvatarPick] = useState<AvatarChoice>(initialAvatar);
+  // Slide 4 — Pack-open choreography state.
+  const [packOpened, setPackOpened]         = useState(false);
+  const [revealComplete, setRevealComplete] = useState(false);
 
   const goTo        = useCallback((s: number) => setStep(s), []);
   const skipToFinal = useCallback(() => setStep(FINAL_STEP), []);
@@ -66,10 +75,24 @@ export default function OnboardingFlow({
 
   const ctaIdentityDisabled = !name.trim();
 
+  // After the choreography finishes (last card has flown off-stage), drop
+  // straight into the Profile — that's where the actual per-card flip
+  // reveal lives. No "Los geht's" button: the auto-handoff feels like the
+  // animation continues into the next page.
+  useEffect(() => {
+    if (!revealComplete) return;
+    void onFinish();
+  }, [revealComplete, onFinish]);
+
   return (
     <div
       className={`${styles.overlay} ${styles.overlayVisible}`}
-      data-step={step === 0 ? 'hook' : undefined}
+      data-step={
+        step === 0 ? 'hook'
+      : step === 3 ? 'identity'
+      : step === 4 ? 'pack'
+      : undefined
+      }
       role="dialog"
       aria-modal="true"
       aria-label="Eat This onboarding"
@@ -239,32 +262,58 @@ export default function OnboardingFlow({
           </StepShell>
         )}
 
-        {/* ── 5. Starter Pack — final CTA. Pack-open animation TBD next pass. */}
+        {/* ── 5. Starter Pack ────────────────────────────────────────────────
+         * The pack-open choreography (PackOpenChoreography) is mounted from
+         * the first frame so the pack you see hovering IS the pack that
+         * later zooms — no swap, no snap. The idle copy + CTA fade out the
+         * moment the user taps "Pack öffnen". After all 10 cards have flown
+         * past the centre and exited stage right, onFinish runs immediately
+         * and the Profile takes over with its per-card flip-reveal. */}
         {step === 4 && (
           <StepShell key="pack">
-            <div className={styles.packStage}>
-              <motion.img
-                src="/pics/booster/booster1.webp"
-                alt=""
-                className={styles.packVisual}
-                animate={reduced ? {} : { y: [0, -10, 0], rotate: [-1.5, 1.5, -1.5] }}
-                transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
-                draggable={false}
-              />
-            </div>
-            <StepContent>
+            {/* Empty placeholder reserves grid row 1 so the text below
+             * doesn't drift up into the pack region. */}
+            <div className={styles.packStage} aria-hidden="true" />
+            <PackOpenChoreography
+              cards={packCards ?? []}
+              triggerOpen={packOpened}
+              onRevealComplete={() => setRevealComplete(true)}
+            />
+            <motion.div
+              className={styles.stepContent}
+              animate={{ opacity: packOpened ? 0 : 1 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              style={{ pointerEvents: packOpened ? 'none' : 'auto' }}
+            >
               <Eyebrow>Deine ersten 10 Must Eats</Eyebrow>
               <Title>Öffne dein<br />Starter Pack</Title>
               <Body>
                 Sammle alle 150+ Must Eats, erkunde die Map und meistere die
                 Berliner Food-Szene.
               </Body>
-            </StepContent>
-            <Footer>
-              <button type="button" className={`${styles.cta} ${styles.ctaLarge}`} onClick={() => onFinish()}>
+            </motion.div>
+            <motion.div
+              className={styles.footer}
+              animate={{ opacity: packOpened ? 0 : 1 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              style={{ pointerEvents: packOpened ? 'none' : 'auto' }}
+            >
+              <button
+                type="button"
+                className={`${styles.cta} ${styles.ctaLarge}`}
+                disabled={!packCards || packCards.length === 0}
+                onClick={() => {
+                  // Resume AudioContext + prime the output pipeline INSIDE
+                  // the click handler so iOS recognises the user gesture
+                  // and unlocks low-latency playback for the impact sound
+                  // that fires ~1 s later.
+                  warmUpOnboardingAudio();
+                  setPackOpened(true);
+                }}
+              >
                 Pack öffnen
               </button>
-            </Footer>
+            </motion.div>
           </StepShell>
         )}
       </AnimatePresence>

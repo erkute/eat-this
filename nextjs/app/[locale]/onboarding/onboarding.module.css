@@ -81,7 +81,12 @@
 .skip {
   position: absolute;
   top: calc(env(safe-area-inset-top, 0px) + 18px);
-  right: 12px;
+  /* On mobile this is just 12px from the viewport edge. On desktop, where
+   * the slide content is capped at 520px and centered, anchor the skip
+   * 12px inside the right edge of THAT column instead — so it sits next
+   * to the content like it does on mobile, not flush against the
+   * viewport edge. max() picks whichever offset is larger. */
+  right: max(12px, calc((100% - 520px) / 2 + 12px));
   border: none;
   background: transparent;
   color: rgba(245, 245, 245, 0.5);
@@ -135,6 +140,9 @@
   min-height: 0;
   max-height: 100%;
   padding: 8px 0;
+  /* Sits above the Slide-4 choreography stage (which is z:0 absolute). */
+  position: relative;
+  z-index: 1;
 }
 
 /* Visual wrappers — clamp-based heights so the visual doesn't dominate the
@@ -152,34 +160,24 @@
   flex-shrink: 0;
 }
 
-/* All visuals scale with the viewport via clamp(min, vh%, max). Higher max
- * caps so on tall screens like iPhone 14 Pro Max (932dvh) the visuals fill
- * the space and don't leave a big whitespace gap above the CTA. The mins
- * ensure they don't crush on short laptop windows (~640dvh). */
-.avatarHero {
-  /* sized smaller than the other visuals — the avatar is portrait-style and
-   * doesn't need as much real estate. Larger margin-top so the avatar sits
-   * grounded below the header rather than tight to it. */
-  height: clamp(120px, 22vh, 220px);
-  margin-top: 32px;
+/* Unified visual placeholder height across all slides — pinned so eyebrow
+ * + title + body in row 2 land at the SAME vertical position regardless
+ * of which slide is showing. Each visual self-limits to fit (avatar via
+ * max-width, cards via aspect-ratio, etc.) — only the OUTER container
+ * height needs to match. Same margin-top for the same reason. */
+.avatarHero,
+.cardStage,
+.mapStage,
+.packStage,
+.hookSpacer {
+  height: clamp(260px, 40vh, 380px);
+  margin-top: 24px;
 }
-.cardStage  {
-  height: clamp(240px, 42vh, 400px);
+
+.cardStage {
   perspective: 1000px;
   transform-style: preserve-3d;
   isolation: isolate;
-}
-.mapStage   {
-  height: clamp(240px, 40vh, 380px);
-  margin-top: 30px;
-}
-.packStage  {
-  /* Pack slide — visual sized prominently as the climax of the flow.
-   * padding-bottom keeps the pack from touching the eyebrow underneath. */
-  height: clamp(280px, 46vh, 440px);
-  margin-top: 32px;
-  padding-bottom: 18px;
-  position: relative;
 }
 
 /* ── Eyebrow / title / body — magazine-style typography ──────────────────── */
@@ -226,6 +224,9 @@
   width: 100%;
   max-width: 360px;
   padding-top: 12px;
+  /* Sits above the Slide-4 choreography stage (which is z:0 absolute). */
+  position: relative;
+  z-index: 1;
 }
 
 /* ── CTA button ──────────────────────────────────────────────────────────── */
@@ -402,13 +403,10 @@
   }
 }
 
-/* Spacer in grid row 1 — sized to match the other slides' visual heights so
- * the text in row 2 lands at the SAME vertical position as the other slides
- * (where a real visual occupies row 1). Image is absolute behind everything
- * regardless. */
+/* Hook spacer — height + margin handled by the unified visual placeholder
+ * rule above so it tracks the other slides' Row-1 dimensions exactly. */
 .hookSpacer {
   width: 100%;
-  height: clamp(260px, 42vh, 400px);
   flex-shrink: 0;
 }
 
@@ -424,12 +422,30 @@
 .overlay[data-step="hook"] .dotActive { background-color: #fff; }
 .overlay[data-step="hook"] .eyebrow { color: #FFFFFF; }
 
-/* On the hook slide the text block sits near the bottom of the middle grid
- * row but with breathing room above the CTA — padding-bottom controls how
- * much space sits between text and CTA. */
-.overlay[data-step="hook"] .stepContent {
-  justify-content: flex-end;
-  padding-bottom: 56px;
+/* No per-slide stepContent overrides for the eyebrow/title/body slides —
+ * every one uses the default `.stepContent { justify-content: center }` so
+ * those three text elements sit at the same vertical position across all
+ * slides. The unified visual placeholder rule above handles Row-1 sizing.
+ *
+ * Identity slide (Slide 3) is the exception: it has TWO extra interactive
+ * elements (name input + 3-avatar row) below the title, so its content is
+ * taller. Anchor to TOP of Row 2 + shrink the avatarHero placeholder so
+ * everything (avatar, eyebrow, title, input, avatar-row) lifts noticeably
+ * higher and the avatar buttons clear the "Weiter" CTA below.
+ * Mobile gets a bigger lift than desktop (per user's request). */
+.overlay[data-step="identity"] .stepContent {
+  justify-content: flex-start;
+  padding-top: 0;
+}
+.overlay[data-step="identity"] .avatarHero {
+  height: 200px;
+  margin-top: 20px;
+}
+@media (min-width: 768px) {
+  .overlay[data-step="identity"] .avatarHero {
+    height: 280px;
+    margin-top: 16px;
+  }
 }
 
 /* ── Slide 3 — Trust (cards fly-in fan) ──────────────────────────────────── */
@@ -527,6 +543,93 @@
   -webkit-user-drag: none;
 }
 
+
+/* ── Slide 5 — Pack-Open Choreography ────────────────────────────────────── */
+
+/* Choreography stage fills the step area. z-index is intentionally LOW so the
+ * idle-state eyebrow/title/body/CTA (which sit in normal flow with their own
+ * z:1) render on top of the hovering pack — once the user taps "Pack öffnen"
+ * those layers fade away and the choreography is the only thing left to see. */
+.choreoStage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* The pack itself — single image, no fragmenting. Same DOM node from idle
+ * through zoom through puff so the zoom is naturally continuous (no swap). */
+.packImage {
+  position: absolute;
+  background: url('/pics/booster/booster1.webp') center / contain no-repeat;
+  filter: drop-shadow(0 18px 26px rgba(10, 10, 10, 0.42));
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+/* Cards in the pass-through trajectory — face-down, single visual, no flip.
+ * card-back.webp is a freigestellt PNG with its own rounded corners baked
+ * into the transparency. No border-radius, no overflow:hidden, no clip-path
+ * — they would crop into the original silhouette. drop-shadow is fine
+ * because it follows the PNG's alpha, not a rectangle.
+ * (Per memory feedback_memory_card_rendering.md.) */
+.passCard {
+  position: absolute;
+  background: url('/pics/card-back.webp') center / contain no-repeat;
+  filter: drop-shadow(0 14px 22px rgba(10, 10, 10, 0.42));
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* "Knall" — full-screen warm-white flash at the moment the pack bursts.
+ * Mix-blend-mode screen so it reads as light, not as a flat overlay. */
+.choreoFlash {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 248, 230, 1);
+  mix-blend-mode: screen;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0;
+  will-change: opacity;
+}
+
+/* Glass cracks — portaled to body so position:fixed actually escapes the
+ * choreoStage's overflow:hidden + transform. Covers the FULL viewport
+ * (cracks reach upward past the brand header, downward past the footer).
+ * z-index above the overlay (.overlay z:9999) so the shattered glass
+ * sits IN FRONT of the cards as they fly through.
+ * No drop-shadow filter — the previous "hot fracture" double-glow read
+ * as a halo around every line on desktop. Cracks are now sharp and
+ * crisp; the bright crater radial-gradient at impact carries the glow. */
+.choreoCracks {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* Radial bloom — directional shockwave expanding from the explosion spot.
+ * Sits between the pack (behind) and the cards (above), so the burst
+ * silhouettes the cards as they emerge from it. */
+.choreoBloom {
+  position: absolute;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle,
+      rgba(255, 255, 255, 1)    0%,
+      rgba(255, 245, 215, 0.85) 14%,
+      rgba(255, 215, 140, 0.45) 32%,
+      rgba(255, 175,  80, 0.18) 52%,
+      rgba(255, 140,  40, 0.0)  70%);
+  filter: blur(3px);
+  mix-blend-mode: screen;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity;
+}
 
 /* ── Tablet+ ─────────────────────────────────────────────────────────────── */
 

@@ -237,6 +237,29 @@ const ExpandedOverlay = memo(function ExpandedOverlay({ expanded, onClose }: Exp
     pointerY.set(0);
   };
 
+  // Gyroscope tilt — calibrates on first event so the phone's orientation
+  // at open-time reads as neutral. Same pointerX/Y values as the pointer
+  // handler so both compose through the same springs.
+  const gyroBaseRef = useRef<{ beta: number; gamma: number } | null>(null);
+  useEffect(() => {
+    const onOrientation = (e: DeviceOrientationEvent) => {
+      if (e.beta === null || e.gamma === null) return;
+      if (!gyroBaseRef.current) {
+        gyroBaseRef.current = { beta: e.beta, gamma: e.gamma };
+        return;
+      }
+      const dGamma = e.gamma - gyroBaseRef.current.gamma;
+      const dBeta  = e.beta  - gyroBaseRef.current.beta;
+      pointerX.set(Math.max(-0.5, Math.min(0.5, dGamma / 20)));
+      pointerY.set(Math.max(-0.5, Math.min(0.5, dBeta  / 20)));
+    };
+    window.addEventListener('deviceorientation', onOrientation, true);
+    return () => {
+      window.removeEventListener('deviceorientation', onOrientation, true);
+      gyroBaseRef.current = null;
+    };
+  }, [pointerX, pointerY]);
+
   // Lock body scroll while the lightbox is open — otherwise touch-drag on
   // the card to tilt it ALSO pans the deck behind on mobile, which the
   // user perceives as "the deck moves with my finger". Restore on close.
@@ -325,7 +348,13 @@ function FlipSlot({ order, card, flipped, hideCardFace, onExpand, slotRef }: Fli
       className={`${styles.slot}${flipped && onExpand ? ` ${styles.slotRevealed}` : ''}`}
       ref={slotRef}
       data-order={order}
-      onClick={onExpand ? (e) => onExpand((e.currentTarget as HTMLDivElement).getBoundingClientRect()) : undefined}
+      onClick={onExpand ? (e) => {
+        // Request gyroscope permission on iOS 13+ from this user-gesture handler
+        // so the lightbox tilt works immediately on first open.
+        const DOE = DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> };
+        if (typeof DOE.requestPermission === 'function') DOE.requestPermission().catch(() => {});
+        onExpand((e.currentTarget as HTMLDivElement).getBoundingClientRect());
+      } : undefined}
       role={onExpand ? 'button' : undefined}
       tabIndex={onExpand ? 0 : undefined}
       onKeyDown={onExpand ? (e) => {

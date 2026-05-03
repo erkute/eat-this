@@ -449,8 +449,12 @@ export default function PackOpenChoreography({ cards, triggerOpen, onRevealCompl
   // they can be portaled to body and cover the entire screen — including
   // the area above choreoStage (brand header / dots), which would
   // otherwise stay un-cracked.
-  const vpExplosionX = vp.stageLeft + explosionX;
-  const vpExplosionY = vp.stageTop  + explosionY;
+  // At peak scale the pack's focus point lands at viewport centre (the
+  // peakShift translation puts it there). Using viewport centre as the
+  // crack origin makes the shatter pattern sit centred on screen, which
+  // is where the impact visually reads regardless of where the stage sits.
+  const vpExplosionX = vp.w ? vp.w / 2 : vp.stageLeft + explosionX;
+  const vpExplosionY = vp.h ? vp.h / 2 : vp.stageTop  + explosionY;
   const vpMaxDim     = Math.max(vp.w, vp.h);
 
   // Glass cracks — modelled on the reference photo of a smashed phone

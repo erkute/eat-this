@@ -64,10 +64,28 @@ export default function ProfileDeckStackOverlay({
   const [target, setTarget]     = useState<DOMRect | null>(null);
 
   const [portalReady, setPortalReady] = useState(false);
-  useEffect(() => setPortalReady(true), []);
+  // Measure an actual deck slot on mount so the stack matches the grid
+  // card size exactly, regardless of viewport width or breakpoint.
+  const [stackSize, setStackSize] = useState<{ w: number; h: number } | null>(null);
+  useEffect(() => {
+    setPortalReady(true);
+    if (!cards.length || typeof cards[0].order !== 'number') return;
+    const rect = getSlotRect(cards[0].order);
+    if (rect && rect.width > 0) {
+      setStackSize({ w: rect.width, h: rect.height });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // measure once — slot size is stable after mount
 
   const handleStackClick = () => {
     if (phase !== 'idle' || topIndex >= cards.length) return;
+
+    // Request gyroscope permission on iOS 13+ — must be called from a
+    // user-gesture handler. Fire-and-forget: animation proceeds regardless;
+    // gyro activates for the lifted dwell if the user grants permission.
+    const DOE = DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> };
+    if (typeof DOE.requestPermission === 'function') DOE.requestPermission().catch(() => {});
+
     setPhase('lifting');
 
     // Kick off the scroll-to-slot RIGHT NOW (during lift+dwell). Browser
@@ -124,7 +142,7 @@ export default function ProfileDeckStackOverlay({
     }
   };
 
-  if (!portalReady) return null;
+  if (!portalReady || !stackSize) return null;
 
   const remaining       = cards.length - topIndex;
   const stackLayerCount = Math.min(remaining, MAX_VISIBLE_LAYERS);
@@ -149,6 +167,7 @@ export default function ProfileDeckStackOverlay({
         >
           <div
             className={`${styles.stack} ${phase === 'idle' ? styles.stackInteractive : ''}`}
+            style={{ width: stackSize.w, height: stackSize.h }}
             onClick={phase === 'idle' ? handleStackClick : undefined}
             role={phase === 'idle' ? 'button' : undefined}
             tabIndex={phase === 'idle' ? 0 : undefined}
@@ -197,6 +216,7 @@ export default function ProfileDeckStackOverlay({
             card={topCard}
             phase={phase}
             target={target}
+            stackSize={stackSize}
             onLanded={handleCardLanded}
             onFlightDone={handleFlightDone}
           />
@@ -213,11 +233,12 @@ interface ActiveCardProps {
   card:         MustEatAlbumCard;
   phase:        Phase;
   target:       DOMRect | null;
+  stackSize:    { w: number; h: number };  // measured from a real deck slot
   onLanded:     () => void;   // fires at flight-end (start of fade)
   onFlightDone: () => void;   // fires after fade settled
 }
 
-function ActiveCard({ card, phase, target, onLanded, onFlightDone }: ActiveCardProps) {
+function ActiveCard({ card, phase, target, stackSize, onLanded, onFlightDone }: ActiveCardProps) {
   const liftedRef = useRef<HTMLDivElement>(null);
 
   // Pointer-driven 3D tilt — same parameters as the deck-lightbox tilt
@@ -246,16 +267,46 @@ function ActiveCard({ card, phase, target, onLanded, onFlightDone }: ActiveCardP
     pointerY.set(0);
   };
 
+  // Gyroscope tilt — active during the lifted dwell. Calibrates on the
+  // first event so the phone's current orientation reads as neutral (0,0).
+  // Sets the same pointerX/Y values as the pointer handler so both compose
+  // through the same springs without conflicts.
+  const gyroBaseRef = useRef<{ beta: number; gamma: number } | null>(null);
+  useEffect(() => {
+    if (phase !== 'lifted') {
+      gyroBaseRef.current = null;
+      return;
+    }
+    const onOrientation = (e: DeviceOrientationEvent) => {
+      if (e.beta === null || e.gamma === null) return;
+      if (!gyroBaseRef.current) {
+        gyroBaseRef.current = { beta: e.beta, gamma: e.gamma };
+        return; // first event = calibration baseline
+      }
+      const dGamma = e.gamma - gyroBaseRef.current.gamma;
+      const dBeta  = e.beta  - gyroBaseRef.current.beta;
+      // 20° of physical tilt → full ±0.5 spring input (→ ±14°/±12° card rotation)
+      pointerX.set(Math.max(-0.5, Math.min(0.5, dGamma / 20)));
+      pointerY.set(Math.max(-0.5, Math.min(0.5, dBeta  / 20)));
+    };
+    window.addEventListener('deviceorientation', onOrientation, true);
+    return () => {
+      window.removeEventListener('deviceorientation', onOrientation, true);
+      gyroBaseRef.current = null;
+    };
+  }, [phase, pointerX, pointerY]);
+
   // Geometry — viewport-centred, sized for clear dish visibility.
   const vpW = typeof window !== 'undefined' ? window.innerWidth  : 800;
   const vpH = typeof window !== 'undefined' ? window.innerHeight : 1200;
 
-  // Stack-position geometry must match CSS .stack sizing exactly so the
-  // first frame doesn't jump.
-  const stackW = Math.min(vpW * 0.58, 220);
-  const stackH = stackW * (2163 / 1449);
+  // Stack start position matches the measured slot size + accounts for the
+  // .stackPositioner's margin-top: 2vh offset so the first animation frame
+  // doesn't jump.
+  const stackW = stackSize.w;
+  const stackH = stackSize.h;
   const stackX = vpW / 2 - stackW / 2;
-  const stackY = vpH / 2 - stackH / 2;
+  const stackY = vpH / 2 + vpH * 0.02 - stackH / 2;
 
   // Lifted "hero" position: centred, generously sized.
   const liftedW = Math.max(220, Math.min(vpW * 0.55, vpH * 0.55, 360));

@@ -1,14 +1,15 @@
-/* Onboarding — ProfileDeck-aligned brand language.
- * Palette: cream BG #F7F2E8, ink #0A0A0A, dark gray rgba(10,10,10,0.55), accent red #B71C1C.
- * Type: Inter body, Silkscreen for monospace accents (step counter).
+/* Onboarding — dark-only theme. Ignores the global light/dark preference
+ * because the experience is intentionally cinematic on a dark canvas.
+ * Palette: ink BG #0A0A0A, off-white #F5F5F5, accent red #B71C1C.
+ * Type: Inter body, Silkscreen for monospace accents.
  */
 
 .overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background-color: #F7F2E8;
-  color: #0A0A0A;
+  background-color: #0A0A0A;
+  color: #F5F5F5;
   display: flex;
   flex-direction: column;
   font-family:
@@ -45,7 +46,8 @@
   display: block;
   height: 26px;
   width: auto;
-  filter: brightness(0);
+  /* white logo on the dark canvas. */
+  filter: brightness(0) invert(1);
   user-select: none;
   -webkit-user-drag: none;
 }
@@ -66,7 +68,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: rgba(10, 10, 10, 0.18);
+  background-color: rgba(245, 245, 245, 0.22);
   transition: background-color 0.2s, width 0.2s;
 }
 
@@ -82,7 +84,7 @@
   right: 12px;
   border: none;
   background: transparent;
-  color: rgba(10, 10, 10, 0.4);
+  color: rgba(245, 245, 245, 0.5);
   font-size: 9.5px;
   font-weight: 500;
   letter-spacing: 0.08em;
@@ -91,7 +93,7 @@
   cursor: pointer;
   z-index: 5;
 }
-.skip:hover { color: #0A0A0A; }
+.skip:hover { color: #F5F5F5; }
 
 /* ── Step layout ─────────────────────────────────────────────────────────── */
 
@@ -197,7 +199,7 @@
   line-height: 1.02;
   letter-spacing: -0.025em;
   font-weight: 900;
-  color: #0A0A0A;
+  color: #F5F5F5;
   text-transform: uppercase;
 }
 
@@ -211,7 +213,7 @@
   margin: 8px auto 0;
   font-size: 15px;
   line-height: 1.5;
-  color: rgba(10, 10, 10, 0.55);
+  color: rgba(245, 245, 245, 0.55);
   max-width: 34ch;
 }
 
@@ -245,9 +247,10 @@
 .cta:hover { background-color: #A01818; }
 .cta:active { transform: scale(0.98); }
 .cta:disabled {
-  opacity: 0.35;
+  background-color: rgba(245, 245, 245, 0.10);
+  color: rgba(245, 245, 245, 0.40);
   cursor: not-allowed;
-  background-color: #0A0A0A;
+  opacity: 1;
 }
 .ctaLarge { padding: 18px 28px; font-size: 16px; }
 
@@ -262,14 +265,14 @@
   max-height: 200px;
   aspect-ratio: 1;
   border-radius: 50%;
-  background-color: #FFFFFF;
+  background-color: #1c1c1c;
   object-fit: contain;
   object-position: center;
   padding: 8px;
   box-shadow:
-    0 16px 28px rgba(10, 10, 10, 0.18),
-    0 0 0 5px #FFFFFF,
-    0 0 0 8px rgba(183, 28, 28, 0.18);
+    0 16px 28px rgba(0, 0, 0, 0.45),
+    0 0 0 5px #1c1c1c,
+    0 0 0 8px rgba(183, 28, 28, 0.32);
   user-select: none;
   -webkit-user-drag: none;
 }
@@ -280,12 +283,12 @@
   width: 100%;
   padding: 14px 18px;
   border: none;
-  border-bottom: 2px solid rgba(10, 10, 10, 0.14);
+  border-bottom: 2px solid rgba(245, 245, 245, 0.18);
   border-radius: 0;
   font-size: 17px;
   font-weight: 600;
   background-color: transparent;
-  color: #0A0A0A;
+  color: #F5F5F5;
   outline: none;
   text-align: center;
   transition: border-color 0.15s;
@@ -293,7 +296,7 @@
 }
 .nameInput:focus { border-bottom-color: #B71C1C; }
 .nameInput::placeholder {
-  color: rgba(10, 10, 10, 0.32);
+  color: rgba(245, 245, 245, 0.35);
   font-weight: 500;
 }
 
@@ -311,7 +314,7 @@
   padding: 3px;
   border: 2px solid transparent;
   border-radius: 50%;
-  background-color: #FFFFFF;
+  background-color: #1c1c1c;
   cursor: pointer;
   overflow: hidden;
   transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s, opacity 0.15s;
@@ -413,13 +416,12 @@
  * legibility on the image. Title / Eyebrow / Body keep their standard
  * typography and color so the slide reads consistently with the rest. */
 
-.overlay[data-step="hook"] .brandLogo { filter: brightness(0) invert(1); }
+/* Hook-step chrome tweaks — slightly brighter white to pop against the image
+ * and red tablecloth, plus an eyebrow color flip (red-on-red was unreadable). */
 .overlay[data-step="hook"] .skip { color: rgba(255, 255, 255, 0.7); }
 .overlay[data-step="hook"] .skip:hover { color: #fff; }
 .overlay[data-step="hook"] .dot { background-color: rgba(255, 255, 255, 0.35); }
 .overlay[data-step="hook"] .dotActive { background-color: #fff; }
-/* Eyebrow on the hook slide flips to white — red-on-red of the standard
- * eyebrow color was unreadable against the red tablecloth backdrop. */
 .overlay[data-step="hook"] .eyebrow { color: #FFFFFF; }
 
 /* On the hook slide the text block sits near the bottom of the middle grid
@@ -536,31 +538,3 @@
   .body { font-size: 16px; max-width: 38ch; }
 }
 
-/* ── Dark mode (theme="dark") ────────────────────────────────────────────── */
-
-:global(html[data-theme="dark"]) .overlay {
-  background-color: #0A0A0A;
-  color: #F5F5F5;
-}
-:global(html[data-theme="dark"]) .brandLogo { filter: brightness(0) invert(1); }
-:global(html[data-theme="dark"]) .title { color: #F5F5F5; }
-:global(html[data-theme="dark"]) .body { color: rgba(245, 245, 245, 0.55); }
-:global(html[data-theme="dark"]) .dot { background-color: rgba(245, 245, 245, 0.22); }
-:global(html[data-theme="dark"]) .skip { color: rgba(245, 245, 245, 0.5); }
-:global(html[data-theme="dark"]) .skip:hover { color: #F5F5F5; }
-:global(html[data-theme="dark"]) .nameInput {
-  color: #F5F5F5;
-  border-bottom-color: rgba(245, 245, 245, 0.22);
-}
-:global(html[data-theme="dark"]) .nameInput::placeholder { color: rgba(245, 245, 245, 0.35); }
-:global(html[data-theme="dark"]) .avatarChoice { background-color: #1c1c1c; }
-:global(html[data-theme="dark"]) .avatarHeroImg { background-color: #1c1c1c; }
-
-/* Dark-mode disabled CTA — page bg is also #0A0A0A, so the default disabled
- * black plate disappears entirely. Use a translucent white plate so the
- * button outline reads even before the user has filled the form. */
-:global(html[data-theme="dark"]) .cta:disabled {
-  background-color: rgba(245, 245, 245, 0.10);
-  color: rgba(245, 245, 245, 0.40);
-  opacity: 1;
-}

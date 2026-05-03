@@ -1,6 +1,6 @@
 'use client';
 
-import { doc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, updateDoc, writeBatch, serverTimestamp } from 'firebase/firestore';
 import { db } from './config';
 import type { MustEatAlbumCard } from '@/lib/types';
 
@@ -44,11 +44,35 @@ export async function createWelcomePack(
 }
 
 // Open the welcome pack — flips opened: false → true with a server
-// timestamp. Rules permit this update only if the prior state was unopened.
-export async function openWelcomePack(uid: string, packId = 'welcome'): Promise<void> {
-  const ref = doc(db, 'users', uid, 'packs', packId);
-  await updateDoc(ref, {
+// timestamp AND auto-unlocks each pack card on the user's map. Rules permit
+// the pack update only if the prior state was unopened. The unlock writes
+// run in a single batch so they either all land or none do.
+export async function openWelcomePack(
+  uid: string,
+  mustEatIds: string[] = [],
+  packId = 'welcome',
+): Promise<void> {
+  const packRef = doc(db, 'users', uid, 'packs', packId);
+  await updateDoc(packRef, {
     opened:   true,
     openedAt: serverTimestamp(),
   });
+
+  // Mirror the pack's cards into users/{uid}/unlockedMustEats — without this
+  // the cards in the user's deck would still read as "not visited" on the
+  // map, which contradicts the implicit promise of opening the pack.
+  if (mustEatIds.length > 0) {
+    const batch = writeBatch(db);
+    for (const mustEatId of mustEatIds) {
+      batch.set(
+        doc(db, 'users', uid, 'unlockedMustEats', mustEatId),
+        {
+          source:     'starter-pack',
+          unlockedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
+    }
+    await batch.commit();
+  }
 }

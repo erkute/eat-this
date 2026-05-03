@@ -81,9 +81,10 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
         await sleep(POST_FLIP_PAUSE_MS);
       }
       // Mark opened only after the full animation so the snapshot update
-      // (opened → true) doesn't cancel the loop via effect cleanup.
+      // (opened → true) doesn't cancel the loop via effect cleanup. Also
+      // auto-unlocks the pack's cards on the map (batched inside the call).
       if (!cancelled) {
-        openWelcomePack(user.uid, pack.id).catch((err) => {
+        openWelcomePack(user.uid, pack.mustEatIds, pack.id).catch((err) => {
           console.error('[profile-deck] openWelcomePack failed:', err);
         });
       }

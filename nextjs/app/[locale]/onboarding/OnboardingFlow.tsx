@@ -56,11 +56,13 @@ export default function OnboardingFlow({
     if (trimmed !== initialName) {
       try { await onUpdateName(trimmed); } catch { /* non-fatal */ }
     }
-    if (avatarPick !== initialAvatar) {
-      try { await onSetAvatar(avatarPick); } catch { /* non-fatal */ }
-    }
+    // Always persist the avatar — even if it equals the UID-derived default,
+    // we want it explicitly saved so later reads return the user's choice
+    // instead of falling back to defaultAvatarFromUid which can read as
+    // "random" if the user expected their selection to stick.
+    try { await onSetAvatar(avatarPick); } catch { /* non-fatal */ }
     goTo(4);
-  }, [name, avatarPick, initialName, initialAvatar, onUpdateName, onSetAvatar, goTo]);
+  }, [name, avatarPick, initialName, onUpdateName, onSetAvatar, goTo]);
 
   const ctaIdentityDisabled = !name.trim();
 

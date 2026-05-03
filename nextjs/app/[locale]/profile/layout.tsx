@@ -6,6 +6,7 @@ import { routing } from '@/i18n/routing';
 import { AuthProvider } from '@/lib/auth';
 import SiteNav from '@/app/components/SiteNav';
 import BurgerDrawer from '@/app/components/BurgerDrawer';
+import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth';
 import SearchOverlay from '@/app/components/SearchOverlay';
 
 export const metadata: Metadata = {
@@ -33,6 +34,7 @@ export default async function ProfileLayout({
 
       <AuthProvider>
         <SiteNav />
+        <BridgeAuth />
         <BurgerDrawer />
         {children}
         <SearchOverlay />

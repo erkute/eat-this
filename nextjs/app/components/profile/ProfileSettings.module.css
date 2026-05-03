@@ -55,7 +55,10 @@
 .avatarChoice img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* contain (not cover) so heads aren't cropped — same fix we applied in
+   * the onboarding avatar selector. */
+  object-fit: contain;
+  object-position: center;
   display: block;
 }
 .avatarChoice:hover:not(:disabled) {

@@ -57,10 +57,21 @@ export default function OnboardingPage() {
   const initialName   = user.displayName?.trim() ?? '';
   const initialAvatar = profile.avatar ?? defaultAvatarFromUid(user.uid);
 
+  // Users who completed the identity step inside /welcome (different-device
+  // magic-link flow) have their name+avatar already saved. They land with a
+  // sessionStorage flag that skips the identity slide and starts at the Hook.
+  const initialStep = (() => {
+    if (typeof window === 'undefined') return 0;
+    const skip = sessionStorage.getItem('onboardingSkipIdentity');
+    if (skip) { sessionStorage.removeItem('onboardingSkipIdentity'); return 1; }
+    return 0;
+  })();
+
   return (
     <OnboardingFlow
       initialName={initialName}
       initialAvatar={initialAvatar}
+      initialStep={initialStep}
       packCards={packCards}
       onUpdateName={onUpdateName}
       onSetAvatar={onSetAvatar}

@@ -18,7 +18,7 @@ const SAMPLE_CARDS = [
 
 const AVATAR_CHOICES: AvatarChoice[] = [1, 2, 3];
 const TOTAL_STEPS = 5;
-const FINAL_STEP  = 4;
+const FINAL_STEP  = 4; // Pack — skip target
 
 // mulberry32-derived deterministic RNG for fly-in offsets (server/client safe).
 function seedRand(seed: number, i: number, salt: number): number {
@@ -31,6 +31,7 @@ function seedRand(seed: number, i: number, salt: number): number {
 export interface OnboardingFlowProps {
   initialName:   string;
   initialAvatar: AvatarChoice;
+  initialStep?:  number;
   // The user's 10 starter-pack card images (resolved Sanity URLs in deck order).
   // null means the pack is still loading from Firestore/Sanity — Slide 4's
   // "Pack öffnen" CTA stays disabled until this is non-null.
@@ -43,13 +44,14 @@ export interface OnboardingFlowProps {
 export default function OnboardingFlow({
   initialName,
   initialAvatar,
+  initialStep = 0,
   packCards,
   onUpdateName,
   onSetAvatar,
   onFinish,
 }: OnboardingFlowProps) {
   const reduced = useReducedMotion();
-  const [step, setStep]             = useState(0);
+  const [step, setStep]             = useState(initialStep);
   const [name, setName]             = useState(initialName);
   const [avatarPick, setAvatarPick] = useState<AvatarChoice>(initialAvatar);
   // Slide 4 — Pack-open choreography state.
@@ -66,11 +68,9 @@ export default function OnboardingFlow({
       try { await onUpdateName(trimmed); } catch { /* non-fatal */ }
     }
     // Always persist the avatar — even if it equals the UID-derived default,
-    // we want it explicitly saved so later reads return the user's choice
-    // instead of falling back to defaultAvatarFromUid which can read as
-    // "random" if the user expected their selection to stick.
+    // we want it explicitly saved so later reads return the user's choice.
     try { await onSetAvatar(avatarPick); } catch { /* non-fatal */ }
-    goTo(4);
+    goTo(1); // Identity is step 0; next is Hook (step 1)
   }, [name, avatarPick, initialName, onUpdateName, onSetAvatar, goTo]);
 
   const ctaIdentityDisabled = !name.trim();
@@ -88,8 +88,8 @@ export default function OnboardingFlow({
     <div
       className={`${styles.overlay} ${styles.overlayVisible}`}
       data-step={
-        step === 0 ? 'hook'
-      : step === 3 ? 'identity'
+        step === 0 ? 'identity'
+      : step === 1 ? 'hook'
       : step === 4 ? 'pack'
       : undefined
       }
@@ -97,7 +97,7 @@ export default function OnboardingFlow({
       aria-modal="true"
       aria-label="Eat This onboarding"
     >
-      {step === 0 && (
+      {step === 1 && (
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -126,75 +126,8 @@ export default function OnboardingFlow({
 
       <AnimatePresence mode="wait" initial={false}>
 
-        {/* ── 1. Hook (full-bleed image at overlay level, text overlay) ───── */}
+        {/* ── 1. Identity (Name + Avatar) — shown first ───────────────────── */}
         {step === 0 && (
-          <StepShell key="hook">
-            <div className={styles.hookSpacer} aria-hidden="true" />
-            <StepContent>
-              <Eyebrow>Berlin&apos;s Must Eats</Eyebrow>
-              <Title className={styles.titleLarge}>We tell you<br />what to eat</Title>
-            </StepContent>
-            <Footer>
-              <button type="button" className={styles.cta} onClick={() => goTo(1)}>Weiter</button>
-            </Footer>
-          </StepShell>
-        )}
-
-        {/* ── 2. Map ──────────────────────────────────────────────────────── */}
-        {step === 1 && (
-          <StepShell key="map">
-            <div className={styles.mapStage}>
-              <div className={styles.mapPair}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/pics/map-teaser/map_must-eat.png"
-                  alt="Must-Eat Karte"
-                  className={`${styles.mapImg} ${styles.mapImgLeft}`}
-                  draggable={false}
-                />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/pics/map-teaser/map_liste.png"
-                  alt="Karte mit Restaurant-Liste"
-                  className={`${styles.mapImg} ${styles.mapImgRight}`}
-                  draggable={false}
-                />
-              </div>
-            </div>
-            <StepContent>
-              <Eyebrow>Die Map</Eyebrow>
-              <Title>Dein persönlicher<br />Food Guide für Berlin</Title>
-              <Body>
-                Über 200 kuratierte Restaurants, Cafes und Bars. Entdecke die
-                Must Eats und vervollständige dein Deck.
-              </Body>
-            </StepContent>
-            <Footer>
-              <button type="button" className={styles.cta} onClick={() => goTo(2)}>Weiter</button>
-            </Footer>
-          </StepShell>
-        )}
-
-        {/* ── 3. Trust (the deck — wider fan, varied cards) ───────────────── */}
-        {step === 2 && (
-          <StepShell key="trust">
-            <CardFlyIn reduced={!!reduced} />
-            <StepContent>
-              <Eyebrow>Das Deck</Eyebrow>
-              <Title>Bestell es.<br />Iss es. Sammel es.</Title>
-              <Body>
-                Jedes Must Eat in deiner Sammlung steht für eine Empfehlung,
-                hinter der wir stehen.
-              </Body>
-            </StepContent>
-            <Footer>
-              <button type="button" className={styles.cta} onClick={() => goTo(3)}>Weiter</button>
-            </Footer>
-          </StepShell>
-        )}
-
-        {/* ── 4. Identity (Name + Avatar) ─────────────────────────────────── */}
-        {step === 3 && (
           <StepShell key="identity">
             <div className={styles.avatarHero}>
               <AnimatePresence mode="wait" initial={false}>
@@ -258,6 +191,73 @@ export default function OnboardingFlow({
               >
                 Weiter
               </button>
+            </Footer>
+          </StepShell>
+        )}
+
+        {/* ── 2. Hook (full-bleed image) ──────────────────────────────────── */}
+        {step === 1 && (
+          <StepShell key="hook">
+            <div className={styles.hookSpacer} aria-hidden="true" />
+            <StepContent>
+              <Eyebrow>Berlin&apos;s Must Eats</Eyebrow>
+              <Title className={styles.titleLarge}>We tell you<br />what to eat</Title>
+            </StepContent>
+            <Footer>
+              <button type="button" className={styles.cta} onClick={() => goTo(2)}>Weiter</button>
+            </Footer>
+          </StepShell>
+        )}
+
+        {/* ── 3. Map ──────────────────────────────────────────────────────── */}
+        {step === 2 && (
+          <StepShell key="map">
+            <div className={styles.mapStage}>
+              <div className={styles.mapPair}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/pics/map-teaser/map_must-eat.png"
+                  alt="Must-Eat Karte"
+                  className={`${styles.mapImg} ${styles.mapImgLeft}`}
+                  draggable={false}
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/pics/map-teaser/map_liste.png"
+                  alt="Karte mit Restaurant-Liste"
+                  className={`${styles.mapImg} ${styles.mapImgRight}`}
+                  draggable={false}
+                />
+              </div>
+            </div>
+            <StepContent>
+              <Eyebrow>Die Map</Eyebrow>
+              <Title>Dein persönlicher<br />Food Guide für Berlin</Title>
+              <Body>
+                Über 200 kuratierte Restaurants, Cafes und Bars. Entdecke die
+                Must Eats und vervollständige dein Deck.
+              </Body>
+            </StepContent>
+            <Footer>
+              <button type="button" className={styles.cta} onClick={() => goTo(3)}>Weiter</button>
+            </Footer>
+          </StepShell>
+        )}
+
+        {/* ── 4. Trust (the deck — wider fan, varied cards) ───────────────── */}
+        {step === 3 && (
+          <StepShell key="trust">
+            <CardFlyIn reduced={!!reduced} />
+            <StepContent>
+              <Eyebrow>Das Deck</Eyebrow>
+              <Title>Bestell es.<br />Iss es. Sammel es.</Title>
+              <Body>
+                Jedes Must Eat in deiner Sammlung steht für eine Empfehlung,
+                hinter der wir stehen.
+              </Body>
+            </StepContent>
+            <Footer>
+              <button type="button" className={styles.cta} onClick={() => goTo(4)}>Weiter</button>
             </Footer>
           </StepShell>
         )}
@@ -366,7 +366,7 @@ function StepContent({ children }: { children: React.ReactNode }) {
   return <div className={styles.stepContent}>{children}</div>;
 }
 
-// ── Slide 2 — Card fly-in (lab pattern, scaled-up centerpiece) ───────────────
+// ── Slide 3 — Card fly-in (lab pattern, scaled-up centerpiece) ───────────────
 
 function CardFlyIn({ reduced }: { reduced: boolean }) {
   const seed = 42;
@@ -431,4 +431,3 @@ function CardFlyIn({ reduced }: { reduced: boolean }) {
     </div>
   );
 }
-

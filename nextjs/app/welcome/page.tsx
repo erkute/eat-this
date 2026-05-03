@@ -7,8 +7,10 @@ import {
   isSignInWithEmailLink,
   signInWithEmailLink,
   applyActionCode,
+  updateProfile,
 } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase/config';
 import { routing } from '@/i18n/routing';
 import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import styles from './auth-action.module.css';
@@ -22,6 +24,8 @@ function detectLocale(): string {
   const v = m ? decodeURIComponent(m[1]) : '';
   return (routing.locales as readonly string[]).includes(v) ? v : routing.defaultLocale;
 }
+
+type AvatarChoice = 1 | 2 | 3;
 
 type State =
   | { kind: 'processing' }
@@ -154,6 +158,11 @@ function AuthActionInner() {
   );
 }
 
+// The "needs-email" state is shown when the magic link is opened on a
+// different device than where it was requested (localStorage is empty).
+// We collect email + identity (name + avatar) in one step so the user
+// lands directly at the pack slide in Onboarding rather than having to
+// fill in identity again.
 function NeedsEmailForm({
   href,
   setState,
@@ -162,43 +171,70 @@ function NeedsEmailForm({
   setState: (s: State) => void;
 }) {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
-  const [busy,  setBusy]  = useState(false);
+  const [email,      setEmail]      = useState('');
+  const [name,       setName]       = useState('');
+  const [avatarPick, setAvatarPick] = useState<AvatarChoice>(1);
+  const [error,      setError]      = useState('');
+  const [busy,       setBusy]       = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !name.trim()) return;
     setBusy(true);
     setError('');
-    signInWithEmailLink(auth, email, href)
-      .then(async (result) => {
-        localStorage.removeItem('emailForSignIn');
-        await postLoginRedirect(result.user.uid, router, detectLocale());
-      })
-      .catch((err: unknown) => {
-        setBusy(false);
-        const code = (err as { code?: string }).code ?? '';
-        if (code === 'auth/invalid-email') {
-          setError('Bitte gib eine gültige E-Mail-Adresse ein.');
-        } else if (
-          code === 'auth/expired-action-code' ||
-          code === 'auth/invalid-action-code'
-        ) {
-          setState({ kind: 'expired' });
-        } else {
-          setError('Etwas ist schiefgelaufen. Versuch es nochmal.');
-        }
-      });
+    try {
+      const result = await signInWithEmailLink(auth, email.trim(), href);
+      localStorage.removeItem('emailForSignIn');
+      const uid = result.user.uid;
+      // Save display name + avatar so the identity slide can be skipped.
+      await updateProfile(result.user, { displayName: name.trim() });
+      await setDoc(doc(db, 'users', uid), { avatar: avatarPick }, { merge: true });
+      // Signal the onboarding page to skip the identity slide.
+      sessionStorage.setItem('onboardingSkipIdentity', 'true');
+      const locale = detectLocale();
+      const base   = locale === routing.defaultLocale ? '' : `/${locale}`;
+      router.replace(`${base}/onboarding`);
+    } catch (err: unknown) {
+      setBusy(false);
+      const code = (err as { code?: string }).code ?? '';
+      if (code === 'auth/invalid-email') {
+        setError('Bitte gib eine gültige E-Mail-Adresse ein.');
+      } else if (
+        code === 'auth/expired-action-code' ||
+        code === 'auth/invalid-action-code'
+      ) {
+        setState({ kind: 'expired' });
+      } else {
+        setError('Etwas ist schiefgelaufen. Versuch es nochmal.');
+      }
+    }
   };
 
   return (
     <>
-      <h1 className={styles.title}>Kurz bestätigen.</h1>
-      <p className={styles.sub}>
-        Gib die E-Mail-Adresse ein, an die wir die Nachricht geschickt haben.
-      </p>
+      {/* Avatar hero — mirrors onboarding identity slide */}
+      <div className={styles.avatarHero}>
+        <img
+          src={`/pics/avatar/${avatarPick}.webp`}
+          alt=""
+          className={styles.avatarHeroImg}
+        />
+      </div>
+
+      <h1 className={styles.title}>Wähl deinen<br />Character</h1>
+      <p className={styles.sub}>Und bestätige kurz deine E-Mail-Adresse.</p>
+
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <input
+          type="text"
+          autoComplete="given-name"
+          placeholder="Dein Vorname"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          maxLength={40}
+          className={styles.input}
+        />
         <input
           type="email"
           inputMode="email"
@@ -209,9 +245,27 @@ function NeedsEmailForm({
           required
           className={styles.input}
         />
+
+        <div className={styles.avatarRow} role="radiogroup" aria-label="Avatar auswählen">
+          {([1, 2, 3] as AvatarChoice[]).map((choice) => (
+            <button
+              key={choice}
+              type="button"
+              role="radio"
+              aria-checked={choice === avatarPick}
+              aria-label={`Avatar ${choice}`}
+              className={`${styles.avatarChoice}${choice === avatarPick ? ` ${styles.avatarChoiceActive}` : ''}`}
+              onClick={() => setAvatarPick(choice)}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`/pics/avatar/${choice}.webp`} alt="" />
+            </button>
+          ))}
+        </div>
+
         {error && <p className={styles.error}>{error}</p>}
-        <button type="submit" className={styles.cta} disabled={busy}>
-          {busy ? 'Anmelden …' : 'Jetzt anmelden'}
+        <button type="submit" className={styles.cta} disabled={busy || !name.trim() || !email}>
+          {busy ? 'Anmelden …' : 'Weiter'}
         </button>
       </form>
     </>

@@ -1,19 +1,23 @@
 'use client';
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useSpring,
+  useTransform,
+} from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import { openWelcomePack } from '@/lib/firebase/welcomePack';
 import type { MustEatAlbumCard } from '@/lib/types';
 import type { BoosterPack } from '@/lib/firebase/usePack';
 import ProfileDeckHeader from './ProfileDeckHeader';
+import ProfileDeckStackOverlay from './ProfileDeckStackOverlay';
 import styles from './ProfileDeck.module.css';
 
 const TOTAL_SLOTS        = 150;
-const SCROLL_PAUSE_MS    = 650;
 const FLIP_DURATION_S    = 0.7;
-const POST_FLIP_PAUSE_MS = 850;
-const CLOSE_DURATION_S   = 0.32;
 
 interface Props {
   pack:     BoosterPack;
@@ -25,8 +29,6 @@ interface ExpandedState {
   rect:  DOMRect;
   order: number;
 }
-
-const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 export default function ProfileDeck({ pack, mustEats }: Props) {
   const { user } = useAuth();
@@ -40,8 +42,14 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
     return map;
   }, [pack.mustEatIds, mustEats]);
 
-  const sortedPackOrders = useMemo(
-    () => Array.from(packCardsByOrder.keys()).sort((a, b) => a - b),
+  // Pack cards in their deck order — used by the stack overlay so the
+  // user clicks through cards top → bottom in the same sequence as the
+  // deck slots fill in.
+  const sortedPackCards = useMemo(
+    () =>
+      Array.from(packCardsByOrder.entries())
+        .sort(([a], [b]) => a - b)
+        .map(([, card]) => card),
     [packCardsByOrder],
   );
 
@@ -57,41 +65,41 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
   const [hiddenSlotOrder, setHiddenSlotOrder] = useState<number | null>(null);
 
   const slotRefs  = useRef<Map<number, HTMLDivElement>>(new Map());
-  const triggered = useRef(false);
+  const persistedRef = useRef(false);
 
-  useEffect(() => {
-    if (pack.opened || triggered.current) return;
-    if (!user) return;
-    if (sortedPackOrders.length === 0) return;
-    triggered.current = true;
+  // Stack-overlay handlers — invoked by ProfileDeckStackOverlay as the user
+  // clicks through their 10 face-down cards.
+  const scrollToSlot = useCallback((order: number) => {
+    const el = slotRefs.current.get(order);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, []);
 
-    let cancelled = false;
-    (async () => {
-      for (const order of sortedPackOrders) {
-        if (cancelled) return;
-        const el = slotRefs.current.get(order);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        await sleep(SCROLL_PAUSE_MS);
-        if (cancelled) return;
-        setRevealed((prev) => {
-          const next = new Set(prev);
-          next.add(order);
-          return next;
-        });
-        await sleep(POST_FLIP_PAUSE_MS);
-      }
-      // Mark opened only after the full animation so the snapshot update
-      // (opened → true) doesn't cancel the loop via effect cleanup. Also
-      // auto-unlocks the pack's cards on the map (batched inside the call).
-      if (!cancelled) {
-        openWelcomePack(user.uid, pack.mustEatIds, pack.id).catch((err) => {
-          console.error('[profile-deck] openWelcomePack failed:', err);
-        });
-      }
-    })();
+  const getSlotRect = useCallback((order: number): DOMRect | null => {
+    const el = slotRefs.current.get(order);
+    return el ? el.getBoundingClientRect() : null;
+  }, []);
 
-    return () => { cancelled = true; };
-  }, [pack.opened, pack.id, sortedPackOrders, user]);
+  const handleCardPlaced = useCallback((order: number) => {
+    setRevealed((prev) => {
+      if (prev.has(order)) return prev;
+      const next = new Set(prev);
+      next.add(order);
+      return next;
+    });
+  }, []);
+
+  const handleAllPlaced = useCallback(() => {
+    if (!user || persistedRef.current) return;
+    persistedRef.current = true;
+    openWelcomePack(user.uid, pack.mustEatIds, pack.id).catch((err) => {
+      console.error('[profile-deck] openWelcomePack failed:', err);
+    });
+  }, [user, pack.mustEatIds, pack.id]);
+
+  // Show the stack overlay only on the first profile visit while the
+  // user's pack hasn't been "opened" yet. After all 10 cards are placed,
+  // openWelcomePack flips pack.opened → true and the overlay unmounts.
+  const showStackOverlay = !pack.opened && sortedPackCards.length > 0 && !!user;
 
   // Close handler — stable reference so memoized ExpandedOverlay doesn't re-render mid-flight.
   const closeExpanded = useCallback(() => {
@@ -122,23 +130,31 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
           const isRevealed = revealed.has(order);
 
           if (card) {
-            return (
-              <FlipSlot
-                key={order}
-                order={order}
-                card={card}
-                flipped={isRevealed}
-                hideCardFace={hiddenSlotOrder === order}
-                onExpand={isRevealed ? (rect) => {
+            const slotRef = (el: HTMLDivElement | null) => {
+              if (el) slotRefs.current.set(order, el);
+              else slotRefs.current.delete(order);
+            };
+            if (isRevealed) {
+              return (
+                <FlipSlot
+                  key={order}
+                  order={order}
+                  card={card}
+                  flipped={isRevealed}
+                  hideCardFace={hiddenSlotOrder === order}
+                  onExpand={(rect) => {
                     setHiddenSlotOrder(order);
                     setExpanded({ card, rect, order });
-                  } : undefined}
-                slotRef={(el) => {
-                  if (el) slotRefs.current.set(order, el);
-                  else slotRefs.current.delete(order);
-                }}
-              />
-            );
+                  }}
+                  slotRef={slotRef}
+                />
+              );
+            }
+            // Empty placeholder for the user's pack cards that haven't been
+            // placed yet. ProfileDeckStackOverlay flies the card here on
+            // click; the slot becomes a FlipSlot once `revealed` includes
+            // its order.
+            return <EmptySlot key={order} order={order} slotRef={slotRef} />;
           }
           return <BackSlot key={order} />;
         })}
@@ -159,6 +175,16 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
           />
         )}
       </AnimatePresence>
+
+      {showStackOverlay && (
+        <ProfileDeckStackOverlay
+          cards={sortedPackCards}
+          scrollToSlot={scrollToSlot}
+          getSlotRect={getSlotRect}
+          onCardPlaced={handleCardPlaced}
+          onAllPlaced={handleAllPlaced}
+        />
+      )}
     </>
   );
 }
@@ -183,6 +209,48 @@ const ExpandedOverlay = memo(function ExpandedOverlay({ expanded, onClose }: Exp
   // Tilt as it flies out — toss feel. Capped at ±7°.
   const tiltZ = Math.max(-7, Math.min(7, fromX * 0.025));
 
+  // 3D tilt while the card is in the lightbox — same pattern as the stack
+  // overlay's lifted card so the deck-card feels equally physical when
+  // expanded. Pointer position drives rotateX / rotateY through soft
+  // springs; ±14° max each axis.
+  const imgRef   = useRef<HTMLImageElement>(null);
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const rotateXSpring = useSpring(
+    useTransform(pointerY, [-0.5, 0.5], [12, -12]),
+    { stiffness: 220, damping: 18 },
+  );
+  const rotateYSpring = useSpring(
+    useTransform(pointerX, [-0.5, 0.5], [-14, 14]),
+    { stiffness: 220, damping: 18 },
+  );
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLImageElement>) => {
+    const el = imgRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    pointerX.set((e.clientX - rect.left) / rect.width  - 0.5);
+    pointerY.set((e.clientY - rect.top)  / rect.height - 0.5);
+  };
+  const handlePointerLeave = () => {
+    pointerX.set(0);
+    pointerY.set(0);
+  };
+
+  // Lock body scroll while the lightbox is open — otherwise touch-drag on
+  // the card to tilt it ALSO pans the deck behind on mobile, which the
+  // user perceives as "the deck moves with my finger". Restore on close.
+  useEffect(() => {
+    const prevOverflow    = document.body.style.overflow;
+    const prevTouchAction = document.body.style.touchAction;
+    document.body.style.overflow    = 'hidden';
+    document.body.style.touchAction = 'none';
+    return () => {
+      document.body.style.overflow    = prevOverflow;
+      document.body.style.touchAction = prevTouchAction;
+    };
+  }, []);
+
   return (
     <motion.div
       className={styles.lightboxWrapper}
@@ -199,27 +267,42 @@ const ExpandedOverlay = memo(function ExpandedOverlay({ expanded, onClose }: Exp
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <motion.img
+        ref={imgRef}
         src={expanded.card.imageUrl}
         alt={expanded.card.dish}
         className={styles.lightboxImg}
         initial={{ x: fromX, y: fromY, scale: fromScale, rotateZ: tiltZ, opacity: 1 }}
         animate={{
           x: 0, y: 0, scale: 1, rotateZ: 0, opacity: 1,
-          transition: { type: 'spring', stiffness: 280, damping: 26 },
+          // Tween (Apple-style ease-out) instead of spring — eliminates the
+          // micro-bounce at settle that made the expand read as jerky.
+          transition: { duration: 0.46, ease: [0.22, 1, 0.36, 1] },
         }}
-        // Critically-damped spring back to the slot, plus a delayed opacity
-        // fade in the final 70 ms. The slot card is revealed at the start of
-        // the fade — both sit at the same position with the same image, so
-        // the crossfade hides any sub-pixel misalignment between the
-        // transform-scaled lightbox img and the natively-sized slot face.
+        // Tween (Apple-style ease-in) back to the slot — replaces the
+        // previous spring whose final-frame settle showed a tiny "Ruckler"
+        // just before landing. The opacity fades in the final 70 ms while
+        // the slot face is already revealed underneath, so any sub-pixel
+        // mismatch crossfades invisibly.
         exit={{
           x: fromX, y: fromY, scale: fromScale, rotateZ: 0, opacity: 0,
           transition: {
-            default: { type: 'spring', stiffness: 360, damping: 40, mass: 0.9 },
+            default: { duration: 0.34, ease: [0.4, 0, 0.2, 1] },
             opacity: { delay: 0.22, duration: 0.07, ease: 'linear' },
           },
         }}
-        style={{ position: 'relative', zIndex: 1 }}
+        // rotateX / rotateY composed live with the spring-based opening
+        // (which animates x/y/scale/rotateZ). They're separate transform
+        // axes so Framer composes them without conflict.
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          rotateX: rotateXSpring,
+          rotateY: rotateYSpring,
+          transformStyle: 'preserve-3d',
+        }}
+        onClick={(e) => e.stopPropagation()}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
       />
     </motion.div>
   );
@@ -297,5 +380,25 @@ function BackSlot() {
         />
       </div>
     </div>
+  );
+}
+
+// Empty placeholder for one of the user's 10 pack cards before the
+// stack-overlay flies it home. Visually it's a faint outlined slot so the
+// user can spot where the next card will land. ProfileDeckStackOverlay
+// reads its bounding rect via slotRef to compute the flight target.
+interface EmptySlotProps {
+  order:   number;
+  slotRef: (el: HTMLDivElement | null) => void;
+}
+
+function EmptySlot({ order, slotRef }: EmptySlotProps) {
+  return (
+    <div
+      className={`${styles.slot} ${styles.slotEmpty}`}
+      ref={slotRef}
+      data-order={order}
+      aria-label={`Karte ${order} (noch nicht aufgedeckt)`}
+    />
   );
 }

@@ -405,18 +405,25 @@ export default function PackOpenChoreography({ cards, triggerOpen, onRevealCompl
   // from there.
   const centerX = sw / 2;
   const centerY = sh / 2;
-  // Card resting size at centre. Bumped up — only one card on stage at a
-  // time, so it can take a generous slice of the viewport (especially on
-  // mobile where there's lots of vertical space between header and footer).
-  const cardW = Math.max(190, Math.min(sw * 0.70, sh * 0.42, 340));
-  const cardH = cardW * 1.5;
 
-  // Cards must enter from beyond the VIEWPORT edge (not the stage edge).
-  // On desktop the choreoStage is often narrower than the viewport, so a
-  // stage-relative fly-in distance leaves cards visibly already on screen
-  // when they "appear". SSR fallback to stage dims while vp is unmeasured.
+  // Viewport dimensions drive both card SIZE and off-screen distances.
+  // Stage may be narrower than the viewport on desktop (choreoStage caps
+  // at 520px there), so stage-relative sizing/distances would make the
+  // card tiny and the fly-in/out paths visibly stop short of the screen
+  // edge. SSR fallback to stage dims while vp is unmeasured.
   const vpW = vp.w || sw;
   const vpH = vp.h || sh;
+
+  // Card resting size at centre — split by aspect ratio so phones (tall
+  // portrait) get a generous hero card and desktops (wide landscape) get
+  // a compact card matched to the profile-deck slot size (~180–285 px),
+  // so the cards fly out at the SAME size they'll later sit at in the
+  // deck — no perceived shrink at landing.
+  const isLandscape = vpW > vpH;
+  const cardW = isLandscape
+    ? Math.max(180, Math.min(vpH * 0.32, 280))   // desktop: ≤ 280 px
+    : Math.max(220, Math.min(vpW * 0.62, 320));  // mobile: ≤ 320 px, scales up from phone width
+  const cardH = cardW * 1.5;
   const cardDescriptors = useMemo(() => {
     return cards.map((_, i) => {
       // Per-card start state from memory `feedback_card_flyin_pattern.md`:
@@ -639,9 +646,65 @@ export default function PackOpenChoreography({ cards, triggerOpen, onRevealCompl
     document.body,
   ) : null;
 
+  // Cards overlay — body-portaled so they escape choreoStage's
+  // overflow:hidden. On desktop the stage is capped at ~520px wide while
+  // the viewport is much wider, so the in-stage cards visibly disappeared
+  // mid-screen. Portaling lets them traverse the full viewport.
+  // Slot anchor is the stage centre translated into viewport coords; the
+  // motion deltas (flyInX, outDeltaX) stay the same — they were already
+  // computed in viewport-relative pixels.
+  const cardsOverlay = portalReady && vp.w > 0 && phase === 'flyThrough'
+    ? createPortal(
+        <>
+          {cardDescriptors.map((d, i) => {
+            if (i > activeCardIndex) return null;
+            const vpSlotLeft = vp.stageLeft + centerX - cardW / 2;
+            const vpSlotTop  = vp.stageTop  + centerY - cardH / 2;
+            return (
+              <motion.div
+                key={`card-portal-${i}`}
+                className={styles.passCard}
+                style={{
+                  position: 'fixed',
+                  width:  `${cardW}px`,
+                  height: `${cardH}px`,
+                  left:   `${vpSlotLeft}px`,
+                  top:    `${vpSlotTop}px`,
+                  zIndex: 10000,
+                }}
+                initial={{
+                  x:      d.flyInX,
+                  y:      d.flyInY,
+                  scale:  CARD_POP_SCALE,
+                  rotate: d.flyInRot,
+                }}
+                animate={{
+                  x:      [d.flyInX, 0, 0, outDeltaX],
+                  y:      [d.flyInY, 0, 0, d.outYJitter],
+                  scale:  [CARD_POP_SCALE, 1, 1, 1],
+                  rotate: [d.flyInRot, d.midRot, d.midRot, d.outRot],
+                }}
+                transition={{
+                  duration: CARD_TOTAL_MS / 1000,
+                  times:    [0, t1, t2, 1],
+                  ease: [
+                    [0.22, 1, 0.36, 1],
+                    'linear',
+                    [0.55, 0.06, 0.68, 0.19],
+                  ],
+                }}
+              />
+            );
+          })}
+        </>,
+        document.body,
+      )
+    : null;
+
   return (
     <>
     {cracksOverlay}
+    {cardsOverlay}
     <motion.div
       ref={stageRef}
       className={styles.choreoStage}
@@ -704,56 +767,6 @@ export default function PackOpenChoreography({ cards, triggerOpen, onRevealCompl
             : { duration: 0.05 }
         }
       />
-
-      {/* Cards — each one is mounted only at its turn (see activeCardIndex
-       *  effect above) so nothing's visible before its fly-in starts. From
-       *  random off-screen angle at scale 3.5 with strong tilt, lands at
-       *  stage centre with a soft overshoot, dwells briefly, slides
-       *  off-screen right. Strictly sequential. */}
-      {phase === 'flyThrough' && cardDescriptors.map((d, i) => {
-        if (i > activeCardIndex) return null;
-        const slotLeft = centerX - cardW / 2;
-        const slotTop  = centerY - cardH / 2;
-        return (
-          <motion.div
-            key={`card-${i}`}
-            className={styles.passCard}
-            style={{
-              width:  `${cardW}px`,
-              height: `${cardH}px`,
-              left:   `${slotLeft}px`,
-              top:    `${slotTop}px`,
-              zIndex: 30 + i,
-            }}
-            initial={{
-              x:      d.flyInX,
-              y:      d.flyInY,
-              scale:  CARD_POP_SCALE,
-              rotate: d.flyInRot,
-            }}
-            animate={{
-              x:      [d.flyInX, 0, 0, outDeltaX],
-              y:      [d.flyInY, 0, 0, d.outYJitter],
-              scale:  [CARD_POP_SCALE, 1, 1, 1],
-              rotate: [d.flyInRot, d.midRot, d.midRot, d.outRot],
-            }}
-            transition={{
-              duration: CARD_TOTAL_MS / 1000,
-              times:    [0, t1, t2, 1],
-              // Cubic-bezier on each segment for ultra-smooth deceleration
-              // into centre and acceleration out — replaces the previous
-              // 'easeOut'/'easeIn' which had a slight ruckeln at the
-              // segment boundary. (0.22, 1, 0.36, 1) is Apple-style smooth
-              // out; (0.55, 0.06, 0.68, 0.19) is its mirror for in.
-              ease: [
-                [0.22, 1, 0.36, 1],
-                'linear',
-                [0.55, 0.06, 0.68, 0.19],
-              ],
-            }}
-          />
-        );
-      })}
 
       {/* Pack — same DOM node from idle through zoom. Idle hover loops while
        *  phase === 'idle'; zoom is a wind-up (slight pull-back) then a hard

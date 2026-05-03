@@ -1,0 +1,176 @@
+/* Body-portal overlay. pointer-events:none on the wrapper keeps the deck
+ * underneath scrollable; interactive children (.stackInteractive,
+ * .activeCardTiltable) re-enable pointers locally. Single perspective
+ * parent gives the stack + active card a shared 3D camera. */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+  /* Perspective intentionally NOT here: a perspective on this element
+   * would establish a containing block for the position:fixed activeCard
+   * inside it, which can introduce sub-pixel offsets between the predicted
+   * fly-to-slot rect and the actual landing position on some browsers.
+   * Each 3D-using descendant manages its own perspective instead. */
+}
+
+/* Subtle pulse on the idle stack — a gentle scale breathing so the user
+ * registers "this is interactive" without an explicit text hint. */
+@keyframes stackPulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.03); }
+}
+
+/* ── Stack — rigid, centered, no tilt, no float ────────────────────────── */
+
+.stackPositioner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  /* Slight downward bias so the lifted card (which sits a hair above
+   * centre) doesn't crowd against the top of the stack visual. */
+  margin-top: 2vh;
+  /* Smooth slide-aside / scale-down while a card flies. Slightly slower
+   * out than in so the next idle frame greets the user with a clean
+   * back-to-centre reveal. */
+  transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* During flight, the stack slides UP and to the LEFT — same size as
+ * before, just out of the centre to clear the flying card's path. Returns
+ * to centre on next idle. */
+.stackPositionerHidden {
+  transform: translate(calc(-50% - 32vw), calc(-50% - 32vh));
+  pointer-events: none;
+}
+
+.stack {
+  position: relative;
+  width: min(58vw, 220px);
+  aspect-ratio: 1449 / 2163;
+  transform-style: preserve-3d;
+  /* Local 3D camera for the stack-card layers' translate3d depth. */
+  perspective: 1100px;
+  perspective-origin: 50% 50%;
+}
+
+.stackInteractive {
+  cursor: pointer;
+  pointer-events: auto;
+  animation: stackPulse 2.4s ease-in-out infinite;
+  transform-origin: 50% 60%;
+}
+
+.stackInteractive:focus-visible {
+  outline: 2px solid #f5d44e;
+  outline-offset: 4px;
+  border-radius: 8%;
+}
+
+.stackCard {
+  position: absolute;
+  inset: 0;
+  border-radius: 6%;
+  /* Stronger ambient shadow per layer so the deck thickness reads as
+   * physical even at rest. The top layer's shadow is biased downward by
+   * the larger drop. */
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.32),
+    0 1px 4px rgba(0, 0, 0, 0.22);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.stackCardBack {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6%;
+  /* clip-path for Safari preserve-3d artifact suppression
+   * (per memory feedback_memory_card_rendering). */
+  clip-path: inset(0 round 6%);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ── Active card — lifted / tilted / flying ───────────────────────────── */
+
+.activeCard {
+  position: fixed;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  z-index: 9100;
+  /* drop-shadow respects nested transforms — scales with the card during
+   * lift / flight, unlike box-shadow. */
+  filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.45));
+  /* Local 3D camera for the flip + tilt layers nested inside. Keeps the
+   * containing-block-for-fixed-descendants concern out of the parent
+   * overlay so left/top read as exact viewport coords. */
+  perspective: 1100px;
+  perspective-origin: 50% 45%;
+}
+
+.activeCardTiltable {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.activeCardTiltable:focus-visible {
+  outline: 2px solid #f5d44e;
+  outline-offset: 4px;
+  border-radius: 8%;
+}
+
+.flipLayer {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.tiltLayer {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.cardFaceBack,
+.cardFaceFront {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6%;
+  clip-path: inset(0 round 6%);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.cardFaceFront {
+  transform: rotateY(180deg);
+}
+
+/* Sheen — soft white gradient that drifts horizontally with the rotateY
+ * tilt spring. Provides a 3D depth cue on the face-up card during the
+ * lifted phase. */
+.cardSheen {
+  position: absolute;
+  inset: 6% 6%;
+  border-radius: 6%;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.18) 50%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  mix-blend-mode: overlay;
+  transform: translateZ(2px);
+  transition: opacity 220ms ease-out;
+}

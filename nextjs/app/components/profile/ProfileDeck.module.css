@@ -48,6 +48,12 @@
   cursor: pointer;
 }
 
+/* Empty target — one of the user's 10 pack-card slots before its card has
+ * flown in from the stack overlay. Stays transparent (no outline, no fill)
+ * so the deck reads cleanly while the stack is still floating above. The
+ * slot still reserves grid space via aspect-ratio and is measurable via
+ * slotRef for the flight choreography. */
+
 @keyframes slotShake {
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
   15%       { transform: translate(-4px, 0) rotate(-2deg); }
@@ -171,6 +177,10 @@
   justify-content: center;
   padding: 24px;
   cursor: zoom-out;
+  /* 3D camera so rotateX/rotateY on the inner image read as physical
+   * card-tilt (matches the stack-overlay's lifted-card perspective). */
+  perspective: 1100px;
+  perspective-origin: 50% 45%;
 }
 
 .lightboxBg {
@@ -189,6 +199,10 @@
   /* GPU-friendly drop-shadow stays cached across transforms; box-shadow
    * forces a repaint every frame at full opacity = visible jitter. */
   filter: drop-shadow(0 24px 48px rgba(0, 0, 0, 0.7));
+  /* Disable browser scroll/zoom on touch — pointer events are handled by
+   * React for the 3D-tilt. Without this, finger-drag on the card pans the
+   * deck behind on iOS Safari. */
+  touch-action: none;
   cursor: default;
   display: block;
   /* Promote to its own GPU layer so transforms don't repaint neighbours. */

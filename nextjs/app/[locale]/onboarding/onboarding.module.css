@@ -605,7 +605,9 @@
 .choreoCracks {
   position: fixed;
   inset: 0;
-  z-index: 10000;
+  /* Above the body-portaled cards (z:10000) so the shattered glass
+   * remains IN FRONT as cards pass through the full viewport. */
+  z-index: 10001;
   pointer-events: none;
   overflow: visible;
 }

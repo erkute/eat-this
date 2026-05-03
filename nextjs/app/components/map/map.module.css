@@ -2154,6 +2154,15 @@ html[data-theme="dark"] .btn:hover {
 .cardMarkerDiscovered {
   filter: drop-shadow(0 2px 6px rgba(255, 59, 0, 0.55));
 }
+/* Face-up state — dish image fills the card slot. */
+.cardMarkerFront {
+  background: var(--surface-bg, #f5f5f5);
+  border-radius: 6%;
+  overflow: hidden;
+}
+.cardMarkerFront img {
+  object-fit: cover;
+}
 
 /* Proximity vibration on the Must Eat map marker — strong when user is
    right on top of the restaurant, subtle when ~500 m away. */

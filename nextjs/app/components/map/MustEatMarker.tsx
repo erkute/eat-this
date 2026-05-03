@@ -54,6 +54,7 @@ export default function MustEatMarker({
     styles.cardMarker,
     isSelected && styles.cardMarkerActive,
     isUnlocked && !isSelected && styles.cardMarkerDiscovered,
+    isUnlocked && styles.cardMarkerFront,
     !isUnlocked && wiggling && styles.cardWiggling,
     vibrating && styles.cardMarkerVibrating,
   ].filter(Boolean).join(' ')
@@ -77,14 +78,15 @@ export default function MustEatMarker({
           ...(vibrating ? { ['--vibrate-intensity' as string]: proximityIntensity.toFixed(3) } : null),
           ...(fanCount > 1 ? {
             ['--fan-rotation' as string]: `${fanRotation}deg`,
-            // Centre cards stack on top of the outer ones for a hand-of-cards
-            // look. Distance from centre → lower z; isSelected wins outright.
             zIndex: isSelected ? 100 : 10 - Math.abs(fanIndex - (fanCount - 1) / 2),
           } : null),
         }}
         onAnimationEnd={() => setWiggling(false)}
       >
-        <img src="/pics/card-back.webp" alt="" draggable={false} />
+        {isUnlocked
+          ? <img src={mustEat.image} alt={mustEat.dish} draggable={false} />
+          : <img src="/pics/card-back.webp" alt="" draggable={false} />
+        }
       </div>
     </Marker>
   )

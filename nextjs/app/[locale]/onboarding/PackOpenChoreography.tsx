@@ -328,35 +328,6 @@ export default function PackOpenChoreography({ cards, triggerOpen, onRevealCompl
     }
   }, [phase, zoomMs, impactOffsetMs]);
 
-  // Background music — starts the moment the user clicks "Pack öffnen"
-  // (phase advances to 'zoom'). Loops at low volume through the entire
-  // choreography. Drop a track at /public/audio/pack-music.mp3 and it
-  // plays automatically; without the file the .play() promise just
-  // rejects silently, so this is safe to ship empty too.
-  const bgAudioRef = useRef<HTMLAudioElement | null>(null);
-  useEffect(() => {
-    if (phase !== 'zoom' || bgAudioRef.current) return;
-    try {
-      const bg = new Audio('/audio/pack-music.mp3');
-      bg.loop = true;
-      bg.volume = 0.35;
-      void bg.play().catch(() => { /* missing file or autoplay block */ });
-      bgAudioRef.current = bg;
-    } catch { /* ignore */ }
-  }, [phase]);
-  useEffect(() => {
-    // Stop the music when the component unmounts (i.e., when onboarding
-    // navigates away to /profile).
-    return () => {
-      const bg = bgAudioRef.current;
-      if (bg) {
-        bg.pause();
-        bg.src = '';
-        bgAudioRef.current = null;
-      }
-    };
-  }, []);
-
   // Pack snaps invisible the instant the glass shatters. Cracks, pack
   // disappearance, and sound all land at the same perceptual moment —
   // pack hits glass, glass breaks, pack is gone. One event, one beat.

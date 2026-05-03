@@ -59,9 +59,13 @@ export default function ProfileDeckStackOverlay({
   onCardPlaced,
   onAllPlaced,
 }: Props) {
-  const [topIndex, setTopIndex] = useState(0);
-  const [phase, setPhase]       = useState<Phase>('idle');
-  const [target, setTarget]     = useState<DOMRect | null>(null);
+  const [topIndex, setTopIndex]     = useState(0);
+  const [phase, setPhase]           = useState<Phase>('idle');
+  const [target, setTarget]         = useState<DOMRect | null>(null);
+  // Which side the stack escapes to when a card is flying. true = right,
+  // false = left. Set just before transitioning to 'flying' based on where
+  // the target slot sits relative to the viewport centre.
+  const [escapeRight, setEscapeRight] = useState(false);
 
   const [portalReady, setPortalReady] = useState(false);
   // Measure an actual deck slot on mount so the stack matches the grid
@@ -90,19 +94,34 @@ export default function ProfileDeckStackOverlay({
     window.setTimeout(() => setPhase('lifted'), LIFT_DURATION_MS);
   };
 
-  // Auto-advance from lifted → flying after the dwell. The scroll-to-slot
-  // started at click time, so the slot is stationary by now.
+  // Auto-advance from lifted → flying after the dwell. Re-scrolls to the
+  // target slot so the landing is visible even if the user moved the
+  // viewport during the dwell window. A short delay after the scroll lets
+  // the browser register one rAF before we measure the rect.
   useEffect(() => {
     if (phase !== 'lifted') return;
-    const t = window.setTimeout(() => {
+    let measureTimer: number | undefined;
+    const dwellTimer = window.setTimeout(() => {
       const card = cards[topIndex];
       if (!card || typeof card.order !== 'number') return;
-      const targetRect = getSlotRect(card.order);
-      if (!targetRect) return;
-      setPhase('flying');
-      setTarget(targetRect);
+      const order = card.order;
+      scrollToSlot(order);
+      measureTimer = window.setTimeout(() => {
+        const targetRect = getSlotRect(order);
+        if (!targetRect) return;
+        // Escape to the side OPPOSITE the target slot so the stack stays
+        // clear of the flying card's path. +6vh vertical keeps the stack
+        // below the fixed navbar header.
+        const slotMidX = targetRect.left + targetRect.width / 2;
+        setEscapeRight(slotMidX < window.innerWidth / 2);
+        setPhase('flying');
+        setTarget(targetRect);
+      }, 80);
     }, LIFTED_DWELL_MS);
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(dwellTimer);
+      if (measureTimer !== undefined) clearTimeout(measureTimer);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, topIndex]);
 
@@ -147,7 +166,13 @@ export default function ProfileDeckStackOverlay({
        * stack. The stack reappears at the next idle frame. */}
       {topCard && (
         <div
-          className={`${styles.stackPositioner} ${phase === 'flying' ? styles.stackPositionerHidden : ''}`}
+          className={`${styles.stackPositioner} ${
+            phase === 'flying'
+              ? escapeRight
+                ? styles.stackPositionerHiddenRight
+                : styles.stackPositionerHiddenLeft
+              : ''
+          }`}
         >
           <div
             className={`${styles.stack} ${phase === 'idle' ? styles.stackInteractive : ''}`}

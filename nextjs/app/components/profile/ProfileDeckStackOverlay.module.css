@@ -36,11 +36,16 @@
   transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* During flight, the stack slides UP and to the LEFT — same size as
- * before, just out of the centre to clear the flying card's path. Returns
- * to centre on next idle. */
-.stackPositionerHidden {
-  transform: translate(calc(-50% - 32vw), calc(-50% - 32vh));
+/* During flight the stack escapes to the side OPPOSITE the target slot so
+ * it never blocks the flying card's path. +6vh vertical keeps the stack
+ * safely below the fixed navbar header. Returns to centre on next idle. */
+.stackPositionerHiddenLeft {
+  transform: translate(calc(-50% - 36vw), calc(-50% + 6vh));
+  pointer-events: none;
+}
+
+.stackPositionerHiddenRight {
+  transform: translate(calc(-50% + 36vw), calc(-50% + 6vh));
   pointer-events: none;
 }
 

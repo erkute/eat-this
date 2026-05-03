@@ -339,8 +339,26 @@
     align-items: center;
     justify-content: center;
     padding: 32px;
+    position: relative;
+    overflow: hidden;
   }
-  [data-theme="dark"] .page { background: #0a0a0a; }
+  /* Blurred hero image bleeds behind the phone card on dark desktop —
+     creates a frosted-glass shimmer instead of a flat black background. */
+  [data-theme="dark"] .page {
+    background: #08080c;
+  }
+  [data-theme="dark"] .page::before {
+    content: '';
+    position: absolute;
+    inset: -8%;
+    background: url('/pics/login/Black screen.webp') center / cover no-repeat;
+    filter: blur(28px) brightness(0.28) saturate(1.3);
+    z-index: 0;
+  }
+  .frame {
+    position: relative;
+    z-index: 1;
+  }
 
   .frame {
     flex: 0 0 auto;

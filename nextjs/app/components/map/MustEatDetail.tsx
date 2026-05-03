@@ -17,6 +17,8 @@ interface MustEatDetailProps {
   isUnlocked: boolean
   onUnlock: () => void
   onClose: () => void
+  onBack?: () => void
+  backLabel?: string
   onViewRestaurant?: () => void
   onShowMustEatList?: () => void
   inSheet?: boolean
@@ -49,7 +51,7 @@ function UnlockIcon() {
   )
 }
 
-export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnlock, onClose, onViewRestaurant, onShowMustEatList, inSheet, uid }: MustEatDetailProps) {
+export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnlock, onClose, onBack, backLabel, onViewRestaurant, onShowMustEatList, inSheet, uid }: MustEatDetailProps) {
   const { t } = useTranslation()
   const locale = useLocale()
   const distance = userLocation
@@ -84,6 +86,14 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
             className={styles.mustEatHero}
             style={!isUnlocked ? { ['--vibrate-intensity' as string]: vibrateIntensity.toFixed(3) } : undefined}
           >
+            {onBack && (
+              <button type="button" className={styles.detailHeroBack} aria-label={`Zurück zu ${backLabel ?? 'Restaurant'}`} onClick={onBack}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M19 12H5M12 5l-7 7 7 7" />
+                </svg>
+                {backLabel ?? 'Zurück'}
+              </button>
+            )}
             <button type="button" className={styles.detailHeroClose} aria-label="Close" onClick={onClose}>
               <CloseIcon />
             </button>

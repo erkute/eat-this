@@ -115,6 +115,7 @@ body {
   gap: 12px;
   text-decoration: none;
   outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 .brand-logo {
   height: 36px;

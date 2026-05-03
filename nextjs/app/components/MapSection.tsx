@@ -197,6 +197,9 @@ export default function MapSection({ isActive = false }: Props) {
   const [openOnly,           setOpenOnly]           = useState(false)
   const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
   const [selectedMustEat,    setSelectedMustEat]    = useState<MapMustEat | null>(null)
+  // Tracks the restaurant we navigated FROM when entering a must-eat detail,
+  // so the back button can return there without clearing the map state.
+  const prevRestaurantRef = useRef<MapRestaurant | null>(null)
   const [sheetView,          setSheetView]          = useState<'list' | 'detail'>('list')
   const [sort,               setSort]               = useState<'distance' | 'name' | 'price'>('distance')
   const [filterOpen,         setFilterOpen]         = useState(false)
@@ -483,6 +486,7 @@ export default function MapSection({ isActive = false }: Props) {
     // → switch to mustEats layer + list view, fly to the must-eat. Same flow
     // on both platforms.
     if (selectedRestaurant) {
+      prevRestaurantRef.current = selectedRestaurant
       setLayer('mustEats')
       setSelectedRestaurant(null)
       setSelectedMustEat(m)
@@ -543,8 +547,19 @@ export default function MapSection({ isActive = false }: Props) {
     handleRestaurantClick(restaurant)
   }, [selectedMustEat, restaurants, handleRestaurantClick])
 
+  // Back button inside the must-eat detail — returns to the restaurant detail
+  // we navigated from (stored in prevRestaurantRef when the user tapped a
+  // must-eat card inside a restaurant's detail sheet).
+  const handleMustEatBack = useCallback(() => {
+    const prev = prevRestaurantRef.current
+    prevRestaurantRef.current = null
+    setSelectedMustEat(null)
+    if (prev) handleRestaurantClick(prev)
+  }, [handleRestaurantClick])
+
   const handleMustEatClose = useCallback(() => {
     const m = selectedMustEat
+    prevRestaurantRef.current = null
     setSelectedMustEat(null)
     // If we were stacked on a restaurant detail, fall back to it instead of the list.
     if (selectedRestaurant) {
@@ -904,6 +919,8 @@ export default function MapSection({ isActive = false }: Props) {
                     isUnlocked={unlockedIds.has(selectedMustEat._id)}
                     onUnlock={handleUnlock}
                     onClose={handleMustEatClose}
+                    onBack={prevRestaurantRef.current ? handleMustEatBack : undefined}
+                    backLabel={prevRestaurantRef.current?.name}
                     onViewRestaurant={handleViewRestaurantFromMustEat}
                     onShowMustEatList={handleShowMustEatList}
                     uid={uid}

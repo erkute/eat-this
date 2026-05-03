@@ -86,59 +86,70 @@ function AuthActionInner() {
       return;
     }
 
-    // resetPassword OR unknown — both flow into the same generic "expired" view
     setState({ kind: 'expired' });
   }, [params, router]);
 
   return (
     <main className={styles.page}>
-      <section className={styles.card}>
+      <div className={styles.frame}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/pics/login/Black screen.webp"
+          alt=""
+          className={styles.heroImg}
+          decoding="async"
+        />
+        <div className={styles.scrimTop} />
+        <div className={styles.scrimBottom} />
+
         <div className={styles.logoWrap}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/pics/eat-email.png" alt="Eat This" />
+          <img src="/pics/login/eat 1.webp" alt="Eat This" className={styles.logoMark} />
         </div>
 
-        {state.kind === 'processing' && (
-          <>
-            <div className={styles.spinner} aria-hidden />
-            <h1 className={styles.title}>Einen Moment …</h1>
-            <p className={styles.sub}>Du wirst gleich angemeldet.</p>
-          </>
-        )}
+        <div className={styles.content}>
+          {state.kind === 'processing' && (
+            <>
+              <div className={styles.spinner} aria-hidden />
+              <h1 className={styles.title}>Einen Moment …</h1>
+              <p className={styles.sub}>Du wirst gleich angemeldet.</p>
+            </>
+          )}
 
-        {state.kind === 'success' && (
-          <>
-            <div className={styles.checkmark} aria-hidden>
-              <svg viewBox="0 0 24 24"><polyline points="5 13 9 17 19 7" /></svg>
-            </div>
-            <h1 className={styles.title}>{state.title}</h1>
-            <p className={styles.sub}>{state.sub}</p>
-          </>
-        )}
+          {state.kind === 'success' && (
+            <>
+              <div className={styles.checkmark} aria-hidden>
+                <svg viewBox="0 0 24 24"><polyline points="5 13 9 17 19 7" /></svg>
+              </div>
+              <h1 className={styles.title}>{state.title}</h1>
+              <p className={styles.sub}>{state.sub}</p>
+            </>
+          )}
 
-        {state.kind === 'needs-email' && (
-          <NeedsEmailForm href={state.href} setState={setState} />
-        )}
+          {state.kind === 'needs-email' && (
+            <NeedsEmailForm href={state.href} setState={setState} />
+          )}
 
-        {state.kind === 'expired' && (
-          <>
-            <h1 className={styles.title}>Dieser Link funktioniert nicht.</h1>
-            <p className={styles.sub}>
-              Er ist abgelaufen oder wurde bereits verwendet. Starte
-              den Login einfach noch einmal von der Startseite.
-            </p>
-            <Link href="/" className={styles.cta}>Zur Startseite</Link>
-          </>
-        )}
+          {state.kind === 'expired' && (
+            <>
+              <h1 className={styles.title}>Dieser Link funktioniert nicht.</h1>
+              <p className={styles.sub}>
+                Er ist abgelaufen oder wurde bereits verwendet. Starte
+                den Login einfach noch einmal von der Startseite.
+              </p>
+              <Link href="/" className={styles.cta}>Zur Startseite</Link>
+            </>
+          )}
 
-        {state.kind === 'error' && (
-          <>
-            <h1 className={styles.title}>{state.title}</h1>
-            <p className={styles.sub}>{state.sub}</p>
-            <Link href="/" className={styles.cta}>Zur Startseite</Link>
-          </>
-        )}
-      </section>
+          {state.kind === 'error' && (
+            <>
+              <h1 className={styles.title}>{state.title}</h1>
+              <p className={styles.sub}>{state.sub}</p>
+              <Link href="/" className={styles.cta}>Zur Startseite</Link>
+            </>
+          )}
+        </div>
+      </div>
     </main>
   );
 }
@@ -185,10 +196,9 @@ function NeedsEmailForm({
     <>
       <h1 className={styles.title}>Kurz bestätigen.</h1>
       <p className={styles.sub}>
-        Gib die E-Mail-Adresse ein, an die wir die Nachricht
-        geschickt haben.
+        Gib die E-Mail-Adresse ein, an die wir die Nachricht geschickt haben.
       </p>
-      <form onSubmit={submit}>
+      <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <input
           type="email"
           inputMode="email"
@@ -197,22 +207,9 @@ function NeedsEmailForm({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          style={{
-            width:        '100%',
-            padding:      '14px 18px',
-            border:       '1px solid #E5E5E5',
-            borderRadius: '12px',
-            fontSize:     '15px',
-            marginBottom: '12px',
-            outline:      'none',
-            boxSizing:    'border-box',
-          }}
+          className={styles.input}
         />
-        {error && (
-          <p style={{ color: '#C0392B', fontSize: '13px', margin: '0 0 12px' }}>
-            {error}
-          </p>
-        )}
+        {error && <p className={styles.error}>{error}</p>}
         <button type="submit" className={styles.cta} disabled={busy}>
           {busy ? 'Anmelden …' : 'Jetzt anmelden'}
         </button>

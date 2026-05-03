@@ -323,7 +323,7 @@ const ExpandedOverlay = memo(function ExpandedOverlay({ expanded, onClose }: Exp
           rotateY: rotateYSpring,
           transformStyle: 'preserve-3d',
         }}
-        onClick={(e) => e.stopPropagation()}
+        onClick={onClose}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
       />

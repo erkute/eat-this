@@ -1,88 +1,203 @@
+/* ════════════════════════════════════════════════════════════
+   /welcome — magic-link landing page.
+   Full-bleed hero, same visual language as /login.
+   ════════════════════════════════════════════════════════════ */
+
 .page {
-  min-height: 100dvh;
-  background-color: #F7F2E8;
+  height: 100dvh;
+  width: 100%;
+  background: #0d0d0d;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 16px;
+  flex-direction: column;
+  overflow: hidden;
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
-  color: #0A0A0A;
 }
 
-.card {
-  background-color: #FFFFFF;
-  border-radius: 24px;
-  padding: 44px 32px;
-  max-width: 420px;
-  width: 100%;
-  text-align: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-}
-
-.logoWrap {
+/* Phone-frame card on desktop */
+.frame {
+  position: relative;
+  flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background-color: #0A0A0A;
-  margin: 0 auto 24px;
+  flex-direction: column;
   overflow: hidden;
 }
 
-.logoWrap img {
+.heroImg {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: 100%;
+  height: 108%;
   object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.scrimTop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 32%;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.0) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+.scrimBottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 65%;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.0) 0%,
+    rgba(0, 0, 0, 0.6) 40%,
+    rgba(0, 0, 0, 0.94) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── Logo top-center ─────────────────────────────────── */
+.logoWrap {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+.logoMark {
+  width: 60px;
+  height: auto;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.4));
+}
+
+/* ── Content floats at the bottom ───────────────────── */
+.content {
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
+  padding: 0 22px max(28px, env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  align-self: center;
 }
 
 .title {
-  margin: 0 0 12px;
-  font-size: 24px;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
-  font-weight: 800;
-  color: #0A0A0A;
+  margin: 0 0 2px;
+  font-size: clamp(22px, 6vw, 28px);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #fff;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
 }
 
 .sub {
-  margin: 0 0 24px;
-  font-size: 15px;
-  line-height: 1.5;
-  color: #6B6B6B;
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.72);
 }
 
+/* ── Frosted-glass input ─────────────────────────────── */
+.input {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+  font-size: 16px; /* iOS no-zoom */
+  font-family: inherit;
+  color: #fff;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.18s, background 0.18s;
+}
+.input::placeholder { color: rgba(255, 255, 255, 0.45); }
+.input:focus {
+  border-color: rgba(255, 255, 255, 0.42);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ── Primary CTA ─────────────────────────────────────── */
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px;
+  background: #b71c1c;
+  color: #fff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.18s, transform 0.08s;
+  outline: none;
+}
+.cta:hover:not(:disabled) { background: #9a1818; }
+.cta:active:not(:disabled) { transform: scale(0.99); }
+.cta:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ── Error text ──────────────────────────────────────── */
+.error {
+  margin: 0;
+  font-size: 13px;
+  color: #ff8b8b;
+  line-height: 1.4;
+}
+
+/* ── Spinner (processing) ────────────────────────────── */
 .spinner {
   width: 36px;
   height: 36px;
-  border: 3px solid #E5E5E5;
-  border-top-color: #0A0A0A;
+  border: 3px solid rgba(255, 255, 255, 0.22);
+  border-top-color: #fff;
   border-radius: 50%;
-  margin: 0 auto 24px;
   animation: spin 0.8s linear infinite;
+  margin-bottom: 4px;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
+/* ── Checkmark (success) ─────────────────────────────── */
 .checkmark {
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background-color: #E8B82A;
-  margin: 0 auto 18px;
-  display: inline-flex;
+  background: #E8B82A;
+  display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 4px;
 }
 
 .checkmark svg {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   stroke: #0A0A0A;
   stroke-width: 3;
   fill: none;
@@ -90,39 +205,30 @@
   stroke-linejoin: round;
 }
 
-.errorIcon {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background-color: #F1E2E0;
-  margin: 0 auto 18px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-}
+/* ── Desktop: phone-card (same as /login) ─────────── */
+@media (min-width: 768px) {
+  .page {
+    background: #faf8f3;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+  }
+  [data-theme="dark"] .page { background: #0a0a0a; }
 
-.cta {
-  display: inline-block;
-  padding: 14px 28px;
-  background-color: #0A0A0A;
-  color: #FFFFFF;
-  border-radius: 999px;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
-  margin-top: 8px;
-}
+  .frame {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 400px;
+    height: min(90vh, 820px);
+    border-radius: 28px;
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.22);
+    overflow: hidden;
+  }
+  [data-theme="dark"] .frame {
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
+  }
 
-.cta:hover {
-  background-color: #1A1A1A;
-}
-
-.muted {
-  margin-top: 16px;
-  font-size: 13px;
-  color: #9A9A9A;
+  .heroImg { height: 110%; }
+  .logoMark { width: 60px; }
+  .content { padding: 0 22px 28px; max-width: none; }
 }

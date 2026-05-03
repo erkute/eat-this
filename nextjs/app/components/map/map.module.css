@@ -2847,15 +2847,21 @@ html[data-theme="dark"] .selectActive {
 /* Use .detail.detailNarrow double-class selector to beat the desktop media rule
    on specificity, regardless of source order. */
 .detail.detailNarrow {
-  max-width: 280px;
+  max-width: min(460px, 92vw);
   flex-direction: column;
+  /* Shift center down by half the fixed navbar height (~56px) so the panel
+     never slides behind the header on short viewports. */
+  top: calc(50% + 28px);
+  max-height: calc(100dvh - 80px);
 }
 .detailNarrow .mustCardBackHero,
 .detailNarrow .mustCardFlip {
-  padding: 12px 12px 2px;
+  padding: 16px 16px 4px;
 }
 .detailNarrow .mustCardBackTap {
-  max-width: 220px;
+  max-width: min(420px, 88vw);
+  max-height: 50dvh;
+  width: 100%;
 }
 @keyframes detailPop {
   from { transform: translate(-50%, -50%) scale(0.95); opacity: 0; }

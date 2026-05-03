@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   motion,
@@ -28,7 +28,7 @@ interface Props {
   // Smoothly scrolls the deck-grid so the target slot is centred in the
   // viewport. Called at click time so the slot is stable by the time the
   // dwell ends and the flight begins.
-  scrollToSlot: (order: number) => void;
+  scrollToSlot: (order: number, behavior?: ScrollBehavior) => void;
   // Returns the current viewport rect of the deck slot for `order`.
   // Measured AFTER scroll has settled so the rect is the true target.
   getSlotRect:  (order: number) => DOMRect | null;
@@ -96,17 +96,19 @@ export default function ProfileDeckStackOverlay({
 
   // Auto-advance from lifted → flying after the dwell. Re-scrolls to the
   // target slot so the landing is visible even if the user moved the
-  // viewport during the dwell window. A short delay after the scroll lets
-  // the browser register one rAF before we measure the rect.
+  // viewport during the dwell window.
+  // Uses 'instant' scroll so the position settles in the same frame and the
+  // subsequent rAF measurement reads the correct final rect — a smooth
+  // re-scroll would still be mid-animation after a fixed 80ms delay.
   useEffect(() => {
     if (phase !== 'lifted') return;
-    let measureTimer: number | undefined;
+    let rafId: number | undefined;
     const dwellTimer = window.setTimeout(() => {
       const card = cards[topIndex];
       if (!card || typeof card.order !== 'number') return;
       const order = card.order;
-      scrollToSlot(order);
-      measureTimer = window.setTimeout(() => {
+      scrollToSlot(order, 'instant');
+      rafId = window.requestAnimationFrame(() => {
         const targetRect = getSlotRect(order);
         if (!targetRect) return;
         // Escape to the side OPPOSITE the target slot so the stack stays
@@ -116,11 +118,11 @@ export default function ProfileDeckStackOverlay({
         setEscapeRight(slotMidX < window.innerWidth / 2);
         setPhase('flying');
         setTarget(targetRect);
-      }, 80);
+      });
     }, LIFTED_DWELL_MS);
     return () => {
       clearTimeout(dwellTimer);
-      if (measureTimer !== undefined) clearTimeout(measureTimer);
+      if (rafId !== undefined) cancelAnimationFrame(rafId);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, topIndex]);
@@ -156,6 +158,19 @@ export default function ProfileDeckStackOverlay({
     phase === 'idle' ? stackLayerCount : Math.max(0, stackLayerCount - 1);
   const topCard = topIndex < cards.length ? cards[topIndex] : null;
 
+  // Clamp the escape offset so the stack stays in-viewport on narrow screens.
+  // The stack centre must stay at least (stackW/2 + 16px) from the edge.
+  const vpW = typeof window !== 'undefined' ? window.innerWidth : 800;
+  const maxEscapePx = Math.max(0, vpW / 2 - stackSize.w / 2 - 16);
+  const escapePx = Math.min(vpW * 0.36, maxEscapePx);
+  const stackEscapeStyle: React.CSSProperties =
+    phase === 'flying'
+      ? {
+          transform: `translate(calc(-50% ${escapeRight ? '+' : '-'} ${escapePx}px), calc(-50% + 6vh))`,
+          pointerEvents: 'none' as const,
+        }
+      : {};
+
   return createPortal(
     <div className={styles.overlay} aria-hidden={phase === 'flying'}>
       {/* Stack — rigid, centred, no tilt, no float. Click target only when
@@ -166,13 +181,8 @@ export default function ProfileDeckStackOverlay({
        * stack. The stack reappears at the next idle frame. */}
       {topCard && (
         <div
-          className={`${styles.stackPositioner} ${
-            phase === 'flying'
-              ? escapeRight
-                ? styles.stackPositionerHiddenRight
-                : styles.stackPositionerHiddenLeft
-              : ''
-          }`}
+          className={styles.stackPositioner}
+          style={stackEscapeStyle}
         >
           <div
             className={`${styles.stack} ${phase === 'idle' ? styles.stackInteractive : ''}`}

@@ -69,9 +69,9 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
 
   // Stack-overlay handlers — invoked by ProfileDeckStackOverlay as the user
   // clicks through their 10 face-down cards.
-  const scrollToSlot = useCallback((order: number) => {
+  const scrollToSlot = useCallback((order: number, behavior: ScrollBehavior = 'smooth') => {
     const el = slotRefs.current.get(order);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (el) el.scrollIntoView({ behavior, block: 'center' });
   }, []);
 
   const getSlotRect = useCallback((order: number): DOMRect | null => {

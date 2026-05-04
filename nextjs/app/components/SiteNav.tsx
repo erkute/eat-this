@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
@@ -12,22 +11,18 @@ export default function SiteNav() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const locale = useLocale();
-  const router = useRouter();
 
-  // Header profile icon: route to /profile if signed in, otherwise /login.
-  // Logged-in: hard-navigate (profile page needs fresh server data).
-  // Logged-out: soft-nav via router.push so the intercepting @modal/(.)login
-  // route fires — the current page stays mounted behind the overlay.
+  // Header profile icon: route to /profile if signed in, otherwise open the
+  // login modal via window.openLoginModal (set by BridgeAuth as a React portal).
   const handleProfileClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     if (user) {
       const href = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
       window.location.assign(href);
     } else {
-      const href = locale === routing.defaultLocale ? '/login' : `/${locale}/login`;
-      router.push(href);
+      window.openLoginModal?.();
     }
-  }, [user, locale, router]);
+  }, [user, locale]);
 
   // Wire burger toggle here so it works on every (spa) route, including
   // /profile which doesn't render SPAShell (and therefore no BurgerDrawer).

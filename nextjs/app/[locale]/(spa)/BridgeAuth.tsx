@@ -16,30 +16,27 @@
  * Remove this file once app.min.js / profile.min.js are fully migrated to React.
  */
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
-import { routing } from '@/i18n/routing';
+import LoginPanel from '@/app/components/LoginPanel';
+import modalStyles from '@/app/[locale]/@modal/(.)login/modal.module.css';
 
 export default function BridgeAuth() {
   const { user, loading, signOut, updateDisplayName, deleteAccount } = useAuth();
   const { t } = useTranslation();
-  const router = useRouter();
-  const locale = useLocale();
+  const [loginOpen, setLoginOpen] = useState(false);
+
+  // ─── Login modal — state-driven portal (no Next.js intercepting route) ──
+  // Reliable on all pages regardless of routing context or Legacy JS state.
+
+  useEffect(() => {
+    window.openLoginModal  = () => setLoginOpen(true);
+    window.closeLoginModal = () => setLoginOpen(false);
+  }, []);
 
   // ─── Expose auth operations to vanilla JS globals ──────────────────────────
-
-  // Define openLoginModal BEFORE app.min.js loads (afterInteractive) so that
-  // app.min.js's `window.openLoginModal = window.openLoginModal || Z` keeps
-  // our version instead of Z (which tried to show a nonexistent #loginModal).
-  useEffect(() => {
-    window.openLoginModal = () => {
-      const href = locale === routing.defaultLocale ? '/login' : `/${locale}/login`;
-      router.push(href);
-    };
-  }, [router, locale]);
 
   useEffect(() => {
     window._signOut = async () => {
@@ -80,18 +77,28 @@ export default function BridgeAuth() {
       } else if (typeof window._renderAlbum === 'function') {
         window._renderAlbum();
       }
+
+      // 5. Close login modal if user just signed in.
+      setLoginOpen(false);
     } else {
-      // 5. Logged-out state.
+      // 6. Logged-out state.
       loginBtn?.classList.remove('logged-in');
       if (loginSpan) loginSpan.textContent = t('footer.signIn');
       try { localStorage.removeItem('_authHint'); } catch {}
     }
 
-    // 6. Dispatch for any other vanilla JS listeners.
+    // 7. Dispatch for any other vanilla JS listeners.
     window.dispatchEvent(new CustomEvent('auth:changed', { detail: { user } }));
   }, [user, loading, t]);
 
-  return null;
+  return loginOpen ? createPortal(
+    <div className={modalStyles.overlay} onClick={() => setLoginOpen(false)}>
+      <div onClick={(e) => e.stopPropagation()}>
+        <LoginPanel onBack={() => setLoginOpen(false)} />
+      </div>
+    </div>,
+    document.body,
+  ) : null;
 }
 
 // ─── Global type augmentation ───────────────────────────────────────────────

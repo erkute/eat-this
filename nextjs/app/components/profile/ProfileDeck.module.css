@@ -31,6 +31,14 @@
   .albumGrid {
     padding: 0 64px 80px;
   }
+  /* Filter bar must follow the same 64px inset as the grid */
+  .filterBar {
+    padding: 0 64px 20px;
+  }
+  /* Mine grid follows too */
+  .mineGrid {
+    padding: 0 64px 80px;
+  }
 }
 
 .slot {

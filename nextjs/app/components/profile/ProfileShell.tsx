@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { usePack } from '@/lib/firebase/usePack';
 import { createWelcomePack } from '@/lib/firebase/welcomePack';
@@ -21,16 +20,16 @@ interface Props {
 
 export default function ProfileShell({ mustEats }: Props) {
   const { user, loading } = useAuth();
-  const router = useRouter();
   const pack = usePack(user?.uid ?? null);
   const [tab, setTab] = useState<ProfileTab>('deck');
   const [createBusy, setCreateBusy] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
-  // Auth-redirect — bounce to home if no session.
+  // Auth-redirect — hard-navigate to home on sign-out so legacy JS
+  // re-initialises via DOMContentLoaded (soft-nav would skip it → black screen).
   useEffect(() => {
-    if (!loading && !user) router.replace('/');
-  }, [loading, user, router]);
+    if (!loading && !user) window.location.assign('/');
+  }, [loading, user]);
 
   // Welcome-Pack-Backfill — covers users who pre-date onUserCreate
   // or whose signup race-conditioned out of having a pack created.

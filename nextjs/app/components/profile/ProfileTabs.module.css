@@ -4,7 +4,9 @@
   padding: 4px;
   background: #FFFFFF;
   border-radius: 999px;
-  margin: 14px 16px 16px;
+  /* -8px cancels page's 16px padding, then the pill sits at 8px from the
+     viewport edge — flush with the albumGrid's rightmost card column. */
+  margin: 14px -8px 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
@@ -50,8 +52,14 @@
 }
 
 @media (min-width: 768px) {
-  .tabs { margin: 18px 24px 20px; }
+  /* margin-right 16px: page padding (24px) + 16px = 40px from viewport = same as albumGrid */
+  .tabs { margin: 18px 16px 20px; }
   .tab { padding: 10px 12px; font-size: 13px; }
+}
+
+@media (min-width: 1200px) {
+  /* albumGrid bumps padding to 64px at 1200px; tabs follow: 24px page + 40px = 64px */
+  .tabs { margin: 18px 40px 20px; }
 }
 
 /* Dark Mode */

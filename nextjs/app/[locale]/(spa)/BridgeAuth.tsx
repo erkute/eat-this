@@ -17,14 +17,29 @@
  */
 
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
+import { routing } from '@/i18n/routing';
 
 export default function BridgeAuth() {
   const { user, loading, signOut, updateDisplayName, deleteAccount } = useAuth();
   const { t } = useTranslation();
+  const router = useRouter();
+  const locale = useLocale();
 
   // ─── Expose auth operations to vanilla JS globals ──────────────────────────
+
+  // Define openLoginModal BEFORE app.min.js loads (afterInteractive) so that
+  // app.min.js's `window.openLoginModal = window.openLoginModal || Z` keeps
+  // our version instead of Z (which tried to show a nonexistent #loginModal).
+  useEffect(() => {
+    window.openLoginModal = () => {
+      const href = locale === routing.defaultLocale ? '/login' : `/${locale}/login`;
+      router.push(href);
+    };
+  }, [router, locale]);
 
   useEffect(() => {
     window._signOut = async () => {
@@ -90,5 +105,7 @@ declare global {
     showNotification?: (msg: string) => void;
     _revealBlurredCards?: () => void;
     _renderAlbum?: () => void;
+    openLoginModal?: () => void;
+    closeLoginModal?: () => void;
   }
 }

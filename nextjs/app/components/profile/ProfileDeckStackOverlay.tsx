@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   motion,
@@ -12,6 +12,8 @@ import {
 } from 'framer-motion';
 import type { MustEatAlbumCard } from '@/lib/types';
 import styles from './ProfileDeckStackOverlay.module.css';
+
+const CONFETTI_COLORS = ['#b71c1c', '#E8762A', '#fff', '#ffd166', '#ff9f43', '#c0392b'];
 
 // Three nested motion layers per card:
 //   1. position layer — animates left/top/width/height/opacity from stack
@@ -62,10 +64,26 @@ export default function ProfileDeckStackOverlay({
   const [topIndex, setTopIndex]     = useState(0);
   const [phase, setPhase]           = useState<Phase>('idle');
   const [target, setTarget]         = useState<DOMRect | null>(null);
+  const [celebrating, setCelebrating] = useState(false);
   // Which side the stack escapes to when a card is flying. true = right,
   // false = left. Set just before transitioning to 'flying' based on where
   // the target slot sits relative to the viewport centre.
   const [escapeRight, setEscapeRight] = useState(false);
+
+  // Lock body scroll while a card is in flight so the slot rect stays
+  // stable — scrolling mid-flight shifts the target and the card "chases"
+  // the wrong position.  Also lock during the celebration overlay.
+  useEffect(() => {
+    if (phase === 'idle' && !celebrating) return;
+    const prevOverflow    = document.body.style.overflow;
+    const prevTouchAction = document.body.style.touchAction;
+    document.body.style.overflow    = 'hidden';
+    document.body.style.touchAction = 'none';
+    return () => {
+      document.body.style.overflow    = prevOverflow;
+      document.body.style.touchAction = prevTouchAction;
+    };
+  }, [phase, celebrating]);
 
   const [portalReady, setPortalReady] = useState(false);
   // Measure an actual deck slot on mount so the stack matches the grid
@@ -143,9 +161,15 @@ export default function ProfileDeckStackOverlay({
     setTopIndex((i) => i + 1);
     setPhase('idle');
     if (topIndex + 1 >= cards.length) {
-      window.setTimeout(onAllPlaced, 480);
+      setCelebrating(true); // celebration plays; onAllPlaced fires after it exits
     }
   };
+
+  // Called by CelebrationOverlay after its auto-dismiss timer fires.
+  const handleCelebrationDone = useCallback(() => {
+    setCelebrating(false);
+    window.setTimeout(onAllPlaced, 320); // wait for celebration exit-fade
+  }, [onAllPlaced]);
 
   if (!portalReady || !stackSize) return null;
 
@@ -173,6 +197,12 @@ export default function ProfileDeckStackOverlay({
 
   return createPortal(
     <div className={styles.overlay} aria-hidden={phase === 'flying'}>
+      <AnimatePresence>
+        {celebrating && (
+          <CelebrationOverlay key="celebration" onDone={handleCelebrationDone} />
+        )}
+      </AnimatePresence>
+
       {/* Stack — rigid, centred, no tilt, no float. Click target only when
        * idle. Renders up to 10 layers with offset/rotation so the deck
        * thickness is visible. While a card is FLYING to its slot, the
@@ -424,6 +454,90 @@ function ActiveCard({ card, phase, target, stackSize, onLanded, onFlightDone }: 
           <Sheen rotateYSpring={rotateYSpring} visible={tiltable} />
         </motion.div>
       </motion.div>
+    </motion.div>
+  );
+}
+
+// ── Celebration overlay — fires after the last card lands ───────────────
+
+interface CelebrationProps {
+  onDone: () => void;
+}
+
+function CelebrationOverlay({ onDone }: CelebrationProps) {
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 72 }, (_, i) => ({
+        id: i,
+        x: Math.random() * 100,
+        color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+        w: 5 + Math.random() * 9,
+        h: 9 + Math.random() * 15,
+        delay: Math.random() * 0.55,
+        duration: 1.7 + Math.random() * 1.1,
+        drift: (Math.random() - 0.5) * 280,
+        spin: Math.random() * 680,
+        round: Math.random() > 0.35 ? '2px' : '50%',
+      })),
+    [],
+  );
+
+  useEffect(() => {
+    const t = window.setTimeout(onDone, 2600);
+    return () => clearTimeout(t);
+  }, [onDone]);
+
+  return (
+    <motion.div
+      className={styles.celebOverlay}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.28 }}
+    >
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          className={styles.confetti}
+          style={{
+            left: `${p.x}%`,
+            width: p.w,
+            height: p.h,
+            backgroundColor: p.color,
+            borderRadius: p.round,
+            animationDelay: `${p.delay}s`,
+            animationDuration: `${p.duration}s`,
+            ['--drift' as string]: `${p.drift}px`,
+            ['--spin' as string]: `${p.spin}deg`,
+          }}
+        />
+      ))}
+      <div className={styles.celebContent}>
+        <motion.p
+          className={styles.celebEyebrow}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.18, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        >
+          BERLIN · MUST EATS
+        </motion.p>
+        <motion.h2
+          className={styles.celebTitle}
+          initial={{ opacity: 0, scale: 0.86, y: 14 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ delay: 0.26, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        >
+          Pack geöffnet!
+        </motion.h2>
+        <motion.p
+          className={styles.celebSub}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.38, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        >
+          10 Must-Eats · Berlin freigeschaltet
+        </motion.p>
+      </div>
     </motion.div>
   );
 }

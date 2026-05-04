@@ -160,6 +160,69 @@
   transform: rotateY(180deg);
 }
 
+/* ── Celebration overlay ──────────────────────────────────────────────── */
+
+.celebOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 10, 0.92);
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  top: -24px;
+  animation: confettiFall linear forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes confettiFall {
+  0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+  78%  { opacity: 1; }
+  100% { transform: translateY(110vh) translateX(var(--drift)) rotate(var(--spin)); opacity: 0; }
+}
+
+.celebContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 0 28px;
+}
+
+.celebEyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #E8762A;
+  text-transform: uppercase;
+}
+
+.celebTitle {
+  margin: 0;
+  font-size: clamp(38px, 10vw, 64px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: #fff;
+}
+
+.celebSub {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.01em;
+}
+
 /* Sheen — soft white gradient that drifts horizontally with the rotateY
  * tilt spring. Provides a 3D depth cue on the face-up card during the
  * lifted phase. */

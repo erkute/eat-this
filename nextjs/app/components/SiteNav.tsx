@@ -89,7 +89,6 @@ export default function SiteNav() {
           <a
             href={locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`}
             className="navbar-icon-btn"
-            id="navProfileBtn"
             aria-label="Profile"
             onClick={handleProfileClick}
             suppressHydrationWarning

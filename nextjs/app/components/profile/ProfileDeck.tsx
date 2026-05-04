@@ -145,28 +145,30 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
 
       {!showStackOverlay && (
         <div className={styles.filterBar}>
-          <button
-            className={`${styles.chip}${viewMode === 'all' ? ` ${styles.chipActive}` : ''}`}
-            onClick={() => { setViewMode('all'); setDistrictFilter(null); }}
-          >
-            Alle
-          </button>
-          <button
-            className={`${styles.chip}${viewMode === 'mine' ? ` ${styles.chipActive}` : ''}`}
-            onClick={() => setViewMode('mine')}
-          >
-            Meine
-          </button>
           {viewMode === 'mine' && uniqueDistricts.length > 1 &&
             uniqueDistricts.map((d) => (
               <button
                 key={d}
-                className={`${styles.chip}${districtFilter === d ? ` ${styles.chipActive}` : ''}`}
+                className={`${styles.districtChip}${districtFilter === d ? ` ${styles.districtChipActive}` : ''}`}
                 onClick={() => setDistrictFilter((prev) => (prev === d ? null : d))}
               >
                 {d}
               </button>
             ))}
+          <div className={styles.segControl}>
+            <button
+              className={viewMode === 'all' ? styles.segActive : styles.segBtn}
+              onClick={() => { setViewMode('all'); setDistrictFilter(null); }}
+            >
+              Alle
+            </button>
+            <button
+              className={viewMode === 'mine' ? styles.segActive : styles.segBtn}
+              onClick={() => setViewMode('mine')}
+            >
+              Meine
+            </button>
+          </div>
         </div>
       )}
 

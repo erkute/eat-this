@@ -513,27 +513,19 @@ function CelebrationOverlay({ onDone }: CelebrationProps) {
         />
       ))}
       <div className={styles.celebContent}>
-        <motion.p
-          className={styles.celebEyebrow}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.18, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        >
-          PACK KOMPLETT
-        </motion.p>
         <motion.h2
           className={styles.celebTitle}
           initial={{ opacity: 0, scale: 0.86, y: 14 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ delay: 0.26, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ delay: 0.22, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
-          10 Must-Eats.
+          Berlin gehört dir.
         </motion.h2>
         <motion.p
           className={styles.celebSub}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.38, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ delay: 0.36, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
           Jetzt auf der Karte erkunden
         </motion.p>

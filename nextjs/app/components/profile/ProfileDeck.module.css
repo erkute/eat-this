@@ -134,16 +134,11 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
   /* Same margin/padding as albumGrid so the right edge of the segmented
      control lines up with the right edge of the rightmost card column. */
   margin: 0 -16px;
   padding: 0 8px 16px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
 }
-.filterBar::-webkit-scrollbar { display: none; }
 
 @media (min-width: 768px) {
   .filterBar {
@@ -206,46 +201,6 @@
   box-shadow: none;
 }
 
-/* ── District chips (secondary filter in Meine view) ─ */
-
-.districtChip {
-  flex-shrink: 0;
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1.5px solid rgba(10, 10, 10, 0.16);
-  background: transparent;
-  font-family: var(--font);
-  font-size: 12px;
-  font-weight: 600;
-  color: rgba(10, 10, 10, 0.5);
-  cursor: pointer;
-  white-space: nowrap;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
-}
-.districtChip:hover { color: rgba(10, 10, 10, 0.8); border-color: rgba(10, 10, 10, 0.32); }
-
-.districtChipActive {
-  background: #0A0A0A;
-  color: #fff;
-  border-color: #0A0A0A;
-}
-.districtChipActive:hover { background: #222; border-color: #222; }
-
-:global(html[data-theme="dark"]) .districtChip {
-  border-color: rgba(255, 255, 255, 0.18);
-  color: rgba(255, 255, 255, 0.45);
-}
-:global(html[data-theme="dark"]) .districtChip:hover {
-  color: rgba(255, 255, 255, 0.8);
-  border-color: rgba(255, 255, 255, 0.35);
-}
-:global(html[data-theme="dark"]) .districtChipActive {
-  background: rgba(255, 255, 255, 0.9);
-  color: #0A0A0A;
-  border-color: transparent;
-}
 
 /* ── Mine grid — same columns as albumGrid so cards stay same size ── */
 

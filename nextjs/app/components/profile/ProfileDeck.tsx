@@ -59,23 +59,6 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
   );
 
   const [viewMode, setViewMode] = useState<'all' | 'mine'>('all');
-  const [districtFilter, setDistrictFilter] = useState<string | null>(null);
-
-  const uniqueDistricts = useMemo(() => {
-    const seen = new Set<string>();
-    for (const card of sortedPackCards) {
-      if (card.district) seen.add(card.district);
-    }
-    return Array.from(seen).sort();
-  }, [sortedPackCards]);
-
-  const mineCards = useMemo(
-    () =>
-      districtFilter
-        ? sortedPackCards.filter((c) => c.district === districtFilter)
-        : sortedPackCards,
-    [sortedPackCards, districtFilter],
-  );
 
   // Card that the user tapped to expand (null = none).
   const [expanded, setExpanded] = useState<ExpandedState | null>(null);
@@ -145,20 +128,10 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
 
       {!showStackOverlay && (
         <div className={styles.filterBar}>
-          {viewMode === 'mine' && uniqueDistricts.length > 1 &&
-            uniqueDistricts.map((d) => (
-              <button
-                key={d}
-                className={`${styles.districtChip}${districtFilter === d ? ` ${styles.districtChipActive}` : ''}`}
-                onClick={() => setDistrictFilter((prev) => (prev === d ? null : d))}
-              >
-                {d}
-              </button>
-            ))}
           <div className={styles.segControl}>
             <button
               className={viewMode === 'all' ? styles.segActive : styles.segBtn}
-              onClick={() => { setViewMode('all'); setDistrictFilter(null); }}
+              onClick={() => setViewMode('all')}
             >
               Alle
             </button>
@@ -174,7 +147,7 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
 
       {viewMode === 'mine' ? (
         <div className={styles.mineGrid}>
-          {mineCards.map((card) => {
+          {sortedPackCards.map((card) => {
             const order = card.order!;
             const isRevealed = revealed.has(order);
             const slotRef = (el: HTMLDivElement | null) => {

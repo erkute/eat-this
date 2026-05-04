@@ -99,6 +99,21 @@ export default function ProfileDeckStackOverlay({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // measure once — slot size is stable after mount
 
+  // Preload the next two pack cards' front images so that the moment the
+  // user clicks the stack, the dish image is already in the browser cache.
+  // Without this, a slow-loading front face combined with the 3D flip
+  // through 90° (where backface-visibility hides both faces edge-on) can
+  // briefly read as a blank/invisible card mid-lift.
+  useEffect(() => {
+    for (let i = topIndex; i < Math.min(topIndex + 2, cards.length); i++) {
+      const url = cards[i]?.imageUrl;
+      if (!url) continue;
+      const img = new window.Image();
+      img.decoding = 'async';
+      img.src = url;
+    }
+  }, [cards, topIndex]);
+
   const handleStackClick = () => {
     if (phase !== 'idle' || topIndex >= cards.length) return;
     // Request gyroscope permission on iOS 13+ so the lifted card gets gyro
@@ -450,6 +465,8 @@ function ActiveCard({ card, phase, target, stackSize, onLanded, onFlightDone }: 
             alt={card.dish}
             className={styles.cardFaceFront}
             draggable={false}
+            loading="eager"
+            decoding="sync"
           />
           <Sheen rotateYSpring={rotateYSpring} visible={tiltable} />
         </motion.div>

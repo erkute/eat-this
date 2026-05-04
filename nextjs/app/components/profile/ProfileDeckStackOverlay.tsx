@@ -519,7 +519,7 @@ function CelebrationOverlay({ onDone }: CelebrationProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.18, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         >
-          BERLIN · MUST EATS
+          ALLE KARTEN AUFGEDECKT
         </motion.p>
         <motion.h2
           className={styles.celebTitle}
@@ -527,7 +527,7 @@ function CelebrationOverlay({ onDone }: CelebrationProps) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ delay: 0.26, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
-          Pack geöffnet!
+          Dein Berlin wartet.
         </motion.h2>
         <motion.p
           className={styles.celebSub}
@@ -535,7 +535,7 @@ function CelebrationOverlay({ onDone }: CelebrationProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.38, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
-          10 Must-Eats · Berlin freigeschaltet
+          10 Must-Eats · Jetzt auf der Karte erkunden
         </motion.p>
       </div>
     </motion.div>

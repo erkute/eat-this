@@ -58,8 +58,6 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
     pack.opened ? new Set(packCardsByOrder.keys()) : new Set(),
   );
 
-  const [viewMode, setViewMode] = useState<'all' | 'mine'>('all');
-
   // Card that the user tapped to expand (null = none).
   const [expanded, setExpanded] = useState<ExpandedState | null>(null);
   // Order of the slot whose front-face should be hidden while the card is
@@ -126,30 +124,13 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
     <>
       <ProfileDeckHeader unlockedCount={revealed.size} totalSlots={TOTAL_SLOTS} />
 
-      {!showStackOverlay && (
-        <div className={styles.filterBar}>
-          <div className={styles.segControl}>
-            <button
-              className={viewMode === 'all' ? styles.segActive : styles.segBtn}
-              onClick={() => setViewMode('all')}
-            >
-              Alle
-            </button>
-            <button
-              className={viewMode === 'mine' ? styles.segActive : styles.segBtn}
-              onClick={() => setViewMode('mine')}
-            >
-              Meine
-            </button>
-          </div>
-        </div>
-      )}
+      <div className={styles.albumGrid}>
+        {Array.from({ length: TOTAL_SLOTS }, (_, i) => {
+          const order = i + 1;
+          const card  = packCardsByOrder.get(order);
+          const isRevealed = revealed.has(order);
 
-      {viewMode === 'mine' ? (
-        <div className={styles.mineGrid}>
-          {sortedPackCards.map((card) => {
-            const order = card.order!;
-            const isRevealed = revealed.has(order);
+          if (card) {
             const slotRef = (el: HTMLDivElement | null) => {
               if (el) slotRefs.current.set(order, el);
               else slotRefs.current.delete(order);
@@ -160,7 +141,7 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
                   key={order}
                   order={order}
                   card={card}
-                  flipped
+                  flipped={isRevealed}
                   hideCardFace={hiddenSlotOrder === order}
                   onExpand={(rect) => {
                     setHiddenSlotOrder(order);
@@ -171,44 +152,12 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
               );
             }
             return <EmptySlot key={order} order={order} slotRef={slotRef} />;
-          })}
-        </div>
-      ) : (
-        <div className={styles.albumGrid}>
-          {Array.from({ length: TOTAL_SLOTS }, (_, i) => {
-            const order = i + 1;
-            const card  = packCardsByOrder.get(order);
-            const isRevealed = revealed.has(order);
+          }
+          return <BackSlot key={order} />;
+        })}
+      </div>
 
-            if (card) {
-              const slotRef = (el: HTMLDivElement | null) => {
-                if (el) slotRefs.current.set(order, el);
-                else slotRefs.current.delete(order);
-              };
-              if (isRevealed) {
-                return (
-                  <FlipSlot
-                    key={order}
-                    order={order}
-                    card={card}
-                    flipped={isRevealed}
-                    hideCardFace={hiddenSlotOrder === order}
-                    onExpand={(rect) => {
-                      setHiddenSlotOrder(order);
-                      setExpanded({ card, rect, order });
-                    }}
-                    slotRef={slotRef}
-                  />
-                );
-              }
-              return <EmptySlot key={order} order={order} slotRef={slotRef} />;
-            }
-            return <BackSlot key={order} />;
-          })}
-        </div>
-      )}
-
-      {viewMode === 'all' && (
+      {!showStackOverlay && (
         <div className={styles.teaser}>
           <p className={styles.teaserCity}>BERLIN</p>
           <p className={styles.teaserLine}>IST ERST DER ANFANG.</p>

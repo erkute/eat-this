@@ -8,7 +8,10 @@
 
 .albumGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* minmax(0, 1fr) prevents 1fr columns from growing to fit intrinsic content
+     size — without it, BackSlot's card-back image can push columns wider than
+     equal share, making cards visibly different sizes between views. */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   /* Escape .page's 16px side padding so the grid reaches the viewport edges,
      then apply the same side padding as the Must-Eat album-grid. */
@@ -19,7 +22,7 @@
 
 @media (min-width: 768px) {
   .albumGrid {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 16px;
     /* Escape .page's 24px side padding; 40px inset matches Must-Eat desktop. */
     padding: 0 40px 60px;
@@ -29,14 +32,6 @@
 
 @media (min-width: 1200px) {
   .albumGrid {
-    padding: 0 64px 80px;
-  }
-  /* Filter bar must follow the same 64px inset as the grid */
-  .filterBar {
-    padding: 0 64px 20px;
-  }
-  /* Mine grid follows too */
-  .mineGrid {
     padding: 0 64px 80px;
   }
 }
@@ -126,100 +121,6 @@
  * exactly when reveal happens, so visibility flip is invisible to the eye. */
 .faceFrontHidden {
   opacity: 0;
-}
-
-/* ── Filter bar — right-aligned, flush with albumGrid right edge ──── */
-
-.filterBar {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  /* Same margin/padding as albumGrid so the right edge of the segmented
-     control lines up with the right edge of the rightmost card column. */
-  margin: 0 -16px;
-  padding: 0 8px 16px;
-}
-
-@media (min-width: 768px) {
-  .filterBar {
-    margin: 0 -24px;
-    padding: 0 40px 20px;
-  }
-}
-
-/* ── Alle / Meine segmented control ──────────────── */
-
-.segControl {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  background: rgba(10, 10, 10, 0.07);
-  border-radius: 999px;
-  padding: 3px;
-  gap: 2px;
-}
-
-.segBtn,
-.segActive {
-  padding: 7px 18px;
-  border-radius: 999px;
-  border: none;
-  font-family: var(--font);
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
-}
-
-.segBtn {
-  background: transparent;
-  color: rgba(10, 10, 10, 0.48);
-}
-.segBtn:hover { color: rgba(10, 10, 10, 0.72); }
-
-.segActive {
-  background: #fff;
-  color: #0A0A0A;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
-}
-
-:global(html[data-theme="dark"]) .segControl {
-  background: rgba(255, 255, 255, 0.1);
-}
-:global(html[data-theme="dark"]) .segBtn {
-  color: rgba(255, 255, 255, 0.42);
-}
-:global(html[data-theme="dark"]) .segBtn:hover {
-  color: rgba(255, 255, 255, 0.72);
-}
-:global(html[data-theme="dark"]) .segActive {
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-  box-shadow: none;
-}
-
-
-/* ── Mine grid — same columns as albumGrid so cards stay same size ── */
-
-.mineGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  padding: 0 8px 8px;
-  margin: 0 -16px;
-  perspective: 1400px;
-}
-
-@media (min-width: 768px) {
-  .mineGrid {
-    grid-template-columns: repeat(6, 1fr);
-    gap: 16px;
-    padding: 0 40px 60px;
-    margin: 0 -24px;
-  }
 }
 
 /* ── "Berlin ist erst der Anfang" teaser ─────────── */

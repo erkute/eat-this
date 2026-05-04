@@ -11,9 +11,10 @@ import styles from '@/app/[locale]/login/login.module.css';
 
 interface LoginPanelProps {
   onBack: () => void;
+  modal?: boolean;
 }
 
-export default function LoginPanel({ onBack }: LoginPanelProps) {
+export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
   const { t } = useTranslation();
   const { user, loading, signInWithGoogle } = useAuth();
   const router = useRouter();
@@ -41,7 +42,7 @@ export default function LoginPanel({ onBack }: LoginPanelProps) {
   const dsHref  = locale === routing.defaultLocale ? '/datenschutz' : `/${locale}/datenschutz`;
 
   return (
-    <div className={styles.frame}>
+    <div className={modal ? `${styles.frame} ${styles.frameModal}` : styles.frame}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/pics/login/Black screen.webp"

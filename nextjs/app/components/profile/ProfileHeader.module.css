@@ -68,9 +68,11 @@
   .header { padding: 32px 64px 24px; }
 }
 
-/* Dark Mode */
+/* Dark Mode — gradient end stays slightly lighter than page bg (#0d0d0d)
+   so the header has a visible bottom edge instead of bleeding into the
+   page below. */
 :global(html[data-theme="dark"]) .header {
-  background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+  background: linear-gradient(180deg, #1f1f1f 0%, #161616 100%);
 }
 :global(html[data-theme="dark"]) .avatar {
   background: #2a2a2a;

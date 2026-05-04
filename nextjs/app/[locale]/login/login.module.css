@@ -382,3 +382,20 @@
   .divider { margin: 0; }
   .terms { margin-top: 8px; }
 }
+
+/* ── Modal context override ──────────────────────────────────────────
+   Used when LoginPanel is rendered inside a modal overlay (BridgeAuth
+   portal or @modal/(.)login intercepting route). The overlay covers the
+   page header entirely (z-index above the legacy navbar), so the modal
+   can use the full standalone-/login phone-card height; just slightly
+   wider for a more generous hero (plate + top-centered logo visible). */
+@media (min-width: 768px) {
+  .frameModal {
+    max-width: 460px;
+    height: min(96vh, 960px);
+  }
+  /* Logo a touch smaller in modal context to free up room above the plate. */
+  .frameModal .logoMark {
+    width: 52px;
+  }
+}

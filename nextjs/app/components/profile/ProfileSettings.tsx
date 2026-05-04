@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import {
   defaultAvatarFromUid,
@@ -20,7 +19,6 @@ interface Props {
 
 export default function ProfileSettings({ email }: Props) {
   const { user, updateDisplayName, signOut } = useAuth();
-  const router = useRouter();
 
   const { profile, setAvatar } = useUserProfile(user?.uid ?? null);
   const currentAvatar: AvatarChoice = profile.avatar
@@ -60,7 +58,11 @@ export default function ProfileSettings({ email }: Props) {
   };
 
   const onSignOut = async () => {
-    try { await signOut(); } finally { router.replace('/'); }
+    // ProfileShell's auth-redirect useEffect handles navigation via
+    // window.location.assign('/') so legacy JS reinitialises via DOMContentLoaded.
+    // A router.replace here would race the hard-nav and leave the page on a
+    // soft-nav homepage where the legacy SPA scripts haven't booted (black screen).
+    await signOut();
   };
 
   return (

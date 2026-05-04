@@ -9,11 +9,11 @@ export default function LoginModal() {
   const dismiss = () => router.back();
 
   return (
-    <div className={styles.overlay} onClick={dismiss}>
-      {/* stopPropagation prevents backdrop click from closing when tapping the card itself */}
-      <div onClick={(e) => e.stopPropagation()}>
-        <LoginPanel onBack={dismiss} />
-      </div>
+    <div
+      className={styles.overlay}
+      onClick={(e) => { if (e.target === e.currentTarget) dismiss(); }}
+    >
+      <LoginPanel onBack={dismiss} modal />
     </div>
   );
 }

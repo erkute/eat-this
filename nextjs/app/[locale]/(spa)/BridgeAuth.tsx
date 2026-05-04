@@ -36,6 +36,20 @@ export default function BridgeAuth() {
     window.closeLoginModal = () => setLoginOpen(false);
   }, []);
 
+  // Lock body scroll while the login modal is open so the page underneath
+  // can't scroll behind the overlay (and on mobile, prevent rubber-banding).
+  useEffect(() => {
+    if (!loginOpen) return;
+    const prevOverflow    = document.body.style.overflow;
+    const prevTouchAction = document.body.style.touchAction;
+    document.body.style.overflow    = 'hidden';
+    document.body.style.touchAction = 'none';
+    return () => {
+      document.body.style.overflow    = prevOverflow;
+      document.body.style.touchAction = prevTouchAction;
+    };
+  }, [loginOpen]);
+
   // ─── Expose auth operations to vanilla JS globals ──────────────────────────
 
   useEffect(() => {
@@ -92,10 +106,11 @@ export default function BridgeAuth() {
   }, [user, loading, t]);
 
   return loginOpen ? createPortal(
-    <div className={modalStyles.overlay} onClick={() => setLoginOpen(false)}>
-      <div onClick={(e) => e.stopPropagation()}>
-        <LoginPanel onBack={() => setLoginOpen(false)} />
-      </div>
+    <div
+      className={modalStyles.overlay}
+      onClick={(e) => { if (e.target === e.currentTarget) setLoginOpen(false); }}
+    >
+      <LoginPanel onBack={() => setLoginOpen(false)} modal />
     </div>,
     document.body,
   ) : null;

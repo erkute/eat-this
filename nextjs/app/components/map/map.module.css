@@ -3485,13 +3485,14 @@ html[data-theme="dark"] .mustEatHero {
   padding: 14px 20px;
   background: none;
   border: none;
-  color: #888;
+  color: var(--text-muted, #888);
   font-size: 13px;
   text-align: center;
   cursor: pointer;
   text-decoration: none;
+  transition: color 0.15s;
 }
-.mustEatListLink:hover { color: #fff; }
+.mustEatListLink:hover { color: var(--text-primary); }
 
 /* Custom Bezirk dropdown panel — portaled via fixed positioning so the
    toolbar's overflow:hidden doesn't clip it. */

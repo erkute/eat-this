@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
@@ -11,17 +12,22 @@ export default function SiteNav() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const locale = useLocale();
+  const router = useRouter();
 
   // Header profile icon: route to /profile if signed in, otherwise /login.
-  // Native onClick beats app.min.js's #navProfileBtn handler (which used to
-  // open WelcomeModal — now a no-op). preventDefault stops the link's own
-  // navigation; window.location.assign wins regardless.
+  // Logged-in: hard-navigate (profile page needs fresh server data).
+  // Logged-out: soft-nav via router.push so the intercepting @modal/(.)login
+  // route fires — the current page stays mounted behind the overlay.
   const handleProfileClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
-    const target = user ? '/profile' : '/login';
-    const href = locale === routing.defaultLocale ? target : `/${locale}${target}`;
-    window.location.assign(href);
-  }, [user, locale]);
+    if (user) {
+      const href = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
+      window.location.assign(href);
+    } else {
+      const href = locale === routing.defaultLocale ? '/login' : `/${locale}/login`;
+      router.push(href);
+    }
+  }, [user, locale, router]);
 
   // Wire burger toggle here so it works on every (spa) route, including
   // /profile which doesn't render SPAShell (and therefore no BurgerDrawer).

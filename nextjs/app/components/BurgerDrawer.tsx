@@ -11,7 +11,6 @@ export default function BurgerDrawer() {
   const { t, lang, setLang } = useTranslation();
   const { user } = useAuth();
   const locale = useLocale();
-  const router = useRouter();
   const [isDark, setIsDark] = useState(false);
 
   const handleLoginBtn = useCallback(() => {

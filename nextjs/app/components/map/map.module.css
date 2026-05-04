@@ -3485,11 +3485,11 @@ html[data-theme="dark"] .mustEatHero {
   padding: 14px 20px;
   background: none;
   border: none;
-  border-top: 1px solid var(--border, #1f1f1f);
   color: #888;
   font-size: 13px;
   text-align: center;
   cursor: pointer;
+  text-decoration: none;
 }
 .mustEatListLink:hover { color: #fff; }
 

@@ -120,6 +120,82 @@
   opacity: 0;
 }
 
+/* ── Filter bar ─────────────────────────────────── */
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.filterBar::-webkit-scrollbar { display: none; }
+
+.chip {
+  flex-shrink: 0;
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(10, 10, 10, 0.16);
+  background: transparent;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(10, 10, 10, 0.5);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.chip:hover { color: rgba(10, 10, 10, 0.8); border-color: rgba(10, 10, 10, 0.32); }
+
+.chipActive {
+  background: #0A0A0A;
+  color: #fff;
+  border-color: #0A0A0A;
+}
+.chipActive:hover { background: #222; border-color: #222; }
+
+:global(html[data-theme="dark"]) .chip {
+  border-color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.45);
+}
+:global(html[data-theme="dark"]) .chip:hover {
+  color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+:global(html[data-theme="dark"]) .chipActive {
+  background: #f5f5f5;
+  color: #0A0A0A;
+  border-color: #f5f5f5;
+}
+:global(html[data-theme="dark"]) .chipActive:hover {
+  background: #fff;
+  border-color: #fff;
+}
+
+/* ── Mine grid (user's 10 cards, larger) ───────── */
+
+.mineGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 4px 8px 32px;
+  margin: 0 -16px;
+  perspective: 1400px;
+}
+
+@media (min-width: 768px) {
+  .mineGrid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    padding: 4px 40px 60px;
+    margin: 0 -24px;
+  }
+}
+
 /* ── "Berlin ist erst der Anfang" teaser ─────────── */
 
 .teaser {

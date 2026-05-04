@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
@@ -11,6 +12,7 @@ export default function BurgerDrawer() {
   const { t, lang, setLang } = useTranslation();
   const { user } = useAuth();
   const locale = useLocale();
+  const router = useRouter();
   const [isDark, setIsDark] = useState(false);
 
   const handleLoginBtn = useCallback(() => {
@@ -21,10 +23,13 @@ export default function BurgerDrawer() {
       const href = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
       window.location.assign(href);
     } else {
+      // Soft-nav so the intercepting route (@modal/(.)login) fires and the
+      // current page stays mounted behind the overlay. The current page's
+      // legacy JS (app.min.js etc.) keeps running because it's never unmounted.
       const href = locale === routing.defaultLocale ? '/login' : `/${locale}/login`;
-      window.location.assign(href);
+      router.push(href);
     }
-  }, [user, locale]);
+  }, [user, locale, router]);
 
   useEffect(() => {
     const stored = localStorage.getItem('theme');

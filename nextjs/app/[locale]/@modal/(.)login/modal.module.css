@@ -1,0 +1,27 @@
+/* Login modal overlay — shown when navigating client-side to /login.
+   The current page stays mounted behind; this sits on top.
+   On desktop: dark blurred backdrop + centered phone card.
+   On mobile:  full-screen (matches the standalone /login page). */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: rgba(0, 0, 0, 0.58);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  backdrop-filter: blur(10px) saturate(1.1);
+}
+
+@media (max-width: 767px) {
+  .overlay {
+    padding: 0;
+    background: #0d0d0d;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    flex-direction: column;
+  }
+}

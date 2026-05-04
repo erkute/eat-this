@@ -3024,39 +3024,31 @@ html[data-theme="dark"] .detailHeroClose {
   color: #fff;
 }
 
-/* Back-to-restaurant pill — top-left of the must-eat hero. Same frosted
-   glass recipe as .detailHeroClose but pill-shaped with leading arrow. */
+/* Back-to-restaurant button — top-left of the must-eat hero. Identical
+   frosted glass pill to .detailHeroClose, just anchored left with an arrow. */
 .detailHeroBack {
   position: absolute;
   top: 12px;
   left: 12px;
+  width: 36px;
   height: 36px;
-  padding: 0 12px 0 9px;
+  padding: 0;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.7);
   -webkit-backdrop-filter: blur(10px) saturate(1.4);
   backdrop-filter: blur(10px) saturate(1.4);
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  display: grid;
+  place-items: center;
   color: #111;
   cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  max-width: calc(100% - 68px); /* stay clear of the close button */
-  overflow: hidden;
-  text-overflow: ellipsis;
   box-shadow:
     0 1px 2px rgba(17, 24, 39, 0.08),
     0 4px 12px rgba(17, 24, 39, 0.10);
   z-index: 3;
   -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s;
 }
-.detailHeroBack svg { width: 15px; height: 15px; flex-shrink: 0; }
+.detailHeroBack svg { width: 16px; height: 16px; }
 .detailHeroBack:hover { background: rgba(255, 255, 255, 1); }
 .detailHeroBack:active { transform: scale(0.94); }
 html[data-theme="dark"] .detailHeroBack {

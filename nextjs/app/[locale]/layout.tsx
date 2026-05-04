@@ -18,9 +18,11 @@ const CRITICAL_BOOTSTRAP = `(function(){
 
 export default async function LocaleLayout({
   children,
+  modal,
   params,
 }: {
   children: React.ReactNode;
+  modal: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
@@ -39,6 +41,7 @@ export default async function LocaleLayout({
       <body>
         <ClientIntlProvider locale={locale} messages={messages}>
           {children}
+          {modal}
         </ClientIntlProvider>
       </body>
     </html>

@@ -212,7 +212,7 @@ const ExpandedOverlay = memo(function ExpandedOverlay({ expanded, onClose }: Exp
   // overlay's lifted card so the deck-card feels equally physical when
   // expanded. Pointer position drives rotateX / rotateY through soft
   // springs; ±14° max each axis.
-  const imgRef   = useRef<HTMLImageElement>(null);
+  const cardRef  = useRef<HTMLDivElement>(null);
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
   const rotateXSpring = useSpring(
@@ -223,9 +223,12 @@ const ExpandedOverlay = memo(function ExpandedOverlay({ expanded, onClose }: Exp
     useTransform(pointerX, [-0.5, 0.5], [-14, 14]),
     { stiffness: 220, damping: 18 },
   );
+  // Sheen drifts horizontally with rotateY — same recipe as the stack
+  // overlay's lifted card so the lightbox tilt has the same depth cue.
+  const sheenX = useTransform(rotateYSpring, [-14, 14], ['-30%', '30%']);
 
-  const handlePointerMove = (e: React.PointerEvent<HTMLImageElement>) => {
-    const el = imgRef.current;
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = cardRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
     pointerX.set((e.clientX - rect.left) / rect.width  - 0.5);
@@ -287,12 +290,9 @@ const ExpandedOverlay = memo(function ExpandedOverlay({ expanded, onClose }: Exp
         exit={{ opacity: 0 }}
         transition={{ duration: 0.18 }}
       />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <motion.img
-        ref={imgRef}
-        src={expanded.card.imageUrl}
-        alt={expanded.card.dish}
-        className={styles.lightboxImg}
+      <motion.div
+        ref={cardRef}
+        className={styles.lightboxCard}
         initial={{ x: fromX, y: fromY, scale: fromScale, rotateZ: tiltZ, opacity: 1 }}
         animate={{
           x: 0, y: 0, scale: 1, rotateZ: 0, opacity: 1,
@@ -316,8 +316,6 @@ const ExpandedOverlay = memo(function ExpandedOverlay({ expanded, onClose }: Exp
         // (which animates x/y/scale/rotateZ). They're separate transform
         // axes so Framer composes them without conflict.
         style={{
-          position: 'relative',
-          zIndex: 1,
           rotateX: rotateXSpring,
           rotateY: rotateYSpring,
           transformStyle: 'preserve-3d',
@@ -325,7 +323,19 @@ const ExpandedOverlay = memo(function ExpandedOverlay({ expanded, onClose }: Exp
         onClick={onClose}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
-      />
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={expanded.card.imageUrl}
+          alt={expanded.card.dish}
+          className={styles.lightboxImg}
+        />
+        <motion.div
+          className={styles.lightboxSheen}
+          style={{ x: sheenX }}
+          aria-hidden="true"
+        />
+      </motion.div>
     </motion.div>
   );
 });

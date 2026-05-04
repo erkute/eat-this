@@ -193,6 +193,20 @@
   pointer-events: none;
 }
 
+/* Wrapper that owns the lift/flight transforms + 3D tilt — image and the
+   sheen overlay sit inside as siblings. Inline-block so the wrapper
+   shrink-fits to the .lightboxImg's intrinsic size. */
+.lightboxCard {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  /* Disable browser scroll/zoom on touch — pointer events are handled by
+   * React for the 3D-tilt. Without this, finger-drag on the card pans the
+   * deck behind on iOS Safari. */
+  touch-action: none;
+  cursor: default;
+}
+
 .lightboxImg {
   max-height: 78vh;
   max-width: min(420px, 88vw);
@@ -202,16 +216,33 @@
   /* GPU-friendly drop-shadow stays cached across transforms; box-shadow
    * forces a repaint every frame at full opacity = visible jitter. */
   filter: drop-shadow(0 24px 48px rgba(0, 0, 0, 0.7));
-  /* Disable browser scroll/zoom on touch — pointer events are handled by
-   * React for the 3D-tilt. Without this, finger-drag on the card pans the
-   * deck behind on iOS Safari. */
-  touch-action: none;
-  cursor: default;
   display: block;
   /* Promote to its own GPU layer so transforms don't repaint neighbours. */
   transform: translateZ(0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Sheen — soft white gradient that drifts horizontally with the rotateY
+   spring, same recipe as the stack overlay's lifted-card sheen. The 6%
+   inset matches the .lightboxImg's border-radius so the highlight stays
+   inside the rounded card. */
+.lightboxSheen {
+  position: absolute;
+  inset: 6%;
+  border-radius: 6%;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.18) 50%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  mix-blend-mode: overlay;
+  transform: translateZ(2px);
 }
 
 /* ── Dark mode ─────────────────────────────────────── */

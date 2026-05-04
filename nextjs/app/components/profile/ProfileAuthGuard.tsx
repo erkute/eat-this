@@ -1,24 +1,20 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth';
-import { routing } from '@/i18n/routing';
 
-// Client-side guard for /profile. Redirects signed-out users to /login.
-// Returns null while auth is loading to prevent profile chrome flashing
-// before the redirect.
+// Client-side guard for /profile. Hard-navigates signed-out users to home —
+// covers both the deep-link case (typed /profile URL while signed-out) and
+// the sign-out-from-profile case. window.location.assign reloads the page so
+// the legacy SPA scripts reinitialise on '/' via DOMContentLoaded (soft-nav
+// would skip that and leave a black homepage).
 export default function ProfileAuthGuard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  const router = useRouter();
-  const locale = useLocale();
 
   useEffect(() => {
     if (loading || user) return;
-    const href = locale === routing.defaultLocale ? '/login' : `/${locale}/login`;
-    router.replace(href);
-  }, [user, loading, router, locale]);
+    window.location.assign('/');
+  }, [user, loading]);
 
   if (loading || !user) return null;
   return <>{children}</>;

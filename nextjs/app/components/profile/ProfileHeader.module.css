@@ -3,7 +3,10 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 24px 16px 20px;
+  /* Escape .page's 16px side padding so the gradient spans full viewport width;
+     8px content inset matches albumGrid / filterBar / ProfileTabs on mobile. */
+  margin: 0 -16px;
+  padding: 24px 24px 20px;
   background: linear-gradient(180deg, #FAF6EC 0%, #F7F2E8 100%);
 }
 
@@ -53,10 +56,16 @@
 }
 
 @media (min-width: 768px) {
-  .header { padding: 32px 24px 24px; }
+  /* Escape .page's 24px padding; 40px inset matches albumGrid desktop. */
+  .header { margin: 0 -24px; padding: 32px 40px 24px; }
   .avatar { width: 104px; height: 104px; }
   .avatar img { width: 86px; height: 86px; }
   .name { font-size: 32px; }
+}
+
+@media (min-width: 1200px) {
+  /* 64px inset matches albumGrid at 1200px+. */
+  .header { padding: 32px 64px 24px; }
 }
 
 /* Dark Mode */

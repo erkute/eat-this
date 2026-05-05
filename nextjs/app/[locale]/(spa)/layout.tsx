@@ -83,7 +83,7 @@ export default async function SPALayout({
       {/* Legacy SPA scripts — load AFTER React hydrates. Will be removed in Phase B. */}
       <Script src="/js/legacy-domready-shim.js" strategy="afterInteractive" />
       <Script src="/js/legacy-locale-shim.js" strategy="beforeInteractive" />
-      <Script src="/js/cms.min.js" strategy="afterInteractive" />
+      <Script src="/js/cms.min.js?v=2" strategy="afterInteractive" />
       {/* i18n.min.js dropped in Phase C — BridgeI18n provides window.i18n. */}
       <Script src="/js/app.min.js?v=27" strategy="afterInteractive" />
       <Script src="/js/auth-loader.min.js" strategy="afterInteractive" />

@@ -10,6 +10,7 @@ import BurgerDrawer from '@/app/components/BurgerDrawer'
 import NotificationToast from '@/app/components/NotificationToast'
 import BridgeI18n from './BridgeI18n'
 import BridgeAuth from './BridgeAuth'
+import BridgeCMSData from './BridgeCMSData'
 
 const SITE_URL = 'https://www.eatthisdot.com'
 
@@ -66,6 +67,7 @@ export default async function SPALayout({
       <AuthProvider>
         <BridgeI18n />
         <BridgeAuth />
+        <BridgeCMSData />
         <SiteNav />
         <BurgerDrawer />
         <NotificationToast />
@@ -75,9 +77,9 @@ export default async function SPALayout({
       {/* Legacy SPA scripts — load AFTER React hydrates. Will be removed in Phase B. */}
       <Script src="/js/legacy-domready-shim.js" strategy="afterInteractive" />
       <Script src="/js/legacy-locale-shim.js" strategy="beforeInteractive" />
-      <Script src="/js/cms.min.js?v=3" strategy="afterInteractive" />
+      <Script src="/js/cms.min.js?v=4" strategy="afterInteractive" />
       {/* i18n.min.js dropped in Phase C — BridgeI18n provides window.i18n. */}
-      <Script src="/js/app.min.js?v=27" strategy="afterInteractive" />
+      <Script src="/js/app.min.js?v=28" strategy="afterInteractive" />
       <Script src="/js/auth-loader.min.js" strategy="afterInteractive" />
     </>
   )

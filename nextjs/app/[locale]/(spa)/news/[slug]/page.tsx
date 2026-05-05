@@ -78,21 +78,48 @@ export default async function NewsArticlePage({ params }: PageProps) {
 
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
-    headline: title,
-    description: excerpt,
-    image: a.imageUrl,
-    datePublished: a.date,
-    dateModified: a.date,
-    author: { '@type': 'Organization', name: 'Eat This Berlin', url: SITE_URL },
-    publisher: {
-      '@type': 'Organization',
-      name: 'Eat This Berlin',
-      url: SITE_URL,
-      logo: { '@type': 'ImageObject', url: `${SITE_URL}/pics/logo.webp` },
-    },
-    mainEntityOfPage: { '@type': 'WebPage', '@id': localeUrl(locale, `/news/${slug}`) },
-    inLanguage: de ? 'de' : 'en',
+    '@graph': [
+      {
+        '@type': 'NewsArticle',
+        headline: title,
+        description: excerpt,
+        image: a.imageUrl,
+        datePublished: a.date,
+        dateModified: a.date,
+        author: { '@type': 'Organization', name: 'Eat This Berlin', url: SITE_URL },
+        publisher: {
+          '@type': 'Organization',
+          name: 'Eat This Berlin',
+          url: SITE_URL,
+          logo: { '@type': 'ImageObject', url: `${SITE_URL}/pics/logo.webp` },
+        },
+        mainEntityOfPage: { '@type': 'WebPage', '@id': localeUrl(locale, `/news/${slug}`) },
+        inLanguage: de ? 'de' : 'en',
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Eat This Berlin',
+            item: localeUrl(locale, '/'),
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: de ? 'News' : 'News',
+            item: localeUrl(locale, '/news'),
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: title,
+            item: localeUrl(locale, `/news/${slug}`),
+          },
+        ],
+      },
+    ],
   })
 
   return (

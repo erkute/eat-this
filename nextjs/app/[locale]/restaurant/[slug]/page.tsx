@@ -33,6 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = r.seo?.metaTitle || `${r.name} — Eat This Berlin`
   const description =
     r.seo?.metaDescription ||
+    r.shortDescription ||
     r.description ||
     r.tip ||
     `${r.name} in Berlin${r.district ? `, ${r.district}` : ''}.`
@@ -75,29 +76,50 @@ export default async function RestaurantPage({ params }: PageProps) {
   // serializeJsonLd escapes </ sequences, making this safe for inline JSON-LD
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
-    '@type': 'Restaurant',
-    name: r.name,
-    description: r.description || r.tip,
-    image: r.photo,
-    priceRange: r.price,
-    servesCuisine: r.categories,
-    url: r.website,
-    hasMap: r.mapsUrl,
-    ...(r.address && {
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress: r.address,
-        addressLocality: 'Berlin',
-        addressCountry: 'DE',
+    '@graph': [
+      {
+        '@type': 'Restaurant',
+        name: r.name,
+        description: r.shortDescription || r.description || r.tip,
+        image: r.photo,
+        priceRange: r.price,
+        servesCuisine: r.categories,
+        url: r.website,
+        hasMap: r.mapsUrl,
+        ...(r.address && {
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: r.address,
+            addressLocality: 'Berlin',
+            addressCountry: 'DE',
+          },
+        }),
+        ...(r.lat != null && r.lng != null && {
+          geo: {
+            '@type': 'GeoCoordinates',
+            latitude: r.lat,
+            longitude: r.lng,
+          },
+        }),
       },
-    }),
-    ...(r.lat != null && r.lng != null && {
-      geo: {
-        '@type': 'GeoCoordinates',
-        latitude: r.lat,
-        longitude: r.lng,
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Eat This Berlin',
+            item: localeUrl(locale, '/'),
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: r.name,
+            item: localeUrl(locale, `/restaurant/${slug}`),
+          },
+        ],
       },
-    }),
+    ],
   })
 
   return (

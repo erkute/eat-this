@@ -5,7 +5,7 @@ import { routing } from '@/i18n/routing'
 
 export const revalidate = 0
 
-const STATIC_PATHS = ['', '/about', '/contact', '/press', '/impressum', '/datenschutz'] as const
+const STATIC_PATHS = ['', '/news', '/about', '/contact', '/press', '/impressum', '/datenschutz'] as const
 
 function localeUrl(locale: string, path: string): string {
   return locale === 'de' ? `${SITE_URL}${path || '/'}` : `${SITE_URL}/${locale}${path}`
@@ -18,9 +18,10 @@ function withAlternates(path: string, lastModified?: string, priority = 0.5, cha
     priority,
     changeFrequency,
     alternates: {
-      languages: Object.fromEntries(
-        routing.locales.map(loc => [loc, localeUrl(loc, path)]),
-      ),
+      languages: {
+        ...Object.fromEntries(routing.locales.map(loc => [loc, localeUrl(loc, path)])),
+        'x-default': localeUrl('de', path),
+      },
     },
   }
 }
@@ -39,9 +40,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ),
   ])
 
-  const staticEntries = STATIC_PATHS.map(p =>
-    withAlternates(p, undefined, p === '' ? 1.0 : p === '/impressum' || p === '/datenschutz' ? 0.2 : 0.5, p === '' ? 'weekly' : p === '/impressum' || p === '/datenschutz' ? 'yearly' : 'monthly'),
-  )
+  const staticEntries = STATIC_PATHS.map(p => {
+    const priority = p === '' ? 1.0 : p === '/news' ? 0.7 : p === '/impressum' || p === '/datenschutz' ? 0.2 : 0.5
+    const changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] =
+      p === '' ? 'weekly' : p === '/news' ? 'weekly' : p === '/impressum' || p === '/datenschutz' ? 'yearly' : 'monthly'
+    return withAlternates(p, undefined, priority, changeFrequency)
+  })
 
   const restaurantEntries = restaurants.map(({ slug, updatedAt }) =>
     withAlternates(`/restaurant/${slug}`, updatedAt, 0.8, 'monthly'),

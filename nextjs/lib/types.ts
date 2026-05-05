@@ -25,6 +25,7 @@ export interface Restaurant {
   reservationUrl?: string
   openingHours?: OpeningHourSlot[]
   tip?: string
+  shortDescription?: string
   description?: string
   photo?: string
   seo?: RestaurantSeo

@@ -82,9 +82,11 @@ export async function POST(req: NextRequest) {
         revalidatePath(`/en/restaurant/${slug}`)
         revalidated.push(`tag:restaurant:${slug}`, `path:/restaurant/${slug}`)
       }
-      // Restaurant changes can shift bezirk membership/order — flush bezirk pages too
+      // Restaurant changes can shift bezirk and category membership/order
+      // — flush both aggregation tag groups.
       revalidateTag('bezirk')
-      revalidated.push('tag:bezirk')
+      revalidateTag('category-list')
+      revalidated.push('tag:bezirk', 'tag:category-list')
       break
     case 'bezirk':
       revalidateTag('bezirk')

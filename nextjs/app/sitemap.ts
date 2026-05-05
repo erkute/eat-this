@@ -2,10 +2,11 @@ import { MetadataRoute } from 'next'
 import { client } from '@/lib/sanity'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
+import { CATEGORIES } from '@/lib/categories'
 
 export const revalidate = 0
 
-const STATIC_PATHS = ['', '/news', '/bezirk', '/about', '/contact', '/press', '/impressum', '/datenschutz'] as const
+const STATIC_PATHS = ['', '/news', '/bezirk', '/kategorie', '/about', '/contact', '/press', '/impressum', '/datenschutz'] as const
 
 function localeUrl(locale: string, path: string): string {
   return locale === 'de' ? `${SITE_URL}${path || '/'}` : `${SITE_URL}/${locale}${path}`
@@ -46,7 +47,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ])
 
   const staticEntries = STATIC_PATHS.map(p => {
-    const priority = p === '' ? 1.0 : p === '/news' || p === '/bezirk' ? 0.7 : p === '/impressum' || p === '/datenschutz' ? 0.2 : 0.5
+    const priority = p === '' ? 1.0 : p === '/news' || p === '/bezirk' || p === '/kategorie' ? 0.7 : p === '/impressum' || p === '/datenschutz' ? 0.2 : 0.5
     const changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] =
       p === '' ? 'weekly' : p === '/news' ? 'weekly' : p === '/impressum' || p === '/datenschutz' ? 'yearly' : 'monthly'
     return withAlternates(p, undefined, priority, changeFrequency)
@@ -64,5 +65,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     withAlternates(`/bezirk/${slug}`, updatedAt, 0.7, 'monthly'),
   )
 
-  return [...staticEntries, ...restaurantEntries, ...articleEntries, ...bezirkEntries]
+  const kategorieEntries = CATEGORIES.map(c =>
+    withAlternates(`/kategorie/${c.slug}`, undefined, 0.7, 'weekly'),
+  )
+
+  return [...staticEntries, ...restaurantEntries, ...articleEntries, ...bezirkEntries, ...kategorieEntries]
 }

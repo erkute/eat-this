@@ -10,6 +10,8 @@ import {
   allBezirkeWithStatsQuery,
   bezirkBySlugQuery,
   restaurantsByBezirkQuery,
+  restaurantsByCategoryQuery,
+  allCategoryOccurrencesQuery,
 } from './queries'
 import type { Restaurant, NewsArticle, StaticPageDoc, MustEatAlbumCard, BezirkDoc, RestaurantCard } from './types'
 
@@ -93,4 +95,25 @@ export async function getRestaurantsByBezirk(slug: string): Promise<RestaurantCa
     { bezirkSlug: slug },
     { next: { revalidate: 3600, tags: [`bezirk:${slug}`, 'sitemap-restaurants'] } }
   )
+}
+
+export async function getRestaurantsByCategory(category: string): Promise<RestaurantCard[]> {
+  return client.fetch<RestaurantCard[]>(
+    restaurantsByCategoryQuery,
+    { category },
+    { next: { revalidate: 3600, tags: [`category:${category}`, 'category-list'] } }
+  )
+}
+
+export async function getCategoryCounts(): Promise<Record<string, number>> {
+  const occurrences = await client.fetch<string[]>(
+    allCategoryOccurrencesQuery,
+    {},
+    { next: { revalidate: 3600, tags: ['category-list'] } }
+  )
+  const counts: Record<string, number> = {}
+  for (const cat of occurrences) {
+    counts[cat] = (counts[cat] ?? 0) + 1
+  }
+  return counts
 }

@@ -180,6 +180,11 @@ export const allCategoriesQuery = `
   array::unique(*[_type == "restaurant" && isOpen != false].categories[])
 `
 
+// Flat list of every category occurrence — counted in JS for category index counts
+export const allCategoryOccurrencesQuery = `
+  *[_type == "restaurant" && isOpen != false].categories[]
+`
+
 // All news articles — newest first
 export const allNewsArticlesQuery = `
   *[_type == "newsArticle"] | order(date desc) {

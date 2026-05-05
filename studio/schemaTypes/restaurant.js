@@ -16,6 +16,9 @@ export default {
       options: {
         source: 'name',
         maxLength: 96,
+        // Slugify: German digraph mapping first, then NFD-normalize and strip
+        // combining marks so other diacritics (é, á, ì, ō, č, …) reduce to ASCII
+        // instead of being deleted by the [^a-z0-9] sweep.
         slugify: input =>
           input
             .toLowerCase()
@@ -23,6 +26,9 @@ export default {
             .replace(/ö/g, 'oe')
             .replace(/ü/g, 'ue')
             .replace(/ß/g, 'ss')
+            .replace(/['’]/g, '')
+            .normalize('NFD')
+            .replace(/[̀-ͯ]/g, '')
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/^-+|-+$/g, ''),
       },

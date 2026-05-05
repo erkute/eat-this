@@ -126,6 +126,17 @@ export default async function NewsArticlePage({ params }: PageProps) {
     <>
       {/* JSON-LD: serializeJsonLd escapes </ sequences — safe inline */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+      {/* Preload the article hero so the browser starts the image fetch
+          alongside the legacy JS bundle parse, instead of waiting for the
+          DOM to be populated by app.min.js. Real-world LCP win on /news/[slug]. */}
+      {a.imageUrl && (
+        <link
+          rel="preload"
+          as="image"
+          href={a.imageUrl}
+          fetchPriority="high"
+        />
+      )}
       <SPAShell activePage="news-article" />
     </>
   )

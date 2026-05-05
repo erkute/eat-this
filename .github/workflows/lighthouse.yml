@@ -23,5 +23,27 @@ jobs:
       - name: Install Lighthouse CI
         run: npm install -g @lhci/cli
 
+      - name: Wait for live deploy
+        # Firebase App Hosting auto-deploys on push to main and may briefly
+        # serve 500/502/503 while the new container takes over. Wait for
+        # the homepage to return 200 plus a short grace for edge propagation
+        # before auditing — otherwise lhci races the deploy and fails on a
+        # transient 500 (ERRORED_DOCUMENT_REQUEST).
+        env:
+          SITE_URL: https://www.eatthisdot.com/
+        run: |
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$SITE_URL" || echo 000)
+            echo "Attempt $i: HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "Site live; 30s grace for edge propagation."
+              sleep 30
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Site never returned 200 after 5 min — aborting." >&2
+          exit 1
+
       - name: Run Lighthouse CI
         run: lhci autorun

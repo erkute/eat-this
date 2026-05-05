@@ -40,6 +40,6 @@ export default function middleware(req: NextRequest) {
 export const config = {
   // Match all request paths except static assets, API routes, and Next internals.
   matcher: [
-    '/((?!api|_next|_vercel|css|js|pics|fonts|welcome|favicon.ico|manifest.json|robots.txt|sitemap.xml|news-sitemap.xml|.*\\..*).*)',
+    '/((?!api|_next|_vercel|css|js|pics|fonts|welcome|favicon.ico|manifest.json|robots.txt|sitemap.xml|.*\\..*).*)',
   ],
 };

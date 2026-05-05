@@ -63,8 +63,7 @@ export async function POST(req: NextRequest) {
       revalidateTag('news')
       revalidateTag('sitemap-articles')
       revalidatePath('/sitemap.xml')
-      revalidatePath('/news-sitemap.xml')
-      revalidated.push('tag:news', 'tag:sitemap-articles', 'path:/sitemap.xml', 'path:/news-sitemap.xml')
+      revalidated.push('tag:news', 'tag:sitemap-articles', 'path:/sitemap.xml')
       if (slug) {
         revalidateTag(`article:${slug}`)
         revalidatePath(`/news/${slug}`)

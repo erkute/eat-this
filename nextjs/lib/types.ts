@@ -77,6 +77,27 @@ export interface MustEatAlbumCard {
   order?: number
 }
 
+export interface BezirkDoc {
+  _id: string
+  name: string
+  slug: string
+  description?: string
+  imageUrl?: string
+  restaurantCount: number
+}
+
+export interface RestaurantCard {
+  _id: string
+  name: string
+  slug: string
+  district?: string
+  price?: string
+  cuisineType?: string
+  shortDescription?: string
+  tip?: string
+  photo?: string
+}
+
 export interface MapRestaurant {
   _id: string
   name: string

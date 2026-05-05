@@ -82,6 +82,23 @@ export async function POST(req: NextRequest) {
         revalidatePath(`/en/restaurant/${slug}`)
         revalidated.push(`tag:restaurant:${slug}`, `path:/restaurant/${slug}`)
       }
+      // Restaurant changes can shift bezirk membership/order — flush bezirk pages too
+      revalidateTag('bezirk')
+      revalidated.push('tag:bezirk')
+      break
+    case 'bezirk':
+      revalidateTag('bezirk')
+      revalidateTag('sitemap-bezirke')
+      revalidatePath('/bezirk')
+      revalidatePath('/en/bezirk')
+      revalidatePath('/sitemap.xml')
+      revalidated.push('tag:bezirk', 'tag:sitemap-bezirke', 'path:/bezirk', 'path:/sitemap.xml')
+      if (slug) {
+        revalidateTag(`bezirk:${slug}`)
+        revalidatePath(`/bezirk/${slug}`)
+        revalidatePath(`/en/bezirk/${slug}`)
+        revalidated.push(`tag:bezirk:${slug}`, `path:/bezirk/${slug}`)
+      }
       break
     case 'mustEat':
       revalidateTag('mustEat')

@@ -152,6 +152,29 @@ export const allBezirkeQuery = `
   }
 `
 
+// Bezirke for the /bezirk index — includes count and image
+export const allBezirkeWithStatsQuery = `
+  *[_type == "bezirk"] | order(name asc) {
+    _id,
+    name,
+    "slug": slug.current,
+    description,
+    "imageUrl": image.asset->url + "?w=800&auto=format&q=80",
+    "restaurantCount": count(*[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false])
+  }
+`
+
+// One Bezirk by slug — for the detail landing page
+export const bezirkBySlugQuery = `
+  *[_type == "bezirk" && slug.current == $slug][0] {
+    _id,
+    name,
+    "slug": slug.current,
+    description,
+    "imageUrl": image.asset->url + "?w=1600&auto=format&q=85"
+  }
+`
+
 // All distinct categories used across restaurants
 export const allCategoriesQuery = `
   array::unique(*[_type == "restaurant" && isOpen != false].categories[])

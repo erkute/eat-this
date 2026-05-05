@@ -5,7 +5,7 @@ import { routing } from '@/i18n/routing'
 
 export const revalidate = 0
 
-const STATIC_PATHS = ['', '/news', '/about', '/contact', '/press', '/impressum', '/datenschutz'] as const
+const STATIC_PATHS = ['', '/news', '/bezirk', '/about', '/contact', '/press', '/impressum', '/datenschutz'] as const
 
 function localeUrl(locale: string, path: string): string {
   return locale === 'de' ? `${SITE_URL}${path || '/'}` : `${SITE_URL}/${locale}${path}`
@@ -27,7 +27,7 @@ function withAlternates(path: string, lastModified?: string, priority = 0.5, cha
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [restaurants, articles] = await Promise.all([
+  const [restaurants, articles, bezirke] = await Promise.all([
     client.fetch<{ slug: string; updatedAt: string }[]>(
       `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt }`,
       {},
@@ -38,10 +38,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       {},
       { next: { revalidate: 3600, tags: ['sitemap-articles'] } },
     ),
+    client.fetch<{ slug: string; updatedAt: string }[]>(
+      `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt }`,
+      {},
+      { next: { revalidate: 3600, tags: ['sitemap-bezirke'] } },
+    ),
   ])
 
   const staticEntries = STATIC_PATHS.map(p => {
-    const priority = p === '' ? 1.0 : p === '/news' ? 0.7 : p === '/impressum' || p === '/datenschutz' ? 0.2 : 0.5
+    const priority = p === '' ? 1.0 : p === '/news' || p === '/bezirk' ? 0.7 : p === '/impressum' || p === '/datenschutz' ? 0.2 : 0.5
     const changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] =
       p === '' ? 'weekly' : p === '/news' ? 'weekly' : p === '/impressum' || p === '/datenschutz' ? 'yearly' : 'monthly'
     return withAlternates(p, undefined, priority, changeFrequency)
@@ -55,5 +60,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     withAlternates(`/news/${slug}`, updatedAt, 0.7, 'monthly'),
   )
 
-  return [...staticEntries, ...restaurantEntries, ...articleEntries]
+  const bezirkEntries = bezirke.map(({ slug, updatedAt }) =>
+    withAlternates(`/bezirk/${slug}`, updatedAt, 0.7, 'monthly'),
+  )
+
+  return [...staticEntries, ...restaurantEntries, ...articleEntries, ...bezirkEntries]
 }

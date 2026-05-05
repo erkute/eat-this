@@ -7,8 +7,11 @@ import {
   allNewsArticlesQuery,
   allStaticPagesQuery,
   allMustEatsAlbumQuery,
+  allBezirkeWithStatsQuery,
+  bezirkBySlugQuery,
+  restaurantsByBezirkQuery,
 } from './queries'
-import type { Restaurant, NewsArticle, StaticPageDoc, MustEatAlbumCard } from './types'
+import type { Restaurant, NewsArticle, StaticPageDoc, MustEatAlbumCard, BezirkDoc, RestaurantCard } from './types'
 
 export async function getRestaurantBySlug(slug: string): Promise<Restaurant | null> {
   return client.fetch<Restaurant | null>(
@@ -65,5 +68,29 @@ export async function getAllMustEats(): Promise<MustEatAlbumCard[]> {
     allMustEatsAlbumQuery,
     {},
     { next: { revalidate: 3600, tags: ['mustEat'] } }
+  )
+}
+
+export async function getAllBezirkeWithStats(): Promise<BezirkDoc[]> {
+  return client.fetch<BezirkDoc[]>(
+    allBezirkeWithStatsQuery,
+    {},
+    { next: { revalidate: 3600, tags: ['bezirk', 'sitemap-bezirke'] } }
+  )
+}
+
+export async function getBezirkBySlug(slug: string): Promise<BezirkDoc | null> {
+  return client.fetch<BezirkDoc | null>(
+    bezirkBySlugQuery,
+    { slug },
+    { next: { revalidate: 3600, tags: [`bezirk:${slug}`] } }
+  )
+}
+
+export async function getRestaurantsByBezirk(slug: string): Promise<RestaurantCard[]> {
+  return client.fetch<RestaurantCard[]>(
+    restaurantsByBezirkQuery,
+    { bezirkSlug: slug },
+    { next: { revalidate: 3600, tags: [`bezirk:${slug}`, 'sitemap-restaurants'] } }
   )
 }

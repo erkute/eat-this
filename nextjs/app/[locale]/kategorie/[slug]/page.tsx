@@ -7,7 +7,6 @@ import { setRequestLocale } from 'next-intl/server'
 import { getRestaurantsByCategory } from '@/lib/sanity.server'
 import { CATEGORIES, getCategoryBySlug } from '@/lib/categories'
 import { serializeJsonLd } from '@/lib/json-ld'
-import { sanityImageLoader } from '@/lib/sanityImageLoader'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
 import styles from '../../bezirk/Bezirk.module.css'
@@ -126,7 +125,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
               {r.photo && (
                 <div className={styles.cardImage}>
                   <Image
-                    loader={sanityImageLoader}
                     src={r.photo}
                     alt={r.name}
                     fill

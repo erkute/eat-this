@@ -4,7 +4,6 @@ import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
 import { getRestaurantBySlug, getAllRestaurantSlugs } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
-import { sanityImageLoader } from '@/lib/sanityImageLoader'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
 import SiteNav from '@/app/components/SiteNav'
@@ -137,7 +136,6 @@ export default async function RestaurantPage({ params }: PageProps) {
         <div className={styles.hero}>
           {r.photo && (
             <Image
-              loader={sanityImageLoader}
               src={r.photo}
               alt={r.name}
               fill

@@ -6,7 +6,6 @@ import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
 import { getBezirkBySlug, getRestaurantsByBezirk, getAllBezirkeWithStats } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
-import { sanityImageLoader } from '@/lib/sanityImageLoader'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
 import styles from '../Bezirk.module.css'
@@ -133,7 +132,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
               {r.photo && (
                 <div className={styles.cardImage}>
                   <Image
-                    loader={sanityImageLoader}
                     src={r.photo}
                     alt={r.name}
                     fill

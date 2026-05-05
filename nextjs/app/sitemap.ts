@@ -31,12 +31,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     client.fetch<{ slug: string; updatedAt: string }[]>(
       `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt }`,
       {},
-      { next: { revalidate: 3600 } },
+      { next: { revalidate: 3600, tags: ['sitemap-restaurants'] } },
     ),
     client.fetch<{ slug: string; updatedAt: string }[]>(
       `*[_type == "newsArticle" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt }`,
       {},
-      { next: { revalidate: 3600 } },
+      { next: { revalidate: 3600, tags: ['sitemap-articles'] } },
     ),
   ])
 

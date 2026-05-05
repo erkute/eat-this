@@ -61,7 +61,10 @@ export async function POST(req: NextRequest) {
   switch (type) {
     case 'newsArticle':
       revalidateTag('news')
-      revalidated.push('tag:news')
+      revalidateTag('sitemap-articles')
+      revalidatePath('/sitemap.xml')
+      revalidatePath('/news-sitemap.xml')
+      revalidated.push('tag:news', 'tag:sitemap-articles', 'path:/sitemap.xml', 'path:/news-sitemap.xml')
       if (slug) {
         revalidateTag(`article:${slug}`)
         revalidatePath(`/news/${slug}`)
@@ -70,6 +73,9 @@ export async function POST(req: NextRequest) {
       }
       break
     case 'restaurant':
+      revalidateTag('sitemap-restaurants')
+      revalidatePath('/sitemap.xml')
+      revalidated.push('tag:sitemap-restaurants', 'path:/sitemap.xml')
       if (slug) {
         revalidateTag(`restaurant:${slug}`)
         revalidatePath(`/restaurant/${slug}`)

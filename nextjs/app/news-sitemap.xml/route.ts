@@ -12,7 +12,7 @@ export async function GET() {
       date
     }`,
     {},
-    { next: { revalidate: 3600 } }
+    { next: { revalidate: 3600, tags: ['sitemap-articles'] } }
   )
 
   const urls = articles

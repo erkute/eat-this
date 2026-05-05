@@ -18,14 +18,6 @@ export const metadata: Metadata = {
   description:
     "Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must Eats on the interactive map & hunt down the best dishes in the city. Taste it all!",
   robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
-  alternates: {
-    canonical: SITE_URL + '/',
-    languages: {
-      de: SITE_URL + '/',
-      en: SITE_URL + '/en',
-      'x-default': SITE_URL + '/',
-    },
-  },
   openGraph: {
     type: 'website',
     siteName: 'EAT THIS',

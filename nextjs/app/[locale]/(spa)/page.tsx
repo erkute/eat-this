@@ -6,15 +6,26 @@ import SPAShell from './SPAShell'
 
 const SITE_URL = 'https://www.eatthisdot.com'
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: SITE_URL + '/',
-    languages: {
-      de: SITE_URL + '/',
-      en: SITE_URL + '/en',
-      'x-default': SITE_URL + '/',
+function localeUrl(locale: string, path: string): string {
+  return locale === 'de' ? `${SITE_URL}${path}` : `${SITE_URL}/${locale}${path}`
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  return {
+    alternates: {
+      canonical: localeUrl(locale, '/'),
+      languages: {
+        de: localeUrl('de', '/'),
+        en: localeUrl('en', '/'),
+        'x-default': localeUrl('de', '/'),
+      },
     },
-  },
+  }
 }
 
 export default async function SPAHomePage({

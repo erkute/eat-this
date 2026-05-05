@@ -15,7 +15,6 @@ import LandingFAQ from '@/app/components/landing/LandingFAQ';
 import Newsletter from '@/app/components/landing/Newsletter';
 import MapSection from '@/app/components/MapSection';
 import NewsArticleShell from '@/app/components/NewsArticleShell';
-import EatModal from '@/app/components/EatModal';
 import SearchOverlay from '@/app/components/SearchOverlay';
 import CookieConsent from '@/app/components/CookieConsent';
 import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server';
@@ -54,7 +53,6 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
         <StaticPages pages={staticPages} activeSlug={activePage} />
         <NewsArticleShell isActive={activePage === 'news-article'} />
       </div>
-      <EatModal />
       <SearchOverlay />
       <CookieConsent />
     </>

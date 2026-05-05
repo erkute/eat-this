@@ -1,11 +1,13 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
 import { getRestaurantsByCategory } from '@/lib/sanity.server'
 import { CATEGORIES, getCategoryBySlug } from '@/lib/categories'
 import { serializeJsonLd } from '@/lib/json-ld'
+import { sanityImageLoader } from '@/lib/sanityImageLoader'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
 import styles from '../../bezirk/Bezirk.module.css'
@@ -123,8 +125,13 @@ export default async function KategorieDetailPage({ params }: PageProps) {
             <Link key={r._id} href={restaurantUrl(r.slug)} className={styles.card}>
               {r.photo && (
                 <div className={styles.cardImage}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={r.photo} alt={r.name} loading="lazy" />
+                  <Image
+                    loader={sanityImageLoader}
+                    src={r.photo}
+                    alt={r.name}
+                    fill
+                    sizes="(max-width: 720px) 50vw, (max-width: 1080px) 33vw, 260px"
+                  />
                 </div>
               )}
               <h2 className={styles.cardName}>{r.name}</h2>

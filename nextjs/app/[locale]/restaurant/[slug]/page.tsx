@@ -1,8 +1,10 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
 import { getRestaurantBySlug, getAllRestaurantSlugs } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
+import { sanityImageLoader } from '@/lib/sanityImageLoader'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
 import SiteNav from '@/app/components/SiteNav'
@@ -134,7 +136,15 @@ export default async function RestaurantPage({ params }: PageProps) {
       <main className={styles.page}>
         <div className={styles.hero}>
           {r.photo && (
-            <img src={r.photo} alt={r.name} className={styles.heroImage} fetchPriority="high" />
+            <Image
+              loader={sanityImageLoader}
+              src={r.photo}
+              alt={r.name}
+              fill
+              priority
+              sizes="(max-width: 720px) 100vw, 720px"
+              className={styles.heroImage}
+            />
           )}
         </div>
 

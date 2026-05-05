@@ -219,7 +219,7 @@ const en = {
     news: "News",
     musts: "Eat This",
     map: "Map",
-    signIn: "Login / Register",
+    signIn: "Sign in",
     about: "About",
     contact: "Contact",
     press: "Press",
@@ -552,7 +552,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     unitsH: "Std",
   },
   footer: {
-    signIn: "Anmelden / Registrieren",
+    signIn: "Anmelden",
     about: "\u00dcber uns",
     contact: "Kontakt",
     press: "Presse",

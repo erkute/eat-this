@@ -94,8 +94,9 @@ Three tiny shims in `public/js/` that make vanilla SPA JS (`app.min.js`, `map-in
 | EatModal | `app/components/EatModal.tsx` |
 | SearchOverlay | `app/components/SearchOverlay.tsx` |
 | CookieConsent (+AGB/Datenschutz/CookieInfo modals) | `app/components/CookieConsent.tsx` |
-| OnboardingOverlay | `app/components/OnboardingOverlay.tsx` |
 | WelcomeModal | `app/components/WelcomeModal.tsx` |
+
+Onboarding moved out of the SPA shell entirely — it now lives at `/onboarding` (`app/[locale]/onboarding/OnboardingFlow.tsx`) as its own route. The legacy inline `#onboardingOverlay` overlay and its `_obGoTo`/`showOnboarding` globals were removed from `app.min.js` in Phase C PR1 (2026-05-05).
 
 SiteFooter rendered by each page component directly (MustsSection, NewsSection, ProfileSection, StaticPages, NewsArticleShell). Map page excluded — no footer by design.
 

@@ -8,10 +8,9 @@
  * This component wires those globals to the React auth context so the UI
  * keeps working unchanged.
  *
- * Auth-state side effects (loginBtn DOM, _authHint, _currentUser,
- * _revealBlurredCards) were previously handled by auth.min.js's
- * onAuthStateChanged callback — now owned here so that auth.min.js can be
- * dropped.
+ * Auth-state side effects (loginBtn DOM, _authHint, _currentUser) were
+ * previously handled by auth.min.js's onAuthStateChanged callback — now
+ * owned here so that auth.min.js can be dropped.
  *
  * Remove this file once app.min.js / profile.min.js are fully migrated to React.
  */
@@ -85,14 +84,7 @@ export default function BridgeAuth() {
       // 3. Persist auth hint for pre-hydration bootstrap (avoids flash).
       try { localStorage.setItem('_authHint', JSON.stringify({ n: firstName })); } catch {}
 
-      // 4. Reveal album/blurred cards for logged-in users.
-      if (typeof window._revealBlurredCards === 'function') {
-        window._revealBlurredCards();
-      } else if (typeof window._renderAlbum === 'function') {
-        window._renderAlbum();
-      }
-
-      // 5. Close login modal if user just signed in.
+      // 4. Close login modal if user just signed in.
       setLoginOpen(false);
     } else {
       // 6. Logged-out state.
@@ -125,8 +117,6 @@ declare global {
     _updateDisplayName?: (name: string) => Promise<void>;
     _deleteAccount?: () => Promise<void>;
     showNotification?: (msg: string) => void;
-    _revealBlurredCards?: () => void;
-    _renderAlbum?: () => void;
     openLoginModal?: () => void;
     closeLoginModal?: () => void;
   }

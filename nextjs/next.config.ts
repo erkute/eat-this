@@ -20,6 +20,18 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "cdn.sanity.io" },
     ],
   },
+
+  async headers() {
+    // Required for Firebase signInWithPopup to poll popup.closed without console warnings.
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+        ],
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

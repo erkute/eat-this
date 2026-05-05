@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
+import { useTheme } from '@/lib/useTheme';
 import { routing } from '@/i18n/routing';
 import LocaleLink from './LocaleLink';
 
@@ -11,7 +12,7 @@ export default function BurgerDrawer() {
   const { t, lang, setLang } = useTranslation();
   const { user } = useAuth();
   const locale = useLocale();
-  const [isDark, setIsDark] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
 
   const handleLoginBtn = useCallback(() => {
     document.getElementById('burgerDrawer')?.classList.remove('active');
@@ -23,41 +24,6 @@ export default function BurgerDrawer() {
       window.openLoginModal?.();
     }
   }, [user, locale]);
-
-  useEffect(() => {
-    const stored = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const dark = stored ? stored === 'dark' : prefersDark;
-    setIsDark(dark);
-    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-
-    // Stay in sync with system pref changes when no stored preference.
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const onSysPref = (e: MediaQueryListEvent) => {
-      if (!localStorage.getItem('theme')) {
-        setIsDark(e.matches);
-        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
-      }
-    };
-    mq.addEventListener('change', onSysPref);
-
-    // Stay in sync with other theme-toggle buttons (e.g. site footer).
-    const onThemeChange = (e: Event) => setIsDark((e as CustomEvent).detail.dark);
-    document.addEventListener('themechange', onThemeChange);
-
-    return () => {
-      mq.removeEventListener('change', onSysPref);
-      document.removeEventListener('themechange', onThemeChange);
-    };
-  }, []);
-
-  const toggleTheme = useCallback(() => {
-    const next = !isDark;
-    setIsDark(next);
-    document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light');
-    localStorage.setItem('theme', next ? 'dark' : 'light');
-    document.dispatchEvent(new CustomEvent('themechange', { detail: { dark: next } }));
-  }, [isDark]);
   return (
     <div className="burger-drawer" id="burgerDrawer">
       <div className="burger-drawer-backdrop" id="burgerBackdrop"></div>

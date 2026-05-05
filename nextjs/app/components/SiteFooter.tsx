@@ -1,10 +1,12 @@
 'use client';
 
 import { useTranslation } from '@/lib/i18n';
+import { useTheme } from '@/lib/useTheme';
 import LocaleLink from './LocaleLink';
 
 export default function SiteFooter() {
   const { t, lang, setLang } = useTranslation();
+  const { isDark, toggleTheme } = useTheme();
   return (
     <div className="site-footer" role="contentinfo" aria-label="Site footer">
       <LocaleLink href="/" className="site-footer-logo-link" data-page="start" aria-label="Eat This home">
@@ -29,7 +31,7 @@ export default function SiteFooter() {
       </nav>
       <div className="site-footer-meta">
         <div className="site-footer-meta-row">
-          <button type="button" className="theme-toggle" id="themeToggleFooter" aria-label="Toggle dark mode" suppressHydrationWarning>
+          <button type="button" className="theme-toggle" id="themeToggleFooter" aria-label="Toggle dark mode" aria-pressed={isDark} onClick={toggleTheme} suppressHydrationWarning>
             <span className="theme-toggle-track">
               <span className="theme-toggle-thumb"></span>
             </span>

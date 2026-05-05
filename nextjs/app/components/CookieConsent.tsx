@@ -70,15 +70,13 @@ function ModalBody({ sections }: { sections: ModalBodySection[] }) {
   );
 }
 
-// Cookie consent banner + cookie-info / AGB / Datenschutz modals.
-// Banner show/hide and GA loader live here in React. Modal open/close still
-// wired by app.min.js's me() helper using the IDs below — to be migrated next.
-// Modal bodies are rendered as React JSX from MODAL_BODIES.
-// agbTrigger + datenschutzTrigger are hidden buttons clicked programmatically
-// by the welcomeModal signup flow (wmAgbTrigger → agbTrigger → agbModal open).
+// Cookie consent banner + cookie-info modal. The legacy AGB/Datenschutz modals
+// are gone — LoginPanel uses plain /agb and /datenschutz <a href> links now,
+// no inline modal flow during signup. Body rendered from MODAL_BODIES.
 export default function CookieConsent() {
   const { t } = useTranslation();
   const [show, setShow] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
 
   // On mount: if user already accepted, load GA. If undecided, schedule the
   // banner to slide in after 1.5s. The delay matches the legacy timing so
@@ -107,13 +105,30 @@ export default function CookieConsent() {
     setTimeout(flushPostBannerChrome, 350);
   };
 
+  // Lock body scroll + bind Escape while the cookie-info modal is open.
+  useEffect(() => {
+    if (!infoOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setInfoOpen(false); };
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [infoOpen]);
+
   return (
     <>
       <div className={`cookie-consent${show ? ' show' : ''}`} id="cookieConsent">
         <div className="cookie-content">
           <p className="cookie-text">
             <span>{t('cookie.text')}</span>
-            <button className="cookie-info-trigger" id="cookieInfoTrigger">
+            <button
+              className="cookie-info-trigger"
+              id="cookieInfoTrigger"
+              onClick={() => setInfoOpen(true)}
+            >
               {t('cookie.moreInfo')}
             </button>
           </p>
@@ -136,45 +151,19 @@ export default function CookieConsent() {
         </div>
       </div>
 
-      {/* Hidden triggers — welcomeModal clicks these to open inline legal modals */}
-      <button id="agbTrigger" hidden aria-hidden="true"></button>
-      <button id="datenschutzTrigger" hidden aria-hidden="true"></button>
-
-      {/* AGB modal */}
-      <div className="login-modal" id="agbModal">
-        <div className="login-modal-backdrop" id="agbBackdrop"></div>
+      <div className={`login-modal${infoOpen ? ' active' : ''}`} id="cookieInfoModal">
+        <div
+          className="login-modal-backdrop"
+          id="cookieInfoBackdrop"
+          onClick={() => setInfoOpen(false)}
+        ></div>
         <div className="login-modal-content cookie-info-modal-content">
-          <button className="login-modal-close" id="agbClose" aria-label="Close">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-          <h2 className="cookie-info-title">{t('modals.agb.title')}</h2>
-          <ModalBody sections={MODAL_BODIES.agb} />
-        </div>
-      </div>
-
-      {/* Datenschutz modal — also opened inline during signup via wmDatenschutzTrigger */}
-      <div className="login-modal" id="datenschutzModal">
-        <div className="login-modal-backdrop" id="datenschutzBackdrop"></div>
-        <div className="login-modal-content cookie-info-modal-content">
-          <button className="login-modal-close" id="datenschutzClose" aria-label="Close">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-          <h2 className="cookie-info-title">{t('modals.datenschutz.title')}</h2>
-          <ModalBody sections={MODAL_BODIES.datenschutz} />
-        </div>
-      </div>
-
-      {/* Cookie info modal */}
-      <div className="login-modal" id="cookieInfoModal">
-        <div className="login-modal-backdrop" id="cookieInfoBackdrop"></div>
-        <div className="login-modal-content cookie-info-modal-content">
-          <button className="login-modal-close" id="cookieInfoClose" aria-label="Close">
+          <button
+            className="login-modal-close"
+            id="cookieInfoClose"
+            aria-label="Close"
+            onClick={() => setInfoOpen(false)}
+          >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />

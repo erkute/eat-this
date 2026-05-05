@@ -2,7 +2,70 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from '@/lib/i18n';
-import { MODAL_BODIES, MODAL_CONTACT_EMAIL, type ModalBodySection } from '@/lib/i18n/translations';
+import { MODAL_CONTACT_EMAIL, type ModalBodySection } from '@/lib/i18n/translations';
+
+// Cookie info sections — kept here (not in MODAL_BODIES) so the banner copy
+// stays close to what's actually loaded by the site, and DE is properly
+// translated rather than falling back to English.
+const COOKIE_SECTIONS_DE: ModalBodySection[] = [
+  {
+    h: 'Notwendig',
+    p: 'Wir speichern ein paar Daten lokal in deinem Browser, damit die Seite funktioniert — kein Tracking:',
+    list: [
+      { strong: 'Login-Session', text: ' — hält dich eingeloggt (Firebase Auth)' },
+      { strong: 'Sprache & Theme', text: ' — merkt sich DE/EN und Dark Mode' },
+      { strong: 'Cookie-Auswahl', text: ' — damit wir dich nicht nochmal fragen' },
+    ],
+  },
+  {
+    h: 'Statistik (nur bei Akzeptieren)',
+    p: 'Google Analytics 4 — anonyme Seitenaufrufe und grobe Geräte-Infos. Kein Name, keine E-Mail, keine genaue Position. Lädt erst nach deinem Klick auf „Akzeptieren". Bei „Ablehnen" wird kein Tracking geladen.',
+  },
+  {
+    h: 'Drittanbieter',
+    p: 'Diese Dienste werden eingebunden, setzen aber keine Tracking-Cookies bei dir:',
+    list: [
+      { strong: 'Carto / MapLibre', text: ' — Kartenkacheln für die Food Map' },
+      { strong: 'Sanity CDN', text: ' — Bilder und Inhalte' },
+      { strong: 'Google Sign-In', text: ' — nur wenn du es nutzt; Google-Cookies liegen auf Googles Domain, nicht bei uns' },
+    ],
+  },
+  {
+    h: 'Cookies verwalten',
+    p: 'Im Browser jederzeit löschbar. Banner zurückrufen: localStorage-Eintrag „cookieConsent" entfernen und neu laden.',
+  },
+  { h: 'Kontakt', p: 'Fragen? {mail}' },
+];
+
+const COOKIE_SECTIONS_EN: ModalBodySection[] = [
+  {
+    h: 'Necessary',
+    p: 'We store small bits of data locally on your device so the site works as expected — no tracking:',
+    list: [
+      { strong: 'Login session', text: ' — keeps you signed in (Firebase Auth)' },
+      { strong: 'Language & theme', text: ' — remembers DE/EN and dark mode' },
+      { strong: 'Cookie choice', text: " — so we don't ask you again" },
+    ],
+  },
+  {
+    h: 'Analytics (only if you accept)',
+    p: 'Google Analytics 4 — anonymized page views and basic device info. No name, no email, no precise location. Loaded only after you click Accept; Decline means no analytics ever load.',
+  },
+  {
+    h: 'Third-party services',
+    p: "These are loaded by the page but don't drop tracking cookies on you:",
+    list: [
+      { strong: 'Carto / MapLibre', text: ' — map tiles for the Food Map' },
+      { strong: 'Sanity CDN', text: ' — photos and content' },
+      { strong: 'Google Sign-In', text: " — only when you choose it; Google's cookies live on its domain, not ours" },
+    ],
+  },
+  {
+    h: 'Managing cookies',
+    p: 'You can clear them in your browser any time, or remove the cookieConsent entry in localStorage to see this banner again.',
+  },
+  { h: 'Contact', p: 'Questions? {mail}' },
+];
 
 const GA_ID = 'G-8EWFYGPNTT';
 
@@ -70,13 +133,15 @@ function ModalBody({ sections }: { sections: ModalBodySection[] }) {
   );
 }
 
-// Cookie consent banner + cookie-info modal. The legacy AGB/Datenschutz modals
-// are gone — LoginPanel uses plain /agb and /datenschutz <a href> links now,
-// no inline modal flow during signup. Body rendered from MODAL_BODIES.
+// Cookie consent banner with inline expandable cookie-info section. No modal:
+// "Mehr erfahren" expands the banner downward, COOKIE_SECTIONS content renders
+// directly inside the dark glass card so colors stay cohesive. AGB/Datenschutz
+// modals are gone — LoginPanel uses plain <a href> to /agb and /datenschutz.
 export default function CookieConsent() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const [show, setShow] = useState(false);
-  const [infoOpen, setInfoOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const sections = lang === 'de' ? COOKIE_SECTIONS_DE : COOKIE_SECTIONS_EN;
 
   // On mount: if user already accepted, load GA. If undecided, schedule the
   // banner to slide in after 1.5s. The delay matches the legacy timing so
@@ -95,6 +160,7 @@ export default function CookieConsent() {
   const handleAccept = () => {
     localStorage.setItem('cookieConsent', 'accepted');
     setShow(false);
+    setExpanded(false);
     setTimeout(flushPostBannerChrome, 350);
     setTimeout(loadGA, 600);
   };
@@ -102,77 +168,90 @@ export default function CookieConsent() {
   const handleDecline = () => {
     localStorage.setItem('cookieConsent', 'declined');
     setShow(false);
+    setExpanded(false);
     setTimeout(flushPostBannerChrome, 350);
   };
 
-  // Lock body scroll + bind Escape while the cookie-info modal is open.
+  // Collapse the expanded info panel on outside-click or Escape — gives the
+  // user a way to dismiss the disclosure without touching the trigger again.
   useEffect(() => {
-    if (!infoOpen) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setInfoOpen(false); };
+    if (!expanded) return;
+    const onPointerDown = (e: Event) => {
+      const target = e.target as HTMLElement | null;
+      if (!target || !target.closest('#cookieConsent')) {
+        setExpanded(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setExpanded(false);
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('touchstart', onPointerDown, { passive: true });
     document.addEventListener('keydown', onKey);
     return () => {
-      document.body.style.overflow = prevOverflow;
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('touchstart', onPointerDown);
       document.removeEventListener('keydown', onKey);
     };
-  }, [infoOpen]);
+  }, [expanded]);
 
   return (
-    <>
-      <div className={`cookie-consent${show ? ' show' : ''}`} id="cookieConsent">
-        <div className="cookie-content">
-          <p className="cookie-text">
-            <span>{t('cookie.text')}</span>
-            <button
-              className="cookie-info-trigger"
-              id="cookieInfoTrigger"
-              onClick={() => setInfoOpen(true)}
-            >
-              {t('cookie.moreInfo')}
-            </button>
-          </p>
-          <div className="cookie-buttons">
-            <button
-              className="cookie-btn cookie-btn-accept"
-              id="cookieAccept"
-              onClick={handleAccept}
-            >
-              {t('cookie.accept')}
-            </button>
-            <button
-              className="cookie-btn cookie-btn-decline"
-              id="cookieDecline"
-              onClick={handleDecline}
-            >
-              {t('cookie.decline')}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className={`login-modal${infoOpen ? ' active' : ''}`} id="cookieInfoModal">
-        <div
-          className="login-modal-backdrop"
-          id="cookieInfoBackdrop"
-          onClick={() => setInfoOpen(false)}
-        ></div>
-        <div className="login-modal-content cookie-info-modal-content">
+    <div
+      className={`cookie-consent${show ? ' show' : ''}${expanded ? ' expanded' : ''}`}
+      id="cookieConsent"
+      role="dialog"
+      aria-label={t('cookie.text')}
+    >
+      <div className="cookie-content">
+        <div className="cookie-text">
+          <span>{t('cookie.text')}</span>
           <button
-            className="login-modal-close"
-            id="cookieInfoClose"
-            aria-label="Close"
-            onClick={() => setInfoOpen(false)}
+            type="button"
+            className="cookie-info-trigger"
+            id="cookieInfoTrigger"
+            aria-expanded={expanded}
+            aria-controls="cookieInfoPanel"
+            onClick={() => setExpanded((e) => !e)}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
+            {t('cookie.moreInfo')}
+            <svg
+              className="cookie-info-chevron"
+              width={10}
+              height={10}
+              viewBox="0 0 10 10"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.6}
+              aria-hidden="true"
+            >
+              <path d="M2 3.5L5 6.5L8 3.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
-          <h2 className="cookie-info-title">{t('modals.cookies.title')}</h2>
-          <ModalBody sections={MODAL_BODIES.cookies} />
+        </div>
+        <div className="cookie-buttons">
+          <button
+            type="button"
+            className="cookie-btn cookie-btn-decline"
+            id="cookieDecline"
+            onClick={handleDecline}
+          >
+            {t('cookie.decline')}
+          </button>
+          <button
+            type="button"
+            className="cookie-btn cookie-btn-accept"
+            id="cookieAccept"
+            onClick={handleAccept}
+          >
+            {t('cookie.accept')}
+          </button>
         </div>
       </div>
-    </>
+      {expanded && (
+        <div className="cookie-expand" id="cookieInfoPanel">
+          <ModalBody sections={sections} />
+        </div>
+      )}
+    </div>
   );
 }

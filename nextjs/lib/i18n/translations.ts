@@ -656,32 +656,3 @@ export type ModalBodySection = {
 };
 
 export const MODAL_CONTACT_EMAIL = "hello@eatthisdot.com";
-
-export const MODAL_BODIES: Record<"agb" | "datenschutz" | "cookies", ModalBodySection[]> = {
-  agb: [
-    { h: "Scope", p: "These terms apply to the use of the EAT THIS platform, including all content, features and services." },
-    { h: "Use", p: "EAT THIS is an editorial food guide for Berlin. The content is for informational purposes only and does not constitute a commercial recommendation." },
-    { h: "Liability", p: "We make no guarantee as to the timeliness, completeness or accuracy of the information provided." },
-    { h: "Contact", p: "Questions: {mail}" },
-  ],
-  datenschutz: [
-    { h: "Controller", p: "EAT THIS, Berlin. Contact: {mail}" },
-    { h: "Data Collection", p: "When you register, we store your name and email address to manage your account." },
-    { h: "Cookies", p: "We use technically necessary cookies as well as third-party cookies (map, fonts). Details can be found in our Cookie Policy." },
-    { h: "Your Rights", p: "You have the right to access, correct and delete your data at any time. Requests to: {mail}" },
-  ],
-  cookies: [
-    { h: "What are cookies?", p: "Cookies are small text files stored on your device when you visit a website. They help save your preferences and improve your browsing experience." },
-    {
-      h: "How we use cookies",
-      p: "EAT THIS uses minimal cookies, mainly from third parties:",
-      list: [
-        { strong: "Google Fonts", text: " \u2014 fonts for better typography" },
-        { strong: "Leaflet / CartoDB", text: " \u2014 tiles for our Food Map" },
-        { strong: "Instagram / Meta", text: " \u2014 embedded posts" },
-      ],
-    },
-    { h: "Managing cookies", p: "You can block or delete cookies at any time in your browser settings. Some features of the site may be limited as a result." },
-    { h: "Contact", p: "Questions? {mail}" },
-  ],
-};

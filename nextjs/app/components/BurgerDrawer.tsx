@@ -15,8 +15,7 @@ export default function BurgerDrawer() {
   const { isDark, toggleTheme } = useTheme();
 
   const handleLoginBtn = useCallback(() => {
-    document.getElementById('burgerDrawer')?.classList.remove('active');
-    document.body.style.overflow = '';
+    document.getElementById('burgerClose')?.click();
     if (user) {
       const href = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
       window.location.assign(href);
@@ -34,12 +33,36 @@ export default function BurgerDrawer() {
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
-        <nav className="burger-nav">
-          <LocaleLink href="/about" className="burger-nav-item burger-nav-item--sm" id="openAbout">{t('burger.about')}</LocaleLink>
-          <LocaleLink href="/contact" className="burger-nav-item burger-nav-item--sm" id="openContact">{t('burger.contact')}</LocaleLink>
-          <LocaleLink href="/press" className="burger-nav-item burger-nav-item--sm" id="openPress">{t('burger.press')}</LocaleLink>
-          <LocaleLink href="/impressum" className="burger-nav-item burger-nav-item--sm" id="openImpressum">{t('burger.impressum')}</LocaleLink>
+        <nav className="burger-primary" aria-label="Primary">
+          <LocaleLink href="/news" className="burger-primary-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+              <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
+            </svg>
+            <span>{t('footer.news')}</span>
+          </LocaleLink>
+          <LocaleLink href="/map" className="burger-primary-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+              <line x1="9" y1="3" x2="9" y2="18"/>
+              <line x1="15" y1="6" x2="15" y2="21"/>
+            </svg>
+            <span>{t('footer.map')}</span>
+          </LocaleLink>
+          {/* Pre-hydration bootstrap in [locale]/layout.tsx may set .logged-in
+              + username from _authHint, and BridgeAuth overwrites the span on
+              auth state change. Suppress hydration warnings on both. */}
+          <button type="button" className="burger-primary-item" id="loginBtn" onClick={handleLoginBtn} suppressHydrationWarning>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span suppressHydrationWarning>{t('footer.signIn')}</span>
+          </button>
         </nav>
+
+        <hr className="burger-section-divider" aria-hidden="true" />
+
         <div className="burger-utils">
           <button className="burger-util-btn" id="burgerSearchTrigger">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -60,17 +83,16 @@ export default function BurgerDrawer() {
             </svg>
             Instagram
           </a>
-          {/* Pre-hydration bootstrap in layout.tsx may set .logged-in + username
-              from the _authHint localStorage snapshot, so suppress hydration
-              warnings on this button and its label span. */}
-          <button className="burger-util-btn" id="loginBtn" onClick={handleLoginBtn} suppressHydrationWarning>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
-            <span suppressHydrationWarning>{t('footer.signIn')}</span>
-          </button>
         </div>
+
+        <hr className="burger-section-divider" aria-hidden="true" />
+
+        <nav className="burger-secondary" aria-label="More">
+          <LocaleLink href="/about" className="burger-secondary-item" id="openAbout">{t('burger.about')}</LocaleLink>
+          <LocaleLink href="/contact" className="burger-secondary-item" id="openContact">{t('burger.contact')}</LocaleLink>
+          <LocaleLink href="/press" className="burger-secondary-item" id="openPress">{t('burger.press')}</LocaleLink>
+          <LocaleLink href="/impressum" className="burger-secondary-item" id="openImpressum">{t('burger.impressum')}</LocaleLink>
+        </nav>
         <div className="burger-theme-row">
           <button type="button" className="theme-toggle" aria-label="Toggle dark mode" aria-pressed={isDark} onClick={toggleTheme} suppressHydrationWarning>
             <span className="theme-toggle-track">

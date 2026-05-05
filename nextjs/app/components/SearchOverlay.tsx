@@ -49,7 +49,7 @@ export default function SearchOverlay() {
   useEffect(() => {
     if (!open) return;
 
-    document.getElementById('burgerDrawer')?.classList.remove('active');
+    document.getElementById('burgerClose')?.click();
     document.body.style.overflow = 'hidden';
 
     const focusTimer = setTimeout(() => inputRef.current?.focus(), 80);

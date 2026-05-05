@@ -24,24 +24,38 @@ export default function SiteNav() {
     }
   }, [user, locale]);
 
-  // Wire burger toggle here so it works on every (spa) route, including
-  // /profile which doesn't render SPAShell (and therefore no BurgerDrawer).
-  // On SPA pages app.min.js also attaches to these IDs — both are additive
-  // and idempotent (classList.add/remove is safe to call twice).
   useEffect(() => {
     const drawer   = document.getElementById('burgerDrawer');
     const openBtn  = document.getElementById('burgerBtn');
     const closeBtn = document.getElementById('burgerClose');
     const backdrop = document.getElementById('burgerBackdrop');
-    if (!drawer) return; // not present on this route — nothing to wire
+    if (!drawer) return;
 
-    const open  = () => drawer.classList.add('active');
-    // Also clear any body overflow lock set by app.min.js's S.lock() so
-    // scroll is always restored when the burger closes via the React handler.
-    const close = () => {
-      drawer.classList.remove('active');
-      document.body.style.overflow = '';
+    let scrollY = 0;
+    const isMobile = () => window.innerWidth < 768;
+    const lock = () => {
+      if (isMobile()) {
+        scrollY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.width = '100%';
+      } else {
+        document.body.style.overflow = 'hidden';
+      }
     };
+    const unlock = () => {
+      if (document.body.style.position === 'fixed') {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        requestAnimationFrame(() => window.scrollTo(0, scrollY));
+      } else {
+        document.body.style.overflow = '';
+      }
+    };
+
+    const open  = () => { drawer.classList.add('active'); lock(); };
+    const close = () => { drawer.classList.remove('active'); unlock(); };
 
     openBtn?.addEventListener('click', open);
     closeBtn?.addEventListener('click', close);

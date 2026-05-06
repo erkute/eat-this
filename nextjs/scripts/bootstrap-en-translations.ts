@@ -96,23 +96,18 @@ interface BezirkSource {
   descriptionEn?: string
 }
 
+// Project all fields with {...} wildcard. createIfNotExists needs the full
+// published doc to clone; partial projections produced incomplete drafts that
+// would lose image/slug/openingHours/etc. on publish (see repair-draft-fields.ts).
 async function fetchRestaurants(): Promise<RestaurantSource[]> {
   return sanity.fetch(
-    `*[_type == "restaurant" && !(_id in path("drafts.**"))] {
-      _id, name,
-      description, descriptionEn,
-      shortDescription, shortDescriptionEn,
-      tip, tipEn,
-      seo { metaTitle, metaTitleEn, metaDescription, metaDescriptionEn }
-    }`,
+    `*[_type == "restaurant" && !(_id in path("drafts.**"))]{...}`,
   )
 }
 
 async function fetchBezirke(): Promise<BezirkSource[]> {
   return sanity.fetch(
-    `*[_type == "bezirk" && !(_id in path("drafts.**"))] {
-      _id, name, description, descriptionEn
-    }`,
+    `*[_type == "bezirk" && !(_id in path("drafts.**"))]{...}`,
   )
 }
 

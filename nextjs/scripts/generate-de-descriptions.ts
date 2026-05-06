@@ -105,20 +105,28 @@ interface BezirkSource {
   description?: string
 }
 
+// Project all fields with {...} wildcard. The script needs the full doc to clone
+// into a draft via createIfNotExists; projecting only the prompt-input fields
+// produced incomplete drafts (missing image, slug, openingHours, etc.). Repaired
+// after the fact via repair-draft-fields.ts.
+//
+// Filter is idempotent on BOTH published and draft state: a restaurant qualifies
+// only if neither the published doc NOR its draft already has a description.
+// Without the draft check, re-runs would re-translate every restaurant whose
+// description lives only in the draft (because publish hasn't happened yet).
 async function fetchRestaurants(): Promise<RestaurantSource[]> {
   return sanity.fetch(
-    `*[_type == "restaurant" && !(_id in path("drafts.**")) && !defined(description)] {
-      _id, name, description, shortDescription, tip,
-      cuisineType, district, address, categories, price, lat, lng, website
-    } | order(name asc)`,
+    `*[_type == "restaurant" && !(_id in path("drafts.**"))
+        && !defined(description)
+        && !defined(*[_id == "drafts." + ^._id][0].description)]{...} | order(name asc)`,
   )
 }
 
 async function fetchBezirke(): Promise<BezirkSource[]> {
   return sanity.fetch(
-    `*[_type == "bezirk" && !(_id in path("drafts.**")) && !defined(description)] {
-      _id, name, description
-    } | order(name asc)`,
+    `*[_type == "bezirk" && !(_id in path("drafts.**"))
+        && !defined(description)
+        && !defined(*[_id == "drafts." + ^._id][0].description)]{...} | order(name asc)`,
   )
 }
 
@@ -276,14 +284,31 @@ async function generateRestaurant(r: RestaurantSource, places: PlaceContext | nu
 
   const userMsg = `SANITY-FAKTEN:\n${JSON.stringify(sanityFacts, null, 2)}\n\nGOOGLE-PLACES-KONTEXT:\n${JSON.stringify(placesFacts, null, 2)}`
 
-  const msg = await anthropic.messages.create({
-    model: TRANSLATION_MODEL,
-    max_tokens: 1024,
-    system: RESTAURANT_PROMPT,
-    messages: [{ role: 'user', content: userMsg }],
-  })
+  const callOnce = async (extraReminder = false) => {
+    const content = extraReminder
+      ? userMsg + '\n\nWICHTIG: Antworte AUSSCHLIESSLICH mit gültigem JSON in der oben definierten Form. Keine deutsche Prosa, keine Erklärungen, keine Markdown-Codeblöcke. Wenn Source-Daten dünn sind, schreibe trotzdem JSON — mit description nur aus Sanity-Fakten und tip/shortDescription auf null falls keine Substanz da ist.'
+      : userMsg
+    const msg = await anthropic.messages.create({
+      model: TRANSLATION_MODEL,
+      max_tokens: 1024,
+      system: RESTAURANT_PROMPT,
+      messages: [{ role: 'user', content }],
+    })
+    return JSON.parse(extractJsonText(msg.content, r._id)) as RestaurantGen
+  }
 
-  const parsed = JSON.parse(extractJsonText(msg.content, r._id)) as RestaurantGen
+  let parsed: RestaurantGen
+  try {
+    parsed = await callOnce(false)
+  } catch (firstErr) {
+    if (firstErr instanceof SyntaxError) {
+      // Model returned prose instead of JSON (typically when Places data is thin).
+      // Retry once with an explicit JSON-only reminder at the end of the user message.
+      parsed = await callOnce(true)
+    } else {
+      throw firstErr
+    }
+  }
 
   if (!parsed.description || parsed.description.length > 320) {
     throw new Error(`description out of bounds (${parsed.description?.length ?? 0} chars) for ${r._id}`)

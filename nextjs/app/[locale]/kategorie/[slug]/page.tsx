@@ -9,6 +9,7 @@ import { CATEGORIES, getCategoryBySlug } from '@/lib/categories'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
+import { pickLocale } from '@/lib/i18n/pickLocale'
 import styles from '../../bezirk/Bezirk.module.css'
 
 interface PageProps {
@@ -63,6 +64,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const { locale, slug } = await params
   setRequestLocale(locale)
   const de = locale === 'de'
+  const loc = de ? 'de' : 'en'
 
   const c = getCategoryBySlug(slug)
   if (!c) notFound()
@@ -138,9 +140,11 @@ export default async function KategorieDetailPage({ params }: PageProps) {
                 {r.cuisineType && <span>{r.cuisineType}</span>}
                 {r.price && <span className={styles.price}>{r.price}</span>}
               </div>
-              {(r.shortDescription || r.tip) && (
-                <p className={styles.cardTip}>{r.shortDescription || r.tip}</p>
-              )}
+              {(() => {
+                const cardLine = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
+                  || pickLocale(r.tip, r.tipEn, loc)
+                return cardLine ? <p className={styles.cardTip}>{cardLine}</p> : null
+              })()}
             </Link>
           ))}
         </section>

@@ -4261,6 +4261,32 @@ body:has(.burger-drawer.active) .burger-btn {
   margin: 0 4px;
   vertical-align: middle;
 }
+/* Mobile: 3×2 grid so all six links sit in equal-width cells. The longest
+   word (DATENSCHUTZ) sets the column width, every label centers within its
+   cell — both rows have identical total width regardless of word length. */
+@media (max-width: 767px) {
+  .site-footer-links {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 0;
+    row-gap: 4px;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  .site-footer-divider {
+    display: none;
+  }
+  .site-footer-link {
+    text-align: center;
+    padding: 6px 4px;
+  }
+  /* Brand-orange link hover/active for tap feedback */
+  .site-footer-link:hover,
+  .site-footer-link:active {
+    color: var(--orange);
+  }
+}
 
 /* Instagram + Language row */
 .site-footer-meta {

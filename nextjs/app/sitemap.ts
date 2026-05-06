@@ -75,7 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   )
 
   const bezirkEntries = bezirke.map(({ slug, updatedAt }) =>
-    withAlternates(`/bezirk/${slug}`, updatedAt, 0.7, 'monthly'),
+    deOnly(`/bezirk/${slug}`, updatedAt, 0.7, 'monthly'),
   )
 
   const kategorieEntries = CATEGORIES.map(c =>

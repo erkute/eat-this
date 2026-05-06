@@ -7,7 +7,6 @@ import { AuthProvider } from '@/lib/auth'
 import SiteNav from '@/app/components/SiteNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
 import NotificationToast from '@/app/components/NotificationToast'
-import BridgeI18n from './BridgeI18n'
 import BridgeAuth from './BridgeAuth'
 
 const SITE_URL = 'https://www.eatthisdot.com'
@@ -63,7 +62,6 @@ export default async function SPALayout({
       <link rel="apple-touch-icon" sizes="192x192" href="/pics/favicon-192.png" />
 
       <AuthProvider>
-        <BridgeI18n />
         <BridgeAuth />
         <SiteNav />
         <BurgerDrawer />

@@ -2,6 +2,12 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 
+declare global {
+  interface Window {
+    showNotification?: (msg: string, duration?: number) => void;
+  }
+}
+
 export default function NotificationToast() {
   const [text, setText] = useState('');
   const [visible, setVisible] = useState(false);

@@ -5,7 +5,9 @@ export interface OpeningHourSlot {
 
 export interface RestaurantSeo {
   metaTitle?: string
+  metaTitleEn?: string
   metaDescription?: string
+  metaDescriptionEn?: string
   ogImageUrl?: string
   noIndex?: boolean
 }
@@ -25,8 +27,11 @@ export interface Restaurant {
   reservationUrl?: string
   openingHours?: OpeningHourSlot[]
   tip?: string
+  tipEn?: string
   shortDescription?: string
+  shortDescriptionEn?: string
   description?: string
+  descriptionEn?: string
   photo?: string
   seo?: RestaurantSeo
 }
@@ -82,6 +87,7 @@ export interface BezirkDoc {
   name: string
   slug: string
   description?: string
+  descriptionEn?: string
   imageUrl?: string
   restaurantCount: number
 }
@@ -94,7 +100,9 @@ export interface RestaurantCard {
   price?: string
   cuisineType?: string
   shortDescription?: string
+  shortDescriptionEn?: string
   tip?: string
+  tipEn?: string
   photo?: string
 }
 

@@ -27,6 +27,19 @@ function withAlternates(path: string, lastModified?: string, priority = 0.5, cha
   }
 }
 
+// DE-only entries: same content has no per-locale variant in Sanity (e.g.
+// /restaurant/x renders identical body for /en/restaurant/x), so don't
+// declare an EN alternate — that's what makes Google treat the EN URL as
+// a duplicate and pick its own canonical.
+function deOnly(path: string, lastModified?: string, priority = 0.5, changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] = 'monthly'): MetadataRoute.Sitemap[number] {
+  return {
+    url: localeUrl('de', path),
+    lastModified,
+    priority,
+    changeFrequency,
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [restaurants, articles, bezirke] = await Promise.all([
     client.fetch<{ slug: string; updatedAt: string }[]>(
@@ -54,7 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   })
 
   const restaurantEntries = restaurants.map(({ slug, updatedAt }) =>
-    withAlternates(`/restaurant/${slug}`, updatedAt, 0.8, 'monthly'),
+    deOnly(`/restaurant/${slug}`, updatedAt, 0.8, 'monthly'),
   )
 
   const articleEntries = articles.map(({ slug, updatedAt }) =>

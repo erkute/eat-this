@@ -32,14 +32,12 @@ function StaticPage({ doc, isActive }: { doc: StaticPageDoc; isActive: boolean }
 }
 
 export default function StaticPages({ pages, activeSlug }: { pages: StaticPageDoc[]; activeSlug?: string }) {
-  const bySlug = new Map(pages.map(p => [p.slug, p]))
-  return (
-    <>
-      {SLUG_ORDER.map(slug => {
-        const doc = bySlug.get(slug)
-        if (!doc) return null
-        return <StaticPage key={slug} doc={doc} isActive={slug === activeSlug} />
-      })}
-    </>
-  )
+  // Render only the active static page — previously rendered all 6, which
+  // gave /about /contact /press /impressum /datenschutz /agb near-identical
+  // HTML bodies (same 6 page contents present, only .active class moved).
+  // Google flagged that as duplicate content → none of them got indexed.
+  if (!activeSlug || !(SLUG_ORDER as readonly string[]).includes(activeSlug)) return null
+  const doc = pages.find(p => p.slug === activeSlug)
+  if (!doc) return null
+  return <StaticPage doc={doc} isActive />
 }

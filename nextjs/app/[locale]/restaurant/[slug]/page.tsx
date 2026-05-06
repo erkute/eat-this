@@ -43,7 +43,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ? `${baseImage}?w=1200&h=630&fit=crop&auto=format`
     : `${SITE_URL}/pics/og-image.jpg`
 
-  const canonical = localeUrl(locale, `/restaurant/${slug}`)
+  // Restaurant content has no per-locale fields in Sanity yet (name, description,
+  // tip, openingHours all render identically for DE and EN). To avoid Google
+  // flagging /en/restaurant/x as a duplicate of /restaurant/x and choosing its
+  // own canonical, we point both DE and EN canonicals at the DE URL and drop the
+  // EN hreflang. When per-locale restaurant content lands in Sanity, restore the
+  // self-canonical + en alternate.
+  const canonical = localeUrl('de', `/restaurant/${slug}`)
 
   return {
     title,
@@ -53,7 +59,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       canonical,
       languages: {
         de: localeUrl('de', `/restaurant/${slug}`),
-        en: localeUrl('en', `/restaurant/${slug}`),
         'x-default': localeUrl('de', `/restaurant/${slug}`),
       },
     },

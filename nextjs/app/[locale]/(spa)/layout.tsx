@@ -7,6 +7,8 @@ import { AuthProvider } from '@/lib/auth'
 import SiteNav from '@/app/components/SiteNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
 import NotificationToast from '@/app/components/NotificationToast'
+import SearchOverlay from '@/app/components/SearchOverlay'
+import CookieConsent from '@/app/components/CookieConsent'
 import BridgeAuth from './BridgeAuth'
 
 const SITE_URL = 'https://www.eatthisdot.com'
@@ -66,7 +68,11 @@ export default async function SPALayout({
         <SiteNav />
         <BurgerDrawer />
         <NotificationToast />
-        {children}
+        <div className="app-pages" id="appPages" suppressHydrationWarning>
+          {children}
+        </div>
+        <SearchOverlay />
+        <CookieConsent />
       </AuthProvider>
     </>
   )

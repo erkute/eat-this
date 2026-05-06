@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { setRequestLocale } from 'next-intl/server'
-import { getArticleBySlug, getAllArticleSlugs } from '@/lib/sanity.server'
+import { getArticleBySlug, getAllArticleSlugs, getAllNewsArticles } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
-import SPAShell from '../../SPAShell'
+import NewsArticleShell from '@/app/components/NewsArticleShell'
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>
@@ -69,7 +69,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function NewsArticlePage({ params }: PageProps) {
   const { locale, slug } = await params
   setRequestLocale(locale)
-  const a = await getArticleBySlug(slug)
+  const [a, relatedArticles] = await Promise.all([
+    getArticleBySlug(slug),
+    getAllNewsArticles(),
+  ])
   if (!a) notFound()
 
   const de = locale === 'de'
@@ -126,7 +129,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
     <>
       {/* JSON-LD: serializeJsonLd escapes </ sequences — safe inline */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-      <SPAShell activePage="news-article" currentArticle={a} locale={locale} />
+      <NewsArticleShell article={a} relatedArticles={relatedArticles} locale={locale} isActive />
     </>
   )
 }

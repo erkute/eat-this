@@ -2,18 +2,21 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { setRequestLocale } from 'next-intl/server'
 import { SITE_URL } from '@/lib/constants'
-import SPAShell from '../SPAShell'
+import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server'
+import NewsSection from '@/app/components/NewsSection'
+import MapSection from '@/app/components/MapSection'
+import StaticPages from '@/app/components/StaticPages'
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string[] }>
 }
 
-// Whitelist of slugs the SPAShell knows how to render. Anything else
-// triggers a real 404 instead of silently rendering the home view.
+// Whitelist of slugs this catch-all renders. Anything else 404s instead of
+// silently dropping the user on the home view. /profile is dispatched by the
+// dedicated /[locale]/profile/page.tsx route — it never reaches this catch-all.
 const VALID_SLUGS = new Set([
   'map',
   'news',
-  'profile',
   'about',
   'contact',
   'press',
@@ -21,6 +24,8 @@ const VALID_SLUGS = new Set([
   'datenschutz',
   'agb',
 ])
+
+const STATIC_SLUGS = new Set(['about', 'contact', 'press', 'impressum', 'datenschutz', 'agb'])
 
 type SlugMeta = {
   de: { title: string; description: string }
@@ -32,11 +37,6 @@ const PAGE_META: Record<string, SlugMeta> = {
   map: {
     de: { title: 'Karte', description: 'Interaktive Karte aller Eat-This-Restaurants und Must-Eats in Berlin.' },
     en: { title: 'Map', description: 'Interactive map of every Eat This restaurant and Must Eat in Berlin.' },
-    noIndex: true,
-  },
-  profile: {
-    de: { title: 'Profil', description: 'Dein Eat-This-Profil — Sammelkarten, Favoriten, Must-Eats.' },
-    en: { title: 'Profile', description: 'Your Eat This profile — collected cards, favourites, Must Eats.' },
     noIndex: true,
   },
   news: {
@@ -105,8 +105,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-// Catch-all for SPA routes: /map, /profile, /about, etc.
-// More-specific routes (/news/[slug], /restaurant/[slug]) take priority.
+// Catch-all for SPA routes: /map, /news, /about, etc. Each top-slug renders
+// only its own section. More-specific routes (/news/[slug], /restaurant/[slug])
+// take priority via Next.js routing precedence.
 export default async function SPACatchAllPage({ params }: PageProps) {
   const { locale, slug } = await params
   setRequestLocale(locale)
@@ -114,5 +115,16 @@ export default async function SPACatchAllPage({ params }: PageProps) {
   const top = slug?.[0]
   if (!top || !VALID_SLUGS.has(top)) notFound()
 
-  return <SPAShell activePage={top} />
+  if (top === 'news') {
+    const articles = await getAllNewsArticles()
+    return <NewsSection articles={articles} isActive />
+  }
+  if (top === 'map') return <MapSection isActive />
+
+  if (STATIC_SLUGS.has(top)) {
+    const pages = await getAllStaticPages()
+    return <StaticPages pages={pages} activeSlug={top} />
+  }
+
+  notFound()
 }

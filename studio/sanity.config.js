@@ -29,6 +29,8 @@ export default defineConfig({
             // ── Other content types ───────────────────────────────────────
             S.documentTypeListItem('mustEat').title('🍽  Must-Eats'),
             S.documentTypeListItem('restaurant').title('📍  Restaurants'),
+            S.documentTypeListItem('bezirk').title('🏙  Bezirke'),
+            S.documentTypeListItem('category').title('🏷  Kategorien'),
           ]),
     }),
     visionTool(),

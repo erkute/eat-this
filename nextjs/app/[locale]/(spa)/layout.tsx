@@ -10,7 +10,6 @@ import BurgerDrawer from '@/app/components/BurgerDrawer'
 import NotificationToast from '@/app/components/NotificationToast'
 import BridgeI18n from './BridgeI18n'
 import BridgeAuth from './BridgeAuth'
-import BridgeCMSData from './BridgeCMSData'
 
 const SITE_URL = 'https://www.eatthisdot.com'
 
@@ -67,7 +66,6 @@ export default async function SPALayout({
       <AuthProvider>
         <BridgeI18n />
         <BridgeAuth />
-        <BridgeCMSData />
         <SiteNav />
         <BurgerDrawer />
         <NotificationToast />

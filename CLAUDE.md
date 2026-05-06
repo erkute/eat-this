@@ -6,7 +6,6 @@ This project has **no production users yet**. When you touch any area that conta
 
 - Password-based auth methods (`signInWithEmailAndPassword`, `createUserWithEmailAndPassword`, `sendPasswordResetEmail`) → remove, only Magic Link + Google are used
 - Legacy `/reset-password*` URLs → no need for redirects, Firebase Console will be repointed
-- `window._sendPasswordReset` and similar globals from BridgeAuth → remove
 - Old translation keys that are no longer referenced → remove
 - Old static HTML at root (`reset-password.html`, etc.) → delete
 
@@ -32,11 +31,10 @@ This repo is occasionally worked on in **multiple Claude sessions simultaneously
 
 `.git/hooks/pre-push` runs the **full** `npm run build` (~30–60 s) before any push that touches `nextjs/`. Mirrors Firebase App Hosting's build step exactly. If it exits non-zero, the push is aborted.
 
-Reason: a parallel session once shipped broken JSX (`<a href="/">` in `reset-password/page.tsx`) that compiled locally but failed Next.js's lint step → four Firebase rollouts in a row failed → no deploys for either session for hours. The hook makes that impossible.
-
 - **Never** run `git push --no-verify` without an explicit user request, even if the hook complains.
 - If the hook reports a build failure, fix the underlying code. The full log is at `/tmp/eat-this-prepush-build.log`.
 - Hook lives in `.git/hooks/pre-push` (shared across worktrees because they all use the same `.git` common dir).
+- Sanity CDN can occasionally time out during static export — retry the push once if the failure is `UND_ERR_CONNECT_TIMEOUT`.
 
 ## Deployment
 
@@ -44,77 +42,37 @@ Reason: a parallel session once shipped broken JSX (`<a href="/">` in `reset-pas
 - Service worker cache bump (`nextjs/public/sw.js` `CACHE_VERSION`) is required when shipping breaking asset changes.
 - CSS source lives in `nextjs/css/`, minified output in `nextjs/public/css/`. Never edit the minified file directly.
 - Build CSS with `npm run build:css` before testing changes — dev doesn't auto-rebuild.
+- Stylesheet cache-bust is the `?v=NN` on the `<link rel="stylesheet">` in `app/[locale]/(spa)/layout.tsx`. Bump on any `style.css` change.
 
-## Routing & i18n (next-intl)
+## Routing & i18n (next-intl v4)
 
-Live structure: DE served at `/`, EN at `/en/...` (Phase A, commit `db0110a`).
+- **DE at `/`, EN at `/en/...`.** `i18n/routing.ts`: locales `['de','en']`, default `'de'`, `localePrefix: 'as-needed'`, `localeDetection: false` (a NEXT_LOCALE cookie or Accept-Language header doesn't auto-redirect — `/` is always DE).
+- Route tree: `app/[locale]/(spa)/{page,[...slug],news/[slug]}` for all SPA routes, `app/[locale]/{restaurant,bezirk,kategorie,profile,login,onboarding}/...` for the rest. App-root exceptions: `welcome/`, `robots.ts`, `sitemap.ts`, `news-sitemap.xml/`.
+- `i18n/request.ts` imports `lib/i18n/translations.ts` as messages — single source of truth.
+- `i18n/navigation.ts` exports the locale-aware `Link`, `useRouter`, `usePathname`, `redirect`, `getPathname` from `createNavigation(routing)`. **Use the intl `Link` for all internal nav** — it handles the `/en` prefix automatically.
+- `middleware.ts`: handles apex→www 308 redirect and `?lang=de/?lang=en` legacy redirects (sets `NEXT_LOCALE` cookie + strips param). Matcher excludes `/api`, `/_next`, static assets, `/welcome`, `/reset-password`.
+- `app/[locale]/layout.tsx` owns the `<html>`/`<body>` and the `CRITICAL_BOOTSTRAP` inline script that runs synchronously in `<head>` before hydration. The bootstrap sets:
+  - `data-theme` on `<html>` (light/dark, from localStorage / prefers-color-scheme)
+  - `data-active-page` on `<html>` (start/news/map/profile/news-article/about/...) — read by CSS selectors like `[data-active-page="start"] .navbar:not(.scrolled)`
+  - `history.scrollRestoration = 'manual'`
+  - `screen.orientation.lock('portrait')` on mobile
+  - Pre-hydration login button state from `localStorage._authHint`
+- `useTranslation()` in `lib/i18n/I18nContext.tsx` wraps next-intl, exposes `{ lang, t, setLang, applyTranslations }`. `setLang` does a full-page reload (`window.location.assign`) — kept that way for now because some legacy `<a class="lang-btn">` clicks rely on a fresh DOM.
 
-- Route tree: `app/[locale]/(spa)/...` and `app/[locale]/restaurant/...`. Exceptions at app root: `reset-password/`, `robots.ts`, `sitemap.ts`, `news-sitemap.xml/`.
-- `i18n/routing.ts` defines locales `['de','en']`, default `'de'`, `localePrefix: 'as-needed'`.
-- `i18n/request.ts` imports the existing `lib/i18n/translations.ts` as messages — do not duplicate.
-- `middleware.ts` handles `?lang=en` / `?lang=de` legacy redirects to `/en/...` or strips the param. Matcher excludes `/reset-password`, `/api`, `/_next`, static asset folders.
-- Root `app/layout.tsx` is a minimal pass-through; `<html>`/`<body>` live in `app/[locale]/layout.tsx` so `lang` is locale-aware.
-- `useTranslation()` in `lib/i18n/I18nContext.tsx` is a thin wrapper over next-intl — keeps the legacy `{ lang, t, setLang, applyTranslations }` API so components don't need rewriting. `setLang` does a full-page reload (`window.location.assign`) because the legacy minified JS relies on DOMContentLoaded re-running for the new locale.
-- Internal links use `app/components/LocaleLink.tsx` — plain `<a>` with locale-aware href prefix. Never use `next/link` for SPA nav while legacy init is still in play: client-side soft-nav skips `DOMContentLoaded` and breaks map/album init.
+## Modals
 
-## Legacy JS bridge shims (remove with Phase B)
+Live React modals: `agbModal`, `datenschutzModal` (rendered by `CookieConsent.tsx` via `MODAL_BODIES` in `lib/i18n/translations.ts`), `welcomeModal` (`WelcomeModal.tsx`). Login modal lives in `BridgeAuth.tsx` as a portal — opened from anywhere via `window.openLoginModal()`. AGB/Datenschutz are kept because the welcome-modal signup flow opens them inline so users don't lose their state mid-registration.
 
-Three tiny shims in `public/js/` that make vanilla SPA JS (`app.min.js`, `map-init.min.js`, `i18n.min.js`, `cms.min.js`, `auth.min.js`) cooperate with the new routing. Don't touch without understanding why they exist:
+## Gotchas
 
-- `legacy-domready-shim.js` — `DOMContentLoaded` already fired by the time `afterInteractive` scripts load. Shim queues late handlers on a microtask.
-- `legacy-locale-shim.js` — bridges `/en/*` URL prefix for legacy JS. Sets `window.__basePath` and `window._path()` (pathname with locale stripped), monkey-patches `history.pushState`/`replaceState` to re-prepend the prefix, and dedupes pushState-to-current-URL so back navigation works.
-- `app.min.js` sed-patched: all `window.location.pathname` reads became `window._path()` (commit `e89788c`).
+1. **FOUC of overlay elements.** `.map-spot-overlay`, `.search-overlay`, `.burger-drawer` default to visible because their hide rule lives in `style.min.css` (loaded via `<link>` and may arrive after first paint). The inline-critical hide rule is in `app/globals.css` (Next.js ships it in the app layout CSS bundle). Any new toggle overlay: add `:not(.active) { display: none }` there too.
 
-## Gotchas learned the hard way
+2. **Mobile rubber-band flash.** `html` has explicit `background-color` per theme in `globals.css`, otherwise iOS Safari bounce exposes the browser default. Body bg is also theme-aware. If you change either, test rubber-band overscroll at top and bottom in both light and dark.
 
-1. **Relative asset paths in minified legacy JS break on `/en/` prefix.** `fetch('js/map-init.min.js')` resolves against the current URL, so `/en/map` loads `/en/js/map-init.min.js` (404). Fix: always leading slash. Patched so far: `map-init.min.js`, `css/map.min.css`, `css/leaflet.min.css`, `pics/eat.webp`, `pics/logo.webp`, `pics/globe.webp`, `pics/point_red.webp`. If markers/icons/tiles break again on EN, look here first.
+3. **Restaurant + Bezirk pages have no per-locale fields in Sanity yet.** Their EN URL canonical points to the DE URL (see `app/[locale]/restaurant/[slug]/page.tsx`) and the sitemap drops the EN alternate (`deOnly` helper in `app/sitemap.ts`). Do not "fix" by re-adding EN canonical/hreflang until the schema actually has translated content — Google previously flagged 6 EN restaurant URLs as duplicates and chose its own canonical, that's what we worked around.
 
-2. **FOUC of overlay elements on reload.** `.map-spot-overlay`, `.search-overlay`, `.burger-drawer` default to visible because their hide rule lives in external `style.min.css`. The inline-critical hide rule is in `app/globals.css` (Next.js ships it in the app layout CSS bundle). Any new toggle overlay: add `:not(.active) { display: none }` there, NOT only in `style.css`.
+4. **`StaticPages.tsx` renders only the active page.** It used to render all six (about/contact/press/impressum/datenschutz/agb) on every route, which made the SSR'd HTML almost identical across URLs and Google refused to index them. If you bring it back to "render all", you'll re-introduce the duplicate-content trap.
 
-3. **Mobile rubber-band white flash.** `html` needs an explicit `background-color` (off-white / black per theme) in `globals.css`, otherwise iOS Safari bounce exposes the browser default white.
+5. **Don't run `npm run build` while `npm run dev` is alive.** The build overwrites `.next/` chunks and the dev server then 500s on missing module IDs. Stop dev first, or only run `npm run build:css` (safe) during a dev session.
 
-4. **Map page reload flash of search/nearby.** Those elements are CSS-gated by `.app-page[data-page="map"].map-ready`. `map-init.min.js` adds `map-ready` when Leaflet init starts. If you rewrite map-init, preserve this hook.
-
-5. **`setLang` must full-reload.** Don't try to soft-nav on locale switch while `app.min.js` / `map-init.min.js` / `i18n.min.js` are still loaded — their DOMContentLoaded-bound init will not re-run and the page goes half-stale.
-
-6. **Do not reintroduce dead modals.** The raw-HTML modals for About/Contact/Press/Impressum were removed in Phase B; the burger menu links directly to the full React pages at `/about`, `/contact`, etc. (`StaticPages` component). Still live: `agbModal`, `datenschutzModal`, `cookieInfoModal`, `welcomeModal`, `eatModal` — all now React components. The AGB and Datenschutz modals are specifically kept because the welcome-modal signup flow (`wmAgbTrigger`, `wmDatenschutzTrigger` in `auth.min.js`) opens them inline so users don't lose their registration state.
-
-## Phase B migration — COMPLETE (commit aee4bc0)
-
-`spa-content.ts` is deleted. All HTML migrated to React components:
-
-| Component | File |
-|---|---|
-| MustsSection | `app/components/MustsSection.tsx` |
-| MapSection | `app/components/MapSection.tsx` |
-| NewsSection | `app/components/NewsSection.tsx` |
-| NewsArticleShell | `app/components/NewsArticleShell.tsx` |
-| ProfileSection | `app/components/ProfileSection.tsx` |
-| StaticPages | `app/components/StaticPages.tsx` |
-| EatModal | `app/components/EatModal.tsx` |
-| SearchOverlay | `app/components/SearchOverlay.tsx` |
-| CookieConsent (+AGB/Datenschutz/CookieInfo modals) | `app/components/CookieConsent.tsx` |
-| WelcomeModal | `app/components/WelcomeModal.tsx` |
-
-Onboarding moved out of the SPA shell entirely — it now lives at `/onboarding` (`app/[locale]/onboarding/OnboardingFlow.tsx`) as its own route. The legacy inline `#onboardingOverlay` overlay and its `_obGoTo`/`showOnboarding` globals were removed from `app.min.js` in Phase C PR1 (2026-05-05).
-
-SiteFooter rendered by each page component directly (MustsSection, NewsSection, ProfileSection, StaticPages, NewsArticleShell). Map page excluded — no footer by design.
-
-Note: `CookieConsent.tsx` AGB/Datenschutz/cookie modal bodies are now React-rendered via `MODAL_BODIES` in `lib/i18n/translations.ts`. No more `data-i18n-html` attributes.
-
-## Phase C — progress
-
-Goal: drop all minified legacy bundles (`app.min.js`, `map-init.min.js`, `cms.min.js`, `i18n.min.js`, `auth.min.js`) and the two shims.
-
-Status:
-1. **i18n.min.js** — ✅ DROPPED. `BridgeI18n` covers `window.i18n`. All `data-i18n*` attributes removed.
-2. **auth.min.js** — ✅ DROPPED. `WelcomeModal.tsx` handles auth UI. `BridgeAuth` covers all `window._*` globals and auth-state side effects. `firebase-init.min.js` bridges CDN SDK for remaining legacy scripts (favourites/packs/profile). `openLoginModal` / `openWelcomeModal` both open `#welcomeModal`.
-3. **cms.min.js** — ⏸ BLOCKED. `app.min.js` still calls `window.CMS.*` (fetchMustEats, fetchRestaurants, fetchHeroSettings). Must drop after app.min.js.
-4. **app.min.js** — in progress. 42373 → 41131 B after PR1 (commit `1db7f15`, 2026-05-05) ripped the dead onboarding overlay block (`_obGoTo`/`showOnboarding`/`obStep*`/`obNext*`/`obSkip*`/`obOpenPackBtn` — superseded by the `/onboarding` route). Audit findings for the remaining content:
-   - **Pure dead, safe to rip:** `.hero-slide` slideshow block (~453 B) — DOM never rendered by React.
-   - **Dead inner forEach but live scroll handler:** `.start-img-wrap` parallax IIFE binds scroll on `.app-page[data-page="start"]` (live) but iterates over `.start-img-wrap` nodes (none rendered). Surgical rip possible (~800 B).
-   - **NOT dead, looked dead:** `_startScrollHandler` and `.start-scroll-content` are bound to live React-rendered DOM in SPAShell. `hero-desktop-tagline` is rendered by HeroSection.tsx.
-   - **Bigger than first audit suggested:** `_bindNewsCards` is not just click-binding — it couples to the article-rendering pipeline (`Ne()`/`De()`/`de(slug)`/`ne(card)`/`_pendingArticleSlug`) that fills NewsArticleShell's empty DOM slots after CMS fetch. Migrating it requires moving article-body rendering to RSC/React, not just porting a click handler.
-   - **Bridges live external callers:** `_showSpotDetail`/`_allSpots` are read by `favourites.min.js` even though MapSection is React. Need a React-side bridge before ripping.
-5. **map-init.min.js** — ✅ REPLACED. `MapSection.tsx` is now a full react-map-gl + MapLibre implementation (Carto Positron/Dark Matter tiles, dark-mode detect, restaurant + Must-Eat layers, GPS-based viewport list, Firestore-persisted 200 m Must-Eat unlocks). No `<Script>` tag loads map-init.min.js — it was only fetched dynamically by `app.min.js`, so the file stays on disk until app.min.js is gone too. Hooks/components live under `lib/map/` and `app/components/map/`.
-6. Shims drop automatically once app.min.js is gone.
+6. **`app/favicon.ico` and `public/favicon.ico` collide.** If both exist, the dev server 500s on `/favicon.ico`. Keep only `public/favicon.ico`.

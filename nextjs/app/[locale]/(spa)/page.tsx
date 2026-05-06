@@ -81,7 +81,7 @@ export default async function SPAHomePage({
       <Script id="schema-website" type="application/ld+json" strategy="beforeInteractive">
         {jsonLd}
       </Script>
-      <div className="app-page active" data-page="start" suppressHydrationWarning>
+      <div className="app-page active" data-page="start">
         <HeroSection />
         <div className="start-scroll-content" style={{ paddingTop: 0 }}>
           <HeroIntro />

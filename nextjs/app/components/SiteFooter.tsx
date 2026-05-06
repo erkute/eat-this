@@ -31,7 +31,7 @@ export default function SiteFooter() {
       </nav>
       <div className="site-footer-meta">
         <div className="site-footer-meta-row">
-          <button type="button" className="theme-toggle" id="themeToggleFooter" aria-label="Toggle dark mode" aria-pressed={isDark} onClick={toggleTheme} suppressHydrationWarning>
+          <button type="button" className="theme-toggle" id="themeToggleFooter" aria-label="Toggle dark mode" aria-pressed={isDark} onClick={toggleTheme}>
             <span className="theme-toggle-track">
               <span className="theme-toggle-thumb"></span>
             </span>
@@ -59,7 +59,6 @@ export default function SiteFooter() {
               data-lang="de"
               aria-label="Deutsch"
               onClick={() => setLang('de')}
-              suppressHydrationWarning
             >
               DE
             </button>
@@ -68,7 +67,6 @@ export default function SiteFooter() {
               data-lang="en"
               aria-label="English"
               onClick={() => setLang('en')}
-              suppressHydrationWarning
             >
               EN
             </button>

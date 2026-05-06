@@ -68,7 +68,7 @@ export default async function SPALayout({
         <SiteNav />
         <BurgerDrawer />
         <NotificationToast />
-        <div className="app-pages" id="appPages" suppressHydrationWarning>
+        <div className="app-pages" id="appPages">
           {children}
         </div>
         <SearchOverlay />

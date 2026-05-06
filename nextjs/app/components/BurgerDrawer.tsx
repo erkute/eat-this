@@ -1,18 +1,29 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/lib/useTheme';
 import { routing } from '@/i18n/routing';
-import { Link } from '@/i18n/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 
 export default function BurgerDrawer() {
   const { t, lang, setLang } = useTranslation();
   const { user } = useAuth();
   const locale = useLocale();
   const { isDark, toggleTheme } = useTheme();
+  const pathname = usePathname();
+
+  // Close the drawer whenever the route changes — clicking a Link inside the
+  // drawer would otherwise navigate but leave the panel + backdrop open over
+  // the new page. Triggers the existing close handler wired up in SiteNav.
+  useEffect(() => {
+    const drawer = document.getElementById('burgerDrawer');
+    if (drawer?.classList.contains('active')) {
+      document.getElementById('burgerClose')?.click();
+    }
+  }, [pathname]);
 
   const handleLoginBtn = useCallback(() => {
     document.getElementById('burgerClose')?.click();
@@ -94,7 +105,7 @@ export default function BurgerDrawer() {
           <Link href="/impressum" className="burger-secondary-item" id="openImpressum">{t('burger.impressum')}</Link>
         </nav>
         <div className="burger-theme-row">
-          <button type="button" className="theme-toggle" aria-label="Toggle dark mode" aria-pressed={isDark} onClick={toggleTheme} suppressHydrationWarning>
+          <button type="button" className="theme-toggle" aria-label="Toggle dark mode" aria-pressed={isDark} onClick={toggleTheme}>
             <span className="theme-toggle-track">
               <span className="theme-toggle-thumb"></span>
             </span>
@@ -108,7 +119,6 @@ export default function BurgerDrawer() {
               data-lang="en"
               aria-label="English"
               onClick={() => setLang('en')}
-              suppressHydrationWarning
             >
               EN
             </button>
@@ -117,7 +127,6 @@ export default function BurgerDrawer() {
               data-lang="de"
               aria-label="Deutsch"
               onClick={() => setLang('de')}
-              suppressHydrationWarning
             >
               DE
             </button>

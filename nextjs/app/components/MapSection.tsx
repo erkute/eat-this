@@ -838,7 +838,6 @@ export default function MapSection({ isActive = false }: Props) {
     <div
       className={`app-page${isActive ? ' active' : ''}`}
       data-page="map"
-      suppressHydrationWarning
     >
       {loading ? (
         <div className={styles.loading} role="status" aria-live="polite">

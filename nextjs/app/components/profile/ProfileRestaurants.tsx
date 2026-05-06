@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { useFavorites, type FavoriteEntry } from '@/lib/map/useFavorites';
-import LocaleLink from '@/app/components/LocaleLink';
+import { Link } from '@/i18n/navigation';
 import styles from './ProfileRestaurants.module.css';
 
 interface Props {
@@ -79,7 +79,7 @@ function RestaurantRow({ entry: f, onRemove, onSaveNote }: RowProps) {
         </div>
 
         <div className={styles.actions}>
-          <LocaleLink
+          <Link
             href={f.slug ? `/map?r=${encodeURIComponent(f.slug)}` : '/map'}
             className={styles.mapBtn}
             aria-label={`${f.name} auf der Karte zeigen`}
@@ -90,7 +90,7 @@ function RestaurantRow({ entry: f, onRemove, onSaveNote }: RowProps) {
               <line x1="9" y1="3" x2="9" y2="18" />
               <line x1="15" y1="6" x2="15" y2="21" />
             </svg>
-          </LocaleLink>
+          </Link>
 
           <button
             type="button"

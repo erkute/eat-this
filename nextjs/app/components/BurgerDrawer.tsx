@@ -6,7 +6,7 @@ import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/lib/useTheme';
 import { routing } from '@/i18n/routing';
-import LocaleLink from './LocaleLink';
+import { Link } from '@/i18n/navigation';
 
 export default function BurgerDrawer() {
   const { t, lang, setLang } = useTranslation();
@@ -34,21 +34,21 @@ export default function BurgerDrawer() {
           </svg>
         </button>
         <nav className="burger-primary" aria-label="Primary">
-          <LocaleLink href="/news" className="burger-primary-item">
+          <Link href="/news" className="burger-primary-item">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
               <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
             </svg>
             <span>{t('footer.news')}</span>
-          </LocaleLink>
-          <LocaleLink href="/map" className="burger-primary-item">
+          </Link>
+          <Link href="/map" className="burger-primary-item">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
               <line x1="9" y1="3" x2="9" y2="18"/>
               <line x1="15" y1="6" x2="15" y2="21"/>
             </svg>
             <span>{t('footer.map')}</span>
-          </LocaleLink>
+          </Link>
           {/* Pre-hydration bootstrap in [locale]/layout.tsx may set .logged-in
               + username from _authHint, and BridgeAuth overwrites the span on
               auth state change. Suppress hydration warnings on both. */}
@@ -88,10 +88,10 @@ export default function BurgerDrawer() {
         <hr className="burger-section-divider" aria-hidden="true" />
 
         <nav className="burger-secondary" aria-label="More">
-          <LocaleLink href="/about" className="burger-secondary-item" id="openAbout">{t('burger.about')}</LocaleLink>
-          <LocaleLink href="/contact" className="burger-secondary-item" id="openContact">{t('burger.contact')}</LocaleLink>
-          <LocaleLink href="/press" className="burger-secondary-item" id="openPress">{t('burger.press')}</LocaleLink>
-          <LocaleLink href="/impressum" className="burger-secondary-item" id="openImpressum">{t('burger.impressum')}</LocaleLink>
+          <Link href="/about" className="burger-secondary-item" id="openAbout">{t('burger.about')}</Link>
+          <Link href="/contact" className="burger-secondary-item" id="openContact">{t('burger.contact')}</Link>
+          <Link href="/press" className="burger-secondary-item" id="openPress">{t('burger.press')}</Link>
+          <Link href="/impressum" className="burger-secondary-item" id="openImpressum">{t('burger.impressum')}</Link>
         </nav>
         <div className="burger-theme-row">
           <button type="button" className="theme-toggle" aria-label="Toggle dark mode" aria-pressed={isDark} onClick={toggleTheme} suppressHydrationWarning>
@@ -124,21 +124,21 @@ export default function BurgerDrawer() {
           </div>
         </div>
         <div className="burger-drawer-footer">
-          <LocaleLink
+          <Link
             href="/datenschutz"
             className="burger-drawer-footer-btn"
             id="openDatenschutzFromBurger"
           >
             {t('modals.datenschutz.title')}
-          </LocaleLink>
+          </Link>
           <span>·</span>
-          <LocaleLink
+          <Link
             href="/agb"
             className="burger-drawer-footer-btn"
             id="openAgbFromBurger"
           >
             {t('modals.agb.title')}
-          </LocaleLink>
+          </Link>
         </div>
       </div>
     </div>

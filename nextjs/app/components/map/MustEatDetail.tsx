@@ -5,7 +5,7 @@ import { routing } from '@/i18n/routing'
 import type { MapMustEat } from '@/lib/types'
 import { haversineDistance, formatDistance } from '@/lib/map/distance'
 import type { UserLocation } from '@/lib/map/useUserLocation'
-import LocaleLink from '@/app/components/LocaleLink'
+import { Link } from '@/i18n/navigation'
 import { useTranslation } from '@/lib/i18n'
 import styles from './map.module.css'
 
@@ -198,7 +198,7 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
                   </svg>
                 </button>
               ) : (
-                <LocaleLink href={`/restaurant/${mustEat.restaurant.slug}`} className={styles.mustEatLink}>
+                <Link href={`/restaurant/${mustEat.restaurant.slug}`} className={styles.mustEatLink}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M3 11l9-8 9 8v10a2 2 0 01-2 2h-4v-7H9v7H5a2 2 0 01-2-2V11z" />
                   </svg>
@@ -206,7 +206,7 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={styles.mustEatLinkArrow}>
                     <path d="M5 12h14M13 5l7 7-7 7" />
                   </svg>
-                </LocaleLink>
+                </Link>
               )}
             </div>
 
@@ -336,12 +336,12 @@ export default function MustEatDetail({ mustEat, userLocation, isUnlocked, onUnl
             Google Maps
           </a>
           {isUnlocked && (
-            <LocaleLink
+            <Link
               href={`/restaurant/${mustEat.restaurant.slug}`}
               className={`${styles.btn} ${styles.btnPrimary}`}
             >
               {t('map.viewRestaurant')}
-            </LocaleLink>
+            </Link>
           )}
         </div>
       </div>

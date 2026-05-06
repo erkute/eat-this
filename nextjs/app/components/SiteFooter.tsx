@@ -2,14 +2,14 @@
 
 import { useTranslation } from '@/lib/i18n';
 import { useTheme } from '@/lib/useTheme';
-import LocaleLink from './LocaleLink';
+import { Link } from '@/i18n/navigation';
 
 export default function SiteFooter() {
   const { t, lang, setLang } = useTranslation();
   const { isDark, toggleTheme } = useTheme();
   return (
     <div className="site-footer" role="contentinfo" aria-label="Site footer">
-      <LocaleLink href="/" className="site-footer-logo-link" data-page="start" aria-label="Eat This home">
+      <Link href="/" className="site-footer-logo-link" data-page="start" aria-label="Eat This home">
         <img
           src="/pics/logo2.webp"
           alt="EAT THIS"
@@ -19,15 +19,15 @@ export default function SiteFooter() {
           loading="lazy"
           decoding="async"
         />
-      </LocaleLink>
+      </Link>
       <nav className="site-footer-links" aria-label="Footer navigation">
-        <LocaleLink href="/about" className="site-footer-link" data-page="about">{t('footer.about')}</LocaleLink>
-        <LocaleLink href="/contact" className="site-footer-link" data-page="contact">{t('footer.contact')}</LocaleLink>
-        <LocaleLink href="/press" className="site-footer-link" data-page="press">{t('footer.press')}</LocaleLink>
+        <Link href="/about" className="site-footer-link" data-page="about">{t('footer.about')}</Link>
+        <Link href="/contact" className="site-footer-link" data-page="contact">{t('footer.contact')}</Link>
+        <Link href="/press" className="site-footer-link" data-page="press">{t('footer.press')}</Link>
         <span className="site-footer-divider" aria-hidden="true"></span>
-        <LocaleLink href="/impressum" className="site-footer-link" data-page="impressum">{t('footer.impressum')}</LocaleLink>
-        <LocaleLink href="/datenschutz" className="site-footer-link" data-page="datenschutz">{t('footer.datenschutz')}</LocaleLink>
-        <LocaleLink href="/agb" className="site-footer-link" data-page="agb">{t('footer.agb')}</LocaleLink>
+        <Link href="/impressum" className="site-footer-link" data-page="impressum">{t('footer.impressum')}</Link>
+        <Link href="/datenschutz" className="site-footer-link" data-page="datenschutz">{t('footer.datenschutz')}</Link>
+        <Link href="/agb" className="site-footer-link" data-page="agb">{t('footer.agb')}</Link>
       </nav>
       <div className="site-footer-meta">
         <div className="site-footer-meta-row">

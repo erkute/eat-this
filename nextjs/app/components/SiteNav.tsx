@@ -6,7 +6,7 @@ import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
 import { routing } from '@/i18n/routing';
-import LocaleLink from './LocaleLink';
+import { Link } from '@/i18n/navigation';
 
 // Strip the optional /en prefix to get the route the SPA cares about.
 function stripLocale(path: string): string {
@@ -113,7 +113,7 @@ export default function SiteNav() {
     <>
       <a href="#appPages" className="skip-link">{t('a11y.skip')}</a>
       <nav className="navbar" id="navbar">
-        <LocaleLink href="/" className="navbar-brand" data-page="start">
+        <Link href="/" className="navbar-brand" data-page="start">
           <img
             src="/pics/eat.webp"
             alt="EAT THIS"
@@ -122,21 +122,21 @@ export default function SiteNav() {
             height={36}
             decoding="async"
           />
-        </LocaleLink>
+        </Link>
         <div className="navbar-actions">
-          <LocaleLink href="/news" className={`navbar-icon-btn${activePage === 'news' ? ' active' : ''}`} id="navNewsBtn" aria-label="News" suppressHydrationWarning>
+          <Link href="/news" className={`navbar-icon-btn${activePage === 'news' ? ' active' : ''}`} id="navNewsBtn" aria-label="News" suppressHydrationWarning>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
               <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
             </svg>
-          </LocaleLink>
-          <LocaleLink href="/map" className={`navbar-icon-btn${activePage === 'map' ? ' active' : ''}`} id="navMapBtn" aria-label="Map" suppressHydrationWarning>
+          </Link>
+          <Link href="/map" className={`navbar-icon-btn${activePage === 'map' ? ' active' : ''}`} id="navMapBtn" aria-label="Map" suppressHydrationWarning>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
               <line x1="9" y1="3" x2="9" y2="18"/>
               <line x1="15" y1="6" x2="15" y2="21"/>
             </svg>
-          </LocaleLink>
+          </Link>
           <a
             href={locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`}
             className="navbar-icon-btn"

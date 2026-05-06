@@ -126,7 +126,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
     <>
       {/* JSON-LD: serializeJsonLd escapes </ sequences — safe inline */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-      <SPAShell activePage="news-article" />
+      <SPAShell activePage="news-article" currentArticle={a} locale={locale} />
     </>
   )
 }

@@ -72,12 +72,12 @@ export default async function SPALayout({
         {children}
       </AuthProvider>
 
-      {/* Legacy SPA scripts — load AFTER React hydrates. Will be removed in Phase B. */}
+      {/* Legacy SPA shims — fall away with app.min.js once SPA-routing is migrated. */}
       <Script src="/js/legacy-domready-shim.js" strategy="afterInteractive" />
       <Script src="/js/legacy-locale-shim.js" strategy="beforeInteractive" />
-      <Script src="/js/cms.min.js?v=4" strategy="afterInteractive" />
+      {/* cms.min.js dropped in Phase C — News-Article RSC + Restaurants/MustEats from server-side. */}
       {/* i18n.min.js dropped in Phase C — BridgeI18n provides window.i18n. */}
-      <Script src="/js/app.min.js?v=30" strategy="afterInteractive" />
+      <Script src="/js/app.min.js?v=31" strategy="afterInteractive" />
     </>
   )
 }

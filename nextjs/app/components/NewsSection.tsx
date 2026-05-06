@@ -25,8 +25,8 @@ export default function NewsSection({ articles, isActive = false }: NewsSectionP
   const de = lang === 'de';
   const tickerSlotRef = useRef<HTMLDivElement>(null);
 
-  // Legacy news.min.js fills .news-ticker with marquee children before React
-  // hydrates. Mount the ticker div manually into a slot after hydration so
+  // Legacy app.min.js's De() function fills .news-ticker with marquee children
+  // from .news-card data-titles. Mount the ticker div manually into a slot so
   // React never owns its children.
   useEffect(() => {
     if (tickerSlotRef.current && !tickerSlotRef.current.firstChild) {
@@ -35,7 +35,6 @@ export default function NewsSection({ articles, isActive = false }: NewsSectionP
       ticker.setAttribute('aria-hidden', 'true');
       tickerSlotRef.current.appendChild(ticker);
     }
-    window._bindNewsCards?.();
   }, [articles, lang]);
 
   return (
@@ -107,8 +106,3 @@ export default function NewsSection({ articles, isActive = false }: NewsSectionP
   );
 }
 
-declare global {
-  interface Window {
-    _bindNewsCards?: () => void;
-  }
-}

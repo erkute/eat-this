@@ -7,8 +7,8 @@
  * call window.i18n.{t, setLang, currentLang, applyTranslations}. This component
  * keeps those calls working by syncing the React context into window.i18n.
  *
- * Functions that aren't in the React context yet (renderNewsCards, applyStartContent)
- * are preserved from whatever i18n.min.js put there before React hydrated.
+ * Functions that aren't in the React context yet (applyStartContent) are
+ * preserved from whatever i18n.min.js put there before React hydrated.
  *
  * Remove this file once the SPA migration is complete and i18n.min.js is gone.
  */
@@ -24,7 +24,6 @@ declare global {
       setLang: (lang: Lang) => void;
       currentLang: () => Lang;
       applyTranslations: () => void;
-      renderNewsCards?: () => Promise<void>;
       applyStartContent?: (d: Record<string, string>) => void;
     };
   }
@@ -40,8 +39,6 @@ export default function BridgeI18n() {
   }>({});
 
   // Sync React → window.i18n on every lang change.
-  // News cards are now React-rendered, so renderNewsCards is a no-op that just
-  // re-binds the legacy ticker/reveal logic against the React DOM.
   //
   // i18n.min.js loads AFTER hydration (next/script strategy="afterInteractive")
   // and overwrites window.i18n wholesale. We capture its methods each time we
@@ -71,9 +68,6 @@ export default function BridgeI18n() {
         t,
         currentLang: () => lang,
         applyTranslations,
-        renderNewsCards: async () => {
-          window._bindNewsCards?.();
-        },
         // i18n.min.js used to override the start-page strings from a CMS fetch.
         // Start page is now React-rendered from translations.ts, so a noop is
         // safe — app.min.js still calls this after fetching CMS start content.

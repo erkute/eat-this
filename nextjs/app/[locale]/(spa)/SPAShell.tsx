@@ -18,9 +18,18 @@ import NewsArticleShell from '@/app/components/NewsArticleShell';
 import SearchOverlay from '@/app/components/SearchOverlay';
 import CookieConsent from '@/app/components/CookieConsent';
 import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server';
+import type { NewsArticle } from '@/lib/types';
 
 // Renders the full SPA shell. Used by page.tsx, [...slug]/page.tsx, and news/[slug]/page.tsx.
-export default async function SPAShell({ activePage = 'start' }: { activePage?: string } = {}) {
+export default async function SPAShell({
+  activePage = 'start',
+  currentArticle,
+  locale = 'de',
+}: {
+  activePage?: string;
+  currentArticle?: NewsArticle | null;
+  locale?: string;
+} = {}) {
   const [newsArticles, staticPages] = await Promise.all([
     getAllNewsArticles(),
     getAllStaticPages(),
@@ -51,7 +60,12 @@ export default async function SPAShell({ activePage = 'start' }: { activePage?: 
         <NewsSection articles={newsArticles} isActive={activePage === 'news'} />
         <MapSection isActive={activePage === 'map'} />
         <StaticPages pages={staticPages} activeSlug={activePage} />
-        <NewsArticleShell isActive={activePage === 'news-article'} />
+        <NewsArticleShell
+          article={currentArticle}
+          relatedArticles={newsArticles}
+          locale={locale}
+          isActive={activePage === 'news-article'}
+        />
       </div>
       <SearchOverlay />
       <CookieConsent />

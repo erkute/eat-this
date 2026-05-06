@@ -181,7 +181,15 @@ export const bezirkBySlugQuery = `
     "slug": slug.current,
     description,
     descriptionEn,
-    "imageUrl": image.asset->url + "?w=1600&auto=format&q=85"
+    "imageUrl": image.asset->url + "?w=1600&auto=format&q=85",
+    seo {
+      metaTitle,
+      metaTitleEn,
+      metaDescription,
+      metaDescriptionEn,
+      "ogImageUrl": ogImage.asset->url,
+      noIndex
+    }
   }
 `
 

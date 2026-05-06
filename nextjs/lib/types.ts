@@ -82,6 +82,15 @@ export interface MustEatAlbumCard {
   order?: number
 }
 
+export interface BezirkSeo {
+  metaTitle?: string
+  metaTitleEn?: string
+  metaDescription?: string
+  metaDescriptionEn?: string
+  ogImageUrl?: string
+  noIndex?: boolean
+}
+
 export interface BezirkDoc {
   _id: string
   name: string
@@ -89,6 +98,7 @@ export interface BezirkDoc {
   description?: string
   descriptionEn?: string
   imageUrl?: string
+  seo?: BezirkSeo
   // Optional: only projected by allBezirkeWithStatsQuery; bezirkBySlugQuery does NOT include it.
   restaurantCount?: number
 }

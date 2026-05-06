@@ -35,18 +35,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const de = locale === 'de'
   const loc = de ? 'de' : 'en'
 
-  const title = de
-    ? `Beste Restaurants in ${b.name} — Eat This Berlin`
-    : `Best restaurants in ${b.name} — Eat This Berlin`
-
-  const fallbackDe = `Kuratierte Restaurant-Empfehlungen in ${b.name} (Berlin) — von Frühstück bis Dinner.`
-  const description = pickLocale(
-    b.description || fallbackDe,
-    b.descriptionEn || undefined,
+  const fallbackTitleDe = `Beste Restaurants in ${b.name} — Eat This Berlin`
+  const fallbackTitleEn = `Best restaurants in ${b.name} — Eat This Berlin`
+  const title = pickLocale(
+    b.seo?.metaTitle || fallbackTitleDe,
+    b.seo?.metaTitleEn || fallbackTitleEn,
     loc,
   )
 
-  const image = b.imageUrl || `${SITE_URL}/pics/hero_desktop1.webp`
+  const fallbackDescriptionDe = `Kuratierte Restaurant-Empfehlungen in ${b.name} (Berlin) — von Frühstück bis Dinner.`
+  const description = pickLocale(
+    b.seo?.metaDescription || b.description || fallbackDescriptionDe,
+    b.seo?.metaDescriptionEn || b.descriptionEn || undefined,
+    loc,
+  )
+
+  const baseImage = b.seo?.ogImageUrl || b.imageUrl
+  const image = baseImage || `${SITE_URL}/pics/hero_desktop1.webp`
 
   const hasEn = hasEnContent(b)
   const canonical = hasEn
@@ -62,6 +67,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description,
+    robots: b.seo?.noIndex ? 'noindex,nofollow' : undefined,
     alternates: {
       canonical,
       languages,

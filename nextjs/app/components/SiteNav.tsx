@@ -1,16 +1,32 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
 import { routing } from '@/i18n/routing';
 import LocaleLink from './LocaleLink';
 
+// Strip the optional /en prefix to get the route the SPA cares about.
+function stripLocale(path: string): string {
+  if (path === '/en' || path.startsWith('/en/')) return path.slice(3) || '/';
+  return path;
+}
+
+function pageSlugFromPath(path: string): string {
+  const p = stripLocale(path);
+  if (p === '/') return 'start';
+  if (p.startsWith('/news/') && p.length > 6) return 'news-article';
+  return p.replace(/^\//, '').split('/')[0];
+}
+
 export default function SiteNav() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const locale = useLocale();
+  const pathname = usePathname();
+  const activePage = pageSlugFromPath(pathname);
 
   // Header profile icon: route to /profile if signed in, otherwise open the
   // login modal via window.openLoginModal (set by BridgeAuth as a React portal).
@@ -23,6 +39,32 @@ export default function SiteNav() {
       window.openLoginModal?.();
     }
   }, [user, locale]);
+
+  // navbar.scrolled toggle — replaces app.min.js's at()/je() handlers.
+  // Desktop: window scroll. Mobile + start page: .app-page[data-page="start"]
+  // scroll (since .app-page is the scroll container on mobile). Mobile +
+  // non-start: navbar always non-scrolled.
+  useEffect(() => {
+    const navbar = document.getElementById('navbar');
+    if (!navbar) return;
+    const isMobile = !window.matchMedia('(min-width: 768px)').matches;
+
+    if (!isMobile) {
+      const onScroll = () => navbar.classList.toggle('scrolled', window.scrollY > 60);
+      onScroll();
+      window.addEventListener('scroll', onScroll, { passive: true });
+      return () => window.removeEventListener('scroll', onScroll);
+    }
+    if (activePage === 'start') {
+      const startPage = document.querySelector<HTMLElement>('.app-page[data-page="start"]');
+      if (!startPage) return;
+      const onScroll = () => navbar.classList.toggle('scrolled', startPage.scrollTop > 60);
+      onScroll();
+      startPage.addEventListener('scroll', onScroll, { passive: true });
+      return () => startPage.removeEventListener('scroll', onScroll);
+    }
+    navbar.classList.remove('scrolled');
+  }, [activePage]);
 
   useEffect(() => {
     const drawer   = document.getElementById('burgerDrawer');
@@ -82,13 +124,13 @@ export default function SiteNav() {
           />
         </LocaleLink>
         <div className="navbar-actions">
-          <LocaleLink href="/news" className="navbar-icon-btn" id="navNewsBtn" aria-label="News" suppressHydrationWarning>
+          <LocaleLink href="/news" className={`navbar-icon-btn${activePage === 'news' ? ' active' : ''}`} id="navNewsBtn" aria-label="News" suppressHydrationWarning>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
               <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
             </svg>
           </LocaleLink>
-          <LocaleLink href="/map" className="navbar-icon-btn" id="navMapBtn" aria-label="Map" suppressHydrationWarning>
+          <LocaleLink href="/map" className={`navbar-icon-btn${activePage === 'map' ? ' active' : ''}`} id="navMapBtn" aria-label="Map" suppressHydrationWarning>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
               <line x1="9" y1="3" x2="9" y2="18"/>

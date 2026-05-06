@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { hasLocale } from 'next-intl'
@@ -71,13 +70,6 @@ export default async function SPALayout({
         <NotificationToast />
         {children}
       </AuthProvider>
-
-      {/* Legacy SPA shims — fall away with app.min.js once SPA-routing is migrated. */}
-      <Script src="/js/legacy-domready-shim.js" strategy="afterInteractive" />
-      <Script src="/js/legacy-locale-shim.js" strategy="beforeInteractive" />
-      {/* cms.min.js dropped in Phase C — News-Article RSC + Restaurants/MustEats from server-side. */}
-      {/* i18n.min.js dropped in Phase C — BridgeI18n provides window.i18n. */}
-      <Script src="/js/app.min.js?v=31" strategy="afterInteractive" />
     </>
   )
 }

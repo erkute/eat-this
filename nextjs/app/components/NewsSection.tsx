@@ -25,17 +25,36 @@ export default function NewsSection({ articles, isActive = false }: NewsSectionP
   const de = lang === 'de';
   const tickerSlotRef = useRef<HTMLDivElement>(null);
 
-  // Legacy app.min.js's De() function fills .news-ticker with marquee children
-  // from .news-card data-titles. Mount the ticker div manually into a slot so
-  // React never owns its children.
+  // Build the news ticker marquee from article titles. Mounted manually into
+  // a slot so React never owns the .news-ticker children — the legacy CSS
+  // marquee animation depends on the duplicated children layout.
   useEffect(() => {
-    if (tickerSlotRef.current && !tickerSlotRef.current.firstChild) {
-      const ticker = document.createElement('div');
+    const slot = tickerSlotRef.current;
+    if (!slot) return;
+    let ticker = slot.querySelector<HTMLDivElement>('.news-ticker');
+    if (!ticker) {
+      ticker = document.createElement('div');
       ticker.className = 'news-ticker';
       ticker.setAttribute('aria-hidden', 'true');
-      tickerSlotRef.current.appendChild(ticker);
+      slot.appendChild(ticker);
     }
-  }, [articles, lang]);
+    const titles = articles
+      .map(a => (de && a.titleDe ? a.titleDe : a.title))
+      .filter(Boolean);
+    if (!titles.length) {
+      ticker.textContent = '';
+      return;
+    }
+    const track = document.createElement('div');
+    track.className = 'news-ticker-track';
+    [...titles, ...titles].forEach(title => {
+      const span = document.createElement('span');
+      span.textContent = title;
+      track.appendChild(span);
+    });
+    ticker.textContent = '';
+    ticker.appendChild(track);
+  }, [articles, lang, de]);
 
   return (
     <div className={`app-page${isActive ? ' active' : ''}`} data-page="news" suppressHydrationWarning>

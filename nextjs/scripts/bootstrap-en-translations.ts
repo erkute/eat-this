@@ -205,6 +205,45 @@ function hasEnDescription(doc: { descriptionEn?: string }): boolean {
   return typeof doc.descriptionEn === 'string' && doc.descriptionEn.trim().length > 0
 }
 
+async function patchRestaurantDraft(r: RestaurantSource, t: RestaurantTranslation): Promise<void> {
+  const draftId = r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`
+
+  const topLevelSets: Record<string, string> = {}
+  if (t.descriptionEn != null) topLevelSets.descriptionEn = t.descriptionEn
+  if (t.shortDescriptionEn != null) topLevelSets.shortDescriptionEn = t.shortDescriptionEn
+  if (t.tipEn != null) topLevelSets.tipEn = t.tipEn
+
+  const seoSets: Record<string, string> = {}
+  if (t.metaTitleEn != null) seoSets['seo.metaTitleEn'] = t.metaTitleEn
+  if (t.metaDescriptionEn != null) seoSets['seo.metaDescriptionEn'] = t.metaDescriptionEn
+
+  if (Object.keys(topLevelSets).length === 0 && Object.keys(seoSets).length === 0) return
+
+  const txn = sanity
+    .transaction()
+    .createIfNotExists({ ...r, _id: draftId, _type: 'restaurant' } as { _id: string; _type: 'restaurant' } & Record<string, unknown>)
+    .patch(draftId, p => {
+      let pp = p
+      if (Object.keys(topLevelSets).length > 0) pp = pp.set(topLevelSets)
+      if (Object.keys(seoSets).length > 0) {
+        pp = pp.setIfMissing({ seo: {} }).set(seoSets)
+      }
+      return pp
+    })
+
+  await txn.commit({ autoGenerateArrayKeys: true })
+}
+
+async function patchBezirkDraft(b: BezirkSource, t: BezirkTranslation): Promise<void> {
+  if (t.descriptionEn == null) return
+  const draftId = b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`
+  await sanity
+    .transaction()
+    .createIfNotExists({ ...b, _id: draftId, _type: 'bezirk' } as { _id: string; _type: 'bezirk' } & Record<string, unknown>)
+    .patch(draftId, p => p.set({ descriptionEn: t.descriptionEn as string }))
+    .commit({ autoGenerateArrayKeys: true })
+}
+
 async function main(): Promise<void> {
   const opts = parseArgs()
   console.log(`[bootstrap] type=${opts.type} limit=${opts.limit ?? 'all'} dryRun=${opts.dryRun}`)
@@ -221,7 +260,8 @@ async function main(): Promise<void> {
         if (opts.dryRun) {
           console.log(JSON.stringify(t, null, 2))
         } else {
-          // patch logic in Task 12
+          await patchRestaurantDraft(r, t)
+          console.log(`    → patched draft drafts.${r._id}`)
         }
       } catch (e) {
         console.error(`  ✗ ${r.name} (${r._id}):`, e)
@@ -241,7 +281,8 @@ async function main(): Promise<void> {
         if (opts.dryRun) {
           console.log(JSON.stringify(t, null, 2))
         } else {
-          // patch logic in Task 12
+          await patchBezirkDraft(b, t)
+          console.log(`    → patched draft drafts.${b._id}`)
         }
       } catch (e) {
         console.error(`  ✗ ${b.name} (${b._id}):`, e)

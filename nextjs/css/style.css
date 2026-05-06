@@ -3085,7 +3085,9 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
    DESKTOP APP FRAME (≥ 768px)
    ============================================ */
 @media (min-width: 768px) {
-  body { background: #000; }
+  /* Body bg is theme-aware: line 48 sets #fff for light, line ~2461
+     [data-theme="dark"] body sets #000 for dark. The old letterbox frame
+     forced #000 on desktop, which leaked black rubber-band on light desktop. */
 
   .navbar {
     left: 0; right: 0; transform: none;

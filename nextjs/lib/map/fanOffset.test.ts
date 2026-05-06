@@ -17,10 +17,14 @@ describe('applyFanOffset', () => {
     expect(result[0].displayLng).toBe(13.405)
   })
 
-  it('offsets two must-eats from the same restaurant to different positions', () => {
+  it('fans two must-eats from the same restaurant via rotation, sharing the anchor point', () => {
     const result = applyFanOffset([me('m1', 'r1'), me('m2', 'r1')], 15)
     expect(result).toHaveLength(2)
-    expect(result[0].displayLat).not.toBeCloseTo(result[1].displayLat, 6)
+    expect(result[0].displayLat).toBe(result[1].displayLat)
+    expect(result[0].displayLng).toBe(result[1].displayLng)
+    expect(result[0].fanRotation).not.toBe(result[1].fanRotation)
+    expect(result[0].fanIndex).toBe(0)
+    expect(result[1].fanIndex).toBe(1)
   })
 
   it('keeps must-eats from different restaurants at their own coords', () => {

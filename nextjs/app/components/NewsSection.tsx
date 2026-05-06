@@ -1,13 +1,11 @@
-'use client';
-
-import { useEffect, useRef } from 'react';
-import { useTranslation } from '@/lib/i18n';
+import { getTranslations } from 'next-intl/server';
 import SiteFooter from './SiteFooter';
+import NewsTicker from './NewsTicker';
 import type { NewsArticle } from '@/lib/types';
 
 interface NewsSectionProps {
   articles: NewsArticle[];
-  isActive?: boolean;
+  locale: 'de' | 'en';
 }
 
 function formatDate(iso: string | undefined, lang: 'de' | 'en'): string {
@@ -20,44 +18,16 @@ function formatDate(iso: string | undefined, lang: 'de' | 'en'): string {
   });
 }
 
-export default function NewsSection({ articles, isActive = false }: NewsSectionProps) {
-  const { t, lang } = useTranslation();
-  const de = lang === 'de';
-  const tickerSlotRef = useRef<HTMLDivElement>(null);
+export default async function NewsSection({ articles, locale }: NewsSectionProps) {
+  const t = await getTranslations();
+  const de = locale === 'de';
 
-  // Build the news ticker marquee from article titles. Mounted manually into
-  // a slot so React never owns the .news-ticker children — the legacy CSS
-  // marquee animation depends on the duplicated children layout.
-  useEffect(() => {
-    const slot = tickerSlotRef.current;
-    if (!slot) return;
-    let ticker = slot.querySelector<HTMLDivElement>('.news-ticker');
-    if (!ticker) {
-      ticker = document.createElement('div');
-      ticker.className = 'news-ticker';
-      ticker.setAttribute('aria-hidden', 'true');
-      slot.appendChild(ticker);
-    }
-    const titles = articles
-      .map(a => (de && a.titleDe ? a.titleDe : a.title))
-      .filter(Boolean);
-    if (!titles.length) {
-      ticker.textContent = '';
-      return;
-    }
-    const track = document.createElement('div');
-    track.className = 'news-ticker-track';
-    [...titles, ...titles].forEach(title => {
-      const span = document.createElement('span');
-      span.textContent = title;
-      track.appendChild(span);
-    });
-    ticker.textContent = '';
-    ticker.appendChild(track);
-  }, [articles, lang, de]);
+  const tickerTitles = articles
+    .map(a => (de && a.titleDe ? a.titleDe : a.title))
+    .filter(Boolean);
 
   return (
-    <div className={`app-page${isActive ? ' active' : ''}`} data-page="news" suppressHydrationWarning>
+    <div className="app-page active" data-page="news">
       <section className="news-section" id="news">
         <div className="news-header">
           <div className="news-header-top">
@@ -66,38 +36,22 @@ export default function NewsSection({ articles, isActive = false }: NewsSectionP
           </div>
         </div>
 
-        <div ref={tickerSlotRef} suppressHydrationWarning />
-
+        <NewsTicker titles={tickerTitles} />
 
         <div className="news-grid reveal-stagger">
           {articles.length === 0 ? (
             <p className="news-error">{t('news.errorLoad')}</p>
           ) : (
-            articles.map((a, i) => {
+            articles.map(a => {
               const title = de && a.titleDe ? a.titleDe : a.title;
               const excerpt = de && a.excerptDe ? a.excerptDe : a.excerpt || '';
               const categoryLabel =
                 de && a.categoryLabelDe ? a.categoryLabelDe : a.categoryLabel || '';
-              const content = de && a.contentDe ? a.contentDe : a.content || '';
-              const dateFormatted = formatDate(a.date, lang);
+              const dateFormatted = formatDate(a.date, locale);
               const imageUrl = a.imageUrl || '';
-              const contentStr =
-                Array.isArray(content) ? JSON.stringify(content) : String(content);
 
               return (
-                <article
-                  key={a.slug}
-                  className="news-card"
-                  data-index={i}
-                  data-category={a.category || ''}
-                  data-title={title}
-                  data-img={imageUrl}
-                  data-category-label={categoryLabel}
-                  data-date={dateFormatted}
-                  data-excerpt={excerpt}
-                  data-content={contentStr}
-                  data-slug={a.slug}
-                >
+                <article key={a.slug} className="news-card">
                   <a href={`/news/${a.slug}`}>
                     <div className="news-card-img">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -124,4 +78,3 @@ export default function NewsSection({ articles, isActive = false }: NewsSectionP
     </div>
   );
 }
-

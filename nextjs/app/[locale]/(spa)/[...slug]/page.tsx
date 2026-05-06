@@ -117,7 +117,7 @@ export default async function SPACatchAllPage({ params }: PageProps) {
 
   if (top === 'news') {
     const articles = await getAllNewsArticles()
-    return <NewsSection articles={articles} isActive />
+    return <NewsSection articles={articles} locale={locale as 'de' | 'en'} />
   }
   if (top === 'map') return <MapSection isActive />
 

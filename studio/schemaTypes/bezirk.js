@@ -25,6 +25,13 @@ export default defineType({
       rows: 3,
     }),
     defineField({
+      name: 'descriptionEn',
+      title: 'Description (EN)',
+      type: 'text',
+      rows: 3,
+      description: 'Optional EN override. Leave empty to fall back to German.',
+    }),
+    defineField({
       name: 'image',
       title: 'Bild',
       type: 'image',

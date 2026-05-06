@@ -63,11 +63,27 @@ export default {
       validation: Rule => Rule.max(160),
     },
     {
+      name: 'shortDescriptionEn',
+      title: 'Short Description (EN, SEO)',
+      type: 'text',
+      rows: 2,
+      description: 'Optional EN override. Leave empty to fall back to German. Max 160 characters.',
+      validation: Rule => Rule.max(160),
+    },
+    {
       name: 'description',
       title: 'Beschreibung',
       type: 'text',
       rows: 4,
       description: 'Ausführliche Beschreibung auf der Detail-Seite. Max 300 Zeichen.',
+      validation: Rule => Rule.max(300),
+    },
+    {
+      name: 'descriptionEn',
+      title: 'Description (EN)',
+      type: 'text',
+      rows: 4,
+      description: 'Optional EN override. Leave empty to fall back to German. Max 300 characters.',
       validation: Rule => Rule.max(300),
     },
     {
@@ -84,11 +100,26 @@ export default {
           validation: Rule => Rule.max(60),
         },
         {
+          name: 'metaTitleEn',
+          title: 'Meta Title (EN)',
+          type: 'string',
+          description: 'Optional EN override. Leave empty to fall back to German. Max 60 characters.',
+          validation: Rule => Rule.max(60),
+        },
+        {
           name: 'metaDescription',
           title: 'Meta Description',
           type: 'text',
           rows: 2,
           description: 'Leave empty to use description. Max 160 characters.',
+          validation: Rule => Rule.max(160),
+        },
+        {
+          name: 'metaDescriptionEn',
+          title: 'Meta Description (EN)',
+          type: 'text',
+          rows: 2,
+          description: 'Optional EN override. Leave empty to fall back to German. Max 160 characters.',
           validation: Rule => Rule.max(160),
         },
         {
@@ -229,6 +260,12 @@ export default {
       title: 'Insider Tip',
       type: 'string',
       description: 'Short recommendation shown in the map popup',
+    },
+    {
+      name: 'tipEn',
+      title: 'Insider Tip (EN)',
+      type: 'string',
+      description: 'Optional EN override. Leave empty to fall back to German.',
     },
   ],
   preview: {

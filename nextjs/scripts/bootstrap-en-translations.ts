@@ -113,17 +113,140 @@ async function fetchBezirke(): Promise<BezirkSource[]> {
   )
 }
 
+const TRANSLATION_MODEL = 'claude-sonnet-4-6'
+
+const RESTAURANT_PROMPT = `You are translating restaurant content from German to English for "Eat This Berlin", a curated Berlin food guide. Brand voice: direct, opinionated, concrete. Avoid clickbait phrases ("discover amazing", "must-visit", "hidden gem"). Preserve specifics (dish names, district names, restaurant names, cuisine types) — these stay as they are.
+
+You will receive a JSON object with the German source fields (some may be empty/null). Translate ONLY the fields with German content; for fields that are null or absent in the input, return null in the output. Do NOT invent content.
+
+Length budgets:
+- metaTitleEn: max 60 characters
+- metaDescriptionEn: max 155 characters
+- shortDescriptionEn: max 160 characters
+- tipEn: short, single sentence
+- descriptionEn: keep approximately the same length as the German source, max 300 characters
+
+Return ONLY a JSON object matching this exact shape (no prose, no markdown fence):
+{
+  "descriptionEn": string | null,
+  "shortDescriptionEn": string | null,
+  "tipEn": string | null,
+  "metaTitleEn": string | null,
+  "metaDescriptionEn": string | null
+}`
+
+const BEZIRK_PROMPT = `You are translating Berlin district (Bezirk) content from German to English for "Eat This Berlin". Brand voice: direct, opinionated, concrete. Avoid clickbait. The bezirk name itself is a proper noun and stays untranslated.
+
+Return ONLY this JSON object (no prose, no markdown fence):
+{
+  "descriptionEn": string | null
+}`
+
+interface RestaurantTranslation {
+  descriptionEn: string | null
+  shortDescriptionEn: string | null
+  tipEn: string | null
+  metaTitleEn: string | null
+  metaDescriptionEn: string | null
+}
+
+interface BezirkTranslation {
+  descriptionEn: string | null
+}
+
+function extractJsonText(content: Anthropic.ContentBlock[], docId: string): string {
+  const textBlock = content.find(b => b.type === 'text')
+  if (!textBlock || textBlock.type !== 'text') {
+    throw new Error(`No text block in response for ${docId}`)
+  }
+  return textBlock.text.trim()
+}
+
+async function translateRestaurant(r: RestaurantSource): Promise<RestaurantTranslation> {
+  const source = {
+    name: r.name,
+    description: r.description ?? null,
+    shortDescription: r.shortDescription ?? null,
+    tip: r.tip ?? null,
+    metaTitle: r.seo?.metaTitle ?? null,
+    metaDescription: r.seo?.metaDescription ?? null,
+  }
+  const msg = await anthropic.messages.create({
+    model: TRANSLATION_MODEL,
+    max_tokens: 2048,
+    system: RESTAURANT_PROMPT,
+    messages: [
+      {
+        role: 'user',
+        content: `Restaurant: ${r.name}\n\nGerman source:\n${JSON.stringify(source, null, 2)}`,
+      },
+    ],
+  })
+  return JSON.parse(extractJsonText(msg.content, r._id)) as RestaurantTranslation
+}
+
+async function translateBezirk(b: BezirkSource): Promise<BezirkTranslation> {
+  if (!b.description) return { descriptionEn: null }
+  const msg = await anthropic.messages.create({
+    model: TRANSLATION_MODEL,
+    max_tokens: 1024,
+    system: BEZIRK_PROMPT,
+    messages: [
+      {
+        role: 'user',
+        content: `Bezirk: ${b.name}\n\nGerman source:\n${JSON.stringify({ description: b.description }, null, 2)}`,
+      },
+    ],
+  })
+  return JSON.parse(extractJsonText(msg.content, b._id)) as BezirkTranslation
+}
+
+function hasEnDescription(doc: { descriptionEn?: string }): boolean {
+  return typeof doc.descriptionEn === 'string' && doc.descriptionEn.trim().length > 0
+}
+
 async function main(): Promise<void> {
   const opts = parseArgs()
   console.log(`[bootstrap] type=${opts.type} limit=${opts.limit ?? 'all'} dryRun=${opts.dryRun}`)
 
   if (opts.type === 'restaurant' || opts.type === 'all') {
-    const all = await fetchRestaurants()
-    console.log(`[bootstrap] fetched ${all.length} restaurants`)
+    let docs = await fetchRestaurants()
+    docs = docs.filter(r => !hasEnDescription(r))
+    if (opts.limit !== null) docs = docs.slice(0, opts.limit)
+    console.log(`[bootstrap] restaurants needing translation: ${docs.length}`)
+    for (const r of docs) {
+      try {
+        const t = await translateRestaurant(r)
+        console.log(`  ✓ ${r.name} (${r._id})`)
+        if (opts.dryRun) {
+          console.log(JSON.stringify(t, null, 2))
+        } else {
+          // patch logic in Task 12
+        }
+      } catch (e) {
+        console.error(`  ✗ ${r.name} (${r._id}):`, e)
+      }
+    }
   }
+
   if (opts.type === 'bezirk' || opts.type === 'all') {
-    const all = await fetchBezirke()
-    console.log(`[bootstrap] fetched ${all.length} bezirke`)
+    let docs = await fetchBezirke()
+    docs = docs.filter(b => !hasEnDescription(b))
+    if (opts.limit !== null) docs = docs.slice(0, opts.limit)
+    console.log(`[bootstrap] bezirke needing translation: ${docs.length}`)
+    for (const b of docs) {
+      try {
+        const t = await translateBezirk(b)
+        console.log(`  ✓ ${b.name} (${b._id})`)
+        if (opts.dryRun) {
+          console.log(JSON.stringify(t, null, 2))
+        } else {
+          // patch logic in Task 12
+        }
+      } catch (e) {
+        console.error(`  ✗ ${b.name} (${b._id}):`, e)
+      }
+    }
   }
 }
 

@@ -12,9 +12,12 @@
  *   ANTHROPIC_API_KEY
  *   SANITY_API_WRITE_TOKEN  (Editor role, sanity.io/manage → API → Tokens)
  */
-import 'dotenv/config'
+import { config as loadEnv } from 'dotenv'
 import { createClient } from '@sanity/client'
 import Anthropic from '@anthropic-ai/sdk'
+
+// Next.js convention: secrets live in .env.local, not .env. Load explicitly.
+loadEnv({ path: '.env.local' })
 
 const SANITY_PROJECT_ID = 'ehwjnjr2'
 const SANITY_DATASET = 'production'

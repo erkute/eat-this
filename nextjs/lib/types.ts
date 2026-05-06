@@ -89,7 +89,8 @@ export interface BezirkDoc {
   description?: string
   descriptionEn?: string
   imageUrl?: string
-  restaurantCount: number
+  // Optional: only projected by allBezirkeWithStatsQuery; bezirkBySlugQuery does NOT include it.
+  restaurantCount?: number
 }
 
 export interface RestaurantCard {

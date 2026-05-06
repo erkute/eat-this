@@ -40,10 +40,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     : `Best restaurants in ${b.name} — Eat This Berlin`
 
   const fallbackDe = `Kuratierte Restaurant-Empfehlungen in ${b.name} (Berlin) — von Frühstück bis Dinner.`
-  const fallbackEn = `Curated restaurant picks in ${b.name} (Berlin) — from breakfast to dinner.`
   const description = pickLocale(
     b.description || fallbackDe,
-    b.descriptionEn || fallbackEn,
+    b.descriptionEn || undefined,
     loc,
   )
 

@@ -208,7 +208,7 @@ function hasEnDescription(doc: { descriptionEn?: string }): boolean {
   return typeof doc.descriptionEn === 'string' && doc.descriptionEn.trim().length > 0
 }
 
-async function patchRestaurantDraft(r: RestaurantSource, t: RestaurantTranslation): Promise<void> {
+async function patchRestaurantDraft(r: RestaurantSource, t: RestaurantTranslation): Promise<boolean> {
   const draftId = r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`
 
   const topLevelSets: Record<string, string> = {}
@@ -220,31 +220,38 @@ async function patchRestaurantDraft(r: RestaurantSource, t: RestaurantTranslatio
   if (t.metaTitleEn != null) seoSets['seo.metaTitleEn'] = t.metaTitleEn
   if (t.metaDescriptionEn != null) seoSets['seo.metaDescriptionEn'] = t.metaDescriptionEn
 
-  if (Object.keys(topLevelSets).length === 0 && Object.keys(seoSets).length === 0) return
+  if (Object.keys(topLevelSets).length === 0 && Object.keys(seoSets).length === 0) return false
 
-  const txn = sanity
-    .transaction()
-    .createIfNotExists({ ...r, _id: draftId, _type: 'restaurant' } as { _id: string; _type: 'restaurant' } & Record<string, unknown>)
-    .patch(draftId, p => {
-      let pp = p
-      if (Object.keys(topLevelSets).length > 0) pp = pp.set(topLevelSets)
-      if (Object.keys(seoSets).length > 0) {
-        pp = pp.setIfMissing({ seo: {} }).set(seoSets)
-      }
-      return pp
-    })
+  // Two separate awaits — chained transaction.patch(id, fn) silently no-op'd in
+  // a prior version. createIfNotExists then a standalone patch.commit() is the
+  // unambiguous form.
+  await sanity.createIfNotExists({
+    ...r,
+    _id: draftId,
+    _type: 'restaurant',
+  } as { _id: string; _type: 'restaurant' } & Record<string, unknown>)
 
-  await txn.commit({ autoGenerateArrayKeys: true })
+  let patch = sanity.patch(draftId)
+  if (Object.keys(topLevelSets).length > 0) patch = patch.set(topLevelSets)
+  if (Object.keys(seoSets).length > 0) {
+    patch = patch.setIfMissing({ seo: {} }).set(seoSets)
+  }
+  await patch.commit({ autoGenerateArrayKeys: true })
+  return true
 }
 
-async function patchBezirkDraft(b: BezirkSource, t: BezirkTranslation): Promise<void> {
-  if (t.descriptionEn == null) return
+async function patchBezirkDraft(b: BezirkSource, t: BezirkTranslation): Promise<boolean> {
+  if (t.descriptionEn == null) return false
   const draftId = b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`
-  await sanity
-    .transaction()
-    .createIfNotExists({ ...b, _id: draftId, _type: 'bezirk' } as { _id: string; _type: 'bezirk' } & Record<string, unknown>)
-    .patch(draftId, p => p.set({ descriptionEn: t.descriptionEn as string }))
-    .commit({ autoGenerateArrayKeys: true })
+
+  await sanity.createIfNotExists({
+    ...b,
+    _id: draftId,
+    _type: 'bezirk',
+  } as { _id: string; _type: 'bezirk' } & Record<string, unknown>)
+
+  await sanity.patch(draftId).set({ descriptionEn: t.descriptionEn }).commit()
+  return true
 }
 
 async function main(): Promise<void> {
@@ -263,8 +270,8 @@ async function main(): Promise<void> {
         if (opts.dryRun) {
           console.log(JSON.stringify(t, null, 2))
         } else {
-          await patchRestaurantDraft(r, t)
-          console.log(`    → patched draft drafts.${r._id}`)
+          const wrote = await patchRestaurantDraft(r, t)
+          console.log(wrote ? `    → patched draft drafts.${r._id}` : `    (skipped: no EN fields to set)`)
         }
       } catch (e) {
         console.error(`  ✗ ${r.name} (${r._id}):`, e)
@@ -284,8 +291,8 @@ async function main(): Promise<void> {
         if (opts.dryRun) {
           console.log(JSON.stringify(t, null, 2))
         } else {
-          await patchBezirkDraft(b, t)
-          console.log(`    → patched draft drafts.${b._id}`)
+          const wrote = await patchBezirkDraft(b, t)
+          console.log(wrote ? `    → patched draft drafts.${b._id}` : `    (skipped: no description in source)`)
         }
       } catch (e) {
         console.error(`  ✗ ${b.name} (${b._id}):`, e)

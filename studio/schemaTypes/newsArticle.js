@@ -208,17 +208,32 @@ export default defineType({
       fields: [
         {
           name: 'metaTitle',
-          title: 'Meta-Titel',
+          title: 'Meta-Titel (DE)',
           type: 'string',
-          description: 'Leer lassen → Artikel-Titel wird verwendet. Max. 60 Zeichen.',
+          description: 'Leer lassen → DE-Artikel-Titel wird verwendet. Max. 60 Zeichen.',
+          validation: (Rule) => Rule.max(60),
+        },
+        {
+          name: 'metaTitleEn',
+          title: 'Meta Title (EN)',
+          type: 'string',
+          description: 'Optional EN override. Leer lassen → EN-Titel oder DE-metaTitle wird verwendet. Max. 60 Zeichen.',
           validation: (Rule) => Rule.max(60),
         },
         {
           name: 'metaDescription',
-          title: 'Meta-Beschreibung',
+          title: 'Meta-Beschreibung (DE)',
           type: 'text',
           rows: 3,
-          description: 'Leer lassen → Teaser wird verwendet. Max. 160 Zeichen.',
+          description: 'Leer lassen → DE-Teaser wird verwendet. Max. 160 Zeichen.',
+          validation: (Rule) => Rule.max(160),
+        },
+        {
+          name: 'metaDescriptionEn',
+          title: 'Meta Description (EN)',
+          type: 'text',
+          rows: 3,
+          description: 'Optional EN override. Leer lassen → EN-Teaser oder DE-metaDescription wird verwendet. Max. 160 Zeichen.',
           validation: (Rule) => Rule.max(160),
         },
         {

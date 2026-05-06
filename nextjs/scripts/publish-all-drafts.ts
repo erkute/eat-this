@@ -31,7 +31,9 @@ function requireEnv(name: string): string {
   return v
 }
 
-type DocType = 'restaurant' | 'bezirk'
+type DocType = 'restaurant' | 'bezirk' | 'newsArticle'
+
+const SUPPORTED_TYPES: DocType[] = ['restaurant', 'bezirk', 'newsArticle']
 
 interface CliOptions {
   type: DocType | 'all'
@@ -48,10 +50,10 @@ function parseArgs(): CliOptions {
     else if (arg === '--limit') opts.limit = parseInt(args[++i] ?? '', 10)
     else if (arg === '--type') {
       const v = args[++i]
-      if (v !== 'restaurant' && v !== 'bezirk' && v !== 'all') {
-        throw new Error(`--type must be restaurant|bezirk|all, got "${v}"`)
+      if (v !== 'all' && !SUPPORTED_TYPES.includes(v as DocType)) {
+        throw new Error(`--type must be ${SUPPORTED_TYPES.join('|')}|all, got "${v}"`)
       }
-      opts.type = v
+      opts.type = v as DocType | 'all'
     } else {
       throw new Error(`Unknown arg: ${arg}`)
     }
@@ -65,10 +67,10 @@ function parseArgs(): CliOptions {
 async function listDraftsToPublish(opts: CliOptions): Promise<Array<Record<string, unknown>>> {
   const typeFilter =
     opts.type === 'all'
-      ? `(_type == "restaurant" || _type == "bezirk")`
+      ? `(${SUPPORTED_TYPES.map(t => `_type == "${t}"`).join(' || ')})`
       : `_type == "${opts.type}"`
   return sanity.fetch(
-    `*[${typeFilter} && _id in path("drafts.**")]{...} | order(_type asc, name asc)`,
+    `*[${typeFilter} && _id in path("drafts.**")]{...} | order(_type asc, coalesce(name, titleDe) asc)`,
   )
 }
 
@@ -104,7 +106,8 @@ async function main(): Promise<void> {
 
   for (const draft of drafts) {
     const draftId = draft._id as string
-    const name = (draft.name as string) ?? '<unnamed>'
+    // newsArticle uses titleDe instead of name; fall back so the log line is useful.
+    const name = (draft.name as string) ?? (draft.titleDe as string) ?? (draft.title as string) ?? '<unnamed>'
     const type = draft._type as string
     try {
       if (opts.dryRun) {

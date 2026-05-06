@@ -7,6 +7,7 @@ import { setRequestLocale } from 'next-intl/server'
 import { getBezirkBySlug, getRestaurantsByBezirk, getAllBezirkeWithStats } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
+import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { routing } from '@/i18n/routing'
 import styles from '../Bezirk.module.css'
 
@@ -32,30 +33,39 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const b = await getBezirkBySlug(slug)
   if (!b) return {}
   const de = locale === 'de'
+  const loc = de ? 'de' : 'en'
+
   const title = de
     ? `Beste Restaurants in ${b.name} — Eat This Berlin`
     : `Best restaurants in ${b.name} — Eat This Berlin`
-  const description = b.description ||
-    (de
-      ? `Kuratierte Restaurant-Empfehlungen in ${b.name} (Berlin) — von Frühstück bis Dinner.`
-      : `Curated restaurant picks in ${b.name} (Berlin) — from breakfast to dinner.`)
+
+  const fallbackDe = `Kuratierte Restaurant-Empfehlungen in ${b.name} (Berlin) — von Frühstück bis Dinner.`
+  const fallbackEn = `Curated restaurant picks in ${b.name} (Berlin) — from breakfast to dinner.`
+  const description = pickLocale(
+    b.description || fallbackDe,
+    b.descriptionEn || fallbackEn,
+    loc,
+  )
+
   const image = b.imageUrl || `${SITE_URL}/pics/hero_desktop1.webp`
-  // Bezirk content has no per-locale fields in Sanity yet (b.name and
-  // b.description render identically for DE and EN). Mirror the restaurant
-  // pattern: point both DE and EN canonicals at the DE URL and drop the EN
-  // hreflang so Google doesn't flag /en/bezirk/x as a duplicate of
-  // /bezirk/x and pick its own canonical. Restore self-canonical + en
-  // alternate when per-locale bezirk content lands in Sanity.
-  const canonical = localeUrl('de', `/bezirk/${slug}`)
+
+  const hasEn = hasEnContent(b)
+  const canonical = hasEn
+    ? localeUrl(loc, `/bezirk/${slug}`)
+    : localeUrl('de', `/bezirk/${slug}`)
+
+  const languages: Record<string, string> = {
+    de: localeUrl('de', `/bezirk/${slug}`),
+    'x-default': localeUrl('de', `/bezirk/${slug}`),
+  }
+  if (hasEn) languages.en = localeUrl('en', `/bezirk/${slug}`)
+
   return {
     title,
     description,
     alternates: {
       canonical,
-      languages: {
-        de: localeUrl('de', `/bezirk/${slug}`),
-        'x-default': localeUrl('de', `/bezirk/${slug}`),
-      },
+      languages,
     },
     openGraph: {
       title,
@@ -72,12 +82,15 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   const { locale, slug } = await params
   setRequestLocale(locale)
   const de = locale === 'de'
+  const loc = de ? 'de' : 'en'
 
   const [b, restaurants] = await Promise.all([
     getBezirkBySlug(slug),
     getRestaurantsByBezirk(slug),
   ])
   if (!b) notFound()
+
+  const bezirkDescription = pickLocale(b.description, b.descriptionEn, loc)
 
   const restaurantUrl = (rSlug: string) =>
     locale === 'de' ? `/restaurant/${rSlug}` : `/${locale}/restaurant/${rSlug}`
@@ -124,7 +137,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
             {de ? `Restaurants in ${b.name}` : `Restaurants in ${b.name}`}
           </h1>
           <p className={styles.subtitle}>
-            {b.description ||
+            {bezirkDescription ||
               (de
                 ? `${restaurants.length} kuratierte Spots — von Frühstück bis Dinner.`
                 : `${restaurants.length} curated spots — from breakfast to dinner.`)}
@@ -149,9 +162,11 @@ export default async function BezirkDetailPage({ params }: PageProps) {
                 {r.cuisineType && <span>{r.cuisineType}</span>}
                 {r.price && <span className={styles.price}>{r.price}</span>}
               </div>
-              {(r.shortDescription || r.tip) && (
-                <p className={styles.cardTip}>{r.shortDescription || r.tip}</p>
-              )}
+              {(() => {
+                const cardLine = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
+                  || pickLocale(r.tip, r.tipEn, loc)
+                return cardLine ? <p className={styles.cardTip}>{cardLine}</p> : null
+              })()}
             </Link>
           ))}
         </section>

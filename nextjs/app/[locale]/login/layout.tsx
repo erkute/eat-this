@@ -25,7 +25,7 @@ export default async function LoginLayout({
     <>
       {/* Reuses .wm-* styles from the global stylesheet — same approach as profile layout. */}
       {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/css/style.min.css?v=29" precedence="default" />
+      <link rel="stylesheet" href="/css/style.min.css?v=30" precedence="default" />
       <AuthProvider>{children}</AuthProvider>
     </>
   );

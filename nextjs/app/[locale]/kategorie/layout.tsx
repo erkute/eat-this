@@ -20,7 +20,7 @@ export default async function KategorieLayout({
     <AuthProvider>
       {/* Full SPA stylesheet — needed for SiteNav/burger styling on this non-(spa) route */}
       {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/css/style.min.css?v=29" precedence="default" />
+      <link rel="stylesheet" href="/css/style.min.css?v=30" precedence="default" />
       <SiteNav />
       {children}
     </AuthProvider>

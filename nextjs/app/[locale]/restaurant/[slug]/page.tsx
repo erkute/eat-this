@@ -132,7 +132,7 @@ export default async function RestaurantPage({ params }: PageProps) {
     <>
       {/* Full SPA stylesheet — needed for SiteNav/burger styling on this non-(spa) route */}
       {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/css/style.min.css?v=29" precedence="default" />
+      <link rel="stylesheet" href="/css/style.min.css?v=30" precedence="default" />
       {/* JSON-LD: serializeJsonLd sanitizes output — safe inline structured data */}
       {/* eslint-disable-next-line react/no-danger */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />

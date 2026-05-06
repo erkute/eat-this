@@ -4,9 +4,9 @@ import styles from './landing.module.css';
 import { useTranslation } from '@/lib/i18n';
 
 const FEATURES = [
-  { img: '/pics/map-teaser/map_liste.png',    titleKey: 'landing.mapFeature3Title', bodyKey: 'landing.mapFeature3Body' },
-  { img: '/pics/map-teaser/map_filter.png',   titleKey: 'landing.mapFeature2Title', bodyKey: 'landing.mapFeature2Body' },
-  { img: '/pics/map-teaser/map_must-eat.png', titleKey: 'landing.mapFeature1Title', bodyKey: 'landing.mapFeature1Body' },
+  { img: '/pics/map-teaser/map_liste.webp',    titleKey: 'landing.mapFeature3Title', bodyKey: 'landing.mapFeature3Body' },
+  { img: '/pics/map-teaser/map_filter.webp',   titleKey: 'landing.mapFeature2Title', bodyKey: 'landing.mapFeature2Body' },
+  { img: '/pics/map-teaser/map_must-eat.webp', titleKey: 'landing.mapFeature1Title', bodyKey: 'landing.mapFeature1Body' },
 ] as const;
 
 export default function MapTeaser() {

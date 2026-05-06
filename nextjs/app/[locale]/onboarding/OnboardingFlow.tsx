@@ -216,14 +216,14 @@ export default function OnboardingFlow({
               <div className={styles.mapPair}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/pics/map-teaser/map_must-eat.png"
+                  src="/pics/map-teaser/map_must-eat.webp"
                   alt="Must-Eat Karte"
                   className={`${styles.mapImg} ${styles.mapImgLeft}`}
                   draggable={false}
                 />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/pics/map-teaser/map_liste.png"
+                  src="/pics/map-teaser/map_liste.webp"
                   alt="Karte mit Restaurant-Liste"
                   className={`${styles.mapImg} ${styles.mapImgRight}`}
                   draggable={false}

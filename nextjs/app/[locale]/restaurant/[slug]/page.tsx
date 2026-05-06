@@ -6,6 +6,7 @@ import { getRestaurantBySlug, getAllRestaurantSlugs } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
+import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import SiteNav from '@/app/components/SiteNav'
 import styles from './RestaurantDetail.module.css'
 
@@ -30,26 +31,45 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { locale, slug } = await params
   const r = await getRestaurantBySlug(slug)
   if (!r) return {}
+  const loc = locale === 'de' ? 'de' : 'en'
 
-  const title = r.seo?.metaTitle || `${r.name} — Eat This Berlin`
-  const description =
+  const description = pickLocale(
     r.seo?.metaDescription ||
-    r.shortDescription ||
-    r.description ||
-    r.tip ||
-    `${r.name} in Berlin${r.district ? `, ${r.district}` : ''}.`
+      r.shortDescription ||
+      r.description ||
+      r.tip ||
+      `${r.name} in Berlin${r.district ? `, ${r.district}` : ''}.`,
+    r.seo?.metaDescriptionEn ||
+      r.shortDescriptionEn ||
+      r.descriptionEn ||
+      r.tipEn ||
+      undefined,
+    loc,
+  )
+  const title = pickLocale(
+    r.seo?.metaTitle || `${r.name} — Eat This Berlin`,
+    r.seo?.metaTitleEn || undefined,
+    loc,
+  )
+
   const baseImage = r.seo?.ogImageUrl || r.photo?.split('?')[0]
   const image = baseImage
     ? `${baseImage}?w=1200&h=630&fit=crop&auto=format`
     : `${SITE_URL}/pics/hero_desktop1.webp`
 
-  // Restaurant content has no per-locale fields in Sanity yet (name, description,
-  // tip, openingHours all render identically for DE and EN). To avoid Google
-  // flagging /en/restaurant/x as a duplicate of /restaurant/x and choosing its
-  // own canonical, we point both DE and EN canonicals at the DE URL and drop the
-  // EN hreflang. When per-locale restaurant content lands in Sanity, restore the
-  // self-canonical + en alternate.
-  const canonical = localeUrl('de', `/restaurant/${slug}`)
+  // When EN content exists, restore self-canonical + reciprocal hreflang.
+  // Without EN content, keep the deOnly workaround (both canonicals → DE,
+  // no EN alternate) so Google doesn't see /en as a duplicate.
+  const hasEn = hasEnContent(r)
+  const canonical = hasEn
+    ? localeUrl(loc, `/restaurant/${slug}`)
+    : localeUrl('de', `/restaurant/${slug}`)
+
+  const languages: Record<string, string> = {
+    de: localeUrl('de', `/restaurant/${slug}`),
+    'x-default': localeUrl('de', `/restaurant/${slug}`),
+  }
+  if (hasEn) languages.en = localeUrl('en', `/restaurant/${slug}`)
 
   return {
     title,
@@ -57,10 +77,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     robots: r.seo?.noIndex ? 'noindex,nofollow' : undefined,
     alternates: {
       canonical,
-      languages: {
-        de: localeUrl('de', `/restaurant/${slug}`),
-        'x-default': localeUrl('de', `/restaurant/${slug}`),
-      },
+      languages,
     },
     openGraph: {
       title,
@@ -68,7 +85,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: canonical,
       images: [{ url: image, width: 1200, height: 630, alt: r.name }],
       type: 'website',
-      locale: locale === 'de' ? 'de_DE' : 'en_US',
+      locale: loc === 'de' ? 'de_DE' : 'en_US',
     },
   }
 }
@@ -79,6 +96,12 @@ export default async function RestaurantPage({ params }: PageProps) {
   const r = await getRestaurantBySlug(slug)
   if (!r) notFound()
 
+  const loc = locale === 'de' ? 'de' : 'en'
+
+  const description = pickLocale(r.description, r.descriptionEn, loc)
+  const shortDescription = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
+  const tip = pickLocale(r.tip, r.tipEn, loc)
+
   // serializeJsonLd escapes </ sequences, making this safe for inline JSON-LD
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
@@ -86,7 +109,7 @@ export default async function RestaurantPage({ params }: PageProps) {
       {
         '@type': 'Restaurant',
         name: r.name,
-        description: r.shortDescription || r.description || r.tip,
+        description: shortDescription || description || tip,
         image: r.photo,
         priceRange: r.price,
         servesCuisine: r.categories,
@@ -167,12 +190,12 @@ export default async function RestaurantPage({ params }: PageProps) {
             )}
           </header>
 
-          {r.description && <p className={styles.description}>{r.description}</p>}
+          {description && <p className={styles.description}>{description}</p>}
 
-          {r.tip && (
+          {tip && (
             <div className={styles.tip}>
               <strong>Insider Tip: </strong>
-              {r.tip}
+              {tip}
             </div>
           )}
 

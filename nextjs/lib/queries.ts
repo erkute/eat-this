@@ -7,6 +7,7 @@ export const restaurantBySlugQuery = `
     isClosed,
     cuisineType,
     shortDescription,
+    shortDescriptionEn,
     district,
     "bezirk": bezirkRef->{ _id, name, "slug": slug.current },
     address,
@@ -19,11 +20,15 @@ export const restaurantBySlugQuery = `
     reservationUrl,
     openingHours[] { days, hours },
     tip,
+    tipEn,
     description,
+    descriptionEn,
     "photo": image.asset->url + "?w=1200&auto=format&q=85",
     seo {
       metaTitle,
+      metaTitleEn,
       metaDescription,
+      metaDescriptionEn,
       "ogImageUrl": ogImage.asset->url,
       noIndex
     }
@@ -94,12 +99,14 @@ export const restaurantsByBezirkQuery = `
     "slug": slug.current,
     cuisineType,
     shortDescription,
+    shortDescriptionEn,
     district,
     categories,
     price,
     lat,
     lng,
     tip,
+    tipEn,
     "photo": image.asset->url + "?w=800&auto=format&q=80"
   }
 `
@@ -112,6 +119,7 @@ export const restaurantsByCategoryQuery = `
     "slug": slug.current,
     cuisineType,
     shortDescription,
+    shortDescriptionEn,
     district,
     "bezirk": bezirkRef->{ _id, name, "slug": slug.current },
     categories,
@@ -119,6 +127,7 @@ export const restaurantsByCategoryQuery = `
     lat,
     lng,
     tip,
+    tipEn,
     "photo": image.asset->url + "?w=800&auto=format&q=80"
   }
 `
@@ -171,6 +180,7 @@ export const bezirkBySlugQuery = `
     name,
     "slug": slug.current,
     description,
+    descriptionEn,
     "imageUrl": image.asset->url + "?w=1600&auto=format&q=85"
   }
 `

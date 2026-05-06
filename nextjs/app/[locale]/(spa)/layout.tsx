@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     description:
       "Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must Eats on the interactive map & hunt down the best dishes in the city. Taste it all!",
     url: SITE_URL,
-    images: [{ url: SITE_URL + '/pics/og-image.jpg', width: 1200, height: 630, alt: 'EAT THIS — Berlin Food Guide' }],
+    images: [{ url: SITE_URL + '/pics/hero_desktop1.webp', width: 1672, height: 941, alt: 'EAT THIS — Berlin Food Guide' }],
     locale: 'de_DE',
   },
   twitter: {
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     title: 'EAT THIS — Probably the best food guide you know - We tell you what to eat',
     description:
       "Just Order This: Your curated Berlin food guide. Collect all Eat Cards & discover Must Eats on the interactive map. Taste it all!",
-    images: [SITE_URL + '/pics/og-image.jpg'],
+    images: [SITE_URL + '/pics/hero_desktop1.webp'],
   },
 }
 

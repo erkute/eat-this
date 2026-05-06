@@ -92,9 +92,9 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Cache-first: images (hero, about, local pics — large, rarely change).
-  // Match any image file under /pics/ so hero_desktop.webp, about/*.webp, etc.
-  // all get the long-lived image cache.
+  // Cache-first: images (hero, local pics — large, rarely change).
+  // Match any image file under /pics/ so the hero, login pics, etc. all get
+  // the long-lived image cache.
   if (
     url.pathname.startsWith('/pics/') &&
     /\.(webp|png|jpe?g|svg|gif|avif)$/i.test(url.pathname)

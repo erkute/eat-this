@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const baseImage = a.seo?.ogImageUrl || a.imageUrl?.split('?')[0]
   const image = baseImage
     ? `${baseImage}?w=1200&h=630&fit=crop&auto=format`
-    : `${SITE_URL}/pics/og-image.jpg`
+    : `${SITE_URL}/pics/hero_desktop1.webp`
 
   const canonical = localeUrl(locale, `/news/${slug}`)
 

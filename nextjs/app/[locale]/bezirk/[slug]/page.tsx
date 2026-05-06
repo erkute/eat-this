@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     (de
       ? `Kuratierte Restaurant-Empfehlungen in ${b.name} (Berlin) — von Frühstück bis Dinner.`
       : `Curated restaurant picks in ${b.name} (Berlin) — from breakfast to dinner.`)
-  const image = b.imageUrl || `${SITE_URL}/pics/og-image.jpg`
+  const image = b.imageUrl || `${SITE_URL}/pics/hero_desktop1.webp`
   // Bezirk content has no per-locale fields in Sanity yet (b.name and
   // b.description render identically for DE and EN). Mirror the restaurant
   // pattern: point both DE and EN canonicals at the DE URL and drop the EN

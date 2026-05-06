@@ -3,6 +3,7 @@ import { client } from '@/lib/sanity'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
 import { CATEGORIES } from '@/lib/categories'
+import { hasEnContent } from '@/lib/i18n/pickLocale'
 
 export const revalidate = 0
 
@@ -42,8 +43,8 @@ function deOnly(path: string, lastModified?: string, priority = 0.5, changeFrequ
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [restaurants, articles, bezirke] = await Promise.all([
-    client.fetch<{ slug: string; updatedAt: string }[]>(
-      `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt }`,
+    client.fetch<{ slug: string; updatedAt: string; descriptionEn?: string }[]>(
+      `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt, descriptionEn }`,
       {},
       { next: { revalidate: 3600, tags: ['sitemap-restaurants'] } },
     ),
@@ -52,8 +53,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       {},
       { next: { revalidate: 3600, tags: ['sitemap-articles'] } },
     ),
-    client.fetch<{ slug: string; updatedAt: string }[]>(
-      `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt }`,
+    client.fetch<{ slug: string; updatedAt: string; descriptionEn?: string }[]>(
+      `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt, descriptionEn }`,
       {},
       { next: { revalidate: 3600, tags: ['sitemap-bezirke'] } },
     ),
@@ -66,16 +67,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return withAlternates(p, undefined, priority, changeFrequency)
   })
 
-  const restaurantEntries = restaurants.map(({ slug, updatedAt }) =>
-    deOnly(`/restaurant/${slug}`, updatedAt, 0.8, 'monthly'),
+  const restaurantEntries = restaurants.map(({ slug, updatedAt, descriptionEn }) =>
+    hasEnContent({ descriptionEn })
+      ? withAlternates(`/restaurant/${slug}`, updatedAt, 0.8, 'monthly')
+      : deOnly(`/restaurant/${slug}`, updatedAt, 0.8, 'monthly'),
   )
 
   const articleEntries = articles.map(({ slug, updatedAt }) =>
     withAlternates(`/news/${slug}`, updatedAt, 0.7, 'monthly'),
   )
 
-  const bezirkEntries = bezirke.map(({ slug, updatedAt }) =>
-    deOnly(`/bezirk/${slug}`, updatedAt, 0.7, 'monthly'),
+  const bezirkEntries = bezirke.map(({ slug, updatedAt, descriptionEn }) =>
+    hasEnContent({ descriptionEn })
+      ? withAlternates(`/bezirk/${slug}`, updatedAt, 0.7, 'monthly')
+      : deOnly(`/bezirk/${slug}`, updatedAt, 0.7, 'monthly'),
   )
 
   const kategorieEntries = CATEGORIES.map(c =>

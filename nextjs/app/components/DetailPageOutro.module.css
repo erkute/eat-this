@@ -33,63 +33,48 @@
   color: var(--text-primary);
 }
 
-.body {
-  font-size: 15px;
-  line-height: 1.55;
-  color: var(--text-secondary);
-  margin: 0 0 16px;
-  max-width: 560px;
-}
-
 .mapBlock {
   position: relative;
-  background: var(--surface-card);
-  background:
-    radial-gradient(120% 120% at 100% 0%, color-mix(in srgb, var(--accent) 8%, transparent) 0%, transparent 60%),
-    var(--surface-card);
-  border: 1px solid var(--border-subtle);
-  padding: 28px 22px;
+  display: block;
   margin: 0 0 40px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-card);
+  text-decoration: none;
+  color: inherit;
   overflow: hidden;
+  transition: border-color 0.15s ease, transform 0.2s ease;
 }
 
-.mapBlockText {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+.mapBlock:hover {
+  border-color: var(--border-strong);
 }
 
-.mapBlockPhone {
-  justify-self: center;
-  width: 100%;
-  max-width: 200px;
-  filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.18));
+.mapBlock:hover .mapBlockCta {
+  filter: brightness(0.92);
 }
 
-.mapBlockPhone img {
+.mapBlockPromo {
+  display: block;
   width: 100%;
   height: auto;
-  display: block;
+  object-fit: cover;
 }
 
-.cta {
-  display: inline-block;
+.mapBlockCta {
+  position: absolute;
+  left: 22px;
+  bottom: 22px;
+  display: inline-flex;
+  align-items: center;
   background: var(--accent);
   color: #ffffff;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 12px 24px;
-  text-decoration: none;
+  padding: 12px 22px;
   transition: filter 0.15s ease;
-}
-
-.cta:hover {
-  filter: brightness(0.92);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
 }
 
 .newsHead {
@@ -173,15 +158,13 @@
     margin-top: 72px;
   }
   .mapBlock {
-    grid-template-columns: 1fr 280px;
-    align-items: center;
-    gap: 40px;
-    padding: 36px 32px;
     margin-bottom: 56px;
   }
-  .mapBlockPhone {
-    justify-self: end;
-    max-width: 280px;
+  .mapBlockCta {
+    left: 32px;
+    bottom: 32px;
+    font-size: 14px;
+    padding: 14px 26px;
   }
   .newsGrid {
     grid-template-columns: 1fr 1fr;

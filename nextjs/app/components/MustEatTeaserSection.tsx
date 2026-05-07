@@ -41,21 +41,14 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
             onClick={handleClick}
             aria-label={de ? `${m.dish} freischalten — Login öffnen` : `Unlock ${m.dish} — open login`}
           >
-            <div className={styles.cardImage}>
-              <Image
-                src={m.photo}
-                alt=""
-                fill
-                sizes="(max-width: 720px) 50vw, 240px"
-                aria-hidden="true"
-              />
-            </div>
-            <div className={styles.cardOverlay}>
-              <span className={styles.lock} aria-hidden="true">🔒</span>
-              <span className={styles.cardLabel}>
-                {de ? 'Freischalten' : 'Unlock'}
-              </span>
-            </div>
+            <Image
+              src="/pics/card-back.webp"
+              alt=""
+              fill
+              sizes="(max-width: 720px) 50vw, 200px"
+              className={styles.cardBack}
+              aria-hidden="true"
+            />
           </button>
         ))}
       </div>

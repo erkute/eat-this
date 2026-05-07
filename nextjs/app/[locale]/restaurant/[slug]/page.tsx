@@ -234,7 +234,7 @@ export default async function RestaurantPage({ params }: PageProps) {
 
           <div className={styles.links}>
             <IntlLink href={`/map?r=${r.slug}`} className={`${styles.link} ${styles.linkPrimary}`}>
-              {loc === 'de' ? `${r.name} auf der Map` : `${r.name} on the map`}
+              Eat This Map
             </IntlLink>
             {r.mapsUrl && (
               <a href={r.mapsUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>

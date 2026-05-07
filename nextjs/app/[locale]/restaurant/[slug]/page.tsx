@@ -7,7 +7,6 @@ import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
-import SiteNav from '@/app/components/SiteNav'
 import DetailPageOutro from '@/app/components/DetailPageOutro'
 import styles from './RestaurantDetail.module.css'
 
@@ -157,13 +156,9 @@ export default async function RestaurantPage({ params }: PageProps) {
 
   return (
     <>
-      {/* Full SPA stylesheet — needed for SiteNav/burger styling on this non-(spa) route */}
-      {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/css/style.min.css?v=30" precedence="default" />
       {/* JSON-LD: serializeJsonLd sanitizes output — safe inline structured data */}
       {/* eslint-disable-next-line react/no-danger */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-      <SiteNav />
       <main className={styles.page}>
         <div className={styles.hero}>
           {r.photo && (

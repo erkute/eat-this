@@ -45,9 +45,6 @@ export default function DetailPageOutro({
           sizes="(max-width: 720px) 100vw, 760px"
           priority={false}
         />
-        <span className={styles.mapBlockCta}>
-          {de ? `${bezirkName} auf der Map →` : `${bezirkName} on the map →`}
-        </span>
       </Link>
 
       {newsToShow.length > 0 && (

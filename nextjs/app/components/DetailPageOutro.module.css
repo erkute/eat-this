@@ -1,0 +1,159 @@
+/* DetailPageOutro — cross-promotion block at the bottom of bezirk + restaurant
+   detail pages. Uses semantic tokens so it works in light + dark mode.
+   Mobile-first; news grid splits into 2-col at >=720px. */
+
+.outro {
+  margin-top: 56px;
+  color: var(--text-primary);
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 0 0 36px;
+  border: 0;
+}
+
+.kicker {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+
+.h2 {
+  font-size: clamp(22px, 4.5vw, 28px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+  color: var(--text-primary);
+}
+
+.body {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0 0 16px;
+  max-width: 560px;
+}
+
+.mapBlock {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  padding: 28px 22px;
+  margin: 0 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.cta {
+  display: inline-block;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 12px 24px;
+  text-decoration: none;
+  transition: filter 0.15s ease;
+}
+
+.cta:hover {
+  filter: brightness(0.92);
+}
+
+.newsHead {
+  margin-bottom: 18px;
+}
+
+.newsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.newsCard {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.15s ease;
+}
+
+.newsCard:hover {
+  border-color: var(--border-strong);
+}
+
+.newsImage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--surface-bg);
+  overflow: hidden;
+}
+
+.newsImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.newsBody {
+  padding: 14px 16px 16px;
+}
+
+.newsMeta {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+.newsTitle {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin: 0 0 6px;
+  color: var(--text-primary);
+  /* 2-line clamp keeps cards visually balanced even with long titles. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.newsExcerpt {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (min-width: 720px) {
+  .outro {
+    margin-top: 72px;
+  }
+  .mapBlock {
+    padding: 36px 32px;
+    margin-bottom: 56px;
+  }
+  .newsGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+}

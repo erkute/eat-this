@@ -3,6 +3,8 @@ import { hasLocale } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { AuthProvider } from '@/lib/auth';
+import SiteNav from '@/app/components/SiteNav';
+import BurgerDrawer from '@/app/components/BurgerDrawer';
 
 export default async function RestaurantLayout({
   children,
@@ -15,5 +17,14 @@ export default async function RestaurantLayout({
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
 
-  return <AuthProvider>{children}</AuthProvider>;
+  return (
+    <AuthProvider>
+      {/* Full SPA stylesheet — needed for SiteNav/burger styling on this non-(spa) route */}
+      {/* eslint-disable-next-line @next/next/no-css-tags */}
+      <link rel="stylesheet" href="/css/style.min.css?v=30" precedence="default" />
+      <SiteNav />
+      <BurgerDrawer />
+      {children}
+    </AuthProvider>
+  );
 }

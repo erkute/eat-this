@@ -116,7 +116,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
           <h1 className={styles.title}>
             {label} in Berlin
           </h1>
-          <p className={styles.subtitle}>
+          <p className={styles.description}>
             {de ? c.blurbDe : c.blurbEn}
           </p>
         </header>
@@ -130,21 +130,23 @@ export default async function KategorieDetailPage({ params }: PageProps) {
                     src={r.photo}
                     alt={r.name}
                     fill
-                    sizes="(max-width: 720px) 50vw, (max-width: 1080px) 33vw, 260px"
+                    sizes="(max-width: 720px) 100vw, (max-width: 960px) 50vw, 340px"
                   />
                 </div>
               )}
-              <h2 className={styles.cardName}>{r.name}</h2>
-              <div className={styles.cardMeta}>
-                {r.district && <span>{r.district}</span>}
-                {r.cuisineType && <span>{r.cuisineType}</span>}
-                {r.price && <span className={styles.price}>{r.price}</span>}
+              <div className={styles.cardBody}>
+                <h2 className={styles.cardName}>{r.name}</h2>
+                <div className={styles.cardMeta}>
+                  {r.district && <span>{r.district}</span>}
+                  {r.cuisineType && <span>{r.cuisineType}</span>}
+                  {r.price && <span className={styles.price}>· {r.price}</span>}
+                </div>
+                {(() => {
+                  const cardLine = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
+                    || pickLocale(r.tip, r.tipEn, loc)
+                  return cardLine ? <p className={styles.cardTip}>{cardLine}</p> : null
+                })()}
               </div>
-              {(() => {
-                const cardLine = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
-                  || pickLocale(r.tip, r.tipEn, loc)
-                return cardLine ? <p className={styles.cardTip}>{cardLine}</p> : null
-              })()}
             </Link>
           ))}
         </section>

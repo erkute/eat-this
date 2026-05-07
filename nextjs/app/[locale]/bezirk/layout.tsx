@@ -4,6 +4,7 @@ import { setRequestLocale } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { AuthProvider } from '@/lib/auth'
 import SiteNav from '@/app/components/SiteNav'
+import BurgerDrawer from '@/app/components/BurgerDrawer'
 
 export default async function BezirkLayout({
   children,
@@ -22,6 +23,7 @@ export default async function BezirkLayout({
       {/* eslint-disable-next-line @next/next/no-css-tags */}
       <link rel="stylesheet" href="/css/style.min.css?v=30" precedence="default" />
       <SiteNav />
+      <BurgerDrawer />
       {children}
     </AuthProvider>
   )

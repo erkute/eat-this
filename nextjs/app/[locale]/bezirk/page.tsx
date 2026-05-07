@@ -85,14 +85,16 @@ export default async function BezirkIndexPage({ params }: PageProps) {
           <h1 className={styles.title}>
             {de ? 'Restaurants nach Bezirk' : 'Restaurants by district'}
           </h1>
-          <p className={styles.subtitle}>
+          <p className={styles.description}>
             {de
               ? 'Wähle einen Bezirk, um die kuratierte Restaurant-Auswahl zu sehen.'
               : 'Pick a district to see the curated restaurant selection.'}
           </p>
         </header>
 
-        <section className={styles.grid}>
+        <hr className={styles.divider} />
+
+        <section className={styles.bezirkGrid}>
           {bezirke.map(b => (
             <Link key={b._id} href={`/bezirk/${b.slug}`} className={styles.bezirkCard}>
               <span className={styles.bezirkName}>{b.name}</span>

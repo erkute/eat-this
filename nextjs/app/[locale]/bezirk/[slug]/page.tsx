@@ -138,16 +138,22 @@ export default async function BezirkDetailPage({ params }: PageProps) {
       <main className={styles.page}>
         <header className={styles.header}>
           <div className={styles.kicker}>{de ? 'Bezirk' : 'District'}</div>
-          <h1 className={styles.title}>
-            {de ? `Restaurants in ${b.name}` : `Restaurants in ${b.name}`}
-          </h1>
-          <p className={styles.subtitle}>
-            {bezirkDescription ||
-              (de
-                ? `${restaurants.length} kuratierte Spots — von Frühstück bis Dinner.`
-                : `${restaurants.length} curated spots — from breakfast to dinner.`)}
-          </p>
+          <h1 className={styles.title}>{b.name}</h1>
+          {(bezirkDescription || restaurants.length > 0) && (
+            <p className={styles.description}>
+              {bezirkDescription ||
+                (de
+                  ? `${restaurants.length} kuratierte Spots — von Frühstück bis Dinner.`
+                  : `${restaurants.length} curated spots — from breakfast to dinner.`)}
+            </p>
+          )}
         </header>
+
+        <hr className={styles.divider} />
+
+        <div className={styles.sectionLabel}>
+          {restaurants.length} {de ? 'Restaurants' : 'Restaurants'}
+        </div>
 
         <section className={styles.grid}>
           {restaurants.map(r => (
@@ -158,20 +164,22 @@ export default async function BezirkDetailPage({ params }: PageProps) {
                     src={r.photo}
                     alt={r.name}
                     fill
-                    sizes="(max-width: 720px) 50vw, (max-width: 1080px) 33vw, 260px"
+                    sizes="(max-width: 720px) 100vw, (max-width: 960px) 50vw, 340px"
                   />
                 </div>
               )}
-              <h2 className={styles.cardName}>{r.name}</h2>
-              <div className={styles.cardMeta}>
-                {r.cuisineType && <span>{r.cuisineType}</span>}
-                {r.price && <span className={styles.price}>{r.price}</span>}
+              <div className={styles.cardBody}>
+                <h2 className={styles.cardName}>{r.name}</h2>
+                <div className={styles.cardMeta}>
+                  {r.cuisineType && <span>{r.cuisineType}</span>}
+                  {r.price && <span className={styles.price}>· {r.price}</span>}
+                </div>
+                {(() => {
+                  const cardLine = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
+                    || pickLocale(r.tip, r.tipEn, loc)
+                  return cardLine ? <p className={styles.cardTip}>{cardLine}</p> : null
+                })()}
               </div>
-              {(() => {
-                const cardLine = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
-                  || pickLocale(r.tip, r.tipEn, loc)
-                return cardLine ? <p className={styles.cardTip}>{cardLine}</p> : null
-              })()}
             </Link>
           ))}
         </section>

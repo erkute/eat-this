@@ -86,14 +86,14 @@ export default async function KategorieIndexPage({ params }: PageProps) {
           <h1 className={styles.title}>
             {de ? 'Restaurants nach Kategorie' : 'Restaurants by category'}
           </h1>
-          <p className={styles.subtitle}>
+          <p className={styles.description}>
             {de
               ? 'Wähle, wonach Dir gerade ist — von Frühstück bis Pizza.'
               : 'Pick by occasion — from breakfast to pizza.'}
           </p>
         </header>
 
-        <section className={styles.grid}>
+        <section className={styles.bezirkGrid}>
           {CATEGORIES.map(c => {
             const count = counts[c.value] ?? 0
             return (

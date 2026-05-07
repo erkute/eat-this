@@ -188,14 +188,6 @@ export default async function RestaurantPage({ params }: PageProps) {
               {r.district && <span className={styles.district}>{r.district}</span>}
               {r.price && <span className={styles.price}>{r.price}</span>}
             </div>
-            {r.cuisineType && <p className={styles.cuisine}>{r.cuisineType}</p>}
-            {r.categories && r.categories.length > 0 && (
-              <div className={styles.categories}>
-                {r.categories.map((cat: string) => (
-                  <span key={cat} className={styles.category}>{cat}</span>
-                ))}
-              </div>
-            )}
             {r.address && (
               <a
                 href={r.mapsUrl ?? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.address)}`}
@@ -205,6 +197,14 @@ export default async function RestaurantPage({ params }: PageProps) {
               >
                 {r.address}
               </a>
+            )}
+            {r.cuisineType && <p className={styles.cuisine}>{r.cuisineType}</p>}
+            {r.categories && r.categories.length > 0 && (
+              <div className={styles.categories}>
+                {r.categories.map((cat: string) => (
+                  <span key={cat} className={styles.category}>{cat}</span>
+                ))}
+              </div>
             )}
           </header>
 

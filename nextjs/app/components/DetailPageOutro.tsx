@@ -35,32 +35,44 @@ export default function DetailPageOutro({
     <section className={styles.outro}>
       <hr className={styles.divider} />
 
-      <Link href={mapHref} className={styles.mapBlock} aria-label={de ? `Entdecke ${bezirkName}` : `Discover ${bezirkName}`}>
-        <span className={styles.mapBlockMobileWrap}>
-          <Image
-            src="/pics/map-promo-mobile.png"
-            alt=""
-            width={918}
-            height={1256}
-            className={styles.mapBlockPromoMobile}
-            sizes="100vw"
-            priority={false}
-          />
-          <span className={styles.mapBlockCta}>
+      <div className={styles.mapBlock}>
+        <div className={styles.mapBlockMobileWrap}>
+          <Link
+            href={mapHref}
+            className={styles.mapBlockImageLink}
+            aria-label={de ? `Entdecke ${bezirkName}` : `Discover ${bezirkName}`}
+          >
+            <Image
+              src="/pics/map-promo-mobile.png"
+              alt=""
+              width={918}
+              height={1256}
+              className={styles.mapBlockPromoMobile}
+              sizes="100vw"
+              priority={false}
+            />
+          </Link>
+          <Link href={mapHref} className={styles.mapBlockCta}>
             {de ? `Entdecke ${bezirkName}` : `Discover ${bezirkName}`}
             <span className={styles.mapBlockCtaArrow} aria-hidden="true">→</span>
-          </span>
-        </span>
-        <Image
-          src="/pics/map-promo.png"
-          alt=""
-          width={1802}
-          height={873}
-          className={styles.mapBlockPromoDesktop}
-          sizes="760px"
-          priority={false}
-        />
-      </Link>
+          </Link>
+        </div>
+        <Link
+          href={mapHref}
+          className={styles.mapBlockDesktopLink}
+          aria-label={de ? `Entdecke ${bezirkName}` : `Discover ${bezirkName}`}
+        >
+          <Image
+            src="/pics/map-promo.png"
+            alt=""
+            width={1802}
+            height={873}
+            className={styles.mapBlockPromoDesktop}
+            sizes="760px"
+            priority={false}
+          />
+        </Link>
+      </div>
 
       {newsToShow.length > 0 && (
         <>

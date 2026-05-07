@@ -49,6 +49,20 @@
   display: block;
 }
 
+.mapBlockImageLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mapBlockDesktopLink {
+  display: none;
+  text-decoration: none;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .mapBlockPromoMobile,
 .mapBlockPromoDesktop {
   display: block;
@@ -59,17 +73,21 @@
   transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), filter 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
-.mapBlockPromoDesktop {
-  display: none;
-}
-
-.mapBlock:hover .mapBlockPromoMobile,
-.mapBlock:hover .mapBlockPromoDesktop {
+.mapBlockImageLink:hover .mapBlockPromoMobile,
+.mapBlockDesktopLink:hover .mapBlockPromoDesktop {
   transform: translateY(-3px);
   filter: drop-shadow(0 22px 40px rgba(0, 0, 0, 0.22));
 }
 
-/* Mobile-only red CTA, glued onto the bottom of the promo image. */
+.mapBlockImageLink:active .mapBlockPromoMobile,
+.mapBlockDesktopLink:active .mapBlockPromoDesktop {
+  transform: translateY(-1px);
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.18)) brightness(0.97);
+}
+
+/* Mobile-only red CTA, glued onto the bottom of the promo image as
+   its own clickable target — so a tap on the button doesn't visually
+   "select" the whole image. */
 .mapBlockCta {
   position: absolute;
   left: 8%;
@@ -84,10 +102,15 @@
   font-size: 16px;
   font-weight: 800;
   letter-spacing: 0.02em;
+  text-decoration: none;
   padding: 16px 22px;
   border-radius: 14px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-  transition: filter 0.2s ease;
+  transition: transform 0.18s cubic-bezier(0.2, 0.7, 0.2, 1),
+              filter 0.18s ease,
+              box-shadow 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .mapBlockCtaArrow {
@@ -96,12 +119,18 @@
   transition: transform 0.2s ease;
 }
 
-.mapBlock:hover .mapBlockCta {
+.mapBlockCta:hover {
   filter: brightness(0.94);
 }
 
-.mapBlock:hover .mapBlockCtaArrow {
+.mapBlockCta:hover .mapBlockCtaArrow {
   transform: translateX(4px);
+}
+
+.mapBlockCta:active {
+  transform: scale(0.96);
+  filter: brightness(0.85);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .newsHead {
@@ -190,8 +219,10 @@
   .mapBlockMobileWrap {
     display: none;
   }
-  .mapBlockPromoDesktop {
+  .mapBlockDesktopLink {
     display: block;
+  }
+  .mapBlockPromoDesktop {
     border-radius: 24px;
   }
   .newsGrid {

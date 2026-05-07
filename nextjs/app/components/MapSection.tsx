@@ -864,6 +864,7 @@ export default function MapSection({ isActive = false }: Props) {
   const bezirkDeepLinkConsumedRef = useRef(false)
   useEffect(() => {
     if (bezirkDeepLinkConsumedRef.current) return
+    if (!isActive) return
     if (restaurants.length === 0) return
     const params = new URLSearchParams(window.location.search)
     const slug = params.get('bezirk')
@@ -899,7 +900,7 @@ export default function MapSection({ isActive = false }: Props) {
     }
     tryFit()
     return () => { cancelled = true }
-  }, [restaurants, sheetView, setSnap])
+  }, [isActive, restaurants, sheetView, setSnap])
 
   const handleBezirkPillReset = useCallback(() => {
     userInteractedRef.current = true

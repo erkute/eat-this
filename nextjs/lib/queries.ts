@@ -220,6 +220,20 @@ export const allNewsArticlesQuery = `
   }
 `
 
+// Latest N news articles — for detail-page outro / home feed
+export const latestNewsArticlesQuery = `
+  *[_type == "newsArticle" && defined(slug.current)] | order(date desc)[0...$limit] {
+    _id,
+    "title": coalesce(title, titleDe),
+    titleDe,
+    "slug": slug.current,
+    date,
+    excerpt, excerptDe,
+    categoryLabel, categoryLabelDe,
+    "imageUrl": image.asset->url + "?w=800&auto=format&q=80"
+  }
+`
+
 // Must Eat cards for a specific restaurant
 export const mustEatsByRestaurantQuery = `
   *[_type == "mustEat" && restaurantRef._ref == $restaurantId] | order(order asc) {

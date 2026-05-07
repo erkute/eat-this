@@ -5,6 +5,7 @@ import {
   articleBySlugQuery,
   allArticleSlugsQuery,
   allNewsArticlesQuery,
+  latestNewsArticlesQuery,
   allStaticPagesQuery,
   allMustEatsAlbumQuery,
   allBezirkeWithStatsQuery,
@@ -118,26 +119,10 @@ export async function getCategoryCounts(): Promise<Record<string, number>> {
   return counts
 }
 
-const latestNewsArticlesQuery = `
-  *[_type == "newsArticle" && defined(slug.current)] | order(date desc)[0...$limit] {
-    _id,
-    title,
-    titleDe,
-    "slug": slug.current,
-    date,
-    excerpt,
-    excerptDe,
-    categoryLabel,
-    categoryLabelDe,
-    "imageUrl": image.asset->url + "?w=800&auto=format&q=80"
-  }
-`
-
 export async function getLatestNewsArticles(limit: number): Promise<NewsArticle[]> {
-  const articles = await client.fetch<NewsArticle[]>(
+  return client.fetch<NewsArticle[]>(
     latestNewsArticlesQuery,
     { limit },
     { next: { revalidate: 3600, tags: ['news'] } },
   )
-  return articles ?? []
 }

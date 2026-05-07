@@ -33,10 +33,11 @@
   color: var(--text-primary);
 }
 
-/* Freigestelltes Banner: kein Frame, kein Slab — das Bild steht für sich.
-   Abgerundete Ecken + dezenter Drop-Shadow für Lift. */
+/* Freigestelltes Banner: Bild steht für sich, dezenter Drop-Shadow für Lift,
+   CTA-Pill in Brand-Rot rechts unter dem Bild. */
 .mapBlock {
-  display: block;
+  display: flex;
+  flex-direction: column;
   margin: 0 0 40px;
   text-decoration: none;
   color: inherit;
@@ -54,6 +55,37 @@
 .mapBlock:hover .mapBlockPromo {
   transform: translateY(-3px);
   filter: drop-shadow(0 22px 40px rgba(0, 0, 0, 0.22));
+}
+
+.mapBlockCta {
+  align-self: flex-end;
+  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 12px 22px;
+  border-radius: 999px;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.mapBlockCtaArrow {
+  font-size: 16px;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.mapBlock:hover .mapBlockCta {
+  filter: brightness(0.92);
+}
+
+.mapBlock:hover .mapBlockCtaArrow {
+  transform: translateX(3px);
 }
 
 .newsHead {

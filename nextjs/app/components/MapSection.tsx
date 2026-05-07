@@ -879,6 +879,8 @@ export default function MapSection({ isActive = false }: Props) {
       return
     }
     bezirkDeepLinkConsumedRef.current = true
+    // Note: unlike the ?r= deep-link, we intentionally keep ?bezirk= in the URL so
+    // the filtered view is bookmark/share-friendly. Reset is via the pill ✕.
     userInteractedRef.current = true
     const bezirkName = match.bezirk.name
     setBezirk(bezirkName)

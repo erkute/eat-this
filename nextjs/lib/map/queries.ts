@@ -5,7 +5,7 @@ export const mapRestaurantsQuery = `
     "slug": slug.current,
     isClosed,
     district,
-    "bezirk": bezirkRef->{name},
+    "bezirk": bezirkRef->{ name, "slug": slug.current },
     address,
     categories,
     price,

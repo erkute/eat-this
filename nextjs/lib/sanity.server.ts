@@ -8,6 +8,7 @@ import {
   latestNewsArticlesQuery,
   allStaticPagesQuery,
   allMustEatsAlbumQuery,
+  mustEatsByRestaurantQuery,
   allBezirkeWithStatsQuery,
   bezirkBySlugQuery,
   restaurantsByBezirkQuery,
@@ -70,6 +71,21 @@ export async function getAllMustEats(): Promise<MustEatAlbumCard[]> {
   return client.fetch<MustEatAlbumCard[]>(
     allMustEatsAlbumQuery,
     {},
+    { next: { revalidate: 3600, tags: ['mustEat'] } }
+  )
+}
+
+export interface MustEatPreview {
+  _id: string
+  dish: string
+  photo: string
+  order?: number
+}
+
+export async function getMustEatsByRestaurant(restaurantId: string): Promise<MustEatPreview[]> {
+  return client.fetch<MustEatPreview[]>(
+    mustEatsByRestaurantQuery,
+    { restaurantId },
     { next: { revalidate: 3600, tags: ['mustEat'] } }
   )
 }

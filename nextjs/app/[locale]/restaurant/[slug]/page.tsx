@@ -2,12 +2,14 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
-import { getRestaurantBySlug, getAllRestaurantSlugs, getLatestNewsArticles } from '@/lib/sanity.server'
+import { getRestaurantBySlug, getAllRestaurantSlugs, getLatestNewsArticles, getMustEatsByRestaurant } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import DetailPageOutro from '@/app/components/DetailPageOutro'
+import MustEatTeaserSection from '@/app/components/MustEatTeaserSection'
+import { Link as IntlLink } from '@/i18n/navigation'
 import styles from './RestaurantDetail.module.css'
 
 interface PageProps {
@@ -93,11 +95,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function RestaurantPage({ params }: PageProps) {
   const { locale, slug } = await params
   setRequestLocale(locale)
-  const [r, latestNews] = await Promise.all([
-    getRestaurantBySlug(slug),
-    getLatestNewsArticles(2),
-  ])
+  const r = await getRestaurantBySlug(slug)
   if (!r) notFound()
+  const [latestNews, mustEats] = await Promise.all([
+    getLatestNewsArticles(2),
+    getMustEatsByRestaurant(r._id),
+  ])
 
   const loc = locale === 'de' ? 'de' : 'en'
 
@@ -171,6 +174,12 @@ export default async function RestaurantPage({ params }: PageProps) {
               className={styles.heroImage}
             />
           )}
+          {r.photo && (
+            <span className={styles.heroCredit} aria-label="Photo credit">
+              <span className={styles.heroCreditIcon} aria-hidden="true">📷</span>
+              via Instagram
+            </span>
+          )}
         </div>
 
         <div className={styles.content}>
@@ -178,6 +187,7 @@ export default async function RestaurantPage({ params }: PageProps) {
             <h1 className={styles.name}>{r.name}</h1>
             <div className={styles.meta}>
               {r.district && <span className={styles.district}>{r.district}</span>}
+              {r.cuisineType && <span className={styles.cuisine}>{r.cuisineType}</span>}
               {r.price && <span className={styles.price}>{r.price}</span>}
             </div>
             {r.categories && r.categories.length > 0 && (
@@ -186,6 +196,16 @@ export default async function RestaurantPage({ params }: PageProps) {
                   <span key={cat} className={styles.category}>{cat}</span>
                 ))}
               </div>
+            )}
+            {r.address && (
+              <a
+                href={r.mapsUrl ?? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.address)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.address}
+              >
+                {r.address}
+              </a>
             )}
           </header>
 
@@ -213,6 +233,9 @@ export default async function RestaurantPage({ params }: PageProps) {
           )}
 
           <div className={styles.links}>
+            <IntlLink href={`/map?r=${r.slug}`} className={`${styles.link} ${styles.linkPrimary}`}>
+              {loc === 'de' ? `${r.name} auf der Map` : `${r.name} on the map`}
+            </IntlLink>
             {r.mapsUrl && (
               <a href={r.mapsUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
                 Google Maps
@@ -220,7 +243,7 @@ export default async function RestaurantPage({ params }: PageProps) {
             )}
             {r.reservationUrl && (
               <a href={r.reservationUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
-                Reserve a Table
+                {loc === 'de' ? 'Reservieren' : 'Reserve a Table'}
               </a>
             )}
             {r.website && (
@@ -229,6 +252,8 @@ export default async function RestaurantPage({ params }: PageProps) {
               </a>
             )}
           </div>
+
+          <MustEatTeaserSection mustEats={mustEats} locale={loc} />
         </div>
 
         {r.bezirk?.slug && r.bezirk?.name && (

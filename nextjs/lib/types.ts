@@ -17,6 +17,7 @@ export interface Restaurant {
   name: string
   slug: string
   district?: string
+  cuisineType?: string
   address?: string
   categories?: string[]
   price?: string

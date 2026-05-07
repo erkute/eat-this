@@ -2,12 +2,13 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
-import { getRestaurantBySlug, getAllRestaurantSlugs } from '@/lib/sanity.server'
+import { getRestaurantBySlug, getAllRestaurantSlugs, getLatestNewsArticles } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import SiteNav from '@/app/components/SiteNav'
+import DetailPageOutro from '@/app/components/DetailPageOutro'
 import styles from './RestaurantDetail.module.css'
 
 interface PageProps {
@@ -93,7 +94,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function RestaurantPage({ params }: PageProps) {
   const { locale, slug } = await params
   setRequestLocale(locale)
-  const r = await getRestaurantBySlug(slug)
+  const [r, latestNews] = await Promise.all([
+    getRestaurantBySlug(slug),
+    getLatestNewsArticles(2),
+  ])
   if (!r) notFound()
 
   const loc = locale === 'de' ? 'de' : 'en'
@@ -231,6 +235,15 @@ export default async function RestaurantPage({ params }: PageProps) {
             )}
           </div>
         </div>
+
+        {r.bezirk?.slug && r.bezirk?.name && (
+          <DetailPageOutro
+            bezirkSlug={r.bezirk.slug}
+            bezirkName={r.bezirk.name}
+            latestNews={latestNews}
+            locale={loc}
+          />
+        )}
       </main>
     </>
   )

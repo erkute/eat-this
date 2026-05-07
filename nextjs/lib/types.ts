@@ -34,6 +34,7 @@ export interface Restaurant {
   descriptionEn?: string
   photo?: string
   seo?: RestaurantSeo
+  bezirk?: { _id: string; name: string; slug?: string }
 }
 
 export interface NewsArticleSeo {

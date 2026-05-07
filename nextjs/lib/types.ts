@@ -123,7 +123,7 @@ export interface MapRestaurant {
   slug: string
   isClosed: boolean
   district?: string
-  bezirk?: { name: string }
+  bezirk?: { name: string; slug?: string }
   address?: string
   categories?: string[]
   price?: string

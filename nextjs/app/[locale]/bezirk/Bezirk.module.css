@@ -6,7 +6,8 @@
 .page {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 36px 22px 80px;
+  /* Top padding clears the fixed legacy .navbar (60px + safe-area). */
+  padding: calc(60px + env(safe-area-inset-top, 0px)) 22px 80px;
   color: var(--text-primary);
 }
 
@@ -170,7 +171,7 @@
 
 @media (min-width: 720px) {
   .page {
-    padding: 56px 32px 80px;
+    padding: calc(60px + env(safe-area-inset-top, 0px) + 20px) 32px 80px;
   }
   .grid,
   .bezirkGrid {

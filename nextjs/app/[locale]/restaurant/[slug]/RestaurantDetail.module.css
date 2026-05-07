@@ -4,8 +4,8 @@
 .page {
   max-width: 720px;
   margin: 0 auto;
-  /* Top padding clears the fixed legacy .navbar (60px height + safe-area). */
-  padding: calc(72px + env(safe-area-inset-top, 0px)) 24px 80px;
+  /* Top padding clears the fixed legacy .navbar (60px + safe-area) — flush. */
+  padding: calc(60px + env(safe-area-inset-top, 0px)) 24px 80px;
   color: var(--text-primary);
 }
 

@@ -33,8 +33,9 @@
   color: var(--text-primary);
 }
 
-/* Freigestelltes Banner: Bild steht für sich, dezenter Drop-Shadow für Lift,
-   CTA-Pill in Brand-Rot rechts unter dem Bild. */
+/* Freigestelltes Banner: Bild steht für sich, abgerundete Ecken + Drop-Shadow.
+   Mobile: hochformat-Bild + fetter roter Button drunter.
+   Desktop: querformat-Bild, kein Button (das Bild trägt selbst alles). */
 .mapBlock {
   display: flex;
   flex-direction: column;
@@ -43,7 +44,8 @@
   color: inherit;
 }
 
-.mapBlockPromo {
+.mapBlockPromoMobile,
+.mapBlockPromoDesktop {
   display: block;
   width: 100%;
   height: auto;
@@ -52,40 +54,46 @@
   transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), filter 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
-.mapBlock:hover .mapBlockPromo {
+.mapBlockPromoDesktop {
+  display: none;
+}
+
+.mapBlock:hover .mapBlockPromoMobile,
+.mapBlock:hover .mapBlockPromoDesktop {
   transform: translateY(-3px);
   filter: drop-shadow(0 22px 40px rgba(0, 0, 0, 0.22));
 }
 
 .mapBlockCta {
-  align-self: flex-end;
+  align-self: stretch;
   margin-top: 18px;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
   background: var(--accent);
   color: #ffffff;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 12px 22px;
-  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 18px 24px;
+  border-radius: 18px;
   transition: filter 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 10px 24px var(--accent-soft);
 }
 
 .mapBlockCtaArrow {
-  font-size: 16px;
+  font-size: 20px;
   line-height: 1;
   transition: transform 0.2s ease;
 }
 
 .mapBlock:hover .mapBlockCta {
-  filter: brightness(0.92);
+  filter: brightness(0.94);
 }
 
 .mapBlock:hover .mapBlockCtaArrow {
-  transform: translateX(3px);
+  transform: translateX(4px);
 }
 
 .newsHead {
@@ -171,8 +179,15 @@
   .mapBlock {
     margin-bottom: 64px;
   }
-  .mapBlockPromo {
+  .mapBlockPromoMobile {
+    display: none;
+  }
+  .mapBlockPromoDesktop {
+    display: block;
     border-radius: 24px;
+  }
+  .mapBlockCta {
+    display: none;
   }
   .newsGrid {
     grid-template-columns: 1fr 1fr;

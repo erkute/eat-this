@@ -35,18 +35,27 @@ export default function DetailPageOutro({
     <section className={styles.outro}>
       <hr className={styles.divider} />
 
-      <Link href={mapHref} className={styles.mapBlock} aria-label={de ? `${bezirkName} auf der Map öffnen` : `Open ${bezirkName} on the map`}>
+      <Link href={mapHref} className={styles.mapBlock} aria-label={de ? `Entdecke ${bezirkName}` : `Discover ${bezirkName}`}>
+        <Image
+          src="/pics/map-promo-mobile.png"
+          alt=""
+          width={918}
+          height={1256}
+          className={styles.mapBlockPromoMobile}
+          sizes="100vw"
+          priority={false}
+        />
         <Image
           src="/pics/map-promo.png"
           alt=""
           width={1802}
           height={873}
-          className={styles.mapBlockPromo}
-          sizes="(max-width: 720px) 100vw, 760px"
+          className={styles.mapBlockPromoDesktop}
+          sizes="760px"
           priority={false}
         />
         <span className={styles.mapBlockCta}>
-          {de ? `${bezirkName} auf der Map` : `${bezirkName} on the map`}
+          {de ? `Entdecke ${bezirkName}` : `Discover ${bezirkName}`}
           <span className={styles.mapBlockCtaArrow} aria-hidden="true">→</span>
         </span>
       </Link>

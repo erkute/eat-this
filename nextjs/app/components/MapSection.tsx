@@ -23,6 +23,7 @@ import RestaurantDetail from './map/RestaurantDetail'
 import MustEatDetail from './map/MustEatDetail'
 import UserLocationMarker from './map/UserLocationMarker'
 import CategoryFilter from './map/CategoryFilter'
+import BezirkFilterPill from './map/BezirkFilterPill'
 import FilterDropdown, { type SortOption } from './map/FilterDropdown'
 import { auth } from '@/lib/firebase/config'
 import { onAuthStateChanged } from 'firebase/auth'
@@ -34,6 +35,31 @@ interface Props {
 
 function districtOf(r: MapRestaurant): string | null {
   return r.bezirk?.name ?? r.district ?? null
+}
+
+interface Bbox {
+  west: number
+  south: number
+  east: number
+  north: number
+}
+
+function computeBezirkBbox(filtered: MapRestaurant[]): Bbox | null {
+  if (filtered.length === 0) return null
+  let west = filtered[0].lng
+  let east = filtered[0].lng
+  let south = filtered[0].lat
+  let north = filtered[0].lat
+  for (const r of filtered) {
+    if (r.lng < west) west = r.lng
+    if (r.lng > east) east = r.lng
+    if (r.lat < south) south = r.lat
+    if (r.lat > north) north = r.lat
+  }
+  // 10% padding on each side of the bbox so markers aren't flush to edges.
+  const padX = (east - west) * 0.1 || 0.005
+  const padY = (north - south) * 0.1 || 0.005
+  return { west: west - padX, east: east + padX, south: south - padY, north: north + padY }
 }
 
 export default function MapSection({ isActive = false }: Props) {
@@ -833,6 +859,65 @@ export default function MapSection({ isActive = false }: Props) {
     return () => { cancelled = true }
   }, [isActive, restaurants, handleRestaurantClick])
 
+  // Deep-link: ?bezirk=<slug> pre-selects a bezirk filter and fits the camera
+  // to show all restaurants in that district. Mirrors the ?r= pattern above.
+  const bezirkDeepLinkConsumedRef = useRef(false)
+  useEffect(() => {
+    if (bezirkDeepLinkConsumedRef.current) return
+    if (restaurants.length === 0) return
+    const params = new URLSearchParams(window.location.search)
+    const slug = params.get('bezirk')
+    if (!slug) return
+    const slugLower = slug.toLowerCase()
+    const match = restaurants.find(
+      r => (r.bezirk?.slug ?? '').toLowerCase() === slugLower,
+    )
+    if (!match || !match.bezirk?.name) {
+      // Unknown slug: silently ignore. Don't strip URL — user can edit it.
+      bezirkDeepLinkConsumedRef.current = true
+      return
+    }
+    bezirkDeepLinkConsumedRef.current = true
+    userInteractedRef.current = true
+    const bezirkName = match.bezirk.name
+    setBezirk(bezirkName)
+    if (sheetView === 'list') setSnap('mid')
+    const filtered = restaurants.filter(r => districtOf(r) === bezirkName)
+    const bbox = computeBezirkBbox(filtered)
+    if (!bbox) return
+    let cancelled = false
+    const tryFit = () => {
+      if (cancelled) return
+      if (mapRef.current) {
+        mapRef.current.fitBounds(
+          [[bbox.west, bbox.south], [bbox.east, bbox.north]],
+          { padding: 60, duration: 800 },
+        )
+      } else {
+        setTimeout(tryFit, 120)
+      }
+    }
+    tryFit()
+    return () => { cancelled = true }
+  }, [restaurants, sheetView, setSnap])
+
+  const handleBezirkPillReset = useCallback(() => {
+    userInteractedRef.current = true
+    setBezirk(null)
+    const params = new URLSearchParams(window.location.search)
+    if (params.has('bezirk')) {
+      params.delete('bezirk')
+      const qs = params.toString()
+      window.history.replaceState(null, '', qs ? `${window.location.pathname}?${qs}` : window.location.pathname)
+    }
+    mapRef.current?.flyTo({
+      center: [13.405, 52.52],
+      zoom: 11.6,
+      duration: 600,
+      padding: getFlyPadding(),
+    })
+  }, [getFlyPadding])
+
   /* ---------- Render ---------- */
   return (
     <div
@@ -879,6 +964,10 @@ export default function MapSection({ isActive = false }: Props) {
                 ))}
                 {location && <UserLocationMarker location={location} />}
               </MapCanvas>
+
+              {bezirk && (
+                <BezirkFilterPill bezirkName={bezirk} onReset={handleBezirkPillReset} />
+              )}
 
               <button
                 type="button"

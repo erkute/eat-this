@@ -4,12 +4,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
-import { getBezirkBySlug, getRestaurantsByBezirk, getAllBezirkeWithStats } from '@/lib/sanity.server'
+import { getBezirkBySlug, getRestaurantsByBezirk, getAllBezirkeWithStats, getLatestNewsArticles } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { routing } from '@/i18n/routing'
 import styles from '../Bezirk.module.css'
+import DetailPageOutro from '@/app/components/DetailPageOutro'
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>
@@ -89,9 +90,10 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   const de = locale === 'de'
   const loc = de ? 'de' : 'en'
 
-  const [b, restaurants] = await Promise.all([
+  const [b, restaurants, latestNews] = await Promise.all([
     getBezirkBySlug(slug),
     getRestaurantsByBezirk(slug),
+    getLatestNewsArticles(2),
   ])
   if (!b) notFound()
 
@@ -183,6 +185,13 @@ export default async function BezirkDetailPage({ params }: PageProps) {
             </Link>
           ))}
         </section>
+
+        <DetailPageOutro
+          bezirkSlug={b.slug}
+          bezirkName={b.name}
+          latestNews={latestNews}
+          locale={loc}
+        />
       </main>
     </>
   )

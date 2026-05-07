@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import type { NewsArticle } from '@/lib/types'
 import styles from './DetailPageOutro.module.css'
 
@@ -27,15 +27,15 @@ export default function DetailPageOutro({
   locale,
 }: DetailPageOutroProps) {
   const de = locale === 'de'
-  const mapHref = locale === 'de' ? `/map?bezirk=${bezirkSlug}` : `/en/map?bezirk=${bezirkSlug}`
-  const newsHref = (slug: string) => (locale === 'de' ? `/news/${slug}` : `/en/news/${slug}`)
+  const mapHref = `/map?bezirk=${bezirkSlug}`
+  const newsHref = (slug: string) => `/news/${slug}`
   const newsToShow = latestNews.slice(0, 2)
 
   return (
     <section className={styles.outro}>
       <hr className={styles.divider} />
 
-      <article className={styles.mapBlock}>
+      <aside className={styles.mapBlock}>
         <span className={styles.kicker}>{de ? 'Die Map' : 'The Map'}</span>
         <h2 className={styles.h2}>
           {de
@@ -50,7 +50,7 @@ export default function DetailPageOutro({
         <Link href={mapHref} className={styles.cta}>
           {de ? 'Map öffnen →' : 'Open map →'}
         </Link>
-      </article>
+      </aside>
 
       {newsToShow.length > 0 && (
         <>

@@ -36,20 +36,31 @@ export default function DetailPageOutro({
       <hr className={styles.divider} />
 
       <aside className={styles.mapBlock}>
-        <span className={styles.kicker}>{de ? 'Die Map' : 'The Map'}</span>
-        <h2 className={styles.h2}>
-          {de
-            ? `Alle Spots in ${bezirkName} auf der Karte`
-            : `All spots in ${bezirkName} on the map`}
-        </h2>
-        <p className={styles.body}>
-          {de
-            ? `Sieh dir die kuratierten Spots in ${bezirkName} auf einer interaktiven Karte an — mit Filter, Liste und Detailansicht.`
-            : `See the curated spots in ${bezirkName} on an interactive map — with filter, list, and detail view.`}
-        </p>
-        <Link href={mapHref} className={styles.cta}>
-          {de ? 'Map öffnen →' : 'Open map →'}
-        </Link>
+        <div className={styles.mapBlockText}>
+          <span className={styles.kicker}>{de ? 'Die Map' : 'The Map'}</span>
+          <h2 className={styles.h2}>
+            {de
+              ? `Alle Spots in ${bezirkName} auf der Karte`
+              : `All spots in ${bezirkName} on the map`}
+          </h2>
+          <p className={styles.body}>
+            {de
+              ? `Sieh dir die kuratierten Spots in ${bezirkName} auf einer interaktiven Karte an — mit Filter, Liste und Detailansicht.`
+              : `See the curated spots in ${bezirkName} on an interactive map — with filter, list, and detail view.`}
+          </p>
+          <Link href={mapHref} className={styles.cta}>
+            {de ? 'Map öffnen →' : 'Open map →'}
+          </Link>
+        </div>
+        <div className={styles.mapBlockPhone} aria-hidden="true">
+          <Image
+            src="/pics/map-teaser/map_filter.webp"
+            alt=""
+            width={320}
+            height={670}
+            sizes="(max-width: 720px) 220px, 280px"
+          />
+        </div>
       </aside>
 
       {newsToShow.length > 0 && (

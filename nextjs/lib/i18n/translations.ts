@@ -213,6 +213,7 @@ const en = {
     mustEatLabel: "Must Eat",
     unitsMin: "min",
     unitsH: "h",
+    filterReset: "Reset filter",
   },
   footer: {
     start: "Start",
@@ -550,6 +551,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     mustEatLabel: "Must Eat",
     unitsMin: "Min",
     unitsH: "Std",
+    filterReset: "Filter zurücksetzen",
   },
   footer: {
     signIn: "Anmelden",

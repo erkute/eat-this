@@ -4148,3 +4148,54 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   -webkit-tap-highlight-color: transparent;
 }
 .searchCloseBtn:hover { color: var(--text-primary); background: var(--surface-bg); }
+
+/* Bezirk filter pill — appears top-left of the map when ?bezirk= is active.
+   Sits above the map canvas, below the MapLibre nav controls. */
+.bezirkPill {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px 6px 12px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font);
+}
+
+.bezirkPillLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.bezirkPillName {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.bezirkPillReset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.bezirkPillReset:hover {
+  color: var(--accent);
+}

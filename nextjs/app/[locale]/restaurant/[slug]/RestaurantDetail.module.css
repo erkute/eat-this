@@ -23,30 +23,22 @@
   object-fit: cover;
 }
 
-/* Photo credit pill in the hero corner — small, subtle, frosted-glass.
-   The photos come from the restaurants' own Instagram accounts. */
+/* Tiny photo credit pill in the hero corner — kept understated since
+   the photos come from each restaurant's own Instagram. */
 .heroCredit {
   position: absolute;
-  right: 10px;
-  bottom: 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  color: #ffffff;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  border-radius: 4px;
+  right: 8px;
+  bottom: 8px;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  border-radius: 3px;
   pointer-events: none;
-}
-
-.heroCreditIcon {
-  font-size: 11px;
-  line-height: 1;
 }
 
 .content {
@@ -80,16 +72,11 @@
 }
 
 .cuisine {
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
+  font-style: italic;
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.cuisine::before {
-  content: '·';
-  margin-right: 12px;
-  color: var(--text-muted);
+  margin: 6px 0 0;
+  line-height: 1.35;
 }
 
 .price {
@@ -102,17 +89,14 @@
 .address {
   display: inline-block;
   margin-top: 12px;
-  font-size: 0.9375rem;
-  color: var(--text-secondary);
+  font-size: 0.875rem;
+  color: var(--text-muted);
   text-decoration: none;
-  border-bottom: 1px solid var(--border-subtle);
-  padding-bottom: 1px;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 0.15s;
 }
 
 .address:hover {
   color: var(--text-primary);
-  border-color: var(--text-primary);
 }
 
 .categories {

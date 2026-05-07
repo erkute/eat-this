@@ -40,9 +40,12 @@
 
 .grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  /* Cap card width to ~120px on mobile so even with 2 must-eats they
+     don't stretch into oversized tiles. Cards pack from the start. */
+  grid-template-columns: repeat(auto-fill, 120px);
+  gap: 12px;
   margin-top: 16px;
+  justify-content: start;
 }
 
 .card {
@@ -73,6 +76,23 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
 }
 
+/* Locked-card shake — fires once on click, runs in parallel with the
+   login modal opening. Tells the user the card is locked + something
+   happened. */
+@keyframes mustEatShake {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0); }
+  10% { transform: translate3d(-4px, 0, 0) rotate(-1.2deg); }
+  25% { transform: translate3d(5px, 0, 0) rotate(1.4deg); }
+  40% { transform: translate3d(-4px, 0, 0) rotate(-1deg); }
+  55% { transform: translate3d(3px, 0, 0) rotate(0.8deg); }
+  70% { transform: translate3d(-2px, 0, 0) rotate(-0.5deg); }
+  85% { transform: translate3d(2px, 0, 0) rotate(0.3deg); }
+}
+
+.cardShake {
+  animation: mustEatShake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
 .cardBack {
   object-fit: cover;
 }
@@ -83,7 +103,7 @@
     padding-top: 36px;
   }
   .grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
+    grid-template-columns: repeat(auto-fill, 140px);
+    gap: 16px;
   }
 }

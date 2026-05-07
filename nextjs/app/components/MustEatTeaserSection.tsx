@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import type { MustEatPreview } from '@/lib/sanity.server'
 import styles from './MustEatTeaserSection.module.css'
@@ -10,10 +11,14 @@ interface Props {
 }
 
 export default function MustEatTeaserSection({ mustEats, locale }: Props) {
+  const [shakingId, setShakingId] = useState<string | null>(null)
+
   if (mustEats.length === 0) return null
   const de = locale === 'de'
 
-  const handleClick = () => {
+  const handleClick = (id: string) => {
+    setShakingId(id)
+    window.setTimeout(() => setShakingId(prev => (prev === id ? null : prev)), 600)
     if (typeof window !== 'undefined') {
       window.openLoginModal?.()
     }
@@ -37,9 +42,9 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
           <button
             key={m._id}
             type="button"
-            className={styles.card}
-            onClick={handleClick}
-            aria-label={de ? `${m.dish} freischalten — Login öffnen` : `Unlock ${m.dish} — open login`}
+            className={`${styles.card} ${shakingId === m._id ? styles.cardShake : ''}`}
+            onClick={() => handleClick(m._id)}
+            aria-label={de ? 'Must Eat freischalten — Login öffnen' : 'Unlock Must Eat — open login'}
           >
             <Image
               src="/pics/card-back.webp"

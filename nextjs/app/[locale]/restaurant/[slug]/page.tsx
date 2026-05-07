@@ -176,7 +176,6 @@ export default async function RestaurantPage({ params }: PageProps) {
           )}
           {r.photo && (
             <span className={styles.heroCredit} aria-label="Photo credit">
-              <span className={styles.heroCreditIcon} aria-hidden="true">📷</span>
               via Instagram
             </span>
           )}
@@ -187,9 +186,9 @@ export default async function RestaurantPage({ params }: PageProps) {
             <h1 className={styles.name}>{r.name}</h1>
             <div className={styles.meta}>
               {r.district && <span className={styles.district}>{r.district}</span>}
-              {r.cuisineType && <span className={styles.cuisine}>{r.cuisineType}</span>}
               {r.price && <span className={styles.price}>{r.price}</span>}
             </div>
+            {r.cuisineType && <p className={styles.cuisine}>{r.cuisineType}</p>}
             {r.categories && r.categories.length > 0 && (
               <div className={styles.categories}>
                 {r.categories.map((cat: string) => (

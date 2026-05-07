@@ -85,9 +85,9 @@
   filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.18)) brightness(0.97);
 }
 
-/* Mobile-only red CTA, glued onto the bottom of the promo image as
-   its own clickable target — so a tap on the button doesn't visually
-   "select" the whole image. */
+/* Mobile-only glass CTA, glued onto the bottom of the promo image.
+   Frosted-glass effect: translucent white backdrop-blur over the image,
+   subtle gloss gradient for a mirror-like top highlight, inset bevel. */
 .mapBlockCta {
   position: absolute;
   left: 8%;
@@ -97,7 +97,15 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: #b71c1c;
+  background-color: rgba(255, 255, 255, 0.18);
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   color: #ffffff;
   font-size: 16px;
   font-weight: 800;
@@ -105,9 +113,13 @@
   text-decoration: none;
   padding: 16px 22px;
   border-radius: 14px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08);
   transition: transform 0.18s cubic-bezier(0.2, 0.7, 0.2, 1),
-              filter 0.18s ease,
+              background-color 0.18s ease,
+              border-color 0.18s ease,
               box-shadow 0.18s ease;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
@@ -120,7 +132,8 @@
 }
 
 .mapBlockCta:hover {
-  filter: brightness(0.94);
+  background-color: rgba(255, 255, 255, 0.26);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .mapBlockCta:hover .mapBlockCtaArrow {
@@ -129,8 +142,10 @@
 
 .mapBlockCta:active {
   transform: scale(0.96);
-  filter: brightness(0.85);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  background-color: rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .newsHead {

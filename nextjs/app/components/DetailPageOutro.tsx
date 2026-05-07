@@ -1,7 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import type { NewsArticle } from '@/lib/types'
-import { pickLocale } from '@/lib/i18n/pickLocale'
 import styles from './DetailPageOutro.module.css'
 
 interface DetailPageOutroProps {
@@ -63,18 +62,9 @@ export default function DetailPageOutro({
           </div>
           <div className={styles.newsGrid}>
             {newsToShow.map(article => {
-              // News articles: title=EN (base), titleDe=DE (override).
-              // pickLocale(base, override, locale) returns override when locale='en'.
-              // We pass (titleDe, title, locale) so:
-              //   locale='de' → returns titleDe (base arg) ✓
-              //   locale='en' → returns title (override arg, which is EN) ✓
-              const title = pickLocale(article.titleDe, article.title, locale)
-              const excerpt = pickLocale(article.excerptDe, article.excerpt, locale)
-              const categoryLabel = pickLocale(
-                article.categoryLabelDe,
-                article.categoryLabel,
-                locale,
-              )
+              const title = locale === 'de' ? article.titleDe || article.title : article.title
+              const excerpt = locale === 'de' ? article.excerptDe || article.excerpt : article.excerpt
+              const categoryLabel = locale === 'de' ? article.categoryLabelDe || article.categoryLabel : article.categoryLabel
               return (
                 <Link
                   key={article._id}

@@ -33,44 +33,27 @@
   color: var(--text-primary);
 }
 
-/* Stacked-layer effect: an accent slab sits 8px down-right behind the
-   image so the card reads as a lifted poster. On hover the slab pushes
-   further out and the image floats slightly toward the viewer. */
+/* Freigestelltes Banner: kein Frame, kein Slab — das Bild steht für sich.
+   Abgerundete Ecken + dezenter Drop-Shadow für Lift. */
 .mapBlock {
-  position: relative;
   display: block;
-  margin: 0 0 48px;
+  margin: 0 0 40px;
   text-decoration: none;
   color: inherit;
-  isolation: isolate;
-}
-
-.mapBlock::before {
-  content: '';
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  right: -8px;
-  bottom: -8px;
-  background: var(--accent);
-  z-index: -1;
-  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-
-.mapBlock:hover::before {
-  transform: translate(4px, 4px);
 }
 
 .mapBlockPromo {
   display: block;
   width: 100%;
   height: auto;
-  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
+  border-radius: 18px;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.16));
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), filter 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 .mapBlock:hover .mapBlockPromo {
-  transform: translate(-3px, -3px);
+  transform: translateY(-3px);
+  filter: drop-shadow(0 22px 40px rgba(0, 0, 0, 0.22));
 }
 
 .newsHead {
@@ -156,14 +139,8 @@
   .mapBlock {
     margin-bottom: 64px;
   }
-  .mapBlock::before {
-    top: 12px;
-    left: 12px;
-    right: -12px;
-    bottom: -12px;
-  }
-  .mapBlock:hover::before {
-    transform: translate(6px, 6px);
+  .mapBlockPromo {
+    border-radius: 24px;
   }
   .newsGrid {
     grid-template-columns: 1fr 1fr;

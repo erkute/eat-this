@@ -1,15 +1,16 @@
 'use client'
 import { useRef, useState, useMemo, useCallback, useEffect, useLayoutEffect } from 'react'
-import { flushSync } from 'react-dom'
 import type { MapRef } from 'react-map-gl/maplibre'
-import type { MapRestaurant, MapMustEat, MapLayer, MapCategory } from '@/lib/types'
+import type { MapRestaurant, MapMustEat, MapLayer } from '@/lib/types'
 import { useMapData } from '@/lib/map/useMapData'
 import { useUserLocation } from '@/lib/map/useUserLocation'
 import { useBounds } from '@/lib/map/useBounds'
 import { useUnlockedMustEats } from '@/lib/map/useUnlockedMustEats'
 import { useFavorites } from '@/lib/map/useFavorites'
-import { useBottomSheet } from '@/lib/map/useBottomSheet'
-import { getOpenStatus } from '@/lib/map/openingHours'
+import { useMapFilters } from '@/lib/map/useMapFilters'
+import { useMapSheet } from '@/lib/map/useMapSheet'
+import { useMapDeepLinks } from '@/lib/map/useMapDeepLinks'
+import { useDetailSheetSwipeClose } from '@/lib/map/useDetailSheetSwipeClose'
 import { haversineDistance, formatDistance } from '@/lib/map/distance'
 import { applyFanOffset } from '@/lib/map/fanOffset'
 import { useTranslation } from '@/lib/i18n'
@@ -31,35 +32,6 @@ import styles from './map/map.module.css'
 
 interface Props {
   isActive?: boolean
-}
-
-function districtOf(r: MapRestaurant): string | null {
-  return r.bezirk?.name ?? r.district ?? null
-}
-
-interface Bbox {
-  west: number
-  south: number
-  east: number
-  north: number
-}
-
-function computeBezirkBbox(filtered: MapRestaurant[]): Bbox | null {
-  if (filtered.length === 0) return null
-  let west = filtered[0].lng
-  let east = filtered[0].lng
-  let south = filtered[0].lat
-  let north = filtered[0].lat
-  for (const r of filtered) {
-    if (r.lng < west) west = r.lng
-    if (r.lng > east) east = r.lng
-    if (r.lat < south) south = r.lat
-    if (r.lat > north) north = r.lat
-  }
-  // 10% padding on each side of the bbox so markers aren't flush to edges.
-  const padX = (east - west) * 0.1 || 0.005
-  const padY = (north - south) * 0.1 || 0.005
-  return { west: west - padX, east: east + padX, south: south - padY, north: north + padY }
 }
 
 export default function MapSection({ isActive = false }: Props) {
@@ -86,14 +58,33 @@ export default function MapSection({ isActive = false }: Props) {
   useEffect(() => onAuthStateChanged(auth, u => setUid(u?.uid ?? null)), [])
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
-  const { sheetRef, handleRef, contentRef, setContentRef, setHeaderRef, snap, setSnap, dragging, reapplySnap, configure, snapToVisiblePx } = useBottomSheet('mid')
-  // Mirror the sheet element so we can read its current --sheet-visible-px
-  // (set by useBottomSheet on every applyY) for accurate flyTo padding.
-  const sheetElRef = useRef<HTMLDivElement | null>(null)
-  const setSheetRef = useCallback((el: HTMLDivElement | null) => {
-    sheetElRef.current = el
-    sheetRef(el)
-  }, [sheetRef])
+
+  const {
+    handleRef, contentRef, setContentRef, setHeaderRef,
+    snap, setSnap, dragging, reapplySnap, snapToVisiblePx,
+    sheetView, setSheetView,
+    sheetElRef, setSheetRef,
+  } = useMapSheet()
+
+  const {
+    category, setCategory,
+    search, setSearch,
+    bezirk, setBezirk,
+    openOnly, setOpenOnly,
+    sort, setSort,
+    bezirkNames, bezirkCenters,
+    displayedRestaurants, displayedMustEats,
+  } = useMapFilters({ restaurants, mustEats, location })
+
+  const [mapZoom,            setMapZoom]            = useState(12)
+  const [layer,              setLayer]              = useState<MapLayer>('restaurants')
+  const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
+  const [selectedMustEat,    setSelectedMustEat]    = useState<MapMustEat | null>(null)
+  // Tracks the restaurant we navigated FROM when entering a must-eat detail,
+  // so the back button can return there without clearing the map state.
+  const prevRestaurantRef = useRef<MapRestaurant | null>(null)
+  const [filterOpen,         setFilterOpen]         = useState(false)
+  const [searchOpen,         setSearchOpen]         = useState(false)
 
   const snapDetailToContent = useCallback(() => {
     if (typeof window === 'undefined') return
@@ -213,23 +204,7 @@ export default function MapSection({ isActive = false }: Props) {
     if (isMobile) {
       snapToVisiblePx(Math.min(contentH + 8, maxH))
     }
-  }, [snapToVisiblePx, contentRef])
-
-  const [mapZoom,            setMapZoom]            = useState(12)
-  const [layer,              setLayer]              = useState<MapLayer>('restaurants')
-  const [category,           setCategory]           = useState<MapCategory>('All')
-  const [search,             setSearch]             = useState('')
-  const [bezirk,             setBezirk]             = useState<string | null>(null)
-  const [openOnly,           setOpenOnly]           = useState(false)
-  const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
-  const [selectedMustEat,    setSelectedMustEat]    = useState<MapMustEat | null>(null)
-  // Tracks the restaurant we navigated FROM when entering a must-eat detail,
-  // so the back button can return there without clearing the map state.
-  const prevRestaurantRef = useRef<MapRestaurant | null>(null)
-  const [sheetView,          setSheetView]          = useState<'list' | 'detail'>('list')
-  const [sort,               setSort]               = useState<'distance' | 'name' | 'price'>('distance')
-  const [filterOpen,         setFilterOpen]         = useState(false)
-  const [searchOpen,         setSearchOpen]         = useState(false)
+  }, [snapToVisiblePx, contentRef, sheetElRef])
 
   useLayoutEffect(() => {
     if (sheetView !== 'detail') return
@@ -281,10 +256,6 @@ export default function MapSection({ isActive = false }: Props) {
     }
   }, [sheetView, selectedRestaurant, selectedMustEat, snapDetailToContent, contentRef])
 
-  /* Swipe-down-to-close on detail. Only initiates from the hero area
-     (top ~240 px) and only when the inner scroll is at the top — so users
-     can still scroll the body content without triggering close. */
-
   /* Filter / sort changes — reset list scroll to the top so the user always
      sees the first results of the new filter, not where they happened to be
      scrolled in the previous list. */
@@ -294,104 +265,12 @@ export default function MapSection({ isActive = false }: Props) {
     if (el) el.scrollTop = 0
   }, [sheetView, category, bezirk, openOnly, sort, search, layer, contentRef])
 
-  /* ---------- Bezirk list + centroid map ---------- */
-  const { bezirkNames, bezirkCenters } = useMemo(() => {
-    const groups = new Map<string, { lat: number; lng: number; count: number }>()
-    for (const r of restaurants) {
-      const d = districtOf(r)
-      if (!d) continue
-      const g = groups.get(d)
-      if (g) { g.lat += r.lat; g.lng += r.lng; g.count += 1 }
-      else    { groups.set(d, { lat: r.lat, lng: r.lng, count: 1 }) }
-    }
-    const names: string[] = []
-    const centers = new Map<string, { lat: number; lng: number }>()
-    for (const [name, g] of groups) {
-      names.push(name)
-      centers.set(name, { lat: g.lat / g.count, lng: g.lng / g.count })
-    }
-    names.sort((a, b) => a.localeCompare(b, 'de'))
-    return { bezirkNames: names, bezirkCenters: centers }
-  }, [restaurants])
-
-  /* ---------- Filter pipeline (applied to markers + list) ----------
-     A non-empty search query overrides all other filters: the user expects
-     to find anything on the map regardless of the active bezirk/category/open
-     selection. Without a query, the filter chips apply normally. */
-  const filterRestaurant = useCallback((r: MapRestaurant): boolean => {
-    const q = search.trim().toLowerCase()
-    if (q) {
-      const hit =
-        r.name.toLowerCase().includes(q) ||
-        (districtOf(r) ?? '').toLowerCase().includes(q) ||
-        r.categories?.some(c => c.toLowerCase().includes(q))
-      return Boolean(hit)
-    }
-    if (category !== 'All' && !r.categories?.includes(category)) return false
-    if (bezirk && districtOf(r) !== bezirk) return false
-    if (openOnly) {
-      if (!r.openingHours) return false
-      if (!getOpenStatus(r.openingHours).isOpen) return false
-    }
-    return true
-  }, [category, bezirk, openOnly, search])
-
-  const displayedRestaurants = useMemo(() => {
-    const filtered = restaurants.filter(filterRestaurant)
-    if (sort === 'name') {
-      return [...filtered].sort((a, b) => a.name.localeCompare(b.name, 'de'))
-    }
-    if (sort === 'price') {
-      // Ascending: € first, €€€€ last. Restaurants without a price land last.
-      const priceRank = (p?: string | null): number => p ? p.length : 99
-      return [...filtered].sort((a, b) => {
-        const d = priceRank(a.price) - priceRank(b.price)
-        if (d !== 0) return d
-        return a.name.localeCompare(b.name, 'de')
-      })
-    }
-    if (!location) return filtered
-    return [...filtered].sort((a, b) => {
-      const aD = haversineDistance(location.lat, location.lng, a.lat, a.lng)
-      const bD = haversineDistance(location.lat, location.lng, b.lat, b.lng)
-      return aD - bD
-    })
-  }, [restaurants, filterRestaurant, sort, location])
-
   const { updateBounds } = useBounds(displayedRestaurants, location)
 
   const handleMapMove = useCallback((bounds: Parameters<typeof updateBounds>[0]) => {
     updateBounds(bounds)
     if (mapRef.current) setMapZoom(mapRef.current.getMap().getZoom())
   }, [updateBounds])
-
-  const displayedMustEats = useMemo(() => {
-    const q = search.trim().toLowerCase()
-    const filtered = q
-      ? mustEats.filter(
-          m =>
-            m.dish.toLowerCase().includes(q) ||
-            m.restaurant.name.toLowerCase().includes(q) ||
-            m.restaurant.district?.toLowerCase().includes(q)
-        )
-      : mustEats
-    // Default sort: distance from user location (closest first), falling back
-    // to Berlin Mitte when GPS is unavailable. When a bezirk filter is active,
-    // items in that bezirk float to the top; everything else stays sorted by
-    // distance below them.
-    const sortLat = location?.lat ?? 52.52
-    const sortLng = location?.lng ?? 13.405
-    return [...filtered].sort((a, b) => {
-      if (bezirk) {
-        const aMatch = a.restaurant.district === bezirk
-        const bMatch = b.restaurant.district === bezirk
-        if (aMatch !== bMatch) return aMatch ? -1 : 1
-      }
-      const aD = haversineDistance(sortLat, sortLng, a.restaurant.lat, a.restaurant.lng)
-      const bD = haversineDistance(sortLat, sortLng, b.restaurant.lat, b.restaurant.lng)
-      return aD - bD
-    })
-  }, [mustEats, search, bezirk, location])
 
   const restaurantMustEats = useMemo(() => {
     if (!selectedRestaurant) return []
@@ -439,7 +318,7 @@ export default function MapSection({ isActive = false }: Props) {
     // Centring then matches the geometric centre of the actually-visible
     // map area between the header bottom and the sheet top.
     return { top: 70, bottom: Math.round(visible) + 20, left: 20, right: 20 }
-  }, [snap])
+  }, [snap, sheetElRef])
 
   /* After the auto-fit detail sheet settles at its content height, re-centre
      the camera so the marker actually lands above the (just-expanded) sheet.
@@ -499,7 +378,7 @@ export default function MapSection({ isActive = false }: Props) {
       duration: 500,
       padding: getFlyPadding(isMobile ? 'full' : undefined),
     })
-  }, [getFlyPadding])
+  }, [getFlyPadding, setSearch, setSheetView])
 
   const handleMustEatClick = useCallback((m: MapMustEat) => {
     userInteractedRef.current = true
@@ -534,7 +413,7 @@ export default function MapSection({ isActive = false }: Props) {
     // Let the back-card wiggle animation play before the detail modal covers it.
     if (isLocked) setTimeout(open, 420)
     else open()
-  }, [setSnap, unlockedIds, getFlyPadding, selectedRestaurant])
+  }, [unlockedIds, getFlyPadding, selectedRestaurant, setSearch, setSheetView])
 
   const handleRestaurantClose = useCallback(() => {
     const r = selectedRestaurant
@@ -554,7 +433,7 @@ export default function MapSection({ isActive = false }: Props) {
         padding: getFlyPadding('peek'),
       })
     }
-  }, [selectedRestaurant, getFlyPadding, setSnap, reapplySnap])
+  }, [selectedRestaurant, getFlyPadding, setSnap, reapplySnap, setSheetView])
 
   const handleBackToRestaurants = useCallback(() => {
     setLayer('restaurants')
@@ -562,7 +441,7 @@ export default function MapSection({ isActive = false }: Props) {
     setSheetView('list')
     setSnap('mid')
     reapplySnap('mid')
-  }, [setSnap, reapplySnap])
+  }, [setSnap, reapplySnap, setSheetView])
 
   const handleViewRestaurantFromMustEat = useCallback(() => {
     if (!selectedMustEat) return
@@ -604,7 +483,7 @@ export default function MapSection({ isActive = false }: Props) {
         padding: getFlyPadding('peek'),
       })
     }
-  }, [selectedMustEat, selectedRestaurant, getFlyPadding, setSnap, reapplySnap])
+  }, [selectedMustEat, selectedRestaurant, getFlyPadding, setSnap, reapplySnap, setSheetView])
 
   const handleShowMustEatList = useCallback(() => {
     setSelectedMustEat(null)
@@ -612,7 +491,7 @@ export default function MapSection({ isActive = false }: Props) {
     setSheetView('list')
     setSnap('mid')
     reapplySnap('mid')
-  }, [setSnap, reapplySnap])
+  }, [setSnap, reapplySnap, setSheetView])
 
   const handleMapClick = useCallback(() => {
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
@@ -631,14 +510,14 @@ export default function MapSection({ isActive = false }: Props) {
       // state may have ended up at 'peek' while CSS is at custom detail-height).
       reapplySnap('peek')
     }
-  }, [selectedRestaurant, selectedMustEat, setSnap, snap, reapplySnap])
+  }, [selectedRestaurant, selectedMustEat, setSnap, snap, reapplySnap, setSheetView])
 
   // When the user starts typing in the search, surface the list (mid snap) so
   // they see the filtered results — typing into a hidden list is confusing.
   const handleSearchChange = useCallback((v: string) => {
     setSearch(v)
     if (v && snap === 'peek' && sheetView === 'list') setSnap('mid')
-  }, [snap, sheetView, setSnap])
+  }, [snap, sheetView, setSnap, setSearch])
 
   const handleBezirkChange = useCallback((name: string | null) => {
     userInteractedRef.current = true
@@ -653,118 +532,19 @@ export default function MapSection({ isActive = false }: Props) {
       // ring (Mitte/Kreuzberg/Prenzlauer Berg) fills the viewport.
       mapRef.current?.flyTo({ center: [13.405, 52.52], zoom: 11.6, duration: 700, padding: getFlyPadding() })
     }
-  }, [bezirkCenters, getFlyPadding, sheetView, setSnap])
+  }, [bezirkCenters, getFlyPadding, sheetView, setSnap, setBezirk])
 
-  // Configure sheet drag behaviour based on view mode.
-  // List → cap at mid (no full-screen list). Detail → locked (no drag, no handle).
-  useEffect(() => {
-    configure(sheetView === 'detail'
-      ? { maxSnap: null, locked: true }
-      : { maxSnap: null, locked: false } // list: allow drag up to full (under header)
-    )
-  }, [sheetView, configure])
-
-  /* Swipe-down-to-close on detail. Mounts a touch listener on the sheet that
-     starts dragging when the user touches the hero area (top ~240 px) AND the
-     inner content scroll is at the top — so users can still scroll the body. */
-  useEffect(() => {
-    if (sheetView !== 'detail') return
-    if (typeof window === 'undefined') return
-    if (!window.matchMedia('(max-width: 1023.98px)').matches) return
-    const sheet = sheetElRef.current
-    const mount = contentRef.current
-    if (!sheet || !mount) return
-
-    let startY: number | null = null
-    let basePx = 0
-    let active = false
-
-    const onStart = (e: TouchEvent) => {
-      if (e.touches.length !== 1) return
-      const sheetRect = sheet.getBoundingClientRect()
-      const offset = e.touches[0].clientY - sheetRect.top
-      // Only initiate from the hero region (avoids fighting body scrolls).
-      if (offset > 240) return
-      const scroller = mount.querySelector<HTMLElement>('[data-detail-scroll]')
-      if (scroller && scroller.scrollTop > 5) return
-      startY = e.touches[0].clientY
-      const cssY = sheet.style.getPropertyValue('--sheet-y')
-      basePx = cssY ? parseFloat(cssY) : 0
-      active = false
-    }
-
-    const onMove = (e: TouchEvent) => {
-      if (startY === null) return
-      const dy = e.touches[0].clientY - startY
-      if (dy < 0) return
-      if (!active && dy < 8) return
-      if (!active) {
-        active = true
-        // Kill the transition while the finger drives the sheet so movement
-        // is 1:1 instead of stuttering through 0.28 s eases per frame.
-        sheet.style.transition = 'none'
-      }
-      // Block native scroll / pull-to-refresh during the drag so Chrome's
-      // mobile-emulation rubber-band can't fight our sheet movement and
-      // leave it stuck at the bottom on release.
-      if (e.cancelable) e.preventDefault()
-      sheet.style.setProperty('--sheet-y', `${basePx + dy}px`)
-    }
-
-    const onEnd = (e: TouchEvent) => {
-      if (startY === null) return
-      const dy = (e.changedTouches[0]?.clientY ?? startY) - startY
-      startY = null
-      if (!active) return
-      active = false
-      if (dy > 110) {
-        // Two-phase animation:
-        //   Phase 1 (~180 ms): slide detail fully off-screen.
-        //   Phase 2 (~280 ms): swap content to list, slide sheet UP to mid.
-        // The user perceives "detail goes down, list comes up" — no visual
-        // pop or bounce of the detail content during the transition.
-        const sheetH = sheet.getBoundingClientRect().height
-        sheet.style.transition = 'transform 0.18s ease-out'
-        requestAnimationFrame(() => {
-          sheet.style.setProperty('--sheet-y', `${sheetH}px`)
-        })
-        window.setTimeout(() => {
-          // Sheet is now off-screen. Force the React re-render synchronously
-          // (flushSync) so the DOM swap detail → list COMPLETES before the
-          // browser paints the next frame. Without this, the up-animation
-          // would briefly paint with the OLD detail content visible (a
-          // ~16ms "Bup!" of the detail bouncing back up before list shows).
-          sheet.style.transition = 'transform 0.22s cubic-bezier(.2,.7,.2,1)'
-          flushSync(() => {
-            if (selectedRestaurant) handleRestaurantClose()
-            else if (selectedMustEat) handleMustEatClose()
-          })
-          // Now content is list and --sheet-y is at mid (set by reapplySnap
-          // inside the close handler). Browser animates from off-screen
-          // (set in phase 1) up to mid, with list visible the whole time.
-          window.setTimeout(() => { sheet.style.transition = '' }, 240)
-        }, 180)
-      } else {
-        // Snap back smoothly to the auto-sized detail height.
-        sheet.style.transition = 'transform 0.18s ease-out'
-        requestAnimationFrame(() => {
-          sheet.style.setProperty('--sheet-y', `${basePx}px`)
-        })
-        window.setTimeout(() => { sheet.style.transition = '' }, 200)
-      }
-    }
-
-    sheet.addEventListener('touchstart', onStart, { passive: true })
-    sheet.addEventListener('touchmove', onMove, { passive: false })
-    sheet.addEventListener('touchend', onEnd)
-    sheet.addEventListener('touchcancel', onEnd)
-    return () => {
-      sheet.removeEventListener('touchstart', onStart)
-      sheet.removeEventListener('touchmove', onMove)
-      sheet.removeEventListener('touchend', onEnd)
-      sheet.removeEventListener('touchcancel', onEnd)
-    }
-  }, [sheetView, selectedRestaurant, selectedMustEat, handleRestaurantClose, handleMustEatClose, contentRef])
+  // Mobile swipe-down-to-close on the detail sheet. Only initiates from the
+  // hero region AND when the inner content scroll is at the top.
+  useDetailSheetSwipeClose({
+    sheetElRef,
+    contentRef,
+    sheetView,
+    selectedRestaurant,
+    selectedMustEat,
+    onRestaurantClose: handleRestaurantClose,
+    onMustEatClose: handleMustEatClose,
+  })
 
   const handleUnlock = useCallback(async () => {
     if (!selectedMustEat) return
@@ -773,7 +553,7 @@ export default function MapSection({ isActive = false }: Props) {
       return
     }
     await unlock(selectedMustEat._id, selectedMustEat.restaurant._id, selectedMustEat.dish)
-  }, [selectedMustEat, uid, unlock])
+  }, [selectedMustEat, uid, unlock, locale])
 
   const handleLocateMe = useCallback(async () => {
     userInteractedRef.current = true
@@ -807,7 +587,7 @@ export default function MapSection({ isActive = false }: Props) {
       tryFly()
     })
     return () => { cancelled = true }
-  }, [requestLocation])
+  }, [requestLocation, getFlyPadding])
 
   const prevActiveRef = useRef(false)
   useEffect(() => {
@@ -824,102 +604,21 @@ export default function MapSection({ isActive = false }: Props) {
     })
   }, [isActive, selectedRestaurant, selectedMustEat, location, getFlyPadding])
 
-  // Deep-link: ?r=<slug> opens the matching restaurant detail directly.
-  // Used by profile favourites and any external link that wants to land
-  // on the map with a specific spot already open. Polls mapRef so the flyTo
-  // doesn't silently no-op if the canvas hasn't finished mounting yet.
-  const deepLinkConsumedRef = useRef(false)
-  useEffect(() => {
-    if (deepLinkConsumedRef.current) return
-    if (!isActive) return
-    if (restaurants.length === 0) return
-    const params = new URLSearchParams(window.location.search)
-    const slug = params.get('r')
-    if (!slug) return
-    const target = restaurants.find(r => r.slug === slug)
-    if (!target) return
-    deepLinkConsumedRef.current = true
-    // Strip the param from the URL so back/refresh doesn't re-trigger.
-    params.delete('r')
-    const next = window.location.pathname + (params.toString() ? `?${params}` : '') + window.location.hash
-    window.history.replaceState(null, '', next)
-    // Wait for the map canvas to mount before opening — otherwise the detail
-    // sheet opens but the flyTo silently no-ops and the marker stays off-screen.
-    let cancelled = false
-    const tryOpen = () => {
-      if (cancelled) return
-      if (mapRef.current) {
-        userInteractedRef.current = true
-        handleRestaurantClick(target)
-      } else {
-        setTimeout(tryOpen, 120)
-      }
-    }
-    tryOpen()
-    return () => { cancelled = true }
-  }, [isActive, restaurants, handleRestaurantClick])
-
-  // Deep-link: ?bezirk=<slug> pre-selects a bezirk filter and fits the camera
-  // to show all restaurants in that district. Mirrors the ?r= pattern above.
-  const bezirkDeepLinkConsumedRef = useRef(false)
-  useEffect(() => {
-    if (bezirkDeepLinkConsumedRef.current) return
-    if (!isActive) return
-    if (restaurants.length === 0) return
-    const params = new URLSearchParams(window.location.search)
-    const slug = params.get('bezirk')
-    if (!slug) return
-    const slugLower = slug.toLowerCase()
-    const match = restaurants.find(
-      r => (r.bezirk?.slug ?? '').toLowerCase() === slugLower,
-    )
-    if (!match || !match.bezirk?.name) {
-      // Unknown slug: silently ignore. Don't strip URL — user can edit it.
-      bezirkDeepLinkConsumedRef.current = true
-      return
-    }
-    bezirkDeepLinkConsumedRef.current = true
-    // Note: unlike the ?r= deep-link, we intentionally keep ?bezirk= in the URL so
-    // the filtered view is bookmark/share-friendly. Reset is via the pill ✕.
-    userInteractedRef.current = true
-    const bezirkName = match.bezirk.name
-    setBezirk(bezirkName)
-    if (sheetView === 'list') setSnap('mid')
-    const filtered = restaurants.filter(r => districtOf(r) === bezirkName)
-    const bbox = computeBezirkBbox(filtered)
-    if (!bbox) return
-    let cancelled = false
-    const tryFit = () => {
-      if (cancelled) return
-      if (mapRef.current) {
-        mapRef.current.fitBounds(
-          [[bbox.west, bbox.south], [bbox.east, bbox.north]],
-          { padding: 60, duration: 800 },
-        )
-      } else {
-        setTimeout(tryFit, 120)
-      }
-    }
-    tryFit()
-    return () => { cancelled = true }
-  }, [isActive, restaurants, sheetView, setSnap])
-
-  const handleBezirkPillReset = useCallback(() => {
-    userInteractedRef.current = true
-    setBezirk(null)
-    const params = new URLSearchParams(window.location.search)
-    if (params.has('bezirk')) {
-      params.delete('bezirk')
-      const qs = params.toString()
-      window.history.replaceState(null, '', qs ? `${window.location.pathname}?${qs}` : window.location.pathname)
-    }
-    mapRef.current?.flyTo({
-      center: [13.405, 52.52],
-      zoom: 11.6,
-      duration: 600,
-      padding: getFlyPadding(),
-    })
-  }, [getFlyPadding])
+  // Deep-links: ?r=<slug> opens a restaurant detail; ?bezirk=<slug> pre-filters
+  // the map. Both poll mapRef so the camera moves don't no-op before the
+  // canvas finishes mounting. Returns the pill-reset handler that clears
+  // ?bezirk= from the URL.
+  const { resetBezirkPill } = useMapDeepLinks({
+    mapRef,
+    restaurants,
+    isActive,
+    sheetView,
+    userInteractedRef,
+    setBezirk,
+    setSnap,
+    onRestaurantSlugMatch: handleRestaurantClick,
+    getFlyPadding,
+  })
 
   /* ---------- Render ---------- */
   return (
@@ -969,7 +668,7 @@ export default function MapSection({ isActive = false }: Props) {
               </MapCanvas>
 
               {bezirk && (
-                <BezirkFilterPill bezirkName={bezirk} onReset={handleBezirkPillReset} />
+                <BezirkFilterPill bezirkName={bezirk} onReset={resetBezirkPill} />
               )}
 
               <button

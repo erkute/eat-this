@@ -234,6 +234,7 @@ const en = {
     contact: "Contact",
     press: "Press",
     impressum: "Impressum",
+    bezirke: "Districts",
   },
   theme: {
     darkMode: "Dark Mode",
@@ -566,6 +567,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     about: "\u00dcber uns",
     contact: "Kontakt",
     press: "Presse",
+    impressum: "Impressum",
+    bezirke: "Bezirke",
   },
   theme: {
     darkMode: "Dark Mode",

@@ -2,11 +2,10 @@
 
 import { useState } from 'react';
 import styles from './landing.module.css';
-import { useAuth, useMagicLink } from '@/lib/auth';
+import { useMagicLink } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
 
 export default function HeroIntro() {
-  const { user } = useAuth();
   const { sendLink, state, errorMessage } = useMagicLink();
   const [email, setEmail] = useState('');
   const { t } = useTranslation();
@@ -22,39 +21,37 @@ export default function HeroIntro() {
       <p className={styles.heroIntroSubtitle}>
         {t('landing.heroSubtitle')}
       </p>
-      {!user && (
-        state === 'sent' ? (
-          <p className={styles.magicSent}>
-            {t('landing.heroSent')}
-          </p>
-        ) : (
-          <>
-            <form
-              className={styles.heroIntroForm}
-              onSubmit={(e) => { e.preventDefault(); sendLink(email); }}
+      {state === 'sent' ? (
+        <p className={styles.magicSent}>
+          {t('landing.heroSent')}
+        </p>
+      ) : (
+        <>
+          <form
+            className={styles.heroIntroForm}
+            onSubmit={(e) => { e.preventDefault(); sendLink(email); }}
+          >
+            <input
+              className={styles.heroIntroInput}
+              type="email"
+              placeholder={t('landing.heroEmailPlaceholder')}
+              aria-label={t('landing.emailAriaLabel')}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <button
+              className={styles.heroIntroSubmit}
+              type="submit"
+              disabled={state === 'sending'}
             >
-              <input
-                className={styles.heroIntroInput}
-                type="email"
-                placeholder={t('landing.heroEmailPlaceholder')}
-                aria-label={t('landing.emailAriaLabel')}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <button
-                className={styles.heroIntroSubmit}
-                type="submit"
-                disabled={state === 'sending'}
-              >
-                {state === 'sending' ? t('landing.sending') : t('landing.heroSubmit')}
-              </button>
-            </form>
-            {state === 'error' && (
-              <p className={styles.magicError}>{errorMessage}</p>
-            )}
-          </>
-        )
+              {state === 'sending' ? t('landing.sending') : t('landing.heroSubmit')}
+            </button>
+          </form>
+          {state === 'error' && (
+            <p className={styles.magicError}>{errorMessage}</p>
+          )}
+        </>
       )}
     </section>
   );

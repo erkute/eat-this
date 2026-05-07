@@ -5,6 +5,7 @@ import { routing } from '@/i18n/routing'
 import { AuthProvider } from '@/lib/auth'
 import SiteNav from '@/app/components/SiteNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
+import SiteFooter from '@/app/components/SiteFooter'
 
 export default async function KategorieLayout({
   children,
@@ -25,6 +26,7 @@ export default async function KategorieLayout({
       <SiteNav />
       <BurgerDrawer />
       {children}
+      <SiteFooter />
     </AuthProvider>
   )
 }

@@ -80,10 +80,12 @@
 }
 
 .price {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   color: var(--accent);
-  font-weight: 600;
-  margin-left: auto;
+  border: 1px solid var(--accent);
+  padding: 3px 8px;
 }
 
 .address {
@@ -165,39 +167,63 @@
 }
 
 .links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  display: grid;
+  /* minmax(0, 1fr) — without the 0 minimum, the columns expand to each
+     button's min-content (white-space: nowrap text), pushing the row past
+     the viewport. */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
   margin-top: 40px;
 }
 
 .link {
-  display: inline-block;
-  padding: 10px 20px;
-  border: 1.5px solid var(--text-primary);
+  display: block;
+  min-width: 0;
+  text-align: center;
+  padding: 11px 4px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
   color: var(--text-primary);
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  transition: background 0.15s, color 0.15s;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, transform 0.1s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .link:hover {
   background: var(--text-primary);
   color: var(--surface-card);
+  border-color: var(--text-primary);
 }
 
-/* Primary "open this restaurant on the map" link — filled accent so it
-   stands out from the secondary outbound links. */
+.link:active {
+  transform: scale(0.97);
+}
+
+/* If there are 4 outbound buttons (Map + Google + Reserve + Website), the
+   fourth wraps to a second row spanning the full width — keeps the layout
+   balanced instead of leaving two empty grid cells. */
+.link:nth-child(4) {
+  grid-column: 1 / -1;
+}
+
+/* Primary "open this restaurant on the map" link — filled landing-style red
+   so it reads as the same primary CTA used everywhere else (HeroForm submit,
+   BoosterPack submit, Newsletter submit). */
 .linkPrimary {
-  border-color: var(--accent);
-  background: var(--accent);
+  background: var(--cta-red);
+  border-color: var(--cta-red);
   color: #ffffff;
 }
 
 .linkPrimary:hover {
-  background: var(--accent);
+  background: var(--cta-red);
+  border-color: var(--cta-red);
   color: #ffffff;
   filter: brightness(0.92);
 }

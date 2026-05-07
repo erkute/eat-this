@@ -4,7 +4,7 @@ import { useCallback, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
-import { useAuth } from '@/lib/auth';
+import { useAuth, openLoginModal } from '@/lib/auth';
 import { routing } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 
@@ -29,14 +29,14 @@ export default function SiteNav() {
   const activePage = pageSlugFromPath(pathname);
 
   // Header profile icon: route to /profile if signed in, otherwise open the
-  // login modal via window.openLoginModal (set by BridgeAuth as a React portal).
+  // login modal (mounted by BridgeAuth as a React portal).
   const handleProfileClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     if (user) {
       const href = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
       window.location.assign(href);
     } else {
-      window.openLoginModal?.();
+      openLoginModal();
     }
   }, [user, locale]);
 
@@ -74,6 +74,10 @@ export default function SiteNav() {
     if (!drawer) return;
 
     let scrollY = 0;
+    // Tracks whether THIS effect locked the body, so a later unlock (or the
+    // cleanup-on-unmount) only undoes what we did and doesn't clobber a lock
+    // owned by a modal or sheet.
+    let lockMode: 'fixed' | 'overflow' | null = null;
     const isMobile = () => window.innerWidth < 768;
     const lock = () => {
       if (isMobile()) {
@@ -81,23 +85,38 @@ export default function SiteNav() {
         document.body.style.position = 'fixed';
         document.body.style.top = `-${scrollY}px`;
         document.body.style.width = '100%';
+        lockMode = 'fixed';
       } else {
         document.body.style.overflow = 'hidden';
+        lockMode = 'overflow';
       }
     };
-    const unlock = () => {
-      if (document.body.style.position === 'fixed') {
+    const unlock = (restoreScroll = true) => {
+      if (lockMode === 'fixed') {
         document.body.style.position = '';
         document.body.style.top = '';
         document.body.style.width = '';
-        requestAnimationFrame(() => window.scrollTo(0, scrollY));
-      } else {
+        // Skip the scroll-restore when the close was triggered by navigation
+        // (e.g. user clicked a Link inside the drawer) — the new page should
+        // start at the top, not at the previous page's scroll position.
+        if (restoreScroll) {
+          requestAnimationFrame(() => window.scrollTo(0, scrollY));
+        }
+      } else if (lockMode === 'overflow') {
         document.body.style.overflow = '';
       }
+      lockMode = null;
     };
 
     const open  = () => { drawer.classList.add('active'); lock(); };
-    const close = () => { drawer.classList.remove('active'); unlock(); };
+    const close = () => {
+      drawer.classList.remove('active');
+      // BurgerDrawer's route-change effect tags the drawer before triggering
+      // close so we skip the scroll-restore in that path.
+      const navTriggered = drawer.dataset.scrollSuppress === 'nav';
+      delete drawer.dataset.scrollSuppress;
+      unlock(!navTriggered);
+    };
 
     openBtn?.addEventListener('click', open);
     closeBtn?.addEventListener('click', close);
@@ -106,6 +125,10 @@ export default function SiteNav() {
       openBtn?.removeEventListener('click', open);
       closeBtn?.removeEventListener('click', close);
       backdrop?.removeEventListener('click', close);
+      // Cross-layout navigation while the drawer is open: our body-lock would
+      // persist and break scrolling on the next page. Undo without restoring
+      // scroll — the new page should start at the top.
+      unlock(false);
     };
   }, []);
 

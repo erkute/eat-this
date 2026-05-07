@@ -2,7 +2,7 @@
    Landing redesign — shared module styles
    Mobile-first; @media(min-width:768px) for desktop overrides.
    Colors:
-     CTA red    #b71c1c   primary action buttons
+     CTA red    var(--cta-red) (#b71c1c)   primary action buttons
      Mustard    #c8951a   sec-labels, highlights, FAQ icons
      Yellow     #f5c518   booster-pack starburst (matches print)
      Black      #1a1a1a   headlines + secondary buttons
@@ -516,7 +516,7 @@
 .packInput::placeholder { color: #999; }
 .packSubmit {
   padding: 13px;
-  background: #b71c1c;
+  background: var(--cta-red);
   color: #fff;
   font-size: 14px;
   font-weight: 700;
@@ -806,7 +806,7 @@
 .memModalCta {
   width: 100%;
   padding: 14px;
-  background: #b71c1c;
+  background: var(--cta-red);
   color: #fff;
   font-size: 14px;
   font-weight: 700;
@@ -962,7 +962,7 @@
 .newsInput::placeholder { color: #999; }
 .newsBtn {
   padding: 13px;
-  background: #b71c1c;
+  background: var(--cta-red);
   color: #fff;
   font-size: 14px;
   font-weight: 700;
@@ -1031,7 +1031,7 @@
 }
 .heroInput::placeholder { color: #aaa; }
 .heroSubmit {
-  background: #b71c1c;
+  background: var(--cta-red);
   color: #fff;
   font-size: 14px;
   font-weight: 700;
@@ -1294,7 +1294,7 @@
 .heroIntroInput::placeholder { color: #aaa; }
 .heroIntroSubmit {
   padding: 13px;
-  background: #b71c1c;
+  background: var(--cta-red);
   color: #fff;
   font-size: 14px;
   font-weight: 700;

@@ -186,7 +186,6 @@ export default async function RestaurantPage({ params }: PageProps) {
             <h1 className={styles.name}>{r.name}</h1>
             <div className={styles.meta}>
               {r.district && <span className={styles.district}>{r.district}</span>}
-              {r.price && <span className={styles.price}>{r.price}</span>}
             </div>
             {r.address && (
               <a
@@ -199,9 +198,10 @@ export default async function RestaurantPage({ params }: PageProps) {
               </a>
             )}
             {r.cuisineType && <p className={styles.cuisine}>{r.cuisineType}</p>}
-            {r.categories && r.categories.length > 0 && (
+            {((r.categories && r.categories.length > 0) || r.price) && (
               <div className={styles.categories}>
-                {r.categories.map((cat: string) => (
+                {r.price && <span className={styles.price}>{r.price}</span>}
+                {r.categories?.map((cat: string) => (
                   <span key={cat} className={styles.category}>{cat}</span>
                 ))}
               </div>

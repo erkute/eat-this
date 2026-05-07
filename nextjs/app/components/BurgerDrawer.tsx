@@ -3,7 +3,7 @@
 import { useCallback, useEffect } from 'react';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
-import { useAuth } from '@/lib/auth';
+import { useAuth, openLoginModal } from '@/lib/auth';
 import { useTheme } from '@/lib/useTheme';
 import { routing } from '@/i18n/routing';
 import { Link, usePathname } from '@/i18n/navigation';
@@ -18,9 +18,12 @@ export default function BurgerDrawer() {
   // Close the drawer whenever the route changes — clicking a Link inside the
   // drawer would otherwise navigate but leave the panel + backdrop open over
   // the new page. Triggers the existing close handler wired up in SiteNav.
+  // The dataset flag tells SiteNav's close handler to skip the scroll-restore
+  // so the destination page starts at the top instead of the old scrollY.
   useEffect(() => {
     const drawer = document.getElementById('burgerDrawer');
     if (drawer?.classList.contains('active')) {
+      drawer.dataset.scrollSuppress = 'nav';
       document.getElementById('burgerClose')?.click();
     }
   }, [pathname]);
@@ -31,9 +34,10 @@ export default function BurgerDrawer() {
       const href = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
       window.location.assign(href);
     } else {
-      window.openLoginModal?.();
+      openLoginModal();
     }
   }, [user, locale]);
+
   return (
     <div className="burger-drawer" id="burgerDrawer">
       <div className="burger-drawer-backdrop" id="burgerBackdrop"></div>
@@ -59,6 +63,13 @@ export default function BurgerDrawer() {
               <line x1="15" y1="6" x2="15" y2="21"/>
             </svg>
             <span>{t('footer.map')}</span>
+          </Link>
+          <Link href="/bezirk" className="burger-primary-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span>{t('burger.bezirke')}</span>
           </Link>
           {/* Pre-hydration bootstrap in [locale]/layout.tsx may set .logged-in
               + username from _authHint, and BridgeAuth overwrites the span on

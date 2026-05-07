@@ -82,9 +82,3 @@ export default function BridgeAuth() {
   ) : null;
 }
 
-declare global {
-  interface Window {
-    openLoginModal?: () => void;
-    closeLoginModal?: () => void;
-  }
-}

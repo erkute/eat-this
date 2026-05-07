@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import styles from './landing.module.css';
-import { useAuth, useMagicLink } from '@/lib/auth';
+import { useMagicLink } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
 
 const STARBURST_POINTS =
@@ -12,7 +12,6 @@ const STARBURST_POINTS =
   '0,50 12.73,42.59 3.81,30.87 18.41,28.88 14.64,14.64 28.88,18.41 30.87,3.81 42.59,12.73';
 
 export default function BoosterPack() {
-  const { user } = useAuth();
   const { sendLink, state, errorMessage } = useMagicLink();
   const [email, setEmail] = useState('');
   const { t } = useTranslation();
@@ -74,39 +73,37 @@ export default function BoosterPack() {
             {t('landing.boosterBadgeLine2')}
           </span>
         </div>
-        {!user && (
-          state === 'sent' ? (
-            <p className={styles.magicSent}>
-              {t('landing.magicSent')}
-            </p>
-          ) : (
-            <>
-              <form
-                className={styles.packEmail}
-                onSubmit={(e) => { e.preventDefault(); sendLink(email); }}
+        {state === 'sent' ? (
+          <p className={styles.magicSent}>
+            {t('landing.magicSent')}
+          </p>
+        ) : (
+          <>
+            <form
+              className={styles.packEmail}
+              onSubmit={(e) => { e.preventDefault(); sendLink(email); }}
+            >
+              <input
+                className={styles.packInput}
+                type="email"
+                placeholder={t('landing.boosterEmailPlaceholder')}
+                aria-label={t('landing.emailAriaLabel')}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <button
+                className={styles.packSubmit}
+                type="submit"
+                disabled={state === 'sending'}
               >
-                <input
-                  className={styles.packInput}
-                  type="email"
-                  placeholder={t('landing.boosterEmailPlaceholder')}
-                  aria-label={t('landing.emailAriaLabel')}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <button
-                  className={styles.packSubmit}
-                  type="submit"
-                  disabled={state === 'sending'}
-                >
-                  {state === 'sending' ? t('landing.sending') : t('landing.boosterSubmit')}
-                </button>
-              </form>
-              {state === 'error' && (
-                <p className={styles.magicError}>{errorMessage}</p>
-              )}
-            </>
-          )
+                {state === 'sending' ? t('landing.sending') : t('landing.boosterSubmit')}
+              </button>
+            </form>
+            {state === 'error' && (
+              <p className={styles.magicError}>{errorMessage}</p>
+            )}
+          </>
         )}
       </div>
     </section>

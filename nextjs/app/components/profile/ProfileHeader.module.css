@@ -56,8 +56,14 @@
 }
 
 @media (min-width: 768px) {
-  /* Escape .page's 24px padding; 40px inset matches albumGrid desktop. */
-  .header { margin: 0 -24px; padding: 32px 40px 24px; }
+  /* Escape .page's 24px sides AND its 60px nav-clearance top so the gradient
+     sits flush under the fixed navbar — same flush-to-nav treatment as the
+     restaurant detail hero. The 60px is added back inside padding-top so the
+     avatar position is independent of the .page padding choice. */
+  .header {
+    margin: calc(-1 * (60px + env(safe-area-inset-top, 0px))) -24px 0;
+    padding: calc(60px + env(safe-area-inset-top, 0px) + 16px) 40px 24px;
+  }
   .avatar { width: 104px; height: 104px; }
   .avatar img { width: 86px; height: 86px; }
   .name { font-size: 32px; }
@@ -65,7 +71,7 @@
 
 @media (min-width: 1200px) {
   /* 64px inset matches albumGrid at 1200px+. */
-  .header { padding: 32px 64px 24px; }
+  .header { padding: calc(60px + env(safe-area-inset-top, 0px) + 16px) 64px 24px; }
 }
 
 /* Dark Mode — gradient end stays slightly lighter than page bg (#0d0d0d)

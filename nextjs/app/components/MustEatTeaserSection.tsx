@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import type { MustEatPreview } from '@/lib/sanity.server'
+import { openLoginModal } from '@/lib/auth'
 import styles from './MustEatTeaserSection.module.css'
 
 interface Props {
@@ -19,9 +20,7 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
   const handleClick = (id: string) => {
     setShakingId(id)
     window.setTimeout(() => setShakingId(prev => (prev === id ? null : prev)), 600)
-    if (typeof window !== 'undefined') {
-      window.openLoginModal?.()
-    }
+    openLoginModal()
   }
 
   return (

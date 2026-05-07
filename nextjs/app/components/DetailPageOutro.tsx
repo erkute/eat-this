@@ -36,15 +36,21 @@ export default function DetailPageOutro({
       <hr className={styles.divider} />
 
       <Link href={mapHref} className={styles.mapBlock} aria-label={de ? `Entdecke ${bezirkName}` : `Discover ${bezirkName}`}>
-        <Image
-          src="/pics/map-promo-mobile.png"
-          alt=""
-          width={918}
-          height={1256}
-          className={styles.mapBlockPromoMobile}
-          sizes="100vw"
-          priority={false}
-        />
+        <span className={styles.mapBlockMobileWrap}>
+          <Image
+            src="/pics/map-promo-mobile.png"
+            alt=""
+            width={918}
+            height={1256}
+            className={styles.mapBlockPromoMobile}
+            sizes="100vw"
+            priority={false}
+          />
+          <span className={styles.mapBlockCta}>
+            {de ? `Entdecke ${bezirkName}` : `Discover ${bezirkName}`}
+            <span className={styles.mapBlockCtaArrow} aria-hidden="true">→</span>
+          </span>
+        </span>
         <Image
           src="/pics/map-promo.png"
           alt=""
@@ -54,10 +60,6 @@ export default function DetailPageOutro({
           sizes="760px"
           priority={false}
         />
-        <span className={styles.mapBlockCta}>
-          {de ? `Entdecke ${bezirkName}` : `Discover ${bezirkName}`}
-          <span className={styles.mapBlockCtaArrow} aria-hidden="true">→</span>
-        </span>
       </Link>
 
       {newsToShow.length > 0 && (

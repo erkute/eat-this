@@ -44,6 +44,11 @@
   color: inherit;
 }
 
+.mapBlockMobileWrap {
+  position: relative;
+  display: block;
+}
+
 .mapBlockPromoMobile,
 .mapBlockPromoDesktop {
   display: block;
@@ -64,22 +69,25 @@
   filter: drop-shadow(0 22px 40px rgba(0, 0, 0, 0.22));
 }
 
+/* Mobile-only red CTA, glued onto the bottom of the promo image. */
 .mapBlockCta {
-  align-self: stretch;
-  margin-top: 18px;
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 7%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: var(--accent);
+  background: #b71c1c;
   color: #ffffff;
   font-size: 16px;
   font-weight: 800;
   letter-spacing: 0.02em;
-  padding: 18px 24px;
-  border-radius: 18px;
-  transition: filter 0.2s ease, transform 0.2s ease;
-  box-shadow: 0 10px 24px var(--accent-soft);
+  padding: 16px 22px;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  transition: filter 0.2s ease;
 }
 
 .mapBlockCtaArrow {
@@ -179,15 +187,12 @@
   .mapBlock {
     margin-bottom: 64px;
   }
-  .mapBlockPromoMobile {
+  .mapBlockMobileWrap {
     display: none;
   }
   .mapBlockPromoDesktop {
     display: block;
     border-radius: 24px;
-  }
-  .mapBlockCta {
-    display: none;
   }
   .newsGrid {
     grid-template-columns: 1fr 1fr;

@@ -22,12 +22,12 @@ export default function BurgerDrawer() {
   const { isDark, toggleTheme } = useTheme();
   const pathname = usePathname();
 
-  // Close the drawer whenever the route changes — clicking a Link inside the
-  // drawer would otherwise navigate but leave the panel + backdrop open over
-  // the new page. Dispatches a typed event the SiteNav close handler listens
-  // for; `suppressScroll` skips the scroll-restore so the destination page
+  // Close the drawer on any internal link click. Pathname-change effect alone
+  // doesn't catch same-route clicks (e.g. clicking "Restaurants" while already
+  // on /bezirk) — Next.js skips the navigation and the drawer stays open.
+  // `suppressScroll` skips the body-scroll restore so the destination page
   // starts at the top instead of the old scrollY.
-  useEffect(() => {
+  const closeBurger = useCallback(() => {
     const drawer = document.getElementById('burgerDrawer');
     if (drawer?.classList.contains('active')) {
       drawer.dispatchEvent(
@@ -36,7 +36,9 @@ export default function BurgerDrawer() {
         }),
       );
     }
-  }, [pathname]);
+  }, []);
+
+  useEffect(() => { closeBurger(); }, [pathname, closeBurger]);
 
   const handleLoginBtn = useCallback(() => {
     document.getElementById('burgerClose')?.click();
@@ -48,10 +50,16 @@ export default function BurgerDrawer() {
     }
   }, [user, locale, openLogin]);
 
+  // Event-delegated close: any anchor click bubbles up; we dispatch the close
+  // event so same-route navigation also closes the drawer.
+  const onPanelClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest('a')) closeBurger();
+  }, [closeBurger]);
+
   return (
     <div className="burger-drawer" id="burgerDrawer">
       <div className="burger-drawer-backdrop" id="burgerBackdrop"></div>
-      <div className="burger-drawer-panel">
+      <div className="burger-drawer-panel" onClick={onPanelClick}>
         <button className="burger-drawer-close" id="burgerClose" aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="18" y1="6" x2="6" y2="18" />
@@ -79,7 +87,7 @@ export default function BurgerDrawer() {
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
               <circle cx="12" cy="10" r="3"/>
             </svg>
-            <span>{t('burger.bezirke')}</span>
+            <span>{t('burger.restaurants')}</span>
           </Link>
           {/* Pre-hydration bootstrap in [locale]/layout.tsx may set .logged-in
               + username from _authHint, and BridgeAuth overwrites the span on

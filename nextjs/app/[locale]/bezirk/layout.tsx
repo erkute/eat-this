@@ -6,6 +6,8 @@ import { AuthProvider, LoginModalProvider } from '@/lib/auth'
 import SiteNav from '@/app/components/SiteNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
 import SiteFooter from '@/app/components/SiteFooter'
+import SearchOverlay from '@/app/components/SearchOverlay'
+import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth'
 
 export default async function BezirkLayout({
   children,
@@ -24,10 +26,12 @@ export default async function BezirkLayout({
         {/* Full SPA stylesheet — needed for SiteNav/burger styling on this non-(spa) route */}
         {/* eslint-disable-next-line @next/next/no-css-tags */}
         <link rel="stylesheet" href="/css/style.min.css?v=30" precedence="default" />
+        <BridgeAuth />
         <SiteNav />
         <BurgerDrawer />
         {children}
         <SiteFooter />
+        <SearchOverlay />
       </LoginModalProvider>
     </AuthProvider>
   )

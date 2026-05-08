@@ -234,7 +234,7 @@ const en = {
     contact: "Contact",
     press: "Press",
     impressum: "Impressum",
-    bezirke: "Districts",
+    restaurants: "Restaurants",
   },
   theme: {
     darkMode: "Dark Mode",
@@ -568,7 +568,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     contact: "Kontakt",
     press: "Presse",
     impressum: "Impressum",
-    bezirke: "Bezirke",
+    restaurants: "Restaurants",
   },
   theme: {
     darkMode: "Dark Mode",

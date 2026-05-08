@@ -681,8 +681,8 @@ export default function MapSection({ isActive = false }: Props) {
       onResetBezirkPill={resetBezirkPill}
       onToggleFavorite={() => { if (selectedRestaurant) toggleFavorite(selectedRestaurant) }}
       myLocationAriaLabel={t('map.myLocationAriaLabel') ?? 'My location'}
-      restaurantsListAriaLabel="Restaurants nearby"
-      mustEatsListAriaLabel="Must-Eats"
+      restaurantsListAriaLabel={t('map.restaurantsListAriaLabel') ?? 'Restaurants nearby'}
+      mustEatsListAriaLabel={t('map.mustEatsListAriaLabel') ?? 'Must Eats'}
     />
   )
 }

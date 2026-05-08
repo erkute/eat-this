@@ -162,38 +162,20 @@
   .siblingItem { flex: 0 0 290px; max-width: 290px; }
 }
 
-/* Freigestelltes Banner: Bild steht für sich, abgerundete Ecken + Drop-Shadow.
-   Mobile: hochformat-Bild + fetter roter Button drunter.
-   Desktop: querformat-Bild, kein Button (das Bild trägt selbst alles). */
+/* Freigestelltes Banner: Map-Promo-Bild als Map-CTA. Mobile + Desktop nutzen
+   eigene Assets (3:2 für Mobile, 2:1 für Desktop) — beide tragen ihr eigenes
+   Wording ("the map for people who care about food."), deshalb kein
+   zusätzlicher Button. CSS toggelt sichtbar; Browser fetcht nur das
+   sichtbare Bild dank `display: none` auf dem versteckten. */
 .mapBlock {
-  display: flex;
-  flex-direction: column;
+  display: block;
   margin: 0 0 40px;
   text-decoration: none;
   color: inherit;
-}
-
-.mapBlockMobileWrap {
-  position: relative;
-  display: block;
-}
-
-.mapBlockImageLink {
-  display: block;
-  text-decoration: none;
-  color: inherit;
   -webkit-tap-highlight-color: transparent;
 }
 
-.mapBlockDesktopLink {
-  display: none;
-  text-decoration: none;
-  color: inherit;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.mapBlockPromoMobile,
-.mapBlockPromoDesktop {
+.mapBlockPromo {
   display: block;
   width: 100%;
   height: auto;
@@ -202,73 +184,18 @@
   transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), filter 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
-.mapBlockImageLink:hover .mapBlockPromoMobile,
-.mapBlockDesktopLink:hover .mapBlockPromoDesktop {
+.mapBlockPromoDesktop {
+  display: none;
+}
+
+.mapBlock:hover .mapBlockPromo {
   transform: translateY(-3px);
   filter: drop-shadow(0 22px 40px rgba(0, 0, 0, 0.22));
 }
 
-.mapBlockImageLink:active .mapBlockPromoMobile,
-.mapBlockDesktopLink:active .mapBlockPromoDesktop {
+.mapBlock:active .mapBlockPromo {
   transform: translateY(-1px);
   filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.18)) brightness(0.97);
-}
-
-/* Mobile-only CTA, overlaid on the bottom of the promo image. Solid brand
-   red (matches landing-page submit buttons) so it reads as a punchy primary
-   action against the dark map graphic. */
-.mapBlockCta {
-  position: absolute;
-  left: 14%;
-  right: 14%;
-  bottom: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: var(--cta-red);
-  border: none;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.01em;
-  text-decoration: none;
-  padding: 10px 18px;
-  border-radius: 9px;
-  box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.30),
-    0 3px 8px rgba(120, 10, 20, 0.38);
-  transition: transform 0.18s cubic-bezier(0.2, 0.7, 0.2, 1),
-              background-color 0.18s ease,
-              box-shadow 0.18s ease;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-}
-
-.mapBlockCtaArrow {
-  font-size: 15px;
-  line-height: 1;
-  transition: transform 0.2s ease;
-}
-
-.mapBlockCta:hover {
-  background: #c92121;
-  box-shadow:
-    0 16px 32px rgba(0, 0, 0, 0.34),
-    0 6px 14px rgba(120, 10, 20, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
-}
-
-.mapBlockCta:hover .mapBlockCtaArrow {
-  transform: translateX(4px);
-}
-
-.mapBlockCta:active {
-  transform: scale(0.97);
-  background: #a01616;
-  box-shadow:
-    0 4px 10px rgba(0, 0, 0, 0.32),
-    inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
 .newsHead {
@@ -367,14 +294,14 @@
   .mapBlock {
     margin-bottom: 64px;
   }
-  .mapBlockMobileWrap {
+  .mapBlockPromo {
+    border-radius: 24px;
+  }
+  .mapBlockPromoMobile {
     display: none;
   }
-  .mapBlockDesktopLink {
-    display: block;
-  }
   .mapBlockPromoDesktop {
-    border-radius: 24px;
+    display: block;
   }
   .newsGrid {
     gap: 16px;

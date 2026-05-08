@@ -138,7 +138,7 @@ function SiblingRow({ locale, title, hubHref, restaurants }: SiblingRowProps) {
   )
 }
 
-/* ────────── Map promo (mobile portrait + desktop landscape) ────────── */
+/* ────────── Map promo banner (same asset on mobile + desktop) ────────── */
 
 interface MapPromoBlockProps {
   bezirkSlug: string
@@ -149,38 +149,27 @@ interface MapPromoBlockProps {
 function MapPromoBlock({ bezirkSlug, bezirkName, locale }: MapPromoBlockProps) {
   const de = locale === 'de'
   const mapHref = `/map?bezirk=${bezirkSlug}`
-  const ariaLabel = de ? `Entdecke ${bezirkName}` : `Discover ${bezirkName}`
-  const ctaLabel = ariaLabel
+  const ariaLabel = de ? `Entdecke ${bezirkName} auf der Map` : `Discover ${bezirkName} on the map`
 
   return (
-    <div className={styles.mapBlock}>
-      <div className={styles.mapBlockMobileWrap}>
-        <Link href={mapHref} className={styles.mapBlockImageLink} aria-label={ariaLabel}>
-          <Image
-            src="/pics/map-promo-mobile.png"
-            alt=""
-            width={918}
-            height={1256}
-            className={styles.mapBlockPromoMobile}
-            sizes="100vw"
-          />
-        </Link>
-        <Link href={mapHref} className={styles.mapBlockCta}>
-          {ctaLabel}
-          <span className={styles.mapBlockCtaArrow} aria-hidden="true">→</span>
-        </Link>
-      </div>
-      <Link href={mapHref} className={styles.mapBlockDesktopLink} aria-label={ariaLabel}>
-        <Image
-          src="/pics/map-promo.png"
-          alt=""
-          width={1802}
-          height={873}
-          className={styles.mapBlockPromoDesktop}
-          sizes="760px"
-        />
-      </Link>
-    </div>
+    <Link href={mapHref} className={styles.mapBlock} aria-label={ariaLabel}>
+      <Image
+        src="/pics/map-promo-mobile.webp"
+        alt=""
+        width={1536}
+        height={1024}
+        className={`${styles.mapBlockPromo} ${styles.mapBlockPromoMobile}`}
+        sizes="calc(100vw - 48px)"
+      />
+      <Image
+        src="/pics/map-promo-desktop.webp"
+        alt=""
+        width={1774}
+        height={887}
+        className={`${styles.mapBlockPromo} ${styles.mapBlockPromoDesktop}`}
+        sizes="1032px"
+      />
+    </Link>
   )
 }
 

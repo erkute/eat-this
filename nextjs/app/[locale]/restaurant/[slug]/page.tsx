@@ -185,7 +185,6 @@ export default async function RestaurantPage({ params }: PageProps) {
   return (
     <>
       {/* JSON-LD: serializeJsonLd sanitizes output — safe inline structured data */}
-      {/* eslint-disable-next-line react/no-danger */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       <main className={styles.page}>
         <div className={styles.hero}>
@@ -229,7 +228,7 @@ export default async function RestaurantPage({ params }: PageProps) {
 
             {tip && (
               <div className={styles.tip}>
-                <strong>Insider Tip: </strong>
+                <strong>{de ? 'Insider-Tipp' : 'Insider Tip'}: </strong>
                 {tip}
               </div>
             )}

@@ -513,7 +513,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     filterAll: "Alle",
     filterDinner: "Abendessen",
     filterLunch: "Mittag",
-    filterCoffee: "Kaffee",
+    filterCoffee: "Café",
     filterBreakfast: "Fr\u00fchst\u00fcck",
     filterSweets: "S\u00fc\u00dfes",
     filterPizza: "Pizza",

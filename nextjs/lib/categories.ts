@@ -40,7 +40,7 @@ export const CATEGORIES: readonly CategoryDef[] = [
   {
     slug: 'coffee',
     value: 'Coffee',
-    labelDe: 'Kaffee',
+    labelDe: 'Café',
     labelEn: 'Coffee',
     blurbDe: 'Specialty Coffee, Röstereien und Cafés — wo Berlin ernsthaft Kaffee trinkt.',
     blurbEn: 'Specialty coffee, roasteries, and cafés — where Berlin drinks coffee seriously.',

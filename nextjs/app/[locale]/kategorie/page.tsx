@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const de = locale === 'de'
   const title = de ? 'Restaurants nach Kategorie' : 'Restaurants by category'
   const description = de
-    ? 'Berliner Restaurants nach Anlass — Frühstück, Lunch, Dinner, Kaffee, Süßes und Pizza.'
+    ? 'Berliner Restaurants nach Anlass — Frühstück, Lunch, Dinner, Café, Süßes und Pizza.'
     : 'Berlin restaurants by occasion — breakfast, lunch, dinner, coffee, sweets, and pizza.'
   const canonical = localeUrl(locale, '/kategorie')
   return {

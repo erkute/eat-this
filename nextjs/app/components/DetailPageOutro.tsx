@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
-import type { NewsArticle } from '@/lib/types'
+import type { NewsArticle, RestaurantCard } from '@/lib/types'
+import type { CategoryDef } from '@/lib/categories'
 import styles from './DetailPageOutro.module.css'
 
 interface DetailPageOutroProps {
@@ -8,6 +9,9 @@ interface DetailPageOutroProps {
   bezirkName: string
   latestNews: NewsArticle[]
   locale: 'de' | 'en'
+  siblingsBezirk?: RestaurantCard[]
+  siblingsCategory?: RestaurantCard[]
+  categoryDef?: CategoryDef | null
 }
 
 export default function DetailPageOutro({
@@ -15,15 +19,122 @@ export default function DetailPageOutro({
   bezirkName,
   latestNews,
   locale,
+  siblingsBezirk = [],
+  siblingsCategory = [],
+  categoryDef = null,
 }: DetailPageOutroProps) {
   const newsToShow = latestNews.slice(0, 2)
+  const hasSiblings = siblingsBezirk.length > 0 || siblingsCategory.length > 0
 
   return (
     <section className={styles.outro}>
       <hr className={styles.divider} />
+      {hasSiblings && (
+        <SiblingLinks
+          locale={locale}
+          bezirkSlug={bezirkSlug}
+          bezirkName={bezirkName}
+          siblingsBezirk={siblingsBezirk}
+          siblingsCategory={siblingsCategory}
+          categoryDef={categoryDef}
+        />
+      )}
       <MapPromoBlock bezirkSlug={bezirkSlug} bezirkName={bezirkName} locale={locale} />
       {newsToShow.length > 0 && <LatestNewsGrid articles={newsToShow} locale={locale} />}
     </section>
+  )
+}
+
+/* ────────── Sibling cross-links (SEO discoverability) ────────── */
+
+interface SiblingLinksProps {
+  locale: 'de' | 'en'
+  bezirkSlug: string
+  bezirkName: string
+  siblingsBezirk: RestaurantCard[]
+  siblingsCategory: RestaurantCard[]
+  categoryDef: CategoryDef | null
+}
+
+function SiblingLinks({
+  locale,
+  bezirkSlug,
+  bezirkName,
+  siblingsBezirk,
+  siblingsCategory,
+  categoryDef,
+}: SiblingLinksProps) {
+  const de = locale === 'de'
+  const categoryLabel = categoryDef ? (de ? categoryDef.labelDe : categoryDef.labelEn) : null
+  return (
+    <div className={styles.siblings}>
+      {siblingsBezirk.length > 0 && (
+        <SiblingRow
+          locale={locale}
+          title={de ? `Mehr in ${bezirkName}` : `More in ${bezirkName}`}
+          hubHref={`/bezirk/${bezirkSlug}`}
+          restaurants={siblingsBezirk}
+        />
+      )}
+      {siblingsCategory.length > 0 && categoryDef && categoryLabel && (
+        <SiblingRow
+          locale={locale}
+          title={de ? `Mehr ${categoryLabel}` : `More ${categoryLabel.toLowerCase()}`}
+          hubHref={`/kategorie/${categoryDef.slug}`}
+          restaurants={siblingsCategory}
+        />
+      )}
+    </div>
+  )
+}
+
+interface SiblingRowProps {
+  locale: 'de' | 'en'
+  title: string
+  hubHref: string
+  restaurants: RestaurantCard[]
+}
+
+function SiblingRow({ locale, title, hubHref, restaurants }: SiblingRowProps) {
+  const de = locale === 'de'
+  return (
+    <div className={styles.siblingGroup}>
+      <div className={styles.siblingHead}>
+        <h2 className={styles.siblingTitle}>{title}</h2>
+        <Link href={hubHref} className={styles.siblingHubLink}>
+          {de ? 'Alle ansehen' : 'See all'}
+          <span aria-hidden="true">→</span>
+        </Link>
+      </div>
+      <ul className={styles.siblingScroller} role="list">
+        {restaurants.map(r => (
+          <li key={r._id} className={styles.siblingItem}>
+            <Link href={`/restaurant/${r.slug}`} className={styles.siblingCard}>
+              <div className={styles.siblingCardImage}>
+                {r.photo && (
+                  <Image
+                    src={r.photo}
+                    alt={r.name}
+                    fill
+                    sizes="(max-width: 720px) 72vw, 320px"
+                  />
+                )}
+              </div>
+              <div className={styles.siblingCardBody}>
+                <h3 className={styles.siblingCardName}>{r.name}</h3>
+                {(r.cuisineType || r.price) && (
+                  <div className={styles.siblingCardMeta}>
+                    {r.cuisineType && <span>{r.cuisineType}</span>}
+                    {r.cuisineType && r.price && <span aria-hidden="true">·</span>}
+                    {r.price && <span>{r.price}</span>}
+                  </div>
+                )}
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
 
@@ -114,7 +225,7 @@ function NewsCard({ article, locale }: { article: NewsArticle; locale: 'de' | 'e
             src={article.imageUrl}
             alt={title ?? ''}
             fill
-            sizes="(max-width: 720px) 100vw, 50vw"
+            sizes="(max-width: 720px) 72vw, 320px"
           />
         </div>
       )}

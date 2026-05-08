@@ -33,6 +33,131 @@
   color: var(--text-primary);
 }
 
+/* Sibling cross-links — horizontal-scroll gallery (Apple App Store pattern).
+   Cards use the same 4/3 photo + card frame as bezirk/kategorie pages.
+   First card's left edge aligns with the map-promo + news blocks below
+   (no extra horizontal padding — scroller inherits page padding). */
+.siblings {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin: 0 0 48px;
+}
+.siblingGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.siblingHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+.siblingTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.siblingHubLink {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: color 120ms ease;
+}
+.siblingHubLink:hover { color: var(--text-primary); }
+.siblingHubLink span {
+  transition: transform 160ms ease;
+}
+.siblingHubLink:hover span { transform: translateX(2px); }
+
+.siblingScroller {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0 8px;
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-left: 0;
+}
+.siblingScroller::-webkit-scrollbar { display: none; }
+
+.siblingItem {
+  flex: 0 0 72vw;
+  max-width: 300px;
+  scroll-snap-align: start;
+}
+
+.siblingCard {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  height: 100%;
+}
+.siblingCard:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+.siblingCardImage {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  background: var(--surface-bg);
+  overflow: hidden;
+}
+.siblingCardImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.siblingCardBody {
+  padding: 14px 16px 18px;
+}
+.siblingCardName {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  margin: 0 0 6px;
+  color: var(--text-primary);
+}
+.siblingCardMeta {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+@media (min-width: 720px) {
+  .siblings { gap: 40px; margin-bottom: 56px; }
+  .siblingTitle { font-size: 26px; }
+  .siblingHubLink { font-size: 14px; }
+  .siblingScroller { gap: 16px; padding: 6px 0 12px; }
+  .siblingItem { flex: 0 0 320px; max-width: 320px; }
+}
+
 /* Freigestelltes Banner: Bild steht für sich, abgerundete Ecken + Drop-Shadow.
    Mobile: hochformat-Bild + fetter roter Button drunter.
    Desktop: querformat-Bild, kein Button (das Bild trägt selbst alles). */
@@ -147,23 +272,36 @@
 }
 
 .newsGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
+  list-style: none;
+  margin: 0;
+  padding: 4px 0 8px;
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-left: 0;
 }
+.newsGrid::-webkit-scrollbar { display: none; }
 
 .newsCard {
+  flex: 0 0 72vw;
+  max-width: 300px;
+  scroll-snap-align: start;
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);
   text-decoration: none;
   color: inherit;
   display: flex;
   flex-direction: column;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .newsCard:hover {
   border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .newsImage {
@@ -235,7 +373,11 @@
     border-radius: 24px;
   }
   .newsGrid {
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
+    gap: 16px;
+    padding: 6px 0 12px;
+  }
+  .newsCard {
+    flex: 0 0 320px;
+    max-width: 320px;
   }
 }

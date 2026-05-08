@@ -2,11 +2,12 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
-import { getRestaurantBySlug, getAllRestaurantSlugs, getLatestNewsArticles, getMustEatsByRestaurant } from '@/lib/sanity.server'
+import { getRestaurantBySlug, getAllRestaurantSlugs, getLatestNewsArticles, getMustEatsByRestaurant, getRestaurantsByBezirk, getRestaurantsByCategory } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
+import { CATEGORIES } from '@/lib/categories'
 import DetailPageOutro from '@/app/components/DetailPageOutro'
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection'
 import { Link as IntlLink } from '@/i18n/navigation'
@@ -97,10 +98,21 @@ export default async function RestaurantPage({ params }: PageProps) {
   setRequestLocale(locale)
   const r = await getRestaurantBySlug(slug)
   if (!r) notFound()
-  const [latestNews, mustEats] = await Promise.all([
+  const primaryCategory = r.categories?.[0]
+  const [latestNews, mustEats, siblingsBezirkRaw, siblingsCategoryRaw] = await Promise.all([
     getLatestNewsArticles(2),
     getMustEatsByRestaurant(r._id),
+    r.bezirk?.slug ? getRestaurantsByBezirk(r.bezirk.slug) : Promise.resolve([]),
+    primaryCategory ? getRestaurantsByCategory(primaryCategory) : Promise.resolve([]),
   ])
+
+  const SIBLING_LIMIT = 8
+  const siblingsBezirk = siblingsBezirkRaw.filter(s => s.slug !== slug).slice(0, SIBLING_LIMIT)
+  const siblingsCategoryAll = siblingsCategoryRaw.filter(s => s.slug !== slug)
+  // De-dupe: don't re-show a restaurant in both rows
+  const bezirkSlugSet = new Set(siblingsBezirk.map(s => s.slug))
+  const siblingsCategory = siblingsCategoryAll.filter(s => !bezirkSlugSet.has(s.slug)).slice(0, SIBLING_LIMIT)
+  const categoryDef = primaryCategory ? CATEGORIES.find(c => c.value === primaryCategory) ?? null : null
 
   const loc = locale === 'de' ? 'de' : 'en'
 
@@ -261,6 +273,9 @@ export default async function RestaurantPage({ params }: PageProps) {
             bezirkName={r.bezirk.name}
             latestNews={latestNews}
             locale={loc}
+            siblingsBezirk={siblingsBezirk}
+            siblingsCategory={siblingsCategory}
+            categoryDef={categoryDef}
           />
         )}
       </main>

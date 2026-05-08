@@ -12,9 +12,15 @@
 .hero {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  /* Mobile: match the 4/3 aspect ratio used by restaurant cards on the
+     bezirk/kategorie pages so the photo feels equally prominent. */
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   background: var(--surface-bg);
+}
+
+@media (min-width: 720px) {
+  .hero { aspect-ratio: 16 / 9; }
 }
 
 .heroImage {

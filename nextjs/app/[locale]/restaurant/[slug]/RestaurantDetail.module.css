@@ -236,6 +236,44 @@
   filter: brightness(0.92);
 }
 
+/* Brand-mark CTA — uses the actual /pics/logo2.webp wordmark via
+   `mask-image` so it inherits the button's currentColor (white on the
+   red CTA, no extra inverted asset needed). The "MAP" qualifier sits in
+   the regular Inter-700 caps next to the wordmark — intentional contrast
+   in weight: the wordmark IS the brand, "MAP" is the product label. */
+.linkBrand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  /* The base .link uses 11 / 4 px padding tuned to the 3-col mobile grid
+     where horizontal space is at a premium. The wordmark needs more
+     breathing room, so widen here. */
+  padding: 10px 14px;
+}
+
+.linkBrandWordmark {
+  display: inline-block;
+  /* Slightly taller than the surrounding 0.75 rem caps so the wordmark
+     reads as dominant. Aspect ratio matches /pics/logo2.webp (1815/576). */
+  height: 16px;
+  aspect-ratio: 1815 / 576;
+  background: currentColor;
+  -webkit-mask: url('/pics/logo2.webp') center / contain no-repeat;
+  mask: url('/pics/logo2.webp') center / contain no-repeat;
+  flex-shrink: 0;
+}
+
+.linkBrandSuffix {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  /* Tiny optical lift so the suffix's lowercase x-height aligns with the
+     wordmark's heavy caps rather than sitting visually below them. */
+  margin-top: 1px;
+}
+
 /* ─── Two-column body layout (>= 960 px) ────────────────────────────────
    Mobile keeps the original block flow: header → description → tip →
    sidebar (address/hours/links) → must eats. On desktop we promote the

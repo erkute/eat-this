@@ -264,8 +264,13 @@ export default async function RestaurantPage({ params }: PageProps) {
               )}
 
               <div className={styles.links}>
-                <IntlLink href={`/map?r=${r.slug}`} className={`${styles.link} ${styles.linkPrimary}`}>
-                  Eat This Map
+                <IntlLink
+                  href={`/map?r=${r.slug}`}
+                  className={`${styles.link} ${styles.linkPrimary} ${styles.linkBrand}`}
+                  aria-label="Eat This Map"
+                >
+                  <span className={styles.linkBrandWordmark} aria-hidden="true" />
+                  <span className={styles.linkBrandSuffix} aria-hidden="true">Map</span>
                 </IntlLink>
                 {r.reservationUrl && (
                   <a href={r.reservationUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>

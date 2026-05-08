@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
 import { getRestaurantBySlug, getAllRestaurantSlugs, getLatestNewsArticles, getMustEatsByRestaurant, getRestaurantsByBezirk, getRestaurantsByCategory } from '@/lib/sanity.server'
-import { serializeJsonLd } from '@/lib/json-ld'
+import { buildRestaurantJsonLd } from '@/lib/json-ld-restaurant'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
@@ -135,51 +135,12 @@ export default async function RestaurantPage({ params }: PageProps) {
     { name: r.name },
   ]
 
-  // serializeJsonLd escapes </ sequences, making this safe for inline JSON-LD
-  const jsonLd = serializeJsonLd({
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'Restaurant',
-        name: r.name,
-        description: shortDescription || description || tip,
-        image: r.photo,
-        priceRange: r.price,
-        servesCuisine: r.categories,
-        url: r.website,
-        hasMap: r.mapsUrl,
-        ...(r.address && {
-          address: {
-            '@type': 'PostalAddress',
-            streetAddress: r.address,
-            addressLocality: 'Berlin',
-            addressCountry: 'DE',
-          },
-        }),
-        ...(r.lat != null && r.lng != null && {
-          geo: {
-            '@type': 'GeoCoordinates',
-            latitude: r.lat,
-            longitude: r.lng,
-          },
-        }),
-      },
-      {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Eat This Berlin', item: localeUrl(locale, '/') },
-          ...(r.bezirk?.slug && r.bezirk?.name
-            ? [
-                { '@type': 'ListItem', position: 2, name: districtsLabel, item: localeUrl(locale, '/bezirk') },
-                { '@type': 'ListItem', position: 3, name: r.bezirk.name, item: localeUrl(locale, `/bezirk/${r.bezirk.slug}`) },
-                { '@type': 'ListItem', position: 4, name: r.name, item: localeUrl(locale, `/restaurant/${slug}`) },
-              ]
-            : [
-                { '@type': 'ListItem', position: 2, name: r.name, item: localeUrl(locale, `/restaurant/${slug}`) },
-              ]),
-        ],
-      },
-    ],
+  const jsonLd = buildRestaurantJsonLd({
+    restaurant: r,
+    locale,
+    slug,
+    description: shortDescription || description || tip,
+    districtsLabel,
   })
 
   return (

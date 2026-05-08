@@ -3955,7 +3955,7 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   font-weight: 700;
   letter-spacing: .5px;
   text-transform: uppercase;
-  color: #555;
+  color: var(--text-secondary);
 }
 
 .filterDropdownItem {
@@ -3967,16 +3967,16 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   background: none;
   border: none;
   font-size: 13px;
-  color: #aaa;
+  color: var(--text-muted);
   cursor: pointer;
   text-align: left;
 }
-.filterDropdownItem:hover { background: #262626; color: #fff; }
-.filterDropdownItemActive { color: #fff; font-weight: 600; }
+.filterDropdownItem:hover { background: var(--surface-bg); color: var(--text-primary); }
+.filterDropdownItemActive { color: var(--text-primary); font-weight: 600; }
 
 .filterDropdownDivider {
   height: 1px;
-  background: #282828;
+  background: var(--border-subtle);
   margin: 0;
 }
 
@@ -3985,7 +3985,7 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   width: 28px;
   height: 16px;
   border-radius: 8px;
-  background: #333;
+  background: var(--border-strong);
   position: relative;
   flex-shrink: 0;
   transition: background .2s;

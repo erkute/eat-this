@@ -10,6 +10,7 @@ import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { CATEGORIES } from '@/lib/categories'
 import DetailPageOutro from '@/app/components/DetailPageOutro'
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection'
+import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 import { Link as IntlLink } from '@/i18n/navigation'
 import styles from './RestaurantDetail.module.css'
 
@@ -115,10 +116,24 @@ export default async function RestaurantPage({ params }: PageProps) {
   const categoryDef = primaryCategory ? CATEGORIES.find(c => c.value === primaryCategory) ?? null : null
 
   const loc = locale === 'de' ? 'de' : 'en'
+  const de = loc === 'de'
 
   const description = pickLocale(r.description, r.descriptionEn, loc)
   const shortDescription = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
   const tip = pickLocale(r.tip, r.tipEn, loc)
+
+  const homeLabel = de ? 'Start' : 'Home'
+  const districtsLabel = de ? 'Bezirke' : 'Districts'
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { name: homeLabel, href: '/' },
+    ...(r.bezirk?.slug && r.bezirk?.name
+      ? [
+          { name: districtsLabel, href: '/bezirk' },
+          { name: r.bezirk.name, href: `/bezirk/${r.bezirk.slug}` },
+        ]
+      : []),
+    { name: r.name },
+  ]
 
   // serializeJsonLd escapes </ sequences, making this safe for inline JSON-LD
   const jsonLd = serializeJsonLd({
@@ -152,18 +167,16 @@ export default async function RestaurantPage({ params }: PageProps) {
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: 'Eat This Berlin',
-            item: localeUrl(locale, '/'),
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: r.name,
-            item: localeUrl(locale, `/restaurant/${slug}`),
-          },
+          { '@type': 'ListItem', position: 1, name: 'Eat This Berlin', item: localeUrl(locale, '/') },
+          ...(r.bezirk?.slug && r.bezirk?.name
+            ? [
+                { '@type': 'ListItem', position: 2, name: districtsLabel, item: localeUrl(locale, '/bezirk') },
+                { '@type': 'ListItem', position: 3, name: r.bezirk.name, item: localeUrl(locale, `/bezirk/${r.bezirk.slug}`) },
+                { '@type': 'ListItem', position: 4, name: r.name, item: localeUrl(locale, `/restaurant/${slug}`) },
+              ]
+            : [
+                { '@type': 'ListItem', position: 2, name: r.name, item: localeUrl(locale, `/restaurant/${slug}`) },
+              ]),
         ],
       },
     ],
@@ -194,6 +207,7 @@ export default async function RestaurantPage({ params }: PageProps) {
         </div>
 
         <div className={styles.content}>
+          <Breadcrumbs items={breadcrumbItems} ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'} />
           <header className={styles.header}>
             <h1 className={styles.name}>{r.name}</h1>
             <div className={styles.meta}>

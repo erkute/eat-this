@@ -3,7 +3,7 @@ import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types'
 import { getOpenStatus } from './openingHours'
 import { haversineDistance } from './distance'
 
-export type SortMode = 'distance' | 'name' | 'price'
+export type SortMode = 'distance' | 'price' | 'newest'
 
 interface Args {
   restaurants: MapRestaurant[]
@@ -66,9 +66,6 @@ export function useMapFilters({ restaurants, mustEats, location }: Args) {
 
   const displayedRestaurants = useMemo(() => {
     const filtered = restaurants.filter(filterRestaurant)
-    if (sort === 'name') {
-      return [...filtered].sort((a, b) => a.name.localeCompare(b.name, 'de'))
-    }
     if (sort === 'price') {
       // Ascending: € first, €€€€ last. Restaurants without a price land last.
       const priceRank = (p?: string | null): number => p ? p.length : 99
@@ -77,6 +74,11 @@ export function useMapFilters({ restaurants, mustEats, location }: Args) {
         if (d !== 0) return d
         return a.name.localeCompare(b.name, 'de')
       })
+    }
+    if (sort === 'newest') {
+      // Sanity `_createdAt` is ISO 8601, so lexicographic compare = chronological.
+      // Descending → newest first.
+      return [...filtered].sort((a, b) => b._createdAt.localeCompare(a._createdAt))
     }
     if (!location) return filtered
     return [...filtered].sort((a, b) => {

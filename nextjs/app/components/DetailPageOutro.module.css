@@ -155,7 +155,11 @@
   .siblingTitle { font-size: 26px; }
   .siblingHubLink { font-size: 14px; }
   .siblingScroller { gap: 16px; padding: 6px 0 12px; }
-  .siblingItem { flex: 0 0 320px; max-width: 320px; }
+  /* Card width sized so a 3rd card always peeks on desktop. The page is
+     capped at 720px max-width with 24px side padding → 672px inner. With
+     290 + 16 + 290 + 16 + 290 = 902, two cards fit fully and the third
+     pokes ~60 px past the right edge — clear "more to swipe" signal. */
+  .siblingItem { flex: 0 0 290px; max-width: 290px; }
 }
 
 /* Freigestelltes Banner: Bild steht für sich, abgerundete Ecken + Drop-Shadow.

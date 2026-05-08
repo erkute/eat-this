@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef } from 'react'
+import { useTranslation } from '@/lib/i18n'
 import type { SortMode } from '@/lib/map'
 import styles from './map.module.css'
 
@@ -28,6 +29,12 @@ export default function FilterDropdown({
   sort, onSort, openOnly, onOpenOnly, bezirke, bezirk, onBezirk, onClose, anchorEl,
 }: FilterDropdownProps) {
   const ref = useRef<HTMLDivElement>(null)
+  const { t } = useTranslation()
+  const sortLabels: Record<SortMode, string> = {
+    distance: t('map.sortDistance'),
+    newest: t('map.sortNewest'),
+    price: t('map.sortPrice'),
+  }
 
   // Outside-click close. Excludes clicks on the dropdown itself and on its
   // anchor (filter button) so the toggle button works without racing.
@@ -84,15 +91,15 @@ export default function FilterDropdown({
   return (
     <div ref={ref} className={styles.filterDropdown}>
       <div className={styles.filterDropdownSection}>
-        <div className={styles.filterDropdownLabel}>Sortieren</div>
-        {(['distance', 'name', 'price'] as SortMode[]).map(opt => (
+        <div className={styles.filterDropdownLabel}>{t('map.sortLabel')}</div>
+        {(['distance', 'newest', 'price'] as SortMode[]).map(opt => (
           <button
             key={opt}
             type="button"
             className={`${styles.filterDropdownItem} ${sort === opt ? styles.filterDropdownItemActive : ''}`}
             onClick={() => { onSort(opt); onClose() }}
           >
-            <span>{opt === 'distance' ? 'Distanz' : opt === 'name' ? 'Name' : 'Preis'}</span>
+            <span>{sortLabels[opt]}</span>
             {sort === opt && <CheckIcon />}
           </button>
         ))}
@@ -106,7 +113,7 @@ export default function FilterDropdown({
           className={styles.filterDropdownItem}
           onClick={() => { onOpenOnly(!openOnly); onClose() }}
         >
-          <span>Nur Geöffnete</span>
+          <span>{t('map.openOnlyLabel')}</span>
           <div className={`${styles.filterToggle} ${openOnly ? styles.filterToggleOn : ''}`}>
             <div className={styles.filterToggleThumb} />
           </div>
@@ -117,13 +124,13 @@ export default function FilterDropdown({
         <>
           <div className={styles.filterDropdownDivider} />
           <div className={styles.filterDropdownSection}>
-            <div className={styles.filterDropdownLabel}>Bezirk</div>
+            <div className={styles.filterDropdownLabel}>{t('map.bezirkLabel')}</div>
             <button
               type="button"
               className={`${styles.filterDropdownItem} ${bezirk === null ? styles.filterDropdownItemActive : ''}`}
               onClick={() => { onBezirk(null); onClose() }}
             >
-              <span>Alle</span>
+              <span>{t('map.filterAll')}</span>
               {bezirk === null && <CheckIcon />}
             </button>
             {bezirke.map(b => (

@@ -17,16 +17,7 @@ import {
 import { useTranslation } from '@/lib/i18n'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
-import MapCanvas from './map/MapCanvas'
-import RestaurantMarker from './map/RestaurantMarker'
-import MustEatMarker from './map/MustEatMarker'
-import RestaurantList from './map/RestaurantList'
-import MapSheetDetail from './map/MapSheetDetail'
-import UserLocationMarker from './map/UserLocationMarker'
-import CategoryFilter from './map/CategoryFilter'
-import BezirkFilterPill from './map/BezirkFilterPill'
-import MapMustEatsList from './map/MapMustEatsList'
-import MapListHeader from './map/MapListHeader'
+import MapSectionBody from './map/MapSectionBody'
 import { auth } from '@/lib/firebase/config'
 import { onAuthStateChanged } from 'firebase/auth'
 import styles from './map/map.module.css'
@@ -622,12 +613,9 @@ export default function MapSection({ isActive = false }: Props) {
   })
 
   /* ---------- Render ---------- */
-  return (
-    <div
-      className={`app-page${isActive ? ' active' : ''}`}
-      data-page="map"
-    >
-      {loading ? (
+  if (loading) {
+    return (
+      <div className={`app-page${isActive ? ' active' : ''}`} data-page="map">
         <div className={styles.loading} role="status" aria-live="polite">
           <div className={styles.loadingCard} aria-hidden="true" />
           <div className={styles.loadingTitle}>{t('map.loadingTitle')}</div>
@@ -636,149 +624,65 @@ export default function MapSection({ isActive = false }: Props) {
           </div>
           <div className={styles.loadingSub}>{t('map.loadingSub')}</div>
         </div>
-      ) : (
-        <div className={styles.shell}>
+      </div>
+    )
+  }
 
-          <div className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}${sheetView === 'list' && snap === 'full' ? ` ${styles.bodyListAtFull}` : ''}`}>
-            <div className={styles.mapWrap}>
-              <MapCanvas ref={mapRef} onMove={handleMapMove} onMapClick={handleMapClick}>
-                {layer === 'restaurants' && displayedRestaurants.map(r => (
-                  <RestaurantMarker
-                    key={r._id}
-                    restaurant={r}
-                    isSelected={selectedRestaurant?._id === r._id}
-                    onClick={handleRestaurantClick}
-                  />
-                ))}
-                {layer === 'mustEats' && fannedMustEats.map(m => (
-                  <MustEatMarker
-                    key={m._id}
-                    mustEat={m}
-                    isUnlocked={unlockedIds.has(m._id)}
-                    isSelected={selectedMustEat?._id === m._id}
-                    userLocation={location}
-                    displayLat={m.displayLat}
-                    displayLng={m.displayLng}
-                    fanRotation={m.fanRotation}
-                    fanIndex={m.fanIndex}
-                    fanCount={m.fanCount}
-                    onClick={handleMustEatClick}
-                  />
-                ))}
-                {location && <UserLocationMarker location={location} />}
-              </MapCanvas>
-
-              {bezirk && (
-                <BezirkFilterPill bezirkName={bezirk} onReset={resetBezirkPill} />
-              )}
-
-              <button
-                type="button"
-                onClick={handleLocateMe}
-                aria-label="My location"
-                className={styles.fab}
-              >
-                <svg className={styles.fabIcon} viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="12" cy="12" r="8" />
-                  <line x1="12" y1="2"  x2="12" y2="5" />
-                  <line x1="12" y1="19" x2="12" y2="22" />
-                  <line x1="2"  y1="12" x2="5"  y2="12" />
-                  <line x1="19" y1="12" x2="22" y2="12" />
-                  <circle cx="12" cy="12" r="2" fill="currentColor" />
-                </svg>
-              </button>
-
-              {/* Desktop floating modals removed — both mobile and desktop now
-                  render the detail in the side panel / bottom sheet so the
-                  selected marker stays visible on the map. */}
-            </div>
-
-            <aside
-              ref={setSheetRef}
-              className={`${styles.list} ${dragging ? styles.listDragging : ''}${
-                sheetView === 'list' && snap === 'peek' ? ` ${styles.listAtPeek}` : ''
-              }`}
-              aria-label={layer === 'restaurants' ? 'Restaurants nearby' : 'Must-Eats'}
-            >
-              <div ref={handleRef} className={`${styles.handle}${sheetView === 'detail' ? ` ${styles.handleHidden}` : ''}`} aria-hidden="true" />
-
-              {sheetView === 'detail' && selectedMustEat ? (
-                <MapSheetDetail
-                  kind="mustEat"
-                  contentRef={setContentRef}
-                  uid={uid}
-                  userLocation={location}
-                  unlockedIds={unlockedIds}
-                  mustEat={selectedMustEat}
-                  onUnlock={handleUnlock}
-                  onClose={handleMustEatClose}
-                  onBack={prevRestaurantRef.current ? handleMustEatBack : undefined}
-                  onViewRestaurant={handleViewRestaurantFromMustEat}
-                  onShowMustEatList={handleShowMustEatList}
-                />
-              ) : sheetView === 'detail' && selectedRestaurant ? (
-                <MapSheetDetail
-                  kind="restaurant"
-                  contentRef={setContentRef}
-                  uid={uid}
-                  userLocation={location}
-                  unlockedIds={unlockedIds}
-                  restaurant={selectedRestaurant}
-                  mustEats={restaurantMustEats}
-                  onClose={handleRestaurantClose}
-                  onMustEatClick={handleMustEatClick}
-                  isFavorite={favoriteIds.has(selectedRestaurant._id)}
-                  onToggleFavorite={() => toggleFavorite(selectedRestaurant)}
-                />
-              ) : layer === 'restaurants' ? (
-                <>
-                  <MapListHeader
-                    headerRef={setHeaderRef}
-                    filterBtnRef={filterBtnRef}
-                    resultCount={displayedRestaurants.length}
-                    searchOpen={searchOpen}
-                    setSearchOpen={setSearchOpen}
-                    search={search}
-                    onSearchChange={handleSearchChange}
-                    filterOpen={filterOpen}
-                    setFilterOpen={setFilterOpen}
-                    sort={sort}
-                    onSort={setSort}
-                    openOnly={openOnly}
-                    onOpenOnly={setOpenOnly}
-                    bezirkNames={bezirkNames}
-                    bezirk={bezirk}
-                    onBezirk={handleBezirkChange}
-                  />
-                  {/* Zone C — category chips: NO drag handler, pure native horizontal scroll */}
-                  <div className={styles.listHeaderTabs}>
-                    <CategoryFilter active={category} onChange={setCategory} variant="tabs" />
-                  </div>
-                  <div ref={setContentRef} className={styles.listScroll}>
-                    <RestaurantList
-                      restaurants={displayedRestaurants}
-                      userLocation={location}
-                      selectedId={selectedRestaurant?._id ?? null}
-                      onSelect={handleRestaurantClick}
-                    />
-                  </div>
-                </>
-              ) : (
-                <MapMustEatsList
-                  displayedMustEats={displayedMustEats}
-                  unlockedIds={unlockedIds}
-                  selectedMustEat={selectedMustEat}
-                  location={location}
-                  uid={uid}
-                  contentRef={setContentRef}
-                  onSelect={handleMustEatClick}
-                  onBackToRestaurants={handleBackToRestaurants}
-                />
-              )}
-            </aside>
-          </div>
-        </div>
-      )}
-    </div>
+  return (
+    <MapSectionBody
+      isActive={isActive}
+      mapRef={mapRef}
+      filterBtnRef={filterBtnRef}
+      handleRef={handleRef}
+      setHeaderRef={setHeaderRef}
+      setContentRef={setContentRef}
+      setSheetRef={setSheetRef}
+      sheetView={sheetView}
+      snap={snap}
+      dragging={dragging}
+      layer={layer}
+      displayedRestaurants={displayedRestaurants}
+      fannedMustEats={fannedMustEats}
+      displayedMustEats={displayedMustEats}
+      restaurantMustEats={restaurantMustEats}
+      selectedRestaurant={selectedRestaurant}
+      selectedMustEat={selectedMustEat}
+      unlockedIds={unlockedIds}
+      favoriteIds={favoriteIds}
+      location={location}
+      uid={uid}
+      category={category}
+      setCategory={setCategory}
+      search={search}
+      bezirk={bezirk}
+      bezirkNames={bezirkNames}
+      openOnly={openOnly}
+      setOpenOnly={setOpenOnly}
+      sort={sort}
+      setSort={setSort}
+      searchOpen={searchOpen}
+      setSearchOpen={setSearchOpen}
+      filterOpen={filterOpen}
+      setFilterOpen={setFilterOpen}
+      onMapMove={handleMapMove}
+      onMapClick={handleMapClick}
+      onRestaurantClick={handleRestaurantClick}
+      onMustEatClick={handleMustEatClick}
+      onLocateMe={handleLocateMe}
+      onRestaurantClose={handleRestaurantClose}
+      onMustEatClose={handleMustEatClose}
+      onMustEatBack={prevRestaurantRef.current ? handleMustEatBack : undefined}
+      onBackToRestaurants={handleBackToRestaurants}
+      onViewRestaurantFromMustEat={handleViewRestaurantFromMustEat}
+      onShowMustEatList={handleShowMustEatList}
+      onUnlock={handleUnlock}
+      onSearchChange={handleSearchChange}
+      onBezirkChange={handleBezirkChange}
+      onResetBezirkPill={resetBezirkPill}
+      onToggleFavorite={() => { if (selectedRestaurant) toggleFavorite(selectedRestaurant) }}
+      myLocationAriaLabel={t('map.myLocationAriaLabel') ?? 'My location'}
+      restaurantsListAriaLabel="Restaurants nearby"
+      mustEatsListAriaLabel="Must-Eats"
+    />
   )
 }

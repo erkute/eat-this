@@ -11,6 +11,7 @@ import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { routing } from '@/i18n/routing'
 import styles from '../Bezirk.module.css'
 import DetailPageOutro from '@/app/components/DetailPageOutro'
+import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>
@@ -99,6 +100,12 @@ export default async function BezirkDetailPage({ params }: PageProps) {
 
   const bezirkDescription = pickLocale(b.description, b.descriptionEn, loc)
 
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { name: de ? 'Start' : 'Home', href: '/' },
+    { name: de ? 'Bezirke' : 'Districts', href: '/bezirk' },
+    { name: b.name },
+  ]
+
   const restaurantUrl = (rSlug: string) =>
     locale === 'de' ? `/restaurant/${rSlug}` : `/${locale}/restaurant/${rSlug}`
 
@@ -138,6 +145,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
         {jsonLd}
       </Script>
       <main className={styles.page}>
+        <Breadcrumbs items={breadcrumbItems} ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'} />
         <header className={styles.header}>
           <div className={styles.kicker}>{de ? 'Bezirk' : 'District'}</div>
           <h1 className={styles.title}>{b.name}</h1>

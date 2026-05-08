@@ -1,6 +1,7 @@
 export const mapRestaurantsQuery = `
   *[_type == "restaurant" && isOpen != false] {
     _id,
+    _createdAt,
     name,
     "slug": slug.current,
     isClosed,

@@ -121,6 +121,7 @@ export interface RestaurantCard {
 
 export interface MapRestaurant {
   _id: string
+  _createdAt: string
   name: string
   slug: string
   isClosed: boolean

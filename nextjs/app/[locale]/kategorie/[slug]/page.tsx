@@ -11,6 +11,7 @@ import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
 import { pickLocale } from '@/lib/i18n/pickLocale'
 import styles from '../../bezirk/Bezirk.module.css'
+import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>
@@ -72,6 +73,12 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const restaurants = await getRestaurantsByCategory(c.value)
   const label = de ? c.labelDe : c.labelEn
 
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { name: de ? 'Start' : 'Home', href: '/' },
+    { name: de ? 'Kategorien' : 'Categories', href: '/kategorie' },
+    { name: label },
+  ]
+
   const restaurantUrl = (rSlug: string) =>
     locale === 'de' ? `/restaurant/${rSlug}` : `/${locale}/restaurant/${rSlug}`
 
@@ -111,6 +118,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         {jsonLd}
       </Script>
       <main className={styles.page}>
+        <Breadcrumbs items={breadcrumbItems} ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'} />
         <header className={styles.header}>
           <div className={styles.kicker}>{de ? 'Kategorie' : 'Category'}</div>
           <h1 className={styles.title}>

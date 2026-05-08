@@ -1,0 +1,57 @@
+/* Compact breadcrumb above detail-page H1.
+   Mirrors the BreadcrumbList JSON-LD on the same pages so SERP snippets
+   and the visible page agree. Token-based — flips with theme. */
+
+.nav {
+  margin-bottom: 12px;
+}
+
+.list {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-muted);
+  /* Long restaurant names can overflow on small screens — let the row
+     scroll horizontally rather than wrap into a second line. */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.list::-webkit-scrollbar {
+  display: none;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.link {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 120ms ease;
+}
+
+.link:hover,
+.link:focus-visible {
+  color: var(--text-primary);
+}
+
+.current {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.sep {
+  color: var(--text-muted);
+  opacity: 0.6;
+}

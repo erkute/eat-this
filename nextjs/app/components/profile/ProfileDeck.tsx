@@ -20,8 +20,9 @@ const TOTAL_SLOTS        = 150;
 const FLIP_DURATION_S    = 0.7;
 
 interface Props {
-  pack:     BoosterPack;
-  mustEats: MustEatAlbumCard[];
+  pack:           BoosterPack;
+  mustEats:       MustEatAlbumCard[];
+  mapUnlockedIds: Set<string>;
 }
 
 interface ExpandedState {
@@ -30,9 +31,12 @@ interface ExpandedState {
   order: number;
 }
 
-export default function ProfileDeck({ pack, mustEats }: Props) {
+export default function ProfileDeck({ pack, mustEats, mapUnlockedIds }: Props) {
   const { user } = useAuth();
 
+  // Welcome-pack cards are the input for the 10-card stack-overlay. Kept
+  // separate from map-unlocked cards so the stack-choreo never sees the
+  // map ones (those were already revealed live on the map).
   const packCardsByOrder = useMemo(() => {
     const map = new Map<number, MustEatAlbumCard>();
     for (const id of pack.mustEatIds) {
@@ -53,10 +57,49 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
     [packCardsByOrder],
   );
 
-  // All pack cards start revealed if pack is already opened (returning user).
-  const [revealed, setRevealed] = useState<Set<number>>(() =>
-    pack.opened ? new Set(packCardsByOrder.keys()) : new Set(),
-  );
+  // Map-page reveals (`users/{uid}/unlockedMustEats/*`) — these are pre-
+  // revealed by definition (the user already saw the reveal choreo), so
+  // they show face-up in the album immediately, no stack-overlay step.
+  // Welcome-pack ids take priority on collision.
+  const mapUnlockedByOrder = useMemo(() => {
+    const map = new Map<number, MustEatAlbumCard>();
+    for (const id of mapUnlockedIds) {
+      if (pack.mustEatIds.includes(id)) continue;
+      const card = mustEats.find((m) => m._id === id);
+      if (card && typeof card.order === 'number') map.set(card.order, card);
+    }
+    return map;
+  }, [mapUnlockedIds, pack.mustEatIds, mustEats]);
+
+  // Merged view used by the album-grid render below. Stack-overlay still
+  // works off `packCardsByOrder` / `sortedPackCards` only.
+  const allCardsByOrder = useMemo(() => {
+    const map = new Map(packCardsByOrder);
+    for (const [order, card] of mapUnlockedByOrder) map.set(order, card);
+    return map;
+  }, [packCardsByOrder, mapUnlockedByOrder]);
+
+  // Pack cards start revealed only if the pack is already opened. Map
+  // unlocks are always revealed.
+  const [revealed, setRevealed] = useState<Set<number>>(() => {
+    const init = new Set<number>(mapUnlockedByOrder.keys());
+    if (pack.opened) for (const o of packCardsByOrder.keys()) init.add(o);
+    return init;
+  });
+
+  // Newly arriving map unlocks (e.g. user revealed one on the map and
+  // navigated here without remount) need to be added to `revealed` too,
+  // otherwise the album shows them as EmptySlot until next page load.
+  useEffect(() => {
+    setRevealed((prev) => {
+      let changed = false;
+      const next = new Set(prev);
+      for (const order of mapUnlockedByOrder.keys()) {
+        if (!next.has(order)) { next.add(order); changed = true; }
+      }
+      return changed ? next : prev;
+    });
+  }, [mapUnlockedByOrder]);
 
   // Card that the user tapped to expand (null = none).
   const [expanded, setExpanded] = useState<ExpandedState | null>(null);
@@ -127,7 +170,7 @@ export default function ProfileDeck({ pack, mustEats }: Props) {
       <div className={styles.albumGrid}>
         {Array.from({ length: TOTAL_SLOTS }, (_, i) => {
           const order = i + 1;
-          const card  = packCardsByOrder.get(order);
+          const card  = allCardsByOrder.get(order);
           const isRevealed = revealed.has(order);
 
           if (card) {
@@ -324,17 +367,22 @@ const ExpandedOverlay = memo(function ExpandedOverlay({ expanded, onClose }: Exp
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={expanded.card.imageUrl}
-          alt={expanded.card.dish}
-          className={styles.lightboxImg}
-        />
-        <motion.div
-          className={styles.lightboxSheen}
-          style={{ x: sheenX }}
-          aria-hidden="true"
-        />
+        {/* Inner clip wrapper keeps the sheen's drifting gradient inside
+            the card's rounded shape — without it the sheen leaks past
+            the right edge at strong rotateY tilts. */}
+        <div className={styles.lightboxClip}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={expanded.card.imageUrl}
+            alt={expanded.card.dish}
+            className={styles.lightboxImg}
+          />
+          <motion.div
+            className={styles.lightboxSheen}
+            style={{ x: sheenX }}
+            aria-hidden="true"
+          />
+        </div>
       </motion.div>
     </motion.div>
   );

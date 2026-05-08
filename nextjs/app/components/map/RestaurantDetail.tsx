@@ -1,8 +1,7 @@
 'use client'
 import { useState } from 'react'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
-import { getOpenStatus } from '@/lib/map/openingHours'
-import type { UserLocation } from '@/lib/map/useUserLocation'
+import { getOpenStatus, type UserLocation } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import styles from './map.module.css'
 

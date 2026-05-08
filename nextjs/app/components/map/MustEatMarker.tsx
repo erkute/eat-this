@@ -2,8 +2,7 @@
 import { useState } from 'react'
 import { Marker } from 'react-map-gl/maplibre'
 import type { MapMustEat } from '@/lib/types'
-import type { UserLocation } from '@/lib/map/useUserLocation'
-import { haversineDistance } from '@/lib/map/distance'
+import { haversineDistance, type UserLocation } from '@/lib/map'
 import styles from './map.module.css'
 
 interface MustEatMarkerProps {

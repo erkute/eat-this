@@ -17,7 +17,12 @@
      then apply the same side padding as the Must-Eat album-grid. */
   padding: 0 8px 8px;
   margin: 0 -16px;
-  perspective: 1400px;
+  /* `perspective` lives on .slot, NOT here. A grid-wide perspective
+     creates one shared 3D compositing context across all 150 slots,
+     which overwhelms the desktop compositor (scroll events stop
+     reaching the page) AND made the stack-overlay's flying card render
+     behind centre-column slots on mobile because the shared context
+     z-fights with the body-portaled overlay layer. */
 }
 
 @media (min-width: 768px) {
@@ -39,6 +44,9 @@
 .slot {
   position: relative;
   aspect-ratio: 1449 / 2163;
+  /* Per-slot 3D camera so each flipper has its own context. Critical:
+     keep this OFF .albumGrid (see comment above). */
+  perspective: 1400px;
 }
 
 /* Revealed slots get a pointer cursor and a subtle hover lift */
@@ -80,7 +88,13 @@
   inset: 0;
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
-  will-change: transform;
+  /* Static will-change is intentionally OFF — framer-motion sets it
+     automatically during the active flip animation and removes it after.
+     A static will-change on every flipper turns each slot into its own
+     GPU compositing layer, which (a) overwhelms desktop scroll and (b)
+     causes the body-portaled stack overlay's flying card to render
+     BEHIND centre-column slots on mobile (z-index gets ignored across
+     compositing layers). */
   transition: box-shadow 0.15s;
 }
 
@@ -207,6 +221,18 @@
   cursor: default;
 }
 
+/* Clip layer between the 3D-tilted card wrapper and the image+sheen.
+   Sheen translates ±30% with rotateY — without this clip it leaks
+   past the card edges. inline-block so it shrink-fits the image's
+   intrinsic dimensions exactly, and rounded-clipped to match the
+   image's border-radius. */
+.lightboxClip {
+  position: relative;
+  display: inline-block;
+  border-radius: 6%;
+  overflow: hidden;
+}
+
 .lightboxImg {
   max-height: 78vh;
   max-width: min(420px, 88vw);
@@ -227,12 +253,12 @@
 }
 
 /* Sheen — soft white gradient that drifts horizontally with the rotateY
-   spring, same recipe as the stack overlay's lifted-card sheen. The 6%
-   inset matches the .lightboxImg's border-radius so the highlight stays
-   inside the rounded card. */
+   spring, same recipe as the stack overlay's lifted-card sheen. inset 0
+   so the highlight covers the full card; border-radius matches the
+   image so the gradient stays inside the rounded shape. */
 .lightboxSheen {
   position: absolute;
-  inset: 6%;
+  inset: 0;
   border-radius: 6%;
   pointer-events: none;
   background: linear-gradient(

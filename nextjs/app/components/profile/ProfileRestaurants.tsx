@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { useFavorites, type FavoriteEntry } from '@/lib/map/useFavorites';
+import { useFavorites, type FavoriteEntry } from '@/lib/map';
 import { Link } from '@/i18n/navigation';
 import styles from './ProfileRestaurants.module.css';
 

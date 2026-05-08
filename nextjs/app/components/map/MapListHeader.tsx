@@ -1,7 +1,8 @@
 'use client'
 import { type Ref, type RefObject } from 'react'
 import { useTranslation } from '@/lib/i18n'
-import FilterDropdown, { type SortOption } from './FilterDropdown'
+import type { SortMode } from '@/lib/map'
+import FilterDropdown from './FilterDropdown'
 import styles from './map.module.css'
 
 interface Props {
@@ -18,8 +19,8 @@ interface Props {
   filterOpen: boolean
   setFilterOpen: (next: boolean | ((prev: boolean) => boolean)) => void
 
-  sort: SortOption
-  onSort: (sort: SortOption) => void
+  sort: SortMode
+  onSort: (sort: SortMode) => void
   openOnly: boolean
   onOpenOnly: (next: boolean) => void
   bezirkNames: string[]

@@ -101,3 +101,18 @@ a {
 .app-page[data-page="map"] {
   padding-bottom: 0 !important;
 }
+
+/* User-location marker is purely informational. The avatar must visually
+   sit ABOVE every restaurant + must-eat marker (so the figure is never
+   hidden behind a card), yet clicks must fall through to whichever
+   marker sits beneath it. z-index 1000 beats the per-card fan z-indexes
+   (which max at ~100 when a card is selected); pointer-events:none
+   sends the click to the marker behind. The class is added via
+   react-map-gl Marker's className prop on the maplibre wrapper. */
+.user-loc-marker {
+  z-index: 1000 !important;
+}
+.user-loc-marker,
+.user-loc-marker * {
+  pointer-events: none !important;
+}

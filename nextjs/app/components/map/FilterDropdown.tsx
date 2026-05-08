@@ -1,12 +1,11 @@
 'use client'
 import { useEffect, useRef } from 'react'
+import type { SortMode } from '@/lib/map'
 import styles from './map.module.css'
 
-export type SortOption = 'distance' | 'name' | 'price'
-
 interface FilterDropdownProps {
-  sort: SortOption
-  onSort: (s: SortOption) => void
+  sort: SortMode
+  onSort: (s: SortMode) => void
   openOnly: boolean
   onOpenOnly: (v: boolean) => void
   bezirke: string[]
@@ -86,7 +85,7 @@ export default function FilterDropdown({
     <div ref={ref} className={styles.filterDropdown}>
       <div className={styles.filterDropdownSection}>
         <div className={styles.filterDropdownLabel}>Sortieren</div>
-        {(['distance', 'name', 'price'] as SortOption[]).map(opt => (
+        {(['distance', 'name', 'price'] as SortMode[]).map(opt => (
           <button
             key={opt}
             type="button"

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   motion,
@@ -11,9 +11,8 @@ import {
   type MotionValue,
 } from 'framer-motion';
 import type { MustEatAlbumCard } from '@/lib/types';
+import { useAuth } from '@/lib/auth';
 import styles from './ProfileDeckStackOverlay.module.css';
-
-const CONFETTI_COLORS = ['#b71c1c', '#E8762A', '#fff', '#ffd166', '#ff9f43', '#c0392b'];
 
 // Three nested motion layers per card:
 //   1. position layer — animates left/top/width/height/opacity from stack
@@ -65,10 +64,13 @@ export default function ProfileDeckStackOverlay({
   const [phase, setPhase]           = useState<Phase>('idle');
   const [target, setTarget]         = useState<DOMRect | null>(null);
   const [celebrating, setCelebrating] = useState(false);
-  // Which side the stack escapes to when a card is flying. true = right,
-  // false = left. Set just before transitioning to 'flying' based on where
-  // the target slot sits relative to the viewport centre.
-  const [escapeRight, setEscapeRight] = useState(false);
+  // Where the stack escapes to when a card is flying. The stack always
+  // flees into the OPPOSITE viewport quadrant from the slot, so it ends
+  // up in a corner regardless of column / row — otherwise on middle-row
+  // slots the gentle vertical offset wasn't enough to clear the stack
+  // thickness from the slot's pixel area.
+  const [escapeRight,    setEscapeRight]   = useState(false);
+  const [escapeYShiftVh, setEscapeYShiftVh] = useState(-24);
 
   // Lock body scroll while a card is in flight so the slot rect stays
   // stable — scrolling mid-flight shifts the target and the card "chases"
@@ -144,11 +146,17 @@ export default function ProfileDeckStackOverlay({
       rafId = window.requestAnimationFrame(() => {
         const targetRect = getSlotRect(order);
         if (!targetRect) return;
-        // Escape to the side OPPOSITE the target slot so the stack stays
-        // clear of the flying card's path. +6vh vertical keeps the stack
-        // below the fixed navbar header.
+        // Always escape into the viewport quadrant OPPOSITE the slot, so
+        // the stack ends up in a corner clear of the flying card's path
+        // and the landed-card slot.  Picking just a side wasn't enough on
+        // middle-row slots where the stack stayed at the same height as
+        // the slot.
         const slotMidX = targetRect.left + targetRect.width / 2;
-        setEscapeRight(slotMidX < window.innerWidth / 2);
+        const slotMidY = targetRect.top + targetRect.height / 2;
+        const vpWNow = window.innerWidth;
+        const vpHNow = window.innerHeight;
+        setEscapeRight(slotMidX < vpWNow / 2);
+        setEscapeYShiftVh(slotMidY < vpHNow / 2 ? 24 : -24);
         setPhase('flying');
         setTarget(targetRect);
       });
@@ -202,10 +210,12 @@ export default function ProfileDeckStackOverlay({
   const vpW = typeof window !== 'undefined' ? window.innerWidth : 800;
   const maxEscapePx = Math.max(0, vpW / 2 - stackSize.w / 2 - 16);
   const escapePx = Math.min(vpW * 0.36, maxEscapePx);
+  const yShiftSign = escapeYShiftVh >= 0 ? '+' : '-';
+  const yShiftMag  = Math.abs(escapeYShiftVh);
   const stackEscapeStyle: React.CSSProperties =
     phase === 'flying'
       ? {
-          transform: `translate(calc(-50% ${escapeRight ? '+' : '-'} ${escapePx}px), calc(-50% + 6vh))`,
+          transform: `translate(calc(-50% ${escapeRight ? '+' : '-'} ${escapePx}px), calc(-50% ${yShiftSign} ${yShiftMag}vh))`,
           pointerEvents: 'none' as const,
         }
       : {};
@@ -482,22 +492,8 @@ interface CelebrationProps {
 }
 
 function CelebrationOverlay({ onDone }: CelebrationProps) {
-  const particles = useMemo(
-    () =>
-      Array.from({ length: 72 }, (_, i) => ({
-        id: i,
-        x: Math.random() * 100,
-        color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
-        w: 5 + Math.random() * 9,
-        h: 9 + Math.random() * 15,
-        delay: Math.random() * 0.55,
-        duration: 1.7 + Math.random() * 1.1,
-        drift: (Math.random() - 0.5) * 280,
-        spin: Math.random() * 680,
-        round: Math.random() > 0.35 ? '2px' : '50%',
-      })),
-    [],
-  );
+  const { user } = useAuth();
+  const firstName = user?.displayName?.trim().split(/\s+/)[0] ?? null;
 
   useEffect(() => {
     const t = window.setTimeout(onDone, 2600);
@@ -512,23 +508,6 @@ function CelebrationOverlay({ onDone }: CelebrationProps) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.28 }}
     >
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className={styles.confetti}
-          style={{
-            left: `${p.x}%`,
-            width: p.w,
-            height: p.h,
-            backgroundColor: p.color,
-            borderRadius: p.round,
-            animationDelay: `${p.delay}s`,
-            animationDuration: `${p.duration}s`,
-            ['--drift' as string]: `${p.drift}px`,
-            ['--spin' as string]: `${p.spin}deg`,
-          }}
-        />
-      ))}
       <div className={styles.celebContent}>
         <motion.h2
           className={styles.celebTitle}
@@ -536,7 +515,7 @@ function CelebrationOverlay({ onDone }: CelebrationProps) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ delay: 0.22, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
-          Berlin gehört dir.
+          {firstName ? `Hi, ${firstName}.` : 'Hi.'}
         </motion.h2>
         <motion.p
           className={styles.celebSub}
@@ -544,7 +523,7 @@ function CelebrationOverlay({ onDone }: CelebrationProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.36, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
-          Jetzt auf der Karte erkunden
+          Willkommen bei Eat This!
         </motion.p>
       </div>
     </motion.div>
@@ -552,14 +531,18 @@ function CelebrationOverlay({ onDone }: CelebrationProps) {
 }
 
 // Sheen — a soft horizontal highlight that slides across the card face,
-// driven by the rotateY spring. Reinforces the 3D tilt feel.
+// driven by the rotateY spring. Reinforces the 3D tilt feel. We slide
+// the gradient via background-position-x rather than translating the
+// element, so the sheen stays bounded to the card's box — no leak past
+// the edges at strong tilts (and no clip-path needed, which would
+// flatten the parent's preserve-3d and break the card flip).
 function Sheen({ rotateYSpring, visible }: { rotateYSpring: MotionValue<number>; visible: boolean }) {
-  const x = useTransform(rotateYSpring, [-14, 14], ['-30%', '30%']);
+  const bgX = useTransform(rotateYSpring, [-14, 14], ['100%', '0%']);
   return (
     <motion.div
       className={styles.cardSheen}
       style={{
-        x,
+        backgroundPositionX: bgX,
         opacity: visible ? 1 : 0,
       }}
       aria-hidden="true"

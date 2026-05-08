@@ -1,11 +1,11 @@
 .wrap {
-  padding: 8px 16px 48px;
+  padding: 8px 16px 56px;
   max-width: 480px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: 44px;
 }
 
 .hero {
@@ -33,44 +33,33 @@
   line-height: 1.4;
 }
 
-/* ── Pack row: 3 portrait cards side by side ── */
+/* ── Hero pack (Berlin Komplett) ──
+ * No container background or border — Apple-style: the artwork is the
+ * visual unit, surrounded only by whitespace. Adding a tinted box around
+ * a card that already has its own drop-shadow reads as "card on card". */
 
-.packRow {
+.heroPack {
   width: 100%;
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0 0;
+}
+
+.heroImgWrap {
+  width: 60%;
+  max-width: 220px;
+  display: flex;
   justify-content: center;
+  transform: rotate(-2deg);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.22));
 }
-
-.packCard {
-  flex: 1;
-  padding: 0;
-  border: none;
-  border-radius: 10%;
-  background: none;
-  cursor: pointer;
-  transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s;
-  overflow: visible;
-  opacity: 1;
+.heroPack:hover .heroImgWrap {
+  transform: rotate(0deg) translateY(-3px) scale(1.03);
 }
-.packCard:hover {
-  transform: scale(1.05);
-}
-.packCardActive {
-  transform: scale(1.08);
-}
-
-/* When a selection exists, dim + shrink the non-active cards */
-.packRowHasSelection .packCard:not(.packCardActive) {
-  transform: scale(0.88);
-  opacity: 0.45;
-}
-.packRowHasSelection .packCard:not(.packCardActive):hover {
-  transform: scale(0.93);
-  opacity: 0.65;
-}
-
-.packImg {
+.heroImg {
   width: 100%;
   aspect-ratio: 1449 / 2163;
   display: block;
@@ -78,30 +67,209 @@
   object-fit: cover;
 }
 
-/* ── Buy button ── */
+.heroName {
+  margin: 6px 0 0;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #0A0A0A;
+  text-align: center;
+}
+.heroDesc {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(10, 10, 10, 0.6);
+  text-align: center;
+  line-height: 1.4;
+}
 
-.buyBtn {
+/* Hero CTA: split-pill — action label left, price chip right.
+   Inset highlight + soft drop-shadow for a tactile / Apple-like feel. */
+.heroBuyBtn {
   width: 100%;
-  padding: 16px;
-  background-color: #0A0A0A;
+  margin-top: 4px;
+  display: flex;
+  align-items: stretch;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background-color: var(--cta-red);
+  color: #FFFFFF;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    0 8px 18px -10px rgba(183, 28, 28, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition: filter 0.2s, transform 0.06s;
+}
+.heroBuyBtn:hover {
+  filter: brightness(1.06);
+}
+.heroBuyBtn:active {
+  transform: scale(0.985);
+}
+.heroBuyAction {
+  flex: 1;
+  padding: 16px 14px 16px 22px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+.heroBuyPrice {
+  padding: 16px 22px;
+  background-color: rgba(0, 0, 0, 0.18);
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: -0.005em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+}
+
+/* ── Category section ── */
+
+.catSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.sectionLabel {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(10, 10, 10, 0.55);
+  text-align: center;
+}
+.catGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+.catPack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+}
+.catImgWrap {
+  width: 82%;
+  max-width: 130px;
+  display: flex;
+  justify-content: center;
+  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.18));
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.catPack:hover .catImgWrap {
+  transform: translateY(-2px) scale(1.04);
+}
+.catImg {
+  width: 100%;
+  aspect-ratio: 1449 / 2163;
+  display: block;
+  border-radius: 7%;
+  object-fit: cover;
+}
+.catName {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.005em;
+  color: #0A0A0A;
+}
+
+/* Compact price-pill — Apple App Store style. The price *is* the button. */
+.catBuyBtn {
+  width: 100%;
+  padding: 10px 12px;
+  background-color: var(--cta-red);
   color: #FFFFFF;
   border: none;
   border-radius: 999px;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: -0.005em;
   cursor: pointer;
-  transition: background-color 0.2s;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    0 6px 14px -8px rgba(183, 28, 28, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition: filter 0.2s, transform 0.06s;
 }
-.buyBtn:hover {
-  background-color: #E8762A;
+.catBuyBtn:hover { filter: brightness(1.06); }
+.catBuyBtn:active { transform: scale(0.97); }
+
+/* ── Random row ── */
+
+.randomPack {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px;
 }
-.buyBtnSoon {
-  background-color: #9A8B6E;
-  cursor: default;
+.randomImg {
+  width: 44px;
+  aspect-ratio: 1449 / 2163;
+  display: block;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.2));
 }
+.randomInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.randomName {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0A0A0A;
+}
+.randomDesc {
+  font-size: 12px;
+  color: rgba(10, 10, 10, 0.55);
+}
+.randomBuyBtn {
+  flex-shrink: 0;
+  padding: 9px 16px;
+  background-color: var(--cta-red);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    0 6px 14px -8px rgba(183, 28, 28, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition: filter 0.2s, transform 0.06s;
+}
+.randomBuyBtn:hover { filter: brightness(1.06); }
+.randomBuyBtn:active { transform: scale(0.95); }
+
+/* ── Coming-soon state shared across all buy buttons ── */
+
+.buyBtnSoon,
 .buyBtnSoon:hover {
   background-color: #9A8B6E;
+  color: #FFFFFF;
+  cursor: default;
+  filter: none;
+  box-shadow: none;
+}
+.buyBtnSoon .heroBuyPrice {
+  background-color: transparent;
 }
 
 /* ── Payment row ── */
@@ -136,27 +304,22 @@
 
 /* ── Dark mode ── */
 
-:global(html[data-theme="dark"]) .title {
+:global(html[data-theme="dark"]) .title,
+:global(html[data-theme="dark"]) .heroName,
+:global(html[data-theme="dark"]) .catName,
+:global(html[data-theme="dark"]) .randomName {
   color: #f5f5f5;
 }
-:global(html[data-theme="dark"]) .subtitle {
-  color: rgba(245, 245, 245, 0.45);
-}
-
-:global(html[data-theme="dark"]) .buyBtn {
-  background-color: #f5f5f5;
-  color: #0a0a0a;
-}
-:global(html[data-theme="dark"]) .buyBtn:hover {
-  background-color: #E8762A;
-  color: #fff;
-}
-:global(html[data-theme="dark"]) .buyBtnSoon {
-  background-color: #3a3020;
+:global(html[data-theme="dark"]) .subtitle,
+:global(html[data-theme="dark"]) .heroDesc,
+:global(html[data-theme="dark"]) .randomDesc,
+:global(html[data-theme="dark"]) .sectionLabel {
   color: rgba(245, 245, 245, 0.5);
 }
+:global(html[data-theme="dark"]) .buyBtnSoon,
 :global(html[data-theme="dark"]) .buyBtnSoon:hover {
   background-color: #3a3020;
+  color: rgba(245, 245, 245, 0.55);
 }
 :global(html[data-theme="dark"]) .payDot {
   color: rgba(245,245,245,0.2);

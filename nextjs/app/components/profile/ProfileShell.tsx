@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { usePack } from '@/lib/firebase/usePack';
 import { createWelcomePack } from '@/lib/firebase/welcomePack';
+import { useUnlockedMustEats } from '@/lib/map';
 import type { MustEatAlbumCard } from '@/lib/types';
 import ProfileHeader from './ProfileHeader';
 import ProfileTabs, { type ProfileTab } from './ProfileTabs';
@@ -21,7 +22,17 @@ interface Props {
 export default function ProfileShell({ mustEats }: Props) {
   const { user, loading } = useAuth();
   const pack = usePack(user?.uid ?? null);
-  const [tab, setTab] = useState<ProfileTab>('deck');
+  // Map-page reveals write to users/{uid}/unlockedMustEats — read them here
+  // so the deck can show those cards alongside the welcome-pack ones.
+  const { unlockedIds: mapUnlockedIds } = useUnlockedMustEats(user?.uid ?? null);
+  // Read the URL hash on mount so deep-links from elsewhere in the app
+  // (e.g. the map's booster CTAs use /profile#booster) land on the right
+  // tab instead of always defaulting to "deck".
+  const [tab, setTab] = useState<ProfileTab>(() => {
+    if (typeof window === 'undefined') return 'deck';
+    const h = window.location.hash.replace('#', '');
+    return h === 'restaurants' || h === 'booster' || h === 'settings' ? h : 'deck';
+  });
   const [createBusy, setCreateBusy] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
@@ -66,6 +77,7 @@ export default function ProfileShell({ mustEats }: Props) {
           <DeckPanel
             pack={pack}
             mustEats={mustEats}
+            mapUnlockedIds={mapUnlockedIds}
             createError={createError}
             onRetry={() => setCreateError(null)}
           />
@@ -82,13 +94,14 @@ export default function ProfileShell({ mustEats }: Props) {
 // ── Deck-Panel — Loading-States um ProfileDeck ──────────
 
 interface DeckPanelProps {
-  pack:        ReturnType<typeof usePack>;
-  mustEats:    MustEatAlbumCard[];
-  createError: string | null;
-  onRetry:     () => void;
+  pack:            ReturnType<typeof usePack>;
+  mustEats:        MustEatAlbumCard[];
+  mapUnlockedIds:  Set<string>;
+  createError:     string | null;
+  onRetry:         () => void;
 }
 
-function DeckPanel({ pack, mustEats, createError, onRetry }: DeckPanelProps) {
+function DeckPanel({ pack, mustEats, mapUnlockedIds, createError, onRetry }: DeckPanelProps) {
   if (pack.status === 'loading' || pack.status === 'idle') {
     return (
       <div className={styles.deckPlaceholder}>
@@ -128,6 +141,7 @@ function DeckPanel({ pack, mustEats, createError, onRetry }: DeckPanelProps) {
     <ProfileDeck
       pack={pack.pack}
       mustEats={mustEats}
+      mapUnlockedIds={mapUnlockedIds}
     />
   );
 }

@@ -1,0 +1,170 @@
+/* Body-portaled overlay: pointer-events stay off the page so map drag
+   and the sheet keep working — only the card itself catches taps. The
+   navbar (z 9999) sits below the overlay, so the card visibly lands ON
+   the profile icon during fly-out. */
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 10010;
+  pointer-events: none;
+}
+
+.cardWrap {
+  position: absolute;
+  pointer-events: auto;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  perspective: 1100px;
+  -webkit-tap-highlight-color: transparent;
+  filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.55));
+}
+.cardWrap:disabled { cursor: default; }
+
+/* Tanz-Wrapper — handles the idle dance (rotate + skew + scale) so the
+   inner flipper can independently animate rotateY for the reveal flip
+   without the two transforms fighting on the same node. */
+.dancer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transform-origin: center center;
+}
+.dancerIdle {
+  animation: cardDance 3.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes cardDance {
+  0%   { transform: rotateX(0deg)  rotateY(0deg)   rotateZ(0deg)  skewX(0deg)  scale(1, 1);       }
+  18%  { transform: rotateX(8deg)  rotateY(-22deg) rotateZ(3deg)  skewX(-3deg) scale(1.04, 0.94); }
+  36%  { transform: rotateX(-7deg) rotateY(20deg)  rotateZ(-4deg) skewX(3deg)  scale(0.94, 1.05); }
+  54%  { transform: rotateX(10deg) rotateY(-14deg) rotateZ(2deg)  skewX(-2deg) scale(1.05, 0.96); }
+  72%  { transform: rotateX(-5deg) rotateY(16deg)  rotateZ(-3deg) skewX(2deg)  scale(0.97, 1.04); }
+  88%  { transform: rotateX(4deg)  rotateY(-8deg)  rotateZ(1deg)  skewX(-1deg) scale(1.02, 1);    }
+  100% { transform: rotateX(0deg)  rotateY(0deg)   rotateZ(0deg)  skewX(0deg)  scale(1, 1);       }
+}
+
+/* Dwell — calm but alive. Slow breathing wobble so the user can read
+   the dish + restaurant before the card flies away. */
+.dancerRevealed {
+  animation: cardBreathe 2.6s ease-in-out infinite;
+}
+@keyframes cardBreathe {
+  0%, 100% { transform: rotateX(0deg)   rotateY(0deg)  rotateZ(0deg)  scale(1, 1);    }
+  50%      { transform: rotateX(2.5deg) rotateY(-3deg) rotateZ(0.5deg) scale(1.025, 1.015); }
+}
+
+/* Fly-out keeps deforming so the card never feels frozen on the way to
+   the icon — a shorter, faster version of the idle dance, end-state
+   neutral so the landing rect is unrotated. */
+.dancerFlyOut {
+  animation: cardFlyOutDance 0.9s cubic-bezier(0.4, 0, 0.4, 1) forwards;
+}
+@keyframes cardFlyOutDance {
+  0%   { transform: rotateX(0deg)   rotateY(0deg)   rotateZ(0deg)  skewX(0deg)  scale(1, 1);       }
+  30%  { transform: rotateX(8deg)   rotateY(-20deg) rotateZ(3deg)  skewX(-3deg) scale(1.06, 0.94); }
+  65%  { transform: rotateX(-6deg)  rotateY(18deg)  rotateZ(-3deg) skewX(3deg)  scale(0.94, 1.06); }
+  100% { transform: rotateX(0deg)   rotateY(0deg)   rotateZ(0deg)  skewX(0deg)  scale(1, 1);       }
+}
+
+/* Tilter — owns the pointer/gyroscope-driven rotateX/rotateY during the
+   revealed phase. Sits between the dancer (idle/flyOut wobbles) and the
+   flipper (rotateY spin) so each transform has its own node and they
+   compose cleanly without fighting. */
+.tilter {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  pointer-events: auto;
+}
+
+.flipper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+}
+/* The "aufgehen" — geilerer hin-und-her spin: not monotonic. The card
+   pushes forward, recoils, pushes further, recoils, gradually winning
+   net rotation toward face-up. Dense keyframes keep the motion smooth
+   (no rucken) and rotateX/skewX wobble alongside so the card never
+   reads as a rigid rotating plane. Decelerates strongly via ease-out,
+   ends with a slow zoom-in to scale 1.4 so the dwell phase reads as
+   "fully zoomed in" and tilt-able. */
+.flipperOpen {
+  animation: flipperOpen 1.7s cubic-bezier(0.16, 0.7, 0.2, 1) forwards;
+}
+@keyframes flipperOpen {
+  0%   { transform: rotateY(0deg)    rotateX(0deg)   skewX(0deg)  scale(1, 1);       }
+  6%   { transform: rotateY(90deg)   rotateX(6deg)   skewX(-3deg) scale(0.95, 1.06); }
+  12%  { transform: rotateY(50deg)   rotateX(-4deg)  skewX(2deg)  scale(1.04, 0.96); }
+  20%  { transform: rotateY(220deg)  rotateX(8deg)   skewX(-3deg) scale(0.96, 1.05); }
+  28%  { transform: rotateY(180deg)  rotateX(-6deg)  skewX(2deg)  scale(1.04, 0.96); }
+  38%  { transform: rotateY(380deg)  rotateX(7deg)   skewX(-2deg) scale(0.97, 1.04); }
+  46%  { transform: rotateY(355deg)  rotateX(-5deg)  skewX(1deg)  scale(1.03, 0.97); }
+  56%  { transform: rotateY(545deg)  rotateX(6deg)   skewX(-2deg) scale(0.97, 1.04); }
+  64%  { transform: rotateY(525deg)  rotateX(-4deg)  skewX(1deg)  scale(1.02, 0.98); }
+  74%  { transform: rotateY(720deg)  rotateX(4deg)   skewX(-1deg) scale(0.98, 1.02); }
+  82%  { transform: rotateY(880deg)  rotateX(-2deg)  skewX(1deg)  scale(1.02, 0.98); }
+  88%  { transform: rotateY(905deg)  rotateX(2deg)   skewX(0deg)  scale(1.04, 0.99); }
+  93%  { transform: rotateY(897deg)  rotateX(0deg)   skewX(0deg)  scale(1.06, 1.04); }
+  /* Slow zoom-in from face-up rest to reveal-rest size. */
+  100% { transform: rotateY(900deg)  rotateX(0deg)   skewX(0deg)  scale(1.4, 1.4);   }
+}
+
+.faceBack,
+.faceFront {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 6%;
+}
+.faceBack {
+  object-fit: contain;
+}
+.faceFront {
+  object-fit: cover;
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+}
+
+/* Floating tap hint — appears under the card after the fly-in settles
+   so the user knows the next gesture without it shouting on entry. */
+.hint {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, calc(50vh * 0.42 + 22px));
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: hintFadeIn 0.3s ease-out both;
+}
+@keyframes hintFadeIn {
+  from { opacity: 0; transform: translate(-50%, calc(50vh * 0.42 + 30px)); }
+  to   { opacity: 1; transform: translate(-50%, calc(50vh * 0.42 + 22px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dancerIdle { animation: none; }
+  .hint { animation: none; }
+}

@@ -1,5 +1,11 @@
 // Barrel for lib/map — one-stop import for the map feature.
 // Each line is grouped by what it owns; prefer this over deep paths in new code.
+//
+// NOTE: This barrel re-exports client-only hooks (useEffect/useState/useRef).
+// Server code (route.ts, page.tsx without 'use client') must import the
+// individual deep modules instead — e.g. './queries' for GROQ strings —
+// otherwise Next.js pulls the client hooks into the server bundle and fails
+// with "Hook only works in a Client Component".
 
 // Pure helpers
 export { haversineDistance, formatDistance, formatWalkingTime } from './distance'

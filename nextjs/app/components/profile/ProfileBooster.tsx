@@ -3,55 +3,119 @@
 import { useState } from 'react';
 import styles from './ProfileBooster.module.css';
 
-const PACKS = [
-  { id: 'classic', image: '/pics/booster/booster1.webp' },
-  { id: 'kiez',    image: '/pics/booster/booster2.webp' },
-  { id: 'premium', image: '/pics/booster/booster5.webp' },
+interface Pack {
+  id:    string;
+  image: string;
+  name:  string;
+  desc:  string;
+  price: string;
+}
+
+const HERO: Pack = {
+  id:    'berlin',
+  image: '/pics/booster/booster1.webp',
+  name:  'Berlin Komplett',
+  desc:  'Alle 150 Must-Eats sofort freischalten',
+  price: '19,99 €',
+};
+
+const CATEGORIES: Pack[] = [
+  { id: 'cafes',       image: '/pics/booster/booster2.webp',      name: 'Cafés',     desc: 'Alle Café-Spots',       price: '2,99 €' },
+  { id: 'fruehstueck', image: '/pics/booster/booster3.webp',      name: 'Frühstück', desc: 'Alle Frühstücks-Spots', price: '2,99 €' },
+  { id: 'lunch',       image: '/pics/booster/booster5.webp',      name: 'Lunch',     desc: 'Alle Lunch-Spots',      price: '2,99 €' },
+  { id: 'dinner',      image: '/pics/booster/booster_pack_5.png', name: 'Dinner',    desc: 'Alle Dinner-Spots',     price: '2,99 €' },
 ];
 
-const PRICE = '€0,99';
-const DESC  = '10 zufällige Must-Eats aus ganz Berlin';
+const RANDOM: Pack = {
+  id:    'random10',
+  image: '/pics/booster/booster.png',
+  name:  '10 Zufällige',
+  desc:  '10 Must-Eats aus ganz Berlin',
+  price: '0,99 €',
+};
 
 export default function ProfileBooster() {
-  const [selected, setSelected]     = useState<number | null>(null);
-  const [comingSoon, setComingSoon] = useState(false);
+  const [comingSoonId, setComingSoonId] = useState<string | null>(null);
 
-  function handleBuy() {
-    setComingSoon(true);
-    setTimeout(() => setComingSoon(false), 2600);
+  function handleBuy(id: string) {
+    setComingSoonId(id);
+    setTimeout(() => setComingSoonId(null), 2600);
   }
+  const isSoon = (id: string) => comingSoonId === id;
 
   return (
     <div className={styles.wrap}>
       <div className={styles.hero}>
         <p className={styles.label}>Booster Packs</p>
         <h2 className={styles.title}>Mehr Karten freischalten</h2>
-        <p className={styles.subtitle}>{DESC}</p>
       </div>
 
-      <div className={`${styles.packRow}${selected !== null ? ` ${styles.packRowHasSelection}` : ''}`}>
-        {PACKS.map((p, i) => (
-          <button
-            key={p.id}
-            type="button"
-            className={`${styles.packCard}${selected === i ? ` ${styles.packCardActive}` : ''}`}
-            onClick={() => setSelected(i)}
-            aria-pressed={selected === i}
-            aria-label={`Booster Pack ${i + 1} auswählen`}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={p.image} alt="" className={styles.packImg} loading="lazy" />
-          </button>
-        ))}
-      </div>
+      {/* ── Hero pack: Berlin Komplett ── */}
+      <article className={styles.heroPack}>
+        <div className={styles.heroImgWrap}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={HERO.image} alt="" className={styles.heroImg} loading="lazy" />
+        </div>
+        <h3 className={styles.heroName}>{HERO.name}</h3>
+        <p className={styles.heroDesc}>{HERO.desc}</p>
+        <button
+          type="button"
+          className={`${styles.heroBuyBtn}${isSoon(HERO.id) ? ` ${styles.buyBtnSoon}` : ''}`}
+          onClick={() => handleBuy(HERO.id)}
+          disabled={isSoon(HERO.id)}
+        >
+          {isSoon(HERO.id) ? (
+            <span className={styles.heroBuyAction}>Coming Soon</span>
+          ) : (
+            <>
+              <span className={styles.heroBuyAction}>Pack holen</span>
+              <span className={styles.heroBuyPrice}>{HERO.price}</span>
+            </>
+          )}
+        </button>
+      </article>
 
-      <button
-        type="button"
-        className={`${styles.buyBtn}${comingSoon ? ` ${styles.buyBtnSoon}` : ''}`}
-        onClick={handleBuy}
-      >
-        {comingSoon ? 'Coming Soon' : `Kaufen — ${PRICE}`}
-      </button>
+      {/* ── Category 2×2 grid ── */}
+      <section className={styles.catSection}>
+        <p className={styles.sectionLabel}>Nach Kategorie</p>
+        <div className={styles.catGrid}>
+          {CATEGORIES.map((p) => (
+            <article key={p.id} className={styles.catPack}>
+              <div className={styles.catImgWrap}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={p.image} alt="" className={styles.catImg} loading="lazy" />
+              </div>
+              <span className={styles.catName}>{p.name}</span>
+              <button
+                type="button"
+                className={`${styles.catBuyBtn}${isSoon(p.id) ? ` ${styles.buyBtnSoon}` : ''}`}
+                onClick={() => handleBuy(p.id)}
+                disabled={isSoon(p.id)}
+              >
+                {isSoon(p.id) ? 'Bald' : p.price}
+              </button>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Random row: small impulse-buy ── */}
+      <article className={styles.randomPack}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={RANDOM.image} alt="" className={styles.randomImg} loading="lazy" />
+        <div className={styles.randomInfo}>
+          <span className={styles.randomName}>{RANDOM.name}</span>
+          <span className={styles.randomDesc}>{RANDOM.desc}</span>
+        </div>
+        <button
+          type="button"
+          className={`${styles.randomBuyBtn}${isSoon(RANDOM.id) ? ` ${styles.buyBtnSoon}` : ''}`}
+          onClick={() => handleBuy(RANDOM.id)}
+          disabled={isSoon(RANDOM.id)}
+        >
+          {isSoon(RANDOM.id) ? 'Bald' : RANDOM.price}
+        </button>
+      </article>
 
       <div className={styles.paymentRow} aria-label="Akzeptierte Zahlungsmethoden">
         {/* PayPal wordmark */}

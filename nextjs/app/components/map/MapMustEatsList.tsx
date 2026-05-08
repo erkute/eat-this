@@ -2,8 +2,7 @@
 import { useCallback, type Ref } from 'react'
 import { useLocale } from 'next-intl'
 import type { MapMustEat } from '@/lib/types'
-import { haversineDistance, formatDistance } from '@/lib/map/distance'
-import type { UserLocation } from '@/lib/map/useUserLocation'
+import { haversineDistance, formatDistance, type UserLocation } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { routing } from '@/i18n/routing'
 import styles from './map.module.css'
@@ -34,7 +33,8 @@ export default function MapMustEatsList({
 
   const onBoosterClick = useCallback(() => {
     if (uid) {
-      window.location.href = '/profile'
+      const path = locale === routing.defaultLocale ? '/profile#booster' : `/${locale}/profile#booster`
+      window.location.href = path
     } else {
       window.location.assign(locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
     }
@@ -50,7 +50,7 @@ export default function MapMustEatsList({
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M19 12H5M12 5l-7 7 7 7" />
         </svg>
-        Restaurants
+        {t('map.backToRestaurants')}
       </button>
       <div ref={contentRef} className={`${styles.listScroll} ${styles.listScrollNoCats}`}>
         {displayedMustEats.length === 0 ? (
@@ -89,6 +89,7 @@ function MustEatRows({
   onSelect,
   onBoosterClick,
 }: RowsProps) {
+  const { t } = useTranslation()
   const unlocked = displayedMustEats.filter(m => unlockedIds.has(m._id))
   const locked = displayedMustEats.filter(m => !unlockedIds.has(m._id))
   const insertAt = Math.min(10, unlocked.length + locked.length)
@@ -99,14 +100,13 @@ function MustEatRows({
     <div key="booster" className={styles.boosterOfferList}>
       <img src="/pics/booster/booster5.webp" alt="" className={styles.boosterImg} loading="lazy" />
       <div className={styles.boosterInfo}>
-        <div className={styles.boosterEyebrow}>Skip the Wait</div>
-        <div className={styles.boosterTitle}>Booster Pack</div>
-        <div className={styles.boosterDesc}>10 zufällige Must-Eats sofort freischalten — kein Hinlaufen nötig.</div>
+        <div className={styles.boosterTitle}>{t('map.boosterTitle')}</div>
+        <div className={styles.boosterDesc}>{t('map.boosterDesc')}</div>
         <button
           type="button"
           className={styles.boosterCta}
           onClick={onBoosterClick}
-        >Pack holen · 0,99 €</button>
+        >{t('map.boosterCta')}</button>
       </div>
     </div>
   )
@@ -115,7 +115,7 @@ function MustEatRows({
   }
 
   if (unlocked.length > 0) {
-    nodes.push(<div key="lbl-u" className={styles.mustDeckSectionLabel}>Freigeschaltet</div>)
+    nodes.push(<div key="lbl-u" className={styles.mustDeckSectionLabel}>{t('map.sectionUnlocked')}</div>)
   }
   for (const m of unlocked) {
     nodes.push(
@@ -140,7 +140,7 @@ function MustEatRows({
   }
 
   if (locked.length > 0) {
-    nodes.push(<div key="lbl-l" className={styles.mustDeckSectionLabel}>Noch nicht entdeckt</div>)
+    nodes.push(<div key="lbl-l" className={styles.mustDeckSectionLabel}>{t('map.sectionLocked')}</div>)
   }
   for (const m of locked) {
     const dist = location
@@ -162,7 +162,7 @@ function MustEatRows({
             <svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/>
             </svg>
-            Verschlossen
+            {t('map.lockedBadge')}
           </div>
         </div>
         {dist !== null && (

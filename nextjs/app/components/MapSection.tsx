@@ -2,16 +2,18 @@
 import { useRef, useState, useMemo, useCallback, useEffect, useLayoutEffect } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
 import type { MapRestaurant, MapMustEat, MapLayer } from '@/lib/types'
-import { useMapData } from '@/lib/map/useMapData'
-import { useUserLocation } from '@/lib/map/useUserLocation'
-import { useBounds } from '@/lib/map/useBounds'
-import { useUnlockedMustEats } from '@/lib/map/useUnlockedMustEats'
-import { useFavorites } from '@/lib/map/useFavorites'
-import { useMapFilters } from '@/lib/map/useMapFilters'
-import { useMapSheet } from '@/lib/map/useMapSheet'
-import { useMapDeepLinks } from '@/lib/map/useMapDeepLinks'
-import { useMapSheetSwipeClose } from '@/lib/map/useMapSheetSwipeClose'
-import { applyFanOffset } from '@/lib/map/fanOffset'
+import {
+  useMapData,
+  useUserLocation,
+  useBounds,
+  useUnlockedMustEats,
+  useFavorites,
+  useMapFilters,
+  useMapSheet,
+  useMapDeepLinks,
+  useMapSheetSwipeClose,
+  applyFanOffset,
+} from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
@@ -19,12 +21,10 @@ import MapCanvas from './map/MapCanvas'
 import RestaurantMarker from './map/RestaurantMarker'
 import MustEatMarker from './map/MustEatMarker'
 import RestaurantList from './map/RestaurantList'
-import RestaurantDetail from './map/RestaurantDetail'
-import MustEatDetail from './map/MustEatDetail'
+import MapSheetDetail from './map/MapSheetDetail'
 import UserLocationMarker from './map/UserLocationMarker'
 import CategoryFilter from './map/CategoryFilter'
 import BezirkFilterPill from './map/BezirkFilterPill'
-import { type SortOption } from './map/FilterDropdown'
 import MapMustEatsList from './map/MapMustEatsList'
 import MapListHeader from './map/MapListHeader'
 import { auth } from '@/lib/firebase/config'
@@ -703,35 +703,33 @@ export default function MapSection({ isActive = false }: Props) {
               <div ref={handleRef} className={`${styles.handle}${sheetView === 'detail' ? ` ${styles.handleHidden}` : ''}`} aria-hidden="true" />
 
               {sheetView === 'detail' && selectedMustEat ? (
-                <div ref={setContentRef} className={styles.detailMount}>
-                  <MustEatDetail
-                    mustEat={selectedMustEat}
-                    userLocation={location}
-                    isUnlocked={unlockedIds.has(selectedMustEat._id)}
-                    onUnlock={handleUnlock}
-                    onClose={handleMustEatClose}
-                    onBack={prevRestaurantRef.current ? handleMustEatBack : undefined}
-                    backLabel={prevRestaurantRef.current?.name}
-                    onViewRestaurant={handleViewRestaurantFromMustEat}
-                    onShowMustEatList={handleShowMustEatList}
-                    uid={uid}
-                    inSheet
-                  />
-                </div>
+                <MapSheetDetail
+                  kind="mustEat"
+                  contentRef={setContentRef}
+                  uid={uid}
+                  userLocation={location}
+                  unlockedIds={unlockedIds}
+                  mustEat={selectedMustEat}
+                  onUnlock={handleUnlock}
+                  onClose={handleMustEatClose}
+                  onBack={prevRestaurantRef.current ? handleMustEatBack : undefined}
+                  onViewRestaurant={handleViewRestaurantFromMustEat}
+                  onShowMustEatList={handleShowMustEatList}
+                />
               ) : sheetView === 'detail' && selectedRestaurant ? (
-                <div ref={setContentRef} className={styles.detailMount}>
-                  <RestaurantDetail
-                    restaurant={selectedRestaurant}
-                    mustEats={restaurantMustEats}
-                    unlockedIds={unlockedIds}
-                    userLocation={location}
-                    onClose={handleRestaurantClose}
-                    onMustEatClick={handleMustEatClick}
-                    isFavorite={favoriteIds.has(selectedRestaurant._id)}
-                    onToggleFavorite={() => toggleFavorite(selectedRestaurant)}
-                    inSheet
-                  />
-                </div>
+                <MapSheetDetail
+                  kind="restaurant"
+                  contentRef={setContentRef}
+                  uid={uid}
+                  userLocation={location}
+                  unlockedIds={unlockedIds}
+                  restaurant={selectedRestaurant}
+                  mustEats={restaurantMustEats}
+                  onClose={handleRestaurantClose}
+                  onMustEatClick={handleMustEatClick}
+                  isFavorite={favoriteIds.has(selectedRestaurant._id)}
+                  onToggleFavorite={() => toggleFavorite(selectedRestaurant)}
+                />
               ) : layer === 'restaurants' ? (
                 <>
                   <MapListHeader
@@ -744,7 +742,7 @@ export default function MapSection({ isActive = false }: Props) {
                     onSearchChange={handleSearchChange}
                     filterOpen={filterOpen}
                     setFilterOpen={setFilterOpen}
-                    sort={sort as SortOption}
+                    sort={sort}
                     onSort={setSort}
                     openOnly={openOnly}
                     onOpenOnly={setOpenOnly}

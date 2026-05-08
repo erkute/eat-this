@@ -168,8 +168,9 @@ export default function SiteNav() {
             </svg>
           </Link>
           <a
+            id="navProfileBtn"
             href={locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`}
-            className="navbar-icon-btn"
+            className={`navbar-icon-btn${activePage === 'profile' ? ' active' : ''}`}
             aria-label="Profile"
             onClick={handleProfileClick}
           >

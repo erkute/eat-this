@@ -34,6 +34,11 @@
    * out than in so the next idle frame greets the user with a clean
    * back-to-centre reveal. */
   transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  /* Explicit z-index so the active card (z 100 below) always renders
+     ABOVE the stack — without this, both siblings have z-auto and the
+     active card's body-portaled fixed positioning + filter combo can
+     end up under the stack's compositing layer on some browsers. */
+  z-index: 1;
 }
 
 /* During flight the stack escapes to the side OPPOSITE the target slot so
@@ -107,7 +112,10 @@
   position: fixed;
   pointer-events: none;
   transform-style: preserve-3d;
-  z-index: 9100;
+  /* z-index lives in overlay's stacking context. stackPositioner sits at
+   * z-index 1; this big number gives the active card unambiguous priority
+   * even if a sibling later promotes itself to a compositing layer. */
+  z-index: 100;
   /* drop-shadow respects nested transforms — scales with the card during
    * lift / flight, unlike box-shadow. */
   filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.45));
@@ -174,19 +182,6 @@
   overflow: hidden;
 }
 
-.confetti {
-  position: absolute;
-  top: -24px;
-  animation: confettiFall linear forwards;
-  will-change: transform, opacity;
-}
-
-@keyframes confettiFall {
-  0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
-  78%  { opacity: 1; }
-  100% { transform: translateY(110vh) translateX(var(--drift)) rotate(var(--spin)); opacity: 0; }
-}
-
 .celebContent {
   position: relative;
   z-index: 1;
@@ -218,25 +213,37 @@
 
 .celebSub {
   margin: 0;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.55);
-  letter-spacing: 0.01em;
+  font-size: clamp(18px, 4.4vw, 22px);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.005em;
+  line-height: 1.25;
 }
 
 /* Sheen — soft white gradient that drifts horizontally with the rotateY
  * tilt spring. Provides a 3D depth cue on the face-up card during the
  * lifted phase. */
+/* Full-card shimmer that sweeps with rotateY tilt. Animating
+   background-position-x (instead of translating the whole element)
+   keeps the gradient bounded to the element box — no leak past the
+   edges, no need for overflow:hidden / clip-path that would break the
+   3D flip mechanic of the card faces. */
 .cardSheen {
   position: absolute;
-  inset: 6% 6%;
+  inset: 0;
   border-radius: 6%;
   pointer-events: none;
   background: linear-gradient(
     105deg,
-    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0) 35%,
     rgba(255, 255, 255, 0.18) 50%,
-    rgba(255, 255, 255, 0) 70%
+    rgba(255, 255, 255, 0) 65%,
+    rgba(255, 255, 255, 0) 100%
   );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  background-position-y: 0;
   mix-blend-mode: overlay;
   transform: translateZ(2px);
   transition: opacity 220ms ease-out;

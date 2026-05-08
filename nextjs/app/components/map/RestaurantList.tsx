@@ -1,8 +1,6 @@
 'use client'
 import type { MapRestaurant, OpenStatus } from '@/lib/types'
-import { haversineDistance, formatDistance, formatWalkingTime } from '@/lib/map/distance'
-import { getOpenStatus } from '@/lib/map/openingHours'
-import type { UserLocation } from '@/lib/map/useUserLocation'
+import { haversineDistance, formatDistance, formatWalkingTime, getOpenStatus, type UserLocation } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import styles from './map.module.css'
 

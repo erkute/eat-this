@@ -1,0 +1,217 @@
+'use client'
+import { useLocale } from 'next-intl'
+import { routing } from '@/i18n/routing'
+import type { MapMustEat } from '@/lib/types'
+import { formatDistance } from '@/lib/map'
+import { Link } from '@/i18n/navigation'
+import { useTranslation } from '@/lib/i18n'
+import styles from './map.module.css'
+import type { MustEatDetailState } from './useMustEatDetailState'
+
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  )
+}
+
+function LockIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="4" y="11" width="16" height="10" rx="2" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+    </svg>
+  )
+}
+
+function UnlockIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="4" y="11" width="16" height="10" rx="2" />
+      <path d="M8 11V7a4 4 0 0 1 7.5-1.5" />
+    </svg>
+  )
+}
+
+interface Props {
+  mustEat: MapMustEat
+  isUnlocked: boolean
+  onClose: () => void
+  onBack?: () => void
+  onViewRestaurant?: () => void
+  onShowMustEatList?: () => void
+  uid?: string | null
+  state: MustEatDetailState
+}
+
+export default function MustEatDetailMobile({
+  mustEat,
+  isUnlocked,
+  onClose,
+  onBack,
+  onViewRestaurant,
+  onShowMustEatList,
+  uid,
+  state,
+}: Props) {
+  const { t } = useTranslation()
+  const locale = useLocale()
+  const {
+    distance,
+    canUnlock,
+    vibrateIntensity,
+    tapping,
+    revealOrigin,
+    handleCardClick,
+    handleCardZoom,
+  } = state
+
+  return (
+    <div className={styles.detailInSheet} role="dialog" aria-label={`Must-Eat at ${mustEat.restaurant.name}`}>
+      <div className={styles.detailInSheetScroll} data-detail-scroll>
+        <div
+          className={styles.mustEatHero}
+          style={!isUnlocked ? { ['--vibrate-intensity' as string]: vibrateIntensity.toFixed(3) } : undefined}
+        >
+          {onBack && (
+            <button type="button" className={styles.detailHeroBack} aria-label="Zurück" onClick={onBack}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M19 12H5M12 5l-7 7 7 7" />
+              </svg>
+            </button>
+          )}
+          <button type="button" className={styles.detailHeroClose} aria-label="Close" onClick={onClose}>
+            <CloseIcon />
+          </button>
+          {isUnlocked && !revealOrigin ? (
+            <button
+              type="button"
+              className={styles.mustEatPhotoFlip}
+              onClick={handleCardZoom}
+              aria-label="Karte vergrößern"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={mustEat.image} alt={mustEat.dish} className={styles.mustEatPhotoFront} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={`${styles.mustEatCard} ${canUnlock ? styles.mustEatCardCanUnlock : ''} ${tapping ? styles.mustEatCardTapping : ''}`}
+              onClick={handleCardClick}
+              aria-label={canUnlock ? t('map.revealHere') : t('map.tooFarToReveal')}
+              style={revealOrigin ? { visibility: 'hidden' } : undefined}
+            />
+          )}
+        </div>
+
+        <div className={styles.mustEatBody}>
+          <span className={styles.mustEatEyebrow}>
+            {isUnlocked ? <><UnlockIcon /> Must-Eat · freigeschaltet</> : <><LockIcon /> Must-Eat · verschlossen</>}
+          </span>
+          <h3 className={styles.mustEatRestaurantName}>
+            {isUnlocked ? mustEat.dish : mustEat.restaurant.name}
+          </h3>
+          <p className={styles.mustEatInfoRow}>
+            {(isUnlocked
+              ? [mustEat.restaurant.name, mustEat.restaurant.district, mustEat.price]
+              : [mustEat.restaurant.district, mustEat.price]
+            )
+              .concat(distance !== null ? [formatDistance(distance)] : [])
+              .filter(Boolean)
+              .join(' · ')}
+          </p>
+
+          {!isUnlocked && (
+            <>
+              {canUnlock ? (
+                <div className={styles.mustEatCanUnlockBanner}>
+                  <div>
+                    <strong>Du bist nah genug!</strong>
+                    <span>Tippe auf die Karte, um dein Must-Eat aufzudecken.</span>
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.mustEatExplainer}>
+                  <strong>Verschlossen.</strong> Komm auf 250 m heran und tippe die Karte auf.
+                </div>
+              )}
+
+              <div className={styles.boosterOffer}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/pics/booster/booster5.webp" alt="" className={styles.boosterImg} loading="lazy" />
+                <div className={styles.boosterInfo}>
+                  <div className={styles.boosterTitle}>Hunger auf mehr?</div>
+                  <div className={styles.boosterDesc}>Cafés, Lunch, Dinner oder direkt ganz Berlin ab 0,99 €.</div>
+                  <button
+                    type="button"
+                    className={styles.boosterCta}
+                    onClick={() => {
+                      if (uid) {
+                        window.location.href = locale === routing.defaultLocale ? '/profile#booster' : `/${locale}/profile#booster`
+                      } else {
+                        window.location.assign(locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
+                      }
+                    }}
+                  >
+                    Ansehen
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {isUnlocked && mustEat.description && (
+            <p className={styles.mustEatDescription}>{mustEat.description}</p>
+          )}
+
+          <div className={styles.mustEatLinks}>
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${mustEat.restaurant.lat},${mustEat.restaurant.lng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.mustEatLink}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span>In Google Maps öffnen</span>
+            </a>
+            {onViewRestaurant ? (
+              <button type="button" onClick={onViewRestaurant} className={styles.mustEatLink}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M3 11l9-8 9 8v10a2 2 0 01-2 2h-4v-7H9v7H5a2 2 0 01-2-2V11z" />
+                </svg>
+                <span>Restaurant ansehen</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={styles.mustEatLinkArrow}>
+                  <path d="M5 12h14M13 5l7 7-7 7" />
+                </svg>
+              </button>
+            ) : (
+              <Link href={`/restaurant/${mustEat.restaurant.slug}`} className={styles.mustEatLink}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M3 11l9-8 9 8v10a2 2 0 01-2 2h-4v-7H9v7H5a2 2 0 01-2-2V11z" />
+                </svg>
+                <span>Restaurant ansehen</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={styles.mustEatLinkArrow}>
+                  <path d="M5 12h14M13 5l7 7-7 7" />
+                </svg>
+              </Link>
+            )}
+          </div>
+
+          {onShowMustEatList && (
+            <button
+              type="button"
+              className={styles.mustEatListLink}
+              onClick={onShowMustEatList}
+            >
+              Alle Must-Eats anzeigen
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}

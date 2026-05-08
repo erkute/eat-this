@@ -1,0 +1,179 @@
+'use client'
+import { useCallback, type Ref } from 'react'
+import { useLocale } from 'next-intl'
+import type { MapMustEat } from '@/lib/types'
+import { haversineDistance, formatDistance } from '@/lib/map/distance'
+import type { UserLocation } from '@/lib/map/useUserLocation'
+import { useTranslation } from '@/lib/i18n'
+import { routing } from '@/i18n/routing'
+import styles from './map.module.css'
+
+interface Props {
+  displayedMustEats: MapMustEat[]
+  unlockedIds: Set<string>
+  selectedMustEat: MapMustEat | null
+  location: UserLocation | null
+  uid: string | null
+  contentRef: Ref<HTMLDivElement | null>
+  onSelect: (mustEat: MapMustEat) => void
+  onBackToRestaurants: () => void
+}
+
+export default function MapMustEatsList({
+  displayedMustEats,
+  unlockedIds,
+  selectedMustEat,
+  location,
+  uid,
+  contentRef,
+  onSelect,
+  onBackToRestaurants,
+}: Props) {
+  const { t } = useTranslation()
+  const locale = useLocale()
+
+  const onBoosterClick = useCallback(() => {
+    if (uid) {
+      window.location.href = '/profile'
+    } else {
+      window.location.assign(locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
+    }
+  }, [uid, locale])
+
+  return (
+    <>
+      <button
+        type="button"
+        className={styles.mustEatsBack}
+        onClick={onBackToRestaurants}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M19 12H5M12 5l-7 7 7 7" />
+        </svg>
+        Restaurants
+      </button>
+      <div ref={contentRef} className={`${styles.listScroll} ${styles.listScrollNoCats}`}>
+        {displayedMustEats.length === 0 ? (
+          <div className={styles.empty}>{t('map.noMustEatsMatch')}</div>
+        ) : (
+          <MustEatRows
+            displayedMustEats={displayedMustEats}
+            unlockedIds={unlockedIds}
+            selectedMustEat={selectedMustEat}
+            location={location}
+            onSelect={onSelect}
+            onBoosterClick={onBoosterClick}
+          />
+        )}
+      </div>
+    </>
+  )
+}
+
+interface RowsProps {
+  displayedMustEats: MapMustEat[]
+  unlockedIds: Set<string>
+  selectedMustEat: MapMustEat | null
+  location: UserLocation | null
+  onSelect: (mustEat: MapMustEat) => void
+  onBoosterClick: () => void
+}
+
+// Splits the list into unlocked → locked sections with the booster CTA
+// injected after the 10th overall item (or at the end if shorter).
+function MustEatRows({
+  displayedMustEats,
+  unlockedIds,
+  selectedMustEat,
+  location,
+  onSelect,
+  onBoosterClick,
+}: RowsProps) {
+  const unlocked = displayedMustEats.filter(m => unlockedIds.has(m._id))
+  const locked = displayedMustEats.filter(m => !unlockedIds.has(m._id))
+  const insertAt = Math.min(10, unlocked.length + locked.length)
+
+  const nodes: React.ReactNode[] = []
+  let pos = 0
+  const boosterNode = (
+    <div key="booster" className={styles.boosterOfferList}>
+      <img src="/pics/booster/booster5.webp" alt="" className={styles.boosterImg} loading="lazy" />
+      <div className={styles.boosterInfo}>
+        <div className={styles.boosterEyebrow}>Skip the Wait</div>
+        <div className={styles.boosterTitle}>Booster Pack</div>
+        <div className={styles.boosterDesc}>10 zufällige Must-Eats sofort freischalten — kein Hinlaufen nötig.</div>
+        <button
+          type="button"
+          className={styles.boosterCta}
+          onClick={onBoosterClick}
+        >Pack holen · 0,99 €</button>
+      </div>
+    </div>
+  )
+  const maybeInsertBooster = () => {
+    if (pos === insertAt) nodes.push(boosterNode)
+  }
+
+  if (unlocked.length > 0) {
+    nodes.push(<div key="lbl-u" className={styles.mustDeckSectionLabel}>Freigeschaltet</div>)
+  }
+  for (const m of unlocked) {
+    nodes.push(
+      <button
+        key={m._id}
+        className={`${styles.row} ${selectedMustEat?._id === m._id ? styles.rowActive : ''}`}
+        onClick={() => onSelect(m)}
+      >
+        <img src={m.image} alt="" className={styles.mustDeckThumb} loading="lazy" />
+        <div className={styles.rowMain}>
+          <div className={styles.rowName}>{m.dish}</div>
+          <div className={styles.mustDeckRestaurant}>{m.restaurant.name}</div>
+          <div className={styles.rowMeta}>
+            <span>{[m.restaurant.district, m.price].filter(Boolean).join(' · ')}</span>
+          </div>
+        </div>
+        <div className={styles.rowSide} />
+      </button>
+    )
+    pos++
+    maybeInsertBooster()
+  }
+
+  if (locked.length > 0) {
+    nodes.push(<div key="lbl-l" className={styles.mustDeckSectionLabel}>Noch nicht entdeckt</div>)
+  }
+  for (const m of locked) {
+    const dist = location
+      ? haversineDistance(location.lat, location.lng, m.restaurant.lat, m.restaurant.lng)
+      : null
+    nodes.push(
+      <button
+        key={m._id}
+        className={`${styles.row} ${selectedMustEat?._id === m._id ? styles.rowActive : ''}`}
+        onClick={() => onSelect(m)}
+      >
+        <div className={styles.mustDeckThumbWrap}>
+          <img src="/pics/card-back.webp" alt="" className={styles.mustDeckThumbCard} loading="lazy" />
+        </div>
+        <div className={styles.rowMain}>
+          <div className={styles.rowName}>{m.restaurant.name}</div>
+          <div className={styles.mustDeckRestaurant}>{m.restaurant.district}</div>
+          <div className={styles.mustDeckLockedTag}>
+            <svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/>
+            </svg>
+            Verschlossen
+          </div>
+        </div>
+        {dist !== null && (
+          <div className={styles.mustDeckDist}>{formatDistance(dist)}</div>
+        )}
+        <div className={styles.rowSide} />
+      </button>
+    )
+    pos++
+    maybeInsertBooster()
+  }
+
+  return <>{nodes}</>
+}

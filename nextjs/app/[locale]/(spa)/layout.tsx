@@ -3,7 +3,7 @@ import { setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { hasLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
-import { AuthProvider } from '@/lib/auth'
+import { AuthProvider, LoginModalProvider } from '@/lib/auth'
 import SiteNav from '@/app/components/SiteNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
 import NotificationToast from '@/app/components/NotificationToast'
@@ -64,15 +64,17 @@ export default async function SPALayout({
       <link rel="apple-touch-icon" sizes="192x192" href="/pics/favicon-192.png" />
 
       <AuthProvider>
-        <BridgeAuth />
-        <SiteNav />
-        <BurgerDrawer />
-        <NotificationToast />
-        <div className="app-pages" id="appPages">
-          {children}
-        </div>
-        <SearchOverlay />
-        <CookieConsent />
+        <LoginModalProvider>
+          <BridgeAuth />
+          <SiteNav />
+          <BurgerDrawer />
+          <NotificationToast />
+          <div className="app-pages" id="appPages">
+            {children}
+          </div>
+          <SearchOverlay />
+          <CookieConsent />
+        </LoginModalProvider>
       </AuthProvider>
     </>
   )

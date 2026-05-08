@@ -10,8 +10,7 @@ import { useFavorites } from '@/lib/map/useFavorites'
 import { useMapFilters } from '@/lib/map/useMapFilters'
 import { useMapSheet } from '@/lib/map/useMapSheet'
 import { useMapDeepLinks } from '@/lib/map/useMapDeepLinks'
-import { useDetailSheetSwipeClose } from '@/lib/map/useDetailSheetSwipeClose'
-import { haversineDistance, formatDistance } from '@/lib/map/distance'
+import { useMapSheetSwipeClose } from '@/lib/map/useMapSheetSwipeClose'
 import { applyFanOffset } from '@/lib/map/fanOffset'
 import { useTranslation } from '@/lib/i18n'
 import { useLocale } from 'next-intl'
@@ -25,7 +24,9 @@ import MustEatDetail from './map/MustEatDetail'
 import UserLocationMarker from './map/UserLocationMarker'
 import CategoryFilter from './map/CategoryFilter'
 import BezirkFilterPill from './map/BezirkFilterPill'
-import FilterDropdown, { type SortOption } from './map/FilterDropdown'
+import { type SortOption } from './map/FilterDropdown'
+import MapMustEatsList from './map/MapMustEatsList'
+import MapListHeader from './map/MapListHeader'
 import { auth } from '@/lib/firebase/config'
 import { onAuthStateChanged } from 'firebase/auth'
 import styles from './map/map.module.css'
@@ -536,7 +537,7 @@ export default function MapSection({ isActive = false }: Props) {
 
   // Mobile swipe-down-to-close on the detail sheet. Only initiates from the
   // hero region AND when the inner content scroll is at the top.
-  useDetailSheetSwipeClose({
+  useMapSheetSwipeClose({
     sheetElRef,
     contentRef,
     sheetView,
@@ -733,82 +734,24 @@ export default function MapSection({ isActive = false }: Props) {
                 </div>
               ) : layer === 'restaurants' ? (
                 <>
-                  {/* Zone B — count row + action buttons (drag handler attached, 8px threshold) */}
-                  <div ref={setHeaderRef} className={styles.listHeader}>
-                    {searchOpen ? (
-                      <div className={styles.listHeaderRow}>
-                        <input
-                          type="text"
-                          autoFocus
-                          value={search}
-                          onChange={e => handleSearchChange(e.target.value)}
-                          placeholder={t('map.searchPlaceholder')}
-                          className={styles.searchInputInline}
-                          aria-label={t('nav.searchAriaLabel') ?? 'Search'}
-                        />
-                        <button
-                          type="button"
-                          className={styles.searchCloseBtn}
-                          onClick={() => { setSearchOpen(false); handleSearchChange('') }}
-                          aria-label="Suche schließen"
-                        >
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                            <line x1="6" y1="6" x2="18" y2="18" />
-                            <line x1="18" y1="6" x2="6" y2="18" />
-                          </svg>
-                        </button>
-                      </div>
-                    ) : (
-                      <div className={styles.listHeaderRow}>
-                        <span className={styles.listHeaderCount}>
-                          {displayedRestaurants.length}{' '}
-                          {displayedRestaurants.length === 1 ? t('map.restaurantOne') : t('map.restaurantMany')}
-                        </span>
-                        <div className={styles.listHeaderActions}>
-                          <button
-                            type="button"
-                            className={`${styles.filterIconBtn} ${search ? styles.filterIconBtnActive : ''}`}
-                            onClick={() => setSearchOpen(true)}
-                            aria-label="Suchen"
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                              <circle cx="11" cy="11" r="7" />
-                              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                            </svg>
-                            {search && <span className={styles.filterActiveDot} aria-hidden="true" />}
-                          </button>
-                          <button
-                            ref={filterBtnRef}
-                            type="button"
-                            className={`${styles.filterIconBtn} ${(openOnly || bezirk || sort !== 'distance') ? styles.filterIconBtnActive : ''}`}
-                            onClick={() => setFilterOpen(v => !v)}
-                            aria-label="Filter und Sortierung"
-                            aria-expanded={filterOpen}
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                              <line x1="4" y1="6" x2="20" y2="6" />
-                              <line x1="7" y1="12" x2="17" y2="12" />
-                              <line x1="10" y1="18" x2="14" y2="18" />
-                            </svg>
-                            {(openOnly || bezirk || sort !== 'distance') && <span className={styles.filterActiveDot} aria-hidden="true" />}
-                          </button>
-                          {filterOpen && (
-                            <FilterDropdown
-                              sort={sort}
-                              onSort={s => { setSort(s as SortOption) }}
-                              openOnly={openOnly}
-                              onOpenOnly={setOpenOnly}
-                              bezirke={bezirkNames}
-                              bezirk={bezirk}
-                              onBezirk={handleBezirkChange}
-                              onClose={() => setFilterOpen(false)}
-                              anchorEl={filterBtnRef.current}
-                            />
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  <MapListHeader
+                    headerRef={setHeaderRef}
+                    filterBtnRef={filterBtnRef}
+                    resultCount={displayedRestaurants.length}
+                    searchOpen={searchOpen}
+                    setSearchOpen={setSearchOpen}
+                    search={search}
+                    onSearchChange={handleSearchChange}
+                    filterOpen={filterOpen}
+                    setFilterOpen={setFilterOpen}
+                    sort={sort as SortOption}
+                    onSort={setSort}
+                    openOnly={openOnly}
+                    onOpenOnly={setOpenOnly}
+                    bezirkNames={bezirkNames}
+                    bezirk={bezirk}
+                    onBezirk={handleBezirkChange}
+                  />
                   {/* Zone C — category chips: NO drag handler, pure native horizontal scroll */}
                   <div className={styles.listHeaderTabs}>
                     <CategoryFilter active={category} onChange={setCategory} variant="tabs" />
@@ -823,116 +766,16 @@ export default function MapSection({ isActive = false }: Props) {
                   </div>
                 </>
               ) : (
-                <>
-                  <button
-                    type="button"
-                    className={styles.mustEatsBack}
-                    onClick={handleBackToRestaurants}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M19 12H5M12 5l-7 7 7 7" />
-                    </svg>
-                    Restaurants
-                  </button>
-                  <div ref={setContentRef} className={`${styles.listScroll} ${styles.listScrollNoCats}`}>
-                    {displayedMustEats.length === 0 ? (
-                      <div className={styles.empty}>{t('map.noMustEatsMatch')}</div>
-                    ) : (() => {
-                      // Render unlocked → locked, with the booster CTA injected
-                      // after the 10th item overall (or at the end if list shorter).
-                      const unlocked = displayedMustEats.filter(m => unlockedIds.has(m._id))
-                      const locked = displayedMustEats.filter(m => !unlockedIds.has(m._id))
-                      const total = unlocked.length + locked.length
-                      const insertAt = Math.min(10, total)
-                      const nodes: React.ReactNode[] = []
-                      let pos = 0
-                      const boosterNode = (
-                        <div key="booster" className={styles.boosterOfferList}>
-                          <img src="/pics/booster/booster5.webp" alt="" className={styles.boosterImg} loading="lazy" />
-                          <div className={styles.boosterInfo}>
-                            <div className={styles.boosterEyebrow}>Skip the Wait</div>
-                            <div className={styles.boosterTitle}>Booster Pack</div>
-                            <div className={styles.boosterDesc}>10 zufällige Must-Eats sofort freischalten — kein Hinlaufen nötig.</div>
-                            <button
-                              type="button"
-                              className={styles.boosterCta}
-                              onClick={() => {
-                                if (uid) {
-                                  window.location.href = '/profile'
-                                } else {
-                                  window.location.assign(locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
-                                }
-                              }}
-                            >Pack holen · 0,99 €</button>
-                          </div>
-                        </div>
-                      )
-                      const maybeInsertBooster = () => {
-                        if (pos === insertAt) nodes.push(boosterNode)
-                      }
-                      if (unlocked.length > 0) {
-                        nodes.push(<div key="lbl-u" className={styles.mustDeckSectionLabel}>Freigeschaltet</div>)
-                      }
-                      for (const m of unlocked) {
-                        nodes.push(
-                          <button
-                            key={m._id}
-                            className={`${styles.row} ${selectedMustEat?._id === m._id ? styles.rowActive : ''}`}
-                            onClick={() => handleMustEatClick(m)}
-                          >
-                            <img src={m.image} alt="" className={styles.mustDeckThumb} loading="lazy" />
-                            <div className={styles.rowMain}>
-                              <div className={styles.rowName}>{m.dish}</div>
-                              <div className={styles.mustDeckRestaurant}>{m.restaurant.name}</div>
-                              <div className={styles.rowMeta}>
-                                <span>{[m.restaurant.district, m.price].filter(Boolean).join(' · ')}</span>
-                              </div>
-                            </div>
-                            <div className={styles.rowSide} />
-                          </button>
-                        )
-                        pos++
-                        maybeInsertBooster()
-                      }
-                      if (locked.length > 0) {
-                        nodes.push(<div key="lbl-l" className={styles.mustDeckSectionLabel}>Noch nicht entdeckt</div>)
-                      }
-                      for (const m of locked) {
-                        const dist = location
-                          ? haversineDistance(location.lat, location.lng, m.restaurant.lat, m.restaurant.lng)
-                          : null
-                        nodes.push(
-                          <button
-                            key={m._id}
-                            className={`${styles.row} ${selectedMustEat?._id === m._id ? styles.rowActive : ''}`}
-                            onClick={() => handleMustEatClick(m)}
-                          >
-                            <div className={styles.mustDeckThumbWrap}>
-                              <img src="/pics/card-back.webp" alt="" className={styles.mustDeckThumbCard} loading="lazy" />
-                            </div>
-                            <div className={styles.rowMain}>
-                              <div className={styles.rowName}>{m.restaurant.name}</div>
-                              <div className={styles.mustDeckRestaurant}>{m.restaurant.district}</div>
-                              <div className={styles.mustDeckLockedTag}>
-                                <svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                  <rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/>
-                                </svg>
-                                Verschlossen
-                              </div>
-                            </div>
-                            {dist !== null && (
-                              <div className={styles.mustDeckDist}>{formatDistance(dist)}</div>
-                            )}
-                            <div className={styles.rowSide} />
-                          </button>
-                        )
-                        pos++
-                        maybeInsertBooster()
-                      }
-                      return <>{nodes}</>
-                    })()}
-                  </div>
-                </>
+                <MapMustEatsList
+                  displayedMustEats={displayedMustEats}
+                  unlockedIds={unlockedIds}
+                  selectedMustEat={selectedMustEat}
+                  location={location}
+                  uid={uid}
+                  contentRef={setContentRef}
+                  onSelect={handleMustEatClick}
+                  onBackToRestaurants={handleBackToRestaurants}
+                />
               )}
             </aside>
           </div>

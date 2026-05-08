@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import type { MustEatPreview } from '@/lib/sanity.server'
-import { openLoginModal } from '@/lib/auth'
+import { useLoginModal } from '@/lib/auth'
 import styles from './MustEatTeaserSection.module.css'
 
 interface Props {
@@ -13,6 +13,7 @@ interface Props {
 
 export default function MustEatTeaserSection({ mustEats, locale }: Props) {
   const [shakingId, setShakingId] = useState<string | null>(null)
+  const { open: openLogin } = useLoginModal()
 
   if (mustEats.length === 0) return null
   const de = locale === 'de'
@@ -20,7 +21,7 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
   const handleClick = (id: string) => {
     setShakingId(id)
     window.setTimeout(() => setShakingId(prev => (prev === id ? null : prev)), 600)
-    openLoginModal()
+    openLogin()
   }
 
   return (

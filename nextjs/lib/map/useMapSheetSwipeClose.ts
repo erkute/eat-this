@@ -13,16 +13,21 @@ interface Args {
 }
 
 /**
- * Mobile-only swipe-down-to-close on the detail sheet. Only initiates from the
- * hero region (top ~240 px) AND when the inner content scroll is at the top —
- * so users can still scroll the body content without triggering close.
+ * Companion hook to `useMapSheet` — owns the mobile-only swipe-down-to-close
+ * gesture on the detail view. Split out because it depends on selection state
+ * and close handlers that MapSection defines AFTER `useMapSheet` returns; the
+ * two are otherwise tightly coupled (both read `--sheet-y` and `sheetElRef`).
+ *
+ * Only initiates from the hero region (top ~240 px) AND when the inner
+ * content scroll is at the top — so users can still scroll the body content
+ * without triggering close.
  *
  * On release-past-threshold a two-phase animation runs:
  *   Phase 1 (~180 ms): slide the detail fully off-screen.
  *   Phase 2 (~280 ms): swap content to list, slide back up to mid.
  * The user perceives "detail goes down, list comes up" with no visual pop.
  */
-export function useDetailSheetSwipeClose({
+export function useMapSheetSwipeClose({
   sheetElRef,
   contentRef,
   sheetView,

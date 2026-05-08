@@ -4,9 +4,13 @@ import { useBottomSheet } from './useBottomSheet'
 export type SheetView = 'list' | 'detail'
 
 /**
- * Combines the generic `useBottomSheet` primitive with the map-specific
- * `sheetView` ('list' vs 'detail') state and the drag-config side-effect that
- * locks dragging while a detail is open.
+ * Owns the map-sheet state machine: combines the generic `useBottomSheet`
+ * primitive with the `sheetView` ('list' vs 'detail') flag and the drag-config
+ * side-effect that locks dragging while a detail is open.
+ *
+ * Pairs with `useMapSheetSwipeClose` (called separately from MapSection
+ * because the gesture needs selection state + close handlers that are defined
+ * after `useMapSheet` returns).
  *
  * Returns the bottom-sheet primitives plus `sheetView`/`setSheetView` plus a
  * `setSheetRef` callback that captures the underlying DOM node into a local

@@ -1,12 +1,12 @@
 'use client';
 
 /**
- * Owns the login modal portal and the pre-hydration auth hints.
+ * Renders the login modal portal and runs the pre-hydration auth-button sync.
+ * Modal open/close state lives in LoginModalContext; this component only
+ * consumes it. Triggers come from SiteNav (header profile icon), BurgerDrawer
+ * (login button), and MustEatTeaserSection (locked card click) via
+ * useLoginModal().
  *
- * - window.openLoginModal / window.closeLoginModal: opened by SiteNav and
- *   BurgerDrawer when an unauthenticated user clicks a profile-protected
- *   action. Set as window globals so any client component can trigger the
- *   modal without prop-drilling — there is exactly one modal per app.
  * - localStorage._authHint: read by the inline CRITICAL_BOOTSTRAP in
  *   [locale]/layout.tsx to set the loginBtn text/state synchronously,
  *   before React hydrates, so the user never sees "Sign in" flash to
@@ -16,9 +16,9 @@
  *   the bootstrap script too, hence the imperative DOM update here.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useAuth } from '@/lib/auth';
+import { useAuth, useLoginModal } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
 import LoginPanel from '@/app/components/LoginPanel';
 import modalStyles from '@/app/[locale]/@modal/(.)login/modal.module.css';
@@ -26,14 +26,7 @@ import modalStyles from '@/app/[locale]/@modal/(.)login/modal.module.css';
 export default function BridgeAuth() {
   const { user, loading } = useAuth();
   const { t } = useTranslation();
-  const [loginOpen, setLoginOpen] = useState(false);
-
-  // Expose modal triggers as window globals — single modal instance, called
-  // from SiteNav (header profile icon) and BurgerDrawer (login button).
-  useEffect(() => {
-    window.openLoginModal  = () => setLoginOpen(true);
-    window.closeLoginModal = () => setLoginOpen(false);
-  }, []);
+  const { isOpen: loginOpen, close: closeLogin } = useLoginModal();
 
   // Lock body scroll while the login modal is open.
   useEffect(() => {
@@ -63,20 +56,20 @@ export default function BridgeAuth() {
       if (loginSpan) loginSpan.textContent = firstName;
       try { localStorage.setItem('_authHint', JSON.stringify({ n: firstName })); } catch {}
       // Close the modal if the user just signed in.
-      setLoginOpen(false);
+      closeLogin();
     } else {
       loginBtn?.classList.remove('logged-in');
       if (loginSpan) loginSpan.textContent = t('footer.signIn');
       try { localStorage.removeItem('_authHint'); } catch {}
     }
-  }, [user, loading, t]);
+  }, [user, loading, t, closeLogin]);
 
   return loginOpen ? createPortal(
     <div
       className={modalStyles.overlay}
-      onClick={(e) => { if (e.target === e.currentTarget) setLoginOpen(false); }}
+      onClick={(e) => { if (e.target === e.currentTarget) closeLogin(); }}
     >
-      <LoginPanel onBack={() => setLoginOpen(false)} modal />
+      <LoginPanel onBack={closeLogin} modal />
     </div>,
     document.body,
   ) : null;

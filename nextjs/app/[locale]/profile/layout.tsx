@@ -3,7 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
-import { AuthProvider } from '@/lib/auth';
+import { AuthProvider, LoginModalProvider } from '@/lib/auth';
 import SiteNav from '@/app/components/SiteNav';
 import BurgerDrawer from '@/app/components/BurgerDrawer';
 import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth';
@@ -33,11 +33,13 @@ export default async function ProfileLayout({
       <link rel="stylesheet" href="/css/style.min.css?v=30" precedence="default" />
 
       <AuthProvider>
-        <SiteNav />
-        <BridgeAuth />
-        <BurgerDrawer />
-        {children}
-        <SearchOverlay />
+        <LoginModalProvider>
+          <SiteNav />
+          <BridgeAuth />
+          <BurgerDrawer />
+          {children}
+          <SearchOverlay />
+        </LoginModalProvider>
       </AuthProvider>
     </>
   );

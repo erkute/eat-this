@@ -4,9 +4,10 @@ import { useCallback, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
-import { useAuth, openLoginModal } from '@/lib/auth';
+import { useAuth, useLoginModal } from '@/lib/auth';
 import { routing } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
+import type { BurgerCloseDetail } from './BurgerDrawer';
 
 // Strip the optional /en prefix to get the route the SPA cares about.
 function stripLocale(path: string): string {
@@ -24,6 +25,7 @@ function pageSlugFromPath(path: string): string {
 export default function SiteNav() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { open: openLogin } = useLoginModal();
   const locale = useLocale();
   const pathname = usePathname();
   const activePage = pageSlugFromPath(pathname);
@@ -36,9 +38,9 @@ export default function SiteNav() {
       const href = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
       window.location.assign(href);
     } else {
-      openLoginModal();
+      openLogin();
     }
-  }, [user, locale]);
+  }, [user, locale, openLogin]);
 
   // navbar.scrolled toggle — replaces app.min.js's at()/je() handlers.
   // Desktop: window scroll. Mobile + start page: .app-page[data-page="start"]
@@ -109,22 +111,27 @@ export default function SiteNav() {
     };
 
     const open  = () => { drawer.classList.add('active'); lock(); };
-    const close = () => {
+    const close = (restoreScroll = true) => {
       drawer.classList.remove('active');
-      // BurgerDrawer's route-change effect tags the drawer before triggering
-      // close so we skip the scroll-restore in that path.
-      const navTriggered = drawer.dataset.scrollSuppress === 'nav';
-      delete drawer.dataset.scrollSuppress;
-      unlock(!navTriggered);
+      unlock(restoreScroll);
+    };
+    const onUserClose = () => close(true);
+    // BurgerDrawer dispatches `burger:close` on route change with
+    // `suppressScroll: true` so the destination page starts at the top.
+    const onBurgerCloseEvent = (e: Event) => {
+      const detail = (e as CustomEvent<BurgerCloseDetail>).detail;
+      close(!detail?.suppressScroll);
     };
 
     openBtn?.addEventListener('click', open);
-    closeBtn?.addEventListener('click', close);
-    backdrop?.addEventListener('click', close);
+    closeBtn?.addEventListener('click', onUserClose);
+    backdrop?.addEventListener('click', onUserClose);
+    drawer.addEventListener('burger:close', onBurgerCloseEvent);
     return () => {
       openBtn?.removeEventListener('click', open);
-      closeBtn?.removeEventListener('click', close);
-      backdrop?.removeEventListener('click', close);
+      closeBtn?.removeEventListener('click', onUserClose);
+      backdrop?.removeEventListener('click', onUserClose);
+      drawer.removeEventListener('burger:close', onBurgerCloseEvent);
       // Cross-layout navigation while the drawer is open: our body-lock would
       // persist and break scrolling on the next page. Undo without restoring
       // scroll — the new page should start at the top.

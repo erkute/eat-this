@@ -3,28 +3,38 @@
 import { useCallback, useEffect } from 'react';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
-import { useAuth, openLoginModal } from '@/lib/auth';
+import { useAuth, useLoginModal } from '@/lib/auth';
 import { useTheme } from '@/lib/useTheme';
 import { routing } from '@/i18n/routing';
 import { Link, usePathname } from '@/i18n/navigation';
 
+export interface BurgerCloseDetail {
+  /** Skip the body-scroll restore — for cross-page navigation where the
+   *  destination should start at the top, not the previous page's scrollY. */
+  suppressScroll?: boolean;
+}
+
 export default function BurgerDrawer() {
   const { t, lang, setLang } = useTranslation();
   const { user } = useAuth();
+  const { open: openLogin } = useLoginModal();
   const locale = useLocale();
   const { isDark, toggleTheme } = useTheme();
   const pathname = usePathname();
 
   // Close the drawer whenever the route changes — clicking a Link inside the
   // drawer would otherwise navigate but leave the panel + backdrop open over
-  // the new page. Triggers the existing close handler wired up in SiteNav.
-  // The dataset flag tells SiteNav's close handler to skip the scroll-restore
-  // so the destination page starts at the top instead of the old scrollY.
+  // the new page. Dispatches a typed event the SiteNav close handler listens
+  // for; `suppressScroll` skips the scroll-restore so the destination page
+  // starts at the top instead of the old scrollY.
   useEffect(() => {
     const drawer = document.getElementById('burgerDrawer');
     if (drawer?.classList.contains('active')) {
-      drawer.dataset.scrollSuppress = 'nav';
-      document.getElementById('burgerClose')?.click();
+      drawer.dispatchEvent(
+        new CustomEvent<BurgerCloseDetail>('burger:close', {
+          detail: { suppressScroll: true },
+        }),
+      );
     }
   }, [pathname]);
 
@@ -34,9 +44,9 @@ export default function BurgerDrawer() {
       const href = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
       window.location.assign(href);
     } else {
-      openLoginModal();
+      openLogin();
     }
-  }, [user, locale]);
+  }, [user, locale, openLogin]);
 
   return (
     <div className="burger-drawer" id="burgerDrawer">

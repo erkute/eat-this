@@ -43,8 +43,8 @@ function deOnly(path: string, lastModified?: string, priority = 0.5, changeFrequ
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [restaurants, articles, bezirke] = await Promise.all([
-    client.fetch<{ slug: string; updatedAt: string; descriptionEn?: string }[]>(
-      `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt, descriptionEn }`,
+    client.fetch<{ slug: string; descriptionEn?: string }[]>(
+      `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, descriptionEn }`,
       {},
       { next: { revalidate: 3600, tags: ['sitemap-restaurants'] } },
     ),
@@ -53,8 +53,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       {},
       { next: { revalidate: 3600, tags: ['sitemap-articles'] } },
     ),
-    client.fetch<{ slug: string; updatedAt: string; descriptionEn?: string }[]>(
-      `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt, descriptionEn }`,
+    client.fetch<{ slug: string; descriptionEn?: string }[]>(
+      `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, descriptionEn }`,
       {},
       { next: { revalidate: 3600, tags: ['sitemap-bezirke'] } },
     ),
@@ -67,20 +67,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return withAlternates(p, undefined, priority, changeFrequency)
   })
 
-  const restaurantEntries = restaurants.map(({ slug, updatedAt, descriptionEn }) =>
+  // Restaurants/Bezirke: no `lastmod` — Sanity's `_updatedAt` reflects every
+  // batch script touch (Places enrichment etc.), which clusters timestamps
+  // and Google then ignores `lastmod` site-wide. Better to omit than lie.
+  const restaurantEntries = restaurants.map(({ slug, descriptionEn }) =>
     hasEnContent({ descriptionEn })
-      ? withAlternates(`/restaurant/${slug}`, updatedAt, 0.8, 'monthly')
-      : deOnly(`/restaurant/${slug}`, updatedAt, 0.8, 'monthly'),
+      ? withAlternates(`/restaurant/${slug}`, undefined, 0.8, 'monthly')
+      : deOnly(`/restaurant/${slug}`, undefined, 0.8, 'monthly'),
   )
 
+  // News keeps `lastmod` — articles are individually edited by humans, so
+  // `_updatedAt` is a meaningful "content changed" signal.
   const articleEntries = articles.map(({ slug, updatedAt }) =>
     withAlternates(`/news/${slug}`, updatedAt, 0.7, 'monthly'),
   )
 
-  const bezirkEntries = bezirke.map(({ slug, updatedAt, descriptionEn }) =>
+  const bezirkEntries = bezirke.map(({ slug, descriptionEn }) =>
     hasEnContent({ descriptionEn })
-      ? withAlternates(`/bezirk/${slug}`, updatedAt, 0.7, 'monthly')
-      : deOnly(`/bezirk/${slug}`, updatedAt, 0.7, 'monthly'),
+      ? withAlternates(`/bezirk/${slug}`, undefined, 0.7, 'monthly')
+      : deOnly(`/bezirk/${slug}`, undefined, 0.7, 'monthly'),
   )
 
   const kategorieEntries = CATEGORIES.map(c =>

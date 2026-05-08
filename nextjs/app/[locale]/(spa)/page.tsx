@@ -14,6 +14,7 @@ import MapTeaser from '@/app/components/landing/MapTeaser'
 import BoosterPack from '@/app/components/landing/BoosterPack'
 import Coming from '@/app/components/landing/Coming'
 import LandingFAQ from '@/app/components/landing/LandingFAQ'
+import ExploreHub from '@/app/components/landing/ExploreHub'
 import Newsletter from '@/app/components/landing/Newsletter'
 
 const SITE_URL = 'https://www.eatthisdot.com'
@@ -94,6 +95,7 @@ export default async function SPAHomePage({
           <BoosterPack />
           <Coming />
           <LandingFAQ />
+          <ExploreHub />
           <Newsletter />
           <SiteFooter />
         </div>

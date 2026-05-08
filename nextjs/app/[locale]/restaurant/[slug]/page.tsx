@@ -208,77 +208,87 @@ export default async function RestaurantPage({ params }: PageProps) {
 
         <div className={styles.content}>
           <Breadcrumbs items={breadcrumbItems} ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'} />
-          <header className={styles.header}>
-            <h1 className={styles.name}>{r.name}</h1>
-            <div className={styles.meta}>
-              {r.district && <span className={styles.district}>{r.district}</span>}
-            </div>
-            {r.address && (
-              <a
-                href={r.mapsUrl ?? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.address)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.address}
-              >
-                {r.address}
-              </a>
-            )}
-            {r.cuisineType && <p className={styles.cuisine}>{r.cuisineType}</p>}
-            {((r.categories && r.categories.length > 0) || r.price) && (
-              <div className={styles.categories}>
-                {r.price && <span className={styles.price}>{r.price}</span>}
-                {r.categories?.map((cat: string) => (
-                  <span key={cat} className={styles.category}>{cat}</span>
-                ))}
+          <div className={styles.layout}>
+            <header className={styles.header}>
+              <h1 className={styles.name}>{r.name}</h1>
+              <div className={styles.meta}>
+                {r.district && <span className={styles.district}>{r.district}</span>}
+              </div>
+              {r.cuisineType && <p className={styles.cuisine}>{r.cuisineType}</p>}
+              {((r.categories && r.categories.length > 0) || r.price) && (
+                <div className={styles.categories}>
+                  {r.price && <span className={styles.price}>{r.price}</span>}
+                  {r.categories?.map((cat: string) => (
+                    <span key={cat} className={styles.category}>{cat}</span>
+                  ))}
+                </div>
+              )}
+            </header>
+
+            {description && <p className={styles.description}>{description}</p>}
+
+            {tip && (
+              <div className={styles.tip}>
+                <strong>Insider Tip: </strong>
+                {tip}
               </div>
             )}
-          </header>
 
-          {description && <p className={styles.description}>{description}</p>}
+            <aside className={styles.sidebar}>
+              {r.address && (
+                <section>
+                  <h2 className={styles.sectionTitle}>{de ? 'Adresse' : 'Address'}</h2>
+                  <a
+                    href={r.mapsUrl ?? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.address)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.address}
+                  >
+                    {r.address}
+                  </a>
+                </section>
+              )}
 
-          {tip && (
-            <div className={styles.tip}>
-              <strong>Insider Tip: </strong>
-              {tip}
+              {r.openingHours && r.openingHours.length > 0 && (
+                <section>
+                  <h2 className={styles.sectionTitle}>{de ? 'Öffnungszeiten' : 'Opening Hours'}</h2>
+                  <ul className={styles.hours}>
+                    {r.openingHours.map((slot, i) => (
+                      <li key={i} className={styles.hourRow}>
+                        <span className={styles.days}>{slot.days}</span>
+                        <span>{slot.hours}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              <div className={styles.links}>
+                <IntlLink href={`/map?r=${r.slug}`} className={`${styles.link} ${styles.linkPrimary}`}>
+                  Eat This Map
+                </IntlLink>
+                {r.reservationUrl && (
+                  <a href={r.reservationUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
+                    {de ? 'Reservieren' : 'Reserve a Table'}
+                  </a>
+                )}
+                {r.website && (
+                  <a href={r.website} target="_blank" rel="noopener noreferrer" className={styles.link}>
+                    Website
+                  </a>
+                )}
+                {r.mapsUrl && (
+                  <a href={r.mapsUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
+                    Google Maps
+                  </a>
+                )}
+              </div>
+            </aside>
+
+            <div className={styles.musteats}>
+              <MustEatTeaserSection mustEats={mustEats} locale={loc} />
             </div>
-          )}
-
-          {r.openingHours && r.openingHours.length > 0 && (
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>Opening Hours</h2>
-              <ul className={styles.hours}>
-                {r.openingHours.map((slot, i) => (
-                  <li key={i} className={styles.hourRow}>
-                    <span className={styles.days}>{slot.days}</span>
-                    <span>{slot.hours}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          <div className={styles.links}>
-            <IntlLink href={`/map?r=${r.slug}`} className={`${styles.link} ${styles.linkPrimary}`}>
-              Eat This Map
-            </IntlLink>
-            {r.mapsUrl && (
-              <a href={r.mapsUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
-                Google Maps
-              </a>
-            )}
-            {r.reservationUrl && (
-              <a href={r.reservationUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
-                {loc === 'de' ? 'Reservieren' : 'Reserve a Table'}
-              </a>
-            )}
-            {r.website && (
-              <a href={r.website} target="_blank" rel="noopener noreferrer" className={styles.link}>
-                Website
-              </a>
-            )}
           </div>
-
-          <MustEatTeaserSection mustEats={mustEats} locale={loc} />
         </div>
 
         {r.bezirk?.slug && r.bezirk?.name && (

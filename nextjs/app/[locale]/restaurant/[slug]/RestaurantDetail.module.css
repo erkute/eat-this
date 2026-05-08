@@ -1,5 +1,8 @@
 /* Restaurant detail page — uses semantic tokens so it flips cleanly in
-   [data-theme="dark"]. Mobile-first; magazine-narrow 720px column. */
+   [data-theme="dark"]. Mobile-first; magazine-narrow 720 px column.
+   Desktop (>= 960 px) widens to 1080 px and reflows the body into a
+   two-column grid: main copy on the left (kept around 660 px wide for
+   readable line length), sticky facts sidebar on the right. */
 
 .page {
   max-width: 720px;
@@ -7,6 +10,10 @@
   /* Top padding clears the fixed legacy .navbar (60px + safe-area) — flush. */
   padding: calc(60px + env(safe-area-inset-top, 0px)) 24px 80px;
   color: var(--text-primary);
+}
+
+@media (min-width: 960px) {
+  .page { max-width: 1080px; }
 }
 
 .hero {
@@ -95,11 +102,11 @@
 }
 
 .address {
-  display: inline-block;
-  margin-top: 6px;
+  display: block;
   font-size: 0.875rem;
   color: var(--text-muted);
   text-decoration: none;
+  line-height: 1.45;
   transition: color 0.15s;
 }
 
@@ -140,10 +147,6 @@
   color: var(--text-secondary);
 }
 
-.section {
-  margin-bottom: 32px;
-}
-
 .sectionTitle {
   font-size: 0.75rem;
   font-weight: 700;
@@ -179,7 +182,6 @@
      the viewport. */
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
-  margin-top: 40px;
 }
 
 .link {
@@ -232,4 +234,50 @@
   border-color: var(--cta-red);
   color: #ffffff;
   filter: brightness(0.92);
+}
+
+/* ─── Two-column body layout (>= 960 px) ────────────────────────────────
+   Mobile keeps the original block flow: header → description → tip →
+   sidebar (address/hours/links) → must eats. On desktop we promote the
+   wrapper to a grid with named areas so the sidebar spans all body rows
+   while the main column flows header/description/tip/musteats. The
+   sidebar grid cell is taller than its content, which is what lets
+   `position: sticky` work. */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 32px;
+}
+
+@media (min-width: 960px) {
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-areas:
+      "header      sidebar"
+      "description sidebar"
+      "tip         sidebar"
+      "musteats    sidebar";
+    column-gap: 56px;
+  }
+  .header      { grid-area: header; }
+  .description { grid-area: description; }
+  .tip         { grid-area: tip; }
+  .musteats    { grid-area: musteats; }
+  .sidebar {
+    grid-area: sidebar;
+    margin-top: 0;
+    align-self: start;
+    position: sticky;
+    /* 60 px legacy navbar + 24 px breath. */
+    top: calc(60px + 24px);
+    gap: 28px;
+  }
+  /* Sidebar links stack vertically — no need for the 3-column mobile grid
+     when they sit in a 320 px column. */
+  .links { grid-template-columns: 1fr; }
+  /* The mobile-only "4th button spans full width" override has no effect
+     in a 1-col stack but reset it anyway so the rule is unambiguous. */
+  .link:nth-child(4) { grid-column: auto; }
 }

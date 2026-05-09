@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import path from "path";
 import createNextIntlPlugin from "next-intl/plugin";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
@@ -34,4 +35,16 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+// Sentry build plugin: uploads sourcemaps + creates a release per build, so
+// minified production stack traces resolve back to source in the dashboard.
+// Source-maps upload is gated by SENTRY_AUTH_TOKEN — without it the plugin
+// warns and skips the upload, the build itself does not fail.
+export default withSentryConfig(withNextIntl(nextConfig), {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  // Tunneling routes errors through our own /monitoring endpoint, dodging
+  // ad-blockers that strip Sentry calls. Cheap insurance for prod traffic.
+  tunnelRoute: '/monitoring',
+});

@@ -45,3 +45,28 @@ env:
       - RUNTIME
       - BUILD
 
+  # Sentry — error tracking + performance monitoring (EU region)
+  # DSN is "public" by Sentry's design (gets bundled into the client) — value is fine.
+  - variable: NEXT_PUBLIC_SENTRY_DSN
+    value: https://8263bedea4ad73eab1d9c910ab4247eb@o4511200513818624.ingest.de.sentry.io/4511200529285200
+    availability:
+      - RUNTIME
+      - BUILD
+  - variable: SENTRY_ORG
+    value: eat-this
+    availability:
+      - BUILD
+  - variable: SENTRY_PROJECT
+    value: javascript
+    availability:
+      - BUILD
+  # Auth token only needed at build-time for the @sentry/nextjs build plugin
+  # to upload sourcemaps. Without it the plugin warns + skips upload — the
+  # build itself does not fail. Create the secret with:
+  #   firebase apphosting:secrets:set SENTRY_AUTH_TOKEN
+  # then grant the App Hosting backend access when prompted.
+  - variable: SENTRY_AUTH_TOKEN
+    secret: SENTRY_AUTH_TOKEN
+    availability:
+      - BUILD
+

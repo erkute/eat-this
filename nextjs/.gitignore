@@ -42,3 +42,6 @@ next-env.d.ts
 
 # local handoff / session notes (not for deploy)
 MAP_REDESIGN_HANDOFF.md
+
+# Sentry build plugin (.env.sentry-build-plugin already caught by .env* above)
+.sentryclirc

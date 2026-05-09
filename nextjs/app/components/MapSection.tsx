@@ -162,7 +162,7 @@ export default function MapSection({ isActive = false }: Props) {
     userInteractedRef.current = true
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
     // Selecting a search result implicitly accepts it — clear the query so
-    // when the user later goes back to "alle Must-Eats" or the list, they
+    // when the user later goes back to "alle Must Eats" or the list, they
     // see the full data set, not the still-filtered subset.
     setSearch('')
     setSearchOpen(false)
@@ -187,7 +187,7 @@ export default function MapSection({ isActive = false }: Props) {
     userInteractedRef.current = true
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
     // Selecting a search result accepts it — clear the query so subsequent
-    // navigation (e.g. tapping "alle Must-Eats") shows the full list.
+    // navigation (e.g. tapping "alle Must Eats") shows the full list.
     setSearch('')
     setSearchOpen(false)
     // Coming from a restaurant detail (mobile sheet OR desktop floating modal)

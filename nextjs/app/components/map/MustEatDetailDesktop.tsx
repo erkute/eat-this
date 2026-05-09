@@ -32,7 +32,7 @@ export default function MustEatDetailDesktop({ mustEat, isUnlocked, onClose, uid
     <div
       className={`${styles.detail} ${styles.detailNarrow}`}
       role="dialog"
-      aria-label={`Must-Eat at ${mustEat.restaurant.name}`}
+      aria-label={`Must Eat at ${mustEat.restaurant.name}`}
     >
       <button type="button" className={styles.detailClose} aria-label="Close" onClick={onClose}>
         ×
@@ -130,7 +130,7 @@ export default function MustEatDetailDesktop({ mustEat, isUnlocked, onClose, uid
             href={`https://www.google.com/maps/search/?api=1&query=${mustEat.restaurant.lat},${mustEat.restaurant.lng}`}
             target="_blank"
             rel="noopener noreferrer"
-            className={`${styles.btn} ${styles.btnSecondary}`}
+            className={styles.btn}
             aria-label="In Google Maps öffnen"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ marginRight: 6, verticalAlign: 'middle' }}>

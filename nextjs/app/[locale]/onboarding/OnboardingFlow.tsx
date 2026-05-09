@@ -6,7 +6,7 @@ import { type AvatarChoice } from '@/lib/firebase/useUserProfile';
 import PackOpenChoreography, { warmUpOnboardingAudio } from './PackOpenChoreography';
 import styles from './onboarding.module.css';
 
-// Five visually distinct Must-Eat card PNGs from Sanity production for the
+// Five visually distinct Must Eat card PNGs from Sanity production for the
 // Trust-step fan visual.
 const SAMPLE_CARDS = [
   'https://cdn.sanity.io/images/ehwjnjr2/production/b4d268a43fe8bf62708f6da1c36de049a17c225a-1449x2163.png?w=600&auto=format&q=80',
@@ -217,7 +217,7 @@ export default function OnboardingFlow({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/pics/map-teaser/map_must-eat.webp"
-                  alt="Must-Eat Karte"
+                  alt="Must Eat Karte"
                   className={`${styles.mapImg} ${styles.mapImgLeft}`}
                   draggable={false}
                 />

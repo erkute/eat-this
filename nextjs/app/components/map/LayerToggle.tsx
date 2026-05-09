@@ -10,7 +10,7 @@ interface LayerToggleProps {
 
 /**
  * Apple-style segmented control for switching between Restaurants and
- * Must-Eats. Rendered inline at the top of the sheet (below the handle,
+ * Must Eats. Rendered inline at the top of the sheet (below the handle,
  * above the list content) so it's part of the sheet flow rather than
  * floating over the map. Only visible when the sheet is in list view.
  */
@@ -33,7 +33,7 @@ export default function LayerToggle({ active, onChange }: LayerToggleProps) {
           className={`${styles.layerTab} ${active === 'mustEats' ? styles.layerTabActive : ''}`}
           onClick={() => onChange('mustEats')}
         >
-          {t('map.layerMustEats') ?? 'Must-Eats'}
+          {t('map.layerMustEats') ?? 'Must Eats'}
         </button>
       </div>
     </div>

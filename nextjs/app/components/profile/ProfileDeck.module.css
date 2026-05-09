@@ -1,4 +1,4 @@
-/* Profile Deck — mirrors the look of the public Must-Eat album, but with
+/* Profile Deck — mirrors the look of the public Must Eat album, but with
  * 3D-flippable slots for the user's pack cards.
  *
  * 3D flip caveat (Safari + preserve-3d): no overflow:hidden or clip-path on
@@ -14,7 +14,7 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   /* Escape .page's 16px side padding so the grid reaches the viewport edges,
-     then apply the same side padding as the Must-Eat album-grid. */
+     then apply the same side padding as the Must Eat album-grid. */
   padding: 0 8px 8px;
   margin: 0 -16px;
   /* `perspective` lives on .slot, NOT here. A grid-wide perspective
@@ -29,7 +29,7 @@
   .albumGrid {
     grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 16px;
-    /* Escape .page's 24px side padding; 40px inset matches Must-Eat desktop. */
+    /* Escape .page's 24px side padding; 40px inset matches Must Eat desktop. */
     padding: 0 40px 60px;
     margin: 0 -24px;
   }

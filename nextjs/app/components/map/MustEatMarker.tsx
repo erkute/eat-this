@@ -71,7 +71,7 @@ export default function MustEatMarker({
     >
       <div
         role="button"
-        aria-label={`Must-Eat at ${mustEat.restaurant.name}`}
+        aria-label={`Must Eat at ${mustEat.restaurant.name}`}
         className={className}
         style={{
           ...(vibrating ? { ['--vibrate-intensity' as string]: proximityIntensity.toFixed(3) } : null),

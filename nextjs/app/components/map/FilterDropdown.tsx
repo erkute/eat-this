@@ -114,7 +114,7 @@ export default function FilterDropdown({
             className={`${styles.filterLayerTab} ${layer === 'mustEats' ? styles.filterLayerTabActive : ''}`}
             onClick={() => { onLayerSwitch('mustEats'); onClose() }}
           >
-            {t('map.layerMustEats') ?? 'Must-Eats'}
+            {t('map.layerMustEats') ?? 'Must Eats'}
           </button>
         </div>
       </div>

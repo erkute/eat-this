@@ -15,7 +15,7 @@ export default function ProfileDeckHeader({ unlockedCount, totalSlots }: Props) 
       <img src="/pics/logo2.webp" alt="EAT THIS" className={styles.logo} />
       <span
         className={styles.count}
-        aria-label={`${unlockedCount} von ${totalSlots} Must-Eats freigeschaltet`}
+        aria-label={`${unlockedCount} von ${totalSlots} Must Eats freigeschaltet`}
       >
         <span className={styles.countN} aria-hidden="true">{unlockedCount}</span>
         <span className={styles.countTotal} aria-hidden="true">/ {totalSlots}</span>

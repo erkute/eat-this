@@ -35,7 +35,7 @@ type SlugMeta = {
 
 const PAGE_META: Record<string, SlugMeta> = {
   map: {
-    de: { title: 'Karte', description: 'Interaktive Karte aller Eat-This-Restaurants und Must-Eats in Berlin.' },
+    de: { title: 'Karte', description: 'Interaktive Karte aller Eat-This-Restaurants und Must Eats in Berlin.' },
     en: { title: 'Map', description: 'Interactive map of every Eat This restaurant and Must Eat in Berlin.' },
     noIndex: true,
   },

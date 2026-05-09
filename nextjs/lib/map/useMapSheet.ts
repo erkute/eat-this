@@ -78,7 +78,7 @@ export function useMapSheet({ layer }: UseMapSheetArgs) {
 
   /* When the layer flips while the sheet stays in list view, re-apply the
      config + current snap so the sheet shifts to the new layer's peek size
-     immediately (e.g. switching from Restaurants → Must-Eats collapses the
+     immediately (e.g. switching from Restaurants → Must Eats collapses the
      visible strip from ~132 to ~60 px). */
   useEffect(() => {
     if (sheetView !== 'list') return

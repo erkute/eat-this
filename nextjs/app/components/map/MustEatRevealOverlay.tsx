@@ -215,7 +215,7 @@ export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone
         aria-label={
           phase === 'idle' ? 'Aufdecken' :
           phase === 'revealed' ? 'In dein Deck legen' :
-          'Must-Eat'
+          'Must Eat'
         }
         initial={{
           left: originCX - originRect.width / 2,

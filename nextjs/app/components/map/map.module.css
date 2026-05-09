@@ -742,8 +742,8 @@ html[data-theme="dark"] .fab {
   background: var(--surface-bg);
   display: block;
 }
-/* Must-Eat card sticker — peeks out of the photo's top-right corner so the
-   row reads at-a-glance as "this place has a Must-Eat" instead of a stray
+/* Must Eat card sticker — peeks out of the photo's top-right corner so the
+   row reads at-a-glance as "this place has a Must Eat" instead of a stray
    icon in the meta text. Drop-shadow gives it lift on any photo. */
 .rowMustOverlay {
   position: absolute;
@@ -1447,7 +1447,7 @@ html[data-theme="dark"] .layerTabActive {
   gap: 14px;
   padding: 0 20px 8px;
 }
-/* Magazine sections (Telefon / Adresse / Öffnungszeiten / Must-Eats) get a
+/* Magazine sections (Telefon / Adresse / Öffnungszeiten / Must Eats) get a
    slightly larger gap between each other so they read as discrete blocks
    instead of a single visual run. */
 .detailBody > .detailSection + .detailSection { margin-top: 6px; }
@@ -2115,7 +2115,7 @@ html[data-theme="dark"] .mustEatHero {
 
 /* Compact action row at the bottom of the must-eat detail body — same
    visual language as .detailTravelRow (icon + text, no chrome) so the
-   secondary actions (Maps / Restaurant / All-Must-Eats) read as a row of
+   secondary actions (Maps / Restaurant / All Must Eats) read as a row of
    tap-throughs instead of three full-width buttons stealing space. */
 .mustEatActions {
   display: flex;

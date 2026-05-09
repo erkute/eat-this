@@ -15,7 +15,7 @@ const HERO: Pack = {
   id:    'berlin',
   image: '/pics/booster/booster1.webp',
   name:  'Berlin Komplett',
-  desc:  'Alle 150 Must-Eats sofort freischalten',
+  desc:  'Alle 150 Must Eats sofort freischalten',
   price: '19,99 €',
 };
 
@@ -30,7 +30,7 @@ const RANDOM: Pack = {
   id:    'random10',
   image: '/pics/booster/booster.png',
   name:  '10 Zufällige',
-  desc:  '10 Must-Eats aus ganz Berlin',
+  desc:  '10 Must Eats aus ganz Berlin',
   price: '0,99 €',
 };
 

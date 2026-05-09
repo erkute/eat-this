@@ -91,516 +91,6 @@
   50%, 100% { opacity: 0.35; }
 }
 
-/* Toolbar — single-row on desktop, two-row on mobile.
-   Rendered twice: once above body on desktop, once inside sheet header on mobile. */
-.toolbar {
-  flex-shrink: 0;
-  padding: 6px 10px 8px;
-  background: var(--surface-card);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  z-index: 6;
-}
-.toolbarRow {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  min-width: 0;
-}
-
-.toolbarDesktop {
-  display: none;
-}
-.toolbarMobile {
-  display: block;
-}
-@media (max-width: 1023.98px) {
-  /* Mobile toolbar: unified glass pill, same visual language as desktop. */
-  .toolbarMobile {
-    position: absolute;
-    top: calc(8px + env(safe-area-inset-top, 0px));
-    left: 10px;
-    right: 10px;
-    z-index: 7;
-    pointer-events: auto;
-  }
-  .toolbarMobile .toolbar {
-    background: transparent;
-    border: 0;
-    box-shadow: none;
-    padding: 0;
-  }
-  /* Unified glass pill — mirrors .toolbarDesktop .toolbarRow */
-  .toolbarMobile .toolbarRow {
-    pointer-events: auto;
-    height: 44px;
-    gap: 0;
-    padding: 0;
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.22) 100%),
-      rgba(255, 255, 255, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(20px) saturate(1.5);
-    -webkit-backdrop-filter: blur(20px) saturate(1.5);
-    border-radius: 999px;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.85),
-      0 6px 22px rgba(17, 24, 39, 0.14),
-      0 2px 6px rgba(17, 24, 39, 0.06);
-    overflow: hidden;
-    align-items: stretch;
-  }
-  html[data-theme="dark"] .toolbarMobile .toolbarRow {
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 100%),
-      rgba(30, 30, 30, 0.55);
-    border-color: rgba(255, 255, 255, 0.16);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.16),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.3),
-      0 8px 20px rgba(0, 0, 0, 0.45);
-  }
-  .toolbarMobile .toolbarRow > * + * {
-    border-left: 1px solid rgba(0, 0, 0, 0.08);
-  }
-  html[data-theme="dark"] .toolbarMobile .toolbarRow > * + * {
-    border-left-color: rgba(255, 255, 255, 0.08);
-  }
-  /* LayerToggle inside unified pill */
-  .toolbarMobile .layerTabs {
-    background: transparent;
-    border: 0;
-    box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    padding: 4px 4px;
-    border-radius: 0;
-    gap: 2px;
-    align-items: center;
-    flex-shrink: 0;
-  }
-  /* Search segment inside unified pill */
-  .toolbarMobile .mobileSearchOpen {
-    flex: 1 1 auto;
-    min-width: 0;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    border-radius: 0;
-    background: transparent;
-    border: 0;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    box-shadow: none;
-    padding: 0 10px 0 14px;
-    gap: 8px;
-  }
-  .toolbarMobile .mobileSearchIcon {
-    align-self: center;
-  }
-  .toolbarMobile .mobileSearchInput {
-    align-self: center;
-    line-height: 1;
-  }
-  /* BezirkFilter select inside unified pill */
-  .toolbarMobile .select,
-  .toolbarMobile .selectActive {
-    /* Bezirk gets a fixed minimum so long names like "Prenzlauer Berg" stay
-       fully visible. Search shrinks to give it room. */
-    flex: 0 0 168px;
-    /* Native <select> ignores height: 100% reliably on iOS — pin an explicit
-       height that matches the row so it sits flush with the search segment. */
-    height: 44px;
-    line-height: 44px;
-    padding: 0 26px 0 14px;
-    border: 0;
-    border-radius: 0;
-    background:
-      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 10px center / 10px 10px,
-      transparent;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    box-shadow: none;
-    color: var(--text-primary);
-    font-size: 12px;
-    font-weight: 600;
-    outline: none;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-  .toolbarMobile .select:focus,
-  .toolbarMobile .selectActive:focus {
-    outline: none;
-    box-shadow: none;
-  }
-  html[data-theme="dark"] .toolbarMobile .select,
-  html[data-theme="dark"] .toolbarMobile .selectActive {
-    background:
-      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 10px center / 10px 10px,
-      transparent;
-    color: rgba(255,255,255,0.9);
-  }
-  /* Mobile search: always visible glass pill that hints "type here".
-     Fills the toolbar row (flex:1) so the icon-only state still feels generous.
-     (Outside the unified pill — standalone usage.) */
-  .mobileSearchOpen {
-    flex: 1 1 auto;
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 0 4px 0 11px;
-    height: 36px;
-    border-radius: 999px;
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.18) 100%),
-      rgba(255, 255, 255, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    color: var(--text-primary);
-    backdrop-filter: blur(18px) saturate(1.5);
-    -webkit-backdrop-filter: blur(18px) saturate(1.5);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.85),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.04),
-      0 6px 16px rgba(17, 24, 39, 0.12),
-      0 2px 4px rgba(17, 24, 39, 0.06);
-    transition: width 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
-  }
-  html[data-theme="dark"] .mobileSearchOpen {
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 100%),
-      rgba(30, 30, 30, 0.55);
-    border-color: rgba(255, 255, 255, 0.16);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.16),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.3),
-      0 8px 20px rgba(0, 0, 0, 0.45);
-  }
-  .mobileSearchIcon {
-    width: 16px;
-    height: 16px;
-    color: var(--text-muted);
-    flex-shrink: 0;
-  }
-  .mobileSearchInput {
-    flex: 1;
-    min-width: 0;
-    border: 0;
-    background: transparent;
-    color: var(--text-primary);
-    font: inherit;
-    font-size: 14px;
-    outline: none;
-    padding: 0;
-  }
-  .mobileSearchClear {
-    appearance: none;
-    flex-shrink: 0;
-    border: 0;
-    background: transparent;
-    color: var(--text-muted);
-    width: 26px;
-    height: 26px;
-    border-radius: 999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: color 0.15s;
-  }
-  .mobileSearchClear svg { width: 12px; height: 12px; }
-  .mobileSearchClear:hover { color: var(--text-primary); }
-  /* Compact glass segmented control that matches the other pills. */
-  .toolbarPills .layerTabs {
-    padding: 3px;
-    border-radius: 999px;
-    gap: 2px;
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.15) 100%),
-      rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(18px) saturate(1.5);
-    -webkit-backdrop-filter: blur(18px) saturate(1.5);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.85),
-      0 6px 16px rgba(17, 24, 39, 0.12),
-      0 2px 4px rgba(17, 24, 39, 0.06);
-  }
-  html[data-theme="dark"] .toolbarPills .layerTabs {
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 100%),
-      rgba(30, 30, 30, 0.55);
-    border-color: rgba(255, 255, 255, 0.14);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.14),
-      0 8px 20px rgba(0, 0, 0, 0.45);
-  }
-  .toolbarPills .layerTab {
-    padding: 3px 8px;
-    border-radius: 999px;
-  }
-  .toolbarPills .layerTab {
-    /* Wide enough that 26-28 px icons sit comfortably and stay readable. */
-    min-width: 36px;
-    height: 30px;
-    padding: 2px 10px;
-  }
-  .toolbarPills .layerLogoIcon {
-    width: 26px;
-    height: 26px;
-  }
-  .toolbarPills .layerCardIcon {
-    width: 20px;
-    height: 28px;
-  }
-  .toolbarCatsRow {
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    margin-left: 2px;
-  }
-}
-@media (min-width: 1024px) {
-  /* Desktop toolbar floats over the top of the map as a single unified glass
-     pill. The .toolbarRow is the pill — children sit inside as transparent
-     segments separated by hairline dividers. */
-  .toolbarDesktop {
-    display: block;
-    position: absolute;
-    top: 14px;
-    left: 14px;
-    right: 14px;
-    z-index: 7;
-    border-bottom: 0;
-    pointer-events: none;
-  }
-  .toolbarMobile { display: none; }
-
-  .toolbarDesktop .toolbar {
-    flex-direction: row;
-    align-items: center;
-    padding: 0;
-    background: transparent;
-    pointer-events: none;
-    box-shadow: none;
-  }
-
-  /* The unified glass pill */
-  .toolbarDesktop .toolbarRow {
-    pointer-events: auto;
-    height: 44px;
-    gap: 0;
-    padding: 0;
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.22) 100%),
-      rgba(255, 255, 255, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(20px) saturate(1.5);
-    -webkit-backdrop-filter: blur(20px) saturate(1.5);
-    border-radius: 999px;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.85),
-      0 6px 22px rgba(17, 24, 39, 0.14),
-      0 2px 6px rgba(17, 24, 39, 0.06);
-    overflow: hidden;
-    align-items: stretch;
-  }
-  html[data-theme="dark"] .toolbarDesktop .toolbarRow {
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 100%),
-      rgba(30, 30, 30, 0.55);
-    border-color: rgba(255, 255, 255, 0.16);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.16),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.3),
-      0 8px 20px rgba(0, 0, 0, 0.45);
-  }
-
-  /* Hairline dividers between segments */
-  .toolbarDesktop .toolbarRow > * + * {
-    border-left: 1px solid rgba(0, 0, 0, 0.08);
-  }
-  html[data-theme="dark"] .toolbarDesktop .toolbarRow > * + * {
-    border-left-color: rgba(255, 255, 255, 0.08);
-  }
-
-  /* Layer tabs sit cleanly inside the unified pill — strip own glass */
-  .toolbarDesktop .layerTabs {
-    background: transparent;
-    border: 0;
-    box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    padding: 4px 6px;
-    border-radius: 0;
-    gap: 2px;
-    align-items: center;
-    flex-shrink: 0;
-  }
-
-  /* Search segment: transparent, fills available space */
-  .toolbarDesktop .search {
-    flex: 1 1 auto;
-    min-width: 240px;
-    height: auto;
-    border-radius: 0;
-    background: transparent;
-    border: 0;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    box-shadow: none;
-    overflow: visible;
-    display: flex;
-    align-items: center;
-  }
-  .toolbarDesktop .search::before {
-    left: 14px;
-    width: 15px;
-    height: 15px;
-  }
-  .toolbarDesktop .searchInput {
-    height: 100%;
-    padding: 0 14px 0 38px;
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-    font-size: 13.5px;
-    box-shadow: none;
-  }
-  .toolbarDesktop .searchInput:focus {
-    border: 0;
-    box-shadow: none;
-  }
-
-  /* Bezirk select: transparent segment, no internal border/glow even when
-     a value is selected (.selectActive styles get neutralised here). */
-  .toolbarDesktop .select,
-  .toolbarDesktop .selectActive {
-    flex: 0 0 auto;
-    height: 100%;
-    padding: 0 30px 0 16px;
-    border: 0;
-    border-radius: 0;
-    background:
-      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 12px center / 11px 11px,
-      transparent;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    box-shadow: none;
-    color: var(--text-primary);
-    font-size: 13px;
-    font-weight: 600;
-    outline: none;
-  }
-  .toolbarDesktop .select:focus,
-  .toolbarDesktop .select:focus-visible,
-  .toolbarDesktop .selectActive:focus,
-  .toolbarDesktop .selectActive:focus-visible {
-    outline: none;
-    box-shadow: none;
-    border: 0;
-  }
-  html[data-theme="dark"] .toolbarDesktop .select,
-  html[data-theme="dark"] .toolbarDesktop .selectActive {
-    background:
-      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bbb' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 12px center / 11px 11px,
-      transparent;
-    color: var(--text-primary);
-  }
-}
-
-.search {
-  position: relative;
-  flex: 1 1 140px;
-  min-width: 120px;
-}
-@media (min-width: 1024px) {
-  .search {
-    /* Dominate the toolbar width on desktop — take all remaining space */
-    flex: 1 1 auto;
-    min-width: 320px;
-  }
-}
-.search::before {
-  content: '';
-  position: absolute;
-  left: 11px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 14px;
-  height: 14px;
-  background: currentColor;
-  opacity: 0.45;
-  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>") center/contain no-repeat;
-  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>") center/contain no-repeat;
-  pointer-events: none;
-}
-.searchInput {
-  width: 100%;
-  padding: 8px 12px 8px 30px;
-  border-radius: 8px;
-  border: 1px solid var(--border-strong);
-  background: var(--surface-raised);
-  color: var(--text-primary);
-  font: inherit;
-  font-size: 13px;
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-.searchInput::placeholder { color: var(--text-muted); }
-.searchInput:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
-}
-
-/* Segmented layer toggle */
-.segmented {
-  display: inline-flex;
-  align-self: flex-start;
-  padding: 3px;
-  background: var(--surface-raised);
-  border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  gap: 2px;
-}
-.segBtn {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 7px 14px;
-  border-radius: 999px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: background 0.15s, color 0.15s;
-}
-.segBtn:hover { color: var(--text-primary); }
-.segBtnActive {
-  background: var(--accent);
-  color: #fff;
-  box-shadow: var(--shadow-sm);
-}
-.segBtnActive:hover { color: #fff; }
-.segCount {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.22);
-  letter-spacing: 0.02em;
-}
-.segBtn:not(.segBtnActive) .segCount {
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-
 /* Category chips */
 .chips {
   display: flex;
@@ -659,63 +149,6 @@ html[data-theme="dark"] .chipActive {
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
     inset 0 -1px 0 rgba(0, 0, 0, 0.18),
     0 1px 3px rgba(0, 0, 0, 0.35);
-}
-
-/* Mobile: categories as a horizontal glass-pill strip, active = orange pill. */
-@media (max-width: 1023.98px) {
-  .toolbarCatsRow .chips {
-    gap: 6px;
-    padding: 0 20px 0 0;
-  }
-  .toolbarCatsRow .chip {
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.15) 100%),
-      rgba(255, 255, 255, 0.5);
-    padding: 0 12px;
-    height: 30px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    color: var(--text-primary);
-    border-radius: 999px;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.85),
-      0 4px 12px rgba(17, 24, 39, 0.1),
-      0 1px 3px rgba(17, 24, 39, 0.05);
-    backdrop-filter: blur(16px) saturate(1.4);
-    -webkit-backdrop-filter: blur(16px) saturate(1.4);
-    display: inline-flex;
-    align-items: center;
-    transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.15s;
-  }
-  html[data-theme="dark"] .toolbarCatsRow .chip {
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 100%),
-      rgba(30, 30, 30, 0.55);
-    border-color: rgba(255, 255, 255, 0.14);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.14),
-      0 6px 16px rgba(0, 0, 0, 0.45);
-  }
-  .toolbarCatsRow .chip:hover {
-    color: var(--text-primary);
-    border-color: rgba(255, 255, 255, 0.7);
-  }
-  .toolbarCatsRow .chipActive,
-  .toolbarCatsRow .chipActive:hover {
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 100%),
-      var(--accent);
-    color: #fff;
-    border-color: rgba(255, 255, 255, 0.35);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.4),
-      0 6px 16px rgba(255, 59, 0, 0.35),
-      0 2px 4px rgba(255, 59, 0, 0.25);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
 }
 
 /* -------------------- Map body -------------------- */
@@ -984,10 +417,7 @@ html[data-theme="dark"] .fab {
 /* When detail sheet is open: fade out toolbar + FAB + map attribution.
    Delay pointer-events restoration to prevent tap-through onto toolbar
    controls. */
-.toolbarMobile {
-  transition: opacity 0.18s ease, visibility 0s linear 0.25s;
-  visibility: visible;
-}
+
 .bodyDetailOpen .fab,
 .bodyDetailOpen :global(.maplibregl-ctrl-top-left),
 .bodyDetailOpen :global(.maplibregl-ctrl-top-right),
@@ -1020,8 +450,7 @@ html[data-theme="dark"] .fab {
   }
 }
 @media (max-width: 1023.98px) {
-  .bodyDetailOpen .fab,
-  .bodyDetailOpen .toolbarMobile {
+  .bodyDetailOpen .fab{
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -1141,21 +570,6 @@ html[data-theme="dark"] .fab {
   }
 }
 
-@media (max-width: 1023.98px) {
-  .listHeaderDesktopOnly { display: none; }
-}
-.listTitle {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-}
-.listCount {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
 .mustDeckSectionLabel {
   font-size: 10px;
   font-weight: 700;
@@ -1237,81 +651,10 @@ html[data-theme="dark"] .fab {
    Uses a fixed dark color (not var(--text-primary)) so the banner stays
    black in both light and dark mode — otherwise dark mode would invert it
    to white-on-white. */
-.listBanner {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 14px 10px;
-  background: #111;
-}
-html[data-theme="dark"] .listBanner {
-  background: #0a0a0a;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-@media (min-width: 1024px) {
-  .listBanner {
-    padding: 16px 18px 14px;
-  }
-}
-.listCountGroup {
-  display: flex;
-  align-items: baseline;
-  gap: 7px;
-  line-height: 1;
-}
-.listCountNum {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--white, #fff);
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-.listCountLabel {
-  font-size: 11px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.38);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-}
-@media (min-width: 1024px) {
-  .listCountNum {
-    font-size: 30px;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-  }
-}
+
 /* OpenNowToggle inside the dark banner */
-.listBanner .openChip {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.5);
-}
-.listBanner .openChip:hover {
-  background: rgba(255, 255, 255, 0.13);
-  border-color: rgba(255, 255, 255, 0.25);
-  color: rgba(255, 255, 255, 0.75);
-}
-.listBanner .openChipActive {
-  background: rgba(22, 163, 74, 0.22);
-  border-color: rgba(22, 163, 74, 0.55);
-  color: #86efac;
-}
-.listBanner .openChipActive:hover { color: #bbf7d0; }
-.listBanner .openChipActive .openDot { background: #4ade80; }
 
 /* Section label inside the scroll area */
-.listSectionLabel {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  padding: 14px 6px 5px;
-  display: block;
-}
-.listSectionLabel:first-child { padding-top: 10px; }
 
 /* (Scope toggle removed — list always shows all filtered restaurants;
    the bezirk filter at the top controls scope.) */
@@ -1476,8 +819,7 @@ html[data-theme="dark"] .listBanner {
   line-height: 1.1;
   text-transform: none;
 }
-/* Magazine-dateline above the meta line. Same uppercase-tracked treatment as
-   .detailDistrict in the sheet header — keeps row + sheet vocabulary aligned. */
+/* Magazine-dateline above the meta line — uppercase-tracked treatment. */
 .rowDistrict {
   font-size: 11px;
   font-weight: 600;
@@ -1558,110 +900,14 @@ html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
 /* Used by:
    - OpenNowToggle in the map toolbar (larger, interactive)
    - Restaurant list status badge (.doorSignMini, smaller, non-interactive) */
-.doorSign {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px 12px 4px;
-  border-radius: 4px;
-  font-family: 'Inter', system-ui, sans-serif;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  line-height: 1;
-  font-size: 11px;
-  color: #fff;
-  white-space: nowrap;
-  position: relative;
-  /* Hanging-sign feel: dark outer frame + inset inner border + drop shadow */
-  border: 2px solid #1a1a1a;
-  box-shadow:
-    inset 0 0 0 2px rgba(255, 255, 255, 0.85),
-    0 3px 6px rgba(0, 0, 0, 0.18),
-    0 1px 0 rgba(0, 0, 0, 0.12);
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s;
-}
-.doorSignText {
-  display: inline-block;
-  transform: translateY(0.5px);
-}
+
 /* Color variants — diner classic: kelly green OPEN, tomato red CLOSED */
-.doorSignOpen {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(0, 0, 0, 0.05)),
-    #1f7a1f;
-}
-.doorSignClosed {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(0, 0, 0, 0.05)),
-    #b32525;
-}
+
 /* Interactive variant (toolbar toggle): pressable flip feel */
-.doorSignToggle {
-  appearance: none;
-  cursor: pointer;
-  font: inherit;
-  font-weight: 900;
-  text-transform: uppercase;
-  height: 36px;
-  padding: 0 14px 0;
-  font-size: 12px;
-  letter-spacing: 0.16em;
-}
-.doorSignToggle:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    inset 0 0 0 2px rgba(255, 255, 255, 0.9),
-    0 5px 10px rgba(0, 0, 0, 0.22),
-    0 1px 0 rgba(0, 0, 0, 0.12);
-}
-.doorSignToggle:active {
-  transform: translateY(0);
-  box-shadow:
-    inset 0 0 0 2px rgba(255, 255, 255, 0.85),
-    inset 0 2px 4px rgba(0, 0, 0, 0.25),
-    0 2px 4px rgba(0, 0, 0, 0.15);
-}
+
 /* Inactive toggle (filter NOT applied) — faded/off look, like a sign hung backwards */
-.doorSignToggle.doorSignClosed {
-  filter: saturate(0.55) brightness(0.95);
-  opacity: 0.85;
-}
-.doorSignToggle.doorSignClosed:hover {
-  filter: saturate(0.75) brightness(1);
-  opacity: 1;
-}
+
 /* Mini variant (restaurant list) */
-.doorSignMini {
-  padding: 3px 8px 2px;
-  font-size: 9.5px;
-  letter-spacing: 0.12em;
-  border-width: 1.5px;
-  box-shadow:
-    inset 0 0 0 1.5px rgba(255, 255, 255, 0.85),
-    0 2px 4px rgba(0, 0, 0, 0.15);
-  border-radius: 3px;
-}
-html[data-theme="dark"] .doorSign {
-  border-color: #000;
-}
-@media (max-width: 1023.98px) {
-  .doorSignToggle {
-    height: 36px;
-    font-size: 11.5px;
-    padding: 0 12px;
-  }
-  .doorSignMini {
-    font-size: 8.5px;
-    padding: 2px 5px 1px;
-    letter-spacing: 0.1em;
-    border-width: 1.25px;
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.85),
-      0 1px 3px rgba(0, 0, 0, 0.15);
-  }
-}
 
 @media (max-width: 1023.98px) {
   .rowSide      { gap: 3px; }
@@ -1672,70 +918,8 @@ html[data-theme="dark"] .doorSign {
 /* -------------------- Markers on the map -------------------- */
 
 /* Restaurant pin */
-.pin {
-  position: relative;
-  width: 28px;
-  height: 34px;
-  cursor: pointer;
-  transform-origin: bottom center;
-  transition: transform 0.15s;
-}
-.pin:hover { transform: scale(1.1); }
-.pinActive { transform: scale(1.15); }
-.pinBody {
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
-}
 
 /* Must Eat polaroid marker */
-.card {
-  width: 52px;
-  height: 72px;
-  border-radius: 6px;
-  overflow: hidden;
-  background: var(--surface-card);
-  border: 2px solid #fff;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
-  cursor: pointer;
-  position: relative;
-  transform-origin: bottom center;
-  transition: transform 0.18s, box-shadow 0.18s;
-}
-.card:hover { transform: scale(1.08); }
-.cardActive {
-  border-color: var(--accent);
-  transform: scale(1.12);
-  box-shadow: 0 6px 18px rgba(255, 59, 0, 0.4);
-}
-.cardImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.cardLocked .cardImg {
-  filter: blur(4px) saturate(0.6) brightness(0.7);
-}
-.cardLock {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.35);
-}
-.cardLockIcon {
-  width: 18px;
-  height: 18px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
-}
 
 /* -------------------- Detail panels (sheet cards) -------------------- */
 
@@ -1767,7 +951,7 @@ html[data-theme="dark"] .doorSign {
 @media (min-width: 1024px) {
   /* On desktop the close button sits in its own top-right corner — push the
      right-column content down further so the X has a clear breathing zone. */
-  .detailRight { padding: 72px 24px 20px 24px; }
+  
   .detailClose { top: 16px; right: 18px; }
 }
 
@@ -1780,20 +964,9 @@ html[data-theme="dark"] .doorSign {
   object-fit: cover;
   flex-shrink: 0;
 }
-.detailHeroPlaceholder {
-  width: 100%;
-  aspect-ratio: 3 / 2;
-  max-height: 26dvh;
-  background: linear-gradient(135deg, var(--surface-bg), var(--surface-raised));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-  font-size: 32px;
-  flex-shrink: 0;
-}
+
 @media (min-width: 1024px) {
-  .detailHero, .detailHeroPlaceholder { max-height: 32dvh; }
+  .detailHero{ max-height: 32dvh; }
 }
 
 .detailBody {
@@ -1813,27 +986,7 @@ html[data-theme="dark"] .doorSign {
 /* When the total content is still taller than the viewport, let only the
    middle (hours/tip/description/must-eats) scroll — header, status and
    action buttons stay visible. */
-.detailScroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 0 -4px;
-  padding: 0 4px;
-}
-.detailScroll::-webkit-scrollbar { width: 4px; }
-.detailScroll::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
-  border-radius: 2px;
-}
 
-.detailDistrict {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-top: -2px;
-}
 .detailDescription {
   font-size: 13px;
   line-height: 1.5;
@@ -1860,20 +1013,6 @@ html[data-theme="dark"] .doorSign {
   color: var(--text-secondary);
 }
 .detailDot { color: var(--text-muted); }
-
-.detailTags {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.detailTag {
-  font-size: 11px;
-  padding: 3px 9px;
-  border-radius: 999px;
-  background: var(--surface-bg);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-subtle);
-}
 
 .detailActions {
   display: flex;
@@ -1942,32 +1081,8 @@ html[data-theme="dark"] .btn:hover {
 }
 
 /* Google Maps button — frosted base from .btn + Gotham font */
-.btnGoogle {
-  font-family: 'Gotham', 'Gotham SSm A', 'Gotham SSm B', 'Inter', ui-sans-serif, system-ui, sans-serif;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 10px 16px 10px 12px;
-  gap: 10px;
-}
-.googleLogo {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  display: block;
-}
 
 /* Website button — frosted base from .btn */
-.btnWebsite {
-  padding: 10px 16px 10px 12px;
-  gap: 8px;
-}
-.btnIcon {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  display: block;
-  stroke-width: 2;
-}
 
 .unlockHint {
   font-size: 12px;
@@ -1979,42 +1094,6 @@ html[data-theme="dark"] .btn:hover {
 }
 
 /* Must-eat specific hero: portrait polaroid feel */
-.mustHero {
-  width: 100%;
-  aspect-ratio: 4 / 5;
-  background: var(--surface-bg);
-  object-fit: cover;
-  display: block;
-}
-
-.lockedOverlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  backdrop-filter: blur(8px);
-}
-.lockedOverlay svg {
-  width: 28px;
-  height: 28px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.heroWrap {
-  position: relative;
-}
 
 /* ========== Logo marker for restaurants ========== */
 .pinLogo {
@@ -2237,11 +1316,7 @@ html[data-theme="dark"] .layerTabActive {
     inset 0 -1px 0 rgba(0, 0, 0, 0.18),
     0 1px 3px rgba(0, 0, 0, 0.35);
 }
-.layerIcon {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
+
 .layerCardIcon {
   width: 18px;
   height: 26px;
@@ -2267,63 +1342,6 @@ html[data-theme="dark"] .layerTabActive {
 }
 
 /* ========== Bezirk dropdown (styled native select) ========== */
-.select {
-  appearance: none;
-  -webkit-appearance: none;
-  flex: 0 0 auto;
-  padding: 8px 28px 8px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--border-strong);
-  background:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>")
-    no-repeat right 10px center / 10px 10px,
-    var(--surface-raised);
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 500;
-  cursor: pointer;
-  max-width: 170px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  line-height: 1.3;
-}
-.select:hover { color: var(--text-primary); border-color: var(--text-muted); }
-.selectActive {
-  background:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>")
-    no-repeat right 10px center / 10px 10px,
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.55) 0%,
-      rgba(255, 255, 255, 0.15) 100%
-    );
-  color: var(--text-primary);
-  border-color: rgba(255, 255, 255, 0.6);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.04),
-    0 1px 3px rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(8px) saturate(1.3);
-  -webkit-backdrop-filter: blur(8px) saturate(1.3);
-}
-.selectActive:hover { color: var(--text-primary); }
-html[data-theme="dark"] .selectActive {
-  background:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>")
-    no-repeat right 10px center / 10px 10px,
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.16) 0%,
-      rgba(255, 255, 255, 0.04) 100%
-    );
-  border-color: rgba(255, 255, 255, 0.22);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.18),
-    0 1px 3px rgba(0, 0, 0, 0.35);
-}
 
 /* ========== Open-now toggle chip ========== */
 .openChip {
@@ -2370,138 +1388,6 @@ html[data-theme="dark"] .selectActive {
 /* Category filter row inside the sheet.
    Mobile: editorial tab-strip between handle and list.
    Desktop: pill chips below the black banner. */
-.sheetCategories {
-  flex-shrink: 0;
-}
-@media (min-width: 1024px) {
-  .sheetCategories {
-    padding: 10px 14px 10px;
-    border-bottom: 1px solid var(--border-subtle);
-  }
-  .sheetCategories .chips {
-    gap: 4px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    flex-wrap: nowrap;
-  }
-  .sheetCategories .chips::-webkit-scrollbar { display: none; }
-  .sheetCategories .chip {
-    flex-shrink: 0;
-    padding: 5px 12px;
-    border-radius: 7px;
-    font-size: 12px;
-    font-weight: 600;
-    border: 0;
-    background: transparent;
-    color: var(--text-muted);
-    height: auto;
-    box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    transition: background 0.12s, color 0.12s;
-  }
-  .sheetCategories .chip:hover {
-    background: var(--surface-bg);
-    color: var(--text-primary);
-    border: 0;
-  }
-  .sheetCategories .chipActive,
-  .sheetCategories .chipActive:hover {
-    background: var(--text-primary);
-    color: var(--surface-card);
-    border: 0;
-    box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-}
-@media (max-width: 1023.98px) {
-  .sheetCategories {
-    display: block;
-    flex-shrink: 0;
-    padding: 0 14px 8px;
-    border-bottom: 1px solid var(--border-subtle);
-    margin-bottom: 6px;
-  }
-  .sheetCategories .chips {
-    gap: 2px;
-    padding: 0 22px 0 0;
-    mask-image: linear-gradient(to right, black 0, black calc(100% - 26px), transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, black 0, black calc(100% - 26px), transparent 100%);
-  }
-  .sheetCategories .chip {
-    position: relative;
-    border: 0;
-    background: transparent;
-    padding: 8px 10px 10px;
-    height: auto;
-    font-size: 10.5px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    border-radius: 0;
-    box-shadow: none;
-    display: inline-flex;
-    align-items: center;
-    transition: color 0.18s ease, transform 0.12s ease;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .sheetCategories .chip::after {
-    content: '';
-    position: absolute;
-    left: 10px;
-    right: 10px;
-    bottom: 2px;
-    height: 2px;
-    border-radius: 2px;
-    background: transparent;
-    transform: scaleX(0);
-    transform-origin: center;
-    transition: background 0.18s ease, transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
-  }
-  .sheetCategories .chip:hover {
-    color: var(--text-primary);
-    border: 0;
-  }
-  .sheetCategories .chip:hover::after {
-    background: var(--border-strong);
-    transform: scaleX(0.6);
-  }
-  .sheetCategories .chip:active {
-    transform: scale(0.96);
-  }
-  .sheetCategories .chipActive,
-  .sheetCategories .chipActive:hover {
-    background: transparent;
-    color: var(--text-primary);
-    font-weight: 700;
-    border: 0;
-    box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-  .sheetCategories .chipActive::after,
-  .sheetCategories .chipActive:hover::after {
-    background: var(--accent);
-    transform: scaleX(1);
-  }
-  /* Dark mode — defensive overrides so the global dark .chipActive chrome
-     (translucent background, inset highlights) cannot bleed through into the
-     editorial tab strip. Result: just text + animated underline. */
-  html[data-theme="dark"] .sheetCategories .chip,
-  html[data-theme="dark"] .sheetCategories .chip:hover,
-  html[data-theme="dark"] .sheetCategories .chipActive,
-  html[data-theme="dark"] .sheetCategories .chipActive:hover {
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-}
 
 /* ========== Centered detail modal ==========
    Mobile: vertikal + horizontal zentriert, Luft rundum für Tap-to-dismiss,
@@ -2565,10 +1451,6 @@ html[data-theme="dark"] .selectActive {
 
 /* X-button right-aligned in detail sheet header — equal padding above (where sheet edge ends)
    and below (where the hero begins) so the close button feels balanced. */
-.listHeaderClose {
-  justify-content: flex-end;
-  padding: 12px 14px !important;
-}
 
 /* ── In-sheet detail: magazine-style hero + scrollable body ──
    The sheet snaps peek/mid/full like the list. At mid the hero, name, status
@@ -2744,14 +1626,7 @@ html[data-theme="dark"] .selectActive {
   line-height: 1.4;
   color: var(--text-secondary);
 }
-.detailInSheet .detailDistrict {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-secondary);
-  margin: 0;
-}
+
 .detailMetaLine > span { font-weight: 500; }
 .detailMetaLine > span + span::before {
   content: " · ";
@@ -2877,15 +1752,6 @@ html[data-theme="dark"] .selectActive {
   background: var(--surface-bg);
 }
 
-.detailHeroPlaceholder {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  color: var(--text-muted);
-  font-size: 32px;
-  background: linear-gradient(135deg, var(--surface-bg), var(--surface-raised));
-}
-
 /* Inline photo — sits within the body padding (matches the surrounding text
    block on the left + right) with light rounding, similar to Apple Maps.
    Border-radius lives on the image itself so the figcaption underneath is
@@ -2894,8 +1760,7 @@ html[data-theme="dark"] .selectActive {
   position: relative;
   width: 100%;
 }
-.detailHeroInline .detailHero,
-.detailHeroInline .detailHeroPlaceholder {
+.detailHeroInline .detailHero{
   aspect-ratio: 4 / 3;
   border-radius: 12px;
 }
@@ -3146,13 +2011,7 @@ html[data-theme="dark"] .detailHeroBack {
 
 /* Detail status — same vocabulary as the row, scaled up. Colored small-caps
    word + middle-dot + muted suffix (close-time / next-open). No capsule. */
-.detailStatus {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-  white-space: nowrap;
-  line-height: 1.2;
-}
+
 .detailStatusMain {
   font-size: 12px;
   font-weight: 700;
@@ -3171,80 +2030,8 @@ html[data-theme="dark"] .detailStatusClosed { color: #ff6a6a; }
 
 /* Inline action links — Webseite / Reservieren / Teilen.
    Subtle text-buttons with leading icon, no fill. */
-.inlineLinks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 18px;
-  margin: 6px 0 2px;
-}
-.inlineLink {
-  appearance: none;
-  background: transparent;
-  border: 0;
-  padding: 6px 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--text-primary);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: color 0.15s;
-}
-.inlineLink:hover { color: var(--accent); }
-.inlineLinkIcon {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
 
 /* Sticky-bottom Maps button bar — soft frosted glass */
-.detailFooter {
-  flex-shrink: 0;
-  padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px));
-  display: flex;
-  gap: 10px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.7) 70%);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-}
-html[data-theme="dark"] .detailFooter {
-  background: linear-gradient(180deg, rgba(20, 20, 20, 0) 0%, rgba(20, 20, 20, 0.7) 70%);
-}
-.detailFooter .btn {
-  flex: 1;
-  border-radius: 14px;
-  padding: 13px 18px;
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  -webkit-backdrop-filter: blur(24px) saturate(1.6);
-  backdrop-filter: blur(24px) saturate(1.6);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    inset 0 -1px 0 rgba(15, 17, 21, 0.04),
-    0 1px 2px rgba(17, 24, 39, 0.06),
-    0 8px 24px rgba(17, 24, 39, 0.08);
-  font-weight: 700;
-  letter-spacing: 0.01em;
-}
-html[data-theme="dark"] .detailFooter .btn {
-  background: rgba(255, 255, 255, 0.10);
-  border-color: rgba(255, 255, 255, 0.18);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.10),
-    0 1px 2px rgba(0, 0, 0, 0.20),
-    0 8px 24px rgba(0, 0, 0, 0.45);
-}
-.detailFooter .btn:hover {
-  background: rgba(255, 255, 255, 0.7);
-  border-color: rgba(255, 255, 255, 0.85);
-}
-html[data-theme="dark"] .detailFooter .btn:hover {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.28);
-}
 
 /* ── Must Eat detail (in-sheet) ───────────────────────────────────────
    Big & Bold layout: cream gradient hero with the freigestellte card-back
@@ -3449,14 +2236,7 @@ html[data-theme="dark"] .mustEatHero {
   flex: 1;
   min-width: 0;
 }
-.boosterEyebrow {
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 2px;
-}
+
 .boosterTitle {
   font-size: 14px;
   font-weight: 800;
@@ -3551,60 +2331,11 @@ html[data-theme="dark"] .mustEatHero {
 
 /* Custom Bezirk dropdown panel — portaled via fixed positioning so the
    toolbar's overflow:hidden doesn't clip it. */
-.bezirkPanel {
-  position: fixed;
-  z-index: 9999;
-  max-height: 60vh;
-  overflow-y: auto;
-  padding: 6px;
-  background: rgba(255, 255, 255, 0.96);
-  -webkit-backdrop-filter: blur(20px) saturate(1.5);
-  backdrop-filter: blur(20px) saturate(1.5);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 14px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    0 12px 32px rgba(17, 24, 39, 0.18),
-    0 4px 10px rgba(17, 24, 39, 0.08);
-  -webkit-overflow-scrolling: touch;
-  animation: bezirkPanelIn 0.14s ease-out;
-}
-html[data-theme="dark"] .bezirkPanel {
-  background: rgba(28, 28, 28, 0.96);
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 12px 32px rgba(0, 0, 0, 0.5);
-}
+
 @keyframes bezirkPanelIn {
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.bezirkOption {
-  appearance: none;
-  display: block;
-  width: 100%;
-  padding: 9px 14px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  text-align: left;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-primary);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.12s;
-}
-.bezirkOption:hover { background: rgba(0, 0, 0, 0.05); }
-.bezirkOptionActive {
-  background: rgba(255, 59, 0, 0.10);
-  color: var(--accent);
-  font-weight: 700;
-}
-.bezirkOptionActive:hover { background: rgba(255, 59, 0, 0.14); }
-html[data-theme="dark"] .bezirkOption:hover { background: rgba(255, 255, 255, 0.07); }
-html[data-theme="dark"] .bezirkOptionActive { background: rgba(255, 59, 0, 0.18); }
 
 /* End-of-list booster offer — same visual as the in-detail offer but inline */
 .boosterOfferList {
@@ -3688,71 +2419,14 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
 /* In-sheet scroll area — no dividers anywhere. Sections separated by bolder
    labels and breathing room. Inspired by modern map detail panels: visual
    hierarchy via type weight + space, not lines. */
-.detailInSheet .detailScroll {
-  overflow-y: visible;
-  max-height: none;
-  padding-top: 0;
-}
-.detailInSheet .detailScroll > section {
-  padding: 14px 0 6px;
-}
-.detailInSheet .detailScroll > section:first-child { padding-top: 4px; }
-.detailInSheet .detailScroll > section:last-child  { padding-bottom: 4px; }
+
 /* Promote section labels: prominent dark heading instead of muted all-caps */
-.detailInSheet .detailScroll .sectionLabel {
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  text-transform: none;
-  color: var(--text-primary);
-  margin: 0 0 8px;
-}
+
 .detailInSheet .mustCardBackTap { max-width: 180px; }
 
 /* Back / close buttons in the sheet detail header row. */
-.detailBack {
-  appearance: none;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  cursor: pointer;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  flex-shrink: 0;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.18) 100%),
-    rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(14px) saturate(1.4);
-  -webkit-backdrop-filter: blur(14px) saturate(1.4);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    0 4px 10px rgba(17, 24, 39, 0.10);
-  transition: transform 0.12s ease, color 0.15s;
-}
-.detailBack:hover { color: var(--text-primary); }
-.detailBack:active { transform: scale(0.92); }
-.detailBack svg { width: 16px; height: 16px; }
-html[data-theme="dark"] .detailBack {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 100%),
-    rgba(30, 30, 30, 0.6);
-  border-color: rgba(255, 255, 255, 0.16);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    0 6px 14px rgba(0, 0, 0, 0.45);
-}
 
 /* Restaurant name in detail header — truncate, centered. */
-.listTitleDetail {
-  flex: 1;
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
 /* ========== Restaurant detail: opening hours + categories + must-eats ========== */
 .sectionLabel {
@@ -3788,44 +2462,6 @@ html[data-theme="dark"] .detailBack {
 .hoursTime {
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
-}
-.hoursStatus {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0;
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 2px;
-  letter-spacing: 0.01em;
-  background: transparent;
-}
-.hoursStatus::before {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: currentColor;
-  flex-shrink: 0;
-}
-.hoursStatusOpen { color: #1f7a1f; }
-.hoursStatusClosed { color: #c42323; }
-html[data-theme="dark"] .hoursStatusOpen { color: #6ad46a; }
-html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
-
-.tipBlock {
-  border-left: 3px solid var(--accent);
-  padding: 7px 10px;
-  background: var(--surface-bg);
-  font-size: 12.5px;
-  line-height: 1.45;
-  color: var(--text-secondary);
-  border-radius: 0 8px 8px 0;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 /* Must Eat mini cards inside restaurant detail */
@@ -3872,33 +2508,9 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   object-fit: cover;
   display: block;
 }
-.mustCardLabel {
-  position: absolute;
-  inset: auto 0 0 0;
-  padding: 14px 6px 5px;
-  font-size: 10px;
-  font-weight: 600;
-  color: #fff;
-  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-  text-align: left;
-  line-height: 1.15;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
 /* ========== Must Eat detail: full flipped card ========== */
-.mustHero {
-  width: 100%;
-  max-height: 58dvh;
-  aspect-ratio: 1449 / 2163;
-  object-fit: cover;
-  display: block;
-  background: transparent url('/pics/card-back.webp') center/contain no-repeat;
-  border-radius: 6%;
-  overflow: hidden;
-  margin: 0 auto;
-}
+
 .mustCardFlip {
   width: 100%;
   background: var(--surface-card);

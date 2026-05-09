@@ -1,10 +1,11 @@
 'use client'
 import { useCallback, type Ref } from 'react'
 import { useLocale } from 'next-intl'
-import type { MapMustEat } from '@/lib/types'
+import type { MapMustEat, MapLayer } from '@/lib/types'
 import { haversineDistance, formatDistance, type UserLocation } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { routing } from '@/i18n/routing'
+import LayerToggle from './LayerToggle'
 import styles from './map.module.css'
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
   uid: string | null
   contentRef: Ref<HTMLDivElement | null>
   onSelect: (mustEat: MapMustEat) => void
+  onLayerSwitch: (layer: MapLayer) => void
 }
 
 export default function MapMustEatsList({
@@ -25,6 +27,7 @@ export default function MapMustEatsList({
   uid,
   contentRef,
   onSelect,
+  onLayerSwitch,
 }: Props) {
   const { t } = useTranslation()
   const locale = useLocale()
@@ -40,6 +43,7 @@ export default function MapMustEatsList({
 
   return (
     <>
+      <LayerToggle active="mustEats" onChange={onLayerSwitch} />
       <div ref={contentRef} className={`${styles.listScroll} ${styles.listScrollNoCats}`}>
         {displayedMustEats.length === 0 ? (
           <div className={styles.empty}>{t('map.noMustEatsMatch')}</div>

@@ -2,6 +2,7 @@
 import { type Ref, type RefObject } from 'react'
 import { useTranslation } from '@/lib/i18n'
 import type { SortMode, SortDir } from '@/lib/map'
+import type { MapLayer } from '@/lib/types'
 import FilterDropdown from './FilterDropdown'
 import styles from './map.module.css'
 
@@ -18,6 +19,9 @@ interface Props {
 
   filterOpen: boolean
   setFilterOpen: (next: boolean | ((prev: boolean) => boolean)) => void
+
+  layer: MapLayer
+  onLayerSwitch: (layer: MapLayer) => void
 
   sort: SortMode
   onSort: (sort: SortMode) => void
@@ -46,6 +50,8 @@ export default function MapListHeader({
   onSearchChange,
   filterOpen,
   setFilterOpen,
+  layer,
+  onLayerSwitch,
   sort,
   onSort,
   sortDir,
@@ -150,6 +156,8 @@ export default function MapListHeader({
             </button>
             {filterOpen && (
               <FilterDropdown
+                layer={layer}
+                onLayerSwitch={onLayerSwitch}
                 sort={sort}
                 onSort={onSort}
                 openOnly={openOnly}

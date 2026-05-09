@@ -10,14 +10,14 @@ interface LayerToggleProps {
 
 /**
  * Apple-style segmented control for switching between Restaurants and
- * Must-Eats. Floats over the map (top-centered on mobile, hidden on
- * desktop where the sidebar handles list switching) so the user can
- * jump between layers from any sheet snap.
+ * Must-Eats. Rendered inline at the top of the sheet (below the handle,
+ * above the list content) so it's part of the sheet flow rather than
+ * floating over the map. Only visible when the sheet is in list view.
  */
 export default function LayerToggle({ active, onChange }: LayerToggleProps) {
   const { t } = useTranslation()
   return (
-    <div className={styles.layerFloat}>
+    <div className={styles.layerTabsWrap}>
       <div className={styles.layerTabs} role="tablist" aria-label={t('map.layerSwitchAria') ?? 'Map layer'}>
         <button
           role="tab"

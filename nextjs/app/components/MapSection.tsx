@@ -50,12 +50,14 @@ export default function MapSection({ isActive = false }: Props) {
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
 
+  const [layer,              setLayer]              = useState<MapLayer>('restaurants')
+
   const {
     handleRef, contentRef, setContentRef, setHeaderRef,
     snap, setSnap, dragging, reapplySnap,
     sheetView, setSheetView,
     sheetElRef, setSheetRef,
-  } = useMapSheet()
+  } = useMapSheet({ layer })
 
   const {
     category, setCategory,
@@ -69,7 +71,6 @@ export default function MapSection({ isActive = false }: Props) {
   } = useMapFilters({ restaurants, mustEats, location })
 
   const [mapZoom,            setMapZoom]            = useState(12)
-  const [layer,              setLayer]              = useState<MapLayer>('restaurants')
   const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
   const [selectedMustEat,    setSelectedMustEat]    = useState<MapMustEat | null>(null)
   // Tracks the restaurant we navigated FROM when entering a must-eat detail,

@@ -21,7 +21,6 @@ import CategoryFilter from './CategoryFilter'
 import BezirkFilterPill from './BezirkFilterPill'
 import MapMustEatsList from './MapMustEatsList'
 import MapListHeader from './MapListHeader'
-import LayerToggle from './LayerToggle'
 import styles from './map.module.css'
 
 /* Refs (mutable + callback) wired up by `useMapSheet` / `useBottomSheet` and
@@ -168,8 +167,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               {location && <UserLocationMarker location={location} />}
             </MapCanvas>
 
-            <LayerToggle active={layer} onChange={onLayerSwitch} />
-
             {bezirk && (
               <BezirkFilterPill bezirkName={bezirk} onReset={onResetBezirkPill} />
             )}
@@ -259,6 +256,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   onSearchChange={onSearchChange}
                   filterOpen={filterOpen}
                   setFilterOpen={setFilterOpen}
+                  layer={layer}
+                  onLayerSwitch={onLayerSwitch}
                   sort={sort}
                   onSort={setSort}
                   sortDir={sortDir}
@@ -291,6 +290,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 uid={uid}
                 contentRef={setContentRef}
                 onSelect={onMustEatClick}
+                onLayerSwitch={onLayerSwitch}
               />
             )}
           </aside>

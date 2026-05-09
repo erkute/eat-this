@@ -2,9 +2,12 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from '@/lib/i18n'
 import type { SortMode } from '@/lib/map'
+import type { MapLayer } from '@/lib/types'
 import styles from './map.module.css'
 
 interface FilterDropdownProps {
+  layer: MapLayer
+  onLayerSwitch: (layer: MapLayer) => void
   sort: SortMode
   onSort: (s: SortMode) => void
   openOnly: boolean
@@ -26,7 +29,7 @@ function CheckIcon() {
 }
 
 export default function FilterDropdown({
-  sort, onSort, openOnly, onOpenOnly, bezirke, bezirk, onBezirk, onClose, anchorEl,
+  layer, onLayerSwitch, sort, onSort, openOnly, onOpenOnly, bezirke, bezirk, onBezirk, onClose, anchorEl,
 }: FilterDropdownProps) {
   const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
@@ -90,6 +93,35 @@ export default function FilterDropdown({
 
   return (
     <div ref={ref} className={styles.filterDropdown}>
+      {/* Layer switch — primary scope of the data shown. Apple-style segmented
+          control so the user can flip between Restaurants and Must-Eats from
+          the same filter surface as sort + bezirk. */}
+      <div className={styles.filterDropdownSection}>
+        <div className={styles.filterDropdownLabel}>{t('map.layerSwitchLabel') ?? 'Layer'}</div>
+        <div className={styles.filterLayerTabs} role="tablist" aria-label={t('map.layerSwitchAria') ?? 'Map layer'}>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={layer === 'restaurants'}
+            className={`${styles.filterLayerTab} ${layer === 'restaurants' ? styles.filterLayerTabActive : ''}`}
+            onClick={() => { onLayerSwitch('restaurants'); onClose() }}
+          >
+            {t('map.layerRestaurants') ?? 'Restaurants'}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={layer === 'mustEats'}
+            className={`${styles.filterLayerTab} ${layer === 'mustEats' ? styles.filterLayerTabActive : ''}`}
+            onClick={() => { onLayerSwitch('mustEats'); onClose() }}
+          >
+            {t('map.layerMustEats') ?? 'Must-Eats'}
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.filterDropdownDivider} />
+
       <div className={styles.filterDropdownSection}>
         <div className={styles.filterDropdownLabel}>{t('map.sortLabel')}</div>
         {(['distance', 'newest', 'price'] as SortMode[]).map(opt => (

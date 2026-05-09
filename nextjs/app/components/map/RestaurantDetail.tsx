@@ -5,20 +5,16 @@ import {
   getOpenStatus,
   haversineDistance,
   formatWalkingTime,
-  formatTransitTime,
-  formatDrivingTime,
   type UserLocation,
 } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import styles from './map.module.css'
 import {
   ArrowOutIcon,
-  CarIcon,
   CloseIcon,
   HeartIcon,
   InstagramIcon,
   ShareIcon,
-  TransitIcon,
   WalkIcon,
 } from './icons'
 import {
@@ -92,12 +88,11 @@ export default function RestaurantDetail({
     ? haversineDistance(userLocation.lat, userLocation.lng, restaurant.lat, restaurant.lng)
     : null
   const walkingTime = meters !== null ? formatWalkingTime(meters) : null
-  const transitTime = meters !== null ? formatTransitTime(meters) : null
-  const drivingTime = meters !== null ? formatDrivingTime(meters) : null
-  /* Tap-through to Google Maps with the right travel mode pre-selected so
-     the user lands on a real route (the on-page minutes are estimates only). */
-  const dirHref = (mode: 'walking' | 'transit' | 'driving') =>
-    `https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lng}&travelmode=${mode}`
+  /* Walk-time is a Luftlinie-based estimate, fine for inner-city Berlin.
+     Transit/Car estimates were dropped — heuristic minutes mislead more
+     than they help; users get the real route via the address-section's
+     Maps button anyway. */
+  const walkDirHref = `https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lng}&travelmode=walking`
 
   // Status label is split into a colored primary word + muted suffix —
   // same vocabulary as the list row.
@@ -215,7 +210,7 @@ export default function RestaurantDetail({
           {meters !== null && (
             <div className={styles.detailTravelRow}>
               <a
-                href={dirHref('walking')}
+                href={walkDirHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.detailTravelLink}
@@ -223,26 +218,6 @@ export default function RestaurantDetail({
               >
                 <WalkIcon />
                 <span>{walkingTime}</span>
-              </a>
-              <a
-                href={dirHref('transit')}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.detailTravelLink}
-                aria-label={`Mit ÖPNV: ${transitTime}`}
-              >
-                <TransitIcon />
-                <span>{transitTime}</span>
-              </a>
-              <a
-                href={dirHref('driving')}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.detailTravelLink}
-                aria-label={`Mit Auto: ${drivingTime}`}
-              >
-                <CarIcon />
-                <span>{drivingTime}</span>
               </a>
             </div>
           )}

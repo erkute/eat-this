@@ -4,8 +4,6 @@ import { routing } from '@/i18n/routing'
 import type { MapMustEat } from '@/lib/types'
 import {
   formatDistance,
-  formatDrivingTime,
-  formatTransitTime,
   formatWalkingTime,
 } from '@/lib/map'
 import { Link } from '@/i18n/navigation'
@@ -14,13 +12,11 @@ import styles from './map.module.css'
 import { UNLOCK_RADIUS_METERS, type MustEatDetailState } from './useMustEatDetailState'
 import {
   BackIcon,
-  CarIcon,
   CloseIcon,
   HomeIcon,
   ListIcon,
   LockIcon,
   PinIcon,
-  TransitIcon,
   UnlockIcon,
   WalkIcon,
 } from './icons'
@@ -60,10 +56,7 @@ export default function MustEatDetailMobile({
 
   const { lat, lng, name: restaurantName, district } = mustEat.restaurant
   const walkingTime = distance != null ? formatWalkingTime(distance) : null
-  const transitTime = distance != null ? formatTransitTime(distance) : null
-  const drivingTime = distance != null ? formatDrivingTime(distance) : null
-  const dirHref = (mode: 'walking' | 'transit' | 'driving') =>
-    `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=${mode}`
+  const walkDirHref = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`
   const mapsViewHref = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
 
   /* When unlocked, the dish is the headline; when locked, the restaurant name
@@ -154,35 +147,17 @@ export default function MustEatDetailMobile({
             </div>
           )}
 
-          {/* Travel-time row — Walk/Transit/Car estimates, tap-through to Maps */}
-          {distance !== null && walkingTime && transitTime && drivingTime && (
+          {/* Travel-row — walk-time only (Luftlinie estimate, fine inner-city). */}
+          {distance !== null && walkingTime && (
             <div className={styles.detailTravelRow}>
               <a
-                href={dirHref('walking')}
+                href={walkDirHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.detailTravelLink}
                 aria-label={`Zu Fuß: ${walkingTime}`}
               >
                 <WalkIcon /><span>{walkingTime}</span>
-              </a>
-              <a
-                href={dirHref('transit')}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.detailTravelLink}
-                aria-label={`Mit ÖPNV: ${transitTime}`}
-              >
-                <TransitIcon /><span>{transitTime}</span>
-              </a>
-              <a
-                href={dirHref('driving')}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.detailTravelLink}
-                aria-label={`Mit Auto: ${drivingTime}`}
-              >
-                <CarIcon /><span>{drivingTime}</span>
               </a>
             </div>
           )}

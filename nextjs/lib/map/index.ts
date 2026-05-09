@@ -8,7 +8,7 @@
 // with "Hook only works in a Client Component".
 
 // Pure helpers
-export { haversineDistance, formatDistance, formatWalkingTime, formatTransitTime, formatDrivingTime } from './distance'
+export { haversineDistance, formatDistance, formatWalkingTime } from './distance'
 export { applyFanOffset } from './fanOffset'
 export type { MustEatWithDisplay } from './fanOffset'
 export { getOpenStatus } from './openingHours'

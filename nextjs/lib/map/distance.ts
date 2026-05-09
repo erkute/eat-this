@@ -19,29 +19,10 @@ export function formatDistance(meters: number): string {
 /**
  * Walking time at an average pedestrian pace of ~80 m/min (≈ 4.8 km/h).
  * Returns minutes rounded up so a 240 m walk reads as "3 min" not "2 min".
+ * Walk is the only mode where a Luftlinie heuristic is fair — Transit/Car
+ * are icon-only tap-throughs to Google Maps in the UI.
  */
 export function formatWalkingTime(meters: number): string {
   const minutes = Math.max(1, Math.ceil(meters / 80))
-  return `${minutes} Min`
-}
-
-/**
- * Public-transit estimate for an inner-city Berlin trip — average speed
- * ≈ 250 m/min (15 km/h, includes vehicle dwell + interchange) plus a flat
- * 4-minute baseline for walking to/from the stop and waiting for the next
- * service. Rough figure; tap-through to Google Maps for the real route.
- */
-export function formatTransitTime(meters: number): string {
-  const minutes = 4 + Math.ceil(meters / 250)
-  return `${minutes} Min`
-}
-
-/**
- * Driving estimate for inner-city Berlin — average ≈ 333 m/min (20 km/h
- * factoring in lights, parking search, traffic). Rough figure; tap-through
- * to Google Maps for the real ETA.
- */
-export function formatDrivingTime(meters: number): string {
-  const minutes = Math.max(1, Math.ceil(meters / 333))
   return `${minutes} Min`
 }

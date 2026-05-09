@@ -57,29 +57,6 @@ function CloseIcon() {
   )
 }
 
-function MapPinIcon() {
-  /* Google Maps app-icon style — pin shape with the brand colors arranged as
-     parallel diagonal slices (blue at top, then red, yellow, green dominant
-     on the lower-right + tail). Each slice is a parallelogram clipped to the
-     pin silhouette so the colors meet cleanly along the diagonals. */
-  return (
-    <svg viewBox="0 0 24 32" aria-hidden="true">
-      <defs>
-        <clipPath id="restaurantDetailMapPinClip">
-          <path d="M12 1 C5.5 1 1 5.5 1 11 C1 18 12 31 12 31 C12 31 23 18 23 11 C23 5.5 18.5 1 12 1z" />
-        </clipPath>
-      </defs>
-      <g clipPath="url(#restaurantDetailMapPinClip)">
-        <polygon points="-2,-2 26,-2 26,5 -2,12" fill="#1A73E8" />
-        <polygon points="-2,12 26,5 26,8 -2,16"  fill="#EA4335" />
-        <polygon points="-2,16 26,8 26,11 -2,20" fill="#FBBC04" />
-        <polygon points="-2,20 26,11 26,34 -2,34" fill="#34A853" />
-      </g>
-      <circle cx="12" cy="10" r="3.2" fill="#ffffff" />
-    </svg>
-  )
-}
-
 function ShareIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -446,27 +423,27 @@ export default function RestaurantDetail({
 
           {restaurant.address && addressMapsHref && (
             <section className={styles.detailSection}>
-              <div className={styles.detailSectionHead}>
-                <h4 className={styles.detailSectionTitle}>{t('map.address')}</h4>
-                {restaurant.mapsUrl && (
-                  <a
-                    href={restaurant.mapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.detailMapsBtn}
-                    aria-label={t('map.googleMaps')}
-                  >
-                    <MapPinIcon />
-                  </a>
-                )}
-              </div>
+              <h4 className={styles.detailSectionTitle}>{t('map.address')}</h4>
               <a
                 href={addressMapsHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.detailAddress}
+                aria-label={`${restaurant.address} — ${t('map.googleMaps')}`}
               >
-                {restaurant.address}
+                <span>{restaurant.address}</span>
+                <svg
+                  className={styles.detailAddressArrow}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M7 17L17 7M9 7h8v8" />
+                </svg>
               </a>
             </section>
           )}

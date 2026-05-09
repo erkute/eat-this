@@ -1489,7 +1489,7 @@ html[data-theme="dark"] .layerTabActive {
    at any snap. */
 @media (max-width: 1023.98px) {
   .detailMount {
-    max-height: calc(var(--sheet-visible-px, 100dvh) - 40px);
+    max-height: calc(var(--sheet-visible-px, 100dvh) - 24px);
   }
 }
 .detailInSheetScroll {
@@ -1504,15 +1504,19 @@ html[data-theme="dark"] .layerTabActive {
 }
 .detailInSheetScroll::-webkit-scrollbar { width: 0; }
 
-/* Body container — Apple Maps / Spotify rhythm: tight blocks with consistent
-   12 px breathing room between major sections. The peek-header above already
-   gives the name its top-of-sheet padding, so the body starts at 4 px. */
+/* Body container — Apple Maps / Spotify rhythm: tight blocks with breathing
+   room between major sections. The peek-header above already gives the name
+   its top-of-sheet padding, so the body starts at 4 px. */
 .detailBody {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
   padding: 0 20px 8px;
 }
+/* Magazine sections (Telefon / Adresse / Öffnungszeiten / Must-Eats) get a
+   slightly larger gap between each other so they read as discrete blocks
+   instead of a single visual run. */
+.detailBody > .detailSection + .detailSection { margin-top: 6px; }
 @media (min-width: 1024px) {
   .detailBody { padding: 0 22px 8px; }
 }
@@ -1705,36 +1709,6 @@ html[data-theme="dark"] .layerTabActive {
   box-shadow: 0 1px 2px rgba(17, 24, 39, 0.08), 0 6px 14px rgba(255, 92, 56, 0.18);
 }
 .detailCtaBtnPrimary:hover { filter: brightness(0.94); }
-/* Section head row — title on the left, optional inline action on the right
-   (e.g. open-in-Maps glyph next to the address title). */
-.detailSectionHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-/* Tiny round Google-Maps glyph button — lives in the address-section header
-   so the user can open the venue in Maps without a full-width CTA stealing
-   visual real estate. */
-.detailMapsBtn {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  background: var(--surface-bg);
-  border: 1px solid var(--border-subtle);
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, transform 0.1s;
-  -webkit-tap-highlight-color: transparent;
-}
-.detailMapsBtn svg { width: 14px; height: 14px; }
-.detailMapsBtn:hover {
-  background: var(--surface-raised);
-  border-color: var(--border-strong);
-}
-.detailMapsBtn:active { transform: scale(0.94); }
 
 /* Image element shared by both viewports. The aspect-ratio is set by the
    parent (.detailHeroTop or .detailHeroInline) so each viewport gets its
@@ -1855,7 +1829,9 @@ html[data-theme="dark"] .layerTabActive {
   margin: 0;
 }
 .detailAddress {
-  display: block;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
   font-size: 0.9375rem;
   line-height: 1.45;
   color: var(--text-primary);
@@ -1863,6 +1839,17 @@ html[data-theme="dark"] .layerTabActive {
   transition: color 0.15s;
 }
 .detailAddress:hover { color: var(--accent); }
+.detailAddressArrow {
+  flex-shrink: 0;
+  width: 13px;
+  height: 13px;
+  color: var(--text-muted);
+  transition: color 0.15s, transform 0.15s;
+}
+.detailAddress:hover .detailAddressArrow {
+  color: var(--accent);
+  transform: translate(1px, -1px);
+}
 
 /* Phone link — tap-to-call with the same magazine treatment as the website
    link (text-primary + underline, accent on hover). Numerals tabular for
@@ -1902,39 +1889,6 @@ html[data-theme="dark"] .layerTabActive {
 .detailInSheet .hoursDay { font-weight: 500; color: var(--text-primary); }
 .detailInSheet .hoursTime { font-variant-numeric: tabular-nums; }
 
-/* Glass close X — sits on the hero photo, top-right (in-sheet).
-   Used only by MustEatDetailMobile now; restaurant detail uses the round
-   `.detailPeekActionBtn` close instead. */
-.detailHeroClose {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  -webkit-backdrop-filter: blur(10px) saturate(1.4);
-  backdrop-filter: blur(10px) saturate(1.4);
-  display: grid;
-  place-items: center;
-  color: #111;
-  cursor: pointer;
-  box-shadow:
-    0 1px 2px rgba(17, 24, 39, 0.08),
-    0 4px 12px rgba(17, 24, 39, 0.10);
-  z-index: 3;
-}
-.detailHeroClose svg { width: 16px; height: 16px; }
-.detailHeroClose:hover { background: rgba(255, 255, 255, 1); }
-.detailHeroClose:active { transform: scale(0.94); }
-html[data-theme="dark"] .detailHeroClose {
-  background: rgba(30, 30, 30, 0.62);
-  border-color: rgba(255, 255, 255, 0.16);
-  color: #fff;
-}
-
 /* Chevron-down indicator — replaces the handle pip when the detail sheet
    is at full snap. Tap collapses to mid so the user sees name + category +
    actions next to the map again. Sits in the handle area, NOT on the photo
@@ -1967,39 +1921,6 @@ html[data-theme="dark"] .detailHeroClose {
 .detailCollapseBtn:active { transform: translateX(-50%) scale(0.92); }
 @media (min-width: 1024px) {
   .detailCollapseBtn { display: none; }
-}
-
-/* Back-to-restaurant button — top-left of the must-eat hero. Identical
-   frosted glass pill to .detailHeroClose, just anchored left with an arrow. */
-.detailHeroBack {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  -webkit-backdrop-filter: blur(10px) saturate(1.4);
-  backdrop-filter: blur(10px) saturate(1.4);
-  display: grid;
-  place-items: center;
-  color: #111;
-  cursor: pointer;
-  box-shadow:
-    0 1px 2px rgba(17, 24, 39, 0.08),
-    0 4px 12px rgba(17, 24, 39, 0.10);
-  z-index: 3;
-  -webkit-tap-highlight-color: transparent;
-}
-.detailHeroBack svg { width: 16px; height: 16px; }
-.detailHeroBack:hover { background: rgba(255, 255, 255, 1); }
-.detailHeroBack:active { transform: scale(0.94); }
-html[data-theme="dark"] .detailHeroBack {
-  background: rgba(30, 30, 30, 0.62);
-  border-color: rgba(255, 255, 255, 0.16);
-  color: #fff;
 }
 
 /* In-sheet heart inherits the base freigestellt treatment (white outline +
@@ -2035,10 +1956,12 @@ html[data-theme="dark"] .detailStatusClosed { color: #ff6a6a; }
    continuously. Combined Card CTA at the bottom links to the restaurant. */
 .mustEatHero {
   position: relative;
-  /* Tight cap so locked Must-Eat (hero + name + explainer + booster + 2 links)
-     fits inside one mobile viewport without scrolling. */
-  height: min(220px, 30dvh);
-  background: #f6f3ee;
+  /* Soft fluid clamp — 220 px on small viewports, scales up to 340 px at
+     fullscreen so the wobbling card has room to breathe without leaving a
+     dead band of whitespace below the body content. */
+  height: clamp(220px, 32dvh, 340px);
+  background: linear-gradient(180deg, #f8f5ef 0%, #efeae0 100%);
+  border-radius: 18px;
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -2046,7 +1969,7 @@ html[data-theme="dark"] .detailStatusClosed { color: #ff6a6a; }
   --vibrate-duration: calc(1.2s - 0.98s * var(--vibrate-intensity));
 }
 html[data-theme="dark"] .mustEatHero {
-  background: #1c1916;
+  background: linear-gradient(180deg, #1f1c18 0%, #161310 100%);
 }
 /* Freigestellte card: white cream asset margin cropped via background-size > 100%.
    Single subtle shadow — not a layered stack — so it reads as ONE card. */
@@ -2150,10 +2073,8 @@ html[data-theme="dark"] .mustEatHero {
   -webkit-user-drag: none;
 }
 
-/* Body */
-.mustEatBody {
-  padding: 8px 18px 4px;
-}
+/* Lock-state eyebrow shown above the hero — Apple-style: tight tracked
+   small-caps with the accent color so the lock context reads at a glance. */
 .mustEatEyebrow {
   display: inline-flex;
   align-items: center;
@@ -2165,34 +2086,16 @@ html[data-theme="dark"] .mustEatHero {
   text-transform: uppercase;
 }
 .mustEatEyebrow svg { width: 12px; height: 12px; flex-shrink: 0; }
-.mustEatRestaurantName {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
-  margin: 4px 0 2px;
-  color: var(--text-primary);
-}
-.mustEatInfoRow {
-  color: var(--text-secondary);
-  font-size: 12.5px;
-  margin: 0;
-}
-.mustEatDescription {
-  margin-top: 10px;
-  font-size: 13.5px;
-  line-height: 1.55;
-  color: var(--text-secondary);
-}
 
-/* Explainer + Booster Pack offer (locked Must Eats only) */
+/* Locked-state info box — used by the desktop "So schaltest du es frei"
+   instructions. Small surface-bg pill, distinct from the more prominent
+   .detailTipBlock used for editorial insider tips. */
 .mustEatExplainer {
-  margin-top: 8px;
-  padding: 7px 11px;
+  padding: 8px 12px;
   background: var(--surface-bg);
   border-radius: 10px;
-  font-size: 11.5px;
-  line-height: 1.35;
+  font-size: 12px;
+  line-height: 1.4;
   color: var(--text-secondary);
 }
 .mustEatExplainer strong {
@@ -2262,68 +2165,44 @@ html[data-theme="dark"] .mustEatHero {
 .boosterCta:hover { filter: brightness(1.08); }
 .boosterCta:active { transform: scale(0.97); }
 
-/* Stacked link list at the bottom of the must-eat detail body
-   (Google Maps + Restaurant ansehen) — sits below the booster offer. */
-.mustEatLinks {
+/* Compact action row at the bottom of the must-eat detail body — same
+   visual language as .detailTravelRow (icon + text, no chrome) so the
+   secondary actions (Maps / Restaurant / All-Must-Eats) read as a row of
+   tap-throughs instead of three full-width buttons stealing space. */
+.mustEatActions {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 8px;
-  padding-top: 0;
-}
-.mustEatLink {
-  appearance: none;
-  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid var(--border-subtle);
-  background: var(--surface-card);
-  color: var(--text-primary);
+  gap: 18px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+.mustEatActionLink {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
   text-decoration: none;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
   cursor: pointer;
-  width: 100%;
-  text-align: left;
-  transition: border-color 0.15s, background 0.15s;
+  transition: color 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
-.mustEatLink:hover {
-  border-color: var(--accent);
-  background: var(--surface-bg);
-}
-.mustEatLink svg {
+.mustEatActionLink svg {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
-  color: var(--text-secondary);
-}
-.mustEatLink span {
-  flex: 1;
-  min-width: 0;
-}
-.mustEatLink .mustEatLinkArrow {
-  width: 14px;
-  height: 14px;
   color: var(--text-muted);
-}
-
-.mustEatListLink {
-  display: block;
-  width: 100%;
-  padding: 14px 20px;
-  background: none;
-  border: none;
-  color: var(--text-muted, #888);
-  font-size: 13px;
-  text-align: center;
-  cursor: pointer;
-  text-decoration: none;
   transition: color 0.15s;
 }
-.mustEatListLink:hover { color: var(--text-primary); }
+.mustEatActionLink:hover { color: var(--text-primary); }
+.mustEatActionLink:hover svg { color: var(--accent); }
 
 /* Custom Bezirk dropdown panel — portaled via fixed positioning so the
    toolbar's overflow:hidden doesn't clip it. */

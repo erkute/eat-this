@@ -433,14 +433,11 @@ html[data-theme="dark"] .fab {
   transition: opacity 0.18s ease, visibility 0s;
 }
 
-/* When the list sheet is at 'peek' (only the handle visible), the list
-   header (count + filter + search + tab bar) would still poke into the
-   visible area — making the sheet look button-cluttered instead of a
-   clean grab handle. Fade those bits out for the peek state.
-   Mobile only — desktop has a fixed sidebar (no peek concept). */
+/* When the list sheet is at 'peek' on mobile, the visible strip should
+   show the count/sort/search/filter row PLUS the category tabs so the
+   user can change category without expanding the sheet. Only the
+   restaurant rows + must-eats back-button get faded out. */
 @media (max-width: 1023.98px) {
-  .listAtPeek .listHeader,
-  .listAtPeek .listHeaderTabs,
   .listAtPeek .listScroll,
   .listAtPeek .listScrollNoCats,
   .listAtPeek .mustEatsBack {
@@ -1528,7 +1525,7 @@ html[data-theme="dark"] .layerTabActive {
 /* Description body keeps a slightly looser feel than the meta blocks. */
 .detailInSheet .detailDescription { line-height: 1.55; }
 /* Peek-visible header: name + 3 round action buttons. Pinned at the very
-   top of the sheet so when the user collapses to the peek snap (110 px),
+   top of the sheet so when the user collapses to the peek snap (~68 px),
    the restaurant name and the actions stay visible (Apple/Google Maps
    pattern). Sits OUTSIDE the scroll body. */
 .detailPeekHeader {
@@ -1569,9 +1566,8 @@ html[data-theme="dark"] .layerTabActive {
   .list[data-view="detail"][data-snap="peek"] .detailInSheetScroll {
     visibility: hidden;
   }
-  /* List peek: show ONLY the count-row (count, sort chip, search, filter) —
-     hide category tabs and the restaurant rows. User pulls up to reveal them. */
-  .list[data-view="list"][data-snap="peek"] .listHeaderTabs,
+  /* List peek: show count-row + category tabs, hide only the restaurant
+     rows. User pulls up to reveal the rows. */
   .list[data-view="list"][data-snap="peek"] .listScroll {
     visibility: hidden;
   }

@@ -4,8 +4,13 @@ import { useBottomSheet } from './useBottomSheet'
 export type SheetView = 'list' | 'detail'
 
 const VIEW_CONFIG = {
-  detail: { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: 100 },
-  list:   { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: 68  },
+  /* detail-peek shows handle + name-row + 3 round actions — sized just tight
+     enough for that strip, no whitespace under the buttons. */
+  detail: { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: 68 },
+  /* list-peek shows handle + count/sort/search/filter row + category tabs
+     (Abendessen / Mittagessen / Frühstück) so the user can switch category
+     without expanding the sheet. Restaurant rows stay hidden until pull-up. */
+  list:   { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: 100 },
 }
 
 /**

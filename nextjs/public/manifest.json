@@ -48,13 +48,13 @@
     {
       "name": "Food Map",
       "short_name": "Map",
-      "url": "/#map",
+      "url": "/map",
       "icons": [{ "src": "pics/favicon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Must-Eats",
-      "short_name": "Eat This",
-      "url": "/#musts",
+      "name": "Mein Deck",
+      "short_name": "Deck",
+      "url": "/profile",
       "icons": [{ "src": "pics/favicon-192.png", "sizes": "192x192" }]
     }
   ]

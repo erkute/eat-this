@@ -133,7 +133,7 @@ export default function MustEatDetailMobile({
             <button
               type="button"
               className={styles.detailPeekActionBtn}
-              aria-label={t('map.backToList') ?? 'Zurück'}
+              aria-label={t('map.backToRestaurant') ?? 'Zurück zum Restaurant'}
               onClick={onBack}
             >
               <BackIcon />

@@ -265,15 +265,18 @@ export default function MapSection({ isActive = false }: Props) {
     handleRestaurantClick(restaurant)
   }, [selectedMustEat, restaurants, handleRestaurantClick])
 
-  // Back button inside the must-eat detail — returns to the restaurant detail
-  // we navigated from (stored in prevRestaurantRef when the user tapped a
-  // must-eat card inside a restaurant's detail sheet).
+  /* Back button inside the must-eat detail — always navigates to the
+     must-eat's parent restaurant detail (regardless of whether the user
+     came from a restaurant detail or from the must-eats list). */
   const handleMustEatBack = useCallback(() => {
-    const prev = prevRestaurantRef.current
+    if (!selectedMustEat) return
+    const restaurant = restaurants.find(r => r._id === selectedMustEat.restaurant._id)
+    if (!restaurant) return
     prevRestaurantRef.current = null
     setSelectedMustEat(null)
-    if (prev) handleRestaurantClick(prev)
-  }, [handleRestaurantClick])
+    setLayer('restaurants')
+    handleRestaurantClick(restaurant)
+  }, [selectedMustEat, restaurants, handleRestaurantClick])
 
   const handleMustEatClose = useCallback(() => {
     const m = selectedMustEat
@@ -477,7 +480,7 @@ export default function MapSection({ isActive = false }: Props) {
       onLocateMe={handleLocateMe}
       onRestaurantClose={handleRestaurantClose}
       onMustEatClose={handleMustEatClose}
-      onMustEatBack={prevRestaurantRef.current ? handleMustEatBack : undefined}
+      onMustEatBack={handleMustEatBack}
       onLayerSwitch={handleLayerSwitch}
       onViewRestaurantFromMustEat={handleViewRestaurantFromMustEat}
       onShowMustEatList={handleShowMustEatList}

@@ -23,24 +23,26 @@ import MapMustEatsList from './MapMustEatsList'
 import MapListHeader from './MapListHeader'
 import styles from './map.module.css'
 
-export interface MapSectionBodyProps {
-  isActive: boolean
-
-  // Refs (mutable + callback) wired up by `useMapSheet`/`useBottomSheet`.
+/* Refs (mutable + callback) wired up by `useMapSheet` / `useBottomSheet` and
+   the FilterDropdown anchor. */
+interface MapBodyRefs {
   mapRef: RefObject<MapRef | null>
   filterBtnRef: RefObject<HTMLButtonElement | null>
   handleRef: Ref<HTMLDivElement | null>
   setHeaderRef: (el: HTMLDivElement | null) => void
   setContentRef: (el: HTMLDivElement | null) => void
   setSheetRef: (el: HTMLDivElement | null) => void
+}
 
-  // View state
+/* What the body renders: pure UI flags (sheet view, snap, drag) plus the
+   data lists / selections / user context that drive markers and the sheet. */
+interface MapBodyState {
+  isActive: boolean
   sheetView: SheetView
   snap: SheetSnap
   dragging: boolean
   layer: MapLayer
-
-  // Data
+  desktopPanelHidden: boolean
   displayedRestaurants: MapRestaurant[]
   fannedMustEats: MustEatWithDisplay<MapMustEat>[]
   displayedMustEats: MapMustEat[]
@@ -51,25 +53,33 @@ export interface MapSectionBodyProps {
   favoriteIds: Set<string>
   location: UserLocation | null
   uid: string | null
+}
 
-  // Filter state
+/* Filter values + their setters / change handlers. Bundled together because
+   each value travels with its setter in the same render. */
+interface MapBodyFilterState {
   category: MapCategory
   setCategory: (c: MapCategory) => void
   search: string
+  onSearchChange: (v: string) => void
+  searchOpen: boolean
+  setSearchOpen: (open: boolean) => void
   bezirk: string | null
   bezirkNames: string[]
+  onBezirkChange: (name: string | null) => void
+  onResetBezirkPill: () => void
   openOnly: boolean
   setOpenOnly: (v: boolean) => void
   sort: SortMode
   setSort: (s: SortMode) => void
   sortDir: SortDir
   onToggleSortDir: () => void
-  searchOpen: boolean
-  setSearchOpen: (open: boolean) => void
   filterOpen: boolean
   setFilterOpen: (next: boolean | ((prev: boolean) => boolean)) => void
+}
 
-  // Map / sheet handlers
+/* Map / sheet event handlers (everything not filter-related). */
+interface MapBodyHandlers {
   onMapMove: (bounds: { north: number; south: number; east: number; west: number }) => void
   onMapClick: () => void
   onRestaurantClick: (r: MapRestaurant) => void
@@ -82,19 +92,24 @@ export interface MapSectionBodyProps {
   onViewRestaurantFromMustEat: () => void
   onShowMustEatList: () => void
   onUnlock: () => Promise<void>
-  onSearchChange: (v: string) => void
-  onBezirkChange: (name: string | null) => void
-  onResetBezirkPill: () => void
   onToggleFavorite: () => void
   onCollapseDetailToMid: () => void
-  desktopPanelHidden: boolean
   onToggleDesktopPanel: () => void
+}
 
-  // Aria copy (host-locale aware)
+/* Host-locale-aware aria copy passed in from the server-rendered shell. */
+interface MapBodyAria {
   myLocationAriaLabel: string
   restaurantsListAriaLabel: string
   mustEatsListAriaLabel: string
 }
+
+export type MapSectionBodyProps =
+  & MapBodyRefs
+  & MapBodyState
+  & MapBodyFilterState
+  & MapBodyHandlers
+  & MapBodyAria
 
 export default function MapSectionBody(props: MapSectionBodyProps) {
   const {

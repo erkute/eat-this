@@ -3,6 +3,7 @@ import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import type { MapMustEat } from '@/lib/types'
 import {
+  formatDistance,
   formatDrivingTime,
   formatTransitTime,
   formatWalkingTime,
@@ -10,7 +11,7 @@ import {
 import { Link } from '@/i18n/navigation'
 import { useTranslation } from '@/lib/i18n'
 import styles from './map.module.css'
-import type { MustEatDetailState } from './useMustEatDetailState'
+import { UNLOCK_RADIUS_METERS, type MustEatDetailState } from './useMustEatDetailState'
 
 function CloseIcon() {
   return (
@@ -234,17 +235,25 @@ export default function MustEatDetailMobile({
 
           {/* Locked-state messaging — banner when within unlock radius,
               tip-style block otherwise. Reuses the restaurant detail's
-              insider-tip vocabulary so the visual language stays consistent. */}
+              insider-tip vocabulary so the visual language stays consistent.
+              Includes the live distance so the user always knows how far
+              they are from the unlock radius. */}
           {!isUnlocked && (canUnlock ? (
             <div className={styles.mustEatCanUnlockBanner}>
               <div>
                 <strong>Du bist nah genug!</strong>
-                <span>Tippe auf die Karte, um dein Must-Eat aufzudecken.</span>
+                <span>
+                  {distance !== null && <>Nur noch {formatDistance(distance)} — t</>}
+                  {distance === null && 'T'}ippe auf die Karte, um dein Must-Eat aufzudecken.
+                </span>
               </div>
             </div>
           ) : (
             <div className={styles.detailTipBlock}>
-              <strong>Verschlossen.</strong> Komm auf 250 m heran und tippe die Karte auf.
+              <strong>Verschlossen.</strong>{' '}
+              {distance !== null
+                ? <>Du bist <strong className={styles.detailTipDistance}>{formatDistance(distance)}</strong> entfernt — komm auf {UNLOCK_RADIUS_METERS} m heran und tippe die Karte auf.</>
+                : <>Komm auf {UNLOCK_RADIUS_METERS} m heran und tippe die Karte auf.</>}
             </div>
           ))}
 

@@ -21,6 +21,7 @@ import CategoryFilter from './CategoryFilter'
 import BezirkFilterPill from './BezirkFilterPill'
 import MapMustEatsList from './MapMustEatsList'
 import MapListHeader from './MapListHeader'
+import LayerToggle from './LayerToggle'
 import styles from './map.module.css'
 
 /* Refs (mutable + callback) wired up by `useMapSheet` / `useBottomSheet` and
@@ -88,7 +89,7 @@ interface MapBodyHandlers {
   onRestaurantClose: () => void
   onMustEatClose: () => void
   onMustEatBack: (() => void) | undefined
-  onBackToRestaurants: () => void
+  onLayerSwitch: (layer: MapLayer) => void
   onViewRestaurantFromMustEat: () => void
   onShowMustEatList: () => void
   onUnlock: () => Promise<void>
@@ -123,7 +124,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     openOnly, setOpenOnly, sort, setSort, sortDir, onToggleSortDir,
     searchOpen, setSearchOpen, filterOpen, setFilterOpen,
     onMapMove, onMapClick, onRestaurantClick, onMustEatClick, onLocateMe,
-    onRestaurantClose, onMustEatClose, onMustEatBack, onBackToRestaurants,
+    onRestaurantClose, onMustEatClose, onMustEatBack, onLayerSwitch,
     onViewRestaurantFromMustEat, onShowMustEatList, onUnlock,
     onSearchChange, onBezirkChange, onResetBezirkPill, onToggleFavorite,
     onCollapseDetailToMid,
@@ -166,6 +167,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               ))}
               {location && <UserLocationMarker location={location} />}
             </MapCanvas>
+
+            <LayerToggle active={layer} onChange={onLayerSwitch} />
 
             {bezirk && (
               <BezirkFilterPill bezirkName={bezirk} onReset={onResetBezirkPill} />
@@ -288,7 +291,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 uid={uid}
                 contentRef={setContentRef}
                 onSelect={onMustEatClick}
-                onBackToRestaurants={onBackToRestaurants}
               />
             )}
           </aside>

@@ -15,7 +15,6 @@ interface Props {
   uid: string | null
   contentRef: Ref<HTMLDivElement | null>
   onSelect: (mustEat: MapMustEat) => void
-  onBackToRestaurants: () => void
 }
 
 export default function MapMustEatsList({
@@ -26,7 +25,6 @@ export default function MapMustEatsList({
   uid,
   contentRef,
   onSelect,
-  onBackToRestaurants,
 }: Props) {
   const { t } = useTranslation()
   const locale = useLocale()
@@ -42,16 +40,6 @@ export default function MapMustEatsList({
 
   return (
     <>
-      <button
-        type="button"
-        className={styles.mustEatsBack}
-        onClick={onBackToRestaurants}
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M19 12H5M12 5l-7 7 7 7" />
-        </svg>
-        {t('map.backToRestaurants')}
-      </button>
       <div ref={contentRef} className={`${styles.listScroll} ${styles.listScrollNoCats}`}>
         {displayedMustEats.length === 0 ? (
           <div className={styles.empty}>{t('map.noMustEatsMatch')}</div>

@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { haversineDistance, type UserLocation } from '@/lib/map'
 import type { MapMustEat } from '@/lib/types'
 
-const UNLOCK_RADIUS_METERS = 250
+export const UNLOCK_RADIUS_METERS = 250
 
 interface Args {
   mustEat: MapMustEat

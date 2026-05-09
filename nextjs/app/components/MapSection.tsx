@@ -241,13 +241,19 @@ export default function MapSection({ isActive = false }: Props) {
     }
   }, [selectedRestaurant, getFlyPadding, setSnap, reapplySnap, setSheetView])
 
-  const handleBackToRestaurants = useCallback(() => {
-    setLayer('restaurants')
+  /* Apple-style layer switch from the floating segmented control on the map.
+     Same flow whichever direction: clear any selection, force list view, and
+     drop to mid so the new layer's list shows immediately. No-op when the
+     user taps the segment that's already active. */
+  const handleLayerSwitch = useCallback((newLayer: MapLayer) => {
+    if (newLayer === layer) return
+    setLayer(newLayer)
+    setSelectedRestaurant(null)
     setSelectedMustEat(null)
     setSheetView('list')
     setSnap('mid')
     reapplySnap('mid')
-  }, [setSnap, reapplySnap, setSheetView])
+  }, [layer, setSnap, reapplySnap, setSheetView])
 
   const handleViewRestaurantFromMustEat = useCallback(() => {
     if (!selectedMustEat) return
@@ -471,7 +477,7 @@ export default function MapSection({ isActive = false }: Props) {
       onRestaurantClose={handleRestaurantClose}
       onMustEatClose={handleMustEatClose}
       onMustEatBack={prevRestaurantRef.current ? handleMustEatBack : undefined}
-      onBackToRestaurants={handleBackToRestaurants}
+      onLayerSwitch={handleLayerSwitch}
       onViewRestaurantFromMustEat={handleViewRestaurantFromMustEat}
       onShowMustEatList={handleShowMustEatList}
       onUnlock={handleUnlock}

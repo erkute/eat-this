@@ -21,6 +21,11 @@ import {
   TransitIcon,
   WalkIcon,
 } from './icons'
+import {
+  classifyWebsite,
+  formatPriceLabel,
+  splitStatusLabel,
+} from './restaurantDetail.helpers'
 
 function MustEatMiniCard({
   mustEat,
@@ -94,10 +99,9 @@ export default function RestaurantDetail({
   const dirHref = (mode: 'walking' | 'transit' | 'driving') =>
     `https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lng}&travelmode=${mode}`
 
-  /* Status label split into colored primary word + muted suffix — same
-     vocabulary as the list row. */
-  const [statusMain, ...statusRest] = status.label ? status.label.split(' · ') : []
-  const statusSub = statusRest.join(' · ')
+  // Status label is split into a colored primary word + muted suffix —
+  // same vocabulary as the list row.
+  const { main: statusMain, sub: statusSub } = splitStatusLabel(status.label)
 
   const handleShare = async () => {
     const url = typeof window !== 'undefined' ? window.location.href : ''
@@ -129,47 +133,10 @@ export default function RestaurantDetail({
       ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.address)}`
       : null)
 
-  /* Classify the website link: an Instagram URL becomes a glyph + @handle
-     (no point spelling out www.instagram.com), every other URL is rendered
-     as the full "www.example.de" host so the user sees where they're going. */
-  type WebsiteInfo =
-    | { kind: 'instagram'; url: string; handle: string | null }
-    | { kind: 'web';        url: string; display: string }
-  const websiteInfo: WebsiteInfo | null = (() => {
-    if (!restaurant.website) return null
-    try {
-      const u = new URL(restaurant.website)
-      const host = u.hostname.toLowerCase()
-      if (host === 'instagram.com' || host === 'www.instagram.com') {
-        const handle = u.pathname.split('/').filter(Boolean)[0] ?? null
-        return { kind: 'instagram', url: restaurant.website, handle }
-      }
-      let display = u.hostname
-      if (!display.startsWith('www.') && display.split('.').length === 2) {
-        display = `www.${display}`
-      }
-      return { kind: 'web', url: restaurant.website, display }
-    } catch {
-      return {
-        kind: 'web',
-        url: restaurant.website,
-        display: restaurant.website.replace(/^https?:\/\//, '').replace(/\/$/, ''),
-      }
-    }
-  })()
+  const websiteInfo = classifyWebsite(restaurant.website)
+  const priceLabel = formatPriceLabel(restaurant)
 
-  /* Bezirk · Kategorie1 · Kategorie2 · Preis — flat dotted line. Prefer the
-     real Places-API price range ("10–20 €") over the generic € symbol when
-     the restaurant has it filled in. */
-  const priceLabel = (() => {
-    const r = restaurant.priceRange
-    if (r && r.min != null && r.max != null) {
-      const cur = r.currency === 'EUR' || !r.currency ? '€' : r.currency
-      return `${r.min}–${r.max} ${cur}`
-    }
-    if (r && r.min != null) return `ab ${r.min} €`
-    return restaurant.price ?? null
-  })()
+  // Bezirk · Kategorie1 · Kategorie2 · Preis — flat dotted line.
   const metaParts: { text: string; isPrice: boolean }[] = []
   if (district) metaParts.push({ text: district, isPrice: false })
   if (restaurant.categories?.length) {

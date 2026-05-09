@@ -94,10 +94,9 @@ export default function FilterDropdown({
   return (
     <div ref={ref} className={styles.filterDropdown}>
       {/* Layer switch — primary scope of the data shown. Apple-style segmented
-          control so the user can flip between Restaurants and Must-Eats from
-          the same filter surface as sort + bezirk. */}
+          control without a label (the segments are self-explanatory) so the
+          dropdown opens with a clean, one-tap layer choice at the top. */}
       <div className={styles.filterDropdownSection}>
-        <div className={styles.filterDropdownLabel}>{t('map.layerSwitchLabel') ?? 'Layer'}</div>
         <div className={styles.filterLayerTabs} role="tablist" aria-label={t('map.layerSwitchAria') ?? 'Map layer'}>
           <button
             type="button"

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
 import { getBezirkBySlug, getRestaurantsByBezirk, getAllBezirkeWithStats, getLatestNewsArticles } from '@/lib/sanity.server'
-import { serializeJsonLd } from '@/lib/json-ld'
+import { buildBezirkJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { routing } from '@/i18n/routing'
@@ -109,34 +109,11 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   const restaurantUrl = (rSlug: string) =>
     locale === 'de' ? `/restaurant/${rSlug}` : `/${locale}/restaurant/${rSlug}`
 
-  const jsonLd = serializeJsonLd({
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Eat This Berlin', item: localeUrl(locale, '/') },
-          { '@type': 'ListItem', position: 2, name: de ? 'Bezirke' : 'Districts', item: localeUrl(locale, '/bezirk') },
-          { '@type': 'ListItem', position: 3, name: b.name, item: localeUrl(locale, `/bezirk/${slug}`) },
-        ],
-      },
-      {
-        '@type': 'ItemList',
-        name: de ? `Restaurants in ${b.name}` : `Restaurants in ${b.name}`,
-        numberOfItems: restaurants.length,
-        itemListElement: restaurants.map((r, i) => ({
-          '@type': 'ListItem',
-          position: i + 1,
-          item: {
-            '@type': 'Restaurant',
-            name: r.name,
-            url: `${SITE_URL}${restaurantUrl(r.slug)}`,
-            ...(r.cuisineType && { servesCuisine: r.cuisineType }),
-            ...(r.price && { priceRange: r.price }),
-          },
-        })),
-      },
-    ],
+  const jsonLd = buildBezirkJsonLd({
+    bezirk: b,
+    restaurants,
+    locale,
+    districtsLabel: de ? 'Bezirke' : 'Districts',
   })
 
   return (

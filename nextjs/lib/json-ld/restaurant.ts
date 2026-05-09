@@ -1,4 +1,4 @@
-import { serializeJsonLd } from '@/lib/json-ld'
+import { serializeJsonLd } from './serialize'
 import { SITE_URL } from '@/lib/constants'
 import type { Restaurant } from '@/lib/types'
 

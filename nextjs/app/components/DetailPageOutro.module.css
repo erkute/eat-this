@@ -162,11 +162,8 @@
   .siblingItem { flex: 0 0 290px; max-width: 290px; }
 }
 
-/* Freigestelltes Banner: Map-Promo-Bild als Map-CTA. Mobile + Desktop nutzen
-   eigene Assets (3:2 für Mobile, 2:1 für Desktop) — beide tragen ihr eigenes
-   Wording ("the map for people who care about food."), deshalb kein
-   zusätzlicher Button. CSS toggelt sichtbar; Browser fetcht nur das
-   sichtbare Bild dank `display: none` auf dem versteckten. */
+/* Freigestelltes Banner: Map-Promo-Bild als Map-CTA. Wording ("the map for
+   people who care about food.") ist im Bild → kein zusätzlicher Button. */
 .mapBlock {
   display: block;
   margin: 0 0 40px;
@@ -182,10 +179,6 @@
   border-radius: 18px;
   filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.16));
   transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), filter 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-
-.mapBlockPromoDesktop {
-  display: none;
 }
 
 .mapBlock:hover .mapBlockPromo {
@@ -296,12 +289,6 @@
   }
   .mapBlockPromo {
     border-radius: 24px;
-  }
-  .mapBlockPromoMobile {
-    display: none;
-  }
-  .mapBlockPromoDesktop {
-    display: block;
   }
   .newsGrid {
     gap: 16px;

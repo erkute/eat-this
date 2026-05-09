@@ -281,18 +281,21 @@
 .mapTeaserHead {
   margin-bottom: 24px;
 }
-/* 3-up feature grid: stacked on mobile, columns on desktop */
+/* 4-up feature grid: stacked on mobile, 2×2 on desktop. The intra-feature
+   gap (image → title) stays small so the title visually anchors to the
+   screenshot above it; the inter-feature gap is much larger so each block
+   reads as one unit instead of text floating between two screenshots. */
 .mapFeatures {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
+  gap: 56px;
 }
 .mapFeature {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 24px;
+  gap: 12px;
 }
 .mapFeatureFrame {
   display: flex;
@@ -369,10 +372,10 @@
   .mapTeaser { padding: 72px 80px 88px; }
   .mapTeaserHead { margin-bottom: 48px; }
   .mapFeatures {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 40px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 64px 40px;
   }
-  .mapFeature { gap: 28px; }
+  .mapFeature { gap: 18px; }
   .mapFeatureFrame img { max-width: 260px; }
   .mapFeatureTitle { font-size: 18px; }
   .mapFeatureBody { font-size: 14px; max-width: 320px; }

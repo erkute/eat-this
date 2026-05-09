@@ -53,7 +53,7 @@ export default function MapSection({ isActive = false }: Props) {
 
   const {
     handleRef, contentRef, setContentRef, setHeaderRef,
-    snap, setSnap, dragging, reapplySnap, snapToVisiblePx,
+    snap, setSnap, dragging, reapplySnap,
     sheetView, setSheetView,
     sheetElRef, setSheetRef,
   } = useMapSheet()
@@ -77,176 +77,24 @@ export default function MapSection({ isActive = false }: Props) {
   const prevRestaurantRef = useRef<MapRestaurant | null>(null)
   const [filterOpen,         setFilterOpen]         = useState(false)
   const [searchOpen,         setSearchOpen]         = useState(false)
+  // Desktop-only: lets the user collapse the side panel off to the right so
+  // the map fills the viewport (Google-Maps-style toggle).
+  const [desktopPanelHidden, setDesktopPanelHidden] = useState(false)
 
-  const snapDetailToContent = useCallback(() => {
-    if (typeof window === 'undefined') return
-    const mount = contentRef.current
-    if (!mount) return
-    const scroller = mount.querySelector<HTMLElement>('[data-detail-scroll]')
-    if (!scroller) return
-
-    const isMobile = window.matchMedia('(max-width: 1023.98px)').matches
-
-    const heroEl =
-      mount.querySelector<HTMLElement>(`.${styles.detailHeroWrap}`) ??
-      mount.querySelector<HTMLElement>(`.${styles.mustEatHero}`)
-    const heroInner = heroEl?.querySelector<HTMLElement>(
-      'img, [class*="detailHero"]:not([class*="Wrap"])'
-    ) ?? null
-
-    // Reset any inline shrink applied for a previous (taller) detail so we
-    // measure at the natural CSS-defined hero size for THIS detail. Without
-    // this, navigating from Wen Cheng (heavy) → Crapulix (light) keeps the
-    // hero at the shrunken Wen Cheng height.
-    if (heroEl) {
-      heroEl.style.maxHeight = ''
-      heroEl.style.height = ''
-    }
-    if (heroInner) heroInner.style.maxHeight = ''
-
-    const measure = () => {
-      let h = 0
-      for (const child of Array.from(scroller.children)) {
-        h += (child as HTMLElement).offsetHeight
-      }
-      const cs = getComputedStyle(scroller)
-      return h + parseFloat(cs.paddingTop || '0') + parseFloat(cs.paddingBottom || '0')
-    }
-
-    // Available height ceiling.
-    // Mobile: min of the sheet's container height and 95 % of the visual
-    // viewport (Safari URL bar safe). Desktop: the sidebar's own height
-    // (100 % of .body, which is viewport minus the global header).
-    const vh = window.visualViewport?.height ?? window.innerHeight
-    const sheetH = sheetElRef.current?.getBoundingClientRect().height ?? Math.round(vh * 0.95)
-    const maxH = isMobile
-      ? Math.min(sheetH, Math.round(vh * 0.95))
-      : sheetH
-
-    // Reset any inline shrink we previously applied to the must-eat mini-card
-    // grid so this detail measures at its natural sizes too.
-    const mustGridEl = mount.querySelector<HTMLElement>(`.${styles.mustGrid}`)
-    if (mustGridEl) mustGridEl.style.gridTemplateColumns = ''
-
-    let contentH = measure()
-
-    // Distribute overflow across two shrinkable elements before going to the
-    // absolute hero floor:
-    //   1. Hero photo (.detailHeroWrap or .mustEatHero) — primary visual,
-    //      keep above a generous comfortable floor so it stays a real photo.
-    //   2. Must-Eat mini-card grid (.mustGrid) — secondary visual, scale
-    //      down by widening grid auto-fill so cards are smaller.
-    // 16 px cushion guards against late-layout reflow (font metrics, etc.).
-    // Comfortable floors are set high (200 / 240) so the hero only takes a
-    // small bite of the overflow, and the must-eat grid (smaller cards)
-    // absorbs the rest. Falls through to absolute floor only when grid
-    // shrinking isn't enough.
-    const cushion = 16
-    const heroComfortableFloor = isMobile ? 200 : 240
-    const heroAbsoluteFloor    = isMobile ? 100 : 140
-
-    if (contentH > maxH - cushion && heroEl) {
-      // Stage 1: shrink hero down to its comfortable floor.
-      let overflow = contentH - (maxH - cushion)
-      const currentHeroH = heroEl.offsetHeight
-      const heroComfortableShrink = Math.max(0, currentHeroH - heroComfortableFloor)
-      const heroShrink = Math.min(overflow, heroComfortableShrink)
-      if (heroShrink > 0) {
-        const newH = currentHeroH - heroShrink
-        heroEl.style.maxHeight = `${newH}px`
-        heroEl.style.height = `${newH}px`
-        if (heroInner) heroInner.style.maxHeight = `${newH}px`
-        contentH = measure()
-        overflow = Math.max(0, contentH - (maxH - cushion))
-      }
-
-      // Stage 2: shrink must-eat grid (smaller mini cards) for the rest.
-      if (overflow > 0 && mustGridEl) {
-        const gridH = mustGridEl.offsetHeight
-        if (gridH > 0) {
-          const targetGridH = Math.max(60, gridH - overflow)
-          const ratio = targetGridH / gridH
-          // Default grid is `repeat(auto-fill, minmax(72px, 1fr))`. Scale
-          // the min column width proportionally; floor at 48 px so cards
-          // stay tappable.
-          const newMinPx = Math.max(48, Math.floor(72 * ratio))
-          mustGridEl.style.gridTemplateColumns = `repeat(auto-fill, minmax(${newMinPx}px, 1fr))`
-          contentH = measure()
-          overflow = Math.max(0, contentH - (maxH - cushion))
-        }
-      }
-
-      // Stage 3 (last resort): keep shrinking hero past the comfortable
-      // floor down to the absolute floor for very heavy content.
-      if (overflow > 0) {
-        const cur = heroEl.offsetHeight
-        const newH = Math.max(heroAbsoluteFloor, cur - overflow)
-        if (newH < cur) {
-          heroEl.style.maxHeight = `${newH}px`
-          heroEl.style.height = `${newH}px`
-          if (heroInner) heroInner.style.maxHeight = `${newH}px`
-          contentH = measure()
-        }
-      }
-    }
-
-    // Mobile only: snap the bottom sheet visible-px to the (now-fitting)
-    // content height. Desktop's sidebar is already a fixed-height column,
-    // CSS lays it out — no snap needed.
-    if (isMobile) {
-      snapToVisiblePx(Math.min(contentH + 8, maxH))
-    }
-  }, [snapToVisiblePx, contentRef, sheetElRef])
-
+  // Snap the sheet when entering detail view (or switching selections).
+  // Preserve the full snap if the user was at full when clicking — Google
+  // Maps does the same: clicking a place from the full-screen list keeps
+  // you in the full-screen view. Otherwise default to mid.
+  const snapRef = useRef(snap)
+  snapRef.current = snap
   useLayoutEffect(() => {
     if (sheetView !== 'detail') return
     if (typeof window === 'undefined') return
-    // Initial snap after DOM is set + once after paint.
-    snapDetailToContent()
-    const id = requestAnimationFrame(snapDetailToContent)
-
-    // Re-snap whenever the detail content's measured height changes — covers
-    // hero image loading (was 0 px → now full size), font metrics settling,
-    // and any late layout shifts that would otherwise leave the sheet stuck
-    // at the initial under-measure size.
-    let ro: ResizeObserver | null = null
-    const mount = contentRef.current
-    const scroller = mount?.querySelector<HTMLElement>('[data-detail-scroll]') ?? null
-    if (scroller && typeof ResizeObserver !== 'undefined') {
-      ro = new ResizeObserver(() => {
-        snapDetailToContent()
-      })
-      // Observe each direct child individually — the scroller itself has
-      // flex:1 so its own size doesn't change with content; the children's
-      // sizes do.
-      for (const child of Array.from(scroller.children)) {
-        ro.observe(child as HTMLElement)
-      }
-    }
-
-    // Re-snap when the hero image finishes loading (offsetHeight before load
-    // is tiny → snap measures wrong → user sees the sheet at the under-sized
-    // height with internal scroll). ResizeObserver catches most cases but
-    // an explicit load handler is the belt to RO's suspenders.
-    const onImgLoad = () => snapDetailToContent()
-    const heroImgs = mount?.querySelectorAll<HTMLImageElement>('img') ?? []
-    heroImgs.forEach(img => {
-      if (!img.complete) img.addEventListener('load', onImgLoad, { once: true })
-    })
-
-    // iOS Safari's URL bar collapses/expands as the user scrolls — that
-    // changes visualViewport.height, which is part of our maxH. Re-fit
-    // whenever the viewport resizes so the shrink stays correct.
-    const onVvResize = () => snapDetailToContent()
-    window.visualViewport?.addEventListener('resize', onVvResize)
-
-    return () => {
-      cancelAnimationFrame(id)
-      ro?.disconnect()
-      heroImgs.forEach(img => img.removeEventListener('load', onImgLoad))
-      window.visualViewport?.removeEventListener('resize', onVvResize)
-    }
-  }, [sheetView, selectedRestaurant, selectedMustEat, snapDetailToContent, contentRef])
+    if (!window.matchMedia('(max-width: 1023.98px)').matches) return
+    const target = snapRef.current === 'full' ? 'full' : 'mid'
+    setSnap(target)
+    reapplySnap(target)
+  }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, setSnap, reapplySnap])
 
   /* Filter / sort changes — reset list scroll to the top so the user always
      sees the first results of the new filter, not where they happened to be
@@ -312,41 +160,6 @@ export default function MapSection({ isActive = false }: Props) {
     return { top: 70, bottom: Math.round(visible) + 20, left: 20, right: 20 }
   }, [snap, sheetElRef])
 
-  /* After the auto-fit detail sheet settles at its content height, re-centre
-     the camera so the marker actually lands above the (just-expanded) sheet.
-     The initial flyTo in click handlers uses an estimate ('full') and is
-     usually off — short detail (Crapulix) → too low; tall (Schüsseldienst) →
-     hidden behind the sheet. Reads --sheet-visible-px which is now accurate. */
-  useEffect(() => {
-    if (sheetView !== 'detail') return
-    if (typeof window === 'undefined') return
-    if (!window.matchMedia('(max-width: 1023.98px)').matches) return
-    const target = selectedRestaurant
-      ? { lat: selectedRestaurant.lat, lng: selectedRestaurant.lng }
-      : selectedMustEat
-        ? { lat: selectedMustEat.restaurant.lat, lng: selectedMustEat.restaurant.lng }
-        : null
-    if (!target) return
-    let cancelled = false
-    // Three frames: snapDetailToContent runs after two rAF; we recentre on
-    // the third, by which point --sheet-visible-px reflects the final size.
-    const id = requestAnimationFrame(() => {
-      if (cancelled) return
-      requestAnimationFrame(() => {
-        if (cancelled) return
-        requestAnimationFrame(() => {
-          if (cancelled || !mapRef.current) return
-          mapRef.current.easeTo({
-            center: [target.lng, target.lat],
-            duration: 320,
-            padding: getFlyPadding(),
-          })
-        })
-      })
-    })
-    return () => { cancelled = true; cancelAnimationFrame(id) }
-  }, [sheetView, selectedRestaurant, selectedMustEat, getFlyPadding])
-
   const handleRestaurantClick = useCallback((r: MapRestaurant) => {
     userInteractedRef.current = true
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
@@ -360,17 +173,17 @@ export default function MapSection({ isActive = false }: Props) {
     // Both mobile sheet AND desktop sidebar render the detail inline now —
     // desktop no longer uses a centered floating modal that hid the marker.
     setSheetView('detail')
-    // Pass 'full' on mobile because the sheet is about to expand to the
-    // content-fit detail height (~58–95 % of viewport). Using current 'mid'
-    // padding here means the marker would be centred ABOVE where the detail
-    // sheet actually ends up — usually behind it.
+    // If the list was at full when clicking, the detail will also open at
+    // full (preserved in the snap useLayoutEffect). Pad accordingly so the
+    // marker isn't hidden behind the just-expanded sheet.
+    const targetSnap = snap === 'full' ? 'full' : 'mid'
     mapRef.current?.flyTo({
       center: [r.lng, r.lat],
       zoom: 15,
       duration: 500,
-      padding: getFlyPadding(isMobile ? 'full' : undefined),
+      padding: getFlyPadding(isMobile ? targetSnap : undefined),
     })
-  }, [getFlyPadding, setSearch, setSheetView])
+  }, [getFlyPadding, setSearch, setSheetView, snap])
 
   const handleMustEatClick = useCallback((m: MapMustEat) => {
     userInteractedRef.current = true
@@ -392,20 +205,21 @@ export default function MapSection({ isActive = false }: Props) {
         center: [m.restaurant.lng, m.restaurant.lat],
         zoom: 15,
         duration: 500,
-        padding: getFlyPadding('full'),
+        padding: getFlyPadding('mid'),
       })
       return
     }
     const isLocked = !unlockedIds.has(m._id)
+    const targetSnap = snap === 'full' ? 'full' : 'mid'
     const open = () => {
       setSelectedMustEat(m)
       setSheetView('detail')
-      mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500, padding: getFlyPadding(isMobile ? 'full' : undefined) })
+      mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500, padding: getFlyPadding(isMobile ? targetSnap : undefined) })
     }
     // Let the back-card wiggle animation play before the detail modal covers it.
     if (isLocked) setTimeout(open, 420)
     else open()
-  }, [unlockedIds, getFlyPadding, selectedRestaurant, setSearch, setSheetView])
+  }, [unlockedIds, getFlyPadding, selectedRestaurant, setSearch, setSheetView, snap])
 
   const handleRestaurantClose = useCallback(() => {
     const r = selectedRestaurant
@@ -680,6 +494,9 @@ export default function MapSection({ isActive = false }: Props) {
       onBezirkChange={handleBezirkChange}
       onResetBezirkPill={resetBezirkPill}
       onToggleFavorite={() => { if (selectedRestaurant) toggleFavorite(selectedRestaurant) }}
+      onCollapseDetailToMid={() => { setSnap('mid'); reapplySnap('mid') }}
+      desktopPanelHidden={desktopPanelHidden}
+      onToggleDesktopPanel={() => setDesktopPanelHidden(v => !v)}
       myLocationAriaLabel={t('map.myLocationAriaLabel') ?? 'My location'}
       restaurantsListAriaLabel={t('map.restaurantsListAriaLabel') ?? 'Restaurants nearby'}
       mustEatsListAriaLabel={t('map.mustEatsListAriaLabel') ?? 'Must Eats'}

@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
-import { getOpenStatus, type UserLocation } from '@/lib/map'
+import { getOpenStatus } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import styles from './map.module.css'
 
@@ -35,18 +35,24 @@ interface RestaurantDetailProps {
   restaurant: MapRestaurant
   mustEats: MapMustEat[]
   unlockedIds: Set<string>
-  userLocation: UserLocation | null
   onClose: () => void
   onMustEatClick: (m: MapMustEat) => void
-  inSheet?: boolean
   isFavorite?: boolean
   onToggleFavorite?: () => void
+}
+
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  )
 }
 
 function GoogleLogo() {
   return (
     <svg
-      className={styles.googleLogo}
+      className={styles.detailLinkGoogleLogo}
       viewBox="0 0 48 48"
       aria-hidden="true"
       focusable="false"
@@ -59,36 +65,18 @@ function GoogleLogo() {
   )
 }
 
-function PinIcon() {
-  return (
-    <svg className={styles.inlineLinkIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 2a8 8 0 0 0-8 8c0 5.5 8 12 8 12s8-6.5 8-12a8 8 0 0 0-8-8z" />
-      <circle cx="12" cy="10" r="3" />
-    </svg>
-  )
-}
-
-function GlobeIcon() {
-  return (
-    <svg className={styles.inlineLinkIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
-    </svg>
-  )
-}
-
-function CalendarIcon() {
-  return (
-    <svg className={styles.inlineLinkIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="5" width="18" height="16" rx="2" />
-      <path d="M3 10h18M8 3v4M16 3v4" />
-    </svg>
-  )
-}
-
 function ShareIcon() {
   return (
-    <svg className={styles.inlineLinkIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      className={styles.detailLinkIcon}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <circle cx="18" cy="5" r="3" />
       <circle cx="6" cy="12" r="3" />
       <circle cx="18" cy="19" r="3" />
@@ -97,10 +85,19 @@ function ShareIcon() {
   )
 }
 
-function CloseIcon() {
+function HeartIcon({ filled }: { filled: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+    <svg
+      className={styles.detailLinkIcon}
+      viewBox="0 0 24 24"
+      fill={filled ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
     </svg>
   )
 }
@@ -111,7 +108,6 @@ export default function RestaurantDetail({
   unlockedIds,
   onClose,
   onMustEatClick,
-  inSheet,
   isFavorite,
   onToggleFavorite,
 }: RestaurantDetailProps) {
@@ -153,221 +149,212 @@ export default function RestaurantDetail({
     }
   }
 
-  const heroEl = (
-    <div className={styles.detailHeroWrap}>
-      {restaurant.photo ? (
-        <img src={restaurant.photo} alt={restaurant.name} className={styles.detailHero} />
-      ) : (
-        <div className={styles.detailHeroPlaceholder} aria-hidden="true">🍽</div>
-      )}
-      {inSheet && (
-        <button
-          type="button"
-          className={styles.detailHeroClose}
-          aria-label="Close"
-          onClick={onClose}
-        >
-          <CloseIcon />
-        </button>
-      )}
-      {onToggleFavorite && (
-        <button
-          type="button"
-          className={`${styles.detailFavBtn} ${isFavorite ? styles.detailFavBtnActive : ''}`}
-          aria-label={isFavorite ? 'Remove from saved' : 'Save restaurant'}
-          aria-pressed={!!isFavorite}
-          onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
-        >
-          <svg viewBox="0 0 24 24" fill={isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-          </svg>
-        </button>
-      )}
-    </div>
-  )
+  const addressMapsHref =
+    restaurant.mapsUrl ||
+    (restaurant.address
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.address)}`
+      : null)
 
-  const sections = (
-    <>
-      {restaurant.openingHours && restaurant.openingHours.length > 0 && (
-        <section>
-          <div className={styles.sectionLabel}>{t('map.openingHours')}</div>
-          <ul className={styles.hoursList}>
-            {restaurant.openingHours.map((slot, i) => (
-              <li key={i} className={styles.hoursRow}>
-                <span className={styles.hoursDay}>{slot.days}</span>
-                <span className={styles.hoursTime}>{slot.hours}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {restaurant.tip && (
-        <section>
-          <div className={styles.sectionLabel}>{t('map.insiderTip')}</div>
-          <p className={styles.tipBlock}>{restaurant.tip}</p>
-        </section>
-      )}
-
-      {mustEats.length > 0 && (
-        <section>
-          <div className={styles.sectionLabel}>{t('map.mustEatsCount')} ({mustEats.length})</div>
-          <div className={styles.mustGrid}>
-            {mustEats.map(m => (
-              <MustEatMiniCard
-                key={m._id}
-                mustEat={m}
-                unlocked={unlockedIds.has(m._id)}
-                onClick={() => onMustEatClick(m)}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-    </>
-  )
-
-  if (inSheet) {
-    return (
-      <div className={styles.detailInSheet} role="dialog" aria-label={restaurant.name}>
-        <div className={styles.detailInSheetScroll} data-detail-scroll>
-          {heroEl}
-          <div className={styles.detailLeftInfo}>
-            <h3 className={styles.detailName}>{restaurant.name}</h3>
-            {(district || restaurant.price || restaurant.categories?.length) && (
-              <div className={styles.detailDistrict}>
-                {[
-                  district,
-                  restaurant.price,
-                  restaurant.categories?.slice(0, 3).join(', '),
-                ].filter(Boolean).join(' · ')}
-              </div>
-            )}
-            {status.label && (
-              <span
-                className={`${styles.statusPill} ${
-                  status.isOpen ? styles.statusPillOpen : styles.statusPillClosed
-                }`}
-              >
-                {status.label}
-              </span>
-            )}
-            {restaurant.shortDescription && (
-              <p className={styles.detailDescription}>{restaurant.shortDescription}</p>
-            )}
-            <div className={styles.inlineLinks}>
-              {restaurant.mapsUrl && (
-                <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer" className={styles.inlineLink}>
-                  <PinIcon /> {t('map.googleMaps')}
-                </a>
-              )}
-              {restaurant.website && (
-                <a href={restaurant.website} target="_blank" rel="noopener noreferrer" className={styles.inlineLink}>
-                  <GlobeIcon /> {t('map.website')}
-                </a>
-              )}
-              {restaurant.reservationUrl && (
-                <a href={restaurant.reservationUrl} target="_blank" rel="noopener noreferrer" className={styles.inlineLink}>
-                  <CalendarIcon /> {t('map.reserve')}
-                </a>
-              )}
-              <button type="button" className={styles.inlineLink} onClick={handleShare}>
-                <ShareIcon /> {t('map.share')}
-              </button>
-            </div>
-          </div>
-          <div className={styles.detailScroll}>{sections}</div>
-        </div>
-      </div>
-    )
-  }
-
-  // Desktop floating overlay — "Magazine" layout: 56/44 split, name overlaid
-  // on the photo (bottom-left, dark gradient), meta + status + description +
-  // inline links + sections all in the right column. Same design language as
-  // the mobile sheet (status pill, inline links, no button row).
-  const priceCatText = [
-    restaurant.price,
-    restaurant.categories?.slice(0, 3).join(' · '),
-  ].filter(Boolean).join(' · ')
+  // Strip protocol + trailing slash for display so the URL reads as
+  // "www.example.com" instead of the noisy full canonical form.
+  const prettyWebsite = restaurant.website
+    ? restaurant.website.replace(/^https?:\/\//, '').replace(/\/$/, '')
+    : null
 
   return (
-    <div className={`${styles.detail} ${styles.detailMagazine}`} role="dialog" aria-label={restaurant.name}>
-      <button
-        type="button"
-        className={styles.detailClose}
-        aria-label="Close"
-        onClick={onClose}
-      >
-        ×
-      </button>
-
-      <div
-        className={styles.detailLeft}
-        style={restaurant.photo ? ({ ['--hero-image' as string]: `url("${restaurant.photo}")` }) : undefined}
-        aria-label={restaurant.name}
-      >
-        {!restaurant.photo && (
-          <div className={styles.detailHeroPlaceholder} aria-hidden="true">🍽</div>
-        )}
-        {onToggleFavorite && (
+    <div className={styles.detailInSheet} role="dialog" aria-label={restaurant.name}>
+      <div className={styles.detailInSheetScroll} data-detail-scroll>
+        {/* Desktop sidebar — full-bleed photo at top with close X overlay,
+            unchanged from the previous design the user liked. Hidden on
+            mobile via CSS; mobile renders an inline magazine-style figure
+            inside the body further down. */}
+        <div className={styles.detailHeroTop}>
+          {restaurant.photo ? (
+            <img src={restaurant.photo} alt={restaurant.name} className={styles.detailHero} />
+          ) : (
+            <div className={styles.detailHeroPlaceholder} aria-hidden="true">🍽</div>
+          )}
+          {restaurant.photo && (
+            <span className={styles.detailHeroCredit} aria-label="Photo credit">via Instagram</span>
+          )}
           <button
             type="button"
-            className={`${styles.detailFavBtn} ${isFavorite ? styles.detailFavBtnActive : ''}`}
-            aria-label={isFavorite ? 'Remove from saved' : 'Save restaurant'}
-            aria-pressed={!!isFavorite}
-            onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
+            className={styles.detailHeroClose}
+            aria-label="Close"
+            onClick={onClose}
           >
-            <svg viewBox="0 0 24 24" fill={isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
+            <CloseIcon />
           </button>
-        )}
-        <div className={styles.detailHeroOverlay}>
-          <h3 className={styles.detailHeroName}>{restaurant.name}</h3>
         </div>
-      </div>
 
-      <div className={styles.detailRight}>
-        {(district || priceCatText) && (
-          <div className={styles.detailDesktopMeta}>
-            {district && <div className={styles.detailDesktopMetaTop}>{district}</div>}
-            {priceCatText && <div className={styles.detailDesktopMetaBottom}>{priceCatText}</div>}
+        <div className={styles.detailBody}>
+          <header className={styles.detailHeader}>
+            <h3 className={styles.detailName}>{restaurant.name}</h3>
+            {(district || status.label) && (
+              <div className={styles.detailMetaRow}>
+                {district && <span className={styles.detailDistrict}>{district}</span>}
+                {status.label && (
+                  <span
+                    className={`${styles.statusPill} ${
+                      status.isOpen ? styles.statusPillOpen : styles.statusPillClosed
+                    }`}
+                  >
+                    {status.label}
+                  </span>
+                )}
+              </div>
+            )}
+            {(restaurant.price || (restaurant.categories?.length ?? 0) > 0) && (
+              <div className={styles.detailChipsRow}>
+                {restaurant.price && (
+                  <span className={`${styles.detailChip} ${styles.detailChipPrice}`}>{restaurant.price}</span>
+                )}
+                {restaurant.categories?.slice(0, 3).map(c => (
+                  <span key={c} className={styles.detailChip}>{c}</span>
+                ))}
+              </div>
+            )}
+          </header>
+
+          {/* Action links — sit directly under the header so the primary CTAs
+              are reachable at the mid snap, before the body prose begins. */}
+          <div className={styles.detailLinks}>
+            {restaurant.reservationUrl && (
+              <a
+                href={restaurant.reservationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${styles.detailLink} ${styles.detailLinkPrimary}`}
+              >
+                {t('map.reserve')}
+              </a>
+            )}
+            {onToggleFavorite && (
+              <button
+                type="button"
+                className={`${styles.detailLink} ${isFavorite ? styles.detailLinkSaved : ''}`}
+                aria-label={isFavorite ? 'Remove from saved' : 'Save restaurant'}
+                aria-pressed={!!isFavorite}
+                onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
+              >
+                <HeartIcon filled={!!isFavorite} />
+                {t('map.save')}
+              </button>
+            )}
+            {restaurant.website && (
+              <a
+                href={restaurant.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.detailLink}
+              >
+                {t('map.website')}
+              </a>
+            )}
+            {restaurant.mapsUrl && (
+              <a
+                href={restaurant.mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${styles.detailLink} ${styles.detailLinkGoogle}`}
+              >
+                <GoogleLogo />
+                {t('map.googleMaps')}
+              </a>
+            )}
+            <button type="button" className={styles.detailLink} onClick={handleShare}>
+              <ShareIcon />
+              {t('map.share')}
+            </button>
           </div>
-        )}
-          {status.label && (
-            <span
-              className={`${styles.statusPill} ${
-                status.isOpen ? styles.statusPillOpen : styles.statusPillClosed
-              }`}
+
+          {/* Mobile photo — magazine-style inline image. Full-bleed past the
+              body padding (negative horizontal margin), square corners, no
+              shadow. Caption sits below as a small italic credit line.
+              Hidden on desktop where the top hero takes over. */}
+          {restaurant.photo ? (
+            <figure className={styles.detailHeroInline}>
+              <img src={restaurant.photo} alt={restaurant.name} className={styles.detailHero} />
+              <figcaption className={styles.detailHeroCaption}>via Instagram</figcaption>
+            </figure>
+          ) : (
+            <div
+              className={`${styles.detailHeroInline} ${styles.detailHeroInlineEmpty}`}
+              aria-hidden="true"
             >
-              {status.label}
-            </span>
+              🍽
+            </div>
           )}
+
           {restaurant.shortDescription && (
             <p className={styles.detailDescription}>{restaurant.shortDescription}</p>
           )}
-          <div className={styles.inlineLinks}>
-            {restaurant.mapsUrl && (
-              <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer" className={styles.inlineLink}>
-                <PinIcon /> {t('map.googleMaps')}
+
+          {restaurant.tip && (
+            <div className={styles.detailTipBlock}>
+              <strong>{t('map.insiderTip')}: </strong>
+              {restaurant.tip}
+            </div>
+          )}
+
+          {restaurant.website && prettyWebsite && (
+            <section className={styles.detailSection}>
+              <h4 className={styles.detailSectionTitle}>{t('map.website')}</h4>
+              <a
+                href={restaurant.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.detailWebsiteLink}
+              >
+                {prettyWebsite}
               </a>
-            )}
-            {restaurant.website && (
-              <a href={restaurant.website} target="_blank" rel="noopener noreferrer" className={styles.inlineLink}>
-                <GlobeIcon /> {t('map.website')}
+            </section>
+          )}
+
+          {restaurant.address && addressMapsHref && (
+            <section className={styles.detailSection}>
+              <h4 className={styles.detailSectionTitle}>{t('map.address')}</h4>
+              <a
+                href={addressMapsHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.detailAddress}
+              >
+                {restaurant.address}
               </a>
-            )}
-            {restaurant.reservationUrl && (
-              <a href={restaurant.reservationUrl} target="_blank" rel="noopener noreferrer" className={styles.inlineLink}>
-                <CalendarIcon /> {t('map.reserve')}
-              </a>
-            )}
-            <button type="button" className={styles.inlineLink} onClick={handleShare}>
-              <ShareIcon /> {t('map.share')}
-            </button>
-          </div>
-        <div className={styles.detailScroll}>{sections}</div>
+            </section>
+          )}
+
+          {restaurant.openingHours && restaurant.openingHours.length > 0 && (
+            <section className={styles.detailSection}>
+              <h4 className={styles.detailSectionTitle}>{t('map.openingHours')}</h4>
+              <ul className={styles.hoursList}>
+                {restaurant.openingHours.map((slot, i) => (
+                  <li key={i} className={styles.hoursRow}>
+                    <span className={styles.hoursDay}>{slot.days}</span>
+                    <span className={styles.hoursTime}>{slot.hours}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {mustEats.length > 0 && (
+            <section className={styles.detailSection}>
+              <h4 className={styles.detailSectionTitle}>{t('map.mustEatsCount')} ({mustEats.length})</h4>
+              <div className={styles.mustGrid}>
+                {mustEats.map(m => (
+                  <MustEatMiniCard
+                    key={m._id}
+                    mustEat={m}
+                    unlocked={unlockedIds.has(m._id)}
+                    onClick={() => onMustEatClick(m)}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
       </div>
     </div>
   )

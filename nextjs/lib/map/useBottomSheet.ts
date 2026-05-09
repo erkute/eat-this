@@ -34,7 +34,11 @@ function isMobile(): boolean {
 
 interface SheetConfig {
   maxSnap: SheetSnap | null  // cap drag; null = allow full
-  locked: boolean            // disable all drag + hide handle
+  // 'all'        — handle + content + header drags active (list view)
+  // 'handleOnly' — only the grab handle drags; content/header skip (detail
+  //                view, where useMapSheetSwipeClose owns the body gesture)
+  // 'none'       — disable all drag + hide handle
+  dragMode: 'all' | 'handleOnly' | 'none'
 }
 
 export function useBottomSheet(initial: SheetSnap = 'peek') {
@@ -71,7 +75,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   }, [])
   const dragRef    = useRef<{ startY: number; basePx: number; pointerId: number } | null>(null)
   const snapRef    = useRef<SheetSnap>(initial)
-  const configRef  = useRef<SheetConfig>({ maxSnap: null, locked: false })
+  const configRef  = useRef<SheetConfig>({ maxSnap: null, dragMode: 'all' })
   snapRef.current = snap
 
   const configure = useCallback((cfg: Partial<SheetConfig>) => {
@@ -196,7 +200,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     if (!handle || !sheet) return
 
     const onDown = (e: PointerEvent) => {
-      if (!isMobile() || configRef.current.locked) return
+      if (!isMobile() || configRef.current.dragMode === 'none') return
       const h = sheet.getBoundingClientRect().height
       // Read actual CSS position so custom content-fit snap is the drag baseline.
       const cssY = sheet.style.getPropertyValue('--sheet-y')
@@ -269,11 +273,10 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     } | null = null
 
     const onTouchStart = (e: TouchEvent) => {
-      // Skip when the sheet is locked (= detail mode in MapSection). The
-      // detail view has its own swipe-down-to-close handler bound to the
-      // sheet element; running both handlers on the same gesture made them
-      // fight and left the sheet stuck near the bottom on Chrome mobile.
-      if (configRef.current.locked) return
+      // Skip in detail mode — the detail view has its own swipe-down-to-close
+      // handler bound to the sheet element; running both on the same gesture
+      // made them fight. Detail relies on the visible handle for up-drag.
+      if (configRef.current.dragMode !== 'all') return
       if (e.touches.length !== 1) return
       const h = sheet.getBoundingClientRect().height
       touchState = {
@@ -342,7 +345,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     const sheet = sheetNode.current
     if (!header || !sheet) return
     if (!isMobile()) return
-    if (configRef.current.locked) return
+    if (configRef.current.dragMode !== 'all') return
 
     let touchState: {
       startY: number
@@ -351,7 +354,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     } | null = null
 
     const onTouchStart = (e: TouchEvent) => {
-      if (configRef.current.locked) return
+      if (configRef.current.dragMode !== 'all') return
       if (e.touches.length !== 1) return
       const h = sheet.getBoundingClientRect().height
       touchState = {
@@ -409,20 +412,6 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   const collapse = useCallback(() => setSnap('peek'), [])
   const expand   = useCallback(() => setSnap('mid'),  [])
 
-  // Snap the sheet to exactly fit `visiblePx` of content. Bypasses the three
-  // fixed snap points so the sheet hugs the detail content height precisely.
-  // Does NOT call setSnap — applyY drives CSS directly, snapRef tracks position
-  // for drag gestures. The sync useEffect won't override because snap state
-  // hasn't changed.
-  const snapToVisiblePx = useCallback((visiblePx: number) => {
-    const el = sheetNode.current
-    if (!el || !isMobile()) return
-    const h = el.getBoundingClientRect().height
-    const targetY = Math.max(FULL_TOP_PX, Math.min(h - PEEK_VISIBLE_PX, h - visiblePx))
-    applyY(targetY)
-    snapRef.current = pxToNearestSnap(targetY, h)
-  }, [applyY])
-
   // Force CSS back to a specific snap immediately — handles the case where
   // setSnap(s) is a no-op because s equals the current snap state.
   const reapplySnap = useCallback((target: SheetSnap) => {
@@ -442,6 +431,6 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     setContentRef,
     /** Callback ref for the list-header drag zone (counts/buttons/tabs). */
     setHeaderRef,
-    snap, setSnap, dragging, collapse, expand, snapToVisiblePx, reapplySnap, configure,
+    snap, setSnap, dragging, collapse, expand, reapplySnap, configure,
   }
 }

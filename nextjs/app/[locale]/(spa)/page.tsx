@@ -89,9 +89,9 @@ export default async function SPAHomePage({
           <Ticker />
           <AboutFanRow />
           <USPs />
+          <MapTeaser />
           <MemoryGame />
           <Selection />
-          <MapTeaser />
           <BoosterPack />
           <Coming />
           <LandingFAQ />

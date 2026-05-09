@@ -50,6 +50,11 @@ export function useMapSheetSwipeClose({
 
     const onStart = (e: TouchEvent) => {
       if (e.touches.length !== 1) return
+      // Defer to the bottom-sheet's handle drag when the gesture starts on
+      // the grab handle — both handlers would otherwise drive --sheet-y on
+      // the same gesture and fight each other on Chrome mobile.
+      const target = e.target as Element | null
+      if (target?.closest('[data-sheet-handle]')) return
       const sheetRect = sheet.getBoundingClientRect()
       const offset = e.touches[0].clientY - sheetRect.top
       // Only initiate from the hero region (avoids fighting body scrolls).

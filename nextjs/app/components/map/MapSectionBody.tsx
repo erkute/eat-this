@@ -83,6 +83,9 @@ export interface MapSectionBodyProps {
   onBezirkChange: (name: string | null) => void
   onResetBezirkPill: () => void
   onToggleFavorite: () => void
+  onCollapseDetailToMid: () => void
+  desktopPanelHidden: boolean
+  onToggleDesktopPanel: () => void
 
   // Aria copy (host-locale aware)
   myLocationAriaLabel: string
@@ -105,6 +108,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     onRestaurantClose, onMustEatClose, onMustEatBack, onBackToRestaurants,
     onViewRestaurantFromMustEat, onShowMustEatList, onUnlock,
     onSearchChange, onBezirkChange, onResetBezirkPill, onToggleFavorite,
+    onCollapseDetailToMid,
+    desktopPanelHidden, onToggleDesktopPanel,
     myLocationAriaLabel, restaurantsListAriaLabel, mustEatsListAriaLabel,
   } = props
 
@@ -115,7 +120,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     >
       <div className={styles.shell}>
 
-        <div className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}${sheetView === 'list' && snap === 'full' ? ` ${styles.bodyListAtFull}` : ''}`}>
+        <div className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}${sheetView === 'list' && snap === 'full' ? ` ${styles.bodyListAtFull}` : ''}${desktopPanelHidden ? ` ${styles.bodyPanelHidden}` : ''}`}>
           <div className={styles.mapWrap}>
             <MapCanvas ref={mapRef} onMove={onMapMove} onMapClick={onMapClick}>
               {layer === 'restaurants' && displayedRestaurants.map(r => (
@@ -174,9 +179,24 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             className={`${styles.list} ${dragging ? styles.listDragging : ''}${
               sheetView === 'list' && snap === 'peek' ? ` ${styles.listAtPeek}` : ''
             }`}
+            data-snap={snap}
+            data-view={sheetView}
             aria-label={layer === 'restaurants' ? restaurantsListAriaLabel : mustEatsListAriaLabel}
           >
-            <div ref={handleRef} className={`${styles.handle}${sheetView === 'detail' ? ` ${styles.handleHidden}` : ''}`} aria-hidden="true" />
+            <div ref={handleRef} className={styles.handle} data-sheet-handle="" aria-hidden="true" />
+
+            {sheetView === 'detail' && snap === 'full' && (
+              <button
+                type="button"
+                className={styles.detailCollapseBtn}
+                aria-label="Show map"
+                onClick={onCollapseDetailToMid}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+            )}
 
             {sheetView === 'detail' && selectedMustEat ? (
               <MapSheetDetail
@@ -252,6 +272,23 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               />
             )}
           </aside>
+
+          {/* Desktop-only toggle to slide the side panel off to the right
+              (Google-Maps-style). Mobile gets the chevron-collapse button
+              inside the sheet handle area instead. Icon flips based on
+              current state — points right when shown (= "hide"), left
+              when hidden (= "show"). */}
+          <button
+            type="button"
+            className={styles.panelToggle}
+            aria-label={desktopPanelHidden ? 'Show panel' : 'Hide panel'}
+            aria-pressed={desktopPanelHidden}
+            onClick={onToggleDesktopPanel}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <polyline points={desktopPanelHidden ? '15 6 9 12 15 18' : '9 6 15 12 9 18'} />
+            </svg>
+          </button>
         </div>
       </div>
     </div>

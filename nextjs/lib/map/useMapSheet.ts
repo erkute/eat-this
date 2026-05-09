@@ -31,11 +31,13 @@ export function useMapSheet() {
     sheetRef(el)
   }, [sheetRef])
 
-  // Lock drag in detail view (no handle, no swipe-up to full); unlock for list.
+  // Detail view keeps the grab-handle drag active so users can pull the sheet
+  // up to full like Google Maps; content/header drag is suppressed because
+  // useMapSheetSwipeClose owns the body gesture (swipe-down hero → close).
   useEffect(() => {
     configure(sheetView === 'detail'
-      ? { maxSnap: null, locked: true }
-      : { maxSnap: null, locked: false }
+      ? { maxSnap: null, dragMode: 'handleOnly' }
+      : { maxSnap: null, dragMode: 'all' }
     )
   }, [sheetView, configure])
 

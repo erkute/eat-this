@@ -88,12 +88,9 @@ export function getOpenStatus(
     if (!isOvernight) {
       if (days.includes(today) && currentMin >= range.open && currentMin < range.close) {
         const left = range.close - currentMin
-        const h    = Math.floor(left / 60)
         return {
           isOpen: true,
-          label:  h > 0
-            ? `${L.open} · ${L.closes} ${fmt(range.close)} (${h}${L.unitH})`
-            : `${L.open} · ${L.closes} ${fmt(range.close)}`,
+          label: `${L.open} · ${L.closes} ${fmt(range.close)}`,
           minutesUntilChange: left,
         }
       }
@@ -101,24 +98,18 @@ export function getOpenStatus(
       // Late-evening half: started today, runs past midnight.
       if (days.includes(today) && currentMin >= range.open) {
         const left = (24 * 60 - currentMin) + range.close
-        const h    = Math.floor(left / 60)
         return {
           isOpen: true,
-          label:  h > 0
-            ? `${L.open} · ${L.closes} ${fmt(range.close)} (${h}${L.unitH})`
-            : `${L.open} · ${L.closes} ${fmt(range.close)}`,
+          label: `${L.open} · ${L.closes} ${fmt(range.close)}`,
           minutesUntilChange: left,
         }
       }
       // Early-morning half: opened yesterday, still running today.
       if (days.includes(yesterday) && currentMin < range.close) {
         const left = range.close - currentMin
-        const h    = Math.floor(left / 60)
         return {
           isOpen: true,
-          label:  h > 0
-            ? `${L.open} · ${L.closes} ${fmt(range.close)} (${h}${L.unitH})`
-            : `${L.open} · ${L.closes} ${fmt(range.close)}`,
+          label: `${L.open} · ${L.closes} ${fmt(range.close)}`,
           minutesUntilChange: left,
         }
       }
@@ -145,14 +136,10 @@ export function getOpenStatus(
   }
 
   const minutesUntil = next.dayOffset * 24 * 60 + next.openMin - currentMin
-  const h = Math.floor(minutesUntil / 60)
-  const when = h > 0
-    ? `${L.opens} ${fmt(next.openMin)} (in ${h}${L.unitH})`
-    : `${L.opens} ${fmt(next.openMin)} (in ${minutesUntil}${L.unitMin})`
 
   return {
     isOpen: false,
-    label: `${L.closed} · ${when}`,
+    label: `${L.closed} · ${L.opens} ${fmt(next.openMin)}`,
     minutesUntilChange: minutesUntil,
   }
 }

@@ -733,6 +733,60 @@ html[data-theme="dark"] .chipActive {
 @media (min-width: 1024px) {
   .body {
     grid-template-columns: minmax(0, 1fr) 420px;
+    transition: grid-template-columns 0.3s ease;
+  }
+  .bodyPanelHidden {
+    grid-template-columns: minmax(0, 1fr) 0px;
+  }
+  .bodyPanelHidden .list {
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  }
+}
+
+/* Desktop panel toggle — Google-Maps-style "drawer tab". Sits in the map
+   area with a small gap from the list, flat side facing the list, rounded
+   corners only on the outer (map-facing) side. Click slides the panel
+   off-screen to the right (and back in). Mobile-hidden. */
+.panelToggle {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .panelToggle {
+    display: grid;
+    place-items: center;
+    position: absolute;
+    top: 50%;
+    right: 420px;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 50px;
+    padding: 0;
+    border: 1px solid var(--border-subtle);
+    /* Folder-register tab — rounded only on the outer (map-facing) side;
+       the side near the list stays flat as if cut from a binder. */
+    border-radius: 12px 0 0 12px;
+    background: var(--surface-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    box-shadow:
+      0 1px 2px rgba(17, 24, 39, 0.05),
+      -3px 3px 10px rgba(17, 24, 39, 0.08);
+    z-index: 6;
+    -webkit-tap-highlight-color: transparent;
+    appearance: none;
+    transition: right 0.3s ease, background 0.15s, color 0.15s;
+  }
+  .panelToggle svg { width: 16px; height: 16px; }
+  .panelToggle:hover {
+    background: var(--surface-raised);
+    color: var(--text-primary);
+  }
+  /* When panel is hidden, the tab rides with the panel edge — sits at the
+     viewport's right edge with a small gap so the rounded corner is still
+     visible. */
+  .bodyPanelHidden .panelToggle {
+    right: 0;
   }
 }
 
@@ -1052,8 +1106,23 @@ html[data-theme="dark"] .fab {
   border-radius: 3px;
   background: var(--border-strong);
 }
-.handleHidden {
+/* At the full snap in detail mode, the chevron-down on the left already
+   communicates "tap to make smaller" — the horizontal pip is redundant
+   visual noise, so hide it. Drag still works on the (now invisible) handle. */
+.list[data-view="detail"][data-snap="full"] .handle::before {
   display: none;
+}
+/* At full snap, shrink the handle's vertical chrome so the content (header
+   in detail / count-row + tabs in list) sits closer to the top of the
+   viewport. The chevron-down (overlay, position: absolute) is unaffected. */
+@media (max-width: 1023.98px) {
+  .list[data-snap="full"] .handle {
+    min-height: 36px;
+    padding: 8px 0 8px;
+  }
+  .list[data-view="detail"][data-snap="full"] .detailBody {
+    padding-top: 20px;
+  }
 }
 @media (min-width: 1024px) {
   .handle { display: none; }
@@ -2894,7 +2963,11 @@ html[data-theme="dark"] .selectActive {
   padding: 12px 14px !important;
 }
 
-/* ── In-sheet detail: fresh flat layout ── */
+/* ── In-sheet detail: magazine-style hero + scrollable body ──
+   The sheet snaps peek/mid/full like the list. At mid the hero, name, status
+   and action row fit above the fold; pulling the handle up reveals the full
+   scrollable body (description, tip, address, hours, must-eats). Hero keeps
+   its real 4/3 aspect — no max-height clamp, no auto-shrink. */
 .detailInSheet {
   display: flex;
   flex-direction: column;
@@ -2905,70 +2978,9 @@ html[data-theme="dark"] .selectActive {
   min-height: 0;
   animation: detailIn 0.18s ease;
 }
-/* Wider hero in sheet — capped tightly so the rest of the detail
-   (info + opening hours + tip + must-eats grid) fits without scroll. */
-.detailInSheet .detailHeroWrap {
-  max-height: 28dvh;
-  overflow: hidden;
-}
-.detailInSheet .detailHero,
-.detailInSheet .detailHeroPlaceholder {
-  aspect-ratio: 4/3;
-  max-height: 28dvh;
-  width: 100%;
-}
-/* Desktop sidebar is narrower (420 px) than mobile, so a 4/3 hero is 315 px
-   tall — combined with the rest of the detail body that pushes total content
-   over 800 px. Tighten everything on desktop so the full detail fits in one
-   viewport without internal scrolling. */
-@media (min-width: 1024px) {
-  .detailInSheet .detailHeroWrap {
-    max-height: 36dvh;
-  }
-  .detailInSheet .detailHero,
-  .detailInSheet .detailHeroPlaceholder {
-    aspect-ratio: 2/1;
-    max-height: 36dvh;
-  }
-  .detailInSheet .detailLeftInfo {
-    padding: 12px 16px 0;
-    gap: 6px;
-  }
-  .detailInSheet .detailName {
-    font-size: 20px;
-  }
-  /* Compact section gaps inside the sidebar detail */
-  .detailInSheet .detailScroll {
-    gap: 4px;
-  }
-  .detailInSheet .sectionLabel {
-    margin-top: 8px;
-  }
-}
-/* Bigger name */
-.detailInSheet .detailName {
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
-}
-.detailInSheet .detailLeftInfo {
-  padding: 12px 18px 2px;
-  gap: 6px;
-}
-/* Remove excess right-panel padding — children own their spacing */
-.detailInSheet .detailRight {
-  flex: 1;
-  min-height: 0;
-  padding: 0 16px;
-  gap: 0;
-  border-top: 0;
-}
-/* Hide desktop-only description block */
-.detailInSheet .detailRightHead { display: none; }
 
-/* Restaurant detail in-sheet: own scroll + sticky footer.
-   Mounted via .detailMount in MapSection (overflow:hidden flex column). */
+/* Restaurant detail in-sheet: own scroll. Mounted via .detailMount in
+   MapSectionBody (overflow:hidden flex column). */
 .detailMount {
   flex: 1;
   min-height: 0;
@@ -2980,13 +2992,19 @@ html[data-theme="dark"] .selectActive {
   touch-action: pan-y;
   overscroll-behavior: contain;
 }
-/* In-sheet detail nested .detailScroll should NOT flex-grow or own its own
-   scroll — otherwise it inflates the parent's scrollHeight (auto-size sees
-   that and renders an oversized sheet for restaurants with little content).
-   The outer .detailInSheetScroll handles scrolling for the whole detail. */
-.detailInSheet .detailScroll {
-  flex: 0 0 auto;
-  overflow: visible;
+/* Cap the mount to the *visible* sheet slice on mobile so the inner
+   scroller's height matches what the user can actually see. Without this
+   the aside extends past the viewport (its height is the full body grid
+   cell, only translated down), and the scroller — a flex:1 child — uses
+   that full height as its scroll-port. Result: max scrollTop equals
+   (content - full-aside-height) which lets the user only reach a fraction
+   of the body at mid-snap. Capping at --sheet-visible-px makes the
+   scroll-port equal to the visible slice, so the user can read everything
+   at any snap. */
+@media (max-width: 1023.98px) {
+  .detailMount {
+    max-height: calc(var(--sheet-visible-px, 100dvh) - 40px);
+  }
 }
 .detailInSheetScroll {
   flex: 1;
@@ -2994,13 +3012,346 @@ html[data-theme="dark"] .selectActive {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  padding: 0 0 4px;
+  padding: 0 0 24px;
   overscroll-behavior: contain;
   touch-action: pan-y;
 }
 .detailInSheetScroll::-webkit-scrollbar { width: 0; }
-.detailInSheetScroll > .detailScroll {
-  padding: 0 18px 4px;
+
+/* Body container — magazine rhythm with generous gaps between sections. */
+.detailBody {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 22px 20px 8px;
+}
+@media (min-width: 1024px) {
+  .detailBody { padding: 22px 22px 8px; }
+}
+/* ── Header: name + meta below the full-bleed hero photo ── */
+.detailHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.detailInSheet .detailName {
+  font-size: clamp(1.5rem, 5.5vw, 1.875rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.detailMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.detailInSheet .detailDistrict {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin: 0;
+}
+/* Free-standing meta line — price + categories as flat text separated by
+   a thin middle dot. No pills, no borders, no backgrounds — reads like a
+   magazine subtitle. */
+.detailChipsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+.detailChip {
+  display: inline;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: var(--text-secondary);
+  font-weight: 500;
+  letter-spacing: 0;
+  white-space: normal;
+}
+.detailChipPrice {
+  color: var(--accent);
+  background: transparent;
+  border: 0;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.detailChip + .detailChip::before {
+  content: " · ";
+  color: var(--text-muted);
+  white-space: pre;
+}
+
+/* Image element shared by both viewports. The aspect-ratio is set by the
+   parent (.detailHeroTop or .detailHeroInline) so each viewport gets its
+   own framing. */
+.detailInSheet .detailHero {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  object-fit: cover;
+  background: var(--surface-bg);
+}
+
+/* ── Desktop: full-bleed top hero with close X + credit pill (the layout
+   the user liked before). Hidden on mobile — mobile uses the inline
+   magazine figure inside the body further down. */
+.detailHeroTop { display: none; }
+.detailHeroPlaceholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  color: var(--text-muted);
+  font-size: 32px;
+  background: linear-gradient(135deg, var(--surface-bg), var(--surface-raised));
+}
+@media (min-width: 1024px) {
+  .detailHeroTop {
+    display: block;
+    position: relative;
+    width: 100%;
+    flex-shrink: 0;
+  }
+  .detailHeroTop .detailHero,
+  .detailHeroTop .detailHeroPlaceholder {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+/* ── Mobile: magazine-style inline photo. Full-bleed past the body padding
+   (negative horizontal margin), square corners, no shadow. Caption sits
+   beneath as a small italic credit line. Hidden on desktop. */
+.detailHeroInline {
+  position: relative;
+  width: auto;
+  margin: 0 -20px;
+}
+.detailHeroInline .detailHero,
+.detailHeroInline .detailHeroPlaceholder {
+  aspect-ratio: 4 / 3;
+}
+.detailHeroInlineEmpty {
+  font-size: 32px;
+  color: var(--text-muted);
+  background: linear-gradient(135deg, var(--surface-bg), var(--surface-raised));
+  aspect-ratio: 4 / 3;
+  display: grid;
+  place-items: center;
+}
+.detailHeroCaption {
+  display: block;
+  margin: 6px 20px 0 0;
+  font-size: 0.6875rem;
+  font-style: italic;
+  color: var(--text-muted);
+  text-align: right;
+}
+@media (min-width: 1024px) {
+  .detailHeroInline { display: none; }
+}
+
+/* Website link — magazine treatment, URL spelled out so the user sees where
+   they're going before tapping. */
+.detailWebsiteLink {
+  display: block;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--accent);
+  text-decoration: none;
+  word-break: break-all;
+  transition: filter 0.15s;
+}
+.detailWebsiteLink:hover { filter: brightness(0.85); }
+
+/* ── Magazine body — generous rhythm, prose-style description, restrained
+   action links at the bottom (mirrors the restaurant detail page). */
+.detailInSheet .detailDescription {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin: 0;
+}
+@media (min-width: 1024px) {
+  .detailInSheet .detailDescription { font-size: 1rem; }
+}
+
+/* Insider tip — accent-orange left border (matches restaurant page .tip) */
+.detailTipBlock {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  background: var(--surface-bg);
+  border-left: 3px solid var(--accent);
+  padding: 12px 16px;
+  margin: 0;
+}
+.detailTipBlock strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* Magazine section: small uppercase title + content. Replaces the older
+   icon-prefixed facts panel. */
+.detailSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.detailSectionTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin: 0;
+}
+.detailAddress {
+  display: block;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.detailAddress:hover { color: var(--accent); }
+.detailInSheet .hoursList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.detailInSheet .hoursRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9375rem;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+.detailInSheet .hoursRow:last-child { border-bottom: 0; }
+.detailInSheet .hoursDay { font-weight: 500; color: var(--text-primary); }
+.detailInSheet .hoursTime { font-variant-numeric: tabular-nums; }
+
+/* ── Action links: outlined "magazine" buttons in a 3-col grid. Reservieren
+   is the only filled primary; rest stay subtle so content reads as the focus.
+   Uses the same vocabulary as .link on the restaurant detail page so the
+   in-map detail and the standalone page feel like the same product. */
+.detailLinks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 0;
+}
+/* Apple-Maps-style compact pills — smaller padding, lighter border, no
+   bold-shouting weight. Leaves room for the body content to lead. */
+.detailLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 7px 8px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  cursor: pointer;
+  appearance: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.detailLinkIcon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.detailLink:hover {
+  background: var(--surface-card);
+  border-color: var(--border-strong);
+}
+.detailLink:active { transform: scale(0.96); }
+
+/* Primary "Reservieren" CTA — filled brand red, spans the full row */
+.detailLinkPrimary {
+  background: var(--cta-red, var(--accent));
+  border-color: var(--cta-red, var(--accent));
+  color: #fff;
+  grid-column: 1 / -1;
+}
+.detailLinkPrimary:hover {
+  background: var(--cta-red, var(--accent));
+  border-color: var(--cta-red, var(--accent));
+  color: #fff;
+  filter: brightness(0.92);
+}
+
+/* Saved state — heart-filled, accent-orange */
+.detailLinkSaved {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.detailLinkSaved:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  filter: brightness(0.94);
+}
+
+/* Google-branded "Google Maps" link — white surface + multi-color G logo,
+   matches the look of Google's own sign-in / brand buttons. Even in dark
+   mode the surface stays white because the brand mark is colored. */
+.detailLinkGoogle {
+  background: #ffffff;
+  border-color: #dadce0;
+  color: #1f1f1f;
+}
+.detailLinkGoogle:hover {
+  background: #f8f9fa;
+  border-color: #d2d4d7;
+  color: #1f1f1f;
+}
+.detailLinkGoogleLogo {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+/* Photo credit pill — bottom-right of the hero card, restaurant-page vocabulary */
+.detailHeroCredit {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  border-radius: 3px;
+  pointer-events: none;
+  z-index: 2;
 }
 
 /* Glass close X — sits on the hero photo, top-right (in-sheet) */
@@ -3032,6 +3383,57 @@ html[data-theme="dark"] .detailHeroClose {
   background: rgba(30, 30, 30, 0.62);
   border-color: rgba(255, 255, 255, 0.16);
   color: #fff;
+}
+
+/* Desktop-only override on the restaurant-detail hero — close X should be
+   smaller and less prominent than the mobile must-eat detail's close X.
+   Lives only inside .detailHeroTop (which is desktop-only via display rule). */
+.detailHeroTop .detailHeroClose {
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.08);
+}
+.detailHeroTop .detailHeroClose svg { width: 13px; height: 13px; }
+html[data-theme="dark"] .detailHeroTop .detailHeroClose {
+  background: rgba(30, 30, 30, 0.55);
+}
+
+/* Chevron-down indicator — replaces the handle pip when the detail sheet
+   is at full snap. Tap collapses to mid so the user sees name + category +
+   actions next to the map again. Sits in the handle area, NOT on the photo
+   (the photo card stays free of overlays — Google Maps pattern). */
+/* Pure icon — no pill, no border, no background. Centered horizontally
+   over the handle area so it reads as the sheet's primary "swipe me down"
+   affordance. Color is text-primary so it actually pops without button
+   chrome. */
+.detailCollapseBtn {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  color: var(--border-strong);
+  cursor: pointer;
+  z-index: 5;
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+  transition: color 0.12s, transform 0.08s;
+}
+.detailCollapseBtn svg { width: 28px; height: 28px; }
+.detailCollapseBtn:hover { color: var(--text-primary); }
+.detailCollapseBtn:active { transform: translateX(-50%) scale(0.92); }
+@media (min-width: 1024px) {
+  .detailCollapseBtn { display: none; }
 }
 
 /* Back-to-restaurant button — top-left of the must-eat hero. Identical

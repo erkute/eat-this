@@ -73,9 +73,6 @@ export default function MapSection({ isActive = false }: Props) {
   const [mapZoom,            setMapZoom]            = useState(12)
   const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
   const [selectedMustEat,    setSelectedMustEat]    = useState<MapMustEat | null>(null)
-  // Tracks the restaurant we navigated FROM when entering a must-eat detail,
-  // so the back button can return there without clearing the map state.
-  const prevRestaurantRef = useRef<MapRestaurant | null>(null)
   const [filterOpen,         setFilterOpen]         = useState(false)
   const [searchOpen,         setSearchOpen]         = useState(false)
   // Desktop-only: lets the user collapse the side panel off to the right so
@@ -197,7 +194,6 @@ export default function MapSection({ isActive = false }: Props) {
     // → switch to mustEats layer + list view, fly to the must-eat. Same flow
     // on both platforms.
     if (selectedRestaurant) {
-      prevRestaurantRef.current = selectedRestaurant
       setLayer('mustEats')
       setSelectedRestaurant(null)
       setSelectedMustEat(m)
@@ -272,7 +268,6 @@ export default function MapSection({ isActive = false }: Props) {
     if (!selectedMustEat) return
     const restaurant = restaurants.find(r => r._id === selectedMustEat.restaurant._id)
     if (!restaurant) return
-    prevRestaurantRef.current = null
     setSelectedMustEat(null)
     setLayer('restaurants')
     handleRestaurantClick(restaurant)
@@ -280,7 +275,6 @@ export default function MapSection({ isActive = false }: Props) {
 
   const handleMustEatClose = useCallback(() => {
     const m = selectedMustEat
-    prevRestaurantRef.current = null
     setSelectedMustEat(null)
     // If we were stacked on a restaurant detail, fall back to it instead of the list.
     if (selectedRestaurant) {

@@ -1,7 +1,9 @@
+import { getTranslations } from 'next-intl/server';
 import HeroForm from '@/app/components/landing/HeroForm';
 import landingStyles from '@/app/components/landing/landing.module.css';
 
-export default function HeroSection() {
+export default async function HeroSection() {
+  const t = await getTranslations('landing');
   return (
     <header className="hero">
       <div className="hero-overlay"></div>
@@ -18,12 +20,8 @@ export default function HeroSection() {
         <p className="hero-desktop-tagline">We tell you what to eat</p>
         {/* Desktop-only headline + signup form, overlaid on the hero image */}
         <div className={landingStyles.heroDesktopExtra}>
-          <h2 className={landingStyles.heroDesktopHeadline}>
-            Wahrscheinlich der beste Foodguide, den du kennst.
-          </h2>
-          <p className={landingStyles.heroDesktopSubtitle}>
-            Eine kuratierte Sammlung der besten Berliner Restaurants und Cafés.
-          </p>
+          <h2 className={landingStyles.heroDesktopHeadline}>{t('heroHeadline')}</h2>
+          <p className={landingStyles.heroDesktopSubtitle}>{t('heroSubtitle')}</p>
           <HeroForm />
         </div>
       </div>

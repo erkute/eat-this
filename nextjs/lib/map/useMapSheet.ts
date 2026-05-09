@@ -1,28 +1,27 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useBottomSheet } from './useBottomSheet'
 
 export type SheetView = 'list' | 'detail'
 
+const VIEW_CONFIG = {
+  detail: { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: 100 },
+  list:   { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: 68  },
+}
+
 /**
  * Owns the map-sheet state machine: combines the generic `useBottomSheet`
- * primitive with the `sheetView` ('list' vs 'detail') flag and the drag-config
- * side-effect that locks dragging while a detail is open.
+ * primitive with the `sheetView` ('list' vs 'detail') flag and per-view drag
+ * config (peek size, drag mode).
  *
- * Pairs with `useMapSheetSwipeClose` (called separately from MapSection
- * because the gesture needs selection state + close handlers that are defined
- * after `useMapSheet` returns).
- *
- * Returns the bottom-sheet primitives plus `sheetView`/`setSheetView` plus a
- * `setSheetRef` callback that captures the underlying DOM node into a local
- * ref (so the swipe-to-close hook can read `--sheet-visible-px` directly).
+ * `setSheetView` calls `configure` synchronously so callers can do
+ *   setSheetView('list'); setSnap('peek'); reapplySnap('peek')
+ * without a one-frame race where reapplySnap reads the previous view's peek
+ * size and parks the sheet at the wrong height.
  */
 export function useMapSheet() {
   const sheet = useBottomSheet('mid')
-  const [sheetView, setSheetView] = useState<SheetView>('list')
+  const [sheetView, setSheetViewState] = useState<SheetView>('list')
 
-  // Mirror the sheet element so other hooks/effects can read its current
-  // `--sheet-visible-px` (set by useBottomSheet on every applyY) for accurate
-  // flyTo padding and the swipe-to-close gesture.
   const sheetElRef = useRef<HTMLDivElement | null>(null)
   const sheetRef = sheet.sheetRef
   const configure = sheet.configure
@@ -31,15 +30,18 @@ export function useMapSheet() {
     sheetRef(el)
   }, [sheetRef])
 
-  // Detail view keeps the grab-handle drag active so users can pull the sheet
-  // up to full like Google Maps; content/header drag is suppressed because
-  // useMapSheetSwipeClose owns the body gesture (swipe-down hero → close).
-  useEffect(() => {
-    configure(sheetView === 'detail'
-      ? { maxSnap: null, dragMode: 'handleOnly' }
-      : { maxSnap: null, dragMode: 'all' }
-    )
-  }, [sheetView, configure])
+  // Initial configure on mount so the first applyY (in the sheet ref-callback)
+  // already has the right list peek size.
+  if (!sheetElRef.current) configure(VIEW_CONFIG.list)
+
+  const setSheetView = useCallback((view: SheetView) => {
+    /* Configure synchronously BEFORE the state update so any reapplySnap that
+       follows in the same handler reads this view's peek size, not the previous
+       view's. Otherwise the sheet briefly parks at the old peek height (white
+       space gap) until the next render's effect catches up. */
+    configure(VIEW_CONFIG[view])
+    setSheetViewState(view)
+  }, [configure])
 
   return {
     ...sheet,

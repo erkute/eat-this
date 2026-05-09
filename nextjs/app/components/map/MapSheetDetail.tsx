@@ -56,6 +56,7 @@ export default function MapSheetDetail(props: Props) {
           restaurant={props.restaurant}
           mustEats={props.mustEats}
           unlockedIds={props.unlockedIds}
+          userLocation={props.userLocation}
           onClose={props.onClose}
           onMustEatClick={props.onMustEatClick}
           isFavorite={props.isFavorite}

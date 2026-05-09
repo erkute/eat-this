@@ -1,7 +1,7 @@
 'use client'
 import { type Ref, type RefObject } from 'react'
 import { useTranslation } from '@/lib/i18n'
-import type { SortMode } from '@/lib/map'
+import type { SortMode, SortDir } from '@/lib/map'
 import FilterDropdown from './FilterDropdown'
 import styles from './map.module.css'
 
@@ -21,11 +21,19 @@ interface Props {
 
   sort: SortMode
   onSort: (sort: SortMode) => void
+  sortDir: SortDir
+  onToggleSortDir: () => void
   openOnly: boolean
   onOpenOnly: (next: boolean) => void
   bezirkNames: string[]
   bezirk: string | null
   onBezirk: (name: string | null) => void
+}
+
+const SORT_LABEL_KEY: Record<SortMode, string> = {
+  distance: 'map.sortDistance',
+  newest:   'map.sortNewest',
+  price:    'map.sortPrice',
 }
 
 export default function MapListHeader({
@@ -40,6 +48,8 @@ export default function MapListHeader({
   setFilterOpen,
   sort,
   onSort,
+  sortDir,
+  onToggleSortDir,
   openOnly,
   onOpenOnly,
   bezirkNames,
@@ -48,6 +58,9 @@ export default function MapListHeader({
 }: Props) {
   const { t } = useTranslation()
   const filtersActive = openOnly || !!bezirk || sort !== 'distance'
+  const sortDirAriaLabel = sortDir === 'asc'
+    ? t('map.sortDirAriaAsc')
+    : t('map.sortDirAriaDesc')
 
   return (
     // Zone B — count row + action buttons (drag handler attached, 8px threshold)
@@ -77,10 +90,36 @@ export default function MapListHeader({
         </div>
       ) : (
         <div className={styles.listHeaderRow}>
-          <span className={styles.listHeaderCount}>
-            {resultCount}{' '}
-            {resultCount === 1 ? t('map.restaurantOne') : t('map.restaurantMany')}
-          </span>
+          <div className={styles.listHeaderLeft}>
+            <span className={styles.listHeaderCount}>
+              {resultCount}{' '}
+              {resultCount === 1 ? t('map.restaurantOne') : t('map.restaurantMany')}
+            </span>
+            <button
+              type="button"
+              className={styles.sortChip}
+              onClick={onToggleSortDir}
+              aria-label={sortDirAriaLabel}
+              data-dir={sortDir}
+            >
+              <span>{t(SORT_LABEL_KEY[sort])}</span>
+              <svg
+                className={styles.sortChipArrow}
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <polyline points="6 11 12 5 18 11" />
+              </svg>
+            </button>
+          </div>
           <div className={styles.listHeaderActions}>
             <button
               type="button"

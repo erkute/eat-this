@@ -10,6 +10,8 @@ export const mapRestaurantsQuery = `
     address,
     categories,
     price,
+    priceRange,
+    phone,
     lat,
     lng,
     mapsUrl,

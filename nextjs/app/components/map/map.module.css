@@ -1075,9 +1075,15 @@ html[data-theme="dark"] .fab {
     border-top-left-radius:  min(16px, calc(var(--sheet-y, 16px) * 4));
     border-top-right-radius: min(16px, calc(var(--sheet-y, 16px) * 4));
     box-shadow: var(--shadow-lg);
-    transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1), border-radius 0.18s ease;
+    /* Snap-settle uses a soft ease-out — the curve flattens at the end so
+       the sheet glides into place instead of slamming. Drag itself runs
+       transition-none for 1:1 finger response. */
+    transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1), border-radius 0.22s ease;
     transform: translateY(var(--sheet-y, calc(100% - 68px)));
     z-index: 4;
+    /* Force the GPU layer up-front so the first drag frame doesn't paint a
+       repaint hitch — same trick the iOS bottom sheet uses. */
+    will-change: transform;
   }
   .listDragging { transition: none; }
 }
@@ -1087,13 +1093,12 @@ html[data-theme="dark"] .fab {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* Generous tap target — Apple recommends min 44 px and the previous
-     20 px area was hard to grab. Visible pip is still small (5 px tall
-     bar centred) but the touch zone is the whole 40 px strip. */
-  padding: 14px 0 12px;
-  min-height: 40px;
+  /* Tight chrome by default — extra space made the sheet look top-heavy at
+     peek/mid. At `full` we add a touch more (see below). The whole strip is
+     the touch zone, so this is still finger-friendly. */
+  padding: 9px 0 7px;
+  min-height: 24px;
   cursor: grab;
-  /* Prevent the browser from hijacking the drag as a page scroll. */
   touch-action: none;
   -ms-touch-action: none;
   -webkit-user-select: none;
@@ -1114,14 +1119,13 @@ html[data-theme="dark"] .fab {
 }
 /* At full snap, shrink the handle's vertical chrome so the content (header
    in detail / count-row + tabs in list) sits closer to the top of the
-   viewport. The chevron-down (overlay, position: absolute) is unaffected. */
+   viewport. The chevron-down (overlay, position: absolute) is unaffected.
+   The detail body padding stays the same across snaps so the gap between
+   name and meta line doesn't shift when the sheet hits full. */
 @media (max-width: 1023.98px) {
   .list[data-snap="full"] .handle {
     min-height: 36px;
     padding: 8px 0 8px;
-  }
-  .list[data-view="detail"][data-snap="full"] .detailBody {
-    padding-top: 20px;
   }
 }
 @media (min-width: 1024px) {
@@ -1370,10 +1374,10 @@ html[data-theme="dark"] .listBanner {
 /* Restaurant row */
 .row {
   display: grid;
-  grid-template-columns: 64px 1fr auto;
-  gap: 12px;
+  grid-template-columns: 80px 1fr auto;
+  gap: 14px;
   align-items: center;
-  padding: 8px 14px;
+  padding: 12px 14px;
   border-radius: 0;
   cursor: pointer;
   transition: background 0.15s;
@@ -1388,9 +1392,9 @@ html[data-theme="dark"] .listBanner {
 }
 @media (max-width: 1023.98px) {
   .row {
-    grid-template-columns: 72px 1fr auto;
+    grid-template-columns: 84px 1fr auto;
     gap: 12px;
-    padding: 10px 14px;
+    padding: 12px 14px;
   }
 }
 .row:hover { background: var(--surface-bg); }
@@ -1400,45 +1404,59 @@ html[data-theme="dark"] .listBanner {
 }
 .rowActive:hover { background: var(--accent-soft); }
 
+/* Wraps the thumbnail so the must-eat card overlay can be absolute-positioned
+   in the corner without breaking the row's grid sizing. */
+.rowPhotoWrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+}
+@media (max-width: 1023.98px) {
+  .rowPhotoWrap { width: 84px; height: 84px; }
+}
 .rowPhoto {
-  width: 64px;
-  height: 64px;
+  width: 100%;
+  height: 100%;
   border-radius: 10px;
   object-fit: cover;
   background: var(--surface-bg);
   display: block;
-  flex-shrink: 0;
 }
-.rowPhotoCard {
-  width: 64px;
-  height: 64px;
-  border-radius: 10px;
+/* Must-Eat card sticker — peeks out of the photo's top-right corner so the
+   row reads at-a-glance as "this place has a Must-Eat" instead of a stray
+   icon in the meta text. Drop-shadow gives it lift on any photo. */
+.rowMustOverlay {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 32px;
   object-fit: contain;
-  background: var(--surface-bg);
-  display: block;
-  padding: 3px;
-  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+  pointer-events: none;
+  transform: rotate(8deg);
+  transform-origin: bottom left;
+}
+@media (max-width: 1023.98px) {
+  .rowMustOverlay { width: 20px; height: 30px; }
 }
 .rowPhotoPlaceholder {
-  width: 64px;
-  height: 64px;
+  width: 100%;
+  height: 100%;
   border-radius: 10px;
   background: var(--surface-bg);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
-  font-size: 22px;
+  font-size: 24px;
 }
 @media (max-width: 1023.98px) {
   .rowPhoto,
-  .rowPhotoCard,
   .rowPhotoPlaceholder {
-    width: 72px;
-    height: 72px;
     border-radius: 8px;
   }
-  .rowPhotoPlaceholder { font-size: 22px; }
 }
 
 .rowMain {
@@ -1458,6 +1476,20 @@ html[data-theme="dark"] .listBanner {
   line-height: 1.1;
   text-transform: none;
 }
+/* Magazine-dateline above the meta line. Same uppercase-tracked treatment as
+   .detailDistrict in the sheet header — keeps row + sheet vocabulary aligned. */
+.rowDistrict {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  min-width: 0;
+}
 .rowMeta {
   font-size: 12.5px;
   color: var(--text-secondary);
@@ -1466,49 +1498,14 @@ html[data-theme="dark"] .listBanner {
   gap: 7px;
   min-width: 0;
 }
-.rowMeta > span {
+/* Single ellipsis-truncated line: price · cat1 · cat2 · 1.2 km · 15 min.
+   Mirrors .detailChipsRow flat-dotted style from the sheet. */
+.rowMetaText {
+  flex: 1;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 0;
-}
-.rowMetaDot {
-  flex: 0 0 auto;
-  color: var(--text-muted);
-  line-height: 1;
-}
-.rowTags {
-  display: flex;
-  gap: 4px;
-  flex-wrap: nowrap;
-  overflow: hidden;
-  margin-top: 2px;
-  align-items: center;
-}
-.rowTag {
-  font-size: 11px;
-  padding: 0;
-  background: transparent;
-  color: var(--text-muted);
-  border: 0;
-  white-space: nowrap;
-  flex-shrink: 0;
-  letter-spacing: 0.01em;
-}
-.rowTag + .rowTag::before {
-  content: '·';
-  display: inline-block;
-  margin: 0 6px 0 0;
-  color: var(--text-muted);
-  opacity: 0.55;
-}
-.rowMustBadge {
-  width: 13px;
-  height: 19px;
-  object-fit: contain;
-  display: block;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
-  flex-shrink: 0;
 }
 @media (max-width: 1023.98px) {
   .rowName {
@@ -1520,11 +1517,9 @@ html[data-theme="dark"] .listBanner {
     overflow: hidden;
     text-overflow: clip;
   }
+  .rowDistrict { font-size: 9.5px; letter-spacing: 0.06em; }
   .rowMeta { font-size: 11.5px; }
   .rowMain { gap: 2px; }
-  .rowTags { margin-top: 1px; gap: 6px; }
-  .rowTag { font-size: 10.5px; }
-  .rowMustBadge { width: 13px; height: 19px; }
 }
 
 .rowSide {
@@ -1533,90 +1528,31 @@ html[data-theme="dark"] .listBanner {
   align-items: flex-end;
   justify-content: center;
   flex-shrink: 0;
-  gap: 2px;
-}
-.rowDistance {
-  color: #bbb;
-  font-size: 11px;
-  font-weight: 500;
+  gap: 4px;
   text-align: right;
 }
-/* Italic comma-separated category text (replaces pill tags on desktop) */
-.rowTagsText {
-  font-size: 11.5px;
-  color: var(--text-muted);
-  font-style: italic;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-  flex: 1;
-}
-@media (max-width: 1023.98px) {
-  .rowTagsText { font-size: 10.5px; }
-}
 
-/* Must Eat inline text badge */
-.rowMustText {
-  flex-shrink: 0;
-  display: inline-block;
-  background: var(--accent);
-  color: #fff;
-  font-size: 9.5px;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 5px;
-  letter-spacing: 0.04em;
+/* Apple/Google-Maps status: colored small-caps word with an optional muted
+   close-time / next-open line beneath. No capsule, no background — the
+   colored word does the scanning, the muted line adds context. */
+.rowStatus {
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  white-space: nowrap;
-  line-height: 1.5;
-}
-
-/* Status text pill — replaces the dot */
-.rowStatusPill {
-  font-size: 10px;
-  font-weight: 500;
+  letter-spacing: 0.06em;
   line-height: 1;
+  white-space: nowrap;
 }
-.rowStatusPillOpen {
-  color: #4caf50;
-}
-.rowStatusPillClosed {
-  color: #e53935;
-}
-
-/* Single status dot in the list row — replaces the old "Geöffnet/Geschlossen"
-   pill. Open = green (subtle blink ring), Closed = red. Pure indicator, no
-   text label (the screen reader gets the label via aria-label on the span). */
-.rowStatusDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  flex-shrink: 0;
-  display: inline-block;
-  --dot-ring: 0, 0, 0;
-}
-.rowStatusDotOpen {
-  background: #16a34a;
-  --dot-ring: 22, 163, 74;
-  animation: rowStatusDotBlink 2.4s ease-in-out infinite;
-}
-.rowStatusDotClosed {
-  background: #dc2626;
-  --dot-ring: 220, 38, 38;
-  box-shadow: 0 0 0 3px rgba(var(--dot-ring), 0.14);
-}
-@keyframes rowStatusDotBlink {
-  0%, 100% { box-shadow: 0 0 0 3px rgba(var(--dot-ring), 0.18); }
-  50%      { box-shadow: 0 0 0 5px rgba(var(--dot-ring), 0.06); }
-}
-html[data-theme="dark"] .rowStatusDotOpen   {
-  background: #4ade80;
-  --dot-ring: 74, 222, 128;
-}
-html[data-theme="dark"] .rowStatusDotClosed {
-  background: #f87171;
-  --dot-ring: 248, 113, 113;
+.rowStatusOpen   { color: #1f7a1f; }
+.rowStatusClosed { color: #c42323; }
+html[data-theme="dark"] .rowStatusOpen   { color: #6ad46a; }
+html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
+.rowStatusSub {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+  line-height: 1.1;
 }
 /* ========== Vintage door-sign ("OPEN"/"CLOSED" shop flip sign) ========== */
 /* Used by:
@@ -1727,92 +1663,10 @@ html[data-theme="dark"] .doorSign {
   }
 }
 
-/* Restaurant-row status pill — subtle, just enough to scan at a glance.
-   Soft tinted background, colored text, tiny leading dot. No comic frame. */
-.statusPill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 9px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  line-height: 1;
-  white-space: nowrap;
-  border: 0;
-}
-.statusDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  background: currentColor;
-  opacity: 0.85;
-}
-.statusPillOpen {
-  background: rgba(31, 122, 31, 0.12);
-  color: #1f7a1f;
-}
-.statusPillClosed {
-  background: rgba(196, 35, 35, 0.12);
-  color: #c42323;
-}
-html[data-theme="dark"] .statusPillOpen {
-  background: rgba(106, 212, 106, 0.14);
-  color: #6ad46a;
-}
-html[data-theme="dark"] .statusPillClosed {
-  background: rgba(255, 106, 106, 0.14);
-  color: #ff6a6a;
-}
 @media (max-width: 1023.98px) {
-  .statusPill {
-    font-size: 10px;
-    padding: 2px 7px;
-    gap: 4px;
-  }
-  .statusDot {
-    width: 5px;
-    height: 5px;
-  }
-}
-
-.rowStatus {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  line-height: 1;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-.rowStatusMain {
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  font-size: 10px;
-}
-.rowStatusOpen {
-  background: rgba(34, 139, 34, 0.14);
-  color: #1f7a1f;
-}
-html[data-theme="dark"] .rowStatusOpen { color: #6ad46a; }
-.rowStatusClosed {
-  background: rgba(200, 35, 35, 0.14);
-  color: #c42323;
-}
-html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
-@media (max-width: 1023.98px) {
-  .rowSide { gap: 3px; }
-  .rowDistance { font-size: 11px; }
-  .rowStatus {
-    padding: 2px 8px;
-    font-size: 9.5px;
-  }
-  .rowStatusMain { font-size: 9.5px; }
+  .rowSide      { gap: 3px; }
+  .rowStatus    { font-size: 10px; }
+  .rowStatusSub { font-size: 10px; }
 }
 
 /* -------------------- Markers on the map -------------------- */
@@ -2672,263 +2526,16 @@ html[data-theme="dark"] .selectActive {
   display: flex;
   flex-direction: column;
 }
-.detailLeft,
-.detailRight {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-/* Hero wrap: positioned context for the floating favourite button */
-.detailHeroWrap {
-  position: relative;
-  width: 100%;
-  flex-shrink: 0;
-}
-
-/* Floating heart over the hero — freigestellt, kein Kreis-Hintergrund.
-   Eine doppelte Drop-Shadow gibt dem Outline-Heart auf jedem Foto Halt. */
-.detailFavBtn {
-  position: absolute;
-  right: 14px;
-  bottom: 14px;
-  appearance: none;
-  border: 0;
-  background: transparent;
-  padding: 6px;
-  width: auto;
-  height: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  cursor: pointer;
-  transition: color 0.15s, transform 0.12s;
-  z-index: 2;
-  -webkit-tap-highlight-color: transparent;
-  filter:
-    drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45))
-    drop-shadow(0 4px 12px rgba(0, 0, 0, 0.30));
-}
-.detailFavBtn svg { width: 26px; height: 26px; }
-.detailFavBtn:hover { color: #ff8a99; }
-.detailFavBtn:active { transform: scale(0.9); }
-.detailFavBtnActive { color: var(--accent); }
-.detailFavBtnActive:hover { color: #ff7a3a; }
-.detailLeft {
-  flex-shrink: 0; /* mobile: size to content so info doesn't overflow hero */
-}
-.detailRight {
-  min-height: 0; /* mobile: take remaining space, internal scroll handles overflow */
-}
-.detailRightHead {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding-bottom: 4px;
-}
-/* Mobile-only elements keep their natural display on mobile; desktop-only hidden. */
-.detailDesktopOnly { display: none; }
-@media (min-width: 1024px) {
-  .detailMobileOnly { display: none !important; }
-  .detailDesktopOnly { display: flex; }
-}
-.detailLeftInfo {
-  padding: 12px 16px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.detailRight {
-  padding: 12px 16px 14px;
-  gap: 8px;
-  flex: 1 1 auto;
-}
 @media (max-width: 1023.98px) {
   .detail {
     width: calc(100% - 24px);
     max-width: 420px;
     max-height: calc(100% - 48px);
   }
-  .detailRight {
-    border-top: 1px solid var(--border-subtle);
-  }
-}
-
-@media (min-width: 1024px) {
-  .detail {
-    flex-direction: row;
-    max-width: 780px;
-    max-height: calc(100% - 48px);
-  }
-  .detailLeft {
-    flex: 1 1 50%;
-    border-right: 1px solid var(--border-subtle);
-  }
-  .detailRight {
-    flex: 1 1 50%;
-    padding: 72px 24px 20px 24px;
-    gap: 10px;
-  }
-  .detailLeftInfo {
-    padding: 14px 16px 16px;
-  }
-}
-
-/* ── Desktop "Magazine" layout (variant A picked) ───────────────────────
-   56/44 split, full-bleed photo on the left with the restaurant name
-   overlaid at the bottom on a dark gradient. Bezirk · € · Kategorie + the
-   green status pill, description, inline links and sections all live in
-   the right column. Same vocabulary as the mobile sheet. */
-@media (min-width: 1024px) {
-  .detail.detailMagazine {
-    max-width: 920px;
-    /* Size to content; only fall back to internal scroll on truly tiny
-       browser heights. Cap at viewport-24 so the modal claims more room
-       before the right column needs to scroll. */
-    height: auto;
-    min-height: 480px;
-    max-height: calc(100% - 24px);
-  }
-  .detailMagazine .detailLeft {
-    flex: 0 0 56%;
-    border-right: 0;
-    display: block;
-    position: relative;
-    overflow: hidden;
-    /* Photo as a background image with a built-in dark gradient at the
-       bottom so the white name overlay stays readable. Background images
-       don't contribute to the column's intrinsic height — the right
-       column drives the modal's grow-to-content sizing. */
-    background:
-      linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.65) 100%),
-      var(--hero-image, none) center/cover no-repeat,
-      #1a1f24;
-  }
-  .detailMagazine .detailHeroPlaceholder {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    color: rgba(255,255,255,0.55);
-    font-size: 48px;
-    background: linear-gradient(135deg, #2a1f17, #1a1410);
-  }
-  .detailMagazine .detailHeroOverlay {
-    position: absolute;
-    left: 28px;
-    right: 28px;
-    bottom: 26px;
-    z-index: 2;
-  }
-  .detailMagazine .detailHeroName {
-    color: white;
-    font-size: 30px;
-    font-weight: 800;
-    letter-spacing: -0.025em;
-    line-height: 1.05;
-    margin: 0;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
-  }
-  /* Magazine heart inherits the freigestellt base — same white outline +
-     drop-shadow on the photo as the mobile sheet. */
-  /* Glass close button sits at the modal's top-right (over the right col). */
-  .detailMagazine .detailClose {
-    background: rgba(255, 255, 255, 0.94);
-    color: #111;
-    border: 1px solid rgba(15, 17, 21, 0.08);
-    width: 34px;
-    height: 34px;
-    top: 14px;
-    right: 14px;
-    box-shadow:
-      0 1px 2px rgba(17, 24, 39, 0.06),
-      0 4px 12px rgba(17, 24, 39, 0.10);
-  }
-  .detailMagazine .detailClose:hover { background: white; }
-  html[data-theme="dark"] .detail.detailMagazine .detailClose {
-    background: rgba(30, 30, 30, 0.85);
-    color: #f3f4f6;
-    border-color: rgba(255, 255, 255, 0.18);
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.30),
-      0 4px 12px rgba(0, 0, 0, 0.45);
-  }
-  html[data-theme="dark"] .detail.detailMagazine .detailClose:hover {
-    background: rgba(40, 40, 40, 0.95);
-  }
-  /* Right column: padding + scroll all on a single block element. Modal
-     grows to content height; only when the modal hits its viewport-cap
-     does the right column overflow internally (no scrollbar visible until
-     it actually scrolls thanks to max-height: 100%). */
-  .detailMagazine .detailRight {
-    flex: 1 1 44%;
-    padding: 22px 26px 18px;
-    display: block;
-    min-width: 0;
-    gap: 0;
-    border-top: 0;
-    /* Hard viewport-relative cap so the column drives the modal's grow-to-
-       content sizing, AND has a definite max for internal scroll when the
-       browser is too short. Subtracts the modal's 24 px breathing room. */
-    max-height: calc(100vh - 24px);
-    overflow-y: auto;
-  }
-  .detailMagazine .detailRight::-webkit-scrollbar { width: 0; }
-  /* Tighter section spacing in the right column so the whole detail still
-     fits without internal scroll on standard browser heights. */
-  .detailMagazine .detailScroll > section {
-    padding: 10px 0 4px;
-  }
-  /* Top-of-right-column meta — Bezirk on its own line, Preis + Kategorie
-     below. Small caps so the block reads as a header / dateline. */
-  .detailMagazine .detailDesktopMeta {
-    margin: 0 0 12px;
-    color: var(--text-secondary);
-    font-size: 12.5px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    line-height: 1.35;
-  }
-  .detailMagazine .detailDesktopMetaTop {
-    color: var(--text-primary);
-  }
-  .detailMagazine .detailDesktopMetaBottom {
-    color: var(--text-secondary);
-  }
-  /* Full description on desktop (no 2-line clamp like the mobile row). */
-  .detailMagazine .detailRight .detailDescription {
-    display: block;
-    overflow: visible;
-    -webkit-line-clamp: unset;
-    line-height: 1.55;
-    font-size: 14px;
-    margin: 12px 0 0;
-  }
-  .detailMagazine .detailScroll {
-    overflow-y: visible;
-    max-height: none;
-    padding: 0;
-  }
-  .detailMagazine .detailScroll > section {
-    padding: 14px 0 6px;
-  }
-  .detailMagazine .detailScroll .sectionLabel {
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    text-transform: none;
-    color: var(--text-primary);
-    margin: 0 0 8px;
-  }
 }
 
 /* Must Eat detail: tighter width — the card hero is ~220px and the rest is text,
-   so a narrower panel keeps attention on the card without big side whitespace.
-   Placed AFTER the desktop `.detail` rule so its max-width override wins. */
-/* Use .detail.detailNarrow double-class selector to beat the desktop media rule
-   on specificity, regardless of source order. */
+   so a narrower panel keeps attention on the card without big side whitespace. */
 .detail.detailNarrow {
   max-width: min(460px, 92vw);
   flex-direction: column;
@@ -3018,36 +2625,124 @@ html[data-theme="dark"] .selectActive {
 }
 .detailInSheetScroll::-webkit-scrollbar { width: 0; }
 
-/* Body container — magazine rhythm with generous gaps between sections. */
+/* Body container — Apple Maps / Spotify rhythm: tight blocks with consistent
+   12 px breathing room between major sections. The peek-header above already
+   gives the name its top-of-sheet padding, so the body starts at 4 px. */
 .detailBody {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  padding: 22px 20px 8px;
+  gap: 10px;
+  padding: 0 20px 8px;
 }
 @media (min-width: 1024px) {
-  .detailBody { padding: 22px 22px 8px; }
+  .detailBody { padding: 0 22px 8px; }
 }
-/* ── Header: name + meta below the full-bleed hero photo ── */
-.detailHeader {
+/* Photo gets a touch more separation from the meta block — visually it's a
+   shift from text rhythm to image. */
+.detailHeroInline { margin-top: 4px; }
+/* Section titles sit tighter to their content (Apple style) — the title and
+   content already feel like one unit. */
+.detailSection { gap: 6px; }
+/* Description body keeps a slightly looser feel than the meta blocks. */
+.detailInSheet .detailDescription { line-height: 1.55; }
+/* Peek-visible header: name + 3 round action buttons. Pinned at the very
+   top of the sheet so when the user collapses to the peek snap (110 px),
+   the restaurant name and the actions stay visible (Apple/Google Maps
+   pattern). Sits OUTSIDE the scroll body. */
+.detailPeekHeader {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  /* Tight against the handle on top, tight against the meta line below —
+     name needs to sit close to both anchors. */
+  padding: 0 16px 4px;
+  flex-shrink: 0;
+}
+@media (min-width: 1024px) {
+  .detailPeekHeader { padding: 14px 20px 8px; }
 }
 .detailInSheet .detailName {
-  font-size: clamp(1.5rem, 5.5vw, 1.875rem);
+  flex: 1;
+  min-width: 0;
+  font-size: clamp(1.25rem, 4.5vw, 1.5rem);
   font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.15;
+  line-height: 1.2;
   margin: 0;
   color: var(--text-primary);
+  /* Wrap to as many lines as needed — restaurant names must stay fully
+     legible at every snap. Ellipsis is forbidden here. */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 1024px) {
+  .detailInSheet .detailName { font-size: 1.5rem; }
 }
 
-.detailMetaRow {
+/* At the peek snap on mobile, only the handle + peek-header are visible —
+   the meta line, status line and everything below the name + icons get
+   hidden so the user sees a clean "name + actions" header strip. */
+@media (max-width: 1023.98px) {
+  .list[data-view="detail"][data-snap="peek"] .detailInSheetScroll {
+    visibility: hidden;
+  }
+  /* List peek: show ONLY the count-row (count, sort chip, search, filter) —
+     hide category tabs and the restaurant rows. User pulls up to reveal them. */
+  .list[data-view="list"][data-snap="peek"] .listHeaderTabs,
+  .list[data-view="list"][data-snap="peek"] .listScroll {
+    visibility: hidden;
+  }
+}
+
+.detailPeekActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.detailPeekActionBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--surface-bg);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  appearance: none;
+  padding: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s, filter 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.detailPeekActionBtn svg { width: 16px; height: 16px; }
+.detailPeekActionBtn:hover {
+  background: var(--surface-raised);
+  border-color: var(--border-strong);
+}
+.detailPeekActionBtn:active { transform: scale(0.92); }
+.detailPeekActionBtnSaved {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.detailPeekActionBtnSaved:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  filter: brightness(0.94);
+}
+
+/* Meta line: Bezirk · Kategorie1 · Kategorie2 · Preis. Flat magazine-dotted
+   text — same vocabulary as the row's `.rowMetaText`, scaled up. */
+.detailMetaLine {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 12px;
+  align-items: baseline;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
 }
 .detailInSheet .detailDistrict {
   font-size: 0.75rem;
@@ -3057,40 +2752,118 @@ html[data-theme="dark"] .selectActive {
   color: var(--text-secondary);
   margin: 0;
 }
-/* Free-standing meta line — price + categories as flat text separated by
-   a thin middle dot. No pills, no borders, no backgrounds — reads like a
-   magazine subtitle. */
-.detailChipsRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  color: var(--text-secondary);
-}
-.detailChip {
-  display: inline;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  color: var(--text-secondary);
-  font-weight: 500;
-  letter-spacing: 0;
-  white-space: normal;
-}
-.detailChipPrice {
-  color: var(--accent);
-  background: transparent;
-  border: 0;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-.detailChip + .detailChip::before {
+.detailMetaLine > span { font-weight: 500; }
+.detailMetaLine > span + span::before {
   content: " · ";
   color: var(--text-muted);
   white-space: pre;
 }
+/* Price reads as part of the magazine meta line — same neutral color as
+   the other tokens, no accent. */
+.detailMetaPrice {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Status own line — same vocabulary as the list row, scaled up. */
+.detailStatusLine {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+  line-height: 1.3;
+}
+
+/* Travel-time row — Fuß / ÖPNV / Auto with rough estimates. Each item is a
+   tappable Google Maps deep-link with the matching travel mode preset. */
+.detailTravelRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+.detailTravelLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.detailTravelLink svg {
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.detailTravelLink:hover { color: var(--text-primary); }
+.detailTravelLink:hover svg { color: var(--accent); }
+
+/* Primary CTA row — Reservieren (filled) + Google Maps (outline pill). Both
+   are rounded pills with subtle shadow lifts so they feel tactile. */
+.detailCtaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.detailCtaBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  appearance: none;
+  border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, filter 0.15s, transform 0.1s, box-shadow 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.detailCtaBtn:active { transform: scale(0.97); }
+.detailCtaBtnPrimary {
+  background: var(--cta-red, var(--accent));
+  border-color: var(--cta-red, var(--accent));
+  color: #fff;
+  flex: 1;
+  min-width: 140px;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.08), 0 6px 14px rgba(255, 92, 56, 0.18);
+}
+.detailCtaBtnPrimary:hover { filter: brightness(0.94); }
+/* Section head row — title on the left, optional inline action on the right
+   (e.g. open-in-Maps glyph next to the address title). */
+.detailSectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+/* Tiny round Google-Maps glyph button — lives in the address-section header
+   so the user can open the venue in Maps without a full-width CTA stealing
+   visual real estate. */
+.detailMapsBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--surface-bg);
+  border: 1px solid var(--border-subtle);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.detailMapsBtn svg { width: 14px; height: 14px; }
+.detailMapsBtn:hover {
+  background: var(--surface-raised);
+  border-color: var(--border-strong);
+}
+.detailMapsBtn:active { transform: scale(0.94); }
 
 /* Image element shared by both viewports. The aspect-ratio is set by the
    parent (.detailHeroTop or .detailHeroInline) so each viewport gets its
@@ -3104,10 +2877,6 @@ html[data-theme="dark"] .selectActive {
   background: var(--surface-bg);
 }
 
-/* ── Desktop: full-bleed top hero with close X + credit pill (the layout
-   the user liked before). Hidden on mobile — mobile uses the inline
-   magazine figure inside the body further down. */
-.detailHeroTop { display: none; }
 .detailHeroPlaceholder {
   display: grid;
   place-items: center;
@@ -3116,30 +2885,19 @@ html[data-theme="dark"] .selectActive {
   font-size: 32px;
   background: linear-gradient(135deg, var(--surface-bg), var(--surface-raised));
 }
-@media (min-width: 1024px) {
-  .detailHeroTop {
-    display: block;
-    position: relative;
-    width: 100%;
-    flex-shrink: 0;
-  }
-  .detailHeroTop .detailHero,
-  .detailHeroTop .detailHeroPlaceholder {
-    aspect-ratio: 16 / 9;
-  }
-}
 
-/* ── Mobile: magazine-style inline photo. Full-bleed past the body padding
-   (negative horizontal margin), square corners, no shadow. Caption sits
-   beneath as a small italic credit line. Hidden on desktop. */
+/* Inline photo — sits within the body padding (matches the surrounding text
+   block on the left + right) with light rounding, similar to Apple Maps.
+   Border-radius lives on the image itself so the figcaption underneath is
+   never clipped by an overflow:hidden parent. */
 .detailHeroInline {
   position: relative;
-  width: auto;
-  margin: 0 -20px;
+  width: 100%;
 }
 .detailHeroInline .detailHero,
 .detailHeroInline .detailHeroPlaceholder {
   aspect-ratio: 4 / 3;
+  border-radius: 12px;
 }
 .detailHeroInlineEmpty {
   font-size: 32px;
@@ -3151,28 +2909,47 @@ html[data-theme="dark"] .selectActive {
 }
 .detailHeroCaption {
   display: block;
-  margin: 6px 20px 0 0;
+  margin: 6px 0 0;
   font-size: 0.6875rem;
   font-style: italic;
   color: var(--text-muted);
   text-align: right;
 }
-@media (min-width: 1024px) {
-  .detailHeroInline { display: none; }
-}
 
-/* Website link — magazine treatment, URL spelled out so the user sees where
-   they're going before tapping. */
+/* Website link — magazine treatment. URL spelled out so the user sees where
+   they're going. Underlined to signal "this is a link"; accent color is
+   reserved for hover so the resting state stays neutral. */
 .detailWebsiteLink {
-  display: block;
+  display: inline-block;
   font-size: 0.9375rem;
   line-height: 1.45;
-  color: var(--accent);
-  text-decoration: none;
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
   word-break: break-all;
-  transition: filter 0.15s;
+  transition: color 0.15s, text-decoration-color 0.15s;
 }
-.detailWebsiteLink:hover { filter: brightness(0.85); }
+.detailWebsiteLink:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+/* Instagram link — glyph + @handle. Replaces a noisy `www.instagram.com/…`
+   text link with the iconic mark so the section reads as "this place lives
+   on Instagram". */
+.detailInstagramLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.detailInstagramLink svg { width: 22px; height: 22px; }
+.detailInstagramLink:hover { color: var(--accent); }
 
 /* ── Magazine body — generous rhythm, prose-style description, restrained
    action links at the bottom (mirrors the restaurant detail page). */
@@ -3225,6 +3002,26 @@ html[data-theme="dark"] .selectActive {
   transition: color 0.15s;
 }
 .detailAddress:hover { color: var(--accent); }
+
+/* Phone link — tap-to-call with the same magazine treatment as the website
+   link (text-primary + underline, accent on hover). Numerals tabular for
+   even spacing. */
+.detailPhoneLink {
+  display: inline-block;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.15s, text-decoration-color 0.15s;
+}
+.detailPhoneLink:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
 .detailInSheet .hoursList {
   margin: 0;
   padding: 0;
@@ -3244,117 +3041,9 @@ html[data-theme="dark"] .selectActive {
 .detailInSheet .hoursDay { font-weight: 500; color: var(--text-primary); }
 .detailInSheet .hoursTime { font-variant-numeric: tabular-nums; }
 
-/* ── Action links: outlined "magazine" buttons in a 3-col grid. Reservieren
-   is the only filled primary; rest stay subtle so content reads as the focus.
-   Uses the same vocabulary as .link on the restaurant detail page so the
-   in-map detail and the standalone page feel like the same product. */
-.detailLinks {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
-  margin-top: 0;
-}
-/* Apple-Maps-style compact pills — smaller padding, lighter border, no
-   bold-shouting weight. Leaves room for the body content to lead. */
-.detailLink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  min-width: 0;
-  padding: 7px 8px;
-  background: var(--surface-raised);
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
-  color: var(--text-primary);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-decoration: none;
-  cursor: pointer;
-  appearance: none;
-  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
-  -webkit-tap-highlight-color: transparent;
-}
-.detailLinkIcon {
-  width: 12px;
-  height: 12px;
-  flex-shrink: 0;
-}
-.detailLink:hover {
-  background: var(--surface-card);
-  border-color: var(--border-strong);
-}
-.detailLink:active { transform: scale(0.96); }
-
-/* Primary "Reservieren" CTA — filled brand red, spans the full row */
-.detailLinkPrimary {
-  background: var(--cta-red, var(--accent));
-  border-color: var(--cta-red, var(--accent));
-  color: #fff;
-  grid-column: 1 / -1;
-}
-.detailLinkPrimary:hover {
-  background: var(--cta-red, var(--accent));
-  border-color: var(--cta-red, var(--accent));
-  color: #fff;
-  filter: brightness(0.92);
-}
-
-/* Saved state — heart-filled, accent-orange */
-.detailLinkSaved {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
-.detailLinkSaved:hover {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-  filter: brightness(0.94);
-}
-
-/* Google-branded "Google Maps" link — white surface + multi-color G logo,
-   matches the look of Google's own sign-in / brand buttons. Even in dark
-   mode the surface stays white because the brand mark is colored. */
-.detailLinkGoogle {
-  background: #ffffff;
-  border-color: #dadce0;
-  color: #1f1f1f;
-}
-.detailLinkGoogle:hover {
-  background: #f8f9fa;
-  border-color: #d2d4d7;
-  color: #1f1f1f;
-}
-.detailLinkGoogleLogo {
-  width: 12px;
-  height: 12px;
-  flex-shrink: 0;
-}
-
-/* Photo credit pill — bottom-right of the hero card, restaurant-page vocabulary */
-.detailHeroCredit {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  padding: 2px 6px;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  border-radius: 3px;
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* Glass close X — sits on the hero photo, top-right (in-sheet) */
+/* Glass close X — sits on the hero photo, top-right (in-sheet).
+   Used only by MustEatDetailMobile now; restaurant detail uses the round
+   `.detailPeekActionBtn` close instead. */
 .detailHeroClose {
   position: absolute;
   top: 12px;
@@ -3383,23 +3072,6 @@ html[data-theme="dark"] .detailHeroClose {
   background: rgba(30, 30, 30, 0.62);
   border-color: rgba(255, 255, 255, 0.16);
   color: #fff;
-}
-
-/* Desktop-only override on the restaurant-detail hero — close X should be
-   smaller and less prominent than the mobile must-eat detail's close X.
-   Lives only inside .detailHeroTop (which is desktop-only via display rule). */
-.detailHeroTop .detailHeroClose {
-  top: 10px;
-  right: 10px;
-  width: 28px;
-  height: 28px;
-  background: rgba(255, 255, 255, 0.78);
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.08);
-}
-.detailHeroTop .detailHeroClose svg { width: 13px; height: 13px; }
-html[data-theme="dark"] .detailHeroTop .detailHeroClose {
-  background: rgba(30, 30, 30, 0.55);
 }
 
 /* Chevron-down indicator — replaces the handle pip when the detail sheet
@@ -3472,49 +3144,29 @@ html[data-theme="dark"] .detailHeroBack {
 /* In-sheet heart inherits the base freigestellt treatment (white outline +
    drop-shadow, accent fill when saved). No circle background. */
 
-/* Status pill — soft green capsule with glow dot */
-.statusPill {
-  align-self: flex-start;
+/* Detail status — same vocabulary as the row, scaled up. Colored small-caps
+   word + middle-dot + muted suffix (close-time / next-open). No capsule. */
+.detailStatus {
   display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 5px 11px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  align-items: baseline;
+  gap: 6px;
   white-space: nowrap;
+  line-height: 1.2;
 }
-.statusPill::before {
-  content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  flex-shrink: 0;
+.detailStatusMain {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
-.statusPillOpen {
-  background: #dcfce7;
-  color: #166534;
-}
-.statusPillOpen::before {
-  background: #16a34a;
-  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18);
-}
-.statusPillClosed {
-  background: #fee2e2;
-  color: #991b1b;
-}
-.statusPillClosed::before {
-  background: #dc2626;
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.18);
-}
-html[data-theme="dark"] .statusPillOpen {
-  background: rgba(22, 163, 74, 0.18);
-  color: #6ee7b7;
-}
-html[data-theme="dark"] .statusPillClosed {
-  background: rgba(220, 38, 38, 0.18);
-  color: #fca5a5;
+.detailStatusOpen   { color: #1f7a1f; }
+.detailStatusClosed { color: #c42323; }
+html[data-theme="dark"] .detailStatusOpen   { color: #6ad46a; }
+html[data-theme="dark"] .detailStatusClosed { color: #ff6a6a; }
+.detailStatusSub {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
 /* Inline action links — Webseite / Reservieren / Teilen.
@@ -4539,10 +4191,52 @@ html[data-theme="dark"] .hoursStatusClosed { color: #ff6a6a; }
   }
 }
 
+.listHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
 .listHeaderCount {
   font-size: 12px;
   font-weight: 600;
   color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* Sort indicator next to the count — text label of the active sort mode plus
+   an arrow that shows direction. Tap to flip direction; the dropdown still
+   handles mode switching. */
+.sortChip {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+  height: 22px;
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s, color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.sortChip:hover {
+  background: var(--surface-bg);
+  color: var(--text-primary);
+}
+.sortChipArrow {
+  transition: transform 0.2s ease;
+}
+.sortChip[data-dir="desc"] .sortChipArrow {
+  transform: rotate(180deg);
 }
 
 .listHeaderActions {

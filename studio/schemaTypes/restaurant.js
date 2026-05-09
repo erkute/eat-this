@@ -170,6 +170,32 @@ export default {
       options: { list: ['€', '€€', '€€€', '€€€€'], layout: 'radio' },
     },
     {
+      name: 'phone',
+      title: 'Telefon',
+      type: 'string',
+      description:
+        'Internationale E.164-Form (z.B. +49 30 12345678). Aus der Google Places API gezogen.',
+    },
+    {
+      name: 'priceRange',
+      title: 'Preisspanne (Google Places)',
+      type: 'object',
+      description:
+        'Aus der Google Places API gezogen. Wird auf der Map-Detail als "10–20 €" angezeigt; fällt sonst auf das €-Symbol zurück.',
+      options: { collapsible: true, collapsed: true },
+      fields: [
+        { name: 'min', title: 'Min', type: 'number' },
+        { name: 'max', title: 'Max', type: 'number' },
+        {
+          name: 'currency',
+          title: 'Währung',
+          type: 'string',
+          initialValue: 'EUR',
+          options: { list: ['EUR', 'USD', 'GBP', 'CHF'] },
+        },
+      ],
+    },
+    {
       name: 'lat',
       title: 'Latitude',
       type: 'number',

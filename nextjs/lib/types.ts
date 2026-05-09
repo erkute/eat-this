@@ -130,6 +130,8 @@ export interface MapRestaurant {
   address?: string
   categories?: string[]
   price?: string
+  priceRange?: { min?: number; max?: number; currency?: string }
+  phone?: string
   lat: number
   lng: number
   mapsUrl?: string

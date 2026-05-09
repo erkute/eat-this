@@ -4,6 +4,7 @@ import type { MapRef } from 'react-map-gl/maplibre'
 import type { MapRestaurant, MapMustEat, MapLayer, MapCategory } from '@/lib/types'
 import type {
   SortMode,
+  SortDir,
   SheetView,
   SheetSnap,
   MustEatWithDisplay,
@@ -61,6 +62,8 @@ export interface MapSectionBodyProps {
   setOpenOnly: (v: boolean) => void
   sort: SortMode
   setSort: (s: SortMode) => void
+  sortDir: SortDir
+  onToggleSortDir: () => void
   searchOpen: boolean
   setSearchOpen: (open: boolean) => void
   filterOpen: boolean
@@ -102,7 +105,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     selectedRestaurant, selectedMustEat,
     unlockedIds, favoriteIds, location, uid,
     category, setCategory, search, bezirk, bezirkNames,
-    openOnly, setOpenOnly, sort, setSort,
+    openOnly, setOpenOnly, sort, setSort, sortDir, onToggleSortDir,
     searchOpen, setSearchOpen, filterOpen, setFilterOpen,
     onMapMove, onMapClick, onRestaurantClick, onMustEatClick, onLocateMe,
     onRestaurantClose, onMustEatClose, onMustEatBack, onBackToRestaurants,
@@ -240,6 +243,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   setFilterOpen={setFilterOpen}
                   sort={sort}
                   onSort={setSort}
+                  sortDir={sortDir}
+                  onToggleSortDir={onToggleSortDir}
                   openOnly={openOnly}
                   onOpenOnly={setOpenOnly}
                   bezirkNames={bezirkNames}

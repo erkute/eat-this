@@ -11,7 +11,6 @@ import {
   useMapFilters,
   useMapSheet,
   useMapDeepLinks,
-  useMapSheetSwipeClose,
   applyFanOffset,
 } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
@@ -64,6 +63,7 @@ export default function MapSection({ isActive = false }: Props) {
     bezirk, setBezirk,
     openOnly, setOpenOnly,
     sort, setSort,
+    sortDir, toggleSortDir,
     bezirkNames, bezirkCenters,
     displayedRestaurants, displayedMustEats,
   } = useMapFilters({ restaurants, mustEats, location })
@@ -103,7 +103,7 @@ export default function MapSection({ isActive = false }: Props) {
     if (sheetView !== 'list') return
     const el = contentRef.current
     if (el) el.scrollTop = 0
-  }, [sheetView, category, bezirk, openOnly, sort, search, layer, contentRef])
+  }, [sheetView, category, bezirk, openOnly, sort, sortDir, search, layer, contentRef])
 
   const { updateBounds } = useBounds(displayedRestaurants, location)
 
@@ -301,22 +301,17 @@ export default function MapSection({ isActive = false }: Props) {
 
   const handleMapClick = useCallback(() => {
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
-    if (!selectedRestaurant && !selectedMustEat) {
-      // No detail open — collapse the list to peek so the map is visible.
-      if (isMobile && snap !== 'peek') setSnap('peek')
-      return
-    }
-    setSelectedRestaurant(null)
-    setSelectedMustEat(null)
-    setSheetView('list')
-    if (isMobile) {
+    if (!isMobile) return
+    /* Tap on the map = collapse whatever sheet is currently open to peek so
+       the map gets the focus. For a detail view, peek shows name + 3 round
+       icons; for the list, peek shows the count + filter strip. The detail
+       selection itself is preserved — the user can drag the sheet back up
+       to keep reading without re-opening anything. */
+    if (snap !== 'peek') {
       setSnap('peek')
-      // Force the CSS to peek even when React snap state was already 'peek'
-      // (snapDetailToContent updates snapRef without setSnap, so the React
-      // state may have ended up at 'peek' while CSS is at custom detail-height).
       reapplySnap('peek')
     }
-  }, [selectedRestaurant, selectedMustEat, setSnap, snap, reapplySnap, setSheetView])
+  }, [snap, setSnap, reapplySnap])
 
   // When the user starts typing in the search, surface the list (mid snap) so
   // they see the filtered results — typing into a hidden list is confusing.
@@ -339,18 +334,6 @@ export default function MapSection({ isActive = false }: Props) {
       mapRef.current?.flyTo({ center: [13.405, 52.52], zoom: 11.6, duration: 700, padding: getFlyPadding() })
     }
   }, [bezirkCenters, getFlyPadding, sheetView, setSnap, setBezirk])
-
-  // Mobile swipe-down-to-close on the detail sheet. Only initiates from the
-  // hero region AND when the inner content scroll is at the top.
-  useMapSheetSwipeClose({
-    sheetElRef,
-    contentRef,
-    sheetView,
-    selectedRestaurant,
-    selectedMustEat,
-    onRestaurantClose: handleRestaurantClose,
-    onMustEatClose: handleMustEatClose,
-  })
 
   const handleUnlock = useCallback(async () => {
     if (!selectedMustEat) return
@@ -474,6 +457,8 @@ export default function MapSection({ isActive = false }: Props) {
       setOpenOnly={setOpenOnly}
       sort={sort}
       setSort={setSort}
+      sortDir={sortDir}
+      onToggleSortDir={toggleSortDir}
       searchOpen={searchOpen}
       setSearchOpen={setSearchOpen}
       filterOpen={filterOpen}

@@ -8,7 +8,7 @@
 // with "Hook only works in a Client Component".
 
 // Pure helpers
-export { haversineDistance, formatDistance, formatWalkingTime } from './distance'
+export { haversineDistance, formatDistance, formatWalkingTime, formatTransitTime, formatDrivingTime } from './distance'
 export { applyFanOffset } from './fanOffset'
 export type { MustEatWithDisplay } from './fanOffset'
 export { getOpenStatus } from './openingHours'
@@ -28,14 +28,13 @@ export { useUnlockedMustEats } from './useUnlockedMustEats'
 
 // List/filter logic
 export { useMapFilters } from './useMapFilters'
-export type { SortMode } from './useMapFilters'
+export type { SortMode, SortDir } from './useMapFilters'
 
 // Bottom-sheet state machine
 export { useBottomSheet } from './useBottomSheet'
 export type { SheetSnap } from './useBottomSheet'
 export { useMapSheet } from './useMapSheet'
 export type { SheetView } from './useMapSheet'
-export { useMapSheetSwipeClose } from './useMapSheetSwipeClose'
 
 // URL <-> sheet wiring
 export { useMapDeepLinks } from './useMapDeepLinks'

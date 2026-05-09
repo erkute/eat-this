@@ -3,25 +3,28 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 
 export type SheetSnap = 'peek' | 'mid' | 'full'
 
-const PEEK_VISIBLE_PX = 40  // grab handle pip + breathing room visible when collapsed
+// Default peek = grab-handle pip + breathing room. Detail view bumps this up
+// via SheetConfig so the name + action buttons stay visible when collapsed
+// (Google Maps style).
+const DEFAULT_PEEK_VISIBLE_PX = 40
 // Mid: ~half the viewport on a typical phone (50% map / 50% list).
 const MID_VISIBLE_PX = 420
 const FULL_TOP_PX     = 0   // sheet hugs the top of the map body for content-heavy detail views
 const MOBILE_MAX = 1023.98
 
-function snapToPx(snap: SheetSnap, sheetH: number): number {
+function snapToPx(snap: SheetSnap, sheetH: number, peekPx: number): number {
   switch (snap) {
     case 'full': return FULL_TOP_PX
     case 'mid':  return Math.max(0, sheetH - MID_VISIBLE_PX)
-    case 'peek': return Math.max(0, sheetH - PEEK_VISIBLE_PX)
+    case 'peek': return Math.max(0, sheetH - peekPx)
   }
 }
 
-function pxToNearestSnap(px: number, sheetH: number, allowed: SheetSnap[] = ['full', 'mid', 'peek']): SheetSnap {
+function pxToNearestSnap(px: number, sheetH: number, peekPx: number, allowed: SheetSnap[] = ['full', 'mid', 'peek']): SheetSnap {
   let best: SheetSnap = allowed[allowed.length - 1]
   let bestDist = Infinity
   for (const s of allowed) {
-    const d = Math.abs(snapToPx(s, sheetH) - px)
+    const d = Math.abs(snapToPx(s, sheetH, peekPx) - px)
     if (d < bestDist) { bestDist = d; best = s }
   }
   return best
@@ -35,10 +38,12 @@ function isMobile(): boolean {
 interface SheetConfig {
   maxSnap: SheetSnap | null  // cap drag; null = allow full
   // 'all'        — handle + content + header drags active (list view)
-  // 'handleOnly' — only the grab handle drags; content/header skip (detail
-  //                view, where useMapSheetSwipeClose owns the body gesture)
+  // 'handleOnly' — only the grab handle drags; content/header skip
   // 'none'       — disable all drag + hide handle
   dragMode: 'all' | 'handleOnly' | 'none'
+  // How much of the sheet stays visible at the 'peek' snap. Detail view
+  // raises this so the name + action buttons remain reachable when collapsed.
+  peekVisiblePx: number
 }
 
 export function useBottomSheet(initial: SheetSnap = 'peek') {
@@ -75,7 +80,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   }, [])
   const dragRef    = useRef<{ startY: number; basePx: number; pointerId: number } | null>(null)
   const snapRef    = useRef<SheetSnap>(initial)
-  const configRef  = useRef<SheetConfig>({ maxSnap: null, dragMode: 'all' })
+  const configRef  = useRef<SheetConfig>({ maxSnap: null, dragMode: 'all', peekVisiblePx: DEFAULT_PEEK_VISIBLE_PX })
   snapRef.current = snap
 
   const configure = useCallback((cfg: Partial<SheetConfig>) => {
@@ -131,7 +136,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       let offset = lastControlOffsetRef.current
       if (!offset && el && isMobile()) {
         const h = el.getBoundingClientRect().height
-        const px = snapToPx(snapRef.current, h)
+        const px = snapToPx(snapRef.current, h, configRef.current.peekVisiblePx)
         offset = Math.max(0, h - px) + 10
       }
       if (offset) updateControls(parent, offset)
@@ -152,7 +157,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     }
     if (el && isMobile()) {
       const h = el.getBoundingClientRect().height
-      const px = snapToPx(snapRef.current, h)
+      const px = snapToPx(snapRef.current, h, configRef.current.peekVisiblePx)
       const visible = Math.max(0, h - px)
       el.style.setProperty('--sheet-y', `${px}px`)
       el.style.setProperty('--sheet-visible-px', `${visible}px`)
@@ -178,7 +183,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     const el = sheetNode.current
     if (!el || !isMobile()) return
     const h = el.getBoundingClientRect().height
-    applyY(snapToPx(snap, h))
+    applyY(snapToPx(snap, h, configRef.current.peekVisiblePx))
   }, [snap, dragging, applyY])
 
   // Re-sync on resize
@@ -187,7 +192,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const el = sheetNode.current
       if (!el || !isMobile()) return
       const h = el.getBoundingClientRect().height
-      applyY(snapToPx(snap, h))
+      applyY(snapToPx(snap, h, configRef.current.peekVisiblePx))
     }
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
@@ -204,7 +209,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const h = sheet.getBoundingClientRect().height
       // Read actual CSS position so custom content-fit snap is the drag baseline.
       const cssY = sheet.style.getPropertyValue('--sheet-y')
-      const basePx = cssY ? parseFloat(cssY) : snapToPx(snap, h)
+      const basePx = cssY ? parseFloat(cssY) : snapToPx(snap, h, configRef.current.peekVisiblePx)
       dragRef.current = { startY: e.clientY, basePx, pointerId: e.pointerId }
       handle.setPointerCapture(e.pointerId)
       setDragging(true)
@@ -215,7 +220,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       if (!d) return
       const { maxSnap } = configRef.current
       const h = sheet.getBoundingClientRect().height
-      const upperCap = maxSnap ? snapToPx(maxSnap, h) : FULL_TOP_PX
+      const upperCap = maxSnap ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx) : FULL_TOP_PX
       const next = Math.max(upperCap, Math.min(h - 40, d.basePx + (e.clientY - d.startY)))
       applyY(next)
     }
@@ -233,10 +238,10 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
         setSnap('mid')
         return
       }
-      const upperCap = maxSnap ? snapToPx(maxSnap, h) : FULL_TOP_PX
+      const upperCap = maxSnap ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx) : FULL_TOP_PX
       const finalPx = Math.max(upperCap, Math.min(h - 40, d.basePx + (e.clientY - d.startY)))
       const allowed: SheetSnap[] = maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']
-      setSnap(pxToNearestSnap(finalPx, h, allowed))
+      setSnap(pxToNearestSnap(finalPx, h, configRef.current.peekVisiblePx, allowed))
     }
 
     handle.addEventListener('pointerdown',   onDown)
@@ -273,17 +278,19 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     } | null = null
 
     const onTouchStart = (e: TouchEvent) => {
-      // Skip in detail mode — the detail view has its own swipe-down-to-close
-      // handler bound to the sheet element; running both on the same gesture
-      // made them fight. Detail relies on the visible handle for up-drag.
       if (configRef.current.dragMode !== 'all') return
       if (e.touches.length !== 1) return
       const h = sheet.getBoundingClientRect().height
+      /* The detail view's actual scroller is nested inside the contentRef
+         wrapper (marked with data-detail-scroll). Read scrollTop from there
+         when present so the conflict-resolution rule works correctly — the
+         outer wrapper itself never scrolls. */
+      const scroller = content.querySelector<HTMLElement>('[data-detail-scroll]') ?? content
       touchState = {
         startY: e.touches[0].clientY,
-        basePx: snapToPx(snapRef.current, h),
+        basePx: snapToPx(snapRef.current, h, configRef.current.peekVisiblePx),
         active: false,
-        atScrollTop: content.scrollTop <= 0,
+        atScrollTop: scroller.scrollTop <= 0,
       }
     }
 
@@ -292,18 +299,22 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const dy = e.touches[0].clientY - touchState.startY
       if (!touchState.active) {
         if (Math.abs(dy) < 6) return
-        const atPeek = snapRef.current === 'peek'
-        // At non-peek snaps, only allow sheet drag when the user is swiping
-        // DOWN AND the list is already at scrollTop=0. Otherwise it's a
-        // normal scroll gesture — leave the browser alone.
-        if (!atPeek && (dy < 0 || !touchState.atScrollTop)) return
+        /* Conflict resolution between sheet-drag and content-scroll, so the
+           user can swipe up/down anywhere in the sheet without fighting
+           native scroll:
+           - At full + swiping UP → already at top, let native scroll absorb it
+           - Swiping DOWN with the content scrolled past the top → native scroll
+           - Otherwise → drag the sheet between snaps. */
+        const atFull = snapRef.current === 'full'
+        if (atFull && dy < 0) return
+        if (dy > 0 && !touchState.atScrollTop) return
         touchState.active = true
         setDragging(true)
       }
       e.preventDefault()
       const { maxSnap } = configRef.current
       const h = sheet.getBoundingClientRect().height
-      const upperCap = maxSnap ? snapToPx(maxSnap, h) : FULL_TOP_PX
+      const upperCap = maxSnap ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx) : FULL_TOP_PX
       const next = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
       applyY(next)
     }
@@ -313,12 +324,12 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       if (touchState.active) {
         const { maxSnap } = configRef.current
         const h = sheet.getBoundingClientRect().height
-        const upperCap = maxSnap ? snapToPx(maxSnap, h) : FULL_TOP_PX
+        const upperCap = maxSnap ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx) : FULL_TOP_PX
         const dy = (e.changedTouches[0]?.clientY ?? touchState.startY) - touchState.startY
         const finalPx = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
         const allowed: SheetSnap[] = maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']
         setDragging(false)
-        setSnap(pxToNearestSnap(finalPx, h, allowed))
+        setSnap(pxToNearestSnap(finalPx, h, configRef.current.peekVisiblePx, allowed))
       }
       touchState = null
     }
@@ -359,7 +370,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const h = sheet.getBoundingClientRect().height
       touchState = {
         startY: e.touches[0].clientY,
-        basePx: snapToPx(snapRef.current, h),
+        basePx: snapToPx(snapRef.current, h, configRef.current.peekVisiblePx),
         active: false,
       }
     }
@@ -377,7 +388,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       if (e.cancelable) e.preventDefault()
       const { maxSnap } = configRef.current
       const h = sheet.getBoundingClientRect().height
-      const upperCap = maxSnap ? snapToPx(maxSnap, h) : FULL_TOP_PX
+      const upperCap = maxSnap ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx) : FULL_TOP_PX
       const next = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
       applyY(next)
     }
@@ -387,12 +398,12 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       if (touchState.active) {
         const { maxSnap } = configRef.current
         const h = sheet.getBoundingClientRect().height
-        const upperCap = maxSnap ? snapToPx(maxSnap, h) : FULL_TOP_PX
+        const upperCap = maxSnap ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx) : FULL_TOP_PX
         const dy = (e.changedTouches[0]?.clientY ?? touchState.startY) - touchState.startY
         const finalPx = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
         const allowed: SheetSnap[] = maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']
         setDragging(false)
-        setSnap(pxToNearestSnap(finalPx, h, allowed))
+        setSnap(pxToNearestSnap(finalPx, h, configRef.current.peekVisiblePx, allowed))
       }
       touchState = null
     }
@@ -418,7 +429,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     const el = sheetNode.current
     if (!el || !isMobile()) return
     const h = el.getBoundingClientRect().height
-    applyY(snapToPx(target, h))
+    applyY(snapToPx(target, h, configRef.current.peekVisiblePx))
     snapRef.current = target
   }, [applyY])
 

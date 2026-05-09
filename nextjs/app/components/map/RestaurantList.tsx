@@ -1,6 +1,6 @@
 'use client'
 import type { MapRestaurant, OpenStatus } from '@/lib/types'
-import { haversineDistance, formatDistance, formatWalkingTime, getOpenStatus, type UserLocation } from '@/lib/map'
+import { haversineDistance, formatWalkingTime, getOpenStatus, type UserLocation } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import styles from './map.module.css'
 
@@ -28,61 +28,66 @@ function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
   const meters = userLocation
     ? haversineDistance(userLocation.lat, userLocation.lng, restaurant.lat, restaurant.lng)
     : null
-  const distance = meters !== null ? formatDistance(meters) : null
   const walkingTime = meters !== null ? formatWalkingTime(meters) : null
+  const district = restaurant.bezirk?.name ?? restaurant.district ?? null
+
+  /* Split the contextual status label — `getOpenStatus` returns
+     "Geöffnet · schließt 22:00" / "Geschlossen · öffnet 9:00" — into a colored
+     primary word and a muted suffix. Apple/Google Maps treatment: no capsule. */
+  const [statusMain, ...statusRest] = status.label ? status.label.split(' · ') : []
+  const statusSub = statusRest.join(' · ')
 
   return (
     <button
       className={`${styles.row} ${isSelected ? styles.rowActive : ''}`}
       onClick={() => onClick(restaurant)}
     >
-      {restaurant.photo ? (
-        <img src={restaurant.photo} alt="" className={styles.rowPhoto} loading="lazy" />
-      ) : (
-        <div className={styles.rowPhotoPlaceholder} aria-hidden="true">🍽</div>
-      )}
-
-      <div className={styles.rowMain}>
-        <div className={styles.rowName}>{restaurant.name}</div>
-        <div className={styles.rowMeta}>
-          <span>{[restaurant.district, restaurant.price].filter(Boolean).join(' · ')}</span>
-          {distance && (
-            <>
-              <span className={styles.rowMetaDot} aria-hidden="true">·</span>
-              <span>{distance}</span>
-              <span className={styles.rowMetaDot} aria-hidden="true">·</span>
-              <span>{walkingTime}</span>
-            </>
-          )}
-          {restaurant.mustEatCount > 0 && (
-            <>
-              <span className={styles.rowMetaDot} aria-hidden="true">·</span>
-              <img
-                src="/pics/card-back.webp"
-                alt="Must Eat"
-                className={styles.rowMustBadge}
-                draggable={false}
-              />
-            </>
-          )}
-        </div>
-        {restaurant.categories && restaurant.categories.length > 0 && (
-          <div className={styles.rowTags}>
-            <span className={styles.rowTagsText}>
-              {restaurant.categories.slice(0, 3).join(', ')}
-            </span>
-          </div>
+      <div className={styles.rowPhotoWrap}>
+        {restaurant.photo ? (
+          <img src={restaurant.photo} alt="" className={styles.rowPhoto} loading="lazy" />
+        ) : (
+          <div className={styles.rowPhotoPlaceholder} aria-hidden="true">🍽</div>
+        )}
+        {restaurant.mustEatCount > 0 && (
+          <img
+            src="/pics/card-back.webp"
+            alt=""
+            className={styles.rowMustOverlay}
+            aria-label="Must Eat"
+            draggable={false}
+          />
         )}
       </div>
 
+      <div className={styles.rowMain}>
+        <div className={styles.rowName}>{restaurant.name}</div>
+        {district && (
+          <div className={styles.rowDistrict}>{district}</div>
+        )}
+        <div className={styles.rowMeta}>
+          <span className={styles.rowMetaText}>
+            {[
+              restaurant.price,
+              restaurant.categories?.slice(0, 3).join(' · '),
+              walkingTime,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </span>
+        </div>
+      </div>
+
       <div className={styles.rowSide}>
-        {status.label && (
+        {statusMain && (
           <span
-            className={`${styles.rowStatusPill} ${status.isOpen ? styles.rowStatusPillOpen : styles.rowStatusPillClosed}`}
+            className={`${styles.rowStatus} ${status.isOpen ? styles.rowStatusOpen : styles.rowStatusClosed}`}
             role="status"
           >
-            {status.isOpen ? t('map.openNow') : t('map.closed')}
+            {statusMain}
           </span>
+        )}
+        {statusSub && (
+          <span className={styles.rowStatusSub}>{statusSub}</span>
         )}
       </div>
     </button>

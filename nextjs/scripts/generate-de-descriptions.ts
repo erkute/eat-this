@@ -226,19 +226,41 @@ Brand-Voice: direkt, meinungsstark, konkret. Vermeide Werbe-Phrasen ("entdecke",
 
 Du bekommst zwei Datenblöcke:
 1. SANITY-FAKTEN: was wir intern über das Restaurant wissen (Name, Adresse, Bezirk, Preisklasse, Kategorien, Cuisine-Typ).
-2. GOOGLE-PLACES-KONTEXT: editorialSummary, Rating, Review-Auszüge. **Verwende Reviews als Atmosphäre- und Spezialitäten-Hinweis, niemals als Direktzitat.** Konkrete Dishes, Atmosphäre, "wofür ist das Restaurant bekannt" — solche Hinweise destillieren.
+2. GOOGLE-PLACES-KONTEXT: editorialSummary, Rating, Review-Auszüge. **Verwende Reviews als Atmosphäre- und Spezialitäten-Hinweis, niemals als Direktzitat.**
 
-REGELN:
-- Nur Fakten verwenden die in den Quellen stehen. Keine Erfindungen. Wenn Reviews ein Dish nicht erwähnen, erwähne es nicht.
+NO-HALLUCINATION-REGELN (hart):
+- Jede konkrete Aussage muss durch SANITY-FAKTEN oder GOOGLE-PLACES-KONTEXT gedeckt sein. Nichts erfinden — auch nicht "passend klingende" Details.
+- KEINE Personennamen (Inhaber/Chef/Barista) erfinden. Wenn nicht in den Quellen erwähnt → weglassen.
+- KEINE Gerücht-Formulierungen: "laut Stammgästen", "es heißt", "angeblich", "soll … sein", "wird oft gelobt" — alle verboten.
+- KEINE Crowd-Behauptungen ohne Beleg: "im Sommer Schlangen", "abends immer voll", "zur Mittagszeit überfüllt" nur wenn Reviews das EXPLIZIT sagen.
+- KEINE Marketing-Etiketten: "Geheimtipp", "Pflichtbesuch", "Insider-Adresse", "Must-Try".
 - Restaurantnamen, Dish-Namen, Bezirksnamen bleiben wie sie sind.
 - Rating-Zahlen NICHT erwähnen (Google-Rating ändert sich, würde stale werden).
 
 LÄNGEN-BUDGETS (harte Limits):
 - description: 200-300 Zeichen, ein bis zwei Sätze. Konkret, das "warum geht man da hin".
 - shortDescription: max 160 Zeichen, EIN Satz. SEO-Meta-Description-Stil. Komprimierte Essenz.
-- tip: 1-2 kurze Sätze (max 200 Zeichen). Insider-Hinweis: was bestellt man, wann hingehen, was übersehen.
+- tip: 1-2 kurze Sätze (max 200 Zeichen).
 
-Falls für ein Feld nicht genug Substanz da ist (z.B. Reviews zu dünn für einen echten Tip), setze das Feld auf null. Lieber kein Tip als ein generischer.
+TIP-QUALITÄT (strikter Filter):
+Ein gültiger Tip enthält MINDESTENS EIN konkretes Detail aus den Quellen:
+- Spezifische Speise/Drink, die in Reviews oder editorialSummary auftaucht (mit Namen)
+- Operative Eigenheit aus den Sanity-Fakten (Kartenzahlung-only, no-laptop, no-reservation, BYO, Cash-only, ohne Reservierung)
+- Verifizierbares zeitliches Detail (z.B. Wochentag-Special, das Reviews konkret nennen)
+
+GENERISCHE TIPS SIND VERBOTEN — wenn nichts Konkretes da ist, tip = null:
+- ❌ "Reservierung empfohlen" / "Tisch reservieren"
+- ❌ "Früh kommen" / "Schlange einplanen"
+- ❌ "Bei gutem Wetter draußen sitzen"
+- ❌ "Außerhalb der Stoßzeiten kommen"
+- ❌ "Wer XYZ sucht, ist hier richtig/falsch"
+- ❌ "Zeit mitbringen"
+
+✓ Gutes Beispiel: "Hot Honey zur Pepperoni ist kein optionales Extra — die Slice schmeckt anders ohne."
+✓ Gutes Beispiel: "Nur Kartenzahlung — Bargeld kann zuhause bleiben."
+✗ Schlechtes Beispiel (→ null): "Wer früh kommt, vermeidet Wartezeiten."
+
+Lieber tip = null als ein generischer Tip. Im Zweifel: null.
 
 Gib NUR ein JSON-Objekt zurück (kein Prosa, kein Markdown-Fence):
 {
@@ -264,6 +286,33 @@ export interface RestaurantGen {
   description: string
   shortDescription: string | null
   tip: string | null
+}
+
+// Last-resort filters: even with the strengthened prompt the model occasionally
+// slips a rumor-style attribution or marketing tag into the output. We nuke
+// the tip (set null) and warn on the description (user reviews before publish).
+const BANNED_PATTERNS: RegExp[] = [
+  // Rumor / unverifiable attribution / review-citation hedges
+  /\blaut (Stammgäst|Stammkund|Reviews?|Bewertung|Gäst|Kund|Besucher)/i,
+  /\bin Reviews? (wird|werden|hervorgehoben|gelobt|erwähnt|gepriesen)/i,
+  /\bes heißt\b/i,
+  /\bangeblich\b/i,
+  /\bman munkelt\b/i,
+  /\bwird (oft |häufig )?(gelobt|hervorgehoben|gepriesen)\b/i,
+  // Marketing / press-release labels
+  /\bGeheimtipp\b/i,
+  /\bMust-?Try\b/i,
+  /\bInsider-Adresse\b/i,
+  /\bPflichtbesuch\b/i,
+  /\bhidden gem\b/i,
+]
+
+function findBannedPhrase(text: string): string | null {
+  for (const re of BANNED_PATTERNS) {
+    const m = text.match(re)
+    if (m) return m[0]
+  }
+  return null
 }
 
 interface BezirkGen {
@@ -343,6 +392,19 @@ export async function generateRestaurant(r: RestaurantSource, places: PlaceConte
   }
   if (parsed.tip && parsed.tip.length > 220) {
     throw new Error(`tip too long (${parsed.tip.length}) for ${r._id}`)
+  }
+  if (parsed.tip) {
+    const banned = findBannedPhrase(parsed.tip)
+    if (banned) {
+      console.warn(`      tip dropped (banned phrase: "${banned}") for ${r._id}`)
+      parsed.tip = null
+    }
+  }
+  if (parsed.description) {
+    const banned = findBannedPhrase(parsed.description)
+    if (banned) {
+      console.warn(`      description has banned phrase: "${banned}" for ${r._id} — review manually`)
+    }
   }
   return parsed
 }

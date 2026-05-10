@@ -85,6 +85,29 @@ function slugify(input: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
+/** Returns a slug guaranteed unique across all `restaurant` docs (drafts and
+ *  published). Falls back to `<base>-<ortsteil>` then numeric `-2/-3/...`
+ *  when the bare name collides — same brand at different addresses keeps a
+ *  human-readable URL instead of going straight to a numeric suffix. */
+async function uniqueSlug(base: string, ortsteil: string | null): Promise<string> {
+  const exists = async (s: string) =>
+    (await sanity.fetch<number>(
+      `count(*[_type=="restaurant" && slug.current == $s])`,
+      { s },
+    )) > 0
+  if (!(await exists(base))) return base
+  if (ortsteil) {
+    const withOrt = `${base}-${slugify(ortsteil)}`
+    if (!(await exists(withOrt))) return withOrt
+  }
+  const ortPart = ortsteil ? `-${slugify(ortsteil)}` : ''
+  for (let n = 2; n < 100; n++) {
+    const candidate = `${base}${ortPart}-${n}`
+    if (!(await exists(candidate))) return candidate
+  }
+  throw new ImportError(`Could not find unique slug for "${base}" after 100 attempts.`)
+}
+
 // ----- Places API ----------------------------------------------------------
 
 const TYPE_MAP: Record<string, string> = {
@@ -396,6 +419,7 @@ interface BuildContext {
   ortsteil: string | null
   photoAsset: PhotoAsset | null
   categoryRefs: { _key: string; _type: 'reference'; _ref: string }[]
+  slug: string
 }
 
 function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildContext) {
@@ -404,7 +428,7 @@ function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildCo
     _id: `drafts.${randomUUID()}`,
     _type: 'restaurant',
     name,
-    slug: { _type: 'slug', current: slugify(name) },
+    slug: { _type: 'slug', current: ctx.slug },
     isOpen: true,
     isClosed: false,
     lat: place.location?.latitude ?? parsed.lat,
@@ -538,8 +562,8 @@ export async function runImport(url: string, opts: RunImportOptions = {}): Promi
   const ortsteil = findOrtsteil(place.addressComponents)
   const bezirkRefId = ortsteil ? await findBezirkRef(ortsteil) : null
 
-  const restaurantSlug = slugify(matchedName)
-  const photoAsset = uploadPhoto ? await importPhoto(place, restaurantSlug) : null
+  const slug = await uniqueSlug(slugify(matchedName), ortsteil)
+  const photoAsset = uploadPhoto ? await importPhoto(place, slug) : null
 
   const categoryNames = inferCategories(place.types)
   const categoryRefs = await lookupCategoryRefs(categoryNames)
@@ -549,6 +573,7 @@ export async function runImport(url: string, opts: RunImportOptions = {}): Promi
     ortsteil,
     photoAsset,
     categoryRefs,
+    slug,
   })
 
   return {

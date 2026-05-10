@@ -437,7 +437,88 @@ function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildCo
   return doc
 }
 
-// ----- Main ----------------------------------------------------------------
+// ----- Reusable runner ------------------------------------------------------
+
+/** Throws when the URL can't be parsed, no Places match exists, or a published
+ *  restaurant with the matched name is already in Sanity. The Studio flow and
+ *  the CLI both surface these as user-facing errors. */
+export class ImportError extends Error {
+  constructor(message: string, public hint?: string) {
+    super(message)
+    this.name = 'ImportError'
+  }
+}
+
+export interface RunImportOptions {
+  /** When false, skip downloading + uploading the Places photo. Default true. */
+  uploadPhoto?: boolean
+  /** When false, don't reject on a name collision. Default true. */
+  duplicateCheck?: boolean
+}
+
+export interface RunImportResult {
+  doc: { _id: string; _type: 'restaurant' } & Record<string, unknown>
+  place: Place
+  matchedName: string
+  ortsteil: string | null
+  bezirkRefId: string | null
+  photoAsset: PhotoAsset | null
+  canonicalUrl: string
+}
+
+/** Resolves a Google Maps URL to a draft-ready restaurant doc shape. Used by
+ *  the CLI here and by the Studio template via the /api/admin/import-restaurant
+ *  endpoint. The doc carries a generated `drafts.<uuid>` id which the CLI
+ *  passes to sanity.create; the API endpoint strips it so Sanity assigns a
+ *  fresh id at draft-creation time. */
+export async function runImport(url: string, opts: RunImportOptions = {}): Promise<RunImportResult> {
+  const uploadPhoto = opts.uploadPhoto !== false
+  const duplicateCheck = opts.duplicateCheck !== false
+
+  const canonicalUrl = await resolveUrl(url)
+  const parsed = parseMapsUrl(canonicalUrl)
+  if (!parsed) {
+    throw new ImportError(
+      'Could not extract name + coordinates from this URL.',
+      'URL must contain /place/{name}/ and @lat,lng — try the desktop "Share → Copy link" form.',
+    )
+  }
+
+  const place = await searchPlace(parsed)
+  if (!place) {
+    throw new ImportError(
+      'No Places match for that URL.',
+      'Try a more specific URL or check the coordinates.',
+    )
+  }
+
+  const matchedName = place.displayName?.text ?? parsed.name
+
+  if (duplicateCheck) {
+    const existing = await sanity.fetch<{ _id: string; name: string }[]>(
+      `*[_type=="restaurant" && name == $name && !(_id in path("drafts.**"))]{_id,name}`,
+      { name: matchedName },
+    )
+    if (existing.length) {
+      throw new ImportError(
+        `"${matchedName}" already exists in Sanity (${existing[0]._id}).`,
+        'Edit the existing document instead.',
+      )
+    }
+  }
+
+  const ortsteil = findOrtsteil(place.addressComponents)
+  const bezirkRefId = ortsteil ? await findBezirkRef(ortsteil) : null
+
+  const restaurantSlug = slugify(matchedName)
+  const photoAsset = uploadPhoto ? await importPhoto(place, restaurantSlug) : null
+
+  const doc = buildDoc(parsed, place, canonicalUrl, { bezirkRefId, ortsteil, photoAsset })
+
+  return { doc, place, matchedName, ortsteil, bezirkRefId, photoAsset, canonicalUrl }
+}
+
+// ----- CLI Main ------------------------------------------------------------
 
 async function main() {
   const args = process.argv.slice(2)
@@ -449,61 +530,36 @@ async function main() {
   }
 
   console.log(`→ Resolving: ${url}`)
-  const canonical = await resolveUrl(url)
-  if (canonical !== url) console.log(`  canonical: ${canonical}`)
-
-  const parsed = parseMapsUrl(canonical)
-  if (!parsed) {
-    console.error('  could not extract name + coordinates from URL')
-    console.error('  URL must contain /place/{name}/ and @lat,lng — try the desktop "Share → Copy link" form')
-    process.exit(1)
-  }
-  console.log(`  parsed: name="${parsed.name}", lat=${parsed.lat}, lng=${parsed.lng}`)
-
-  console.log(`→ Searching Places: "${parsed.name}" near (${parsed.lat}, ${parsed.lng})`)
-  const place = await searchPlace(parsed)
-  if (!place) {
-    console.error('  no Places match — try a more specific URL or check the coordinates')
-    process.exit(1)
-  }
-  console.log(`  matched: ${place.displayName?.text ?? '(no name)'} (id=${place.id})`)
-  if (place.types?.length) console.log(`  types:   ${place.types.slice(0, 4).join(', ')}`)
-
-  const matchedName = place.displayName?.text ?? parsed.name
-  const existing = await sanity.fetch<{ _id: string; name: string }[]>(
-    `*[_type=="restaurant" && name == $name && !(_id in path("drafts.**"))]{_id,name}`,
-    { name: matchedName },
-  )
-  if (existing.length) {
-    console.error(`\n✗ Duplicate: "${matchedName}" already exists as ${existing[0]._id}`)
-    console.error('  Skipping — edit the existing doc in Studio if you want to update it.')
-    process.exit(1)
+  let result: RunImportResult
+  try {
+    result = await runImport(url, { uploadPhoto: !dryRun })
+  } catch (err) {
+    if (err instanceof ImportError) {
+      console.error(`✗ ${err.message}`)
+      if (err.hint) console.error(`  ${err.hint}`)
+      process.exit(1)
+    }
+    throw err
   }
 
-  // Bezirk match (sublocality_level_1 → existing bezirk doc by name).
-  const ortsteil = findOrtsteil(place.addressComponents)
-  const bezirkRefId = ortsteil ? await findBezirkRef(ortsteil) : null
-  if (ortsteil) {
-    console.log(`  ortsteil: ${ortsteil}${bezirkRefId ? ` → ref ${bezirkRefId}` : ' (no bezirk doc)'}`)
+  if (result.canonicalUrl !== url) console.log(`  canonical: ${result.canonicalUrl}`)
+  console.log(`  matched: ${result.matchedName} (id=${result.place.id})`)
+  if (result.place.types?.length) console.log(`  types:   ${result.place.types.slice(0, 4).join(', ')}`)
+  if (result.ortsteil) {
+    console.log(`  ortsteil: ${result.ortsteil}${result.bezirkRefId ? ` → ref ${result.bezirkRefId}` : ' (no bezirk doc)'}`)
   }
-
-  // Photo: download first Places photo, upload to Sanity assets. Skip on
-  // --dry-run so we don't pollute assets while iterating.
-  const restaurantSlug = slugify(matchedName)
-  const photoAsset = dryRun ? null : await importPhoto(place, restaurantSlug)
-  if (photoAsset) console.log(`  photo:    uploaded ${photoAsset._id}`)
-  else if (place.photos?.length) console.log(`  photo:    ${dryRun ? 'skipped (--dry-run)' : 'failed'}`)
+  if (result.photoAsset) console.log(`  photo:    uploaded ${result.photoAsset._id}`)
+  else if (result.place.photos?.length) console.log(`  photo:    ${dryRun ? 'skipped (--dry-run)' : 'failed'}`)
   else console.log(`  photo:    none on Places`)
 
-  const doc = buildDoc(parsed, place, canonical, { bezirkRefId, ortsteil, photoAsset })
-  console.log(`\n→ Draft preview:\n${JSON.stringify(doc, null, 2)}\n`)
+  console.log(`\n→ Draft preview:\n${JSON.stringify(result.doc, null, 2)}\n`)
 
   if (dryRun) {
     console.log('--dry-run: skipping Sanity write')
     return
   }
 
-  const created = await sanity.create(doc)
+  const created = await sanity.create(result.doc)
   const publishedId = created._id.replace(/^drafts\./, '')
   console.log(`✓ Draft created: ${created._id}`)
   console.log(`  Open in Studio:`)
@@ -512,7 +568,22 @@ async function main() {
   console.log(`  add description/tip/photo, then publish.`)
 }
 
-main().catch(err => {
-  console.error(err)
-  process.exit(1)
-})
+// Only run main when invoked directly via tsx — skipped when this module is
+// imported by the API route (which uses runImport instead). Symlink-safe via
+// realpath: on macOS /tmp resolves to /private/tmp so a naive URL/path
+// comparison would mis-detect.
+import { realpathSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+function isCliEntry(): boolean {
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1] ?? '')
+  } catch {
+    return false
+  }
+}
+if (isCliEntry()) {
+  main().catch(err => {
+    console.error(err)
+    process.exit(1)
+  })
+}

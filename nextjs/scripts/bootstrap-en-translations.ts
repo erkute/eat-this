@@ -75,7 +75,7 @@ const sanity = createClient({
 
 const anthropic = new Anthropic({ apiKey: requireEnv('ANTHROPIC_API_KEY') })
 
-interface RestaurantSource {
+export interface RestaurantSource {
   _id: string
   name: string
   description?: string
@@ -147,7 +147,7 @@ Return ONLY this JSON object (no prose, no markdown fence):
   "descriptionEn": string | null
 }`
 
-interface RestaurantTranslation {
+export interface RestaurantTranslation {
   descriptionEn: string | null
   shortDescriptionEn: string | null
   tipEn: string | null
@@ -167,7 +167,7 @@ function extractJsonText(content: Anthropic.ContentBlock[], docId: string): stri
   return textBlock.text.trim()
 }
 
-async function translateRestaurant(r: RestaurantSource): Promise<RestaurantTranslation> {
+export async function translateRestaurant(r: RestaurantSource): Promise<RestaurantTranslation> {
   const source = {
     name: r.name,
     description: r.description ?? null,
@@ -303,7 +303,18 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch(err => {
-  console.error('[bootstrap] FATAL:', err)
-  process.exit(1)
-})
+import { realpathSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+function isCliEntry(): boolean {
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1] ?? '')
+  } catch {
+    return false
+  }
+}
+if (isCliEntry()) {
+  main().catch(err => {
+    console.error('[bootstrap] FATAL:', err)
+    process.exit(1)
+  })
+}

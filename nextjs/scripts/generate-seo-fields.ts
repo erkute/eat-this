@@ -75,7 +75,7 @@ const sanity = createClient({
 
 const anthropic = new Anthropic({ apiKey: requireEnv('ANTHROPIC_API_KEY') })
 
-interface RestaurantSource {
+export interface RestaurantSource {
   _id: string
   name: string
   description?: string
@@ -210,7 +210,7 @@ Gib NUR ein JSON-Objekt zurück (kein Prosa, kein Markdown-Fence):
   "metaDescriptionEn": string
 }`
 
-interface SeoGen {
+export interface SeoGen {
   metaTitle: string
   metaTitleEn: string
   metaDescription: string
@@ -317,7 +317,7 @@ async function generateSeoFromFacts(
   return parsed
 }
 
-function generateRestaurantSeo(r: RestaurantSource): Promise<SeoGen> {
+export function generateRestaurantSeo(r: RestaurantSource): Promise<SeoGen> {
   return generateSeoFromFacts(
     RESTAURANT_SEO_PROMPT,
     {
@@ -439,7 +439,18 @@ async function main(): Promise<void> {
   console.log(`[generate-seo] done — ok: ${ok}, failed: ${failed}`)
 }
 
-main().catch(err => {
-  console.error('[generate-seo] FATAL:', err)
-  process.exit(1)
-})
+import { realpathSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+function isCliEntry(): boolean {
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1] ?? '')
+  } catch {
+    return false
+  }
+}
+if (isCliEntry()) {
+  main().catch(err => {
+    console.error('[generate-seo] FATAL:', err)
+    process.exit(1)
+  })
+}

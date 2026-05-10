@@ -86,7 +86,7 @@ const sanity = createClient({
 const anthropic = new Anthropic({ apiKey: requireEnv('ANTHROPIC_API_KEY') })
 const GOOGLE_API_KEY = requireEnv('GOOGLE_API_KEY')
 
-interface RestaurantSource {
+export interface RestaurantSource {
   _id: string
   name: string
   description?: string
@@ -145,7 +145,7 @@ async function fetchBezirke(draftsOnly: boolean): Promise<BezirkSource[]> {
   )
 }
 
-interface PlaceContext {
+export interface PlaceContext {
   formattedAddress?: string
   websiteUri?: string
   rating?: number
@@ -156,7 +156,7 @@ interface PlaceContext {
   reviews?: Array<{ rating?: number; text?: string; lang?: string }>
 }
 
-async function fetchPlaceContext(r: RestaurantSource): Promise<PlaceContext | null> {
+export async function fetchPlaceContext(r: RestaurantSource): Promise<PlaceContext | null> {
   const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
     method: 'POST',
     headers: {
@@ -250,7 +250,7 @@ Gib NUR ein JSON-Objekt zurück:
   "description": string
 }`
 
-interface RestaurantGen {
+export interface RestaurantGen {
   description: string
   shortDescription: string | null
   tip: string | null
@@ -273,7 +273,7 @@ function extractJsonText(content: Anthropic.ContentBlock[], docId: string): stri
     .trim()
 }
 
-async function generateRestaurant(r: RestaurantSource, places: PlaceContext | null): Promise<RestaurantGen> {
+export async function generateRestaurant(r: RestaurantSource, places: PlaceContext | null): Promise<RestaurantGen> {
   const sanityFacts = {
     name: r.name,
     cuisineType: r.cuisineType ?? null,
@@ -436,7 +436,20 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch(err => {
-  console.error('[generate-de] FATAL:', err)
-  process.exit(1)
-})
+// Only run main when invoked directly via tsx; skipped when imported by the
+// API route. Symlink-safe via realpath (macOS /tmp → /private/tmp).
+import { realpathSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+function isCliEntry(): boolean {
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1] ?? '')
+  } catch {
+    return false
+  }
+}
+if (isCliEntry()) {
+  main().catch(err => {
+    console.error('[generate-de] FATAL:', err)
+    process.exit(1)
+  })
+}

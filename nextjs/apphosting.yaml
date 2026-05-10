@@ -3,6 +3,10 @@ runConfig:
   maxInstances: 10
   minInstances: 0
   concurrency: 80
+  # The import-restaurant route runs Places + photo upload + 3 Sonnet calls
+  # synchronously, ~25–45 s total. Default 60 s timeout cuts it short on
+  # slow LLM days; 120 s leaves headroom without inviting runaway requests.
+  timeoutSeconds: 120
 
 env:
   - variable: SANITY_REVALIDATE_SECRET
@@ -69,4 +73,31 @@ env:
     secret: SENTRY_AUTH_TOKEN
     availability:
       - BUILD
+
+  # /api/admin/import-restaurant — pulls Places data, uploads photo to Sanity,
+  # runs the 3 Anthropic generators (DE / EN / SEO). All four secrets are
+  # required at runtime; create them with:
+  #   firebase apphosting:secrets:set IMPORT_SECRET
+  #   firebase apphosting:secrets:set GOOGLE_API_KEY
+  #   firebase apphosting:secrets:set ANTHROPIC_API_KEY
+  #   firebase apphosting:secrets:set SANITY_API_WRITE_TOKEN
+  # IMPORT_SECRET must match the Studio's SANITY_STUDIO_IMPORT_SECRET — rotate
+  # both together (Studio bakes the value in at build time, so a rotation
+  # needs a `sanity deploy` afterwards too).
+  - variable: IMPORT_SECRET
+    secret: IMPORT_SECRET
+    availability:
+      - RUNTIME
+  - variable: GOOGLE_API_KEY
+    secret: GOOGLE_API_KEY
+    availability:
+      - RUNTIME
+  - variable: ANTHROPIC_API_KEY
+    secret: ANTHROPIC_API_KEY
+    availability:
+      - RUNTIME
+  - variable: SANITY_API_WRITE_TOKEN
+    secret: SANITY_API_WRITE_TOKEN
+    availability:
+      - RUNTIME
 

@@ -142,13 +142,14 @@ export async function getCategoryBySlug(slug: string): Promise<CategoryDef | nul
 }
 
 export async function getCategoryCounts(): Promise<Record<string, number>> {
-  const occurrences = await client.fetch<{ slug: string | null }[]>(
+  const occurrences = await client.fetch<({ slug: string | null } | null)[]>(
     categoryOccurrencesQuery,
     {},
     { next: { revalidate: 3600, tags: ['category-list'] } }
   )
   const counts: Record<string, number> = {}
-  for (const { slug } of occurrences) {
+  for (const occ of occurrences) {
+    const slug = occ?.slug
     if (!slug) continue
     counts[slug] = (counts[slug] ?? 0) + 1
   }

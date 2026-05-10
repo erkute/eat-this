@@ -1,15 +1,15 @@
-// Dual-shape category projection. Tolerates both pre-migration (legacy
-// `categories: string[]`) and post-migration (`categories: reference[]`)
-// data so a single GROQ query keeps working through the cutover.
-//   - reference: dereferences and pulls slug/name/nameEn/description.
-//   - string:   wraps the bare value as `{slug: lower(@), name: @}` so consumers
-//               read a uniform `[{slug, name, nameEn?, description?}]` shape.
-const CATEGORY_PROJECTION = `categories[] {
-  "slug": coalesce(@->slug.current, lower(@)),
-  "name": coalesce(@->name, @),
-  "nameEn": @->nameEn,
-  "description": @->description,
-  "descriptionEn": @->descriptionEn
+// Category projection — only resolves reference entries; legacy string entries
+// (left over from before the migration) are dropped. GROQ's object projection
+// `{...}` returns null for primitive array elements, so a unified dual-shape
+// projection isn't representable. The migration script converts strings →
+// refs in one pass; until it has run on a given dataset, restaurants whose
+// categories are still strings will render with no category chips.
+const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
+  "slug": slug.current,
+  name,
+  nameEn,
+  description,
+  descriptionEn
 }`
 
 export const restaurantBySlugQuery = `
@@ -129,8 +129,8 @@ export const restaurantsByBezirkQuery = `
 // Dual-shape match: reference docs use slug.current, legacy strings match by lowercased value.
 export const restaurantsByCategoryQuery = `
   *[_type == "restaurant" && isOpen != false
-    && count(categories[
-      coalesce(@->slug.current, lower(@)) == $categorySlug
+    && count(categories[defined(@)
+      && coalesce(@->slug.current, lower(@)) == $categorySlug
     ]) > 0
   ] | order(name asc) {
     _id,
@@ -226,11 +226,15 @@ export const allCategoriesQuery = `
   }
 `
 
-// Flat list of every restaurant category occurrence as a `{slug}` projection.
-// Counted in JS by slug to support both shapes during the migration window.
+// Flat list of every restaurant category occurrence (ref entries only) as
+// `{slug}`. Counted in JS by slug. Legacy string entries are excluded — the
+// per-category counts will read 0 until the migration script runs.
+// `defined(categories)` filter prevents `null` entries flattening in for
+// restaurants with no `categories` field at all.
 export const categoryOccurrencesQuery = `
-  *[_type == "restaurant" && isOpen != false].categories[] {
-    "slug": coalesce(@->slug.current, lower(@))
+  *[_type == "restaurant" && isOpen != false && defined(categories)]
+    .categories[defined(@->_id)]->{
+    "slug": slug.current
   }
 `
 

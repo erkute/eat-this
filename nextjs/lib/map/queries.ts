@@ -1,8 +1,8 @@
-// Dual-shape category projection — see lib/queries.ts for the explainer.
-const CATEGORY_PROJECTION = `categories[] {
-  "slug": coalesce(@->slug.current, lower(@)),
-  "name": coalesce(@->name, @),
-  "nameEn": @->nameEn
+// Category projection — only resolves reference entries. See lib/queries.ts.
+const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
+  "slug": slug.current,
+  name,
+  nameEn
 }`
 
 export const mapRestaurantsQuery = `

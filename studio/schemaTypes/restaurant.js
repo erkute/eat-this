@@ -166,12 +166,6 @@ export default {
       components: { input: CategoryCheckboxInput },
     },
     {
-      name: 'price',
-      title: 'Price Range',
-      type: 'string',
-      options: { list: ['€', '€€', '€€€', '€€€€'], layout: 'radio' },
-    },
-    {
       name: 'phone',
       title: 'Telefon',
       type: 'string',
@@ -180,11 +174,11 @@ export default {
     },
     {
       name: 'priceRange',
-      title: 'Preisspanne (Google Places)',
+      title: 'Preisspanne',
       type: 'object',
       description:
-        'Aus der Google Places API gezogen. Wird auf der Map-Detail als "10–20 €" angezeigt; fällt sonst auf das €-Symbol zurück.',
-      options: { collapsible: true, collapsed: true },
+        'Wird beim Import aus Google Places gezogen und überall als "10–20 €" angezeigt. Manuell editieren wenn Places keine Daten hat.',
+      options: { collapsible: true, collapsed: false },
       fields: [
         { name: 'min', title: 'Min', type: 'number' },
         { name: 'max', title: 'Max', type: 'number' },

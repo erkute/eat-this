@@ -379,23 +379,6 @@ async function importPhoto(place: Place, restaurantSlug: string): Promise<PhotoA
 
 // ----- Doc construction -----------------------------------------------------
 
-function buildPriceSymbol(place: Place): string | null {
-  switch (place.priceLevel) {
-    case 'PRICE_LEVEL_INEXPENSIVE':    return '€'
-    case 'PRICE_LEVEL_MODERATE':       return '€€'
-    case 'PRICE_LEVEL_EXPENSIVE':      return '€€€'
-    case 'PRICE_LEVEL_VERY_EXPENSIVE': return '€€€€'
-  }
-  // Fallback when priceLevel is missing: derive from priceRange.min using
-  // the same buckets used elsewhere in the app (€/€€/€€€/€€€€).
-  const min = place.priceRange?.startPrice?.units ? Number(place.priceRange.startPrice.units) : NaN
-  if (Number.isNaN(min)) return null
-  if (min < 10) return '€'
-  if (min < 25) return '€€'
-  if (min < 50) return '€€€'
-  return '€€€€'
-}
-
 function buildPriceRange(pr?: Place['priceRange']) {
   if (!pr?.startPrice?.units || !pr?.endPrice?.units) return null
   const min = Number(pr.startPrice.units)
@@ -445,8 +428,6 @@ function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildCo
   if (place.regularOpeningHours?.weekdayDescriptions?.length) {
     doc.openingHours = parseWeekdayDescriptions(place.regularOpeningHours.weekdayDescriptions)
   }
-  const priceSymbol = buildPriceSymbol(place)
-  if (priceSymbol) doc.price = priceSymbol
   const priceRange = buildPriceRange(place.priceRange)
   if (priceRange) doc.priceRange = priceRange
 

@@ -98,11 +98,16 @@ export function useMapFilters({ restaurants, mustEats, location }: Args) {
        toggles direction. */
     const dirMul = sortDir === 'asc' ? 1 : -1
     if (sort === 'price') {
-      const priceRank = (p?: string | null): number => p ? p.length : 99
+      // Restaurants without a Places-derived price range sort to the end
+      // regardless of direction so the user always sees priced spots first.
+      const rank = (r: MapRestaurant): number => r.priceRange?.min ?? Number.POSITIVE_INFINITY
       return [...filtered].sort((a, b) => {
-        const d = priceRank(a.price) - priceRank(b.price)
-        if (d !== 0) return d * dirMul
-        return a.name.localeCompare(b.name, 'de')
+        const ra = rank(a)
+        const rb = rank(b)
+        if (ra === rb) return a.name.localeCompare(b.name, 'de')
+        if (ra === Number.POSITIVE_INFINITY) return 1
+        if (rb === Number.POSITIVE_INFINITY) return -1
+        return (ra - rb) * dirMul
       })
     }
     if (sort === 'newest') {

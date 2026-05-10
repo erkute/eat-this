@@ -94,10 +94,22 @@ export interface RestaurantSource {
   district?: string
   address?: string
   categories?: string[]
-  price?: string
+  priceRange?: { min?: number; max?: number; currency?: string }
   lat: number
   lng: number
   website?: string
+}
+
+/** Cheap derivation of a €/€€/€€€/€€€€ symbol from the Places price range,
+ *  matching the buckets the prompts learned to read. Falls back to null when
+ *  no min is present. */
+function priceSymbolFromRange(pr?: { min?: number }): string | null {
+  const min = pr?.min
+  if (min == null || Number.isNaN(min)) return null
+  if (min < 10) return '€'
+  if (min < 25) return '€€'
+  if (min < 50) return '€€€'
+  return '€€€€'
 }
 
 interface BezirkSource {
@@ -278,7 +290,7 @@ export async function generateRestaurant(r: RestaurantSource, places: PlaceConte
     district: r.district ?? null,
     address: r.address ?? null,
     categories: r.categories ?? [],
-    priceLevel: r.price ?? null,
+    priceLevel: priceSymbolFromRange(r.priceRange),
     website: r.website ?? null,
     existingShortDescription: r.shortDescription ?? null,
     existingTip: r.tip ?? null,

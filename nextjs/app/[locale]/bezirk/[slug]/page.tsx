@@ -9,6 +9,7 @@ import { buildBezirkJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { routing } from '@/i18n/routing'
+import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import styles from '../Bezirk.module.css'
 import DetailPageOutro from '@/app/components/DetailPageOutro'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
@@ -159,7 +160,10 @@ export default async function BezirkDetailPage({ params }: PageProps) {
                 <h2 className={styles.cardName}>{r.name}</h2>
                 <div className={styles.cardMeta}>
                   {r.cuisineType && <span>{r.cuisineType}</span>}
-                  {r.price && <span className={styles.price}>· {r.price}</span>}
+                  {(() => {
+                    const priceLabel = formatPriceLabel(r)
+                    return priceLabel ? <span className={styles.price}>· {priceLabel}</span> : null
+                  })()}
                 </div>
                 {(() => {
                   const cardLine = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)

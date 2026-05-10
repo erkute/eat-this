@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
       // LLM prompts read category *names* (e.g. "Coffee, Pizza") for tone/context.
       // The doc itself carries the matching references.
       categories: result.categoryNames,
-      price: result.doc.price as string | undefined,
+      priceRange: result.doc.priceRange as { min?: number; max?: number; currency?: string } | undefined,
       lat: result.doc.lat as number,
       lng: result.doc.lng as number,
       website: result.doc.website as string | undefined,

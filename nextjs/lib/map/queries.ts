@@ -16,7 +16,6 @@ export const mapRestaurantsQuery = `
     "bezirk": bezirkRef->{ name, "slug": slug.current },
     address,
     ${CATEGORY_PROJECTION},
-    price,
     priceRange,
     phone,
     lat,

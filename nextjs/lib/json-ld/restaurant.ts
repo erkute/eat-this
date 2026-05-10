@@ -1,6 +1,7 @@
 import { serializeJsonLd } from './serialize'
 import { SITE_URL } from '@/lib/constants'
 import type { Restaurant } from '@/lib/types'
+import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 
 interface BuildRestaurantJsonLdArgs {
   restaurant: Restaurant
@@ -36,7 +37,7 @@ export function buildRestaurantJsonLd({
         name: r.name,
         description,
         image: r.photo,
-        priceRange: r.price,
+        priceRange: formatPriceLabel(r) || undefined,
         // schema.org expects strings; prefer EN labels (canonical for crawlers).
         servesCuisine: r.categories?.map(c => c.nameEn || c.name).filter(Boolean),
         url: r.website,

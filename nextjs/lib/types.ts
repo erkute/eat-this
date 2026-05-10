@@ -25,6 +25,12 @@ export interface CategoryRef {
   descriptionEn?: string
 }
 
+export interface PriceRange {
+  min?: number
+  max?: number
+  currency?: string
+}
+
 export interface Restaurant {
   _id: string
   name: string
@@ -33,7 +39,7 @@ export interface Restaurant {
   cuisineType?: string
   address?: string
   categories?: CategoryRef[]
-  price?: string
+  priceRange?: PriceRange
   lat: number
   lng: number
   mapsUrl?: string
@@ -123,7 +129,7 @@ export interface RestaurantCard {
   name: string
   slug: string
   district?: string
-  price?: string
+  priceRange?: PriceRange
   cuisineType?: string
   shortDescription?: string
   shortDescriptionEn?: string
@@ -142,8 +148,7 @@ export interface MapRestaurant {
   bezirk?: { name: string; slug?: string }
   address?: string
   categories?: CategoryRef[]
-  price?: string
-  priceRange?: { min?: number; max?: number; currency?: string }
+  priceRange?: PriceRange
   phone?: string
   lat: number
   lng: number

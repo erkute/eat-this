@@ -35,21 +35,20 @@ export function classifyWebsite(url: string | null | undefined): WebsiteInfo | n
 }
 
 /**
- * Prefer the Places-API price range ("10–20 €") over the editorial €/€€/€€€
- * symbol. Single-bound range falls back to "ab N €". Returns null when
- * neither source has anything.
+ * Format a price range from Places (`{min, max, currency}`) as "10–20 €".
+ * Returns null when min/max aren't both present.
  */
 export function formatPriceLabel(input: {
   priceRange?: { min?: number; max?: number; currency?: string }
-  price?: string | null
 }): string | null {
   const r = input.priceRange
-  if (r && r.min != null && r.max != null) {
+  if (!r) return null
+  if (r.min != null && r.max != null) {
     const cur = r.currency === 'EUR' || !r.currency ? '€' : r.currency
     return `${r.min}–${r.max} ${cur}`
   }
-  if (r && r.min != null) return `ab ${r.min} €`
-  return input.price ?? null
+  if (r.min != null) return `ab ${r.min} €`
+  return null
 }
 
 /**

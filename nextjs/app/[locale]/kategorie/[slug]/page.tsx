@@ -6,6 +6,7 @@ import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
 import { getRestaurantsByCategory, getCategoryBySlug, getAllCategories } from '@/lib/sanity.server'
 import { localizedCategoryName, localizedCategoryBlurb } from '@/lib/categories'
+import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
@@ -98,17 +99,20 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         '@type': 'ItemList',
         name: `${label} in Berlin`,
         numberOfItems: restaurants.length,
-        itemListElement: restaurants.map((r, i) => ({
-          '@type': 'ListItem',
-          position: i + 1,
-          item: {
-            '@type': 'Restaurant',
-            name: r.name,
-            url: `${SITE_URL}${restaurantUrl(r.slug)}`,
-            ...(r.cuisineType && { servesCuisine: r.cuisineType }),
-            ...(r.price && { priceRange: r.price }),
-          },
-        })),
+        itemListElement: restaurants.map((r, i) => {
+          const priceLabel = formatPriceLabel(r)
+          return {
+            '@type': 'ListItem',
+            position: i + 1,
+            item: {
+              '@type': 'Restaurant',
+              name: r.name,
+              url: `${SITE_URL}${restaurantUrl(r.slug)}`,
+              ...(r.cuisineType && { servesCuisine: r.cuisineType }),
+              ...(priceLabel && { priceRange: priceLabel }),
+            },
+          }
+        }),
       },
     ],
   })
@@ -146,7 +150,10 @@ export default async function KategorieDetailPage({ params }: PageProps) {
                 <div className={styles.cardMeta}>
                   {r.district && <span>{r.district}</span>}
                   {r.cuisineType && <span>{r.cuisineType}</span>}
-                  {r.price && <span className={styles.price}>· {r.price}</span>}
+                  {(() => {
+                    const priceLabel = formatPriceLabel(r)
+                    return priceLabel ? <span className={styles.price}>· {priceLabel}</span> : null
+                  })()}
                 </div>
                 {(() => {
                   const cardLine = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)

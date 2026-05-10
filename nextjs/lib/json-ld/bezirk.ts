@@ -1,6 +1,7 @@
 import { serializeJsonLd } from './serialize'
 import { SITE_URL } from '@/lib/constants'
 import type { BezirkDoc, RestaurantCard } from '@/lib/types'
+import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 
 interface BuildBezirkJsonLdArgs {
   bezirk: Pick<BezirkDoc, 'name' | 'slug'>
@@ -38,17 +39,20 @@ export function buildBezirkJsonLd({
         '@type': 'ItemList',
         name: `Restaurants in ${bezirk.name}`,
         numberOfItems: restaurants.length,
-        itemListElement: restaurants.map((r, i) => ({
-          '@type': 'ListItem',
-          position: i + 1,
-          item: {
-            '@type': 'Restaurant',
-            name: r.name,
-            url: localeUrl(locale, `/restaurant/${r.slug}`),
-            ...(r.cuisineType && { servesCuisine: r.cuisineType }),
-            ...(r.price && { priceRange: r.price }),
-          },
-        })),
+        itemListElement: restaurants.map((r, i) => {
+          const priceLabel = formatPriceLabel(r)
+          return {
+            '@type': 'ListItem',
+            position: i + 1,
+            item: {
+              '@type': 'Restaurant',
+              name: r.name,
+              url: localeUrl(locale, `/restaurant/${r.slug}`),
+              ...(r.cuisineType && { servesCuisine: r.cuisineType }),
+              ...(priceLabel && { priceRange: priceLabel }),
+            },
+          }
+        }),
       },
     ],
   })

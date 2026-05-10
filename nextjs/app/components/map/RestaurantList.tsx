@@ -3,6 +3,7 @@ import type { MapRestaurant, OpenStatus } from '@/lib/types'
 import { haversineDistance, formatWalkingTime, getOpenStatus, type UserLocation } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { localizedCategoryName } from '@/lib/categories'
+import { formatPriceLabel } from './restaurantDetail.helpers'
 import styles from './map.module.css'
 
 interface ItemProps {
@@ -69,7 +70,7 @@ function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
         <div className={styles.rowMeta}>
           <span className={styles.rowMetaText}>
             {[
-              restaurant.price,
+              formatPriceLabel(restaurant),
               restaurant.categories?.slice(0, 3).map(c => localizedCategoryName(c, loc)).join(' · '),
               walkingTime,
             ]

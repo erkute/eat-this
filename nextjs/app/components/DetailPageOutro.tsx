@@ -2,6 +2,7 @@ import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import type { NewsArticle, RestaurantCard } from '@/lib/types'
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories'
+import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import styles from './DetailPageOutro.module.css'
 
 interface DetailPageOutroProps {
@@ -122,13 +123,17 @@ function SiblingRow({ locale, title, hubHref, restaurants }: SiblingRowProps) {
               </div>
               <div className={styles.siblingCardBody}>
                 <h3 className={styles.siblingCardName}>{r.name}</h3>
-                {(r.cuisineType || r.price) && (
-                  <div className={styles.siblingCardMeta}>
-                    {r.cuisineType && <span>{r.cuisineType}</span>}
-                    {r.cuisineType && r.price && <span aria-hidden="true">·</span>}
-                    {r.price && <span>{r.price}</span>}
-                  </div>
-                )}
+                {(() => {
+                  const priceLabel = formatPriceLabel(r)
+                  if (!r.cuisineType && !priceLabel) return null
+                  return (
+                    <div className={styles.siblingCardMeta}>
+                      {r.cuisineType && <span>{r.cuisineType}</span>}
+                      {r.cuisineType && priceLabel && <span aria-hidden="true">·</span>}
+                      {priceLabel && <span>{priceLabel}</span>}
+                    </div>
+                  )
+                })()}
               </div>
             </Link>
           </li>

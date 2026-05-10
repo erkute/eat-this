@@ -81,13 +81,22 @@ export interface RestaurantSource {
   cuisineType?: string
   district?: string
   categories?: string[]
-  price?: string
+  priceRange?: { min?: number; max?: number; currency?: string }
   seo?: {
     metaTitle?: string
     metaTitleEn?: string
     metaDescription?: string
     metaDescriptionEn?: string
   }
+}
+
+function priceSymbolFromRange(pr?: { min?: number }): string | null {
+  const min = pr?.min
+  if (min == null || Number.isNaN(min)) return null
+  if (min < 10) return '€'
+  if (min < 25) return '€€'
+  if (min < 50) return '€€€'
+  return '€€€€'
 }
 
 interface BezirkSource {
@@ -325,7 +334,7 @@ export function generateRestaurantSeo(r: RestaurantSource): Promise<SeoGen> {
       cuisineType: r.cuisineType ?? null,
       district: r.district ?? null,
       categories: r.categories ?? [],
-      priceLevel: r.price ?? null,
+      priceLevel: priceSymbolFromRange(r.priceRange),
     },
     r._id,
   )

@@ -8,6 +8,7 @@ import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { localizedCategoryName } from '@/lib/categories'
+import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import DetailPageOutro from '@/app/components/DetailPageOutro'
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
@@ -181,16 +182,21 @@ export default async function RestaurantPage({ params }: PageProps) {
                 {r.district && <span className={styles.district}>{r.district}</span>}
               </div>
               {r.cuisineType && <p className={styles.cuisine}>{r.cuisineType}</p>}
-              {((r.categories && r.categories.length > 0) || r.price) && (
-                <div className={styles.categories}>
-                  {r.price && <span className={styles.price}>{r.price}</span>}
-                  {r.categories?.map(cat => (
-                    <span key={cat.slug} className={styles.category}>
-                      {localizedCategoryName(cat, loc)}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {(() => {
+                const priceLabel = formatPriceLabel(r)
+                const hasCats = r.categories && r.categories.length > 0
+                if (!priceLabel && !hasCats) return null
+                return (
+                  <div className={styles.categories}>
+                    {priceLabel && <span className={styles.price}>{priceLabel}</span>}
+                    {r.categories?.map(cat => (
+                      <span key={cat.slug} className={styles.category}>
+                        {localizedCategoryName(cat, loc)}
+                      </span>
+                    ))}
+                  </div>
+                )
+              })()}
             </header>
 
             {description && <p className={styles.description}>{description}</p>}

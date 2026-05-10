@@ -94,7 +94,7 @@ const CATEGORY_BACKFILL: Record<string, CatBackfill> = {
     descriptionEn: 'Breakfast and brunch in Berlin — from the corner bakery to eggs benedict.',
   },
   Coffee: {
-    name: 'Café',
+    name: 'Kaffee',
     nameEn: 'Coffee',
     description: 'Specialty Coffee, Röstereien und Cafés — wo Berlin ernsthaft Kaffee trinkt.',
     descriptionEn: 'Specialty coffee, roasteries, and cafés — where Berlin drinks coffee seriously.',

@@ -182,13 +182,19 @@ interface Place {
   internationalPhoneNumber?: string
   regularOpeningHours?: { weekdayDescriptions?: string[] }
   editorialSummary?: { text: string }
+  priceLevel?: 'PRICE_LEVEL_FREE' | 'PRICE_LEVEL_INEXPENSIVE' | 'PRICE_LEVEL_MODERATE' | 'PRICE_LEVEL_EXPENSIVE' | 'PRICE_LEVEL_VERY_EXPENSIVE'
   priceRange?: {
     startPrice?: { units?: string; currencyCode?: string }
     endPrice?:   { units?: string; currencyCode?: string }
   }
   location?: { latitude: number; longitude: number }
   googleMapsUri?: string
-  photos?: { name: string; widthPx?: number; heightPx?: number }[]
+  photos?: {
+    name: string
+    widthPx?: number
+    heightPx?: number
+    authorAttributions?: { displayName?: string; uri?: string; photoUri?: string }[]
+  }[]
 }
 
 async function searchPlace(parsed: ParsedUrl): Promise<Place | null> {
@@ -202,6 +208,7 @@ async function searchPlace(parsed: ParsedUrl): Promise<Place | null> {
     'places.internationalPhoneNumber',
     'places.regularOpeningHours',
     'places.editorialSummary',
+    'places.priceLevel',
     'places.priceRange',
     'places.location',
     'places.googleMapsUri',
@@ -298,11 +305,17 @@ function inferCategories(types: string[] = []): string[] {
   return [...out]
 }
 
-interface PhotoAsset { _id: string }
+interface PhotoAsset {
+  _id: string
+  credit: string | null
+  creditUrl: string | null
+}
 
 /** Downloads the first Places photo (≤1600px wide) and uploads it to Sanity
- *  as an image asset; returns the asset doc. Skips silently on any failure
- *  so a single bad photo doesn't kill the whole import. */
+ *  as an image asset; also returns the photographer attribution from Places.
+ *  Skips silently on any failure so a single bad photo doesn't kill the
+ *  whole import. Google Places ToS require attribution — credit is captured
+ *  here and applied as image.credit / image.creditUrl in buildDoc. */
 async function importPhoto(place: Place, restaurantSlug: string): Promise<PhotoAsset | null> {
   const photo = place.photos?.[0]
   if (!photo?.name) return null
@@ -320,7 +333,12 @@ async function importPhoto(place: Place, restaurantSlug: string): Promise<PhotoA
       filename: `${restaurantSlug}.${ext}`,
       contentType,
     })
-    return { _id: asset._id }
+    const author = photo.authorAttributions?.[0]
+    return {
+      _id: asset._id,
+      credit: author?.displayName ? `Foto: ${author.displayName}` : null,
+      creditUrl: author?.uri ?? null,
+    }
   } catch (err) {
     console.warn(`  photo upload failed: ${(err as Error).message} — skipping image`)
     return null
@@ -328,6 +346,23 @@ async function importPhoto(place: Place, restaurantSlug: string): Promise<PhotoA
 }
 
 // ----- Doc construction -----------------------------------------------------
+
+function buildPriceSymbol(place: Place): string | null {
+  switch (place.priceLevel) {
+    case 'PRICE_LEVEL_INEXPENSIVE':    return '€'
+    case 'PRICE_LEVEL_MODERATE':       return '€€'
+    case 'PRICE_LEVEL_EXPENSIVE':      return '€€€'
+    case 'PRICE_LEVEL_VERY_EXPENSIVE': return '€€€€'
+  }
+  // Fallback when priceLevel is missing: derive from priceRange.min using
+  // the same buckets used elsewhere in the app (€/€€/€€€/€€€€).
+  const min = place.priceRange?.startPrice?.units ? Number(place.priceRange.startPrice.units) : NaN
+  if (Number.isNaN(min)) return null
+  if (min < 10) return '€'
+  if (min < 25) return '€€'
+  if (min < 50) return '€€€'
+  return '€€€€'
+}
 
 function buildPriceRange(pr?: Place['priceRange']) {
   if (!pr?.startPrice?.units || !pr?.endPrice?.units) return null
@@ -377,6 +412,8 @@ function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildCo
   if (place.regularOpeningHours?.weekdayDescriptions?.length) {
     doc.openingHours = parseWeekdayDescriptions(place.regularOpeningHours.weekdayDescriptions)
   }
+  const priceSymbol = buildPriceSymbol(place)
+  if (priceSymbol) doc.price = priceSymbol
   const priceRange = buildPriceRange(place.priceRange)
   if (priceRange) doc.priceRange = priceRange
 
@@ -388,10 +425,13 @@ function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildCo
   if (categories.length) doc.categories = categories
 
   if (ctx.photoAsset) {
-    doc.image = {
+    const image: Record<string, unknown> = {
       _type: 'image',
       asset: { _type: 'reference', _ref: ctx.photoAsset._id },
     }
+    if (ctx.photoAsset.credit) image.credit = ctx.photoAsset.credit
+    if (ctx.photoAsset.creditUrl) image.creditUrl = ctx.photoAsset.creditUrl
+    doc.image = image
   }
 
   return doc

@@ -238,7 +238,19 @@ export default function RestaurantDetail({
           {restaurant.photo ? (
             <figure className={styles.detailHeroInline}>
               <img src={restaurant.photo} alt={restaurant.name} className={styles.detailHero} />
-              <figcaption className={styles.detailHeroCaption}>via Instagram</figcaption>
+              <figcaption className={styles.detailHeroCaption}>
+                {restaurant.photoCredit ? (
+                  restaurant.photoCreditUrl ? (
+                    <a href={restaurant.photoCreditUrl} target="_blank" rel="noopener noreferrer">
+                      {restaurant.photoCredit}
+                    </a>
+                  ) : (
+                    restaurant.photoCredit
+                  )
+                ) : (
+                  'via Instagram'
+                )}
+              </figcaption>
             </figure>
           ) : (
             <div

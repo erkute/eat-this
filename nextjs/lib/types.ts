@@ -141,6 +141,8 @@ export interface MapRestaurant {
   tip?: string
   shortDescription?: string
   photo?: string
+  photoCredit?: string
+  photoCreditUrl?: string
   mustEatCount: number
 }
 

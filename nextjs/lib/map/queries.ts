@@ -21,6 +21,8 @@ export const mapRestaurantsQuery = `
     tip,
     shortDescription,
     "photo": image.asset->url + "?w=600&auto=format&q=80",
+    "photoCredit": image.credit,
+    "photoCreditUrl": image.creditUrl,
     "mustEatCount": count(*[_type == "mustEat" && restaurantRef._ref == ^._id])
   }
 `

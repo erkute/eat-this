@@ -222,6 +222,22 @@ export default {
       title: 'Photo',
       type: 'image',
       options: { hotspot: true },
+      fields: [
+        {
+          name: 'credit',
+          title: 'Photo Credit',
+          type: 'string',
+          description:
+            'Pflicht bei Bildern aus Google Places (z.B. "Foto: Max Mustermann"). Wird als figcaption unter dem Bild angezeigt.',
+        },
+        {
+          name: 'creditUrl',
+          title: 'Photo Credit URL',
+          type: 'url',
+          description:
+            'Optional: Profil-URL des Fotografen. Macht das Credit-Label klickbar.',
+        },
+      ],
     },
     {
       name: 'gallery',
@@ -237,6 +253,18 @@ export default {
               title: 'Alt-Text',
               type: 'string',
               description: 'Kurze Bildbeschreibung für SEO & Barrierefreiheit',
+            },
+            {
+              name: 'credit',
+              title: 'Photo Credit',
+              type: 'string',
+              description:
+                'Pflicht bei Bildern aus Google Places (z.B. "Foto: Max Mustermann").',
+            },
+            {
+              name: 'creditUrl',
+              title: 'Photo Credit URL',
+              type: 'url',
             },
           ],
         },

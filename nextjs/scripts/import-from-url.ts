@@ -563,7 +563,7 @@ async function main() {
   const publishedId = created._id.replace(/^drafts\./, '')
   console.log(`✓ Draft created: ${created._id}`)
   console.log(`  Open in Studio:`)
-  console.log(`    https://eat-this-studio.sanity.studio/desk/restaurant;${publishedId}`)
+  console.log(`    https://eat-this.sanity.studio/structure/restaurant;${publishedId}`)
   console.log(`  Next steps in the Studio: review address + cuisine, set bezirkRef,`)
   console.log(`  add description/tip/photo, then publish.`)
 }

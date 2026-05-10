@@ -39,7 +39,7 @@ const sanity = createClient({
 })
 
 const ALLOWED_STUDIO_ORIGINS = new Set([
-  'https://eat-this-studio.sanity.studio',
+  'https://eat-this.sanity.studio',
   'http://localhost:3333',
 ])
 

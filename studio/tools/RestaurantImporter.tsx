@@ -1,5 +1,5 @@
 import {useCallback, useState} from 'react'
-import {Box, Button, Card, Container, Heading, Inline, Spinner, Stack, Text, TextInput} from '@sanity/ui'
+import {Box, Button, Card, Container, Heading, Inline, Spinner, Stack, Text, TextArea} from '@sanity/ui'
 import {useRouter} from 'sanity/router'
 
 const API_BASE: string = (import.meta as unknown as {env: {MODE: string}}).env.MODE === 'production'
@@ -10,123 +10,217 @@ const IMPORT_SECRET: string | undefined = (import.meta as unknown as {
   env: {SANITY_STUDIO_IMPORT_SECRET?: string}
 }).env.SANITY_STUDIO_IMPORT_SECRET
 
+interface ImportResult {
+  url: string
+  status: 'success' | 'error'
+  name?: string
+  docId?: string
+  message?: string
+  hint?: string
+}
+
 type Status =
   | {kind: 'idle'}
-  | {kind: 'loading'}
-  | {kind: 'error'; message: string; hint?: string}
-  | {kind: 'success'; name: string}
+  | {kind: 'running'; current: number; total: number; results: ImportResult[]}
+  | {kind: 'done'; results: ImportResult[]}
+
+/** Splits a textarea blob into trimmed, non-empty URLs. Tolerates leading
+ *  bullets/whitespace so users can paste from chat / lists without cleanup. */
+function parseUrls(blob: string): string[] {
+  return blob
+    .split(/\r?\n/)
+    .map((line) => line.replace(/^[\s•·\-*\d.)]+/, '').trim())
+    .filter((line) => /^https?:\/\//i.test(line))
+}
+
+async function importOne(url: string): Promise<ImportResult> {
+  if (!IMPORT_SECRET) {
+    return {url, status: 'error', message: 'SANITY_STUDIO_IMPORT_SECRET is not set in studio/.env.local.'}
+  }
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/import-restaurant`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${IMPORT_SECRET}`,
+      },
+      body: JSON.stringify({url}),
+    })
+    const payload = await res.json().catch(() => ({}))
+    if (!res.ok) {
+      return {url, status: 'error', message: payload.error ?? `HTTP ${res.status}`, hint: payload.hint}
+    }
+    return {url, status: 'success', name: payload.name, docId: payload.docId}
+  } catch (err) {
+    return {url, status: 'error', message: (err as Error).message}
+  }
+}
 
 export default function RestaurantImporter() {
   const router = useRouter()
-  const [url, setUrl] = useState('')
+  const [input, setInput] = useState('')
   const [status, setStatus] = useState<Status>({kind: 'idle'})
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault()
-      const trimmed = url.trim()
-      if (!trimmed) {
-        setStatus({kind: 'error', message: 'URL is required.'})
-        return
-      }
-      if (!IMPORT_SECRET) {
+      const urls = parseUrls(input)
+      if (urls.length === 0) {
         setStatus({
-          kind: 'error',
-          message: 'SANITY_STUDIO_IMPORT_SECRET is not set in studio/.env.local.',
+          kind: 'done',
+          results: [{url: '', status: 'error', message: 'Paste at least one Maps URL.'}],
         })
         return
       }
-      setStatus({kind: 'loading'})
-      try {
-        const res = await fetch(`${API_BASE}/api/admin/import-restaurant`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${IMPORT_SECRET}`,
-          },
-          body: JSON.stringify({url: trimmed}),
-        })
-        const payload = await res.json().catch(() => ({}))
-        if (!res.ok) {
-          setStatus({
-            kind: 'error',
-            message: payload.error ?? `HTTP ${res.status}`,
-            hint: payload.hint,
-          })
-          return
-        }
-        const {docId, name} = payload as {docId: string; name: string}
-        setStatus({kind: 'success', name})
-        // Navigate to the freshly created draft via Sanity's structure intent.
-        // Strip the "drafts." prefix — intents resolve to the published id and
-        // open the draft pane when one exists.
-        const baseId = docId.replace(/^drafts\./, '')
-        router.navigateIntent('edit', {id: baseId, type: 'restaurant'})
-      } catch (err) {
-        setStatus({kind: 'error', message: (err as Error).message})
+      const results: ImportResult[] = []
+      // Sequential rather than Promise.all — keeps Places + Anthropic
+      // rate-limit pressure low and gives clear "Importing N/M" progress.
+      for (let i = 0; i < urls.length; i++) {
+        setStatus({kind: 'running', current: i + 1, total: urls.length, results: [...results]})
+        const r = await importOne(urls[i])
+        results.push(r)
       }
+      setStatus({kind: 'done', results})
     },
-    [router, url],
+    [input],
   )
 
-  const isLoading = status.kind === 'loading'
+  const openDraft = useCallback(
+    (docId: string) => {
+      const baseId = docId.replace(/^drafts\./, '')
+      router.navigateIntent('edit', {id: baseId, type: 'restaurant'})
+    },
+    [router],
+  )
+
+  const isLoading = status.kind === 'running'
+  const urlCount = parseUrls(input).length
 
   return (
     <Container width={1} padding={4}>
       <Stack space={4}>
         <Stack space={2}>
           <Heading as="h1" size={3}>
-            Import Restaurant from Google Maps
+            Import Restaurants from Google Maps
           </Heading>
           <Text muted>
-            Paste a Google Maps URL — short links (maps.app.goo.gl/X) are fine. The importer
-            pulls Places data, downloads the photo, and runs the AI generators for description,
-            EN translations, and SEO meta. Takes ~30 seconds.
+            Paste one Maps URL per line — short links (maps.app.goo.gl/X) work too. Each URL
+            takes ~30 seconds (Places lookup, photo upload, AI generators). Drafts open from
+            the result list below.
           </Text>
         </Stack>
         <Card padding={4} radius={3} shadow={1}>
           <form onSubmit={handleSubmit}>
             <Stack space={3}>
-              <TextInput
-                value={url}
-                onChange={(e) => setUrl(e.currentTarget.value)}
-                placeholder="https://maps.app.goo.gl/..."
+              <TextArea
+                value={input}
+                onChange={(e) => setInput(e.currentTarget.value)}
+                placeholder={'https://maps.app.goo.gl/...\nhttps://maps.app.goo.gl/...\nhttps://maps.app.goo.gl/...'}
+                rows={6}
                 disabled={isLoading}
-                style={{fontFamily: 'monospace'}}
+                style={{fontFamily: 'monospace', fontSize: 13}}
               />
-              <Box>
+              <Inline space={3}>
                 <Button
                   type="submit"
-                  text={isLoading ? 'Importing…' : 'Import & open draft'}
+                  text={
+                    isLoading
+                      ? `Importing ${status.current}/${status.total}…`
+                      : urlCount > 1
+                        ? `Import ${urlCount} restaurants`
+                        : 'Import restaurant'
+                  }
                   tone="primary"
-                  disabled={isLoading || !url.trim()}
+                  disabled={isLoading || urlCount === 0}
                 />
-              </Box>
+                {urlCount > 0 && !isLoading && (
+                  <Text muted size={1}>
+                    {urlCount} URL{urlCount === 1 ? '' : 's'} detected
+                  </Text>
+                )}
+              </Inline>
               {isLoading && (
                 <Inline space={2}>
                   <Spinner muted />
                   <Text muted size={1}>
-                    Resolving URL → Places API → photo upload → AI generators (~30 s)…
+                    Resolving URL → Places API → photo upload → AI generators…
                   </Text>
                 </Inline>
-              )}
-              {status.kind === 'error' && (
-                <Card padding={3} radius={2} tone="critical">
-                  <Stack space={2}>
-                    <Text weight="semibold">{status.message}</Text>
-                    {status.hint && <Text size={1}>{status.hint}</Text>}
-                  </Stack>
-                </Card>
-              )}
-              {status.kind === 'success' && (
-                <Card padding={3} radius={2} tone="positive">
-                  <Text>Imported {status.name}. Opening draft…</Text>
-                </Card>
               )}
             </Stack>
           </form>
         </Card>
+
+        {(status.kind === 'running' || status.kind === 'done') && status.results.length > 0 && (
+          <ResultsList
+            results={status.results}
+            onOpen={openDraft}
+            inProgress={status.kind === 'running'}
+          />
+        )}
       </Stack>
     </Container>
+  )
+}
+
+function ResultsList({
+  results,
+  onOpen,
+  inProgress,
+}: {
+  results: ImportResult[]
+  onOpen: (docId: string) => void
+  inProgress: boolean
+}) {
+  const successes = results.filter((r) => r.status === 'success').length
+  const failures = results.length - successes
+  return (
+    <Stack space={3}>
+      <Text size={1} muted>
+        {inProgress ? 'In progress' : 'Done'} — {successes} imported
+        {failures > 0 ? `, ${failures} failed` : ''}
+      </Text>
+      <Stack space={2}>
+        {results.map((r, i) => (
+          <Card
+            key={`${r.url || 'empty'}-${i}`}
+            padding={3}
+            radius={2}
+            tone={r.status === 'success' ? 'positive' : 'critical'}
+          >
+            <Stack space={2}>
+              <Inline space={3}>
+                <Text weight="semibold">
+                  {r.status === 'success' ? '✓' : '✗'} {r.name ?? r.url ?? 'no URL'}
+                </Text>
+                {r.status === 'success' && r.docId && (
+                  <Button
+                    mode="ghost"
+                    text="Open draft"
+                    fontSize={1}
+                    onClick={() => onOpen(r.docId!)}
+                  />
+                )}
+              </Inline>
+              {r.status === 'error' && (
+                <Stack space={1}>
+                  <Text size={1}>{r.message}</Text>
+                  {r.hint && (
+                    <Text size={1} muted>
+                      {r.hint}
+                    </Text>
+                  )}
+                  {r.url && (
+                    <Box style={{fontFamily: 'monospace', fontSize: 11, opacity: 0.6, wordBreak: 'break-all'}}>
+                      {r.url}
+                    </Box>
+                  )}
+                </Stack>
+              )}
+            </Stack>
+          </Card>
+        ))}
+      </Stack>
+    </Stack>
   )
 }

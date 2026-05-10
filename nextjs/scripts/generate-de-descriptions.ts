@@ -222,18 +222,20 @@ export async function fetchPlaceContext(r: RestaurantSource): Promise<PlaceConte
 
 const RESTAURANT_PROMPT = `Du schreibst Restaurant-Beschreibungen auf Deutsch für "Eat This Berlin", einen kuratierten Berliner Food-Guide.
 
-Brand-Voice: direkt, meinungsstark, konkret. Vermeide Werbe-Phrasen ("entdecke", "must-try", "hidden gem", "ein wahrer Geheimtipp"), Superlative ohne Substanz, Pressetext-Ton. Schreib wie jemand der die Stadt kennt und einer Freundin etwas empfiehlt.
+Brand-Voice: direkt, meinungsstark, konkret — aber als KURATOREN-Stimme, nicht als Reviewer-Echo. "Eat This" empfiehlt selbst; das Lob anderer (Reviews, Stammgäste, Besucher) wird NICHT zitiert oder hochgehoben. Vermeide Werbe-Phrasen ("entdecke", "must-try", "hidden gem", "ein wahrer Geheimtipp"), Superlative ohne Substanz, Pressetext-Ton. Schreib wie jemand der die Stadt kennt und einer Freundin etwas empfiehlt.
 
 Du bekommst zwei Datenblöcke:
 1. SANITY-FAKTEN: was wir intern über das Restaurant wissen (Name, Adresse, Bezirk, Preisklasse, Kategorien, Cuisine-Typ).
-2. GOOGLE-PLACES-KONTEXT: editorialSummary, Rating, Review-Auszüge. **Verwende Reviews als Atmosphäre- und Spezialitäten-Hinweis, niemals als Direktzitat.**
+2. GOOGLE-PLACES-KONTEXT: editorialSummary, Rating, Review-Auszüge. **Reviews sind interne Recherchequelle — Atmosphäre- und Spezialitäten-Hinweise daraus destillieren und als Fakt formulieren, NIEMALS zitieren oder Reviewer/Stammgäste/Kunden erwähnen.**
 
-NO-HALLUCINATION-REGELN (hart):
+NO-HALLUCINATION + KEINE FREMDEN STIMMEN (hart):
 - Jede konkrete Aussage muss durch SANITY-FAKTEN oder GOOGLE-PLACES-KONTEXT gedeckt sein. Nichts erfinden — auch nicht "passend klingende" Details.
 - KEINE Personennamen (Inhaber/Chef/Barista) erfinden. Wenn nicht in den Quellen erwähnt → weglassen.
-- KEINE Gerücht-Formulierungen: "laut Stammgästen", "es heißt", "angeblich", "soll … sein", "wird oft gelobt" — alle verboten.
-- KEINE Crowd-Behauptungen ohne Beleg: "im Sommer Schlangen", "abends immer voll", "zur Mittagszeit überfüllt" nur wenn Reviews das EXPLIZIT sagen.
-- KEINE Marketing-Etiketten: "Geheimtipp", "Pflichtbesuch", "Insider-Adresse", "Must-Try".
+- KEINE Erwähnung dritter Personen / fremder Leute — "Stammgäste", "Stammkundschaft", "Gäste", "Kunden", "Besucher", "Reviewer", "Reviewstimmen", "Locals", "Fans" sind alle verboten, sowohl als Subjekt ("die Stammgäste loben…") als auch als Quelle ("laut Stammgästen", "den Gästen zufolge").
+- KEINE Reviews-Verweise: "in Reviews", "laut Reviews", "Reviewstimmen", "aktuelle Reviews", "in mehreren Reviews", "Bewertungen sagen". Das Restaurant ist X — nicht "wird in Reviews als X gelobt".
+- KEINE Hedging-Sprache: "es heißt", "angeblich", "soll … sein", "wird oft gelobt", "soll besser schmecken".
+- KEINE Crowd-Behauptungen ohne Beleg: "im Sommer Schlangen", "abends voll" nur wenn Places-Daten oder editorialSummary das explizit sagen.
+- KEINE Marketing-Etiketten: "Geheimtipp", "Pflichtbesuch", "Insider-Adresse", "Must-Try", "hidden gem".
 - Restaurantnamen, Dish-Namen, Bezirksnamen bleiben wie sie sind.
 - Rating-Zahlen NICHT erwähnen (Google-Rating ändert sich, würde stale werden).
 
@@ -292,13 +294,23 @@ export interface RestaurantGen {
 // slips a rumor-style attribution or marketing tag into the output. We nuke
 // the tip (set null) and warn on the description (user reviews before publish).
 const BANNED_PATTERNS: RegExp[] = [
-  // Rumor / unverifiable attribution / review-citation hedges
-  /\blaut (Stammgäst|Stammkund|Reviews?|Bewertung|Gäst|Kund|Besucher)/i,
-  /\bin Reviews? (wird|werden|hervorgehoben|gelobt|erwähnt|gepriesen)/i,
+  // Reviews / external attribution
+  /\blaut (Stammgäst|Stammkund|Reviews?|Bewertung|Gäst|Kund|Besucher|mehreren|vielen)/i,
+  /\bin Reviews? (wird|werden|hervorgehoben|gelobt|erwähnt|gepriesen|ausdrücklich|konstant)/i,
+  /\bin Reviews nicht überzeugt\b/i,
+  /\bReviewstimmen\b/i,
+  /\baktuelle Reviews\b/i,
+  /\b(in|laut) mehreren Reviews\b/i,
+  // Stammgäste/Kunden/Gäste als handelnde Subjekte/Quellen — ohne "laut"-Prefix
+  /\b(den|der|die) Stammgäst(e|en)\b/i,
+  /\b(den|der|die) Stammkund(en|schaft)\b/i,
+  /\bStammgäst(e|en) (sagen|loben|empfehlen|finden|halten|treat)/i,
+  // Hedging / Gerücht
   /\bes heißt\b/i,
   /\bangeblich\b/i,
   /\bman munkelt\b/i,
   /\bwird (oft |häufig )?(gelobt|hervorgehoben|gepriesen)\b/i,
+  /\bsoll besser schmecken\b/i,
   // Marketing / press-release labels
   /\bGeheimtipp\b/i,
   /\bMust-?Try\b/i,

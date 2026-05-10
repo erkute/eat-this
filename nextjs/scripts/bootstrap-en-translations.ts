@@ -117,7 +117,20 @@ async function fetchBezirke(draftsOnly: boolean): Promise<BezirkSource[]> {
 
 const TRANSLATION_MODEL = 'claude-sonnet-4-6'
 
-const RESTAURANT_PROMPT = `You are translating restaurant content from German to English for "Eat This Berlin", a curated Berlin food guide. Brand voice: direct, opinionated, concrete. Avoid clickbait phrases ("discover amazing", "must-visit", "hidden gem"). Preserve specifics (dish names, district names, restaurant names, cuisine types) — these stay as they are.
+const RESTAURANT_PROMPT = `You are translating restaurant content from German to English for "Eat This Berlin", a curated Berlin food guide.
+
+Brand voice: direct, opinionated, concrete — and crucially, written as the EAT THIS curator's voice, NOT as a reviewer-echo. Eat This recommends; we do not cite or amplify the praise of others. Avoid clickbait phrases ("discover amazing", "must-visit", "hidden gem"). Preserve specifics (dish names, district names, restaurant names, cuisine types) — these stay as they are.
+
+NEVER introduce attribution to third parties in the translation, even if the German source has been cleaned. Specifically forbidden:
+- "regulars / regulars' / regulars say / regulars love / regulars swear by / regulars rate"
+- "according to reviews / patrons / guests / locals / fans / customers"
+- "reviewers praise / love / highlight / call / note / treat"
+- "reviews praise / love / highlight / say / reflect"
+- "is loved by / praised by / hyped by"
+- "earns praise / consistent praise / unanimous praise"
+- "locals say"
+- "hidden gem / must-try / insider tip"
+The restaurant IS X. Not "is hailed as X by regulars".
 
 You will receive a JSON object with the German source fields (some may be empty/null). Translate ONLY the fields with German content; for fields that are null or absent in the input, return null in the output. Do NOT invent content.
 

@@ -147,15 +147,18 @@ export async function POST(request: NextRequest) {
 
     // Assemble the final doc — runImport already produced a `drafts.<uuid>`
     // _id; layer the LLM additions on top and create the draft directly.
-    // The Studio tool then navigates to it via Sanity's "edit" intent.
+    //
+    // tip / tipEn are deliberately NOT layered in: the brand position is that
+    // insider tips are personally curated, not LLM-derived. The tip generator
+    // still runs (to feed shortDescription refinement) but its output is
+    // discarded here. Same logic for the API path that user-facing imports
+    // hit; the CLI path can still call generateRestaurant directly if needed.
     const finalDoc = {
       ...result.doc,
       ...(descGen.description ? { description: descGen.description } : {}),
       ...(descGen.shortDescription ? { shortDescription: descGen.shortDescription } : {}),
-      ...(descGen.tip ? { tip: descGen.tip } : {}),
       ...(transGen.shortDescriptionEn ? { shortDescriptionEn: transGen.shortDescriptionEn } : {}),
       ...(transGen.descriptionEn ? { descriptionEn: transGen.descriptionEn } : {}),
-      ...(transGen.tipEn ? { tipEn: transGen.tipEn } : {}),
       seo: {
         metaTitle: seoGen.metaTitle,
         metaTitleEn: seoGen.metaTitleEn,

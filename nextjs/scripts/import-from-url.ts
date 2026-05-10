@@ -177,6 +177,7 @@ interface Place {
   displayName?: { text: string }
   types?: string[]
   formattedAddress?: string
+  addressComponents?: { longText: string; shortText?: string; types: string[] }[]
   websiteUri?: string
   internationalPhoneNumber?: string
   regularOpeningHours?: { weekdayDescriptions?: string[] }
@@ -187,6 +188,7 @@ interface Place {
   }
   location?: { latitude: number; longitude: number }
   googleMapsUri?: string
+  photos?: { name: string; widthPx?: number; heightPx?: number }[]
 }
 
 async function searchPlace(parsed: ParsedUrl): Promise<Place | null> {
@@ -195,6 +197,7 @@ async function searchPlace(parsed: ParsedUrl): Promise<Place | null> {
     'places.displayName',
     'places.types',
     'places.formattedAddress',
+    'places.addressComponents',
     'places.websiteUri',
     'places.internationalPhoneNumber',
     'places.regularOpeningHours',
@@ -202,6 +205,7 @@ async function searchPlace(parsed: ParsedUrl): Promise<Place | null> {
     'places.priceRange',
     'places.location',
     'places.googleMapsUri',
+    'places.photos',
   ].join(',')
   const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
     method: 'POST',
@@ -223,6 +227,106 @@ async function searchPlace(parsed: ParsedUrl): Promise<Place | null> {
   return data.places?.[0] ?? null
 }
 
+// ----- Address-component → Bezirk + Categories + Photo --------------------
+
+/** Berlin postal-code → Ortsteil mapping for the 10 Sanity bezirke.
+ *  Google's `sublocality_level_1` returns the admin Bezirk ("Bezirk Pankow"),
+ *  not the Ortsteil ("Prenzlauer Berg"), so we resolve by PLZ instead. Any
+ *  postal code not in this map → no Ortsteil match → bezirkRef stays empty
+ *  and the user picks one in Studio. */
+const PLZ_TO_ORTSTEIL: Record<string, string> = {
+  // Mitte (Bezirk Mitte)
+  '10115': 'Mitte', '10117': 'Mitte', '10119': 'Mitte', '10178': 'Mitte', '10179': 'Mitte',
+  // Wedding (Bezirk Mitte)
+  '13347': 'Wedding', '13349': 'Wedding', '13351': 'Wedding', '13353': 'Wedding',
+  '13355': 'Wedding', '13357': 'Wedding', '13359': 'Wedding',
+  // Prenzlauer Berg (Bezirk Pankow)
+  '10405': 'Prenzlauer Berg', '10407': 'Prenzlauer Berg', '10409': 'Prenzlauer Berg',
+  '10435': 'Prenzlauer Berg', '10437': 'Prenzlauer Berg', '10439': 'Prenzlauer Berg',
+  // Friedrichshain (Bezirk Friedrichshain-Kreuzberg)
+  '10243': 'Friedrichshain', '10245': 'Friedrichshain',
+  '10247': 'Friedrichshain', '10249': 'Friedrichshain',
+  // Kreuzberg (Bezirk Friedrichshain-Kreuzberg)
+  '10961': 'Kreuzberg', '10963': 'Kreuzberg', '10965': 'Kreuzberg', '10967': 'Kreuzberg',
+  '10969': 'Kreuzberg', '10997': 'Kreuzberg', '10999': 'Kreuzberg',
+  // Charlottenburg (Bezirk Charlottenburg-Wilmersdorf)
+  '10585': 'Charlottenburg', '10587': 'Charlottenburg', '10589': 'Charlottenburg',
+  '10623': 'Charlottenburg', '10625': 'Charlottenburg', '10627': 'Charlottenburg',
+  '10629': 'Charlottenburg', '10707': 'Charlottenburg', '10711': 'Charlottenburg',
+  '10719': 'Charlottenburg',
+  // Schöneberg (Bezirk Tempelhof-Schöneberg)
+  '10777': 'Schöneberg', '10779': 'Schöneberg', '10781': 'Schöneberg', '10783': 'Schöneberg',
+  '10785': 'Schöneberg', '10787': 'Schöneberg', '10789': 'Schöneberg',
+  '10823': 'Schöneberg', '10825': 'Schöneberg', '10827': 'Schöneberg', '10829': 'Schöneberg',
+  // Neukölln (Bezirk Neukölln)
+  '12043': 'Neukölln', '12045': 'Neukölln', '12047': 'Neukölln', '12049': 'Neukölln',
+  '12051': 'Neukölln', '12053': 'Neukölln', '12055': 'Neukölln', '12057': 'Neukölln',
+  '12059': 'Neukölln',
+  // Steglitz (Bezirk Steglitz-Zehlendorf)
+  '12159': 'Steglitz', '12161': 'Steglitz', '12163': 'Steglitz',
+  '12165': 'Steglitz', '12167': 'Steglitz', '12169': 'Steglitz',
+  // Dahlem (Bezirk Steglitz-Zehlendorf)
+  '14195': 'Dahlem',
+}
+
+/** Resolves the Ortsteil for a Berlin address by postal code. */
+function findOrtsteil(components: Place['addressComponents'] = []): string | null {
+  const plz = components.find(c => c.types.includes('postal_code'))?.longText
+  return plz ? (PLZ_TO_ORTSTEIL[plz] ?? null) : null
+}
+
+/** Looks up an existing bezirk doc by exact name; returns its _id or null. */
+async function findBezirkRef(name: string): Promise<string | null> {
+  const doc = await sanity.fetch<{ _id: string } | null>(
+    `*[_type=="bezirk" && name == $name][0]{_id}`,
+    { name },
+  )
+  return doc?._id ?? null
+}
+
+/** Heuristic: Places types → restaurant categories from the Sanity list. */
+function inferCategories(types: string[] = []): string[] {
+  const out = new Set<string>()
+  for (const t of types) {
+    if (/^pizza_/.test(t)) { out.add('Dinner'); out.add('Pizza') }
+    else if (t === 'cafe' || t === 'coffee_shop') { out.add('Breakfast'); out.add('Coffee') }
+    else if (t === 'bakery') { out.add('Breakfast'); out.add('Sweets') }
+    else if (t === 'ice_cream_shop' || t === 'dessert_shop' || t === 'dessert_restaurant') { out.add('Sweets') }
+    else if (t === 'bar' || t === 'wine_bar') { out.add('Dinner') }
+    else if (/_restaurant$/.test(t)) { out.add('Lunch'); out.add('Dinner') }
+  }
+  return [...out]
+}
+
+interface PhotoAsset { _id: string }
+
+/** Downloads the first Places photo (≤1600px wide) and uploads it to Sanity
+ *  as an image asset; returns the asset doc. Skips silently on any failure
+ *  so a single bad photo doesn't kill the whole import. */
+async function importPhoto(place: Place, restaurantSlug: string): Promise<PhotoAsset | null> {
+  const photo = place.photos?.[0]
+  if (!photo?.name) return null
+  try {
+    const url = `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=1600&key=${GOOGLE_API_KEY}`
+    const res = await fetch(url, { redirect: 'follow' })
+    if (!res.ok) {
+      console.warn(`  photo fetch ${res.status} — skipping image`)
+      return null
+    }
+    const buffer = Buffer.from(await res.arrayBuffer())
+    const contentType = res.headers.get('content-type') ?? 'image/jpeg'
+    const ext = contentType.includes('png') ? 'png' : 'jpg'
+    const asset = await sanity.assets.upload('image', buffer, {
+      filename: `${restaurantSlug}.${ext}`,
+      contentType,
+    })
+    return { _id: asset._id }
+  } catch (err) {
+    console.warn(`  photo upload failed: ${(err as Error).message} — skipping image`)
+    return null
+  }
+}
+
 // ----- Doc construction -----------------------------------------------------
 
 function buildPriceRange(pr?: Place['priceRange']) {
@@ -237,7 +341,13 @@ function buildPriceRange(pr?: Place['priceRange']) {
   }
 }
 
-function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string) {
+interface BuildContext {
+  bezirkRefId: string | null
+  ortsteil: string | null
+  photoAsset: PhotoAsset | null
+}
+
+function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildContext) {
   const name = place.displayName?.text ?? parsed.name
   const doc: { _id: string; _type: 'restaurant' } & Record<string, unknown> = {
     _id: `drafts.${randomUUID()}`,
@@ -258,13 +368,31 @@ function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string) {
   if (cuisine) doc.cuisineType = cuisine
 
   if (place.editorialSummary?.text) {
-    doc.shortDescription = place.editorialSummary.text.slice(0, 160)
+    const summary = place.editorialSummary.text
+    doc.shortDescription = summary.slice(0, 160)
+    // The longer description field caps at 300 — only set when the summary
+    // adds something beyond the 160-char short version.
+    if (summary.length > 160) doc.description = summary.slice(0, 300)
   }
   if (place.regularOpeningHours?.weekdayDescriptions?.length) {
     doc.openingHours = parseWeekdayDescriptions(place.regularOpeningHours.weekdayDescriptions)
   }
   const priceRange = buildPriceRange(place.priceRange)
   if (priceRange) doc.priceRange = priceRange
+
+  if (ctx.ortsteil) doc.district = ctx.ortsteil
+  if (ctx.bezirkRefId) {
+    doc.bezirkRef = { _type: 'reference', _ref: ctx.bezirkRefId }
+  }
+  const categories = inferCategories(place.types)
+  if (categories.length) doc.categories = categories
+
+  if (ctx.photoAsset) {
+    doc.image = {
+      _type: 'image',
+      asset: { _type: 'reference', _ref: ctx.photoAsset._id },
+    }
+  }
 
   return doc
 }
@@ -308,11 +436,26 @@ async function main() {
   )
   if (existing.length) {
     console.error(`\n✗ Duplicate: "${matchedName}" already exists as ${existing[0]._id}`)
-    console.error('  Skipping — pass --force to override (not implemented yet; edit the existing doc).')
+    console.error('  Skipping — edit the existing doc in Studio if you want to update it.')
     process.exit(1)
   }
 
-  const doc = buildDoc(parsed, place, canonical)
+  // Bezirk match (sublocality_level_1 → existing bezirk doc by name).
+  const ortsteil = findOrtsteil(place.addressComponents)
+  const bezirkRefId = ortsteil ? await findBezirkRef(ortsteil) : null
+  if (ortsteil) {
+    console.log(`  ortsteil: ${ortsteil}${bezirkRefId ? ` → ref ${bezirkRefId}` : ' (no bezirk doc)'}`)
+  }
+
+  // Photo: download first Places photo, upload to Sanity assets. Skip on
+  // --dry-run so we don't pollute assets while iterating.
+  const restaurantSlug = slugify(matchedName)
+  const photoAsset = dryRun ? null : await importPhoto(place, restaurantSlug)
+  if (photoAsset) console.log(`  photo:    uploaded ${photoAsset._id}`)
+  else if (place.photos?.length) console.log(`  photo:    ${dryRun ? 'skipped (--dry-run)' : 'failed'}`)
+  else console.log(`  photo:    none on Places`)
+
+  const doc = buildDoc(parsed, place, canonical, { bezirkRefId, ortsteil, photoAsset })
   console.log(`\n→ Draft preview:\n${JSON.stringify(doc, null, 2)}\n`)
 
   if (dryRun) {

@@ -2,7 +2,6 @@ import { MetadataRoute } from 'next'
 import { client } from '@/lib/sanity'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
-import { CATEGORIES } from '@/lib/categories'
 import { hasEnContent } from '@/lib/i18n/pickLocale'
 
 export const revalidate = 0
@@ -42,7 +41,7 @@ function deOnly(path: string, lastModified?: string, priority = 0.5, changeFrequ
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [restaurants, articles, bezirke] = await Promise.all([
+  const [restaurants, articles, bezirke, categorySlugs] = await Promise.all([
     client.fetch<{ slug: string; descriptionEn?: string }[]>(
       `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, descriptionEn }`,
       {},
@@ -57,6 +56,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, descriptionEn }`,
       {},
       { next: { revalidate: 3600, tags: ['sitemap-bezirke'] } },
+    ),
+    client.fetch<{ slug: string }[]>(
+      `*[_type == "category" && defined(slug.current)] { "slug": slug.current }`,
+      {},
+      { next: { revalidate: 3600, tags: ['sitemap-categories', 'category-list'] } },
     ),
   ])
 
@@ -88,8 +92,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       : deOnly(`/bezirk/${slug}`, undefined, 0.7, 'monthly'),
   )
 
-  const kategorieEntries = CATEGORIES.map(c =>
-    withAlternates(`/kategorie/${c.slug}`, undefined, 0.7, 'weekly'),
+  const kategorieEntries = categorySlugs.map(({ slug }) =>
+    withAlternates(`/kategorie/${slug}`, undefined, 0.7, 'weekly'),
   )
 
   return [...staticEntries, ...restaurantEntries, ...articleEntries, ...bezirkEntries, ...kategorieEntries]

@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import type { NewsArticle, RestaurantCard } from '@/lib/types'
-import type { CategoryDef } from '@/lib/categories'
+import { localizedCategoryName, type CategoryDef } from '@/lib/categories'
 import styles from './DetailPageOutro.module.css'
 
 interface DetailPageOutroProps {
@@ -65,7 +65,7 @@ function SiblingLinks({
   categoryDef,
 }: SiblingLinksProps) {
   const de = locale === 'de'
-  const categoryLabel = categoryDef ? (de ? categoryDef.labelDe : categoryDef.labelEn) : null
+  const categoryLabel = categoryDef ? localizedCategoryName(categoryDef, locale) : null
   return (
     <div className={styles.siblings}>
       {siblingsBezirk.length > 0 && (

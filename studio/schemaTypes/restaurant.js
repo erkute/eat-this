@@ -158,10 +158,10 @@ export default {
       name: 'categories',
       title: 'Categories',
       type: 'array',
-      of: [{ type: 'string' }],
-      options: {
-        list: ['Dinner', 'Lunch', 'Breakfast', 'Coffee', 'Sweets', 'Pizza'],
-      },
+      of: [{ type: 'reference', to: [{ type: 'category' }] }],
+      description:
+        'Verknüpfte Kategorie-Dokumente. Neue Kategorien werden unter "Kategorien" gepflegt — DE/EN-Label dort.',
+      options: { sortable: true },
     },
     {
       name: 'price',

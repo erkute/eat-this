@@ -4,8 +4,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
-import { getRestaurantsByCategory } from '@/lib/sanity.server'
-import { CATEGORIES, getCategoryBySlug } from '@/lib/categories'
+import { getRestaurantsByCategory, getCategoryBySlug, getAllCategories } from '@/lib/sanity.server'
+import { localizedCategoryName, localizedCategoryBlurb } from '@/lib/categories'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
@@ -20,8 +20,9 @@ interface PageProps {
 export const revalidate = 3600
 
 export async function generateStaticParams() {
+  const cats = await getAllCategories()
   return routing.locales.flatMap(locale =>
-    CATEGORIES.map(c => ({ locale, slug: c.slug })),
+    cats.map(c => ({ locale, slug: c.slug })),
   )
 }
 
@@ -31,14 +32,13 @@ function localeUrl(locale: string, path: string): string {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params
-  const c = getCategoryBySlug(slug)
+  const c = await getCategoryBySlug(slug)
   if (!c) return {}
   const de = locale === 'de'
-  const label = de ? c.labelDe : c.labelEn
-  const title = de
-    ? `${label} in Berlin — Eat This`
-    : `${label} in Berlin — Eat This`
-  const description = de ? c.blurbDe : c.blurbEn
+  const loc = de ? 'de' : 'en'
+  const label = localizedCategoryName(c, loc)
+  const title = `${label} in Berlin — Eat This`
+  const description = localizedCategoryBlurb(c, loc) || undefined
   const canonical = localeUrl(locale, `/kategorie/${slug}`)
   return {
     title,
@@ -67,11 +67,12 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const de = locale === 'de'
   const loc = de ? 'de' : 'en'
 
-  const c = getCategoryBySlug(slug)
+  const c = await getCategoryBySlug(slug)
   if (!c) notFound()
 
-  const restaurants = await getRestaurantsByCategory(c.value)
-  const label = de ? c.labelDe : c.labelEn
+  const restaurants = await getRestaurantsByCategory(c.slug)
+  const label = localizedCategoryName(c, loc)
+  const blurb = localizedCategoryBlurb(c, loc)
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/' },
@@ -124,9 +125,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
           <h1 className={styles.title}>
             {label} in Berlin
           </h1>
-          <p className={styles.description}>
-            {de ? c.blurbDe : c.blurbEn}
-          </p>
+          {blurb && <p className={styles.description}>{blurb}</p>}
         </header>
 
         <section className={styles.grid}>

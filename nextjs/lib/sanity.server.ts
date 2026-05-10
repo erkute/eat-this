@@ -13,9 +13,12 @@ import {
   bezirkBySlugQuery,
   restaurantsByBezirkQuery,
   restaurantsByCategoryQuery,
-  allCategoryOccurrencesQuery,
+  allCategoriesQuery,
+  categoryBySlugQuery,
+  categoryOccurrencesQuery,
 } from './queries'
 import type { Restaurant, NewsArticle, StaticPageDoc, MustEatAlbumCard, BezirkDoc, RestaurantCard } from './types'
+import type { CategoryDef } from './categories'
 
 export async function getRestaurantBySlug(slug: string): Promise<Restaurant | null> {
   return client.fetch<Restaurant | null>(
@@ -114,23 +117,40 @@ export async function getRestaurantsByBezirk(slug: string): Promise<RestaurantCa
   )
 }
 
-export async function getRestaurantsByCategory(category: string): Promise<RestaurantCard[]> {
+export async function getRestaurantsByCategory(categorySlug: string): Promise<RestaurantCard[]> {
   return client.fetch<RestaurantCard[]>(
     restaurantsByCategoryQuery,
-    { category },
-    { next: { revalidate: 3600, tags: [`category:${category}`, 'category-list'] } }
+    { categorySlug },
+    { next: { revalidate: 3600, tags: [`category:${categorySlug}`, 'category-list'] } }
+  )
+}
+
+export async function getAllCategories(): Promise<CategoryDef[]> {
+  return client.fetch<CategoryDef[]>(
+    allCategoriesQuery,
+    {},
+    { next: { revalidate: 3600, tags: ['category', 'category-list'] } }
+  )
+}
+
+export async function getCategoryBySlug(slug: string): Promise<CategoryDef | null> {
+  return client.fetch<CategoryDef | null>(
+    categoryBySlugQuery,
+    { slug },
+    { next: { revalidate: 3600, tags: [`category:${slug}`] } }
   )
 }
 
 export async function getCategoryCounts(): Promise<Record<string, number>> {
-  const occurrences = await client.fetch<string[]>(
-    allCategoryOccurrencesQuery,
+  const occurrences = await client.fetch<{ slug: string | null }[]>(
+    categoryOccurrencesQuery,
     {},
     { next: { revalidate: 3600, tags: ['category-list'] } }
   )
   const counts: Record<string, number> = {}
-  for (const cat of occurrences) {
-    counts[cat] = (counts[cat] ?? 0) + 1
+  for (const { slug } of occurrences) {
+    if (!slug) continue
+    counts[slug] = (counts[slug] ?? 0) + 1
   }
   return counts
 }

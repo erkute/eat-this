@@ -75,10 +75,14 @@ export function useMapFilters({ restaurants, mustEats, location }: Args) {
       const hit =
         r.name.toLowerCase().includes(q) ||
         (districtOf(r) ?? '').toLowerCase().includes(q) ||
-        r.categories?.some(c => c.toLowerCase().includes(q))
+        r.categories?.some(c =>
+          c.name.toLowerCase().includes(q) ||
+          c.nameEn?.toLowerCase().includes(q) ||
+          c.slug.toLowerCase().includes(q),
+        )
       return Boolean(hit)
     }
-    if (category !== 'All' && !r.categories?.includes(category)) return false
+    if (category !== 'All' && !r.categories?.some(c => c.slug === category)) return false
     if (bezirk && districtOf(r) !== bezirk) return false
     if (openOnly) {
       if (!r.openingHours) return false

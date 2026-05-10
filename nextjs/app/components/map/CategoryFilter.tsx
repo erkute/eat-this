@@ -1,42 +1,42 @@
 'use client'
 import type { MapCategory } from '@/lib/types'
+import { localizedCategoryName, type CategoryDef } from '@/lib/categories'
 import { useTranslation } from '@/lib/i18n'
 import styles from './map.module.css'
 
-const CATEGORIES: MapCategory[] = ['All', 'Dinner', 'Lunch', 'Breakfast', 'Coffee', 'Sweets', 'Pizza']
-
-const LABEL_KEY: Record<MapCategory, string> = {
-  All:       'map.filterAll',
-  Dinner:    'map.filterDinner',
-  Lunch:     'map.filterLunch',
-  Breakfast: 'map.filterBreakfast',
-  Coffee:    'map.filterCoffee',
-  Sweets:    'map.filterSweets',
-  Pizza:     'map.filterPizza',
-}
-
 interface CategoryFilterProps {
+  categories: CategoryDef[]
   active: MapCategory
   onChange: (c: MapCategory) => void
   variant?: 'chips' | 'tabs'
 }
 
-export default function CategoryFilter({ active, onChange, variant = 'chips' }: CategoryFilterProps) {
-  const { t } = useTranslation()
+export default function CategoryFilter({ categories, active, onChange, variant = 'chips' }: CategoryFilterProps) {
+  const { t, lang } = useTranslation()
+  const loc = lang === 'de' ? 'de' : 'en'
+  const allLabel = t('map.filterAll')
+
+  const items: { value: MapCategory; label: string }[] = [
+    { value: 'All', label: allLabel },
+    ...categories.map(c => ({
+      value: c.slug as MapCategory,
+      label: localizedCategoryName(c, loc),
+    })),
+  ]
 
   if (variant === 'tabs') {
     return (
       <div className={styles.categoryTabs}>
-        {CATEGORIES.map(c => (
+        {items.map(({ value, label }) => (
           <button
-            key={c}
+            key={value}
             type="button"
             role="tab"
-            aria-selected={active === c}
-            className={`${styles.categoryTab} ${active === c ? styles.categoryTabActive : ''}`}
-            onClick={() => onChange(c)}
+            aria-selected={active === value}
+            className={`${styles.categoryTab} ${active === value ? styles.categoryTabActive : ''}`}
+            onClick={() => onChange(value)}
           >
-            {t(LABEL_KEY[c])}
+            {label}
           </button>
         ))}
       </div>
@@ -45,17 +45,17 @@ export default function CategoryFilter({ active, onChange, variant = 'chips' }: 
 
   return (
     <div className={styles.chips} role="tablist" aria-label="Categories">
-      {CATEGORIES.map(cat => {
-        const isActive = active === cat
+      {items.map(({ value, label }) => {
+        const isActive = active === value
         return (
           <button
-            key={cat}
+            key={value}
             role="tab"
             aria-selected={isActive}
             className={`${styles.chip} ${isActive ? styles.chipActive : ''}`}
-            onClick={() => onChange(cat)}
+            onClick={() => onChange(value)}
           >
-            {t(LABEL_KEY[cat])}
+            {label}
           </button>
         )
       })}

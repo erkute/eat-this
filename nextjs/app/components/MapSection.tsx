@@ -34,7 +34,7 @@ export default function MapSection({ isActive = false }: Props) {
   const { t } = useTranslation()
   const locale = useLocale()
 
-  const { restaurants, mustEats, loading: dataLoading } = useMapData()
+  const { restaurants, mustEats, categories, loading: dataLoading } = useMapData()
   // Keep the card-shuffle brand moment but make it fast: 1.5 s bar fill +
   // 100 ms grace = 1.6 s minimum. If data hasn't arrived by then we still
   // wait; if data loads in 200 ms we still show ≈1.6 s of brand.
@@ -452,6 +452,7 @@ export default function MapSection({ isActive = false }: Props) {
       favoriteIds={favoriteIds}
       location={location}
       uid={uid}
+      categories={categories}
       category={category}
       setCategory={setCategory}
       search={search}

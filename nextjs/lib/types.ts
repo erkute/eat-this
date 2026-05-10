@@ -12,6 +12,19 @@ export interface RestaurantSeo {
   noIndex?: boolean
 }
 
+export interface CategoryRef {
+  _id?: string
+  slug: string
+  /** DE label (e.g. "Café", "Frühstück"). Pre-migration: the raw legacy string. */
+  name: string
+  /** EN label (e.g. "Coffee", "Breakfast"). Pre-migration: null. */
+  nameEn?: string
+  /** Optional DE blurb for hub/SEO copy. */
+  description?: string
+  /** Optional EN blurb for hub/SEO copy. */
+  descriptionEn?: string
+}
+
 export interface Restaurant {
   _id: string
   name: string
@@ -19,7 +32,7 @@ export interface Restaurant {
   district?: string
   cuisineType?: string
   address?: string
-  categories?: string[]
+  categories?: CategoryRef[]
   price?: string
   lat: number
   lng: number
@@ -128,7 +141,7 @@ export interface MapRestaurant {
   district?: string
   bezirk?: { name: string; slug?: string }
   address?: string
-  categories?: string[]
+  categories?: CategoryRef[]
   price?: string
   priceRange?: { min?: number; max?: number; currency?: string }
   phone?: string
@@ -165,14 +178,8 @@ export interface MapMustEat {
 
 export type MapLayer = 'restaurants' | 'mustEats'
 
-export type MapCategory =
-  | 'All'
-  | 'Dinner'
-  | 'Lunch'
-  | 'Breakfast'
-  | 'Coffee'
-  | 'Sweets'
-  | 'Pizza'
+/** Map category filter: 'All' or a category slug from Sanity. */
+export type MapCategory = 'All' | string
 
 export interface OpenStatus {
   isOpen: boolean

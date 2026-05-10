@@ -1,15 +1,17 @@
 import { getLocale } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
-import { getAllBezirkeWithStats, getCategoryCounts } from '@/lib/sanity.server'
-import { CATEGORIES } from '@/lib/categories'
+import { getAllBezirkeWithStats, getAllCategories, getCategoryCounts } from '@/lib/sanity.server'
+import { localizedCategoryName } from '@/lib/categories'
 import styles from './landing.module.css'
 
 export default async function ExploreHub() {
   const locale = await getLocale()
   const de = locale === 'de'
+  const loc = de ? 'de' : 'en'
 
-  const [bezirke, categoryCounts] = await Promise.all([
+  const [bezirke, categories, categoryCounts] = await Promise.all([
     getAllBezirkeWithStats(),
+    getAllCategories(),
     getCategoryCounts(),
   ])
 
@@ -49,12 +51,12 @@ export default async function ExploreHub() {
               </Link>
             </h3>
             <ul className={styles.explorePills}>
-              {CATEGORIES.map(c => {
-                const count = categoryCounts[c.value] ?? 0
+              {categories.map(c => {
+                const count = categoryCounts[c.slug] ?? 0
                 return (
                   <li key={c.slug}>
                     <Link href={`/kategorie/${c.slug}`} className={styles.explorePill}>
-                      {de ? c.labelDe : c.labelEn}
+                      {localizedCategoryName(c, loc)}
                       {count > 0 ? <span className={styles.explorePillCount}>{count}</span> : null}
                     </Link>
                   </li>

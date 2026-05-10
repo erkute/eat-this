@@ -7,7 +7,7 @@ import { buildRestaurantJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { routing } from '@/i18n/routing'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
-import { CATEGORIES } from '@/lib/categories'
+import { localizedCategoryName } from '@/lib/categories'
 import DetailPageOutro from '@/app/components/DetailPageOutro'
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
@@ -99,12 +99,12 @@ export default async function RestaurantPage({ params }: PageProps) {
   setRequestLocale(locale)
   const r = await getRestaurantBySlug(slug)
   if (!r) notFound()
-  const primaryCategory = r.categories?.[0]
+  const primaryCategory = r.categories?.[0] ?? null
   const [latestNews, mustEats, siblingsBezirkRaw, siblingsCategoryRaw] = await Promise.all([
     getLatestNewsArticles(2),
     getMustEatsByRestaurant(r._id),
     r.bezirk?.slug ? getRestaurantsByBezirk(r.bezirk.slug) : Promise.resolve([]),
-    primaryCategory ? getRestaurantsByCategory(primaryCategory) : Promise.resolve([]),
+    primaryCategory?.slug ? getRestaurantsByCategory(primaryCategory.slug) : Promise.resolve([]),
   ])
 
   const SIBLING_LIMIT = 8
@@ -113,7 +113,13 @@ export default async function RestaurantPage({ params }: PageProps) {
   // De-dupe: don't re-show a restaurant in both rows
   const bezirkSlugSet = new Set(siblingsBezirk.map(s => s.slug))
   const siblingsCategory = siblingsCategoryAll.filter(s => !bezirkSlugSet.has(s.slug)).slice(0, SIBLING_LIMIT)
-  const categoryDef = primaryCategory ? CATEGORIES.find(c => c.value === primaryCategory) ?? null : null
+  const categoryDef = primaryCategory
+    ? {
+        slug: primaryCategory.slug,
+        name: primaryCategory.name,
+        nameEn: primaryCategory.nameEn,
+      }
+    : null
 
   const loc = locale === 'de' ? 'de' : 'en'
   const de = loc === 'de'
@@ -178,8 +184,10 @@ export default async function RestaurantPage({ params }: PageProps) {
               {((r.categories && r.categories.length > 0) || r.price) && (
                 <div className={styles.categories}>
                   {r.price && <span className={styles.price}>{r.price}</span>}
-                  {r.categories?.map((cat: string) => (
-                    <span key={cat} className={styles.category}>{cat}</span>
+                  {r.categories?.map(cat => (
+                    <span key={cat.slug} className={styles.category}>
+                      {localizedCategoryName(cat, loc)}
+                    </span>
                   ))}
                 </div>
               )}

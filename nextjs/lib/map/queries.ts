@@ -1,3 +1,10 @@
+// Dual-shape category projection — see lib/queries.ts for the explainer.
+const CATEGORY_PROJECTION = `categories[] {
+  "slug": coalesce(@->slug.current, lower(@)),
+  "name": coalesce(@->name, @),
+  "nameEn": @->nameEn
+}`
+
 export const mapRestaurantsQuery = `
   *[_type == "restaurant" && isOpen != false] {
     _id,
@@ -8,7 +15,7 @@ export const mapRestaurantsQuery = `
     district,
     "bezirk": bezirkRef->{ name, "slug": slug.current },
     address,
-    categories,
+    ${CATEGORY_PROJECTION},
     price,
     priceRange,
     phone,

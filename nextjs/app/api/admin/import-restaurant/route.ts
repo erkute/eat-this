@@ -108,7 +108,9 @@ export async function POST(request: NextRequest) {
       description: result.doc.description as string | undefined,
       district: result.doc.district as string | undefined,
       address: result.doc.address as string | undefined,
-      categories: result.doc.categories as string[] | undefined,
+      // LLM prompts read category *names* (e.g. "Coffee, Pizza") for tone/context.
+      // The doc itself carries the matching references.
+      categories: result.categoryNames,
       price: result.doc.price as string | undefined,
       lat: result.doc.lat as number,
       lng: result.doc.lng as number,

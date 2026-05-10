@@ -109,7 +109,9 @@ export default function SearchOverlay() {
       .filter((r) => {
         if (r.isClosed) return false;
         const district = r.bezirk?.name || r.district || '';
-        const cats = (r.categories || []).join(' ');
+        const cats = (r.categories || [])
+          .flatMap(c => [c.name, c.nameEn, c.slug].filter((v): v is string => Boolean(v)))
+          .join(' ');
         return (
           r.name.toLowerCase().includes(trimmed) ||
           district.toLowerCase().includes(trimmed) ||

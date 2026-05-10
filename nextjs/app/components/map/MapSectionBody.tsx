@@ -2,6 +2,7 @@
 import type { Ref, RefObject } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
 import type { MapRestaurant, MapMustEat, MapLayer, MapCategory } from '@/lib/types'
+import type { CategoryDef } from '@/lib/categories'
 import type {
   SortMode,
   SortDir,
@@ -58,6 +59,7 @@ interface MapBodyState {
 /* Filter values + their setters / change handlers. Bundled together because
    each value travels with its setter in the same render. */
 interface MapBodyFilterState {
+  categories: CategoryDef[]
   category: MapCategory
   setCategory: (c: MapCategory) => void
   search: string
@@ -119,7 +121,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     displayedRestaurants, fannedMustEats, displayedMustEats, restaurantMustEats,
     selectedRestaurant, selectedMustEat,
     unlockedIds, favoriteIds, location, uid,
-    category, setCategory, search, bezirk, bezirkNames,
+    categories, category, setCategory, search, bezirk, bezirkNames,
     openOnly, setOpenOnly, sort, setSort, sortDir, onToggleSortDir,
     searchOpen, setSearchOpen, filterOpen, setFilterOpen,
     onMapMove, onMapClick, onRestaurantClick, onMustEatClick, onLocateMe,
@@ -270,7 +272,12 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 />
                 {/* Zone C — category chips: NO drag handler, pure native horizontal scroll */}
                 <div className={styles.listHeaderTabs}>
-                  <CategoryFilter active={category} onChange={setCategory} variant="tabs" />
+                  <CategoryFilter
+                    categories={categories}
+                    active={category}
+                    onChange={setCategory}
+                    variant="tabs"
+                  />
                 </div>
                 <div ref={setContentRef} className={styles.listScroll}>
                   <RestaurantList

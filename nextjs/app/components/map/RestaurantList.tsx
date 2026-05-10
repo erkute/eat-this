@@ -2,6 +2,7 @@
 import type { MapRestaurant, OpenStatus } from '@/lib/types'
 import { haversineDistance, formatWalkingTime, getOpenStatus, type UserLocation } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
+import { localizedCategoryName } from '@/lib/categories'
 import styles from './map.module.css'
 
 interface ItemProps {
@@ -12,7 +13,8 @@ interface ItemProps {
 }
 
 function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation()
+  const loc = lang === 'de' ? 'de' : 'en'
   const statusLabels = {
     open: t('map.open'),
     closed: t('map.closed'),
@@ -68,7 +70,7 @@ function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
           <span className={styles.rowMetaText}>
             {[
               restaurant.price,
-              restaurant.categories?.slice(0, 3).join(' · '),
+              restaurant.categories?.slice(0, 3).map(c => localizedCategoryName(c, loc)).join(' · '),
               walkingTime,
             ]
               .filter(Boolean)

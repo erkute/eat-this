@@ -1,3 +1,17 @@
+// Dual-shape category projection. Tolerates both pre-migration (legacy
+// `categories: string[]`) and post-migration (`categories: reference[]`)
+// data so a single GROQ query keeps working through the cutover.
+//   - reference: dereferences and pulls slug/name/nameEn/description.
+//   - string:   wraps the bare value as `{slug: lower(@), name: @}` so consumers
+//               read a uniform `[{slug, name, nameEn?, description?}]` shape.
+const CATEGORY_PROJECTION = `categories[] {
+  "slug": coalesce(@->slug.current, lower(@)),
+  "name": coalesce(@->name, @),
+  "nameEn": @->nameEn,
+  "description": @->description,
+  "descriptionEn": @->descriptionEn
+}`
+
 export const restaurantBySlugQuery = `
   *[_type == "restaurant" && slug.current == $slug][0] {
     _id,
@@ -11,7 +25,7 @@ export const restaurantBySlugQuery = `
     district,
     "bezirk": bezirkRef->{ _id, name, "slug": slug.current },
     address,
-    categories,
+    ${CATEGORY_PROJECTION},
     price,
     lat,
     lng,
@@ -82,7 +96,7 @@ export const allRestaurantsQuery = `
     district,
     "bezirk": bezirkRef->{ _id, name, "slug": slug.current },
     address,
-    categories,
+    ${CATEGORY_PROJECTION},
     price,
     lat,
     lng,
@@ -101,7 +115,7 @@ export const restaurantsByBezirkQuery = `
     shortDescription,
     shortDescriptionEn,
     district,
-    categories,
+    ${CATEGORY_PROJECTION},
     price,
     lat,
     lng,
@@ -111,9 +125,14 @@ export const restaurantsByBezirkQuery = `
   }
 `
 
-// Restaurants filtered by category string
+// Restaurants filtered by category slug.
+// Dual-shape match: reference docs use slug.current, legacy strings match by lowercased value.
 export const restaurantsByCategoryQuery = `
-  *[_type == "restaurant" && isOpen != false && $category in categories] | order(name asc) {
+  *[_type == "restaurant" && isOpen != false
+    && count(categories[
+      coalesce(@->slug.current, lower(@)) == $categorySlug
+    ]) > 0
+  ] | order(name asc) {
     _id,
     name,
     "slug": slug.current,
@@ -122,7 +141,7 @@ export const restaurantsByCategoryQuery = `
     shortDescriptionEn,
     district,
     "bezirk": bezirkRef->{ _id, name, "slug": slug.current },
-    categories,
+    ${CATEGORY_PROJECTION},
     price,
     lat,
     lng,
@@ -142,7 +161,7 @@ export const latestRestaurantsQuery = `
     shortDescription,
     district,
     "bezirk": bezirkRef->{ _id, name, "slug": slug.current },
-    categories,
+    ${CATEGORY_PROJECTION},
     price,
     lat,
     lng,
@@ -193,14 +212,38 @@ export const bezirkBySlugQuery = `
   }
 `
 
-// All distinct categories used across restaurants
+// All categories for navigation/listing — pulled directly from the category
+// document type (single source of truth). Sorted by EN name (falls back to DE)
+// so the order is stable across locales.
 export const allCategoriesQuery = `
-  array::unique(*[_type == "restaurant" && isOpen != false].categories[])
+  *[_type == "category"] | order(coalesce(nameEn, name) asc) {
+    _id,
+    name,
+    nameEn,
+    "slug": slug.current,
+    description,
+    descriptionEn
+  }
 `
 
-// Flat list of every category occurrence — counted in JS for category index counts
-export const allCategoryOccurrencesQuery = `
-  *[_type == "restaurant" && isOpen != false].categories[]
+// Flat list of every restaurant category occurrence as a `{slug}` projection.
+// Counted in JS by slug to support both shapes during the migration window.
+export const categoryOccurrencesQuery = `
+  *[_type == "restaurant" && isOpen != false].categories[] {
+    "slug": coalesce(@->slug.current, lower(@))
+  }
+`
+
+// One category by slug — detail / hub page.
+export const categoryBySlugQuery = `
+  *[_type == "category" && slug.current == $slug][0] {
+    _id,
+    name,
+    nameEn,
+    "slug": slug.current,
+    description,
+    descriptionEn
+  }
 `
 
 // All news articles — newest first

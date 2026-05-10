@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
-import { getCategoryCounts } from '@/lib/sanity.server'
-import { CATEGORIES } from '@/lib/categories'
+import { getAllCategories, getCategoryCounts } from '@/lib/sanity.server'
+import { localizedCategoryName } from '@/lib/categories'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import styles from '../bezirk/Bezirk.module.css'
@@ -51,7 +51,11 @@ export default async function KategorieIndexPage({ params }: PageProps) {
   const { locale } = await params
   setRequestLocale(locale)
   const de = locale === 'de'
-  const counts = await getCategoryCounts()
+  const loc = de ? 'de' : 'en'
+  const [categories, counts] = await Promise.all([
+    getAllCategories(),
+    getCategoryCounts(),
+  ])
 
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
@@ -65,10 +69,10 @@ export default async function KategorieIndexPage({ params }: PageProps) {
       },
       {
         '@type': 'ItemList',
-        itemListElement: CATEGORIES.map((c, i) => ({
+        itemListElement: categories.map((c, i) => ({
           '@type': 'ListItem',
           position: i + 1,
-          name: de ? c.labelDe : c.labelEn,
+          name: localizedCategoryName(c, loc),
           url: localeUrl(locale, `/kategorie/${c.slug}`),
         })),
       },
@@ -94,11 +98,12 @@ export default async function KategorieIndexPage({ params }: PageProps) {
         </header>
 
         <section className={styles.bezirkGrid}>
-          {CATEGORIES.map(c => {
-            const count = counts[c.value] ?? 0
+          {categories.map(c => {
+            const count = counts[c.slug] ?? 0
+            const label = localizedCategoryName(c, loc)
             return (
               <Link key={c.slug} href={`/kategorie/${c.slug}`} className={styles.bezirkCard}>
-                <span className={styles.bezirkName}>{de ? c.labelDe : c.labelEn}</span>
+                <span className={styles.bezirkName}>{label}</span>
                 <span className={styles.bezirkCount}>
                   {count} {count === 1
                     ? (de ? 'Restaurant' : 'restaurant')

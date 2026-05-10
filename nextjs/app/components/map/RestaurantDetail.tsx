@@ -8,6 +8,7 @@ import {
   type UserLocation,
 } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
+import { localizedCategoryName } from '@/lib/categories'
 import styles from './map.module.css'
 import {
   ArrowOutIcon,
@@ -70,7 +71,8 @@ export default function RestaurantDetail({
   isFavorite,
   onToggleFavorite,
 }: RestaurantDetailProps) {
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation()
+  const loc = lang === 'de' ? 'de' : 'en'
   const status = restaurant.openingHours
     ? getOpenStatus(restaurant.openingHours, new Date(), {
         open: t('map.open'),
@@ -135,7 +137,9 @@ export default function RestaurantDetail({
   const metaParts: { text: string; isPrice: boolean }[] = []
   if (district) metaParts.push({ text: district, isPrice: false })
   if (restaurant.categories?.length) {
-    for (const c of restaurant.categories.slice(0, 3)) metaParts.push({ text: c, isPrice: false })
+    for (const c of restaurant.categories.slice(0, 3)) {
+      metaParts.push({ text: localizedCategoryName(c, loc), isPrice: false })
+    }
   }
   if (priceLabel) metaParts.push({ text: priceLabel, isPrice: true })
 

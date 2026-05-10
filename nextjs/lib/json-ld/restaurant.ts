@@ -37,7 +37,8 @@ export function buildRestaurantJsonLd({
         description,
         image: r.photo,
         priceRange: r.price,
-        servesCuisine: r.categories,
+        // schema.org expects strings; prefer EN labels (canonical for crawlers).
+        servesCuisine: r.categories?.map(c => c.nameEn || c.name).filter(Boolean),
         url: r.website,
         hasMap: r.mapsUrl,
         ...(r.address && {

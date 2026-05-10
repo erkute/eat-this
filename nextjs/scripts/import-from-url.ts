@@ -292,7 +292,9 @@ async function findBezirkRef(name: string): Promise<string | null> {
   return doc?._id ?? null
 }
 
-/** Heuristic: Places types → restaurant categories from the Sanity list. */
+/** Heuristic: Places types → category names matching the canonical EN
+ *  identifier on the `category` documents. Returns names; the caller resolves
+ *  them into reference objects via `lookupCategoryRefs`. */
 function inferCategories(types: string[] = []): string[] {
   const out = new Set<string>()
   for (const t of types) {
@@ -300,10 +302,39 @@ function inferCategories(types: string[] = []): string[] {
     else if (t === 'cafe' || t === 'coffee_shop') { out.add('Breakfast'); out.add('Coffee') }
     else if (t === 'bakery') { out.add('Breakfast'); out.add('Sweets') }
     else if (t === 'ice_cream_shop' || t === 'dessert_shop' || t === 'dessert_restaurant') { out.add('Sweets') }
-    else if (t === 'bar' || t === 'wine_bar') { out.add('Dinner') }
+    else if (t === 'bar' || t === 'wine_bar') { out.add('Dinner'); out.add('Drinks') }
     else if (/_restaurant$/.test(t)) { out.add('Lunch'); out.add('Dinner') }
   }
   return [...out]
+}
+
+/** Resolves category names to `{_type:'reference', _ref:<id>}` array items
+ *  by looking up the matching `category` document. Match is case-insensitive
+ *  and tolerant of post-migration DE name renames (e.g. "Coffee" still
+ *  resolves after the doc's `name` becomes "Café") via `nameEn`. */
+async function lookupCategoryRefs(
+  names: string[],
+): Promise<{ _key: string; _type: 'reference'; _ref: string }[]> {
+  if (!names.length) return []
+  const docs = await sanity.fetch<{ _id: string; name: string; nameEn: string | null }[]>(
+    `*[_type == "category" && (name in $names || nameEn in $names)]{_id, name, nameEn}`,
+    { names },
+  )
+  const refs: { _key: string; _type: 'reference'; _ref: string }[] = []
+  for (const name of names) {
+    const match = docs.find(d => d.name === name || d.nameEn === name)
+    if (!match) {
+      console.warn(`  ⚠ no category doc for "${name}" — dropping from import`)
+      continue
+    }
+    if (refs.some(r => r._ref === match._id)) continue
+    refs.push({
+      _key: randomUUID().replace(/-/g, '').slice(0, 12),
+      _type: 'reference',
+      _ref: match._id,
+    })
+  }
+  return refs
 }
 
 interface PhotoAsset {
@@ -381,6 +412,7 @@ interface BuildContext {
   bezirkRefId: string | null
   ortsteil: string | null
   photoAsset: PhotoAsset | null
+  categoryRefs: { _key: string; _type: 'reference'; _ref: string }[]
 }
 
 function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildContext) {
@@ -422,8 +454,7 @@ function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildCo
   if (ctx.bezirkRefId) {
     doc.bezirkRef = { _type: 'reference', _ref: ctx.bezirkRefId }
   }
-  const categories = inferCategories(place.types)
-  if (categories.length) doc.categories = categories
+  if (ctx.categoryRefs.length) doc.categories = ctx.categoryRefs
 
   if (ctx.photoAsset) {
     const image: Record<string, unknown> = {
@@ -465,6 +496,10 @@ export interface RunImportResult {
   bezirkRefId: string | null
   photoAsset: PhotoAsset | null
   canonicalUrl: string
+  /** Category names inferred from Places types (EN identifiers like "Coffee",
+   *  "Pizza"). Use these for LLM prompts; `doc.categories` carries the matching
+   *  reference array for Sanity. */
+  categoryNames: string[]
 }
 
 /** Resolves a Google Maps URL to a draft-ready restaurant doc shape. Used by
@@ -517,9 +552,26 @@ export async function runImport(url: string, opts: RunImportOptions = {}): Promi
   const restaurantSlug = slugify(matchedName)
   const photoAsset = uploadPhoto ? await importPhoto(place, restaurantSlug) : null
 
-  const doc = buildDoc(parsed, place, canonicalUrl, { bezirkRefId, ortsteil, photoAsset })
+  const categoryNames = inferCategories(place.types)
+  const categoryRefs = await lookupCategoryRefs(categoryNames)
 
-  return { doc, place, matchedName, ortsteil, bezirkRefId, photoAsset, canonicalUrl }
+  const doc = buildDoc(parsed, place, canonicalUrl, {
+    bezirkRefId,
+    ortsteil,
+    photoAsset,
+    categoryRefs,
+  })
+
+  return {
+    doc,
+    place,
+    matchedName,
+    ortsteil,
+    bezirkRefId,
+    photoAsset,
+    canonicalUrl,
+    categoryNames,
+  }
 }
 
 // ----- CLI Main ------------------------------------------------------------

@@ -23,11 +23,12 @@ const SANITY_PROJECT_ID = 'ehwjnjr2'
 const SANITY_DATASET = 'production'
 const SANITY_API_VERSION = '2024-01-01'
 
+// Read at module load but DON'T throw — Next.js evaluates this module at
+// build time for page-data collection, where runtime-only secrets are not
+// available. Validation happens inside runImport() / the CLI guard so the
+// build succeeds with envs missing and the actual request fails clearly.
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY
 const SANITY_TOKEN = process.env.SANITY_API_WRITE_TOKEN
-
-if (!GOOGLE_API_KEY) throw new Error('GOOGLE_API_KEY missing in .env.local')
-if (!SANITY_TOKEN) throw new Error('SANITY_API_WRITE_TOKEN missing in .env.local')
 
 const sanity = createClient({
   projectId: SANITY_PROJECT_ID,
@@ -472,6 +473,9 @@ export interface RunImportResult {
  *  passes to sanity.create; the API endpoint strips it so Sanity assigns a
  *  fresh id at draft-creation time. */
 export async function runImport(url: string, opts: RunImportOptions = {}): Promise<RunImportResult> {
+  if (!GOOGLE_API_KEY) throw new ImportError('GOOGLE_API_KEY is not set on the server.')
+  if (!SANITY_TOKEN) throw new ImportError('SANITY_API_WRITE_TOKEN is not set on the server.')
+
   const uploadPhoto = opts.uploadPhoto !== false
   const duplicateCheck = opts.duplicateCheck !== false
 

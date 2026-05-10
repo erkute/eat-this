@@ -69,22 +69,20 @@ function parseArgs(): CliOptions {
   return opts
 }
 
-function requireEnv(name: string): string {
-  const v = process.env[name]
-  if (!v) throw new Error(`Missing env var: ${name}. Add it to nextjs/.env.local.`)
-  return v
-}
-
+// Lazy env reads — Next.js loads this module at build time (page-data
+// collection) and the runtime secrets are not available there. Throwing
+// here would fail the deploy. Functions below validate when they actually
+// need a value, so missing env at runtime still surfaces clearly.
 const sanity = createClient({
   projectId: SANITY_PROJECT_ID,
   dataset: SANITY_DATASET,
   apiVersion: SANITY_API_VERSION,
-  token: requireEnv('SANITY_API_WRITE_TOKEN'),
+  token: process.env.SANITY_API_WRITE_TOKEN,
   useCdn: false,
 })
 
-const anthropic = new Anthropic({ apiKey: requireEnv('ANTHROPIC_API_KEY') })
-const GOOGLE_API_KEY = requireEnv('GOOGLE_API_KEY')
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? '' })
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY ?? ''
 
 export interface RestaurantSource {
   _id: string

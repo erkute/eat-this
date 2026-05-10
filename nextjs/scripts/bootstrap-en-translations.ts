@@ -59,21 +59,18 @@ function parseArgs(): CliOptions {
   return opts
 }
 
-function requireEnv(name: string): string {
-  const v = process.env[name]
-  if (!v) throw new Error(`Missing env var: ${name}. Add it to nextjs/.env.local.`)
-  return v
-}
-
+// Lazy env reads — Next.js loads this module at build time and runtime
+// secrets aren't available there. See generate-de-descriptions.ts for
+// the full reasoning.
 const sanity = createClient({
   projectId: SANITY_PROJECT_ID,
   dataset: SANITY_DATASET,
   apiVersion: SANITY_API_VERSION,
-  token: requireEnv('SANITY_API_WRITE_TOKEN'),
+  token: process.env.SANITY_API_WRITE_TOKEN,
   useCdn: false,
 })
 
-const anthropic = new Anthropic({ apiKey: requireEnv('ANTHROPIC_API_KEY') })
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? '' })
 
 export interface RestaurantSource {
   _id: string

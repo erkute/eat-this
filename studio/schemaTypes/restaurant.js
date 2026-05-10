@@ -1,3 +1,5 @@
+import {CategoryCheckboxInput} from '../components/CategoryCheckboxInput'
+
 export default {
   name: 'restaurant',
   title: 'Restaurant (Map)',
@@ -160,8 +162,8 @@ export default {
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'category' }] }],
       description:
-        'Verknüpfte Kategorie-Dokumente. Neue Kategorien werden unter "Kategorien" gepflegt — DE/EN-Label dort.',
-      options: { sortable: true },
+        'Anhaken um zuzuordnen. DE/EN-Label gepflegt unter „Kategorien".',
+      components: { input: CategoryCheckboxInput },
     },
     {
       name: 'price',

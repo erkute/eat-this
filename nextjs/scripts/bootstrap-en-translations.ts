@@ -29,15 +29,18 @@ interface CliOptions {
   type: DocType | 'all'
   limit: number | null
   dryRun: boolean
+  draftsOnly: boolean
 }
 
 function parseArgs(): CliOptions {
   const args = process.argv.slice(2)
-  const opts: CliOptions = { type: 'all', limit: null, dryRun: false }
+  const opts: CliOptions = { type: 'all', limit: null, dryRun: false, draftsOnly: false }
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
     if (arg === '--dry-run') {
       opts.dryRun = true
+    } else if (arg === '--drafts-only') {
+      opts.draftsOnly = true
     } else if (arg === '--limit') {
       opts.limit = parseInt(args[++i] ?? '', 10)
     } else if (arg === '--type') {
@@ -99,15 +102,19 @@ interface BezirkSource {
 // Project all fields with {...} wildcard. createIfNotExists needs the full
 // published doc to clone; partial projections produced incomplete drafts that
 // would lose image/slug/openingHours/etc. on publish (see repair-draft-fields.ts).
-async function fetchRestaurants(): Promise<RestaurantSource[]> {
+async function fetchRestaurants(draftsOnly: boolean): Promise<RestaurantSource[]> {
   return sanity.fetch(
-    `*[_type == "restaurant" && !(_id in path("drafts.**"))]{...}`,
+    draftsOnly
+      ? `*[_type == "restaurant" && _id in path("drafts.**")]{...}`
+      : `*[_type == "restaurant" && !(_id in path("drafts.**"))]{...}`,
   )
 }
 
-async function fetchBezirke(): Promise<BezirkSource[]> {
+async function fetchBezirke(draftsOnly: boolean): Promise<BezirkSource[]> {
   return sanity.fetch(
-    `*[_type == "bezirk" && !(_id in path("drafts.**"))]{...}`,
+    draftsOnly
+      ? `*[_type == "bezirk" && _id in path("drafts.**")]{...}`
+      : `*[_type == "bezirk" && !(_id in path("drafts.**"))]{...}`,
   )
 }
 
@@ -254,7 +261,7 @@ async function main(): Promise<void> {
   console.log(`[bootstrap] type=${opts.type} limit=${opts.limit ?? 'all'} dryRun=${opts.dryRun}`)
 
   if (opts.type === 'restaurant' || opts.type === 'all') {
-    let docs = await fetchRestaurants()
+    let docs = await fetchRestaurants(opts.draftsOnly)
     docs = docs.filter(r => !hasEnDescription(r))
     if (opts.limit !== null) docs = docs.slice(0, opts.limit)
     console.log(`[bootstrap] restaurants needing translation: ${docs.length}`)
@@ -266,7 +273,7 @@ async function main(): Promise<void> {
           console.log(JSON.stringify(t, null, 2))
         } else {
           const wrote = await patchRestaurantDraft(r, t)
-          console.log(wrote ? `    → patched draft drafts.${r._id}` : `    (skipped: no EN fields to set)`)
+          console.log(wrote ? `    → patched draft ${r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`}` : `    (skipped: no EN fields to set)`)
         }
       } catch (e) {
         console.error(`  ✗ ${r.name} (${r._id}):`, e)
@@ -275,7 +282,7 @@ async function main(): Promise<void> {
   }
 
   if (opts.type === 'bezirk' || opts.type === 'all') {
-    let docs = await fetchBezirke()
+    let docs = await fetchBezirke(opts.draftsOnly)
     docs = docs.filter(b => !hasEnDescription(b))
     if (opts.limit !== null) docs = docs.slice(0, opts.limit)
     console.log(`[bootstrap] bezirke needing translation: ${docs.length}`)
@@ -287,7 +294,7 @@ async function main(): Promise<void> {
           console.log(JSON.stringify(t, null, 2))
         } else {
           const wrote = await patchBezirkDraft(b, t)
-          console.log(wrote ? `    → patched draft drafts.${b._id}` : `    (skipped: no description in source)`)
+          console.log(wrote ? `    → patched draft ${b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`}` : `    (skipped: no description in source)`)
         }
       } catch (e) {
         console.error(`  ✗ ${b.name} (${b._id}):`, e)

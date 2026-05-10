@@ -32,14 +32,16 @@ interface CliOptions {
   type: DocType | 'all'
   limit: number | null
   dryRun: boolean
+  draftsOnly: boolean
 }
 
 function parseArgs(): CliOptions {
   const args = process.argv.slice(2)
-  const opts: CliOptions = { type: 'restaurant', limit: null, dryRun: false }
+  const opts: CliOptions = { type: 'restaurant', limit: null, dryRun: false, draftsOnly: false }
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
     if (arg === '--dry-run') opts.dryRun = true
+    else if (arg === '--drafts-only') opts.draftsOnly = true
     else if (arg === '--limit') opts.limit = parseInt(args[++i] ?? '', 10)
     else if (arg === '--type') {
       const v = args[++i]
@@ -111,7 +113,13 @@ interface BezirkSource {
 // Idempotent on BOTH published and draft state: a doc qualifies only if neither
 // side has seo.metaTitle. Without the draft check, re-runs would regenerate
 // every doc whose seo lives only in the draft.
-async function fetchRestaurants(): Promise<RestaurantSource[]> {
+async function fetchRestaurants(draftsOnly: boolean): Promise<RestaurantSource[]> {
+  if (draftsOnly) {
+    return sanity.fetch(
+      `*[_type == "restaurant" && _id in path("drafts.**")
+          && !defined(seo.metaTitle)]{...} | order(name asc)`,
+    )
+  }
   return sanity.fetch(
     `*[_type == "restaurant" && !(_id in path("drafts.**"))
         && !defined(seo.metaTitle)
@@ -119,7 +127,13 @@ async function fetchRestaurants(): Promise<RestaurantSource[]> {
   )
 }
 
-async function fetchBezirke(): Promise<BezirkSource[]> {
+async function fetchBezirke(draftsOnly: boolean): Promise<BezirkSource[]> {
+  if (draftsOnly) {
+    return sanity.fetch(
+      `*[_type == "bezirk" && _id in path("drafts.**")
+          && !defined(seo.metaTitle)]{...} | order(name asc)`,
+    )
+  }
   return sanity.fetch(
     `*[_type == "bezirk" && !(_id in path("drafts.**"))
         && !defined(seo.metaTitle)
@@ -337,7 +351,7 @@ async function patchSeoDraft(
   type: DocType,
   g: SeoGen,
 ): Promise<void> {
-  const draftId = `drafts.${doc._id}`
+  const draftId = doc._id.startsWith('drafts.') ? doc._id : `drafts.${doc._id}`
 
   // Clone the full published doc into a draft if no draft exists yet — preserves
   // image, slug, openingHours, etc. so a later publish doesn't blow them away.
@@ -378,7 +392,7 @@ async function main(): Promise<void> {
   let failed = 0
 
   if (opts.type === 'restaurant' || opts.type === 'all') {
-    let docs = await fetchRestaurants()
+    let docs = await fetchRestaurants(opts.draftsOnly)
     if (opts.limit !== null) docs = docs.slice(0, opts.limit)
     console.log(`[generate-seo] restaurants needing seo fields: ${docs.length}`)
     for (const r of docs) {
@@ -388,7 +402,7 @@ async function main(): Promise<void> {
         logSeoOutput(g)
         if (!opts.dryRun) {
           await patchSeoDraft(r, 'restaurant', g)
-          console.log(`     → patched draft drafts.${r._id}`)
+          console.log(`     → patched draft ${r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`}`)
         }
         ok++
         // Gentle rate-limit: 200ms (~5 req/s, well under Anthropic limits).
@@ -401,7 +415,7 @@ async function main(): Promise<void> {
   }
 
   if (opts.type === 'bezirk' || opts.type === 'all') {
-    let docs = await fetchBezirke()
+    let docs = await fetchBezirke(opts.draftsOnly)
     if (opts.limit !== null) docs = docs.slice(0, opts.limit)
     console.log(`[generate-seo] bezirke needing seo fields: ${docs.length}`)
     for (const b of docs) {
@@ -411,7 +425,7 @@ async function main(): Promise<void> {
         logSeoOutput(g)
         if (!opts.dryRun) {
           await patchSeoDraft(b, 'bezirk', g)
-          console.log(`     → patched draft drafts.${b._id}`)
+          console.log(`     → patched draft ${b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`}`)
         }
         ok++
         await new Promise(resolve => setTimeout(resolve, 200))

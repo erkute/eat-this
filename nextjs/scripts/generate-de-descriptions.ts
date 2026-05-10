@@ -33,6 +33,7 @@ interface CliOptions {
   dryRun: boolean
   includeShortDesc: boolean
   includeTip: boolean
+  draftsOnly: boolean
 }
 
 function parseArgs(): CliOptions {
@@ -43,10 +44,12 @@ function parseArgs(): CliOptions {
     dryRun: false,
     includeShortDesc: true,
     includeTip: true,
+    draftsOnly: false,
   }
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
     if (arg === '--dry-run') opts.dryRun = true
+    else if (arg === '--drafts-only') opts.draftsOnly = true
     else if (arg === '--no-shortdesc') opts.includeShortDesc = false
     else if (arg === '--no-tip') opts.includeTip = false
     else if (arg === '--limit') opts.limit = parseInt(args[++i] ?? '', 10)
@@ -114,7 +117,13 @@ interface BezirkSource {
 // only if neither the published doc NOR its draft already has a description.
 // Without the draft check, re-runs would re-translate every restaurant whose
 // description lives only in the draft (because publish hasn't happened yet).
-async function fetchRestaurants(): Promise<RestaurantSource[]> {
+async function fetchRestaurants(draftsOnly: boolean): Promise<RestaurantSource[]> {
+  if (draftsOnly) {
+    return sanity.fetch(
+      `*[_type == "restaurant" && _id in path("drafts.**")
+          && !defined(description)]{...} | order(name asc)`,
+    )
+  }
   return sanity.fetch(
     `*[_type == "restaurant" && !(_id in path("drafts.**"))
         && !defined(description)
@@ -122,7 +131,13 @@ async function fetchRestaurants(): Promise<RestaurantSource[]> {
   )
 }
 
-async function fetchBezirke(): Promise<BezirkSource[]> {
+async function fetchBezirke(draftsOnly: boolean): Promise<BezirkSource[]> {
+  if (draftsOnly) {
+    return sanity.fetch(
+      `*[_type == "bezirk" && _id in path("drafts.**")
+          && !defined(description)]{...} | order(name asc)`,
+    )
+  }
   return sanity.fetch(
     `*[_type == "bezirk" && !(_id in path("drafts.**"))
         && !defined(description)
@@ -342,7 +357,7 @@ async function patchRestaurantDraft(
   g: RestaurantGen,
   opts: CliOptions,
 ): Promise<boolean> {
-  const draftId = `drafts.${r._id}`
+  const draftId = r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`
   const sets: Record<string, string> = { description: g.description }
   if (opts.includeShortDesc && g.shortDescription && !r.shortDescription) {
     sets.shortDescription = g.shortDescription
@@ -362,7 +377,7 @@ async function patchRestaurantDraft(
 }
 
 async function patchBezirkDraft(b: BezirkSource, g: BezirkGen): Promise<boolean> {
-  const draftId = `drafts.${b._id}`
+  const draftId = b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`
   await sanity.createIfNotExists({
     ...b,
     _id: draftId,
@@ -377,7 +392,7 @@ async function main(): Promise<void> {
   console.log(`[generate-de] type=${opts.type} limit=${opts.limit ?? 'all'} dryRun=${opts.dryRun} shortDesc=${opts.includeShortDesc} tip=${opts.includeTip}`)
 
   if (opts.type === 'restaurant' || opts.type === 'all') {
-    let docs = await fetchRestaurants()
+    let docs = await fetchRestaurants(opts.draftsOnly)
     if (opts.limit !== null) docs = docs.slice(0, opts.limit)
     console.log(`[generate-de] restaurants needing description: ${docs.length}`)
     for (const r of docs) {
@@ -389,7 +404,7 @@ async function main(): Promise<void> {
           console.log(JSON.stringify(g, null, 2))
         } else {
           const wrote = await patchRestaurantDraft(r, g, opts)
-          console.log(wrote ? `    → patched draft drafts.${r._id}` : `    (skipped: nothing to set)`)
+          console.log(wrote ? `    → patched draft ${r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`}` : `    (skipped: nothing to set)`)
         }
         // Rate-limit gentle: 200ms between docs (~5 req/s, well under Places + Anthropic limits)
         await new Promise(resolve => setTimeout(resolve, 200))
@@ -400,7 +415,7 @@ async function main(): Promise<void> {
   }
 
   if (opts.type === 'bezirk' || opts.type === 'all') {
-    let docs = await fetchBezirke()
+    let docs = await fetchBezirke(opts.draftsOnly)
     if (opts.limit !== null) docs = docs.slice(0, opts.limit)
     console.log(`[generate-de] bezirke needing description: ${docs.length}`)
     for (const b of docs) {
@@ -411,7 +426,7 @@ async function main(): Promise<void> {
           console.log(JSON.stringify(g, null, 2))
         } else {
           const wrote = await patchBezirkDraft(b, g)
-          console.log(wrote ? `    → patched draft drafts.${b._id}` : `    (skipped: nothing to set)`)
+          console.log(wrote ? `    → patched draft ${b._id.startsWith('drafts.') ? b._id : `drafts.${b._id}`}` : `    (skipped: nothing to set)`)
         }
         await new Promise(resolve => setTimeout(resolve, 200))
       } catch (e) {

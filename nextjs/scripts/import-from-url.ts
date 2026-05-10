@@ -279,7 +279,7 @@ const PLZ_TO_ORTSTEIL: Record<string, string> = {
 
 /** Resolves the Ortsteil for a Berlin address by postal code. */
 function findOrtsteil(components: Place['addressComponents'] = []): string | null {
-  const plz = components.find(c => c.types.includes('postal_code'))?.longText
+  const plz = components.find(c => c.types?.includes('postal_code'))?.longText
   return plz ? (PLZ_TO_ORTSTEIL[plz] ?? null) : null
 }
 

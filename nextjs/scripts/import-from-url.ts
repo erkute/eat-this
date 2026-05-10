@@ -410,6 +410,7 @@ function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildCo
     lat: place.location?.latitude ?? parsed.lat,
     lng: place.location?.longitude ?? parsed.lng,
     mapsUrl: place.googleMapsUri ?? mapsUrl,
+    googlePlaceId: place.id,
   }
   if (place.formattedAddress) doc.address = place.formattedAddress
   if (place.websiteUri) doc.website = place.websiteUri
@@ -514,15 +515,22 @@ export async function runImport(url: string, opts: RunImportOptions = {}): Promi
 
   const matchedName = place.displayName?.text ?? parsed.name
 
+  // Dedupe on the canonical Google Place ID — different physical locations of
+  // the same brand (e.g. "Five Elephant Kreuzberg" vs "Five Elephant Schwedter")
+  // share a name but never a place_id. Includes drafts so re-running the same
+  // URL twice while a draft is open doesn't create a second draft.
   if (duplicateCheck) {
     const existing = await sanity.fetch<{ _id: string; name: string }[]>(
-      `*[_type=="restaurant" && name == $name && !(_id in path("drafts.**"))]{_id,name}`,
-      { name: matchedName },
+      `*[_type=="restaurant" && googlePlaceId == $placeId]{_id,name}`,
+      { placeId: place.id },
     )
     if (existing.length) {
+      const isDraft = existing[0]._id.startsWith('drafts.')
       throw new ImportError(
-        `"${matchedName}" already exists in Sanity (${existing[0]._id}).`,
-        'Edit the existing document instead.',
+        `"${existing[0].name}" already exists in Sanity with the same Google Place ID (${existing[0]._id}).`,
+        isDraft
+          ? 'A draft for this place is already open — finish it in Studio.'
+          : 'Edit the existing document instead.',
       )
     }
   }

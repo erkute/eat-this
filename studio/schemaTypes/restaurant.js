@@ -209,6 +209,14 @@ export default {
       type: 'url',
     },
     {
+      name: 'googlePlaceId',
+      title: 'Google Place ID',
+      type: 'string',
+      readOnly: true,
+      description:
+        'Kanonische Google-Place-ID (z.B. ChIJ…). Wird beim Import gesetzt und als Dedup-Key verwendet — selbe Filiale derselben Marke an unterschiedlichen Standorten haben unterschiedliche IDs.',
+    },
+    {
       name: 'website',
       title: 'Website',
       type: 'url',

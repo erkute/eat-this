@@ -14,26 +14,42 @@ export default defineConfig({
 
   plugins: [
     structureTool({
-      structure: (S) =>
-        S.list()
+      // Structure builder is async so the sidebar titles can show live counts
+      // (e.g. "📍 Restaurants (144)"). Counts are the published-doc total per
+      // type; drafts in progress are intentionally excluded so the number
+      // matches "what's live on the site". Structure re-runs on Studio reload,
+      // so newly-created docs surface after a refresh.
+      structure: async (S, context) => {
+        const client = context.getClient({apiVersion: '2024-01-01'})
+        const counts = await client.fetch(`{
+          "newsArticle": count(*[_type=="newsArticle" && !(_id in path("drafts.**"))]),
+          "staticPage":  count(*[_type=="staticPage"  && !(_id in path("drafts.**"))]),
+          "mustEat":     count(*[_type=="mustEat"     && !(_id in path("drafts.**"))]),
+          "restaurant":  count(*[_type=="restaurant"  && !(_id in path("drafts.**"))]),
+          "bezirk":      count(*[_type=="bezirk"      && !(_id in path("drafts.**"))]),
+          "category":    count(*[_type=="category"    && !(_id in path("drafts.**"))])
+        }`)
+        const label = (icon, title, n) => `${icon}  ${title} (${n ?? 0})`
+        return S.list()
           .title('Content')
           .items([
             // ── News ─────────────────────────────────────────────────────
-            S.documentTypeListItem('newsArticle').title('📰  News'),
+            S.documentTypeListItem('newsArticle').title(label('📰', 'News', counts.newsArticle)),
 
             S.divider(),
 
             // ── Static Pages ─────────────────────────────────────────────
-            S.documentTypeListItem('staticPage').title('📄  Seiten'),
+            S.documentTypeListItem('staticPage').title(label('📄', 'Seiten', counts.staticPage)),
 
             S.divider(),
 
             // ── Other content types ───────────────────────────────────────
-            S.documentTypeListItem('mustEat').title('🍽  Must-Eats'),
-            S.documentTypeListItem('restaurant').title('📍  Restaurants'),
-            S.documentTypeListItem('bezirk').title('🏙  Bezirke'),
-            S.documentTypeListItem('category').title('🏷  Kategorien'),
-          ]),
+            S.documentTypeListItem('mustEat').title(label('🍽', 'Must-Eats', counts.mustEat)),
+            S.documentTypeListItem('restaurant').title(label('📍', 'Restaurants', counts.restaurant)),
+            S.documentTypeListItem('bezirk').title(label('🏙', 'Bezirke', counts.bezirk)),
+            S.documentTypeListItem('category').title(label('🏷', 'Kategorien', counts.category)),
+          ])
+      },
     }),
     visionTool(),
   ],

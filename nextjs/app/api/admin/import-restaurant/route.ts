@@ -1,10 +1,9 @@
 /**
- * One-shot restaurant import endpoint for the Sanity Studio "Import from
- * Google Maps URL" template. Takes a maps URL, resolves it through Places,
+ * One-shot restaurant import endpoint for the Sanity Studio
+ * "Import Restaurant" tool. Takes a maps URL, resolves it through Places,
  * uploads the photo asset, runs the three LLM generators (DE description,
- * EN translation, SEO meta), and returns the full draft-ready doc shape.
- * Studio's `value()` returns this shape and Sanity creates the draft with
- * a fresh `_id`.
+ * EN translation, SEO meta), creates the Sanity draft, and returns the
+ * draft id so the tool can navigate to it.
  *
  * Auth: shared `IMPORT_SECRET` env var, sent by Studio as
  * `Authorization: Bearer <secret>`. Studio reads the same secret from
@@ -13,6 +12,7 @@
  *
  * Cost per call: ~$0.05 (Places + 3× Sonnet). Latency: ~25–45 s.
  */
+import { createClient } from '@sanity/client'
 import { NextRequest, NextResponse } from 'next/server'
 import { runImport, ImportError } from '@/scripts/import-from-url'
 import {
@@ -29,6 +29,14 @@ import { generateRestaurantSeo } from '@/scripts/generate-seo-fields'
 export const maxDuration = 120
 
 const IMPORT_SECRET = process.env.IMPORT_SECRET
+
+const sanity = createClient({
+  projectId: 'ehwjnjr2',
+  dataset: 'production',
+  apiVersion: '2024-01-01',
+  token: process.env.SANITY_API_WRITE_TOKEN,
+  useCdn: false,
+})
 
 const ALLOWED_STUDIO_ORIGINS = new Set([
   'https://eat-this-studio.sanity.studio',
@@ -135,13 +143,11 @@ export async function POST(request: NextRequest) {
     }
     const seoGen = await generateRestaurantSeo(sourceForSeo as unknown as Parameters<typeof generateRestaurantSeo>[0])
 
-    // Assemble the final doc and strip transient fields. Sanity's initial
-    // value template flow assigns a fresh _id and infers _type from the
-    // schemaType — both fields stay out of the returned shape.
-    const { _id: _omitId, _type: _omitType, ...fields } = result.doc
-
+    // Assemble the final doc — runImport already produced a `drafts.<uuid>`
+    // _id; layer the LLM additions on top and create the draft directly.
+    // The Studio tool then navigates to it via Sanity's "edit" intent.
     const finalDoc = {
-      ...fields,
+      ...result.doc,
       ...(descGen.description ? { description: descGen.description } : {}),
       ...(descGen.shortDescription ? { shortDescription: descGen.shortDescription } : {}),
       ...(descGen.tip ? { tip: descGen.tip } : {}),
@@ -156,8 +162,10 @@ export async function POST(request: NextRequest) {
       },
     }
 
+    const created = await sanity.create(finalDoc)
+
     return NextResponse.json(
-      { doc: finalDoc, name: result.matchedName },
+      { docId: created._id, name: result.matchedName },
       { headers: cors },
     )
   } catch (err) {

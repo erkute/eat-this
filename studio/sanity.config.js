@@ -88,7 +88,22 @@ export default defineConfig({
 
             // ── Other content types ───────────────────────────────────────
             S.documentTypeListItem('mustEat').title('🍽  Must-Eats'),
-            S.documentTypeListItem('restaurant').title('📍  Restaurants'),
+            // Restaurants — explicitly register both initial-value templates
+            // (default empty + import from Maps URL) so the "+ Create" button
+            // in the list view shows the picker. Sanity hides
+            // parameter-bearing templates from UIs that can't enter params,
+            // so listing them here is the canonical place.
+            S.listItem()
+              .title('📍  Restaurants')
+              .schemaType('restaurant')
+              .child(
+                S.documentTypeList('restaurant')
+                  .title('Restaurants')
+                  .initialValueTemplates([
+                    S.initialValueTemplateItem('restaurant'),
+                    S.initialValueTemplateItem('restaurant-from-maps-url'),
+                  ]),
+              ),
             S.documentTypeListItem('bezirk').title('🏙  Bezirke'),
             S.documentTypeListItem('category').title('🏷  Kategorien'),
           ]),

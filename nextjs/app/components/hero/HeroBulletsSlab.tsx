@@ -5,8 +5,8 @@ interface Props {
 }
 
 const BULLETS = {
-  de: ['200+ kuratierte Spots', 'Inklusive Must Eats', 'Laufend aktualisiert'],
-  en: ['200+ curated spots', 'Must Eats included', 'Updated regularly'],
+  de: ['Berlin auf einer Map', 'Inklusive Must Eats', 'Laufend aktualisiert'],
+  en: ['Berlin on one map', 'Must Eats included', 'Updated regularly'],
 }
 
 export default function HeroBulletsSlab({ locale = 'de' }: Props) {

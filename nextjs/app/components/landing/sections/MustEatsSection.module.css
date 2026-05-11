@@ -1,52 +1,158 @@
 .section {
+  position: relative;
   background: var(--surface-canvas);
-  padding: 64px 24px 96px;
+  padding: 96px 24px 48px;
+  overflow: hidden;
 }
 
 .inner {
+  position: relative;
   max-width: 1100px;
   margin: 0 auto;
   text-align: center;
 }
 
-.head { max-width: 640px; margin: 0 auto 24px; }
+.head {
+  max-width: 680px;
+  margin: 0 auto 56px;
+}
 .h2 {
   font-size: 28px;
-  font-weight: 900;
-  margin: 0 0 12px;
-  letter-spacing: -0.02em;
+  font-weight: 800;
+  margin: 0 0 14px;
+  letter-spacing: -0.025em;
   color: var(--text-primary, #1a1a1a);
 }
 .body {
   font-size: 15px;
   line-height: 1.65;
   color: var(--text-secondary, #6d6963);
-  margin: 0 0 20px;
-}
-.cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 48px;
-  padding: 0 24px;
-  border: 1.5px solid var(--text-primary, #1a1a1a);
-  color: var(--text-primary, #1a1a1a);
-  background: transparent;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 15px;
-  text-decoration: none;
-  transition: background 200ms ease, color 200ms ease;
-}
-.cta:hover {
-  background: var(--text-primary, #1a1a1a);
-  color: var(--surface-canvas);
+  margin: 0;
 }
 
-.fanWrap { margin-top: 12px; }
+/* Showcase - phone screenshot on one side, explainer copy on the other.
+   Stacks on mobile, side-by-side on desktop. */
+.showcase {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 64px;
+  align-items: center;
+  margin: 0 auto 32px;
+  max-width: 960px;
+  text-align: left;
+}
+.phoneRow {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 12px;
+  perspective: 1200px;
+}
+.phone {
+  width: 46%;
+  max-width: 220px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 24px 60px rgba(0, 0, 0, 0.18));
+  transform: rotate(-3deg) translateY(8px);
+  transition: transform 400ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.phoneSecondary {
+  transform: rotate(3deg) translateY(0);
+}
+.phoneRow:hover .phone { transform: rotate(-2deg) translateY(4px); }
+.phoneRow:hover .phoneSecondary { transform: rotate(2deg) translateY(-4px); }
+
+.explainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 460px;
+  margin: 0 auto;
+}
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+}
+.explainerTitle {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: var(--text-primary, #1a1a1a);
+  margin: 0;
+}
+.explainerIntro {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-secondary, #6d6963);
+  margin: 0;
+}
+.explainerBullets {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14.5px;
+  line-height: 1.45;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--text-primary, #1a1a1a);
+}
+.explainerBullets li {
+  position: relative;
+  padding-left: 22px;
+}
+.explainerBullets li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #0a0a0a;
+}
+
+/* Full-viewport bleed for the fan-cards row - break out of the 1100px
+   inner container so the cards span edge-to-edge. Sits between the
+   section head and the phone explainer now (was at the bottom), so the
+   margins flank both above and below. */
+.fanWrap {
+  margin: 24px 0 56px;
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
+/* Dark-mode contrast - section auto-flips via --surface-canvas; eyebrow
+   and bullet arrows need explicit white so they read against the ink. */
+:global([data-theme="dark"]) .eyebrow { color: #F5C518; }
+:global([data-theme="dark"]) .explainerBullets li::before { color: #fff; }
+:global([data-theme="dark"]) .explainerBullets { border-top-color: rgba(255,255,255,0.12); color: #fff; }
 
 @media (min-width: 768px) {
-  .section { padding: 100px 48px 140px; }
-  .h2 { font-size: 40px; }
+  .section { padding: 140px 48px 16px; }
+  .head { margin-bottom: 80px; }
+  .h2 { font-size: 48px; letter-spacing: -0.03em; }
   .body { font-size: 17px; line-height: 1.7; }
+
+  .showcase {
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 64px;
+    margin-bottom: 24px;
+  }
+  .phoneRow { gap: 20px; }
+  .phone { max-width: 260px; }
+  .explainerTitle { font-size: 32px; letter-spacing: -0.03em; }
+  .explainerIntro { font-size: 16px; }
+  .explainerBullets { font-size: 15.5px; }
+
+  .fanWrap { margin-top: 40px; margin-bottom: 80px; }
 }

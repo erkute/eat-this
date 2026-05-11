@@ -1,227 +1,384 @@
+/* ──────────────────────────────────────────────────────────────────────
+ * Packs - Apple-style product lineup.
+ * Dark stage, three product tiles. Every tile is buyable - click opens
+ * the login modal, the actual purchase happens in the user's profile
+ * after sign-up.
+ * ────────────────────────────────────────────────────────────────────── */
+
 .section {
-  background: var(--surface-deep);
+  position: relative;
+  background: #0a0a0a;
   color: #fff;
-  padding: 80px 24px 96px;
+  padding: 96px 20px 112px;
+  overflow: hidden;
 }
-.inner { max-width: 1100px; margin: 0 auto; }
-.head { text-align: center; margin: 0 auto 36px; max-width: 680px; }
+.section::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 420px;
+  background: radial-gradient(60% 100% at 50% 0%, rgba(255, 255, 255, 0.05), transparent 70%);
+  pointer-events: none;
+}
+.inner {
+  position: relative;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+.head {
+  text-align: center;
+  margin: 0 auto 48px;
+  max-width: 680px;
+}
+.eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #F5C518;
+  margin-bottom: 16px;
+}
 .h2 {
-  font-size: 28px;
-  font-weight: 900;
-  margin: 0 0 14px;
-  letter-spacing: -0.02em;
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  margin: 0 0 16px;
+  color: #fff;
 }
 .body {
   font-size: 15px;
-  line-height: 1.7;
-  color: rgba(255,255,255,0.7);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.62);
   margin: 0;
 }
+
+/* ── Grid ───────────────────────────────────────────────────────────── */
 .grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 22px;
+  gap: 16px;
 }
 
+/* ── Card ───────────────────────────────────────────────────────────── */
 .card {
   position: relative;
-  background: var(--surface-deep-2);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 18px;
-  padding: 28px 24px;
   display: flex;
   flex-direction: column;
+  background: #161616;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  padding: 24px 22px;
+  overflow: hidden;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 320ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              border-color 320ms ease,
+              box-shadow 320ms ease;
+  /* Stagger reveal - animation-delay set inline per card */
+  opacity: 0;
+  transform: translateY(16px);
+  animation: cardIn 600ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
 }
-.cardPrimary {
-  background: linear-gradient(180deg, rgba(255,59,0,0.12), var(--surface-deep-2));
-  border-color: rgba(255,59,0,0.36);
-  box-shadow: 0 12px 40px rgba(255,59,0,0.18);
+.card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+}
+.card:focus-visible {
+  outline: 2px solid #F5C518;
+  outline-offset: 3px;
+}
+.card:active { transform: translateY(-2px); }
+
+.cardStarter {
+  background: #161616;
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.cardBundle {
+  background: #161616;
+  border-color: rgba(245, 197, 24, 0.32);
 }
 
-.badge {
-  align-self: flex-start;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-weight: 800;
-  background: rgba(255,59,0,0.18);
-  color: var(--accent, #FF3B00);
-  padding: 5px 10px;
-  border-radius: 999px;
-  margin-bottom: 14px;
+@keyframes cardIn {
+  to { opacity: 1; transform: translateY(0); }
 }
-.badgeSoon { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); }
-
-.cardTitle {
-  font-size: 20px;
-  font-weight: 900;
-  margin: 0 0 8px;
-  letter-spacing: -0.01em;
-}
-.cardBody {
-  font-size: 14px;
-  line-height: 1.6;
-  color: rgba(255,255,255,0.7);
-  margin: 0 0 14px;
-}
-.cardList {
-  list-style: none;
-  margin: 0 0 18px;
-  padding: 0;
-  font-size: 13px;
-  color: rgba(255,255,255,0.8);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 12px;
-}
-.cardList li::before {
-  content: "·";
-  margin-right: 6px;
-  color: rgba(255,255,255,0.4);
+@media (prefers-reduced-motion: reduce) {
+  .card { animation: none; opacity: 1; transform: none; transition: none; }
+  .card:hover { transform: none; }
 }
 
-/* ── Starter card — pack image hero + email form ─────────────────── */
-.starterArt {
-  display: flex;
-  justify-content: center;
-  margin: 0 0 16px;
-}
-.starterImg {
-  width: 60%;
-  max-width: 220px;
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 16px 32px rgba(0,0,0,0.4));
-}
-.starterForm {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: auto;
-}
-.starterInput {
-  height: 48px;
-  padding: 0 16px;
-  border-radius: 10px;
-  border: 1.5px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.06);
-  color: #fff;
-  font-size: 15px;
-}
-.starterInput::placeholder { color: rgba(255,255,255,0.4); }
-.starterInput:focus { outline: 2px solid var(--accent, #FF3B00); outline-offset: 2px; }
-.starterInput:disabled { opacity: 0.6; }
-.magicSent {
-  margin-top: auto;
-  padding: 14px 16px;
-  background: rgba(42,143,78,0.18);
-  border: 1px solid rgba(42,143,78,0.36);
-  border-radius: 10px;
-  color: #6fe0a1;
-  font-size: 14px;
-  font-weight: 600;
-}
-.magicError {
-  color: #ff9a8a;
-  font-size: 13px;
-  margin: 4px 0 0;
-}
-
-/* ── Category Packs card — grid of all 5 packs, no scroll ────────── */
-.packGrid {
-  list-style: none;
-  margin: 0 0 18px;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
-}
-.packGridItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-}
-.packGridImg {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.35));
-}
-.packGridLabel {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.55);
-  text-align: center;
-  line-height: 1.2;
-}
-
-/* ── Complete Berlin card — fan of all packs ─────────────────────── */
-.completeFan {
-  position: relative;
-  height: 200px;
-  margin: 8px 0 18px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-.fanCard {
+/* ── Ribbon on the bundle ───────────────────────────────────────────── */
+.bestValueRibbon {
   position: absolute;
-  bottom: 0;
-  width: 96px;
+  top: 18px;
+  right: 18px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  background: #F5C518;
+  border: 0;
+  padding: 5px 10px 4px;
+  border-radius: 999px;
+  line-height: 1;
+  z-index: 2;
+}
+
+/* ── Media (hero area) ──────────────────────────────────────────────── */
+.media {
+  position: relative;
+  height: 320px;
+  margin: 4px 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  /* No overflow:hidden - packs need room to spread without getting
+     clipped at the card edge. The card padding gives them breathing
+     room; if a pack edge bleeds slightly past the card, it reads as
+     intentional, not broken. */
+  overflow: visible;
+  border-radius: 14px;
+}
+/* Packs float free now - no spotlight, no colour wash. */
+.spotlight { display: none; }
+
+.starterImg {
+  position: relative;
+  z-index: 1;
+  width: auto;
+  max-width: 58%;
+  max-height: 94%;
+  height: auto;
+  object-fit: contain;
+  transform: rotate(-3deg);
+  filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.5));
+  transition: transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Category - three packs, front prominent, two angled supporters behind */
+.categoryStack {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.stackPack {
+  position: absolute;
+  width: 42%;
+  max-width: 140px;
+  max-height: 94%;
   height: auto;
   object-fit: contain;
   transform-origin: bottom center;
-  filter: drop-shadow(0 10px 22px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 16px 26px rgba(0, 0, 0, 0.42));
+  transition: transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-/* Six packs fanned around the bottom center. Angles chosen so packs splay
-   like cards in a hand. The :nth-child equivalents are static here because
-   we know exactly which file is in which slot at compile time. */
-.fanCard1 { transform: rotate(-30deg) translateX(-30%); z-index: 1; }
-.fanCard2 { transform: rotate(-18deg) translateX(-15%); z-index: 2; }
-.fanCard3 { transform: rotate(-6deg)  translateX(-5%);  z-index: 3; }
-.fanCard4 { transform: rotate(6deg)   translateX(5%);   z-index: 4; }
-.fanCard5 { transform: rotate(18deg)  translateX(15%);  z-index: 5; }
-.fanCard6 { transform: rotate(30deg)  translateX(30%);  z-index: 6; }
+.stack1 { z-index: 3; transform: translateY(6px) rotate(-2deg); }
+.stack2 { z-index: 2; transform: translate(-44%, 4%) rotate(-14deg) scale(0.86); opacity: 0.94; }
+.stack3 { z-index: 2; transform: translate(44%, 4%) rotate(14deg) scale(0.86); opacity: 0.94; }
 
-.ctaPrimary, .ctaSecondary {
-  margin-top: auto;
+/* Bundle - pile/heap layout. All 9 packs absolute-positioned around the
+   centre with per-pack --x/--y/--rot offsets set inline (resting state)
+   and --hx/--hy/--hrot deltas added on hover. Reads as a stack of cards
+   thrown on a table, not a grid. z-index inline per pack so the centre
+   pack reads as the front of the pile. */
+.bundleHeap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  /* Heap is designed at "full" desktop scale (≈ ±100px spread). On
+     narrower viewports we proportionally shrink the whole heap so no
+     pack edge gets clipped by .card's overflow:hidden. */
+  transform: scale(0.96);
+  transform-origin: center;
+}
+
+/* Mobile bundle gets its own taller media box so the heap can spread
+   bigger without colliding with the card title. On tablet+ we drop
+   back to the shared .media height so title baselines stay aligned
+   across all three pack cards. */
+.cardBundle .media { height: 380px; }
+.bundleItem {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 42%;
+  max-width: 130px;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.55));
+  transform: translate(
+              calc(-50% + var(--x, 0px)),
+              calc(-50% + var(--y, 0px))
+             )
+             rotate(var(--rot, 0deg));
+  transition: transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.card:hover .bundleItem {
+  transform: translate(
+              calc(-50% + var(--x, 0px) + var(--hx, 0px)),
+              calc(-50% + var(--y, 0px) + var(--hy, 0px))
+             )
+             rotate(calc(var(--rot, 0deg) + var(--hrot, 0deg)));
+}
+
+/* Hover choreography for the other media. */
+.card:hover .starterImg { transform: rotate(-2deg) scale(1.03); }
+.card:hover .stack1 { transform: translateY(2px) rotate(-2deg) scale(1.03); }
+.card:hover .stack2 { transform: translate(-46%, 0) rotate(-16deg) scale(0.88); }
+.card:hover .stack3 { transform: translate(46%, 0) rotate(16deg) scale(0.88); }
+
+/* ── Title + Price block ────────────────────────────────────────────── */
+.cardTitle {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin: 0 0 4px;
+  color: #fff;
+}
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 4px 0 10px;
+}
+.cardPrice {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: #fff;
+}
+.cardStarter .cardPrice { color: #fff; }
+/* All Berlin is the premium tier - its price gets the bigger weight so
+   €2,99 doesn't visually outshine €20 just because it has more digits. */
+.cardBundle .cardPrice { color: #F5C518; font-size: 38px; }
+.priceSuffix {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0;
+}
+.cardSubtitle {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.66);
+  margin: 0 0 16px;
+}
+
+/* ── Bullet list - SaaS-style "what you get" ────────────────────────── */
+.bulletList {
+  list-style: none;
+  margin: 0 0 22px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bulletList li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.82);
+}
+.bulletList li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 14px;
+  height: 14px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none'><path d='M3 7.5l2.5 2.5L11 4.5' stroke='%23ffffff' stroke-opacity='0.45' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* ── CTA link (chevron-only, no rectangle button) ───────────────────── */
+.ctaLink {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  height: 48px;
-  padding: 0 22px;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 14px;
-  text-decoration: none;
-  cursor: pointer;
-  border: 0;
-  transition: transform 200ms ease, box-shadow 200ms ease, background 200ms ease;
-}
-.ctaPrimary {
-  background: var(--accent, #FF3B00);
+  gap: 6px;
+  margin-top: auto;
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
   color: #fff;
+  padding: 4px 0;
 }
-.ctaPrimary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(255,59,0,0.35); }
-.ctaPrimary:disabled { opacity: 0.6; cursor: progress; }
-.ctaSecondary {
-  background: transparent;
-  border: 1.5px solid rgba(255,255,255,0.3);
-  color: #fff;
+.chevron {
+  transition: transform 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-.ctaSecondary:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.5); }
+.card:hover .chevron { transform: translateX(4px); }
+.card:hover .ctaLink { color: #F5C518; }
+.cardBundle:hover .ctaLink { color: #F5C518; }
 
+/* ── Footnote (under the grid) ──────────────────────────────────────── */
+.footnote {
+  text-align: center;
+  margin: 32px auto 0;
+  max-width: 540px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+/* ── Desktop ────────────────────────────────────────────────────────── */
 @media (min-width: 768px) {
-  .section { padding: 120px 48px; }
-  .h2 { font-size: 40px; }
-  .grid { grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: stretch; }
-  .cardTitle { font-size: 22px; }
-  .starterImg { max-width: 240px; }
-  .completeFan { height: 220px; }
-  .fanCard { width: 110px; }
-  .packGridImg { max-width: 80px; }
+  .section { padding: 140px 48px 160px; }
+  .head { margin-bottom: 64px; }
+  .h2 { font-size: 48px; }
+  .body { font-size: 17px; }
+
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    align-items: stretch;
+  }
+  .card {
+    padding: 28px 26px;
+    border-radius: 24px;
+  }
+  .media { height: 320px; margin: 6px 0 22px; }
+  /* Tablet+ collapses the mobile bundle .media override so all three
+     card media boxes have identical height - title baselines align. */
+  .cardBundle .media { height: 320px; }
+  /* 3-col grid at this breakpoint makes each card narrow; heap needs to
+     shrink hard so it fits inside the same media height as Starter and
+     Category - title baselines have to align across all three cards. */
+  .bundleHeap { transform: scale(0.58); }
+  .starterImg { max-width: 160px; }
+  .stackPack { max-width: 160px; }
+  .bundleItem { max-width: 140px; width: 38%; }
+  .cardTitle { font-size: 24px; }
+  .cardPrice { font-size: 32px; }
+  .cardSubtitle { font-size: 14px; }
+  .bulletList li { font-size: 14px; }
+  .footnote { margin-top: 40px; font-size: 13.5px; }
+}
+
+@media (min-width: 1100px) {
+  .h2 { font-size: 56px; }
+  .media { height: 340px; }
+  .cardBundle .media { height: 340px; }
+  /* All three cards share .media height so the title line is aligned -
+     bundle heap scales to fit instead of getting its own taller box. */
+  .bundleHeap { transform: scale(0.86); }
+  .cardPrice { font-size: 36px; }
+  .starterImg { max-width: 200px; }
+  .stackPack { max-width: 170px; }
 }

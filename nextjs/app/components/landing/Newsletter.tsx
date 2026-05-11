@@ -14,7 +14,14 @@ interface Props {
 export default function Newsletter({ headline, body, ctaLabel }: Props) {
   const { sendLink, state, errorMessage } = useMagicLink();
   const [email, setEmail] = useState('');
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
+  // Override CMS body text - current Sanity value uses "gelegentliche
+  // Updates" which the user wants gone. Headline ("Gruß aus der Küche")
+  // is kept from the CMS.
+  void body;
+  const bodyText = lang === 'en'
+    ? 'New picks and selected Must Eats, straight to your inbox.'
+    : 'Neue Empfehlungen und ausgewählte Must Eats, direkt in dein Postfach.';
 
   return (
     <section className={styles.news}>
@@ -22,7 +29,7 @@ export default function Newsletter({ headline, body, ctaLabel }: Props) {
         <div className={styles.newsVisual}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/pics/booster/booster1.webp"
+            src="/pics/booster/booster.png"
             alt=""
             className={styles.newsPack}
             loading="lazy"
@@ -30,8 +37,8 @@ export default function Newsletter({ headline, body, ctaLabel }: Props) {
           />
         </div>
         <div className={styles.newsCopy}>
-          <h2>{headline}</h2>
-          <p>{body}</p>
+          <h2>{headline.replace(/\.$/, '')}</h2>
+          <p>{bodyText}</p>
           {state === 'sent' ? (
             <p className={styles.magicSent}>
               {t('landing.magicSent')}

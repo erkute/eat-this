@@ -2,8 +2,8 @@ import styles from './landing.module.css'
 
 interface Props {
   headline: string
-  bodyItems: string[]
   screenshotUrls?: (string | undefined)[]
+  locale?: 'de' | 'en'
 }
 
 const DEFAULT_SCREENSHOTS = [
@@ -12,47 +12,94 @@ const DEFAULT_SCREENSHOTS = [
   '/pics/map-teaser/map_restaurant.webp',
 ]
 
-const PHONE_COUNT = 3
+// Per-phone copy. Each phone shows a specific UI screen, so the captions
+// describe exactly what that screen does. Hardcoded here (not CMS-driven)
+// because the screenshots themselves are also hardcoded - the two travel
+// together as one explainer unit.
+const PHONE_CONTENT: {
+  headlineDe: string
+  headlineEn: string
+  bulletsDe: string[]
+  bulletsEn: string[]
+}[] = [
+  {
+    headlineDe: 'Alle Spots auf einer Map',
+    headlineEn: 'Every spot on one map',
+    bulletsDe: [
+      '171+ handverlesene Restaurants, Cafés und Bars',
+      'Direkt mit deinem Standort verknüpft',
+      'Reduziert auf das Wesentliche - nur unsere Empfehlungen sichtbar',
+    ],
+    bulletsEn: [
+      '171+ hand-picked restaurants, cafés and bars',
+      'Connected to your live location',
+      'Reduced to the essentials - only our picks visible',
+    ],
+  },
+  {
+    headlineDe: 'Finde, worauf du Lust hast',
+    headlineEn: 'Find what you’re after',
+    bulletsDe: [
+      'Bezirksfilter - von Mitte bis Wedding',
+      '„In deiner Nähe" - Radius live um dich rum',
+      '„Geöffnet" - zeigt nur, was gerade aufhat',
+    ],
+    bulletsEn: [
+      'Neighbourhood filter - Mitte to Wedding',
+      '“Near me” - live radius around you',
+      '“Open now” - only what’s open right now',
+    ],
+  },
+  {
+    headlineDe: 'Alles zu jedem Spot',
+    headlineEn: 'Everything about every spot',
+    bulletsDe: [
+      'Verdeckte Must Eats - direkt vor Ort aufdecken',
+      'Adresse, Öffnungszeiten und Bilder',
+      'Direkter Zugriff aus der Map',
+    ],
+    bulletsEn: [
+      'Hidden Must Eats - uncover on site',
+      'Address, hours and photos',
+      'Direct access from the map',
+    ],
+  },
+]
 
-// Chunk the flat items[] array into PHONE_COUNT roughly-equal slices so each
-// phone gets its own bullet list directly below it. Six items → 2 per phone.
-function chunkForPhones(items: string[]): string[][] {
-  const out: string[][] = Array.from({ length: PHONE_COUNT }, () => [])
-  items.forEach((item, i) => {
-    out[i % PHONE_COUNT].push(item)
-  })
-  // Reorder so first phone gets items [0,1], second [2,3], third [4,5]
-  const perPhone = Math.ceil(items.length / PHONE_COUNT)
-  const grouped: string[][] = []
-  for (let p = 0; p < PHONE_COUNT; p++) {
-    grouped.push(items.slice(p * perPhone, (p + 1) * perPhone))
-  }
-  return grouped
-}
-
-export default function MapTeaser({ headline, bodyItems, screenshotUrls }: Props) {
+export default function MapTeaser({ headline, screenshotUrls, locale = 'de' }: Props) {
   const screenshots = [0, 1, 2].map((i) => screenshotUrls?.[i] || DEFAULT_SCREENSHOTS[i])
-  const groupedItems = chunkForPhones(bodyItems)
+  // Override the CMS headline with the punchier editorial line. Leaves
+  // `headline` in the props signature so the CMS column still ships.
+  const sectionTitle = locale === 'de' ? 'Handverlesen, alles in einer Map' : 'Hand-picked, all on one Map'
+  const sectionLead = locale === 'de'
+    ? 'Jeder Spot persönlich getestet, direkt auf einer interaktiven Map.'
+    : 'Every spot personally tested, all on one interactive map.'
+  void headline
 
   return (
     <section className={styles.mapTeaser}>
       <div className={styles.mapTeaserHead}>
-        <h2>{headline}</h2>
+        <h2>{sectionTitle}</h2>
+        <p>{sectionLead}</p>
       </div>
       <div className={styles.mapFeatures}>
-        {screenshots.map((src, i) => (
-          <article key={i} className={styles.mapFeature}>
-            <div className={styles.mapFeatureFrame}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" loading="lazy" decoding="async" />
-            </div>
-            {groupedItems[i] && groupedItems[i].length > 0 && (
+        {screenshots.map((src, i) => {
+          const phone = PHONE_CONTENT[i]
+          const phoneHeadline = locale === 'de' ? phone.headlineDe : phone.headlineEn
+          const phoneBullets = locale === 'de' ? phone.bulletsDe : phone.bulletsEn
+          return (
+            <article key={i} className={styles.mapFeature}>
+              <div className={styles.mapFeatureFrame}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt="" loading="lazy" decoding="async" />
+              </div>
+              <h3 className={styles.mapFeatureTitle}>{phoneHeadline}</h3>
               <ul className={styles.mapFeatureItems}>
-                {groupedItems[i].map((item, j) => <li key={j}>{item}</li>)}
+                {phoneBullets.map((item, j) => <li key={j}>{item}</li>)}
               </ul>
-            )}
-          </article>
-        ))}
+            </article>
+          )
+        })}
       </div>
     </section>
   )

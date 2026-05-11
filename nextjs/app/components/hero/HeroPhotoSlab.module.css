@@ -17,17 +17,25 @@
 .photoMobile  { display: none; }
 
 @media (max-width: 768px) {
+  /* Photo takes most of the initial viewport, eyebrow + phrase share
+     the remaining ~22svh. 78svh photo + ~4svh eyebrow + ~14svh phrase
+     ≈ 96svh, so the brand line still lands inside the first viewport
+     while the photo dominates the fold. */
   .slab { min-height: 78svh; }
   .photoDesktop { display: none; }
-  .photoMobile  { display: block; object-position: 50% 28%; }
+  /* Anchor higher up in the source image so the plate slides further
+     down into the visible frame, away from the wordmark up top. */
+  .photoMobile  { display: block; object-position: 50% 10%; }
 }
 
 .scrim {
   position: absolute;
   inset: 0;
+  /* Subtle scrim - photo stays as it is; the white-outlined wordmark
+     does the legibility work, not the photo. */
   background:
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.08) 30%, transparent 55%),
-    linear-gradient(to top,    rgba(0, 0, 0, 0.30) 0%, transparent 40%);
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.18) 0%, transparent 30%),
+    linear-gradient(to top,    rgba(0, 0, 0, 0.22) 0%, transparent 35%);
   z-index: 1;
   pointer-events: none;
 }
@@ -39,19 +47,22 @@
   transform: translateX(-50%);
   z-index: 2;
   text-align: center;
-  width: min(94%, 760px);
+  width: min(94%, 1120px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Tagline pulls in tight under the wordmark — cinema-poster spacing. */
+  /* Tagline pulls in tight under the wordmark - cinema-poster spacing. */
   gap: clamp(2px, 0.3vh, 6px);
 }
 
 .logo {
-  width: clamp(300px, 64vw, 620px);
+  width: clamp(340px, 76vw, 620px);
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 8px 28px rgba(0, 0, 0, 0.45));
+  /* Mobile: no white outline - letters stay solid black with just a
+     soft drop-shadow lift. Desktop override below stacks the white
+     frame back on for cinema-poster legibility on the bigger photo. */
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.45));
 }
 
 .tagline {
@@ -59,11 +70,43 @@
   font-family: "SF Pro Display", "SF Pro", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
   font-weight: 700;
   font-style: normal;
-  font-size: clamp(11px, 1.5vw, 16px);
-  letter-spacing: 0.28em;
+  font-size: clamp(13px, 1.9vw, 16px);
+  letter-spacing: 0.26em;
   text-transform: uppercase;
   color: #fff;
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+}
+
+/* Desktop: drop the wordmark down onto the table area of the photo and
+   pump it up to cinema-poster scale. */
+@media (min-width: 768px) {
+  .slab { min-height: 100svh; }
+  .brandBlock {
+    top: auto;
+    bottom: clamp(170px, 33vh, 360px);
+    transform: translateX(-50%);
+    gap: clamp(4px, 0.6vh, 12px);
+  }
+  .logo {
+    width: clamp(520px, 58vw, 920px);
+    /* Slimmer outline at desktop - letters are huge, a hairline white
+       frame is enough to lift them off the photo without looking like
+       a sticker. */
+    filter:
+      drop-shadow( 2px  0   0 #fff)
+      drop-shadow(-2px  0   0 #fff)
+      drop-shadow( 0    2px 0 #fff)
+      drop-shadow( 0   -2px 0 #fff)
+      drop-shadow( 1.5px  1.5px 0 #fff)
+      drop-shadow(-1.5px  1.5px 0 #fff)
+      drop-shadow( 1.5px -1.5px 0 #fff)
+      drop-shadow(-1.5px -1.5px 0 #fff)
+      drop-shadow( 0   14px 40px rgba(0, 0, 0, 0.6));
+  }
+  .tagline {
+    font-size: clamp(14px, 1.4vw, 20px);
+    letter-spacing: 0.32em;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

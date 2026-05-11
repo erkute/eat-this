@@ -20,6 +20,7 @@ import {
   restaurantCountQuery,
   categoryGridQuery,
   recentlyAddedQuery,
+  restaurantTickerQuery,
 } from './queries'
 import type { Restaurant, NewsArticle, StaticPageDoc, MustEatAlbumCard, BezirkDoc, RestaurantCard, LandingPageDoc, CategoryGridTile, RecentlyAddedCard } from './types'
 import type { CategoryDef } from './categories'
@@ -196,9 +197,63 @@ export async function getCategoryGrid(): Promise<CategoryGridTile[]> {
 }
 
 export async function getRecentlyAdded(limit: number): Promise<RecentlyAddedCard[]> {
-  return client.fetch<RecentlyAddedCard[]>(
+  // Fetch a wider pool than asked, dedupe by first-2-words prefix so chains
+  // like "The Barn Café Rosenthaler / Nordbahnhof" collapse to one tile,
+  // then return the requested limit in original (recency) order.
+  const pool = await client.fetch<RecentlyAddedCard[]>(
     recentlyAddedQuery,
-    { limit },
+    { limit: Math.max(limit * 3, 24) },
     { next: { revalidate: 300, tags: ['recentlyAdded'] } }
   )
+
+  const seen = new Set<string>()
+  const unique: RecentlyAddedCard[] = []
+  for (const card of pool) {
+    const key = card.name.trim().toLowerCase().split(/\s+/).slice(0, 2).join(' ')
+    if (seen.has(key)) continue
+    seen.add(key)
+    unique.push(card)
+    if (unique.length >= limit) break
+  }
+  return unique
+}
+
+export interface TickerRestaurant {
+  _id: string
+  name: string
+  bezirk: string | null
+}
+
+// Fetches a wide pool of recent restaurants, deduplicates by name (so chains
+// like "The Barn" don't fill the ticker with their multiple locations) and
+// shuffles. The shuffle runs at fetch time and is cached for the lifetime
+// of the revalidate window — so order changes every ~10 minutes, but never
+// during a single page render.
+export async function getRestaurantTicker(limit: number): Promise<TickerRestaurant[]> {
+  const pool = await client.fetch<TickerRestaurant[]>(
+    restaurantTickerQuery,
+    { limit: Math.max(limit * 3, 60) },
+    { next: { revalidate: 600, tags: ['restaurantTicker'] } }
+  )
+
+  // Dedupe by the first 3 lowercased words of the name. Catches chains like
+  // "The Barn Café Rosenthaler Platz" + "The Barn Café Nordbahnhof" so the
+  // marquee shows one brand per chain instead of three identical-looking rows.
+  const seen = new Set<string>()
+  const unique: TickerRestaurant[] = []
+  for (const r of pool) {
+    const key = r.name.trim().toLowerCase().split(/\s+/).slice(0, 2).join(' ')
+    if (seen.has(key)) continue
+    seen.add(key)
+    unique.push(r)
+  }
+
+  // Fisher-Yates shuffle. Math.random is fine here — the only goal is "feels
+  // different across visits", not cryptographic randomness.
+  for (let i = unique.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[unique[i], unique[j]] = [unique[j], unique[i]]
+  }
+
+  return unique.slice(0, limit)
 }

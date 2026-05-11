@@ -1,0 +1,138 @@
+/* Restaurant ticker - Solari airport-board. Pure ink stage, mono caps,
+   sunshine-yellow letters glow like split-flap LEDs. No browns, no amber
+   warmth - the previous palette read as café/diner, this reads as gate
+   B14, which is what the user asked for. */
+
+.section {
+  position: relative;
+  background: #0a0a0a;
+  padding: 48px 16px 44px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* The big claim sits above the airport-board strip - Hero-tier copy,
+   serves as both the headline of this section and the connective tissue
+   from the hero to the live restaurants ticker. */
+.claim {
+  max-width: 1000px;
+  margin: 0 auto 36px;
+  padding: 0 8px;
+  text-align: center;
+  font-size: clamp(30px, 7.6vw, 56px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  color: #fff;
+}
+@media (min-width: 768px) {
+  .claim { margin-bottom: 48px; font-size: clamp(44px, 4.8vw, 68px); }
+}
+
+.boardFrame {
+  position: relative;
+  max-width: none;
+  margin: 0 -16px;
+  padding: 18px 0;
+  border-top: 2px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.12);
+}
+@media (min-width: 768px) {
+  .boardFrame {
+    margin: 0 -24px;
+  }
+}
+
+/* Top-right eyebrow, mimics the "ARRIVALS"/"DEPARTURES" label on a
+   departure board. */
+.eyebrow {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: var(--surface-deep);
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+}
+.indicator {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #F5C518;
+  box-shadow: 0 0 10px rgba(245, 197, 24, 0.75);
+  animation: blink 1.6s steps(2, end) infinite;
+}
+@keyframes blink {
+  50% { opacity: 0.25; }
+}
+
+.viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+}
+
+.track {
+  list-style: none;
+  margin: 0;
+  padding: 0 36px 0 0;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 36px;
+  animation: tickerScroll 60s linear infinite;
+  will-change: transform;
+}
+@keyframes tickerScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .track { animation: none; }
+}
+.viewport:hover .track { animation-play-state: paused; }
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #F5C518;
+  text-shadow: 0 0 16px rgba(245, 197, 24, 0.35);
+}
+.item::before {
+  content: "›";
+  display: inline-block;
+  margin-right: 36px;
+  font-size: 22px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.3);
+  text-shadow: none;
+}
+.item:first-child::before { display: none; }
+
+@media (min-width: 768px) {
+  .section { padding: 36px 24px 48px; }
+  .boardFrame { padding: 18px 0; }
+  .eyebrow { font-size: 11px; padding: 4px 14px; }
+  .item { font-size: 19px; letter-spacing: 0.12em; }
+  .item::before { margin-right: 48px; font-size: 26px; }
+  .track { gap: 48px; padding-right: 48px; }
+}

@@ -1,21 +1,37 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { CSSProperties, useEffect, useRef } from 'react';
 import styles from './landing.module.css';
 
-const CARD_IMAGES = [
-  'https://cdn.sanity.io/images/ehwjnjr2/production/e74cc8257c7d0d37075e024274bd3a447ce8a6da-1449x2163.png',
-  'https://cdn.sanity.io/images/ehwjnjr2/production/70e13f906df3aa37dd062fc6d83034ded924b1ae-1449x2163.png',
-  'https://cdn.sanity.io/images/ehwjnjr2/production/7d58817e5ac7298642bdc2816944e5f64468e713-1449x2163.png',
-  'https://cdn.sanity.io/images/ehwjnjr2/production/b1a2aafdff07349d224a15a7b298af783db48271-1449x2163.png',
-  'https://cdn.sanity.io/images/ehwjnjr2/production/de27d072ad8d240ed1361d00b22b60525378375b-1449x2163.png',
+// Curated trio rule for the row: at most one Döner and at most one Pizza,
+// and no two Döner-style cards adjacent. The two slots that used to hold
+// Slice Society (Tomate slice = 2nd pizza) and Bursa (2nd Döner) now hold
+// Crapulix Croissant and Jones Cookies for visual range.
+const CARDS = [
+  'https://cdn.sanity.io/images/ehwjnjr2/production/e74cc8257c7d0d37075e024274bd3a447ce8a6da-1449x2163.png', // Banh Mi
+  'https://cdn.sanity.io/images/ehwjnjr2/production/70e13f906df3aa37dd062fc6d83034ded924b1ae-1449x2163.png', // Spicy Thai Sausage
+  'https://cdn.sanity.io/images/ehwjnjr2/production/7d58817e5ac7298642bdc2816944e5f64468e713-1449x2163.png', // Pizza Gemello
+  'https://cdn.sanity.io/images/ehwjnjr2/production/b4d268a43fe8bf62708f6da1c36de049a17c225a-1449x2163.png', // Croissant (was 2nd pizza)
+  'https://cdn.sanity.io/images/ehwjnjr2/production/b1a2aafdff07349d224a15a7b298af783db48271-1449x2163.png', // Sabich
+  'https://cdn.sanity.io/images/ehwjnjr2/production/de27d072ad8d240ed1361d00b22b60525378375b-1449x2163.png', // Döner Hasir (only Döner)
+  'https://cdn.sanity.io/images/ehwjnjr2/production/494772a7295c0d38fc0400f026b3902cd32b0373-1449x2163.png', // Cookies (was 2nd Döner)
+  'https://cdn.sanity.io/images/ehwjnjr2/production/eb92a901eb444f36cb17f4ad7667c69f4227421a-1449x2163.png', // Babka
+  'https://cdn.sanity.io/images/ehwjnjr2/production/f56c68c3f207f5a62a85ad6dfd2db1eed95c2188-1449x2163.png', // Single Burger
 ];
 
-const ROTS_MOBILE = [-22, -11, 0, 11, 22];
-const ROTS_DESKTOP = [-36, -18, 0, 18, 36];
+const SLOTS_DESKTOP = [-680, -510, -340, -170, 0, 170, 340, 510, 680];
 
-// Rotation tied directly to element position in viewport: opening when scrolling down,
-// closing when scrolling up, smoothed by a CSS transition on the cards.
+const MOBILE_LAYOUT: { idx: number; row: 0 | 1; slot: number }[] = [
+  { idx: 0, row: 0, slot: -120 },
+  { idx: 2, row: 0, slot:    0 },
+  { idx: 4, row: 0, slot:  120 },
+  { idx: 5, row: 1, slot: -120 },
+  { idx: 7, row: 1, slot:    0 },
+  { idx: 8, row: 1, slot:  120 },
+];
+
+const REST_ROT = [-5, 3, -3, 4, 0, -2, 5, -4, 3];
+
 export default function FanCards() {
   const stageRef = useRef<HTMLDivElement>(null);
 
@@ -23,12 +39,9 @@ export default function FanCards() {
     const stage = stageRef.current;
     if (!stage) return;
     const cards = Array.from(
-      stage.querySelectorAll<HTMLDivElement>(`.${styles.fanCard}`)
+      stage.querySelectorAll<HTMLDivElement>(`.${styles.rowCard}`)
     );
 
-    // SPA layout has multiple auto-overflow ancestors (.app-page, .app-pages,
-    // body, html). Which one actually scrolls depends on viewport size and
-    // content length. Attach to all candidates instead of guessing.
     function getScrollAncestors(el: HTMLElement | null): (HTMLElement | Window)[] {
       const out: (HTMLElement | Window)[] = [];
       let node = el?.parentElement;
@@ -48,25 +61,44 @@ export default function FanCards() {
       rafPending = false;
       if (!stage) return;
       const rect = stage.getBoundingClientRect();
+      const vw = window.innerWidth;
       const vh = window.innerHeight;
       const elemCenter = rect.top + rect.height / 2;
-      const startY = vh * 0.75;
-      const endY = vh * 0.45;
+      // Section enters at 95% viewport height, fully revealed at 42% (just
+      // above the page centre). Scrolling back up reverses p toward 0 so
+      // the cards slide back out the way they came.
+      const startY = vh * 0.95;
+      const endY = vh * 0.42;
       const p = Math.max(0, Math.min(1, (startY - elemCenter) / (startY - endY)));
-      // Skip transform writes if rotation hasn't changed (cheap on 120Hz)
-      if (Math.abs(p - lastP) < 0.005) return;
+      if (Math.abs(p - lastP) < 0.003) return;
       lastP = p;
-      const rots = window.innerWidth >= 768 ? ROTS_DESKTOP : ROTS_MOBILE;
-      cards.forEach((card, i) => {
-        const r = rots[i] ?? 0;
-        // translateZ(0) keeps the card on its own GPU layer — smoother on
-        // ProMotion devices. The rotate is the actual fan animation.
-        card.style.transform = `translateZ(0) rotate(${(r * p).toFixed(2)}deg)`;
+
+      const isDesktop = vw >= 768;
+      cards.forEach((card, idx) => {
+        const startX = parseFloat(card.dataset.startX || '0');
+        const finalXD = parseFloat(card.dataset.finalXd || '0');
+        const finalXM = parseFloat(card.dataset.finalXm || '0');
+        const restRot = parseFloat(card.dataset.restRot || '0');
+        const onMobile = card.dataset.mobileShow === 'yes';
+        if (!isDesktop && !onMobile) {
+          card.style.display = 'none';
+          return;
+        }
+        card.style.display = '';
+        // Each card gets its own staggered local progress. Card 0 starts
+        // animating immediately; the last card kicks in when global p
+        // has reached ~0.35. So the cards land one-by-one rather than as
+        // a synchronised group.
+        const stagger = idx * 0.05;
+        const cardP = Math.max(0, Math.min(1, (p - stagger) / (1 - stagger)));
+        const finalX = isDesktop ? finalXD : finalXM;
+        const x = startX + (finalX - startX) * cardP;
+        const rot = restRot * cardP;
+        const scale = 0.85 + 0.15 * cardP;
+        card.style.transform = `translateX(${x.toFixed(1)}px) rotate(${rot.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
       });
     }
 
-    // requestAnimationFrame throttle — collapses 120Hz scroll storms into
-    // one paint per frame and avoids forcing a layout on every event.
     function schedule() {
       if (rafPending) return;
       rafPending = true;
@@ -87,17 +119,37 @@ export default function FanCards() {
     };
   }, []);
 
-  const fcClasses = [styles.fc1, styles.fc2, styles.fc3, styles.fc4, styles.fc5];
+  const zIndex = [1, 2, 3, 4, 9, 4, 3, 2, 1];
 
   return (
     <section className={styles.fanWrap}>
       <div className={styles.fanStage} ref={stageRef}>
-        {CARD_IMAGES.map((src, i) => (
-          <div key={i} className={`${styles.fanCard} ${fcClasses[i]}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={src} alt="" loading="lazy" decoding="async" />
-          </div>
-        ))}
+        {CARDS.map((src, i) => {
+          const fromLeft = i < 5;
+          const mobileInfo = MOBILE_LAYOUT.find((m) => m.idx === i);
+          const onMobile = Boolean(mobileInfo);
+          const style: CSSProperties = {
+            zIndex: zIndex[i] ?? 1,
+            // CSS var for two-row mobile vertical offset.
+            ['--row-m' as string]: onMobile ? String(mobileInfo!.row) : '0',
+          };
+          return (
+            <div
+              key={i}
+              className={styles.rowCard}
+              data-mobile-show={onMobile ? 'yes' : 'no'}
+              data-mobile-row={onMobile ? mobileInfo!.row : ''}
+              data-start-x={fromLeft ? '-1500' : '1500'}
+              data-final-xd={String(SLOTS_DESKTOP[i])}
+              data-final-xm={onMobile ? String(mobileInfo!.slot) : '0'}
+              data-rest-rot={String(REST_ROT[i])}
+              style={style}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={src} alt="" loading="lazy" decoding="async" />
+            </div>
+          );
+        })}
       </div>
     </section>
   );

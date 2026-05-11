@@ -420,6 +420,22 @@ export const categoryGridQuery = `
 // MustEats don't have their own slug/route — they belong to a restaurant,
 // so we point href to the parent restaurant's detail page.
 // MustEat field in schema is "dish" (not "dishName"). Title comes from the dish name.
+// Lightweight ticker query: just restaurant names + bezirk for a scrolling
+// marquee on the landing page. Filters out spots without an image so the
+// ticker doesn't surface drafty entries (e.g. Phantom Bar) that aren't
+// ready to be public-facing yet.
+export const restaurantTickerQuery = `
+  *[_type == "restaurant"
+    && !(_id in path("drafts.**"))
+    && isOpen != false
+    && defined(image.asset)]
+  | order(_createdAt desc)[0...$limit] {
+    _id,
+    name,
+    "bezirk": coalesce(bezirkRef->name, district)
+  }
+`
+
 export const recentlyAddedQuery = `
   *[_type in ["restaurant", "mustEat"] && !(_id in path("drafts.**"))]
   | order(_createdAt desc)[0...$limit] {

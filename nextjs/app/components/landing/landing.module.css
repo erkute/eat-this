@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════
-   Landing redesign — shared module styles
+   Landing redesign - shared module styles
    Mobile-first; @media(min-width:768px) for desktop overrides.
    Colors:
      CTA red    var(--cta-red) (#b71c1c)   primary action buttons
@@ -11,8 +11,8 @@
 .secLabel {
   display: block;
   font-size: 11px;
-  font-weight: 700;
-  color: #c8951a;
+  font-weight: 800;
+  color: #0a0a0a;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   margin-bottom: 12px;
@@ -21,27 +21,95 @@
 /* ── FAN CARDS ─────────────────────────────────────────────── */
 .fanWrap {
   background: transparent;
-  overflow: visible;
-  padding: 8px 0 60px;
+  overflow-x: clip;
+  padding: 8px 0 64px;
 }
 .fanStage {
   position: relative;
-  height: 300px;
+  height: 420px;
   overflow: visible;
+  max-width: 100vw;
 }
-.fanCard {
-  width: 188px;
+/* Row card - each card has its own --start-x / --final-x / --rest-rot
+   / --delay CSS variables set inline per index. The cards fly in from
+   off-screen, rotate into their final tilt and scale up to full size,
+   giving the row a hand-tossed feel instead of a rigid grid slide.
+   Stagger is centre-out so the centre card lands first and the outer
+   cards land last (looks like a deal-out). No drop shadow - the user
+   wants the cards reading as 'unlocked', not 'sealed'. */
+.rowCard {
+  position: absolute;
+  /* Mobile two-row layout - row 0 stacks above row 1. Desktop overrides
+     bottom: 0 so all 9 cards sit on a single baseline. */
+  bottom: calc((1 - var(--row-m, 0)) * 220px);
+  left: 50%;
+  width: 112px;
   aspect-ratio: 2 / 3;
+  margin-left: -56px;
   border-radius: 12px;
   overflow: hidden;
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  margin-left: -94px;
-  transform-origin: bottom center;
-  transform: rotate(0deg);
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  /* transform is driven by JS scroll listener - cards interpolate from
+     off-screen start to slot position as the section scrolls into view,
+     and reverse when scrolling back up. */
   will-change: transform;
+}
+.rowCard img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+@media (max-width: 767px) {
+  .rowCard[data-mobile-show="no"] { display: none; }
+}
+@media (min-width: 768px) {
+  .rowCard {
+    width: 168px;
+    margin-left: -84px;
+    border-radius: 14px;
+    /* Desktop is single-row: ignore the --row-m offset entirely. */
+    bottom: 0;
+  }
+}
+
+.fanCard {
+  /* Legacy: kept for any old reference. New layout uses .rowCard. */
+  display: none;
+}
+
+/* Extra cards that fly in from off-stage as the section scrolls into
+   view. Sit behind the main fan so they read as supporting characters,
+   not equals. JS sets their transform per scroll-progress. */
+.flyCard {
+  width: 116px;
+  aspect-ratio: 2 / 3;
+  border-radius: 10px;
+  overflow: hidden;
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  margin-left: -58px;
+  opacity: 0;
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.16));
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+  z-index: 0;
+}
+.flyCard img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .flyCard {
+    width: 156px;
+    margin-left: -78px;
+    bottom: 60px;
+    border-radius: 12px;
+  }
 }
 .fanCard img {
   width: 100%;
@@ -49,71 +117,83 @@
   object-fit: cover;
   display: block;
 }
+/* Center card on top, edges underneath - classic symmetric fan stacking. */
 .fc1 { z-index: 1; }
 .fc2 { z-index: 2; }
-.fc3 { z-index: 3; }
-.fc4 { z-index: 4; }
-.fc5 { z-index: 5; }
+.fc3 { z-index: 5; }
+.fc4 { z-index: 2; }
+.fc5 { z-index: 1; }
 
 @media (min-width: 768px) {
   .fanWrap {
     padding: 0 0 96px;
   }
   .fanStage {
-    height: 360px;
-  }
-  .fanCard {
-    width: 240px;
-    margin-left: -120px;
-    border-radius: 14px;
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    height: 280px;
+    overflow: visible;
   }
 }
 
 /* ── MAP TEASER ────────────────────────────────────────────── */
 .mapTeaser {
-  padding: 28px 22px 40px;
-  background: #faf8f4;
-  border-bottom: 1px solid #ece9e3;
+  padding: 56px 22px 64px;
+  background: #f7f5f0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  /* Defensive: keeps any too-long inline content (long bullets, nowrap
+     headlines) from making the section wider than the viewport, which
+     would shift the section's geometric centre to the right of the
+     visible viewport centre and make the centred phones look offset. */
+  overflow-x: clip;
 }
 .mapTeaserHead {
-  margin-bottom: 24px;
+  margin-bottom: 72px;
 }
-/* 4-up feature grid: stacked on mobile, 2×2 on desktop. The intra-feature
-   gap (image → title) stays small so the title visually anchors to the
-   screenshot above it; the inter-feature gap is much larger so each block
-   reads as one unit instead of text floating between two screenshots. */
+/* 3-up feature grid: no card chrome - each phone reads as a phone, not
+   a card. The phone artwork's drop shadow does the visual grouping; copy
+   sits directly under its phone with a tight vertical gap so the binding
+   is unambiguous even on mobile. */
 .mapFeatures {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 56px;
+  gap: 88px;
 }
 .mapFeature {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 14px;
+  gap: 6px;
 }
-/* Per-phone bullet list. Stays under the screenshot so the eye reads
-   "image → its caption" as one unit instead of scanning a centered legend. */
+/* Editorial spec-sheet bullets. The whole list is a content-width
+   block, centred under the phone as a column. Each row is a 2-column
+   grid (marker | text) so the marker hangs in a fixed gutter and any
+   wrapped text indents under the text column (not under the marker) -
+   keeps the visual rhythm clean even on the longest bullet. */
 .mapFeatureItems {
   list-style: none;
-  margin: 0;
+  margin: 14px auto 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--text-secondary, #6d6963);
-  text-align: center;
-  max-width: 260px;
+  max-width: 30ch;
+  text-align: left;
+  font-size: 15px;
+  line-height: 1.45;
+  color: #1a1a1a;
 }
+.mapFeatureItems li {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  column-gap: 8px;
+  align-items: baseline;
+  margin: 0 0 10px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.mapFeatureItems li:last-child { margin-bottom: 0; }
 .mapFeatureItems li::before {
-  content: "—";
-  margin-right: 6px;
-  color: var(--text-secondary, #6d6963);
+  content: "→";
+  font-weight: 800;
+  color: #E32831;
+  line-height: inherit;
 }
 .mapFeatureFrame {
   display: flex;
@@ -122,17 +202,18 @@
   width: 100%;
 }
 .mapFeatureFrame img {
-  width: 100%;
-  max-width: 220px;
+  width: auto;
+  max-width: 200px;
   height: auto;
   display: block;
+  filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.18));
 }
 .mapFeatureTitle {
-  font-size: 16px;
-  font-weight: 800;
-  color: #1a1a1a;
-  margin: 0;
-  letter-spacing: -0.01em;
+  font-size: 19px;
+  font-weight: 900;
+  color: #0a0a0a;
+  margin: 14px 0 4px;
+  letter-spacing: -0.025em;
 }
 .mapFeatureBody {
   font-size: 13px;
@@ -141,17 +222,31 @@
   margin: 0;
   max-width: 280px;
 }
+.mapTeaserHead {
+  text-align: center;
+  margin-bottom: 72px;
+}
 .mapTeaserHead h2 {
-  font-size: 19px;
+  /* Mobile uses clamp scaled by viewport width + white-space: nowrap so
+     "Handverlesen, alles in einer Map" sits on a single line all the
+     way down to ~320px screens, without wrapping a single word onto
+     its own row. Desktop override (below) bumps it back to 44px. */
+  font-size: clamp(13px, 4.4vw, 28px);
   font-weight: 900;
-  color: #1a1a1a;
-  margin: 0 0 6px;
+  color: var(--text-primary, #1a1a1a);
+  margin: 0;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  white-space: nowrap;
 }
 .mapTeaserHead p {
-  font-size: 13px;
-  color: #888;
-  margin: 0 0 16px;
+  font-size: 14.5px;
+  color: #4a4a4a;
+  margin: 14px auto 0;
   line-height: 1.55;
+  max-width: 540px;
+  text-align: center;
+  font-weight: 500;
 }
 .mapVideo {
   background: #e8e5df;
@@ -187,28 +282,30 @@
 }
 
 @media (min-width: 768px) {
-  .mapTeaser { padding: 72px 80px 88px; }
-  .mapTeaserHead { margin-bottom: 48px; }
+  .mapTeaser { padding: 96px 80px 112px; }
+  .mapTeaserHead { margin-bottom: 56px; }
   .mapFeatures {
     grid-template-columns: repeat(3, 1fr);
-    gap: 64px 40px;
+    gap: 56px 40px;
   }
-  .mapFeature { gap: 18px; }
-  .mapFeatureFrame img { max-width: 260px; }
-  .mapFeatureTitle { font-size: 18px; }
+  .mapFeature { gap: 8px; }
+  .mapFeatureFrame img { max-width: 240px; }
+  .mapFeatureTitle { font-size: 22px; letter-spacing: -0.03em; margin-top: 18px; }
   .mapFeatureBody { font-size: 14px; max-width: 320px; }
-  .mapTeaserHead h2 { font-size: 32px; margin-bottom: 8px; }
-  .mapTeaserHead p { font-size: 15px; max-width: 580px; margin-bottom: 28px; line-height: 1.65; }
+  .mapTeaserHead h2 { font-size: 44px; letter-spacing: -0.03em; white-space: normal; }
+  .mapFeatureItems { font-size: 16px; max-width: 32ch; }
+  .mapFeatureItems li { grid-template-columns: 16px 1fr; column-gap: 10px; margin-bottom: 12px; }
+  .mapFeatureItems li::before { font-size: 17px; }
+  .mapTeaserHead p { font-size: 16px; max-width: 620px; margin: 16px auto 0; line-height: 1.6; }
   .mapVideo { aspect-ratio: 16 / 8; margin-bottom: 16px; border-radius: 16px; font-size: 13px; }
   .mapTab { padding: 10px 24px; border-radius: 24px; font-size: 13px; }
-  .mapFeatureItems { font-size: 14px; max-width: 280px; }
 }
 
 /* ── NEWSLETTER ────────────────────────────────────────────── */
 .news {
   padding: 44px 22px 48px;
-  background: #1a1209;
-  border-top: 1px solid #2a1c10;
+  background: #0a0a0a;
+  border-top: 1px solid #1a1a1a;
   position: relative;
   overflow: hidden;
 }
@@ -216,9 +313,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(120% 80% at 50% 0%, rgba(192, 92, 46, 0.18) 0%, transparent 60%),
-    radial-gradient(60% 60% at 100% 100%, rgba(245, 197, 24, 0.08) 0%, transparent 60%);
+  background: radial-gradient(80% 60% at 50% 0%, rgba(255, 255, 255, 0.04) 0%, transparent 70%);
   pointer-events: none;
 }
 .newsInner {
@@ -246,7 +341,7 @@
   transform: rotate(-6deg);
 }
 .newsCopy { display: flex; flex-direction: column; align-items: center; }
-.news .secLabel { color: #c8951a; }
+.news .secLabel { color: #fff; }
 .news h2 {
   font-size: 26px;
   font-weight: 900;
@@ -279,16 +374,22 @@
 }
 .newsInput::placeholder { color: #999; }
 .newsBtn {
-  padding: 13px;
-  background: var(--cta-red);
+  padding: 13px 20px;
+  background: #E32831;
   color: #fff;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   border-radius: 10px;
   border: none;
   cursor: pointer;
+  transition: transform 200ms ease, background 200ms ease, box-shadow 200ms ease;
+  box-shadow: 0 8px 22px -6px rgba(227, 40, 49, 0.55);
 }
-.newsBtn:hover { background: #9a1818; }
+.newsBtn:hover {
+  transform: translateY(-1px);
+  background: #c61f28;
+  box-shadow: 0 12px 28px -6px rgba(227, 40, 49, 0.75);
+}
 .newsNote {
   display: block;
   margin-top: 12px;
@@ -319,7 +420,7 @@
 
 
 /* ════════════════════════════════════════════════════════════
-   DARK MODE — applies when [data-theme="dark"] is set on <html>
+   DARK MODE - applies when [data-theme="dark"] is set on <html>
    Dark palette:
      #0a0a0a   page background (deepest)
      #1a1a1a   card / panel surfaces
@@ -334,11 +435,19 @@
 
 /* Map teaser */
 :global([data-theme="dark"]) .mapTeaser {
-  background: #1a1a1a;
-  border-bottom-color: #2a2a2a;
+  background: #0a0a0a;
+  border-bottom-color: #1a1a1a;
 }
 :global([data-theme="dark"]) .mapTeaserHead h2 { color: #fff; }
+:global([data-theme="dark"]) .mapTeaserHead p { color: #dcdcdc; }
 :global([data-theme="dark"]) .mapFeatureTitle { color: #fff; }
+:global([data-theme="dark"]) .mapFeatureItems { color: #fff; }
+:global([data-theme="dark"]) .mapFeatureItems li { color: #f2f2f2; }
+:global([data-theme="dark"]) .mapFeatureItems li::before { color: #F5C518; }
+:global([data-theme="dark"]) .mapFeatureBody { color: #dcdcdc; }
+:global([data-theme="dark"]) .mapFeatureFrame img {
+  filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.5));
+}
 :global([data-theme="dark"]) .mapVideo {
   background: #2a2a2a;
   border-color: #333;
@@ -354,22 +463,25 @@
   color: #1a1a1a;
 }
 
-/* Newsletter — mobile turns dark; desktop already dark */
+/* Newsletter - already dark in light mode; stay matching ink in dark. */
 :global([data-theme="dark"]) .news {
-  background: #1a1209;
-  border-top-color: #2a1c10;
+  background: #0a0a0a;
+  border-top-color: #1a1a1a;
 }
 :global([data-theme="dark"]) .news h2 { color: #fff; }
+/* Newsletter section is always dark (in both themes), so the white input
+   stays the same in dark mode - no inversion needed. Previous override
+   turned it grey-on-grey which made the placeholder unreadable. */
 :global([data-theme="dark"]) .newsInput {
-  background: #2a2a2a;
-  border-color: #2a2a2a;
-  color: #fff;
+  background: #fff;
+  border-color: #fff;
+  color: #0a0a0a;
 }
-:global([data-theme="dark"]) .newsInput::placeholder { color: #666; }
+:global([data-theme="dark"]) .newsInput::placeholder { color: rgba(0, 0, 0, 0.42); }
 
 /* ── Mobile horizontal-scroll safety net ───────────────────────
    Fan card outer corners and a few other transforms can bleed
-   1–6px past the viewport on small screens. Clip at the section
+   1-6px past the viewport on small screens. Clip at the section
    level so the page never gets a horizontal scrollbar/pan. */
 @media (max-width: 1023px) {
   .fanWrap,
@@ -380,7 +492,7 @@
 }
 
 /* ────────────────────────────────────────────────────────────
-   iOS Safari auto-zoom prevention — every <input>/<textarea>
+   iOS Safari auto-zoom prevention - every <input>/<textarea>
    under 16px triggers an annoying zoom-in that the user can't
    undo without re-pinching. Bump every landing input to 16px on
    mobile so the keyboard opens without zooming the viewport.

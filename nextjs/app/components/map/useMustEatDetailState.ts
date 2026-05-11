@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { haversineDistance, type UserLocation } from '@/lib/map'
 import type { MapMustEat } from '@/lib/types'
 
-export const UNLOCK_RADIUS_METERS = 250
+export const UNLOCK_RADIUS_METERS = 50
 
 interface Args {
   mustEat: MapMustEat
@@ -18,8 +18,9 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock }: Args)
 
   const canUnlock = distance !== null && distance <= UNLOCK_RADIUS_METERS
 
-  // Vibration ramps from a small idle baseline (0.18 — always perceptible)
-  // up to 1.0 right on top of the restaurant. Under 250 m it's unlockable.
+  // Vibration ramps from a small idle baseline (0.18 - always perceptible)
+  // up to 1.0 right on top of the restaurant. Under UNLOCK_RADIUS_METERS
+  // it's unlockable.
   const vibrateIntensity = distance === null
     ? 0.18
     : Math.max(0.18, Math.min(1, 1 - distance / 500))

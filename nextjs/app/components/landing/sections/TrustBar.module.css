@@ -1,13 +1,77 @@
+/* TrustBar - three big numbers on the dark stage. Acts as the visual
+   extension of the hero, making the value claim concrete before the page
+   transitions to the canvas-coloured sections. */
+
 .bar {
   background: var(--surface-deep);
-  border-top: 1px solid rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.72);
+  color: #fff;
+  padding: 32px 24px 24px;
   text-align: center;
-  padding: 14px 24px;
-  font-size: 13px;
-  letter-spacing: 0.02em;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.row {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  /* Tight mobile gap so each stat column has room for the wrapped
+     "RESTAURANTS, BARS & CAFÉS" label without forcing a 4th line. */
+  gap: 10px;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.value {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: #fff;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.label {
+  /* Mobile: tighter tracking so the long first label
+     ("RESTAURANTS, BARS & CAFÉS") wraps at most to two lines on a
+     narrow column. Desktop restores the wider tracking. */
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.25;
+  /* Reserve space for two lines so all three labels bottom-align
+     even when one wraps. */
+  min-height: 2.5em;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: center;
+}
+
+.divider {
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+  flex-shrink: 0;
+  margin: 4px 0;
 }
 
 @media (min-width: 768px) {
-  .bar { padding: 16px 32px; font-size: 14px; }
+  .bar { padding: 40px 48px 32px; }
+  .row { gap: 56px; }
+  .value { font-size: 48px; letter-spacing: -0.035em; }
+  .label { font-size: 11.5px; }
+}
+
+@media (min-width: 1100px) {
+  .value { font-size: 56px; }
 }

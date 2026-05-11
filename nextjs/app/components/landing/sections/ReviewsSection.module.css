@@ -1,0 +1,105 @@
+/* Reviews / testimonials. Sits between RecentlyAdded and Packs - the
+   social-proof beat right before the purchase decision. */
+
+.section {
+  background: var(--surface-paper);
+  padding: 96px 24px 112px;
+}
+
+.inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.head {
+  text-align: center;
+  margin: 0 auto 56px;
+  max-width: 640px;
+}
+.eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin-bottom: 14px;
+}
+.h2 {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: var(--text-primary, #1a1a1a);
+  margin: 0;
+}
+
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.card {
+  background: var(--surface-canvas);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 20px;
+  padding: 24px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stars {
+  display: inline-flex;
+  gap: 2px;
+  color: #F5C518;
+}
+
+.quote {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  font-weight: 500;
+  color: var(--text-primary, #1a1a1a);
+  letter-spacing: -0.01em;
+}
+
+.attribution {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: auto;
+}
+.name {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  color: var(--text-primary, #1a1a1a);
+}
+.role {
+  font-size: 12px;
+  color: var(--text-muted, #8a8580);
+  letter-spacing: 0.01em;
+}
+
+@media (min-width: 768px) {
+  .section { padding: 140px 48px 160px; }
+  .head { margin-bottom: 72px; }
+  .h2 { font-size: 44px; letter-spacing: -0.03em; }
+  .grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .card { padding: 28px 26px 26px; border-radius: 22px; }
+  .quote { font-size: 17px; }
+}
+
+/* Dark mode - section flips with --surface-paper. Eyebrow #0a0a0a goes
+   invisible on dark, so force it white. Card surface needs a slightly
+   lighter offset since --surface-canvas is also dark. */
+:global([data-theme="dark"]) .eyebrow { color: #F5C518; }
+:global([data-theme="dark"]) .card {
+  background: #161616;
+  border-color: rgba(255, 255, 255, 0.08);
+}

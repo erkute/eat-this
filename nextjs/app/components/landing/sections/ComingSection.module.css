@@ -1,0 +1,76 @@
+/* "Berlin ist erst der Anfang" - forward-looking beat. Quiet section
+   that hints at the bigger ambition without selling anything. */
+
+.section {
+  background: var(--surface-deep);
+  color: #fff;
+  padding: 96px 24px 112px;
+  text-align: center;
+}
+
+.inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #F5C518;
+  margin-bottom: 16px;
+}
+
+.h2 {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  margin: 0 0 14px;
+  color: #fff;
+}
+
+.body {
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 36px;
+}
+
+.cities {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 14px;
+}
+
+.city {
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+  padding: 10px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  transition: border-color 220ms ease, background 220ms ease;
+}
+.city:hover {
+  border-color: #F5C518;
+  background: rgba(245, 197, 24, 0.08);
+}
+
+@media (min-width: 768px) {
+  .section { padding: 140px 48px 160px; }
+  .h2 { font-size: 44px; letter-spacing: -0.035em; }
+  .body { font-size: 17px; margin-bottom: 44px; }
+  .city { font-size: 14px; padding: 12px 22px; }
+}

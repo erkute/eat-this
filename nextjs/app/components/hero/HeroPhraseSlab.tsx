@@ -5,7 +5,7 @@ export default function HeroPhraseSlab() {
     <section className={styles.slab}>
       <h2 className={styles.phrase}>
         <span className={styles.lineA}>the map for people</span>
-        <span className={styles.lineB}>who care about food.</span>
+        <span className={styles.lineB}>who care about food</span>
       </h2>
     </section>
   )

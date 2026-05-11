@@ -1,0 +1,111 @@
+/* FAQ - accordion list. Sits late in the page to handle objections
+   right before the final CTA. */
+
+.section {
+  background: var(--surface-canvas);
+  padding: 96px 24px 112px;
+}
+.inner {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.head {
+  text-align: center;
+  margin: 0 auto 48px;
+}
+.eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin-bottom: 14px;
+}
+.h2 {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--text-primary, #1a1a1a);
+  margin: 0;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.item {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  transition: background 200ms ease;
+}
+.item:first-child { border-top: 1px solid rgba(0, 0, 0, 0.08); }
+
+.q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 4px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--text-primary, #1a1a1a);
+  text-align: left;
+}
+.q:hover { color: var(--cta-red, #b71c1c); }
+
+.icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  /* Use line-height: 1 + a slight font-size bump + monospace ensures the
+     + / - glyphs sit dead-centre in the circle visually. */
+  font-family: -apple-system, system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+  padding-bottom: 2px;
+  transition: transform 220ms ease, background 220ms ease, color 220ms ease;
+}
+.itemOpen .icon {
+  background: var(--cta-red, #b71c1c);
+  border-color: var(--cta-red, #b71c1c);
+  color: #fff;
+}
+
+.a {
+  margin: 0 0 22px;
+  padding: 0 36px 0 4px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-secondary, #6d6963);
+  animation: faqReveal 280ms ease-out;
+}
+@keyframes faqReveal {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .a { animation: none; }
+}
+
+@media (min-width: 768px) {
+  .section { padding: 140px 48px 160px; }
+  .head { margin-bottom: 64px; }
+  .h2 { font-size: 44px; letter-spacing: -0.035em; }
+  .q { font-size: 18px; padding: 26px 8px; }
+  .a { font-size: 16px; padding-right: 56px; }
+}

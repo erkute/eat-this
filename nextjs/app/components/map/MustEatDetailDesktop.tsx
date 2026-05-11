@@ -98,7 +98,7 @@ export default function MustEatDetailDesktop({ mustEat, isUnlocked, onClose, uid
             </div>
 
             <div className={styles.mustEatExplainer}>
-              <strong>So schaltest du es frei:</strong> Geh zum Restaurant — sobald du innerhalb von 250 m bist, deckt sich die Karte automatisch auf.
+              <strong>So schaltest du es frei:</strong> Geh zum Restaurant - sobald du innerhalb von 50 m bist, deckt sich die Karte automatisch auf.
             </div>
 
             <div className={styles.boosterOffer}>

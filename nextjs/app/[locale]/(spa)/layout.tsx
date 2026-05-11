@@ -14,24 +14,24 @@ import BridgeAuth from './BridgeAuth'
 const SITE_URL = 'https://www.eatthisdot.com'
 
 export const metadata: Metadata = {
-  title: 'EAT THIS — Probably the best food guide you know - We tell you what to eat',
+  title: 'EAT THIS - Probably the best food guide you know',
   description:
     "Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must Eats on the interactive map & hunt down the best dishes in the city. Taste it all!",
   robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
   openGraph: {
     type: 'website',
     siteName: 'EAT THIS',
-    title: 'EAT THIS — Probably the best food guide you know - We tell you what to eat',
+    title: 'EAT THIS - Probably the best food guide you know',
     description:
       "Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must Eats on the interactive map & hunt down the best dishes in the city. Taste it all!",
     url: SITE_URL,
-    images: [{ url: SITE_URL + '/pics/hero_desktop1.webp', width: 1672, height: 941, alt: 'EAT THIS — Berlin Food Guide' }],
+    images: [{ url: SITE_URL + '/pics/hero_desktop1.webp', width: 1672, height: 941, alt: 'EAT THIS - Berlin Food Guide' }],
     locale: 'de_DE',
   },
   twitter: {
     card: 'summary_large_image',
     site: '@eatthisdotcom',
-    title: 'EAT THIS — Probably the best food guide you know - We tell you what to eat',
+    title: 'EAT THIS - Probably the best food guide you know',
     description:
       "Just Order This: Your curated Berlin food guide. Collect all Eat Cards & discover Must Eats on the interactive map. Taste it all!",
     images: [SITE_URL + '/pics/hero_desktop1.webp'],

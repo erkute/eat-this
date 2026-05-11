@@ -1,0 +1,124 @@
+/* "Mehr Gründe für Eat This" - monochrome editorial. 4 ink-black cards
+   on a paper section, big yellow numerals are the only accent. Reads
+   like a Netflix/Apple-grade reasons grid. */
+
+.section {
+  background: #f7f5f0;
+  color: #0a0a0a;
+  padding: 96px 24px 112px;
+}
+
+.inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.head {
+  text-align: center;
+  margin: 0 auto 56px;
+  max-width: 640px;
+}
+.eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin-bottom: 14px;
+}
+.h2 {
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: #0a0a0a;
+  margin: 0;
+}
+
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.card {
+  position: relative;
+  background: #0a0a0a;
+  color: #fff;
+  border-radius: 20px;
+  padding: 32px 26px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow: hidden;
+  transition: transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.number {
+  display: block;
+  font-size: 60px;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+  margin-bottom: 16px;
+  color: #F5C518;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.cardTitle {
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin: 0;
+  color: #fff;
+  white-space: nowrap;
+}
+.cardBody {
+  font-size: 14.5px;
+  line-height: 1.55;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-weight: 500;
+}
+
+@media (min-width: 768px) {
+  .section { padding: 80px 48px 140px; }
+  .head { margin-bottom: 36px; }
+  .h2 { font-size: 44px; letter-spacing: -0.035em; }
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+  .card { padding: 38px 32px 32px; border-radius: 22px; }
+  .number { font-size: 72px; margin-bottom: 20px; }
+  .cardTitle { font-size: 22px; }
+  .cardBody { font-size: 15.5px; }
+}
+
+@media (min-width: 1100px) {
+  .grid { grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .card { padding: 34px 26px 28px; }
+  .number { font-size: 64px; }
+  .cardTitle { font-size: 19px; }
+  .cardBody { font-size: 14.5px; }
+}
+
+/* Dark mode - section turns ink, cards keep their ink fill (loses contrast
+   slightly which is the desired editorial dimming), eyebrow goes white. */
+:global([data-theme="dark"]) .section {
+  background: #0a0a0a;
+}
+:global([data-theme="dark"]) .h2 { color: #fff; }
+:global([data-theme="dark"]) .eyebrow { color: #fff; }
+:global([data-theme="dark"]) .card {
+  background: #161616;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}

@@ -14,22 +14,18 @@ export default function HeroCtaSlab({ locale = 'de' }: Props) {
   const { sendLink, state, errorMessage } = useMagicLink()
   const [email, setEmail] = useState('')
 
-  const stats    = locale === 'de'
-    ? 'Berlin · 150+ Must Eats · 200+ Restaurants'
-    : 'Berlin · 150+ Must Eats · 200+ Restaurants'
-  const headline = locale === 'de'
-    ? 'Wahrscheinlich der beste Foodguide, den du kennst.'
-    : 'Probably the best foodguide you know.'
+  /* The 171/9/12 stats line is the eyebrow rendered by HeroSection
+     directly under the hero photo, so we don't repeat it here. The
+     "Wahrscheinlich der beste Foodguide" line lives in the
+     RestaurantTicker section further down - don't repeat that either. */
   const subtitle = locale === 'de'
-    ? 'Eine kuratierte Sammlung der besten Berliner Restaurants und Cafés.'
-    : 'A curated collection of Berlin’s best restaurants and cafés.'
+    ? 'Eine kuratierte Sammlung der besten Berliner Restaurants, Cafés und Bars, inklusive Must Eats.'
+    : 'A curated collection of Berlin’s best restaurants, cafés and bars, including Must Eats.'
   const submitLabel = locale === 'de' ? 'Registriere dich' : 'Sign up'
 
   return (
     <section className={styles.slab}>
       <div className={styles.inner}>
-        <p className={styles.stats}>{stats}</p>
-        <h2 className={styles.headline}>{headline}</h2>
         <p className={styles.subtitle}>{subtitle}</p>
 
         {state === 'sent' ? (

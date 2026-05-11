@@ -260,7 +260,7 @@ async function searchPlace(parsed: ParsedUrl): Promise<Place | null> {
 
 // ----- Address-component → Bezirk + Categories + Photo --------------------
 
-/** Berlin postal-code → Ortsteil mapping for the 10 Sanity bezirke.
+/** Berlin postal-code → Ortsteil mapping for the Sanity bezirk docs.
  *  Google's `sublocality_level_1` returns the admin Bezirk ("Bezirk Pankow"),
  *  not the Ortsteil ("Prenzlauer Berg"), so we resolve by PLZ instead. Any
  *  postal code not in this map → no Ortsteil match → bezirkRef stays empty
@@ -268,12 +268,20 @@ async function searchPlace(parsed: ParsedUrl): Promise<Place | null> {
 const PLZ_TO_ORTSTEIL: Record<string, string> = {
   // Mitte (Bezirk Mitte)
   '10115': 'Mitte', '10117': 'Mitte', '10119': 'Mitte', '10178': 'Mitte', '10179': 'Mitte',
+  // Moabit (Bezirk Mitte)
+  '10551': 'Moabit', '10553': 'Moabit', '10555': 'Moabit',
+  '10557': 'Moabit', '10559': 'Moabit',
   // Wedding (Bezirk Mitte)
   '13347': 'Wedding', '13349': 'Wedding', '13351': 'Wedding', '13353': 'Wedding',
   '13355': 'Wedding', '13357': 'Wedding', '13359': 'Wedding',
   // Prenzlauer Berg (Bezirk Pankow)
   '10405': 'Prenzlauer Berg', '10407': 'Prenzlauer Berg', '10409': 'Prenzlauer Berg',
   '10435': 'Prenzlauer Berg', '10437': 'Prenzlauer Berg', '10439': 'Prenzlauer Berg',
+  // Pankow (Bezirk Pankow)
+  '13156': 'Pankow', '13158': 'Pankow', '13159': 'Pankow',
+  '13187': 'Pankow', '13189': 'Pankow',
+  // Weißensee (Bezirk Pankow)
+  '13086': 'Weißensee', '13088': 'Weißensee', '13089': 'Weißensee',
   // Friedrichshain (Bezirk Friedrichshain-Kreuzberg)
   '10243': 'Friedrichshain', '10245': 'Friedrichshain',
   '10247': 'Friedrichshain', '10249': 'Friedrichshain',
@@ -285,10 +293,18 @@ const PLZ_TO_ORTSTEIL: Record<string, string> = {
   '10623': 'Charlottenburg', '10625': 'Charlottenburg', '10627': 'Charlottenburg',
   '10629': 'Charlottenburg', '10707': 'Charlottenburg', '10711': 'Charlottenburg',
   '10719': 'Charlottenburg',
+  // Wilmersdorf (Bezirk Charlottenburg-Wilmersdorf) — added 2026-05-11
+  '10713': 'Wilmersdorf', '10715': 'Wilmersdorf', '10717': 'Wilmersdorf',
   // Schöneberg (Bezirk Tempelhof-Schöneberg)
   '10777': 'Schöneberg', '10779': 'Schöneberg', '10781': 'Schöneberg', '10783': 'Schöneberg',
   '10785': 'Schöneberg', '10787': 'Schöneberg', '10789': 'Schöneberg',
   '10823': 'Schöneberg', '10825': 'Schöneberg', '10827': 'Schöneberg', '10829': 'Schöneberg',
+  // Friedenau (Bezirk Tempelhof-Schöneberg)
+  '12157': 'Friedenau',
+  // Tempelhof (Bezirk Tempelhof-Schöneberg)
+  '12099': 'Tempelhof', '12101': 'Tempelhof', '12103': 'Tempelhof',
+  '12105': 'Tempelhof', '12107': 'Tempelhof', '12109': 'Tempelhof',
+  '12277': 'Tempelhof', '12279': 'Tempelhof', '12305': 'Tempelhof', '12307': 'Tempelhof',
   // Neukölln (Bezirk Neukölln)
   '12043': 'Neukölln', '12045': 'Neukölln', '12047': 'Neukölln', '12049': 'Neukölln',
   '12051': 'Neukölln', '12053': 'Neukölln', '12055': 'Neukölln', '12057': 'Neukölln',
@@ -298,6 +314,18 @@ const PLZ_TO_ORTSTEIL: Record<string, string> = {
   '12165': 'Steglitz', '12167': 'Steglitz', '12169': 'Steglitz',
   // Dahlem (Bezirk Steglitz-Zehlendorf)
   '14195': 'Dahlem',
+  // Treptow (Bezirk Treptow-Köpenick)
+  '12435': 'Treptow', '12437': 'Treptow', '12439': 'Treptow',
+  '12524': 'Treptow', '12526': 'Treptow', '12527': 'Treptow',
+  // Köpenick (Bezirk Treptow-Köpenick)
+  '12459': 'Köpenick', '12487': 'Köpenick', '12489': 'Köpenick',
+  '12555': 'Köpenick', '12557': 'Köpenick', '12559': 'Köpenick',
+  '12587': 'Köpenick', '12589': 'Köpenick',
+  // Lichtenberg (Bezirk Lichtenberg)
+  '10315': 'Lichtenberg', '10317': 'Lichtenberg', '10318': 'Lichtenberg', '10319': 'Lichtenberg',
+  '10365': 'Lichtenberg', '10367': 'Lichtenberg', '10369': 'Lichtenberg',
+  '13051': 'Lichtenberg', '13053': 'Lichtenberg', '13055': 'Lichtenberg',
+  '13057': 'Lichtenberg', '13059': 'Lichtenberg',
 }
 
 /** Resolves the Ortsteil for a Berlin address by postal code. */

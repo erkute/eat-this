@@ -27,12 +27,25 @@ export default defineConfig({
           "mustEat":     count(*[_type=="mustEat"     && !(_id in path("drafts.**"))]),
           "restaurant":  count(*[_type=="restaurant"  && !(_id in path("drafts.**"))]),
           "bezirk":      count(*[_type=="bezirk"      && !(_id in path("drafts.**"))]),
-          "category":    count(*[_type=="category"    && !(_id in path("drafts.**"))])
+          "category":    count(*[_type=="category"    && !(_id in path("drafts.**"))]),
+          "waitlistSignup": count(*[_type=="waitlistSignup"])
         }`)
         const label = (icon, title, n) => `${icon}  ${title} (${n ?? 0})`
         return S.list()
           .title('Content')
           .items([
+            // ── Landing Page Singleton ──────────────────────────────────
+            S.listItem()
+              .title('🏠  Landing Page')
+              .id('landingPage')
+              .child(
+                S.document()
+                  .schemaType('landingPage')
+                  .documentId('landingPage')
+              ),
+
+            S.divider(),
+
             // ── News ─────────────────────────────────────────────────────
             S.documentTypeListItem('newsArticle').title(label('📰', 'News', counts.newsArticle)),
 
@@ -48,6 +61,11 @@ export default defineConfig({
             S.documentTypeListItem('restaurant').title(label('📍', 'Restaurants', counts.restaurant)),
             S.documentTypeListItem('bezirk').title(label('🏙', 'Bezirke', counts.bezirk)),
             S.documentTypeListItem('category').title(label('🏷', 'Kategorien', counts.category)),
+
+            S.divider(),
+
+            // ── Waitlist Signups ─────────────────────────────────────────
+            S.documentTypeListItem('waitlistSignup').title(label('✉️', 'Waitlist', counts.waitlistSignup)),
           ])
       },
     }),

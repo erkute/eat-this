@@ -4,17 +4,8 @@ import { setRequestLocale } from 'next-intl/server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import HeroSection from '@/app/components/HeroSection'
 import SiteFooter from '@/app/components/SiteFooter'
-import Ticker from '@/app/components/landing/Ticker'
-import HeroIntro from '@/app/components/landing/HeroIntro'
-import AboutFanRow from '@/app/components/landing/AboutFanRow'
-import Selection from '@/app/components/landing/Selection'
-import USPs from '@/app/components/landing/USPs'
-import MemoryGame from '@/app/components/landing/MemoryGame'
 import MapTeaser from '@/app/components/landing/MapTeaser'
 import BoosterPack from '@/app/components/landing/BoosterPack'
-import Coming from '@/app/components/landing/Coming'
-import LandingFAQ from '@/app/components/landing/LandingFAQ'
-import ExploreHub from '@/app/components/landing/ExploreHub'
 import Newsletter from '@/app/components/landing/Newsletter'
 
 const SITE_URL = 'https://www.eatthisdot.com'
@@ -85,17 +76,8 @@ export default async function SPAHomePage({
       <div className="app-page active" data-page="start">
         <HeroSection />
         <div className="start-scroll-content" style={{ paddingTop: 0 }}>
-          <HeroIntro />
-          <Ticker />
-          <AboutFanRow />
-          <USPs />
           <MapTeaser />
-          <MemoryGame />
-          <Selection />
           <BoosterPack />
-          <Coming />
-          <LandingFAQ />
-          <ExploreHub />
           <Newsletter />
           <SiteFooter />
         </div>

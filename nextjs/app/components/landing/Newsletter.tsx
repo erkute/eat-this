@@ -5,7 +5,13 @@ import styles from './landing.module.css';
 import { useMagicLink } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
 
-export default function Newsletter() {
+interface Props {
+  headline: string
+  body: string
+  ctaLabel: string
+}
+
+export default function Newsletter({ headline, body, ctaLabel }: Props) {
   const { sendLink, state, errorMessage } = useMagicLink();
   const [email, setEmail] = useState('');
   const { t } = useTranslation();
@@ -24,9 +30,8 @@ export default function Newsletter() {
           />
         </div>
         <div className={styles.newsCopy}>
-          <span className={styles.secLabel}>{t('landing.newsletterEyebrow')}</span>
-          <h2>{t('landing.newsletterHeadline')}</h2>
-          <p>{t('landing.newsletterBody')}</p>
+          <h2>{headline}</h2>
+          <p>{body}</p>
           {state === 'sent' ? (
             <p className={styles.magicSent}>
               {t('landing.magicSent')}
@@ -51,7 +56,7 @@ export default function Newsletter() {
                   type="submit"
                   disabled={state === 'sending'}
                 >
-                  {state === 'sending' ? t('landing.sending') : t('landing.newsletterSubmit')}
+                  {state === 'sending' ? t('landing.sending') : ctaLabel}
                 </button>
               </form>
               {state === 'error' && (

@@ -93,7 +93,11 @@ export default async function SPAHomePage({
             ]}
           />
           <BoosterPack />
-          <Newsletter />
+          <Newsletter
+            headline="Stay close to the map."
+            body="Occasional updates, new recommendations and selected Must Eats from Berlin."
+            ctaLabel="Subscribe"
+          />
           <SiteFooter />
         </div>
       </div>

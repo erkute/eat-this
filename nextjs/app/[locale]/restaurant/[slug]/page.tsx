@@ -5,10 +5,13 @@ import { setRequestLocale } from 'next-intl/server'
 import { getRestaurantBySlug, getAllRestaurantSlugs, getLatestNewsArticles, getMustEatsByRestaurant, getRestaurantsByBezirk, getRestaurantsByCategory } from '@/lib/sanity.server'
 import { buildRestaurantJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
+import { localeUrl } from '@/lib/locale-url'
 import { routing } from '@/i18n/routing'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { localizedCategoryName } from '@/lib/categories'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
+import { buildQuickFacts, buildFAQEntries } from '@/lib/restaurant-prose'
+import { getOpenStatus } from '@/lib/map/openingHours'
 import DetailPageOutro from '@/app/components/DetailPageOutro'
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
@@ -27,10 +30,6 @@ export async function generateStaticParams() {
 }
 
 export const revalidate = 3600
-
-function localeUrl(locale: string, path: string): string {
-  return locale === 'de' ? `${SITE_URL}${path}` : `${SITE_URL}/${locale}${path}`
-}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params
@@ -129,6 +128,22 @@ export default async function RestaurantPage({ params }: PageProps) {
   const shortDescription = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
   const tip = pickLocale(r.tip, r.tipEn, loc)
 
+  // Prose blocks that surface entity facts as natural language — needed so
+  // restaurant pages clear Google's thin-content bar (target ~200+ unique
+  // words). All three degrade gracefully when their source fields are
+  // missing, so the layout stays clean for half-filled docs.
+  const quickFacts = buildQuickFacts(r, loc)
+  const faqEntries = buildFAQEntries(r, loc)
+  const todayStatus =
+    r.openingHours && r.openingHours.length > 0
+      ? getOpenStatus(r.openingHours, new Date(), {
+          open: de ? 'Heute geöffnet' : 'Open today',
+          closed: de ? 'Heute geschlossen' : 'Closed today',
+          opens: de ? 'öffnet' : 'opens',
+          closes: de ? 'schließt' : 'closes',
+        })
+      : null
+
   const homeLabel = de ? 'Start' : 'Home'
   const districtsLabel = de ? 'Bezirke' : 'Districts'
   const breadcrumbItems: BreadcrumbItem[] = [
@@ -148,6 +163,7 @@ export default async function RestaurantPage({ params }: PageProps) {
     slug,
     description: shortDescription || description || tip,
     districtsLabel,
+    faqs: faqEntries,
   })
 
   return (
@@ -199,6 +215,8 @@ export default async function RestaurantPage({ params }: PageProps) {
               })()}
             </header>
 
+            {quickFacts && <p className={styles.quickFacts}>{quickFacts}</p>}
+
             {description && <p className={styles.description}>{description}</p>}
 
             {tip && (
@@ -226,6 +244,14 @@ export default async function RestaurantPage({ params }: PageProps) {
               {r.openingHours && r.openingHours.length > 0 && (
                 <section>
                   <h2 className={styles.sectionTitle}>{de ? 'Öffnungszeiten' : 'Opening Hours'}</h2>
+                  {todayStatus && (
+                    <p
+                      className={`${styles.todayStatus} ${todayStatus.isOpen ? styles.todayOpen : styles.todayClosed}`}
+                      role="status"
+                    >
+                      {todayStatus.label}
+                    </p>
+                  )}
                   <ul className={styles.hours}>
                     {r.openingHours.map((slot, i) => (
                       <li key={i} className={styles.hourRow}>
@@ -267,6 +293,20 @@ export default async function RestaurantPage({ params }: PageProps) {
             <div className={styles.musteats}>
               <MustEatTeaserSection mustEats={mustEats} locale={loc} />
             </div>
+
+            {faqEntries.length > 0 && (
+              <section className={styles.faq} aria-label={de ? 'Häufige Fragen' : 'FAQ'}>
+                <h2 className={styles.sectionTitle}>{de ? 'Häufige Fragen' : 'Frequently asked'}</h2>
+                <dl className={styles.faqList}>
+                  {faqEntries.map((entry, i) => (
+                    <div key={i} className={styles.faqItem}>
+                      <dt className={styles.faqQuestion}>{entry.question}</dt>
+                      <dd className={styles.faqAnswer}>{entry.answer}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            )}
           </div>
         </div>
 

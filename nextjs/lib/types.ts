@@ -131,6 +131,7 @@ export interface RestaurantCard {
   district?: string
   priceRange?: PriceRange
   cuisineType?: string
+  categories?: CategoryRef[]
   shortDescription?: string
   shortDescriptionEn?: string
   tip?: string

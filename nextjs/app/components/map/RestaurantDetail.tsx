@@ -91,9 +91,10 @@ export default function RestaurantDetail({
     : null
   const walkingTime = meters !== null ? formatWalkingTime(meters) : null
   /* Walk-time is a Luftlinie-based estimate, fine for inner-city Berlin.
-     Transit/Car estimates were dropped — heuristic minutes mislead more
-     than they help; users get the real route via the address-section's
-     Maps button anyway. */
+     formatWalkingTime returns null beyond ~1600 m so a far-away spot
+     doesn't read as a discouraging "90 Min" — for those, the Maps button
+     in the address section is the right tool. Transit/Car were dropped
+     for the same reason: heuristic minutes mislead. */
   const walkDirHref = `https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lng}&travelmode=walking`
 
   // Status label is split into a colored primary word + muted suffix —
@@ -211,7 +212,7 @@ export default function RestaurantDetail({
             </div>
           )}
 
-          {meters !== null && (
+          {walkingTime !== null && (
             <div className={styles.detailTravelRow}>
               <a
                 href={walkDirHref}

@@ -18,11 +18,12 @@ export function formatDistance(meters: number): string {
 
 /**
  * Walking time at an average pedestrian pace of ~80 m/min (≈ 4.8 km/h).
- * Returns minutes rounded up so a 240 m walk reads as "3 min" not "2 min".
- * Walk is the only mode where a Luftlinie heuristic is fair — Transit/Car
- * are icon-only tap-throughs to Google Maps in the UI.
+ * Returns null beyond ~1600 m (≈ 20 min) — anything further reads as
+ * off-putting ("oh god, 90 min on foot") and the address-section's Maps
+ * button is the right tool for those routes.
  */
-export function formatWalkingTime(meters: number): string {
+export function formatWalkingTime(meters: number): string | null {
+  if (meters > 1600) return null
   const minutes = Math.max(1, Math.ceil(meters / 80))
   return `${minutes} Min`
 }

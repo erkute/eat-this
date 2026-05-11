@@ -9,6 +9,7 @@ import { localizedCategoryName, localizedCategoryBlurb } from '@/lib/categories'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
+import { localeUrl } from '@/lib/locale-url'
 import { routing } from '@/i18n/routing'
 import { pickLocale } from '@/lib/i18n/pickLocale'
 import styles from '../../bezirk/Bezirk.module.css'
@@ -25,10 +26,6 @@ export async function generateStaticParams() {
   return routing.locales.flatMap(locale =>
     cats.map(c => ({ locale, slug: c.slug })),
   )
-}
-
-function localeUrl(locale: string, path: string): string {
-  return locale === 'de' ? `${SITE_URL}${path}` : `${SITE_URL}/${locale}${path}`
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

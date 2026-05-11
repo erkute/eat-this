@@ -6,6 +6,7 @@ import { getAllCategories, getCategoryCounts } from '@/lib/sanity.server'
 import { localizedCategoryName } from '@/lib/categories'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
+import { localeUrl } from '@/lib/locale-url'
 import styles from '../bezirk/Bezirk.module.css'
 
 interface PageProps {
@@ -13,10 +14,6 @@ interface PageProps {
 }
 
 export const revalidate = 3600
-
-function localeUrl(locale: string, path: string): string {
-  return locale === 'de' ? `${SITE_URL}${path}` : `${SITE_URL}/${locale}${path}`
-}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params

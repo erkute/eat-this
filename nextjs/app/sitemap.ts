@@ -1,16 +1,15 @@
 import { MetadataRoute } from 'next'
 import { client } from '@/lib/sanity'
-import { SITE_URL } from '@/lib/constants'
+import { localeUrl } from '@/lib/locale-url'
 import { routing } from '@/i18n/routing'
 import { hasEnContent } from '@/lib/i18n/pickLocale'
 
 export const revalidate = 0
 
-const STATIC_PATHS = ['', '/news', '/bezirk', '/kategorie', '/about', '/contact', '/press', '/impressum', '/datenschutz'] as const
-
-function localeUrl(locale: string, path: string): string {
-  return locale === 'de' ? `${SITE_URL}${path || '/'}` : `${SITE_URL}/${locale}${path}`
-}
+// `/contact`, `/press`, `/impressum`, `/datenschutz`, `/agb` are marked
+// `noindex,follow` in [...slug]/page.tsx — listing them in the sitemap
+// would send a conflicting signal, so they're omitted.
+const STATIC_PATHS = ['', '/news', '/bezirk', '/kategorie', '/about'] as const
 
 function withAlternates(path: string, lastModified?: string, priority = 0.5, changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] = 'monthly'): MetadataRoute.Sitemap[number] {
   return {
@@ -65,9 +64,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ])
 
   const staticEntries = STATIC_PATHS.map(p => {
-    const priority = p === '' ? 1.0 : p === '/news' || p === '/bezirk' || p === '/kategorie' ? 0.7 : p === '/impressum' || p === '/datenschutz' ? 0.2 : 0.5
+    const priority = p === '' ? 1.0 : p === '/news' || p === '/bezirk' || p === '/kategorie' ? 0.7 : 0.5
     const changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] =
-      p === '' ? 'weekly' : p === '/news' ? 'weekly' : p === '/impressum' || p === '/datenschutz' ? 'yearly' : 'monthly'
+      p === '' ? 'weekly' : p === '/news' ? 'weekly' : 'monthly'
     return withAlternates(p, undefined, priority, changeFrequency)
   })
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { haversineDistance, formatDistance } from './distance'
+import { haversineDistance, formatDistance, formatWalkingTime } from './distance'
 
 describe('haversineDistance', () => {
   it('returns 0 for identical coordinates', () => {
@@ -20,5 +20,21 @@ describe('formatDistance', () => {
 
   it('shows km with 1 decimal when >= 1000', () => {
     expect(formatDistance(1500)).toBe('1.5km')
+  })
+})
+
+describe('formatWalkingTime', () => {
+  it('rounds up so short walks read as at least 1 Min', () => {
+    expect(formatWalkingTime(50)).toBe('1 Min')
+  })
+
+  it('returns minutes within the 1600m comfort threshold', () => {
+    expect(formatWalkingTime(800)).toBe('10 Min')
+    expect(formatWalkingTime(1600)).toBe('20 Min')
+  })
+
+  it('returns null beyond the 1600m walking threshold', () => {
+    expect(formatWalkingTime(1601)).toBeNull()
+    expect(formatWalkingTime(5000)).toBeNull()
   })
 })

@@ -41,6 +41,56 @@
   max-width: 640px;
 }
 
+.quickFacts {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 14px 0 0;
+  max-width: 720px;
+}
+
+.faq {
+  margin: 56px 0 24px;
+  max-width: 760px;
+}
+
+.faqHeading {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 0 20px;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.faqItem {
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 18px;
+}
+
+.faqItem:last-child {
+  border-bottom: none;
+}
+
+.faqQuestion {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.faqAnswer {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
 .divider {
   height: 1px;
   background: var(--border-subtle);

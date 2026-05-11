@@ -153,8 +153,16 @@ export async function POST(request: NextRequest) {
     // still runs (to feed shortDescription refinement) but its output is
     // discarded here. Same logic for the API path that user-facing imports
     // hit; the CLI path can still call generateRestaurant directly if needed.
+    // Auto-publish: strip the `drafts.` prefix so the doc lands as published
+    // directly. Editorial review happens against the LIVE state — Sanity's
+    // normal edit flow creates a draft of the published doc when the user
+    // changes it in Studio. This way the restaurant appears on /restaurant/
+    // immediately instead of sitting in drafts until manual publish.
+    const draftId = result.doc._id as string
+    const publishedId = draftId.replace(/^drafts\./, '')
     const finalDoc = {
       ...result.doc,
+      _id: publishedId,
       ...(descGen.description ? { description: descGen.description } : {}),
       ...(descGen.shortDescription ? { shortDescription: descGen.shortDescription } : {}),
       ...(transGen.shortDescriptionEn ? { shortDescriptionEn: transGen.shortDescriptionEn } : {}),

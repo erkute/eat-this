@@ -33,15 +33,17 @@ interface CliOptions {
   limit: number | null
   dryRun: boolean
   draftsOnly: boolean
+  force: boolean
 }
 
 function parseArgs(): CliOptions {
   const args = process.argv.slice(2)
-  const opts: CliOptions = { type: 'restaurant', limit: null, dryRun: false, draftsOnly: false }
+  const opts: CliOptions = { type: 'restaurant', limit: null, dryRun: false, draftsOnly: false, force: false }
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
     if (arg === '--dry-run') opts.dryRun = true
     else if (arg === '--drafts-only') opts.draftsOnly = true
+    else if (arg === '--force') opts.force = true
     else if (arg === '--limit') opts.limit = parseInt(args[++i] ?? '', 10)
     else if (arg === '--type') {
       const v = args[++i]
@@ -119,11 +121,16 @@ interface BezirkSource {
 // Idempotent on BOTH published and draft state: a doc qualifies only if neither
 // side has seo.metaTitle. Without the draft check, re-runs would regenerate
 // every doc whose seo lives only in the draft.
-async function fetchRestaurants(draftsOnly: boolean): Promise<RestaurantSource[]> {
-  if (draftsOnly) {
+async function fetchRestaurants(opts: { draftsOnly: boolean; force: boolean }): Promise<RestaurantSource[]> {
+  const seoClause = opts.force ? '' : ' && !defined(seo.metaTitle)'
+  if (opts.draftsOnly) {
     return sanity.fetch(
-      `*[_type == "restaurant" && _id in path("drafts.**")
-          && !defined(seo.metaTitle)]{...} | order(name asc)`,
+      `*[_type == "restaurant" && _id in path("drafts.**")${seoClause}]{...} | order(name asc)`,
+    )
+  }
+  if (opts.force) {
+    return sanity.fetch(
+      `*[_type == "restaurant" && !(_id in path("drafts.**"))]{...} | order(name asc)`,
     )
   }
   return sanity.fetch(
@@ -133,11 +140,16 @@ async function fetchRestaurants(draftsOnly: boolean): Promise<RestaurantSource[]
   )
 }
 
-async function fetchBezirke(draftsOnly: boolean): Promise<BezirkSource[]> {
-  if (draftsOnly) {
+async function fetchBezirke(opts: { draftsOnly: boolean; force: boolean }): Promise<BezirkSource[]> {
+  const seoClause = opts.force ? '' : ' && !defined(seo.metaTitle)'
+  if (opts.draftsOnly) {
     return sanity.fetch(
-      `*[_type == "bezirk" && _id in path("drafts.**")
-          && !defined(seo.metaTitle)]{...} | order(name asc)`,
+      `*[_type == "bezirk" && _id in path("drafts.**")${seoClause}]{...} | order(name asc)`,
+    )
+  }
+  if (opts.force) {
+    return sanity.fetch(
+      `*[_type == "bezirk" && !(_id in path("drafts.**"))]{...} | order(name asc)`,
     )
   }
   return sanity.fetch(
@@ -398,7 +410,7 @@ async function main(): Promise<void> {
   let failed = 0
 
   if (opts.type === 'restaurant' || opts.type === 'all') {
-    let docs = await fetchRestaurants(opts.draftsOnly)
+    let docs = await fetchRestaurants({ draftsOnly: opts.draftsOnly, force: opts.force })
     if (opts.limit !== null) docs = docs.slice(0, opts.limit)
     console.log(`[generate-seo] restaurants needing seo fields: ${docs.length}`)
     for (const r of docs) {
@@ -421,7 +433,7 @@ async function main(): Promise<void> {
   }
 
   if (opts.type === 'bezirk' || opts.type === 'all') {
-    let docs = await fetchBezirke(opts.draftsOnly)
+    let docs = await fetchBezirke({ draftsOnly: opts.draftsOnly, force: opts.force })
     if (opts.limit !== null) docs = docs.slice(0, opts.limit)
     console.log(`[generate-seo] bezirke needing seo fields: ${docs.length}`)
     for (const b of docs) {

@@ -30,17 +30,20 @@ interface CliOptions {
   limit: number | null
   dryRun: boolean
   draftsOnly: boolean
+  force: boolean
 }
 
 function parseArgs(): CliOptions {
   const args = process.argv.slice(2)
-  const opts: CliOptions = { type: 'all', limit: null, dryRun: false, draftsOnly: false }
+  const opts: CliOptions = { type: 'all', limit: null, dryRun: false, draftsOnly: false, force: false }
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
     if (arg === '--dry-run') {
       opts.dryRun = true
     } else if (arg === '--drafts-only') {
       opts.draftsOnly = true
+    } else if (arg === '--force') {
+      opts.force = true
     } else if (arg === '--limit') {
       opts.limit = parseInt(args[++i] ?? '', 10)
     } else if (arg === '--type') {
@@ -279,7 +282,7 @@ async function main(): Promise<void> {
 
   if (opts.type === 'restaurant' || opts.type === 'all') {
     let docs = await fetchRestaurants(opts.draftsOnly)
-    docs = docs.filter(r => !hasEnDescription(r))
+    if (!opts.force) docs = docs.filter(r => !hasEnDescription(r))
     if (opts.limit !== null) docs = docs.slice(0, opts.limit)
     console.log(`[bootstrap] restaurants needing translation: ${docs.length}`)
     for (const r of docs) {
@@ -300,7 +303,7 @@ async function main(): Promise<void> {
 
   if (opts.type === 'bezirk' || opts.type === 'all') {
     let docs = await fetchBezirke(opts.draftsOnly)
-    docs = docs.filter(b => !hasEnDescription(b))
+    if (!opts.force) docs = docs.filter(b => !hasEnDescription(b))
     if (opts.limit !== null) docs = docs.slice(0, opts.limit)
     console.log(`[bootstrap] bezirke needing translation: ${docs.length}`)
     for (const b of docs) {

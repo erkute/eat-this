@@ -34,6 +34,7 @@ interface CliOptions {
   includeShortDesc: boolean
   includeTip: boolean
   draftsOnly: boolean
+  force: boolean
 }
 
 function parseArgs(): CliOptions {
@@ -45,11 +46,13 @@ function parseArgs(): CliOptions {
     includeShortDesc: true,
     includeTip: true,
     draftsOnly: false,
+    force: false,
   }
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
     if (arg === '--dry-run') opts.dryRun = true
     else if (arg === '--drafts-only') opts.draftsOnly = true
+    else if (arg === '--force') opts.force = true
     else if (arg === '--no-shortdesc') opts.includeShortDesc = false
     else if (arg === '--no-tip') opts.includeTip = false
     else if (arg === '--limit') opts.limit = parseInt(args[++i] ?? '', 10)
@@ -127,11 +130,19 @@ interface BezirkSource {
 // only if neither the published doc NOR its draft already has a description.
 // Without the draft check, re-runs would re-translate every restaurant whose
 // description lives only in the draft (because publish hasn't happened yet).
-async function fetchRestaurants(draftsOnly: boolean): Promise<RestaurantSource[]> {
-  if (draftsOnly) {
+async function fetchRestaurants(opts: { draftsOnly: boolean; force: boolean }): Promise<RestaurantSource[]> {
+  const descClause = opts.force ? '' : ' && !defined(description)'
+  if (opts.draftsOnly) {
     return sanity.fetch(
-      `*[_type == "restaurant" && _id in path("drafts.**")
-          && !defined(description)]{...} | order(name asc)`,
+      `*[_type == "restaurant" && _id in path("drafts.**")${descClause}]{...} | order(name asc)`,
+    )
+  }
+  // Non-drafts mode: in force-regen we want EVERY published restaurant; in
+  // normal mode we still skip ones whose draft already has a description
+  // (live-doc empty but draft staged).
+  if (opts.force) {
+    return sanity.fetch(
+      `*[_type == "restaurant" && !(_id in path("drafts.**"))]{...} | order(name asc)`,
     )
   }
   return sanity.fetch(
@@ -141,11 +152,16 @@ async function fetchRestaurants(draftsOnly: boolean): Promise<RestaurantSource[]
   )
 }
 
-async function fetchBezirke(draftsOnly: boolean): Promise<BezirkSource[]> {
-  if (draftsOnly) {
+async function fetchBezirke(opts: { draftsOnly: boolean; force: boolean }): Promise<BezirkSource[]> {
+  const descClause = opts.force ? '' : ' && !defined(description)'
+  if (opts.draftsOnly) {
     return sanity.fetch(
-      `*[_type == "bezirk" && _id in path("drafts.**")
-          && !defined(description)]{...} | order(name asc)`,
+      `*[_type == "bezirk" && _id in path("drafts.**")${descClause}]{...} | order(name asc)`,
+    )
+  }
+  if (opts.force) {
+    return sanity.fetch(
+      `*[_type == "bezirk" && !(_id in path("drafts.**"))]{...} | order(name asc)`,
     )
   }
   return sanity.fetch(
@@ -443,10 +459,13 @@ async function patchRestaurantDraft(
 ): Promise<boolean> {
   const draftId = r._id.startsWith('drafts.') ? r._id : `drafts.${r._id}`
   const sets: Record<string, string> = { description: g.description }
-  if (opts.includeShortDesc && g.shortDescription && !r.shortDescription) {
+  // In --force mode, write over any existing shortDescription/tip so the new
+  // brand-voice content fully replaces older versions. Otherwise we only fill
+  // gaps (keep manual edits intact).
+  if (opts.includeShortDesc && g.shortDescription && (opts.force || !r.shortDescription)) {
     sets.shortDescription = g.shortDescription
   }
-  if (opts.includeTip && g.tip && !r.tip) {
+  if (opts.includeTip && g.tip && (opts.force || !r.tip)) {
     sets.tip = g.tip
   }
   if (Object.keys(sets).length === 0) return false
@@ -476,7 +495,7 @@ async function main(): Promise<void> {
   console.log(`[generate-de] type=${opts.type} limit=${opts.limit ?? 'all'} dryRun=${opts.dryRun} shortDesc=${opts.includeShortDesc} tip=${opts.includeTip}`)
 
   if (opts.type === 'restaurant' || opts.type === 'all') {
-    let docs = await fetchRestaurants(opts.draftsOnly)
+    let docs = await fetchRestaurants({ draftsOnly: opts.draftsOnly, force: opts.force })
     if (opts.limit !== null) docs = docs.slice(0, opts.limit)
     console.log(`[generate-de] restaurants needing description: ${docs.length}`)
     for (const r of docs) {
@@ -499,7 +518,7 @@ async function main(): Promise<void> {
   }
 
   if (opts.type === 'bezirk' || opts.type === 'all') {
-    let docs = await fetchBezirke(opts.draftsOnly)
+    let docs = await fetchBezirke({ draftsOnly: opts.draftsOnly, force: opts.force })
     if (opts.limit !== null) docs = docs.slice(0, opts.limit)
     console.log(`[generate-de] bezirke needing description: ${docs.length}`)
     for (const b of docs) {

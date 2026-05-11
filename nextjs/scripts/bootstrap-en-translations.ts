@@ -174,7 +174,14 @@ function extractJsonText(content: Anthropic.ContentBlock[], docId: string): stri
   if (!textBlock || textBlock.type !== 'text') {
     throw new Error(`No text block in response for ${docId}`)
   }
-  return textBlock.text.trim()
+  // Strip ```json … ``` fences defensively — the model occasionally wraps
+  // JSON despite the explicit "no markdown fence" instruction, especially on
+  // longer prompts. Mirrors the same defense in generate-de-descriptions.ts.
+  return textBlock.text
+    .trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/, '')
+    .trim()
 }
 
 export async function translateRestaurant(r: RestaurantSource): Promise<RestaurantTranslation> {

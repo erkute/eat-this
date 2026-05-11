@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import styles from './PacksSection.module.css'
 
 interface Tier {
@@ -19,6 +20,17 @@ interface Props {
   starterHref: string
   locale: 'de' | 'en'
 }
+
+// Hard-coded brand assets (in nextjs/public/pics/booster/). New illustrations
+// can be added by dropping a file named `booster_<slug>.png` and appending the
+// slug here. Order = visual order in the category-pack rail.
+const CATEGORY_PACK_VISUALS: { slug: string; labelDe: string; labelEn: string }[] = [
+  { slug: 'breakfast', labelDe: 'Frühstück',   labelEn: 'Breakfast' },
+  { slug: 'coffee',    labelDe: 'Coffee',      labelEn: 'Coffee' },
+  { slug: 'dinner',    labelDe: 'Dinner',      labelEn: 'Dinner' },
+  { slug: 'drinks',    labelDe: 'Drinks',      labelEn: 'Drinks' },
+  { slug: 'fastfood',  labelDe: 'Fast Food',   labelEn: 'Fast Food' },
+]
 
 export default function PacksSection({
   headline, body, starter, category, complete, starterHref, locale,
@@ -46,16 +58,26 @@ export default function PacksSection({
             <Link href={localeHref(starterHref)} className={styles.ctaPrimary}>{starter.ctaLabel}</Link>
           </article>
 
-          {/* Category — secondary */}
+          {/* Category — secondary, with pack-visual rail */}
           <article className={styles.card}>
             <span className={`${styles.badge} ${styles.badgeSoon}`}>{locale === 'de' ? 'Bald' : 'Coming soon'}</span>
             <h3 className={styles.cardTitle}>{category.title}</h3>
             <p className={styles.cardBody}>{category.body}</p>
-            {category.bullets && category.bullets.length > 0 && (
-              <ul className={styles.cardList}>
-                {category.bullets.map((b, i) => <li key={i}>{b}</li>)}
-              </ul>
-            )}
+            <ul className={styles.packRail} aria-label={locale === 'de' ? 'Verfügbare Pack-Kategorien' : 'Available pack categories'}>
+              {CATEGORY_PACK_VISUALS.map((v) => (
+                <li key={v.slug} className={styles.packItem}>
+                  <Image
+                    src={`/pics/booster/booster_${v.slug}.png`}
+                    alt=""
+                    width={400}
+                    height={600}
+                    className={styles.packImg}
+                    sizes="(max-width: 768px) 38vw, 140px"
+                  />
+                  <span className={styles.packLabel}>{locale === 'de' ? v.labelDe : v.labelEn}</span>
+                </li>
+              ))}
+            </ul>
             <button type="button" className={styles.ctaSecondary} onClick={() => openWaitlist('category')}>
               {category.ctaLabel}
             </button>

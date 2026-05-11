@@ -80,6 +80,45 @@
   color: rgba(255,255,255,0.4);
 }
 
+/* Pack-Visual rail inside the Category Packs card. Horizontal scroll on mobile,
+   2-row grid on desktop. The pack illustrations carry their own typography
+   ("BREAKFAST PACK", etc.), so we keep the underlying label tiny / for a11y. */
+.packRail {
+  list-style: none;
+  margin: 4px -8px 18px;
+  padding: 4px 8px 12px;
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.packRail::-webkit-scrollbar { display: none; }
+.packItem {
+  flex: 0 0 auto;
+  width: 38%;
+  max-width: 130px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.packImg {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 10px;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.4));
+}
+.packLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  text-align: center;
+}
+
 .ctaPrimary, .ctaSecondary {
   margin-top: auto;
   display: inline-flex;

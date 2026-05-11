@@ -9,12 +9,12 @@ interface Props {
 
 const STEPS = {
   de: [
-    { label: 'Erst essen, dann posten', body: 'Kein Spot landet hier, bevor wir ihn selbst probiert haben.' },
+    { label: 'Erst gegessen, dann gelistet', body: 'Auf die Map kommt nur, was wir selbst gegessen haben.' },
     { label: 'Nur, was überzeugt hat', body: 'Drauf kommt nur, was uns selbst überzeugt hat - sonst nichts.' },
     { label: 'Immer aktuell', body: 'Was zumacht, fliegt raus. Was neu öffnet, kommt rein.' },
   ],
   en: [
-    { label: 'Eat first, post later', body: 'Nothing lands here before we’ve tried it ourselves.' },
+    { label: 'Tasted, then listed', body: 'On the map only after we’ve eaten there.' },
     { label: 'Only if it convinced us', body: 'On the map only if it convinced us - nothing else.' },
     { label: 'Always current', body: 'Closes get dropped. New openings get added.' },
   ],

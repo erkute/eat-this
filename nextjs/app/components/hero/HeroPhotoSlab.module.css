@@ -17,11 +17,13 @@
 .photoMobile  { display: none; }
 
 @media (max-width: 768px) {
-  /* Photo takes most of the initial viewport, eyebrow + phrase share
-     the remaining ~22svh. 78svh photo + ~4svh eyebrow + ~14svh phrase
-     ≈ 96svh, so the brand line still lands inside the first viewport
-     while the photo dominates the fold. */
-  .slab { min-height: 78svh; }
+  /* Photo takes the majority of the initial viewport, eyebrow + phrase
+     share the remaining ~28svh. 72svh photo + ~4svh eyebrow + ~14svh
+     phrase ≈ 90svh - leaves headroom on iPhone-Pro-size viewports
+     (~870px) where Safari's address-bar chrome eats into the visible
+     area and bigger photo heights pushed "who care about food" off
+     the bottom of the fold. */
+  .slab { min-height: 72svh; }
   .photoDesktop { display: none; }
   /* Anchor higher up in the source image so the plate slides further
      down into the visible frame, away from the wordmark up top. */
@@ -106,6 +108,28 @@
   .tagline {
     font-size: clamp(14px, 1.4vw, 20px);
     letter-spacing: 0.32em;
+  }
+}
+
+/* Light-mode mobile-only: only the wordmark inverts to white.
+   `brightness(0) invert(1)` converts the dark logo asset to pure white
+   via filter (no separate white asset needed). The tagline stays its
+   original white-with-dark-shadow - black-on-photo turned out to be
+   unreadable against the varied background. Desktop stays untouched. */
+@media (prefers-color-scheme: light) and (max-width: 768px) {
+  .logo {
+    filter:
+      brightness(0)
+      invert(1)
+      drop-shadow(0 10px 24px rgba(0, 0, 0, 0.45));
+  }
+}
+@media (max-width: 768px) {
+  [data-theme="light"] .logo {
+    filter:
+      brightness(0)
+      invert(1)
+      drop-shadow(0 10px 24px rgba(0, 0, 0, 0.45));
   }
 }
 

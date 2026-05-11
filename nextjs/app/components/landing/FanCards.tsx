@@ -57,6 +57,14 @@ export default function FanCards() {
     let lastP = -1;
     let rafPending = false;
 
+    // easeOutCubic - eased per-card progress masks scroll-tick jitter by
+    // having the card decelerate as it approaches its rest position.
+    // With linear interpolation the same scroll-pixel delta produced a
+    // constant transform delta, which read as choppy whenever the
+    // browser delivered uneven scroll events (common on trackpads and
+    // 90 Hz mobile screens).
+    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
     function compute() {
       rafPending = false;
       if (!stage) return;
@@ -70,7 +78,11 @@ export default function FanCards() {
       const startY = vh * 0.95;
       const endY = vh * 0.42;
       const p = Math.max(0, Math.min(1, (startY - elemCenter) / (startY - endY)));
-      if (Math.abs(p - lastP) < 0.003) return;
+      // Finer early-exit: 0.003 was coarse enough that scroll-tick
+      // updates skipped intermediate frames, making the cards appear to
+      // step rather than glide. 0.001 keeps the work cheap while letting
+      // every meaningful scroll tick produce a fresh transform.
+      if (Math.abs(p - lastP) < 0.001) return;
       lastP = p;
 
       const isDesktop = vw >= 768;
@@ -88,14 +100,20 @@ export default function FanCards() {
         // Each card gets its own staggered local progress. Card 0 starts
         // animating immediately; the last card kicks in when global p
         // has reached ~0.35. So the cards land one-by-one rather than as
-        // a synchronised group.
+        // a synchronised group. Eased so the visual motion decelerates
+        // toward the rest position instead of stepping linearly.
         const stagger = idx * 0.05;
-        const cardP = Math.max(0, Math.min(1, (p - stagger) / (1 - stagger)));
+        const linearP = Math.max(0, Math.min(1, (p - stagger) / (1 - stagger)));
+        const cardP = easeOutCubic(linearP);
         const finalX = isDesktop ? finalXD : finalXM;
         const x = startX + (finalX - startX) * cardP;
         const rot = restRot * cardP;
         const scale = 0.85 + 0.15 * cardP;
-        card.style.transform = `translateX(${x.toFixed(1)}px) rotate(${rot.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
+        // translate3d nudges browsers to keep the card on its own
+        // compositor layer alongside `will-change: transform`, which
+        // helps especially on iOS Safari where layer promotion is
+        // sometimes dropped between scroll bursts.
+        card.style.transform = `translate3d(${x.toFixed(1)}px, 0, 0) rotate(${rot.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
       });
     }
 

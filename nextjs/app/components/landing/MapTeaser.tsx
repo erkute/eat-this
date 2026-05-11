@@ -15,53 +15,63 @@ const DEFAULT_SCREENSHOTS = [
 // Per-phone copy. Each phone shows a specific UI screen, so the captions
 // describe exactly what that screen does. Hardcoded here (not CMS-driven)
 // because the screenshots themselves are also hardcoded - the two travel
-// together as one explainer unit.
+// together as one explainer unit. The `eyebrow` is a numbered tag above
+// each phone H3 ("01 · MAP" etc.) - gives the trio a magazine-spread
+// rhythm so users scan it as 3 chapters, not 3 feature columns.
 const PHONE_CONTENT: {
+  eyebrowDe: string
+  eyebrowEn: string
   headlineDe: string
   headlineEn: string
   bulletsDe: string[]
   bulletsEn: string[]
 }[] = [
   {
+    eyebrowDe: '01 · DIE MAP',
+    eyebrowEn: '01 · THE MAP',
     headlineDe: 'Alle Spots auf einer Map',
     headlineEn: 'Every spot on one map',
     bulletsDe: [
-      '171+ handverlesene Restaurants, Cafés und Bars',
-      'Direkt mit deinem Standort verknüpft',
-      'Reduziert auf das Wesentliche - nur unsere Empfehlungen sichtbar',
+      '171+ Spots. Handverlesen.',
+      'Live mit deinem Standort.',
+      'Nur, was wir empfehlen.',
     ],
     bulletsEn: [
-      '171+ hand-picked restaurants, cafés and bars',
-      'Connected to your live location',
-      'Reduced to the essentials - only our picks visible',
+      '171+ spots. Hand-picked.',
+      'Live with your location.',
+      'Only what we recommend.',
     ],
   },
   {
-    headlineDe: 'Finde, worauf du Lust hast',
-    headlineEn: 'Find what you’re after',
+    eyebrowDe: '02 · DER FILTER',
+    eyebrowEn: '02 · THE FILTER',
+    headlineDe: 'Berlin, gefiltert',
+    headlineEn: 'Berlin, filtered',
     bulletsDe: [
-      'Bezirksfilter - von Mitte bis Wedding',
-      '„In deiner Nähe" - Radius live um dich rum',
-      '„Geöffnet" - zeigt nur, was gerade aufhat',
+      'Bezirksfilter. Mitte bis Wedding.',
+      'Radius live um dich rum.',
+      '„Geöffnet". Nur, was gerade läuft.',
     ],
     bulletsEn: [
-      'Neighbourhood filter - Mitte to Wedding',
-      '“Near me” - live radius around you',
-      '“Open now” - only what’s open right now',
+      'District filter. Mitte to Wedding.',
+      'Radius live around you.',
+      '“Open now.” Only what’s open.',
     ],
   },
   {
+    eyebrowDe: '03 · DER SPOT',
+    eyebrowEn: '03 · THE SPOT',
     headlineDe: 'Alles zu jedem Spot',
     headlineEn: 'Everything about every spot',
     bulletsDe: [
-      'Verdeckte Must Eats - direkt vor Ort aufdecken',
-      'Adresse, Öffnungszeiten und Bilder',
-      'Direkter Zugriff aus der Map',
+      'Must Eats. Vor Ort aufdecken.',
+      'Adresse. Öffnungszeiten. Bilder.',
+      'Direkt aus der Map.',
     ],
     bulletsEn: [
-      'Hidden Must Eats - uncover on site',
-      'Address, hours and photos',
-      'Direct access from the map',
+      'Must Eats. Reveal on site.',
+      'Address. Hours. Photos.',
+      'Right from the map.',
     ],
   },
 ]
@@ -70,21 +80,26 @@ export default function MapTeaser({ headline, screenshotUrls, locale = 'de' }: P
   const screenshots = [0, 1, 2].map((i) => screenshotUrls?.[i] || DEFAULT_SCREENSHOTS[i])
   // Override the CMS headline with the punchier editorial line. Leaves
   // `headline` in the props signature so the CMS column still ships.
-  const sectionTitle = locale === 'de' ? 'Handverlesen, alles in einer Map' : 'Hand-picked, all on one Map'
+  const sectionEyebrow = locale === 'de' ? 'Die Map' : 'The Map'
+  const sectionTitle = locale === 'de'
+    ? 'Direkt zu den Spots, die zählen'
+    : 'Straight to the spots that matter'
   const sectionLead = locale === 'de'
-    ? 'Jeder Spot persönlich getestet, direkt auf einer interaktiven Map.'
-    : 'Every spot personally tested, all on one interactive map.'
+    ? 'Persönlich kuratiert. Live auf einer Map.'
+    : 'Personally curated. Live on one map.'
   void headline
 
   return (
     <section className={styles.mapTeaser}>
       <div className={styles.mapTeaserHead}>
+        <span className={styles.mapTeaserEyebrow}>{sectionEyebrow}</span>
         <h2>{sectionTitle}</h2>
         <p>{sectionLead}</p>
       </div>
       <div className={styles.mapFeatures}>
         {screenshots.map((src, i) => {
           const phone = PHONE_CONTENT[i]
+          const phoneEyebrow = locale === 'de' ? phone.eyebrowDe : phone.eyebrowEn
           const phoneHeadline = locale === 'de' ? phone.headlineDe : phone.headlineEn
           const phoneBullets = locale === 'de' ? phone.bulletsDe : phone.bulletsEn
           return (
@@ -93,6 +108,7 @@ export default function MapTeaser({ headline, screenshotUrls, locale = 'de' }: P
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={src} alt="" loading="lazy" decoding="async" />
               </div>
+              <span className={styles.mapFeatureEyebrow}>{phoneEyebrow}</span>
               <h3 className={styles.mapFeatureTitle}>{phoneHeadline}</h3>
               <ul className={styles.mapFeatureItems}>
                 {phoneBullets.map((item, j) => <li key={j}>{item}</li>)}

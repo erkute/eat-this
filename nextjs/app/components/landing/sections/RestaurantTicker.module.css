@@ -1,18 +1,34 @@
-/* Restaurant ticker - Solari airport-board. Pure ink stage, mono caps,
-   sunshine-yellow letters glow like split-flap LEDs. No browns, no amber
-   warmth - the previous palette read as café/diner, this reads as gate
-   B14, which is what the user asked for. */
+/* Restaurant ticker - Solari split-flap board.
+   Pure ink panel, each character lives in its own dark tile with a
+   horizontal seam through the middle (the split-flap divider). Tiles
+   sit on a faint dot-matrix backdrop. The whole row marquee-scrolls
+   horizontally, so the effect feels like a real airport-arrivals
+   board cycling through entries.
+   Dark = airport-board-yellow. Light overrides at the bottom turn the
+   panel into a paper-schedule look so the section blends with the
+   canvas-coloured page above and below. */
 
 .section {
   position: relative;
   background: #0a0a0a;
   padding: 48px 16px 44px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  isolation: isolate;
 }
+/* Faint LED-dot-matrix backdrop. Subtle, doesn't compete with the
+   yellow tile glyphs above. */
+.section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(245, 197, 24, 0.05) 1px, transparent 1px);
+  background-size: 14px 14px;
+  pointer-events: none;
+  z-index: 0;
+}
+.section > * { position: relative; z-index: 1; }
 
-/* The big claim sits above the airport-board strip - Hero-tier copy,
-   serves as both the headline of this section and the connective tissue
-   from the hero to the live restaurants ticker. */
 .claim {
   max-width: 1000px;
   margin: 0 auto 36px;
@@ -28,51 +44,22 @@
   .claim { margin-bottom: 48px; font-size: clamp(44px, 4.8vw, 68px); }
 }
 
+/* The board itself - a solid black panel running edge-to-edge across
+   the section. In BOTH themes it stays a black airport-departures
+   board, with yellow LED tiles inside. In light mode the surrounding
+   section is cream (see overrides at the bottom), so the board reads
+   as a deliberate dark strip mounted on a cream wall. */
 .boardFrame {
   position: relative;
   max-width: none;
   margin: 0 -16px;
-  padding: 18px 0;
-  border-top: 2px solid rgba(255, 255, 255, 0.12);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.12);
+  padding: 0;
+  background: #0a0a0a;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 @media (min-width: 768px) {
-  .boardFrame {
-    margin: 0 -24px;
-  }
-}
-
-/* Top-right eyebrow, mimics the "ARRIVALS"/"DEPARTURES" label on a
-   departure board. */
-.eyebrow {
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 10px;
-  background: var(--surface-deep);
-  font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
-  white-space: nowrap;
-}
-.indicator {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #F5C518;
-  box-shadow: 0 0 10px rgba(245, 197, 24, 0.75);
-  animation: blink 1.6s steps(2, end) infinite;
-}
-@keyframes blink {
-  50% { opacity: 0.25; }
+  .boardFrame { margin: 0 -24px; }
 }
 
 .viewport {
@@ -80,6 +67,7 @@
   width: 100%;
   overflow: hidden;
   display: flex;
+  padding: 18px 0;
   -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
           mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
 }
@@ -91,7 +79,7 @@
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  gap: 36px;
+  gap: 28px;
   animation: tickerScroll 60s linear infinite;
   will-change: transform;
 }
@@ -104,35 +92,102 @@
 }
 .viewport:hover .track { animation-play-state: paused; }
 
+/* Each restaurant is a row of tiles + a separator dot between entries.
+   .item itself is just the row container; the actual character tiles
+   are children rendered by the `Tiles` component. */
 .item {
   display: inline-flex;
   align-items: center;
   white-space: nowrap;
   flex-shrink: 0;
-  font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #F5C518;
-  text-shadow: 0 0 16px rgba(245, 197, 24, 0.35);
 }
 .item::before {
-  content: "›";
+  content: "•";
   display: inline-block;
-  margin-right: 36px;
-  font-size: 22px;
+  margin-right: 28px;
+  font-size: 14px;
   line-height: 1;
-  color: rgba(255, 255, 255, 0.3);
-  text-shadow: none;
+  color: rgba(245, 197, 24, 0.45);
 }
 .item:first-child::before { display: none; }
 
+/* Tile row per restaurant name. Mono-uppercase, fixed-width tiles so
+   the row reads as a sequence of split-flap modules - not as a normal
+   word. Gap between tiles is the iconic mechanical seam between flap
+   modules on a Solari board. */
+.tiles {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.tile {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1ch;
+  min-width: 18px;
+  padding: 8px 4px;
+  background: #050505;
+  color: #F5C518;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
+  border-radius: 2px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+  text-shadow: 0 0 8px rgba(245, 197, 24, 0.5);
+}
+/* The split-flap seam - a 1px horizontal divider through the centre of
+   every tile, exactly where the top-flap meets the bottom-flap on a
+   real split-flap module. This is THE detail that sells the
+   mechanical-display affordance. */
+.tile::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.85);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
+  pointer-events: none;
+}
+/* Space tiles: keep the geometry, drop the glyph + seam so spaces stay
+   readable as breaks between words instead of empty boxes. */
+.tileGap {
+  background: transparent;
+  box-shadow: none;
+  color: transparent;
+  text-shadow: none;
+  width: 0.6ch;
+  min-width: 8px;
+}
+.tileGap::after { display: none; }
+
 @media (min-width: 768px) {
   .section { padding: 36px 24px 48px; }
-  .boardFrame { padding: 18px 0; }
-  .eyebrow { font-size: 11px; padding: 4px 14px; }
-  .item { font-size: 19px; letter-spacing: 0.12em; }
-  .item::before { margin-right: 48px; font-size: 26px; }
-  .track { gap: 48px; padding-right: 48px; }
+  .tile { font-size: 26px; min-width: 22px; padding: 10px 5px; }
+  .tileGap { min-width: 10px; }
+  .tiles { gap: 4px; }
+  .track { gap: 40px; padding-right: 40px; }
+  .item::before { margin-right: 40px; font-size: 16px; }
 }
+
+/* Light-mode overrides - ONLY the section wrapping (background,
+   headline) flips to cream. The actual departures board (boardFrame +
+   tiles + LED letters + yellow separator dots) stays as-is in both
+   themes; in light it sits as a deliberate black panel mounted on the
+   cream page, like a real airport solari board on a station wall. */
+@media (prefers-color-scheme: light) {
+  .section { background: var(--surface-canvas); border-top-color: rgba(10, 10, 10, 0.06); }
+  .section::before { background-image: radial-gradient(rgba(10, 10, 10, 0.05) 1px, transparent 1px); }
+  .claim { color: var(--text-primary, #0a0a0a); }
+}
+[data-theme="light"] .section { background: var(--surface-canvas); border-top-color: rgba(10, 10, 10, 0.06); }
+[data-theme="light"] .section::before { background-image: radial-gradient(rgba(10, 10, 10, 0.05) 1px, transparent 1px); }
+[data-theme="light"] .claim { color: var(--text-primary, #0a0a0a); }

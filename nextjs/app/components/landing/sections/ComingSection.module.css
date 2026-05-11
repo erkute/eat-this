@@ -74,3 +74,28 @@
   .body { font-size: 17px; margin-bottom: 44px; }
   .city { font-size: 14px; padding: 12px 22px; }
 }
+
+/* Light-mode: cream surface, dark ink type, brand-red eyebrow, city
+   pills in white with dark border. Dark mode unchanged. */
+@media (prefers-color-scheme: light) {
+  .section { background: var(--surface-canvas); color: #0a0a0a; }
+  .eyebrow { color: #E32831; }
+  .h2 { color: #0a0a0a; }
+  .body { color: rgba(10, 10, 10, 0.66); }
+  .city {
+    color: rgba(10, 10, 10, 0.7);
+    border-color: rgba(10, 10, 10, 0.14);
+    background: #fff;
+  }
+  .city:hover { border-color: #E32831; background: rgba(227, 40, 49, 0.06); }
+}
+[data-theme="light"] .section { background: var(--surface-canvas); color: #0a0a0a; }
+[data-theme="light"] .eyebrow { color: #E32831; }
+[data-theme="light"] .h2 { color: #0a0a0a; }
+[data-theme="light"] .body { color: rgba(10, 10, 10, 0.66); }
+[data-theme="light"] .city {
+  color: rgba(10, 10, 10, 0.7);
+  border-color: rgba(10, 10, 10, 0.14);
+  background: #fff;
+}
+[data-theme="light"] .city:hover { border-color: #E32831; background: rgba(227, 40, 49, 0.06); }

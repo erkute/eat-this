@@ -308,24 +308,35 @@
   background-repeat: no-repeat;
 }
 
-/* ── CTA link (chevron-only, no rectangle button) ───────────────────── */
+/* CTA pill - filled brand-red button so the buy action is unambiguous.
+   Was previously a chevron-text link in the corner; the user couldn't
+   tell it was clickable. Now reads as a proper "primary action" pill
+   that holds its weight against the pack artwork above. */
 .ctaLink {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
   margin-top: auto;
-  font-size: 14.5px;
-  font-weight: 600;
-  letter-spacing: -0.005em;
+  align-self: stretch;
+  padding: 13px 22px;
+  background: #E32831;
   color: #fff;
-  padding: 4px 0;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  box-shadow: 0 12px 26px -10px rgba(227, 40, 49, 0.55);
+  transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
 }
-.chevron {
-  transition: transform 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
+.chevron { transition: transform 280ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+.card:hover .ctaLink {
+  background: #c61f28;
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px -10px rgba(227, 40, 49, 0.7);
 }
 .card:hover .chevron { transform: translateX(4px); }
-.card:hover .ctaLink { color: #F5C518; }
-.cardBundle:hover .ctaLink { color: #F5C518; }
 
 /* ── Footnote (under the grid) ──────────────────────────────────────── */
 .footnote {
@@ -382,3 +393,52 @@
   .starterImg { max-width: 200px; }
   .stackPack { max-width: 170px; }
 }
+
+/* Light-mode overrides. Dark stage flips to cream so the section blends
+   with the rest of the light page; cards become white tiles with subtle
+   elevation. All text colours need explicit overrides - they were
+   white-on-dark by default, which renders invisibly on the white card.
+   Bullet check-mark SVG is re-encoded with a dark stroke. CTA pill
+   stays brand red in both modes - that's the buy-action anchor. */
+@media (prefers-color-scheme: light) {
+  .section { background: var(--surface-canvas); color: #0a0a0a; }
+  .section::before { background: radial-gradient(60% 100% at 50% 0%, rgba(227, 40, 49, 0.05), transparent 70%); }
+  .eyebrow { color: #E32831; }
+  .h2 { color: #0a0a0a; }
+  .body { color: rgba(10, 10, 10, 0.66); }
+  .card { background: #fff; border-color: rgba(10, 10, 10, 0.08); box-shadow: 0 8px 24px -12px rgba(10, 10, 10, 0.18); }
+  .cardStarter { background: #fff; border-color: rgba(10, 10, 10, 0.08); }
+  .cardBundle { background: #fff; border-color: rgba(227, 40, 49, 0.30); }
+  .cardTitle { color: #0a0a0a; }
+  .cardPrice { color: #0a0a0a; }
+  .cardStarter .cardPrice { color: #0a0a0a; }
+  .cardBundle .cardPrice { color: #E32831; }
+  .priceSuffix { color: rgba(10, 10, 10, 0.55); }
+  .cardSubtitle { color: rgba(10, 10, 10, 0.66); }
+  .bulletList li { color: rgba(10, 10, 10, 0.78); }
+  .bulletList li::before {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none'><path d='M3 7.5l2.5 2.5L11 4.5' stroke='%230a0a0a' stroke-opacity='0.55' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  }
+  .bestValueRibbon { background: #F5C518; color: #0a0a0a; }
+  .footnote { color: rgba(10, 10, 10, 0.55); }
+}
+[data-theme="light"] .section { background: var(--surface-canvas); color: #0a0a0a; }
+[data-theme="light"] .section::before { background: radial-gradient(60% 100% at 50% 0%, rgba(227, 40, 49, 0.05), transparent 70%); }
+[data-theme="light"] .eyebrow { color: #E32831; }
+[data-theme="light"] .h2 { color: #0a0a0a; }
+[data-theme="light"] .body { color: rgba(10, 10, 10, 0.66); }
+[data-theme="light"] .card { background: #fff; border-color: rgba(10, 10, 10, 0.08); box-shadow: 0 8px 24px -12px rgba(10, 10, 10, 0.18); }
+[data-theme="light"] .cardStarter { background: #fff; border-color: rgba(10, 10, 10, 0.08); }
+[data-theme="light"] .cardBundle { background: #fff; border-color: rgba(227, 40, 49, 0.30); }
+[data-theme="light"] .cardTitle { color: #0a0a0a; }
+[data-theme="light"] .cardPrice { color: #0a0a0a; }
+[data-theme="light"] .cardStarter .cardPrice { color: #0a0a0a; }
+[data-theme="light"] .cardBundle .cardPrice { color: #E32831; }
+[data-theme="light"] .priceSuffix { color: rgba(10, 10, 10, 0.55); }
+[data-theme="light"] .cardSubtitle { color: rgba(10, 10, 10, 0.66); }
+[data-theme="light"] .bulletList li { color: rgba(10, 10, 10, 0.78); }
+[data-theme="light"] .bulletList li::before {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none'><path d='M3 7.5l2.5 2.5L11 4.5' stroke='%230a0a0a' stroke-opacity='0.55' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+[data-theme="light"] .bestValueRibbon { background: #F5C518; color: #0a0a0a; }
+[data-theme="light"] .footnote { color: rgba(10, 10, 10, 0.55); }

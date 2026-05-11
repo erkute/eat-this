@@ -11,16 +11,46 @@ interface Props {
   locale?: 'de' | 'en'
 }
 
-// Airport-announcement final CTA. Treats the bottom of the page like a
-// last boarding call - black panel, mono solari-board metadata bar, and
-// a massive announcement line. CMS props are accepted but ignored; the
-// copy here is the brand line.
+// Airport-announcement final CTA. Mirrors the Solari-board treatment of
+// the top RestaurantTicker: split-flap character tiles inside a black
+// board strip, scrolling a fake departures-style feed. Below that, the
+// boarding strap pill + the big "final call" headline land the close.
+const FEED_DE = [
+  'BOARDING NOW',
+  'BERLIN ARRIVALS',
+  'GATE B14',
+  '171 SPOTS AHEAD',
+  'BERLINS BESTE SPOTS',
+  'DON\'T MISS YOUR FLIGHT',
+]
+const FEED_EN = [
+  'BOARDING NOW',
+  'BERLIN ARRIVALS',
+  'GATE B14',
+  '171 SPOTS AHEAD',
+  'BERLIN\'S BEST SPOTS',
+  'DON\'T MISS YOUR FLIGHT',
+]
+
+function Tiles({ text }: { text: string }) {
+  return (
+    <span className={styles.tiles} aria-hidden="true">
+      {text.split('').map((ch, i) => (
+        <span
+          key={i}
+          className={ch === ' ' ? `${styles.tile} ${styles.tileGap}` : styles.tile}
+        >
+          {ch === ' ' ? ' ' : ch}
+        </span>
+      ))}
+    </span>
+  )
+}
+
 export default function FinalCtaSection({ locale = 'de' }: Props) {
   const { open: openLogin } = useLoginModal()
 
-  const meta = locale === 'de'
-    ? 'FINAL CALL · GATE BERLIN · STATUS: BOARDING'
-    : 'FINAL CALL · GATE BERLIN · STATUS: BOARDING'
+  const feed = locale === 'de' ? FEED_DE : FEED_EN
 
   const headline = locale === 'de'
     ? 'Letzter Aufruf für alle Passagiere nach Berlin'
@@ -34,9 +64,22 @@ export default function FinalCtaSection({ locale = 'de' }: Props) {
 
   return (
     <section className={styles.section} aria-labelledby="final-cta-headline">
-      <div className={styles.boardingFrame}>
-        <span className={styles.indicator} aria-hidden="true" />
-        <span className={styles.meta}>{meta}</span>
+      {/* Solari-board marquee mirroring the top of the page - the close
+          loops back to the visual signature of the opener. Single track
+          duplicated so the CSS-only loop is seamless. */}
+      <div className={styles.boardFrame} aria-hidden="true">
+        <div className={styles.viewport}>
+          <ul className={styles.track}>
+            {feed.map((text, i) => (
+              <li key={i} className={styles.feedItem}><Tiles text={text} /></li>
+            ))}
+          </ul>
+          <ul className={styles.track}>
+            {feed.map((text, i) => (
+              <li key={`dup-${i}`} className={styles.feedItem}><Tiles text={text} /></li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       <h2 id="final-cta-headline" className={styles.h2}>{headline}</h2>

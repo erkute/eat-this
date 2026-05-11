@@ -20,7 +20,7 @@
 .grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 18px;
+  gap: 22px;
 }
 
 .card {
@@ -80,44 +80,112 @@
   color: rgba(255,255,255,0.4);
 }
 
-/* Pack-Visual rail inside the Category Packs card. Horizontal scroll on mobile,
-   2-row grid on desktop. The pack illustrations carry their own typography
-   ("BREAKFAST PACK", etc.), so we keep the underlying label tiny / for a11y. */
-.packRail {
-  list-style: none;
-  margin: 4px -8px 18px;
-  padding: 4px 8px 12px;
+/* ── Starter card — pack image hero + email form ─────────────────── */
+.starterArt {
   display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
+  justify-content: center;
+  margin: 0 0 16px;
 }
-.packRail::-webkit-scrollbar { display: none; }
-.packItem {
-  flex: 0 0 auto;
-  width: 38%;
-  max-width: 130px;
-  scroll-snap-align: start;
+.starterImg {
+  width: 60%;
+  max-width: 220px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 16px 32px rgba(0,0,0,0.4));
+}
+.starterForm {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
+  margin-top: auto;
 }
-.packImg {
+.starterInput {
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  font-size: 15px;
+}
+.starterInput::placeholder { color: rgba(255,255,255,0.4); }
+.starterInput:focus { outline: 2px solid var(--accent, #FF3B00); outline-offset: 2px; }
+.starterInput:disabled { opacity: 0.6; }
+.magicSent {
+  margin-top: auto;
+  padding: 14px 16px;
+  background: rgba(42,143,78,0.18);
+  border: 1px solid rgba(42,143,78,0.36);
+  border-radius: 10px;
+  color: #6fe0a1;
+  font-size: 14px;
+  font-weight: 600;
+}
+.magicError {
+  color: #ff9a8a;
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+/* ── Category Packs card — grid of all 5 packs, no scroll ────────── */
+.packGrid {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.packGridItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.packGridImg {
   width: 100%;
   height: auto;
   object-fit: contain;
-  border-radius: 10px;
-  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.4));
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.35));
 }
-.packLabel {
-  font-size: 11px;
+.packGridLabel {
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: rgba(255,255,255,0.55);
   text-align: center;
+  line-height: 1.2;
 }
+
+/* ── Complete Berlin card — fan of all packs ─────────────────────── */
+.completeFan {
+  position: relative;
+  height: 200px;
+  margin: 8px 0 18px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.fanCard {
+  position: absolute;
+  bottom: 0;
+  width: 96px;
+  height: auto;
+  object-fit: contain;
+  transform-origin: bottom center;
+  filter: drop-shadow(0 10px 22px rgba(0,0,0,0.5));
+}
+/* Six packs fanned around the bottom center. Angles chosen so packs splay
+   like cards in a hand. The :nth-child equivalents are static here because
+   we know exactly which file is in which slot at compile time. */
+.fanCard1 { transform: rotate(-30deg) translateX(-30%); z-index: 1; }
+.fanCard2 { transform: rotate(-18deg) translateX(-15%); z-index: 2; }
+.fanCard3 { transform: rotate(-6deg)  translateX(-5%);  z-index: 3; }
+.fanCard4 { transform: rotate(6deg)   translateX(5%);   z-index: 4; }
+.fanCard5 { transform: rotate(18deg)  translateX(15%);  z-index: 5; }
+.fanCard6 { transform: rotate(30deg)  translateX(30%);  z-index: 6; }
 
 .ctaPrimary, .ctaSecondary {
   margin-top: auto;
@@ -138,7 +206,8 @@
   background: var(--accent, #FF3B00);
   color: #fff;
 }
-.ctaPrimary:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(255,59,0,0.35); }
+.ctaPrimary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(255,59,0,0.35); }
+.ctaPrimary:disabled { opacity: 0.6; cursor: progress; }
 .ctaSecondary {
   background: transparent;
   border: 1.5px solid rgba(255,255,255,0.3);
@@ -149,6 +218,10 @@
 @media (min-width: 768px) {
   .section { padding: 120px 48px; }
   .h2 { font-size: 40px; }
-  .grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .grid { grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: stretch; }
   .cardTitle { font-size: 22px; }
+  .starterImg { max-width: 240px; }
+  .completeFan { height: 220px; }
+  .fanCard { width: 110px; }
+  .packGridImg { max-width: 80px; }
 }

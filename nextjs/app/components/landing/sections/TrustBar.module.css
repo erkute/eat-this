@@ -1,0 +1,13 @@
+.bar {
+  background: var(--surface-deep);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.72);
+  text-align: center;
+  padding: 14px 24px;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+@media (min-width: 768px) {
+  .bar { padding: 16px 32px; font-size: 14px; }
+}

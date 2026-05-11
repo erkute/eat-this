@@ -20,7 +20,7 @@
 
 /* ── FAN CARDS ─────────────────────────────────────────────── */
 .fanWrap {
-  background: #fff;
+  background: transparent;
   overflow: visible;
   padding: 8px 0 60px;
 }
@@ -88,30 +88,32 @@
   grid-template-columns: 1fr;
   gap: 56px;
 }
-.mapTeaserList {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 6px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  font-size: 13px;
-  color: var(--text-secondary, #6d6963);
-  text-align: left;
-  max-width: 380px;
-  margin-inline: auto;
-}
-.mapTeaserList li::before {
-  content: "—";
-  margin-right: 8px;
-  color: var(--text-secondary, #6d6963);
-}
 .mapFeature {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 12px;
+  gap: 14px;
+}
+/* Per-phone bullet list. Stays under the screenshot so the eye reads
+   "image → its caption" as one unit instead of scanning a centered legend. */
+.mapFeatureItems {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary, #6d6963);
+  text-align: center;
+  max-width: 260px;
+}
+.mapFeatureItems li::before {
+  content: "—";
+  margin-right: 6px;
+  color: var(--text-secondary, #6d6963);
 }
 .mapFeatureFrame {
   display: flex;
@@ -199,12 +201,7 @@
   .mapTeaserHead p { font-size: 15px; max-width: 580px; margin-bottom: 28px; line-height: 1.65; }
   .mapVideo { aspect-ratio: 16 / 8; margin-bottom: 16px; border-radius: 16px; font-size: 13px; }
   .mapTab { padding: 10px 24px; border-radius: 24px; font-size: 13px; }
-  .mapTeaserList {
-    font-size: 15px;
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 580px;
-    gap: 8px 32px;
-  }
+  .mapFeatureItems { font-size: 14px; max-width: 280px; }
 }
 
 /* ── NEWSLETTER ────────────────────────────────────────────── */
@@ -333,7 +330,7 @@
    ════════════════════════════════════════════════════════════ */
 
 /* Fan cards */
-:global([data-theme="dark"]) .fanWrap { background: #0a0a0a; }
+:global([data-theme="dark"]) .fanWrap { background: transparent; }
 
 /* Map teaser */
 :global([data-theme="dark"]) .mapTeaser {

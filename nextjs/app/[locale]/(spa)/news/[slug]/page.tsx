@@ -4,6 +4,7 @@ import { setRequestLocale } from 'next-intl/server'
 import { getArticleBySlug, getAllArticleSlugs, getAllNewsArticles } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
+import { localeUrl } from '@/lib/locale-url'
 import { routing } from '@/i18n/routing'
 import NewsArticleShell from '@/app/components/NewsArticleShell'
 
@@ -19,10 +20,6 @@ export async function generateStaticParams() {
 }
 
 export const revalidate = 3600
-
-function localeUrl(locale: string, path: string): string {
-  return locale === 'de' ? `${SITE_URL}${path}` : `${SITE_URL}/${locale}${path}`
-}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params

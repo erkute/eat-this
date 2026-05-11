@@ -7,6 +7,7 @@ import { setRequestLocale } from 'next-intl/server'
 import { getBezirkBySlug, getRestaurantsByBezirk, getAllBezirkeWithStats, getLatestNewsArticles } from '@/lib/sanity.server'
 import { buildBezirkJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
+import { localeUrl } from '@/lib/locale-url'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { routing } from '@/i18n/routing'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
@@ -25,10 +26,6 @@ export async function generateStaticParams() {
   return routing.locales.flatMap(locale =>
     bezirke.map(b => ({ locale, slug: b.slug })),
   )
-}
-
-function localeUrl(locale: string, path: string): string {
-  return locale === 'de' ? `${SITE_URL}${path}` : `${SITE_URL}/${locale}${path}`
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

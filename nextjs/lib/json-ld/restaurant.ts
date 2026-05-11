@@ -1,5 +1,5 @@
 import { serializeJsonLd } from './serialize'
-import { SITE_URL } from '@/lib/constants'
+import { localeUrl } from '@/lib/locale-url'
 import type { Restaurant } from '@/lib/types'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 
@@ -12,10 +12,6 @@ interface BuildRestaurantJsonLdArgs {
   description: string | undefined
   // Localized label for the "Bezirke" / "Districts" breadcrumb hub.
   districtsLabel: string
-}
-
-function localeUrl(locale: string, path: string): string {
-  return locale === 'de' ? `${SITE_URL}${path}` : `${SITE_URL}/${locale}${path}`
 }
 
 // Builds the Restaurant + BreadcrumbList JSON-LD graph for a restaurant

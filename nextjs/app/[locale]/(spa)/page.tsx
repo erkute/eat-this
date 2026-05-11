@@ -16,12 +16,8 @@ import Coming from '@/app/components/landing/Coming'
 import LandingFAQ from '@/app/components/landing/LandingFAQ'
 import ExploreHub from '@/app/components/landing/ExploreHub'
 import Newsletter from '@/app/components/landing/Newsletter'
-
-const SITE_URL = 'https://www.eatthisdot.com'
-
-function localeUrl(locale: string, path: string): string {
-  return locale === 'de' ? `${SITE_URL}${path}` : `${SITE_URL}/${locale}${path}`
-}
+import { SITE_URL } from '@/lib/constants'
+import { localeUrl } from '@/lib/locale-url'
 
 export async function generateMetadata({
   params,
@@ -49,10 +45,8 @@ export default async function SPAHomePage({
   const { locale } = await params
   setRequestLocale(locale)
 
-  const homeUrl = locale === 'de' ? `${SITE_URL}/` : `${SITE_URL}/${locale}`
-  const searchTarget = locale === 'de'
-    ? `${SITE_URL}/?q={search_term_string}`
-    : `${SITE_URL}/${locale}?q={search_term_string}`
+  const homeUrl = localeUrl(locale, '/')
+  const searchTarget = `${homeUrl}?q={search_term_string}`
 
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',

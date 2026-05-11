@@ -1,16 +1,12 @@
 import { MetadataRoute } from 'next'
 import { client } from '@/lib/sanity'
-import { SITE_URL } from '@/lib/constants'
+import { localeUrl } from '@/lib/locale-url'
 import { routing } from '@/i18n/routing'
 import { hasEnContent } from '@/lib/i18n/pickLocale'
 
 export const revalidate = 0
 
 const STATIC_PATHS = ['', '/news', '/bezirk', '/kategorie', '/about', '/contact', '/press', '/impressum', '/datenschutz'] as const
-
-function localeUrl(locale: string, path: string): string {
-  return locale === 'de' ? `${SITE_URL}${path || '/'}` : `${SITE_URL}/${locale}${path}`
-}
 
 function withAlternates(path: string, lastModified?: string, priority = 0.5, changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] = 'monthly'): MetadataRoute.Sitemap[number] {
   return {

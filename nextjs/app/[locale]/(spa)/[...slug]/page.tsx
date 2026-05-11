@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { setRequestLocale } from 'next-intl/server'
 import { SITE_URL } from '@/lib/constants'
+import { localeUrl } from '@/lib/locale-url'
 import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server'
 import NewsSection from '@/app/components/NewsSection'
 import MapSection from '@/app/components/MapSection'
@@ -67,10 +68,6 @@ const PAGE_META: Record<string, SlugMeta> = {
     de: { title: 'AGB', description: 'Allgemeine Geschäftsbedingungen von Eat This Berlin.' },
     en: { title: 'Terms', description: 'Terms and conditions for Eat This Berlin.' },
   },
-}
-
-function localeUrl(locale: string, path: string): string {
-  return locale === 'de' ? `${SITE_URL}${path}` : `${SITE_URL}/${locale}${path}`
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

@@ -1,9 +1,13 @@
 import styles from './landing.module.css'
+import MapTeaserCta from './MapTeaserCta'
 
 interface Props {
   headline: string
   screenshotUrls?: (string | undefined)[]
   locale?: 'de' | 'en'
+  /** Live restaurant count from Sanity. Interpolated into the Phone 1
+   *  bullet so the number stays in sync with the dataset. */
+  restaurantCount: number
 }
 
 const DEFAULT_SCREENSHOTS = [
@@ -32,12 +36,12 @@ const PHONE_CONTENT: {
     headlineDe: 'Alle Spots auf einer Map',
     headlineEn: 'Every spot on one map',
     bulletsDe: [
-      '171+ Spots. Handverlesen.',
+      '{count}+ Spots. Handverlesen.',
       'Live mit deinem Standort.',
       'Nur, was wir empfehlen.',
     ],
     bulletsEn: [
-      '171+ spots. Hand-picked.',
+      '{count}+ spots. Hand-picked.',
       'Live with your location.',
       'Only what we recommend.',
     ],
@@ -76,7 +80,7 @@ const PHONE_CONTENT: {
   },
 ]
 
-export default function MapTeaser({ headline, screenshotUrls, locale = 'de' }: Props) {
+export default function MapTeaser({ headline, screenshotUrls, locale = 'de', restaurantCount }: Props) {
   const screenshots = [0, 1, 2].map((i) => screenshotUrls?.[i] || DEFAULT_SCREENSHOTS[i])
   // Override the CMS headline with the punchier editorial line. Leaves
   // `headline` in the props signature so the CMS column still ships.
@@ -87,6 +91,9 @@ export default function MapTeaser({ headline, screenshotUrls, locale = 'de' }: P
   const sectionLead = locale === 'de'
     ? 'Persönlich kuratiert. Live auf einer Map.'
     : 'Personally curated. Live on one map.'
+  const ctaLabel = locale === 'de'
+    ? 'Alles auf der Map ansehen'
+    : 'See everything on the map'
   void headline
 
   return (
@@ -101,7 +108,8 @@ export default function MapTeaser({ headline, screenshotUrls, locale = 'de' }: P
           const phone = PHONE_CONTENT[i]
           const phoneEyebrow = locale === 'de' ? phone.eyebrowDe : phone.eyebrowEn
           const phoneHeadline = locale === 'de' ? phone.headlineDe : phone.headlineEn
-          const phoneBullets = locale === 'de' ? phone.bulletsDe : phone.bulletsEn
+          const phoneBullets = (locale === 'de' ? phone.bulletsDe : phone.bulletsEn)
+            .map((b) => b.replace('{count}', String(restaurantCount)))
           return (
             <article key={i} className={styles.mapFeature}>
               <div className={styles.mapFeatureFrame}>
@@ -116,6 +124,9 @@ export default function MapTeaser({ headline, screenshotUrls, locale = 'de' }: P
             </article>
           )
         })}
+      </div>
+      <div className={styles.mapTeaserFooter}>
+        <MapTeaserCta label={ctaLabel} />
       </div>
     </section>
   )

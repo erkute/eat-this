@@ -2,12 +2,15 @@ import styles from './ReasonsSection.module.css'
 
 interface Props {
   locale: 'de' | 'en'
+  /** Live restaurant count from Sanity. Interpolated into the first
+   *  reason title so the headline stays in sync with the dataset. */
+  restaurantCount: number
 }
 
 const REASONS = {
   de: [
     {
-      title: '171+ Spots',
+      title: '{count}+ Spots',
       body: 'Restaurants, Cafés und Bars in ganz Berlin. Jeden Spot haben wir selbst probiert.',
     },
     {
@@ -25,7 +28,7 @@ const REASONS = {
   ],
   en: [
     {
-      title: '171+ spots',
+      title: '{count}+ spots',
       body: 'Restaurants, cafés and bars across Berlin. Every spot we’ve been to ourselves.',
     },
     {
@@ -43,8 +46,11 @@ const REASONS = {
   ],
 }
 
-export default function ReasonsSection({ locale }: Props) {
-  const items = locale === 'de' ? REASONS.de : REASONS.en
+export default function ReasonsSection({ locale, restaurantCount }: Props) {
+  const items = (locale === 'de' ? REASONS.de : REASONS.en).map((r) => ({
+    ...r,
+    title: r.title.replace('{count}', String(restaurantCount)),
+  }))
   return (
     <section className={styles.section}>
       <div className={styles.inner}>

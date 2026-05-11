@@ -234,6 +234,45 @@
   color: #E32831;
   margin: 14px 0 2px;
 }
+
+/* Footer band below the 3-phone grid. Hosts the section-level CTA
+   "Alles auf der Map ansehen" which opens the login modal via the
+   MapTeaserCta client subcomponent. Spacing tuned so the pill reads
+   as a deliberate close to the section, not crammed into the last
+   phone column. */
+.mapTeaserFooter {
+  display: flex;
+  justify-content: center;
+  margin-top: 56px;
+}
+.mapTeaserCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 28px;
+  border: none;
+  border-radius: 999px;
+  background: #E32831;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  font-size: 15.5px;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 14px 30px -10px rgba(227, 40, 49, 0.55);
+  transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+.mapTeaserCta:hover {
+  background: #c61f28;
+  transform: translateY(-1px);
+  box-shadow: 0 18px 36px -10px rgba(227, 40, 49, 0.7);
+}
+.mapTeaserCtaArrow {
+  font-size: 1.1em;
+  transition: transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.mapTeaserCta:hover .mapTeaserCtaArrow { transform: translateX(4px); }
 .mapTeaserHead {
   text-align: center;
   margin-bottom: 72px;

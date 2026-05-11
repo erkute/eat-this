@@ -137,6 +137,7 @@ export default async function SPAHomePage({
             headline={pickLocale(doc.insideMap, 'headline', locale)}
             screenshotUrls={doc.insideMap.screenshotUrls}
             locale={locale}
+            restaurantCount={restaurantCount}
           />
           <CategoriesGrid
             headline={pickLocale(doc.categories, 'headline', locale)}
@@ -157,7 +158,7 @@ export default async function SPAHomePage({
             ctaHref={mustEatsCtaHref}
             locale={locale}
           />
-          <ReasonsSection locale={locale} />
+          <ReasonsSection locale={locale} restaurantCount={restaurantCount} />
           <RecentlyAddedSection
             headline={pickLocale(doc.recentlyAdded, 'headline', locale)}
             body={pickLocale(doc.recentlyAdded, 'body', locale)}
@@ -201,7 +202,7 @@ export default async function SPAHomePage({
             body={pickLocale(doc.newsletter, 'body', locale)}
             ctaLabel={pickLocale(doc.newsletter, 'ctaLabel', locale)}
           />
-          <FinalCtaSection locale={locale} />
+          <FinalCtaSection locale={locale} restaurantCount={restaurantCount} />
           <SiteFooter />
         </div>
         <WaitlistModal />

@@ -8,14 +8,14 @@ interface Props {
   body: string
   ctaLabel: string
   ctaHref: string
-  heroImageUrl?: string
+  heroImageUrl?: string  // unused; kept for CMS prop compatibility
 }
 
-export default function HeroSection({ headline, body, ctaLabel, ctaHref, heroImageUrl }: Props) {
-  const desktopSrc = heroImageUrl || '/pics/map-promo.webp'
+export default function HeroSection({ headline, body, ctaLabel, ctaHref }: Props) {
   return (
     <header className={styles.hero}>
       <h1 className={styles.srOnly}>{headline}</h1>
+
       <Image
         src="/pics/logo.webp"
         alt="EAT THIS"
@@ -24,37 +24,32 @@ export default function HeroSection({ headline, body, ctaLabel, ctaHref, heroIma
         className={styles.logo}
         priority
       />
-      <div className={styles.visualWrap}>
-        <Image
-          src={desktopSrc}
-          alt=""
-          width={1536}
-          height={1024}
-          className={styles.visualDesktop}
-          priority
-          sizes="(max-width: 768px) 0px, min(1200px, 90vw)"
-        />
+
+      <div className={styles.composition}>
         <Image
           src="/pics/the-map-for-people.png"
           alt=""
           width={1200}
           height={900}
-          className={styles.visualMobileTypo}
+          className={styles.typo}
           priority
-          sizes="(max-width: 768px) 88vw, 0px"
+          sizes="(max-width: 768px) 88vw, 56vw"
         />
         <Image
           src="/pics/map-teaser/map_restaurant.webp"
           alt=""
           width={596}
           height={1227}
-          className={styles.visualMobilePhone}
+          className={styles.phone}
           priority
-          sizes="(max-width: 768px) 72vw, 0px"
+          sizes="(max-width: 768px) 60vw, 28vw"
         />
       </div>
+
       <p className={styles.body}>{body}</p>
+
       <Link href={ctaHref} className={styles.cta}>{ctaLabel}</Link>
+
       <HeroScrollHint />
     </header>
   )

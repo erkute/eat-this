@@ -131,11 +131,65 @@
   padding: 3px 8px;
 }
 
+.quickFacts {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
 .description {
   font-size: 1.0625rem;
   line-height: 1.7;
   color: var(--text-secondary);
   margin-bottom: 32px;
+}
+
+.todayStatus {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.todayOpen {
+  color: var(--status-open, #1f8a4c);
+}
+
+.todayClosed {
+  color: var(--text-muted);
+}
+
+.faq {
+  margin-top: 48px;
+  grid-column: 1 / -1;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.faqItem {
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 18px;
+}
+
+.faqItem:last-child {
+  border-bottom: none;
+}
+
+.faqQuestion {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.faqAnswer {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
 }
 
 .tip {
@@ -294,15 +348,19 @@
     grid-template-columns: minmax(0, 1fr) 320px;
     grid-template-areas:
       "header      sidebar"
+      "quickfacts  sidebar"
       "description sidebar"
       "tip         sidebar"
-      "musteats    sidebar";
+      "musteats    sidebar"
+      "faq         faq";
     column-gap: 56px;
   }
   .header      { grid-area: header; }
+  .quickFacts  { grid-area: quickfacts; }
   .description { grid-area: description; }
   .tip         { grid-area: tip; }
   .musteats    { grid-area: musteats; }
+  .faq         { grid-area: faq; }
   .sidebar {
     grid-area: sidebar;
     margin-top: 0;

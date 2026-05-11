@@ -74,7 +74,12 @@ export default async function SPAHomePage({
         {jsonLd}
       </Script>
       <div className="app-page active" data-page="start">
-        <HeroSection />
+        <HeroSection
+          headline="the map for people who care about food."
+          body="Carefully curated restaurants, cafés and bars — with selected must eats across Berlin."
+          ctaLabel="Explore the Map"
+          ctaHref="/"
+        />
         <div className="start-scroll-content" style={{ paddingTop: 0 }}>
           <MapTeaser />
           <BoosterPack />

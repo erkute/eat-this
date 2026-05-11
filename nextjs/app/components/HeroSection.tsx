@@ -1,42 +1,61 @@
-import { getTranslations } from 'next-intl/server';
-import HeroForm from '@/app/components/landing/HeroForm';
-import landingStyles from '@/app/components/landing/landing.module.css';
+import Image from 'next/image'
+import Link from 'next/link'
+import styles from './HeroSection.module.css'
+import HeroScrollHint from './HeroScrollHint'
 
-export default async function HeroSection() {
-  const t = await getTranslations('landing');
+interface Props {
+  headline: string
+  body: string
+  ctaLabel: string
+  ctaHref: string
+  heroImageUrl?: string
+}
+
+export default function HeroSection({ headline, body, ctaLabel, ctaHref, heroImageUrl }: Props) {
+  const desktopSrc = heroImageUrl || '/pics/map-promo.webp'
   return (
-    <header className="hero">
-      <div className="hero-overlay"></div>
-      <div className="hero-brand-block">
-        <img
-          className="hero-mobile-logo"
-          src="/pics/logo2.webp"
-          alt="EAT THIS"
-          fetchPriority="high"
-          decoding="sync"
-          width={1815}
-          height={576}
+    <header className={styles.hero}>
+      <h1 className={styles.srOnly}>{headline}</h1>
+      <Image
+        src="/pics/logo.webp"
+        alt="EAT THIS"
+        width={1815}
+        height={576}
+        className={styles.logo}
+        priority
+      />
+      <div className={styles.visualWrap}>
+        <Image
+          src={desktopSrc}
+          alt=""
+          width={1536}
+          height={1024}
+          className={styles.visualDesktop}
+          priority
+          sizes="(max-width: 768px) 0px, min(1200px, 90vw)"
         />
-        <p className="hero-desktop-tagline">We tell you what to eat</p>
-        {/* Desktop-only headline + signup form, overlaid on the hero image */}
-        <div className={landingStyles.heroDesktopExtra}>
-          <h2 className={landingStyles.heroDesktopHeadline}>{t('heroHeadline')}</h2>
-          <p className={landingStyles.heroDesktopSubtitle}>{t('heroSubtitle')}</p>
-          <HeroForm />
-        </div>
+        <Image
+          src="/pics/the-map-for-people.png"
+          alt=""
+          width={1200}
+          height={900}
+          className={styles.visualMobileTypo}
+          priority
+          sizes="(max-width: 768px) 88vw, 0px"
+        />
+        <Image
+          src="/pics/map-teaser/map_restaurant.webp"
+          alt=""
+          width={596}
+          height={1227}
+          className={styles.visualMobilePhone}
+          priority
+          sizes="(max-width: 768px) 72vw, 0px"
+        />
       </div>
-      <div className="hero-scroll-hint">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-      </div>
+      <p className={styles.body}>{body}</p>
+      <Link href={ctaHref} className={styles.cta}>{ctaLabel}</Link>
+      <HeroScrollHint />
     </header>
-  );
+  )
 }

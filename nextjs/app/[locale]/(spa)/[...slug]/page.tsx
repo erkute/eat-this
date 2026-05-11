@@ -51,22 +51,27 @@ const PAGE_META: Record<string, SlugMeta> = {
   contact: {
     de: { title: 'Kontakt', description: 'Kontaktiere das Eat-This-Team für Anfragen, Kooperationen oder Feedback.' },
     en: { title: 'Contact', description: 'Get in touch with the Eat This team for inquiries, partnerships or feedback.' },
+    noIndex: true,
   },
   press: {
     de: { title: 'Presse', description: 'Presse, Erwähnungen und Pressekontakt von Eat This Berlin.' },
     en: { title: 'Press', description: 'Press coverage, mentions and press contact for Eat This Berlin.' },
+    noIndex: true,
   },
   impressum: {
     de: { title: 'Impressum', description: 'Impressum und rechtliche Angaben zu Eat This Berlin.' },
     en: { title: 'Imprint', description: 'Imprint and legal information for Eat This Berlin.' },
+    noIndex: true,
   },
   datenschutz: {
     de: { title: 'Datenschutz', description: 'Datenschutzerklärung von Eat This Berlin.' },
     en: { title: 'Privacy', description: 'Privacy policy for Eat This Berlin.' },
+    noIndex: true,
   },
   agb: {
     de: { title: 'AGB', description: 'Allgemeine Geschäftsbedingungen von Eat This Berlin.' },
     en: { title: 'Terms', description: 'Terms and conditions for Eat This Berlin.' },
+    noIndex: true,
   },
 }
 
@@ -83,7 +88,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: copy.title,
     description: copy.description,
-    robots: meta.noIndex ? 'noindex,nofollow' : 'index,follow',
+    robots: meta.noIndex ? 'noindex,follow' : 'index,follow',
     alternates: {
       canonical,
       languages: {

@@ -1,7 +1,7 @@
 .slab {
   position: relative;
   width: 100%;
-  min-height: 100svh;
+  min-height: 88svh;
   overflow: hidden;
   isolation: isolate;
 }
@@ -9,7 +9,7 @@
 .photoDesktop,
 .photoMobile {
   object-fit: cover;
-  object-position: center;
+  object-position: 50% 35%;
   z-index: 0;
 }
 
@@ -17,17 +17,16 @@
 .photoMobile  { display: none; }
 
 @media (max-width: 768px) {
+  .slab { min-height: 78svh; }
   .photoDesktop { display: none; }
-  .photoMobile  { display: block; }
+  .photoMobile  { display: block; object-position: 50% 28%; }
 }
 
-/* Mid-tone scrim so the brand mark stays legible on photographic
-   content of varying brightness. */
 .scrim {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.05) 28%, transparent 55%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.08) 30%, transparent 55%),
     linear-gradient(to top,    rgba(0, 0, 0, 0.30) 0%, transparent 40%);
   z-index: 1;
   pointer-events: none;
@@ -36,33 +35,35 @@
 .brandBlock {
   position: absolute;
   left: 50%;
-  top: clamp(40px, 7vh, 96px);
+  top: clamp(24px, 4.5vh, 72px);
   transform: translateX(-50%);
   z-index: 2;
   text-align: center;
-  width: min(92%, 720px);
+  width: min(94%, 760px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(8px, 1.4vh, 18px);
+  /* Tagline pulls in tight under the wordmark — cinema-poster spacing. */
+  gap: clamp(2px, 0.3vh, 6px);
 }
 
 .logo {
-  width: clamp(220px, 42vw, 480px);
+  width: clamp(300px, 64vw, 620px);
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(0 8px 28px rgba(0, 0, 0, 0.45));
 }
 
 .tagline {
   margin: 0;
-  font-family: var(--font-display, "Inter", system-ui, sans-serif);
-  font-weight: 500;
-  font-style: italic;
-  font-size: clamp(15px, 2vw, 22px);
-  letter-spacing: 0.01em;
+  font-family: "SF Pro Display", "SF Pro", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  font-size: clamp(11px, 1.5vw, 16px);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
   color: #fff;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
 }
 
 @media (prefers-reduced-motion: reduce) {

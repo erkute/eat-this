@@ -30,6 +30,15 @@
   --shadow-sm:         0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.05);
   --shadow-md:         0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
   --shadow-lg:         0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
+
+  /* Landing-page-specific surfaces — warmer/paper palette distinct from the
+     cool-toned --surface-bg used elsewhere. The landing uses these to evoke
+     a magazine feel: 9 of 12 sections sit on --surface-canvas, two trust-beats
+     get the paper tint, decision-moments (Packs) sit on --surface-deep. */
+  --surface-canvas: #faf8f4;        /* default landing section background */
+  --surface-paper:  #f3eee5;        /* trust-beat tint — slightly warmer */
+  --surface-deep:   #14110d;        /* decision-moment — near-black, warm undertone */
+  --surface-deep-2: #1f1c17;        /* card surface on --surface-deep */
 }
 
 html[data-theme="dark"] {
@@ -46,6 +55,13 @@ html[data-theme="dark"] {
   --shadow-sm:         0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md:         0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-lg:         0 10px 30px rgba(0, 0, 0, 0.6);
+
+  /* Landing surfaces — dark-mode versions stay close-to-black with subtle
+     elevation steps so card hierarchy remains readable. */
+  --surface-canvas: #14110d;
+  --surface-paper:  #1c1813;
+  --surface-deep:   #0a0907;
+  --surface-deep-2: #15120e;
 }
 
 *,

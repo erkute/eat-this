@@ -191,3 +191,147 @@ export interface OpenStatus {
   label: string
   minutesUntilChange: number | null
 }
+
+// ── Landing Page (CMS-managed singleton) ────────────────────────────
+
+export interface LandingHero {
+  headlineDe: string
+  headlineEn: string
+  bodyDe: string
+  bodyEn: string
+  ctaLabelDe: string
+  ctaLabelEn: string
+  ctaHref: string
+  imageUrl?: string
+}
+
+export interface LandingTrustBar {
+  lineDe: string
+  lineEn: string
+}
+
+export interface LandingMapPreview {
+  headlineDe: string
+  headlineEn: string
+  bodyDe: string
+  bodyEn: string
+  screenshotUrl?: string
+}
+
+export interface LandingMustEats {
+  headlineDe: string
+  headlineEn: string
+  bodyDe: string
+  bodyEn: string
+  ctaLabelDe?: string
+  ctaLabelEn?: string
+  ctaHref?: string
+}
+
+export interface LandingStatement {
+  headlineDe: string
+  headlineEn: string
+  bodyDe: string
+  bodyEn: string
+}
+
+export interface LandingInsideMap {
+  headlineDe: string
+  headlineEn: string
+  itemsDe?: string[]
+  itemsEn?: string[]
+  screenshotUrls?: string[]
+}
+
+export interface LandingCategoriesSection {
+  headlineDe: string
+  headlineEn: string
+}
+
+export interface LandingRecentlyAdded {
+  headlineDe: string
+  headlineEn: string
+  bodyDe?: string
+  bodyEn?: string
+  sectionCtaLabelDe?: string
+  sectionCtaLabelEn?: string
+}
+
+export interface LandingPackTier {
+  titleDe: string
+  titleEn: string
+  bodyDe: string
+  bodyEn: string
+  bulletsDe?: string[]
+  bulletsEn?: string[]
+  ctaLabelDe?: string
+  ctaLabelEn?: string
+  imageUrl?: string
+}
+
+export interface LandingPacks {
+  headlineDe: string
+  headlineEn: string
+  bodyDe?: string
+  bodyEn?: string
+  starter: LandingPackTier
+  category: LandingPackTier
+  complete: LandingPackTier
+}
+
+export interface LandingNewsletter {
+  headlineDe: string
+  headlineEn: string
+  bodyDe: string
+  bodyEn: string
+  ctaLabelDe?: string
+  ctaLabelEn?: string
+}
+
+export interface LandingFinalCta {
+  headlineDe: string
+  headlineEn: string
+  bodyDe?: string
+  bodyEn?: string
+  ctaLabelDe: string
+  ctaLabelEn: string
+  ctaHref: string
+}
+
+export interface LandingPageDoc {
+  hero: LandingHero
+  trustBar: LandingTrustBar
+  mapPreview: LandingMapPreview
+  mustEats: LandingMustEats
+  howWeCurate: LandingStatement
+  insideMap: LandingInsideMap
+  categories: LandingCategoriesSection
+  recentlyAdded: LandingRecentlyAdded
+  packs: LandingPacks
+  whyEatThis: LandingStatement
+  newsletter: LandingNewsletter
+  finalCta: LandingFinalCta
+}
+
+// ── Recently Added card (Restaurant + MustEat union) ───────────────
+
+export interface RecentlyAddedCard {
+  _id: string
+  kind: 'restaurant' | 'mustEat'
+  name: string
+  slug: string
+  bezirk?: string
+  imageUrl: string
+  href: string
+  createdAt: string
+}
+
+// ── Categories grid tile ────────────────────────────────────────────
+
+export interface CategoryGridTile {
+  _id: string
+  slug: string
+  name: string
+  nameEn?: string
+  iconUrl?: string
+}

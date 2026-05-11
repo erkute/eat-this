@@ -25,14 +25,14 @@ const pairList = (base, titleBase, min, max) => [
     title: `${titleBase} (DE)`,
     type: 'array',
     of: [{type: 'string'}],
-    validation: Rule => Rule.min(min).max(max),
+    validation: Rule => Rule.required().min(min).max(max),
   }),
   defineField({
     name: `${base}En`,
     title: `${titleBase} (EN)`,
     type: 'array',
     of: [{type: 'string'}],
-    validation: Rule => Rule.min(min).max(max),
+    validation: Rule => Rule.required().min(min).max(max),
   }),
 ]
 
@@ -53,7 +53,7 @@ export default defineType({
         ...pair('body', 'Body', {type: 'text', rows: 3, required: true}),
         ...pair('ctaLabel', 'CTA Label', {required: true}),
         defineField({name: 'ctaHref', title: 'CTA Href', type: 'string', initialValue: '/'}),
-        defineField({name: 'image', title: 'Hero Image (optional)', type: 'image', options: {accept: 'image/*'}}),
+        defineField({name: 'image', title: 'Hero Image (optional)', type: 'image', options: {hotspot: true, accept: 'image/*'}}),
       ],
     }),
 
@@ -77,7 +77,7 @@ export default defineType({
       fields: [
         ...pair('headline', 'Headline', {required: true}),
         ...pair('body', 'Body', {type: 'text', rows: 4, required: true}),
-        defineField({name: 'screenshot', title: 'Screenshot (optional)', type: 'image', options: {accept: 'image/*'}}),
+        defineField({name: 'screenshot', title: 'Screenshot (optional)', type: 'image', options: {hotspot: true, accept: 'image/*'}}),
       ],
     }),
 
@@ -120,7 +120,7 @@ export default defineType({
           name: 'screenshots',
           title: 'Screenshots (optional, 3 — Umgebung, Filter, Restaurant-Sheet)',
           type: 'array',
-          of: [{type: 'image', options: {accept: 'image/*'}}],
+          of: [{type: 'image', options: {hotspot: true, accept: 'image/*'}}],
           validation: Rule => Rule.max(3),
         }),
       ],
@@ -168,7 +168,7 @@ export default defineType({
             ...pair('title', 'Title', {required: true}),
             ...pair('body', 'Body', {type: 'text', rows: 2}),
             ...pair('ctaLabel', 'CTA Label'),
-            defineField({name: 'image', title: 'Image (optional)', type: 'image'}),
+            defineField({name: 'image', title: 'Image (optional)', type: 'image', options: {hotspot: true}}),
           ],
         }),
         // Category Packs
@@ -181,7 +181,7 @@ export default defineType({
             ...pair('body', 'Body', {type: 'text', rows: 2}),
             ...pairList('bullets', 'Category Bullets', 1, 12),
             ...pair('ctaLabel', 'CTA Label'),
-            defineField({name: 'image', title: 'Image (optional)', type: 'image'}),
+            defineField({name: 'image', title: 'Image (optional)', type: 'image', options: {hotspot: true}}),
           ],
         }),
         // Complete Berlin
@@ -194,7 +194,7 @@ export default defineType({
             ...pair('body', 'Body', {type: 'text', rows: 2}),
             ...pairList('bullets', 'Value Bullets', 1, 6),
             ...pair('ctaLabel', 'CTA Label'),
-            defineField({name: 'image', title: 'Image (optional)', type: 'image'}),
+            defineField({name: 'image', title: 'Image (optional)', type: 'image', options: {hotspot: true}}),
           ],
         }),
       ],

@@ -21,10 +21,17 @@ export default function HeroPhotoSlab() {
         sizes="100vw"
         className={styles.photoMobile}
       />
-      <div className={styles.gradient} aria-hidden="true" />
-      <div className={styles.wordmarkBlock}>
-        <h1 className={styles.wordmark}>Eat This</h1>
-        <p className={styles.subTag}>We tell you what to eat</p>
+      <div className={styles.scrim} aria-hidden="true" />
+      <div className={styles.brandBlock}>
+        <Image
+          src="/pics/logo2.webp"
+          alt="Eat This"
+          width={1815}
+          height={576}
+          priority
+          className={styles.logo}
+        />
+        <p className={styles.tagline}>We tell you what to eat</p>
       </div>
       <HeroScrollHint />
     </section>

@@ -7,20 +7,9 @@
   background: var(--surface-canvas);
 }
 
-.phrase {
-  margin: 0;
-  max-width: 1100px;
-  text-align: center;
-  font-weight: 800;
-  font-size: clamp(36px, 7vw, 96px);
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-  color: #0a0a0a;
+.art {
+  width: min(92%, 1100px);
+  height: auto;
+  max-height: 60svh;
+  object-fit: contain;
 }
-
-@media (prefers-color-scheme: dark) {
-  .phrase { color: #f2f2f2; }
-}
-
-[data-theme="dark"] .phrase { color: #f2f2f2; }
-[data-theme="light"] .phrase { color: #0a0a0a; }

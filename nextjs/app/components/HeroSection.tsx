@@ -2,7 +2,6 @@ import HeroPhotoSlab from './hero/HeroPhotoSlab'
 import HeroPhraseSlab from './hero/HeroPhraseSlab'
 import HeroCtaSlab from './hero/HeroCtaSlab'
 import HeroBulletsSlab from './hero/HeroBulletsSlab'
-import HeroProductSlab from './hero/HeroProductSlab'
 import styles from './HeroSection.module.css'
 
 interface Props {
@@ -23,7 +22,6 @@ export default function HeroSection({ headline, body, locale = 'de' }: Props) {
       <HeroPhraseSlab />
       <HeroCtaSlab locale={locale} />
       <HeroBulletsSlab locale={locale} />
-      <HeroProductSlab />
     </div>
   )
 }

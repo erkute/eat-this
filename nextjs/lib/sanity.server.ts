@@ -16,8 +16,12 @@ import {
   allCategoriesQuery,
   categoryBySlugQuery,
   categoryOccurrencesQuery,
+  landingPageQuery,
+  restaurantCountQuery,
+  categoryGridQuery,
+  recentlyAddedQuery,
 } from './queries'
-import type { Restaurant, NewsArticle, StaticPageDoc, MustEatAlbumCard, BezirkDoc, RestaurantCard } from './types'
+import type { Restaurant, NewsArticle, StaticPageDoc, MustEatAlbumCard, BezirkDoc, RestaurantCard, LandingPageDoc, CategoryGridTile, RecentlyAddedCard } from './types'
 import type { CategoryDef } from './categories'
 
 export async function getRestaurantBySlug(slug: string): Promise<Restaurant | null> {
@@ -161,5 +165,40 @@ export async function getLatestNewsArticles(limit: number): Promise<NewsArticle[
     latestNewsArticlesQuery,
     { limit },
     { next: { revalidate: 3600, tags: ['news'] } },
+  )
+}
+
+// ── Landing Page ───────────────────────────────────────────────────
+
+export async function getLandingPage(): Promise<LandingPageDoc | null> {
+  return client.fetch<LandingPageDoc | null>(
+    landingPageQuery,
+    {},
+    { next: { revalidate: 300, tags: ['landingPage'] } }
+  )
+}
+
+export async function getRestaurantCount(): Promise<number> {
+  const n = await client.fetch<number | null>(
+    restaurantCountQuery,
+    {},
+    { next: { revalidate: 3600, tags: ['restaurant'] } }
+  )
+  return n ?? 0
+}
+
+export async function getCategoryGrid(): Promise<CategoryGridTile[]> {
+  return client.fetch<CategoryGridTile[]>(
+    categoryGridQuery,
+    {},
+    { next: { revalidate: 3600, tags: ['category'] } }
+  )
+}
+
+export async function getRecentlyAdded(limit: number): Promise<RecentlyAddedCard[]> {
+  return client.fetch<RecentlyAddedCard[]>(
+    recentlyAddedQuery,
+    { limit },
+    { next: { revalidate: 300, tags: ['recentlyAdded'] } }
   )
 }

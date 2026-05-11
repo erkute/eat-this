@@ -1,0 +1,71 @@
+.slab {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.photoDesktop,
+.photoMobile {
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.photoDesktop { display: block; }
+.photoMobile  { display: none; }
+
+@media (max-width: 768px) {
+  .photoDesktop { display: none; }
+  .photoMobile  { display: block; }
+}
+
+.gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.25) 40%,
+    transparent 70%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+.wordmarkBlock {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  text-align: center;
+  padding: 0 clamp(16px, 4vw, 32px);
+  width: 100%;
+  max-width: 1200px;
+}
+
+.wordmark {
+  margin: 0;
+  font-family: var(--font-display, "Inter", system-ui, sans-serif);
+  font-weight: 900;
+  font-size: clamp(64px, 14vw, 200px);
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  color: #fff;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+}
+
+.subTag {
+  margin: clamp(8px, 1.5vw, 16px) 0 0;
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(16px, 2.4vw, 28px);
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slab * { animation: none !important; transition: none !important; }
+}

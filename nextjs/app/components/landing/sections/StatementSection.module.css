@@ -1,0 +1,31 @@
+.section {
+  background: var(--surface-paper);
+  padding: 72px 24px;
+}
+
+.inner {
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.h2 {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--text-primary, #1a1a1a);
+  margin: 0 0 14px;
+  letter-spacing: -0.02em;
+}
+
+.body {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-secondary, #6d6963);
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .section { padding: 120px 48px; }
+  .h2 { font-size: 36px; }
+  .body { font-size: 18px; line-height: 1.75; }
+}

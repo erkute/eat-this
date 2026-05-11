@@ -82,7 +82,7 @@ export default function MustEatsSection({ headline, body, locale = 'de' }: Props
               sizes="(max-width: 768px) 60vw, 280px"
             />
             <Image
-              src="/pics/map-teaser/map_musteat_liste.png"
+              src="/pics/map-teaser/map_musteat_liste.webp"
               alt=""
               width={596}
               height={1227}

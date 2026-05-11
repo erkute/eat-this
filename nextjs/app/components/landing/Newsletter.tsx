@@ -29,7 +29,7 @@ export default function Newsletter({ headline, body, ctaLabel }: Props) {
         <div className={styles.newsVisual}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/pics/booster/booster.png"
+            src="/pics/booster/booster.webp"
             alt=""
             className={styles.newsPack}
             loading="lazy"

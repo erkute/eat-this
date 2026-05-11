@@ -10,21 +10,21 @@ export default function AvatarDivider() {
     <div className={styles.dividerWrap} aria-hidden="true">
       <div className={styles.row}>
         <Image
-          src="/pics/avatar1.png"
+          src="/pics/avatar1.webp"
           alt=""
           width={120}
           height={150}
           className={styles.avatar}
         />
         <Image
-          src="/pics/avatar2.png"
+          src="/pics/avatar2.webp"
           alt=""
           width={120}
           height={180}
           className={styles.avatar}
         />
         <Image
-          src="/pics/avatar3.png"
+          src="/pics/avatar3.webp"
           alt=""
           width={120}
           height={150}

@@ -1,7 +1,12 @@
 .slab {
   position: relative;
   width: 100%;
-  min-height: 88svh;
+  /* Photo dominates the first viewport on both mobile and desktop so
+     the hand-and-plate composition reads uncropped. We subtract the
+     SiteNav height (sticky, 56px) so the photo's bottom edge lines up
+     with the viewport bottom — without the offset the navbar pushes
+     the slab down and the bottom of the photo overflows the fold. */
+  min-height: calc(100svh - 56px);
   overflow: hidden;
   isolation: isolate;
 }
@@ -17,17 +22,11 @@
 .photoMobile  { display: none; }
 
 @media (max-width: 768px) {
-  /* Photo takes the majority of the initial viewport, eyebrow + phrase
-     share the remaining ~28svh. 72svh photo + ~4svh eyebrow + ~14svh
-     phrase ≈ 90svh - leaves headroom on iPhone-Pro-size viewports
-     (~870px) where Safari's address-bar chrome eats into the visible
-     area and bigger photo heights pushed "who care about food" off
-     the bottom of the fold. */
-  .slab { min-height: 72svh; }
   .photoDesktop { display: none; }
-  /* Anchor higher up in the source image so the plate slides further
-     down into the visible frame, away from the wordmark up top. */
-  .photoMobile  { display: block; object-position: 50% 10%; }
+  /* Anchor at the very top of the source image so the cropping happens
+     from below — keeps the plate in frame and trims the lower arm so it
+     ends near the viewport edge rather than dominating the lower half. */
+  .photoMobile  { display: block; object-position: 50% 0%; }
 }
 
 .scrim {
@@ -82,7 +81,6 @@
 /* Desktop: drop the wordmark down onto the table area of the photo and
    pump it up to cinema-poster scale. */
 @media (min-width: 768px) {
-  .slab { min-height: 100svh; }
   .brandBlock {
     top: auto;
     bottom: clamp(170px, 33vh, 360px);
@@ -131,6 +129,42 @@
       invert(1)
       drop-shadow(0 10px 24px rgba(0, 0, 0, 0.45));
   }
+}
+
+/* Passive bouncing chevron pinned to the bottom-centre of the photo.
+   White with a soft shadow so it reads against the image, and
+   pointer-events disabled — it's a visual signal only, not a click
+   target. The animation halts under prefers-reduced-motion. */
+.scrollHint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(12px, 2.2vh, 28px);
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 14px;
+  color: #fff;
+  opacity: 0.85;
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+  animation: scrollHintBob 2.4s ease-in-out infinite;
+}
+
+@media (min-width: 768px) {
+  .scrollHint {
+    bottom: clamp(20px, 3vh, 44px);
+  }
+  .scrollHint svg {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@keyframes scrollHintBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

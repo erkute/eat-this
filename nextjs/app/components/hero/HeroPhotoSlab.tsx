@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import HeroScrollHint from '../HeroScrollHint'
 import styles from './HeroPhotoSlab.module.css'
 
 export default function HeroPhotoSlab() {
@@ -33,7 +32,13 @@ export default function HeroPhotoSlab() {
         />
         <p className={styles.tagline}>We tell you what to eat</p>
       </div>
-      <HeroScrollHint />
+      {/* Passive bouncing chevron pinned to the photo bottom — signals
+          "more below" without being a tap target (pointer-events:none). */}
+      <div className={styles.scrollHint} aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </div>
     </section>
   )
 }

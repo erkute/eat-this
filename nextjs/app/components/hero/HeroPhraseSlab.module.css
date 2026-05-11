@@ -3,18 +3,16 @@
   align-items: center;
   justify-content: center;
   min-height: auto;
-  /* Mobile: phrase sits a touch lower under the eyebrow so the brand
-     line lands closer to the centre of the canvas band rather than
-     glued to the eyebrow above. Bottom padding stays small so the
-     phrase doesn't push the CTA slab out of viewport on shorter
-     screens. Desktop restores the original generous spacing. */
-  padding: clamp(16px, 3vh, 32px) clamp(20px, 5vw, 48px) clamp(12px, 2vh, 32px);
+  /* Top padding stays small so the phrase reads as a continuation of
+     the eyebrow strap directly above. Bottom padding tones down so the
+     CTA slab doesn't get pushed further down on shorter viewports. */
+  padding: clamp(2px, 0.6vh, 8px) clamp(20px, 5vw, 48px) clamp(12px, 2vh, 32px);
   background: var(--surface-canvas);
 }
 
 @media (min-width: 768px) {
   .slab {
-    padding: clamp(32px, 4vh, 64px) clamp(20px, 5vw, 48px) clamp(24px, 3vh, 48px);
+    padding: clamp(6px, 1vh, 16px) clamp(20px, 5vw, 48px) clamp(24px, 3vh, 48px);
   }
 }
 
@@ -24,10 +22,15 @@
   text-align: center;
   font-family: "SF Pro Display", "SF Pro", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
   font-weight: 900;
-  font-size: clamp(36px, 7.4vw, 100px);
+  /* Mobile font scales aggressively so the phrase wraps into 3 visual
+     lines ("the map for / people" + "who care about food") — bigger,
+     poster-sized brand line. Desktop keeps its existing cinema-poster
+     scale via the clamp ceiling. */
+  font-size: clamp(56px, 15vw, 100px);
   letter-spacing: -0.035em;
-  line-height: 1.0;
+  line-height: 0.96;
   text-transform: lowercase;
+  text-wrap: balance;
   display: flex;
   flex-direction: column;
   gap: 0;

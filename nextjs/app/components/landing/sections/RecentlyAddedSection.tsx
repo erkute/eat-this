@@ -1,19 +1,19 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { RecentlyAddedCard } from '@/lib/types'
+import RecentlyAddedSectionCta from './RecentlyAddedSectionCta'
 import styles from './RecentlyAddedSection.module.css'
 
 interface Props {
   headline: string
   body?: string
   sectionCtaLabel?: string
-  sectionCtaHref: string
   cards: RecentlyAddedCard[]
   locale: 'de' | 'en'
 }
 
 export default function RecentlyAddedSection({
-  headline, body, sectionCtaLabel, sectionCtaHref, cards, locale,
+  headline, body, sectionCtaLabel, cards, locale,
 }: Props) {
   const withImage = cards.filter((c) => Boolean(c.imageUrl)).slice(0, 8)
   if (withImage.length === 0) return null
@@ -68,7 +68,7 @@ export default function RecentlyAddedSection({
         </ul>
         {sectionCtaLabel && (
           <div className={styles.footer}>
-            <Link href={sectionCtaHref} className={styles.cta}>{sectionCtaLabel}</Link>
+            <RecentlyAddedSectionCta label={sectionCtaLabel} className={styles.cta} />
           </div>
         )}
       </div>

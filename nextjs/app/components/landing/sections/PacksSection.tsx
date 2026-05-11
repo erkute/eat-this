@@ -18,8 +18,11 @@ interface Props {
   starter: Tier
   category: Tier
   complete: Tier
-  starterHref: string  // unused, kept for prop compatibility
   locale: 'de' | 'en'
+  /** Live restaurant total — interpolated into bundle bullets so the
+   *  "{count}+ hand-picked Berlin spots" line stays accurate as the
+   *  catalogue grows. */
+  restaurantCount: number
 }
 
 // Sanity ships titles as "Starter Pack - Kostenlos" / "All Berlin - €20".
@@ -98,13 +101,13 @@ const BULLETS: Record<'starter' | 'category' | 'bundle', { de: string[]; en: str
   bundle: {
     de: [
       'Alle Berlin-Kategorien freigeschaltet',
-      '200+ handverlesene Berlin-Spots',
+      '{count}+ handverlesene Berlin-Spots',
       'Sämtliche Berliner Must Eats inklusive',
       'Inklusive zukünftiger Berlin Packs gratis dazu',
     ],
     en: [
       'All Berlin categories unlocked',
-      '200+ hand-picked Berlin spots',
+      '{count}+ hand-picked Berlin spots',
       'Every Berlin Must Eat included',
       'Every future Berlin pack included',
     ],
@@ -112,9 +115,11 @@ const BULLETS: Record<'starter' | 'category' | 'bundle', { de: string[]; en: str
 }
 
 export default function PacksSection({
-  headline, body, starter, category, complete, locale,
+  headline, body, starter, category, complete, locale, restaurantCount,
 }: Props) {
   const { open: openLogin } = useLoginModal()
+  const bundleBullets = (locale === 'de' ? BULLETS.bundle.de : BULLETS.bundle.en)
+    .map((b) => b.replace('{count}', String(restaurantCount)))
 
   const sName = splitTitle(starter.title)
   const cName = splitTitle(category.title)
@@ -145,7 +150,7 @@ export default function PacksSection({
             <div className={`${styles.media} ${styles.mediaStarter}`}>
               <div className={styles.spotlight} aria-hidden="true" />
               <Image
-                src="/pics/booster/booster.png"
+                src="/pics/booster/booster.webp"
                 alt=""
                 width={500}
                 height={750}
@@ -187,7 +192,7 @@ export default function PacksSection({
                 {['dinner', 'breakfast', 'coffee'].map((slug, i) => (
                   <Image
                     key={slug}
-                    src={`/pics/booster/booster_${slug}.png`}
+                    src={`/pics/booster/booster_${slug}.webp`}
                     alt=""
                     width={500}
                     height={750}
@@ -235,7 +240,7 @@ export default function PacksSection({
                 {BUNDLE_PACKS.map(({ slug, x, y, rot, z, hx, hy, hrot }) => (
                   <Image
                     key={slug}
-                    src={`/pics/booster/booster_${slug}.png`}
+                    src={`/pics/booster/booster_${slug}.webp`}
                     alt=""
                     width={500}
                     height={750}
@@ -267,7 +272,7 @@ export default function PacksSection({
             </p>
 
             <ul className={styles.bulletList}>
-              {(locale === 'de' ? BULLETS.bundle.de : BULLETS.bundle.en).map((b, i) => (
+              {bundleBullets.map((b, i) => (
                 <li key={i}>{b}</li>
               ))}
             </ul>

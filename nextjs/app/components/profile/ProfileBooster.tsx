@@ -23,12 +23,12 @@ const CATEGORIES: Pack[] = [
   { id: 'cafes',       image: '/pics/booster/booster2.webp',      name: 'Cafés',     desc: 'Alle Café-Spots',       price: '2,99 €' },
   { id: 'fruehstueck', image: '/pics/booster/booster3.webp',      name: 'Frühstück', desc: 'Alle Frühstücks-Spots', price: '2,99 €' },
   { id: 'lunch',       image: '/pics/booster/booster5.webp',      name: 'Lunch',     desc: 'Alle Lunch-Spots',      price: '2,99 €' },
-  { id: 'dinner',      image: '/pics/booster/booster_pack_5.png', name: 'Dinner',    desc: 'Alle Dinner-Spots',     price: '2,99 €' },
+  { id: 'dinner',      image: '/pics/booster/booster_pack_5.webp', name: 'Dinner',    desc: 'Alle Dinner-Spots',     price: '2,99 €' },
 ];
 
 const RANDOM: Pack = {
   id:    'random10',
-  image: '/pics/booster/booster.png',
+  image: '/pics/booster/booster.webp',
   name:  '10 Zufällige',
   desc:  '10 Must Eats aus ganz Berlin',
   price: '0,99 €',

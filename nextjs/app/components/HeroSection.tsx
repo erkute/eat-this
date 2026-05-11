@@ -27,10 +27,12 @@ export default function HeroSection({
     <div className={styles.hero}>
       <span className={styles.srOnly}>{headline}</span>
       <span className={styles.srOnly}>{body}</span>
+      {/* The hero photo fills the whole first viewport (100svh on mobile
+          and desktop) so the hand-and-plate composition is uncropped.
+          The scroll hint sits inside the photo so it reads against the
+          image; the eyebrow stats + brand phrase pair sit below the
+          fold — one swipe revealsthem together as eyebrow + headline. */}
       <HeroPhotoSlab />
-      {/* Editorial eyebrow strap with the live counts. Sits directly
-          under the hero photo so the value claim lands before the
-          "the map for people who care about food" line. */}
       <p className={styles.eyebrow}>{eyebrow}</p>
       <HeroPhraseSlab />
       <HeroCtaSlab locale={locale} />

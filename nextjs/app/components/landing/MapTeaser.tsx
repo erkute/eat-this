@@ -47,8 +47,8 @@ const PHONE_CONTENT: {
     ],
   },
   {
-    eyebrowDe: '02 · DER FILTER',
-    eyebrowEn: '02 · THE FILTER',
+    eyebrowDe: '02 · DIE FILTER',
+    eyebrowEn: '02 · THE FILTERS',
     headlineDe: 'Berlin, gefiltert',
     headlineEn: 'Berlin, filtered',
     bulletsDe: [
@@ -63,8 +63,8 @@ const PHONE_CONTENT: {
     ],
   },
   {
-    eyebrowDe: '03 · DER SPOT',
-    eyebrowEn: '03 · THE SPOT',
+    eyebrowDe: '03 · DIE SPOTS',
+    eyebrowEn: '03 · THE SPOTS',
     headlineDe: 'Alles zu jedem Spot',
     headlineEn: 'Everything about every spot',
     bulletsDe: [

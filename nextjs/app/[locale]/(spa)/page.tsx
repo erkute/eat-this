@@ -107,7 +107,6 @@ export default async function SPAHomePage({
   })
 
   const mustEatsCtaHref = doc.mustEats.ctaHref || '/onboarding'
-  const recentlyAddedHref = locale === 'de' ? '/' : '/en'
 
   return (
     <>
@@ -163,7 +162,6 @@ export default async function SPAHomePage({
             headline={pickLocale(doc.recentlyAdded, 'headline', locale)}
             body={pickLocale(doc.recentlyAdded, 'body', locale)}
             sectionCtaLabel={pickLocale(doc.recentlyAdded, 'sectionCtaLabel', locale)}
-            sectionCtaHref={recentlyAddedHref}
             cards={recentlyAdded}
             locale={locale}
           />
@@ -188,8 +186,8 @@ export default async function SPAHomePage({
               bullets: pickLocaleArray(doc.packs.complete, 'bullets', locale),
               ctaLabel: pickLocale(doc.packs.complete, 'ctaLabel', locale),
             }}
-            starterHref="/onboarding"
             locale={locale}
+            restaurantCount={restaurantCount}
           />
           <StatementSection
             headline={pickLocale(doc.whyEatThis, 'headline', locale)}

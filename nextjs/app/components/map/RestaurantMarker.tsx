@@ -32,7 +32,7 @@ export default function RestaurantMarker({ restaurant, isSelected, onClick }: Re
         className={className}
         style={{ position: 'relative' }}
       >
-        <img src="/pics/logo.png" alt="" draggable={false} />
+        <img src="/pics/logo.webp" alt="" draggable={false} />
       </div>
     </Marker>
   )

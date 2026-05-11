@@ -27,7 +27,7 @@ const PACK_LABEL: Record<string, string> = {
 
 function boosterImageFor(slug: string): string | null {
   const normalized = slug.replace(/-/g, '').toLowerCase()
-  return normalized in PACK_LABEL ? `/pics/booster/booster_${normalized}.png` : null
+  return normalized in PACK_LABEL ? `/pics/booster/booster_${normalized}.webp` : null
 }
 
 function displayLabelFor(slug: string, fallback: string): string {

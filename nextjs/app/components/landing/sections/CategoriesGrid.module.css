@@ -23,32 +23,51 @@
   padding: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  gap: 18px;
 }
 
 .tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text-primary, #1a1a1a);
+  transition: transform 220ms ease;
+}
+.tile:hover { transform: translateY(-3px); }
+
+/* Generic wrapper for the tile visual. Two variants:
+   1. Booster pack art — full visibility, portrait 2:3, contain
+   2. Legacy icon — square, cover (fallback when no pack illustration exists yet) */
+.tileImgWrap {
   position: relative;
-  display: block;
+  width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 14px;
   overflow: hidden;
   background: var(--surface-paper);
-  text-decoration: none;
-  color: #fff;
-  transition: transform 220ms ease;
+}
+.tileImgPack {
+  aspect-ratio: 2 / 3;
+  background: transparent;
+  border-radius: 0;
+  overflow: visible;
+  filter: drop-shadow(0 10px 26px rgba(0,0,0,0.18));
 }
 
-.tile:hover {
-  transform: scale(1.03);
-}
-
-.tileImg {
+.tileIconImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
-
+.tilePackImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
 .tilePlaceholder {
   width: 100%;
   height: 100%;
@@ -56,34 +75,15 @@
 }
 
 .tileLabel {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 12px;
-  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.65));
   font-size: 13px;
   font-weight: 700;
-  text-align: left;
   letter-spacing: 0.01em;
+  text-align: center;
 }
 
 @media (min-width: 768px) {
-  .section {
-    padding: 120px 48px;
-  }
-
-  .h2 {
-    font-size: 36px;
-    margin-bottom: 48px;
-  }
-
-  .grid {
-    gap: 20px;
-  }
-
-  .tileLabel {
-    padding: 16px;
-    font-size: 16px;
-  }
+  .section { padding: 120px 48px; }
+  .h2 { font-size: 36px; margin-bottom: 48px; }
+  .grid { gap: 24px; }
+  .tileLabel { font-size: 15px; }
 }

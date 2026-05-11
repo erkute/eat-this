@@ -1,6 +1,7 @@
 import { serializeJsonLd } from './serialize'
 import { localeUrl } from '@/lib/locale-url'
 import type { BezirkDoc, RestaurantCard } from '@/lib/types'
+import type { FAQEntry } from '@/lib/restaurant-prose'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 
 interface BuildBezirkJsonLdArgs {
@@ -9,6 +10,9 @@ interface BuildBezirkJsonLdArgs {
   locale: string
   // Localized label for the "Bezirke" / "Districts" breadcrumb hub.
   districtsLabel: string
+  // Auto-generated FAQs shown on the page — mirrored into a FAQPage entity
+  // so Google can pick them up for FAQ rich snippets. Omit/empty to skip.
+  faqs?: FAQEntry[]
 }
 
 // Builds the BreadcrumbList + ItemList<Restaurant> JSON-LD graph for a
@@ -19,10 +23,24 @@ export function buildBezirkJsonLd({
   restaurants,
   locale,
   districtsLabel,
+  faqs,
 }: BuildBezirkJsonLdArgs): string {
+  const faqEntity =
+    faqs && faqs.length > 0
+      ? {
+          '@type': 'FAQPage',
+          mainEntity: faqs.map(({ question, answer }) => ({
+            '@type': 'Question',
+            name: question,
+            acceptedAnswer: { '@type': 'Answer', text: answer },
+          })),
+        }
+      : null
+
   return serializeJsonLd({
     '@context': 'https://schema.org',
     '@graph': [
+      ...(faqEntity ? [faqEntity] : []),
       {
         '@type': 'BreadcrumbList',
         itemListElement: [

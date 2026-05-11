@@ -11,6 +11,7 @@ import { localeUrl } from '@/lib/locale-url'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { routing } from '@/i18n/routing'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
+import { buildBezirkQuickFacts, buildBezirkFAQEntries } from '@/lib/bezirk-prose'
 import styles from '../Bezirk.module.css'
 import DetailPageOutro from '@/app/components/DetailPageOutro'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
@@ -98,6 +99,14 @@ export default async function BezirkDetailPage({ params }: PageProps) {
 
   const bezirkDescription = pickLocale(b.description, b.descriptionEn, loc)
 
+  // Prose blocks derived from the restaurant list — lift unique word count
+  // above Google's thin-content bar. The bezirk's own Sanity description is
+  // ~40 words and the restaurant cards below it duplicate text from each
+  // restaurant detail page, so without these blocks the page reads as
+  // near-duplicate boilerplate to a crawler.
+  const quickFacts = buildBezirkQuickFacts({ bezirk: b, restaurants, locale: loc })
+  const faqEntries = buildBezirkFAQEntries({ bezirk: b, restaurants, locale: loc })
+
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/' },
     { name: de ? 'Bezirke' : 'Districts', href: '/bezirk' },
@@ -112,6 +121,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
     restaurants,
     locale,
     districtsLabel: de ? 'Bezirke' : 'Districts',
+    faqs: faqEntries,
   })
 
   return (
@@ -132,6 +142,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
                   : `${restaurants.length} curated spots — from breakfast to dinner.`)}
             </p>
           )}
+          {quickFacts && <p className={styles.quickFacts}>{quickFacts}</p>}
         </header>
 
         <hr className={styles.divider} />
@@ -171,6 +182,20 @@ export default async function BezirkDetailPage({ params }: PageProps) {
             </Link>
           ))}
         </section>
+
+        {faqEntries.length > 0 && (
+          <section className={styles.faq} aria-label={de ? 'Häufige Fragen' : 'FAQ'}>
+            <h2 className={styles.faqHeading}>{de ? 'Häufige Fragen' : 'Frequently asked'}</h2>
+            <dl className={styles.faqList}>
+              {faqEntries.map((entry, i) => (
+                <div key={i} className={styles.faqItem}>
+                  <dt className={styles.faqQuestion}>{entry.question}</dt>
+                  <dd className={styles.faqAnswer}>{entry.answer}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
 
         <DetailPageOutro
           bezirkSlug={b.slug}

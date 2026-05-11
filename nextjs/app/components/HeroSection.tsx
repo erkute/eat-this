@@ -36,7 +36,7 @@ export default function HeroSection({ headline, body, ctaLabel, ctaHref }: Props
           sizes="(max-width: 768px) 88vw, 56vw"
         />
         <Image
-          src="/pics/map-teaser/map_restaurant.webp"
+          src="/pics/map-teaser/map_umgebung.webp"
           alt=""
           width={596}
           height={1227}

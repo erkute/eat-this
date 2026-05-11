@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default function MapPreviewSection({ headline, body, screenshotUrl, ctaLabel, ctaHref }: Props) {
-  const src = screenshotUrl || '/pics/map-teaser/map_umgebung.webp'
+  const src = screenshotUrl || '/pics/map-teaser/map_restaurant.webp'
   return (
     <section className={styles.section}>
       <div className={styles.inner}>

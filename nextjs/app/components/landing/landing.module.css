@@ -145,6 +145,24 @@
   grid-template-columns: 1fr;
   gap: 56px;
 }
+.mapTeaserList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: var(--text-secondary, #6d6963);
+  text-align: left;
+  max-width: 380px;
+  margin-inline: auto;
+}
+.mapTeaserList li::before {
+  content: "—";
+  margin-right: 8px;
+  color: var(--text-secondary, #6d6963);
+}
 .mapFeature {
   display: flex;
   flex-direction: column;
@@ -227,7 +245,7 @@
   .mapTeaser { padding: 72px 80px 88px; }
   .mapTeaserHead { margin-bottom: 48px; }
   .mapFeatures {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 64px 40px;
   }
   .mapFeature { gap: 18px; }
@@ -238,6 +256,12 @@
   .mapTeaserHead p { font-size: 15px; max-width: 580px; margin-bottom: 28px; line-height: 1.65; }
   .mapVideo { aspect-ratio: 16 / 8; margin-bottom: 16px; border-radius: 16px; font-size: 13px; }
   .mapTab { padding: 10px 24px; border-radius: 24px; font-size: 13px; }
+  .mapTeaserList {
+    font-size: 15px;
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 580px;
+    gap: 8px 32px;
+  }
 }
 
 /* ── BOOSTER PACK ──────────────────────────────────────────── */

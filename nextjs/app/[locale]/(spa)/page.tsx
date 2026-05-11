@@ -81,7 +81,17 @@ export default async function SPAHomePage({
           ctaHref="/"
         />
         <div className="start-scroll-content" style={{ paddingTop: 0 }}>
-          <MapTeaser />
+          <MapTeaser
+            headline="Inside the map."
+            bodyItems={[
+              'Curated restaurant spots across Berlin',
+              'Interactive food map',
+              'Selected Must Eats for featured places',
+              'Category-based discovery',
+              'Regularly updated recommendations',
+              'Direct access through the map',
+            ]}
+          />
           <BoosterPack />
           <Newsletter />
           <SiteFooter />

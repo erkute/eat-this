@@ -1,37 +1,40 @@
-'use client';
+import styles from './landing.module.css'
 
-import styles from './landing.module.css';
-import { useTranslation } from '@/lib/i18n';
+interface Props {
+  headline: string
+  bodyItems: string[]
+  screenshotUrls?: (string | undefined)[]
+}
 
-const FEATURES = [
-  { img: '/pics/map-teaser/map_umgebung.webp',  titleKey: 'landing.mapFeature3Title', bodyKey: 'landing.mapFeature3Body' },
-  { img: '/pics/map-teaser/map_filter.webp',    titleKey: 'landing.mapFeature2Title', bodyKey: 'landing.mapFeature2Body' },
-  { img: '/pics/map-teaser/map_restaurant.webp',titleKey: 'landing.mapFeature4Title', bodyKey: 'landing.mapFeature4Body' },
-  { img: '/pics/map-teaser/map_musteat.webp',   titleKey: 'landing.mapFeature1Title', bodyKey: 'landing.mapFeature1Body' },
-] as const;
+const DEFAULT_SCREENSHOTS = [
+  '/pics/map-teaser/map_umgebung.webp',
+  '/pics/map-teaser/map_filter.webp',
+  '/pics/map-teaser/map_restaurant.webp',
+]
 
-export default function MapTeaser() {
-  const { t } = useTranslation();
+export default function MapTeaser({ headline, bodyItems, screenshotUrls }: Props) {
+  const screenshots = [0, 1, 2].map((i) => screenshotUrls?.[i] || DEFAULT_SCREENSHOTS[i])
 
   return (
     <section className={styles.mapTeaser}>
       <div className={styles.mapTeaserHead}>
-        <span className={styles.secLabel}>{t('landing.mapEyebrow')}</span>
-        <h2>{t('landing.mapHeadline')}</h2>
-        <p>{t('landing.mapBody')}</p>
+        <h2>{headline}</h2>
+        {bodyItems.length > 0 && (
+          <ul className={styles.mapTeaserList}>
+            {bodyItems.map((item, i) => <li key={i}>{item}</li>)}
+          </ul>
+        )}
       </div>
       <div className={styles.mapFeatures}>
-        {FEATURES.map((f, i) => (
+        {screenshots.map((src, i) => (
           <article key={i} className={styles.mapFeature}>
             <div className={styles.mapFeatureFrame}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={f.img} alt="" loading="lazy" decoding="async" />
+              <img src={src} alt="" loading="lazy" decoding="async" />
             </div>
-            <h3 className={styles.mapFeatureTitle}>{t(f.titleKey)}</h3>
-            <p className={styles.mapFeatureBody}>{t(f.bodyKey)}</p>
           </article>
         ))}
       </div>
     </section>
-  );
+  )
 }

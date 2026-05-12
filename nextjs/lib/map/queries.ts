@@ -22,6 +22,7 @@ export const mapRestaurantsQuery = `
     lng,
     mapsUrl,
     website,
+    instagramHandle,
     reservationUrl,
     openingHours,
     tip,

@@ -158,6 +158,7 @@ export interface MapRestaurant {
   lng: number
   mapsUrl?: string
   website?: string
+  instagramHandle?: string
   reservationUrl?: string
   openingHours?: OpeningHourSlot[]
   tip?: string

@@ -134,15 +134,31 @@ export default function RestaurantDetail({
   const websiteInfo = classifyWebsite(restaurant.website)
   const priceLabel = formatPriceLabel(restaurant)
 
-  // Bezirk · Kategorie1 · Kategorie2 · Preis — flat dotted line.
-  const metaParts: { text: string; isPrice: boolean }[] = []
-  if (district) metaParts.push({ text: district, isPrice: false })
-  if (restaurant.categories?.length) {
-    for (const c of restaurant.categories.slice(0, 3)) {
-      metaParts.push({ text: localizedCategoryName(c, loc), isPrice: false })
-    }
+  // Prefer the explicit `instagramHandle` field — populated by the backfill
+  // script — and fall back to a `website` field that happens to be an
+  // instagram.com URL (legacy data). Either way the Instagram section
+  // renders as its own block; the website section only fires when the
+  // website is a real website.
+  let igHandle: string | null = null
+  let igUrl: string | null = null
+  if (restaurant.instagramHandle) {
+    igHandle = restaurant.instagramHandle
+    igUrl = `https://instagram.com/${restaurant.instagramHandle}`
+  } else if (websiteInfo?.kind === 'instagram') {
+    igHandle = websiteInfo.handle
+    igUrl = websiteInfo.url
   }
-  if (priceLabel) metaParts.push({ text: priceLabel, isPrice: true })
+  const showWebsiteSection = websiteInfo?.kind === 'web'
+
+  // Bezirk gets its own line as a top-level kicker; categories and price
+  // share the second meta line so a long category list never crowds the
+  // district. Render both with the same vocabulary (.detailMetaLine).
+  const categoryNames =
+    restaurant.categories?.slice(0, 3).map(c => localizedCategoryName(c, loc)) ?? []
+  const secondLineParts: { text: string; isPrice: boolean }[] = [
+    ...categoryNames.map(text => ({ text, isPrice: false })),
+    ...(priceLabel ? [{ text: priceLabel, isPrice: true }] : []),
+  ]
 
   return (
     <div className={styles.detailInSheet} role="dialog" aria-label={restaurant.name}>
@@ -184,9 +200,14 @@ export default function RestaurantDetail({
 
       <div className={styles.detailInSheetScroll} data-detail-scroll>
         <div className={styles.detailBody}>
-          {metaParts.length > 0 && (
+          {district && (
             <div className={styles.detailMetaLine}>
-              {metaParts.map((p, i) => (
+              <span>{district}</span>
+            </div>
+          )}
+          {secondLineParts.length > 0 && (
+            <div className={styles.detailMetaLine}>
+              {secondLineParts.map((p, i) => (
                 <span
                   key={`${p.text}-${i}`}
                   className={p.isPrice ? styles.detailMetaPrice : undefined}
@@ -277,32 +298,33 @@ export default function RestaurantDetail({
             </div>
           )}
 
-          {websiteInfo && (
+          {igUrl && (
             <section className={styles.detailSection}>
-              <h4 className={styles.detailSectionTitle}>
-                {websiteInfo.kind === 'instagram' ? 'Instagram' : t('map.website')}
-              </h4>
-              {websiteInfo.kind === 'instagram' ? (
-                <a
-                  href={websiteInfo.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.detailInstagramLink}
-                  aria-label={websiteInfo.handle ? `Instagram @${websiteInfo.handle}` : 'Instagram'}
-                >
-                  <InstagramIcon />
-                  {websiteInfo.handle && <span>@{websiteInfo.handle}</span>}
-                </a>
-              ) : (
-                <a
-                  href={websiteInfo.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.detailWebsiteLink}
-                >
-                  {websiteInfo.display}
-                </a>
-              )}
+              <h4 className={styles.detailSectionTitle}>Instagram</h4>
+              <a
+                href={igUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.detailInstagramLink}
+                aria-label={igHandle ? `Instagram @${igHandle}` : 'Instagram'}
+              >
+                <InstagramIcon />
+                {igHandle && <span>@{igHandle}</span>}
+              </a>
+            </section>
+          )}
+
+          {showWebsiteSection && websiteInfo?.kind === 'web' && (
+            <section className={styles.detailSection}>
+              <h4 className={styles.detailSectionTitle}>{t('map.website')}</h4>
+              <a
+                href={websiteInfo.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.detailWebsiteLink}
+              >
+                {websiteInfo.display}
+              </a>
             </section>
           )}
 

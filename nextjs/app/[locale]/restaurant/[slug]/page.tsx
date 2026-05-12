@@ -9,7 +9,7 @@ import { localeUrl } from '@/lib/locale-url'
 import { routing } from '@/i18n/routing'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { localizedCategoryName } from '@/lib/categories'
-import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
+import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaurantDetail.helpers'
 import { buildQuickFacts, buildFAQEntries } from '@/lib/restaurant-prose'
 import { getOpenStatus } from '@/lib/map/openingHours'
 import DetailPageOutro from '@/app/components/DetailPageOutro'
@@ -284,31 +284,80 @@ export default async function RestaurantPage({ params }: PageProps) {
                 </section>
               )}
 
-              <div className={styles.links}>
-                <IntlLink
-                  href={`/map?r=${r.slug}`}
-                  className={`${styles.link} ${styles.linkPrimary} ${styles.linkBrand}`}
-                  aria-label="Eat This Map"
-                >
-                  <span className={styles.linkBrandWordmark} aria-hidden="true" />
-                  <span className={styles.linkBrandSuffix} aria-hidden="true">Map</span>
-                </IntlLink>
-                {r.reservationUrl && (
-                  <a href={r.reservationUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
-                    {de ? 'Reservieren' : 'Reserve a Table'}
-                  </a>
-                )}
-                {r.website && (
-                  <a href={r.website} target="_blank" rel="noopener noreferrer" className={styles.link}>
-                    Website
-                  </a>
-                )}
-                {r.mapsUrl && (
-                  <a href={r.mapsUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
-                    Google Maps
-                  </a>
-                )}
-              </div>
+              {(() => {
+                // Resolve display data for the sidebar links.
+                const websiteInfo = classifyWebsite(r.website)
+                const igHandle =
+                  r.instagramHandle ?? (websiteInfo?.kind === 'instagram' ? websiteInfo.handle : null)
+                const websiteForRow = websiteInfo?.kind === 'web' ? websiteInfo : null
+
+                // Detect the reservation provider so the button carries the
+                // platform brand instead of a generic "Reserve a Table".
+                let reservationProvider: string | null = null
+                if (r.reservationUrl) {
+                  try {
+                    const host = new URL(r.reservationUrl).hostname.toLowerCase()
+                    if (host.includes('opentable')) reservationProvider = 'OpenTable'
+                    else if (host.includes('resy.com')) reservationProvider = 'Resy'
+                    else if (host.includes('thefork')) reservationProvider = 'TheFork'
+                    else if (host.includes('quandoo')) reservationProvider = 'Quandoo'
+                    else if (host.includes('bookatable')) reservationProvider = 'Bookatable'
+                    else if (host.includes('resmio')) reservationProvider = 'Resmio'
+                    else if (host.includes('sevenrooms')) reservationProvider = 'SevenRooms'
+                  } catch {}
+                }
+
+                return (
+                  <>
+                    <div className={styles.links}>
+                      <IntlLink
+                        href={`/map?r=${r.slug}`}
+                        className={`${styles.link} ${styles.linkPrimary} ${styles.linkBrand}`}
+                        aria-label="Eat This Map"
+                      >
+                        <span className={styles.linkBrandWordmark} aria-hidden="true" />
+                        <span className={styles.linkBrandSuffix} aria-hidden="true">Map</span>
+                      </IntlLink>
+                      {r.reservationUrl && (
+                        <a
+                          href={r.reservationUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`${styles.link} ${styles.linkReserve}`}
+                        >
+                          <span className={styles.linkReserveTop}>{de ? 'Reservieren' : 'Reserve'}</span>
+                          {reservationProvider && (
+                            <span className={styles.linkReserveProvider}>{reservationProvider}</span>
+                          )}
+                        </a>
+                      )}
+                      {igHandle && (
+                        <a
+                          href={`https://instagram.com/${igHandle}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.link}
+                          aria-label={`Instagram @${igHandle}`}
+                        >
+                          @{igHandle}
+                        </a>
+                      )}
+                    </div>
+                    {websiteForRow && (
+                      <p className={styles.websiteRow}>
+                        <a
+                          href={websiteForRow.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.websiteLink}
+                        >
+                          {websiteForRow.display}
+                        </a>
+                      </p>
+                    )}
+                  </>
+                )
+              })()}
             </aside>
 
             <div className={styles.musteats}>

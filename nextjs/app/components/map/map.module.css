@@ -1705,6 +1705,25 @@ html[data-theme="dark"] .layerTabActive {
   text-decoration-color: var(--accent);
 }
 
+/* Dark-mode override: the brand orange clashes against dark surfaces on
+   hover. Use full-bright primary text + thicker underline so the feedback
+   stays present without the red. Same treatment for the Instagram /
+   Address / Phone / Travel hovers below. */
+html[data-theme="dark"] .detailWebsiteLink:hover,
+html[data-theme="dark"] .detailPhoneLink:hover {
+  color: var(--text-primary);
+  text-decoration-color: var(--text-primary);
+  text-decoration-thickness: 2px;
+}
+html[data-theme="dark"] .detailInstagramLink:hover,
+html[data-theme="dark"] .detailAddress:hover,
+html[data-theme="dark"] .detailAddress:hover .detailAddressArrow {
+  color: var(--text-primary);
+}
+html[data-theme="dark"] .detailTravelLink:hover svg {
+  color: var(--text-primary);
+}
+
 /* Instagram link — glyph + @handle. Replaces a noisy `www.instagram.com/…`
    text link with the iconic mark so the section reads as "this place lives
    on Instagram". */

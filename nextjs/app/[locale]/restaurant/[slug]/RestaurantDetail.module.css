@@ -284,6 +284,60 @@
   grid-column: 1 / -1;
 }
 
+/* Two-line reserve button: "Reservieren" on top, smaller provider name
+   ("OpenTable") underneath so the user knows which platform handles the
+   booking — not just a generic CTA. */
+.linkReserve {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  line-height: 1.05;
+  padding: 7px 4px;
+}
+
+.linkReserveTop {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.linkReserveProvider {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.linkReserve:hover .linkReserveProvider {
+  color: inherit;
+}
+
+/* Plain text URL line directly under the button row — the user asked for
+   the website to be "ausgeschrieben" (written out) rather than hidden
+   behind a generic "Website" pill, so the actual host (e.g.
+   "www.bonanzacoffee.de") is the link text. */
+.websiteRow {
+  margin: 12px 0 0;
+  font-size: 0.875rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.websiteLink {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 3px;
+  word-break: break-word;
+}
+
+.websiteLink:hover {
+  text-decoration-color: currentColor;
+}
+
 /* Primary "open this restaurant on the map" link — filled landing-style red
    so it reads as the same primary CTA used everywhere else (HeroForm submit,
    BoosterPack submit, Newsletter submit). */

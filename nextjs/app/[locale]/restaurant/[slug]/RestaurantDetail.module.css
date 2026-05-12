@@ -352,7 +352,7 @@
       "description sidebar"
       "tip         sidebar"
       "musteats    sidebar"
-      "faq         faq";
+      "faq         .";
     column-gap: 56px;
   }
   .header      { grid-area: header; }

@@ -64,6 +64,15 @@ service cloud.firestore {
         && request.resource.data.openedAt == request.time;
     }
 
+    // Entitlements (Sub-Project 1 of monetisation) — owner-readable so the
+    // client can subscribe with onSnapshot to react when a Stripe webhook
+    // lands a new entitlement doc. Writes are server-only via Admin SDK
+    // (Cloud Functions / future Stripe webhook handler).
+    match /users/{uid}/entitlements/{packId} {
+      allow read:  if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

@@ -1,8 +1,9 @@
 /* ════════════════════════════════════════════════════════════
-   /login — full-bleed hero, logo top-center, form floats over
-   the image. No "Welcome back" copy — the page works the same
-   for first-timers and returning users (route already knows
-   nothing about them).
+   /login — brand-red surface with wordmark hero + dark-glass form.
+   Same visual language at mobile (full viewport) and desktop
+   (bounded 560×660 card). No photo; the wordmark is the visual
+   hero and the heroHeadline <h1> stays in the DOM sr-only for
+   accessibility / SEO.
    ════════════════════════════════════════════════════════════ */
 
 .page {
@@ -14,66 +15,30 @@
   overflow: hidden;
 }
 
-/* The "frame" wraps the entire login UI. On mobile it fills the viewport
-   edge-to-edge. On desktop it becomes a centered phone-shaped card with
-   rounded corners, sitting on a cream background. */
+/* The frame is the brand-red surface. Mobile fills the viewport,
+   desktop bounds it as a card (rule in @media). Top padding clears
+   the close button + leaves room for the brand hero block. */
 .frame {
   position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: #b71c1c;
+  padding:
+    max(64px, calc(env(safe-area-inset-top, 0px) + 56px))
+    16px
+    max(20px, env(safe-area-inset-bottom, 0px));
 }
 
-/* ── Hero image fills the frame edge-to-edge; element a touch taller
-     than the frame so the plate sits slightly lower (overflow clipped). */
-.heroImg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 108%;
-  object-fit: cover;
-  object-position: center;
-  z-index: 0;
-}
+/* Legacy mobile-era photo / scrim / small-logo overlays are unused
+   now — hidden universally. JSX kept until a later cleanup pass. */
+.heroImg,
+.scrimTop,
+.scrimBottom,
+.logoWrap { display: none; }
 
-/* Top fade — gives back button + centered logo enough contrast over the
-   image. Slightly stronger than before since both badges live on top of
-   the photo (no black-bar safety strip anymore). */
-.scrimTop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 32%;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.7) 0%,
-    rgba(0, 0, 0, 0.3) 50%,
-    rgba(0, 0, 0, 0.0) 100%
-  );
-  z-index: 1;
-  pointer-events: none;
-}
-
-/* Bottom fade for form legibility */
-.scrimBottom {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 62%;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.0) 0%,
-    rgba(0, 0, 0, 0.55) 45%,
-    rgba(0, 0, 0, 0.92) 100%
-  );
-  z-index: 1;
-  pointer-events: none;
-}
-
-/* ── Back button (X) ─────────────────────────────────────── */
+/* ── Back button (X) — top-left, sits in the safe-area band. */
 .backBtn {
   position: absolute;
   top: max(14px, env(safe-area-inset-top, 0px));
@@ -96,57 +61,68 @@
 .backBtn:hover { background: rgba(0, 0, 0, 0.62); }
 .backBtn:active { transform: scale(0.92); }
 
-/* ── Logo: top-center, sits on the empty top strip (image shifted down) ── */
-.logoWrap {
-  position: absolute;
-  top: max(16px, env(safe-area-inset-top, 0px));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 5;
+/* ── Brand hero: sticker + wordmark + tagline. Visible everywhere. */
+.brandHero {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 14px;
+  position: relative;
+  z-index: 2;
 }
-.logoMark {
-  width: 60px;
+.brandSticker {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+}
+.brandWordmark {
+  width: min(72%, 300px);
   height: auto;
-  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.4));
+  /* logo2.webp is pure black; invert to white on the red surface. */
+  filter: brightness(0) invert(1);
+}
+.brandTagline {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
 }
 
-/* ── Hero headline (sits just above the form, below the plate) ── */
+/* heroHeadline stays in the DOM for screen readers + SEO,
+   but is visually hidden — wordmark image is the visual heading. */
 .heroHeadline {
-  margin: 0 0 14px;
-  font-size: clamp(22px, 6vw, 28px);
-  font-weight: 900;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  color: #fff;
-  text-align: center;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
-  white-space: pre-line;
-}
-.heroSubtitle {
-  margin: 0 0 14px;
-  font-size: 12px;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.78);
-  text-align: center;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-/* ── Form area floats at the bottom, above the scrim ────── */
+/* ── Form panel: dark glass on red, anchored to the bottom of the frame. */
 .formWrap {
   position: relative;
   z-index: 2;
   margin-top: auto;
-  padding: 0 22px max(20px, env(safe-area-inset-bottom, 0px));
+  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  max-width: 420px;
+  max-width: 460px;
   align-self: center;
+
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  backdrop-filter: blur(10px) saturate(1.2);
 }
 
 .form {
@@ -154,12 +130,13 @@
   flex-direction: column;
   gap: 8px;
 }
+
 .input {
   width: 100%;
   padding: 13px 16px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
   -webkit-backdrop-filter: blur(14px) saturate(1.2);
   backdrop-filter: blur(14px) saturate(1.2);
   font-size: 16px; /* iOS no-zoom */
@@ -170,14 +147,15 @@
 }
 .input::placeholder { color: rgba(255, 255, 255, 0.55); }
 .input:focus {
-  border-color: rgba(255, 255, 255, 0.42);
-  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.50);
+  background: rgba(255, 255, 255, 0.18);
 }
 
+/* Brand-red CTA on brand-red bg wouldn't contrast — black. */
 .cta {
   width: 100%;
   padding: 13px;
-  background: #b71c1c;
+  background: #111;
   color: #fff;
   font-family: var(--font);
   font-size: 15px;
@@ -193,7 +171,7 @@
   transition: background 0.18s, transform 0.08s;
   outline: none;
 }
-.cta:hover:not(:disabled) { background: #9a1818; }
+.cta:hover:not(:disabled) { background: #000; }
 .cta:active:not(:disabled) { transform: scale(0.99); }
 .cta:disabled { opacity: 0.55; cursor: not-allowed; }
 
@@ -331,13 +309,8 @@
 }
 .termsLink:hover { color: #fff; }
 
-/* ── Brand hero block (sticker + wordmark + tagline).
-     Visible at both viewports — Task 12 unifies the layout. ─── */
-.brandHero { display: none; }
-
-/* ── Desktop: brand-red card. No photo — pure brand identity.
-     Wordmark hero on top, dark-glass form panel at the bottom.
-     Same rule for both standalone /login and the BridgeAuth modal. ─── */
+/* ── Desktop: bounded card on the page background.
+     Same hero + form layout, just a defined card instead of full viewport. */
 @media (min-width: 768px) {
   .page {
     background: #faf8f3;
@@ -352,9 +325,7 @@
     width: min(560px, 92vw);
     max-width: 560px;
     height: min(660px, 90vh);
-    aspect-ratio: auto;
     border-radius: 24px;
-    background: #b71c1c;
     box-shadow: 0 28px 70px rgba(183, 28, 28, 0.35);
     padding: 28px;
   }
@@ -362,86 +333,16 @@
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
   }
 
-  /* Hide mobile-era photo + scrims + small icon-logo on desktop. */
-  .heroImg, .scrimTop, .scrimBottom, .logoWrap { display: none; }
-
-  /* heroHeadline stays in the DOM for screen readers + SEO,
-     but is visually hidden (the wordmark image is the visual heading). */
-  .heroHeadline {
-    position: absolute !important;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  /* Desktop brand hero: sticker on top, wordmark image, then the tagline. */
-  .brandHero {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    padding-top: 6px;
-    position: relative;
-    z-index: 2;
-  }
   .brandSticker {
     width: 68px;
     height: 68px;
-    border-radius: 50%;
-    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.06);
   }
   .brandWordmark {
     width: min(80%, 380px);
-    height: auto;
-    /* logo2.webp is pure black; invert to white on the red card. */
-    filter: brightness(0) invert(1);
-  }
-  .brandTagline {
-    margin: 0;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.72);
   }
 
-  /* Form sits at the bottom of the flex column as a dark-glass panel on red. */
   .formWrap {
-    position: relative;
-    margin-top: auto;
-    padding: 20px;
     max-width: none;
     align-self: stretch;
-    gap: 10px;
-
-    background: rgba(0, 0, 0, 0.28);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 18px;
-    -webkit-backdrop-filter: blur(10px) saturate(1.2);
-    backdrop-filter: blur(10px) saturate(1.2);
   }
-
-  .form { gap: 8px; }
-
-  .input {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.22);
-  }
-  .input:focus {
-    border-color: rgba(255, 255, 255, 0.50);
-    background: rgba(255, 255, 255, 0.18);
-  }
-
-  /* Brand-red CTA on brand-red bg wouldn't contrast — switch to black. */
-  .cta { background: #111; }
-  .cta:hover:not(:disabled) { background: #000; }
-
-  .divider { margin: 2px 0; }
-  .terms { margin-top: 6px; }
 }
-

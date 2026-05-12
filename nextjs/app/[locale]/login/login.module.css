@@ -23,10 +23,12 @@
   flex-direction: column;
   overflow: hidden;
   background: #b71c1c;
+  /* Bottom padding 4px — form panel sits just shy of the viewport's
+     bottom edge (overlay locked to 100svh, so the toolbar can't cover it). */
   padding:
     max(64px, calc(env(safe-area-inset-top, 0px) + 56px))
     16px
-    max(20px, env(safe-area-inset-bottom, 0px));
+    4px;
   gap: 14px;
 }
 
@@ -59,12 +61,15 @@
 .backBtn:hover { background: rgba(0, 0, 0, 0.62); }
 .backBtn:active { transform: scale(0.92); }
 
-/* ── App showcase (mobile): phone-map centered with two packs flanking. */
+/* ── App showcase (mobile): phone-map centered with two packs flanking.
+   margin-block: auto centers the showcase vertically in the free space
+   between the brand hero (above) and the form panel (below). */
 .appShowcase {
   position: relative;
   width: 100%;
   height: 240px;
   flex: 0 0 auto;
+  margin-block: auto;
 }
 /* Phone mockup WebP carries its own bezel + transparency.
    Soft halo-style drop-shadow so the alpha edge artifacts stay subtle. */
@@ -115,7 +120,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 0;
   position: relative;
   z-index: 2;
 }
@@ -126,7 +131,10 @@
   filter: brightness(0) invert(1);
 }
 .brandTagline {
-  margin: 0;
+  /* Negative top margin pulls the tagline up into the wordmark's bottom
+     alpha padding. Mobile uses a lighter pull so it doesn't feel cramped;
+     desktop overrides to a tighter -8px below. */
+  margin: -2px 0 0;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -148,11 +156,12 @@
   border: 0;
 }
 
-/* ── Form panel: dark glass on red, anchored to the bottom of the column. */
+/* ── Form panel: dark glass on red. On mobile it sits at the bottom of the
+   frame thanks to .appShowcase's margin-block: auto consuming the upper
+   half of free space (the lower half lands above this form). */
 .formWrap {
   position: relative;
   z-index: 2;
-  margin-top: auto;
   padding: 18px;
   display: flex;
   flex-direction: column;
@@ -384,10 +393,12 @@
 
   /* Showcase fills the full left column height; phone centered, packs offset.
      Desktop restores stronger drop-shadows — the soft mobile values exist
-     to hide alpha-edge artifacts at large mobile-render sizes. */
+     to hide alpha-edge artifacts at large mobile-render sizes.
+     Resets the mobile margin-block:auto since the grid handles positioning. */
   .appShowcase {
     height: auto;
     align-self: stretch;
+    margin-block: 0;
   }
   .phoneMockup {
     height: 90%;
@@ -410,8 +421,8 @@
   }
 
   /* Signup column fills the right side as one cohesive vertical block —
-     wordmark dominates, tagline pinned to it, form sits with a small gap.
-     No space-between; the whole stack is centered vertically.
+     wordmark dominates, tagline pinned to it, form sits with breathing
+     room below (margin-top on .formWrap controls how low the form sits).
      Restore real flex layout (overrides `display: contents` from mobile). */
   .signupColumn {
     display: flex;
@@ -424,7 +435,7 @@
   .brandHero { order: initial; }
   .brandHero {
     align-items: center;
-    gap: 4px;
+    gap: 0;
   }
   .brandWordmark {
     width: 100%;
@@ -434,11 +445,14 @@
   .brandTagline {
     font-size: 13px;
     letter-spacing: 0.2em;
+    margin-top: -8px;
   }
 
   .formWrap {
     max-width: none;
     align-self: stretch;
-    margin-top: 12px;
+    /* Pushes the form panel further down within the signup column;
+       wordmark + tagline stay near the centered position. */
+    margin-top: 60px;
   }
 }

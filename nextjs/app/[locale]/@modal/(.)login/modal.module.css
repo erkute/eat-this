@@ -21,7 +21,10 @@
 @media (max-width: 767px) {
   .overlay {
     padding: 0;
-    background: #0d0d0d;
+    /* Brand-red on mobile so any sliver visible between the frame and
+       the viewport edge (e.g. iOS URL-bar morph) stays on-brand instead
+       of showing a dark-gray strip. */
+    background: #b71c1c;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     flex-direction: column;

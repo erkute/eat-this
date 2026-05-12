@@ -111,7 +111,7 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
 
         {magicState === 'sent' ? (
           <div className={styles.sentBox}>
-            <p className={styles.sentTitle}>Check deine Inbox</p>
+            <p className={styles.sentTitle}>{t('modals.login.sentTitle')}</p>
             <p className={styles.sentBody}>{t('modals.login.linkSentHint')}</p>
             <button
               type="button"

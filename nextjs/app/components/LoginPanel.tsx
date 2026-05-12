@@ -71,7 +71,7 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
 
       <div className={styles.formWrap}>
         <h1 className={styles.heroHeadline}>
-          Hundreds of Must Eats<br />to discover
+          {t('modals.login.heroHeadline')}
         </h1>
 
         {magicState === 'sent' ? (

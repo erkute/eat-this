@@ -222,21 +222,21 @@ export default function MapSection({ isActive = false }: Props) {
     const r = selectedRestaurant
     setSelectedRestaurant(null)
     setSheetView('list')
-    // Drop to peek so the user sees the marker on the map with no list
-    // covering anything — they were looking at this restaurant, now they
-    // can see WHERE it is. List is one drag away.
-    setSnap('peek')
-    reapplySnap('peek')
-    // Stay centered on the just-closed restaurant.
+    // Don't move the sheet — whatever snap the user had it at when they
+    // closed the detail is the snap the list should reappear at. If they
+    // had the list at 'full' before tapping a restaurant, the X should
+    // hand them back the full-screen list; same for 'mid' and 'peek'.
+    // Centring uses the current sheet height (no targetSnap arg) so the
+    // padding matches what's actually on screen.
     if (r && mapRef.current) {
       mapRef.current.flyTo({
         center: [r.lng, r.lat],
         zoom: 15,
         duration: 350,
-        padding: getFlyPadding('peek'),
+        padding: getFlyPadding(),
       })
     }
-  }, [selectedRestaurant, getFlyPadding, setSnap, reapplySnap, setSheetView])
+  }, [selectedRestaurant, getFlyPadding, setSheetView])
 
   /* Apple-style layer switch from the floating segmented control on the map.
      Same flow whichever direction: clear any selection, force list view, and
@@ -282,18 +282,18 @@ export default function MapSection({ isActive = false }: Props) {
       return
     }
     setSheetView('list')
-    // Drop to peek so the user sees the marker uncovered. List is one drag away.
-    setSnap('peek')
-    reapplySnap('peek')
+    // Keep the sheet at whatever snap the user had it at — same affordance
+    // as handleRestaurantClose. The list reappears at the height the user
+    // last set it to.
     if (m && mapRef.current) {
       mapRef.current.flyTo({
         center: [m.restaurant.lng, m.restaurant.lat],
         zoom: 15,
         duration: 350,
-        padding: getFlyPadding('peek'),
+        padding: getFlyPadding(),
       })
     }
-  }, [selectedMustEat, selectedRestaurant, getFlyPadding, setSnap, reapplySnap, setSheetView])
+  }, [selectedMustEat, selectedRestaurant, getFlyPadding, setSheetView])
 
   const handleShowMustEatList = useCallback(() => {
     setSelectedMustEat(null)

@@ -9,7 +9,10 @@ export type SheetSnap = 'peek' | 'mid' | 'full'
 const DEFAULT_PEEK_VISIBLE_PX = 40
 // Mid: ~half the viewport on a typical phone (50% map / 50% list).
 const MID_VISIBLE_PX = 420
-const FULL_TOP_PX     = 0   // sheet hugs the top of the map body for content-heavy detail views
+// Sheet at 'full' stops 40 px below the top of the map body so a strip of
+// the actual map stays visible above it — same affordance Google Maps uses
+// so the user never loses the "I'm still on the map" anchor.
+const FULL_TOP_PX     = 40
 const MOBILE_MAX = 1023.98
 
 function snapToPx(snap: SheetSnap, sheetH: number, peekPx: number): number {

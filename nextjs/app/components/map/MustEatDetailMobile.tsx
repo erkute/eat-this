@@ -1,6 +1,4 @@
 'use client'
-import { useLocale } from 'next-intl'
-import { routing } from '@/i18n/routing'
 import type { MapMustEat } from '@/lib/types'
 import {
   formatDistance,
@@ -9,6 +7,7 @@ import {
 import { Link } from '@/i18n/navigation'
 import { useTranslation } from '@/lib/i18n'
 import styles from './map.module.css'
+import BoosterOfferInline from './BoosterOfferInline'
 import { UNLOCK_RADIUS_METERS, type MustEatDetailState } from './useMustEatDetailState'
 import {
   BackIcon,
@@ -43,7 +42,6 @@ export default function MustEatDetailMobile({
   state,
 }: Props) {
   const { t } = useTranslation()
-  const locale = useLocale()
   const {
     distance,
     canUnlock,
@@ -186,29 +184,11 @@ export default function MustEatDetailMobile({
             </div>
           ))}
 
-          {/* Booster offer — locked state only */}
+          {/* Booster offer — locked state only. State-aware via uid:
+              signed-out users see the free Starter Pack (10 Must Eats on
+              sign-up); signed-in users see the paid Berlin lineup. */}
           {!isUnlocked && (
-            <div className={styles.boosterOffer}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/pics/booster/booster5.webp" alt="" className={styles.boosterImg} loading="lazy" />
-              <div className={styles.boosterInfo}>
-                <div className={styles.boosterTitle}>Hunger auf mehr?</div>
-                <div className={styles.boosterDesc}>Cafés, Lunch, Dinner oder direkt ganz Berlin ab 0,99 €.</div>
-                <button
-                  type="button"
-                  className={styles.boosterCta}
-                  onClick={() => {
-                    if (uid) {
-                      window.location.href = locale === routing.defaultLocale ? '/profile#booster' : `/${locale}/profile#booster`
-                    } else {
-                      window.location.assign(locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
-                    }
-                  }}
-                >
-                  Ansehen
-                </button>
-              </div>
-            </div>
+            <BoosterOfferInline uid={uid ?? null} variant="detail" />
           )}
 
           {/* Unlocked: dish description as magazine paragraph */}

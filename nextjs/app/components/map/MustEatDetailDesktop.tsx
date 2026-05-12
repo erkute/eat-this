@@ -1,11 +1,10 @@
 'use client'
-import { useLocale } from 'next-intl'
-import { routing } from '@/i18n/routing'
 import type { MapMustEat } from '@/lib/types'
 import { formatDistance } from '@/lib/map'
 import { Link } from '@/i18n/navigation'
 import { useTranslation } from '@/lib/i18n'
 import styles from './map.module.css'
+import BoosterOfferInline from './BoosterOfferInline'
 import type { MustEatDetailState } from './useMustEatDetailState'
 
 interface Props {
@@ -18,7 +17,6 @@ interface Props {
 
 export default function MustEatDetailDesktop({ mustEat, isUnlocked, onClose, uid, state }: Props) {
   const { t } = useTranslation()
-  const locale = useLocale()
   const {
     distance,
     canUnlock,
@@ -101,27 +99,7 @@ export default function MustEatDetailDesktop({ mustEat, isUnlocked, onClose, uid
               <strong>So schaltest du es frei:</strong> Geh zum Restaurant - sobald du innerhalb von 50 m bist, deckt sich die Karte automatisch auf.
             </div>
 
-            <div className={styles.boosterOffer}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/pics/booster/booster5.webp" alt="" className={styles.boosterImg} loading="lazy" />
-              <div className={styles.boosterInfo}>
-                <div className={styles.boosterTitle}>Hunger auf mehr?</div>
-                <div className={styles.boosterDesc}>Cafés, Lunch, Dinner oder direkt ganz Berlin ab 0,99 €.</div>
-                <button
-                  type="button"
-                  className={styles.boosterCta}
-                  onClick={() => {
-                    if (uid) {
-                      window.location.href = locale === routing.defaultLocale ? '/profile#booster' : `/${locale}/profile#booster`
-                    } else {
-                      window.location.assign(locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
-                    }
-                  }}
-                >
-                  Ansehen
-                </button>
-              </div>
-            </div>
+            <BoosterOfferInline uid={uid ?? null} variant="detail" />
           </>
         )}
 

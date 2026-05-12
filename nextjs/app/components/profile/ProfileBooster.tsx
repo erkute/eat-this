@@ -1,38 +1,58 @@
 'use client';
 
-import { useState } from 'react';
+import { CSSProperties, useState } from 'react';
 import styles from './ProfileBooster.module.css';
 
 interface Pack {
   id:    string;
   image: string;
   name:  string;
-  desc:  string;
   price: string;
 }
 
-const HERO: Pack = {
-  id:    'berlin',
-  image: '/pics/booster/booster1.webp',
-  name:  'Berlin Komplett',
-  desc:  'Alle 150 Must Eats sofort freischalten',
-  price: '19,99 €',
+// "All Berlin" hero — mirrors the landing-page bundle: every category pack
+// unlocked, one-time €20. Image is composed client-side as a 9-pack pile
+// (see BUNDLE_PACKS below) rather than a single asset, so the bundle
+// always reflects the live category lineup.
+const HERO = {
+  id:    'all-berlin',
+  name:  'All Berlin',
+  desc:  'Alle 9 Booster Packs - jetzt und alle, die noch kommen.',
+  price: '20,00 €',
 };
 
-const CATEGORIES: Pack[] = [
-  { id: 'cafes',       image: '/pics/booster/booster2.webp',      name: 'Cafés',     desc: 'Alle Café-Spots',       price: '2,99 €' },
-  { id: 'fruehstueck', image: '/pics/booster/booster3.webp',      name: 'Frühstück', desc: 'Alle Frühstücks-Spots', price: '2,99 €' },
-  { id: 'lunch',       image: '/pics/booster/booster5.webp',      name: 'Lunch',     desc: 'Alle Lunch-Spots',      price: '2,99 €' },
-  { id: 'dinner',      image: '/pics/booster/booster_pack_5.webp', name: 'Dinner',    desc: 'Alle Dinner-Spots',     price: '2,99 €' },
+// Symmetric heap geometry copied from PacksSection's BUNDLE_PACKS, scaled
+// down to fit the profile hero card. Three pairs sit at mirrored x, three
+// centre packs stack vertically; z runs 1-9 with pizza on top.
+type PilePack = {
+  slug: string
+  x: number; y: number; rot: number; z: number
+}
+const BUNDLE_PACKS: PilePack[] = [
+  { slug: 'breakfast',  x: -56, y: -36, rot: -28, z: 2 },
+  { slug: 'coffee',     x:   0, y: -52, rot:   3, z: 3 },
+  { slug: 'dinner',     x:  56, y: -36, rot:  28, z: 1 },
+  { slug: 'drinks',     x: -60, y:   0, rot: -16, z: 4 },
+  { slug: 'fastfood',   x:   0, y:   0, rot:  -2, z: 6 },
+  { slug: 'finedining', x:  60, y:   0, rot:  16, z: 5 },
+  { slug: 'lunch',      x: -46, y:  34, rot: -22, z: 7 },
+  { slug: 'pizza',      x:   0, y:  44, rot:   4, z: 9 },
+  { slug: 'sweets',     x:  46, y:  34, rot:  22, z: 8 },
 ];
 
-const RANDOM: Pack = {
-  id:    'random10',
-  image: '/pics/booster/booster.webp',
-  name:  '10 Zufällige',
-  desc:  '10 Must Eats aus ganz Berlin',
-  price: '0,99 €',
-};
+// 9 category packs, €2,99 each. Names are English to match the print on
+// the actual pack art (same convention as landing's PACK_LABEL).
+const CATEGORIES: Pack[] = [
+  { id: 'breakfast',  image: '/pics/booster/booster_breakfast.webp',  name: 'Breakfast',   price: '2,99 €' },
+  { id: 'coffee',     image: '/pics/booster/booster_coffee.webp',     name: 'Coffee',      price: '2,99 €' },
+  { id: 'dinner',     image: '/pics/booster/booster_dinner.webp',     name: 'Dinner',      price: '2,99 €' },
+  { id: 'drinks',     image: '/pics/booster/booster_drinks.webp',     name: 'Drinks',      price: '2,99 €' },
+  { id: 'fastfood',   image: '/pics/booster/booster_fastfood.webp',   name: 'Fast Food',   price: '2,99 €' },
+  { id: 'finedining', image: '/pics/booster/booster_finedining.webp', name: 'Fine Dining', price: '2,99 €' },
+  { id: 'lunch',      image: '/pics/booster/booster_lunch.webp',      name: 'Lunch',       price: '2,99 €' },
+  { id: 'pizza',      image: '/pics/booster/booster_pizza.webp',      name: 'Pizza',       price: '2,99 €' },
+  { id: 'sweets',     image: '/pics/booster/booster_sweets.webp',     name: 'Sweets',      price: '2,99 €' },
+];
 
 export default function ProfileBooster() {
   const [comingSoonId, setComingSoonId] = useState<string | null>(null);
@@ -50,11 +70,25 @@ export default function ProfileBooster() {
         <h2 className={styles.title}>Mehr Karten freischalten</h2>
       </div>
 
-      {/* ── Hero pack: Berlin Komplett ── */}
+      {/* ── Hero pack: All Berlin (bundle) ── */}
       <article className={styles.heroPack}>
-        <div className={styles.heroImgWrap}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={HERO.image} alt="" className={styles.heroImg} loading="lazy" />
+        <div className={styles.heroPileWrap} aria-hidden="true">
+          {BUNDLE_PACKS.map(({ slug, x, y, rot, z }) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={slug}
+              src={`/pics/booster/booster_${slug}.webp`}
+              alt=""
+              className={styles.heroPileItem}
+              loading="lazy"
+              style={{
+                ['--x' as string]: `${x}px`,
+                ['--y' as string]: `${y}px`,
+                ['--rot' as string]: `${rot}deg`,
+                zIndex: z,
+              } as CSSProperties}
+            />
+          ))}
         </div>
         <h3 className={styles.heroName}>{HERO.name}</h3>
         <p className={styles.heroDesc}>{HERO.desc}</p>
@@ -68,14 +102,14 @@ export default function ProfileBooster() {
             <span className={styles.heroBuyAction}>Coming Soon</span>
           ) : (
             <>
-              <span className={styles.heroBuyAction}>Pack holen</span>
+              <span className={styles.heroBuyAction}>Alles freischalten</span>
               <span className={styles.heroBuyPrice}>{HERO.price}</span>
             </>
           )}
         </button>
       </article>
 
-      {/* ── Category 2×2 grid ── */}
+      {/* ── Category 3×3 grid ── */}
       <section className={styles.catSection}>
         <p className={styles.sectionLabel}>Nach Kategorie</p>
         <div className={styles.catGrid}>
@@ -98,24 +132,6 @@ export default function ProfileBooster() {
           ))}
         </div>
       </section>
-
-      {/* ── Random row: small impulse-buy ── */}
-      <article className={styles.randomPack}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={RANDOM.image} alt="" className={styles.randomImg} loading="lazy" />
-        <div className={styles.randomInfo}>
-          <span className={styles.randomName}>{RANDOM.name}</span>
-          <span className={styles.randomDesc}>{RANDOM.desc}</span>
-        </div>
-        <button
-          type="button"
-          className={`${styles.randomBuyBtn}${isSoon(RANDOM.id) ? ` ${styles.buyBtnSoon}` : ''}`}
-          onClick={() => handleBuy(RANDOM.id)}
-          disabled={isSoon(RANDOM.id)}
-        >
-          {isSoon(RANDOM.id) ? 'Bald' : RANDOM.price}
-        </button>
-      </article>
 
       <div className={styles.paymentRow} aria-label="Akzeptierte Zahlungsmethoden">
         {/* PayPal wordmark */}

@@ -47,24 +47,31 @@
   padding: 4px 0 0;
 }
 
-.heroImgWrap {
-  width: 60%;
-  max-width: 220px;
-  display: flex;
-  justify-content: center;
-  transform: rotate(-2deg);
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.22));
-}
-.heroPack:hover .heroImgWrap {
-  transform: rotate(0deg) translateY(-3px) scale(1.03);
-}
-.heroImg {
+/* Hero pile: 9 packs heaped on top of each other, centred on the card.
+   Each child is absolutely positioned via --x / --y / --rot custom props
+   (set inline from BUNDLE_PACKS in the TSX). Fixed-height stage so the
+   overlapping packs don't collapse the layout. */
+.heroPileWrap {
+  position: relative;
   width: 100%;
+  height: 220px;
+  margin: 4px 0 8px;
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.22));
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.heroPack:hover .heroPileWrap {
+  transform: translateY(-3px) scale(1.03);
+}
+.heroPileItem {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 96px;
   aspect-ratio: 1449 / 2163;
   display: block;
   border-radius: 7%;
   object-fit: cover;
+  transform: translate(-50%, -50%) translate(var(--x, 0px), var(--y, 0px)) rotate(var(--rot, 0deg));
 }
 
 .heroName {
@@ -148,8 +155,8 @@
 }
 .catGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px 10px;
 }
 .catPack {
   display: flex;
@@ -204,60 +211,6 @@
 .catBuyBtn:hover { filter: brightness(1.06); }
 .catBuyBtn:active { transform: scale(0.97); }
 
-/* ── Random row ── */
-
-.randomPack {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 4px;
-}
-.randomImg {
-  width: 44px;
-  aspect-ratio: 1449 / 2163;
-  display: block;
-  border-radius: 4px;
-  object-fit: cover;
-  flex-shrink: 0;
-  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.2));
-}
-.randomInfo {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-.randomName {
-  font-size: 14px;
-  font-weight: 800;
-  color: #0A0A0A;
-}
-.randomDesc {
-  font-size: 12px;
-  color: rgba(10, 10, 10, 0.55);
-}
-.randomBuyBtn {
-  flex-shrink: 0;
-  padding: 9px 16px;
-  background-color: var(--cta-red);
-  color: #FFFFFF;
-  border: none;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: -0.005em;
-  cursor: pointer;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.15),
-    0 6px 14px -8px rgba(183, 28, 28, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  transition: filter 0.2s, transform 0.06s;
-}
-.randomBuyBtn:hover { filter: brightness(1.06); }
-.randomBuyBtn:active { transform: scale(0.95); }
-
 /* ── Coming-soon state shared across all buy buttons ── */
 
 .buyBtnSoon,
@@ -306,13 +259,11 @@
 
 :global(html[data-theme="dark"]) .title,
 :global(html[data-theme="dark"]) .heroName,
-:global(html[data-theme="dark"]) .catName,
-:global(html[data-theme="dark"]) .randomName {
+:global(html[data-theme="dark"]) .catName {
   color: #f5f5f5;
 }
 :global(html[data-theme="dark"]) .subtitle,
 :global(html[data-theme="dark"]) .heroDesc,
-:global(html[data-theme="dark"]) .randomDesc,
 :global(html[data-theme="dark"]) .sectionLabel {
   color: rgba(245, 245, 245, 0.5);
 }

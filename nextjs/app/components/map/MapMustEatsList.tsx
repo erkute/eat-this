@@ -1,10 +1,9 @@
 'use client'
-import { useCallback, type Ref } from 'react'
-import { useLocale } from 'next-intl'
+import { type Ref } from 'react'
 import type { MapMustEat, MapLayer } from '@/lib/types'
 import { haversineDistance, formatDistance, type UserLocation } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
-import { routing } from '@/i18n/routing'
+import BoosterOfferInline from './BoosterOfferInline'
 import LayerToggle from './LayerToggle'
 import styles from './map.module.css'
 
@@ -30,16 +29,6 @@ export default function MapMustEatsList({
   onLayerSwitch,
 }: Props) {
   const { t } = useTranslation()
-  const locale = useLocale()
-
-  const onBoosterClick = useCallback(() => {
-    if (uid) {
-      const path = locale === routing.defaultLocale ? '/profile#booster' : `/${locale}/profile#booster`
-      window.location.href = path
-    } else {
-      window.location.assign(locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
-    }
-  }, [uid, locale])
 
   return (
     <>
@@ -53,8 +42,8 @@ export default function MapMustEatsList({
             unlockedIds={unlockedIds}
             selectedMustEat={selectedMustEat}
             location={location}
+            uid={uid}
             onSelect={onSelect}
-            onBoosterClick={onBoosterClick}
           />
         )}
       </div>
@@ -67,8 +56,8 @@ interface RowsProps {
   unlockedIds: Set<string>
   selectedMustEat: MapMustEat | null
   location: UserLocation | null
+  uid: string | null
   onSelect: (mustEat: MapMustEat) => void
-  onBoosterClick: () => void
 }
 
 // Splits the list into unlocked → locked sections with the booster CTA
@@ -78,8 +67,8 @@ function MustEatRows({
   unlockedIds,
   selectedMustEat,
   location,
+  uid,
   onSelect,
-  onBoosterClick,
 }: RowsProps) {
   const { t } = useTranslation()
   const unlocked = displayedMustEats.filter(m => unlockedIds.has(m._id))
@@ -88,20 +77,7 @@ function MustEatRows({
 
   const nodes: React.ReactNode[] = []
   let pos = 0
-  const boosterNode = (
-    <div key="booster" className={styles.boosterOfferList}>
-      <img src="/pics/booster/booster5.webp" alt="" className={styles.boosterImg} loading="lazy" />
-      <div className={styles.boosterInfo}>
-        <div className={styles.boosterTitle}>{t('map.boosterTitle')}</div>
-        <div className={styles.boosterDesc}>{t('map.boosterDesc')}</div>
-        <button
-          type="button"
-          className={styles.boosterCta}
-          onClick={onBoosterClick}
-        >{t('map.boosterCta')}</button>
-      </div>
-    </div>
-  )
+  const boosterNode = <BoosterOfferInline key="booster" uid={uid} variant="list" />
   const maybeInsertBooster = () => {
     if (pos === insertAt) nodes.push(boosterNode)
   }

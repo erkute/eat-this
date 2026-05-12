@@ -76,7 +76,7 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
       <div className={styles.appShowcase} aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/pics/booster/booster_finedining.webp"
+          src="/pics/booster/booster_drinks.webp"
           alt=""
           className={`${styles.pack} ${styles.packLeft}`}
         />

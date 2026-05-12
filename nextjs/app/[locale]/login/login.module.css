@@ -66,19 +66,17 @@
   height: 240px;
   flex: 0 0 auto;
 }
+/* Phone mockup WebP carries its own bezel + transparency, so no fake
+   border/background/radius here — drop-shadow follows the alpha edge. */
 .phoneMockup {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   height: 100%;
-  aspect-ratio: 1 / 2;
-  object-fit: cover;
-  background: #0d0d0d;
-  border: 2px solid #1c1c1c;
-  border-radius: 14px;
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.45);
+  width: auto;
   z-index: 3;
+  filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.5));
 }
 /* The cutout pack PNG keeps its native aspect; drop-shadow follows
    the alpha edge so the shadow hugs the pack shape, not a rectangle. */

@@ -88,7 +88,7 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/pics/booster/booster_coffee.webp"
+          src="/pics/booster/booster_sweets.webp"
           alt=""
           className={`${styles.pack} ${styles.packRight}`}
         />

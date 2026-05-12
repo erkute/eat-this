@@ -66,8 +66,8 @@
   height: 240px;
   flex: 0 0 auto;
 }
-/* Phone mockup WebP carries its own bezel + transparency, so no fake
-   border/background/radius here — drop-shadow follows the alpha edge. */
+/* Phone mockup WebP carries its own bezel + transparency.
+   Soft halo-style drop-shadow so the alpha edge artifacts stay subtle. */
 .phoneMockup {
   position: absolute;
   left: 50%;
@@ -76,16 +76,16 @@
   height: 100%;
   width: auto;
   z-index: 3;
-  filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 6px 22px rgba(0, 0, 0, 0.28));
 }
-/* The cutout pack PNG keeps its native aspect; drop-shadow follows
-   the alpha edge so the shadow hugs the pack shape, not a rectangle. */
+/* Cutout pack with native aspect. Soft halo-style drop-shadow so
+   the jagged pack edges + rotation don't expose the shadow's outline. */
 .pack {
   position: absolute;
   height: 78%;
   width: auto;
   z-index: 2;
-  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.22));
 }
 .packLeft {
   left: 4%;
@@ -379,16 +379,20 @@
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
   }
 
-  /* Showcase fills the full left column height; phone centered, packs offset. */
+  /* Showcase fills the full left column height; phone centered, packs offset.
+     Desktop restores stronger drop-shadows — the soft mobile values exist
+     to hide alpha-edge artifacts at large mobile-render sizes. */
   .appShowcase {
     height: auto;
     align-self: stretch;
   }
   .phoneMockup {
     height: 90%;
+    filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.5));
   }
   .pack {
     height: 36%;
+    filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.5));
   }
   .packLeft {
     left: 0;

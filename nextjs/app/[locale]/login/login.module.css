@@ -411,7 +411,7 @@
     gap: 16px;
   }
   .brandHero {
-    align-items: flex-start;
+    align-items: center;
     gap: 8px;
   }
   .brandWordmark {

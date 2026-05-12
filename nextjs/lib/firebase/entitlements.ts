@@ -1,0 +1,97 @@
+// Server-only. Do not import this from a client component — firebase-admin
+// pulls Node-only modules and will break the browser build.
+
+import { getAdminFirestore } from './admin'
+
+export interface Entitlement {
+  type: 'starter' | 'category' | 'all-berlin'
+  slug: string | null
+  restaurantIds: string[]
+  mustEatIds: string[]
+  purchasedAt: FirebaseFirestore.Timestamp
+  stripeSessionId: string | null
+  source: 'signup' | 'stripe' | 'manual'
+}
+
+export interface ResolvedEntitlements {
+  isAdmin:       boolean
+  hasAllBerlin:  boolean
+  categorySlugs: Set<string>
+  restaurantIds: Set<string>
+  mustEatIds:    Set<string>
+}
+
+const EMPTY_RESOLVED = (): ResolvedEntitlements => ({
+  isAdmin:       false,
+  hasAllBerlin:  false,
+  categorySlugs: new Set(),
+  restaurantIds: new Set(),
+  mustEatIds:    new Set(),
+})
+
+// Pure reducer — exported separately so it's testable without mocking Firestore.
+export function reduceEntitlements(docs: Entitlement[]): ResolvedEntitlements {
+  const out = EMPTY_RESOLVED()
+  for (const data of docs) {
+    if (data.type === 'all-berlin') {
+      out.hasAllBerlin = true
+    } else if (data.type === 'category' && data.slug) {
+      out.categorySlugs.add(data.slug)
+    } else if (data.type === 'starter') {
+      data.restaurantIds.forEach((id) => out.restaurantIds.add(id))
+      data.mustEatIds.forEach((id) => out.mustEatIds.add(id))
+    }
+  }
+  return out
+}
+
+export function isAdminEmail(email: string | null): boolean {
+  if (!email) return false
+  const list = (process.env.ADMIN_EMAILS ?? '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean)
+  return list.includes(email.toLowerCase())
+}
+
+// Firestore-reading wrapper. Anonymous users (uid === null) get an empty
+// resolved view — the map gate (separate plan) redirects them to /login.
+export async function resolveEntitlements(
+  uid:   string | null,
+  email: string | null,
+): Promise<ResolvedEntitlements> {
+  if (!uid) return EMPTY_RESOLVED()
+
+  if (isAdminEmail(email)) {
+    return { ...EMPTY_RESOLVED(), isAdmin: true, hasAllBerlin: true }
+  }
+
+  const snap = await getAdminFirestore()
+    .collection('users').doc(uid)
+    .collection('entitlements')
+    .get()
+
+  const docs = snap.docs.map((d) => d.data() as Entitlement)
+  return reduceEntitlements(docs)
+}
+
+// Visibility predicates — used by /api/map-data (separate plan) to filter
+// the Sanity result set against a ResolvedEntitlements view.
+export function isRestaurantVisible(
+  r: { _id: string; categories?: { slug: string }[] },
+  ent: ResolvedEntitlements,
+): boolean {
+  if (ent.isAdmin || ent.hasAllBerlin) return true
+  if (ent.restaurantIds.has(r._id)) return true
+  return r.categories?.some((c) => ent.categorySlugs.has(c.slug)) ?? false
+}
+
+export function isMustEatVisible(
+  m: { _id: string; restaurant: { _id: string } },
+  ent: ResolvedEntitlements,
+): boolean {
+  if (ent.isAdmin || ent.hasAllBerlin) return true
+  if (ent.mustEatIds.has(m._id)) return true
+  if (ent.restaurantIds.has(m.restaurant._id)) return true
+  return false
+}

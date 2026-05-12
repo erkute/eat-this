@@ -1,9 +1,8 @@
 /* ════════════════════════════════════════════════════════════
-   /login — brand-red surface with wordmark hero + dark-glass form.
-   Same visual language at mobile (full viewport) and desktop
-   (bounded 560×660 card). No photo; the wordmark is the visual
-   hero and the heroHeadline <h1> stays in the DOM sr-only for
-   accessibility / SEO.
+   /login — brand-red surface with an app-showcase (phone map +
+   booster packs) and the signup column (wordmark, tagline, form).
+   Mobile stacks vertically: showcase → signup. Desktop lays them
+   side-by-side in a landscape card: showcase | signup.
    ════════════════════════════════════════════════════════════ */
 
 .page {
@@ -15,9 +14,8 @@
   overflow: hidden;
 }
 
-/* The frame is the brand-red surface. Mobile fills the viewport,
-   desktop bounds it as a card (rule in @media). Top padding clears
-   the close button + leaves room for the brand hero block. */
+/* The brand-red surface. Mobile fills the viewport; desktop bounds
+   it as a landscape card (rule in @media). */
 .frame {
   position: relative;
   flex: 1;
@@ -29,16 +27,16 @@
     max(64px, calc(env(safe-area-inset-top, 0px) + 56px))
     16px
     max(20px, env(safe-area-inset-bottom, 0px));
+  gap: 14px;
 }
 
-/* Legacy mobile-era photo / scrim / small-logo overlays are unused
-   now — hidden universally. JSX kept until a later cleanup pass. */
+/* Legacy mobile-era photo/scrim/small-logo overlays are unused. */
 .heroImg,
 .scrimTop,
 .scrimBottom,
 .logoWrap { display: none; }
 
-/* ── Back button (X) — top-left, sits in the safe-area band. */
+/* ── Back button (X) ─────────────────────────────────────── */
 .backBtn {
   position: absolute;
   top: max(14px, env(safe-area-inset-top, 0px));
@@ -61,19 +59,64 @@
 .backBtn:hover { background: rgba(0, 0, 0, 0.62); }
 .backBtn:active { transform: scale(0.92); }
 
-/* ── Brand hero: sticker + wordmark + tagline. Visible everywhere. */
+/* ── App showcase (mobile): phone-map centered with two packs flanking. */
+.appShowcase {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  flex: 0 0 auto;
+}
+.phoneMockup {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  height: 100%;
+  aspect-ratio: 1 / 2;
+  object-fit: cover;
+  background: #0d0d0d;
+  border: 2px solid #1c1c1c;
+  border-radius: 14px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.45);
+  z-index: 3;
+}
+.pack {
+  position: absolute;
+  height: 78%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.4);
+  z-index: 2;
+}
+.packLeft {
+  left: 4%;
+  top: 14%;
+  transform: rotate(-14deg);
+}
+.packRight {
+  right: 4%;
+  top: 14%;
+  transform: rotate(14deg);
+}
+
+/* ── Signup column wrapper (wraps brand hero + form). */
+.signupColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Brand hero: wordmark + tagline (no sticker). */
 .brandHero {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   position: relative;
   z-index: 2;
-}
-.brandSticker {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
 }
 .brandWordmark {
   width: min(72%, 300px);
@@ -104,12 +147,12 @@
   border: 0;
 }
 
-/* ── Form panel: dark glass on red, anchored to the bottom of the frame. */
+/* ── Form panel: dark glass on red, anchored to the bottom of the column. */
 .formWrap {
   position: relative;
   z-index: 2;
   margin-top: auto;
-  padding: 20px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -182,7 +225,7 @@
   line-height: 1.4;
 }
 
-/* ── Sent state — replaces the form ───────────────────────── */
+/* ── Sent state — replaces the form */
 .sentBox {
   padding: 18px 18px 16px;
   border-radius: 14px;
@@ -309,8 +352,9 @@
 }
 .termsLink:hover { color: #fff; }
 
-/* ── Desktop: bounded card on the page background.
-     Same hero + form layout, just a defined card instead of full viewport. */
+/* ── Desktop: landscape card with two grid columns.
+     Showcase fills the left column; signup column (wordmark, tagline,
+     form) fills the right column. ─── */
 @media (min-width: 768px) {
   .page {
     background: #faf8f3;
@@ -322,27 +366,65 @@
 
   .frame {
     flex: 0 0 auto;
-    width: min(560px, 92vw);
-    max-width: 560px;
-    height: min(660px, 90vh);
+    width: min(900px, 94vw);
+    max-width: 900px;
+    height: min(560px, 88vh);
     border-radius: 24px;
     box-shadow: 0 28px 70px rgba(183, 28, 28, 0.35);
     padding: 28px;
+
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 28px;
   }
   [data-theme="dark"] .frame {
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
   }
 
-  .brandSticker {
-    width: 68px;
-    height: 68px;
+  /* Showcase fills the full left column height; phone centered, packs offset. */
+  .appShowcase {
+    height: auto;
+    align-self: stretch;
+  }
+  .phoneMockup {
+    height: 90%;
+  }
+  .pack {
+    height: 36%;
+  }
+  .packLeft {
+    left: 0;
+    top: 16%;
+    transform: rotate(-14deg);
+  }
+  .packRight {
+    right: 0;
+    bottom: 16%;
+    top: auto;
+    transform: rotate(14deg);
+  }
+
+  /* Signup column fills the right side; brand hero top, form bottom. */
+  .signupColumn {
+    align-self: stretch;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .brandHero {
+    align-items: flex-start;
+    gap: 12px;
   }
   .brandWordmark {
-    width: min(80%, 380px);
+    width: 100%;
+    max-width: 320px;
+  }
+  .brandTagline {
+    font-size: 12px;
   }
 
   .formWrap {
     max-width: none;
     align-self: stretch;
+    margin-top: 0;
   }
 }

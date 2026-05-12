@@ -69,15 +69,14 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
         <img src="/pics/login/eat 1.webp" alt="Eat This" className={styles.logoMark} />
       </div>
 
-      {/* App showcase: phone-mockup of the map view + two booster packs flanking it.
-          booster5.png is the cutout pack with an alpha channel — used twice with
-          the right pack mirrored horizontally so the same illustration reads as
-          a different angle. On desktop this fills the left grid column; on mobile
-          it stacks above the signup column. */}
+      {/* App showcase: phone-mockup of the map view + two distinct booster packs
+          flanking it. Both pack WebPs carry alpha (VP8X), so the cutout reads
+          cleanly on the red surface. On desktop this fills the left grid column;
+          on mobile it stacks above the signup column. */}
       <div className={styles.appShowcase} aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/pics/booster/booster5.png"
+          src="/pics/booster/booster_finedining.webp"
           alt=""
           className={`${styles.pack} ${styles.packLeft}`}
         />
@@ -89,7 +88,7 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/pics/booster/booster5.png"
+          src="/pics/booster/booster_coffee.webp"
           alt=""
           className={`${styles.pack} ${styles.packRight}`}
         />

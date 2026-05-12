@@ -80,24 +80,24 @@
   box-shadow: 0 16px 32px rgba(0, 0, 0, 0.45);
   z-index: 3;
 }
+/* The cutout pack PNG keeps its native aspect; drop-shadow follows
+   the alpha edge so the shadow hugs the pack shape, not a rectangle. */
 .pack {
   position: absolute;
   height: 78%;
-  aspect-ratio: 2 / 3;
-  object-fit: cover;
-  border-radius: 6px;
-  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.4);
+  width: auto;
   z-index: 2;
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.5));
 }
 .packLeft {
   left: 4%;
-  top: 14%;
-  transform: rotate(-14deg);
+  top: 12%;
+  transform: rotate(-12deg);
 }
 .packRight {
   right: 4%;
-  top: 14%;
-  transform: rotate(14deg);
+  top: 12%;
+  transform: rotate(12deg);
 }
 
 /* ── Signup column wrapper (wraps brand hero + form). */
@@ -404,27 +404,31 @@
     transform: rotate(14deg);
   }
 
-  /* Signup column fills the right side; brand hero top, form bottom. */
+  /* Signup column fills the right side as one cohesive vertical block —
+     wordmark dominates, tagline pinned to it, form sits with a small gap.
+     No space-between; the whole stack is centered vertically. */
   .signupColumn {
     align-self: stretch;
-    justify-content: space-between;
-    gap: 24px;
+    justify-content: center;
+    gap: 16px;
   }
   .brandHero {
     align-items: flex-start;
-    gap: 12px;
+    gap: 8px;
   }
   .brandWordmark {
     width: 100%;
-    max-width: 320px;
+    max-width: none;
+    height: auto;
   }
   .brandTagline {
-    font-size: 12px;
+    font-size: 13px;
+    letter-spacing: 0.2em;
   }
 
   .formWrap {
     max-width: none;
     align-self: stretch;
-    margin-top: 0;
+    margin-top: 12px;
   }
 }

@@ -1444,13 +1444,18 @@ html[data-theme="dark"] .layerTabActive {
 .detailBody {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   padding: 0 20px 8px;
 }
+/* The two meta lines (Bezirk above, Categories + Price below) form a single
+   header-info block — pull them together so they read as one unit, not two
+   disconnected lines. The body's `gap: 10px` is right for the rhythm to the
+   status / travel / hero blocks that follow. */
+.detailBody > .detailMetaLine + .detailMetaLine { margin-top: -6px; }
 /* Magazine sections (Telefon / Adresse / Öffnungszeiten / Must Eats) get a
    slightly larger gap between each other so they read as discrete blocks
    instead of a single visual run. */
-.detailBody > .detailSection + .detailSection { margin-top: 6px; }
+.detailBody > .detailSection + .detailSection { margin-top: 4px; }
 @media (min-width: 1024px) {
   .detailBody { padding: 0 22px 8px; }
 }
@@ -1471,13 +1476,15 @@ html[data-theme="dark"] .layerTabActive {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  /* Tight against the handle on top, tight against the meta line below —
-     name needs to sit close to both anchors. */
-  padding: 0 16px 4px;
+  /* Horizontal padding mirrors the body's so the restaurant name sits on
+     the same left-edge as everything below it (Bezirk, status, sections).
+     Tight vertical padding keeps the name close to the handle above and
+     the meta block below. */
+  padding: 0 20px 4px;
   flex-shrink: 0;
 }
 @media (min-width: 1024px) {
-  .detailPeekHeader { padding: 14px 20px 8px; }
+  .detailPeekHeader { padding: 14px 22px 8px; }
 }
 .detailInSheet .detailName {
   flex: 1;

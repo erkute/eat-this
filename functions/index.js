@@ -31,20 +31,6 @@ const sanity = createSanityClient({
   useCdn:     true,
 });
 
-// Fisher–Yates over the full id list, keep first `count`.
-async function pickRandomMustEatIds(count) {
-  const ids = await sanity.fetch('*[_type == "mustEat" && defined(image.asset)]._id');
-  if (!Array.isArray(ids) || ids.length < count) {
-    throw new Error('not-enough-must-eats: have ' + (ids ? ids.length : 0) + ', need ' + count);
-  }
-  const shuffled = ids.slice();
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled.slice(0, count);
-}
-
 // Sanity schema field name is `restaurantRef` (see studio/schemaTypes/mustEat.js);
 // the map projection in nextjs/lib/map/queries.ts renames it to `restaurant`
 // for the frontend. We use the raw field name here.
@@ -95,6 +81,13 @@ async function provisionWelcomeForUid(db, uid, source) {
   const packRef = db.collection('users').doc(uid).collection('packs').doc('welcome');
   const entRef  = db.collection('users').doc(uid).collection('entitlements').doc('starter');
 
+  // Note: the read-write window here is not transactional. Two concurrent
+  // calls for the same uid would both see exists: false and both write,
+  // overwriting each other. Acceptable trade-off in this codebase:
+  //  - onUserCreate is an auth-trigger (once-delivery in practice)
+  //  - ensureWelcomePack has no concurrent client callers
+  //  - the worst case is a re-roll of the user's starter cards, recoverable
+  //    by running scripts/backfill-starter-entitlements.ts
   const [packSnap, entSnap] = await Promise.all([packRef.get(), entRef.get()]);
   if (packSnap.exists && entSnap.exists) {
     return { status: 'exists' };

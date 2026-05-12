@@ -42,6 +42,16 @@ env:
     availability:
       - RUNTIME
 
+  # Admin-bypass allowlist for the entitlements resolver. Users whose
+  # verified email matches one of these get isAdmin: true and see the full
+  # map (treated like a paid All-Berlin holder). Comma-separated, case-
+  # insensitive. Identifiers, not secrets — `value:` is fine, no Secret
+  # Manager needed.
+  - variable: ADMIN_EMAILS
+    value: dirtyersan@gmail.com
+    availability:
+      - RUNTIME
+
   # Public App URL (used as fallback for image asset base URL in emails)
   - variable: NEXT_PUBLIC_APP_URL
     value: https://www.eatthisdot.com

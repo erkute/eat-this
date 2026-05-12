@@ -54,6 +54,16 @@
   pointer-events: none;
 }
 
+/* The badge is non-interactive by default so it doesn't capture clicks
+   meant for the image, but the photographer link inside must be clickable
+   when present. */
+.heroCredit a {
+  pointer-events: auto;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.4);
+}
+
 .content {
   padding-top: 32px;
 }

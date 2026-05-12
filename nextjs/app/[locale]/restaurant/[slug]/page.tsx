@@ -137,8 +137,11 @@ export default async function RestaurantPage({ params }: PageProps) {
   const todayStatus =
     r.openingHours && r.openingHours.length > 0
       ? getOpenStatus(r.openingHours, new Date(), {
-          open: de ? 'Heute geöffnet' : 'Open today',
-          closed: de ? 'Heute geschlossen' : 'Closed today',
+          // "Today" was misleading: a place closed at 5am that reopens at 6pm
+          // is not "closed today" — it's closed *now*. Mirror that for the
+          // open badge so both states read as a snapshot of the moment.
+          open: de ? 'Jetzt geöffnet' : 'Open now',
+          closed: de ? 'Jetzt geschlossen' : 'Closed now',
           opens: de ? 'öffnet' : 'opens',
           closes: de ? 'schließt' : 'closes',
         })
@@ -184,7 +187,25 @@ export default async function RestaurantPage({ params }: PageProps) {
           )}
           {r.photo && (
             <span className={styles.heroCredit} aria-label="Photo credit">
-              via Instagram
+              {r.photoCredit ? (
+                r.photoCreditUrl ? (
+                  <a href={r.photoCreditUrl} target="_blank" rel="noopener noreferrer">
+                    {r.photoCredit}
+                  </a>
+                ) : (
+                  r.photoCredit
+                )
+              ) : r.instagramHandle ? (
+                <a
+                  href={`https://instagram.com/${r.instagramHandle}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  via @{r.instagramHandle}
+                </a>
+              ) : (
+                'via Instagram'
+              )}
             </span>
           )}
         </div>

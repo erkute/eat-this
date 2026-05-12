@@ -31,6 +31,7 @@ export const restaurantBySlugQuery = `
     lng,
     mapsUrl,
     website,
+    instagramHandle,
     reservationUrl,
     openingHours[] { days, hours },
     tip,
@@ -38,6 +39,8 @@ export const restaurantBySlugQuery = `
     description,
     descriptionEn,
     "photo": image.asset->url + "?w=1200&auto=format&q=85",
+    "photoCredit": image.credit,
+    "photoCreditUrl": image.creditUrl,
     seo {
       metaTitle,
       metaTitleEn,

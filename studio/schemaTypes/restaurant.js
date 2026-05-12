@@ -222,6 +222,13 @@ export default {
       type: 'url',
     },
     {
+      name: 'instagramHandle',
+      title: 'Instagram Handle',
+      type: 'string',
+      description:
+        'Nur den Handle ohne @ (z.B. "buba.berlin"). Wenn gesetzt UND das Photo kein eigenes Credit hat, erscheint der Hero-Credit als "via @handle" mit Link auf instagram.com/handle.',
+    },
+    {
       name: 'image',
       title: 'Photo',
       type: 'image',

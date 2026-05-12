@@ -44,6 +44,7 @@ export interface Restaurant {
   lng: number
   mapsUrl?: string
   website?: string
+  instagramHandle?: string
   reservationUrl?: string
   openingHours?: OpeningHourSlot[]
   tip?: string
@@ -53,6 +54,8 @@ export interface Restaurant {
   description?: string
   descriptionEn?: string
   photo?: string
+  photoCredit?: string
+  photoCreditUrl?: string
   seo?: RestaurantSeo
   bezirk?: { _id: string; name: string; slug?: string }
 }

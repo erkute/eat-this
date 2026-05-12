@@ -98,14 +98,17 @@
   transform: rotate(12deg);
 }
 
-/* ── Signup column wrapper (wraps brand hero + form). */
+/* ── Signup column wrapper.
+   Mobile: display: contents so brandHero + formWrap participate in the
+   frame's flex column directly, letting `order:` swap brand to the top
+   while keeping the JSX structure unchanged.
+   Desktop @media: restored to a real flex column inside the right grid cell. */
 .signupColumn {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  flex: 1;
-  min-height: 0;
+  display: contents;
 }
+
+/* Mobile order: brand hero on top, then showcase (default), then form (default + margin-top:auto). */
+.brandHero { order: -1; }
 
 /* ── Brand hero: wordmark + tagline (no sticker). */
 .brandHero {
@@ -408,12 +411,17 @@
 
   /* Signup column fills the right side as one cohesive vertical block —
      wordmark dominates, tagline pinned to it, form sits with a small gap.
-     No space-between; the whole stack is centered vertically. */
+     No space-between; the whole stack is centered vertically.
+     Restore real flex layout (overrides `display: contents` from mobile). */
   .signupColumn {
+    display: flex;
+    flex-direction: column;
     align-self: stretch;
     justify-content: center;
     gap: 16px;
   }
+  /* Mobile-only flex order doesn't apply inside the desktop grid. */
+  .brandHero { order: initial; }
   .brandHero {
     align-items: center;
     gap: 8px;

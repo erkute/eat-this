@@ -307,53 +307,89 @@ export default async function RestaurantPage({ params }: PageProps) {
                   } catch {}
                 }
 
+                const ChevronArrow = () => (
+                  <svg
+                    className={styles.actionArrow}
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="4.5 2.5 8.5 6 4.5 9.5" />
+                  </svg>
+                )
+
                 return (
                   <>
-                    <div className={styles.links}>
-                      <IntlLink
-                        href={`/map?r=${r.slug}`}
-                        className={`${styles.link} ${styles.linkPrimary} ${styles.linkBrand}`}
-                        aria-label="Eat This Map"
-                      >
-                        <span className={styles.linkBrandWordmark} aria-hidden="true" />
-                        <span className={styles.linkBrandSuffix} aria-hidden="true">Map</span>
-                      </IntlLink>
-                      {r.reservationUrl && (
-                        <a
-                          href={r.reservationUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`${styles.link} ${styles.linkReserve}`}
-                        >
-                          <span className={styles.linkReserveTop}>{de ? 'Reservieren' : 'Reserve'}</span>
-                          {reservationProvider && (
-                            <span className={styles.linkReserveProvider}>{reservationProvider}</span>
-                          )}
-                        </a>
-                      )}
-                      {igHandle && (
-                        <a
-                          href={`https://instagram.com/${igHandle}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={styles.link}
-                          aria-label={`Instagram @${igHandle}`}
-                        >
-                          @{igHandle}
-                        </a>
-                      )}
-                    </div>
-                    {websiteForRow && (
-                      <p className={styles.websiteRow}>
-                        <a
-                          href={websiteForRow.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={styles.websiteLink}
-                        >
-                          {websiteForRow.display}
-                        </a>
-                      </p>
+                    {/* Primary CTA — the only "loud" element. Everything else
+                        sits in a quiet list of secondary actions below. */}
+                    <IntlLink
+                      href={`/map?r=${r.slug}`}
+                      className={styles.primaryCta}
+                      aria-label="Eat This Map"
+                    >
+                      <span className={styles.primaryCtaWordmark} aria-hidden="true" />
+                      <span className={styles.primaryCtaSuffix} aria-hidden="true">Map</span>
+                    </IntlLink>
+
+                    {/* Secondary action list — settings-list rhythm: label
+                        left, contextual detail right (provider / handle /
+                        host), chevron on the far right. Tying everything
+                        into a single visual rhythm replaces the previous
+                        mix of buttons + loose text URL. */}
+                    {(r.reservationUrl || igHandle || websiteForRow) && (
+                      <ul className={styles.actionList}>
+                        {r.reservationUrl && (
+                          <li>
+                            <a
+                              href={r.reservationUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.actionItem}
+                            >
+                              <span className={styles.actionLabel}>
+                                {de ? 'Reservieren' : 'Reserve'}
+                              </span>
+                              {reservationProvider && (
+                                <span className={styles.actionDetail}>{reservationProvider}</span>
+                              )}
+                              <ChevronArrow />
+                            </a>
+                          </li>
+                        )}
+                        {igHandle && (
+                          <li>
+                            <a
+                              href={`https://instagram.com/${igHandle}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.actionItem}
+                              aria-label={`Instagram @${igHandle}`}
+                            >
+                              <span className={styles.actionLabel}>Instagram</span>
+                              <span className={styles.actionDetail}>@{igHandle}</span>
+                              <ChevronArrow />
+                            </a>
+                          </li>
+                        )}
+                        {websiteForRow && (
+                          <li>
+                            <a
+                              href={websiteForRow.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.actionItem}
+                            >
+                              <span className={styles.actionLabel}>Website</span>
+                              <span className={styles.actionDetail}>{websiteForRow.display}</span>
+                              <ChevronArrow />
+                            </a>
+                          </li>
+                        )}
+                      </ul>
                     )}
                   </>
                 )

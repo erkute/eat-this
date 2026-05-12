@@ -239,157 +239,112 @@
   color: var(--text-secondary);
 }
 
-.links {
-  display: grid;
-  /* minmax(0, 1fr) — without the 0 minimum, the columns expand to each
-     button's min-content (white-space: nowrap text), pushing the row past
-     the viewport. */
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.link {
-  display: block;
-  min-width: 0;
-  text-align: center;
-  padding: 11px 4px;
-  background: var(--surface-card);
-  border: 1px solid var(--border-strong);
-  border-radius: 10px;
-  color: var(--text-primary);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  overflow: hidden;
+/* Primary CTA — "Eat This Map". The only loud element in the sidebar.
+   Filled landing-red so it reads as the same primary CTA used everywhere
+   else on the site. */
+.primaryCta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--cta-red);
+  border: 1px solid var(--cta-red);
+  border-radius: 12px;
+  color: #ffffff;
   text-decoration: none;
-  transition: background 0.15s, color 0.15s, transform 0.1s, border-color 0.15s;
+  transition: filter 0.15s, transform 0.1s;
   -webkit-tap-highlight-color: transparent;
 }
+.primaryCta:hover { filter: brightness(0.92); color: #ffffff; }
+.primaryCta:active { transform: scale(0.98); }
 
-.link:hover {
-  background: var(--text-primary);
-  color: var(--surface-card);
-  border-color: var(--text-primary);
-}
-
-.link:active {
-  transform: scale(0.97);
-}
-
-/* If there are 4 outbound buttons (Map + Google + Reserve + Website), the
-   fourth wraps to a second row spanning the full width — keeps the layout
-   balanced instead of leaving two empty grid cells. */
-.link:nth-child(4) {
-  grid-column: 1 / -1;
-}
-
-/* Two-line reserve button: "Reservieren" on top, smaller provider name
-   ("OpenTable") underneath so the user knows which platform handles the
-   booking — not just a generic CTA. */
-.linkReserve {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  line-height: 1.05;
-  padding: 7px 4px;
-}
-
-.linkReserveTop {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-}
-
-.linkReserveProvider {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-}
-
-.linkReserve:hover .linkReserveProvider {
-  color: inherit;
-}
-
-/* Plain text URL line directly under the button row — the user asked for
-   the website to be "ausgeschrieben" (written out) rather than hidden
-   behind a generic "Website" pill, so the actual host (e.g.
-   "www.bonanzacoffee.de") is the link text. */
-.websiteRow {
-  margin: 12px 0 0;
-  font-size: 0.875rem;
-  text-align: center;
-  color: var(--text-secondary);
-}
-
-.websiteLink {
-  color: inherit;
-  text-decoration: underline;
-  text-decoration-color: var(--border-strong);
-  text-underline-offset: 3px;
-  word-break: break-word;
-}
-
-.websiteLink:hover {
-  text-decoration-color: currentColor;
-}
-
-/* Primary "open this restaurant on the map" link — filled landing-style red
-   so it reads as the same primary CTA used everywhere else (HeroForm submit,
-   BoosterPack submit, Newsletter submit). */
-.linkPrimary {
-  background: var(--cta-red);
-  border-color: var(--cta-red);
-  color: #ffffff;
-}
-
-.linkPrimary:hover {
-  background: var(--cta-red);
-  border-color: var(--cta-red);
-  color: #ffffff;
-  filter: brightness(0.92);
-}
-
-/* Brand-mark CTA — uses the actual /pics/logo2.webp wordmark via
-   `mask-image` so it inherits the button's currentColor (white on the
-   red CTA, no extra inverted asset needed). The "MAP" qualifier sits in
-   the regular Inter-700 caps next to the wordmark — intentional contrast
-   in weight: the wordmark IS the brand, "MAP" is the product label. */
-.linkBrand {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  /* The base .link uses 11 / 4 px padding tuned to the 3-col mobile grid
-     where horizontal space is at a premium. The wordmark needs more
-     breathing room, so widen here. */
-  padding: 10px 14px;
-}
-
-.linkBrandWordmark {
+/* Wordmark via mask-image so it inherits the CTA's white currentColor.
+   Aspect ratio matches /pics/logo2.webp (1815/576). */
+.primaryCtaWordmark {
   display: inline-block;
-  /* Slightly taller than the surrounding 0.75 rem caps so the wordmark
-     reads as dominant. Aspect ratio matches /pics/logo2.webp (1815/576). */
-  height: 16px;
+  height: 18px;
   aspect-ratio: 1815 / 576;
   background: currentColor;
   -webkit-mask: url('/pics/logo2.webp') center / contain no-repeat;
   mask: url('/pics/logo2.webp') center / contain no-repeat;
   flex-shrink: 0;
 }
-
-.linkBrandSuffix {
-  font-size: 0.75rem;
+.primaryCtaSuffix {
+  font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  /* Tiny optical lift so the suffix's lowercase x-height aligns with the
-     wordmark's heavy caps rather than sitting visually below them. */
   margin-top: 1px;
+}
+
+/* Settings-list rhythm for secondary actions (Reserve / Instagram /
+   Website). Replaces the previous mix of side-by-side buttons + loose
+   text URL — everything now sits on a single visual track: label on the
+   left, contextual detail right-aligned, chevron at the far edge. Each
+   row is a full-width tap target. */
+.actionList {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+
+.actionItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s;
+}
+
+.actionList li:last-child .actionItem {
+  border-bottom: none;
+}
+
+.actionItem:hover {
+  color: var(--text-primary);
+}
+.actionItem:hover .actionDetail {
+  color: var(--text-primary);
+}
+.actionItem:hover .actionArrow {
+  color: var(--text-primary);
+  transform: translateX(2px);
+}
+
+.actionLabel {
+  flex-shrink: 0;
+}
+
+.actionDetail {
+  margin-left: auto;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0;
+  text-transform: none;
+  /* Long hosts / handles can shrink without breaking the chevron's edge
+     alignment. */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+  transition: color 0.15s;
+}
+
+.actionArrow {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: color 0.15s, transform 0.15s;
 }
 
 /* ─── Two-column body layout (>= 960 px) ────────────────────────────────
@@ -434,10 +389,4 @@
     top: calc(60px + 24px);
     gap: 28px;
   }
-  /* Sidebar links stack vertically — no need for the 3-column mobile grid
-     when they sit in a 320 px column. */
-  .links { grid-template-columns: 1fr; }
-  /* The mobile-only "4th button spans full width" override has no effect
-     in a 1-col stack but reset it anyway so the rule is unambiguous. */
-  .link:nth-child(4) { grid-column: auto; }
 }

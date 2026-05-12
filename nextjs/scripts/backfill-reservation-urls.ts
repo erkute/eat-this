@@ -152,14 +152,36 @@ function findReservationUrl(html: string): { url: string; provider: string } | n
   for (const { label, re } of PROVIDERS) {
     const m = html.match(re)
     if (m) {
-      // Strip a trailing punctuation char that often comes from regex
-      // terminators in HTML (e.g. "&quot;" trailing or a closing >).
       let url = m[0].replace(/[.,;:!?)]+$/, '')
-      // Decode common HTML entities introduced by minifiers.
       url = url.replace(/&amp;/g, '&')
       return { url, provider: label }
     }
   }
+
+  // Fallback: OpenTable widgets embedded as iframes don't carry the
+  // booking-URL path pattern (the path is /widget/reservation/loader); they
+  // only carry restref=NNNN as a query param. Capture that and reconstruct
+  // a canonical opentable.de booking URL. This catches the most common
+  // German restaurant integration pattern.
+  const otRestref = html.match(/[?&]restref=(\d{3,8})\b/i)
+  if (otRestref) {
+    return {
+      url: `https://www.opentable.de/restref/client/?restref=${otRestref[1]}&lang=de-DE`,
+      provider: 'OpenTable',
+    }
+  }
+
+  // Resy widgets embed a venueId; reconstruct a search URL pointing at the
+  // venue when it shows up. Less precise than OpenTable's restref (Resy
+  // venue URLs use a slug, not the numeric id), so we link to Resy search.
+  const resyVenue = html.match(/[?&]venueId=(\d{3,8})\b/i)
+  if (resyVenue) {
+    return {
+      url: `https://resy.com/cities/ber?date=&seats=2&venueId=${resyVenue[1]}`,
+      provider: 'Resy',
+    }
+  }
+
   return null
 }
 

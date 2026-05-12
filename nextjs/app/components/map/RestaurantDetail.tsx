@@ -248,18 +248,36 @@ export default function RestaurantDetail({
             </div>
           )}
 
-          {restaurant.reservationUrl && (
-            <div className={styles.detailCtaRow}>
-              <a
-                href={restaurant.reservationUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${styles.detailCtaBtn} ${styles.detailCtaBtnPrimary}`}
-              >
-                {t('map.reserve')}
-              </a>
-            </div>
-          )}
+          {restaurant.reservationUrl && (() => {
+            // Detect the booking platform from the host so users see WHO
+            // handles the reservation, not just a generic "Reserve" CTA.
+            let provider: string | null = null
+            try {
+              const host = new URL(restaurant.reservationUrl).hostname.toLowerCase()
+              if (host.includes('opentable')) provider = 'OpenTable'
+              else if (host.includes('resy.com')) provider = 'Resy'
+              else if (host.includes('thefork')) provider = 'TheFork'
+              else if (host.includes('quandoo')) provider = 'Quandoo'
+              else if (host.includes('bookatable')) provider = 'Bookatable'
+              else if (host.includes('resmio')) provider = 'Resmio'
+              else if (host.includes('sevenrooms')) provider = 'SevenRooms'
+            } catch {}
+            return (
+              <div className={styles.detailCtaRow}>
+                <a
+                  href={restaurant.reservationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${styles.detailCtaBtn} ${styles.detailCtaBtnPrimary} ${styles.detailCtaBtnReserve}`}
+                >
+                  <span className={styles.detailCtaReserveTop}>{t('map.reserve')}</span>
+                  {provider && (
+                    <span className={styles.detailCtaReserveProvider}>via {provider}</span>
+                  )}
+                </a>
+              </div>
+            )
+          })()}
 
           {restaurant.photo ? (
             <figure className={styles.detailHeroInline}>

@@ -1644,6 +1644,29 @@ html[data-theme="dark"] .layerTabActive {
 }
 .detailCtaBtnPrimary:hover { filter: brightness(0.94); }
 
+/* Reserve button variant — stacks "Reservieren" + small provider name
+   ("via OpenTable") so the booking platform is visible at a glance,
+   not hidden behind a generic CTA. */
+.detailCtaBtnReserve {
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.1;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.detailCtaReserveTop {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.detailCtaReserveProvider {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.86;
+}
+
 /* Image element shared by both viewports. The aspect-ratio is set by the
    parent (.detailHeroTop or .detailHeroInline) so each viewport gets its
    own framing. */

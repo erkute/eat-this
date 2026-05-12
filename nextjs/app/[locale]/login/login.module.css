@@ -331,9 +331,9 @@
 }
 .termsLink:hover { color: #fff; }
 
-/* ── Desktop: keep layout, just constrain + center ───────── */
-/* ── Desktop: phone-shape card; image natural aspect at top, plate
-     fully visible; dark fill below for the glass form to sit on ─── */
+/* ── Desktop: cinematic 480×680 photo card with glass form overlay.
+     Same layout for both standalone /login and the BridgeAuth modal —
+     they share this rule because they share LoginPanel. ─── */
 @media (min-width: 768px) {
   .page {
     background: #faf8f3;
@@ -377,21 +377,33 @@
   .scrimBottom { display: none; }
 
   .logoMark { width: 56px; }
+
+  /* Headline lives inside the glass panel; smaller + tighter than mobile. */
+  .heroHeadline {
+    font-size: 22px;
+    line-height: 1.1;
+    margin: 0 0 6px;
+  }
+
+  /* The form wrap becomes the glass panel itself. */
+  .formWrap {
+    position: absolute;
+    inset: auto 18px 18px 18px;
+    margin-top: 0;
+    padding: 20px;
+    max-width: none;
+    align-self: auto;
+    gap: 10px;
+
+    background: rgba(18, 16, 12, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 18px;
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    backdrop-filter: blur(18px) saturate(1.3);
+  }
+
+  .form { gap: 8px; }
+  .divider { margin: 2px 0; }
+  .terms { margin-top: 6px; }
 }
 
-/* ── Modal context override ──────────────────────────────────────────
-   Used when LoginPanel is rendered inside a modal overlay (BridgeAuth
-   portal or @modal/(.)login intercepting route). The overlay covers the
-   page header entirely (z-index above the legacy navbar), so the modal
-   can use the full standalone-/login phone-card height; just slightly
-   wider for a more generous hero (plate + top-centered logo visible). */
-@media (min-width: 768px) {
-  .frameModal {
-    max-width: 460px;
-    height: min(96vh, 960px);
-  }
-  /* Logo a touch smaller in modal context to free up room above the plate. */
-  .frameModal .logoMark {
-    width: 52px;
-  }
-}

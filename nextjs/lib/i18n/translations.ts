@@ -281,6 +281,7 @@ const en = {
       sendLinkBtn: "Sign in",
       linkSentHint: "Click the link in your email to sign in.",
       heroHeadline: "Hundreds of Must Eats\nto discover",
+      tagline: "We tell you what to eat",
       resendBtn: "Resend",
       backBtn: "Back",
       logoutBtn: "Sign out",

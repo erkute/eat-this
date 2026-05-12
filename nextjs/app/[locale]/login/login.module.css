@@ -331,9 +331,9 @@
 }
 .termsLink:hover { color: #fff; }
 
-/* ── Desktop hero block (sticker + wordmark + tagline) is hidden on mobile;
-     mobile keeps the photo + small logoMark above. ─── */
-.desktopHero { display: none; }
+/* ── Brand hero block (sticker + wordmark + tagline).
+     Visible at both viewports — Task 12 unifies the layout. ─── */
+.brandHero { display: none; }
 
 /* ── Desktop: brand-red card. No photo — pure brand identity.
      Wordmark hero on top, dark-glass form panel at the bottom.
@@ -380,7 +380,7 @@
   }
 
   /* Desktop brand hero: sticker on top, wordmark image, then the tagline. */
-  .desktopHero {
+  .brandHero {
     display: flex;
     flex-direction: column;
     align-items: center;

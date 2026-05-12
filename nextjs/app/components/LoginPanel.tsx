@@ -69,14 +69,14 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
         <img src="/pics/login/eat 1.webp" alt="Eat This" className={styles.logoMark} />
       </div>
 
-      {/* Desktop-only brand hero: sticker + wordmark + tagline.
-          Hidden on mobile via CSS — mobile keeps the photo + small logoMark above. */}
-      <div className={styles.desktopHero} aria-hidden="true">
+      {/* Brand hero: sticker + wordmark + tagline. Visible on both mobile + desktop.
+          The legacy photo/scrim/small-logoMark above are CSS-hidden everywhere now. */}
+      <div className={styles.brandHero} aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/pics/logo.webp" alt="" className={styles.brandSticker} />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/pics/logo2.webp" alt="" className={styles.brandWordmark} />
-        <p className={styles.brandTagline}>{t('hero.tagline')}</p>
+        <p className={styles.brandTagline}>{t('modals.login.tagline')}</p>
       </div>
 
       <div className={styles.formWrap}>

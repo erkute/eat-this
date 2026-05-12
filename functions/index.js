@@ -45,6 +45,100 @@ async function pickRandomMustEatIds(count) {
   return shuffled.slice(0, count);
 }
 
+// Sanity schema field name is `restaurantRef` (see studio/schemaTypes/mustEat.js);
+// the map projection in nextjs/lib/map/queries.ts renames it to `restaurant`
+// for the frontend. We use the raw field name here.
+async function pickRandomMustEatsWithParents(count) {
+  const rows = await sanity.fetch(`
+    *[_type == "mustEat" && defined(image.asset) && defined(restaurantRef._ref)]{
+      "mustEatId": _id,
+      "restaurantId": restaurantRef._ref
+    }
+  `);
+  if (!Array.isArray(rows) || rows.length < count) {
+    throw new Error(`not-enough-must-eats: have ${rows ? rows.length : 0}, need ${count}`);
+  }
+  const shuffled = rows.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  const picked = shuffled.slice(0, count);
+  return {
+    mustEatIds:    picked.map((r) => r.mustEatId),
+    restaurantIds: [...new Set(picked.map((r) => r.restaurantId))],
+  };
+}
+
+// Given a list of mustEat _ids, return the de-duped list of parent
+// restaurant _ids. Used by the backfill path where the welcome pack
+// already exists and we need to derive the matching restaurantIds.
+async function parentRestaurantIdsOf(mustEatIds) {
+  if (!Array.isArray(mustEatIds) || mustEatIds.length === 0) return [];
+  const rows = await sanity.fetch(
+    `*[_type == "mustEat" && _id in $ids]{ "rid": restaurantRef._ref }`,
+    { ids: mustEatIds },
+  );
+  return [...new Set(rows.map((r) => r.rid).filter(Boolean))];
+}
+
+// Single source of truth for creating a user's welcome pack AND their
+// starter entitlement. Both onUserCreate and ensureWelcomePack route
+// through this. Idempotent at the doc level — if one of the two docs
+// already exists, only the missing one is written.
+//
+// When the pack exists but the entitlement doesn't (backfill case for
+// users created before this code shipped), we derive restaurantIds from
+// the pack's existing mustEatIds rather than picking a fresh random set —
+// otherwise the entitlement wouldn't match the cards in the user's deck.
+async function provisionWelcomeForUid(db, uid, source) {
+  const packRef = db.collection('users').doc(uid).collection('packs').doc('welcome');
+  const entRef  = db.collection('users').doc(uid).collection('entitlements').doc('starter');
+
+  const [packSnap, entSnap] = await Promise.all([packRef.get(), entRef.get()]);
+  if (packSnap.exists && entSnap.exists) {
+    return { status: 'exists' };
+  }
+
+  let mustEatIds;
+  let restaurantIds;
+
+  if (packSnap.exists) {
+    mustEatIds    = packSnap.data().mustEatIds || [];
+    restaurantIds = await parentRestaurantIdsOf(mustEatIds);
+  } else {
+    const picked  = await pickRandomMustEatsWithParents(10);
+    mustEatIds    = picked.mustEatIds;
+    restaurantIds = picked.restaurantIds;
+  }
+
+  if (!packSnap.exists) {
+    await packRef.set({
+      opened:    false,
+      mustEatIds,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      openedAt:  null,
+      source,
+    });
+  }
+
+  if (!entSnap.exists) {
+    await entRef.set({
+      type:            'starter',
+      slug:            null,
+      restaurantIds,
+      mustEatIds,
+      purchasedAt:     admin.firestore.FieldValue.serverTimestamp(),
+      stripeSessionId: null,
+      source,
+    });
+  }
+
+  return {
+    status: packSnap.exists ? 'entitlement-backfilled' : 'created',
+  };
+}
+
 const RESEND_API_KEY = defineSecret('RESEND_API_KEY');
 
 // ─── Rate limiter (Firestore-backed) ─────────────────────────────────────────
@@ -259,35 +353,20 @@ exports.ensureWelcomePack = onCall(
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Sign in first.');
     }
-    const uid    = request.auth.uid;
-    const packId = String(request.data?.packId ?? 'welcome');
+    const uid = request.auth.uid;
 
-    const ref = admin.firestore()
-      .collection('users').doc(uid)
-      .collection('packs').doc(packId);
-
-    const existing = await ref.get();
-    if (existing.exists) {
-      return { ok: true, status: 'exists' };
-    }
-
-    let mustEatIds;
     try {
-      mustEatIds = await pickRandomMustEatIds(10);
+      const result = await provisionWelcomeForUid(
+        admin.firestore(),
+        uid,
+        'ensure-on-demand',
+      );
+      logger.info('[ensureWelcomePack]', uid, result);
+      return { ok: true, status: result.status };
     } catch (err) {
-      logger.error('[ensureWelcomePack] Sanity fetch failed for', uid, err);
+      logger.error('[ensureWelcomePack] failed for', uid, err);
       throw new HttpsError('failed-precondition', 'Could not source cards.');
     }
-
-    await ref.set({
-      opened:    false,
-      mustEatIds,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      openedAt:  null,
-      source:    'ensure-on-demand',
-    });
-    logger.info('[ensureWelcomePack] Created for', uid, 'with', mustEatIds.length, 'cards');
-    return { ok: true, status: 'created' };
   }
 );
 
@@ -345,26 +424,13 @@ exports.onUserCreate = require('firebase-functions/v1').auth.user().onCreate(asy
   }
 
   try {
-    const packRef = db
-      .collection('users').doc(user.uid)
-      .collection('packs').doc('welcome');
-
-    const existing = await packRef.get();
-    if (existing.exists) {
-      logger.info('[onUserCreate] Welcome pack already exists for', user.uid);
-      return;
-    }
-
-    const mustEatIds = await pickRandomMustEatIds(10);
-    await packRef.set({
-      opened:    false,
-      mustEatIds,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      openedAt:  null,
-      source:    'signup',
-    });
-    logger.info('[onUserCreate] Welcome booster pack created for', user.uid, 'with', mustEatIds.length, 'cards');
+    const result = await provisionWelcomeForUid(
+      admin.firestore(),
+      user.uid,
+      'signup',
+    );
+    logger.info('[onUserCreate] welcome pack + entitlement', user.uid, result);
   } catch (err) {
-    logger.error('[onUserCreate] Welcome booster pack creation failed:', err);
+    logger.error('[onUserCreate] welcome provisioning failed:', err);
   }
 });

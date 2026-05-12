@@ -69,11 +69,35 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
         <img src="/pics/login/eat 1.webp" alt="Eat This" className={styles.logoMark} />
       </div>
 
-      {/* Brand hero: sticker + wordmark + tagline. Visible on both mobile + desktop.
-          The legacy photo/scrim/small-logoMark above are CSS-hidden everywhere now. */}
-      <div className={styles.brandHero} aria-hidden="true">
+      {/* App showcase: phone-mockup of the map + two booster packs flanking it.
+          On desktop this fills the left grid column; on mobile it stacks above
+          the signup column. */}
+      <div className={styles.appShowcase} aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/pics/logo.webp" alt="" className={styles.brandSticker} />
+        <img
+          src="/pics/booster/booster_finedining.webp"
+          alt=""
+          className={`${styles.pack} ${styles.packLeft}`}
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/pics/map-teaser/map_musteat.webp"
+          alt=""
+          className={styles.phoneMockup}
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/pics/booster/booster_coffee.webp"
+          alt=""
+          className={`${styles.pack} ${styles.packRight}`}
+        />
+      </div>
+
+      {/* Right column on desktop / lower stack on mobile: brand hero + form. */}
+      <div className={styles.signupColumn}>
+
+      {/* Brand hero: wordmark + tagline. */}
+      <div className={styles.brandHero} aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/pics/logo2.webp" alt="" className={styles.brandWordmark} />
         <p className={styles.brandTagline}>{t('modals.login.tagline')}</p>
@@ -154,6 +178,8 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
           <a className={styles.termsLink} href={dsHref}>{t('modals.login.privacyLink')}</a>
         </p>
       </div>
+
+      </div>{/* /signupColumn */}
 
       {(googleBusy || (!loading && user)) && (
         <div className={styles.loadingOverlay} aria-hidden="true">

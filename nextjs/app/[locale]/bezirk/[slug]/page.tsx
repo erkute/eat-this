@@ -167,7 +167,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
               <div className={styles.cardBody}>
                 <h2 className={styles.cardName}>{r.name}</h2>
                 <div className={styles.cardMeta}>
-                  {r.cuisineType && <span>{r.cuisineType}</span>}
+                  {r.cuisineType && <span className={styles.cuisine}>{r.cuisineType}</span>}
                   {(() => {
                     const priceLabel = formatPriceLabel(r)
                     return priceLabel ? <span className={styles.price}>· {priceLabel}</span> : null

@@ -167,9 +167,20 @@
   margin-bottom: 8px;
 }
 
+/* Long cuisine strings (e.g. "French · Crepe · Galette") were pushing the
+   price tag off the row. Ellipsize cuisine; keep the price unshrunk so the
+   €-tier is always visible on a single line. */
+.cuisine {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .price {
   color: var(--accent);
   font-weight: 600;
+  flex-shrink: 0;
 }
 
 .cardTip {

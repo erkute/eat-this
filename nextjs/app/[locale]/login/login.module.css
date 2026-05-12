@@ -343,45 +343,40 @@
   }
   [data-theme="dark"] .page { background: #0a0a0a; }
 
+  /* Cinematic card — wider and shorter than mobile phone-shape. */
   .frame {
     flex: 0 0 auto;
-    width: 100%;
-    max-width: 400px;
-    height: min(90vh, 820px);
-    aspect-ratio: 9 / 19;
-    border-radius: 28px;
-    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.22);
+    width: min(480px, 92vw);
+    max-width: 480px;
+    height: min(680px, 90vh);
+    aspect-ratio: auto;
+    border-radius: 24px;
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.45);
   }
   [data-theme="dark"] .frame {
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
   }
 
-  /* Image fills card; element taller than frame forces vertical "zoom"
-     so the plate sits a touch lower in the visible area. Bottom is
-     clipped by overflow: hidden on the frame. */
+  /* Photo fills the entire card edge-to-edge. */
   .heroImg {
-    height: 110%;
+    height: 100%;
     object-position: center;
   }
 
-  .logoMark { width: 60px; }
-  .heroHeadline {
-    font-size: 26px;
-    margin-bottom: 16px;
+  /* Lighter top scrim — just enough for the close-button + logo. */
+  .scrimTop {
+    height: 30%;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.55) 0%,
+      rgba(0, 0, 0, 0.0) 100%
+    );
   }
-  .heroSubtitle {
-    font-size: 12px;
-    margin-bottom: 10px;
-    white-space: nowrap;
-  }
-  .formWrap {
-    padding: 0 22px 22px;
-    max-width: none;
-    gap: 6px;
-  }
-  .form { gap: 6px; }
-  .divider { margin: 0; }
-  .terms { margin-top: 8px; }
+
+  /* Glass panel handles its own contrast; suppress the full-width bottom scrim. */
+  .scrimBottom { display: none; }
+
+  .logoMark { width: 56px; }
 }
 
 /* ── Modal context override ──────────────────────────────────────────

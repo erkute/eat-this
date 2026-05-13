@@ -284,12 +284,32 @@
 }
 
 .cancelNotice {
-  margin: 0 auto 16px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  background: #fff4e1;
-  color: #2a1c00;
-  max-width: 480px;
-  font-size: 14px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  margin: 0 auto;
+  padding: 11px 18px 11px 14px;
+  border-radius: 999px;
+  background: var(--surface-card);
+  color: var(--text-primary);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  font: 500 14px/1.3 var(--font);
+  letter-spacing: -0.005em;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .cancelNotice {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.cancelNotice::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #F5C518;
+  flex-shrink: 0;
 }

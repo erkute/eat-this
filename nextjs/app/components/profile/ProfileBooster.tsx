@@ -117,8 +117,8 @@ export default function ProfileBooster() {
       </div>
 
       {canceled && (
-        <div role="alert" className={styles.cancelNotice}>
-          Bezahlung abgebrochen — kein Pack freigeschaltet.
+        <div role="status" className={styles.cancelNotice}>
+          Bezahlung abgebrochen — du wurdest nicht belastet.
         </div>
       )}
 

@@ -7,7 +7,7 @@ import { getAdminFirestore } from './firebase/admin'
 import { client as sanity }  from './sanity'
 import { getPack } from './stripe-catalog'
 import type { Entitlement } from './firebase/entitlements'
-import { FieldValue } from 'firebase-admin/firestore'
+import { FieldValue, type WithFieldValue } from 'firebase-admin/firestore'
 
 interface Args {
   uid: string
@@ -49,7 +49,7 @@ export async function assembleAndWriteEntitlement({ uid, packId, stripeSessionId
     mustEatIds    = payload.mustEatIds
   }
 
-  const doc: Omit<Entitlement, 'purchasedAt'> & { purchasedAt: FieldValue } = {
+  const doc: WithFieldValue<Entitlement> = {
     type:            pack.type,
     slug:            pack.slug,
     restaurantIds,
@@ -58,6 +58,6 @@ export async function assembleAndWriteEntitlement({ uid, packId, stripeSessionId
     stripeSessionId,
     source:          'stripe',
   }
-  await ref.set(doc as any)
+  await ref.set(doc)
   return 'created'
 }

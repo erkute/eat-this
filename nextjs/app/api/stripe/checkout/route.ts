@@ -39,7 +39,8 @@ export async function POST(req: Request) {
   const successPath = locale === 'en'
     ? `/en/onboarding/purchase?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`
     : `/onboarding/purchase?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`
-  const cancelPath  = locale === 'en' ? '/en/profile?booster=canceled' : '/profile?booster=canceled'
+  // Hash drops the user back on the Booster tab (default profile lands on Deck).
+  const cancelPath  = locale === 'en' ? '/en/profile?booster=canceled#booster' : '/profile?booster=canceled#booster'
 
   let session
   try {

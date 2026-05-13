@@ -107,7 +107,10 @@ export default function PurchasePackOpen() {
   }, [loading, user, sessionId, packId, locale, router])
 
   function onRevealComplete() {
-    const mapHref = locale === routing.defaultLocale ? '/' : `/${locale}`
+    // Land on the map tab, not the start tab — that's where the unlocked
+    // spots actually appear. The SPA-route `/map` flips data-active-page
+    // and triggers useInitialFit on the now-expanded restaurant set.
+    const mapHref = locale === routing.defaultLocale ? '/map' : `/${locale}/map`
     router.replace(mapHref)
   }
 

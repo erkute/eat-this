@@ -41,7 +41,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'already_owned' }, { status: 409 })
   }
 
-  const origin = new URL(req.url).origin
+  // Cloud Run sees the internal listen address in req.url (e.g.
+  // http://0.0.0.0:8080). Stripe's success/cancel URLs need the public
+  // origin — derive it from the forwarded headers App Hosting sets.
+  const host  = req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? new URL(req.url).host
+  const proto = req.headers.get('x-forwarded-proto') ?? 'https'
+  const origin = `${proto}://${host}`
   const successPath = locale === 'en'
     ? `/en/onboarding/purchase?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`
     : `/onboarding/purchase?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`

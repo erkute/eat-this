@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
+import type Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe'
 import { assembleAndWriteEntitlement } from '@/lib/stripe-fulfill'
 
@@ -29,8 +30,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ received: true, ignored: event.type }, { status: 200 })
   }
 
-  const session = event.data.object as any
-  const meta    = (session?.metadata ?? {}) as { uid?: string; packId?: string }
+  const session = event.data.object as Stripe.Checkout.Session
+  const meta    = (session.metadata ?? {}) as { uid?: string; packId?: string }
   if (!meta.uid || !meta.packId) {
     Sentry.captureMessage(`webhook missing metadata: ${event.id}`, 'error')
     return NextResponse.json({ error: 'missing_metadata' }, { status: 400 })

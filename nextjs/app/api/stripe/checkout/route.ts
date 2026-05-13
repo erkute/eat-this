@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
+import type Stripe from 'stripe'
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin'
 import { getStripe } from '@/lib/stripe'
 import { getPack } from '@/lib/stripe-catalog'
@@ -52,7 +53,7 @@ export async function POST(req: Request) {
     session = await getStripe().checkout.sessions.create({
       mode: 'payment',
       line_items: [{ price: pack.stripePriceId, quantity: 1 }],
-      payment_method_types: ['card', 'paypal'] as any,
+      payment_method_types: ['card', 'paypal'] satisfies Stripe.Checkout.SessionCreateParams.PaymentMethodType[],
       customer_email: email ?? undefined,
       metadata: { uid, packId: pack.packId, type: pack.type, slug: pack.slug ?? '' },
       success_url: `${origin}${successPath}`,

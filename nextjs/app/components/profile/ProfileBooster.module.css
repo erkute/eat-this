@@ -189,6 +189,18 @@
   letter-spacing: -0.005em;
   color: #0A0A0A;
 }
+.catDesc {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.35;
+  color: rgba(10, 10, 10, 0.6);
+  text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
 /* Compact price-pill — Apple App Store style. The price *is* the button. */
 .catBuyBtn {
@@ -264,6 +276,7 @@
 }
 :global(html[data-theme="dark"]) .subtitle,
 :global(html[data-theme="dark"]) .heroDesc,
+:global(html[data-theme="dark"]) .catDesc,
 :global(html[data-theme="dark"]) .sectionLabel {
   color: rgba(245, 245, 245, 0.5);
 }

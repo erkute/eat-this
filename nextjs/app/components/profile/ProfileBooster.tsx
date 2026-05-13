@@ -4,6 +4,7 @@ import { CSSProperties, useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { useLoginModal } from '@/lib/auth/LoginModalContext';
 import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements';
+import { getPack } from '@/lib/stripe-catalog';
 import { useLocale } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import styles from './ProfileBooster.module.css';
@@ -18,7 +19,7 @@ interface Pack {
 const HERO = {
   id:    'all-berlin',
   name:  'All Berlin',
-  desc:  'Alle 9 Booster Packs - jetzt und alle, die noch kommen.',
+  desc:  getPack('all-berlin')!.description,
   price: '20,00 €',
 };
 
@@ -186,6 +187,7 @@ export default function ProfileBooster() {
             const o = isOwned(p.id);
             const b = busyId === p.id;
             const e = errorId === p.id;
+            const desc = getPack(PACK_ID_BY_DISPLAY[p.id])?.description ?? '';
             return (
               <article key={p.id} className={styles.catPack}>
                 <div className={styles.catImgWrap}>
@@ -193,6 +195,7 @@ export default function ProfileBooster() {
                   <img src={p.image} alt="" className={styles.catImg} loading="lazy" />
                 </div>
                 <span className={styles.catName}>{p.name}</span>
+                <p className={styles.catDesc}>{desc}</p>
                 <button
                   type="button"
                   className={`${styles.catBuyBtn}${(o || b) ? ` ${styles.buyBtnSoon}` : ''}`}

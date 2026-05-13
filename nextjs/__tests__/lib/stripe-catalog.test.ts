@@ -36,4 +36,11 @@ describe('stripe-catalog', () => {
     expect(getPack('category-pizza')?.slug).toBe('pizza')
     expect(getPack('not-a-real-pack')).toBeNull()
   })
+
+  it('every pack has a non-empty description (rendered in ProfileBooster + Stripe Dashboard)', () => {
+    for (const p of Object.values(CATALOG)) {
+      expect(p.description).toBeTruthy()
+      expect(p.description.length).toBeGreaterThan(20)
+    }
+  })
 })

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
-import type Stripe from 'stripe'
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin'
 import { getStripe } from '@/lib/stripe'
 import { getPack } from '@/lib/stripe-catalog'
@@ -58,7 +57,10 @@ export async function POST(req: Request) {
     session = await getStripe().checkout.sessions.create({
       mode: 'payment',
       line_items: [{ price: pack.stripePriceId, quantity: 1 }],
-      payment_method_types: ['card', 'paypal'] satisfies Stripe.Checkout.SessionCreateParams.PaymentMethodType[],
+      // Methods (card, PayPal, Link, Apple/Google Pay, Klarna, …) are
+      // driven by the Stripe Dashboard: Settings → Payments → Payment
+      // methods. Apple/Google Pay surface automatically via card on
+      // supported devices; no domain verification needed for Hosted Checkout.
       customer_email: email ?? undefined,
       metadata: { uid, packId: pack.packId, type: pack.type, slug: pack.slug ?? '' },
       success_url: `${origin}${successPath}`,

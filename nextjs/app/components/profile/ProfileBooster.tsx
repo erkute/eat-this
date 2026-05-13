@@ -68,18 +68,22 @@ export default function ProfileBooster() {
   const search = useSearchParams();
   const [busyId, setBusyId] = useState<string | null>(null);
   const [errorId, setErrorId] = useState<string | null>(null);
-  const canceled = search.get('booster') === 'canceled';
+  // Latch the cancel state on first render. We read useSearchParams once
+  // because Next 15 unexpectedly invalidates it after history.replaceState,
+  // and we want the pill to outlive that invalidation.
+  const initialCanceled = search.get('booster') === 'canceled';
+  const [canceled] = useState(initialCanceled);
 
   // Strip the `?booster=canceled` flag so a page reload doesn't keep
-  // surfacing the notice. We use history.replaceState (not router.replace)
-  // so Next's reactive search state doesn't change — the notice stays
-  // visible on this load and disappears only on hard reload / re-nav.
+  // surfacing the notice. The pill is now driven by the latched state above,
+  // not by the URL, so the strip is safe to run immediately.
   useEffect(() => {
-    if (!canceled) return;
+    if (!initialCanceled) return;
     const url = new URL(window.location.href);
+    if (!url.searchParams.has('booster')) return;
     url.searchParams.delete('booster');
     window.history.replaceState({}, '', url.toString());
-  }, [canceled]);
+  }, [initialCanceled]);
 
   // all-berlin implies every category. Category-purchase doesn't imply
   // all-berlin (a user could theoretically buy all 9 and still not have

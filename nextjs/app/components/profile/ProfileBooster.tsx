@@ -1,6 +1,11 @@
 'use client';
 
 import { CSSProperties, useState } from 'react';
+import { useAuth } from '@/lib/auth';
+import { useLoginModal } from '@/lib/auth/LoginModalContext';
+import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements';
+import { useLocale } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import styles from './ProfileBooster.module.css';
 
 interface Pack {
@@ -10,10 +15,6 @@ interface Pack {
   price: string;
 }
 
-// "All Berlin" hero — mirrors the landing-page bundle: every category pack
-// unlocked, one-time €20. Image is composed client-side as a 9-pack pile
-// (see BUNDLE_PACKS below) rather than a single asset, so the bundle
-// always reflects the live category lineup.
 const HERO = {
   id:    'all-berlin',
   name:  'All Berlin',
@@ -21,13 +22,7 @@ const HERO = {
   price: '20,00 €',
 };
 
-// Symmetric heap geometry copied from PacksSection's BUNDLE_PACKS, scaled
-// down to fit the profile hero card. Three pairs sit at mirrored x, three
-// centre packs stack vertically; z runs 1-9 with pizza on top.
-type PilePack = {
-  slug: string
-  x: number; y: number; rot: number; z: number
-}
+type PilePack = { slug: string; x: number; y: number; rot: number; z: number }
 const BUNDLE_PACKS: PilePack[] = [
   { slug: 'breakfast',  x: -56, y: -36, rot: -28, z: 2 },
   { slug: 'coffee',     x:   0, y: -52, rot:   3, z: 3 },
@@ -40,8 +35,6 @@ const BUNDLE_PACKS: PilePack[] = [
   { slug: 'sweets',     x:  46, y:  34, rot:  22, z: 8 },
 ];
 
-// 9 category packs, €2,99 each. Names are English to match the print on
-// the actual pack art (same convention as landing's PACK_LABEL).
 const CATEGORIES: Pack[] = [
   { id: 'breakfast',  image: '/pics/booster/booster_breakfast.webp',  name: 'Breakfast',   price: '2,99 €' },
   { id: 'coffee',     image: '/pics/booster/booster_coffee.webp',     name: 'Coffee',      price: '2,99 €' },
@@ -54,14 +47,60 @@ const CATEGORIES: Pack[] = [
   { id: 'sweets',     image: '/pics/booster/booster_sweets.webp',     name: 'Sweets',      price: '2,99 €' },
 ];
 
-export default function ProfileBooster() {
-  const [comingSoonId, setComingSoonId] = useState<string | null>(null);
+const PACK_ID_BY_DISPLAY: Record<string, string> = {
+  breakfast:    'category-breakfast',
+  coffee:       'category-coffee',
+  dinner:       'category-dinner',
+  drinks:       'category-drinks',
+  fastfood:     'category-fastfood',
+  finedining:   'category-finedining',
+  lunch:        'category-lunch',
+  pizza:        'category-pizza',
+  sweets:       'category-sweets',
+  'all-berlin': 'all-berlin',
+};
 
-  function handleBuy(id: string) {
-    setComingSoonId(id);
-    setTimeout(() => setComingSoonId(null), 2600);
+export default function ProfileBooster() {
+  const { user } = useAuth();
+  const owned = useOwnedEntitlements(user?.uid ?? null);
+  const { open: openLoginModal } = useLoginModal();
+  const locale = useLocale();
+  const search = useSearchParams();
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [errorId, setErrorId] = useState<string | null>(null);
+  const canceled = search.get('booster') === 'canceled';
+
+  const isOwned = (displayId: string) => owned?.has(PACK_ID_BY_DISPLAY[displayId]) ?? false;
+
+  async function handleBuy(displayId: string) {
+    if (busyId) return;
+    if (!user) { openLoginModal(); return; }
+    setBusyId(displayId);
+    setErrorId(null);
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch('/api/stripe/checkout', {
+        method:  'POST',
+        headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+        body:    JSON.stringify({ packId: PACK_ID_BY_DISPLAY[displayId], locale }),
+      });
+      if (!res.ok) {
+        if (res.status !== 409) setErrorId(displayId);
+        setBusyId(null);
+        return;
+      }
+      const { url } = (await res.json()) as { url: string };
+      window.location.href = url;
+    } catch {
+      setErrorId(displayId);
+      setBusyId(null);
+    }
   }
-  const isSoon = (id: string) => comingSoonId === id;
+
+  const heroOwned    = isOwned(HERO.id);
+  const heroBusy     = busyId === HERO.id;
+  const heroError    = errorId === HERO.id;
+  const heroDisabled = heroOwned || heroBusy;
 
   return (
     <div className={styles.wrap}>
@@ -70,7 +109,12 @@ export default function ProfileBooster() {
         <h2 className={styles.title}>Mehr Karten freischalten</h2>
       </div>
 
-      {/* ── Hero pack: All Berlin (bundle) ── */}
+      {canceled && (
+        <div role="alert" className={styles.cancelNotice}>
+          Bezahlung abgebrochen — kein Pack freigeschaltet.
+        </div>
+      )}
+
       <article className={styles.heroPack}>
         <div className={styles.heroPileWrap} aria-hidden="true">
           {BUNDLE_PACKS.map(({ slug, x, y, rot, z }) => (
@@ -94,12 +138,16 @@ export default function ProfileBooster() {
         <p className={styles.heroDesc}>{HERO.desc}</p>
         <button
           type="button"
-          className={`${styles.heroBuyBtn}${isSoon(HERO.id) ? ` ${styles.buyBtnSoon}` : ''}`}
+          className={`${styles.heroBuyBtn}${heroDisabled ? ` ${styles.buyBtnSoon}` : ''}`}
           onClick={() => handleBuy(HERO.id)}
-          disabled={isSoon(HERO.id)}
+          disabled={heroDisabled}
         >
-          {isSoon(HERO.id) ? (
-            <span className={styles.heroBuyAction}>Coming Soon</span>
+          {heroOwned ? (
+            <span className={styles.heroBuyAction}>Bereits freigeschaltet</span>
+          ) : heroBusy ? (
+            <span className={styles.heroBuyAction}>Weiterleitung …</span>
+          ) : heroError ? (
+            <span className={styles.heroBuyAction}>Fehler — nochmal versuchen</span>
           ) : (
             <>
               <span className={styles.heroBuyAction}>Alles freischalten</span>
@@ -109,43 +157,44 @@ export default function ProfileBooster() {
         </button>
       </article>
 
-      {/* ── Category 3×3 grid ── */}
       <section className={styles.catSection}>
         <p className={styles.sectionLabel}>Nach Kategorie</p>
         <div className={styles.catGrid}>
-          {CATEGORIES.map((p) => (
-            <article key={p.id} className={styles.catPack}>
-              <div className={styles.catImgWrap}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.image} alt="" className={styles.catImg} loading="lazy" />
-              </div>
-              <span className={styles.catName}>{p.name}</span>
-              <button
-                type="button"
-                className={`${styles.catBuyBtn}${isSoon(p.id) ? ` ${styles.buyBtnSoon}` : ''}`}
-                onClick={() => handleBuy(p.id)}
-                disabled={isSoon(p.id)}
-              >
-                {isSoon(p.id) ? 'Bald' : p.price}
-              </button>
-            </article>
-          ))}
+          {CATEGORIES.map((p) => {
+            const o = isOwned(p.id);
+            const b = busyId === p.id;
+            const e = errorId === p.id;
+            return (
+              <article key={p.id} className={styles.catPack}>
+                <div className={styles.catImgWrap}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={p.image} alt="" className={styles.catImg} loading="lazy" />
+                </div>
+                <span className={styles.catName}>{p.name}</span>
+                <button
+                  type="button"
+                  className={`${styles.catBuyBtn}${(o || b) ? ` ${styles.buyBtnSoon}` : ''}`}
+                  onClick={() => handleBuy(p.id)}
+                  disabled={o || b}
+                >
+                  {o ? 'Hast du' : b ? '…' : e ? 'Nochmal' : p.price}
+                </button>
+              </article>
+            );
+          })}
         </div>
       </section>
 
       <div className={styles.paymentRow} aria-label="Akzeptierte Zahlungsmethoden">
-        {/* PayPal wordmark */}
         <svg className={styles.payIcon} viewBox="0 0 80 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="PayPal">
           <text x="0" y="16" fontSize="14" fontWeight="700" fontFamily="Arial,sans-serif" fill="#003087">Pay</text>
           <text x="26" y="16" fontSize="14" fontWeight="700" fontFamily="Arial,sans-serif" fill="#009cde">Pal</text>
         </svg>
         <span className={styles.payDot} aria-hidden="true">·</span>
-        {/* Visa wordmark */}
         <svg className={styles.payIcon} viewBox="0 0 48 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Visa">
           <text x="0" y="13" fontSize="13" fontWeight="900" fontFamily="Arial,sans-serif" letterSpacing="1" fill="#1a1f71">VISA</text>
         </svg>
         <span className={styles.payDot} aria-hidden="true">·</span>
-        {/* Mastercard two-circle mark */}
         <svg className={styles.payIconMc} viewBox="0 0 38 24" xmlns="http://www.w3.org/2000/svg" aria-label="Mastercard">
           <circle cx="14" cy="12" r="10" fill="#eb001b"/>
           <circle cx="24" cy="12" r="10" fill="#f79e1b"/>

@@ -282,3 +282,14 @@
 :global(html[data-theme="dark"]) .payIcon text:last-child {
   fill: rgba(245,245,245,0.7);
 }
+
+.cancelNotice {
+  margin: 0 auto 16px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #fff4e1;
+  color: #2a1c00;
+  max-width: 480px;
+  font-size: 14px;
+  text-align: center;
+}

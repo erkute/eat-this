@@ -83,7 +83,10 @@ describe('/api/stripe/checkout', () => {
     expect(args.metadata.packId).toBe('category-pizza')
     expect(args.metadata.type).toBe('category')
     expect(args.metadata.slug).toBe('pizza')
-    expect(args.line_items[0].price).toBe('price_TBD_pizza')
+    // Resolve the actual price ID via the catalog — keeps the test green
+    // when the placeholder is rotated to a Stripe Dashboard ID (or back).
+    const { getPack } = await import('../../../lib/stripe-catalog')
+    expect(args.line_items[0].price).toBe(getPack('category-pizza')!.stripePriceId)
     expect(args.success_url).toContain('/onboarding/purchase')
     expect(args.cancel_url).toContain('booster=canceled')
   })

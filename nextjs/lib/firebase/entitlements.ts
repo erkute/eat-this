@@ -10,7 +10,7 @@ export interface Entitlement {
   mustEatIds: string[]
   purchasedAt: FirebaseFirestore.Timestamp
   stripeSessionId: string | null
-  source: 'signup' | 'stripe' | 'manual'
+  source: 'signup' | 'ensure-on-demand' | 'stripe' | 'manual'
 }
 
 export interface ResolvedEntitlements {

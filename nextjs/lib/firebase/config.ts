@@ -23,3 +23,10 @@ export const auth        = getAuth(app);
 export const db          = getFirestore(app);
 export const functions   = getFunctions(app);
 export const functionsEU = getFunctions(app, 'europe-west1');
+
+// Dev-only debug hook so the entitlements smoke test in
+// /api/_debug/whoami can be exercised from the browser console:
+//   await window.__auth.currentUser.getIdToken()
+if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
+  (window as unknown as { __auth: typeof auth }).__auth = auth;
+}

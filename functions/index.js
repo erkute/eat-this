@@ -36,23 +36,36 @@ const sanity = createSanityClient({
 // for the frontend. We use the raw field name here.
 async function pickRandomMustEatsWithParents(count) {
   const rows = await sanity.fetch(`
-    *[_type == "mustEat" && defined(image.asset) && defined(restaurantRef._ref)]{
+    *[_type == "mustEat" && defined(image.asset) && defined(restaurantRef._ref) && restaurantRef->isOpen != false]{
       "mustEatId": _id,
       "restaurantId": restaurantRef._ref
     }
   `);
-  if (!Array.isArray(rows) || rows.length < count) {
-    throw new Error(`not-enough-must-eats: have ${rows ? rows.length : 0}, need ${count}`);
+  const byRestaurant = new Map();
+  for (const r of (Array.isArray(rows) ? rows : [])) {
+    if (!byRestaurant.has(r.restaurantId)) byRestaurant.set(r.restaurantId, []);
+    byRestaurant.get(r.restaurantId).push(r.mustEatId);
   }
-  const shuffled = rows.slice();
-  for (let i = shuffled.length - 1; i > 0; i--) {
+  if (byRestaurant.size < count) {
+    throw new Error(`not-enough-restaurants: have ${byRestaurant.size} restaurants with mustEats, need ${count}`);
+  }
+  // Welcome pack = 10 Spots (Restaurants). Pick `count` unique restaurants,
+  // then one random mustEat per restaurant for the onboarding reveal cards.
+  // Map visibility derives from restaurantIds, so all other mustEats at
+  // those restaurants become visible too — see /api/map-data filter.
+  const restaurantIds = [...byRestaurant.keys()];
+  for (let i = restaurantIds.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    [restaurantIds[i], restaurantIds[j]] = [restaurantIds[j], restaurantIds[i]];
   }
-  const picked = shuffled.slice(0, count);
+  const pickedRestaurantIds = restaurantIds.slice(0, count);
+  const pickedMustEatIds = pickedRestaurantIds.map((rid) => {
+    const eats = byRestaurant.get(rid);
+    return eats[Math.floor(Math.random() * eats.length)];
+  });
   return {
-    mustEatIds:    picked.map((r) => r.mustEatId),
-    restaurantIds: [...new Set(picked.map((r) => r.restaurantId))],
+    mustEatIds:    pickedMustEatIds,
+    restaurantIds: pickedRestaurantIds,
   };
 }
 

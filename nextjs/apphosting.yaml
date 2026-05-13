@@ -111,3 +111,18 @@ env:
     availability:
       - RUNTIME
 
+  # Stripe (one-time payments for category packs + all-berlin bundle).
+  # Secrets are seeded with TEST-mode values; rotate to LIVE values via
+  #   firebase apphosting:secrets:set STRIPE_SECRET_KEY
+  #   firebase apphosting:secrets:set STRIPE_WEBHOOK_SECRET
+  # when the Stripe account is activated for live charges. The webhook
+  # secret is the signing secret of the registered endpoint, NOT an API
+  # key — get it from Stripe Dashboard → Developers → Webhooks → endpoint.
+  - variable: STRIPE_SECRET_KEY
+    secret: STRIPE_SECRET_KEY
+    availability:
+      - RUNTIME
+  - variable: STRIPE_WEBHOOK_SECRET
+    secret: STRIPE_WEBHOOK_SECRET
+    availability:
+      - RUNTIME

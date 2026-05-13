@@ -70,7 +70,14 @@ export default function ProfileBooster() {
   const [errorId, setErrorId] = useState<string | null>(null);
   const canceled = search.get('booster') === 'canceled';
 
-  const isOwned = (displayId: string) => owned?.has(PACK_ID_BY_DISPLAY[displayId]) ?? false;
+  // all-berlin implies every category. Category-purchase doesn't imply
+  // all-berlin (a user could theoretically buy all 9 and still not have
+  // the bundle — bundle currently the only way to get future categories).
+  const ownsAllBerlin = owned?.has('all-berlin') ?? false;
+  const isOwned = (displayId: string) => {
+    if (ownsAllBerlin) return true;
+    return owned?.has(PACK_ID_BY_DISPLAY[displayId]) ?? false;
+  };
 
   async function handleBuy(displayId: string) {
     if (busyId) return;

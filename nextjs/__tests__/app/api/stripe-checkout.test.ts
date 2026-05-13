@@ -6,9 +6,9 @@ vi.mock('@sentry/nextjs', () => ({
 }))
 
 const mocks = vi.hoisted(() => ({
-  verifyIdToken: vi.fn(),
-  sessionsCreate: vi.fn(),
-  entSnap: { exists: false } as { exists: boolean },
+  verifyIdToken:    vi.fn(),
+  sessionsCreate:   vi.fn(),
+  entitlementDocs:  new Map<string, { exists: boolean }>(),
 }))
 
 vi.mock('../../../lib/firebase/admin', () => ({
@@ -17,7 +17,9 @@ vi.mock('../../../lib/firebase/admin', () => ({
     collection: () => ({
       doc: () => ({
         collection: () => ({
-          doc: () => ({ get: async () => mocks.entSnap }),
+          doc: (id: string) => ({
+            get: async () => mocks.entitlementDocs.get(id) ?? { exists: false },
+          }),
         }),
       }),
     }),
@@ -42,7 +44,7 @@ beforeEach(() => {
   mocks.verifyIdToken.mockReset()
   mocks.sessionsCreate.mockReset()
   mocks.sessionsCreate.mockResolvedValue({ id: 'cs_test', url: 'https://checkout.stripe.com/test' })
-  mocks.entSnap.exists = false
+  mocks.entitlementDocs.clear()
 })
 
 describe('/api/stripe/checkout', () => {
@@ -65,10 +67,25 @@ describe('/api/stripe/checkout', () => {
 
   it('returns 409 when entitlement already exists', async () => {
     mocks.verifyIdToken.mockResolvedValueOnce({ uid: 'u1', email: 'u@x.com' })
-    mocks.entSnap.exists = true
+    mocks.entitlementDocs.set('category-pizza', { exists: true })
     const res = await POST(makeReq({ packId: 'category-pizza' }, 'good'))
     expect(res.status).toBe(409)
     expect(mocks.sessionsCreate).not.toHaveBeenCalled()
+  })
+
+  it('returns 409 for a category pack when all-berlin already owned', async () => {
+    mocks.verifyIdToken.mockResolvedValueOnce({ uid: 'u1', email: 'u@x.com' })
+    mocks.entitlementDocs.set('all-berlin', { exists: true })
+    const res = await POST(makeReq({ packId: 'category-pizza' }, 'good'))
+    expect(res.status).toBe(409)
+    expect(mocks.sessionsCreate).not.toHaveBeenCalled()
+  })
+
+  it('does NOT check all-berlin when the requested pack IS all-berlin (no implicit-self-ownership cross-check)', async () => {
+    mocks.verifyIdToken.mockResolvedValueOnce({ uid: 'u1', email: 'u@x.com' })
+    // No entitlement docs set → all-berlin purchase proceeds normally
+    const res = await POST(makeReq({ packId: 'all-berlin' }, 'good'))
+    expect(res.status).toBe(200)
   })
 
   it('returns 200 + url on success', async () => {

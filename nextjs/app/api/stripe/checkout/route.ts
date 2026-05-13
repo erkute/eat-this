@@ -29,11 +29,16 @@ export async function POST(req: Request) {
   if (!pack) return NextResponse.json({ error: 'unknown_packId' }, { status: 400 })
   const locale: 'de' | 'en' = body.locale === 'en' ? 'en' : 'de'
 
-  const entRef = getAdminFirestore()
-    .collection('users').doc(uid)
-    .collection('entitlements').doc(pack.packId)
-  const entSnap = await entRef.get()
-  if (entSnap.exists) return NextResponse.json({ error: 'already_owned' }, { status: 409 })
+  // 409 if literal pack already owned, OR if all-berlin already owned and
+  // the requested pack is a category (all-berlin implies every category).
+  const userEnts = getAdminFirestore().collection('users').doc(uid).collection('entitlements')
+  const [literalSnap, allBerlinSnap] = await Promise.all([
+    userEnts.doc(pack.packId).get(),
+    pack.type === 'category' ? userEnts.doc('all-berlin').get() : Promise.resolve({ exists: false }),
+  ])
+  if (literalSnap.exists || (allBerlinSnap as { exists: boolean }).exists) {
+    return NextResponse.json({ error: 'already_owned' }, { status: 409 })
+  }
 
   const origin = new URL(req.url).origin
   const successPath = locale === 'en'

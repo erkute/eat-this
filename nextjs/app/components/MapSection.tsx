@@ -8,6 +8,7 @@ import {
   useBounds,
   useUnlockedMustEats,
   useFavorites,
+  useInitialFit,
   useMapFilters,
   useMapSheet,
   useMapDeepLinks,
@@ -59,6 +60,7 @@ export default function MapSection({ isActive = false }: Props) {
     loading: dataLoading,
     refetch: refetchMapData,
   } = useMapData({ uid, authLoading })
+  useInitialFit(mapRef, restaurants)
   // Keep the card-shuffle brand moment but make it fast: 1.5 s bar fill +
   // 100 ms grace = 1.6 s minimum. If data hasn't arrived by then we still
   // wait; if data loads in 200 ms we still show ≈1.6 s of brand.

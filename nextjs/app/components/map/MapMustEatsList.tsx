@@ -5,6 +5,7 @@ import { haversineDistance, formatDistance, type UserLocation } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import BoosterOfferInline from './BoosterOfferInline'
 import LayerToggle from './LayerToggle'
+import LoginToSeeSpots from './LoginToSeeSpots'
 import styles from './map.module.css'
 
 interface Props {
@@ -35,7 +36,9 @@ export default function MapMustEatsList({
       <LayerToggle active="mustEats" onChange={onLayerSwitch} />
       <div ref={contentRef} className={`${styles.listScroll} ${styles.listScrollNoCats}`}>
         {displayedMustEats.length === 0 ? (
-          <div className={styles.empty}>{t('map.noMustEatsMatch')}</div>
+          !uid
+            ? <LoginToSeeSpots />
+            : <div className={styles.empty}>{t('map.noMustEatsMatch')}</div>
         ) : (
           <MustEatRows
             displayedMustEats={displayedMustEats}

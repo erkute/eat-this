@@ -284,6 +284,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     restaurants={displayedRestaurants}
                     userLocation={location}
                     selectedId={selectedRestaurant?._id ?? null}
+                    uid={uid}
                     onSelect={onRestaurantClick}
                   />
                 </div>

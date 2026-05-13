@@ -690,6 +690,50 @@ html[data-theme="dark"] .fab {
   font-size: 13px;
 }
 
+.signInLocked {
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.signInLockedTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.signInLockedBody {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
+
+.signInLockedCta {
+  background: #E32831;
+  color: #fff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.signInLockedCta:hover {
+  background: #c81f28;
+}
+
+.signInLockedCta:active {
+  transform: translateY(1px);
+}
+
 /* Restaurant row */
 .row {
   display: grid;

@@ -4,6 +4,7 @@ import { haversineDistance, formatWalkingTime, getOpenStatus, type UserLocation 
 import { useTranslation } from '@/lib/i18n'
 import { localizedCategoryName } from '@/lib/categories'
 import { formatPriceLabel } from './restaurantDetail.helpers'
+import LoginToSeeSpots from './LoginToSeeSpots'
 import styles from './map.module.css'
 
 interface ItemProps {
@@ -101,13 +102,15 @@ interface RestaurantListProps {
   restaurants: MapRestaurant[]
   userLocation: UserLocation | null
   selectedId: string | null
+  uid: string | null
   onSelect: (r: MapRestaurant) => void
 }
 
-export default function RestaurantList({ restaurants, userLocation, selectedId, onSelect }: RestaurantListProps) {
+export default function RestaurantList({ restaurants, userLocation, selectedId, uid, onSelect }: RestaurantListProps) {
   const { t } = useTranslation()
 
   if (restaurants.length === 0) {
+    if (!uid) return <LoginToSeeSpots />
     return <div className={styles.empty}>{t('map.nothingInArea')}</div>
   }
 

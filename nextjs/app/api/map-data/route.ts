@@ -3,7 +3,6 @@ import { getAdminAuth } from '@/lib/firebase/admin'
 import {
   resolveEntitlements,
   isRestaurantVisible,
-  isMustEatVisible,
 } from '@/lib/firebase/entitlements'
 import { getCachedMapData } from '@/lib/map/cached-sanity'
 
@@ -32,12 +31,19 @@ export async function GET(req: Request) {
   const ent = await resolveEntitlements(uid, email)
   const { restaurants: all, mustEats: allMustEats, categories } = await getCachedMapData()
 
-  const restaurants = (ent.isAdmin || ent.hasAllBerlin)
-    ? all
-    : all.filter((r) => isRestaurantVisible(r, ent))
-  const mustEats = (ent.isAdmin || ent.hasAllBerlin)
-    ? allMustEats
-    : allMustEats.filter((m) => isMustEatVisible(m, ent))
+  let restaurants: typeof all
+  let mustEats:    typeof allMustEats
+  if (ent.isAdmin || ent.hasAllBerlin) {
+    restaurants = all
+    mustEats    = allMustEats
+  } else {
+    restaurants = all.filter((r) => isRestaurantVisible(r, ent))
+    // Must-eat visibility derives from parent restaurant visibility — that
+    // way category entitlements grant must-eats automatically (a user who
+    // bought 'pizza' sees pizza restaurants AND their must-eats).
+    const visibleRestaurantIds = new Set(restaurants.map((r) => r._id))
+    mustEats = allMustEats.filter((m) => visibleRestaurantIds.has(m.restaurant._id))
+  }
 
   const res = NextResponse.json({ restaurants, mustEats, categories })
   res.headers.set('Cache-Control', 'private, no-store')

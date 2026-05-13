@@ -3,7 +3,6 @@ import {
   reduceEntitlements,
   isAdminEmail,
   isRestaurantVisible,
-  isMustEatVisible,
   type Entitlement,
 } from '../../../lib/firebase/entitlements'
 
@@ -141,30 +140,3 @@ describe('isRestaurantVisible', () => {
   })
 })
 
-describe('isMustEatVisible', () => {
-  const baseEnt = {
-    isAdmin: false,
-    hasAllBerlin: false,
-    categorySlugs: new Set<string>(),
-    restaurantIds: new Set<string>(),
-    mustEatIds: new Set<string>(),
-  }
-
-  it('returns true when must-eat id is in explicit set', () => {
-    expect(isMustEatVisible(
-      { _id: 'm1', restaurant: { _id: 'r1' } },
-      { ...baseEnt, mustEatIds: new Set(['m1']) },
-    )).toBe(true)
-  })
-
-  it('returns true when parent restaurant id is in explicit set', () => {
-    expect(isMustEatVisible(
-      { _id: 'm1', restaurant: { _id: 'r1' } },
-      { ...baseEnt, restaurantIds: new Set(['r1']) },
-    )).toBe(true)
-  })
-
-  it('returns false otherwise', () => {
-    expect(isMustEatVisible({ _id: 'm1', restaurant: { _id: 'r1' } }, baseEnt)).toBe(false)
-  })
-})

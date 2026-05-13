@@ -86,12 +86,3 @@ export function isRestaurantVisible(
   return r.categories?.some((c) => ent.categorySlugs.has(c.slug)) ?? false
 }
 
-export function isMustEatVisible(
-  m: { _id: string; restaurant: { _id: string } },
-  ent: ResolvedEntitlements,
-): boolean {
-  if (ent.isAdmin || ent.hasAllBerlin) return true
-  if (ent.mustEatIds.has(m._id)) return true
-  if (ent.restaurantIds.has(m.restaurant._id)) return true
-  return false
-}

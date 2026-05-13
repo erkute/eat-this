@@ -17,8 +17,10 @@ import { useTranslation } from '@/lib/i18n'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import MapSectionBody from './map/MapSectionBody'
-import { auth } from '@/lib/firebase/config'
+import { auth, db } from '@/lib/firebase/config'
 import { onAuthStateChanged } from 'firebase/auth'
+import { collection, onSnapshot } from 'firebase/firestore'
+import { useLoginModal } from '@/lib/auth'
 import styles from './map/map.module.css'
 
 interface Props {
@@ -33,8 +35,30 @@ export default function MapSection({ isActive = false }: Props) {
   const userInteractedRef = useRef(false)
   const { t } = useTranslation()
   const locale = useLocale()
+  const { open: openLoginModal } = useLoginModal()
 
-  const { restaurants, mustEats, categories, loading: dataLoading } = useMapData()
+  const [uid,         setUid]         = useState<string | null>(() => auth.currentUser?.uid ?? null)
+  const [authLoading, setAuthLoading] = useState<boolean>(() => auth.currentUser === null)
+
+  useEffect(() => onAuthStateChanged(auth, (u) => {
+    setUid(u?.uid ?? null)
+    setAuthLoading(false)
+  }), [])
+
+  // Anonymous user on /map — open the login modal immediately after auth resolves.
+  useEffect(() => {
+    if (!authLoading && uid === null) {
+      openLoginModal()
+    }
+  }, [authLoading, uid, openLoginModal])
+
+  const {
+    restaurants,
+    mustEats,
+    categories,
+    loading: dataLoading,
+    refetch: refetchMapData,
+  } = useMapData({ uid, authLoading })
   // Keep the card-shuffle brand moment but make it fast: 1.5 s bar fill +
   // 100 ms grace = 1.6 s minimum. If data hasn't arrived by then we still
   // wait; if data loads in 200 ms we still show ≈1.6 s of brand.
@@ -45,10 +69,17 @@ export default function MapSection({ isActive = false }: Props) {
   }, [])
   const loading = dataLoading || !minDelayElapsed
   const { location, request: requestLocation } = useUserLocation()
-  const [uid, setUid] = useState<string | null>(() => auth.currentUser?.uid ?? null)
-  useEffect(() => onAuthStateChanged(auth, u => setUid(u?.uid ?? null)), [])
   const { unlockedIds, unlock } = useUnlockedMustEats(uid)
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
+
+  // Live-refetch map data whenever the user's entitlements change (e.g. after purchase).
+  useEffect(() => {
+    if (!uid) return
+    const ref = collection(db, 'users', uid, 'entitlements')
+    return onSnapshot(ref, () => {
+      refetchMapData()
+    })
+  }, [uid, refetchMapData])
 
   const [layer,              setLayer]              = useState<MapLayer>('restaurants')
 

@@ -152,93 +152,94 @@
   color: rgba(10, 10, 10, 0.55);
   text-align: center;
 }
-/* ── Category packs: editorial 1-column stack ──
-   Each pack reads like a Magazin-row: image left, copy block right.
-   On narrow viewports (< 480px) the image stacks on top so the body
-   text still breathes at full width. */
+/* ── Category packs: vertical-stacked cards, generous breathing room ──
+   Each pack is its own editorial poster — image up top, eyebrow + headline
+   + body + button all centred below. Alternating ±2° rest-state rotation
+   gives a Trading-Card-Scattered vibe; hover straightens + lifts. */
 .catGrid {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 56px;
 }
 .catPack {
-  display: grid;
-  grid-template-columns: 130px 1fr;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  column-gap: 22px;
+  gap: 18px;
   padding: 0;
 }
-@media (max-width: 479px) {
-  .catPack {
-    grid-template-columns: 96px 1fr;
-    column-gap: 16px;
-    align-items: start;
-  }
-}
 .catImgWrap {
-  width: 100%;
+  width: 60%;
+  max-width: 180px;
   display: flex;
   justify-content: center;
-  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.18));
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  filter: drop-shadow(0 14px 26px rgba(0, 0, 0, 0.22));
+  transform: rotate(-2deg);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.catPack:hover .catImgWrap {
-  transform: translateY(-3px) scale(1.03);
+.catPack:nth-child(even) .catImgWrap {
+  transform: rotate(2.5deg);
+}
+.catPack:hover .catImgWrap,
+.catPack:nth-child(even):hover .catImgWrap {
+  transform: rotate(0) translateY(-4px) scale(1.05);
 }
 .catImg {
   width: 100%;
   height: auto;
   display: block;
-  /* Cutout PNG with alpha — no border-radius (there's no rectangle to
-     round) and no object-fit cover (would crop the pack silhouette).
+  /* Cutout PNG with alpha — no border-radius, no object-fit cover.
      See feedback_freigestellte_bilder.md. */
 }
 .catCopy {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  min-width: 0; /* allow text-wrap inside grid cell */
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
 }
 .catEyebrow {
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(10, 10, 10, 0.5);
 }
 .catSpectrum {
   margin: 0;
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.015em;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
   color: #0A0A0A;
-  line-height: 1.15;
+  line-height: 1.1;
+  text-wrap: balance;
 }
 .catBody {
   margin: 0;
   font-size: 13px;
   font-weight: 400;
-  line-height: 1.5;
-  color: rgba(10, 10, 10, 0.72);
+  line-height: 1.6;
+  color: rgba(10, 10, 10, 0.65);
 }
 
-/* Editorial pill — sits flush with the copy block, not full-bleed. */
+/* Pill button — centred, chunky enough to feel like a real CTA. */
 .catBuyBtn {
   margin-top: 6px;
-  align-self: flex-start;
-  padding: 10px 22px;
+  align-self: center;
+  padding: 13px 32px;
   background-color: var(--cta-red);
   color: #FFFFFF;
   border: none;
   border-radius: 999px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 900;
   letter-spacing: -0.005em;
   cursor: pointer;
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.15),
-    0 6px 14px -8px rgba(183, 28, 28, 0.5),
+    0 8px 18px -10px rgba(183, 28, 28, 0.55),
     inset 0 1px 0 rgba(255, 255, 255, 0.18);
   transition: filter 0.2s, transform 0.06s;
 }

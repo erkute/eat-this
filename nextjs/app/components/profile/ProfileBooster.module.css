@@ -67,10 +67,9 @@
   top: 50%;
   left: 50%;
   width: 96px;
-  aspect-ratio: 1449 / 2163;
+  height: auto;
   display: block;
-  border-radius: 7%;
-  object-fit: cover;
+  /* Cutout PNG — no crop, no rounding. See .catImg note. */
   transform: translate(-50%, -50%) translate(var(--x, 0px), var(--y, 0px)) rotate(var(--rot, 0deg));
 }
 
@@ -188,10 +187,11 @@
 }
 .catImg {
   width: 100%;
-  aspect-ratio: 1449 / 2163;
+  height: auto;
   display: block;
-  border-radius: 7%;
-  object-fit: cover;
+  /* Cutout PNG with alpha — no border-radius (there's no rectangle to
+     round) and no object-fit cover (would crop the pack silhouette).
+     See feedback_freigestellte_bilder.md. */
 }
 .catCopy {
   display: flex;

@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+vi.mock('@sentry/nextjs', () => ({
+  captureException: vi.fn(),
+  captureMessage:   vi.fn(),
+}))
+
 const mocks = vi.hoisted(() => ({
   verifyIdToken: vi.fn(),
   sessionsCreate: vi.fn(),

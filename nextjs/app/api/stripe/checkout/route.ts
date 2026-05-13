@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin'
 import { getStripe } from '@/lib/stripe'
 import { getPack } from '@/lib/stripe-catalog'
@@ -54,6 +55,7 @@ export async function POST(req: Request) {
       automatic_tax: { enabled: false },
     })
   } catch (err) {
+    Sentry.captureException(err, { extra: { uid, packId: pack.packId } })
     return NextResponse.json({ error: 'stripe_error', message: (err as Error).message }, { status: 500 })
   }
 

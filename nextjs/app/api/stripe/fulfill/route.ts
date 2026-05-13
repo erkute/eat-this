@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { getAdminAuth } from '@/lib/firebase/admin'
 import { getStripe } from '@/lib/stripe'
 import { assembleAndWriteEntitlement } from '@/lib/stripe-fulfill'
@@ -39,6 +40,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ status: 'pending', payment_status: session.payment_status }, { status: 202 })
   }
 
-  const result = await assembleAndWriteEntitlement({ uid, packId: meta.packId, stripeSessionId: session.id })
-  return NextResponse.json({ status: result }, { status: 200 })
+  try {
+    const result = await assembleAndWriteEntitlement({ uid, packId: meta.packId, stripeSessionId: session.id })
+    return NextResponse.json({ status: result }, { status: 200 })
+  } catch (err) {
+    Sentry.captureException(err, { extra: { uid, packId: meta.packId, sessionId: session.id } })
+    return NextResponse.json({ error: 'fulfill_failed', message: (err as Error).message }, { status: 500 })
+  }
 }

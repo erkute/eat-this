@@ -92,22 +92,28 @@ export default function PurchasePackOpen() {
     return () => clearTimeout(t)
   }, [phase])
 
+  // Auth + param guards — replace() must run in an effect, not during render.
+  useEffect(() => {
+    if (loading) return
+    if (!user) {
+      const loginHref = locale === routing.defaultLocale ? '/login' : `/${locale}/login`
+      router.replace(loginHref)
+      return
+    }
+    if (!sessionId || !packId) {
+      const profileHref = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`
+      router.replace(profileHref)
+    }
+  }, [loading, user, sessionId, packId, locale, router])
+
   function onRevealComplete() {
     const mapHref = locale === routing.defaultLocale ? '/' : `/${locale}`
     router.replace(mapHref)
   }
 
   if (loading) return null
-  if (!user) {
-    const loginHref = locale === routing.defaultLocale ? '/login' : `/${locale}/login`
-    router.replace(loginHref)
-    return null
-  }
-  if (!sessionId || !packId) {
-    const profileHref = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`
-    router.replace(profileHref)
-    return null
-  }
+  if (!user) return null
+  if (!sessionId || !packId) return null
 
   if (phase === 'error') {
     return (

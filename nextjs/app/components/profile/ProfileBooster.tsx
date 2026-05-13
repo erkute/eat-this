@@ -1,6 +1,6 @@
 'use client';
 
-import { CSSProperties, useState } from 'react';
+import { CSSProperties, useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { useLoginModal } from '@/lib/auth/LoginModalContext';
 import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements';
@@ -70,6 +70,17 @@ export default function ProfileBooster() {
   const [errorId, setErrorId] = useState<string | null>(null);
   const canceled = search.get('booster') === 'canceled';
 
+  // Strip the `?booster=canceled` flag so a page reload doesn't keep
+  // surfacing the notice. We use history.replaceState (not router.replace)
+  // so Next's reactive search state doesn't change — the notice stays
+  // visible on this load and disappears only on hard reload / re-nav.
+  useEffect(() => {
+    if (!canceled) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete('booster');
+    window.history.replaceState({}, '', url.toString());
+  }, [canceled]);
+
   // all-berlin implies every category. Category-purchase doesn't imply
   // all-berlin (a user could theoretically buy all 9 and still not have
   // the bundle — bundle currently the only way to get future categories).
@@ -118,7 +129,7 @@ export default function ProfileBooster() {
 
       {canceled && (
         <div role="status" className={styles.cancelNotice}>
-          Bezahlung abgebrochen — du wurdest nicht belastet.
+          Kauf abgebrochen.
         </div>
       )}
 

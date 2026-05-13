@@ -27,9 +27,15 @@ export default function ProfileShell({ mustEats }: Props) {
   const { unlockedIds: mapUnlockedIds } = useUnlockedMustEats(user?.uid ?? null);
   // Read the URL hash on mount so deep-links from elsewhere in the app
   // (e.g. the map's booster CTAs use /profile#booster) land on the right
-  // tab instead of always defaulting to "deck".
+  // tab instead of always defaulting to "deck". Special case: a Stripe
+  // cancel redirect carries `?booster=canceled` and we force the booster
+  // tab regardless of whether the #booster fragment survived the round-trip
+  // (some Stripe Checkout flows strip fragments).
   const [tab, setTab] = useState<ProfileTab>(() => {
     if (typeof window === 'undefined') return 'deck';
+    if (new URLSearchParams(window.location.search).get('booster') === 'canceled') {
+      return 'booster';
+    }
     const h = window.location.hash.replace('#', '');
     return h === 'restaurants' || h === 'booster' || h === 'settings' ? h : 'deck';
   });

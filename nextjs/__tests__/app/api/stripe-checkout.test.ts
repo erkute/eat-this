@@ -1,0 +1,85 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+const mocks = vi.hoisted(() => ({
+  verifyIdToken: vi.fn(),
+  sessionsCreate: vi.fn(),
+  entSnap: { exists: false } as { exists: boolean },
+}))
+
+vi.mock('../../../lib/firebase/admin', () => ({
+  getAdminAuth: () => ({ verifyIdToken: mocks.verifyIdToken }),
+  getAdminFirestore: () => ({
+    collection: () => ({
+      doc: () => ({
+        collection: () => ({
+          doc: () => ({ get: async () => mocks.entSnap }),
+        }),
+      }),
+    }),
+  }),
+}))
+
+vi.mock('../../../lib/stripe', () => ({
+  getStripe: () => ({ checkout: { sessions: { create: mocks.sessionsCreate } } }),
+}))
+
+import { POST } from '../../../app/api/stripe/checkout/route'
+
+function makeReq(body: any, token: string | null) {
+  return new Request('http://x/api/stripe/checkout', {
+    method:  'POST',
+    headers: token ? { authorization: `Bearer ${token}`, 'content-type': 'application/json' } : { 'content-type': 'application/json' },
+    body:    JSON.stringify(body),
+  })
+}
+
+beforeEach(() => {
+  mocks.verifyIdToken.mockReset()
+  mocks.sessionsCreate.mockReset()
+  mocks.sessionsCreate.mockResolvedValue({ id: 'cs_test', url: 'https://checkout.stripe.com/test' })
+  mocks.entSnap.exists = false
+})
+
+describe('/api/stripe/checkout', () => {
+  it('returns 401 when no bearer token', async () => {
+    const res = await POST(makeReq({ packId: 'category-pizza' }, null))
+    expect(res.status).toBe(401)
+  })
+
+  it('returns 401 when token is invalid', async () => {
+    mocks.verifyIdToken.mockRejectedValueOnce(new Error('bad'))
+    const res = await POST(makeReq({ packId: 'category-pizza' }, 'bad'))
+    expect(res.status).toBe(401)
+  })
+
+  it('returns 400 for unknown packId', async () => {
+    mocks.verifyIdToken.mockResolvedValueOnce({ uid: 'u1', email: 'u@x.com' })
+    const res = await POST(makeReq({ packId: 'not-real' }, 'good'))
+    expect(res.status).toBe(400)
+  })
+
+  it('returns 409 when entitlement already exists', async () => {
+    mocks.verifyIdToken.mockResolvedValueOnce({ uid: 'u1', email: 'u@x.com' })
+    mocks.entSnap.exists = true
+    const res = await POST(makeReq({ packId: 'category-pizza' }, 'good'))
+    expect(res.status).toBe(409)
+    expect(mocks.sessionsCreate).not.toHaveBeenCalled()
+  })
+
+  it('returns 200 + url on success', async () => {
+    mocks.verifyIdToken.mockResolvedValueOnce({ uid: 'u1', email: 'u@x.com' })
+    const res = await POST(makeReq({ packId: 'category-pizza' }, 'good'))
+    expect(res.status).toBe(200)
+    const json = await res.json()
+    expect(json.url).toContain('checkout.stripe.com')
+    expect(mocks.sessionsCreate).toHaveBeenCalledOnce()
+    const args = mocks.sessionsCreate.mock.calls[0][0]
+    expect(args.metadata.uid).toBe('u1')
+    expect(args.metadata.packId).toBe('category-pizza')
+    expect(args.metadata.type).toBe('category')
+    expect(args.metadata.slug).toBe('pizza')
+    expect(args.line_items[0].price).toBe('price_TBD_pizza')
+    expect(args.success_url).toContain('/onboarding/purchase')
+    expect(args.cancel_url).toContain('booster=canceled')
+  })
+})

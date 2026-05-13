@@ -187,23 +187,26 @@ export default function ProfileBooster() {
             const o = isOwned(p.id);
             const b = busyId === p.id;
             const e = errorId === p.id;
-            const desc = getPack(PACK_ID_BY_DISPLAY[p.id])?.description ?? '';
+            const pack = getPack(PACK_ID_BY_DISPLAY[p.id]);
             return (
               <article key={p.id} className={styles.catPack}>
                 <div className={styles.catImgWrap}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={p.image} alt="" className={styles.catImg} loading="lazy" />
                 </div>
-                <span className={styles.catName}>{p.name}</span>
-                <p className={styles.catDesc}>{desc}</p>
-                <button
-                  type="button"
-                  className={`${styles.catBuyBtn}${(o || b) ? ` ${styles.buyBtnSoon}` : ''}`}
-                  onClick={() => handleBuy(p.id)}
-                  disabled={o || b}
-                >
-                  {o ? 'Hast du' : b ? '…' : e ? 'Nochmal' : p.price}
-                </button>
+                <div className={styles.catCopy}>
+                  <span className={styles.catEyebrow}>{p.name}</span>
+                  <h3 className={styles.catSpectrum}>{pack?.spectrum ?? ''}</h3>
+                  <p className={styles.catBody}>{pack?.description ?? ''}</p>
+                  <button
+                    type="button"
+                    className={`${styles.catBuyBtn}${(o || b) ? ` ${styles.buyBtnSoon}` : ''}`}
+                    onClick={() => handleBuy(p.id)}
+                    disabled={o || b}
+                  >
+                    {o ? 'Hast du' : b ? '…' : e ? 'Nochmal' : p.price}
+                  </button>
+                </div>
               </article>
             );
           })}

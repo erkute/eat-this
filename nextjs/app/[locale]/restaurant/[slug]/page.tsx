@@ -330,6 +330,7 @@ export default async function RestaurantPage({ params }: PageProps) {
                       href={`/map?r=${r.slug}`}
                       className={styles.primaryCta}
                       aria-label="Eat This Map"
+                      rel="nofollow"
                     >
                       <span className={styles.primaryCtaWordmark} aria-hidden="true" />
                       <span className={styles.primaryCtaSuffix} aria-hidden="true">Map</span>

@@ -1,4 +1,5 @@
 import {CategoryCheckboxInput} from '../components/CategoryCheckboxInput'
+import {BezirkDropdownInput} from '../components/BezirkDropdownInput'
 
 export default {
   name: 'restaurant',
@@ -150,6 +151,7 @@ export default {
       type: 'reference',
       to: [{ type: 'bezirk' }],
       description: 'Berliner Bezirk (verknüpft)',
+      components: { input: BezirkDropdownInput },
     },
     {
       name: 'address',

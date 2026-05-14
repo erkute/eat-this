@@ -110,7 +110,9 @@ export async function getBezirkBySlug(slug: string): Promise<BezirkDoc | null> {
   return client.fetch<BezirkDoc | null>(
     bezirkBySlugQuery,
     { slug },
-    { next: { revalidate: 3600, tags: [`bezirk:${slug}`] } }
+    // `bezirk` (generic) catches restaurant publishes — the webhook can't
+    // resolve the restaurant's bezirk slug, so it fires the generic tag.
+    { next: { revalidate: 3600, tags: [`bezirk:${slug}`, 'bezirk'] } }
   )
 }
 
@@ -118,7 +120,7 @@ export async function getRestaurantsByBezirk(slug: string): Promise<RestaurantCa
   return client.fetch<RestaurantCard[]>(
     restaurantsByBezirkQuery,
     { bezirkSlug: slug },
-    { next: { revalidate: 3600, tags: [`bezirk:${slug}`, 'sitemap-restaurants'] } }
+    { next: { revalidate: 3600, tags: [`bezirk:${slug}`, 'bezirk', 'sitemap-restaurants'] } }
   )
 }
 

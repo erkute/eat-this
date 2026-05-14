@@ -222,6 +222,11 @@ interface Place {
 }
 
 async function searchPlace(parsed: ParsedUrl): Promise<Place | null> {
+  // IMPORTANT: do NOT request `places.reviews`. Google user reviews are
+  // off-limits as a source for description / tip / shortDescription:
+  // they're third-party voices and our brand promise is "personally
+  // visited and curated" (see memory: feedback_curator_voice_no_third_party).
+  // If you add a field below, keep `places.reviews` out.
   const FIELDS = [
     'places.id',
     'places.displayName',
@@ -417,10 +422,16 @@ async function importPhoto(place: Place, restaurantSlug: string): Promise<PhotoA
       contentType,
     })
     const author = photo.authorAttributions?.[0]
+    const displayName = author?.displayName
+    // Google returns a generic placeholder string when the photo has no real
+    // author attribution. Catch it and fall back to a clean "Foto: Google Maps"
+    // with the place's mapsUri as the credit URL — satisfies the Places ToS
+    // attribution requirement without leaking the awkward placeholder text.
+    const isPlaceholder = !displayName || /copyrighted by their owners/i.test(displayName)
     return {
       _id: asset._id,
-      credit: author?.displayName ? `Foto: ${author.displayName}` : null,
-      creditUrl: author?.uri ?? null,
+      credit: isPlaceholder ? 'Foto: Google Maps' : `Foto: ${displayName}`,
+      creditUrl: isPlaceholder ? (place.googleMapsUri ?? null) : (author?.uri ?? null),
     }
   } catch (err) {
     console.warn(`  photo upload failed: ${(err as Error).message} — skipping image`)
@@ -542,12 +553,6 @@ export interface RunImportResult {
  *  passes to sanity.create; the API endpoint strips it so Sanity assigns a
  *  fresh id at draft-creation time. */
 export async function runImport(url: string, opts: RunImportOptions = {}): Promise<RunImportResult> {
-  if (!GOOGLE_API_KEY) throw new ImportError('GOOGLE_API_KEY is not set on the server.')
-  if (!SANITY_TOKEN) throw new ImportError('SANITY_API_WRITE_TOKEN is not set on the server.')
-
-  const uploadPhoto = opts.uploadPhoto !== false
-  const duplicateCheck = opts.duplicateCheck !== false
-
   const canonicalUrl = await resolveUrl(url)
   const parsed = parseMapsUrl(canonicalUrl)
   if (!parsed) {
@@ -556,6 +561,22 @@ export async function runImport(url: string, opts: RunImportOptions = {}): Promi
       'URL must contain /place/{name}/ and @lat,lng — try the desktop "Share → Copy link" form.',
     )
   }
+  return runImportFromParsed(parsed, canonicalUrl, opts)
+}
+
+/** Batch entry: skips URL-parsing when caller already has name + coords (e.g.
+ *  cremeguides scrape produced `search/?api=1&query=lat,lng` URLs that don't
+ *  parse via parseMapsUrl). Reuses the full doc-building pipeline. */
+export async function runImportFromParsed(
+  parsed: ParsedUrl,
+  canonicalUrl: string,
+  opts: RunImportOptions = {},
+): Promise<RunImportResult> {
+  if (!GOOGLE_API_KEY) throw new ImportError('GOOGLE_API_KEY is not set on the server.')
+  if (!SANITY_TOKEN) throw new ImportError('SANITY_API_WRITE_TOKEN is not set on the server.')
+
+  const uploadPhoto = opts.uploadPhoto !== false
+  const duplicateCheck = opts.duplicateCheck !== false
 
   const place = await searchPlace(parsed)
   if (!place) {

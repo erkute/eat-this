@@ -7,6 +7,13 @@ import styles from './landing.module.css';
 // and no two Döner-style cards adjacent. The two slots that used to hold
 // Slice Society (Tomate slice = 2nd pizza) and Bursa (2nd Döner) now hold
 // Crapulix Croissant and Jones Cookies for visual range.
+//
+// URLs are the bare Sanity CDN entries — raw 1449x2163 PNGs (~1-2 MB each).
+// We pipe them through Sanity's CDN image params at render time:
+//   ?w=<n>&auto=format&q=72
+// auto=format → WebP/AVIF to capable browsers, fallback otherwise.
+// Three srcset widths cover all DPR/viewport combos (display is 112px on
+// mobile, 168px on desktop; DPR 2-3 → 240/360/520 lands every bucket).
 const CARDS = [
   'https://cdn.sanity.io/images/ehwjnjr2/production/e74cc8257c7d0d37075e024274bd3a447ce8a6da-1449x2163.png', // Banh Mi
   'https://cdn.sanity.io/images/ehwjnjr2/production/70e13f906df3aa37dd062fc6d83034ded924b1ae-1449x2163.png', // Spicy Thai Sausage
@@ -32,6 +39,21 @@ const MOBILE_LAYOUT: { idx: number; row: 0 | 1; slot: number }[] = [
 
 const REST_ROT = [-5, 3, -3, 4, 0, -2, 5, -4, 3];
 
+// Stacking order in the fan. Symmetric — centre card (idx 4) sits in
+// front, outer cards behind, gives the row depth without overlap weight.
+const Z_INDEX = [1, 2, 3, 4, 9, 4, 3, 2, 1];
+
+// Scroll-driven entry parameters. All `*_VH` values are read as a
+// fraction of viewport height applied to the section's centre y.
+const START_OFFSET_PX = 1500;        // distance off-screen at p=0
+const ENTRY_TRIGGER_START_VH = 1.4;  // entry begins when centerY ≥ this
+const ENTRY_TRIGGER_END_VH = 0.5;    // entry completes when centerY ≤ this
+const ENTRY_STAGGER = 0.04;          // per-card delay as fraction of [0..1]
+// IO rootMargin extends the trigger root 1 viewport above + below so the
+// RAF loop starts before the section enters view and stops shortly after
+// it leaves — bounded battery cost on idle pages.
+const IO_ROOT_MARGIN = '100% 0% 100% 0%';
+
 export default function FanCards() {
   const stageRef = useRef<HTMLDivElement>(null);
 
@@ -42,112 +64,101 @@ export default function FanCards() {
       stage.querySelectorAll<HTMLDivElement>(`.${styles.rowCard}`)
     );
 
-    function getScrollAncestors(el: HTMLElement | null): (HTMLElement | Window)[] {
-      const out: (HTMLElement | Window)[] = [];
-      let node = el?.parentElement;
-      while (node) {
-        const o = getComputedStyle(node).overflowY;
-        if (o === 'auto' || o === 'scroll') out.push(node);
-        node = node.parentElement;
-      }
-      out.push(window);
-      return out;
-    }
+    // Per-card static data — derived once at mount. Cards fly in via X
+    // translate from ±START_OFFSET_PX to their fan-slot finalX, with a
+    // synchronised rotate from 0 → restRot. No opacity is touched (see
+    // CLAUDE.md "Animation — no opacity fades").
+    const cardData = CARDS.map((_, i) => {
+      const mobileInfo = MOBILE_LAYOUT.find((m) => m.idx === i);
+      return {
+        startX: i < 5 ? -START_OFFSET_PX : START_OFFSET_PX,
+        finalXD: SLOTS_DESKTOP[i] ?? 0,
+        finalXM: mobileInfo ? mobileInfo.slot : 0,
+        restRot: REST_ROT[i] ?? 0,
+        onMobile: Boolean(mobileInfo),
+      };
+    });
 
+    let isDesktop = window.innerWidth >= 768;
     let lastP = -1;
-    let rafPending = false;
-
-    // easeOutCubic - eased per-card progress masks scroll-tick jitter by
-    // having the card decelerate as it approaches its rest position.
-    // With linear interpolation the same scroll-pixel delta produced a
-    // constant transform delta, which read as choppy whenever the
-    // browser delivered uneven scroll events (common on trackpads and
-    // 90 Hz mobile screens).
     const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
     function compute() {
-      rafPending = false;
-      if (!stage) return;
       const rect = stage.getBoundingClientRect();
-      const vw = window.innerWidth;
       const vh = window.innerHeight;
-      const elemCenter = rect.top + rect.height / 2;
-      // Section enters at 95% viewport height, fully revealed at 42% (just
-      // above the page centre). Scrolling back up reverses p toward 0 so
-      // the cards slide back out the way they came.
-      const startY = vh * 0.95;
-      const endY = vh * 0.42;
-      const p = Math.max(0, Math.min(1, (startY - elemCenter) / (startY - endY)));
-      // Finer early-exit: 0.003 was coarse enough that scroll-tick
-      // updates skipped intermediate frames, making the cards appear to
-      // step rather than glide. 0.001 keeps the work cheap while letting
-      // every meaningful scroll tick produce a fresh transform.
+      const centerY = rect.top + rect.height / 2;
+      // Global entry progress p ∈ [0, 1]. Section centre crossing the
+      // trigger window maps linearly to p.
+      const startY = vh * ENTRY_TRIGGER_START_VH;
+      const endY = vh * ENTRY_TRIGGER_END_VH;
+      const p = Math.max(0, Math.min(1, (startY - centerY) / (startY - endY)));
       if (Math.abs(p - lastP) < 0.001) return;
       lastP = p;
 
-      const isDesktop = vw >= 768;
-      cards.forEach((card, idx) => {
-        const startX = parseFloat(card.dataset.startX || '0');
-        const finalXD = parseFloat(card.dataset.finalXd || '0');
-        const finalXM = parseFloat(card.dataset.finalXm || '0');
-        const restRot = parseFloat(card.dataset.restRot || '0');
-        const onMobile = card.dataset.mobileShow === 'yes';
-        if (!isDesktop && !onMobile) {
-          card.style.display = 'none';
-          return;
-        }
-        card.style.display = '';
-        // Each card gets its own staggered local progress. Card 0 starts
-        // animating immediately; the last card kicks in when global p
-        // has reached ~0.35. So the cards land one-by-one rather than as
-        // a synchronised group. Eased so the visual motion decelerates
-        // toward the rest position instead of stepping linearly.
-        const stagger = idx * 0.05;
+      // Per-card progress: each card waits `idx * ENTRY_STAGGER` of the
+      // global p before its own [0..1] window starts. All land at p=1.
+      for (let idx = 0; idx < cards.length; idx++) {
+        const data = cardData[idx];
+        if (!isDesktop && !data.onMobile) continue;
+        const stagger = idx * ENTRY_STAGGER;
         const linearP = Math.max(0, Math.min(1, (p - stagger) / (1 - stagger)));
         const cardP = easeOutCubic(linearP);
-        const finalX = isDesktop ? finalXD : finalXM;
-        const x = startX + (finalX - startX) * cardP;
-        const rot = restRot * cardP;
-        const scale = 0.85 + 0.15 * cardP;
-        // translate3d nudges browsers to keep the card on its own
-        // compositor layer alongside `will-change: transform`, which
-        // helps especially on iOS Safari where layer promotion is
-        // sometimes dropped between scroll bursts.
-        card.style.transform = `translate3d(${x.toFixed(1)}px, 0, 0) rotate(${rot.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
-      });
+        const finalX = isDesktop ? data.finalXD : data.finalXM;
+        const x = data.startX + (finalX - data.startX) * cardP;
+        const rot = data.restRot * cardP;
+        cards[idx].style.transform = `translate3d(${x.toFixed(1)}px, 0, 0) rotate(${rot.toFixed(2)}deg)`;
+      }
     }
 
-    function schedule() {
-      if (rafPending) return;
-      rafPending = true;
-      requestAnimationFrame(compute);
-    }
+    // Position cards once at mount so they're at startX (off-screen) on
+    // the first paint, not stacked at the CSS-default centre.
+    compute();
 
-    const scrollAncestors = getScrollAncestors(stage);
-    schedule();
-    scrollAncestors.forEach((s) =>
-      s.addEventListener('scroll', schedule, { passive: true })
+    // Continuous RAF while the section is near the viewport — smooth at
+    // any scroll cadence (iOS inertial flicks throttle scroll events, so
+    // a scroll-listener-driven version would visibly hitch).
+    let rafId = 0;
+    let running = false;
+    function frame() {
+      compute();
+      rafId = requestAnimationFrame(frame);
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !running) {
+          running = true;
+          frame();
+        } else if (!entry.isIntersecting && running) {
+          running = false;
+          cancelAnimationFrame(rafId);
+          lastP = -1;
+        }
+      },
+      { rootMargin: IO_ROOT_MARGIN }
     );
-    window.addEventListener('resize', schedule, { passive: true });
+    io.observe(stage);
+
+    function handleResize() {
+      isDesktop = window.innerWidth >= 768;
+      lastP = -1;
+    }
+    window.addEventListener('resize', handleResize, { passive: true });
+
     return () => {
-      scrollAncestors.forEach((s) =>
-        s.removeEventListener('scroll', schedule)
-      );
-      window.removeEventListener('resize', schedule);
+      io.disconnect();
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
-
-  const zIndex = [1, 2, 3, 4, 9, 4, 3, 2, 1];
 
   return (
     <section className={styles.fanWrap}>
       <div className={styles.fanStage} ref={stageRef}>
         {CARDS.map((src, i) => {
-          const fromLeft = i < 5;
           const mobileInfo = MOBILE_LAYOUT.find((m) => m.idx === i);
           const onMobile = Boolean(mobileInfo);
           const style: CSSProperties = {
-            zIndex: zIndex[i] ?? 1,
+            zIndex: Z_INDEX[i] ?? 1,
             // CSS var for two-row mobile vertical offset.
             ['--row-m' as string]: onMobile ? String(mobileInfo!.row) : '0',
           };
@@ -156,15 +167,17 @@ export default function FanCards() {
               key={i}
               className={styles.rowCard}
               data-mobile-show={onMobile ? 'yes' : 'no'}
-              data-mobile-row={onMobile ? mobileInfo!.row : ''}
-              data-start-x={fromLeft ? '-1500' : '1500'}
-              data-final-xd={String(SLOTS_DESKTOP[i])}
-              data-final-xm={onMobile ? String(mobileInfo!.slot) : '0'}
-              data-rest-rot={String(REST_ROT[i])}
               style={style}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" loading="lazy" decoding="async" />
+              <img
+                src={`${src}?w=520&auto=format&q=72`}
+                srcSet={`${src}?w=240&auto=format&q=72 240w, ${src}?w=360&auto=format&q=72 360w, ${src}?w=520&auto=format&q=72 520w`}
+                sizes="(max-width: 767px) 112px, 168px"
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
             </div>
           );
         })}

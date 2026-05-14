@@ -44,6 +44,32 @@ This repo is occasionally worked on in **multiple Claude sessions simultaneously
 - Build CSS with `npm run build:css` before testing changes — dev doesn't auto-rebuild.
 - Stylesheet cache-bust is the `?v=NN` on the `<link rel="stylesheet">` in `app/[locale]/(spa)/layout.tsx`. Bump on any `style.css` change.
 
+## Animation — no opacity fades
+
+**Never animate `opacity` for entry/exit motion on the landing or any brand-facing surface.** The user finds opacity fades weak — they read as "appearing" rather than as motion, and they wash out the punch of the brand presence. This preference has been repeated multiple times across the FanCards iterations.
+
+- Entry: translate from off-screen (X or Y), optionally with rotate
+- Exit: translate out, or scale-and-translate
+- Reveals: clip-path, mask, or absolute repositioning
+- If a motion feels "too strong", slow the translate or soften the easing — don't reach for opacity
+
+**Exception:** State changes that aren't motion (button hover lightening, modal backdrop tint, etc.) are fine to drive with opacity. The rule is about *movement* animations.
+
+## Image assets — PNG → WebP before commit
+
+Any image that ships to the browser (lands under `nextjs/public/`) **must be WebP before it's committed and pushed**. PNG bloats payload ~10× and decode-blocks the main thread on mobile — we've already paid that cost once on the FanCards (1-2 MB raw PNGs from Sanity CDN → ~60 KB WebP via `?auto=format`); don't re-introduce it from the asset side.
+
+- Cutouts with alpha → WebP at `q 80` (keeps edge crispness, see [freigestellte Bilder](#))
+- Photographic screenshots / map teasers → WebP at `q 72`
+- Source/working files outside `nextjs/public/` (e.g. `pics/` at repo root, scraper output) can stay PNG — they don't ship
+- Sanity uploads stay raw; the CDN serves WebP via `lib/sanityImageLoader.ts` (`?auto=format`)
+
+**Keep as PNG (platform requires it):**
+- `favicon.ico`, `apple-touch-icon.png`, PWA manifest icons
+- OG / Twitter share images (some social previewers still don't decode WebP)
+
+CLI: `cwebp -q 80 in.png -o out.webp` (`brew install webp` once).
+
 ## Routing & i18n (next-intl v4)
 
 - **DE at `/`, EN at `/en/...`.** `i18n/routing.ts`: locales `['de','en']`, default `'de'`, `localePrefix: 'as-needed'`, `localeDetection: false` (a NEXT_LOCALE cookie or Accept-Language header doesn't auto-redirect — `/` is always DE).

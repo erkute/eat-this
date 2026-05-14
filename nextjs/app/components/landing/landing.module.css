@@ -48,9 +48,9 @@
   margin-left: -56px;
   border-radius: 12px;
   overflow: hidden;
-  /* transform is driven by JS scroll listener - cards interpolate from
-     off-screen start to slot position as the section scrolls into view,
-     and reverse when scrolling back up. */
+  /* JS RAF interpolates transform from startX (off-screen) to fan-slot
+     finalX as the section scrolls into view. No opacity changes — see
+     CLAUDE.md "Animation — no opacity fades". */
   will-change: transform;
 }
 .rowCard img {

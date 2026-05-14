@@ -84,6 +84,9 @@ export default function FanCards() {
     const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
     function compute() {
+      // Re-narrow inside the closure — TS doesn't propagate the outer
+      // null-check past nested function boundaries.
+      if (!stage) return;
       const rect = stage.getBoundingClientRect();
       const vh = window.innerHeight;
       const centerY = rect.top + rect.height / 2;

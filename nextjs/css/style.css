@@ -1771,6 +1771,19 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
     overflow-x: hidden;
   }
 
+  /* SPA scroll-chain lock: on routes that mount .app-pages (the SPA group:
+     start/news/map/static), .app-pages is the page scroll container. Lock
+     html+body to the viewport so wheel/keyboard scroll past .app-pages's
+     bottom can't bubble to the window — otherwise body slides off-screen
+     and a strip of html bg appears below the footer. Non-SPA routes
+     (restaurant/bezirk/kategorie/profile) have no .app-pages and keep
+     natural body scroll. */
+  html:has(.app-pages),
+  html:has(.app-pages) body {
+    height: 100vh;
+    overflow: hidden;
+  }
+
  /* replaced by new site-footer */
 
   /* App pages: natural height so footer follows content */

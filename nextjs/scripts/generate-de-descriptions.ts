@@ -1,6 +1,6 @@
 /**
  * Generates DE descriptions for restaurants and bezirke that lack them.
- * Uses Sanity-stored facts + Google Places (place details + reviews) +
+ * Uses Sanity-stored facts + Google Places (place details, NO user reviews) +
  * Claude Sonnet 4.6 with brand-voice prompt. Writes drafts only — editorial
  * publishes manually.
  *
@@ -179,7 +179,6 @@ export interface PlaceContext {
   priceLevel?: string
   editorialSummary?: string
   types?: string[]
-  reviews?: Array<{ rating?: number; text?: string; lang?: string }>
 }
 
 export async function fetchPlaceContext(r: RestaurantSource): Promise<PlaceContext | null> {
@@ -188,6 +187,10 @@ export async function fetchPlaceContext(r: RestaurantSource): Promise<PlaceConte
     headers: {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': GOOGLE_API_KEY,
+      // IMPORTANT: do NOT request `places.reviews`. Google user reviews are
+      // off-limits as a source for description / tip / shortDescription:
+      // they're third-party voices and our brand promise is "personally
+      // visited and curated" (see memory: feedback_curator_voice_no_third_party).
       'X-Goog-FieldMask': [
         'places.id',
         'places.displayName',
@@ -198,7 +201,6 @@ export async function fetchPlaceContext(r: RestaurantSource): Promise<PlaceConte
         'places.rating',
         'places.userRatingCount',
         'places.priceLevel',
-        'places.reviews',
       ].join(','),
     },
     body: JSON.stringify({
@@ -217,13 +219,6 @@ export async function fetchPlaceContext(r: RestaurantSource): Promise<PlaceConte
   const place = data.places?.[0]
   if (!place) return null
 
-  type ReviewBlock = { rating?: number; text?: { text?: string; languageCode?: string } }
-  const reviews = ((place.reviews as ReviewBlock[]) ?? []).slice(0, 5).map(rev => ({
-    rating: rev.rating,
-    text: rev.text?.text,
-    lang: rev.text?.languageCode,
-  }))
-
   return {
     formattedAddress: place.formattedAddress as string | undefined,
     websiteUri: place.websiteUri as string | undefined,
@@ -232,7 +227,6 @@ export async function fetchPlaceContext(r: RestaurantSource): Promise<PlaceConte
     priceLevel: place.priceLevel as string | undefined,
     editorialSummary: (place.editorialSummary as { text?: string } | undefined)?.text,
     types: place.types as string[] | undefined,
-    reviews,
   }
 }
 
@@ -412,15 +406,14 @@ export async function generateRestaurant(r: RestaurantSource, places: PlaceConte
     existingShortDescription: r.shortDescription ?? null,
     existingTip: r.tip ?? null,
   }
+  // Note: Google user reviews intentionally excluded — they're third-party
+  // voices and would undermine the "personally visited & curated" promise.
   const placesFacts = places
     ? {
         formattedAddress: places.formattedAddress ?? null,
         editorialSummary: places.editorialSummary ?? null,
         priceLevel: places.priceLevel ?? null,
         types: places.types ?? [],
-        reviewSnippets: (places.reviews ?? [])
-          .filter(rev => rev.text)
-          .map(rev => ({ lang: rev.lang, text: rev.text?.slice(0, 600) })),
       }
     : { note: 'No Google Places match found — derive description only from Sanity facts.' }
 

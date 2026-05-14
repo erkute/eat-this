@@ -158,9 +158,15 @@
   max-height: 94%;
   height: auto;
   object-fit: contain;
-  transform: rotate(-3deg);
+  transform: rotate(-3deg) translateZ(0);
   filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.5));
   transition: transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* iOS Safari demotes the layer after scroll stops and re-rasterises the
+   * drop-shadow against the cutout alpha, producing jagged shadow edges.
+   * Pin the element to a GPU layer so the shadow snapshot stays cached. */
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Category - three packs, front prominent, two angled supporters behind */
@@ -183,10 +189,15 @@
   transform-origin: bottom center;
   filter: drop-shadow(0 16px 26px rgba(0, 0, 0, 0.42));
   transition: transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* See .starterImg note — keep layer GPU-pinned so iOS doesn't redraw the
+   * drop-shadow with hard edges after a scroll settles. */
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
-.stack1 { z-index: 3; transform: translateY(6px) rotate(-2deg); }
-.stack2 { z-index: 2; transform: translate(-44%, 4%) rotate(-14deg) scale(0.86); opacity: 0.94; }
-.stack3 { z-index: 2; transform: translate(44%, 4%) rotate(14deg) scale(0.86); opacity: 0.94; }
+.stack1 { z-index: 3; transform: translateY(6px) rotate(-2deg) translateZ(0); }
+.stack2 { z-index: 2; transform: translate(-44%, 4%) rotate(-14deg) scale(0.86) translateZ(0); opacity: 0.94; }
+.stack3 { z-index: 2; transform: translate(44%, 4%) rotate(14deg) scale(0.86) translateZ(0); opacity: 0.94; }
 
 /* Bundle - pile/heap layout. All 9 packs absolute-positioned around the
    centre with per-pack --x/--y/--rot offsets set inline (resting state)
@@ -220,26 +231,34 @@
   aspect-ratio: 2 / 3;
   object-fit: contain;
   filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.55));
-  transform: translate(
+  /* translate3d (not translate) keeps each pack on its own GPU layer so the
+   * drop-shadow stays soft when scroll settles on iOS — same bug class as
+   * .starterImg above, multiplied across 9 cutouts. */
+  transform: translate3d(
               calc(-50% + var(--x, 0px)),
-              calc(-50% + var(--y, 0px))
+              calc(-50% + var(--y, 0px)),
+              0
              )
              rotate(var(--rot, 0deg));
   transition: transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 .card:hover .bundleItem {
-  transform: translate(
+  transform: translate3d(
               calc(-50% + var(--x, 0px) + var(--hx, 0px)),
-              calc(-50% + var(--y, 0px) + var(--hy, 0px))
+              calc(-50% + var(--y, 0px) + var(--hy, 0px)),
+              0
              )
              rotate(calc(var(--rot, 0deg) + var(--hrot, 0deg)));
 }
 
 /* Hover choreography for the other media. */
-.card:hover .starterImg { transform: rotate(-2deg) scale(1.03); }
-.card:hover .stack1 { transform: translateY(2px) rotate(-2deg) scale(1.03); }
-.card:hover .stack2 { transform: translate(-46%, 0) rotate(-16deg) scale(0.88); }
-.card:hover .stack3 { transform: translate(46%, 0) rotate(16deg) scale(0.88); }
+.card:hover .starterImg { transform: rotate(-2deg) scale(1.03) translateZ(0); }
+.card:hover .stack1 { transform: translateY(2px) rotate(-2deg) scale(1.03) translateZ(0); }
+.card:hover .stack2 { transform: translate(-46%, 0) rotate(-16deg) scale(0.88) translateZ(0); }
+.card:hover .stack3 { transform: translate(46%, 0) rotate(16deg) scale(0.88) translateZ(0); }
 
 /* ── Title + Price block ────────────────────────────────────────────── */
 .cardTitle {

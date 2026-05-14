@@ -402,7 +402,12 @@
   object-fit: contain;
   display: block;
   filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.5));
-  transform: rotate(-6deg);
+  /* GPU-pin so iOS doesn't redraw the drop-shadow with jagged edges after
+   * scroll settles — same bug class as the packs in PacksSection. */
+  transform: rotate(-6deg) translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 .newsCopy { display: flex; flex-direction: column; align-items: center; }
 .news .secLabel { color: #fff; }

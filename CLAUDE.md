@@ -1,15 +1,10 @@
 # Project Rules
 
-## Aggressive cleanup is OK (no live traffic yet)
+## Aggressive cleanup is OK (very early stage)
 
-This project has **no production users yet**. When you touch any area that contains legacy or dead code, **rip it out entirely** — don't leave compatibility shims, don't preserve "in case someone migrates", don't add deprecation paths. Examples:
+The project has essentially no live users yet — Stripe is in live mode but only for internal testing. When you touch legacy or dead code, **rip it out entirely**: no compatibility shims, no "in case someone migrates" preservation, no deprecation paths. Backwards compatibility for a userbase that doesn't exist is just clutter.
 
-- Password-based auth methods (`signInWithEmailAndPassword`, `createUserWithEmailAndPassword`, `sendPasswordResetEmail`) → remove, only Magic Link + Google are used
-- Legacy `/reset-password*` URLs → no need for redirects, Firebase Console will be repointed
-- Old translation keys that are no longer referenced → remove
-- Old static HTML at root (`reset-password.html`, etc.) → delete
-
-The user prefers a smaller, cleaner codebase over backwards compatibility for a userbase that doesn't exist. Re-confirm only if the change crosses obvious module boundaries.
+Re-confirm only if the change crosses obvious module boundaries.
 
 ## Git Hygiene (parallel sessions)
 

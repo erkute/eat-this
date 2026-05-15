@@ -33,6 +33,16 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  async redirects() {
+    return [
+      // Engelbecken — Sanity-Slug hatte historisch "engelsbecken" (Typo);
+      // offiziell schreibt sich das Restaurant Engelbecken (eigene Domain
+      // engelbecken.de). Slug umgezogen, alte URL 308 → neue.
+      { source: "/restaurant/engelsbecken", destination: "/restaurant/engelbecken", permanent: true },
+      { source: "/en/restaurant/engelsbecken", destination: "/en/restaurant/engelbecken", permanent: true },
+    ];
+  },
 };
 
 // Sentry build plugin: uploads sourcemaps + creates a release per build, so

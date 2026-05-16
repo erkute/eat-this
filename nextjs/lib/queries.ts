@@ -355,29 +355,15 @@ export const landingPageQuery = `
       ctaHref,
       "imageUrl": image.asset->url + "?w=1600&auto=format&q=85"
     },
-    trustBar { lineDe, lineEn },
-    mapPreview {
-      headlineDe, headlineEn,
-      bodyDe, bodyEn,
-      "screenshotUrl": screenshot.asset->url + "?w=1200&auto=format&q=85"
-    },
     mustEats {
       headlineDe, headlineEn,
       bodyDe, bodyEn,
       ctaLabelDe, ctaLabelEn,
       ctaHref
     },
-    howWeCurate { headlineDe, headlineEn, bodyDe, bodyEn },
     insideMap {
       headlineDe, headlineEn,
-      itemsDe, itemsEn,
       "screenshotUrls": screenshots[].asset->url
-    },
-    categories { headlineDe, headlineEn },
-    recentlyAdded {
-      headlineDe, headlineEn,
-      bodyDe, bodyEn,
-      sectionCtaLabelDe, sectionCtaLabelEn
     },
     packs {
       headlineDe, headlineEn,
@@ -400,64 +386,10 @@ export const landingPageQuery = `
         "imageUrl": image.asset->url + "?w=800&auto=format&q=85"
       }
     },
-    whyEatThis { headlineDe, headlineEn, bodyDe, bodyEn },
-    newsletter { headlineDe, headlineEn, bodyDe, bodyEn, ctaLabelDe, ctaLabelEn },
     finalCta { headlineDe, headlineEn, bodyDe, bodyEn, ctaLabelDe, ctaLabelEn, ctaHref }
   }
 `
 
 export const restaurantCountQuery = `count(*[_type == "restaurant" && !(_id in path("drafts.**"))])`
 
-export const categoryGridQuery = `
-  *[_type == "category"] | order(name asc) {
-    _id,
-    name,
-    nameEn,
-    "slug": slug.current,
-    "iconUrl": icon.asset->url + "?w=400&auto=format&q=85"
-  }
-`
 
-// "Recently added" picks the N newest items across restaurants + must-eats.
-// Both branches project a uniform shape so the result is a single array.
-// MustEats don't have their own slug/route — they belong to a restaurant,
-// so we point href to the parent restaurant's detail page.
-// MustEat field in schema is "dish" (not "dishName"). Title comes from the dish name.
-// Lightweight ticker query: just restaurant names + bezirk for a scrolling
-// marquee on the landing page. Filters out spots without an image so the
-// ticker doesn't surface drafty entries (e.g. Phantom Bar) that aren't
-// ready to be public-facing yet.
-export const restaurantTickerQuery = `
-  *[_type == "restaurant"
-    && !(_id in path("drafts.**"))
-    && isOpen != false
-    && defined(image.asset)]
-  | order(_createdAt desc)[0...$limit] {
-    _id,
-    name,
-    "bezirk": coalesce(bezirkRef->name, district)
-  }
-`
-
-export const recentlyAddedQuery = `
-  *[_type in ["restaurant", "mustEat"] && !(_id in path("drafts.**"))]
-  | order(_createdAt desc)[0...$limit] {
-    _id,
-    "kind": _type,
-    "createdAt": _createdAt,
-    _type == "restaurant" => {
-      name,
-      "slug": slug.current,
-      "bezirk": coalesce(bezirkRef->name, district),
-      "imageUrl": image.asset->url + "?w=800&auto=format&q=85",
-      "href": "/restaurant/" + slug.current
-    },
-    _type == "mustEat" => {
-      "name": dish,
-      "slug": restaurantRef->slug.current,
-      "bezirk": coalesce(restaurantRef->bezirkRef->name, district, restaurantRef->district),
-      "imageUrl": image.asset->url + "?w=800&auto=format&q=85",
-      "href": "/restaurant/" + restaurantRef->slug.current
-    }
-  }
-`

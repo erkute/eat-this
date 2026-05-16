@@ -266,7 +266,7 @@ export default function OnboardingFlow({
          * The pack-open choreography (PackOpenChoreography) is mounted from
          * the first frame so the pack you see hovering IS the pack that
          * later zooms — no swap, no snap. The idle copy + CTA fade out the
-         * moment the user taps "Pack öffnen". After all 10 cards have flown
+         * moment the user taps "Pack öffnen". After all 20 cards have flown
          * past the centre and exited stage right, onFinish runs immediately
          * and the Profile takes over with its per-card flip-reveal. */}
         {step === 4 && (
@@ -285,7 +285,7 @@ export default function OnboardingFlow({
               transition={{ duration: 0.3, ease: 'easeOut' }}
               style={{ pointerEvents: packOpened ? 'none' : 'auto' }}
             >
-              <Eyebrow>Deine ersten 10 Must Eats</Eyebrow>
+              <Eyebrow>Deine ersten 20 Must Eats</Eyebrow>
               <Title>Öffne dein<br />Starter Pack</Title>
               <Body>
                 Sammle alle 150+ Must Eats, erkunde die Map und meistere die

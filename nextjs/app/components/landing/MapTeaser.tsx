@@ -1,13 +1,9 @@
 import styles from './landing.module.css'
-import MapTeaserCta from './MapTeaserCta'
 
 interface Props {
   headline: string
   screenshotUrls?: (string | undefined)[]
   locale?: 'de' | 'en'
-  /** Live restaurant count from Sanity. Interpolated into the Phone 1
-   *  bullet so the number stays in sync with the dataset. */
-  restaurantCount: number
 }
 
 const DEFAULT_SCREENSHOTS = [
@@ -16,117 +12,63 @@ const DEFAULT_SCREENSHOTS = [
   '/pics/map-teaser/map_restaurant.webp',
 ]
 
-// Per-phone copy. Each phone shows a specific UI screen, so the captions
-// describe exactly what that screen does. Hardcoded here (not CMS-driven)
-// because the screenshots themselves are also hardcoded - the two travel
-// together as one explainer unit. The `eyebrow` is a numbered tag above
-// each phone H3 ("01 · MAP" etc.) - gives the trio a magazine-spread
-// rhythm so users scan it as 3 chapters, not 3 feature columns.
+// Per-phone product pitch. Each screen sells one concrete capability:
+// the live map, the filter, the spot detail. Copy is product-advertising
+// — declarative beats, not generic taglines. Hardcoded next to the
+// screenshots (which are also hardcoded) so the two travel together.
 const PHONE_CONTENT: {
-  eyebrowDe: string
-  eyebrowEn: string
-  headlineDe: string
-  headlineEn: string
-  bulletsDe: string[]
-  bulletsEn: string[]
+  titleDe: string
+  titleEn: string
+  bodyDe: string
+  bodyEn: string
 }[] = [
   {
-    eyebrowDe: '01 · DIE MAP',
-    eyebrowEn: '01 · THE MAP',
-    headlineDe: 'Alle Spots auf einer Map',
-    headlineEn: 'Every spot on one map',
-    bulletsDe: [
-      '{count}+ Spots. Handverlesen.',
-      'Live mit deinem Standort.',
-      'Nur, was wir empfehlen.',
-    ],
-    bulletsEn: [
-      '{count}+ spots. Hand-picked.',
-      'Live with your location.',
-      'Only what we recommend.',
-    ],
+    titleDe: 'Live auf einer Map',
+    titleEn: 'Live on one map',
+    bodyDe: 'Jeder Spot, live auf der Map. Berlin auf einen Blick. Mit deinem Standort verknüpft.',
+    bodyEn: 'Every spot, live on the map. Berlin at a glance. Wired to your location.',
   },
   {
-    eyebrowDe: '02 · DIE FILTER',
-    eyebrowEn: '02 · THE FILTERS',
-    headlineDe: 'Berlin, gefiltert',
-    headlineEn: 'Berlin, filtered',
-    bulletsDe: [
-      'Bezirksfilter. Mitte bis Wedding.',
-      'Radius live um dich rum.',
-      '„Geöffnet". Nur, was gerade läuft.',
-    ],
-    bulletsEn: [
-      'District filter. Mitte to Wedding.',
-      'Radius live around you.',
-      '“Open now.” Only what’s open.',
-    ],
+    titleDe: 'Dein Berlin.',
+    titleEn: 'Your Berlin.',
+    bodyDe: 'Nach Bezirk. Nach Kategorie. Nach Standort. Oder nur was gerade offen hat.',
+    bodyEn: 'By district. By category. By location. Or just what\'s open right now.',
   },
   {
-    eyebrowDe: '03 · DIE SPOTS',
-    eyebrowEn: '03 · THE SPOTS',
-    headlineDe: 'Alles zu jedem Spot',
-    headlineEn: 'Everything about every spot',
-    bulletsDe: [
-      'Must Eats. Vor Ort aufdecken.',
-      'Adresse. Öffnungszeiten. Bilder.',
-      'Direkt aus der Map.',
-    ],
-    bulletsEn: [
-      'Must Eats. Reveal on site.',
-      'Address. Hours. Photos.',
-      'Right from the map.',
-    ],
+    titleDe: 'Alles zu jedem Spot',
+    titleEn: 'Everything about every spot',
+    bodyDe: 'Hours, Preise, Bilder, Must Eats und Insider-Tipps. Plus ein Tap, um sicher überall hin zu navigieren.',
+    bodyEn: 'Hours, prices, photos, Must Eats and insider tips. Plus one tap to navigate anywhere with confidence.',
   },
 ]
 
-export default function MapTeaser({ headline, screenshotUrls, locale = 'de', restaurantCount }: Props) {
+export default function MapTeaser({ headline, screenshotUrls, locale = 'de' }: Props) {
   const screenshots = [0, 1, 2].map((i) => screenshotUrls?.[i] || DEFAULT_SCREENSHOTS[i])
-  // Override the CMS headline with the punchier editorial line. Leaves
-  // `headline` in the props signature so the CMS column still ships.
-  const sectionEyebrow = locale === 'de' ? 'Die Map' : 'The Map'
-  const sectionTitle = locale === 'de'
-    ? 'Direkt zu den Spots, die zählen'
-    : 'Straight to the spots that matter'
-  const sectionLead = locale === 'de'
-    ? 'Persönlich kuratiert. Live auf einer Map.'
-    : 'Personally curated. Live on one map.'
-  const ctaLabel = locale === 'de'
-    ? 'Alles auf der Map ansehen'
-    : 'See everything on the map'
   void headline
 
   return (
     <section className={styles.mapTeaser}>
-      <div className={styles.mapTeaserHead}>
-        <span className={styles.mapTeaserEyebrow}>{sectionEyebrow}</span>
-        <h2>{sectionTitle}</h2>
-        <p>{sectionLead}</p>
+      <div className={styles.mapTeaserDivider} aria-hidden="true">
+        <span className={styles.mapTeaserDividerLabel}>
+          {locale === 'de' ? 'Die Map' : 'The Map'}
+        </span>
       </div>
       <div className={styles.mapFeatures}>
         {screenshots.map((src, i) => {
           const phone = PHONE_CONTENT[i]
-          const phoneEyebrow = locale === 'de' ? phone.eyebrowDe : phone.eyebrowEn
-          const phoneHeadline = locale === 'de' ? phone.headlineDe : phone.headlineEn
-          const phoneBullets = (locale === 'de' ? phone.bulletsDe : phone.bulletsEn)
-            .map((b) => b.replace('{count}', String(restaurantCount)))
+          const title = locale === 'de' ? phone.titleDe : phone.titleEn
+          const body = locale === 'de' ? phone.bodyDe : phone.bodyEn
           return (
             <article key={i} className={styles.mapFeature}>
               <div className={styles.mapFeatureFrame}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={src} alt="" loading="lazy" decoding="async" />
               </div>
-              <span className={styles.mapFeatureEyebrow}>{phoneEyebrow}</span>
-              <h3 className={styles.mapFeatureTitle}>{phoneHeadline}</h3>
-              <ul className={styles.mapFeatureItems}>
-                {phoneBullets.map((item, j) => <li key={j}>{item}</li>)}
-              </ul>
+              <h3 className={styles.mapFeatureTitle}>{title}</h3>
+              <p className={styles.mapFeatureBody}>{body}</p>
             </article>
           )
         })}
-      </div>
-      <div className={styles.mapTeaserFooter}>
-        <MapTeaserCta label={ctaLabel} />
       </div>
     </section>
   )

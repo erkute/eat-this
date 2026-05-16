@@ -3,6 +3,7 @@
 import { CSSProperties } from 'react'
 import Image from 'next/image'
 import { useLoginModal } from '@/lib/auth'
+import { getPack } from '@/lib/stripe-catalog'
 import styles from './PacksSection.module.css'
 
 interface Tier {
@@ -34,6 +35,25 @@ function splitTitle(raw: string): { name: string; price: string | null } {
   if (parts.length >= 2) return { name: parts[0], price: parts.slice(1).join(' - ') }
   return { name: raw, price: null }
 }
+
+// 9 Category-Packs surfaced as a mini-grid above the 3 tier cards. Each
+// mini-card is its own checkout trigger so a user who knows they want
+// "Coffee" specifically can express that intent before the 3-tier grid.
+// The display copy (name eyebrow + spectrum headline + long description)
+// is pulled straight from `stripe-catalog.ts` via getPack(packId) — same
+// strings the Profile-Booster Tab renders. Single source of truth across
+// landing + profile + Stripe Hosted Checkout.
+const MINI_PACKS: { slug: string; packId: string; name: string }[] = [
+  { slug: 'coffee',     packId: 'category-coffee',     name: 'Coffee Pack' },
+  { slug: 'breakfast',  packId: 'category-breakfast',  name: 'Breakfast Pack' },
+  { slug: 'lunch',      packId: 'category-lunch',      name: 'Lunch Pack' },
+  { slug: 'pizza',      packId: 'category-pizza',      name: 'Pizza Pack' },
+  { slug: 'dinner',     packId: 'category-dinner',     name: 'Dinner Pack' },
+  { slug: 'finedining', packId: 'category-finedining', name: 'Fine Dining Pack' },
+  { slug: 'fastfood',   packId: 'category-fastfood',   name: 'Fast Food Pack' },
+  { slug: 'drinks',     packId: 'category-drinks',     name: 'Drinks Pack' },
+  { slug: 'sweets',     packId: 'category-sweets',     name: 'Sweets Pack' },
+]
 
 // All 9 booster packs that ship inside "All Berlin". Laid out as an
 // overlapping pile/heap (not a rigid grid) - looks like a stack of cards
@@ -74,13 +94,13 @@ const BUNDLE_PACKS: BundlePack[] = [
 const BULLETS: Record<'starter' | 'category' | 'bundle', { de: string[]; en: string[] }> = {
   starter: {
     de: [
-      '10 Restaurant-Spots in Berlin',
+      '20 Restaurant-Spots in Berlin',
       'Must Eats für ausgewählte Spots',
       'Zugang zur Map',
       'Kostenlos',
     ],
     en: [
-      '10 restaurant spots in Berlin',
+      '20 restaurant spots in Berlin',
       'Must Eats for selected spots',
       'Map access',
       'Free',
@@ -100,16 +120,16 @@ const BULLETS: Record<'starter' | 'category' | 'bundle', { de: string[]; en: str
   },
   bundle: {
     de: [
-      'Alle Berlin-Kategorien freigeschaltet',
-      '{count}+ handverlesene Berlin-Spots',
-      'Sämtliche Berliner Must Eats inklusive',
-      'Inklusive zukünftiger Berlin Packs gratis dazu',
+      '{count}+ handverlesene Berlin-Spots — und es kommen ständig welche dazu',
+      'Alle Kategorien freigeschaltet — neue Packs automatisch inklusive',
+      'Alle Must Eats freigeschaltet, jetzt und alle die noch folgen',
+      'Einmal zahlen, kein Abo',
     ],
     en: [
-      'All Berlin categories unlocked',
-      '{count}+ hand-picked Berlin spots',
-      'Every Berlin Must Eat included',
-      'Every future Berlin pack included',
+      '{count}+ hand-picked Berlin spots — and new ones drop all the time',
+      'All categories unlocked — new packs included automatically',
+      'Every Must Eat unlocked, now and every one to come',
+      'Pay once, no subscription',
     ],
   },
 }
@@ -121,6 +141,28 @@ export default function PacksSection({
   const bundleBullets = (locale === 'de' ? BULLETS.bundle.de : BULLETS.bundle.en)
     .map((b) => b.replace('{count}', String(restaurantCount)))
 
+  // Guest-checkout: hit /api/stripe/checkout without an auth header. The
+  // route runs in guest mode, Stripe Hosted Checkout collects the email,
+  // the webhook then resolves email → uid (find-or-create) and mails the
+  // sign-in magic link. Falls back to openLogin on network/server error.
+  const handleCheckout = async (packId: string) => {
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method:  'POST',
+        headers: { 'content-type': 'application/json' },
+        body:    JSON.stringify({ packId, locale }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && data.url) {
+        window.location.href = data.url as string
+        return
+      }
+      openLogin()
+    } catch {
+      openLogin()
+    }
+  }
+
   const sName = splitTitle(starter.title)
   const cName = splitTitle(category.title)
   // CMS still says "Complete Berlin - €20" - override the name client-side to
@@ -128,13 +170,75 @@ export default function PacksSection({
   const fName = splitTitle(complete.title)
   const bundleName = locale === 'de' ? 'All Berlin' : 'All Berlin'
 
+  // Override CMS strings with the tightened landing copy.
+  const sectionEyebrow = locale === 'de' ? 'Die Packs' : 'Packs'
+  const sectionH2 = locale === 'de'
+    ? 'Hol dir genau das, worauf du Lust hast'
+    : 'Get exactly what you’re hungry for'
+  const sectionBody = locale === 'de'
+    ? 'Jedes Pack schaltet eine kuratierte Sammlung frei.'
+    : 'Each pack unlocks a curated collection.'
+  const footnote = locale === 'de'
+    ? 'Starte kostenlos mit 20 Berliner Spots. Per Pack erweitern — oder direkt All Berlin.'
+    : 'Start free with 20 Berlin spots. Expand pack by pack — or skip ahead to All Berlin.'
+  // Sanity's packs.starter.body is still "10 random spots" — override
+  // until that doc is touched (CMS-Drift pattern).
+  const starterBody = locale === 'de'
+    ? 'Starte mit 20 handverlesenen Berliner Spots und ausgewählten Must Eats.'
+    : 'Start with 20 hand-picked Berlin spots and selected Must Eats.'
+  void headline
+  void body
+
   return (
     <section className={styles.section}>
       <div className={styles.inner}>
         <div className={styles.head}>
-          <span className={styles.eyebrow}>{locale === 'de' ? 'Packs' : 'Packs'}</span>
-          <h2 className={styles.h2}>{headline.replace(/\.$/, '')}</h2>
-          {body && <p className={styles.body}>{body}</p>}
+          <span className={styles.eyebrow}>{sectionEyebrow}</span>
+          <h2 className={styles.h2}>{sectionH2}</h2>
+          <p className={styles.body}>{sectionBody}</p>
+        </div>
+
+        {/* 9 category-pack mini cards. Decorative thumbnail + name + 1-line
+            tagline. Clicking any one opens the login modal — purchase
+            completes in the user's profile after sign-up. */}
+        <div className={styles.miniGrid}>
+          {MINI_PACKS.map((p, i) => {
+            const pack = getPack(p.packId)
+            return (
+              <button
+                key={p.slug}
+                type="button"
+                className={styles.miniCard}
+                onClick={() => handleCheckout(p.packId)}
+                aria-label={p.name}
+              >
+                <span className={styles.miniNumber} aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                <div className={styles.miniMedia}>
+                  <Image
+                    src={`/pics/booster/booster_${p.slug}.webp`}
+                    alt=""
+                    width={500}
+                    height={750}
+                    className={styles.miniImg}
+                    sizes="(max-width: 768px) 36vw, 160px"
+                  />
+                </div>
+                <span className={styles.miniName}>{p.name}</span>
+                <h3 className={styles.miniSpectrum}>{pack?.spectrum ?? ''}</h3>
+                <p className={styles.miniDesc}>{pack?.description ?? ''}</p>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Editorial divider between the 9-pack catalogue and the 3-tier
+            purchase grid. Brand-yellow eyebrow + big editorial Q. */}
+        <div className={styles.divider}>
+          <span className={styles.dividerEyebrow}>
+            {locale === 'de' ? 'Deine Wahl' : 'Your call'}
+          </span>
+          <h3 className={styles.dividerH3}>Free. Pack. All Berlin.</h3>
+          <span className={styles.dividerArrow} aria-hidden="true">↓</span>
         </div>
 
         <div className={styles.grid}>
@@ -164,7 +268,7 @@ export default function PacksSection({
             <div className={styles.priceRow}>
               <span className={styles.cardPrice}>{sName.price || (locale === 'de' ? 'Kostenlos' : 'Free')}</span>
             </div>
-            <p className={styles.cardSubtitle}>{starter.body}</p>
+            <p className={styles.cardSubtitle}>{starterBody}</p>
 
             <ul className={styles.bulletList}>
               {(locale === 'de' ? BULLETS.starter.de : BULLETS.starter.en).map((b, i) => (
@@ -231,7 +335,7 @@ export default function PacksSection({
             type="button"
             className={`${styles.card} ${styles.cardBundle}`}
             style={{ animationDelay: '180ms' }}
-            onClick={openLogin}
+            onClick={() => handleCheckout('all-berlin')}
             aria-label={`${bundleName} - ${complete.ctaLabel}`}
           >
             <div className={`${styles.media} ${styles.mediaBundle}`}>
@@ -284,11 +388,7 @@ export default function PacksSection({
           </button>
         </div>
 
-        <p className={styles.footnote}>
-          {locale === 'de'
-            ? 'Registriere dich kostenlos - alle Packs lassen sich anschließend in deinem Profil freischalten.'
-            : 'Sign up for free - all packs unlock in your profile afterwards.'}
-        </p>
+        <p className={styles.footnote}>{footnote}</p>
       </div>
     </section>
   )

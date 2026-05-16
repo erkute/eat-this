@@ -12,7 +12,7 @@ interface Props {
   variant: 'detail' | 'list'
 }
 
-// Map banner — paid-upgrade pitch only. The free Starter (10 cards on
+// Map banner — paid-upgrade pitch only. The free Starter (20 cards on
 // sign-up) lives on the landing page; once a user is on the map they
 // already redeemed it, so here we only push the next step: a category
 // pack (€2,99) or All Berlin (€20).

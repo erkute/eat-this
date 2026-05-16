@@ -1,41 +1,31 @@
-import HeroPhotoSlab from './hero/HeroPhotoSlab'
-import HeroPhraseSlab from './hero/HeroPhraseSlab'
-import HeroCtaSlab from './hero/HeroCtaSlab'
+import Link from 'next/link'
 import styles from './HeroSection.module.css'
 
-interface Props {
-  /* Used for sr-only landmarks only - the visible brand phrase and
-     CTA copy is hard-coded in the slabs below. */
-  headline: string
-  body: string
-  locale?: 'de' | 'en'
-  restaurantCount: number
-  categoryCount: number
-}
-
-export default function HeroSection({
-  headline,
-  body,
-  locale = 'de',
-  restaurantCount,
-  categoryCount,
-}: Props) {
-  const eyebrow = locale === 'de'
-    ? `${restaurantCount}+ Spots · ${categoryCount} Kategorien · 12+ Bezirke`
-    : `${restaurantCount}+ spots · ${categoryCount} categories · 12+ neighbourhoods`
+// BASTA-LUNCH-style Hero — handwritten script + heavy block + script
+// accent layered like the BASTA LUNCH wordmark. The whole composition
+// drops the visitor onto the map (trial map is open access, 20 spots
+// already unlocked — no signup wall between Hero CTA and the product).
+// Brand-phrase is intentionally English-only; no locale prop.
+export default function HeroSection() {
   return (
-    <div className={styles.hero}>
-      <span className={styles.srOnly}>{headline}</span>
-      <span className={styles.srOnly}>{body}</span>
-      {/* The hero photo fills the whole first viewport (100svh on mobile
-          and desktop) so the hand-and-plate composition is uncropped.
-          The scroll hint sits inside the photo so it reads against the
-          image; the eyebrow stats + brand phrase pair sit below the
-          fold — one swipe revealsthem together as eyebrow + headline. */}
-      <HeroPhotoSlab />
-      <p className={styles.eyebrow}>{eyebrow}</p>
-      <HeroPhraseSlab />
-      <HeroCtaSlab locale={locale} />
-    </div>
+    <section className={styles.hero}>
+      <p className={styles.scriptEyebrow}>Eat This</p>
+
+      <h1 className={styles.headline} aria-label="the map for people who care about food">
+        <span className={styles.line}>the map for people</span>
+        <span className={styles.line}>who care about food</span>
+      </h1>
+
+      <p className={styles.scriptAccent}>berlin, live.</p>
+
+      <Link href="/map" className={styles.cta}>
+        <span>Open the Berlin Map</span>
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+          <path d="M4 11h13M12 5l6 6-6 6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </Link>
+
+      <p className={styles.ctaHint}>no signup. open the map. eat better.</p>
+    </section>
   )
 }

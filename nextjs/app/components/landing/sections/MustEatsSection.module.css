@@ -1,7 +1,7 @@
 .section {
   position: relative;
   background: var(--surface-canvas);
-  padding: 96px 24px 48px;
+  padding: 96px 24px 80px;
   overflow: hidden;
 }
 
@@ -14,13 +14,24 @@
 
 .head {
   max-width: 680px;
-  margin: 0 auto 56px;
+  margin: 0 auto 40px;
+}
+.sectionEyebrow {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brand-coral);
+  margin: 0 0 14px;
 }
 .h2 {
-  font-size: 28px;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-size: clamp(32px, 7vw, 56px);
+  font-weight: 400;
   margin: 0 0 14px;
-  letter-spacing: -0.025em;
+  letter-spacing: 0;
+  line-height: 0.95;
   color: var(--text-primary, #1a1a1a);
 }
 .body {
@@ -28,131 +39,147 @@
   line-height: 1.65;
   color: var(--text-secondary, #6d6963);
   margin: 0;
+  max-width: 540px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* Showcase - phone screenshot on one side, explainer copy on the other.
-   Stacks on mobile, side-by-side on desktop. */
-.showcase {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 64px;
-  align-items: center;
-  margin: 0 auto 32px;
-  max-width: 960px;
-  text-align: left;
-}
-.phoneRow {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 12px;
-  perspective: 1200px;
-}
-.phone {
-  width: 46%;
-  max-width: 220px;
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 24px 60px rgba(0, 0, 0, 0.18));
-  transform: rotate(-3deg) translateY(8px);
-  transition: transform 400ms cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-.phoneSecondary {
-  transform: rotate(3deg) translateY(0);
-}
-.phoneRow:hover .phone { transform: rotate(-2deg) translateY(4px); }
-.phoneRow:hover .phoneSecondary { transform: rotate(2deg) translateY(-4px); }
-
-.explainer {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 460px;
-  margin: 0 auto;
-}
-.eyebrow {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #0a0a0a;
-}
-.explainerTitle {
-  font-size: 26px;
-  font-weight: 800;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
-  color: var(--text-primary, #1a1a1a);
-  margin: 0;
-}
-.explainerIntro {
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--text-secondary, #6d6963);
-  margin: 0;
-}
-.explainerBullets {
-  list-style: none;
-  margin: 8px 0 0;
-  padding: 14px 0 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  font-size: 14.5px;
-  line-height: 1.45;
-  font-weight: 500;
-  letter-spacing: -0.005em;
-  color: var(--text-primary, #1a1a1a);
-}
-.explainerBullets li {
-  position: relative;
-  padding-left: 22px;
-}
-.explainerBullets li::before {
-  content: "→";
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-size: 14.5px;
-  font-weight: 800;
-  color: #0a0a0a;
-}
-
-/* Full-viewport bleed for the fan-cards row - break out of the 1100px
-   inner container so the cards span edge-to-edge. Sits between the
-   section head and the phone explainer now (was at the bottom), so the
-   margins flank both above and below. */
+/* Full-viewport bleed for the fan-cards row — breaks out of the 1100px
+   inner container so the cards span edge-to-edge. */
 .fanWrap {
-  margin: 24px 0 56px;
+  margin: 24px 0 36px;
   position: relative;
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
 }
 
-/* Dark-mode contrast - section auto-flips via --surface-canvas; eyebrow
-   and bullet arrows need explicit white so they read against the ink. */
-:global([data-theme="dark"]) .eyebrow { color: #F5C518; }
-:global([data-theme="dark"]) .explainerBullets li::before { color: #fff; }
-:global([data-theme="dark"]) .explainerBullets { border-top-color: rgba(255,255,255,0.12); color: #fff; }
+/* Vor-Ort callout — the key Must-Eat mechanic, visualised. The actual
+   locked-state card-back from the app sits on the left, the label +
+   body to the right. Stacks on mobile so the card hits before the text.
+   A soft yellow glow ring behind the card hints at the location-radius
+   reveal mechanic. */
+.tip {
+  position: relative;
+  margin: 64px auto 0;
+  max-width: 760px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+}
+.tipVisual {
+  position: relative;
+  width: 140px;
+  aspect-ratio: 5 / 7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+.tipVisual:focus-visible { outline: none; }
+.tipVisual:focus-visible .tipCardBack {
+  filter: drop-shadow(0 0 0 3px rgba(245, 197, 24, 0.55))
+          drop-shadow(0 22px 28px rgba(0, 0, 0, 0.32))
+          drop-shadow(0 6px 10px rgba(0, 0, 0, 0.22));
+}
+.tipCardBack {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: rotate(-6deg);
+  filter: drop-shadow(0 22px 28px rgba(0, 0, 0, 0.32))
+          drop-shadow(0 6px 10px rgba(0, 0, 0, 0.22));
+  /* Idle "psst" wiggle - subtle 2-3 degree pulse every 3.6s. The
+     transform-origin sits at the bottom so the card rocks like a
+     hanging sign, not a centred spinner. */
+  transform-origin: 50% 80%;
+  animation: tipIdleWiggle 3.6s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes tipIdleWiggle {
+  0%, 88%, 100% { transform: rotate(-6deg); }
+  91%           { transform: rotate(-2deg); }
+  94%           { transform: rotate(-10deg); }
+  97%           { transform: rotate(-4deg); }
+}
+.tipVisual:hover .tipCardBack {
+  filter: drop-shadow(0 28px 34px rgba(0, 0, 0, 0.4))
+          drop-shadow(0 6px 10px rgba(0, 0, 0, 0.3));
+}
+/* Click-shake — sharper, snappier than the idle wiggle. Overrides the
+   idle animation while the .tipVisualShake class is on. */
+.tipVisualShake .tipCardBack {
+  animation: tipShake 600ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+@keyframes tipShake {
+  0%, 100% { transform: rotate(-6deg) translate3d(0, 0, 0); }
+  10%      { transform: rotate(-12deg) translate3d(-4px, 0, 0); }
+  20%      { transform: rotate(2deg)   translate3d(6px, -2px, 0); }
+  35%      { transform: rotate(-14deg) translate3d(-6px, 1px, 0); }
+  50%      { transform: rotate(4deg)   translate3d(6px, -1px, 0); }
+  65%      { transform: rotate(-10deg) translate3d(-4px, 0, 0); }
+  80%      { transform: rotate(-2deg)  translate3d(2px, 0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tipCardBack { animation: none; }
+  .tipVisualShake .tipCardBack { animation: none; }
+}
+.tipText {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 460px;
+}
+.tipLabel {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--brand-coral);
+}
+.tipBody {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.35;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary, #1a1a1a);
+  text-wrap: balance;
+}
+
+:global([data-theme="dark"]) .sectionEyebrow,
+:global([data-theme="dark"]) .tipLabel { color: #F5C518; }
+:global([data-theme="dark"]) .tipBody { color: #fff; }
 
 @media (min-width: 768px) {
-  .section { padding: 140px 48px 16px; }
-  .head { margin-bottom: 80px; }
-  .h2 { font-size: 48px; letter-spacing: -0.03em; }
+  .section { padding: 140px 48px 96px; }
+  .sectionEyebrow { font-size: 13px; letter-spacing: 0.22em; margin-bottom: 18px; }
+  .h2 { font-size: clamp(48px, 7vw, 80px); letter-spacing: 0; }
   .body { font-size: 17px; line-height: 1.7; }
-
-  .showcase {
-    grid-template-columns: 0.9fr 1.1fr;
-    gap: 64px;
-    margin-bottom: 24px;
+  .fanWrap { margin-top: 40px; margin-bottom: 56px; }
+  .tip {
+    margin-top: 88px;
+    max-width: 880px;
+    padding: 48px 40px;
+    flex-direction: row;
+    align-items: center;
+    gap: 48px;
+    text-align: left;
   }
-  .phoneRow { gap: 20px; }
-  .phone { max-width: 260px; }
-  .explainerTitle { font-size: 32px; letter-spacing: -0.03em; }
-  .explainerIntro { font-size: 16px; }
-  .explainerBullets { font-size: 15.5px; }
-
-  .fanWrap { margin-top: 40px; margin-bottom: 80px; }
+  .tipVisual { width: 200px; }
+  .tipText { gap: 16px; max-width: none; }
+  .tipLabel { font-size: 13px; letter-spacing: 0.28em; }
+  .tipBody { font-size: 24px; line-height: 1.3; }
 }

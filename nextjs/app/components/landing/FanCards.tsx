@@ -26,7 +26,7 @@ const CARDS = [
   'https://cdn.sanity.io/images/ehwjnjr2/production/f56c68c3f207f5a62a85ad6dfd2db1eed95c2188-1449x2163.png', // Single Burger
 ];
 
-const SLOTS_DESKTOP = [-680, -510, -340, -170, 0, 170, 340, 510, 680];
+const SLOTS_DESKTOP = [-760, -570, -380, -190, 0, 190, 380, 570, 760];
 
 const MOBILE_LAYOUT: { idx: number; row: 0 | 1; slot: number }[] = [
   { idx: 0, row: 0, slot: -120 },
@@ -37,7 +37,7 @@ const MOBILE_LAYOUT: { idx: number; row: 0 | 1; slot: number }[] = [
   { idx: 8, row: 1, slot:  120 },
 ];
 
-const REST_ROT = [-5, 3, -3, 4, 0, -2, 5, -4, 3];
+const REST_ROT = [-5, 3, -3, 4, 0, -2, 1, -4, 3];
 
 // Stacking order in the fan. Symmetric — centre card (idx 4) sits in
 // front, outer cards behind, gives the row depth without overlap weight.

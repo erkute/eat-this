@@ -714,7 +714,7 @@ html[data-theme="dark"] .fab {
 }
 
 .signInLockedCta {
-  background: #E32831;
+  background: var(--brand-coral);
   color: #fff;
   border: none;
   padding: 12px 28px;
@@ -1198,6 +1198,7 @@ html[data-theme="dark"] .btn:hover {
   --vibrate-intensity: 0;
   animation: markerVibrate calc(0.9s - 0.7s * var(--vibrate-intensity)) ease-in-out infinite;
 }
+
 .cardMarkerVibrating:hover {
   /* Don't override the hover scale from .cardMarker — just keep vibrating. */
   transform: scale(1.1);

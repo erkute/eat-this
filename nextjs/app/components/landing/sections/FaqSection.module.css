@@ -3,7 +3,7 @@
 
 .section {
   background: var(--surface-canvas);
-  padding: 96px 24px 112px;
+  padding: 80px 24px 56px;
 }
 .inner {
   max-width: 760px;
@@ -16,18 +16,19 @@
 }
 .eyebrow {
   display: inline-block;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #0a0a0a;
+  color: var(--brand-coral);
   margin-bottom: 14px;
 }
 .h2 {
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
+  font-family: var(--font-display);
+  font-size: clamp(36px, 7vw, 56px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.95;
   color: var(--text-primary, #1a1a1a);
   margin: 0;
 }
@@ -60,7 +61,7 @@
   color: var(--text-primary, #1a1a1a);
   text-align: left;
 }
-.q:hover { color: var(--cta-red, #b71c1c); }
+.q:hover { color: var(--brand-coral); }
 
 .icon {
   flex-shrink: 0;
@@ -81,8 +82,8 @@
   transition: transform 220ms ease, background 220ms ease, color 220ms ease;
 }
 .itemOpen .icon {
-  background: var(--cta-red, #b71c1c);
-  border-color: var(--cta-red, #b71c1c);
+  background: var(--brand-coral);
+  border-color: var(--brand-coral);
   color: #fff;
 }
 
@@ -103,9 +104,9 @@
 }
 
 @media (min-width: 768px) {
-  .section { padding: 140px 48px 160px; }
+  .section { padding: 120px 48px 80px; }
   .head { margin-bottom: 64px; }
-  .h2 { font-size: 44px; letter-spacing: -0.035em; }
+  .h2 { font-size: clamp(56px, 7vw, 80px); letter-spacing: 0; }
   .q { font-size: 18px; padding: 26px 8px; }
   .a { font-size: 16px; padding-right: 56px; }
 }

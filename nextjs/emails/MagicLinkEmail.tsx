@@ -36,7 +36,7 @@ export default function MagicLinkEmail({
   return (
     <Html lang="de">
       <Head />
-      <Preview>Dein Booster Pack wartet — 10 zufällige Must Eat Cards für dich.</Preview>
+      <Preview>Dein Booster Pack wartet — 20 zufällige Must Eat Cards für dich.</Preview>
 
       <Body
         style={{
@@ -152,7 +152,7 @@ export default function MagicLinkEmail({
                 color:      PALETTE.muted,
               }}
             >
-              10 zufällige Must Eat Cards — dein persönlicher Start-Stack
+              20 zufällige Must Eat Cards — dein persönlicher Start-Stack
               aus echten Restaurant-Empfehlungen, die du nirgends sonst findest.
             </Text>
 
@@ -231,7 +231,7 @@ export default function MagicLinkEmail({
             {[
               { n: '1', t: 'Klick den Button.', d: 'Du landest direkt in deinem Profil.' },
               { n: '2', t: 'Sag uns deinen Namen.', d: 'Dauert 5 Sekunden.' },
-              { n: '3', t: 'Pack öffnen.', d: 'Deine 10 Karten werden enthüllt.' },
+              { n: '3', t: 'Pack öffnen.', d: 'Deine 20 Karten werden enthüllt.' },
             ].map((step) => (
               <table
                 key={step.n}

@@ -10,7 +10,27 @@
   --gray-600: #555555;
   --orange: #FF3B00;
   --darkred: #8B1A1A;
+
+  /* Brand palette — Bar-Basta inspired. Coral-warm red is the primary brand
+     mark (CTAs, eyebrows, accents). Pastel pink + sunny yellow are secondary
+     accents. Navy is the script-accent color (matches the "Lunch"
+     handwritten overlay on the BASTA LUNCH menu). Replaced the previous
+     brick-red #E32831 brand. */
+  --brand-coral:      #F2604D;
+  --brand-coral-soft: rgba(242, 96, 77, 0.12);
+  --brand-pink:       #F4B6B6;
+  --brand-yellow:     #F5C518;
+  --brand-navy:       #1F3A5F;
+
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  /* Display pair — Bar-Basta visual direction. Bungee Inline has the
+     horizontal stripe through letter centres that matches the BASTA LUNCH
+     and BAR BASTA wordmarks. Caveat is the handwritten script accent
+     (matches the "Basta" + "Lunch" cursive overlays on the menu). Both
+     loaded via next/font in [locale]/layout.tsx; consumers reference these
+     vars. Inter stays the body + eyebrow workhorse. */
+  --font-display: var(--font-bungee-inline, 'Bungee Inline'), 'Arial Black', 'Helvetica Neue', sans-serif;
+  --font-script:  var(--font-caveat, 'Caveat'), 'Bradley Hand', 'Lucida Handwriting', cursive;
   --radius: 2px;
 
   /* Semantic surface/text tokens — used by the map UI and newer React components.

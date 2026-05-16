@@ -57,30 +57,6 @@ export default defineType({
       ],
     }),
 
-    // ── Trust Bar ────────────────────────────────────────────────────
-    defineField({
-      name: 'trustBar',
-      title: 'Trust Bar',
-      type: 'object',
-      options: {collapsible: true, collapsed: true},
-      fields: [
-        ...pair('line', 'Line — use {count} for live restaurant total', {required: true}),
-      ],
-    }),
-
-    // ── Map Preview ──────────────────────────────────────────────────
-    defineField({
-      name: 'mapPreview',
-      title: 'Map Preview',
-      type: 'object',
-      options: {collapsible: true, collapsed: true},
-      fields: [
-        ...pair('headline', 'Headline', {required: true}),
-        ...pair('body', 'Body', {type: 'text', rows: 4, required: true}),
-        defineField({name: 'screenshot', title: 'Screenshot (optional)', type: 'image', options: {hotspot: true, accept: 'image/*'}}),
-      ],
-    }),
-
     // ── Must Eats ────────────────────────────────────────────────────
     defineField({
       name: 'mustEats',
@@ -95,18 +71,6 @@ export default defineType({
       ],
     }),
 
-    // ── How We Curate ────────────────────────────────────────────────
-    defineField({
-      name: 'howWeCurate',
-      title: 'How We Curate',
-      type: 'object',
-      options: {collapsible: true, collapsed: true},
-      fields: [
-        ...pair('headline', 'Headline', {required: true}),
-        ...pair('body', 'Body', {type: 'text', rows: 3, required: true}),
-      ],
-    }),
-
     // ── Inside The Map ───────────────────────────────────────────────
     defineField({
       name: 'insideMap',
@@ -115,7 +79,6 @@ export default defineType({
       options: {collapsible: true, collapsed: true},
       fields: [
         ...pair('headline', 'Headline', {required: true}),
-        ...pairList('items', 'Bullet Items', 1, 8),
         defineField({
           name: 'screenshots',
           title: 'Screenshots (optional, 3 — Umgebung, Filter, Restaurant-Sheet)',
@@ -123,30 +86,6 @@ export default defineType({
           of: [{type: 'image', options: {hotspot: true, accept: 'image/*'}}],
           validation: Rule => Rule.max(3),
         }),
-      ],
-    }),
-
-    // ── Categories ───────────────────────────────────────────────────
-    defineField({
-      name: 'categories',
-      title: 'Categories Section',
-      type: 'object',
-      options: {collapsible: true, collapsed: true},
-      fields: [
-        ...pair('headline', 'Headline', {required: true}),
-      ],
-    }),
-
-    // ── Recently Added ───────────────────────────────────────────────
-    defineField({
-      name: 'recentlyAdded',
-      title: 'Recently Added',
-      type: 'object',
-      options: {collapsible: true, collapsed: true},
-      fields: [
-        ...pair('headline', 'Headline', {required: true}),
-        ...pair('body', 'Body', {type: 'text', rows: 2}),
-        ...pair('sectionCtaLabel', 'Section CTA Label'),
       ],
     }),
 
@@ -197,31 +136,6 @@ export default defineType({
             defineField({name: 'image', title: 'Image (optional)', type: 'image', options: {hotspot: true}}),
           ],
         }),
-      ],
-    }),
-
-    // ── Why Eat This ─────────────────────────────────────────────────
-    defineField({
-      name: 'whyEatThis',
-      title: 'Why Eat This',
-      type: 'object',
-      options: {collapsible: true, collapsed: true},
-      fields: [
-        ...pair('headline', 'Headline', {required: true}),
-        ...pair('body', 'Body', {type: 'text', rows: 3, required: true}),
-      ],
-    }),
-
-    // ── Newsletter ───────────────────────────────────────────────────
-    defineField({
-      name: 'newsletter',
-      title: 'Newsletter',
-      type: 'object',
-      options: {collapsible: true, collapsed: true},
-      fields: [
-        ...pair('headline', 'Headline', {required: true}),
-        ...pair('body', 'Body', {type: 'text', rows: 2, required: true}),
-        ...pair('ctaLabel', 'CTA Label'),
       ],
     }),
 

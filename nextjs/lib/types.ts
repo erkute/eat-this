@@ -175,6 +175,7 @@ export interface MapMustEat {
   description?: string
   price?: string
   image: string
+  order?: number
   restaurant: {
     _id: string
     name: string
@@ -210,19 +211,6 @@ export interface LandingHero {
   imageUrl?: string
 }
 
-export interface LandingTrustBar {
-  lineDe: string
-  lineEn: string
-}
-
-export interface LandingMapPreview {
-  headlineDe: string
-  headlineEn: string
-  bodyDe: string
-  bodyEn: string
-  screenshotUrl?: string
-}
-
 export interface LandingMustEats {
   headlineDe: string
   headlineEn: string
@@ -233,33 +221,10 @@ export interface LandingMustEats {
   ctaHref?: string
 }
 
-export interface LandingStatement {
-  headlineDe: string
-  headlineEn: string
-  bodyDe: string
-  bodyEn: string
-}
-
 export interface LandingInsideMap {
   headlineDe: string
   headlineEn: string
-  itemsDe?: string[]
-  itemsEn?: string[]
   screenshotUrls?: string[]
-}
-
-export interface LandingCategoriesSection {
-  headlineDe: string
-  headlineEn: string
-}
-
-export interface LandingRecentlyAdded {
-  headlineDe: string
-  headlineEn: string
-  bodyDe?: string
-  bodyEn?: string
-  sectionCtaLabelDe?: string
-  sectionCtaLabelEn?: string
 }
 
 export interface LandingPackTier {
@@ -284,15 +249,6 @@ export interface LandingPacks {
   complete: LandingPackTier
 }
 
-export interface LandingNewsletter {
-  headlineDe: string
-  headlineEn: string
-  bodyDe: string
-  bodyEn: string
-  ctaLabelDe?: string
-  ctaLabelEn?: string
-}
-
 export interface LandingFinalCta {
   headlineDe: string
   headlineEn: string
@@ -305,38 +261,8 @@ export interface LandingFinalCta {
 
 export interface LandingPageDoc {
   hero: LandingHero
-  trustBar: LandingTrustBar
-  mapPreview: LandingMapPreview
   mustEats: LandingMustEats
-  howWeCurate: LandingStatement
   insideMap: LandingInsideMap
-  categories: LandingCategoriesSection
-  recentlyAdded: LandingRecentlyAdded
   packs: LandingPacks
-  whyEatThis: LandingStatement
-  newsletter: LandingNewsletter
   finalCta: LandingFinalCta
-}
-
-// ── Recently Added card (Restaurant + MustEat union) ───────────────
-
-export interface RecentlyAddedCard {
-  _id: string
-  kind: 'restaurant' | 'mustEat'
-  name: string
-  slug: string
-  bezirk?: string
-  imageUrl: string
-  href: string
-  createdAt: string
-}
-
-// ── Categories grid tile ────────────────────────────────────────────
-
-export interface CategoryGridTile {
-  _id: string
-  slug: string
-  name: string
-  nameEn?: string
-  iconUrl?: string
 }

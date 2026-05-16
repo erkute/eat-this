@@ -34,7 +34,7 @@ interface ExpandedState {
 export default function ProfileDeck({ pack, mustEats, mapUnlockedIds }: Props) {
   const { user } = useAuth();
 
-  // Welcome-pack cards are the input for the 10-card stack-overlay. Kept
+  // Welcome-pack cards are the input for the welcome-pack stack-overlay. Kept
   // separate from map-unlocked cards so the stack-choreo never sees the
   // map ones (those were already revealed live on the map).
   const packCardsByOrder = useMemo(() => {
@@ -140,7 +140,7 @@ export default function ProfileDeck({ pack, mustEats, mapUnlockedIds }: Props) {
   }, [user, pack.mustEatIds, pack.id]);
 
   // Show the stack overlay only on the first profile visit while the
-  // user's pack hasn't been "opened" yet. After all 10 cards are placed,
+  // user's pack hasn't been "opened" yet. After all cards are placed,
   // openWelcomePack flips pack.opened → true and the overlay unmounts.
   const showStackOverlay = !pack.opened && sortedPackCards.length > 0 && !!user;
 

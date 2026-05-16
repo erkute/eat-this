@@ -11,8 +11,6 @@ import { client } from '../../lib/sanity'
 import {
   getLandingPage,
   getRestaurantCount,
-  getCategoryGrid,
-  getRecentlyAdded,
 } from '../../lib/sanity.server'
 
 const mockFetch = vi.mocked(client.fetch)
@@ -52,25 +50,5 @@ describe('getRestaurantCount', () => {
     mockFetch.mockResolvedValueOnce(null as never)
     const result = await getRestaurantCount()
     expect(result).toBe(0)
-  })
-})
-
-describe('getCategoryGrid', () => {
-  it('returns an array of category tiles', async () => {
-    mockFetch.mockResolvedValueOnce([
-      { _id: 'a', name: 'Café', nameEn: 'Coffee', slug: 'coffee', iconUrl: 'x' },
-    ] as never)
-    const result = await getCategoryGrid()
-    expect(result).toHaveLength(1)
-    expect(result[0].slug).toBe('coffee')
-  })
-})
-
-describe('getRecentlyAdded', () => {
-  it('passes the limit param', async () => {
-    mockFetch.mockResolvedValueOnce([] as never)
-    await getRecentlyAdded(8)
-    const [, params] = mockFetch.mock.calls[0]
-    expect(params).toEqual({ limit: 8 })
   })
 })

@@ -1,8 +1,30 @@
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { setRequestLocale, getMessages } from 'next-intl/server';
+import { Bungee_Inline, Caveat } from 'next/font/google';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
+
+// Display pair — Bar-Basta visual direction:
+// • Bungee Inline = the heavy block wordmark with the horizontal stripe
+//   through letter centres (matches BASTA LUNCH / BAR BASTA wordmarks).
+// • Caveat = handwritten cursive accent (matches the "Basta" + "Lunch"
+//   script overlays in the BASTA LUNCH menu). Used sparingly for
+//   personality — eyebrow + below-headline accent.
+// Both exposed as CSS vars; consumers reference via --font-display and
+// --font-script in globals.css.
+const bungeeInline = Bungee_Inline({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-bungee-inline',
+});
+const caveat = Caveat({
+  weight: ['400', '700'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-caveat',
+});
 
 export function generateStaticParams() {
   return routing.locales.map(locale => ({ locale }));
@@ -45,7 +67,7 @@ export default async function LocaleLayout({
 
   return (
     // suppressHydrationWarning: critical script mutates data-theme before hydration
-    <html lang={locale} data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html lang={locale} data-scroll-behavior="smooth" className={`${bungeeInline.variable} ${caveat.variable}`} suppressHydrationWarning>
       <head>
         {/* Safe: hardcoded constant, no user input */}
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}

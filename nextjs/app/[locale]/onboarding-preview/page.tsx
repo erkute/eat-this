@@ -5,20 +5,17 @@ import OnboardingFlow from '../onboarding/OnboardingFlow';
 import { type AvatarChoice } from '@/lib/firebase/useUserProfile';
 
 // Stub deck for the dev preview — repeats the lab's three Sanity samples to
-// reach 10 cards so the pack-open choreography has data without needing a
-// signed-in Firestore pack.
-const PREVIEW_PACK_CARDS = [
+// match PACK_SIZE (20) so the pack-open choreography has data without needing
+// a signed-in Firestore pack.
+const PREVIEW_SAMPLE_URLS = [
   'https://cdn.sanity.io/images/ehwjnjr2/production/e74cc8257c7d0d37075e024274bd3a447ce8a6da-1449x2163.png?w=600&auto=format&q=80',
   'https://cdn.sanity.io/images/ehwjnjr2/production/a12687e545c871243fe9e7648e1d649d03fe4a8a-1449x2163.png?w=600&auto=format&q=80',
   'https://cdn.sanity.io/images/ehwjnjr2/production/f56c68c3f207f5a62a85ad6dfd2db1eed95c2188-1449x2163.png?w=600&auto=format&q=80',
-  'https://cdn.sanity.io/images/ehwjnjr2/production/e74cc8257c7d0d37075e024274bd3a447ce8a6da-1449x2163.png?w=600&auto=format&q=80',
-  'https://cdn.sanity.io/images/ehwjnjr2/production/a12687e545c871243fe9e7648e1d649d03fe4a8a-1449x2163.png?w=600&auto=format&q=80',
-  'https://cdn.sanity.io/images/ehwjnjr2/production/f56c68c3f207f5a62a85ad6dfd2db1eed95c2188-1449x2163.png?w=600&auto=format&q=80',
-  'https://cdn.sanity.io/images/ehwjnjr2/production/e74cc8257c7d0d37075e024274bd3a447ce8a6da-1449x2163.png?w=600&auto=format&q=80',
-  'https://cdn.sanity.io/images/ehwjnjr2/production/a12687e545c871243fe9e7648e1d649d03fe4a8a-1449x2163.png?w=600&auto=format&q=80',
-  'https://cdn.sanity.io/images/ehwjnjr2/production/f56c68c3f207f5a62a85ad6dfd2db1eed95c2188-1449x2163.png?w=600&auto=format&q=80',
-  'https://cdn.sanity.io/images/ehwjnjr2/production/e74cc8257c7d0d37075e024274bd3a447ce8a6da-1449x2163.png?w=600&auto=format&q=80',
 ];
+const PREVIEW_PACK_CARDS = Array.from(
+  { length: 20 },
+  (_, i) => PREVIEW_SAMPLE_URLS[i % PREVIEW_SAMPLE_URLS.length]
+);
 
 // Dev-only design playground for the onboarding flow.
 // No auth, no Firestore writes — pure UI iteration.

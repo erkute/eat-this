@@ -185,7 +185,7 @@ export default function MustEatDetailMobile({
           ))}
 
           {/* Booster offer — locked state only. State-aware via uid:
-              signed-out users see the free Starter Pack (10 Must Eats on
+              signed-out users see the free Starter Pack (20 Must Eats on
               sign-up); signed-in users see the paid Berlin lineup. */}
           {!isUnlocked && (
             <BoosterOfferInline uid={uid ?? null} variant="detail" />

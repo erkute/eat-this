@@ -16,10 +16,22 @@
   content: '';
   position: absolute;
   inset: 0 0 auto 0;
-  height: 420px;
-  background: radial-gradient(60% 100% at 50% 0%, rgba(255, 255, 255, 0.05), transparent 70%);
+  height: 520px;
+  background:
+    radial-gradient(60% 90% at 30% 0%, rgba(245, 197, 24, 0.10), transparent 60%),
+    radial-gradient(60% 90% at 70% 12%, rgba(242, 96, 77, 0.10), transparent 60%);
   pointer-events: none;
 }
+.section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 18px 18px;
+  pointer-events: none;
+  opacity: 0.6;
+}
+.section > * { position: relative; z-index: 1; }
 .inner {
   position: relative;
   max-width: 1180px;
@@ -29,32 +41,279 @@
 /* ── Header ─────────────────────────────────────────────────────────── */
 .head {
   text-align: center;
-  margin: 0 auto 48px;
-  max-width: 680px;
+  margin: 0 auto 64px;
+  max-width: 800px;
 }
 .eyebrow {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.18em;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: #F5C518;
-  margin-bottom: 16px;
+  color: var(--brand-yellow);
+  margin-bottom: 18px;
+}
+.eyebrow::before,
+.eyebrow::after {
+  content: '';
+  display: inline-block;
+  width: 28px;
+  height: 1px;
+  background: rgba(245, 197, 24, 0.6);
 }
 .h2 {
-  font-size: 32px;
-  font-weight: 800;
-  line-height: 1.08;
-  letter-spacing: -0.03em;
-  margin: 0 0 16px;
+  font-family: var(--font-display);
+  font-size: clamp(36px, 9vw, 72px);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: 0;
+  margin: 0 0 18px;
   color: #fff;
+  text-wrap: balance;
 }
 .body {
-  font-size: 15px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.62);
+  font-size: 16px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 auto;
+  max-width: 560px;
+  font-weight: 500;
+  text-wrap: balance;
+}
+@media (min-width: 768px) {
+  .head { margin-bottom: 88px; max-width: 880px; }
+  .h2 { font-size: clamp(56px, 6.4vw, 80px); letter-spacing: -0.04em; }
+  .body { font-size: 18px; max-width: 640px; }
+}
+
+/* ── Mini grid (9 category packs) ───────────────────────────────────
+   Trading-card style: NO card chrome — each pack is a free-standing
+   poster with a strong drop-shadow and a tiny default tilt so the row
+   reads as a hand-tossed deck, not a SaaS feature-grid. Hover lifts and
+   straightens the tilt. 2 cols mobile, 3 cols desktop. */
+.miniGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 36px 18px;
+  margin: 0 0 56px;
+  padding: 8px 4px 16px;
+}
+.miniCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+/* Editorial drop-index — small monospace-ish chip in the top-left,
+   gives the row magazine-page rhythm and signals "9 drops". */
+.miniNumber {
+  /* Hidden on mobile — too cramped for an editorial drop-index. Only
+     shows on 900px+ via the desktop override below. */
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  color: rgba(245, 197, 24, 0.75);
+  z-index: 2;
+  pointer-events: none;
+}
+/* No default tilt — mobile renders the packs straight (the tilt only
+   reads as "cool" when the packs have room to breathe; on small cards
+   it just looks noisy). Tilts come back in via the 900px+ breakpoint
+   where the desktop trading-card vibe lands properly. */
+
+.miniMedia {
+  width: 100%;
+  max-width: 170px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 2 / 2.7;
+  position: relative;
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 360ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              filter 360ms ease;
+}
+.miniImg {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 22px 28px rgba(0, 0, 0, 0.55))
+          drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
+  transition: filter 360ms ease;
+}
+.miniCard:hover .miniMedia {
+  transform: rotate(0deg) translateY(-6px);
+}
+
+/* Three-tier text block per mini-card, mirrors Profile-Booster:
+   miniName = small uppercase eyebrow (category label)
+   miniSpectrum = bold spectrum headline (the period-beat brand stamp)
+   miniDesc = longer description body (from stripe-catalog.ts) */
+.miniName {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
   margin: 0;
 }
+.miniSpectrum {
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: #fff;
+  margin: 0;
+  text-wrap: balance;
+}
+.miniDesc {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.62);
+  margin: 0;
+  max-width: 32ch;
+  text-wrap: balance;
+}
+
+@media (min-width: 600px) {
+  .miniGrid { grid-template-columns: repeat(2, 1fr); gap: 48px 24px; }
+}
+@media (min-width: 900px) {
+  .miniGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 64px 32px;
+    margin-bottom: 96px;
+    max-width: 1020px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .miniCard { gap: 18px; }
+  /* Desktop only: column-symmetric tilt. With 3 columns, packs in col 1
+     lean left, col 2 sits straight, col 3 leans right — the row reads
+     as an ordered fan opening outward from centre. */
+  .miniCard:nth-child(3n+1) { --tilt: -2.5deg; }
+  .miniCard:nth-child(3n+2) { --tilt:  0deg; }
+  .miniCard:nth-child(3n)   { --tilt:  2.5deg; }
+  .miniMedia { max-width: 200px; margin: 0 auto; }
+  .miniName { font-size: 11px; }
+  .miniSpectrum { font-size: 19px; }
+  .miniDesc { font-size: 13.5px; max-width: 28ch; }
+  .miniNumber { display: block; font-size: 11px; left: 4px; top: 0; }
+}
+@media (min-width: 1180px) {
+  .miniGrid { max-width: 1100px; gap: 72px 40px; }
+  .miniMedia { max-width: 220px; }
+}
+
+/* Light-mode mini cards: text + softer drop-shadow. No glow either —
+   packs already pop because they're freigestellt with alpha. */
+@media (prefers-color-scheme: light) {
+  .miniName { color: rgba(10, 10, 10, 0.5); }
+  .miniSpectrum { color: #0a0a0a; }
+  .miniDesc { color: rgba(10, 10, 10, 0.62); }
+  .miniImg {
+    filter: drop-shadow(0 22px 28px rgba(0, 0, 0, 0.22))
+            drop-shadow(0 4px 8px rgba(0, 0, 0, 0.14));
+  }
+}
+[data-theme="light"] .miniName { color: rgba(10, 10, 10, 0.5); }
+[data-theme="light"] .miniSpectrum { color: #0a0a0a; }
+[data-theme="light"] .miniDesc { color: rgba(10, 10, 10, 0.62); }
+[data-theme="light"] .miniImg {
+  filter: drop-shadow(0 22px 28px rgba(0, 0, 0, 0.22))
+          drop-shadow(0 4px 8px rgba(0, 0, 0, 0.14));
+}
+
+/* ── Divider: between the 9-pack catalogue and the 3-tier purchase grid
+   ─────────────────────────────────────────────────────────────────── */
+.divider {
+  position: relative;
+  margin: 0 0 40px;
+  padding: 24px 0 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245, 197, 24, 0.6), transparent);
+}
+.dividerEyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--brand-yellow);
+}
+.dividerH3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 6vw, 48px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.95;
+  color: #fff;
+  text-wrap: balance;
+}
+.dividerArrow {
+  display: inline-block;
+  font-size: 20px;
+  font-weight: 700;
+  color: #F5C518;
+  line-height: 1;
+  margin-top: 6px;
+  animation: dividerBounce 2s ease-in-out infinite;
+}
+@keyframes dividerBounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dividerArrow { animation: none; }
+}
+@media (min-width: 768px) {
+  .divider { margin-bottom: 56px; padding-top: 32px; gap: 14px; }
+  .divider::before { width: 96px; }
+  .dividerEyebrow { font-size: 12px; letter-spacing: 0.32em; }
+  .dividerH3 { font-size: clamp(48px, 5vw, 72px); letter-spacing: 0; }
+  .dividerArrow { font-size: 26px; margin-top: 10px; }
+}
+
+@media (prefers-color-scheme: light) {
+  .dividerH3 { color: #0a0a0a; }
+  .dividerEyebrow { color: var(--brand-coral); }
+  .dividerArrow { color: var(--brand-coral); }
+  .divider::before { background: linear-gradient(90deg, transparent, rgba(242, 96, 77, 0.55), transparent); }
+}
+[data-theme="light"] .dividerH3 { color: #0a0a0a; }
+[data-theme="light"] .dividerEyebrow { color: var(--brand-coral); }
+[data-theme="light"] .dividerArrow { color: var(--brand-coral); }
+[data-theme="light"] .divider::before { background: linear-gradient(90deg, transparent, rgba(242, 96, 77, 0.55), transparent); }
 
 /* ── Grid ───────────────────────────────────────────────────────────── */
 .grid {
@@ -262,10 +521,11 @@
 
 /* ── Title + Price block ────────────────────────────────────────────── */
 .cardTitle {
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.98;
   margin: 0 0 4px;
   color: #fff;
 }
@@ -339,21 +599,21 @@
   margin-top: auto;
   align-self: stretch;
   padding: 13px 22px;
-  background: #E32831;
+  background: var(--brand-coral);
   color: #fff;
   border-radius: 999px;
   font-size: 15px;
   font-weight: 800;
   letter-spacing: -0.005em;
   white-space: nowrap;
-  box-shadow: 0 12px 26px -10px rgba(227, 40, 49, 0.55);
+  box-shadow: 0 12px 26px -10px rgba(242, 96, 77, 0.55);
   transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
 }
 .chevron { transition: transform 280ms cubic-bezier(0.2, 0.7, 0.2, 1); }
 .card:hover .ctaLink {
-  background: #c61f28;
+  background: #ED5040;
   transform: translateY(-1px);
-  box-shadow: 0 16px 30px -10px rgba(227, 40, 49, 0.7);
+  box-shadow: 0 16px 30px -10px rgba(242, 96, 77, 0.7);
 }
 .card:hover .chevron { transform: translateX(4px); }
 
@@ -371,7 +631,7 @@
 @media (min-width: 768px) {
   .section { padding: 140px 48px 160px; }
   .head { margin-bottom: 64px; }
-  .h2 { font-size: 48px; }
+  .h2 { font-size: clamp(56px, 8vw, 96px); }
   .body { font-size: 17px; }
 
   .grid {
@@ -394,7 +654,7 @@
   .starterImg { max-width: 160px; }
   .stackPack { max-width: 160px; }
   .bundleItem { max-width: 140px; width: 38%; }
-  .cardTitle { font-size: 24px; }
+  .cardTitle { font-size: 30px; }
   .cardPrice { font-size: 32px; }
   .cardSubtitle { font-size: 14px; }
   .bulletList li { font-size: 14px; }
@@ -402,7 +662,7 @@
 }
 
 @media (min-width: 1100px) {
-  .h2 { font-size: 56px; }
+  .h2 { font-size: clamp(72px, 7.5vw, 112px); }
   .media { height: 340px; }
   .cardBundle .media { height: 340px; }
   /* All three cards share .media height so the title line is aligned -
@@ -421,17 +681,17 @@
    stays brand red in both modes - that's the buy-action anchor. */
 @media (prefers-color-scheme: light) {
   .section { background: var(--surface-canvas); color: #0a0a0a; }
-  .section::before { background: radial-gradient(60% 100% at 50% 0%, rgba(227, 40, 49, 0.05), transparent 70%); }
-  .eyebrow { color: #E32831; }
+  .section::before { background: radial-gradient(60% 100% at 50% 0%, rgba(242, 96, 77, 0.05), transparent 70%); }
+  .eyebrow { color: var(--brand-coral); }
   .h2 { color: #0a0a0a; }
   .body { color: rgba(10, 10, 10, 0.66); }
   .card { background: #fff; border-color: rgba(10, 10, 10, 0.08); box-shadow: 0 8px 24px -12px rgba(10, 10, 10, 0.18); }
   .cardStarter { background: #fff; border-color: rgba(10, 10, 10, 0.08); }
-  .cardBundle { background: #fff; border-color: rgba(227, 40, 49, 0.30); }
+  .cardBundle { background: #fff; border-color: rgba(242, 96, 77, 0.30); }
   .cardTitle { color: #0a0a0a; }
   .cardPrice { color: #0a0a0a; }
   .cardStarter .cardPrice { color: #0a0a0a; }
-  .cardBundle .cardPrice { color: #E32831; }
+  .cardBundle .cardPrice { color: var(--brand-coral); }
   .priceSuffix { color: rgba(10, 10, 10, 0.55); }
   .cardSubtitle { color: rgba(10, 10, 10, 0.66); }
   .bulletList li { color: rgba(10, 10, 10, 0.78); }
@@ -442,17 +702,17 @@
   .footnote { color: rgba(10, 10, 10, 0.55); }
 }
 [data-theme="light"] .section { background: var(--surface-canvas); color: #0a0a0a; }
-[data-theme="light"] .section::before { background: radial-gradient(60% 100% at 50% 0%, rgba(227, 40, 49, 0.05), transparent 70%); }
-[data-theme="light"] .eyebrow { color: #E32831; }
+[data-theme="light"] .section::before { background: radial-gradient(60% 100% at 50% 0%, rgba(242, 96, 77, 0.05), transparent 70%); }
+[data-theme="light"] .eyebrow { color: var(--brand-coral); }
 [data-theme="light"] .h2 { color: #0a0a0a; }
 [data-theme="light"] .body { color: rgba(10, 10, 10, 0.66); }
 [data-theme="light"] .card { background: #fff; border-color: rgba(10, 10, 10, 0.08); box-shadow: 0 8px 24px -12px rgba(10, 10, 10, 0.18); }
 [data-theme="light"] .cardStarter { background: #fff; border-color: rgba(10, 10, 10, 0.08); }
-[data-theme="light"] .cardBundle { background: #fff; border-color: rgba(227, 40, 49, 0.30); }
+[data-theme="light"] .cardBundle { background: #fff; border-color: rgba(242, 96, 77, 0.30); }
 [data-theme="light"] .cardTitle { color: #0a0a0a; }
 [data-theme="light"] .cardPrice { color: #0a0a0a; }
 [data-theme="light"] .cardStarter .cardPrice { color: #0a0a0a; }
-[data-theme="light"] .cardBundle .cardPrice { color: #E32831; }
+[data-theme="light"] .cardBundle .cardPrice { color: var(--brand-coral); }
 [data-theme="light"] .priceSuffix { color: rgba(10, 10, 10, 0.55); }
 [data-theme="light"] .cardSubtitle { color: rgba(10, 10, 10, 0.66); }
 [data-theme="light"] .bulletList li { color: rgba(10, 10, 10, 0.78); }

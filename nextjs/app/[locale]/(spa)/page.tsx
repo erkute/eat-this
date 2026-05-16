@@ -4,32 +4,18 @@ import { setRequestLocale } from 'next-intl/server'
 import { serializeJsonLd } from '@/lib/json-ld'
 
 import HeroSection from '@/app/components/HeroSection'
-import HeroBulletsSlab from '@/app/components/hero/HeroBulletsSlab'
 import SiteFooter from '@/app/components/SiteFooter'
-import WaitlistModal from '@/app/components/WaitlistModal'
 
-import TrustBar from '@/app/components/landing/sections/TrustBar'
-import RestaurantTicker from '@/app/components/landing/sections/RestaurantTicker'
 import MustEatsSection from '@/app/components/landing/sections/MustEatsSection'
-import StatementSection from '@/app/components/landing/sections/StatementSection'
-import AvatarDivider from '@/app/components/landing/sections/AvatarDivider'
 import MapTeaser from '@/app/components/landing/MapTeaser'
-import CategoriesGrid from '@/app/components/landing/sections/CategoriesGrid'
-import RecentlyAddedSection from '@/app/components/landing/sections/RecentlyAddedSection'
 import PacksSection from '@/app/components/landing/sections/PacksSection'
-import ReviewsSection from '@/app/components/landing/sections/ReviewsSection'
 import FaqSection from '@/app/components/landing/sections/FaqSection'
-import ReasonsSection from '@/app/components/landing/sections/ReasonsSection'
-import ComingSection from '@/app/components/landing/sections/ComingSection'
-import Newsletter from '@/app/components/landing/Newsletter'
 import FinalCtaSection from '@/app/components/landing/sections/FinalCtaSection'
+import LandingFloatingBubble from '@/app/components/landing/LandingFloatingBubble'
 
 import {
   getLandingPage,
   getRestaurantCount,
-  getCategoryGrid,
-  getRecentlyAdded,
-  getRestaurantTicker,
 } from '@/lib/sanity.server'
 import { pickLocale, pickLocaleArray, type Locale } from '@/lib/landing-locale'
 import { SITE_URL } from '@/lib/constants'
@@ -62,19 +48,19 @@ export default async function SPAHomePage({
   const locale: Locale = rawLocale === 'en' ? 'en' : 'de'
   setRequestLocale(rawLocale)
 
-  const [doc, restaurantCount, categories, recentlyAdded, tickerItems] = await Promise.all([
+  const [doc, restaurantCount] = await Promise.all([
     getLandingPage(),
     getRestaurantCount(),
-    getCategoryGrid(),
-    getRecentlyAdded(12),
-    getRestaurantTicker(24),
   ])
 
   if (!doc) {
+    // landingPage is a long-lived singleton; null here means the Sanity
+    // fetch failed (network / permissions). Show a neutral placeholder
+    // rather than crashing — components below would null-deref on doc.*.
     return (
       <div className="app-page active" data-page="start">
         <p style={{ padding: 48, textAlign: 'center' }}>
-          Landing page content not yet seeded. Run the seed script in <code>studio/scripts/seed-landing-page.mjs</code>.
+          Landing content unavailable. Please refresh in a moment.
         </p>
       </div>
     )
@@ -106,66 +92,26 @@ export default async function SPAHomePage({
     ],
   })
 
-  const mustEatsCtaHref = doc.mustEats.ctaHref || '/onboarding'
-
   return (
     <>
       <Script id="schema-website" type="application/ld+json" strategy="beforeInteractive">
         {jsonLd}
       </Script>
       <div className="app-page active" data-page="start">
-        <HeroSection
-          headline={pickLocale(doc.hero, 'headline', locale)}
-          body={pickLocale(doc.hero, 'body', locale)}
-          locale={locale}
-          restaurantCount={restaurantCount}
-          categoryCount={categories.length}
-        />
+        <HeroSection />
         <div className="start-scroll-content" style={{ paddingTop: 0 }}>
-          <TrustBar
-            restaurantCount={restaurantCount}
-            categoryCount={categories.length}
-            locale={locale}
-          />
-          <RestaurantTicker
-            items={tickerItems}
-            locale={locale}
-            underClaim={<HeroBulletsSlab locale={locale} />}
-          />
           <MapTeaser
             headline={pickLocale(doc.insideMap, 'headline', locale)}
             screenshotUrls={doc.insideMap.screenshotUrls}
             locale={locale}
-            restaurantCount={restaurantCount}
           />
-          <CategoriesGrid
-            headline={pickLocale(doc.categories, 'headline', locale)}
-            categories={categories}
-            locale={locale}
-          />
-          <StatementSection
-            headline={pickLocale(doc.howWeCurate, 'headline', locale)}
-            body={pickLocale(doc.howWeCurate, 'body', locale)}
-            kind="curate"
-            locale={locale}
-          />
-          <AvatarDivider />
           <MustEatsSection
             headline={pickLocale(doc.mustEats, 'headline', locale)}
             body={pickLocale(doc.mustEats, 'body', locale)}
             ctaLabel={pickLocale(doc.mustEats, 'ctaLabel', locale)}
-            ctaHref={mustEatsCtaHref}
+            ctaHref={doc.mustEats.ctaHref || '/onboarding'}
             locale={locale}
           />
-          <ReasonsSection locale={locale} restaurantCount={restaurantCount} />
-          <RecentlyAddedSection
-            headline={pickLocale(doc.recentlyAdded, 'headline', locale)}
-            body={pickLocale(doc.recentlyAdded, 'body', locale)}
-            sectionCtaLabel={pickLocale(doc.recentlyAdded, 'sectionCtaLabel', locale)}
-            cards={recentlyAdded}
-            locale={locale}
-          />
-          <ReviewsSection locale={locale} />
           <PacksSection
             headline={pickLocale(doc.packs, 'headline', locale)}
             body={pickLocale(doc.packs, 'body', locale)}
@@ -189,21 +135,11 @@ export default async function SPAHomePage({
             locale={locale}
             restaurantCount={restaurantCount}
           />
-          <StatementSection
-            headline={pickLocale(doc.whyEatThis, 'headline', locale)}
-            body={pickLocale(doc.whyEatThis, 'body', locale)}
-          />
           <FaqSection locale={locale} />
-          <ComingSection locale={locale} />
-          <Newsletter
-            headline={pickLocale(doc.newsletter, 'headline', locale)}
-            body={pickLocale(doc.newsletter, 'body', locale)}
-            ctaLabel={pickLocale(doc.newsletter, 'ctaLabel', locale)}
-          />
           <FinalCtaSection locale={locale} restaurantCount={restaurantCount} />
           <SiteFooter />
         </div>
-        <WaitlistModal />
+        <LandingFloatingBubble locale={locale} />
       </div>
     </>
   )

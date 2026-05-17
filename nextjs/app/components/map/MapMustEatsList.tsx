@@ -1,11 +1,10 @@
 'use client'
 import { type Ref } from 'react'
-import type { MapMustEat, MapLayer } from '@/lib/types'
-import { haversineDistance, formatDistance, type UserLocation } from '@/lib/map'
+import type { MapMustEat } from '@/lib/types'
+import { haversineDistance, formatDistance, type UserLocation, type UserTier } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import BoosterOfferInline from './BoosterOfferInline'
-import LayerToggle from './LayerToggle'
-import LoginToSeeSpots from './LoginToSeeSpots'
+import MapListEmpty from './MapListEmpty'
 import styles from './map.module.css'
 
 interface Props {
@@ -14,9 +13,9 @@ interface Props {
   selectedMustEat: MapMustEat | null
   location: UserLocation | null
   uid: string | null
+  userTier: UserTier
   contentRef: Ref<HTMLDivElement | null>
   onSelect: (mustEat: MapMustEat) => void
-  onLayerSwitch: (layer: MapLayer) => void
 }
 
 export default function MapMustEatsList({
@@ -25,32 +24,26 @@ export default function MapMustEatsList({
   selectedMustEat,
   location,
   uid,
+  userTier,
   contentRef,
   onSelect,
-  onLayerSwitch,
 }: Props) {
-  const { t } = useTranslation()
-
   return (
-    <>
-      <LayerToggle active="mustEats" onChange={onLayerSwitch} />
-      <div ref={contentRef} className={`${styles.listScroll} ${styles.listScrollNoCats}`}>
-        {displayedMustEats.length === 0 ? (
-          !uid
-            ? <LoginToSeeSpots />
-            : <div className={styles.empty}>{t('map.noMustEatsMatch')}</div>
-        ) : (
-          <MustEatRows
-            displayedMustEats={displayedMustEats}
-            unlockedIds={unlockedIds}
-            selectedMustEat={selectedMustEat}
-            location={location}
-            uid={uid}
-            onSelect={onSelect}
-          />
-        )}
-      </div>
-    </>
+    <div ref={contentRef} className={styles.listScroll}>
+      {displayedMustEats.length === 0 ? (
+        <MapListEmpty />
+      ) : (
+        <MustEatRows
+          displayedMustEats={displayedMustEats}
+          unlockedIds={unlockedIds}
+          selectedMustEat={selectedMustEat}
+          location={location}
+          uid={uid}
+          userTier={userTier}
+          onSelect={onSelect}
+        />
+      )}
+    </div>
   )
 }
 
@@ -60,29 +53,34 @@ interface RowsProps {
   selectedMustEat: MapMustEat | null
   location: UserLocation | null
   uid: string | null
+  userTier: UserTier
   onSelect: (mustEat: MapMustEat) => void
 }
 
-// Splits the list into unlocked → locked sections with the booster CTA
-// injected after the 10th overall item (or at the end if shorter).
+// Splits the list into unlocked → locked sections. Booster CTA only shows
+// for the starter tier — All-Berlin already owns everything, and anon
+// users get the lighter AnonHintBar instead (rendered by MapSectionBody).
 function MustEatRows({
   displayedMustEats,
   unlockedIds,
   selectedMustEat,
   location,
   uid,
+  userTier,
   onSelect,
 }: RowsProps) {
   const { t } = useTranslation()
   const unlocked = displayedMustEats.filter(m => unlockedIds.has(m._id))
   const locked = displayedMustEats.filter(m => !unlockedIds.has(m._id))
+  const showBooster = userTier === 'starter'
   const insertAt = Math.min(10, unlocked.length + locked.length)
 
   const nodes: React.ReactNode[] = []
   let pos = 0
-  const boosterNode = <BoosterOfferInline key="booster" uid={uid} variant="list" />
   const maybeInsertBooster = () => {
-    if (pos === insertAt) nodes.push(boosterNode)
+    if (showBooster && pos === insertAt) {
+      nodes.push(<BoosterOfferInline key="booster" uid={uid} variant="list" />)
+    }
   }
 
   if (unlocked.length > 0) {

@@ -4,11 +4,13 @@ import { doc, setDoc, updateDoc, writeBatch, serverTimestamp } from 'firebase/fi
 import { db } from './config';
 import type { MustEatAlbumCard } from '@/lib/types';
 
-const PACK_SIZE = 10;
+const PACK_SIZE = 20;
 
-// Fisher–Yates over the cards that have an order field, take the first
-// PACK_SIZE ids. Falls back to whatever is available if the catalogue
-// has fewer than 10 ordered cards (early-stage seeding).
+// Fisher–Yates over the cards that have an order field, then dedupe by
+// restaurantSlug so the resulting pack maps to PACK_SIZE *distinct*
+// restaurants (the map shows one pin per restaurant — we want each
+// pulled card to land on its own pin, not pile up on one address).
+// Falls back to the unfiltered pool if not enough ordered cards exist.
 export function pickRandomMustEatIds(cards: MustEatAlbumCard[]): string[] {
   const eligible = cards.filter((c) => typeof c.order === 'number');
   const pool = eligible.length >= PACK_SIZE ? eligible : cards;
@@ -17,7 +19,18 @@ export function pickRandomMustEatIds(cards: MustEatAlbumCard[]): string[] {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
-  return shuffled.slice(0, PACK_SIZE).map((c) => c._id);
+  const seenRestaurants = new Set<string>();
+  const picked: string[] = [];
+  for (const card of shuffled) {
+    const slug = card.restaurantSlug;
+    if (slug) {
+      if (seenRestaurants.has(slug)) continue;
+      seenRestaurants.add(slug);
+    }
+    picked.push(card._id);
+    if (picked.length >= PACK_SIZE) break;
+  }
+  return picked;
 }
 
 // Create the welcome pack for the current user. Idempotent at the rules

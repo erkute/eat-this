@@ -11,6 +11,13 @@ import { getCachedMapData } from '@/lib/map/cached-sanity'
 export const dynamic   = 'force-dynamic'
 export const revalidate = 0
 
+// Trial-mode cap. Users with no paid entitlements (anonymous visitors,
+// signed-up freebies, guest-flow anon-auth users) see this many sample
+// spots — those they pulled in their welcome pack if it exists, else
+// a deterministic top-20 by `order`. Monetisation later expands this
+// per paid pack.
+const TRIAL_SAMPLE_SIZE = 20
+
 export async function GET(req: Request) {
   const authHeader = req.headers.get('authorization')
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
@@ -36,13 +43,33 @@ export async function GET(req: Request) {
   if (ent.isAdmin || ent.hasAllBerlin) {
     restaurants = all
     mustEats    = allMustEats
-  } else {
+  } else if (ent.categorySlugs.size > 0 || ent.restaurantIds.size > 0 || ent.mustEatIds.size > 0) {
     restaurants = all.filter((r) => isRestaurantVisible(r, ent))
     // Must-eat visibility derives from parent restaurant visibility — that
     // way category entitlements grant must-eats automatically (a user who
     // bought 'pizza' sees pizza restaurants AND their must-eats).
     const visibleRestaurantIds = new Set(restaurants.map((r) => r._id))
     mustEats = allMustEats.filter((m) => visibleRestaurantIds.has(m.restaurant._id))
+  } else {
+    // Free-and-open trial: 20 restaurants that carry at least one
+    // must-eat, plus ALL their must-eats. Same set for every visitor
+    // (no auth, no per-user pack). Deterministic ordering = highest
+    // must-eat count first, then _id asc as a stable tiebreaker.
+    const mustEatCountByRestaurant = new Map<string, number>()
+    for (const m of allMustEats) {
+      const id = m.restaurant._id
+      mustEatCountByRestaurant.set(id, (mustEatCountByRestaurant.get(id) ?? 0) + 1)
+    }
+    const eligible = all.filter((r) => (mustEatCountByRestaurant.get(r._id) ?? 0) > 0)
+    eligible.sort((a, b) => {
+      const ac = mustEatCountByRestaurant.get(a._id) ?? 0
+      const bc = mustEatCountByRestaurant.get(b._id) ?? 0
+      if (ac !== bc) return bc - ac
+      return a._id.localeCompare(b._id)
+    })
+    restaurants = eligible.slice(0, TRIAL_SAMPLE_SIZE)
+    const trialIdSet = new Set(restaurants.map((r) => r._id))
+    mustEats = allMustEats.filter((m) => trialIdSet.has(m.restaurant._id))
   }
 
   const res = NextResponse.json({ restaurants, mustEats, categories })

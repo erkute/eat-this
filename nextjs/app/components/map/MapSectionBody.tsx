@@ -4,12 +4,11 @@ import type { MapRef } from 'react-map-gl/maplibre'
 import type { MapRestaurant, MapMustEat, MapLayer, MapCategory } from '@/lib/types'
 import type { CategoryDef } from '@/lib/categories'
 import type {
-  SortMode,
-  SortDir,
   SheetView,
   SheetSnap,
   MustEatWithDisplay,
   UserLocation,
+  UserTier,
 } from '@/lib/map'
 
 import MapCanvas from './MapCanvas'
@@ -18,17 +17,17 @@ import MustEatMarker from './MustEatMarker'
 import RestaurantList from './RestaurantList'
 import MapSheetDetail from './MapSheetDetail'
 import UserLocationMarker from './UserLocationMarker'
-import CategoryFilter from './CategoryFilter'
-import BezirkFilterPill from './BezirkFilterPill'
 import MapMustEatsList from './MapMustEatsList'
 import MapListHeader from './MapListHeader'
+import AnonHintBar from './AnonHintBar'
+import AnonUnlockPrompt from './AnonUnlockPrompt'
+/* BezirkFilterPill removed — redundant now that the bezirk filter shows
+   as a chip in the list header. The chip also has reset built in. */
 import styles from './map.module.css'
 
-/* Refs (mutable + callback) wired up by `useMapSheet` / `useBottomSheet` and
-   the FilterDropdown anchor. */
+/* Refs (mutable + callback) wired up by `useMapSheet` / `useBottomSheet`. */
 interface MapBodyRefs {
   mapRef: RefObject<MapRef | null>
-  filterBtnRef: RefObject<HTMLButtonElement | null>
   handleRef: Ref<HTMLDivElement | null>
   setHeaderRef: (el: HTMLDivElement | null) => void
   setContentRef: (el: HTMLDivElement | null) => void
@@ -54,6 +53,7 @@ interface MapBodyState {
   favoriteIds: Set<string>
   location: UserLocation | null
   uid: string | null
+  userTier: UserTier
 }
 
 /* Filter values + their setters / change handlers. Bundled together because
@@ -70,14 +70,11 @@ interface MapBodyFilterState {
   bezirkNames: string[]
   onBezirkChange: (name: string | null) => void
   onResetBezirkPill: () => void
+  cuisine: string | null
+  setCuisine: (c: string | null) => void
+  cuisineNames: string[]
   openOnly: boolean
   setOpenOnly: (v: boolean) => void
-  sort: SortMode
-  setSort: (s: SortMode) => void
-  sortDir: SortDir
-  onToggleSortDir: () => void
-  filterOpen: boolean
-  setFilterOpen: (next: boolean | ((prev: boolean) => boolean)) => void
 }
 
 /* Map / sheet event handlers (everything not filter-related). */
@@ -90,13 +87,15 @@ interface MapBodyHandlers {
   onRestaurantClose: () => void
   onMustEatClose: () => void
   onMustEatBack: (() => void) | undefined
-  onLayerSwitch: (layer: MapLayer) => void
   onViewRestaurantFromMustEat: () => void
-  onShowMustEatList: () => void
   onUnlock: () => Promise<void>
   onToggleFavorite: () => void
   onCollapseDetailToMid: () => void
   onToggleDesktopPanel: () => void
+  /** True when an anon user tapped a locked must-eat — surfaces the
+   *  soft starter-signup prompt instead of the must-eat detail. */
+  anonUnlockPromptOpen: boolean
+  onCloseAnonUnlockPrompt: () => void
 }
 
 /* Host-locale-aware aria copy passed in from the server-rendered shell. */
@@ -116,20 +115,22 @@ export type MapSectionBodyProps =
 export default function MapSectionBody(props: MapSectionBodyProps) {
   const {
     isActive,
-    mapRef, filterBtnRef, handleRef, setHeaderRef, setContentRef, setSheetRef,
+    mapRef, handleRef, setHeaderRef, setContentRef, setSheetRef,
     sheetView, snap, dragging, layer,
     displayedRestaurants, fannedMustEats, displayedMustEats, restaurantMustEats,
     selectedRestaurant, selectedMustEat,
-    unlockedIds, favoriteIds, location, uid,
+    unlockedIds, favoriteIds, location, uid, userTier,
     categories, category, setCategory, search, bezirk, bezirkNames,
-    openOnly, setOpenOnly, sort, setSort, sortDir, onToggleSortDir,
-    searchOpen, setSearchOpen, filterOpen, setFilterOpen,
+    cuisine, setCuisine, cuisineNames,
+    openOnly, setOpenOnly,
+    searchOpen, setSearchOpen,
     onMapMove, onMapClick, onRestaurantClick, onMustEatClick, onLocateMe,
-    onRestaurantClose, onMustEatClose, onMustEatBack, onLayerSwitch,
-    onViewRestaurantFromMustEat, onShowMustEatList, onUnlock,
+    onRestaurantClose, onMustEatClose, onMustEatBack,
+    onViewRestaurantFromMustEat, onUnlock,
     onSearchChange, onBezirkChange, onResetBezirkPill, onToggleFavorite,
     onCollapseDetailToMid,
     desktopPanelHidden, onToggleDesktopPanel,
+    anonUnlockPromptOpen, onCloseAnonUnlockPrompt,
     myLocationAriaLabel, restaurantsListAriaLabel, mustEatsListAriaLabel,
   } = props
 
@@ -168,10 +169,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               ))}
               {location && <UserLocationMarker location={location} />}
             </MapCanvas>
-
-            {bezirk && (
-              <BezirkFilterPill bezirkName={bezirk} onReset={onResetBezirkPill} />
-            )}
 
             <button
               type="button"
@@ -230,7 +227,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 onClose={onMustEatClose}
                 onBack={onMustEatBack}
                 onViewRestaurant={onViewRestaurantFromMustEat}
-                onShowMustEatList={onShowMustEatList}
               />
             ) : sheetView === 'detail' && selectedRestaurant ? (
               <MapSheetDetail
@@ -246,60 +242,52 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 isFavorite={favoriteIds.has(selectedRestaurant._id)}
                 onToggleFavorite={onToggleFavorite}
               />
-            ) : layer === 'restaurants' ? (
+            ) : (
               <>
                 <MapListHeader
                   headerRef={setHeaderRef}
-                  filterBtnRef={filterBtnRef}
-                  resultCount={displayedRestaurants.length}
+                  resultCount={layer === 'restaurants' ? displayedRestaurants.length : displayedMustEats.length}
                   searchOpen={searchOpen}
                   setSearchOpen={setSearchOpen}
                   search={search}
                   onSearchChange={onSearchChange}
-                  filterOpen={filterOpen}
-                  setFilterOpen={setFilterOpen}
-                  layer={layer}
-                  onLayerSwitch={onLayerSwitch}
-                  sort={sort}
-                  onSort={setSort}
-                  sortDir={sortDir}
-                  onToggleSortDir={onToggleSortDir}
+                  categories={categories}
+                  category={category}
+                  onCategoryChange={setCategory}
                   openOnly={openOnly}
                   onOpenOnly={setOpenOnly}
                   bezirkNames={bezirkNames}
                   bezirk={bezirk}
                   onBezirk={onBezirkChange}
+                  cuisineNames={cuisineNames}
+                  cuisine={cuisine}
+                  onCuisine={setCuisine}
                 />
-                {/* Zone C — category chips: NO drag handler, pure native horizontal scroll */}
-                <div className={styles.listHeaderTabs}>
-                  <CategoryFilter
-                    categories={categories}
-                    active={category}
-                    onChange={setCategory}
-                    variant="tabs"
-                  />
-                </div>
-                <div ref={setContentRef} className={styles.listScroll}>
-                  <RestaurantList
-                    restaurants={displayedRestaurants}
-                    userLocation={location}
-                    selectedId={selectedRestaurant?._id ?? null}
+                {layer === 'restaurants' ? (
+                  <div ref={setContentRef} className={styles.listScroll}>
+                    <RestaurantList
+                      restaurants={displayedRestaurants}
+                      userLocation={location}
+                      selectedId={selectedRestaurant?._id ?? null}
+                      uid={uid}
+                      userTier={userTier}
+                      onSelect={onRestaurantClick}
+                    />
+                  </div>
+                ) : (
+                  <MapMustEatsList
+                    displayedMustEats={displayedMustEats}
+                    unlockedIds={unlockedIds}
+                    selectedMustEat={selectedMustEat}
+                    location={location}
                     uid={uid}
-                    onSelect={onRestaurantClick}
+                    userTier={userTier}
+                    contentRef={setContentRef}
+                    onSelect={onMustEatClick}
                   />
-                </div>
+                )}
+                {userTier === 'anon' && <AnonHintBar />}
               </>
-            ) : (
-              <MapMustEatsList
-                displayedMustEats={displayedMustEats}
-                unlockedIds={unlockedIds}
-                selectedMustEat={selectedMustEat}
-                location={location}
-                uid={uid}
-                contentRef={setContentRef}
-                onSelect={onMustEatClick}
-                onLayerSwitch={onLayerSwitch}
-              />
             )}
           </aside>
 
@@ -321,6 +309,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
           </button>
         </div>
       </div>
+      {anonUnlockPromptOpen && <AnonUnlockPrompt onClose={onCloseAnonUnlockPrompt} />}
     </div>
   )
 }

@@ -510,7 +510,15 @@ html[data-theme="dark"] .fab {
        repaint hitch — same trick the iOS bottom sheet uses. */
     will-change: transform;
   }
-  .listDragging { transition: none; }
+  .listDragging {
+    transition: none;
+    /* Lock the radius during drag so the browser doesn't recompute the
+       calc()-based corners on every frame — corner paint invalidation is
+       a real cost on iOS. Snap-settle re-enables the transition and the
+       corners glide back to their computed value. */
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+  }
 }
 
 .handle {
@@ -665,20 +673,15 @@ html[data-theme="dark"] .fab {
 }
 /* Mobile only: cap scroll viewport to the sheet's visible area so content
    below the overflow-hidden clip edge is actually reachable via scrolling.
-   Heights:
-     handle:          ~24 px
-     listHeaderRow:   ~40 px (count + 30px button + padding 4+6)
-     categoryTabs:    ~30 px (7+7 padding + 12 px text + 1 border)
-     LayerToggle:     ~46 px (4 + 34 + 8 wrapper) — only on must-eats list
-   Restaurant list reserves handle + headerRow + tabs ≈ 94 px.
-   Must-eat list reserves handle + LayerToggle ≈ 70 px. */
+   Header stack after map-v2:
+     handle:           ~24 px
+     listHeaderRow:    ~46 px (count + 32px open-chip + 30px search btn + padding 4+6)
+     filterChipRow:    ~50 px (32px chip + padding 4+10)
+   Total reserved: ~120 px. (Bumped from 94 — removed category-tabs row,
+   added chip-rail row.) */
 @media (max-width: 1023.98px) {
   .listScroll {
-    max-height: calc(var(--sheet-visible-px, 100%) - 94px - env(safe-area-inset-bottom, 0px));
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-  }
-  .listScrollNoCats {
-    max-height: calc(var(--sheet-visible-px, 100%) - 70px - env(safe-area-inset-bottom, 0px));
+    max-height: calc(var(--sheet-visible-px, 100%) - 120px - env(safe-area-inset-bottom, 0px));
     padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   }
 }
@@ -690,48 +693,35 @@ html[data-theme="dark"] .fab {
   font-size: 13px;
 }
 
-.signInLocked {
-  padding: 48px 24px;
-  text-align: center;
+/* Empty state — shown inside the list when filters produce zero results.
+   Replaces the legacy login-wall (the map is open-access; no nag). */
+.listEmpty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  text-align: center;
+  padding: 48px 24px 32px;
+  gap: 8px;
+  color: var(--text-secondary);
 }
-
-.signInLockedTitle {
-  font-size: 20px;
+.listEmptyIcon {
+  color: var(--text-muted);
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+.listEmptyTitle {
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
   letter-spacing: -0.01em;
 }
-
-.signInLockedBody {
-  font-size: 14px;
+.listEmptyBody {
+  font-size: 13px;
   color: var(--text-muted);
-  margin: 0 0 20px;
-}
-
-.signInLockedCta {
-  background: var(--brand-coral);
-  color: #fff;
-  border: none;
-  padding: 12px 28px;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  transition: background 120ms ease;
-}
-
-.signInLockedCta:hover {
-  background: #c81f28;
-}
-
-.signInLockedCta:active {
-  transform: translateY(1px);
+  margin: 0;
+  max-width: 28ch;
+  line-height: 1.5;
 }
 
 /* Restaurant row */
@@ -761,11 +751,8 @@ html[data-theme="dark"] .fab {
   }
 }
 .row:hover { background: var(--surface-bg); }
-.rowActive {
-  background: var(--accent-soft);
-  border-color: var(--accent);
-}
-.rowActive:hover { background: var(--accent-soft); }
+.rowActive { background: var(--surface-raised); }
+.rowActive:hover { background: var(--surface-raised); }
 
 /* Wraps the thumbnail so the must-eat card overlay can be absolute-positioned
    in the corner without breaking the row's grid sizing. */
@@ -3091,4 +3078,445 @@ html[data-theme="dark"] .filterLayerTabActive {
 
 .bezirkPillReset:hover {
   color: var(--accent);
+}
+
+/* ===========================================================================
+   Map v2 — permanent layer toggle, filter chips, picker sheet, anon nudges
+   =========================================================================== */
+
+/* -------------------- Filter chip row (row 2 of the header) -------------------- */
+
+.filterChipRow {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 14px 10px;
+  /* Edge fade so the rightmost chip hints that more is hidden — same trick
+     Google Maps uses on its filter rail when chips overflow. */
+  mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 24px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 24px), transparent 100%);
+}
+.filterChipRow::-webkit-scrollbar { display: none; }
+
+.filterChipWrap {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.filterChip {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 13px;
+  min-height: 32px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  line-height: 1.1;
+}
+.filterChipWrap .filterChip {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding-right: 8px;
+}
+.filterChip:hover { color: var(--text-primary); border-color: var(--text-muted); }
+.filterChipActive {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.filterChipWrap:has(.filterChipActive) {
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+/* "Jetzt geöffnet" chip uses the same green as the open-status pill in the
+   list, so the meaning carries across visual surfaces. */
+.filterChipOpenActive {
+  background: color-mix(in srgb, #1f7a1f 14%, transparent);
+  color: #1f7a1f;
+  border-color: color-mix(in srgb, #1f7a1f 38%, transparent);
+}
+html[data-theme="dark"] .filterChipOpenActive {
+  background: color-mix(in srgb, #6ad46a 16%, transparent);
+  color: #6ad46a;
+  border-color: color-mix(in srgb, #6ad46a 40%, transparent);
+}
+.filterChipLabel {
+  display: inline-block;
+  /* Cap the visible width of the active label so a long cuisine name like
+     "Modernes Mediterranes Bistro" doesn't push the chip past the row's
+     edge fade. Ellipsis kicks in around 12 characters. */
+  max-width: 12ch;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.filterChipCaret {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+.filterChipReset {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-left: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0;
+  margin-right: 2px;
+  border-radius: 0;
+}
+.filterChipReset:hover {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+/* -------------------- Picker sheet (mobile) / popover (desktop) -------------------- */
+
+.pickerBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.36);
+  /* Navbar is z-index 9999; modals must sit above it to cover the header. */
+  z-index: 11000;
+  animation: pickerBackdropIn 0.18s ease-out;
+}
+@keyframes pickerBackdropIn {
+  from { background: rgba(0, 0, 0, 0); }
+  to   { background: rgba(0, 0, 0, 0.36); }
+}
+
+.pickerSheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 70vh;
+  background: var(--surface-bg);
+  color: var(--text-primary);
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.22);
+  display: flex;
+  flex-direction: column;
+  z-index: 11010;
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+  animation: pickerSheetIn 0.22s cubic-bezier(0.16, 0.84, 0.44, 1);
+}
+@keyframes pickerSheetIn {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.pickerHandle {
+  width: 36px;
+  height: 4px;
+  background: var(--border-strong);
+  border-radius: 999px;
+  margin: 8px auto 4px;
+  flex-shrink: 0;
+}
+
+.pickerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 18px 4px;
+  flex-shrink: 0;
+}
+.pickerTitle {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--text-primary);
+}
+.pickerCloseBtn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 50%;
+  padding: 0;
+}
+.pickerCloseBtn:hover { color: var(--text-primary); background: var(--surface-raised); }
+
+.pickerList {
+  flex: 1 1 auto;
+  /* min-height: 0 is the flexbox-overflow fix — without it, the flex item
+     refuses to shrink below its intrinsic content height and `overflow-y`
+     has nothing to clip, so the inner list becomes unscrollable on iOS. */
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* The map-sheet's drag handler runs on touchmove globally; pan-y tells
+     the browser this region wants vertical scrolling, not a drag gesture. */
+  touch-action: pan-y;
+  padding: 4px 8px 10px;
+  overscroll-behavior: contain;
+}
+.pickerItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+}
+.pickerItem:hover { background: var(--surface-raised); }
+.pickerItemActive {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+  font-weight: 600;
+}
+.pickerItemLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.pickerItemSub {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.pickerFooter {
+  border-top: 1px solid var(--border-subtle);
+  padding: 8px 14px;
+  flex-shrink: 0;
+}
+.pickerDirBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  justify-content: space-between;
+}
+.pickerDirBtn[data-dir="desc"] svg {
+  transform: rotate(180deg);
+}
+.pickerDirBtn:hover { background: var(--surface-raised); }
+
+/* Desktop: anchored popover instead of bottom sheet. CSS vars set by the
+   component from the chip's getBoundingClientRect(). Backdrop becomes a
+   tap-shield with no tint. */
+@media (min-width: 1024px) {
+  .pickerBackdrop {
+    background: transparent;
+    animation: none;
+  }
+  .pickerSheet {
+    position: fixed;
+    left: var(--picker-anchor-left, 0);
+    top:  var(--picker-anchor-top, 0);
+    bottom: auto;
+    right: auto;
+    width: 240px;
+    max-height: 60vh;
+    border-radius: 14px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
+    animation: pickerPopoverIn 0.18s ease-out;
+    padding-bottom: 8px;
+  }
+  @keyframes pickerPopoverIn {
+    from { transform: translateY(-6px); }
+    to   { transform: translateY(0); }
+  }
+  .pickerHandle { display: none; }
+}
+
+/* -------------------- Anon hint bar (pinned bottom of sheet) -------------------- */
+
+.anonHintBar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  appearance: none;
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface-bg));
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 14px;
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 10px);
+  cursor: pointer;
+  text-align: left;
+  margin-top: auto;
+  flex-shrink: 0;
+}
+.anonHintBar:hover {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface-bg));
+}
+.anonHintBarIcon {
+  font-size: 18px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.anonHintBarText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.anonHintBarClose {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.anonHintBarClose:hover {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+/* -------------------- Anon unlock prompt (full-bleed soft modal) -------------------- */
+
+.anonPromptBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 11000;
+  animation: pickerBackdropIn 0.2s ease-out;
+}
+.anonPromptSheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--surface-bg);
+  color: var(--text-primary);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.28);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 6px 22px 22px;
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 22px);
+  z-index: 11010;
+  animation: pickerSheetIn 0.24s cubic-bezier(0.16, 0.84, 0.44, 1);
+}
+.anonPromptHandle {
+  width: 36px;
+  height: 4px;
+  background: var(--border-strong);
+  border-radius: 999px;
+  margin: 6px 0 14px;
+  flex-shrink: 0;
+}
+.anonPromptIcon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.anonPromptTitle {
+  margin: 0 0 6px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+.anonPromptBody {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  max-width: 30ch;
+}
+.anonPromptActions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+}
+.anonPromptCancel,
+.anonPromptCta {
+  flex: 1 1 0;
+  appearance: none;
+  border: 0;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.anonPromptCancel {
+  background: var(--surface-raised);
+  color: var(--text-primary);
+}
+.anonPromptCancel:hover { background: color-mix(in srgb, var(--surface-raised) 85%, var(--text-muted) 15%); }
+.anonPromptCta {
+  background: var(--accent);
+  color: #fff;
+}
+.anonPromptCta:hover {
+  background: color-mix(in srgb, var(--accent) 90%, black);
+}
+
+@media (min-width: 1024px) {
+  .anonPromptSheet {
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 420px;
+    border-radius: 18px;
+    padding: 22px 26px 24px;
+    animation: pickerPopoverIn 0.22s ease-out;
+  }
+  .anonPromptHandle { display: none; }
 }

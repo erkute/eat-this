@@ -15,7 +15,6 @@ interface MustEatDetailProps {
   onClose: () => void
   onBack?: () => void
   onViewRestaurant?: () => void
-  onShowMustEatList?: () => void
   inSheet?: boolean
   uid?: string | null
 }
@@ -28,7 +27,6 @@ export default function MustEatDetail({
   onClose,
   onBack,
   onViewRestaurant,
-  onShowMustEatList,
   inSheet,
   uid,
 }: MustEatDetailProps) {

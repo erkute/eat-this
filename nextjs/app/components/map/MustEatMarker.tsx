@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { Marker } from 'react-map-gl/maplibre'
 import type { MapMustEat } from '@/lib/types'
 import { haversineDistance, type UserLocation } from '@/lib/map'
@@ -24,7 +24,7 @@ interface MustEatMarkerProps {
 // Proximity vibration starts at this distance and ramps up to 1 at 0 m away.
 const PROXIMITY_START_METERS = 500
 
-export default function MustEatMarker({
+function MustEatMarker({
   mustEat,
   isUnlocked,
   isSelected,
@@ -90,3 +90,20 @@ export default function MustEatMarker({
     </Marker>
   )
 }
+
+// Custom comparator: a map pan should not re-render every must-eat marker.
+// userLocation gets a new object reference on every recompute, so we compare
+// lat/lng values. Fan transforms only matter for visible re-stacking.
+export default memo(MustEatMarker, (prev, next) =>
+  prev.mustEat._id === next.mustEat._id &&
+  prev.isUnlocked === next.isUnlocked &&
+  prev.isSelected === next.isSelected &&
+  prev.displayLat === next.displayLat &&
+  prev.displayLng === next.displayLng &&
+  prev.fanRotation === next.fanRotation &&
+  prev.fanIndex === next.fanIndex &&
+  prev.fanCount === next.fanCount &&
+  (prev.userLocation?.lat ?? null) === (next.userLocation?.lat ?? null) &&
+  (prev.userLocation?.lng ?? null) === (next.userLocation?.lng ?? null) &&
+  prev.onClick === next.onClick,
+)

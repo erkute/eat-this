@@ -22,9 +22,28 @@ import styles from './onboarding.module.css';
 //                 lands centred with backOut overshoot, dwells briefly,
 //                 exits off-screen right. Strictly sequential.
 
+// Maps a category slug (from packId, e.g. 'pizza' from 'category-pizza')
+// to its booster artwork. Drives the inline .packImage background so a
+// Pizza-pack purchase actually shows the pizza-booster instead of the
+// generic CSS-default booster1.webp.
+const BOOSTER_IMAGE_BY_SLUG: Record<string, string> = {
+  'breakfast':   '/pics/booster/booster_breakfast.webp',
+  'coffee':      '/pics/booster/booster_coffee.webp',
+  'dinner':      '/pics/booster/booster_dinner.webp',
+  'drinks':      '/pics/booster/booster_drinks.webp',
+  'fast-food':   '/pics/booster/booster_fastfood.webp',
+  'fine-dining': '/pics/booster/booster_finedining.webp',
+  'lunch':       '/pics/booster/booster_lunch.webp',
+  'pizza':       '/pics/booster/booster_pizza.webp',
+  'sweets':      '/pics/booster/booster_sweets.webp',
+}
+
 interface Props {
   cards:            string[];          // image URLs (used for length only — cards render face-down)
   triggerOpen:      boolean;           // parent flips this true to start the open
+  /** Category slug ('pizza', 'fast-food', …) — drives the booster
+   *  artwork on the static .packImage. Null for all-berlin (CSS default). */
+  category?:        string | null;
   onRevealComplete: () => void;        // fires after the last card has exited the stage
 }
 
@@ -45,13 +64,15 @@ const PACK_TOP_PCT        = 4;     // minimal upward nudge; sits within Row-1 pl
 const ZOOM_DURATION_MS    = 520;   // smooth, decisive build-up
 const IMPACT_DURATION_MS  = 320;   // cracks form + flash + shake (pack already gone)
 
-// Per-card timings. Snappier — short dwell so cards keep moving but
-// still readable mid-flight.
-const CARD_FLY_IN_MS  = 230;   // off-screen → centre
-const CARD_DWELL_MS   = 130;   // brief beat at centre
-const CARD_EXIT_MS    = 180;   // centre → off-screen right
-const CARD_TOTAL_MS   = CARD_FLY_IN_MS + CARD_DWELL_MS + CARD_EXIT_MS; // 540
-const CARD_STAGGER_MS = CARD_TOTAL_MS;
+// Per-card timings. Snappy reveal — only 5 cards now fly through so we
+// overlap them via a tight stagger; each card is shorter so the whole
+// burst lands in ~1.3 s instead of the old 2.7 s.
+const CARD_FLY_IN_MS  = 180;   // off-screen → centre
+const CARD_DWELL_MS   = 80;    // brief beat at centre
+const CARD_EXIT_MS    = 140;   // centre → off-screen right
+const CARD_TOTAL_MS   = CARD_FLY_IN_MS + CARD_DWELL_MS + CARD_EXIT_MS; // 400
+const CARD_STAGGER_MS = 220;   // overlapping cards — next one enters
+                                // before previous exits
 
 // Card's start scale per memory `feedback_card_flyin_pattern.md` — close
 // to camera, big, rotated, on a direct trajectory to centre.
@@ -192,9 +213,13 @@ function seedRand(seed: number, i: number, salt: number): number {
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 }
 
-export default function PackOpenChoreography({ cards, triggerOpen, onRevealComplete }: Props) {
+export default function PackOpenChoreography({ cards, triggerOpen, category, onRevealComplete }: Props) {
   const reduced = useReducedMotion();
   const [phase, setPhase] = useState<Phase>('idle');
+
+  // Resolve the booster artwork for the chosen category. Null for
+  // all-berlin → .packImage falls back to CSS-default booster1.webp.
+  const chosenBooster = category ? BOOSTER_IMAGE_BY_SLUG[category] : null
   // Index of the highest-mounted card. Cards aren't rendered until their
   // turn — at scale 3.5 their off-screen entry positions still peek into
   // the viewport at certain angles, and the user wants nothing visible
@@ -321,7 +346,10 @@ export default function PackOpenChoreography({ cards, triggerOpen, onRevealCompl
     }
     if (phase === 'impact') {
       // Fallback only — if the buffer hadn't decoded at zoom time, fire
-      // now so the moment still has sound (slight delay possible).
+      // now so the moment still has sound (slight delay possible). The
+      // zoom branch already scheduled latency-compensated Web Audio
+      // playback for the buffer-ready case; firing it again here would
+      // double up the shatter sound.
       if (!cachedGlassBuffer) playGlassShatter();
       const t = window.setTimeout(() => setPhase('flyThrough'), IMPACT_DURATION_MS);
       return () => clearTimeout(t);
@@ -559,10 +587,9 @@ export default function PackOpenChoreography({ cards, triggerOpen, onRevealCompl
   // eslint-disable-next-line react-hooks/exhaustive-deps -- seed is stable
   }, [vpExplosionX, vpExplosionY, vpMaxDim]);
 
-  // Crack overlay — portaled to body so it covers the FULL viewport.
-  // All cracks appear in a SINGLE FRAME the moment phase becomes impact
-  // (no path-length draw animation, no per-line stagger) so glass-break,
-  // pack-impact, vibration, and sound all land at the same instant.
+  // Crack/glass-shatter overlay — re-enabled. The reveal sequence is
+  // wheel-of-fortune → cracks-shatter → cards. Cracks paint the moment
+  // we enter the 'impact' phase (after the wheel lands).
   const cracksOverlay = portalReady && vp.w > 0 ? createPortal(
     <motion.svg
       className={styles.choreoCracks}
@@ -743,10 +770,11 @@ export default function PackOpenChoreography({ cards, triggerOpen, onRevealCompl
         }
       />
 
-      {/* Pack — same DOM node from idle through zoom. Idle hover loops while
-       *  phase === 'idle'; zoom is a wind-up (slight pull-back) then a hard
-       *  push toward camera. At flyThrough the pack fades quickly while the
-       *  first card pops out at the same screen position and scale. */}
+      {/* The pack — animates through idle hover → zoom toward camera →
+       *  impact (cracks + shatter) → flyThrough (snapped invisible).
+       *  Background defaults to booster1.webp via CSS; an inline
+       *  backgroundImage overrides it to the category-specific booster
+       *  whenever the parent passed a `category` prop. */}
       <motion.div
         className={styles.packImage}
         style={{
@@ -757,6 +785,7 @@ export default function PackOpenChoreography({ cards, triggerOpen, onRevealCompl
           // Zoom focuses on the printed cards in the man's hand. At peak
           // scale the viewport is essentially INSIDE that artwork.
           transformOrigin: `${focusXPct}% ${focusYPct}%`,
+          ...(chosenBooster ? { backgroundImage: `url('${chosenBooster}')` } : null),
         }}
         animate={
           phase === 'idle' && !reduced

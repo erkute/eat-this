@@ -219,12 +219,8 @@ export default function MustEatDetailMobile({
                 <span>Restaurant</span>
               </Link>
             )}
-            {onShowMustEatList && (
-              <button type="button" onClick={onShowMustEatList} className={styles.mustEatActionLink}>
-                <ListIcon />
-                <span>Alle Must Eats</span>
-              </button>
-            )}
+            {/* "Alle Must Eats"-Link entfernt — Must-Eats-Liste ist seit dem
+                Layer-Toggle-Remove keine eigene Top-Level-Ansicht mehr. */}
           </nav>
         </div>
       </div>

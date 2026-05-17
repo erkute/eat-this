@@ -9,18 +9,26 @@ export const dynamic  = 'force-dynamic'
 
 interface Body { packId?: string; locale?: 'de' | 'en' }
 
+// Two-mode checkout:
+//   - authed:  Bearer token → uid + email known, already-owned check, success
+//              page lands in /onboarding/purchase (existing fulfilment poll).
+//   - guest:   no Bearer → Stripe collects email on the Hosted Checkout
+//              page itself, the webhook later resolves email → uid via
+//              findOrCreateUserByEmail and mails a magic-link.
 export async function POST(req: Request) {
   const authHeader = req.headers.get('authorization')
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
-  if (!token) return NextResponse.json({ error: 'unauthenticated' }, { status: 401 })
 
-  let uid: string; let email: string | null
-  try {
-    const decoded = await getAdminAuth().verifyIdToken(token)
-    uid   = decoded.uid
-    email = decoded.email ?? null
-  } catch {
-    return NextResponse.json({ error: 'unauthenticated' }, { status: 401 })
+  let uid: string | null = null
+  let email: string | null = null
+  if (token) {
+    try {
+      const decoded = await getAdminAuth().verifyIdToken(token)
+      uid   = decoded.uid
+      email = decoded.email ?? null
+    } catch {
+      return NextResponse.json({ error: 'invalid_token' }, { status: 401 })
+    }
   }
 
   const body = (await req.json().catch(() => ({}))) as Body
@@ -29,15 +37,18 @@ export async function POST(req: Request) {
   if (!pack) return NextResponse.json({ error: 'unknown_packId' }, { status: 400 })
   const locale: 'de' | 'en' = body.locale === 'en' ? 'en' : 'de'
 
-  // 409 if literal pack already owned, OR if all-berlin already owned and
-  // the requested pack is a category (all-berlin implies every category).
-  const userEnts = getAdminFirestore().collection('users').doc(uid).collection('entitlements')
-  const [literalSnap, allBerlinSnap] = await Promise.all([
-    userEnts.doc(pack.packId).get(),
-    pack.type === 'category' ? userEnts.doc('all-berlin').get() : Promise.resolve({ exists: false }),
-  ])
-  if (literalSnap.exists || (allBerlinSnap as { exists: boolean }).exists) {
-    return NextResponse.json({ error: 'already_owned' }, { status: 409 })
+  // Already-owned check only applies to logged-in users. Guests can't be
+  // checked because their account doesn't exist yet — the webhook will
+  // surface duplicates via Stripe's payment record.
+  if (uid) {
+    const userEnts = getAdminFirestore().collection('users').doc(uid).collection('entitlements')
+    const [literalSnap, allBerlinSnap] = await Promise.all([
+      userEnts.doc(pack.packId).get(),
+      pack.type === 'category' ? userEnts.doc('all-berlin').get() : Promise.resolve({ exists: false }),
+    ])
+    if (literalSnap.exists || (allBerlinSnap as { exists: boolean }).exists) {
+      return NextResponse.json({ error: 'already_owned' }, { status: 409 })
+    }
   }
 
   // Cloud Run sees the internal listen address in req.url (e.g.
@@ -46,11 +57,19 @@ export async function POST(req: Request) {
   const host  = req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? new URL(req.url).host
   const proto = req.headers.get('x-forwarded-proto') ?? 'https'
   const origin = `${proto}://${host}`
-  const successPath = locale === 'en'
-    ? `/en/onboarding/purchase?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`
-    : `/onboarding/purchase?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`
-  // Hash drops the user back on the Booster tab (default profile lands on Deck).
-  const cancelPath  = locale === 'en' ? '/en/profile?booster=canceled#booster' : '/profile?booster=canceled#booster'
+
+  const mode = uid ? 'auth' : 'guest'
+  const successPath = mode === 'auth'
+    ? (locale === 'en'
+        ? `/en/onboarding/purchase?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`
+        : `/onboarding/purchase?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`)
+    : (locale === 'en'
+        ? `/en/checkout/success?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`
+        : `/checkout/success?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`)
+  // Guests cancel back to the landing; auth users hit profile's Booster tab.
+  const cancelPath  = mode === 'auth'
+    ? (locale === 'en' ? '/en/profile?booster=canceled#booster' : '/profile?booster=canceled#booster')
+    : (locale === 'en' ? '/en' : '/')
 
   let session
   try {
@@ -58,18 +77,24 @@ export async function POST(req: Request) {
       mode: 'payment',
       line_items: [{ price: pack.stripePriceId, quantity: 1 }],
       // Methods (card, PayPal, Link, Apple/Google Pay, Klarna, …) are
-      // driven by the Stripe Dashboard: Settings → Payments → Payment
-      // methods. Apple/Google Pay surface automatically via card on
-      // supported devices; no domain verification needed for Hosted Checkout.
+      // driven by the Stripe Dashboard. For guests we omit customer_email
+      // so Stripe Hosted Checkout collects it on the form itself.
       customer_email: email ?? undefined,
-      metadata: { uid, packId: pack.packId, type: pack.type, slug: pack.slug ?? '' },
+      metadata: {
+        uid: uid ?? '',
+        packId: pack.packId,
+        type: pack.type,
+        slug: pack.slug ?? '',
+        mode,
+        locale,
+      },
       success_url: `${origin}${successPath}`,
       cancel_url:  `${origin}${cancelPath}`,
       locale,
       automatic_tax: { enabled: false },
     })
   } catch (err) {
-    Sentry.captureException(err, { extra: { uid, packId: pack.packId } })
+    Sentry.captureException(err, { extra: { uid, packId: pack.packId, mode } })
     return NextResponse.json({ error: 'stripe_error', message: (err as Error).message }, { status: 500 })
   }
 

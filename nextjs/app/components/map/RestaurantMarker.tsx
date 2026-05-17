@@ -1,4 +1,5 @@
 'use client'
+import { memo } from 'react'
 import { Marker } from 'react-map-gl/maplibre'
 import type { MapRestaurant } from '@/lib/types'
 import styles from './map.module.css'
@@ -9,7 +10,7 @@ interface RestaurantMarkerProps {
   onClick: (restaurant: MapRestaurant) => void
 }
 
-export default function RestaurantMarker({ restaurant, isSelected, onClick }: RestaurantMarkerProps) {
+function RestaurantMarker({ restaurant, isSelected, onClick }: RestaurantMarkerProps) {
   const className = [
     styles.pinLogo,
     isSelected && styles.pinLogoActive,
@@ -37,3 +38,15 @@ export default function RestaurantMarker({ restaurant, isSelected, onClick }: Re
     </Marker>
   )
 }
+
+// Custom comparator: panning the map should not re-render markers whose
+// underlying restaurant + selected-state are unchanged. onClick is a stable
+// callback in the parent (useCallback) — included anyway for safety.
+export default memo(RestaurantMarker, (prev, next) =>
+  prev.restaurant._id === next.restaurant._id &&
+  prev.restaurant.mustEatCount === next.restaurant.mustEatCount &&
+  prev.restaurant.lat === next.restaurant.lat &&
+  prev.restaurant.lng === next.restaurant.lng &&
+  prev.isSelected === next.isSelected &&
+  prev.onClick === next.onClick,
+)

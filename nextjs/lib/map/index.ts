@@ -39,3 +39,7 @@ export type { SheetView } from './useMapSheet'
 
 // URL <-> sheet wiring
 export { useMapDeepLinks } from './useMapDeepLinks'
+
+// Entitlement tier (drives anon/starter/all-Berlin promotion surfaces)
+export { useUserTier } from './useUserTier'
+export type { UserTier } from './useUserTier'

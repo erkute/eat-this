@@ -20,15 +20,14 @@ function readSafeAreaBottom(): number {
   return px
 }
 
-/* Base content heights (above any iOS safe-area). Per-layer peek sizes
+/* Base content heights (above any iOS safe-area). Per-view peek sizes
    reflect what's actually rendered at the top of the sheet:
    - detail: handle + name-row + 3 round actions = 68
-   - restaurants list: handle + count/search/filter row + category tabs = 100
-   - must-eats list: handle + LayerToggle (must-eats has no in-list header
-     beyond the layer switcher) = 76 */
-const DETAIL_PEEK_BASE_PX             = 68
-const LIST_RESTAURANTS_PEEK_BASE_PX   = 100
-const LIST_MUSTEATS_PEEK_BASE_PX      = 76
+   - list (both layers): handle + listHeaderRow + filterChipRow = 120
+     (After map-v2 the must-eats list uses the same chip-row header as
+     restaurants — no more layer-specific peek base.) */
+const DETAIL_PEEK_BASE_PX = 68
+const LIST_PEEK_BASE_PX   = 120
 
 /**
  * Owns the map-sheet state machine: combines the generic `useBottomSheet`
@@ -45,22 +44,21 @@ interface UseMapSheetArgs {
 }
 
 export function useMapSheet({ layer }: UseMapSheetArgs) {
+  // layer is still accepted so callers can pass it in (the deep-link hook
+  // expects this shape); list peek size no longer depends on it.
+  void layer
   const sheet = useBottomSheet('mid')
   const [sheetView, setSheetViewState] = useState<SheetView>('list')
 
-  /* Per-view config is stable but depends on the iOS safe-area (read once at
-     mount) and the active layer (must-eats list peeks tighter than the
-     restaurants list because there's no in-list header to show). */
+  /* Per-view config is stable except for the iOS safe-area (read once at
+     mount). Both layers share the same list-header height now. */
   const viewConfig = useMemo(() => {
     const safeAreaBottom = readSafeAreaBottom()
-    const listPeekBase = layer === 'mustEats'
-      ? LIST_MUSTEATS_PEEK_BASE_PX
-      : LIST_RESTAURANTS_PEEK_BASE_PX
     return {
       detail: { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: DETAIL_PEEK_BASE_PX + safeAreaBottom },
-      list:   { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: listPeekBase        + safeAreaBottom },
+      list:   { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX   + safeAreaBottom },
     }
-  }, [layer])
+  }, [])
 
   const sheetElRef = useRef<HTMLDivElement | null>(null)
   const sheetRef = sheet.sheetRef
@@ -76,15 +74,8 @@ export function useMapSheet({ layer }: UseMapSheetArgs) {
   // already has the right list peek size.
   if (!sheetElRef.current) configure(viewConfig.list)
 
-  /* When the layer flips while the sheet stays in list view, re-apply the
-     config + current snap so the sheet shifts to the new layer's peek size
-     immediately (e.g. switching from Restaurants → Must Eats collapses the
-     visible strip from ~132 to ~60 px). */
-  useEffect(() => {
-    if (sheetView !== 'list') return
-    configure(viewConfig.list)
-    reapplySnap(currentSnap)
-  }, [layer, sheetView, viewConfig, configure, reapplySnap, currentSnap])
+  /* List-view config doesn't depend on layer anymore — same header for both
+     restaurants and must-eats. setSheetView still configures on transition. */
 
   const setSheetView = useCallback((view: SheetView) => {
     /* Configure synchronously BEFORE the state update so any reapplySnap that

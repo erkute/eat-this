@@ -29,6 +29,7 @@ export function useMapFilters({ restaurants, mustEats, location }: Args) {
   const [category, setCategory] = useState<MapCategory>('All')
   const [search,   setSearch]   = useState('')
   const [bezirk,   setBezirk]   = useState<string | null>(null)
+  const [cuisine,  setCuisine]  = useState<string | null>(null)
   const [openOnly, setOpenOnly] = useState(false)
   const [sort,     setSortRaw]  = useState<SortMode>('distance')
   const [sortDir,  setSortDir]  = useState<SortDir>(DEFAULT_SORT_DIR.distance)
@@ -66,6 +67,17 @@ export function useMapFilters({ restaurants, mustEats, location }: Args) {
     return { bezirkNames: names, bezirkCenters: centers }
   }, [restaurants])
 
+  // Distinct cuisine values across the visible set — used to populate the
+  // Cuisine picker. Sorted alphabetically (German collation).
+  const cuisineNames = useMemo(() => {
+    const set = new Set<string>()
+    for (const r of restaurants) {
+      const c = r.cuisineType?.trim()
+      if (c) set.add(c)
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'de'))
+  }, [restaurants])
+
   // A non-empty search query overrides all other filters: the user expects to
   // find anything on the map regardless of the active bezirk/category/open
   // selection.
@@ -84,12 +96,13 @@ export function useMapFilters({ restaurants, mustEats, location }: Args) {
     }
     if (category !== 'All' && !r.categories?.some(c => c.slug === category)) return false
     if (bezirk && districtOf(r) !== bezirk) return false
+    if (cuisine && r.cuisineType !== cuisine) return false
     if (openOnly) {
       if (!r.openingHours) return false
       if (!getOpenStatus(r.openingHours).isOpen) return false
     }
     return true
-  }, [category, bezirk, openOnly, search])
+  }, [category, bezirk, cuisine, openOnly, search])
 
   const displayedRestaurants = useMemo(() => {
     const filtered = restaurants.filter(filterRestaurant)
@@ -153,10 +166,12 @@ export function useMapFilters({ restaurants, mustEats, location }: Args) {
     category, setCategory,
     search, setSearch,
     bezirk, setBezirk,
+    cuisine, setCuisine,
     openOnly, setOpenOnly,
     sort, setSort,
     sortDir, toggleSortDir,
     bezirkNames, bezirkCenters,
+    cuisineNames,
     displayedRestaurants,
     displayedMustEats,
   }

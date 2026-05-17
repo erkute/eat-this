@@ -20,7 +20,6 @@ type MustEatProps = CommonProps & {
   onClose: () => void
   onBack?: () => void
   onViewRestaurant: () => void
-  onShowMustEatList: () => void
 }
 
 type RestaurantProps = CommonProps & {
@@ -47,7 +46,6 @@ export default function MapSheetDetail(props: Props) {
           onClose={props.onClose}
           onBack={props.onBack}
           onViewRestaurant={props.onViewRestaurant}
-          onShowMustEatList={props.onShowMustEatList}
           uid={props.uid}
           inSheet
         />

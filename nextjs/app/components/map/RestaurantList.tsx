@@ -1,10 +1,12 @@
 'use client'
+import { Fragment } from 'react'
 import type { MapRestaurant, OpenStatus } from '@/lib/types'
-import { haversineDistance, formatWalkingTime, getOpenStatus, type UserLocation } from '@/lib/map'
+import { haversineDistance, formatWalkingTime, getOpenStatus, type UserLocation, type UserTier } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { localizedCategoryName } from '@/lib/categories'
 import { formatPriceLabel } from './restaurantDetail.helpers'
-import LoginToSeeSpots from './LoginToSeeSpots'
+import BoosterOfferInline from './BoosterOfferInline'
+import MapListEmpty from './MapListEmpty'
 import styles from './map.module.css'
 
 interface ItemProps {
@@ -103,31 +105,37 @@ interface RestaurantListProps {
   userLocation: UserLocation | null
   selectedId: string | null
   uid: string | null
+  userTier: UserTier
   onSelect: (r: MapRestaurant) => void
 }
 
-export default function RestaurantList({ restaurants, userLocation, selectedId, uid, onSelect }: RestaurantListProps) {
-  const { t } = useTranslation()
+// Booster CTA gets injected after the 10th restaurant for starter-tier
+// users. Anon visitors see the AnonHintBar at the bottom of the sheet
+// (rendered by MapSectionBody); All-Berlin users get a clean list.
+const BOOSTER_AT = 10
 
-  if (restaurants.length === 0) {
-    if (!uid) return <LoginToSeeSpots />
-    return <div className={styles.empty}>{t('map.nothingInArea')}</div>
-  }
+export default function RestaurantList({
+  restaurants, userLocation, selectedId, uid, userTier, onSelect,
+}: RestaurantListProps) {
+  if (restaurants.length === 0) return <MapListEmpty />
 
-  if (!userLocation) {
-    return (
-      <>
-        {restaurants.map(r => (
-          <Item key={r._id} restaurant={r} userLocation={null} isSelected={selectedId === r._id} onClick={onSelect} />
-        ))}
-      </>
-    )
-  }
+  const showBooster = userTier === 'starter'
+  const insertAt = Math.min(BOOSTER_AT, restaurants.length)
 
   return (
     <>
-      {restaurants.map(r => (
-        <Item key={r._id} restaurant={r} userLocation={userLocation} isSelected={selectedId === r._id} onClick={onSelect} />
+      {restaurants.map((r, i) => (
+        <Fragment key={r._id}>
+          {showBooster && i === insertAt && (
+            <BoosterOfferInline uid={uid} variant="list" />
+          )}
+          <Item
+            restaurant={r}
+            userLocation={userLocation}
+            isSelected={selectedId === r._id}
+            onClick={onSelect}
+          />
+        </Fragment>
       ))}
     </>
   )

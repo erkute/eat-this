@@ -3,11 +3,30 @@
 // webhook hasn't arrived yet). Idempotent: both paths converge on the
 // same getDoc-then-set pattern, first-writer-wins.
 
-import { getAdminFirestore } from './firebase/admin'
+import { getAdminAuth, getAdminFirestore } from './firebase/admin'
 import { client as sanity }  from './sanity'
 import { getPack } from './stripe-catalog'
 import type { Entitlement } from './firebase/entitlements'
 import { FieldValue, type WithFieldValue } from 'firebase-admin/firestore'
+
+// For guest Stripe purchases: resolve the buyer's email (collected by
+// Stripe Hosted Checkout) to a Firebase Auth uid. If the user doesn't
+// exist yet, create a passwordless shell — they'll claim it via a
+// magic-link emailed right after the webhook fulfils the entitlement.
+export async function findOrCreateUserByEmail(email: string): Promise<string> {
+  const auth = getAdminAuth()
+  try {
+    const existing = await auth.getUserByEmail(email)
+    return existing.uid
+  } catch (err: unknown) {
+    const code = (err as { code?: string }).code
+    if (code === 'auth/user-not-found') {
+      const user = await auth.createUser({ email })
+      return user.uid
+    }
+    throw err
+  }
+}
 
 interface Args {
   uid: string

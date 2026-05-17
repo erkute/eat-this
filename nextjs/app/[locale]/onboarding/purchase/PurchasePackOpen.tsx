@@ -12,6 +12,10 @@ import PackOpenChoreography, { warmUpOnboardingAudio } from '../PackOpenChoreogr
 
 const POLL_TIMEOUT_MS = 4_000
 const HARD_TIMEOUT_MS = 10_000
+// Reveal animation only shows the first 5 cards — the user already gets
+// all 20 unlocks on the map, so a 20-card fly-through is dwell-time with
+// no payoff. 5 lands the moment and gets them onto the map faster.
+const REVEAL_CARD_COUNT = 5
 
 type Phase = 'waiting' | 'opening' | 'done' | 'error'
 
@@ -30,8 +34,17 @@ export default function PurchasePackOpen() {
 
   const isAllBerlin = packId === 'all-berlin'
   const allBerlinSample = useAllBerlinSampleCards(isAllBerlin && phase !== 'waiting')
+  // Extract the category slug from packId ('category-pizza' → 'pizza',
+  // 'category-fast-food' → 'fast-food'). Drives the booster artwork
+  // (.packImage background) inside PackOpenChoreography. Null for
+  // all-berlin → falls back to the CSS default booster1.webp.
+  const categorySlug = packId.startsWith('category-')
+    ? packId.slice('category-'.length)
+    : null
 
-  // Subscribe to the entitlement doc
+  // Subscribe to the entitlement doc — written by the Stripe webhook
+  // after a successful purchase. The choreography starts as soon as
+  // the doc lands.
   useEffect(() => {
     if (!user || !packId) return
     const ref = doc(db, 'users', user.uid, 'entitlements', packId)
@@ -44,21 +57,27 @@ export default function PurchasePackOpen() {
       if (isAllBerlin) {
         setCards([])
       } else {
-        const ids = data.mustEatIds ?? []
-        setCards(ids.slice(0, 10))
+        setCards((data.mustEatIds ?? []).slice(0, 20))
       }
       setPhase('opening')
     })
     return () => unsub()
   }, [user, packId, isAllBerlin])
 
-  // Resolve mustEatIds → images for category packs
-  const packCardsState = usePackCards(entitlementCards && !isAllBerlin ? entitlementCards : null)
+  // Resolve mustEatIds → images for category packs (only the first 5 —
+  // see REVEAL_CARD_COUNT). Full 20 stay in entitlementCards in case
+  // a downstream consumer needs the complete set.
+  const revealIds = entitlementCards && !isAllBerlin
+    ? entitlementCards.slice(0, REVEAL_CARD_COUNT)
+    : null
+  const packCardsState = usePackCards(revealIds)
   const categoryImages = packCardsState.status === 'ready' ? packCardsState.images : null
 
-  const finalCards: string[] | null = isAllBerlin ? allBerlinSample : categoryImages
+  const finalCards: string[] | null = isAllBerlin
+    ? allBerlinSample?.slice(0, REVEAL_CARD_COUNT) ?? null
+    : categoryImages
 
-  // Trigger choreography once we have images
+  // Trigger choreography once we have images.
   useEffect(() => {
     if (phase === 'opening' && finalCards && finalCards.length > 0 && !triggerOpen) {
       warmUpOnboardingAudio()
@@ -66,7 +85,7 @@ export default function PurchasePackOpen() {
     }
   }, [phase, finalCards, triggerOpen])
 
-  // Fallback fulfill after POLL_TIMEOUT_MS
+  // Fallback fulfill after POLL_TIMEOUT_MS in case the webhook is slow.
   useEffect(() => {
     if (phase !== 'waiting' || !user || !sessionId) return
     const t = setTimeout(async () => {
@@ -79,7 +98,7 @@ export default function PurchasePackOpen() {
         })
         if (!res.ok && res.status !== 202) setPhase('error')
       } catch {
-        // Network blip — hard timeout will catch it
+        // Network blip — hard timeout will catch it.
       }
     }, POLL_TIMEOUT_MS)
     return () => clearTimeout(t)
@@ -136,6 +155,7 @@ export default function PurchasePackOpen() {
           <PackOpenChoreography
             cards={finalCards}
             triggerOpen={triggerOpen}
+            category={categorySlug}
             onRevealComplete={onRevealComplete}
           />
         )

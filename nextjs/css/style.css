@@ -2853,9 +2853,12 @@ html:not([data-theme="dark"]) .site-footer {
   background: var(--white);
   border-top: 1px solid rgba(0,0,0,0.08);
 }
-/* Footer logo — single roundel, inverted in dark mode so the black ring
-   becomes cream against the ink background. */
-html[data-theme="dark"] .site-footer-logo-img { filter: invert(1); }
+/* Footer logo — red EAT THIS wordmark stays red in both themes; the
+   second asset (light tagline) is swapped in for dark mode so the marker
+   line stays readable. invert(1) would tint the red to cyan. */
+.site-footer-logo-img-dark { display: none; }
+html[data-theme="dark"] .site-footer-logo-img-light { display: none; }
+html[data-theme="dark"] .site-footer-logo-img-dark { display: block; }
 html:not([data-theme="dark"]) .site-footer-link {
   color: rgba(0,0,0,0.4);
 }

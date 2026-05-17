@@ -30,7 +30,7 @@ export default async function ProfileLayout({
       {/* Full SPA stylesheet — same as (spa) layout, since profile components
           rely on global classes (e.g. site-nav). */}
       {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/css/style.min.css?v=31" precedence="default" />
+      <link rel="stylesheet" href="/css/style.min.css?v=32" precedence="default" />
 
       <AuthProvider>
         <LoginModalProvider>

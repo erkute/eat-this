@@ -25,7 +25,7 @@ export default async function KategorieLayout({
       <LoginModalProvider>
         {/* Full SPA stylesheet — needed for SiteNav/burger styling on this non-(spa) route */}
         {/* eslint-disable-next-line @next/next/no-css-tags */}
-        <link rel="stylesheet" href="/css/style.min.css?v=31" precedence="default" />
+        <link rel="stylesheet" href="/css/style.min.css?v=32" precedence="default" />
         <BridgeAuth />
         <SiteNav />
         <BurgerDrawer />

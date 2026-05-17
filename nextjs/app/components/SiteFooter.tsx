@@ -11,9 +11,19 @@ export default function SiteFooter() {
     <div className="site-footer" role="contentinfo" aria-label="Site footer">
       <Link href="/" className="site-footer-logo-link" data-page="start" aria-label="Eat This home">
         <img
-          src="/pics/logo.webp"
+          src="/pics/eat-this.webp"
           alt="EAT THIS"
-          className="site-footer-logo-img"
+          className="site-footer-logo-img site-footer-logo-img-light"
+          width={2000}
+          height={2000}
+          loading="lazy"
+          decoding="async"
+        />
+        <img
+          src="/pics/eat-this-dark.webp"
+          alt=""
+          aria-hidden="true"
+          className="site-footer-logo-img site-footer-logo-img-dark"
           width={2000}
           height={2000}
           loading="lazy"

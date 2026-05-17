@@ -145,7 +145,7 @@ export default function SiteNav() {
       <nav className="navbar" id="navbar">
         <Link href="/" className="navbar-brand" data-page="start">
           <img
-            src="/pics/eat.webp"
+            src="/pics/logo.webp"
             alt="EAT THIS"
             className="brand-logo"
             width={36}

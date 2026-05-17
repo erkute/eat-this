@@ -83,6 +83,8 @@
 }
 .cta:hover svg { transform: translateX(3px); }
 .cta svg { transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+/* Dark-mode CTA inherits light black-chrome — match FinalCta bookend. */
+:global([data-theme="dark"]) .cta:active { box-shadow: 2px 2px 0 0 #f7f5f0; }
 
 @media (min-width: 768px) {
   .hero {
@@ -104,6 +106,9 @@
   }
   .cta:hover  { box-shadow: 9px 9px 0 0 #0a0a0a; }
   .cta:active { box-shadow: 3px 3px 0 0 #0a0a0a; }
+  :global([data-theme="dark"]) .cta { box-shadow: 7px 7px 0 0 #f7f5f0; }
+  :global([data-theme="dark"]) .cta:hover  { box-shadow: 9px 9px 0 0 #f7f5f0; }
+  :global([data-theme="dark"]) .cta:active { box-shadow: 3px 3px 0 0 #f7f5f0; }
 }
 
 /* Dark mode — swap to the dark Carto Berlin Mitte map; flip overlay
@@ -120,7 +125,9 @@
   background:
     radial-gradient(ellipse at center, rgba(0,0,0,0.20) 0%, rgba(0,0,0,0.50) 65%, rgba(0,0,0,0.78) 100%);
 }
-/* Dark-mode: invert the roundel so the black circle becomes cream and the
-   white letterforms become ink — keeps contrast against the dark map
-   without shipping a second asset. */
-:global([data-theme="dark"]) .logo { filter: invert(1); }
+/* Dark mode keeps the red EAT THIS wordmark but swaps the asset to one
+   with a cream-recolored tagline (invert(1) would tint the red to cyan,
+   so we ship a second asset and toggle visibility). */
+.logoDark { display: none; }
+:global([data-theme="dark"]) .logoLight { display: none; }
+:global([data-theme="dark"]) .logoDark { display: block; }

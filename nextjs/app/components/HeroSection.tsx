@@ -7,11 +7,21 @@ export default function HeroSection() {
     <section className={styles.hero}>
       <div className={styles.logoWrap}>
         <Image
-          src="/pics/logo.webp"
+          src="/pics/eat-this.webp"
           alt="Eat This"
-          width={1080}
-          height={1080}
-          className={styles.logo}
+          width={2000}
+          height={2000}
+          className={`${styles.logo} ${styles.logoLight}`}
+          priority
+          sizes="(max-width: 768px) 96vw, min(820px, 76vw)"
+        />
+        <Image
+          src="/pics/eat-this-dark.webp"
+          alt=""
+          aria-hidden="true"
+          width={2000}
+          height={2000}
+          className={`${styles.logo} ${styles.logoDark}`}
           priority
           sizes="(max-width: 768px) 96vw, min(820px, 76vw)"
         />

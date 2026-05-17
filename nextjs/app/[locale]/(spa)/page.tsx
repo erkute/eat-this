@@ -7,7 +7,6 @@ import HeroSection from '@/app/components/HeroSection'
 import SiteFooter from '@/app/components/SiteFooter'
 
 import MustEatsSection from '@/app/components/landing/sections/MustEatsSection'
-import MapTeaser from '@/app/components/landing/MapTeaser'
 import PacksSection from '@/app/components/landing/sections/PacksSection'
 import FaqSection from '@/app/components/landing/sections/FaqSection'
 import FinalCtaSection from '@/app/components/landing/sections/FinalCtaSection'
@@ -100,11 +99,6 @@ export default async function SPAHomePage({
       <div className="app-page active" data-page="start">
         <HeroSection />
         <div className="start-scroll-content" style={{ paddingTop: 0 }}>
-          <MapTeaser
-            headline={pickLocale(doc.insideMap, 'headline', locale)}
-            screenshotUrls={doc.insideMap.screenshotUrls}
-            locale={locale}
-          />
           <MustEatsSection
             headline={pickLocale(doc.mustEats, 'headline', locale)}
             body={pickLocale(doc.mustEats, 'body', locale)}

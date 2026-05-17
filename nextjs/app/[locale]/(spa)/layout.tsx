@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     description:
       "Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must Eats on the interactive map & hunt down the best dishes in the city. Taste it all!",
     url: SITE_URL,
-    images: [{ url: SITE_URL + '/pics/hero_desktop1.webp', width: 1672, height: 941, alt: 'EAT THIS - Berlin Food Guide' }],
+    images: [{ url: SITE_URL + '/pics/hero_desktop1.webp', width: 1536, height: 1024, alt: 'EAT THIS - Berlin Food Guide' }],
     locale: 'de_DE',
   },
   twitter: {
@@ -53,7 +53,7 @@ export default async function SPALayout({
     <>
       {/* Full SPA stylesheet — hoisted to <head> by Next.js */}
       {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/css/style.min.css?v=33" precedence="default" />
+      <link rel="stylesheet" href="/css/style.min.css?v=34" precedence="default" />
 
       <link rel="preconnect" href="https://ehwjnjr2.apicdn.sanity.io" crossOrigin="anonymous" />
       <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />

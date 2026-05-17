@@ -1,723 +1,500 @@
 /* ──────────────────────────────────────────────────────────────────────
- * Packs - Apple-style product lineup.
- * Dark stage, three product tiles. Every tile is buyable - click opens
- * the login modal, the actual purchase happens in the user's profile
- * after sign-up.
+ * PacksSection — Bar-Basta Lunch-Menu layout
+ * Cream canvas, script-eyebrow + heavy block wordmark + script-accent +
+ * "Edition One · Berlin" sub-line (mirrors the BASTA LUNCH masthead).
+ * Body is a vertical menu listing: thumb · name + spectrum + desc left,
+ * price right, dezente hairline separator between rows. No card chrome.
  * ────────────────────────────────────────────────────────────────────── */
 
 .section {
   position: relative;
-  background: #0a0a0a;
-  color: #fff;
-  padding: 96px 20px 112px;
+  background: var(--surface-canvas);
+  color: #0a0a0a;
+  padding: clamp(72px, 11vh, 128px) 20px clamp(80px, 12vh, 140px);
   overflow: hidden;
 }
-.section::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 520px;
-  background:
-    radial-gradient(60% 90% at 30% 0%, rgba(245, 197, 24, 0.10), transparent 60%),
-    radial-gradient(60% 90% at 70% 12%, rgba(242, 96, 77, 0.10), transparent 60%);
-  pointer-events: none;
-}
-.section::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size: 18px 18px;
-  pointer-events: none;
-  opacity: 0.6;
-}
-.section > * { position: relative; z-index: 1; }
 .inner {
-  position: relative;
-  max-width: 1180px;
+  max-width: 760px;
   margin: 0 auto;
 }
 
-/* ── Header ─────────────────────────────────────────────────────────── */
-.head {
-  text-align: center;
-  margin: 0 auto 64px;
-  max-width: 800px;
+/* ── Masthead ───────────────────────────────────────────────────────── */
+/* Single bold poster headline, left-aligned, coral, period at end.
+   Mirrors the "Our Kitchen Section." reference exactly: one sentence,
+   heavy grotesque, no eyebrow chrome. */
+.masthead {
+  text-align: left;
+  margin: 0 0 clamp(40px, 6vh, 72px);
 }
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--brand-yellow);
-  margin-bottom: 18px;
-}
-.eyebrow::before,
-.eyebrow::after {
-  content: '';
-  display: inline-block;
-  width: 28px;
-  height: 1px;
-  background: rgba(245, 197, 24, 0.6);
-}
-.h2 {
-  font-family: var(--font-display);
-  font-size: clamp(36px, 9vw, 72px);
+.wordmark {
+  margin: 0;
+  font-family: var(--font-poster);
   font-weight: 400;
-  line-height: 0.95;
-  letter-spacing: 0;
-  margin: 0 0 18px;
-  color: #fff;
+  font-size: clamp(40px, 10vw, 96px);
+  line-height: 0.92;
+  color: var(--brand-coral);
+  letter-spacing: -0.015em;
   text-wrap: balance;
-}
-.body {
-  font-size: 16px;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0 auto;
-  max-width: 560px;
-  font-weight: 500;
-  text-wrap: balance;
-}
-@media (min-width: 768px) {
-  .head { margin-bottom: 88px; max-width: 880px; }
-  .h2 { font-size: clamp(56px, 6.4vw, 80px); letter-spacing: -0.04em; }
-  .body { font-size: 18px; max-width: 640px; }
 }
 
-/* ── Mini grid (9 category packs) ───────────────────────────────────
-   Trading-card style: NO card chrome — each pack is a free-standing
-   poster with a strong drop-shadow and a tiny default tilt so the row
-   reads as a hand-tossed deck, not a SaaS feature-grid. Hover lifts and
-   straightens the tilt. 2 cols mobile, 3 cols desktop. */
-.miniGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 36px 18px;
-  margin: 0 0 56px;
-  padding: 8px 4px 16px;
+/* ── Menu blocks (Booster Packs, Combos) ─────────────────────────────── */
+.menuBlock {
+  margin: 0 0 clamp(48px, 8vh, 88px);
 }
-.miniCard {
-  position: relative;
+.menuBlock:last-of-type { margin-bottom: 0; }
+
+.sectionHeader {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 14px;
-  padding: 0;
-  background: transparent;
-  border: none;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-}
-/* Editorial drop-index — small monospace-ish chip in the top-left,
-   gives the row magazine-page rhythm and signals "9 drops". */
-.miniNumber {
-  /* Hidden on mobile — too cramped for an editorial drop-index. Only
-     shows on 900px+ via the desktop override below. */
-  display: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.22em;
-  color: rgba(245, 197, 24, 0.75);
-  z-index: 2;
-  pointer-events: none;
-}
-/* No default tilt — mobile renders the packs straight (the tilt only
-   reads as "cool" when the packs have room to breathe; on small cards
-   it just looks noisy). Tilts come back in via the 900px+ breakpoint
-   where the desktop trading-card vibe lands properly. */
-
-.miniMedia {
-  width: 100%;
-  max-width: 170px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  aspect-ratio: 2 / 2.7;
-  position: relative;
-  transform: rotate(var(--tilt, 0deg));
-  transition: transform 360ms cubic-bezier(0.2, 0.7, 0.2, 1),
-              filter 360ms ease;
-}
-.miniImg {
-  width: auto;
-  height: 100%;
-  max-width: 100%;
-  object-fit: contain;
-  filter: drop-shadow(0 22px 28px rgba(0, 0, 0, 0.55))
-          drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
-  transition: filter 360ms ease;
-}
-.miniCard:hover .miniMedia {
-  transform: rotate(0deg) translateY(-6px);
-}
-
-/* Three-tier text block per mini-card, mirrors Profile-Booster:
-   miniName = small uppercase eyebrow (category label)
-   miniSpectrum = bold spectrum headline (the period-beat brand stamp)
-   miniDesc = longer description body (from stripe-catalog.ts) */
-.miniName {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
-  margin: 0;
-}
-.miniSpectrum {
-  font-size: 17px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-  color: #fff;
-  margin: 0;
-  text-wrap: balance;
-}
-.miniDesc {
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.62);
-  margin: 0;
-  max-width: 32ch;
-  text-wrap: balance;
-}
-
-@media (min-width: 600px) {
-  .miniGrid { grid-template-columns: repeat(2, 1fr); gap: 48px 24px; }
-}
-@media (min-width: 900px) {
-  .miniGrid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 64px 32px;
-    margin-bottom: 96px;
-    max-width: 1020px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .miniCard { gap: 18px; }
-  /* Desktop only: column-symmetric tilt. With 3 columns, packs in col 1
-     lean left, col 2 sits straight, col 3 leans right — the row reads
-     as an ordered fan opening outward from centre. */
-  .miniCard:nth-child(3n+1) { --tilt: -2.5deg; }
-  .miniCard:nth-child(3n+2) { --tilt:  0deg; }
-  .miniCard:nth-child(3n)   { --tilt:  2.5deg; }
-  .miniMedia { max-width: 200px; margin: 0 auto; }
-  .miniName { font-size: 11px; }
-  .miniSpectrum { font-size: 19px; }
-  .miniDesc { font-size: 13.5px; max-width: 28ch; }
-  .miniNumber { display: block; font-size: 11px; left: 4px; top: 0; }
-}
-@media (min-width: 1180px) {
-  .miniGrid { max-width: 1100px; gap: 72px 40px; }
-  .miniMedia { max-width: 220px; }
-}
-
-/* Light-mode mini cards: text + softer drop-shadow. No glow either —
-   packs already pop because they're freigestellt with alpha. */
-@media (prefers-color-scheme: light) {
-  .miniName { color: rgba(10, 10, 10, 0.5); }
-  .miniSpectrum { color: #0a0a0a; }
-  .miniDesc { color: rgba(10, 10, 10, 0.62); }
-  .miniImg {
-    filter: drop-shadow(0 22px 28px rgba(0, 0, 0, 0.22))
-            drop-shadow(0 4px 8px rgba(0, 0, 0, 0.14));
-  }
-}
-[data-theme="light"] .miniName { color: rgba(10, 10, 10, 0.5); }
-[data-theme="light"] .miniSpectrum { color: #0a0a0a; }
-[data-theme="light"] .miniDesc { color: rgba(10, 10, 10, 0.62); }
-[data-theme="light"] .miniImg {
-  filter: drop-shadow(0 22px 28px rgba(0, 0, 0, 0.22))
-          drop-shadow(0 4px 8px rgba(0, 0, 0, 0.14));
-}
-
-/* ── Divider: between the 9-pack catalogue and the 3-tier purchase grid
-   ─────────────────────────────────────────────────────────────────── */
-.divider {
-  position: relative;
-  margin: 0 0 40px;
-  padding: 24px 0 0;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-.divider::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 64px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(245, 197, 24, 0.6), transparent);
-}
-.dividerEyebrow {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--brand-yellow);
-}
-.dividerH3 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: clamp(28px, 6vw, 48px);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 0.95;
-  color: #fff;
-  text-wrap: balance;
-}
-.dividerArrow {
-  display: inline-block;
-  font-size: 20px;
-  font-weight: 700;
-  color: #F5C518;
-  line-height: 1;
-  margin-top: 6px;
-  animation: dividerBounce 2s ease-in-out infinite;
-}
-@keyframes dividerBounce {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(6px); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .dividerArrow { animation: none; }
-}
-@media (min-width: 768px) {
-  .divider { margin-bottom: 56px; padding-top: 32px; gap: 14px; }
-  .divider::before { width: 96px; }
-  .dividerEyebrow { font-size: 12px; letter-spacing: 0.32em; }
-  .dividerH3 { font-size: clamp(48px, 5vw, 72px); letter-spacing: 0; }
-  .dividerArrow { font-size: 26px; margin-top: 10px; }
-}
-
-@media (prefers-color-scheme: light) {
-  .dividerH3 { color: #0a0a0a; }
-  .dividerEyebrow { color: var(--brand-coral); }
-  .dividerArrow { color: var(--brand-coral); }
-  .divider::before { background: linear-gradient(90deg, transparent, rgba(242, 96, 77, 0.55), transparent); }
-}
-[data-theme="light"] .dividerH3 { color: #0a0a0a; }
-[data-theme="light"] .dividerEyebrow { color: var(--brand-coral); }
-[data-theme="light"] .dividerArrow { color: var(--brand-coral); }
-[data-theme="light"] .divider::before { background: linear-gradient(90deg, transparent, rgba(242, 96, 77, 0.55), transparent); }
-
-/* ── Grid ───────────────────────────────────────────────────────────── */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
+  align-items: baseline;
   gap: 16px;
+  padding: 0 0 14px;
+  margin: 0 0 6px;
+  border-bottom: 1.5px solid rgba(10, 10, 10, 0.86);
+}
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #0a0a0a;
 }
 
-/* ── Card ───────────────────────────────────────────────────────────── */
-.card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  background: #161616;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 22px;
-  padding: 24px 22px;
-  overflow: hidden;
+/* ── Menu list ──────────────────────────────────────────────────────── */
+.menuList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.menuList li + li .menuItem {
+  border-top: 1px solid rgba(10, 10, 10, 0.10);
+}
+
+/* Restaurant Speisekarte layout: thumb left, content right. Inside the
+   content, a "name + dotted leader + price" row mimics the classic menu
+   item line. Spectrum (italic tagline) + desc stack below. */
+.menuItem {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 22px;
+  align-items: start;
+  padding: 22px 4px 24px;
+  background: transparent;
+  border: 0;
   text-align: left;
   color: inherit;
   font: inherit;
   cursor: pointer;
-  transition: transform 320ms cubic-bezier(0.2, 0.7, 0.2, 1),
-              border-color 320ms ease,
-              box-shadow 320ms ease;
-  /* Stagger reveal - animation-delay set inline per card */
-  opacity: 0;
-  transform: translateY(16px);
-  animation: cardIn 600ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  transition: background 240ms ease;
 }
-.card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+.menuItem:hover {
+  background: rgba(242, 96, 77, 0.06);
 }
-.card:focus-visible {
+.menuItem:focus-visible {
   outline: 2px solid #F5C518;
-  outline-offset: 3px;
-}
-.card:active { transform: translateY(-2px); }
-
-.cardStarter {
-  background: #161616;
-  border-color: rgba(255, 255, 255, 0.14);
-}
-.cardBundle {
-  background: #161616;
-  border-color: rgba(245, 197, 24, 0.32);
+  outline-offset: -2px;
+  border-radius: 4px;
 }
 
-@keyframes cardIn {
-  to { opacity: 1; transform: translateY(0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .card { animation: none; opacity: 1; transform: none; transition: none; }
-  .card:hover { transform: none; }
-}
-
-/* ── Ribbon on the bundle ───────────────────────────────────────────── */
-.bestValueRibbon {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  color: #0a0a0a;
-  background: #F5C518;
-  border: 0;
-  padding: 5px 10px 4px;
-  border-radius: 999px;
-  line-height: 1;
-  z-index: 2;
-}
-
-/* ── Media (hero area) ──────────────────────────────────────────────── */
-.media {
-  position: relative;
-  height: 320px;
-  margin: 4px 0 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  isolation: isolate;
-  /* No overflow:hidden - packs need room to spread without getting
-     clipped at the card edge. The card padding gives them breathing
-     room; if a pack edge bleeds slightly past the card, it reads as
-     intentional, not broken. */
-  overflow: visible;
+/* ── Hero row (All Berlin) ────────────────────────────────────────────
+   Stacked layout, NOT the standard 3-col grid. Big 9-pack fan on top,
+   text block below. Sits on a coral-tinted card so 20 € reads as the
+   anchor purchase, not as just another line item. */
+.menuItemHero {
+  grid-template-columns: 1fr;
+  gap: 18px;
+  padding: 28px 16px 32px;
+  background: linear-gradient(180deg, rgba(242, 96, 77, 0.10), rgba(242, 96, 77, 0.04));
   border-radius: 14px;
+  border: 1px solid rgba(199, 50, 32, 0.20);
+  margin: 8px 0;
+  text-align: center;
+  /* Wrapper is a <div>, not a button — only the inner CTA fires the
+     checkout. Override the menuItem-inherited pointer cursor so the
+     card surface itself doesn't suggest clickability. */
+  cursor: default;
 }
-/* Packs float free now - no spotlight, no colour wash. */
-.spotlight { display: none; }
-
-.starterImg {
-  position: relative;
-  z-index: 1;
-  width: auto;
-  max-width: 58%;
-  max-height: 94%;
-  height: auto;
-  object-fit: contain;
-  transform: rotate(-3deg) translateZ(0);
-  filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.5));
-  transition: transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
-  /* iOS Safari demotes the layer after scroll stops and re-rasterises the
-   * drop-shadow against the cutout alpha, producing jagged shadow edges.
-   * Pin the element to a GPU layer so the shadow snapshot stays cached. */
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+.menuItemHero:hover {
+  background: linear-gradient(180deg, rgba(242, 96, 77, 0.14), rgba(242, 96, 77, 0.06));
 }
+/* Hero rows shouldn't carry the menu hairline above them */
+.menuList li + li .menuItemHero { border-top: none; }
 
-/* Category - three packs, front prominent, two angled supporters behind */
-.categoryStack {
+/* The 9-pack fan. Square stage; each pack absolute-centred and translated
+   per-instance via CSS vars set inline (--rot/--dx/--dy). z-index inline
+   stacks the centre pack on top. Mobile gets bigger packs + multiplied
+   spread (--mobileBoost) so the fan reads as a dramatic trading-card
+   spread, not a polite icon row. */
+.heroFan {
   position: relative;
-  z-index: 1;
   width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 340px;
+  margin: 12px auto 4px;
+  display: block;
+  overflow: hidden;
 }
-.stackPack {
-  position: absolute;
-  width: 42%;
-  max-width: 140px;
-  max-height: 94%;
-  height: auto;
-  object-fit: contain;
-  transform-origin: bottom center;
-  filter: drop-shadow(0 16px 26px rgba(0, 0, 0, 0.42));
-  transition: transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
-  /* See .starterImg note — keep layer GPU-pinned so iOS doesn't redraw the
-   * drop-shadow with hard edges after a scroll settles. */
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-.stack1 { z-index: 3; transform: translateY(6px) rotate(-2deg) translateZ(0); }
-.stack2 { z-index: 2; transform: translate(-44%, 4%) rotate(-14deg) scale(0.86) translateZ(0); opacity: 0.94; }
-.stack3 { z-index: 2; transform: translate(44%, 4%) rotate(14deg) scale(0.86) translateZ(0); opacity: 0.94; }
-
-/* Bundle - pile/heap layout. All 9 packs absolute-positioned around the
-   centre with per-pack --x/--y/--rot offsets set inline (resting state)
-   and --hx/--hy/--hrot deltas added on hover. Reads as a stack of cards
-   thrown on a table, not a grid. z-index inline per pack so the centre
-   pack reads as the front of the pile. */
-.bundleHeap {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  /* Heap is designed at "full" desktop scale (≈ ±100px spread). On
-     narrower viewports we proportionally shrink the whole heap so no
-     pack edge gets clipped by .card's overflow:hidden. */
-  transform: scale(0.96);
-  transform-origin: center;
-}
-
-/* Mobile bundle gets its own taller media box so the heap can spread
-   bigger without colliding with the card title. On tablet+ we drop
-   back to the shared .media height so title baselines stay aligned
-   across all three pack cards. */
-.cardBundle .media { height: 380px; }
-.bundleItem {
+.heroFanPack {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 42%;
-  max-width: 130px;
+  width: 96px;
   height: auto;
   aspect-ratio: 2 / 3;
   object-fit: contain;
-  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.55));
-  /* translate3d (not translate) keeps each pack on its own GPU layer so the
-   * drop-shadow stays soft when scroll settles on iOS — same bug class as
-   * .starterImg above, multiplied across 9 cutouts. */
-  transform: translate3d(
-              calc(-50% + var(--x, 0px)),
-              calc(-50% + var(--y, 0px)),
-              0
-             )
-             rotate(var(--rot, 0deg));
-  transition: transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* 3-row composition: rotate around card centre so each pack tilts in
+     place. Pack 96 px wide, half 48; rows at dy ±70-78 plus pack half
+     144/2 = 72 fits within a 340-px heroFan stage (half 170). */
+  transform-origin: center center;
+  --spread: 1.0;
+  /* translate3d so each pack sits on its own GPU layer — keeps the
+     drop-shadow soft after scroll settles on iOS Safari. */
+  transform:
+    translate3d(
+      calc(-50% + var(--dx, 0px) * var(--spread)),
+      calc(-50% + var(--dy, 0px) * var(--spread)),
+      0
+    )
+    rotate(var(--rot, 0deg));
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.32))
+          drop-shadow(0 4px 8px rgba(0, 0, 0, 0.18));
+  transition: transform 480ms cubic-bezier(0.2, 0.7, 0.2, 1);
   will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
-.card:hover .bundleItem {
-  transform: translate3d(
-              calc(-50% + var(--x, 0px) + var(--hx, 0px)),
-              calc(-50% + var(--y, 0px) + var(--hy, 0px)),
-              0
-             )
-             rotate(calc(var(--rot, 0deg) + var(--hrot, 0deg)));
+/* Hover: subtle lift on the whole scatter — each pack rises 4 px and
+   rotation amplifies slightly. Reads as "alive" without re-arranging. */
+.menuItemHero:hover .heroFanPack {
+  transform:
+    translate3d(
+      calc(-50% + var(--dx, 0px) * var(--spread)),
+      calc(-50% + var(--dy, 0px) * var(--spread) - 4px),
+      0
+    )
+    rotate(calc(var(--rot, 0deg) * 1.08));
 }
 
-/* Hover choreography for the other media. */
-.card:hover .starterImg { transform: rotate(-2deg) scale(1.03) translateZ(0); }
-.card:hover .stack1 { transform: translateY(2px) rotate(-2deg) scale(1.03) translateZ(0); }
-.card:hover .stack2 { transform: translate(-46%, 0) rotate(-16deg) scale(0.88) translateZ(0); }
-.card:hover .stack3 { transform: translate(46%, 0) rotate(16deg) scale(0.88) translateZ(0); }
-
-/* ── Title + Price block ────────────────────────────────────────────── */
-.cardTitle {
-  font-family: var(--font-display);
-  font-size: 26px;
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 0.98;
-  margin: 0 0 4px;
-  color: #fff;
-}
-.priceRow {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin: 4px 0 10px;
-}
-.cardPrice {
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  color: #fff;
-}
-.cardStarter .cardPrice { color: #fff; }
-/* All Berlin is the premium tier - its price gets the bigger weight so
-   €2,99 doesn't visually outshine €20 just because it has more digits. */
-.cardBundle .cardPrice { color: #F5C518; font-size: 38px; }
-.priceSuffix {
-  font-size: 12px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.45);
-  letter-spacing: 0;
-}
-.cardSubtitle {
-  font-size: 13.5px;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.66);
-  margin: 0 0 16px;
-}
-
-/* ── Bullet list - SaaS-style "what you get" ────────────────────────── */
-.bulletList {
-  list-style: none;
-  margin: 0 0 22px;
-  padding: 0;
+.heroBody {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
 }
-.bulletList li {
-  position: relative;
-  padding-left: 22px;
-  font-size: 13.5px;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.82);
+.heroBadge {
+  display: inline-block;
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--brand-coral);
+  padding: 5px 11px 4px;
+  border-radius: 999px;
+  line-height: 1;
+  margin-bottom: 4px;
 }
-.bulletList li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 4px;
-  width: 14px;
-  height: 14px;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none'><path d='M3 7.5l2.5 2.5L11 4.5' stroke='%23ffffff' stroke-opacity='0.45' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-  background-size: contain;
-  background-repeat: no-repeat;
+.heroName {
+  font-size: clamp(34px, 8.5vw, 52px);
+  color: var(--brand-coral);
+}
+.heroBody .itemSpectrum { color: rgba(10, 10, 10, 0.86); }
+.heroBody .itemDesc {
+  max-width: 42ch;
+  text-align: center;
+  color: rgba(10, 10, 10, 0.65);
 }
 
-/* CTA pill - filled brand-red button so the buy action is unambiguous.
-   Was previously a chevron-text link in the corner; the user couldn't
-   tell it was clickable. Now reads as a proper "primary action" pill
-   that holds its weight against the pack artwork above. */
-.ctaLink {
-  display: inline-flex;
+/* ── Thumb (pack vignette) ───────────────────────────────────────────── */
+.thumb {
+  position: relative;
+  width: 96px;
+  height: 128px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-top: auto;
-  align-self: stretch;
-  padding: 13px 22px;
-  background: var(--brand-coral);
-  color: #fff;
-  border-radius: 999px;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: -0.005em;
-  white-space: nowrap;
-  box-shadow: 0 12px 26px -10px rgba(242, 96, 77, 0.55);
-  transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+  flex-shrink: 0;
 }
-.chevron { transition: transform 280ms cubic-bezier(0.2, 0.7, 0.2, 1); }
-.card:hover .ctaLink {
-  background: #ED5040;
-  transform: translateY(-1px);
-  box-shadow: 0 16px 30px -10px rgba(242, 96, 77, 0.7);
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.18));
+  transition: transform 360ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* Pin to GPU layer so iOS Safari keeps the drop-shadow soft after scroll. */
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
-.card:hover .chevron { transform: translateX(4px); }
+.menuItem:hover .thumbImg {
+  transform: translateY(-3px) rotate(-1deg);
+}
 
-/* ── Footnote (under the grid) ──────────────────────────────────────── */
-.footnote {
+/* ── Zoom state (tap-to-expand) ───────────────────────────────────────
+   On tap the row drops the side-by-side grid and stacks vertically:
+   big thumb centred on top, name + spectrum + desc + buy CTA below.
+   The single-column layout eliminates the text-column-shrinking issues
+   the prior side-by-side variant had (price colliding with name when
+   the text column got too narrow, rotated thumb overflowing into the
+   text). The row reads as a "selected detail view". */
+.menuItemZoomed {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+  gap: 18px;
+  background: rgba(242, 96, 77, 0.10);
+  border-radius: 12px;
+  padding: 28px 16px 24px;
   text-align: center;
-  margin: 32px auto 0;
-  max-width: 540px;
+  justify-items: center;
+}
+.menuItemZoomed:hover {
+  background: rgba(242, 96, 77, 0.14);
+}
+.menuItemZoomed .thumb {
+  width: 180px;
+  height: 240px;
+}
+.menuItemZoomed .thumbImg {
+  transform: none;
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.28))
+          drop-shadow(0 4px 8px rgba(0, 0, 0, 0.14));
+}
+.menuItemZoomed .itemBody {
+  align-items: center;
+  width: 100%;
+  max-width: 360px;
+}
+.menuItemZoomed .nameRow {
+  justify-content: center;
+  gap: 12px;
+}
+.menuItemZoomed .leader { display: none; }
+.menuItemZoomed .itemDesc {
+  text-align: center;
+  max-width: 320px;
+}
+/* Selected row spans the hairline above the buy panel below */
+.menuRowZoomed + li .menuItem { border-top: none; }
+
+/* Buy CTA — lives as a direct child of .menuItemZoomed (the stacked
+   tinted card), justified centre via the grid layout. Above the row
+   sits the thumb + body; the CTA closes the card visually with a
+   small top margin so it doesn't crash into the description. */
+.buyCta {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border: 2.5px solid #0a0a0a;
+  border-radius: 999px;
+  background: #FD3A39;
+  color: #fff;
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 0 #0a0a0a;
+  transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+.buyCta:hover {
+  background: #E62A28;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 0 #0a0a0a;
+}
+.buyCta:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 0 #0a0a0a;
+}
+.buyPrice {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding-left: 6px;
+  border-left: 1.5px solid rgba(255, 255, 255, 0.4);
+}
+.buyArrow {
+  transition: transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.buyCta:hover .buyArrow { transform: translateX(3px); }
+
+/* Hero variant — larger CTA inside the All Berlin card so it reads as
+   the anchor purchase action, not a secondary chip. Sits below the
+   description, breathing room above; the 20 € pill on the right makes
+   the price unmissable. */
+.heroBuyCta {
+  margin-top: 18px;
+  padding: 14px 26px;
+  font-size: 16px;
+  border-width: 3px;
+  box-shadow: 5px 5px 0 0 #0a0a0a;
+}
+.heroBuyCta:hover  { box-shadow: 7px 7px 0 0 #0a0a0a; }
+.heroBuyCta:active { box-shadow: 2px 2px 0 0 #0a0a0a; }
+
+/* ── Item body (name+leader+price row | spectrum | desc) ─────────────── */
+.itemBody {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* The classic Speisekarte row: dish name on the left, price on the right,
+   dotted leader fills the gap. Baseline alignment so dots sit at x-height. */
+.nameRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.itemName {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(17px, 4vw, 21px);
+  letter-spacing: 0;
+  line-height: 1.05;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  flex-shrink: 0;
+}
+/* Dotted leader between name and price — repeating radial-gradient dots
+   sized to align with letterforms above. Sits on the baseline. */
+.leader {
+  flex: 1;
+  height: 6px;
+  align-self: flex-end;
+  margin-bottom: 4px;
+  background-image: radial-gradient(circle, currentColor 1px, transparent 1.5px);
+  background-size: 7px 6px;
+  background-repeat: repeat-x;
+  background-position: 0 50%;
+  opacity: 0.38;
+  min-width: 24px;
+}
+.itemSpectrum {
+  font-family: var(--font);
+  font-weight: 600;
+  font-style: italic;
   font-size: 13px;
+  line-height: 1.4;
+  color: rgba(10, 10, 10, 0.74);
+  letter-spacing: -0.005em;
+}
+.itemDesc {
+  font-family: var(--font);
+  font-weight: 500;
+  font-size: 12.5px;
   line-height: 1.55;
-  color: rgba(255, 255, 255, 0.42);
+  color: rgba(10, 10, 10, 0.58);
+  max-width: 52ch;
+}
+
+/* ── Price ──────────────────────────────────────────────────────────── */
+/* Price sits at the right end of the dotted leader row. Tabular-nums so
+   "2,99" and "20" align cleanly across the list. */
+.itemPrice {
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: clamp(15px, 3.6vw, 17px);
+  letter-spacing: -0.005em;
+  color: #0a0a0a;
+  white-space: nowrap;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.priceFree {
+  font-weight: 600;
+  font-style: italic;
+  color: rgba(10, 10, 10, 0.66);
 }
 
 /* ── Desktop ────────────────────────────────────────────────────────── */
 @media (min-width: 768px) {
-  .section { padding: 140px 48px 160px; }
-  .head { margin-bottom: 64px; }
-  .h2 { font-size: clamp(56px, 8vw, 96px); }
-  .body { font-size: 17px; }
-
-  .grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    align-items: stretch;
+  .section {
+    padding: clamp(112px, 14vh, 168px) 48px clamp(120px, 14vh, 176px);
   }
-  .card {
-    padding: 28px 26px;
-    border-radius: 24px;
+  .sectionHeader { padding-bottom: 16px; }
+  .sectionTitle { font-size: 18px; letter-spacing: 0.05em; }
+  .menuItem {
+    grid-template-columns: 128px 1fr;
+    gap: 32px;
+    padding: 28px 6px 32px;
   }
-  .media { height: 320px; margin: 6px 0 22px; }
-  /* Tablet+ collapses the mobile bundle .media override so all three
-     card media boxes have identical height - title baselines align. */
-  .cardBundle .media { height: 320px; }
-  /* 3-col grid at this breakpoint makes each card narrow; heap needs to
-     shrink hard so it fits inside the same media height as Starter and
-     Category - title baselines have to align across all three cards. */
-  .bundleHeap { transform: scale(0.58); }
-  .starterImg { max-width: 160px; }
-  .stackPack { max-width: 160px; }
-  .bundleItem { max-width: 140px; width: 38%; }
-  .cardTitle { font-size: 30px; }
-  .cardPrice { font-size: 32px; }
-  .cardSubtitle { font-size: 14px; }
-  .bulletList li { font-size: 14px; }
-  .footnote { margin-top: 40px; font-size: 13.5px; }
+  .thumb { width: 128px; height: 170px; }
+  /* Desktop-mediaquery .menuItem rule below sets grid-template-columns
+     to 128px 1fr, which beats the mobile .menuItemZoomed 1fr override
+     (same specificity, later in source). Re-assert the single column
+     here so the zoom-state stack stays stacked on desktop too. */
+  .menuItemZoomed {
+    grid-template-columns: 1fr;
+    padding: 36px 24px 28px;
+  }
+  .menuItemZoomed .thumb { width: 240px; height: 320px; }
+  .menuItemZoomed .itemBody { max-width: 440px; }
+  .menuItemZoomed .itemDesc { max-width: 400px; }
+  .buyCta {
+    padding: 14px 26px;
+    font-size: 16px;
+    border-width: 3px;
+    box-shadow: 5px 5px 0 0 #0a0a0a;
+  }
+  .buyCta:hover  { box-shadow: 7px 7px 0 0 #0a0a0a; }
+  .buyCta:active { box-shadow: 2px 2px 0 0 #0a0a0a; }
+  .buyPanel { margin-top: 28px; padding: 0 6px 36px; }
+  .itemName { font-size: clamp(20px, 2.4vw, 26px); }
+  .leader { background-size: 9px 6px; margin-bottom: 5px; }
+  .itemPrice { font-size: clamp(17px, 1.4vw, 20px); }
+  /* Hero row keeps its single-column stack at all breakpoints — just gets
+     more breathing room and a bigger fan stage. */
+  .menuItemHero {
+    grid-template-columns: 1fr;
+    padding: 40px 24px 44px;
+    margin: 12px 0;
+  }
+  .heroFan { height: 320px; overflow: visible; }
+  /* Desktop has the room for a more dramatic spread. */
+  .heroFanPack { width: 160px; --spread: 1.3; }
+  .heroBadge { font-size: 12px; padding: 6px 14px 5px; margin-bottom: 6px; }
+  .itemSpectrum { font-size: 14.5px; }
+  .itemDesc { font-size: 13.5px; max-width: 56ch; }
 }
 
-@media (min-width: 1100px) {
-  .h2 { font-size: clamp(72px, 7.5vw, 112px); }
-  .media { height: 340px; }
-  .cardBundle .media { height: 340px; }
-  /* All three cards share .media height so the title line is aligned -
-     bundle heap scales to fit instead of getting its own taller box. */
-  .bundleHeap { transform: scale(0.86); }
-  .cardPrice { font-size: 36px; }
-  .starterImg { max-width: 200px; }
-  .stackPack { max-width: 170px; }
+/* Dark-mode overrides — flip the section to ink + cream so the menu
+   reads with the same contrast level as on the cream canvas. */
+:global([data-theme="dark"]) .section { background: #0a0a0a; color: #f7f5f0; }
+:global([data-theme="dark"]) .sectionHeader { border-bottom-color: rgba(247, 245, 240, 0.85); }
+:global([data-theme="dark"]) .sectionTitle { color: #f7f5f0; }
+:global([data-theme="dark"]) .menuList li + li .menuItem { border-top-color: rgba(247, 245, 240, 0.10); }
+:global([data-theme="dark"]) .menuItem:hover { background: rgba(242, 96, 77, 0.10); }
+:global([data-theme="dark"]) .itemName { color: #f7f5f0; }
+:global([data-theme="dark"]) .itemSpectrum { color: rgba(247, 245, 240, 0.85); }
+:global([data-theme="dark"]) .itemDesc { color: rgba(247, 245, 240, 0.62); }
+:global([data-theme="dark"]) .itemPrice { color: #f7f5f0; }
+:global([data-theme="dark"]) .priceFree { color: rgba(247, 245, 240, 0.72); }
+:global([data-theme="dark"]) .thumbImg { filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.55)); }
+:global([data-theme="dark"]) .menuItemHero {
+  background: linear-gradient(180deg, rgba(242, 96, 77, 0.18), rgba(242, 96, 77, 0.08));
+  border-color: rgba(242, 96, 77, 0.32);
 }
-
-/* Light-mode overrides. Dark stage flips to cream so the section blends
-   with the rest of the light page; cards become white tiles with subtle
-   elevation. All text colours need explicit overrides - they were
-   white-on-dark by default, which renders invisibly on the white card.
-   Bullet check-mark SVG is re-encoded with a dark stroke. CTA pill
-   stays brand red in both modes - that's the buy-action anchor. */
-@media (prefers-color-scheme: light) {
-  .section { background: var(--surface-canvas); color: #0a0a0a; }
-  .section::before { background: radial-gradient(60% 100% at 50% 0%, rgba(242, 96, 77, 0.05), transparent 70%); }
-  .eyebrow { color: var(--brand-coral); }
-  .h2 { color: #0a0a0a; }
-  .body { color: rgba(10, 10, 10, 0.66); }
-  .card { background: #fff; border-color: rgba(10, 10, 10, 0.08); box-shadow: 0 8px 24px -12px rgba(10, 10, 10, 0.18); }
-  .cardStarter { background: #fff; border-color: rgba(10, 10, 10, 0.08); }
-  .cardBundle { background: #fff; border-color: rgba(242, 96, 77, 0.30); }
-  .cardTitle { color: #0a0a0a; }
-  .cardPrice { color: #0a0a0a; }
-  .cardStarter .cardPrice { color: #0a0a0a; }
-  .cardBundle .cardPrice { color: var(--brand-coral); }
-  .priceSuffix { color: rgba(10, 10, 10, 0.55); }
-  .cardSubtitle { color: rgba(10, 10, 10, 0.66); }
-  .bulletList li { color: rgba(10, 10, 10, 0.78); }
-  .bulletList li::before {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none'><path d='M3 7.5l2.5 2.5L11 4.5' stroke='%230a0a0a' stroke-opacity='0.55' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-  }
-  .bestValueRibbon { background: #F5C518; color: #0a0a0a; }
-  .footnote { color: rgba(10, 10, 10, 0.55); }
+:global([data-theme="dark"]) .menuItemHero:hover {
+  background: linear-gradient(180deg, rgba(242, 96, 77, 0.24), rgba(242, 96, 77, 0.12));
+  border-color: rgba(242, 96, 77, 0.50);
 }
-[data-theme="light"] .section { background: var(--surface-canvas); color: #0a0a0a; }
-[data-theme="light"] .section::before { background: radial-gradient(60% 100% at 50% 0%, rgba(242, 96, 77, 0.05), transparent 70%); }
-[data-theme="light"] .eyebrow { color: var(--brand-coral); }
-[data-theme="light"] .h2 { color: #0a0a0a; }
-[data-theme="light"] .body { color: rgba(10, 10, 10, 0.66); }
-[data-theme="light"] .card { background: #fff; border-color: rgba(10, 10, 10, 0.08); box-shadow: 0 8px 24px -12px rgba(10, 10, 10, 0.18); }
-[data-theme="light"] .cardStarter { background: #fff; border-color: rgba(10, 10, 10, 0.08); }
-[data-theme="light"] .cardBundle { background: #fff; border-color: rgba(242, 96, 77, 0.30); }
-[data-theme="light"] .cardTitle { color: #0a0a0a; }
-[data-theme="light"] .cardPrice { color: #0a0a0a; }
-[data-theme="light"] .cardStarter .cardPrice { color: #0a0a0a; }
-[data-theme="light"] .cardBundle .cardPrice { color: var(--brand-coral); }
-[data-theme="light"] .priceSuffix { color: rgba(10, 10, 10, 0.55); }
-[data-theme="light"] .cardSubtitle { color: rgba(10, 10, 10, 0.66); }
-[data-theme="light"] .bulletList li { color: rgba(10, 10, 10, 0.78); }
-[data-theme="light"] .bulletList li::before {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none'><path d='M3 7.5l2.5 2.5L11 4.5' stroke='%230a0a0a' stroke-opacity='0.55' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+:global([data-theme="dark"]) .heroBody .itemSpectrum { color: rgba(247, 245, 240, 0.92); }
+:global([data-theme="dark"]) .heroBody .itemDesc { color: rgba(247, 245, 240, 0.75); }
+:global([data-theme="dark"]) .heroFanPack { filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.55)); }
+:global([data-theme="dark"]) .menuItemZoomed { background: rgba(242, 96, 77, 0.14); }
+:global([data-theme="dark"]) .menuItemZoomed:hover { background: rgba(242, 96, 77, 0.20); }
+:global([data-theme="dark"]) .buyCta {
+  border-color: #f7f5f0;
+  box-shadow: 4px 4px 0 0 #f7f5f0;
 }
-[data-theme="light"] .bestValueRibbon { background: #F5C518; color: #0a0a0a; }
-[data-theme="light"] .footnote { color: rgba(10, 10, 10, 0.55); }
+:global([data-theme="dark"]) .buyCta:hover  { box-shadow: 6px 6px 0 0 #f7f5f0; }
+:global([data-theme="dark"]) .buyCta:active { box-shadow: 1px 1px 0 0 #f7f5f0; }
+@media (min-width: 768px) {
+  :global([data-theme="dark"]) .buyCta { box-shadow: 5px 5px 0 0 #f7f5f0; }
+  :global([data-theme="dark"]) .buyCta:hover  { box-shadow: 7px 7px 0 0 #f7f5f0; }
+  :global([data-theme="dark"]) .buyCta:active { box-shadow: 2px 2px 0 0 #f7f5f0; }
+}

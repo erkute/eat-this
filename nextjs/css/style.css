@@ -2727,10 +2727,12 @@ body:has(.burger-drawer.active) .burger-btn {
 }
 .site-footer-logo-link:hover { opacity: 1; }
 .site-footer-logo-img {
-  width: 90px;
+  width: 110px;
   height: auto;
   display: block;
-  filter: invert(1);
+  /* hero_logo.webp ships its own red wordmark + black tagline on a
+     transparent background — display as-is, no invert. Dark-mode
+     readability is handled by a cream halo drop-shadow below. */
 }
 
 /* Nav links */
@@ -2854,8 +2856,12 @@ html:not([data-theme="dark"]) .site-footer {
   background: var(--white);
   border-top: 1px solid rgba(0,0,0,0.08);
 }
-html:not([data-theme="dark"]) .site-footer-logo-img {
-  filter: none;
+html[data-theme="dark"] .site-footer-logo-img {
+  /* Cream halo so the black handwritten tagline in hero_logo.webp stays
+     readable on the dark footer bg; mirrors the hero treatment. */
+  filter:
+    drop-shadow(0 0 4px rgba(247, 245, 240, 0.95))
+    drop-shadow(0 0 10px rgba(247, 245, 240, 0.7));
 }
 html:not([data-theme="dark"]) .site-footer-link {
   color: rgba(0,0,0,0.4);
@@ -2900,7 +2906,7 @@ html:not([data-theme="dark"]) .site-footer-copy {
     padding: 56px 48px 36px;
     gap: 32px;
   }
-  .site-footer-logo-img { width: 100px; }
+  .site-footer-logo-img { width: 130px; }
   .site-footer-link { font-size: 11px; padding: 4px 14px; }
 
 }

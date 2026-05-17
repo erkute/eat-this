@@ -1,29 +1,46 @@
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { setRequestLocale, getMessages } from 'next-intl/server';
-import { Bungee_Inline, Caveat } from 'next/font/google';
+import { Bungee, Caveat, Knewave, Archivo_Black } from 'next/font/google';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
 
-// Display pair — Bar-Basta visual direction:
-// • Bungee Inline = the heavy block wordmark with the horizontal stripe
-//   through letter centres (matches BASTA LUNCH / BAR BASTA wordmarks).
-// • Caveat = handwritten cursive accent (matches the "Basta" + "Lunch"
-//   script overlays in the BASTA LUNCH menu). Used sparingly for
-//   personality — eyebrow + below-headline accent.
-// Both exposed as CSS vars; consumers reference via --font-display and
-// --font-script in globals.css.
-const bungeeInline = Bungee_Inline({
+// Display family — Bar-Basta + Eat-This-poster direction:
+// • Bungee (solid) = heavy block wordmark, fully filled. Section H2s.
+// • Caveat = handwritten cursive script accent. Sparingly used.
+// • Knewave = the brush-marker style that matches the "we tell you what
+//   to eat" tagline baked into the hero EAT THIS poster. Used for section
+//   eyebrows so the whole landing reads as one extended poster.
+// All three exposed as CSS vars; consumers reference --font-display,
+// --font-script, --font-marker in globals.css.
+const bungee = Bungee({
   weight: '400',
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-bungee-inline',
+  variable: '--font-bungee',
 });
 const caveat = Caveat({
   weight: ['400', '700'],
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-caveat',
+});
+const knewave = Knewave({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-knewave',
+});
+// Archivo Black — heavy grotesque used for Speisekarte-style headlines
+// ("Booster Packs.", "Berlin's Must Eats.") that mirror the bold orange
+// "Our Kitchen Section." treatment from the menu reference. Inter Black
+// felt too generic; Archivo Black has the wider apertures + heavier stroke
+// that read as a real menu masthead.
+const archivoBlack = Archivo_Black({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-archivo-black',
 });
 
 export function generateStaticParams() {
@@ -67,7 +84,7 @@ export default async function LocaleLayout({
 
   return (
     // suppressHydrationWarning: critical script mutates data-theme before hydration
-    <html lang={locale} data-scroll-behavior="smooth" className={`${bungeeInline.variable} ${caveat.variable}`} suppressHydrationWarning>
+    <html lang={locale} data-scroll-behavior="smooth" className={`${bungee.variable} ${caveat.variable} ${knewave.variable} ${archivoBlack.variable}`} suppressHydrationWarning>
       <head>
         {/* Safe: hardcoded constant, no user input */}
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}

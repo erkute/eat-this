@@ -1,185 +1,168 @@
+/* ──────────────────────────────────────────────────────────────────────
+ * MustEatsSection — editorial poster cards (Zasutsky reference)
+ * Each item is a white card sitting on a soft neutral page. Photo lives
+ * in a tinted inset frame; restaurant name is a heavy uppercase poster
+ * headline below, with a small uppercase meta footer (dish · district).
+ * Categories grouped by orange section title on a hairline rule.
+ * ────────────────────────────────────────────────────────────────────── */
+
 .section {
   position: relative;
-  background: var(--surface-canvas);
-  padding: 96px 24px 80px;
+  background: #e8e6e1;          /* light neutral page bg — makes white cards pop */
+  color: #0a0a0a;
+  padding: clamp(72px, 11vh, 128px) 20px clamp(80px, 12vh, 140px);
   overflow: hidden;
 }
+:global([data-theme="dark"]) .section { background: #e8e6e1; color: #0a0a0a; }
 
 .inner {
   position: relative;
-  max-width: 1100px;
+  max-width: 920px;
   margin: 0 auto;
-  text-align: center;
 }
 
-.head {
-  max-width: 680px;
-  margin: 0 auto 40px;
+/* ── Masthead ─────────────────────────────────────────────────────── */
+.masthead {
+  text-align: left;
+  margin: 0 0 clamp(40px, 6vh, 72px);
 }
-.sectionEyebrow {
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--brand-coral);
-  margin: 0 0 14px;
-}
-.h2 {
-  font-family: var(--font-display);
-  font-size: clamp(32px, 7vw, 56px);
+.wordmark {
+  margin: 0;
+  font-family: var(--font-poster);
   font-weight: 400;
-  margin: 0 0 14px;
-  letter-spacing: 0;
-  line-height: 0.95;
-  color: var(--text-primary, #1a1a1a);
-}
-.body {
-  font-size: 15px;
-  line-height: 1.65;
-  color: var(--text-secondary, #6d6963);
-  margin: 0;
-  max-width: 540px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Full-viewport bleed for the fan-cards row — breaks out of the 1100px
-   inner container so the cards span edge-to-edge. */
-.fanWrap {
-  margin: 24px 0 36px;
-  position: relative;
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
-}
-
-/* Vor-Ort callout — the key Must-Eat mechanic, visualised. The actual
-   locked-state card-back from the app sits on the left, the label +
-   body to the right. Stacks on mobile so the card hits before the text.
-   A soft yellow glow ring behind the card hints at the location-radius
-   reveal mechanic. */
-.tip {
-  position: relative;
-  margin: 64px auto 0;
-  max-width: 760px;
-  padding: 32px 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  text-align: center;
-}
-.tipVisual {
-  position: relative;
-  width: 140px;
-  aspect-ratio: 5 / 7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  font: inherit;
-  color: inherit;
-  -webkit-tap-highlight-color: transparent;
-}
-.tipVisual:focus-visible { outline: none; }
-.tipVisual:focus-visible .tipCardBack {
-  filter: drop-shadow(0 0 0 3px rgba(245, 197, 24, 0.55))
-          drop-shadow(0 22px 28px rgba(0, 0, 0, 0.32))
-          drop-shadow(0 6px 10px rgba(0, 0, 0, 0.22));
-}
-.tipCardBack {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  transform: rotate(-6deg);
-  filter: drop-shadow(0 22px 28px rgba(0, 0, 0, 0.32))
-          drop-shadow(0 6px 10px rgba(0, 0, 0, 0.22));
-  /* Idle "psst" wiggle - subtle 2-3 degree pulse every 3.6s. The
-     transform-origin sits at the bottom so the card rocks like a
-     hanging sign, not a centred spinner. */
-  transform-origin: 50% 80%;
-  animation: tipIdleWiggle 3.6s ease-in-out infinite;
-  will-change: transform;
-}
-@keyframes tipIdleWiggle {
-  0%, 88%, 100% { transform: rotate(-6deg); }
-  91%           { transform: rotate(-2deg); }
-  94%           { transform: rotate(-10deg); }
-  97%           { transform: rotate(-4deg); }
-}
-.tipVisual:hover .tipCardBack {
-  filter: drop-shadow(0 28px 34px rgba(0, 0, 0, 0.4))
-          drop-shadow(0 6px 10px rgba(0, 0, 0, 0.3));
-}
-/* Click-shake — sharper, snappier than the idle wiggle. Overrides the
-   idle animation while the .tipVisualShake class is on. */
-.tipVisualShake .tipCardBack {
-  animation: tipShake 600ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-}
-@keyframes tipShake {
-  0%, 100% { transform: rotate(-6deg) translate3d(0, 0, 0); }
-  10%      { transform: rotate(-12deg) translate3d(-4px, 0, 0); }
-  20%      { transform: rotate(2deg)   translate3d(6px, -2px, 0); }
-  35%      { transform: rotate(-14deg) translate3d(-6px, 1px, 0); }
-  50%      { transform: rotate(4deg)   translate3d(6px, -1px, 0); }
-  65%      { transform: rotate(-10deg) translate3d(-4px, 0, 0); }
-  80%      { transform: rotate(-2deg)  translate3d(2px, 0, 0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .tipCardBack { animation: none; }
-  .tipVisualShake .tipCardBack { animation: none; }
-}
-.tipText {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 460px;
-}
-.tipLabel {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
+  font-size: clamp(40px, 10vw, 96px);
+  line-height: 0.92;
   color: var(--brand-coral);
-}
-.tipBody {
-  margin: 0;
-  font-size: 19px;
-  line-height: 1.35;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--text-primary, #1a1a1a);
+  letter-spacing: -0.015em;
   text-wrap: balance;
 }
 
-:global([data-theme="dark"]) .sectionEyebrow,
-:global([data-theme="dark"]) .tipLabel { color: #F5C518; }
-:global([data-theme="dark"]) .tipBody { color: #fff; }
+/* ── Section header (category) ────────────────────────────────────── */
+.menuBlock {
+  margin: 0 0 clamp(40px, 7vh, 64px);
+}
+.menuBlock:last-of-type { margin-bottom: 0; }
 
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 0 22px;
+}
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brand-coral);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sectionRule {
+  flex: 1;
+  height: 1.5px;
+  background: var(--brand-coral);
+  opacity: 0.4;
+}
+
+/* ── Grid of poster cards ─────────────────────────────────────────── */
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px 14px;
+}
+
+.card {
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  /* Subtle border so the white card edge is visible against the neutral
+     page bg; tiny shadow lifts it just enough for poster feel. */
+  border: 1px solid rgba(10, 10, 10, 0.06);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  /* Cheeky per-card tilt + vertical stagger set from JS via --rot / --drop
+     so the row reads as hand-laid posters, not a uniform grid. */
+  transform: rotate(var(--rot, 0deg)) translateY(var(--drop, 0px));
+  transform-origin: center center;
+  transition: transform 320ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              box-shadow 320ms ease;
+}
+.card:hover {
+  transform: rotate(calc(var(--rot, 0deg) * 0.3))
+             translateY(calc(var(--drop, 0px) - 4px));
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.14);
+  z-index: 1;
+}
+
+/* Photo frame — inset rectangle with cream paper background. The food
+   photos already have a near-white photo BG so they blend into the
+   cream inset; the cream tint keeps the food from disappearing on the
+   white outer card. */
+.photoFrame {
+  margin: 14px 14px 0;
+  background: #f0ece3;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* mix-blend-multiply smooths the photo's near-white background into
+     the cream inset so there's no harsh rectangular edge around food. */
+  mix-blend-mode: multiply;
+}
+
+/* ── Card body — restaurant headline + meta footer ────────────────── */
+.cardBody {
+  padding: 18px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.restaurantName {
+  margin: 0;
+  font-family: var(--font-poster);
+  font-weight: 400;
+  font-size: clamp(20px, 4.8vw, 28px);
+  line-height: 0.98;
+  letter-spacing: -0.01em;
+  color: #0a0a0a;
+  text-wrap: balance;
+  text-transform: none;
+}
+.meta {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--font);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(10, 10, 10, 0.55);
+}
+.metaDish     { color: rgba(10, 10, 10, 0.78); }
+.metaDistrict { opacity: 0.7; }
+
+/* ── Desktop ──────────────────────────────────────────────────────── */
 @media (min-width: 768px) {
-  .section { padding: 140px 48px 96px; }
-  .sectionEyebrow { font-size: 13px; letter-spacing: 0.22em; margin-bottom: 18px; }
-  .h2 { font-size: clamp(48px, 7vw, 80px); letter-spacing: 0; }
-  .body { font-size: 17px; line-height: 1.7; }
-  .fanWrap { margin-top: 40px; margin-bottom: 56px; }
-  .tip {
-    margin-top: 88px;
-    max-width: 880px;
-    padding: 48px 40px;
-    flex-direction: row;
-    align-items: center;
-    gap: 48px;
-    text-align: left;
-  }
-  .tipVisual { width: 200px; }
-  .tipText { gap: 16px; max-width: none; }
-  .tipLabel { font-size: 13px; letter-spacing: 0.28em; }
-  .tipBody { font-size: 24px; line-height: 1.3; }
+  .section { padding: clamp(112px, 14vh, 168px) 48px clamp(120px, 14vh, 176px); }
+  .inner { max-width: 1100px; }
+  .grid { grid-template-columns: repeat(3, 1fr); gap: 28px 20px; }
+  .sectionHeader { padding-bottom: 26px; }
+  .sectionTitle { font-size: 14px; }
+  .photoFrame { margin: 18px 18px 0; }
+  .cardBody { padding: 22px 20px 24px; }
+  .restaurantName { font-size: clamp(24px, 2.4vw, 32px); }
+  .meta { font-size: 11.5px; }
 }

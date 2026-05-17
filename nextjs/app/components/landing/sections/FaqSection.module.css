@@ -3,8 +3,10 @@
 
 .section {
   background: var(--surface-canvas);
+  color: #0a0a0a;
   padding: 80px 24px 56px;
 }
+:global([data-theme="dark"]) .section { background: #0a0a0a; color: #f7f5f0; }
 .inner {
   max-width: 760px;
   margin: 0 auto;
@@ -14,14 +16,18 @@
   text-align: center;
   margin: 0 auto 48px;
 }
+/* Marker eyebrow + Bungee H2 coral — same vocabulary as the hero
+   tagline/PacksSection masthead so the page reads as one piece. */
 .eyebrow {
   display: inline-block;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--brand-coral);
-  margin-bottom: 14px;
+  font-family: var(--font-marker);
+  font-size: clamp(18px, 3.4vw, 26px);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--brand-navy);
+  margin-bottom: 10px;
+  transform: rotate(-2deg);
+  text-transform: lowercase;
 }
 .h2 {
   font-family: var(--font-display);
@@ -29,7 +35,8 @@
   font-weight: 400;
   letter-spacing: 0;
   line-height: 0.95;
-  color: var(--text-primary, #1a1a1a);
+  color: var(--brand-coral);
+  text-transform: uppercase;
   margin: 0;
 }
 
@@ -39,10 +46,12 @@
   padding: 0;
 }
 .item {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid rgba(10, 10, 10, 0.10);
   transition: background 200ms ease;
 }
-.item:first-child { border-top: 1px solid rgba(0, 0, 0, 0.08); }
+.item:first-child { border-top: 1px solid rgba(10, 10, 10, 0.10); }
+:global([data-theme="dark"]) .item { border-bottom-color: rgba(247, 245, 240, 0.12); }
+:global([data-theme="dark"]) .item:first-child { border-top-color: rgba(247, 245, 240, 0.12); }
 
 .q {
   width: 100%;
@@ -58,10 +67,11 @@
   font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.015em;
-  color: var(--text-primary, #1a1a1a);
+  color: #0a0a0a;
   text-align: left;
 }
 .q:hover { color: var(--brand-coral); }
+:global([data-theme="dark"]) .q { color: #f7f5f0; }
 
 .icon {
   flex-shrink: 0;
@@ -92,9 +102,10 @@
   padding: 0 36px 0 4px;
   font-size: 15px;
   line-height: 1.65;
-  color: var(--text-secondary, #6d6963);
+  color: rgba(10, 10, 10, 0.66);
   animation: faqReveal 280ms ease-out;
 }
+:global([data-theme="dark"]) .a { color: rgba(247, 245, 240, 0.72); }
 @keyframes faqReveal {
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }

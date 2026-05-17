@@ -23,14 +23,16 @@
   --brand-navy:       #1F3A5F;
 
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-  /* Display pair — Bar-Basta visual direction. Bungee Inline has the
-     horizontal stripe through letter centres that matches the BASTA LUNCH
-     and BAR BASTA wordmarks. Caveat is the handwritten script accent
-     (matches the "Basta" + "Lunch" cursive overlays on the menu). Both
-     loaded via next/font in [locale]/layout.tsx; consumers reference these
-     vars. Inter stays the body + eyebrow workhorse. */
-  --font-display: var(--font-bungee-inline, 'Bungee Inline'), 'Arial Black', 'Helvetica Neue', sans-serif;
+  /* Display pair — Bar-Basta visual direction. Bungee (solid, fully filled
+     letters) matches the BAR BASTA wordmark exactly. Caveat is the
+     handwritten script accent (matches the cursive overlays on the menu).
+     Both loaded via next/font in [locale]/layout.tsx; consumers reference
+     these vars. Inter stays the body + eyebrow workhorse. */
+  --font-display: var(--font-bungee, 'Bungee'), 'Arial Black', 'Helvetica Neue', sans-serif;
   --font-script:  var(--font-caveat, 'Caveat'), 'Bradley Hand', 'Lucida Handwriting', cursive;
+  --font-marker:  var(--font-knewave, 'Knewave'), 'Bradley Hand', 'Comic Sans MS', cursive;
+  /* Speisekarte poster headline (matches "Our Kitchen Section." reference) */
+  --font-poster:  var(--font-archivo-black, 'Archivo Black'), 'Arial Black', 'Helvetica Neue', sans-serif;
   --radius: 2px;
 
   /* Semantic surface/text tokens — used by the map UI and newer React components.

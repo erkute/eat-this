@@ -1,136 +1,144 @@
-/* BASTA-LUNCH-style Hero — script + block + script overlay composition
-   that mirrors the wordmark on the Basta menu page. Coral block headline
-   sits between a coral "Eat This" cursive eyebrow above and a navy
-   "berlin, live." cursive accent below. The CTA pill drops straight onto
-   the trial map (open access, no signup wall). Cream canvas, generous
-   white-space; the type carries the whole composition. */
+/* Hero — Berlin Mitte map as canvas, EAT THIS asset (red wordmark + black
+   marker tagline, both baked into the PNG) sits on top, comic-sticker CTA
+   below. Light map default, dark map for [data-theme="dark"]. Whole
+   composition locked to 100svh. */
 
 .hero {
-  min-height: 100svh;
-  padding: clamp(72px, 12vh, 128px) 24px clamp(56px, 9vh, 112px);
-  background: var(--surface-canvas);
+  position: relative;
+  height: 100svh;
+  padding: clamp(0px, 0.5vh, 12px) 20px clamp(24px, 3.5vh, 56px);
+  background: #eef1f3;
+  color: #0a0a0a;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   text-align: center;
-  gap: clamp(14px, 2.2vh, 22px);
+  gap: clamp(8px, 1vh, 14px);
   overflow: hidden;
 }
-
-/* "Eat This" handwritten ribbon above the block headline. Tilted just
-   slightly so it reads as a stamp, not a label. */
-.scriptEyebrow {
-  margin: 0 0 4px;
-  font-family: var(--font-script);
-  font-size: clamp(34px, 7vw, 64px);
-  font-weight: 400;
-  line-height: 0.9;
-  color: var(--brand-coral);
-  transform: rotate(-3deg);
-  letter-spacing: 0.005em;
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/pics/hero_map_bg.webp') center / cover no-repeat;
+  z-index: 0;
+  pointer-events: none;
 }
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, rgba(247,245,240,0.55) 0%, rgba(247,245,240,0.25) 60%, rgba(247,245,240,0.15) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+.hero > * { position: relative; z-index: 2; }
 
-/* The block headline — Bungee Inline, the horizontal-stripe wordmark
-   typeface. Both lines solid coral, all caps; the second line nudges
-   left slightly so the two-line stack feels hand-set, not centred-grid. */
-.headline {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(40px, 10.5vw, 124px);
-  line-height: 1.0;
-  letter-spacing: 0;
-  color: var(--brand-coral);
-  text-wrap: balance;
-  text-transform: uppercase;
+.logoWrap {
+  width: min(96vw, 760px);
+  max-height: 74svh;
   display: flex;
-  flex-direction: column;
-  gap: 0.08em;
+  justify-content: center;
+  align-items: flex-start;
 }
-.line { display: block; }
-
-/* "berlin, live." handwritten accent below the headline. Navy is the
-   second brand color on the Basta menu (the "Lunch" overlay). Counter-
-   tilts the eyebrow rotation so the page balances. */
-.scriptAccent {
-  margin: 6px 0 0;
-  font-family: var(--font-script);
-  font-size: clamp(28px, 5.5vw, 48px);
-  font-weight: 700;
-  line-height: 0.95;
-  color: var(--brand-navy);
-  transform: rotate(2deg);
-  letter-spacing: 0.01em;
+.logo {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.22));
 }
 
-/* The whole point — the Map CTA. Big coral pill, prominent shadow, arrow
-   that nudges right on hover. Sits beneath the typography stack with a
-   confident gap; this is the only action on the page. */
 .cta {
-  margin-top: clamp(24px, 4vh, 48px);
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  padding: 18px 32px;
-  background: var(--brand-coral);
+  padding: clamp(14px, 2.2vh, 22px) clamp(28px, 5vw, 40px);
+  background: #FD3A39;
   color: #fff;
-  border: 0;
+  border: 3px solid #0a0a0a;
   border-radius: 999px;
   font-family: var(--font);
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.005em;
+  font-size: clamp(16px, 4.4vw, 19px);
+  font-weight: 900;
+  letter-spacing: 0.01em;
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 0 18px 36px -12px rgba(242, 96, 77, 0.6),
-              0 4px 10px -2px rgba(0, 0, 0, 0.12);
-  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
-              box-shadow 180ms ease,
-              background 180ms ease;
+  box-shadow: 6px 6px 0 0 #0a0a0a;
+  margin-top: clamp(48px, 8vh, 96px);
+  transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 160ms ease,
+              background 160ms ease;
 }
 .cta:hover {
-  transform: translateY(-2px);
-  background: #ED5040;
-  box-shadow: 0 24px 44px -12px rgba(242, 96, 77, 0.7),
-              0 6px 12px -2px rgba(0, 0, 0, 0.14);
+  transform: translate(-2px, -2px);
+  background: #E62A28;
+  box-shadow: 8px 8px 0 0 #0a0a0a;
 }
-.cta:hover svg { transform: translateX(4px); }
-.cta:active { transform: translateY(0); }
-.cta svg { transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1); }
-
-/* Friction-killer hint under the CTA — flags that no signup is required,
-   reduces the click-through hesitation. Small navy hand-set. */
-.ctaHint {
-  margin: 14px 0 0;
-  font-family: var(--font-script);
-  font-size: 18px;
-  font-weight: 400;
-  line-height: 1.2;
-  color: var(--brand-navy);
-  opacity: 0.85;
-  letter-spacing: 0.01em;
+.cta:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 0 #0a0a0a;
 }
+.cta:hover svg { transform: translateX(3px); }
+.cta svg { transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1); }
 
 @media (min-width: 768px) {
   .hero {
-    padding: clamp(96px, 14vh, 160px) 48px clamp(72px, 11vh, 128px);
-    gap: clamp(18px, 2.6vh, 28px);
+    padding: clamp(24px, 3vh, 56px) 48px clamp(24px, 3.5vh, 56px);
+    gap: clamp(10px, 1.4vh, 20px);
+  }
+  .logoWrap {
+    width: min(64vw, 720px);
+    max-height: 64svh;
+    /* No negative margin on desktop — let padding-top breathe so logo
+       doesn't slide behind navbar or feel crashed-up. */
   }
   .cta {
-    padding: 20px 36px;
-    font-size: 18px;
+    padding: clamp(16px, 2.2vh, 22px) clamp(32px, 3.4vw, 44px);
+    font-size: clamp(17px, 1.3vw, 20px);
+    border-width: 3.5px;
+    box-shadow: 7px 7px 0 0 #0a0a0a;
+    margin-top: clamp(36px, 5vh, 72px);
   }
-  .ctaHint {
-    font-size: 22px;
-  }
+  .cta:hover  { box-shadow: 9px 9px 0 0 #0a0a0a; }
+  .cta:active { box-shadow: 3px 3px 0 0 #0a0a0a; }
 }
 
-/* Dark mode: deepen the canvas; coral + navy stay vibrant on ink. */
+/* Dark mode — swap to the dark Carto Berlin Mitte map; flip overlay
+   gradient to ink so light wordmark stays readable; CTA border + shadow
+   flip to cream for contrast. */
 :global([data-theme="dark"]) .hero {
   background: #0a0a0a;
+  color: #f7f5f0;
 }
-:global([data-theme="dark"]) .scriptAccent,
-:global([data-theme="dark"]) .ctaHint {
-  color: #8FB3DD;
+:global([data-theme="dark"]) .hero::before {
+  background-image: url('/pics/hero_map_bg_dark.webp');
+}
+:global([data-theme="dark"]) .hero::after {
+  background:
+    radial-gradient(ellipse at center, rgba(0,0,0,0.20) 0%, rgba(0,0,0,0.50) 65%, rgba(0,0,0,0.78) 100%);
+}
+/* Dark-mode readability: the EAT THIS asset bakes a black handwritten
+   tagline next to the red wordmark. On the dark map that black disappears.
+   Stack tight cream drop-shadows to halo every opaque pixel (red stays red,
+   black gets a readable cream outline). */
+:global([data-theme="dark"]) .logo {
+  filter:
+    drop-shadow(0 0 6px rgba(247, 245, 240, 0.95))
+    drop-shadow(0 0 14px rgba(247, 245, 240, 0.75))
+    drop-shadow(0 0 28px rgba(247, 245, 240, 0.45))
+    drop-shadow(0 14px 28px rgba(0, 0, 0, 0.55));
+}
+:global([data-theme="dark"]) .cta {
+  border-color: #f7f5f0;
+  box-shadow: 6px 6px 0 0 #f7f5f0;
+}
+:global([data-theme="dark"]) .cta:hover  { box-shadow: 8px 8px 0 0 #f7f5f0; }
+:global([data-theme="dark"]) .cta:active { box-shadow: 2px 2px 0 0 #f7f5f0; }
+@media (min-width: 768px) {
+  :global([data-theme="dark"]) .cta { box-shadow: 7px 7px 0 0 #f7f5f0; }
+  :global([data-theme="dark"]) .cta:hover  { box-shadow: 9px 9px 0 0 #f7f5f0; }
+  :global([data-theme="dark"]) .cta:active { box-shadow: 3px 3px 0 0 #f7f5f0; }
 }

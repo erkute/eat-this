@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { setRequestLocale, getMessages } from 'next-intl/server';
-import { Bungee, Caveat, Knewave, Archivo_Black } from 'next/font/google';
+import { Bungee, Caveat, Knewave, Archivo_Black, Ranchers, Slackey } from 'next/font/google';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
 
@@ -41,6 +41,24 @@ const archivoBlack = Archivo_Black({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-archivo-black',
+});
+// Ranchers — chunky rounded-slab condensed display used as the PacksSection
+// masthead, pack names, block-header and stat-numbers. Western-saloon-sign
+// energy that pairs with the EAT THIS roundel without competing.
+const ranchers = Ranchers({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-ranchers',
+});
+// Slackey — wonky cartoon display used exclusively for buy-CTAs in the
+// PacksSection (price labels + "Gratis"). Brings playful sticker energy
+// to the action chrome.
+const slackey = Slackey({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-slackey',
 });
 
 export function generateStaticParams() {
@@ -84,7 +102,7 @@ export default async function LocaleLayout({
 
   return (
     // suppressHydrationWarning: critical script mutates data-theme before hydration
-    <html lang={locale} data-scroll-behavior="smooth" className={`${bungee.variable} ${caveat.variable} ${knewave.variable} ${archivoBlack.variable}`} suppressHydrationWarning>
+    <html lang={locale} data-scroll-behavior="smooth" className={`${bungee.variable} ${caveat.variable} ${knewave.variable} ${archivoBlack.variable} ${ranchers.variable} ${slackey.variable}`} suppressHydrationWarning>
       <head>
         {/* Safe: hardcoded constant, no user input */}
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}

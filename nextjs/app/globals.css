@@ -35,6 +35,10 @@
   --font-marker:  var(--font-knewave, 'Knewave'), 'Bradley Hand', 'Comic Sans MS', cursive;
   /* Speisekarte poster headline (matches "Our Kitchen Section." reference) */
   --font-poster:  var(--font-archivo-black, 'Archivo Black'), 'Arial Black', 'Helvetica Neue', sans-serif;
+  /* Ranchers — Booster Pack section display headline + pack names + stats. */
+  --font-ranchers: var(--font-ranchers, 'Ranchers'), 'Impact', 'Arial Narrow', sans-serif;
+  /* Slackey — buy CTA wonky-cartoon sticker font (price labels + "Gratis"). */
+  --font-slackey:  var(--font-slackey, 'Slackey'), 'Comic Sans MS', cursive;
   --radius: 2px;
 
   /* Semantic surface/text tokens — used by the map UI and newer React components.

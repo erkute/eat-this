@@ -1,6 +1,6 @@
 'use client'
 
-import { CSSProperties, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useLoginModal } from '@/lib/auth'
 import { getPack } from '@/lib/stripe-catalog'
@@ -8,13 +8,15 @@ import styles from './PacksSection.module.css'
 
 interface Props {
   locale: 'de' | 'en'
-  /** Live restaurant total — interpolated into bundle description so the
-   *  "{count}+ Berliner Spots" line stays accurate as the catalogue grows. */
+  /** Live restaurant total — interpolated into All-Berlin description so
+   *  the "{count}+ Berliner Spots" line stays accurate as the catalogue
+   *  grows. */
   restaurantCount: number
 }
 
-// 9 Category Packs — vertical menu listing. `getPack(packId)` is the single
-// source of truth (mirrors Profile-Booster + Stripe Hosted Checkout body).
+// 9 Category Packs — vertical menu listing. `getPack(packId)` is the
+// single source of truth (mirrors Profile-Booster + Stripe Hosted Checkout
+// body). Listed in the user-facing rhythm: caffeine → meal → indulgence.
 const MENU_PACKS: { slug: string; packId: string; nameDe: string; nameEn: string }[] = [
   { slug: 'coffee',     packId: 'category-coffee',     nameDe: 'Coffee Pack',      nameEn: 'Coffee Pack' },
   { slug: 'breakfast',  packId: 'category-breakfast',  nameDe: 'Breakfast Pack',   nameEn: 'Breakfast Pack' },
@@ -27,39 +29,26 @@ const MENU_PACKS: { slug: string; packId: string; nameDe: string; nameEn: string
   { slug: 'sweets',     packId: 'category-sweets',     nameDe: 'Sweets Pack',      nameEn: 'Sweets Pack' },
 ]
 
-// All-Berlin presentation — 9 packs arranged as a tidy 3-row composition
-// (3-3-3) with gentle rotations so each pack reads clearly without the
-// chaos of full random scatter. Rows offset horizontally for natural
-// "tossed but composed" feel, like a curator laying cards out. Bounds
-// tuned for mobile (~318-px hero card at 360-px viewports): pack 96 px
-// wide, every pack fully visible — no clipping, no overlap collisions.
-type FanPack = { slug: string; rot: number; dx: number; dy: number; z: number }
+// All-Berlin 9-pack fan — 3×3 grid centred in the hero card. Mirrored
+// rotations (left tilts -, right tilts +, centre column straight); top and
+// bottom rows slightly rotated more than mid row. Positions tuned so the
+// outer packs stay inside the 1:1 fan square (no overflow at the All-Berlin
+// card border).
+type FanPack = { slug: string; tx: number; ty: number; rot: number; z: number }
 const ALL_PACKS_FAN: FanPack[] = [
-  // Symmetric 3×3 with mirrored rotations (left tilts -, right tilts +,
-  // centre column straight). Bottom row sits forward (highest z), top
-  // row sits back. Tight spacing, ordered feel — not a chaotic scatter.
-  { slug: 'breakfast',  rot:  -5, dx: -72, dy: -75, z: 1 },
-  { slug: 'sweets',     rot:   0, dx:   0, dy: -78, z: 2 },
-  { slug: 'pizza',      rot:   5, dx:  72, dy: -75, z: 3 },
-  { slug: 'fastfood',   rot:  -3, dx: -76, dy:   0, z: 4 },
-  { slug: 'lunch',      rot:   0, dx:   0, dy:   0, z: 5 },
-  { slug: 'coffee',     rot:   3, dx:  76, dy:   0, z: 6 },
-  { slug: 'drinks',     rot:  -5, dx: -72, dy:  75, z: 7 },
-  { slug: 'dinner',     rot:   0, dx:   0, dy:  78, z: 9 },
-  { slug: 'finedining', rot:   5, dx:  72, dy:  75, z: 8 },
+  { slug: 'breakfast',  tx: -97, ty: -55, rot: -7, z: 1 },
+  { slug: 'sweets',     tx:   0, ty: -58, rot:  0, z: 2 },
+  { slug: 'pizza',      tx:  97, ty: -55, rot:  7, z: 3 },
+  { slug: 'fastfood',   tx: -100, ty:  0, rot: -4, z: 4 },
+  { slug: 'lunch',      tx:   0, ty:  0, rot:  0, z: 5 },
+  { slug: 'coffee',     tx: 100, ty:  0, rot:  4, z: 6 },
+  { slug: 'drinks',     tx: -97, ty: 55, rot: -7, z: 7 },
+  { slug: 'dinner',     tx:   0, ty: 58, rot:  0, z: 9 },
+  { slug: 'finedining', tx:  97, ty: 55, rot:  7, z: 8 },
 ]
 
 export default function PacksSection({ locale, restaurantCount }: Props) {
   const { open: openLogin } = useLoginModal()
-
-  // Two-step purchase for the 9 booster packs: first tap zooms the row
-  // (bigger thumb + reveals a Buy CTA), second tap on the CTA fires
-  // Stripe checkout. Tap another pack to swap, tap the same row again
-  // to collapse. Starter (login) and All Berlin (direct checkout) keep
-  // their single-tap behaviour — they're not in this selection model.
-  const [zoomedPack, setZoomedPack] = useState<string | null>(null)
-  const toggleZoom = (packId: string) =>
-    setZoomedPack(prev => (prev === packId ? null : packId))
 
   // Inline toast for checkout failures (replaces alert(): less jarring,
   // matches the section's editorial chrome). Auto-dismisses after 6 s.
@@ -86,8 +75,6 @@ export default function PacksSection({ locale, restaurantCount }: Props) {
         headers: { 'content-type': 'application/json' },
         body:    JSON.stringify({ packId, locale }),
       })
-      // Read as text first so a non-JSON error response (HTML 5xx page,
-      // empty body, etc.) still surfaces in the console.
       const raw = await res.text()
       let data: { url?: string; error?: string; message?: string } = {}
       try { data = raw ? JSON.parse(raw) : {} } catch { /* leave raw */ }
@@ -108,211 +95,183 @@ export default function PacksSection({ locale, restaurantCount }: Props) {
     }
   }
 
-  const mastheadTitle    = locale === 'de'
-    ? 'Unsere Booster Packs.'
-    : 'Our Booster Packs.'
-
-  const combosHeader     = locale === 'de' ? 'Combos' : 'Combos'
-  const packsHeader      = locale === 'de' ? 'Booster Packs' : 'Booster Packs'
-
-  const starterName      = locale === 'de' ? 'Starter Pack'  : 'Starter Pack'
-  const starterPrice     = locale === 'de' ? 'Kostenlos'     : 'Free'
-  const starterTagline   = locale === 'de'
-    ? '20 handverlesene Berliner Spots. Direkt aus dem Welcome Pack.'
-    : '20 hand-picked Berlin spots. Straight from the Welcome Pack.'
-
-  const allBerlinName    = 'All Berlin'
-  const allBerlinPrice   = '20 €'
-  const allBerlinTagline = locale === 'de'
-    ? `${restaurantCount}+ Berliner Spots. Alle neun Kategorien freigeschaltet. Jeder neue Pack inklusive. Einmal zahlen, kein Abo.`
-    : `${restaurantCount}+ Berlin spots. All nine categories unlocked. Every new pack included. Pay once, no subscription.`
+  const t = locale === 'de'
+    ? {
+        eyebrow:        'Booster',
+        mastheadL1:     'Pick',
+        mastheadL2:     'a Pack',
+        starterName:    'Starter Pack',
+        starterDesc:    '20 handverlesene Berliner Spots.',
+        starterLabel:   'Anmelden →',
+        starterPrice:   'Gratis',
+        abEyebrow:      'Die ganze Karte —',
+        abName:         'All Berlin',
+        abSpectrum:     'Neun Kategorien. Plus alles was kommt.',
+        abDesc:         `${restaurantCount}+ Berliner Spots. Alle neun Kategorien freigeschaltet. Jeder neue Pack inklusive. Einmal zahlen, kein Abo.`,
+        abLabel:        'Hol dir All Berlin',
+        statSpots:      'Spots',
+        statCategories: 'Kategorien',
+        statUpdates:    'Updates',
+        boosterHeader:  'Boosterpacks',
+        buyLabel:       'Hol dir →',
+      }
+    : {
+        eyebrow:        'Booster',
+        mastheadL1:     'Pick',
+        mastheadL2:     'a Pack',
+        starterName:    'Starter Pack',
+        starterDesc:    '20 hand-picked Berlin spots.',
+        starterLabel:   'Sign up →',
+        starterPrice:   'Free',
+        abEyebrow:      'The whole map —',
+        abName:         'All Berlin',
+        abSpectrum:     'Nine categories. Plus everything new.',
+        abDesc:         `${restaurantCount}+ Berlin spots. All nine categories unlocked. Every new pack included. Pay once, no subscription.`,
+        abLabel:        'Get All Berlin',
+        statSpots:      'Spots',
+        statCategories: 'Categories',
+        statUpdates:    'Updates',
+        boosterHeader:  'Boosterpacks',
+        buyLabel:       'Get it →',
+      }
 
   return (
     <section className={styles.section} aria-labelledby="packs-menu-header">
       <div className={styles.inner}>
 
-        {/* Menu masthead — single heavy poster headline (Archivo Black,
-            coral, period at end). Mirrors the "Our Kitchen Section."
-            treatment from the menu reference: one bold sentence, no
-            eyebrow, no subtitle. */}
+        {/* Section masthead — Ranchers display, eyebrow above. */}
         <header className={styles.masthead}>
+          <p className={styles.eyebrow}>{t.eyebrow}</p>
           <h2 id="packs-menu-header" className={styles.wordmark}>
-            {mastheadTitle}
+            {t.mastheadL1}<br />{t.mastheadL2}
           </h2>
         </header>
 
-        {/* ── Combos · Starter (free) → All Berlin (20 €) ────────────── */}
-        <div className={styles.menuBlock}>
-          <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>{combosHeader}</h3>
+        {/* Starter Pack — single row, no "Combos" label, direct Login-CTA. */}
+        <div className={styles.starterRow}>
+          <div className={styles.thumb} aria-hidden="true">
+            <Image
+              src="/pics/booster/booster.webp"
+              alt=""
+              width={500}
+              height={750}
+              className={styles.thumbImg}
+              sizes="(max-width: 700px) 110px, 160px"
+            />
           </div>
+          <div className={styles.body}>
+            <h3 className={styles.packName}>{t.starterName}</h3>
+            <p className={styles.packDesc}>{t.starterDesc}</p>
+          </div>
+          <button
+            type="button"
+            className={`${styles.buy} ${styles.buyFree}`}
+            onClick={openLogin}
+            aria-label={`${t.starterName} — ${t.starterPrice}`}
+          >
+            <span className={styles.buyLabel}>{t.starterLabel}</span>
+            <span className={styles.buyPrice}>{t.starterPrice}</span>
+          </button>
+        </div>
 
-          <ul className={styles.menuList}>
-            <li>
+        {/* All Berlin Hero — Cream card with 3D layered shadow, stats grid,
+            9-pack fan composition right, Slackey CTA. Mobile stacks
+            text-then-fan. */}
+        <div className={styles.allBerlin}>
+          <div className={styles.abContent}>
+            <div className={styles.abText}>
+              <p className={styles.abEyebrow}>{t.abEyebrow}</p>
+              <h3 className={styles.abName}>{t.abName}</h3>
+              <p className={styles.abDesc}>{t.abDesc}</p>
+
+              <div className={styles.stats} role="list">
+                <div className={styles.stat} role="listitem">
+                  <span className={styles.statNum}>{restaurantCount}</span>
+                  <span className={styles.statLabel}>{t.statSpots}</span>
+                </div>
+                <div className={styles.stat} role="listitem">
+                  <span className={styles.statNum}>9</span>
+                  <span className={styles.statLabel}>{t.statCategories}</span>
+                </div>
+                <div className={styles.stat} role="listitem">
+                  <span className={styles.statNum}>∞</span>
+                  <span className={styles.statLabel}>{t.statUpdates}</span>
+                </div>
+              </div>
+
               <button
                 type="button"
-                className={styles.menuItem}
-                onClick={openLogin}
-                aria-label={`${starterName} — ${starterPrice}`}
+                className={styles.abCta}
+                onClick={() => handleCheckout('all-berlin')}
+                aria-label={`${t.abName} — 20 €`}
               >
-                <span className={styles.thumb} aria-hidden="true">
+                <span>{t.abLabel}</span>
+                <span className={styles.abCtaPrice}>20&nbsp;€</span>
+              </button>
+            </div>
+
+            <div className={styles.fan} aria-hidden="true">
+              {ALL_PACKS_FAN.map(({ slug, tx, ty, rot, z }) => (
+                <div
+                  key={slug}
+                  className={styles.fanPack}
+                  style={{
+                    ['--tx' as string]: `${tx}%`,
+                    ['--ty' as string]: `${ty}%`,
+                    ['--rot' as string]: `${rot}deg`,
+                    zIndex: z,
+                  }}
+                >
                   <Image
-                    src="/pics/booster/booster.webp"
+                    src={`/pics/booster/booster_${slug}.webp`}
                     alt=""
                     width={500}
                     height={750}
-                    className={styles.thumbImg}
-                    sizes="(max-width: 768px) 96px, 128px"
+                    sizes="(max-width: 700px) 100px, 132px"
                   />
-                </span>
-                <span className={styles.itemBody}>
-                  <span className={styles.nameRow}>
-                    <span className={styles.itemName}>{starterName}</span>
-                    <span className={styles.leader} aria-hidden="true" />
-                    <span className={`${styles.itemPrice} ${styles.priceFree}`}>{starterPrice}</span>
-                  </span>
-                  <span className={styles.itemSpectrum}>
-                    {locale === 'de' ? '20 Spots. Welcome Pack.' : '20 spots. Welcome Pack.'}
-                  </span>
-                  <span className={styles.itemDesc}>{starterTagline}</span>
-                </span>
-              </button>
-            </li>
-
-            {/* All Berlin — featured hero card. 9-pack tossed-deck scatter
-                + body + explicit buy CTA. Wrapper is <div> (not <button>)
-                so we can nest the real <button> for Stripe checkout. The
-                CTA fires /api/stripe/checkout in guest mode — no login
-                required, Stripe collects the email itself. */}
-            <li>
-              <div className={`${styles.menuItem} ${styles.menuItemHero}`}>
-                <div className={styles.heroFan} aria-hidden="true">
-                  {ALL_PACKS_FAN.map(({ slug, rot, dx, dy, z }) => (
-                    <Image
-                      key={slug}
-                      src={`/pics/booster/booster_${slug}.webp`}
-                      alt=""
-                      width={500}
-                      height={750}
-                      className={styles.heroFanPack}
-                      sizes="(max-width: 768px) 110px, 160px"
-                      style={{
-                        ['--rot' as string]: `${rot}deg`,
-                        ['--dx'  as string]: `${dx}px`,
-                        ['--dy'  as string]: `${dy}px`,
-                        zIndex: z,
-                      } as CSSProperties}
-                    />
-                  ))}
                 </div>
-                <div className={styles.heroBody}>
-                  <span className={styles.heroBadge}>{locale === 'de' ? 'Alles drin' : 'Everything in'}</span>
-                  <span className={`${styles.itemName} ${styles.heroName}`}>{allBerlinName}</span>
-                  <span className={styles.itemSpectrum}>
-                    {locale === 'de' ? 'Neun Kategorien. Alles freigeschaltet.' : 'Nine categories. Fully unlocked.'}
-                  </span>
-                  <span className={styles.itemDesc}>{allBerlinTagline}</span>
-                  <button
-                    type="button"
-                    className={`${styles.buyCta} ${styles.heroBuyCta}`}
-                    onClick={() => handleCheckout('all-berlin')}
-                    aria-label={`${allBerlinName} — ${allBerlinPrice}`}
-                  >
-                    {locale === 'de' ? 'Hol dir All Berlin' : 'Get All Berlin'}
-                    <span aria-hidden="true" className={styles.buyPrice}>{allBerlinPrice}</span>
-                    <span aria-hidden="true" className={styles.buyArrow}>→</span>
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* ── Booster Packs · 9 single-category drops ─────────────────── */}
+        {/* 9 Boosterpacks — one row per category, direct buy CTA right. */}
         <div className={styles.menuBlock}>
-          <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>{packsHeader}</h3>
+          <div className={styles.blockHeader}>
+            <h3 className={styles.blockTitle}>{t.boosterHeader}</h3>
+            <span className={styles.blockCount}>09</span>
           </div>
 
           <ul className={styles.menuList}>
             {MENU_PACKS.map((p) => {
               const pack = getPack(p.packId)
               const name = locale === 'de' ? p.nameDe : p.nameEn
-              const isZoomed = zoomedPack === p.packId
-              const ariaLabel = `${name} — 2,99 €`
-
-              // Shared thumb + body block — identical in collapsed and
-              // zoomed states. Extracted so the only real difference
-              // between the two branches (wrapper element + buy CTA)
-              // stays visible at a glance.
-              const packContent = (
-                <>
-                  <span className={styles.thumb} aria-hidden="true">
+              return (
+                <li key={p.slug} className={styles.pack}>
+                  <div className={styles.thumb} aria-hidden="true">
                     <Image
                       src={`/pics/booster/booster_${p.slug}.webp`}
                       alt=""
                       width={500}
                       height={750}
                       className={styles.thumbImg}
-                      sizes="(max-width: 768px) 96px, 128px"
+                      sizes="(max-width: 700px) 110px, 160px"
                     />
-                  </span>
-                  <span className={styles.itemBody}>
-                    <span className={styles.nameRow}>
-                      <span className={styles.itemName}>{name}</span>
-                      <span className={styles.leader} aria-hidden="true" />
-                      <span className={styles.itemPrice}>2,99 €</span>
-                    </span>
-                    <span className={styles.itemSpectrum}>{pack?.spectrum ?? ''}</span>
-                    <span className={styles.itemDesc}>{pack?.description ?? ''}</span>
-                  </span>
-                </>
-              )
-
-              return (
-                <li key={p.slug} className={isZoomed ? styles.menuRowZoomed : undefined}>
-                  {/* Wrapper switches from <button> (collapsed = one big
-                      click target to toggle zoom) to <div role="button">
-                      (expanded = needs to host a nested <button> for the
-                      buy CTA, which HTML forbids inside another button). */}
-                  {isZoomed ? (
-                    <div
-                      className={`${styles.menuItem} ${styles.menuItemZoomed}`}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => toggleZoom(p.packId)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault()
-                          toggleZoom(p.packId)
-                        }
-                      }}
-                      aria-expanded={true}
-                      aria-label={ariaLabel}
-                    >
-                      {packContent}
-                      <button
-                        type="button"
-                        className={styles.buyCta}
-                        onClick={(e) => { e.stopPropagation(); handleCheckout(p.packId) }}
-                        aria-label={locale === 'de' ? `Hol dir den ${name} — 2,99 €` : `Get the ${name} — 2,99 €`}
-                      >
-                        {locale === 'de' ? 'Hol dir den Pack' : 'Get the Pack'}
-                        <span aria-hidden="true" className={styles.buyPrice}>2,99 €</span>
-                        <span aria-hidden="true" className={styles.buyArrow}>→</span>
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      className={styles.menuItem}
-                      onClick={() => toggleZoom(p.packId)}
-                      aria-expanded={false}
-                      aria-label={ariaLabel}
-                    >
-                      {packContent}
-                    </button>
-                  )}
+                  </div>
+                  <div className={styles.body}>
+                    <h4 className={styles.packName}>{name}</h4>
+                    <p className={styles.packSpectrum}>{pack?.spectrum ?? ''}</p>
+                    <p className={styles.packDesc}>{pack?.description ?? ''}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.buy}
+                    onClick={() => handleCheckout(p.packId)}
+                    aria-label={locale === 'de' ? `Hol dir den ${name} — 2,99 €` : `Get the ${name} — 2,99 €`}
+                  >
+                    <span className={styles.buyLabel}>{t.buyLabel}</span>
+                    <span className={styles.buyPrice}>2,99&nbsp;€</span>
+                  </button>
                 </li>
               )
             })}

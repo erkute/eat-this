@@ -11,14 +11,12 @@ import styles from './LandingFloatingBubble.module.css'
 const LINES_DE = [
   'Hungrig? Wir auch.',
   'Berlin hat 8000 Restaurants. Wir mögen 250.',
-  'Life is too short für 3-Sterne-Restaurants.',
   'Skip Tripadvisor.',
   'Vorgefiltert. Damit du nicht musst.',
 ]
 const LINES_EN = [
   'Hungry? Same.',
   "Berlin's got 8000 restaurants. We love 250.",
-  'Life is too short for 3-star restaurants.',
   'Skip Tripadvisor.',
   "Pre-filtered. So you don't have to.",
 ]

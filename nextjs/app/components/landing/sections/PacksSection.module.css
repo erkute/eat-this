@@ -1,499 +1,474 @@
 /* ──────────────────────────────────────────────────────────────────────
- * PacksSection — Bar-Basta Lunch-Menu layout
- * Cream canvas, script-eyebrow + heavy block wordmark + script-accent +
- * "Edition One · Berlin" sub-line (mirrors the BASTA LUNCH masthead).
- * Body is a vertical menu listing: thumb · name + spectrum + desc left,
- * price right, dezente hairline separator between rows. No card chrome.
+ * PacksSection — Speisekarte redesign (2026-05-17 iteration)
+ * Cream canvas, Ranchers display headlines, Inter body, Slackey on buy
+ * CTAs. Section flow: masthead → Starter Pack row (free, opens login) →
+ * All Berlin hero card with 9-pack fan + stats grid + Slackey CTA →
+ * Boosterpacks block header + 9 single-category rows with direct buy
+ * CTAs. Mobile-first: 110px thumbs, CTA stacked below body. 700px+
+ * upgrades to 160px thumbs + side-by-side rows + side-by-side All Berlin.
  * ────────────────────────────────────────────────────────────────────── */
 
 .section {
   position: relative;
   background: var(--surface-canvas);
   color: #0a0a0a;
-  padding: clamp(72px, 11vh, 128px) 20px clamp(80px, 12vh, 140px);
+  padding: clamp(64px, 9vh, 112px) 18px clamp(72px, 11vh, 128px);
   overflow: hidden;
 }
 .inner {
-  max-width: 760px;
+  max-width: 980px;
   margin: 0 auto;
 }
 
-/* ── Masthead ───────────────────────────────────────────────────────── */
-/* Single bold poster headline, left-aligned, coral, period at end.
-   Mirrors the "Our Kitchen Section." reference exactly: one sentence,
-   heavy grotesque, no eyebrow chrome. */
+/* ── Masthead ─────────────────────────────────────────────────────────
+   Eyebrow „Booster" sitzt in Ranchers hellrot über dem chunky red
+   „Pick / a Pack" wordmark. */
 .masthead {
   text-align: left;
-  margin: 0 0 clamp(40px, 6vh, 72px);
+  margin: 0 0 clamp(28px, 5vh, 48px);
+}
+.eyebrow {
+  font-family: var(--font-ranchers);
+  font-size: clamp(20px, 4.6vw, 28px);
+  color: #FF6B73;
+  margin: 0 0 4px;
+  line-height: 1;
+  letter-spacing: 0;
 }
 .wordmark {
   margin: 0;
-  font-family: var(--font-poster);
+  font-family: var(--font-ranchers);
   font-weight: 400;
-  font-size: clamp(40px, 10vw, 96px);
-  line-height: 0.92;
-  color: var(--brand-coral);
-  letter-spacing: -0.015em;
-  text-wrap: balance;
+  font-size: clamp(72px, 18vw, 132px);
+  line-height: 0.88;
+  color: var(--brand-red);
+  letter-spacing: -0.005em;
 }
 
-/* ── Menu blocks (Booster Packs, Combos) ─────────────────────────────── */
-.menuBlock {
-  margin: 0 0 clamp(48px, 8vh, 88px);
-}
-.menuBlock:last-of-type { margin-bottom: 0; }
-
-.sectionHeader {
-  display: flex;
-  align-items: baseline;
-  gap: 16px;
-  padding: 0 0 14px;
-  margin: 0 0 6px;
-  border-bottom: 1.5px solid rgba(10, 10, 10, 0.86);
-}
-.sectionTitle {
-  margin: 0;
-  font-family: var(--font);
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  color: #0a0a0a;
-}
-
-/* ── Menu list ──────────────────────────────────────────────────────── */
-.menuList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.menuList li + li .menuItem {
-  border-top: 1px solid rgba(10, 10, 10, 0.10);
-}
-
-/* Restaurant Speisekarte layout: thumb left, content right. Inside the
-   content, a "name + dotted leader + price" row mimics the classic menu
-   item line. Spectrum (italic tagline) + desc stack below. */
-.menuItem {
-  width: 100%;
+/* ── Starter Pack row ─────────────────────────────────────────────────
+   Just one row above the All-Berlin hero. No block-header, no „Combos"
+   label — Starter sits on its own as the free entry. */
+.starterRow {
   display: grid;
-  grid-template-columns: 96px 1fr;
-  gap: 22px;
-  align-items: start;
-  padding: 22px 4px 24px;
-  background: transparent;
-  border: 0;
-  text-align: left;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  transition: background 240ms ease;
-}
-.menuItem:hover {
-  background: rgba(242, 96, 77, 0.06);
-}
-.menuItem:focus-visible {
-  outline: 2px solid #F5C518;
-  outline-offset: -2px;
-  border-radius: 4px;
-}
-
-/* ── Hero row (All Berlin) ────────────────────────────────────────────
-   Stacked layout, NOT the standard 3-col grid. Big 9-pack fan on top,
-   text block below. Sits on a coral-tinted card so 20 € reads as the
-   anchor purchase, not as just another line item. */
-.menuItemHero {
-  grid-template-columns: 1fr;
-  gap: 18px;
-  padding: 28px 16px 32px;
-  background: linear-gradient(180deg, rgba(242, 96, 77, 0.10), rgba(242, 96, 77, 0.04));
-  border-radius: 14px;
-  border: 1px solid rgba(199, 50, 32, 0.20);
-  margin: 8px 0;
-  text-align: center;
-  /* Wrapper is a <div>, not a button — only the inner CTA fires the
-     checkout. Override the menuItem-inherited pointer cursor so the
-     card surface itself doesn't suggest clickability. */
-  cursor: default;
-}
-.menuItemHero:hover {
-  background: linear-gradient(180deg, rgba(242, 96, 77, 0.14), rgba(242, 96, 77, 0.06));
-}
-/* Hero rows shouldn't carry the menu hairline above them */
-.menuList li + li .menuItemHero { border-top: none; }
-
-/* The 9-pack fan. Square stage; each pack absolute-centred and translated
-   per-instance via CSS vars set inline (--rot/--dx/--dy). z-index inline
-   stacks the centre pack on top. Mobile gets bigger packs + multiplied
-   spread (--mobileBoost) so the fan reads as a dramatic trading-card
-   spread, not a polite icon row. */
-.heroFan {
-  position: relative;
-  width: 100%;
-  height: 340px;
-  margin: 12px auto 4px;
-  display: block;
-  overflow: hidden;
-}
-.heroFanPack {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 96px;
-  height: auto;
-  aspect-ratio: 2 / 3;
-  object-fit: contain;
-  /* 3-row composition: rotate around card centre so each pack tilts in
-     place. Pack 96 px wide, half 48; rows at dy ±70-78 plus pack half
-     144/2 = 72 fits within a 340-px heroFan stage (half 170). */
-  transform-origin: center center;
-  --spread: 1.0;
-  /* translate3d so each pack sits on its own GPU layer — keeps the
-     drop-shadow soft after scroll settles on iOS Safari. */
-  transform:
-    translate3d(
-      calc(-50% + var(--dx, 0px) * var(--spread)),
-      calc(-50% + var(--dy, 0px) * var(--spread)),
-      0
-    )
-    rotate(var(--rot, 0deg));
-  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.32))
-          drop-shadow(0 4px 8px rgba(0, 0, 0, 0.18));
-  transition: transform 480ms cubic-bezier(0.2, 0.7, 0.2, 1);
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-/* Hover: subtle lift on the whole scatter — each pack rises 4 px and
-   rotation amplifies slightly. Reads as "alive" without re-arranging. */
-.menuItemHero:hover .heroFanPack {
-  transform:
-    translate3d(
-      calc(-50% + var(--dx, 0px) * var(--spread)),
-      calc(-50% + var(--dy, 0px) * var(--spread) - 4px),
-      0
-    )
-    rotate(calc(var(--rot, 0deg) * 1.08));
-}
-
-.heroBody {
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: 110px 1fr;
+  gap: 16px;
   align-items: center;
-  gap: 6px;
-}
-.heroBadge {
-  display: inline-block;
-  font-family: var(--font);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #fff;
-  background: var(--brand-coral);
-  padding: 5px 11px 4px;
-  border-radius: 999px;
-  line-height: 1;
-  margin-bottom: 4px;
-}
-.heroName {
-  font-size: clamp(34px, 8.5vw, 52px);
-  color: var(--brand-coral);
-}
-.heroBody .itemSpectrum { color: rgba(10, 10, 10, 0.86); }
-.heroBody .itemDesc {
-  max-width: 42ch;
-  text-align: center;
-  color: rgba(10, 10, 10, 0.65);
+  padding: 18px 0;
+  margin-bottom: 8px;
 }
 
-/* ── Thumb (pack vignette) ───────────────────────────────────────────── */
+/* ── Pack thumb (static rotation + hover lift) ───────────────────────── */
 .thumb {
-  position: relative;
-  width: 96px;
-  height: 128px;
+  width: 110px;
+  aspect-ratio: 2 / 3;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 .thumbImg {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.18));
-  transition: transform 360ms cubic-bezier(0.2, 0.7, 0.2, 1);
-  /* Pin to GPU layer so iOS Safari keeps the drop-shadow soft after scroll. */
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.22));
+  transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              filter 280ms ease;
   will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
-.menuItem:hover .thumbImg {
-  transform: translateY(-3px) rotate(-1deg);
+/* Alternating tilt by row position. */
+.pack:nth-of-type(odd)  .thumbImg { transform: rotate(-2.5deg); }
+.pack:nth-of-type(even) .thumbImg { transform: rotate( 2deg); }
+.starterRow .thumbImg { transform: rotate(-2.5deg); }
+/* Hover — straighten, scale +8%, lift -6px, deeper shadow. Source order
+   matters (same specificity as the static nth-of-type rules above); the
+   hover override comes last so it wins. */
+.pack:hover .thumbImg,
+.starterRow:hover .thumbImg {
+  transform: rotate(0deg) scale(1.08) translateY(-6px);
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.32));
 }
 
-/* ── Zoom state (tap-to-expand) ───────────────────────────────────────
-   On tap the row drops the side-by-side grid and stacks vertically:
-   big thumb centred on top, name + spectrum + desc + buy CTA below.
-   The single-column layout eliminates the text-column-shrinking issues
-   the prior side-by-side variant had (price colliding with name when
-   the text column got too narrow, rotated thumb overflowing into the
-   text). The row reads as a "selected detail view". */
-.menuItemZoomed {
-  grid-template-columns: 1fr;
-  grid-template-rows: auto auto;
-  gap: 18px;
-  background: rgba(242, 96, 77, 0.10);
-  border-radius: 12px;
-  padding: 28px 16px 24px;
-  text-align: center;
-  justify-items: center;
+/* ── Row body (name + spectrum + description) ─────────────────────────
+   .body lives under .thumb on mobile so the CTA can stack full-width
+   below. Above 700px it slides next to the thumb. */
+.body { min-width: 0; }
+.packName {
+  font-family: var(--font-ranchers);
+  font-size: clamp(24px, 6vw, 32px);
+  font-weight: 400;
+  line-height: 0.96;
+  letter-spacing: -0.005em;
+  color: #0a0a0a;
+  margin: 0 0 4px;
 }
-.menuItemZoomed:hover {
-  background: rgba(242, 96, 77, 0.14);
+.packSpectrum {
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--brand-red);
+  margin: 4px 0 6px;
+  line-height: 1.35;
 }
-.menuItemZoomed .thumb {
-  width: 180px;
-  height: 240px;
+.packDesc {
+  font-family: var(--font);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgba(10, 10, 10, 0.58);
+  margin: 0;
+  max-width: 46ch;
 }
-.menuItemZoomed .thumbImg {
-  transform: none;
-  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.28))
-          drop-shadow(0 4px 8px rgba(0, 0, 0, 0.14));
-}
-.menuItemZoomed .itemBody {
-  align-items: center;
-  width: 100%;
-  max-width: 360px;
-}
-.menuItemZoomed .nameRow {
-  justify-content: center;
-  gap: 12px;
-}
-.menuItemZoomed .leader { display: none; }
-.menuItemZoomed .itemDesc {
-  text-align: center;
-  max-width: 320px;
-}
-/* Selected row spans the hairline above the buy panel below */
-.menuRowZoomed + li .menuItem { border-top: none; }
 
-/* Buy CTA — lives as a direct child of .menuItemZoomed (the stacked
-   tinted card), justified centre via the grid layout. Above the row
-   sits the thumb + body; the CTA closes the card visually with a
-   small top margin so it doesn't crash into the description. */
-.buyCta {
-  margin-top: 6px;
+/* ── Comic-sticker buy button ─────────────────────────────────────────
+   Red filled, ink border, hard 4px offset shadow. Slackey on the price
+   row (the brand-voice element); Inter caption „Hol dir →" stays clean
+   small caps for legibility. Free variant (Starter) uses same red but
+   the price reads „Gratis" in Slackey — colour identity stays
+   consistent across the section. */
+.buy {
   display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 22px;
-  border: 2.5px solid #0a0a0a;
-  border-radius: 999px;
+  flex-direction: column;
+  align-items: stretch;
   background: var(--brand-red);
   color: #fff;
+  border: 3px solid #0a0a0a;
+  border-radius: 12px;
+  padding: 12px 18px;
   font-family: var(--font);
-  font-weight: 800;
-  font-size: 15px;
-  letter-spacing: 0.01em;
   cursor: pointer;
   box-shadow: 4px 4px 0 0 #0a0a0a;
   transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+  min-width: 124px;
+  white-space: nowrap;
 }
-.buyCta:hover {
+.buy:hover {
   background: var(--brand-red-hover);
   transform: translate(-2px, -2px);
   box-shadow: 6px 6px 0 0 #0a0a0a;
 }
-.buyCta:active {
+.buy:active {
   transform: translate(2px, 2px);
   box-shadow: 1px 1px 0 0 #0a0a0a;
 }
-.buyPrice {
+.buyLabel {
+  font-family: var(--font);
+  font-size: 11px;
   font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  padding-left: 6px;
-  border-left: 1.5px solid rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  margin-bottom: 5px;
 }
-.buyArrow {
-  transition: transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+.buyPrice {
+  font-family: var(--font-slackey);
+  font-size: 20px;
+  line-height: 1;
 }
-.buyCta:hover .buyArrow { transform: translateX(3px); }
+.buyFree { /* Starter — same red base, Slackey price reads „Gratis". */ }
 
-/* Hero variant — larger CTA inside the All Berlin card so it reads as
-   the anchor purchase action, not a secondary chip. Sits below the
-   description, breathing room above; the 20 € pill on the right makes
-   the price unmissable. */
-.heroBuyCta {
-  margin-top: 18px;
-  padding: 14px 26px;
-  font-size: 16px;
-  border-width: 3px;
-  box-shadow: 5px 5px 0 0 #0a0a0a;
+/* ── ALL BERLIN — Cream card with layered 3D shadow ───────────────────
+   The single hero block of the section. Hard 12px ink-offset (comic
+   sticker) + 20px ambient drop-shadow underneath = wirkt wie ein
+   dickes Karton-Plakat. No frame, no top stripe — clean. */
+.allBerlin {
+  background: var(--surface-canvas);
+  border-radius: 14px;
+  padding: 32px 24px;
+  margin: 24px 0 36px;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    12px 12px 0 0 #0a0a0a,
+    0 20px 40px rgba(0, 0, 0, 0.22);
 }
-.heroBuyCta:hover  { box-shadow: 7px 7px 0 0 #0a0a0a; }
-.heroBuyCta:active { box-shadow: 2px 2px 0 0 #0a0a0a; }
+.abContent {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: center;
+}
+.abText { min-width: 0; }
 
-/* ── Item body (name+leader+price row | spectrum | desc) ─────────────── */
-.itemBody {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
+.abEyebrow {
+  font-family: var(--font-ranchers);
+  font-size: clamp(22px, 5vw, 28px);
+  color: var(--brand-red);
+  margin: 0 0 4px;
+  line-height: 1;
+}
+.abName {
+  font-family: var(--font-ranchers);
+  font-size: clamp(56px, 14vw, 96px);
+  line-height: 0.88;
+  color: var(--brand-red);
+  letter-spacing: -0.005em;
+  margin: 0 0 14px;
+}
+.abDesc {
+  font-family: var(--font);
+  font-size: clamp(14px, 3.6vw, 16px);
+  line-height: 1.55;
+  color: #0a0a0a;
+  margin: 0 0 20px;
+  max-width: 40ch;
 }
 
-/* The classic Speisekarte row: dish name on the left, price on the right,
-   dotted leader fills the gap. Baseline alignment so dots sit at x-height. */
-.nameRow {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
+/* Stats grid — 3 columns, hairlines between. */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 16px 0 20px;
+  border-top: 1.5px solid #0a0a0a;
+  border-bottom: 1.5px solid #0a0a0a;
+  padding: 12px 0;
 }
-.itemName {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(17px, 4vw, 21px);
-  letter-spacing: 0;
-  line-height: 1.05;
+.stat {
+  text-align: center;
+  border-right: 1px solid rgba(10, 10, 10, 0.15);
+  padding: 4px 6px;
+}
+.stat:last-child { border-right: none; }
+.statNum {
+  font-family: var(--font-ranchers);
+  font-size: clamp(28px, 6vw, 38px);
+  line-height: 0.95;
+  color: var(--brand-red);
+  display: block;
+}
+.statLabel {
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: #0a0a0a;
-  flex-shrink: 0;
+  display: block;
+  margin-top: 6px;
 }
-/* Dotted leader between name and price — repeating radial-gradient dots
-   sized to align with letterforms above. Sits on the baseline. */
-.leader {
-  flex: 1;
-  height: 6px;
-  align-self: flex-end;
-  margin-bottom: 4px;
-  background-image: radial-gradient(circle, currentColor 1px, transparent 1.5px);
-  background-size: 7px 6px;
-  background-repeat: repeat-x;
-  background-position: 0 50%;
-  opacity: 0.38;
-  min-width: 24px;
+
+/* All-Berlin CTA — Slackey-driven big red comic-sticker pill. */
+.abCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--brand-red);
+  color: #fff;
+  border: 3px solid #0a0a0a;
+  border-radius: 999px;
+  padding: 14px 24px;
+  cursor: pointer;
+  box-shadow: 5px 5px 0 0 #0a0a0a;
+  transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+  font-family: var(--font-slackey);
+  font-size: clamp(18px, 4.6vw, 22px);
+  letter-spacing: 0;
+  line-height: 1;
+  white-space: nowrap;
 }
-.itemSpectrum {
-  font-family: var(--font);
-  font-weight: 600;
-  font-style: italic;
-  font-size: 13px;
-  line-height: 1.4;
-  color: rgba(10, 10, 10, 0.74);
-  letter-spacing: -0.005em;
+.abCta > span { white-space: nowrap; }
+.abCta:hover {
+  background: var(--brand-red-hover);
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 0 #0a0a0a;
 }
-.itemDesc {
+.abCta:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 0 #0a0a0a;
+}
+.abCtaPrice {
+  font-size: 1.18em;
+  padding-left: 14px;
+  border-left: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+/* ── 9-pack fan composition ──────────────────────────────────────────
+   1:1 square, packs absolutely positioned via CSS-var-driven transform
+   (--tx, --ty, --rot set inline per pack). On mobile the fan sits below
+   the text block; above 700px it slides next to the text on the right. */
+.fan {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+  transition: transform 360ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.fanPack {
+  position: absolute;
+  width: 30%;
+  aspect-ratio: 2 / 3;
+  left: 50%;
+  top: 50%;
+  transform-origin: center center;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.3));
+  transition: transform 360ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              filter 360ms ease;
+  transform: translate(-50%, -50%) translate(var(--tx, 0), var(--ty, 0)) rotate(var(--rot, 0deg));
+}
+.fanPack :global(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+/* Hover the CTA → each pack tilts a bit harder in its own direction +
+   scales 1.04, staggered 0-80ms (deck-shuffle-Feel). The whole fan
+   square also scales 1.03 as a base atmung. Uses :has() so only CTA
+   hover triggers — not card-wide hover. */
+.allBerlin:has(.abCta:hover) .fan { transform: scale(1.03); }
+.allBerlin:has(.abCta:hover) .fanPack {
+  transform: translate(-50%, -50%) translate(var(--tx, 0), var(--ty, 0)) rotate(calc(var(--rot, 0deg) * 1.4)) scale(1.04);
+}
+.allBerlin:has(.abCta:hover) .fanPack:nth-child(1)  { transition-delay: 40ms; }
+.allBerlin:has(.abCta:hover) .fanPack:nth-child(2)  { transition-delay: 80ms; }
+.allBerlin:has(.abCta:hover) .fanPack:nth-child(3)  { transition-delay: 40ms; }
+.allBerlin:has(.abCta:hover) .fanPack:nth-child(4)  { transition-delay: 0ms;  }
+.allBerlin:has(.abCta:hover) .fanPack:nth-child(5)  { transition-delay: 60ms; }
+.allBerlin:has(.abCta:hover) .fanPack:nth-child(6)  { transition-delay: 0ms;  }
+.allBerlin:has(.abCta:hover) .fanPack:nth-child(7)  { transition-delay: 40ms; }
+.allBerlin:has(.abCta:hover) .fanPack:nth-child(8)  { transition-delay: 80ms; }
+.allBerlin:has(.abCta:hover) .fanPack:nth-child(9)  { transition-delay: 40ms; }
+
+/* ── Boosterpacks block ──────────────────────────────────────────────
+   Block header + 9 rows. Pack rows mirror Starter — thumb left, body
+   middle, buy CTA right. Mobile stacks CTA below. */
+.menuBlock {
+  margin: 0 0 clamp(48px, 8vh, 80px);
+}
+.menuBlock:last-of-type { margin-bottom: 0; }
+.blockHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 0 10px;
+  margin: 8px 0 12px;
+  border-bottom: 1.5px solid #0a0a0a;
+}
+.blockTitle {
+  margin: 0;
+  font-family: var(--font-ranchers);
+  font-size: clamp(22px, 5vw, 28px);
+  line-height: 1;
+  letter-spacing: 0;
+  color: #0a0a0a;
+}
+.blockCount {
   font-family: var(--font);
   font-weight: 500;
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: rgba(10, 10, 10, 0.58);
-  max-width: 52ch;
-}
-
-/* ── Price ──────────────────────────────────────────────────────────── */
-/* Price sits at the right end of the dotted leader row. Tabular-nums so
-   "2,99" and "20" align cleanly across the list. */
-.itemPrice {
-  font-family: var(--font);
-  font-weight: 700;
-  font-size: clamp(15px, 3.6vw, 17px);
-  letter-spacing: -0.005em;
-  color: #0a0a0a;
-  white-space: nowrap;
-  text-align: right;
+  color: rgba(10, 10, 10, 0.55);
   font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
-}
-.priceFree {
-  font-weight: 600;
-  font-style: italic;
-  color: rgba(10, 10, 10, 0.66);
+  font-size: 13px;
+  letter-spacing: 0.18em;
 }
 
-/* ── Desktop ────────────────────────────────────────────────────────── */
-@media (min-width: 768px) {
-  .section {
-    padding: clamp(112px, 14vh, 168px) 48px clamp(120px, 14vh, 176px);
+.menuList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pack {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(10, 10, 10, 0.14);
+}
+.pack:last-child { border-bottom: none; }
+
+/* ── Mobile-first stacked CTA ─────────────────────────────────────────
+   On mobile the buy button sits below the row body (full-width), so it
+   doesn't crowd the description. Side-by-side on 700px+. */
+.starterRow .buy,
+.pack .buy {
+  grid-column: 1 / -1;
+  margin-top: 10px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+}
+.starterRow .buy .buyLabel,
+.pack .buy .buyLabel { margin-bottom: 0; }
+
+/* ── Desktop / wider breakpoints ──────────────────────────────────── */
+@media (min-width: 700px) {
+  .section { padding: clamp(96px, 13vh, 160px) 32px clamp(112px, 14vh, 168px); }
+  .starterRow,
+  .pack {
+    grid-template-columns: 160px 1fr auto;
+    gap: 28px;
+    padding: 24px 0;
   }
-  .sectionHeader { padding-bottom: 16px; }
-  .sectionTitle { font-size: 18px; letter-spacing: 0.05em; }
-  .menuItem {
-    grid-template-columns: 128px 1fr;
-    gap: 32px;
-    padding: 28px 6px 32px;
+  .thumb { width: 160px; }
+  /* CTA back to its own grid cell on the right. */
+  .starterRow .buy,
+  .pack .buy {
+    grid-column: auto;
+    margin-top: 0;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
   }
-  .thumb { width: 128px; height: 170px; }
-  /* Desktop-mediaquery .menuItem rule below sets grid-template-columns
-     to 128px 1fr, which beats the mobile .menuItemZoomed 1fr override
-     (same specificity, later in source). Re-assert the single column
-     here so the zoom-state stack stays stacked on desktop too. */
-  .menuItemZoomed {
-    grid-template-columns: 1fr;
-    padding: 36px 24px 28px;
+  .starterRow .buy .buyLabel,
+  .pack .buy .buyLabel { margin-bottom: 5px; }
+
+  .allBerlin {
+    padding: 44px 40px;
+    margin: 32px 0 48px;
   }
-  .menuItemZoomed .thumb { width: 240px; height: 320px; }
-  .menuItemZoomed .itemBody { max-width: 440px; }
-  .menuItemZoomed .itemDesc { max-width: 400px; }
-  .buyCta {
-    padding: 14px 26px;
-    font-size: 16px;
-    border-width: 3px;
-    box-shadow: 5px 5px 0 0 #0a0a0a;
+  .abContent {
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
   }
-  .buyCta:hover  { box-shadow: 7px 7px 0 0 #0a0a0a; }
-  .buyCta:active { box-shadow: 2px 2px 0 0 #0a0a0a; }
-  .buyPanel { margin-top: 28px; padding: 0 6px 36px; }
-  .itemName { font-size: clamp(20px, 2.4vw, 26px); }
-  .leader { background-size: 9px 6px; margin-bottom: 5px; }
-  .itemPrice { font-size: clamp(17px, 1.4vw, 20px); }
-  /* Hero row keeps its single-column stack at all breakpoints — just gets
-     more breathing room and a bigger fan stage. */
-  .menuItemHero {
-    grid-template-columns: 1fr;
-    padding: 40px 24px 44px;
-    margin: 12px 0;
-  }
-  .heroFan { height: 320px; overflow: visible; }
-  /* Desktop has the room for a more dramatic spread. */
-  .heroFanPack { width: 160px; --spread: 1.3; }
-  .heroBadge { font-size: 12px; padding: 6px 14px 5px; margin-bottom: 6px; }
-  .itemSpectrum { font-size: 14.5px; }
-  .itemDesc { font-size: 13.5px; max-width: 56ch; }
+}
+@media (min-width: 1000px) {
+  .abContent { grid-template-columns: 1fr 380px; gap: 40px; }
+  .fan { max-width: 380px; }
 }
 
-/* Dark-mode overrides — flip the section to ink + cream so the menu
-   reads with the same contrast level as on the cream canvas. */
-:global([data-theme="dark"]) .section { background: #0a0a0a; color: #f7f5f0; }
-:global([data-theme="dark"]) .sectionHeader { border-bottom-color: rgba(247, 245, 240, 0.85); }
-:global([data-theme="dark"]) .sectionTitle { color: #f7f5f0; }
-:global([data-theme="dark"]) .menuList li + li .menuItem { border-top-color: rgba(247, 245, 240, 0.10); }
-:global([data-theme="dark"]) .menuItem:hover { background: rgba(242, 96, 77, 0.10); }
-:global([data-theme="dark"]) .itemName { color: #f7f5f0; }
-:global([data-theme="dark"]) .itemSpectrum { color: rgba(247, 245, 240, 0.85); }
-:global([data-theme="dark"]) .itemDesc { color: rgba(247, 245, 240, 0.62); }
-:global([data-theme="dark"]) .itemPrice { color: #f7f5f0; }
-:global([data-theme="dark"]) .priceFree { color: rgba(247, 245, 240, 0.72); }
-:global([data-theme="dark"]) .thumbImg { filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.55)); }
-:global([data-theme="dark"]) .menuItemHero {
-  background: linear-gradient(180deg, rgba(242, 96, 77, 0.18), rgba(242, 96, 77, 0.08));
-  border-color: rgba(242, 96, 77, 0.32);
+/* ── Dark mode ────────────────────────────────────────────────────── */
+:global([data-theme="dark"]) .section {
+  background: #0a0a0a;
+  color: #f7f5f0;
 }
-:global([data-theme="dark"]) .menuItemHero:hover {
-  background: linear-gradient(180deg, rgba(242, 96, 77, 0.24), rgba(242, 96, 77, 0.12));
-  border-color: rgba(242, 96, 77, 0.50);
+:global([data-theme="dark"]) .packName,
+:global([data-theme="dark"]) .blockTitle { color: #f7f5f0; }
+:global([data-theme="dark"]) .packDesc { color: rgba(247, 245, 240, 0.62); }
+:global([data-theme="dark"]) .pack { border-bottom-color: rgba(247, 245, 240, 0.14); }
+:global([data-theme="dark"]) .blockHeader { border-bottom-color: rgba(247, 245, 240, 0.85); }
+:global([data-theme="dark"]) .blockCount { color: rgba(247, 245, 240, 0.55); }
+:global([data-theme="dark"]) .thumbImg { filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.5)); }
+:global([data-theme="dark"]) .pack:hover .thumbImg,
+:global([data-theme="dark"]) .starterRow:hover .thumbImg {
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.6));
 }
-:global([data-theme="dark"]) .heroBody .itemSpectrum { color: rgba(247, 245, 240, 0.92); }
-:global([data-theme="dark"]) .heroBody .itemDesc { color: rgba(247, 245, 240, 0.75); }
-:global([data-theme="dark"]) .heroFanPack { filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.55)); }
-:global([data-theme="dark"]) .menuItemZoomed { background: rgba(242, 96, 77, 0.14); }
-:global([data-theme="dark"]) .menuItemZoomed:hover { background: rgba(242, 96, 77, 0.20); }
-/* Dark-mode buy CTA inherits light black-chrome — no glow, no cream ring. */
+:global([data-theme="dark"]) .allBerlin {
+  background: #141414;
+  box-shadow:
+    12px 12px 0 0 #f7f5f0,
+    0 20px 40px rgba(0, 0, 0, 0.5);
+}
+:global([data-theme="dark"]) .abDesc { color: rgba(247, 245, 240, 0.85); }
+:global([data-theme="dark"]) .stats {
+  border-top-color: rgba(247, 245, 240, 0.6);
+  border-bottom-color: rgba(247, 245, 240, 0.6);
+}
+:global([data-theme="dark"]) .stat { border-right-color: rgba(247, 245, 240, 0.18); }
+:global([data-theme="dark"]) .statLabel { color: #f7f5f0; }
+:global([data-theme="dark"]) .abCta:active { box-shadow: 2px 2px 0 0 #f7f5f0; }
+:global([data-theme="dark"]) .buy:active { box-shadow: 1px 1px 0 0 #f7f5f0; }
+@media (min-width: 700px) {
+  :global([data-theme="dark"]) .abCta { box-shadow: 5px 5px 0 0 #f7f5f0; }
+  :global([data-theme="dark"]) .abCta:hover  { box-shadow: 7px 7px 0 0 #f7f5f0; }
+  :global([data-theme="dark"]) .abCta:active { box-shadow: 2px 2px 0 0 #f7f5f0; }
+  :global([data-theme="dark"]) .buy { box-shadow: 4px 4px 0 0 #f7f5f0; }
+  :global([data-theme="dark"]) .buy:hover { box-shadow: 6px 6px 0 0 #f7f5f0; }
+  :global([data-theme="dark"]) .buy:active { box-shadow: 1px 1px 0 0 #f7f5f0; }
+}
 
-/* ── Checkout error toast ────────────────────────────────────────────
-   Replaces window.alert() for Stripe failures. Bottom-centre fixed,
-   white card with brand-red border + heavy-block-shadow (matches the
-   CTA chrome elsewhere on the page), auto-dismisses after 6 s.
-   Entry: translate-from-below (per CLAUDE.md "no opacity fades"). */
+/* ── Checkout error toast (unchanged from previous version) ───────── */
 .toast {
   position: fixed;
   left: 50%;

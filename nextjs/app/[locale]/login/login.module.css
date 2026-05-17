@@ -125,10 +125,10 @@
   z-index: 2;
 }
 .brandWordmark {
-  width: min(72%, 300px);
+  width: min(48%, 200px);
   height: auto;
-  /* logo2.webp is pure black; invert to white on the red surface. */
-  filter: brightness(0) invert(1);
+  /* New roundel ships its own white text on black; sits as-is on the red
+     surface. */
 }
 .brandTagline {
   /* Negative top margin pulls the tagline up into the wordmark's bottom

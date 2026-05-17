@@ -259,15 +259,14 @@
 .primaryCta:hover { filter: brightness(0.92); color: #ffffff; }
 .primaryCta:active { transform: scale(0.98); }
 
-/* Wordmark via mask-image so it inherits the CTA's white currentColor.
-   Aspect ratio matches /pics/logo2.webp (1815/576). */
+/* Roundel via mask-image so it inherits the CTA's white currentColor. */
 .primaryCtaWordmark {
   display: inline-block;
-  height: 18px;
-  aspect-ratio: 1815 / 576;
+  height: 22px;
+  aspect-ratio: 1 / 1;
   background: currentColor;
-  -webkit-mask: url('/pics/logo2.webp') center / contain no-repeat;
-  mask: url('/pics/logo2.webp') center / contain no-repeat;
+  -webkit-mask: url('/pics/logo.webp') center / contain no-repeat;
+  mask: url('/pics/logo.webp') center / contain no-repeat;
   flex-shrink: 0;
 }
 .primaryCtaSuffix {

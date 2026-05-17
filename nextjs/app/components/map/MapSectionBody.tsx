@@ -19,7 +19,6 @@ import MapSheetDetail from './MapSheetDetail'
 import UserLocationMarker from './UserLocationMarker'
 import MapMustEatsList from './MapMustEatsList'
 import MapListHeader from './MapListHeader'
-import AnonHintBar from './AnonHintBar'
 import AnonUnlockPrompt from './AnonUnlockPrompt'
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
@@ -286,7 +285,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     onSelect={onMustEatClick}
                   />
                 )}
-                {userTier === 'anon' && <AnonHintBar />}
               </>
             )}
           </aside>

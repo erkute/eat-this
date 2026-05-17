@@ -58,8 +58,8 @@ interface RowsProps {
 }
 
 // Splits the list into unlocked → locked sections. Booster CTA only shows
-// for the starter tier — All-Berlin already owns everything, and anon
-// users get the lighter AnonHintBar instead (rendered by MapSectionBody).
+// for the starter tier — All-Berlin already owns everything, anon users
+// get a clean list.
 function MustEatRows({
   displayedMustEats,
   unlockedIds,

@@ -106,12 +106,6 @@
   .cta:active { box-shadow: 3px 3px 0 0 #0a0a0a; }
 }
 
-/* ── Logo theme swap — two assets, CSS picks the right one ─────────── */
-.logoLight { display: block; }
-.logoDark  { display: none; }
-:global([data-theme="dark"]) .logoLight { display: none; }
-:global([data-theme="dark"]) .logoDark  { display: block; }
-
 /* Dark mode — swap to the dark Carto Berlin Mitte map; flip overlay
    gradient to ink so light wordmark stays readable; CTA border + shadow
    flip to cream for contrast. */
@@ -126,7 +120,7 @@
   background:
     radial-gradient(ellipse at center, rgba(0,0,0,0.20) 0%, rgba(0,0,0,0.50) 65%, rgba(0,0,0,0.78) 100%);
 }
-/* Dark-mode: no halo on the logo (dark asset ships white-ink tagline),
-   no glow on the CTA. Button inherits the light black-chrome stamp style
-   — on the dark map the black ring fades to subtle depth, the red pill
-   carries the focus on its own. */
+/* Dark-mode: invert the roundel so the black circle becomes cream and the
+   white letterforms become ink — keeps contrast against the dark map
+   without shipping a second asset. */
+:global([data-theme="dark"]) .logo { filter: invert(1); }

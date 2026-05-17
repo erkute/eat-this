@@ -110,8 +110,7 @@ interface RestaurantListProps {
 }
 
 // Booster CTA gets injected after the 10th restaurant for starter-tier
-// users. Anon visitors see the AnonHintBar at the bottom of the sheet
-// (rendered by MapSectionBody); All-Berlin users get a clean list.
+// users. Anon visitors and All-Berlin users get a clean list.
 const BOOSTER_AT = 10
 
 export default function RestaurantList({

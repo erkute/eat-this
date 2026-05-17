@@ -12,7 +12,7 @@ export default function ProfileDeckHeader({ unlockedCount, totalSlots }: Props) 
     <header className={styles.header}>
       <p className={styles.city}>Berlin</p>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/pics/logo2.webp" alt="EAT THIS" className={styles.logo} />
+      <img src="/pics/logo.webp" alt="EAT THIS" className={styles.logo} />
       <span
         className={styles.count}
         aria-label={`${unlockedCount} von ${totalSlots} Must Eats freigeschaltet`}

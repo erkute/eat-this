@@ -327,7 +327,7 @@ function BrandHeader() {
   return (
     <header className={styles.brandHeader}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/pics/logo2.webp" alt="EAT THIS" className={styles.brandLogo} />
+      <img src="/pics/logo.webp" alt="EAT THIS" className={styles.brandLogo} />
     </header>
   );
 }

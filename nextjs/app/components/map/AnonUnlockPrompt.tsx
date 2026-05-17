@@ -10,9 +10,9 @@ interface Props {
 
 /**
  * Soft modal that replaces the must-eat detail when an anonymous visitor
- * taps a locked card. Pitches the free starter (20 cards on signup) rather
- * than blocking the visitor with a hard wall. Login modal opens on accept;
- * Abbrechen / outside-click dismisses without changing map state.
+ * taps a locked card. Asks them to sign in rather than blocking with a hard
+ * wall. Login modal opens on accept; Cancel / outside-click dismisses
+ * without changing map state.
  */
 export default function AnonUnlockPrompt({ onClose }: Props) {
   const { t } = useTranslation()

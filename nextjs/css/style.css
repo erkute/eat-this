@@ -2727,12 +2727,9 @@ body:has(.burger-drawer.active) .burger-btn {
 }
 .site-footer-logo-link:hover { opacity: 1; }
 .site-footer-logo-img {
-  width: 110px;
+  width: 64px;
   height: auto;
   display: block;
-  /* hero_logo.webp ships its own red wordmark + black tagline on a
-     transparent background — display as-is, no invert. Dark-mode
-     readability is handled by a cream halo drop-shadow below. */
 }
 
 /* Nav links */
@@ -2856,12 +2853,9 @@ html:not([data-theme="dark"]) .site-footer {
   background: var(--white);
   border-top: 1px solid rgba(0,0,0,0.08);
 }
-/* Footer logo — light/dark swap mirrors Hero. No cream halo; the dark
-   asset already ships the tagline in white ink. */
-.site-footer-logo-light { display: block; }
-.site-footer-logo-dark  { display: none; }
-html[data-theme="dark"] .site-footer-logo-light { display: none; }
-html[data-theme="dark"] .site-footer-logo-dark  { display: block; }
+/* Footer logo — single roundel, inverted in dark mode so the black ring
+   becomes cream against the ink background. */
+html[data-theme="dark"] .site-footer-logo-img { filter: invert(1); }
 html:not([data-theme="dark"]) .site-footer-link {
   color: rgba(0,0,0,0.4);
 }

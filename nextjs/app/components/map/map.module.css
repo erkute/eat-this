@@ -3363,58 +3363,6 @@ html[data-theme="dark"] .filterChipOpenActive {
   .pickerHandle { display: none; }
 }
 
-/* -------------------- Anon hint bar (pinned bottom of sheet) -------------------- */
-
-.anonHintBar {
-  position: sticky;
-  bottom: 0;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  appearance: none;
-  border: 0;
-  border-top: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
-  background: color-mix(in srgb, var(--accent) 12%, var(--surface-bg));
-  color: var(--text-primary);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 10px 14px;
-  padding-bottom: max(env(safe-area-inset-bottom, 0px), 10px);
-  cursor: pointer;
-  text-align: left;
-  margin-top: auto;
-  flex-shrink: 0;
-}
-.anonHintBar:hover {
-  background: color-mix(in srgb, var(--accent) 18%, var(--surface-bg));
-}
-.anonHintBarIcon {
-  font-size: 18px;
-  flex-shrink: 0;
-  line-height: 1;
-}
-.anonHintBarText {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.anonHintBarClose {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-  color: var(--text-muted);
-  border-radius: 50%;
-  cursor: pointer;
-}
-.anonHintBarClose:hover {
-  color: var(--text-primary);
-  background: color-mix(in srgb, var(--accent) 16%, transparent);
-}
-
 /* -------------------- Anon unlock prompt (full-bleed soft modal) -------------------- */
 
 .anonPromptBackdrop {

@@ -9,7 +9,6 @@ import SiteFooter from '@/app/components/SiteFooter'
 import PacksSection from '@/app/components/landing/sections/PacksSection'
 import FaqSection from '@/app/components/landing/sections/FaqSection'
 import FinalCtaSection from '@/app/components/landing/sections/FinalCtaSection'
-import LandingFloatingBubble from '@/app/components/landing/LandingFloatingBubble'
 
 import { getRestaurantCount } from '@/lib/sanity.server'
 import { SITE_URL } from '@/lib/constants'
@@ -85,7 +84,6 @@ export default async function SPAHomePage({
           <FinalCtaSection />
           <SiteFooter />
         </div>
-        <LandingFloatingBubble locale={locale} />
       </div>
     </>
   )

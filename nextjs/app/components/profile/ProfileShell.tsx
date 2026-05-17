@@ -17,9 +17,10 @@ import styles from './profile.module.css';
 
 interface Props {
   mustEats: MustEatAlbumCard[];
+  restaurantCount: number;
 }
 
-export default function ProfileShell({ mustEats }: Props) {
+export default function ProfileShell({ mustEats, restaurantCount }: Props) {
   const { user, loading } = useAuth();
   const pack = usePack(user?.uid ?? null);
   // Map-page reveals write to users/{uid}/unlockedMustEats — read them here
@@ -89,7 +90,7 @@ export default function ProfileShell({ mustEats }: Props) {
           />
         )}
         {tab === 'restaurants' && <ProfileRestaurants uid={user.uid} />}
-        {tab === 'booster'     && <ProfileBooster />}
+        {tab === 'booster'     && <ProfileBooster restaurantCount={restaurantCount} />}
         {tab === 'settings'    && <ProfileSettings email={user.email ?? ''} />}
       </main>
       <SiteFooter />

@@ -1,266 +1,35 @@
-.wrap {
-  padding: 8px 16px 56px;
-  max-width: 480px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 44px;
-}
+/* Profile Booster — local overlays for the Speisekarte layout imported
+ * from PacksSection.module.css. Visual rhythm lives there; this file owns
+ * only the bits that are profile-specific (cancel notice + payment row). */
 
-.hero {
-  text-align: center;
-}
-.label {
-  margin: 0 0 8px;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: #E8762A;
-}
-.title {
-  margin: 0 0 6px;
-  font-size: 24px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  color: #0A0A0A;
-}
-.subtitle {
-  margin: 0;
-  font-size: 13px;
-  color: rgba(10, 10, 10, 0.5);
-  line-height: 1.4;
-}
-
-/* ── Hero pack (Berlin Komplett) ──
- * No container background or border — Apple-style: the artwork is the
- * visual unit, surrounded only by whitespace. Adding a tinted box around
- * a card that already has its own drop-shadow reads as "card on card". */
-
-.heroPack {
-  width: 100%;
+.cancelNotice {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 4px 0 0;
-}
-
-/* Hero pile: 9 packs heaped on top of each other, centred on the card.
-   Each child is absolutely positioned via --x / --y / --rot custom props
-   (set inline from BUNDLE_PACKS in the TSX). Fixed-height stage so the
-   overlapping packs don't collapse the layout. */
-.heroPileWrap {
-  position: relative;
-  width: 100%;
-  height: 220px;
-  margin: 4px 0 8px;
-  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.22));
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.heroPack:hover .heroPileWrap {
-  transform: translateY(-3px) scale(1.03);
-}
-.heroPileItem {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 96px;
-  height: auto;
-  display: block;
-  /* Cutout PNG — no crop, no rounding. See .catImg note. */
-  transform: translate(-50%, -50%) translate(var(--x, 0px), var(--y, 0px)) rotate(var(--rot, 0deg));
-}
-
-.heroName {
-  margin: 6px 0 0;
-  font-size: 22px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  color: #0A0A0A;
-  text-align: center;
-}
-.heroDesc {
-  margin: 0;
-  font-size: 14px;
-  color: rgba(10, 10, 10, 0.6);
-  text-align: center;
-  line-height: 1.4;
-}
-
-/* Hero CTA: split-pill — action label left, price chip right.
-   Inset highlight + soft drop-shadow for a tactile / Apple-like feel. */
-.heroBuyBtn {
-  width: 100%;
-  margin-top: 4px;
-  display: flex;
-  align-items: stretch;
-  padding: 0;
-  border: none;
-  border-radius: 999px;
-  background-color: var(--cta-red);
-  color: #FFFFFF;
-  cursor: pointer;
-  overflow: hidden;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.15),
-    0 8px 18px -10px rgba(183, 28, 28, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  transition: filter 0.2s, transform 0.06s;
-}
-.heroBuyBtn:hover {
-  filter: brightness(1.06);
-}
-.heroBuyBtn:active {
-  transform: scale(0.985);
-}
-.heroBuyAction {
-  flex: 1;
-  padding: 16px 14px 16px 22px;
-  text-align: center;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: 0.01em;
-}
-.heroBuyPrice {
-  padding: 16px 22px;
-  background-color: rgba(0, 0, 0, 0.18);
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: -0.005em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 96px;
-}
-
-/* ── Category section ── */
-
-.catSection {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-}
-.sectionLabel {
-  margin: 0;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: rgba(10, 10, 10, 0.55);
-  text-align: center;
-}
-/* ── Category packs: vertical-stacked cards, generous breathing room ──
-   Each pack is its own editorial poster — image up top, eyebrow + headline
-   + body + button all centred below. Alternating ±2° rest-state rotation
-   gives a Trading-Card-Scattered vibe; hover straightens + lifts. */
-.catGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 56px;
-}
-.catPack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-  padding: 0;
-}
-.catImgWrap {
-  width: 60%;
-  max-width: 180px;
-  display: flex;
-  justify-content: center;
-  filter: drop-shadow(0 14px 26px rgba(0, 0, 0, 0.22));
-  transform: rotate(-2deg);
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.catPack:nth-child(even) .catImgWrap {
-  transform: rotate(2.5deg);
-}
-.catPack:hover .catImgWrap,
-.catPack:nth-child(even):hover .catImgWrap {
-  transform: rotate(0) translateY(-4px) scale(1.05);
-}
-.catImg {
-  width: 100%;
-  height: auto;
-  display: block;
-  /* Cutout PNG with alpha — no border-radius, no object-fit cover.
-     See feedback_freigestellte_bilder.md. */
-}
-.catCopy {
-  display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 10px;
-  width: 100%;
-  max-width: 360px;
-  text-align: center;
-}
-.catEyebrow {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(10, 10, 10, 0.5);
-}
-.catSpectrum {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  color: #0A0A0A;
-  line-height: 1.1;
-  text-wrap: balance;
-}
-.catBody {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.6;
-  color: rgba(10, 10, 10, 0.65);
-}
-
-/* Pill button — centred, chunky enough to feel like a real CTA. */
-.catBuyBtn {
-  margin-top: 6px;
-  align-self: center;
-  padding: 13px 32px;
-  background-color: var(--cta-red);
-  color: #FFFFFF;
-  border: none;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  margin: 0 auto 28px;
+  padding: 11px 18px 11px 14px;
   border-radius: 999px;
-  font-size: 15px;
-  font-weight: 900;
+  background: var(--surface-card);
+  color: var(--text-primary);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  font: 500 14px/1.3 var(--font);
   letter-spacing: -0.005em;
-  cursor: pointer;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.15),
-    0 8px 18px -10px rgba(183, 28, 28, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  transition: filter 0.2s, transform 0.06s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
-.catBuyBtn:hover { filter: brightness(1.06); }
-.catBuyBtn:active { transform: scale(0.97); }
-
-/* ── Coming-soon state shared across all buy buttons ── */
-
-.buyBtnSoon,
-.buyBtnSoon:hover {
-  background-color: #9A8B6E;
-  color: #FFFFFF;
-  cursor: default;
-  filter: none;
-  box-shadow: none;
+.cancelNotice::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #F5C518;
+  flex-shrink: 0;
 }
-.buyBtnSoon .heroBuyPrice {
-  background-color: transparent;
+:global(html[data-theme="dark"]) .cancelNotice {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
-
-/* ── Payment row ── */
 
 .paymentRow {
   display: flex;
@@ -268,6 +37,7 @@
   justify-content: center;
   gap: 10px;
   flex-wrap: wrap;
+  margin-top: clamp(32px, 5vh, 56px);
 }
 .payIcon {
   height: 18px;
@@ -280,75 +50,21 @@
   display: block;
 }
 .payDot {
-  color: rgba(10,10,10,0.25);
+  color: rgba(10, 10, 10, 0.25);
   font-size: 14px;
   line-height: 1;
 }
 .payLabel {
   font-size: 12px;
   font-weight: 600;
-  color: rgba(10,10,10,0.5);
-}
-
-/* ── Dark mode ── */
-
-:global(html[data-theme="dark"]) .title,
-:global(html[data-theme="dark"]) .heroName,
-:global(html[data-theme="dark"]) .catSpectrum {
-  color: #f5f5f5;
-}
-:global(html[data-theme="dark"]) .catBody {
-  color: rgba(245, 245, 245, 0.72);
-}
-:global(html[data-theme="dark"]) .subtitle,
-:global(html[data-theme="dark"]) .heroDesc,
-:global(html[data-theme="dark"]) .catEyebrow,
-:global(html[data-theme="dark"]) .sectionLabel {
-  color: rgba(245, 245, 245, 0.5);
-}
-:global(html[data-theme="dark"]) .buyBtnSoon,
-:global(html[data-theme="dark"]) .buyBtnSoon:hover {
-  background-color: #3a3020;
-  color: rgba(245, 245, 245, 0.55);
+  color: rgba(10, 10, 10, 0.5);
 }
 :global(html[data-theme="dark"]) .payDot {
-  color: rgba(245,245,245,0.2);
+  color: rgba(245, 245, 245, 0.2);
 }
 :global(html[data-theme="dark"]) .payLabel {
-  color: rgba(245,245,245,0.45);
+  color: rgba(245, 245, 245, 0.45);
 }
-:global(html[data-theme="dark"]) .payIcon text,
-:global(html[data-theme="dark"]) .payIcon text:last-child {
-  fill: rgba(245,245,245,0.7);
-}
-
-.cancelNotice {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: max-content;
-  max-width: calc(100% - 32px);
-  margin: 0 auto;
-  padding: 11px 18px 11px 14px;
-  border-radius: 999px;
-  background: var(--surface-card);
-  color: var(--text-primary);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  font: 500 14px/1.3 var(--font);
-  letter-spacing: -0.005em;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-[data-theme="dark"] .cancelNotice {
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-}
-
-.cancelNotice::before {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #F5C518;
-  flex-shrink: 0;
+:global(html[data-theme="dark"]) .payIcon text {
+  fill: rgba(245, 245, 245, 0.7);
 }

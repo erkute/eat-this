@@ -30,7 +30,7 @@
 .eyebrow {
   font-family: var(--font-ranchers);
   font-size: clamp(20px, 4.6vw, 28px);
-  color: #FF6B73;
+  color: #0a0a0a;
   margin: 0 0 4px;
   line-height: 1;
   letter-spacing: 0;
@@ -166,6 +166,22 @@
   line-height: 1;
 }
 .buyFree { /* Starter — same red base, Slackey price reads „Gratis". */ }
+
+/* Owned/busy state (Profile reuses .buy + .abCta) — the button reads
+   „Hast du" / „Bereits freigeschaltet" and shouldn't shout for attention. */
+.buy:disabled,
+.buy:disabled:hover,
+.abCta:disabled,
+.abCta:disabled:hover {
+  background: #d8d3c5;
+  color: #5a5347;
+  cursor: default;
+  transform: none;
+  box-shadow: 4px 4px 0 0 rgba(10, 10, 10, 0.4);
+}
+.abCta:disabled,
+.abCta:disabled:hover { box-shadow: 5px 5px 0 0 rgba(10, 10, 10, 0.4); }
+.abCta:disabled .abCtaPrice { border-left-color: rgba(0, 0, 0, 0.15); }
 
 /* ── ALL BERLIN — Cream card with layered 3D shadow ───────────────────
    The single hero block of the section. Hard 12px ink-offset (comic
@@ -434,7 +450,8 @@
   color: #f7f5f0;
 }
 :global([data-theme="dark"]) .packName,
-:global([data-theme="dark"]) .blockTitle { color: #f7f5f0; }
+:global([data-theme="dark"]) .blockTitle,
+:global([data-theme="dark"]) .eyebrow { color: #f7f5f0; }
 :global([data-theme="dark"]) .packDesc { color: rgba(247, 245, 240, 0.62); }
 :global([data-theme="dark"]) .pack { border-bottom-color: rgba(247, 245, 240, 0.14); }
 :global([data-theme="dark"]) .blockHeader { border-bottom-color: rgba(247, 245, 240, 0.85); }
@@ -466,6 +483,18 @@
   :global([data-theme="dark"]) .buy { box-shadow: 4px 4px 0 0 #f7f5f0; }
   :global([data-theme="dark"]) .buy:hover { box-shadow: 6px 6px 0 0 #f7f5f0; }
   :global([data-theme="dark"]) .buy:active { box-shadow: 1px 1px 0 0 #f7f5f0; }
+  :global([data-theme="dark"]) .buy:disabled,
+  :global([data-theme="dark"]) .buy:disabled:hover {
+    background: #2a2620;
+    color: rgba(247, 245, 240, 0.55);
+    box-shadow: 4px 4px 0 0 rgba(247, 245, 240, 0.5);
+  }
+  :global([data-theme="dark"]) .abCta:disabled,
+  :global([data-theme="dark"]) .abCta:disabled:hover {
+    background: #2a2620;
+    color: rgba(247, 245, 240, 0.55);
+    box-shadow: 5px 5px 0 0 rgba(247, 245, 240, 0.5);
+  }
 }
 
 /* ── Checkout error toast (unchanged from previous version) ───────── */

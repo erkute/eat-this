@@ -41,7 +41,6 @@ export default function MustEatDetail({
           onClose={onClose}
           onBack={onBack}
           onViewRestaurant={onViewRestaurant}
-          onShowMustEatList={onShowMustEatList}
           uid={uid}
           state={state}
         />

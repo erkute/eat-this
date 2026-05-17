@@ -3,18 +3,6 @@ import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types'
 import { getOpenStatus } from './openingHours'
 import { haversineDistance } from './distance'
 
-export type SortMode = 'distance' | 'price' | 'newest'
-export type SortDir = 'asc' | 'desc'
-
-/* Per-mode default direction. Picking a fresh sort mode shouldn't surprise the
-   user with a counterintuitive order — distance starts closest-first, newest
-   starts newest-first, price starts cheapest-first. */
-const DEFAULT_SORT_DIR: Record<SortMode, SortDir> = {
-  distance: 'asc',
-  newest:   'desc',
-  price:    'asc',
-}
-
 interface Args {
   restaurants: MapRestaurant[]
   mustEats: MapMustEat[]
@@ -31,23 +19,9 @@ export function useMapFilters({ restaurants, mustEats, location }: Args) {
   const [bezirk,   setBezirk]   = useState<string | null>(null)
   const [cuisine,  setCuisine]  = useState<string | null>(null)
   const [openOnly, setOpenOnly] = useState(false)
-  const [sort,     setSortRaw]  = useState<SortMode>('distance')
-  const [sortDir,  setSortDir]  = useState<SortDir>(DEFAULT_SORT_DIR.distance)
 
-  /* Picking a sort mode resets direction to that mode's sensible default —
-     otherwise switching from `distance asc` to `newest` would land on
-     `newest asc` (oldest first), which is rarely what a user wants. */
-  const setSort = useCallback((next: SortMode) => {
-    setSortRaw(next)
-    setSortDir(DEFAULT_SORT_DIR[next])
-  }, [])
-
-  const toggleSortDir = useCallback(() => {
-    setSortDir(d => (d === 'asc' ? 'desc' : 'asc'))
-  }, [])
-
-  // Bezirk centroid index — used by handleBezirkChange to flyTo and by
-  // FilterDropdown to render the available bezirke.
+  // Bezirk centroid index — used by handleBezirkChange to flyTo the
+  // selected district's center.
   const { bezirkNames, bezirkCenters } = useMemo(() => {
     const groups = new Map<string, { lat: number; lng: number; count: number }>()
     for (const r of restaurants) {
@@ -106,34 +80,13 @@ export function useMapFilters({ restaurants, mustEats, location }: Args) {
 
   const displayedRestaurants = useMemo(() => {
     const filtered = restaurants.filter(filterRestaurant)
-    /* Comparators below are written in *natural ascending* order (€ → €€€€,
-       oldest → newest, closest → farthest); `dirMul` flips them when the user
-       toggles direction. */
-    const dirMul = sortDir === 'asc' ? 1 : -1
-    if (sort === 'price') {
-      // Restaurants without a Places-derived price range sort to the end
-      // regardless of direction so the user always sees priced spots first.
-      const rank = (r: MapRestaurant): number => r.priceRange?.min ?? Number.POSITIVE_INFINITY
-      return [...filtered].sort((a, b) => {
-        const ra = rank(a)
-        const rb = rank(b)
-        if (ra === rb) return a.name.localeCompare(b.name, 'de')
-        if (ra === Number.POSITIVE_INFINITY) return 1
-        if (rb === Number.POSITIVE_INFINITY) return -1
-        return (ra - rb) * dirMul
-      })
-    }
-    if (sort === 'newest') {
-      // Sanity `_createdAt` is ISO 8601, so lexicographic compare = chronological.
-      return [...filtered].sort((a, b) => a._createdAt.localeCompare(b._createdAt) * dirMul)
-    }
     if (!location) return filtered
     return [...filtered].sort((a, b) => {
       const aD = haversineDistance(location.lat, location.lng, a.lat, a.lng)
       const bD = haversineDistance(location.lat, location.lng, b.lat, b.lng)
-      return (aD - bD) * dirMul
+      return aD - bD
     })
-  }, [restaurants, filterRestaurant, sort, sortDir, location])
+  }, [restaurants, filterRestaurant, location])
 
   // Default sort: distance from user location, falling back to Berlin Mitte
   // when GPS is unavailable. With a bezirk filter, in-bezirk items float to
@@ -168,8 +121,6 @@ export function useMapFilters({ restaurants, mustEats, location }: Args) {
     bezirk, setBezirk,
     cuisine, setCuisine,
     openOnly, setOpenOnly,
-    sort, setSort,
-    sortDir, toggleSortDir,
     bezirkNames, bezirkCenters,
     cuisineNames,
     displayedRestaurants,

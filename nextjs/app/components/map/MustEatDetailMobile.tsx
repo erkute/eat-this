@@ -13,7 +13,6 @@ import {
   BackIcon,
   CloseIcon,
   HomeIcon,
-  ListIcon,
   LockIcon,
   PinIcon,
   UnlockIcon,
@@ -26,7 +25,6 @@ interface Props {
   onClose: () => void
   onBack?: () => void
   onViewRestaurant?: () => void
-  onShowMustEatList?: () => void
   uid?: string | null
   state: MustEatDetailState
 }
@@ -37,7 +35,6 @@ export default function MustEatDetailMobile({
   onClose,
   onBack,
   onViewRestaurant,
-  onShowMustEatList,
   uid,
   state,
 }: Props) {

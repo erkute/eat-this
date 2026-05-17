@@ -29,7 +29,6 @@ export { useUnlockedMustEats } from './useUnlockedMustEats'
 
 // List/filter logic
 export { useMapFilters } from './useMapFilters'
-export type { SortMode, SortDir } from './useMapFilters'
 
 // Bottom-sheet state machine
 export { useBottomSheet } from './useBottomSheet'

@@ -11,7 +11,7 @@ interface Body { packId?: string; locale?: 'de' | 'en' }
 
 // Two-mode checkout:
 //   - authed:  Bearer token → uid + email known, already-owned check, success
-//              page lands in /onboarding/purchase (existing fulfilment poll).
+//              page lands on /checkout/success (same as guests).
 //   - guest:   no Bearer → Stripe collects email on the Hosted Checkout
 //              page itself, the webhook later resolves email → uid via
 //              findOrCreateUserByEmail and mails a magic-link.
@@ -59,13 +59,9 @@ export async function POST(req: Request) {
   const origin = `${proto}://${host}`
 
   const mode = uid ? 'auth' : 'guest'
-  const successPath = mode === 'auth'
-    ? (locale === 'en'
-        ? `/en/onboarding/purchase?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`
-        : `/onboarding/purchase?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`)
-    : (locale === 'en'
-        ? `/en/checkout/success?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`
-        : `/checkout/success?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`)
+  const successPath = locale === 'en'
+    ? `/en/checkout/success?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`
+    : `/checkout/success?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`
   // Guests cancel back to the landing; auth users hit profile's Booster tab.
   const cancelPath  = mode === 'auth'
     ? (locale === 'en' ? '/en/profile?booster=canceled#booster' : '/profile?booster=canceled#booster')

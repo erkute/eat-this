@@ -1,28 +1,17 @@
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
 import { routing } from '@/i18n/routing';
 
 interface RouterLike {
   replace: (href: string) => void;
 }
 
-// Reads users/{uid}.onboardedAt from Firestore and routes to /onboarding or
-// /profile. Used by /login (after Google popup) and /welcome (after magic
-// link). On read failure, defaults to /onboarding — better to repeat
-// onboarding than to skip it for someone who needs it.
+// Routes to /profile after sign-in. Used by /login (Google popup) and
+// /welcome (magic-link return). The previous onboarding gate was removed
+// — every signed-in user now lands directly in their profile deck.
 export async function postLoginRedirect(
-  uid: string,
+  _uid: string,
   router: RouterLike,
   locale: string,
 ): Promise<void> {
-  let onboarded = false;
-  try {
-    const snap = await getDoc(doc(db, 'users', uid));
-    onboarded = snap.exists() && snap.data().onboardedAt != null;
-  } catch (err) {
-    console.warn('[postLoginRedirect] Firestore read failed, defaulting to /onboarding:', err);
-  }
-  const target = onboarded ? '/profile' : '/onboarding';
-  const href   = locale === routing.defaultLocale ? target : `/${locale}${target}`;
+  const href = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
   router.replace(href);
 }

@@ -1,42 +1,37 @@
 /* ════════════════════════════════════════════════════════════
-   /login — brand-red surface with an app-showcase (phone map +
-   booster packs) and the signup column (wordmark, tagline, form).
-   Mobile stacks vertically: showcase → signup. Desktop lays them
-   side-by-side in a landscape card: showcase | signup.
+   /login + login modal — editorial brand-red poster.
+
+   One layout for mobile + desktop: full-bleed red surface with the
+   EAT THIS mark as poster header, a tagline beneath, and a compact
+   sign-in stack (email field, black CTA, "or" divider, Google).
+   No phone mockups, no flanking booster packs — the wordmark is the
+   moment. Shared between /login (full page) and BridgeAuth's modal
+   portal; `.frameModal` adds the rounded card chrome on desktop.
    ════════════════════════════════════════════════════════════ */
 
 .page {
   height: 100dvh;
   width: 100%;
-  background: #0d0d0d;
+  background: #b71c1c;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* The brand-red surface. Mobile fills the viewport; desktop bounds
-   it as a landscape card (rule in @media). */
 .frame {
   position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   background: #b71c1c;
-  /* Bottom padding 4px — form panel sits just shy of the viewport's
-     bottom edge (overlay locked to 100svh, so the toolbar can't cover it). */
+  color: #fff;
   padding:
-    max(64px, calc(env(safe-area-inset-top, 0px) + 56px))
-    16px
-    4px;
-  gap: 14px;
+    max(72px, calc(env(safe-area-inset-top, 0px) + 64px))
+    24px
+    max(24px, env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
+  isolation: isolate;
 }
-
-/* Legacy mobile-era photo/scrim/small-logo overlays are unused. */
-.heroImg,
-.scrimTop,
-.scrimBottom,
-.logoWrap { display: none; }
 
 /* ── Back button (X) ─────────────────────────────────────── */
 .backBtn {
@@ -48,7 +43,7 @@
   height: 40px;
   border: none;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.42);
+  background: rgba(0, 0, 0, 0.32);
   color: #fff;
   display: grid;
   place-items: center;
@@ -58,92 +53,38 @@
   backdrop-filter: blur(10px);
   outline: none;
 }
-.backBtn:hover { background: rgba(0, 0, 0, 0.62); }
+.backBtn:hover { background: rgba(0, 0, 0, 0.52); }
 .backBtn:active { transform: scale(0.92); }
 
-/* ── App showcase (mobile): phone-map centered with two packs flanking.
-   margin-block: auto centers the showcase vertically in the free space
-   between the brand hero (above) and the form panel (below). */
-.appShowcase {
-  position: relative;
-  width: 100%;
-  height: 240px;
-  flex: 0 0 auto;
-  margin-block: auto;
-}
-/* Phone mockup WebP carries its own bezel + transparency.
-   Soft halo-style drop-shadow so the alpha edge artifacts stay subtle. */
-.phoneMockup {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  height: 100%;
-  width: auto;
-  z-index: 3;
-  filter: drop-shadow(0 6px 22px rgba(0, 0, 0, 0.28));
-}
-/* Cutout pack with native aspect. Soft halo-style drop-shadow so
-   the jagged pack edges + rotation don't expose the shadow's outline. */
-.pack {
-  position: absolute;
-  height: 78%;
-  width: auto;
-  z-index: 2;
-  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.22));
-}
-.packLeft {
-  left: 4%;
-  top: 12%;
-  transform: rotate(-12deg);
-}
-.packRight {
-  right: 4%;
-  top: 12%;
-  transform: rotate(12deg);
-}
-
-/* ── Signup column wrapper.
-   Mobile: display: contents so brandHero + formWrap participate in the
-   frame's flex column directly, letting `order:` swap brand to the top
-   while keeping the JSX structure unchanged.
-   Desktop @media: restored to a real flex column inside the right grid cell. */
-.signupColumn {
-  display: contents;
-}
-
-/* Mobile order: brand hero on top, then showcase (default), then form (default + margin-top:auto). */
-.brandHero { order: -1; }
-
-/* ── Brand hero: wordmark + tagline (no sticker). */
-.brandHero {
+/* ── Poster header: big EAT THIS mark + tagline. */
+.poster {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0;
-  position: relative;
-  z-index: 2;
+  justify-content: center;
+  gap: 10px;
+  min-height: 0;
+  padding: 8px 0 24px;
 }
-.brandWordmark {
-  width: min(48%, 200px);
+.mark {
+  width: min(64vw, 280px);
   height: auto;
-  /* White cut-out EAT THIS wordmark reads cleanly on the brand-red surface. */
+  user-select: none;
+  -webkit-user-drag: none;
 }
-.brandTagline {
-  /* Negative top margin pulls the tagline up into the wordmark's bottom
-     alpha padding. Mobile uses a lighter pull so it doesn't feel cramped;
-     desktop overrides to a tighter -8px below. */
-  margin: -2px 0 0;
-  font-size: 11px;
+.tagline {
+  margin: 0;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 0.78);
+  text-align: center;
 }
 
-/* heroHeadline stays in the DOM for screen readers + SEO,
-   but is visually hidden — wordmark image is the visual heading. */
-.heroHeadline {
+/* heroHeadline lives in the DOM for SR + SEO; not visible. */
+.headlineSr {
   position: absolute !important;
   width: 1px;
   height: 1px;
@@ -155,26 +96,15 @@
   border: 0;
 }
 
-/* ── Form panel: dark glass on red. On mobile it sits at the bottom of the
-   frame thanks to .appShowcase's margin-block: auto consuming the upper
-   half of free space (the lower half lands above this form). */
-.formWrap {
-  position: relative;
-  z-index: 2;
-  padding: 18px;
+/* ── Form block: bottom-anchored on mobile, centered in card on desktop. */
+.formBlock {
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 360px;
+  align-self: center;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
   gap: 10px;
-  width: 100%;
-  max-width: 460px;
-  align-self: center;
-
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 18px;
-  -webkit-backdrop-filter: blur(10px) saturate(1.2);
-  backdrop-filter: blur(10px) saturate(1.2);
 }
 
 .form {
@@ -185,12 +115,10 @@
 
 .input {
   width: 100%;
-  padding: 13px 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.12);
-  -webkit-backdrop-filter: blur(14px) saturate(1.2);
-  backdrop-filter: blur(14px) saturate(1.2);
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.32);
+  background: rgba(0, 0, 0, 0.2);
   font-size: 16px; /* iOS no-zoom */
   font-family: var(--font);
   color: #fff;
@@ -199,64 +127,64 @@
 }
 .input::placeholder { color: rgba(255, 255, 255, 0.55); }
 .input:focus {
-  border-color: rgba(255, 255, 255, 0.50);
-  background: rgba(255, 255, 255, 0.18);
+  border-color: #fff;
+  background: rgba(0, 0, 0, 0.32);
 }
 
-/* Brand-red CTA on brand-red bg wouldn't contrast — black. */
 .cta {
   width: 100%;
-  padding: 13px;
-  background: #111;
+  padding: 14px;
+  background: #0a0a0a;
   color: #fff;
   font-family: var(--font);
   font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.005em;
+  font-weight: 800;
+  letter-spacing: 0.01em;
   border: none;
-  border-radius: 14px;
+  border-radius: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background 0.18s, transform 0.08s;
+  transition: background 0.18s, transform 0.08s, box-shadow 0.18s;
   outline: none;
 }
-.cta:hover:not(:disabled) { background: #000; }
+.cta:hover:not(:disabled) {
+  background: #000;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
 .cta:active:not(:disabled) { transform: scale(0.99); }
 .cta:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .error {
   margin: 2px 4px 0;
   font-size: 13px;
-  color: #ff8b8b;
+  color: #ffd1d1;
   line-height: 1.4;
 }
 
 /* ── Sent state — replaces the form */
 .sentBox {
-  padding: 18px 18px 16px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  -webkit-backdrop-filter: blur(14px) saturate(1.2);
-  backdrop-filter: blur(14px) saturate(1.2);
+  padding: 16px 16px 14px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .sentTitle {
   margin: 0;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 800;
   color: #fff;
 }
 .sentBody {
   margin: 0;
   font-size: 13px;
   line-height: 1.55;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.78);
 }
 .sentLink {
   align-self: flex-start;
@@ -278,41 +206,46 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 2px 0;
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  margin: 4px 0;
 }
 .divider::before,
 .divider::after {
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.22);
+}
+.divider span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* ── Google button ───────────────────────────────────────── */
 .googleBtn {
   width: 100%;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.95);
+  padding: 13px;
+  background: #fff;
   color: #1a1a1a;
   font-family: var(--font);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.005em;
   border: none;
-  border-radius: 14px;
+  border-radius: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  transition: background 0.18s, transform 0.08s;
+  transition: transform 0.08s, box-shadow 0.18s;
   outline: none;
 }
-.googleBtn:hover:not(:disabled) { background: #fff; }
+.googleBtn:hover:not(:disabled) {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
 .googleBtn:active:not(:disabled) { transform: scale(0.99); }
 .googleBtn:disabled { opacity: 0.55; cursor: not-allowed; }
 .googleIcon { width: 18px; height: 18px; flex-shrink: 0; }
@@ -327,11 +260,6 @@
   backdrop-filter: blur(10px);
   display: grid;
   place-items: center;
-  animation: loadingFadeIn 0.18s ease both;
-}
-@keyframes loadingFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
 }
 .spinner {
   width: 36px;
@@ -341,29 +269,24 @@
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── Terms (small print) ─────────────────────────────────── */
 .terms {
-  margin: 10px 0 0;
+  margin: 8px 0 0;
   font-size: 11px;
   line-height: 1.45;
   color: rgba(255, 255, 255, 0.55);
   text-align: center;
-  white-space: nowrap;
 }
 .termsLink {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.88);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 .termsLink:hover { color: #fff; }
 
-/* ── Desktop: landscape card with two grid columns.
-     Showcase fills the left column; signup column (wordmark, tagline,
-     form) fills the right column. ─── */
+/* ── Desktop: same poster, just centered in a tighter card. ─── */
 @media (min-width: 768px) {
   .page {
     background: #faf8f3;
@@ -375,83 +298,22 @@
 
   .frame {
     flex: 0 0 auto;
-    width: min(900px, 94vw);
-    max-width: 900px;
-    height: min(560px, 88vh);
-    border-radius: 24px;
+    width: min(440px, 94vw);
+    height: min(640px, 90vh);
+    border-radius: 22px;
     box-shadow: 0 28px 70px rgba(183, 28, 28, 0.35);
-    padding: 28px;
-
-    display: grid;
-    grid-template-columns: 1.05fr 1fr;
-    gap: 28px;
+    padding: 56px 36px 32px;
   }
   [data-theme="dark"] .frame {
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
   }
 
-  /* Showcase fills the full left column height; phone centered, packs offset.
-     Desktop restores stronger drop-shadows — the soft mobile values exist
-     to hide alpha-edge artifacts at large mobile-render sizes.
-     Resets the mobile margin-block:auto since the grid handles positioning. */
-  .appShowcase {
-    height: auto;
-    align-self: stretch;
-    margin-block: 0;
+  .mark {
+    width: min(72%, 280px);
   }
-  .phoneMockup {
-    height: 90%;
-    filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.5));
-  }
-  .pack {
-    height: 36%;
-    filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.5));
-  }
-  .packLeft {
-    left: 0;
-    top: 16%;
-    transform: rotate(-14deg);
-  }
-  .packRight {
-    right: 0;
-    bottom: 16%;
-    top: auto;
-    transform: rotate(14deg);
-  }
-
-  /* Signup column fills the right side as one cohesive vertical block —
-     wordmark dominates, tagline pinned to it, form sits with breathing
-     room below (margin-top on .formWrap controls how low the form sits).
-     Restore real flex layout (overrides `display: contents` from mobile). */
-  .signupColumn {
-    display: flex;
-    flex-direction: column;
-    align-self: stretch;
-    justify-content: center;
-    gap: 16px;
-  }
-  /* Mobile-only flex order doesn't apply inside the desktop grid. */
-  .brandHero { order: initial; }
-  .brandHero {
-    align-items: center;
-    gap: 0;
-  }
-  .brandWordmark {
-    width: 100%;
-    max-width: none;
-    height: auto;
-  }
-  .brandTagline {
+  .tagline {
     font-size: 13px;
-    letter-spacing: 0.2em;
-    margin-top: -8px;
+    letter-spacing: 0.24em;
   }
-
-  .formWrap {
-    max-width: none;
-    align-self: stretch;
-    /* Pushes the form panel further down within the signup column;
-       wordmark + tagline stay near the centered position. */
-    margin-top: 60px;
-  }
+  .formBlock { max-width: none; }
 }

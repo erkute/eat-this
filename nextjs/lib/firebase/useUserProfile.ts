@@ -1,14 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { doc, onSnapshot, setDoc, serverTimestamp, type Timestamp } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 
 export type AvatarChoice = 1 | 2 | 3;
 
 export interface UserProfile {
-  avatar:      AvatarChoice | null;
-  onboardedAt: Timestamp | null;
+  avatar: AvatarChoice | null;
 }
 
 // localStorage cache key — per-uid so a sign-out / sign-in to a different
@@ -31,27 +30,25 @@ function writeCachedAvatar(uid: string, avatar: AvatarChoice) {
 
 // Subscribes to the user's profile doc. `avatar: null` means the user
 // hasn't chosen one — UI falls back to a UID-derived default.
-// `onboardedAt: null` means the onboarding hasn't been completed.
 //
 // Avatar is cached to localStorage so /profile renders the correct
 // avatar on first paint, instead of flashing the UID-hash default while
 // Firestore loads.
 export function useUserProfile(uid: string | null) {
   const [profile, setProfile] = useState<UserProfile>(() => ({
-    avatar:      readCachedAvatar(uid),
-    onboardedAt: null,
+    avatar: readCachedAvatar(uid),
   }));
   const [loading, setLoading] = useState<boolean>(!!uid);
 
   useEffect(() => {
     if (!uid) {
-      setProfile({ avatar: null, onboardedAt: null });
+      setProfile({ avatar: null });
       setLoading(false);
       return;
     }
     // uid may have changed since mount — reseed avatar from the cache
     // for this uid before Firestore resolves.
-    setProfile((prev) => ({ ...prev, avatar: readCachedAvatar(uid) }));
+    setProfile({ avatar: readCachedAvatar(uid) });
     setLoading(true);
     const ref = doc(db, 'users', uid);
     const unsub = onSnapshot(
@@ -61,13 +58,8 @@ export function useUserProfile(uid: string | null) {
         const rawAvatar = data?.avatar;
         const avatar: AvatarChoice | null =
           rawAvatar === 1 || rawAvatar === 2 || rawAvatar === 3 ? rawAvatar : null;
-        const rawOnboardedAt = data?.onboardedAt;
-        const onboardedAt: Timestamp | null =
-          rawOnboardedAt != null && typeof (rawOnboardedAt as Timestamp).toDate === 'function'
-            ? (rawOnboardedAt as Timestamp)
-            : null;
         if (avatar !== null) writeCachedAvatar(uid, avatar);
-        setProfile({ avatar, onboardedAt });
+        setProfile({ avatar });
         setLoading(false);
       },
       () => setLoading(false),
@@ -82,21 +74,13 @@ export function useUserProfile(uid: string | null) {
       // picks an avatar and immediately navigates to /profile before the
       // Firestore snapshot has fired.
       writeCachedAvatar(uid, choice);
-      setProfile((prev) => ({ ...prev, avatar: choice }));
+      setProfile({ avatar: choice });
       await setDoc(doc(db, 'users', uid), { avatar: choice }, { merge: true });
     },
     [uid],
   );
 
-  const markOnboarded = useCallback(
-    async () => {
-      if (!uid) return;
-      await setDoc(doc(db, 'users', uid), { onboardedAt: serverTimestamp() }, { merge: true });
-    },
-    [uid],
-  );
-
-  return { profile, loading, setAvatar, markOnboarded };
+  return { profile, loading, setAvatar };
 }
 
 // Deterministic fallback when the user hasn't picked an avatar yet.

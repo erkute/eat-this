@@ -276,9 +276,10 @@ html[data-theme="dark"] .brand-logo-dark { display: block; }
   margin-bottom: 0;
 }
 .news-title {
+  font-family: var(--font-marker);
   font-size: clamp(2.5rem, 7vw, 5rem);
-  font-weight: 900;
-  letter-spacing: -0.04em;
+  font-weight: 400; /* Knewave is single-weight; hand-drawn block letterform matches the EAT THIS poster. */
+  letter-spacing: 0;
   line-height: 0.95;
   text-transform: uppercase;
 }
@@ -1153,13 +1154,13 @@ html[data-theme="dark"] .brand-logo-dark { display: block; }
 
   .app-page[data-page="news"] .news-title {
     font-size: clamp(2.2rem, 10vw, 3.5rem);
-    font-weight: 900;
-    letter-spacing: -0.04em;
+    font-weight: 400;
+    letter-spacing: -0.01em;
     line-height: 0.9;
     margin: 0;
     text-transform: uppercase;
     color: var(--black);
-    font-family: var(--font);
+    font-family: var(--font-marker);
     text-align: center;
   }
 
@@ -1945,13 +1946,13 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
 
   .app-page[data-page="news"] .news-title {
     font-size: clamp(1.8rem, 3vw, 2.8rem);
-    font-weight: 900;
-    letter-spacing: -0.03em;
+    font-weight: 400;
+    letter-spacing: -0.01em;
     line-height: 0.95;
     text-transform: uppercase;
     margin: 0;
     color: var(--black);
-    font-family: var(--font);
+    font-family: var(--font-marker);
     text-align: center;
   }
 

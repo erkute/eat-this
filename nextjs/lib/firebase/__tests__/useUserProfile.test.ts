@@ -6,21 +6,19 @@ vi.mock('firebase/firestore', () => ({
   doc: vi.fn((_db, ...path) => ({ path: path.join('/') })),
   onSnapshot: vi.fn(),
   setDoc: vi.fn(),
-  serverTimestamp: vi.fn(() => ({ __sentinel: 'serverTimestamp' })),
 }))
 vi.mock('../config', () => ({ db: {} }))
 
-import { onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore'
+import { onSnapshot, setDoc } from 'firebase/firestore'
 import { useUserProfile } from '../useUserProfile'
 
 describe('useUserProfile', () => {
   beforeEach(() => { vi.clearAllMocks() })
 
-  it('returns onboardedAt from snapshot', async () => {
-    const ts = { toDate: () => new Date('2026-05-01') }
+  it('returns avatar from snapshot', async () => {
     vi.mocked(onSnapshot).mockImplementation((_ref, onNext) => {
       ;(onNext as (s: { data: () => unknown }) => void)({
-        data: () => ({ avatar: 2, onboardedAt: ts }),
+        data: () => ({ avatar: 2 }),
       })
       return () => {}
     })
@@ -28,39 +26,38 @@ describe('useUserProfile', () => {
     const { result } = renderHook(() => useUserProfile('u1'))
     await waitFor(() => expect(result.current.loading).toBe(false))
     expect(result.current.profile.avatar).toBe(2)
-    expect(result.current.profile.onboardedAt).toBe(ts)
   })
 
-  it('returns onboardedAt as null when missing', async () => {
+  it('returns avatar as null when missing', async () => {
     vi.mocked(onSnapshot).mockImplementation((_ref, onNext) => {
       ;(onNext as (s: { data: () => unknown }) => void)({
-        data: () => ({ avatar: 1 }),
+        data: () => ({}),
       })
       return () => {}
     })
 
     const { result } = renderHook(() => useUserProfile('u1'))
     await waitFor(() => expect(result.current.loading).toBe(false))
-    expect(result.current.profile.onboardedAt).toBeNull()
+    expect(result.current.profile.avatar).toBeNull()
   })
 
-  it('markOnboarded writes serverTimestamp via merge', async () => {
+  it('setAvatar writes via merge', async () => {
     vi.mocked(onSnapshot).mockImplementation(() => () => {})
     vi.mocked(setDoc).mockResolvedValue(undefined)
 
     const { result } = renderHook(() => useUserProfile('u1'))
-    await act(async () => { await result.current.markOnboarded() })
+    await act(async () => { await result.current.setAvatar(3) })
 
     expect(setDoc).toHaveBeenCalledWith(
       expect.objectContaining({ path: 'users/u1' }),
-      { onboardedAt: { __sentinel: 'serverTimestamp' } },
+      { avatar: 3 },
       { merge: true },
     )
   })
 
-  it('markOnboarded is no-op without uid', async () => {
+  it('setAvatar is no-op without uid', async () => {
     const { result } = renderHook(() => useUserProfile(null))
-    await act(async () => { await result.current.markOnboarded() })
+    await act(async () => { await result.current.setAvatar(2) })
     expect(setDoc).not.toHaveBeenCalled()
   })
 })

@@ -43,16 +43,6 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
 
   return (
     <div className={modal ? `${styles.frame} ${styles.frameModal}` : styles.frame}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/pics/login/Black screen.webp"
-        alt=""
-        className={styles.heroImg}
-        decoding="async"
-      />
-      <div className={styles.scrimTop} />
-      <div className={styles.scrimBottom} />
-
       <button
         type="button"
         className={styles.backBtn}
@@ -64,48 +54,21 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
         </svg>
       </button>
 
-      <div className={styles.logoWrap}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/pics/login/eat 1.webp" alt="Eat This" className={styles.logoMark} />
-      </div>
-
-      {/* App showcase: phone-mockup of the map view + two distinct booster packs
-          flanking it. Both pack WebPs carry alpha (VP8X), so the cutout reads
-          cleanly on the red surface. On desktop this fills the left grid column;
-          on mobile it stacks above the signup column. */}
-      <div className={styles.appShowcase} aria-hidden="true">
+      <div className={styles.poster}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/pics/booster/booster_lunch.webp"
-          alt=""
-          className={`${styles.pack} ${styles.packLeft}`}
+          src="/pics/logo-dark.webp"
+          alt="EAT THIS"
+          className={styles.mark}
+          width={848}
+          height={772}
+          decoding="async"
         />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/pics/map-teaser/map_umgebung.webp"
-          alt=""
-          className={styles.phoneMockup}
-        />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/pics/booster/booster_sweets.webp"
-          alt=""
-          className={`${styles.pack} ${styles.packRight}`}
-        />
+        <p className={styles.tagline}>{t('modals.login.tagline')}</p>
       </div>
 
-      {/* Right column on desktop / lower stack on mobile: brand hero + form. */}
-      <div className={styles.signupColumn}>
-
-      {/* Brand hero: wordmark + tagline. */}
-      <div className={styles.brandHero} aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/pics/logo-dark.webp" alt="" className={styles.brandWordmark} />
-        <p className={styles.brandTagline}>{t('modals.login.tagline')}</p>
-      </div>
-
-      <div className={styles.formWrap}>
-        <h1 className={styles.heroHeadline}>
+      <div className={styles.formBlock}>
+        <h1 className={styles.headlineSr}>
           {t('modals.login.heroHeadline')}
         </h1>
 
@@ -154,7 +117,9 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
           </form>
         )}
 
-        <div className={styles.divider}>oder</div>
+        <div className={styles.divider}>
+          <span>{t('modals.login.dividerOr')}</span>
+        </div>
 
         <button
           type="button"
@@ -162,25 +127,21 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
           onClick={handleGoogle}
           disabled={googleBusy}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/pics/login/Google.webp"
-            alt=""
-            className={styles.googleIcon}
-            width={18}
-            height={18}
-          />
+          <svg className={styles.googleIcon} viewBox="0 0 24 24" width={18} height={18} aria-hidden="true">
+            <path fill="#4285F4" d="M22.5 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.56c2.08-1.92 3.28-4.75 3.28-8.09Z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.56-2.76c-.98.66-2.24 1.05-3.72 1.05-2.86 0-5.29-1.93-6.15-4.53H2.18v2.84A11 11 0 0 0 12 23Z"/>
+            <path fill="#FBBC05" d="M5.85 14.1A6.6 6.6 0 0 1 5.5 12c0-.73.13-1.44.35-2.1V7.06H2.18a11 11 0 0 0 0 9.88l3.67-2.84Z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.07.56 4.21 1.64l3.16-3.16C17.45 2.1 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.67 2.84C6.71 7.31 9.14 5.38 12 5.38Z"/>
+          </svg>
           <span>{t('modals.login.googleBtn')}</span>
         </button>
 
         <p className={styles.terms}>
           <a className={styles.termsLink} href={agbHref}>{t('modals.login.termsLink')}</a>
-          <span> · </span>
+          <span aria-hidden="true"> · </span>
           <a className={styles.termsLink} href={dsHref}>{t('modals.login.privacyLink')}</a>
         </p>
       </div>
-
-      </div>{/* /signupColumn */}
 
       {(googleBusy || (!loading && user)) && (
         <div className={styles.loadingOverlay} aria-hidden="true">

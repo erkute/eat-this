@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import {
   isSignInWithEmailLink,
   signInWithEmailLink,
@@ -12,8 +12,17 @@ import {
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase/config';
 import { routing } from '@/i18n/routing';
-import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import styles from './auth-action.module.css';
+
+// /welcome lives under its own root layout (separate <html> tree); the
+// post-sign-in landing pages live under [locale]/. Crossing root layouts
+// with router.replace can silently no-op, so we hard-navigate via
+// window.location.assign to guarantee the page actually changes.
+function hardRedirectToProfile() {
+  const locale = detectLocale();
+  const target = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
+  window.location.assign(target);
+}
 
 // /welcome lives outside [locale], so there is no NextIntlClientProvider.
 // Read the locale from the cookie next-intl writes on every visit, fall back
@@ -44,14 +53,12 @@ export default function AuthActionPage() {
 
 function AuthActionInner() {
   const params = useSearchParams();
-  const router = useRouter();
   const [state, setState] = useState<State>({ kind: 'processing' });
 
   useEffect(() => {
     const mode    = params.get('mode');
     const oobCode = params.get('oobCode');
     const url     = window.location.href;
-    const locale  = detectLocale();
 
     if (mode === 'signIn') {
       if (!isSignInWithEmailLink(auth, url)) {
@@ -64,11 +71,12 @@ function AuthActionInner() {
         return;
       }
       signInWithEmailLink(auth, email, url)
-        .then(async (result) => {
+        .then(() => {
           localStorage.removeItem('emailForSignIn');
-          await postLoginRedirect(result.user.uid, router, locale);
+          hardRedirectToProfile();
         })
-        .catch(() => {
+        .catch((err) => {
+          console.warn('[welcome] signInWithEmailLink failed:', err);
           setState({ kind: 'expired' });
         });
       return;
@@ -82,7 +90,7 @@ function AuthActionInner() {
             title: 'Bestätigt.',
             sub:   'Du wirst weitergeleitet …',
           });
-          setTimeout(() => router.replace('/'), 1800);
+          setTimeout(() => window.location.assign('/'), 1800);
         })
         .catch(() => {
           setState({ kind: 'expired' });
@@ -91,24 +99,14 @@ function AuthActionInner() {
     }
 
     setState({ kind: 'expired' });
-  }, [params, router]);
+  }, [params]);
 
   return (
     <main className={styles.page}>
       <div className={styles.frame}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/pics/login/Black screen.webp"
-          alt=""
-          className={styles.heroImg}
-          decoding="async"
-        />
-        <div className={styles.scrimTop} />
-        <div className={styles.scrimBottom} />
-
         <div className={styles.logoWrap}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/pics/login/eat 1.webp" alt="Eat This" className={styles.logoMark} />
+          <img src="/pics/logo-dark.webp" alt="Eat This" className={styles.logoMark} />
         </div>
 
         <div className={styles.content}>
@@ -160,9 +158,8 @@ function AuthActionInner() {
 
 // The "needs-email" state is shown when the magic link is opened on a
 // different device than where it was requested (localStorage is empty).
-// We collect email + identity (name + avatar) in one step so the user
-// lands directly at the pack slide in Onboarding rather than having to
-// fill in identity again.
+// We collect email + identity (name + avatar) in one step so the profile
+// renders with the user's chosen avatar right after sign-in.
 function NeedsEmailForm({
   href,
   setState,
@@ -170,7 +167,6 @@ function NeedsEmailForm({
   href: string;
   setState: (s: State) => void;
 }) {
-  const router = useRouter();
   const [email,      setEmail]      = useState('');
   const [name,       setName]       = useState('');
   const [avatarPick, setAvatarPick] = useState<AvatarChoice>(1);
@@ -186,14 +182,11 @@ function NeedsEmailForm({
       const result = await signInWithEmailLink(auth, email.trim(), href);
       localStorage.removeItem('emailForSignIn');
       const uid = result.user.uid;
-      // Save display name + avatar so the identity slide can be skipped.
+      // Save display name + avatar so the profile renders with the user's
+      // chosen identity right after sign-in.
       await updateProfile(result.user, { displayName: name.trim() });
       await setDoc(doc(db, 'users', uid), { avatar: avatarPick }, { merge: true });
-      // Signal the onboarding page to skip the identity slide.
-      sessionStorage.setItem('onboardingSkipIdentity', 'true');
-      const locale = detectLocale();
-      const base   = locale === routing.defaultLocale ? '' : `/${locale}`;
-      router.replace(`${base}/onboarding`);
+      hardRedirectToProfile();
     } catch (err: unknown) {
       setBusy(false);
       const code = (err as { code?: string }).code ?? '';
@@ -212,7 +205,7 @@ function NeedsEmailForm({
 
   return (
     <>
-      {/* Avatar hero — mirrors onboarding identity slide */}
+      {/* Avatar hero */}
       <div className={styles.avatarHero}>
         <img
           src={`/pics/avatar/${avatarPick}.webp`}

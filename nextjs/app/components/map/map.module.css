@@ -1102,20 +1102,24 @@ html[data-theme="dark"] .btn:hover {
 
 /* Must-eat specific hero: portrait polaroid feel */
 
-/* ========== Logo marker for restaurants ========== */
+/* ========== Logo marker for restaurants — EAT THIS mark on a black
+   sticker disk. Solid black background reads cleanly on both light and
+   dark Carto tiles; the white freistellte mark sits centered inside. ========= */
 .pinLogo {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   cursor: pointer;
-  transition: transform 0.15s, filter 0.15s;
+  transition: transform 0.15s, box-shadow 0.15s;
   transform-origin: center bottom;
   position: relative;
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+  background: #0a0a0a;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45), 0 0 0 1.5px rgba(255, 255, 255, 0.7);
 }
 .pinLogo:hover { transform: scale(1.1); }
 .pinLogoActive {
   transform: scale(1.2);
-  filter: drop-shadow(0 3px 6px rgba(255, 59, 0, 0.55));
+  box-shadow: 0 3px 8px rgba(255, 59, 0, 0.55), 0 0 0 1.5px rgba(255, 255, 255, 0.85);
 }
 .pinLogoHasMust::after {
   /* Mini Must Eat card-back overlayed on the pin — signals the restaurant
@@ -1132,11 +1136,19 @@ html[data-theme="dark"] .btn:hover {
   z-index: 1;
 }
 .pinLogo img {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 12%;
+  width: 76%;
+  height: 76%;
   display: block;
   object-fit: contain;
-  border-radius: 50%;
+  pointer-events: none;
+}
+:global(html[data-theme="dark"]) .pinLogo {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), 0 0 0 1.5px rgba(255, 255, 255, 0.45);
+}
+:global(html[data-theme="dark"]) .pinLogoActive {
+  box-shadow: 0 3px 8px rgba(255, 59, 0, 0.55), 0 0 0 1.5px rgba(255, 255, 255, 0.7);
 }
 
 /* ========== Card-back marker for Must Eats ========== */

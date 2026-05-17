@@ -104,7 +104,7 @@ describe('/api/stripe/checkout', () => {
     // when the placeholder is rotated to a Stripe Dashboard ID (or back).
     const { getPack } = await import('../../../lib/stripe-catalog')
     expect(args.line_items[0].price).toBe(getPack('category-pizza')!.stripePriceId)
-    expect(args.success_url).toContain('/onboarding/purchase')
+    expect(args.success_url).toContain('/checkout/success')
     expect(args.cancel_url).toContain('booster=canceled')
   })
 })

@@ -19,8 +19,8 @@
   margin: 0 auto;
   max-width: 240px;
   height: auto;
-  filter: brightness(0);
 }
+.logoDark { display: none; }
 
 .count {
   display: block;
@@ -48,9 +48,8 @@
 }
 
 /* Dark Mode */
-:global(html[data-theme="dark"]) .logo {
-  filter: brightness(0) invert(1);
-}
+:global(html[data-theme="dark"]) .logoLight { display: none; }
+:global(html[data-theme="dark"]) .logoDark { display: block; }
 :global(html[data-theme="dark"]) .countN {
   color: #f5f5f5;
 }

@@ -14,8 +14,8 @@ export default function SiteFooter() {
           src="/pics/eat-this.webp"
           alt="EAT THIS"
           className="site-footer-logo-img site-footer-logo-img-light"
-          width={2000}
-          height={2000}
+          width={848}
+          height={909}
           loading="lazy"
           decoding="async"
         />
@@ -24,8 +24,8 @@ export default function SiteFooter() {
           alt=""
           aria-hidden="true"
           className="site-footer-logo-img site-footer-logo-img-dark"
-          width={2000}
-          height={2000}
+          width={848}
+          height={909}
           loading="lazy"
           decoding="async"
         />

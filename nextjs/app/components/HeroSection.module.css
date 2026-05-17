@@ -1,7 +1,7 @@
-/* Hero — Berlin Mitte map as canvas, EAT THIS asset (red wordmark + black
-   marker tagline, both baked into the PNG) sits on top, comic-sticker CTA
-   below. Light map default, dark map for [data-theme="dark"]. Whole
-   composition locked to 100svh. */
+/* Hero — Berlin Mitte map as canvas, EAT THIS lockup (cut-out wordmark +
+   "We tell you what to eat." tagline, transparent bg) sits on top,
+   comic-sticker CTA below. Light map default, dark map for
+   [data-theme="dark"]. Whole composition locked to 100svh. */
 
 .hero {
   position: relative;
@@ -125,9 +125,8 @@
   background:
     radial-gradient(ellipse at center, rgba(0,0,0,0.20) 0%, rgba(0,0,0,0.50) 65%, rgba(0,0,0,0.78) 100%);
 }
-/* Dark mode keeps the red EAT THIS wordmark but swaps the asset to one
-   with a cream-recolored tagline (invert(1) would tint the red to cyan,
-   so we ship a second asset and toggle visibility). */
+/* Dark mode swaps the black cut-out lockup for the white variant so it
+   reads on the ink background. */
 .logoDark { display: none; }
 :global([data-theme="dark"]) .logoLight { display: none; }
 :global([data-theme="dark"]) .logoDark { display: block; }

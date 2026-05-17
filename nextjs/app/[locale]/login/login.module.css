@@ -127,8 +127,7 @@
 .brandWordmark {
   width: min(48%, 200px);
   height: auto;
-  /* New roundel ships its own white text on black; sits as-is on the red
-     surface. */
+  /* White cut-out EAT THIS wordmark reads cleanly on the brand-red surface. */
 }
 .brandTagline {
   /* Negative top margin pulls the tagline up into the wordmark's bottom

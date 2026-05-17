@@ -100,7 +100,7 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
       {/* Brand hero: wordmark + tagline. */}
       <div className={styles.brandHero} aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/pics/logo.webp" alt="" className={styles.brandWordmark} />
+        <img src="/pics/logo-dark.webp" alt="" className={styles.brandWordmark} />
         <p className={styles.brandTagline}>{t('modals.login.tagline')}</p>
       </div>
 

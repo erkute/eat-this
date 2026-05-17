@@ -122,6 +122,9 @@ body {
   width: auto;
   display: block;
 }
+.brand-logo-dark { display: none; }
+html[data-theme="dark"] .brand-logo-light { display: none; }
+html[data-theme="dark"] .brand-logo-dark { display: block; }
 
 .navbar-actions {
   display: flex;

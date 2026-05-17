@@ -147,9 +147,18 @@ export default function SiteNav() {
           <img
             src="/pics/logo.webp"
             alt="EAT THIS"
-            className="brand-logo"
-            width={36}
-            height={36}
+            className="brand-logo brand-logo-light"
+            width={848}
+            height={772}
+            decoding="async"
+          />
+          <img
+            src="/pics/logo-dark.webp"
+            alt=""
+            aria-hidden="true"
+            className="brand-logo brand-logo-dark"
+            width={848}
+            height={772}
             decoding="async"
           />
         </Link>

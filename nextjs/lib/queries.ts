@@ -344,52 +344,6 @@ export const sitemapQuery = `
   }
 `
 
-// ── Landing Page (Singleton) ────────────────────────────────────────
-
-export const landingPageQuery = `
-  *[_id == "landingPage"][0] {
-    hero {
-      headlineDe, headlineEn,
-      bodyDe, bodyEn,
-      ctaLabelDe, ctaLabelEn,
-      ctaHref,
-      "imageUrl": image.asset->url + "?w=1600&auto=format&q=85"
-    },
-    mustEats {
-      headlineDe, headlineEn,
-      bodyDe, bodyEn,
-      ctaLabelDe, ctaLabelEn,
-      ctaHref
-    },
-    insideMap {
-      headlineDe, headlineEn,
-      "screenshotUrls": screenshots[].asset->url
-    },
-    packs {
-      headlineDe, headlineEn,
-      bodyDe, bodyEn,
-      starter {
-        titleDe, titleEn, bodyDe, bodyEn,
-        ctaLabelDe, ctaLabelEn,
-        "imageUrl": image.asset->url + "?w=800&auto=format&q=85"
-      },
-      category {
-        titleDe, titleEn, bodyDe, bodyEn,
-        bulletsDe, bulletsEn,
-        ctaLabelDe, ctaLabelEn,
-        "imageUrl": image.asset->url + "?w=800&auto=format&q=85"
-      },
-      complete {
-        titleDe, titleEn, bodyDe, bodyEn,
-        bulletsDe, bulletsEn,
-        ctaLabelDe, ctaLabelEn,
-        "imageUrl": image.asset->url + "?w=800&auto=format&q=85"
-      }
-    },
-    finalCta { headlineDe, headlineEn, bodyDe, bodyEn, ctaLabelDe, ctaLabelEn, ctaHref }
-  }
-`
-
 export const restaurantCountQuery = `count(*[_type == "restaurant" && !(_id in path("drafts.**"))])`
 
 

@@ -2,16 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import styles from './FinalCtaSection.module.css'
 
-interface Props {
-  headline?: string
-  body?: string
-  ctaLabel?: string
-  ctaHref?: string
-  locale?: 'de' | 'en'
-  restaurantCount?: number
-}
-
-export default function FinalCtaSection(_props: Props) {
+export default function FinalCtaSection() {
   return (
     <section className={styles.section} aria-labelledby="final-cta-headline">
       <h2 id="final-cta-headline" className={styles.h2}>

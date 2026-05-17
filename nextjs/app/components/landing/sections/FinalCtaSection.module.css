@@ -50,7 +50,7 @@
   padding: clamp(14px, 2.2vh, 22px) clamp(28px, 5vw, 40px);
   border: 3px solid #0a0a0a;
   border-radius: 999px;
-  background: #FD3A39;
+  background: var(--brand-red);
   color: #fff;
   font-family: var(--font);
   font-size: clamp(16px, 4.4vw, 19px);
@@ -62,7 +62,7 @@
   transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
 }
 .cta:hover {
-  background: #E62A28;
+  background: var(--brand-red-hover);
   transform: translate(-2px, -2px);
   box-shadow: 8px 8px 0 0 #0a0a0a;
 }
@@ -70,8 +70,7 @@
   transform: translate(2px, 2px);
   box-shadow: 2px 2px 0 0 #0a0a0a;
 }
-:global([data-theme="dark"]) .cta { border-color: #f7f5f0; box-shadow: 6px 6px 0 0 #f7f5f0; }
-:global([data-theme="dark"]) .cta:hover  { box-shadow: 8px 8px 0 0 #f7f5f0; }
+/* Dark-mode CTA inherits light black-chrome — no glow, no cream ring. */
 :global([data-theme="dark"]) .cta:active { box-shadow: 2px 2px 0 0 #f7f5f0; }
 
 .arrow {

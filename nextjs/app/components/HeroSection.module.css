@@ -56,7 +56,7 @@
   align-items: center;
   gap: 12px;
   padding: clamp(14px, 2.2vh, 22px) clamp(28px, 5vw, 40px);
-  background: #FD3A39;
+  background: var(--brand-red);
   color: #fff;
   border: 3px solid #0a0a0a;
   border-radius: 999px;
@@ -74,7 +74,7 @@
 }
 .cta:hover {
   transform: translate(-2px, -2px);
-  background: #E62A28;
+  background: var(--brand-red-hover);
   box-shadow: 8px 8px 0 0 #0a0a0a;
 }
 .cta:active {
@@ -106,6 +106,12 @@
   .cta:active { box-shadow: 3px 3px 0 0 #0a0a0a; }
 }
 
+/* ── Logo theme swap — two assets, CSS picks the right one ─────────── */
+.logoLight { display: block; }
+.logoDark  { display: none; }
+:global([data-theme="dark"]) .logoLight { display: none; }
+:global([data-theme="dark"]) .logoDark  { display: block; }
+
 /* Dark mode — swap to the dark Carto Berlin Mitte map; flip overlay
    gradient to ink so light wordmark stays readable; CTA border + shadow
    flip to cream for contrast. */
@@ -120,25 +126,7 @@
   background:
     radial-gradient(ellipse at center, rgba(0,0,0,0.20) 0%, rgba(0,0,0,0.50) 65%, rgba(0,0,0,0.78) 100%);
 }
-/* Dark-mode readability: the EAT THIS asset bakes a black handwritten
-   tagline next to the red wordmark. On the dark map that black disappears.
-   Stack tight cream drop-shadows to halo every opaque pixel (red stays red,
-   black gets a readable cream outline). */
-:global([data-theme="dark"]) .logo {
-  filter:
-    drop-shadow(0 0 6px rgba(247, 245, 240, 0.95))
-    drop-shadow(0 0 14px rgba(247, 245, 240, 0.75))
-    drop-shadow(0 0 28px rgba(247, 245, 240, 0.45))
-    drop-shadow(0 14px 28px rgba(0, 0, 0, 0.55));
-}
-:global([data-theme="dark"]) .cta {
-  border-color: #f7f5f0;
-  box-shadow: 6px 6px 0 0 #f7f5f0;
-}
-:global([data-theme="dark"]) .cta:hover  { box-shadow: 8px 8px 0 0 #f7f5f0; }
-:global([data-theme="dark"]) .cta:active { box-shadow: 2px 2px 0 0 #f7f5f0; }
-@media (min-width: 768px) {
-  :global([data-theme="dark"]) .cta { box-shadow: 7px 7px 0 0 #f7f5f0; }
-  :global([data-theme="dark"]) .cta:hover  { box-shadow: 9px 9px 0 0 #f7f5f0; }
-  :global([data-theme="dark"]) .cta:active { box-shadow: 3px 3px 0 0 #f7f5f0; }
-}
+/* Dark-mode: no halo on the logo (dark asset ships white-ink tagline),
+   no glow on the CTA. Button inherits the light black-chrome stamp style
+   — on the dark map the black ring fades to subtle depth, the red pill
+   carries the focus on its own. */

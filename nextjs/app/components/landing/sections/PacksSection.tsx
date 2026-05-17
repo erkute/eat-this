@@ -1,24 +1,12 @@
 'use client'
 
-import { CSSProperties, useState } from 'react'
+import { CSSProperties, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useLoginModal } from '@/lib/auth'
 import { getPack } from '@/lib/stripe-catalog'
 import styles from './PacksSection.module.css'
 
-interface Tier {
-  title: string
-  body: string
-  bullets?: string[]
-  ctaLabel: string
-}
-
 interface Props {
-  headline: string
-  body?: string
-  starter: Tier
-  category: Tier
-  complete: Tier
   locale: 'de' | 'en'
   /** Live restaurant total — interpolated into bundle description so the
    *  "{count}+ Berliner Spots" line stays accurate as the catalogue grows. */
@@ -61,10 +49,7 @@ const ALL_PACKS_FAN: FanPack[] = [
   { slug: 'finedining', rot:   5, dx:  72, dy:  75, z: 8 },
 ]
 
-export default function PacksSection({
-  starter, category, complete, locale, restaurantCount,
-  headline, body,
-}: Props) {
+export default function PacksSection({ locale, restaurantCount }: Props) {
   const { open: openLogin } = useLoginModal()
 
   // Two-step purchase for the 9 booster packs: first tap zooms the row
@@ -75,6 +60,15 @@ export default function PacksSection({
   const [zoomedPack, setZoomedPack] = useState<string | null>(null)
   const toggleZoom = (packId: string) =>
     setZoomedPack(prev => (prev === packId ? null : packId))
+
+  // Inline toast for checkout failures (replaces alert(): less jarring,
+  // matches the section's editorial chrome). Auto-dismisses after 6 s.
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
+  useEffect(() => {
+    if (!checkoutError) return
+    const t = setTimeout(() => setCheckoutError(null), 6000)
+    return () => clearTimeout(t)
+  }, [checkoutError])
 
   // Guest-checkout: hit /api/stripe/checkout without an auth header. The
   // route runs in guest mode, Stripe Hosted Checkout collects the email,
@@ -103,24 +97,16 @@ export default function PacksSection({
       }
       console.error('[checkout] failed', { packId, status: res.status, raw, data })
       const msg = data.error || data.message || `HTTP ${res.status}`
-      alert(locale === 'de'
+      setCheckoutError(locale === 'de'
         ? `Kauf konnte nicht gestartet werden: ${msg}`
         : `Checkout could not start: ${msg}`)
     } catch (err) {
       console.error('[checkout] network error', err)
-      alert(locale === 'de'
+      setCheckoutError(locale === 'de'
         ? 'Netzwerkfehler beim Start des Kaufs. Bitte erneut probieren.'
         : 'Network error starting checkout. Please try again.')
     }
   }
-
-  // CMS-Drift: components void CMS props and render hard-coded copy — see
-  // project_landing_redesign memory. Will get resolved in "Punkt D" later.
-  void headline
-  void body
-  void starter
-  void category
-  void complete
 
   const mastheadTitle    = locale === 'de'
     ? 'Unsere Booster Packs.'
@@ -333,6 +319,20 @@ export default function PacksSection({
           </ul>
         </div>
       </div>
+
+      {checkoutError && (
+        <div className={styles.toast} role="status" aria-live="polite">
+          <span className={styles.toastMsg}>{checkoutError}</span>
+          <button
+            type="button"
+            className={styles.toastClose}
+            onClick={() => setCheckoutError(null)}
+            aria-label={locale === 'de' ? 'Schließen' : 'Dismiss'}
+          >
+            ×
+          </button>
+        </div>
+      )}
     </section>
   )
 }

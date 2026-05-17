@@ -289,7 +289,7 @@
   padding: 12px 22px;
   border: 2.5px solid #0a0a0a;
   border-radius: 999px;
-  background: #FD3A39;
+  background: var(--brand-red);
   color: #fff;
   font-family: var(--font);
   font-weight: 800;
@@ -300,7 +300,7 @@
   transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
 }
 .buyCta:hover {
-  background: #E62A28;
+  background: var(--brand-red-hover);
   transform: translate(-2px, -2px);
   box-shadow: 6px 6px 0 0 #0a0a0a;
 }
@@ -487,14 +487,61 @@
 :global([data-theme="dark"]) .heroFanPack { filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.55)); }
 :global([data-theme="dark"]) .menuItemZoomed { background: rgba(242, 96, 77, 0.14); }
 :global([data-theme="dark"]) .menuItemZoomed:hover { background: rgba(242, 96, 77, 0.20); }
-:global([data-theme="dark"]) .buyCta {
-  border-color: #f7f5f0;
-  box-shadow: 4px 4px 0 0 #f7f5f0;
+/* Dark-mode buy CTA inherits light black-chrome — no glow, no cream ring. */
+
+/* ── Checkout error toast ────────────────────────────────────────────
+   Replaces window.alert() for Stripe failures. Bottom-centre fixed,
+   white card with brand-red border + heavy-block-shadow (matches the
+   CTA chrome elsewhere on the page), auto-dismisses after 6 s.
+   Entry: translate-from-below (per CLAUDE.md "no opacity fades"). */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 14px 16px 14px 18px;
+  background: #fff;
+  color: #0a0a0a;
+  border: 2.5px solid var(--brand-red);
+  border-radius: 14px;
+  box-shadow: 6px 6px 0 0 #0a0a0a;
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.4;
+  animation: toastIn 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-:global([data-theme="dark"]) .buyCta:hover  { box-shadow: 6px 6px 0 0 #f7f5f0; }
-:global([data-theme="dark"]) .buyCta:active { box-shadow: 1px 1px 0 0 #f7f5f0; }
-@media (min-width: 768px) {
-  :global([data-theme="dark"]) .buyCta { box-shadow: 5px 5px 0 0 #f7f5f0; }
-  :global([data-theme="dark"]) .buyCta:hover  { box-shadow: 7px 7px 0 0 #f7f5f0; }
-  :global([data-theme="dark"]) .buyCta:active { box-shadow: 2px 2px 0 0 #f7f5f0; }
+.toastMsg { flex: 1; font-weight: 500; }
+.toastClose {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #0a0a0a;
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 120ms ease;
 }
+.toastClose:hover { background: rgba(0, 0, 0, 0.08); }
+@keyframes toastIn {
+  from { transform: translate(-50%, 24px); }
+  to   { transform: translate(-50%, 0); }
+}
+:global([data-theme="dark"]) .toast {
+  background: #1a1a1a;
+  color: #f7f5f0;
+  box-shadow: 6px 6px 0 0 #f7f5f0;
+}
+:global([data-theme="dark"]) .toastClose { color: #f7f5f0; }
+:global([data-theme="dark"]) .toastClose:hover { background: rgba(255, 255, 255, 0.1); }

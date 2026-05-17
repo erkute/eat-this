@@ -10,10 +10,22 @@ export default function SiteFooter() {
   return (
     <div className="site-footer" role="contentinfo" aria-label="Site footer">
       <Link href="/" className="site-footer-logo-link" data-page="start" aria-label="Eat This home">
+        {/* Two assets — tagline ink colour swapped per theme. CSS toggles
+            visibility (same pattern as HeroSection). No cream halo. */}
         <img
           src="/pics/hero_logo.webp"
           alt="EAT THIS"
-          className="site-footer-logo-img"
+          className="site-footer-logo-img site-footer-logo-light"
+          width={2000}
+          height={2000}
+          loading="lazy"
+          decoding="async"
+        />
+        <img
+          src="/pics/hero_logo_dark.webp"
+          alt=""
+          aria-hidden="true"
+          className="site-footer-logo-img site-footer-logo-dark"
           width={2000}
           height={2000}
           loading="lazy"

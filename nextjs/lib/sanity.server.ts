@@ -16,10 +16,9 @@ import {
   allCategoriesQuery,
   categoryBySlugQuery,
   categoryOccurrencesQuery,
-  landingPageQuery,
   restaurantCountQuery,
 } from './queries'
-import type { Restaurant, NewsArticle, StaticPageDoc, MustEatAlbumCard, BezirkDoc, RestaurantCard, LandingPageDoc } from './types'
+import type { Restaurant, NewsArticle, StaticPageDoc, MustEatAlbumCard, BezirkDoc, RestaurantCard } from './types'
 import type { CategoryDef } from './categories'
 
 export async function getRestaurantBySlug(slug: string): Promise<Restaurant | null> {
@@ -165,16 +164,6 @@ export async function getLatestNewsArticles(limit: number): Promise<NewsArticle[
     latestNewsArticlesQuery,
     { limit },
     { next: { revalidate: 3600, tags: ['news'] } },
-  )
-}
-
-// ── Landing Page ───────────────────────────────────────────────────
-
-export async function getLandingPage(): Promise<LandingPageDoc | null> {
-  return client.fetch<LandingPageDoc | null>(
-    landingPageQuery,
-    {},
-    { next: { revalidate: 300, tags: ['landingPage'] } }
   )
 }
 

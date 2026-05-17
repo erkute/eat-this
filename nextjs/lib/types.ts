@@ -152,6 +152,7 @@ export interface MapRestaurant {
   bezirk?: { name: string; slug?: string }
   address?: string
   categories?: CategoryRef[]
+  cuisineType?: string
   priceRange?: PriceRange
   phone?: string
   lat: number
@@ -198,71 +199,3 @@ export interface OpenStatus {
   minutesUntilChange: number | null
 }
 
-// ── Landing Page (CMS-managed singleton) ────────────────────────────
-
-export interface LandingHero {
-  headlineDe: string
-  headlineEn: string
-  bodyDe: string
-  bodyEn: string
-  ctaLabelDe: string
-  ctaLabelEn: string
-  ctaHref: string
-  imageUrl?: string
-}
-
-export interface LandingMustEats {
-  headlineDe: string
-  headlineEn: string
-  bodyDe: string
-  bodyEn: string
-  ctaLabelDe?: string
-  ctaLabelEn?: string
-  ctaHref?: string
-}
-
-export interface LandingInsideMap {
-  headlineDe: string
-  headlineEn: string
-  screenshotUrls?: string[]
-}
-
-export interface LandingPackTier {
-  titleDe: string
-  titleEn: string
-  bodyDe: string
-  bodyEn: string
-  bulletsDe?: string[]
-  bulletsEn?: string[]
-  ctaLabelDe?: string
-  ctaLabelEn?: string
-  imageUrl?: string
-}
-
-export interface LandingPacks {
-  headlineDe: string
-  headlineEn: string
-  bodyDe?: string
-  bodyEn?: string
-  starter: LandingPackTier
-  category: LandingPackTier
-  complete: LandingPackTier
-}
-
-export interface LandingFinalCta {
-  headlineDe: string
-  headlineEn: string
-  bodyDe?: string
-  bodyEn?: string
-  ctaLabelDe: string
-  ctaLabelEn: string
-  ctaHref: string
-}
-
-export interface LandingPageDoc {
-  hero: LandingHero
-  mustEats: LandingMustEats
-  insideMap: LandingInsideMap
-  packs: LandingPacks
-  finalCta: LandingFinalCta
-}

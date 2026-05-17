@@ -2856,13 +2856,12 @@ html:not([data-theme="dark"]) .site-footer {
   background: var(--white);
   border-top: 1px solid rgba(0,0,0,0.08);
 }
-html[data-theme="dark"] .site-footer-logo-img {
-  /* Cream halo so the black handwritten tagline in hero_logo.webp stays
-     readable on the dark footer bg; mirrors the hero treatment. */
-  filter:
-    drop-shadow(0 0 4px rgba(247, 245, 240, 0.95))
-    drop-shadow(0 0 10px rgba(247, 245, 240, 0.7));
-}
+/* Footer logo — light/dark swap mirrors Hero. No cream halo; the dark
+   asset already ships the tagline in white ink. */
+.site-footer-logo-light { display: block; }
+.site-footer-logo-dark  { display: none; }
+html[data-theme="dark"] .site-footer-logo-light { display: none; }
+html[data-theme="dark"] .site-footer-logo-dark  { display: block; }
 html:not([data-theme="dark"]) .site-footer-link {
   color: rgba(0,0,0,0.4);
 }

@@ -21,6 +21,10 @@
   --brand-pink:       #F4B6B6;
   --brand-yellow:     #F5C518;
   --brand-navy:       #1F3A5F;
+  /* CTA-Rot — sampled avg-red from hero_logo.webp (peak #FF3A36).
+     Used by HeroSection / FinalCtaSection / PacksSection buy CTA. */
+  --brand-red:        #FD3A39;
+  --brand-red-hover:  #E62A28;
 
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
   /* Display pair — Bar-Basta visual direction. Bungee (solid, fully filled

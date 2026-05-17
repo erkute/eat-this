@@ -9,14 +9,26 @@ export default function HeroSection() {
   return (
     <section className={styles.hero}>
       <div className={styles.logoWrap}>
+        {/* Two assets — same lockup, tagline ink colour swapped (black on
+            light, white on dark). CSS toggles which is visible. */}
         <Image
           src="/pics/hero_logo.webp"
           alt="Eat This"
           width={1080}
           height={1080}
-          className={styles.logo}
+          className={`${styles.logo} ${styles.logoLight}`}
           priority
           sizes="(max-width: 768px) 96vw, min(820px, 76vw)"
+        />
+        <Image
+          src="/pics/hero_logo_dark.webp"
+          alt=""
+          width={1080}
+          height={1080}
+          className={`${styles.logo} ${styles.logoDark}`}
+          priority
+          sizes="(max-width: 768px) 96vw, min(820px, 76vw)"
+          aria-hidden="true"
         />
       </div>
 

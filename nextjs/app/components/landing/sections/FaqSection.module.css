@@ -1,43 +1,44 @@
 /* FAQ - accordion list. Sits late in the page to handle objections
-   right before the final CTA. */
+   right before the final CTA. Masthead mirrors PacksSection / VoicesSection
+   / CitiesSection so the section reads as one Booster-Pack-Speisekarte. */
 
 .section {
+  position: relative;
   background: var(--surface-canvas);
   color: #0a0a0a;
-  padding: 80px 24px 56px;
+  padding: clamp(64px, 9vh, 112px) 18px clamp(72px, 11vh, 128px);
+  overflow: hidden;
 }
 :global([data-theme="dark"]) .section { background: #0a0a0a; color: #f7f5f0; }
 .inner {
-  max-width: 760px;
+  max-width: 980px;
   margin: 0 auto;
 }
 
-.head {
-  text-align: center;
-  margin: 0 auto 48px;
+/* Masthead — Ranchers eyebrow + brand-red wordmark, left-aligned, broken
+   into two lines just like Pick / a Pack. */
+.masthead {
+  text-align: left;
+  margin: 0 0 clamp(36px, 6vh, 56px);
 }
-/* Marker eyebrow + Bungee H2 coral — same vocabulary as the hero
-   tagline/PacksSection masthead so the page reads as one piece. */
 .eyebrow {
-  display: inline-block;
-  font-family: var(--font-marker);
-  font-size: clamp(18px, 3.4vw, 26px);
+  font-family: var(--font-ranchers);
+  font-size: clamp(20px, 4.6vw, 28px);
   font-weight: 400;
-  letter-spacing: 0.01em;
-  color: var(--brand-navy);
-  margin-bottom: 10px;
-  transform: rotate(-2deg);
-  text-transform: lowercase;
-}
-.h2 {
-  font-family: var(--font-display);
-  font-size: clamp(36px, 7vw, 56px);
-  font-weight: 400;
+  color: #0a0a0a;
+  margin: 0 0 4px;
+  line-height: 1;
   letter-spacing: 0;
-  line-height: 0.95;
-  color: var(--brand-coral);
-  text-transform: uppercase;
+}
+:global([data-theme="dark"]) .eyebrow { color: #f7f5f0; }
+.wordmark {
   margin: 0;
+  font-family: var(--font-ranchers);
+  font-weight: 400;
+  font-size: clamp(72px, 18vw, 132px);
+  line-height: 0.88;
+  color: var(--brand-red);
+  letter-spacing: -0.005em;
 }
 
 .list {
@@ -70,7 +71,7 @@
   color: #0a0a0a;
   text-align: left;
 }
-.q:hover { color: var(--brand-coral); }
+.q:hover { color: var(--brand-red); }
 :global([data-theme="dark"]) .q { color: #f7f5f0; }
 
 .icon {
@@ -92,8 +93,8 @@
   transition: transform 220ms ease, background 220ms ease, color 220ms ease;
 }
 .itemOpen .icon {
-  background: var(--brand-coral);
-  border-color: var(--brand-coral);
+  background: var(--brand-red);
+  border-color: var(--brand-red);
   color: #fff;
 }
 
@@ -115,9 +116,7 @@
 }
 
 @media (min-width: 768px) {
-  .section { padding: 120px 48px 80px; }
-  .head { margin-bottom: 64px; }
-  .h2 { font-size: clamp(56px, 7vw, 80px); letter-spacing: 0; }
+  .section { padding: clamp(96px, 13vh, 160px) 32px clamp(112px, 14vh, 168px); }
   .q { font-size: 18px; padding: 26px 8px; }
   .a { font-size: 16px; padding-right: 56px; }
 }

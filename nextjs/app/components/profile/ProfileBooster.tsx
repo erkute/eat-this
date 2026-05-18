@@ -264,22 +264,14 @@ export default function ProfileBooster({ restaurantCount }: Props) {
       </div>
 
       <div className={styles.paymentRow} aria-label="Akzeptierte Zahlungsmethoden">
-        <svg className={styles.payIcon} viewBox="0 0 80 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="PayPal">
-          <text x="0" y="16" fontSize="14" fontWeight="700" fontFamily="Arial,sans-serif" fill="#003087">Pay</text>
-          <text x="26" y="16" fontSize="14" fontWeight="700" fontFamily="Arial,sans-serif" fill="#009cde">Pal</text>
-        </svg>
-        <span className={styles.payDot} aria-hidden="true">·</span>
-        <svg className={styles.payIcon} viewBox="0 0 48 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Visa">
-          <text x="0" y="13" fontSize="13" fontWeight="900" fontFamily="Arial,sans-serif" letterSpacing="1" fill="#1a1f71">VISA</text>
-        </svg>
-        <span className={styles.payDot} aria-hidden="true">·</span>
-        <svg className={styles.payIconMc} viewBox="0 0 38 24" xmlns="http://www.w3.org/2000/svg" aria-label="Mastercard">
-          <circle cx="14" cy="12" r="10" fill="#eb001b"/>
-          <circle cx="24" cy="12" r="10" fill="#f79e1b"/>
-          <path d="M19 5.4a10 10 0 0 1 0 13.2A10 10 0 0 1 19 5.4z" fill="#ff5f00"/>
-        </svg>
-        <span className={styles.payDot} aria-hidden="true">·</span>
-        <span className={styles.payLabel}>Apple Pay</span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/pics/payment/apple-pay.svg"  alt="Apple Pay" className={styles.payMark} loading="lazy" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/pics/payment/maestro.svg"    alt="Maestro"   className={styles.payMark} loading="lazy" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/pics/payment/visa.svg"       alt="Visa"      className={styles.payMark} loading="lazy" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/pics/payment/paypal.svg"     alt="PayPal"    className={styles.payMark} loading="lazy" />
       </div>
     </div>
   );

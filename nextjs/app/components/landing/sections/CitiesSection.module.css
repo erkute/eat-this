@@ -1,0 +1,183 @@
+/* ──────────────────────────────────────────────────────────────────────
+ * CitiesSection — "Berlin & beyond."
+ * Cream canvas, Ranchers masthead, three passport-stamp city tiles with
+ * alternating tilt + "Soon" yellow chip + comic-sticker ink shadow.
+ * Closes on a red booster-pill CTA into a prefilled mailto.
+ * Same visual family as PacksSection / VoicesSection — keeps the landing
+ * rhythm uniform.
+ * ────────────────────────────────────────────────────────────────────── */
+
+.section {
+  position: relative;
+  background: var(--surface-canvas);
+  color: #0a0a0a;
+  padding: clamp(64px, 9vh, 112px) 18px clamp(72px, 11vh, 128px);
+  overflow: hidden;
+}
+.inner {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+/* ── Masthead ──────────────────────────────────────────────────────── */
+.masthead {
+  text-align: left;
+  margin: 0 0 clamp(36px, 6vh, 56px);
+  max-width: 640px;
+}
+.eyebrow {
+  font-family: var(--font-ranchers);
+  font-size: clamp(20px, 4.6vw, 28px);
+  color: #0a0a0a;
+  margin: 0 0 4px;
+  line-height: 1;
+}
+.wordmark {
+  margin: 0 0 18px;
+  font-family: var(--font-ranchers);
+  font-weight: 400;
+  font-size: clamp(72px, 18vw, 132px);
+  line-height: 0.88;
+  color: var(--brand-red);
+  letter-spacing: -0.005em;
+}
+.body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: clamp(15px, 3.8vw, 17px);
+  line-height: 1.55;
+  font-weight: 500;
+  color: #0a0a0a;
+  max-width: 52ch;
+}
+
+/* ── City stamps ───────────────────────────────────────────────────── */
+.stamps {
+  list-style: none;
+  margin: 0 0 clamp(36px, 6vh, 56px);
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.stamp {
+  position: relative;
+  background: #fff;
+  border: 3px solid #0a0a0a;
+  border-radius: 14px;
+  padding: 26px 22px 22px;
+  box-shadow: 8px 8px 0 0 #0a0a0a;
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 280ms ease;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+.stamp:hover {
+  transform: rotate(0) translate(-2px, -2px);
+  box-shadow: 12px 12px 0 0 #0a0a0a;
+}
+
+.stampSoon {
+  display: inline-block;
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border: 2px solid #0a0a0a;
+  border-radius: 999px;
+  background: #F5C518;
+  color: #0a0a0a;
+}
+.stampCity {
+  font-family: var(--font-ranchers);
+  font-size: clamp(36px, 9vw, 52px);
+  line-height: 1;
+  color: var(--brand-red);
+  letter-spacing: -0.005em;
+}
+
+/* ── CTA row ───────────────────────────────────────────────────────── */
+.ctaWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+.ctaIntro {
+  margin: 0;
+  font-family: var(--font);
+  font-size: clamp(16px, 4.4vw, 19px);
+  font-weight: 700;
+  line-height: 1.3;
+  color: #0a0a0a;
+  text-wrap: balance;
+}
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--brand-red);
+  color: #fff;
+  text-decoration: none;
+  border: 3px solid #0a0a0a;
+  border-radius: 999px;
+  padding: 14px 22px;
+  font-family: var(--font-slackey);
+  font-size: clamp(18px, 4.6vw, 22px);
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 5px 5px 0 0 #0a0a0a;
+  transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
+  white-space: nowrap;
+}
+.cta:hover {
+  background: var(--brand-red-hover);
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 0 #0a0a0a;
+}
+.cta:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 0 #0a0a0a;
+}
+
+/* ── Desktop / wider ───────────────────────────────────────────────── */
+@media (min-width: 700px) {
+  .section { padding: clamp(96px, 13vh, 160px) 32px clamp(112px, 14vh, 168px); }
+  .stamps  { grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .stamp   { padding: 30px 22px 24px; }
+  .ctaWrap {
+    flex-direction: row;
+    align-items: center;
+    gap: 22px;
+    justify-content: space-between;
+  }
+}
+
+/* ── Dark mode ─────────────────────────────────────────────────────── */
+:global([data-theme="dark"]) .section {
+  background: #0a0a0a;
+  color: #f7f5f0;
+}
+:global([data-theme="dark"]) .eyebrow,
+:global([data-theme="dark"]) .body,
+:global([data-theme="dark"]) .ctaIntro {
+  color: #f7f5f0;
+}
+:global([data-theme="dark"]) .stamp {
+  background: #141414;
+  border-color: #f7f5f0;
+  box-shadow: 8px 8px 0 0 #f7f5f0;
+}
+:global([data-theme="dark"]) .stamp:hover {
+  box-shadow: 12px 12px 0 0 #f7f5f0;
+}
+:global([data-theme="dark"]) .cta { box-shadow: 5px 5px 0 0 #f7f5f0; }
+:global([data-theme="dark"]) .cta:hover  { box-shadow: 7px 7px 0 0 #f7f5f0; }
+:global([data-theme="dark"]) .cta:active { box-shadow: 2px 2px 0 0 #f7f5f0; }

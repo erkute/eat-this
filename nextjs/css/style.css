@@ -118,9 +118,12 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 .brand-logo {
-  height: 36px;
+  height: 28px;
   width: auto;
   display: block;
+}
+@media (min-width: 768px) {
+  .brand-logo { height: 36px; }
 }
 .brand-logo-dark { display: none; }
 html[data-theme="dark"] .brand-logo-light { display: none; }

@@ -29,8 +29,9 @@ export default function HeroSection() {
 
       <Link href="/map" className={styles.cta}>
         <span>Open Map</span>
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
-          <path d="M4 11h13M12 5l6 6-6 6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+        <svg className={styles.arrow} width="40" height="24" viewBox="0 0 40 24" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M3 12 L28 12" />
+          <path d="M22 4 L32 12 L22 20" />
         </svg>
       </Link>
     </section>

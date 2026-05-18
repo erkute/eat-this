@@ -7,6 +7,8 @@ import HeroSection from '@/app/components/HeroSection'
 import SiteFooter from '@/app/components/SiteFooter'
 
 import PacksSection from '@/app/components/landing/sections/PacksSection'
+import VoicesSection from '@/app/components/landing/sections/VoicesSection'
+import CitiesSection from '@/app/components/landing/sections/CitiesSection'
 import FaqSection from '@/app/components/landing/sections/FaqSection'
 import FinalCtaSection from '@/app/components/landing/sections/FinalCtaSection'
 
@@ -80,6 +82,8 @@ export default async function SPAHomePage({
         <HeroSection />
         <div className="start-scroll-content" style={{ paddingTop: 0 }}>
           <PacksSection locale={locale} restaurantCount={restaurantCount} />
+          <VoicesSection locale={locale} />
+          <CitiesSection locale={locale} />
           <FaqSection locale={locale} />
           <FinalCtaSection />
           <SiteFooter />

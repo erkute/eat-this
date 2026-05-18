@@ -35,36 +35,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 18px;
   flex-wrap: wrap;
   margin-top: clamp(32px, 5vh, 56px);
 }
-.payIcon {
-  height: 18px;
+.payMark {
+  height: 26px;
   width: auto;
   display: block;
+  object-fit: contain;
 }
-.payIconMc {
-  height: 20px;
-  width: auto;
-  display: block;
-}
-.payDot {
-  color: rgba(10, 10, 10, 0.25);
-  font-size: 14px;
-  line-height: 1;
-}
-.payLabel {
-  font-size: 12px;
-  font-weight: 600;
-  color: rgba(10, 10, 10, 0.5);
-}
-:global(html[data-theme="dark"]) .payDot {
-  color: rgba(245, 245, 245, 0.2);
-}
-:global(html[data-theme="dark"]) .payLabel {
-  color: rgba(245, 245, 245, 0.45);
-}
-:global(html[data-theme="dark"]) .payIcon text {
-  fill: rgba(245, 245, 245, 0.7);
+:global(html[data-theme="dark"]) .payMark {
+  /* Most brand marks ship for light backgrounds — soft-invert just the
+     ones that come as dark/mono SVG so they stay legible on ink. */
+  filter: brightness(0.96);
 }

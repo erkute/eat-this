@@ -17,7 +17,10 @@ export default function FinalCtaSection() {
       </h2>
       <Link href="/map" className={styles.cta}>
         Open Map
-        <span aria-hidden="true" className={styles.arrow}>→</span>
+        <svg className={styles.arrow} width="40" height="24" viewBox="0 0 40 24" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M3 12 L28 12" />
+          <path d="M22 4 L32 12 L22 20" />
+        </svg>
       </Link>
     </section>
   )

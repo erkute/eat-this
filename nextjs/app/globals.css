@@ -39,6 +39,11 @@
   --font-ranchers: var(--font-ranchers, 'Ranchers'), 'Impact', 'Arial Narrow', sans-serif;
   /* Slackey — buy CTA wonky-cartoon sticker font (price labels + "Gratis"). */
   --font-slackey:  var(--font-slackey, 'Slackey'), 'Comic Sans MS', cursive;
+  /* Barlow Condensed Light — condensed grotesque used for Voices testimonial
+     bodies. Same narrow-display vibe as Ranchers ("Berlin & beyond." /
+     "Häufige Fragen.") but with a real Light 300 weight, so the stroke is
+     naturally schmal instead of chunky like Ranchers' single 400. */
+  --font-quote:    var(--font-barlow-condensed, 'Barlow Condensed'), 'Impact', 'Arial Narrow', sans-serif;
   --radius: 2px;
 
   /* Semantic surface/text tokens — used by the map UI and newer React components.

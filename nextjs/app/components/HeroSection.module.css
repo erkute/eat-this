@@ -6,8 +6,12 @@
 .hero {
   position: relative;
   height: 100svh;
-  padding: clamp(0px, 0.5vh, 12px) 20px clamp(24px, 3.5vh, 56px);
-  background: #eef1f3;
+  /* Top padding clears the fixed navbar (~48px brand + 10px × 2) and adds
+     breathing room so the wordmark doesn't kiss the header. */
+  padding: calc(72px + env(safe-area-inset-top, 0px)) 20px clamp(24px, 3.5vh, 56px);
+  /* Cream canvas matches the rest of the landing — no seam between Hero
+     and PacksSection below. */
+  background: var(--surface-canvas);
   color: #0a0a0a;
   display: flex;
   flex-direction: column;
@@ -37,8 +41,8 @@
 .hero > * { position: relative; z-index: 2; }
 
 .logoWrap {
-  width: min(96vw, 760px);
-  max-height: 74svh;
+  width: min(82vw, 640px);
+  max-height: 64svh;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -60,10 +64,13 @@
   color: #fff;
   border: 3px solid #0a0a0a;
   border-radius: 999px;
-  font-family: var(--font);
-  font-size: clamp(16px, 4.4vw, 19px);
-  font-weight: 900;
-  letter-spacing: 0.01em;
+  /* Slackey — the brand's CTA voice (same as Packs buy buttons). Punchy
+     cartoon-comic feel instead of stiff Inter 900. */
+  font-family: var(--font-slackey);
+  font-size: clamp(18px, 4.8vw, 22px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1;
   text-decoration: none;
   cursor: pointer;
   box-shadow: 6px 6px 0 0 #0a0a0a;
@@ -81,8 +88,11 @@
   transform: translate(2px, 2px);
   box-shadow: 2px 2px 0 0 #0a0a0a;
 }
-.cta:hover svg { transform: translateX(3px); }
-.cta svg { transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+.arrow {
+  display: block;
+  transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.cta:hover .arrow { transform: translateX(4px); }
 /* Dark-mode CTA inherits light black-chrome — match FinalCta bookend. */
 :global([data-theme="dark"]) .cta:active { box-shadow: 2px 2px 0 0 #f7f5f0; }
 
@@ -99,7 +109,7 @@
   }
   .cta {
     padding: clamp(16px, 2.2vh, 22px) clamp(32px, 3.4vw, 44px);
-    font-size: clamp(17px, 1.3vw, 20px);
+    font-size: clamp(20px, 1.6vw, 24px);
     border-width: 3.5px;
     box-shadow: 7px 7px 0 0 #0a0a0a;
     margin-top: clamp(36px, 5vh, 72px);

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { setRequestLocale, getMessages } from 'next-intl/server';
-import { Bungee, Caveat, Knewave, Archivo_Black, Ranchers, Slackey } from 'next/font/google';
+import { Bungee, Caveat, Knewave, Archivo_Black, Ranchers, Slackey, Barlow_Condensed } from 'next/font/google';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
 
@@ -60,6 +60,16 @@ const slackey = Slackey({
   display: 'swap',
   variable: '--font-slackey',
 });
+// Barlow Condensed — modern condensed grotesque, multi-weight. Used at
+// Light 300 for the Voices testimonials so the quotes feel like the
+// condensed Ranchers wordmark family visually but with a much thinner
+// stroke than Ranchers' single 400 weight.
+const barlowCondensed = Barlow_Condensed({
+  weight: ['300', '400'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-barlow-condensed',
+});
 
 export function generateStaticParams() {
   return routing.locales.map(locale => ({ locale }));
@@ -102,7 +112,7 @@ export default async function LocaleLayout({
 
   return (
     // suppressHydrationWarning: critical script mutates data-theme before hydration
-    <html lang={locale} data-scroll-behavior="smooth" className={`${bungee.variable} ${caveat.variable} ${knewave.variable} ${archivoBlack.variable} ${ranchers.variable} ${slackey.variable}`} suppressHydrationWarning>
+    <html lang={locale} data-scroll-behavior="smooth" className={`${bungee.variable} ${caveat.variable} ${knewave.variable} ${archivoBlack.variable} ${ranchers.variable} ${slackey.variable} ${barlowCondensed.variable}`} suppressHydrationWarning>
       <head>
         {/* Safe: hardcoded constant, no user input */}
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}

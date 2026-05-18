@@ -45,10 +45,11 @@
 }
 .name {
   margin: 0;
-  font-size: 28px;
-  line-height: 1.2;
-  font-weight: 900;
-  letter-spacing: -0.02em;
+  font-family: var(--font-marker);
+  font-size: 32px;
+  line-height: 1.05;
+  font-weight: 400;
+  letter-spacing: 0.005em;
   color: #0A0A0A;
   white-space: nowrap;
   overflow: hidden;
@@ -66,7 +67,7 @@
   }
   .avatar { width: 104px; height: 104px; }
   .avatar img { width: 86px; height: 86px; }
-  .name { font-size: 32px; }
+  .name { font-size: 38px; }
 }
 
 @media (min-width: 1200px) {

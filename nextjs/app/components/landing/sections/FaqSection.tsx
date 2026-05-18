@@ -109,12 +109,14 @@ export default function FaqSection({ locale }: Props) {
   return (
     <section className={styles.section}>
       <div className={styles.inner}>
-        <div className={styles.head}>
-          <span className={styles.eyebrow}>FAQ</span>
-          <h2 className={styles.h2}>
-            {locale === 'de' ? 'Häufige Fragen' : 'Frequently asked'}
+        <header className={styles.masthead}>
+          <p className={styles.eyebrow}>FAQ</p>
+          <h2 className={styles.wordmark}>
+            {locale === 'de'
+              ? (<>Häufige<br />Fragen.</>)
+              : (<>Frequently<br />asked.</>)}
           </h2>
-        </div>
+        </header>
         <ul className={styles.list}>
           {items.map((item, i) => {
             const open = openIdx === i

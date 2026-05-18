@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import styles from './map.module.css'
 
@@ -47,18 +47,18 @@ export default function MapFilterPickerSheet({
   title, items, selectedValue, onSelect, onClose,
   anchorEl, footer, allLabel, closeAriaLabel,
 }: Props) {
-  const sheetRef = useRef<HTMLDivElement>(null)
-  // Portal to document.body so the picker isn't clipped or mis-positioned
-  // by the bottom-sheet aside's `transform` — `position: fixed` resolves
-  // relative to the nearest transformed ancestor, not the viewport.
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => { setMounted(true) }, [])
+  // Callback-ref into state so position + touchmove effects re-run the moment
+  // the sheet element actually attaches. The previous useState('mounted') +
+  // useRef pattern raced: effects ran on the first pass when the portal
+  // returned null, sheetRef.current was still null, and the position effect
+  // never re-ran after mounted flipped — leaving the desktop popover at 0,0.
+  const [sheetEl, setSheetEl] = useState<HTMLDivElement | null>(null)
 
   // Outside-click / Escape close.
   useEffect(() => {
     const onPointer = (e: MouseEvent | TouchEvent) => {
       const target = e.target as Node
-      if (sheetRef.current && sheetRef.current.contains(target)) return
+      if (sheetEl && sheetEl.contains(target)) return
       if (anchorEl && anchorEl.contains(target)) return
       onClose()
     }
@@ -71,33 +71,31 @@ export default function MapFilterPickerSheet({
       document.removeEventListener('touchstart', onPointer)
       document.removeEventListener('keydown', onKey)
     }
-  }, [onClose, anchorEl])
+  }, [onClose, anchorEl, sheetEl])
 
   // Prevent the map-sheet's drag handler from absorbing touches that start
   // inside the picker — otherwise scrolling a long bezirk list collapses
   // the bottom sheet underneath.
   useEffect(() => {
-    const el = sheetRef.current
-    if (!el) return
+    if (!sheetEl) return
     const stop = (e: TouchEvent) => e.stopPropagation()
-    el.addEventListener('touchmove', stop, { passive: true })
-    return () => el.removeEventListener('touchmove', stop)
-  }, [])
+    sheetEl.addEventListener('touchmove', stop, { passive: true })
+    return () => sheetEl.removeEventListener('touchmove', stop)
+  }, [sheetEl])
 
   // Desktop popover positioning relative to the anchor chip.
   useEffect(() => {
-    const el = sheetRef.current
-    if (!el || !anchorEl) return
+    if (!sheetEl || !anchorEl) return
     const apply = () => {
       const isDesktop = window.matchMedia('(min-width: 1024px)').matches
       if (!isDesktop) {
-        el.style.removeProperty('--picker-anchor-top')
-        el.style.removeProperty('--picker-anchor-left')
+        sheetEl.style.removeProperty('--picker-anchor-top')
+        sheetEl.style.removeProperty('--picker-anchor-left')
         return
       }
       const rect = anchorEl.getBoundingClientRect()
-      el.style.setProperty('--picker-anchor-top', `${rect.bottom + 6}px`)
-      el.style.setProperty('--picker-anchor-left', `${rect.left}px`)
+      sheetEl.style.setProperty('--picker-anchor-top', `${rect.bottom + 6}px`)
+      sheetEl.style.setProperty('--picker-anchor-left', `${rect.left}px`)
     }
     apply()
     window.addEventListener('resize', apply)
@@ -106,15 +104,15 @@ export default function MapFilterPickerSheet({
       window.removeEventListener('resize', apply)
       window.removeEventListener('scroll', apply, true)
     }
-  }, [anchorEl])
+  }, [anchorEl, sheetEl])
 
-  if (!mounted) return null
+  if (typeof document === 'undefined') return null
 
   return createPortal(
     <>
       <div className={styles.pickerBackdrop} onClick={onClose} aria-hidden="true" />
       <div
-        ref={sheetRef}
+        ref={setSheetEl}
         className={styles.pickerSheet}
         role="dialog"
         aria-modal="true"

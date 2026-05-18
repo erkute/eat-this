@@ -59,7 +59,7 @@ function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
             src="/pics/card-back.webp"
             alt=""
             className={styles.rowMustOverlay}
-            aria-label="Must Eat"
+            aria-hidden="true"
             draggable={false}
           />
         )}

@@ -435,31 +435,58 @@ export default function MapSection({ isActive = false }: Props) {
     }
   }, [requestLocation, getFlyPadding])
 
-  /* Auto-center on the user's position the first time the map page opens.
-     Ref guard handles React strict-mode double-mount so we don't double-prompt.
-     userInteractedRef is set synchronously by click handlers — see top of
-     component — so this slow Promise can't overwrite the user's selection. */
+  /* Request the user's position once on mount so the user-location marker
+     renders. Don't auto-fly — useInitialFit already framed all spots, and
+     zooming back in to z=14 around the user clipped most pins off-screen
+     (the typical "I see only Mitte" complaint). The "Mein Standort" button
+     stays available for explicit centering. */
   const autoLocatedRef = useRef(false)
   useEffect(() => {
     if (autoLocatedRef.current) return
     autoLocatedRef.current = true
-    let cancelled = false
-    requestLocation().then(loc => {
-      if (cancelled || !loc) return
-      // Skip the auto-fly if the user has already selected something — their
-      // click's flyTo would otherwise be overwritten by this delayed callback.
-      if (userInteractedRef.current) return
-      const tryFly = () => {
-        if (mapRef.current) {
-          mapRef.current.flyTo({ center: [loc.lng, loc.lat], zoom: 14, duration: 600, padding: getFlyPadding() })
-        } else {
-          setTimeout(tryFly, 120)
-        }
-      }
-      tryFly()
-    })
-    return () => { cancelled = true }
-  }, [requestLocation, getFlyPadding])
+    requestLocation()
+  }, [requestLocation])
+
+  /* Refit the map whenever a structured filter narrows or widens the visible
+     set. Without this the user picks "Pizza" → 3 spots in the list but the
+     map stays parked on Mitte and they have to manually zoom out to find the
+     other two. Search (live keystrokes) is intentionally excluded — refitting
+     mid-type feels jittery. Skip during a detail view so the selected pin's
+     centering isn't overridden. */
+  const getFlyPaddingRef = useRef(getFlyPadding)
+  getFlyPaddingRef.current = getFlyPadding
+  const didFirstFilterRefitRef = useRef(false)
+  const displayedRestaurantsRef = useRef(displayedRestaurants)
+  displayedRestaurantsRef.current = displayedRestaurants
+  useEffect(() => {
+    if (!didFirstFilterRefitRef.current) {
+      didFirstFilterRefitRef.current = true
+      return
+    }
+    if (selectedRestaurant || selectedMustEat) return
+    if (!mapRef.current) return
+    const list = displayedRestaurantsRef.current
+    if (!list.length) return
+    if (list.length === 1) {
+      const r = list[0]
+      mapRef.current.flyTo({
+        center: [r.lng, r.lat],
+        zoom: 14,
+        duration: 500,
+        padding: getFlyPaddingRef.current(),
+      })
+      return
+    }
+    const lngs = list.map(r => r.lng)
+    const lats = list.map(r => r.lat)
+    mapRef.current.fitBounds(
+      [
+        [Math.min(...lngs), Math.min(...lats)],
+        [Math.max(...lngs), Math.max(...lats)],
+      ],
+      { padding: getFlyPaddingRef.current(), duration: 500, maxZoom: 14 },
+    )
+  }, [category, bezirk, cuisine, openOnly, selectedRestaurant, selectedMustEat])
 
   const prevActiveRef = useRef(false)
   useEffect(() => {

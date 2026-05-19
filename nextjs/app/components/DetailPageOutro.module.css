@@ -1,238 +1,213 @@
-/* DetailPageOutro — cross-promotion block at the bottom of bezirk + restaurant
-   detail pages. Uses semantic tokens so it works in light + dark mode.
-   Mobile-first; news grid splits into 2-col at >=720px. */
+/* DetailPageOutro — magazine outro at the bottom of bezirk + restaurant
+ * detail pages. Headings in Ranchers brand-red (matches the .faqHeading and
+ * MustEatTeaser .heading), cards as comic-stickers with hard ink shadow +
+ * deterministic ±tilt. Mobile-first; horizontal scroll-snap on small,
+ * 2-col grid on desktop.
+ */
 
 .outro {
-  margin-top: 56px;
+  margin-top: 64px;
   color: var(--text-primary);
 }
 
-.divider {
-  height: 1px;
-  background: var(--border-subtle);
-  margin: 0 0 36px;
-  border: 0;
+@media (min-width: 720px) {
+  .outro {
+    margin-top: 88px;
+  }
 }
 
-.kicker {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  margin: 0 0 8px;
-}
+/* ── Sibling cross-links ─────────────────────────────────────────────── */
 
-.h2 {
-  font-size: clamp(22px, 4.5vw, 28px);
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  margin: 0 0 8px;
-  color: var(--text-primary);
-}
-
-/* Sibling cross-links — horizontal-scroll gallery (Apple App Store pattern).
-   Cards use the same 4/3 photo + card frame as bezirk/kategorie pages.
-   First card's left edge aligns with the map-promo + news blocks below
-   (no extra horizontal padding — scroller inherits page padding). */
 .siblings {
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  margin: 0 0 48px;
+  gap: 44px;
+  margin: 0 0 56px;
 }
+
 .siblingGroup {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
 }
-.siblingHead {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-}
-.siblingTitle {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-}
-.siblingHubLink {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  transition: color 120ms ease;
-}
-.siblingHubLink:hover { color: var(--text-primary); }
-.siblingHubLink span {
-  transition: transform 160ms ease;
-}
-.siblingHubLink:hover span { transform: translateX(2px); }
 
+.siblingTitle {
+  font-family: var(--font-ranchers);
+  font-weight: 400;
+  font-size: clamp(28px, 6vw, 44px);
+  line-height: 0.95;
+  letter-spacing: -0.005em;
+  color: var(--brand-red);
+  margin: 0;
+  text-wrap: balance;
+}
+
+/* Horizontal scroller — cards tilt slightly so the row reads as a
+   spread-on-the-table magazine carousel, not a uniform grid. Padding y so
+   tilts + ink-shadows don't clip the scroller edges. */
 .siblingScroller {
   list-style: none;
-  margin: 0;
-  padding: 4px 0 8px;
+  margin: 0 -8px;
+  padding: 16px 8px 24px;
   display: flex;
-  gap: 12px;
+  gap: 22px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  scroll-padding-left: 0;
 }
+
 .siblingScroller::-webkit-scrollbar { display: none; }
 
 .siblingItem {
   flex: 0 0 72vw;
-  max-width: 300px;
+  max-width: 280px;
   scroll-snap-align: start;
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.siblingItem:hover {
+  transform: rotate(0) translate(-2px, -3px);
 }
 
 .siblingCard {
   display: flex;
   flex-direction: column;
-  background: var(--surface-card);
-  border: 1px solid var(--border-subtle);
+  background: #fff;
+  border: 3px solid #0a0a0a;
+  box-shadow: 8px 8px 0 0 #0a0a0a;
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
   height: 100%;
+  transition: box-shadow 280ms ease;
 }
-.siblingCard:hover {
-  border-color: var(--border-strong);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+.siblingItem:hover .siblingCard {
+  box-shadow: 12px 12px 0 0 #0a0a0a;
 }
+
 .siblingCardImage {
   position: relative;
   aspect-ratio: 4 / 3;
   width: 100%;
-  background: var(--surface-bg);
+  background: #f3f1ea;
   overflow: hidden;
+  border-bottom: 3px solid #0a0a0a;
 }
+
 .siblingCardImage img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
+
 .siblingCardBody {
   padding: 14px 16px 18px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
+
 .siblingCardName {
+  font-family: var(--font);
   font-size: 17px;
   font-weight: 700;
   line-height: 1.18;
   letter-spacing: -0.01em;
-  margin: 0 0 6px;
-  color: var(--text-primary);
+  margin: 0;
+  color: #0a0a0a;
 }
+
 .siblingCardMeta {
   display: flex;
   gap: 6px;
   align-items: center;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--text-muted);
+  color: #525252;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
 @media (min-width: 720px) {
-  .siblings { gap: 40px; margin-bottom: 56px; }
-  .siblingTitle { font-size: 26px; }
-  .siblingHubLink { font-size: 14px; }
-  .siblingScroller { gap: 16px; padding: 6px 0 12px; }
-  /* Card width sized so a 3rd card always peeks on desktop. The page is
-     capped at 720px max-width with 24px side padding → 672px inner. With
-     290 + 16 + 290 + 16 + 290 = 902, two cards fit fully and the third
-     pokes ~60 px past the right edge — clear "more to swipe" signal. */
-  .siblingItem { flex: 0 0 290px; max-width: 290px; }
+  .siblings { gap: 56px; margin-bottom: 72px; }
+  .siblingScroller { gap: 28px; padding: 20px 8px 30px; }
+  /* Three-card-peek sizing kept from previous design — width × 3 + gap × 2
+     exceeds the column inner so card #3 always pokes past the edge. */
+  .siblingItem { flex: 0 0 280px; max-width: 280px; }
 }
 
-/* Freigestelltes Banner: Map-Promo-Bild als Map-CTA. Wording ("the map for
-   people who care about food.") ist im Bild → kein zusätzlicher Button. */
-.mapBlock {
-  display: block;
-  margin: 0 0 40px;
-  text-decoration: none;
-  color: inherit;
-  -webkit-tap-highlight-color: transparent;
+/* ── News block — "Aus der Redaktion" ─────────────────────────────────── */
+
+.news {
+  margin-top: 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
 }
 
-.mapBlockPromo {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 18px;
-  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.16));
-  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), filter 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-
-.mapBlock:hover .mapBlockPromo {
-  transform: translateY(-3px);
-  filter: drop-shadow(0 22px 40px rgba(0, 0, 0, 0.22));
-}
-
-.mapBlock:active .mapBlockPromo {
-  transform: translateY(-1px);
-  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.18)) brightness(0.97);
-}
-
-.newsHead {
-  margin-bottom: 18px;
+.newsHeading {
+  font-family: var(--font-ranchers);
+  font-weight: 400;
+  font-size: clamp(28px, 6vw, 44px);
+  line-height: 0.95;
+  letter-spacing: -0.005em;
+  color: var(--brand-red);
+  margin: 0;
+  text-wrap: balance;
 }
 
 .newsGrid {
   list-style: none;
-  margin: 0;
-  padding: 4px 0 8px;
+  margin: 0 -8px;
+  padding: 16px 8px 24px;
   display: flex;
-  gap: 12px;
+  gap: 22px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  scroll-padding-left: 0;
 }
+
 .newsGrid::-webkit-scrollbar { display: none; }
 
-.newsCard {
-  flex: 0 0 72vw;
-  max-width: 300px;
+.newsItem {
+  flex: 0 0 78vw;
+  max-width: 320px;
   scroll-snap-align: start;
-  background: var(--surface-card);
-  border: 1px solid var(--border-subtle);
-  text-decoration: none;
-  color: inherit;
-  display: flex;
-  flex-direction: column;
-  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.newsCard:hover {
-  border-color: var(--border-strong);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+.newsItem:hover {
+  transform: rotate(0) translate(-2px, -3px);
+}
+
+.newsCard {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 3px solid #0a0a0a;
+  box-shadow: 8px 8px 0 0 #0a0a0a;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+  transition: box-shadow 280ms ease;
+}
+
+.newsItem:hover .newsCard {
+  box-shadow: 12px 12px 0 0 #0a0a0a;
 }
 
 .newsImage {
   position: relative;
   aspect-ratio: 16 / 9;
-  background: var(--surface-bg);
+  background: #f3f1ea;
   overflow: hidden;
+  border-bottom: 3px solid #0a0a0a;
 }
 
 .newsImage img {
@@ -243,26 +218,30 @@
 }
 
 .newsBody {
-  padding: 14px 16px 16px;
+  padding: 14px 16px 18px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .newsMeta {
+  font-family: var(--font);
   font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
+  font-weight: 700;
+  color: var(--brand-red);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin-bottom: 6px;
 }
 
 .newsTitle {
-  font-size: 16px;
+  font-family: var(--font);
+  font-size: 17px;
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.01em;
-  margin: 0 0 6px;
-  color: var(--text-primary);
-  /* 2-line clamp keeps cards visually balanced even with long titles. */
+  margin: 0;
+  color: #0a0a0a;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -270,9 +249,10 @@
 }
 
 .newsExcerpt {
-  font-size: 13px;
+  font-family: var(--font);
+  font-size: 14px;
   line-height: 1.45;
-  color: var(--text-secondary);
+  color: #2a2a2a;
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -281,21 +261,40 @@
 }
 
 @media (min-width: 720px) {
-  .outro {
-    margin-top: 72px;
-  }
-  .mapBlock {
-    margin-bottom: 64px;
-  }
-  .mapBlockPromo {
-    border-radius: 24px;
-  }
-  .newsGrid {
-    gap: 16px;
-    padding: 6px 0 12px;
-  }
-  .newsCard {
-    flex: 0 0 320px;
-    max-width: 320px;
-  }
+  .news { margin-top: 72px; gap: 28px; }
+  .newsGrid { gap: 28px; padding: 20px 8px 30px; }
+  .newsItem { flex: 0 0 320px; max-width: 320px; }
+}
+
+/* ── Dark mode ───────────────────────────────────────────────────────── */
+
+:global([data-theme="dark"]) .siblingCard,
+:global([data-theme="dark"]) .newsCard {
+  background: #141414;
+  border-color: #f7f5f0;
+  box-shadow: 8px 8px 0 0 #f7f5f0;
+}
+
+:global([data-theme="dark"]) .siblingItem:hover .siblingCard,
+:global([data-theme="dark"]) .newsItem:hover .newsCard {
+  box-shadow: 12px 12px 0 0 #f7f5f0;
+}
+
+:global([data-theme="dark"]) .siblingCardImage,
+:global([data-theme="dark"]) .newsImage {
+  border-bottom-color: #f7f5f0;
+  background: #1a1a1a;
+}
+
+:global([data-theme="dark"]) .siblingCardName,
+:global([data-theme="dark"]) .newsTitle {
+  color: #f7f5f0;
+}
+
+:global([data-theme="dark"]) .siblingCardMeta {
+  color: #b8b8b8;
+}
+
+:global([data-theme="dark"]) .newsExcerpt {
+  color: #d8d8d8;
 }

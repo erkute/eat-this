@@ -54,6 +54,92 @@ export interface FAQEntry {
 }
 
 /**
+ * Magazine-style split of the long description into editorial pieces.
+ * Preserves the author's paragraph breaks (`\n\n`) so rhythm survives —
+ * the previous flat-string body was visually compressing multi-paragraph
+ * descriptions into a single wall of text.
+ *
+ *   - `lede`  — first sentence of the first paragraph, rendered as
+ *               display-sized pull-quote *intro*.
+ *   - `paragraphsBefore` — body paragraphs that come before the midQuote
+ *                          (or all body paragraphs when no midQuote fires).
+ *   - `midQuote` — first sentence of the middle paragraph, pulled out as
+ *                  a block-quote between paragraphs. Only emitted when the
+ *                  body has ≥3 paragraphs AND that sentence is quotable
+ *                  (60–220 chars). Short bodies skip the quote entirely.
+ *   - `paragraphsAfter`  — body paragraphs after the midQuote.
+ *
+ * No editorial Sanity field is involved: this is pure presentation.
+ */
+export interface MagazineDescription {
+  lede:             string
+  paragraphsBefore: string[]
+  midQuote:         string | null
+  paragraphsAfter:  string[]
+}
+
+export function splitDescriptionForMagazine(
+  description: string | undefined,
+): MagazineDescription | null {
+  const text = (description ?? '').trim()
+  if (!text) return null
+
+  // Split source into paragraphs on 2+ consecutive newlines. Single \n is
+  // treated as a soft break inside a paragraph (standard prose convention).
+  const paragraphs = text.split(/\n{2,}/).map(p => p.trim()).filter(Boolean)
+  if (paragraphs.length === 0) return null
+
+  // Lede = first sentence of paragraph 1. The remainder of paragraph 1 (if
+  // any) becomes the leading body paragraph.
+  const firstPara = paragraphs[0]!
+  const ledeMatch = firstPara.match(/^([\s\S]+?[.!?])\s+([\s\S]+)$/)
+  let lede: string
+  let firstParaRest = ''
+  if (ledeMatch) {
+    lede = ledeMatch[1]!.trim()
+    firstParaRest = ledeMatch[2]!.trim()
+  } else {
+    lede = firstPara
+  }
+
+  const bodyParagraphs: string[] = []
+  if (firstParaRest) bodyParagraphs.push(firstParaRest)
+  for (let i = 1; i < paragraphs.length; i++) bodyParagraphs.push(paragraphs[i]!)
+
+  // Mid-page pull-quote: only fires when the body has ≥3 paragraphs AND the
+  // first sentence of the middle paragraph is quotable (60-220 chars). For
+  // shorter bodies we keep the rhythm clean — just paragraphs, no quote.
+  let midQuote:        string   | null = null
+  let paragraphsBefore: string[]      = bodyParagraphs
+  let paragraphsAfter:  string[]      = []
+
+  if (bodyParagraphs.length >= 3) {
+    const midIdx     = Math.floor(bodyParagraphs.length / 2)
+    const midPara    = bodyParagraphs[midIdx]!
+    const midSentences = splitSentences(midPara)
+    const firstMid   = midSentences[0]?.trim() ?? ''
+    if (firstMid.length >= 60 && firstMid.length <= 220) {
+      midQuote = firstMid
+      const midRest = midSentences.slice(1).join(' ').trim()
+      paragraphsBefore = bodyParagraphs.slice(0, midIdx)
+      paragraphsAfter  = [
+        ...(midRest ? [midRest] : []),
+        ...bodyParagraphs.slice(midIdx + 1),
+      ]
+    }
+  }
+
+  return { lede, paragraphsBefore, midQuote, paragraphsAfter }
+}
+
+// Sentence splitter that doesn't get fooled by abbreviations like "z.B."
+// or "i.e." — keeps trailing whitespace + punctuation with each sentence.
+function splitSentences(text: string): string[] {
+  const parts = text.split(/(?<=[.!?])\s+(?=[A-ZÄÖÜ])/)
+  return parts.map(p => p.trim()).filter(Boolean)
+}
+
+/**
  * FAQ entries built from Sanity fields. Each answer is unique per restaurant
  * (it interpolates the restaurant's own hours / address / cuisine), so this
  * is real unique content — not template noise.

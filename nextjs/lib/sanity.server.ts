@@ -17,6 +17,8 @@ import {
   categoryBySlugQuery,
   categoryOccurrencesQuery,
   restaurantCountQuery,
+  featuredSpotsQuery,
+  featuredSpotsFallbackQuery,
 } from './queries'
 import type { Restaurant, NewsArticle, StaticPageDoc, MustEatAlbumCard, BezirkDoc, RestaurantCard } from './types'
 import type { CategoryDef } from './categories'
@@ -164,6 +166,24 @@ export async function getLatestNewsArticles(limit: number): Promise<NewsArticle[
     latestNewsArticlesQuery,
     { limit },
     { next: { revalidate: 3600, tags: ['news'] } },
+  )
+}
+
+// Landing featured-spots resolver. Tries the editorial pick first (Sanity
+// `featured == true`). If none are ticked yet, falls back to the top spots by
+// Must-Eat count so the section never ships empty. Both legs hit the same
+// project cache so the second await is cheap when the first returns rows.
+export async function getFeaturedSpots(limit: number): Promise<RestaurantCard[]> {
+  const featured = await client.fetch<RestaurantCard[]>(
+    featuredSpotsQuery,
+    { limit },
+    { next: { revalidate: 3600, tags: ['restaurant'] } }
+  )
+  if (featured.length > 0) return featured
+  return client.fetch<RestaurantCard[]>(
+    featuredSpotsFallbackQuery,
+    { limit },
+    { next: { revalidate: 3600, tags: ['restaurant'] } }
   )
 }
 

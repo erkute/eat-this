@@ -1,9 +1,17 @@
+import { CSSProperties } from 'react'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import type { NewsArticle, RestaurantCard } from '@/lib/types'
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
+import MapPromoBlock from './MapPromoBlock'
 import styles from './DetailPageOutro.module.css'
+
+// Deterministic ±tilt arrays — siblings and news cards land like
+// trading-cards thrown on the table. Different patterns for siblings vs.
+// news so adjacent sections don't tilt the same way.
+const SIBLING_TILTS = [-2.6, 1.8, -2.0]
+const NEWS_TILTS    = [-1.6, 2.2]
 
 interface DetailPageOutroProps {
   bezirkSlug: string
@@ -29,18 +37,19 @@ export default function DetailPageOutro({
 
   return (
     <section className={styles.outro}>
-      <hr className={styles.divider} />
       {hasSiblings && (
         <SiblingLinks
           locale={locale}
-          bezirkSlug={bezirkSlug}
           bezirkName={bezirkName}
           siblingsBezirk={siblingsBezirk}
           siblingsCategory={siblingsCategory}
           categoryDef={categoryDef}
         />
       )}
-      <MapPromoBlock bezirkSlug={bezirkSlug} bezirkName={bezirkName} locale={locale} />
+      <MapPromoBlock
+        mapHref={`/map?bezirk=${bezirkSlug}`}
+        ariaLabel={locale === 'de' ? `Entdecke ${bezirkName} auf der Map` : `Discover ${bezirkName} on the map`}
+      />
       {newsToShow.length > 0 && <LatestNewsGrid articles={newsToShow} locale={locale} />}
     </section>
   )
@@ -50,7 +59,6 @@ export default function DetailPageOutro({
 
 interface SiblingLinksProps {
   locale: 'de' | 'en'
-  bezirkSlug: string
   bezirkName: string
   siblingsBezirk: RestaurantCard[]
   siblingsCategory: RestaurantCard[]
@@ -59,7 +67,6 @@ interface SiblingLinksProps {
 
 function SiblingLinks({
   locale,
-  bezirkSlug,
   bezirkName,
   siblingsBezirk,
   siblingsCategory,
@@ -71,17 +78,13 @@ function SiblingLinks({
     <div className={styles.siblings}>
       {siblingsBezirk.length > 0 && (
         <SiblingRow
-          locale={locale}
           title={de ? `Mehr in ${bezirkName}` : `More in ${bezirkName}`}
-          hubHref={`/bezirk/${bezirkSlug}`}
           restaurants={siblingsBezirk}
         />
       )}
       {siblingsCategory.length > 0 && categoryDef && categoryLabel && (
         <SiblingRow
-          locale={locale}
           title={de ? `Mehr ${categoryLabel}` : `More ${categoryLabel.toLowerCase()}`}
-          hubHref={`/kategorie/${categoryDef.slug}`}
           restaurants={siblingsCategory}
         />
       )}
@@ -90,26 +93,21 @@ function SiblingLinks({
 }
 
 interface SiblingRowProps {
-  locale: 'de' | 'en'
   title: string
-  hubHref: string
   restaurants: RestaurantCard[]
 }
 
-function SiblingRow({ locale, title, hubHref, restaurants }: SiblingRowProps) {
-  const de = locale === 'de'
+function SiblingRow({ title, restaurants }: SiblingRowProps) {
   return (
     <div className={styles.siblingGroup}>
-      <div className={styles.siblingHead}>
-        <h2 className={styles.siblingTitle}>{title}</h2>
-        <Link href={hubHref} className={styles.siblingHubLink}>
-          {de ? 'Alle ansehen' : 'See all'}
-          <span aria-hidden="true">→</span>
-        </Link>
-      </div>
+      <h2 className={styles.siblingTitle}>{title}</h2>
       <ul className={styles.siblingScroller} role="list">
-        {restaurants.map(r => (
-          <li key={r._id} className={styles.siblingItem}>
+        {restaurants.map((r, i) => (
+          <li
+            key={r._id}
+            className={styles.siblingItem}
+            style={{ ['--tilt' as string]: `${SIBLING_TILTS[i % SIBLING_TILTS.length]}deg` } as CSSProperties}
+          >
             <Link href={`/restaurant/${r.slug}`} className={styles.siblingCard}>
               <div className={styles.siblingCardImage}>
                 {r.photo && (
@@ -143,33 +141,6 @@ function SiblingRow({ locale, title, hubHref, restaurants }: SiblingRowProps) {
   )
 }
 
-/* ────────── Map promo banner ────────── */
-
-interface MapPromoBlockProps {
-  bezirkSlug: string
-  bezirkName: string
-  locale: 'de' | 'en'
-}
-
-function MapPromoBlock({ bezirkSlug, bezirkName, locale }: MapPromoBlockProps) {
-  const de = locale === 'de'
-  const mapHref = `/map?bezirk=${bezirkSlug}`
-  const ariaLabel = de ? `Entdecke ${bezirkName} auf der Map` : `Discover ${bezirkName} on the map`
-
-  return (
-    <Link href={mapHref} className={styles.mapBlock} aria-label={ariaLabel}>
-      <Image
-        src="/pics/map-promo.webp"
-        alt=""
-        width={1536}
-        height={1024}
-        className={styles.mapBlockPromo}
-        sizes="(min-width: 720px) 1032px, calc(100vw - 48px)"
-      />
-    </Link>
-  )
-}
-
 /* ────────── Latest news grid (2 cards, mobile 1-col / desktop 2-col) ────────── */
 
 interface LatestNewsGridProps {
@@ -180,17 +151,20 @@ interface LatestNewsGridProps {
 function LatestNewsGrid({ articles, locale }: LatestNewsGridProps) {
   const de = locale === 'de'
   return (
-    <>
-      <div className={styles.newsHead}>
-        <span className={styles.kicker}>News</span>
-        <h2 className={styles.h2}>{de ? 'Aus der Redaktion' : 'From the editors'}</h2>
-      </div>
-      <div className={styles.newsGrid}>
-        {articles.map(article => (
-          <NewsCard key={article._id} article={article} locale={locale} />
+    <div className={styles.news}>
+      <h2 className={styles.newsHeading}>{de ? 'Aus der Redaktion' : 'From the editors'}</h2>
+      <ul className={styles.newsGrid} role="list">
+        {articles.map((article, i) => (
+          <li
+            key={article._id}
+            className={styles.newsItem}
+            style={{ ['--tilt' as string]: `${NEWS_TILTS[i % NEWS_TILTS.length]}deg` } as CSSProperties}
+          >
+            <NewsCard article={article} locale={locale} />
+          </li>
         ))}
-      </div>
-    </>
+      </ul>
+    </div>
   )
 }
 

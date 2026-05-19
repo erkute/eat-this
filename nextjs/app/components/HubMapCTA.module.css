@@ -1,0 +1,67 @@
+/* Top-of-hub CTA banner. Sits above the restaurant grid on /bezirk/[slug]
+   and /kategorie/[slug]. Loud enough to catch inbound-SEO eyes before the
+   free list scroll, tonally consistent with the editorial hub aesthetic
+   (no Bar-Basta comic-sticker chrome — the hub pages are clean SaaS-cards). */
+
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 28px;
+  padding: 20px 22px;
+  background: var(--brand-red, #E32831);
+  color: #fff;
+  text-decoration: none;
+  border: 0;
+  border-radius: 0;
+  font-family: var(--font);
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 180ms ease;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(227, 40, 49, 0.25);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.title {
+  font-size: clamp(17px, 4.4vw, 21px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.subline {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.35;
+  opacity: 0.86;
+  letter-spacing: 0;
+}
+
+.arrow {
+  flex-shrink: 0;
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cta:hover .arrow {
+  transform: translateX(3px);
+}
+
+@media (min-width: 720px) {
+  .cta {
+    padding: 24px 28px;
+    margin: 0 0 36px;
+  }
+}

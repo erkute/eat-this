@@ -52,6 +52,13 @@ export default {
       description: 'Aktivieren wenn das Restaurant vorübergehend geschlossen ist.',
     },
     {
+      name: 'featured',
+      title: 'Auf Landingpage anzeigen',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Anhaken, um dieses Restaurant in der Featured-Spots-Section auf der Landingpage zu zeigen. Max. 12 werden angezeigt. Wenn keiner angehakt ist, fällt die Landing auf die Top-Restaurants nach Must-Eat-Anzahl zurück.',
+    },
+    {
       name: 'cuisineType',
       title: 'Küche / Cuisine',
       type: 'string',

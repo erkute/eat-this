@@ -154,6 +154,58 @@ export const restaurantsByCategoryQuery = `
   }
 `
 
+// Featured spots for the landing — primary source is editorial: any
+// restaurant ticked `featured: true` in Sanity (max $limit). Fallback when
+// none are ticked yet: top restaurants by must-eat count, capped at $limit,
+// so the section never renders empty on day one. Image-led, so we require
+// `image.asset`.
+export const featuredSpotsQuery = `
+  *[_type == "restaurant" && isOpen != false && featured == true
+    && defined(slug.current) && defined(image.asset)]
+    | order(count(*[_type == "mustEat" && restaurantRef._ref == ^._id]) desc, _createdAt desc)
+    [0...$limit] {
+    _id,
+    name,
+    "slug": slug.current,
+    cuisineType,
+    shortDescription,
+    shortDescriptionEn,
+    district,
+    "bezirk": bezirkRef->{ _id, name, "slug": slug.current },
+    ${CATEGORY_PROJECTION},
+    priceRange,
+    tip,
+    tipEn,
+    "photo": image.asset->url + "?w=800&auto=format&q=80"
+  }
+`
+
+// Fallback when no restaurant has been ticked `featured: true` yet — surfaces
+// the editorial top by Must-Eat count so the section has substance from day
+// one. Same projection as featuredSpotsQuery to keep the section render path
+// uniform.
+export const featuredSpotsFallbackQuery = `
+  *[_type == "restaurant" && isOpen != false
+    && defined(slug.current) && defined(image.asset)
+    && count(*[_type == "mustEat" && restaurantRef._ref == ^._id]) > 0]
+    | order(count(*[_type == "mustEat" && restaurantRef._ref == ^._id]) desc, _createdAt desc)
+    [0...$limit] {
+    _id,
+    name,
+    "slug": slug.current,
+    cuisineType,
+    shortDescription,
+    shortDescriptionEn,
+    district,
+    "bezirk": bezirkRef->{ _id, name, "slug": slug.current },
+    ${CATEGORY_PROJECTION},
+    priceRange,
+    tip,
+    tipEn,
+    "photo": image.asset->url + "?w=800&auto=format&q=80"
+  }
+`
+
 // Latest 10 restaurants added
 export const latestRestaurantsQuery = `
   *[_type == "restaurant" && isOpen != false] | order(_createdAt desc) [0...10] {

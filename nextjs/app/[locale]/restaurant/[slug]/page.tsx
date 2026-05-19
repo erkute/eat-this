@@ -8,12 +8,12 @@ import { SITE_URL } from '@/lib/constants'
 import { localeUrl } from '@/lib/locale-url'
 import { routing } from '@/i18n/routing'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
-import { localizedCategoryName } from '@/lib/categories'
 import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaurantDetail.helpers'
-import { buildQuickFacts, buildFAQEntries } from '@/lib/restaurant-prose'
+import { buildQuickFacts, buildFAQEntries, splitDescriptionForMagazine } from '@/lib/restaurant-prose'
 import { getOpenStatus } from '@/lib/map/openingHours'
 import DetailPageOutro from '@/app/components/DetailPageOutro'
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection'
+import RestaurantFAQ from '@/app/components/RestaurantFAQ'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 import { Link as IntlLink } from '@/i18n/navigation'
 import styles from './RestaurantDetail.module.css'
@@ -107,7 +107,10 @@ export default async function RestaurantPage({ params }: PageProps) {
     primaryCategory?.slug ? getRestaurantsByCategory(primaryCategory.slug) : Promise.resolve([]),
   ])
 
-  const SIBLING_LIMIT = 8
+  // Tight cap: 3 siblings per row. The cross-links exist for SEO (so Google
+  // can crawl between detail pages within the same bezirk/category), not as a
+  // browse-all UX — that's gated behind the Map+Packs.
+  const SIBLING_LIMIT = 3
   const siblingsBezirk = siblingsBezirkRaw.filter(s => s.slug !== slug).slice(0, SIBLING_LIMIT)
   const siblingsCategoryAll = siblingsCategoryRaw.filter(s => s.slug !== slug)
   // De-dupe: don't re-show a restaurant in both rows
@@ -127,6 +130,9 @@ export default async function RestaurantPage({ params }: PageProps) {
   const description = pickLocale(r.description, r.descriptionEn, loc)
   const shortDescription = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
   const tip = pickLocale(r.tip, r.tipEn, loc)
+  // Editorial split of the long description into lede / drop-capped body /
+  // mid-page pull-quote. Pure presentation — no Sanity field added.
+  const magazine = splitDescriptionForMagazine(description)
 
   // Prose blocks that surface entity facts as natural language — needed so
   // restaurant pages clear Google's thin-content bar (target ~200+ unique
@@ -149,12 +155,16 @@ export default async function RestaurantPage({ params }: PageProps) {
 
   const homeLabel = de ? 'Start' : 'Home'
   const districtsLabel = de ? 'Bezirke' : 'Districts'
+  // Hub-level breadcrumb items render as text (no href) so the visible
+  // breadcrumb doesn't expose a "browse all spots in Mitte" backdoor to the
+  // paid catalog. JSON-LD BreadcrumbList keeps the canonical URLs — Google
+  // still understands the hierarchy.
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: homeLabel, href: '/' },
     ...(r.bezirk?.slug && r.bezirk?.name
       ? [
-          { name: districtsLabel, href: '/bezirk' },
-          { name: r.bezirk.name, href: `/bezirk/${r.bezirk.slug}` },
+          { name: districtsLabel },
+          { name: r.bezirk.name },
         ]
       : []),
     { name: r.name },
@@ -174,6 +184,7 @@ export default async function RestaurantPage({ params }: PageProps) {
       {/* JSON-LD: serializeJsonLd sanitizes output — safe inline structured data */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       <main className={styles.page}>
+        {/* ── Hero: full-bleed photo + magazine-cover Ranchers lockup ── */}
         <div className={styles.hero}>
           {r.photo && (
             <Image
@@ -181,10 +192,22 @@ export default async function RestaurantPage({ params }: PageProps) {
               alt={r.name}
               fill
               priority
-              sizes="(max-width: 720px) 100vw, 720px"
+              sizes="100vw"
               className={styles.heroImage}
             />
           )}
+          <div className={styles.heroShade} aria-hidden="true" />
+          <div className={styles.heroLockup}>
+            {(r.district || r.cuisineType) && (
+              <p className={styles.heroEyebrow}>
+                {[r.district, r.cuisineType].filter(Boolean).join(' · ')}
+              </p>
+            )}
+            <h1 className={styles.heroWordmark}>{r.name}</h1>
+            {shortDescription && (
+              <p className={styles.heroDeck}>{shortDescription}</p>
+            )}
+          </div>
           {r.photo && (
             <span className={styles.heroCredit} aria-label="Photo credit">
               {r.photoCredit ? (
@@ -212,87 +235,130 @@ export default async function RestaurantPage({ params }: PageProps) {
 
         <div className={styles.content}>
           <Breadcrumbs items={breadcrumbItems} ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'} />
+          {/* QuickFacts kept in DOM (out-of-flow) so the auto-prose still
+              feeds Google's content-depth signal — the magazine layout
+              hides it visually since the same facts live in At-a-Glance. */}
+          {quickFacts && <p className={styles.srOnly}>{quickFacts}</p>}
+
           <div className={styles.layout}>
-            <header className={styles.header}>
-              <h1 className={styles.name}>{r.name}</h1>
-              <div className={styles.meta}>
-                {r.district && <span className={styles.district}>{r.district}</span>}
-              </div>
-              {r.cuisineType && <p className={styles.cuisine}>{r.cuisineType}</p>}
-              {(() => {
-                const priceLabel = formatPriceLabel(r)
-                const hasCats = r.categories && r.categories.length > 0
-                if (!priceLabel && !hasCats) return null
-                return (
-                  <div className={styles.categories}>
-                    {priceLabel && <span className={styles.price}>{priceLabel}</span>}
-                    {r.categories?.map(cat => (
-                      <span key={cat.slug} className={styles.category}>
-                        {localizedCategoryName(cat, loc)}
-                      </span>
-                    ))}
-                  </div>
-                )
-              })()}
-            </header>
+            {/* ── Lede: first sentence of the description in display type ── */}
+            {magazine?.lede && (
+              <p className={styles.lede}>{magazine.lede}</p>
+            )}
 
-            {quickFacts && <p className={styles.quickFacts}>{quickFacts}</p>}
+            {/* ── Body: paragraphs preserved + optional mid-page pull-quote ── */}
+            {(magazine || description || tip) && (
+              <div className={styles.body}>
+                {magazine?.paragraphsBefore.map((p, i) => (
+                  <p key={`bf-${i}`}>{p}</p>
+                ))}
+                {magazine?.midQuote && (
+                  <blockquote className={styles.midQuote}>
+                    {magazine.midQuote}
+                  </blockquote>
+                )}
+                {magazine?.paragraphsAfter.map((p, i) => (
+                  <p key={`af-${i}`}>{p}</p>
+                ))}
 
-            {description && <p className={styles.description}>{description}</p>}
-
-            {tip && (
-              <div className={styles.tip}>
-                <strong>{de ? 'Insider-Tipp' : 'Insider Tip'}: </strong>
-                {tip}
+                {tip && (
+                  <aside className={styles.tip}>
+                    <span className={styles.tipLabel}>
+                      {de ? 'Insider-Tipp' : 'Insider Tip'}
+                    </span>
+                    <p className={styles.tipBody}>{tip}</p>
+                  </aside>
+                )}
               </div>
             )}
 
+            {/* ── Sidebar: At-a-Glance sticker box + Map ticket + actions ── */}
             <aside className={styles.sidebar}>
-              {r.address && (
-                <section>
-                  <h2 className={styles.sectionTitle}>{de ? 'Adresse' : 'Address'}</h2>
-                  <a
-                    href={r.mapsUrl ?? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.address)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.address}
-                  >
-                    {r.address}
-                  </a>
-                </section>
-              )}
-
-              {r.openingHours && r.openingHours.length > 0 && (
-                <section>
-                  <h2 className={styles.sectionTitle}>{de ? 'Öffnungszeiten' : 'Opening Hours'}</h2>
-                  {todayStatus && (
-                    <p
-                      className={`${styles.todayStatus} ${todayStatus.isOpen ? styles.todayOpen : styles.todayClosed}`}
-                      role="status"
+              <div className={styles.glance}>
+                {r.address && (
+                  <section className={styles.glanceSection}>
+                    <p className={styles.glanceLabel}>{de ? 'Adresse' : 'Address'}</p>
+                    <a
+                      href={r.mapsUrl ?? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.address)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.glanceValue}
                     >
-                      {todayStatus.label}
-                    </p>
-                  )}
-                  <ul className={styles.hours}>
-                    {r.openingHours.map((slot, i) => (
-                      <li key={i} className={styles.hourRow}>
-                        <span className={styles.days}>{slot.days}</span>
-                        <span>{slot.hours}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              )}
+                      {r.address}
+                    </a>
+                  </section>
+                )}
 
+                {r.openingHours && r.openingHours.length > 0 && (
+                  <section className={styles.glanceSection}>
+                    <p className={styles.glanceLabel}>{de ? 'Öffnungszeiten' : 'Opening Hours'}</p>
+                    {todayStatus && (
+                      <p
+                        className={todayStatus.isOpen ? styles.glanceTodayOpen : styles.glanceTodayClosed}
+                        role="status"
+                      >
+                        {todayStatus.label}
+                      </p>
+                    )}
+                    <ul className={styles.glanceHours}>
+                      {r.openingHours.map((slot, i) => (
+                        <li key={i} className={styles.glanceHourRow}>
+                          <span className={styles.glanceHourDays}>{slot.days}</span>
+                          <span className={styles.glanceHourValue}>{slot.hours}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
+
+                {(() => {
+                  const priceLabel = formatPriceLabel(r)
+                  if (!priceLabel && !r.cuisineType) return null
+                  return (
+                    <section className={styles.glanceSection}>
+                      <p className={styles.glanceLabel}>{de ? 'Preis & Küche' : 'Price & Cuisine'}</p>
+                      <p className={styles.glanceValue}>
+                        {[priceLabel, r.cuisineType].filter(Boolean).join(' · ')}
+                      </p>
+                    </section>
+                  )
+                })()}
+              </div>
+
+              {/* Map CTA — brand-red ticket sticker */}
+              <IntlLink
+                href={`/map?r=${r.slug}`}
+                className={styles.mapTicket}
+                aria-label={de ? 'Auf der Eat-This-Map ansehen' : 'View on the Eat This map'}
+                rel="nofollow"
+              >
+                <span className={styles.mapTicketLabel}>
+                  {de ? 'Auf der Map' : 'On the Map'}
+                </span>
+                <svg
+                  className={styles.mapTicketArrow}
+                  width="28"
+                  height="20"
+                  viewBox="0 0 28 20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3 10 L22 10" />
+                  <path d="M16 3 L24 10 L16 17" />
+                </svg>
+              </IntlLink>
+
+              {/* Reserve / Instagram / Website action list */}
               {(() => {
-                // Resolve display data for the sidebar links.
                 const websiteInfo = classifyWebsite(r.website)
                 const igHandle =
                   r.instagramHandle ?? (websiteInfo?.kind === 'instagram' ? websiteInfo.handle : null)
                 const websiteForRow = websiteInfo?.kind === 'web' ? websiteInfo : null
 
-                // Detect the reservation provider so the button carries the
-                // platform brand instead of a generic "Reserve a Table".
                 let reservationProvider: string | null = null
                 if (r.reservationUrl) {
                   try {
@@ -313,7 +379,7 @@ export default async function RestaurantPage({ params }: PageProps) {
                     viewBox="0 0 12 12"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="1.6"
+                    strokeWidth="1.8"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     aria-hidden="true"
@@ -322,77 +388,57 @@ export default async function RestaurantPage({ params }: PageProps) {
                   </svg>
                 )
 
+                if (!r.reservationUrl && !igHandle && !websiteForRow) return null
                 return (
-                  <>
-                    {/* Primary CTA — the only "loud" element. Everything else
-                        sits in a quiet list of secondary actions below. */}
-                    <IntlLink
-                      href={`/map?r=${r.slug}`}
-                      className={styles.primaryCta}
-                      aria-label="Eat This Map"
-                      rel="nofollow"
-                    >
-                      <span className={styles.primaryCtaWordmark} aria-hidden="true" />
-                      <span className={styles.primaryCtaSuffix} aria-hidden="true">Map</span>
-                    </IntlLink>
-
-                    {/* Secondary action list — settings-list rhythm: label
-                        left, contextual detail right (provider / handle /
-                        host), chevron on the far right. Tying everything
-                        into a single visual rhythm replaces the previous
-                        mix of buttons + loose text URL. */}
-                    {(r.reservationUrl || igHandle || websiteForRow) && (
-                      <ul className={styles.actionList}>
-                        {r.reservationUrl && (
-                          <li>
-                            <a
-                              href={r.reservationUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={styles.actionItem}
-                            >
-                              <span className={styles.actionLabel}>
-                                {de ? 'Reservieren' : 'Reserve'}
-                              </span>
-                              {reservationProvider && (
-                                <span className={styles.actionDetail}>{reservationProvider}</span>
-                              )}
-                              <ChevronArrow />
-                            </a>
-                          </li>
-                        )}
-                        {igHandle && (
-                          <li>
-                            <a
-                              href={`https://instagram.com/${igHandle}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={styles.actionItem}
-                              aria-label={`Instagram @${igHandle}`}
-                            >
-                              <span className={styles.actionLabel}>Instagram</span>
-                              <span className={styles.actionDetail}>@{igHandle}</span>
-                              <ChevronArrow />
-                            </a>
-                          </li>
-                        )}
-                        {websiteForRow && (
-                          <li>
-                            <a
-                              href={websiteForRow.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={styles.actionItem}
-                            >
-                              <span className={styles.actionLabel}>Website</span>
-                              <span className={styles.actionDetail}>{websiteForRow.display}</span>
-                              <ChevronArrow />
-                            </a>
-                          </li>
-                        )}
-                      </ul>
+                  <ul className={styles.actionList}>
+                    {r.reservationUrl && (
+                      <li>
+                        <a
+                          href={r.reservationUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.actionItem}
+                        >
+                          <span className={styles.actionLabel}>
+                            {de ? 'Reservieren' : 'Reserve'}
+                          </span>
+                          {reservationProvider && (
+                            <span className={styles.actionDetail}>{reservationProvider}</span>
+                          )}
+                          <ChevronArrow />
+                        </a>
+                      </li>
                     )}
-                  </>
+                    {igHandle && (
+                      <li>
+                        <a
+                          href={`https://instagram.com/${igHandle}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.actionItem}
+                          aria-label={`Instagram @${igHandle}`}
+                        >
+                          <span className={styles.actionLabel}>Instagram</span>
+                          <span className={styles.actionDetail}>@{igHandle}</span>
+                          <ChevronArrow />
+                        </a>
+                      </li>
+                    )}
+                    {websiteForRow && (
+                      <li>
+                        <a
+                          href={websiteForRow.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.actionItem}
+                        >
+                          <span className={styles.actionLabel}>Website</span>
+                          <span className={styles.actionDetail}>{websiteForRow.display}</span>
+                          <ChevronArrow />
+                        </a>
+                      </li>
+                    )}
+                  </ul>
                 )
               })()}
             </aside>
@@ -402,17 +448,9 @@ export default async function RestaurantPage({ params }: PageProps) {
             </div>
 
             {faqEntries.length > 0 && (
-              <section className={styles.faq} aria-label={de ? 'Häufige Fragen' : 'FAQ'}>
-                <h2 className={styles.sectionTitle}>{de ? 'Häufige Fragen' : 'Frequently asked'}</h2>
-                <dl className={styles.faqList}>
-                  {faqEntries.map((entry, i) => (
-                    <div key={i} className={styles.faqItem}>
-                      <dt className={styles.faqQuestion}>{entry.question}</dt>
-                      <dd className={styles.faqAnswer}>{entry.answer}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </section>
+              <div className={styles.faq}>
+                <RestaurantFAQ entries={faqEntries} locale={loc} />
+              </div>
             )}
           </div>
         </div>

@@ -14,6 +14,8 @@ import { routing } from '@/i18n/routing'
 import { pickLocale } from '@/lib/i18n/pickLocale'
 import styles from '../../bezirk/Bezirk.module.css'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
+import HubMapCTA from '@/app/components/HubMapCTA'
+import MapPromoBlock from '@/app/components/MapPromoBlock'
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>
@@ -72,9 +74,11 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const label = localizedCategoryName(c, loc)
   const blurb = localizedCategoryBlurb(c, loc)
 
+  // "Kategorien"-Hub als Text statt Link — kein in-app Browse-All-Pfad zum
+  // Kategorien-Index. JSON-LD BreadcrumbList behält die kanonischen URLs.
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/' },
-    { name: de ? 'Kategorien' : 'Categories', href: '/kategorie' },
+    { name: de ? 'Kategorien' : 'Categories' },
     { name: label },
   ]
 
@@ -129,6 +133,16 @@ export default async function KategorieDetailPage({ params }: PageProps) {
           {blurb && <p className={styles.description}>{blurb}</p>}
         </header>
 
+        <HubMapCTA
+          href={`/map?cat=${c.slug}`}
+          title={de
+            ? `Alle ${label}-Spots auf der Map ansehen`
+            : `See all ${label.toLowerCase()} spots on the map`}
+          subline={de
+            ? 'Geo-clustered, mit Must-Eats und Walking-Distance.'
+            : 'Geo-clustered, with Must-Eats and walking distance.'}
+        />
+
         <section className={styles.grid}>
           {restaurants.map(r => (
             <Link key={r._id} href={restaurantUrl(r.slug)} className={styles.card}>
@@ -161,6 +175,13 @@ export default async function KategorieDetailPage({ params }: PageProps) {
             </Link>
           ))}
         </section>
+
+        <MapPromoBlock
+          mapHref={`/map?cat=${c.slug}`}
+          ariaLabel={de
+            ? `Entdecke ${label} auf der Map`
+            : `Discover ${label.toLowerCase()} on the map`}
+        />
       </main>
     </>
   )

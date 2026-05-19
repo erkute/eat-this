@@ -1,51 +1,104 @@
-/* Must Eat teaser — locked thumbnails on the restaurant detail page.
-   Click on any card or the section opens the login modal. Uses semantic
-   tokens so the section flips cleanly in dark mode. */
+/* MustEatTeaserSection — magazine-style locked card-back stack.
+ *
+ * Lives on the restaurant detail page. Editorial header in Ranchers + brand-red
+ * (same family as the .faqHeading on the detail page and the section
+ * mastheads on the landing). Cards are the existing card-back portrait
+ * graphic, but framed as comic stickers: hard ink-shadow, alternating tilt,
+ * straighten-on-hover. Clicking any card opens the login modal — same
+ * functional contract as before, just more knall.
+ */
 
 .section {
-  margin: 40px 0 0;
-  padding: 28px 0 0;
-  border-top: 1px solid var(--border-subtle);
+  margin: 56px 0 0;
 }
+
+@media (min-width: 720px) {
+  .section {
+    margin-top: 80px;
+  }
+}
+
+/* ── Header ──────────────────────────────────────────────────────────── */
 
 .head {
-  margin-bottom: 16px;
+  margin: 0 0 28px;
+  max-width: 38em;
 }
 
-.kicker {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
-  letter-spacing: 0.16em;
+.eyebrow {
+  font-family: var(--font-ranchers);
+  font-size: clamp(16px, 3.6vw, 22px);
+  color: #0a0a0a;
+  letter-spacing: 0;
   text-transform: uppercase;
-  margin-bottom: 6px;
+  margin: 0 0 4px;
+  line-height: 1;
 }
 
-.h2 {
-  font-size: clamp(20px, 4.5vw, 26px);
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  margin: 0 0 6px;
-  color: var(--text-primary);
+.heading {
+  font-family: var(--font-ranchers);
+  font-weight: 400;
+  font-size: clamp(34px, 7.2vw, 56px);
+  line-height: 0.95;
+  letter-spacing: -0.005em;
+  color: var(--brand-red);
+  margin: 0 0 14px;
+  text-wrap: balance;
 }
 
 .body {
-  font-size: 14px;
-  line-height: 1.55;
-  color: var(--text-secondary);
+  font-family: var(--font);
+  font-size: clamp(16px, 2.6vw, 18px);
+  line-height: 1.45;
+  font-weight: 500;
+  color: #2a2a2a;
   margin: 0;
+  max-width: 32ch;
 }
 
+/* ── Card grid — trading-card scatter ────────────────────────────────── */
+
 .grid {
+  list-style: none;
+  margin: 0;
+  padding: 14px 8px 28px;
   display: grid;
-  /* Cap card width to ~120px on mobile so even with 2 must-eats they
-     don't stretch into oversized tiles. Cards pack from the start. */
-  grid-template-columns: repeat(auto-fill, 120px);
-  gap: 12px;
-  margin-top: 16px;
-  justify-content: start;
+  /* Mobile: 3-up so the row reads as "spread on the table" instead of
+     "stacked vertically". Cap card width to 130px so 4+ Must-Eats also fit. */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px 18px;
+  justify-items: center;
+}
+
+@media (min-width: 480px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px 20px;
+  }
+}
+
+@media (min-width: 720px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 160px));
+    justify-content: start;
+    justify-items: start;
+    gap: 28px 24px;
+    padding: 20px 12px 36px;
+  }
+}
+
+/* Wrapper carries the tilt + breathing-room. The card-back is shown in
+   full (cream border is part of the design) — no shadow, no frame, just
+   the asset on its own. */
+.cardWrap {
+  width: 100%;
+  max-width: 160px;
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cardWrap:hover {
+  transform: rotate(0) translate(-2px, -3px);
 }
 
 .card {
@@ -54,33 +107,22 @@
   width: 100%;
   /* Card-back portrait aspect ratio (matches the asset). */
   aspect-ratio: 1025 / 1534;
+  background: transparent;
   border: 0;
   padding: 0;
-  background: transparent;
   cursor: pointer;
-  overflow: hidden;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.18s cubic-bezier(0.2, 0.7, 0.2, 1),
-              box-shadow 0.18s ease;
-}
-
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
 }
 
 .card:active {
   transform: scale(0.97);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
 }
 
-/* Locked-card shake — fires once on click, runs in parallel with the
-   login modal opening. Tells the user the card is locked + something
-   happened. */
+/* Locked-card shake — fires once on click in parallel with login modal
+   opening, then resets. Anchored on the wrapper-applied tilt so the shake
+   wobbles around the resting orientation, not (0). */
 @keyframes mustEatShake {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(0); }
+  0%, 100% { transform: translate3d(0, 0, 0); }
   10% { transform: translate3d(-4px, 0, 0) rotate(-1.2deg); }
   25% { transform: translate3d(5px, 0, 0) rotate(1.4deg); }
   40% { transform: translate3d(-4px, 0, 0) rotate(-1deg); }
@@ -97,13 +139,13 @@
   object-fit: cover;
 }
 
-@media (min-width: 720px) {
-  .section {
-    margin-top: 56px;
-    padding-top: 36px;
-  }
-  .grid {
-    grid-template-columns: repeat(auto-fill, 140px);
-    gap: 16px;
-  }
+/* ── Dark mode ───────────────────────────────────────────────────────── */
+
+:global([data-theme="dark"]) .eyebrow {
+  color: #f7f5f0;
 }
+
+:global([data-theme="dark"]) .body {
+  color: #d8d8d8;
+}
+

@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
+import { useAuth } from '@/lib/auth';
+import { auth } from '@/lib/firebase/config';
 import { routing } from '@/i18n/routing';
 import type { NewsArticle, MapRestaurant } from '@/lib/types';
 import styles from './SearchOverlay.module.css';
@@ -16,6 +18,7 @@ const MAX_RESULTS_PER_GROUP = 8;
 export default function SearchOverlay() {
   const { t, lang } = useTranslation();
   const locale = useLocale();
+  const { user, loading: authLoading } = useAuth();
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -24,7 +27,9 @@ export default function SearchOverlay() {
   const [dataLoaded, setDataLoaded] = useState(false);
   const [dataLoading, setDataLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const fetchStartedRef = useRef(false);
+  // Keyed by uid so a sign-in/-out invalidates the cached result set and the
+  // next open re-fetches with the new entitlement scope.
+  const fetchedForUidRef = useRef<string | null | undefined>(undefined);
 
   const close = useCallback(() => {
     setOpen(false);
@@ -48,6 +53,9 @@ export default function SearchOverlay() {
   // On open: close burger, focus input, lock body scroll, lazy-load data.
   useEffect(() => {
     if (!open) return;
+    // Wait for auth to settle so the first fetch attaches the right token
+    // (or correctly no token, for an anonymous visitor).
+    if (authLoading) return;
 
     document.getElementById('burgerClose')?.click();
     document.body.style.overflow = 'hidden';
@@ -59,18 +67,30 @@ export default function SearchOverlay() {
     };
     document.addEventListener('keydown', onKey);
 
-    if (!fetchStartedRef.current) {
-      fetchStartedRef.current = true;
+    const currentUid = user?.uid ?? null;
+    if (fetchedForUidRef.current !== currentUid) {
+      fetchedForUidRef.current = currentUid;
+      setDataLoaded(false);
       setDataLoading(true);
-      fetch('/api/search-data')
-        .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-        .then(({ news, restaurants }: { news: NewsArticle[]; restaurants: MapRestaurant[] }) => {
+      (async () => {
+        try {
+          const headers: HeadersInit = {};
+          if (currentUid && auth.currentUser) {
+            const token = await auth.currentUser.getIdToken();
+            headers['Authorization'] = `Bearer ${token}`;
+          }
+          const r = await fetch('/api/search-data', { headers });
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          const { news, restaurants }: { news: NewsArticle[]; restaurants: MapRestaurant[] } = await r.json();
           setNews(news || []);
           setRestaurants(restaurants || []);
           setDataLoaded(true);
-        })
-        .catch(() => setDataLoaded(true))
-        .finally(() => setDataLoading(false));
+        } catch {
+          setDataLoaded(true);
+        } finally {
+          setDataLoading(false);
+        }
+      })();
     }
 
     return () => {
@@ -78,7 +98,7 @@ export default function SearchOverlay() {
       document.body.style.overflow = '';
       clearTimeout(focusTimer);
     };
-  }, [open, close]);
+  }, [open, close, authLoading, user]);
 
   const localePath = useCallback(
     (path: string) => (locale === routing.defaultLocale ? path : `/${locale}${path}`),

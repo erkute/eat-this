@@ -14,6 +14,7 @@ import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import { buildBezirkQuickFacts, buildBezirkFAQEntries } from '@/lib/bezirk-prose'
 import styles from '../Bezirk.module.css'
 import DetailPageOutro from '@/app/components/DetailPageOutro'
+import HubMapCTA from '@/app/components/HubMapCTA'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 
 interface PageProps {
@@ -107,9 +108,11 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   const quickFacts = buildBezirkQuickFacts({ bezirk: b, restaurants, locale: loc })
   const faqEntries = buildBezirkFAQEntries({ bezirk: b, restaurants, locale: loc })
 
+  // "Bezirke"-Hub als Text statt Link — kein in-app Browse-All-Pfad zum
+  // Bezirke-Index. JSON-LD BreadcrumbList behält die kanonischen URLs.
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/' },
-    { name: de ? 'Bezirke' : 'Districts', href: '/bezirk' },
+    { name: de ? 'Bezirke' : 'Districts' },
     { name: b.name },
   ]
 
@@ -146,6 +149,16 @@ export default async function BezirkDetailPage({ params }: PageProps) {
         </header>
 
         <hr className={styles.divider} />
+
+        <HubMapCTA
+          href={`/map?bezirk=${b.slug}`}
+          title={de
+            ? `${b.name} auf der Map ansehen`
+            : `See ${b.name} on the map`}
+          subline={de
+            ? 'Geo-clustered, mit Must-Eats und Walking-Distance.'
+            : 'Geo-clustered, with Must-Eats and walking distance.'}
+        />
 
         <div className={styles.sectionLabel}>
           {restaurants.length} {de ? 'Restaurants' : 'Restaurants'}

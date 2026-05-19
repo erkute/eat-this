@@ -19,3 +19,6 @@ test-results/
 .worktrees/
 js/*.min.js
 css/*.min.css
+
+# Local scraper working dir — .py + .xlsx + .json output stays out of repo
+scripts/scraper/

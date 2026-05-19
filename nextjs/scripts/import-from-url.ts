@@ -353,6 +353,12 @@ async function findBezirkRef(name: string): Promise<string | null> {
  *  them into reference objects via `lookupCategoryRefs`. */
 function inferCategories(types: string[] = []): string[] {
   const out = new Set<string>()
+  // Fine Dining wins outright — the category excludes Lunch + Dinner by
+  // convention (see memory: project-fine-dining-recategorization).
+  if (types.includes('fine_dining_restaurant')) {
+    out.add('Fine Dining')
+    return [...out]
+  }
   for (const t of types) {
     if (/^pizza_/.test(t)) { out.add('Dinner'); out.add('Pizza') }
     else if (t === 'cafe' || t === 'coffee_shop') { out.add('Breakfast'); out.add('Coffee') }

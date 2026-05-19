@@ -7,12 +7,24 @@
 
 .outro {
   margin-top: 64px;
+  /* Match restaurant-detail .content side-gutter so section titles, the map
+     banner and card scrollers all line up with the editorial column above.
+     Scrollers bleed back to the viewport edge with a negative margin so the
+     swipe-peek effect is preserved. */
+  padding: 0 22px;
   color: var(--text-primary);
 }
 
 @media (min-width: 720px) {
   .outro {
     margin-top: 88px;
+    padding: 0 32px;
+  }
+}
+
+@media (min-width: 1080px) {
+  .outro {
+    padding: 0;
   }
 }
 
@@ -44,11 +56,13 @@
 
 /* Horizontal scroller — cards tilt slightly so the row reads as a
    spread-on-the-table magazine carousel, not a uniform grid. Padding y so
-   tilts + ink-shadows don't clip the scroller edges. */
+   tilts + ink-shadows don't clip the scroller edges. Negative side-margins
+   bleed the scroller out to the viewport edge so the first card peeks past
+   the .outro gutter set on the wrapper. */
 .siblingScroller {
   list-style: none;
-  margin: 0 -8px;
-  padding: 16px 8px 24px;
+  margin: 0 -22px;
+  padding: 16px 22px 24px;
   display: flex;
   gap: 22px;
   overflow-x: auto;
@@ -89,11 +103,20 @@
 
 .siblingCardImage {
   position: relative;
-  aspect-ratio: 4 / 3;
+  /* Mobile cards are 72vw wide — 4:3 there feels squashed/landscape next to
+     the portrait phone canvas. Portrait 5:6 lets the photo breathe. Desktop
+     keeps a balanced 4:3 because the card itself is narrower. */
+  aspect-ratio: 5 / 6;
   width: 100%;
   background: #f3f1ea;
   overflow: hidden;
   border-bottom: 3px solid #0a0a0a;
+}
+
+@media (min-width: 720px) {
+  .siblingCardImage {
+    aspect-ratio: 4 / 3;
+  }
 }
 
 .siblingCardImage img {
@@ -134,7 +157,7 @@
 
 @media (min-width: 720px) {
   .siblings { gap: 56px; margin-bottom: 72px; }
-  .siblingScroller { gap: 28px; padding: 20px 8px 30px; }
+  .siblingScroller { gap: 28px; margin: 0 -8px; padding: 20px 8px 30px; }
   /* Three-card-peek sizing kept from previous design — width × 3 + gap × 2
      exceeds the column inner so card #3 always pokes past the edge. */
   .siblingItem { flex: 0 0 280px; max-width: 280px; }
@@ -162,8 +185,8 @@
 
 .newsGrid {
   list-style: none;
-  margin: 0 -8px;
-  padding: 16px 8px 24px;
+  margin: 0 -22px;
+  padding: 16px 22px 24px;
   display: flex;
   gap: 22px;
   overflow-x: auto;
@@ -204,10 +227,19 @@
 
 .newsImage {
   position: relative;
-  aspect-ratio: 16 / 9;
+  /* Mobile news cards: 16:9 was strongly landscape and felt cropped — go
+     5:6 portrait so the editorial photo gets real room. Desktop swings
+     back to 16:9 since the card is wider there. */
+  aspect-ratio: 5 / 6;
   background: #f3f1ea;
   overflow: hidden;
   border-bottom: 3px solid #0a0a0a;
+}
+
+@media (min-width: 720px) {
+  .newsImage {
+    aspect-ratio: 16 / 9;
+  }
 }
 
 .newsImage img {
@@ -262,7 +294,7 @@
 
 @media (min-width: 720px) {
   .news { margin-top: 72px; gap: 28px; }
-  .newsGrid { gap: 28px; padding: 20px 8px 30px; }
+  .newsGrid { gap: 28px; margin: 0 -8px; padding: 20px 8px 30px; }
   .newsItem { flex: 0 0 320px; max-width: 320px; }
 }
 

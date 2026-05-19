@@ -27,9 +27,10 @@
 .hero {
   position: relative;
   width: 100%;
-  /* Mobile: 4:3 keeps it phone-friendly. Desktop pushes to 60vh-ish so the
-     photo really dominates above the fold. */
-  aspect-ratio: 4 / 3;
+  /* Mobile: portrait 4:5 — photo dominates the viewport like a magazine
+     cover instead of feeling letterboxed/cropped. Desktop reflows to
+     cinematic 16:9. */
+  aspect-ratio: 4 / 5;
   max-height: 88vh;
   overflow: hidden;
   background: #0a0a0a;
@@ -48,17 +49,29 @@
 }
 
 /* Dark gradient at the bottom of the photo — gives the lockup legibility
-   regardless of what the underlying image is. */
+   regardless of what the underlying image is. Stronger on mobile because
+   the lockup competes with smaller letter sizes against bright photos. */
 .heroShade {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to top,
-    rgba(0, 0, 0, 0.62) 0%,
-    rgba(0, 0, 0, 0.30) 38%,
-    rgba(0, 0, 0, 0) 64%
+    rgba(0, 0, 0, 0.78) 0%,
+    rgba(0, 0, 0, 0.45) 38%,
+    rgba(0, 0, 0, 0) 72%
   );
   pointer-events: none;
+}
+
+@media (min-width: 720px) {
+  .heroShade {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.62) 0%,
+      rgba(0, 0, 0, 0.30) 38%,
+      rgba(0, 0, 0, 0) 64%
+    );
+  }
 }
 
 /* Editorial cover lockup — absolutely positioned bottom-left. */
@@ -81,30 +94,42 @@
 
 .heroEyebrow {
   font-family: var(--font-ranchers);
-  font-size: clamp(13px, 3.2vw, 18px);
+  font-size: clamp(15px, 4.2vw, 18px);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #f7f5f0;
+  color: #fefbf3;
   margin: 0;
   line-height: 1;
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.55);
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.6),
+    0 2px 14px rgba(0, 0, 0, 0.7);
 }
 
 .heroWordmark {
   font-family: var(--font-ranchers);
   font-weight: 400;
-  font-size: clamp(42px, 11vw, 112px);
+  font-size: clamp(52px, 14vw, 112px);
   line-height: 0.92;
   letter-spacing: -0.005em;
   color: var(--brand-red);
   margin: 0;
   /* Heavy text-shadow → guarantees the brand-red wordmark stays legible
-     even on bright photo regions. */
+     even on bright photo regions. Doubled-up on mobile because the photo
+     occupies more relative pixel real-estate behind the wordmark. */
   text-shadow:
     0 2px 0 #0a0a0a,
-    0 4px 18px rgba(0, 0, 0, 0.55);
+    0 3px 0 #0a0a0a,
+    0 6px 22px rgba(0, 0, 0, 0.65);
   text-wrap: balance;
   word-break: break-word;
+}
+
+@media (min-width: 720px) {
+  .heroWordmark {
+    text-shadow:
+      0 2px 0 #0a0a0a,
+      0 4px 18px rgba(0, 0, 0, 0.55);
+  }
 }
 
 .heroDeck {

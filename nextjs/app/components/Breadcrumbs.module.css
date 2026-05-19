@@ -17,22 +17,36 @@
   font-size: 13px;
   line-height: 1.4;
   color: var(--text-muted);
-  /* Long restaurant names can overflow on small screens — let the row
-     scroll horizontally rather than wrap into a second line. */
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  /* Long restaurant names used to overflow off-screen invisibly. We keep
+     the row on a single line but force the *current* item (the last <li>)
+     to shrink with ellipsis so the user never loses the start of the
+     breadcrumb to a hidden horizontal scroll. */
   white-space: nowrap;
-}
-
-.list::-webkit-scrollbar {
-  display: none;
+  min-width: 0;
 }
 
 .item {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+/* Last item carries the long restaurant name — let it shrink and clip
+   with an ellipsis instead of pushing the row past the viewport. */
+.item:last-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.item:last-child .current {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .link {

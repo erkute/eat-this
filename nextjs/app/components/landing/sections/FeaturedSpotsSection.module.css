@@ -97,11 +97,20 @@
 
 .cardImage {
   position: relative;
-  aspect-ratio: 4 / 3;
+  /* Mobile-only: portrait 4:5 so the spot-photo fills more of the phone
+     viewport instead of looking landscape-cropped. Desktop grid (≥720)
+     reflows back to balanced 4:3 — cards are narrower there anyway. */
+  aspect-ratio: 4 / 5;
   width: 100%;
   background: var(--surface-bg);
   overflow: hidden;
   border-bottom: 3px solid #0a0a0a;
+}
+
+@media (min-width: 720px) {
+  .cardImage {
+    aspect-ratio: 4 / 3;
+  }
 }
 
 .cardImage img {
@@ -131,9 +140,9 @@
   line-height: 1;
 }
 
-/* Name + price share a baseline-aligned row. Price floats right as a
-   Slackey wonky-cartoon sticker — the brand's price-label font, gives the
-   €€€ tier sticker-energy instead of small-red-text. */
+/* Name + price share a baseline-aligned row. Price sits quietly next to
+   the name as a small monospaced meta-tag — the previous Slackey/red
+   "sticker" was too loud against the rest of the card. */
 .cardHeadRow {
   display: flex;
   align-items: baseline;
@@ -155,15 +164,15 @@
 }
 
 .cardPrice {
-  font-family: var(--font-slackey);
-  font-size: 20px;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 700;
   line-height: 1;
-  color: var(--brand-red);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #525252;
   flex-shrink: 0;
   white-space: nowrap;
-  transform: rotate(-3deg);
-  transform-origin: center;
-  letter-spacing: 0;
 }
 
 /* Cuisine as its own muted line — visually clear that it's NOT the

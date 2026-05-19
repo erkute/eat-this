@@ -1,12 +1,18 @@
-import { getTranslations } from 'next-intl/server';
+import { CSSProperties } from 'react';
+import { Link } from '@/i18n/navigation';
 import SiteFooter from './SiteFooter';
 import NewsTicker from './NewsTicker';
 import type { NewsArticle } from '@/lib/types';
+import styles from './NewsSection.module.css';
 
 interface NewsSectionProps {
   articles: NewsArticle[];
   locale: 'de' | 'en';
 }
+
+// Deterministic ±tilt pattern — cards land like trading-cards on the table,
+// same gesture used by FeaturedSpots / DetailPageOutro siblings.
+const TILTS = [-1.6, 1.8, -1.2, 1.4, -1.8, 1.1, -1.4, 1.6, -1.0, 1.2];
 
 function formatDate(iso: string | undefined, lang: 'de' | 'en'): string {
   if (!iso) return '';
@@ -18,31 +24,42 @@ function formatDate(iso: string | undefined, lang: 'de' | 'en'): string {
   });
 }
 
-export default async function NewsSection({ articles, locale }: NewsSectionProps) {
-  const t = await getTranslations();
+export default function NewsSection({ articles, locale }: NewsSectionProps) {
   const de = locale === 'de';
 
   const tickerTitles = articles
     .map(a => (de && a.titleDe ? a.titleDe : a.title))
     .filter(Boolean);
 
+  const eyebrow = de ? 'Aus der Redaktion' : 'Editorial';
+  const wordmark = de ? 'News' : 'News';
+  const deck = de
+    ? 'Empfehlungen, Storys und Berichte aus Berlins Food-Szene — kuratiert vom Eat-This-Team.'
+    : "Recommendations, stories and dispatches from Berlin's food scene — curated by the Eat This team.";
+  const emptyMsg = de
+    ? 'Aktuell keine Artikel — schau bald wieder vorbei.'
+    : 'No articles right now — check back soon.';
+
   return (
-    <div className="app-page active" data-page="news">
-      <section className="news-section" id="news">
-        <div className="news-header">
-          <div className="news-header-top">
-            <p className="section-label reveal">{t('news.sectionLabel')}</p>
-            <h2 className="news-title">{t('news.sectionTitle')}</h2>
+    <div className={`app-page active ${styles.page}`} data-page="news">
+      <section className={styles.section} id="news">
+        <header className={styles.masthead}>
+          <p className={styles.eyebrow}>{eyebrow}</p>
+          <h1 className={styles.wordmark}>{wordmark}</h1>
+          <p className={styles.deck}>{deck}</p>
+        </header>
+
+        {tickerTitles.length > 0 && (
+          <div className={styles.tickerWrap}>
+            <NewsTicker titles={tickerTitles} />
           </div>
-        </div>
+        )}
 
-        <NewsTicker titles={tickerTitles} />
-
-        <div className="news-grid reveal-stagger">
-          {articles.length === 0 ? (
-            <p className="news-error">{t('news.errorLoad')}</p>
-          ) : (
-            articles.map(a => {
+        {articles.length === 0 ? (
+          <p className={styles.empty}>{emptyMsg}</p>
+        ) : (
+          <ul className={styles.grid} role="list">
+            {articles.map((a, i) => {
               const title = de && a.titleDe ? a.titleDe : a.title;
               const excerpt = de && a.excerptDe ? a.excerptDe : a.excerpt || '';
               const categoryLabel =
@@ -51,28 +68,39 @@ export default async function NewsSection({ articles, locale }: NewsSectionProps
               const imageUrl = a.imageUrl || '';
 
               return (
-                <article key={a.slug} className="news-card">
-                  <a href={`/news/${a.slug}`}>
-                    <div className="news-card-img">
+                <li
+                  key={a.slug}
+                  className={styles.item}
+                  style={{ ['--tilt' as string]: `${TILTS[i % TILTS.length]}deg` } as CSSProperties}
+                >
+                  <Link href={`/news/${a.slug}`} className={styles.card}>
+                    <div className={styles.cardImage}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={imageUrl} alt={a.alt || title} loading="lazy" />
+                      {imageUrl && <img src={imageUrl} alt={a.alt || title} loading="lazy" />}
                     </div>
-                    <div className="news-card-body">
-                      <div className="news-card-top">
-                        <span className="news-card-category">{categoryLabel}</span>
-                        <time className="news-card-date" dateTime={a.date}>
-                          {dateFormatted}
-                        </time>
+                    <div className={styles.cardBody}>
+                      <div className={styles.cardMeta}>
+                        {categoryLabel && (
+                          <span className={styles.cardCategory}>{categoryLabel}</span>
+                        )}
+                        {categoryLabel && dateFormatted && (
+                          <span className={styles.cardSep} aria-hidden="true">·</span>
+                        )}
+                        {dateFormatted && (
+                          <time className={styles.cardDate} dateTime={a.date}>
+                            {dateFormatted}
+                          </time>
+                        )}
                       </div>
-                      <h3 className="news-card-headline">{title}</h3>
-                      <p className="news-card-excerpt">{excerpt}</p>
+                      <h2 className={styles.cardHeadline}>{title}</h2>
+                      {excerpt && <p className={styles.cardExcerpt}>{excerpt}</p>}
                     </div>
-                  </a>
-                </article>
+                  </Link>
+                </li>
               );
-            })
-          )}
-        </div>
+            })}
+          </ul>
+        )}
       </section>
       <SiteFooter />
     </div>

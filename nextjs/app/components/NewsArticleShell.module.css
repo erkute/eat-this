@@ -1,0 +1,477 @@
+/* ─────────────────────────────────────────────────────────────
+ * NewsArticleShell — magazine-feature treatment matching the
+ * restaurant-detail page. Full-bleed photo with brand-red
+ * Ranchers cover lockup at the bottom; cream editorial column
+ * below with drop-cap lede; ink-shadow related-news cards.
+ * ───────────────────────────────────────────────────────────── */
+
+.page {
+  background: var(--surface-canvas);
+  color: var(--text-primary);
+}
+
+.article {
+  display: block;
+}
+
+/* ── Hero ───────────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  width: 100%;
+  /* Mobile: portrait 4:5 — magazine-cover feel. Desktop reflows to
+     cinematic 16:9. */
+  aspect-ratio: 4 / 5;
+  max-height: 88vh;
+  overflow: hidden;
+  background: #0a0a0a;
+}
+
+@media (min-width: 720px) {
+  .hero {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+.heroImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.heroShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.78) 0%,
+    rgba(0, 0, 0, 0.45) 38%,
+    rgba(0, 0, 0, 0) 72%
+  );
+  pointer-events: none;
+}
+
+@media (min-width: 720px) {
+  .heroShade {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.62) 0%,
+      rgba(0, 0, 0, 0.30) 38%,
+      rgba(0, 0, 0, 0) 64%
+    );
+  }
+}
+
+.heroLockup {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 32px 22px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #f7f5f0;
+  pointer-events: none;
+}
+
+@media (min-width: 720px) {
+  .heroLockup {
+    padding: 56px 40px 44px;
+  }
+}
+
+@media (min-width: 1080px) {
+  .heroLockup {
+    padding: 72px 56px 56px;
+  }
+}
+
+.heroEyebrow {
+  font-family: var(--font-ranchers);
+  font-size: clamp(15px, 4.2vw, 20px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fefbf3;
+  margin: 0;
+  line-height: 1;
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.6),
+    0 2px 14px rgba(0, 0, 0, 0.7);
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.heroEyebrowDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--brand-red);
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.heroHeadline {
+  font-family: var(--font-ranchers);
+  font-weight: 400;
+  font-size: clamp(38px, 11vw, 88px);
+  line-height: 0.95;
+  letter-spacing: -0.005em;
+  color: var(--brand-red);
+  margin: 0;
+  text-shadow:
+    0 2px 0 #0a0a0a,
+    0 3px 0 #0a0a0a,
+    0 6px 22px rgba(0, 0, 0, 0.65);
+  text-wrap: balance;
+  word-break: break-word;
+  max-width: 18ch;
+}
+
+@media (min-width: 720px) {
+  .heroHeadline {
+    text-shadow:
+      0 2px 0 #0a0a0a,
+      0 4px 18px rgba(0, 0, 0, 0.55);
+    max-width: 22ch;
+  }
+}
+
+/* ── Body / editorial column ────────────────────────────────── */
+.body {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px 22px 64px;
+}
+
+@media (min-width: 720px) {
+  .body {
+    padding: 44px 32px 96px;
+  }
+}
+
+.breadcrumbWrap {
+  margin-bottom: 20px;
+}
+
+.shareRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 36px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid rgba(10, 10, 10, 0.1);
+}
+
+.shareLabel {
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #707070;
+  margin-right: 6px;
+}
+
+/* Neutralize legacy .news-modal-share wrapper styles (border, padding,
+   margin) so the share buttons sit inline inside the new shareRow. */
+.shareRow :global(.news-modal-share) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Drop-cap on the first paragraph — gives the article a magazine open. */
+.content {
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  color: #1a1a1a;
+}
+
+@media (min-width: 720px) {
+  .content {
+    font-size: 18px;
+    line-height: 1.85;
+  }
+}
+
+.content p {
+  margin: 0 0 22px;
+  text-wrap: pretty;
+}
+
+.content p:first-of-type::first-letter {
+  font-family: var(--font-ranchers);
+  font-size: 4.4em;
+  float: left;
+  line-height: 0.86;
+  padding: 6px 12px 0 0;
+  color: var(--brand-red);
+}
+
+.content h2 {
+  font-family: var(--font-ranchers);
+  font-weight: 400;
+  font-size: clamp(28px, 5.5vw, 40px);
+  line-height: 0.95;
+  letter-spacing: -0.005em;
+  color: var(--brand-red);
+  margin: 44px 0 14px;
+  text-wrap: balance;
+}
+
+.content h3 {
+  font-family: var(--font);
+  font-size: clamp(20px, 4vw, 24px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: #0a0a0a;
+  margin: 36px 0 12px;
+}
+
+.content h4 {
+  font-family: var(--font);
+  font-size: 17px;
+  font-weight: 700;
+  color: #0a0a0a;
+  margin: 28px 0 10px;
+}
+
+.content blockquote {
+  font-family: var(--font);
+  font-size: clamp(20px, 4.4vw, 26px);
+  line-height: 1.35;
+  font-weight: 500;
+  color: #0a0a0a;
+  margin: 36px 0;
+  padding: 4px 0 4px 22px;
+  border-left: 4px solid var(--brand-red);
+  font-style: italic;
+  text-wrap: pretty;
+}
+
+.content strong {
+  font-weight: 800;
+}
+
+.content a {
+  color: var(--brand-red);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.content a:hover {
+  color: #0a0a0a;
+}
+
+.content ul,
+.content ol {
+  margin: 0 0 22px;
+  padding-left: 22px;
+}
+
+.content li {
+  margin-bottom: 8px;
+}
+
+.content img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 28px 0;
+  border: 3px solid #0a0a0a;
+  box-shadow: 8px 8px 0 0 #0a0a0a;
+}
+
+/* ── Related news ───────────────────────────────────────────── */
+.related {
+  border-top: 1px solid rgba(10, 10, 10, 0.1);
+  margin-top: 16px;
+}
+
+.relatedInner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 48px 22px 80px;
+}
+
+@media (min-width: 720px) {
+  .relatedInner {
+    padding: 72px 32px 120px;
+  }
+}
+
+.relatedHeading {
+  font-family: var(--font-ranchers);
+  font-weight: 400;
+  font-size: clamp(28px, 6vw, 44px);
+  line-height: 0.95;
+  letter-spacing: -0.005em;
+  color: var(--brand-red);
+  margin: 0 0 24px;
+  text-wrap: balance;
+}
+
+@media (min-width: 720px) {
+  .relatedHeading {
+    margin-bottom: 32px;
+  }
+}
+
+.relatedGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+}
+
+@media (min-width: 720px) {
+  .relatedGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  }
+}
+
+.relatedItem {
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.relatedItem:hover {
+  transform: rotate(0) translate(-2px, -3px);
+}
+
+.relatedCard {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 3px solid #0a0a0a;
+  box-shadow: 8px 8px 0 0 #0a0a0a;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+  transition: box-shadow 280ms ease;
+}
+
+.relatedItem:hover .relatedCard {
+  box-shadow: 12px 12px 0 0 #0a0a0a;
+}
+
+.relatedImage {
+  position: relative;
+  aspect-ratio: 5 / 6;
+  width: 100%;
+  overflow: hidden;
+  background: #f3f1ea;
+  border-bottom: 3px solid #0a0a0a;
+}
+
+@media (min-width: 720px) {
+  .relatedImage {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+.relatedImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.relatedItem:hover .relatedImage img {
+  transform: scale(1.04);
+}
+
+.relatedBody {
+  padding: 16px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.relatedCategory {
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-red);
+}
+
+.relatedHeadline {
+  font-family: var(--font);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: #0a0a0a;
+  text-wrap: balance;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Dark mode ──────────────────────────────────────────────── */
+:global([data-theme="dark"]) .page {
+  background: #0a0a0a;
+  color: #f7f5f0;
+}
+
+:global([data-theme="dark"]) .shareRow {
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+:global([data-theme="dark"]) .shareLabel {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+:global([data-theme="dark"]) .content {
+  color: rgba(255, 255, 255, 0.86);
+}
+
+:global([data-theme="dark"]) .content h3,
+:global([data-theme="dark"]) .content h4,
+:global([data-theme="dark"]) .content strong,
+:global([data-theme="dark"]) .content blockquote {
+  color: #f7f5f0;
+}
+
+:global([data-theme="dark"]) .content a:hover {
+  color: #f7f5f0;
+}
+
+:global([data-theme="dark"]) .related {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+:global([data-theme="dark"]) .relatedCard {
+  background: #141414;
+  border-color: #f7f5f0;
+  box-shadow: 8px 8px 0 0 #f7f5f0;
+}
+
+:global([data-theme="dark"]) .relatedItem:hover .relatedCard {
+  box-shadow: 12px 12px 0 0 #f7f5f0;
+}
+
+:global([data-theme="dark"]) .relatedImage {
+  border-bottom-color: #f7f5f0;
+}
+
+:global([data-theme="dark"]) .relatedHeadline {
+  color: #f7f5f0;
+}

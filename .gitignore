@@ -22,3 +22,17 @@ css/*.min.css
 
 # Local scraper working dir — .py + .xlsx + .json output stays out of repo
 scripts/scraper/
+
+# Workflow screenshots from Browser-Verifies / Chrome-DevTools-Sessions —
+# bleiben lokal, gehören nicht ins Repo.
+/peek-*.png
+/handle-*.png
+/mobile-scroll-*.png
+scripts/*.png
+
+# Sanity-Audit-Output (lokales Tool, große JSON-Dumps).
+scripts/audit-out/
+
+# Source-Pics — Working-Files für WebP-Conversion. Die fertigen WebPs
+# landen in nextjs/public/pics/. Die Source-PNGs hier shippen nicht.
+/pics/

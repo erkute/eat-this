@@ -22,7 +22,6 @@ import MapSectionBody from './map/MapSectionBody'
 import { auth, db } from '@/lib/firebase/config'
 import { onAuthStateChanged } from 'firebase/auth'
 import { collection, onSnapshot } from 'firebase/firestore'
-import styles from './map/map.module.css'
 
 interface Props {
   isActive?: boolean
@@ -33,6 +32,12 @@ export default function MapSection({ isActive = false }: Props) {
   // Set true synchronously in any click handler that flies the camera so
   // the slow auto-locate Promise can't overwrite the user's selection.
   const userInteractedRef = useRef(false)
+  /* Tracks woher der gerade offene Must-Eat-Detail aufgemacht wurde, damit
+     der Zurück-Button die Origin-View wiederherstellt:
+     - 'restaurant' = aus dem Restaurant-Detail heraus → zurück zum Restaurant
+     - 'list'       = direkter Map-Marker-Klick oder Click in der Must-Eats-Liste
+                      → zurück zur Must-Eats-Liste */
+  const mustEatOriginRef = useRef<'restaurant' | 'list'>('list')
   const { t } = useTranslation()
   const locale = useLocale()
 
@@ -51,19 +56,9 @@ export default function MapSection({ isActive = false }: Props) {
     restaurants,
     mustEats,
     categories,
-    loading: dataLoading,
     refetch: refetchMapData,
   } = useMapData({ uid, authLoading })
   useInitialFit(mapRef, restaurants)
-  // Keep the card-shuffle brand moment but make it fast: 1.5 s bar fill +
-  // 100 ms grace = 1.6 s minimum. If data hasn't arrived by then we still
-  // wait; if data loads in 200 ms we still show ≈1.6 s of brand.
-  const [minDelayElapsed, setMinDelayElapsed] = useState(false)
-  useEffect(() => {
-    const id = window.setTimeout(() => setMinDelayElapsed(true), 1600)
-    return () => window.clearTimeout(id)
-  }, [])
-  const loading = dataLoading || !minDelayElapsed
   const { location, request: requestLocation } = useUserLocation()
   const { unlockedIds: storedUnlockedIds, unlock } = useUnlockedMustEats(uid)
   // Free-and-open trial — 10/10 split: the first half of the trial-20
@@ -119,10 +114,6 @@ export default function MapSection({ isActive = false }: Props) {
   const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
   const [selectedMustEat,    setSelectedMustEat]    = useState<MapMustEat | null>(null)
   const [searchOpen,         setSearchOpen]         = useState(false)
-  // Anon visitors tapping a locked must-eat see a soft starter-signup prompt
-  // instead of being silently allowed into the detail (legacy behavior) or
-  // hard-blocked. `null` = no prompt visible.
-  const [anonUnlockPrompt,   setAnonUnlockPrompt]   = useState<MapMustEat | null>(null)
   // Desktop-only: lets the user collapse the side panel off to the right so
   // the map fills the viewport (Google-Maps-style toggle).
   const [desktopPanelHidden, setDesktopPanelHidden] = useState(false)
@@ -260,17 +251,16 @@ export default function MapSection({ isActive = false }: Props) {
     // Both mobile sheet AND desktop sidebar render the detail inline now —
     // desktop no longer uses a centered floating modal that hid the marker.
     setSheetView('detail')
-    // If the list was at full when clicking, the detail will also open at
-    // full (preserved in the snap useLayoutEffect). Pad accordingly so the
-    // marker isn't hidden behind the just-expanded sheet.
-    const targetSnap = snap === 'full' ? 'full' : 'mid'
+    // Always open the detail fully on restaurant select — peek/mid hides
+    // the content the user just clicked to see.
+    setSnap('full')
     mapRef.current?.flyTo({
       center: [r.lng, r.lat],
       zoom: 15,
       duration: 500,
-      padding: getFlyPadding(isMobile ? targetSnap : undefined),
+      padding: getFlyPadding(isMobile ? 'full' : undefined),
     })
-  }, [getFlyPadding, setSearch, setSheetView, snap, sheetView, contentRef])
+  }, [getFlyPadding, setSearch, setSheetView, setSnap, sheetView, contentRef])
 
   const handleMustEatClick = useCallback((m: MapMustEat) => {
     userInteractedRef.current = true
@@ -287,56 +277,54 @@ export default function MapSection({ isActive = false }: Props) {
     // → switch to mustEats layer + list view, fly to the must-eat. Same flow
     // on both platforms.
     if (selectedRestaurant) {
+      mustEatOriginRef.current = 'restaurant'
       setLayer('mustEats')
       setSelectedRestaurant(null)
       setSelectedMustEat(m)
       setSheetView('detail')
+      // Must-Eat-Detail Mobile = viewport-füllend → immer full snap.
+      if (isMobile) setSnap('full')
       mapRef.current?.flyTo({
         center: [m.restaurant.lng, m.restaurant.lat],
         zoom: 15,
         duration: 500,
-        padding: getFlyPadding('mid'),
+        padding: getFlyPadding(isMobile ? 'full' : undefined),
       })
       return
     }
+    // Direct marker click oder Click in der Must-Eats-Liste — Origin = list.
+    mustEatOriginRef.current = 'list'
     const isLocked = !unlockedIds.has(m._id)
-    // Anon + locked: don't silently open the detail — surface the soft
-    // starter-signup prompt instead so the visitor sees a clear path to
-    // unlocking the rest of the city.
-    if (!uid && isLocked) {
-      setAnonUnlockPrompt(m)
-      return
-    }
-    const targetSnap = snap === 'full' ? 'full' : 'mid'
     const open = () => {
       setSelectedMustEat(m)
       setSheetView('detail')
-      mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500, padding: getFlyPadding(isMobile ? targetSnap : undefined) })
+      // Must-Eat-Detail Mobile = viewport-füllend → immer full snap.
+      if (isMobile) setSnap('full')
+      mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500, padding: getFlyPadding(isMobile ? 'full' : undefined) })
     }
     // Let the back-card wiggle animation play before the detail modal covers it.
     if (isLocked) setTimeout(open, 420)
     else open()
-  }, [unlockedIds, uid, getFlyPadding, selectedRestaurant, setSearch, setSheetView, snap, sheetView, contentRef])
+  }, [unlockedIds, getFlyPadding, selectedRestaurant, setSearch, setSheetView, snap, sheetView, contentRef])
 
   const handleRestaurantClose = useCallback(() => {
     const r = selectedRestaurant
     setSelectedRestaurant(null)
     setSheetView('list')
-    // Don't move the sheet — whatever snap the user had it at when they
-    // closed the detail is the snap the list should reappear at. If they
-    // had the list at 'full' before tapping a restaurant, the X should
-    // hand them back the full-screen list; same for 'mid' and 'peek'.
-    // Centring uses the current sheet height (no targetSnap arg) so the
-    // padding matches what's actually on screen.
+    // If the user pushed the detail down to peek before tapping X, snap the
+    // list back to 'mid' so the result set is actually readable. 'full' and
+    // 'mid' are preserved as deliberate user positions.
+    const nextSnap: typeof snap = snap === 'peek' ? 'mid' : snap
+    if (nextSnap !== snap) setSnap(nextSnap)
     if (r && mapRef.current) {
       mapRef.current.flyTo({
         center: [r.lng, r.lat],
         zoom: 15,
         duration: 350,
-        padding: getFlyPadding(),
+        padding: getFlyPadding(nextSnap),
       })
     }
-  }, [selectedRestaurant, getFlyPadding, setSheetView])
+  }, [selectedRestaurant, getFlyPadding, setSheetView, snap, setSnap])
 
   const handleViewRestaurantFromMustEat = useCallback(() => {
     if (!selectedMustEat) return
@@ -347,17 +335,43 @@ export default function MapSection({ isActive = false }: Props) {
     handleRestaurantClick(restaurant)
   }, [selectedMustEat, restaurants, handleRestaurantClick])
 
-  /* Back button inside the must-eat detail — always navigates to the
-     must-eat's parent restaurant detail (regardless of whether the user
-     came from a restaurant detail or from the must-eats list). */
+  /* Back-Button im Must-Eat-Detail — restauriert die Origin-View:
+     - origin 'restaurant' → öffnet den parent Restaurant-Detail
+     - origin 'list'       → zurück zur Must-Eats-Liste (Detail clearen,
+                             Sheet-View auf 'list'). */
   const handleMustEatBack = useCallback(() => {
     if (!selectedMustEat) return
-    const restaurant = restaurants.find(r => r._id === selectedMustEat.restaurant._id)
-    if (!restaurant) return
+    if (mustEatOriginRef.current === 'restaurant') {
+      const restaurant = restaurants.find(r => r._id === selectedMustEat.restaurant._id)
+      if (restaurant) {
+        setSelectedMustEat(null)
+        setLayer('restaurants')
+        handleRestaurantClick(restaurant)
+        return
+      }
+    }
+    // origin 'list' (Default) — zurück zur Must-Eats-Liste.
+    setSelectedMustEat(null)
+    setSheetView('list')
+  }, [selectedMustEat, restaurants, handleRestaurantClick, setSheetView])
+
+  /* "Alle Must Eats anzeigen" button in must-eat detail — clears the
+     current selection and flips the sheet from detail → list while
+     staying on the mustEats layer, so the user sees the full list. */
+  const handleViewAllMustEats = useCallback(() => {
+    setSelectedMustEat(null)
+    setSheetView('list')
+    const nextSnap: typeof snap = snap === 'peek' ? 'mid' : snap
+    if (nextSnap !== snap) setSnap(nextSnap)
+  }, [setSheetView, snap, setSnap])
+
+  /* „Zu den Restaurants"-Button auf der Must-Eats-Liste — flippt den
+     Layer zurück auf 'restaurants', clearet die Must-Eat-Selection.
+     Sheet-View bleibt 'list', der bisherige Snap bleibt erhalten. */
+  const handleSwitchToRestaurants = useCallback(() => {
     setSelectedMustEat(null)
     setLayer('restaurants')
-    handleRestaurantClick(restaurant)
-  }, [selectedMustEat, restaurants, handleRestaurantClick])
+  }, [])
 
   const handleMustEatClose = useCallback(() => {
     const m = selectedMustEat
@@ -373,15 +387,18 @@ export default function MapSection({ isActive = false }: Props) {
     // way to switch layers.
     setLayer('restaurants')
     setSheetView('list')
+    // Same nudge as handleRestaurantClose: peek → mid so the list is usable.
+    const nextSnap: typeof snap = snap === 'peek' ? 'mid' : snap
+    if (nextSnap !== snap) setSnap(nextSnap)
     if (m && mapRef.current) {
       mapRef.current.flyTo({
         center: [m.restaurant.lng, m.restaurant.lat],
         zoom: 15,
         duration: 350,
-        padding: getFlyPadding(),
+        padding: getFlyPadding(nextSnap),
       })
     }
-  }, [selectedMustEat, selectedRestaurant, getFlyPadding, setSheetView])
+  }, [selectedMustEat, selectedRestaurant, getFlyPadding, setSheetView, snap, setSnap])
 
   const handleMapClick = useCallback(() => {
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
@@ -520,21 +537,6 @@ export default function MapSection({ isActive = false }: Props) {
   })
 
   /* ---------- Render ---------- */
-  if (loading) {
-    return (
-      <div className={`app-page${isActive ? ' active' : ''}`} data-page="map">
-        <div className={styles.loading} role="status" aria-live="polite">
-          <div className={styles.loadingCard} aria-hidden="true" />
-          <div className={styles.loadingTitle}>{t('map.loadingTitle')}</div>
-          <div className={styles.loadingBar} aria-hidden="true">
-            <span className={styles.loadingBarFill} />
-          </div>
-          <div className={styles.loadingSub}>{t('map.loadingSub')}</div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <MapSectionBody
       isActive={isActive}
@@ -579,6 +581,8 @@ export default function MapSection({ isActive = false }: Props) {
       onRestaurantClose={handleRestaurantClose}
       onMustEatClose={handleMustEatClose}
       onMustEatBack={handleMustEatBack}
+      onViewAllMustEats={handleViewAllMustEats}
+      onSwitchToRestaurants={handleSwitchToRestaurants}
       onViewRestaurantFromMustEat={handleViewRestaurantFromMustEat}
       onUnlock={handleUnlock}
       onSearchChange={handleSearchChange}
@@ -588,8 +592,6 @@ export default function MapSection({ isActive = false }: Props) {
       onCollapseDetailToMid={() => { setSnap('mid'); reapplySnap('mid') }}
       desktopPanelHidden={desktopPanelHidden}
       onToggleDesktopPanel={() => setDesktopPanelHidden(v => !v)}
-      anonUnlockPromptOpen={anonUnlockPrompt !== null}
-      onCloseAnonUnlockPrompt={() => setAnonUnlockPrompt(null)}
       myLocationAriaLabel={t('map.myLocationAriaLabel') ?? 'My location'}
       restaurantsListAriaLabel={t('map.restaurantsListAriaLabel') ?? 'Restaurants nearby'}
       mustEatsListAriaLabel={t('map.mustEatsListAriaLabel') ?? 'Must Eats'}

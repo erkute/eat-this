@@ -43,12 +43,9 @@ export function formatPriceLabel(input: {
 }): string | null {
   const r = input.priceRange
   if (!r) return null
-  if (r.min != null && r.max != null) {
-    const cur = r.currency === 'EUR' || !r.currency ? '€' : r.currency
-    return `${r.min}–${r.max} ${cur}`
-  }
-  if (r.min != null) return `ab ${r.min} €`
-  return null
+  if (r.min == null || r.max == null) return null
+  const cur = r.currency === 'EUR' || !r.currency ? '€' : r.currency
+  return `${r.min}–${r.max} ${cur}`
 }
 
 /**

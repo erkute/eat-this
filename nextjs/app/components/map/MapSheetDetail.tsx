@@ -1,7 +1,7 @@
 'use client'
 import { type Ref } from 'react'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
-import type { UserLocation } from '@/lib/map'
+import type { UserLocation, UserTier } from '@/lib/map'
 import RestaurantDetail from './RestaurantDetail'
 import MustEatDetail from './MustEatDetail'
 import styles from './map.module.css'
@@ -9,6 +9,7 @@ import styles from './map.module.css'
 type CommonProps = {
   contentRef: Ref<HTMLDivElement | null>
   uid: string | null
+  userTier: UserTier
   userLocation: UserLocation | null
   unlockedIds: Set<string>
 }
@@ -19,6 +20,7 @@ type MustEatProps = CommonProps & {
   onUnlock: () => void
   onClose: () => void
   onBack?: () => void
+  onViewAllMustEats?: () => void
   onViewRestaurant: () => void
 }
 
@@ -45,6 +47,7 @@ export default function MapSheetDetail(props: Props) {
           onUnlock={props.onUnlock}
           onClose={props.onClose}
           onBack={props.onBack}
+          onViewAllMustEats={props.onViewAllMustEats}
           onViewRestaurant={props.onViewRestaurant}
           uid={props.uid}
           inSheet
@@ -55,6 +58,8 @@ export default function MapSheetDetail(props: Props) {
           mustEats={props.mustEats}
           unlockedIds={props.unlockedIds}
           userLocation={props.userLocation}
+          uid={props.uid}
+          userTier={props.userTier}
           onClose={props.onClose}
           onMustEatClick={props.onMustEatClick}
           isFavorite={props.isFavorite}

@@ -1,6 +1,6 @@
 'use client'
 import { forwardRef, useEffect, useState } from 'react'
-import Map, { NavigationControl, AttributionControl, type MapRef } from 'react-map-gl/maplibre'
+import Map, { AttributionControl, type MapRef } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
 const LIGHT_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'
@@ -83,8 +83,7 @@ const MapCanvas = forwardRef<MapRef, MapCanvasProps>(({ onMove, onMapClick, chil
       }}
       onClick={() => onMapClick?.()}
     >
-      <AttributionControl position="top-left" compact />
-      <NavigationControl position="bottom-right" showCompass={false} />
+      <AttributionControl position="bottom-left" compact />
       {children}
     </Map>
   )

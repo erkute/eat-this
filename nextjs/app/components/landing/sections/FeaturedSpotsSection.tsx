@@ -1,29 +1,12 @@
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import type { RestaurantCard } from '@/lib/types'
+import { normalizeName } from '@/lib/normalizeName'
 import styles from './FeaturedSpotsSection.module.css'
 
 interface Props {
   spots:  RestaurantCard[]
   locale: 'de' | 'en'
-}
-
-// Bowlby One has no Turkish/Polish glyphs, so names like
-// "Bursa Uludağ Kebapçısı" fall back to a different font and look out of
-// place. Map only the foreign-script letters Berlin restaurants actually
-// carry — German umlauts (Ä/Ö/Ü/ä/ö/ü/ß) MUST be preserved, they render
-// fine in Bowlby One and are part of normal German names like
-// "Schlüsseldienst".
-const SPECIAL: Record<string, string> = {
-  ğ: 'g', Ğ: 'G',
-  ş: 's', Ş: 'S',
-  ç: 'c', Ç: 'C',
-  ı: 'i', İ: 'I',
-  ł: 'l', Ł: 'L',
-  ø: 'o', Ø: 'O',
-}
-function normalizeName(name: string): string {
-  return name.replace(/[ğĞşŞçÇıİłŁøØ]/g, (c) => SPECIAL[c] ?? c)
 }
 
 export default function FeaturedSpotsSection({ spots, locale }: Props) {

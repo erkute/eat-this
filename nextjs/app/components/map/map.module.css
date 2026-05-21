@@ -18,79 +18,6 @@
   touch-action: pan-y;
 }
 
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 22px;
-  height: 100%;
-  padding: 24px;
-  color: var(--text-primary);
-  background: var(--surface-bg);
-  font-family: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Courier New', monospace;
-  image-rendering: pixelated;
-}
-.loadingCard {
-  width: 96px;
-  aspect-ratio: 1449 / 2163;
-  background: transparent url('/pics/card-back.webp') center/contain no-repeat;
-  border-radius: 6%;
-  overflow: hidden;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
-  animation: loadingFlip 1.4s ease-in-out infinite;
-  transform-style: preserve-3d;
-}
-@keyframes loadingFlip {
-  0%, 100% { transform: rotate(-4deg) scale(1); }
-  50%      { transform: rotate(4deg)  scale(1.04); }
-}
-.loadingTitle {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  text-align: center;
-  color: var(--text-primary);
-}
-.loadingBar {
-  position: relative;
-  width: min(240px, 70%);
-  height: 16px;
-  background: var(--surface-raised);
-  border: 3px solid var(--accent);
-  overflow: hidden;
-  image-rendering: pixelated;
-  box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.2);
-}
-.loadingBarFill {
-  position: absolute;
-  inset: 0;
-  width: 0;
-  background:
-    repeating-linear-gradient(
-      90deg,
-      var(--accent) 0 10px,
-      color-mix(in srgb, var(--accent) 70%, #000) 10px 12px
-    );
-  animation: loadingFill 1.5s steps(12) forwards;
-}
-@keyframes loadingFill {
-  0%   { width: 0; }
-  100% { width: 100%; }
-}
-.loadingSub {
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  animation: loadingBlink 1s steps(2) infinite;
-}
-@keyframes loadingBlink {
-  0%, 49%   { opacity: 1; }
-  50%, 100% { opacity: 0.35; }
-}
-
 /* Category chips */
 .chips {
   display: flex;
@@ -177,50 +104,64 @@ html[data-theme="dark"] .chipActive {
   }
 }
 
-/* Desktop panel toggle — Google-Maps-style "drawer tab". Sits in the map
-   area with a small gap from the list, flat side facing the list, rounded
-   corners only on the outer (map-facing) side. Click slides the panel
-   off-screen to the right (and back in). Mobile-hidden. */
+/* Desktop panel toggle — reads as an extruded tab cut from the rail itself.
+   Same bg color as the rail, hairline border on top/bottom/left only, soft
+   left-side shadow lifts it off the map. Click slides the rail off-screen;
+   chevron rotates and the tab rides to the viewport edge. Mobile-hidden. */
 .panelToggle {
+  position: absolute;
+  top: 50%;
+  right: 420px;
+  transform: translateY(-50%);
   display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 7px 16px 8px;
+  background: #fbf5e2;
+  color: var(--text-primary);
+  border: 1px solid rgba(28, 37, 32, 0.16);
+  border-right: 0;
+  border-radius: 6px 0 0 6px;
+  cursor: pointer;
+  z-index: 6;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: -3px 0 10px rgba(0, 0, 0, 0.08);
+  transition: right 280ms cubic-bezier(0.2, 0.8, 0.2, 1), background 160ms ease;
+}
+.panelToggle:hover { background: #f4ecd4; }
+.panelToggle svg {
+  width: 11px;
+  height: 11px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 220ms ease;
 }
 @media (min-width: 1024px) {
-  .panelToggle {
-    display: grid;
-    place-items: center;
-    position: absolute;
-    top: 50%;
-    right: 420px;
-    transform: translateY(-50%);
-    width: 26px;
-    height: 50px;
-    padding: 0;
-    border: 1px solid var(--border-subtle);
-    /* Folder-register tab — rounded only on the outer (map-facing) side;
-       the side near the list stays flat as if cut from a binder. */
-    border-radius: 12px 0 0 12px;
-    background: var(--surface-card);
-    color: var(--text-secondary);
-    cursor: pointer;
-    box-shadow:
-      0 1px 2px rgba(17, 24, 39, 0.05),
-      -3px 3px 10px rgba(17, 24, 39, 0.08);
-    z-index: 6;
-    -webkit-tap-highlight-color: transparent;
-    appearance: none;
-    transition: right 0.3s ease, background 0.15s, color 0.15s;
-  }
-  .panelToggle svg { width: 16px; height: 16px; }
-  .panelToggle:hover {
-    background: var(--surface-raised);
-    color: var(--text-primary);
-  }
-  /* When panel is hidden, the tab rides with the panel edge — sits at the
-     viewport's right edge with a small gap so the rounded corner is still
-     visible. */
-  .bodyPanelHidden .panelToggle {
-    right: 0;
-  }
+  .panelToggle { display: flex; }
+}
+
+html[data-theme="dark"] .panelToggle {
+  background: #1a1816;
+  color: var(--c-cream, #e3dac9);
+  border-color: rgba(243, 234, 212, 0.18);
+  box-shadow: -3px 0 12px rgba(0, 0, 0, 0.45);
+}
+html[data-theme="dark"] .panelToggle:hover { background: #221f1c; }
+
+/* Panel hidden: tab rides to the viewport edge, gets full radius + right
+   border (flush sticker). Chevron direction is flipped in the TSX via the
+   polyline points (not via CSS rotate) so the two signals don't fight. */
+.bodyPanelHidden .panelToggle {
+  right: 0;
+  border-radius: 6px;
+  border-right: 1px solid rgba(28, 37, 32, 0.16);
+}
+html[data-theme="dark"] .bodyPanelHidden .panelToggle {
+  border-right-color: rgba(243, 234, 212, 0.18);
 }
 
 /* MapLibre's own canvas claims pinch/pan/rotate gestures. The .shell parent
@@ -291,25 +232,25 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-group) {
   .mapWrap :global(.maplibregl-ctrl-bottom-left)  { left: 10px; }
 }
 
-/* Attribution: a transparent ⓘ pill in the corner. Required by Carto/OSM
-   terms — keep it visually unobtrusive but tappable. The visible icon stays
-   small (14 px) but the touch target is 28 px so users can actually hit it. */
+/* Attribution: a tiny near-invisible ⓘ pill tucked into the bottom-left
+   corner. Required by Carto/OSM terms — keep it as unobtrusive as the
+   rules allow. */
 .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show)) {
-  background: rgba(255, 255, 255, 0.25) !important;
+  background: rgba(255, 255, 255, 0.2) !important;
   border: 0 !important;
   box-shadow: none !important;
   border-radius: 999px !important;
-  min-height: 20px !important;
-  min-width: 20px !important;
-  height: 20px;
-  width: 20px;
+  min-height: 12px !important;
+  min-width: 12px !important;
+  height: 12px;
+  width: 12px;
   padding: 0 !important;
-  opacity: 0.4;
+  opacity: 0.35;
 }
 .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-button) {
-  width: 20px !important;
-  height: 20px !important;
-  background-size: 10px 10px !important;
+  width: 12px !important;
+  height: 12px !important;
+  background-size: 7px 7px !important;
   background-position: center !important;
 }
 .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-inner) {
@@ -389,12 +330,10 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-comp
   transition: background 0.15s, color 0.15s, border-color 0.15s, opacity 0.18s ease;
 }
 @media (min-width: 1024px) {
-  /* Desktop: stack above zoom controls, center-aligned with their visual
-     group. MapLibre's .maplibregl-ctrl-bottom-right wrapper is 46 px wide
-     but the visible .maplibregl-ctrl-group is only 36 px (with 10 px of
-     wrapper padding on the right). FAB right = 12 + 10 = 22 matches the
-     group's center. Bottom: zoom bottom (12) + zoom h (80) + 6 gap = 98. */
-  .fab { right: 22px; bottom: 98px; top: auto; }
+  /* Desktop: bottom-right corner of the map. Zoom controls have been
+     removed, so the FAB sits flush in the corner with the same edge
+     margins MapLibre would use for its own controls. */
+  .fab { right: 12px; bottom: 12px; top: auto; }
 }
 html[data-theme="dark"] .fab {
   background: rgba(30, 30, 30, 0.45);
@@ -432,6 +371,16 @@ html[data-theme="dark"] .fab {
   pointer-events: none;
   transition: opacity 0.18s ease, visibility 0s;
 }
+/* Desktop: detail opens in the side rail and the map stays fully visible —
+   the locate FAB must stay reachable. Override the mobile-targeted hide
+   rule above so the FAB persists when detail is open on wide viewports. */
+@media (min-width: 1024px) {
+  .bodyDetailOpen .fab {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
 
 /* At list-peek on mobile, the visible strip differs by layer:
    - Restaurants: count/sort/search/filter row + category tabs (no rows)
@@ -467,13 +416,16 @@ html[data-theme="dark"] .fab {
 /* -------------------- List column / sheet -------------------- */
 
 .list {
-  background: var(--surface-card);
+  /* Klares Weiß — vorher warmes Cream #fbf5e2, das wirkt neben der
+     Brand-Rot-Akzent-Welt off und gelb-stichig. */
+  background: #ffffff;
   color: var(--text-primary);
   display: flex;
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
 }
+html[data-theme="dark"] .list { background: #1c1c1c; }
 
 /* Desktop: list is a side panel — pin it to the grid cell so the inner
    .detailInSheetScroll owns scrolling, not the page body. */
@@ -500,10 +452,10 @@ html[data-theme="dark"] .fab {
     border-top-left-radius:  min(16px, calc(var(--sheet-y, 16px) * 4));
     border-top-right-radius: min(16px, calc(var(--sheet-y, 16px) * 4));
     box-shadow: var(--shadow-lg);
-    /* Snap-settle uses a soft ease-out — the curve flattens at the end so
-       the sheet glides into place instead of slamming. Drag itself runs
-       transition-none for 1:1 finger response. */
-    transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1), border-radius 0.22s ease;
+    /* Snap-settle: kürzere Dauer + festere standard-easing curve damit das
+       Sheet nicht „spring-bounced" sondern mechanisch in die Snap-Position
+       rastet. Drag selbst läuft transition-none für 1:1 Finger-Response. */
+    transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1), border-radius 0.22s ease;
     transform: translateY(var(--sheet-y, calc(100% - 68px)));
     z-index: 4;
     /* Force the GPU layer up-front so the first drag frame doesn't paint a
@@ -544,11 +496,19 @@ html[data-theme="dark"] .fab {
   border-radius: 3px;
   background: var(--border-strong);
 }
-/* At the full snap in detail mode, the chevron-down on the left already
-   communicates "tap to make smaller" — the horizontal pip is redundant
-   visual noise, so hide it. Drag still works on the (now invisible) handle. */
-.list[data-view="detail"][data-snap="full"] .handle::before {
-  display: none;
+/* Detail view: handle strip carries the coral hero through to the very top
+   of the sheet so the rounded corners feel like one coral block. Bumped
+   taller than the list-view handle so the Share/Save/X icons (absolute on
+   the right) have proper breathing room next to the swipe-pip. */
+.list[data-view="detail"] .handle {
+  background: var(--c-coral);
+  min-height: 44px;
+  padding: 12px 0 10px;
+}
+/* Detail mode: cream-tinted pip on coral so it reads on the hero. Shown
+   at every snap — pip is the only swipe affordance now. */
+.list[data-view="detail"] .handle::before {
+  background: rgba(243, 234, 212, 0.55);
 }
 /* At full snap, shrink the handle's vertical chrome so the content (header
    in detail / count-row + tabs in list) sits closer to the top of the
@@ -559,6 +519,14 @@ html[data-theme="dark"] .fab {
   .list[data-snap="full"] .handle {
     min-height: 36px;
     padding: 8px 0 8px;
+  }
+  /* Detail view keeps the taller handle even at full snap — needs the
+     extra vertical room for the absolutely-positioned Share/Save/X icons
+     on the right. Overrides the snap-full shrink rule above. */
+  .list[data-view="detail"] .handle,
+  .list[data-view="detail"][data-snap="full"] .handle {
+    min-height: 44px;
+    padding: 12px 0 10px;
   }
 }
 @media (min-width: 1024px) {
@@ -667,9 +635,80 @@ html[data-theme="dark"] .fab {
 .listScroll {
   flex: 1;
   overflow-y: auto;
-  padding: 0;
+  /* Just enough top padding for the rrowMust sticker (-5 px overflow) to
+     clear the filter chip row without an extra visible gap. */
+  padding: 6px 0 0;
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
+}
+
+/* Desktop: must-eats list lives in the side panel; the regular .listScroll
+   8 px breathing room at the bottom is enough — extra padding here was
+   leaving a ~120 px dead zone after the last row. Mobile-specific
+   override sits inside the @media block below. */
+.listScrollMustEats { padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
+
+/* „Zu den Restaurants"-Switch sitzt im Header-Block direkt unter der
+   Filter-Chip-Zeile — eigene Row im selben Bereich. Weißer Hintergrund
+   (statt mustard) damit der Switch nicht wie noch ein Filter wirkt,
+   sondern als sekundäre Navigation lesbar bleibt. Filter-Chip-Größe
+   (11px Saira-caps, hard offset shadow, 6px Padding). */
+.filterSwitchRow {
+  display: flex;
+  /* Linksbündig auf dieselbe Padding-Linie wie .filterChipRow (14px / 16px
+     desktop), damit der Switch unter dem Kategorie-Chip startet — nicht
+     versetzt. Bottom-Padding bewusst großzügig damit der Button nicht die
+     erste List-Row küsst. */
+  padding: 2px 14px 12px;
+}
+@media (min-width: 1024px) {
+  .filterSwitchRow { padding: 2px 16px 14px; }
+}
+.musteatListSwitchBtn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--c-black);
+  background: #ffffff;
+  color: var(--c-black);
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 5px 10px 6px;
+  border-radius: 0;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--c-black);
+  transition: transform 140ms ease, box-shadow 140ms ease, background 120ms ease;
+  line-height: 1;
+  white-space: nowrap;
+}
+.musteatListSwitchBtn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--c-black);
+  background: var(--c-cream);
+}
+.musteatListSwitchBtn svg {
+  width: 10px;
+  height: 7px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+html[data-theme="dark"] .musteatListSwitchBtn {
+  background: #fbf5e2;
+  color: var(--c-black);
+  border-color: var(--c-black);
+  box-shadow: 2px 2px 0 var(--c-cream);
+}
+html[data-theme="dark"] .musteatListSwitchBtn:hover {
+  background: #ffffff;
+  box-shadow: 3px 3px 0 var(--c-cream);
 }
 /* Mobile only: cap scroll viewport to the sheet's visible area so content
    below the overflow-hidden clip edge is actually reachable via scrolling.
@@ -681,8 +720,22 @@ html[data-theme="dark"] .fab {
    added chip-rail row.) */
 @media (max-width: 1023.98px) {
   .listScroll {
-    max-height: calc(var(--sheet-visible-px, 100%) - 120px - env(safe-area-inset-bottom, 0px));
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    /* Header stack: handle (~28px) + chip-row padding 24+4 + chip (~24px) ≈ 80px.
+       max-height covers full sheet minus header only. Bottom padding adds a
+       breathing band so the last row sits clear above the iOS home indicator
+       AND is fully visible on devices without safe-area (Chrome on Android) —
+       the unsafe-area fallback of 24px keeps the last row from feeling
+       clipped against the sheet's edge. */
+    max-height: calc(var(--sheet-visible-px, 100%) - 80px);
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 24px);
+  }
+  /* Must-Eats-List: header has the extra „Zu den Restaurants"-Switch row
+     (~40 px) so the max-height needs more breathing room. Bottom padding
+     stays at the regular .listScroll value (24 px / safe-area) — clipping
+     of the last row was a max-height bug, not a padding-bottom one.
+     Compound selector for higher specificity than `.listScroll`. */
+  .listScroll.listScrollMustEats {
+    max-height: calc(var(--sheet-visible-px, 100%) - 124px);
   }
 }
 
@@ -694,34 +747,48 @@ html[data-theme="dark"] .fab {
 }
 
 /* Empty state — shown inside the list when filters produce zero results.
-   Replaces the legacy login-wall (the map is open-access; no nag). */
+   Landing-Voice: freigestellte Katze + Bowlby-Caps-Headline + Saira-Caps-
+   Body matched die Hero/FeaturedSpots-Stimme so der Leerzustand wie ein
+   bewusster Brand-Moment wirkt, nicht wie technischer Default. */
 .listEmpty {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 48px 24px 32px;
-  gap: 8px;
+  padding: 36px 24px 40px;
+  gap: 14px;
   color: var(--text-secondary);
 }
-.listEmptyIcon {
-  color: var(--text-muted);
-  opacity: 0.7;
+.listEmptyCat {
+  width: clamp(140px, 38vw, 220px);
+  height: auto;
+  display: block;
+  transform: rotate(-4deg);
+  transform-origin: center;
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.18));
   margin-bottom: 4px;
 }
 .listEmptyTitle {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-primary);
   margin: 0;
-  letter-spacing: -0.01em;
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 400;
+  font-size: clamp(34px, 8vw, 48px);
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  text-wrap: balance;
 }
 .listEmptyBody {
-  font-size: 13px;
-  color: var(--text-muted);
   margin: 0;
-  max-width: 28ch;
-  line-height: 1.5;
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  max-width: 26ch;
 }
 
 /* Restaurant row */
@@ -742,6 +809,10 @@ html[data-theme="dark"] .fab {
   appearance: none;
   color: inherit;
   font: inherit;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 @media (max-width: 1023.98px) {
   .row {
@@ -750,9 +821,13 @@ html[data-theme="dark"] .fab {
     padding: 12px 14px;
   }
 }
-.row:hover { background: var(--surface-bg); }
+@media (hover: hover) {
+  .row:hover { background: var(--surface-bg); }
+}
 .rowActive { background: var(--surface-raised); }
-.rowActive:hover { background: var(--surface-raised); }
+@media (hover: hover) {
+  .rowActive:hover { background: var(--surface-raised); }
+}
 
 /* Wraps the thumbnail so the must-eat card overlay can be absolute-positioned
    in the corner without breaking the row's grid sizing. */
@@ -922,6 +997,337 @@ html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
   .rowStatusSub { font-size: 10px; }
 }
 
+/* ========== Editorial slim row (Restaurant list v13) ==========
+   3-column layout: 38% photo (with must-eat card-back peek) +
+   meta column (mustard bezirk sticker + coral category caps + Saira
+   Condensed title + price/walk-icon info) + aside (status dot-lockup +
+   bis-23:00 sub-label). Matches docs/superpowers/specs/2026-05-20-map-list-editorial-preview.html. */
+.rrow {
+  display: flex;
+  gap: 0;
+  align-items: stretch;
+  min-height: 104px;
+  margin: 0 0 8px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+  border: 1px solid var(--c-row-rule);
+  background: #ffffff;
+  width: 100%;
+  text-align: left;
+  appearance: none;
+  font: inherit;
+  padding: 0;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+  /* Kill iOS Safari's default tap-highlight so swiping the list doesn't
+     paint a translucent black band on whichever row is currently under
+     the finger. */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+html[data-theme="dark"] .rrow { background: #0a0a0a; }
+/* Gate hover lift behind a real hover-capable pointer — mobile browsers
+   fire :hover on tap and the offset shadow reads as a black stripe under
+   the finger while swiping the list. */
+@media (hover: hover) {
+  .rrow:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 var(--text-primary);
+  }
+}
+.rrowActive {
+  background: var(--surface-raised);
+}
+
+.rrowCoral {
+  flex: 0 0 38%;
+  background-color: var(--c-paper);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  isolation: isolate;
+}
+html[data-theme="dark"] .rrowCoral { background-color: #0a0a0a; }
+.rrowMust {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  z-index: 2;
+  width: 22px;
+  height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  transform: rotate(8deg);
+  transform-origin: bottom left;
+  pointer-events: none;
+}
+
+/* Card-back peek for verdeckte Must-Eat rows — sits centered in the
+   left coral panel so the row reads as "card face-down + meta" without
+   needing the dish image. */
+.musteatRowBack {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* Komplette freistellung-Card sichtbar — kein Crop. 92% lässt nur einen
+     hauchdünnen Rand zur coral Wand, dass die Card im Slot atmet. */
+  max-height: 92%;
+  max-width: 92%;
+  height: auto;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.32));
+  pointer-events: none;
+}
+
+.rrowMeta {
+  flex: 1;
+  padding: 9px 12px 10px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+}
+.rrowEye {
+  display: flex;
+  align-items: center;
+  gap: 5px 7px;
+  margin: 0 0 5px;
+  /* Bezirk / Kategorie darf in eine zweite Zeile rutschen wenn der Name
+     plus Sticker mehr Platz braucht als die Meta-Spalte hergibt. */
+  flex-wrap: wrap;
+}
+.rrowBezirk {
+  flex-shrink: 0;
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 900;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--c-cream);
+  color: var(--c-black);
+  border: 1px solid var(--c-black);
+  padding: 1px 5px 0;
+  box-shadow: 1.5px 1.5px 0 var(--c-black);
+  white-space: nowrap;
+}
+.rrowCat {
+  flex-shrink: 0;
+  /* Immer unter dem Bezirk-Sticker — flex-basis 100% bricht in der wrap-
+     fähigen .rrowEye zuverlässig die Zeile, egal wie kurz Bezirk+Kategorie
+     wären. */
+  flex-basis: 100%;
+  margin-top: 2px;
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 900;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-coral);
+  white-space: nowrap;
+}
+/* Must-Eats-Liste: Bezirk-Label soll UNTER dem Restaurant-Namen sitzen statt
+   daneben. flex-basis:100% bricht in der wrap-fähigen .rrowEye die Zeile. */
+.rrowCatBelow {
+  flex-basis: 100%;
+  margin-top: 2px;
+}
+.rrowTitle {
+  margin: 0;
+  font-family: var(--font-bowlby-one), 'Bowlby One', 'Arial Black', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.05;
+  letter-spacing: 0.005em;
+  color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+.rrowInfo {
+  margin: 5px 0 0;
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 900;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  line-height: 1.15;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.rrowInfoSep {
+  display: inline-flex;
+  align-items: center;
+  color: var(--c-coral);
+  font-weight: 900;
+  padding: 0 3px;
+}
+.rrowInfoSep::before { content: '·'; }
+.walkIco {
+  width: 13px;
+  height: 13px;
+  margin-right: 3px;
+  vertical-align: -2px;
+  display: inline-block;
+  fill: currentColor;
+}
+
+.rrowAside {
+  flex: 0 0 auto;
+  align-self: stretch;
+  padding: 10px 12px 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+}
+.rrowStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  flex-shrink: 0;
+  line-height: 1;
+}
+.rrowStatus::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #34a85a;
+  flex-shrink: 0;
+}
+.rrowStatusClosed {
+  color: var(--text-muted);
+}
+.rrowStatusClosed::before {
+  background: var(--c-coral);
+}
+.rrowWhen {
+  font-weight: 600;
+  font-size: 10px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+}
+@media (min-width: 1024px) {
+  .rrow { min-height: 116px; }
+  .rrowMust { width: 26px; height: 38px; }
+}
+
+/* Floating search toolbar — sits over the map, always visible.
+   Mobile: same height as the Start + Profile chips (32px), vertically
+   aligned to the chip row so the three pills read as one horizontal
+   group. Desktop: top-left of the map area, larger pill. */
+.mapSearchToolbar {
+  position: absolute;
+  /* Vertically align with the chip row. The navbar puts icon-btns at
+     content center: navbar padding-top = 6px + safe-area, content area
+     36px, 32px icon centered → icon top = 8px + safe-area. Match it. */
+  top: calc(8px + env(safe-area-inset-top, 0px));
+  left: 14px;
+  /* Leave room for the two chips (32 + 10 + 32 = 74px) + navbar padding
+     (12px) + breathing (8px) ≈ 94px. */
+  right: 94px;
+  /* Sits above the user-location avatar marker (z:1000 in globals.css) so
+     the avatar figure tucks behind the search bar when its geographic
+     position falls under the toolbar area. Still below the navbar (9999)
+     and modals (>=10000). */
+  z-index: 1001;
+  transition: transform 240ms cubic-bezier(.2, .8, .2, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--text-primary);
+  border-radius: 999px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  pointer-events: auto;
+}
+html[data-theme="dark"] .mapSearchToolbar {
+  background: rgba(32, 30, 28, 0.96);
+  color: var(--c-cream);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(243, 234, 212, 0.18);
+}
+.mapSearchIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: currentColor;
+}
+.mapSearchInput {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: inherit;
+}
+.mapSearchInput::placeholder {
+  color: currentColor;
+  opacity: 0.55;
+}
+.mapSearchClear {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.6;
+}
+.mapSearchClear:hover { opacity: 1; }
+
+/* Hide the search when the bottom-sheet is dragged to full or when the
+   detail view takes over the screen — translate out of view (no opacity
+   fade per project brand rule). */
+.bodyListAtFull .mapSearchToolbar,
+.bodyDetailOpen .mapSearchToolbar {
+  transform: translateY(calc(-100% - 80px));
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .mapSearchToolbar {
+    /* Sits over the maplibre attribution control (top-left) — covers
+       the OSM credit pill so the corner reads as just the search. */
+    top: 8px;
+    left: 10px;
+    right: auto;
+    width: 360px;
+    height: auto;
+    padding: 10px 18px;
+    font-size: 14px;
+  }
+}
+
 /* -------------------- Markers on the map -------------------- */
 
 /* Restaurant pin */
@@ -960,20 +1366,6 @@ html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
      right-column content down further so the X has a clear breathing zone. */
   
   .detailClose { top: 16px; right: 18px; }
-}
-
-.detailHero {
-  width: 100%;
-  aspect-ratio: 3 / 2;
-  max-height: 26dvh;
-  background: var(--surface-bg);
-  display: block;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-@media (min-width: 1024px) {
-  .detailHero{ max-height: 32dvh; }
 }
 
 .detailBody {
@@ -1064,29 +1456,6 @@ html[data-theme="dark"] .btn:hover {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.26);
 }
-.btnPrimary {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: 0 2px 8px rgba(255,76,0,0.30);
-}
-.btnPrimary:hover {
-  background: #e53500;
-  border-color: #e53500;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(255,76,0,0.40);
-}
-.btnPrimary:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  background: var(--border-strong);
-  border-color: var(--border-strong);
-  color: var(--text-muted);
-  box-shadow: none;
-}
-
 /* Google Maps button — frosted base from .btn + Gotham font */
 
 /* Website button — frosted base from .btn */
@@ -1118,8 +1487,9 @@ html[data-theme="dark"] .btn:hover {
 }
 .pinLogo:hover { transform: scale(1.1); }
 .pinLogoActive {
-  transform: scale(1.2);
-  box-shadow: 0 3px 8px rgba(255, 59, 0, 0.55), 0 0 0 1.5px rgba(255, 255, 255, 0.85);
+  /* Aktiver Spot = nur größer, sonst gleiche Optik (kein orange glow,
+     keine zusätzliche Umrandung). */
+  transform: scale(1.25);
 }
 .pinLogoHasMust::after {
   /* Mini Must Eat card-back overlayed on the pin — signals the restaurant
@@ -1147,9 +1517,6 @@ html[data-theme="dark"] .btn:hover {
 :global(html[data-theme="dark"]) .pinLogo {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), 0 0 0 1.5px rgba(255, 255, 255, 0.45);
 }
-:global(html[data-theme="dark"]) .pinLogoActive {
-  box-shadow: 0 3px 8px rgba(255, 59, 0, 0.55), 0 0 0 1.5px rgba(255, 255, 255, 0.7);
-}
 
 /* ========== Card-back marker for Must Eats ========== */
 .cardMarker {
@@ -1169,8 +1536,8 @@ html[data-theme="dark"] .btn:hover {
 }
 .cardMarker:hover { transform: rotate(var(--fan-rotation, 0deg)) scale(1.1); }
 .cardMarkerActive {
-  transform: rotate(var(--fan-rotation, 0deg)) scale(1.2);
-  filter: drop-shadow(0 3px 6px rgba(255, 59, 0, 0.5));
+  /* Aktive Karte = nur größer, gleicher dezenter Drop-Shadow wie sonst. */
+  transform: rotate(var(--fan-rotation, 0deg)) scale(1.25);
 }
 .cardMarker img {
   width: 100%;
@@ -1496,19 +1863,9 @@ html[data-theme="dark"] .layerTabActive {
    disconnected lines. The body's `gap: 10px` is right for the rhythm to the
    status / travel / hero blocks that follow. */
 .detailBody > .detailMetaLine + .detailMetaLine { margin-top: -6px; }
-/* Magazine sections (Telefon / Adresse / Öffnungszeiten / Must Eats) get a
-   slightly larger gap between each other so they read as discrete blocks
-   instead of a single visual run. */
-.detailBody > .detailSection + .detailSection { margin-top: 4px; }
 @media (min-width: 1024px) {
   .detailBody { padding: 0 22px 8px; }
 }
-/* Photo gets a touch more separation from the meta block — visually it's a
-   shift from text rhythm to image. */
-.detailHeroInline { margin-top: 4px; }
-/* Section titles sit tighter to their content (Apple style) — the title and
-   content already feel like one unit. */
-.detailSection { gap: 6px; }
 /* Description body keeps a slightly looser feel than the meta blocks. */
 .detailInSheet .detailDescription { line-height: 1.55; }
 /* Peek-visible header: name + 3 round action buttons. Pinned at the very
@@ -1589,18 +1946,6 @@ html[data-theme="dark"] .layerTabActive {
   border-color: var(--border-strong);
 }
 .detailPeekActionBtn:active { transform: scale(0.92); }
-.detailPeekActionBtnSaved {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
-.detailPeekActionBtnSaved:hover {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-  filter: brightness(0.94);
-}
-
 /* Meta line: Bezirk · Kategorie1 · Kategorie2 · Preis. Flat magazine-dotted
    text — same vocabulary as the row's `.rowMetaText`, scaled up. */
 .detailMetaLine {
@@ -1622,15 +1967,6 @@ html[data-theme="dark"] .layerTabActive {
    the other tokens, no accent. */
 .detailMetaPrice {
   font-variant-numeric: tabular-nums;
-}
-
-/* Status own line — same vocabulary as the list row, scaled up. */
-.detailStatusLine {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  flex-wrap: wrap;
-  line-height: 1.3;
 }
 
 /* Travel-time row — Fuß / ÖPNV / Auto with rough estimates. Each item is a
@@ -1660,158 +1996,12 @@ html[data-theme="dark"] .layerTabActive {
 .detailTravelLink:hover { color: var(--text-primary); }
 .detailTravelLink:hover svg { color: var(--accent); }
 
-/* Primary CTA row — Reservieren (filled) + Google Maps (outline pill). Both
-   are rounded pills with subtle shadow lifts so they feel tactile. */
-.detailCtaRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.detailCtaBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 11px 18px;
-  border-radius: 999px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  text-decoration: none;
-  cursor: pointer;
-  appearance: none;
-  border: 1px solid transparent;
-  transition: background 0.15s, border-color 0.15s, color 0.15s, filter 0.15s, transform 0.1s, box-shadow 0.15s;
-  -webkit-tap-highlight-color: transparent;
-}
-.detailCtaBtn:active { transform: scale(0.97); }
-.detailCtaBtnPrimary {
-  background: var(--cta-red, var(--accent));
-  border-color: var(--cta-red, var(--accent));
-  color: #fff;
-  flex: 1;
-  min-width: 140px;
-  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.08), 0 6px 14px rgba(255, 92, 56, 0.18);
-}
-.detailCtaBtnPrimary:hover { filter: brightness(0.94); }
 
-/* Reserve button variant — stacks "Reservieren" + small provider name
-   ("via OpenTable") so the booking platform is visible at a glance,
-   not hidden behind a generic CTA. */
-.detailCtaBtnReserve {
-  flex-direction: column;
-  gap: 1px;
-  line-height: 1.1;
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-.detailCtaReserveTop {
-  font-size: 0.9375rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-}
-.detailCtaReserveProvider {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  opacity: 0.86;
-}
-
-/* Image element shared by both viewports. The aspect-ratio is set by the
-   parent (.detailHeroTop or .detailHeroInline) so each viewport gets its
-   own framing. */
-.detailInSheet .detailHero {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: none;
-  object-fit: cover;
-  background: var(--surface-bg);
-}
-
-/* Inline photo — sits within the body padding (matches the surrounding text
-   block on the left + right) with light rounding, similar to Apple Maps.
-   Border-radius lives on the image itself so the figcaption underneath is
-   never clipped by an overflow:hidden parent. */
-.detailHeroInline {
-  position: relative;
-  width: 100%;
-}
-.detailHeroInline .detailHero{
-  aspect-ratio: 4 / 3;
-  border-radius: 12px;
-}
-.detailHeroInlineEmpty {
-  font-size: 32px;
-  color: var(--text-muted);
-  background: linear-gradient(135deg, var(--surface-bg), var(--surface-raised));
-  aspect-ratio: 4 / 3;
-  display: grid;
-  place-items: center;
-}
-.detailHeroCaption {
-  display: block;
-  margin: 6px 0 0;
-  font-size: 0.6875rem;
-  font-style: italic;
-  color: var(--text-muted);
-  text-align: right;
-}
-
-/* Website link — magazine treatment. URL spelled out so the user sees where
-   they're going. Underlined to signal "this is a link"; accent color is
-   reserved for hover so the resting state stays neutral. */
-.detailWebsiteLink {
-  display: inline-block;
-  font-size: 0.9375rem;
-  line-height: 1.45;
-  color: var(--text-primary);
-  text-decoration: underline;
-  text-decoration-color: var(--border-strong);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-  word-break: break-all;
-  transition: color 0.15s, text-decoration-color 0.15s;
-}
-.detailWebsiteLink:hover {
-  color: var(--accent);
-  text-decoration-color: var(--accent);
-}
-
-/* Dark-mode override: the brand orange clashes against dark surfaces on
-   hover. Use full-bright primary text + thicker underline so the feedback
-   stays present without the red. Same treatment for the Instagram /
-   Address / Phone / Travel hovers below. */
-html[data-theme="dark"] .detailWebsiteLink:hover,
-html[data-theme="dark"] .detailPhoneLink:hover {
-  color: var(--text-primary);
-  text-decoration-color: var(--text-primary);
-  text-decoration-thickness: 2px;
-}
-html[data-theme="dark"] .detailInstagramLink:hover,
-html[data-theme="dark"] .detailAddress:hover,
-html[data-theme="dark"] .detailAddress:hover .detailAddressArrow {
-  color: var(--text-primary);
-}
+/* Dark-mode travel-link hover: orange clashes on dark. Brighten the icon
+   to text-primary so the affordance stays visible. */
 html[data-theme="dark"] .detailTravelLink:hover svg {
   color: var(--text-primary);
 }
-
-/* Instagram link — glyph + @handle. Replaces a noisy `www.instagram.com/…`
-   text link with the iconic mark so the section reads as "this place lives
-   on Instagram". */
-.detailInstagramLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9375rem;
-  color: var(--text-primary);
-  text-decoration: none;
-  transition: color 0.15s;
-}
-.detailInstagramLink svg { width: 22px; height: 22px; }
-.detailInstagramLink:hover { color: var(--accent); }
 
 /* ── Magazine body — generous rhythm, prose-style description, restrained
    action links at the bottom (mirrors the restaurant detail page). */
@@ -1846,82 +2036,6 @@ html[data-theme="dark"] .detailTravelLink:hover svg {
   font-variant-numeric: tabular-nums;
 }
 
-/* Magazine section: small uppercase title + content. Replaces the older
-   icon-prefixed facts panel. */
-.detailSection {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.detailSectionTitle {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-  margin: 0;
-}
-.detailAddress {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-  font-size: 0.9375rem;
-  line-height: 1.45;
-  color: var(--text-primary);
-  text-decoration: none;
-  transition: color 0.15s;
-}
-.detailAddress:hover { color: var(--accent); }
-.detailAddressArrow {
-  flex-shrink: 0;
-  width: 13px;
-  height: 13px;
-  color: var(--text-muted);
-  transition: color 0.15s, transform 0.15s;
-}
-.detailAddress:hover .detailAddressArrow {
-  color: var(--accent);
-  transform: translate(1px, -1px);
-}
-
-/* Phone link — tap-to-call with the same magazine treatment as the website
-   link (text-primary + underline, accent on hover). Numerals tabular for
-   even spacing. */
-.detailPhoneLink {
-  display: inline-block;
-  font-size: 0.9375rem;
-  line-height: 1.45;
-  color: var(--text-primary);
-  text-decoration: underline;
-  text-decoration-color: var(--border-strong);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-  font-variant-numeric: tabular-nums;
-  transition: color 0.15s, text-decoration-color 0.15s;
-}
-.detailPhoneLink:hover {
-  color: var(--accent);
-  text-decoration-color: var(--accent);
-}
-.detailInSheet .hoursList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-}
-.detailInSheet .hoursRow {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.9375rem;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-}
-.detailInSheet .hoursRow:last-child { border-bottom: 0; }
-.detailInSheet .hoursDay { font-weight: 500; color: var(--text-primary); }
-.detailInSheet .hoursTime { font-variant-numeric: tabular-nums; }
-
 /* Chevron-down indicator — replaces the handle pip when the detail sheet
    is at full snap. Tap collapses to mid so the user sees name + category +
    actions next to the map again. Sits in the handle area, NOT on the photo
@@ -1942,7 +2056,10 @@ html[data-theme="dark"] .detailTravelLink:hover svg {
   background: transparent;
   display: grid;
   place-items: center;
-  color: var(--border-strong);
+  /* Matches the Share/Save/Close handle icons (.heroAction) so the whole
+     handle row reads as one icon family on the coral hero. */
+  color: var(--c-cream);
+  filter: drop-shadow(0 1px 2px rgba(28, 37, 32, 0.35));
   cursor: pointer;
   z-index: 5;
   -webkit-tap-highlight-color: transparent;
@@ -1950,7 +2067,7 @@ html[data-theme="dark"] .detailTravelLink:hover svg {
   transition: color 0.12s, transform 0.08s;
 }
 .detailCollapseBtn svg { width: 28px; height: 28px; }
-.detailCollapseBtn:hover { color: var(--text-primary); }
+.detailCollapseBtn:hover { color: var(--c-mustard); }
 .detailCollapseBtn:active { transform: translateX(-50%) scale(0.92); }
 @media (min-width: 1024px) {
   .detailCollapseBtn { display: none; }
@@ -1958,30 +2075,6 @@ html[data-theme="dark"] .detailTravelLink:hover svg {
 
 /* In-sheet heart inherits the base freigestellt treatment (white outline +
    drop-shadow, accent fill when saved). No circle background. */
-
-/* Detail status — same vocabulary as the row, scaled up. Colored small-caps
-   word + middle-dot + muted suffix (close-time / next-open). No capsule. */
-
-.detailStatusMain {
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-.detailStatusOpen   { color: #1f7a1f; }
-.detailStatusClosed { color: #c42323; }
-html[data-theme="dark"] .detailStatusOpen   { color: #6ad46a; }
-html[data-theme="dark"] .detailStatusClosed { color: #ff6a6a; }
-.detailStatusSub {
-  font-size: 13px;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-
-/* Inline action links — Webseite / Reservieren / Teilen.
-   Subtle text-buttons with leading icon, no fill. */
-
-/* Sticky-bottom Maps button bar — soft frosted glass */
 
 /* ── Must Eat detail (in-sheet) ───────────────────────────────────────
    Big & Bold layout: cream gradient hero with the freigestellte card-back
@@ -2038,9 +2131,26 @@ html[data-theme="dark"] .mustEatHero {
 .mustEatCardCanUnlock {
   animation-duration: var(--vibrate-duration);
 }
-.mustEatCardTapping {
-  --vibrate-intensity: 1.4;
-  animation-duration: 0.08s;
+/* Compound selector damit der Tap-Shake auch gewinnt wenn `.musteatStripCard`
+   weiter unten im File seine eigene `animation`-Shorthand setzt (gleiche
+   Specificity → Source-Order entscheidet, deshalb hier doppelt geklassel). */
+.musteatStripCard.mustEatCardTapping,
+.mustEatCard.mustEatCardTapping {
+  /* Tap-Feedback bekommt eine eigene starke Keyframe-Animation — die
+     proximity-Vibration (mustEatVibrate) skaliert nur den Idle-Wackler.
+     Mit einem dedizierten Tap-Keyframe-Set ist die „Nope"-Geste unbestreitbar
+     fühlbar: ±14 px Translate, ±8° Rotate, in einer 520ms-Sequenz. */
+  animation: mustEatTapShake 520ms cubic-bezier(0.3, 0.7, 0.4, 1) 1;
+}
+@keyframes mustEatTapShake {
+  0%   { transform: translate(0, 0) rotate(0); }
+  10%  { transform: translate(-14px, 4px) rotate(-8deg); }
+  25%  { transform: translate(13px, -3px) rotate(7deg); }
+  40%  { transform: translate(-11px, 5px) rotate(-6deg); }
+  55%  { transform: translate(10px, -3px) rotate(5deg); }
+  70%  { transform: translate(-7px, 3px) rotate(-4deg); }
+  85%  { transform: translate(5px, -1px) rotate(2deg); }
+  100% { transform: translate(0, 0) rotate(0); }
 }
 @keyframes mustEatVibrate {
   0%, 100% { transform: translate(0, 0) rotate(0); }
@@ -2247,7 +2357,7 @@ html[data-theme="dark"] .mustEatHero {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: #F5C518;
+  background: var(--c-mustard);
   color: #0a0a0a;
   font-size: 11.5px;
   font-weight: 900;
@@ -2255,18 +2365,14 @@ html[data-theme="dark"] .mustEatHero {
   border-radius: 999px;
   cursor: pointer;
   letter-spacing: -0.005em;
-  box-shadow:
-    0 4px 14px -4px rgba(212, 165, 8, 0.65),
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+  border: 1.5px solid #0a0a0a;
+  box-shadow: 2px 2px 0 #0a0a0a;
   transition: background 0.18s, transform 0.1s, box-shadow 0.2s;
 }
 .boosterCta:hover {
-  background: #ffd11f;
-  box-shadow:
-    0 6px 18px -4px rgba(212, 165, 8, 0.8),
-    inset 0 1px 0 rgba(255, 255, 255, 0.65),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+  background: var(--c-mustard-deep);
+  box-shadow: 3px 3px 0 #0a0a0a;
+  transform: translate(-1px, -1px);
 }
 .boosterCta:active { transform: scale(0.97); }
 .boosterCtaChevron {
@@ -2376,59 +2482,189 @@ html[data-theme="dark"] .mustEatHero {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* End-of-list booster offer — same brushed silver foil surface as the
-   in-detail offer but inline in the must-eats list. */
+/* ── List-variant booster — flat cream insert that reads like another
+   editorial row. No frame, no border, no silver gradient. 38% pack-fan
+   left (vertically centered), coral title + mustard-sticker CTA stacked
+   left in the copy column. Matches docs/superpowers/specs/2026-05-20-map-list-editorial-preview.html. */
 .boosterOfferList {
-  margin: 18px 6px 8px;
+  margin: 10px 0;
+  padding: 0;
+  background: var(--c-cream);
+  color: var(--text-primary);
   position: relative;
   display: flex;
-  gap: 14px;
+  align-items: stretch;
+  min-height: 104px;
+}
+[data-theme="dark"] .boosterOfferList {
+  background: #1a1816;
+}
+
+.boosterStage {
+  flex: 0 0 30%;
+  position: relative;
+  align-self: stretch;
+  pointer-events: none;
+}
+.boosterStageCard {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  aspect-ratio: 2 / 3;
+  object-fit: contain;
+  filter: drop-shadow(2px 3px 0 rgba(0, 0, 0, 0.16));
+}
+[data-theme="dark"] .boosterStageCard {
+  filter: drop-shadow(2px 3px 0 rgba(0, 0, 0, 0.45));
+}
+.boosterStageCardLeft   { transform: translate(-50%, -50%) translateX(-22px) rotate(-10deg); z-index: 1; opacity: 0.92; }
+.boosterStageCardCenter { transform: translate(-50%, -50%) rotate(0deg); z-index: 3; width: 50px; }
+.boosterStageCardRight  { transform: translate(-50%, -50%) translateX(22px) rotate(10deg); z-index: 2; opacity: 0.92; }
+
+.boosterPromoCopy {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+}
+
+.boosterPromoTitle {
+  margin: 0;
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.05;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--c-coral);
+}
+[data-theme="dark"] .boosterPromoTitle { color: var(--c-coral); }
+
+/* Anon-variant subline — small caps under the title, sits above the CTA */
+.boosterPromoSub {
+  margin: 0;
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 400;
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  line-height: 1.1;
+}
+
+/* Solo-stage variant (anon) — show one Starter card centered, no fan */
+.boosterStageSolo .boosterStageCard {
+  width: 56px;
+  transform: translate(-50%, -50%) rotate(-3deg);
+  opacity: 1;
+}
+@media (min-width: 1024px) {
+  .boosterStageSolo .boosterStageCard {
+    width: 78px;
+  }
+}
+
+/* Inline arrow inside the CTA label (anon variant has no price-tag) */
+.btnPromoArr {
+  width: 11px;
+  height: 8px;
+  margin-left: 7px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 200ms ease;
+}
+.btnPromo:hover .btnPromoArr { transform: translateX(2px); }
+
+.boosterPromoActions {
+  margin: 0;
+  align-self: flex-start;
+  flex-shrink: 0;
+  display: flex;
   align-items: center;
-  padding: 14px;
-  background: linear-gradient(135deg,
-    #aab0b5 0%,
-    #d6dade 25%,
-    #f1f3f5 50%,
-    #cad0d4 75%,
-    #a4aaaf 100%
-  );
-  color: #0a0a0a;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.75),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.12),
-    0 10px 24px -12px rgba(0, 0, 0, 0.28);
 }
-.boosterOfferList::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(115deg,
-    rgba(255, 195, 220, 0) 22%,
-    rgba(255, 195, 220, 0.30) 42%,
-    rgba(190, 220, 255, 0.30) 58%,
-    rgba(195, 255, 220, 0) 78%
-  );
-  mix-blend-mode: overlay;
-  pointer-events: none;
+
+/* Sticker-style CTA: two-tone (Saira label + price-tag) with hard offset shadow */
+.btnPromo {
+  display: inline-flex;
+  align-items: stretch;
+  background: var(--c-mustard);
+  color: #1a1610;
+  text-decoration: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 #1a1610;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  font: inherit;
+  appearance: none;
+  white-space: nowrap;
 }
-.boosterOfferList::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(110deg,
-    transparent 35%,
-    rgba(255, 255, 255, 0.7) 50%,
-    transparent 65%
-  );
-  pointer-events: none;
-  animation: boosterBling 5.5s ease-in-out infinite;
-  animation-delay: 0.8s;
-  transform: translateX(-100%);
+[data-theme="dark"] .btnPromo {
+  box-shadow: 2px 2px 0 var(--c-coral);
 }
+.btnPromo:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #1a1610;
+}
+[data-theme="dark"] .btnPromo:hover {
+  box-shadow: 3px 3px 0 var(--c-coral);
+}
+.btnPromoLbl {
+  padding: 4px 7px 4px 9px;
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #1a1610;
+  display: inline-flex;
+  align-items: center;
+}
+.btnPromoPriceTag {
+  padding: 4px 7px 4px 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-left: 1.2px solid rgba(26, 22, 16, 0.34);
+  font-weight: 700;
+  font-size: 9px;
+  color: #1a1610;
+}
+.btnPromoPriceTag svg {
+  width: 11px;
+  height: 8px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 200ms ease;
+}
+.btnPromo:hover .btnPromoPriceTag svg { transform: translateX(2px); }
+
+@media (min-width: 1024px) {
+  /* Rail variant — bigger pack-fan + title + CTA */
+  .boosterOfferList { min-height: 116px; }
+  .boosterStageCard { width: 60px; }
+  .boosterStageCardLeft   { transform: translate(-50%, -50%) translateX(-32px) rotate(-10deg); }
+  .boosterStageCardCenter { width: 70px; transform: translate(-50%, -50%) rotate(0deg); }
+  .boosterStageCardRight  { transform: translate(-50%, -50%) translateX(32px) rotate(10deg); }
+  .boosterPromoTitle { font-size: 18px; }
+  .btnPromoLbl { padding: 6px 10px 6px 12px; font-size: 13px; }
+  .btnPromoPriceTag { padding: 6px 10px 6px 8px; font-size: 11px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .boosterOfferList::after { animation: none; opacity: 0; }
+  .btnPromo, .btnPromoPriceTag svg { transition: none; }
 }
 
 /* Actions float above the hours/tip/must-eats block */
@@ -2511,52 +2747,6 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
   margin: 2px 0 4px;
 }
 
-.hoursList {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  margin: 0;
-  padding: 0;
-}
-.hoursRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding: 4px 0;
-  font-size: 13px;
-  border-bottom: 1px solid var(--border-subtle);
-}
-.hoursRow:last-child { border-bottom: 0; }
-.hoursDay {
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-.hoursTime {
-  color: var(--text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Must Eat mini cards inside restaurant detail */
-.mustGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
-  gap: 8px;
-}
-.mustCard {
-  aspect-ratio: 1449 / 2163;
-  border-radius: 6%;
-  overflow: hidden;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  background: transparent url('/pics/card-back.webp') center/contain no-repeat;
-  position: relative;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
-  transition: transform 0.15s, filter 0.15s;
-}
-.mustCard:hover { transform: translateY(-2px); }
-
 @keyframes cardWiggle {
   0%   { transform: rotate(var(--fan-rotation, 0deg)); }
   15%  { transform: rotate(var(--fan-rotation, 0deg)) rotate(-6deg) scale(1.04); }
@@ -2570,17 +2760,6 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
   animation: cardWiggle 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
 }
 .cardWiggling:hover { transform: rotate(var(--fan-rotation, 0deg)); }
-.mustCardFront {
-  background: var(--surface-bg);
-  border-radius: 6%;
-  overflow: hidden;
-}
-.mustCardFront img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
 
 /* ========== Must Eat detail: full flipped card ========== */
 
@@ -2898,6 +3077,45 @@ html[data-theme="dark"] .filterLayerTabActive {
   flex-shrink: 0;
 }
 
+/* Floating spot-count-mini — tiny live-pulse indicator top-right of the
+   sheet, sits over the chip row's top-padding gutter. */
+.sheetCountMini {
+  position: absolute;
+  top: 2px;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 900;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  z-index: 5;
+  pointer-events: none;
+}
+.sheetCountMini .liveDot {
+  width: 5px;
+  height: 5px;
+  background: #34a85a;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 0 rgba(52, 168, 90, 0.7);
+  animation: pulseLive 2.2s ease-out infinite;
+}
+@keyframes pulseLive {
+  0%   { box-shadow: 0 0 0 0 rgba(52, 168, 90, 0.85); }
+  70%  { box-shadow: 0 0 0 4px rgba(52, 168, 90, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 168, 90, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheetCountMini .liveDot { animation: none; }
+}
+@media (min-width: 1024px) {
+  .sheetCountMini { top: 14px; left: 22px; font-size: 10.5px; }
+}
+
 /* Zone C — category chip row. Sits between the header drag zone and the
    list scroll. No drag handler here — native horizontal scroll only. */
 .listHeaderTabs {
@@ -2907,7 +3125,7 @@ html[data-theme="dark"] .filterLayerTabActive {
 .listHeaderRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 4px 14px 6px;
 }
 /* Desktop: no drag handle above, so the icons need breathing room from the
@@ -3098,6 +3316,9 @@ html[data-theme="dark"] .filterLayerTabActive {
 
 /* -------------------- Filter chip row (row 2 of the header) -------------------- */
 
+/* Mustard-sticker filter chips — same family as the booster CTA + must-eat
+   card-back: hard-offset black/cream shadow, Saira caps, mustard fill.
+   Active state = coral bg + cream text. */
 .filterChipRow {
   display: flex;
   flex-wrap: nowrap;
@@ -3105,101 +3326,107 @@ html[data-theme="dark"] .filterLayerTabActive {
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  padding: 4px 14px 10px;
-  /* Edge fade so the rightmost chip hints that more is hidden — same trick
-     Google Maps uses on its filter rail when chips overflow. */
-  mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 24px), transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 24px), transparent 100%);
+  padding: 24px 14px 10px;
+  /* fit-content + margin-inline auto zentriert die Row im Parent solange
+     die Chips reinpassen. Wenn sie überquillen, max-width: 100% klemmt
+     den Container und overflow-x scrollt — kein clipping am Start. */
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
 }
 .filterChipRow::-webkit-scrollbar { display: none; }
+@media (min-width: 1024px) {
+  .filterChipRow { padding: 42px 16px 12px; }
+}
 
 .filterChipWrap {
   display: inline-flex;
-  align-items: center;
+  align-items: stretch;
   flex-shrink: 0;
-  background: var(--surface-raised);
-  border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
 }
 .filterChip {
   appearance: none;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   flex-shrink: 0;
-  border: 1px solid var(--border-subtle);
-  background: var(--surface-raised);
-  color: var(--text-secondary);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 7px 13px;
-  min-height: 32px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-  line-height: 1.1;
-}
-.filterChipWrap .filterChip {
-  border: 0;
+  border: 1px solid var(--c-black);
+  background: var(--c-cream);
+  color: var(--c-black);
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 4px 9px 5px;
   border-radius: 0;
-  background: transparent;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--c-black);
+  transition: transform 140ms ease, box-shadow 140ms ease, background 120ms ease, color 120ms ease;
+  line-height: 1;
+  white-space: nowrap;
+}
+html[data-theme="dark"] .filterChip { box-shadow: 2px 2px 0 var(--c-cream); }
+.filterChip:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--c-black);
+}
+html[data-theme="dark"] .filterChip:hover { box-shadow: 3px 3px 0 var(--c-cream); }
+
+.filterChipWrap .filterChip {
   padding-right: 8px;
 }
-.filterChip:hover { color: var(--text-primary); border-color: var(--text-muted); }
+
 .filterChipActive {
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
-  color: var(--accent);
-  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  background: var(--c-coral);
+  color: var(--c-cream);
+}
+/* "Jetzt geöffnet" chip uses the kelly-green status color when active —
+   matches the open-status signal (#34a85a) on the detail page so the
+   "now-open" vocabulary is consistent across list + detail. */
+.filterChipOpenActive {
+  background: #34a85a;
+  color: var(--c-cream);
 }
 .filterChipWrap:has(.filterChipActive) {
-  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  /* Wrap inherits the sticker geometry from its child — no separate styling */
 }
-/* "Jetzt geöffnet" chip uses the same green as the open-status pill in the
-   list, so the meaning carries across visual surfaces. */
-.filterChipOpenActive {
-  background: color-mix(in srgb, #1f7a1f 14%, transparent);
-  color: #1f7a1f;
-  border-color: color-mix(in srgb, #1f7a1f 38%, transparent);
-}
-html[data-theme="dark"] .filterChipOpenActive {
-  background: color-mix(in srgb, #6ad46a 16%, transparent);
-  color: #6ad46a;
-  border-color: color-mix(in srgb, #6ad46a 40%, transparent);
-}
+
 .filterChipLabel {
   display: inline-block;
-  /* Cap the visible width of the active label so a long cuisine name like
-     "Modernes Mediterranes Bistro" doesn't push the chip past the row's
-     edge fade. Ellipsis kicks in around 12 characters. */
-  max-width: 12ch;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 .filterChipCaret {
   flex-shrink: 0;
-  opacity: 0.7;
+  width: 9px;
+  height: 9px;
 }
 .filterChipReset {
   display: grid;
   place-items: center;
   width: 22px;
-  height: 22px;
   border: 0;
-  border-left: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
-  background: transparent;
-  color: var(--accent);
+  background: var(--c-coral);
+  color: var(--c-cream);
   cursor: pointer;
   padding: 0;
-  margin-right: 2px;
+  margin-left: -2px;
   border-radius: 0;
+  box-shadow: 2px 2px 0 var(--c-black);
+  transition: transform 140ms ease, box-shadow 140ms ease, background 120ms ease;
 }
+html[data-theme="dark"] .filterChipReset { box-shadow: 2px 2px 0 var(--c-cream); }
 .filterChipReset:hover {
-  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  transform: translate(-1px, -1px);
+  background: var(--c-coral);
+  box-shadow: 3px 3px 0 var(--c-black);
 }
+html[data-theme="dark"] .filterChipReset:hover { box-shadow: 3px 3px 0 var(--c-cream); }
 
 /* -------------------- Picker sheet (mobile) / popover (desktop) -------------------- */
 
@@ -3222,16 +3449,22 @@ html[data-theme="dark"] .filterChipOpenActive {
   right: 0;
   bottom: 0;
   max-height: 70vh;
-  background: var(--surface-bg);
-  color: var(--text-primary);
+  background: var(--c-cream);
+  color: var(--c-green);
+  border-top: 2px solid var(--c-green);
   border-top-left-radius: 18px;
   border-top-right-radius: 18px;
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 -10px 32px rgba(0, 0, 0, 0.22);
   display: flex;
   flex-direction: column;
   z-index: 11010;
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
   animation: pickerSheetIn 0.22s cubic-bezier(0.16, 0.84, 0.44, 1);
+}
+html[data-theme="dark"] .pickerSheet {
+  background: #1a1816;
+  color: var(--c-cream);
+  border-top-color: var(--c-cream);
 }
 @keyframes pickerSheetIn {
   from { transform: translateY(100%); }
@@ -3239,40 +3472,54 @@ html[data-theme="dark"] .filterChipOpenActive {
 }
 
 .pickerHandle {
-  width: 36px;
+  width: 44px;
   height: 4px;
-  background: var(--border-strong);
+  background: var(--c-green);
+  opacity: 0.32;
   border-radius: 999px;
-  margin: 8px auto 4px;
+  margin: 10px auto 4px;
   flex-shrink: 0;
 }
+html[data-theme="dark"] .pickerHandle { background: var(--c-cream); opacity: 0.5; }
 
 .pickerHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 18px 4px;
+  padding: 10px 18px 8px;
+  border-bottom: 1px solid var(--c-row-rule);
   flex-shrink: 0;
 }
 .pickerTitle {
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  color: var(--text-primary);
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--c-green);
+  line-height: 1;
 }
+html[data-theme="dark"] .pickerTitle { color: var(--c-cream); }
 .pickerCloseBtn {
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border: 0;
-  background: transparent;
-  color: var(--text-muted);
+  background: var(--c-mustard);
+  color: var(--c-black);
   cursor: pointer;
-  border-radius: 50%;
+  border-radius: 0;
   padding: 0;
+  box-shadow: 2px 2px 0 var(--c-black);
+  transition: transform 140ms ease, box-shadow 140ms ease;
 }
-.pickerCloseBtn:hover { color: var(--text-primary); background: var(--surface-raised); }
+.pickerCloseBtn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--c-black);
+}
+html[data-theme="dark"] .pickerCloseBtn { box-shadow: 2px 2px 0 var(--c-cream); }
+html[data-theme="dark"] .pickerCloseBtn:hover { box-shadow: 3px 3px 0 var(--c-cream); }
 
 .pickerList {
   flex: 1 1 auto;
@@ -3296,29 +3543,43 @@ html[data-theme="dark"] .filterChipOpenActive {
   appearance: none;
   border: 0;
   background: transparent;
-  color: var(--text-primary);
-  font: inherit;
+  color: var(--c-green);
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 800;
   font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   padding: 12px 14px;
-  border-radius: 10px;
+  border-radius: 0;
   cursor: pointer;
   text-align: left;
+  border-bottom: 1px solid var(--c-row-rule);
+  transition: background 120ms ease, color 120ms ease;
 }
-.pickerItem:hover { background: var(--surface-raised); }
+html[data-theme="dark"] .pickerItem { color: var(--c-cream); }
+.pickerItem:hover { background: rgba(232, 197, 74, 0.18); }
+html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14); }
+.pickerItem:last-child { border-bottom: 0; }
 .pickerItemActive {
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
-  color: var(--accent);
-  font-weight: 600;
+  background: var(--c-coral);
+  color: var(--c-cream);
+  font-weight: 900;
 }
+.pickerItemActive:hover { background: var(--c-coral); }
 .pickerItemLabel {
   flex: 1 1 auto;
   min-width: 0;
 }
 .pickerItemSub {
   flex-shrink: 0;
-  color: var(--text-muted);
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-secondary);
   font-size: 12px;
 }
+.pickerItemActive .pickerItemSub { color: var(--c-cream); opacity: 0.86; }
 
 .pickerFooter {
   border-top: 1px solid var(--border-subtle);
@@ -3361,12 +3622,20 @@ html[data-theme="dark"] .filterChipOpenActive {
     top:  var(--picker-anchor-top, 0);
     bottom: auto;
     right: auto;
-    width: 240px;
-    max-height: 60vh;
-    border-radius: 14px;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
+    width: 280px;
+    /* Grow to fit the full filter list (no internal scroll). Caps at the
+       remaining viewport space below the anchor so it never clips off
+       the bottom — JS sets --picker-anchor-top from the chip's rect. */
+    max-height: calc(100vh - var(--picker-anchor-top, 100px) - 20px);
+    border: 2px solid var(--c-green);
+    border-radius: 0;
+    box-shadow: 4px 4px 0 var(--c-green), 0 12px 36px rgba(0, 0, 0, 0.22);
     animation: pickerPopoverIn 0.18s ease-out;
     padding-bottom: 8px;
+  }
+  html[data-theme="dark"] .pickerSheet {
+    border-color: var(--c-cream);
+    box-shadow: 4px 4px 0 var(--c-cream), 0 12px 36px rgba(0, 0, 0, 0.5);
   }
   @keyframes pickerPopoverIn {
     from { transform: translateY(-6px); }
@@ -3479,4 +3748,1336 @@ html[data-theme="dark"] .filterChipOpenActive {
     animation: pickerPopoverIn 0.22s ease-out;
   }
   .anonPromptHandle { display: none; }
+}
+
+/* ==========================================================
+   v13 Restaurant-Detail — MULTI editorial layout
+   Utility bar / coral hero / photo strip / info strip /
+   tabs / story+tipp panels / must-eats / pack-promo / actions.
+   Self-contained color tokens so the rest of the map UI is
+   unaffected.
+   ========================================================== */
+
+.detailV13 {
+  --d-bg:          var(--c-cream);
+  --d-ink:         var(--c-green);
+  --d-text:        var(--c-green);
+  --d-text-2:      rgba(28, 37, 32, 0.72);
+  --d-text-3:      rgba(28, 37, 32, 0.48);
+  --d-rule:        rgba(28, 37, 32, 0.22);
+  --d-hero-bg:     var(--c-coral);
+  --d-hero-text:   var(--c-cream);
+  --d-hero-accent: var(--c-cream);
+  background: var(--d-bg);
+  color: var(--d-text);
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+:global(html[data-theme="dark"]) .detailV13 {
+  --d-bg:       #0a0a0a;
+  --d-ink:      var(--c-cream);
+  --d-text:     #f0e8d0;
+  --d-text-2:   rgba(240, 232, 208, 0.78);
+  --d-text-3:   rgba(240, 232, 208, 0.48);
+  --d-rule:     rgba(240, 232, 208, 0.18);
+}
+
+.detailV13Scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--d-bg);
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.detailV13Scroll::-webkit-scrollbar { width: 0; }
+
+/* Must-Eat-Detail mobile: viewport-füllend nur am FULL-Snap. Bei mid/peek
+   regulären Scroll-Modus behalten — sonst absorbiert flex:1 die ganze
+   Sheet-Höhe für die Card und der Lock-Block + Actions + Utility werden
+   nach unten weggedrückt. Restaurant-Detail unverändert (kein .detailV13MustEat). */
+@media (max-width: 1023.98px) {
+  .list[data-snap="full"] .detailV13MustEat .detailV13Scroll {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .list[data-snap="full"] .detailV13MustEat .musteatStrip {
+    flex: 1;
+    min-height: 0;
+  }
+  /* Card-Größe atmet mit dem verfügbaren Platz — bleibt aber innerhalb
+     einer sicheren Bandbreite damit die freistellung nicht klobig wird.
+     Der zusätzliche `25dvh`-Term clampt die Card-Höhe auf kurzen Geräten
+     (iPhone SE-Klasse), sonst überlappt die Card sichtbar den Lock-Block
+     darunter wenn die Strip flex-shrinkt. */
+  .detailV13MustEat .musteatStripPhoto,
+  .detailV13MustEat .musteatStripCard {
+    width: min(45vw, 200px, 25dvh);
+  }
+}
+
+/* 1. Utility bar */
+.utility {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--d-ink);
+  background: var(--d-bg);
+}
+.utilityCell {
+  padding: 9px 11px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--d-ink);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--d-ink);
+  white-space: nowrap;
+  background: var(--d-bg);
+}
+.utilityCellGrow { flex: 1; min-width: 0; padding: 0; }
+.utilityCellBtn {
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--d-ink);
+  transition: background 120ms ease, color 120ms ease;
+}
+.utilityCellBtn:hover { background: var(--d-ink); color: var(--d-bg); }
+.utilityCell:last-child,
+.utilityCellBtn:last-child { border-right: none; }
+.utilityCellBtn svg {
+  width: 14px; height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.utilityCellClose { background: var(--c-coral); color: var(--c-cream); }
+.utilityCellClose:hover { background: var(--d-ink); color: var(--d-bg); }
+.utilityCellBtnSaved { background: var(--c-mustard); color: var(--d-ink); }
+.utilityCellBtnSaved:hover { background: var(--d-ink); color: var(--c-mustard); }
+
+/* 2. Hero panel — coral with mustard district pill + Saira name */
+.heroYellow {
+  position: relative;
+  background: var(--d-hero-bg);
+  padding: 14px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+/* Icons live on the sheet-handle bar above the hero now — no overlap, no
+   right-padding needed on the name. */
+/* Sheet-handle action strip — Share / Save / X icons that sit on the
+   same horizontal line as the swipe-pip, absolutely positioned over
+   the handle bar so they stay fixed during content scroll. Rendered
+   in MapSectionBody when a restaurant detail is open. The handle
+   itself gets bumped taller (see .list[data-view="detail"] .handle
+   below) so the icons aren't crammed into a 24px strip. */
+.sheetHandleActions {
+  position: absolute;
+  top: 0;
+  right: 14px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 6;
+  pointer-events: none;
+}
+.sheetHandleActions > * { pointer-events: auto; }
+/* Desktop has no swipe handle and doesn't need a fixed icon strip —
+   on the rail the icons sit inline above the hero (rendered inside
+   RestaurantDetail behind the .heroActionsDesktop class). */
+@media (min-width: 1024px) {
+  .sheetHandleActions { display: none; }
+}
+
+/* Naked icon buttons — no circle, no border, no shadow. Just the cream
+   glyph on the coral hero with a subtle drop-shadow for legibility. */
+.heroAction {
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 0;
+  color: var(--c-cream);
+  border-radius: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  filter: drop-shadow(0 1px 2px rgba(28, 37, 32, 0.35));
+  transition: color 140ms ease, transform 140ms ease, opacity 140ms ease;
+}
+.heroAction:hover {
+  color: var(--c-mustard);
+  transform: translate(-1px, -1px);
+}
+.heroAction svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.heroActionSaved { color: var(--c-mustard); }
+.heroActionClose { color: var(--c-cream); }
+.heroActionClose:hover { color: var(--c-mustard); }
+
+/* Handle-bar variant: tighter than the in-hero default but with enough
+   stroke weight that the glyphs read clearly without a chrome circle. */
+.heroActionOnHandle {
+  width: 30px;
+  height: 30px;
+}
+.heroActionOnHandle svg { width: 20px; height: 20px; stroke-width: 2.4; }
+
+/* Desktop-only icon row — absolutely positioned inside the coral hero
+   so the icons sit ON the red field (not above it). Hidden on mobile,
+   where the same icons render on the sheet handle via .sheetHandleActions. */
+.heroActionsDesktop {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .heroActionsDesktop {
+    display: flex;
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    gap: 8px;
+    z-index: 2;
+  }
+  /* Reserve room on the right of the name so long titles don't slide
+     under the icon cluster. */
+  .heroYellow .heroName { padding-right: 110px; }
+}
+.heroName {
+  margin: 0;
+  font-family: var(--font-bowlby-one), 'Bowlby One', 'Arial Black', sans-serif;
+  font-weight: 400;
+  font-size: clamp(30px, 8.4vw, 36px);
+  line-height: 1;
+  letter-spacing: 0.005em;
+  color: var(--d-hero-text);
+  /* Word-break: break only at word boundaries (no mid-word breaks). Saira
+     Condensed is already narrow enough that long single-word names like
+     "Hugos im Hotel InterContinental" fit two lines without orphan
+     letters; if a single word still overflows, hyphens fall back to
+     none so we don't get spurious dashes. */
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  text-wrap: balance;
+}
+.heroMeta {
+  margin: 8px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--d-hero-text);
+}
+.heroDistrict {
+  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: 0.005em;
+  color: var(--d-hero-accent);
+  line-height: 1;
+}
+.heroCuisine {
+  font-weight: 700;
+  color: var(--d-hero-text);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.heroPrice {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--d-hero-text);
+  opacity: 0.72;
+  padding-left: 10px;
+  border-left: 1px solid currentColor;
+}
+
+/* 3. Photo strip */
+.photoStrip {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  margin: 0;
+  background: var(--d-ink);
+  overflow: hidden;
+}
+.photoStripImg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 35%;
+}
+.photoStripTag {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  z-index: 2;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-cream);
+  background: rgba(28, 37, 32, 0.62);
+  padding: 4px 8px;
+  margin: 0;
+}
+.photoStripTag a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+
+/* 4. Info strip — coral "second movement" of the hero. Same coral
+   surface + cream type as the hero above; rows separated by thin
+   cream hairlines. Reads as one continuous editorial sheet from the
+   restaurant name down through the address. */
+.infoStrip {
+  margin: 0 0 12px;
+  padding: 6px 18px 18px;
+  background: var(--c-coral);
+  color: var(--c-cream);
+  border-bottom: 1px solid var(--d-ink);
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 1024px) {
+  .infoStrip { padding: 10px 22px 22px; margin-bottom: 16px; }
+}
+.infoLine {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 0 11px;
+  border-top: 1px dashed rgba(243, 234, 212, 0.32);
+}
+@media (min-width: 1024px) {
+  .infoLine { padding: 14px 0 13px; gap: 5px; }
+}
+.infoLine:first-child { border-top: none; }
+.infoLineLabel {
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 400;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--d-hero-accent);
+  white-space: nowrap;
+  line-height: 1;
+  opacity: 0.72;
+}
+/* Kelly green for the active open-status label — same green vocabulary as
+   the list row's open dot (#34a85a) so the "now open" signal reads at a
+   glance and matches the rest of the map's open-state language. */
+.infoLineLabelOpen { color: #34a85a; }
+.infoLineBody {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--c-cream);
+}
+.infoHeadline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.05;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--d-text);
+  text-decoration: none;
+  align-self: flex-start;
+  transition: color 160ms ease;
+}
+.infoHeadlineLink:hover { color: var(--c-coral); }
+.infoHeadlineAccent {
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--d-hero-accent);
+  margin-left: 3px;
+  opacity: 0.85;
+}
+.infoStatus {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.infoRowLink {
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--c-cream);
+  text-decoration: none;
+  align-self: flex-start;
+  transition: color 160ms ease;
+}
+.infoRowLink:hover { color: var(--c-mustard); }
+.statusLockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 0;
+  line-height: 1.05;
+  text-transform: uppercase;
+  /* Default = open: same Kelly green as the [Geöffnet] label so the
+     status reads as one cohesive green signal. Closed variant overrides
+     to a muted cream below. */
+  color: #34a85a;
+  vertical-align: middle;
+}
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c-mustard);
+  flex-shrink: 0;
+}
+.statusLockupClosed { color: rgba(243, 234, 212, 0.55); }
+.statusLockupClosed .statusDot {
+  background: var(--c-cream);
+  opacity: 0.6;
+}
+/* Inline icons inside the status lockup (used by the must-eat detail's
+   lock/unlock glyph). Default SVG renders at intrinsic size which would
+   blow up on icons authored at viewBox 24x24 — clamp to text height. */
+.statusLockup svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+}
+/* Pulse animations removed per user feedback — bling-bling was too loud
+   for the editorial layout. Static dot reads cleanly enough. */
+@keyframes detailPulseOpen {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes detailPulseClosed {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+.statusDetails {
+  margin: 0;
+  display: block;
+}
+.statusDetails summary {
+  list-style: none;
+  cursor: pointer;
+}
+.statusDetails summary::-webkit-details-marker { display: none; }
+.statusChevron {
+  width: 10px;
+  height: 6px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.7;
+  margin-left: 2px;
+  transition: transform 160ms ease;
+}
+.statusDetails[open] .statusChevron { transform: rotate(180deg); }
+.infoHoursList {
+  margin: 10px 0 0;
+  padding: 10px 0 0;
+  border-top: 1px dashed rgba(243, 234, 212, 0.32);
+}
+.infoHoursRow {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 14px;
+  padding: 4px 0;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+.infoHoursRow dt {
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(243, 234, 212, 0.62);
+  padding-top: 2px;
+  margin: 0;
+}
+.infoHoursRow dd {
+  margin: 0;
+  font-weight: 500;
+  font-size: 12.5px;
+  color: var(--c-cream);
+}
+
+.addressLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: 0;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: var(--c-cream);
+  text-decoration: none;
+  align-self: flex-start;
+  transition: color 160ms ease;
+}
+.addressLink:hover { color: var(--c-mustard); }
+.addressPin {
+  width: 13px;
+  height: 13px;
+  stroke: var(--c-coral);
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+.addressMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(243, 234, 212, 0.78);
+  flex-wrap: wrap;
+}
+.metaClock {
+  width: 11px;
+  height: 11px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.7;
+}
+.metaSep {
+  opacity: 0.4;
+  margin: 0 2px;
+}
+.metaMapsPop {
+  display: inline-block;
+  position: relative;
+}
+.metaMapsPop summary {
+  list-style: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  outline: none;
+  padding: 0;
+  transition: color 160ms ease;
+}
+.metaMapsPop summary::-webkit-details-marker { display: none; }
+.metaMapsPop summary::after {
+  /* Pure-CSS NE-Pfeil aus zwei currentColor-Borders — kein Font-Glyph,
+     kein Emoji-Fallback auf iOS/Android. Rotiert beim Open auf chevron-down. */
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: 9px;
+  vertical-align: 1px;
+  border-right: 1.8px solid currentColor;
+  border-top: 1.8px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.metaMapsPop summary:hover,
+.metaMapsPop[open] summary { color: var(--c-coral); }
+/* Open: rotiere zum ↑-Chevron (Menü öffnet nach OBEN, also Pfeil hoch). */
+.metaMapsPop[open] summary::after { transform: rotate(-45deg); }
+.metaMapsPopMenu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--d-bg);
+  border: 1.5px solid var(--d-ink);
+  box-shadow: 3px 3px 0 var(--d-ink);
+  z-index: 6;
+  min-width: 150px;
+  overflow: hidden;
+}
+.metaMapsPopMenu a {
+  padding: 10px 14px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: var(--d-ink);
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 1px solid var(--d-rule);
+  transition: background 120ms ease, color 120ms ease;
+}
+.metaMapsPopMenu a:last-child { border-bottom: none; }
+.metaMapsPopMenu a:hover { background: var(--c-coral); color: var(--c-cream); }
+
+/* 4b. Info secondary row — phone + IG + reserve as link-icons */
+.infoSecondary {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+  padding: 14px 18px 14px;
+  border-top: 1px solid var(--d-rule);
+  background: var(--d-bg);
+}
+.linkIcon {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0;
+  color: var(--d-text);
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+.linkIcon:hover { color: var(--c-coral); }
+.linkIcon svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.0;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.75;
+}
+.linkIcon:hover svg { opacity: 1; }
+
+/* 5. Tabs — skewed folder tabs */
+.tabs {
+  display: flex;
+  align-items: flex-end;
+  padding: 12px 0 0 14px;
+  background: var(--d-bg);
+  border-bottom: 1px solid var(--d-ink);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex: 0 0 auto;
+  position: relative;
+  margin-right: -1px;
+  background: rgba(28, 37, 32, 0.05);
+  border: 1px solid var(--d-ink);
+  border-bottom: none;
+  padding: 9px 16px 10px;
+  transform: skewX(-14deg);
+  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.005em;
+  color: var(--d-ink);
+  text-transform: capitalize;
+  cursor: pointer;
+  transition: background 140ms ease;
+  white-space: nowrap;
+}
+.tab span { display: inline-block; transform: skewX(14deg); }
+.tabActive {
+  background: var(--d-bg);
+  z-index: 3;
+  padding-bottom: 12px;
+  margin-bottom: -2px;
+  color: var(--c-coral);
+}
+.tab:hover:not(.tabActive) { background: rgba(160, 40, 20, 0.10); }
+:global(html[data-theme="dark"]) .tab {
+  background: rgba(241, 234, 212, 0.08);
+  color: var(--d-ink);
+}
+:global(html[data-theme="dark"]) .tabActive {
+  background: var(--d-bg);
+  color: var(--c-coral);
+}
+
+/* Tab panels */
+.tabPanels { background: var(--d-bg); }
+.tabPanel { padding: 22px 18px 22px; }
+
+/* Story panel — drop-cap + highlighted strong */
+.storyProse p {
+  margin: 0 0 14px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--d-text);
+}
+.storyProse p:last-child { margin-bottom: 0; }
+.storyProse strong {
+  font-weight: 700;
+  color: var(--d-text);
+  background: linear-gradient(transparent 55%, rgba(160, 40, 20, 0.22) 55%);
+  padding: 0 1px;
+}
+:global(html[data-theme="dark"]) .storyProse strong {
+  background: linear-gradient(transparent 55%, rgba(160, 40, 20, 0.32) 55%);
+}
+.dropCap {
+  float: left;
+  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-weight: 900;
+  font-size: 78px;
+  line-height: 0.78;
+  margin: 0.06em 0.10em -0.04em 0;
+  color: var(--c-coral);
+  text-transform: uppercase;
+}
+
+/* Tipp panel */
+.tipEyebrow {
+  margin: 0 0 8px;
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-coral);
+}
+.tipBody {
+  margin: 0;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--d-text);
+}
+
+/* Must-Eats — own section beneath the story prose. Generous top margin
+   gives the prose room to breathe; a clean Saira-caps label with a thin
+   coral underline reads as the section divider, no image dependency. */
+.mustSection {
+  margin: 28px 0 0;
+  padding-top: 0;
+}
+.mustSectionH {
+  margin: 0 0 14px;
+  padding-bottom: 6px;
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 900;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--d-text-2);
+  border-bottom: 1.5px solid var(--c-coral);
+  display: inline-block;
+}
+.mustGridV13 {
+  list-style: none;
+  margin: 0;
+  padding: 0 36px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: end;
+}
+.mustCardV13 {
+  position: relative;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 220ms ease;
+  -webkit-tap-highlight-color: transparent;
+  transform: rotate(-2.5deg);
+  transform-origin: bottom center;
+}
+.mustCardV13:nth-child(even) { transform: rotate(2deg); }
+.mustCardV13:hover { transform: rotate(0) translateY(-3px); }
+.mustCardV13 .mustCardImg {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.mustCardV13 .mustCardBack {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: contain;
+  display: block;
+}
+
+/* Must-Eat detail v13 strip — dish photo (unlocked) or wobble card-back
+   (locked). Replaces the old .mustEatHero box. Sits directly below the
+   coral hero so the visual rhythm matches the restaurant detail
+   (coral → photo → info → prose). */
+.musteatStrip {
+  position: relative;
+  background: var(--d-bg);
+  display: grid;
+  /* Track-Größe = größtes Kind (= Card). Sonst expandiert die Grid-Spalte
+     auf die volle Strip-Breite, und der Stempel (justify-self: end) landet
+     am Strip-Rand statt am Card-Rand. */
+  grid-template-columns: min-content;
+  grid-template-rows: min-content;
+  /* place-content zentriert die Tracks im Container; place-items zentriert
+     einzelne Items innerhalb der Tracks. */
+  place-content: center;
+  justify-items: center;
+  padding: 24px 18px;
+}
+/* Card + Verdeckt-Stempel teilen sich dieselbe Grid-Zelle, damit der
+   Stempel sich an der Card-Bottom-Right-Kante orientiert — unabhängig
+   von der Card-Größe (180 px Desktop, min(45vw, 200, 25dvh) Mobile). */
+.musteatStripCard,
+.musteatStripPhoto {
+  grid-area: 1 / 1;
+}
+.musteatStripStamp {
+  grid-area: 1 / 1;
+  align-self: end;
+  justify-self: end;
+  /* Translate damit der Stempel ein bisschen über die Card-Kante hängt
+     (klassisches Sticker-Feel). */
+  transform: rotate(-3deg) translate(10px, 8px);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 7px 12px 8px;
+  background: var(--c-coral);
+  color: var(--c-cream);
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1;
+  box-shadow: 3px 3px 0 var(--c-black);
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
+}
+html[data-theme="dark"] .musteatStripStamp {
+  box-shadow: 3px 3px 0 var(--c-cream);
+}
+.musteatStripPhoto {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  width: 180px;
+  cursor: zoom-in;
+  display: block;
+}
+.musteatStripPhoto img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 12px 28px rgba(17, 24, 39, 0.32));
+}
+.musteatStripCard {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  display: block;
+  width: 180px;
+  aspect-ratio: 1449 / 2163;
+  background: transparent url('/pics/card-back.webp') center / contain no-repeat;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  /* No drop-shadow — on the dark detail surface a shadow halo blurs into
+     the Lock-Block below and reads as the card spilling over the
+     „Komm auf 50 m"-text. */
+  will-change: transform;
+  transform-origin: center center;
+  --vibrate-intensity: 0.18;
+  --vibrate-duration: calc(1.2s - 0.98s * var(--vibrate-intensity));
+  animation: mustEatVibrate var(--vibrate-duration) ease-in-out infinite;
+}
+
+/* Lock-Block — Verdeckt-Stempel + „Komm auf …"-Pitch + Body als EIN Block.
+   Coral-tinted Hintergrund mit coral border-left; der getiltete Stamp sitzt
+   als Eyebrow oben links, darunter Title + Body. Wirkt als zusammengehörige
+   editorial Einheit statt zwei lose Inseln. */
+.musteatLockBlock {
+  margin: 22px 18px 0;
+  padding: 14px 18px 16px;
+  /* Etwas opakerer coral-Tint damit ein potentieller Card-Halo darunter
+     nicht durchscheint und der Block sich klar abgrenzt. */
+  background: rgba(160, 40, 20, 0.18);
+  border-left: 3px solid var(--c-coral);
+  border-radius: 0 8px 8px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+.musteatLockStampLabel { font-size: 15px; }
+.musteatLockStampDist {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  opacity: 0.94;
+  font-weight: 700;
+}
+.musteatLockTitle {
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-coral);
+  line-height: 1.15;
+}
+.musteatLockBody {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--d-text-2);
+}
+.musteatMapsLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--d-text-2);
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.musteatMapsLink:hover { color: var(--c-coral); }
+.musteatMapsLink svg { width: 14px; height: 14px; }
+
+/* Must-Eat action stickers — sit in two columns below the lock-pitch / card.
+   Primary = Mustard "Restaurant ansehen" sticker (matches the Booster-CTA
+   family), Secondary = Coral "Alle Must Eats" sticker. Hard-offset shadow,
+   Saira caps, hover lift. Read as one editorial action-row. */
+.musteatActionsGrid {
+  margin: 22px 18px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.musteatStickerBtn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 10px;
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+.musteatStickerBtn:hover {
+  transform: translate(-1px, -1px);
+}
+.musteatStickerBtn svg { width: 14px; height: 9px; stroke: currentColor; fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.musteatStickerPrimary {
+  background: var(--c-mustard);
+  color: var(--c-black);
+  box-shadow: 2px 2px 0 var(--c-black);
+}
+.musteatStickerPrimary:hover { box-shadow: 3px 3px 0 var(--c-black); }
+html[data-theme="dark"] .musteatStickerPrimary {
+  box-shadow: 2px 2px 0 var(--c-cream);
+}
+html[data-theme="dark"] .musteatStickerPrimary:hover {
+  box-shadow: 3px 3px 0 var(--c-cream);
+}
+.musteatStickerSecondary {
+  background: var(--c-coral);
+  color: var(--c-cream);
+  box-shadow: 2px 2px 0 var(--c-black);
+}
+.musteatStickerSecondary:hover { box-shadow: 3px 3px 0 var(--c-black); }
+html[data-theme="dark"] .musteatStickerSecondary {
+  box-shadow: 2px 2px 0 var(--c-cream);
+}
+html[data-theme="dark"] .musteatStickerSecondary:hover {
+  box-shadow: 3px 3px 0 var(--c-cream);
+}
+
+/* Tertiary utility row — Maps picker + walk-time inline below the stickers.
+   Saira-caps muted, no chrome, sits as a quiet footer line. */
+.musteatUtilityRow {
+  margin: 14px 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--d-text-2);
+}
+.musteatUtilityRow a,
+.musteatUtilityRow details summary {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.musteatUtilityRow a:hover,
+.musteatUtilityRow details summary:hover { color: var(--c-coral); }
+.musteatUtilityRow .metaSep {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.4;
+}
+
+/* 6. Footer actions — big coral Reservieren type-as-button */
+.actions {
+  padding: 22px 18px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-top: 1px solid var(--d-rule);
+  background: var(--d-bg);
+  position: relative;
+}
+.actions::before {
+  content: '';
+  position: absolute;
+  top: 22px;
+  right: 18px;
+  width: 22px;
+  height: 22px;
+  border-top: 2.5px solid var(--c-coral);
+  border-right: 2.5px solid var(--c-coral);
+  pointer-events: none;
+}
+.btnPrimary {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 14px;
+  text-decoration: none;
+  color: var(--c-coral);
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  transition: gap 200ms ease;
+}
+.btnPrimary:hover { gap: 20px; }
+.btnPrimaryLbl {
+  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-weight: 900;
+  font-size: 44px;
+  line-height: 0.92;
+  letter-spacing: -0.014em;
+  text-transform: uppercase;
+  color: var(--c-coral);
+}
+.btnPrimaryArr {
+  width: 36px;
+  height: 20px;
+  stroke: var(--c-coral);
+  fill: none;
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  align-self: center;
+  margin-bottom: 6px;
+  transition: transform 220ms ease;
+}
+.btnPrimary:hover .btnPrimaryArr { transform: translateX(8px); }
+
+/* Compact variant — used on the must-eat detail where the footer CTA
+   doesn't need to dominate the same way as the restaurant detail's
+   Reservieren block. */
+.btnPrimarySm .btnPrimaryLbl { font-size: 24px; }
+.btnPrimarySm .btnPrimaryArr {
+  width: 22px;
+  height: 14px;
+  stroke-width: 2.4;
+  margin-bottom: 3px;
+}
+
+.ctaFoot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding-top: 14px;
+  border-top: 1px solid var(--d-rule);
+}
+.opentableLockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+}
+.otMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: #da3743;
+  color: #ffffff;
+  border-radius: 4px;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-weight: 700;
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  padding-bottom: 2px;
+}
+.otWord {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: -0.005em;
+  color: var(--d-text);
+}
+
+/* Pack Promo — editorial ticket: asymmetric 2-col with a single big
+   tilted booster card on the left, copy + sticker CTA on the right.
+   Coral hairlines top + bottom give the ticket-stub vibe; mustard stamp
+   in the top-right corner echoes the bezirk-pill family. */
+.packPromo {
+  margin: 0;
+  padding: 18px 18px 20px;
+  background: var(--d-bg);
+  border-top: 2px dashed var(--c-coral);
+  border-bottom: 2px dashed var(--c-coral);
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  column-gap: 14px;
+  align-items: center;
+}
+:global(html[data-theme="dark"]) .packPromo {
+  background: #14110d;
+}
+.packPromoCardWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.packPromoSingleCard {
+  width: 82px;
+  aspect-ratio: 2 / 3;
+  object-fit: contain;
+  transform: rotate(-8deg);
+  filter: drop-shadow(3px 4px 0 rgba(0, 0, 0, 0.20));
+  transition: transform 220ms ease;
+}
+:global(html[data-theme="dark"]) .packPromoSingleCard {
+  filter: drop-shadow(3px 4px 0 rgba(160, 40, 20, 0.55));
+}
+.packPromo:hover .packPromoSingleCard { transform: rotate(-4deg) translateY(-2px); }
+.packPromoCopy {
+  min-width: 0;
+}
+.packPromoEyebrow {
+  display: block;
+  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-weight: 400;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-coral);
+  margin: 0 0 3px;
+}
+:global(html[data-theme="dark"]) .packPromoEyebrow { color: var(--c-coral); }
+.packPromoTitle {
+  margin: 0 0 5px;
+  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.02;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--d-text);
+}
+.packPromoBody {
+  margin: 0 0 10px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--d-text-2);
+  max-width: 32ch;
+}
+.packPromoActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Sticker-style mustard CTA with hard-offset shadow */
+.btnPackPromo {
+  display: inline-flex;
+  align-items: stretch;
+  background: var(--c-mustard);
+  color: #1a1610;
+  text-decoration: none;
+  border: none;
+  padding: 0;
+  box-shadow: 3px 3px 0 #1a1610;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  position: relative;
+}
+:global(html[data-theme="dark"]) .btnPackPromo { box-shadow: 3px 3px 0 var(--c-coral); }
+.btnPackPromo:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 #1a1610; }
+:global(html[data-theme="dark"]) .btnPackPromo:hover { box-shadow: 5px 5px 0 var(--c-coral); }
+.btnPackPromoLbl {
+  padding: 7px 9px 7px 10px;
+  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #1a1610;
+  display: inline-flex;
+  align-items: center;
+  /* Im 235 px schmalen Side-Panel-Copy-Slot wrappte das Label sonst auf
+     zwei Zeilen („Pack / holen") und blow up den CTA auf 88 px Höhe. */
+  white-space: nowrap;
+}
+.btnPackPromoTag {
+  padding: 7px 9px 7px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-left: 1.2px solid rgba(26, 22, 16, 0.34);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  color: #1a1610;
+  white-space: nowrap;
+}
+.btnPackPromoTag svg {
+  width: 13px;
+  height: 9px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 200ms ease;
+}
+.btnPackPromo:hover .btnPackPromoTag svg { transform: translateX(3px); }
+
+.linkPromo {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 11.5px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: #3a3220;
+  text-decoration: none;
+  border-bottom: 1.5px solid #3a3220;
+  padding-bottom: 1px;
+  transition: color 160ms ease, border-color 160ms ease, gap 160ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.linkPromo::after { content: '→'; font-weight: 700; }
+:global(html[data-theme="dark"]) .linkPromo {
+  color: rgba(240, 232, 208, 0.78);
+  border-bottom-color: rgba(240, 232, 208, 0.40);
+}
+.linkPromo:hover { color: var(--c-coral); border-bottom-color: var(--c-coral); gap: 9px; }
+
+/* Desktop sized-ups (rail variant) */
+@media (min-width: 1024px) {
+  .heroYellow { padding: 22px 22px 22px; }
+  .heroName { font-size: 40px; line-height: 0.94; }
+  .heroMeta { font-size: 13px; }
+  .heroDistrict { font-size: 22px; }
+
+  /* Must-Eat-Detail kompakter auf Desktop — Ziel: alles in den Viewport
+     ohne internen Scroll. Schrumpfen Card-Strip, Lock-Block, Action-Grid
+     und Utility-Row gezielt zusammen ohne dass die Komposition leer wirkt. */
+  .musteatStrip { padding: 30px 18px 14px; }
+  .musteatStripPhoto,
+  .musteatStripCard { width: 150px; }
+  .musteatLockBlock {
+    margin: 38px 22px 0;
+    padding: 10px 14px 12px;
+    gap: 8px;
+  }
+  .musteatLockStampLabel { font-size: 13px; }
+  .musteatLockStampDist { font-size: 9px; }
+  .musteatLockTitle { font-size: 13px; }
+  .musteatLockBody { font-size: 13px; line-height: 1.4; }
+  .musteatActionsGrid { margin: 12px 22px 0; }
+  .musteatStickerBtn { padding: 9px 12px; font-size: 13px; }
+  .musteatUtilityRow { margin: 10px 22px 14px; font-size: 13px; }
+  .photoStrip { aspect-ratio: 5 / 4; margin: 0; }
+  .photoStripImg { background-position: center; }
+  .infoStrip { padding: 18px 22px 16px; gap: 14px; }
+  .infoSecondary { padding: 16px 22px 16px; }
+  .tab { padding: 11px 22px 12px; font-size: 16px; }
+  .tabPanel { padding: 26px 22px 26px; }
+  .mustSectionH img { height: 68px; }
+  .actions { padding: 26px 22px 32px; gap: 16px; }
+  .actions::before { top: 26px; right: 22px; }
+  .btnPrimaryLbl { font-size: 58px; }
+  /* packPromo lives inside the ~420px right detail panel on desktop, NOT
+     across the full viewport — so we keep the mobile sizing instead of
+     scaling up. (Earlier desktop overrides squeezed the copy column to
+     ~163 px which made the title wrap awkwardly.) */
 }

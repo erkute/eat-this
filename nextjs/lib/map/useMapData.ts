@@ -18,6 +18,7 @@ interface MapData {
   refetch:     () => void
 }
 
+
 export function useMapData({ uid, authLoading }: UseMapDataArgs): MapData {
   const [restaurants, setRestaurants] = useState<MapRestaurant[]>([])
   const [mustEats,    setMustEats]    = useState<MapMustEat[]>([])

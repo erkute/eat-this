@@ -112,12 +112,6 @@ body {
   background: #1c1c1c;
   border-bottom-color: rgba(255, 255, 255, 0.10);
 }
-/* Map: navbar still gets transparent/floating treatment below. */
-[data-active-page="map"] .navbar { background: transparent; border-bottom-color: transparent; box-shadow: none; }
-[data-active-page="map"] #navNewsBtn,
-[data-active-page="map"] #navMapBtn,
-[data-active-page="map"] #burgerBtn { display: none; }
-
 /* Legacy brand-plate slots — kept hidden so old markup paths stay quiet. */
 .navbar-brand,
 .navbar-brand-plate,
@@ -136,6 +130,11 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
+}
+/* Desktop: navbar hat reichlich Platz — die Icons dürfen atmen statt sich
+   eng wie ein Mobile-Tabbar zu drängen. */
+@media (min-width: 1024px) {
+  .navbar-actions { gap: 40px; }
 }
 
 /* Minimal icon button — kein Chip, kein Border, kein Shadow, kein Kreis. */
@@ -162,7 +161,7 @@ body {
 [data-theme="dark"] .navbar-icon-btn { color: #f7f5f0; }
 .navbar-icon-btn:hover,
 .navbar-icon-btn:active,
-.navbar-icon-btn.active { color: var(--accent-coral, #e35433); }
+.navbar-icon-btn.active { color: var(--accent-coral, #a02814); }
 .navbar-icon-btn::after { content: none; }
 .navbar-icon-btn svg {
   width: 22px;
@@ -178,7 +177,7 @@ body {
   bottom: -6px;
   width: 14px;
   height: 2px;
-  background: var(--accent-coral, #e35433);
+  background: var(--accent-coral, #a02814);
   transform: translateX(-50%);
   border-radius: 2px;
 }
@@ -312,11 +311,6 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn span { bac
   body:has(.app-page[data-page="map"] [class*="bodyDetailOpen"]) .navbar .navbar-home {
     transform: translateY(calc(-100% - 80px));
     pointer-events: none;
-  }
-  /* Hide chips during map loading skeleton. */
-  body:has(.app-page[data-page="map"][data-map-loading]) .navbar .navbar-actions,
-  body:has(.app-page[data-page="map"][data-map-loading]) .navbar .navbar-home {
-    display: none;
   }
 }
 
@@ -1665,7 +1659,7 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn span { bac
 /* Kein Emoji-::after mehr — der Thumb selbst ist die State-Signalisierung. */
 .theme-toggle-thumb::after { content: none; }
 .theme-toggle-label {
-  font-family: var(--font-saira-condensed), 'Saira Condensed', 'Anton', sans-serif;
+  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', sans-serif;
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.14em;
@@ -2773,21 +2767,25 @@ body:has(.burger-drawer.active) .burger-btn {
   flex-direction: column;
   align-items: center;
   gap: 28px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* Slogan — Permanent Marker (Edding/Sharpie-Stil). Fett, frech, mit
    typischer Marker-Stroke-Unregelmäßigkeit. */
 .site-footer-slogan {
   margin: 0;
-  font-family: var(--font-anton);
+  font-family: var(--font-bowlby-one), 'Bowlby One', 'Arial Black', sans-serif;
   font-weight: 400;
-  font-size: clamp(28px, 3.5vw, 40px);
-  line-height: 1;
+  font-size: clamp(18px, 6vw, 36px);
+  line-height: 1.05;
   letter-spacing: 0.01em;
   text-transform: uppercase;
   color: #f7f5f0;
-  max-width: none;
-  white-space: nowrap;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  text-wrap: balance;
 }
 html:not([data-theme="dark"]) .site-footer-slogan { color: #1c1c1c; }
 

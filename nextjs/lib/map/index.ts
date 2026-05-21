@@ -13,6 +13,7 @@ export { applyFanOffset } from './fanOffset'
 export type { MustEatWithDisplay } from './fanOffset'
 export { getOpenStatus } from './openingHours'
 export type { OpenStatusLabels } from './openingHours'
+export { abbreviateBezirk } from './abbreviateBezirk'
 
 // GROQ queries (server-side)
 export { mapRestaurantsQuery, mapMustEatsQuery } from './queries'

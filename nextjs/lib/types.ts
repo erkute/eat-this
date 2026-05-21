@@ -164,6 +164,7 @@ export interface MapRestaurant {
   openingHours?: OpeningHourSlot[]
   tip?: string
   shortDescription?: string
+  description?: string
   photo?: string
   photoCredit?: string
   photoCreditUrl?: string

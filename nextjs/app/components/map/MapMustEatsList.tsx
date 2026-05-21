@@ -1,10 +1,16 @@
 'use client'
 import { type Ref } from 'react'
 import type { MapMustEat } from '@/lib/types'
-import { haversineDistance, formatDistance, type UserLocation, type UserTier } from '@/lib/map'
-import { useTranslation } from '@/lib/i18n'
+import {
+  haversineDistance,
+  formatWalkingTime,
+  abbreviateBezirk,
+  type UserLocation,
+  type UserTier,
+} from '@/lib/map'
 import BoosterOfferInline from './BoosterOfferInline'
 import MapListEmpty from './MapListEmpty'
+import { normalizeName } from '@/lib/normalizeName'
 import styles from './map.module.css'
 
 interface Props {
@@ -18,6 +24,11 @@ interface Props {
   onSelect: (mustEat: MapMustEat) => void
 }
 
+// Booster slot — inserts the inline booster card at this position in the
+// row sequence so a free user sees the "Karten freischalten"-pitch about
+// 10 entries deep, matching the restaurant list rhythm.
+const BOOSTER_AT = 10
+
 export default function MapMustEatsList({
   displayedMustEats,
   unlockedIds,
@@ -29,7 +40,7 @@ export default function MapMustEatsList({
   onSelect,
 }: Props) {
   return (
-    <div ref={contentRef} className={styles.listScroll}>
+    <div ref={contentRef} className={`${styles.listScroll} ${styles.listScrollMustEats}`}>
       {displayedMustEats.length === 0 ? (
         <MapListEmpty />
       ) : (
@@ -57,9 +68,6 @@ interface RowsProps {
   onSelect: (mustEat: MapMustEat) => void
 }
 
-// Splits the list into unlocked → locked sections. Booster CTA only shows
-// for the starter tier — All-Berlin already owns everything, anon users
-// get a clean list.
 function MustEatRows({
   displayedMustEats,
   unlockedIds,
@@ -69,79 +77,69 @@ function MustEatRows({
   userTier,
   onSelect,
 }: RowsProps) {
-  const { t } = useTranslation()
-  const unlocked = displayedMustEats.filter(m => unlockedIds.has(m._id))
-  const locked = displayedMustEats.filter(m => !unlockedIds.has(m._id))
   const showBooster = userTier === 'starter'
-  const insertAt = Math.min(10, unlocked.length + locked.length)
-
   const nodes: React.ReactNode[] = []
   let pos = 0
-  const maybeInsertBooster = () => {
-    if (showBooster && pos === insertAt) {
-      nodes.push(<BoosterOfferInline key="booster" uid={uid} variant="list" />)
-    }
-  }
 
-  if (unlocked.length > 0) {
-    nodes.push(<div key="lbl-u" className={styles.mustDeckSectionLabel}>{t('map.sectionUnlocked')}</div>)
-  }
-  for (const m of unlocked) {
-    nodes.push(
-      <button
-        key={m._id}
-        className={`${styles.row} ${selectedMustEat?._id === m._id ? styles.rowActive : ''}`}
-        onClick={() => onSelect(m)}
-      >
-        <img src={m.image} alt="" className={styles.mustDeckThumb} loading="lazy" />
-        <div className={styles.rowMain}>
-          <div className={styles.rowName}>{m.dish}</div>
-          <div className={styles.mustDeckRestaurant}>{m.restaurant.name}</div>
-          <div className={styles.rowMeta}>
-            <span>{[m.restaurant.district, m.price].filter(Boolean).join(' · ')}</span>
-          </div>
-        </div>
-        <div className={styles.rowSide} />
-      </button>
-    )
-    pos++
-    maybeInsertBooster()
-  }
-
-  if (locked.length > 0) {
-    nodes.push(<div key="lbl-l" className={styles.mustDeckSectionLabel}>{t('map.sectionLocked')}</div>)
-  }
-  for (const m of locked) {
-    const dist = location
+  for (const m of displayedMustEats) {
+    const isUnlocked = unlockedIds.has(m._id)
+    const district = abbreviateBezirk(m.restaurant.district ?? null)
+    const meters = location
       ? haversineDistance(location.lat, location.lng, m.restaurant.lat, m.restaurant.lng)
       : null
+    const walkingTime = meters !== null ? formatWalkingTime(meters) : null
+
+    // Title: dish name when aufgedeckt; "Verdeckt" placeholder otherwise so
+    // the dish stays a surprise until the user is on-site.
+    const title = isUnlocked ? m.dish : 'Verdeckt'
+
     nodes.push(
       <button
         key={m._id}
-        className={`${styles.row} ${selectedMustEat?._id === m._id ? styles.rowActive : ''}`}
+        type="button"
+        className={`${styles.rrow} ${selectedMustEat?._id === m._id ? styles.rrowActive : ''}`}
         onClick={() => onSelect(m)}
       >
-        <div className={styles.mustDeckThumbWrap}>
-          <img src="/pics/card-back.webp" alt="" className={styles.mustDeckThumbCard} loading="lazy" />
+        <div className={styles.rrowCoral}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={isUnlocked && m.image ? m.image : '/pics/card-back.webp'}
+            alt=""
+            className={styles.musteatRowBack}
+            aria-hidden="true"
+            draggable={false}
+          />
         </div>
-        <div className={styles.rowMain}>
-          <div className={styles.rowName}>{m.restaurant.name}</div>
-          <div className={styles.mustDeckRestaurant}>{m.restaurant.district}</div>
-          <div className={styles.mustDeckLockedTag}>
-            <svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/>
-            </svg>
-            {t('map.lockedBadge')}
-          </div>
+
+        <div className={styles.rrowMeta}>
+          <p className={styles.rrowEye}>
+            <span className={styles.rrowBezirk}>{normalizeName(m.restaurant.name)}</span>
+            {district && (
+              <span className={`${styles.rrowCat} ${styles.rrowCatBelow}`}>{district}</span>
+            )}
+          </p>
+          <h3 className={styles.rrowTitle}>{normalizeName(title)}</h3>
+          {walkingTime && (
+            <p className={styles.rrowInfo}>
+              <span>
+                <svg className={styles.walkIco} viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7" />
+                </svg>
+                {walkingTime}
+              </span>
+            </p>
+          )}
         </div>
-        {dist !== null && (
-          <div className={styles.mustDeckDist}>{formatDistance(dist)}</div>
-        )}
-        <div className={styles.rowSide} />
       </button>
     )
+
     pos++
-    maybeInsertBooster()
+
+    if (showBooster && pos === BOOSTER_AT) {
+      nodes.push(
+        <BoosterOfferInline key="booster" uid={uid} variant="list" />
+      )
+    }
   }
 
   return <>{nodes}</>

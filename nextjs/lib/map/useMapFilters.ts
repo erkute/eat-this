@@ -88,19 +88,34 @@ export function useMapFilters({ restaurants, mustEats, location }: Args) {
     })
   }, [restaurants, filterRestaurant, location])
 
-  // Default sort: distance from user location, falling back to Berlin Mitte
-  // when GPS is unavailable. With a bezirk filter, in-bezirk items float to
-  // the top while everything else stays sorted by distance below them.
+  /* Restaurant-by-ID index so a must-eat can be tested against the same
+     filters as its parent restaurant (categories, cuisine, openingHours).
+     The embedded `mustEat.restaurant` shape only carries id/name/lat/lng,
+     so without this lookup we'd be missing the fields the filters check. */
+  const restaurantById = useMemo(() => {
+    const map = new Map<string, MapRestaurant>()
+    for (const r of restaurants) map.set(r._id, r)
+    return map
+  }, [restaurants])
+
+  // Must-eats inherit the active restaurant filter — Kategorie/Küche/Bezirk/
+  // Jetzt-offen apply via the parent restaurant. Default sort: distance from
+  // user location, falling back to Berlin Mitte when GPS is unavailable.
   const displayedMustEats = useMemo(() => {
     const q = search.trim().toLowerCase()
-    const filtered = q
-      ? mustEats.filter(
-          m =>
-            m.dish.toLowerCase().includes(q) ||
-            m.restaurant.name.toLowerCase().includes(q) ||
-            m.restaurant.district?.toLowerCase().includes(q)
-        )
-      : mustEats
+    const filtered = mustEats.filter(m => {
+      if (q) {
+        const hit =
+          m.dish.toLowerCase().includes(q) ||
+          m.restaurant.name.toLowerCase().includes(q) ||
+          (m.restaurant.district ?? '').toLowerCase().includes(q)
+        return Boolean(hit)
+      }
+      const parent = restaurantById.get(m.restaurant._id)
+      // No parent in the current restaurant set → drop (out of view filter scope).
+      if (!parent) return false
+      return filterRestaurant(parent)
+    })
     const sortLat = location?.lat ?? 52.52
     const sortLng = location?.lng ?? 13.405
     return [...filtered].sort((a, b) => {
@@ -113,7 +128,7 @@ export function useMapFilters({ restaurants, mustEats, location }: Args) {
       const bD = haversineDistance(sortLat, sortLng, b.restaurant.lat, b.restaurant.lng)
       return aD - bD
     })
-  }, [mustEats, search, bezirk, location])
+  }, [mustEats, search, bezirk, location, restaurantById, filterRestaurant])
 
   return {
     category, setCategory,

@@ -28,6 +28,7 @@ export const mapRestaurantsQuery = `
     openingHours,
     tip,
     shortDescription,
+    description,
     "photo": image.asset->url + "?w=600&auto=format&q=80",
     "photoCredit": image.credit,
     "photoCreditUrl": image.creditUrl,

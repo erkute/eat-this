@@ -22,12 +22,25 @@ function readSafeAreaBottom(): number {
 
 /* Base content heights (above any iOS safe-area). Per-view peek sizes
    reflect what's actually rendered at the top of the sheet:
-   - detail: handle + name-row + 3 round actions = 68
+   - detail: handle (~24) + coral hero block. The hero height varies with
+             name wrap (1 vs 2 lines) so the actual size is measured at
+             runtime via a ResizeObserver on the [data-detail-hero] element
+             (see effect below). DETAIL_PEEK_BASE_PX is the fallback used
+             before the first measurement lands.
    - list (both layers): handle + listHeaderRow + filterChipRow = 120
      (After map-v2 the must-eats list uses the same chip-row header as
      restaurants — no more layer-specific peek base.) */
-const DETAIL_PEEK_BASE_PX = 68
-const LIST_PEEK_BASE_PX   = 120
+const DETAIL_PEEK_BASE_PX = 220
+const HANDLE_PX = 44
+/* List peek = handle (~24) + filter chip row (padding 24+10 + chip ~24 ≈ 58)
+   ≈ 82, plus a little buffer. After map-v2 the listHeaderRow is gone, so
+   the old 120 left empty sheet-bg between the chip row and the visible
+   bottom of the sheet at peek. */
+const LIST_PEEK_BASE_PX            = 90
+/* Must-Eats-Liste hat zusätzlich die „Zu den Restaurants"-Sticker-Row im
+   Header → +44 px für Button + Padding. Sonst clippt der Switch-Button
+   am peek-Snap. */
+const LIST_PEEK_BASE_PX_MUSTEATS   = LIST_PEEK_BASE_PX + 44
 
 /**
  * Owns the map-sheet state machine: combines the generic `useBottomSheet`
@@ -44,21 +57,32 @@ interface UseMapSheetArgs {
 }
 
 export function useMapSheet({ layer }: UseMapSheetArgs) {
-  // layer is still accepted so callers can pass it in (the deep-link hook
-  // expects this shape); list peek size no longer depends on it.
-  void layer
   const sheet = useBottomSheet('mid')
   const [sheetView, setSheetViewState] = useState<SheetView>('list')
+  /* Measured hero-block height drives the detail peek. Initialized null so
+     the first config uses the static fallback; flips to the measured value
+     once the ResizeObserver below fires. */
+  const [detailHeroPx, setDetailHeroPx] = useState<number | null>(null)
 
-  /* Per-view config is stable except for the iOS safe-area (read once at
-     mount). Both layers share the same list-header height now. */
+  /* Per-view config rebuilds whenever the measured hero height changes so the
+     bottom-sheet's peek snap reflects the live content. iOS safe-area is read
+     once at mount. */
   const viewConfig = useMemo(() => {
     const safeAreaBottom = readSafeAreaBottom()
+    /* +4 px buffer below the hero — just enough to keep fractional
+       sub-pixel rounding from clipping the last meta-row pixel, while
+       avoiding a visible band of the photo underneath. */
+    const detailPeek = detailHeroPx != null
+      ? HANDLE_PX + detailHeroPx + 4 + safeAreaBottom
+      : DETAIL_PEEK_BASE_PX + safeAreaBottom
+    const listPeekBase = layer === 'mustEats'
+      ? LIST_PEEK_BASE_PX_MUSTEATS
+      : LIST_PEEK_BASE_PX
     return {
-      detail: { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: DETAIL_PEEK_BASE_PX + safeAreaBottom },
-      list:   { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX   + safeAreaBottom },
+      detail: { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: detailPeek },
+      list:   { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: listPeekBase + safeAreaBottom },
     }
-  }, [])
+  }, [detailHeroPx, layer])
 
   const sheetElRef = useRef<HTMLDivElement | null>(null)
   const sheetRef = sheet.sheetRef
@@ -74,8 +98,69 @@ export function useMapSheet({ layer }: UseMapSheetArgs) {
   // already has the right list peek size.
   if (!sheetElRef.current) configure(viewConfig.list)
 
-  /* List-view config doesn't depend on layer anymore — same header for both
-     restaurants and must-eats. setSheetView still configures on transition. */
+  /* Observe the [data-detail-hero] block whenever the detail view is mounted.
+     Re-targets the observer if the element swaps (e.g. restaurant change).
+     Cleans up when the view goes back to 'list'. */
+  useEffect(() => {
+    if (sheetView !== 'detail') {
+      setDetailHeroPx(null)
+      return
+    }
+    const root = sheetElRef.current
+    if (!root || typeof ResizeObserver === 'undefined') return
+
+    let observed: Element | null = null
+    let ro: ResizeObserver | null = null
+    const attach = () => {
+      const el = root.querySelector('[data-detail-hero]')
+      if (!el || el === observed) return
+      if (ro) ro.disconnect()
+      observed = el
+      ro = new ResizeObserver(entries => {
+        /* borderBoxSize includes the hero's padding (14px top/bottom) so
+           the measurement matches what's actually rendered. contentRect
+           is content-box and would under-measure by ~28px — enough to
+           clip the meta-line (district/category/price) at peek. Fallback
+           to getBoundingClientRect for older browsers without
+           borderBoxSize. */
+        const entry = entries[0]
+        const h = entry?.borderBoxSize?.[0]?.blockSize
+          ?? entry?.target?.getBoundingClientRect()?.height
+        if (typeof h === 'number' && h > 0) setDetailHeroPx(Math.ceil(h))
+      })
+      ro.observe(el)
+    }
+    attach()
+    /* The hero element is conditionally rendered (per restaurant change). A
+       MutationObserver on the sheet root re-attaches whenever the DOM swaps. */
+    const mo = new MutationObserver(attach)
+    mo.observe(root, { childList: true, subtree: true })
+
+    return () => {
+      mo.disconnect()
+      ro?.disconnect()
+      observed = null
+      ro = null
+    }
+  }, [sheetView])
+
+  /* When the detail peek size changes (different restaurant or name wrap
+     change), re-configure the sheet so subsequent snaps use the new value.
+     If currently parked at peek, reapply so the visual updates immediately. */
+  useEffect(() => {
+    if (sheetView !== 'detail') return
+    configure(viewConfig.detail)
+    if (currentSnap === 'peek') reapplySnap('peek')
+  }, [sheetView, viewConfig, configure, reapplySnap, currentSnap])
+
+  /* List-view config depends on layer (must-eats hat einen Switch-Row mehr
+     im Header → größerer Peek). Re-konfigurieren wenn der Layer flippt
+     während die Liste offen ist; bei peek-Snap sofort reapply. */
+  useEffect(() => {
+    if (sheetView !== 'list') return
+    configure(viewConfig.list)
+    if (currentSnap === 'peek') reapplySnap('peek')
+  }, [sheetView, viewConfig, configure, reapplySnap, currentSnap])
 
   const setSheetView = useCallback((view: SheetView) => {
     /* Configure synchronously BEFORE the state update so any reapplySnap that

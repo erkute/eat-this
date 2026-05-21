@@ -24,6 +24,10 @@ interface MustEatMarkerProps {
 // Proximity vibration starts at this distance and ramps up to 1 at 0 m away.
 const PROXIMITY_START_METERS = 500
 
+/* Konstanter Rechts-Tilt für alle solo-Karten — uniform, gleicher Winkel
+   für jede Card. */
+const SOLO_TILT_DEG = 4
+
 function MustEatMarker({
   mustEat,
   isUnlocked,
@@ -75,10 +79,15 @@ function MustEatMarker({
         className={className}
         style={{
           ...(vibrating ? { ['--vibrate-intensity' as string]: proximityIntensity.toFixed(3) } : null),
-          ...(fanCount > 1 ? {
-            ['--fan-rotation' as string]: `${fanRotation}deg`,
-            zIndex: isSelected ? 100 : 10 - Math.abs(fanIndex - (fanCount - 1) / 2),
-          } : null),
+          ...(fanCount > 1
+            ? {
+                ['--fan-rotation' as string]: `${fanRotation}deg`,
+                zIndex: isSelected ? 100 : 10 - Math.abs(fanIndex - (fanCount - 1) / 2),
+              }
+            : {
+                /* Solo-Card auf der Map: leicht nach rechts gekippt, alle gleich. */
+                ['--fan-rotation' as string]: `${SOLO_TILT_DEG}deg`,
+              }),
         }}
         onAnimationEnd={() => setWiggling(false)}
       >

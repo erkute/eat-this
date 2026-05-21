@@ -40,7 +40,7 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock }: Args)
       return
     }
     setTapping(true)
-    window.setTimeout(() => setTapping(false), 320)
+    window.setTimeout(() => setTapping(false), 600)
   }
   const handleRevealDone = () => setRevealOrigin(null)
 

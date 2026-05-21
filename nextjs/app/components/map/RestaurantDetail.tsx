@@ -1,51 +1,43 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import {
+  abbreviateBezirk,
+  formatWalkingTime,
   getOpenStatus,
   haversineDistance,
-  formatWalkingTime,
   type UserLocation,
+  type UserTier,
 } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
-import { localizedCategoryName } from '@/lib/categories'
+import { useLocale } from 'next-intl'
+import { routing } from '@/i18n/routing'
 import styles from './map.module.css'
-import {
-  ArrowOutIcon,
-  CloseIcon,
-  HeartIcon,
-  InstagramIcon,
-  ShareIcon,
-  WalkIcon,
-} from './icons'
+import { CloseIcon, HeartIcon, ShareIcon } from './icons'
 import {
   classifyWebsite,
   formatPriceLabel,
   splitStatusLabel,
 } from './restaurantDetail.helpers'
+import { normalizeName } from '@/lib/normalizeName'
 
 function MustEatMiniCard({
   mustEat,
   unlocked,
   onClick,
 }: { mustEat: MapMustEat; unlocked: boolean; onClick: () => void }) {
-  const [wiggling, setWiggling] = useState(false)
-  const className = [
-    styles.mustCard,
-    unlocked && styles.mustCardFront,
-    !unlocked && wiggling && styles.cardWiggling,
-  ].filter(Boolean).join(' ')
   return (
     <button
       type="button"
-      className={className}
-      onClick={() => { if (!unlocked) setWiggling(true); onClick() }}
-      onAnimationEnd={() => setWiggling(false)}
+      className={styles.mustCardV13}
+      onClick={onClick}
       aria-label={unlocked ? mustEat.dish : 'Locked Must Eat'}
     >
-      {unlocked && (
-        <img src={mustEat.image} alt={mustEat.dish} loading="lazy" />
-      )}
+      {unlocked
+        ? <div className={styles.mustCardImg} style={{ backgroundImage: `url(${mustEat.image})` }} />
+        /* eslint-disable-next-line @next/next/no-img-element */
+        : <img src="/pics/card-back.webp" alt="" className={styles.mustCardBack} loading="lazy" />
+      }
     </button>
   )
 }
@@ -55,6 +47,8 @@ interface RestaurantDetailProps {
   mustEats: MapMustEat[]
   unlockedIds: Set<string>
   userLocation: UserLocation | null
+  uid: string | null
+  userTier: UserTier
   onClose: () => void
   onMustEatClick: (m: MapMustEat) => void
   isFavorite?: boolean
@@ -66,13 +60,32 @@ export default function RestaurantDetail({
   mustEats,
   unlockedIds,
   userLocation,
+  uid,
+  userTier,
   onClose,
   onMustEatClick,
   isFavorite,
   onToggleFavorite,
 }: RestaurantDetailProps) {
-  const { t, lang } = useTranslation()
-  const loc = lang === 'de' ? 'de' : 'en'
+  const { t } = useTranslation()
+  const locale = useLocale()
+  const mapsDetailsRef = useRef<HTMLDetailsElement>(null)
+  const statusDetailsRef = useRef<HTMLDetailsElement>(null)
+
+  // Native <details> only closes when you re-click its <summary>. Restaurants
+  // expect popovers to dismiss on any outside click — wire that up for the
+  // two disclosures (Maps chooser + hours expander).
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      for (const ref of [mapsDetailsRef, statusDetailsRef]) {
+        const el = ref.current
+        if (el && el.open && !el.contains(e.target as Node)) el.open = false
+      }
+    }
+    document.addEventListener('pointerdown', onDocClick)
+    return () => document.removeEventListener('pointerdown', onDocClick)
+  }, [])
+
   const status = restaurant.openingHours
     ? getOpenStatus(restaurant.openingHours, new Date(), {
         open: t('map.open'),
@@ -83,62 +96,19 @@ export default function RestaurantDetail({
         unitMin: t('map.unitsMin'),
       })
     : { isOpen: false, label: '', minutesUntilChange: null }
+  const { main: statusMain, sub: statusSub } = splitStatusLabel(status.label)
 
-  const district = restaurant.bezirk?.name ?? restaurant.district
+  const district = abbreviateBezirk(restaurant.bezirk?.name ?? restaurant.district ?? null)
 
   const meters = userLocation
     ? haversineDistance(userLocation.lat, userLocation.lng, restaurant.lat, restaurant.lng)
     : null
   const walkingTime = meters !== null ? formatWalkingTime(meters) : null
-  /* Walk-time is a Luftlinie-based estimate, fine for inner-city Berlin.
-     formatWalkingTime returns null beyond ~1600 m so a far-away spot
-     doesn't read as a discouraging "90 Min" — for those, the Maps button
-     in the address section is the right tool. Transit/Car were dropped
-     for the same reason: heuristic minutes mislead. */
-  const walkDirHref = `https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lng}&travelmode=walking`
 
-  // Status label is split into a colored primary word + muted suffix —
-  // same vocabulary as the list row.
-  const { main: statusMain, sub: statusSub } = splitStatusLabel(status.label)
-
-  const handleShare = async () => {
-    const url = typeof window !== 'undefined' ? window.location.href : ''
-    const shareData = {
-      title: restaurant.name,
-      text: restaurant.shortDescription || restaurant.name,
-      url,
-    }
-    try {
-      if (typeof navigator !== 'undefined' && 'share' in navigator) {
-        await navigator.share(shareData)
-        return
-      }
-    } catch {
-      // user cancelled or share failed — fall through to clipboard
-    }
-    try {
-      if (typeof navigator !== 'undefined' && navigator.clipboard) {
-        await navigator.clipboard.writeText(url)
-      }
-    } catch {
-      // noop
-    }
-  }
-
-  const addressMapsHref =
-    restaurant.mapsUrl ||
-    (restaurant.address
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.address)}`
-      : null)
+  const priceLabel = formatPriceLabel(restaurant)
+  const cuisine = restaurant.cuisineType ?? null
 
   const websiteInfo = classifyWebsite(restaurant.website)
-  const priceLabel = formatPriceLabel(restaurant)
-
-  // Prefer the explicit `instagramHandle` field — populated by the backfill
-  // script — and fall back to a `website` field that happens to be an
-  // instagram.com URL (legacy data). Either way the Instagram section
-  // renders as its own block; the website section only fires when the
-  // website is a real website.
   let igHandle: string | null = null
   let igUrl: string | null = null
   if (restaurant.instagramHandle) {
@@ -148,262 +118,369 @@ export default function RestaurantDetail({
     igHandle = websiteInfo.handle
     igUrl = websiteInfo.url
   }
-  const showWebsiteSection = websiteInfo?.kind === 'web'
 
-  // Bezirk gets its own line as a top-level kicker; categories and price
-  // share the second meta line so a long category list never crowds the
-  // district. Render both with the same vocabulary (.detailMetaLine).
-  const categoryNames =
-    restaurant.categories?.slice(0, 3).map(c => localizedCategoryName(c, loc)) ?? []
-  const secondLineParts: { text: string; isPrice: boolean }[] = [
-    ...categoryNames.map(text => ({ text, isPrice: false })),
-    ...(priceLabel ? [{ text: priceLabel, isPrice: true }] : []),
-  ]
+  const addressMapsAppleHref = restaurant.address
+    ? `https://maps.apple.com/?q=${encodeURIComponent(restaurant.address)}`
+    : null
+  const addressMapsGoogleHref =
+    restaurant.mapsUrl ||
+    (restaurant.address
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.address)}`
+      : null)
+
+  const storyText = restaurant.description ?? restaurant.shortDescription ?? ''
+  const hasStory = !!storyText
+  const hasTipp = !!restaurant.tip
+  const showTabs = hasStory && hasTipp
+  const [activeTab, setActiveTab] = useState<'story' | 'tipp'>(hasStory ? 'story' : 'tipp')
+
+
+  // Detect booking provider from host for the OpenTable lockup.
+  let reservationProvider: string | null = null
+  if (restaurant.reservationUrl) {
+    try {
+      const host = new URL(restaurant.reservationUrl).hostname.toLowerCase()
+      if (host.includes('opentable')) reservationProvider = 'OpenTable'
+      else if (host.includes('resy.com')) reservationProvider = 'Resy'
+      else if (host.includes('thefork')) reservationProvider = 'TheFork'
+      else if (host.includes('quandoo')) reservationProvider = 'Quandoo'
+      else if (host.includes('bookatable')) reservationProvider = 'Bookatable'
+      else if (host.includes('resmio')) reservationProvider = 'Resmio'
+      else if (host.includes('sevenrooms')) reservationProvider = 'SevenRooms'
+    } catch {}
+  }
+
+  const showBooster = userTier !== 'allBerlin'
+  const isAnon = !uid
+  const boosterHref = uid
+    ? (locale === routing.defaultLocale ? '/profile#booster' : `/${locale}/profile#booster`)
+    : (locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
 
   return (
-    <div className={styles.detailInSheet} role="dialog" aria-label={restaurant.name}>
-      {/* Peek-visible header — name + 3 circular actions. Stays pinned at the
-          top of the sheet so when collapsed to peek snap (110 px) the user
-          still sees the name and the action buttons. */}
-      <div className={styles.detailPeekHeader}>
-        <h3 className={styles.detailName}>{restaurant.name}</h3>
-        <div className={styles.detailPeekActions}>
-          <button
-            type="button"
-            className={styles.detailPeekActionBtn}
-            aria-label={t('map.share')}
-            onClick={handleShare}
-          >
-            <ShareIcon />
-          </button>
-          {onToggleFavorite && (
+    <div className={styles.detailV13} role="dialog" aria-label={restaurant.name}>
+      <div className={styles.detailV13Scroll} data-detail-scroll>
+
+        {/* 1. HERO — name + meta. data-detail-hero marks the block whose
+            height the bottom-sheet measures to size the peek snap (so peek
+            always shows everything above the photo, regardless of name
+            wrap). Desktop icons sit absolutely inside the coral hero;
+            mobile renders the same icons on the sheet handle. */}
+        <header className={styles.heroYellow} data-detail-hero>
+          <div className={styles.heroActionsDesktop}>
             <button
               type="button"
-              className={`${styles.detailPeekActionBtn} ${isFavorite ? styles.detailPeekActionBtnSaved : ''}`}
-              aria-label={isFavorite ? 'Remove from saved' : t('map.save')}
-              aria-pressed={!!isFavorite}
-              onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
+              className={`${styles.heroAction} ${styles.heroActionOnHandle}`}
+              aria-label={t('map.share') ?? 'Teilen'}
+              onClick={async () => {
+                const url = typeof window !== 'undefined' ? window.location.href : ''
+                const shareData = { title: restaurant.name, url }
+                try {
+                  if (typeof navigator !== 'undefined' && 'share' in navigator) {
+                    await navigator.share(shareData)
+                    return
+                  }
+                } catch {}
+                try {
+                  if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                    await navigator.clipboard.writeText(url)
+                  }
+                } catch {}
+              }}
             >
-              <HeartIcon filled={!!isFavorite} />
+              <ShareIcon />
             </button>
-          )}
-          <button
-            type="button"
-            className={styles.detailPeekActionBtn}
-            aria-label="Close"
-            onClick={onClose}
-          >
-            <CloseIcon />
-          </button>
-        </div>
-      </div>
-
-      <div className={styles.detailInSheetScroll} data-detail-scroll>
-        <div className={styles.detailBody}>
-          {district && (
-            <div className={styles.detailMetaLine}>
-              <span>{district}</span>
-            </div>
-          )}
-          {secondLineParts.length > 0 && (
-            <div className={styles.detailMetaLine}>
-              {secondLineParts.map((p, i) => (
-                <span
-                  key={`${p.text}-${i}`}
-                  className={p.isPrice ? styles.detailMetaPrice : undefined}
-                >
-                  {p.text}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {statusMain && (
-            <div className={styles.detailStatusLine} role="status">
-              <span
-                className={`${styles.detailStatusMain} ${
-                  status.isOpen ? styles.detailStatusOpen : styles.detailStatusClosed
-                }`}
+            {onToggleFavorite && (
+              <button
+                type="button"
+                className={`${styles.heroAction} ${styles.heroActionOnHandle} ${isFavorite ? styles.heroActionSaved : ''}`}
+                aria-label={isFavorite ? 'Remove from saved' : (t('map.save') ?? 'Speichern')}
+                aria-pressed={!!isFavorite}
+                onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
               >
-                {statusMain}
+                <HeartIcon filled={!!isFavorite} />
+              </button>
+            )}
+            <button
+              type="button"
+              className={`${styles.heroAction} ${styles.heroActionOnHandle} ${styles.heroActionClose}`}
+              aria-label="Close"
+              onClick={onClose}
+            >
+              <CloseIcon />
+            </button>
+          </div>
+          <h2 className={styles.heroName}>{normalizeName(restaurant.name)}</h2>
+          <p className={styles.heroMeta}>
+            {district && <span className={styles.heroDistrict}>{district}</span>}
+            {(cuisine || priceLabel) && (
+              <span className={styles.heroCuisine}>
+                {cuisine}
+                {priceLabel && <span className={styles.heroPrice}>{priceLabel}</span>}
               </span>
-              {statusSub && (
-                <span className={styles.detailStatusSub}>· {statusSub}</span>
+            )}
+          </p>
+        </header>
+
+        {/* 3. PHOTO STRIP */}
+        {restaurant.photo && (
+          <figure className={styles.photoStrip}>
+            <div
+              className={styles.photoStripImg}
+              style={{ backgroundImage: `url(${restaurant.photo})` }}
+            />
+            {restaurant.photoCredit && (
+              <figcaption className={styles.photoStripTag}>
+                {restaurant.photoCreditUrl ? (
+                  <a href={restaurant.photoCreditUrl} target="_blank" rel="noopener noreferrer">
+                    {restaurant.photoCredit}
+                  </a>
+                ) : (
+                  restaurant.photoCredit
+                )}
+              </figcaption>
+            )}
+          </figure>
+        )}
+
+        {/* 4. INFO STRIP — editorial plaque, each row stamped with a mustard label */}
+        {(statusMain || restaurant.address || restaurant.phone || igUrl) && (
+          <section className={styles.infoStrip}>
+            {statusMain && (
+              <div className={styles.infoLine}>
+                <span className={`${styles.infoLineLabel} ${status.isOpen ? styles.infoLineLabelOpen : ''}`}>{status.isOpen ? t('map.open') : t('map.closed')}</span>
+                <div className={styles.infoLineBody}>
+                  {restaurant.openingHours && restaurant.openingHours.length > 0 ? (
+                    <details ref={statusDetailsRef} className={styles.statusDetails}>
+                      <summary className={`${styles.statusLockup} ${status.isOpen ? '' : styles.statusLockupClosed}`}>
+                        <span>{statusSub || statusMain}</span>
+                        <svg className={styles.statusChevron} viewBox="0 0 10 6" aria-hidden="true">
+                          <polyline points="1 1 5 5 9 1" />
+                        </svg>
+                      </summary>
+                      <dl className={styles.infoHoursList}>
+                        {restaurant.openingHours.map((slot, i) => (
+                          <div key={i} className={styles.infoHoursRow}>
+                            <dt>{slot.days}</dt>
+                            <dd>{slot.hours}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </details>
+                  ) : (
+                    <span className={`${styles.statusLockup} ${status.isOpen ? '' : styles.statusLockupClosed}`}>
+                      <span>{statusSub || statusMain}</span>
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+            {restaurant.address && (
+              <div className={styles.infoLine}>
+                <span className={styles.infoLineLabel}>{t('map.address')}</span>
+                <div className={styles.infoLineBody}>
+                  <a
+                    className={styles.addressLink}
+                    href={addressMapsGoogleHref ?? '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {restaurant.address}
+                  </a>
+                  <div className={styles.addressMeta}>
+                    {walkingTime && (
+                      <>
+                        {walkingTime} {t('map.walkMinutes')}
+                        <span className={styles.metaSep}>·</span>
+                      </>
+                    )}
+                    <details ref={mapsDetailsRef} className={styles.metaMapsPop}>
+                      <summary>{t('map.inMaps')}</summary>
+                      <div className={styles.metaMapsPopMenu}>
+                        {addressMapsAppleHref && (
+                          <a href={addressMapsAppleHref} target="_blank" rel="noopener noreferrer">
+                            {t('map.mapsApple')}
+                          </a>
+                        )}
+                        {addressMapsGoogleHref && (
+                          <a href={addressMapsGoogleHref} target="_blank" rel="noopener noreferrer">
+                            {t('map.mapsGoogle')}
+                          </a>
+                        )}
+                      </div>
+                    </details>
+                  </div>
+                </div>
+              </div>
+            )}
+            {restaurant.phone && (
+              <div className={styles.infoLine}>
+                <span className={styles.infoLineLabel}>{t('map.phone')}</span>
+                <div className={styles.infoLineBody}>
+                  <a className={styles.infoRowLink} href={`tel:${restaurant.phone.replace(/\s+/g, '')}`}>
+                    {restaurant.phone}
+                  </a>
+                </div>
+              </div>
+            )}
+            {igUrl && (
+              <div className={styles.infoLine}>
+                <span className={styles.infoLineLabel}>Instagram</span>
+                <div className={styles.infoLineBody}>
+                  <a className={styles.infoRowLink} href={igUrl} target="_blank" rel="noopener noreferrer">
+                    {igHandle ? `@${igHandle}` : 'Profil ↗'}
+                  </a>
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* 5. TABS + PANELS */}
+        {showTabs && (
+          <div className={styles.tabs}>
+            <button
+              type="button"
+              className={`${styles.tab} ${activeTab === 'story' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('story')}
+            >
+              <span>{t('map.tabStory')}</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.tab} ${activeTab === 'tipp' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('tipp')}
+            >
+              <span>{t('map.tabTipp')}</span>
+            </button>
+          </div>
+        )}
+
+        {(hasStory || hasTipp) && (
+          <div className={styles.tabPanels}>
+            {(activeTab === 'story' || !showTabs) && hasStory && (
+              <div className={styles.tabPanel}>
+                <div className={styles.storyProse}>
+                  {storyText.split('\n\n').map((para, idx) => {
+                    if (idx === 0 && para.length > 0) {
+                      return (
+                        <p key={idx}>
+                          <span className={styles.dropCap}>{para[0]}</span>
+                          {para.slice(1)}
+                        </p>
+                      )
+                    }
+                    return <p key={idx}>{para}</p>
+                  })}
+                </div>
+              </div>
+            )}
+
+            {(activeTab === 'tipp' || (!hasStory && hasTipp)) && hasTipp && (
+              <div className={styles.tabPanel}>
+                <h4 className={styles.tipEyebrow}>{t('map.insiderTip')}</h4>
+                <p className={styles.tipBody}>{restaurant.tip}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Must-Eats — always shown regardless of tab. The visual hook of
+            the page; hiding them behind a tab would be a regression. */}
+        {mustEats.length > 0 && (
+          <section className={`${styles.tabPanel} ${styles.mustSection}`}>
+            <h3 className={styles.mustSectionH}>Eat This</h3>
+            <ol className={styles.mustGridV13}>
+              {mustEats.slice(0, 4).map(m => (
+                <MustEatMiniCard
+                  key={m._id}
+                  mustEat={m}
+                  unlocked={unlockedIds.has(m._id)}
+                  onClick={() => onMustEatClick(m)}
+                />
+              ))}
+            </ol>
+          </section>
+        )}
+
+        {/* 6. PACK PROMO — editorial ticket: asymmetric two-column with one
+            big tilted booster card. Anon + starter only. */}
+        {showBooster && (
+          <section className={styles.packPromo}>
+            <div className={styles.packPromoCardWrap} aria-hidden="true">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={isAnon ? '/pics/booster/booster_free.webp' : '/pics/booster/booster_lunch.webp'}
+                alt=""
+                loading="lazy"
+                className={styles.packPromoSingleCard}
+              />
+            </div>
+            <div className={styles.packPromoCopy}>
+              {isAnon && (
+                <p className={styles.packPromoEyebrow}>+20 Spots</p>
               )}
+              <h3 className={styles.packPromoTitle}>
+                {isAnon ? t('map.starterPromoTitle') : t('map.boosterTitle')}
+              </h3>
+              <p className={styles.packPromoBody}>
+                {isAnon ? t('map.starterPromoBody') : t('map.boosterDesc')}
+              </p>
+              <div className={styles.packPromoActions}>
+                <a href={boosterHref} className={styles.btnPackPromo}>
+                  <span className={styles.btnPackPromoLbl}>
+                    {isAnon ? t('map.starterCta') : t('map.boosterCta')}
+                  </span>
+                  {!isAnon && (
+                    <span className={styles.btnPackPromoTag}>
+                      {t('map.boosterPriceTag')}
+                      <svg viewBox="0 0 24 18" aria-hidden="true">
+                        <line x1="2" y1="9" x2="20" y2="9" />
+                        <polyline points="14 3 20 9 14 15" />
+                      </svg>
+                    </span>
+                  )}
+                </a>
+                {isAnon && (
+                  <a href={boosterHref} className={styles.linkPromo}>
+                    {t('map.starterPromoLogin')}
+                  </a>
+                )}
+              </div>
             </div>
-          )}
+          </section>
+        )}
 
-          {walkingTime !== null && (
-            <div className={styles.detailTravelRow}>
-              <a
-                href={walkDirHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.detailTravelLink}
-                aria-label={`Zu Fuß: ${walkingTime}`}
-              >
-                <WalkIcon />
-                <span>{walkingTime}</span>
-              </a>
-            </div>
-          )}
-
-          {restaurant.reservationUrl && (() => {
-            // Detect the booking platform from the host so users see WHO
-            // handles the reservation, not just a generic "Reserve" CTA.
-            let provider: string | null = null
-            try {
-              const host = new URL(restaurant.reservationUrl).hostname.toLowerCase()
-              if (host.includes('opentable')) provider = 'OpenTable'
-              else if (host.includes('resy.com')) provider = 'Resy'
-              else if (host.includes('thefork')) provider = 'TheFork'
-              else if (host.includes('quandoo')) provider = 'Quandoo'
-              else if (host.includes('bookatable')) provider = 'Bookatable'
-              else if (host.includes('resmio')) provider = 'Resmio'
-              else if (host.includes('sevenrooms')) provider = 'SevenRooms'
-            } catch {}
-            return (
-              <div className={styles.detailCtaRow}>
+        {/* 7. ACTIONS — big coral Reservieren + OpenTable lockup */}
+        {restaurant.reservationUrl && (
+          <section className={styles.actions}>
+            <a
+              href={restaurant.reservationUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.btnPrimary}
+            >
+              <span className={styles.btnPrimaryLbl}>{t('map.reserve')}</span>
+              <svg className={styles.btnPrimaryArr} viewBox="0 0 24 18" aria-hidden="true">
+                <line x1="2" y1="9" x2="20" y2="9" />
+                <polyline points="14 3 20 9 14 15" />
+              </svg>
+            </a>
+            {reservationProvider === 'OpenTable' && (
+              <div className={styles.ctaFoot}>
                 <a
                   href={restaurant.reservationUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`${styles.detailCtaBtn} ${styles.detailCtaBtnPrimary} ${styles.detailCtaBtnReserve}`}
+                  className={styles.opentableLockup}
                 >
-                  <span className={styles.detailCtaReserveTop}>{t('map.reserve')}</span>
-                  {provider && (
-                    <span className={styles.detailCtaReserveProvider}>via {provider}</span>
-                  )}
+                  <span className={styles.otMark}>ot</span>
+                  <span className={styles.otWord}>OpenTable</span>
                 </a>
               </div>
-            )
-          })()}
+            )}
+          </section>
+        )}
 
-          {restaurant.photo ? (
-            <figure className={styles.detailHeroInline}>
-              <img src={restaurant.photo} alt={restaurant.name} className={styles.detailHero} />
-              <figcaption className={styles.detailHeroCaption}>
-                {restaurant.photoCredit ? (
-                  restaurant.photoCreditUrl ? (
-                    <a href={restaurant.photoCreditUrl} target="_blank" rel="noopener noreferrer">
-                      {restaurant.photoCredit}
-                    </a>
-                  ) : (
-                    restaurant.photoCredit
-                  )
-                ) : (
-                  'via Instagram'
-                )}
-              </figcaption>
-            </figure>
-          ) : (
-            <div
-              className={`${styles.detailHeroInline} ${styles.detailHeroInlineEmpty}`}
-              aria-hidden="true"
-            >
-              🍽
-            </div>
-          )}
-
-          {restaurant.shortDescription && (
-            <p className={styles.detailDescription}>{restaurant.shortDescription}</p>
-          )}
-
-          {restaurant.tip && (
-            <div className={styles.detailTipBlock}>
-              <strong>{t('map.insiderTip')}: </strong>
-              {restaurant.tip}
-            </div>
-          )}
-
-          {igUrl && (
-            <section className={styles.detailSection}>
-              <h4 className={styles.detailSectionTitle}>Instagram</h4>
-              <a
-                href={igUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.detailInstagramLink}
-                aria-label={igHandle ? `Instagram @${igHandle}` : 'Instagram'}
-              >
-                <InstagramIcon />
-                {igHandle && <span>@{igHandle}</span>}
-              </a>
-            </section>
-          )}
-
-          {showWebsiteSection && websiteInfo?.kind === 'web' && (
-            <section className={styles.detailSection}>
-              <h4 className={styles.detailSectionTitle}>{t('map.website')}</h4>
-              <a
-                href={websiteInfo.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.detailWebsiteLink}
-              >
-                {websiteInfo.display}
-              </a>
-            </section>
-          )}
-
-          {restaurant.phone && (
-            <section className={styles.detailSection}>
-              <h4 className={styles.detailSectionTitle}>{t('map.phone')}</h4>
-              <a
-                href={`tel:${restaurant.phone.replace(/\s+/g, '')}`}
-                className={styles.detailPhoneLink}
-              >
-                {restaurant.phone}
-              </a>
-            </section>
-          )}
-
-          {restaurant.address && addressMapsHref && (
-            <section className={styles.detailSection}>
-              <h4 className={styles.detailSectionTitle}>{t('map.address')}</h4>
-              <a
-                href={addressMapsHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.detailAddress}
-                aria-label={`${restaurant.address} — ${t('map.googleMaps')}`}
-              >
-                <span>{restaurant.address}</span>
-                <ArrowOutIcon className={styles.detailAddressArrow} />
-              </a>
-            </section>
-          )}
-
-          {restaurant.openingHours && restaurant.openingHours.length > 0 && (
-            <section className={styles.detailSection}>
-              <h4 className={styles.detailSectionTitle}>{t('map.openingHours')}</h4>
-              <ul className={styles.hoursList}>
-                {restaurant.openingHours.map((slot, i) => (
-                  <li key={i} className={styles.hoursRow}>
-                    <span className={styles.hoursDay}>{slot.days}</span>
-                    <span className={styles.hoursTime}>{slot.hours}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {mustEats.length > 0 && (
-            <section className={styles.detailSection}>
-              <h4 className={styles.detailSectionTitle}>{t('map.mustEatsCount')} ({mustEats.length})</h4>
-              <div className={styles.mustGrid}>
-                {mustEats.map(m => (
-                  <MustEatMiniCard
-                    key={m._id}
-                    mustEat={m}
-                    unlocked={unlockedIds.has(m._id)}
-                    onClick={() => onMustEatClick(m)}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
-        </div>
       </div>
     </div>
   )

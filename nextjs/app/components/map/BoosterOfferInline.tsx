@@ -8,36 +8,93 @@ import styles from './map.module.css'
 interface Props {
   uid: string | null
   /** 'detail' (compact, sits inside the unlock body) or 'list' (inline
-   *  inside the Must-Eats list with a bit more breathing room). */
+   *  inside the must-eats / restaurant list with a bit more breathing room). */
   variant: 'detail' | 'list'
 }
 
-// Map banner — paid-upgrade pitch only. The free Starter (20 cards on
-// sign-up) lives on the landing page; once a user is on the map they
-// already redeemed it, so here we only push the next step: a category
-// pack (€2,99) or All Berlin (€20).
+// Map booster pitch — paid-upgrade only. The free Starter (20 cards on
+// sign-up) lives on the landing; once a user is on the map they already
+// redeemed it, so here we only push the next step: a category pack
+// (€2,99) or All Berlin (€20). Click routes to /profile#booster for
+// signed-in users, /login for the (rare) signed-out visitor.
 //
-// Visual energy: a 3-pack fan with a slow shine sweep and a red CTA with
-// a chevron that nudges right on hover. Pricing is in the body copy
-// (no floating chip — clutter risk + horizontal-clip risk on hover).
-// Click routes to /profile#booster for signed-in users, /login for the
-// (rare) signed-out visitor.
+// Two variants:
+// • 'list'   — editorial poster card matching the map-detail pack-promo
+//              block (cream surface + fanned booster cards + Bowlby
+//              sticker CTA + secondary link).
+// • 'detail' — compact silver-foil banner that sits inside the must-eat
+//              detail body, where vertical space is at a premium.
 export default function BoosterOfferInline({ uid, variant }: Props) {
   const { t } = useTranslation()
   const locale = useLocale()
 
-  const onClick = useCallback(() => {
+  const upgradeHref = uid
+    ? (locale === routing.defaultLocale ? '/profile#booster' : `/${locale}/profile#booster`)
+    : (locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
+
+  const onUpgrade = useCallback(() => {
     if (uid) {
-      window.location.href = locale === routing.defaultLocale ? '/profile#booster' : `/${locale}/profile#booster`
+      window.location.href = upgradeHref
     } else {
-      window.location.assign(locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
+      window.location.assign(upgradeHref)
     }
-  }, [uid, locale])
+  }, [uid, upgradeHref])
 
-  const containerClass = variant === 'list' ? styles.boosterOfferList : styles.boosterOffer
+  if (variant === 'list') {
+    // Anon visitors get the free-starter-pack pitch (signup → 20 extra
+    // spots). Signed-in users get the paid Booster/All-Berlin pitch.
+    const isAnon = !uid
 
+    return (
+      <section className={styles.boosterOfferList}>
+        {isAnon ? (
+          <div className={`${styles.boosterStage} ${styles.boosterStageSolo}`} aria-hidden="true">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/pics/booster/booster_free.webp" alt="" loading="lazy" className={`${styles.boosterStageCard} ${styles.boosterStageCardCenter}`} />
+          </div>
+        ) : (
+          <div className={styles.boosterStage} aria-hidden="true">
+            {/* eslint-disable @next/next/no-img-element */}
+            <img src="/pics/booster/booster_lunch.webp" alt="" loading="lazy" className={`${styles.boosterStageCard} ${styles.boosterStageCardLeft}`} />
+            <img src="/pics/booster/booster_dinner.webp" alt="" loading="lazy" className={`${styles.boosterStageCard} ${styles.boosterStageCardCenter}`} />
+            <img src="/pics/booster/booster_drinks.webp" alt="" loading="lazy" className={`${styles.boosterStageCard} ${styles.boosterStageCardRight}`} />
+            {/* eslint-enable @next/next/no-img-element */}
+          </div>
+        )}
+        <div className={styles.boosterPromoCopy}>
+          <h3 className={styles.boosterPromoTitle}>{t(isAnon ? 'map.starterTitle' : 'map.boosterTitle')}</h3>
+          {isAnon && (
+            <p className={styles.boosterPromoSub}>{t('map.starterSubline')}</p>
+          )}
+          <div className={styles.boosterPromoActions}>
+            <button type="button" className={styles.btnPromo} onClick={onUpgrade}>
+              <span className={styles.btnPromoLbl}>
+                {t(isAnon ? 'map.starterCta' : 'map.boosterCta')}
+                {isAnon && (
+                  <svg viewBox="0 0 14 10" aria-hidden="true" className={styles.btnPromoArr}>
+                    <path d="M1 5h11M8 1l4 4-4 4" />
+                  </svg>
+                )}
+              </span>
+              {!isAnon && (
+                <span className={styles.btnPromoPriceTag}>
+                  {t('map.boosterPriceTag')}
+                  <svg viewBox="0 0 14 10" aria-hidden="true">
+                    <path d="M1 5h11M8 1l4 4-4 4" />
+                  </svg>
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  // Detail variant — keep the existing compact silver-foil banner so the
+  // must-eat unlock body stays tight.
   return (
-    <div className={containerClass}>
+    <div className={styles.boosterOffer}>
       <div className={styles.boosterFan} aria-hidden="true">
         {/* eslint-disable @next/next/no-img-element */}
         <img src="/pics/booster/booster_coffee.webp" alt="" loading="lazy" className={`${styles.boosterFanPack} ${styles.boosterFanPackLeft}`} />
@@ -52,7 +109,7 @@ export default function BoosterOfferInline({ uid, variant }: Props) {
         <button
           type="button"
           className={styles.boosterCta}
-          onClick={onClick}
+          onClick={onUpgrade}
         >
           {t('map.boosterCta')}
           <svg className={styles.boosterCtaChevron} aria-hidden="true" width="10" height="10" viewBox="0 0 10 10" fill="none">

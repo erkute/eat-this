@@ -14,6 +14,7 @@ interface MustEatDetailProps {
   onUnlock: () => void
   onClose: () => void
   onBack?: () => void
+  onViewAllMustEats?: () => void
   onViewRestaurant?: () => void
   inSheet?: boolean
   uid?: string | null
@@ -26,6 +27,7 @@ export default function MustEatDetail({
   onUnlock,
   onClose,
   onBack,
+  onViewAllMustEats,
   onViewRestaurant,
   inSheet,
   uid,
@@ -40,6 +42,7 @@ export default function MustEatDetail({
           isUnlocked={isUnlocked}
           onClose={onClose}
           onBack={onBack}
+          onViewAllMustEats={onViewAllMustEats}
           onViewRestaurant={onViewRestaurant}
           uid={uid}
           state={state}
@@ -49,6 +52,7 @@ export default function MustEatDetail({
           mustEat={mustEat}
           isUnlocked={isUnlocked}
           onClose={onClose}
+          onViewAllMustEats={onViewAllMustEats}
           uid={uid}
           state={state}
         />

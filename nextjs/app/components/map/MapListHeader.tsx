@@ -2,7 +2,7 @@
 import { forwardRef, useMemo, useRef, useState, type Ref } from 'react'
 import { useTranslation } from '@/lib/i18n'
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories'
-import type { MapCategory } from '@/lib/types'
+import type { MapCategory, MapLayer } from '@/lib/types'
 import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet'
 import styles from './map.module.css'
 
@@ -30,6 +30,11 @@ interface Props {
   cuisineNames: string[]
   cuisine: string | null
   onCuisine: (name: string | null) => void
+
+  /** Current layer — used to decide whether to render the "Zu den
+   *  Restaurants" switch (only relevant on the must-eats list). */
+  layer: MapLayer
+  onSwitchToRestaurants: () => void
 }
 
 type ChipKind = 'category' | 'bezirk' | 'cuisine'
@@ -42,6 +47,7 @@ export default function MapListHeader({
   openOnly, onOpenOnly,
   bezirkNames, bezirk, onBezirk,
   cuisineNames, cuisine, onCuisine,
+  layer, onSwitchToRestaurants,
 }: Props) {
   const { t, lang } = useTranslation()
   const loc = lang === 'de' ? 'de' : 'en'
@@ -72,96 +78,71 @@ export default function MapListHeader({
 
   return (
     <div ref={headerRef} className={styles.listHeader}>
-      {searchOpen ? (
-        <div className={styles.listHeaderRow}>
-          <input
-            type="text"
-            autoFocus
-            value={search}
-            onChange={e => onSearchChange(e.target.value)}
-            placeholder={t('map.searchPlaceholder')}
-            className={styles.searchInputInline}
-            aria-label={t('nav.searchAriaLabel') ?? 'Search'}
+      {/* Live spot-count — sits in the top-right corner of the sheet, above
+          the chip-row gutter. */}
+      <span className={styles.sheetCountMini}>
+        <span className={styles.liveDot} aria-hidden="true" />
+        {resultCount}{' '}
+        {resultCount === 1 ? t('map.spotsCountOne') : t('map.spotsCountMany')}
+      </span>
+
+      {/* Chip rail — Kategorie · Bezirk · Küche · Jetzt offen. Search and
+          inline result count moved out; search is now a floating toolbar
+          on the map (see MapSectionBody), the count lives in the floating
+          spot-count-mini above. */}
+      <div className={styles.filterChipRow}>
+        <FilterChip
+          ref={categoryBtnRef}
+          label={activeCategoryLabel ?? t('map.filterChipCategory')}
+          active={!!activeCategoryLabel}
+          expanded={openChip === 'category'}
+          onClick={() => setOpenChip(prev => prev === 'category' ? null : 'category')}
+          onReset={activeCategoryLabel ? () => onCategoryChange('All') : undefined}
+        />
+        <FilterChip
+          ref={bezirkBtnRef}
+          label={bezirk ?? t('map.filterChipBezirk')}
+          active={!!bezirk}
+          expanded={openChip === 'bezirk'}
+          onClick={() => setOpenChip(prev => prev === 'bezirk' ? null : 'bezirk')}
+          onReset={bezirk ? () => onBezirk(null) : undefined}
+        />
+        {cuisineNames.length > 0 && (
+          <FilterChip
+            ref={cuisineBtnRef}
+            label={cuisine ?? t('map.filterChipCuisine')}
+            active={!!cuisine}
+            expanded={openChip === 'cuisine'}
+            onClick={() => setOpenChip(prev => prev === 'cuisine' ? null : 'cuisine')}
+            onReset={cuisine ? () => onCuisine(null) : undefined}
           />
+        )}
+        <button
+          type="button"
+          className={`${styles.filterChip} ${openOnly ? styles.filterChipOpenActive : ''}`}
+          onClick={() => onOpenOnly(!openOnly)}
+          aria-pressed={openOnly}
+        >
+          <span className={styles.filterChipLabel}>{t('map.filterChipOpen')}</span>
+        </button>
+      </div>
+
+      {/* Layer-Switch sitzt im selben Header-Block wie die Filter, nur in
+          einer eigenen Zeile darunter — sichtbar nur in der Must-Eats-
+          Ansicht damit der Weg zurück zu den Restaurants klar ist. */}
+      {layer === 'mustEats' && (
+        <div className={styles.filterSwitchRow}>
           <button
             type="button"
-            className={styles.searchCloseBtn}
-            onClick={() => { setSearchOpen(false); onSearchChange('') }}
-            aria-label={t('map.searchClose')}
+            className={styles.musteatListSwitchBtn}
+            onClick={onSwitchToRestaurants}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <line x1="6" y1="6" x2="18" y2="18" />
-              <line x1="18" y1="6" x2="6" y2="18" />
+            <svg viewBox="0 0 16 11" aria-hidden="true">
+              <path d="M15 5.5H2M6.5 1L2 5.5l4.5 4.5" />
             </svg>
+            Zu den Restaurants
           </button>
         </div>
-      ) : (
-        /* Two-row header (Google / Apple Maps pattern):
-           Row 1 — count + the "Open now" binary toggle + search-icon.
-           Open-now stays out of the scrolling rail so the most-used filter
-           is always visible and one tap away.
-           Row 2 — horizontal-scroll chip rail with the pickers. */
-        <>
-          <div className={styles.listHeaderRow}>
-            <span className={styles.listHeaderCount}>
-              {resultCount}{' '}
-              {resultCount === 1 ? t('map.restaurantOne') : t('map.restaurantMany')}
-            </span>
-            <div className={styles.listHeaderActions}>
-              <button
-                type="button"
-                className={`${styles.filterChip} ${openOnly ? styles.filterChipOpenActive : ''}`}
-                onClick={() => onOpenOnly(!openOnly)}
-                aria-pressed={openOnly}
-              >
-                <span className={styles.filterChipLabel}>{t('map.filterChipOpen')}</span>
-              </button>
-              <button
-                type="button"
-                className={`${styles.filterIconBtn} ${search ? styles.filterIconBtnActive : ''}`}
-                onClick={() => setSearchOpen(true)}
-                aria-label={t('map.searchOpenAria')}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <circle cx="11" cy="11" r="7" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                {search && <span className={styles.filterActiveDot} aria-hidden="true" />}
-              </button>
-            </div>
-          </div>
-
-          <div className={styles.filterChipRow}>
-            <FilterChip
-              ref={categoryBtnRef}
-              label={activeCategoryLabel ?? t('map.filterChipCategory')}
-              active={!!activeCategoryLabel}
-              expanded={openChip === 'category'}
-              onClick={() => setOpenChip(prev => prev === 'category' ? null : 'category')}
-              onReset={activeCategoryLabel ? () => onCategoryChange('All') : undefined}
-            />
-            <FilterChip
-              ref={bezirkBtnRef}
-              label={bezirk ?? t('map.filterChipBezirk')}
-              active={!!bezirk}
-              expanded={openChip === 'bezirk'}
-              onClick={() => setOpenChip(prev => prev === 'bezirk' ? null : 'bezirk')}
-              onReset={bezirk ? () => onBezirk(null) : undefined}
-            />
-            {cuisineNames.length > 0 && (
-              <FilterChip
-                ref={cuisineBtnRef}
-                label={cuisine ?? t('map.filterChipCuisine')}
-                active={!!cuisine}
-                expanded={openChip === 'cuisine'}
-                onClick={() => setOpenChip(prev => prev === 'cuisine' ? null : 'cuisine')}
-                onReset={cuisine ? () => onCuisine(null) : undefined}
-              />
-            )}
-          </div>
-        </>
       )}
 
       {openChip === 'category' && (

@@ -1,10 +1,11 @@
 'use client'
 import { Fragment } from 'react'
 import type { MapRestaurant, OpenStatus } from '@/lib/types'
-import { haversineDistance, formatWalkingTime, getOpenStatus, type UserLocation, type UserTier } from '@/lib/map'
+import { haversineDistance, formatWalkingTime, getOpenStatus, abbreviateBezirk, type UserLocation, type UserTier } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { localizedCategoryName } from '@/lib/categories'
 import { formatPriceLabel } from './restaurantDetail.helpers'
+import { normalizeName } from '@/lib/normalizeName'
 import BoosterOfferInline from './BoosterOfferInline'
 import MapListEmpty from './MapListEmpty'
 import styles from './map.module.css'
@@ -35,66 +36,74 @@ function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
     ? haversineDistance(userLocation.lat, userLocation.lng, restaurant.lat, restaurant.lng)
     : null
   const walkingTime = meters !== null ? formatWalkingTime(meters) : null
-  const district = restaurant.bezirk?.name ?? restaurant.district ?? null
 
-  /* Split the contextual status label — `getOpenStatus` returns
-     "Geöffnet · schließt 22:00" / "Geschlossen · öffnet 9:00" — into a colored
-     primary word and a muted suffix. Apple/Google Maps treatment: no capsule. */
+  // Prenzlauer Berg shortens to P'berg so the mustard sticker stays one line.
+  const district = abbreviateBezirk(restaurant.bezirk?.name ?? restaurant.district ?? null)
+
+  // One category in the eyebrow — the detail page is where the full set lives.
+  const categoryLabel = restaurant.categories?.[0]
+    ? localizedCategoryName(restaurant.categories[0], loc)
+    : null
+
+  const priceLabel = formatPriceLabel(restaurant)
+
+  // Status label: `getOpenStatus` returns "Geöffnet · schließt 22:00" /
+  // "Geschlossen · öffnet 9:00". The main word drives the dot-lockup;
+  // the suffix becomes the small `bis 22:00` under it.
   const [statusMain, ...statusRest] = status.label ? status.label.split(' · ') : []
   const statusSub = statusRest.join(' · ')
 
   return (
     <button
-      className={`${styles.row} ${isSelected ? styles.rowActive : ''}`}
+      type="button"
+      className={`${styles.rrow} ${isSelected ? styles.rrowActive : ''}`}
       onClick={() => onClick(restaurant)}
     >
-      <div className={styles.rowPhotoWrap}>
-        {restaurant.photo ? (
-          <img src={restaurant.photo} alt="" className={styles.rowPhoto} loading="lazy" />
-        ) : (
-          <div className={styles.rowPhotoPlaceholder} aria-hidden="true">🍽</div>
-        )}
+      <div
+        className={styles.rrowCoral}
+        style={restaurant.photo ? { backgroundImage: `url(${restaurant.photo})` } : undefined}
+      >
         {restaurant.mustEatCount > 0 && (
           <img
             src="/pics/card-back.webp"
             alt=""
-            className={styles.rowMustOverlay}
+            className={styles.rrowMust}
             aria-hidden="true"
             draggable={false}
           />
         )}
       </div>
 
-      <div className={styles.rowMain}>
-        <div className={styles.rowName}>{restaurant.name}</div>
-        {district && (
-          <div className={styles.rowDistrict}>{district}</div>
-        )}
-        <div className={styles.rowMeta}>
-          <span className={styles.rowMetaText}>
-            {[
-              formatPriceLabel(restaurant),
-              restaurant.categories?.slice(0, 3).map(c => localizedCategoryName(c, loc)).join(' · '),
-              walkingTime,
-            ]
-              .filter(Boolean)
-              .join(' · ')}
-          </span>
-        </div>
+      <div className={styles.rrowMeta}>
+        <p className={styles.rrowEye}>
+          {district && <span className={styles.rrowBezirk}>{district}</span>}
+          {categoryLabel && <span className={styles.rrowCat}>{categoryLabel}</span>}
+        </p>
+        <h3 className={styles.rrowTitle}>{normalizeName(restaurant.name)}</h3>
+        <p className={styles.rrowInfo}>
+          {priceLabel && <span>{priceLabel}</span>}
+          {priceLabel && walkingTime && <span className={styles.rrowInfoSep} aria-hidden="true" />}
+          {walkingTime && (
+            <span>
+              <svg className={styles.walkIco} viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7" />
+              </svg>
+              {walkingTime}
+            </span>
+          )}
+        </p>
       </div>
 
-      <div className={styles.rowSide}>
+      <div className={styles.rrowAside}>
         {statusMain && (
           <span
-            className={`${styles.rowStatus} ${status.isOpen ? styles.rowStatusOpen : styles.rowStatusClosed}`}
+            className={`${styles.rrowStatus} ${status.isOpen ? '' : styles.rrowStatusClosed}`}
             role="status"
           >
             {statusMain}
           </span>
         )}
-        {statusSub && (
-          <span className={styles.rowStatusSub}>{statusSub}</span>
-        )}
+        {statusSub && <span className={styles.rrowWhen}>{statusSub}</span>}
       </div>
     </button>
   )
@@ -109,8 +118,10 @@ interface RestaurantListProps {
   onSelect: (r: MapRestaurant) => void
 }
 
-// Booster CTA gets injected after the 10th restaurant for starter-tier
-// users. Anon visitors and All-Berlin users get a clean list.
+// Booster CTA gets injected after the 10th restaurant for everyone who
+// hasn't bought the All-Berlin pack yet — anon visitors AND signed-in
+// starters both still have something to buy, so the promo is relevant
+// for both. Hidden only for All-Berlin owners (nothing left to upsell).
 const BOOSTER_AT = 10
 
 export default function RestaurantList({
@@ -118,14 +129,19 @@ export default function RestaurantList({
 }: RestaurantListProps) {
   if (restaurants.length === 0) return <MapListEmpty />
 
-  const showBooster = userTier === 'starter'
+  const showBooster = userTier !== 'allBerlin'
   const insertAt = Math.min(BOOSTER_AT, restaurants.length)
+
+  // Booster appears either AFTER row 10 (long list) or appended at the
+  // end (short list — e.g. after a filter narrows things down). Either
+  // way the upgrade pitch is in the scroll for anon/starter users.
+  const boosterAtEnd = showBooster && restaurants.length < BOOSTER_AT
 
   return (
     <>
       {restaurants.map((r, i) => (
         <Fragment key={r._id}>
-          {showBooster && i === insertAt && (
+          {showBooster && !boosterAtEnd && i === insertAt && (
             <BoosterOfferInline uid={uid} variant="list" />
           )}
           <Item
@@ -136,6 +152,7 @@ export default function RestaurantList({
           />
         </Fragment>
       ))}
+      {boosterAtEnd && <BoosterOfferInline uid={uid} variant="list" />}
     </>
   )
 }

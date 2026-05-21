@@ -54,8 +54,10 @@ export default function MapSection({ isActive = false }: Props) {
 
   const {
     restaurants,
+    lockedRestaurants,
     mustEats,
     categories,
+    totalCount,
     refetch: refetchMapData,
   } = useMapData({ uid, authLoading })
   useInitialFit(mapRef, restaurants)
@@ -107,8 +109,8 @@ export default function MapSection({ isActive = false }: Props) {
     openOnly, setOpenOnly,
     bezirkNames, bezirkCenters,
     cuisineNames,
-    displayedRestaurants, displayedMustEats,
-  } = useMapFilters({ restaurants, mustEats, location })
+    displayedRestaurants, displayedLockedRestaurants, displayedMustEats,
+  } = useMapFilters({ restaurants, lockedRestaurants, mustEats, location })
 
   const [mapZoom,            setMapZoom]            = useState(12)
   const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
@@ -550,8 +552,10 @@ export default function MapSection({ isActive = false }: Props) {
       dragging={dragging}
       layer={layer}
       displayedRestaurants={displayedRestaurants}
+      displayedLockedRestaurants={displayedLockedRestaurants}
       fannedMustEats={fannedMustEats}
       displayedMustEats={displayedMustEats}
+      totalCount={totalCount}
       restaurantMustEats={restaurantMustEats}
       selectedRestaurant={selectedRestaurant}
       selectedMustEat={selectedMustEat}

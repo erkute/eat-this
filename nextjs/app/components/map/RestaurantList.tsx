@@ -1,5 +1,7 @@
 'use client'
-import { Fragment } from 'react'
+import { Fragment, useCallback } from 'react'
+import { useLocale } from 'next-intl'
+import { routing } from '@/i18n/routing'
 import type { MapRestaurant, OpenStatus } from '@/lib/types'
 import { haversineDistance, formatWalkingTime, getOpenStatus, abbreviateBezirk, type UserLocation, type UserTier } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
@@ -14,10 +16,13 @@ interface ItemProps {
   restaurant: MapRestaurant
   userLocation: UserLocation | null
   isSelected: boolean
+  /** Visual-only blurred preview row — click routes to the booster/signup
+   *  flow instead of opening restaurant detail. */
+  locked?: boolean
   onClick: (r: MapRestaurant) => void
 }
 
-function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
+function Item({ restaurant, userLocation, isSelected, locked, onClick }: ItemProps) {
   const { t, lang } = useTranslation()
   const loc = lang === 'de' ? 'de' : 'en'
   const statusLabels = {
@@ -56,14 +61,15 @@ function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
   return (
     <button
       type="button"
-      className={`${styles.rrow} ${isSelected ? styles.rrowActive : ''}`}
+      className={`${styles.rrow} ${isSelected ? styles.rrowActive : ''} ${locked ? styles.rrowLocked : ''}`}
       onClick={() => onClick(restaurant)}
+      aria-label={locked ? t('map.starterEyebrow') : undefined}
     >
       <div
         className={styles.rrowCoral}
         style={restaurant.photo ? { backgroundImage: `url(${restaurant.photo})` } : undefined}
       >
-        {restaurant.mustEatCount > 0 && (
+        {restaurant.mustEatCount > 0 && !locked && (
           <img
             src="/pics/card-back.webp"
             alt=""
@@ -111,6 +117,9 @@ function Item({ restaurant, userLocation, isSelected, onClick }: ItemProps) {
 
 interface RestaurantListProps {
   restaurants: MapRestaurant[]
+  /** Locked-preview rows rendered after the booster banner. Empty for
+   *  All-Berlin owners (nothing to upsell). */
+  lockedRestaurants?: MapRestaurant[]
   userLocation: UserLocation | null
   selectedId: string | null
   uid: string | null
@@ -118,41 +127,55 @@ interface RestaurantListProps {
   onSelect: (r: MapRestaurant) => void
 }
 
-// Booster CTA gets injected after the 10th restaurant for everyone who
-// hasn't bought the All-Berlin pack yet — anon visitors AND signed-in
-// starters both still have something to buy, so the promo is relevant
-// for both. Hidden only for All-Berlin owners (nothing left to upsell).
-const BOOSTER_AT = 10
-
 export default function RestaurantList({
-  restaurants, userLocation, selectedId, uid, userTier, onSelect,
+  restaurants, lockedRestaurants = [], userLocation, selectedId, uid, userTier, onSelect,
 }: RestaurantListProps) {
-  if (restaurants.length === 0) return <MapListEmpty />
+  const locale = useLocale()
 
+  // Locked-row click routes to the same upgrade target the booster banner
+  // CTA uses — anon → /login, signed-in → /profile#booster. Keeps the
+  // conversion path consistent regardless of which surface the user clicks.
+  const upgradeHref = uid
+    ? (locale === routing.defaultLocale ? '/profile#booster' : `/${locale}/profile#booster`)
+    : (locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
+
+  const handleLockedClick = useCallback((_r: MapRestaurant) => {
+    window.location.assign(upgradeHref)
+  }, [upgradeHref])
+
+  if (restaurants.length === 0 && lockedRestaurants.length === 0) return <MapListEmpty />
+
+  // Booster CTA sits between unlocked and locked groups — communicates
+  // „these are yours / these unlock with signup". Hidden only for the
+  // All-Berlin tier (nothing left to upsell). When the unlocked list is
+  // empty (filter mismatched the trial set) the banner sits at the very
+  // top so the user still sees the upsell.
   const showBooster = userTier !== 'allBerlin'
-  const insertAt = Math.min(BOOSTER_AT, restaurants.length)
-
-  // Booster appears either AFTER row 10 (long list) or appended at the
-  // end (short list — e.g. after a filter narrows things down). Either
-  // way the upgrade pitch is in the scroll for anon/starter users.
-  const boosterAtEnd = showBooster && restaurants.length < BOOSTER_AT
 
   return (
     <>
-      {restaurants.map((r, i) => (
-        <Fragment key={r._id}>
-          {showBooster && !boosterAtEnd && i === insertAt && (
-            <BoosterOfferInline uid={uid} variant="list" />
-          )}
-          <Item
-            restaurant={r}
-            userLocation={userLocation}
-            isSelected={selectedId === r._id}
-            onClick={onSelect}
-          />
-        </Fragment>
+      {restaurants.map((r) => (
+        <Item
+          key={r._id}
+          restaurant={r}
+          userLocation={userLocation}
+          isSelected={selectedId === r._id}
+          onClick={onSelect}
+        />
       ))}
-      {boosterAtEnd && <BoosterOfferInline uid={uid} variant="list" />}
+      {showBooster && (lockedRestaurants.length > 0 || restaurants.length === 0) && (
+        <BoosterOfferInline uid={uid} variant="list" />
+      )}
+      {lockedRestaurants.map((r) => (
+        <Item
+          key={`locked-${r._id}`}
+          restaurant={r}
+          userLocation={userLocation}
+          isSelected={false}
+          locked
+          onClick={handleLockedClick}
+        />
+      ))}
     </>
   )
 }

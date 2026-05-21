@@ -43,9 +43,15 @@ interface MapBodyState {
   layer: MapLayer
   desktopPanelHidden: boolean
   displayedRestaurants: MapRestaurant[]
+  /** Locked preview rows — same filter pipeline as displayedRestaurants,
+   *  rendered as blurred entries below the booster banner in the list. */
+  displayedLockedRestaurants: MapRestaurant[]
   fannedMustEats: MustEatWithDisplay<MapMustEat>[]
   displayedMustEats: MapMustEat[]
   restaurantMustEats: MapMustEat[]
+  /** Total restaurant count in Sanity — shown in the sheet-count-mini so
+   *  visitors see the catalog size, not the trial-cap-filtered count. */
+  totalCount: number
   selectedRestaurant: MapRestaurant | null
   selectedMustEat: MapMustEat | null
   unlockedIds: Set<string>
@@ -114,7 +120,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     isActive,
     mapRef, handleRef, setHeaderRef, setContentRef, setSheetRef,
     sheetView, snap, dragging, layer,
-    displayedRestaurants, fannedMustEats, displayedMustEats, restaurantMustEats,
+    displayedRestaurants, displayedLockedRestaurants, fannedMustEats, displayedMustEats, restaurantMustEats,
+    totalCount,
     selectedRestaurant, selectedMustEat,
     unlockedIds, favoriteIds, location, uid, userTier,
     categories, category, setCategory, search, bezirk, bezirkNames,
@@ -342,6 +349,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 <MapListHeader
                   headerRef={setHeaderRef}
                   resultCount={layer === 'restaurants' ? displayedRestaurants.length : displayedMustEats.length}
+                  totalCount={totalCount}
                   searchOpen={searchOpen}
                   setSearchOpen={setSearchOpen}
                   search={search}
@@ -364,6 +372,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   <div ref={setContentRef} className={styles.listScroll}>
                     <RestaurantList
                       restaurants={displayedRestaurants}
+                      lockedRestaurants={displayedLockedRestaurants}
                       userLocation={location}
                       selectedId={selectedRestaurant?._id ?? null}
                       uid={uid}

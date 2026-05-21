@@ -9,7 +9,12 @@ import styles from './map.module.css'
 interface Props {
   headerRef: Ref<HTMLDivElement | null>
 
+  /** Currently visible / filtered count — what's actually in the list now
+   *  (20 for an anon viewer with no filter, less with a filter applied). */
   resultCount: number
+  /** Catalog size — total restaurants in Sanity, independent of trial cap
+   *  / current filters. Pairs with resultCount to read „20 / 172 SPOTS". */
+  totalCount: number
 
   searchOpen: boolean
   setSearchOpen: (open: boolean) => void
@@ -42,6 +47,7 @@ type ChipKind = 'category' | 'bezirk' | 'cuisine'
 export default function MapListHeader({
   headerRef,
   resultCount,
+  totalCount,
   searchOpen, setSearchOpen, search, onSearchChange,
   categories, category, onCategoryChange,
   openOnly, onOpenOnly,
@@ -78,11 +84,13 @@ export default function MapListHeader({
 
   return (
     <div ref={headerRef} className={styles.listHeader}>
-      {/* Live spot-count — sits in the top-right corner of the sheet, above
-          the chip-row gutter. */}
+      {/* Catalog-progress badge — sits in the sheet header. Format:
+          „{visible} / {total} SPOTS" — communicates both what the viewer
+          can currently see (trial-capped at 20 for anon) and the full
+          Sanity catalog size, so the trial feels like a slice of a bigger
+          guide, not an arbitrary limit. */}
       <span className={styles.sheetCountMini}>
-        <span className={styles.liveDot} aria-hidden="true" />
-        {resultCount}{' '}
+        {resultCount} / {totalCount}{' '}
         {resultCount === 1 ? t('map.spotsCountOne') : t('map.spotsCountMany')}
       </span>
 

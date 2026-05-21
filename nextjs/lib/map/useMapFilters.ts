@@ -3,8 +3,16 @@ import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types'
 import { getOpenStatus } from './openingHours'
 import { haversineDistance } from './distance'
 
+// Locked-preview teaser cap. Matched die „20 weitere Spots"-Booster-Copy
+// damit der Reveal nach Signup gefühlt 1:1 das ist was unter dem Banner
+// blurry war. 150 Rows wären Overwhelm, 20 fühlt sich machbar an.
+const LOCKED_PREVIEW_SIZE = 20
+
 interface Args {
   restaurants: MapRestaurant[]
+  /** Visible-but-not-clickable preview rows — filtered through the same
+   *  pipeline so a Pizza-Filter shrinks both unlocked AND locked groups. */
+  lockedRestaurants?: MapRestaurant[]
   mustEats: MapMustEat[]
   location: { lat: number; lng: number } | null
 }
@@ -13,7 +21,7 @@ function districtOf(r: MapRestaurant): string | null {
   return r.bezirk?.name ?? r.district ?? null
 }
 
-export function useMapFilters({ restaurants, mustEats, location }: Args) {
+export function useMapFilters({ restaurants, lockedRestaurants = [], mustEats, location }: Args) {
   const [category, setCategory] = useState<MapCategory>('All')
   const [search,   setSearch]   = useState('')
   const [bezirk,   setBezirk]   = useState<string | null>(null)
@@ -88,6 +96,22 @@ export function useMapFilters({ restaurants, mustEats, location }: Args) {
     })
   }, [restaurants, filterRestaurant, location])
 
+  // Same filter + distance sort applied to the locked preview rows. Keeps
+  // the locked group consistent with the active filter — Pizza filter
+  // shrinks BOTH unlocked-pizza AND locked-pizza groups. Capped at 20 so
+  // the list reads as a teaser („20 weitere Spots") not a dump of 150 rows.
+  const displayedLockedRestaurants = useMemo(() => {
+    const filtered = lockedRestaurants.filter(filterRestaurant)
+    const sorted = location
+      ? [...filtered].sort((a, b) => {
+          const aD = haversineDistance(location.lat, location.lng, a.lat, a.lng)
+          const bD = haversineDistance(location.lat, location.lng, b.lat, b.lng)
+          return aD - bD
+        })
+      : filtered
+    return sorted.slice(0, LOCKED_PREVIEW_SIZE)
+  }, [lockedRestaurants, filterRestaurant, location])
+
   /* Restaurant-by-ID index so a must-eat can be tested against the same
      filters as its parent restaurant (categories, cuisine, openingHours).
      The embedded `mustEat.restaurant` shape only carries id/name/lat/lng,
@@ -139,6 +163,7 @@ export function useMapFilters({ restaurants, mustEats, location }: Args) {
     bezirkNames, bezirkCenters,
     cuisineNames,
     displayedRestaurants,
+    displayedLockedRestaurants,
     displayedMustEats,
   }
 }

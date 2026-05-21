@@ -11,8 +11,15 @@ interface UseMapDataArgs {
 
 interface MapData {
   restaurants: MapRestaurant[]
+  /** Visible-but-locked rows — rendered as blurred preview entries in the
+   *  list so anon/partial-entitlement viewers see catalog depth. Click on a
+   *  locked row routes to the booster/signup flow, not the detail view. */
+  lockedRestaurants: MapRestaurant[]
   mustEats:    MapMustEat[]
   categories:  CategoryDef[]
+  /** Total restaurant count in Sanity — independent of trial cap / entitlements.
+   *  Surfaced so the sheet-count-mini reads catalog size, not filtered result. */
+  totalCount:  number
   loading:     boolean
   error:       string | null
   refetch:     () => void
@@ -20,11 +27,13 @@ interface MapData {
 
 
 export function useMapData({ uid, authLoading }: UseMapDataArgs): MapData {
-  const [restaurants, setRestaurants] = useState<MapRestaurant[]>([])
-  const [mustEats,    setMustEats]    = useState<MapMustEat[]>([])
-  const [categories,  setCategories]  = useState<CategoryDef[]>([])
-  const [loading,     setLoading]     = useState(true)
-  const [error,       setError]       = useState<string | null>(null)
+  const [restaurants,       setRestaurants]       = useState<MapRestaurant[]>([])
+  const [lockedRestaurants, setLockedRestaurants] = useState<MapRestaurant[]>([])
+  const [mustEats,          setMustEats]          = useState<MapMustEat[]>([])
+  const [categories,        setCategories]        = useState<CategoryDef[]>([])
+  const [totalCount,        setTotalCount]        = useState(0)
+  const [loading,           setLoading]           = useState(true)
+  const [error,             setError]             = useState<string | null>(null)
   // Bump when refetch() is invoked to re-fire the fetch effect.
   const [tick,        setTick]        = useState(0)
   const refetch = useCallback(() => setTick((n) => n + 1), [])
@@ -54,8 +63,10 @@ export function useMapData({ uid, authLoading }: UseMapDataArgs): MapData {
         const json = await r.json()
         if (latestReqRef.current !== reqId) return  // stale — newer fetch in flight
         setRestaurants(json.restaurants ?? [])
+        setLockedRestaurants(json.lockedRestaurants ?? [])
         setMustEats(json.mustEats ?? [])
         setCategories(json.categories ?? [])
+        setTotalCount(json.totalCount ?? 0)
       } catch (e) {
         if (latestReqRef.current !== reqId) return
         setError((e as Error).message)
@@ -65,5 +76,5 @@ export function useMapData({ uid, authLoading }: UseMapDataArgs): MapData {
     })()
   }, [uid, authLoading, tick])
 
-  return { restaurants, mustEats, categories, loading, error, refetch }
+  return { restaurants, lockedRestaurants, mustEats, categories, totalCount, loading, error, refetch }
 }

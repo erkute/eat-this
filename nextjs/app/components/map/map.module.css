@@ -189,37 +189,39 @@ html[data-theme="dark"] .bodyPanelHidden .panelToggle {
 }
 .mapWrap :global(.maplibregl-ctrl-attrib a) { color: var(--text-secondary); }
 
-/* Glass treatment for the default zoom controls — sit bottom-right, just above
-   the bottom sheet so they never collide with the toolbar or the list. */
+/* Editorial-sticker treatment for the default zoom controls — sit bottom-
+   right (desktop only; mobile hides them in favour of pinch-zoom). Same
+   sticker vocabulary as .fab + .musteatListSwitchBtn so the control stack
+   reads as one consistent family. */
 .mapWrap :global(.maplibregl-ctrl-bottom-right) {
   right: 12px;
   bottom: 12px;
 }
 .mapWrap :global(.maplibregl-ctrl-group) {
-  background: rgba(255, 255, 255, 0.28) !important;
-  backdrop-filter: blur(18px) saturate(1.4);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, 0.5) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 6px 16px rgba(17, 24, 39, 0.12) !important;
-  border-radius: 12px !important;
+  background: #ffffff !important;
+  border: 1.5px solid var(--c-black) !important;
+  box-shadow: 2px 2px 0 var(--c-black) !important;
+  border-radius: 0 !important;
   overflow: hidden;
 }
 html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-group) {
-  background: rgba(30, 30, 30, 0.35) !important;
-  border-color: rgba(255, 255, 255, 0.14) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    0 8px 20px rgba(0, 0, 0, 0.45) !important;
+  background: #fbf5e2 !important;
+  border-color: var(--c-black) !important;
+  box-shadow: 2px 2px 0 var(--c-cream) !important;
 }
 .mapWrap :global(.maplibregl-ctrl-group button) {
   width: 34px;
   height: 34px;
   background: transparent !important;
+  color: var(--c-black);
 }
 .mapWrap :global(.maplibregl-ctrl-group button + button) {
-  border-top: 1px solid rgba(255, 255, 255, 0.35) !important;
+  border-top: 1.5px solid var(--c-black) !important;
+}
+@media (hover: hover) {
+  .mapWrap :global(.maplibregl-ctrl-group button:hover) {
+    background: var(--c-cream) !important;
+  }
 }
 @media (max-width: 1023.98px) {
   /* useBottomSheet sets `bottom` inline on these so they ride above the sheet.
@@ -302,50 +304,55 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-comp
   color: #e5e7eb;
 }
 
-/* Locate FAB — glass style, identical on mobile + desktop, matches the
-   maplibre zoom controls so they read as one cohesive control stack. */
+/* Locate FAB — editorial sticker vocabulary, mirroring .musteatListSwitchBtn
+   and the filter-chip family. Solid white + 1.5px black border + 2px hard-
+   offset shadow. Identical recipe across mobile + desktop so the control
+   stack reads as one consistent sticker-family. */
 .fab {
   position: absolute;
   right: 12px;
-  /* Mobile: bottom-right, riding the top edge of the sheet (Google-Maps
-     style). The +14 px offset puts it just above the sheet so it stays
-     touchable at every snap. Desktop overrides below. */
+  /* Mobile: bottom-right, riding the top edge of the sheet. The +14 px
+     offset puts it just above the sheet so it stays touchable at every
+     snap. Desktop overrides below. */
   bottom: calc(var(--sheet-visible-px, 80px) + 14px);
   z-index: 6;
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.28);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(18px) saturate(1.4);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 6px 16px rgba(17, 24, 39, 0.12);
+  width: 38px;
+  height: 38px;
+  border-radius: 0;
+  color: var(--c-black);
+  background: #ffffff;
+  border: 1.5px solid var(--c-black);
+  box-shadow: 2px 2px 0 var(--c-black);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s, color 0.15s, border-color 0.15s, opacity 0.18s ease;
+  transition: transform 140ms ease, box-shadow 140ms ease, background 120ms ease, color 120ms ease, opacity 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 @media (min-width: 1024px) {
-  /* Desktop: bottom-right corner of the map. Zoom controls have been
-     removed, so the FAB sits flush in the corner with the same edge
-     margins MapLibre would use for its own controls. */
+  /* Desktop: bottom-right corner of the map. Zoom controls live in the same
+     corner above the FAB; same edge margins MapLibre would use. */
   .fab { right: 12px; bottom: 12px; top: auto; }
 }
 html[data-theme="dark"] .fab {
-  background: rgba(30, 30, 30, 0.45);
-  border-color: rgba(255, 255, 255, 0.14);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    0 8px 20px rgba(0, 0, 0, 0.45);
+  background: #fbf5e2;
+  color: var(--c-black);
+  border-color: var(--c-black);
+  box-shadow: 2px 2px 0 var(--c-cream);
 }
-/* Hover-only on devices that actually support hover — prevents the orange
-   colour from sticking on touch devices after a tap (no mouseleave fires). */
+/* Hover-only on devices that actually support hover — prevents the lift
+   from sticking on touch devices after a tap (no mouseleave fires). */
 @media (hover: hover) {
-  .fab:hover { color: var(--accent); border-color: var(--accent); }
+  .fab:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 var(--c-black);
+    background: var(--c-cream);
+  }
+  html[data-theme="dark"] .fab:hover {
+    background: #ffffff;
+    box-shadow: 3px 3px 0 var(--c-cream);
+  }
 }
 
 /* Hide +/− zoom controls on mobile — pinch-to-zoom replaces them */
@@ -673,12 +680,16 @@ html[data-theme="dark"] .list { background: #1c1c1c; }
   border: 1.5px solid var(--c-black);
   background: #ffffff;
   color: var(--c-black);
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  /* Saira Condensed wegen „Zu den Restaurants" — consistency mit den Filter-
+     Chips + Picker, die aus dem gleichen Latin-Ext-Grund umgestellt sind.
+     line-height 1.2 + leichter top-Padding-Vorteil gegen Diacritic-Clipping. */
+  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
   font-weight: 900;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 5px 10px 6px;
+  line-height: 1.2;
+  padding: 6px 10px 6px;
   border-radius: 0;
   cursor: pointer;
   box-shadow: 2px 2px 0 var(--c-black);
@@ -1040,6 +1051,25 @@ html[data-theme="dark"] .rrow { background: #0a0a0a; }
 }
 .rrowActive {
   background: var(--surface-raised);
+}
+
+/* Locked preview row — anon/partial-entitlement viewer sees the row as
+   a fully-blurred teaser (kein Schloss-Icon, kein lesbarer Name — der Blur
+   selbst signalisiert „gesperrt"). Click routes to the booster/login flow
+   (RestaurantList.tsx → handleLockedClick). */
+.rrowLocked .rrowCoral {
+  filter: blur(8px) saturate(0.55);
+  pointer-events: none;
+}
+.rrowLocked .rrowMeta {
+  filter: blur(5px);
+  pointer-events: none;
+  user-select: none;
+}
+.rrowLocked .rrowAside {
+  filter: blur(5px);
+  pointer-events: none;
+  user-select: none;
 }
 
 .rrowCoral {
@@ -2588,7 +2618,9 @@ html[data-theme="dark"] .mustEatHero {
   align-self: flex-start;
   flex-shrink: 0;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 /* Sticker-style CTA: two-tone (Saira label + price-tag) with hard offset shadow */
@@ -3077,43 +3109,28 @@ html[data-theme="dark"] .filterLayerTabActive {
   flex-shrink: 0;
 }
 
-/* Floating spot-count-mini — tiny live-pulse indicator top-right of the
-   sheet, sits over the chip row's top-padding gutter. */
+/* Catalog-progress badge — sits in the sheet header gutter top-left.
+   Reads „{visible} / {total} SPOTS" so the trial-cap reads as a slice of
+   a bigger guide, not an arbitrary limit. Saira Condensed matched zur
+   Filter-Chip-Familie (gleicher UI-Caps-Layer). */
 .sheetCountMini {
   position: absolute;
   top: 2px;
   left: 14px;
   display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
   font-weight: 900;
-  font-size: 9.5px;
-  letter-spacing: 0.14em;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-secondary);
   z-index: 5;
   pointer-events: none;
 }
-.sheetCountMini .liveDot {
-  width: 5px;
-  height: 5px;
-  background: #34a85a;
-  border-radius: 50%;
-  flex-shrink: 0;
-  box-shadow: 0 0 0 0 rgba(52, 168, 90, 0.7);
-  animation: pulseLive 2.2s ease-out infinite;
-}
-@keyframes pulseLive {
-  0%   { box-shadow: 0 0 0 0 rgba(52, 168, 90, 0.85); }
-  70%  { box-shadow: 0 0 0 4px rgba(52, 168, 90, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(52, 168, 90, 0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .sheetCountMini .liveDot { animation: none; }
-}
 @media (min-width: 1024px) {
-  .sheetCountMini { top: 14px; left: 22px; font-size: 10.5px; }
+  .sheetCountMini { top: 14px; left: 22px; font-size: 11.5px; }
 }
 
 /* Zone C — category chip row. Sits between the header drag zone and the
@@ -3327,12 +3344,8 @@ html[data-theme="dark"] .filterLayerTabActive {
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   padding: 24px 14px 10px;
-  /* fit-content + margin-inline auto zentriert die Row im Parent solange
-     die Chips reinpassen. Wenn sie überquillen, max-width: 100% klemmt
-     den Container und overflow-x scrollt — kein clipping am Start. */
-  width: fit-content;
-  max-width: 100%;
-  margin-inline: auto;
+  /* Linksbündig: Chips starten am 14px-Padding-Rand. Overflow-x scrollt
+     wenn sie nicht reinpassen, kein Centering. */
 }
 .filterChipRow::-webkit-scrollbar { display: none; }
 @media (min-width: 1024px) {
@@ -3357,17 +3370,23 @@ html[data-theme="dark"] .filterLayerTabActive {
   border: 1px solid var(--c-black);
   background: var(--c-cream);
   color: var(--c-black);
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
-  font-weight: 400;
-  font-size: 10px;
-  letter-spacing: 0.02em;
+  /* Saira Condensed statt Bowlby: Bowlby's latin-Subset hat keine deutschen
+     Umlaute (Ü/Ö broken in „KÜCHE"/„JETZT GEÖFFNET"); Saira hat volles
+     Latin-Extended + ist als Condensed-Sans bei 10px ohnehin lesbarer. */
+  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 4px 9px 5px;
+  /* Top-Padding etwas größer als Bottom, damit die Umlaut-Punkte (Ü/Ö)
+     der uppercase Caps Luft nach oben haben — line-height 1.2 statt 1
+     verhindert Diacritic-Clipping durch die Border. */
+  padding: 6px 9px 5px;
   border-radius: 0;
   cursor: pointer;
   box-shadow: 2px 2px 0 var(--c-black);
   transition: transform 140ms ease, box-shadow 140ms ease, background 120ms ease, color 120ms ease;
-  line-height: 1;
+  line-height: 1.2;
   white-space: nowrap;
 }
 html[data-theme="dark"] .filterChip { box-shadow: 2px 2px 0 var(--c-cream); }
@@ -3491,13 +3510,18 @@ html[data-theme="dark"] .pickerHandle { background: var(--c-cream); opacity: 0.5
   flex-shrink: 0;
 }
 .pickerTitle {
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  /* Saira Condensed: deutsche Umlaute (Bezirk-Titles wie „KÜCHE") brauchen
+     volles Latin-Extended, was Bowlby's latin-Subset nicht hat. */
+  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
   font-weight: 900;
-  font-size: 18px;
-  letter-spacing: 0.02em;
+  font-size: 20px;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--c-green);
-  line-height: 1;
+  /* line-height 1.15 statt 1 — sonst clippt der Header-Border die Punkte
+     über Ü/Ö in „KÜCHE". */
+  line-height: 1.15;
+  padding-top: 2px;
 }
 html[data-theme="dark"] .pickerTitle { color: var(--c-cream); }
 .pickerCloseBtn {
@@ -3544,10 +3568,12 @@ html[data-theme="dark"] .pickerCloseBtn:hover { box-shadow: 3px 3px 0 var(--c-cr
   border: 0;
   background: transparent;
   color: var(--c-green);
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  /* Saira Condensed: Bezirk-Namen wie „SCHÖNEBERG"/„KÖPENICK" brauchen
+     volles Latin-Extended, was Bowlby nicht hat. */
+  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
   font-weight: 800;
-  font-size: 14px;
-  letter-spacing: 0.04em;
+  font-size: 15px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 12px 14px;
   border-radius: 0;
@@ -3572,10 +3598,10 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
 }
 .pickerItemSub {
   flex-shrink: 0;
-  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
-  font-weight: 500;
+  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
+  font-weight: 600;
   text-transform: none;
-  letter-spacing: 0;
+  letter-spacing: 0.02em;
   color: var(--text-secondary);
   font-size: 12px;
 }
@@ -5020,8 +5046,10 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
 .btnPackPromo:hover .btnPackPromoTag svg { transform: translateX(3px); }
 
 .linkPromo {
-  font-family: 'DM Sans', system-ui, sans-serif;
-  font-weight: 700;
+  /* Saira Condensed statt DM Sans (DM Sans wird gar nicht via next/font geladen
+     und matched die UI-Caps-Familie). */
+  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
+  font-weight: 800;
   font-size: 11.5px;
   letter-spacing: 0.10em;
   text-transform: uppercase;

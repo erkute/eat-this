@@ -38,8 +38,12 @@ export async function GET(req: Request) {
   const ent = await resolveEntitlements(uid, email)
   const { restaurants: all, mustEats: allMustEats, categories } = await getCachedMapData()
 
-  let restaurants: typeof all
-  let mustEats:    typeof allMustEats
+  let restaurants:       typeof all
+  let mustEats:          typeof allMustEats
+  // Restaurants visible-but-not-accessible — rendered as blurred preview
+  // rows in the list with a lock affordance, so anon visitors see the
+  // catalog has depth (not just a short curated 20). Empty for paid users.
+  let lockedRestaurants: typeof all = []
   if (ent.isAdmin || ent.hasAllBerlin) {
     restaurants = all
     mustEats    = allMustEats
@@ -50,6 +54,9 @@ export async function GET(req: Request) {
     // bought 'pizza' sees pizza restaurants AND their must-eats).
     const visibleRestaurantIds = new Set(restaurants.map((r) => r._id))
     mustEats = allMustEats.filter((m) => visibleRestaurantIds.has(m.restaurant._id))
+    // Partial-entitlement users still get a locked-preview of the rest of
+    // the catalog so the upsell to All-Berlin stays visible in-context.
+    lockedRestaurants = all.filter((r) => !visibleRestaurantIds.has(r._id))
   } else {
     // Free-and-open trial: 20 restaurants that carry at least one
     // must-eat, plus ALL their must-eats. Same set for every visitor
@@ -70,9 +77,21 @@ export async function GET(req: Request) {
     restaurants = eligible.slice(0, TRIAL_SAMPLE_SIZE)
     const trialIdSet = new Set(restaurants.map((r) => r._id))
     mustEats = allMustEats.filter((m) => trialIdSet.has(m.restaurant._id))
+    // The rest of the catalog → locked preview rows in the list.
+    lockedRestaurants = all.filter((r) => !trialIdSet.has(r._id))
   }
 
-  const res = NextResponse.json({ restaurants, mustEats, categories })
+  // totalCount = ALL restaurants in Sanity, unbothered by trial-cap or
+  // entitlement filtering. Surfaced so the sheet-count-mini can communicate
+  // catalog size („172 SPOTS in Berlin") regardless of what the viewer can
+  // currently unlock.
+  const res = NextResponse.json({
+    restaurants,
+    mustEats,
+    categories,
+    totalCount: all.length,
+    lockedRestaurants,
+  })
   res.headers.set('Cache-Control', 'private, no-store')
   return res
 }

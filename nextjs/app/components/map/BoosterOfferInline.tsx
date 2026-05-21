@@ -85,6 +85,11 @@ export default function BoosterOfferInline({ uid, variant }: Props) {
                 </span>
               )}
             </button>
+            {isAnon && (
+              <a href={upgradeHref} className={styles.linkPromo}>
+                {t('map.starterPromoLogin')}
+              </a>
+            )}
           </div>
         </div>
       </section>

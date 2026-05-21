@@ -1,15 +1,15 @@
 /* Hero — EAT THIS poster mode.
-   Just the wordmark + a single solid CTA. No drop-shadow, no ghost link,
-   no extra text. The hero IS the wordmark; the CTA is the only thing
-   competing for attention. Aged paper texture is added via a faint grain
-   overlay so the surface reads as printed-poster, not glossy web. */
+   Mobile: cover3 fork-mouth poster auf Poster-Schwarz-Surface, ein
+   cream Print-Stempel-CTA drunter.
+   Desktop: cover2 newsprint-cover auf weißer Surface, dunkler CTA. */
 
 .hero {
   position: relative;
-  /* Site-„weiß" #ffffff in light, Site-„schwarz" #1c1c1c in dark — gleiche
-     Bg-Farbe wie die Navbar und alle weiteren Landing-Sektionen. */
+  /* Mobile-Light matched den weißen Print-Rand von cover3 — Image-Margins
+     verschwinden in der weißen Surface, Poster sitzt eingerahmt. Dark-Mode-
+     Override unten flippt auf Poster-Schwarz. */
   background: #ffffff;
-  color: var(--accent-ink);
+  color: #0a0a0a;
   /* Mobile: .app-pages hat margin-top: calc(48px + safe-area) — Hero
      startet direkt darunter, kein eigenes Margin nötig. */
   margin-top: 0;
@@ -24,21 +24,6 @@
   isolation: isolate;
 }
 
-/* Aged paper grain — subtle noisy overlay that gives the cream surface
-   a printed-poster feel. SVG turbulence is generated inline so it ships
-   as part of the stylesheet (no extra request). */
-.hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.11  0 0 0 0 0.11  0 0 0 0 0.11  0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 240px 240px;
-  background-repeat: repeat;
-  mix-blend-mode: multiply;
-  opacity: 0.18;
-  pointer-events: none;
-  z-index: 1;
-}
 .hero > * { position: relative; z-index: 2; }
 
 /* Cover-Layout — Mobile: Cover1 oben unter dem Header, CTA darunter
@@ -61,6 +46,10 @@
   object-fit: contain;
   object-position: center;
   display: block;
+  /* Leichter Hand-Aufgeklebt-Tilt — passt zum lose-arrangierten
+     Print-Charakter und matched die CTA-Rotation drunter. */
+  transform: rotate(-1.5deg);
+  transform-origin: 50% 50%;
 }
 .cover2 {
   width: auto;
@@ -70,53 +59,53 @@
   object-fit: contain;
   display: block;
 }
-/* Primary CTA — Mobile: weißer Button auf dunkler Hero-Surface,
-   schwarzer Schrift-Ton-Text. Desktop kippt das (siehe @media). */
+/* Primary CTA — Mobile: schwarzer Block in der visuellen Familie des
+   Poster-Wordmarks. Sitzt direkt unter dem cover3-Poster wie ein
+   Print-Stempel, gleiche Bowlby-Typo wie das EAT-THIS-Lettering. */
 .cta {
   position: static;
   align-self: center;
-  margin: 20px auto calc(28px + env(safe-area-inset-bottom, 0px));
+  margin: 22px auto calc(28px + env(safe-area-inset-bottom, 0px));
   z-index: 3;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 220px;
-  padding: 16px 36px;
-  background: #ffffff;
-  color: #181916;
+  min-width: 240px;
+  padding: 18px 40px;
+  background: #0a0a0a;
+  color: #ffffff;
   border: 0;
-  border-radius: 4px;
-  font-family: var(--font-bowlby-one);
+  /* Leicht abgerundete Ecken — kein scharfer Print-Block, etwas Hand-
+     gemachtes wie ein gestempelter Sticker. */
+  border-radius: 10px;
+  /* Permanent Marker — gleiche Hand-Drawn-Typo wie das Zitat in der
+     FeaturedSpots-Sprechblase. Hält die Landing-Stimme konsistent. */
+  font-family: var(--font-permanent-marker);
   font-weight: 400;
-  font-size: 17px;
-  letter-spacing: 0.06em;
+  font-size: 24px;
+  letter-spacing: 0.01em;
   line-height: 1;
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
-  /* Tiefer Schatten — weißer Button auf dunklem Hero braucht mehrere
-     Layer Lift, sonst klebt er flach an der Surface. */
-  box-shadow:
-    0 6px 0 0 rgba(0, 0, 0, 0.55),
-    0 14px 28px rgba(0, 0, 0, 0.55),
-    0 24px 60px rgba(0, 0, 0, 0.4);
+  /* Tilt + softer hard offset Shadow — kein voller Schwarz-Block (zu
+     harsh), sondern halbtransparentes Schwarz, das aufm weißen Bg als
+     mittelgrauer Block liest. Sitzt wie ein lockerer Druckschatten
+     hinter dem Stempel. */
+  transform: rotate(-1.5deg);
+  transform-origin: 50% 50%;
+  box-shadow: 5px 5px 0 0 rgba(10, 10, 10, 0.32);
   transition: transform 140ms cubic-bezier(0.2, 0.8, 0.2, 1),
               box-shadow 140ms ease;
   white-space: nowrap;
 }
 .cta:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 8px 0 0 rgba(0, 0, 0, 0.6),
-    0 18px 36px rgba(0, 0, 0, 0.6),
-    0 28px 68px rgba(0, 0, 0, 0.45);
+  transform: rotate(-1.5deg) translate(-1px, -1px);
+  box-shadow: 7px 7px 0 0 rgba(10, 10, 10, 0.38);
 }
 .cta:active {
-  transform: translateY(2px);
-  box-shadow:
-    0 3px 0 0 rgba(0, 0, 0, 0.55),
-    0 8px 18px rgba(0, 0, 0, 0.5),
-    0 16px 36px rgba(0, 0, 0, 0.35);
+  transform: rotate(-1.5deg) translate(2px, 2px);
+  box-shadow: 2px 2px 0 0 rgba(10, 10, 10, 0.28);
 }
 
 /* ── Desktop ────────────────────────────────────────────── */
@@ -135,10 +124,6 @@
     justify-content: flex-start;
     align-items: center;
   }
-  /* Grain-Overlay weg auf Desktop — das multiply darkening macht den
-     Hero-Bg minimal dunkler als das saubere Image-Bg und erzeugt einen
-     sichtbaren Saum am contain-Rand. */
-  .hero::before { display: none; }
   /* Cover1 (EAT-THIS-Poster) + sein Frame auf Desktop weg — Hero ist nur
      noch das große Newsprint-Cover2 voller Viewport. */
   .coverFrame { display: none; }
@@ -209,27 +194,36 @@
 }
 
 /* ── Dark mode ─────────────────────────────────────────── */
-/* Mobile dark: Hero bleibt dunkel (#181916) wie in light — Cover-Cutout
-   liest sich konsistent als helle Magazin-Karte über der dunklen Surface. */
+/* Mobile dark: Hero flippt auf Poster-Schwarz (#0a0a0a), CTA invertiert
+   in cream Stamp — sonst verschwindet der schwarze Stempel im Bg.
+   Desktop dark bleibt auf weißer Newspaper-Surface (cover2-Ton). */
 :global([data-theme="dark"]) .hero {
-  background: #181916;
-  color: var(--accent-ink);
+  background: #0a0a0a;
+  color: #f7f5f0;
 }
 :global([data-theme="dark"]) .cta {
-  /* Mobile dark: weißer Button auf dunkler Hero — gleicher Kontrast
-     wie in light. Desktop-Override unten kippt zurück. */
-  background: #ffffff;
-  color: #181916;
-  border-color: transparent;
+  background: #f7f5f0;
+  color: #0a0a0a;
+  box-shadow: 6px 6px 0 0 #f7f5f0;
 }
-/* Desktop dark: Hero kippt zurück auf den hellen Newspaper-Surface
-   (#ffffff), CTA wieder dunkel wie in light. */
+:global([data-theme="dark"]) .cta:hover {
+  box-shadow: 8px 8px 0 0 #f7f5f0;
+}
+:global([data-theme="dark"]) .cta:active {
+  box-shadow: 2px 2px 0 0 #f7f5f0;
+}
 @media (min-width: 768px) {
   :global([data-theme="dark"]) .hero {
     background: #ffffff;
   }
+  /* Desktop dark CTA fällt zurück auf den Desktop-@media .cta-Stil
+     (dunkler Block + softer Layer-Shadow); Reset des Mobile-Dark cream-
+     Stempel-Shadows damit kein cream-Glimmer leakt. */
   :global([data-theme="dark"]) .cta {
     background: #181916;
     color: #ffffff;
+    box-shadow:
+      0 4px 0 0 rgba(0, 0, 0, 0.25),
+      0 8px 22px rgba(0, 0, 0, 0.18);
   }
 }

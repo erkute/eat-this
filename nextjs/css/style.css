@@ -228,7 +228,6 @@ html:not([data-theme="dark"])[data-active-page="start"] .navbar {
 }
 html:not([data-theme="dark"])[data-active-page="start"] .navbar .navbar-icon-btn,
 html:not([data-theme="dark"])[data-active-page="start"] .navbar .burger-btn { color: #1c1c1c; }
-html:not([data-theme="dark"])[data-active-page="start"] .navbar .burger-btn span { background: #1c1c1c; }
 
 html[data-theme="dark"][data-active-page="start"] .navbar {
   background: #1c1c1c;
@@ -236,7 +235,6 @@ html[data-theme="dark"][data-active-page="start"] .navbar {
 }
 html[data-theme="dark"][data-active-page="start"] .navbar .navbar-icon-btn,
 html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #ffffff; }
-html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn span { background: #ffffff; }
 
 /* Map page on mobile: header is almost gone — Start + Profile chip float
    in the top-right next to the floating search toolbar. Map canvas claims
@@ -1368,9 +1366,6 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn span { bac
 }
 
 /* Navbar dark-mode rules moved to the top navbar block; legacy entries removed. */
-[data-theme="dark"] .burger-btn span {
-  background: #f7f5f0;
-}
 
 /* Language switcher */
 [data-theme="dark"] .lang-switcher,
@@ -2204,10 +2199,8 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
 /* ── BURGER MENU ─────────────────────────────────── */
 .burger-btn {
   display: inline-flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 5px;
   width: 32px;
   height: 32px;
   background: transparent;
@@ -2223,6 +2216,10 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   transition: color 0.18s ease, transform 0.18s ease;
   -webkit-tap-highlight-color: transparent;
 }
+.burger-btn svg {
+  width: 24px;
+  height: 24px;
+}
 .burger-btn:hover {
   color: var(--accent-coral);
   transform: translateY(-1px);
@@ -2235,21 +2232,18 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   outline: none;
   box-shadow: none;
 }
-.burger-btn span {
-  display: block;
-  width: 20px;
-  height: 2px;
-  background: currentColor;
-  border-radius: 2px;
-  transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+/* Hidden defs SVG für den shared #navWonky filter — nimmt keinen
+   Layout-Platz, dient nur als Filter-Container für die Nav-Icons. */
+.nav-icon-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 @media (hover: hover) {
   .burger-btn:hover {
     transform: scale(1.18) translateY(-2px);
-  }
-  /* Middle line shortens for an "alive" feel — subtle but tactile. */
-  .burger-btn:hover span:nth-child(2) {
-    width: 14px;
   }
 }
 .burger-btn:active {

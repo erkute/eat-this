@@ -20,10 +20,10 @@ export default function HeroSection() {
     <section className={styles.hero} aria-label="Eat This — Berlin">
       <div className={styles.coverFrame}>
         <Image
-          src="/pics/cover.webp"
-          alt="EAT THIS"
-          width={828}
-          height={1112}
+          src="/pics/cover3.webp"
+          alt="EAT THIS — the map for people who care about food"
+          width={1065}
+          height={1476}
           className={styles.cover}
           priority
           sizes="92vw"

@@ -126,10 +126,34 @@ export default function SiteNav() {
   return (
     <>
       <a href="#appPages" className="skip-link">{t('a11y.skip')}</a>
+      {/* Hidden defs SVG: shared wonky-marker filter referenced by alle
+          navbar Icons. feTurbulence + feDisplacementMap = hand-drawn-feel
+          ohne jedes Icon einzeln neu zu zeichnen. */}
+      <svg width="0" height="0" aria-hidden="true" focusable="false" className="nav-icon-defs">
+        <defs>
+          <filter id="navWonky" x="-25%" y="-25%" width="150%" height="150%">
+            {/* Scribble-Look: 3× über die SourceGraphic gezeichnet, jeder
+                Pass mit anderem Turbulence-Seed + steigender Displacement-
+                Scale → drei leicht verschobene Kopien jeder Linie wie ein
+                Bleistift, der mehrmals drübergeführt wurde. */}
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="1" result="t1"/>
+            <feDisplacementMap in="SourceGraphic" in2="t1" scale="1.2" result="d1"/>
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="t2"/>
+            <feDisplacementMap in="SourceGraphic" in2="t2" scale="2.2" result="d2"/>
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="13" result="t3"/>
+            <feDisplacementMap in="SourceGraphic" in2="t3" scale="3.0" result="d3"/>
+            <feMerge>
+              <feMergeNode in="d1"/>
+              <feMergeNode in="d2"/>
+              <feMergeNode in="d3"/>
+            </feMerge>
+          </filter>
+        </defs>
+      </svg>
       <nav className="navbar" id="navbar">
         <div className="navbar-home">
           <Link href="/" className={`navbar-icon-btn${activePage === 'start' ? ' active' : ''}`} id="navStartBtn" aria-label="Start">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.6" filter="url(#navWonky)">
               <path d="M3 12 12 3l9 9"/>
               <path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/>
             </svg>
@@ -137,13 +161,13 @@ export default function SiteNav() {
         </div>
         <div className="navbar-actions">
           <Link href="/news" className={`navbar-icon-btn${activePage === 'news' ? ' active' : ''}`} id="navNewsBtn" aria-label="News">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.6" filter="url(#navWonky)">
               <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
               <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
             </svg>
           </Link>
           <Link href="/map" className={`navbar-icon-btn${activePage === 'map' ? ' active' : ''}`} id="navMapBtn" aria-label="Map">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.6" filter="url(#navWonky)">
               <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
               <line x1="9" y1="3" x2="9" y2="18"/>
               <line x1="15" y1="6" x2="15" y2="21"/>
@@ -156,13 +180,17 @@ export default function SiteNav() {
             aria-label="Profile"
             onClick={handleProfileClick}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.6" filter="url(#navWonky)">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
               <circle cx="12" cy="7" r="4"/>
             </svg>
           </a>
           <button className="burger-btn" id="burgerBtn" aria-label="Menu">
-            <span></span><span></span><span></span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.6" filter="url(#navWonky)">
+              <line x1="4" y1="8" x2="20" y2="8"/>
+              <line x1="4" y1="12" x2="20" y2="12"/>
+              <line x1="4" y1="16" x2="20" y2="16"/>
+            </svg>
           </button>
         </div>
       </nav>

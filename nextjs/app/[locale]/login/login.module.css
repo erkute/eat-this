@@ -1,18 +1,18 @@
 /* ════════════════════════════════════════════════════════════
-   /login + login modal — editorial brand-red poster.
+   /login + login modal — editorial paper poster.
 
-   One layout for mobile + desktop: full-bleed red surface with the
-   EAT THIS mark as poster header, a tagline beneath, and a compact
-   sign-in stack (email field, black CTA, "or" divider, Google).
-   No phone mockups, no flanking booster packs — the wordmark is the
-   moment. Shared between /login (full page) and BridgeAuth's modal
-   portal; `.frameModal` adds the rounded card chrome on desktop.
+   One layout for mobile + desktop: white surface with the EAT THIS
+   invite envelope as poster header and a compact sign-in stack
+   (email field, black CTA, "or" divider, Google). Shared between
+   /login (full page) and BridgeAuth's modal portal; `.frameModal`
+   adds the rounded card chrome on desktop. Dark mode flips
+   automatically via the --surface-canvas / --text-primary tokens.
    ════════════════════════════════════════════════════════════ */
 
 .page {
   height: 100dvh;
   width: 100%;
-  background: #b71c1c;
+  background: var(--surface-canvas);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -23,8 +23,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #b71c1c;
-  color: #fff;
+  background: var(--surface-canvas);
+  color: var(--text-primary);
   padding:
     max(72px, calc(env(safe-area-inset-top, 0px) + 64px))
     24px
@@ -43,46 +43,37 @@
   height: 40px;
   border: none;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.32);
-  color: #fff;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-primary);
   display: grid;
   place-items: center;
   cursor: pointer;
   transition: background 0.18s, transform 0.1s;
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
   outline: none;
 }
-.backBtn:hover { background: rgba(0, 0, 0, 0.52); }
+.backBtn:hover { background: rgba(0, 0, 0, 0.12); }
 .backBtn:active { transform: scale(0.92); }
+[data-theme="dark"] .backBtn { background: rgba(255, 255, 255, 0.08); }
+[data-theme="dark"] .backBtn:hover { background: rgba(255, 255, 255, 0.16); }
 
-/* ── Poster header: big EAT THIS mark + tagline. */
+/* ── Poster header: big EAT THIS invite mark. */
 .poster {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
   min-height: 0;
-  padding: 8px 0 24px;
+  padding: 0 0 12px;
 }
 .mark {
-  width: min(64vw, 280px);
+  width: auto;
+  max-width: 100%;
+  max-height: min(78dvh, 720px);
   height: auto;
   user-select: none;
   -webkit-user-drag: none;
 }
-.tagline {
-  margin: 0;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.78);
-  text-align: center;
-}
-
 /* heroHeadline lives in the DOM for SR + SEO; not visible. */
 .headlineSr {
   position: absolute !important;
@@ -117,25 +108,25 @@
   width: 100%;
   padding: 14px 16px;
   border-radius: 12px;
-  border: 1.5px solid rgba(255, 255, 255, 0.32);
-  background: rgba(0, 0, 0, 0.2);
+  border: 1.5px solid rgba(0, 0, 0, 0.18);
+  background: var(--surface-canvas);
   font-size: 16px; /* iOS no-zoom */
   font-family: var(--font);
-  color: #fff;
+  color: var(--text-primary);
   outline: none;
   transition: border-color 0.18s, background 0.18s;
 }
-.input::placeholder { color: rgba(255, 255, 255, 0.55); }
+.input::placeholder { color: var(--text-muted); }
 .input:focus {
-  border-color: #fff;
-  background: rgba(0, 0, 0, 0.32);
+  border-color: var(--text-primary);
 }
+[data-theme="dark"] .input { border-color: rgba(255, 255, 255, 0.2); }
 
 .cta {
   width: 100%;
   padding: 14px;
-  background: #0a0a0a;
-  color: #fff;
+  background: var(--text-primary);
+  color: var(--surface-canvas);
   font-family: var(--font);
   font-size: 15px;
   font-weight: 800;
@@ -151,8 +142,7 @@
   outline: none;
 }
 .cta:hover:not(:disabled) {
-  background: #000;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
 }
 .cta:active:not(:disabled) { transform: scale(0.99); }
 .cta:disabled { opacity: 0.55; cursor: not-allowed; }
@@ -160,7 +150,7 @@
 .error {
   margin: 2px 4px 0;
   font-size: 13px;
-  color: #ffd1d1;
+  color: var(--c-coral);
   line-height: 1.4;
 }
 
@@ -168,23 +158,27 @@
 .sentBox {
   padding: 16px 16px 14px;
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.22);
-  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.04);
+  border: 1.5px solid rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+[data-theme="dark"] .sentBox {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 .sentTitle {
   margin: 0;
   font-size: 15px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
 }
 .sentBody {
   margin: 0;
   font-size: 13px;
   line-height: 1.55;
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--text-secondary);
 }
 .sentLink {
   align-self: flex-start;
@@ -195,7 +189,7 @@
   font-family: var(--font);
   font-size: 13px;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -213,41 +207,48 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.12);
+}
+[data-theme="dark"] .divider::before,
+[data-theme="dark"] .divider::after {
+  background: rgba(255, 255, 255, 0.14);
 }
 .divider span {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-muted);
 }
 
 /* ── Google button ───────────────────────────────────────── */
 .googleBtn {
   width: 100%;
   padding: 13px;
-  background: #fff;
-  color: #1a1a1a;
+  background: var(--surface-canvas);
+  color: var(--text-primary);
   font-family: var(--font);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.005em;
-  border: none;
+  border: 1.5px solid rgba(0, 0, 0, 0.14);
   border-radius: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  transition: transform 0.08s, box-shadow 0.18s;
+  transition: transform 0.08s, box-shadow 0.18s, background 0.18s;
   outline: none;
 }
 .googleBtn:hover:not(:disabled) {
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.03);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 .googleBtn:active:not(:disabled) { transform: scale(0.99); }
 .googleBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+[data-theme="dark"] .googleBtn { border-color: rgba(255, 255, 255, 0.16); }
+[data-theme="dark"] .googleBtn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.05); }
 .googleIcon { width: 18px; height: 18px; flex-shrink: 0; }
 
 /* ── Loading overlay (during Google popup + post-auth redirect) ── */
@@ -276,44 +277,40 @@
   margin: 8px 0 0;
   font-size: 11px;
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--text-muted);
   text-align: center;
 }
 .termsLink {
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--text-secondary);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-.termsLink:hover { color: #fff; }
+.termsLink:hover { color: var(--text-primary); }
 
 /* ── Desktop: same poster, just centered in a tighter card. ─── */
 @media (min-width: 768px) {
   .page {
-    background: #faf8f3;
+    background: var(--surface-paper);
     align-items: center;
     justify-content: center;
     padding: 32px;
   }
-  [data-theme="dark"] .page { background: #0a0a0a; }
 
   .frame {
     flex: 0 0 auto;
-    width: min(440px, 94vw);
-    height: min(640px, 90vh);
+    width: min(580px, 94vw);
+    height: min(900px, 96vh);
     border-radius: 22px;
-    box-shadow: 0 28px 70px rgba(183, 28, 28, 0.35);
-    padding: 56px 36px 32px;
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.18);
+    padding: 48px 32px 28px;
   }
   [data-theme="dark"] .frame {
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
   }
 
   .mark {
-    width: min(72%, 280px);
-  }
-  .tagline {
-    font-size: 13px;
-    letter-spacing: 0.24em;
+    max-width: 100%;
+    max-height: min(78dvh, 760px);
   }
   .formBlock { max-width: none; }
 }

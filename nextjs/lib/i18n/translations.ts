@@ -162,7 +162,6 @@ const en = {
       linkSentHint: "Check your inbox.",
       sentTitle: "Magic Link's on its way.",
       heroHeadline: "Hundreds of Must Eats\nto discover",
-      tagline: "We tell you what to eat",
       dividerOr: "or",
       resendBtn: "Resend",
       backBtn: "Back",

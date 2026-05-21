@@ -57,14 +57,13 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
       <div className={styles.poster}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/pics/logo-dark.webp"
-          alt="EAT THIS"
+          src="/pics/signup.webp"
+          alt="EAT THIS — you're invited"
           className={styles.mark}
-          width={848}
-          height={772}
+          width={941}
+          height={1672}
           decoding="async"
         />
-        <p className={styles.tagline}>{t('modals.login.tagline')}</p>
       </div>
 
       <div className={styles.formBlock}>

@@ -2,7 +2,7 @@
 :root {
   --black: #000000;
   --white: #FFFFFF;
-  --off-white: #FAFAFA;
+  --off-white: #ffffff;        /* aligned to surface-canvas — 2026 cream direction */
   --gray-50: #F5F5F5;
   --gray-100: #E8E8E8;
   --gray-200: #D4D4D4;
@@ -16,13 +16,27 @@
      accents. Navy is the script-accent color (matches the "Lunch"
      handwritten overlay on the BASTA LUNCH menu). Replaced the previous
      brick-red #E32831 brand. */
-  --brand-coral:      #F2604D;
-  --brand-coral-soft: rgba(242, 96, 77, 0.12);
-  --brand-pink:       #F4B6B6;
-  --brand-yellow:     #F5C518;
-  --brand-navy:       #1F3A5F;
-  --brand-red:        #FD3A39;
-  --brand-red-hover:  #E62A28;
+  /* ── 2026-05 Black/White/Red/Yellow pivot ──
+     Palette beschränkt auf: schwarz, weiß, dunkles Rot, mustard-yellow.
+     Keine Grautöne mehr. Cream/Paper bleiben als warm-neutrale Surfaces
+     (das ist sticker-paper, kein Grau). Token-Namen unverändert für
+     einfachen Rollback. */
+  --brand-coral:      #a02814;                  /* dunklerer Brand-Akzent (war #e35433) */
+  --brand-coral-soft: rgba(160, 40, 20, 0.12);
+
+  --c-cream:        #ffffff;                    /* sticker bg — war warmer cream #f3ead4, jetzt rein weiß */
+  --c-paper:        #ffffff;                    /* paper-tint — auch weiß */
+  --c-mustard:      #e8c54a;                    /* mustard yellow — secondary CTA */
+  --c-mustard-deep: #c89e1f;                    /* mustard hover/pressed */
+  --c-coral:        #a02814;                    /* primary action — dunkles Rot */
+  --c-green:        #0a0a0a;                    /* multi-direction green → schwarz */
+  --c-black:        #0a0a0a;
+  --c-row-rule:     rgba(10, 10, 10, 0.14);
+  --brand-pink:       #e8c54a;                  /* re-purposed to yellow (kein pink mehr) */
+  --brand-yellow:     #e8c54a;                  /* yellow alias */
+  --brand-navy:       #0a0a0a;                  /* navy → schwarz */
+  --brand-red:        #a02814;                  /* dunkler Brand-Akzent */
+  --brand-red-hover:  #7e1f0f;
 
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
   /* Display pair — Bar-Basta visual direction. Bungee (solid, fully filled
@@ -30,15 +44,19 @@
      handwritten script accent (matches the cursive overlays on the menu).
      Both loaded via next/font in [locale]/layout.tsx; consumers reference
      these vars. Inter stays the body + eyebrow workhorse. */
-  --font-display: var(--font-bungee, 'Bungee'), 'Arial Black', 'Helvetica Neue', sans-serif;
+  /* 2026 EAT THIS-direction: ALL display + section-headline tokens collapsed
+     onto Bowlby One — the same heavy, rounded, condensed letterform family
+     as the hero EAT THIS wordmark. Section heads now read as a continuation
+     of the brand wordmark, not as a separate display type.
+     Bungee/Ranchers/Knewave/Slackey still loaded for any bespoke component
+     that opts in via the per-font var, but the design-system tokens below
+     all point at Bowlby One. */
+  --font-display: var(--font-bowlby-one, 'Bowlby One'), 'Arial Black', 'Helvetica Neue', sans-serif;
   --font-script:  var(--font-caveat, 'Caveat'), 'Bradley Hand', 'Lucida Handwriting', cursive;
-  --font-marker:  var(--font-knewave, 'Knewave'), 'Bradley Hand', 'Comic Sans MS', cursive;
-  /* Speisekarte poster headline (matches "Our Kitchen Section." reference) */
-  --font-poster:  var(--font-archivo-black, 'Archivo Black'), 'Arial Black', 'Helvetica Neue', sans-serif;
-  /* Ranchers — Booster Pack section display headline + pack names + stats. */
-  --font-ranchers: var(--font-ranchers, 'Ranchers'), 'Impact', 'Arial Narrow', sans-serif;
-  /* Slackey — buy CTA wonky-cartoon sticker font (price labels + "Gratis"). */
-  --font-slackey:  var(--font-slackey, 'Slackey'), 'Comic Sans MS', cursive;
+  --font-marker:  var(--font-bowlby-one, 'Bowlby One'), 'Arial Black', 'Helvetica Neue', sans-serif;
+  --font-poster:  var(--font-bowlby-one, 'Bowlby One'), 'Arial Black', 'Helvetica Neue', sans-serif;
+  --font-ranchers: var(--font-bowlby-one, 'Bowlby One'), 'Arial Black', 'Helvetica Neue', sans-serif;
+  --font-slackey:  var(--font-bowlby-one, 'Bowlby One'), 'Arial Black', 'Helvetica Neue', sans-serif;
   /* Barlow Condensed Light — condensed grotesque used for Voices testimonial
      bodies. Same narrow-display vibe as Ranchers ("Berlin & beyond." /
      "Häufige Fragen.") but with a real Light 300 weight, so the stroke is
@@ -68,13 +86,21 @@
      cool-toned --surface-bg used elsewhere. The landing uses these to evoke
      a magazine feel: 9 of 12 sections sit on --surface-canvas, two trust-beats
      get the paper tint, decision-moments (Packs) sit on --surface-deep. */
-  --surface-canvas: #f7f5f0;        /* default landing section background — neutral cream */
-  --surface-paper:  #ecebe6;        /* trust-beat tint — cooler off-white, no brown undertone */
+  --surface-canvas: #ffffff;        /* Site-„weiß" — neutraler Hellgrauton (Cover2-matched). */
+  --surface-paper:  #dcdcdc;        /* einen Tick tiefer für Kontraste, gleiche Familie */
   --surface-deep:   #0a0a0a;        /* decision-moment — pure ink, no warm cast */
   --surface-deep-2: #161616;        /* card surface on --surface-deep */
+
+  /* ── 2026 Editorial accents — black/white/red/yellow pivot ── */
+  --frame-ink:      #0a0a0a;
+  --accent-mustard: #e8c54a;        /* mustard yellow — secondary hero blocks */
+  --accent-coral:   #a02814;        /* dunkles Rot — pull-quote + accent */
+  --accent-ink:     #0a0a0a;
 }
 
 html[data-theme="dark"] {
+  --c-row-rule: rgba(240, 232, 208, 0.14);
+
   --surface-bg:        #0d0d0d;
   --surface-card:      #1a1a1a;
   --surface-raised:    #232323;
@@ -108,20 +134,25 @@ html[data-theme="dark"] {
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  /* Prevent white rubber-band bounce on mobile dark mode: html must match body */
-  background-color: var(--off-white);
+  /* Site-„weiß" = exakter Cover2-Bg-Ton (#ffffff) — fließt nahtlos in das
+     Hero-Image. Rubber-band overscroll auf iOS zeigt den selben Ton. */
+  background-color: #ffffff;
 }
 html[data-theme="dark"] {
-  background-color: var(--black);
+  /* Site-„schwarz" = exaktes Cover2-Text-Ton (#1c1c1c). */
+  background-color: #1c1c1c;
 }
 
 body {
   font-family: var(--font);
-  background: var(--white);
+  background: #ffffff;
   color: var(--black);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
+}
+html[data-theme="dark"] body {
+  background: #1c1c1c;
 }
 
 img {
@@ -144,11 +175,32 @@ a {
   display: none;
 }
 
+/* 2026 EDITORIAL FRAME removed — the dark border-mat read as heavy chrome
+   over the editorial-v13 redesign. Navbar + app-pages now go flush. */
+
 /* Map page is position:fixed and owns the full viewport below the top nav.
    Override the generic .app-page padding-bottom (reserved for fixed tab bars)
-   so the bottom sheet reaches the bottom of the screen without a gap. */
+   so the bottom sheet reaches the bottom of the screen without a gap.
+   Use 100dvh (dynamic viewport) instead of the base rule's 100vh — on iOS
+   Safari, 100vh is the LARGE viewport (URL bar hidden) which makes the
+   page overflow when the URL bar is shown, leaving a strip of whitespace
+   below the sheet. dvh adjusts as the URL bar shows/hides.
+   (See memory feedback_ios_overlay_pattern.md.) */
 .app-page[data-page="map"] {
   padding-bottom: 0 !important;
+  height: calc(100dvh - 60px) !important;
+}
+
+/* Mobile: the navbar goes transparent over the map (see style.css
+   [data-active-page="map"] block). Map canvas now claims the full
+   viewport including the top 60px the navbar used to reserve. */
+@media (max-width: 1023.98px) {
+  [data-active-page="map"] .app-pages {
+    margin-top: 0 !important;
+  }
+  .app-page[data-page="map"] {
+    height: 100dvh !important;
+  }
 }
 
 /* User-location marker is purely informational. The avatar must visually

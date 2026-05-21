@@ -30,6 +30,16 @@ export default function SiteNav() {
   const pathname = usePathname();
   const activePage = pageSlugFromPath(pathname);
 
+  // Keep the html[data-active-page] attribute in sync with the current
+  // route. The bootstrap script in app/[locale]/layout.tsx sets this on
+  // initial load, but client-side navigation doesn't re-run that script,
+  // which is why CSS selectors like [data-active-page="map"] would not
+  // apply when navigating from /start → /map. Mirror activePage to the
+  // html element on every route change.
+  useEffect(() => {
+    document.documentElement.setAttribute('data-active-page', activePage);
+  }, [activePage]);
+
   // Header profile icon: route to /profile if signed in, otherwise open the
   // login modal (mounted by BridgeAuth as a React portal).
   const handleProfileClick = useCallback((e: React.MouseEvent) => {
@@ -41,32 +51,6 @@ export default function SiteNav() {
       openLogin();
     }
   }, [user, locale, openLogin]);
-
-  // navbar.scrolled toggle — replaces app.min.js's at()/je() handlers.
-  // Desktop: window scroll. Mobile + start page: .app-page[data-page="start"]
-  // scroll (since .app-page is the scroll container on mobile). Mobile +
-  // non-start: navbar always non-scrolled.
-  useEffect(() => {
-    const navbar = document.getElementById('navbar');
-    if (!navbar) return;
-    const isMobile = !window.matchMedia('(min-width: 768px)').matches;
-
-    if (!isMobile) {
-      const onScroll = () => navbar.classList.toggle('scrolled', window.scrollY > 60);
-      onScroll();
-      window.addEventListener('scroll', onScroll, { passive: true });
-      return () => window.removeEventListener('scroll', onScroll);
-    }
-    if (activePage === 'start') {
-      const startPage = document.querySelector<HTMLElement>('.app-page[data-page="start"]');
-      if (!startPage) return;
-      const onScroll = () => navbar.classList.toggle('scrolled', startPage.scrollTop > 60);
-      onScroll();
-      startPage.addEventListener('scroll', onScroll, { passive: true });
-      return () => startPage.removeEventListener('scroll', onScroll);
-    }
-    navbar.classList.remove('scrolled');
-  }, [activePage]);
 
   useEffect(() => {
     const drawer   = document.getElementById('burgerDrawer');
@@ -143,25 +127,14 @@ export default function SiteNav() {
     <>
       <a href="#appPages" className="skip-link">{t('a11y.skip')}</a>
       <nav className="navbar" id="navbar">
-        <Link href="/" className="navbar-brand" data-page="start">
-          <img
-            src="/pics/logo.webp"
-            alt="EAT THIS"
-            className="brand-logo brand-logo-light"
-            width={848}
-            height={772}
-            decoding="async"
-          />
-          <img
-            src="/pics/logo-dark.webp"
-            alt=""
-            aria-hidden="true"
-            className="brand-logo brand-logo-dark"
-            width={848}
-            height={772}
-            decoding="async"
-          />
-        </Link>
+        <div className="navbar-home">
+          <Link href="/" className={`navbar-icon-btn${activePage === 'start' ? ' active' : ''}`} id="navStartBtn" aria-label="Start">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 12 12 3l9 9"/>
+              <path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/>
+            </svg>
+          </Link>
+        </div>
         <div className="navbar-actions">
           <Link href="/news" className={`navbar-icon-btn${activePage === 'news' ? ' active' : ''}`} id="navNewsBtn" aria-label="News">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

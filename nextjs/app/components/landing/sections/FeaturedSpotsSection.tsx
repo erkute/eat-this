@@ -1,8 +1,5 @@
-import { CSSProperties } from 'react'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
-import { pickLocale } from '@/lib/i18n/pickLocale'
-import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import type { RestaurantCard } from '@/lib/types'
 import styles from './FeaturedSpotsSection.module.css'
 
@@ -11,68 +8,99 @@ interface Props {
   locale: 'de' | 'en'
 }
 
-// Alternating rest-state tilt — same comic-sticker scatter rhythm as Voices.
-const TILTS = [-1.4, 1.6, -1.1, 1.2, -1.6, 1.3, -1.3, 1.4, -1.5, 1.1, -1.2, 1.5]
+// Bowlby One has no Turkish/Polish glyphs, so names like
+// "Bursa Uludağ Kebapçısı" fall back to a different font and look out of
+// place. Map only the foreign-script letters Berlin restaurants actually
+// carry — German umlauts (Ä/Ö/Ü/ä/ö/ü/ß) MUST be preserved, they render
+// fine in Bowlby One and are part of normal German names like
+// "Schlüsseldienst".
+const SPECIAL: Record<string, string> = {
+  ğ: 'g', Ğ: 'G',
+  ş: 's', Ş: 'S',
+  ç: 'c', Ç: 'C',
+  ı: 'i', İ: 'I',
+  ł: 'l', Ł: 'L',
+  ø: 'o', Ø: 'O',
+}
+function normalizeName(name: string): string {
+  return name.replace(/[ğĞşŞçÇıİłŁøØ]/g, (c) => SPECIAL[c] ?? c)
+}
 
 export default function FeaturedSpotsSection({ spots, locale }: Props) {
   if (spots.length === 0) return null
 
-  const t = locale === 'de'
-    ? { eyebrow: 'Hand-picked', l1: 'Was wir', l2: 'gegessen haben.' }
-    : { eyebrow: 'Hand-picked', l1: 'What we', l2: 'ate.' }
+  const quote = locale === 'de'
+    ? 'Das hätte ich mir für Berlin schon vor Jahren gewünscht.'
+    : "I've wished Berlin had this for years."
 
   return (
-    <section className={styles.section} aria-labelledby="featured-header">
+    <section id="featured" className={styles.section}>
       <div className={styles.inner}>
-        <header className={styles.masthead}>
-          <p className={styles.eyebrow}>{t.eyebrow}</p>
-          <h2 id="featured-header" className={styles.wordmark}>
-            {t.l1}<br />{t.l2}
-          </h2>
-        </header>
+        <figure className={styles.bubbleWrap}>
+          <div className={styles.bubble}>
+            <svg
+              className={styles.bubbleSvg}
+              viewBox="0 0 600 420"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <defs>
+                <filter id="bubbleWobbleA" x="-5%" y="-5%" width="110%" height="110%">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="2" seed="3"/>
+                  <feDisplacementMap in="SourceGraphic" scale="5"/>
+                </filter>
+              </defs>
+              <path
+                d="M 60 60 C 60 28, 110 18, 160 16 C 280 8, 420 12, 500 24 C 555 32, 580 80, 580 150 C 580 230, 560 300, 470 320 C 360 340, 250 335, 200 332 L 130 410 L 215 330 C 130 322, 70 300, 50 250 C 28 190, 30 110, 60 60 Z"
+                fill="#ffffff"
+                stroke="#1c1c1c"
+                strokeWidth="3"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                filter="url(#bubbleWobbleA)"
+              />
+            </svg>
+            <blockquote className={styles.bubbleQuote}>{quote}</blockquote>
+          </div>
+          <img
+            src="/pics/cat.webp"
+            alt=""
+            aria-hidden="true"
+            className={styles.bubbleCat}
+            width={406}
+            height={396}
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
 
-        <ul className={styles.strip}>
-          {spots.map((s, i) => {
-            const cardLine = pickLocale(s.shortDescription, s.shortDescriptionEn, locale)
-              || pickLocale(s.tip, s.tipEn, locale)
-            const priceLabel = formatPriceLabel(s)
-            return (
-              <li
-                key={s._id}
-                className={styles.card}
-                style={{ ['--tilt' as string]: `${TILTS[i % TILTS.length]}deg` } as CSSProperties}
-              >
-                <Link href={`/restaurant/${s.slug}`} className={styles.cardLink}>
-                  {s.photo && (
-                    <div className={styles.cardImage}>
-                      <Image
-                        src={s.photo}
-                        alt={`${s.name} — ${s.district ?? 'Berlin'}`}
-                        fill
-                        sizes="(max-width: 720px) 82vw, (max-width: 1080px) 44vw, 320px"
-                      />
-                    </div>
-                  )}
-                  <div className={styles.cardBody}>
-                    {s.district && (
-                      <p className={styles.cardEyebrow}>{s.district}</p>
-                    )}
-                    <div className={styles.cardHeadRow}>
-                      <h3 className={styles.cardName}>{s.name}</h3>
-                      {priceLabel && (
-                        <span className={styles.cardPrice}>{priceLabel}</span>
-                      )}
-                    </div>
-                    {s.cuisineType && (
-                      <p className={styles.cardCuisine}>{s.cuisineType}</p>
-                    )}
-                    {cardLine && <p className={styles.cardTip}>{cardLine}</p>}
+        <ol className={styles.list}>
+          {spots.map((s, i) => (
+            <li key={s._id} className={styles.entry}>
+              <Link href={`/restaurant/${s.slug}`} className={styles.entryLink}>
+                {s.photo && (
+                  <div className={styles.entryPhoto}>
+                    <Image
+                      src={s.photo}
+                      alt={`${s.name} — ${s.district ?? 'Berlin'}`}
+                      fill
+                      sizes="(max-width: 720px) 92vw, 720px"
+                    />
                   </div>
-                </Link>
-              </li>
-            )
-          })}
-        </ul>
+                )}
+                <div className={styles.entryMeta}>
+                  <span className={styles.entryNumber}>{String(i + 1).padStart(2, '0')}</span>
+                  <div className={styles.entryText}>
+                    <h3 className={styles.entryName}>{normalizeName(s.name)}</h3>
+                    {s.district && (
+                      <p className={styles.entryDistrict}>{normalizeName(s.district)}</p>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   )

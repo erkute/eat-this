@@ -1,265 +1,249 @@
 /* ──────────────────────────────────────────────────────────────────────
- * FeaturedSpotsSection — "What we ate."
- * Cream canvas, Ranchers masthead, comic-sticker spot-cards with tilt +
- * hard ink shadow. Mobile = horizontal scroll-snap strip; desktop = 3-col
- * grid. Same visual family as VoicesSection / PacksSection so the landing
- * rhythm reads as one Bar-Basta voice.
- *
- * The card *also* carries SEO load — each is a real <Link> to
- * /restaurant/[slug], which lifts the landing from a crawl-island to a
- * proper hub.
+ * FeaturedSpotsSection — vertical editorial list, Cover2 print vibe.
+ * Site-neutral Hellgrau-Surface, big bold Bowlby caps masthead, each
+ * Restaurant ist ein numerierter Magazin-Eintrag mit großem Foto.
  * ────────────────────────────────────────────────────────────────────── */
 
 .section {
   position: relative;
-  background: var(--surface-canvas);
-  color: #0a0a0a;
-  padding: clamp(64px, 9vh, 112px) 18px clamp(72px, 11vh, 128px);
+  background: #ffffff;
+  color: #1c1c1c;
+  padding: clamp(64px, 9vh, 112px) 18px clamp(56px, 8vh, 96px);
   overflow: hidden;
 }
 
 .inner {
-  max-width: 1080px;
+  max-width: 720px;
   margin: 0 auto;
 }
 
-/* ── Masthead — same eyebrow + wordmark rhythm as Voices / Cities ─── */
-.masthead {
-  text-align: left;
-  margin: 0 0 clamp(36px, 6vh, 56px);
-}
-
-.eyebrow {
-  font-family: var(--font-ranchers);
-  font-size: clamp(20px, 4.6vw, 28px);
-  color: #0a0a0a;
-  margin: 0 0 4px;
-  line-height: 1;
-  letter-spacing: 0;
-}
-
-.wordmark {
-  margin: 0;
-  font-family: var(--font-ranchers);
-  font-weight: 400;
-  font-size: clamp(72px, 18vw, 132px);
-  line-height: 0.88;
-  color: var(--brand-red);
-  letter-spacing: -0.005em;
-}
-
-/* ── Strip / Grid ─────────────────────────────────────────────────── */
-.strip {
-  list-style: none;
-  margin: 0 -18px;
-  padding: 18px 18px 28px;
-  display: flex;
-  flex-direction: row;
-  gap: 22px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-
-.strip::-webkit-scrollbar {
-  display: none;
-}
-
-/* Cards */
-.card {
+/* ── Bubble + Katze ──────────────────────────────────────────────── */
+.bubbleWrap {
   position: relative;
-  flex: 0 0 82%;
-  max-width: 340px;
-  scroll-snap-align: start;
-  background: #fff;
-  border: 3px solid #0a0a0a;
-  box-shadow: 8px 8px 0 0 #0a0a0a;
-  transform: rotate(var(--tilt, 0deg));
-  transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
-              box-shadow 280ms ease;
-  display: flex;
-}
-
-.card:hover {
-  transform: rotate(0) translate(-2px, -2px);
-  box-shadow: 12px 12px 0 0 #0a0a0a;
-}
-
-.cardLink {
+  margin: 0 auto clamp(48px, 8vh, 96px);
+  max-width: 640px;
+  width: 100%;
   display: flex;
   flex-direction: column;
+  align-items: stretch;
+}
+/* Bubble sitzt oben rechts (align-self: flex-end). Katze drunter,
+   horizontal zentriert, groß. Tail unten-links zeigt zur Katze. */
+.bubbleCat {
+  display: block;
+  width: 100%;
+  max-width: 440px;
+  height: auto;
+  align-self: center;
+  margin: -8px auto 0;
+  transform: rotate(-4deg);
+  transform-origin: top center;
+}
+/* ── Sprechblase ─────────────────────────────────────────────────── */
+/* Bubble — Custom Inline-SVG mit handgezeichneter Wobble per
+   feDisplacementMap. Innen IMMER weiß, Outline schwarz, Tail unten
+   links. Leichter Tilt damit's wie aus der Katze gesprochen wirkt. */
+.bubble {
+  position: relative;
+  margin: 0;
+  /* Bubble sitzt oben rechts — align-self flex-end, ~72% Wrap-Breite. */
+  align-self: flex-end;
+  width: 72%;
+  max-width: 460px;
+  padding: clamp(32px, 6vw, 56px) clamp(40px, 7vw, 64px) clamp(60px, 12vw, 90px);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: 180px;
+  transform: rotate(-3deg);
+  transform-origin: center;
+}
+.bubbleSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+/* Triangle-Pseudos entfernt — Tail ist Teil des bubble.webp Image. */
+.bubbleQuote {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--font-permanent-marker);
+  font-weight: 400;
+  font-size: clamp(22px, 3.8vw, 34px);
+  line-height: 1.05;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: #1c1c1c;
+  text-wrap: balance;
+  text-align: center;
+}
+
+/* ── Liste — vertikal gestapelt, mit Hairline-Trennern. ──────────── */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.entry {
+  border: 0;
+}
+
+.entryLink {
+  display: block;
   text-decoration: none;
   color: inherit;
-  width: 100%;
-  min-width: 0;
+  padding: 24px 0;
+  transition: transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.entryLink:hover {
+  transform: translateX(4px);
 }
 
-.cardImage {
+/* Polaroid-Frame — dicker weißer Rand wie um das Cover-Magazine auf Mobile. */
+.entryPhoto {
   position: relative;
-  /* Mobile-only: portrait 4:5 so the spot-photo fills more of the phone
-     viewport instead of looking landscape-cropped. Desktop grid (≥720)
-     reflows back to balanced 4:3 — cards are narrower there anyway. */
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 16 / 10;
   width: 100%;
-  background: var(--surface-bg);
+  background: #ffffff;
+  border: 14px solid #ffffff;
   overflow: hidden;
-  border-bottom: 3px solid #0a0a0a;
+  margin-bottom: 16px;
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.06);
 }
-
-@media (min-width: 720px) {
-  .cardImage {
-    aspect-ratio: 4 / 3;
-  }
-}
-
-.cardImage img {
+.entryPhoto img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  /* Leichte Print-Sättigung — passt zur Cover2-Newsprint-Optik. */
+  filter: saturate(0.9) contrast(1.04);
 }
 
-.cardBody {
-  padding: 18px 20px 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* District as eyebrow ABOVE the name — gives Bezirk its own visual lane,
-   clearly separate from cuisine which sits below the name. Small Ranchers
-   all-caps for the brand-rhythm signal. */
-.cardEyebrow {
-  font-family: var(--font-ranchers);
-  font-size: 13px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #525252;
-  margin: 0 0 -2px;
-  line-height: 1;
-}
-
-/* Name + price share a baseline-aligned row. Price sits quietly next to
-   the name as a small monospaced meta-tag — the previous Slackey/red
-   "sticker" was too loud against the rest of the card. */
-.cardHeadRow {
+/* Meta-Row unter dem Foto: Nummer + Name/Bezirk. */
+.entryMeta {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 14px;
+  gap: 18px;
 }
-
-.cardName {
-  font-family: var(--font);
-  font-size: 19px;
-  font-weight: 700;
-  line-height: 1.15;
+.entryNumber {
+  flex-shrink: 0;
+  font-family: var(--font-bowlby-one);
+  font-size: clamp(26px, 4.5vw, 38px);
+  font-weight: 400;
+  color: #1c1c1c;
+  line-height: 0.9;
   letter-spacing: -0.01em;
-  margin: 0;
-  color: #0a0a0a;
-  text-wrap: balance;
-  flex: 1;
+}
+.entryText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   min-width: 0;
 }
-
-.cardPrice {
-  font-family: var(--font);
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #525252;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-/* Cuisine as its own muted line — visually clear that it's NOT the
-   bezirk. Plain casing, lower-weight, smaller than the eyebrow but
-   typographically distinct. */
-.cardCuisine {
-  font-family: var(--font);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.3;
-  color: #525252;
+.entryName {
   margin: 0;
-  font-style: italic;
+  font-family: var(--font-bowlby-one);
+  font-weight: 400;
+  font-size: clamp(24px, 4.2vw, 36px);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  color: #1c1c1c;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+.entryDistrict {
+  margin: 0;
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(28, 28, 28, 0.55);
 }
 
-.cardTip {
-  margin: 4px 0 0;
-  font-size: 14px;
-  line-height: 1.45;
-  color: #2a2a2a;
-  font-weight: 500;
-  text-wrap: pretty;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* ── Desktop / wider ──────────────────────────────────────────────── */
+/* ── Desktop ─────────────────────────────────────────────────────── */
 @media (min-width: 720px) {
-  .section { padding: clamp(96px, 13vh, 160px) 32px clamp(112px, 14vh, 168px); }
-
-  .strip {
-    overflow: visible;
-    margin: 0;
-    padding: 18px 0 8px;
+  .section {
+    padding: clamp(96px, 13vh, 160px) 32px clamp(80px, 10vh, 120px);
+  }
+  .inner {
+    max-width: 920px;
+  }
+  /* Bubble desktop — Comic-Look: 2px ink outline, hard-offset Stempel-
+     Schatten, kontrollierter Tail via inline SVG. */
+  .bubbleWrap {
+    max-width: 640px;
+  }
+  /* Desktop: gleiches Stacking wie Mobile — Bubble oben rechts, Katze
+     drunter zentriert. Mehr Atemraum + größere Cat-Cap. */
+  .bubbleWrap {
+    max-width: 760px;
+  }
+  .bubble {
+    width: 60%;
+    max-width: 500px;
+    padding: 60px 80px 100px;
+  }
+  .bubbleCat {
+    max-width: 480px;
+  }
+  .bubbleQuote {
+    text-align: center;
+  }
+  .entryLink {
+    padding: 36px 0;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 28px;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 40px;
+    align-items: center;
   }
-
-  .card {
-    flex: none;
-    max-width: none;
+  .entryPhoto {
+    margin-bottom: 0;
+    aspect-ratio: 4 / 3;
   }
-}
-
-@media (min-width: 1024px) {
-  .strip {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 32px;
+  .entryMeta {
+    gap: 22px;
+  }
+  /* Jede gerade Reihe spiegelt — Foto rechts, Meta links. */
+  .entry:nth-child(even) .entryLink {
+    grid-template-columns: 1fr 1.4fr;
+  }
+  .entry:nth-child(even) .entryPhoto {
+    order: 2;
+  }
+  .entry:nth-child(even) .entryMeta {
+    order: 1;
+    justify-content: flex-end;
   }
 }
 
 /* ── Dark mode ────────────────────────────────────────────────────── */
 :global([data-theme="dark"]) .section {
-  background: #0a0a0a;
-  color: #f7f5f0;
+  background: #1c1c1c;
+  color: #ffffff;
 }
-
-:global([data-theme="dark"]) .eyebrow {
-  color: #f7f5f0;
+:global([data-theme="dark"]) .entryNumber,
+:global([data-theme="dark"]) .entryName {
+  color: #ffffff;
 }
-
-:global([data-theme="dark"]) .card {
-  background: #141414;
-  border-color: #f7f5f0;
-  box-shadow: 8px 8px 0 0 #f7f5f0;
+/* Bubble bleibt in beiden Themes weiß innen, schwarze Skizze außen. */
+:global([data-theme="dark"]) .entry {
+  border: 0;
 }
-
-:global([data-theme="dark"]) .card:hover {
-  box-shadow: 12px 12px 0 0 #f7f5f0;
+:global([data-theme="dark"]) .entryDistrict {
+  color: rgba(229, 229, 229, 0.6);
 }
-
-:global([data-theme="dark"]) .cardImage {
-  border-bottom-color: #f7f5f0;
-}
-
-:global([data-theme="dark"]) .cardName {
-  color: #f7f5f0;
-}
-
-:global([data-theme="dark"]) .cardEyebrow,
-:global([data-theme="dark"]) .cardCuisine {
-  color: #b8b8b8;
-}
-
-:global([data-theme="dark"]) .cardTip {
-  color: #d8d8d8;
+:global([data-theme="dark"]) .entryPhoto {
+  background: #2a2a2a;
 }

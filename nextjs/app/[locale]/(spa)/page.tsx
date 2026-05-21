@@ -5,19 +5,11 @@ import { serializeJsonLd } from '@/lib/json-ld'
 
 import HeroSection from '@/app/components/HeroSection'
 import SiteFooter from '@/app/components/SiteFooter'
+import { Link } from '@/i18n/navigation'
 
 import FeaturedSpotsSection from '@/app/components/landing/sections/FeaturedSpotsSection'
-import PacksSection from '@/app/components/landing/sections/PacksSection'
-import VoicesSection from '@/app/components/landing/sections/VoicesSection'
-import CitiesSection from '@/app/components/landing/sections/CitiesSection'
-import FaqSection from '@/app/components/landing/sections/FaqSection'
-import FinalCtaSection from '@/app/components/landing/sections/FinalCtaSection'
 
-import {
-  getRestaurantCount,
-  getFeaturedSpots,
-} from '@/lib/sanity.server'
-import { getLandingFaqs } from '@/lib/landing/faqs'
+import { getFeaturedSpots } from '@/lib/sanity.server'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import { SITE_URL } from '@/lib/constants'
 import { localeUrl } from '@/lib/locale-url'
@@ -51,11 +43,7 @@ export default async function SPAHomePage({
   const locale: Locale = rawLocale === 'en' ? 'en' : 'de'
   setRequestLocale(rawLocale)
 
-  const [restaurantCount, spots] = await Promise.all([
-    getRestaurantCount(),
-    getFeaturedSpots(12),
-  ])
-  const faqs = getLandingFaqs(locale)
+  const spots = await getFeaturedSpots(12)
 
   const homeUrl = localeUrl(locale, '/')
   const searchTarget = `${homeUrl}?q={search_term_string}`
@@ -104,14 +92,6 @@ export default async function SPAHomePage({
           }
         }),
       },
-      {
-        '@type': 'FAQPage',
-        mainEntity: faqs.map(({ q, a }) => ({
-          '@type': 'Question',
-          name: q,
-          acceptedAnswer: { '@type': 'Answer', text: a },
-        })),
-      },
     ],
   })
 
@@ -124,11 +104,16 @@ export default async function SPAHomePage({
         <HeroSection />
         <div className="start-scroll-content" style={{ paddingTop: 0 }}>
           <FeaturedSpotsSection spots={spots} locale={locale} />
-          <VoicesSection locale={locale} />
-          <PacksSection locale={locale} restaurantCount={restaurantCount} />
-          <FaqSection locale={locale} />
-          <CitiesSection locale={locale} />
-          <FinalCtaSection />
+          <section className="landing-final-cta" aria-label={locale === 'de' ? 'Map öffnen' : 'Open Map'}>
+            <p className="landing-final-cta-tagline">
+              {locale === 'de'
+                ? 'Die besten Restaurants, Cafés und Bars - direkt auf einer f*** Map.'
+                : 'The best restaurants, cafés and bars - straight on one f*** map.'}
+            </p>
+            <Link href="/map" className="landing-final-cta-btn">
+              {locale === 'de' ? 'Map öffnen' : 'Open Map'}
+            </Link>
+          </section>
           <SiteFooter />
         </div>
       </div>

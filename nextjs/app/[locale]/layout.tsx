@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { setRequestLocale, getMessages } from 'next-intl/server';
-import { Bungee, Caveat, Knewave, Archivo_Black, Ranchers, Slackey, Barlow_Condensed } from 'next/font/google';
+import { Bungee, Caveat, Knewave, Archivo_Black, Ranchers, Slackey, Barlow_Condensed, Bowlby_One, Saira_Condensed, Permanent_Marker, Anton } from 'next/font/google';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
 
@@ -70,6 +70,43 @@ const barlowCondensed = Barlow_Condensed({
   display: 'swap',
   variable: '--font-barlow-condensed',
 });
+// Bowlby One — heavy, rounded, condensed display sans. Matches the EAT THIS
+// wordmark letterforms (same family: heavy stems, rounded terminals,
+// condensed proportions, tall ascenders). Used as the universal landing
+// display font so every section reads as one EAT THIS poster.
+const bowlbyOne = Bowlby_One({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-bowlby-one',
+});
+// Saira Condensed — heavy condensed grotesque used as the editorial-poster
+// display font for the Map list rows + Detail v13. Drives the BAR BASTA-
+// style coral hero headlines, mustard sticker chips, and the slim-row
+// titles. Weights 800/900 carry the brand-poster mass.
+const sairaCondensed = Saira_Condensed({
+  weight: ['700', '800', '900'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-saira-condensed',
+});
+// Permanent Marker — fett wie ein Edding, Sharpie-Stil. Genau die
+// Marker-Brand-Stimme für Slogan + Sprechblase (frech, dick, kein Pen).
+const permanentMarker = Permanent_Marker({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-permanent-marker',
+});
+// Anton — heavy condensed display sans, matches die Cover2-Headline
+// „THE MAP FOR PEOPLE WHO CARE ABOUT FOOD." 1:1. Newspaper-Masthead-
+// Typografie.
+const anton = Anton({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-anton',
+});
 
 export function generateStaticParams() {
   return routing.locales.map(locale => ({ locale }));
@@ -112,7 +149,7 @@ export default async function LocaleLayout({
 
   return (
     // suppressHydrationWarning: critical script mutates data-theme before hydration
-    <html lang={locale} data-scroll-behavior="smooth" className={`${bungee.variable} ${caveat.variable} ${knewave.variable} ${archivoBlack.variable} ${ranchers.variable} ${slackey.variable} ${barlowCondensed.variable}`} suppressHydrationWarning>
+    <html lang={locale} data-scroll-behavior="smooth" className={`${bungee.variable} ${caveat.variable} ${knewave.variable} ${archivoBlack.variable} ${ranchers.variable} ${slackey.variable} ${barlowCondensed.variable} ${bowlbyOne.variable} ${sairaCondensed.variable} ${permanentMarker.variable} ${anton.variable}`} suppressHydrationWarning>
       <head>
         {/* Safe: hardcoded constant, no user input */}
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}

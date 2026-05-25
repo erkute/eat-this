@@ -1,0 +1,413 @@
+/* ============================================================
+   Launch Holding Page — yellow surface with brand banner.
+   The banner image (Eat This wordmark + "We tell you what to eat"
+   tagline) carries the brand statement. Cat is the visual hero.
+   Bg matches the banner's yellow so the banner edges blend in
+   seamlessly.
+   Standalone styles, isolated from /css/style.min.css.
+   ============================================================ */
+
+.page {
+  --f-anton: var(--font-anton), "Anton", "Bebas Neue", sans-serif;
+  --f-display: var(--font-bowlby-one), "Bowlby One", "Anton Black", sans-serif;
+  --f-body: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  --ink: #0a0a0a;
+  --cream: #f7f5f0;
+  --coral: #a02814;
+  /* Matches the launch-banner.webp yellow exactly so the banner edges
+     blend seamlessly into the page surface. */
+  --yellow: #FEC802;
+  --muted: rgba(10, 10, 10, 0.62);
+
+  background:
+    /* Paper grain — subtle fractal noise overlay multiplied onto the
+       yellow surface. Gives the page the same handmade-collage tactility
+       as the cat image. ~5% opacity keeps the yellow saturated. */
+    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    /* Subtle warm vignette — slight darker at edges for paper-feel. */
+    radial-gradient(ellipse at center, transparent 55%, rgba(80, 50, 0, 0.06) 100%),
+    var(--yellow);
+  background-blend-mode: multiply, normal, normal;
+  color: var(--ink);
+  font-family: var(--f-body);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+
+  padding: 18px 18px 14px;
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ============================================================
+   Drop sticker — rounded pill in the cartoon brand voice.
+   Knewave brush-marker matches the EAT THIS bubble letterforms.
+   ============================================================ */
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  margin: 0;
+  font-family: var(--f-display);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 12px;
+  align-self: center;
+  flex: 0 0 auto;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.kickerTag {
+  background: var(--ink);
+  color: var(--yellow);
+  padding: 8px 14px 6px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+}
+.kickerLoc {
+  color: var(--ink);
+  padding: 8px 14px 6px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ============================================================
+   Cat — the visual hero. Sits between the kicker (top) and the
+   brand banner. flex:1 absorbs whatever vertical space is left.
+   ============================================================ */
+.cat {
+  display: block;
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  flex: 1 1 0;
+  min-height: 280px;
+  margin: 0 auto;
+  object-fit: contain;
+  object-position: center;
+  filter: drop-shadow(0 18px 28px rgba(10, 10, 10, 0.28));
+  pointer-events: none;
+  user-select: none;
+  /* Continuous micro-jitter (≤1px translate) — high-contrast eyes
+     read as "vibrating" / alive. Cat is a single bitmap so the eyes
+     can't be isolated; whole-image jitter is the closest stand-in.
+     Per CLAUDE.md no opacity for motion → translate only. */
+  animation: cat-vibrate 0.42s steps(5, end) infinite;
+  will-change: transform;
+}
+@keyframes cat-vibrate {
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(-0.7px, 0.5px); }
+  40%  { transform: translate(0.6px, -0.5px); }
+  60%  { transform: translate(-0.5px, -0.6px); }
+  80%  { transform: translate(0.7px, 0.4px); }
+  100% { transform: translate(0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cat {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   Brand banner — image element. Bg yellow inside the image matches
+   the page yellow so only the black stamp + tagline are visible.
+   ============================================================ */
+.brand {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 420px;
+  /* Negative bottom margin pulls the cat up against the banner —
+     they read as one continuous brand collage. */
+  margin: 0 auto -14px;
+  flex: 0 0 auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ============================================================
+   Slogan — Anton condensed caps, big editorial tagline below the cat.
+   Coral accent on "The Map" matches the red in the cat's mouth.
+   ============================================================ */
+.sub {
+  font-family: var(--f-anton);
+  text-transform: uppercase;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  font-size: clamp(28px, 7.4vw, 38px);
+  line-height: 1.02;
+  margin: 0;
+  text-align: center;
+  align-self: stretch;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.subLeft,
+.subRight {
+  display: block;
+}
+/* Comma after "people" — visible on all breakpoints. Both halves are
+   block-stacked, so the comma stays attached to the first line. */
+.commaMobile {
+  display: inline;
+}
+.coral {
+  color: var(--coral);
+}
+
+/* ============================================================
+   Email form — rounded pill, cream input, ink CTA in marker font.
+   ============================================================ */
+.form {
+  display: flex;
+  background: transparent;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  gap: 0;
+  align-self: center;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 480px;
+  overflow: hidden;
+}
+.form input {
+  flex: 1;
+  border: 0;
+  background: var(--cream);
+  font-family: var(--f-body);
+  color: var(--ink);
+  outline: none;
+  min-width: 0;
+  padding: 14px 22px;
+  font-size: 16px;
+  border-radius: 0;
+  -webkit-appearance: none;
+}
+.form input::placeholder {
+  color: rgba(10, 10, 10, 0.42);
+  font-family: var(--f-body);
+  letter-spacing: 0;
+  font-size: 15px;
+}
+.form input:disabled {
+  opacity: 0.7;
+}
+.form button {
+  background: var(--ink);
+  color: var(--yellow);
+  border: 0;
+  font-family: var(--f-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 14px;
+  padding: 0 26px;
+}
+.form button:disabled {
+  opacity: 0.75;
+  cursor: default;
+}
+
+.errorNote {
+  font-family: var(--f-display);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 13px;
+  color: var(--coral);
+  margin-top: -4px;
+}
+
+/* ============================================================
+   Footer — small mono legal stamp.
+   ============================================================ */
+.foot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--f-body);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-size: 11px;
+  padding-top: 4px;
+  flex-wrap: wrap;
+  align-self: stretch;
+  flex: 0 0 auto;
+}
+.foot a {
+  color: inherit;
+  text-decoration: none;
+}
+.sep {
+  opacity: 0.45;
+}
+
+/* ============================================================
+   Desktop ≥ 900px — Brand stack hugs top of left col, cat sits on
+   the right at the same height. Form spans both cols underneath
+   so its right edge aligns with the cat's right edge. Void fills
+   downward, footer pinned to bottom.
+     ┌────────────────────┬──────────────┐
+     │ kicker             │              │
+     │ banner             │     CAT      │
+     │ slogan             │              │
+     ├────────────────────┴──────────────┤
+     │            email + cta            │
+     │              (void)               │
+     │              footer               │
+     └───────────────────────────────────┘
+   ============================================================ */
+@media (min-width: 900px) {
+  .page {
+    padding: 30px 56px 22px;
+    padding-bottom: max(22px, env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: minmax(380px, 1fr) minmax(380px, 1.05fr);
+    grid-template-rows: auto auto auto auto 1fr auto;
+    grid-template-areas:
+      "kicker cat"
+      "brand  cat"
+      "sub    cat"
+      "form   form"
+      ".      ."
+      "foot   foot";
+    column-gap: 56px;
+    row-gap: 18px;
+    align-items: start;
+    justify-items: start;
+  }
+
+  .kicker {
+    grid-area: kicker;
+    font-size: 13px;
+  }
+  .kickerTag,
+  .kickerLoc {
+    padding: 9px 14px 8px;
+  }
+
+  .brand {
+    grid-area: brand;
+    width: 100%;
+    max-width: 660px;
+    margin: 0;
+  }
+
+  /* Cat fills the height of rows 1–3 (brand-stack height) on the
+     right side, centered horizontally in its column. object-fit:
+     contain keeps the cat shape regardless of column aspect.
+     The cat-vibrate animation is defined globally above. */
+  .cat {
+    grid-area: cat;
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    min-height: 0;
+    object-fit: contain;
+    object-position: center;
+    align-self: stretch;
+    justify-self: center;
+  }
+
+  /* Slogan stacks two lines and centers under the logo above.
+     max-width matches the brand banner so their boxes align in
+     width, and text-align: center balances the slogan around the
+     same midpoint as the logo. */
+  .sub {
+    grid-area: sub;
+    display: block;
+    text-align: center;
+    font-size: clamp(44px, 4.6vw, 68px);
+    line-height: 1.0;
+    margin: 0;
+    width: 100%;
+    max-width: 660px;
+  }
+  .subLeft,
+  .subRight {
+    display: block;
+  }
+
+  /* Form spans both cols → right edge sits at page-padding, which
+     also coincides with the cat's right edge. On desktop the form
+     grows in from the left on mount: starts as a short pill on the
+     left, extends rightward to full width. backwards fill so the
+     small starting width is applied during the delay too. */
+  .form {
+    grid-area: form;
+    justify-self: start;
+    width: 100%;
+    max-width: none;
+    animation: form-grow-in 6000ms cubic-bezier(0.22, 1, 0.36, 1) 500ms backwards;
+    transform-origin: left center;
+    will-change: width;
+  }
+  /* Start width is ~button-width + a sliver of input so the Notify Me
+     CTA is visible from the very first frame; the input area then
+     unfolds to the right as the pill grows. */
+  @keyframes form-grow-in {
+    from {
+      width: 240px;
+    }
+    to {
+      width: 100%;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .form {
+      animation: none;
+    }
+  }
+  .form input {
+    padding: 18px 24px;
+    font-size: 16px;
+  }
+  .form button {
+    font-size: 16px;
+    padding: 0 38px;
+    letter-spacing: 0.05em;
+  }
+
+  .foot {
+    grid-area: foot;
+    justify-self: center;
+    font-size: 11px;
+    gap: 14px;
+    padding-top: 0;
+    align-self: end;
+  }
+}
+
+/* ============================================================
+   Wide desktop ≥ 1280px — banner + slogan scale up.
+   ============================================================ */
+@media (min-width: 1280px) {
+  .page {
+    padding: 40px 80px 26px;
+    column-gap: 72px;
+  }
+  .brand {
+    max-width: 740px;
+  }
+  .sub {
+    font-size: clamp(56px, 4.6vw, 80px);
+    max-width: 740px;
+  }
+}

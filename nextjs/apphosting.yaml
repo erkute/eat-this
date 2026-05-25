@@ -27,6 +27,18 @@ env:
     value: Eat This
     availability:
       - RUNTIME
+  # Launch holding-page signup segment. Resend deprecated Audiences in favor
+  # of Segments — create a Segment in Resend Dashboard → Segments, copy the
+  # UUID, then:
+  #   firebase apphosting:secrets:set RESEND_LAUNCH_SEGMENT_ID
+  #   firebase apphosting:secrets:grantaccess RESEND_LAUNCH_SEGMENT_ID --backend <id>
+  # The segment ID is an identifier (not a real secret), but using the secret
+  # slot keeps the runtime env lookup consistent with the API key.
+  # /api/launch-signup returns 500 when this is unset — defensive, no drops.
+  - variable: RESEND_LAUNCH_SEGMENT_ID
+    secret: RESEND_LAUNCH_SEGMENT_ID
+    availability:
+      - RUNTIME
 
   # Firebase Admin SDK (server-side magic link generation)
   - variable: FIREBASE_ADMIN_PROJECT_ID

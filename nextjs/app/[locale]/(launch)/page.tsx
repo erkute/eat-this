@@ -24,8 +24,8 @@ export default async function LaunchPage({
         src="/pics/launch-banner.webp"
         alt="Eat This — we tell you what to eat"
         className={styles.brand}
-        width="1846"
-        height="884"
+        width="1672"
+        height="941"
         loading="eager"
         decoding="async"
       />

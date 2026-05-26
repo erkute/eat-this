@@ -404,10 +404,15 @@
   }
 
   .brand {
+    /* Cap by both width AND viewport-height so the brand image never
+       pushes the form + footer below the fold on common laptop heights
+       (≈700–900px). width:auto + height:auto keep the aspect ratio. */
     max-width: 540px;
+    max-height: 50vh;
   }
   .tagline {
     max-width: 460px;
+    max-height: 11vh;
     margin-top: -14px;
   }
 
@@ -441,7 +446,11 @@
     background: var(--paper);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    margin-top: 0;
+    /* margin-top: auto inherited from the mobile rule — pushes the
+       form + foot to the bottom of the .page so the Impressum row
+       anchors to the viewport edge instead of stacking right under
+       the tagline. .notifyTrigger and .thanksBox already keep their
+       mobile margin-top: auto. */
   }
   .form input {
     padding: 20px 28px;
@@ -494,9 +503,11 @@
   }
   .brand {
     max-width: 620px;
+    max-height: 52vh;
   }
   .tagline {
     max-width: 520px;
+    max-height: 12vh;
   }
   .form {
     max-width: 660px;

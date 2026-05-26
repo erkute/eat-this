@@ -102,19 +102,20 @@
    ============================================================ */
 .cat {
   display: block;
-  /* Mobile: in-flow, sits BELOW the email form / notify button. Centered
-     and capped so the page reads as kicker → logo → tagline → CTA → cat
-     stack on small viewports. Desktop @900+ flips this back to an
-     absolutely-positioned hero in the bottom-right corner. */
+  /* Mobile: in-flow, sits BELOW the email form / notify button. Capped so
+     the full stack (kicker → logo → tagline → CTA → cat → foot) fits in
+     ~700-790px usable viewport without scrolling. Desktop @900+ flips
+     this back to an absolutely-positioned hero in the bottom-right
+     corner. */
   position: relative;
   right: auto;
   left: auto;
   bottom: auto;
   top: auto;
   width: 100%;
-  max-width: 360px;
+  max-width: 200px;
   height: auto;
-  max-height: none;
+  max-height: 38vh;
   margin: 4px auto 0;
   align-self: center;
   flex: 0 0 auto;

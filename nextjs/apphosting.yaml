@@ -32,6 +32,47 @@ env:
     availability:
       - RUNTIME
 
+  # Per-locale launch segments — once created in Resend + as App Hosting
+  # secrets, the DOI confirm endpoint routes EN signups into _EN instead
+  # of the legacy _ID. Code falls back to RESEND_LAUNCH_SEGMENT_ID for
+  # both locales until these secrets exist. To enable:
+  #   firebase apphosting:secrets:set RESEND_LAUNCH_SEGMENT_DE
+  #   firebase apphosting:secrets:set RESEND_LAUNCH_SEGMENT_EN
+  # then uncomment the two blocks below + redeploy.
+  # - variable: RESEND_LAUNCH_SEGMENT_DE
+  #   secret: RESEND_LAUNCH_SEGMENT_DE
+  #   availability: [RUNTIME]
+  # - variable: RESEND_LAUNCH_SEGMENT_EN
+  #   secret: RESEND_LAUNCH_SEGMENT_EN
+  #   availability: [RUNTIME]
+
+  # Double-opt-in HMAC signing key. Without this the launch-signup route
+  # falls back to direct-add (no confirmation email) — bot-protection
+  # (honeypot + time-gate + rate-limit) still applies. To enable DOI:
+  #   openssl rand -hex 32  # generate a 64-char hex secret
+  #   firebase apphosting:secrets:set LAUNCH_CONFIRM_SECRET  # paste it
+  # then uncomment the block below + redeploy.
+  # - variable: LAUNCH_CONFIRM_SECRET
+  #   secret: LAUNCH_CONFIRM_SECRET
+  #   availability: [RUNTIME]
+
+  # reCAPTCHA Enterprise v3 — score-based bot protection. Honeypot +
+  # time-gate + rate-limit always run; reCAPTCHA only kicks in when all
+  # three vars are set. To enable:
+  #   1. GCP Console → reCAPTCHA Enterprise → create v3 site-key for
+  #      www.eatthisdot.com (NOT a checkbox key — score-based v3)
+  #   2. firebase apphosting:secrets:set RECAPTCHA_API_KEY
+  #   3. uncomment the three blocks below, fill the values, redeploy
+  # - variable: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+  #   value: 6Lc-xxx
+  #   availability: [RUNTIME, BUILD]
+  # - variable: RECAPTCHA_PROJECT_ID
+  #   value: eat-this-8a13b
+  #   availability: [RUNTIME]
+  # - variable: RECAPTCHA_API_KEY
+  #   secret: RECAPTCHA_API_KEY
+  #   availability: [RUNTIME]
+
   # Firebase Admin SDK (server-side magic link generation)
   - variable: FIREBASE_ADMIN_PROJECT_ID
     value: eat-this-8a13b

@@ -300,6 +300,34 @@
   font-size: 18px;
   color: var(--ink);
 }
+.thanksTitle {
+  display: block;
+  font-family: var(--font-permanent-marker), "Permanent Marker", "Marker Felt", cursive;
+  font-size: 19px;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.thanksSub {
+  display: block;
+  font-family: var(--f-body);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink);
+  max-width: 28ch;
+}
+
+/* Honeypot — visually hidden, accessibility-hidden, off-screen.
+   Real users never see or focus it; only naive bots that fill
+   every input trip the server-side guard. */
+.honeypot {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
 
 /* ============================================================
    Notify trigger — initial 2-stage CTA. Shows just the NOTIFY ME
@@ -336,17 +364,20 @@
 
 .thanksBox {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
   background: var(--paper);
   border: 3px solid var(--ink);
-  padding: 14px 32px;
+  padding: 16px 24px 18px;
   position: relative;
   z-index: 2;
   box-shadow: 6px 6px 0 0 var(--ink);
   margin-top: 0;
   align-self: center;
   flex: 0 0 auto;
+  max-width: 320px;
 }
 
 /* ============================================================

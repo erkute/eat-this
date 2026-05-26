@@ -3,7 +3,7 @@
 import { CSSProperties, useState } from 'react'
 import Image from 'next/image'
 import type { MustEatPreview } from '@/lib/sanity.server'
-import { useLoginModal } from '@/lib/auth'
+import { useRouter } from '@/i18n/navigation'
 import styles from './MustEatTeaserSection.module.css'
 
 interface Props {
@@ -18,7 +18,7 @@ const TILTS = [-3.2, 2.4, -1.8, 2.8, -2.6, 1.9, -3.0, 2.2, -2.1, 2.6, -2.4, 1.7]
 
 export default function MustEatTeaserSection({ mustEats, locale }: Props) {
   const [shakingId, setShakingId] = useState<string | null>(null)
-  const { open: openLogin } = useLoginModal()
+  const router = useRouter()
 
   if (mustEats.length === 0) return null
   const de = locale === 'de'
@@ -26,24 +26,27 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
 
   const handleClick = (id: string) => {
     setShakingId(id)
-    window.setTimeout(() => setShakingId(prev => (prev === id ? null : prev)), 600)
-    openLogin()
+    // Brief shake before flying out so the click registers visually,
+    // then route to the holding/launch page (Login is off until launch).
+    window.setTimeout(() => {
+      router.push('/')
+    }, 280)
   }
 
   const t = de
     ? {
         eyebrow:  'Must Eats',
-        heading:  n === 1 ? '1 Gericht versiegelt.' : `${n} Gerichte versiegelt.`,
-        body:     'Login dreht die Karten um.',
-        ariaList: 'Must Eats freischalten',
-        ariaCard: 'Must Eat freischalten — Login öffnen',
+        heading:  n === 1 ? '1 Must Eat noch nicht aufgedeckt.' : `${n} Must Eats noch nicht aufgedeckt.`,
+        body:     'Bald geht es los — sei dabei.',
+        ariaList: 'Must Eats aufdecken',
+        ariaCard: 'Zur Launch-Seite',
       }
     : {
         eyebrow:  'Must Eats',
-        heading:  n === 1 ? '1 dish sealed.' : `${n} dishes sealed.`,
-        body:     'Sign in to flip them over.',
-        ariaList: 'Unlock Must Eats',
-        ariaCard: 'Unlock Must Eat — open login',
+        heading:  n === 1 ? '1 Must Eat still face-down.' : `${n} Must Eats still face-down.`,
+        body:     'Going live soon — get on the list.',
+        ariaList: 'Reveal Must Eats',
+        ariaCard: 'Open launch page',
       }
 
   return (

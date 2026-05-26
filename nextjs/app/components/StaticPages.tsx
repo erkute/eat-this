@@ -4,9 +4,11 @@ import { useTranslation } from '@/lib/i18n'
 import { PortableTextRenderer } from '@/lib/PortableTextRenderer'
 import type { StaticPageDoc } from '@/lib/types'
 import SiteFooter from './SiteFooter'
+import SeoSignupCTA from './SeoSignupCTA'
 import styles from './StaticPages.module.css'
 
 const SLUG_ORDER = ['about', 'contact', 'press', 'impressum', 'datenschutz', 'agb'] as const
+const SIGNUP_SLUGS = new Set(['about', 'contact', 'press'])
 
 function pageId(slug: string) {
   return 'staticPage' + slug.charAt(0).toUpperCase() + slug.slice(1)
@@ -27,6 +29,7 @@ function StaticPage({ doc }: { doc: StaticPageDoc }) {
           <PortableTextRenderer blocks={body} />
         </div>
       </div>
+      {SIGNUP_SLUGS.has(doc.slug) && <SeoSignupCTA />}
       <SiteFooter />
     </div>
   )

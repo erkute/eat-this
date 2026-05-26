@@ -134,25 +134,26 @@ html[data-theme="dark"] {
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  /* Site-„weiß" = exakter Cover2-Bg-Ton (#ffffff) — fließt nahtlos in das
-     Hero-Image. Rubber-band overscroll auf iOS zeigt den selben Ton. */
-  background-color: #ffffff;
+  /* Cream universal — matches the SEO-page surface (#fbf8ee) so the side
+     strips that appear on Desktop when .page is centered with max-width
+     blend into the page bg instead of showing grey/white body underneath.
+     iOS rubber-band overscroll also picks up cream. */
+  background-color: #fbf8ee;
 }
 html[data-theme="dark"] {
-  /* Site-„schwarz" = exaktes Cover2-Text-Ton (#1c1c1c). */
-  background-color: #1c1c1c;
+  background-color: #fbf8ee;
 }
 
 body {
   font-family: var(--font);
-  background: #ffffff;
+  background: #fbf8ee;
   color: var(--black);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
 }
 html[data-theme="dark"] body {
-  background: #1c1c1c;
+  background: #fbf8ee;
 }
 
 img {

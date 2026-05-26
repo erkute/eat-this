@@ -40,19 +40,32 @@
   border: 2px solid var(--ink, #000);
   color: var(--ink, #000);
   position: relative;
-  font-family: var(--f-display, "Anton"), "Bebas Neue", sans-serif;
-  font-size: 22px;
-  line-height: 1;
 }
-.plus::before {
+/* "+" drawn as two CSS strokes — font-independent so Anton's quirky
+   glyph metrics can't shift it off center. Horizontal stroke is always
+   visible; vertical stroke hides when [open] so the symbol turns into a
+   minus. Both strokes anchor at exact center (50/50, translate -50/-50). */
+.plus::before,
+.plus::after {
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -55%);
-  line-height: 1;
+  background: currentColor;
 }
-.row[open] .plus::before { content: "\2212"; }
-.row:not([open]) .plus::before { content: "+"; }
+.plus::before {
+  width: 12px;
+  height: 2px;
+  transform: translate(-50%, -50%);
+}
+.plus::after {
+  width: 2px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+}
+.row[open] .plus::after {
+  display: none;
+}
 .a {
   font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
   font-size: 14.5px;

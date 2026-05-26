@@ -3,7 +3,10 @@
   color: #fbf8ee;
   padding: 40px 22px 44px;
   text-align: left;
-  margin-top: 48px;
+  /* No margin-top — must butt directly against previous content. Any gap
+     exposes body bg (theme-dependent grey in dark mode) between the cream
+     content surface and the black CTA. Inner padding handles breathing. */
+  margin-top: 0;
   margin-bottom: 0;
   /* Full-bleed across viewport regardless of parent padding */
   width: 100vw;
@@ -120,14 +123,12 @@
 
 @media (min-width: 720px) {
   .cta {
-    margin-top: 56px;
     padding: 56px 32px;
   }
 }
 
 @media (min-width: 960px) {
   .cta {
-    margin-top: 80px;
     padding: 72px max(80px, calc(50vw - 600px));
   }
   .title,

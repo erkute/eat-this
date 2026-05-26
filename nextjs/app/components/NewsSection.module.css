@@ -6,7 +6,7 @@
  * ───────────────────────────────────────────────────────────── */
 
 .page {
-  background: var(--surface-canvas);
+  background: #fbf8ee;
   color: var(--text-primary);
 }
 

@@ -341,8 +341,8 @@ export default async function RestaurantPage({ params }: PageProps) {
           </section>
         )}
 
-        <SeoSignupCTA />
       </main>
+      <SeoSignupCTA />
     </>
   )
 }

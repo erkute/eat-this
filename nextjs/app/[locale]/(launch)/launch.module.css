@@ -56,6 +56,46 @@
 }
 
 /* ============================================================
+   Floating card-back — slow, balloon-like background drift.
+   Loops a translate path that takes the card off-screen left,
+   across the top, off-screen right, back in from the bottom,
+   and home again. Pure translate (per project animation rule —
+   no opacity fades for motion). Sits at z-index 0 with the cat;
+   painted before .cat in source order so the cat layers on top
+   wherever they overlap.
+   ============================================================ */
+.floatCard {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 84px;
+  height: auto;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  will-change: transform;
+  animation: cardDrift 32s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  transform: translate3d(-30vw, 24vh, 0) rotate(-12deg);
+}
+
+@keyframes cardDrift {
+  0%   { transform: translate3d(-35vw, 28vh, 0) rotate(-12deg); }
+  18%  { transform: translate3d(45vw, 8vh,  0) rotate(8deg); }
+  36%  { transform: translate3d(95vw, 22vh, 0) rotate(-6deg); }
+  52%  { transform: translate3d(120vw, 55vh, 0) rotate(16deg); }
+  70%  { transform: translate3d(55vw, 78vh, 0) rotate(-4deg); }
+  86%  { transform: translate3d(5vw, 52vh,  0) rotate(14deg); }
+  100% { transform: translate3d(-35vw, 28vh, 0) rotate(-12deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floatCard {
+    animation: none;
+    display: none;
+  }
+}
+
+/* ============================================================
    Cat — the visual hero. Sits between the kicker (top) and the
    brand banner. flex:1 absorbs whatever vertical space is left.
    ============================================================ */
@@ -435,6 +475,12 @@
     max-height: none;
   }
 
+  /* Drifting card scales up on desktop where there's room for it
+     to read as a proper background element. */
+  .floatCard {
+    width: 180px;
+  }
+
   .scrollHint {
     display: none;
   }
@@ -446,11 +492,11 @@
     background: var(--paper);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    /* margin-top: auto inherited from the mobile rule — pushes the
-       form + foot to the bottom of the .page so the Impressum row
-       anchors to the viewport edge instead of stacking right under
-       the tagline. .notifyTrigger and .thanksBox already keep their
-       mobile margin-top: auto. */
+    /* Lift the form off the very bottom on desktop — sitting flush
+       above .foot read as "stuck to the floor". Bottom margin gives
+       breathing room so the CTA sits in the lower-third rather than
+       at the edge. Mobile keeps it flush (margin-top: auto only). */
+    margin-bottom: clamp(48px, 8vh, 112px);
   }
   .form input {
     padding: 20px 28px;
@@ -483,6 +529,9 @@
     border-width: 3px;
     padding: 16px 36px;
     box-shadow: 6px 6px 0 0 var(--ink);
+    /* Lift off the bottom edge same as .form — both render at the same
+       slot in the flex stack (only one is visible at a time). */
+    margin-bottom: clamp(48px, 8vh, 112px);
   }
   .notifyTrigger:hover {
     box-shadow: 4px 4px 0 0 var(--ink);

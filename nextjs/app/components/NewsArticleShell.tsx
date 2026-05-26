@@ -5,6 +5,7 @@ import type { NewsArticle } from '@/lib/types';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
 import Breadcrumbs, { type BreadcrumbItem } from './Breadcrumbs';
+import SeoSignupCTA from './SeoSignupCTA';
 import styles from './NewsArticleShell.module.css';
 
 interface Props {
@@ -156,6 +157,7 @@ export default function NewsArticleShell({
           </section>
         )}
       </article>
+      <SeoSignupCTA />
       <SiteFooter />
     </div>
   );

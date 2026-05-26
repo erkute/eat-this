@@ -2,6 +2,7 @@ import { CSSProperties } from 'react';
 import { Link } from '@/i18n/navigation';
 import SiteFooter from './SiteFooter';
 import NewsTicker from './NewsTicker';
+import SeoSignupCTA from './SeoSignupCTA';
 import type { NewsArticle } from '@/lib/types';
 import styles from './NewsSection.module.css';
 
@@ -102,6 +103,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
           </ul>
         )}
       </section>
+      <SeoSignupCTA />
       <SiteFooter />
     </div>
   );

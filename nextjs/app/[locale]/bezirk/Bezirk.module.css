@@ -11,8 +11,8 @@
 .page {
   /* Scoped tokens — pixel-genaue Mockup-Werte */
   --ink: #000;
-  --cream: #ffffff;
-  --cream-deep: #f6f4ee;
+  --cream: #fbf8ee;
+  --cream-deep: #f1ecdd;
   --yellow: #ffd84a;
   --muted: #6b5a44;
   --f-display: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
@@ -91,20 +91,6 @@
   margin: 0 0 22px;
 }
 
-.heroPhoto {
-  margin: 14px 0;
-  aspect-ratio: 4 / 5;
-  background-color: #14100c;
-  position: relative;
-  overflow: hidden;
-}
-.heroPhoto img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
 /* ============================================================
    STATS STRIP
 ============================================================ */
@@ -131,8 +117,8 @@
 }
 .statK {
   font-family: var(--f-body);
-  font-size: 10.5px;
-  letter-spacing: 0.18em;
+  font-size: 12px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ink);
   margin-top: 6px;
@@ -221,10 +207,10 @@
   background: var(--yellow);
   color: var(--ink);
   font-family: var(--f-display);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 3px 8px 4px;
+  padding: 4px 9px 5px;
   line-height: 1;
 }
 .chipOutline {
@@ -232,15 +218,15 @@
   color: var(--ink);
   border: 1.5px solid var(--ink);
   font-family: var(--f-display);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 2px 8px 3px;
+  padding: 2.5px 9px 3.5px;
   line-height: 1;
 }
 .price {
   font-family: var(--f-body);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink);
   font-weight: 600;
   margin-left: 2px;
@@ -299,19 +285,30 @@
   border: 2px solid var(--ink);
   color: var(--ink);
   position: relative;
-  font-family: var(--f-display);
-  font-size: 22px;
-  line-height: 1;
 }
-.faqPlus::before {
+/* "+" drawn as two CSS strokes — font-independent, mathematically
+   centered. Vertical stroke hides when [open] → renders as minus. */
+.faqPlus::before,
+.faqPlus::after {
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -55%);
-  line-height: 1;
+  background: currentColor;
 }
-.faqRow[open] .faqPlus::before { content: "\2212"; }
-.faqRow:not([open]) .faqPlus::before { content: "+"; }
+.faqPlus::before {
+  width: 12px;
+  height: 2px;
+  transform: translate(-50%, -50%);
+}
+.faqPlus::after {
+  width: 2px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+}
+.faqRow[open] .faqPlus::after {
+  display: none;
+}
 .faqA {
   font-family: var(--f-body);
   font-size: 14.5px;
@@ -511,33 +508,86 @@
   .bezirkGrid {
     grid-template-columns: repeat(4, 1fr);
   }
-  /* Bezirk detail: hero text + hero photo become a 2-col spread on
-     desktop ONLY when a photo exists. Without :has() guard, the
-     empty right cell would show as a void at content width — most
-     bezirke don't have an image set in Sanity yet. */
-  .heroSpread:has(.heroPhoto) {
-    display: grid;
-    grid-template-columns: 1.05fr 1fr;
-    column-gap: 56px;
-    align-items: center;
-    margin: 8px 0 28px;
+  /* Hero desktop-treatment: H1 fills the space typographically — no photo,
+     no decoration, just Anton at full presence so the cream column doesn't
+     feel empty on wide screens. */
+  .hero {
+    margin: 16px 0 40px;
   }
-  .heroSpread:has(.heroPhoto) .hero {
-    margin: 0;
+  .kicker {
+    font-size: 15px;
+    letter-spacing: 0.26em;
   }
-  .heroSpread:has(.heroPhoto) .heroPhoto {
-    margin: 0;
-    aspect-ratio: 4 / 5;
-  }
-  /* H1 + sub scale up on desktop site-wide (Bezirk + Kategorie).
-     Bigger headline carries the hero on its own when no photo is
-     present (current state for most bezirke and all kategorien). */
   .h1 {
-    font-size: clamp(72px, 8vw, 128px);
+    /* Scale back from 192 — at that max short bezirk names like MITTE
+       look over-blown and visually clip page rhythm. 160 still reads as
+       statement on 1440+ without overwhelming. */
+    font-size: clamp(88px, 10vw, 160px);
+    line-height: 0.94;
+    margin: 24px 0 18px;
+  }
+  .tagline {
+    font-size: clamp(28px, 4vw, 52px);
   }
   .sub {
+    max-width: 52ch;
+    font-size: 18px;
+    line-height: 1.5;
+    margin: 0 0 28px;
+  }
+  .stats {
+    margin: 18px 0 40px;
+  }
+  .statN {
+    font-size: 56px;
+  }
+  .statCell {
+    padding: 26px 16px;
+  }
+  /* Section h2 ("Was du hier essen solltest" / "Die handverlesene
+     Auswahl") — was capped at 56, too small to sit between a 160 H1
+     and the restaurant grid below. Lift to second-tier display. */
+  .sectionHead h2 {
+    font-size: clamp(56px, 6.5vw, 96px);
+    line-height: 0.96;
+  }
+  .sectionHead p {
+    font-size: 16px;
     max-width: 44ch;
-    font-size: 17px;
+  }
+  /* Restaurant cards inside the bezirk/kategorie 3-col grid — 24px was
+     swallowed by the surrounding type scale. Bump card name + meta chips
+     so the cuisine/district pills don't read as tiny tags. */
+  .cardName {
+    font-size: clamp(26px, 2vw, 32px);
+    line-height: 1.04;
+    margin-bottom: 12px;
+  }
+  .cardTip {
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  .cardMeta {
+    margin-bottom: 14px;
+    gap: 8px;
+  }
+  .chipYellow,
+  .chipOutline {
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    padding: 5px 11px 6px;
+  }
+  .price {
+    font-size: 14px;
+  }
+  /* Bezirk index card name (4-col grid) — 32px fix was OK on mobile but
+     plain on desktop. */
+  .bezirkName {
+    font-size: clamp(34px, 2.6vw, 44px);
+  }
+  /* Kategorie index poster name — was 30 max. Bump for wider posters. */
+  .posterName {
+    font-size: clamp(28px, 2.4vw, 38px);
   }
   .finalCta {
     margin: 80px -80px 0;

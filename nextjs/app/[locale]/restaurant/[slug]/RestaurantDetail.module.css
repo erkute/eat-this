@@ -118,7 +118,10 @@
 .heroName {
   font-family: var(--f-display);
   font-size: clamp(48px, 14vw, 84px);
-  line-height: 0.95;
+  /* 1.06 keeps the dense magazine-cover punch on line 1 while leaving
+     enough vertical clearance for Ä/Ö/Ü umlauts on line 2 (e.g.
+     "Albatross Bäckerei" — at 0.95 the Ä-dots clip the L above). */
+  line-height: 1.06;
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--cream);
@@ -175,7 +178,8 @@
 .name {
   font-family: var(--f-display);
   font-size: clamp(48px, 12vw, 78px);
-  line-height: 0.95;
+  /* See .heroName note — same umlaut-clearance fix when names wrap. */
+  line-height: 1.06;
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--ink);
@@ -382,24 +386,27 @@
 }
 .siblings h2 {
   font-family: var(--f-display);
-  font-size: clamp(32px, 8vw, 48px);
-  line-height: 1;
+  font-size: clamp(40px, 9vw, 56px);
+  line-height: 0.98;
   text-transform: uppercase;
   color: var(--ink);
-  margin: 0 0 16px;
+  margin: 0 0 20px;
 }
 .sibRow {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 .sibRowHead {
-  font-family: var(--f-body);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
+  /* Mobile lifts from 12px caps low-opacity label into a proper Anton
+     subhead — matches the desktop treatment so the hierarchy reads on
+     both viewports instead of shrinking to a quiet label on phone. */
+  font-family: var(--f-display);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--ink);
-  opacity: 0.62;
-  margin: 0 0 12px;
+  margin: 0 0 14px;
 }
 .sibCards {
   display: grid;
@@ -425,20 +432,20 @@
 }
 .sibName {
   font-family: var(--f-display);
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1.05;
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--ink);
-  margin: 0 0 4px;
+  margin: 0 0 5px;
 }
 .sibMeta {
   font-family: var(--f-body);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink);
-  opacity: 0.6;
+  opacity: 0.65;
   font-weight: 600;
 }
 
@@ -465,11 +472,166 @@
   }
 }
 
-@media (min-width: 960px) {
+@media (min-width: 1024px) {
+  /* Wider page envelope; content stays single-column but breathes more.
+     No sticky sidebar — facts/acts/story flow linearly so eye doesn't
+     have to track between scrolling and pinned regions. */
   .page {
-    max-width: 880px;
+    max-width: 1240px;
+    padding: 88px 56px 0;
   }
+
+  /* HERO — Cover-style letterbox spanning content width. Bigger than
+     mobile's 4/5 portrait; reads as editorial cover. */
+  .hero {
+    margin: 12px 0 0;
+    aspect-ratio: 16 / 9;
+    max-height: none;
+  }
+  .heroOverlay {
+    inset: auto 40px 40px;
+  }
+  .heroName {
+    /* Match Bezirk/Kategorie H1 scale (160 max) so all page-level
+       titles share one rhythm across SEO surfaces. */
+    font-size: clamp(80px, 10vw, 160px);
+    margin: 0 0 16px;
+  }
+  .heroTags {
+    font-size: 15px;
+  }
+  .heroTags .chip,
+  .heroTags .chipAlt {
+    padding: 5px 12px 6px;
+  }
+
+  /* H1 (when no photo) — same scale as the overlay variant. */
   .name {
-    font-size: clamp(64px, 7vw, 96px);
+    font-size: clamp(80px, 10vw, 160px);
+    margin: 32px 0 0;
+  }
+
+  /* STORY — narrow reading column, centered with auto margins. Stays
+     legible while page itself is wider. */
+  .story {
+    font-size: 17px;
+    line-height: 1.65;
+    padding: 0;
+    margin: 56px auto 12px;
+    max-width: 680px;
+  }
+  .lede::first-letter {
+    font-size: 96px;
+    padding: 12px 14px 0 0;
+  }
+  .pullQuote {
+    font-size: clamp(32px, 3.5vw, 42px);
+    line-height: 1.05;
+    margin: 32px 0;
+  }
+
+  /* TIPP — sits with the story column for narrative tie-in. */
+  .tipp {
+    margin: 32px auto 40px;
+    max-width: 680px;
+    padding: 26px 28px 28px;
+    box-shadow: 8px 8px 0 0 var(--ink);
+  }
+  .tippLabel {
+    font-size: 16px;
+  }
+  .tippText {
+    font-size: 17px;
+    line-height: 1.55;
+  }
+
+  /* FACTS — horizontal 3-col strip spanning full content width. Much
+     more impactful than the mobile vertical list when the eye has room. */
+  .facts {
+    margin: 16px 0 32px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    display: grid;
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    column-gap: 0;
+  }
+  .factsRow {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    grid-template-columns: none;
+    padding: 22px 24px 24px;
+    border-bottom: 0;
+    border-right: 1.5px solid var(--ink);
+    gap: 10px;
+  }
+  .factsRow:last-child {
+    border-right: 0;
+  }
+  .factsKey {
+    font-size: 13px;
+    letter-spacing: 0.22em;
+  }
+  .factsVal {
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .hours {
+    column-gap: 16px;
+    row-gap: 5px;
+  }
+
+  /* ACTS — full-width row of buttons under facts strip. */
+  .acts {
+    grid-template-columns: auto auto;
+    justify-content: start;
+    gap: 12px;
+    padding: 0 0 40px;
+  }
+  .act {
+    font-size: 15px;
+    padding: 16px 28px 17px;
+  }
+
+  /* SIBLINGS — way bigger typography. The "Mehr in Berlin" lockup carries
+     the bottom of the page; cards get more room to land. */
+  .siblings {
+    padding: 56px 0 16px;
+    margin-top: 24px;
+    border-top: 3px solid var(--ink);
+  }
+  .siblings h2 {
+    font-size: clamp(64px, 8vw, 128px);
+    line-height: 0.92;
+    margin: 0 0 40px;
+  }
+  .sibRow {
+    margin-bottom: 56px;
+  }
+  .sibRowHead {
+    font-family: var(--f-display);
+    font-size: clamp(28px, 3.5vw, 44px);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
+    opacity: 1;
+    text-transform: uppercase;
+    margin: 0 0 24px;
+  }
+  .sibCards {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px 28px;
+  }
+  .sibPhoto {
+    aspect-ratio: 4 / 3;
+    margin-bottom: 16px;
+  }
+  .sibName {
+    font-size: clamp(22px, 1.8vw, 30px);
+    line-height: 1.04;
+    margin-bottom: 6px;
+  }
+  .sibMeta {
+    font-size: 12px;
   }
 }

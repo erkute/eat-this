@@ -47,6 +47,21 @@ export default async function LaunchPage({
         decoding="async"
       />
 
+      {/* Drifting card-back — slow balloon-like background loop. Painted
+          before .cat in source order so the cat layers on top where they
+          overlap (z-index 0 keeps both behind the form/notifyTrigger). */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/pics/card-back.webp"
+        alt=""
+        aria-hidden="true"
+        className={styles.floatCard}
+        width="540"
+        height="726"
+        loading="lazy"
+        decoding="async"
+      />
+
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/pics/launch-cat.webp"

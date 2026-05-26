@@ -16,6 +16,7 @@ import styles from '../../bezirk/Bezirk.module.css'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 import HubMapCTA from '@/app/components/HubMapCTA'
 import KategorieBoost from '@/app/components/KategorieBoost'
+import SeoSignupCTA from '@/app/components/SeoSignupCTA'
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>
@@ -158,8 +159,8 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         <div className={styles.sectionHead}>
           <h2>{de ? 'Die handverlesene Auswahl' : 'The hand-picked selection'}</h2>
           <p>{de
-            ? `${restaurants.length} ${label}-Spots in Berlin, von uns geprüft.`
-            : `${restaurants.length} ${label.toLowerCase()} spots in Berlin, vetted by us.`}</p>
+            ? 'Editor-Pick aus Berlin.'
+            : 'Editor pick from Berlin.'}</p>
         </div>
 
         <section className={styles.grid}>
@@ -194,6 +195,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         </section>
 
       </main>
+      <SeoSignupCTA />
     </>
   )
 }

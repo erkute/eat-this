@@ -17,7 +17,10 @@ interface Props {
  */
 export default function MapPromoBlock({ mapHref, ariaLabel }: Props) {
   return (
-    <Link href={mapHref} className={styles.mapBlock} aria-label={ariaLabel}>
+    // rel="nofollow" — map deep-links (e.g. /map?bezirk=mitte) target a
+    // noindex route, so without nofollow Google enumerates every query
+    // variant in GSC. See memory feedback_seo_nofollow_into_noindex.md.
+    <Link href={mapHref} rel="nofollow" className={styles.mapBlock} aria-label={ariaLabel}>
       <Image
         src="/pics/map-promo.webp"
         alt=""

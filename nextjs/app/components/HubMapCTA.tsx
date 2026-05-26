@@ -16,7 +16,10 @@ interface Props {
 export default function HubMapCTA({ href, title, subline, variant = 'chip' }: Props) {
   const cls = variant === 'block' ? styles.ctaBlock : styles.ctaChip
   return (
-    <Link href={href} className={cls} aria-label={title}>
+    // rel="nofollow" — map deep-links target the noindex /map route, so
+    // we don't want Google to enumerate every bezirk/category variant in
+    // GSC. See memory feedback_seo_nofollow_into_noindex.md.
+    <Link href={href} rel="nofollow" className={cls} aria-label={title}>
       <span className={styles.title}>{title}</span>
       {subline && <span className={styles.subline}>{subline}</span>}
       <svg

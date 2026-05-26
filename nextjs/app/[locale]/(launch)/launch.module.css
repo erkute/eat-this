@@ -1,9 +1,8 @@
 /* ============================================================
-   Launch Holding Page — yellow surface with brand banner.
-   The banner image (Eat This wordmark + "We tell you what to eat"
-   tagline) carries the brand statement. Cat is the visual hero.
-   Bg matches the banner's yellow so the banner edges blend in
-   seamlessly.
+   Launch Holding Page — white paper surface with brand banner.
+   The banner image (yellow EAT THIS wordmark with black outlines +
+   red "We tell you what to eat." marker tagline) carries the brand
+   statement. Bg matches the banner's white so the image blends.
    Standalone styles, isolated from /css/style.min.css.
    ============================================================ */
 
@@ -14,20 +13,14 @@
   --ink: #0a0a0a;
   --cream: #f7f5f0;
   --coral: #a02814;
-  /* Matches the launch-banner.webp yellow exactly so the banner edges
-     blend seamlessly into the page surface. */
   --yellow: #FEC802;
+  /* Matches the launch-banner.webp canvas exactly (sampled at RGB
+     253–254 across the corners) so the logo blends seamlessly with
+     the page surface. */
+  --paper: #fdfdfd;
   --muted: rgba(10, 10, 10, 0.62);
 
-  background:
-    /* Paper grain — subtle fractal noise overlay multiplied onto the
-       yellow surface. Gives the page the same handmade-collage tactility
-       as the cat image. ~5% opacity keeps the yellow saturated. */
-    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
-    /* Subtle warm vignette — slight darker at edges for paper-feel. */
-    radial-gradient(ellipse at center, transparent 55%, rgba(80, 50, 0, 0.06) 100%),
-    var(--yellow);
-  background-blend-mode: multiply, normal, normal;
+  background: var(--paper);
   color: var(--ink);
   font-family: var(--f-body);
   position: relative;
@@ -36,8 +29,8 @@
   height: 100vh;
   height: 100dvh;
 
-  padding: 18px 18px 14px;
-  padding-bottom: max(14px, env(safe-area-inset-bottom));
+  padding: 12px 18px 18px;
+  padding-bottom: max(18px, env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -45,38 +38,21 @@
 }
 
 /* ============================================================
-   Drop sticker — rounded pill in the cartoon brand voice.
-   Knewave brush-marker matches the EAT THIS bubble letterforms.
+   Coming Soon stamp — image asset, yellow marker letters with
+   black outlines, matches the EAT THIS logo aesthetic.
    ============================================================ */
 .kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 0;
-  margin: 0;
-  font-family: var(--f-display);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: 12px;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 52px;
+  margin: 0 auto;
   align-self: center;
   flex: 0 0 auto;
-  border: 2px solid var(--ink);
-  border-radius: 999px;
-  overflow: hidden;
-}
-.kickerTag {
-  background: var(--ink);
-  color: var(--yellow);
-  padding: 8px 14px 6px;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-}
-.kickerLoc {
-  color: var(--ink);
-  padding: 8px 14px 6px;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
+  pointer-events: none;
+  user-select: none;
+  position: relative;
+  z-index: 2;
 }
 
 /* ============================================================
@@ -85,21 +61,28 @@
    ============================================================ */
 .cat {
   display: block;
-  width: auto;
-  height: 100%;
-  max-width: 100%;
-  flex: 1 1 0;
-  min-height: 280px;
-  margin: 0 auto;
+  /* Mobile: big and anchored at viewport bottom. Cat fills the area
+     from just below the tagline down to the bottom edge. Sits BEHIND
+     the form + footer via z-index 0 (form z-index 2 + foot z-index 1
+     layer on top, glass-bg on form lets the cat show through). */
+  position: absolute;
+  right: 0;
+  left: auto;
+  bottom: -6vh;
+  top: auto;
+  width: 104vw;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  z-index: 0;
   object-fit: contain;
-  object-position: center;
-  filter: drop-shadow(0 18px 28px rgba(10, 10, 10, 0.28));
+  object-position: center bottom;
   pointer-events: none;
   user-select: none;
-  /* Continuous micro-jitter (≤1px translate) — high-contrast eyes
-     read as "vibrating" / alive. Cat is a single bitmap so the eyes
-     can't be isolated; whole-image jitter is the closest stand-in.
-     Per CLAUDE.md no opacity for motion → translate only. */
+  /* Micro-jitter (≤1px) on the transform property — independent from
+     desktop's `translate:` property so the position transform and the
+     vibrate transform compose instead of overriding each other. */
   animation: cat-vibrate 0.42s steps(5, end) infinite;
   will-change: transform;
 }
@@ -118,17 +101,38 @@
 }
 
 /* ============================================================
-   Brand banner — image element. Black paper-grain canvas with the
-   EAT THIS wordmark + "we tell you what to eat" tagline. Sits as a
-   contrasting poster panel on the yellow page surface.
+   Brand banner — yellow EAT THIS wordmark with black outlines.
+   Now ships as a 2-piece set (logo + tagline) so each can scale
+   independently on different breakpoints.
    ============================================================ */
 .brand {
   display: block;
-  width: 100%;
+  width: auto;
   height: auto;
-  max-width: 460px;
-  margin: 0 auto;
+  max-width: min(53vw, 205px);
+  margin: 8px auto 0;
   flex: 0 0 auto;
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ============================================================
+   Tagline — red marker "we tell you what to eat." sits directly
+   under the EAT THIS logo. Width narrower than logo for visual
+   hierarchy, slight negative top margin so the two read as one
+   stamp instead of two separate elements.
+   ============================================================ */
+.tagline {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(42vw, 170px);
+  margin: -15px auto 0;
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 1;
   pointer-events: none;
   user-select: none;
 }
@@ -167,57 +171,162 @@
 }
 
 /* ============================================================
-   Email form — rounded pill, cream input, ink CTA in marker font.
+   Email form — sticker-style pill with yellow input + white CTA
+   panel holding the NOTIFY ME marker image. Thick black border +
+   hard-offset shadow gives the same hand-drawn poster depth the
+   EAT THIS / NOTIFY ME letterforms carry. Tilted 1° so it reads
+   as "stuck on" the page like a real sticker.
    ============================================================ */
 .form {
   display: flex;
-  background: transparent;
-  border: 2px solid var(--ink);
-  border-radius: 999px;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: 0;
   gap: 0;
+  position: relative;
+  z-index: 2;
   align-self: center;
   flex: 0 0 auto;
   width: 100%;
   max-width: 480px;
   overflow: hidden;
+  box-shadow: 6px 6px 0 0 var(--ink);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  /* Form + foot push to the bottom of the flex container on mobile
+     so they sit at the viewport bottom over the cat. Desktop resets
+     this via the 900+ @media override below. */
+  margin-top: auto;
+}
+.form:hover:not(:focus-within) {
+  transform: translate(2px, 2px);
+  box-shadow: 4px 4px 0 0 var(--ink);
+}
+.form:focus-within {
+  box-shadow: 4px 4px 0 0 var(--ink);
 }
 .form input {
   flex: 1;
   border: 0;
-  background: var(--cream);
-  font-family: var(--f-body);
+  background: transparent;
+  font-family: var(--font-permanent-marker), "Permanent Marker", "Marker Felt", cursive;
   color: var(--ink);
   outline: none;
   min-width: 0;
-  padding: 14px 22px;
-  font-size: 16px;
+  padding: 14px 24px;
+  font-size: 17px;
+  letter-spacing: 0.02em;
   border-radius: 0;
   -webkit-appearance: none;
 }
 .form input::placeholder {
   color: rgba(10, 10, 10, 0.42);
-  font-family: var(--f-body);
-  letter-spacing: 0;
-  font-size: 15px;
+  font-family: var(--font-permanent-marker), "Permanent Marker", "Marker Felt", cursive;
+  letter-spacing: 0.02em;
+  font-size: 16px;
 }
 .form input:disabled {
   opacity: 0.7;
 }
 .form button {
-  background: var(--ink);
-  color: var(--yellow);
+  background: var(--paper);
+  color: var(--ink);
   border: 0;
-  font-family: var(--f-display);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  border-left: 3px solid var(--ink);
   cursor: pointer;
   white-space: nowrap;
-  font-size: 14px;
-  padding: 0 26px;
+  padding: 6px 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
 }
 .form button:disabled {
   opacity: 0.75;
   cursor: default;
+}
+.form button img {
+  display: block;
+  width: auto;
+  height: 24px;
+  pointer-events: none;
+  user-select: none;
+}
+.thanks {
+  font-family: var(--font-permanent-marker), "Permanent Marker", "Marker Felt", cursive;
+  font-size: 18px;
+  color: var(--ink);
+}
+
+/* ============================================================
+   Notify trigger — initial 2-stage CTA. Shows just the NOTIFY ME
+   image as a button; clicking expands to the email form.
+   ============================================================ */
+.notifyTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  padding: 10px 22px;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+  box-shadow: 4px 4px 0 0 var(--ink);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  margin-top: auto;
+  align-self: center;
+  flex: 0 0 auto;
+}
+.notifyTrigger:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 0 var(--ink);
+}
+.notifyTrigger img {
+  display: block;
+  width: auto;
+  height: 24px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.thanksBox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  padding: 14px 32px;
+  position: relative;
+  z-index: 2;
+  box-shadow: 6px 6px 0 0 var(--ink);
+  margin-top: auto;
+  align-self: center;
+  flex: 0 0 auto;
+}
+
+/* ============================================================
+   Scroll hint — bouncing chevron at viewport bottom on mobile,
+   signals that the CTA + footer live below the first fold.
+   ============================================================ */
+.scrollHint {
+  display: none;
+}
+.scrollHintArrow {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-right: 3px solid var(--paper);
+  border-bottom: 3px solid var(--paper);
+  transform: rotate(45deg);
+  margin-top: -4px;
+}
+@keyframes scroll-hint-bounce {
+  0%, 100% { transform: translate(-50%, 0); }
+  50%      { transform: translate(-50%, 7px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scrollHint { animation: none; }
 }
 
 .errorNote {
@@ -236,17 +345,20 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   font-family: var(--f-body);
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ink);
-  font-size: 13px;
-  padding-top: 4px;
-  flex-wrap: wrap;
-  align-self: stretch;
+  color: var(--paper);
+  font-size: 9px;
+  padding-top: 0;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  align-self: center;
   flex: 0 0 auto;
+  position: relative;
+  z-index: 1;
 }
 .foot a {
   color: inherit;
@@ -262,75 +374,143 @@
    just scaled up. Logo at top, cat hero centered, slogan, form,
    footer — everything aligned to the page mid-axis.
    ============================================================ */
+/* ============================================================
+   Desktop ≥ 900px — Same centered single-column stack as mobile,
+   just scaled up. Kicker → EAT THIS logo → red marker tagline →
+   cat → form → footer, all centered along the page axis.
+   ============================================================ */
 @media (min-width: 900px) {
   .page {
-    padding: 22px 40px 18px;
-    padding-bottom: max(18px, env(safe-area-inset-bottom));
-    gap: 14px;
+    /* Right padding leaves room for the cat in the bottom-right
+       corner; left-biased so the brand stack sits left-of-center
+       and the cat has visual breathing room without overlapping.
+       justify-content centers the stack vertically so logo + CTA +
+       footer sit lower (more breathing room above) instead of being
+       pinned to the top. */
+    padding: 32px 36vw 28px 4vw;
+    padding-bottom: max(28px, env(safe-area-inset-bottom));
+    gap: 18px;
+    justify-content: center;
   }
 
   .kicker {
-    font-size: 13px;
-  }
-  .kickerTag,
-  .kickerLoc {
-    padding: 9px 14px 8px;
+    max-width: 110px;
+    align-self: center;
   }
 
   .brand {
-    max-width: 520px;
+    max-width: 540px;
+  }
+  .tagline {
+    max-width: 460px;
+    margin-top: -14px;
   }
 
-  /* Cat is hidden on desktop — the new black logo banner carries
-     the brand presence on its own, and removing the cat avoids
-     overcrowding the centered stack at 100dvh. Mobile keeps the
-     cat where vertical space is the constraint, not the content. */
+  /* Cat anchored to bottom-right on desktop. Sized intentionally
+     larger than the viewport leaves room for, then translated down
+     so the lower half is clipped by .page's overflow:hidden — the
+     cat reads as "leaking out" past the bottom edge of the frame.
+     Pulled out of the flex flow via absolute positioning so the
+     brand stack above stays centered. */
   .cat {
+    position: absolute;
+    right: 0;
+    left: auto;
+    top: auto;
+    bottom: 0;
+    translate: 0 8%;
+    width: 68vw;
+    height: auto;
+    max-width: none;
+    max-height: none;
+  }
+
+  .scrollHint {
     display: none;
   }
 
-  .sub {
-    font-size: clamp(30px, 3.2vw, 46px);
-    line-height: 1.02;
-    max-width: 720px;
-  }
-
   .form {
-    max-width: 520px;
+    max-width: 600px;
+    /* Desktop reverts to solid surface — frosted glass only on mobile
+       where the cat sits directly behind the CTA pill. */
+    background: var(--paper);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    margin-top: 0;
   }
   .form input {
-    padding: 15px 22px;
-    font-size: 16px;
+    padding: 20px 28px;
+    font-size: 22px;
+  }
+  .form input::placeholder {
+    font-size: 21px;
   }
   .form button {
-    font-size: 15px;
-    padding: 0 28px;
-    letter-spacing: 0.05em;
+    padding: 8px 22px;
+    min-width: 140px;
+  }
+  .form button img {
+    height: 30px;
   }
 
   .foot {
-    font-size: 11px;
-    gap: 14px;
+    font-size: 13px;
+    gap: 18px;
+    letter-spacing: 0.12em;
+    /* Desktop reverts to black ink — white text would vanish on the
+       cream/white page surface. Mobile stays white because the cat
+       passes behind it. */
+    color: var(--ink);
+  }
+
+  /* Desktop Notify trigger scales up to match the bigger form on
+     wider viewports. Mobile keeps the compact size. */
+  .notifyTrigger {
+    border-width: 3px;
+    padding: 16px 36px;
+    box-shadow: 6px 6px 0 0 var(--ink);
+  }
+  .notifyTrigger:hover {
+    box-shadow: 4px 4px 0 0 var(--ink);
+  }
+  .notifyTrigger img {
+    height: 38px;
   }
 }
 
 /* ============================================================
-   Wide desktop ≥ 1280px — logo + slogan scale up to anchor the
-   page on taller, wider viewports where the extra height is real.
+   Wide desktop ≥ 1280px — logo grows; cat stays viewport-busting.
    ============================================================ */
 @media (min-width: 1280px) {
   .page {
-    padding: 36px 56px 24px;
+    padding: 36px 42vw 32px 3vw;
+    padding-bottom: max(32px, env(safe-area-inset-bottom));
     gap: 20px;
   }
   .brand {
     max-width: 620px;
   }
-  .sub {
-    font-size: clamp(40px, 3.6vw, 56px);
-    max-width: 820px;
+  .tagline {
+    max-width: 520px;
   }
   .form {
-    max-width: 560px;
+    max-width: 660px;
+  }
+  .form input {
+    padding: 22px 30px;
+    font-size: 24px;
+  }
+  .form input::placeholder {
+    font-size: 23px;
+  }
+  .form button {
+    padding: 10px 26px;
+    min-width: 156px;
+  }
+  .form button img {
+    height: 34px;
+  }
+  .cat {
+    width: 46vw;
   }
 }

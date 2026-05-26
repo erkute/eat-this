@@ -14,18 +14,35 @@ export default async function LaunchPage({
 
   return (
     <div className={styles.page} data-launch-page="">
-      <span className={styles.kicker}>
-        <span className={styles.kickerTag}>Berlin</span>
-        <span className={styles.kickerLoc}>Coming Soon</span>
-      </span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/pics/launch-coming-soon.webp?v=2"
+        alt="Coming Soon"
+        className={styles.kicker}
+        width="1942"
+        height="809"
+        loading="eager"
+        decoding="async"
+      />
 
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/pics/launch-banner.webp"
-        alt="Eat This — we tell you what to eat"
+        src="/pics/launch-banner.webp?v=2"
+        alt="Eat This"
         className={styles.brand}
-        width="1672"
-        height="941"
+        width="1035"
+        height="975"
+        loading="eager"
+        decoding="async"
+      />
+
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/pics/launch-tagline.webp?v=2"
+        alt="we tell you what to eat."
+        className={styles.tagline}
+        width="1579"
+        height="285"
         loading="eager"
         decoding="async"
       />
@@ -42,12 +59,9 @@ export default async function LaunchPage({
         decoding="async"
       />
 
-      <p className={styles.sub}>
-        <span className={styles.subLeft}>
-          <span className={styles.coral}>The Map</span> for people<span className={styles.commaMobile}>,</span>
-        </span>{' '}
-        <span className={styles.subRight}>who care about food.</span>
-      </p>
+      <div className={styles.scrollHint} aria-hidden="true">
+        <span className={styles.scrollHintArrow} />
+      </div>
 
       <LaunchClient locale={locale} />
 

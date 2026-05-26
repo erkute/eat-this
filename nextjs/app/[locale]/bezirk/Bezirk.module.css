@@ -11,8 +11,8 @@
 .page {
   /* Scoped tokens — pixel-genaue Mockup-Werte */
   --ink: #000;
-  --cream: #fbf8ee;
-  --cream-deep: #f1ecdd;
+  --cream: #ffffff;
+  --cream-deep: #f6f4ee;
   --yellow: #ffd84a;
   --muted: #6b5a44;
   --f-display: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;

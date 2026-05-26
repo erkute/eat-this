@@ -12,9 +12,27 @@ export default function SiteFooter() {
   return (
     <footer className={styles.footer} role="contentinfo" aria-label="Site footer">
       <h2 className={styles.mega} aria-label="Eat This">
-        Eat<br />This
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/pics/eat-this-logo.webp"
+          alt="Eat This"
+          width="1035"
+          height="975"
+          loading="lazy"
+          decoding="async"
+          className={styles.megaImg}
+        />
       </h2>
-      <div className={styles.tag}>We tell you what to eat</div>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/pics/launch-tagline.webp"
+        alt="we tell you what to eat."
+        width="1579"
+        height="285"
+        loading="lazy"
+        decoding="async"
+        className={styles.tagImg}
+      />
 
       <div className={styles.links}>
         <div className={styles.linksKicker}>{follow}</div>

@@ -1,5 +1,5 @@
 .page {
-  background: #fbf8ee;
+  background: #ffffff;
   color: #000;
   min-height: 100vh;
   min-height: 100dvh;
@@ -18,7 +18,12 @@
 .title {
   font-family: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
   font-size: clamp(56px, 14vw, 96px);
-  line-height: 0.92;
+  /* 1.18 leaves enough clearance for Ä/Ö/Ü umlaut dots on the
+     second line — long titles like DATENSCHUTZERKLÄRUNG wrap and
+     Anton's umlauts sit high above the cap height, so tighter
+     line-heights make them collide with line-1 descenders. */
+  line-height: 1.18;
+  padding-top: 0.12em;
   letter-spacing: 0;
   text-transform: uppercase;
   color: #000;

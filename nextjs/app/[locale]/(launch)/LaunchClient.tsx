@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import styles from './launch.module.css'
 
 interface Props {
@@ -9,14 +9,14 @@ interface Props {
 
 const STRINGS = {
   de: {
-    placeholder: 'deine@email.com',
+    placeholder: '',
     notify: 'Notify Me →',
     thanks: 'Danke ✓',
     error: 'Hat nicht geklappt — bitte nochmal.',
     emailLabel: 'E-Mail',
   },
   en: {
-    placeholder: 'your@email.com',
+    placeholder: '',
     notify: 'Notify Me →',
     thanks: 'Thanks ✓',
     error: 'Something went wrong — please try again.',
@@ -26,9 +26,15 @@ const STRINGS = {
 
 export default function LaunchClient({ locale }: Props) {
   const t = STRINGS[locale]
+  const [expanded, setExpanded] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [hasError, setHasError] = useState(false)
+  const inputRef = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    if (expanded) inputRef.current?.focus()
+  }, [expanded])
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -49,7 +55,6 @@ export default function LaunchClient({ locale }: Props) {
       if (!res.ok) throw new Error('signup_failed')
       setSubmitted(true)
       if (input) input.value = ''
-      setTimeout(() => setSubmitted(false), 4000)
     } catch {
       setHasError(true)
     } finally {
@@ -57,20 +62,56 @@ export default function LaunchClient({ locale }: Props) {
     }
   }
 
+  if (!expanded && !submitted) {
+    return (
+      <button
+        type="button"
+        className={styles.notifyTrigger}
+        onClick={() => setExpanded(true)}
+        aria-label={t.notify}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/pics/launch-notify.webp"
+          alt=""
+          aria-hidden="true"
+          width="1478"
+          height="369"
+        />
+      </button>
+    )
+  }
+
+  if (submitted) {
+    return (
+      <div className={styles.thanksBox} role="status">
+        <span className={styles.thanks}>{t.thanks}</span>
+      </div>
+    )
+  }
+
   return (
     <>
       <form className={styles.form} onSubmit={onSubmit} noValidate>
         <input
+          ref={inputRef}
           type="email"
           name="email"
           placeholder={t.placeholder}
           aria-label={t.emailLabel}
           required
           autoComplete="email"
-          disabled={submitting || submitted}
+          disabled={submitting}
         />
-        <button type="submit" disabled={submitting || submitted}>
-          {submitted ? t.thanks : t.notify}
+        <button type="submit" disabled={submitting} aria-label={t.notify}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/pics/launch-notify.webp"
+            alt=""
+            aria-hidden="true"
+            width="1478"
+            height="369"
+          />
         </button>
       </form>
 

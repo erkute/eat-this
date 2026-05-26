@@ -1,6 +1,7 @@
 .footer {
-  background: #000;
-  color: #fbf8ee;
+  background: #ffffff;
+  color: #000;
+  border-top: 2px solid #000;
   padding: 16px 16px 32px;
   font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
   position: relative;
@@ -8,15 +9,27 @@
 }
 
 .mega {
-  font-family: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
-  font-size: clamp(72px, 22vw, 112px);
-  line-height: 0.94;
-  letter-spacing: -0.005em;
-  text-transform: uppercase;
-  color: #ffd84a;
   margin: 0 0 6px;
   text-align: center;
   font-weight: 400;
+  /* Hide accessible label text; renders the image instead */
+  font-size: 0;
+  line-height: 0;
+  color: transparent;
+}
+.megaImg {
+  display: block;
+  margin: 0 auto;
+  width: auto;
+  height: auto;
+  max-width: min(60vw, 220px);
+}
+.tagImg {
+  display: block;
+  margin: 8px auto 24px;
+  width: auto;
+  height: auto;
+  max-width: min(58vw, 200px);
 }
 
 .tag {
@@ -24,7 +37,7 @@
   font-size: 22px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #fbf8ee;
+  color: #000;
   text-align: center;
   margin: 0 0 28px;
 }
@@ -49,7 +62,7 @@
   font-size: 28px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #fbf8ee;
+  color: #000;
   text-decoration: none;
   line-height: 1.2;
   margin: 4px 0;
@@ -72,7 +85,7 @@
 }
 
 .legalLink {
-  color: #fbf8ee;
+  color: #000;
   text-decoration: none;
   opacity: 0.75;
   transition: color 0.15s ease, opacity 0.15s ease;
@@ -97,7 +110,7 @@
 }
 
 .copy {
-  color: #fbf8ee;
+  color: #000;
   opacity: 0.6;
 }
 
@@ -115,7 +128,7 @@
   font-size: 12px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #fbf8ee;
+  color: #000;
   opacity: 0.55;
   cursor: pointer;
   transition: color 0.15s ease, opacity 0.15s ease;
@@ -130,7 +143,7 @@
 }
 
 .langSep {
-  color: #fbf8ee;
+  color: #000;
   opacity: 0.3;
 }
 
@@ -138,13 +151,22 @@
   .footer {
     padding: 56px 32px 40px;
   }
-  .mega {
-    font-size: 144px;
+  .megaImg {
+    max-width: 240px;
+  }
+  .tagImg {
+    max-width: 220px;
   }
 }
 
 @media (min-width: 960px) {
   .footer {
     padding: 72px 80px 48px;
+  }
+  .megaImg {
+    max-width: 280px;
+  }
+  .tagImg {
+    max-width: 260px;
   }
 }

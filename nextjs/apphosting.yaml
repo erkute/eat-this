@@ -46,15 +46,12 @@ env:
   #   secret: RESEND_LAUNCH_SEGMENT_EN
   #   availability: [RUNTIME]
 
-  # Double-opt-in HMAC signing key. Without this the launch-signup route
-  # falls back to direct-add (no confirmation email) — bot-protection
-  # (honeypot + time-gate + rate-limit) still applies. To enable DOI:
-  #   openssl rand -hex 32  # generate a 64-char hex secret
-  #   firebase apphosting:secrets:set LAUNCH_CONFIRM_SECRET  # paste it
-  # then uncomment the block below + redeploy.
-  # - variable: LAUNCH_CONFIRM_SECRET
-  #   secret: LAUNCH_CONFIRM_SECRET
-  #   availability: [RUNTIME]
+  # Double-opt-in HMAC signing key. Created via:
+  #   openssl rand -hex 32 | firebase apphosting:secrets:set LAUNCH_CONFIRM_SECRET --data-file -
+  - variable: LAUNCH_CONFIRM_SECRET
+    secret: LAUNCH_CONFIRM_SECRET
+    availability:
+      - RUNTIME
 
   # reCAPTCHA Enterprise v3 — score-based bot protection. Honeypot +
   # time-gate + rate-limit always run; reCAPTCHA only kicks in when all

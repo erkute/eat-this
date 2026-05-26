@@ -384,13 +384,18 @@
     /* Right padding leaves room for the cat in the bottom-right
        corner; left-biased so the brand stack sits left-of-center
        and the cat has visual breathing room without overlapping.
-       justify-content centers the stack vertically so logo + CTA +
-       footer sit lower (more breathing room above) instead of being
-       pinned to the top. */
-    padding: 32px 36vw 28px 4vw;
-    padding-bottom: max(28px, env(safe-area-inset-bottom));
-    gap: 18px;
-    justify-content: center;
+       Desktop drops the fixed 100dvh + overflow:hidden constraint
+       (those are mobile-only) so form + footer stay visible if the
+       brand stack pushes against the viewport on short laptops. */
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: visible;
+    padding: 24px 36vw 20px 4vw;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    gap: 14px;
+    justify-content: flex-start;
   }
 
   .kicker {

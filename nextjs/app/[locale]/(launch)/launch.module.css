@@ -24,10 +24,11 @@
   color: var(--ink);
   font-family: var(--f-body);
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: visible;
   width: 100%;
-  height: 100vh;
-  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
 
   padding: 12px 18px 18px;
   padding-bottom: max(18px, env(safe-area-inset-bottom));
@@ -101,21 +102,23 @@
    ============================================================ */
 .cat {
   display: block;
-  /* Mobile: big and anchored at viewport bottom. Cat fills the area
-     from just below the tagline down to the bottom edge. Sits BEHIND
-     the form + footer via z-index 0 (form z-index 2 + foot z-index 1
-     layer on top, glass-bg on form lets the cat show through). */
-  position: absolute;
-  right: 0;
+  /* Mobile: in-flow, sits BELOW the email form / notify button. Centered
+     and capped so the page reads as kicker → logo → tagline → CTA → cat
+     stack on small viewports. Desktop @900+ flips this back to an
+     absolutely-positioned hero in the bottom-right corner. */
+  position: relative;
+  right: auto;
   left: auto;
-  bottom: -6vh;
+  bottom: auto;
   top: auto;
-  width: 104vw;
+  width: 100%;
+  max-width: 360px;
   height: auto;
-  max-width: none;
   max-height: none;
-  margin: 0;
-  z-index: 0;
+  margin: 4px auto 0;
+  align-self: center;
+  flex: 0 0 auto;
+  z-index: 1;
   object-fit: contain;
   object-position: center bottom;
   pointer-events: none;
@@ -232,10 +235,10 @@
   overflow: hidden;
   box-shadow: 6px 6px 0 0 var(--ink);
   transition: transform 160ms ease, box-shadow 160ms ease;
-  /* Form + foot push to the bottom of the flex container on mobile
-     so they sit at the viewport bottom over the cat. Desktop resets
-     this via the 900+ @media override below. */
-  margin-top: auto;
+  /* Sits directly under the tagline on mobile (cat now flows below the
+     CTA, not behind it). Desktop @900+ overrides with a bottom margin
+     to lift it off the page floor. */
+  margin-top: 0;
 }
 .form:hover:not(:focus-within) {
   transform: translate(2px, 2px);
@@ -314,7 +317,7 @@
   z-index: 2;
   box-shadow: 4px 4px 0 0 var(--ink);
   transition: transform 160ms ease, box-shadow 160ms ease;
-  margin-top: auto;
+  margin-top: 0;
   align-self: center;
   flex: 0 0 auto;
 }
@@ -340,7 +343,7 @@
   position: relative;
   z-index: 2;
   box-shadow: 6px 6px 0 0 var(--ink);
-  margin-top: auto;
+  margin-top: 0;
   align-self: center;
   flex: 0 0 auto;
 }
@@ -390,15 +393,16 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--paper);
+  color: var(--ink);
   font-size: 9px;
-  padding-top: 0;
+  padding-top: 12px;
   flex-wrap: nowrap;
   white-space: nowrap;
   align-self: center;
   flex: 0 0 auto;
   position: relative;
   z-index: 1;
+  margin-top: auto;
 }
 .foot a {
   color: inherit;
@@ -473,6 +477,9 @@
     height: auto;
     max-width: none;
     max-height: none;
+    margin: 0;
+    align-self: auto;
+    flex: 0 0 auto;
   }
 
   /* Drifting card scales up on desktop where there's room for it
@@ -492,10 +499,11 @@
     background: var(--paper);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    /* Lift the form off the very bottom on desktop — sitting flush
-       above .foot read as "stuck to the floor". Bottom margin gives
-       breathing room so the CTA sits in the lower-third rather than
-       at the edge. Mobile keeps it flush (margin-top: auto only). */
+    /* Desktop keeps the form anchored to the lower-third (cat is
+       absolutely positioned bottom-right so the form has free space
+       below it). Mobile keeps margin-top: 0 so form sits directly
+       under the tagline with the cat below it in flow. */
+    margin-top: auto;
     margin-bottom: clamp(48px, 8vh, 112px);
   }
   .form input {
@@ -531,6 +539,7 @@
     box-shadow: 6px 6px 0 0 var(--ink);
     /* Lift off the bottom edge same as .form — both render at the same
        slot in the flex stack (only one is visible at a time). */
+    margin-top: auto;
     margin-bottom: clamp(48px, 8vh, 112px);
   }
   .notifyTrigger:hover {

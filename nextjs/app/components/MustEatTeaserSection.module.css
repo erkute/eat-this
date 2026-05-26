@@ -36,7 +36,10 @@
 .eyebrow {
   font-family: var(--font-anton), "Anton", "Bebas Neue", sans-serif;
   font-size: 13px;
-  color: #000;
+  /* Inherit the parent page's ink token — restaurant detail bridges its
+     own --text-primary even when the global theme is dark, so the
+     teaser stays readable on the cream surface. */
+  color: var(--text-primary, #000);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   margin: 0 0 8px;
@@ -50,7 +53,7 @@
   line-height: 0.96;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: #000;
+  color: var(--text-primary, #000);
   margin: 0 0 12px;
   text-wrap: balance;
 }
@@ -60,7 +63,7 @@
   font-size: 15px;
   line-height: 1.5;
   font-weight: 400;
-  color: #000;
+  color: var(--text-secondary, #2a2218);
   margin: 0;
   max-width: 36ch;
 }
@@ -161,15 +164,5 @@
 
 .cardBack {
   object-fit: cover;
-}
-
-/* ── Dark mode ───────────────────────────────────────────────────────── */
-
-:global([data-theme="dark"]) .eyebrow {
-  color: #f7f5f0;
-}
-
-:global([data-theme="dark"]) .body {
-  color: #d8d8d8;
 }
 

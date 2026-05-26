@@ -62,6 +62,12 @@ export default async function LaunchPage({
         decoding="async"
       />
 
+      <div className={styles.scrollHint} aria-hidden="true">
+        <span className={styles.scrollHintArrow} />
+      </div>
+
+      <LaunchClient locale={locale} />
+
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/pics/launch-cat.webp"
@@ -73,12 +79,6 @@ export default async function LaunchPage({
         loading="eager"
         decoding="async"
       />
-
-      <div className={styles.scrollHint} aria-hidden="true">
-        <span className={styles.scrollHintArrow} />
-      </div>
-
-      <LaunchClient locale={locale} />
 
       <div className={styles.foot}>
         <Link href="/impressum">Impressum</Link>

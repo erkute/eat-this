@@ -131,9 +131,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   const hubCtaTitle = de
     ? `${b.name} auf der Map ansehen`
     : `See ${b.name} on the map`
-  const hubCtaSubline = de
-    ? 'Geo-clustered, mit Must-Eats und Walking-Distance.'
-    : 'Geo-clustered, with Must-Eats and walking distance.'
 
   return (
     <>
@@ -232,17 +229,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
             ))}
           </section>
         )}
-
-        <aside className={styles.finalCta}>
-          <div className={styles.fcKicker}>{de ? 'Die Map' : 'The Map'}</div>
-          <h2>{de ? 'Schluss mit Suchen.' : 'Stop searching.'}</h2>
-          <p className={styles.fcSub}>{hubCtaSubline}</p>
-          <HubMapCTA
-            href="/"
-            title={de ? 'Map öffnen' : 'Open map'}
-            variant="block"
-          />
-        </aside>
 
       </main>
     </>

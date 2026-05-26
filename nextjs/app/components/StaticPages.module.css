@@ -2,9 +2,11 @@
   background: #fbf8ee;
   color: #000;
   min-height: 100vh;
+  min-height: 100dvh;
   font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
   /* Clears the 60px legacy navbar + safe-area */
   padding-top: calc(60px + env(safe-area-inset-top, 0px));
+  display: flow-root;
 }
 
 .inner {

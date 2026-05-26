@@ -15,6 +15,7 @@ import { pickLocale } from '@/lib/i18n/pickLocale'
 import styles from '../../bezirk/Bezirk.module.css'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 import HubMapCTA from '@/app/components/HubMapCTA'
+import KategorieBoost from '@/app/components/KategorieBoost'
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>
@@ -124,9 +125,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const hubCtaTitle = de
     ? `Alle ${label}-Spots auf der Map`
     : `See all ${label.toLowerCase()} spots on the map`
-  const hubCtaSubline = de
-    ? 'Geo-clustered, mit Must-Eats und Walking-Distance.'
-    : 'Geo-clustered, with Must-Eats and walking distance.'
 
   return (
     <>
@@ -154,6 +152,8 @@ export default async function KategorieDetailPage({ params }: PageProps) {
             <div className={styles.statK}>{de ? 'Bezirke' : 'Districts'}</div>
           </div>
         </div>
+
+        <KategorieBoost categorySlug={c.slug} locale={loc} />
 
         <div className={styles.sectionHead}>
           <h2>{de ? 'Die handverlesene Auswahl' : 'The hand-picked selection'}</h2>
@@ -193,16 +193,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
           })}
         </section>
 
-        <aside className={styles.finalCta}>
-          <div className={styles.fcKicker}>{de ? 'Die Map' : 'The Map'}</div>
-          <h2>{de ? 'Alles auf einen Blick.' : 'All at a glance.'}</h2>
-          <p className={styles.fcSub}>{hubCtaSubline}</p>
-          <HubMapCTA
-            href="/"
-            title={de ? 'Map öffnen' : 'Open map'}
-            variant="block"
-          />
-        </aside>
       </main>
     </>
   )

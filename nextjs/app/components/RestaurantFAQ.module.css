@@ -1,122 +1,67 @@
-/* Restaurant FAQ — accordion, closed by default. Editorial heading in
- * Ranchers brand-red (matches MustEat + sibling heads on the same page).
- * Question rows are tappable; chevron flips +/–. SEO content still lives
- * in the DOM (button text = question, expanded answer = paragraph), so
- * FAQPage JSON-LD continues to mirror it.
- */
-
 .faq {
-  margin-top: 64px;
-  max-width: 760px;
+  margin: 32px 16px 24px;
+  border-top: 2px solid var(--ink, #000);
+  padding-top: 18px;
 }
-
 .heading {
-  font-family: var(--font-ranchers);
-  font-weight: 400;
-  font-size: clamp(28px, 6vw, 44px);
-  line-height: 0.95;
-  letter-spacing: -0.005em;
-  color: var(--brand-red);
-  margin: 0 0 24px;
-  text-wrap: balance;
-}
-
-.list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.item {
-  border-bottom: 1px solid rgba(10, 10, 10, 0.16);
-}
-
-.item:first-child {
-  border-top: 1px solid rgba(10, 10, 10, 0.16);
-}
-
-.q {
-  appearance: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  width: 100%;
-  padding: 18px 0;
-  margin: 0;
-  border: 0;
-  background: transparent;
-  font-family: var(--font);
-  font-size: 17px;
-  font-weight: 700;
-  line-height: 1.25;
-  color: #0a0a0a;
-  text-align: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: color 160ms ease;
-}
-
-.q:hover {
-  color: var(--brand-red);
-}
-
-.qText {
-  flex: 1;
-  min-width: 0;
-}
-
-.icon {
-  font-family: var(--font-ranchers);
-  font-size: 26px;
+  font-family: var(--f-display, "Anton"), "Bebas Neue", sans-serif;
+  font-size: clamp(28px, 7vw, 40px);
   line-height: 1;
-  color: var(--brand-red);
+  text-transform: uppercase;
+  color: var(--ink, #000);
+  margin: 0 0 14px;
+}
+.row {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+.row summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.row summary::-webkit-details-marker { display: none; }
+.q {
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink, #000);
+  flex: 1;
+  line-height: 1.35;
+}
+.plus {
   flex-shrink: 0;
-  transition: transform 160ms ease;
-  width: 18px;
-  text-align: center;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--ink, #000);
+  color: var(--ink, #000);
+  position: relative;
+  font-family: var(--f-display, "Anton"), "Bebas Neue", sans-serif;
+  font-size: 22px;
+  line-height: 1;
 }
-
-.itemOpen .icon {
-  transform: rotate(0);
+.plus::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  line-height: 1;
 }
-
+.row[open] .plus::before { content: "\2212"; }
+.row:not([open]) .plus::before { content: "+"; }
 .a {
-  font-family: var(--font);
-  font-size: 15px;
-  line-height: 1.6;
-  color: #2a2a2a;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink, #000);
   margin: 0 0 18px;
-  text-wrap: pretty;
+  opacity: 0.88;
 }
 
 @media (min-width: 720px) {
-  .faq {
-    margin-top: 80px;
-  }
-  .q {
-    font-size: 18px;
-    padding: 20px 0;
-  }
-  .a {
-    font-size: 16px;
-    margin-bottom: 22px;
-  }
-}
-
-/* Dark mode */
-:global([data-theme="dark"]) .item,
-:global([data-theme="dark"]) .item:first-child {
-  border-color: rgba(247, 245, 240, 0.16);
-}
-
-:global([data-theme="dark"]) .q {
-  color: #f7f5f0;
-}
-
-:global([data-theme="dark"]) .a {
-  color: #d8d8d8;
+  .faq { margin: 40px 22px 28px; }
 }

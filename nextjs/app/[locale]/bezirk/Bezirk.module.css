@@ -34,8 +34,12 @@
   color: var(--ink);
   font-family: var(--f-body);
   min-height: 100vh;
+  min-height: 100dvh;
+  /* Contain child margins (.grid margin-bottom etc.) so they don't
+     collapse out of the page and expose body bg between main + footer. */
+  display: flow-root;
   /* Clears the fixed legacy .navbar (60px + safe-area) */
-  padding: calc(60px + env(safe-area-inset-top, 0px) + 24px) 22px 0;
+  padding: calc(60px + env(safe-area-inset-top, 0px) + 24px) 22px 48px;
   position: relative;
   overflow-x: clip;
 }
@@ -54,18 +58,20 @@
   color: var(--ink);
   text-transform: uppercase;
   margin: 14px 0 0;
+  white-space: nowrap;
 }
 .h1 {
   font-family: var(--f-display);
   font-size: clamp(56px, 16vw, 96px);
-  line-height: 0.92;
+  line-height: 1;
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--ink);
-  margin: 6px 0 14px;
-  /* Allow long bezirke (Friedrichshain-Kreuzberg) to break */
-  word-break: break-word;
-  hyphens: auto;
+  /* Top margin clears umlaut dots (SÜSSES, KÖPENICK) from the kicker
+     line above — Anton positions them well above cap height. */
+  margin: 18px 0 14px;
+  overflow-wrap: break-word;
+  hyphens: manual;
 }
 .tagline {
   font-family: var(--f-display);
@@ -278,13 +284,13 @@
 }
 .faqRow summary::-webkit-details-marker { display: none; }
 .faqQ {
-  font-family: var(--f-display);
-  font-size: 20px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-family: var(--f-body);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
   color: var(--ink);
   flex: 1;
-  line-height: 1.1;
+  line-height: 1.35;
 }
 .faqPlus {
   flex-shrink: 0;
@@ -292,11 +298,16 @@
   height: 26px;
   border: 2px solid var(--ink);
   color: var(--ink);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
   font-family: var(--f-display);
-  font-size: 18px;
+  font-size: 22px;
+  line-height: 1;
+}
+.faqPlus::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
   line-height: 1;
 }
 .faqRow[open] .faqPlus::before { content: "\2212"; }
@@ -390,11 +401,91 @@
 }
 
 /* ============================================================
+   Kategorie-Index Poster-Grid (booster-pack treatment)
+============================================================ */
+.posterGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px 14px;
+  margin-bottom: 32px;
+}
+.posterCard {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform 0.18s ease;
+}
+.posterCard:hover {
+  transform: translateY(-3px);
+}
+.posterFrame {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  background: transparent;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.posterFrame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.18));
+}
+.posterFrameEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--yellow);
+  color: var(--ink);
+  font-family: var(--f-display);
+  font-size: clamp(28px, 8vw, 44px);
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 16px;
+}
+.posterName {
+  font-family: var(--f-display);
+  font-size: clamp(22px, 6vw, 30px);
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0 0 4px;
+}
+.posterCount {
+  font-family: var(--f-body);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink);
+  opacity: 0.62;
+}
+
+@media (min-width: 720px) {
+  .posterGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px 20px;
+  }
+}
+@media (min-width: 960px) {
+  .posterGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 36px 24px;
+  }
+}
+
+/* ============================================================
    Responsive — tablet 720, desktop 960
 ============================================================ */
 @media (min-width: 720px) {
   .page {
-    padding: calc(60px + env(safe-area-inset-top, 0px) + 32px) 32px 0;
+    padding: calc(60px + env(safe-area-inset-top, 0px) + 32px) 32px 56px;
   }
   .grid,
   .bezirkGrid {
@@ -408,7 +499,7 @@
 }
 @media (min-width: 960px) {
   .page {
-    padding: 88px 80px 0;
+    padding: 88px 80px 72px;
     max-width: 1280px;
     margin: 0 auto;
   }

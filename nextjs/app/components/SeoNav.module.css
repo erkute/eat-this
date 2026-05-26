@@ -15,17 +15,18 @@
 }
 
 .logo {
-  font-family: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
-  font-size: 22px;
-  letter-spacing: -0.005em;
-  line-height: 0.9;
-  color: #fbf8ee;
-  text-transform: uppercase;
-  text-align: center;
   justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
-  display: inline-block;
-  padding-top: 4px;
+  line-height: 0;
+}
+.logoImg {
+  display: block;
+  height: 40px;
+  width: auto;
+  max-width: 100%;
 }
 
 .iconBtn {

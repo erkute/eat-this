@@ -1,6 +1,7 @@
 import type { Restaurant, OpeningHourSlot } from './types'
 import { localizedCategoryName } from './categories'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
+import { pickLocale } from '@/lib/i18n/pickLocale'
 
 type Loc = 'de' | 'en'
 
@@ -151,14 +152,14 @@ export function buildFAQEntries(r: Restaurant, locale: Loc): FAQEntry[] {
   const de = locale === 'de'
   const name = r.name
   const bezirk = r.bezirk?.name || r.district
+  const tip = pickLocale(r.tip, r.tipEn, locale)
   const entries: FAQEntry[] = []
 
-  if (r.openingHours && r.openingHours.length > 0) {
-    const summary = summarizeHours(r.openingHours, locale)!
+  if (tip) {
     entries.push(
       de
-        ? { question: `Wann hat ${name} geöffnet?`, answer: `${name} ist ${summary} geöffnet.` }
-        : { question: `When is ${name} open?`, answer: `${name} is open ${summary}.` },
+        ? { question: `Was sollte man bei ${name} bestellen?`, answer: tip }
+        : { question: `What should I order at ${name}?`, answer: tip },
     )
   }
 
@@ -166,15 +167,49 @@ export function buildFAQEntries(r: Restaurant, locale: Loc): FAQEntry[] {
     entries.push(
       de
         ? {
-            question: `Wo befindet sich ${name}?`,
+            question: `Wo finde ich ${name}?`,
             answer: bezirk
-              ? `${name} liegt in ${bezirk} — ${r.address}.`
-              : `${name} liegt unter der Adresse ${r.address}.`,
+              ? `${name} liegt in ${bezirk}, ${r.address}.`
+              : `${name} liegt an der Adresse ${r.address}.`,
           }
         : {
-            question: `Where is ${name} located?`,
-            answer: bezirk ? `${name} is in ${bezirk} — ${r.address}.` : `${name} is at ${r.address}.`,
+            question: `Where do I find ${name}?`,
+            answer: bezirk ? `${name} is in ${bezirk}, ${r.address}.` : `${name} is at ${r.address}.`,
           },
+    )
+  }
+
+  if (r.openingHours && r.openingHours.length > 0) {
+    const summary = summarizeHours(r.openingHours, locale)
+    if (summary) {
+      entries.push(
+        de
+          ? { question: `Wann hat ${name} geöffnet?`, answer: `Geöffnet ${summary}.` }
+          : { question: `When is ${name} open?`, answer: `Open ${summary}.` },
+      )
+    }
+  }
+
+  if (r.reservationUrl) {
+    entries.push(
+      de
+        ? {
+            question: `Sollte ich bei ${name} reservieren?`,
+            answer: `Eine Reservierung ist online möglich und wird empfohlen.`,
+          }
+        : {
+            question: `Should I book ahead at ${name}?`,
+            answer: `Online reservations are available and recommended.`,
+          },
+    )
+  }
+
+  const priceLabel = formatPriceLabel(r)
+  if (priceLabel) {
+    entries.push(
+      de
+        ? { question: `Was zahlt man bei ${name}?`, answer: `Hauptgerichte und Drinks bewegen sich im Bereich ${priceLabel}.` }
+        : { question: `What does ${name} cost?`, answer: `Mains and drinks sit in the ${priceLabel} range.` },
     )
   }
 
@@ -185,25 +220,8 @@ export function buildFAQEntries(r: Restaurant, locale: Loc): FAQEntry[] {
     const text = cuisineParts.join(' · ')
     entries.push(
       de
-        ? { question: `Welche Küche bietet ${name}?`, answer: `${name} serviert ${text}.` }
-        : { question: `What kind of food does ${name} serve?`, answer: `${name} serves ${text}.` },
-    )
-  }
-
-  const priceLabel = formatPriceLabel(r)
-  if (priceLabel) {
-    entries.push(
-      de
-        ? { question: `Was kostet ein Essen bei ${name}?`, answer: `Bei ${name} liegt das Preissegment bei ${priceLabel}.` }
-        : { question: `How expensive is ${name}?`, answer: `${name} sits in the ${priceLabel} price range.` },
-    )
-  }
-
-  if (r.reservationUrl) {
-    entries.push(
-      de
-        ? { question: `Kann man bei ${name} reservieren?`, answer: `Ja, ${name} bietet eine Online-Reservierung an.` }
-        : { question: `Can I make a reservation at ${name}?`, answer: `Yes, ${name} offers online reservations.` },
+        ? { question: `Wofür steht ${name} kulinarisch?`, answer: `${name} steht für ${text}.` }
+        : { question: `What does ${name} stand for?`, answer: `${name} stands for ${text}.` },
     )
   }
 

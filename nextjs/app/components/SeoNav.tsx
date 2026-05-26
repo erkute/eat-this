@@ -14,7 +14,8 @@ export default function SeoNav() {
       </Link>
 
       <Link href="/" className={styles.logo} aria-label="Eat This — Start">
-        Eat<br />This
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/pics/eat-stamp.webp" alt="Eat This" className={styles.logoImg} />
       </Link>
 
       <Link href="/" className={styles.iconBtn} aria-label="Menu">

@@ -1,647 +1,475 @@
-/* ──────────────────────────────────────────────────────────────────────
- * Restaurant detail — "Magazine Feature" treatment.
- *
- * Match the Bar-Basta landing: Ranchers display headlines, brand-red as
- * accent + masthead, hard ink-shadow comic-sticker cards with slight tilt,
- * cream canvas, generous editorial reading column. The long Sanity
- * `description` is the hero of the page — split into a display-size lede,
- * a drop-capped body column, and a mid-page pull-quote.
- *
- * Mobile-first; magazine-narrow 720 px column. Desktop (>= 960 px) widens
- * to 1080 px and reflows to a 2-column grid: main editorial column left,
- * sticky "At a Glance" sticker box right.
- * ────────────────────────────────────────────────────────────────────── */
+/* ============================================================
+   Restaurant Detail — SCREEN 3 (Bar Basta) translation.
+   Cream/ink/yellow palette identisch zu Bezirk-Hub. Anton display,
+   Inter body. Drop-cap auf description, yellow Insider-Tipp mit
+   6px ink box-shadow, editorial facts list.
+============================================================ */
 
 .page {
-  max-width: 1080px;
-  margin: 0 auto;
-  /* Hero is intentionally NOT padded — it goes flush bleed under the navbar.
-     Content section below carries the side padding instead. */
-  padding: 0;
-  color: var(--text-primary);
-  background: var(--surface-canvas);
+  --ink: #000;
+  --cream: #fbf8ee;
+  --cream-deep: #f1ecdd;
+  --yellow: #ffd84a;
+  --muted: #6b5a44;
+  --f-display: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
+  --f-body: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+
+  /* Bridge semantic tokens so shared components (MustEatTeaserSection,
+     Breadcrumbs, RestaurantFAQ) render in cream palette. */
+  --text-primary: var(--ink);
+  --text-secondary: #2a2218;
+  --text-muted: var(--muted);
+  --surface-bg: var(--cream);
+  --surface-card: var(--cream);
+  --border-subtle: rgba(0, 0, 0, 0.18);
+  --border-strong: var(--ink);
+  --accent: var(--yellow);
+
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--f-body);
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: calc(60px + env(safe-area-inset-top, 0px) + 16px) 0 0;
+  display: flow-root;
+  position: relative;
+  overflow-x: clip;
 }
 
-/* ── Hero — magazine cover lockup over the photo ──────────────────────── */
+/* Breadcrumbs container should respect horizontal page padding */
+.page > nav[aria-label] {
+  padding: 0 16px;
+  margin-bottom: 4px;
+}
 
+/* ============================================================
+   HERO PHOTO (4/5) with bottom gradient + tags overlay
+============================================================ */
 .hero {
   position: relative;
-  width: 100%;
-  /* Mobile: portrait 4:5 — photo dominates the viewport like a magazine
-     cover instead of feeling letterboxed/cropped. Desktop reflows to
-     cinematic 16:9. */
+  margin: 8px 14px 0;
   aspect-ratio: 4 / 5;
-  max-height: 88vh;
+  background-color: #14100c;
   overflow: hidden;
-  background: #0a0a0a;
 }
-
-@media (min-width: 720px) {
-  .hero {
-    aspect-ratio: 16 / 9;
-  }
-}
-
-.heroImage {
+.heroImg {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
-/* Dark gradient at the bottom of the photo — gives the lockup legibility
-   regardless of what the underlying image is. Stronger on mobile because
-   the lockup competes with smaller letter sizes against bright photos. */
-.heroShade {
+.heroGradient {
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.78) 0%,
-    rgba(0, 0, 0, 0.45) 38%,
-    rgba(0, 0, 0, 0) 72%
+    180deg,
+    rgba(0, 0, 0, 0.15) 0%,
+    rgba(0, 0, 0, 0) 22%,
+    rgba(0, 0, 0, 0) 45%,
+    rgba(0, 0, 0, 0.55) 75%,
+    rgba(0, 0, 0, 0.92) 100%
   );
   pointer-events: none;
 }
-
-@media (min-width: 720px) {
-  .heroShade {
-    background: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.62) 0%,
-      rgba(0, 0, 0, 0.30) 38%,
-      rgba(0, 0, 0, 0) 64%
-    );
-  }
-}
-
-/* Editorial cover lockup — absolutely positioned bottom-left. */
-.heroLockup {
+.heroTopcap {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 32px 24px 28px;
+  top: 12px;
+  left: 12px;
+  right: 12px;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  color: #f7f5f0;
-  pointer-events: none;
+  justify-content: flex-start;
+  z-index: 2;
 }
-
-.heroLockup > * {
-  pointer-events: auto;
-}
-
-.heroEyebrow {
-  font-family: var(--font-ranchers);
-  font-size: clamp(15px, 4.2vw, 18px);
-  letter-spacing: 0.08em;
+.openPill {
+  background: var(--yellow);
+  color: var(--ink);
+  font-family: var(--f-display);
+  font-size: 11px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #fefbf3;
-  margin: 0;
-  line-height: 1;
-  text-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.6),
-    0 2px 14px rgba(0, 0, 0, 0.7);
+  padding: 5px 9px 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
-
-.heroWordmark {
-  font-family: var(--font-ranchers);
-  font-weight: 400;
-  font-size: clamp(52px, 14vw, 112px);
-  line-height: 0.92;
-  letter-spacing: -0.005em;
-  color: var(--brand-red);
-  margin: 0;
-  /* Heavy text-shadow → guarantees the brand-red wordmark stays legible
-     even on bright photo regions. Doubled-up on mobile because the photo
-     occupies more relative pixel real-estate behind the wordmark. */
-  text-shadow:
-    0 2px 0 #0a0a0a,
-    0 3px 0 #0a0a0a,
-    0 6px 22px rgba(0, 0, 0, 0.65);
-  text-wrap: balance;
+.openPill::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--ink);
+  border-radius: 999px;
+}
+.openPill.closed {
+  background: var(--cream-deep);
+  color: var(--ink);
+  opacity: 0.85;
+}
+.openPill.closed::before {
+  background: var(--ink);
+  opacity: 0.45;
+}
+.heroOverlay {
+  position: absolute;
+  inset: auto 18px 18px;
+  z-index: 2;
+  color: var(--cream);
+}
+.heroName {
+  font-family: var(--f-display);
+  font-size: clamp(48px, 14vw, 84px);
+  line-height: 0.95;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--cream);
+  margin: 0 0 10px;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
   word-break: break-word;
 }
-
-@media (min-width: 720px) {
-  .heroWordmark {
-    text-shadow:
-      0 2px 0 #0a0a0a,
-      0 4px 18px rgba(0, 0, 0, 0.55);
-  }
+.heroTags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-family: var(--f-display);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
-
-.heroDeck {
-  font-family: var(--font);
-  font-size: clamp(15px, 3.6vw, 19px);
-  line-height: 1.32;
-  font-weight: 500;
-  color: #f7f5f0;
-  margin: 8px 0 0;
-  max-width: 36ch;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
-  text-wrap: pretty;
+.heroTags .chip {
+  background: var(--yellow);
+  color: var(--ink);
+  padding: 4px 9px 5px;
 }
-
-@media (min-width: 720px) {
-  .heroLockup {
-    padding: 56px 40px 44px;
-    gap: 10px;
-  }
-}
-
-@media (min-width: 1080px) {
-  .heroLockup {
-    padding: 72px 56px 56px;
-  }
-}
-
-/* Tiny photo credit pill — bottom-right, understated. */
-.heroCredit {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  padding: 3px 7px;
-  background: rgba(0, 0, 0, 0.45);
+.heroTags .chipAlt {
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--cream);
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  padding: 2.5px 9px 3.5px;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  border-radius: 3px;
-  pointer-events: none;
+}
+.heroTags .chipOpen,
+.heroTags .chipClosed {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.heroTags .chipOpen::before,
+.heroTags .chipClosed::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--cream);
+}
+.heroTags .chipClosed {
+  opacity: 0.72;
+}
+.heroTags .chipClosed::before {
+  opacity: 0.55;
 }
 
-.heroCredit a {
-  pointer-events: auto;
-  color: inherit;
-  text-decoration: underline;
-  text-decoration-color: rgba(255, 255, 255, 0.4);
+/* ============================================================
+   NAME (h1 unter Hero)
+============================================================ */
+.name {
+  font-family: var(--f-display);
+  font-size: clamp(48px, 12vw, 78px);
+  line-height: 0.95;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 16px 14px 0;
+  word-break: break-word;
+  hyphens: auto;
+}
+.tags {
+  margin: 8px 16px 16px;
+  font-family: var(--f-display);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.tags .chip {
+  background: var(--yellow);
+  color: var(--ink);
+  padding: 3px 9px 4px;
+}
+.tags .chipAlt {
+  background: transparent;
+  border: 1.5px solid var(--ink);
+  color: var(--ink);
+  padding: 2px 9px 3px;
 }
 
-/* ── Content shell — magazine column ──────────────────────────────────── */
-
-.content {
-  padding: 32px 22px 80px;
-  max-width: 1080px;
-  margin: 0 auto;
+/* ============================================================
+   INSIDER TIPP — yellow surface with offset ink shadow
+============================================================ */
+.tipp {
+  margin: 24px 16px 28px;
+  background: var(--yellow);
+  color: var(--ink);
+  padding: 18px 20px 20px;
+  position: relative;
+  display: grid;
+  gap: 8px;
+  border: 2px solid var(--ink);
+  box-shadow: 6px 6px 0 0 var(--ink);
+}
+.tippLabel {
+  font-family: var(--f-display);
+  font-size: 14px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.tippLabel::before {
+  content: "\2726";
+  font-size: 18px;
+  line-height: 1;
+}
+.tippText {
+  font-family: var(--f-body);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  margin: 0;
 }
 
-@media (min-width: 720px) {
-  .content {
-    padding: 48px 32px 96px;
-  }
+/* ============================================================
+   STORY (description with drop-cap)
+============================================================ */
+.story {
+  margin: 32px 0 8px;
+  padding: 0 18px;
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
 }
-
-/* Hidden visually but readable for screen readers — the on-page name is
-   already burned into the hero wordmark. */
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
+.story p {
+  margin: 0 0 14px;
+}
+.lede::first-letter {
+  font-family: var(--f-display);
+  font-size: 70px;
+  line-height: 0.82;
+  color: var(--ink);
+  float: left;
+  padding: 8px 10px 0 0;
+  text-transform: uppercase;
+}
+.pullQuote {
+  font-family: var(--f-display);
+  font-size: clamp(24px, 6.5vw, 28px);
+  line-height: 1.05;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 22px 0 22px;
   padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
   border: 0;
 }
 
-/* ── Lede — display-size pull-quote intro ─────────────────────────────── */
-
-.lede {
-  font-family: var(--font-ranchers);
-  font-weight: 400;
-  font-size: clamp(26px, 5.6vw, 44px);
-  line-height: 1.06;
-  letter-spacing: -0.005em;
-  color: #0a0a0a;
-  margin: 0 0 36px;
-  max-width: 22ch;
-  text-wrap: balance;
+/* ============================================================
+   FACTS — editorial key/value list
+============================================================ */
+.facts {
+  margin: 18px 16px 26px;
+  display: grid;
+  gap: 0;
+  border-top: 1.5px solid var(--ink);
 }
-
-/* ── Body — drop-capped long-form column ──────────────────────────────── */
-
-.body {
-  font-family: var(--font);
-  font-size: clamp(17px, 2.2vw, 19px);
-  line-height: 1.65;
-  color: #0a0a0a;
-  max-width: 44em;
-  margin: 0;
-  text-wrap: pretty;
+.factsRow {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: 16px;
+  padding: 13px 2px;
+  border-bottom: 1.5px solid var(--ink);
+  align-items: baseline;
 }
-
-.body p {
-  margin: 0 0 1.1em;
-}
-
-.body p:last-child {
-  margin-bottom: 0;
-}
-
-/* Brand-red drop-cap on the first letter of the body. */
-.body p:first-child::first-letter {
-  font-family: var(--font-ranchers);
-  font-size: 4.4em;
-  line-height: 0.82;
-  color: var(--brand-red);
-  float: left;
-  padding: 6px 10px 0 0;
-  margin-bottom: -6px;
-}
-
-/* ── Mid-page pull-quote ──────────────────────────────────────────────── */
-
-.midQuote {
-  position: relative;
-  font-family: var(--font-ranchers);
-  font-weight: 400;
-  font-size: clamp(22px, 4.6vw, 34px);
-  line-height: 1.1;
-  letter-spacing: -0.005em;
-  color: var(--brand-red);
-  margin: 40px 0;
-  padding: 0 0 0 18px;
-  border-left: 4px solid var(--brand-red);
-  max-width: 26ch;
-  text-wrap: balance;
-}
-
-@media (min-width: 720px) {
-  .midQuote {
-    margin: 52px 0;
-    padding-left: 24px;
-    border-left-width: 6px;
-  }
-}
-
-/* ── Tip — comic-sticker card ─────────────────────────────────────────── */
-
-.tip {
-  position: relative;
-  background: #fff;
-  border: 3px solid #0a0a0a;
-  padding: 22px 22px 22px;
-  margin: 36px 0;
-  box-shadow: 8px 8px 0 0 #0a0a0a;
-  transform: rotate(-1.4deg);
-  transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
-              box-shadow 280ms ease;
-  max-width: 38em;
-}
-
-.tip:hover {
-  transform: rotate(0) translate(-2px, -2px);
-  box-shadow: 12px 12px 0 0 #0a0a0a;
-}
-
-.tipLabel {
-  display: inline-block;
-  font-family: var(--font-ranchers);
-  font-size: 14px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #fff;
-  background: var(--brand-red);
-  padding: 4px 10px 5px;
-  margin: 0 0 12px;
-  line-height: 1;
-}
-
-.tipBody {
-  font-family: var(--font);
-  font-size: 16px;
-  line-height: 1.5;
-  font-weight: 500;
-  color: #0a0a0a;
-  margin: 0;
-  text-wrap: pretty;
-}
-
-/* ── At-a-Glance sticker box ──────────────────────────────────────────── */
-
-.glance {
-  position: relative;
-  background: #fff;
-  border: 3px solid #0a0a0a;
-  padding: 22px 22px 22px;
-  box-shadow: 8px 8px 0 0 #0a0a0a;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  color: #0a0a0a;
-}
-
-.glanceSection {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.glanceLabel {
-  font-family: var(--font-ranchers);
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #525252;
-  margin: 0;
-  line-height: 1;
-}
-
-.glanceValue {
-  font-family: var(--font);
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.35;
-  color: #0a0a0a;
-  margin: 0;
-  text-decoration: none;
-}
-
-.glanceValue:hover {
-  color: var(--brand-red);
-}
-
-.glanceHours {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.glanceHourRow {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--font);
-  font-size: 14px;
-  gap: 12px;
-}
-
-.glanceHourDays {
-  font-weight: 500;
-  color: #525252;
-}
-
-.glanceHourValue {
-  font-weight: 600;
-  color: #0a0a0a;
-}
-
-.glanceTodayOpen,
-.glanceTodayClosed {
-  font-family: var(--font);
-  font-size: 14px;
-  font-weight: 700;
-  margin: 0 0 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.glanceTodayOpen {
-  color: var(--status-open, #1f8a4c);
-}
-
-.glanceTodayClosed {
-  color: #525252;
-}
-
-/* ── Map CTA — brand-red ticket sticker ───────────────────────────────── */
-
-.mapTicket {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 18px 20px;
-  background: var(--brand-red);
-  color: #fff;
-  text-decoration: none;
-  border: 3px solid #0a0a0a;
-  box-shadow: 8px 8px 0 0 #0a0a0a;
-  transform: rotate(1.2deg);
-  transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
-              box-shadow 280ms ease;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.mapTicket:hover {
-  transform: rotate(0) translate(-2px, -2px);
-  box-shadow: 12px 12px 0 0 #0a0a0a;
-}
-
-.mapTicketLabel {
-  font-family: var(--font-ranchers);
-  font-size: clamp(22px, 5vw, 26px);
-  letter-spacing: 0;
-  line-height: 1;
-  color: #fff;
-  text-transform: uppercase;
-}
-
-.mapTicketArrow {
-  flex-shrink: 0;
-  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.mapTicket:hover .mapTicketArrow {
-  transform: translateX(4px);
-}
-
-/* ── Action list — Reserve / Instagram / Website ──────────────────────── */
-
-.actionList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.actionItem {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 14px;
-  border: 2px solid #0a0a0a;
-  background: #fff;
-  color: #0a0a0a;
-  font-family: var(--font);
+.factsKey {
+  font-family: var(--f-display);
   font-size: 15px;
-  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--ink);
+  text-transform: uppercase;
+  line-height: 1;
+}
+.factsVal {
+  font-family: var(--f-body);
+  color: var(--ink);
+  font-size: 14.5px;
+  line-height: 1.5;
+  font-weight: 400;
+}
+.factsVal a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+.hours {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 14px;
+  row-gap: 4px;
+  font-variant-numeric: tabular-nums;
+  align-items: baseline;
+}
+.hoursDay {
+  font-family: var(--f-display);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.hoursTime {
+  font-family: var(--f-body);
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+
+/* ============================================================
+   ACTIONS — primary ink, alt outline
+============================================================ */
+.acts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 6px 14px 26px;
+}
+.acts:has(> .act:only-child) {
+  grid-template-columns: 1fr;
+}
+.act {
+  font-family: var(--f-display);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 13px 16px 14px;
+  cursor: pointer;
+  border: 1.5px solid var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1;
   text-decoration: none;
-  margin-bottom: 8px;
-  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
-              background 180ms ease,
-              color 180ms ease;
+}
+.actPrimary {
+  background: var(--ink);
+  color: var(--cream);
+}
+.actAlt {
+  background: transparent;
+  color: var(--ink);
 }
 
-.actionItem:hover {
-  background: var(--brand-red);
-  color: #fff;
-  transform: translate(-2px, -2px);
-}
-
-.actionList li:last-child .actionItem {
-  margin-bottom: 0;
-}
-
-.actionLabel {
-  flex-shrink: 0;
-}
-
-.actionDetail {
-  margin-left: auto;
-  font-size: 13px;
-  font-weight: 500;
-  color: #525252;
-  letter-spacing: 0;
-  text-transform: none;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: right;
-}
-
-.actionItem:hover .actionDetail {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.actionArrow {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-  color: inherit;
-}
-
-/* ── FAQ — grid wrapper only; accordion comes from RestaurantFAQ component ── */
-
-.faq {
-  /* Placeholder for grid placement on desktop. The component carries its
-     own internal styling (heading, accordion rows, dark-mode). */
-}
-
-/* ── Layout — magazine 2-col on desktop ───────────────────────────────── */
-
-.layout {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+/* ============================================================
+   SIBLING CROSS-LINKS
+============================================================ */
+.siblings {
+  padding: 24px 16px 8px;
+  border-top: 2px solid var(--ink);
   margin-top: 16px;
 }
+.siblings h2 {
+  font-family: var(--f-display);
+  font-size: clamp(32px, 8vw, 48px);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0 0 16px;
+}
+.sibRow {
+  margin-bottom: 24px;
+}
+.sibRowHead {
+  font-family: var(--f-body);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.62;
+  margin: 0 0 12px;
+}
+.sibCards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 12px;
+}
+.sibCard {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform 0.15s ease;
+}
+.sibCard:hover {
+  transform: translateY(-2px);
+}
+.sibPhoto {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--cream-deep);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.sibName {
+  font-family: var(--f-display);
+  font-size: 18px;
+  line-height: 1.05;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0 0 4px;
+}
+.sibMeta {
+  font-family: var(--f-body);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.6;
+  font-weight: 600;
+}
 
-.musteats {
-  margin-top: 36px;
+/* ============================================================
+   Responsive
+============================================================ */
+@media (min-width: 720px) {
+  .page {
+    padding: calc(60px + env(safe-area-inset-top, 0px) + 24px) 0 0;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .hero { margin: 8px 22px 0; }
+  .name { margin: 20px 22px 0; }
+  .tags { margin: 10px 22px 18px; }
+  .tipp { margin: 8px 22px 28px; }
+  .story { padding: 0 22px 8px; }
+  .facts { margin: 18px 22px 28px; }
+  .acts { padding: 6px 22px 28px; }
+  .siblings { padding: 28px 22px 8px; }
+  .sibCards {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px 16px;
+  }
 }
 
 @media (min-width: 960px) {
-  .content {
-    padding-top: 56px;
+  .page {
+    max-width: 880px;
   }
-  .layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 320px;
-    grid-template-areas:
-      "lede     sidebar"
-      "body     sidebar"
-      "musteats sidebar"
-      "faq      .";
-    column-gap: 64px;
-    row-gap: 0;
+  .name {
+    font-size: clamp(64px, 7vw, 96px);
   }
-  .lede     { grid-area: lede; }
-  .body     { grid-area: body; }
-  .musteats { grid-area: musteats; }
-  .faq      { grid-area: faq; margin-top: 64px; }
-  .sidebar {
-    grid-area: sidebar;
-    margin-top: 0;
-    align-self: start;
-    position: sticky;
-    /* 60 px legacy navbar + 24 px breath. */
-    top: calc(60px + 24px);
-    gap: 20px;
-  }
-}
-
-/* ── Dark mode ─────────────────────────────────────────────────────────── */
-
-:global([data-theme="dark"]) .page {
-  background: #0a0a0a;
-}
-
-:global([data-theme="dark"]) .lede,
-:global([data-theme="dark"]) .body {
-  color: #f7f5f0;
-}
-
-:global([data-theme="dark"]) .tip {
-  background: #141414;
-  border-color: #f7f5f0;
-  box-shadow: 8px 8px 0 0 #f7f5f0;
-}
-
-:global([data-theme="dark"]) .tip:hover {
-  box-shadow: 12px 12px 0 0 #f7f5f0;
-}
-
-:global([data-theme="dark"]) .tipBody {
-  color: #f7f5f0;
-}
-
-:global([data-theme="dark"]) .glance {
-  background: #141414;
-  border-color: #f7f5f0;
-  box-shadow: 8px 8px 0 0 #f7f5f0;
-  color: #f7f5f0;
-}
-
-:global([data-theme="dark"]) .glanceLabel {
-  color: #b8b8b8;
-}
-
-:global([data-theme="dark"]) .glanceValue,
-:global([data-theme="dark"]) .glanceHourValue {
-  color: #f7f5f0;
-}
-
-:global([data-theme="dark"]) .glanceHourDays {
-  color: #b8b8b8;
-}
-
-:global([data-theme="dark"]) .actionItem {
-  background: #141414;
-  border-color: #f7f5f0;
-  color: #f7f5f0;
-}
-
-:global([data-theme="dark"]) .actionItem:hover {
-  background: var(--brand-red);
-  border-color: var(--brand-red);
-  color: #fff;
-}
-
-:global([data-theme="dark"]) .actionDetail {
-  color: #b8b8b8;
-}
-
-
-:global([data-theme="dark"]) .mapTicket {
-  border-color: #f7f5f0;
-  box-shadow: 8px 8px 0 0 #f7f5f0;
-}
-
-:global([data-theme="dark"]) .mapTicket:hover {
-  box-shadow: 12px 12px 0 0 #f7f5f0;
 }

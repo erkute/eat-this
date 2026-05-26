@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
@@ -7,6 +8,18 @@ import { localizedCategoryName } from '@/lib/categories'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { localeUrl } from '@/lib/locale-url'
 import styles from '../bezirk/Bezirk.module.css'
+
+const POSTER_MAP: Record<string, string> = {
+  breakfast: '/pics/booster/booster_breakfast.webp',
+  coffee: '/pics/booster/booster_coffee.webp',
+  dinner: '/pics/booster/booster_dinner.webp',
+  drinks: '/pics/booster/booster_drinks.webp',
+  'fast-food': '/pics/booster/booster_fastfood.webp',
+  'fine-dining': '/pics/booster/booster_finedining.webp',
+  lunch: '/pics/booster/booster_lunch.webp',
+  pizza: '/pics/booster/booster_pizza.webp',
+  sweets: '/pics/booster/booster_sweets.webp',
+}
 
 interface PageProps {
   params: Promise<{ locale: string }>
@@ -95,14 +108,28 @@ export default async function KategorieIndexPage({ params }: PageProps) {
           </p>
         </header>
 
-        <section className={styles.bezirkGrid}>
+        <section className={styles.posterGrid}>
           {categories.map(c => {
             const count = counts[c.slug] ?? 0
             const label = localizedCategoryName(c, loc)
+            const poster = POSTER_MAP[c.slug]
             return (
-              <Link key={c.slug} href={kategorieUrl(c.slug)} className={styles.bezirkCard}>
-                <span className={styles.bezirkName}>{label}</span>
-                <span className={styles.bezirkCount}>
+              <Link key={c.slug} href={kategorieUrl(c.slug)} className={styles.posterCard}>
+                {poster ? (
+                  <div className={styles.posterFrame}>
+                    <Image
+                      src={poster}
+                      alt={`${label} Pack`}
+                      width={420}
+                      height={560}
+                      sizes="(max-width: 720px) 50vw, (max-width: 960px) 33vw, 280px"
+                    />
+                  </div>
+                ) : (
+                  <div className={`${styles.posterFrame} ${styles.posterFrameEmpty}`}>{label}</div>
+                )}
+                <span className={styles.posterName}>{label}</span>
+                <span className={styles.posterCount}>
                   {count} {count === 1
                     ? (de ? 'Restaurant' : 'restaurant')
                     : (de ? 'Restaurants' : 'restaurants')}

@@ -1,7 +1,7 @@
 .footer {
   background: #000;
   color: #fbf8ee;
-  padding: 36px 16px 32px;
+  padding: 16px 16px 32px;
   font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
   position: relative;
   overflow: hidden;
@@ -14,7 +14,7 @@
   letter-spacing: -0.005em;
   text-transform: uppercase;
   color: #ffd84a;
-  margin: 12px 0 6px;
+  margin: 0 0 6px;
   text-align: center;
   font-weight: 400;
 }

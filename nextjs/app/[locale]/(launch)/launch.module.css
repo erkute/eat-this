@@ -240,10 +240,10 @@
   gap: 12px;
   font-family: var(--f-body);
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--muted);
-  font-size: 11px;
+  color: var(--ink);
+  font-size: 13px;
   padding-top: 4px;
   flex-wrap: wrap;
   align-self: stretch;

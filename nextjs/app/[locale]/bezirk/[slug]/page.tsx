@@ -140,30 +140,32 @@ export default async function BezirkDetailPage({ params }: PageProps) {
       <main className={styles.page}>
         <Breadcrumbs items={breadcrumbItems} ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'} />
 
-        <header className={styles.hero}>
-          <div className={styles.kicker}>{de ? 'Bezirk' : 'District'}</div>
-          <h1 className={styles.h1}>{b.name}</h1>
-          {bezirkDescription ? (
-            <p className={styles.sub}>{bezirkDescription}</p>
-          ) : (
-            <div className={styles.tagline}>
-              {`Restaurants in ${b.name}`}
+        <div className={styles.heroSpread}>
+          <header className={styles.hero}>
+            <div className={styles.kicker}>{de ? 'Bezirk' : 'District'}</div>
+            <h1 className={styles.h1}>{b.name}</h1>
+            {bezirkDescription ? (
+              <p className={styles.sub}>{bezirkDescription}</p>
+            ) : (
+              <div className={styles.tagline}>
+                {`Restaurants in ${b.name}`}
+              </div>
+            )}
+            <HubMapCTA href="/" title={hubCtaTitle} variant="chip" />
+          </header>
+
+          {b.imageUrl && (
+            <div className={styles.heroPhoto}>
+              <Image
+                src={b.imageUrl}
+                alt={b.name}
+                fill
+                sizes="(max-width: 720px) 100vw, (max-width: 960px) 720px, 540px"
+                priority
+              />
             </div>
           )}
-          <HubMapCTA href="/" title={hubCtaTitle} variant="chip" />
-        </header>
-
-        {b.imageUrl && (
-          <div className={styles.heroPhoto}>
-            <Image
-              src={b.imageUrl}
-              alt={b.name}
-              fill
-              sizes="(max-width: 720px) 100vw, (max-width: 960px) 720px, 1080px"
-              priority
-            />
-          </div>
-        )}
+        </div>
 
         <div className={styles.stats} style={statsStyle}>
           <div className={styles.statCell}>

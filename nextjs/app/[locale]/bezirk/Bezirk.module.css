@@ -469,14 +469,15 @@
 
 @media (min-width: 720px) {
   .posterGrid {
+    /* 9 categories → 3×3 grid on all desktop sizes so the last row
+       isn't orphaned (4-col left one card alone on the bottom row). */
     grid-template-columns: repeat(3, 1fr);
     gap: 28px 20px;
   }
 }
 @media (min-width: 960px) {
   .posterGrid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 36px 24px;
+    gap: 40px 32px;
   }
 }
 
@@ -509,6 +510,34 @@
   }
   .bezirkGrid {
     grid-template-columns: repeat(4, 1fr);
+  }
+  /* Bezirk detail: hero text + hero photo become a 2-col spread on
+     desktop ONLY when a photo exists. Without :has() guard, the
+     empty right cell would show as a void at content width — most
+     bezirke don't have an image set in Sanity yet. */
+  .heroSpread:has(.heroPhoto) {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    column-gap: 56px;
+    align-items: center;
+    margin: 8px 0 28px;
+  }
+  .heroSpread:has(.heroPhoto) .hero {
+    margin: 0;
+  }
+  .heroSpread:has(.heroPhoto) .heroPhoto {
+    margin: 0;
+    aspect-ratio: 4 / 5;
+  }
+  /* H1 + sub scale up on desktop site-wide (Bezirk + Kategorie).
+     Bigger headline carries the hero on its own when no photo is
+     present (current state for most bezirke and all kategorien). */
+  .h1 {
+    font-size: clamp(72px, 8vw, 128px);
+  }
+  .sub {
+    max-width: 44ch;
+    font-size: 17px;
   }
   .finalCta {
     margin: 80px -80px 0;

@@ -4,7 +4,6 @@ import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
 import { getAllBezirkeWithStats } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
-import { SITE_URL } from '@/lib/constants'
 import { localeUrl } from '@/lib/locale-url'
 import styles from './Bezirk.module.css'
 
@@ -47,6 +46,8 @@ export default async function BezirkIndexPage({ params }: PageProps) {
   const { locale } = await params
   setRequestLocale(locale)
   const de = locale === 'de'
+  const bezirkUrl = (slug: string) =>
+    locale === 'de' ? `/bezirk/${slug}` : `/${locale}/bezirk/${slug}`
   const bezirke = await getAllBezirkeWithStats()
 
   const jsonLd = serializeJsonLd({
@@ -77,23 +78,21 @@ export default async function BezirkIndexPage({ params }: PageProps) {
         {jsonLd}
       </Script>
       <main className={styles.page}>
-        <header className={styles.header}>
+        <header className={styles.hero}>
           <div className={styles.kicker}>{de ? 'Bezirke' : 'Districts'}</div>
-          <h1 className={styles.title}>
+          <h1 className={styles.h1}>
             {de ? 'Restaurants nach Bezirk' : 'Restaurants by district'}
           </h1>
-          <p className={styles.description}>
+          <p className={styles.sub}>
             {de
               ? 'Wähle einen Bezirk, um die kuratierte Restaurant-Auswahl zu sehen.'
               : 'Pick a district to see the curated restaurant selection.'}
           </p>
         </header>
 
-        <hr className={styles.divider} />
-
         <section className={styles.bezirkGrid}>
           {bezirke.map(b => (
-            <Link key={b._id} href={`/bezirk/${b.slug}`} className={styles.bezirkCard}>
+            <Link key={b._id} href={bezirkUrl(b.slug)} className={styles.bezirkCard}>
               <span className={styles.bezirkName}>{b.name}</span>
               <span className={styles.bezirkCount}>
                 {b.restaurantCount} {b.restaurantCount === 1

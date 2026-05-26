@@ -15,7 +15,6 @@ import { pickLocale } from '@/lib/i18n/pickLocale'
 import styles from '../../bezirk/Bezirk.module.css'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 import HubMapCTA from '@/app/components/HubMapCTA'
-import MapPromoBlock from '@/app/components/MapPromoBlock'
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>
@@ -74,8 +73,12 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const label = localizedCategoryName(c, loc)
   const blurb = localizedCategoryBlurb(c, loc)
 
-  // "Kategorien"-Hub als Text statt Link — kein in-app Browse-All-Pfad zum
-  // Kategorien-Index. JSON-LD BreadcrumbList behält die kanonischen URLs.
+  // Stats: SPOTS + BEZIRKE (always 2-up, no must-eat dependency)
+  const bezirkSet = new Set(
+    restaurants.map(r => r.district).filter((d): d is string => Boolean(d))
+  )
+  const statsStyle = { ['--stats-cols' as string]: '2' } as React.CSSProperties
+
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/' },
     { name: de ? 'Kategorien' : 'Categories' },
@@ -118,6 +121,13 @@ export default async function KategorieDetailPage({ params }: PageProps) {
     ],
   })
 
+  const hubCtaTitle = de
+    ? `Alle ${label}-Spots auf der Map`
+    : `See all ${label.toLowerCase()} spots on the map`
+  const hubCtaSubline = de
+    ? 'Geo-clustered, mit Must-Eats und Walking-Distance.'
+    : 'Geo-clustered, with Must-Eats and walking distance.'
+
   return (
     <>
       <Script id={`schema-kategorie-${slug}`} type="application/ld+json" strategy="beforeInteractive">
@@ -125,63 +135,74 @@ export default async function KategorieDetailPage({ params }: PageProps) {
       </Script>
       <main className={styles.page}>
         <Breadcrumbs items={breadcrumbItems} ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'} />
-        <header className={styles.header}>
+
+        <header className={styles.hero}>
           <div className={styles.kicker}>{de ? 'Kategorie' : 'Category'}</div>
-          <h1 className={styles.title}>
-            {label} in Berlin
-          </h1>
-          {blurb && <p className={styles.description}>{blurb}</p>}
+          <h1 className={styles.h1}>{label}</h1>
+          <div className={styles.tagline}>in Berlin</div>
+          {blurb && <p className={styles.sub}>{blurb}</p>}
+          <HubMapCTA href="/" title={hubCtaTitle} variant="chip" />
         </header>
 
-        <HubMapCTA
-          href={`/map?cat=${c.slug}`}
-          title={de
-            ? `Alle ${label}-Spots auf der Map ansehen`
-            : `See all ${label.toLowerCase()} spots on the map`}
-          subline={de
-            ? 'Geo-clustered, mit Must-Eats und Walking-Distance.'
-            : 'Geo-clustered, with Must-Eats and walking distance.'}
-        />
+        <div className={styles.stats} style={statsStyle}>
+          <div className={styles.statCell}>
+            <div className={styles.statN}>{restaurants.length}</div>
+            <div className={styles.statK}>Spots</div>
+          </div>
+          <div className={styles.statCell}>
+            <div className={styles.statN}>{bezirkSet.size}</div>
+            <div className={styles.statK}>{de ? 'Bezirke' : 'Districts'}</div>
+          </div>
+        </div>
+
+        <div className={styles.sectionHead}>
+          <h2>{de ? 'Die handverlesene Auswahl' : 'The hand-picked selection'}</h2>
+          <p>{de
+            ? `${restaurants.length} ${label}-Spots in Berlin, von uns geprüft.`
+            : `${restaurants.length} ${label.toLowerCase()} spots in Berlin, vetted by us.`}</p>
+        </div>
 
         <section className={styles.grid}>
-          {restaurants.map(r => (
-            <Link key={r._id} href={restaurantUrl(r.slug)} className={styles.card}>
-              {r.photo && (
-                <div className={styles.cardImage}>
-                  <Image
-                    src={r.photo}
-                    alt={r.name}
-                    fill
-                    sizes="(max-width: 720px) 100vw, (max-width: 960px) 50vw, 340px"
-                  />
+          {restaurants.map(r => {
+            const priceLabel = formatPriceLabel(r)
+            const cardLine = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
+              || pickLocale(r.tip, r.tipEn, loc)
+            return (
+              <Link key={r._id} href={restaurantUrl(r.slug)} className={styles.card}>
+                {r.photo && (
+                  <div className={styles.cardPhoto}>
+                    <Image
+                      src={r.photo}
+                      alt={r.name}
+                      fill
+                      sizes="(max-width: 720px) 100vw, (max-width: 960px) 50vw, 340px"
+                    />
+                  </div>
+                )}
+                <div className={styles.cardBody}>
+                  <h3 className={styles.cardName}>{r.name}</h3>
+                  <div className={styles.cardMeta}>
+                    {r.cuisineType && <span className={styles.chipYellow}>{r.cuisineType}</span>}
+                    {r.district && <span className={styles.chipOutline}>{r.district}</span>}
+                    {priceLabel && <span className={styles.price}>{priceLabel}</span>}
+                  </div>
+                  {cardLine && <p className={styles.cardTip}>{cardLine}</p>}
                 </div>
-              )}
-              <div className={styles.cardBody}>
-                <h2 className={styles.cardName}>{r.name}</h2>
-                <div className={styles.cardMeta}>
-                  {r.district && <span>{r.district}</span>}
-                  {r.cuisineType && <span className={styles.cuisine}>{r.cuisineType}</span>}
-                  {(() => {
-                    const priceLabel = formatPriceLabel(r)
-                    return priceLabel ? <span className={styles.price}>· {priceLabel}</span> : null
-                  })()}
-                </div>
-                {(() => {
-                  const cardLine = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
-                    || pickLocale(r.tip, r.tipEn, loc)
-                  return cardLine ? <p className={styles.cardTip}>{cardLine}</p> : null
-                })()}
-              </div>
-            </Link>
-          ))}
+              </Link>
+            )
+          })}
         </section>
 
-        <MapPromoBlock
-          mapHref={`/map?cat=${c.slug}`}
-          ariaLabel={de
-            ? `Entdecke ${label} auf der Map`
-            : `Discover ${label.toLowerCase()} on the map`}
-        />
+        <aside className={styles.finalCta}>
+          <div className={styles.fcKicker}>{de ? 'Die Map' : 'The Map'}</div>
+          <h2>{de ? 'Alles auf einen Blick.' : 'All at a glance.'}</h2>
+          <p className={styles.fcSub}>{hubCtaSubline}</p>
+          <HubMapCTA
+            href="/"
+            title={de ? 'Map öffnen' : 'Open map'}
+            variant="block"
+          />
+        </aside>
       </main>
     </>
   )

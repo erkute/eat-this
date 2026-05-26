@@ -1,256 +1,438 @@
-/* Bezirk pages — shared module for /bezirk (index), /bezirk/[slug] (detail),
-   /kategorie (index) and /kategorie/[slug] (detail).
-   Uses semantic tokens (--text-*, --surface-*, --border-*, --accent) so the
-   pages flip cleanly in [data-theme="dark"]. Mobile-first; tablet 720, desktop 960. */
+/* ============================================================
+   SEO Hub pages — shared module for /bezirk, /bezirk/[slug],
+   /kategorie, /kategorie/[slug].
+   Mockup direction: SCREEN 6 — LANDING (SEO).
+   Cream-on-ink with Brand-Yellow CTA accents. Anton display,
+   Inter body. Scoped tokens — diese Pages ignorieren das
+   globale [data-theme="dark"] bewusst, Marketing-Surface
+   bleibt brand-cream.
+============================================================ */
 
 .page {
-  max-width: 1080px;
-  margin: 0 auto;
-  /* Clears the fixed legacy .navbar (60px + safe-area) plus 24px breathing. */
-  padding: calc(60px + env(safe-area-inset-top, 0px) + 24px) 22px 80px;
-  color: var(--text-primary);
-}
+  /* Scoped tokens — pixel-genaue Mockup-Werte */
+  --ink: #000;
+  --cream: #fbf8ee;
+  --cream-deep: #f1ecdd;
+  --yellow: #ffd84a;
+  --muted: #6b5a44;
+  --f-display: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
+  --f-body: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
 
-.header {
-  margin-bottom: 28px;
-}
+  /* Bridge semantic tokens so shared components (Breadcrumbs,
+     HubMapCTA, MustEatTeaserSection, DetailPageOutro) rendern
+     in der cream-Palette statt im Dark-Mode-Lookup. */
+  --text-primary: var(--ink);
+  --text-secondary: #2a2218;
+  --text-muted: var(--muted);
+  --surface-bg: var(--cream);
+  --surface-card: var(--cream);
+  --border-subtle: rgba(0, 0, 0, 0.18);
+  --border-strong: var(--ink);
+  --accent: var(--yellow);
 
-.kicker {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  margin: 0 0 8px;
-}
-
-.title {
-  font-size: clamp(28px, 6vw, 38px);
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  margin: 0 0 12px;
-  color: var(--text-primary);
-}
-
-.description {
-  font-size: 17px;
-  line-height: 1.55;
-  color: var(--text-secondary);
-  margin: 0;
-  max-width: 640px;
-}
-
-.quickFacts {
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--text-muted);
-  margin: 14px 0 0;
-  max-width: 720px;
-}
-
-.faq {
-  margin: 56px 0 24px;
-  max-width: 760px;
-}
-
-.faqHeading {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin: 0 0 20px;
-}
-
-.faqList {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.faqItem {
-  border-bottom: 1px solid var(--border-subtle);
-  padding-bottom: 18px;
-}
-
-.faqItem:last-child {
-  border-bottom: none;
-}
-
-.faqQuestion {
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 6px;
-}
-
-.faqAnswer {
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--text-secondary);
-}
-
-.divider {
-  height: 1px;
-  background: var(--border-subtle);
-  margin: 28px 0 18px;
-  border: 0;
-}
-
-.sectionLabel {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin: 0 0 16px;
-}
-
-/* Restaurant card grid — used by bezirk/[slug] and kategorie/[slug] */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-  background: var(--surface-card);
-  border: 1px solid var(--border-subtle);
-  text-decoration: none;
-  color: inherit;
-  transition: border-color 0.15s ease;
-}
-
-.card:hover {
-  border-color: var(--border-strong);
-}
-
-.cardImage {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--f-body);
+  min-height: 100vh;
+  /* Clears the fixed legacy .navbar (60px + safe-area) */
+  padding: calc(60px + env(safe-area-inset-top, 0px) + 24px) 22px 0;
   position: relative;
-  aspect-ratio: 4 / 3;
-  width: 100%;
-  background: var(--surface-bg);
+  overflow-x: clip;
+}
+
+/* ============================================================
+   HERO BLOCK
+============================================================ */
+.hero {
+  margin: 8px 0 12px;
+  text-align: left;
+}
+.kicker {
+  font-family: var(--f-display);
+  font-size: 14px;
+  letter-spacing: 0.22em;
+  color: var(--ink);
+  text-transform: uppercase;
+  margin: 14px 0 0;
+}
+.h1 {
+  font-family: var(--f-display);
+  font-size: clamp(56px, 16vw, 96px);
+  line-height: 0.92;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 6px 0 14px;
+  /* Allow long bezirke (Friedrichshain-Kreuzberg) to break */
+  word-break: break-word;
+  hyphens: auto;
+}
+.tagline {
+  font-family: var(--f-display);
+  font-size: clamp(22px, 6vw, 32px);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0 0 12px;
+}
+.sub {
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--ink);
+  max-width: 36ch;
+  margin: 0 0 22px;
+}
+
+.heroPhoto {
+  margin: 14px 0;
+  aspect-ratio: 4 / 5;
+  background-color: #14100c;
+  position: relative;
   overflow: hidden;
 }
-
-.cardImage img {
+.heroPhoto img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
+/* ============================================================
+   STATS STRIP
+============================================================ */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(var(--stats-cols, 3), 1fr);
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  margin: 14px 0 28px;
+}
+.statCell {
+  padding: 18px 12px;
+  text-align: center;
+  border-right: 1px solid var(--ink);
+}
+.statCell:last-child {
+  border-right: 0;
+}
+.statN {
+  font-family: var(--f-display);
+  font-size: 42px;
+  line-height: 1;
+  color: var(--ink);
+}
+.statK {
+  font-family: var(--f-body);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+/* ============================================================
+   SECTION HEAD (zwischen Stats und Restaurant-Grid, sowie über FAQ)
+============================================================ */
+.sectionHead {
+  margin: 32px 0 18px;
+}
+.sectionHead h2 {
+  font-family: var(--f-display);
+  font-size: clamp(38px, 10vw, 56px);
+  line-height: 0.96;
+  color: var(--ink);
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+.sectionHead p {
+  font-family: var(--f-body);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  margin: 0;
+  max-width: 36ch;
+}
+
+/* ============================================================
+   RESTAURANT GRID
+============================================================ */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--cream);
+  border: 1.5px solid transparent;
+  border-bottom-color: rgba(0, 0, 0, 0.18);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.card:hover {
+  border-bottom-color: var(--ink);
+  transform: translateY(-1px);
+}
+.cardPhoto {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  background: var(--cream-deep);
+  overflow: hidden;
+}
+.cardPhoto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .cardBody {
-  padding: 14px 16px 18px;
+  padding: 14px 0 18px;
 }
-
 .cardName {
-  font-size: 17px;
-  font-weight: 700;
-  line-height: 1.18;
-  letter-spacing: -0.01em;
-  margin: 0 0 6px;
-  color: var(--text-primary);
+  font-family: var(--f-display);
+  font-size: 24px;
+  line-height: 1.05;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+  color: var(--ink);
 }
-
 .cardMeta {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
   align-items: center;
-  font-size: 12px;
-  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.chipYellow {
+  background: var(--yellow);
+  color: var(--ink);
+  font-family: var(--f-display);
+  font-size: 11px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  padding: 3px 8px 4px;
+  line-height: 1;
+}
+.chipOutline {
+  background: transparent;
+  color: var(--ink);
+  border: 1.5px solid var(--ink);
+  font-family: var(--f-display);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 2px 8px 3px;
+  line-height: 1;
+}
+.price {
+  font-family: var(--f-body);
+  font-size: 12px;
+  color: var(--ink);
+  font-weight: 600;
+  margin-left: 2px;
+}
+.cardTip {
+  font-family: var(--f-body);
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--ink);
+  margin: 0;
+  opacity: 0.86;
+}
+
+/* ============================================================
+   FAQ — Plus-Icon expandable rows (native <details>)
+============================================================ */
+.faq {
+  border-top: 2px solid var(--ink);
+  margin-top: 24px;
+}
+.faqKicker {
+  font-family: var(--f-display);
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  color: var(--ink);
+  text-transform: uppercase;
+  padding: 16px 0 8px;
+}
+.faqRow {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 0;
+}
+.faqRow summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.faqRow summary::-webkit-details-marker { display: none; }
+.faqQ {
+  font-family: var(--f-display);
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  flex: 1;
+  line-height: 1.1;
+}
+.faqPlus {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--ink);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--f-display);
+  font-size: 18px;
+  line-height: 1;
+}
+.faqRow[open] .faqPlus::before { content: "\2212"; }
+.faqRow:not([open]) .faqPlus::before { content: "+"; }
+.faqA {
+  font-family: var(--f-body);
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink);
+  margin: 0 0 18px;
+  opacity: 0.88;
+}
+
+/* ============================================================
+   FINAL CTA — full-bleed black surface
+============================================================ */
+.finalCta {
+  background: var(--ink);
+  color: var(--cream);
+  /* Negative-margin trick um Page-Padding zu canceln */
+  margin: 48px -22px 0;
+  padding: 40px 22px 44px;
+  text-align: left;
+}
+.fcKicker {
+  font-family: var(--f-display);
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  color: var(--yellow);
+  text-transform: uppercase;
   margin-bottom: 8px;
 }
-
-/* Long cuisine strings (e.g. "French · Crepe · Galette") were pushing the
-   price tag off the row. Ellipsize cuisine; keep the price unshrunk so the
-   €-tier is always visible on a single line. */
-.cuisine {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.finalCta h2 {
+  font-family: var(--f-display);
+  font-size: clamp(48px, 12vw, 72px);
+  line-height: 0.96;
+  text-transform: uppercase;
+  margin: 0 0 14px;
+  color: var(--cream);
+}
+.fcSub {
+  font-family: var(--f-body);
+  font-size: 14.5px;
+  line-height: 1.5;
+  margin: 0 0 22px;
+  opacity: 0.86;
+  max-width: 36ch;
 }
 
-.price {
-  color: var(--accent);
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.cardTip {
-  font-size: 14px;
-  line-height: 1.45;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-/* Navigation card grid — bezirk index + kategorie index (no per-card image) */
+/* ============================================================
+   INDEX-PAGE CARDS (used by /bezirk and /kategorie index pages,
+   no per-card photo)
+============================================================ */
 .bezirkGrid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 14px;
+  margin-bottom: 32px;
 }
-
 .bezirkCard {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  gap: 4px;
+  gap: 6px;
   padding: 28px 22px;
-  min-height: 110px;
-  background: var(--surface-card);
-  border: 1px solid var(--border-subtle);
+  min-height: 130px;
+  background: var(--cream);
+  border: 1.5px solid var(--ink);
   text-decoration: none;
-  color: inherit;
-  transition: border-color 0.15s ease;
+  color: var(--ink);
+  transition: background 0.15s ease;
 }
-
 .bezirkCard:hover {
-  border-color: var(--accent);
+  background: var(--yellow);
 }
-
 .bezirkName {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-  color: var(--text-primary);
-}
-
-.bezirkCount {
-  font-size: 12px;
-  color: var(--text-muted);
+  font-family: var(--f-display);
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: 0;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  color: var(--ink);
+}
+.bezirkCount {
+  font-family: var(--f-body);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink);
 }
 
+/* ============================================================
+   Responsive — tablet 720, desktop 960
+============================================================ */
 @media (min-width: 720px) {
   .page {
-    padding: calc(60px + env(safe-area-inset-top, 0px) + 20px) 32px 80px;
+    padding: calc(60px + env(safe-area-inset-top, 0px) + 32px) 32px 0;
   }
   .grid,
   .bezirkGrid {
     grid-template-columns: 1fr 1fr;
-    gap: 18px;
+    gap: 22px;
+  }
+  .finalCta {
+    margin: 56px -32px 0;
+    padding: 56px 32px;
+  }
+}
+@media (min-width: 960px) {
+  .page {
+    padding: 88px 80px 0;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  .grid {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 28px;
+  }
+  .bezirkGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .finalCta {
+    margin: 80px -80px 0;
+    padding: 72px 80px;
   }
 }
 
-@media (min-width: 960px) {
-  .page {
-    padding: 72px 80px 96px;
-  }
-  .header {
-    margin-bottom: 32px;
-  }
-  .grid,
-  .bezirkGrid {
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 24px;
-  }
+/* ============================================================
+   Components rendered inside .page that need cream surface
+   bridges (DetailPageOutro etc).
+============================================================ */
+.detailOutroWrap {
+  margin-top: 0;
+}
+.detailOutroWrap :global([data-detail-outro]) {
+  background: var(--cream);
+  color: var(--ink);
 }

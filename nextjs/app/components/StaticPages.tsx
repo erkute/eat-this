@@ -4,6 +4,7 @@ import { useTranslation } from '@/lib/i18n'
 import { PortableTextRenderer } from '@/lib/PortableTextRenderer'
 import type { StaticPageDoc } from '@/lib/types'
 import SiteFooter from './SiteFooter'
+import styles from './StaticPages.module.css'
 
 const SLUG_ORDER = ['about', 'contact', 'press', 'impressum', 'datenschutz', 'agb'] as const
 
@@ -19,10 +20,15 @@ function StaticPage({ doc, isActive }: { doc: StaticPageDoc; isActive: boolean }
   const id = pageId(doc.slug)
 
   return (
-    <div className={`app-page static-page${isActive ? ' active' : ''}`} data-page={doc.slug} id={id} data-static-ssr="1">
-      <div className="static-page-inner">
-        <h1 className="static-page-title" id={`${id}-title`}>{title}</h1>
-        <div className="static-page-body" id={`${id}-body`}>
+    <div
+      className={`app-page${isActive ? ' active' : ''} ${styles.page}`}
+      data-page={doc.slug}
+      id={id}
+      data-static-ssr="1"
+    >
+      <div className={styles.inner}>
+        <h1 className={styles.title} id={`${id}-title`}>{title}</h1>
+        <div className={styles.body} id={`${id}-body`}>
           <PortableTextRenderer blocks={body} />
         </div>
       </div>
@@ -32,10 +38,6 @@ function StaticPage({ doc, isActive }: { doc: StaticPageDoc; isActive: boolean }
 }
 
 export default function StaticPages({ pages, activeSlug }: { pages: StaticPageDoc[]; activeSlug?: string }) {
-  // Render only the active static page — previously rendered all 6, which
-  // gave /about /contact /press /impressum /datenschutz /agb near-identical
-  // HTML bodies (same 6 page contents present, only .active class moved).
-  // Google flagged that as duplicate content → none of them got indexed.
   if (!activeSlug || !(SLUG_ORDER as readonly string[]).includes(activeSlug)) return null
   const doc = pages.find(p => p.slug === activeSlug)
   if (!doc) return null

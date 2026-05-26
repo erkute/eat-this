@@ -4,16 +4,15 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
-import { getBezirkBySlug, getRestaurantsByBezirk, getAllBezirkeWithStats, getLatestNewsArticles } from '@/lib/sanity.server'
+import { getBezirkBySlug, getRestaurantsByBezirk, getAllBezirkeWithStats } from '@/lib/sanity.server'
 import { buildBezirkJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { localeUrl } from '@/lib/locale-url'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { routing } from '@/i18n/routing'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
-import { buildBezirkQuickFacts, buildBezirkFAQEntries } from '@/lib/bezirk-prose'
+import { buildBezirkFAQEntries } from '@/lib/bezirk-prose'
 import styles from '../Bezirk.module.css'
-import DetailPageOutro from '@/app/components/DetailPageOutro'
 import HubMapCTA from '@/app/components/HubMapCTA'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 
@@ -70,10 +69,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title,
     description,
     robots: b.seo?.noIndex ? 'noindex,nofollow' : undefined,
-    alternates: {
-      canonical,
-      languages,
-    },
+    alternates: { canonical, languages },
     openGraph: {
       title,
       description,
@@ -91,25 +87,30 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   const de = locale === 'de'
   const loc = de ? 'de' : 'en'
 
-  const [b, restaurants, latestNews] = await Promise.all([
+  const [b, restaurants] = await Promise.all([
     getBezirkBySlug(slug),
     getRestaurantsByBezirk(slug),
-    getLatestNewsArticles(2),
   ])
   if (!b) notFound()
 
   const bezirkDescription = pickLocale(b.description, b.descriptionEn, loc)
-
-  // Prose blocks derived from the restaurant list — lift unique word count
-  // above Google's thin-content bar. The bezirk's own Sanity description is
-  // ~40 words and the restaurant cards below it duplicate text from each
-  // restaurant detail page, so without these blocks the page reads as
-  // near-duplicate boilerplate to a crawler.
-  const quickFacts = buildBezirkQuickFacts({ bezirk: b, restaurants, locale: loc })
   const faqEntries = buildBezirkFAQEntries({ bezirk: b, restaurants, locale: loc })
 
-  // "Bezirke"-Hub als Text statt Link — kein in-app Browse-All-Pfad zum
-  // Bezirke-Index. JSON-LD BreadcrumbList behält die kanonischen URLs.
+  // Stats: SPOTS + PREISE (2-up). When mustEatCount data lands on RestaurantCard
+  // in the future, expand to SPOTS + MUST EATS + PREISE (3-up).
+  const priceMins = restaurants
+    .map(r => r.priceRange?.min)
+    .filter((n): n is number => typeof n === 'number')
+  const priceMaxs = restaurants
+    .map(r => r.priceRange?.max)
+    .filter((n): n is number => typeof n === 'number')
+  const priceRangeLabel =
+    priceMins.length > 0 && priceMaxs.length > 0
+      ? `${Math.min(...priceMins)}–${Math.max(...priceMaxs)} €`
+      : null
+  const statsCols = priceRangeLabel ? 2 : 1
+  const statsStyle = { ['--stats-cols' as string]: String(statsCols) } as React.CSSProperties
+
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/' },
     { name: de ? 'Bezirke' : 'Districts' },
@@ -127,6 +128,13 @@ export default async function BezirkDetailPage({ params }: PageProps) {
     faqs: faqEntries,
   })
 
+  const hubCtaTitle = de
+    ? `${b.name} auf der Map ansehen`
+    : `See ${b.name} on the map`
+  const hubCtaSubline = de
+    ? 'Geo-clustered, mit Must-Eats und Walking-Distance.'
+    : 'Geo-clustered, with Must-Eats and walking distance.'
+
   return (
     <>
       <Script id={`schema-bezirk-${slug}`} type="application/ld+json" strategy="beforeInteractive">
@@ -134,88 +142,108 @@ export default async function BezirkDetailPage({ params }: PageProps) {
       </Script>
       <main className={styles.page}>
         <Breadcrumbs items={breadcrumbItems} ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'} />
-        <header className={styles.header}>
+
+        <header className={styles.hero}>
           <div className={styles.kicker}>{de ? 'Bezirk' : 'District'}</div>
-          <h1 className={styles.title}>{b.name}</h1>
-          {(bezirkDescription || restaurants.length > 0) && (
-            <p className={styles.description}>
-              {bezirkDescription ||
-                (de
-                  ? `${restaurants.length} kuratierte Spots — von Frühstück bis Dinner.`
-                  : `${restaurants.length} curated spots — from breakfast to dinner.`)}
-            </p>
+          <h1 className={styles.h1}>{b.name}</h1>
+          {bezirkDescription ? (
+            <p className={styles.sub}>{bezirkDescription}</p>
+          ) : (
+            <div className={styles.tagline}>
+              {`Restaurants in ${b.name}`}
+            </div>
           )}
-          {quickFacts && <p className={styles.quickFacts}>{quickFacts}</p>}
+          <HubMapCTA href="/" title={hubCtaTitle} variant="chip" />
         </header>
 
-        <hr className={styles.divider} />
+        {b.imageUrl && (
+          <div className={styles.heroPhoto}>
+            <Image
+              src={b.imageUrl}
+              alt={b.name}
+              fill
+              sizes="(max-width: 720px) 100vw, (max-width: 960px) 720px, 1080px"
+              priority
+            />
+          </div>
+        )}
 
-        <HubMapCTA
-          href={`/map?bezirk=${b.slug}`}
-          title={de
-            ? `${b.name} auf der Map ansehen`
-            : `See ${b.name} on the map`}
-          subline={de
-            ? 'Geo-clustered, mit Must-Eats und Walking-Distance.'
-            : 'Geo-clustered, with Must-Eats and walking distance.'}
-        />
+        <div className={styles.stats} style={statsStyle}>
+          <div className={styles.statCell}>
+            <div className={styles.statN}>{restaurants.length}</div>
+            <div className={styles.statK}>Spots</div>
+          </div>
+          {priceRangeLabel && (
+            <div className={styles.statCell}>
+              <div className={styles.statN}>{priceRangeLabel}</div>
+              <div className={styles.statK}>{de ? 'Preise' : 'Prices'}</div>
+            </div>
+          )}
+        </div>
 
-        <div className={styles.sectionLabel}>
-          {restaurants.length} {de ? 'Restaurants' : 'Restaurants'}
+        <div className={styles.sectionHead}>
+          <h2>{de ? 'Was du hier essen solltest' : 'What to eat here'}</h2>
+          <p>{de
+            ? `${restaurants.length} kuratierte Spots, kein Filler.`
+            : `${restaurants.length} curated spots, no filler.`}</p>
         </div>
 
         <section className={styles.grid}>
-          {restaurants.map(r => (
-            <Link key={r._id} href={restaurantUrl(r.slug)} className={styles.card}>
-              {r.photo && (
-                <div className={styles.cardImage}>
-                  <Image
-                    src={r.photo}
-                    alt={r.name}
-                    fill
-                    sizes="(max-width: 720px) 100vw, (max-width: 960px) 50vw, 340px"
-                  />
+          {restaurants.map(r => {
+            const priceLabel = formatPriceLabel(r)
+            const cardLine = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
+              || pickLocale(r.tip, r.tipEn, loc)
+            return (
+              <Link key={r._id} href={restaurantUrl(r.slug)} className={styles.card}>
+                {r.photo && (
+                  <div className={styles.cardPhoto}>
+                    <Image
+                      src={r.photo}
+                      alt={r.name}
+                      fill
+                      sizes="(max-width: 720px) 100vw, (max-width: 960px) 50vw, 340px"
+                    />
+                  </div>
+                )}
+                <div className={styles.cardBody}>
+                  <h3 className={styles.cardName}>{r.name}</h3>
+                  <div className={styles.cardMeta}>
+                    {r.cuisineType && <span className={styles.chipYellow}>{r.cuisineType}</span>}
+                    {priceLabel && <span className={styles.price}>{priceLabel}</span>}
+                  </div>
+                  {cardLine && <p className={styles.cardTip}>{cardLine}</p>}
                 </div>
-              )}
-              <div className={styles.cardBody}>
-                <h2 className={styles.cardName}>{r.name}</h2>
-                <div className={styles.cardMeta}>
-                  {r.cuisineType && <span className={styles.cuisine}>{r.cuisineType}</span>}
-                  {(() => {
-                    const priceLabel = formatPriceLabel(r)
-                    return priceLabel ? <span className={styles.price}>· {priceLabel}</span> : null
-                  })()}
-                </div>
-                {(() => {
-                  const cardLine = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
-                    || pickLocale(r.tip, r.tipEn, loc)
-                  return cardLine ? <p className={styles.cardTip}>{cardLine}</p> : null
-                })()}
-              </div>
-            </Link>
-          ))}
+              </Link>
+            )
+          })}
         </section>
 
         {faqEntries.length > 0 && (
           <section className={styles.faq} aria-label={de ? 'Häufige Fragen' : 'FAQ'}>
-            <h2 className={styles.faqHeading}>{de ? 'Häufige Fragen' : 'Frequently asked'}</h2>
-            <dl className={styles.faqList}>
-              {faqEntries.map((entry, i) => (
-                <div key={i} className={styles.faqItem}>
-                  <dt className={styles.faqQuestion}>{entry.question}</dt>
-                  <dd className={styles.faqAnswer}>{entry.answer}</dd>
-                </div>
-              ))}
-            </dl>
+            <div className={styles.faqKicker}>{de ? 'Häufige Fragen' : 'Frequently asked'}</div>
+            {faqEntries.map((entry, i) => (
+              <details key={i} className={styles.faqRow}>
+                <summary>
+                  <span className={styles.faqQ}>{entry.question}</span>
+                  <span className={styles.faqPlus} aria-hidden="true" />
+                </summary>
+                <p className={styles.faqA}>{entry.answer}</p>
+              </details>
+            ))}
           </section>
         )}
 
-        <DetailPageOutro
-          bezirkSlug={b.slug}
-          bezirkName={b.name}
-          latestNews={latestNews}
-          locale={loc}
-        />
+        <aside className={styles.finalCta}>
+          <div className={styles.fcKicker}>{de ? 'Die Map' : 'The Map'}</div>
+          <h2>{de ? 'Schluss mit Suchen.' : 'Stop searching.'}</h2>
+          <p className={styles.fcSub}>{hubCtaSubline}</p>
+          <HubMapCTA
+            href="/"
+            title={de ? 'Map öffnen' : 'Open map'}
+            variant="block"
+          />
+        </aside>
+
       </main>
     </>
   )

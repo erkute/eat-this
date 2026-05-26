@@ -3,7 +3,7 @@ import { hasLocale } from 'next-intl'
 import { setRequestLocale } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { AuthProvider, LoginModalProvider } from '@/lib/auth'
-import SiteNav from '@/app/components/SiteNav'
+import SeoNav from '@/app/components/SeoNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
 import SiteFooter from '@/app/components/SiteFooter'
 import SearchOverlay from '@/app/components/SearchOverlay'
@@ -27,7 +27,7 @@ export default async function BezirkLayout({
         {/* eslint-disable-next-line @next/next/no-css-tags */}
         <link rel="stylesheet" href="/css/style.min.css?v=141" precedence="default" />
         <BridgeAuth />
-        <SiteNav />
+        <SeoNav />
         <BurgerDrawer />
         {children}
         <SiteFooter />

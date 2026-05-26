@@ -5,7 +5,6 @@ import { setRequestLocale } from 'next-intl/server'
 import { getAllCategories, getCategoryCounts } from '@/lib/sanity.server'
 import { localizedCategoryName } from '@/lib/categories'
 import { serializeJsonLd } from '@/lib/json-ld'
-import { SITE_URL } from '@/lib/constants'
 import { localeUrl } from '@/lib/locale-url'
 import styles from '../bezirk/Bezirk.module.css'
 
@@ -48,6 +47,8 @@ export default async function KategorieIndexPage({ params }: PageProps) {
   const { locale } = await params
   setRequestLocale(locale)
   const de = locale === 'de'
+  const kategorieUrl = (slug: string) =>
+    locale === 'de' ? `/kategorie/${slug}` : `/${locale}/kategorie/${slug}`
   const loc = de ? 'de' : 'en'
   const [categories, counts] = await Promise.all([
     getAllCategories(),
@@ -82,12 +83,12 @@ export default async function KategorieIndexPage({ params }: PageProps) {
         {jsonLd}
       </Script>
       <main className={styles.page}>
-        <header className={styles.header}>
+        <header className={styles.hero}>
           <div className={styles.kicker}>{de ? 'Kategorien' : 'Categories'}</div>
-          <h1 className={styles.title}>
+          <h1 className={styles.h1}>
             {de ? 'Restaurants nach Kategorie' : 'Restaurants by category'}
           </h1>
-          <p className={styles.description}>
+          <p className={styles.sub}>
             {de
               ? 'Wähle, wonach Dir gerade ist — von Frühstück bis Pizza.'
               : 'Pick by occasion — from breakfast to pizza.'}
@@ -99,7 +100,7 @@ export default async function KategorieIndexPage({ params }: PageProps) {
             const count = counts[c.slug] ?? 0
             const label = localizedCategoryName(c, loc)
             return (
-              <Link key={c.slug} href={`/kategorie/${c.slug}`} className={styles.bezirkCard}>
+              <Link key={c.slug} href={kategorieUrl(c.slug)} className={styles.bezirkCard}>
                 <span className={styles.bezirkName}>{label}</span>
                 <span className={styles.bezirkCount}>
                   {count} {count === 1

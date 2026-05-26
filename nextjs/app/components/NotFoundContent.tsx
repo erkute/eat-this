@@ -1,41 +1,59 @@
-import Link from 'next/link';
-import styles from '../not-found.module.css';
+import Link from 'next/link'
+import styles from '../not-found.module.css'
 
 interface NotFoundContentProps {
-  /** Locale prefix for the home link (e.g. "" for German, "/en" for English). */
-  homeHref?: string;
+  /** Locale prefix for the home link. "/" routes back to the DE launch
+   *  surface; pass "/en" if you can resolve the user's locale upstream. */
+  homeHref?: string
 }
 
 export default function NotFoundContent({ homeHref = '/' }: NotFoundContentProps) {
   return (
-    <main className={styles.page}>
-      <section className={styles.card}>
-        <span className={styles.code}>404 · NICHT GEFUNDEN</span>
+    <main className={styles.page} data-page="not-found">
+      {/* Drifting card-back — same background actor as the launch page so the
+          404 reads as part of the same brand surface, not a generic Next
+          fallback. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/pics/card-back.webp"
+        alt=""
+        aria-hidden="true"
+        className={styles.floatCard}
+        width="540"
+        height="726"
+        loading="lazy"
+        decoding="async"
+      />
 
-        <div className={styles.crew} aria-hidden>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/pics/email/char1.png" alt="" width={80} height={110} />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/pics/email/char2.png" alt="" width={80} height={110} />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/pics/email/char3.png" alt="" width={80} height={110} />
-        </div>
+      <p className={styles.kicker}>EAT THIS · 404</p>
 
-        <h1 className={styles.title}>Hier gibt’s nichts zu essen.</h1>
+      <h1 className={styles.code} aria-label="404">404</h1>
 
-        <p className={styles.sub}>
-          Diese Seite haben wir nicht auf der Karte. Schau dich auf der
-          Startseite um — die Booster Packs warten.
-        </p>
+      <p className={styles.headline}>
+        diese seite ist leider verbrannt.
+      </p>
 
-        <Link href={homeHref} className={styles.cta}>
-          Zur Startseite
-        </Link>
+      <p className={styles.sub}>
+        Nicht auf der Karte. Probably nie existiert.
+        <br />
+        Schau auf der Startseite vorbei — da wartet die echte Map.
+      </p>
 
-        <p className={styles.muted}>
-          Tisch reservieren? Lieber doch nicht.
-        </p>
-      </section>
+      <Link href={homeHref} className={styles.cta}>
+        Zur Startseite →
+      </Link>
+
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/pics/launch-cat.webp"
+        alt=""
+        aria-hidden="true"
+        className={styles.cat}
+        width="1145"
+        height="1408"
+        loading="lazy"
+        decoding="async"
+      />
     </main>
-  );
+  )
 }

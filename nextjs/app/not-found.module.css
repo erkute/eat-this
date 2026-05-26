@@ -1,95 +1,204 @@
-.page {
-  min-height: 100dvh;
-  background-color: #F7F2E8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 16px;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  color: #0A0A0A;
-}
+/* ============================================================
+   404 — matches the launch holding-page brand language (paper
+   surface, Anton stamp, Permanent Marker copy line, sticker
+   button with hard ink shadow). Standalone styles, isolated
+   from /css/style.min.css so it works even when the SPA bundle
+   hasn't loaded.
+   ============================================================ */
 
-.card {
-  background-color: #FFFFFF;
-  border-radius: 24px;
-  padding: 40px 28px 36px;
-  max-width: 440px;
-  width: 100%;
-  text-align: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+.page {
+  --f-anton: var(--font-anton), "Anton", "Bebas Neue", sans-serif;
+  --f-marker: var(--font-permanent-marker), "Permanent Marker", "Marker Felt", cursive;
+  --f-body: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  --ink: #0a0a0a;
+  --coral: #a02814;
+  --yellow: #FEC802;
+  --paper: #fdfdfd;
+  --muted: rgba(10, 10, 10, 0.62);
+
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-body);
   position: relative;
   overflow: hidden;
-}
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
 
-.code {
-  display: inline-block;
-  padding: 4px 14px;
-  background-color: #E8B82A;
-  color: #0A0A0A;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  border-radius: 999px;
-  margin-bottom: 20px;
-}
-
-.crew {
+  padding: 32px 22px 28px;
+  padding-bottom: max(28px, env(safe-area-inset-bottom));
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 12px;
-  margin: 0 0 22px;
-  padding: 0;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
 }
 
-.crew img {
-  width: 80px;
-  height: 110px;
-  object-fit: contain;
-  object-position: bottom center;
-  image-rendering: pixelated;
+/* ── Eyebrow stamp ──────────────────────────────────────────── */
+.kicker {
+  font-family: var(--f-anton);
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 6px 0 0;
+  line-height: 1;
+  position: relative;
+  z-index: 2;
 }
 
-@media (max-width: 380px) {
-  .crew img { width: 64px; height: 90px; }
-  .crew { gap: 8px; }
-}
-
-.title {
-  margin: 0 0 12px;
-  font-size: 28px;
-  line-height: 1.2;
+/* ── 404 — yellow Anton hero stamp with black stroke so it
+       carries the same letter-press energy as EAT THIS. ───── */
+.code {
+  font-family: var(--f-anton);
+  font-weight: 400;
+  font-size: clamp(140px, 38vw, 220px);
+  line-height: 0.86;
   letter-spacing: -0.01em;
-  font-weight: 800;
-  color: #0A0A0A;
+  color: var(--yellow);
+  /* Stroke approximation across browsers: text-stroke pulls modern
+     engines, the multi-shadow falls back to a hand-pressed ink halo. */
+  -webkit-text-stroke: 4px var(--ink);
+  text-shadow:
+    6px 6px 0 var(--ink);
+  margin: 4px 0 0;
+  position: relative;
+  z-index: 2;
 }
 
+/* ── Permanent-Marker red headline — sits like the launch-page
+       red tagline ("we tell you what to eat.") ───────────── */
+.headline {
+  font-family: var(--f-marker);
+  font-size: clamp(22px, 6.4vw, 30px);
+  line-height: 1.1;
+  color: var(--coral);
+  letter-spacing: 0.005em;
+  margin: 18px 0 6px;
+  transform: rotate(-1.2deg);
+  position: relative;
+  z-index: 2;
+  max-width: 22ch;
+}
+
+/* ── Editorial sub copy ─────────────────────────────────────── */
 .sub {
-  margin: 0 0 24px;
+  font-family: var(--f-body);
   font-size: 15px;
   line-height: 1.55;
-  color: #6B6B6B;
+  color: var(--ink);
+  margin: 0 0 8px;
+  max-width: 32ch;
+  position: relative;
+  z-index: 2;
 }
 
+/* ── Sticker button — same hard-offset shadow language as the
+       launch form pill so the surface reads as one family. ── */
 .cta {
-  display: inline-block;
-  padding: 14px 28px;
-  background-color: #0A0A0A;
-  color: #FFFFFF;
-  border-radius: 999px;
-  font-size: 15px;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  color: var(--ink);
+  font-family: var(--f-marker);
+  font-size: 18px;
   letter-spacing: 0.02em;
   text-decoration: none;
+  padding: 14px 28px;
+  margin: 14px 0 4px;
+  box-shadow: 6px 6px 0 0 var(--ink);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  position: relative;
+  z-index: 2;
+}
+.cta:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 4px 4px 0 0 var(--ink);
 }
 
-.cta:hover { background-color: #1A1A1A; }
+/* ── Cat illustration ───────────────────────────────────────── */
+.cat {
+  display: block;
+  width: 88%;
+  max-width: 320px;
+  height: auto;
+  margin: 12px auto 0;
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+  user-select: none;
+}
 
-.muted {
-  margin: 22px 0 0;
-  font-size: 13px;
-  color: #9A9A9A;
-  font-style: italic;
+/* ── Drifting card-back loop (same actor as the launch page) ──*/
+.floatCard {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 92px;
+  height: auto;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  will-change: transform;
+  animation: cardDrift404 34s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  transform: translate3d(-30vw, 20vh, 0) rotate(-10deg);
+}
+@keyframes cardDrift404 {
+  0%   { transform: translate3d(-35vw, 24vh, 0) rotate(-10deg); }
+  22%  { transform: translate3d(48vw,  6vh, 0) rotate(10deg); }
+  44%  { transform: translate3d(98vw, 28vh, 0) rotate(-4deg); }
+  60%  { transform: translate3d(115vw, 62vh, 0) rotate(14deg); }
+  78%  { transform: translate3d(40vw, 82vh, 0) rotate(-6deg); }
+  100% { transform: translate3d(-35vw, 24vh, 0) rotate(-10deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .floatCard { animation: none; display: none; }
+}
+
+/* ============================================================
+   Desktop ≥ 900px — same centered stack, bigger type, cat
+   anchored to the bottom-right corner like the launch page so
+   the 404 reads as the same family of surface.
+   ============================================================ */
+@media (min-width: 900px) {
+  .page {
+    padding: 56px 6vw 48px;
+    gap: 18px;
+  }
+  .kicker {
+    font-size: 15px;
+  }
+  .code {
+    font-size: clamp(220px, 22vw, 320px);
+    -webkit-text-stroke: 6px var(--ink);
+    text-shadow: 9px 9px 0 var(--ink);
+  }
+  .headline {
+    font-size: clamp(32px, 3.4vw, 46px);
+    margin-top: 26px;
+  }
+  .sub {
+    font-size: 17px;
+    max-width: 38ch;
+  }
+  .cta {
+    font-size: 22px;
+    padding: 18px 36px;
+    box-shadow: 8px 8px 0 0 var(--ink);
+  }
+  .cat {
+    position: absolute;
+    right: 2vw;
+    bottom: 0;
+    left: auto;
+    width: 28vw;
+    max-width: 380px;
+    margin: 0;
+    transform: translateY(8%);
+  }
+  .floatCard {
+    width: 180px;
+  }
 }

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <html lang="de">
-      <body style={{ margin: 0, padding: 0, backgroundColor: '#F7F2E8' }}>
+      <body style={{ margin: 0, padding: 0, backgroundColor: '#fdfdfd' }}>
         <NotFoundContent homeHref="/" />
       </body>
     </html>

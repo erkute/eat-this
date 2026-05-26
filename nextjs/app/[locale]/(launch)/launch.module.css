@@ -258,36 +258,35 @@
 }
 
 /* ============================================================
-   Desktop ≥ 900px — Brand stack hugs top of left col, cat sits on
-   the right at the same height. Form spans both cols underneath
-   so its right edge aligns with the cat's right edge. Void fills
-   downward, footer pinned to bottom.
-     ┌────────────────────┬──────────────┐
-     │ kicker             │              │
-     │ banner             │     CAT      │
-     │ slogan             │              │
-     ├────────────────────┴──────────────┤
-     │            email + cta            │
-     │              (void)               │
-     │              footer               │
-     └───────────────────────────────────┘
+   Desktop ≥ 900px — Brand stack + form pinned to left column,
+   cat hero fills the entire right column from top down to the
+   footer baseline. Footer spans both at the bottom.
+     ┌──────────────┬─────────────────┐
+     │ kicker       │                 │
+     │ banner       │     CAT HERO    │
+     │ slogan       │     (full ht)   │
+     │ email + cta  │                 │
+     │  (void)      │                 │
+     ├──────────────┴─────────────────┤
+     │             footer             │
+     └────────────────────────────────┘
    ============================================================ */
 @media (min-width: 900px) {
   .page {
-    padding: 30px 56px 22px;
+    padding: 36px 56px 22px;
     padding-bottom: max(22px, env(safe-area-inset-bottom));
     display: grid;
-    grid-template-columns: minmax(380px, 1fr) minmax(380px, 1.05fr);
+    grid-template-columns: minmax(380px, 1.05fr) minmax(360px, 1fr);
     grid-template-rows: auto auto auto auto 1fr auto;
     grid-template-areas:
       "kicker cat"
       "brand  cat"
       "sub    cat"
-      "form   form"
-      ".      ."
+      "form   cat"
+      ".      cat"
       "foot   foot";
-    column-gap: 56px;
-    row-gap: 18px;
+    column-gap: 48px;
+    row-gap: 16px;
     align-items: start;
     justify-items: start;
   }
@@ -304,14 +303,13 @@
   .brand {
     grid-area: brand;
     width: 100%;
-    max-width: 660px;
+    max-width: 100%;
     margin: 0;
   }
 
-  /* Cat fills the height of rows 1–3 (brand-stack height) on the
-     right side, centered horizontally in its column. object-fit:
-     contain keeps the cat shape regardless of column aspect.
-     The cat-vibrate animation is defined globally above. */
+  /* Cat fills the full content height (rows 1–5, everything above
+     the footer) so it reads as the hero anchor of the page rather
+     than a sidekick to the brand stack. */
   .cat {
     grid-area: cat;
     display: block;
@@ -321,53 +319,48 @@
     max-height: 100%;
     min-height: 0;
     object-fit: contain;
-    object-position: center;
+    object-position: center bottom;
     align-self: stretch;
     justify-self: center;
   }
 
-  /* Slogan stacks two lines and centers under the logo above.
-     max-width matches the brand banner so their boxes align in
-     width, and text-align: center balances the slogan around the
-     same midpoint as the logo. */
+  /* Slogan sits in the left column, left-aligned to match the
+     banner above (the previous text-align: center in a left-
+     pinned box read as accidentally off-center). */
   .sub {
     grid-area: sub;
     display: block;
-    text-align: center;
-    font-size: clamp(44px, 4.6vw, 68px);
-    line-height: 1.0;
+    text-align: left;
+    font-size: clamp(40px, 4.0vw, 60px);
+    line-height: 1.02;
     margin: 0;
     width: 100%;
-    max-width: 660px;
+    max-width: 100%;
   }
   .subLeft,
   .subRight {
     display: block;
   }
 
-  /* Form spans both cols → right edge sits at page-padding, which
-     also coincides with the cat's right edge. On desktop the form
-     grows in from the left on mount: starts as a short pill on the
-     left, extends rightward to full width. backwards fill so the
-     small starting width is applied during the delay too. */
+  /* Form lives in the left column only — capped at 560px so the
+     CTA pill stays a CTA and doesn't stretch into a search bar at
+     wide viewports. Slide-in from the left (700ms) replaces the
+     previous 6-second grow-in, which read as a layout glitch. */
   .form {
     grid-area: form;
-    justify-self: start;
+    justify-self: stretch;
     width: 100%;
-    max-width: none;
-    animation: form-grow-in 6000ms cubic-bezier(0.22, 1, 0.36, 1) 500ms backwards;
+    max-width: 560px;
+    animation: form-slide-in 700ms cubic-bezier(0.22, 1, 0.36, 1) 250ms backwards;
     transform-origin: left center;
-    will-change: width;
+    will-change: transform;
   }
-  /* Start width is ~button-width + a sliver of input so the Notify Me
-     CTA is visible from the very first frame; the input area then
-     unfolds to the right as the pill grows. */
-  @keyframes form-grow-in {
+  @keyframes form-slide-in {
     from {
-      width: 240px;
+      transform: translateX(-20px);
     }
     to {
-      width: 100%;
+      transform: translateX(0);
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -380,8 +373,8 @@
     font-size: 16px;
   }
   .form button {
-    font-size: 16px;
-    padding: 0 38px;
+    font-size: 15px;
+    padding: 0 30px;
     letter-spacing: 0.05em;
   }
 
@@ -396,18 +389,15 @@
 }
 
 /* ============================================================
-   Wide desktop ≥ 1280px — banner + slogan scale up.
+   Wide desktop ≥ 1280px — slogan scales up; brand banner and
+   cat use their full column widths from the base desktop rules.
    ============================================================ */
 @media (min-width: 1280px) {
   .page {
-    padding: 40px 80px 26px;
-    column-gap: 72px;
-  }
-  .brand {
-    max-width: 740px;
+    padding: 44px 72px 26px;
+    column-gap: 64px;
   }
   .sub {
-    font-size: clamp(56px, 4.6vw, 80px);
-    max-width: 740px;
+    font-size: clamp(48px, 4.2vw, 68px);
   }
 }

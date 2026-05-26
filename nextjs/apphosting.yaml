@@ -27,17 +27,10 @@ env:
     value: Eat This
     availability:
       - RUNTIME
-  # RESEND_LAUNCH_SEGMENT_ID — intentionally NOT referenced yet. The
-  # secret doesn't exist in Secret Manager, and App Hosting fails the
-  # rollout when it can't resolve a secret reference. To wire up:
-  #   1. Create a Segment in Resend Dashboard → Segments, copy UUID.
-  #   2. From nextjs/:
-  #        firebase apphosting:secrets:set RESEND_LAUNCH_SEGMENT_ID
-  #        firebase apphosting:secrets:grantaccess RESEND_LAUNCH_SEGMENT_ID --backend eat-this
-  #   3. Re-add the env block (variable: RESEND_LAUNCH_SEGMENT_ID,
-  #      secret: RESEND_LAUNCH_SEGMENT_ID, availability: RUNTIME) and push.
-  # Until step 3, /api/launch-signup returns 500 on submit — the holding
-  # page itself still renders fine.
+  - variable: RESEND_LAUNCH_SEGMENT_ID
+    secret: RESEND_LAUNCH_SEGMENT_ID
+    availability:
+      - RUNTIME
 
   # Firebase Admin SDK (server-side magic link generation)
   - variable: FIREBASE_ADMIN_PROJECT_ID

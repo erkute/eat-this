@@ -4,6 +4,7 @@ import { setRequestLocale, getMessages } from 'next-intl/server';
 import { Bungee, Caveat, Knewave, Archivo_Black, Ranchers, Slackey, Barlow_Condensed, Bowlby_One, Saira_Condensed, Permanent_Marker, Anton } from 'next/font/google';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
+import { StagingBanner } from '@/app/components/StagingBanner';
 
 // Display family — Bar-Basta + Eat-This-poster direction:
 // • Bungee (solid) = heavy block wordmark, fully filled. Section H2s.
@@ -156,6 +157,7 @@ export default async function LocaleLayout({
         <script dangerouslySetInnerHTML={{ __html: CRITICAL_BOOTSTRAP }} />
       </head>
       <body>
+        <StagingBanner />
         <ClientIntlProvider locale={locale} messages={messages}>
           {children}
           {modal}

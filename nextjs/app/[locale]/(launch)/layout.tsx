@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { hasLocale } from 'next-intl'
@@ -25,6 +25,13 @@ export const metadata: Metadata = {
     url: SITE_URL,
     locale: 'de_DE',
   },
+}
+
+/* Safari URL-bar + status-bar tint. Matches the launch page paper
+   surface (and the launch-cat.mp4 top-corner bg) so the iOS chrome
+   doesn't peek as cream while the page is grey-white. */
+export const viewport: Viewport = {
+  themeColor: '#f5f5f5',
 }
 
 export default async function LaunchLayout({

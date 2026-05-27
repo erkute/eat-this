@@ -34,7 +34,16 @@ export default function middleware(req: NextRequest) {
     return res;
   }
 
-  return intlMiddleware(req);
+  const res = intlMiddleware(req);
+
+  // Launch holding page iterates daily — keep browsers from serving stale
+  // HTML that points at older CSS/JS hashes. Only applies to the two
+  // launch entry-points; SEO pages keep their normal caching behavior.
+  if (pathname === '/' || pathname === '/en' || pathname === '/en/') {
+    res.headers.set('Cache-Control', 'private, max-age=0, must-revalidate');
+  }
+
+  return res;
 }
 
 export const config = {

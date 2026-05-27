@@ -5,6 +5,11 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
+  /* Cream paper matches the html/body bg in globals.css so iOS Safari's
+     URL bar + status bar tint blends with the page surface instead of
+     showing as a default white/grey stripe. Per-route overrides (e.g.
+     the launch holding page) can replace this in their own layout. */
+  themeColor: '#fbf8ee',
 }
 
 export const metadata: Metadata = {

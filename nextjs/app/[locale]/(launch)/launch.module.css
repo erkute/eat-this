@@ -1,10 +1,15 @@
 /* ============================================================
-   Launch Holding Page — white paper surface with brand banner.
-   The banner image (yellow EAT THIS wordmark with black outlines +
-   red "We tell you what to eat." marker tagline) carries the brand
-   statement. Bg matches the banner's white so the image blends.
-   Standalone styles, isolated from /css/style.min.css.
+   Launch Holding Page — full-bleed video hero. Cat-eats-sandwich
+   video fills the viewport edge-to-edge; brand stack (EAT THIS
+   logo + red marker tagline) sits as a compact overlay at the
+   top so the cat's head/eyes remain visible. Notify CTA + footer
+   anchor to the bottom.
    ============================================================ */
+
+/* Note: the html/body bg override for launch lives in globals.css,
+   scoped via `html:has([data-launch-page])`. CSS Modules don't
+   allow bare `:global(html)` rules (pure-selector requirement),
+   so that override is in the global stylesheet instead. */
 
 .page {
   --f-anton: var(--font-anton), "Anton", "Bebas Neue", sans-serif;
@@ -14,212 +19,87 @@
   --cream: #f7f5f0;
   --coral: #a02814;
   --yellow: #FEC802;
-  /* Matches the launch-banner.webp canvas exactly (sampled at RGB
-     253–254 across the corners) so the logo blends seamlessly with
-     the page surface. */
-  --paper: #fdfdfd;
+  /* Matches launch-cat.mp4 top-corner bg (sampled ~245 across the
+     upper third) so the page surface behind any letterboxed video
+     edge blends invisibly into the cat scene. */
+  --paper: #f5f5f5;
   --muted: rgba(10, 10, 10, 0.62);
 
   background: var(--paper);
   color: var(--ink);
   font-family: var(--f-body);
   position: relative;
-  overflow-x: hidden;
-  overflow-y: visible;
+  overflow: hidden;
   width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
 
-  padding: 12px 18px 18px;
-  padding-bottom: max(18px, env(safe-area-inset-bottom));
+  padding: 14px 16px;
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 8px;
 }
 
 /* ============================================================
-   Coming Soon stamp — image asset, yellow marker letters with
-   black outlines, matches the EAT THIS logo aesthetic.
+   Cat-eats-sandwich hero video — absolute full-viewport bg.
+   object-position: center top keeps the cat's head in view when
+   the viewport aspect is wider than the source (desktop), since
+   cover would otherwise crop equally top + bottom and chop the
+   head off.
    ============================================================ */
-.kicker {
-  display: block;
-  width: auto;
-  height: auto;
-  max-width: 52px;
-  margin: 0 auto;
-  align-self: center;
-  flex: 0 0 auto;
-  pointer-events: none;
-  user-select: none;
-  position: relative;
-  z-index: 2;
-}
-
-/* ============================================================
-   Floating card-back — slow, balloon-like background drift.
-   Loops a translate path that takes the card off-screen left,
-   across the top, off-screen right, back in from the bottom,
-   and home again. Pure translate (per project animation rule —
-   no opacity fades for motion). Sits at z-index 0 with the cat;
-   painted before .cat in source order so the cat layers on top
-   wherever they overlap.
-   ============================================================ */
-.floatCard {
+.video {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 84px;
-  height: auto;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  background: var(--paper);
   z-index: 0;
   pointer-events: none;
   user-select: none;
-  will-change: transform;
-  animation: cardDrift 32s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-  transform: translate3d(-30vw, 24vh, 0) rotate(-12deg);
-}
-
-@keyframes cardDrift {
-  0%   { transform: translate3d(-35vw, 28vh, 0) rotate(-12deg); }
-  18%  { transform: translate3d(45vw, 8vh,  0) rotate(8deg); }
-  36%  { transform: translate3d(95vw, 22vh, 0) rotate(-6deg); }
-  52%  { transform: translate3d(120vw, 55vh, 0) rotate(16deg); }
-  70%  { transform: translate3d(55vw, 78vh, 0) rotate(-4deg); }
-  86%  { transform: translate3d(5vw, 52vh,  0) rotate(14deg); }
-  100% { transform: translate3d(-35vw, 28vh, 0) rotate(-12deg); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .floatCard {
-    animation: none;
-    display: none;
-  }
 }
 
 /* ============================================================
-   Cat — the visual hero. Sits between the kicker (top) and the
-   brand banner. flex:1 absorbs whatever vertical space is left.
-   ============================================================ */
-.cat {
-  display: block;
-  /* Mobile: in-flow, sits BELOW the email form / notify button. Capped so
-     the full stack (kicker → logo → tagline → CTA → cat → foot) fits in
-     ~700-790px usable viewport without scrolling. Desktop @900+ flips
-     this back to an absolutely-positioned hero in the bottom-right
-     corner. */
-  position: relative;
-  right: auto;
-  left: auto;
-  bottom: auto;
-  top: auto;
-  width: 100%;
-  max-width: 200px;
-  height: auto;
-  max-height: 38vh;
-  margin: 4px auto 0;
-  align-self: center;
-  flex: 0 0 auto;
-  z-index: 1;
-  object-fit: contain;
-  object-position: center bottom;
-  pointer-events: none;
-  user-select: none;
-  /* Micro-jitter (≤1px) on the transform property — independent from
-     desktop's `translate:` property so the position transform and the
-     vibrate transform compose instead of overriding each other. */
-  animation: cat-vibrate 0.42s steps(5, end) infinite;
-  will-change: transform;
-}
-@keyframes cat-vibrate {
-  0%   { transform: translate(0, 0); }
-  20%  { transform: translate(-0.7px, 0.5px); }
-  40%  { transform: translate(0.6px, -0.5px); }
-  60%  { transform: translate(-0.5px, -0.6px); }
-  80%  { transform: translate(0.7px, 0.4px); }
-  100% { transform: translate(0, 0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .cat {
-    animation: none;
-  }
-}
-
-/* ============================================================
-   Brand banner — yellow EAT THIS wordmark with black outlines.
-   Now ships as a 2-piece set (logo + tagline) so each can scale
-   independently on different breakpoints.
+   Brand banner — sits as compact top overlay above the cat. Kept
+   small enough that it covers only ears / top-of-head bg, not
+   the cat's face.
    ============================================================ */
 .brand {
   display: block;
   width: auto;
   height: auto;
-  max-width: min(53vw, 205px);
-  margin: 8px auto 0;
+  max-width: min(45vw, 160px);
+  margin: 0 auto;
   flex: 0 0 auto;
   position: relative;
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
   user-select: none;
 }
 
 /* ============================================================
-   Tagline — red marker "we tell you what to eat." sits directly
-   under the EAT THIS logo. Width narrower than logo for visual
-   hierarchy, slight negative top margin so the two read as one
-   stamp instead of two separate elements.
+   Tagline — red marker sits directly under the EAT THIS logo,
+   narrower than the logo for visual hierarchy.
    ============================================================ */
 .tagline {
   display: block;
   width: auto;
   height: auto;
-  max-width: min(42vw, 170px);
-  margin: -15px auto 0;
+  max-width: min(38vw, 130px);
+  margin: -12px auto 0;
   flex: 0 0 auto;
   position: relative;
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
   user-select: none;
 }
 
 /* ============================================================
-   Slogan — Anton condensed caps, big editorial tagline below the cat.
-   Coral accent on "The Map" matches the red in the cat's mouth.
-   ============================================================ */
-.sub {
-  font-family: var(--f-anton);
-  text-transform: uppercase;
-  letter-spacing: -0.005em;
-  color: var(--ink);
-  font-size: clamp(28px, 7.4vw, 38px);
-  line-height: 1.02;
-  margin: 0;
-  text-align: center;
-  align-self: center;
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-.subLeft,
-.subRight {
-  display: block;
-}
-/* Comma after "people" — visible on all breakpoints. Both halves are
-   block-stacked, so the comma stays attached to the first line. */
-.commaMobile {
-  display: inline;
-}
-.coral {
-  color: var(--coral);
-}
-
-/* ============================================================
-   Email form — sticker-style pill with yellow input + white CTA
-   panel holding the NOTIFY ME marker image. Thick black border +
-   hard-offset shadow gives the same hand-drawn poster depth the
-   EAT THIS / NOTIFY ME letterforms carry. Tilted 1° so it reads
-   as "stuck on" the page like a real sticker.
+   Email form — sticker-style pill. Self-contained paper surface
+   reads clearly over the video regardless of what frame is playing.
    ============================================================ */
 .form {
   display: flex;
@@ -232,14 +112,13 @@
   align-self: center;
   flex: 0 0 auto;
   width: 100%;
-  max-width: 480px;
+  max-width: 460px;
   overflow: hidden;
   box-shadow: 6px 6px 0 0 var(--ink);
   transition: transform 160ms ease, box-shadow 160ms ease;
-  /* Sits directly under the tagline on mobile (cat now flows below the
-     CTA, not behind it). Desktop @900+ overrides with a bottom margin
-     to lift it off the page floor. */
-  margin-top: 0;
+  /* Pushes itself toward the bottom — split with .foot's own
+     margin-top:auto gives an even bottom anchor with the footer. */
+  margin-top: auto;
 }
 .form:hover:not(:focus-within) {
   transform: translate(2px, 2px);
@@ -252,20 +131,26 @@
   flex: 1;
   border: 0;
   background: transparent;
-  font-family: var(--font-permanent-marker), "Permanent Marker", "Marker Felt", cursive;
+  /* System sans for input text — reads clean for an email entry
+     where Permanent Marker felt clumsy. Sticker aesthetic stays
+     on the Notify Me image button + thanks-state marker font. */
+  font-family: var(--f-body);
+  font-weight: 500;
   color: var(--ink);
   outline: none;
   min-width: 0;
   padding: 14px 24px;
+  /* ≥16px guards against iOS Safari auto-zoom on focus. */
   font-size: 17px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
   border-radius: 0;
   -webkit-appearance: none;
 }
 .form input::placeholder {
   color: rgba(10, 10, 10, 0.42);
-  font-family: var(--font-permanent-marker), "Permanent Marker", "Marker Felt", cursive;
-  letter-spacing: 0.02em;
+  font-family: var(--f-body);
+  font-weight: 500;
+  letter-spacing: 0;
   font-size: 16px;
 }
 .form input:disabled {
@@ -330,8 +215,8 @@
 }
 
 /* ============================================================
-   Notify trigger — initial 2-stage CTA. Shows just the NOTIFY ME
-   image as a button; clicking expands to the email form.
+   Notify trigger — initial 2-stage CTA. Self-contained sticker
+   reads cleanly over any video frame.
    ============================================================ */
 .notifyTrigger {
   display: inline-flex;
@@ -346,9 +231,9 @@
   z-index: 2;
   box-shadow: 4px 4px 0 0 var(--ink);
   transition: transform 160ms ease, box-shadow 160ms ease;
-  margin-top: 0;
   align-self: center;
   flex: 0 0 auto;
+  margin-top: auto;
 }
 .notifyTrigger:hover {
   transform: translate(2px, 2px);
@@ -374,34 +259,10 @@
   position: relative;
   z-index: 2;
   box-shadow: 6px 6px 0 0 var(--ink);
-  margin-top: 0;
   align-self: center;
   flex: 0 0 auto;
   max-width: 320px;
-}
-
-/* ============================================================
-   Scroll hint — bouncing chevron at viewport bottom on mobile,
-   signals that the CTA + footer live below the first fold.
-   ============================================================ */
-.scrollHint {
-  display: none;
-}
-.scrollHintArrow {
-  display: block;
-  width: 12px;
-  height: 12px;
-  border-right: 3px solid var(--paper);
-  border-bottom: 3px solid var(--paper);
-  transform: rotate(45deg);
-  margin-top: -4px;
-}
-@keyframes scroll-hint-bounce {
-  0%, 100% { transform: translate(-50%, 0); }
-  50%      { transform: translate(-50%, 7px); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .scrollHint { animation: none; }
+  margin-top: auto;
 }
 
 .errorNote {
@@ -414,129 +275,160 @@
 }
 
 /* ============================================================
-   Footer — small mono legal stamp.
+   Footer — small caps legal stamp. Two rows: legal links on top
+   (horizontal), copyright centered standalone underneath. Sits
+   on the bottom area of the video where the bg is darker — text
+   stays at --ink with a subtle text-shadow scrim so it remains
+   readable against any frame.
    ============================================================ */
 .foot {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 8px;
   font-family: var(--f-body);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ink);
-  font-size: 9px;
-  padding-top: 12px;
-  flex-wrap: nowrap;
-  white-space: nowrap;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+  font-size: 10px;
+  padding-top: 8px;
   align-self: center;
   flex: 0 0 auto;
   position: relative;
-  z-index: 1;
-  margin-top: auto;
+  z-index: 2;
+  margin-top: 12px;
+}
+.footLinks {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 .foot a {
   color: inherit;
   text-decoration: none;
 }
 .sep {
-  opacity: 0.45;
+  opacity: 0.55;
+}
+.copyright {
+  display: block;
+  text-align: center;
+  opacity: 0.85;
 }
 
-
 /* ============================================================
-   Desktop ≥ 900px — Same centered single-column stack as mobile,
-   just scaled up. Logo at top, cat hero centered, slogan, form,
-   footer — everything aligned to the page mid-axis.
-   ============================================================ */
-/* ============================================================
-   Desktop ≥ 900px — Same centered single-column stack as mobile,
-   just scaled up. Kicker → EAT THIS logo → red marker tagline →
-   cat → form → footer, all centered along the page axis.
+   Desktop ≥ 900px — Same full-bleed cover pattern as mobile.
+   Portrait 9:16 source on landscape viewport crops to top ~30%
+   of source with `object-position: center top`, which keeps the
+   cat head + eyes + start-of-eating visible. Video fills 100%
+   of the viewport (no scroll, ever). Brand + tagline overlay
+   at top sit over the cat-ears area (above the face); notify
+   CTA + footer pushed to bottom via flex auto-margins.
    ============================================================ */
 @media (min-width: 900px) {
   .page {
-    /* Right padding leaves room for the cat in the bottom-right
-       corner; left-biased so the brand stack sits left-of-center
-       and the cat has visual breathing room without overlapping.
-       Desktop drops the fixed 100dvh + overflow:hidden constraint
-       (those are mobile-only) so form + footer stay visible if the
-       brand stack pushes against the viewport on short laptops. */
-    height: auto;
-    min-height: 100vh;
-    min-height: 100dvh;
-    overflow-x: hidden;
-    overflow-y: visible;
-    padding: 24px 36vw 20px 4vw;
+    padding: 24px 4vw 20px;
     padding-bottom: max(20px, env(safe-area-inset-bottom));
-    gap: 14px;
+    gap: 10px;
     justify-content: flex-start;
   }
 
-  .kicker {
-    max-width: 110px;
-    align-self: center;
+  /* Source has ~31% of blank cream bg at the top — `cover` + `center
+     top` crops to exactly that empty area on landscape viewports.
+     Switch to `contain` so the whole cat is visible. Page bg matches
+     the video's natural cream so the letterboxed sides blend without
+     looking like bars. Video stays absolute full-bleed positioning;
+     letterbox shows paper on left/right + a small strip top/bottom. */
+  .video {
+    object-fit: contain;
+    object-position: center;
   }
 
   .brand {
-    /* Cap by both width AND viewport-height so the brand image never
-       pushes the form + footer below the fold on common laptop heights
-       (≈700–900px). width:auto + height:auto keep the aspect ratio. */
-    max-width: 540px;
-    max-height: 50vh;
+    /* Capped so brand + tagline together fit ABOVE the cat ears
+       (source ~31% from top = first cat pixels). Brand is square-
+       ish (1035×975) — bigger here means taller, which pushes the
+       tagline down into the red-marker-on-black-fur unreadable
+       zone. 180 keeps the stack above the cat. */
+    max-width: 180px;
   }
   .tagline {
-    max-width: 460px;
-    max-height: 11vh;
-    margin-top: -14px;
-  }
-
-  /* Cat anchored to bottom-right on desktop. Sized intentionally
-     larger than the viewport leaves room for, then translated down
-     so the lower half is clipped by .page's overflow:hidden — the
-     cat reads as "leaking out" past the bottom edge of the frame.
-     Pulled out of the flex flow via absolute positioning so the
-     brand stack above stays centered. */
-  .cat {
-    position: absolute;
-    right: 0;
-    left: auto;
-    top: auto;
-    bottom: 0;
-    translate: 0 8%;
-    width: 68vw;
-    height: auto;
-    max-width: none;
-    max-height: none;
-    margin: 0;
-    align-self: auto;
-    flex: 0 0 auto;
-  }
-
-  /* Drifting card scales up on desktop where there's room for it
-     to read as a proper background element. */
-  .floatCard {
-    width: 180px;
-  }
-
-  .scrollHint {
-    display: none;
+    max-width: 150px;
+    margin-top: -12px;
   }
 
   .form {
-    max-width: 600px;
-    /* Desktop reverts to solid surface — frosted glass only on mobile
-       where the cat sits directly behind the CTA pill. */
-    background: var(--paper);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    /* Desktop keeps the form anchored to the lower-third (cat is
-       absolutely positioned bottom-right so the form has free space
-       below it). Mobile keeps margin-top: 0 so form sits directly
-       under the tagline with the cat below it in flow. */
-    margin-top: auto;
-    margin-bottom: clamp(48px, 8vh, 112px);
+    /* Cap to roughly the cat-strip width (viewport_height * 9/16
+       since the contained video is portrait 9:16). Otherwise the
+       form bar extends past the cat sides onto the paper letterbox
+       and reads as "sticking out". */
+    max-width: min(380px, calc(100vh * 0.5 - 24px));
+    margin-bottom: clamp(20px, 5vh, 64px);
+  }
+  .form input {
+    padding: 18px 26px;
+    font-size: 20px;
+  }
+  .form input::placeholder {
+    font-size: 19px;
+  }
+  .form button {
+    padding: 8px 22px;
+    min-width: 140px;
+  }
+  .form button img {
+    height: 28px;
+  }
+
+  /* Footer still sits over the video bottom area (now showing the
+     cat's chest / sandwich region, lighter not darker) — keep
+     white with subtle scrim for legibility on any frame. */
+  .foot {
+    font-size: 12px;
+    gap: 10px;
+    letter-spacing: 0.12em;
+  }
+  .footLinks {
+    gap: 18px;
+  }
+
+  .notifyTrigger {
+    border-width: 3px;
+    padding: 16px 36px;
+    box-shadow: 6px 6px 0 0 var(--ink);
+    margin-bottom: clamp(20px, 5vh, 64px);
+  }
+  .notifyTrigger:hover {
+    box-shadow: 4px 4px 0 0 var(--ink);
+  }
+  .notifyTrigger img {
+    height: 34px;
+  }
+}
+
+/* ============================================================
+   Wide desktop ≥ 1280px — brand grows; video stays full-bleed.
+   ============================================================ */
+@media (min-width: 1280px) {
+  .page {
+    padding: 32px 4vw 28px;
+    padding-bottom: max(28px, env(safe-area-inset-bottom));
+    gap: 12px;
+  }
+  .brand {
+    max-width: 210px;
+  }
+  .tagline {
+    max-width: 170px;
+  }
+  .form {
+    max-width: min(420px, calc(100vh * 0.5 - 24px));
   }
   .form input {
     padding: 20px 28px;
@@ -546,77 +438,10 @@
     font-size: 21px;
   }
   .form button {
-    padding: 8px 22px;
-    min-width: 140px;
-  }
-  .form button img {
-    height: 30px;
-  }
-
-  .foot {
-    font-size: 13px;
-    gap: 18px;
-    letter-spacing: 0.12em;
-    /* Desktop reverts to black ink — white text would vanish on the
-       cream/white page surface. Mobile stays white because the cat
-       passes behind it. */
-    color: var(--ink);
-  }
-
-  /* Desktop Notify trigger scales up to match the bigger form on
-     wider viewports. Mobile keeps the compact size. */
-  .notifyTrigger {
-    border-width: 3px;
-    padding: 16px 36px;
-    box-shadow: 6px 6px 0 0 var(--ink);
-    /* Lift off the bottom edge same as .form — both render at the same
-       slot in the flex stack (only one is visible at a time). */
-    margin-top: auto;
-    margin-bottom: clamp(48px, 8vh, 112px);
-  }
-  .notifyTrigger:hover {
-    box-shadow: 4px 4px 0 0 var(--ink);
-  }
-  .notifyTrigger img {
-    height: 38px;
-  }
-}
-
-/* ============================================================
-   Wide desktop ≥ 1280px — logo grows; cat stays viewport-busting.
-   ============================================================ */
-@media (min-width: 1280px) {
-  .page {
-    padding: 36px 42vw 32px 3vw;
-    padding-bottom: max(32px, env(safe-area-inset-bottom));
-    gap: 20px;
-  }
-  .brand {
-    max-width: 620px;
-    max-height: 52vh;
-  }
-  .tagline {
-    max-width: 520px;
-    max-height: 12vh;
-  }
-  .form {
-    max-width: 660px;
-  }
-  .form input {
-    padding: 22px 30px;
-    font-size: 24px;
-  }
-  .form input::placeholder {
-    font-size: 23px;
-  }
-  .form button {
     padding: 10px 26px;
     min-width: 156px;
   }
   .form button img {
-    height: 34px;
-  }
-  .cat {
-    width: 46vw;
+    height: 32px;
   }
 }

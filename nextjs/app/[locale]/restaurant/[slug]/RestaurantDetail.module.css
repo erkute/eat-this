@@ -480,12 +480,15 @@
 }
 
 @media (min-width: 1024px) {
-  /* Wider page envelope; content stays single-column but breathes more.
-     No sticky sidebar — facts/acts/story flow linearly so eye doesn't
-     have to track between scrolling and pinned regions. */
+  /* Full-viewport envelope to match the Bezirk/Kategorie hub pages
+     (same 80px gutters, no max-width cap). Reset the 760px tablet cap
+     from the 720px block — without this the cascade keeps the page
+     narrower than the Bezirk hub on desktop. Story/tipp self-cap at
+     680px so the reading rhythm survives the wider canvas. */
   .page {
-    max-width: 1240px;
-    padding: 88px 56px 0;
+    max-width: none;
+    margin: 0;
+    padding: 88px 80px 0;
   }
 
   /* HERO — Cover-style letterbox spanning content width. Bigger than

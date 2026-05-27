@@ -54,21 +54,21 @@ env:
       - RUNTIME
 
   # reCAPTCHA Enterprise v3 — score-based bot protection. Honeypot +
-  # time-gate + rate-limit always run; reCAPTCHA only kicks in when all
-  # three vars are set. To enable:
-  #   1. GCP Console → reCAPTCHA Enterprise → create v3 site-key for
-  #      www.eatthisdot.com (NOT a checkbox key — score-based v3)
-  #   2. firebase apphosting:secrets:set RECAPTCHA_API_KEY
-  #   3. uncomment the three blocks below, fill the values, redeploy
-  # - variable: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
-  #   value: 6Lc-xxx
-  #   availability: [RUNTIME, BUILD]
-  # - variable: RECAPTCHA_PROJECT_ID
-  #   value: eat-this-8a13b
-  #   availability: [RUNTIME]
-  # - variable: RECAPTCHA_API_KEY
-  #   secret: RECAPTCHA_API_KEY
-  #   availability: [RUNTIME]
+  # time-gate + rate-limit always run; reCAPTCHA layers on top. Site-key
+  # ships in the client bundle (public by design), API key is a secret.
+  - variable: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+    value: 6LcHwv0sAAAAAOYhCmKATrUoLMUS3XrC6pwMoR5u
+    availability:
+      - RUNTIME
+      - BUILD
+  - variable: RECAPTCHA_PROJECT_ID
+    value: eat-this-8a13b
+    availability:
+      - RUNTIME
+  - variable: RECAPTCHA_API_KEY
+    secret: RECAPTCHA_API_KEY
+    availability:
+      - RUNTIME
 
   # Firebase Admin SDK (server-side magic link generation)
   - variable: FIREBASE_ADMIN_PROJECT_ID

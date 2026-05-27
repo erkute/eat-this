@@ -3,6 +3,7 @@ import { client } from '@/lib/sanity'
 import { localeUrl } from '@/lib/locale-url'
 import { routing } from '@/i18n/routing'
 import { hasEnContent } from '@/lib/i18n/pickLocale'
+import { isStaging } from '@/lib/env'
 
 export const revalidate = 0
 
@@ -43,6 +44,8 @@ function deOnly(path: string, lastModified?: string, priority = 0.5, changeFrequ
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  if (isStaging) return []
+
   const [restaurants, articles, bezirke, categorySlugs] = await Promise.all([
     client.fetch<{ slug: string; descriptionEn?: string }[]>(
       `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, descriptionEn }`,

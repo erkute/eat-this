@@ -1,11 +1,41 @@
 import createMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from 'next/server';
 import { routing } from './i18n/routing';
+import { isStaging } from '@/lib/env';
 
 const intlMiddleware = createMiddleware(routing);
 
+function basicAuthChallenge(): NextResponse {
+  return new NextResponse('Authentication required', {
+    status: 401,
+    headers: { 'WWW-Authenticate': 'Basic realm="Staging"' },
+  });
+}
+
+function isValidBasicAuth(authHeader: string | null): boolean {
+  if (!authHeader?.startsWith('Basic ')) return false;
+  const expectedUser = process.env.STAGING_BASIC_AUTH_USER;
+  const expectedPass = process.env.STAGING_BASIC_AUTH_PASS;
+  if (!expectedUser || !expectedPass) return false;
+  try {
+    const decoded = Buffer.from(authHeader.slice(6), 'base64').toString('utf8');
+    const [user, ...passParts] = decoded.split(':');
+    return user === expectedUser && passParts.join(':') === expectedPass;
+  } catch {
+    return false;
+  }
+}
+
 export default function middleware(req: NextRequest) {
   const { searchParams, pathname } = req.nextUrl;
+
+  // Staging gate — runs before any other logic. Webhook paths exempt so
+  // Stripe (which can't send Basic Auth headers) can still deliver events.
+  if (isStaging && !pathname.startsWith('/api/stripe/webhook')) {
+    if (!isValidBasicAuth(req.headers.get('authorization'))) {
+      return basicAuthChallenge();
+    }
+  }
 
   // Apex → www 308 redirect. Firebase App Hosting passes the real host via
   // x-forwarded-host; fall back to the Host header for local dev.
@@ -41,6 +71,12 @@ export default function middleware(req: NextRequest) {
   // launch entry-points; SEO pages keep their normal caching behavior.
   if (pathname === '/' || pathname === '/en' || pathname === '/en/') {
     res.headers.set('Cache-Control', 'private, max-age=0, must-revalidate');
+  }
+
+  // Staging: tell every crawler to ignore everything, even if robots.txt
+  // got bypassed.
+  if (isStaging) {
+    res.headers.set('X-Robots-Tag', 'noindex, nofollow');
   }
 
   return res;

@@ -321,6 +321,27 @@
   text-align: center;
   opacity: 0.85;
 }
+/* reCAPTCHA disclosure — small print under copyright. Pairs with
+   the globals.css rule that hides .grecaptcha-badge on launch. */
+.recaptchaNote {
+  display: block;
+  text-align: center;
+  font-family: var(--f-body);
+  font-weight: 500;
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  opacity: 0.55;
+  max-width: 320px;
+  line-height: 1.4;
+  margin-top: -2px;
+}
+.recaptchaNote a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 1px;
+}
 
 /* ============================================================
    Desktop ≥ 900px — Same full-bleed cover pattern as mobile.

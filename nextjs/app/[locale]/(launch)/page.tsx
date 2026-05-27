@@ -65,6 +65,19 @@ export default async function LaunchPage({
           <Link href="/agb">AGB</Link>
         </div>
         <span className={styles.copyright}>© 2026 Eat This</span>
+        {/* reCAPTCHA disclosure — Google's ToS lets us hide the badge
+            (which would otherwise eat the bottom-right corner) as long
+            as the branding text is shown inline somewhere on the page. */}
+        <span className={styles.recaptchaNote}>
+          {locale === 'de' ? 'Geschützt durch reCAPTCHA · ' : 'Protected by reCAPTCHA · '}
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+            {locale === 'de' ? 'Datenschutz' : 'Privacy'}
+          </a>
+          {' · '}
+          <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">
+            {locale === 'de' ? 'Nutzungsbedingungen' : 'Terms'}
+          </a>
+        </span>
       </div>
     </div>
   )

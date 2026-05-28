@@ -9,6 +9,12 @@ runConfig:
   timeoutSeconds: 120
 
 env:
+  - variable: NEXT_PUBLIC_ENV
+    value: production
+    availability:
+      - BUILD
+      - RUNTIME
+
   - variable: SANITY_REVALIDATE_SECRET
     secret: SANITY_REVALIDATE_SECRET
     availability:

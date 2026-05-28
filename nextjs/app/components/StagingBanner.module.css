@@ -1,0 +1,31 @@
+.banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #a02814;
+  color: #fff;
+  font-family: var(--font-saira-condensed), system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.label { letter-spacing: 0.12em; }
+.sep   { opacity: 0.6; }
+.text  { opacity: 0.9; }
+
+.prodLink {
+  margin-left: 12px;
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.prodLink:hover { opacity: 0.85; }

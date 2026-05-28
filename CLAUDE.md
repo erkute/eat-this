@@ -39,6 +39,24 @@ This repo is occasionally worked on in **multiple Claude sessions simultaneously
 - Build CSS with `npm run build:css` before testing changes — dev doesn't auto-rebuild.
 - Stylesheet cache-bust is the `?v=NN` on the `<link rel="stylesheet">` in `app/[locale]/(spa)/layout.tsx`. Bump on any `style.css` change.
 
+## Staging branch workflow
+
+This repo has a `staging` long-running branch that auto-deploys to a second
+App Hosting backend (`eat-this-staging`). Feature work flows:
+
+  feature branch  →  PR into `staging`  →  smoke on staging URL  →  PR into `main`
+
+- Never push directly to `main` — branch protection now blocks it
+- `staging` allows direct push for solo-dev speed
+- Staging URL is gated by Basic Auth + `noindex` — see
+  `docs/runbooks/2026-05-27-staging-backend-setup.md` for credentials lookup
+- Staging runs Stripe in test mode (price IDs differ), Resend is disabled
+- The `StagingBanner` component renders only when `NEXT_PUBLIC_ENV=staging`
+  is set — if you don't see it on the staging URL, the env var didn't deploy
+
+For the migration breakdown, see
+`docs/specs/2026-05-27-staging-and-migration-design.md`.
+
 ## Animation — no opacity fades
 
 **Never animate `opacity` for entry/exit motion on the landing or any brand-facing surface.** The user finds opacity fades weak — they read as "appearing" rather than as motion, and they wash out the punch of the brand presence. This preference has been repeated multiple times across the FanCards iterations.

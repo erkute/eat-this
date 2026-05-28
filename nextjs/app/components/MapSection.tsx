@@ -58,6 +58,7 @@ export default function MapSection({ isActive = false }: Props) {
     mustEats,
     categories,
     totalCount,
+    revealedMustEatIds,
     refetch: refetchMapData,
   } = useMapData({ uid, authLoading })
   useInitialFit(mapRef, restaurants)
@@ -560,6 +561,7 @@ export default function MapSection({ isActive = false }: Props) {
       selectedRestaurant={selectedRestaurant}
       selectedMustEat={selectedMustEat}
       unlockedIds={unlockedIds}
+      revealedMustEatIds={revealedMustEatIds}
       favoriteIds={favoriteIds}
       location={location}
       uid={uid}

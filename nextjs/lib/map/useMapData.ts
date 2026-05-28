@@ -20,6 +20,11 @@ interface MapData {
   /** Total restaurant count in Sanity — independent of trial cap / entitlements.
    *  Surfaced so the sheet-count-mini reads catalog size, not filtered result. */
   totalCount:  number
+  /** Must-eat IDs that are pre-revealed for anonymous visitors (face-up card).
+   *  All other must-eats on visible restaurants render as coveredAnon (blurred,
+   *  non-interactive). Empty for signed-in users — their entitlements drive
+   *  the unlocked/locked split instead. */
+  revealedMustEatIds: Set<string>
   loading:     boolean
   error:       string | null
   refetch:     () => void
@@ -27,11 +32,12 @@ interface MapData {
 
 
 export function useMapData({ uid, authLoading }: UseMapDataArgs): MapData {
-  const [restaurants,       setRestaurants]       = useState<MapRestaurant[]>([])
-  const [lockedRestaurants, setLockedRestaurants] = useState<MapRestaurant[]>([])
-  const [mustEats,          setMustEats]          = useState<MapMustEat[]>([])
-  const [categories,        setCategories]        = useState<CategoryDef[]>([])
-  const [totalCount,        setTotalCount]        = useState(0)
+  const [restaurants,         setRestaurants]         = useState<MapRestaurant[]>([])
+  const [lockedRestaurants,   setLockedRestaurants]   = useState<MapRestaurant[]>([])
+  const [mustEats,            setMustEats]            = useState<MapMustEat[]>([])
+  const [categories,          setCategories]          = useState<CategoryDef[]>([])
+  const [totalCount,          setTotalCount]          = useState(0)
+  const [revealedMustEatIds,  setRevealedMustEatIds]  = useState<Set<string>>(new Set())
   const [loading,           setLoading]           = useState(true)
   const [error,             setError]             = useState<string | null>(null)
   // Bump when refetch() is invoked to re-fire the fetch effect.
@@ -67,6 +73,7 @@ export function useMapData({ uid, authLoading }: UseMapDataArgs): MapData {
         setMustEats(json.mustEats ?? [])
         setCategories(json.categories ?? [])
         setTotalCount(json.totalCount ?? 0)
+        setRevealedMustEatIds(new Set<string>(json.revealedMustEatIds ?? []))
       } catch (e) {
         if (latestReqRef.current !== reqId) return
         setError((e as Error).message)
@@ -76,5 +83,5 @@ export function useMapData({ uid, authLoading }: UseMapDataArgs): MapData {
     })()
   }, [uid, authLoading, tick])
 
-  return { restaurants, lockedRestaurants, mustEats, categories, totalCount, loading, error, refetch }
+  return { restaurants, lockedRestaurants, mustEats, categories, totalCount, revealedMustEatIds, loading, error, refetch }
 }

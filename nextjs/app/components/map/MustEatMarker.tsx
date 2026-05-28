@@ -9,6 +9,9 @@ interface MustEatMarkerProps {
   mustEat: MapMustEat
   isUnlocked: boolean
   isSelected: boolean
+  /** Anon-view: this must-eat was NOT included in the API's revealedMustEatIds.
+   *  Renders blurred with a lock icon; pointer-events disabled. */
+  isCoveredAnon?: boolean
   userLocation?: UserLocation | null
   onClick: (mustEat: MapMustEat) => void
   displayLat?: number
@@ -32,6 +35,7 @@ function MustEatMarker({
   mustEat,
   isUnlocked,
   isSelected,
+  isCoveredAnon = false,
   userLocation,
   onClick,
   displayLat,
@@ -55,6 +59,7 @@ function MustEatMarker({
 
   const className = [
     styles.cardMarker,
+    isCoveredAnon && styles.cardMarkerCoveredAnon,
     isSelected && styles.cardMarkerActive,
     isUnlocked && !isSelected && styles.cardMarkerDiscovered,
     isUnlocked && styles.cardMarkerFront,
@@ -67,7 +72,7 @@ function MustEatMarker({
       longitude={displayLng ?? mustEat.restaurant.lng}
       latitude={displayLat ?? mustEat.restaurant.lat}
       anchor="bottom"
-      onClick={e => {
+      onClick={isCoveredAnon ? undefined : e => {
         e.originalEvent.stopPropagation()
         if (!isUnlocked) setWiggling(true)
         onClick(mustEat)
@@ -106,6 +111,7 @@ function MustEatMarker({
 export default memo(MustEatMarker, (prev, next) =>
   prev.mustEat._id === next.mustEat._id &&
   prev.isUnlocked === next.isUnlocked &&
+  prev.isCoveredAnon === next.isCoveredAnon &&
   prev.isSelected === next.isSelected &&
   prev.displayLat === next.displayLat &&
   prev.displayLng === next.displayLng &&

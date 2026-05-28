@@ -253,8 +253,20 @@ body[data-env="staging"] header[role="banner"] {
 }
 
 
-/* App-pages reserves margin-top for the fixed navbar — with the
-   staging banner pushing the navbar down, extend the reservation. */
+/* App-pages reserves margin-top for the fixed navbar — original
+   prod value is 48px which under-reserves the actual 60px SeoNav
+   header (pre-existing 12px overlap on the search toolbar). With
+   the staging banner pushing the navbar down by 32px on top of that,
+   bump the reservation to a full 60 + banner so search and filters
+   don't sit under the header. */
 body[data-env="staging"] .app-pages {
-  margin-top: calc(48px + env(safe-area-inset-top, 0px) + var(--staging-banner-h));
+  margin-top: calc(60px + env(safe-area-inset-top, 0px) + var(--staging-banner-h));
+}
+
+/* Map page reserves 60px for the navbar; with the banner above it,
+   the page would overflow the viewport by --staging-banner-h. The FAB
+   (Mein Standort) is bottom-anchored inside this page, so the overflow
+   pushes it off the bottom edge. */
+body[data-env="staging"] .app-page[data-page="map"] {
+  height: calc(100dvh - 60px - var(--staging-banner-h)) !important;
 }

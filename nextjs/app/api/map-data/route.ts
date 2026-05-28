@@ -74,16 +74,33 @@ export async function GET(req: Request) {
     // Anonymous: only the anon set.
     visibleRestaurants = anonSet
   } else {
-    // Signed-in: anon ∪ signed; if category entitlement, also union those.
+    // Signed-in: anon ∪ signed; then union in any restaurants the user is
+    // individually entitled to (category packs, restaurant-id grants from
+    // referral bonuses, or must-eat-id grants — Plan 4).
     const signedSet     = composeSignedRestaurants(all, anonIds, mustEatCountByRestaurant)
     const tierUnion     = [...anonSet, ...signedSet]
     const tierUnionIds  = new Set(tierUnion.map((r) => r._id))
 
-    if (ent.categorySlugs.size > 0) {
-      const categoryMatched = all.filter(
-        (r) => !tierUnionIds.has(r._id) && isRestaurantVisible(r, ent),
+    // Restaurants whose mustEats the user is entitled to — visible by extension.
+    const restaurantIdsFromMustEats = new Set<string>()
+    if (ent.mustEatIds.size > 0) {
+      for (const m of allMustEats) {
+        if (ent.mustEatIds.has(m._id)) restaurantIdsFromMustEats.add(m.restaurant._id)
+      }
+    }
+
+    const hasIndividualEntitlements =
+      ent.categorySlugs.size > 0 ||
+      ent.restaurantIds.size > 0 ||
+      restaurantIdsFromMustEats.size > 0
+
+    if (hasIndividualEntitlements) {
+      const matched = all.filter(
+        (r) => !tierUnionIds.has(r._id) && (
+          isRestaurantVisible(r, ent) || restaurantIdsFromMustEats.has(r._id)
+        ),
       )
-      visibleRestaurants = [...tierUnion, ...categoryMatched]
+      visibleRestaurants = [...tierUnion, ...matched]
     } else {
       visibleRestaurants = tierUnion
     }

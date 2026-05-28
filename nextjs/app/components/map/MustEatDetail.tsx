@@ -32,7 +32,7 @@ export default function MustEatDetail({
   inSheet,
   uid,
 }: MustEatDetailProps) {
-  const state = useMustEatDetailState({ mustEat, userLocation, onUnlock })
+  const state = useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthed: Boolean(uid) })
 
   return (
     <>

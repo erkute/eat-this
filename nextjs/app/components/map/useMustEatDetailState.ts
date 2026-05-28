@@ -9,9 +9,13 @@ interface Args {
   mustEat: MapMustEat
   userLocation: UserLocation | null
   onUnlock: () => void
+  // Anon visitors must not enter the reveal-overlay path — the overlay
+  // doesn't (and shouldn't) advance phases without a signed-in user, so
+  // gating here keeps the locked-card tap a no-op tap-feedback instead.
+  isAuthed: boolean
 }
 
-export function useMustEatDetailState({ mustEat, userLocation, onUnlock }: Args) {
+export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthed }: Args) {
   const distance = userLocation
     ? haversineDistance(userLocation.lat, userLocation.lng, mustEat.restaurant.lat, mustEat.restaurant.lng)
     : null
@@ -33,7 +37,7 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock }: Args)
   const [revealOrigin, setRevealOrigin] = useState<DOMRect | null>(null)
 
   const handleCardClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (canUnlock) {
+    if (canUnlock && isAuthed) {
       const rect = e.currentTarget.getBoundingClientRect()
       setRevealOrigin(rect)
       onUnlock()

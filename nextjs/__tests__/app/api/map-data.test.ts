@@ -171,6 +171,82 @@ describe('/api/map-data — tier composition', () => {
     expect(json.lockedRestaurants.length).toBeLessThanOrEqual(1)
   })
 
+  it('signed-in with restaurantIds entitlement (no category): unions in those restaurants past the signed fallback', async () => {
+    // 45 "filler" restaurants each with one must-eat — saturates both ANON
+    // (20) and SIGNED (20) fallback by must-eat-count ranking.
+    const fillers = Array.from({ length: 45 }, (_, i) =>
+      mkRestaurant(`fill-${String(i).padStart(2, '0')}`),
+    )
+    const restaurants = [
+      mkRestaurant('a1', { tierAnon: true }),
+      ...fillers,
+      mkRestaurant('zzz-bonus1'),  // _id sorted last → would NOT enter fallback
+      mkRestaurant('zzz-bonus2'),
+    ]
+    const mustEats = fillers.map((r) => mkMustEat(`me-${r._id}`, r._id))
+    vi.mocked(getCachedMapData).mockResolvedValue({
+      restaurants: restaurants as any,
+      mustEats: mustEats as any,
+      categories: [],
+    })
+    vi.mocked(resolveEntitlements).mockResolvedValue({
+      isAdmin: false,
+      hasAllBerlin: false,
+      categorySlugs: new Set(),
+      restaurantIds: new Set(['zzz-bonus1', 'zzz-bonus2']),
+      mustEatIds: new Set(),
+    })
+
+    const res = await GET(mkReq('valid-token'))
+    const json = await res.json()
+    const ids = json.restaurants.map((r: any) => r._id)
+    // bonus restaurants are 0-must-eat so they'd be excluded by the signed
+    // fallback (must-eat-count ranking) — they're only visible via entitlement
+    expect(ids).toContain('zzz-bonus1')
+    expect(ids).toContain('zzz-bonus2')
+  })
+
+  it('signed-in with mustEatIds entitlement: unions in the restaurants that own those must-eats', async () => {
+    // Same shape as above but the entitlement is id-of-must-eat, not id-of-restaurant
+    const fillers = Array.from({ length: 45 }, (_, i) =>
+      mkRestaurant(`fill-${String(i).padStart(2, '0')}`),
+    )
+    const restaurants = [
+      mkRestaurant('a1', { tierAnon: true }),
+      ...fillers,
+      mkRestaurant('zzz-rare1'),
+      mkRestaurant('zzz-rare2'),
+    ]
+    const mustEats = [
+      ...fillers.map((r) => mkMustEat(`me-${r._id}`, r._id)),
+      mkMustEat('me-bonus-a', 'zzz-rare1'),
+      mkMustEat('me-bonus-b', 'zzz-rare2'),
+    ]
+    vi.mocked(getCachedMapData).mockResolvedValue({
+      restaurants: restaurants as any,
+      mustEats: mustEats as any,
+      categories: [],
+    })
+    vi.mocked(resolveEntitlements).mockResolvedValue({
+      isAdmin: false,
+      hasAllBerlin: false,
+      categorySlugs: new Set(),
+      restaurantIds: new Set(),
+      mustEatIds: new Set(['me-bonus-a', 'me-bonus-b']),
+    })
+
+    const res = await GET(mkReq('valid-token'))
+    const json = await res.json()
+    const ids = json.restaurants.map((r: any) => r._id)
+    // The entitled must-eats' parent restaurants must be in the visible set
+    expect(ids).toContain('zzz-rare1')
+    expect(ids).toContain('zzz-rare2')
+    // and the entitled must-eats must be in the visible mustEats response
+    const meIds = json.mustEats.map((m: any) => m._id)
+    expect(meIds).toContain('me-bonus-a')
+    expect(meIds).toContain('me-bonus-b')
+  })
+
   it('all-berlin: returns full catalog, no locked preview, no revealed signal', async () => {
     const restaurants = [mkRestaurant('a1'), mkRestaurant('b1'), mkRestaurant('c1')]
     vi.mocked(getCachedMapData).mockResolvedValue({

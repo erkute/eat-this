@@ -52,6 +52,16 @@ describe('reduceEntitlements', () => {
     expect(r.restaurantIds.size).toBe(0)
     expect(r.mustEatIds.size).toBe(0)
   })
+
+  it('collects restaurantIds and mustEatIds from each doc into deduped sets', () => {
+    const docs: Entitlement[] = [
+      { type: 'category', slug: 'pizza', restaurantIds: ['rest-A', 'rest-B'], mustEatIds: ['me-1', 'me-2'], purchasedAt: new Date() as any, stripeSessionId: 's1', source: 'stripe' },
+      { type: 'category', slug: 'breakfast', restaurantIds: ['rest-B', 'rest-C'], mustEatIds: ['me-2', 'me-3'], purchasedAt: new Date() as any, stripeSessionId: 's2', source: 'stripe' },
+    ]
+    const r = reduceEntitlements(docs)
+    expect([...r.restaurantIds].sort()).toEqual(['rest-A', 'rest-B', 'rest-C'])
+    expect([...r.mustEatIds].sort()).toEqual(['me-1', 'me-2', 'me-3'])
+  })
 })
 
 describe('isAdminEmail', () => {

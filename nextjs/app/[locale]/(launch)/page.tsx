@@ -1,7 +1,8 @@
 import { setRequestLocale } from 'next-intl/server'
-import { Link } from '@/i18n/navigation'
+import { Link, redirect } from '@/i18n/navigation'
 import LaunchClient from './LaunchClient'
 import styles from './launch.module.css'
+import { isStaging } from '@/lib/env'
 
 export default async function LaunchPage({
   params,
@@ -10,6 +11,13 @@ export default async function LaunchPage({
 }) {
   const { locale: rawLocale } = await params
   const locale: 'de' | 'en' = rawLocale === 'en' ? 'en' : 'de'
+
+  // Staging: bypass the launch holding page entirely. Operator wants to
+  // dogfood the real app at `/` — `/map` is the SPA's actual entry.
+  if (isStaging) {
+    redirect({ href: '/map', locale })
+  }
+
   setRequestLocale(rawLocale)
 
   return (

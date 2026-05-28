@@ -1,0 +1,43 @@
+# Per-environment override for the "staging" environment. Firebase App
+# Hosting picks this file when the backend's Environment name is set to
+# "staging" (Console → Backend → Settings → Environment).
+#
+# Values defined here are MERGED on top of apphosting.yaml — only the
+# variables that differ from prod need to appear here.
+env:
+  # ENV FLAG — flips the app into staging mode (Basic Auth, banner, robots
+  # disallow, empty sitemap, etc.).
+  - variable: NEXT_PUBLIC_ENV
+    value: staging
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # Basic Auth credentials — gates every non-webhook request on staging.
+  - variable: STAGING_BASIC_AUTH_USER
+    secret: STAGING_BASIC_AUTH_USER
+    availability:
+      - RUNTIME
+  - variable: STAGING_BASIC_AUTH_PASS
+    secret: STAGING_BASIC_AUTH_PASS
+    availability:
+      - RUNTIME
+
+  # Public URL override — emails + absolute-URL builders point at staging.
+  - variable: NEXT_PUBLIC_APP_URL
+    value: https://eat-this-staging--eat-this-8a13b.us-central1.hosted.app
+    availability:
+      - RUNTIME
+      - BUILD
+
+  # Stripe — staging uses TEST-mode keys + a separate webhook endpoint.
+  # Same variable names as prod (so app code is identical), different
+  # secret references.
+  - variable: STRIPE_SECRET_KEY
+    secret: STRIPE_SECRET_KEY_STAGING
+    availability:
+      - RUNTIME
+  - variable: STRIPE_WEBHOOK_SECRET
+    secret: STRIPE_WEBHOOK_SECRET_STAGING
+    availability:
+      - RUNTIME

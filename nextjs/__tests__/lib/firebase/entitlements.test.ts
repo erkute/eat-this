@@ -15,25 +15,6 @@ describe('reduceEntitlements', () => {
     expect(r.mustEatIds.size).toBe(0)
   })
 
-  it('captures starter restaurantIds and mustEatIds', () => {
-    const docs: Entitlement[] = [
-      {
-        type: 'starter',
-        slug: null,
-        restaurantIds: ['r1', 'r2'],
-        mustEatIds: ['m1', 'm2'],
-        purchasedAt: new Date() as any,
-        stripeSessionId: null,
-        source: 'signup',
-      },
-    ]
-    const r = reduceEntitlements(docs)
-    expect([...r.restaurantIds]).toEqual(['r1', 'r2'])
-    expect([...r.mustEatIds]).toEqual(['m1', 'm2'])
-    expect(r.categorySlugs.size).toBe(0)
-    expect(r.hasAllBerlin).toBe(false)
-  })
-
   it('collects category slugs', () => {
     const docs: Entitlement[] = [
       { type: 'category', slug: 'pizza', restaurantIds: [], mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: 's1', source: 'stripe' },
@@ -60,17 +41,16 @@ describe('reduceEntitlements', () => {
     expect(r.categorySlugs.size).toBe(0)
   })
 
-  it('combines starter + category + all-berlin into one resolved view', () => {
+  it('combines category + all-berlin into one resolved view', () => {
     const docs: Entitlement[] = [
-      { type: 'starter', slug: null, restaurantIds: ['r1'], mustEatIds: ['m1'], purchasedAt: new Date() as any, stripeSessionId: null, source: 'signup' },
       { type: 'category', slug: 'pizza', restaurantIds: [], mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: 's1', source: 'stripe' },
       { type: 'all-berlin', slug: null, restaurantIds: [], mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: 's2', source: 'stripe' },
     ]
     const r = reduceEntitlements(docs)
     expect(r.hasAllBerlin).toBe(true)
     expect([...r.categorySlugs]).toEqual(['pizza'])
-    expect([...r.restaurantIds]).toEqual(['r1'])
-    expect([...r.mustEatIds]).toEqual(['m1'])
+    expect(r.restaurantIds.size).toBe(0)
+    expect(r.mustEatIds.size).toBe(0)
   })
 })
 
@@ -120,7 +100,7 @@ describe('isRestaurantVisible', () => {
     expect(isRestaurantVisible({ _id: 'r1', categories: [] }, { ...baseEnt, hasAllBerlin: true })).toBe(true)
   })
 
-  it('returns true when restaurant id is in explicit set (starter)', () => {
+  it('returns true when restaurant id is in explicit set', () => {
     expect(isRestaurantVisible({ _id: 'r1', categories: [] }, { ...baseEnt, restaurantIds: new Set(['r1']) })).toBe(true)
   })
 

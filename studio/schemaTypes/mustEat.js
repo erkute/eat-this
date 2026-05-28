@@ -53,6 +53,13 @@ export default {
       type: 'number',
       description: 'Lower number = shown first',
     },
+    {
+      name: 'revealedForAnon',
+      title: 'Anon-Demo — offen sichtbar ohne Login',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Anhaken bei genau ~10 Must-Eats, verteilt über die Anon-Tier-Restaurants. Diese werden auf der Map offen gezeigt für anonyme Besucher als Vorgeschmack auf das Reveal-Spiel. Pflicht: nur auf Restaurants mit tierAnon: true setzen.',
+    },
   ],
   orderings: [
     {

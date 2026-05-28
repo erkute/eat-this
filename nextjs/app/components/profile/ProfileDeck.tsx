@@ -8,19 +8,14 @@ import {
   useSpring,
   useTransform,
 } from 'framer-motion';
-import { useAuth } from '@/lib/auth';
-import { openWelcomePack } from '@/lib/firebase/welcomePack';
 import type { MustEatAlbumCard } from '@/lib/types';
-import type { BoosterPack } from '@/lib/firebase/usePack';
 import ProfileDeckHeader from './ProfileDeckHeader';
-import ProfileDeckStackOverlay from './ProfileDeckStackOverlay';
 import styles from './ProfileDeck.module.css';
 
 const TOTAL_SLOTS        = 150;
 const FLIP_DURATION_S    = 0.7;
 
 interface Props {
-  pack:           BoosterPack;
   mustEats:       MustEatAlbumCard[];
   mapUnlockedIds: Set<string>;
 }
@@ -31,65 +26,25 @@ interface ExpandedState {
   order: number;
 }
 
-export default function ProfileDeck({ pack, mustEats, mapUnlockedIds }: Props) {
-  const { user } = useAuth();
-
-  // Welcome-pack cards are the input for the welcome-pack stack-overlay. Kept
-  // separate from map-unlocked cards so the stack-choreo never sees the
-  // map ones (those were already revealed live on the map).
-  const packCardsByOrder = useMemo(() => {
-    const map = new Map<number, MustEatAlbumCard>();
-    for (const id of pack.mustEatIds) {
-      const card = mustEats.find((m) => m._id === id);
-      if (card && typeof card.order === 'number') map.set(card.order, card);
-    }
-    return map;
-  }, [pack.mustEatIds, mustEats]);
-
-  // Pack cards in their deck order — used by the stack overlay so the
-  // user clicks through cards top → bottom in the same sequence as the
-  // deck slots fill in.
-  const sortedPackCards = useMemo(
-    () =>
-      Array.from(packCardsByOrder.entries())
-        .sort(([a], [b]) => a - b)
-        .map(([, card]) => card),
-    [packCardsByOrder],
-  );
-
-  // Map-page reveals (`users/{uid}/unlockedMustEats/*`) — these are pre-
-  // revealed by definition (the user already saw the reveal choreo), so
-  // they show face-up in the album immediately, no stack-overlay step.
-  // Welcome-pack ids take priority on collision.
+export default function ProfileDeck({ mustEats, mapUnlockedIds }: Props) {
+  // Map-page reveals (`users/{uid}/unlockedMustEats/*`) — show face-up in
+  // the album immediately, no further reveal step needed.
   const mapUnlockedByOrder = useMemo(() => {
     const map = new Map<number, MustEatAlbumCard>();
     for (const id of mapUnlockedIds) {
-      if (pack.mustEatIds.includes(id)) continue;
       const card = mustEats.find((m) => m._id === id);
       if (card && typeof card.order === 'number') map.set(card.order, card);
     }
     return map;
-  }, [mapUnlockedIds, pack.mustEatIds, mustEats]);
+  }, [mapUnlockedIds, mustEats]);
 
-  // Merged view used by the album-grid render below. Stack-overlay still
-  // works off `packCardsByOrder` / `sortedPackCards` only.
-  const allCardsByOrder = useMemo(() => {
-    const map = new Map(packCardsByOrder);
-    for (const [order, card] of mapUnlockedByOrder) map.set(order, card);
-    return map;
-  }, [packCardsByOrder, mapUnlockedByOrder]);
-
-  // Pack cards start revealed only if the pack is already opened. Map
-  // unlocks are always revealed.
   const [revealed, setRevealed] = useState<Set<number>>(() => {
-    const init = new Set<number>(mapUnlockedByOrder.keys());
-    if (pack.opened) for (const o of packCardsByOrder.keys()) init.add(o);
-    return init;
+    return new Set<number>(mapUnlockedByOrder.keys());
   });
 
   // Newly arriving map unlocks (e.g. user revealed one on the map and
   // navigated here without remount) need to be added to `revealed` too,
-  // otherwise the album shows them as EmptySlot until next page load.
+  // otherwise the album shows them as BackSlot until next page load.
   useEffect(() => {
     setRevealed((prev) => {
       let changed = false;
@@ -106,43 +61,6 @@ export default function ProfileDeck({ pack, mustEats, mapUnlockedIds }: Props) {
   // Order of the slot whose front-face should be hidden while the card is
   // in the lightbox or still animating back (prevents the "ghost" duplicate).
   const [hiddenSlotOrder, setHiddenSlotOrder] = useState<number | null>(null);
-
-  const slotRefs  = useRef<Map<number, HTMLDivElement>>(new Map());
-  const persistedRef = useRef(false);
-
-  // Stack-overlay handlers — invoked by ProfileDeckStackOverlay as the user
-  // clicks through their 10 face-down cards.
-  const scrollToSlot = useCallback((order: number, behavior: ScrollBehavior = 'smooth') => {
-    const el = slotRefs.current.get(order);
-    if (el) el.scrollIntoView({ behavior, block: 'center' });
-  }, []);
-
-  const getSlotRect = useCallback((order: number): DOMRect | null => {
-    const el = slotRefs.current.get(order);
-    return el ? el.getBoundingClientRect() : null;
-  }, []);
-
-  const handleCardPlaced = useCallback((order: number) => {
-    setRevealed((prev) => {
-      if (prev.has(order)) return prev;
-      const next = new Set(prev);
-      next.add(order);
-      return next;
-    });
-  }, []);
-
-  const handleAllPlaced = useCallback(() => {
-    if (!user || persistedRef.current) return;
-    persistedRef.current = true;
-    openWelcomePack(user.uid, pack.mustEatIds, pack.id).catch((err) => {
-      console.error('[profile-deck] openWelcomePack failed:', err);
-    });
-  }, [user, pack.mustEatIds, pack.id]);
-
-  // Show the stack overlay only on the first profile visit while the
-  // user's pack hasn't been "opened" yet. After all cards are placed,
-  // openWelcomePack flips pack.opened → true and the overlay unmounts.
-  const showStackOverlay = !pack.opened && sortedPackCards.length > 0 && !!user;
 
   // Close handler — stable reference so memoized ExpandedOverlay doesn't re-render mid-flight.
   const closeExpanded = useCallback(() => {
@@ -170,43 +88,33 @@ export default function ProfileDeck({ pack, mustEats, mapUnlockedIds }: Props) {
       <div className={styles.albumGrid}>
         {Array.from({ length: TOTAL_SLOTS }, (_, i) => {
           const order = i + 1;
-          const card  = allCardsByOrder.get(order);
+          const card  = mapUnlockedByOrder.get(order);
           const isRevealed = revealed.has(order);
 
-          if (card) {
-            const slotRef = (el: HTMLDivElement | null) => {
-              if (el) slotRefs.current.set(order, el);
-              else slotRefs.current.delete(order);
-            };
-            if (isRevealed) {
-              return (
-                <FlipSlot
-                  key={order}
-                  order={order}
-                  card={card}
-                  flipped={isRevealed}
-                  hideCardFace={hiddenSlotOrder === order}
-                  onExpand={(rect) => {
-                    setHiddenSlotOrder(order);
-                    setExpanded({ card, rect, order });
-                  }}
-                  slotRef={slotRef}
-                />
-              );
-            }
-            return <EmptySlot key={order} order={order} slotRef={slotRef} />;
+          if (card && isRevealed) {
+            return (
+              <FlipSlot
+                key={order}
+                order={order}
+                card={card}
+                flipped={isRevealed}
+                hideCardFace={hiddenSlotOrder === order}
+                onExpand={(rect) => {
+                  setHiddenSlotOrder(order);
+                  setExpanded({ card, rect, order });
+                }}
+              />
+            );
           }
           return <BackSlot key={order} />;
         })}
       </div>
 
-      {!showStackOverlay && (
-        <div className={styles.teaser}>
-          <p className={styles.teaserCity}>BERLIN</p>
-          <p className={styles.teaserLine}>IST ERST DER ANFANG.</p>
-          <p className={styles.teaserSub}>Mehr Städte. Mehr Karten. Mehr Must Eats.</p>
-        </div>
-      )}
+      <div className={styles.teaser}>
+        <p className={styles.teaserCity}>BERLIN</p>
+        <p className={styles.teaserLine}>IST ERST DER ANFANG.</p>
+        <p className={styles.teaserSub}>Mehr Städte. Mehr Karten. Mehr Must Eats.</p>
+      </div>
 
       <AnimatePresence>
         {expanded && (
@@ -217,16 +125,6 @@ export default function ProfileDeck({ pack, mustEats, mapUnlockedIds }: Props) {
           />
         )}
       </AnimatePresence>
-
-      {showStackOverlay && (
-        <ProfileDeckStackOverlay
-          cards={sortedPackCards}
-          scrollToSlot={scrollToSlot}
-          getSlotRect={getSlotRect}
-          onCardPlaced={handleCardPlaced}
-          onAllPlaced={handleAllPlaced}
-        />
-      )}
     </>
   );
 }
@@ -396,14 +294,12 @@ interface FlipSlotProps {
   flipped:      boolean;
   hideCardFace: boolean;
   onExpand:     ((rect: DOMRect) => void) | undefined;
-  slotRef:      (el: HTMLDivElement | null) => void;
 }
 
-function FlipSlot({ order, card, flipped, hideCardFace, onExpand, slotRef }: FlipSlotProps) {
+function FlipSlot({ order, card, flipped, hideCardFace, onExpand }: FlipSlotProps) {
   return (
     <div
       className={`${styles.slot}${flipped && onExpand ? ` ${styles.slotRevealed}` : ''}`}
-      ref={slotRef}
       data-order={order}
       onClick={onExpand ? (e) => {
         // Request gyroscope permission on iOS 13+ from this user-gesture handler
@@ -466,25 +362,5 @@ function BackSlot() {
         />
       </div>
     </div>
-  );
-}
-
-// Empty placeholder for one of the user's 10 pack cards before the
-// stack-overlay flies it home. Visually it's a faint outlined slot so the
-// user can spot where the next card will land. ProfileDeckStackOverlay
-// reads its bounding rect via slotRef to compute the flight target.
-interface EmptySlotProps {
-  order:   number;
-  slotRef: (el: HTMLDivElement | null) => void;
-}
-
-function EmptySlot({ order, slotRef }: EmptySlotProps) {
-  return (
-    <div
-      className={`${styles.slot} ${styles.slotEmpty}`}
-      ref={slotRef}
-      data-order={order}
-      aria-label={`Karte ${order} (noch nicht aufgedeckt)`}
-    />
   );
 }

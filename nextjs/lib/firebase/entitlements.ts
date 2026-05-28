@@ -4,7 +4,7 @@
 import { getAdminFirestore } from './admin'
 
 export interface Entitlement {
-  type: 'starter' | 'category' | 'all-berlin'
+  type: 'category' | 'all-berlin'
   slug: string | null
   restaurantIds: string[]
   mustEatIds: string[]
@@ -37,9 +37,6 @@ export function reduceEntitlements(docs: Entitlement[]): ResolvedEntitlements {
       out.hasAllBerlin = true
     } else if (data.type === 'category' && data.slug) {
       out.categorySlugs.add(data.slug)
-    } else if (data.type === 'starter') {
-      data.restaurantIds.forEach((id) => out.restaurantIds.add(id))
-      data.mustEatIds.forEach((id) => out.mustEatIds.add(id))
     }
   }
   return out

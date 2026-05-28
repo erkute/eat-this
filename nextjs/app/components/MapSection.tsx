@@ -19,15 +19,17 @@ import { useTranslation } from '@/lib/i18n'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import MapSectionBody from './map/MapSectionBody'
+import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import { auth, db } from '@/lib/firebase/config'
 import { onAuthStateChanged } from 'firebase/auth'
 import { collection, onSnapshot } from 'firebase/firestore'
 
 interface Props {
-  isActive?: boolean
+  isActive?:       boolean
+  initialMapData?: InitialMapData
 }
 
-export default function MapSection({ isActive = false }: Props) {
+export default function MapSection({ isActive = false, initialMapData }: Props) {
   const mapRef = useRef<MapRef>(null)
   // Set true synchronously in any click handler that flies the camera so
   // the slow auto-locate Promise can't overwrite the user's selection.
@@ -60,7 +62,7 @@ export default function MapSection({ isActive = false }: Props) {
     totalCount,
     revealedMustEatIds,
     refetch: refetchMapData,
-  } = useMapData({ uid, authLoading })
+  } = useMapData({ uid, authLoading, initialMapData })
   useInitialFit(mapRef, restaurants)
   const { location, request: requestLocation } = useUserLocation()
   const { unlockedIds: storedUnlockedIds, unlock } = useUnlockedMustEats(uid)

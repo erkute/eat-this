@@ -22,23 +22,46 @@ export default function BurgerDrawer() {
   const { isDark, toggleTheme } = useTheme();
   const pathname = usePathname();
 
-  // Close the drawer on any internal link click. Pathname-change effect alone
-  // doesn't catch same-route clicks (e.g. clicking "Restaurants" while already
-  // on /bezirk) — Next.js skips the navigation and the drawer stays open.
-  // `suppressScroll` skips the body-scroll restore so the destination page
-  // starts at the top instead of the old scrollY.
-  const closeBurger = useCallback(() => {
+  // Drawer close + body-scroll unlock. Self-managed inside BurgerDrawer so
+  // the SPA (which renders SeoNav instead of SiteNav) still gets close-on-X,
+  // close-on-backdrop-click, and close-on-navigation. SiteNav used to own
+  // these handlers but they're dead code on SPA routes.
+  const closeBurger = useCallback((restoreScroll: boolean = true) => {
     const drawer = document.getElementById('burgerDrawer');
-    if (drawer?.classList.contains('active')) {
-      drawer.dispatchEvent(
-        new CustomEvent<BurgerCloseDetail>('burger:close', {
-          detail: { suppressScroll: true },
-        }),
-      );
+    if (!drawer?.classList.contains('active')) return;
+    drawer.classList.remove('active');
+    // Unlock body scroll (mirror of SeoNav's open-lock).
+    const wasMobile = window.innerWidth < 768;
+    if (wasMobile) {
+      const stored = document.body.dataset.burgerLockY;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      if (restoreScroll && stored) {
+        const y = parseInt(stored, 10) || 0;
+        requestAnimationFrame(() => window.scrollTo(0, y));
+      }
+      delete document.body.dataset.burgerLockY;
+    } else {
+      document.body.style.overflow = '';
     }
   }, []);
 
-  useEffect(() => { closeBurger(); }, [pathname, closeBurger]);
+  // Close on navigation — destination page starts at top (suppress scroll restore).
+  useEffect(() => { closeBurger(false); }, [pathname, closeBurger]);
+
+  // Wire up X-button + backdrop click handlers to the drawer's DOM children.
+  useEffect(() => {
+    const closeBtn = document.getElementById('burgerClose');
+    const backdrop = document.getElementById('burgerBackdrop');
+    const handler = () => closeBurger(true);
+    closeBtn?.addEventListener('click', handler);
+    backdrop?.addEventListener('click', handler);
+    return () => {
+      closeBtn?.removeEventListener('click', handler);
+      backdrop?.removeEventListener('click', handler);
+    };
+  }, [closeBurger]);
 
   const handleLoginBtn = useCallback(() => {
     document.getElementById('burgerClose')?.click();

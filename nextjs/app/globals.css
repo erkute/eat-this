@@ -247,8 +247,9 @@ a {
 :root { --staging-banner-h: 0px; }
 body[data-env="staging"] { --staging-banner-h: 32px; }
 
-body[data-env="staging"] .navbar {
-  top: var(--staging-banner-h);
+body[data-env="staging"] .navbar,
+body[data-env="staging"] header[role="banner"] {
+  top: var(--staging-banner-h) !important;
 }
 
 /* Map page reserves height for the navbar — extend the reservation

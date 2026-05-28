@@ -252,16 +252,9 @@ body[data-env="staging"] header[role="banner"] {
   top: var(--staging-banner-h) !important;
 }
 
-/* Map page reserves height for the navbar — extend the reservation
-   by the banner height on staging so the bottom sheet doesn't get
-   cut off. */
-body[data-env="staging"] .app-page[data-page="map"] {
-  height: calc(100dvh - 60px - var(--staging-banner-h)) !important;
-}
-@media (max-width: 1023.98px) {
-  body[data-env="staging"] .app-page[data-page="map"] {
-    /* Mobile map claims full viewport; staging banner shrinks it. */
-    height: calc(100dvh - var(--staging-banner-h)) !important;
-  }
-}
 
+/* App-pages reserves margin-top for the fixed navbar — with the
+   staging banner pushing the navbar down, extend the reservation. */
+body[data-env="staging"] .app-pages {
+  margin-top: calc(48px + env(safe-area-inset-top, 0px) + var(--staging-banner-h));
+}

@@ -31,7 +31,11 @@ export default function middleware(req: NextRequest) {
 
   // Staging gate — runs before any other logic. Webhook paths exempt so
   // Stripe (which can't send Basic Auth headers) can still deliver events.
-  if (isStaging && !pathname.startsWith('/api/stripe/webhook')) {
+  // Localhost exempt so `npm run dev` with NEXT_PUBLIC_ENV=staging doesn't
+  // prompt for credentials on every page load.
+  const reqHost = req.headers.get('host') ?? '';
+  const isLocalhost = reqHost.startsWith('localhost') || reqHost.startsWith('127.0.0.1');
+  if (isStaging && !isLocalhost && !pathname.startsWith('/api/stripe/webhook')) {
     if (!isValidBasicAuth(req.headers.get('authorization'))) {
       return basicAuthChallenge();
     }

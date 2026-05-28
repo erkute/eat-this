@@ -49,3 +49,12 @@
   outline: 2px solid #000;
   outline-offset: 2px;
 }
+
+/* SVG icons inside iconBtn — pointer-events: none ensures the click lands
+   on the button element itself, not an inner <line>/<path>. Without this,
+   onClick can fail to fire on real user clicks even though the bubbling
+   mechanism would normally work. */
+.iconBtn svg,
+.iconBtn svg * {
+  pointer-events: none;
+}

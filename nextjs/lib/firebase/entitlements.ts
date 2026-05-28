@@ -30,7 +30,12 @@ const EMPTY_RESOLVED = (): ResolvedEntitlements => ({
 })
 
 // Pure reducer — exported separately so it's testable without mocking Firestore.
-export function reduceEntitlements(docs: Entitlement[]): ResolvedEntitlements {
+// `bonuses` carries referral-bonus restaurantIds (Plan 4); they union into the
+// same restaurantIds set the map-data visible-set logic already honors.
+export function reduceEntitlements(
+  docs: Entitlement[],
+  bonuses: { restaurantIds?: string[] }[] = [],
+): ResolvedEntitlements {
   const out = EMPTY_RESOLVED()
   for (const data of docs) {
     if (data.type === 'all-berlin') {
@@ -40,6 +45,9 @@ export function reduceEntitlements(docs: Entitlement[]): ResolvedEntitlements {
     }
     for (const id of data.restaurantIds) out.restaurantIds.add(id)
     for (const id of data.mustEatIds)    out.mustEatIds.add(id)
+  }
+  for (const b of bonuses) {
+    for (const id of b.restaurantIds ?? []) out.restaurantIds.add(id)
   }
   return out
 }
@@ -65,13 +73,17 @@ export async function resolveEntitlements(
     return { ...EMPTY_RESOLVED(), isAdmin: true, hasAllBerlin: true }
   }
 
-  const snap = await getAdminFirestore()
-    .collection('users').doc(uid)
-    .collection('entitlements')
-    .get()
+  const userRef = getAdminFirestore().collection('users').doc(uid)
+  const [entSnap, bonusSnap] = await Promise.all([
+    userRef.collection('entitlements').get(),
+    userRef.collection('referralBonuses').get(),
+  ])
 
-  const docs = snap.docs.map((d) => d.data() as Entitlement)
-  return reduceEntitlements(docs)
+  const docs = entSnap.docs.map((d) => d.data() as Entitlement)
+  const bonuses = bonusSnap.docs.map((d) => ({
+    restaurantIds: (d.data().restaurantIds ?? []) as string[],
+  }))
+  return reduceEntitlements(docs, bonuses)
 }
 
 // Visibility predicates — used by /api/map-data (separate plan) to filter

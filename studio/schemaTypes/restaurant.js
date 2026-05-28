@@ -59,6 +59,13 @@ export default {
       description: 'Anhaken, um dieses Restaurant in der Featured-Spots-Section auf der Landingpage zu zeigen. Max. 12 werden angezeigt. Wenn keiner angehakt ist, fällt die Landing auf die Top-Restaurants nach Must-Eat-Anzahl zurück.',
     },
     {
+      name: 'tierAnon',
+      title: 'Anon-Tier — sichtbar ohne Login',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Anhaken um dieses Restaurant in den ~20 anonymen Spots zu zeigen, die jeder ohne Login auf der Map sieht. Sollte ein Restaurant mit mindestens einem Must-Eat sein.',
+    },
+    {
       name: 'cuisineType',
       title: 'Küche / Cuisine',
       type: 'string',

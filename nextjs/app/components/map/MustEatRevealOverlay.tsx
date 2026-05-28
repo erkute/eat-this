@@ -112,7 +112,9 @@ export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone
     return () => window.removeEventListener('deviceorientation', onOrientation, true)
   }, [phase, pointerX, pointerY])
 
-  // Phase auto-advance for non-interactive phases.
+  // Phase auto-advance for non-interactive phases. Auth-gating happens at
+  // the trigger (useMustEatDetailState.handleCardClick) so this component
+  // can assume the user is signed-in once it's mounted.
   useEffect(() => {
     if (phase === 'flyIn') {
       const id = window.setTimeout(() => setPhase('idle'), reducedMotion ? 60 : FLY_IN_MS)

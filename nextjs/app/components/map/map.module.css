@@ -1588,6 +1588,28 @@ html[data-theme="dark"] .btn:hover {
   object-fit: cover;
 }
 
+/* Anonymous-covered state — must-eat not in the API's revealedMustEatIds.
+   Blurred + lock overlay; fully non-interactive (pointer-events off on the
+   wrapper div; the Marker onClick is also suppressed at component level). */
+.cardMarkerCoveredAnon {
+  filter: blur(2px) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  opacity: 0.55;
+  pointer-events: none;
+  cursor: default;
+}
+.cardMarkerCoveredAnon::after {
+  content: '🔒';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.3em;
+  /* Reset the blur so the lock icon stays sharp above the blurred card. */
+  filter: none;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
 /* Proximity vibration on the Must Eat map marker — strong when user is
    right on top of the restaurant, subtle when ~500 m away. */
 .cardMarkerVibrating {

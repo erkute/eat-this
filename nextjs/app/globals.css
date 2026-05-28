@@ -238,3 +238,55 @@ a {
 .user-loc-marker * {
   pointer-events: none !important;
 }
+
+/* ===== Staging banner: shift fixed UI elements down so they aren't
+   hidden behind the banner. The StagingBanner sits at z-index 100000
+   above everything; without these offsets the legacy fixed-position
+   navbar (top:0) ends up behind it and its content (logo, burger,
+   profile icon) becomes both invisible AND unclickable. */
+:root { --staging-banner-h: 0px; }
+body[data-env="staging"] { --staging-banner-h: 32px; }
+
+body[data-env="staging"] .navbar,
+body[data-env="staging"] header[role="banner"] {
+  top: var(--staging-banner-h) !important;
+}
+
+
+/* App-pages reserves margin-top for the fixed navbar — original
+   prod value is 48px which under-reserves the actual 60px SeoNav
+   header (pre-existing 12px overlap on the search toolbar). With
+   the staging banner pushing the navbar down by 32px on top of that,
+   bump the reservation to a full 60 + banner so search and filters
+   don't sit under the header. */
+body[data-env="staging"] .app-pages {
+  margin-top: calc(60px + env(safe-area-inset-top, 0px) + var(--staging-banner-h));
+}
+
+/* Map page reserves 60px for the navbar; with the banner above it,
+   the page would overflow the viewport by --staging-banner-h. The FAB
+   (Mein Standort) is bottom-anchored inside this page, so the overflow
+   pushes it off the bottom edge. Desktop only. */
+body[data-env="staging"] .app-page[data-page="map"] {
+  height: calc(100dvh - 60px - var(--staging-banner-h)) !important;
+}
+
+/* Mobile map: navbar is transparent over the map (full-viewport canvas).
+   The staging banner is the only opaque thing on top, so the map stays
+   full-height and the search toolbar gets pushed below the banner. */
+@media (max-width: 1023.98px) {
+  body[data-env="staging"] .app-page[data-page="map"] {
+    height: 100dvh !important;
+  }
+  body[data-env="staging"] [class*="mapSearchToolbar"] {
+    top: calc(8px + var(--staging-banner-h)) !important;
+  }
+}
+
+/* Burger drawer covers the viewport at z-index 10002; the staging banner
+   at z-index 100000 sits above it and hides the drawer's close button.
+   Shift the drawer to start below the banner on staging so the X stays
+   clickable. */
+body[data-env="staging"] .burger-drawer {
+  top: var(--staging-banner-h);
+}

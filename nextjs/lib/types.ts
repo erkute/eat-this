@@ -169,6 +169,8 @@ export interface MapRestaurant {
   photoCredit?: string
   photoCreditUrl?: string
   mustEatCount: number
+  tierAnon?:   boolean
+  tierSigned?: boolean
 }
 
 export interface MapMustEat {
@@ -187,6 +189,7 @@ export interface MapMustEat {
     district?: string
     address?: string
   }
+  revealedForAnon?: boolean
 }
 
 export type MapLayer = 'restaurants' | 'mustEats'

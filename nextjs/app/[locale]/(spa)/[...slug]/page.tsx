@@ -6,6 +6,7 @@ import { localeUrl } from '@/lib/locale-url'
 import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server'
 import NewsSection from '@/app/components/NewsSection'
 import MapSection from '@/app/components/MapSection'
+import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data'
 import StaticPages from '@/app/components/StaticPages'
 
 interface PageProps {
@@ -121,7 +122,12 @@ export default async function SPACatchAllPage({ params }: PageProps) {
     const articles = await getAllNewsArticles()
     return <NewsSection articles={articles} locale={locale as 'de' | 'en'} />
   }
-  if (top === 'map') return <MapSection isActive />
+  if (top === 'map') {
+    // SSR the anon-tier set so spots are in the HTML from byte 0; signed-in
+    // users refetch /api/map-data on mount for their +20 + entitlement union.
+    const initialMapData = await getInitialAnonMapData()
+    return <MapSection isActive initialMapData={initialMapData} />
+  }
 
   if (STATIC_SLUGS.has(top)) {
     const pages = await getAllStaticPages()

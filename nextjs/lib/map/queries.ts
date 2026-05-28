@@ -32,7 +32,9 @@ export const mapRestaurantsQuery = `
     "photo": image.asset->url + "?w=600&auto=format&q=80",
     "photoCredit": image.credit,
     "photoCreditUrl": image.creditUrl,
-    "mustEatCount": count(*[_type == "mustEat" && restaurantRef._ref == ^._id])
+    "mustEatCount": count(*[_type == "mustEat" && restaurantRef._ref == ^._id]),
+    tierAnon,
+    tierSigned
   }
 `
 
@@ -42,6 +44,7 @@ export const mapMustEatsQuery = `
     dish,
     description,
     price,
+    revealedForAnon,
     "image": image.asset->url + "?w=600&auto=format&q=80",
     "restaurant": restaurantRef-> {
       _id,

@@ -8,7 +8,6 @@ import {
   useSpring,
   useTransform,
 } from 'framer-motion'
-import { useAuth } from '@/lib/auth'
 import styles from './MustEatRevealOverlay.module.css'
 
 type Phase = 'flyIn' | 'idle' | 'flipping' | 'revealed' | 'flyOut' | 'done'
@@ -113,11 +112,10 @@ export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone
     return () => window.removeEventListener('deviceorientation', onOrientation, true)
   }, [phase, pointerX, pointerY])
 
-  const { user } = useAuth()
-
-  // Phase auto-advance for non-interactive phases.
+  // Phase auto-advance for non-interactive phases. Auth-gating happens at
+  // the trigger (useMustEatDetailState.handleCardClick) so this component
+  // can assume the user is signed-in once it's mounted.
   useEffect(() => {
-    if (!user?.uid) return  // anon visitors cannot reveal — only signed-in users
     if (phase === 'flyIn') {
       const id = window.setTimeout(() => setPhase('idle'), reducedMotion ? 60 : FLY_IN_MS)
       return () => window.clearTimeout(id)

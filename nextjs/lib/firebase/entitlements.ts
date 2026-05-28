@@ -38,6 +38,8 @@ export function reduceEntitlements(docs: Entitlement[]): ResolvedEntitlements {
     } else if (data.type === 'category' && data.slug) {
       out.categorySlugs.add(data.slug)
     }
+    for (const id of data.restaurantIds) out.restaurantIds.add(id)
+    for (const id of data.mustEatIds)    out.mustEatIds.add(id)
   }
   return out
 }

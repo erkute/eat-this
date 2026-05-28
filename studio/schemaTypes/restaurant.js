@@ -66,6 +66,13 @@ export default {
       description: 'Anhaken um dieses Restaurant in den ~20 anonymen Spots zu zeigen, die jeder ohne Login auf der Map sieht. Sollte ein Restaurant mit mindestens einem Must-Eat sein.',
     },
     {
+      name: 'tierSigned',
+      title: 'Signed-Tier — sichtbar nach Login (+20)',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Anhaken um dieses Restaurant in den +20 Spots zu zeigen, die signed-in User zusätzlich zu den Anon-20 sehen. Disjunkt zu Anon-Tier — ein Spot ist entweder Anon ODER Signed.',
+    },
+    {
       name: 'cuisineType',
       title: 'Küche / Cuisine',
       type: 'string',

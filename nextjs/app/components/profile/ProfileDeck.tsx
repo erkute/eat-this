@@ -57,17 +57,10 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
     [mustEats, mapUnlockedIds],
   );
 
-  // Subtle one-time hint inviting the first tap. Shows only on the first visit
-  // that has teaser slots, then persists a localStorage flag so it never shows
-  // again. Also hidden the moment the user reveals their first card.
-  const [hintVisible, setHintVisible] = useState(false);
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (localStorage.getItem('deckRevealHintSeen') === '1') return;
-    if (teaserOrders.size === 0) return;
-    setHintVisible(true);
-    localStorage.setItem('deckRevealHintSeen', '1');
-  }, [teaserOrders]);
+  // Hint inviting a tap — visible the whole time there are still un-revealed
+  // teaser cards (the user asked for an always-present cue, not a subtle
+  // one-shot). Disappears once every teaser has been revealed.
+  const showHint = teaserOrders.size > 0;
 
   const [revealed, setRevealed] = useState<Set<number>>(() => {
     return new Set<number>(mapUnlockedByOrder.keys());
@@ -112,7 +105,6 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
     // instead of showing a "revealed" card that was never persisted.
     if (!card.restaurantId) throw new Error(`Must-eat ${card._id} has no restaurantId`);
     await unlock(card._id, card.restaurantId, card.dish);
-    setHintVisible(false);
   }, [unlock]);
 
   // Close expanded view on Escape.
@@ -130,7 +122,7 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
       <ProfileReferralCard />
       <ProfileDeckHeader unlockedCount={revealed.size} totalSlots={TOTAL_SLOTS} />
 
-      {hintVisible && (
+      {showHint && (
         <motion.p
           className={styles.revealHint}
           initial={{ y: -10 }}

@@ -288,7 +288,7 @@ export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone
           >
             <div className={flipperClass}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className={styles.faceBack} src="/pics/card-back.webp?v=4" alt="" aria-hidden="true" />
+              <img className={styles.faceBack} src="/pics/card-back.webp?v=5" alt="" aria-hidden="true" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className={styles.faceFront} src={imageUrl} alt={alt} />
             </div>

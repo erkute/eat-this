@@ -15,7 +15,7 @@ export default function NotFoundContent({ homeHref = '/' }: NotFoundContentProps
           fallback. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/pics/card-back.webp?v=4"
+        src="/pics/card-back.webp?v=5"
         alt=""
         aria-hidden="true"
         className={styles.floatCard}

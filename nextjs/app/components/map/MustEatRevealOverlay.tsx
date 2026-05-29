@@ -33,7 +33,9 @@ const FLIP_MS = 1700
 // move the card before it auto-flies to the profile icon.
 const REVEALED_MS = 900
 const FLY_OUT_MS = 600
-const CARD_ASPECT = 2163 / 1449
+// Match the freigestellt card art (1539×2115) so the contained card fills the
+// overlay box without letterbox margins — and is never cropped.
+const CARD_ASPECT = 2115 / 1539
 
 // Locates the navbar profile icon. Falls back to the viewport top-right
 // corner so the fly-out still has a target if the icon is unmounted.

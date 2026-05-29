@@ -17,6 +17,8 @@ import styles from './ProfileDeck.module.css';
 
 const TOTAL_SLOTS        = 150;
 const FLIP_DURATION_S    = 0.7;
+// The first N teaser reveals (ever) play the cinematic fly-to-centre overlay.
+const CINEMATIC_LIMIT    = 2;
 
 interface Props {
   mustEats:       MustEatAlbumCard[];
@@ -63,14 +65,16 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
   // one-shot). Disappears once every teaser has been revealed.
   const showHint = teaserOrders.size > 0;
 
-  // The very FIRST teaser reveal (ever) plays the cinematic fly-to-centre
+  // The first TWO teaser reveals (ever) play the cinematic fly-to-centre
   // overlay reused from the map's proximity reveal; subsequent reveals use the
-  // inline flip. Armed only until the first reveal, persisted via localStorage.
-  const [cinematicArmed, setCinematicArmed] = useState(false);
+  // inline flip. Count persisted via localStorage.
+  const [cinematicCount, setCinematicCount] = useState(CINEMATIC_LIMIT); // SSR-safe: assume done until storage read
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (localStorage.getItem('deckFirstRevealPlayed') !== '1') setCinematicArmed(true);
+    const n = parseInt(localStorage.getItem('deckCinematicCount') ?? '0', 10);
+    setCinematicCount(Number.isFinite(n) ? n : 0);
   }, []);
+  const cinematicArmed = cinematicCount < CINEMATIC_LIMIT;
   // The slot currently playing the cinematic (null = none). While set, that
   // slot renders a plain card-back so it doesn't duplicate the flying overlay.
   const [cinematic, setCinematic] = useState<{ card: MustEatAlbumCard; rect: DOMRect; order: number } | null>(null);
@@ -137,8 +141,11 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
   // that once the overlay clears, the slot is already a face-up FlipSlot.
   const handleCinematicReveal = useCallback((card: MustEatAlbumCard, rect: DOMRect) => {
     if (typeof card.order !== 'number') return;
-    setCinematicArmed(false);
-    if (typeof window !== 'undefined') localStorage.setItem('deckFirstRevealPlayed', '1');
+    setCinematicCount((c) => {
+      const next = c + 1;
+      if (typeof window !== 'undefined') localStorage.setItem('deckCinematicCount', String(next));
+      return next;
+    });
     setCinematic({ card, rect, order: card.order });
     void handleReveal(card).catch(() => {});
   }, [handleReveal]);

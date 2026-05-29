@@ -16,20 +16,20 @@
   line-height: 0;
   color: transparent;
 }
-/* New wordmark is wide (~2.5:1) — span generously so the footer mega stays bold. */
+/* New wordmark is wide (~2.5:1) — sized for a bold but not oversized footer mega. */
 .megaImg {
   display: block;
   margin: 0 auto;
   width: auto;
   height: auto;
-  max-width: min(82vw, 360px);
+  max-width: min(68vw, 260px);
 }
 .tagImg {
   display: block;
   margin: 10px auto 24px;
   width: auto;
   height: auto;
-  max-width: min(72vw, 300px);
+  max-width: min(60vw, 230px);
 }
 
 .tag {
@@ -151,10 +151,10 @@
     padding: 56px 32px 40px;
   }
   .megaImg {
-    max-width: 460px;
+    max-width: 340px;
   }
   .tagImg {
-    max-width: 360px;
+    max-width: 290px;
   }
 }
 
@@ -163,9 +163,9 @@
     padding: 72px 80px 48px;
   }
   .megaImg {
-    max-width: 560px;
+    max-width: 400px;
   }
   .tagImg {
-    max-width: 420px;
+    max-width: 340px;
   }
 }

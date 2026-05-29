@@ -68,13 +68,12 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
   // The first TWO teaser reveals (ever) play the cinematic fly-to-centre
   // overlay reused from the map's proximity reveal; subsequent reveals use the
   // inline flip. Count persisted via localStorage.
-  const [cinematicCount, setCinematicCount] = useState(CINEMATIC_LIMIT); // SSR-safe: assume done until storage read
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const n = parseInt(localStorage.getItem('deckCinematicCount') ?? '0', 10);
-    setCinematicCount(Number.isFinite(n) ? n : 0);
-  }, []);
-  const cinematicArmed = cinematicCount < CINEMATIC_LIMIT;
+  // Cinematic plays for the account's first reveals (while it has fewer than
+  // CINEMATIC_LIMIT unlocked must-eats). Gated on the Firestore-backed unlocked
+  // set so it's PER-ACCOUNT — a fresh account always gets it. (A localStorage
+  // counter would wrongly carry over from a previous account in the same
+  // browser, which is why a new account saw no animation.)
+  const cinematicArmed = mapUnlockedIds.size < CINEMATIC_LIMIT;
   // The slot currently playing the cinematic (null = none). While set, that
   // slot renders a plain card-back so it doesn't duplicate the flying overlay.
   const [cinematic, setCinematic] = useState<{ card: MustEatAlbumCard; rect: DOMRect; order: number } | null>(null);
@@ -141,12 +140,9 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
   // that once the overlay clears, the slot is already a face-up FlipSlot.
   const handleCinematicReveal = useCallback((card: MustEatAlbumCard, rect: DOMRect) => {
     if (typeof card.order !== 'number') return;
-    setCinematicCount((c) => {
-      const next = c + 1;
-      if (typeof window !== 'undefined') localStorage.setItem('deckCinematicCount', String(next));
-      return next;
-    });
     setCinematic({ card, rect, order: card.order });
+    // Persist now (like the map: the overlay is cosmetic). This grows
+    // mapUnlockedIds, which disarms the cinematic after CINEMATIC_LIMIT reveals.
     void handleReveal(card).catch(() => {});
   }, [handleReveal]);
 

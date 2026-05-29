@@ -70,23 +70,34 @@ export default function MagicLinkEmail({
             />
           </Section>
 
-          {/* EXPLAINER */}
-          <Text style={{ margin: '30px auto 0', maxWidth: '440px', fontSize: '15px', lineHeight: 1.65, color: C.ink, textAlign: 'center' }}>
-            Eat This ist deine curated food discovery map für Berlin — handverlesene
-            Restaurants, Cafés und Bars.
-          </Text>
-
-          {/* STARTER PACK */}
-          <Section style={{ textAlign: 'center', padding: '28px 0 0' }}>
-            <Img
-              src={`${appUrl}/pics/booster/booster_free.webp`}
-              alt="Eat This Starter Pack"
-              width="230"
-              style={{ display: 'block', margin: '0 auto', maxWidth: '58%', height: 'auto' }}
-            />
-            <Text style={{ margin: '16px auto 0', maxWidth: '420px', fontSize: '14px', lineHeight: 1.6, color: C.muted, textAlign: 'center' }}>
-              Mit dem Login kommen weitere Spots und Must Eats dazu.
-            </Text>
+          {/* PACK + VALUE — side by side, simple, recognizable */}
+          <Section style={{ padding: '32px 0 0' }}>
+            <table role="presentation" cellPadding={0} cellSpacing={0} border={0} width="100%" style={{ borderCollapse: 'collapse' }}>
+              <tbody>
+                <tr>
+                  <td width="42%" valign="middle">
+                    <Img
+                      src={`${appUrl}/pics/booster/booster_free.webp`}
+                      alt="Eat This Starter Pack"
+                      width="200"
+                      style={{ display: 'block', width: '100%', maxWidth: '200px', height: 'auto' }}
+                    />
+                  </td>
+                  <td width="58%" valign="middle" style={{ paddingLeft: '20px' }}>
+                    <Text style={{ margin: 0, fontSize: '18px', lineHeight: 1.45, fontWeight: 700, color: C.ink }}>
+                      Deine{' '}
+                      <span style={{ backgroundColor: C.yellow, padding: '1px 4px', WebkitBoxDecorationBreak: 'clone', boxDecorationBreak: 'clone' }}>
+                        curated food discovery map
+                      </span>{' '}
+                      für Berlin.
+                    </Text>
+                    <Text style={{ margin: '14px 0 0', fontSize: '14px', lineHeight: 1.55, color: C.muted }}>
+                      Mit dem Login kommen weitere Must Eats und Spots dazu.
+                    </Text>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </Section>
 
           {/* APPETITE — real spots, free on cream (hidden when none loaded) */}

@@ -94,3 +94,7 @@ Scope expanded after the user reviewed the first cut:
 ## Revision 3 — hard-edge mockup look (user)
 
 Redesigned to match `mockup-map.html` exactly: **zero rounded corners** everywhere, **2px solid black rules/borders**, cream `#FBF8EE` / black / yellow `#FFD84A` palette, **Anton** display type (Impact fallback). Black header band (yellow EAT THIS wordmark), yellow slogan band with black top/bottom rules (red tagline), **yellow sharp-rectangle CTA** (was a black pill). Starter-pack caption per [[access-wording-weitere-spots]]: "Mit dem Login kommen weitere Spots und Must Eats dazu." — no "erste", no "frei/gratis", no numbers.
+
+## Revision 4 — warm cream, free branding, readable (user reverted the hard-edge look)
+
+Hard-edge v3 was rejected. Final direction: **cream background throughout** (no black band), **logo + red tagline free-standing on cream** (no bands), **readable system sans** (Anton dropped — "shitty to read"), **no harsh borders/corners** — content sits on cream separated by thin hairline rules, photos + CTA get a gentle 6–8px radius. Yellow CTA kept (rounded, readable bold label).

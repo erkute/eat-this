@@ -26,13 +26,14 @@ function byMustEatCountDesc(
   }
 }
 
-// Anon tier: flagged set + fallback from restaurants WITH at least one
-// must-eat (spec: all anon spots have must-eats). Target ANON.
+// Anon tier: flagged set + fallback, BOTH constrained to restaurants WITH at
+// least one must-eat — every free/anon spot must carry a must-eat (so it can
+// show a revealed or teaser card). Target ANON.
 export function composeAnonRestaurants(
   all:          MapRestaurant[],
   mustEatCount: Map<string, number>,
 ): MapRestaurant[] {
-  const flagged = all.filter((r) => r.tierAnon)
+  const flagged = all.filter((r) => r.tierAnon && (mustEatCount.get(r._id) ?? 0) > 0)
   if (flagged.length >= TIER_TARGETS.ANON) {
     return flagged
   }

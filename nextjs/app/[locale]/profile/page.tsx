@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import ProfileShell from '@/app/components/profile/ProfileShell';
 import ProfileAuthGuard from '@/app/components/profile/ProfileAuthGuard';
 import { getAllMustEats, getRestaurantCount } from '@/lib/sanity.server';
+import { getCuratedRevealedMustEatIds } from '@/lib/map/revealed.server';
 
 export const metadata: Metadata = {
   title: 'Profil — EAT THIS',
@@ -17,13 +18,18 @@ interface PageProps {
 export default async function ProfileRoute({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [mustEats, restaurantCount] = await Promise.all([
+  const [mustEats, restaurantCount, curatedRevealedIds] = await Promise.all([
     getAllMustEats(),
     getRestaurantCount(),
+    getCuratedRevealedMustEatIds(),
   ]);
   return (
     <ProfileAuthGuard>
-      <ProfileShell mustEats={mustEats} restaurantCount={restaurantCount} />
+      <ProfileShell
+        mustEats={mustEats}
+        restaurantCount={restaurantCount}
+        curatedRevealedIds={curatedRevealedIds}
+      />
     </ProfileAuthGuard>
   );
 }

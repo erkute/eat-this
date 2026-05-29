@@ -16,9 +16,10 @@ import styles from './profile.module.css';
 interface Props {
   mustEats: MustEatAlbumCard[];
   restaurantCount: number;
+  curatedRevealedIds: string[];
 }
 
-export default function ProfileShell({ mustEats, restaurantCount }: Props) {
+export default function ProfileShell({ mustEats, restaurantCount, curatedRevealedIds }: Props) {
   const { user, loading } = useAuth();
   // Map-page reveals write to users/{uid}/unlockedMustEats — read them here
   // so the deck can show those cards.
@@ -59,6 +60,7 @@ export default function ProfileShell({ mustEats, restaurantCount }: Props) {
             mustEats={mustEats}
             mapUnlockedIds={mapUnlockedIds}
             unlock={unlock}
+            curatedRevealedIds={curatedRevealedIds}
           />
         )}
         {tab === 'restaurants' && <ProfileRestaurants uid={user.uid} />}

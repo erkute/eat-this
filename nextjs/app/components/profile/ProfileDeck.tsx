@@ -21,9 +21,10 @@ const FLIP_DURATION_S    = 0.7;
 const CINEMATIC_LIMIT    = 2;
 
 interface Props {
-  mustEats:       MustEatAlbumCard[];
-  mapUnlockedIds: Set<string>;
-  unlock:         (mustEatId: string, restaurantId: string, dish: string) => Promise<void>;
+  mustEats:           MustEatAlbumCard[];
+  mapUnlockedIds:     Set<string>;
+  unlock:             (mustEatId: string, restaurantId: string, dish: string) => Promise<void>;
+  curatedRevealedIds: string[];
 }
 
 interface ExpandedState {
@@ -32,7 +33,7 @@ interface ExpandedState {
   order: number;
 }
 
-export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props) {
+export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock, curatedRevealedIds }: Props) {
   // Map-page reveals (`users/{uid}/unlockedMustEats/*`) — show face-up in
   // the album immediately, no further reveal step needed.
   const mapUnlockedByOrder = useMemo(() => {
@@ -54,10 +55,12 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
     return map;
   }, [mustEats]);
 
-  // Slot orders that should render as tappable teaser cards.
+  // Slot orders that should render as tappable teaser cards. Gated on the
+  // server-curated revealed set so the deck teasers match the map exactly.
+  const curatedSet = useMemo(() => new Set(curatedRevealedIds), [curatedRevealedIds]);
   const teaserOrders = useMemo(
-    () => selectTeaserOrders(mustEats, mapUnlockedIds),
-    [mustEats, mapUnlockedIds],
+    () => selectTeaserOrders(mustEats, mapUnlockedIds, curatedSet),
+    [mustEats, mapUnlockedIds, curatedSet],
   );
 
   // Hint inviting a tap — visible the whole time there are still un-revealed

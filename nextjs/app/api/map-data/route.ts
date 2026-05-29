@@ -62,12 +62,12 @@ export async function GET(req: Request) {
   const anonSet  = composeAnonRestaurants(all, mustEatCountByRestaurant)
   const anonIds  = new Set(anonSet.map((r) => r._id))
 
-  // revealedMustEatIds is only useful for anon visitors — signed-in clients
-  // resolve "open" status from their own users/{uid}/unlockedMustEats Firestore
-  // collection (geofence reveals) + the static revealedForAnon set client-side.
-  const revealedMustEatIds = uid
-    ? []
-    : Array.from(composeRevealedMustEats(allMustEats, anonIds))
+  // The curated revealed set — returned for BOTH anon and signed users so the
+  // map and the profile deck reveal the SAME must-eats. (Signed users used to
+  // get [] here, with a client-side revealedForAnon fallback that was never
+  // built — that was the map↔deck discrepancy.) The set is always on anon-tier
+  // restaurants, so every revealed must-eat's spot is a visible spot.
+  const revealedMustEatIds = Array.from(composeRevealedMustEats(allMustEats, anonIds))
 
   let visibleRestaurants: typeof all
   if (!uid) {

@@ -21,6 +21,11 @@ interface Props {
   // (map behaviour). The profile deck passes the tapped slot so the card flies
   // back to its place instead.
   flyOutTarget?: { cx: number; cy: number; size: number }
+  // When true (deck "return to slot"), the card lands fully opaque at the
+  // target's exact size (no fade, no shrink-past) so the caller can reveal an
+  // identical card underneath for a seamless hand-off. Default false = map
+  // behaviour (shrink toward the profile icon + fade out).
+  landOpaque?: boolean
 }
 
 // Total choreography ~4 s end-to-end. Sum of all phase durations below.
@@ -48,7 +53,7 @@ function locateProfileTarget(): { cx: number; cy: number; size: number } {
   return { cx: window.innerWidth - 28, cy: 28, size: 24 }
 }
 
-export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone, flyOutTarget }: Props) {
+export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone, flyOutTarget, landOpaque }: Props) {
   const [mounted, setMounted] = useState(false)
   const [phase, setPhase] = useState<Phase>('flyIn')
   const [target, setTarget] = useState<{ cx: number; cy: number; size: number } | null>(null)
@@ -92,6 +97,14 @@ export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone
   // follows pointer/gyro from there.
   useEffect(() => {
     if (phase !== 'revealed') return
+    pointerX.set(0)
+    pointerY.set(0)
+  }, [phase, pointerX, pointerY])
+
+  // Reset tilt as the card flies back so it lands flat — matches the static
+  // slot card the deck reveals underneath for a seamless hand-off.
+  useEffect(() => {
+    if (phase !== 'flyOut') return
     pointerX.set(0)
     pointerY.set(0)
   }, [phase, pointerX, pointerY])
@@ -195,11 +208,21 @@ export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone
     const t = target ?? flyOutTarget ?? locateProfileTarget()
     cx = t.cx
     cy = t.cy
-    // Shrink toward the icon while staying large enough to read until the
-    // last frame so the user can track where the card lands.
-    w = Math.max(28, t.size * 0.9)
-    h = w * CARD_ASPECT
-    opacity = 0
+    if (landOpaque) {
+      // Return to the origin slot: the flipper holds its 1.4 dwell-zoom, so
+      // size the wrap to t.size / 1.4 → the VISIBLE card lands at the slot's
+      // exact size. Stay fully opaque; the caller reveals an identical card
+      // underneath in the same frame, so removing the overlay is seamless.
+      w = t.size / 1.4
+      h = w * CARD_ASPECT
+      opacity = 1
+    } else {
+      // Shrink toward the icon while staying large enough to read until the
+      // last frame so the user can track where the card lands.
+      w = Math.max(28, t.size * 0.9)
+      h = w * CARD_ASPECT
+      opacity = 0
+    }
   }
 
   const flipperClass =

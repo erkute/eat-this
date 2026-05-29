@@ -250,6 +250,7 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
           alt={cinematic.card.dish}
           originRect={cinematic.rect}
           flyOutTarget={cinematicTarget}
+          landOpaque
           onDone={() => setCinematic(null)}
         />
       )}

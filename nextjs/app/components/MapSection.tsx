@@ -95,6 +95,16 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     })
   }, [uid, refetchMapData])
 
+  // Live-refetch when a referral bonus lands — covers both the inviter
+  // (friend just signed up) and the friend (their welcome bonus was written).
+  useEffect(() => {
+    if (!uid) return
+    const ref = collection(db, 'users', uid, 'referralBonuses')
+    return onSnapshot(ref, () => {
+      refetchMapData()
+    })
+  }, [uid, refetchMapData])
+
   const [layer, setLayer] = useState<MapLayer>('restaurants')
 
   const {

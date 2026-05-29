@@ -72,11 +72,11 @@ describe('buildFAQEntries', () => {
   it('emits five entries when all source fields are present', () => {
     const entries = buildFAQEntries(makeRestaurant(), 'de')
     expect(entries.map(e => e.question)).toEqual([
+      'Wo finde ich 893 Ryōtei?',
       'Wann hat 893 Ryōtei geöffnet?',
-      'Wo befindet sich 893 Ryōtei?',
-      'Welche Küche bietet 893 Ryōtei?',
-      'Was kostet ein Essen bei 893 Ryōtei?',
-      'Kann man bei 893 Ryōtei reservieren?',
+      'Sollte ich bei 893 Ryōtei reservieren?',
+      'Was zahlt man bei 893 Ryōtei?',
+      'Wofür steht 893 Ryōtei kulinarisch?',
     ])
   })
 
@@ -86,22 +86,22 @@ describe('buildFAQEntries', () => {
       'de',
     )
     expect(entries.map(e => e.question)).toEqual([
-      'Wo befindet sich 893 Ryōtei?',
-      'Welche Küche bietet 893 Ryōtei?',
+      'Wo finde ich 893 Ryōtei?',
+      'Wofür steht 893 Ryōtei kulinarisch?',
     ])
   })
 
   it('interpolates unique answer content per restaurant', () => {
     const a = buildFAQEntries(makeRestaurant({ name: 'A', address: 'Foostr. 1' }), 'de')
     const b = buildFAQEntries(makeRestaurant({ name: 'B', address: 'Barstr. 2' }), 'de')
-    expect(a[1].answer).toContain('Foostr. 1')
-    expect(b[1].answer).toContain('Barstr. 2')
-    expect(a[1].answer).not.toEqual(b[1].answer)
+    expect(a[0].answer).toContain('Foostr. 1')
+    expect(b[0].answer).toContain('Barstr. 2')
+    expect(a[0].answer).not.toEqual(b[0].answer)
   })
 
   it('renders EN copy when locale is en', () => {
     const entries = buildFAQEntries(makeRestaurant(), 'en')
-    expect(entries[0].question).toBe('When is 893 Ryōtei open?')
-    expect(entries[0].answer).toBe('893 Ryōtei is open Tue-Sat 18:00-23:00.')
+    expect(entries[0].question).toBe('Where do I find 893 Ryōtei?')
+    expect(entries[0].answer).toBe('893 Ryōtei is in Charlottenburg, Kantstraße 135, 10623 Berlin.')
   })
 })

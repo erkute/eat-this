@@ -41,11 +41,11 @@ export default function ProfileReferralCard() {
 
   return (
     <div className={styles.card}>
-      <h3 className={styles.title}>{en ? 'Invite a friend' : 'Lad jemanden ein'}</h3>
+      <h3 className={styles.title}>{en ? 'More spots for both of you' : 'Mehr Spots für euch beide'}</h3>
       <p className={styles.sub}>
         {en
-          ? 'Share your link — you both unlock more spots.'
-          : 'Teil deinen Link — ihr schaltet beide mehr Spots frei.'}
+          ? 'Share your link. When someone starts Eat This through you, you both unlock fresh spots and Must Eats on your map.'
+          : 'Teil deinen Link. Sobald jemand über dich bei Eat This startet, schaltet ihr beide neue Spots und Must Eats auf eurer Map frei.'}
       </p>
       <button type="button" className={styles.btn} onClick={onShare}>
         {en ? 'Share invite' : 'Einladung teilen'}

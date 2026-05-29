@@ -172,7 +172,7 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
           animate={{ y: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         >
-          Tipp die wackelnden Karten an.
+          Tipp die wackelnden Karten an und deck deine Must Eats auf.
         </motion.p>
       )}
 
@@ -185,7 +185,10 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
           // card. Once the overlay clears, the already-persisted unlock turns
           // this slot into a face-up FlipSlot.
           if (cinematic && cinematic.order === order) {
-            return <BackSlot key={order} />;
+            // Empty slot while the cinematic plays — the card has "lifted out"
+            // of its place and is flying in the overlay; it flies back into
+            // this empty space when the animation finishes.
+            return <div key={order} className={styles.slot} />;
           }
           // Treat a card already in mapUnlockedIds as revealed THIS render —
           // not only after the `revealed`-set effect runs post-paint. Without

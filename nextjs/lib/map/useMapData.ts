@@ -37,10 +37,10 @@ interface MapData {
 }
 
 // Per-uid localStorage cache of the signed-in map payload. SSR can only render
-// the anonymous view (auth is client-side), so without this a returning signed-in
-// user sees the anon count first (e.g. 20) and it pops to their real tier (40)
-// once the authenticated /api/map-data refetch lands. Seeding the first paint
-// from cache removes that pop; the live fetch still reconciles + refreshes it.
+// the anonymous view (auth is client-side), so without this a signed-in user
+// sees the anon count first (e.g. 20) and it pops to their real tier (40) once
+// the authenticated /api/map-data refetch lands. Seeding first paint from cache
+// removes that pop; the live fetch still reconciles + refreshes it.
 interface CachedMapData {
   restaurants: MapRestaurant[]
   lockedRestaurants: MapRestaurant[]
@@ -50,6 +50,7 @@ interface CachedMapData {
   revealedMustEatIds: string[]
 }
 const CACHE_KEY = (uid: string) => `eatthis_mapdata_${uid}`
+const LAST_UID_KEY = 'eatthis_last_uid'
 
 function readMapCache(uid: string | null): CachedMapData | null {
   if (!uid || typeof window === 'undefined') return null
@@ -64,14 +65,34 @@ function readMapCache(uid: string | null): CachedMapData | null {
 
 function writeMapCache(uid: string, data: CachedMapData) {
   if (typeof window === 'undefined') return
-  try { window.localStorage.setItem(CACHE_KEY(uid), JSON.stringify(data)) } catch {}
+  try {
+    window.localStorage.setItem(CACHE_KEY(uid), JSON.stringify(data))
+    window.localStorage.setItem(LAST_UID_KEY, uid)
+  } catch {}
+}
+
+// On a hard reload the uid isn't known synchronously (Firebase auth resolves
+// async). The CRITICAL_BOOTSTRAP writes `_authHint` ({n}) while signed in, and
+// we remember the last signed-in uid — together they let us seed the signed-in
+// tier on first paint, before auth resolves, so a reload doesn't pop 20→40.
+function seedUidBeforeAuth(): string | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const hint = JSON.parse(window.localStorage.getItem('_authHint') || 'null')
+    if (!hint || !hint.n) return null
+    return window.localStorage.getItem(LAST_UID_KEY)
+  } catch { return null }
 }
 
 export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs): MapData {
-  // Returning signed-in users seed from their cached tier; anon (or first-ever)
-  // falls back to the SSR anon view.
-  const seed = readMapCache(uid)
-  const base = seed ?? initialMapData
+  // Compute the first-paint base ONCE. Prefer the signed-in cache (current uid,
+  // or the last signed-in uid when an auth hint says we're logged in but auth
+  // hasn't resolved yet); fall back to the SSR anon view.
+  const [{ base, fromCache }] = useState<{ base: CachedMapData | InitialMapData | undefined; fromCache: boolean }>(() => {
+    const sUid = uid ?? seedUidBeforeAuth()
+    const cached = readMapCache(sUid)
+    return { base: cached ?? initialMapData, fromCache: !!cached }
+  })
 
   const [restaurants,         setRestaurants]         = useState<MapRestaurant[]>(base?.restaurants ?? [])
   const [lockedRestaurants,   setLockedRestaurants]   = useState<MapRestaurant[]>(base?.lockedRestaurants ?? [])
@@ -93,12 +114,11 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
   // changes mid-request (e.g. sign-out during a fetch).
   const latestReqRef = useRef(0)
 
-  // Anon-with-SSR mount-skip: if we hydrated with initialMapData AND the
-  // user is anonymous (uid === null), the data we already have IS the correct
-  // anon view. Skip the initial fetch to avoid a redundant network round-trip.
-  // Manual refetch (tick > 0) and login (uid changes) still trigger via the
-  // same effect — this only short-circuits the very first run.
-  const skipInitialAnonFetchRef = useRef(!!initialMapData && !seed)
+  // Anon-with-SSR mount-skip: if we hydrated with the SSR anon view (not a
+  // signed-in cache) AND the user is anonymous, the data we already have IS the
+  // correct anon view — skip the redundant initial fetch. When we seeded from
+  // a signed-in cache, never skip: the authenticated refetch must still run.
+  const skipInitialAnonFetchRef = useRef(!!initialMapData && !fromCache)
 
   useEffect(() => {
     // Pause while auth is still resolving — we don't want to issue an
@@ -127,7 +147,7 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
         if (!r.ok) throw new Error(`HTTP ${r.status}`)
         const json = await r.json()
         if (latestReqRef.current !== reqId) return  // stale — newer fetch in flight
-        const next = {
+        const next: CachedMapData = {
           restaurants:       json.restaurants ?? [],
           lockedRestaurants: json.lockedRestaurants ?? [],
           mustEats:          json.mustEats ?? [],
@@ -141,7 +161,7 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
         setCategories(next.categories)
         setTotalCount(next.totalCount)
         setRevealedMustEatIds(new Set<string>(next.revealedMustEatIds))
-        // Cache the signed-in payload so the next visit paints this tier instantly.
+        // Cache the signed-in payload so the next visit / reload paints this tier instantly.
         if (uid) writeMapCache(uid, next)
       } catch (e) {
         if (latestReqRef.current !== reqId) return

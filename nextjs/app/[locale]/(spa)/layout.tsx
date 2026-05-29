@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { hasLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import { AuthProvider, LoginModalProvider } from '@/lib/auth'
-import SeoNav from '@/app/components/SeoNav'
+import SiteNav from '@/app/components/SiteNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
 import NotificationToast from '@/app/components/NotificationToast'
 import SearchOverlay from '@/app/components/SearchOverlay'
@@ -66,7 +66,7 @@ export default async function SPALayout({
       <AuthProvider>
         <LoginModalProvider>
           <BridgeAuth />
-          <SeoNav />
+          <SiteNav />
           <BurgerDrawer />
           <NotificationToast />
           <div className="app-pages" id="appPages">

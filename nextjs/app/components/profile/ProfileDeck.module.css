@@ -43,7 +43,12 @@
 
 .slot {
   position: relative;
-  aspect-ratio: 1449 / 2163;
+  /* Match the card artwork ratio (dish cards + card-back are full 1539×2115
+     trading-card images) so the cards FILL the slot edge-to-edge. The old
+     1449/2163 ratio letterboxed every card, leaving a gap that exposed each
+     card's own dark bottom border as a floating line and made a flipped dish
+     card read as a different size than the covered card-back. */
+  aspect-ratio: 1539 / 2115;
   /* Per-slot 3D camera so each flipper has its own context. Critical:
      keep this OFF .albumGrid (see comment above). */
   perspective: 1400px;
@@ -64,19 +69,18 @@
   cursor: pointer;
 }
 
-/* Idle-shake: a brief subtle wobble every few seconds (most of the cycle is
- * still) to invite a tap without nagging. Lives on .slot (not .flipper) so it
- * never conflicts with the flipper's rotateY flip animation. */
+/* Idle-shake: a continuous subtle wobble that runs the whole time, inviting a
+ * tap. Lives on .slot (not .flipper) so it never conflicts with the flipper's
+ * rotateY flip animation. */
 @keyframes idleShake {
-  0%, 86%, 100% { transform: translate(0, 0) rotate(0deg); }
-  88%            { transform: translate(-2px, 0) rotate(-1.2deg); }
-  91%            { transform: translate(2px, 0) rotate(1.2deg); }
-  94%            { transform: translate(-1.5px, 0) rotate(-0.8deg); }
-  97%            { transform: translate(1px, 0) rotate(0.5deg); }
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25%       { transform: translate(-1.5px, 0) rotate(-1.1deg); }
+  50%       { transform: translate(0, 0) rotate(0deg); }
+  75%       { transform: translate(1.5px, 0) rotate(1.1deg); }
 }
 
 .slotIdleShake {
-  animation: idleShake 3.4s ease-in-out infinite;
+  animation: idleShake 0.5s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -129,7 +133,11 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  /* cover (not contain) so the card art fills the slot with no letterbox gap.
+     The slot ratio matches the 1539×2115 dish cards exactly, so they're not
+     cropped; the card-back (slightly wider ratio) loses ~2% off its yellow
+     border, which is imperceptible. */
+  object-fit: cover;
   display: block;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;

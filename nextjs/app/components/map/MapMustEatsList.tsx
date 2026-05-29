@@ -103,7 +103,7 @@ function MustEatRows({
         <div className={styles.rrowCoral}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={isUnlocked && m.image ? m.image : '/pics/card-back.webp'}
+            src={isUnlocked && m.image ? m.image : '/pics/card-back.webp?v=4'}
             alt=""
             className={styles.musteatRowBack}
             aria-hidden="true"

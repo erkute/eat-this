@@ -111,27 +111,27 @@ export default function MagicLinkEmail({
             maxWidth: '600px',
           }}
         >
-          {/* BRAND — wordmark + red handwritten slogan */}
+          {/* BRAND — wordmark + handwritten slogan */}
           <Section style={{ textAlign: 'center', padding: '0 0 22px' }}>
             <Img
-              src={`${appUrl}/pics/eat-this-logo.webp`}
+              src={`${appUrl}/pics/eat-this-logo.webp?v=3`}
               alt="Eat This"
-              width="132"
+              width="220"
               style={{
                 display:  'block',
-                margin:   '0 auto 16px',
-                maxWidth: '42%',
+                margin:   '0 auto 14px',
+                maxWidth: '62%',
                 height:   'auto',
               }}
             />
             <Img
-              src={`${appUrl}/pics/launch-tagline.webp`}
+              src={`${appUrl}/pics/slogan.webp?v=3`}
               alt="We tell you what to eat."
               width="300"
               style={{
                 display:  'block',
                 margin:   '0 auto',
-                maxWidth: '80%',
+                maxWidth: '78%',
                 height:   'auto',
               }}
             />

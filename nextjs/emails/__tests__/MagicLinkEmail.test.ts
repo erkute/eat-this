@@ -25,7 +25,7 @@ describe('MagicLinkEmail', () => {
   it('renders the new brand assets, link and CTA', async () => {
     const html = await render(MagicLinkEmail(props))
     expect(html).toContain('/pics/eat-this-logo.webp')
-    expect(html).toContain('/pics/launch-tagline.webp')
+    expect(html).toContain('/pics/slogan.webp')
     expect(html).toContain('/pics/booster/booster_free.webp')
     expect(html).toContain('https://x/verify?abc=1')
     expect(html).toContain('Anmelden')
@@ -45,11 +45,9 @@ describe('MagicLinkEmail', () => {
     expect(html).toContain('b.png?w=400&amp;auto=format')
   })
 
-  it('drops the retired black slogan + promo image', async () => {
+  it('drops the retired promo image', async () => {
     const html = await render(MagicLinkEmail(props))
-    for (const s of ['/pics/slogan.webp', '/pics/map-promo.webp']) {
-      expect(html).not.toContain(s)
-    }
+    expect(html).not.toContain('/pics/map-promo.webp')
   })
 
   it('drops all retired onboarding-script content', async () => {

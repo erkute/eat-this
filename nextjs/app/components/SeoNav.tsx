@@ -26,7 +26,7 @@ export default function SeoNav() {
     <header className={styles.hdr} role="banner">
       <Link href="/map" className={styles.logo} aria-label="Eat This — Start">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/pics/eat-this-logo.webp" alt="Eat This" className={styles.logoImg} />
+        <img src="/pics/eat-this-logo.webp?v=3" alt="Eat This" className={styles.logoImg} />
       </Link>
 
       {/* Profile + menu grouped on the right. */}

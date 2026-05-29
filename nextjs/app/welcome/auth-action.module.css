@@ -34,7 +34,7 @@
 }
 
 .logoMark {
-  width: min(36vw, 120px);
+  width: min(56vw, 200px);
   height: auto;
   user-select: none;
   -webkit-user-drag: none;
@@ -154,7 +154,7 @@
 }
 
 .splashLogo {
-  width: min(52vw, 196px);
+  width: min(74vw, 300px);
   height: auto;
   user-select: none;
   -webkit-user-drag: none;

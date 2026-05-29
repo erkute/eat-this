@@ -14,10 +14,10 @@ export default function SiteFooter() {
       <h2 className={styles.mega} aria-label="Eat This">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/pics/eat-this-logo.webp"
+          src="/pics/eat-this-logo.webp?v=3"
           alt="Eat This"
-          width="1035"
-          height="975"
+          width="1660"
+          height="667"
           loading="lazy"
           decoding="async"
           className={styles.megaImg}
@@ -25,10 +25,10 @@ export default function SiteFooter() {
       </h2>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/pics/launch-tagline.webp"
+        src="/pics/slogan.webp?v=3"
         alt="we tell you what to eat."
-        width="1579"
-        height="285"
+        width="1029"
+        height="145"
         loading="lazy"
         decoding="async"
         className={styles.tagImg}

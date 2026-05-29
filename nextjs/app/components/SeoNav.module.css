@@ -5,7 +5,9 @@
   right: 0;
   z-index: 100;
   display: grid;
-  grid-template-columns: 44px 1fr 44px;
+  /* Empty left · centred logo · right action cluster. Both side columns are
+     1fr so the logo stays optically centred regardless of the cluster width. */
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 12px;
   padding: 8px 16px;
@@ -14,12 +16,22 @@
 }
 
 .logo {
+  grid-column: 2;
   justify-self: center;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
   line-height: 0;
+}
+
+/* Profile + burger, grouped at the right edge. */
+.actions {
+  grid-column: 3;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 .logoImg {
   display: block;

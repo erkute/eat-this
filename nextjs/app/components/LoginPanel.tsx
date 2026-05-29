@@ -24,10 +24,13 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
   const [email, setEmail]           = useState('');
   const [googleBusy, setGoogleBusy] = useState(false);
 
+  // Redirect to /profile after sign-in on the standalone /login page. In the
+  // modal, BridgeAuth owns this redirect (it controls the modal lifecycle), so
+  // skip it here to avoid a double-navigation.
   useEffect(() => {
-    if (loading || !user) return;
+    if (loading || !user || modal) return;
     void postLoginRedirect(user.uid, router, locale);
-  }, [user, loading, router, locale]);
+  }, [user, loading, modal, router, locale]);
 
   const handleGoogle = useCallback(async () => {
     setGoogleBusy(true);

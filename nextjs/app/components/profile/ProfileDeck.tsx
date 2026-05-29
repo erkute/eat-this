@@ -9,6 +9,7 @@ import {
   useTransform,
 } from 'framer-motion';
 import type { MustEatAlbumCard } from '@/lib/types';
+import { selectTeaserOrders } from '@/lib/profile/teasers';
 import ProfileDeckHeader from './ProfileDeckHeader';
 import ProfileReferralCard from './ProfileReferralCard';
 import styles from './ProfileDeck.module.css';
@@ -19,6 +20,7 @@ const FLIP_DURATION_S    = 0.7;
 interface Props {
   mustEats:       MustEatAlbumCard[];
   mapUnlockedIds: Set<string>;
+  unlock:         (mustEatId: string, restaurantId: string, dish: string) => Promise<void>;
 }
 
 interface ExpandedState {
@@ -27,7 +29,7 @@ interface ExpandedState {
   order: number;
 }
 
-export default function ProfileDeck({ mustEats, mapUnlockedIds }: Props) {
+export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props) {
   // Map-page reveals (`users/{uid}/unlockedMustEats/*`) — show face-up in
   // the album immediately, no further reveal step needed.
   const mapUnlockedByOrder = useMemo(() => {
@@ -38,6 +40,22 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds }: Props) {
     }
     return map;
   }, [mapUnlockedIds, mustEats]);
+
+  // Every card keyed by its grid slot — superset of mapUnlockedByOrder, used
+  // to render teaser slots (which are NOT yet unlocked) at their slot.
+  const cardByOrder = useMemo(() => {
+    const map = new Map<number, MustEatAlbumCard>();
+    for (const c of mustEats) {
+      if (typeof c.order === 'number') map.set(c.order, c);
+    }
+    return map;
+  }, [mustEats]);
+
+  // Slot orders that should render as tappable teaser cards.
+  const teaserOrders = useMemo(
+    () => selectTeaserOrders(mustEats, mapUnlockedIds),
+    [mustEats, mapUnlockedIds],
+  );
 
   const [revealed, setRevealed] = useState<Set<number>>(() => {
     return new Set<number>(mapUnlockedByOrder.keys());
@@ -72,6 +90,15 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds }: Props) {
     setTimeout(() => setHiddenSlotOrder(null), 220);
   }, []);
 
+  // Teaser tap → persist the unlock. The hook updates mapUnlockedIds, which
+  // recomputes mapUnlockedByOrder, and the effect above promotes the order
+  // into `revealed` — so the slot re-renders as a face-up FlipSlot. We let
+  // the promise reject on failure so the TeaserSlot can roll its flip back.
+  const handleReveal = useCallback(async (card: MustEatAlbumCard) => {
+    if (!card.restaurantId) return;
+    await unlock(card._id, card.restaurantId, card.dish);
+  }, [unlock]);
+
   // Close expanded view on Escape.
   useEffect(() => {
     if (!expanded) return;
@@ -90,7 +117,7 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds }: Props) {
       <div className={styles.albumGrid}>
         {Array.from({ length: TOTAL_SLOTS }, (_, i) => {
           const order = i + 1;
-          const card  = mapUnlockedByOrder.get(order);
+          const card  = cardByOrder.get(order);
           const isRevealed = revealed.has(order);
 
           if (card && isRevealed) {
@@ -105,6 +132,16 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds }: Props) {
                   setHiddenSlotOrder(order);
                   setExpanded({ card, rect, order });
                 }}
+              />
+            );
+          }
+          if (card && teaserOrders.has(order)) {
+            return (
+              <TeaserSlot
+                key={order}
+                order={order}
+                card={card}
+                onReveal={handleReveal}
               />
             );
           }
@@ -342,17 +379,73 @@ function FlipSlot({ order, card, flipped, hideCardFace, onExpand }: FlipSlotProp
   );
 }
 
-function BackSlot() {
-  const [shaking, setShaking] = useState(false);
+interface TeaserSlotProps {
+  order:    number;
+  card:     MustEatAlbumCard;
+  onReveal: (card: MustEatAlbumCard) => Promise<void>;
+}
+
+// Sanity-flagged teaser: idle-shakes to invite a tap, then flips face-up and
+// persists the unlock. On reveal success the parent re-renders this slot as a
+// FlipSlot (already flipped, same image — seamless). On failure we flip back.
+function TeaserSlot({ order, card, onReveal }: TeaserSlotProps) {
+  const [flipped, setFlipped] = useState(false);
+  const [busy,    setBusy]    = useState(false);
+
+  const reveal = async () => {
+    if (busy || flipped) return;
+    setBusy(true);
+    setFlipped(true);            // optimistic flip
+    try {
+      await onReveal(card);
+    } catch {
+      setFlipped(false);         // rollback — unlock failed
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div
-      className={`${styles.slot} ${styles.slotBack}${shaking ? ` ${styles.slotShake}` : ''}`}
+      className={`${styles.slot} ${styles.slotTeaser}${flipped ? '' : ` ${styles.slotIdleShake}`}`}
+      data-order={order}
       role="button"
       tabIndex={0}
-      onClick={() => setShaking(true)}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setShaking(true); }}
-      onAnimationEnd={() => setShaking(false)}
+      aria-label={`Karte aufdecken: ${card.dish}`}
+      onClick={reveal}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); reveal(); }
+      }}
     >
+      <motion.div
+        className={styles.flipper}
+        initial={false}
+        animate={{ rotateY: flipped ? 180 : 0 }}
+        transition={{ duration: FLIP_DURATION_S, ease: [0.4, 0.0, 0.2, 1] }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/pics/card-back.webp"
+          alt=""
+          className={`${styles.face} ${styles.faceBack}`}
+          loading="lazy"
+          aria-hidden="true"
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={card.imageUrl}
+          alt={card.dish}
+          className={`${styles.face} ${styles.faceFront}`}
+          loading="lazy"
+        />
+      </motion.div>
+    </div>
+  );
+}
+
+function BackSlot() {
+  return (
+    <div className={`${styles.slot} ${styles.slotBack}`}>
       <div className={styles.flipper}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

@@ -59,9 +59,9 @@ export default async function SPALayout({
       <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
 
       <link rel="manifest" href="/manifest.json" />
-      <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-      <link rel="icon" type="image/png" sizes="192x192" href="/pics/favicon-192.png" />
-      <link rel="apple-touch-icon" sizes="192x192" href="/pics/favicon-192.png" />
+      <link rel="icon" type="image/x-icon" href="/favicon.ico?v=3" />
+      <link rel="icon" type="image/png" sizes="192x192" href="/pics/favicon-192.png?v=3" />
+      <link rel="apple-touch-icon" sizes="192x192" href="/pics/favicon-192.png?v=3" />
 
       <AuthProvider>
         <LoginModalProvider>

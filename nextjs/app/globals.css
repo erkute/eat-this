@@ -209,7 +209,11 @@ a {
    (See memory feedback_ios_overlay_pattern.md.) */
 .app-page[data-page="map"] {
   padding-bottom: 0 !important;
-  height: calc(100dvh - 60px) !important;
+  /* Subtract the navbar height — must match `.app-pages` margin-top (48px in
+     prod, set in style.css). It used to be 60px (the old SeoNav header); after
+     the header was unified to the 48px SiteNav, the stale 60px left a 12px
+     white strip of body background below the map on desktop. */
+  height: calc(100dvh - 48px) !important;
 }
 
 /* Mobile: the navbar goes transparent over the map (see style.css

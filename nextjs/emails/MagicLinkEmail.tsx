@@ -39,6 +39,8 @@ export interface MagicLinkEmailProps {
   appUrl: string;
   /** Up to four curated restaurants to tease inside the email. */
   restaurants?: EmailSpot[];
+  /** True when the email already has an account — drops the first-time starter-pack framing. */
+  returning?: boolean;
 }
 
 const PALETTE = {
@@ -74,15 +76,23 @@ export default function MagicLinkEmail({
   magicLink,
   appUrl,
   restaurants = [],
+  returning = false,
 }: MagicLinkEmailProps) {
   const spots = restaurants.slice(0, 4);
+
+  // First-time signup pitches the product; a returning login just greets back.
+  const headlineLine1 = returning ? 'Willkommen' : 'Deine kuratierte';
+  const headlineLine2 = returning ? 'zurück.' : 'Food Discovery Map';
+  const preview = returning
+    ? 'Willkommen zurück bei Eat This — tipp drauf, du bist drin.'
+    : 'Dein Login-Link für Eat This — tipp drauf, du bist drin.';
 
   return (
     <Html lang="de">
       <Head>
         <style>{`@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');`}</style>
       </Head>
-      <Preview>Dein Login-Link für Eat This — tipp drauf, du bist drin.</Preview>
+      <Preview>{preview}</Preview>
 
       <Body
         style={{
@@ -142,7 +152,7 @@ export default function MagicLinkEmail({
                 color:         PALETTE.ink,
               }}
             >
-              Deine kuratierte
+              {headlineLine1}
             </Heading>
             {/* Second line carries the yellow brand highlight */}
             <table
@@ -174,7 +184,7 @@ export default function MagicLinkEmail({
                         color:         PALETTE.ink,
                       }}
                     >
-                      Food Discovery Map
+                      {headlineLine2}
                     </span>
                   </td>
                 </tr>
@@ -347,32 +357,34 @@ export default function MagicLinkEmail({
             </Section>
           )}
 
-          {/* HERO — starter pack, dead centered */}
-          <Section style={{ textAlign: 'center', padding: '30px 0 4px' }}>
-            <Text
-              style={{
-                margin:        '0 0 18px',
-                fontSize:      '12px',
-                fontWeight:    700,
-                letterSpacing: '0.16em',
-                textTransform: 'uppercase',
-                color:         PALETTE.muted,
-              }}
-            >
-              Dein Starter Pack
-            </Text>
-            <Img
-              src={`${appUrl}/pics/booster/booster_free.webp`}
-              alt="Dein Eat This Starter Pack — 20 Must Eats"
-              width="216"
-              style={{
-                display:  'block',
-                margin:   '0 auto',
-                maxWidth: '58%',
-                height:   'auto',
-              }}
-            />
-          </Section>
+          {/* HERO — starter pack, first-time signups only */}
+          {!returning && (
+            <Section style={{ textAlign: 'center', padding: '30px 0 4px' }}>
+              <Text
+                style={{
+                  margin:        '0 0 18px',
+                  fontSize:      '12px',
+                  fontWeight:    700,
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  color:         PALETTE.muted,
+                }}
+              >
+                Dein Starter Pack
+              </Text>
+              <Img
+                src={`${appUrl}/pics/booster/booster_free.webp`}
+                alt="Dein Eat This Starter Pack — 20 Must Eats"
+                width="216"
+                style={{
+                  display:  'block',
+                  margin:   '0 auto',
+                  maxWidth: '58%',
+                  height:   'auto',
+                }}
+              />
+            </Section>
+          )}
 
           {/* FOOTER */}
           <Section style={{ padding: '28px 16px 0', textAlign: 'center' }}>

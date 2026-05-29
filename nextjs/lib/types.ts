@@ -103,6 +103,8 @@ export interface MustEatAlbumCard {
   price?: string
   imageUrl: string
   restaurantSlug?: string
+  restaurantId?: string
+  revealedForAnon?: boolean
   order?: number
 }
 

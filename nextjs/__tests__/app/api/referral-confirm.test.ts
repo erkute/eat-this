@@ -189,4 +189,26 @@ describe('/api/referral/confirm', () => {
     // friendPool must contain only the one remainder spot
     expect(friendDoc.restaurantIds).toEqual(['z-plain'])
   })
+
+  it('self-referral by email (different uid, same email) → no write, clears cookie', async () => {
+    primeHappyPath()
+    mockGetUser.mockImplementation(async () => ({
+      email: 'same@x.com',
+      metadata: { creationTime: new Date().toISOString() },
+    }))
+    const res = await POST(mkReq(INVITER))
+    expect(mockBatchSet).not.toHaveBeenCalled()
+    expect(res.cookies.get('pending_referrer')?.value).toBe('')
+  })
+
+  it('inviter deleted (getUser throws for inviter) → no write, clears cookie', async () => {
+    primeHappyPath()
+    mockGetUser.mockImplementation(async (uid: string) => {
+      if (uid === INVITER) throw new Error('user not found')
+      return { email: 'friend@x.com', metadata: { creationTime: new Date().toISOString() } }
+    })
+    const res = await POST(mkReq(INVITER))
+    expect(mockBatchSet).not.toHaveBeenCalled()
+    expect(res.cookies.get('pending_referrer')?.value).toBe('')
+  })
 })

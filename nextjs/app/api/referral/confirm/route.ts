@@ -62,12 +62,13 @@ export async function POST(req: NextRequest) {
 
   const db = getAdminFirestore()
 
-  const existing = await db
-    .collection('users').doc(friendUid).collection('referralBonuses')
-    .where('source', '==', 'invited-by').limit(1).get()
-  if (!existing.empty) return respond(true)
-
   try {
+    // Idempotency — friend already earned an invited-by bonus.
+    const existing = await db
+      .collection('users').doc(friendUid).collection('referralBonuses')
+      .where('source', '==', 'invited-by').limit(1).get()
+    if (!existing.empty) return respond(true)
+
     const { restaurants: all, mustEats: allMustEats } = await getCachedMapData()
     const allIds = all.map((r) => r._id)
 

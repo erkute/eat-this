@@ -95,7 +95,10 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
   // into `revealed` — so the slot re-renders as a face-up FlipSlot. We let
   // the promise reject on failure so the TeaserSlot can roll its flip back.
   const handleReveal = useCallback(async (card: MustEatAlbumCard) => {
-    if (!card.restaurantId) return;
+    // restaurantId is guaranteed by selectTeaserOrders; throw (not a silent
+    // return) if it's ever missing, so the TeaserSlot rolls its flip back
+    // instead of showing a "revealed" card that was never persisted.
+    if (!card.restaurantId) throw new Error(`Must-eat ${card._id} has no restaurantId`);
     await unlock(card._id, card.restaurantId, card.dish);
   }, [unlock]);
 
@@ -386,19 +389,31 @@ interface TeaserSlotProps {
 }
 
 // Sanity-flagged teaser: idle-shakes to invite a tap, then flips face-up and
-// persists the unlock. On reveal success the parent re-renders this slot as a
-// FlipSlot (already flipped, same image — seamless). On failure we flip back.
+// persists the unlock ON flip-completion — so the full 0.7s flip always plays
+// before the parent swaps this slot for a face-up FlipSlot (both end at
+// rotateY 180°, so the swap is seamless). On failure we flip back. revealedRef
+// guards against a double-trigger from rapid taps or the rollback animation's
+// own completion event.
 function TeaserSlot({ order, card, onReveal }: TeaserSlotProps) {
   const [flipped, setFlipped] = useState(false);
   const [busy,    setBusy]    = useState(false);
+  const revealedRef = useRef(false);
 
-  const reveal = async () => {
+  const startFlip = () => {
     if (busy || flipped) return;
+    setFlipped(true);            // optimistic flip; persistence runs on completion
+  };
+
+  // Fires when the flip reaches 180° (and again if a rollback returns it to 0°).
+  const handleFlipComplete = async () => {
+    if (!flipped || busy || revealedRef.current) return;
+    revealedRef.current = true;
     setBusy(true);
-    setFlipped(true);            // optimistic flip
     try {
       await onReveal(card);
+      // success → parent re-renders this slot as a FlipSlot, already at 180°.
     } catch {
+      revealedRef.current = false;
       setFlipped(false);         // rollback — unlock failed
     } finally {
       setBusy(false);
@@ -411,10 +426,11 @@ function TeaserSlot({ order, card, onReveal }: TeaserSlotProps) {
       data-order={order}
       role="button"
       tabIndex={0}
+      aria-busy={busy}
       aria-label={`Karte aufdecken: ${card.dish}`}
-      onClick={reveal}
+      onClick={startFlip}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); reveal(); }
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); startFlip(); }
       }}
     >
       <motion.div
@@ -422,6 +438,7 @@ function TeaserSlot({ order, card, onReveal }: TeaserSlotProps) {
         initial={false}
         animate={{ rotateY: flipped ? 180 : 0 }}
         transition={{ duration: FLIP_DURATION_S, ease: [0.4, 0.0, 0.2, 1] }}
+        onAnimationComplete={handleFlipComplete}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

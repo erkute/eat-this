@@ -57,6 +57,18 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
     [mustEats, mapUnlockedIds],
   );
 
+  // Subtle one-time hint inviting the first tap. Shows only on the first visit
+  // that has teaser slots, then persists a localStorage flag so it never shows
+  // again. Also hidden the moment the user reveals their first card.
+  const [hintVisible, setHintVisible] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (localStorage.getItem('deckRevealHintSeen') === '1') return;
+    if (teaserOrders.size === 0) return;
+    setHintVisible(true);
+    localStorage.setItem('deckRevealHintSeen', '1');
+  }, [teaserOrders]);
+
   const [revealed, setRevealed] = useState<Set<number>>(() => {
     return new Set<number>(mapUnlockedByOrder.keys());
   });
@@ -100,6 +112,7 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
     // instead of showing a "revealed" card that was never persisted.
     if (!card.restaurantId) throw new Error(`Must-eat ${card._id} has no restaurantId`);
     await unlock(card._id, card.restaurantId, card.dish);
+    setHintVisible(false);
   }, [unlock]);
 
   // Close expanded view on Escape.
@@ -116,6 +129,17 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
     <>
       <ProfileReferralCard />
       <ProfileDeckHeader unlockedCount={revealed.size} totalSlots={TOTAL_SLOTS} />
+
+      {hintVisible && (
+        <motion.p
+          className={styles.revealHint}
+          initial={{ y: -10 }}
+          animate={{ y: 0 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        >
+          Tipp die wackelnden Karten an.
+        </motion.p>
+      )}
 
       <div className={styles.albumGrid}>
         {Array.from({ length: TOTAL_SLOTS }, (_, i) => {

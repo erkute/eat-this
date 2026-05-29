@@ -41,6 +41,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'link-generation-failed' }, { status: 500 });
   }
 
+  // First-time signup vs. returning login: an existing account means we drop the
+  // starter-pack framing and greet them back instead. `getUserByEmail` throws
+  // `auth/user-not-found` for a brand-new email — treat that (or any error) as new.
+  let returning = false;
+  try {
+    await getAdminAuth().getUserByEmail(email);
+    returning = true;
+  } catch {
+    returning = false;
+  }
+
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey) {
     console.error('[send-magic-link] RESEND_API_KEY missing');
@@ -57,7 +68,7 @@ export async function POST(request: Request) {
   });
 
   const html = await render(
-    MagicLinkEmail({ magicLink, appUrl: origin, restaurants })
+    MagicLinkEmail({ magicLink, appUrl: origin, restaurants, returning })
   );
   const text = buildMagicLinkText(magicLink);
 

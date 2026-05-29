@@ -213,7 +213,7 @@ export const emailSpotsQuery = `
   *[_type == "restaurant" && isOpen != false
     && defined(slug.current) && defined(image.asset)
     && count(*[_type == "mustEat" && restaurantRef._ref == ^._id && defined(image.asset)]) > 0]
-    | order(featured == true desc, count(*[_type == "mustEat" && restaurantRef._ref == ^._id]) desc, _createdAt desc)
+    | order(coalesce(featured, false) desc, count(*[_type == "mustEat" && restaurantRef._ref == ^._id]) desc, _createdAt desc)
     [0...$limit] {
     name,
     "area": coalesce(bezirkRef->name, district),

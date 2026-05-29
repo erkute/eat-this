@@ -145,7 +145,12 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
         {Array.from({ length: TOTAL_SLOTS }, (_, i) => {
           const order = i + 1;
           const card  = cardByOrder.get(order);
-          const isRevealed = revealed.has(order);
+          // Treat a card already in mapUnlockedIds as revealed THIS render —
+          // not only after the `revealed`-set effect runs post-paint. Without
+          // this, a freshly-unlocked teaser drops out of `teaserOrders` before
+          // `revealed` catches up, flashing a card-back BackSlot for one frame
+          // between the face-up teaser and the face-up FlipSlot.
+          const isRevealed = revealed.has(order) || (!!card && mapUnlockedIds.has(card._id));
 
           if (card && isRevealed) {
             return (

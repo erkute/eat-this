@@ -58,4 +58,24 @@ describe('MagicLinkEmail', () => {
       expect(html).not.toContain(s)
     }
   })
+
+  it('first-time variant shows the starter pack', async () => {
+    const html = await render(MagicLinkEmail({ ...props, returning: false }))
+    expect(html).toContain('Deine kuratierte')
+    expect(html).toContain('Dein Starter Pack')
+    expect(html).toContain('/pics/booster/booster_free.webp')
+  })
+
+  it('returning variant greets back and drops the starter pack', async () => {
+    const html = await render(MagicLinkEmail({ ...props, returning: true }))
+    expect(html).toContain('Willkommen')
+    expect(html).toContain('zurück.')
+    // No first-time starter-pack framing
+    expect(html).not.toContain('Dein Starter Pack')
+    expect(html).not.toContain('/pics/booster/booster_free.webp')
+    expect(html).not.toContain('Deine kuratierte')
+    // Still keeps the curated spots + CTA
+    expect(html).toContain('SOFI')
+    expect(html).toContain('Anmelden')
+  })
 })

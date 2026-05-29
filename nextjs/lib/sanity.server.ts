@@ -19,6 +19,7 @@ import {
   restaurantCountQuery,
   featuredSpotsQuery,
   featuredSpotsFallbackQuery,
+  emailSpotsQuery,
 } from './queries'
 import type { Restaurant, NewsArticle, StaticPageDoc, MustEatAlbumCard, BezirkDoc, RestaurantCard } from './types'
 import type { CategoryDef } from './categories'
@@ -182,6 +183,23 @@ export async function getFeaturedSpots(limit: number): Promise<RestaurantCard[]>
   if (featured.length > 0) return featured
   return client.fetch<RestaurantCard[]>(
     featuredSpotsFallbackQuery,
+    { limit },
+    { next: { revalidate: 3600, tags: ['restaurant'] } }
+  )
+}
+
+export type EmailSpot = {
+  name: string
+  area: string
+  cuisine?: string
+  photo: string
+  mustEats: { dish: string; cardPhoto: string }[]
+}
+
+// Curated spots for the magic-link email — restaurant photo + one Must-Eat card.
+export async function getEmailSpots(limit: number): Promise<EmailSpot[]> {
+  return client.fetch<EmailSpot[]>(
+    emailSpotsQuery,
     { limit },
     { next: { revalidate: 3600, tags: ['restaurant'] } }
   )

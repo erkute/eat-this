@@ -10,6 +10,7 @@ import {
 } from 'framer-motion';
 import type { MustEatAlbumCard } from '@/lib/types';
 import ProfileDeckHeader from './ProfileDeckHeader';
+import ProfileReferralCard from './ProfileReferralCard';
 import styles from './ProfileDeck.module.css';
 
 const TOTAL_SLOTS        = 150;
@@ -83,6 +84,7 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds }: Props) {
 
   return (
     <>
+      <ProfileReferralCard />
       <ProfileDeckHeader unlockedCount={revealed.size} totalSlots={TOTAL_SLOTS} />
 
       <div className={styles.albumGrid}>

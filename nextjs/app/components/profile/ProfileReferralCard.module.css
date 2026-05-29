@@ -1,0 +1,43 @@
+.card {
+  background: var(--surface-card, #fff);
+  border: 2px solid #0a0a0a;
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin: 0 0 18px;
+  box-shadow: 4px 4px 0 #0a0a0a;
+}
+
+.title {
+  font-family: var(--font-anton), sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.01em;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+}
+
+.sub {
+  font-size: 14px;
+  line-height: 1.35;
+  margin: 0 0 14px;
+  color: var(--text-secondary, #555);
+}
+
+.btn {
+  font-family: var(--font-saira-condensed), sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 16px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  background: var(--c-mustard, #e8c54a);
+  color: #0a0a0a;
+  box-shadow: 4px 4px 0 #0a0a0a;
+  cursor: pointer;
+}
+
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #0a0a0a;
+}

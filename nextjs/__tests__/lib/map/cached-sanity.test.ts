@@ -22,12 +22,14 @@ import {
 const fetchSpy = vi.mocked(client.fetch)
 
 function mockFetchReturns(restaurants: any[], mustEats: any[], categories: any[]) {
-  fetchSpy.mockImplementation(async (query: string) => {
-    if (query === 'RESTAURANTS') return restaurants
-    if (query === 'MUSTEATS')    return mustEats
-    if (query === 'CATEGORIES')  return categories
+  // `client.fetch` is heavily overloaded; cast the impl to `any` so the mock
+  // matches its signature without re-stating every overload here.
+  fetchSpy.mockImplementation(((query: string) => {
+    if (query === 'RESTAURANTS') return Promise.resolve(restaurants)
+    if (query === 'MUSTEATS')    return Promise.resolve(mustEats)
+    if (query === 'CATEGORIES')  return Promise.resolve(categories)
     throw new Error(`unexpected query: ${query}`)
-  })
+  }) as any)
 }
 
 beforeEach(() => {

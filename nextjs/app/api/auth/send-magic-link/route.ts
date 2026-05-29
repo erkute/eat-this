@@ -4,6 +4,7 @@ import { render } from '@react-email/render';
 import { getAdminAuth } from '@/lib/firebase/admin';
 import MagicLinkEmail from '@/emails/MagicLinkEmail';
 import { buildMagicLinkText } from '@/emails/magicLinkText';
+import { getEmailRestaurants } from '@/emails/emailRestaurants';
 
 export const runtime = 'nodejs';
 
@@ -49,8 +50,11 @@ export async function POST(request: Request) {
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
   const fromName  = process.env.RESEND_FROM_NAME  || 'Eat This';
 
+  // Best-effort appetite row; getEmailRestaurants swallows its own errors and
+  // returns [] so a Sanity hiccup never blocks the login email.
+  const restaurants = await getEmailRestaurants(4);
   const html = await render(
-    MagicLinkEmail({ magicLink, appUrl: origin })
+    MagicLinkEmail({ magicLink, appUrl: origin, restaurants })
   );
 
   const text = buildMagicLinkText(magicLink);

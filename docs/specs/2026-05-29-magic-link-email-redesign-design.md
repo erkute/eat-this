@@ -74,3 +74,12 @@ Recommendations (no code dependency on these): keep the email lean/transactional
 - `nextjs/emails/MagicLinkEmail.tsx` — rewrite (new layout/assets/copy, drop `boosterPack` prop).
 - `nextjs/app/api/auth/send-magic-link/route.ts` — rewrite `text` body, drop `pickBoosterPack`/`BOOSTER_PACKS`, drop `boosterPack` arg.
 - Tests for the above.
+
+## Revision 2026-05-29 (smoke feedback)
+
+Scope expanded after the user reviewed the first cut:
+- **Branding:** header now uses the launch/cat-page assets — `launch-banner.webp` (EAT THIS) + red `launch-tagline.webp` ("we tell you what to eat") — replacing the yellow logo + black slogan.
+- **Explainer:** one line on what Eat This is.
+- **Appetite row:** best-effort "Ein Vorgeschmack" — up to 4 real featured restaurants (image + name + cuisine/district) pulled live from Sanity via `getEmailRestaurants()` (reuses `getFeaturedSpots`; resilient — returns `[]` on any failure so the login flow never blocks). New: `emails/emailRestaurants.ts` (+ test).
+- **Copy:** "Einmal klicken, schon drin." / "Bestätige deinen Login — dann zeigen wir dir, was du essen musst."
+- **Deliverability tradeoff (user-acknowledged):** richer content raises spam risk on a young domain; kept tasteful (few images, real text, one CTA) for balance.

@@ -16,19 +16,20 @@
   line-height: 0;
   color: transparent;
 }
+/* New wordmark is wide (~2.5:1) — span generously so the footer mega stays bold. */
 .megaImg {
   display: block;
   margin: 0 auto;
   width: auto;
   height: auto;
-  max-width: min(42vw, 150px);
+  max-width: min(82vw, 360px);
 }
 .tagImg {
   display: block;
-  margin: 6px auto 24px;
+  margin: 10px auto 24px;
   width: auto;
   height: auto;
-  max-width: min(40vw, 138px);
+  max-width: min(72vw, 300px);
 }
 
 .tag {
@@ -150,10 +151,10 @@
     padding: 56px 32px 40px;
   }
   .megaImg {
-    max-width: 168px;
+    max-width: 460px;
   }
   .tagImg {
-    max-width: 152px;
+    max-width: 360px;
   }
 }
 
@@ -162,9 +163,9 @@
     padding: 72px 80px 48px;
   }
   .megaImg {
-    max-width: 188px;
+    max-width: 560px;
   }
   .tagImg {
-    max-width: 172px;
+    max-width: 420px;
   }
 }

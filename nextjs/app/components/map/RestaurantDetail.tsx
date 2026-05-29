@@ -36,7 +36,7 @@ function MustEatMiniCard({
       {unlocked
         ? <div className={styles.mustCardImg} style={{ backgroundImage: `url(${mustEat.image})` }} />
         /* eslint-disable-next-line @next/next/no-img-element */
-        : <img src="/pics/card-back.webp" alt="" className={styles.mustCardBack} loading="lazy" />
+        : <img src="/pics/card-back.webp?v=4" alt="" className={styles.mustCardBack} loading="lazy" />
       }
     </button>
   )

@@ -98,7 +98,7 @@ function MustEatMarker({
       >
         {isUnlocked
           ? <img src={mustEat.image} alt={mustEat.dish} draggable={false} />
-          : <img src="/pics/card-back.webp" alt="" draggable={false} />
+          : <img src="/pics/card-back.webp?v=4" alt="" draggable={false} />
         }
       </div>
     </Marker>

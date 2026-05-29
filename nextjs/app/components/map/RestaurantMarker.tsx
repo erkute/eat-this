@@ -33,7 +33,7 @@ function RestaurantMarker({ restaurant, isSelected, onClick }: RestaurantMarkerP
         className={className}
         style={{ position: 'relative' }}
       >
-        <img src="/pics/eat-this-square.webp?v=3" alt="" draggable={false} />
+        <img src="/pics/eat-this-square.webp?v=4" alt="" draggable={false} />
       </div>
     </Marker>
   )

@@ -232,6 +232,9 @@
     border-radius: 28px;
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.22);
     overflow: hidden;
+    /* Desktop flips .page to light cream — the card itself must stay dark so the
+       white title/sub/logo stay readable (mobile uses the dark full-page bg). */
+    background: #0d0d0d;
   }
   [data-theme="dark"] .frame {
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);

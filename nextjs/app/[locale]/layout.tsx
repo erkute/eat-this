@@ -5,6 +5,7 @@ import { Bungee, Caveat, Knewave, Archivo_Black, Ranchers, Slackey, Barlow_Conde
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
 import { StagingBanner } from '@/app/components/StagingBanner';
+import ReferralToastListener from '@/app/components/ReferralToastListener';
 import { isStaging } from '@/lib/env';
 
 // Display family — Bar-Basta + Eat-This-poster direction:
@@ -160,6 +161,7 @@ export default async function LocaleLayout({
       <body data-env={isStaging ? 'staging' : 'production'}>
         <StagingBanner />
         <ClientIntlProvider locale={locale} messages={messages}>
+          <ReferralToastListener />
           {children}
           {modal}
         </ClientIntlProvider>

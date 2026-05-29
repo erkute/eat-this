@@ -62,6 +62,15 @@ describe('reduceEntitlements', () => {
     expect([...r.restaurantIds].sort()).toEqual(['rest-A', 'rest-B', 'rest-C'])
     expect([...r.mustEatIds].sort()).toEqual(['me-1', 'me-2', 'me-3'])
   })
+
+  it('unions referral-bonus restaurantIds into the resolved set (deduped)', () => {
+    const docs: Entitlement[] = [
+      { type: 'category', slug: 'pizza', restaurantIds: ['rest-A'], mustEatIds: [], purchasedAt: new Date() as any, stripeSessionId: 's1', source: 'stripe' },
+    ]
+    const bonuses = [{ restaurantIds: ['rest-B', 'rest-C'] }, { restaurantIds: ['rest-A'] }]
+    const r = reduceEntitlements(docs, bonuses)
+    expect([...r.restaurantIds].sort()).toEqual(['rest-A', 'rest-B', 'rest-C'])
+  })
 })
 
 describe('isAdminEmail', () => {

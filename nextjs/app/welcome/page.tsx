@@ -101,6 +101,21 @@ function AuthActionInner() {
     setState({ kind: 'expired' });
   }, [params]);
 
+  // The processing state is a quick splash — go full brand: big yellow wordmark,
+  // a fast sweeping bar (reads quicker than a slow circular spinner), one line.
+  if (state.kind === 'processing') {
+    return (
+      <main className={styles.splashPage}>
+        <div className={styles.splash}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/pics/eat-this-logo.webp" alt="Eat This" className={styles.splashLogo} />
+          <div className={styles.bar} aria-hidden />
+          <h1 className={styles.splashTitle}>Gleich bist du drin.</h1>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className={styles.page}>
       <div className={styles.frame}>
@@ -110,14 +125,6 @@ function AuthActionInner() {
         </div>
 
         <div className={styles.content}>
-          {state.kind === 'processing' && (
-            <>
-              <div className={styles.spinner} aria-hidden />
-              <h1 className={styles.title}>Einen Moment …</h1>
-              <p className={styles.sub}>Du wirst gleich angemeldet.</p>
-            </>
-          )}
-
           {state.kind === 'success' && (
             <>
               <div className={styles.checkmark} aria-hidden>

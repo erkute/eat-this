@@ -17,6 +17,10 @@ interface Props {
   alt: string
   originRect: DOMRect
   onDone: () => void
+  // Where the card flies on the way out. Defaults to the navbar profile icon
+  // (map behaviour). The profile deck passes the tapped slot so the card flies
+  // back to its place instead.
+  flyOutTarget?: { cx: number; cy: number; size: number }
 }
 
 // Total choreography ~4 s end-to-end. Sum of all phase durations below.
@@ -42,7 +46,7 @@ function locateProfileTarget(): { cx: number; cy: number; size: number } {
   return { cx: window.innerWidth - 28, cy: 28, size: 24 }
 }
 
-export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone }: Props) {
+export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone, flyOutTarget }: Props) {
   const [mounted, setMounted] = useState(false)
   const [phase, setPhase] = useState<Phase>('flyIn')
   const [target, setTarget] = useState<{ cx: number; cy: number; size: number } | null>(null)
@@ -134,9 +138,9 @@ export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone
       return () => window.clearTimeout(id)
     }
     if (phase === 'revealed') {
-      // Capture the profile icon rect now so the fly-out has a stable
-      // target. After the dwell window the card auto-flies to profile.
-      setTarget(locateProfileTarget())
+      // Capture the fly-out target now so it's stable. Defaults to the profile
+      // icon (map); the deck passes the tapped slot so it flies back home.
+      setTarget(flyOutTarget ?? locateProfileTarget())
       const id = window.setTimeout(
         () => setPhase('flyOut'),
         reducedMotion ? 60 : REVEALED_MS,
@@ -153,7 +157,7 @@ export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone
       }, reducedMotion ? 60 : FLY_OUT_MS)
       return () => window.clearTimeout(id)
     }
-  }, [phase, reducedMotion, onDone])
+  }, [phase, reducedMotion, onDone, flyOutTarget])
 
   const handleTap = useCallback(() => {
     if (phase === 'idle') {
@@ -186,7 +190,7 @@ export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone
   let opacity = 1
 
   if (phase === 'flyOut') {
-    const t = target ?? locateProfileTarget()
+    const t = target ?? flyOutTarget ?? locateProfileTarget()
     cx = t.cx
     cy = t.cy
     // Shrink toward the icon while staying large enough to read until the

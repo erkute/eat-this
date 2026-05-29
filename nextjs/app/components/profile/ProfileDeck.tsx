@@ -12,6 +12,7 @@ import type { MustEatAlbumCard } from '@/lib/types';
 import { selectTeaserOrders } from '@/lib/profile/teasers';
 import ProfileDeckHeader from './ProfileDeckHeader';
 import ProfileReferralCard from './ProfileReferralCard';
+import MustEatRevealOverlay from '../map/MustEatRevealOverlay';
 import styles from './ProfileDeck.module.css';
 
 const TOTAL_SLOTS        = 150;
@@ -62,6 +63,30 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
   // one-shot). Disappears once every teaser has been revealed.
   const showHint = teaserOrders.size > 0;
 
+  // The very FIRST teaser reveal (ever) plays the cinematic fly-to-centre
+  // overlay reused from the map's proximity reveal; subsequent reveals use the
+  // inline flip. Armed only until the first reveal, persisted via localStorage.
+  const [cinematicArmed, setCinematicArmed] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (localStorage.getItem('deckFirstRevealPlayed') !== '1') setCinematicArmed(true);
+  }, []);
+  // The slot currently playing the cinematic (null = none). While set, that
+  // slot renders a plain card-back so it doesn't duplicate the flying overlay.
+  const [cinematic, setCinematic] = useState<{ card: MustEatAlbumCard; rect: DOMRect; order: number } | null>(null);
+  // Stable fly-out target (the tapped slot) so the overlay flies BACK to its
+  // place. Memoised so the overlay's phase timers don't reset on re-render.
+  const cinematicTarget = useMemo(
+    () => cinematic
+      ? {
+          cx: cinematic.rect.left + cinematic.rect.width / 2,
+          cy: cinematic.rect.top + cinematic.rect.height / 2,
+          size: cinematic.rect.width,
+        }
+      : undefined,
+    [cinematic],
+  );
+
   const [revealed, setRevealed] = useState<Set<number>>(() => {
     return new Set<number>(mapUnlockedByOrder.keys());
   });
@@ -107,6 +132,17 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
     await unlock(card._id, card.restaurantId, card.dish);
   }, [unlock]);
 
+  // First-reveal tap → play the cinematic instead of the inline flip. Persist
+  // the unlock right away (like the map: the overlay is purely cosmetic) so
+  // that once the overlay clears, the slot is already a face-up FlipSlot.
+  const handleCinematicReveal = useCallback((card: MustEatAlbumCard, rect: DOMRect) => {
+    if (typeof card.order !== 'number') return;
+    setCinematicArmed(false);
+    if (typeof window !== 'undefined') localStorage.setItem('deckFirstRevealPlayed', '1');
+    setCinematic({ card, rect, order: card.order });
+    void handleReveal(card).catch(() => {});
+  }, [handleReveal]);
+
   // Close expanded view on Escape.
   useEffect(() => {
     if (!expanded) return;
@@ -137,6 +173,13 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
         {Array.from({ length: TOTAL_SLOTS }, (_, i) => {
           const order = i + 1;
           const card  = cardByOrder.get(order);
+          // While the first-reveal cinematic plays for this slot, render a
+          // plain card-back so the slot doesn't duplicate the flying overlay
+          // card. Once the overlay clears, the already-persisted unlock turns
+          // this slot into a face-up FlipSlot.
+          if (cinematic && cinematic.order === order) {
+            return <BackSlot key={order} />;
+          }
           // Treat a card already in mapUnlockedIds as revealed THIS render —
           // not only after the `revealed`-set effect runs post-paint. Without
           // this, a freshly-unlocked teaser drops out of `teaserOrders` before
@@ -165,7 +208,9 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
                 key={order}
                 order={order}
                 card={card}
+                cinematic={cinematicArmed}
                 onReveal={handleReveal}
+                onCinematic={handleCinematicReveal}
               />
             );
           }
@@ -188,6 +233,16 @@ export default function ProfileDeck({ mustEats, mapUnlockedIds, unlock }: Props)
           />
         )}
       </AnimatePresence>
+
+      {cinematic && (
+        <MustEatRevealOverlay
+          imageUrl={cinematic.card.imageUrl}
+          alt={cinematic.card.dish}
+          originRect={cinematic.rect}
+          flyOutTarget={cinematicTarget}
+          onDone={() => setCinematic(null)}
+        />
+      )}
     </>
   );
 }
@@ -404,9 +459,13 @@ function FlipSlot({ order, card, flipped, hideCardFace, onExpand }: FlipSlotProp
 }
 
 interface TeaserSlotProps {
-  order:    number;
-  card:     MustEatAlbumCard;
-  onReveal: (card: MustEatAlbumCard) => Promise<void>;
+  order:       number;
+  card:        MustEatAlbumCard;
+  // When true, a tap delegates to the parent's cinematic overlay instead of
+  // the inline flip (used for the user's first-ever reveal).
+  cinematic:   boolean;
+  onReveal:    (card: MustEatAlbumCard) => Promise<void>;
+  onCinematic: (card: MustEatAlbumCard, rect: DOMRect) => void;
 }
 
 // Sanity-flagged teaser: idle-shakes to invite a tap, then flips face-up and
@@ -415,12 +474,14 @@ interface TeaserSlotProps {
 // rotateY 180°, so the swap is seamless). On failure we flip back. revealedRef
 // guards against a double-trigger from rapid taps or the rollback animation's
 // own completion event.
-function TeaserSlot({ order, card, onReveal }: TeaserSlotProps) {
+function TeaserSlot({ order, card, cinematic, onReveal, onCinematic }: TeaserSlotProps) {
   const [flipped, setFlipped] = useState(false);
   const [busy,    setBusy]    = useState(false);
   const revealedRef = useRef(false);
 
-  const startFlip = () => {
+  // First-ever reveal → hand off to the cinematic overlay; otherwise inline flip.
+  const activate = (el: HTMLDivElement) => {
+    if (cinematic) { onCinematic(card, el.getBoundingClientRect()); return; }
     if (busy || flipped) return;
     setFlipped(true);            // optimistic flip; persistence runs on completion
   };
@@ -449,9 +510,9 @@ function TeaserSlot({ order, card, onReveal }: TeaserSlotProps) {
       tabIndex={0}
       aria-busy={busy}
       aria-label={`Karte aufdecken: ${card.dish}`}
-      onClick={startFlip}
+      onClick={(e) => activate(e.currentTarget)}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); startFlip(); }
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(e.currentTarget); }
       }}
     >
       <motion.div

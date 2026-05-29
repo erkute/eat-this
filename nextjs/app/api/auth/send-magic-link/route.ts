@@ -3,23 +3,11 @@ import { Resend } from 'resend';
 import { render } from '@react-email/render';
 import { getAdminAuth } from '@/lib/firebase/admin';
 import MagicLinkEmail from '@/emails/MagicLinkEmail';
+import { buildMagicLinkText } from '@/emails/magicLinkText';
 
 export const runtime = 'nodejs';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const BOOSTER_PACKS = [
-  'booster.jpg',
-  'booster1.jpg',
-  'booster2.jpg',
-  'booster3.jpg',
-  'booster5.jpg',
-  'booster8.jpg',
-];
-
-function pickBoosterPack(): string {
-  return BOOSTER_PACKS[Math.floor(Math.random() * BOOSTER_PACKS.length)];
-}
 
 export async function POST(request: Request) {
   let body: { email?: string; locale?: string; continueUrl?: string };
@@ -61,32 +49,11 @@ export async function POST(request: Request) {
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
   const fromName  = process.env.RESEND_FROM_NAME  || 'Eat This';
 
-  const boosterPack = pickBoosterPack();
   const html = await render(
-    MagicLinkEmail({ magicLink, appUrl: origin, boosterPack })
+    MagicLinkEmail({ magicLink, appUrl: origin })
   );
 
-  const text = [
-    'EAT THIS — Berlin · 150+ Must Eats · 200+ Restaurants',
-    '',
-    'Dein Booster Pack wartet.',
-    '',
-    '20 zufällige Must Eat Cards — dein persönlicher Start-Stack aus echten Restaurant-Empfehlungen.',
-    '',
-    'Bestätige deinen Login und öffne dein Pack:',
-    magicLink,
-    '',
-    'Der Link ist 1 Stunde gültig und nur für diese E-Mail-Adresse bestimmt.',
-    '',
-    'So geht’s weiter:',
-    '1. Klick den Link — du landest direkt in deinem Profil.',
-    '2. Sag uns deinen Namen — dauert 5 Sekunden.',
-    '3. Pack öffnen — deine 20 Karten werden enthüllt.',
-    '',
-    '—',
-    'Du erhältst diese E-Mail, weil du dich bei eatthisdot.com registriert hast.',
-    'Nicht angefordert? Ignoriere diese E-Mail einfach.',
-  ].join('\n');
+  const text = buildMagicLinkText(magicLink);
 
   try {
     const resend = new Resend(resendKey);

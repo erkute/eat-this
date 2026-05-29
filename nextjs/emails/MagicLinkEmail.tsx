@@ -45,7 +45,7 @@ export default function MagicLinkEmail({
   return (
     <Html lang="de">
       <Head />
-      <Preview>Dein Login-Link für Eat This — die kuratierte Food-Map für Berlin.</Preview>
+      <Preview>Dein Login-Link für Eat This — die curated food discovery map für Berlin.</Preview>
 
       <Body
         style={{
@@ -78,19 +78,22 @@ export default function MagicLinkEmail({
           {/* EXPLAINER — what Eat This is, one breath */}
           <Section style={{ textAlign: 'center', padding: '20px 12px 0' }}>
             <Text style={{ margin: 0, fontSize: '15px', lineHeight: 1.6, color: PALETTE.ink }}>
-              Eat This ist deine kuratierte Food-Map für Berlin: handverlesene Restaurants,
-              Cafés und Bars — ehrlich empfohlen, ohne bezahlte Werbung.
+              Eat This ist deine curated food discovery map für Berlin: handverlesene
+              Restaurants, Cafés und Bars.
             </Text>
           </Section>
 
-          {/* HERO — starter pack */}
-          <Section style={{ textAlign: 'center', padding: '24px 0 4px' }}>
+          {/* HERO — starter pack + what it is */}
+          <Section style={{ textAlign: 'center', padding: '24px 12px 4px' }}>
             <Img
               src={`${appUrl}/pics/booster/booster_free.webp`}
               alt="Eat This Starter Pack"
               width="240"
               style={{ display: 'block', margin: '0 auto', borderRadius: '12px', maxWidth: '62%', height: 'auto' }}
             />
+            <Text style={{ margin: '16px auto 0', maxWidth: '400px', fontSize: '14px', lineHeight: 1.55, color: PALETTE.muted }}>
+              Dein Starter-Pack — deine ersten handverlesenen Must Eats, frei mit dem Login.
+            </Text>
           </Section>
 
           {/* APPETITE — a few real spots (omitted entirely when none loaded) */}
@@ -168,11 +171,11 @@ export default function MagicLinkEmail({
                 letterSpacing: '-0.01em',
               }}
             >
-              Einmal klicken, schon drin.
+              Willkommen bei Eat This.
             </Heading>
 
             <Text style={{ margin: '0 0 28px', fontSize: '16px', lineHeight: 1.55, color: PALETTE.muted }}>
-              Bestätige deinen Login — dann zeigen wir dir, was du essen musst.
+              Tipp auf den Button, um dich anzumelden.
             </Text>
 
             {/* CTA Button — table-based for max email-client compatibility */}

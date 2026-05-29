@@ -16,7 +16,7 @@ describe('MagicLinkEmail', () => {
     expect(html).toContain('/pics/booster/booster_free.webp')
     expect(html).toContain('https://x/verify?abc=1')
     expect(html).toContain('Anmelden')
-    expect(html).toContain('kuratierte Food-Map')
+    expect(html).toContain('curated food discovery map')
   })
 
   it('renders the appetite row when restaurants are provided', async () => {

@@ -83,3 +83,10 @@ Scope expanded after the user reviewed the first cut:
 - **Appetite row:** best-effort "Ein Vorgeschmack" — up to 4 real featured restaurants (image + name + cuisine/district) pulled live from Sanity via `getEmailRestaurants()` (reuses `getFeaturedSpots`; resilient — returns `[]` on any failure so the login flow never blocks). New: `emails/emailRestaurants.ts` (+ test).
 - **Copy:** "Einmal klicken, schon drin." / "Bestätige deinen Login — dann zeigen wir dir, was du essen musst."
 - **Deliverability tradeoff (user-acknowledged):** richer content raises spam risk on a young domain; kept tasteful (few images, real text, one CTA) for balance.
+
+## Revision 2 — copy finalization (user)
+
+- Removed the "ehrlich empfohlen, ohne bezahlte Werbung" wording from the explainer (user request — no such phrasing).
+- Eat This is described as a **"curated food discovery map"**.
+- Starter-pack image now carries a one-line explanation of what it is.
+- CTA copy: headline **"Willkommen bei Eat This."**, sub **"Tipp auf den Button, um dich anzumelden."**

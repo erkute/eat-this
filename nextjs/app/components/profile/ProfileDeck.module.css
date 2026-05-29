@@ -54,9 +54,47 @@
   cursor: pointer;
 }
 
-/* Locked back slots are tappable but show a shake to signal they're sealed */
+/* Locked back slots are inert — not tappable, no shake. */
 .slotBack {
+  cursor: default;
+}
+
+/* Teaser slots invite a tap. */
+.slotTeaser {
   cursor: pointer;
+}
+
+/* Idle-shake: a brief subtle wobble every few seconds (most of the cycle is
+ * still) to invite a tap without nagging. Lives on .slot (not .flipper) so it
+ * never conflicts with the flipper's rotateY flip animation. */
+@keyframes idleShake {
+  0%, 86%, 100% { transform: translate(0, 0) rotate(0deg); }
+  88%            { transform: translate(-2px, 0) rotate(-1.2deg); }
+  91%            { transform: translate(2px, 0) rotate(1.2deg); }
+  94%            { transform: translate(-1.5px, 0) rotate(-0.8deg); }
+  97%            { transform: translate(1px, 0) rotate(0.5deg); }
+}
+
+.slotIdleShake {
+  animation: idleShake 3.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slotIdleShake { animation: none; }
+}
+
+/* First-visit reveal hint — quiet inline caption near the deck header. */
+.revealHint {
+  margin: 2px 8px 12px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: rgba(10, 10, 10, 0.55);
+}
+
+:global(html[data-theme="dark"]) .revealHint {
+  color: rgba(245, 245, 245, 0.5);
 }
 
 /* Empty target — one of the user's 10 pack-card slots before its card has
@@ -65,18 +103,6 @@
  * slot still reserves grid space via aspect-ratio and is measurable via
  * slotRef for the flight choreography. */
 
-@keyframes slotShake {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  15%       { transform: translate(-4px, 0) rotate(-2deg); }
-  35%       { transform: translate(4px, 0) rotate(2deg); }
-  55%       { transform: translate(-3px, 0) rotate(-1.5deg); }
-  75%       { transform: translate(2px, 0) rotate(1deg); }
-  90%       { transform: translate(-1px, 0) rotate(-0.4deg); }
-}
-
-.slotShake {
-  animation: slotShake 0.42s ease-in-out;
-}
 
 .slotRevealed:hover .face.faceFront {
   box-shadow: 0 10px 28px rgba(10, 10, 10, 0.38);

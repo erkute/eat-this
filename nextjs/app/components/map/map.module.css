@@ -1511,9 +1511,9 @@ html[data-theme="dark"] .btn:hover {
   transition: transform 0.15s, box-shadow 0.15s;
   transform-origin: center bottom;
   position: relative;
-  background: #0a0a0a;
+  background: #F5C518;
   border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45), 0 0 0 1.5px rgba(255, 255, 255, 0.7);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45), 0 0 0 2px #0a0a0a;
 }
 .pinLogo:hover { transform: scale(1.1); }
 .pinLogoActive {
@@ -1530,22 +1530,22 @@ html[data-theme="dark"] .btn:hover {
   right: -4px;
   width: 12px;
   height: 17px;
-  background: transparent url('/pics/card-back.webp?v=4') center/contain no-repeat;
+  background: transparent url('/pics/card-back.webp?v=5') center/contain no-repeat;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
   transform: rotate(8deg);
   z-index: 1;
 }
 .pinLogo img {
   position: absolute;
-  inset: 5%;
-  width: 90%;
-  height: 90%;
+  inset: 9%;
+  width: 82%;
+  height: 82%;
   display: block;
   object-fit: contain;
   pointer-events: none;
 }
 :global(html[data-theme="dark"]) .pinLogo {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), 0 0 0 1.5px rgba(255, 255, 255, 0.45);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), 0 0 0 2px #0a0a0a;
 }
 
 /* ========== Card-back marker for Must Eats ========== */
@@ -2170,7 +2170,7 @@ html[data-theme="dark"] .mustEatHero {
   width: 118px;
   aspect-ratio: 1449 / 2163;
   border-radius: 12px;
-  background: transparent url('/pics/card-back.webp?v=4') center/contain no-repeat;
+  background: transparent url('/pics/card-back.webp?v=5') center/contain no-repeat;
   overflow: hidden;
   box-shadow: 0 12px 28px rgba(17, 24, 39, 0.22);
   cursor: pointer;
@@ -2922,7 +2922,7 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
   appearance: none;
   border: 0;
   padding: 0;
-  background: transparent url('/pics/card-back.webp?v=4') center/contain no-repeat;
+  background: transparent url('/pics/card-back.webp?v=5') center/contain no-repeat;
   border-radius: 6%;
   overflow: hidden;
   width: 100%;
@@ -4662,7 +4662,7 @@ html[data-theme="dark"] .musteatStripStamp {
   display: block;
   width: 180px;
   aspect-ratio: 1449 / 2163;
-  background: transparent url('/pics/card-back.webp?v=4') center / contain no-repeat;
+  background: transparent url('/pics/card-back.webp?v=5') center / contain no-repeat;
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;

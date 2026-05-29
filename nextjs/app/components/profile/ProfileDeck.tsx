@@ -450,7 +450,7 @@ function FlipSlot({ order, card, flipped, hideCardFace, onExpand }: FlipSlotProp
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/pics/card-back.webp?v=4"
+          src="/pics/card-back.webp?v=5"
           alt=""
           className={`${styles.face} ${styles.faceBack}`}
           loading="lazy"
@@ -534,7 +534,7 @@ function TeaserSlot({ order, card, cinematic, onReveal, onCinematic }: TeaserSlo
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/pics/card-back.webp?v=4"
+          src="/pics/card-back.webp?v=5"
           alt=""
           className={`${styles.face} ${styles.faceBack}`}
           loading="lazy"
@@ -558,7 +558,7 @@ function BackSlot() {
       <div className={styles.flipper}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/pics/card-back.webp?v=4"
+          src="/pics/card-back.webp?v=5"
           alt=""
           className={`${styles.face} ${styles.faceBack}`}
           loading="lazy"

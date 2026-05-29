@@ -71,7 +71,7 @@ function Item({ restaurant, userLocation, isSelected, locked, onClick }: ItemPro
       >
         {restaurant.mustEatCount > 0 && !locked && (
           <img
-            src="/pics/card-back.webp?v=4"
+            src="/pics/card-back.webp?v=5"
             alt=""
             className={styles.rrowMust}
             aria-hidden="true"

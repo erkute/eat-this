@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { FieldValue } from 'firebase-admin/firestore'
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin'
 import { getCachedMapData } from '@/lib/map/cached-sanity'
+import { composeAnonRestaurants, composeSignedRestaurants } from '@/lib/map/tier-composition'
 import { resolveEntitlements } from '@/lib/firebase/entitlements'
 import { computeReferralPools, sampleN } from '@/lib/referral/pools'
 import {
@@ -67,8 +68,18 @@ export async function POST(req: NextRequest) {
   if (!existing.empty) return respond(true)
 
   try {
-    const { restaurants: all } = await getCachedMapData()
+    const { restaurants: all, mustEats: allMustEats } = await getCachedMapData()
     const allIds = all.map((r) => r._id)
+
+    const mustEatCount = new Map<string, number>()
+    for (const m of allMustEats) {
+      const rid = m.restaurant._id
+      mustEatCount.set(rid, (mustEatCount.get(rid) ?? 0) + 1)
+    }
+    const anonSet   = composeAnonRestaurants(all, mustEatCount)
+    const anonIds   = new Set(anonSet.map((r) => r._id))
+    const signedSet = composeSignedRestaurants(all, anonIds, mustEatCount)
+    const signedIds = new Set(signedSet.map((r) => r._id))
 
     const inviterEnt = await resolveEntitlements(inviterUid, inviterEmail)
     const inviterEntitledIds = new Set<string>(inviterEnt.restaurantIds)
@@ -82,14 +93,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Bonus pool: spots from the full catalog not yet owned by each party.
-    // anonIds/signedIds intentionally empty — the welcome pack already handles
-    // that tier; bonuses draw from the full catalog minus existing entitlements.
     const { inviterPool, friendPool } = computeReferralPools({
-      allIds,
-      anonIds:            new Set(),
-      signedIds:          new Set(),
-      inviterEntitledIds,
+      allIds, anonIds, signedIds, inviterEntitledIds,
     })
     const friendPicks  = sampleN(friendPool,  REFERRAL_BONUS_SIZE)
     const inviterPicks = sampleN(inviterPool, REFERRAL_BONUS_SIZE)

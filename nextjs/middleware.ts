@@ -2,6 +2,7 @@ import createMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from 'next/server';
 import { routing } from './i18n/routing';
 import { isStaging } from '@/lib/env';
+import { REFERRER_COOKIE, COOKIE_MAX_AGE, UID_SHAPE } from '@/lib/referral/constants';
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -66,6 +67,26 @@ export default function middleware(req: NextRequest) {
     const res = NextResponse.redirect(url, 308);
     res.cookies.set('NEXT_LOCALE', legacyLang, { path: '/', maxAge: 60 * 60 * 24 * 365 });
     return res;
+  }
+
+  // Referral capture — ?ref=<inviterUid>. Strip the param (clean URL, 308
+  // like ?lang) and, if it's a plausible uid, set a 30-day HttpOnly cookie
+  // that /api/referral/confirm consumes after the friend signs up.
+  const ref = searchParams.get('ref');
+  if (ref !== null) {
+    const url = req.nextUrl.clone();
+    url.searchParams.delete('ref');
+    const redirect = NextResponse.redirect(url, 308);
+    if (UID_SHAPE.test(ref)) {
+      redirect.cookies.set(REFERRER_COOKIE, ref, {
+        path: '/',
+        maxAge: COOKIE_MAX_AGE,
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+      });
+    }
+    return redirect;
   }
 
   const res = intlMiddleware(req);

@@ -1,55 +1,37 @@
 .header {
   max-width: 700px;
   margin: 0 auto;
-  padding: 16px 16px 24px;
+  padding: 16px 16px 20px;
   text-align: center;
 }
 
-.city {
-  margin: 0 0 6px;
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #E8762A;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto;
-  max-width: 130px;
-  height: auto;
-}
-.logoDark { display: none; }
-
+/* Collected count — the deck's headline number. Prominent. */
 .count {
-  display: block;
-  margin-top: 10px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
   white-space: nowrap;
   font-family: 'Silkscreen', monospace;
   font-weight: 700;
   letter-spacing: 1px;
   line-height: 1;
-  text-align: center;
 }
 .countN {
-  font-size: 18px;
+  font-size: 44px;
   color: #0A0A0A;
 }
 .countTotal {
-  font-size: 11px;
+  font-size: 20px;
   color: rgba(0, 0, 0, 0.4);
-  margin-left: 4px;
 }
 
 @media (min-width: 768px) {
-  .header { padding: 24px 40px 28px; }
-  .logo { max-width: 220px; }
+  .header { padding: 24px 40px 24px; }
+  .countN { font-size: 56px; }
+  .countTotal { font-size: 24px; }
 }
 
 /* Dark Mode */
-:global(html[data-theme="dark"]) .logoLight { display: none; }
-:global(html[data-theme="dark"]) .logoDark { display: block; }
 :global(html[data-theme="dark"]) .countN {
   color: #f5f5f5;
 }

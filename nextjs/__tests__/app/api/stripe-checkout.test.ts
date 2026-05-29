@@ -48,9 +48,18 @@ beforeEach(() => {
 })
 
 describe('/api/stripe/checkout', () => {
-  it('returns 401 when no bearer token', async () => {
+  it('proceeds as guest checkout when no bearer token (SP4.5)', async () => {
     const res = await POST(makeReq({ packId: 'category-pizza' }, null))
-    expect(res.status).toBe(401)
+    expect(res.status).toBe(200)
+    const json = await res.json()
+    expect(json.url).toContain('checkout.stripe.com')
+    // Guest: no token verification, no already-owned check, empty uid + guest mode.
+    expect(mocks.verifyIdToken).not.toHaveBeenCalled()
+    const args = mocks.sessionsCreate.mock.calls[0][0]
+    expect(args.metadata.uid).toBe('')
+    expect(args.metadata.mode).toBe('guest')
+    // Guests don't pre-fill customer_email — Stripe collects it on the form.
+    expect(args.customer_email).toBeUndefined()
   })
 
   it('returns 401 when token is invalid', async () => {

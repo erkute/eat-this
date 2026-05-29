@@ -73,7 +73,12 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   // signup wall. Authed users keep the stored Firestore unlock set.
   const TRIAL_UNLOCKED_COUNT = 10
   const unlockedIds = useMemo(() => {
-    if (uid) return storedUnlockedIds
+    if (uid) {
+      // Signed-in: Firestore-collected reveals ∪ the server-curated revealed
+      // set (the SAME set the profile deck shows as teasers). The curated set
+      // is on visible anon-tier spots, so each revealed must-eat's spot shows.
+      return new Set<string>([...storedUnlockedIds, ...revealedMustEatIds])
+    }
     const unlockedRestaurantIds = new Set(
       restaurants.slice(0, TRIAL_UNLOCKED_COUNT).map((r) => r._id),
     )
@@ -82,7 +87,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
         .filter((m) => unlockedRestaurantIds.has(m.restaurant._id))
         .map((m) => m._id),
     )
-  }, [uid, storedUnlockedIds, mustEats, restaurants])
+  }, [uid, storedUnlockedIds, revealedMustEatIds, mustEats, restaurants])
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
   const userTier = useUserTier(uid)
 
@@ -90,6 +95,16 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   useEffect(() => {
     if (!uid) return
     const ref = collection(db, 'users', uid, 'entitlements')
+    return onSnapshot(ref, () => {
+      refetchMapData()
+    })
+  }, [uid, refetchMapData])
+
+  // Live-refetch when a referral bonus lands — covers both the inviter
+  // (friend just signed up) and the friend (their welcome bonus was written).
+  useEffect(() => {
+    if (!uid) return
+    const ref = collection(db, 'users', uid, 'referralBonuses')
     return onSnapshot(ref, () => {
       refetchMapData()
     })

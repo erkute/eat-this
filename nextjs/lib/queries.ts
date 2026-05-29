@@ -378,7 +378,8 @@ export const allMustEatsQuery = `
   }
 `
 
-// Must Eat album grid — matches legacy window.CMS.fetchMustEats projection
+// Must Eat album grid — matches legacy window.CMS.fetchMustEats projection,
+// plus the teaser fields the profile deck needs to make cards revealable.
 export const allMustEatsAlbumQuery = `
   *[_type == "mustEat"] | order(order asc) {
     _id,
@@ -388,6 +389,8 @@ export const allMustEatsAlbumQuery = `
     price,
     "imageUrl": image.asset->url + "?w=600&auto=format&q=80",
     "restaurantSlug": restaurantRef->slug.current,
+    "restaurantId": restaurantRef->_id,
+    revealedForAnon,
     order
   }
 `

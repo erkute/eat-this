@@ -209,7 +209,11 @@ a {
    (See memory feedback_ios_overlay_pattern.md.) */
 .app-page[data-page="map"] {
   padding-bottom: 0 !important;
-  height: calc(100dvh - 60px) !important;
+  /* Subtract the navbar height — must match `.app-pages` margin-top (48px in
+     prod, set in style.css). It used to be 60px (the old SeoNav header); after
+     the header was unified to the 48px SiteNav, the stale 60px left a 12px
+     white strip of body background below the map on desktop. */
+  height: calc(100dvh - 48px) !important;
 }
 
 /* Mobile: the navbar goes transparent over the map (see style.css
@@ -253,22 +257,22 @@ body[data-env="staging"] header[role="banner"] {
 }
 
 
-/* App-pages reserves margin-top for the fixed navbar — original
-   prod value is 48px which under-reserves the actual 60px SeoNav
-   header (pre-existing 12px overlap on the search toolbar). With
-   the staging banner pushing the navbar down by 32px on top of that,
-   bump the reservation to a full 60 + banner so search and filters
-   don't sit under the header. */
+/* App-pages reserves margin-top for the fixed navbar (48px — the unified
+   SiteNav height, matching the prod `.app-pages` margin-top in style.css).
+   On staging the banner pushes the navbar down by --staging-banner-h, so
+   reserve 48px + banner. (Was 60px — a stale SeoNav value that left a 12px
+   white strip of body background under the header on every .app-pages route
+   and on the map.) */
 body[data-env="staging"] .app-pages {
-  margin-top: calc(60px + env(safe-area-inset-top, 0px) + var(--staging-banner-h));
+  margin-top: calc(48px + env(safe-area-inset-top, 0px) + var(--staging-banner-h));
 }
 
-/* Map page reserves 60px for the navbar; with the banner above it,
-   the page would overflow the viewport by --staging-banner-h. The FAB
-   (Mein Standort) is bottom-anchored inside this page, so the overflow
-   pushes it off the bottom edge. Desktop only. */
+/* Map page reserves the 48px navbar; with the banner above it, the page
+   would overflow the viewport by --staging-banner-h. The FAB (Mein Standort)
+   is bottom-anchored inside this page, so the overflow pushes it off the
+   bottom edge. Desktop only. */
 body[data-env="staging"] .app-page[data-page="map"] {
-  height: calc(100dvh - 60px - var(--staging-banner-h)) !important;
+  height: calc(100dvh - 48px - var(--staging-banner-h)) !important;
 }
 
 /* Mobile map: navbar is transparent over the map (full-viewport canvas).

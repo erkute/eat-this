@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { hasLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import { AuthProvider, LoginModalProvider } from '@/lib/auth'
-import SeoNav from '@/app/components/SeoNav'
+import SiteNav from '@/app/components/SiteNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
 import NotificationToast from '@/app/components/NotificationToast'
 import SearchOverlay from '@/app/components/SearchOverlay'
@@ -53,7 +53,7 @@ export default async function SPALayout({
     <>
       {/* Full SPA stylesheet — hoisted to <head> by Next.js */}
       {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/css/style.min.css?v=141" precedence="default" />
+      <link rel="stylesheet" href="/css/style.min.css?v=142" precedence="default" />
 
       <link rel="preconnect" href="https://ehwjnjr2.apicdn.sanity.io" crossOrigin="anonymous" />
       <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
@@ -66,7 +66,7 @@ export default async function SPALayout({
       <AuthProvider>
         <LoginModalProvider>
           <BridgeAuth />
-          <SeoNav />
+          <SiteNav />
           <BurgerDrawer />
           <NotificationToast />
           <div className="app-pages" id="appPages">

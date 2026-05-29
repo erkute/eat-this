@@ -16,13 +16,14 @@ import styles from './profile.module.css';
 interface Props {
   mustEats: MustEatAlbumCard[];
   restaurantCount: number;
+  curatedRevealedIds: string[];
 }
 
-export default function ProfileShell({ mustEats, restaurantCount }: Props) {
+export default function ProfileShell({ mustEats, restaurantCount, curatedRevealedIds }: Props) {
   const { user, loading } = useAuth();
   // Map-page reveals write to users/{uid}/unlockedMustEats — read them here
   // so the deck can show those cards.
-  const { unlockedIds: mapUnlockedIds } = useUnlockedMustEats(user?.uid ?? null);
+  const { unlockedIds: mapUnlockedIds, unlock } = useUnlockedMustEats(user?.uid ?? null);
   // Read the URL hash on mount so deep-links from elsewhere in the app
   // (e.g. the map's booster CTAs use /profile#booster) land on the right
   // tab instead of always defaulting to "deck". Special case: a Stripe
@@ -58,6 +59,8 @@ export default function ProfileShell({ mustEats, restaurantCount }: Props) {
           <ProfileDeck
             mustEats={mustEats}
             mapUnlockedIds={mapUnlockedIds}
+            unlock={unlock}
+            curatedRevealedIds={curatedRevealedIds}
           />
         )}
         {tab === 'restaurants' && <ProfileRestaurants uid={user.uid} />}

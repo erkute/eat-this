@@ -8,6 +8,7 @@ import { useAuth, useLoginModal } from '@/lib/auth';
 import { routing } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import type { BurgerCloseDetail } from './BurgerDrawer';
+import styles from './SiteNav.module.css';
 
 // Strip the optional /en prefix to get the route the SPA cares about.
 function stripLocale(path: string): string {
@@ -152,11 +153,9 @@ export default function SiteNav() {
       </svg>
       <nav className="navbar" id="navbar">
         <div className="navbar-home">
-          <Link href="/" className={`navbar-icon-btn${activePage === 'start' ? ' active' : ''}`} id="navStartBtn" aria-label="Start">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.6" filter="url(#navWonky)">
-              <path d="M3 12 12 3l9 9"/>
-              <path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/>
-            </svg>
+          <Link href="/" className={styles.logo} aria-label="Eat This — Start">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/pics/eat-this-logo.webp" alt="Eat This" className={styles.logoImg} />
           </Link>
         </div>
         <div className="navbar-actions">

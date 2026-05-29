@@ -18,6 +18,16 @@
   backdrop-filter: blur(10px) saturate(1.1);
 }
 
+/* Staging banner (z-index 100000) sits above this overlay (z-index 10000),
+   so without a shift it paints over the overlay's top — covering the panel
+   header / close button. Start the overlay below the banner, same pattern
+   as .navbar / header[role="banner"] / .burger-drawer in globals.css.
+   --staging-banner-h is 0 on prod, 32px on staging, so this is a no-op
+   off staging. */
+:global(body[data-env='staging']) .overlay {
+  top: var(--staging-banner-h, 0px);
+}
+
 @media (max-width: 767px) {
   .overlay {
     padding: 0;

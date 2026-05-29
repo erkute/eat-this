@@ -71,3 +71,32 @@ describe('middleware: Basic Auth + X-Robots-Tag', () => {
     expect(res.status).not.toBe(401)
   })
 })
+
+describe('middleware: referral ?ref capture', () => {
+  const ORIGINAL_ENV = process.env.NEXT_PUBLIC_ENV
+  afterEach(() => {
+    process.env.NEXT_PUBLIC_ENV = ORIGINAL_ENV
+    vi.resetModules()
+  })
+
+  it('valid ?ref → 308, strips param, sets HttpOnly pending_referrer cookie', async () => {
+    process.env.NEXT_PUBLIC_ENV = 'production'
+    vi.resetModules()
+    const { default: middleware } = await import('@/middleware')
+    const uid = 'a'.repeat(28)
+    const res = middleware(makeReq(`/?ref=${uid}`))
+    expect(res.status).toBe(308)
+    expect(res.headers.get('location')).not.toContain('ref=')
+    expect(res.cookies.get('pending_referrer')?.value).toBe(uid)
+    expect((res.headers.get('set-cookie') ?? '').toLowerCase()).toContain('httponly')
+  })
+
+  it('garbage ?ref → 308, strips param, sets NO cookie', async () => {
+    process.env.NEXT_PUBLIC_ENV = 'production'
+    vi.resetModules()
+    const { default: middleware } = await import('@/middleware')
+    const res = middleware(makeReq('/?ref=not-a-uid!!'))
+    expect(res.status).toBe(308)
+    expect(res.cookies.get('pending_referrer')).toBeUndefined()
+  })
+})

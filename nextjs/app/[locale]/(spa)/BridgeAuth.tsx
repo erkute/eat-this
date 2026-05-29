@@ -18,7 +18,10 @@
 
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { useAuth, useLoginModal } from '@/lib/auth';
+import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { useTranslation } from '@/lib/i18n';
 import LoginPanel from '@/app/components/LoginPanel';
 import modalStyles from '@/app/[locale]/@modal/(.)login/modal.module.css';
@@ -27,6 +30,17 @@ export default function BridgeAuth() {
   const { user, loading } = useAuth();
   const { t } = useTranslation();
   const { isOpen: loginOpen, close: closeLogin } = useLoginModal();
+  const router = useRouter();
+  const locale = useLocale();
+
+  // A sign-in that completes while the modal is open (Google popup or
+  // magic-link return) lands the user in their profile — the same destination
+  // the /login page uses. BridgeAuth owns the modal lifecycle, so it owns this
+  // redirect rather than relying on the soon-to-unmount LoginPanel's effect.
+  useEffect(() => {
+    if (loading || !user || !loginOpen) return;
+    void postLoginRedirect(user.uid, router, locale);
+  }, [user, loading, loginOpen, router, locale]);
 
   // Lock body scroll while the login modal is open.
   useEffect(() => {

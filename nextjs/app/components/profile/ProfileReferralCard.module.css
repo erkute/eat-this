@@ -1,0 +1,53 @@
+/* Invite/referral card — Solari-yellow brand block at the top of the deck.
+   Punchy neo-brutalist: yellow field, black ink + outline, offset shadow. */
+.card {
+  position: relative;
+  background: #F5C518;
+  border: 2px solid #0a0a0a;
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin: 0 auto 22px;
+  max-width: 560px;
+  box-shadow: 5px 5px 0 #0a0a0a;
+  overflow: hidden;
+}
+
+.title {
+  font-family: var(--font-anton), sans-serif;
+  font-size: clamp(24px, 6vw, 30px);
+  line-height: 1.02;
+  letter-spacing: 0.01em;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  color: #0a0a0a;
+}
+
+.sub {
+  font-size: 14px;
+  line-height: 1.4;
+  margin: 0 0 16px;
+  color: #0a0a0a;
+  opacity: 0.82;
+  max-width: 42ch;
+}
+
+.btn {
+  font-family: var(--font-saira-condensed), sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 16px;
+  padding: 11px 22px;
+  border: 2px solid #0a0a0a;
+  border-radius: 10px;
+  background: #0a0a0a;
+  color: #F5C518;
+  box-shadow: 4px 4px 0 rgba(10, 10, 10, 0.28);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 rgba(10, 10, 10, 0.28);
+}

@@ -206,6 +206,27 @@ export const featuredSpotsFallbackQuery = `
   }
 `
 
+// Curated spots for the magic-link email: restaurants that have at least one
+// Must-Eat card, editorial first (`featured`), then by Must-Eat count. Projects
+// exactly what the email renders — restaurant photo + a single Must-Eat card.
+export const emailSpotsQuery = `
+  *[_type == "restaurant" && isOpen != false
+    && defined(slug.current) && defined(image.asset)
+    && count(*[_type == "mustEat" && restaurantRef._ref == ^._id && defined(image.asset)]) > 0]
+    | order(featured == true desc, count(*[_type == "mustEat" && restaurantRef._ref == ^._id]) desc, _createdAt desc)
+    [0...$limit] {
+    name,
+    "area": coalesce(bezirkRef->name, district),
+    "cuisine": cuisineType,
+    "photo": image.asset->url,
+    "mustEats": *[_type == "mustEat" && restaurantRef._ref == ^._id && defined(image.asset)]
+      | order(order asc)[0...1] {
+      dish,
+      "cardPhoto": image.asset->url
+    }
+  }
+`
+
 // Latest 10 restaurants added
 export const latestRestaurantsQuery = `
   *[_type == "restaurant" && isOpen != false] | order(_createdAt desc) [0...10] {

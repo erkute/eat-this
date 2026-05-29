@@ -90,3 +90,7 @@ Scope expanded after the user reviewed the first cut:
 - Eat This is described as a **"curated food discovery map"**.
 - Starter-pack image now carries a one-line explanation of what it is.
 - CTA copy: headline **"Willkommen bei Eat This."**, sub **"Tipp auf den Button, um dich anzumelden."**
+
+## Revision 3 — hard-edge mockup look (user)
+
+Redesigned to match `mockup-map.html` exactly: **zero rounded corners** everywhere, **2px solid black rules/borders**, cream `#FBF8EE` / black / yellow `#FFD84A` palette, **Anton** display type (Impact fallback). Black header band (yellow EAT THIS wordmark), yellow slogan band with black top/bottom rules (red tagline), **yellow sharp-rectangle CTA** (was a black pill). Starter-pack caption per [[access-wording-weitere-spots]]: "Mit dem Login kommen weitere Spots und Must Eats dazu." — no "erste", no "frei/gratis", no numbers.

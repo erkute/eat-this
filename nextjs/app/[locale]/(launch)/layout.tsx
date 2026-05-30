@@ -23,7 +23,15 @@ export const metadata: Metadata = {
     title: 'Eat This — The Map for people who care about food.',
     description: 'Berlin Food Map · Launch 30.06.2026.',
     url: SITE_URL,
+    images: [{ url: SITE_URL + '/pics/og-card.png', width: 1200, height: 630, alt: 'EAT THIS – We tell you what to eat' }],
     locale: 'de_DE',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@eatthisdotcom',
+    title: 'Eat This — The Map for people who care about food.',
+    description: 'Berlin Food Map · Launch 30.06.2026.',
+    images: [SITE_URL + '/pics/og-card.png'],
   },
 }
 

@@ -13,28 +13,30 @@ import BridgeAuth from './BridgeAuth'
 
 const SITE_URL = 'https://www.eatthisdot.com'
 
+const TITLE = 'EAT THIS – Berlin Food Guide: Restaurants & Geheimtipps'
+const DESCRIPTION =
+  'We tell you what to eat — die kuratierte Food Map mit den besten Restaurants, Cafés und Bars in Berlin. Dazu exklusive Must Eats auf der interaktiven Karte.'
+const OG_IMAGE = SITE_URL + '/pics/og-card.png'
+
 export const metadata: Metadata = {
-  title: 'EAT THIS - Probably the best food guide you know',
-  description:
-    "Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must Eats on the interactive map & hunt down the best dishes in the city. Taste it all!",
+  title: TITLE,
+  description: DESCRIPTION,
   robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
   openGraph: {
     type: 'website',
     siteName: 'EAT THIS',
-    title: 'EAT THIS - Probably the best food guide you know',
-    description:
-      "Just Order This: Your curated Berlin food guide. Collect all Eat Cards, discover exclusive Must Eats on the interactive map & hunt down the best dishes in the city. Taste it all!",
+    title: TITLE,
+    description: DESCRIPTION,
     url: SITE_URL,
-    images: [{ url: SITE_URL + '/pics/hero_desktop1.webp', width: 1536, height: 1024, alt: 'EAT THIS - Berlin Food Guide' }],
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: 'EAT THIS – We tell you what to eat' }],
     locale: 'de_DE',
   },
   twitter: {
     card: 'summary_large_image',
     site: '@eatthisdotcom',
-    title: 'EAT THIS - Probably the best food guide you know',
-    description:
-      "Just Order This: Your curated Berlin food guide. Collect all Eat Cards & discover Must Eats on the interactive map. Taste it all!",
-    images: [SITE_URL + '/pics/hero_desktop1.webp'],
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [OG_IMAGE],
   },
 }
 

@@ -2,11 +2,14 @@ import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { setRequestLocale, getMessages } from 'next-intl/server';
 import { Bungee, Caveat, Knewave, Archivo_Black, Ranchers, Slackey, Barlow_Condensed, Bowlby_One, Saira_Condensed, Permanent_Marker, Anton } from 'next/font/google';
+import Script from 'next/script';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
 import { StagingBanner } from '@/app/components/StagingBanner';
 import ReferralToastListener from '@/app/components/ReferralToastListener';
 import { isStaging } from '@/lib/env';
+import { serializeJsonLd } from '@/lib/json-ld';
+import { SITE_URL } from '@/lib/constants';
 
 // Display family — Bar-Basta + Eat-This-poster direction:
 // • Bungee (solid) = heavy block wordmark, fully filled. Section H2s.
@@ -136,6 +139,39 @@ const CRITICAL_BOOTSTRAP = `(function(){
   try{var ah=JSON.parse(localStorage.getItem('_authHint')||'null');if(ah&&ah.n){document.addEventListener('DOMContentLoaded',function(){var lb=document.getElementById('loginBtn');if(!lb)return;lb.classList.add('logged-in');var sp=lb.querySelector('span');if(sp)sp.textContent=ah.n;});}}catch(_){}
 }());`;
 
+// Sitewide Organization + WebSite schema. The Organization.logo is the
+// square cream-on-black EAT THIS mark — this is the asset Google associates
+// with the brand (knowledge panel / rich results). Static, no user input.
+const ORG_JSON_LD = serializeJsonLd({
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${SITE_URL}/#organization`,
+      name: 'EAT THIS',
+      url: SITE_URL,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_URL}/pics/logo.webp`,
+        width: 512,
+        height: 512,
+      },
+      sameAs: [
+        'https://www.instagram.com/eatthisdotcom/',
+        'https://www.tiktok.com/@eatthis',
+      ],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}/#website`,
+      name: 'EAT THIS',
+      url: SITE_URL,
+      inLanguage: 'de-DE',
+      publisher: { '@id': `${SITE_URL}/#organization` },
+    },
+  ],
+});
+
 export default async function LocaleLayout({
   children,
   modal,
@@ -157,6 +193,9 @@ export default async function LocaleLayout({
         {/* Safe: hardcoded constant, no user input */}
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script dangerouslySetInnerHTML={{ __html: CRITICAL_BOOTSTRAP }} />
+        <Script id="schema-org" type="application/ld+json" strategy="beforeInteractive">
+          {ORG_JSON_LD}
+        </Script>
       </head>
       <body data-env={isStaging ? 'staging' : 'production'}>
         <StagingBanner />

@@ -108,7 +108,7 @@ function AuthActionInner() {
       <main className={styles.splashPage}>
         <div className={styles.splash}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/pics/eat-this-logo.webp?v=3" alt="Eat This" className={styles.splashLogo} />
+          <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" className={styles.splashLogo} />
           <div className={styles.bar} aria-hidden />
           <h1 className={styles.splashTitle}>Gleich bist du drin.</h1>
         </div>
@@ -121,7 +121,7 @@ function AuthActionInner() {
       <div className={styles.frame}>
         <div className={styles.logoWrap}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/pics/eat-this-logo.webp?v=3" alt="Eat This" className={styles.logoMark} />
+          <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" className={styles.logoMark} />
         </div>
 
         <div className={styles.content}>

@@ -103,6 +103,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: copy.description,
       url: canonical,
       type: 'website',
+      images: [{ url: `${SITE_URL}/pics/og-card.png`, width: 1200, height: 630, alt: 'EAT THIS – We tell you what to eat' }],
       locale: locale === 'de' ? 'de_DE' : 'en_US',
     },
   }

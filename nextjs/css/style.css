@@ -100,17 +100,16 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
-  /* Site-„weiß" = exakter Cover2-Bg-Ton (#ffffff) — so flowt der Header
-     nahtlos in den Hero. */
-  background: #ffffff;
-  border-bottom: 1px solid rgba(10, 10, 10, 0.08);
+  /* Brand-yellow header bar. */
+  background: #F5C518;
+  border-bottom: 1px solid rgba(10, 10, 10, 0.12);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
 [data-theme="dark"] .navbar {
-  /* Site-„schwarz" = exaktes Cover2-Text-Ton (#1c1c1c). */
-  background: #1c1c1c;
-  border-bottom-color: rgba(255, 255, 255, 0.10);
+  /* Header stays brand-yellow in dark theme too. */
+  background: #F5C518;
+  border-bottom-color: rgba(10, 10, 10, 0.12);
 }
 /* Legacy brand-plate slots — kept hidden so old markup paths stay quiet. */
 .navbar-brand,
@@ -152,22 +151,24 @@ body {
   -webkit-appearance: none;
   appearance: none;
   cursor: pointer;
-  color: #0a0a0a;
+  color: #fbf8ee;
   padding: 0;
   box-shadow: none;
   transition: color 140ms ease;
   -webkit-tap-highlight-color: transparent;
 }
-[data-theme="dark"] .navbar-icon-btn { color: #f7f5f0; }
+[data-theme="dark"] .navbar-icon-btn { color: #fbf8ee; }
 .navbar-icon-btn:hover,
 .navbar-icon-btn:active,
-.navbar-icon-btn.active { color: var(--accent-coral, #a02814); }
+.navbar-icon-btn.active { color: #ffffff; }
 .navbar-icon-btn::after { content: none; }
 .navbar-icon-btn svg {
   width: 22px;
   height: 22px;
   stroke: currentColor;
   flex-shrink: 0;
+  /* Soft dark halo so the cream icons read on the yellow header bar. */
+  filter: drop-shadow(0 0 1px rgba(10, 10, 10, 0.6)) drop-shadow(0 1px 1px rgba(10, 10, 10, 0.4));
 }
 /* Active page indicator: hairline coral underline below the icon. */
 .navbar-icon-btn.active::before {
@@ -223,18 +224,18 @@ body {
    Light: #ffffff / Dark: #1c1c1c. Gilt für die fixed Navbar und alle
    Sektionen innerhalb der Landing. */
 html:not([data-theme="dark"])[data-active-page="start"] .navbar {
-  background: #ffffff;
+  background: #F5C518;
   border-bottom-color: transparent;
 }
 html:not([data-theme="dark"])[data-active-page="start"] .navbar .navbar-icon-btn,
 html:not([data-theme="dark"])[data-active-page="start"] .navbar .burger-btn { color: #1c1c1c; }
 
 html[data-theme="dark"][data-active-page="start"] .navbar {
-  background: #1c1c1c;
+  background: #F5C518;
   border-bottom-color: transparent;
 }
 html[data-theme="dark"][data-active-page="start"] .navbar .navbar-icon-btn,
-html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #ffffff; }
+html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #1c1c1c; }
 
 /* Map page on mobile: header is almost gone — Start + Profile chip float
    in the top-right next to the floating search toolbar. Map canvas claims
@@ -260,11 +261,12 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
   [data-active-page="map"] .navbar > * {
     pointer-events: auto;
   }
-  /* Hide everything except Start (in .navbar-home) and Profile. */
+  /* Map mobile: hide everything except the burger menu. */
+  [data-active-page="map"] .navbar .navbar-home,
   [data-active-page="map"] .navbar .navbar-brand,
   [data-active-page="map"] .navbar #navNewsBtn,
   [data-active-page="map"] .navbar #navMapBtn,
-  [data-active-page="map"] .navbar .burger-btn {
+  [data-active-page="map"] .navbar #navProfileBtn {
     display: none;
   }
   [data-active-page="map"] .navbar .navbar-actions {
@@ -288,6 +290,21 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
   /* Active underline conflicts with glass chip — suppress on map. */
   [data-active-page="map"] .navbar .navbar-icon-btn.active::before {
     display: none;
+  }
+  /* Map mobile: the lone burger sits as a glass chip (matches search toolbar). */
+  [data-active-page="map"] .navbar .burger-btn {
+    display: inline-flex !important;
+    width: 40px !important;
+    height: 40px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    border-radius: 999px !important;
+    color: #1a1a1a !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
+  }
+  [data-active-page="map"] .navbar .burger-btn svg { filter: none; }
+  html[data-theme="dark"][data-active-page="map"] .navbar .burger-btn {
+    background: rgba(32, 30, 28, 0.96) !important;
+    color: var(--c-cream, #f3ead4) !important;
   }
   html[data-theme="dark"][data-active-page="map"] .navbar .navbar-icon-btn {
     background: rgba(32, 30, 28, 0.96) !important;
@@ -1565,7 +1582,7 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
 /* Dark-mode navbar — handled in the top navbar block. Only burger color
    needs to live here because its base color cascades from .burger-btn. */
 [data-theme="dark"] .burger-btn {
-  color: #f7f5f0;
+  color: #fbf8ee;
 }
 
 /* Profile settings dark mode */
@@ -2211,7 +2228,7 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   appearance: none;
   cursor: pointer;
   padding: 0;
-  color: var(--accent-ink);
+  color: #fbf8ee;
   box-shadow: none;
   transition: color 0.18s ease, transform 0.18s ease;
   -webkit-tap-highlight-color: transparent;
@@ -2219,6 +2236,8 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
 .burger-btn svg {
   width: 24px;
   height: 24px;
+  /* Soft dark halo so the cream burger reads on the yellow header bar. */
+  filter: drop-shadow(0 0 1px rgba(10, 10, 10, 0.6)) drop-shadow(0 1px 1px rgba(10, 10, 10, 0.4));
 }
 .burger-btn:hover {
   color: var(--accent-coral);

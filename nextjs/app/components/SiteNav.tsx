@@ -155,7 +155,7 @@ export default function SiteNav() {
         <div className="navbar-home">
           <Link href="/" className={styles.logo} aria-label="Eat This — Start">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/eat-this-logo.webp?v=3" alt="Eat This" className={styles.logoImg} />
+            <img src="/pics/logo.webp?v=5" alt="Eat This" className={styles.logoImg} />
           </Link>
         </div>
         <div className="navbar-actions">

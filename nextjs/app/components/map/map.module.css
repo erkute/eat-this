@@ -1502,18 +1502,18 @@ html[data-theme="dark"] .btn:hover {
 /* Must-eat specific hero: portrait polaroid feel */
 
 /* ========== Logo marker for restaurants — EAT THIS mark on a black
-   sticker disk. Solid black background reads cleanly on both light and
-   dark Carto tiles; the white freistellte mark sits centered inside. ========= */
+   sticker disk. The cream freistellte mark sits centered inside; a cream
+   halo ring separates the black disk from dark Carto tiles. ========= */
 .pinLogo {
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
   transform-origin: center bottom;
   position: relative;
-  background: #F5C518;
+  background: #0a0a0a;
   border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45), 0 0 0 2px #0a0a0a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45), 0 0 0 2px #fbf8ee;
 }
 .pinLogo:hover { transform: scale(1.1); }
 .pinLogoActive {
@@ -1545,7 +1545,7 @@ html[data-theme="dark"] .btn:hover {
   pointer-events: none;
 }
 :global(html[data-theme="dark"]) .pinLogo {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), 0 0 0 2px #0a0a0a;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), 0 0 0 2px #fbf8ee;
 }
 
 /* ========== Card-back marker for Must Eats ========== */

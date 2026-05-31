@@ -55,7 +55,7 @@ export default async function SPALayout({
     <>
       {/* Full SPA stylesheet — hoisted to <head> by Next.js */}
       {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/css/style.min.css?v=143" precedence="default" />
+      <link rel="stylesheet" href="/css/style.min.css?v=144" precedence="default" />
 
       <link rel="preconnect" href="https://ehwjnjr2.apicdn.sanity.io" crossOrigin="anonymous" />
       <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />

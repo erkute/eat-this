@@ -1005,6 +1005,14 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
     padding-top: calc(6px + env(safe-area-inset-top, 0px));
     box-sizing: border-box;
   }
+  /* Mobile header: News hidden, Profil mirrored to the left of the centered
+     logo so the right cluster (Map + Burger) and the centered wordmark never
+     collide on narrow screens. Map page keeps its own burger-only floating-chip
+     treatment via higher-specificity [data-active-page="map"] rules, so scope
+     these out of the map page. Profil omits `top` on purpose — it inherits the
+     same vertical centering as .logo via static flex alignment. */
+  html:not([data-active-page="map"]) #navNewsBtn { display: none; }
+  html:not([data-active-page="map"]) #navProfileBtn { position: absolute; left: 16px; }
   /* Start page also cream in light mode */
   .app-page[data-page="start"] {
     background: var(--surface-canvas);

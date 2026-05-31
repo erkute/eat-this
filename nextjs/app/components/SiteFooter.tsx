@@ -14,7 +14,7 @@ export default function SiteFooter() {
       <h2 className={styles.mega} aria-label="Eat This">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/pics/eat-this-logo.webp?v=3"
+          src="/pics/eat-this-logo.webp?v=6"
           alt="Eat This"
           width="1660"
           height="667"

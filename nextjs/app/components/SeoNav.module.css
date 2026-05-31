@@ -12,7 +12,7 @@
   gap: 12px;
   padding: 8px 16px;
   padding-top: calc(8px + env(safe-area-inset-top, 0px));
-  background: #fbf8ee;
+  background: #F5C518;
 }
 
 .logo {
@@ -45,7 +45,7 @@
   height: 44px;
   border: 0;
   background: transparent;
-  color: #000;
+  color: #fbf8ee;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -69,4 +69,8 @@
 .iconBtn svg,
 .iconBtn svg * {
   pointer-events: none;
+}
+/* Soft dark halo so the cream icons read on the yellow header bar. */
+.iconBtn svg {
+  filter: drop-shadow(0 0 1px rgba(10, 10, 10, 0.6)) drop-shadow(0 1px 1px rgba(10, 10, 10, 0.4));
 }

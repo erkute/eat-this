@@ -1,7 +1,12 @@
-/* Left-aligned EAT THIS brand logo in the SiteNav header (replaces the old
+/* Centered EAT THIS brand mark in the SiteNav header (replaces the old
    home icon). Links to home. The navbar container itself is styled by the
-   global .navbar / .navbar-home rules in css/style.css. */
+   global .navbar / .navbar-home rules in css/style.css — the logo is pulled
+   out of the left flex slot and absolutely centered over the fixed navbar so
+   it sits dead-centre while the action cluster stays right. */
 .logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: inline-flex;
   align-items: center;
   text-decoration: none;
@@ -18,6 +23,9 @@
    fit a horizontal logo) at the profile-icon height so they pair visually. */
 @media (max-width: 1023.98px) {
   :global(html[data-active-page="map"]) .logo {
+    /* Map keeps its floating-chip layout — undo the absolute centering. */
+    position: static;
+    transform: none;
     width: auto;
     height: 36px;
     padding: 0 12px;

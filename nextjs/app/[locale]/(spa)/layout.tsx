@@ -55,15 +55,15 @@ export default async function SPALayout({
     <>
       {/* Full SPA stylesheet — hoisted to <head> by Next.js */}
       {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/css/style.min.css?v=142" precedence="default" />
+      <link rel="stylesheet" href="/css/style.min.css?v=143" precedence="default" />
 
       <link rel="preconnect" href="https://ehwjnjr2.apicdn.sanity.io" crossOrigin="anonymous" />
       <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
 
       <link rel="manifest" href="/manifest.json" />
-      <link rel="icon" type="image/x-icon" href="/favicon.ico?v=3" />
-      <link rel="icon" type="image/png" sizes="192x192" href="/pics/favicon-192.png?v=3" />
-      <link rel="apple-touch-icon" sizes="192x192" href="/pics/favicon-192.png?v=3" />
+      <link rel="icon" type="image/x-icon" href="/favicon.ico?v=5" />
+      <link rel="icon" type="image/png" sizes="192x192" href="/pics/favicon-192.png?v=5" />
+      <link rel="apple-touch-icon" sizes="192x192" href="/pics/favicon-192.png?v=5" />
 
       <AuthProvider>
         <LoginModalProvider>

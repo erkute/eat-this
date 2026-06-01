@@ -6,6 +6,7 @@ export interface HomeSpot extends SpotCandidate {
   slug: string
   image: string | null
   district: string | null
+  sub: string | null
 }
 
 export interface HomeData {
@@ -20,17 +21,18 @@ const spotCandidatesQuery = `*[_type == "restaurant" && isOpen == true && !(_id 
   featured,
   "image": image.asset->url,
   "district": coalesce(bezirkRef->name, district, null),
+  "sub": select($locale == "en" => coalesce(shortDescriptionEn, shortDescription), shortDescription),
   "mustEatCount": count(*[_type == "mustEat" && references(^._id)])
 }`
 
 /** Server: assemble the Hub's initial data. `today` defaults to the server's date. */
 export async function getHomeData(
-  _locale: 'de' | 'en', // reserved for future locale-specific GROQ projection
+  locale: 'de' | 'en',
   today: string = new Date().toISOString().slice(0, 10),
 ): Promise<HomeData> {
   const candidates = await client.fetch<HomeSpot[]>(
     spotCandidatesQuery,
-    {},
+    { locale },
     { next: { revalidate: 3600, tags: ['restaurant', 'mustEat'] } },
   )
   return { spotOfDay: pickSpotOfDay(candidates, today) }

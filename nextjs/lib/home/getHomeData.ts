@@ -1,4 +1,5 @@
 import { client } from '@/lib/sanity'
+import { getAllNewsArticles } from '@/lib/sanity.server'
 import { pickSpotOfDay, type SpotCandidate } from './pickSpotOfDay'
 
 export interface HomeSpot extends SpotCandidate {
@@ -39,11 +40,19 @@ export interface HubBezirk {
   spots: HubBezirkSpot[]
 }
 
+export interface HubArticle {
+  title: string
+  slug: string
+  image: string | null
+  kicker: string | null
+}
+
 export interface HomeData {
   spotOfDay: HomeSpot | null
   newOnMap: NewOnMapCard[]
   categories: HubCategory[]
   bezirkOfWeek: HubBezirk | null
+  magazine: HubArticle[]
 }
 
 const spotCandidatesQuery = `*[_type == "restaurant" && isOpen == true && !(_id in path("drafts.**"))]{
@@ -91,11 +100,20 @@ export async function getHomeData(
   locale: 'de' | 'en',
   today: string = new Date().toISOString().slice(0, 10),
 ): Promise<HomeData> {
-  const [candidates, newOnMap, categories, bezirkOfWeek] = await Promise.all([
+  const [candidates, newOnMap, categories, bezirkOfWeek, articles] = await Promise.all([
     client.fetch<HomeSpot[]>(spotCandidatesQuery, { locale }, { next: { revalidate: 3600, tags: ['restaurant', 'mustEat'] } }),
     client.fetch<NewOnMapCard[]>(newOnMapQuery, { locale }, { next: { revalidate: 3600, tags: ['restaurant'] } }),
     client.fetch<HubCategory[] | null>(homeWeekCategoriesQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
     client.fetch<HubBezirk | null>(bezirkOfWeekQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
+    getAllNewsArticles(),
   ])
-  return { spotOfDay: pickSpotOfDay(candidates, today), newOnMap, categories: categories ?? [], bezirkOfWeek }
+  // a.title is already the EN base (or DE fallback) via the news GROQ coalesce;
+  // a.titleDe is the German override. So de → titleDe||title, en → title.
+  const magazine: HubArticle[] = articles.slice(0, 4).map((a) => ({
+    title: locale === 'de' && a.titleDe ? a.titleDe : a.title,
+    slug: a.slug,
+    image: a.imageUrl ?? null,
+    kicker: (locale === 'de' ? a.categoryLabelDe : a.categoryLabel) ?? a.categoryLabel ?? null,
+  }))
+  return { spotOfDay: pickSpotOfDay(candidates, today), newOnMap, categories: categories ?? [], bezirkOfWeek, magazine }
 }

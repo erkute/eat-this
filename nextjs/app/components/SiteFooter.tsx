@@ -44,14 +44,6 @@ export default function SiteFooter() {
         >
           Instagram
         </a>
-        <a
-          href="https://www.tiktok.com/@eatthis"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.socialLink}
-        >
-          TikTok
-        </a>
       </div>
 
       <nav className={styles.legal} aria-label="Footer legal">

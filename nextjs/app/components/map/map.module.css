@@ -781,7 +781,7 @@ html[data-theme="dark"] .musteatListSwitchBtn:hover {
 }
 .listEmptyTitle {
   margin: 0;
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 400;
   font-size: clamp(34px, 8vw, 48px);
   line-height: 0.95;
@@ -792,7 +792,7 @@ html[data-theme="dark"] .musteatListSwitchBtn:hover {
 }
 .listEmptyBody {
   margin: 0;
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 800;
   font-size: 13px;
   letter-spacing: 0.14em;
@@ -1133,7 +1133,7 @@ html[data-theme="dark"] .rrowCoral { background-color: #0a0a0a; }
 }
 .rrowBezirk {
   flex-shrink: 0;
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 900;
   font-size: 9px;
   letter-spacing: 0.04em;
@@ -1152,7 +1152,7 @@ html[data-theme="dark"] .rrowCoral { background-color: #0a0a0a; }
      wären. */
   flex-basis: 100%;
   margin-top: 2px;
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 900;
   font-size: 10.5px;
   letter-spacing: 0.08em;
@@ -1168,7 +1168,7 @@ html[data-theme="dark"] .rrowCoral { background-color: #0a0a0a; }
 }
 .rrowTitle {
   margin: 0;
-  font-family: var(--font-bowlby-one), 'Bowlby One', 'Arial Black', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', 'Arial Black', sans-serif;
   font-weight: 400;
   font-size: 14px;
   line-height: 1.05;
@@ -1182,7 +1182,7 @@ html[data-theme="dark"] .rrowCoral { background-color: #0a0a0a; }
 }
 .rrowInfo {
   margin: 5px 0 0;
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 900;
   font-size: 11.5px;
   letter-spacing: 0.06em;
@@ -1227,7 +1227,7 @@ html[data-theme="dark"] .rrowCoral { background-color: #0a0a0a; }
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 400;
   font-size: 10px;
   letter-spacing: 0.01em;
@@ -2587,7 +2587,7 @@ html[data-theme="dark"] .mustEatHero {
 
 .boosterPromoTitle {
   margin: 0;
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 400;
   font-size: 14px;
   line-height: 1.05;
@@ -2600,7 +2600,7 @@ html[data-theme="dark"] .mustEatHero {
 /* Anon-variant subline — small caps under the title, sits above the CTA */
 .boosterPromoSub {
   margin: 0;
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 400;
   font-size: 9.5px;
   letter-spacing: 0.04em;
@@ -2673,7 +2673,7 @@ html[data-theme="dark"] .mustEatHero {
 }
 .btnPromoLbl {
   padding: 4px 7px 4px 9px;
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 400;
   font-size: 11px;
   letter-spacing: 0;
@@ -4006,7 +4006,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
 }
 .heroName {
   margin: 0;
-  font-family: var(--font-bowlby-one), 'Bowlby One', 'Arial Black', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', 'Arial Black', sans-serif;
   font-weight: 400;
   font-size: clamp(30px, 8.4vw, 36px);
   line-height: 1;
@@ -4034,7 +4034,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   color: var(--d-hero-text);
 }
 .heroDistrict {
-  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', 'Anton', 'Impact', sans-serif;
   font-weight: 900;
   font-size: 18px;
   letter-spacing: 0.005em;
@@ -4122,7 +4122,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
 }
 .infoLine:first-child { border-top: none; }
 .infoLineLabel {
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 400;
   font-size: 9.5px;
   letter-spacing: 0.08em;
@@ -4147,7 +4147,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', 'Anton', 'Impact', sans-serif;
   font-weight: 400;
   font-size: 13px;
   line-height: 1.05;
@@ -4160,7 +4160,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
 }
 .infoHeadlineLink:hover { color: var(--c-coral); }
 .infoHeadlineAccent {
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 400;
   font-size: 14px;
   color: var(--d-hero-accent);
@@ -4174,7 +4174,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   flex-wrap: wrap;
 }
 .infoRowLink {
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 400;
   font-size: 13px;
   line-height: 1;
@@ -4190,7 +4190,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', 'Anton', 'Impact', sans-serif;
   font-weight: 400;
   font-size: 13px;
   letter-spacing: 0;
@@ -4288,7 +4288,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', 'Anton', 'Impact', sans-serif;
   font-weight: 900;
   font-size: 16px;
   letter-spacing: 0;
@@ -4451,7 +4451,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   border-bottom: none;
   padding: 9px 16px 10px;
   transform: skewX(-14deg);
-  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', 'Anton', 'Impact', sans-serif;
   font-weight: 800;
   font-size: 14px;
   letter-spacing: 0.005em;
@@ -4503,7 +4503,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
 }
 .dropCap {
   float: left;
-  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', 'Anton', 'Impact', sans-serif;
   font-weight: 900;
   font-size: 78px;
   line-height: 0.78;
@@ -4515,7 +4515,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
 /* Tipp panel */
 .tipEyebrow {
   margin: 0 0 8px;
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 900;
   font-size: 11px;
   letter-spacing: 0.16em;
@@ -4540,7 +4540,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
 .mustSectionH {
   margin: 0 0 14px;
   padding-bottom: 6px;
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 900;
   font-size: 13px;
   line-height: 1;
@@ -4627,7 +4627,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   padding: 7px 12px 8px;
   background: var(--c-coral);
   color: var(--c-cream);
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 900;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -4701,7 +4701,7 @@ html[data-theme="dark"] .musteatStripStamp {
   font-weight: 700;
 }
 .musteatLockTitle {
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 900;
   font-size: 14px;
   letter-spacing: 0.14em;
@@ -4718,7 +4718,7 @@ html[data-theme="dark"] .musteatStripStamp {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 900;
   font-size: 12px;
   letter-spacing: 0.14em;
@@ -4752,7 +4752,7 @@ html[data-theme="dark"] .musteatStripStamp {
   justify-content: center;
   gap: 6px;
   padding: 10px 10px;
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 400;
   font-size: 12px;
   line-height: 1;
@@ -4801,7 +4801,7 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
   justify-content: center;
   gap: 16px;
   flex-wrap: wrap;
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 900;
   font-size: 14px;
   letter-spacing: 0.12em;
@@ -4859,7 +4859,7 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
 }
 .btnPrimary:hover { gap: 20px; }
 .btnPrimaryLbl {
-  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', 'Anton', 'Impact', sans-serif;
   font-weight: 900;
   font-size: 44px;
   line-height: 0.92;
@@ -4976,7 +4976,7 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
 }
 .packPromoEyebrow {
   display: block;
-  font-family: var(--font-bowlby-one), 'Bowlby One', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 400;
   font-size: 9.5px;
   letter-spacing: 0.08em;
@@ -4987,7 +4987,7 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
 :global(html[data-theme="dark"]) .packPromoEyebrow { color: var(--c-coral); }
 .packPromoTitle {
   margin: 0 0 5px;
-  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', 'Anton', 'Impact', sans-serif;
   font-weight: 400;
   font-size: 16px;
   line-height: 1.02;
@@ -5029,7 +5029,7 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
 :global(html[data-theme="dark"]) .btnPackPromo:hover { box-shadow: 5px 5px 0 var(--c-coral); }
 .btnPackPromoLbl {
   padding: 7px 9px 7px 10px;
-  font-family: var(--font-bowlby-one), 'Bowlby One', 'Anton', 'Impact', sans-serif;
+  font-family: var(--font-chewy), 'Chewy', 'Anton', 'Impact', sans-serif;
   font-weight: 400;
   font-size: 13px;
   letter-spacing: 0;

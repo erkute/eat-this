@@ -130,8 +130,19 @@ export default async function SPACatchAllPage({ params }: PageProps) {
   if (!top || !VALID_SLUGS.has(top)) notFound()
 
   if (top === 'home') {
-    const initialData = await getHomeData(locale as 'de' | 'en')
-    return <HubSection initialData={initialData} locale={locale as 'de' | 'en'} />
+    // The hub's client islands (HubNearby) reuse the map's anon dataset, so SSR
+    // both in parallel and hand initialMapData down through HubSection.
+    const [initialData, initialMapData] = await Promise.all([
+      getHomeData(locale as 'de' | 'en'),
+      getInitialAnonMapData(),
+    ])
+    return (
+      <HubSection
+        initialData={initialData}
+        initialMapData={initialMapData}
+        locale={locale as 'de' | 'en'}
+      />
+    )
   }
   if (top === 'news') {
     const articles = await getAllNewsArticles()

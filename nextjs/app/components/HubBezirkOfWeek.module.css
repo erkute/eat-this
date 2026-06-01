@@ -1,0 +1,93 @@
+.section {
+  background: #0a0a0a;
+  color: #fbf8ee;
+  padding: 28px 22px 32px;
+  border-top: 4px solid var(--brand-yellow);
+  border-bottom: 4px solid var(--brand-yellow);
+}
+.kicker {
+  font-family: var(--font-ranchers);
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--brand-yellow);
+  margin: 0 0 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(247,238,216,.2);
+}
+.heading {
+  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
+  font-weight: 800;
+  font-size: clamp(48px, 16vw, 60px);
+  line-height: 1.15;
+  padding-top: 6px;
+  margin: 0 0 10px;
+  color: #fbf8ee;
+  text-transform: uppercase;
+  letter-spacing: -.005em;
+}
+.tag {
+  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--brand-yellow);
+  margin: 0 0 22px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.tile {
+  background: #fbf8ee;
+  color: #0a0a0a;
+  aspect-ratio: 4 / 5;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  display: block;
+}
+.tileImage { position: absolute; inset: 0; background: #14100c; }
+.tileImage img { object-fit: cover; }
+.tileBody {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,.96) 65%);
+  padding: 26px 10px 8px;
+}
+.tileName {
+  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1.15;
+  color: #0a0a0a;
+  text-transform: uppercase;
+  margin: 0;
+}
+.tileMeta {
+  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
+  font-weight: 600;
+  font-size: 9.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  opacity: .75;
+  margin: 3px 0 0;
+}
+.foot {
+  margin: 18px 0 0;
+  text-align: right;
+}
+.footLink {
+  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--brand-yellow);
+  text-decoration: none;
+}

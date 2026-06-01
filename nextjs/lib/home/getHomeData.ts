@@ -24,10 +24,26 @@ export interface HubCategory {
   line: string | null
 }
 
+export interface HubBezirkSpot {
+  _id: string
+  name: string
+  slug: string
+  image: string | null
+  category: string | null
+}
+
+export interface HubBezirk {
+  name: string
+  slug: string
+  tagline: string | null
+  spots: HubBezirkSpot[]
+}
+
 export interface HomeData {
   spotOfDay: HomeSpot | null
   newOnMap: NewOnMapCard[]
   categories: HubCategory[]
+  bezirkOfWeek: HubBezirk | null
 }
 
 const spotCandidatesQuery = `*[_type == "restaurant" && isOpen == true && !(_id in path("drafts.**"))]{
@@ -57,15 +73,29 @@ const homeWeekCategoriesQuery = `*[_type == "homeWeek" && weekStart <= $today] |
   line
 }`
 
+const bezirkOfWeekQuery = `*[_type == "homeWeek" && weekStart <= $today] | order(weekStart desc)[0]{
+  "name": bezirk->name,
+  "slug": bezirk->slug.current,
+  "tagline": bezirkTagline,
+  "spots": bezirkSpots[]->{
+    _id,
+    "name": name,
+    "slug": slug.current,
+    "image": image.asset->url,
+    "category": select($locale == "en" => categories[0]->nameEn, categories[0]->name)
+  }
+}`
+
 /** Server: assemble the Hub's initial data. `today` defaults to the server's date. */
 export async function getHomeData(
   locale: 'de' | 'en',
   today: string = new Date().toISOString().slice(0, 10),
 ): Promise<HomeData> {
-  const [candidates, newOnMap, categories] = await Promise.all([
+  const [candidates, newOnMap, categories, bezirkOfWeek] = await Promise.all([
     client.fetch<HomeSpot[]>(spotCandidatesQuery, { locale }, { next: { revalidate: 3600, tags: ['restaurant', 'mustEat'] } }),
     client.fetch<NewOnMapCard[]>(newOnMapQuery, { locale }, { next: { revalidate: 3600, tags: ['restaurant'] } }),
     client.fetch<HubCategory[] | null>(homeWeekCategoriesQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
+    client.fetch<HubBezirk | null>(bezirkOfWeekQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
   ])
-  return { spotOfDay: pickSpotOfDay(candidates, today), newOnMap, categories: categories ?? [] }
+  return { spotOfDay: pickSpotOfDay(candidates, today), newOnMap, categories: categories ?? [], bezirkOfWeek }
 }

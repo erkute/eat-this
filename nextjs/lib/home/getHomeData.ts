@@ -53,6 +53,7 @@ export interface HomeData {
   categories: HubCategory[]
   bezirkOfWeek: HubBezirk | null
   magazine: HubArticle[]
+  categoryNames: Record<string, string>
 }
 
 const spotCandidatesQuery = `*[_type == "restaurant" && isOpen == true && !(_id in path("drafts.**"))]{
@@ -95,17 +96,23 @@ const bezirkOfWeekQuery = `*[_type == "homeWeek" && weekStart <= $today] | order
   }
 }`
 
+const categoryNamesQuery = `*[_type == "category" && defined(slug.current)]{
+  "slug": slug.current,
+  "name": select($locale == "en" => nameEn, name)
+}`
+
 /** Server: assemble the Hub's initial data. `today` defaults to the server's date. */
 export async function getHomeData(
   locale: 'de' | 'en',
   today: string = new Date().toISOString().slice(0, 10),
 ): Promise<HomeData> {
-  const [candidates, newOnMap, categories, bezirkOfWeek, articles] = await Promise.all([
+  const [candidates, newOnMap, categories, bezirkOfWeek, articles, catNameRows] = await Promise.all([
     client.fetch<HomeSpot[]>(spotCandidatesQuery, { locale }, { next: { revalidate: 3600, tags: ['restaurant', 'mustEat'] } }),
     client.fetch<NewOnMapCard[]>(newOnMapQuery, { locale }, { next: { revalidate: 3600, tags: ['restaurant'] } }),
     client.fetch<HubCategory[] | null>(homeWeekCategoriesQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
     client.fetch<HubBezirk | null>(bezirkOfWeekQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
     getAllNewsArticles(),
+    client.fetch<{ slug: string; name: string }[]>(categoryNamesQuery, { locale }, { next: { revalidate: 3600, tags: ['category'] } }),
   ])
   // a.title is already the EN base (or DE fallback) via the news GROQ coalesce;
   // a.titleDe is the German override. So de → titleDe||title, en → title.
@@ -115,5 +122,6 @@ export async function getHomeData(
     image: a.imageUrl ?? null,
     kicker: (locale === 'de' ? a.categoryLabelDe : a.categoryLabel) ?? a.categoryLabel ?? null,
   }))
-  return { spotOfDay: pickSpotOfDay(candidates, today), newOnMap, categories: categories ?? [], bezirkOfWeek, magazine }
+  const categoryNames: Record<string, string> = Object.fromEntries((catNameRows ?? []).map((r) => [r.slug, r.name]))
+  return { spotOfDay: pickSpotOfDay(candidates, today), newOnMap, categories: categories ?? [], bezirkOfWeek, magazine, categoryNames }
 }

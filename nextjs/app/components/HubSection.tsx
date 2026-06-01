@@ -7,6 +7,7 @@ import HubPacks from './HubPacks'
 import HubAllBerlin from './HubAllBerlin'
 import HubFaq from './HubFaq'
 import HubNearby from './HubNearby'
+import HubDeineWelt from './HubDeineWelt'
 import SiteFooter from './SiteFooter'
 import type { HomeData } from '@/lib/home/getHomeData'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
@@ -22,6 +23,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
   const today = new Date().toISOString().slice(0, 10)
   return (
     <div className="page" style={{ display: 'flow-root' }} data-hub="">
+      <HubDeineWelt />
       {spot ? <HubHero spot={spot} today={today} /> : <h1>Eat This</h1>}
       <HubNearby initialMapData={initialMapData} />
       <HubNewOnMap cards={initialData.newOnMap} />

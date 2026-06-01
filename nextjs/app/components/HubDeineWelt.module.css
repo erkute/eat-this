@@ -1,0 +1,143 @@
+.section {
+  position: relative;
+  background: #fbf8ee;
+  border-top: 2px solid var(--text-primary);
+  border-bottom: 2px solid var(--text-primary);
+  padding: 22px 16px 24px;
+  margin-top: 8px;
+}
+
+.badge {
+  position: absolute;
+  top: 0;
+  right: 16px;
+  transform: translateY(-50%);
+  background: var(--text-primary);
+  color: var(--brand-yellow);
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+}
+
+.hi {
+  margin-bottom: 18px;
+}
+/* First name can carry umlauts (e.g. "Jürgen") → Saira, which has the glyphs. */
+.kicker {
+  font-family: var(--font-saira-condensed);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--brand-red);
+  margin: 0 0 2px;
+}
+/* "Heute auf deiner Map." has no umlaut → brand display font. */
+.name {
+  font-family: var(--font-ranchers);
+  font-size: clamp(28px, 9vw, 38px);
+  line-height: 1.0;
+  text-transform: none;
+  color: var(--text-primary);
+  margin: 0;
+}
+.em {
+  color: var(--brand-yellow);
+  -webkit-text-stroke: 1px var(--text-primary);
+}
+
+.cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  margin: 4px 0 14px;
+  min-height: 132px;
+}
+.card {
+  display: block;
+  width: 84px;
+  height: 118px;
+  background-size: cover;
+  background-position: center;
+  background-color: #14100c;
+  border: 2px solid var(--text-primary);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, .22);
+}
+.card:nth-child(1) {
+  transform: rotate(-5deg);
+  margin-right: -16px;
+  z-index: 1;
+}
+.card:nth-child(2) {
+  transform: rotate(0deg);
+  z-index: 3;
+}
+.card:nth-child(3) {
+  transform: rotate(5deg);
+  margin-left: -16px;
+  z-index: 2;
+}
+
+.cap {
+  text-align: center;
+  font-family: var(--font);
+  font-size: 12px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin: 0 0 18px;
+}
+
+.pack {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 14px;
+  align-items: center;
+  border-top: 1px solid var(--c-row-rule);
+  padding-top: 16px;
+}
+.packArt {
+  width: 84px;
+  height: auto;
+  transform: rotate(-3deg);
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .22));
+}
+.packBody {
+  min-width: 0;
+}
+.packName {
+  font-family: var(--font-ranchers);
+  font-size: 22px;
+  line-height: 1.0;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+.packProgress {
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0 0 10px;
+}
+.packCta {
+  display: inline-block;
+  background: var(--brand-yellow);
+  color: #0a0a0a;
+  border: 2px solid #0a0a0a;
+  box-shadow: 3px 3px 0 #0a0a0a;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  text-decoration: none;
+}
+.packCta:active {
+  box-shadow: 0 0 0 #0a0a0a;
+  transform: translate(3px, 3px);
+}

@@ -16,7 +16,7 @@ function formatPrice(amountCents: number): string {
 export default function HubPacks({ categoryNames }: Props) {
   const categoryPacks = Object.values(CATALOG).filter((p) => p.type === 'category' && p.slug)
   return (
-    <section className={styles.section} data-hub-packs="">
+    <section className={styles.section} id="hub-packs" data-hub-packs="">
       <h2 className={styles.heading}>Booster Packs</h2>
       <div className={styles.scroller}>
         <HubWelcomePack />

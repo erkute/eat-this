@@ -1400,43 +1400,6 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
   color: rgba(255, 255, 255, 0.8);
 }
 
-/* Burger Drawer */
-[data-theme="dark"] .burger-drawer-panel {
-  background: #000000;
-}
-[data-theme="dark"] .burger-drawer-close {
-  color: rgba(255, 255, 255, 0.7);
-}
-[data-theme="dark"] .burger-primary-item {
-  color: rgba(255, 255, 255, 0.92);
-}
-[data-theme="dark"] .burger-primary-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-}
-[data-theme="dark"] .burger-section-divider {
-  background: rgba(255, 255, 255, 0.07);
-}
-[data-theme="dark"] .burger-secondary-item {
-  color: rgba(255, 255, 255, 0.5);
-}
-[data-theme="dark"] .burger-secondary-item:hover {
-  color: rgba(255, 255, 255, 0.9);
-}
-[data-theme="dark"] .burger-util-btn {
-  color: rgba(255, 255, 255, 0.5);
-}
-[data-theme="dark"] .burger-util-btn:hover {
-  color: rgba(255, 255, 255, 0.9);
-}
-[data-theme="dark"] .burger-drawer-footer {
-  color: rgba(255, 255, 255, 0.25);
-}
-[data-theme="dark"] .burger-drawer-footer a,
-[data-theme="dark"] .burger-drawer-footer-btn,
-[data-theme="dark"] .burger-drawer-footer span {
-  color: rgba(255, 255, 255, 0.25);
-}
-
 /* News section */
 [data-theme="dark"] .news-card-headline {
   color: #ffffff;
@@ -2309,134 +2272,7 @@ body:has(.burger-drawer.active) .burger-btn {
   padding: 4px;
   color: var(--black);
 }
-.burger-primary {
-  display: flex;
-  flex-direction: column;
-  margin-top: 56px;
-  padding: 0 16px;
-  gap: 2px;
-}
-.burger-primary-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  padding: 14px 14px;
-  border-radius: 14px;
-  background: none;
-  border: none;
-  text-align: left;
-  font-family: inherit;
-  font-size: 1.0625rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--black);
-  text-decoration: none;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-  -webkit-tap-highlight-color: transparent;
-}
-.burger-primary-item svg {
-  width: 22px;
-  height: 22px;
-  stroke: currentColor;
-  flex-shrink: 0;
-  opacity: 0.85;
-}
-.burger-primary-item:hover {
-  background: var(--gray-100);
-}
-.burger-primary-item:active {
-  transform: scale(0.985);
-}
-.burger-primary-item.logged-in {
-  font-weight: 700;
-}
-
-.burger-section-divider {
-  height: 1px;
-  background: var(--gray-100);
-  margin: 14px 24px;
-  border: 0;
-}
-
-.burger-secondary {
-  display: flex;
-  flex-direction: column;
-  padding: 0 28px;
-  gap: 2px;
-}
-.burger-secondary-item {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--gray-400);
-  text-decoration: none;
-  padding: 7px 4px;
-  transition: color 0.15s;
-}
-.burger-secondary-item:hover {
-  color: var(--black);
-}
-.burger-drawer-footer {
-  margin-top: auto;
-  padding: 24px 32px calc(24px + env(safe-area-inset-bottom));
-  display: flex;
-  gap: 12px;
-  font-size: 0.75rem;
-  color: var(--gray-400);
-}
-.burger-drawer-footer a, .burger-drawer-footer-btn {
-  color: var(--gray-400);
-  text-decoration: none;
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: inherit;
-  font-family: inherit;
-  cursor: pointer;
-}
-.burger-drawer-footer span {
-  color: var(--gray-400);
-}
-.burger-utils {
-  display: flex;
-  flex-direction: column;
-  padding: 0 32px;
-  gap: 2px;
-}
-.burger-util-btn {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: none;
-  border: none;
-  text-align: left;
-  font-size: 0.95rem;
-  font-weight: 600;
-  font-family: inherit;
-  color: var(--gray-400);
-  cursor: pointer;
-  padding: 10px 0;
-  text-decoration: none;
-  transition: color 0.15s;
-  -webkit-tap-highlight-color: transparent;
-}
-.burger-util-btn svg {
-  width: 18px;
-  height: 18px;
-  stroke: currentColor;
-  flex-shrink: 0;
-}
-.burger-util-btn:hover {
-  color: var(--black);
-}
-.burger-lang-row {
-  padding: 16px 32px 0;
-}
-.burger-lang-row .lang-switcher {
-  background: var(--gray-100);
-  display: inline-flex;
-}
+/* Burger content styles live in the Chewy menu block further down. */
 
 /* Profil-Avatar (Initialen-Kreis) */
 .profile-avatar {
@@ -4029,227 +3865,160 @@ html:not([data-theme="dark"]) .site-footer-copy {
 }
 
 /* ══════════════════════════════════════════════
-   BURGER DRAWER — editorial restyle (2026)
-   Overrides the iOS-rounded burger panel with a bold, type-led editorial
-   sheet that mirrors the new hero composition: cream surface, ink border,
-   big uppercase Archivo Black labels, brand-red accents.
+   BURGER DRAWER — Chewy menu (mockup-chewy.html "menu" screen)
+   Cream sheet, ink hairlines, big Chewy uppercase nav, DE/EN top-left,
+   yellow Anmelden sticker with hard 4px offset shadow. No dark variant.
    ══════════════════════════════════════════════ */
 .burger-drawer-backdrop {
-  background: rgba(10, 10, 10, 0.55);
+  background: rgba(10, 10, 10, 0.5);
   backdrop-filter: blur(8px) saturate(1.1);
   -webkit-backdrop-filter: blur(8px) saturate(1.1);
 }
 .burger-drawer-panel {
   width: 360px;
   max-width: 92vw;
-  background: var(--surface-canvas);
-  border-left: 3px solid #0a0a0a;
-  box-shadow: -10px 0 0 0 #0a0a0a;
-  padding: max(24px, env(safe-area-inset-top, 0px)) 0 0;
+  background: var(--cream, #fbf8ee);
+  border-left: 3px solid #000;
+  box-shadow: -10px 0 0 0 #000;
+  padding: 0;
+  overflow: hidden;
 }
+/* Language toggle — top-left, Chewy caps */
+.bd-lang {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-poster);
+  font-size: 16px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+.bd-lang-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  color: #000;
+  opacity: 0.42;
+  cursor: pointer;
+}
+.bd-lang-btn.on {
+  opacity: 1;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--brand-yellow);
+}
+.bd-lang-sep { opacity: 0.42; color: #000; }
+/* Close — square ink-bordered × glyph */
 .burger-drawer-close {
-  top: 18px;
-  right: 18px;
-  width: 36px;
-  height: 36px;
+  top: 16px;
+  right: 16px;
+  z-index: 60;
+  width: 42px;
+  height: 42px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #0a0a0a;
-  border-radius: 6px;
-  background: var(--surface-canvas);
-  color: #0a0a0a;
+  border: 2px solid #000;
+  border-radius: 0;
+  background: var(--cream, #fbf8ee);
+  color: #000;
+  font-family: var(--font-poster);
+  font-size: 26px;
+  line-height: 1;
+  padding: 0 0 4px;
   transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1), background 160ms ease;
 }
 .burger-drawer-close:hover {
-  background: var(--brand-red);
-  color: #f7f5f0;
+  background: var(--brand-yellow);
+  color: #000;
   transform: rotate(90deg);
 }
-.burger-drawer-close svg { width: 18px; height: 18px; }
 
-/* Primary nav — big uppercase block list with row-by-row ink rules. */
-.burger-primary {
-  margin-top: 64px;
-  padding: 0 24px;
-  gap: 0;
-  border-top: 2px solid #0a0a0a;
+/* Scroller — fills the panel, owns the scroll */
+.bd-scroller {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow-y: auto;
+  padding: 56px 22px calc(28px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
 }
-.burger-primary-item {
+.bd-logo {
+  margin-bottom: 30px;
+}
+.bd-logo img {
+  width: 150px;
+  height: auto;
+  display: block;
+}
+/* Primary nav — big Chewy uppercase block list with ink rules */
+.bd-nav {
+  display: flex;
+  flex-direction: column;
+  border-top: 2px solid #000;
+}
+.bd-nav-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 18px 4px;
-  border-bottom: 2px solid #0a0a0a;
-  border-radius: 0;
+  width: 100%;
+  padding: 16px 0;
+  border: 0;
+  border-bottom: 2px solid #000;
   background: transparent;
   font-family: var(--font-poster);
-  font-weight: 900;
-  font-size: clamp(20px, 6vw, 26px);
+  font-size: 32px;
   line-height: 1;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.005em;
   text-transform: uppercase;
-  color: #0a0a0a;
+  color: #000;
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
-.burger-primary-item svg {
-  width: 24px;
-  height: 24px;
-  order: 2;
-  margin-left: auto;
-  opacity: 1;
-}
-.burger-primary-item:hover {
+.bd-nav-item:hover { background: var(--brand-yellow); }
+/* Anmelden CTA — yellow sticker with hard offset shadow */
+.bd-nav-item.bd-cta {
+  margin: 14px 4px 4px 0;
+  padding: 18px 18px 20px;
   background: var(--brand-yellow);
-  color: #0a0a0a;
+  color: #000;
+  border-bottom: 0;
+  box-shadow: 4px 4px 0 0 #000;
+  transition: transform 140ms ease, box-shadow 140ms ease;
 }
-.burger-primary-item:active { transform: none; }
-
-/* Sub-rail dividers go away — borders on the items already create rules. */
-.burger-section-divider {
-  display: none;
+.bd-nav-item.bd-cta:hover {
+  background: var(--brand-yellow);
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 0 #000;
 }
-
-/* Utility row (search + Instagram) */
-.burger-utils {
-  margin-top: 20px;
-  padding: 0 24px;
-  gap: 0;
-}
-.burger-util-btn {
-  padding: 14px 4px;
-  border-bottom: 1px solid rgba(10, 10, 10, 0.18);
+/* Legal foot — 2-col grid, Inter caps */
+.bd-foot {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #000;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 18px;
   font-family: var(--font);
-  font-weight: 700;
   font-size: 13px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: #0a0a0a;
 }
-.burger-util-btn:last-child { border-bottom: 0; }
-.burger-util-btn svg { width: 16px; height: 16px; }
-.burger-util-btn:hover { color: var(--accent-ink); }
-
-/* Secondary nav (about/contact/press/impressum) */
-.burger-secondary {
-  margin-top: 18px;
-  padding: 0 24px;
-  gap: 0;
+.bd-foot-link {
+  color: #000;
+  opacity: 0.72;
+  text-decoration: none;
 }
-.burger-secondary-item {
-  font-family: var(--font);
-  font-weight: 700;
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(10, 10, 10, 0.55);
-  padding: 10px 4px;
-  border-bottom: 1px solid rgba(10, 10, 10, 0.12);
-}
-.burger-secondary-item:last-child { border-bottom: 0; }
-.burger-secondary-item:hover { color: var(--accent-ink); }
-
-/* Theme + language row */
-.burger-theme-row {
-  margin-top: 18px;
-  padding: 14px 24px;
-  border-top: 2px solid #0a0a0a;
-}
-.burger-lang-row {
-  padding: 6px 24px 0;
-}
-.burger-lang-row .lang-switcher {
-  background: var(--surface-canvas);
-  border: 2px solid #0a0a0a;
-  border-radius: 999px;
-  padding: 3px;
-}
-.burger-lang-row .lang-btn {
-  color: rgba(10, 10, 10, 0.55);
-  font-family: var(--font-poster);
-  font-weight: 900;
-  letter-spacing: 0.06em;
-}
-.burger-lang-row .lang-btn.active {
-  background: #0a0a0a;
-  color: var(--surface-canvas);
-}
-
-/* Footer chip */
-.burger-drawer-footer {
-  padding: 22px 24px calc(22px + env(safe-area-inset-bottom));
-  font-size: 12px;
-  letter-spacing: 0.04em;
-}
-.burger-drawer-footer a,
-.burger-drawer-footer-btn,
-.burger-drawer-footer span {
-  color: rgba(10, 10, 10, 0.55);
-}
-.burger-drawer-footer a:hover,
-.burger-drawer-footer-btn:hover {
-  color: var(--brand-red);
-}
-
-/* ── Dark-mode burger ── */
-[data-theme="dark"] .burger-drawer-panel {
-  background: #0d0d0d;
-  border-left-color: #f7f5f0;
-  box-shadow: -10px 0 0 0 #f7f5f0;
-}
-[data-theme="dark"] .burger-drawer-close {
-  background: #0d0d0d;
-  border-color: #f7f5f0;
-  color: #f7f5f0;
-}
-[data-theme="dark"] .burger-drawer-close:hover {
-  background: var(--brand-red);
-  color: #f7f5f0;
-}
-[data-theme="dark"] .burger-primary {
-  border-top-color: #f7f5f0;
-}
-[data-theme="dark"] .burger-primary-item {
-  color: #f7f5f0;
-  border-bottom-color: rgba(247, 245, 240, 0.85);
-}
-[data-theme="dark"] .burger-primary-item:hover {
-  background: var(--brand-red);
-  color: #f7f5f0;
-}
-[data-theme="dark"] .burger-util-btn {
-  color: #f7f5f0;
-  border-bottom-color: rgba(247, 245, 240, 0.18);
-}
-[data-theme="dark"] .burger-util-btn:hover {
-  color: var(--brand-yellow);
-}
-[data-theme="dark"] .burger-secondary-item {
-  color: rgba(247, 245, 240, 0.55);
-  border-bottom-color: rgba(247, 245, 240, 0.12);
-}
-[data-theme="dark"] .burger-secondary-item:hover {
-  color: var(--brand-yellow);
-}
-[data-theme="dark"] .burger-theme-row {
-  border-top-color: #f7f5f0;
-}
-[data-theme="dark"] .burger-lang-row .lang-switcher {
-  background: transparent;
-  border-color: #f7f5f0;
-}
-[data-theme="dark"] .burger-lang-row .lang-btn {
-  color: rgba(247, 245, 240, 0.55);
-}
-[data-theme="dark"] .burger-lang-row .lang-btn.active {
-  background: #f7f5f0;
-  color: #0d0d0d;
-}
-[data-theme="dark"] .burger-drawer-footer a,
-[data-theme="dark"] .burger-drawer-footer-btn,
-[data-theme="dark"] .burger-drawer-footer span {
-  color: rgba(247, 245, 240, 0.5);
-}
+.bd-foot-link:hover { opacity: 1; }
 
 /* ══════════════════════════════════════════════
    SITE FOOTER — editorial restyle (2026)

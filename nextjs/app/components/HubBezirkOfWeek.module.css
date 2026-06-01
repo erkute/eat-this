@@ -18,7 +18,7 @@
 .heading {
   font-family: var(--font-ranchers);
   font-size: clamp(46px, 15vw, 58px);
-  line-height: 1.0;
+  line-height: 1.04;
   padding-top: 6px;
   margin: 0 0 10px;
   color: #fbf8ee;
@@ -61,7 +61,7 @@
 .tileName {
   font-family: var(--font-ranchers);
   font-size: 15px;
-  line-height: 1.0;
+  line-height: 1.1;
   color: #0a0a0a;
   text-transform: uppercase;
   margin: 0;

@@ -29,7 +29,7 @@
   margin: 0 16px 14px;
   font-family: var(--font-ranchers);
   font-size: clamp(56px, 16vw, 84px);
-  line-height: .95;
+  line-height: 1.08;
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--text-primary);
@@ -60,25 +60,25 @@
   padding-bottom: 2px;
 }
 
-/* ── Desktop: photo left, editorial text right, centered in 1120px ── */
+/* ── Desktop: portrait photo left, vertically-centered text right ── */
 @media (min-width: 720px) {
   .hero {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: clamp(32px, 5vw, 64px);
-    align-content: center;
-    padding: 64px max(40px, calc((100% - 1120px) / 2));
+    grid-template-columns: minmax(0, 460px) minmax(0, 1fr);
+    column-gap: clamp(40px, 5vw, 72px);
+    align-items: center;
+    padding: 72px max(40px, calc((100% - 1120px) / 2));
   }
   .photo {
-    grid-column: 1;
-    grid-row: 1 / -1;
-    align-self: stretch;
     margin: 0;
-    aspect-ratio: auto;
-    min-height: 460px;
+    aspect-ratio: 4 / 5;
   }
-  .kicker { grid-column: 2; align-self: end; margin: 0 0 10px; font-size: 16px; }
-  .headline { grid-column: 2; margin: 0 0 18px; font-size: clamp(72px, 7vw, 108px); }
-  .sub { grid-column: 2; margin: 0 0 26px; font-size: 17px; max-width: 42ch; }
-  .actions { grid-column: 2; align-self: start; margin: 0; }
+  .body {
+    display: flex;
+    flex-direction: column;
+  }
+  .kicker { margin: 0 0 12px; font-size: 16px; }
+  .headline { margin: 0 0 22px; font-size: clamp(64px, 6vw, 92px); line-height: 1.06; }
+  .sub { margin: 0 0 28px; font-size: 17px; max-width: 42ch; }
+  .actions { margin: 0; }
 }

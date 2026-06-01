@@ -1,5 +1,5 @@
 .footer {
-  background: #fbf8ee;
+  background: #ffd84a;
   color: #000;
   padding: 16px 16px 32px;
   font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
@@ -52,7 +52,8 @@
   font-size: 13px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #ffd84a;
+  color: #0a0a0a;
+  opacity: 0.6;
   margin-bottom: 10px;
 }
 
@@ -66,10 +67,10 @@
   text-decoration: none;
   line-height: 1.2;
   margin: 4px 0;
-  transition: color 0.15s ease;
+  transition: opacity 0.15s ease;
 }
 .socialLink:hover {
-  color: #ffd84a;
+  opacity: 0.55;
 }
 
 .legal {
@@ -92,7 +93,6 @@
 }
 .legalLink:hover {
   opacity: 1;
-  color: #ffd84a;
 }
 
 .meta {
@@ -134,11 +134,10 @@
 }
 .langBtn:hover {
   opacity: 1;
-  color: #ffd84a;
 }
 .langBtnActive {
   opacity: 1;
-  color: #ffd84a;
+  color: #0a0a0a;
 }
 
 .langSep {

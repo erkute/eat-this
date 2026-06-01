@@ -22,7 +22,7 @@
 .name {
   font-family: var(--font-ranchers);
   font-size: clamp(40px, 13vw, 58px);
-  line-height: 0.92;
+  line-height: 1.06;
   text-transform: none;
   color: var(--text-primary);
   margin: 0;

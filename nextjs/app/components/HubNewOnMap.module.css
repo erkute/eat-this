@@ -60,7 +60,7 @@
 .cardName {
   font-family: var(--font-ranchers);
   font-size: 26px;
-  line-height: .92;
+  line-height: 1.02;
   text-transform: uppercase;
   margin: 0;
   text-shadow: 0 2px 8px rgba(0,0,0,.45);

@@ -74,7 +74,7 @@
 .cardName {
   font-family: var(--font-ranchers);
   font-size: 21px;
-  line-height: 1.0;
+  line-height: 1.08;
   text-transform: uppercase;
   letter-spacing: 0;
   margin: 0;

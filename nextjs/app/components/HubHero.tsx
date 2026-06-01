@@ -27,16 +27,18 @@ export default function HubHero({ spot, today }: Props) {
           />
         </div>
       )}
-      <p className={styles.kicker}>
-        Spot des Tages{dateLabel ? ` · ${dateLabel}` : ''}
-      </p>
-      <h1 className={styles.headline}>{normalizeName(spot.name)}</h1>
-      {spot.sub && <p className={styles.sub}>{spot.sub}</p>}
-      <div className={styles.actions}>
-        <HubMapCTA href={`/map?r=${spot.slug}`} title="Auf die Map" variant="chip" />
-        <Link href={`/restaurant/${spot.slug}`} className={styles.read}>
-          Lesen
-        </Link>
+      <div className={styles.body}>
+        <p className={styles.kicker}>
+          Spot des Tages{dateLabel ? ` · ${dateLabel}` : ''}
+        </p>
+        <h1 className={styles.headline}>{normalizeName(spot.name)}</h1>
+        {spot.sub && <p className={styles.sub}>{spot.sub}</p>}
+        <div className={styles.actions}>
+          <HubMapCTA href={`/map?r=${spot.slug}`} title="Auf die Map" variant="chip" />
+          <Link href={`/restaurant/${spot.slug}`} className={styles.read}>
+            Lesen
+          </Link>
+        </div>
       </div>
     </section>
   )

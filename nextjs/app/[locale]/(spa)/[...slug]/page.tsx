@@ -11,6 +11,8 @@ import StaticPages from '@/app/components/StaticPages'
 import HubSection from '@/app/components/HubSection'
 import { getHomeData } from '@/lib/home/getHomeData'
 
+export const revalidate = 3600
+
 interface PageProps {
   params: Promise<{ locale: string; slug: string[] }>
 }

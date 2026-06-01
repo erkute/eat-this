@@ -25,7 +25,7 @@ const spotCandidatesQuery = `*[_type == "restaurant" && isOpen == true && !(_id 
 
 /** Server: assemble the Hub's initial data. `today` defaults to the server's date. */
 export async function getHomeData(
-  _locale: 'de' | 'en',
+  _locale: 'de' | 'en', // reserved for future locale-specific GROQ projection
   today: string = new Date().toISOString().slice(0, 10),
 ): Promise<HomeData> {
   const candidates = await client.fetch<HomeSpot[]>(

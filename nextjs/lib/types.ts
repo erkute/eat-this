@@ -75,6 +75,7 @@ export type PortableTextBlock = { _type: string; _key?: string } & Record<string
 export interface MustEatCardBlock {
   _type: 'mustEatCard'
   _key?: string
+  mustEatId?: string
   dish?: string
   dishImage?: string
   restaurantName?: string

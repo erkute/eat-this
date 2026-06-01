@@ -177,6 +177,13 @@
   grid-template-columns: 132px 1fr;
   gap: 18px;
   align-items: center;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.14s, box-shadow 0.14s;
+}
+a.mustEat:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 #0a0a0a;
 }
 .mustEatPh {
   display: block;
@@ -185,6 +192,9 @@
   display: block;
   width: 132px;
   height: auto;
+  /* The asset is a full trading card with white (non-transparent) corners —
+     round to the card's own corner radius so no white triangles show. */
+  border-radius: 14px;
   transform: rotate(-3deg);
   box-shadow: 0 8px 18px rgba(15, 12, 10, 0.22);
 }
@@ -214,6 +224,14 @@
   text-transform: uppercase;
   color: #0a0a0a;
   opacity: 0.7;
+}
+.mustEatCta {
+  margin-top: 6px;
+  font-family: var(--font-poster);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a02814;
 }
 
 /* ── Pull-quote (blockquote in body) ── */

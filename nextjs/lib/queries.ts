@@ -67,6 +67,7 @@ const articleContentProjection = `{
     _type == "mustEatCard" => {
       _type,
       _key,
+      "mustEatId": mustEatRef->_id,
       "dish": mustEatRef->dish,
       "dishImage": mustEatRef->image.asset->url + "?w=400&auto=format&q=80",
       "restaurantName": mustEatRef->restaurantRef->name,

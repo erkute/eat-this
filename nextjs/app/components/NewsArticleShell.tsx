@@ -26,29 +26,6 @@ function formatDate(iso: string | undefined, locale: string): string {
   });
 }
 
-// Inline "Must Eat" card — placed mid-body via a mustEatCard Portable Text block
-// (mockup-chewy screen 8). Freigestellt dish photo + name + @restaurant.
-function renderMustEatCard(block: MustEatCardBlock) {
-  if (!block.dish && !block.dishImage) return null;
-  return (
-    <div className={styles.mustEat}>
-      {block.dishImage && (
-        <div className={styles.mustEatPh}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={block.dishImage} alt={block.dish || ''} />
-        </div>
-      )}
-      <div className={styles.mustEatBody}>
-        <span className={styles.mustEatKicker}>Must Eat</span>
-        {block.dish && <h3 className={styles.mustEatName}>{block.dish}</h3>}
-        {block.restaurantName && (
-          <span className={styles.mustEatRest}>@ {normalizeName(block.restaurantName)}</span>
-        )}
-      </div>
-    </div>
-  );
-}
-
 // Article detail — Chewy magazine feature (mockup-chewy screen 8). Inline
 // must-eat cards, the "Spots im Artikel" grid and the sticky spotrail are driven
 // by mustEatCard reference blocks in the body; TOC + drop-cap come from the body.
@@ -78,6 +55,43 @@ export default function NewsArticleShell({
   const spots = extractArticleSpots(content);
   const spotsLabel = de ? 'Spots im Artikel' : 'Spots in this story';
   const toMapLabel = de ? 'Auf die Map →' : 'To the map →';
+
+  // Inline "Must Eat" card (mockup-chewy screen 8) — the image is the full
+  // collectible trading card. The whole card links to the Must-Eat detail on
+  // the map (?me=<id>), mirroring an in-app tap.
+  const renderMustEatCard = (block: MustEatCardBlock) => {
+    if (!block.dish && !block.dishImage) return null;
+    const ctaLabel = de ? 'Zum Must Eat →' : 'See the Must Eat →';
+    const restName = block.restaurantName ? normalizeName(block.restaurantName) : '';
+    const inner = (
+      <>
+        {block.dishImage && (
+          <div className={styles.mustEatPh}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={block.dishImage} alt={block.dish || ''} />
+          </div>
+        )}
+        <div className={styles.mustEatBody}>
+          <span className={styles.mustEatKicker}>Must Eat</span>
+          {block.dish && <h3 className={styles.mustEatName}>{block.dish}</h3>}
+          {restName && <span className={styles.mustEatRest}>@ {restName}</span>}
+          <span className={styles.mustEatCta}>{ctaLabel}</span>
+        </div>
+      </>
+    );
+    return block.mustEatId ? (
+      <Link
+        href={`/map?me=${block.mustEatId}`}
+        rel="nofollow"
+        className={styles.mustEat}
+        aria-label={`${block.dish || 'Must Eat'}${restName ? ` — ${restName}` : ''}`}
+      >
+        {inner}
+      </Link>
+    ) : (
+      <div className={styles.mustEat}>{inner}</div>
+    );
+  };
 
   const homeLabel = de ? 'Start' : 'Home';
   const newsLabel = de ? 'Auf dem Teller' : 'On the Menu';

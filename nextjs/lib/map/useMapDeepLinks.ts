@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, type RefObject } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
-import type { MapRestaurant } from '@/lib/types'
+import type { MapRestaurant, MapMustEat } from '@/lib/types'
 
 interface Bbox { west: number; south: number; east: number; north: number }
 
@@ -29,24 +29,28 @@ function computeBezirkBbox(filtered: MapRestaurant[]): Bbox | null {
 interface Args {
   mapRef: RefObject<MapRef | null>
   restaurants: MapRestaurant[]
+  mustEats: MapMustEat[]
   isActive: boolean
   sheetView: 'list' | 'detail'
   userInteractedRef: RefObject<boolean>
   setBezirk: (name: string | null) => void
   setSnap: (snap: 'peek' | 'mid' | 'full') => void
   onRestaurantSlugMatch: (r: MapRestaurant) => void
+  onMustEatIdMatch: (m: MapMustEat) => void
   getFlyPadding: () => { top: number; bottom: number; left: number; right: number }
 }
 
 export function useMapDeepLinks({
   mapRef,
   restaurants,
+  mustEats,
   isActive,
   sheetView,
   userInteractedRef,
   setBezirk,
   setSnap,
   onRestaurantSlugMatch,
+  onMustEatIdMatch,
   getFlyPadding,
 }: Args) {
   // ?r=<slug> opens the matching restaurant detail directly. Used by profile
@@ -81,6 +85,37 @@ export function useMapDeepLinks({
     tryOpen()
     return () => { cancelled = true }
   }, [isActive, restaurants, onRestaurantSlugMatch, mapRef, userInteractedRef])
+
+  // ?me=<mustEatId> opens the matching Must-Eat detail directly. Used by the
+  // inline must-eat cards in news articles. Reuses the in-app tap handler so
+  // locked/unlocked behaviour is identical. Mirrors the ?r= polling pattern.
+  const mustEatConsumed = useRef(false)
+  useEffect(() => {
+    if (mustEatConsumed.current) return
+    if (!isActive) return
+    if (mustEats.length === 0) return
+    const params = new URLSearchParams(window.location.search)
+    const id = params.get('me')
+    if (!id) return
+    const target = mustEats.find(m => m._id === id)
+    if (!target) return
+    mustEatConsumed.current = true
+    params.delete('me')
+    const next = window.location.pathname + (params.toString() ? `?${params}` : '') + window.location.hash
+    window.history.replaceState(null, '', next)
+    let cancelled = false
+    const tryOpen = () => {
+      if (cancelled) return
+      if (mapRef.current) {
+        userInteractedRef.current = true
+        onMustEatIdMatch(target)
+      } else {
+        setTimeout(tryOpen, 120)
+      }
+    }
+    tryOpen()
+    return () => { cancelled = true }
+  }, [isActive, mustEats, onMustEatIdMatch, mapRef, userInteractedRef])
 
   // ?bezirk=<slug> pre-selects a bezirk filter and fits the camera to show all
   // restaurants in that district. Mirrors the ?r= polling pattern above. Note

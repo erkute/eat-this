@@ -547,12 +547,14 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   const { resetBezirkPill } = useMapDeepLinks({
     mapRef,
     restaurants,
+    mustEats,
     isActive,
     sheetView,
     userInteractedRef,
     setBezirk,
     setSnap,
     onRestaurantSlugMatch: handleRestaurantClick,
+    onMustEatIdMatch: handleMustEatClick,
     getFlyPadding,
   })
 

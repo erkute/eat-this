@@ -163,16 +163,23 @@
   scroll-snap-align: start;
   margin: 0;
 }
+/* Must-eats are freigestellt (cut-out) cards — no frame, no background, just
+   the floating dish with a tilt + drop-shadow (matches the map fan + teaser). */
 .meCard {
   display: block;
   position: relative;
   aspect-ratio: 1539 / 2115;
-  border: 2px solid var(--text-primary);
-  overflow: hidden;
-  background-color: #14100c;
+  background: transparent;
 }
 .meImg {
-  object-fit: cover;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .32));
+}
+.meItem:nth-child(odd) .meCard {
+  transform: rotate(-2deg);
+}
+.meItem:nth-child(even) .meCard {
+  transform: rotate(2deg);
 }
 .foot {
   margin: 2px 16px 12px;

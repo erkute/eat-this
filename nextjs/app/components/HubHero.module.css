@@ -18,7 +18,7 @@
   background: linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 60%, rgba(0,0,0,.55) 100%);
 }
 .kicker {
-  margin: 22px 16px 6px;
+  margin: 32px 16px 6px;
   font-family: var(--font-ranchers);
   font-size: 14px;
   letter-spacing: .22em;

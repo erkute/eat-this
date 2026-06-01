@@ -1,4 +1,4 @@
-.section { background: #fbf8ee; padding: 30px 22px 34px; }
+.section { background: #fbf8ee; padding: 44px 22px 42px; }
 .heading {
   font-family: var(--font-ranchers);
   font-size: clamp(34px, 11vw, 44px);

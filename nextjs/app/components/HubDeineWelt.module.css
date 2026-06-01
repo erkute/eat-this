@@ -1,7 +1,7 @@
 .section {
   position: relative;
   background: #fbf8ee;
-  padding: 30px 18px 34px;
+  padding: 42px 18px 42px;
   margin-top: 8px;
 }
 
@@ -10,7 +10,7 @@
 }
 /* Greeting can carry umlauts (e.g. "Jürgen") → Saira, which has the glyphs. */
 .kicker {
-  font-family: var(--font-saira-condensed);
+  font-family: var(--font-ranchers);
   font-weight: 800;
   font-size: 17px;
   letter-spacing: .12em;
@@ -38,7 +38,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--font-saira-condensed);
+  font-family: var(--font-ranchers);
   font-weight: 800;
   letter-spacing: .12em;
   text-transform: uppercase;
@@ -70,7 +70,7 @@
 /* "Frisch in <Bezirk>" — two newest spots in the user's district. */
 .fresh { margin: 0; }
 .freshK {
-  font-family: var(--font-saira-condensed);
+  font-family: var(--font-ranchers);
   font-weight: 800;
   letter-spacing: .14em;
   text-transform: uppercase;
@@ -102,7 +102,7 @@
   z-index: 2;
   background: var(--brand-red);
   color: #fbf8ee;
-  font-family: var(--font-saira-condensed);
+  font-family: var(--font-ranchers);
   font-weight: 800;
   font-size: 10px;
   letter-spacing: .18em;

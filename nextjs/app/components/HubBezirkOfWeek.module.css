@@ -1,7 +1,7 @@
 .section {
   background: #0a0a0a;
   color: #fbf8ee;
-  padding: 28px 22px 32px;
+  padding: 40px 22px 42px;
   border-top: 4px solid var(--brand-yellow);
   border-bottom: 4px solid var(--brand-yellow);
 }
@@ -16,10 +16,9 @@
   border-bottom: 1px solid rgba(247,238,216,.2);
 }
 .heading {
-  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
-  font-weight: 800;
-  font-size: clamp(48px, 16vw, 60px);
-  line-height: 1.15;
+  font-family: var(--font-ranchers);
+  font-size: clamp(46px, 15vw, 58px);
+  line-height: 1.0;
   padding-top: 6px;
   margin: 0 0 10px;
   color: #fbf8ee;
@@ -27,7 +26,7 @@
   letter-spacing: -.005em;
 }
 .tag {
-  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
+  font-family: var(--font-ranchers);
   font-weight: 700;
   letter-spacing: .12em;
   text-transform: uppercase;
@@ -60,30 +59,28 @@
   padding: 26px 10px 8px;
 }
 .tileName {
-  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
-  font-weight: 800;
-  font-size: 18px;
-  line-height: 1.15;
+  font-family: var(--font-ranchers);
+  font-size: 15px;
+  line-height: 1.0;
   color: #0a0a0a;
   text-transform: uppercase;
   margin: 0;
 }
 .tileMeta {
-  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
-  font-weight: 600;
-  font-size: 9.5px;
-  letter-spacing: .14em;
+  font-family: var(--font-ranchers);
+  font-size: 11px;
+  letter-spacing: .08em;
   text-transform: uppercase;
   color: #0a0a0a;
   opacity: .75;
-  margin: 3px 0 0;
+  margin: 4px 0 0;
 }
 .foot {
   margin: 18px 0 0;
   text-align: right;
 }
 .footLink {
-  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
+  font-family: var(--font-ranchers);
   font-weight: 700;
   letter-spacing: .14em;
   text-transform: uppercase;
@@ -97,6 +94,6 @@
   .section { padding: 56px max(22px, calc((100% - 1120px) / 2)) 64px; }
   .heading { font-size: clamp(64px, 8vw, 96px); }
   .grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
-  .tileName { font-size: 22px; }
+  .tileName { font-size: 18px; }
   .tileMeta { font-size: 11px; }
 }

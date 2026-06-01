@@ -5,7 +5,7 @@
   line-height: 1.15;
   text-transform: uppercase;
   color: var(--text-primary);
-  margin: 22px 16px 4px;
+  margin: 36px 16px 6px;
   padding-top: 6px;
 }
 .scroller {
@@ -42,7 +42,7 @@
   transform: rotate(-3deg);
 }
 .packCat {
-  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
+  font-family: var(--font-ranchers);
   font-weight: 600;
   font-size: 12px;
   letter-spacing: .22em;
@@ -52,12 +52,11 @@
   margin: 0;
 }
 .packName {
-  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
-  font-weight: 800;
-  font-size: 38px;
-  line-height: 1.15;
+  font-family: var(--font-ranchers);
+  font-size: 28px;
+  line-height: 1.0;
   text-transform: uppercase;
-  letter-spacing: -.005em;
+  letter-spacing: 0;
   margin: 0;
 }
 .packMeta {

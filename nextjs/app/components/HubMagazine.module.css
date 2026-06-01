@@ -5,7 +5,7 @@
   line-height: 1.15;
   text-transform: uppercase;
   color: var(--text-primary);
-  margin: 22px 16px 4px;
+  margin: 36px 16px 6px;
   padding-top: 6px;
 }
 .meta {
@@ -56,7 +56,7 @@
   z-index: 2;
   background: var(--brand-yellow);
   color: #0a0a0a;
-  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
+  font-family: var(--font-ranchers);
   font-weight: 700;
   font-size: 11px;
   letter-spacing: .18em;
@@ -72,12 +72,11 @@
   background: #0a0a0a;
 }
 .cardName {
-  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
-  font-weight: 800;
-  font-size: 26px;
-  line-height: 1.15;
+  font-family: var(--font-ranchers);
+  font-size: 21px;
+  line-height: 1.0;
   text-transform: uppercase;
-  letter-spacing: -.005em;
+  letter-spacing: 0;
   margin: 0;
   color: #fbf8ee;
 }
@@ -103,5 +102,5 @@
     padding: 6px 0 36px;
   }
   .item { flex: initial; }
-  .cardName { font-size: 30px; }
+  .cardName { font-size: 24px; }
 }

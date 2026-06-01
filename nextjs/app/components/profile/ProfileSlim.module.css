@@ -1,0 +1,348 @@
+/* ══════════════════════════════════════════════
+   PROFILE — slim (mockup-chewy screens 15/16)
+   Single cream scroll: head · saved spots · collected must-eats · packs ·
+   logout · footer. No tabs. Chewy display, ink hairlines, yellow accents.
+   Freigestellt must-eat cards float flat — NO drop-shadow (brand rule).
+   ══════════════════════════════════════════════ */
+
+.page {
+  background: #fbf8ee;
+  min-height: 100vh;
+}
+
+/* Loading spinner (auth gate) */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(10, 10, 10, 0.15);
+  border-top-color: #0a0a0a;
+  border-radius: 50%;
+  animation: profileSpin 0.7s linear infinite;
+}
+@keyframes profileSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Head ── */
+.head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 18px 18px;
+  border-bottom: 2px solid #0a0a0a;
+}
+.avatar {
+  width: 78px;
+  height: 78px;
+  background: #efe9d8;
+  border: 2px solid #0a0a0a;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.avatar img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+.info {
+  flex: 1;
+  min-width: 0;
+}
+.kicker {
+  font-family: var(--font-poster);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: #0a0a0a;
+  text-transform: uppercase;
+}
+.name {
+  font-family: var(--font-poster);
+  font-size: 28px;
+  line-height: 1;
+  color: #0a0a0a;
+  text-transform: uppercase;
+  margin: 2px 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.email {
+  font-size: 13px;
+  color: #0a0a0a;
+  opacity: 0.75;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Section heading ── */
+.section {
+  padding: 18px 18px 8px;
+}
+.sectionHeading {
+  font-family: var(--font-poster);
+  font-size: 36px;
+  line-height: 0.96;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 0;
+}
+
+/* ── Saved spots ── */
+.spotsCards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 0 14px 8px;
+}
+.spotCard {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  border: 2px solid #0a0a0a;
+  overflow: hidden;
+  text-decoration: none;
+}
+.spotImg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-color: #14100c;
+}
+.spotCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 35%, rgba(0, 0, 0, 0.82) 100%);
+}
+.spotBody {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  z-index: 1;
+  color: #fbf8ee;
+}
+.spotName {
+  font-family: var(--font-poster);
+  font-size: 26px;
+  line-height: 0.92;
+  text-transform: uppercase;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  margin: 0;
+}
+.spotMeta {
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brand-yellow);
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* Empty state */
+.empty {
+  margin: 4px 16px 22px;
+  padding: 16px 18px;
+  background: #fbf8ee;
+  border: 2px solid #0a0a0a;
+  display: grid;
+  gap: 10px;
+}
+.emptyLine {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #0a0a0a;
+  opacity: 0.85;
+  margin: 0;
+}
+.emptyCta {
+  font-family: var(--font-poster);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  justify-self: start;
+  text-decoration: none;
+}
+
+/* ── Must-eat explainer ── */
+.explainer {
+  margin: 4px 16px 14px;
+  padding: 14px 16px 16px;
+  background: #fbf8ee;
+  border-left: 4px solid var(--brand-yellow);
+  display: grid;
+  gap: 4px;
+}
+.explainerKicker {
+  font-family: var(--font-poster);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 0;
+}
+.explainerLine {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #0a0a0a;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* ── Collected must-eats grid ── */
+.meGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 14px 14px;
+}
+.me {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 6px;
+  padding: 6px 4px 10px;
+}
+.mePh {
+  position: relative;
+  aspect-ratio: 1539 / 2115;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mePh img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+/* Face-up cards are full trading cards (name baked into the art) → no label. */
+.meLabel {
+  display: none;
+}
+.meLocked .meLabel {
+  display: grid;
+  gap: 2px;
+  padding: 0 4px;
+  min-height: 46px;
+  align-content: start;
+  text-align: center;
+}
+.meName {
+  font-family: var(--font-poster);
+  font-size: 16px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  opacity: 0.55;
+  margin: 0;
+}
+.meRest {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+/* ── Packs ── */
+.packs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0 18px 14px;
+}
+.pck {
+  background: #0a0a0a;
+  color: #fbf8ee;
+  font-family: var(--font-poster);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 9px 14px 10px;
+}
+.pckGift {
+  background: var(--brand-yellow);
+  color: #0a0a0a;
+}
+.packHint {
+  margin: 0 18px 22px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.packLine {
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: #0a0a0a;
+  opacity: 0.8;
+  margin: 0;
+  flex: 1;
+}
+.packCta {
+  font-family: var(--font-poster);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+/* ── Logout ── */
+.logout {
+  display: block;
+  margin: 14px 18px 30px;
+  background: transparent;
+  color: #0a0a0a;
+  border: 1.5px solid #0a0a0a;
+  font-family: var(--font-poster);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 12px 16px 13px;
+  width: calc(100% - 36px);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.logout:hover {
+  background: #0a0a0a;
+  color: #fbf8ee;
+}
+
+/* Desktop — center the column, the page is a standalone scroll (not a sheet). */
+@media (min-width: 720px) {
+  .head,
+  .section,
+  .spotsCards,
+  .meGrid,
+  .explainer,
+  .empty,
+  .packs,
+  .packHint,
+  .logout {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .meGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

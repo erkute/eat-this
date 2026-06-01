@@ -100,6 +100,21 @@
   --accent-ink:     #0a0a0a;
 }
 
+/* next/font assigns --font-ranchers/--font-bungee/etc. via a hashed class on
+   <html> (specificity 0,1,0), which beats a plain :root re-point (also 0,1,0,
+   so source order decides and next/font wins). Components that reference those
+   variable names directly (e.g. the Hub headlines use var(--font-ranchers))
+   would therefore render the literal next/font face (Ranchers), not the brand
+   display font. Win the collision from html:root (specificity 0,1,1) so every
+   display token that shares a next/font variable name resolves to Chewy. */
+html:root {
+  --font-ranchers:      var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-bungee:        var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-knewave:       var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-slackey:       var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-archivo-black: var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+}
+
 html[data-theme="dark"] {
   --c-row-rule: rgba(240, 232, 208, 0.14);
 

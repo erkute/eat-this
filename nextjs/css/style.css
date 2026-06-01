@@ -99,7 +99,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px;
+  padding: 17px 16px;
   /* Brand-yellow header bar. */
   background: #F5C518;
   border-bottom: 1px solid rgba(10, 10, 10, 0.12);
@@ -932,7 +932,7 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
 .app-page {
   display: none !important;
   width: 100%;
-  height: calc(100vh - 48px);
+  height: calc(100vh - 64px);
   overflow-y: auto;
   overflow-x: hidden;
 /*  padding-bottom: max(80px, calc(61px + env(safe-area-inset-bottom)));*/
@@ -948,7 +948,7 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
 
 
 .app-page[data-page="start"] {
-  min-height: calc(100vh - 48px);
+  min-height: calc(100vh - 64px);
 }
 
 /* ============================================
@@ -983,21 +983,21 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
      Use !important — the global rule has overflow-y:auto which the browser
      keeps even when we set overflow-x:clip (clip not reliably supported). */
   .app-pages {
-    /* 48px navbar + safe-area-inset-top (notch/Dynamic Island ~47px) */
-    margin-top: calc(48px + env(safe-area-inset-top, 0px));
+    /* 64px navbar + safe-area-inset-top (notch/Dynamic Island ~47px) */
+    margin-top: calc(64px + env(safe-area-inset-top, 0px));
     height: auto !important;
     overflow: visible !important;
   }
 
-  /* Thin strip on mobile — 48 px + safe-area, white in light, black in dark. */
+  /* Strip on mobile — 64 px + safe-area, white in light, black in dark. */
   .navbar,
   .navbar.scrolled {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
-    height: calc(48px + env(safe-area-inset-top, 0px));
-    min-height: calc(48px + env(safe-area-inset-top, 0px));
-    padding: 6px 16px calc(6px) 16px;
-    padding-top: calc(6px + env(safe-area-inset-top, 0px));
+    height: calc(64px + env(safe-area-inset-top, 0px));
+    min-height: calc(64px + env(safe-area-inset-top, 0px));
+    padding: 14px 16px;
+    padding-top: calc(14px + env(safe-area-inset-top, 0px));
     box-sizing: border-box;
   }
   /* Mobile header: News hidden so the right cluster (Map + Burger) and the

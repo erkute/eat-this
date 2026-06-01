@@ -226,11 +226,9 @@ a {
    (See memory feedback_ios_overlay_pattern.md.) */
 .app-page[data-page="map"] {
   padding-bottom: 0 !important;
-  /* Subtract the navbar height — must match `.app-pages` margin-top (48px in
-     prod, set in style.css). It used to be 60px (the old SeoNav header); after
-     the header was unified to the 48px SiteNav, the stale 60px left a 12px
-     white strip of body background below the map on desktop. */
-  height: calc(100dvh - 48px) !important;
+  /* Subtract the navbar height — must match `.app-pages` margin-top (64px in
+     prod, set in style.css). */
+  height: calc(100dvh - 64px) !important;
 }
 
 /* Mobile: the navbar goes transparent over the map (see style.css
@@ -281,7 +279,7 @@ body[data-env="staging"] header[role="banner"] {
    white strip of body background under the header on every .app-pages route
    and on the map.) */
 body[data-env="staging"] .app-pages {
-  margin-top: calc(48px + env(safe-area-inset-top, 0px) + var(--staging-banner-h));
+  margin-top: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h));
 }
 
 /* Map page reserves the 48px navbar; with the banner above it, the page
@@ -289,7 +287,7 @@ body[data-env="staging"] .app-pages {
    is bottom-anchored inside this page, so the overflow pushes it off the
    bottom edge. Desktop only. */
 body[data-env="staging"] .app-page[data-page="map"] {
-  height: calc(100dvh - 48px - var(--staging-banner-h)) !important;
+  height: calc(100dvh - 64px - var(--staging-banner-h)) !important;
 }
 
 /* Mobile map: navbar is transparent over the map (full-viewport canvas).

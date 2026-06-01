@@ -162,19 +162,6 @@ body {
 .navbar-icon-btn:active,
 .navbar-icon-btn.active { color: #ffffff; }
 .navbar-icon-btn::after { content: none; }
-.navbar-icon-btn svg {
-  width: 22px;
-  height: 22px;
-  stroke: currentColor;
-  flex-shrink: 0;
-  /* Soft dark halo so the cream icons read on the yellow header bar. */
-  filter: drop-shadow(0 0 1px rgba(10, 10, 10, 0.6)) drop-shadow(0 1px 1px rgba(10, 10, 10, 0.4));
-}
-/* News/Map/Burger are now hand-drawn black-ink rasters. Profile stays an SVG
-   (no hand-drawn asset), so force it to the same black ink — otherwise the
-   default cream icon would read washed-out next to the three black ones on
-   the yellow bar. Map page keeps its own glass-chip treatment. */
-html:not([data-active-page="map"]) .navbar #navProfileBtn { color: #1c1c1c; }
 /* Active page indicator: hairline coral underline below the icon. */
 .navbar-icon-btn.active::before {
   content: "";
@@ -270,8 +257,7 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
   [data-active-page="map"] .navbar .navbar-home,
   [data-active-page="map"] .navbar .navbar-brand,
   [data-active-page="map"] .navbar #navNewsBtn,
-  [data-active-page="map"] .navbar #navMapBtn,
-  [data-active-page="map"] .navbar #navProfileBtn {
+  [data-active-page="map"] .navbar #navMapBtn {
     display: none;
   }
   [data-active-page="map"] .navbar .navbar-actions {
@@ -306,7 +292,6 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
     color: #1a1a1a !important;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
   }
-  [data-active-page="map"] .navbar .burger-btn svg { filter: none; }
   html[data-theme="dark"][data-active-page="map"] .navbar .burger-btn {
     background: rgba(32, 30, 28, 0.96) !important;
     color: var(--c-cream, #f3ead4) !important;
@@ -1015,14 +1000,11 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
     padding-top: calc(6px + env(safe-area-inset-top, 0px));
     box-sizing: border-box;
   }
-  /* Mobile header: News hidden, Profil mirrored to the left of the centered
-     logo so the right cluster (Map + Burger) and the centered wordmark never
-     collide on narrow screens. Map page keeps its own burger-only floating-chip
-     treatment via higher-specificity [data-active-page="map"] rules, so scope
-     these out of the map page. Profil omits `top` on purpose — it inherits the
-     same vertical centering as .logo via static flex alignment. */
+  /* Mobile header: News hidden so the right cluster (Map + Burger) and the
+     centered wordmark never collide on narrow screens. Map page keeps its own
+     burger-only floating-chip treatment via higher-specificity
+     [data-active-page="map"] rules, so scope this out of the map page. */
   html:not([data-active-page="map"]) #navNewsBtn { display: none; }
-  html:not([data-active-page="map"]) #navProfileBtn { position: absolute; left: 16px; }
   /* Start page also cream in light mode */
   .app-page[data-page="start"] {
     background: var(--surface-canvas);
@@ -2250,12 +2232,6 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   box-shadow: none;
   transition: color 0.18s ease, transform 0.18s ease;
   -webkit-tap-highlight-color: transparent;
-}
-.burger-btn svg {
-  width: 24px;
-  height: 24px;
-  /* Soft dark halo so the cream burger reads on the yellow header bar. */
-  filter: drop-shadow(0 0 1px rgba(10, 10, 10, 0.6)) drop-shadow(0 1px 1px rgba(10, 10, 10, 0.4));
 }
 .burger-btn:hover {
   color: var(--accent-coral);

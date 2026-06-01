@@ -1,11 +1,8 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
-import { useAuth, useLoginModal } from '@/lib/auth';
-import { routing } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import type { BurgerCloseDetail } from './BurgerDrawer';
 import styles from './SiteNav.module.css';
@@ -25,9 +22,6 @@ function pageSlugFromPath(path: string): string {
 
 export default function SiteNav() {
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const { open: openLogin } = useLoginModal();
-  const locale = useLocale();
   const pathname = usePathname();
   const activePage = pageSlugFromPath(pathname);
 
@@ -40,18 +34,6 @@ export default function SiteNav() {
   useEffect(() => {
     document.documentElement.setAttribute('data-active-page', activePage);
   }, [activePage]);
-
-  // Header profile icon: route to /profile if signed in, otherwise open the
-  // login modal (mounted by BridgeAuth as a React portal).
-  const handleProfileClick = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    if (user) {
-      const href = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
-      window.location.assign(href);
-    } else {
-      openLogin();
-    }
-  }, [user, locale, openLogin]);
 
   useEffect(() => {
     const drawer   = document.getElementById('burgerDrawer');
@@ -137,27 +119,15 @@ export default function SiteNav() {
         <div className="navbar-actions">
           <Link href="/news" className={`navbar-icon-btn${activePage === 'news' ? ' active' : ''}`} id="navNewsBtn" aria-label="News">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/icon-news.webp" alt="" width={22} height={22} style={{ display: 'block' }} />
+            <img src="/pics/icon-news.webp" alt="" width={26} height={26} style={{ display: 'block' }} />
           </Link>
           <Link href="/map" className={`navbar-icon-btn${activePage === 'map' ? ' active' : ''}`} id="navMapBtn" aria-label="Map">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/icon-map.webp" alt="" width={22} height={22} style={{ display: 'block' }} />
+            <img src="/pics/icon-map.webp" alt="" width={26} height={26} style={{ display: 'block' }} />
           </Link>
-          <a
-            id="navProfileBtn"
-            href={locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`}
-            className={`navbar-icon-btn${activePage === 'profile' ? ' active' : ''}`}
-            aria-label="Profile"
-            onClick={handleProfileClick}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
-          </a>
           <button className="burger-btn" id="burgerBtn" aria-label="Menu">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/icon-burger.webp" alt="" width={24} height={24} style={{ display: 'block' }} />
+            <img src="/pics/icon-burger.webp" alt="" width={26} height={26} style={{ display: 'block' }} />
           </button>
         </div>
       </nav>

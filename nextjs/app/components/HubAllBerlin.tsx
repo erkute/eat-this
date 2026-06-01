@@ -18,7 +18,7 @@ export default function HubAllBerlin() {
   return (
     <section className={styles.section} data-hub-allberlin="">
       <p className={styles.kicker}>Berlin · Komplett</p>
-      <h2 className={styles.heading}>All Berlin</h2>
+      <h2 className={styles.heading}>All<br />Berlin</h2>
       <div className={styles.fan}>
         {fanArt.map((src) => (
           // eslint-disable-next-line @next/next/no-img-element

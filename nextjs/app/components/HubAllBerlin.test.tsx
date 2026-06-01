@@ -14,7 +14,7 @@ function render() {
 describe('HubAllBerlin', () => {
   it('renders the All Berlin heading, price and savings', () => {
     const html = render()
-    expect(html).toContain('All Berlin')
+    expect(html).toMatch(/All<br\/?>Berlin/)
     expect(html).toContain('€20,00')
     expect(html).toContain('€26,91')
     expect(html).toContain('Spar €6,91')

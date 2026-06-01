@@ -74,3 +74,16 @@
   margin: 4px 0 0;
   font-weight: 600;
 }
+
+/* ── Desktop: centered column, 4-up card grid ── */
+@media (min-width: 720px) {
+  .section { padding-inline: max(14px, calc((100% - 1120px) / 2)); }
+  .heading { margin: 48px 0 4px; font-size: clamp(44px, 5vw, 56px); }
+  .meta { margin: 0 0 18px; }
+  .cards {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding: 0 0 28px;
+  }
+  .cardName { font-size: 30px; }
+}

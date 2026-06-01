@@ -95,14 +95,78 @@
   padding: 10px 14px;
   text-decoration: none;
 }
-.giftCta {
-  font-family: var(--font-ranchers);
-  font-size: 12px;
-  letter-spacing: .1em;
-  text-transform: uppercase;
+/* Welcome-pack inline magic-link signup (mockup .p-signup, stacked). On the
+   yellow gift card: cream input w/ ink border, ink button w/ yellow label. */
+.signup {
+  display: grid;
+  gap: 8px;
+}
+.signupInput {
+  width: 100%;
+  border: 2px solid #0a0a0a;
+  background: #fbf8ee;
+  padding: 13px 14px;
+  font-family: var(--font);
+  font-size: 15px;
+  color: #0a0a0a;
+  outline: none;
+}
+.signupInput::placeholder { color: rgba(10, 10, 10, .45); }
+.signupInput:disabled { opacity: .6; }
+.signupBtn {
+  width: 100%;
   background: #0a0a0a;
   color: var(--brand-yellow);
-  padding: 12px 16px;
-  text-decoration: none;
-  text-align: center;
+  font-family: var(--font-ranchers);
+  font-size: 14px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 13px 16px;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.signupBtn:disabled { cursor: default; opacity: .75; }
+.giftSent {
+  font-family: var(--font-ranchers);
+  font-size: 15px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 0;
+  padding: 13px 0 2px;
+}
+.giftError {
+  font-family: var(--font);
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: #0a0a0a;
+  margin: 4px 0 0;
+}
+
+/* ── Desktop: heading + packs grid centered in the 1120px column ── */
+@media (min-width: 720px) {
+  .heading {
+    font-size: clamp(48px, 6vw, 64px);
+    margin: 48px 0 4px;
+    padding: 6px max(22px, calc((100% - 1120px) / 2)) 0;
+  }
+  .scroller {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    overflow: visible;
+    padding: 12px max(22px, calc((100% - 1120px) / 2)) 56px;
+  }
+  .pack { flex: initial; padding: 22px; }
+  .packArt { height: 220px; }
+  .pack:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #0a0a0a; }
+  .pack { transition: transform .2s, box-shadow .2s; box-shadow: 4px 4px 0 #0a0a0a; }
+}
+
+@media (min-width: 1080px) {
+  .scroller { grid-template-columns: repeat(4, 1fr); }
 }

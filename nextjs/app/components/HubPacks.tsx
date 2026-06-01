@@ -2,13 +2,12 @@ import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { CATALOG } from '@/lib/stripe-catalog'
 import { categoryArt } from '@/lib/categoryArt'
+import HubWelcomePack from './HubWelcomePack'
 import styles from './HubPacks.module.css'
 
 interface Props {
   categoryNames: Record<string, string>
 }
-
-const GIFT_ART = '/pics/booster/booster_free.webp'
 
 function formatPrice(amountCents: number): string {
   return `€${(amountCents / 100).toFixed(2).replace('.', ',')}`
@@ -20,17 +19,7 @@ export default function HubPacks({ categoryNames }: Props) {
     <section className={styles.section} data-hub-packs="">
       <h2 className={styles.heading}>Booster Packs</h2>
       <div className={styles.scroller}>
-        <article className={`${styles.pack} ${styles.gift}`}>
-          <div className={styles.packArt}>
-            <Image src={GIFT_ART} alt="" fill sizes="200px" className={styles.artImg} />
-          </div>
-          <p className={styles.packCat}>Booster Pack</p>
-          <h3 className={styles.packName}>Welcome Pack</h3>
-          <p className={styles.packMeta}>
-            Weitere kuratierte Spots samt Must Eats — direkt nach deiner Anmeldung.
-          </p>
-          <Link href="/login" className={styles.giftCta}>Anmelden →</Link>
-        </article>
+        <HubWelcomePack />
         {categoryPacks.map((p) => {
           const slug = p.slug as string
           const name = categoryNames[slug] ?? p.displayName

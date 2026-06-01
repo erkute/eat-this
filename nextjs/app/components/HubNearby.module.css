@@ -204,3 +204,21 @@
   padding-bottom: 1px;
   text-decoration: none;
 }
+
+/* ── Desktop: centered column, scrollers become wrapping grids ── */
+@media (min-width: 720px) {
+  .section { padding-inline: max(16px, calc((100% - 1120px) / 2)); }
+  .head { margin: 44px 0 6px; }
+  .heading { font-size: clamp(44px, 5vw, 56px); }
+  .sub, .meSub { margin-left: 0; margin-right: 0; }
+  .meHeading { margin: 40px 0 4px; font-size: 26px; }
+  .row, .meRow {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    overflow: visible;
+    padding: 6px 0 12px;
+  }
+  .cardItem, .meItem { flex: initial; }
+  .foot { margin: 10px 0 18px; }
+}

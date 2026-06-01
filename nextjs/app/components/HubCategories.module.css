@@ -81,3 +81,14 @@
   text-transform: uppercase;
   color: var(--text-primary);
 }
+
+/* ── Desktop: centered column, two-up card grid, larger heading ── */
+@media (min-width: 720px) {
+  .section { padding: 56px max(22px, calc((100% - 1120px) / 2)); }
+  .heading { font-size: clamp(56px, 7vw, 80px); margin: 0 0 10px; }
+  .sub { font-size: 13px; margin-bottom: 32px; }
+  .stack { grid-template-columns: 1fr 1fr; gap: 22px; }
+  .art { width: 132px; }
+  .card { grid-template-columns: 132px 1fr; }
+  .name { font-size: 38px; }
+}

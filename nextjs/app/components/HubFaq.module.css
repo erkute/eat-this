@@ -38,3 +38,12 @@
   margin: 10px 0 0;
   max-width: 56ch;
 }
+
+/* ── Desktop: centered reading column, larger heading ── */
+@media (min-width: 720px) {
+  .section { padding: 64px max(22px, calc((100% - 880px) / 2)) 72px; }
+  .heading { font-size: clamp(52px, 6vw, 72px); margin-bottom: 28px; }
+  .item { padding: 18px 0; }
+  .question { font-size: 17px; }
+  .answer { font-size: 15px; }
+}

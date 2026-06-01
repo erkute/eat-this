@@ -59,3 +59,26 @@
   text-decoration: none;
   padding-bottom: 2px;
 }
+
+/* ── Desktop: photo left, editorial text right, centered in 1120px ── */
+@media (min-width: 720px) {
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: clamp(32px, 5vw, 64px);
+    align-content: center;
+    padding: 64px max(40px, calc((100% - 1120px) / 2));
+  }
+  .photo {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    align-self: stretch;
+    margin: 0;
+    aspect-ratio: auto;
+    min-height: 460px;
+  }
+  .kicker { grid-column: 2; align-self: end; margin: 0 0 10px; font-size: 16px; }
+  .headline { grid-column: 2; margin: 0 0 18px; font-size: clamp(72px, 7vw, 108px); }
+  .sub { grid-column: 2; margin: 0 0 26px; font-size: 17px; max-width: 42ch; }
+  .actions { grid-column: 2; align-self: start; margin: 0; }
+}

@@ -126,3 +126,17 @@
   box-shadow: 0 0 0 #0a0a0a;
   transform: translate(3px, 3px);
 }
+
+/* ── Desktop: centered column, scaled-up greeting ── */
+@media (min-width: 720px) {
+  .section { padding: 56px max(24px, calc((100% - 1120px) / 2)) 60px; }
+  .kicker { font-size: 20px; }
+  .name { font-size: clamp(58px, 6vw, 88px); }
+  .cards { min-height: 210px; margin: 16px 0 26px; }
+  .card { width: 120px; height: 170px; }
+  .card:nth-child(1) { margin-right: -22px; }
+  .card:nth-child(3) { margin-left: -22px; }
+  .pack { padding-top: 28px; }
+  .packArt { width: 104px; }
+  .packName { font-size: 26px; }
+}

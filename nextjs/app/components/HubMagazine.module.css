@@ -89,3 +89,19 @@
   color: var(--brand-yellow);
   margin-top: 12px;
 }
+
+/* ── Desktop: centered column, scroller becomes a 3-up grid ── */
+@media (min-width: 720px) {
+  .section { padding-inline: max(16px, calc((100% - 1120px) / 2)); }
+  .heading { margin: 48px 0 4px; font-size: clamp(44px, 5vw, 56px); }
+  .meta { margin: 0 0 18px; }
+  .scroller {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    overflow: visible;
+    padding: 6px 0 36px;
+  }
+  .item { flex: initial; }
+  .cardName { font-size: 30px; }
+}

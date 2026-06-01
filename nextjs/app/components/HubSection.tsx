@@ -6,6 +6,7 @@ import HubMagazine from './HubMagazine'
 import HubPacks from './HubPacks'
 import HubAllBerlin from './HubAllBerlin'
 import HubFaq from './HubFaq'
+import SiteFooter from './SiteFooter'
 import type { HomeData } from '@/lib/home/getHomeData'
 
 interface Props {
@@ -26,6 +27,7 @@ export default function HubSection({ initialData, locale }: Props) {
       <HubPacks categoryNames={initialData.categoryNames} />
       <HubAllBerlin />
       <HubFaq locale={locale} />
+      <SiteFooter />
     </div>
   )
 }

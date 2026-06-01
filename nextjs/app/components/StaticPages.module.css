@@ -16,17 +16,13 @@
 }
 
 .title {
-  font-family: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
-  /* Legal pages don't need the marketing-page Anton scale (was up to 168
-     on desktop). Scaled back so Impressum/Datenschutz/AGB read as
-     documents rather than brand statements. */
-  font-size: clamp(40px, 10vw, 60px);
-  /* 1.18 leaves enough clearance for Ä/Ö/Ü umlaut dots on the
-     second line — long titles like DATENSCHUTZERKLÄRUNG wrap and
-     Anton's umlauts sit high above the cap height, so tighter
-     line-heights make them collide with line-1 descenders. */
-  line-height: 1.18;
-  padding-top: 0.12em;
+  font-family: var(--font-poster);
+  /* Chewy is wider than the old condensed Anton, so legal-doc titles
+     (e.g. DATENSCHUTZERKLÄRUNG) are scaled back to read as documents,
+     not oversized brand statements. */
+  font-size: clamp(34px, 8.5vw, 50px);
+  line-height: 1.06;
+  padding-top: 0.06em;
   letter-spacing: 0;
   text-transform: uppercase;
   color: #000;
@@ -45,7 +41,7 @@
 }
 
 .body h2 {
-  font-family: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
+  font-family: var(--font-poster);
   font-size: clamp(22px, 5.5vw, 30px);
   line-height: 1.06;
   letter-spacing: 0;
@@ -55,7 +51,7 @@
 }
 
 .body h3 {
-  font-family: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
+  font-family: var(--font-poster);
   font-size: clamp(18px, 4vw, 22px);
   line-height: 1.1;
   letter-spacing: 0.02em;
@@ -65,7 +61,7 @@
 }
 
 .body h4 {
-  font-family: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
+  font-family: var(--font-poster);
   font-size: 16px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -112,7 +108,7 @@
   border-left: 3px solid #000;
   padding-left: 18px;
   margin: 22px 0;
-  font-family: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
+  font-family: var(--font-poster);
   font-size: 18px;
   line-height: 1.2;
   text-transform: uppercase;
@@ -138,8 +134,8 @@
     max-width: 760px;
   }
   .title {
-    font-size: clamp(52px, 7vw, 72px);
-    line-height: 1.12;
+    font-size: clamp(42px, 6vw, 60px);
+    line-height: 1.05;
     margin: 12px 0 28px;
   }
   .body {
@@ -156,8 +152,8 @@
     padding: 80px 48px 96px;
   }
   .title {
-    font-size: clamp(72px, 6vw, 96px);
-    line-height: 1.08;
+    font-size: clamp(54px, 5vw, 72px);
+    line-height: 1.04;
     margin: 0 0 36px;
   }
   .body {

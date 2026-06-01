@@ -164,32 +164,29 @@
   font-weight: 700;
 }
 
-/* ── Inline Must Eat card (mustEatCard block) ── */
+/* ── Inline Must Eat card (mustEatCard block) ──
+   The mustEat `image` is the full collectible trading card (own background +
+   dish/restaurant/district baked in), NOT a freigestellt cut-out — so it fills
+   its column edge-to-edge (no cream air around it) and gets a card lift shadow. */
 .mustEat {
-  margin: 22px 0 18px;
-  padding: 18px;
+  margin: 26px 0 22px;
+  padding: 16px 18px;
   background: #f2eddf;
   border: 1.5px solid #0a0a0a;
   display: grid;
-  grid-template-columns: 110px 1fr;
-  gap: 16px;
+  grid-template-columns: 132px 1fr;
+  gap: 18px;
   align-items: center;
 }
 .mustEatPh {
-  width: 110px;
-  height: 130px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
 }
 .mustEatPh img {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
+  display: block;
+  width: 132px;
   height: auto;
-  object-fit: contain;
-  /* Freigestellt → no drop-shadow (Chewy rule), tilt only */
-  transform: rotate(-4deg);
+  transform: rotate(-3deg);
+  box-shadow: 0 8px 18px rgba(15, 12, 10, 0.22);
 }
 .mustEatBody {
   display: grid;
@@ -272,11 +269,19 @@
   inset: 0;
   background: linear-gradient(180deg, transparent 35%, rgba(0, 0, 0, 0.78) 100%);
 }
-.spotMeta {
+/* Bottom-anchored stack so meta sits above the name and they never overlap,
+   even when a long (normalized) restaurant name wraps to two lines. */
+.spotCardFoot {
   position: absolute;
   left: 12px;
-  bottom: 38px;
+  right: 12px;
+  bottom: 12px;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.spotMeta {
   font-size: 10px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -284,33 +289,35 @@
   font-weight: 600;
 }
 .spotName {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  z-index: 1;
   font-family: var(--font-poster);
   font-size: 22px;
-  line-height: 1;
+  line-height: 1.02;
   letter-spacing: 0.015em;
   text-transform: uppercase;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
 }
 
-/* ── Share ── */
+/* ── Share — single full-width ink button (mockup .art-share) ── */
 .shareRow {
   display: flex;
-  align-items: center;
-  gap: 12px;
   padding: 6px 18px 28px;
 }
-.shareLabel {
+.shareBtn {
+  flex: 1;
   font-family: var(--font-poster);
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #0a0a0a;
-  opacity: 0.6;
+  padding: 14px 18px 15px;
+  border: 1.5px solid #0a0a0a;
+  background: #0a0a0a;
+  color: #fbf8ee;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.shareBtn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--brand-yellow);
 }
 
 /* ── Related — dark horizontal cards ── */

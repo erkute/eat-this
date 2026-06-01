@@ -145,10 +145,10 @@ export default function NewsArticleShell({
                 const name = normalizeName(s.name);
                 const meta = [s.district, s.cuisineType].filter(Boolean).join(' · ');
                 const inner = (
-                  <>
+                  <span className={styles.spotCardFoot}>
                     {meta && <span className={styles.spotMeta}>{meta}</span>}
                     <span className={styles.spotName}>{name}</span>
-                  </>
+                  </span>
                 );
                 const bg = s.photo ? { backgroundImage: `url(${s.photo})` } : undefined;
                 return s.slug ? (
@@ -173,8 +173,12 @@ export default function NewsArticleShell({
         )}
 
         <div className={styles.shareRow}>
-          <span className={styles.shareLabel}>{de ? 'Teilen' : 'Share'}</span>
-          <NewsArticleShare title={title} excerpt={excerpt} />
+          <NewsArticleShare
+            title={title}
+            excerpt={excerpt}
+            label={de ? 'Teilen' : 'Share'}
+            className={styles.shareBtn}
+          />
         </div>
 
         {recommendations.length > 0 && (

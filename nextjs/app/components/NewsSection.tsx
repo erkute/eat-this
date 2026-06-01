@@ -43,14 +43,14 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
   const comingLabel = de ? 'Bald auf dem Teller' : 'Coming up next';
   const coming: ComingItem[] = de
     ? [
-        { title: 'Pizza in Berlin', sub: 'Holzofen, Pinsa, NY-Slice.', month: 'Juni' },
-        { title: 'Frühstück ohne Avocado', sub: 'Wo man morgens wirklich essen kann.', month: 'Juli' },
-        { title: 'Fine Dining ohne Pose', sub: 'Sterne-Küchen, die nicht nerven.', month: 'August' },
+        { title: 'Pizza in Berlin', sub: 'Holzofen. Pinsa. NY-Slice.', month: 'Juni' },
+        { title: 'Frühstück in Berlin', sub: 'Shakshuka. Sauerteig. Flat White.', month: 'Juli' },
+        { title: 'Fine Dining in Berlin', sub: 'Tasting-Menüs. Sternen-Küche. Chef’s Table.', month: 'August' },
       ]
     : [
-        { title: 'Pizza in Berlin', sub: 'Wood-fired, pinsa, NY slice.', month: 'June' },
-        { title: 'Breakfast without avocado', sub: 'Where you can actually eat in the morning.', month: 'July' },
-        { title: 'Fine dining without the pose', sub: "Starred kitchens that don't annoy.", month: 'August' },
+        { title: 'Pizza in Berlin', sub: 'Wood-fired. Pinsa. NY slice.', month: 'June' },
+        { title: 'Breakfast in Berlin', sub: 'Shakshuka. Sourdough. Flat white.', month: 'July' },
+        { title: 'Fine Dining in Berlin', sub: 'Tasting menus. Starred kitchens. Chef’s table.', month: 'August' },
       ];
 
   return (

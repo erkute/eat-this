@@ -4,6 +4,8 @@ import HubCategories from './HubCategories'
 import HubBezirkOfWeek from './HubBezirkOfWeek'
 import HubMagazine from './HubMagazine'
 import HubPacks from './HubPacks'
+import HubAllBerlin from './HubAllBerlin'
+import HubFaq from './HubFaq'
 import type { HomeData } from '@/lib/home/getHomeData'
 
 interface Props {
@@ -11,7 +13,7 @@ interface Props {
   locale: 'de' | 'en'
 }
 
-export default function HubSection({ initialData }: Props) {
+export default function HubSection({ initialData, locale }: Props) {
   const spot = initialData.spotOfDay
   const today = new Date().toISOString().slice(0, 10)
   return (
@@ -22,6 +24,8 @@ export default function HubSection({ initialData }: Props) {
       <HubBezirkOfWeek bezirk={initialData.bezirkOfWeek} />
       <HubMagazine articles={initialData.magazine} />
       <HubPacks categoryNames={initialData.categoryNames} />
+      <HubAllBerlin />
+      <HubFaq locale={locale} />
     </div>
   )
 }

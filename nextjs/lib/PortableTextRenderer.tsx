@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react'
-import type { PortableTextBlock } from './types'
+import { Fragment, type ReactNode } from 'react'
+import type { PortableTextBlock, MustEatCardBlock, ArticleSpot } from './types'
 
 type Span = {
   _type?: string
@@ -49,6 +49,29 @@ export interface ArticleHeading {
   level: 2 | 3
 }
 
+/** Walk article blocks and return the unique restaurants referenced by inline
+ *  mustEatCard blocks, in order of first appearance. Feeds the "Spots im
+ *  Artikel" grid + spotrail. */
+export function extractArticleSpots(blocks?: PortableTextBlock[]): ArticleSpot[] {
+  if (!blocks?.length) return []
+  const seen = new Set<string>()
+  const out: ArticleSpot[] = []
+  for (const raw of blocks as MustEatCardBlock[]) {
+    if (raw._type !== 'mustEatCard' || !raw.restaurantName) continue
+    const key = raw.restaurantSlug || raw.restaurantName
+    if (seen.has(key)) continue
+    seen.add(key)
+    out.push({
+      name: raw.restaurantName,
+      slug: raw.restaurantSlug,
+      district: raw.district,
+      cuisineType: raw.cuisineType,
+      photo: raw.restaurantPhoto,
+    })
+  }
+  return out
+}
+
 /** Walk Portable Text blocks and return the h2/h3 headings for a table of
  *  contents. ids match the ones the renderer emits (same slugifyHeading). */
 export function extractHeadings(blocks?: PortableTextBlock[]): ArticleHeading[] {
@@ -66,9 +89,17 @@ export function extractHeadings(blocks?: PortableTextBlock[]): ArticleHeading[] 
 }
 
 // Mirrors the shape of the legacy renderPortableText helper in app.min.js:
-// handles block-level style (h2/h3/normal), listItem (number/bullet),
-// and inline marks (strong/em). Unknown types are skipped.
-export function PortableTextRenderer({ blocks }: { blocks?: PortableTextBlock[] }) {
+// handles block-level style (h2/h3/blockquote/normal), listItem (number/bullet),
+// and inline marks (strong/em). Inline `mustEatCard` blocks are delegated to the
+// optional `renderMustEatCard` render-prop (so this stays presentation-agnostic);
+// callers that don't pass it simply skip those blocks. Other unknown types skip.
+export function PortableTextRenderer({
+  blocks,
+  renderMustEatCard,
+}: {
+  blocks?: PortableTextBlock[]
+  renderMustEatCard?: (block: MustEatCardBlock) => ReactNode
+}) {
   if (!blocks?.length) return null
 
   const out: ReactNode[] = []
@@ -84,6 +115,12 @@ export function PortableTextRenderer({ blocks }: { blocks?: PortableTextBlock[] 
   }
 
   for (const raw of blocks as Block[]) {
+    if (raw._type === 'mustEatCard') {
+      flushList()
+      const card = renderMustEatCard?.(raw as unknown as MustEatCardBlock)
+      if (card) out.push(<Fragment key={raw._key ?? out.length}>{card}</Fragment>)
+      continue
+    }
     if (raw._type !== 'block') { flushList(); continue }
 
     if (raw.listItem) {
@@ -98,6 +135,7 @@ export function PortableTextRenderer({ blocks }: { blocks?: PortableTextBlock[] 
     const key = raw._key ?? out.length
     if (style === 'h2') out.push(<h2 key={key} id={slugifyHeading(headingText(raw.children))}>{renderChildren(raw.children)}</h2>)
     else if (style === 'h3') out.push(<h3 key={key} id={slugifyHeading(headingText(raw.children))}>{renderChildren(raw.children)}</h3>)
+    else if (style === 'blockquote') out.push(<blockquote key={key}>{renderChildren(raw.children)}</blockquote>)
     else out.push(<p key={key}>{renderChildren(raw.children)}</p>)
   }
 

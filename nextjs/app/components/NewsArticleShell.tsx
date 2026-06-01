@@ -1,6 +1,7 @@
-import { PortableTextRenderer, extractHeadings } from '@/lib/PortableTextRenderer';
+import { PortableTextRenderer, extractHeadings, extractArticleSpots } from '@/lib/PortableTextRenderer';
 import { Link } from '@/i18n/navigation';
-import type { NewsArticle } from '@/lib/types';
+import type { NewsArticle, MustEatCardBlock } from '@/lib/types';
+import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
 import Breadcrumbs, { type BreadcrumbItem } from './Breadcrumbs';
@@ -25,9 +26,32 @@ function formatDate(iso: string | undefined, locale: string): string {
   });
 }
 
-// Article detail — Chewy magazine feature (mockup-chewy screen 8). The mockup's
-// inline must-eat, pull-quote and spot-rail have no CMS data source, so they're
-// omitted (not invented); TOC + drop-cap are generated from the body.
+// Inline "Must Eat" card — placed mid-body via a mustEatCard Portable Text block
+// (mockup-chewy screen 8). Freigestellt dish photo + name + @restaurant.
+function renderMustEatCard(block: MustEatCardBlock) {
+  if (!block.dish && !block.dishImage) return null;
+  return (
+    <div className={styles.mustEat}>
+      {block.dishImage && (
+        <div className={styles.mustEatPh}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={block.dishImage} alt={block.dish || ''} />
+        </div>
+      )}
+      <div className={styles.mustEatBody}>
+        <span className={styles.mustEatKicker}>Must Eat</span>
+        {block.dish && <h3 className={styles.mustEatName}>{block.dish}</h3>}
+        {block.restaurantName && (
+          <span className={styles.mustEatRest}>@ {normalizeName(block.restaurantName)}</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Article detail — Chewy magazine feature (mockup-chewy screen 8). Inline
+// must-eat cards, the "Spots im Artikel" grid and the sticky spotrail are driven
+// by mustEatCard reference blocks in the body; TOC + drop-cap come from the body.
 export default function NewsArticleShell({
   article,
   relatedArticles = [],
@@ -51,6 +75,10 @@ export default function NewsArticleShell({
   const showToc = headings.length >= 2;
   const tocLabel = de ? 'In diesem Artikel' : 'In this article';
 
+  const spots = extractArticleSpots(content);
+  const spotsLabel = de ? 'Spots im Artikel' : 'Spots in this story';
+  const toMapLabel = de ? 'Auf die Map →' : 'To the map →';
+
   const homeLabel = de ? 'Start' : 'Home';
   const newsLabel = de ? 'Auf dem Teller' : 'On the Menu';
   const breadcrumbItems: BreadcrumbItem[] = [
@@ -70,7 +98,7 @@ export default function NewsArticleShell({
       data-page="news-article"
       id="newsModal"
     >
-      <article className={styles.article}>
+      <article className={`${styles.article}${spots.length > 0 ? ` ${styles.hasSpotrail}` : ''}`}>
         {article.imageUrl && (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img src={article.imageUrl} alt={title} className={styles.hero} />
@@ -106,8 +134,43 @@ export default function NewsArticleShell({
         )}
 
         <div className={styles.content}>
-          <PortableTextRenderer blocks={content} />
+          <PortableTextRenderer blocks={content} renderMustEatCard={renderMustEatCard} />
         </div>
+
+        {spots.length > 0 && (
+          <section className={styles.spots} aria-label={spotsLabel}>
+            <h2 className={styles.spotsHeading}>{spotsLabel}</h2>
+            <div className={styles.spotsRow}>
+              {spots.map((s) => {
+                const name = normalizeName(s.name);
+                const meta = [s.district, s.cuisineType].filter(Boolean).join(' · ');
+                const inner = (
+                  <>
+                    {meta && <span className={styles.spotMeta}>{meta}</span>}
+                    <span className={styles.spotName}>{name}</span>
+                  </>
+                );
+                const bg = s.photo ? { backgroundImage: `url(${s.photo})` } : undefined;
+                return s.slug ? (
+                  <Link
+                    key={s.slug}
+                    href={`/map?r=${s.slug}`}
+                    rel="nofollow"
+                    className={styles.spotCard}
+                    style={bg}
+                    aria-label={name}
+                  >
+                    {inner}
+                  </Link>
+                ) : (
+                  <div key={s.name} className={styles.spotCard} style={bg}>
+                    {inner}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         <div className={styles.shareRow}>
           <span className={styles.shareLabel}>{de ? 'Teilen' : 'Share'}</span>
@@ -143,6 +206,31 @@ export default function NewsArticleShell({
           </section>
         )}
       </article>
+
+      {spots.length > 0 && (
+        <aside className={styles.spotrail} aria-label={spotsLabel}>
+          <div className={styles.spotrailPics}>
+            {spots.slice(0, 3).map((s) => (
+              <span
+                key={s.slug ?? s.name}
+                className={styles.spotrailPic}
+                style={s.photo ? { backgroundImage: `url(${s.photo})` } : undefined}
+                aria-hidden="true"
+              />
+            ))}
+          </div>
+          <div className={styles.spotrailMeta}>
+            <span className={styles.spotrailKicker}>{spotsLabel}</span>
+            <span className={styles.spotrailNames}>
+              {spots.map((s) => normalizeName(s.name)).join(' · ')}
+            </span>
+          </div>
+          <Link href="/map" rel="nofollow" className={styles.spotrailCta}>
+            {toMapLabel}
+          </Link>
+        </aside>
+      )}
+
       <SeoSignupCTA />
       <SiteFooter />
     </div>

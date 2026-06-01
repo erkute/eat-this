@@ -64,6 +64,37 @@ const contentBlocks = [
       },
     ],
   },
+  // Inline „Must Eat"-Karte — platziere ein Gericht mitten im Fließtext (beim
+  // passenden Abschnitt). Aus den referenzierten Spots baut das Frontend
+  // zusätzlich automatisch das „Spots im Artikel"-Grid + die Sticky-Spotrail.
+  {
+    type: 'object',
+    name: 'mustEatCard',
+    title: '🍴 Must Eat einfügen',
+    fields: [
+      {
+        name: 'mustEatRef',
+        title: 'Must Eat',
+        type: 'reference',
+        to: [{type: 'mustEat'}],
+        validation: (Rule) => Rule.required(),
+      },
+    ],
+    preview: {
+      select: {
+        dish: 'mustEatRef.dish',
+        restaurant: 'mustEatRef.restaurantRef.name',
+        media: 'mustEatRef.image',
+      },
+      prepare({dish, restaurant, media}) {
+        return {
+          title: `🍴 ${dish || 'Must Eat'}`,
+          subtitle: restaurant ? `@ ${restaurant}` : 'Must Eat',
+          media,
+        }
+      },
+    },
+  },
 ]
 
 export default defineType({

@@ -164,6 +164,139 @@
   font-weight: 700;
 }
 
+/* ── Inline Must Eat card (mustEatCard block) ── */
+.mustEat {
+  margin: 22px 0 18px;
+  padding: 18px;
+  background: #f2eddf;
+  border: 1.5px solid #0a0a0a;
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 16px;
+  align-items: center;
+}
+.mustEatPh {
+  width: 110px;
+  height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mustEatPh img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  /* Freigestellt → no drop-shadow (Chewy rule), tilt only */
+  transform: rotate(-4deg);
+}
+.mustEatBody {
+  display: grid;
+  gap: 6px;
+}
+.mustEatKicker {
+  font-family: var(--font-poster);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  opacity: 0.6;
+}
+.mustEatName {
+  font-family: var(--font-poster);
+  font-size: 26px;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 0;
+}
+.mustEatRest {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  opacity: 0.7;
+}
+
+/* ── Pull-quote (blockquote in body) ── */
+.content blockquote {
+  margin: 18px 0 22px;
+  padding: 18px 0 4px;
+  border-top: 2px solid #0a0a0a;
+  border-bottom: 2px solid #0a0a0a;
+  font-family: var(--font-poster);
+  font-size: clamp(24px, 7vw, 28px);
+  line-height: 1.05;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+}
+
+/* ── Spots im Artikel — horizontal restaurant cards ── */
+.spots {
+  margin: 0;
+}
+.spotsHeading {
+  font-family: var(--font-poster);
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 0;
+  padding: 18px 18px 4px;
+}
+.spotsRow {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 8px 18px 22px;
+}
+.spotsRow::-webkit-scrollbar {
+  display: none;
+}
+.spotCard {
+  flex: 0 0 188px;
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background-size: cover;
+  background-position: center;
+  background-color: #14100c;
+  color: #fbf8ee;
+  text-decoration: none;
+}
+.spotCard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 35%, rgba(0, 0, 0, 0.78) 100%);
+}
+.spotMeta {
+  position: absolute;
+  left: 12px;
+  bottom: 38px;
+  z-index: 1;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brand-yellow);
+  font-weight: 600;
+}
+.spotName {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 1;
+  font-family: var(--font-poster);
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
 /* ── Share ── */
 .shareRow {
   display: flex;
@@ -241,6 +374,92 @@
   letter-spacing: 0.015em;
   color: #fbf8ee;
   margin: 12px 0 0;
+}
+
+/* ── Sticky spotrail — floats at the viewport bottom while reading, yields to
+   the footer below it. Sibling of .article inside .page (so there's flow space
+   below it to float over). Degrades to a static end-bar if an overflow ancestor
+   prevents stickiness. ── */
+.spotrail {
+  position: sticky;
+  bottom: 0;
+  z-index: 40;
+  max-width: 720px;
+  margin: 0 auto;
+  background: #fbf8ee;
+  border-top: 2px solid #0a0a0a;
+  box-shadow: 0 -8px 24px rgba(17, 13, 9, 0.22);
+  padding: 12px 14px 14px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+/* When the spotrail is present, pad the article so its last content isn't
+   hidden behind the floating bar. */
+.hasSpotrail {
+  padding-bottom: 76px;
+}
+.spotrailPics {
+  display: flex;
+}
+.spotrailPic {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #fbf8ee;
+  background: #f2eddf center / cover no-repeat;
+  margin-left: -10px;
+  box-shadow: 0 2px 4px rgba(17, 13, 9, 0.3);
+  outline: 1.5px solid #0a0a0a;
+}
+.spotrailPic:first-child {
+  margin-left: 0;
+}
+.spotrailMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  overflow: hidden;
+}
+.spotrailKicker {
+  font-family: var(--font-poster);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 10px;
+  color: #0a0a0a;
+  opacity: 0.7;
+  line-height: 1.2;
+}
+.spotrailNames {
+  font-family: var(--font-poster);
+  font-size: 15px;
+  line-height: 1.05;
+  color: #0a0a0a;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.spotrailCta {
+  font-family: var(--font-poster);
+  background: var(--brand-yellow);
+  color: #0a0a0a;
+  border: 2px solid #0a0a0a;
+  padding: 9px 12px 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 12px;
+  box-shadow: 3px 3px 0 #0a0a0a;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.spotrailCta:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #0a0a0a;
 }
 
 @media (min-width: 768px) {

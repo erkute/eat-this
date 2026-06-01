@@ -69,6 +69,31 @@ export interface NewsArticleSeo {
 
 export type PortableTextBlock = { _type: string; _key?: string } & Record<string, unknown>
 
+// Inline "Must Eat" block embedded in article Portable Text (resolved in
+// articleBySlugQuery). Carries the dish + its restaurant for the inline card
+// and the derived "Spots im Artikel" grid / spotrail.
+export interface MustEatCardBlock {
+  _type: 'mustEatCard'
+  _key?: string
+  dish?: string
+  dishImage?: string
+  restaurantName?: string
+  restaurantSlug?: string
+  district?: string
+  cuisineType?: string
+  restaurantPhoto?: string
+}
+
+// A unique restaurant referenced by an article (derived from its mustEatCard
+// blocks) — feeds the "Spots im Artikel" grid + spotrail.
+export interface ArticleSpot {
+  name: string
+  slug?: string
+  district?: string
+  cuisineType?: string
+  photo?: string
+}
+
 export interface NewsArticle {
   _id: string
   slug: string

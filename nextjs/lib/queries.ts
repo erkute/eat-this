@@ -58,6 +58,25 @@ export const allRestaurantSlugsQuery = `
   }
 `
 
+// Inline "Must Eat" reference blocks inside article content carry both the dish
+// (freigestellt photo + name) and the restaurant (photo/name/slug/district) so
+// the renderer can draw the inline card AND derive the "Spots im Artikel" grid +
+// spotrail without extra fetches. Normal blocks pass through untouched (`...`).
+const articleContentProjection = `{
+    ...,
+    _type == "mustEatCard" => {
+      _type,
+      _key,
+      "dish": mustEatRef->dish,
+      "dishImage": mustEatRef->image.asset->url + "?w=400&auto=format&q=80",
+      "restaurantName": mustEatRef->restaurantRef->name,
+      "restaurantSlug": mustEatRef->restaurantRef->slug.current,
+      "district": coalesce(mustEatRef->restaurantRef->district, mustEatRef->restaurantRef->bezirkRef->name, mustEatRef->district),
+      "cuisineType": mustEatRef->restaurantRef->cuisineType,
+      "restaurantPhoto": mustEatRef->restaurantRef->image.asset->url + "?w=500&auto=format&q=75"
+    }
+  }`
+
 export const articleBySlugQuery = `
   *[_type == "newsArticle" && slug.current == $slug][0] {
     _id,
@@ -70,7 +89,8 @@ export const articleBySlugQuery = `
     "imageUrl": image.asset->url + "?w=1200&auto=format&q=85",
     "alt": coalesce(image.alt, alt),
     excerpt, excerptDe,
-    content, contentDe,
+    content[] ${articleContentProjection},
+    contentDe[] ${articleContentProjection},
     seo {
       metaTitle,
       metaDescription,

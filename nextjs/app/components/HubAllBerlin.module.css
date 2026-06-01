@@ -25,9 +25,9 @@
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  /* Nudge the mobile cascade slightly toward the bottom-right. Desktop
-     overrides transform below, so this only affects mobile. */
-  transform: translate(12px, 14px);
+  /* Nudge the mobile cascade toward the bottom-right. Desktop overrides
+     transform below, so this only affects mobile. */
+  transform: translate(30px, 38px);
 }
 .fan img {
   position: absolute;

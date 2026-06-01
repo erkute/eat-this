@@ -18,9 +18,16 @@ export interface NewOnMapCard {
   category: string | null
 }
 
+export interface HubCategory {
+  name: string
+  slug: string
+  line: string | null
+}
+
 export interface HomeData {
   spotOfDay: HomeSpot | null
   newOnMap: NewOnMapCard[]
+  categories: HubCategory[]
 }
 
 const spotCandidatesQuery = `*[_type == "restaurant" && isOpen == true && !(_id in path("drafts.**"))]{
@@ -44,14 +51,21 @@ const newOnMapQuery = `*[_type == "restaurant" && isOpen == true && defined(imag
   "category": select($locale == "en" => categories[0]->nameEn, categories[0]->name)
 }`
 
+const homeWeekCategoriesQuery = `*[_type == "homeWeek" && weekStart <= $today] | order(weekStart desc)[0].categories[]{
+  "name": select($locale == "en" => category->nameEn, category->name),
+  "slug": category->slug.current,
+  line
+}`
+
 /** Server: assemble the Hub's initial data. `today` defaults to the server's date. */
 export async function getHomeData(
   locale: 'de' | 'en',
   today: string = new Date().toISOString().slice(0, 10),
 ): Promise<HomeData> {
-  const [candidates, newOnMap] = await Promise.all([
+  const [candidates, newOnMap, categories] = await Promise.all([
     client.fetch<HomeSpot[]>(spotCandidatesQuery, { locale }, { next: { revalidate: 3600, tags: ['restaurant', 'mustEat'] } }),
     client.fetch<NewOnMapCard[]>(newOnMapQuery, { locale }, { next: { revalidate: 3600, tags: ['restaurant'] } }),
+    client.fetch<HubCategory[] | null>(homeWeekCategoriesQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
   ])
-  return { spotOfDay: pickSpotOfDay(candidates, today), newOnMap }
+  return { spotOfDay: pickSpotOfDay(candidates, today), newOnMap, categories: categories ?? [] }
 }

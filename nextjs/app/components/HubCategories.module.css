@@ -1,0 +1,83 @@
+.section {
+  padding: 32px 22px 30px;
+  background: #fbf8ee;
+  border-top: 2px solid var(--text-primary);
+}
+.heading {
+  font-family: var(--font-ranchers);
+  font-size: clamp(38px, 12vw, 48px);
+  line-height: .94;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+  padding-top: 6px;
+}
+.sub {
+  font-family: var(--font-ranchers);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  opacity: .65;
+  margin: 0 0 22px;
+}
+.stack { display: grid; gap: 16px; }
+.card {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 14px;
+  background: #fbf8ee;
+  border: 2px solid var(--text-primary);
+  box-shadow: 4px 4px 0 var(--text-primary);
+  padding: 14px 16px 14px 6px;
+  align-items: center;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: transform .2s, box-shadow .2s;
+}
+.card:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--text-primary); }
+.art {
+  width: 110px;
+  height: auto;
+  filter: drop-shadow(0 8px 12px rgba(17,13,9,.32)) drop-shadow(0 2px 4px rgba(17,13,9,.18));
+  transform: rotate(-3deg);
+}
+.card:nth-child(2) .art { transform: rotate(2.5deg); }
+.card:nth-child(3) .art { transform: rotate(-1.5deg); }
+.body { display: grid; gap: 4px; min-width: 0; }
+.meta {
+  font-family: var(--font-ranchers);
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  opacity: .55;
+  margin: 0;
+}
+.name {
+  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 34px;
+  line-height: 1.15;
+  padding-top: 6px;
+  color: var(--text-primary);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: -.005em;
+}
+.line {
+  font-family: var(--font);
+  font-size: 13.5px;
+  line-height: 1.35;
+  color: var(--text-primary);
+  opacity: .82;
+  margin: 4px 0 6px;
+}
+.cta {
+  font-family: var(--font-ranchers);
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}

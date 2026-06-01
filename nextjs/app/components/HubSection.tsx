@@ -1,5 +1,6 @@
 import HubHero from './HubHero'
 import HubNewOnMap from './HubNewOnMap'
+import HubCategories from './HubCategories'
 import type { HomeData } from '@/lib/home/getHomeData'
 
 interface Props {
@@ -14,6 +15,7 @@ export default function HubSection({ initialData }: Props) {
     <div className="page" style={{ display: 'flow-root' }} data-hub="">
       {spot ? <HubHero spot={spot} today={today} /> : <h1>Eat This</h1>}
       <HubNewOnMap cards={initialData.newOnMap} />
+      <HubCategories categories={initialData.categories} />
     </div>
   )
 }

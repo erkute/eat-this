@@ -3,7 +3,8 @@
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/lib/auth'
-import { useMapData, useUserLocation } from '@/lib/map'
+import { useMapData } from '@/lib/map'
+import { useUserLocationContext } from '@/lib/map/UserLocationContext'
 import { haversineDistance, formatWalkingTime } from '@/lib/map/distance'
 import { normalizeName } from '@/lib/normalizeName'
 import { nearestRestaurants, nearbyMustEats } from '@/lib/home/nearby'
@@ -20,7 +21,7 @@ export default function HubNearby({ initialMapData }: Props) {
   const { user, loading: authLoading } = useAuth()
   const uid = user?.uid ?? null
   const { restaurants, mustEats } = useMapData({ uid, authLoading, initialMapData })
-  const { location, request } = useUserLocation()
+  const { location, request } = useUserLocationContext()
   const loc = location ?? MITTE
 
   const cards = nearestRestaurants(restaurants, loc, 4)

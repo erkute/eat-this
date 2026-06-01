@@ -89,6 +89,13 @@ export function useMapDeepLinks({
   // ?me=<mustEatId> opens the matching Must-Eat detail directly. Used by the
   // inline must-eat cards in news articles. Reuses the in-app tap handler so
   // locked/unlocked behaviour is identical. Mirrors the ?r= polling pattern.
+  // Hold the (frequently re-created) handler in a ref so it's NOT an effect
+  // dependency — otherwise its identity churn (sheetView/snap changes) re-runs
+  // the effect, whose cleanup cancels the in-flight mapRef poll, and the
+  // consumed-guard then blocks a restart → the detail never opens on a cold
+  // article→map navigation.
+  const onMustEatIdMatchRef = useRef(onMustEatIdMatch)
+  onMustEatIdMatchRef.current = onMustEatIdMatch
   const mustEatConsumed = useRef(false)
   useEffect(() => {
     if (mustEatConsumed.current) return
@@ -103,19 +110,18 @@ export function useMapDeepLinks({
     params.delete('me')
     const next = window.location.pathname + (params.toString() ? `?${params}` : '') + window.location.hash
     window.history.replaceState(null, '', next)
-    let cancelled = false
+    // No cancel-on-cleanup: once consumed we always finish the open, even if a
+    // re-render re-runs the effect (the guard above makes re-runs no-ops).
     const tryOpen = () => {
-      if (cancelled) return
       if (mapRef.current) {
         userInteractedRef.current = true
-        onMustEatIdMatch(target)
+        onMustEatIdMatchRef.current(target)
       } else {
         setTimeout(tryOpen, 120)
       }
     }
     tryOpen()
-    return () => { cancelled = true }
-  }, [isActive, mustEats, onMustEatIdMatch, mapRef, userInteractedRef])
+  }, [isActive, mustEats, mapRef, userInteractedRef])
 
   // ?bezirk=<slug> pre-selects a bezirk filter and fits the camera to show all
   // restaurants in that district. Mirrors the ?r= polling pattern above. Note

@@ -1,12 +1,13 @@
 'use client'
 
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
 import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/lib/auth'
 import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements'
 import { useMapData } from '@/lib/map'
 import { useUserLocationContext } from '@/lib/map/UserLocationContext'
-import { bezirkFromLocation, freshInBezirk } from '@/lib/home/bezirkFromLocation'
+import { freshInBezirk } from '@/lib/home/freshInBezirk'
 import { getPack } from '@/lib/stripe-catalog'
 import { categoryArt } from '@/lib/categoryArt'
 import { normalizeName } from '@/lib/normalizeName'
@@ -14,7 +15,6 @@ import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import styles from './HubDeineWelt.module.css'
 
 const CARD_BACK = '/pics/card-back.webp'
-const MITTE = { lat: 52.52, lng: 13.405 }
 
 interface Props {
   initialMapData: InitialMapData
@@ -27,6 +27,24 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   const { restaurants } = useMapData({ uid, authLoading: loading, initialMapData })
   const { location } = useUserLocationContext()
 
+  // Real reverse-geocode of the granted location → exact Berlin Ortsteil via
+  // point-in-polygon (/api/bezirk). Falls back to "Mitte" until a location is
+  // granted (or if the point is outside Berlin).
+  const [geoBezirk, setGeoBezirk] = useState<string | null>(null)
+  useEffect(() => {
+    if (!location) return
+    let cancelled = false
+    fetch(`/api/bezirk?lat=${location.lat}&lng=${location.lng}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled && d && typeof d.bezirk === 'string') setGeoBezirk(d.bezirk)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [location])
+
   // Logged-out (and the SSR / first-paint pass, where auth is still loading)
   // render nothing → no hydration mismatch and the hero stays the first block.
   if (loading || !user) return null
@@ -34,11 +52,8 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   const firstName =
     (user.displayName ?? '').split(' ')[0] || (user.email ?? '').split('@')[0] || null
 
-  // Bezirk from the user's real location once granted, else the Mitte fallback
-  // (matches the "In deiner Nähe" rail below). The shared location context means
-  // tapping "Standort" anywhere — or a prior grant — updates this automatically.
-  const bezirk = bezirkFromLocation(restaurants, location ?? MITTE)
-  const fresh = bezirk ? freshInBezirk(restaurants, bezirk, 2) : []
+  const bezirk = geoBezirk ?? 'Mitte'
+  const fresh = freshInBezirk(restaurants, bezirk, 2)
 
   // First owned CATEGORY pack → resolve its real category slug via the catalog
   // (packId 'category-fastfood' maps to slug 'fast-food', not 'fastfood').

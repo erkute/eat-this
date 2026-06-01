@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { setRequestLocale, getMessages } from 'next-intl/server';
-import { Bungee, Caveat, Knewave, Archivo_Black, Ranchers, Slackey, Barlow_Condensed, Bowlby_One, Saira_Condensed, Permanent_Marker, Anton } from 'next/font/google';
+import { Bungee, Caveat, Knewave, Archivo_Black, Ranchers, Slackey, Barlow_Condensed, Chewy, Saira_Condensed, Permanent_Marker, Anton } from 'next/font/google';
 import Script from 'next/script';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
@@ -76,15 +76,16 @@ const barlowCondensed = Barlow_Condensed({
   display: 'swap',
   variable: '--font-barlow-condensed',
 });
-// Bowlby One — heavy, rounded, condensed display sans. Matches the EAT THIS
-// wordmark letterforms (same family: heavy stems, rounded terminals,
-// condensed proportions, tall ascenders). Used as the universal landing
-// display font so every section reads as one EAT THIS poster.
-const bowlbyOne = Bowlby_One({
+// Chewy — rounded, friendly bubble display. The 2026 EAT THIS brand display
+// font, replacing Bowlby One sitewide. Full Latin-1 glyph coverage incl.
+// German umlauts (ä ö ü ß) and accented Latin, so it carries every German
+// heading natively. Used as the universal display font so every section
+// reads as one EAT THIS poster.
+const chewy = Chewy({
   weight: '400',
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-bowlby-one',
+  variable: '--font-chewy',
 });
 // Saira Condensed — heavy condensed grotesque used as the editorial-poster
 // display font for the Map list rows + Detail v13. Drives the BAR BASTA-
@@ -188,7 +189,7 @@ export default async function LocaleLayout({
 
   return (
     // suppressHydrationWarning: critical script mutates data-theme before hydration
-    <html lang={locale} data-scroll-behavior="smooth" className={`${bungee.variable} ${caveat.variable} ${knewave.variable} ${archivoBlack.variable} ${ranchers.variable} ${slackey.variable} ${barlowCondensed.variable} ${bowlbyOne.variable} ${sairaCondensed.variable} ${permanentMarker.variable} ${anton.variable}`} suppressHydrationWarning>
+    <html lang={locale} data-scroll-behavior="smooth" className={`${bungee.variable} ${caveat.variable} ${knewave.variable} ${archivoBlack.variable} ${ranchers.variable} ${slackey.variable} ${barlowCondensed.variable} ${chewy.variable} ${sairaCondensed.variable} ${permanentMarker.variable} ${anton.variable}`} suppressHydrationWarning>
       <head>
         {/* Safe: hardcoded constant, no user input */}
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}

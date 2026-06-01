@@ -45,18 +45,20 @@
      Both loaded via next/font in [locale]/layout.tsx; consumers reference
      these vars. Inter stays the body + eyebrow workhorse. */
   /* 2026 EAT THIS-direction: ALL display + section-headline tokens collapsed
-     onto Bowlby One — the same heavy, rounded, condensed letterform family
-     as the hero EAT THIS wordmark. Section heads now read as a continuation
-     of the brand wordmark, not as a separate display type.
+     onto Chewy — a rounded, friendly bubble display that replaces Bowlby One
+     sitewide as the brand wordmark family. Section heads read as a
+     continuation of the brand wordmark, not as a separate display type. Chewy
+     ships full Latin-1 glyph coverage (incl. ä ö ü ß), so German headings
+     render natively — no Saira fallback needed for umlauts.
      Bungee/Ranchers/Knewave/Slackey still loaded for any bespoke component
      that opts in via the per-font var, but the design-system tokens below
-     all point at Bowlby One. */
-  --font-display: var(--font-bowlby-one, 'Bowlby One'), 'Arial Black', 'Helvetica Neue', sans-serif;
+     all point at Chewy. */
+  --font-display: var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
   --font-script:  var(--font-caveat, 'Caveat'), 'Bradley Hand', 'Lucida Handwriting', cursive;
-  --font-marker:  var(--font-bowlby-one, 'Bowlby One'), 'Arial Black', 'Helvetica Neue', sans-serif;
-  --font-poster:  var(--font-bowlby-one, 'Bowlby One'), 'Arial Black', 'Helvetica Neue', sans-serif;
-  --font-ranchers: var(--font-bowlby-one, 'Bowlby One'), 'Arial Black', 'Helvetica Neue', sans-serif;
-  --font-slackey:  var(--font-bowlby-one, 'Bowlby One'), 'Arial Black', 'Helvetica Neue', sans-serif;
+  --font-marker:  var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-poster:  var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-ranchers: var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-slackey:  var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
   /* Barlow Condensed Light — condensed grotesque used for Voices testimonial
      bodies. Same narrow-display vibe as Ranchers ("Berlin & beyond." /
      "Häufige Fragen.") but with a real Light 300 weight, so the stroke is

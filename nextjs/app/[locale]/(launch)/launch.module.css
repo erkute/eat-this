@@ -13,7 +13,7 @@
 
 .page {
   --f-anton: var(--font-anton), "Anton", "Bebas Neue", sans-serif;
-  --f-display: var(--font-bowlby-one), "Bowlby One", "Anton Black", sans-serif;
+  --f-display: var(--font-chewy), "Chewy", "Anton Black", sans-serif;
   --f-body: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
   --ink: #0a0a0a;
   --cream: #f7f5f0;

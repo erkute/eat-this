@@ -2,6 +2,7 @@ import HubHero from './HubHero'
 import HubNewOnMap from './HubNewOnMap'
 import HubCategories from './HubCategories'
 import HubBezirkOfWeek from './HubBezirkOfWeek'
+import HubMagazine from './HubMagazine'
 import type { HomeData } from '@/lib/home/getHomeData'
 
 interface Props {
@@ -18,6 +19,7 @@ export default function HubSection({ initialData }: Props) {
       <HubNewOnMap cards={initialData.newOnMap} />
       <HubCategories categories={initialData.categories} />
       <HubBezirkOfWeek bezirk={initialData.bezirkOfWeek} />
+      <HubMagazine articles={initialData.magazine} />
     </div>
   )
 }

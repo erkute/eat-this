@@ -36,6 +36,14 @@ function detectLocale(): string {
 
 type AvatarChoice = 1 | 2 | 3;
 
+// Named avatar tiles (mockup screen 14). The stored value is the number;
+// the label is just the picker caption.
+const AVATARS: { id: AvatarChoice; label: string }[] = [
+  { id: 1, label: 'Schnüffler' },
+  { id: 2, label: 'Nachtschwärmerin' },
+  { id: 3, label: 'Pizza-Pate' },
+];
+
 type State =
   | { kind: 'processing' }
   | { kind: 'success'; title: string; sub: string }
@@ -212,60 +220,67 @@ function NeedsEmailForm({
 
   return (
     <>
-      {/* Avatar hero */}
-      <div className={styles.avatarHero}>
-        <img
-          src={`/pics/avatar/${avatarPick}.webp`}
-          alt=""
-          className={styles.avatarHeroImg}
-        />
-      </div>
+      <h1 className={styles.title}>Wer bist du<br />auf der Map?</h1>
+      <p className={styles.sub}>
+        Such dir Name und Avatar — beides siehst nur du im Profil, später nicht
+        mehr änderbar. Bestätige kurz deine E-Mail.
+      </p>
 
-      <h1 className={styles.title}>Wähl deinen<br />Character</h1>
-      <p className={styles.sub}>Und bestätige kurz deine E-Mail-Adresse.</p>
+      <form onSubmit={submit} className={styles.form}>
+        <div>
+          <label className={styles.nameLabel} htmlFor="ob-name">Dein Name</label>
+          <input
+            id="ob-name"
+            type="text"
+            autoComplete="given-name"
+            placeholder="z. B. Lukas"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            maxLength={40}
+            className={styles.input}
+          />
+        </div>
 
-      <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <input
-          type="text"
-          autoComplete="given-name"
-          placeholder="Dein Vorname"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          maxLength={40}
-          className={styles.input}
-        />
         <input
           type="email"
           inputMode="email"
           autoComplete="email"
-          placeholder="deine@e-mail.de"
+          placeholder="deine@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
           className={styles.input}
         />
 
-        <div className={styles.avatarRow} role="radiogroup" aria-label="Avatar auswählen">
-          {([1, 2, 3] as AvatarChoice[]).map((choice) => (
+        <div className={styles.avatars} role="radiogroup" aria-label="Avatar auswählen">
+          {AVATARS.map(({ id, label }) => (
             <button
-              key={choice}
+              key={id}
               type="button"
               role="radio"
-              aria-checked={choice === avatarPick}
-              aria-label={`Avatar ${choice}`}
-              className={`${styles.avatarChoice}${choice === avatarPick ? ` ${styles.avatarChoiceActive}` : ''}`}
-              onClick={() => setAvatarPick(choice)}
+              aria-checked={id === avatarPick}
+              aria-label={label}
+              className={`${styles.avatar}${id === avatarPick ? ` ${styles.avatarActive}` : ''}`}
+              onClick={() => setAvatarPick(id)}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/pics/avatar/${choice}.webp`} alt="" />
+              <span className={styles.avatarPh}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/pics/avatar/${id}.webp`} alt="" />
+              </span>
+              <span className={styles.avatarName}>{label}</span>
             </button>
           ))}
         </div>
 
         {error && <p className={styles.error}>{error}</p>}
         <button type="submit" className={styles.cta} disabled={busy || !name.trim() || !email}>
-          {busy ? 'Anmelden …' : 'Weiter'}
+          <span>{busy ? 'Anmelden …' : 'Weiter'}</span>
+          {!busy && (
+            <svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="currentColor" strokeWidth={2.6}>
+              <path d="M5 12h14M13 5l7 7-7 7" />
+            </svg>
+          )}
         </button>
       </form>
     </>

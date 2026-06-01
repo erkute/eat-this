@@ -8,9 +8,11 @@
 .page {
   background: #fbf8ee;
   min-height: 100vh;
-  /* Clear the fixed 64px navbar (SiteNav) — this route has its own layout,
-     not the SPA's .app-pages offset. */
-  padding-top: calc(64px + env(safe-area-inset-top, 0px));
+  /* Clear the fixed 64px navbar (SiteNav) — this route has its own layout, not
+     the SPA's .app-pages offset. Mirror the SPA's expression so the staging
+     banner (--staging-banner-h: 32px on staging, 0 on prod) is accounted for
+     too, otherwise the banner pushes the navbar down onto the profile head. */
+  padding-top: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
 }
 
 /* Loading spinner (auth gate) */

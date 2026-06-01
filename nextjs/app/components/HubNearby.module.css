@@ -1,6 +1,6 @@
 .section {
   background: #fbf8ee;
-  padding-bottom: 8px;
+  padding: 10px 0 20px;
 }
 
 .head {
@@ -8,7 +8,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
-  margin: 22px 16px 2px;
+  margin: 26px 16px 4px;
 }
 /* "Nähe" carries an umlaut → Saira Condensed (the brand display font has no
    accented glyphs); line-height 1.15 + padding-top guard against clipping. */
@@ -56,13 +56,18 @@
 
 .row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  padding: 0 16px 12px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 4px 16px 8px;
   margin: 0;
   list-style: none;
+}
+.row::-webkit-scrollbar {
+  display: none;
 }
 .cardItem {
   flex: 0 0 168px;
@@ -138,7 +143,7 @@
   line-height: 1.15;
   text-transform: uppercase;
   color: var(--text-primary);
-  margin: 6px 16px 2px;
+  margin: 18px 16px 2px;
   padding-top: 4px;
 }
 .meSub {
@@ -150,13 +155,18 @@
 }
 .meRow {
   display: flex;
-  gap: 10px;
+  gap: 14px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  padding: 0 16px 12px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 4px 16px 10px;
   margin: 0;
   list-style: none;
+}
+.meRow::-webkit-scrollbar {
+  display: none;
 }
 .meItem {
   flex: 0 0 168px;
@@ -173,13 +183,13 @@
 }
 .meImg {
   object-fit: contain;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .32));
+  filter: drop-shadow(0 6px 9px rgba(0, 0, 0, .14));
 }
 .meItem:nth-child(odd) .meCard {
-  transform: rotate(-2deg);
+  transform: rotate(-1.5deg);
 }
 .meItem:nth-child(even) .meCard {
-  transform: rotate(2deg);
+  transform: rotate(1.5deg);
 }
 .foot {
   margin: 2px 16px 12px;

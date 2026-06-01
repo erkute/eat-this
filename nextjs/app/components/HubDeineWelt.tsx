@@ -18,7 +18,8 @@ export default function HubDeineWelt() {
   // render nothing → no hydration mismatch and the hero stays the first block.
   if (loading || !user) return null
 
-  const firstName = (user.displayName ?? '').split(' ')[0] || null
+  const firstName =
+    (user.displayName ?? '').split(' ')[0] || (user.email ?? '').split('@')[0] || null
 
   // First owned CATEGORY pack → resolve its real category slug via the catalog
   // (packId 'category-fastfood' maps to slug 'fast-food', not 'fastfood').
@@ -29,9 +30,8 @@ export default function HubDeineWelt() {
 
   return (
     <section className={styles.section} data-hub-deinewelt="">
-      <span className={styles.badge}>Logged-in</span>
       <header className={styles.hi}>
-        {firstName && <p className={styles.kicker}>{firstName}</p>}
+        <p className={styles.kicker}>{firstName ? `Hallo ${firstName}` : 'Hallo'}</p>
         <h2 className={styles.name}>
           Heute auf <span className={styles.em}>deiner</span> Map.
         </h2>

@@ -3,43 +3,28 @@
   background: #fbf8ee;
   border-top: 2px solid var(--text-primary);
   border-bottom: 2px solid var(--text-primary);
-  padding: 22px 16px 24px;
+  padding: 30px 18px 34px;
   margin-top: 8px;
 }
 
-.badge {
-  position: absolute;
-  top: 0;
-  right: 16px;
-  transform: translateY(-50%);
-  background: var(--text-primary);
-  color: var(--brand-yellow);
-  font-family: var(--font);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  padding: 4px 9px;
-}
-
 .hi {
-  margin-bottom: 18px;
+  margin-bottom: 26px;
 }
-/* First name can carry umlauts (e.g. "Jürgen") → Saira, which has the glyphs. */
+/* Greeting can carry umlauts (e.g. "Jürgen") → Saira, which has the glyphs. */
 .kicker {
   font-family: var(--font-saira-condensed);
   font-weight: 800;
-  font-size: 15px;
-  letter-spacing: .14em;
+  font-size: 17px;
+  letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--brand-red);
-  margin: 0 0 2px;
+  margin: 0 0 8px;
 }
-/* "Heute auf deiner Map." has no umlaut → brand display font. */
+/* "Heute auf deiner Map." has no umlaut → brand display font (Chewy). */
 .name {
   font-family: var(--font-ranchers);
-  font-size: clamp(28px, 9vw, 38px);
-  line-height: 1.0;
+  font-size: clamp(40px, 13vw, 58px);
+  line-height: 0.92;
   text-transform: none;
   color: var(--text-primary);
   margin: 0;
@@ -54,18 +39,18 @@
   justify-content: center;
   align-items: center;
   gap: 0;
-  margin: 4px 0 14px;
-  min-height: 132px;
+  margin: 10px 0 20px;
+  min-height: 150px;
 }
+/* Freigestellt: the card-back image floats — no frame, no dark box. */
 .card {
   display: block;
-  width: 84px;
-  height: 118px;
-  background-size: cover;
+  width: 92px;
+  height: 130px;
+  background-size: contain;
   background-position: center;
-  background-color: #14100c;
-  border: 2px solid var(--text-primary);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, .22);
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .20));
 }
 .card:nth-child(1) {
   transform: rotate(-5deg);
@@ -89,16 +74,16 @@
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--text-secondary);
-  margin: 0 0 18px;
+  margin: 0 0 26px;
 }
 
 .pack {
   display: grid;
   grid-template-columns: 84px 1fr;
-  gap: 14px;
+  gap: 16px;
   align-items: center;
   border-top: 1px solid var(--c-row-rule);
-  padding-top: 16px;
+  padding-top: 22px;
 }
 .packArt {
   width: 84px;

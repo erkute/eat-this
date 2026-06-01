@@ -127,30 +127,6 @@ export default function SiteNav() {
   return (
     <>
       <a href="#appPages" className="skip-link">{t('a11y.skip')}</a>
-      {/* Hidden defs SVG: shared wonky-marker filter referenced by alle
-          navbar Icons. feTurbulence + feDisplacementMap = hand-drawn-feel
-          ohne jedes Icon einzeln neu zu zeichnen. */}
-      <svg width="0" height="0" aria-hidden="true" focusable="false" className="nav-icon-defs">
-        <defs>
-          <filter id="navWonky" x="-25%" y="-25%" width="150%" height="150%">
-            {/* Scribble-Look: 3× über die SourceGraphic gezeichnet, jeder
-                Pass mit anderem Turbulence-Seed + steigender Displacement-
-                Scale → drei leicht verschobene Kopien jeder Linie wie ein
-                Bleistift, der mehrmals drübergeführt wurde. */}
-            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="1" result="t1"/>
-            <feDisplacementMap in="SourceGraphic" in2="t1" scale="1.2" result="d1"/>
-            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="t2"/>
-            <feDisplacementMap in="SourceGraphic" in2="t2" scale="2.2" result="d2"/>
-            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="13" result="t3"/>
-            <feDisplacementMap in="SourceGraphic" in2="t3" scale="3.0" result="d3"/>
-            <feMerge>
-              <feMergeNode in="d1"/>
-              <feMergeNode in="d2"/>
-              <feMergeNode in="d3"/>
-            </feMerge>
-          </filter>
-        </defs>
-      </svg>
       <nav className="navbar" id="navbar">
         <div className="navbar-home">
           <Link href="/" className={styles.logo} aria-label="Eat This — Start">
@@ -160,16 +136,12 @@ export default function SiteNav() {
         </div>
         <div className="navbar-actions">
           <Link href="/news" className={`navbar-icon-btn${activePage === 'news' ? ' active' : ''}`} id="navNewsBtn" aria-label="News">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
-              <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
-            </svg>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/pics/icon-news.webp" alt="" width={22} height={22} style={{ display: 'block' }} />
           </Link>
           <Link href="/map" className={`navbar-icon-btn${activePage === 'map' ? ' active' : ''}`} id="navMapBtn" aria-label="Map">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/>
-              <path d="M15 5.764v15"/><path d="M9 3.236v15"/>
-            </svg>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/pics/icon-map.webp" alt="" width={22} height={22} style={{ display: 'block' }} />
           </Link>
           <a
             id="navProfileBtn"
@@ -184,11 +156,8 @@ export default function SiteNav() {
             </svg>
           </a>
           <button className="burger-btn" id="burgerBtn" aria-label="Menu">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="4" y1="6" x2="20" y2="6"/>
-              <line x1="4" y1="12" x2="20" y2="12"/>
-              <line x1="4" y1="18" x2="20" y2="18"/>
-            </svg>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/pics/icon-burger.webp" alt="" width={24} height={24} style={{ display: 'block' }} />
           </button>
         </div>
       </nav>

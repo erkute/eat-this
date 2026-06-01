@@ -170,6 +170,11 @@ body {
   /* Soft dark halo so the cream icons read on the yellow header bar. */
   filter: drop-shadow(0 0 1px rgba(10, 10, 10, 0.6)) drop-shadow(0 1px 1px rgba(10, 10, 10, 0.4));
 }
+/* News/Map/Burger are now hand-drawn black-ink rasters. Profile stays an SVG
+   (no hand-drawn asset), so force it to the same black ink — otherwise the
+   default cream icon would read washed-out next to the three black ones on
+   the yellow bar. Map page keeps its own glass-chip treatment. */
+html:not([data-active-page="map"]) .navbar #navProfileBtn { color: #1c1c1c; }
 /* Active page indicator: hairline coral underline below the icon. */
 .navbar-icon-btn.active::before {
   content: "";
@@ -305,6 +310,11 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
   html[data-theme="dark"][data-active-page="map"] .navbar .burger-btn {
     background: rgba(32, 30, 28, 0.96) !important;
     color: var(--c-cream, #f3ead4) !important;
+  }
+  /* Black-ink burger raster on the dark glass chip would vanish — flip it to
+     light. (Light theme keeps the white chip + black burger.) */
+  html[data-theme="dark"][data-active-page="map"] .navbar .burger-btn img {
+    filter: invert(1);
   }
   html[data-theme="dark"][data-active-page="map"] .navbar .navbar-icon-btn {
     background: rgba(32, 30, 28, 0.96) !important;
@@ -2258,15 +2268,6 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
 .burger-btn:focus-visible {
   outline: none;
   box-shadow: none;
-}
-/* Hidden defs SVG für den shared #navWonky filter — nimmt keinen
-   Layout-Platz, dient nur als Filter-Container für die Nav-Icons. */
-.nav-icon-defs {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-  pointer-events: none;
 }
 @media (hover: hover) {
   .burger-btn:hover {

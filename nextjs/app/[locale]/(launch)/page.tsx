@@ -15,7 +15,7 @@ export default async function LaunchPage({
   // Staging: bypass the launch holding page entirely. Operator wants to
   // dogfood the real app at `/` — `/map` is the SPA's actual entry.
   if (isStaging) {
-    redirect({ href: '/map', locale })
+    redirect({ href: '/home', locale })
   }
 
   setRequestLocale(rawLocale)

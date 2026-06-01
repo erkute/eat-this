@@ -9,6 +9,12 @@ interface NewsSectionProps {
   locale: 'de' | 'en';
 }
 
+interface ComingItem {
+  title: string;
+  sub: string;
+  month: string;
+}
+
 function formatDate(iso: string | undefined, lang: 'de' | 'en'): string {
   if (!iso) return '';
   const d = new Date(iso);
@@ -32,6 +38,20 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
   const emptyMsg = de
     ? 'Aktuell keine Artikel — schau bald wieder vorbei.'
     : 'No articles right now — check back soon.';
+
+  // Curated coming-soon teasers (editorial, no CMS field yet — mockup screen 7).
+  const comingLabel = de ? 'Bald auf dem Teller' : 'Coming up next';
+  const coming: ComingItem[] = de
+    ? [
+        { title: 'Pizza in Berlin', sub: 'Holzofen, Pinsa, NY-Slice.', month: 'Juni' },
+        { title: 'Frühstück ohne Avocado', sub: 'Wo man morgens wirklich essen kann.', month: 'Juli' },
+        { title: 'Fine Dining ohne Pose', sub: 'Sterne-Küchen, die nicht nerven.', month: 'August' },
+      ]
+    : [
+        { title: 'Pizza in Berlin', sub: 'Wood-fired, pinsa, NY slice.', month: 'June' },
+        { title: 'Breakfast without avocado', sub: 'Where you can actually eat in the morning.', month: 'July' },
+        { title: 'Fine dining without the pose', sub: "Starred kitchens that don't annoy.", month: 'August' },
+      ];
 
   return (
     <div className={`app-page active ${styles.page}`} data-page="news">
@@ -75,14 +95,35 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                       )}
                     </div>
                     <h2 className={styles.featH}>{title}</h2>
-                    {excerpt && <p className={styles.featLede}>{excerpt}</p>}
                     <span className={styles.featCta}>{readMore}</span>
                   </Link>
+
+                  {excerpt && (
+                    <blockquote className={styles.pullquote}>
+                      <p className={styles.pqText}>{excerpt}</p>
+                      <span className={styles.pqAttr}>
+                        — {de ? 'aus' : 'from'} {de ? '„' : '“'}{title}{de ? '“' : '”'}
+                      </span>
+                    </blockquote>
+                  )}
                 </li>
               );
             })}
           </ul>
         )}
+
+        <div className={styles.comingLabel}>{comingLabel}</div>
+        <div className={styles.coming}>
+          {coming.map((c) => (
+            <div key={c.title} className={styles.comingRow}>
+              <h4 className={styles.comingH}>
+                {c.title}
+                <em>{c.sub}</em>
+              </h4>
+              <span className={styles.comingStamp}>{c.month}</span>
+            </div>
+          ))}
+        </div>
       </section>
       <SeoSignupCTA />
       <SiteFooter />

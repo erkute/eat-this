@@ -129,6 +129,103 @@
   padding-bottom: 1px;
 }
 
+/* ── Pull-quote — brand-voice anchor pulled from the article ── */
+.pullquote {
+  position: relative;
+  background: #0a0a0a;
+  color: #fbf8ee;
+  padding: 36px 22px 26px;
+  margin: 8px 14px 28px;
+}
+.pullquote::before {
+  content: "“";
+  position: absolute;
+  top: -8px;
+  left: 16px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 100px;
+  line-height: 1;
+  color: var(--brand-yellow);
+}
+.pqText {
+  font-family: var(--font-poster);
+  font-size: 22px;
+  line-height: 1.15;
+  text-transform: uppercase;
+  margin: 0 0 14px;
+  letter-spacing: -0.005em;
+  color: #fbf8ee;
+}
+.pqAttr {
+  font-style: italic;
+  font-size: 12px;
+  color: var(--brand-yellow);
+}
+
+/* ── "Bald auf dem Teller" — curated coming-soon list ── */
+.comingLabel {
+  font-family: var(--font-poster);
+  font-size: 12px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  padding: 0 18px;
+  margin: 8px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.comingLabel::before,
+.comingLabel::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #0a0a0a;
+  opacity: 0.4;
+}
+.coming {
+  margin: 0 18px 32px;
+  border-top: 1.5px solid #0a0a0a;
+  border-bottom: 1.5px solid #0a0a0a;
+}
+.comingRow {
+  display: grid;
+  grid-template-columns: 1fr 70px;
+  gap: 12px;
+  align-items: baseline;
+  padding: 14px 0;
+  border-top: 1px solid rgba(17, 13, 9, 0.18);
+}
+.comingRow:first-child {
+  border-top: 0;
+}
+.comingH {
+  font-family: var(--font-poster);
+  font-size: 17px;
+  text-transform: uppercase;
+  line-height: 1.1;
+  color: #0a0a0a;
+  margin: 0;
+}
+.comingH em {
+  font-style: italic;
+  font-weight: 500;
+  text-transform: none;
+  font-size: 13px;
+  letter-spacing: 0;
+  color: #6b5a44;
+  display: block;
+  margin-top: 2px;
+}
+.comingStamp {
+  font-family: var(--font-poster);
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  text-align: right;
+}
+
 .empty {
   margin: 32px 18px;
   font-size: 15px;
@@ -149,5 +246,11 @@
   }
   .feat {
     margin: 36px 24px 44px;
+  }
+  .comingLabel,
+  .coming {
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }

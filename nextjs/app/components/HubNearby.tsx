@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/lib/auth'
@@ -22,7 +23,14 @@ export default function HubNearby({ initialMapData }: Props) {
   const uid = user?.uid ?? null
   const { restaurants, mustEats } = useMapData({ uid, authLoading, initialMapData })
   const { location, request } = useUserLocationContext()
-  const loc = location ?? MITTE
+  // The first client render must match SSR, which has no geolocation. The
+  // location context can already hold a cached grant on mount, which would
+  // reorder the cards and change distances → hydration mismatch. So default to
+  // Mitte until mounted, then switch to the resolved location.
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
+  const activeLocation = mounted ? location : null
+  const loc = activeLocation ?? MITTE
 
   const cards = nearestRestaurants(restaurants, loc, 4)
   const me = nearbyMustEats(mustEats, loc, 1000, 4)
@@ -42,7 +50,7 @@ export default function HubNearby({ initialMapData }: Props) {
         </button>
       </div>
       <p className={styles.sub}>
-        {location
+        {activeLocation
           ? 'Restaurants und Must Eats um dich herum'
           : 'Mitte · Restaurants und Must Eats um dich herum'}
       </p>

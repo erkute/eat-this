@@ -1,10 +1,16 @@
 import { describe, it, expect } from 'vitest'
 import { nearestRestaurants, nearbyMustEats } from './nearby'
+import type { MapRestaurant, MapMustEat } from '@/lib/types'
 
 const R = (id: string, lat: number, lng: number) =>
-  ({ _id: id, name: id, slug: id, lat, lng }) as any
+  ({ _id: id, name: id, slug: id, lat, lng }) as unknown as MapRestaurant
 const M = (id: string, lat: number, lng: number) =>
-  ({ _id: id, dish: id, image: '', restaurant: { _id: id, name: id, slug: id, lat, lng } }) as any
+  ({
+    _id: id,
+    dish: id,
+    image: '',
+    restaurant: { _id: id, name: id, slug: id, lat, lng },
+  }) as unknown as MapMustEat
 const MITTE = { lat: 52.52, lng: 13.405 }
 
 describe('nearestRestaurants', () => {

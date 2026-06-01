@@ -1815,13 +1815,13 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   .navbar {
     left: 0; right: 0; transform: none;
     width: 100%; max-width: none;
-    height: 48px; padding: 0 32px;
+    height: 64px; padding: 0 32px;
     display: flex; align-items: center; justify-content: space-between;
   }
 
   .app-pages {
-    max-width: none; margin: 48px 0 0; box-shadow: none;
-    height: calc(100dvh - 48px);
+    max-width: none; margin: 64px 0 0; box-shadow: none;
+    height: calc(100dvh - 64px);
     overflow-y: auto;
     overflow-x: hidden;
   }

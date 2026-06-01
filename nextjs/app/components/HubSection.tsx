@@ -6,20 +6,24 @@ import HubMagazine from './HubMagazine'
 import HubPacks from './HubPacks'
 import HubAllBerlin from './HubAllBerlin'
 import HubFaq from './HubFaq'
+import HubNearby from './HubNearby'
 import SiteFooter from './SiteFooter'
 import type { HomeData } from '@/lib/home/getHomeData'
+import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 
 interface Props {
   initialData: HomeData
+  initialMapData: InitialMapData
   locale: 'de' | 'en'
 }
 
-export default function HubSection({ initialData, locale }: Props) {
+export default function HubSection({ initialData, initialMapData, locale }: Props) {
   const spot = initialData.spotOfDay
   const today = new Date().toISOString().slice(0, 10)
   return (
     <div className="page" style={{ display: 'flow-root' }} data-hub="">
       {spot ? <HubHero spot={spot} today={today} /> : <h1>Eat This</h1>}
+      <HubNearby initialMapData={initialMapData} />
       <HubNewOnMap cards={initialData.newOnMap} />
       <HubCategories categories={initialData.categories} />
       <HubBezirkOfWeek bezirk={initialData.bezirkOfWeek} />

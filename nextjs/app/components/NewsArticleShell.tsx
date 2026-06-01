@@ -1,5 +1,4 @@
-import { CSSProperties } from 'react';
-import { PortableTextRenderer } from '@/lib/PortableTextRenderer';
+import { PortableTextRenderer, extractHeadings } from '@/lib/PortableTextRenderer';
 import { Link } from '@/i18n/navigation';
 import type { NewsArticle } from '@/lib/types';
 import SiteFooter from './SiteFooter';
@@ -15,21 +14,20 @@ interface Props {
   isActive?: boolean;
 }
 
-const REL_TILTS = [-1.6, 2.0, -1.2];
-
 function formatDate(iso: string | undefined, locale: string): string {
   if (!iso) return '';
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
   return d.toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US', {
-    month: 'long',
     day: 'numeric',
+    month: 'long',
     year: 'numeric',
   });
 }
 
-// Magazine-feature article shell — matches restaurant-detail visual language
-// (Ranchers brand-red cover lockup, ink-shadow related cards, cream column).
+// Article detail — Chewy magazine feature (mockup-chewy screen 8). The mockup's
+// inline must-eat, pull-quote and spot-rail have no CMS data source, so they're
+// omitted (not invented); TOC + drop-cap are generated from the body.
 export default function NewsArticleShell({
   article,
   relatedArticles = [],
@@ -44,15 +42,17 @@ export default function NewsArticleShell({
   const excerpt =
     (de ? article.excerptDe : article.excerpt) || article.excerpt || '';
   const categoryLabel =
-    (de ? article.categoryLabelDe : article.categoryLabel) ||
-    article.categoryLabel ||
-    '';
+    (de ? article.categoryLabelDe : article.categoryLabel) || article.categoryLabel || '';
   const content =
     (de ? article.contentDe : article.content) || article.content || [];
   const dateFormatted = formatDate(article.date, locale);
 
+  const headings = extractHeadings(content);
+  const showToc = headings.length >= 2;
+  const tocLabel = de ? 'In diesem Artikel' : 'In this article';
+
   const homeLabel = de ? 'Start' : 'Home';
-  const newsLabel = 'News';
+  const newsLabel = de ? 'Auf dem Teller' : 'On the Menu';
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: homeLabel, href: '/' },
     { name: newsLabel, href: '/news' },
@@ -60,9 +60,9 @@ export default function NewsArticleShell({
   ];
 
   const recommendations = relatedArticles
-    .filter(a => a.slug !== article.slug)
+    .filter((a) => a.slug !== article.slug)
     .slice(0, 3);
-  const moreLabel = de ? 'Weitere News' : 'More news';
+  const moreLabel = de ? 'Weiter auf dem Teller' : 'More on the menu';
 
   return (
     <div
@@ -71,89 +71,75 @@ export default function NewsArticleShell({
       id="newsModal"
     >
       <article className={styles.article}>
-        {/* ── Hero — magazine cover lockup over the photo ── */}
-        <div className={styles.hero}>
-          {article.imageUrl && (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={article.imageUrl} alt={title} className={styles.heroImg} />
-          )}
-          <div className={styles.heroShade} aria-hidden="true" />
-          <div className={styles.heroLockup}>
-            {(categoryLabel || dateFormatted) && (
-              <p className={styles.heroEyebrow}>
-                {categoryLabel && <span>{categoryLabel}</span>}
-                {categoryLabel && dateFormatted && (
-                  <span className={styles.heroEyebrowDot} aria-hidden="true" />
-                )}
-                {dateFormatted && (
-                  <time dateTime={article.date}>{dateFormatted}</time>
-                )}
-              </p>
-            )}
-            <h1 className={styles.heroHeadline}>{title}</h1>
-          </div>
+        {article.imageUrl && (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src={article.imageUrl} alt={title} className={styles.hero} />
+        )}
+
+        <div className={styles.byline}>
+          <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
+          {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
         </div>
 
-        {/* ── Editorial column ── */}
-        <div className={styles.body}>
-          <div className={styles.breadcrumbWrap}>
-            <Breadcrumbs
-              items={breadcrumbItems}
-              ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
-            />
-          </div>
+        <h1 className={styles.title}>{title}</h1>
 
-          <div className={styles.shareRow}>
-            <span className={styles.shareLabel}>{de ? 'Teilen' : 'Share'}</span>
-            <NewsArticleShare title={title} excerpt={excerpt} />
-          </div>
+        {excerpt && <p className={styles.lede}>{excerpt}</p>}
 
-          <div className={styles.content}>
-            <PortableTextRenderer blocks={content} />
-          </div>
+        <div className={styles.breadcrumbWrap}>
+          <Breadcrumbs
+            items={breadcrumbItems}
+            ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
+          />
+        </div>
+
+        {showToc && (
+          <nav className={styles.toc} aria-label={tocLabel}>
+            <p className={styles.tocLabel}>{tocLabel}</p>
+            <ol className={styles.tocList}>
+              {headings.map((h) => (
+                <li key={h.id} className={styles.tocItem}>
+                  <a href={`#${h.id}`} className={styles.tocLink}>{h.text}</a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )}
+
+        <div className={styles.content}>
+          <PortableTextRenderer blocks={content} />
+        </div>
+
+        <div className={styles.shareRow}>
+          <span className={styles.shareLabel}>{de ? 'Teilen' : 'Share'}</span>
+          <NewsArticleShare title={title} excerpt={excerpt} />
         </div>
 
         {recommendations.length > 0 && (
           <section className={styles.related}>
-            <div className={styles.relatedInner}>
-              <h2 className={styles.relatedHeading}>{moreLabel}</h2>
-              <ul className={styles.relatedGrid} role="list">
-                {recommendations.map((rec, i) => {
-                  const recTitle =
-                    (de ? rec.titleDe : rec.title) || rec.title || '';
-                  const recCategory =
-                    (de ? rec.categoryLabelDe : rec.categoryLabel) ||
-                    rec.categoryLabel ||
-                    '';
-                  return (
-                    <li
-                      key={rec.slug}
-                      className={styles.relatedItem}
-                      style={
-                        {
-                          ['--tilt' as string]: `${REL_TILTS[i % REL_TILTS.length]}deg`,
-                        } as CSSProperties
-                      }
-                    >
-                      <Link href={`/news/${rec.slug}`} className={styles.relatedCard}>
-                        <div className={styles.relatedImage}>
-                          {rec.imageUrl && (
-                            /* eslint-disable-next-line @next/next/no-img-element */
-                            <img src={rec.imageUrl} alt={recTitle} loading="lazy" />
-                          )}
-                        </div>
-                        <div className={styles.relatedBody}>
-                          {recCategory && (
-                            <span className={styles.relatedCategory}>{recCategory}</span>
-                          )}
-                          <h3 className={styles.relatedHeadline}>{recTitle}</h3>
-                        </div>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+            <h2 className={styles.relatedHeading}>{moreLabel}</h2>
+            <ul className={styles.relatedGrid} role="list">
+              {recommendations.map((rec) => {
+                const recTitle = (de ? rec.titleDe : rec.title) || rec.title || '';
+                const recCategory =
+                  (de ? rec.categoryLabelDe : rec.categoryLabel) || rec.categoryLabel || '';
+                return (
+                  <li key={rec.slug}>
+                    <Link href={`/news/${rec.slug}`} className={styles.relatedCard}>
+                      <div
+                        className={styles.relatedImage}
+                        style={rec.imageUrl ? { backgroundImage: `url(${rec.imageUrl})` } : undefined}
+                        role="img"
+                        aria-label={recTitle}
+                      />
+                      <div className={styles.relatedBody}>
+                        {recCategory && <span className={styles.relatedCategory}>{recCategory}</span>}
+                        <h3 className={styles.relatedHeadline}>{recTitle}</h3>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
           </section>
         )}
       </article>

@@ -183,7 +183,6 @@
 }
 .meImg {
   object-fit: contain;
-  filter: drop-shadow(0 6px 9px rgba(0, 0, 0, .14));
 }
 .meItem:nth-child(odd) .meCard {
   transform: rotate(-1.5deg);

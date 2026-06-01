@@ -119,15 +119,15 @@ export default function SiteNav() {
         <div className="navbar-actions">
           <Link href="/news" className={`navbar-icon-btn${activePage === 'news' ? ' active' : ''}`} id="navNewsBtn" aria-label="News">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/icon-news.webp" alt="" width={26} height={26} style={{ display: 'block' }} />
+            <img src="/pics/icon-news.webp" alt="" width={30} height={30} style={{ display: 'block' }} />
           </Link>
           <Link href="/map" className={`navbar-icon-btn${activePage === 'map' ? ' active' : ''}`} id="navMapBtn" aria-label="Map">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/icon-map.webp" alt="" width={26} height={26} style={{ display: 'block' }} />
+            <img src="/pics/icon-map.webp" alt="" width={30} height={30} style={{ display: 'block' }} />
           </Link>
           <button className="burger-btn" id="burgerBtn" aria-label="Menu">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/icon-burger.webp" alt="" width={26} height={26} style={{ display: 'block' }} />
+            <img src="/pics/icon-burger.webp" alt="" width={30} height={30} style={{ display: 'block' }} />
           </button>
         </div>
       </nav>

@@ -1,3 +1,4 @@
+import HubHero from './HubHero'
 import type { HomeData } from '@/lib/home/getHomeData'
 
 interface Props {
@@ -7,19 +8,10 @@ interface Props {
 
 export default function HubSection({ initialData }: Props) {
   const spot = initialData.spotOfDay
+  const today = new Date().toISOString().slice(0, 10)
   return (
     <div className="page" style={{ display: 'flow-root' }} data-hub="">
-      <section data-hub-hero="">
-        {spot ? (
-          <>
-            <p>Spot des Tages</p>
-            <h1>{spot.name}</h1>
-            {spot.district ? <p>{spot.district}</p> : null}
-          </>
-        ) : (
-          <h1>Eat This</h1>
-        )}
-      </section>
+      {spot ? <HubHero spot={spot} today={today} /> : <h1>Eat This</h1>}
     </div>
   )
 }

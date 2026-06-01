@@ -67,8 +67,14 @@ export async function POST(request: Request) {
     return [];
   });
 
+  // Email artwork must load from a publicly reachable, non-auth host. `origin`
+  // can be localhost (dev) or the Basic-Auth-gated staging URL, where mail
+  // clients can't fetch the logo/slogan/card images — so always point email
+  // assets at production (override via EMAIL_ASSET_BASE_URL if ever needed).
+  const emailAssetBase = process.env.EMAIL_ASSET_BASE_URL || 'https://www.eatthisdot.com';
+
   const html = await render(
-    MagicLinkEmail({ magicLink, appUrl: origin, restaurants, returning })
+    MagicLinkEmail({ magicLink, appUrl: emailAssetBase, restaurants, returning })
   );
   const text = buildMagicLinkText(magicLink);
 

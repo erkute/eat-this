@@ -1,8 +1,9 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { MustEatAlbumCard } from '@/lib/types';
 import { selectTeaserOrders } from '@/lib/profile/teasers';
+import MustEatImageLightbox from '@/app/components/map/MustEatImageLightbox';
 import styles from './ProfileSlim.module.css';
 
 interface Props {
@@ -33,6 +34,9 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, curatedRevea
     [mustEats, lockedOrders],
   );
 
+  // Tap an unlocked card → deck-style fly-out lightbox (same as the old deck).
+  const [expanded, setExpanded] = useState<{ imageUrl: string; alt: string; rect: DOMRect } | null>(null);
+
   return (
     <>
       <div className={styles.section}>
@@ -44,12 +48,19 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, curatedRevea
       </div>
       <div className={styles.meGrid}>
         {unlocked.map((m) => (
-          <article key={m._id} className={styles.me}>
+          <button
+            key={m._id}
+            type="button"
+            className={`${styles.me} ${styles.meBtn}`}
+            onClick={(e) =>
+              setExpanded({ imageUrl: m.imageUrl, alt: m.dish, rect: e.currentTarget.getBoundingClientRect() })
+            }
+          >
             <div className={styles.mePh}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={m.imageUrl} alt={m.dish} loading="lazy" />
             </div>
-          </article>
+          </button>
         ))}
         {locked.map((m) => (
           <article key={m._id} className={`${styles.me} ${styles.meLocked}`}>
@@ -64,6 +75,13 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, curatedRevea
           </article>
         ))}
       </div>
+
+      <MustEatImageLightbox
+        imageUrl={expanded?.imageUrl ?? ''}
+        alt={expanded?.alt ?? ''}
+        originRect={expanded?.rect ?? null}
+        onClose={() => setExpanded(null)}
+      />
     </>
   );
 }

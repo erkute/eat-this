@@ -8,6 +8,9 @@
 .page {
   background: #fbf8ee;
   min-height: 100vh;
+  /* Clear the fixed 64px navbar (SiteNav) — this route has its own layout,
+     not the SPA's .app-pages offset. */
+  padding-top: calc(64px + env(safe-area-inset-top, 0px));
 }
 
 /* Loading spinner (auth gate) */
@@ -216,6 +219,20 @@
   grid-template-rows: 1fr auto;
   gap: 6px;
   padding: 6px 4px 10px;
+}
+/* Unlocked cards are tappable — open the deck-style fly-out lightbox. */
+.meBtn {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s ease;
+}
+.meBtn:active {
+  transform: scale(0.97);
 }
 .mePh {
   position: relative;

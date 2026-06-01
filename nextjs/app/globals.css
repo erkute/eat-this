@@ -26,14 +26,14 @@
 
   --c-cream:        #ffffff;                    /* sticker bg — war warmer cream #f3ead4, jetzt rein weiß */
   --c-paper:        #ffffff;                    /* paper-tint — auch weiß */
-  --c-mustard:      #e8c54a;                    /* mustard yellow — secondary CTA */
+  --c-mustard:      #ffd84a;                    /* mustard yellow — secondary CTA */
   --c-mustard-deep: #c89e1f;                    /* mustard hover/pressed */
   --c-coral:        #a02814;                    /* primary action — dunkles Rot */
   --c-green:        #0a0a0a;                    /* multi-direction green → schwarz */
   --c-black:        #0a0a0a;
   --c-row-rule:     rgba(10, 10, 10, 0.14);
-  --brand-pink:       #e8c54a;                  /* re-purposed to yellow (kein pink mehr) */
-  --brand-yellow:     #e8c54a;                  /* yellow alias */
+  --brand-pink:       #ffd84a;                  /* re-purposed to yellow (kein pink mehr) */
+  --brand-yellow:     #ffd84a;                  /* yellow alias */
   --brand-navy:       #0a0a0a;                  /* navy → schwarz */
   --brand-red:        #a02814;                  /* dunkler Brand-Akzent */
   --brand-red-hover:  #7e1f0f;
@@ -95,7 +95,7 @@
 
   /* ── 2026 Editorial accents — black/white/red/yellow pivot ── */
   --frame-ink:      #0a0a0a;
-  --accent-mustard: #e8c54a;        /* mustard yellow — secondary hero blocks */
+  --accent-mustard: #ffd84a;        /* mustard yellow — secondary hero blocks */
   --accent-coral:   #a02814;        /* dunkles Rot — pull-quote + accent */
   --accent-ink:     #0a0a0a;
 }

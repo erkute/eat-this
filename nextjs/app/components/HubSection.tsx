@@ -1,5 +1,6 @@
 import HubHero from './HubHero'
 import HubNewOnMap from './HubNewOnMap'
+import HubMustEatsTeaser from './HubMustEatsTeaser'
 import HubCategories from './HubCategories'
 import HubBezirkOfWeek from './HubBezirkOfWeek'
 import HubBezirke from './HubBezirke'
@@ -32,6 +33,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         {spot ? <HubHero spot={spot} today={today} /> : <h1>Eat This</h1>}
         <HubNearby initialMapData={initialMapData} />
         <HubNewOnMap cards={initialData.newOnMap} />
+        <HubMustEatsTeaser initialMapData={initialMapData} />
         <HubCategories categories={initialData.categories} />
         <HubBezirkOfWeek bezirk={initialData.bezirkOfWeek} />
         <HubBezirke bezirke={initialData.bezirke} />

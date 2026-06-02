@@ -8,6 +8,7 @@ import HubAllBerlin from './HubAllBerlin'
 import HubFaq from './HubFaq'
 import HubNearby from './HubNearby'
 import HubDeineWelt from './HubDeineWelt'
+import HubHashScroll from './HubHashScroll'
 import SiteFooter from './SiteFooter'
 import { UserLocationProvider } from '@/lib/map/UserLocationContext'
 import type { HomeData } from '@/lib/home/getHomeData'
@@ -25,6 +26,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
   return (
     <div className="page" style={{ display: 'flow-root' }} data-hub="">
       <UserLocationProvider>
+        <HubHashScroll />
         <HubDeineWelt initialMapData={initialMapData} />
         {spot ? <HubHero spot={spot} today={today} /> : <h1>Eat This</h1>}
         <HubNearby initialMapData={initialMapData} />

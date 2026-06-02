@@ -21,14 +21,16 @@ interface Props {
 export default function HubNearby({ initialMapData }: Props) {
   const { user, loading: authLoading } = useAuth()
   const uid = user?.uid ?? null
-  const { restaurants, mustEats } = useMapData({ uid, authLoading, initialMapData })
+  const live = useMapData({ uid, authLoading, initialMapData })
   const { location, request } = useUserLocationContext()
-  // The first client render must match SSR, which has no geolocation. The
-  // location context can already hold a cached grant on mount, which would
-  // reorder the cards and change distances → hydration mismatch. So default to
-  // Mitte until mounted, then switch to the resolved location.
+  // The first client render must match SSR (anon initialMapData + Mitte). Only
+  // after mount switch to live data (which may be the cached signed-in payload)
+  // + the resolved geolocation — otherwise the nearby list/distances mismatch
+  // on hydrate.
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
+  const restaurants = mounted ? live.restaurants : initialMapData.restaurants
+  const mustEats = mounted ? live.mustEats : initialMapData.mustEats
   const activeLocation = mounted ? location : null
   const loc = activeLocation ?? MITTE
 

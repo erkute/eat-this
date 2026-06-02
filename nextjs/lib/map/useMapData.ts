@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { auth } from '@/lib/firebase/config'
 import type { MapRestaurant, MapMustEat } from '../types'
 import type { CategoryDef } from '../categories'
@@ -84,27 +84,31 @@ function seedUidBeforeAuth(): string | null {
   } catch { return null }
 }
 
-export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs): MapData {
-  // Compute the first-paint base ONCE. Prefer the signed-in cache (current uid,
-  // or the last signed-in uid when an auth hint says we're logged in but auth
-  // hasn't resolved yet); fall back to the SSR anon view.
-  const [{ base, fromCache }] = useState<{ base: CachedMapData | InitialMapData | undefined; fromCache: boolean }>(() => {
-    const sUid = uid ?? seedUidBeforeAuth()
-    const cached = readMapCache(sUid)
-    return { base: cached ?? initialMapData, fromCache: !!cached }
-  })
+// useLayoutEffect on the client (runs before the browser paints, so the
+// cache-seed below shows no anon flash), useEffect on the server (avoids the
+// "useLayoutEffect does nothing on the server" warning during SSR).
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
-  const [restaurants,         setRestaurants]         = useState<MapRestaurant[]>(base?.restaurants ?? [])
-  const [lockedRestaurants,   setLockedRestaurants]   = useState<MapRestaurant[]>(base?.lockedRestaurants ?? [])
-  const [mustEats,            setMustEats]            = useState<MapMustEat[]>(base?.mustEats ?? [])
-  const [categories,          setCategories]          = useState<CategoryDef[]>(base?.categories ?? [])
-  const [totalCount,          setTotalCount]          = useState(base?.totalCount ?? 0)
+export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs): MapData {
+  // First paint MUST match the SSR output (the anon `initialMapData`). The
+  // server cannot read the per-uid localStorage cache, so seeding it during
+  // render would diverge from the server HTML and trip a hydration mismatch
+  // (e.g. the booster divider lands at a different list index). We initialise
+  // from the SSR view, then swap in the signed-in cache in a layout effect
+  // right after hydration — before paint — so the 20→40 tier seed still
+  // happens without a visible flash AND without a mismatch. The live
+  // /api/map-data fetch reconciles afterwards.
+  const [restaurants,         setRestaurants]         = useState<MapRestaurant[]>(initialMapData?.restaurants ?? [])
+  const [lockedRestaurants,   setLockedRestaurants]   = useState<MapRestaurant[]>(initialMapData?.lockedRestaurants ?? [])
+  const [mustEats,            setMustEats]            = useState<MapMustEat[]>(initialMapData?.mustEats ?? [])
+  const [categories,          setCategories]          = useState<CategoryDef[]>(initialMapData?.categories ?? [])
+  const [totalCount,          setTotalCount]          = useState(initialMapData?.totalCount ?? 0)
   const [revealedMustEatIds,  setRevealedMustEatIds]  = useState<Set<string>>(() =>
-    new Set<string>(base?.revealedMustEatIds ?? []),
+    new Set<string>(initialMapData?.revealedMustEatIds ?? []),
   )
-  // With seed/SSR data we're not loading on first paint. Otherwise show loading
+  // With SSR data we're not loading on first paint. Otherwise show loading
   // until the fetch lands.
-  const [loading,           setLoading]           = useState(!base)
+  const [loading,           setLoading]           = useState(!initialMapData)
   const [error,             setError]             = useState<string | null>(null)
   // Bump when refetch() is invoked to re-fire the fetch effect.
   const [tick,        setTick]        = useState(0)
@@ -114,11 +118,31 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
   // changes mid-request (e.g. sign-out during a fetch).
   const latestReqRef = useRef(0)
 
-  // Anon-with-SSR mount-skip: if we hydrated with the SSR anon view (not a
-  // signed-in cache) AND the user is anonymous, the data we already have IS the
-  // correct anon view — skip the redundant initial fetch. When we seeded from
-  // a signed-in cache, never skip: the authenticated refetch must still run.
-  const skipInitialAnonFetchRef = useRef(!!initialMapData && !fromCache)
+  // Post-hydration cache seed (client-only). Reading localStorage during render
+  // would mismatch the server; doing it here keeps first render == SSR while
+  // still showing a returning signed-in user their cached tier before paint.
+  const seededCacheRef = useRef(false)
+  useIsomorphicLayoutEffect(() => {
+    if (seededCacheRef.current) return
+    seededCacheRef.current = true
+    const cached = readMapCache(uid ?? seedUidBeforeAuth())
+    if (!cached) return
+    setRestaurants(cached.restaurants)
+    setLockedRestaurants(cached.lockedRestaurants)
+    setMustEats(cached.mustEats)
+    setCategories(cached.categories)
+    setTotalCount(cached.totalCount)
+    setRevealedMustEatIds(new Set<string>(cached.revealedMustEatIds ?? []))
+    setLoading(false)
+    // Mount-only: the seed is a one-shot first-paint optimisation.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Anon-with-SSR mount-skip: if we hydrated with the SSR anon view AND the user
+  // is anonymous, the data we already have IS the correct anon view — skip the
+  // redundant initial fetch. Signed-in users resolve to a non-null uid, so the
+  // `uid === null` guard in the effect keeps them from skipping (they refetch).
+  const skipInitialAnonFetchRef = useRef(!!initialMapData)
 
   useEffect(() => {
     // Pause while auth is still resolving — we don't want to issue an

@@ -1,8 +1,9 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth';
-import { useUnlockedMustEats } from '@/lib/map';
+import { useUnlockedMustEats, useMapData } from '@/lib/map';
 import { defaultAvatarFromUid, useUserProfile } from '@/lib/firebase/useUserProfile';
 import type { MustEatAlbumCard } from '@/lib/types';
 import ProfileSpots from './ProfileSpots';
@@ -13,7 +14,6 @@ import styles from './ProfileSlim.module.css';
 
 interface Props {
   mustEats: MustEatAlbumCard[];
-  curatedRevealedIds: string[];
 }
 
 function memberSince(creationTime: string | undefined, locale: string): string | null {
@@ -26,13 +26,20 @@ function memberSince(creationTime: string | undefined, locale: string): string |
 
 // Slim profile (mockup-chewy screens 15/16): one cream scroll — head, saved
 // spots, collected must-eats, packs, logout, footer. No tabs/settings/referral.
-export default function ProfileShell({ mustEats, curatedRevealedIds }: Props) {
+export default function ProfileShell({ mustEats }: Props) {
   const { user, loading, signOut } = useAuth();
   const locale = useLocale();
   // Map-page reveals write to users/{uid}/unlockedMustEats — read them so the
   // collected grid shows face-up cards.
   const { unlockedIds } = useUnlockedMustEats(user?.uid ?? null);
   const { profile } = useUserProfile(user?.uid ?? null);
+  // Owned spots (the user's map tier) → drives which must-eats appear in the
+  // collected grid. Fetches /api/map-data on mount; cached for instant repaint.
+  const { restaurants: ownedRestaurants } = useMapData({ uid: user?.uid ?? null, authLoading: loading });
+  const ownedRestaurantIds = useMemo(
+    () => new Set(ownedRestaurants.map((r) => r._id)),
+    [ownedRestaurants],
+  );
 
   if (loading || !user) {
     return (
@@ -72,7 +79,7 @@ export default function ProfileShell({ mustEats, curatedRevealedIds }: Props) {
         <ProfileMustEats
           mustEats={mustEats}
           mapUnlockedIds={unlockedIds}
-          curatedRevealedIds={curatedRevealedIds}
+          ownedRestaurantIds={ownedRestaurantIds}
         />
 
         <ProfilePacks uid={user.uid} />

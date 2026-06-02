@@ -3,14 +3,16 @@
 import { useMemo, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import type { MustEatAlbumCard } from '@/lib/types';
-import { selectTeaserOrders } from '@/lib/profile/teasers';
 import MustEatImageLightbox from '@/app/components/map/MustEatImageLightbox';
 import styles from './ProfileSlim.module.css';
 
 interface Props {
   mustEats: MustEatAlbumCard[];
   mapUnlockedIds: Set<string>;
-  curatedRevealedIds: string[];
+  /** Restaurant IDs the user owns (their map tier). Drives which must-eats
+   *  appear here: every must-eat of an owned spot, face-up if revealed,
+   *  face-down ("Verdeckt") if still to be discovered. */
+  ownedRestaurantIds: Set<string>;
 }
 
 // What is a Must Eat — explainer copy (mockup screen 15/16). Reveal happens by
@@ -20,23 +22,33 @@ const EXPLAINER =
 
 // Collected must-eats: unlocked cards face-up (the trading-card art has the
 // name baked in), curated-but-locked cards face-down as "Verdeckt · <spot>".
-export default function ProfileMustEats({ mustEats, mapUnlockedIds, curatedRevealedIds }: Props) {
-  const curatedSet = useMemo(() => new Set(curatedRevealedIds), [curatedRevealedIds]);
-  const unlocked = useMemo(
-    () => mustEats.filter((m) => mapUnlockedIds.has(m._id)),
-    [mustEats, mapUnlockedIds],
+export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaurantIds }: Props) {
+  // Every must-eat that belongs to a spot the user owns — split into revealed
+  // (face-up) and still-covered (face-down). Spots the user doesn't own don't
+  // appear here at all.
+  const ownedMustEats = useMemo(
+    () => mustEats.filter((m) => m.restaurantId != null && ownedRestaurantIds.has(m.restaurantId)),
+    [mustEats, ownedRestaurantIds],
   );
-  const lockedOrders = useMemo(
-    () => selectTeaserOrders(mustEats, mapUnlockedIds, curatedSet),
-    [mustEats, mapUnlockedIds, curatedSet],
+  const unlocked = useMemo(
+    () => ownedMustEats.filter((m) => mapUnlockedIds.has(m._id)),
+    [ownedMustEats, mapUnlockedIds],
   );
   const locked = useMemo(
-    () => mustEats.filter((m) => typeof m.order === 'number' && lockedOrders.has(m.order)),
-    [mustEats, lockedOrders],
+    () => ownedMustEats.filter((m) => !mapUnlockedIds.has(m._id)),
+    [ownedMustEats, mapUnlockedIds],
   );
 
   // Tap an unlocked card → deck-style fly-out lightbox (same as the old deck).
-  const [expanded, setExpanded] = useState<{ imageUrl: string; alt: string; rect: DOMRect } | null>(null);
+  const [expanded, setExpanded] = useState<{ imageUrl: string; alt: string; rect: DOMRect; id: string } | null>(null);
+  // Which grid card is visually hidden while its zoomed clone is on screen, so
+  // it isn't shown twice (once in its slot, once zoomed). Kept set until the
+  // close fly-back finishes so the origin doesn't flash back mid-animation.
+  const [hiddenId, setHiddenId] = useState<string | null>(null);
+  const closeExpanded = () => {
+    setExpanded(null);
+    window.setTimeout(() => setHiddenId(null), 380);
+  };
 
   return (
     <>
@@ -57,9 +69,11 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, curatedRevea
             key={m._id}
             type="button"
             className={`${styles.me} ${styles.meBtn}`}
-            onClick={(e) =>
-              setExpanded({ imageUrl: m.imageUrl, alt: m.dish, rect: e.currentTarget.getBoundingClientRect() })
-            }
+            style={{ visibility: hiddenId === m._id ? 'hidden' : undefined }}
+            onClick={(e) => {
+              setHiddenId(m._id);
+              setExpanded({ imageUrl: m.imageUrl, alt: m.dish, rect: e.currentTarget.getBoundingClientRect(), id: m._id });
+            }}
           >
             <div className={styles.mePh}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -97,7 +111,7 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, curatedRevea
         imageUrl={expanded?.imageUrl ?? ''}
         alt={expanded?.alt ?? ''}
         originRect={expanded?.rect ?? null}
-        onClose={() => setExpanded(null)}
+        onClose={closeExpanded}
       />
     </>
   );

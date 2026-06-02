@@ -111,6 +111,34 @@
   gap: 12px;
   padding: 0 14px 8px;
 }
+.spotCardWrap {
+  position: relative;
+}
+/* Remove-from-saved button, top-right over the photo. */
+.spotRemove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 10, 0.72);
+  color: #fbf8ee;
+  border: 1.5px solid rgba(251, 248, 238, 0.5);
+  border-radius: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  transition: background 0.15s;
+}
+.spotRemove:hover,
+.spotRemove:active {
+  background: var(--c-coral, #a02814);
+}
 .spotCard {
   position: relative;
   display: block;

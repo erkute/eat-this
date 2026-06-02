@@ -63,6 +63,8 @@ function Item({ restaurant, userLocation, isSelected, peek, locked, onClick }: I
       onClick={() => onClick(restaurant)}
       aria-label={locked ? t('map.starterEyebrow') : undefined}
     >
+      {locked && <span className={styles.rcardBlurBadge}>{t('map.lockedCardBadge')}</span>}
+
       <div
         className={styles.rcardImg}
         style={restaurant.photo ? { backgroundImage: `url(${restaurant.photo})` } : undefined}

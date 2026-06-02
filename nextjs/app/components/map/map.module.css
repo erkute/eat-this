@@ -355,7 +355,9 @@ html[data-theme="dark"] .fab {
   }
 }
 
-/* Floating burger button — top-right of the map. Delegates open/close to
+/* Floating burger button — top-right of the map. Lives in .body's stacking
+   context (not mapWrap) so z-index: 60 beats the bottom-sheet (z-index: 4)
+   even when the sheet is at full snap on mobile. Delegates open/close to
    the hidden SiteNav #burgerBtn so all drawer wiring stays in one place. */
 .mapBurger {
   position: absolute;
@@ -379,6 +381,13 @@ html[data-theme="dark"] .fab {
   height: 18px;
   width: auto;
   display: block;
+}
+/* Desktop: .body spans map+panel columns (1fr + 420px). Keep the burger in
+   the map area by offsetting the 420px panel width + edge gap. When the
+   panel is hidden the right column collapses so revert to 14px. */
+@media (min-width: 1024px) {
+  .mapBurger { right: calc(420px + 14px); }
+  .bodyPanelHidden .mapBurger { right: 14px; }
 }
 
 /* Hide +/− zoom controls on mobile — pinch-to-zoom replaces them */
@@ -794,7 +803,7 @@ html[data-theme="dark"] .musteatListSwitchBtn:hover {
   color: var(--c-black);
   margin-bottom: 12px;
   padding-bottom: 12px;
-  border-bottom: 1.5px solid rgba(160, 40, 20, .25);
+  border-bottom: 1.5px solid rgba(0, 0, 0, .12);
 }
 .esHeading {
   font-family: var(--font-chewy), 'Chewy', sans-serif;
@@ -1095,8 +1104,9 @@ html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
 .rcardBlur { overflow: hidden; }
 .rcardBlur .rcardImg { filter: blur(7px) saturate(.85); transform: scale(1.06); }
 .rcardBlur .rcardBody { opacity: .4; }
-.rcardBlur::before {
-  content: 'Anmelden um zu öffnen';
+/* Badge text moved from ::before pseudo-element to a JSX span so the string
+   is i18n-driven and locale-correct (EN users saw German text before). */
+.rcardBlurBadge {
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);

@@ -147,6 +147,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     onBezirkChange(null)
     setCuisine(null)
     setOpenOnly(false)
+    onSearchChange('')
   }
 
   return (
@@ -218,18 +219,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               )}
             </div>
 
-            {/* Floating burger — opens the BurgerDrawer by programmatically
-                clicking the hidden #burgerBtn inside the mounted SiteNav.
-                Reuses ALL existing open/scroll-lock/close wiring. */}
-            <button
-              type="button"
-              className={styles.mapBurger}
-              aria-label="Menü"
-              onClick={() => { document.getElementById('burgerBtn')?.click() }}
-            >
-              <img src="/pics/icon-burger.webp?v=3" alt="" aria-hidden="true" draggable={false} />
-            </button>
-
             <button
               type="button"
               onClick={onLocateMe}
@@ -250,6 +239,20 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 render the detail in the side panel / bottom sheet so the
                 selected marker stays visible on the map. */}
           </div>
+
+          {/* Floating burger — moved outside mapWrap so it lives in .body's
+              stacking context and paints above the bottom-sheet (z-index 4).
+              Inside mapWrap the burger's z-index:60 is contained by
+              isolation:isolate and loses to aside.list at z-index:4 on mobile
+              when the sheet is at full snap. */}
+          <button
+            type="button"
+            className={styles.mapBurger}
+            aria-label="Menü"
+            onClick={() => { document.getElementById('burgerBtn')?.click() }}
+          >
+            <img src="/pics/icon-burger.webp?v=3" alt="" aria-hidden="true" draggable={false} />
+          </button>
 
           <aside
             ref={setSheetRef}

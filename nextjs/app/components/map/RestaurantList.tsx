@@ -2,8 +2,8 @@
 import { Fragment, useCallback } from 'react'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
-import type { MapRestaurant, OpenStatus } from '@/lib/types'
-import { haversineDistance, formatWalkingTime, getOpenStatus, abbreviateBezirk, type UserLocation, type UserTier } from '@/lib/map'
+import type { MapRestaurant, MapMustEat, OpenStatus } from '@/lib/types'
+import { haversineDistance, formatWalkingTime, getOpenStatus, abbreviateBezirk, resolvePeek, type UserLocation, type UserTier, type Peek } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { localizedCategoryName } from '@/lib/categories'
 import { formatPriceLabel } from './restaurantDetail.helpers'
@@ -16,13 +16,14 @@ interface ItemProps {
   restaurant: MapRestaurant
   userLocation: UserLocation | null
   isSelected: boolean
+  peek: Peek
   /** Visual-only blurred preview row — click routes to the booster/signup
    *  flow instead of opening restaurant detail. */
   locked?: boolean
   onClick: (r: MapRestaurant) => void
 }
 
-function Item({ restaurant, userLocation, isSelected, locked, onClick }: ItemProps) {
+function Item({ restaurant, userLocation, isSelected, peek, locked, onClick }: ItemProps) {
   const { t, lang } = useTranslation()
   const loc = lang === 'de' ? 'de' : 'en'
   const statusLabels = {
@@ -64,6 +65,7 @@ function Item({ restaurant, userLocation, isSelected, locked, onClick }: ItemPro
       className={`${styles.rrow} ${isSelected ? styles.rrowActive : ''} ${locked ? styles.rrowLocked : ''}`}
       onClick={() => onClick(restaurant)}
       aria-label={locked ? t('map.starterEyebrow') : undefined}
+      data-peek={peek.kind}
     >
       <div
         className={styles.rrowCoral}
@@ -125,10 +127,14 @@ interface RestaurantListProps {
   uid: string | null
   userTier: UserTier
   onSelect: (r: MapRestaurant) => void
+  primaryMustEats: Map<string, MapMustEat>
+  unlockedIds: Set<string>
+  revealedMustEatIds: Set<string>
 }
 
 export default function RestaurantList({
   restaurants, lockedRestaurants = [], userLocation, selectedId, uid, userTier, onSelect,
+  primaryMustEats, unlockedIds, revealedMustEatIds,
 }: RestaurantListProps) {
   const locale = useLocale()
 
@@ -160,6 +166,7 @@ export default function RestaurantList({
           restaurant={r}
           userLocation={userLocation}
           isSelected={selectedId === r._id}
+          peek={resolvePeek(primaryMustEats.get(r._id), unlockedIds, revealedMustEatIds)}
           onClick={onSelect}
         />
       ))}
@@ -172,6 +179,7 @@ export default function RestaurantList({
           restaurant={r}
           userLocation={userLocation}
           isSelected={false}
+          peek={{ kind: 'covered' }}
           locked
           onClick={handleLockedClick}
         />

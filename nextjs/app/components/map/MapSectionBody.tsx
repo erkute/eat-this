@@ -54,6 +54,7 @@ interface MapBodyState {
   totalCount: number
   selectedRestaurant: MapRestaurant | null
   selectedMustEat: MapMustEat | null
+  primaryMustEats: Map<string, MapMustEat>
   unlockedIds: Set<string>
   /** Must-eat IDs pre-revealed for anon visitors. Empty for signed-in users. */
   revealedMustEatIds: Set<string>
@@ -125,7 +126,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     displayedRestaurants, displayedLockedRestaurants, fannedMustEats, displayedMustEats, restaurantMustEats,
     totalCount,
     selectedRestaurant, selectedMustEat,
-    unlockedIds, revealedMustEatIds, favoriteIds, location, uid, userTier,
+    primaryMustEats, unlockedIds, revealedMustEatIds, favoriteIds, location, uid, userTier,
     categories, category, setCategory, search, bezirk, bezirkNames,
     cuisine, setCuisine, cuisineNames,
     openOnly, setOpenOnly,
@@ -381,6 +382,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                       uid={uid}
                       userTier={userTier}
                       onSelect={onRestaurantClick}
+                      primaryMustEats={primaryMustEats}
+                      unlockedIds={unlockedIds}
+                      revealedMustEatIds={revealedMustEatIds}
                     />
                   </div>
                 ) : (

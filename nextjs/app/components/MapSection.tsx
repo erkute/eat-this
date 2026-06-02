@@ -14,6 +14,7 @@ import {
   useMapDeepLinks,
   useUserTier,
   applyFanOffset,
+  buildPrimaryMustEatMap,
 } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { useLocale } from 'next-intl'
@@ -209,6 +210,11 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     if (!selectedRestaurant) return []
     return mustEats.filter(m => m.restaurant._id === selectedRestaurant._id)
   }, [mustEats, selectedRestaurant])
+
+  const primaryMustEats = useMemo(
+    () => buildPrimaryMustEatMap(mustEats),
+    [mustEats],
+  )
 
   const fannedMustEats = useMemo(
     () => applyFanOffset(displayedMustEats, mapZoom),
@@ -579,6 +585,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       restaurantMustEats={restaurantMustEats}
       selectedRestaurant={selectedRestaurant}
       selectedMustEat={selectedMustEat}
+      primaryMustEats={primaryMustEats}
       unlockedIds={unlockedIds}
       revealedMustEatIds={revealedMustEatIds}
       favoriteIds={favoriteIds}

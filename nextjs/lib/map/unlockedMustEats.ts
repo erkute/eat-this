@@ -15,9 +15,9 @@ export const TRIAL_UNLOCKED_COUNT = 10
  *  signed-in branch it is byte-identical to MapSection's historical
  *  `unlockedIds` memo (stored ∪ revealed). For the anon branch it additionally
  *  folds in `revealedMustEatIds` so the returned set equals the map's
- *  *effective* face-up set (the map render sites OR `revealedMustEatIds` in
- *  anyway), letting spot-of-day reveals on restaurants outside the trial-10
- *  show face-up. */
+ *  *effective* face-up set (the map's render sites OR in `revealedMustEatIds`
+ *  regardless), letting spot-of-day reveals on restaurants outside the
+ *  trial-10 show face-up. */
 export function resolveUnlockedMustEatIds(args: {
   uid: string | null
   storedUnlockedIds: Set<string>

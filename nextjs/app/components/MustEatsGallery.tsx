@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/lib/auth'
-import { useMapData, useUnlockedMustEats } from '@/lib/map'
+import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { normalizeName } from '@/lib/normalizeName'
 import { filterMustEats, type MustEatFilter } from '@/lib/home/mustEatsGallery'
@@ -27,22 +27,42 @@ export default function MustEatsGallery({ initialMapData }: Props) {
   const { user, loading: authLoading } = useAuth()
   const uid = user?.uid ?? null
   const live = useMapData({ uid, authLoading, initialMapData })
-  const { unlockedIds } = useUnlockedMustEats(uid)
+  const { unlockedIds: storedUnlockedIds } = useUnlockedMustEats(uid)
   const { t } = useTranslation()
   const [filter, setFilter] = useState<MustEatFilter>('all')
 
-  // The first client render must match SSR: anon initialMapData + an empty
-  // unlocked set (so every card paints face-down, exactly like the server
-  // output). Only after mount switch to the live dataset + the resolved
-  // unlocked set — otherwise the grid mismatches on hydrate.
+  // The first client render must match SSR exactly: SSR can only render the
+  // anonymous view (uid=null) from `initialMapData`, so the pre-mount render
+  // here mirrors that — uid=null + initialMapData fed through the shared
+  // face-up helper. That yields the deterministic anon trial split (first-10
+  // restaurants' must-eats + server reveals) face-up, identical on server and
+  // first client paint. After mount, swap to the live dataset + the real uid
+  // so signed-in stored unlocks + proximity reveals show too — exactly like
+  // the map.
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
     setMounted(true)
   }, [])
 
+  const effUid = mounted ? uid : null
+  const restaurants = mounted ? live.restaurants : initialMapData.restaurants
   const mustEats = mounted ? live.mustEats : initialMapData.mustEats
-  const activeUnlocked = mounted ? unlockedIds : new Set<string>()
-  const visible = filterMustEats(mustEats, activeUnlocked, filter)
+  const revealedMustEatIds = mounted
+    ? live.revealedMustEatIds
+    : new Set<string>(initialMapData.revealedMustEatIds)
+  const storedSet = mounted ? storedUnlockedIds : new Set<string>()
+  const faceUp = useMemo(
+    () =>
+      resolveUnlockedMustEatIds({
+        uid: effUid,
+        storedUnlockedIds: storedSet,
+        revealedMustEatIds,
+        mustEats,
+        restaurants,
+      }),
+    [effUid, storedSet, revealedMustEatIds, mustEats, restaurants],
+  )
+  const visible = filterMustEats(mustEats, faceUp, filter)
 
   return (
     <>
@@ -62,7 +82,7 @@ export default function MustEatsGallery({ initialMapData }: Props) {
 
       <div className={styles.grid}>
         {visible.map((m) => {
-          const open = activeUnlocked.has(m._id)
+          const open = faceUp.has(m._id)
           const href = m.restaurant.slug
             ? `/map?r=${m.restaurant.slug}`
             : `/map?me=${m._id}`

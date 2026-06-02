@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/lib/auth'
-import { useMapData, useUnlockedMustEats } from '@/lib/map'
+import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { normalizeName } from '@/lib/normalizeName'
 import { splitMustEats } from '@/lib/home/mustEatsGallery'
@@ -21,27 +21,46 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
   const { user, loading: authLoading } = useAuth()
   const uid = user?.uid ?? null
   const live = useMapData({ uid, authLoading, initialMapData })
-  const { unlockedIds } = useUnlockedMustEats(uid)
+  const { unlockedIds: storedUnlockedIds } = useUnlockedMustEats(uid)
   const { t } = useTranslation()
 
-  // The first client render must match SSR: anon initialMapData + an empty
-  // unlocked set (so every card paints face-down, exactly like the server
-  // output). Only after mount switch to the live dataset + the resolved
-  // unlocked set — otherwise the row mismatches on hydrate.
+  // The first client render must match SSR exactly: SSR renders the anonymous
+  // view (uid=null) from `initialMapData`, so the pre-mount render here mirrors
+  // it — uid=null + initialMapData fed through the shared face-up helper. That
+  // yields the deterministic anon trial split (first-10 restaurants' must-eats
+  // + server reveals) face-up, identical on server and first client paint.
+  // After mount, swap to the live dataset + the real uid so signed-in stored
+  // unlocks + proximity reveals show too — exactly like the map.
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
     setMounted(true)
   }, [])
 
+  const effUid = mounted ? uid : null
+  const restaurants = mounted ? live.restaurants : initialMapData.restaurants
   const mustEats = mounted ? live.mustEats : initialMapData.mustEats
-  const unlocked = mounted ? unlockedIds : new Set<string>()
+  const revealedMustEatIds = mounted
+    ? live.revealedMustEatIds
+    : new Set<string>(initialMapData.revealedMustEatIds)
+  const storedSet = mounted ? storedUnlockedIds : new Set<string>()
+  const faceUp = useMemo(
+    () =>
+      resolveUnlockedMustEatIds({
+        uid: effUid,
+        storedUnlockedIds: storedSet,
+        revealedMustEatIds,
+        mustEats,
+        restaurants,
+      }),
+    [effUid, storedSet, revealedMustEatIds, mustEats, restaurants],
+  )
 
   // Mix: up to 3 revealed dishes face-up, the rest face-down — communicates the
   // reveal game without leaking dish names on the locked cards.
   const teaser = useMemo(() => {
-    const { open, locked } = splitMustEats(mustEats, unlocked)
+    const { open, locked } = splitMustEats(mustEats, faceUp)
     return [...open.slice(0, 3), ...locked].slice(0, TEASER_COUNT)
-  }, [mustEats, unlocked])
+  }, [mustEats, faceUp])
 
   if (teaser.length === 0) return null
 
@@ -52,7 +71,7 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
 
       <ul className={styles.row} role="list">
         {teaser.map((m) => {
-          const open = unlocked.has(m._id)
+          const open = faceUp.has(m._id)
           return (
             <li key={m._id} className={styles.item}>
               {/* eslint-disable-next-line @next/next/no-img-element */}

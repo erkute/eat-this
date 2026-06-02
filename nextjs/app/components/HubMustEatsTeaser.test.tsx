@@ -11,10 +11,17 @@ import type { MapMustEat } from '@/lib/types'
 vi.mock('@/lib/auth', () => ({
   useAuth: () => ({ user: null, loading: false }),
 }))
-vi.mock('@/lib/map', () => ({
-  useMapData: ({ initialMapData }: { initialMapData: InitialMapData }) => initialMapData,
-  useUnlockedMustEats: () => ({ unlockedIds: new Set<string>() }),
-}))
+vi.mock('@/lib/map', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/map/unlockedMustEats')>(
+    '@/lib/map/unlockedMustEats',
+  )
+  return {
+    useMapData: ({ initialMapData }: { initialMapData: InitialMapData }) => initialMapData,
+    useUnlockedMustEats: () => ({ unlockedIds: new Set<string>() }),
+    // Real helper so the pre-mount face-up computation matches production.
+    resolveUnlockedMustEatIds: actual.resolveUnlockedMustEatIds,
+  }
+})
 
 import HubMustEatsTeaser from '@/app/components/HubMustEatsTeaser'
 

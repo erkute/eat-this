@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { MapLayer } from '@/lib/types'
 import { useBottomSheet } from './useBottomSheet'
 
 export type SheetView = 'list' | 'detail'
@@ -27,9 +26,7 @@ function readSafeAreaBottom(): number {
              runtime via a ResizeObserver on the [data-detail-hero] element
              (see effect below). DETAIL_PEEK_BASE_PX is the fallback used
              before the first measurement lands.
-   - list (both layers): handle + listHeaderRow + filterChipRow = 120
-     (After map-v2 the must-eats list uses the same chip-row header as
-     restaurants — no more layer-specific peek base.) */
+   - list: handle + listHeaderRow + filterChipRow = 120 */
 const DETAIL_PEEK_BASE_PX = 220
 const HANDLE_PX = 44
 /* List peek = handle (~24) + filter chip row (padding 24+10 + chip ~24 ≈ 58)
@@ -37,10 +34,6 @@ const HANDLE_PX = 44
    the old 120 left empty sheet-bg between the chip row and the visible
    bottom of the sheet at peek. */
 const LIST_PEEK_BASE_PX            = 90
-/* Must-Eats-Liste hat zusätzlich die „Zu den Restaurants"-Sticker-Row im
-   Header → +44 px für Button + Padding. Sonst clippt der Switch-Button
-   am peek-Snap. */
-const LIST_PEEK_BASE_PX_MUSTEATS   = LIST_PEEK_BASE_PX + 44
 
 /**
  * Owns the map-sheet state machine: combines the generic `useBottomSheet`
@@ -52,11 +45,7 @@ const LIST_PEEK_BASE_PX_MUSTEATS   = LIST_PEEK_BASE_PX + 44
  * without a one-frame race where reapplySnap reads the previous view's peek
  * size and parks the sheet at the wrong height.
  */
-interface UseMapSheetArgs {
-  layer: MapLayer
-}
-
-export function useMapSheet({ layer }: UseMapSheetArgs) {
+export function useMapSheet() {
   const sheet = useBottomSheet('mid')
   const [sheetView, setSheetViewState] = useState<SheetView>('list')
   /* Measured hero-block height drives the detail peek. Initialized null so
@@ -75,14 +64,11 @@ export function useMapSheet({ layer }: UseMapSheetArgs) {
     const detailPeek = detailHeroPx != null
       ? HANDLE_PX + detailHeroPx + 4 + safeAreaBottom
       : DETAIL_PEEK_BASE_PX + safeAreaBottom
-    const listPeekBase = layer === 'mustEats'
-      ? LIST_PEEK_BASE_PX_MUSTEATS
-      : LIST_PEEK_BASE_PX
     return {
       detail: { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: detailPeek },
-      list:   { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: listPeekBase + safeAreaBottom },
+      list:   { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX + safeAreaBottom },
     }
-  }, [detailHeroPx, layer])
+  }, [detailHeroPx])
 
   const sheetElRef = useRef<HTMLDivElement | null>(null)
   const sheetRef = sheet.sheetRef
@@ -153,9 +139,8 @@ export function useMapSheet({ layer }: UseMapSheetArgs) {
     if (currentSnap === 'peek') reapplySnap('peek')
   }, [sheetView, viewConfig, configure, reapplySnap, currentSnap])
 
-  /* List-view config depends on layer (must-eats hat einen Switch-Row mehr
-     im Header → größerer Peek). Re-konfigurieren wenn der Layer flippt
-     während die Liste offen ist; bei peek-Snap sofort reapply. */
+  /* Re-konfigurieren wenn sich die List-View-Config ändert während die
+     Liste offen ist; bei peek-Snap sofort reapply. */
   useEffect(() => {
     if (sheetView !== 'list') return
     configure(viewConfig.list)

@@ -220,8 +220,6 @@ export interface MapMustEat {
   revealedForAnon?: boolean
 }
 
-export type MapLayer = 'restaurants' | 'mustEats'
-
 /** Map category filter: 'All' or a category slug from Sanity. */
 export type MapCategory = 'All' | string
 

@@ -1,23 +1,20 @@
 'use client'
 import type { Ref, RefObject } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
-import type { MapRestaurant, MapMustEat, MapLayer, MapCategory } from '@/lib/types'
+import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types'
 import type { CategoryDef } from '@/lib/categories'
 import type {
   SheetView,
   SheetSnap,
-  MustEatWithDisplay,
   UserLocation,
   UserTier,
 } from '@/lib/map'
 
 import MapCanvas from './MapCanvas'
 import RestaurantMarker from './RestaurantMarker'
-import MustEatMarker from './MustEatMarker'
 import RestaurantList from './RestaurantList'
 import MapSheetDetail from './MapSheetDetail'
 import UserLocationMarker from './UserLocationMarker'
-import MapMustEatsList from './MapMustEatsList'
 import MapListHeader from './MapListHeader'
 import { BackIcon, CloseIcon } from './icons'
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
@@ -40,14 +37,11 @@ interface MapBodyState {
   sheetView: SheetView
   snap: SheetSnap
   dragging: boolean
-  layer: MapLayer
   desktopPanelHidden: boolean
   displayedRestaurants: MapRestaurant[]
   /** Locked preview rows — same filter pipeline as displayedRestaurants,
    *  rendered as blurred entries below the booster banner in the list. */
   displayedLockedRestaurants: MapRestaurant[]
-  fannedMustEats: MustEatWithDisplay<MapMustEat>[]
-  displayedMustEats: MapMustEat[]
   restaurantMustEats: MapMustEat[]
   /** Total restaurant count in Sanity — shown in the sheet-count-mini so
    *  visitors see the catalog size, not the trial-cap-filtered count. */
@@ -98,8 +92,9 @@ interface MapBodyHandlers {
   onRestaurantClose: () => void
   onMustEatClose: () => void
   onMustEatBack: (() => void) | undefined
-  onViewAllMustEats: () => void
-  onSwitchToRestaurants: () => void
+  mustEatPagerPrev: MapMustEat | null
+  mustEatPagerNext: MapMustEat | null
+  onPageMustEat: (dir: 'prev' | 'next') => void
   onViewRestaurantFromMustEat: () => void
   onUnlock: () => Promise<void>
   onToggleFavorite: () => void
@@ -111,7 +106,6 @@ interface MapBodyHandlers {
 interface MapBodyAria {
   myLocationAriaLabel: string
   restaurantsListAriaLabel: string
-  mustEatsListAriaLabel: string
 }
 
 export type MapSectionBodyProps =
@@ -125,8 +119,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const {
     isActive,
     mapRef, handleRef, setHeaderRef, setContentRef, setSheetRef,
-    sheetView, snap, dragging, layer,
-    displayedRestaurants, displayedLockedRestaurants, fannedMustEats, displayedMustEats, restaurantMustEats,
+    sheetView, snap, dragging,
+    displayedRestaurants, displayedLockedRestaurants, restaurantMustEats,
     pagerPrev, pagerNext, onPageRestaurant,
     totalCount,
     selectedRestaurant, selectedMustEat,
@@ -137,13 +131,12 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     searchOpen, setSearchOpen,
     onMapMove, onMapClick, onRestaurantClick, onMustEatClick, onLocateMe,
     onRestaurantClose, onMustEatClose, onMustEatBack,
-    onViewAllMustEats,
-    onSwitchToRestaurants,
+    mustEatPagerPrev, mustEatPagerNext, onPageMustEat,
     onViewRestaurantFromMustEat, onUnlock,
     onSearchChange, onBezirkChange, onResetBezirkPill, onToggleFavorite,
     onCollapseDetailToMid,
     desktopPanelHidden, onToggleDesktopPanel,
-    myLocationAriaLabel, restaurantsListAriaLabel, mustEatsListAriaLabel,
+    myLocationAriaLabel, restaurantsListAriaLabel,
   } = props
 
   const handleResetFilters = () => {
@@ -164,28 +157,12 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
         <div className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}${sheetView === 'list' && snap === 'full' ? ` ${styles.bodyListAtFull}` : ''}${desktopPanelHidden ? ` ${styles.bodyPanelHidden}` : ''}`}>
           <div className={styles.mapWrap}>
             <MapCanvas ref={mapRef} onMove={onMapMove} onMapClick={onMapClick}>
-              {layer === 'restaurants' && displayedRestaurants.map(r => (
+              {displayedRestaurants.map(r => (
                 <RestaurantMarker
                   key={r._id}
                   restaurant={r}
                   isSelected={selectedRestaurant?._id === r._id}
                   onClick={onRestaurantClick}
-                />
-              ))}
-              {layer === 'mustEats' && fannedMustEats.map(m => (
-                <MustEatMarker
-                  key={m._id}
-                  mustEat={m}
-                  isUnlocked={unlockedIds.has(m._id)}
-                  isCoveredAnon={!uid && !revealedMustEatIds.has(m._id)}
-                  isSelected={selectedMustEat?._id === m._id}
-                  userLocation={location}
-                  displayLat={m.displayLat}
-                  displayLng={m.displayLng}
-                  fanRotation={m.fanRotation}
-                  fanIndex={m.fanIndex}
-                  fanCount={m.fanCount}
-                  onClick={onMustEatClick}
                 />
               ))}
               {location && <UserLocationMarker location={location} />}
@@ -265,7 +242,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             }`}
             data-snap={snap}
             data-view={sheetView}
-            aria-label={layer === 'restaurants' ? restaurantsListAriaLabel : mustEatsListAriaLabel}
+            aria-label={restaurantsListAriaLabel}
           >
             <div ref={handleRef} className={styles.handle} data-sheet-handle="" aria-hidden="true" />
 
@@ -312,8 +289,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 onUnlock={onUnlock}
                 onClose={onMustEatClose}
                 onBack={onMustEatBack}
-                onViewAllMustEats={onViewAllMustEats}
                 onViewRestaurant={onViewRestaurantFromMustEat}
+                prevMustEat={mustEatPagerPrev}
+                nextMustEat={mustEatPagerNext}
+                onPagePrev={() => onPageMustEat('prev')}
+                onPageNext={() => onPageMustEat('next')}
               />
             ) : sheetView === 'detail' && selectedRestaurant ? (
               <MapSheetDetail
@@ -339,7 +319,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               <>
                 <MapListHeader
                   headerRef={setHeaderRef}
-                  resultCount={layer === 'restaurants' ? displayedRestaurants.length : displayedMustEats.length}
+                  resultCount={displayedRestaurants.length}
                   totalCount={totalCount}
                   searchOpen={searchOpen}
                   setSearchOpen={setSearchOpen}
@@ -356,38 +336,23 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   cuisineNames={cuisineNames}
                   cuisine={cuisine}
                   onCuisine={setCuisine}
-                  layer={layer}
-                  onSwitchToRestaurants={onSwitchToRestaurants}
                 />
-                {layer === 'restaurants' ? (
-                  <div ref={setContentRef} className={styles.listScroll}>
-                    <RestaurantList
-                      restaurants={displayedRestaurants}
-                      lockedRestaurants={displayedLockedRestaurants}
-                      userLocation={location}
-                      selectedId={selectedRestaurant?._id ?? null}
-                      uid={uid}
-                      userTier={userTier}
-                      onSelect={onRestaurantClick}
-                      primaryMustEats={primaryMustEats}
-                      unlockedIds={unlockedIds}
-                      revealedMustEatIds={revealedMustEatIds}
-                      onResetFilters={handleResetFilters}
-                      activeBezirk={bezirk}
-                    />
-                  </div>
-                ) : (
-                  <MapMustEatsList
-                    displayedMustEats={displayedMustEats}
-                    unlockedIds={unlockedIds}
-                    selectedMustEat={selectedMustEat}
-                    location={location}
+                <div ref={setContentRef} className={styles.listScroll}>
+                  <RestaurantList
+                    restaurants={displayedRestaurants}
+                    lockedRestaurants={displayedLockedRestaurants}
+                    userLocation={location}
+                    selectedId={selectedRestaurant?._id ?? null}
                     uid={uid}
                     userTier={userTier}
-                    contentRef={setContentRef}
-                    onSelect={onMustEatClick}
+                    onSelect={onRestaurantClick}
+                    primaryMustEats={primaryMustEats}
+                    unlockedIds={unlockedIds}
+                    revealedMustEatIds={revealedMustEatIds}
+                    onResetFilters={handleResetFilters}
+                    activeBezirk={bezirk}
                   />
-                )}
+                </div>
               </>
             )}
           </aside>

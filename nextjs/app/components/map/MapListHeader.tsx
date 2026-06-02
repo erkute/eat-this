@@ -2,7 +2,7 @@
 import { forwardRef, useMemo, useRef, useState, type Ref } from 'react'
 import { useTranslation } from '@/lib/i18n'
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories'
-import type { MapCategory, MapLayer } from '@/lib/types'
+import type { MapCategory } from '@/lib/types'
 import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet'
 import styles from './map.module.css'
 
@@ -35,11 +35,6 @@ interface Props {
   cuisineNames: string[]
   cuisine: string | null
   onCuisine: (name: string | null) => void
-
-  /** Current layer — used to decide whether to render the "Zu den
-   *  Restaurants" switch (only relevant on the must-eats list). */
-  layer: MapLayer
-  onSwitchToRestaurants: () => void
 }
 
 type ChipKind = 'category' | 'bezirk' | 'cuisine'
@@ -51,7 +46,6 @@ export default function MapListHeader({
   openOnly, onOpenOnly,
   bezirkNames, bezirk, onBezirk,
   cuisineNames, cuisine, onCuisine,
-  layer, onSwitchToRestaurants,
 }: Props) {
   const { t, lang } = useTranslation()
   const loc = lang === 'de' ? 'de' : 'en'
@@ -119,24 +113,6 @@ export default function MapListHeader({
           <span className={styles.filterChipLabel}>{t('map.filterChipOpen')}</span>
         </button>
       </div>
-
-      {/* Layer-Switch sitzt im selben Header-Block wie die Filter, nur in
-          einer eigenen Zeile darunter — sichtbar nur in der Must-Eats-
-          Ansicht damit der Weg zurück zu den Restaurants klar ist. */}
-      {layer === 'mustEats' && (
-        <div className={styles.filterSwitchRow}>
-          <button
-            type="button"
-            className={styles.musteatListSwitchBtn}
-            onClick={onSwitchToRestaurants}
-          >
-            <svg viewBox="0 0 16 11" aria-hidden="true">
-              <path d="M15 5.5H2M6.5 1L2 5.5l4.5 4.5" />
-            </svg>
-            Zu den Restaurants
-          </button>
-        </div>
-      )}
 
       {openChip === 'category' && (
         <MapFilterPickerSheet

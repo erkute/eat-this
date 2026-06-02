@@ -14,8 +14,13 @@ interface MustEatDetailProps {
   onUnlock: () => void
   onClose: () => void
   onBack?: () => void
-  onViewAllMustEats?: () => void
   onViewRestaurant?: () => void
+  /** Global must-eat pager — adjacent cards + page handlers. Phase 2 wires
+   *  the markup; threaded through now so the data is in place. */
+  prevMustEat?: MapMustEat | null
+  nextMustEat?: MapMustEat | null
+  onPagePrev?: () => void
+  onPageNext?: () => void
   inSheet?: boolean
   uid?: string | null
 }
@@ -27,8 +32,11 @@ export default function MustEatDetail({
   onUnlock,
   onClose,
   onBack,
-  onViewAllMustEats,
   onViewRestaurant,
+  prevMustEat,
+  nextMustEat,
+  onPagePrev,
+  onPageNext,
   inSheet,
   uid,
 }: MustEatDetailProps) {
@@ -42,8 +50,11 @@ export default function MustEatDetail({
           isUnlocked={isUnlocked}
           onClose={onClose}
           onBack={onBack}
-          onViewAllMustEats={onViewAllMustEats}
           onViewRestaurant={onViewRestaurant}
+          prevMustEat={prevMustEat}
+          nextMustEat={nextMustEat}
+          onPagePrev={onPagePrev}
+          onPageNext={onPageNext}
           uid={uid}
           state={state}
         />
@@ -52,7 +63,10 @@ export default function MustEatDetail({
           mustEat={mustEat}
           isUnlocked={isUnlocked}
           onClose={onClose}
-          onViewAllMustEats={onViewAllMustEats}
+          prevMustEat={prevMustEat}
+          nextMustEat={nextMustEat}
+          onPagePrev={onPagePrev}
+          onPageNext={onPageNext}
           uid={uid}
           state={state}
         />

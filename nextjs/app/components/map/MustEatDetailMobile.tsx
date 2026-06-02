@@ -20,8 +20,13 @@ interface Props {
   isUnlocked: boolean
   onClose: () => void
   onBack?: () => void
-  onViewAllMustEats?: () => void
   onViewRestaurant?: () => void
+  /** Global must-eat pager — Phase 2 wires the markup; accepted now so the
+   *  prop chain is in place. */
+  prevMustEat?: MapMustEat | null
+  nextMustEat?: MapMustEat | null
+  onPagePrev?: () => void
+  onPageNext?: () => void
   uid?: string | null
   state: MustEatDetailState
 }
@@ -31,8 +36,11 @@ export default function MustEatDetailMobile({
   isUnlocked,
   onClose,
   onBack,
-  onViewAllMustEats,
   onViewRestaurant,
+  prevMustEat: _prevMustEat,
+  nextMustEat: _nextMustEat,
+  onPagePrev: _onPagePrev,
+  onPageNext: _onPageNext,
   uid: _uid,
   state,
 }: Props) {
@@ -172,9 +180,9 @@ export default function MustEatDetailMobile({
           </aside>
         )}
 
-        {/* 5. ACTIONS — Mustard "Restaurant ansehen" + Coral "Alle Must Eats"
-            in einer 2-Spalten-Sticker-Reihe (matched zum Booster-CTA-Family).
-            Maps + Walk-Time darunter als quiet utility-row. */}
+        {/* 5. ACTIONS — Mustard "Restaurant ansehen" als Sticker-Button
+            (matched zum Booster-CTA-Family). Maps + Walk-Time darunter als
+            quiet utility-row. */}
         <div className={styles.musteatActionsGrid}>
           {onViewRestaurant ? (
             <button
@@ -197,18 +205,6 @@ export default function MustEatDetailMobile({
                 <path d="M1 5.5h13M9.5 1l4.5 4.5L9.5 10" />
               </svg>
             </Link>
-          )}
-          {onViewAllMustEats && (
-            <button
-              type="button"
-              onClick={onViewAllMustEats}
-              className={`${styles.musteatStickerBtn} ${styles.musteatStickerSecondary}`}
-            >
-              Alle Karten
-              <svg viewBox="0 0 16 11" aria-hidden="true">
-                <path d="M1 5.5h13M9.5 1l4.5 4.5L9.5 10" />
-              </svg>
-            </button>
           )}
         </div>
         <div className={styles.musteatUtilityRow}>

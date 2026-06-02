@@ -191,8 +191,8 @@ html[data-theme="dark"] .bodyPanelHidden .panelToggle {
 
 /* Editorial-sticker treatment for the default zoom controls — sit bottom-
    right (desktop only; mobile hides them in favour of pinch-zoom). Same
-   sticker vocabulary as .fab + .musteatListSwitchBtn so the control stack
-   reads as one consistent family. */
+   sticker vocabulary as .fab so the control stack reads as one consistent
+   family. */
 .mapWrap :global(.maplibregl-ctrl-bottom-right) {
   right: 12px;
   bottom: 12px;
@@ -304,8 +304,8 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-comp
   color: #e5e7eb;
 }
 
-/* Locate FAB — editorial sticker vocabulary, mirroring .musteatListSwitchBtn
-   and the filter-chip family. Solid white + 1.5px black border + 2px hard-
+/* Locate FAB — editorial sticker vocabulary, mirroring the filter-chip
+   family. Solid white + 1.5px black border + 2px hard-
    offset shadow. Identical recipe across mobile + desktop so the control
    stack reads as one consistent sticker-family. */
 .fab {
@@ -693,72 +693,6 @@ html[data-theme="dark"] .list { background: #1c1c1c; }
    override sits inside the @media block below. */
 .listScrollMustEats { padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
 
-/* „Zu den Restaurants"-Switch sitzt im Header-Block direkt unter der
-   Filter-Chip-Zeile — eigene Row im selben Bereich. Weißer Hintergrund
-   (statt mustard) damit der Switch nicht wie noch ein Filter wirkt,
-   sondern als sekundäre Navigation lesbar bleibt. Filter-Chip-Größe
-   (11px Saira-caps, hard offset shadow, 6px Padding). */
-.filterSwitchRow {
-  display: flex;
-  /* Linksbündig auf dieselbe Padding-Linie wie .filterChipRow (14px / 16px
-     desktop), damit der Switch unter dem Kategorie-Chip startet — nicht
-     versetzt. Bottom-Padding bewusst großzügig damit der Button nicht die
-     erste List-Row küsst. */
-  padding: 2px 14px 12px;
-}
-@media (min-width: 1024px) {
-  .filterSwitchRow { padding: 2px 16px 14px; }
-}
-.musteatListSwitchBtn {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-  border: 1.5px solid var(--c-black);
-  background: #ffffff;
-  color: var(--c-black);
-  /* Saira Condensed wegen „Zu den Restaurants" — consistency mit den Filter-
-     Chips + Picker, die aus dem gleichen Latin-Ext-Grund umgestellt sind.
-     line-height 1.2 + leichter top-Padding-Vorteil gegen Diacritic-Clipping. */
-  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
-  font-weight: 900;
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  line-height: 1.2;
-  padding: 6px 10px 6px;
-  border-radius: 0;
-  cursor: pointer;
-  box-shadow: 2px 2px 0 var(--c-black);
-  transition: transform 140ms ease, box-shadow 140ms ease, background 120ms ease;
-  line-height: 1;
-  white-space: nowrap;
-}
-.musteatListSwitchBtn:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0 var(--c-black);
-  background: var(--c-cream);
-}
-.musteatListSwitchBtn svg {
-  width: 10px;
-  height: 7px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-html[data-theme="dark"] .musteatListSwitchBtn {
-  background: #fbf5e2;
-  color: var(--c-black);
-  border-color: var(--c-black);
-  box-shadow: 2px 2px 0 var(--c-cream);
-}
-html[data-theme="dark"] .musteatListSwitchBtn:hover {
-  background: #ffffff;
-  box-shadow: 3px 3px 0 var(--c-cream);
-}
 /* Mobile only: cap scroll viewport to the sheet's visible area so content
    below the overflow-hidden clip edge is actually reachable via scrolling.
    Header stack after map-v2:

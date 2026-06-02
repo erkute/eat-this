@@ -19,7 +19,7 @@ import MapSheetDetail from './MapSheetDetail'
 import UserLocationMarker from './UserLocationMarker'
 import MapMustEatsList from './MapMustEatsList'
 import MapListHeader from './MapListHeader'
-import { BackIcon, CloseIcon, HeartIcon, ShareIcon } from './icons'
+import { BackIcon, CloseIcon } from './icons'
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
 import styles from './map.module.css'
@@ -269,53 +269,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
           >
             <div ref={handleRef} className={styles.handle} data-sheet-handle="" aria-hidden="true" />
 
-            {/* Detail-only handle-bar icons — share / save / close. Sit on
-                the swipe-handle strip so they stay fixed regardless of
-                content scroll (they're rendered OUTSIDE detailMount which
-                owns the inner overflow). */}
-            {sheetView === 'detail' && selectedRestaurant && (
-              <div className={styles.sheetHandleActions}>
-                <button
-                  type="button"
-                  className={`${styles.heroAction} ${styles.heroActionOnHandle}`}
-                  aria-label="Teilen"
-                  onClick={async () => {
-                    const url = typeof window !== 'undefined' ? window.location.href : ''
-                    const shareData = { title: selectedRestaurant.name, url }
-                    try {
-                      if (typeof navigator !== 'undefined' && 'share' in navigator) {
-                        await navigator.share(shareData)
-                        return
-                      }
-                    } catch {}
-                    try {
-                      if (typeof navigator !== 'undefined' && navigator.clipboard) {
-                        await navigator.clipboard.writeText(url)
-                      }
-                    } catch {}
-                  }}
-                >
-                  <ShareIcon />
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.heroAction} ${styles.heroActionOnHandle} ${favoriteIds.has(selectedRestaurant._id) ? styles.heroActionSaved : ''}`}
-                  aria-label={favoriteIds.has(selectedRestaurant._id) ? 'Remove from saved' : 'Speichern'}
-                  aria-pressed={favoriteIds.has(selectedRestaurant._id)}
-                  onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
-                >
-                  <HeartIcon filled={favoriteIds.has(selectedRestaurant._id)} />
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.heroAction} ${styles.heroActionOnHandle} ${styles.heroActionClose}`}
-                  aria-label="Close"
-                  onClick={onRestaurantClose}
-                >
-                  <CloseIcon />
-                </button>
-              </div>
-            )}
+            {/* Restaurant detail's chrome now lives on the photo hero (back
+                pill + save bookmark, per the Chewy mockup) — no handle-bar
+                icons here. */}
 
             {/* Must-Eat-Detail handle-bar icons: Back (zum Restaurant) +
                 Close. Auf Mobile sind die heroActionsDesktop-Icons im
@@ -369,6 +325,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 unlockedIds={unlockedIds}
                 restaurant={selectedRestaurant}
                 mustEats={restaurantMustEats}
+                revealedMustEatIds={revealedMustEatIds}
                 onClose={onRestaurantClose}
                 onMustEatClick={onMustEatClick}
                 isFavorite={favoriteIds.has(selectedRestaurant._id)}

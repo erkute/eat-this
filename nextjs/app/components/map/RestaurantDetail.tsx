@@ -13,7 +13,7 @@ import { useTranslation } from '@/lib/i18n'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import styles from './map.module.css'
-import { HeartIcon } from './icons'
+import { BookmarkIcon, BackIcon } from './icons'
 import {
   classifyWebsite,
   formatPriceLabel,
@@ -52,6 +52,7 @@ interface RestaurantDetailProps {
   restaurant: MapRestaurant
   mustEats: MapMustEat[]
   unlockedIds: Set<string>
+  revealedMustEatIds: Set<string>
   userLocation: UserLocation | null
   uid: string | null
   userTier: UserTier
@@ -69,9 +70,11 @@ export default function RestaurantDetail({
   restaurant,
   mustEats,
   unlockedIds,
+  revealedMustEatIds,
   userLocation,
   uid,
   userTier,
+  onClose,
   onMustEatClick,
   isFavorite,
   onToggleFavorite,
@@ -82,8 +85,6 @@ export default function RestaurantDetail({
 }: RestaurantDetailProps) {
   const { t } = useTranslation()
   const locale = useLocale()
-  const mapsDetailsRef = useRef<HTMLDetailsElement>(null)
-  const statusDetailsRef = useRef<HTMLDetailsElement>(null)
   const scrollWrapRef = useRef<HTMLDivElement>(null)
   const onPagePrevRef = useRef(onPagePrev); onPagePrevRef.current = onPagePrev
   const onPageNextRef = useRef(onPageNext); onPageNextRef.current = onPageNext
@@ -139,20 +140,6 @@ export default function RestaurantDetail({
     }
   }, [])
 
-  // Native <details> only closes when you re-click its <summary>. Restaurants
-  // expect popovers to dismiss on any outside click — wire that up for the
-  // two disclosures (Maps chooser + hours expander).
-  useEffect(() => {
-    const onDocClick = (e: MouseEvent) => {
-      for (const ref of [mapsDetailsRef, statusDetailsRef]) {
-        const el = ref.current
-        if (el && el.open && !el.contains(e.target as Node)) el.open = false
-      }
-    }
-    document.addEventListener('pointerdown', onDocClick)
-    return () => document.removeEventListener('pointerdown', onDocClick)
-  }, [])
-
   const status = restaurant.openingHours
     ? getOpenStatus(restaurant.openingHours, new Date(), {
         open: t('map.open'),
@@ -163,7 +150,12 @@ export default function RestaurantDetail({
         unitMin: t('map.unitsMin'),
       })
     : { isOpen: false, label: '', minutesUntilChange: null }
-  const { main: statusMain, sub: statusSub } = splitStatusLabel(status.label)
+  const { sub: statusSub } = splitStatusLabel(status.label)
+  const hasHours = !!(restaurant.openingHours && restaurant.openingHours.length > 0)
+  const closeTime = status.isOpen ? (statusSub.match(/(\d{1,2}:\d{2})/)?.[1] ?? null) : null
+  const openTag = status.isOpen
+    ? (closeTime ? `${t('map.open')} bis ${closeTime}` : t('map.open'))
+    : t('map.closed')
 
   const district = abbreviateBezirk(restaurant.bezirk?.name ?? restaurant.district ?? null)
 
@@ -186,14 +178,11 @@ export default function RestaurantDetail({
     igUrl = websiteInfo.url
   }
 
-  const addressMapsAppleHref = restaurant.address
-    ? `https://maps.apple.com/?q=${encodeURIComponent(restaurant.address)}`
-    : null
-  const addressMapsGoogleHref =
-    restaurant.mapsUrl ||
-    (restaurant.address
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.address)}`
-      : null)
+  // Single Maps button (mockup). Prefer a name+address Google search — it
+  // always resolves to a result — over a possibly-stale curated mapsUrl.
+  const mapsHref = restaurant.address
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${restaurant.name}, ${restaurant.address}`)}`
+    : (restaurant.mapsUrl ?? null)
 
   const storyText = restaurant.description ?? restaurant.shortDescription ?? ''
   const hasStory = !!storyText
@@ -214,6 +203,8 @@ export default function RestaurantDetail({
     } catch {}
   }
 
+  const backLabel = locale === 'en' ? 'List' : 'Liste'
+
   const showBooster = userTier !== 'allBerlin'
   const isAnon = !uid
   const boosterHref = uid
@@ -224,13 +215,16 @@ export default function RestaurantDetail({
     <div className={styles.detailV13} role="dialog" aria-label={restaurant.name}>
       <div className={styles.detailV13Scroll} data-detail-scroll ref={scrollWrapRef}>
 
-        {/* HERO — full-bleed photo, name overlay, save heart. data-detail-hero
-            marks the block the bottom-sheet measures for the peek snap. */}
+        {/* HERO — full-bleed photo, back-to-list pill, save bookmark, name. */}
         <header
           className={styles.rdHero}
           data-detail-hero
           style={restaurant.photo ? { backgroundImage: `url(${restaurant.photo})` } : undefined}
         >
+          <button type="button" className={styles.rdBackPill} aria-label={backLabel} onClick={onClose}>
+            <BackIcon />
+            <span>{backLabel}</span>
+          </button>
           {onToggleFavorite && (
             <button
               type="button"
@@ -239,7 +233,7 @@ export default function RestaurantDetail({
               aria-pressed={!!isFavorite}
               onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
             >
-              <HeartIcon filled={!!isFavorite} />
+              <BookmarkIcon filled={!!isFavorite} />
             </button>
           )}
           <div className={styles.rdOverlay}>
@@ -247,9 +241,7 @@ export default function RestaurantDetail({
             <div className={styles.rdTagsOv}>
               {district && <span className={styles.rdTag}>{district}</span>}
               {cuisine && <span className={styles.rdTagAlt}>{cuisine}</span>}
-              {statusMain && (
-                <span className={styles.rdTagAlt}>{status.isOpen ? t('map.open') : t('map.closed')}</span>
-              )}
+              {hasHours && <span className={styles.rdTagAlt}>{openTag}</span>}
             </div>
           </div>
           {restaurant.photoCredit && (
@@ -292,13 +284,13 @@ export default function RestaurantDetail({
           </div>
         )}
 
-        {/* FACTS */}
+        {/* FACTS — opening hours shown in full, no expander */}
         <div className={styles.rdFacts}>
           {restaurant.address && (
             <div className={styles.rdRow}>
               <span className={styles.rdK}>{t('map.address')}</span>
               <span className={styles.rdV}>
-                <a href={addressMapsGoogleHref ?? '#'} target="_blank" rel="noopener noreferrer">{restaurant.address}</a>
+                {restaurant.address}
                 {walkingTime && <span className={styles.rdVMeta}>{walkingTime} {t('map.walkMinutes')}</span>}
               </span>
             </div>
@@ -309,20 +301,17 @@ export default function RestaurantDetail({
               <span className={styles.rdV}>{cuisine}</span>
             </div>
           )}
-          {restaurant.openingHours && restaurant.openingHours.length > 0 && (
+          {hasHours && (
             <div className={styles.rdRow}>
               <span className={styles.rdK}>{t('map.openingHours')}</span>
-              <details className={styles.rdV} ref={statusDetailsRef}>
-                <summary>{status.isOpen ? t('map.open') : t('map.closed')}{statusSub ? ` · ${statusSub}` : ''}</summary>
-                <div className={styles.rdHours}>
-                  {restaurant.openingHours.map((slot, i) => (
-                    <div key={i} style={{ display: 'contents' }}>
-                      <span className={styles.rdHoursD}>{slot.days}</span>
-                      <span className={styles.rdHoursT}>{slot.hours}</span>
-                    </div>
-                  ))}
-                </div>
-              </details>
+              <div className={`${styles.rdV} ${styles.rdHours}`}>
+                {restaurant.openingHours!.map((slot, i) => (
+                  <div key={i} style={{ display: 'contents' }}>
+                    <span className={styles.rdHoursD}>{slot.days}</span>
+                    <span className={styles.rdHoursT}>{slot.hours}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
           {priceLabel && (
@@ -345,16 +334,12 @@ export default function RestaurantDetail({
           )}
         </div>
 
-        {/* ACTIONS — Maps (popover) + Teilen */}
+        {/* ACTIONS — Maps + Teilen, 50/50 */}
         <div className={styles.rdActs}>
-          {(addressMapsAppleHref || addressMapsGoogleHref) && (
-            <details className={styles.rdMapsPop} ref={mapsDetailsRef}>
-              <summary className={`${styles.rdActBtn} ${styles.rdActPrimary}`}>{t('map.maps')}</summary>
-              <div className={styles.rdMapsPopMenu}>
-                {addressMapsAppleHref && <a href={addressMapsAppleHref} target="_blank" rel="noopener noreferrer">{t('map.mapsApple')}</a>}
-                {addressMapsGoogleHref && <a href={addressMapsGoogleHref} target="_blank" rel="noopener noreferrer">{t('map.mapsGoogle')}</a>}
-              </div>
-            </details>
+          {mapsHref && (
+            <a className={`${styles.rdActBtn} ${styles.rdActPrimary}`} href={mapsHref} target="_blank" rel="noopener noreferrer">
+              {t('map.maps')}
+            </a>
           )}
           <button
             type="button"
@@ -400,7 +385,7 @@ export default function RestaurantDetail({
           </section>
         )}
 
-        {/* MUST EATS */}
+        {/* MUST EATS — reveal state mirrors the map/list (unlocked OR proximity-revealed) */}
         {mustEats.length > 0 && (
           <section>
             <h2 className={styles.rdSecH}>Must Eats</h2>
@@ -409,7 +394,7 @@ export default function RestaurantDetail({
                 <MustEatMiniCard
                   key={m._id}
                   mustEat={m}
-                  unlocked={unlockedIds.has(m._id)}
+                  unlocked={unlockedIds.has(m._id) || revealedMustEatIds.has(m._id)}
                   onClick={() => onMustEatClick(m)}
                 />
               ))}
@@ -417,7 +402,7 @@ export default function RestaurantDetail({
           </section>
         )}
 
-        {/* PACK PROMO — editorial ticket, anon + starter only */}
+        {/* PACK PROMO — anon + starter only, qualitative (no counts) */}
         {showBooster && (
           <section className={styles.packPromo}>
             <div className={styles.packPromoCardWrap} aria-hidden="true">
@@ -430,9 +415,6 @@ export default function RestaurantDetail({
               />
             </div>
             <div className={styles.packPromoCopy}>
-              {isAnon && (
-                <p className={styles.packPromoEyebrow}>+20 Spots</p>
-              )}
               <h3 className={styles.packPromoTitle}>
                 {isAnon ? t('map.starterPromoTitle') : t('map.boosterTitle')}
               </h3>

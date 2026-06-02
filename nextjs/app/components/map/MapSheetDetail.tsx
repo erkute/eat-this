@@ -28,6 +28,7 @@ type RestaurantProps = CommonProps & {
   kind: 'restaurant'
   restaurant: MapRestaurant
   mustEats: MapMustEat[]
+  revealedMustEatIds: Set<string>
   onClose: () => void
   onMustEatClick: (m: MapMustEat) => void
   isFavorite: boolean
@@ -61,6 +62,7 @@ export default function MapSheetDetail(props: Props) {
           restaurant={props.restaurant}
           mustEats={props.mustEats}
           unlockedIds={props.unlockedIds}
+          revealedMustEatIds={props.revealedMustEatIds}
           userLocation={props.userLocation}
           uid={props.uid}
           userTier={props.userTier}

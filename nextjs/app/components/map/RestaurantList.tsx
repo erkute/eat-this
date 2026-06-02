@@ -6,7 +6,6 @@ import type { MapRestaurant, MapMustEat, OpenStatus } from '@/lib/types'
 import { haversineDistance, formatWalkingTime, getOpenStatus, abbreviateBezirk, resolvePeek, type UserLocation, type UserTier, type Peek } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { localizedCategoryName } from '@/lib/categories'
-import { formatPriceLabel } from './restaurantDetail.helpers'
 import { normalizeName } from '@/lib/normalizeName'
 import BoosterOfferInline from './BoosterOfferInline'
 import MapListEmpty from './MapListEmpty'
@@ -51,8 +50,6 @@ function Item({ restaurant, userLocation, isSelected, peek, locked, onClick }: I
     ? localizedCategoryName(restaurant.categories[0], loc)
     : null
 
-  const priceLabel = formatPriceLabel(restaurant)
-
   // Status label: `getOpenStatus` returns "Geöffnet · schließt 22:00" /
   // "Geschlossen · öffnet 9:00". The main word drives the dot-lockup;
   // the suffix becomes the small `bis 22:00` under it.
@@ -62,56 +59,42 @@ function Item({ restaurant, userLocation, isSelected, peek, locked, onClick }: I
   return (
     <button
       type="button"
-      className={`${styles.rrow} ${isSelected ? styles.rrowActive : ''} ${locked ? styles.rrowLocked : ''}`}
+      className={`${styles.rcard} ${isSelected ? styles.rcardActive : ''} ${locked ? styles.rcardBlur : ''}`}
       onClick={() => onClick(restaurant)}
       aria-label={locked ? t('map.starterEyebrow') : undefined}
-      data-peek={peek.kind}
     >
       <div
-        className={styles.rrowCoral}
+        className={styles.rcardImg}
         style={restaurant.photo ? { backgroundImage: `url(${restaurant.photo})` } : undefined}
-      >
-        {restaurant.mustEatCount > 0 && !locked && (
+      />
+
+      {statusMain && (
+        <span className={`${styles.openPill} ${status.isOpen ? '' : styles.openPillClosed}`} role="status">
+          {statusMain}
+        </span>
+      )}
+
+      {peek.kind !== 'none' && !locked && (
+        <span className={styles.mustPeek}>
           <img
-            src="/pics/card-back.webp?v=5"
+            src={peek.kind === 'open' ? peek.image : '/pics/card-back.webp?v=5'}
             alt=""
-            className={styles.rrowMust}
             aria-hidden="true"
             draggable={false}
           />
-        )}
-      </div>
+        </span>
+      )}
 
-      <div className={styles.rrowMeta}>
-        <p className={styles.rrowEye}>
-          {district && <span className={styles.rrowBezirk}>{district}</span>}
-          {categoryLabel && <span className={styles.rrowCat}>{categoryLabel}</span>}
+      <div className={styles.rcardBody}>
+        <h3 className={styles.rcardName}>{normalizeName(restaurant.name)}</h3>
+        <p className={styles.rcardMeta}>
+          {[district, categoryLabel].filter(Boolean).join(' · ')}
         </p>
-        <h3 className={styles.rrowTitle}>{normalizeName(restaurant.name)}</h3>
-        <p className={styles.rrowInfo}>
-          {priceLabel && <span>{priceLabel}</span>}
-          {priceLabel && walkingTime && <span className={styles.rrowInfoSep} aria-hidden="true" />}
-          {walkingTime && (
-            <span>
-              <svg className={styles.walkIco} viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7" />
-              </svg>
-              {walkingTime}
-            </span>
-          )}
+        <p className={styles.rcardTime}>
+          {statusSub && <span className={status.isOpen ? styles.rcardNow : undefined}>{statusSub}</span>}
+          {statusSub && walkingTime && <span className={styles.rcardDot} aria-hidden="true" />}
+          {walkingTime && <span>{walkingTime}</span>}
         </p>
-      </div>
-
-      <div className={styles.rrowAside}>
-        {statusMain && (
-          <span
-            className={`${styles.rrowStatus} ${status.isOpen ? '' : styles.rrowStatusClosed}`}
-            role="status"
-          >
-            {statusMain}
-          </span>
-        )}
-        {statusSub && <span className={styles.rrowWhen}>{statusSub}</span>}
       </div>
     </button>
   )

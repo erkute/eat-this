@@ -131,6 +131,7 @@ export default function RestaurantList({
   primaryMustEats, unlockedIds, revealedMustEatIds, onResetFilters,
 }: RestaurantListProps) {
   const locale = useLocale()
+  const { t } = useTranslation()
 
   // Locked-row click routes to the same upgrade target the booster banner
   // CTA uses — anon → /login, signed-in → /home#hub-packs. Keeps the
@@ -140,6 +141,10 @@ export default function RestaurantList({
     : (locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
 
   const handleLockedClick = useCallback((_r: MapRestaurant) => {
+    window.location.assign(upgradeHref)
+  }, [upgradeHref])
+
+  const onUpgradeClick = useCallback(() => {
     window.location.assign(upgradeHref)
   }, [upgradeHref])
 
@@ -181,6 +186,15 @@ export default function RestaurantList({
           onClick={handleLockedClick}
         />
       ))}
+      {showBooster && (
+        <div className={styles.listEnd}>
+          <h3 className={styles.listEndTitle}>{t('map.listEndTitle')}</h3>
+          <button type="button" className={styles.listEndCta} onClick={() => onUpgradeClick()}>
+            <span>{t(uid ? 'map.boosterCta' : 'map.starterCta')}</span>
+            <svg viewBox="0 0 14 10" width="15" height="11" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M1 5h11M8 1l4 4-4 4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </button>
+        </div>
+      )}
     </>
   )
 }

@@ -98,8 +98,6 @@ export async function POST(request: Request) {
   // ─── Env checks ───────────────────────────────────────────────────────
   const resendKey = process.env.RESEND_API_KEY
   const confirmSecret = process.env.LAUNCH_CONFIRM_SECRET
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
-  const fromName = process.env.RESEND_FROM_NAME || 'Eat This'
 
   if (!resendKey) {
     console.error('[launch-signup] missing RESEND_API_KEY')
@@ -124,12 +122,12 @@ export async function POST(request: Request) {
         : `Confirm your email address:\n${confirmLink}\n\nThe link is valid for 7 days.\n\nDidn’t sign up? Just ignore this email.`
 
       const result = await resend.emails.send({
-        from: `${fromName} <${fromEmail}>`,
+        from: 'EAT THIS <noreply@eatthisdot.com>',
         to: email,
         subject,
         html,
         text,
-        replyTo: fromEmail,
+        replyTo: 'hello@eatthisdot.com',
       })
 
       if (result.error) {

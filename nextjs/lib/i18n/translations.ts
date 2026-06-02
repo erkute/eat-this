@@ -102,6 +102,7 @@ const en = {
     emptyBody: "Loosen a filter or try a different area.",
     emptyKicker: "Nothing found",
     emptyReset: "Reset filters",
+    listEndTitle: "Unlock all of Berlin",
   },
   breadcrumb: {
     aria: "Breadcrumb",
@@ -309,6 +310,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     emptyBody: "Filter lockern oder andere Gegend probieren.",
     emptyKicker: "Nichts gefunden",
     emptyReset: "Filter zurücksetzen",
+    listEndTitle: "Schalt dir ganz Berlin frei",
   },
   breadcrumb: {
     home: "Start",

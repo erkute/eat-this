@@ -58,9 +58,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'email-misconfigured' }, { status: 500 });
   }
 
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
-  const fromName  = process.env.RESEND_FROM_NAME  || 'Eat This';
-
   // Curated spots are a nice-to-have — never block the login email on Sanity.
   const restaurants = await getEmailSpots(4).catch((err) => {
     console.error('[send-magic-link] getEmailSpots failed:', err);
@@ -81,12 +78,12 @@ export async function POST(request: Request) {
   try {
     const resend = new Resend(resendKey);
     const result = await resend.emails.send({
-      from:    `${fromName} <${fromEmail}>`,
+      from:    'EAT THIS <noreply@eatthisdot.com>',
       to:      email,
       subject: 'Dein Login-Link für Eat This',
       html,
       text,
-      replyTo: fromEmail,
+      replyTo: 'hello@eatthisdot.com',
     });
 
     if (result.error) {

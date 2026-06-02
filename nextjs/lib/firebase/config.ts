@@ -7,9 +7,12 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getFunctions } from 'firebase/functions';
 
+// authDomain uses the default Firebase domain (not auth.eatthisdot.com) for
+// reliable signInWithPopup — the custom domain breaks cross-origin credential
+// return under modern browser COOP/storage-access rules.
 const firebaseConfig = {
   apiKey:            'AIzaSyDs0361Db_lwHGW9WZfT5ivj-WIB4fyUw0',
-  authDomain:        'auth.eatthisdot.com',
+  authDomain:        'eat-this-8a13b.firebaseapp.com',
   projectId:         'eat-this-8a13b',
   storageBucket:     'eat-this-8a13b.firebasestorage.app',
   messagingSenderId: '768781457409',

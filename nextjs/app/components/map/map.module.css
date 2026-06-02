@@ -5218,3 +5218,39 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
      scaling up. (Earlier desktop overrides squeezed the copy column to
      ~163 px which made the title wrap awkwardly.) */
 }
+
+/* -------------------- List-end closing CTA -------------------- */
+
+.listEnd {
+  text-align: center;
+  padding: 28px 16px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.listEndTitle {
+  font-family: var(--font-chewy);
+  font-size: 26px;
+  line-height: .98;
+  text-transform: uppercase;
+  color: var(--c-black);
+  margin: 0;
+  max-width: 18ch;
+}
+.listEndCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 20px 13px;
+  background: var(--c-mustard);
+  color: var(--c-black);
+  border: 2px solid var(--c-black);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--c-black);
+  font-family: var(--font-chewy);
+  font-size: 15px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}

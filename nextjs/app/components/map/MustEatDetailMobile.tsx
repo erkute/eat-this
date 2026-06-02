@@ -5,6 +5,7 @@ import { useTranslation } from '@/lib/i18n'
 import { normalizeName } from '@/lib/normalizeName'
 import styles from './map.module.css'
 import { type MustEatDetailState } from './useMustEatDetailState'
+import { CloseIcon } from './icons'
 
 const CARD_BACK = '/pics/card-back.webp?v=5'
 
@@ -23,15 +24,15 @@ interface Props {
   state: MustEatDetailState
 }
 
-// One detail layout for both states. The card art (or its back) is the hero;
-// below it sits a non-redundant info block — restaurant, "Zum Spot", pager.
-// Open cards add the localized description; locked cards show ONLY the
-// restaurant (no dish/description — it stays a surprise until revealed on
-// site). No X/back chrome: the sheet is dismissed by dragging it down.
+// Chewy "Screen 06" — big, punchy. Card hero → huge dish name → restaurant /
+// price / "Zum Spot" with a thick stripe under it → a colour-set-off pager
+// field with the neighbouring must-eats left & right → description. Locked
+// cards drop the dish name + description (surprise stays) and show only the
+// restaurant. A single X closes the sheet.
 export default function MustEatDetailMobile({
   mustEat,
   isUnlocked,
-  onClose: _onClose,
+  onClose,
   onBack: _onBack,
   onViewRestaurant,
   prevMustEat,
@@ -53,15 +54,18 @@ export default function MustEatDetailMobile({
       aria-label={`Must Eat at ${restaurantName}`}
     >
       <div className={styles.detailV13Scroll} data-detail-scroll>
-        {/* HERO — the dish card (open) or the card-back (locked). When the
-            user is within range the card-back is tappable to reveal. */}
+        <button
+          type="button"
+          className={styles.fdClose}
+          aria-label={t('map.searchClose') ?? 'Schließen'}
+          onClick={onClose}
+        >
+          <CloseIcon />
+        </button>
+
+        {/* HERO — dish card (open) or card-back (locked, tap to reveal in range). */}
         {open ? (
-          <button
-            type="button"
-            className={styles.fdHero}
-            onClick={handleCardZoom}
-            aria-label={t('map.zoomCard')}
-          >
+          <button type="button" className={styles.fdHero} onClick={handleCardZoom} aria-label={t('map.zoomCard')}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={mustEat.image} alt={mustEat.dish} />
           </button>
@@ -81,7 +85,10 @@ export default function MustEatDetailMobile({
           </button>
         )}
 
-        {/* INFO — restaurant + Zum Spot. Open also gets the price. */}
+        {/* Big punchy dish name — open only (locked keeps the surprise). */}
+        {open && <h1 className={styles.fdName}>{normalizeName(mustEat.dish)}</h1>}
+
+        {/* Restaurant / price / Zum Spot — one thick stripe underneath. */}
         <div className={styles.fdRest}>
           <div>
             <div className={styles.fdK}>{t('map.inRestaurant')}</div>
@@ -104,23 +111,20 @@ export default function MustEatDetailMobile({
           )}
         </div>
 
+        {/* Colour-set-off pager field — neighbouring must-eats left & right. */}
         {(prevMustEat || nextMustEat) && (
           <div className={styles.fdPager}>
-            <button type="button" disabled={!prevMustEat} onClick={onPagePrev}>
-              ← {prevMustEat ? normalizeName(prevMustEat.dish) : ''}
+            <button type="button" className={styles.fdPagerPrev} disabled={!prevMustEat} onClick={onPagePrev}>
+              <span className={styles.fdPagerArrow} aria-hidden="true">←</span>
+              <span className={styles.fdPagerName}>{prevMustEat ? normalizeName(prevMustEat.dish) : ''}</span>
             </button>
-            <button
-              type="button"
-              className={styles.fdPagerRight}
-              disabled={!nextMustEat}
-              onClick={onPageNext}
-            >
-              {nextMustEat ? normalizeName(nextMustEat.dish) : ''} →
+            <button type="button" className={styles.fdPagerNext} disabled={!nextMustEat} onClick={onPageNext}>
+              <span className={styles.fdPagerName}>{nextMustEat ? normalizeName(nextMustEat.dish) : ''}</span>
+              <span className={styles.fdPagerArrow} aria-hidden="true">→</span>
             </button>
           </div>
         )}
 
-        {/* Open: localized description. Locked: a quiet reveal hint, no dish info. */}
         {open
           ? mustEat.description && <p className={styles.fdText}>{mustEat.description}</p>
           : (

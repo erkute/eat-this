@@ -4323,12 +4323,12 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   color: var(--d-text);
 }
 .fdRest {
-  margin: 8px 14px 0;
+  margin: 10px 14px 0;
   display: flex;
   align-items: end;
   gap: 18px;
-  padding-bottom: 14px;
-  border-bottom: 2px solid var(--d-ink);
+  padding-bottom: 16px;
+  border-bottom: 4px solid var(--d-ink);
 }
 .fdPrice { /* sits next to the restaurant block on the left */ }
 .fdK {
@@ -4374,45 +4374,81 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   transform: translate(-1px, -1px);
   box-shadow: 2px 2px 0 #0a0a0a;
 }
+/* Colour-set-off pager field — full-bleed band (wider than the 14px content
+   inset) with the neighbouring must-eats flush left & right, big punchy
+   Chewy + oversized arrows. */
 .fdPager {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
-  gap: 12px;
-  /* Same 14px inset as .fdRest so prev hugs the left edge and next hugs the
-     right edge, flush with everything above — no extra inner padding. */
-  margin: 10px 14px 16px;
-  padding: 12px 0 0;
-  border-top: 2px solid var(--d-ink);
+  gap: 10px;
+  margin: 14px 0 16px;
+  padding: 16px;
+  background: color-mix(in srgb, var(--d-bg) 91%, var(--d-ink));
   font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-size: 13px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--d-text);
 }
-.fdPager button {
+.fdPagerPrev,
+.fdPagerNext {
   appearance: none;
   background: transparent;
   border: 0;
   padding: 0;
   margin: 0;
   min-width: 0;
-  max-width: 48%;
   font: inherit;
   letter-spacing: inherit;
   text-transform: inherit;
   color: inherit;
-  text-align: left;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.fdPagerNext {
+  justify-content: flex-end;
+}
+.fdPagerArrow {
+  flex: 0 0 auto;
+  font-size: 26px;
+  line-height: 0.7;
+}
+.fdPagerName {
+  min-width: 0;
+  font-size: 16px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.fdPager button:disabled {
-  opacity: 0.4;
+.fdPagerPrev:disabled,
+.fdPagerNext:disabled {
+  opacity: 0.35;
   cursor: default;
 }
-.fdPagerRight { text-align: right; }
+/* X close — sits top-right over the sheet, square sticker like the burger. */
+.fdClose {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  appearance: none;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--d-bg);
+  color: var(--d-text);
+  border: 2px solid var(--d-ink);
+  border-radius: 0;
+  cursor: pointer;
+}
+.fdClose svg {
+  width: 18px;
+  height: 18px;
+}
 .fdText {
   margin: 16px 16px 14px;
   font-size: 14.5px;

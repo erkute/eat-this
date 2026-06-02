@@ -279,6 +279,17 @@ export default function RestaurantDetail({
                 : restaurant.photoCredit}
             </span>
           )}
+          {/* Edge chevrons — make left/right paging discoverable (also tappable). */}
+          {prevRestaurant && (
+            <button type="button" className={`${styles.rdHeroNav} ${styles.rdHeroNavLeft}`} aria-label={backLabel} onClick={onPagePrev}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
+            </button>
+          )}
+          {nextRestaurant && (
+            <button type="button" className={`${styles.rdHeroNav} ${styles.rdHeroNavRight}`} aria-label="Next" onClick={onPageNext}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+            </button>
+          )}
         </header>
 
         {/* PAGER — prev/next restaurant in the filtered list */}

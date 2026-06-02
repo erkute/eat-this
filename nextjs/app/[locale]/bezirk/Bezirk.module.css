@@ -39,7 +39,7 @@
      collapse out of the page and expose body bg between main + footer. */
   display: flow-root;
   /* Clears the fixed legacy .navbar (60px + safe-area) */
-  padding: calc(60px + env(safe-area-inset-top, 0px) + 24px) 22px 48px;
+  padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 24px) 22px 48px;
   position: relative;
   overflow-x: clip;
 }
@@ -483,7 +483,7 @@
 ============================================================ */
 @media (min-width: 720px) {
   .page {
-    padding: calc(60px + env(safe-area-inset-top, 0px) + 32px) 32px 56px;
+    padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 32px) 32px 56px;
   }
   .grid,
   .bezirkGrid {

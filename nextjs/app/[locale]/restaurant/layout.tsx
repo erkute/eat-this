@@ -3,7 +3,7 @@ import { hasLocale } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { AuthProvider, LoginModalProvider } from '@/lib/auth';
-import SeoNav from '@/app/components/SeoNav';
+import SiteNav from '@/app/components/SiteNav';
 import BurgerDrawer from '@/app/components/BurgerDrawer';
 import SiteFooter from '@/app/components/SiteFooter';
 import SearchOverlay from '@/app/components/SearchOverlay';
@@ -25,9 +25,9 @@ export default async function RestaurantLayout({
       <LoginModalProvider>
         {/* Full SPA stylesheet — needed for SiteNav/burger styling on this non-(spa) route */}
         {/* eslint-disable-next-line @next/next/no-css-tags */}
-        <link rel="stylesheet" href="/css/style.min.css?v=141" precedence="default" />
+        <link rel="stylesheet" href="/css/style.min.css?v=149" precedence="default" />
         <BridgeAuth />
-        <SeoNav />
+        <SiteNav />
         <BurgerDrawer />
         {children}
         <SiteFooter />

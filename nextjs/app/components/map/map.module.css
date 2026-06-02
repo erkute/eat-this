@@ -5515,7 +5515,9 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
 .rdMustGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 12px 8px; margin: 0; list-style: none; }
 .medish { position: relative; display: grid; grid-template-rows: 1fr auto; gap: 6px; padding: 6px 4px 10px; background: transparent; border: 0; cursor: pointer; width: 100%; }
 .medishPh { position: relative; aspect-ratio: 1539 / 2115; display: flex; align-items: center; justify-content: center; }
-.medishPh img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; filter: drop-shadow(0 10px 16px rgba(15,12,10,.2)); }
+/* Must-Eat images are full self-contained trading cards — a drop-shadow on
+   the rectangle reads as a boxy shadow, so they stay flat (Chewy rule). */
+.medishPh img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
 .medishLbl { text-align: center; color: #0a0a0a; display: grid; gap: 2px; padding: 0 4px; }
 .medishNm { font-family: var(--font-chewy); font-size: 16px; letter-spacing: .14em; text-transform: uppercase; opacity: .55; margin: 0; }
 

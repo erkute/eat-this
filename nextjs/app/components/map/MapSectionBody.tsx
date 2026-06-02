@@ -373,6 +373,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                       unlockedIds={unlockedIds}
                       revealedMustEatIds={revealedMustEatIds}
                       onResetFilters={handleResetFilters}
+                      activeBezirk={bezirk}
                     />
                   </div>
                 ) : (

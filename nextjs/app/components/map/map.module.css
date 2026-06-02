@@ -5238,6 +5238,52 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
 
 /* -------------------- List-end closing CTA -------------------- */
 
+/* Locked-bezirk block — one calm All-Berlin pitch when a filtered district has
+   only locked spots. Replaces the divider + per-card badges + end-cap. */
+.bezirkLocked {
+  text-align: center;
+  padding: 24px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.bezirkLockedTitle {
+  font-family: var(--font-chewy);
+  font-size: 24px;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--c-black);
+  margin: 0;
+  max-width: 18ch;
+}
+.bezirkLockedBody {
+  font-family: var(--font);
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text-secondary, #6a665a);
+  margin: 0;
+  max-width: 34ch;
+}
+.bezirkLockedCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 4px;
+  padding: 12px 20px 13px;
+  background: var(--c-mustard);
+  color: var(--c-black);
+  border: 2px solid var(--c-black);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--c-black);
+  font-family: var(--font-chewy);
+  font-size: 15px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+
 .listEnd {
   text-align: center;
   padding: 28px 16px 8px;

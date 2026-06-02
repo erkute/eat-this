@@ -106,6 +106,10 @@ const en = {
     emptyKicker: "Nothing found",
     emptyReset: "Reset filters",
     listEndTitle: "Unlock all of Berlin",
+    bezirkLockedTitleSuffix: "is packed with spots",
+    bezirkLockedBodyPre: "The spots in ",
+    bezirkLockedBodyPost: " aren't on your map yet. Unlock all of Berlin and they're yours — every spot, every Must Eat.",
+    bezirkLockedCta: "Unlock all of Berlin",
   },
   breadcrumb: {
     aria: "Breadcrumb",
@@ -317,6 +321,10 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     emptyKicker: "Nichts gefunden",
     emptyReset: "Filter zurücksetzen",
     listEndTitle: "Schalt dir ganz Berlin frei",
+    bezirkLockedTitleSuffix: "steckt voller Spots",
+    bezirkLockedBodyPre: "Die Spots in ",
+    bezirkLockedBodyPost: " sind noch nicht auf deiner Map. Mit ganz Berlin schaltest du sie frei — jeden Spot, jedes Must Eat.",
+    bezirkLockedCta: "Ganz Berlin holen",
   },
   breadcrumb: {
     home: "Start",

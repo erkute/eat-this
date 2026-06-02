@@ -19,10 +19,13 @@ interface ItemProps {
   /** Visual-only blurred preview row — click routes to the booster/signup
    *  flow instead of opening restaurant detail. */
   locked?: boolean
+  /** Suppress the per-card "Freischalten" lock badge (used in the calmer
+   *  locked-bezirk view where a single block carries the upsell instead). */
+  hideBadge?: boolean
   onClick: (r: MapRestaurant) => void
 }
 
-function Item({ restaurant, userLocation, isSelected, peek, locked, onClick }: ItemProps) {
+function Item({ restaurant, userLocation, isSelected, peek, locked, hideBadge, onClick }: ItemProps) {
   const { t, lang } = useTranslation()
   const loc = lang === 'de' ? 'de' : 'en'
   const statusLabels = {
@@ -63,7 +66,7 @@ function Item({ restaurant, userLocation, isSelected, peek, locked, onClick }: I
       onClick={() => onClick(restaurant)}
       aria-label={locked ? t('map.starterEyebrow') : undefined}
     >
-      {locked && (
+      {locked && !hideBadge && (
         <span className={styles.rcardBlurBadge}>
           <svg className={styles.rcardBlurLock} viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
             <rect x="5" y="11" width="14" height="9" rx="1" />
@@ -124,11 +127,15 @@ interface RestaurantListProps {
   unlockedIds: Set<string>
   revealedMustEatIds: Set<string>
   onResetFilters?: () => void
+  /** Active bezirk filter name, if any. When a district has ONLY locked spots
+   *  we swap the triple upsell (divider + per-card badges + end-cap) for a
+   *  single calm block that pitches All Berlin. */
+  activeBezirk?: string | null
 }
 
 export default function RestaurantList({
   restaurants, lockedRestaurants = [], userLocation, selectedId, uid, userTier, onSelect,
-  primaryMustEats, unlockedIds, revealedMustEatIds, onResetFilters,
+  primaryMustEats, unlockedIds, revealedMustEatIds, onResetFilters, activeBezirk,
 }: RestaurantListProps) {
   const locale = useLocale()
   const { t } = useTranslation()
@@ -157,6 +164,11 @@ export default function RestaurantList({
   // top so the user still sees the upsell.
   const showBooster = userTier !== 'allBerlin'
 
+  // A district the user can't browse yet (filter active, every spot locked).
+  // Show one calm All-Berlin block instead of divider + badges + end-cap.
+  const bezirkLockedOnly = !!activeBezirk && showBooster && restaurants.length === 0 && lockedRestaurants.length > 0
+  const allBerlinHref = locale === routing.defaultLocale ? '/pack/all-berlin' : `/${locale}/pack/all-berlin`
+
   return (
     <>
       {restaurants.map((r) => (
@@ -172,8 +184,19 @@ export default function RestaurantList({
           onClick={onSelect}
         />
       ))}
-      {showBooster && (lockedRestaurants.length > 0 || restaurants.length === 0) && (
-        <BoosterOfferInline uid={uid} variant="list" />
+      {bezirkLockedOnly ? (
+        <section className={styles.bezirkLocked}>
+          <h3 className={styles.bezirkLockedTitle}>{activeBezirk} {t('map.bezirkLockedTitleSuffix')}</h3>
+          <p className={styles.bezirkLockedBody}>{t('map.bezirkLockedBodyPre')}{activeBezirk}{t('map.bezirkLockedBodyPost')}</p>
+          <a href={allBerlinHref} className={styles.bezirkLockedCta}>
+            <span>{t('map.bezirkLockedCta')}</span>
+            <svg viewBox="0 0 14 10" width="15" height="11" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M1 5h11M8 1l4 4-4 4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </a>
+        </section>
+      ) : (
+        showBooster && (lockedRestaurants.length > 0 || restaurants.length === 0) && (
+          <BoosterOfferInline uid={uid} variant="list" />
+        )
       )}
       {lockedRestaurants.map((r) => (
         <Item
@@ -183,10 +206,11 @@ export default function RestaurantList({
           isSelected={false}
           peek={{ kind: 'covered' }}
           locked
+          hideBadge={bezirkLockedOnly}
           onClick={handleLockedClick}
         />
       ))}
-      {showBooster && (
+      {showBooster && !bezirkLockedOnly && (
         <div className={styles.listEnd}>
           <h3 className={styles.listEndTitle}>{t('map.listEndTitle')}</h3>
           <button type="button" className={styles.listEndCta} onClick={() => onUpgradeClick()}>

@@ -218,6 +218,18 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               )}
             </div>
 
+            {/* Floating burger — opens the BurgerDrawer by programmatically
+                clicking the hidden #burgerBtn inside the mounted SiteNav.
+                Reuses ALL existing open/scroll-lock/close wiring. */}
+            <button
+              type="button"
+              className={styles.mapBurger}
+              aria-label="Menü"
+              onClick={() => { document.getElementById('burgerBtn')?.click() }}
+            >
+              <img src="/pics/icon-burger.webp?v=3" alt="" aria-hidden="true" draggable={false} />
+            </button>
+
             <button
               type="button"
               onClick={onLocateMe}

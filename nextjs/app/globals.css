@@ -243,6 +243,18 @@ a {
   }
 }
 
+/* Map redesign: no solid header — a single floating burger (in MapSectionBody)
+   sits over the map. Hide the navbar entirely and reclaim its height. SiteNav
+   stays mounted so #burgerBtn's open handler keeps working when triggered
+   programmatically by the floating burger. */
+[data-active-page="map"] .navbar,
+[data-active-page="map"] header[role="banner"] { display: none !important; }
+
+@media (min-width: 1024px) {
+  [data-active-page="map"] .app-pages { margin-top: 0 !important; }
+  .app-page[data-page="map"] { height: 100dvh !important; }
+}
+
 /* User-location marker is purely informational. The avatar must visually
    sit ABOVE every restaurant + must-eat marker (so the figure is never
    hidden behind a card), yet clicks must fall through to whichever
@@ -282,23 +294,24 @@ body[data-env="staging"] .app-pages {
   margin-top: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h));
 }
 
-/* Map page reserves the 48px navbar; with the banner above it, the page
-   would overflow the viewport by --staging-banner-h. The FAB (Mein Standort)
-   is bottom-anchored inside this page, so the overflow pushes it off the
-   bottom edge. Desktop only. */
+/* Map page: navbar is now hidden on /map, so only subtract the staging banner.
+   The FAB (Mein Standort) is bottom-anchored inside this page. Desktop only. */
 body[data-env="staging"] .app-page[data-page="map"] {
-  height: calc(100dvh - 64px - var(--staging-banner-h)) !important;
+  height: calc(100dvh - var(--staging-banner-h)) !important;
 }
 
-/* Mobile map: navbar is transparent over the map (full-viewport canvas).
+/* Mobile map: navbar is hidden on /map (full-viewport canvas).
    The staging banner is the only opaque thing on top, so the map stays
-   full-height and the search toolbar gets pushed below the banner. */
+   full-height and the search toolbar + floating burger get pushed below the banner. */
 @media (max-width: 1023.98px) {
   body[data-env="staging"] .app-page[data-page="map"] {
     height: 100dvh !important;
   }
   body[data-env="staging"] [class*="mapSearchToolbar"] {
     top: calc(8px + var(--staging-banner-h)) !important;
+  }
+  body[data-env="staging"] [class*="mapBurger"] {
+    top: calc(14px + var(--staging-banner-h)) !important;
   }
 }
 

@@ -355,6 +355,32 @@ html[data-theme="dark"] .fab {
   }
 }
 
+/* Floating burger button — top-right of the map. Delegates open/close to
+   the hidden SiteNav #burgerBtn so all drawer wiring stays in one place. */
+.mapBurger {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 60;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-cream);
+  border: 2px solid var(--c-black);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--c-black);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+}
+.mapBurger img {
+  height: 18px;
+  width: auto;
+  display: block;
+}
+
 /* Hide +/− zoom controls on mobile — pinch-to-zoom replaces them */
 @media (max-width: 1023.98px) {
   .mapWrap :global(.maplibregl-ctrl-bottom-right) { display: none; }

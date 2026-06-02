@@ -226,9 +226,9 @@ a {
    (See memory feedback_ios_overlay_pattern.md.) */
 .app-page[data-page="map"] {
   padding-bottom: 0 !important;
-  /* Subtract the navbar height — must match `.app-pages` margin-top (64px in
-     prod, set in style.css). */
-  height: calc(100dvh - 64px) !important;
+  /* Map has no navbar (hidden via [data-active-page="map"] .navbar) — the
+     canvas claims the full viewport. */
+  height: 100dvh !important;
 }
 
 /* Mobile: the navbar goes transparent over the map (see style.css
@@ -252,7 +252,6 @@ a {
 
 @media (min-width: 1024px) {
   [data-active-page="map"] .app-pages { margin-top: 0 !important; }
-  .app-page[data-page="map"] { height: 100dvh !important; }
 }
 
 /* User-location marker is purely informational. The avatar must visually

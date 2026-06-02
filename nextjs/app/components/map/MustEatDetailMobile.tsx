@@ -1,15 +1,12 @@
 'use client'
 import type { MapMustEat } from '@/lib/types'
-import { formatDistance } from '@/lib/map'
 import { Link } from '@/i18n/navigation'
 import { useTranslation } from '@/lib/i18n'
 import { normalizeName } from '@/lib/normalizeName'
 import styles from './map.module.css'
-import { UNLOCK_RADIUS_METERS, type MustEatDetailState } from './useMustEatDetailState'
-import {
-  BackIcon,
-  CloseIcon,
-} from './icons'
+import { type MustEatDetailState } from './useMustEatDetailState'
+
+const CARD_BACK = '/pics/card-back.webp?v=5'
 
 interface Props {
   mustEat: MapMustEat
@@ -17,8 +14,7 @@ interface Props {
   onClose: () => void
   onBack?: () => void
   onViewRestaurant?: () => void
-  /** Global must-eat pager — adjacent cards + page handlers (Phase 1 threaded
-   *  them in; consumed by the .fd-pager here). */
+  /** Global must-eat pager — adjacent cards + page handlers. */
   prevMustEat?: MapMustEat | null
   nextMustEat?: MapMustEat | null
   onPagePrev?: () => void
@@ -27,11 +23,16 @@ interface Props {
   state: MustEatDetailState
 }
 
+// One detail layout for both states. The card art (or its back) is the hero;
+// below it sits a non-redundant info block — restaurant, "Zum Spot", pager.
+// Open cards add the localized description; locked cards show ONLY the
+// restaurant (no dish/description — it stays a surprise until revealed on
+// site). No X/back chrome: the sheet is dismissed by dragging it down.
 export default function MustEatDetailMobile({
   mustEat,
   isUnlocked,
-  onClose,
-  onBack,
+  onClose: _onClose,
+  onBack: _onBack,
   onViewRestaurant,
   prevMustEat,
   nextMustEat,
@@ -41,17 +42,9 @@ export default function MustEatDetailMobile({
   state,
 }: Props) {
   const { t } = useTranslation()
-  const {
-    distance,
-    canUnlock,
-    vibrateIntensity,
-    tapping,
-    revealOrigin,
-    handleCardClick,
-    handleCardZoom,
-  } = state
-
+  const { canUnlock, vibrateIntensity, tapping, revealOrigin, handleCardClick, handleCardZoom } = state
   const { name: restaurantName } = mustEat.restaurant
+  const open = isUnlocked && !revealOrigin
 
   return (
     <div
@@ -60,130 +53,83 @@ export default function MustEatDetailMobile({
       aria-label={`Must Eat at ${restaurantName}`}
     >
       <div className={styles.detailV13Scroll} data-detail-scroll>
-
-        {/* Back + close icons sit at the sheet edge, matching the
-            restaurant-detail handle vocabulary. onBack is origin-aware. */}
-        <div className={styles.heroActionsDesktop}>
-          {onBack && (
-            <button
-              type="button"
-              className={`${styles.heroAction} ${styles.heroActionOnHandle}`}
-              aria-label={t('map.backToRestaurant') ?? 'Zurück zum Restaurant'}
-              onClick={onBack}
-            >
-              <BackIcon />
-            </button>
-          )}
+        {/* HERO — the dish card (open) or the card-back (locked). When the
+            user is within range the card-back is tappable to reveal. */}
+        {open ? (
           <button
             type="button"
-            className={`${styles.heroAction} ${styles.heroActionOnHandle} ${styles.heroActionClose}`}
-            aria-label="Close"
-            onClick={onClose}
+            className={styles.fdHero}
+            onClick={handleCardZoom}
+            aria-label={t('map.zoomCard')}
           >
-            <CloseIcon />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={mustEat.image} alt={mustEat.dish} />
           </button>
-        </div>
-
-        {isUnlocked && !revealOrigin ? (
-          /* UNLOCKED — Chewy Screen 06 dish view */
-          <>
-            <button
-              type="button"
-              className={styles.fdHero}
-              onClick={handleCardZoom}
-              aria-label={t('map.zoomCard')}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={mustEat.image} alt={mustEat.dish} />
-            </button>
-            <h1 className={styles.fdName}>{normalizeName(mustEat.dish)}</h1>
-            <div className={styles.fdRest}>
-              <div>
-                <div className={styles.fdK}>{t('map.inRestaurant')}</div>
-                <div className={styles.fdV}>{normalizeName(restaurantName)}</div>
-              </div>
-              {mustEat.price && (
-                <div className={styles.fdPrice}>
-                  <div className={styles.fdK}>{t('map.price')}</div>
-                  <div className={styles.fdV}>{mustEat.price}</div>
-                </div>
-              )}
-              {onViewRestaurant ? (
-                <button type="button" className={styles.ctaPill} onClick={onViewRestaurant}>
-                  {t('map.toSpot')}
-                </button>
-              ) : (
-                <Link href={`/restaurant/${mustEat.restaurant.slug}`} className={styles.ctaPill}>
-                  {t('map.toSpot')}
-                </Link>
-              )}
-            </div>
-            {(prevMustEat || nextMustEat) && (
-              <div className={styles.fdPager}>
-                <button type="button" disabled={!prevMustEat} onClick={onPagePrev}>
-                  ← {prevMustEat ? normalizeName(prevMustEat.dish) : ''}
-                </button>
-                <button
-                  type="button"
-                  className={styles.fdPagerRight}
-                  disabled={!nextMustEat}
-                  onClick={onPageNext}
-                >
-                  {nextMustEat ? normalizeName(nextMustEat.dish) : ''} →
-                </button>
-              </div>
-            )}
-            {mustEat.description && <p className={styles.fdText}>{mustEat.description}</p>}
-          </>
         ) : (
-          /* LOCKED — proximity-reveal game (logic unchanged) */
-          <>
-            <header className={styles.heroYellow} data-detail-hero>
-              <h2 className={styles.heroName}>{normalizeName('MUST EAT')}</h2>
-              <p className={styles.heroMeta}>
-                <span className={styles.heroDistrict}>{restaurantName}</span>
-              </p>
-            </header>
-
-            <div className={styles.musteatStrip}>
-              <span className={styles.musteatStripStamp} aria-hidden="true">
-                <span className={styles.musteatLockStampLabel}>Verdeckt</span>
-                {distance !== null && (
-                  <span className={styles.musteatLockStampDist}>
-                    {formatDistance(distance)} entfernt
-                  </span>
-                )}
-              </span>
-              <button
-                type="button"
-                className={`${styles.musteatStripCard} ${canUnlock ? styles.mustEatCardCanUnlock : ''} ${tapping ? styles.mustEatCardTapping : ''}`}
-                onClick={handleCardClick}
-                aria-label={canUnlock ? t('map.revealHere') : t('map.tooFarToReveal')}
-                style={{
-                  ...(revealOrigin ? { visibility: 'hidden' } : {}),
-                  /* Tapping-Override muss inline gesetzt werden, weil das selbe
-                     Inline-Style die Klassen-Rule .mustEatCardTapping (CSS var)
-                     sonst überschreiben würde. */
-                  ['--vibrate-intensity' as string]: tapping
-                    ? '2.4'
-                    : vibrateIntensity.toFixed(3),
-                }}
-              />
-            </div>
-
-            <aside className={styles.musteatLockBlock}>
-              <strong className={styles.musteatLockTitle}>
-                {canUnlock ? 'Du bist nah genug!' : `Komm auf ${UNLOCK_RADIUS_METERS} m heran`}
-              </strong>
-              <span className={styles.musteatLockBody}>
-                {canUnlock
-                  ? 'Tippe die Karte auf und dein Must Eat ist freigeschaltet.'
-                  : 'Sobald du im Umkreis von 50 m bist, lässt sich die Karte aufdecken.'}
-              </span>
-            </aside>
-          </>
+          <button
+            type="button"
+            className={`${styles.fdHero} ${styles.fdHeroLocked} ${canUnlock ? styles.mustEatCardCanUnlock : ''} ${tapping ? styles.mustEatCardTapping : ''}`}
+            onClick={handleCardClick}
+            aria-label={canUnlock ? t('map.revealHere') : t('map.tooFarToReveal')}
+            style={{
+              ...(revealOrigin ? { visibility: 'hidden' } : {}),
+              ['--vibrate-intensity' as string]: tapping ? '2.4' : vibrateIntensity.toFixed(3),
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={CARD_BACK} alt={t('mustEats.covered')} />
+          </button>
         )}
 
+        {/* INFO — restaurant + Zum Spot. Open also gets the price. */}
+        <div className={styles.fdRest}>
+          <div>
+            <div className={styles.fdK}>{t('map.inRestaurant')}</div>
+            <div className={styles.fdV}>{normalizeName(restaurantName)}</div>
+          </div>
+          {open && mustEat.price && (
+            <div className={styles.fdPrice}>
+              <div className={styles.fdK}>{t('map.price')}</div>
+              <div className={styles.fdV}>{mustEat.price}</div>
+            </div>
+          )}
+          {onViewRestaurant ? (
+            <button type="button" className={styles.ctaPill} onClick={onViewRestaurant}>
+              {t('map.toSpot')}
+            </button>
+          ) : (
+            <Link href={`/restaurant/${mustEat.restaurant.slug}`} className={styles.ctaPill}>
+              {t('map.toSpot')}
+            </Link>
+          )}
+        </div>
+
+        {(prevMustEat || nextMustEat) && (
+          <div className={styles.fdPager}>
+            <button type="button" disabled={!prevMustEat} onClick={onPagePrev}>
+              ← {prevMustEat ? normalizeName(prevMustEat.dish) : ''}
+            </button>
+            <button
+              type="button"
+              className={styles.fdPagerRight}
+              disabled={!nextMustEat}
+              onClick={onPageNext}
+            >
+              {nextMustEat ? normalizeName(nextMustEat.dish) : ''} →
+            </button>
+          </div>
+        )}
+
+        {/* Open: localized description. Locked: a quiet reveal hint, no dish info. */}
+        {open
+          ? mustEat.description && <p className={styles.fdText}>{mustEat.description}</p>
+          : (
+            <p className={styles.fdText}>
+              {canUnlock
+                ? 'Du bist nah genug — tippe die Karte, um sie aufzudecken.'
+                : 'Vor Ort dreht sich die Karte von selbst um — komm dem Spot nah.'}
+            </p>
+          )}
       </div>
     </div>
   )

@@ -16,7 +16,6 @@ import RestaurantList from './RestaurantList'
 import MapSheetDetail from './MapSheetDetail'
 import UserLocationMarker from './UserLocationMarker'
 import MapListHeader from './MapListHeader'
-import { BackIcon, CloseIcon } from './icons'
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
 import styles from './map.module.css'
@@ -250,32 +249,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 pill + save bookmark, per the Chewy mockup) — no handle-bar
                 icons here. */}
 
-            {/* Must-Eat-Detail handle-bar icons: Back (zum Restaurant) +
-                Close. Auf Mobile sind die heroActionsDesktop-Icons im
-                Coral-Hero unsichtbar (display:none), deshalb hier
-                explizit auf der Handle-Bar gerendert. */}
-            {sheetView === 'detail' && selectedMustEat && (
-              <div className={styles.sheetHandleActions}>
-                {onMustEatBack && (
-                  <button
-                    type="button"
-                    className={`${styles.heroAction} ${styles.heroActionOnHandle}`}
-                    aria-label="Zurück zum Restaurant"
-                    onClick={onMustEatBack}
-                  >
-                    <BackIcon />
-                  </button>
-                )}
-                <button
-                  type="button"
-                  className={`${styles.heroAction} ${styles.heroActionOnHandle} ${styles.heroActionClose}`}
-                  aria-label="Close"
-                  onClick={onMustEatClose}
-                >
-                  <CloseIcon />
-                </button>
-              </div>
-            )}
+            {/* Must-Eat detail has no handle-bar X/back chrome — the sheet is
+                dismissed by dragging it down; "Zum Spot" + the pager are the
+                in-sheet actions. */}
 
             {sheetView === 'detail' && selectedMustEat ? (
               <MapSheetDetail

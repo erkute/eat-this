@@ -757,49 +757,35 @@ html[data-theme="dark"] .musteatListSwitchBtn:hover {
   font-size: 13px;
 }
 
-/* Empty state — shown inside the list when filters produce zero results.
-   Landing-Voice: freigestellte Katze + Bowlby-Caps-Headline + Saira-Caps-
-   Body matched die Hero/FeaturedSpots-Stimme so der Leerzustand wie ein
-   bewusster Brand-Moment wirkt, nicht wie technischer Default. */
-.listEmpty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 36px 24px 40px;
-  gap: 14px;
-  color: var(--text-secondary);
-}
-.listEmptyCat {
-  width: clamp(140px, 38vw, 220px);
-  height: auto;
-  display: block;
-  transform: rotate(-4deg);
-  transform-origin: center;
-  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.18));
-  margin-bottom: 4px;
-}
-.listEmptyTitle {
-  margin: 0;
+/* Empty state — Chewy mockup "es-block" look with filter-reset action. */
+.esBlock { text-align: center; padding: 36px 18px 16px; }
+.esKicker {
+  display: inline-block;
   font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-weight: 400;
-  font-size: clamp(34px, 8vw, 48px);
-  line-height: 0.95;
-  letter-spacing: 0.01em;
+  font-size: 12px;
+  letter-spacing: .26em;
   text-transform: uppercase;
-  color: var(--text-primary);
-  text-wrap: balance;
+  color: var(--c-black);
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid rgba(160, 40, 20, .25);
 }
-.listEmptyBody {
-  margin: 0;
+.esHeading {
   font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-weight: 800;
-  font-size: 13px;
-  letter-spacing: 0.14em;
-  line-height: 1.35;
+  font-size: 44px;
+  line-height: .94;
   text-transform: uppercase;
-  color: var(--text-muted);
-  max-width: 26ch;
+  color: var(--c-black);
+  margin: 0 0 8px;
+}
+.esSub { max-width: 28ch; margin: 0 auto 20px; font-size: 14px; line-height: 1.5; color: var(--c-black); opacity: .82; }
+.esActions { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.esBtnPrimary {
+  width: 240px; height: 46px;
+  background: var(--c-black); color: #fff;
+  border: 2px solid var(--c-black); border-radius: 0;
+  font-family: var(--font-chewy), 'Chewy', sans-serif; font-size: 13px;
+  letter-spacing: .14em; text-transform: uppercase; cursor: pointer;
 }
 
 /* Restaurant row */

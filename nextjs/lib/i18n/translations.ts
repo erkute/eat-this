@@ -99,6 +99,8 @@ const en = {
     anonUnlockCancel: "Cancel",
     emptyTitle: "Zero Spots.",
     emptyBody: "Loosen a filter or try a different area.",
+    emptyKicker: "Nothing found",
+    emptyReset: "Reset filters",
   },
   breadcrumb: {
     aria: "Breadcrumb",
@@ -303,6 +305,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     anonUnlockCancel: "Abbrechen",
     emptyTitle: "Zero Spots.",
     emptyBody: "Filter lockern oder andere Gegend probieren.",
+    emptyKicker: "Nichts gefunden",
+    emptyReset: "Filter zurücksetzen",
   },
   breadcrumb: {
     home: "Start",

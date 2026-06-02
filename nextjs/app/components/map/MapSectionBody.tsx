@@ -142,6 +142,13 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     myLocationAriaLabel, restaurantsListAriaLabel, mustEatsListAriaLabel,
   } = props
 
+  const handleResetFilters = () => {
+    setCategory('All')
+    onBezirkChange(null)
+    setCuisine(null)
+    setOpenOnly(false)
+  }
+
   return (
     <div
       className={`app-page${isActive ? ' active' : ''}`}
@@ -385,6 +392,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                       primaryMustEats={primaryMustEats}
                       unlockedIds={unlockedIds}
                       revealedMustEatIds={revealedMustEatIds}
+                      onResetFilters={handleResetFilters}
                     />
                   </div>
                 ) : (

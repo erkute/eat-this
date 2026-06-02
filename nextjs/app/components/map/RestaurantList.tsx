@@ -113,11 +113,12 @@ interface RestaurantListProps {
   primaryMustEats: Map<string, MapMustEat>
   unlockedIds: Set<string>
   revealedMustEatIds: Set<string>
+  onResetFilters?: () => void
 }
 
 export default function RestaurantList({
   restaurants, lockedRestaurants = [], userLocation, selectedId, uid, userTier, onSelect,
-  primaryMustEats, unlockedIds, revealedMustEatIds,
+  primaryMustEats, unlockedIds, revealedMustEatIds, onResetFilters,
 }: RestaurantListProps) {
   const locale = useLocale()
 
@@ -132,7 +133,7 @@ export default function RestaurantList({
     window.location.assign(upgradeHref)
   }, [upgradeHref])
 
-  if (restaurants.length === 0 && lockedRestaurants.length === 0) return <MapListEmpty />
+  if (restaurants.length === 0 && lockedRestaurants.length === 0) return <MapListEmpty onReset={onResetFilters} />
 
   // Booster CTA sits between unlocked and locked groups — communicates
   // „these are yours / these unlock with signup". Hidden only for the

@@ -687,12 +687,6 @@ html[data-theme="dark"] .list { background: #1c1c1c; }
   -webkit-overflow-scrolling: touch;
 }
 
-/* Desktop: must-eats list lives in the side panel; the regular .listScroll
-   8 px breathing room at the bottom is enough — extra padding here was
-   leaving a ~120 px dead zone after the last row. Mobile-specific
-   override sits inside the @media block below. */
-.listScrollMustEats { padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
-
 /* Mobile only: cap scroll viewport to the sheet's visible area so content
    below the overflow-hidden clip edge is actually reachable via scrolling.
    Header stack after map-v2:
@@ -711,14 +705,6 @@ html[data-theme="dark"] .list { background: #1c1c1c; }
        clipped against the sheet's edge. */
     max-height: calc(var(--sheet-visible-px, 100%) - 80px);
     padding-bottom: max(env(safe-area-inset-bottom, 0px), 24px);
-  }
-  /* Must-Eats-List: header has the extra „Zu den Restaurants"-Switch row
-     (~40 px) so the max-height needs more breathing room. Bottom padding
-     stays at the regular .listScroll value (24 px / safe-area) — clipping
-     of the last row was a max-height bug, not a padding-bottom one.
-     Compound selector for higher specificity than `.listScroll`. */
-  .listScroll.listScrollMustEats {
-    max-height: calc(var(--sheet-visible-px, 100%) - 124px);
   }
 }
 
@@ -3869,6 +3855,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
 }
 
 .detailV13Scroll {
+  position: relative;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -3902,7 +3889,6 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
      Der zusätzliche `25dvh`-Term clampt die Card-Höhe auf kurzen Geräten
      (iPhone SE-Klasse), sonst überlappt die Card sichtbar den Lock-Block
      darunter wenn die Strip flex-shrinkt. */
-  .detailV13MustEat .musteatStripPhoto,
   .detailV13MustEat .musteatStripCard {
     width: min(45vw, 200px, 25dvh);
   }
@@ -4370,70 +4356,6 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   stroke-linejoin: round;
   opacity: 0.7;
 }
-.metaSep {
-  opacity: 0.4;
-  margin: 0 2px;
-}
-.metaMapsPop {
-  display: inline-block;
-  position: relative;
-}
-.metaMapsPop summary {
-  list-style: none;
-  cursor: pointer;
-  font: inherit;
-  color: inherit;
-  outline: none;
-  padding: 0;
-  transition: color 160ms ease;
-}
-.metaMapsPop summary::-webkit-details-marker { display: none; }
-.metaMapsPop summary::after {
-  /* Pure-CSS NE-Pfeil aus zwei currentColor-Borders — kein Font-Glyph,
-     kein Emoji-Fallback auf iOS/Android. Rotiert beim Open auf chevron-down. */
-  content: '';
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  margin-left: 9px;
-  vertical-align: 1px;
-  border-right: 1.8px solid currentColor;
-  border-top: 1.8px solid currentColor;
-  transform: rotate(45deg);
-  transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-.metaMapsPop summary:hover,
-.metaMapsPop[open] summary { color: var(--c-coral); }
-/* Open: rotiere zum ↑-Chevron (Menü öffnet nach OBEN, also Pfeil hoch). */
-.metaMapsPop[open] summary::after { transform: rotate(-45deg); }
-.metaMapsPopMenu {
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 0;
-  display: flex;
-  flex-direction: column;
-  background: var(--d-bg);
-  border: 1.5px solid var(--d-ink);
-  box-shadow: 3px 3px 0 var(--d-ink);
-  z-index: 6;
-  min-width: 150px;
-  overflow: hidden;
-}
-.metaMapsPopMenu a {
-  padding: 10px 14px;
-  font-family: 'DM Sans', system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 13px;
-  letter-spacing: 0.12em;
-  color: var(--d-ink);
-  text-transform: uppercase;
-  text-decoration: none;
-  border-bottom: 1px solid var(--d-rule);
-  transition: background 120ms ease, color 120ms ease;
-}
-.metaMapsPopMenu a:last-child { border-bottom: none; }
-.metaMapsPopMenu a:hover { background: var(--c-coral); color: var(--c-cream); }
-
 /* 4b. Info secondary row — phone + IG + reserve as link-icons */
 .infoSecondary {
   display: flex;
@@ -4625,10 +4547,146 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   display: block;
 }
 
-/* Must-Eat detail v13 strip — dish photo (unlocked) or wobble card-back
-   (locked). Replaces the old .mustEatHero box. Sits directly below the
-   coral hero so the visual rhythm matches the restaurant detail
-   (coral → photo → info → prose). */
+/* ==========================================================
+   Must-Eat detail — Chewy Screen 06 (.fd-* family)
+   Unlocked dish view: freigestellt hero photo → big Chewy
+   dish name → restaurant/price row with "Zum Spot" pill →
+   global pager → description prose. Square, 2px hairlines,
+   cream surface. Ported 1:1 from mockup-chewy.html Screen 06.
+   Token map: --green/--ink → #0a0a0a, --cream → cream surface,
+   --yellow → brand yellow, --font-display → Chewy. Uses the
+   shared detailV13 tokens (--d-*) so dark mode stays correct.
+   ========================================================== */
+.fdHero {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  margin: 0 14px 8px;
+  width: auto;
+  aspect-ratio: 1 / 1;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-in;
+}
+.fdHero img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 26px rgba(15, 12, 10, 0.25)) drop-shadow(0 4px 8px rgba(15, 12, 10, 0.2));
+}
+.fdName {
+  margin: 16px 14px 0;
+  font-family: var(--font-chewy), 'Chewy', 'Arial Black', sans-serif;
+  font-size: clamp(48px, 13vw, 84px);
+  line-height: 0.95;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  color: var(--d-text);
+}
+.fdRest {
+  margin: 8px 14px 0;
+  display: flex;
+  align-items: end;
+  gap: 18px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--d-ink);
+}
+.fdPrice { /* sits next to the restaurant block on the left */ }
+.fdK {
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--d-text);
+  margin-bottom: 2px;
+}
+.fdV {
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
+  font-size: 28px;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--d-text);
+}
+.ctaPill {
+  appearance: none;
+  background: var(--brand-yellow);
+  color: #0a0a0a;
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  padding: 11px 16px 12px;
+  border-radius: 0;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  white-space: nowrap;
+  /* Anchor the pill to the right edge regardless of whether the price
+     column is present (some must-eats have no price). */
+  margin-left: auto;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+.ctaPill:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 2px 2px 0 #0a0a0a;
+}
+.fdPager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  margin: 4px 14px 14px;
+  padding: 10px 16px;
+  background: rgba(28, 37, 32, 0.05);
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--d-text);
+}
+.fdPager button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fdPager button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.fdPagerRight { text-align: right; }
+:global(html[data-theme="dark"]) .fdPager {
+  background: rgba(240, 232, 208, 0.06);
+}
+.fdText {
+  margin: 16px 16px 14px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--d-text);
+}
+
+/* Must-Eat detail v13 strip — wobble card-back (locked, proximity-reveal
+   game). The unlocked dish view now uses the .fd-* family above. Sits
+   directly below the coral hero so the visual rhythm matches the
+   restaurant detail (coral → photo → info → prose). */
 .musteatStrip {
   position: relative;
   background: var(--d-bg);
@@ -4647,8 +4705,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
 /* Card + Verdeckt-Stempel teilen sich dieselbe Grid-Zelle, damit der
    Stempel sich an der Card-Bottom-Right-Kante orientiert — unabhängig
    von der Card-Größe (180 px Desktop, min(45vw, 200, 25dvh) Mobile). */
-.musteatStripCard,
-.musteatStripPhoto {
+.musteatStripCard {
   grid-area: 1 / 1;
 }
 .musteatStripStamp {
@@ -4677,21 +4734,6 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
 }
 html[data-theme="dark"] .musteatStripStamp {
   box-shadow: 3px 3px 0 var(--c-cream);
-}
-.musteatStripPhoto {
-  appearance: none;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  width: 180px;
-  cursor: zoom-in;
-  display: block;
-}
-.musteatStripPhoto img {
-  width: 100%;
-  height: auto;
-  display: block;
-  filter: drop-shadow(0 12px 28px rgba(17, 24, 39, 0.32));
 }
 .musteatStripCard {
   appearance: none;
@@ -4752,116 +4794,6 @@ html[data-theme="dark"] .musteatStripStamp {
   line-height: 1.45;
   color: var(--d-text-2);
 }
-.musteatMapsLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-weight: 900;
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--d-text-2);
-  text-decoration: none;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-}
-.musteatMapsLink:hover { color: var(--c-coral); }
-.musteatMapsLink svg { width: 14px; height: 14px; }
-
-/* Must-Eat action stickers — sit in two columns below the lock-pitch / card.
-   Primary = Mustard "Restaurant ansehen" sticker (matches the Booster-CTA
-   family), Secondary = Coral "Alle Must Eats" sticker. Hard-offset shadow,
-   Saira caps, hover lift. Read as one editorial action-row. */
-.musteatActionsGrid {
-  margin: 22px 18px 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.musteatStickerBtn {
-  appearance: none;
-  border: 0;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 10px;
-  font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 1;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  text-align: center;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: transform 140ms ease, box-shadow 140ms ease;
-}
-.musteatStickerBtn:hover {
-  transform: translate(-1px, -1px);
-}
-.musteatStickerBtn svg { width: 14px; height: 9px; stroke: currentColor; fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
-.musteatStickerPrimary {
-  background: var(--c-mustard);
-  color: var(--c-black);
-  box-shadow: 2px 2px 0 var(--c-black);
-}
-.musteatStickerPrimary:hover { box-shadow: 3px 3px 0 var(--c-black); }
-html[data-theme="dark"] .musteatStickerPrimary {
-  box-shadow: 2px 2px 0 var(--c-cream);
-}
-html[data-theme="dark"] .musteatStickerPrimary:hover {
-  box-shadow: 3px 3px 0 var(--c-cream);
-}
-.musteatStickerSecondary {
-  background: var(--c-coral);
-  color: var(--c-cream);
-  box-shadow: 2px 2px 0 var(--c-black);
-}
-.musteatStickerSecondary:hover { box-shadow: 3px 3px 0 var(--c-black); }
-html[data-theme="dark"] .musteatStickerSecondary {
-  box-shadow: 2px 2px 0 var(--c-cream);
-}
-html[data-theme="dark"] .musteatStickerSecondary:hover {
-  box-shadow: 3px 3px 0 var(--c-cream);
-}
-
-/* Tertiary utility row — Maps picker + walk-time inline below the stickers.
-   Saira-caps muted, no chrome, sits as a quiet footer line. */
-.musteatUtilityRow {
-  margin: 14px 18px 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-weight: 900;
-  font-size: 14px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--d-text-2);
-}
-.musteatUtilityRow a,
-.musteatUtilityRow details summary {
-  color: inherit;
-  text-decoration: none;
-  cursor: pointer;
-}
-.musteatUtilityRow a:hover,
-.musteatUtilityRow details summary:hover { color: var(--c-coral); }
-.musteatUtilityRow .metaSep {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.4;
-}
-
 /* 6. Footer actions — big coral Reservieren type-as-button */
 .actions {
   padding: 22px 18px 28px;
@@ -5137,10 +5069,9 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
   .heroDistrict { font-size: 22px; }
 
   /* Must-Eat-Detail kompakter auf Desktop — Ziel: alles in den Viewport
-     ohne internen Scroll. Schrumpfen Card-Strip, Lock-Block, Action-Grid
-     und Utility-Row gezielt zusammen ohne dass die Komposition leer wirkt. */
+     ohne internen Scroll. Schrumpfen Card-Strip + Lock-Block gezielt
+     zusammen ohne dass die Komposition leer wirkt. */
   .musteatStrip { padding: 30px 18px 14px; }
-  .musteatStripPhoto,
   .musteatStripCard { width: 150px; }
   .musteatLockBlock {
     margin: 38px 22px 0;
@@ -5151,9 +5082,8 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
   .musteatLockStampDist { font-size: 9px; }
   .musteatLockTitle { font-size: 13px; }
   .musteatLockBody { font-size: 13px; line-height: 1.4; }
-  .musteatActionsGrid { margin: 12px 22px 0; }
-  .musteatStickerBtn { padding: 9px 12px; font-size: 13px; }
-  .musteatUtilityRow { margin: 10px 22px 14px; font-size: 13px; }
+  /* Unlocked Chewy view: tighten hero + name on the rail panel */
+  .fdName { font-size: clamp(40px, 4vw, 56px); }
   .photoStrip { aspect-ratio: 5 / 4; margin: 0; }
   .photoStripImg { background-position: center; }
   .infoStrip { padding: 18px 22px 16px; gap: 14px; }

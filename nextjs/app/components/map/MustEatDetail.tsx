@@ -63,6 +63,7 @@ export default function MustEatDetail({
           mustEat={mustEat}
           isUnlocked={isUnlocked}
           onClose={onClose}
+          onViewRestaurant={onViewRestaurant}
           prevMustEat={prevMustEat}
           nextMustEat={nextMustEat}
           onPagePrev={onPagePrev}

@@ -78,33 +78,33 @@
   }
 }
 
-/* Must-Eat dish — freigestelltes Bild, voll sichtbar, kein Rahmen */
+/* Must-Eat = a full trading card (own bg/corners/text baked into the art).
+   Each card fills its grid cell at a fixed card aspect so the grid stays
+   uniform; NO drop-shadow (the art carries its own depth — an extra shadow
+   reads as ugly overlapping flaps). The whole card is a tap-to-zoom button. */
 .medish {
   position: relative;
   display: grid;
-  grid-template-rows: 1fr auto;
+  grid-template-rows: auto auto;
   gap: 6px;
   padding: 6px 4px 10px;
+  appearance: none;
+  border: 0;
   background: transparent;
   text-decoration: none;
   color: inherit;
+  font: inherit;
+  cursor: pointer;
 }
 .ph {
   position: relative;
   aspect-ratio: 1539 / 2115;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 .ph img {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  /* drop-shadow keeps the freigestellt corners; box-shadow would clip them */
-  filter: drop-shadow(0 10px 16px rgba(15, 12, 10, 0.22))
-    drop-shadow(0 2px 4px rgba(15, 12, 10, 0.18));
 }
 /* Open must-eats are full trading cards (name/restaurant baked into the art),
    so their text label is hidden. Locked cards keep the "Verdeckt" caption. */

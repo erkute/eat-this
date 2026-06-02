@@ -23,7 +23,7 @@ const en = {
     filterLocked: "Face-down",
     covered: "Face-down",
     teaserTitle: "Must Eats",
-    teaserSub: "The one dish per spot \u2014 our clear pick.",
+    teaserSub: "The dishes you can't miss in Berlin.",
     teaserCta: "All Must Eats \u2192",
   },
   news: {
@@ -251,7 +251,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     filterOpen: "Offen",
     filterLocked: "Verdeckt",
     covered: "Verdeckt",
-    teaserSub: "Das eine Gericht pro Spot — unser klarer Pick.",
+    teaserSub: "Die Gerichte, die du nicht verpassen darfst.",
     teaserCta: "Alle Must Eats →",
   },
   news: {

@@ -16,21 +16,21 @@ const COPY = {
   de: {
     kicker: 'In Berlin',
     title: ['Must', 'Eats'],
-    sub: 'Manche liegen offen. Der Rest wartet hinter Booster Packs.',
+    sub: 'Ein paar liegen offen — der Vorgeschmack. Die anderen kommen mit deinen Spots und werden vor Ort aufgedeckt.',
     closeKicker: 'Noch verdeckt',
     closeTitle: ['Mehr', 'aufdecken.'],
     closeBody:
-      'Booster Packs öffnen Kategorien auf einen Schlag. Oder geh einfach zum Spot — vor Ort dreht sich die Karte von selbst um.',
+      'Booster Packs bringen dir neue Spots — viele mit einem Must Eat. Aufgedeckt wird vor Ort: komm dem Spot nah, dreht sich die Karte von selbst um.',
     closeCta: 'Packs ansehen →',
   },
   en: {
     kicker: 'In Berlin',
     title: ['Must', 'Eats'],
-    sub: 'Some are face-up. The rest waits behind Booster Packs.',
+    sub: 'A few are face-up — a taste. The rest come with your spots, revealed on site.',
     closeKicker: 'Still face-down',
     closeTitle: ['Reveal', 'more.'],
     closeBody:
-      'Booster Packs unlock whole categories at once. Or just go to the spot — on site the card flips by itself.',
+      'Booster Packs bring you new spots — many with a Must Eat. Revealing happens on site: get close to the spot and the card flips by itself.',
     closeCta: 'View packs →',
   },
 } as const

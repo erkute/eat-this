@@ -1,12 +1,12 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/lib/auth'
 import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { normalizeName } from '@/lib/normalizeName'
 import { filterMustEats, type MustEatFilter } from '@/lib/home/mustEatsGallery'
+import MustEatImageLightbox from '@/app/components/map/MustEatImageLightbox'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import styles from './MustEatsSection.module.css'
 
@@ -64,6 +64,18 @@ export default function MustEatsGallery({ initialMapData }: Props) {
   )
   const visible = filterMustEats(mustEats, faceUp, filter)
 
+  // Tap a card → deck-style fly-out zoom (same lightbox the profile deck and
+  // the map detail use). Works for open cards (the dish art) AND locked cards
+  // (the card-back). Tapping the zoomed card flies it back to its slot.
+  const [expanded, setExpanded] = useState<{ imageUrl: string; alt: string; rect: DOMRect; id: string } | null>(null)
+  // The origin card is hidden while its zoomed clone is on screen so it doesn't
+  // show twice; kept hidden until the fly-back finishes.
+  const [hiddenId, setHiddenId] = useState<string | null>(null)
+  const closeExpanded = () => {
+    setExpanded(null)
+    window.setTimeout(() => setHiddenId(null), 380)
+  }
+
   return (
     <>
       <div className={styles.filters}>
@@ -83,32 +95,38 @@ export default function MustEatsGallery({ initialMapData }: Props) {
       <div className={styles.grid}>
         {visible.map((m) => {
           const open = faceUp.has(m._id)
-          const href = m.restaurant.slug
-            ? `/map?r=${m.restaurant.slug}`
-            : `/map?me=${m._id}`
+          const imageUrl = open ? m.image : CARD_BACK
+          const alt = open ? m.dish : t('mustEats.covered')
           return (
-            <Link
+            <button
               key={m._id}
-              href={href}
-              rel="nofollow"
+              type="button"
               className={open ? styles.medish : `${styles.medish} ${styles.locked}`}
+              style={{ visibility: hiddenId === m._id ? 'hidden' : undefined }}
+              onClick={(e) => {
+                setHiddenId(m._id)
+                setExpanded({ imageUrl, alt, rect: e.currentTarget.getBoundingClientRect(), id: m._id })
+              }}
             >
               <div className={styles.ph}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={open ? m.image : CARD_BACK}
-                  alt={open ? m.dish : t('mustEats.covered')}
-                  loading="lazy"
-                />
+                <img src={imageUrl} alt={alt} loading="lazy" />
               </div>
               <div className={styles.lbl}>
                 <h4 className={styles.nm}>{open ? m.dish : t('mustEats.covered')}</h4>
                 <div className={styles.rest}>{normalizeName(m.restaurant.name)}</div>
               </div>
-            </Link>
+            </button>
           )
         })}
       </div>
+
+      <MustEatImageLightbox
+        imageUrl={expanded?.imageUrl ?? ''}
+        alt={expanded?.alt ?? ''}
+        originRect={expanded?.rect ?? null}
+        onClose={closeExpanded}
+      />
     </>
   )
 }

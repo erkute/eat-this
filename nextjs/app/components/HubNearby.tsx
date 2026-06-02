@@ -80,7 +80,7 @@ export default function HubNearby({ initialMapData }: Props) {
       {me.length > 0 && (
         <>
           <h3 className={styles.meHeading}>Must Eats in deiner Nähe</h3>
-          <p className={styles.meSub}>Das eine Gericht pro Spot · unser klarer Pick</p>
+          <p className={styles.meSub}>Die Gerichte, die du nicht verpassen darfst</p>
           <ul className={styles.meRow} role="list">
             {me.map((m) => (
               <li key={m._id} className={styles.meItem}>

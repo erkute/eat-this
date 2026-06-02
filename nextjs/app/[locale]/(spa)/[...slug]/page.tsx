@@ -54,8 +54,8 @@ const PAGE_META: Record<string, SlugMeta> = {
     noIndex: true,
   },
   'must-eats': {
-    de: { title: 'Must Eats', description: 'Alle Must Eats von Eat This — das eine Gericht pro Spot, offen und verdeckt.' },
-    en: { title: 'Must Eats', description: 'Every Eat This Must Eat — the one dish per spot, face-up and face-down.' },
+    de: { title: 'Must Eats', description: 'Die Must Eats von Eat This — die Gerichte, die du in Berlin nicht verpassen darfst.' },
+    en: { title: 'Must Eats', description: "Eat This Must Eats — the dishes you can't miss in Berlin." },
     noIndex: true,
   },
   news: {

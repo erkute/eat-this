@@ -91,6 +91,9 @@ interface MapBodyHandlers {
   onMapClick: () => void
   onRestaurantClick: (r: MapRestaurant) => void
   onMustEatClick: (m: MapMustEat) => void
+  pagerPrev: MapRestaurant | null
+  pagerNext: MapRestaurant | null
+  onPageRestaurant: (dir: 'prev' | 'next') => void
   onLocateMe: () => void
   onRestaurantClose: () => void
   onMustEatClose: () => void
@@ -124,6 +127,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     mapRef, handleRef, setHeaderRef, setContentRef, setSheetRef,
     sheetView, snap, dragging, layer,
     displayedRestaurants, displayedLockedRestaurants, fannedMustEats, displayedMustEats, restaurantMustEats,
+    pagerPrev, pagerNext, onPageRestaurant,
     totalCount,
     selectedRestaurant, selectedMustEat,
     primaryMustEats, unlockedIds, revealedMustEatIds, favoriteIds, location, uid, userTier,
@@ -369,6 +373,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 onMustEatClick={onMustEatClick}
                 isFavorite={favoriteIds.has(selectedRestaurant._id)}
                 onToggleFavorite={onToggleFavorite}
+                prevRestaurant={pagerPrev}
+                nextRestaurant={pagerNext}
+                onPagePrev={() => onPageRestaurant('prev')}
+                onPageNext={() => onPageRestaurant('next')}
               />
             ) : (
               <>

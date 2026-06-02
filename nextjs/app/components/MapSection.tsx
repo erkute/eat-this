@@ -21,6 +21,7 @@ import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import MapSectionBody from './map/MapSectionBody'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
+import { resolveAdjacent } from '@/lib/map/pager'
 import { auth, db } from '@/lib/firebase/config'
 import { onAuthStateChanged } from 'firebase/auth'
 import { collection, onSnapshot } from 'firebase/firestore'
@@ -287,6 +288,32 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       padding: getFlyPadding(isMobile ? 'full' : undefined),
     })
   }, [getFlyPadding, setSearch, setSheetView, setSnap, sheetView, contentRef])
+
+  // Pager: neighbours of the open restaurant within the filtered list the
+  // user is browsing (same order as the list view). Paging swaps the
+  // selection in place — no list↔detail view switch (already in detail).
+  const pagerAdjacent = useMemo(
+    () => selectedRestaurant
+      ? resolveAdjacent(displayedRestaurants, selectedRestaurant._id)
+      : { index: -1, prev: null, next: null },
+    [displayedRestaurants, selectedRestaurant],
+  )
+
+  const handlePageRestaurant = useCallback((dir: 'prev' | 'next') => {
+    const target = dir === 'prev' ? pagerAdjacent.prev : pagerAdjacent.next
+    if (!target) return
+    userInteractedRef.current = true
+    const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
+    setSelectedRestaurant(target)
+    mapRef.current?.flyTo({
+      center: [target.lng, target.lat],
+      zoom: 15,
+      duration: 400,
+      padding: getFlyPadding(isMobile ? 'full' : undefined),
+    })
+    const sc = document.querySelector('[data-detail-scroll]')
+    if (sc) (sc as HTMLElement).scrollTop = 0
+  }, [pagerAdjacent, getFlyPadding])
 
   const handleMustEatClick = useCallback((m: MapMustEat) => {
     userInteractedRef.current = true
@@ -579,6 +606,9 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       layer={layer}
       displayedRestaurants={displayedRestaurants}
       displayedLockedRestaurants={displayedLockedRestaurants}
+      pagerPrev={pagerAdjacent.prev}
+      pagerNext={pagerAdjacent.next}
+      onPageRestaurant={handlePageRestaurant}
       fannedMustEats={fannedMustEats}
       displayedMustEats={displayedMustEats}
       totalCount={totalCount}

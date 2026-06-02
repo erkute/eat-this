@@ -2667,92 +2667,70 @@ html[data-theme="dark"] .mustEatHero {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── List-variant booster — flat cream insert that reads like another
-   editorial row. No frame, no border, no silver gradient. 38% pack-fan
-   left (vertically centered), coral title + mustard-sticker CTA stacked
-   left in the copy column. Matches docs/superpowers/specs/2026-05-20-map-list-editorial-preview.html. */
+/* ── List-variant booster — dir-divider look: top ink hairline, centered
+   Chewy kicker + big heading + mustard sticker CTA. No image fan. */
 .boosterOfferList {
-  margin: 10px 0;
-  padding: 0;
-  background: var(--c-cream);
-  color: var(--text-primary);
-  position: relative;
-  display: flex;
-  align-items: stretch;
-  min-height: 104px;
-}
-[data-theme="dark"] .boosterOfferList {
-  background: #1a1816;
-}
-
-.boosterStage {
-  flex: 0 0 30%;
-  position: relative;
-  align-self: stretch;
-  pointer-events: none;
-}
-.boosterStageCard {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 44px;
-  aspect-ratio: 2 / 3;
-  object-fit: contain;
-  filter: drop-shadow(2px 3px 0 rgba(0, 0, 0, 0.16));
-}
-[data-theme="dark"] .boosterStageCard {
-  filter: drop-shadow(2px 3px 0 rgba(0, 0, 0, 0.45));
-}
-.boosterStageCardLeft   { transform: translate(-50%, -50%) translateX(-22px) rotate(-10deg); z-index: 1; opacity: 0.92; }
-.boosterStageCardCenter { transform: translate(-50%, -50%) rotate(0deg); z-index: 3; width: 50px; }
-.boosterStageCardRight  { transform: translate(-50%, -50%) translateX(22px) rotate(10deg); z-index: 2; opacity: 0.92; }
-
-.boosterPromoCopy {
-  flex: 1;
-  min-width: 0;
-  padding: 10px 14px 10px 10px;
+  margin: 22px 0 0;
+  padding: 18px 0;
+  background: transparent;
+  color: var(--c-black);
+  border-top: 2px solid var(--c-black);
+  text-align: center;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 6px;
+  align-items: center;
+  gap: 0;
+}
+[data-theme="dark"] .boosterOfferList {
+  border-top-color: var(--c-cream);
+  color: var(--c-cream);
 }
 
+/* Image fan is hidden in the dir-divider layout */
+.boosterStage { display: none; }
+.boosterStageCard { display: none; }
+.boosterStageCardLeft { display: none; }
+.boosterStageCardCenter { display: none; }
+.boosterStageCardRight { display: none; }
+.boosterStageSolo { display: none; }
+
+.boosterPromoCopy {
+  width: 100%;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* Big Chewy heading */
 .boosterPromoTitle {
-  margin: 0;
+  margin: 0 0 6px;
   font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 400;
-  font-size: 14px;
-  line-height: 1.05;
+  font-size: 32px;
+  line-height: .96;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: var(--c-coral);
+  color: var(--c-black);
+  order: 2;
 }
-[data-theme="dark"] .boosterPromoTitle { color: var(--c-coral); }
+[data-theme="dark"] .boosterPromoTitle { color: var(--c-cream); }
 
-/* Anon-variant subline — small caps under the title, sits above the CTA */
+/* Kicker — small uppercase Chewy above the heading via order */
 .boosterPromoSub {
-  margin: 0;
+  margin: 0 0 4px;
   font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 400;
-  font-size: 9.5px;
-  letter-spacing: 0.04em;
+  font-size: 11px;
+  letter-spacing: .22em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: var(--c-black);
   line-height: 1.1;
+  order: 1;
 }
-
-/* Solo-stage variant (anon) — show one Starter card centered, no fan */
-.boosterStageSolo .boosterStageCard {
-  width: 56px;
-  transform: translate(-50%, -50%) rotate(-3deg);
-  opacity: 1;
-}
-@media (min-width: 1024px) {
-  .boosterStageSolo .boosterStageCard {
-    width: 78px;
-  }
-}
+[data-theme="dark"] .boosterPromoSub { color: var(--c-cream); }
 
 /* Inline arrow inside the CTA label (anon variant has no price-tag) */
 .btnPromoArr {
@@ -2769,16 +2747,17 @@ html[data-theme="dark"] .mustEatHero {
 .btnPromo:hover .btnPromoArr { transform: translateX(2px); }
 
 .boosterPromoActions {
-  margin: 0;
-  align-self: flex-start;
+  margin: 10px 0 0;
+  align-self: center;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
+  order: 3;
 }
 
-/* Sticker-style CTA: two-tone (Saira label + price-tag) with hard offset shadow */
+/* Sticker-style CTA: mustard fill + hard ink offset shadow, square corners */
 .btnPromo {
   display: inline-flex;
   align-items: stretch;
@@ -2786,29 +2765,30 @@ html[data-theme="dark"] .mustEatHero {
   color: #1a1610;
   text-decoration: none;
   border: none;
+  border-radius: 0;
   padding: 0;
   cursor: pointer;
-  box-shadow: 2px 2px 0 #1a1610;
+  box-shadow: 2px 2px 0 var(--c-black);
   transition: transform 160ms ease, box-shadow 160ms ease;
   font: inherit;
   appearance: none;
   white-space: nowrap;
 }
 [data-theme="dark"] .btnPromo {
-  box-shadow: 2px 2px 0 var(--c-coral);
+  box-shadow: 2px 2px 0 var(--c-cream);
 }
 .btnPromo:hover {
   transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0 #1a1610;
+  box-shadow: 3px 3px 0 var(--c-black);
 }
 [data-theme="dark"] .btnPromo:hover {
-  box-shadow: 3px 3px 0 var(--c-coral);
+  box-shadow: 3px 3px 0 var(--c-cream);
 }
 .btnPromoLbl {
-  padding: 4px 7px 4px 9px;
+  padding: 7px 14px 7px 16px;
   font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-weight: 400;
-  font-size: 11px;
+  font-size: 14px;
   letter-spacing: 0;
   line-height: 1;
   text-transform: uppercase;
@@ -2817,13 +2797,13 @@ html[data-theme="dark"] .mustEatHero {
   align-items: center;
 }
 .btnPromoPriceTag {
-  padding: 4px 7px 4px 6px;
+  padding: 7px 14px 7px 10px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
   border-left: 1.2px solid rgba(26, 22, 16, 0.34);
   font-weight: 700;
-  font-size: 9px;
+  font-size: 11px;
   color: #1a1610;
 }
 .btnPromoPriceTag svg {
@@ -2837,18 +2817,6 @@ html[data-theme="dark"] .mustEatHero {
   transition: transform 200ms ease;
 }
 .btnPromo:hover .btnPromoPriceTag svg { transform: translateX(2px); }
-
-@media (min-width: 1024px) {
-  /* Rail variant — bigger pack-fan + title + CTA */
-  .boosterOfferList { min-height: 116px; }
-  .boosterStageCard { width: 60px; }
-  .boosterStageCardLeft   { transform: translate(-50%, -50%) translateX(-32px) rotate(-10deg); }
-  .boosterStageCardCenter { width: 70px; transform: translate(-50%, -50%) rotate(0deg); }
-  .boosterStageCardRight  { transform: translate(-50%, -50%) translateX(32px) rotate(10deg); }
-  .boosterPromoTitle { font-size: 18px; }
-  .btnPromoLbl { padding: 6px 10px 6px 12px; font-size: 13px; }
-  .btnPromoPriceTag { padding: 6px 10px 6px 8px; font-size: 11px; }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .btnPromo, .btnPromoPriceTag svg { transition: none; }

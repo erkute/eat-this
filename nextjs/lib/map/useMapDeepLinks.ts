@@ -29,6 +29,11 @@ function computeBezirkBbox(filtered: MapRestaurant[]): Bbox | null {
 interface Args {
   mapRef: RefObject<MapRef | null>
   restaurants: MapRestaurant[]
+  /** Visible-but-locked spots (the rest of the catalog the user doesn't own).
+   *  Deep-links must reach these too — a hub card can point at any restaurant,
+   *  not just the ones in the user's tier. The detail opens in its locked state
+   *  (covered must-eats + upsell). */
+  lockedRestaurants: MapRestaurant[]
   mustEats: MapMustEat[]
   isActive: boolean
   sheetView: 'list' | 'detail'
@@ -44,6 +49,7 @@ interface Args {
 export function useMapDeepLinks({
   mapRef,
   restaurants,
+  lockedRestaurants,
   mustEats,
   isActive,
   sheetView,
@@ -63,11 +69,14 @@ export function useMapDeepLinks({
   useEffect(() => {
     if (restaurantConsumed.current) return
     if (!isActive) return
-    if (restaurants.length === 0) return
+    if (restaurants.length === 0 && lockedRestaurants.length === 0) return
     const params = new URLSearchParams(window.location.search)
     const slug = params.get('r')
     if (!slug) return
-    const target = restaurants.find(r => r.slug === slug)
+    // Search owned + locked: a hub/news link can target any spot in the
+    // catalog, not just the user's tier. Locked spots open in their locked
+    // detail (covered must-eats + upsell) rather than silently no-op'ing.
+    const target = restaurants.find(r => r.slug === slug) ?? lockedRestaurants.find(r => r.slug === slug)
     if (!target) return
     restaurantConsumed.current = true
     // Strip the param from the URL so back/refresh doesn't re-trigger.
@@ -86,7 +95,7 @@ export function useMapDeepLinks({
     }
     tryOpen()
     return () => { cancelled = true }
-  }, [isActive, restaurants, onRestaurantSlugMatch, mapRef, userInteractedRef])
+  }, [isActive, restaurants, lockedRestaurants, onRestaurantSlugMatch, mapRef, userInteractedRef])
 
   // ?me=<mustEatId> opens the matching Must-Eat detail directly. Used by the
   // inline must-eat cards in news articles. Reuses the in-app tap handler so

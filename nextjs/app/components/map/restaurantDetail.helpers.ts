@@ -15,6 +15,10 @@ export function classifyWebsite(url: string | null | undefined): WebsiteInfo | n
   if (!url) return null
   try {
     const u = new URL(url)
+    // Only ever emit links we'll render in an href. Reject non-web schemes
+    // (javascript:, data:, vbscript:, file: …) so a bad CMS value can't turn
+    // into a clickable XSS payload. instagram.com always parses as http(s).
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null
     const host = u.hostname.toLowerCase()
     if (host === 'instagram.com' || host === 'www.instagram.com') {
       const handle = u.pathname.split('/').filter(Boolean)[0] ?? null
@@ -26,6 +30,10 @@ export function classifyWebsite(url: string | null | undefined): WebsiteInfo | n
     }
     return { kind: 'web', url, display }
   } catch {
+    // Unparseable input (e.g. a bare host like "example.de"). Still guard the
+    // scheme — leading whitespace can hide a "javascript:" payload from new URL.
+    const trimmed = url.trim()
+    if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed) && !/^https?:/i.test(trimmed)) return null
     return {
       kind: 'web',
       url,

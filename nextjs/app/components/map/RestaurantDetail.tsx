@@ -364,10 +364,20 @@ export default function RestaurantDetail({
               <span className={styles.rdV}><a href={`tel:${restaurant.phone.replace(/\s+/g, '')}`}>{restaurant.phone}</a></span>
             </div>
           )}
+          {websiteInfo?.kind === 'web' && (
+            <div className={styles.rdRow}>
+              <span className={styles.rdK}>Website</span>
+              <span className={styles.rdV}>
+                <a href={websiteInfo.url} target="_blank" rel="noopener noreferrer">{websiteInfo.display}</a>
+              </span>
+            </div>
+          )}
           {igUrl && (
             <div className={styles.rdRow}>
               <span className={styles.rdK}>Instagram</span>
-              <span className={styles.rdV}><a href={igUrl} target="_blank" rel="noopener noreferrer">{igHandle ? `@${igHandle}` : 'Profil ↗'}</a></span>
+              <span className={styles.rdV}>
+                <a href={igUrl} target="_blank" rel="noopener noreferrer">{igHandle ? `@${igHandle}` : 'Profil ↗'}</a>
+              </span>
             </div>
           )}
         </div>

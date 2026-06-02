@@ -49,4 +49,11 @@ describe('classifyWebsite', () => {
     expect(classifyWebsite(undefined)).toBeNull()
     expect(classifyWebsite('')).toBeNull()
   })
+  it('rejects non-web schemes (no clickable XSS payload)', () => {
+    expect(classifyWebsite('javascript:alert(1)')).toBeNull()
+    expect(classifyWebsite('  javascript:alert(1)')).toBeNull()
+    expect(classifyWebsite('JavaScript:alert(1)')).toBeNull()
+    expect(classifyWebsite('data:text/html,<script>alert(1)</script>')).toBeNull()
+    expect(classifyWebsite('vbscript:msgbox(1)')).toBeNull()
+  })
 })

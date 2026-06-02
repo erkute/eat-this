@@ -5383,21 +5383,29 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
   color: #0a0a0a;
 }
 .rdPagerBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
   background: none;
   border: 0;
   color: inherit;
   font: inherit;
   letter-spacing: inherit;
   text-transform: inherit;
-  text-align: left;
   cursor: pointer;
   padding: 0;
-  white-space: nowrap;
+}
+.rdPagerBtnRight { justify-content: flex-end; }
+.rdPagerBtn:disabled { visibility: hidden; }
+/* Name truncates; the arrow never shrinks away. */
+.rdPagerName {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.rdPagerBtnRight { text-align: right; }
-.rdPagerBtn:disabled { visibility: hidden; }
+.rdPagerArrow { flex: 0 0 auto; }
 
 .rdBody {
   padding: 16px 18px 8px;

@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import {
   abbreviateBezirk,
@@ -85,6 +85,7 @@ export default function RestaurantDetail({
 }: RestaurantDetailProps) {
   const { t } = useTranslation()
   const locale = useLocale()
+  const [shareDone, setShareDone] = useState(false)
   const scrollWrapRef = useRef<HTMLDivElement>(null)
   const onPagePrevRef = useRef(onPagePrev); onPagePrevRef.current = onPagePrev
   const onPageNextRef = useRef(onPageNext); onPageNextRef.current = onPageNext
@@ -111,8 +112,14 @@ export default function RestaurantDetail({
       }
       if (axis === 'h') {
         e.preventDefault()
-        el.style.transform = `translateX(${dx * 0.5}px)`
+        // Light resistance so the empty sheet beside the pane barely shows.
+        el.style.transform = `translateX(${dx * 0.42}px)`
       }
+    }
+    const settle = () => {
+      el.style.transition = 'transform .2s ease-out'
+      el.style.transform = 'translateX(0)'
+      window.setTimeout(() => { el.style.transition = ''; el.style.transform = '' }, 220)
     }
     const end = (e: PointerEvent) => {
       if (!active) return
@@ -120,12 +127,27 @@ export default function RestaurantDetail({
       const wasH = axis === 'h'
       active = false
       axis = null
-      el.classList.add(styles.rdScrollPaging)
-      el.style.transform = ''
-      window.setTimeout(() => el.classList.remove(styles.rdScrollPaging), 280)
       if (wasH && Math.abs(dx) > 60) {
-        if (dx < 0) onPageNextRef.current?.()
-        else onPagePrevRef.current?.()
+        // Instagram-style page: current pane slides out, the new one slides
+        // in from the opposite edge (translate only — no opacity fade).
+        const dir: 'next' | 'prev' = dx < 0 ? 'next' : 'prev'
+        const w = el.clientWidth
+        const outX = dir === 'next' ? -w : w
+        el.style.transition = 'transform .17s ease-out'
+        el.style.transform = `translateX(${outX}px)`
+        window.setTimeout(() => {
+          if (dir === 'next') onPageNextRef.current?.()
+          else onPagePrevRef.current?.()
+          // Place the freshly-swapped content on the opposite edge, then in.
+          el.style.transition = 'none'
+          el.style.transform = `translateX(${-outX}px)`
+          void el.offsetWidth // force reflow so the next transition animates
+          el.style.transition = 'transform .2s ease-out'
+          el.style.transform = 'translateX(0)'
+          window.setTimeout(() => { el.style.transition = ''; el.style.transform = '' }, 220)
+        }, 170)
+      } else {
+        settle()
       }
     }
     el.addEventListener('pointerdown', onDown)
@@ -263,10 +285,20 @@ export default function RestaurantDetail({
         {(prevRestaurant || nextRestaurant) && (
           <nav className={styles.rdPager} aria-label="Restaurant pager">
             <button type="button" className={styles.rdPagerBtn} disabled={!prevRestaurant} onClick={onPagePrev}>
-              {prevRestaurant ? `← ${normalizeName(prevRestaurant.name)}` : ''}
+              {prevRestaurant && (
+                <>
+                  <span className={styles.rdPagerArrow}>←</span>
+                  <span className={styles.rdPagerName}>{normalizeName(prevRestaurant.name)}</span>
+                </>
+              )}
             </button>
             <button type="button" className={`${styles.rdPagerBtn} ${styles.rdPagerBtnRight}`} disabled={!nextRestaurant} onClick={onPageNext}>
-              {nextRestaurant ? `${normalizeName(nextRestaurant.name)} →` : ''}
+              {nextRestaurant && (
+                <>
+                  <span className={styles.rdPagerName}>{normalizeName(nextRestaurant.name)}</span>
+                  <span className={styles.rdPagerArrow}>→</span>
+                </>
+              )}
             </button>
           </nav>
         )}
@@ -352,11 +384,30 @@ export default function RestaurantDetail({
             className={styles.rdActBtn}
             onClick={async () => {
               const url = typeof window !== 'undefined' ? window.location.href : ''
-              try { if (typeof navigator !== 'undefined' && 'share' in navigator) { await navigator.share({ title: restaurant.name, url }); return } } catch {}
-              try { if (typeof navigator !== 'undefined' && navigator.clipboard) { await navigator.clipboard.writeText(url) } } catch {}
+              const shareData = { title: restaurant.name, text: restaurant.name, url }
+              // Native share sheet where available (mobile). canShare guards
+              // desktop Chrome where navigator.share exists but rejects.
+              try {
+                const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean }
+                if (typeof navigator !== 'undefined' && 'share' in navigator && (!nav.canShare || nav.canShare(shareData))) {
+                  await navigator.share(shareData)
+                  return
+                }
+              } catch { return /* user dismissed the share sheet */ }
+              // Fallback: copy the link + show confirmation.
+              try {
+                if (navigator?.clipboard?.writeText) await navigator.clipboard.writeText(url)
+                else {
+                  const ta = document.createElement('textarea')
+                  ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0'
+                  document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove()
+                }
+                setShareDone(true)
+                window.setTimeout(() => setShareDone(false), 1800)
+              } catch {}
             }}
           >
-            {t('map.share')}
+            {shareDone ? (locale === 'en' ? 'Link copied ✓' : 'Link kopiert ✓') : t('map.share')}
           </button>
         </div>
 

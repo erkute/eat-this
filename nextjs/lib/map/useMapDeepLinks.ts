@@ -34,6 +34,7 @@ interface Args {
   sheetView: 'list' | 'detail'
   userInteractedRef: RefObject<boolean>
   setBezirk: (name: string | null) => void
+  setCategory: (slug: string) => void
   setSnap: (snap: 'peek' | 'mid' | 'full') => void
   onRestaurantSlugMatch: (r: MapRestaurant) => void
   onMustEatIdMatch: (m: MapMustEat) => void
@@ -48,6 +49,7 @@ export function useMapDeepLinks({
   sheetView,
   userInteractedRef,
   setBezirk,
+  setCategory,
   setSnap,
   onRestaurantSlugMatch,
   onMustEatIdMatch,
@@ -166,6 +168,32 @@ export function useMapDeepLinks({
     tryFit()
     return () => { cancelled = true }
   }, [isActive, restaurants, sheetView, setSnap, setBezirk, mapRef, userInteractedRef])
+
+  // ?cat=<slug> pre-selects a category filter so a hub "Pizza"/"Frühstück"/
+  // "Drinks" card (and the Deine-Welt pack CTA) lands on the map with that
+  // filter already applied. We resolve to the exact slug the restaurants use
+  // (case-safe) and only set it if it actually matches something — an unknown
+  // slug is ignored so the map doesn't show an empty filtered list. The param
+  // stays in the URL so the filtered view is shareable; the category chip UI
+  // clears it.
+  const categoryConsumed = useRef(false)
+  useEffect(() => {
+    if (categoryConsumed.current) return
+    if (!isActive) return
+    if (restaurants.length === 0) return
+    const params = new URLSearchParams(window.location.search)
+    const slug = params.get('cat')
+    if (!slug) return
+    categoryConsumed.current = true
+    const slugLower = slug.toLowerCase()
+    const canonical = restaurants
+      .flatMap(r => r.categories ?? [])
+      .find(c => (c.slug ?? '').toLowerCase() === slugLower)?.slug
+    if (!canonical) return
+    userInteractedRef.current = true
+    setCategory(canonical)
+    if (sheetView === 'list') setSnap('mid')
+  }, [isActive, restaurants, sheetView, setSnap, setCategory, userInteractedRef])
 
   // The pill's ✕ — clears the URL param and re-centres on Berlin Mitte.
   const resetBezirkPill = useCallback(() => {

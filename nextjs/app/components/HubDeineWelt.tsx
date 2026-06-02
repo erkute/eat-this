@@ -107,12 +107,18 @@ export default function HubDeineWelt({ initialMapData }: Props) {
 
       <div className={styles.div} />
 
-      <div className={styles.cards} aria-hidden="true">
-        <span className={styles.card} style={{ backgroundImage: `url(${CARD_BACK})` }} />
-        <span className={styles.card} style={{ backgroundImage: `url(${CARD_BACK})` }} />
-        <span className={styles.card} style={{ backgroundImage: `url(${CARD_BACK})` }} />
-      </div>
-      <p className={styles.cap}>Must Eats warten · noch nicht aufgedeckt</p>
+      <Link
+        href="/profile#gesammelte-must-eats"
+        className={styles.teaser}
+        aria-label="Deine verdeckten Must Eats im Profil ansehen"
+      >
+        <div className={styles.cards} aria-hidden="true">
+          <span className={styles.card} style={{ backgroundImage: `url(${CARD_BACK})` }} />
+          <span className={styles.card} style={{ backgroundImage: `url(${CARD_BACK})` }} />
+          <span className={styles.card} style={{ backgroundImage: `url(${CARD_BACK})` }} />
+        </div>
+        <p className={styles.cap}>Must Eats warten · noch nicht aufgedeckt →</p>
+      </Link>
 
       {packArt && ownedSlug && ownedPack && (
         <div className={styles.pack}>

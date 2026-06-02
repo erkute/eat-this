@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { Link } from '@/i18n/navigation';
 import type { MustEatAlbumCard } from '@/lib/types';
 import { selectTeaserOrders } from '@/lib/profile/teasers';
 import MustEatImageLightbox from '@/app/components/map/MustEatImageLightbox';
@@ -39,7 +40,11 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, curatedRevea
 
   return (
     <>
-      <div className={styles.section}>
+      <div
+        className={styles.section}
+        id="gesammelte-must-eats"
+        style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
+      >
         <h2 className={styles.sectionHeading}>Gesammelte Must Eats</h2>
       </div>
       <div className={styles.explainer}>
@@ -62,18 +67,30 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, curatedRevea
             </div>
           </button>
         ))}
-        {locked.map((m) => (
-          <article key={m._id} className={`${styles.me} ${styles.meLocked}`}>
-            <div className={styles.mePh}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/pics/card-back.webp?v=5" alt="Verdeckt" loading="lazy" />
-            </div>
-            <div className={styles.meLabel}>
-              <h4 className={styles.meName}>Verdeckt</h4>
-              <div className={styles.meRest}>{m.restaurant}</div>
-            </div>
-          </article>
-        ))}
+        {locked.map((m) => {
+          // Covered card → its spot on the map. Prefer the restaurant detail
+          // (?r=) so you land ON the restaurant; fall back to the must-eat
+          // deep-link if the slug is missing.
+          const href = m.restaurantSlug ? `/map?r=${m.restaurantSlug}` : `/map?me=${m._id}`;
+          return (
+            <Link
+              key={m._id}
+              href={href}
+              rel="nofollow"
+              className={`${styles.me} ${styles.meLocked}`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <div className={styles.mePh}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/pics/card-back.webp?v=5" alt="Verdeckt" loading="lazy" />
+              </div>
+              <div className={styles.meLabel}>
+                <h4 className={styles.meName}>Verdeckt</h4>
+                <div className={styles.meRest}>{m.restaurant}</div>
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
       <MustEatImageLightbox

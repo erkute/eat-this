@@ -585,6 +585,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     sheetView,
     userInteractedRef,
     setBezirk,
+    setCategory,
     setSnap,
     onRestaurantSlugMatch: handleRestaurantClick,
     onMustEatIdMatch: handleMustEatClick,

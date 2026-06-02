@@ -172,6 +172,18 @@
   z-index: 2;
 }
 
+/* The card-back stack + caption is a link into the profile's covered Must-Eat
+   cards (where each card routes on to its spot on the map). */
+.teaser {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+.teaser:hover .cap {
+  color: var(--text-primary);
+}
+
 .cap {
   text-align: center;
   font-family: var(--font);

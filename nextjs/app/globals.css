@@ -237,6 +237,7 @@ a {
 @media (max-width: 1023.98px) {
   [data-active-page="map"] .app-pages {
     margin-top: 0 !important;
+    height: 100dvh !important;
   }
   .app-page[data-page="map"] {
     height: 100dvh !important;
@@ -251,7 +252,7 @@ a {
 [data-active-page="map"] header[role="banner"] { display: none !important; }
 
 @media (min-width: 1024px) {
-  [data-active-page="map"] .app-pages { margin-top: 0 !important; }
+  [data-active-page="map"] .app-pages { margin-top: 0 !important; height: 100dvh !important; }
 }
 
 /* User-location marker is purely informational. The avatar must visually

@@ -153,7 +153,7 @@ export default function RestaurantDetail({
   const showBooster = userTier !== 'allBerlin'
   const isAnon = !uid
   const boosterHref = uid
-    ? (locale === routing.defaultLocale ? '/profile#booster' : `/${locale}/profile#booster`)
+    ? (locale === routing.defaultLocale ? '/home#hub-packs' : `/${locale}/home#hub-packs`)
     : (locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
 
   return (

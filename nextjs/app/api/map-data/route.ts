@@ -10,6 +10,8 @@ import {
   composeSignedRestaurants,
   composeRevealedMustEats,
 } from '@/lib/map/tier-composition'
+import { applySpotOfDayReveal } from '@/lib/map/spotOfDayReveal'
+import { getSpotOfDayId } from '@/lib/home/spotOfDay.server'
 
 // Per-user response. Disable framework-level caching; the expensive Sanity
 // fetch is shared via the module-level cache in cached-sanity.ts.
@@ -67,7 +69,7 @@ export async function GET(req: Request) {
   // get [] here, with a client-side revealedForAnon fallback that was never
   // built — that was the map↔deck discrepancy.) The set is always on anon-tier
   // restaurants, so every revealed must-eat's spot is a visible spot.
-  const revealedMustEatIds = Array.from(composeRevealedMustEats(allMustEats, anonIds))
+  const revealedSet = composeRevealedMustEats(allMustEats, anonIds)
 
   let visibleRestaurants: typeof all
   if (!uid) {
@@ -110,13 +112,24 @@ export async function GET(req: Request) {
   const visibleMustEats   = allMustEats.filter((m) => visibleIdSet.has(m.restaurant._id))
   const lockedRestaurants = all.filter((r) => !visibleIdSet.has(r._id))
 
-  const res = NextResponse.json({
+  // Spot des Tages — free daily gift for everyone (incl. signed users who don't
+  // own it): surface it + reveal its must-eat. Ephemeral, recomputed per day.
+  const today  = new Date().toISOString().slice(0, 10)
+  const spotId = await getSpotOfDayId(today)
+  const gifted = applySpotOfDayReveal(spotId, all, allMustEats, {
     restaurants: visibleRestaurants,
+    lockedRestaurants,
     mustEats: visibleMustEats,
+    revealedMustEatIds: revealedSet,
+  })
+
+  const res = NextResponse.json({
+    restaurants: gifted.restaurants,
+    mustEats: gifted.mustEats,
     categories,
     totalCount: all.length,
-    lockedRestaurants,
-    revealedMustEatIds,
+    lockedRestaurants: gifted.lockedRestaurants,
+    revealedMustEatIds: Array.from(gifted.revealedMustEatIds),
   })
   res.headers.set('Cache-Control', 'private, no-store')
   return res

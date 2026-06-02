@@ -1,6 +1,12 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
+
+// HubWelcomePack reads auth to hide itself for signed-in users. In this
+// isolated SSR render there's no AuthProvider — mock anon so the gift pack
+// still renders (its production wrapper is the (spa) layout's AuthProvider).
+vi.mock('@/lib/auth', () => ({ useAuth: () => ({ user: null, loading: false }) }))
+
 import HubPacks from '@/app/components/HubPacks'
 
 const names = { breakfast: 'Frühstück', pizza: 'Pizza', sweets: 'Süßes' }

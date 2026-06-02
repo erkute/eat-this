@@ -1,8 +1,9 @@
 'use client'
 
 import Image from 'next/image'
-import { type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useMagicLink } from '@/lib/auth/useMagicLink'
+import { useAuth } from '@/lib/auth'
 import styles from './HubPacks.module.css'
 
 const GIFT_ART = '/pics/booster/booster_free.webp'
@@ -14,8 +15,16 @@ const GIFT_ART = '/pics/booster/booster_free.webp'
  */
 export default function HubWelcomePack() {
   const { sendLink, state, errorMessage } = useMagicLink()
+  const { user } = useAuth()
+  // The Welcome Pack is a signup gift — pointless once you're logged in. Hide
+  // it for signed-in users, but only after mount so the first client render
+  // still matches the SSR (anon) output and doesn't trip a hydration mismatch.
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
   const sending = state === 'sending'
   const sent = state === 'sent'
+
+  if (mounted && user) return null
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()

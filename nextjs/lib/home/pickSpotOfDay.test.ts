@@ -8,21 +8,39 @@ const r = (id: string, o: Partial<SpotCandidate> = {}): SpotCandidate => ({
 describe('pickSpotOfDay', () => {
   it('prefers a restaurant whose featuredOnDate equals today', () => {
     const today = '2026-06-01'
-    const list = [r('a', { mustEatCount: 9 }), r('b', { featuredOnDate: today }), r('c', { featured: true })]
+    const list = [r('a', { mustEatCount: 9 }), r('b', { featuredOnDate: today }), r('c')]
     expect(pickSpotOfDay(list, today)?._id).toBe('b')
   })
-  it('ignores featuredOnDate that is not today', () => {
-    const list = [r('a', { featuredOnDate: '2026-05-30' }), r('b', { featured: true })]
-    expect(pickSpotOfDay(list, '2026-06-01')?._id).toBe('b')
+
+  it('ignores featuredOnDate that is not today (falls to rotation)', () => {
+    const list = [r('a', { featuredOnDate: '2026-05-30' }), r('b'), r('c')]
+    // No dated match for this day → a rotation pick, never the stale-dated 'a'
+    // just because it has a (different) date.
+    const picked = pickSpotOfDay(list, '2026-06-01')?._id
+    expect(['a', 'b', 'c']).toContain(picked)
   })
-  it('falls back to a featured restaurant when no dated match', () => {
-    const list = [r('a', { mustEatCount: 5 }), r('b', { featured: true, mustEatCount: 1 })]
-    expect(pickSpotOfDay(list, '2026-06-01')?._id).toBe('b')
+
+  it('is deterministic for the same day and input', () => {
+    const list = [r('a'), r('b'), r('c')]
+    expect(pickSpotOfDay(list, '2026-06-01')?._id).toBe(pickSpotOfDay(list, '2026-06-01')?._id)
   })
-  it('falls back to the highest mustEatCount when none are featured', () => {
-    const list = [r('a', { mustEatCount: 3 }), r('b', { mustEatCount: 7 }), r('c', { mustEatCount: 5 })]
-    expect(pickSpotOfDay(list, '2026-06-01')?._id).toBe('b')
+
+  it('is stable regardless of input order (sorts by id)', () => {
+    const a = pickSpotOfDay([r('a'), r('b'), r('c')], '2026-06-01')?._id
+    const b = pickSpotOfDay([r('c'), r('a'), r('b')], '2026-06-01')?._id
+    expect(a).toBe(b)
   })
+
+  it('rotates daily — three consecutive days cover all three spots', () => {
+    const list = [r('a'), r('b'), r('c')]
+    const picks = new Set([
+      pickSpotOfDay(list, '2026-06-01')?._id,
+      pickSpotOfDay(list, '2026-06-02')?._id,
+      pickSpotOfDay(list, '2026-06-03')?._id,
+    ])
+    expect(picks.size).toBe(3)
+  })
+
   it('returns null for an empty list', () => {
     expect(pickSpotOfDay([], '2026-06-01')).toBeNull()
   })

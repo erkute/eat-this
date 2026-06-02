@@ -1407,63 +1407,53 @@ html[data-theme="dark"] .rrowCoral { background-color: #0a0a0a; }
   .rrowMust { width: 26px; height: 38px; }
 }
 
-/* Floating search toolbar — sits over the map, always visible.
-   Mobile: same height as the Start + Profile chips (32px), vertically
-   aligned to the chip row so the three pills read as one horizontal
-   group. Desktop: top-left of the map area, larger pill. */
+/* Floating search toolbar — square ink sticker, top-left of the map.
+   Top-aligned with the floating burger (top: 14px). Right edge clears
+   the 42px burger at right:14px + 10px gap = right:66px. */
 .mapSearchToolbar {
   position: absolute;
-  /* Vertically align with the chip row. The navbar puts icon-btns at
-     content center: navbar padding-top = 6px + safe-area, content area
-     36px, 32px icon centered → icon top = 8px + safe-area. Match it. */
-  top: calc(8px + env(safe-area-inset-top, 0px));
+  top: 14px;
   left: 14px;
-  /* Leave room for the two chips (32 + 10 + 32 = 74px) + navbar padding
-     (12px) + breathing (8px) ≈ 94px. */
-  right: 94px;
-  /* Sits above the user-location avatar marker (z:1000 in globals.css) so
-     the avatar figure tucks behind the search bar when its geographic
-     position falls under the toolbar area. Still below the navbar (9999)
-     and modals (>=10000). */
-  z-index: 1001;
+  /* Clears the 42px burger at right:14px (+10px gap). */
+  right: 66px;
+  z-index: 55;
   transition: transform 240ms cubic-bezier(.2, .8, .2, 1);
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.96);
-  color: var(--text-primary);
-  border-radius: 999px;
+  height: 42px;
+  background: var(--c-cream);
+  color: var(--c-black);
+  border: 2px solid var(--c-black);
+  border-radius: 0;
   padding: 0 14px;
   box-sizing: border-box;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  box-shadow: 4px 4px 0 var(--c-black);
   pointer-events: auto;
 }
 html[data-theme="dark"] .mapSearchToolbar {
-  background: rgba(32, 30, 28, 0.96);
-  color: var(--c-cream);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(243, 234, 212, 0.18);
+  background: var(--c-cream);
+  color: var(--c-black);
+  box-shadow: 4px 4px 0 var(--c-black);
 }
 .mapSearchIcon {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-  color: currentColor;
+  width: 18px;
+  height: 18px;
+  color: var(--c-black);
+  flex: 0 0 auto;
 }
 .mapSearchInput {
   flex: 1;
   min-width: 0;
-  background: transparent;
   border: 0;
-  outline: 0;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  color: inherit;
+  background: transparent;
+  font-size: 16px;          /* iOS: ≥16px avoids focus-zoom */
+  color: var(--c-black);
+  outline: none;
 }
 .mapSearchInput::placeholder {
-  color: currentColor;
-  opacity: 0.55;
+  color: var(--c-black);
+  opacity: 0.45;
 }
 .mapSearchClear {
   appearance: none;
@@ -1475,10 +1465,10 @@ html[data-theme="dark"] .mapSearchToolbar {
   display: grid;
   place-items: center;
   cursor: pointer;
-  color: inherit;
-  opacity: 0.6;
+  color: var(--c-black);
+  flex: 0 0 auto;
 }
-.mapSearchClear:hover { opacity: 1; }
+.mapSearchClear:hover { opacity: 0.7; }
 
 /* Hide the search when the bottom-sheet is dragged to full or when the
    detail view takes over the screen — translate out of view (no opacity
@@ -1491,15 +1481,14 @@ html[data-theme="dark"] .mapSearchToolbar {
 
 @media (min-width: 1024px) {
   .mapSearchToolbar {
-    /* Sits over the maplibre attribution control (top-left) — covers
-       the OSM credit pill so the corner reads as just the search. */
-    top: 8px;
-    left: 10px;
+    /* Desktop: no floating burger in top-right corner — toolbar can
+       stretch freely. Use auto right so width governs the extent. */
+    top: 14px;
+    left: 14px;
     right: auto;
     width: 360px;
-    height: auto;
-    padding: 10px 18px;
-    font-size: 14px;
+    height: 42px;
+    padding: 0 14px;
   }
 }
 

@@ -307,7 +307,7 @@ body[data-env="staging"] .app-page[data-page="map"] {
     height: 100dvh !important;
   }
   body[data-env="staging"] [class*="mapSearchToolbar"] {
-    top: calc(8px + var(--staging-banner-h)) !important;
+    top: calc(14px + var(--staging-banner-h)) !important;
   }
   body[data-env="staging"] [class*="mapBurger"] {
     top: calc(14px + var(--staging-banner-h)) !important;

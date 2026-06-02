@@ -1036,6 +1036,7 @@ html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
   content: '';
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: linear-gradient(180deg, transparent 35%, rgba(0,0,0,.82) 100%);
   pointer-events: none;
 }
@@ -1098,8 +1099,8 @@ html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
   border-radius: 999px;
   background: var(--c-black);
 }
-.openPillClosed { background: #fff; color: var(--c-black); opacity: .85; }
-.openPillClosed::before { background: var(--c-black); opacity: .45; }
+.openPillClosed { background: rgba(255,255,255,.92); color: var(--c-black); }
+.openPillClosed::before { background: rgba(10,10,10,.5); }
 
 .mustPeek {
   position: absolute;

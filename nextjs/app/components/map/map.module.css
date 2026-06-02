@@ -5254,3 +5254,228 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
   text-transform: uppercase;
   cursor: pointer;
 }
+
+/* ============ Restaurant Detail (Chewy Screen 04) ============ */
+.rdHero {
+  position: relative;
+  margin: 14px;
+  aspect-ratio: 4 / 5;
+  background-size: cover;
+  background-position: center;
+  background-color: #e9e3d2;
+  overflow: hidden;
+}
+.rdHero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 45%, rgba(0,0,0,.55) 75%, rgba(0,0,0,.92) 100%);
+}
+.rdHeroSave {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  width: 40px;
+  height: 40px;
+  background: #fbf8ee;
+  color: #0a0a0a;
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.rdHeroSaveActive { background: var(--c-mustard); }
+.rdOverlay {
+  position: absolute;
+  inset: auto 18px 18px;
+  color: #fbf8ee;
+  z-index: 2;
+}
+.rdNameOv {
+  font-family: var(--font-chewy);
+  font-size: clamp(44px, 14vw, 64px);
+  line-height: .95;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+  text-shadow: 0 2px 12px rgba(0,0,0,.5);
+}
+.rdTagsOv {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-family: var(--font-chewy);
+  font-size: 13px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.rdTag {
+  background: var(--c-mustard);
+  color: #0a0a0a;
+  padding: 4px 9px 5px;
+}
+.rdTagAlt {
+  background: rgba(255,255,255,.16);
+  color: #fbf8ee;
+  border: 1.5px solid rgba(255,255,255,.5);
+  padding: 2px 9px 3px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.rdCredit {
+  position: absolute;
+  bottom: 6px;
+  right: 8px;
+  z-index: 2;
+  font-family: var(--font);
+  font-size: 9px;
+  letter-spacing: .06em;
+  color: rgba(255,255,255,.7);
+}
+.rdCredit a { color: inherit; }
+
+.rdPager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: #f3eedd;
+  font-family: var(--font-chewy);
+  font-size: 13px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+}
+.rdPagerBtn {
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rdPagerBtnRight { text-align: right; }
+.rdPagerBtn:disabled { visibility: hidden; }
+
+.rdBody {
+  padding: 16px 18px 8px;
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.55;
+  color: #0a0a0a;
+}
+.rdBody p { margin: 0 0 12px; }
+.rdDropCap {
+  font-family: var(--font-chewy);
+  font-size: 70px;
+  line-height: .82;
+  color: #0a0a0a;
+  float: left;
+  padding: 8px 10px 0 0;
+  text-transform: uppercase;
+}
+
+.rdTipp {
+  margin: 4px 14px 22px;
+  background: var(--c-mustard);
+  color: #0a0a0a;
+  padding: 18px 20px 20px;
+  display: grid;
+  gap: 8px;
+  border: 2px solid #0a0a0a;
+  box-shadow: 6px 6px 0 0 #0a0a0a;
+}
+.rdTippLabel {
+  font-family: var(--font-chewy);
+  font-size: 14px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.rdTippLabel::before { content: "\2726"; font-size: 18px; line-height: 1; }
+.rdTippText { font-family: var(--font); font-size: 14.5px; line-height: 1.5; }
+
+.rdFacts {
+  margin: 4px 16px 22px;
+  display: grid;
+  gap: 0;
+  border-top: 1.5px solid #0a0a0a;
+}
+.rdRow {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  padding: 13px 2px;
+  border-bottom: 1.5px solid #0a0a0a;
+  align-items: baseline;
+}
+.rdK {
+  font-family: var(--font-chewy);
+  font-size: 15px;
+  letter-spacing: .12em;
+  color: #0a0a0a;
+  text-transform: uppercase;
+  line-height: 1.05;
+}
+.rdV { font-family: var(--font); color: #0a0a0a; font-size: 14.5px; line-height: 1.5; }
+.rdV a { color: #0a0a0a; text-decoration: underline; }
+.rdV > summary { cursor: pointer; list-style: none; }
+.rdV > summary::-webkit-details-marker { display: none; }
+.rdHours { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; row-gap: 4px; font-variant-numeric: tabular-nums; margin-top: 8px; }
+.rdHoursD { font-family: var(--font-chewy); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
+.rdHoursT { font-family: var(--font); font-size: 14.5px; }
+.rdVMeta { display: block; margin-top: 4px; font-size: 12px; opacity: .7; }
+
+.rdActs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 6px 14px 16px; }
+.rdActBtn {
+  font-family: var(--font-chewy);
+  font-size: 14px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 13px 16px 14px;
+  cursor: pointer;
+  border: 1.5px solid #0a0a0a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1;
+  background: transparent;
+  color: #0a0a0a;
+}
+.rdActPrimary { background: #0a0a0a; color: #fbf8ee; }
+.rdMapsPop { position: relative; }
+.rdMapsPop > summary { list-style: none; cursor: pointer; }
+.rdMapsPop > summary::-webkit-details-marker { display: none; }
+.rdMapsPopMenu {
+  position: absolute;
+  left: 0; right: 0; bottom: calc(100% + 6px);
+  background: #fbf8ee;
+  border: 2px solid #0a0a0a;
+  display: grid;
+  z-index: 5;
+}
+.rdMapsPopMenu a { padding: 11px 14px; font-family: var(--font); font-size: 14px; color: #0a0a0a; }
+.rdMapsPopMenu a + a { border-top: 1.5px solid #0a0a0a; }
+
+.rdSecH { font-family: var(--font-chewy); font-size: 40px; line-height: 1.05; text-transform: uppercase; color: #0a0a0a; margin: 18px 16px 6px; padding-top: 6px; }
+.rdMustGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 12px 8px; margin: 0; list-style: none; }
+.medish { position: relative; display: grid; grid-template-rows: 1fr auto; gap: 6px; padding: 6px 4px 10px; background: transparent; border: 0; cursor: pointer; width: 100%; }
+.medishPh { position: relative; aspect-ratio: 1539 / 2115; display: flex; align-items: center; justify-content: center; }
+.medishPh img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; filter: drop-shadow(0 10px 16px rgba(15,12,10,.2)); }
+.medishLbl { text-align: center; color: #0a0a0a; display: grid; gap: 2px; padding: 0 4px; }
+.medishNm { font-family: var(--font-chewy); font-size: 16px; letter-spacing: .14em; text-transform: uppercase; opacity: .55; margin: 0; }
+
+/* horizontal page transition */
+.rdScrollPaging { transition: transform .26s cubic-bezier(.4,0,.2,1); }

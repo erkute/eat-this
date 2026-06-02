@@ -84,6 +84,60 @@ export default function RestaurantDetail({
   const locale = useLocale()
   const mapsDetailsRef = useRef<HTMLDetailsElement>(null)
   const statusDetailsRef = useRef<HTMLDetailsElement>(null)
+  const scrollWrapRef = useRef<HTMLDivElement>(null)
+  const onPagePrevRef = useRef(onPagePrev); onPagePrevRef.current = onPagePrev
+  const onPageNextRef = useRef(onPageNext); onPageNextRef.current = onPageNext
+
+  // Swipe left → next, right → prev. Axis-locked so it never fights the
+  // vertical sheet-drag / content scroll: the first significant move decides
+  // the axis; only a clearly-horizontal gesture pages (and preventDefault's).
+  // Touch-only — mouse drags bail (desktop uses the pager arrows). No opacity
+  // fades (project rule): the page transition is a translate.
+  useEffect(() => {
+    const el = scrollWrapRef.current
+    if (!el) return
+    let startX = 0, startY = 0, axis: 'h' | 'v' | null = null, active = false
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse') return
+      startX = e.clientX; startY = e.clientY; axis = null; active = true
+    }
+    const onMove = (e: PointerEvent) => {
+      if (!active) return
+      const dx = e.clientX - startX, dy = e.clientY - startY
+      if (axis === null) {
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
+        axis = Math.abs(dx) > Math.abs(dy) + 6 ? 'h' : 'v'
+      }
+      if (axis === 'h') {
+        e.preventDefault()
+        el.style.transform = `translateX(${dx * 0.5}px)`
+      }
+    }
+    const end = (e: PointerEvent) => {
+      if (!active) return
+      const dx = e.clientX - startX
+      const wasH = axis === 'h'
+      active = false
+      axis = null
+      el.classList.add(styles.rdScrollPaging)
+      el.style.transform = ''
+      window.setTimeout(() => el.classList.remove(styles.rdScrollPaging), 280)
+      if (wasH && Math.abs(dx) > 60) {
+        if (dx < 0) onPageNextRef.current?.()
+        else onPagePrevRef.current?.()
+      }
+    }
+    el.addEventListener('pointerdown', onDown)
+    el.addEventListener('pointermove', onMove, { passive: false })
+    el.addEventListener('pointerup', end)
+    el.addEventListener('pointercancel', end)
+    return () => {
+      el.removeEventListener('pointerdown', onDown)
+      el.removeEventListener('pointermove', onMove)
+      el.removeEventListener('pointerup', end)
+      el.removeEventListener('pointercancel', end)
+    }
+  }, [])
 
   // Native <details> only closes when you re-click its <summary>. Restaurants
   // expect popovers to dismiss on any outside click — wire that up for the
@@ -168,7 +222,7 @@ export default function RestaurantDetail({
 
   return (
     <div className={styles.detailV13} role="dialog" aria-label={restaurant.name}>
-      <div className={styles.detailV13Scroll} data-detail-scroll>
+      <div className={styles.detailV13Scroll} data-detail-scroll ref={scrollWrapRef}>
 
         {/* HERO — full-bleed photo, name overlay, save heart. data-detail-hero
             marks the block the bottom-sheet measures for the peek snap. */}

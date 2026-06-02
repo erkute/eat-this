@@ -3928,6 +3928,9 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  /* Vertical scroll stays native; horizontal swipes are delivered to JS for
+     the restaurant pager (see RestaurantDetail swipe handler). */
+  touch-action: pan-y;
 }
 .detailV13Scroll::-webkit-scrollbar { width: 0; }
 

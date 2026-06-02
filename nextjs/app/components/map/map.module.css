@@ -5515,16 +5515,18 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
 .rdMustGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 12px 8px; margin: 0; list-style: none; }
 .medish { position: relative; display: grid; grid-template-rows: 1fr auto; gap: 6px; padding: 6px 4px 10px; background: transparent; border: 0; cursor: pointer; width: 100%; }
 .medishPh { position: relative; aspect-ratio: 1539 / 2115; display: flex; align-items: center; justify-content: center; }
-/* Must-Eat trading cards: rounded corners + a soft diffuse shadow (not a
-   boxy hard one) and a slight alternating tilt so the pair reads as a deck. */
+/* Must-Eat cards are cut-out (transparent corners) — use filter:drop-shadow
+   so the shadow follows the card SHAPE (a box-shadow draws a rectangle whose
+   corners poke past the rounded card = the "white corner" artifact). Soft and
+   diffuse so it lifts the card without reading as a hard box. Slight
+   alternating tilt makes the pair feel like a deck. */
 .medishPh img {
   max-width: 100%;
   max-height: 100%;
   width: auto;
   height: auto;
   object-fit: contain;
-  border-radius: 12px;
-  box-shadow: 0 14px 26px rgba(0, 0, 0, .18), 0 4px 8px rgba(0, 0, 0, .10);
+  filter: drop-shadow(0 16px 26px rgba(0, 0, 0, .16));
   transition: transform .18s ease;
 }
 .rdMustGrid li:nth-child(odd) .medishPh img { transform: rotate(-2.5deg); }

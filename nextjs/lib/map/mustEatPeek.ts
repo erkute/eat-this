@@ -32,7 +32,7 @@ export function resolvePeek(
 ): Peek {
   if (!primary) return { kind: 'none' }
   if (unlockedIds.has(primary._id) || revealedIds.has(primary._id)) {
-    return { kind: 'open', image: primary.image }
+    return primary.image ? { kind: 'open', image: primary.image } : { kind: 'covered' }
   }
   return { kind: 'covered' }
 }

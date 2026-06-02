@@ -43,4 +43,9 @@ describe('resolvePeek', () => {
   it('returns covered when neither unlocked nor revealed', () => {
     expect(resolvePeek(primary, new Set(), new Set())).toEqual({ kind: 'covered' })
   })
+
+  it('returns covered when unlocked but the dish image is empty', () => {
+    const noImg = { ...me('m2', 'r1', 1), image: '' }
+    expect(resolvePeek(noImg, new Set(['m2']), new Set())).toEqual({ kind: 'covered' })
+  })
 })

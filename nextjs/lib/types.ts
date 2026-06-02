@@ -205,6 +205,7 @@ export interface MapMustEat {
   _id: string
   dish: string
   description?: string
+  descriptionEn?: string
   price?: string
   image: string
   order?: number

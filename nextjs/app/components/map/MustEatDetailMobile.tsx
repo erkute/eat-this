@@ -3,6 +3,7 @@ import type { MapMustEat } from '@/lib/types'
 import { Link } from '@/i18n/navigation'
 import { formatDistance } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
+import { pickLocale } from '@/lib/i18n/pickLocale'
 import { normalizeName } from '@/lib/normalizeName'
 import styles from './map.module.css'
 import { UNLOCK_RADIUS_METERS, type MustEatDetailState } from './useMustEatDetailState'
@@ -53,7 +54,8 @@ export default function MustEatDetailMobile({
   uid: _uid,
   state,
 }: Props) {
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation()
+  const localizedDescription = pickLocale(mustEat.description, mustEat.descriptionEn, lang)
   const { distance, canUnlock, vibrateIntensity, tapping, revealOrigin, handleCardClick, handleCardZoom } = state
   const { name: restaurantName } = mustEat.restaurant
   const open = isUnlocked && !revealOrigin
@@ -162,7 +164,7 @@ export default function MustEatDetailMobile({
         )}
 
         {open
-          ? mustEat.description && <p className={styles.fdText}>{mustEat.description}</p>
+          ? localizedDescription && <p className={styles.fdText}>{localizedDescription}</p>
           : (
             <div className={`${styles.fdProximity}${canUnlock ? ` ${styles.fdProximityReady}` : ''}`}>
               <p className={styles.fdProximityHead}>

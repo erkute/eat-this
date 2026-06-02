@@ -1,5 +1,5 @@
 import { client } from '@/lib/sanity'
-import { getAllNewsArticles } from '@/lib/sanity.server'
+import { getAllNewsArticles, getAllBezirkeWithStats } from '@/lib/sanity.server'
 import { pickSpotOfDay, type SpotCandidate } from './pickSpotOfDay'
 
 export interface HomeSpot extends SpotCandidate {
@@ -47,11 +47,18 @@ export interface HubArticle {
   kicker: string | null
 }
 
+export interface HubBezirkChip {
+  name: string
+  slug: string
+  count: number
+}
+
 export interface HomeData {
   spotOfDay: HomeSpot | null
   newOnMap: NewOnMapCard[]
   categories: HubCategory[]
   bezirkOfWeek: HubBezirk | null
+  bezirke: HubBezirkChip[]
   magazine: HubArticle[]
   categoryNames: Record<string, string>
 }
@@ -106,14 +113,21 @@ export async function getHomeData(
   locale: 'de' | 'en',
   today: string = new Date().toISOString().slice(0, 10),
 ): Promise<HomeData> {
-  const [candidates, newOnMap, categories, bezirkOfWeek, articles, catNameRows] = await Promise.all([
+  const [candidates, newOnMap, categories, bezirkOfWeek, articles, catNameRows, bezirkRows] = await Promise.all([
     client.fetch<HomeSpot[]>(spotCandidatesQuery, { locale }, { next: { revalidate: 3600, tags: ['restaurant', 'mustEat'] } }),
     client.fetch<NewOnMapCard[]>(newOnMapQuery, { locale }, { next: { revalidate: 3600, tags: ['restaurant'] } }),
     client.fetch<HubCategory[] | null>(homeWeekCategoriesQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
     client.fetch<HubBezirk | null>(bezirkOfWeekQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
     getAllNewsArticles(),
     client.fetch<{ slug: string; name: string }[]>(categoryNamesQuery, { locale }, { next: { revalidate: 3600, tags: ['category'] } }),
+    getAllBezirkeWithStats(),
   ])
+  // Browse-by-district chips → /map?bezirk=. Only districts with open spots
+  // (an empty filter would be a dead end), most-populated first.
+  const bezirke: HubBezirkChip[] = (bezirkRows ?? [])
+    .filter((b) => b.slug && (b.restaurantCount ?? 0) > 0)
+    .sort((a, b) => (b.restaurantCount ?? 0) - (a.restaurantCount ?? 0))
+    .map((b) => ({ name: b.name, slug: b.slug, count: b.restaurantCount ?? 0 }))
   // a.title is already the EN base (or DE fallback) via the news GROQ coalesce;
   // a.titleDe is the German override. So de → titleDe||title, en → title.
   const magazine: HubArticle[] = articles.slice(0, 4).map((a) => ({
@@ -123,5 +137,5 @@ export async function getHomeData(
     kicker: (locale === 'de' ? a.categoryLabelDe : a.categoryLabel) ?? a.categoryLabel ?? null,
   }))
   const categoryNames: Record<string, string> = Object.fromEntries((catNameRows ?? []).map((r) => [r.slug, r.name]))
-  return { spotOfDay: pickSpotOfDay(candidates, today), newOnMap, categories: categories ?? [], bezirkOfWeek, magazine, categoryNames }
+  return { spotOfDay: pickSpotOfDay(candidates, today), newOnMap, categories: categories ?? [], bezirkOfWeek, bezirke, magazine, categoryNames }
 }

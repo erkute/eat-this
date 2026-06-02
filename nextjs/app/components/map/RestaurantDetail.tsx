@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import {
   abbreviateBezirk,
@@ -13,7 +13,7 @@ import { useTranslation } from '@/lib/i18n'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import styles from './map.module.css'
-import { CloseIcon, HeartIcon, ShareIcon } from './icons'
+import { HeartIcon } from './icons'
 import {
   classifyWebsite,
   formatPriceLabel,
@@ -27,18 +27,24 @@ function MustEatMiniCard({
   onClick,
 }: { mustEat: MapMustEat; unlocked: boolean; onClick: () => void }) {
   return (
-    <button
-      type="button"
-      className={styles.mustCardV13}
-      onClick={onClick}
-      aria-label={unlocked ? mustEat.dish : 'Locked Must Eat'}
-    >
-      {unlocked
-        ? <div className={styles.mustCardImg} style={{ backgroundImage: `url(${mustEat.image})` }} />
-        /* eslint-disable-next-line @next/next/no-img-element */
-        : <img src="/pics/card-back.webp?v=5" alt="" className={styles.mustCardBack} loading="lazy" />
-      }
-    </button>
+    <li>
+      <button
+        type="button"
+        className={styles.medish}
+        onClick={onClick}
+        aria-label={unlocked ? mustEat.dish : 'Locked Must Eat'}
+      >
+        <div className={styles.medishPh}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={unlocked ? mustEat.image : '/pics/card-back.webp?v=5'} alt={unlocked ? mustEat.dish : ''} loading="lazy" />
+        </div>
+        {!unlocked && (
+          <div className={styles.medishLbl}>
+            <h4 className={styles.medishNm}>Verdeckt</h4>
+          </div>
+        )}
+      </button>
+    </li>
   )
 }
 
@@ -53,6 +59,10 @@ interface RestaurantDetailProps {
   onMustEatClick: (m: MapMustEat) => void
   isFavorite?: boolean
   onToggleFavorite?: () => void
+  prevRestaurant?: MapRestaurant | null
+  nextRestaurant?: MapRestaurant | null
+  onPagePrev?: () => void
+  onPageNext?: () => void
 }
 
 export default function RestaurantDetail({
@@ -62,10 +72,13 @@ export default function RestaurantDetail({
   userLocation,
   uid,
   userTier,
-  onClose,
   onMustEatClick,
   isFavorite,
   onToggleFavorite,
+  prevRestaurant,
+  nextRestaurant,
+  onPagePrev,
+  onPageNext,
 }: RestaurantDetailProps) {
   const { t } = useTranslation()
   const locale = useLocale()
@@ -131,9 +144,6 @@ export default function RestaurantDetail({
   const storyText = restaurant.description ?? restaurant.shortDescription ?? ''
   const hasStory = !!storyText
   const hasTipp = !!restaurant.tip
-  const showTabs = hasStory && hasTipp
-  const [activeTab, setActiveTab] = useState<'story' | 'tipp'>(hasStory ? 'story' : 'tipp')
-
 
   // Detect booking provider from host for the OpenTable lockup.
   let reservationProvider: string | null = null
@@ -160,236 +170,187 @@ export default function RestaurantDetail({
     <div className={styles.detailV13} role="dialog" aria-label={restaurant.name}>
       <div className={styles.detailV13Scroll} data-detail-scroll>
 
-        {/* 1. HERO — name + meta. data-detail-hero marks the block whose
-            height the bottom-sheet measures to size the peek snap (so peek
-            always shows everything above the photo, regardless of name
-            wrap). Desktop icons sit absolutely inside the coral hero;
-            mobile renders the same icons on the sheet handle. */}
-        <header className={styles.heroYellow} data-detail-hero>
-          <div className={styles.heroActionsDesktop}>
+        {/* HERO — full-bleed photo, name overlay, save heart. data-detail-hero
+            marks the block the bottom-sheet measures for the peek snap. */}
+        <header
+          className={styles.rdHero}
+          data-detail-hero
+          style={restaurant.photo ? { backgroundImage: `url(${restaurant.photo})` } : undefined}
+        >
+          {onToggleFavorite && (
             <button
               type="button"
-              className={`${styles.heroAction} ${styles.heroActionOnHandle}`}
-              aria-label={t('map.share') ?? 'Teilen'}
-              onClick={async () => {
-                const url = typeof window !== 'undefined' ? window.location.href : ''
-                const shareData = { title: restaurant.name, url }
-                try {
-                  if (typeof navigator !== 'undefined' && 'share' in navigator) {
-                    await navigator.share(shareData)
-                    return
-                  }
-                } catch {}
-                try {
-                  if (typeof navigator !== 'undefined' && navigator.clipboard) {
-                    await navigator.clipboard.writeText(url)
-                  }
-                } catch {}
-              }}
+              className={`${styles.rdHeroSave} ${isFavorite ? styles.rdHeroSaveActive : ''}`}
+              aria-label={isFavorite ? 'Remove from saved' : t('map.save')}
+              aria-pressed={!!isFavorite}
+              onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
             >
-              <ShareIcon />
+              <HeartIcon filled={!!isFavorite} />
             </button>
-            {onToggleFavorite && (
-              <button
-                type="button"
-                className={`${styles.heroAction} ${styles.heroActionOnHandle} ${isFavorite ? styles.heroActionSaved : ''}`}
-                aria-label={isFavorite ? 'Remove from saved' : (t('map.save') ?? 'Speichern')}
-                aria-pressed={!!isFavorite}
-                onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
-              >
-                <HeartIcon filled={!!isFavorite} />
-              </button>
-            )}
-            <button
-              type="button"
-              className={`${styles.heroAction} ${styles.heroActionOnHandle} ${styles.heroActionClose}`}
-              aria-label="Close"
-              onClick={onClose}
-            >
-              <CloseIcon />
-            </button>
+          )}
+          <div className={styles.rdOverlay}>
+            <h1 className={styles.rdNameOv}>{normalizeName(restaurant.name)}</h1>
+            <div className={styles.rdTagsOv}>
+              {district && <span className={styles.rdTag}>{district}</span>}
+              {cuisine && <span className={styles.rdTagAlt}>{cuisine}</span>}
+              {statusMain && (
+                <span className={styles.rdTagAlt}>{status.isOpen ? t('map.open') : t('map.closed')}</span>
+              )}
+            </div>
           </div>
-          <h2 className={styles.heroName}>{normalizeName(restaurant.name)}</h2>
-          <p className={styles.heroMeta}>
-            {district && <span className={styles.heroDistrict}>{district}</span>}
-            {(cuisine || priceLabel) && (
-              <span className={styles.heroCuisine}>
-                {cuisine}
-                {priceLabel && <span className={styles.heroPrice}>{priceLabel}</span>}
-              </span>
-            )}
-          </p>
+          {restaurant.photoCredit && (
+            <span className={styles.rdCredit}>
+              {restaurant.photoCreditUrl
+                ? <a href={restaurant.photoCreditUrl} target="_blank" rel="noopener noreferrer">{restaurant.photoCredit}</a>
+                : restaurant.photoCredit}
+            </span>
+          )}
         </header>
 
-        {/* 3. PHOTO STRIP */}
-        {restaurant.photo && (
-          <figure className={styles.photoStrip}>
-            <div
-              className={styles.photoStripImg}
-              style={{ backgroundImage: `url(${restaurant.photo})` }}
-            />
-            {restaurant.photoCredit && (
-              <figcaption className={styles.photoStripTag}>
-                {restaurant.photoCreditUrl ? (
-                  <a href={restaurant.photoCreditUrl} target="_blank" rel="noopener noreferrer">
-                    {restaurant.photoCredit}
-                  </a>
-                ) : (
-                  restaurant.photoCredit
-                )}
-              </figcaption>
-            )}
-          </figure>
+        {/* PAGER — prev/next restaurant in the filtered list */}
+        {(prevRestaurant || nextRestaurant) && (
+          <nav className={styles.rdPager} aria-label="Restaurant pager">
+            <button type="button" className={styles.rdPagerBtn} disabled={!prevRestaurant} onClick={onPagePrev}>
+              {prevRestaurant ? `← ${normalizeName(prevRestaurant.name)}` : ''}
+            </button>
+            <button type="button" className={`${styles.rdPagerBtn} ${styles.rdPagerBtnRight}`} disabled={!nextRestaurant} onClick={onPageNext}>
+              {nextRestaurant ? `${normalizeName(nextRestaurant.name)} →` : ''}
+            </button>
+          </nav>
         )}
 
-        {/* 4. INFO STRIP — editorial plaque, each row stamped with a mustard label */}
-        {(statusMain || restaurant.address || restaurant.phone || igUrl) && (
-          <section className={styles.infoStrip}>
-            {statusMain && (
-              <div className={styles.infoLine}>
-                <span className={`${styles.infoLineLabel} ${status.isOpen ? styles.infoLineLabelOpen : ''}`}>{status.isOpen ? t('map.open') : t('map.closed')}</span>
-                <div className={styles.infoLineBody}>
-                  {restaurant.openingHours && restaurant.openingHours.length > 0 ? (
-                    <details ref={statusDetailsRef} className={styles.statusDetails}>
-                      <summary className={`${styles.statusLockup} ${status.isOpen ? '' : styles.statusLockupClosed}`}>
-                        <span>{statusSub || statusMain}</span>
-                        <svg className={styles.statusChevron} viewBox="0 0 10 6" aria-hidden="true">
-                          <polyline points="1 1 5 5 9 1" />
-                        </svg>
-                      </summary>
-                      <dl className={styles.infoHoursList}>
-                        {restaurant.openingHours.map((slot, i) => (
-                          <div key={i} className={styles.infoHoursRow}>
-                            <dt>{slot.days}</dt>
-                            <dd>{slot.hours}</dd>
-                          </div>
-                        ))}
-                      </dl>
-                    </details>
-                  ) : (
-                    <span className={`${styles.statusLockup} ${status.isOpen ? '' : styles.statusLockupClosed}`}>
-                      <span>{statusSub || statusMain}</span>
-                    </span>
-                  )}
-                </div>
-              </div>
+        {/* BODY — story prose with drop cap */}
+        {hasStory && (
+          <div className={styles.rdBody}>
+            {storyText.split('\n\n').map((para, idx) =>
+              idx === 0 && para.length > 0
+                ? <p key={idx}><span className={styles.rdDropCap}>{para[0]}</span>{para.slice(1)}</p>
+                : <p key={idx}>{para}</p>
             )}
-            {restaurant.address && (
-              <div className={styles.infoLine}>
-                <span className={styles.infoLineLabel}>{t('map.address')}</span>
-                <div className={styles.infoLineBody}>
-                  <a
-                    className={styles.addressLink}
-                    href={addressMapsGoogleHref ?? '#'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {restaurant.address}
-                  </a>
-                  <div className={styles.addressMeta}>
-                    {walkingTime && (
-                      <>
-                        {walkingTime} {t('map.walkMinutes')}
-                        <span className={styles.metaSep}>·</span>
-                      </>
-                    )}
-                    <details ref={mapsDetailsRef} className={styles.metaMapsPop}>
-                      <summary>{t('map.inMaps')}</summary>
-                      <div className={styles.metaMapsPopMenu}>
-                        {addressMapsAppleHref && (
-                          <a href={addressMapsAppleHref} target="_blank" rel="noopener noreferrer">
-                            {t('map.mapsApple')}
-                          </a>
-                        )}
-                        {addressMapsGoogleHref && (
-                          <a href={addressMapsGoogleHref} target="_blank" rel="noopener noreferrer">
-                            {t('map.mapsGoogle')}
-                          </a>
-                        )}
-                      </div>
-                    </details>
-                  </div>
+          </div>
+        )}
+
+        {/* INSIDER TIPP */}
+        {hasTipp && (
+          <div className={styles.rdTipp}>
+            <span className={styles.rdTippLabel}>{t('map.insiderTip')}</span>
+            <p className={styles.rdTippText}>{restaurant.tip}</p>
+          </div>
+        )}
+
+        {/* FACTS */}
+        <div className={styles.rdFacts}>
+          {restaurant.address && (
+            <div className={styles.rdRow}>
+              <span className={styles.rdK}>{t('map.address')}</span>
+              <span className={styles.rdV}>
+                <a href={addressMapsGoogleHref ?? '#'} target="_blank" rel="noopener noreferrer">{restaurant.address}</a>
+                {walkingTime && <span className={styles.rdVMeta}>{walkingTime} {t('map.walkMinutes')}</span>}
+              </span>
+            </div>
+          )}
+          {cuisine && (
+            <div className={styles.rdRow}>
+              <span className={styles.rdK}>{t('map.category')}</span>
+              <span className={styles.rdV}>{cuisine}</span>
+            </div>
+          )}
+          {restaurant.openingHours && restaurant.openingHours.length > 0 && (
+            <div className={styles.rdRow}>
+              <span className={styles.rdK}>{t('map.openingHours')}</span>
+              <details className={styles.rdV} ref={statusDetailsRef}>
+                <summary>{status.isOpen ? t('map.open') : t('map.closed')}{statusSub ? ` · ${statusSub}` : ''}</summary>
+                <div className={styles.rdHours}>
+                  {restaurant.openingHours.map((slot, i) => (
+                    <div key={i} style={{ display: 'contents' }}>
+                      <span className={styles.rdHoursD}>{slot.days}</span>
+                      <span className={styles.rdHoursT}>{slot.hours}</span>
+                    </div>
+                  ))}
                 </div>
+              </details>
+            </div>
+          )}
+          {priceLabel && (
+            <div className={styles.rdRow}>
+              <span className={styles.rdK}>{t('map.price')}</span>
+              <span className={styles.rdV}>{priceLabel}</span>
+            </div>
+          )}
+          {restaurant.phone && (
+            <div className={styles.rdRow}>
+              <span className={styles.rdK}>{t('map.phone')}</span>
+              <span className={styles.rdV}><a href={`tel:${restaurant.phone.replace(/\s+/g, '')}`}>{restaurant.phone}</a></span>
+            </div>
+          )}
+          {igUrl && (
+            <div className={styles.rdRow}>
+              <span className={styles.rdK}>Instagram</span>
+              <span className={styles.rdV}><a href={igUrl} target="_blank" rel="noopener noreferrer">{igHandle ? `@${igHandle}` : 'Profil ↗'}</a></span>
+            </div>
+          )}
+        </div>
+
+        {/* ACTIONS — Maps (popover) + Teilen */}
+        <div className={styles.rdActs}>
+          {(addressMapsAppleHref || addressMapsGoogleHref) && (
+            <details className={styles.rdMapsPop} ref={mapsDetailsRef}>
+              <summary className={`${styles.rdActBtn} ${styles.rdActPrimary}`}>{t('map.maps')}</summary>
+              <div className={styles.rdMapsPopMenu}>
+                {addressMapsAppleHref && <a href={addressMapsAppleHref} target="_blank" rel="noopener noreferrer">{t('map.mapsApple')}</a>}
+                {addressMapsGoogleHref && <a href={addressMapsGoogleHref} target="_blank" rel="noopener noreferrer">{t('map.mapsGoogle')}</a>}
               </div>
-            )}
-            {restaurant.phone && (
-              <div className={styles.infoLine}>
-                <span className={styles.infoLineLabel}>{t('map.phone')}</span>
-                <div className={styles.infoLineBody}>
-                  <a className={styles.infoRowLink} href={`tel:${restaurant.phone.replace(/\s+/g, '')}`}>
-                    {restaurant.phone}
-                  </a>
-                </div>
-              </div>
-            )}
-            {igUrl && (
-              <div className={styles.infoLine}>
-                <span className={styles.infoLineLabel}>Instagram</span>
-                <div className={styles.infoLineBody}>
-                  <a className={styles.infoRowLink} href={igUrl} target="_blank" rel="noopener noreferrer">
-                    {igHandle ? `@${igHandle}` : 'Profil ↗'}
-                  </a>
-                </div>
+            </details>
+          )}
+          <button
+            type="button"
+            className={styles.rdActBtn}
+            onClick={async () => {
+              const url = typeof window !== 'undefined' ? window.location.href : ''
+              try { if (typeof navigator !== 'undefined' && 'share' in navigator) { await navigator.share({ title: restaurant.name, url }); return } } catch {}
+              try { if (typeof navigator !== 'undefined' && navigator.clipboard) { await navigator.clipboard.writeText(url) } } catch {}
+            }}
+          >
+            {t('map.share')}
+          </button>
+        </div>
+
+        {/* RESERVIEREN — kept */}
+        {restaurant.reservationUrl && (
+          <section className={styles.actions}>
+            <a
+              href={restaurant.reservationUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.btnPrimary}
+            >
+              <span className={styles.btnPrimaryLbl}>{t('map.reserve')}</span>
+              <svg className={styles.btnPrimaryArr} viewBox="0 0 24 18" aria-hidden="true">
+                <line x1="2" y1="9" x2="20" y2="9" />
+                <polyline points="14 3 20 9 14 15" />
+              </svg>
+            </a>
+            {reservationProvider === 'OpenTable' && (
+              <div className={styles.ctaFoot}>
+                <a
+                  href={restaurant.reservationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.opentableLockup}
+                >
+                  <span className={styles.otMark}>ot</span>
+                  <span className={styles.otWord}>OpenTable</span>
+                </a>
               </div>
             )}
           </section>
         )}
 
-        {/* 5. TABS + PANELS */}
-        {showTabs && (
-          <div className={styles.tabs}>
-            <button
-              type="button"
-              className={`${styles.tab} ${activeTab === 'story' ? styles.tabActive : ''}`}
-              onClick={() => setActiveTab('story')}
-            >
-              <span>{t('map.tabStory')}</span>
-            </button>
-            <button
-              type="button"
-              className={`${styles.tab} ${activeTab === 'tipp' ? styles.tabActive : ''}`}
-              onClick={() => setActiveTab('tipp')}
-            >
-              <span>{t('map.tabTipp')}</span>
-            </button>
-          </div>
-        )}
-
-        {(hasStory || hasTipp) && (
-          <div className={styles.tabPanels}>
-            {(activeTab === 'story' || !showTabs) && hasStory && (
-              <div className={styles.tabPanel}>
-                <div className={styles.storyProse}>
-                  {storyText.split('\n\n').map((para, idx) => {
-                    if (idx === 0 && para.length > 0) {
-                      return (
-                        <p key={idx}>
-                          <span className={styles.dropCap}>{para[0]}</span>
-                          {para.slice(1)}
-                        </p>
-                      )
-                    }
-                    return <p key={idx}>{para}</p>
-                  })}
-                </div>
-              </div>
-            )}
-
-            {(activeTab === 'tipp' || (!hasStory && hasTipp)) && hasTipp && (
-              <div className={styles.tabPanel}>
-                <h4 className={styles.tipEyebrow}>{t('map.insiderTip')}</h4>
-                <p className={styles.tipBody}>{restaurant.tip}</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Must-Eats — always shown regardless of tab. The visual hook of
-            the page; hiding them behind a tab would be a regression. */}
+        {/* MUST EATS */}
         {mustEats.length > 0 && (
-          <section className={`${styles.tabPanel} ${styles.mustSection}`}>
-            <h3 className={styles.mustSectionH}>Eat This</h3>
-            <ol className={styles.mustGridV13}>
+          <section>
+            <h2 className={styles.rdSecH}>Must Eats</h2>
+            <ol className={styles.rdMustGrid}>
               {mustEats.slice(0, 4).map(m => (
                 <MustEatMiniCard
                   key={m._id}
@@ -402,8 +363,7 @@ export default function RestaurantDetail({
           </section>
         )}
 
-        {/* 6. PACK PROMO — editorial ticket: asymmetric two-column with one
-            big tilted booster card. Anon + starter only. */}
+        {/* PACK PROMO — editorial ticket, anon + starter only */}
         {showBooster && (
           <section className={styles.packPromo}>
             <div className={styles.packPromoCardWrap} aria-hidden="true">
@@ -447,37 +407,6 @@ export default function RestaurantDetail({
                 )}
               </div>
             </div>
-          </section>
-        )}
-
-        {/* 7. ACTIONS — big coral Reservieren + OpenTable lockup */}
-        {restaurant.reservationUrl && (
-          <section className={styles.actions}>
-            <a
-              href={restaurant.reservationUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.btnPrimary}
-            >
-              <span className={styles.btnPrimaryLbl}>{t('map.reserve')}</span>
-              <svg className={styles.btnPrimaryArr} viewBox="0 0 24 18" aria-hidden="true">
-                <line x1="2" y1="9" x2="20" y2="9" />
-                <polyline points="14 3 20 9 14 15" />
-              </svg>
-            </a>
-            {reservationProvider === 'OpenTable' && (
-              <div className={styles.ctaFoot}>
-                <a
-                  href={restaurant.reservationUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.opentableLockup}
-                >
-                  <span className={styles.otMark}>ot</span>
-                  <span className={styles.otWord}>OpenTable</span>
-                </a>
-              </div>
-            )}
           </section>
         )}
 

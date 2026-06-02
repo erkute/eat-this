@@ -676,10 +676,13 @@ html[data-theme="dark"] .list { background: #1c1c1c; }
 
 .listScroll {
   flex: 1;
+  overflow-x: hidden;
   overflow-y: auto;
-  /* Just enough top padding for the rrowMust sticker (-5 px overflow) to
-     clear the filter chip row without an extra visible gap. */
-  padding: 6px 0 0;
+  /* Inset cards 12px each side so the mustPeek (-8px) and 4px box-shadow
+     both sit inside the padding box — nothing overflows, no horizontal
+     swipe/scroll on mobile or desktop. Top padding gives the first card's
+     upward peek room to clear the filter bar. */
+  padding: 16px 12px 0;
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
 }
@@ -1102,8 +1105,9 @@ html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
 /* Locked preview cards — blurred photo + signup badge. Peek is forced to the
    card-back in RestaurantList; click routes to the upgrade flow. */
 .rcardBlur { overflow: hidden; }
-.rcardBlur .rcardImg { filter: blur(7px) saturate(.85); transform: scale(1.06); }
-.rcardBlur .rcardBody { opacity: .4; }
+.rcardBlur .rcardImg { filter: blur(5px) saturate(.9); transform: scale(1.06); }
+.rcardBlur .rcardBody { display: none; }
+.rcardBlur .openPill { display: none; }
 /* Badge text moved from ::before pseudo-element to a JSX span so the string
    is i18n-driven and locale-correct (EN users saw German text before). */
 .rcardBlurBadge {
@@ -1160,7 +1164,6 @@ html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
   max-height: 100%;
   object-fit: contain;
   transform: rotate(11deg);
-  filter: drop-shadow(0 6px 10px rgba(0,0,0,.55)) drop-shadow(0 2px 3px rgba(0,0,0,.4));
 }
 
 /* ========== Editorial slim row (Restaurant list v13) ==========
@@ -3458,7 +3461,7 @@ html[data-theme="dark"] .filterLayerTabActive {
 }
 .filterChipRow::-webkit-scrollbar { display: none; }
 @media (min-width: 1024px) {
-  .filterChipRow { padding: 42px 16px 12px; }
+  .filterChipRow { padding: 10px 16px 12px; }
 }
 
 .filterChipWrap {

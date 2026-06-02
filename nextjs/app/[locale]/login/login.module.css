@@ -66,13 +66,13 @@
 .packHero {
   display: flex;
   justify-content: center;
-  margin: 2px 0 6px;
+  margin: 6px 0 18px;
 }
 .packHero img {
-  width: 150px;
+  width: 240px;
   height: auto;
-  transform: rotate(-4deg);
-  filter: drop-shadow(0 10px 16px rgba(17, 13, 9, 0.22));
+  transform: rotate(-3deg);
+  filter: drop-shadow(0 18px 24px rgba(17, 13, 9, 0.15));
 }
 
 .kicker {
@@ -84,7 +84,7 @@
 }
 .h1 {
   font-family: var(--font-poster);
-  font-size: 64px;
+  font-size: 44px;
   line-height: 0.9;
   text-transform: uppercase;
   color: #0a0a0a;
@@ -92,9 +92,10 @@
   letter-spacing: -0.005em;
 }
 .sub {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.5;
   color: #0a0a0a;
+  opacity: .8;
   margin: 0 0 22px;
   max-width: 32ch;
 }
@@ -124,11 +125,11 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  height: 52px;
+  height: 42px;
   width: 100%;
   border-radius: 0;
   font-family: var(--font-poster);
-  font-size: 15px;
+  font-size: 13px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   cursor: pointer;
@@ -175,11 +176,11 @@
 
 /* ── Legal ── */
 .legal {
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.5;
   color: #0a0a0a;
-  opacity: 0.72;
-  margin: 22px 0 0;
+  opacity: 0.6;
+  margin: 14px 0 0;
 }
 .legalLink {
   color: #0a0a0a;
@@ -294,10 +295,10 @@
 }
 @keyframes loginSpin { to { transform: rotate(360deg); } }
 
-/* ── Mobile compaction — pack + kicker + H1 + sub + form + Google above fold ── */
+/* ── Mobile: pack is the hero, form is secondary ── */
 @media (max-width: 767px) {
-  .packHero img { width: 130px; }
-  .h1 { font-size: 48px; margin-bottom: 8px; }
+  .packHero img { width: 220px; }
+  .h1 { font-size: 40px; margin-bottom: 8px; }
   .sub { margin-bottom: 14px; }
   .kicker { font-size: 12px; }
 }

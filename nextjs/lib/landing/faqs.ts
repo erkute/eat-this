@@ -11,7 +11,7 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
     },
     {
       q: 'Wie funktioniert Eat This?',
-      a: 'Nach der Registrierung erhältst du kostenlosen Zugang zu ersten Berliner Spots auf der Map. Weitere Kategorien und Empfehlungen kannst du später über Packs freischalten.',
+      a: 'Nach der Registrierung erhältst du Zugang zu ersten Berliner Spots auf der Map. Weitere Kategorien und Empfehlungen kannst du später über Packs freischalten.',
     },
     {
       q: 'Was sind Must Eats?',
@@ -27,7 +27,7 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
     },
     {
       q: 'Was ist im Starter Pack enthalten?',
-      a: '20 kostenlose Berliner Spots und ausgewählte Must Eats zum Einstieg.',
+      a: 'Ausgewählte Berliner Spots samt Must Eats zum Einstieg.',
     },
     {
       q: 'Was ist All Berlin?',
@@ -57,7 +57,7 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
     },
     {
       q: 'How does Eat This work?',
-      a: 'After signing up you get free access to your first Berlin spots on the map. Unlock more categories and recommendations any time via packs.',
+      a: 'After signing up you get access to your first Berlin spots on the map. Unlock more categories and recommendations any time via packs.',
     },
     {
       q: 'What are Must Eats?',
@@ -73,7 +73,7 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
     },
     {
       q: "What's in the Starter Pack?",
-      a: '20 free Berlin spots and selected Must Eats to get you started.',
+      a: 'Selected Berlin spots and Must Eats to get you started.',
     },
     {
       q: 'What is All Berlin?',

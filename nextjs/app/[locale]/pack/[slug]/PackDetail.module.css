@@ -31,9 +31,9 @@
   max-width: 240px;
   height: auto;
   transform: rotate(-2deg);
-  filter:
-    drop-shadow(0 22px 32px rgba(0, 0, 0, .32))
-    drop-shadow(0 6px 10px rgba(0, 0, 0, .22));
+  /* Soft single shadow — matches HubPacks; a hard double shadow read as a
+     boxy rectangle on the cut-out pack art. */
+  filter: drop-shadow(0 16px 24px rgba(0, 0, 0, .18));
 }
 
 .kicker {
@@ -262,9 +262,8 @@
   width: 132px;
   height: auto;
   margin: 0 -28px;
-  filter:
-    drop-shadow(0 8px 18px rgba(0, 0, 0, .42))
-    drop-shadow(0 2px 5px rgba(0, 0, 0, .3));
+  /* Soft single shadow — matches HubAllBerlin fan. */
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .4));
 }
 .allRowTop img:nth-child(1)    { transform: rotate(-11deg) translateY(6px);  z-index: 2; }
 .allRowTop img:nth-child(2)    { transform: rotate(0deg)   translateY(-4px); z-index: 5; width: 148px; }
@@ -299,7 +298,7 @@
   width: 100%;
   max-width: 68px;
   height: auto;
-  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, .2));
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .16));
 }
 .allPack .cat {
   font-family: var(--font-ranchers);

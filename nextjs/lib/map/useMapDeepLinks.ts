@@ -65,6 +65,10 @@ export function useMapDeepLinks({
   // favourites and any external link that wants to land on the map with a
   // specific spot already open. Polls mapRef so the flyTo doesn't silently
   // no-op if the canvas hasn't finished mounting yet.
+  // Hold the (frequently re-created) handler in a ref so it's NOT a dependency
+  // — same reasoning as the ?me= effect below.
+  const onRestaurantSlugMatchRef = useRef(onRestaurantSlugMatch)
+  onRestaurantSlugMatchRef.current = onRestaurantSlugMatch
   const restaurantConsumed = useRef(false)
   useEffect(() => {
     if (restaurantConsumed.current) return
@@ -83,19 +87,21 @@ export function useMapDeepLinks({
     params.delete('r')
     const next = window.location.pathname + (params.toString() ? `?${params}` : '') + window.location.hash
     window.history.replaceState(null, '', next)
-    let cancelled = false
+    // No cancel-on-cleanup: once consumed we always finish the open, even if a
+    // re-render (e.g. the /api/map-data fetch landing, or restaurants updating)
+    // re-runs the effect — the consumed guard makes re-runs no-ops. Cancelling
+    // here killed the mapRef poll before the canvas mounted on client-side nav
+    // from the hub, so the detail never opened (only the list showed).
     const tryOpen = () => {
-      if (cancelled) return
       if (mapRef.current) {
         userInteractedRef.current = true
-        onRestaurantSlugMatch(target)
+        onRestaurantSlugMatchRef.current(target)
       } else {
         setTimeout(tryOpen, 120)
       }
     }
     tryOpen()
-    return () => { cancelled = true }
-  }, [isActive, restaurants, lockedRestaurants, onRestaurantSlugMatch, mapRef, userInteractedRef])
+  }, [isActive, restaurants, lockedRestaurants, mapRef, userInteractedRef])
 
   // ?me=<mustEatId> opens the matching Must-Eat detail directly. Used by the
   // inline must-eat cards in news articles. Reuses the in-app tap handler so

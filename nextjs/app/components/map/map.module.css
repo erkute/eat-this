@@ -3264,29 +3264,6 @@ html[data-theme="dark"] .filterLayerTabActive {
   flex-shrink: 0;
 }
 
-/* Catalog-progress badge — sits in the sheet header gutter top-left.
-   Reads „{visible} / {total} SPOTS" so the trial-cap reads as a slice of
-   a bigger guide, not an arbitrary limit. Saira Condensed matched zur
-   Filter-Chip-Familie (gleicher UI-Caps-Layer). */
-.sheetCountMini {
-  position: absolute;
-  top: 2px;
-  left: 14px;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 4px;
-  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
-  font-weight: 900;
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  z-index: 5;
-  pointer-events: none;
-}
-@media (min-width: 1024px) {
-  .sheetCountMini { top: 14px; left: 22px; font-size: 11.5px; }
-}
 
 /* Zone C — category chip row. Sits between the header drag zone and the
    list scroll. No drag handler here — native horizontal scroll only. */
@@ -3493,14 +3470,11 @@ html[data-theme="dark"] .filterLayerTabActive {
    Active state = coral bg + cream text. */
 .filterChipRow {
   display: flex;
-  flex-wrap: nowrap;
   gap: 8px;
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   padding: 24px 14px 10px;
-  /* Linksbündig: Chips starten am 14px-Padding-Rand. Overflow-x scrollt
-     wenn sie nicht reinpassen, kein Centering. */
 }
 .filterChipRow::-webkit-scrollbar { display: none; }
 @media (min-width: 1024px) {
@@ -3517,58 +3491,31 @@ html[data-theme="dark"] .filterLayerTabActive {
   overflow: visible;
 }
 .filterChip {
-  appearance: none;
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  border: 1px solid var(--c-black);
+  gap: 8px;
+  padding: 9px 12px 10px;
   background: var(--c-cream);
-  color: var(--c-black);
-  /* Saira Condensed statt Bowlby: Bowlby's latin-Subset hat keine deutschen
-     Umlaute (Ü/Ö broken in „KÜCHE"/„JETZT GEÖFFNET"); Saira hat volles
-     Latin-Extended + ist als Condensed-Sans bei 10px ohnehin lesbarer. */
-  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
-  font-weight: 900;
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  /* Top-Padding etwas größer als Bottom, damit die Umlaut-Punkte (Ü/Ö)
-     der uppercase Caps Luft nach oben haben — line-height 1.2 statt 1
-     verhindert Diacritic-Clipping durch die Border. */
-  padding: 6px 9px 5px;
+  border: 1.5px solid var(--c-black);
   border-radius: 0;
+  color: var(--c-black);
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: .12em;
+  text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 2px 2px 0 var(--c-black);
-  transition: transform 140ms ease, box-shadow 140ms ease, background 120ms ease, color 120ms ease;
-  line-height: 1.2;
   white-space: nowrap;
+  appearance: none;
 }
-html[data-theme="dark"] .filterChip { box-shadow: 2px 2px 0 var(--c-cream); }
-.filterChip:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0 var(--c-black);
-}
-html[data-theme="dark"] .filterChip:hover { box-shadow: 3px 3px 0 var(--c-cream); }
 
 .filterChipWrap .filterChip {
-  padding-right: 8px;
+  padding-right: 10px;
 }
 
-.filterChipActive {
-  background: var(--c-coral);
-  color: var(--c-cream);
-}
-/* "Jetzt geöffnet" chip uses the kelly-green status color when active —
-   matches the open-status signal (#34a85a) on the detail page so the
-   "now-open" vocabulary is consistent across list + detail. */
-.filterChipOpenActive {
-  background: #34a85a;
-  color: var(--c-cream);
-}
-.filterChipWrap:has(.filterChipActive) {
-  /* Wrap inherits the sticker geometry from its child — no separate styling */
-}
+.filterChipActive,
+.filterChipOpenActive { background: var(--c-mustard); color: var(--c-black); }
 
 .filterChipLabel {
   display: inline-block;
@@ -3579,28 +3526,23 @@ html[data-theme="dark"] .filterChip:hover { box-shadow: 3px 3px 0 var(--c-cream)
   flex-shrink: 0;
   width: 9px;
   height: 9px;
+  opacity: .6;
 }
 .filterChipReset {
   display: grid;
   place-items: center;
-  width: 22px;
+  width: 24px;
   border: 0;
-  background: var(--c-coral);
-  color: var(--c-cream);
+  border-left: 1.5px solid var(--c-black);
+  background: var(--c-mustard);
+  color: var(--c-black);
   cursor: pointer;
   padding: 0;
-  margin-left: -2px;
+  margin-left: -1px;
   border-radius: 0;
-  box-shadow: 2px 2px 0 var(--c-black);
-  transition: transform 140ms ease, box-shadow 140ms ease, background 120ms ease;
+  transition: background 120ms ease;
 }
-html[data-theme="dark"] .filterChipReset { box-shadow: 2px 2px 0 var(--c-cream); }
-.filterChipReset:hover {
-  transform: translate(-1px, -1px);
-  background: var(--c-coral);
-  box-shadow: 3px 3px 0 var(--c-black);
-}
-html[data-theme="dark"] .filterChipReset:hover { box-shadow: 3px 3px 0 var(--c-cream); }
+.filterChipReset:hover { background: var(--c-cream); }
 
 /* -------------------- Picker sheet (mobile) / popover (desktop) -------------------- */
 

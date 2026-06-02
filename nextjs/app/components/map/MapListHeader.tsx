@@ -46,8 +46,6 @@ type ChipKind = 'category' | 'bezirk' | 'cuisine'
 
 export default function MapListHeader({
   headerRef,
-  resultCount,
-  totalCount,
   searchOpen, setSearchOpen, search, onSearchChange,
   categories, category, onCategoryChange,
   openOnly, onOpenOnly,
@@ -84,20 +82,7 @@ export default function MapListHeader({
 
   return (
     <div ref={headerRef} className={styles.listHeader}>
-      {/* Catalog-progress badge — sits in the sheet header. Format:
-          „{visible} / {total} SPOTS" — communicates both what the viewer
-          can currently see (trial-capped at 20 for anon) and the full
-          Sanity catalog size, so the trial feels like a slice of a bigger
-          guide, not an arbitrary limit. */}
-      <span className={styles.sheetCountMini}>
-        {resultCount} / {totalCount}{' '}
-        {resultCount === 1 ? t('map.spotsCountOne') : t('map.spotsCountMany')}
-      </span>
-
-      {/* Chip rail — Kategorie · Bezirk · Küche · Jetzt offen. Search and
-          inline result count moved out; search is now a floating toolbar
-          on the map (see MapSectionBody), the count lives in the floating
-          spot-count-mini above. */}
+      {/* Chip rail — Kategorie · Bezirk · Küche · Jetzt offen. */}
       <div className={styles.filterChipRow}>
         <FilterChip
           ref={categoryBtnRef}

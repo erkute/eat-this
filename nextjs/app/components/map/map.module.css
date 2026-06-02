@@ -5323,16 +5323,17 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
 }
 .rdNameOv {
   font-family: var(--font-chewy);
-  font-size: clamp(34px, 11vw, 56px);
+  /* Upper bound (--rd-name-max) is computed per-name from the longest word so
+     a long single word like "Schlüsseldienst" shrinks to fit on one line
+     instead of breaking mid-word. */
+  font-size: clamp(24px, 12vw, var(--rd-name-max, 56px));
   line-height: .92;
   text-transform: uppercase;
   margin: 0 0 8px;
   text-shadow: 0 2px 12px rgba(0,0,0,.5);
-  /* Long single words (e.g. "Schlüsseldienst") must wrap, not clip against
-     the hero's overflow:hidden. */
-  overflow-wrap: anywhere;
-  word-break: break-word;
-  hyphens: auto;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: manual;
 }
 .rdTagsOv {
   display: flex;

@@ -157,6 +157,12 @@ export default function RestaurantDetail({
     ? (closeTime ? `${t('map.open')} bis ${closeTime}` : t('map.open'))
     : t('map.closed')
 
+  // Scale the hero name down for long single words so they fit on one line
+  // (no ugly mid-word break). Upper bound ≈ heroWidth / (longestWord · 0.62).
+  const displayName = normalizeName(restaurant.name)
+  const longestWord = displayName.split(/\s+/).reduce((m, w) => Math.max(m, w.length), 0)
+  const nameMaxPx = Math.max(26, Math.min(56, Math.round(360 / (Math.max(longestWord, 1) * 0.62))))
+
   const district = abbreviateBezirk(restaurant.bezirk?.name ?? restaurant.district ?? null)
 
   const meters = userLocation
@@ -237,7 +243,7 @@ export default function RestaurantDetail({
             </button>
           )}
           <div className={styles.rdOverlay}>
-            <h1 className={styles.rdNameOv}>{normalizeName(restaurant.name)}</h1>
+            <h1 className={styles.rdNameOv} style={{ ['--rd-name-max' as string]: `${nameMaxPx}px` }}>{displayName}</h1>
             <div className={styles.rdTagsOv}>
               {district && <span className={styles.rdTag}>{district}</span>}
               {cuisine && <span className={styles.rdTagAlt}>{cuisine}</span>}

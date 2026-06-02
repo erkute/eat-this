@@ -1,0 +1,194 @@
+/* Must Eats gallery — Chewy mockup "Screen 05".
+   Tokens: --green→#0a0a0a ink · --cream→#fbf8ee · --yellow→var(--brand-yellow)
+   --font-display→var(--font-chewy). border-radius:0 throughout. */
+
+.head {
+  padding: 18px 16px 6px;
+}
+.kicker {
+  font-family: var(--font-chewy);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  color: #0a0a0a;
+  text-transform: uppercase;
+  margin: 0;
+}
+.title {
+  font-family: var(--font-chewy);
+  font-size: 64px;
+  line-height: 0.96;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 4px 0 6px;
+}
+.sub {
+  font-size: 14px;
+  color: #0a0a0a;
+  line-height: 1.4;
+  max-width: 30ch;
+  margin: 0;
+}
+
+/* Filter chips */
+.filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0 16px 18px;
+}
+.filters::-webkit-scrollbar {
+  display: none;
+}
+.fchip {
+  flex: 0 0 auto;
+  background: transparent;
+  border: 2px solid #0a0a0a;
+  color: #0a0a0a;
+  font-family: var(--font-chewy);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  padding: 8px 14px 9px;
+  border-radius: 0;
+  line-height: 1;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.fchipOn {
+  background: #0a0a0a;
+  color: #fbf8ee;
+}
+
+/* Grid of all must-eats */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  padding: 0 12px 30px;
+}
+@media (min-width: 720px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (min-width: 1080px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Must-Eat dish — freigestelltes Bild, voll sichtbar, kein Rahmen */
+.medish {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 6px;
+  padding: 6px 4px 10px;
+  background: transparent;
+  text-decoration: none;
+  color: inherit;
+}
+.ph {
+  position: relative;
+  aspect-ratio: 1539 / 2115;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ph img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  /* drop-shadow keeps the freigestellt corners; box-shadow would clip them */
+  filter: drop-shadow(0 10px 16px rgba(15, 12, 10, 0.22))
+    drop-shadow(0 2px 4px rgba(15, 12, 10, 0.18));
+}
+/* Open must-eats are full trading cards (name/restaurant baked into the art),
+   so their text label is hidden. Locked cards keep the "Verdeckt" caption. */
+.lbl {
+  text-align: center;
+  color: #0a0a0a;
+  display: grid;
+  gap: 2px;
+  padding: 0 4px;
+  min-height: 46px;
+  align-content: start;
+}
+.medish:not(.locked) .lbl {
+  display: none;
+}
+.nm {
+  font-family: var(--font-chewy);
+  font-size: 22px;
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.rest {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  opacity: 0.8;
+}
+.locked .nm {
+  font-family: var(--font-chewy);
+  font-size: 16px;
+  letter-spacing: 0.18em;
+  color: #0a0a0a;
+  opacity: 0.55;
+  text-transform: uppercase;
+}
+.locked .rest {
+  color: #0a0a0a;
+  opacity: 0.85;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+/* Closing block — keeps the bottom from feeling empty */
+.close {
+  margin: 18px 16px 30px;
+  padding: 22px 22px 24px;
+  background: #0a0a0a;
+  color: #fbf8ee;
+  text-align: left;
+}
+.closeK {
+  font-family: var(--font-chewy);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: var(--brand-yellow);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.closeTitle {
+  font-family: var(--font-chewy);
+  font-size: 38px;
+  line-height: 0.96;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+.closeBody {
+  font-size: 13.5px;
+  line-height: 1.5;
+  opacity: 0.82;
+  margin: 0 0 14px;
+}
+.closeCta {
+  display: inline-block;
+  background: var(--brand-yellow);
+  color: #0a0a0a;
+  font-family: var(--font-chewy);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 11px 16px 12px;
+  border: 0;
+  cursor: pointer;
+  text-decoration: none;
+}

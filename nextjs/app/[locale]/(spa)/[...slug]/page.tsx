@@ -9,6 +9,7 @@ import MapSection from '@/app/components/MapSection'
 import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data'
 import StaticPages from '@/app/components/StaticPages'
 import HubSection from '@/app/components/HubSection'
+import MustEatsSection from '@/app/components/MustEatsSection'
 import { getHomeData } from '@/lib/home/getHomeData'
 
 export const revalidate = 3600
@@ -23,6 +24,7 @@ interface PageProps {
 const VALID_SLUGS = new Set([
   'home',
   'map',
+  'must-eats',
   'news',
   'about',
   'contact',
@@ -49,6 +51,11 @@ const PAGE_META: Record<string, SlugMeta> = {
   map: {
     de: { title: 'Karte', description: 'Interaktive Karte aller Eat-This-Restaurants und Must Eats in Berlin.' },
     en: { title: 'Map', description: 'Interactive map of every Eat This restaurant and Must Eat in Berlin.' },
+    noIndex: true,
+  },
+  'must-eats': {
+    de: { title: 'Must Eats', description: 'Alle Must Eats von Eat This — das eine Gericht pro Spot, offen und verdeckt.' },
+    en: { title: 'Must Eats', description: 'Every Eat This Must Eat — the one dish per spot, face-up and face-down.' },
     noIndex: true,
   },
   news: {
@@ -153,6 +160,10 @@ export default async function SPACatchAllPage({ params }: PageProps) {
     // users refetch /api/map-data on mount for their +20 + entitlement union.
     const initialMapData = await getInitialAnonMapData()
     return <MapSection isActive initialMapData={initialMapData} />
+  }
+  if (top === 'must-eats') {
+    const initialMapData = await getInitialAnonMapData()
+    return <MustEatsSection initialMapData={initialMapData} locale={locale as 'de' | 'en'} />
   }
 
   if (STATIC_SLUGS.has(top)) {

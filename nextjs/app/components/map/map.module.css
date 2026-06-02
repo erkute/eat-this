@@ -5405,7 +5405,7 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.rdPagerArrow { flex: 0 0 auto; }
+.rdPagerArrow { flex: 0 0 auto; width: 22px; height: 22px; }
 
 .rdBody {
   padding: 16px 18px 8px;
@@ -5533,28 +5533,6 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
 .rdMustGrid li:nth-child(even) .medishPh img { transform: rotate(2.5deg); }
 .medish:active .medishPh img { transform: rotate(0deg) scale(.98); }
 
-/* Hero edge chevrons — make left/right paging obvious (and tappable). */
-.rdHeroNav {
-  position: absolute;
-  top: 42%;
-  transform: translateY(-50%);
-  z-index: 3;
-  width: 34px;
-  height: 46px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 0;
-  cursor: pointer;
-  color: #fbf8ee;
-  background: rgba(10, 10, 10, .3);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-}
-.rdHeroNav svg { width: 22px; height: 22px; }
-.rdHeroNavLeft { left: 0; border-radius: 0 6px 6px 0; }
-.rdHeroNavRight { right: 0; border-radius: 6px 0 0 6px; }
 .medishLbl { text-align: center; color: #0a0a0a; display: grid; gap: 2px; padding: 0 4px; }
 .medishNm { font-family: var(--font-chewy); font-size: 16px; letter-spacing: .14em; text-transform: uppercase; opacity: .55; margin: 0; }
 

@@ -3,6 +3,8 @@
    --font-display→var(--font-chewy). border-radius:0 throughout. */
 
 .head {
+  max-width: 1120px;
+  margin: 0 auto;
   padding: 18px 16px 6px;
 }
 .kicker {
@@ -36,6 +38,8 @@
   gap: 8px;
   overflow-x: auto;
   scrollbar-width: none;
+  max-width: 1120px;
+  margin: 0 auto;
   padding: 0 16px 18px;
 }
 .filters::-webkit-scrollbar {
@@ -60,21 +64,27 @@
   color: #fbf8ee;
 }
 
-/* Grid of all must-eats */
+/* Grid of all must-eats — centred, capped width so cards never blow up on
+   desktop; uniform cell heights (align-items:start + fixed card aspect). */
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0;
-  padding: 0 12px 30px;
+  gap: 10px;
+  align-items: start;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 16px 30px;
 }
-@media (min-width: 720px) {
+@media (min-width: 600px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
   }
 }
-@media (min-width: 1080px) {
+@media (min-width: 960px) {
   .grid {
     grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
   }
 }
 
@@ -82,19 +92,17 @@
    Each card fills its grid cell at a fixed card aspect so the grid stays
    uniform; NO drop-shadow (the art carries its own depth — an extra shadow
    reads as ugly overlapping flaps). The whole card is a tap-to-zoom button. */
+/* Every cell is just the trading card (the art carries name/restaurant/etc.),
+   at one fixed aspect → the grid stays perfectly uniform. Tap = zoom. */
 .medish {
-  position: relative;
-  display: grid;
-  grid-template-rows: auto auto;
-  gap: 6px;
-  padding: 6px 4px 10px;
   appearance: none;
   border: 0;
+  margin: 0;
+  padding: 0;
   background: transparent;
-  text-decoration: none;
-  color: inherit;
-  font: inherit;
   cursor: pointer;
+  display: block;
+  width: 100%;
 }
 .ph {
   position: relative;
@@ -106,53 +114,11 @@
   height: 100%;
   object-fit: contain;
 }
-/* Open must-eats are full trading cards (name/restaurant baked into the art),
-   so their text label is hidden. Locked cards keep the "Verdeckt" caption. */
-.lbl {
-  text-align: center;
-  color: #0a0a0a;
-  display: grid;
-  gap: 2px;
-  padding: 0 4px;
-  min-height: 46px;
-  align-content: start;
-}
-.medish:not(.locked) .lbl {
-  display: none;
-}
-.nm {
-  font-family: var(--font-chewy);
-  font-size: 22px;
-  line-height: 1.05;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  margin: 0;
-}
-.rest {
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #0a0a0a;
-  opacity: 0.8;
-}
-.locked .nm {
-  font-family: var(--font-chewy);
-  font-size: 16px;
-  letter-spacing: 0.18em;
-  color: #0a0a0a;
-  opacity: 0.55;
-  text-transform: uppercase;
-}
-.locked .rest {
-  color: #0a0a0a;
-  opacity: 0.85;
-  font-size: 11px;
-  margin-top: 2px;
-}
 
 /* Closing block — keeps the bottom from feeling empty */
 .close {
-  margin: 18px 16px 30px;
+  max-width: min(1120px, calc(100% - 32px));
+  margin: 18px auto 30px;
   padding: 22px 22px 24px;
   background: #0a0a0a;
   color: #fbf8ee;

@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '@/lib/auth'
 import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
-import { normalizeName } from '@/lib/normalizeName'
 import { filterMustEats, type MustEatFilter } from '@/lib/home/mustEatsGallery'
 import MustEatImageLightbox from '@/app/components/map/MustEatImageLightbox'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
@@ -111,10 +110,6 @@ export default function MustEatsGallery({ initialMapData }: Props) {
               <div className={styles.ph}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={imageUrl} alt={alt} loading="lazy" />
-              </div>
-              <div className={styles.lbl}>
-                <h4 className={styles.nm}>{open ? m.dish : t('mustEats.covered')}</h4>
-                <div className={styles.rest}>{normalizeName(m.restaurant.name)}</div>
               </div>
             </button>
           )

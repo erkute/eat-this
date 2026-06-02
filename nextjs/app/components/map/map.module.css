@@ -4375,12 +4375,15 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   box-shadow: 2px 2px 0 #0a0a0a;
 }
 .fdPager {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  margin: 4px 14px 14px;
-  padding: 10px 16px;
-  background: rgba(28, 37, 32, 0.05);
+  gap: 12px;
+  /* Same 14px inset as .fdRest so prev hugs the left edge and next hugs the
+     right edge, flush with everything above — no extra inner padding. */
+  margin: 10px 14px 16px;
+  padding: 12px 0 0;
+  border-top: 2px solid var(--d-ink);
   font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-size: 13px;
   letter-spacing: 0.12em;
@@ -4393,6 +4396,8 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   border: 0;
   padding: 0;
   margin: 0;
+  min-width: 0;
+  max-width: 48%;
   font: inherit;
   letter-spacing: inherit;
   text-transform: inherit;
@@ -4408,9 +4413,6 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   cursor: default;
 }
 .fdPagerRight { text-align: right; }
-:global(html[data-theme="dark"]) .fdPager {
-  background: rgba(240, 232, 208, 0.06);
-}
 .fdText {
   margin: 16px 16px 14px;
   font-size: 14.5px;

@@ -1106,9 +1106,15 @@ html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
 /* Locked preview cards — blurred photo + signup badge. Peek is forced to the
    card-back in RestaurantList; click routes to the upgrade flow. */
 .rcardBlur { overflow: hidden; }
-.rcardBlur .rcardImg { filter: blur(5px) saturate(.9); transform: scale(1.06); }
+.rcardBlur .rcardImg { filter: blur(6px) saturate(.85) brightness(.72); transform: scale(1.08); }
 .rcardBlur .rcardBody { display: none; }
 .rcardBlur .openPill { display: none; }
+/* Uniform ink veil over the whole locked card — darkens evenly so the sticker
+   badge pops against the obscured photo. Sits above the bottom-gradient scrim
+   (z-index 1) but below the badge (z-index 3). */
+.rcardBlur::after {
+  background: rgba(10,10,10,.42);
+}
 /* Badge text moved from ::before pseudo-element to a JSX span so the string
    is i18n-driven and locale-correct (EN users saw German text before). */
 .rcardBlurBadge {
@@ -1116,15 +1122,22 @@ html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   z-index: 3;
-  padding: 9px 13px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 15px 11px;
   background: var(--c-mustard);
   color: var(--c-black);
-  font-family: var(--font-chewy);
-  font-size: 13px;
-  letter-spacing: .14em;
+  border: 2px solid var(--c-black);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--c-black);
+  font-family: var(--font-chewy), 'Chewy', sans-serif;
+  font-size: 14px;
+  letter-spacing: .12em;
   text-transform: uppercase;
   white-space: nowrap;
 }
+.rcardBlurLock { flex: 0 0 auto; }
 
 .openPill {
   position: absolute;

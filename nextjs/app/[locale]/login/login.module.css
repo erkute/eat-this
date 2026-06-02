@@ -66,15 +66,13 @@
 .packHero {
   display: flex;
   justify-content: center;
-  margin: 6px 0 10px;
+  margin: 2px 0 6px;
 }
 .packHero img {
-  width: 180px;
+  width: 150px;
   height: auto;
   transform: rotate(-4deg);
-  filter:
-    drop-shadow(0 18px 28px rgba(17, 13, 9, 0.32))
-    drop-shadow(0 6px 10px rgba(17, 13, 9, 0.2));
+  filter: drop-shadow(0 10px 16px rgba(17, 13, 9, 0.22));
 }
 
 .kicker {
@@ -295,6 +293,14 @@
   animation: loginSpin 0.8s linear infinite;
 }
 @keyframes loginSpin { to { transform: rotate(360deg); } }
+
+/* ── Mobile compaction — pack + kicker + H1 + sub + form + Google above fold ── */
+@media (max-width: 767px) {
+  .packHero img { width: 130px; }
+  .h1 { font-size: 48px; margin-bottom: 8px; }
+  .sub { margin-bottom: 14px; }
+  .kicker { font-size: 12px; }
+}
 
 /* ── Desktop: standalone /login centers the sheet in a tighter column. ── */
 @media (min-width: 768px) {

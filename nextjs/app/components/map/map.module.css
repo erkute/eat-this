@@ -5530,7 +5530,8 @@ html[data-theme="dark"] .musteatStickerSecondary:hover {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1.06);
+  object-position: center;
+  transform: scale(1.1);
 }
 .rdMustGrid li:nth-child(odd) .medishPh { transform: rotate(-2.5deg); }
 .rdMustGrid li:nth-child(even) .medishPh { transform: rotate(2.5deg); }

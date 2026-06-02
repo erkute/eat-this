@@ -376,6 +376,7 @@ html[data-theme="dark"] .fab {
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   appearance: none;
+  transition: transform 240ms cubic-bezier(.2, .8, .2, 1);
 }
 .mapBurger img {
   height: 18px;
@@ -1489,6 +1490,14 @@ html[data-theme="dark"] .mapSearchToolbar {
    fade per project brand rule). */
 .bodyListAtFull .mapSearchToolbar,
 .bodyDetailOpen .mapSearchToolbar {
+  transform: translateY(calc(-100% - 80px));
+  pointer-events: none;
+}
+
+/* Slide the floating burger off-screen when the list sheet is at full height
+   or a detail is open — mirrors the search toolbar hide above exactly. */
+.bodyListAtFull .mapBurger,
+.bodyDetailOpen .mapBurger {
   transform: translateY(calc(-100% - 80px));
   pointer-events: none;
 }
@@ -3549,8 +3558,8 @@ html[data-theme="dark"] .filterLayerTabActive {
   bottom: 0;
   max-height: 70vh;
   background: var(--c-cream);
-  color: var(--c-green);
-  border-top: 2px solid var(--c-green);
+  color: var(--c-black);
+  border-top: 2px solid var(--c-black);
   border-top-left-radius: 18px;
   border-top-right-radius: 18px;
   box-shadow: 0 -10px 32px rgba(0, 0, 0, 0.22);
@@ -3590,14 +3599,14 @@ html[data-theme="dark"] .pickerHandle { background: var(--c-cream); opacity: 0.5
   flex-shrink: 0;
 }
 .pickerTitle {
-  /* Saira Condensed: deutsche Umlaute (Bezirk-Titles wie „KÜCHE") brauchen
-     volles Latin-Extended, was Bowlby's latin-Subset nicht hat. */
-  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
+  /* Chewy: matches the overall app font; Chewy ships full Latin-Extended
+     (incl. German umlauts like KÜCHE) so Saira is no longer needed here. */
+  font-family: var(--font-chewy), 'Chewy', cursive;
   font-weight: 900;
   font-size: 20px;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: var(--c-green);
+  color: var(--c-black);
   /* line-height 1.15 statt 1 — sonst clippt der Header-Border die Punkte
      über Ü/Ö in „KÜCHE". */
   line-height: 1.15;
@@ -3647,45 +3656,52 @@ html[data-theme="dark"] .pickerCloseBtn:hover { box-shadow: 3px 3px 0 var(--c-cr
   appearance: none;
   border: 0;
   background: transparent;
-  color: var(--c-green);
-  /* Saira Condensed: Bezirk-Namen wie „SCHÖNEBERG"/„KÖPENICK" brauchen
-     volles Latin-Extended, was Bowlby nicht hat. */
-  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
+  color: var(--c-black);
+  /* Chewy: matches sitewide display font; covers full Latin-Extended
+     incl. German umlauts (SCHÖNEBERG, KÖPENICK, FRÜHSTÜCK). */
+  font-family: var(--font-chewy), 'Chewy', cursive;
   font-weight: 800;
   font-size: 15px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding: 12px 14px;
+  /* Chewy is taller than Saira — give rows enough vertical room so
+     umlaut diacritics (Ü, Ö) aren't clipped. */
+  padding: 14px 14px 14px;
+  line-height: 1.1;
   border-radius: 0;
   cursor: pointer;
   text-align: left;
-  border-bottom: 1px solid var(--c-row-rule);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   transition: background 120ms ease, color 120ms ease;
 }
 html[data-theme="dark"] .pickerItem { color: var(--c-cream); }
+html[data-theme="dark"] .pickerItem { border-bottom-color: rgba(255, 255, 255, 0.12); }
 .pickerItem:hover { background: rgba(232, 197, 74, 0.18); }
 html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14); }
 .pickerItem:last-child { border-bottom: 0; }
 .pickerItemActive {
-  background: var(--c-coral);
-  color: var(--c-cream);
+  background: var(--c-mustard);
+  color: var(--c-black);
   font-weight: 900;
 }
-.pickerItemActive:hover { background: var(--c-coral); }
+.pickerItemActive:hover { background: var(--c-mustard); }
 .pickerItemLabel {
   flex: 1 1 auto;
   min-width: 0;
 }
 .pickerItemSub {
   flex-shrink: 0;
-  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
+  /* Keep sub text in a compact body font — Chewy at small sizes is hard
+     to read. Ink color with reduced opacity for a muted look. */
+  font-family: inherit;
   font-weight: 600;
   text-transform: none;
   letter-spacing: 0.02em;
-  color: var(--text-secondary);
+  color: var(--c-black);
+  opacity: 0.55;
   font-size: 12px;
 }
-.pickerItemActive .pickerItemSub { color: var(--c-cream); opacity: 0.86; }
+.pickerItemActive .pickerItemSub { color: var(--c-black); opacity: 0.55; }
 
 .pickerFooter {
   border-top: 1px solid var(--border-subtle);

@@ -34,7 +34,7 @@ export default function HubAllBerlin() {
         <span className={styles.price}>{formatPrice(allBerlin.amountCents)}</span>
         <span className={styles.save}>Spar {formatPrice(sumCents - allBerlin.amountCents)}</span>
       </div>
-      <Link href="/map" rel="nofollow" aria-label="All Berlin kaufen" className={styles.cta}>Kaufen →</Link>
+      <Link href="/pack/all-berlin" aria-label="All Berlin ansehen" className={styles.cta}>Kaufen →</Link>
     </section>
   )
 }

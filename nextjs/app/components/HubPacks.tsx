@@ -37,8 +37,8 @@ export default function HubPacks({ categoryNames }: Props) {
               </p>
               <div className={styles.packFoot}>
                 <span className={styles.packPrice}>{formatPrice(p.amountCents)}</span>
-                <Link href={`/map?cat=${slug}`} rel="nofollow" className={styles.packCta}>
-                  Auf die Map →
+                <Link href={`/pack/${slug}`} className={styles.packCta}>
+                  Ansehen →
                 </Link>
               </div>
             </article>

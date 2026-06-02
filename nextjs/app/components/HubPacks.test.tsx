@@ -20,10 +20,9 @@ describe('HubPacks', () => {
     expect(html).toContain('Welcome Pack')
     expect(html).toContain('Frühstück')
   })
-  it('links category packs to the filtered map (nofollow) and offers gift email signup', () => {
+  it('links category packs to their pack detail page and offers gift email signup', () => {
     const html = render()
-    expect(html).toContain('cat=breakfast')
-    expect(html).toContain('rel="nofollow"')
+    expect(html).toContain('/pack/breakfast')
     expect(html).toContain('type="email"')
     expect(html).toContain('Anmelden')
   })

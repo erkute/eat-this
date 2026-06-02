@@ -19,9 +19,8 @@ describe('HubAllBerlin', () => {
     expect(html).toContain('€26,91')
     expect(html).toContain('Spar €6,91')
   })
-  it('links the CTA to the map with nofollow', () => {
+  it('links the CTA to the All Berlin pack detail page', () => {
     const html = render()
-    expect(html).toContain('rel="nofollow"')
-    expect(html).toMatch(/href="[^"]*\/map"/)
+    expect(html).toMatch(/href="[^"]*\/pack\/all-berlin"/)
   })
 })

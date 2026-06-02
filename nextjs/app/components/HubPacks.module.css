@@ -38,7 +38,7 @@
 }
 .artImg {
   object-fit: contain;
-  filter: drop-shadow(0 14px 22px rgba(0,0,0,.32)) drop-shadow(0 4px 8px rgba(0,0,0,.2));
+  filter: drop-shadow(0 16px 24px rgba(0,0,0,.18));
   transform: rotate(-3deg);
 }
 .packCat {

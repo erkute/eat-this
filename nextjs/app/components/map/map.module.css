@@ -1078,6 +1078,27 @@ html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
 .rcardNow { color: var(--c-mustard); font-weight: 700; }
 .rcardDot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .6; }
 
+/* Locked preview cards — blurred photo + signup badge. Peek is forced to the
+   card-back in RestaurantList; click routes to the upgrade flow. */
+.rcardBlur { overflow: hidden; }
+.rcardBlur .rcardImg { filter: blur(7px) saturate(.85); transform: scale(1.06); }
+.rcardBlur .rcardBody { opacity: .4; }
+.rcardBlur::before {
+  content: 'Anmelden um zu öffnen';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  padding: 9px 13px 10px;
+  background: var(--c-mustard);
+  color: var(--c-black);
+  font-family: var(--font-chewy);
+  font-size: 13px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .openPill {
   position: absolute;
   top: 14px; left: 12px;

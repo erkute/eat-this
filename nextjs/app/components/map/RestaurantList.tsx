@@ -166,6 +166,9 @@ export default function RestaurantList({
           restaurant={r}
           userLocation={userLocation}
           isSelected={selectedId === r._id}
+          // Beide Sets werden gebraucht: bei Anon-Nutzern enthält `unlockedIds` die
+          // pre-revealed Must-Eat-IDs NICHT, daher prüft `resolvePeek` `revealedMustEatIds`
+          // separat. Bei eingeloggten Nutzern ist `revealedMustEatIds` leer — harmloser No-op.
           peek={resolvePeek(primaryMustEats.get(r._id), unlockedIds, revealedMustEatIds)}
           onClick={onSelect}
         />

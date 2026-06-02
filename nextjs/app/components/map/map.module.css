@@ -3494,7 +3494,10 @@ html[data-theme="dark"] .filterLayerTabActive {
 }
 .filterChipRow::-webkit-scrollbar { display: none; }
 @media (min-width: 1024px) {
-  .filterChipRow { padding: 10px 16px 12px; }
+  /* Vertically centre the chip row on the same line as the floating search
+     toolbar + burger (both top:14px, height:42px → centre 35px). Chips are
+     35px tall, so padding-top 18px puts their centre at ~35px too. */
+  .filterChipRow { padding: 18px 16px 12px; }
 }
 
 .filterChipWrap {

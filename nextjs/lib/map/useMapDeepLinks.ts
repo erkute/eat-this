@@ -142,12 +142,17 @@ export function useMapDeepLinks({
   useEffect(() => {
     if (bezirkConsumed.current) return
     if (!isActive) return
-    if (restaurants.length === 0) return
+    if (restaurants.length === 0 && lockedRestaurants.length === 0) return
     const params = new URLSearchParams(window.location.search)
     const slug = params.get('bezirk')
     if (!slug) return
     const slugLower = slug.toLowerCase()
-    const match = restaurants.find(
+    // Search owned + locked: a district may have ONLY locked spots (e.g.
+    // Friedenau for a free user). We still want to set the filter so the list
+    // shows those spots as locked previews + the booster upsell — not a dead
+    // "filter never applied" click.
+    const all = restaurants.concat(lockedRestaurants)
+    const match = all.find(
       r => (r.bezirk?.slug ?? '').toLowerCase() === slugLower,
     )
     if (!match || !match.bezirk?.name) {
@@ -159,7 +164,7 @@ export function useMapDeepLinks({
     const bezirkName = match.bezirk.name
     setBezirk(bezirkName)
     if (sheetView === 'list') setSnap('mid')
-    const filtered = restaurants.filter(r => districtOf(r) === bezirkName)
+    const filtered = all.filter(r => districtOf(r) === bezirkName)
     const bbox = computeBezirkBbox(filtered)
     if (!bbox) return
     let cancelled = false
@@ -176,7 +181,7 @@ export function useMapDeepLinks({
     }
     tryFit()
     return () => { cancelled = true }
-  }, [isActive, restaurants, sheetView, setSnap, setBezirk, mapRef, userInteractedRef])
+  }, [isActive, restaurants, lockedRestaurants, sheetView, setSnap, setBezirk, mapRef, userInteractedRef])
 
   // ?cat=<slug> pre-selects a category filter so a hub "Pizza"/"Frühstück"/
   // "Drinks" card (and the Deine-Welt pack CTA) lands on the map with that

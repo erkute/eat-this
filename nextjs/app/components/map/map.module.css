@@ -1008,6 +1008,117 @@ html[data-theme="dark"] .rowStatusClosed { color: #ff6a6a; }
   .rowStatusSub { font-size: 10px; }
 }
 
+/* ===== Full-bleed photo card (Chewy mockup Screen 02) ===== */
+.rcard {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  padding: 0;
+  margin: 0 0 12px;
+  border: 2px solid var(--c-black);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--c-black);
+  background: var(--c-black);
+  overflow: visible;
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+.rcardImg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-color: #1a1a1a;
+}
+.rcard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 35%, rgba(0,0,0,.82) 100%);
+  pointer-events: none;
+}
+.rcardActive { box-shadow: 4px 4px 0 var(--c-mustard); }
+
+.rcardBody {
+  position: absolute;
+  left: 14px; right: 14px; bottom: 14px;
+  z-index: 2;
+  color: #fff;
+}
+.rcardName {
+  font-family: var(--font-chewy);
+  font-size: 26px;
+  line-height: .92;
+  margin: 0;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,.45);
+}
+.rcardMeta {
+  margin: 4px 0 0;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--c-mustard);
+}
+.rcardTime {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 3px 0 0;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.85);
+}
+.rcardNow { color: var(--c-mustard); font-weight: 700; }
+.rcardDot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .6; }
+
+.openPill {
+  position: absolute;
+  top: 14px; left: 12px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px 5px;
+  background: var(--c-mustard);
+  color: var(--c-black);
+  font-family: var(--font-chewy);
+  font-size: 10.5px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.openPill::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 999px;
+  background: var(--c-black);
+}
+.openPillClosed { background: #fff; color: var(--c-black); opacity: .85; }
+.openPillClosed::before { background: var(--c-black); opacity: .45; }
+
+.mustPeek {
+  position: absolute;
+  top: -8px; right: -8px;
+  width: 68px; height: 88px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.mustPeek img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transform: rotate(11deg);
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,.55)) drop-shadow(0 2px 3px rgba(0,0,0,.4));
+}
+
 /* ========== Editorial slim row (Restaurant list v13) ==========
    3-column layout: 38% photo (with must-eat card-back peek) +
    meta column (mustard bezirk sticker + coral category caps + Saira

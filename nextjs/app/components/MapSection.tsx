@@ -14,6 +14,7 @@ import {
   useMapDeepLinks,
   useUserTier,
   buildPrimaryMustEatMap,
+  resolveUnlockedMustEatIds,
 } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { useLocale } from 'next-intl'
@@ -70,25 +71,13 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   // Free-and-open trial — 10/10 split: the first half of the trial-20
   // restaurants (deterministic order from /api/map-data, most-must-eats
   // first) get their must-eats unlocked; the second half stays locked
-  // (card-back). Gives the map a sense of „discover more" without a
-  // signup wall. Authed users keep the stored Firestore unlock set.
-  const TRIAL_UNLOCKED_COUNT = 10
-  const unlockedIds = useMemo(() => {
-    if (uid) {
-      // Signed-in: Firestore-collected reveals ∪ the server-curated revealed
-      // set (the SAME set the profile deck shows as teasers). The curated set
-      // is on visible anon-tier spots, so each revealed must-eat's spot shows.
-      return new Set<string>([...storedUnlockedIds, ...revealedMustEatIds])
-    }
-    const unlockedRestaurantIds = new Set(
-      restaurants.slice(0, TRIAL_UNLOCKED_COUNT).map((r) => r._id),
-    )
-    return new Set(
-      mustEats
-        .filter((m) => unlockedRestaurantIds.has(m.restaurant._id))
-        .map((m) => m._id),
-    )
-  }, [uid, storedUnlockedIds, revealedMustEatIds, mustEats, restaurants])
+  // (card-back). Authed users keep the stored Firestore unlock set ∪ the
+  // server-curated reveals. Shared helper — the SAME face-up computation
+  // drives the /must-eats gallery and the /home teaser.
+  const unlockedIds = useMemo(
+    () => resolveUnlockedMustEatIds({ uid, storedUnlockedIds, revealedMustEatIds, mustEats, restaurants }),
+    [uid, storedUnlockedIds, revealedMustEatIds, mustEats, restaurants],
+  )
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
   const userTier = useUserTier(uid)
 

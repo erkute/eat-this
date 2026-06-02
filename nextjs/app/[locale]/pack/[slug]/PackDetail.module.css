@@ -7,6 +7,10 @@
   background: #fbf8ee;
   color: #0a0a0a;
   display: flow-root; /* contain margins over the dark footer */
+  /* Clear the fixed 64px SiteNav — this route has its own layout, not the
+     (spa) .app-pages margin. On staging the 32px banner (--staging-banner-h)
+     pushes the navbar down, so account for it too. Mirrors ProfileSlim. */
+  padding-top: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
 }
 
 .inner {

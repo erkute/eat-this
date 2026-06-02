@@ -1,23 +1,31 @@
 'use client'
 import type { MapMustEat } from '@/lib/types'
 import { Link } from '@/i18n/navigation'
+import { formatDistance } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { normalizeName } from '@/lib/normalizeName'
 import styles from './map.module.css'
-import { type MustEatDetailState } from './useMustEatDetailState'
-import { CloseIcon } from './icons'
+import { UNLOCK_RADIUS_METERS, type MustEatDetailState } from './useMustEatDetailState'
+import { CloseIcon, PagerArrowIcon } from './icons'
 
 const CARD_BACK = '/pics/card-back.webp?v=5'
 
 interface Props {
   mustEat: MapMustEat
   isUnlocked: boolean
+  /** True for the brief window after the card lands: the "VERDECKT" stamp
+   *  burns away and the name un-blurs into view. */
+  nameBurning?: boolean
   onClose: () => void
   onBack?: () => void
   onViewRestaurant?: () => void
   /** Global must-eat pager — adjacent cards + page handlers. */
   prevMustEat?: MapMustEat | null
   nextMustEat?: MapMustEat | null
+  /** Whether the adjacent cards are revealed — a locked neighbour must NOT
+   *  leak its dish name in the pager (it'd spoil the surprise). */
+  prevUnlocked?: boolean
+  nextUnlocked?: boolean
   onPagePrev?: () => void
   onPageNext?: () => void
   uid?: string | null
@@ -32,20 +40,25 @@ interface Props {
 export default function MustEatDetailMobile({
   mustEat,
   isUnlocked,
+  nameBurning,
   onClose,
   onBack: _onBack,
   onViewRestaurant,
   prevMustEat,
   nextMustEat,
+  prevUnlocked,
+  nextUnlocked,
   onPagePrev,
   onPageNext,
   uid: _uid,
   state,
 }: Props) {
   const { t } = useTranslation()
-  const { canUnlock, vibrateIntensity, tapping, revealOrigin, handleCardClick, handleCardZoom } = state
+  const { distance, canUnlock, vibrateIntensity, tapping, revealOrigin, handleCardClick, handleCardZoom } = state
   const { name: restaurantName } = mustEat.restaurant
   const open = isUnlocked && !revealOrigin
+  const nameRevealed = open && !nameBurning
+  const showStamp = !open || nameBurning
 
   return (
     <div
@@ -85,8 +98,27 @@ export default function MustEatDetailMobile({
           </button>
         )}
 
-        {/* Big punchy dish name — open only (locked keeps the surprise). */}
-        {open && <h1 className={styles.fdName}>{normalizeName(mustEat.dish)}</h1>}
+        {/* Big punchy dish name. Locked spells the name out at full weight but
+            slaps a thick stamp over it so it can't be read — the presence
+            stays, the surprise stays. */}
+        <h1 className={styles.fdName} aria-label={nameRevealed ? undefined : t('mustEats.covered')}>
+          <span className={styles.fdNameWrap}>
+            <span
+              className={`${styles.fdNameText}${!open ? ` ${styles.fdNameBlur}` : ''}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}
+              aria-hidden={nameRevealed ? undefined : true}
+            >
+              {normalizeName(mustEat.dish)}
+            </span>
+            {showStamp && (
+              <span
+                className={`${styles.fdNameStamp}${nameBurning ? ` ${styles.fdNameStampBurning}` : ''}`}
+                aria-hidden="true"
+              >
+                {t('mustEats.covered')}
+              </span>
+            )}
+          </span>
+        </h1>
 
         {/* Restaurant / price / Zum Spot — one thick stripe underneath. */}
         <div className={styles.fdRest}>
@@ -115,12 +147,16 @@ export default function MustEatDetailMobile({
         {(prevMustEat || nextMustEat) && (
           <div className={styles.fdPager}>
             <button type="button" className={styles.fdPagerPrev} disabled={!prevMustEat} onClick={onPagePrev}>
-              <span className={styles.fdPagerArrow} aria-hidden="true">←</span>
-              <span className={styles.fdPagerName}>{prevMustEat ? normalizeName(prevMustEat.dish) : ''}</span>
+              <span className={styles.fdPagerArrow}><PagerArrowIcon /></span>
+              <span className={styles.fdPagerName}>
+                {prevMustEat ? (prevUnlocked ? normalizeName(prevMustEat.dish) : t('mustEats.covered')) : ''}
+              </span>
             </button>
             <button type="button" className={styles.fdPagerNext} disabled={!nextMustEat} onClick={onPageNext}>
-              <span className={styles.fdPagerName}>{nextMustEat ? normalizeName(nextMustEat.dish) : ''}</span>
-              <span className={styles.fdPagerArrow} aria-hidden="true">→</span>
+              <span className={styles.fdPagerName}>
+                {nextMustEat ? (nextUnlocked ? normalizeName(nextMustEat.dish) : t('mustEats.covered')) : ''}
+              </span>
+              <span className={styles.fdPagerArrow}><PagerArrowIcon /></span>
             </button>
           </div>
         )}
@@ -128,11 +164,20 @@ export default function MustEatDetailMobile({
         {open
           ? mustEat.description && <p className={styles.fdText}>{mustEat.description}</p>
           : (
-            <p className={styles.fdText}>
-              {canUnlock
-                ? 'Du bist nah genug — tippe die Karte, um sie aufzudecken.'
-                : 'Vor Ort dreht sich die Karte von selbst um — komm dem Spot nah.'}
-            </p>
+            <div className={`${styles.fdProximity}${canUnlock ? ` ${styles.fdProximityReady}` : ''}`}>
+              <p className={styles.fdProximityHead}>
+                {canUnlock
+                  ? 'Du bist da!'
+                  : distance !== null
+                    ? `Noch ${formatDistance(distance)}`
+                    : 'Komm näher'}
+              </p>
+              <p className={styles.fdProximitySub}>
+                {canUnlock
+                  ? 'Tippe die Karte, um dein Must Eat aufzudecken.'
+                  : `Komm auf ${UNLOCK_RADIUS_METERS} m an den Spot heran, dann kannst du die Karte aufdecken.`}
+              </p>
+            </div>
           )}
       </div>
     </div>

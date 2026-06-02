@@ -18,6 +18,19 @@ export function BackIcon() {
   )
 }
 
+// Left-pointing arrow, drawn centred at y=12 in a 24×24 box so flex
+// `align-items: center` lines it up with adjacent text deterministically
+// (the unicode ←/→ glyphs came from a fallback font and sat too low).
+// Flip with `transform: scaleX(-1)` for the right-pointing variant.
+export function PagerArrowIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M19 12H5" />
+      <path d="M11 6l-6 6 6 6" />
+    </svg>
+  )
+}
+
 export function ShareIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

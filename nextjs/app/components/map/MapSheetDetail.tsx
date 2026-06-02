@@ -58,10 +58,11 @@ export default function MapSheetDetail(props: Props) {
           onViewRestaurant={props.onViewRestaurant}
           prevMustEat={props.prevMustEat}
           nextMustEat={props.nextMustEat}
+          prevUnlocked={!!props.prevMustEat && props.unlockedIds.has(props.prevMustEat._id)}
+          nextUnlocked={!!props.nextMustEat && props.unlockedIds.has(props.nextMustEat._id)}
           onPagePrev={props.onPagePrev}
           onPageNext={props.onPageNext}
           uid={props.uid}
-          inSheet
         />
       ) : (
         <RestaurantDetail

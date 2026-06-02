@@ -13,21 +13,29 @@ interface Args {
   // doesn't (and shouldn't) advance phases without a signed-in user, so
   // gating here keeps the locked-card tap a no-op tap-feedback instead.
   isAuthed: boolean
+  // Demo mode (?revealdemo): play the reveal animation on tap regardless of
+  // distance/auth, with no unlock side effects — lets the look be reviewed
+  // without physically walking into a 50 m radius.
+  demo?: boolean
 }
 
-export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthed }: Args) {
+export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthed, demo }: Args) {
   const distance = userLocation
     ? haversineDistance(userLocation.lat, userLocation.lng, mustEat.restaurant.lat, mustEat.restaurant.lng)
     : null
 
-  const canUnlock = distance !== null && distance <= UNLOCK_RADIUS_METERS
+  // In demo the card is always tappable, so it reads as "ready" and wiggles
+  // invitingly even without a location fix.
+  const canUnlock = demo || (distance !== null && distance <= UNLOCK_RADIUS_METERS)
 
   // Vibration ramps from a small idle baseline (0.18 - always perceptible)
   // up to 1.0 right on top of the restaurant. Under UNLOCK_RADIUS_METERS
-  // it's unlockable.
-  const vibrateIntensity = distance === null
-    ? 0.18
-    : Math.max(0.18, Math.min(1, 1 - distance / 500))
+  // it's unlockable. Demo pins it near the top so the wiggle is obvious.
+  const vibrateIntensity = demo
+    ? 0.9
+    : distance === null
+      ? 0.18
+      : Math.max(0.18, Math.min(1, 1 - distance / 500))
 
   const [tapping, setTapping] = useState(false)
 
@@ -37,6 +45,11 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthe
   const [revealOrigin, setRevealOrigin] = useState<DOMRect | null>(null)
 
   const handleCardClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Demo: play the animation only, no unlock/persist side effects.
+    if (demo) {
+      setRevealOrigin(e.currentTarget.getBoundingClientRect())
+      return
+    }
     if (canUnlock && isAuthed) {
       const rect = e.currentTarget.getBoundingClientRect()
       setRevealOrigin(rect)

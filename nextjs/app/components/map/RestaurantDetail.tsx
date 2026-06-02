@@ -385,16 +385,13 @@ export default function RestaurantDetail({
             onClick={async () => {
               const url = typeof window !== 'undefined' ? window.location.href : ''
               const shareData = { title: restaurant.name, text: restaurant.name, url }
-              // Native share sheet where available (mobile). canShare guards
-              // desktop Chrome where navigator.share exists but rejects.
-              try {
-                const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean }
-                if (typeof navigator !== 'undefined' && 'share' in navigator && (!nav.canShare || nav.canShare(shareData))) {
-                  await navigator.share(shareData)
-                  return
-                }
-              } catch { return /* user dismissed the share sheet */ }
-              // Fallback: copy the link + show confirmation.
+              // Native share sheet only on touch devices (mobile). Desktop
+              // Chrome exposes navigator.share but it's a poor fit there — so
+              // desktop always copies the link and shows a confirmation.
+              const isTouch = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches
+              if (isTouch && typeof navigator !== 'undefined' && 'share' in navigator) {
+                try { await navigator.share(shareData); return } catch { return }
+              }
               try {
                 if (navigator?.clipboard?.writeText) await navigator.clipboard.writeText(url)
                 else {
@@ -402,9 +399,9 @@ export default function RestaurantDetail({
                   ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0'
                   document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove()
                 }
-                setShareDone(true)
-                window.setTimeout(() => setShareDone(false), 1800)
               } catch {}
+              setShareDone(true)
+              window.setTimeout(() => setShareDone(false), 1800)
             }}
           >
             {shareDone ? (locale === 'en' ? 'Link copied ✓' : 'Link kopiert ✓') : t('map.share')}

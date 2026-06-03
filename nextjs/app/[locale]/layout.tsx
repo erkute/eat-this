@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { setRequestLocale, getMessages } from 'next-intl/server';
-import { Bungee, Caveat, Knewave, Archivo_Black, Ranchers, Slackey, Barlow_Condensed, Chewy, Saira_Condensed, Permanent_Marker, Anton } from 'next/font/google';
+import { Bungee, Caveat, Knewave, Archivo_Black, Ranchers, Slackey, Barlow_Condensed, Schoolbell, Saira_Condensed, Permanent_Marker, Anton } from 'next/font/google';
 import Script from 'next/script';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
@@ -79,7 +79,11 @@ const barlowCondensed = Barlow_Condensed({
 // German umlauts (ä ö ü ß) and accented Latin, so it carries every German
 // heading natively. Used as the universal display font so every section
 // reads as one EAT THIS poster.
-const chewy = Chewy({
+// NOTE: variable kept as `--font-chewy` for now so the downstream aliases
+// (--font-display / --font-poster) and direct var(--font-chewy) refs pick up
+// Schoolbell without touching every file. Rename to --font-schoolbell once the
+// font is signed off.
+const schoolbell = Schoolbell({
   weight: '400',
   subsets: ['latin'],
   display: 'swap',
@@ -187,7 +191,7 @@ export default async function LocaleLayout({
 
   return (
     // suppressHydrationWarning: critical script mutates data-theme before hydration
-    <html lang={locale} data-scroll-behavior="smooth" className={`${bungee.variable} ${caveat.variable} ${knewave.variable} ${archivoBlack.variable} ${ranchers.variable} ${slackey.variable} ${barlowCondensed.variable} ${chewy.variable} ${sairaCondensed.variable} ${permanentMarker.variable} ${anton.variable}`} suppressHydrationWarning>
+    <html lang={locale} data-scroll-behavior="smooth" className={`${bungee.variable} ${caveat.variable} ${knewave.variable} ${archivoBlack.variable} ${ranchers.variable} ${slackey.variable} ${barlowCondensed.variable} ${schoolbell.variable} ${sairaCondensed.variable} ${permanentMarker.variable} ${anton.variable}`} suppressHydrationWarning>
       <head>
         {/* Safe: hardcoded constant, no user input */}
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}

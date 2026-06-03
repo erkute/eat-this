@@ -25,9 +25,9 @@
 }
 .row summary::-webkit-details-marker { display: none; }
 .q {
-  font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
-  font-size: 16px;
-  font-weight: 600;
+  font-family: var(--f-display, "Anton"), "Bebas Neue", sans-serif;
+  font-size: 20px;
+  font-weight: 400;
   letter-spacing: -0.005em;
   color: var(--ink, #000);
   flex: 1;

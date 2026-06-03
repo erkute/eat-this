@@ -140,9 +140,9 @@ export default async function RestaurantPage({ params }: PageProps) {
   const websiteInfo = classifyWebsite(r.website)
   const websiteUrl = websiteInfo?.url ?? null
   const address = r.address
-  const mapsUrl = address
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.name}, ${address}`)}`
-    : null
+  // Map CTAs land on the spot's district list (breadth over re-opening the
+  // detail the user just read), falling back to the full map.
+  const mapHref = r.bezirk?.slug ? `/map?bezirk=${r.bezirk.slug}` : '/map'
 
   const homeLabel = de ? 'Start' : 'Home'
   const districtsLabel = de ? 'Bezirke' : 'Districts'
@@ -214,8 +214,6 @@ export default async function RestaurantPage({ params }: PageProps) {
           <h1 className={styles.name}>{r.name}</h1>
         )}
 
-        <MapPromoCTA variant="chip" kind="restaurant" name={r.name} mapHref={`/map?r=${slug}`} locale={loc} />
-
         {description && (
           <article className={styles.story}>
             <p className={styles.lede}>{magazine?.lede || description}</p>
@@ -276,24 +274,24 @@ export default async function RestaurantPage({ params }: PageProps) {
           )}
         </dl>
 
-        {(websiteUrl || mapsUrl) && (
-          <div className={styles.acts}>
-            {websiteUrl && (
-              <a className={`${styles.act} ${styles.actPrimary}`} href={websiteUrl} target="_blank" rel="noopener nofollow noreferrer">
-                Website
-              </a>
-            )}
-            {mapsUrl && (
-              <a className={`${styles.act} ${styles.actAlt}`} href={mapsUrl} target="_blank" rel="noopener nofollow noreferrer">
-                {de ? 'In Maps öffnen' : 'Open in Maps'}
-              </a>
-            )}
-          </div>
-        )}
+        <div className={styles.acts}>
+          {websiteUrl && (
+            <a className={`${styles.act} ${styles.actPrimary}`} href={websiteUrl} target="_blank" rel="noopener nofollow noreferrer">
+              Website
+            </a>
+          )}
+          {/* Opens our own map (deep-linked to this spot), not Google Maps.
+              rel="nofollow" — /map is noindex. */}
+          <IntlLink className={`${styles.act} ${styles.actAlt}`} href={mapHref} rel="nofollow">
+            {de ? 'Map öffnen' : 'Open the map'}
+          </IntlLink>
+        </div>
 
         {mustEats.length > 0 && (
           <MustEatTeaserSection mustEats={mustEats} locale={loc} />
         )}
+
+        <MapPromoCTA kind="restaurant" name={r.name} mapHref={mapHref} locale={loc} />
 
         <RestaurantFAQ entries={faqEntries} locale={loc} />
 
@@ -342,8 +340,6 @@ export default async function RestaurantPage({ params }: PageProps) {
             )}
           </section>
         )}
-
-        <MapPromoCTA kind="restaurant" name={r.name} mapHref={`/map?r=${slug}`} locale={loc} />
 
       </main>
     </>

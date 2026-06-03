@@ -199,6 +199,8 @@ export default async function BezirkDetailPage({ params }: PageProps) {
           })}
         </section>
 
+        <MapPromoCTA kind="bezirk" name={b.name} mapHref={`/map?bezirk=${slug}`} locale={loc} />
+
         {faqEntries.length > 0 && (
           <section className={styles.faq} aria-label={de ? 'Häufige Fragen' : 'FAQ'}>
             <div className={styles.faqKicker}>{de ? 'Häufige Fragen' : 'Frequently asked'}</div>
@@ -213,8 +215,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
             ))}
           </section>
         )}
-
-        <MapPromoCTA kind="bezirk" name={b.name} mapHref={`/map?bezirk=${slug}`} locale={loc} />
 
       </main>
     </>

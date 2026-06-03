@@ -19,7 +19,7 @@ describe('MapPromoCTA', () => {
     expect(html).toContain('href="/map?bezirk=neukoelln"')
     expect(html).toContain('rel="nofollow"')
     expect(html).toContain('Ganz Neukölln auf der Map')
-    expect(html).toContain('Zur Map')
+    expect(html).toContain('Map öffnen')
   })
 
   it('renders EN copy + interpolated category name', () => {

@@ -20,16 +20,16 @@ function getCopy(kind: Kind, name: string, locale: 'de' | 'en'): { title: string
   switch (kind) {
     case 'restaurant':
       return de
-        ? { title: 'Auf der Map ansehen', sub: 'Dieser Spot und jeder andere handverlesene Tipp in Berlin — interaktiv auf der Karte.' }
-        : { title: 'See it on the map', sub: 'This spot and every other hand-picked place in Berlin — live on the map.' }
+        ? { title: 'Auf der Map ansehen', sub: 'Dieser Spot und die besten anderen in Berlin.' }
+        : { title: 'See it on the map', sub: 'This spot and the best of the rest in Berlin.' }
     case 'bezirk':
       return de
-        ? { title: `Ganz ${name} auf der Map`, sub: 'Jeder handverlesene Spot im Kiez, interaktiv auf der Karte.' }
-        : { title: `All of ${name} on the map`, sub: 'Every hand-picked spot in the area, live on the map.' }
+        ? { title: `Ganz ${name} auf der Map`, sub: 'Die besten Spots in der Gegend.' }
+        : { title: `All of ${name} on the map`, sub: 'The best spots in the area.' }
     case 'kategorie':
       return de
-        ? { title: `${name} auf der Map`, sub: 'Die ganze Auswahl, interaktiv auf der Karte.' }
-        : { title: `${name} on the map`, sub: 'The full selection, live on the map.' }
+        ? { title: `${name} auf der Map`, sub: 'Unsere ganze Auswahl in Berlin.' }
+        : { title: `${name} on the map`, sub: 'Our full selection in Berlin.' }
   }
 }
 
@@ -46,7 +46,7 @@ const arrow = (
 
 export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'block' }: Props) {
   const { title, sub } = getCopy(kind, name, locale)
-  const ctaLabel = locale === 'de' ? 'Zur Map' : 'Open the map'
+  const ctaLabel = locale === 'de' ? 'Map öffnen' : 'Open the map'
 
   if (variant === 'chip') {
     return (

@@ -134,19 +134,20 @@
   flex-wrap: wrap;
   font-family: var(--f-display);
   font-size: 13px;
+  line-height: 1.15;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 .heroTags .chip {
   background: var(--yellow);
   color: var(--ink);
-  padding: 4px 9px 5px;
+  padding: 5px 10px 5px;
 }
 .heroTags .chipAlt {
   background: rgba(255, 255, 255, 0.16);
   color: var(--cream);
   border: 1.5px solid rgba(255, 255, 255, 0.5);
-  padding: 2.5px 9px 3.5px;
+  padding: 4px 10px 4px;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
@@ -190,6 +191,7 @@
   margin: 8px 16px 16px;
   font-family: var(--f-display);
   font-size: 14px;
+  line-height: 1.15;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink);
@@ -200,13 +202,13 @@
 .tags .chip {
   background: var(--yellow);
   color: var(--ink);
-  padding: 3px 9px 4px;
+  padding: 5px 10px 5px;
 }
 .tags .chipAlt {
   background: transparent;
   border: 1.5px solid var(--ink);
   color: var(--ink);
-  padding: 2px 9px 3px;
+  padding: 4px 10px 4px;
 }
 
 /* ============================================================
@@ -303,7 +305,7 @@
   letter-spacing: 0.12em;
   color: var(--ink);
   text-transform: uppercase;
-  line-height: 1;
+  line-height: 1.15;
 }
 .factsVal {
   font-family: var(--f-body);

@@ -13,7 +13,7 @@ import { routing } from '@/i18n/routing'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import { buildBezirkFAQEntries } from '@/lib/bezirk-prose'
 import styles from '../Bezirk.module.css'
-import HubMapCTA from '@/app/components/HubMapCTA'
+import MapPromoCTA from '@/app/components/MapPromoCTA'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 
 interface PageProps {
@@ -128,10 +128,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
     faqs: faqEntries,
   })
 
-  const hubCtaTitle = de
-    ? `${b.name} auf der Map ansehen`
-    : `See ${b.name} on the map`
-
   return (
     <>
       <Script id={`schema-bezirk-${slug}`} type="application/ld+json" strategy="beforeInteractive">
@@ -150,7 +146,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
               {`Restaurants in ${b.name}`}
             </div>
           )}
-          <HubMapCTA href="/" title={hubCtaTitle} variant="chip" />
         </header>
 
         <div className={styles.stats} style={statsStyle}>
@@ -217,6 +212,8 @@ export default async function BezirkDetailPage({ params }: PageProps) {
             ))}
           </section>
         )}
+
+        <MapPromoCTA kind="bezirk" name={b.name} mapHref={`/map?bezirk=${slug}`} locale={loc} />
 
       </main>
     </>

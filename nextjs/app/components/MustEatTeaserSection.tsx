@@ -22,7 +22,6 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
 
   if (mustEats.length === 0) return null
   const de = locale === 'de'
-  const n = mustEats.length
 
   const handleClick = (id: string) => {
     setShakingId(id)
@@ -36,14 +35,14 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
   const t = de
     ? {
         eyebrow:  'Must Eats',
-        heading:  n === 1 ? '1 Must Eat noch nicht aufgedeckt.' : `${n} Must Eats noch nicht aufgedeckt.`,
+        heading:  'Noch nicht aufgedeckt.',
         body:     'Bald geht es los — sei dabei.',
         ariaList: 'Must Eats aufdecken',
         ariaCard: 'Zur Launch-Seite',
       }
     : {
         eyebrow:  'Must Eats',
-        heading:  n === 1 ? '1 Must Eat still face-down.' : `${n} Must Eats still face-down.`,
+        heading:  'Still face-down.',
         body:     'Going live soon — get on the list.',
         ariaList: 'Reveal Must Eats',
         ariaCard: 'Open launch page',

@@ -13,6 +13,7 @@ import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaura
 import { buildFAQEntries, splitDescriptionForMagazine } from '@/lib/restaurant-prose'
 import { getOpenStatus } from '@/lib/map/openingHours'
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection'
+import MapPromoCTA from '@/app/components/MapPromoCTA'
 import RestaurantFAQ from '@/app/components/RestaurantFAQ'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 import { Link as IntlLink } from '@/i18n/navigation'
@@ -339,6 +340,8 @@ export default async function RestaurantPage({ params }: PageProps) {
             )}
           </section>
         )}
+
+        <MapPromoCTA kind="restaurant" name={r.name} mapHref={`/map?r=${slug}`} locale={loc} />
 
       </main>
     </>

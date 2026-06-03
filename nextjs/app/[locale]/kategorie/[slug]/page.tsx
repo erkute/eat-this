@@ -135,6 +135,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
           <h1 className={styles.h1}>{label}</h1>
           <div className={styles.tagline}>in Berlin</div>
           {blurb && <p className={styles.sub}>{blurb}</p>}
+          <MapPromoCTA variant="chip" kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />
         </header>
 
         <div className={styles.stats} style={statsStyle}>

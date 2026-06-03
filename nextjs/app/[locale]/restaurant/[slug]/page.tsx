@@ -214,6 +214,8 @@ export default async function RestaurantPage({ params }: PageProps) {
           <h1 className={styles.name}>{r.name}</h1>
         )}
 
+        <MapPromoCTA variant="chip" kind="restaurant" name={r.name} mapHref={`/map?r=${slug}`} locale={loc} />
+
         {description && (
           <article className={styles.story}>
             <p className={styles.lede}>{magazine?.lede || description}</p>

@@ -55,3 +55,23 @@
   .sub { font-size: 17px; max-width: 44ch; }
   .cta { font-size: 24px; padding: 18px 32px 19px; }
 }
+
+/* Chip variant — slim inline yellow pill placed high in the page hero for
+   early map visibility. Same Chewy + yellow language as the block CTA. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--yellow, #ffd84a);
+  color: var(--ink, #000);
+  font-family: var(--f-display);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  padding: 9px 16px 10px;
+  text-decoration: none;
+  transition: transform 0.15s ease;
+}
+.chip:hover { transform: translateY(-1px); }
+.chip svg { flex-shrink: 0; width: 22px; height: auto; }

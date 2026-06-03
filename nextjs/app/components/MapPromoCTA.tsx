@@ -10,6 +10,7 @@ interface Props {
   /** Locale-relative deep-link to the (paywall-gated, noindex) /map route. */
   mapHref: string
   locale: 'de' | 'en'
+  variant?: 'block' | 'chip'
 }
 
 // All map-promo wording lives here — single place to wordsmith. Brand voice:
@@ -32,9 +33,30 @@ function getCopy(kind: Kind, name: string, locale: 'de' | 'en'): { title: string
   }
 }
 
-export default function MapPromoCTA({ kind, name, mapHref, locale }: Props) {
+const arrow = (
+  <svg
+    width="28" height="18" viewBox="0 0 32 20" fill="none"
+    stroke="currentColor" strokeWidth="3" strokeLinecap="round"
+    strokeLinejoin="round" aria-hidden="true"
+  >
+    <path d="M3 10 L24 10" />
+    <path d="M18 3 L27 10 L18 17" />
+  </svg>
+)
+
+export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'block' }: Props) {
   const { title, sub } = getCopy(kind, name, locale)
   const ctaLabel = locale === 'de' ? 'Zur Map' : 'Open the map'
+
+  if (variant === 'chip') {
+    return (
+      <Link href={mapHref} rel="nofollow" className={styles.chip} aria-label={title}>
+        <span>{title}</span>
+        {arrow}
+      </Link>
+    )
+  }
+
   return (
     <section className={styles.promo} aria-label={title}>
       <h2 className={styles.title}>{title}</h2>
@@ -43,14 +65,7 @@ export default function MapPromoCTA({ kind, name, mapHref, locale }: Props) {
           ?r=/?bezirk=/?cat= variant in GSC. See feedback_seo_nofollow_into_noindex. */}
       <Link href={mapHref} rel="nofollow" className={styles.cta}>
         <span>{ctaLabel}</span>
-        <svg
-          width="28" height="18" viewBox="0 0 32 20" fill="none"
-          stroke="currentColor" strokeWidth="3" strokeLinecap="round"
-          strokeLinejoin="round" aria-hidden="true"
-        >
-          <path d="M3 10 L24 10" />
-          <path d="M18 3 L27 10 L18 17" />
-        </svg>
+        {arrow}
       </Link>
     </section>
   )

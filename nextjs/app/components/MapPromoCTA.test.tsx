@@ -34,4 +34,12 @@ describe('MapPromoCTA', () => {
     expect(html).toContain('href="/map?r=cocolo"')
     expect(html).toContain('Auf der Map ansehen')
   })
+
+  it('chip variant renders an inline yellow pill (title + nofollow deep-link, no section heading)', () => {
+    const html = render({ kind: 'bezirk', name: 'Mitte', mapHref: '/map?bezirk=mitte', locale: 'de', variant: 'chip' })
+    expect(html).toContain('href="/map?bezirk=mitte"')
+    expect(html).toContain('rel="nofollow"')
+    expect(html).toContain('Ganz Mitte auf der Map')
+    expect(html).not.toContain('<h2')
+  })
 })

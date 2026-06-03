@@ -146,6 +146,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
               {`Restaurants in ${b.name}`}
             </div>
           )}
+          <MapPromoCTA variant="chip" kind="bezirk" name={b.name} mapHref={`/map?bezirk=${slug}`} locale={loc} />
         </header>
 
         <div className={styles.stats} style={statsStyle}>

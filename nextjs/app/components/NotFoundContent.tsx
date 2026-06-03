@@ -2,16 +2,16 @@ import Link from 'next/link'
 import styles from '../not-found.module.css'
 
 interface NotFoundContentProps {
-  /** Locale prefix for the home link. "/" routes back to the DE launch
-   *  surface; pass "/en" if you can resolve the user's locale upstream. */
+  /** Locale prefix for the home link. "/" routes back to the DE home hub;
+   *  pass "/en" if you can resolve the user's locale upstream. */
   homeHref?: string
 }
 
 export default function NotFoundContent({ homeHref = '/' }: NotFoundContentProps) {
   return (
     <main className={styles.page} data-page="not-found">
-      {/* Drifting card-back — same background actor as the launch page so the
-          404 reads as part of the same brand surface, not a generic Next
+      {/* Drifting card-back — the brand's recurring deck actor, so the 404
+          reads as part of the same Chewy surface, not a generic Next
           fallback. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img

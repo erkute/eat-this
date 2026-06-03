@@ -1,19 +1,17 @@
 /* ============================================================
-   404 — matches the launch holding-page brand language (paper
-   surface, Anton stamp, Permanent Marker copy line, sticker
-   button with hard ink shadow). Standalone styles, isolated
+   404 — Chewy brand surface: cream paper, rounded Chewy stamp,
+   sticker button with hard ink shadow. Standalone styles, isolated
    from /css/style.min.css so it works even when the SPA bundle
    hasn't loaded.
    ============================================================ */
 
 .page {
-  --f-anton: var(--font-anton), "Anton", "Bebas Neue", sans-serif;
-  --f-marker: var(--font-permanent-marker), "Permanent Marker", "Marker Felt", cursive;
+  --f-display: var(--font-chewy, "Chewy"), "Comic Sans MS", cursive;
   --f-body: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
   --ink: #0a0a0a;
   --coral: #a02814;
-  --yellow: #FEC802;
-  --paper: #fdfdfd;
+  --yellow: #ffd84a;
+  --paper: #fbf8ee;
   --muted: rgba(10, 10, 10, 0.62);
 
   background: var(--paper);
@@ -36,9 +34,9 @@
 
 /* ── Eyebrow stamp ──────────────────────────────────────────── */
 .kicker {
-  font-family: var(--f-anton);
+  font-family: var(--f-display);
   font-size: 13px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink);
   margin: 6px 0 0;
@@ -47,10 +45,10 @@
   z-index: 2;
 }
 
-/* ── 404 — yellow Anton hero stamp with black stroke so it
-       carries the same letter-press energy as EAT THIS. ───── */
+/* ── 404 — yellow Chewy hero stamp with black stroke so it
+       carries the same sticker energy as the EAT THIS wordmark. ── */
 .code {
-  font-family: var(--f-anton);
+  font-family: var(--f-display);
   font-weight: 400;
   font-size: clamp(140px, 38vw, 220px);
   line-height: 0.86;
@@ -66,10 +64,10 @@
   z-index: 2;
 }
 
-/* ── Permanent-Marker red headline — sits like the launch-page
-       red tagline ("we tell you what to eat.") ───────────── */
+/* ── Chewy coral headline — the brand-red one-liner, tilted
+       a hair for sticker energy. ──────────────────────────── */
 .headline {
-  font-family: var(--f-marker);
+  font-family: var(--f-display);
   font-size: clamp(22px, 6.4vw, 30px);
   line-height: 1.1;
   color: var(--coral);
@@ -93,8 +91,8 @@
   z-index: 2;
 }
 
-/* ── Sticker button — same hard-offset shadow language as the
-       launch form pill so the surface reads as one family. ── */
+/* ── Sticker button — cream pill with the hard-offset ink shadow
+       that runs across the brand's CTA surfaces. ──────────── */
 .cta {
   display: inline-flex;
   align-items: center;
@@ -102,7 +100,7 @@
   background: var(--paper);
   border: 3px solid var(--ink);
   color: var(--ink);
-  font-family: var(--f-marker);
+  font-family: var(--f-display);
   font-size: 18px;
   letter-spacing: 0.02em;
   text-decoration: none;
@@ -131,7 +129,7 @@
   user-select: none;
 }
 
-/* ── Drifting card-back loop (same actor as the launch page) ──*/
+/* ── Drifting card-back loop — the brand's recurring deck actor ──*/
 .floatCard {
   position: absolute;
   top: 0;
@@ -159,8 +157,7 @@
 
 /* ============================================================
    Desktop ≥ 900px — same centered stack, bigger type, cat
-   anchored to the bottom-right corner like the launch page so
-   the 404 reads as the same family of surface.
+   anchored to the bottom-right corner.
    ============================================================ */
 @media (min-width: 900px) {
   .page {

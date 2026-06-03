@@ -173,26 +173,6 @@ html[data-theme="dark"] body {
   background: #fbf8ee;
 }
 
-/* Launch holding page — paper surface is #f5f5f5 (matches the cat
-   video bg). Override the cream html/body bg above so iOS Safari's
-   safe-area-inset regions (status bar + home indicator) and any
-   rubber-band overscroll blend with the launch paper instead of
-   showing as cream stripes. Scoped via :has() on the data attr
-   that page.tsx sets on its root div. */
-html:has([data-launch-page]),
-html:has([data-launch-page]) body {
-  background: #f5f5f5;
-}
-
-/* Hide Google's reCAPTCHA Enterprise badge on the launch page —
-   it dominates the bottom-right corner (especially on mobile where
-   the 256×60 fixed badge eats ~20% of viewport width). Per Google's
-   ToS we keep it hidden ONLY where the disclosure text is rendered
-   inline (see launch page footer). */
-html:has([data-launch-page]) .grecaptcha-badge {
-  visibility: hidden;
-}
-
 img {
   max-width: 100%;
   height: auto;

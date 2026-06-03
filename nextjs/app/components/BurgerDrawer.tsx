@@ -108,11 +108,11 @@ export default function BurgerDrawer() {
           </div>
 
           <nav className="bd-nav" aria-label="Primary">
-            <Link href="/home" className="bd-nav-item">{t('burger.home')}</Link>
+            <Link href="/" className="bd-nav-item">{t('burger.home')}</Link>
             <Link href="/map" className="bd-nav-item">{t('burger.map')}</Link>
             <Link href="/must-eats" className="bd-nav-item">{t('burger.mustEats')}</Link>
             <Link href="/news" className="bd-nav-item">{t('burger.aufDemTeller')}</Link>
-            <Link href="/home#hub-packs" className="bd-nav-item">{t('burger.boosterPacks')}</Link>
+            <Link href="/#hub-packs" className="bd-nav-item">{t('burger.boosterPacks')}</Link>
             <Link href="/about" className="bd-nav-item">{t('burger.about')}</Link>
             {/* Pre-hydration bootstrap in [locale]/layout.tsx may set .logged-in
                 + username from _authHint, and BridgeAuth overwrites the span on

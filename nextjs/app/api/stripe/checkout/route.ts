@@ -62,9 +62,9 @@ export async function POST(req: Request) {
   const successPath = locale === 'en'
     ? `/en/checkout/success?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`
     : `/checkout/success?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`
-  // Guests cancel back to the landing; auth users return to the packs hub.
+  // Guests cancel back to the home hub; auth users return to the packs section.
   const cancelPath  = mode === 'auth'
-    ? (locale === 'en' ? '/en/home#hub-packs' : '/home#hub-packs')
+    ? (locale === 'en' ? '/en#hub-packs' : '/#hub-packs')
     : (locale === 'en' ? '/en' : '/')
 
   let session

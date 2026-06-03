@@ -10,10 +10,9 @@ export const revalidate = 0
 // `/contact`, `/impressum`, `/datenschutz`, `/agb` are marked
 // `noindex,follow` in [...slug]/page.tsx — listing them in the sitemap
 // would send a conflicting signal, so they're omitted.
-// `''` (root) is omitted during the launch-holding-page phase — the launch
-// landing at / is `noindex,follow`, so listing it would conflict. Sub-pages
-// stay live + indexed.
-const STATIC_PATHS = ['/news', '/bezirk', '/kategorie', '/about'] as const
+// `''` (root) is the Hub home page — `index,follow`, self-canonical — so it
+// leads the sitemap at top priority.
+const STATIC_PATHS = ['', '/news', '/bezirk', '/kategorie', '/about'] as const
 
 function withAlternates(path: string, lastModified?: string, priority = 0.5, changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] = 'monthly'): MetadataRoute.Sitemap[number] {
   return {
@@ -70,9 +69,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ])
 
   const staticEntries = STATIC_PATHS.map(p => {
-    const priority = p === '/news' || p === '/bezirk' || p === '/kategorie' ? 0.7 : 0.5
+    const priority = p === '' ? 1.0 : p === '/news' || p === '/bezirk' || p === '/kategorie' ? 0.7 : 0.5
     const changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] =
-      p === '/news' ? 'weekly' : 'monthly'
+      p === '' ? 'daily' : p === '/news' ? 'weekly' : 'monthly'
     return withAlternates(p, undefined, priority, changeFrequency)
   })
 

@@ -8,9 +8,7 @@ import NewsSection from '@/app/components/NewsSection'
 import MapSection from '@/app/components/MapSection'
 import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data'
 import StaticPages from '@/app/components/StaticPages'
-import HubSection from '@/app/components/HubSection'
 import MustEatsSection from '@/app/components/MustEatsSection'
-import { getHomeData } from '@/lib/home/getHomeData'
 
 export const revalidate = 3600
 
@@ -22,7 +20,6 @@ interface PageProps {
 // silently dropping the user on the home view. /profile is dispatched by the
 // dedicated /[locale]/profile/page.tsx route — it never reaches this catch-all.
 const VALID_SLUGS = new Set([
-  'home',
   'map',
   'must-eats',
   'news',
@@ -42,11 +39,6 @@ type SlugMeta = {
 }
 
 const PAGE_META: Record<string, SlugMeta> = {
-  home: {
-    de: { title: 'Eat This', description: 'Kuratierte Food Discovery für Berlin — Spot des Tages, neue Spots, Bezirk der Woche und Must Eats auf der Karte.' },
-    en: { title: 'Eat This', description: "Curated food discovery for Berlin — spot of the day, new spots, district of the week and Must Eats on the map." },
-    noIndex: true,
-  },
   map: {
     de: { title: 'Karte', description: 'Interaktive Karte aller Eat-This-Restaurants und Must Eats in Berlin.' },
     en: { title: 'Map', description: 'Interactive map of every Eat This restaurant and Must Eat in Berlin.' },
@@ -130,21 +122,6 @@ export default async function SPACatchAllPage({ params }: PageProps) {
   const top = slug?.[0]
   if (!top || !VALID_SLUGS.has(top)) notFound()
 
-  if (top === 'home') {
-    // The hub's client islands (HubNearby) reuse the map's anon dataset, so SSR
-    // both in parallel and hand initialMapData down through HubSection.
-    const [initialData, initialMapData] = await Promise.all([
-      getHomeData(locale as 'de' | 'en'),
-      getInitialAnonMapData(),
-    ])
-    return (
-      <HubSection
-        initialData={initialData}
-        initialMapData={initialMapData}
-        locale={locale as 'de' | 'en'}
-      />
-    )
-  }
   if (top === 'news') {
     const articles = await getAllNewsArticles()
     return <NewsSection articles={articles} locale={locale as 'de' | 'en'} />

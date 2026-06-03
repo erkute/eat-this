@@ -10,15 +10,15 @@ function makeRouter() {
 describe('postLoginRedirect', () => {
   beforeEach(() => { vi.clearAllMocks() })
 
-  it('routes to /home (default locale)', async () => {
+  it('routes to the home hub / (default locale)', async () => {
     const router = makeRouter()
     await postLoginRedirect('u1', router as never, 'de')
-    expect(router.replace).toHaveBeenCalledWith('/home')
+    expect(router.replace).toHaveBeenCalledWith('/')
   })
 
   it('prefixes /en for non-default locale', async () => {
     const router = makeRouter()
     await postLoginRedirect('u1', router as never, 'en')
-    expect(router.replace).toHaveBeenCalledWith('/en/home')
+    expect(router.replace).toHaveBeenCalledWith('/en')
   })
 })

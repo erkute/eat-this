@@ -37,7 +37,7 @@ const COPY = {
 
 export default function MustEatsSection({ initialMapData, locale }: Props) {
   const c = COPY[locale]
-  const packsHref = locale === 'en' ? '/en/home#hub-packs' : '/home#hub-packs'
+  const packsHref = locale === 'en' ? '/en#hub-packs' : '/#hub-packs'
 
   return (
     <div className="page" style={{ display: 'flow-root' }} data-must-eats="">

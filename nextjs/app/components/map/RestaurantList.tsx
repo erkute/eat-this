@@ -141,10 +141,10 @@ export default function RestaurantList({
   const { t } = useTranslation()
 
   // Locked-row click routes to the same upgrade target the booster banner
-  // CTA uses — anon → /login, signed-in → /home#hub-packs. Keeps the
+  // CTA uses — anon → /login, signed-in → /#hub-packs. Keeps the
   // conversion path consistent regardless of which surface the user clicks.
   const upgradeHref = uid
-    ? (locale === routing.defaultLocale ? '/home#hub-packs' : `/${locale}/home#hub-packs`)
+    ? (locale === routing.defaultLocale ? '/#hub-packs' : `/${locale}#hub-packs`)
     : (locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
 
   const handleLockedClick = useCallback((_r: MapRestaurant) => {

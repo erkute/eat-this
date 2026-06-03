@@ -212,23 +212,6 @@ body {
    HERO — rules moved to HeroSection.module.css
    ============================================ */
 
-/* Start page — komplette Landing-Surface in EINER Farbe pro Theme.
-   Light: #ffffff / Dark: #1c1c1c. Gilt für die fixed Navbar und alle
-   Sektionen innerhalb der Landing. */
-html:not([data-theme="dark"])[data-active-page="start"] .navbar {
-  background: #F5C518;
-  border-bottom-color: transparent;
-}
-html:not([data-theme="dark"])[data-active-page="start"] .navbar .navbar-icon-btn,
-html:not([data-theme="dark"])[data-active-page="start"] .navbar .burger-btn { color: #1c1c1c; }
-
-html[data-theme="dark"][data-active-page="start"] .navbar {
-  background: #F5C518;
-  border-bottom-color: transparent;
-}
-html[data-theme="dark"][data-active-page="start"] .navbar .navbar-icon-btn,
-html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #1c1c1c; }
-
 /* Map page on mobile: header is almost gone — Start + Profile chip float
    in the top-right next to the floating search toolbar. Map canvas claims
    the full viewport (see .app-page[data-page="map"] top:0 rule); navbar

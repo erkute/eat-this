@@ -29,7 +29,7 @@ export default function ProfilePacks({ uid }: { uid: string }) {
       {onlyWelcome && (
         <div className={styles.packHint}>
           <p className={styles.packLine}>Mehr Map, mehr Karten — Pack für Pack.</p>
-          <Link href="/home#hub-packs" className={styles.packCta}>Booster Packs ansehen →</Link>
+          <Link href="/#hub-packs" className={styles.packCta}>Booster Packs ansehen →</Link>
         </div>
       )}
     </>

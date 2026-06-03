@@ -121,7 +121,7 @@ export function generateStaticParams() {
 
 // Hardcoded bootstrap constant (no user input) — safely inlined via script tag.
 // Runs synchronously in <head>: sets data-theme, data-active-page (read by CSS
-// selectors like [data-active-page="start"] .navbar:not(.scrolled)), locks
+// selectors like [data-active-page="map"] .navbar), locks
 // portrait orientation on mobile, disables browser scroll restoration, and
 // applies the _authHint pre-hydration login-button state.
 const CRITICAL_BOOTSTRAP = `(function(){
@@ -131,7 +131,7 @@ const CRITICAL_BOOTSTRAP = `(function(){
   var p=location.pathname;
   if(p==='/en'||p.indexOf('/en/')===0)p=p.slice(3)||'/';
   var slug;
-  if(p==='/')slug='start';
+  if(p==='/')slug='home';
   else if(p.indexOf('/news/')===0&&p.length>6)slug='news-article';
   else slug=p.replace(/^\\//,'').split('/')[0];
   document.documentElement.setAttribute('data-active-page',slug);

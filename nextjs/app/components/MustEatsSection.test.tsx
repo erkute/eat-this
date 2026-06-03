@@ -41,11 +41,11 @@ describe('MustEatsSection', () => {
 
   it('points the closing CTA at the packs hub anchor', () => {
     const html = render()
-    expect(html).toMatch(/href="\/home#hub-packs"/)
+    expect(html).toMatch(/href="\/#hub-packs"/)
   })
 
   it('locale-prefixes the packs CTA for en', () => {
     const html = render('en')
-    expect(html).toMatch(/href="\/en\/home#hub-packs"/)
+    expect(html).toMatch(/href="\/en#hub-packs"/)
   })
 })

@@ -24,7 +24,7 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
   const [email, setEmail]           = useState('');
   const [googleBusy, setGoogleBusy] = useState(false);
 
-  // Redirect to /home after sign-in on the standalone /login page. In the
+  // Redirect to the home hub after sign-in on the standalone /login page. In the
   // modal, BridgeAuth owns this redirect (it controls the modal lifecycle), so
   // skip it here to avoid a double-navigation.
   useEffect(() => {

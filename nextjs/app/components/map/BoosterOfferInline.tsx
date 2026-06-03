@@ -15,7 +15,7 @@ interface Props {
 // Map booster pitch — paid-upgrade only. The free Starter (20 cards on
 // sign-up) lives on the landing; once a user is on the map they already
 // redeemed it, so here we only push the next step: a category pack
-// (€2,99) or All Berlin (€20). Click routes to /home#hub-packs for
+// (€2,99) or All Berlin (€20). Click routes to /#hub-packs for
 // signed-in users, /login for the (rare) signed-out visitor.
 //
 // Two variants:
@@ -29,7 +29,7 @@ export default function BoosterOfferInline({ uid, variant }: Props) {
   const locale = useLocale()
 
   const upgradeHref = uid
-    ? (locale === routing.defaultLocale ? '/home#hub-packs' : `/${locale}/home#hub-packs`)
+    ? (locale === routing.defaultLocale ? '/#hub-packs' : `/${locale}#hub-packs`)
     : (locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
 
   const onUpgrade = useCallback(() => {

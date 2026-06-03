@@ -94,8 +94,14 @@ export default function MapFilterPickerSheet({
         return
       }
       const rect = anchorEl.getBoundingClientRect()
+      // Clamp horizontally so the 280px popover never spills past the viewport
+      // edge — the filter chips live in the right-hand rail, so a left-aligned
+      // sheet would overflow the right edge for every chip but the first.
+      const margin = 12
+      const sheetW = sheetEl.offsetWidth || 280
+      const left = Math.max(margin, Math.min(rect.left, window.innerWidth - sheetW - margin))
       sheetEl.style.setProperty('--picker-anchor-top', `${rect.bottom + 6}px`)
-      sheetEl.style.setProperty('--picker-anchor-left', `${rect.left}px`)
+      sheetEl.style.setProperty('--picker-anchor-left', `${left}px`)
     }
     apply()
     window.addEventListener('resize', apply)

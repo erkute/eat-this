@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
-import { getAllCategories, getCategoryCounts } from '@/lib/sanity.server'
+import { getAllCategories } from '@/lib/sanity.server'
 import { localizedCategoryName } from '@/lib/categories'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { localeUrl } from '@/lib/locale-url'
@@ -63,10 +63,7 @@ export default async function KategorieIndexPage({ params }: PageProps) {
   const kategorieUrl = (slug: string) =>
     locale === 'de' ? `/kategorie/${slug}` : `/${locale}/kategorie/${slug}`
   const loc = de ? 'de' : 'en'
-  const [categories, counts] = await Promise.all([
-    getAllCategories(),
-    getCategoryCounts(),
-  ])
+  const categories = await getAllCategories()
 
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
@@ -110,7 +107,6 @@ export default async function KategorieIndexPage({ params }: PageProps) {
 
         <section className={styles.posterGrid}>
           {categories.map(c => {
-            const count = counts[c.slug] ?? 0
             const label = localizedCategoryName(c, loc)
             const poster = POSTER_MAP[c.slug]
             return (
@@ -129,11 +125,6 @@ export default async function KategorieIndexPage({ params }: PageProps) {
                   <div className={`${styles.posterFrame} ${styles.posterFrameEmpty}`}>{label}</div>
                 )}
                 <span className={styles.posterName}>{label}</span>
-                <span className={styles.posterCount}>
-                  {count} {count === 1
-                    ? (de ? 'Restaurant' : 'restaurant')
-                    : (de ? 'Restaurants' : 'restaurants')}
-                </span>
               </Link>
             )
           })}

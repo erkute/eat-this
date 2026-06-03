@@ -94,11 +94,6 @@ export default async function BezirkIndexPage({ params }: PageProps) {
           {bezirke.map(b => (
             <Link key={b._id} href={bezirkUrl(b.slug)} className={styles.bezirkCard}>
               <span className={styles.bezirkName}>{b.name}</span>
-              <span className={styles.bezirkCount}>
-                {b.restaurantCount} {b.restaurantCount === 1
-                  ? (de ? 'Restaurant' : 'restaurant')
-                  : (de ? 'Restaurants' : 'restaurants')}
-              </span>
             </Link>
           ))}
         </section>

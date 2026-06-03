@@ -93,41 +93,7 @@
 }
 
 /* ============================================================
-   STATS STRIP
-============================================================ */
-.stats {
-  display: grid;
-  grid-template-columns: repeat(var(--stats-cols, 3), 1fr);
-  border-top: 2px solid var(--ink);
-  border-bottom: 2px solid var(--ink);
-  margin: 14px 0 28px;
-}
-.statCell {
-  padding: 18px 12px;
-  text-align: center;
-  border-right: 1px solid var(--ink);
-}
-.statCell:last-child {
-  border-right: 0;
-}
-.statN {
-  font-family: var(--f-display);
-  font-size: 42px;
-  line-height: 1.08;
-  color: var(--ink);
-}
-.statK {
-  font-family: var(--f-body);
-  font-size: 12px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink);
-  margin-top: 6px;
-  font-weight: 600;
-}
-
-/* ============================================================
-   SECTION HEAD (zwischen Stats und Restaurant-Grid, sowie über FAQ)
+   SECTION HEAD (Lead-in über Restaurant-Grid, sowie über FAQ)
 ============================================================ */
 .sectionHead {
   margin: 32px 0 18px;
@@ -211,8 +177,10 @@
   font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 5px 10px 5px;
-  line-height: 1.12;
+  /* Chewy is round/tall — a touch more vertical room so caps and umlaut
+     cuisines (TÜRKISCH, SÜSSES) sit centred like the hero pills (1.15). */
+  padding: 5px 10px 6px;
+  line-height: 1.16;
 }
 .chipOutline {
   background: transparent;
@@ -222,8 +190,8 @@
   font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 4px 10px 4px;
-  line-height: 1.12;
+  padding: 4px 10px 5px;
+  line-height: 1.16;
 }
 .price {
   font-family: var(--f-body);
@@ -389,14 +357,6 @@
   text-transform: uppercase;
   color: var(--ink);
 }
-.bezirkCount {
-  font-family: var(--f-body);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--ink);
-}
 
 /* ============================================================
    Kategorie-Index Poster-Grid (booster-pack treatment)
@@ -455,15 +415,6 @@
   color: var(--ink);
   margin: 0 0 4px;
 }
-.posterCount {
-  font-family: var(--f-body);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--ink);
-  opacity: 0.62;
-}
 
 @media (min-width: 720px) {
   .posterGrid {
@@ -498,7 +449,12 @@
 }
 @media (min-width: 960px) {
   .page {
-    padding: 88px 80px 72px;
+    /* Centred content column — full-bleed 1280 left the left-aligned hero
+       hugging the left edge with a dead void on the right. A capped, centred
+       measure turns that into balanced gutters and reins the grid in. */
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 88px 64px 72px;
   }
   .grid {
     grid-template-columns: 1fr 1fr 1fr;
@@ -518,15 +474,14 @@
     letter-spacing: 0.15em;
   }
   .h1 {
-    /* Scale back from 192 — at that max short bezirk names like MITTE
-       look over-blown and visually clip page rhythm. 160 still reads as
-       statement on 1440+ without overwhelming. */
-    font-size: clamp(56px, 7vw, 104px);
-    line-height: 0.98;
-    margin: 24px 0 18px;
+    /* Confident middle: commands the centred column without the Anton-era
+       104 "riesig" feel. */
+    font-size: clamp(52px, 6.4vw, 92px);
+    line-height: 1.0;
+    margin: 20px 0 16px;
   }
   .tagline {
-    font-size: clamp(24px, 3vw, 40px);
+    font-size: clamp(24px, 2.8vw, 38px);
   }
   .sub {
     max-width: 52ch;
@@ -534,22 +489,12 @@
     line-height: 1.5;
     margin: 0 0 28px;
   }
-  .stats {
-    margin: 18px 0 40px;
-  }
-  .statN {
-    font-size: 56px;
-    line-height: 1.08;
-  }
-  .statCell {
-    padding: 26px 16px;
-  }
   /* Section h2 ("Was du hier essen solltest" / "Die handverlesene
-     Auswahl") — was capped at 56, too small to sit between a 160 H1
-     and the restaurant grid below. Lift to second-tier display. */
+     Auswahl") — clear second-tier under the hero H1, not a competing
+     headline. Chewy needs less px than Anton to carry the same weight. */
   .sectionHead h2 {
-    font-size: clamp(40px, 5vw, 72px);
-    line-height: 1.08;
+    font-size: clamp(34px, 3.8vw, 54px);
+    line-height: 1.06;
   }
   .sectionHead p {
     font-size: 16px;

@@ -276,7 +276,7 @@ a {
    navbar (top:0) ends up behind it and its content (logo, burger,
    profile icon) becomes both invisible AND unclickable. */
 :root { --staging-banner-h: 0px; }
-body[data-env="staging"] { --staging-banner-h: 32px; }
+body[data-env="staging"] { --staging-banner-h: 33px; }
 
 body[data-env="staging"] .navbar,
 body[data-env="staging"] header[role="banner"] {
@@ -298,6 +298,11 @@ body[data-env="staging"] .app-pages {
    The FAB (Mein Standort) is bottom-anchored inside this page. Desktop only. */
 body[data-env="staging"] .app-page[data-page="map"] {
   height: calc(100dvh - var(--staging-banner-h)) !important;
+  /* Push the whole page below the banner. Reducing height alone left the
+     page at top:0 → the list header + map top sat under the banner AND a
+     banner-height strip of whitespace opened at the bottom. (Mobile resets
+     this and stays full-height under the banner — see below.) */
+  margin-top: var(--staging-banner-h);
 }
 
 /* Mobile map: navbar is hidden on /map (full-viewport canvas).
@@ -306,6 +311,7 @@ body[data-env="staging"] .app-page[data-page="map"] {
 @media (max-width: 1023.98px) {
   body[data-env="staging"] .app-page[data-page="map"] {
     height: 100dvh !important;
+    margin-top: 0;
   }
   body[data-env="staging"] [class*="mapSearchToolbar"] {
     top: calc(14px + var(--staging-banner-h)) !important;

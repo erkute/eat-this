@@ -5,9 +5,7 @@ import { Bungee, Caveat, Knewave, Archivo_Black, Ranchers, Slackey, Barlow_Conde
 import Script from 'next/script';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
-import { StagingBanner } from '@/app/components/StagingBanner';
 import ReferralToastListener from '@/app/components/ReferralToastListener';
-import { isStaging } from '@/lib/env';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { SITE_URL } from '@/lib/constants';
 
@@ -198,8 +196,7 @@ export default async function LocaleLayout({
           {ORG_JSON_LD}
         </Script>
       </head>
-      <body data-env={isStaging ? 'staging' : 'production'}>
-        <StagingBanner />
+      <body>
         <ClientIntlProvider locale={locale} messages={messages}>
           <ReferralToastListener />
           {children}

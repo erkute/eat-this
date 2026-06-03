@@ -160,6 +160,18 @@ html[data-theme="dark"] {
   color: var(--text-primary);
 }
 
+/* News list ("Auf dem Teller") + article pages are cream Chewy marketing
+   surfaces just like the Hub and the SEO pages — their text is hardcoded dark
+   (#0a0a0a) in the NewsSection / NewsArticleShell modules. The legacy dark
+   rule `[data-theme="dark"] .app-page { background:#0d0d0d }` (style.css, 0,2,0)
+   overrides those modules' own cream `.page` background (0,1,0), leaving the
+   dark headline + body invisible on a dark wrapper in dark mode. Re-pin cream
+   with higher specificity so these surfaces never follow the dark theme. */
+html[data-theme="dark"] .app-page[data-page="news"],
+html[data-theme="dark"] .app-page[data-page="news-article"] {
+  background: #fbf8ee;
+}
+
 *,
 *::before,
 *::after {
@@ -270,61 +282,3 @@ a {
   pointer-events: none !important;
 }
 
-/* ===== Staging banner: shift fixed UI elements down so they aren't
-   hidden behind the banner. The StagingBanner sits at z-index 100000
-   above everything; without these offsets the legacy fixed-position
-   navbar (top:0) ends up behind it and its content (logo, burger,
-   profile icon) becomes both invisible AND unclickable. */
-:root { --staging-banner-h: 0px; }
-body[data-env="staging"] { --staging-banner-h: 33px; }
-
-body[data-env="staging"] .navbar,
-body[data-env="staging"] header[role="banner"] {
-  top: var(--staging-banner-h) !important;
-}
-
-
-/* App-pages reserves margin-top for the fixed navbar (48px — the unified
-   SiteNav height, matching the prod `.app-pages` margin-top in style.css).
-   On staging the banner pushes the navbar down by --staging-banner-h, so
-   reserve 48px + banner. (Was 60px — a stale SeoNav value that left a 12px
-   white strip of body background under the header on every .app-pages route
-   and on the map.) */
-body[data-env="staging"] .app-pages {
-  margin-top: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h));
-}
-
-/* Map page: navbar is now hidden on /map, so only subtract the staging banner.
-   The FAB (Mein Standort) is bottom-anchored inside this page. Desktop only. */
-body[data-env="staging"] .app-page[data-page="map"] {
-  height: calc(100dvh - var(--staging-banner-h)) !important;
-  /* Push the whole page below the banner. Reducing height alone left the
-     page at top:0 → the list header + map top sat under the banner AND a
-     banner-height strip of whitespace opened at the bottom. (Mobile resets
-     this and stays full-height under the banner — see below.) */
-  margin-top: var(--staging-banner-h);
-}
-
-/* Mobile map: navbar is hidden on /map (full-viewport canvas).
-   The staging banner is the only opaque thing on top, so the map stays
-   full-height and the search toolbar + floating burger get pushed below the banner. */
-@media (max-width: 1023.98px) {
-  body[data-env="staging"] .app-page[data-page="map"] {
-    height: 100dvh !important;
-    margin-top: 0;
-  }
-  body[data-env="staging"] [class*="mapSearchToolbar"] {
-    top: calc(14px + var(--staging-banner-h)) !important;
-  }
-  body[data-env="staging"] [class*="mapBurger"] {
-    top: calc(14px + var(--staging-banner-h)) !important;
-  }
-}
-
-/* Burger drawer covers the viewport at z-index 10002; the staging banner
-   at z-index 100000 sits above it and hides the drawer's close button.
-   Shift the drawer to start below the banner on staging so the X stays
-   clickable. */
-body[data-env="staging"] .burger-drawer {
-  top: var(--staging-banner-h);
-}

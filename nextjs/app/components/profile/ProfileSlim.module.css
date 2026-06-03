@@ -398,3 +398,93 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* ══════════════════════════════════════════════
+   DARK MODE — cream world flips dark, yellow → red.
+   Append-only; light mode above stays pixel-identical.
+   ══════════════════════════════════════════════ */
+html[data-theme="dark"] .page {
+  background: #111110;
+}
+
+html[data-theme="dark"] .spinner {
+  border-color: rgba(240, 232, 208, 0.18);
+  border-top-color: #f0e8d0;
+}
+
+/* ── Head ── */
+html[data-theme="dark"] .head {
+  border-bottom-color: #f0e8d0;
+}
+html[data-theme="dark"] .avatar {
+  background: #1d1c19;
+  border-color: #f0e8d0;
+}
+html[data-theme="dark"] .kicker,
+html[data-theme="dark"] .name,
+html[data-theme="dark"] .email {
+  color: #f0e8d0;
+}
+
+/* ── Section heading ── */
+html[data-theme="dark"] .sectionHeading {
+  color: #f0e8d0;
+}
+
+/* ── Saved spots ── (photos + text-over-photo: leave; only chrome) */
+html[data-theme="dark"] .spotCard {
+  border-color: #f0e8d0;
+}
+html[data-theme="dark"] .spotMeta {
+  color: var(--c-coral-bright);
+}
+
+/* ── Empty state ── */
+html[data-theme="dark"] .empty {
+  background: #1d1c19;
+  border-color: #f0e8d0;
+}
+html[data-theme="dark"] .emptyLine,
+html[data-theme="dark"] .emptyCta {
+  color: #f0e8d0;
+}
+
+/* ── Must-eat explainer ── */
+html[data-theme="dark"] .explainer {
+  background: #1d1c19;
+  border-left-color: var(--c-coral);
+}
+html[data-theme="dark"] .explainerKicker,
+html[data-theme="dark"] .explainerLine {
+  color: #f0e8d0;
+}
+
+/* ── Collected must-eats (card art = freigestellt photos: leave) ── */
+html[data-theme="dark"] .meName,
+html[data-theme="dark"] .meRest {
+  color: #f0e8d0;
+}
+
+/* ── Packs ── black pills invert; gift pill yellow → red ── */
+html[data-theme="dark"] .pck {
+  background: #f0e8d0;
+  color: #0a0a0a;
+}
+html[data-theme="dark"] .pckGift {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+html[data-theme="dark"] .packLine,
+html[data-theme="dark"] .packCta {
+  color: #f0e8d0;
+}
+
+/* ── Logout ── */
+html[data-theme="dark"] .logout {
+  color: #f0e8d0;
+  border-color: #f0e8d0;
+}
+html[data-theme="dark"] .logout:hover {
+  background: #f0e8d0;
+  color: #0a0a0a;
+}

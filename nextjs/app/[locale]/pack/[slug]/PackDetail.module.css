@@ -356,3 +356,118 @@
     padding: 0 12px 6px;
   }
 }
+
+/* ══════════════════════════════════════════════
+   DARK MODE — cream world flips dark, yellow → red.
+   Append-only; layout (padding-top/--staging-banner-h) untouched.
+   ══════════════════════════════════════════════ */
+html[data-theme="dark"] .page {
+  background: #111110;
+  color: #f0e8d0;
+}
+
+/* Pack art is freigestellt cut-out → never filter; soft shadow stays. */
+
+html[data-theme="dark"] .kicker,
+html[data-theme="dark"] .name,
+html[data-theme="dark"] .sub {
+  color: #f0e8d0;
+}
+
+/* ── Facts row ── */
+html[data-theme="dark"] .facts {
+  border-top-color: rgba(240, 232, 208, 0.3);
+  border-bottom-color: rgba(240, 232, 208, 0.3);
+}
+html[data-theme="dark"] .price {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .updates {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+
+/* ── Inside list ── */
+html[data-theme="dark"] .insideLabel {
+  color: rgba(240, 232, 208, 0.55);
+}
+html[data-theme="dark"] .row {
+  border-bottom-color: rgba(240, 232, 208, 0.18);
+}
+html[data-theme="dark"] .thumb {
+  background: #f0e8d0;
+  color: var(--c-coral-bright);
+}
+html[data-theme="dark"] .rn {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .mn {
+  color: rgba(240, 232, 208, 0.55);
+}
+html[data-theme="dark"] .rowLocked .thumb {
+  background: rgba(240, 232, 208, 0.18);
+  color: #0a0a0a;
+}
+html[data-theme="dark"] .rowLocked .rn {
+  color: rgba(240, 232, 208, 0.5);
+}
+
+/* ── CTA — yellow sticker → red sticker, ink chrome → cream chrome ── */
+html[data-theme="dark"] .cta {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-color: #f0e8d0;
+  box-shadow: 4px 4px 0 rgba(240, 232, 208, 0.25);
+}
+html[data-theme="dark"] .cta:hover {
+  box-shadow: 5px 5px 0 rgba(240, 232, 208, 0.25);
+}
+html[data-theme="dark"] .cta:active {
+  box-shadow: 1px 1px 0 rgba(240, 232, 208, 0.25);
+}
+html[data-theme="dark"] .cta:disabled {
+  box-shadow: 4px 4px 0 rgba(240, 232, 208, 0.25);
+}
+html[data-theme="dark"] .ctaError {
+  color: var(--c-coral-bright);
+}
+
+/* ── Trust row ── */
+html[data-theme="dark"] .trust {
+  color: rgba(240, 232, 208, 0.55);
+}
+html[data-theme="dark"] .trust strong {
+  color: #f0e8d0;
+}
+
+/* ── Upsell ── */
+html[data-theme="dark"] .upsell {
+  border-top-color: rgba(240, 232, 208, 0.3);
+}
+html[data-theme="dark"] .upsell a {
+  color: #f0e8d0;
+  border-bottom-color: #f0e8d0;
+}
+
+/* ── All Berlin variant ── (stack art = freigestellt cut-outs: leave) ── */
+html[data-theme="dark"] .allName .y {
+  background: #f0e8d0;
+  color: #0a0a0a;
+}
+html[data-theme="dark"] .allPack {
+  background: #1d1c19;
+  border-color: rgba(240, 232, 208, 0.3);
+}
+html[data-theme="dark"] .allPack .cat {
+  color: #f0e8d0;
+}
+
+/* ── Bonus banner — yellow fill → red fill ── */
+html[data-theme="dark"] .bonus {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+html[data-theme="dark"] .bonusIcon {
+  background: #0a0a0a;
+  color: var(--c-coral-bright);
+}

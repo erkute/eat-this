@@ -218,3 +218,44 @@
     padding-left: 22px;
   }
 }
+
+/* ============================================================
+   DARK MODE — legal/about docs go dark, ink text → cream.
+   Coral accents (link hover, about lede rule, pull-quote)
+   brighten so they read on the dark surface.
+============================================================ */
+html[data-theme="dark"] .page {
+  background: #111110;
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .title,
+html[data-theme="dark"] .body,
+html[data-theme="dark"] .body h2,
+html[data-theme="dark"] .body h3,
+html[data-theme="dark"] .body h4,
+html[data-theme="dark"] .body a {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .body a:hover {
+  color: var(--c-coral-bright);
+}
+html[data-theme="dark"] .body blockquote {
+  border-left-color: rgba(240, 232, 208, 0.4);
+}
+html[data-theme="dark"] .body hr {
+  border-top-color: rgba(240, 232, 208, 0.3);
+}
+html[data-theme="dark"] .body code {
+  background: rgba(240, 232, 208, 0.1);
+}
+
+/* About editorial treatment — coral lede rule + drop-cap + pull-quote */
+html[data-theme="dark"] .page[data-page="about"] .body > p:first-of-type {
+  border-bottom-color: rgba(214, 58, 42, 0.5);
+}
+html[data-theme="dark"] .page[data-page="about"] .body > p:nth-of-type(2)::first-letter {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .page[data-page="about"] .body blockquote {
+  color: var(--c-coral-bright);
+}

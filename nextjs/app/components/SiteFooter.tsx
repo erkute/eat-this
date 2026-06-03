@@ -2,10 +2,12 @@
 
 import { useTranslation } from '@/lib/i18n'
 import { Link } from '@/i18n/navigation'
+import { useTheme } from '@/lib/useTheme'
 import styles from './SiteFooter.module.css'
 
 export default function SiteFooter() {
   const { t, lang, setLang } = useTranslation()
+  const { isDark, toggleTheme } = useTheme()
   const de = lang === 'de'
   const follow = de ? 'Folgen' : 'Follow'
 
@@ -60,6 +62,18 @@ export default function SiteFooter() {
       </nav>
 
       <div className={styles.meta}>
+        <button
+          type="button"
+          className={`${styles.themeToggle} ${isDark ? styles.themeToggleOn : ''}`}
+          aria-label="Toggle dark mode"
+          aria-pressed={isDark}
+          onClick={toggleTheme}
+        >
+          <span className={styles.themeTrack}>
+            <span className={styles.themeThumb}></span>
+          </span>
+          <span className={styles.themeLabel}>{t('theme.darkMode')}</span>
+        </button>
         <span className={styles.copy}>{t('footer.copyright')}</span>
         <div className={styles.lang} role="group" aria-label="Language / Sprache">
           <button

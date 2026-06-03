@@ -75,3 +75,17 @@
 }
 .chip:hover { transform: translateY(-1px); }
 .chip svg { flex-shrink: 0; width: 22px; height: auto; }
+
+/* ── Dark mode: the promo block stays a dark panel — but the parent page
+   flips --ink/--cream to cream/dark, which would invert .promo. Pin the
+   panel's own surface + text to fixed dark values, then flip the yellow
+   CTA + chip to brand-red with a cream label. ── */
+html[data-theme="dark"] .promo {
+  background: #1d1c19;
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .cta,
+html[data-theme="dark"] .chip {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}

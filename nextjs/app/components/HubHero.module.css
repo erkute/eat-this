@@ -82,3 +82,12 @@
   .sub { margin: 0 0 28px; font-size: 17px; max-width: 42ch; }
   .actions { margin: 0; }
 }
+
+/* ── Dark mode: dark page surface, warm-cream ink (photo + its overlays
+   left untouched). ── */
+html[data-theme="dark"] .hero { background: var(--dk-page); }
+html[data-theme="dark"] .kicker,
+html[data-theme="dark"] .headline,
+html[data-theme="dark"] .sub,
+html[data-theme="dark"] .read { color: var(--dk-ink); }
+html[data-theme="dark"] .read { border-bottom-color: var(--dk-ink); }

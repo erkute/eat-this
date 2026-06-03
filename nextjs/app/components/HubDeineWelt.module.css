@@ -89,8 +89,8 @@
   display: grid;
   grid-template-rows: auto auto auto;
   background: #fbf8ee;
-  border: 2px solid #0a0a0a;
-  box-shadow: 4px 4px 0 #0a0a0a;
+  border: 1px solid rgba(10, 10, 10, 0.10);
+  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06);
   overflow: hidden;
   text-decoration: none;
   color: #0a0a0a;
@@ -261,3 +261,43 @@
   .packArt { width: 104px; }
   .packName { font-size: 26px; }
 }
+
+/* ── Dark mode: dark page, warm-cream ink, red replaces yellow. ── */
+html[data-theme="dark"] .section { background: var(--dk-page); }
+html[data-theme="dark"] .name,
+html[data-theme="dark"] .here,
+html[data-theme="dark"] .freshK,
+html[data-theme="dark"] .freshName,
+html[data-theme="dark"] .packName { color: var(--dk-ink); }
+/* "EAT/THIS"-style emphasis: yellow fill → red text accent, ink stroke → cream */
+html[data-theme="dark"] .em {
+  color: var(--c-coral-bright);
+  -webkit-text-stroke: 1px var(--dk-ink);
+}
+/* Dein-Bezirk pill: yellow fill → red, ink border/shadow → cream */
+html[data-theme="dark"] .here strong {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-color: var(--dk-ink);
+  box-shadow: 2px 2px 0 var(--dk-rule);
+}
+html[data-theme="dark"] .div { background: var(--dk-ink); }
+/* Fresh cards: cream surface → dark card, ink border/shadow → cream */
+html[data-theme="dark"] .freshCard {
+  background: var(--dk-card);
+  color: var(--dk-ink);
+  border-color: var(--dk-ink);
+  box-shadow: 4px 4px 0 var(--dk-rule);
+}
+html[data-theme="dark"] .freshImg { border-bottom-color: var(--dk-ink); }
+/* Fresh pill stays brand-red; only its ink border flips to cream */
+html[data-theme="dark"] .freshPill { border-color: var(--dk-ink); }
+html[data-theme="dark"] .pack { border-top-color: var(--dk-rule); }
+/* Pack CTA: yellow fill + ink → cream fill + ink (invert on dark surface) */
+html[data-theme="dark"] .packCta {
+  background: var(--dk-ink);
+  color: #0a0a0a;
+  border-color: var(--dk-ink);
+  box-shadow: 3px 3px 0 var(--dk-rule);
+}
+html[data-theme="dark"] .packCta:active { box-shadow: 0 0 0 var(--dk-rule); }

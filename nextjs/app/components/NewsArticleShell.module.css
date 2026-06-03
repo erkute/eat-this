@@ -493,3 +493,150 @@ a.mustEat:hover {
     margin-right: 18px;
   }
 }
+
+/* ════════════════════════════════════════════════════════════
+   DARK MODE — everything goes dark, yellow accents flip to red.
+   ════════════════════════════════════════════════════════════ */
+html[data-theme="dark"] .page {
+  background: #111110;
+  color: #f0e8d0;
+}
+
+/* ── Byline + title + lede ── */
+html[data-theme="dark"] .byline {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .title {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .lede {
+  color: #f0e8d0;
+  border-bottom-color: rgba(240, 232, 208, 0.3);
+}
+
+/* ── Table of contents — already dark block, flip yellow accents to red ── */
+html[data-theme="dark"] .toc {
+  background: #1d1c19;
+  color: #f0e8d0;
+  border-top-color: var(--c-coral);
+  border-bottom-color: var(--c-coral);
+}
+html[data-theme="dark"] .tocLabel {
+  color: var(--c-coral-bright);
+}
+html[data-theme="dark"] .tocItem {
+  border-bottom-color: rgba(240, 232, 208, 0.18);
+}
+html[data-theme="dark"] .tocItem::before {
+  color: var(--c-coral-bright);
+}
+html[data-theme="dark"] .tocLink {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .tocLink:hover {
+  color: var(--c-coral-bright);
+}
+
+/* ── Body ── */
+html[data-theme="dark"] .content {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .content > p:first-of-type::first-letter {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .content h2,
+html[data-theme="dark"] .content h3 {
+  color: #f0e8d0;
+}
+
+/* ── Inline Must Eat card — cream raised card → dark raised card ── */
+html[data-theme="dark"] .mustEat {
+  background: #1d1c19;
+  border-color: #f0e8d0;
+}
+html[data-theme="dark"] a.mustEat:hover {
+  box-shadow: 5px 5px 0 rgba(240, 232, 208, 0.25);
+}
+html[data-theme="dark"] .mustEatKicker {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .mustEatName {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .mustEatRest {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .mustEatCta {
+  color: var(--c-coral-bright);
+}
+
+/* ── Pull-quote (blockquote in body) ── */
+html[data-theme="dark"] .content blockquote {
+  border-top-color: #f0e8d0;
+  border-bottom-color: #f0e8d0;
+  color: #f0e8d0;
+}
+
+/* ── Spots im Artikel ── */
+html[data-theme="dark"] .spotsHeading {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .spotMeta {
+  color: var(--c-coral-bright);
+}
+
+/* ── Share — ink button on now-dark surface → invert to cream button ── */
+html[data-theme="dark"] .shareBtn {
+  border-color: #f0e8d0;
+  background: #f0e8d0;
+  color: #0a0a0a;
+}
+html[data-theme="dark"] .shareBtn:hover {
+  box-shadow: 3px 3px 0 var(--c-coral);
+}
+
+/* ── Related — already dark cards, flip yellow accents to red ── */
+html[data-theme="dark"] .related {
+  border-top-color: #f0e8d0;
+}
+html[data-theme="dark"] .relatedHeading {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .relatedCard {
+  background: #1d1c19;
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .relatedCategory {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+html[data-theme="dark"] .relatedHeadline {
+  color: #f0e8d0;
+}
+
+/* ── Sticky spotrail — cream bar → dark bar, yellow CTA → red ── */
+html[data-theme="dark"] .spotrail {
+  background: #111110;
+  border-top-color: #f0e8d0;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.55);
+}
+html[data-theme="dark"] .spotrailPic {
+  border-color: #111110;
+  background-color: #1d1c19;
+  outline-color: #f0e8d0;
+}
+html[data-theme="dark"] .spotrailKicker {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .spotrailNames {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .spotrailCta {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-color: #f0e8d0;
+  box-shadow: 3px 3px 0 rgba(240, 232, 208, 0.25);
+}
+html[data-theme="dark"] .spotrailCta:hover {
+  box-shadow: 4px 4px 0 rgba(240, 232, 208, 0.25);
+}

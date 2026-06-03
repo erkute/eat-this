@@ -93,3 +93,16 @@
   .item { flex: 0 0 150px; }
   .foot { margin: 10px 0 18px; }
 }
+
+/* ── Dark mode: dark page, warm-cream ink, red CTA. Freigestellt cards left
+   untouched. ── */
+html[data-theme="dark"] .section { background: var(--dk-page); }
+html[data-theme="dark"] .title { color: var(--dk-ink); }
+/* CTA: yellow fill + ink → red fill + cream label, ink border/shadow → cream */
+html[data-theme="dark"] .cta {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-color: var(--dk-ink);
+  box-shadow: 4px 4px 0 var(--dk-rule);
+}
+html[data-theme="dark"] .cta:active { box-shadow: 0 0 0 var(--dk-rule); }

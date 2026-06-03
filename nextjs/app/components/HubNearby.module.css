@@ -77,7 +77,8 @@
   display: block;
   position: relative;
   aspect-ratio: 4 / 5;
-  border: 2px solid var(--text-primary);
+  border: 1px solid rgba(10, 10, 10, 0.10);
+  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06);
   overflow: hidden;
   text-decoration: none;
   color: #fbf8ee;
@@ -220,3 +221,30 @@
   .cardItem, .meItem { flex: initial; }
   .foot { margin: 10px 0 18px; }
 }
+
+/* ── Dark mode: dark page, warm-cream ink, red replaces yellow. Photos and
+   text-on-photo (cream + shadow) left untouched. ── */
+html[data-theme="dark"] .section { background: var(--dk-page); }
+html[data-theme="dark"] .heading,
+html[data-theme="dark"] .meHeading,
+html[data-theme="dark"] .footLink { color: var(--dk-ink); }
+/* Location button: cream surface → dark, ink border/shadow → cream */
+html[data-theme="dark"] .locBtn {
+  background: var(--dk-card);
+  border-color: var(--dk-ink);
+  box-shadow: 2px 2px 0 var(--dk-rule);
+  color: var(--dk-ink);
+}
+html[data-theme="dark"] .locBtn:active { box-shadow: 0 0 0 var(--dk-rule); }
+/* Photo cards keep their image; frame border → cream */
+html[data-theme="dark"] .card { border-color: var(--dk-ink); }
+/* Distance chip: yellow fill → red, ink → cream label + cream border */
+html[data-theme="dark"] .dist {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-color: var(--dk-ink);
+}
+/* Yellow text accents → bright red */
+html[data-theme="dark"] .meta { color: var(--c-coral-bright); }
+/* Foot link underline: yellow → red */
+html[data-theme="dark"] .footLink { border-bottom-color: var(--c-coral); }

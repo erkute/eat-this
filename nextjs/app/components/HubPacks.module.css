@@ -21,7 +21,8 @@
   flex: 0 0 268px;
   background: #fbf8ee;
   color: #0a0a0a;
-  border: 2px solid #0a0a0a;
+  border: 1px solid rgba(10, 10, 10, 0.10);
+  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06);
   padding: 18px;
   display: grid;
   gap: 12px;
@@ -162,10 +163,50 @@
   }
   .pack { flex: initial; padding: 22px; }
   .packArt { height: 220px; }
-  .pack:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #0a0a0a; }
-  .pack { transition: transform .2s, box-shadow .2s; box-shadow: 4px 4px 0 #0a0a0a; }
+  .pack:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(10, 10, 10, 0.12); }
+  .pack { transition: transform .2s, box-shadow .2s; box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06); }
 }
 
 @media (min-width: 1080px) {
   .scroller { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ── Dark mode: dark page, warm-cream ink, red replaces yellow. Pack art
+   (freigestellt) untouched. ── */
+html[data-theme="dark"] .section { background: var(--dk-page); }
+html[data-theme="dark"] .heading { color: var(--dk-ink); }
+/* Standard pack cards: cream surface → dark card, ink border → cream */
+html[data-theme="dark"] .pack {
+  background: var(--dk-card);
+  color: var(--dk-ink);
+  border-color: var(--dk-ink);
+}
+@media (min-width: 720px) {
+  /* Desktop adds hard offset shadows on the packs → flip ink to cream */
+  html[data-theme="dark"] .pack { box-shadow: 4px 4px 0 var(--dk-rule); }
+  html[data-theme="dark"] .pack:hover { box-shadow: 6px 6px 0 var(--dk-rule); }
+}
+/* Gift (welcome-pack) card: yellow fill → red, all its ink text → cream */
+html[data-theme="dark"] .gift {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+html[data-theme="dark"] .giftSent,
+html[data-theme="dark"] .giftError { color: #fbf8ee; }
+/* Pack CTA: ink fill + cream label → cream fill + ink label (invert on dark) */
+html[data-theme="dark"] .packCta {
+  background: var(--dk-ink);
+  color: #0a0a0a;
+}
+/* Signup input stays cream-paper with ink text so the field reads as an input
+   on the red gift card (matches light mode's cream-on-yellow contrast). */
+html[data-theme="dark"] .signupInput {
+  background: #fbf8ee;
+  border-color: #0a0a0a;
+  color: #0a0a0a;
+}
+/* Signup button: ink fill + yellow label → cream fill + red label */
+html[data-theme="dark"] .signupBtn {
+  background: var(--dk-ink);
+  color: var(--c-coral);
 }

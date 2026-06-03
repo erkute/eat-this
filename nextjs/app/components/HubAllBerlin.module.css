@@ -170,3 +170,18 @@
 @media (min-width: 1080px) {
   .fan { transform: translateY(-50%) scale(1.62); }
 }
+
+/* ── Dark mode: this block is already dark (ink bg / cream text / pack fan) —
+   keep all of that, only flip yellow accents to red. ── */
+html[data-theme="dark"] .kicker { color: var(--c-coral-bright); }
+html[data-theme="dark"] .copy strong { color: var(--c-coral-bright); }
+/* Save badge: yellow fill + ink → red fill + cream label */
+html[data-theme="dark"] .save {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+/* CTA: yellow fill + ink → red fill + cream label */
+html[data-theme="dark"] .cta {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}

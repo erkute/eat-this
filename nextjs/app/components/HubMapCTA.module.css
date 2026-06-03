@@ -7,7 +7,7 @@
   gap: 10px;
   background: var(--yellow, #ffd84a);
   color: var(--ink, #000);
-  font-family: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
+  font-family: var(--font-display);
   font-size: 20px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -29,7 +29,7 @@
   gap: 4px;
   background: var(--yellow, #ffd84a);
   color: var(--ink, #000);
-  font-family: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
+  font-family: var(--font-display);
   padding: 16px 22px 17px;
   border: 0;
   text-decoration: none;
@@ -59,4 +59,11 @@
 
 .arrow {
   flex-shrink: 0;
+}
+
+/* ── Dark mode: yellow CTA chips/blocks → brand-red fill with cream label. ── */
+html[data-theme="dark"] .ctaChip,
+html[data-theme="dark"] .ctaBlock {
+  background: var(--c-coral);
+  color: #fbf8ee;
 }

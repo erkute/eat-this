@@ -653,3 +653,87 @@
     font-size: 12px;
   }
 }
+
+/* ============================================================
+   DARK MODE — dark surfaces, red accents replace yellow.
+   Token re-point flips most of the page; the yellow Insider-Tipp,
+   the ink action button, and the hero gradient/photo overlays get
+   explicit handling. Photos and text-over-photo stay untouched.
+============================================================ */
+html[data-theme="dark"] .page {
+  --ink: #f0e8d0;
+  --cream: #111110;
+  --cream-deep: #1d1c19;
+  --yellow: var(--c-coral);
+  --muted: rgba(240, 232, 208, 0.72);
+
+  --text-primary: #f0e8d0;
+  --text-secondary: rgba(240, 232, 208, 0.82);
+  --text-muted: rgba(240, 232, 208, 0.72);
+  --surface-bg: #111110;
+  --surface-card: #1d1c19;
+  --border-subtle: rgba(240, 232, 208, 0.3);
+  --border-strong: #f0e8d0;
+  --accent: var(--c-coral);
+}
+
+/* Hero pill + chips sit on the photo (already dark) — flip the yellow
+   fill to coral with cream label, leave the white-glass alt chip. */
+html[data-theme="dark"] .openPill {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+html[data-theme="dark"] .openPill::before {
+  background: #fbf8ee;
+}
+html[data-theme="dark"] .openPill.closed {
+  background: rgba(240, 232, 208, 0.16);
+  color: var(--cream);
+}
+html[data-theme="dark"] .openPill.closed::before {
+  background: var(--cream);
+}
+html[data-theme="dark"] .heroTags .chip,
+html[data-theme="dark"] .tags .chip {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+
+/* Insider-Tipp — was yellow fill + ink border + ink offset shadow.
+   In dark it becomes a coral sticker with cream label and a cream
+   offset shadow so it still reads as a raised callout. */
+html[data-theme="dark"] .tipp {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-color: #f0e8d0;
+  box-shadow: 6px 6px 0 0 rgba(240, 232, 208, 0.25);
+}
+html[data-theme="dark"] .tippLabel,
+html[data-theme="dark"] .tippText {
+  color: #fbf8ee;
+}
+
+/* Primary action button — was ink bg / cream label. On a now-dark page
+   that inverts so the CTA stays the high-contrast block. */
+html[data-theme="dark"] .actPrimary {
+  background: #f0e8d0;
+  color: #0a0a0a;
+}
+
+@media (min-width: 1024px) {
+  /* Tipp offset shadow grows on desktop — keep it cream in dark. */
+  html[data-theme="dark"] .tipp {
+    box-shadow: 8px 8px 0 0 rgba(240, 232, 208, 0.25);
+  }
+}
+
+/* On-photo text: --cream is in dark auf #111110 umgebogen (Seitenflächen),
+   aber Hero-Name/Overlay/Chips nutzen --cream als TEXT über dem Foto —
+   die müssen hell bleiben. Explizit auf literal cream pinnen. */
+html[data-theme="dark"] .heroOverlay { color: #fbf8ee; }
+html[data-theme="dark"] .heroName { color: #fbf8ee; }
+html[data-theme="dark"] .heroTags .chipAlt { color: #fbf8ee; }
+html[data-theme="dark"] .heroTags .chipOpen::before,
+html[data-theme="dark"] .heroTags .chipClosed::before { background: #fbf8ee; }
+html[data-theme="dark"] .openPill.closed { color: #fbf8ee; }
+html[data-theme="dark"] .openPill.closed::before { background: #fbf8ee; }

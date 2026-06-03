@@ -97,3 +97,13 @@
   .tileName { font-size: 18px; }
   .tileMeta { font-size: 11px; }
 }
+
+/* ── Dark mode: this block is already dark (ink bg / cream text) — keep that,
+   only flip yellow accents to red. Tiles stay cream-on-photo. ── */
+html[data-theme="dark"] .section {
+  border-top-color: var(--c-coral);
+  border-bottom-color: var(--c-coral);
+}
+html[data-theme="dark"] .kicker,
+html[data-theme="dark"] .tag,
+html[data-theme="dark"] .footLink { color: var(--c-coral-bright); }

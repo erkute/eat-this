@@ -551,3 +551,86 @@
   background: var(--cream);
   color: var(--ink);
 }
+
+/* ============================================================
+   DARK MODE — everything goes dark, yellow accents → red.
+   The page leans on scoped tokens (--ink/--cream/--yellow/--muted)
+   so re-pointing those flips most surfaces; hard-coded values and
+   yellow-fill special cases are handled below.
+============================================================ */
+html[data-theme="dark"] .page {
+  --ink: #f0e8d0;
+  --cream: #111110;
+  --cream-deep: #1d1c19;
+  --yellow: var(--c-coral);
+  --muted: rgba(240, 232, 208, 0.72);
+
+  --text-primary: #f0e8d0;
+  --text-secondary: rgba(240, 232, 208, 0.82);
+  --text-muted: rgba(240, 232, 208, 0.72);
+  --surface-bg: #111110;
+  --surface-card: #1d1c19;
+  --border-subtle: rgba(240, 232, 208, 0.3);
+  --border-strong: #f0e8d0;
+  --accent: var(--c-coral);
+}
+
+/* Cards on now-dark surface — raised tone + cream hairline */
+html[data-theme="dark"] .card {
+  background: var(--cream-deep);
+  border-bottom-color: rgba(240, 232, 208, 0.3);
+}
+html[data-theme="dark"] .card:hover {
+  border-bottom-color: #f0e8d0;
+}
+html[data-theme="dark"] .cardPhoto {
+  background: #111110;
+}
+
+/* Yellow cuisine chip → coral fill with cream label */
+html[data-theme="dark"] .chipYellow {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+
+/* FAQ row hairlines */
+html[data-theme="dark"] .faqRow {
+  border-bottom-color: rgba(240, 232, 208, 0.2);
+}
+
+/* Final CTA is already an ink panel — keep bg/text, only flip the
+   yellow kicker accent to bright coral. NB: color explizit pinnen —
+   var(--cream) ist im Dark auf #111110 umgebogen, .finalCta/h2 nutzen
+   es aber als TEXTfarbe. */
+html[data-theme="dark"] .finalCta {
+  background: #1d1c19;
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .finalCta h2 { color: #f0e8d0; }
+html[data-theme="dark"] .fcKicker {
+  color: var(--c-coral-bright);
+}
+
+/* Bezirk index card — yellow hover → coral with cream name */
+html[data-theme="dark"] .bezirkCard:hover {
+  background: var(--c-coral);
+}
+html[data-theme="dark"] .bezirkCard:hover .bezirkName {
+  color: #fbf8ee;
+}
+
+/* Kategorie poster — empty placeholder yellow fill → coral, and the
+   drop-shadow on poster art deepens for the dark canvas. */
+html[data-theme="dark"] .posterFrameEmpty {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+html[data-theme="dark"] .posterFrame img {
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+}
+
+/* DetailPageOutro bridge → dark surface */
+html[data-theme="dark"] .detailOutroWrap :global([data-detail-outro]) {
+  background: #111110;
+  color: #f0e8d0;
+}

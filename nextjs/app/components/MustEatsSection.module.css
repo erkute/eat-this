@@ -158,3 +158,32 @@
   cursor: pointer;
   text-decoration: none;
 }
+
+/* ============================================================
+   DARK MODE — section goes dark, yellow accents → red.
+   Trading-card art (.ph img) is never touched. The .close panel
+   is already ink+cream, so only its yellow accents flip.
+============================================================ */
+html[data-theme="dark"] .kicker,
+html[data-theme="dark"] .title,
+html[data-theme="dark"] .sub {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .fchip {
+  border-color: rgba(240, 232, 208, 0.55);
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .fchipOn {
+  background: #f0e8d0;
+  color: #0a0a0a;
+}
+html[data-theme="dark"] .close {
+  background: #1d1c19;
+}
+html[data-theme="dark"] .closeK {
+  color: var(--c-coral-bright);
+}
+html[data-theme="dark"] .closeCta {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}

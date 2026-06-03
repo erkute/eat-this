@@ -29,6 +29,7 @@
   --c-mustard:      #ffd84a;                    /* mustard yellow — secondary CTA */
   --c-mustard-deep: #c89e1f;                    /* mustard hover/pressed */
   --c-coral:        #a02814;                    /* primary action — dunkles Rot */
+  --c-coral-bright: #d63a2a;                    /* Brand-Rot aufgehellt — Text-Akzent auf dunklen Surfaces (Dark Mode ersetzt Gelb durch Rot) */
   --c-green:        #0a0a0a;                    /* multi-direction green → schwarz */
   --c-black:        #0a0a0a;
   --c-row-rule:     rgba(10, 10, 10, 0.14);
@@ -140,36 +141,20 @@ html[data-theme="dark"] {
   --surface-deep-2: #161616;
 }
 
-/* Hub home (/) is a cream marketing surface like the SEO hub pages. Pin the
-   light palette onto its subtree so the global dark theme never flips the
-   Hub's --text-primary text to light — light text on the cream sections is
-   unreadable. The intentionally-dark Hub blocks (Bezirk der Woche, All Berlin)
-   hardcode their own cream-on-ink colours, so they're unaffected. Base palette
-   vars (--black, --off-white, --gray-*) aren't theme-flipped, so re-pointing
-   the semantic tokens at them re-asserts the light values in dark mode too. */
-[data-hub] {
-  --surface-bg:      var(--off-white);
-  --surface-card:    var(--white);
-  --surface-raised:  var(--white);
-  --surface-overlay: rgba(255, 255, 255, 0.95);
-  --border-subtle:   var(--gray-100);
-  --border-strong:   var(--gray-200);
-  --text-primary:    var(--black);
-  --text-secondary:  var(--gray-600);
-  --text-muted:      var(--gray-400);
-  color: var(--text-primary);
-}
-
-/* News list ("Auf dem Teller") + article pages are cream Chewy marketing
-   surfaces just like the Hub and the SEO pages — their text is hardcoded dark
-   (#0a0a0a) in the NewsSection / NewsArticleShell modules. The legacy dark
-   rule `[data-theme="dark"] .app-page { background:#0d0d0d }` (style.css, 0,2,0)
-   overrides those modules' own cream `.page` background (0,1,0), leaving the
-   dark headline + body invisible on a dark wrapper in dark mode. Re-pin cream
-   with higher specificity so these surfaces never follow the dark theme. */
-html[data-theme="dark"] .app-page[data-page="news"],
-html[data-theme="dark"] .app-page[data-page="news-article"] {
-  background: #fbf8ee;
+/* ── Dark-Mode-Designsprache (2026-06-03, User-Entscheidung) ──
+   ALLE Seiten folgen dem Dark Mode (vorher waren Hub/News/SEO cream gepinnt).
+   Rezept: Seiten-Bg #111110 · Karten/Raised #1d1c19 · Ink #f0e8d0 ·
+   Sub-Ink rgba(240,232,208,.72) · Hairlines rgba(240,232,208,.3) ·
+   Sticker-Borders #f0e8d0 · Akzent ROT statt GELB: Fills var(--c-coral)
+   #a02814 mit #fbf8ee-Text, Text-Akzente var(--c-coral-bright) #d63a2a.
+   Header+Footer kippen auf Brand-Rot. Die Umsetzung liegt in den jeweiligen
+   CSS-Modulen als additive html[data-theme="dark"]-Blöcke. */
+html[data-theme="dark"] {
+  --dk-page: #111110;
+  --dk-card: #1d1c19;
+  --dk-ink:  #f0e8d0;
+  --dk-sub:  rgba(240, 232, 208, 0.72);
+  --dk-rule: rgba(240, 232, 208, 0.3);
 }
 
 *,
@@ -190,7 +175,9 @@ html {
   background-color: #fbf8ee;
 }
 html[data-theme="dark"] {
-  background-color: #fbf8ee;
+  /* Dark-Mode-Rollout 2026-06-03: Seiten folgen jetzt wirklich dem Theme —
+     Rubber-Band/Side-Strips müssen dunkel sein, nicht cream. */
+  background-color: #111110;
 }
 
 body {
@@ -202,8 +189,15 @@ body {
   line-height: 1.6;
 }
 html[data-theme="dark"] body {
-  background: #fbf8ee;
+  background: #111110;
 }
+
+/* Hub wrapper surface. The section stack has intentional gaps between some
+   sections; without a wrapper background those gaps expose the body, which
+   style.css paints with --surface-canvas (#fff) — producing a cream→white seam
+   between sections. Fill the hub so the gaps read as the cream page surface. */
+[data-hub] { background: #fbf8ee; }
+html[data-theme="dark"] [data-hub] { background: var(--dk-page, #111110); }
 
 img {
   max-width: 100%;

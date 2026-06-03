@@ -163,9 +163,9 @@ html[data-theme="dark"] .bodyPanelHidden .panelToggle {
   overflow: hidden;
 }
 html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-group) {
-  background: #fbf5e2 !important;
-  border-color: var(--c-black) !important;
-  box-shadow: 2px 2px 0 var(--c-cream) !important;
+  background: #f0e8d0 !important;
+  border-color: #f0e8d0 !important;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55) !important;
 }
 .mapWrap :global(.maplibregl-ctrl-group button) {
   width: 34px;
@@ -294,10 +294,10 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-comp
   .fab { right: 12px; bottom: 12px; top: auto; }
 }
 html[data-theme="dark"] .fab {
-  background: #fbf5e2;
+  background: #f0e8d0;
   color: var(--c-black);
-  border-color: var(--c-black);
-  box-shadow: 2px 2px 0 var(--c-cream);
+  border-color: #f0e8d0;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55);
 }
 /* Hover-only on devices that actually support hover — prevents the lift
    from sticking on touch devices after a tap (no mouseleave fires). */
@@ -335,6 +335,11 @@ html[data-theme="dark"] .fab {
   -webkit-tap-highlight-color: transparent;
   appearance: none;
   transition: transform 240ms cubic-bezier(.2, .8, .2, 1);
+}
+html[data-theme="dark"] .mapBurger {
+  background: #f0e8d0;
+  border-color: #f0e8d0;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.55);
 }
 .mapBurger img {
   height: 18px;
@@ -510,6 +515,10 @@ html[data-theme="dark"] .list { background: #1c1c1c; }
 .list[data-view="detail"] .handle::before {
   background: rgba(10, 10, 10, 0.28);
 }
+html[data-theme="dark"] .list[data-view="detail"] .handle { background: #1c1c1c; }
+html[data-theme="dark"] .list[data-view="detail"] .handle::before {
+  background: rgba(240, 232, 208, 0.35);
+}
 /* At full snap, shrink the handle's vertical chrome so the content (header
    in detail / count-row + tabs in list) sits closer to the top of the
    viewport. The chevron-down (overlay, position: absolute) is unaffected.
@@ -631,6 +640,15 @@ html[data-theme="dark"] .list { background: #1c1c1c; }
   font-family: var(--font-chewy), 'Chewy', sans-serif; font-size: 13px;
   letter-spacing: .14em; text-transform: uppercase; cursor: pointer;
 }
+/* Empty state dark mode — die es*-Inks oben sind light-only. */
+html[data-theme="dark"] .esKicker { color: #f0e8d0; }
+html[data-theme="dark"] .esHeading { color: #f0e8d0; }
+html[data-theme="dark"] .esSub { color: #f0e8d0; }
+html[data-theme="dark"] .esBtnPrimary {
+  background: #f0e8d0;
+  color: #0a0a0a;
+  border-color: #f0e8d0;
+}
 
 /* Restaurant row */
 .row {
@@ -724,6 +742,8 @@ html[data-theme="dark"] .list { background: #1c1c1c; }
   pointer-events: none;
 }
 .rcardActive { box-shadow: 4px 4px 0 var(--c-mustard); }
+/* Dark mode: Akzent rot statt gelb (gilt für alle Mustard-Akzente im Modul). */
+html[data-theme="dark"] .rcardActive { box-shadow: 4px 4px 0 var(--c-coral-bright); }
 
 .rcardBody {
   position: absolute;
@@ -747,6 +767,7 @@ html[data-theme="dark"] .list { background: #1c1c1c; }
   text-transform: uppercase;
   color: var(--c-mustard);
 }
+html[data-theme="dark"] .rcardMeta { color: var(--c-coral-bright); }
 .rcardTime {
   display: flex;
   gap: 6px;
@@ -759,6 +780,7 @@ html[data-theme="dark"] .list { background: #1c1c1c; }
   color: rgba(255,255,255,.85);
 }
 .rcardNow { color: var(--c-mustard); font-weight: 700; }
+html[data-theme="dark"] .rcardNow { color: var(--c-coral-bright); }
 .rcardDot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .6; }
 
 /* Locked preview cards — blurred photo + signup badge. Peek is forced to the
@@ -795,6 +817,10 @@ html[data-theme="dark"] .list { background: #1c1c1c; }
   text-transform: uppercase;
   white-space: nowrap;
 }
+html[data-theme="dark"] .rcardBlurBadge {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
 .rcardBlurLock { flex: 0 0 auto; }
 
 .openPill {
@@ -820,6 +846,11 @@ html[data-theme="dark"] .list { background: #1c1c1c; }
 }
 .openPillClosed { background: rgba(255,255,255,.92); color: var(--c-black); }
 .openPillClosed::before { background: rgba(10,10,10,.5); }
+html[data-theme="dark"] .openPill:not(.openPillClosed) {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+html[data-theme="dark"] .openPill:not(.openPillClosed)::before { background: #fbf8ee; }
 
 .mustPeek {
   position: absolute;
@@ -863,9 +894,11 @@ html[data-theme="dark"] .list { background: #1c1c1c; }
   pointer-events: auto;
 }
 html[data-theme="dark"] .mapSearchToolbar {
-  background: var(--c-cream);
+  /* Cream-Ink statt grellem Weiß (wie MAPS-Button im Detail). */
+  background: #f0e8d0;
+  border-color: #f0e8d0;
   color: var(--c-black);
-  box-shadow: 4px 4px 0 var(--c-black);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.55);
 }
 .mapSearchIcon {
   width: 18px;
@@ -878,7 +911,7 @@ html[data-theme="dark"] .mapSearchToolbar {
   min-width: 0;
   border: 0;
   background: transparent;
-  font-family: inherit;
+  font-family: var(--font-display);
   font-size: 16px;          /* iOS: ≥16px avoids focus-zoom */
   color: var(--c-black);
   outline: none;
@@ -1464,11 +1497,16 @@ html[data-theme="dark"] .btn:hover {
   box-shadow: 2px 2px 0 #0a0a0a;
   transition: background 0.18s, transform 0.1s, box-shadow 0.2s;
 }
+html[data-theme="dark"] .boosterCta {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
 .boosterCta:hover {
   background: var(--c-mustard-deep);
   box-shadow: 3px 3px 0 #0a0a0a;
   transform: translate(-1px, -1px);
 }
+html[data-theme="dark"] .boosterCta:hover { background: var(--brand-red-hover); }
 .boosterCta:active { transform: scale(0.97); }
 .boosterCtaChevron {
   transition: transform 0.2s;
@@ -1651,6 +1689,8 @@ html[data-theme="dark"] .btn:hover {
   white-space: nowrap;
 }
 [data-theme="dark"] .btnPromo {
+  background: var(--c-coral);
+  color: #fbf8ee;
   box-shadow: 2px 2px 0 var(--c-cream);
 }
 .btnPromo:hover {
@@ -1681,6 +1721,11 @@ html[data-theme="dark"] .btn:hover {
   font-weight: 700;
   font-size: 11px;
   color: #1a1610;
+}
+html[data-theme="dark"] .btnPromoLbl { color: #fbf8ee; }
+html[data-theme="dark"] .btnPromoPriceTag {
+  color: #fbf8ee;
+  border-left-color: rgba(251, 248, 238, 0.4);
 }
 .btnPromoPriceTag svg {
   width: 11px;
@@ -1968,6 +2013,12 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
   white-space: nowrap;
   appearance: none;
 }
+/* Dark mode: kein grelles Weiß — Cream-Ink wie der MAPS-Button im
+   Restaurant-Detail (User-Vorgabe). */
+html[data-theme="dark"] .filterChip {
+  background: #f0e8d0;
+  border-color: #f0e8d0;
+}
 
 .filterChipWrap .filterChip {
   padding-right: 10px;
@@ -1975,6 +2026,8 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
 
 .filterChipActive,
 .filterChipOpenActive { background: var(--c-mustard); color: var(--c-black); }
+html[data-theme="dark"] .filterChipActive,
+html[data-theme="dark"] .filterChipOpenActive { background: var(--c-coral); color: #fbf8ee; }
 
 .filterChipLabel {
   display: inline-block;
@@ -2002,6 +2055,11 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
   margin-left: -1px;
   border-radius: 0;
   transition: background 120ms ease;
+}
+html[data-theme="dark"] .filterChipReset {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-left-color: #fbf8ee;
 }
 .filterChipReset:hover { background: var(--c-cream); }
 
@@ -2096,6 +2154,10 @@ html[data-theme="dark"] .pickerTitle { color: var(--c-cream); }
   box-shadow: 2px 2px 0 var(--c-black);
   transition: transform 140ms ease, box-shadow 140ms ease;
 }
+html[data-theme="dark"] .pickerCloseBtn {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
 .pickerCloseBtn:hover {
   transform: translate(-1px, -1px);
   box-shadow: 3px 3px 0 var(--c-black);
@@ -2146,14 +2208,19 @@ html[data-theme="dark"] .pickerCloseBtn:hover { box-shadow: 3px 3px 0 var(--c-cr
 html[data-theme="dark"] .pickerItem { color: var(--c-cream); }
 html[data-theme="dark"] .pickerItem { border-bottom-color: rgba(255, 255, 255, 0.12); }
 .pickerItem:hover { background: rgba(232, 197, 74, 0.18); }
-html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14); }
+html[data-theme="dark"] .pickerItem:hover { background: rgba(214, 58, 42, 0.18); }
 .pickerItem:last-child { border-bottom: 0; }
 .pickerItemActive {
   background: var(--c-mustard);
   color: var(--c-black);
   font-weight: 900;
 }
+html[data-theme="dark"] .pickerItemActive {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
 .pickerItemActive:hover { background: var(--c-mustard); }
+html[data-theme="dark"] .pickerItemActive:hover { background: var(--c-coral); }
 .pickerItemLabel {
   flex: 1 1 auto;
   min-width: 0;
@@ -2171,6 +2238,8 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   font-size: 12px;
 }
 .pickerItemActive .pickerItemSub { color: var(--c-black); opacity: 0.55; }
+html[data-theme="dark"] .pickerItemSub { color: var(--c-cream); }
+html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opacity: 0.75; }
 
 .pickerFooter {
   border-top: 1px solid var(--border-subtle);
@@ -2578,6 +2647,10 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   margin-left: auto;
   transition: transform 140ms ease, box-shadow 140ms ease;
 }
+html[data-theme="dark"] .ctaPill {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
 .ctaPill:hover {
   transform: translate(-1px, -1px);
   box-shadow: 2px 2px 0 #0a0a0a;
@@ -2877,6 +2950,11 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   transition: transform 160ms ease, box-shadow 160ms ease;
   position: relative;
 }
+html[data-theme="dark"] .btnPackPromo {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  box-shadow: 3px 3px 0 var(--c-cream);
+}
 :global(html[data-theme="dark"]) .btnPackPromo { box-shadow: 3px 3px 0 var(--c-coral); }
 .btnPackPromo:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 #1a1610; }
 :global(html[data-theme="dark"]) .btnPackPromo:hover { box-shadow: 5px 5px 0 var(--c-coral); }
@@ -2907,6 +2985,11 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   letter-spacing: 0.02em;
   color: #1a1610;
   white-space: nowrap;
+}
+html[data-theme="dark"] .btnPackPromoLbl { color: #fbf8ee; }
+html[data-theme="dark"] .btnPackPromoTag {
+  color: #fbf8ee;
+  border-left-color: rgba(251, 248, 238, 0.4);
 }
 .btnPackPromoTag svg {
   width: 13px;
@@ -2983,6 +3066,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   margin: 0;
   max-width: 18ch;
 }
+html[data-theme="dark"] .bezirkLockedTitle { color: #f0e8d0; }
 .bezirkLockedBody {
   font-family: var(--font);
   font-size: 13.5px;
@@ -3009,6 +3093,12 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   text-decoration: none;
   cursor: pointer;
 }
+html[data-theme="dark"] .bezirkLockedCta {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-color: #fbf8ee;
+  box-shadow: 4px 4px 0 rgba(251, 248, 238, 0.25);
+}
 
 .listEnd {
   text-align: center;
@@ -3027,6 +3117,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   margin: 0;
   max-width: 18ch;
 }
+html[data-theme="dark"] .listEndTitle { color: #f0e8d0; }
 .listEndCta {
   display: inline-flex;
   align-items: center;
@@ -3042,6 +3133,12 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   letter-spacing: .1em;
   text-transform: uppercase;
   cursor: pointer;
+}
+html[data-theme="dark"] .listEndCta {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-color: #fbf8ee;
+  box-shadow: 4px 4px 0 rgba(251, 248, 238, 0.25);
 }
 
 /* ============ Restaurant Detail (Chewy Screen 04) ============ */
@@ -3079,6 +3176,7 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
 }
 .rdHeroSave svg { width: 22px; height: 26px; }
 .rdHeroSaveActive { color: var(--c-mustard); }
+html[data-theme="dark"] .rdHeroSaveActive { color: var(--c-coral-bright); }
 
 /* Back-to-list pill on the hero (mockup .map-back-pill) — the smart close. */
 .rdBackPill {
@@ -3140,6 +3238,10 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
   background: var(--c-mustard);
   color: #0a0a0a;
   padding: 4px 9px 5px;
+}
+html[data-theme="dark"] .rdTag {
+  background: var(--c-coral);
+  color: #fbf8ee;
 }
 .rdTagAlt {
   background: rgba(255,255,255,.16);
@@ -3312,5 +3414,39 @@ html[data-theme="dark"] .pickerItem:hover { background: rgba(232, 197, 74, 0.14)
 
 .medishLbl { text-align: center; color: #0a0a0a; display: grid; gap: 2px; padding: 0 4px; }
 .medishNm { font-family: var(--font-chewy); font-size: 16px; letter-spacing: .14em; text-transform: uppercase; opacity: .55; margin: 0; }
+
+/* ── Restaurant-Detail dark mode ──
+   Die .rd*-Styles oben sind light-only (hartes #0a0a0a auf cream) — im Dark
+   Mode sitzt das Detail aber auf dem dunklen Sheet (.list #1c1c1c), der Text
+   war komplett unsichtbar. Cream-Ink wie im .detailV13-Pattern; Akzent rot
+   statt gelb (Insider-Tipp-Box). */
+html[data-theme="dark"] .rdPager {
+  background: #161616;
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .rdBody { color: #f0e8d0; }
+html[data-theme="dark"] .rdDropCap { color: #f0e8d0; }
+html[data-theme="dark"] .rdTipp {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-color: #fbf8ee;
+  box-shadow: 6px 6px 0 0 rgba(251, 248, 238, 0.22);
+}
+html[data-theme="dark"] .rdTippLabel { color: #fbf8ee; }
+html[data-theme="dark"] .rdFacts { border-top-color: rgba(240, 232, 208, 0.35); }
+html[data-theme="dark"] .rdRow { border-bottom-color: rgba(240, 232, 208, 0.35); }
+html[data-theme="dark"] .rdK { color: #f0e8d0; }
+html[data-theme="dark"] .rdV { color: #f0e8d0; }
+html[data-theme="dark"] .rdV a { color: #f0e8d0; }
+html[data-theme="dark"] .rdActBtn {
+  border-color: #f0e8d0;
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .rdActPrimary {
+  background: #f0e8d0;
+  color: #0a0a0a;
+}
+html[data-theme="dark"] .rdSecH { color: #f0e8d0; }
+html[data-theme="dark"] .medishLbl { color: #f0e8d0; }
 
 /* horizontal page transition */

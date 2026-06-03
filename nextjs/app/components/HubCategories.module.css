@@ -1,7 +1,6 @@
 .section {
   padding: 44px 22px 40px;
   background: #fbf8ee;
-  border-top: 2px solid var(--text-primary);
 }
 .heading {
   font-family: var(--font-ranchers);
@@ -28,15 +27,15 @@
   grid-template-columns: 110px 1fr;
   gap: 14px;
   background: #fbf8ee;
-  border: 2px solid var(--text-primary);
-  box-shadow: 4px 4px 0 var(--text-primary);
+  border: 1px solid rgba(10, 10, 10, 0.10);
+  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06);
   padding: 14px 16px 14px 6px;
   align-items: center;
   text-decoration: none;
   color: var(--text-primary);
   transition: transform .2s, box-shadow .2s;
 }
-.card:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--text-primary); }
+.card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(10, 10, 10, 0.12); }
 .art {
   width: 110px;
   height: auto;
@@ -91,3 +90,23 @@
   .card { grid-template-columns: 132px 1fr; }
   .name { font-size: 30px; }
 }
+
+/* ── Dark mode: dark page, warm-cream ink. Freigestellt pack art untouched. ── */
+html[data-theme="dark"] .section {
+  background: var(--dk-page);
+  border-top-color: var(--dk-ink);
+}
+html[data-theme="dark"] .heading,
+html[data-theme="dark"] .sub,
+html[data-theme="dark"] .meta,
+html[data-theme="dark"] .name,
+html[data-theme="dark"] .line,
+html[data-theme="dark"] .cta { color: var(--dk-ink); }
+/* Cards: cream surface → dark card, ink border/shadow → cream */
+html[data-theme="dark"] .card {
+  background: var(--dk-card);
+  border-color: var(--dk-ink);
+  box-shadow: 4px 4px 0 var(--dk-rule);
+  color: var(--dk-ink);
+}
+html[data-theme="dark"] .card:hover { box-shadow: 6px 6px 0 var(--dk-rule); }

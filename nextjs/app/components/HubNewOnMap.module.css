@@ -37,7 +37,8 @@
   display: block;
   position: relative;
   aspect-ratio: 4 / 5;
-  border: 2px solid var(--text-primary);
+  border: 1px solid rgba(10, 10, 10, 0.10);
+  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06);
   overflow: hidden;
   text-decoration: none;
   color: #fbf8ee;
@@ -87,3 +88,13 @@
   }
   .cardName { font-size: 30px; }
 }
+
+/* ── Dark mode: dark page, warm-cream ink, red replaces yellow. Photos and
+   text-on-photo left untouched. ── */
+html[data-theme="dark"] .section { background: var(--dk-page); }
+html[data-theme="dark"] .heading,
+html[data-theme="dark"] .meta,
+html[data-theme="dark"] .metaLink { color: var(--dk-ink); }
+html[data-theme="dark"] .metaLink { border-bottom-color: var(--dk-ink); }
+html[data-theme="dark"] .card { border-color: var(--dk-ink); }
+html[data-theme="dark"] .cardMeta { color: var(--c-coral-bright); }

@@ -331,3 +331,108 @@
     min-height: 100dvh;
   }
 }
+
+/* ══════════════════════════════════════════════
+   DARK MODE — cream sheet flips dark, yellow → red.
+   Shared by /login page + BridgeAuth modal panel.
+   Append-only; light mode above stays pixel-identical.
+   ══════════════════════════════════════════════ */
+html[data-theme="dark"] .page,
+html[data-theme="dark"] .frame {
+  background: #111110;
+}
+html[data-theme="dark"] .frame {
+  color: #f0e8d0;
+}
+
+html[data-theme="dark"] .close {
+  color: #f0e8d0;
+}
+
+/* Welcome Pack art is freigestellt cut-out → never filter; shadow stays. */
+
+html[data-theme="dark"] .kicker,
+html[data-theme="dark"] .h1,
+html[data-theme="dark"] .sub {
+  color: #f0e8d0;
+}
+
+/* ── Form ── dark input fields ── */
+html[data-theme="dark"] .input {
+  background: #1d1c19;
+  color: #f0e8d0;
+  border-color: rgba(240, 232, 208, 0.4);
+}
+html[data-theme="dark"] .input::placeholder {
+  color: rgba(240, 232, 208, 0.5);
+}
+
+/* Primary CTA (black + cream) on a now-dark surface → invert to cream + ink. */
+html[data-theme="dark"] .ctaPrimary {
+  background: #f0e8d0;
+  color: #0a0a0a;
+  border-color: #f0e8d0;
+}
+/* Google CTA (cream + ink + ink border) → dark raised card. */
+html[data-theme="dark"] .ctaGoogle {
+  background: #1d1c19;
+  color: #f0e8d0;
+  border-color: #f0e8d0;
+}
+
+html[data-theme="dark"] .error {
+  color: var(--c-coral-bright);
+}
+
+/* ── "oder" divider ── */
+html[data-theme="dark"] .or {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .or::before,
+html[data-theme="dark"] .or::after {
+  border-top-color: rgba(240, 232, 208, 0.25);
+}
+
+/* ── Legal ── */
+html[data-theme="dark"] .legal,
+html[data-theme="dark"] .legalLink {
+  color: #f0e8d0;
+}
+
+/* ── Sent state ── plane art = freigestellt cut-out: leave ── */
+/* .toBlock stays a dark block (already dark); flip its yellow accents → red. */
+html[data-theme="dark"] .toBlock {
+  border-left-color: var(--c-coral);
+}
+html[data-theme="dark"] .toLabel {
+  color: var(--c-coral-bright);
+}
+html[data-theme="dark"] .spam {
+  background: #1d1c19;
+  border-left-color: #f0e8d0;
+}
+html[data-theme="dark"] .spamIcon {
+  background: #f0e8d0;
+  color: var(--c-coral-bright);
+}
+html[data-theme="dark"] .spamText {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .textlink {
+  color: #f0e8d0;
+}
+
+/* ── Modal sticker chrome — ink border/shadow → cream ── */
+html[data-theme="dark"] .frameModal {
+  background: #111110;
+}
+/* Sticker border/shadow only on desktop, mirroring the light rule which is
+   stripped on mobile (.frameModal { border:0; box-shadow:none } below 768px).
+   Scoping to the desktop MQ avoids re-adding chrome on the full-bleed mobile
+   sheet via specificity. */
+@media (min-width: 768px) {
+  html[data-theme="dark"] .frameModal {
+    border-color: #f0e8d0;
+    box-shadow: 5px 5px 0 rgba(240, 232, 208, 0.25);
+  }
+}

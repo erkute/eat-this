@@ -78,3 +78,9 @@
 @media (min-width: 720px) {
   .faq { margin: 40px 22px 28px; }
 }
+
+/* ── Dark mode: text/borders/plus-icon ride the parent page's flipped
+   --ink token; only the hard-coded row hairline needs flipping. ── */
+html[data-theme="dark"] .row {
+  border-bottom-color: rgba(240, 232, 208, 0.2);
+}

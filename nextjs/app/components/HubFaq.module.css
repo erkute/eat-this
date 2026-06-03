@@ -47,3 +47,11 @@
   .question { font-size: 22px; }
   .answer { font-size: 15px; }
 }
+
+/* ── Dark mode: dark page, warm-cream ink, cream hairlines. ── */
+html[data-theme="dark"] .section { background: var(--dk-page); }
+html[data-theme="dark"] .heading,
+html[data-theme="dark"] .question,
+html[data-theme="dark"] .answer { color: var(--dk-ink); }
+html[data-theme="dark"] .item { border-top-color: var(--dk-rule); }
+html[data-theme="dark"] .item:last-child { border-bottom-color: var(--dk-rule); }

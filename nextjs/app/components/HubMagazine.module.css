@@ -104,3 +104,19 @@
   .item { flex: initial; }
   .cardName { font-size: 24px; }
 }
+
+/* ── Dark mode: dark page + cream ink for the heading/meta; the article cards
+   are already dark (ink bg / cream text / photo) so keep those, only flip the
+   yellow accents to red. ── */
+html[data-theme="dark"] .section { background: var(--dk-page); }
+html[data-theme="dark"] .heading,
+html[data-theme="dark"] .meta,
+html[data-theme="dark"] .metaLink { color: var(--dk-ink); }
+html[data-theme="dark"] .metaLink { border-bottom-color: var(--dk-ink); }
+/* Stamp: yellow fill + ink → red fill + cream label */
+html[data-theme="dark"] .stamp {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+/* "Read" link accent: yellow → bright red */
+html[data-theme="dark"] .read { color: var(--c-coral-bright); }

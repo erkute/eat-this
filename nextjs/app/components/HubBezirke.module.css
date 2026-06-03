@@ -1,7 +1,6 @@
 .section {
   padding: 44px 22px 40px;
   background: #fbf8ee;
-  border-top: 2px solid var(--text-primary);
 }
 .heading {
   font-family: var(--font-ranchers);
@@ -32,16 +31,16 @@
   align-items: center;
   gap: 10px;
   background: #fbf8ee;
-  border: 2px solid var(--text-primary);
-  box-shadow: 3px 3px 0 var(--text-primary);
+  border: 1px solid rgba(10, 10, 10, 0.10);
+  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06);
   padding: 11px 14px 12px;
   text-decoration: none;
   color: var(--text-primary);
   transition: transform .2s, box-shadow .2s, background .2s;
 }
 .chip:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0 var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(10, 10, 10, 0.12);
   background: var(--brand-yellow, #ffd84a);
 }
 .name {
@@ -63,4 +62,25 @@
   .section { padding: 56px max(22px, calc((100% - 1120px) / 2)) 64px; }
   .heading { font-size: clamp(48px, 7vw, 72px); }
   .name { font-size: 19px; }
+}
+
+/* ── Dark mode: dark page, warm-cream ink, red replaces yellow on hover. ── */
+html[data-theme="dark"] .section {
+  background: var(--dk-page);
+  border-top-color: var(--dk-ink);
+}
+html[data-theme="dark"] .heading,
+html[data-theme="dark"] .sub { color: var(--dk-ink); }
+/* Chips: cream surface → dark card, ink border/shadow → cream */
+html[data-theme="dark"] .chip {
+  background: var(--dk-card);
+  border-color: var(--dk-ink);
+  box-shadow: 3px 3px 0 var(--dk-rule);
+  color: var(--dk-ink);
+}
+/* Hover fill: yellow → red, label/arrow → cream */
+html[data-theme="dark"] .chip:hover {
+  background: var(--c-coral);
+  box-shadow: 5px 5px 0 var(--dk-rule);
+  color: #fbf8ee;
 }

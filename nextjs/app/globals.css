@@ -140,6 +140,26 @@ html[data-theme="dark"] {
   --surface-deep-2: #161616;
 }
 
+/* Hub home (/) is a cream marketing surface like the SEO hub pages. Pin the
+   light palette onto its subtree so the global dark theme never flips the
+   Hub's --text-primary text to light — light text on the cream sections is
+   unreadable. The intentionally-dark Hub blocks (Bezirk der Woche, All Berlin)
+   hardcode their own cream-on-ink colours, so they're unaffected. Base palette
+   vars (--black, --off-white, --gray-*) aren't theme-flipped, so re-pointing
+   the semantic tokens at them re-asserts the light values in dark mode too. */
+[data-hub] {
+  --surface-bg:      var(--off-white);
+  --surface-card:    var(--white);
+  --surface-raised:  var(--white);
+  --surface-overlay: rgba(255, 255, 255, 0.95);
+  --border-subtle:   var(--gray-100);
+  --border-strong:   var(--gray-200);
+  --text-primary:    var(--black);
+  --text-secondary:  var(--gray-600);
+  --text-muted:      var(--gray-400);
+  color: var(--text-primary);
+}
+
 *,
 *::before,
 *::after {

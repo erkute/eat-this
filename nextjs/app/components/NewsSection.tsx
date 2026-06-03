@@ -1,6 +1,5 @@
 import { Link } from '@/i18n/navigation';
 import SiteFooter from './SiteFooter';
-import SeoSignupCTA from './SeoSignupCTA';
 import type { NewsArticle } from '@/lib/types';
 import styles from './NewsSection.module.css';
 
@@ -125,7 +124,6 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
           ))}
         </div>
       </section>
-      <SeoSignupCTA />
       <SiteFooter />
     </div>
   );

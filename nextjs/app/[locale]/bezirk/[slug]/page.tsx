@@ -15,7 +15,6 @@ import { buildBezirkFAQEntries } from '@/lib/bezirk-prose'
 import styles from '../Bezirk.module.css'
 import HubMapCTA from '@/app/components/HubMapCTA'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
-import SeoSignupCTA from '@/app/components/SeoSignupCTA'
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>
@@ -220,7 +219,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
         )}
 
       </main>
-      <SeoSignupCTA />
     </>
   )
 }

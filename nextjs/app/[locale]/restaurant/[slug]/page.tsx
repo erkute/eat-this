@@ -13,7 +13,6 @@ import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaura
 import { buildFAQEntries, splitDescriptionForMagazine } from '@/lib/restaurant-prose'
 import { getOpenStatus } from '@/lib/map/openingHours'
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection'
-import SeoSignupCTA from '@/app/components/SeoSignupCTA'
 import RestaurantFAQ from '@/app/components/RestaurantFAQ'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 import { Link as IntlLink } from '@/i18n/navigation'
@@ -342,7 +341,6 @@ export default async function RestaurantPage({ params }: PageProps) {
         )}
 
       </main>
-      <SeoSignupCTA />
     </>
   )
 }

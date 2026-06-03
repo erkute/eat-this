@@ -28,13 +28,12 @@ const VALID_SLUGS = new Set([
   'news',
   'about',
   'contact',
-  'press',
   'impressum',
   'datenschutz',
   'agb',
 ])
 
-const STATIC_SLUGS = new Set(['about', 'contact', 'press', 'impressum', 'datenschutz', 'agb'])
+const STATIC_SLUGS = new Set(['about', 'contact', 'impressum', 'datenschutz', 'agb'])
 
 type SlugMeta = {
   de: { title: string; description: string }
@@ -69,11 +68,6 @@ const PAGE_META: Record<string, SlugMeta> = {
   contact: {
     de: { title: 'Kontakt', description: 'Kontaktiere das Eat-This-Team für Anfragen, Kooperationen oder Feedback.' },
     en: { title: 'Contact', description: 'Get in touch with the Eat This team for inquiries, partnerships or feedback.' },
-    noIndex: true,
-  },
-  press: {
-    de: { title: 'Presse', description: 'Presse, Erwähnungen und Pressekontakt von Eat This Berlin.' },
-    en: { title: 'Press', description: 'Press coverage, mentions and press contact for Eat This Berlin.' },
     noIndex: true,
   },
   impressum: {

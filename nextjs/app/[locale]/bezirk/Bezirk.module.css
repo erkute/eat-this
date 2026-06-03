@@ -15,7 +15,7 @@
   --cream-deep: #f1ecdd;
   --yellow: #ffd84a;
   --muted: #6b5a44;
-  --f-display: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
+  --f-display: var(--font-poster, "Chewy"), "Comic Sans MS", cursive;
   --f-body: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
 
   /* Bridge semantic tokens so shared components (Breadcrumbs,
@@ -54,7 +54,7 @@
 .kicker {
   font-family: var(--f-display);
   font-size: 14px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.14em;
   color: var(--ink);
   text-transform: uppercase;
   margin: 14px 0 0;
@@ -62,22 +62,23 @@
 }
 .h1 {
   font-family: var(--f-display);
-  font-size: clamp(56px, 16vw, 96px);
-  line-height: 1;
+  font-size: clamp(38px, 11vw, 64px);
+  line-height: 1.0;
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--ink);
-  /* Top margin clears umlaut dots (SÜSSES, KÖPENICK) from the kicker
-     line above — Anton positions them well above cap height. */
+  /* Chewy is far wider/rounder than the old Anton — smaller max + a touch
+     more top margin so long names (FRIEDRICHSHAIN) don't overflow and the
+     umlaut dots (SÜSSES, KÖPENICK) clear the kicker line above. */
   margin: 18px 0 14px;
   overflow-wrap: break-word;
   hyphens: manual;
 }
 .tagline {
   font-family: var(--f-display);
-  font-size: clamp(22px, 6vw, 32px);
-  line-height: 1;
-  letter-spacing: 0.02em;
+  font-size: clamp(19px, 5vw, 27px);
+  line-height: 1.05;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--ink);
   margin: 0 0 12px;
@@ -133,8 +134,8 @@
 }
 .sectionHead h2 {
   font-family: var(--f-display);
-  font-size: clamp(38px, 10vw, 56px);
-  line-height: 0.96;
+  font-size: clamp(28px, 7.5vw, 44px);
+  line-height: 1.0;
   color: var(--ink);
   margin: 0 0 8px;
   text-transform: uppercase;
@@ -250,7 +251,7 @@
 .faqKicker {
   font-family: var(--f-display);
   font-size: 13px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.14em;
   color: var(--ink);
   text-transform: uppercase;
   padding: 16px 0 8px;
@@ -332,15 +333,15 @@
 .fcKicker {
   font-family: var(--f-display);
   font-size: 13px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.14em;
   color: var(--yellow);
   text-transform: uppercase;
   margin-bottom: 8px;
 }
 .finalCta h2 {
   font-family: var(--f-display);
-  font-size: clamp(48px, 12vw, 72px);
-  line-height: 0.96;
+  font-size: clamp(36px, 9vw, 56px);
+  line-height: 1.0;
   text-transform: uppercase;
   margin: 0 0 14px;
   color: var(--cream);
@@ -514,18 +515,18 @@
   }
   .kicker {
     font-size: 15px;
-    letter-spacing: 0.26em;
+    letter-spacing: 0.15em;
   }
   .h1 {
     /* Scale back from 192 — at that max short bezirk names like MITTE
        look over-blown and visually clip page rhythm. 160 still reads as
        statement on 1440+ without overwhelming. */
-    font-size: clamp(88px, 10vw, 160px);
-    line-height: 0.94;
+    font-size: clamp(56px, 7vw, 104px);
+    line-height: 0.98;
     margin: 24px 0 18px;
   }
   .tagline {
-    font-size: clamp(28px, 4vw, 52px);
+    font-size: clamp(24px, 3vw, 40px);
   }
   .sub {
     max-width: 52ch;
@@ -546,8 +547,8 @@
      Auswahl") — was capped at 56, too small to sit between a 160 H1
      and the restaurant grid below. Lift to second-tier display. */
   .sectionHead h2 {
-    font-size: clamp(56px, 6.5vw, 96px);
-    line-height: 0.96;
+    font-size: clamp(40px, 5vw, 72px);
+    line-height: 1.0;
   }
   .sectionHead p {
     font-size: 16px;

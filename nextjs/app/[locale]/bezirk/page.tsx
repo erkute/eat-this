@@ -6,7 +6,6 @@ import { getAllBezirkeWithStats } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { localeUrl } from '@/lib/locale-url'
 import styles from './Bezirk.module.css'
-import SeoSignupCTA from '@/app/components/SeoSignupCTA'
 
 interface PageProps {
   params: Promise<{ locale: string }>
@@ -105,7 +104,6 @@ export default async function BezirkIndexPage({ params }: PageProps) {
         </section>
 
       </main>
-      <SeoSignupCTA />
     </>
   )
 }

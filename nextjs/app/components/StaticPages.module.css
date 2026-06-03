@@ -128,6 +128,50 @@
   padding: 2px 6px;
 }
 
+/* ============================================================
+   ABOUT — editorial brand-story treatment (mockup Screen 22).
+   Scoped to [data-page="about"] so the legal/document pages keep
+   their plain treatment (no drop-cap, no pull-quote restyle).
+============================================================ */
+/* Lede — first paragraph reads as the editorial intro, Chewy with a
+   thin coral underline (mockup .art-lede). */
+.page[data-page="about"] .body > p:first-of-type {
+  font-family: var(--font-poster);
+  font-size: clamp(20px, 5vw, 26px);
+  line-height: 1.25;
+  margin: 18px 0 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(160, 40, 20, 0.4);
+}
+
+/* Drop-cap on the first body-proper paragraph (the one after the lede). */
+.page[data-page="about"] .body > p:nth-of-type(2)::first-letter {
+  font-family: var(--font-poster);
+  font-size: 60px;
+  line-height: 0.78;
+  float: left;
+  padding: 6px 10px 0 0;
+  color: #000;
+}
+
+/* Sub-headings lift to editorial scale (mockup .art-h). */
+.page[data-page="about"] .body h3 {
+  font-size: clamp(22px, 5.5vw, 30px);
+  letter-spacing: 0;
+  margin: 32px 0 10px;
+}
+
+/* Pull-quote — a coral brand statement, not the plain legal blockquote. */
+.page[data-page="about"] .body blockquote {
+  border-left: 0;
+  padding: 0;
+  margin: 28px 0;
+  font-size: clamp(22px, 5.5vw, 30px);
+  line-height: 1.18;
+  text-transform: none;
+  color: #a02814;
+}
+
 @media (min-width: 720px) {
   .inner {
     padding: 48px 32px 72px;

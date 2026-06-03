@@ -8,7 +8,6 @@ import { localizedCategoryName } from '@/lib/categories'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { localeUrl } from '@/lib/locale-url'
 import styles from '../bezirk/Bezirk.module.css'
-import SeoSignupCTA from '@/app/components/SeoSignupCTA'
 
 const POSTER_MAP: Record<string, string> = {
   breakfast: '/pics/booster/booster_breakfast.webp',
@@ -141,7 +140,6 @@ export default async function KategorieIndexPage({ params }: PageProps) {
         </section>
 
       </main>
-      <SeoSignupCTA />
     </>
   )
 }

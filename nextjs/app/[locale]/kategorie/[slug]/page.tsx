@@ -16,7 +16,6 @@ import styles from '../../bezirk/Bezirk.module.css'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 import HubMapCTA from '@/app/components/HubMapCTA'
 import KategorieBoost from '@/app/components/KategorieBoost'
-import SeoSignupCTA from '@/app/components/SeoSignupCTA'
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>
@@ -195,7 +194,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         </section>
 
       </main>
-      <SeoSignupCTA />
     </>
   )
 }

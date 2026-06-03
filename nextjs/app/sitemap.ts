@@ -7,7 +7,7 @@ import { isStaging } from '@/lib/env'
 
 export const revalidate = 0
 
-// `/contact`, `/press`, `/impressum`, `/datenschutz`, `/agb` are marked
+// `/contact`, `/impressum`, `/datenschutz`, `/agb` are marked
 // `noindex,follow` in [...slug]/page.tsx — listing them in the sitemap
 // would send a conflicting signal, so they're omitted.
 // `''` (root) is omitted during the launch-holding-page phase — the launch

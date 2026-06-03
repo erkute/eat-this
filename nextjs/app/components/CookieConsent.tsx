@@ -83,6 +83,21 @@ function loadGA() {
   gtag('config', GA_ID);
 }
 
+// Best-effort removal of GA's first-party cookies when consent is withdrawn.
+// The injected GA script can't be "unloaded" in-place, so handleDecline also
+// reloads the page after calling this — next load sees 'declined' and never
+// re-injects GA.
+function clearGaCookies() {
+  const names = document.cookie
+    .split(';')
+    .map((c) => c.split('=')[0].trim())
+    .filter((n) => n === '_ga' || n.startsWith('_ga') || n === '_gid');
+  for (const name of names) {
+    document.cookie = `${name}=; Max-Age=0; path=/`;
+    document.cookie = `${name}=; Max-Age=0; path=/; domain=.${location.hostname}`;
+  }
+}
+
 // Refresh iOS Safari notch theme-color and recompute navbar.scrolled state
 // after the banner slides out — both can drift while the banner is overlaying.
 // The flip-to-black-then-back trick forces Safari to re-evaluate the meta
@@ -170,11 +185,31 @@ export default function CookieConsent() {
   };
 
   const handleDecline = () => {
+    const gaWasLoaded = !!(window as Window & { __gaLoaded?: boolean }).__gaLoaded;
     localStorage.setItem('cookieConsent', 'declined');
     setShow(false);
     setExpanded(false);
     setTimeout(flushPostBannerChrome, 350);
+    // Consent withdrawn while GA was already running this session (reopened via
+    // the footer "Cookies verwalten" link): drop the GA cookies and reload so
+    // the script stops — on reload, 'declined' prevents re-injection.
+    if (gaWasLoaded) {
+      clearGaCookies();
+      setTimeout(() => window.location.reload(), 200);
+    }
   };
+
+  // Reopen the banner from anywhere (footer "Cookies verwalten") so users can
+  // withdraw or change consent as easily as they granted it.
+  useEffect(() => {
+    const reopen = () => {
+      localStorage.removeItem('cookieConsent');
+      setShow(true);
+      setExpanded(true);
+    };
+    window.addEventListener('eatthis:open-cookie-settings', reopen);
+    return () => window.removeEventListener('eatthis:open-cookie-settings', reopen);
+  }, []);
 
   // Collapse the expanded info panel on outside-click or Escape — gives the
   // user a way to dismiss the disclosure without touching the trigger again.

@@ -50,6 +50,13 @@ export default function SiteFooter() {
         <Link href="/impressum" className={styles.legalLink}>{t('footer.impressum')}</Link>
         <Link href="/datenschutz" className={styles.legalLink}>{t('footer.datenschutz')}</Link>
         <Link href="/agb" className={styles.legalLink}>{t('footer.agb')}</Link>
+        <button
+          type="button"
+          className={`${styles.legalLink} ${styles.legalBtn}`}
+          onClick={() => window.dispatchEvent(new Event('eatthis:open-cookie-settings'))}
+        >
+          {t('footer.cookieSettings')}
+        </button>
       </nav>
 
       <div className={styles.meta}>

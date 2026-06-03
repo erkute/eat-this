@@ -56,8 +56,9 @@
   border: none;
   outline: none;
   background: transparent;
-  font-size: 16px;
-  font-weight: 500;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 400;
   color: #0A0A0A;
   letter-spacing: -0.01em;
   min-width: 0;
@@ -100,7 +101,8 @@
 .hint {
   padding: 32px 20px;
   text-align: center;
-  font-size: 13px;
+  font-family: var(--font-display);
+  font-size: 16px;
   color: rgba(10, 10, 10, 0.5);
   line-height: 1.5;
 }
@@ -163,10 +165,11 @@
   gap: 2px;
 }
 .title {
-  font-size: 14px;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 400;
   color: #0A0A0A;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

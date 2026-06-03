@@ -14,7 +14,7 @@ import { routing } from '@/i18n/routing'
 import { pickLocale } from '@/lib/i18n/pickLocale'
 import styles from '../../bezirk/Bezirk.module.css'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
-import HubMapCTA from '@/app/components/HubMapCTA'
+import MapPromoCTA from '@/app/components/MapPromoCTA'
 import KategorieBoost from '@/app/components/KategorieBoost'
 
 interface PageProps {
@@ -122,10 +122,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
     ],
   })
 
-  const hubCtaTitle = de
-    ? `Alle ${label}-Spots auf der Map`
-    : `See all ${label.toLowerCase()} spots on the map`
-
   return (
     <>
       <Script id={`schema-kategorie-${slug}`} type="application/ld+json" strategy="beforeInteractive">
@@ -139,7 +135,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
           <h1 className={styles.h1}>{label}</h1>
           <div className={styles.tagline}>in Berlin</div>
           {blurb && <p className={styles.sub}>{blurb}</p>}
-          <HubMapCTA href="/" title={hubCtaTitle} variant="chip" />
         </header>
 
         <div className={styles.stats} style={statsStyle}>
@@ -192,6 +187,8 @@ export default async function KategorieDetailPage({ params }: PageProps) {
             )
           })}
         </section>
+
+        <MapPromoCTA kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />
 
       </main>
     </>

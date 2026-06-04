@@ -68,12 +68,16 @@ export default function BridgeAuth() {
         .split(' ')[0] || t('footer.signIn');
       loginBtn?.classList.add('logged-in');
       if (loginSpan) loginSpan.textContent = firstName;
+      // Keep the pre-paint flag accurate once auth actually resolves (the
+      // bootstrap only guesses from the possibly-stale _authHint).
+      document.documentElement.setAttribute('data-auth', '1');
       try { localStorage.setItem('_authHint', JSON.stringify({ n: firstName })); } catch {}
       // Close the modal if the user just signed in.
       closeLogin();
     } else {
       loginBtn?.classList.remove('logged-in');
       if (loginSpan) loginSpan.textContent = t('footer.signIn');
+      document.documentElement.removeAttribute('data-auth');
       try { localStorage.removeItem('_authHint'); } catch {}
     }
   }, [user, loading, t, closeLogin]);

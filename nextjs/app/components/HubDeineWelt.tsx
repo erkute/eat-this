@@ -45,12 +45,18 @@ export default function HubDeineWelt({ initialMapData }: Props) {
     }
   }, [location])
 
-  // Logged-out (and the SSR / first-paint pass, where auth is still loading)
-  // render nothing → no hydration mismatch and the hero stays the first block.
-  if (loading || !user) return null
+  // Resolved logged-out → render nothing (the hero stays the first block).
+  // While auth is still loading (SSR + pre-hydration) the static shell is
+  // rendered for everyone, and globals.css hides it unless the pre-paint
+  // data-auth flag (CRITICAL_BOOTSTRAP ← _authHint) marks a signed-in visitor.
+  // That way returning users see the section from the first frame instead of
+  // it popping in (and shifting the hub) once Firebase auth resolves — only
+  // the first name swaps into the kicker, which doesn't move the layout.
+  if (!loading && !user) return null
 
-  const firstName =
-    (user.displayName ?? '').split(' ')[0] || (user.email ?? '').split('@')[0] || null
+  const firstName = user
+    ? (user.displayName ?? '').split(' ')[0] || (user.email ?? '').split('@')[0] || null
+    : null
 
   const bezirk = geoBezirk ?? 'Mitte'
   const fresh = freshInBezirk(restaurants, bezirk, 2)
@@ -63,7 +69,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   const packArt = ownedSlug ? categoryArt(ownedSlug) : null
 
   return (
-    <section className={styles.section} data-hub-deinewelt="">
+    <section className={styles.section} data-hub-deinewelt="" data-auth-only="">
       <header className={styles.hi}>
         <p className={styles.kicker}>{firstName ? `Hallo ${firstName}` : 'Hallo'}</p>
         <h2 className={styles.name}>
@@ -110,6 +116,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
       <Link
         href="/profile#gesammelte-must-eats"
         className={styles.teaser}
+        rel="nofollow"
         aria-label="Deine verdeckten Must Eats im Profil ansehen"
       >
         <div className={styles.cards} aria-hidden="true">

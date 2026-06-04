@@ -219,6 +219,21 @@ a {
   display: none;
 }
 
+/* Signup-only blocks (e.g. the Welcome Pack gift card) are SSR'd for everyone
+   because the server can't know the auth state. The CRITICAL_BOOTSTRAP sets
+   data-auth="1" pre-paint from localStorage._authHint, so signed-in visitors
+   never see them flash before client-side auth resolves and removes them. */
+html[data-auth="1"] [data-signup-gift] {
+  display: none;
+}
+
+/* The inverse: signed-in-only blocks (e.g. the Deine-Welt hub section) are
+   SSR'd as a static shell so they don't pop in / shift the page once client
+   auth resolves. Anyone without the pre-paint flag never sees the shell. */
+html:not([data-auth="1"]) [data-auth-only] {
+  display: none;
+}
+
 /* 2026 EDITORIAL FRAME removed — the dark border-mat read as heavy chrome
    over the editorial-v13 redesign. Navbar + app-pages now go flush. */
 

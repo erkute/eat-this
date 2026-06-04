@@ -26,6 +26,12 @@ describe('HubPacks', () => {
     expect(html).toContain('Welcome Pack')
     expect(html).toContain('Frühstück')
   })
+  it('marks the gift pack with the data-signup-gift hook (pre-paint hide for signed-in)', () => {
+    // globals.css hides [data-signup-gift] under html[data-auth="1"] (set by
+    // CRITICAL_BOOTSTRAP from _authHint) so the SSR'd card never flashes for
+    // returning signed-in visitors before client auth resolves.
+    expect(render()).toContain('data-signup-gift')
+  })
   it('links category packs to their pack detail page and offers gift email signup', () => {
     const html = render()
     expect(html).toContain('/pack/breakfast')

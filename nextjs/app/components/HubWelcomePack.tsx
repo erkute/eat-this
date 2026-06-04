@@ -19,6 +19,9 @@ export default function HubWelcomePack() {
   // The Welcome Pack is a signup gift — pointless once you're logged in. Hide
   // it for signed-in users, but only after mount so the first client render
   // still matches the SSR (anon) output and doesn't trip a hydration mismatch.
+  // Until auth resolves, the data-signup-gift attribute + the pre-paint
+  // data-auth flag (CRITICAL_BOOTSTRAP → globals.css) keep the card from
+  // flashing for returning signed-in visitors.
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
   const sending = state === 'sending'
@@ -36,7 +39,7 @@ export default function HubWelcomePack() {
   }
 
   return (
-    <article className={`${styles.pack} ${styles.gift}`}>
+    <article className={`${styles.pack} ${styles.gift}`} data-signup-gift="">
       <div className={styles.packArt}>
         <Image src={GIFT_ART} alt="" fill sizes="200px" className={styles.artImg} />
       </div>

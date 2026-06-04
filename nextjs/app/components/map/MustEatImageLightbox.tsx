@@ -1,5 +1,5 @@
 'use client'
-import { memo, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
   motion,
@@ -71,14 +71,18 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, onClose }: InnerP
     pointerY.set(0)
   }
 
+  // `closing` drops the wrapper below the fixed navbar for the fly-back so
+  // the card returns UNDER the header instead of sailing across it.
+  const [closing, setClosing] = useState(false)
   // Flatten the pointer/gyro 3D-tilt before flying back — the springs would
   // otherwise hold the last tilt through the exit and the card lands skewed
   // against the flat origin card.
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     pointerX.set(0)
     pointerY.set(0)
+    setClosing(true)
     onClose()
-  }
+  }, [onClose, pointerX, pointerY])
 
   // Calibrating gyroscope tilt on mobile — first event sets neutral so
   // the phone's resting orientation reads as 0,0. Same pointer values
@@ -119,18 +123,15 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, onClose }: InnerP
   // Escape closes.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return
-      pointerX.set(0)
-      pointerY.set(0)
-      onClose()
+      if (e.key === 'Escape') handleClose()
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [onClose, pointerX, pointerY])
+  }, [handleClose])
 
   return (
     <motion.div
-      className={styles.lightboxWrapper}
+      className={closing ? `${styles.lightboxWrapper} ${styles.lightboxWrapperClosing}` : styles.lightboxWrapper}
       onClick={handleClose}
       aria-modal="true"
       role="dialog"

@@ -220,11 +220,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 selected marker stays visible on the map. */}
           </div>
 
-          {/* Floating burger — moved outside mapWrap so it lives in .body's
-              stacking context and paints above the bottom-sheet (z-index 4).
-              Inside mapWrap the burger's z-index:60 is contained by
-              isolation:isolate and loses to aside.list at z-index:4 on mobile
-              when the sheet is at full snap. */}
+          {/* Floating burger — lives in .body's stacking context, BELOW the
+              bottom-sheet (z-index 3 vs 4): when the sheet is dragged up it
+              slides over the burger, same as the search toolbar. */}
           <button
             type="button"
             className={styles.mapBurger}
@@ -236,9 +234,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
 
           <aside
             ref={setSheetRef}
-            className={`${styles.list} ${dragging ? styles.listDragging : ''}${
-              sheetView === 'list' && snap === 'peek' ? ` ${styles.listAtPeek}` : ''
-            }`}
+            className={`${styles.list} ${dragging ? styles.listDragging : ''}`}
             data-snap={snap}
             data-view={sheetView}
             aria-label={restaurantsListAriaLabel}

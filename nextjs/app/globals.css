@@ -241,12 +241,26 @@ a {
    [data-active-page="map"] block). Map canvas now claims the full
    viewport including the top 60px the navbar used to reserve. */
 @media (max-width: 1023.98px) {
+  /* 100lvh (large viewport, URL bar collapsed) instead of 100dvh: the page
+     extends in-flow behind iOS Safari's translucent bottom URL bar, so the
+     bottom sheet's last --map-bar-overhang px blur through it while the
+     list scrolls — same effect as the window-scroll start page. Safari only
+     paints IN-FLOW document content into the bar backdrop (a position:fixed
+     overhang doesn't show up there). The window gains a bar-height scroll
+     range, but every map gesture is captured (canvas touch-action none,
+     sheet drag preventDefault, list overscroll-behavior contain) so it
+     stays at scroll 0 in practice. Sheet snap math anchors to
+     window.innerHeight — see useBottomSheet.ts. */
   [data-active-page="map"] .app-pages {
     margin-top: 0 !important;
-    height: 100dvh !important;
+    height: 100dvh !important; /* fallback: browsers without lvh */
+    /* +80px apron past lvh — Safari's bar backdrop samples deeper than the
+       document end; must match --map-bar-overhang in map.module.css. */
+    height: calc(100lvh + 80px) !important;
   }
   .app-page[data-page="map"] {
     height: 100dvh !important;
+    height: calc(100lvh + 80px) !important;
   }
 }
 
@@ -256,6 +270,40 @@ a {
    programmatically by the floating burger. */
 [data-active-page="map"] .navbar,
 [data-active-page="map"] header[role="banner"] { display: none !important; }
+
+/* No footer below the map page — it would extend the document past the
+   page's 100lvh and let the window scroll the whole map UI away; its black
+   top edge also peeks into Safari's bottom-bar zone. (style.css has a
+   :has()-based copy of this, but only inside the ≥768px block.) */
+[data-active-page="map"] .site-footer { display: none !important; }
+
+/* Burger drawer over the map: Safari composites only IN-FLOW content into
+   the bottom-URL-bar backdrop — the position:fixed drawer can't paint
+   there, so with the drawer open the bar would keep blurring the sheet
+   rows behind it. Mirror the drawer surface in the page's behind-bar zone
+   (the lvh+80px apron) while it's open; fades with the drawer's own
+   0.25s opacity transition (state change, not motion). */
+@media (max-width: 1023.98px) {
+  .app-page[data-page="map"]::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(100lvh + 80px - 100dvh);
+    background: #fbf8ee; /* drawer panel cream */
+    z-index: 50; /* above the bottom sheet (z 4) */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  body:has(.burger-drawer.active) .app-page[data-page="map"]::after {
+    opacity: 1;
+  }
+  html[data-theme="dark"] .app-page[data-page="map"]::after {
+    background: #111110; /* dark drawer panel */
+  }
+}
 
 @media (min-width: 1024px) {
   [data-active-page="map"] .app-pages { margin-top: 0 !important; height: 100dvh !important; }

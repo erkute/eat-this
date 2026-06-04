@@ -12,6 +12,15 @@
   background: var(--surface-bg);
   color: var(--text-primary);
   overflow: hidden;
+  /* How far the page extends below the visual viewport: iOS Safari's
+     bottom-URL-bar zone (100lvh − 100dvh) plus an 80px apron past the lvh
+     line. Safari's bar backdrop samples deeper than the document — without
+     the apron a black void shows below the URL capsule (the document used
+     to end exactly at lvh). Sheet + scroll-ports extend by this amount so
+     rows blur through the translucent bar like on window-scroll pages.
+     Must match the +80px in the [data-active-page="map"] height rules
+     (globals.css + style.css). Desktop: 80px, harmlessly off-screen. */
+  --map-bar-overhang: calc(100lvh - 100dvh + 80px);
   /* Block page-level pinch-zoom on the map page — only vertical pan/scroll
      is allowed on UI surfaces. The MapLibre canvas overrides this with
      touch-action: none so the actual map still pinches & rotates. */
@@ -271,8 +280,10 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-comp
   right: 12px;
   /* Mobile: bottom-right, riding the top edge of the sheet. The +14 px
      offset puts it just above the sheet so it stays touchable at every
-     snap. Desktop overrides below. */
-  bottom: calc(var(--sheet-visible-px, 80px) + 14px);
+     snap. + --map-bar-overhang because mapWrap is 100lvh tall — without it
+     the FAB sits a bar-height too low, behind the URL bar. Desktop
+     overrides below. */
+  bottom: calc(var(--sheet-visible-px, 80px) + 14px + var(--map-bar-overhang, 0px));
   z-index: 6;
   width: 38px;
   height: 38px;
@@ -285,7 +296,7 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-comp
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 140ms ease, box-shadow 140ms ease, background 120ms ease, color 120ms ease, opacity 0.18s ease;
+  transition: transform 140ms ease, box-shadow 140ms ease, background 120ms ease, color 120ms ease;
   -webkit-tap-highlight-color: transparent;
 }
 @media (min-width: 1024px) {
@@ -321,7 +332,10 @@ html[data-theme="dark"] .fab {
   position: absolute;
   top: 14px;
   right: 14px;
-  z-index: 60;
+  /* Below the bottom sheet (z-index 4): when the sheet is dragged up it
+     covers the burger, same as the search toolbar — the sheet is the top
+     surface. (Used to be 60 / above the sheet; design changed 2026-06-04.) */
+  z-index: 3;
   width: 42px;
   height: 42px;
   display: flex;
@@ -363,13 +377,11 @@ html[data-theme="dark"] .mapBurger {
    Delay pointer-events restoration to prevent tap-through onto toolbar
    controls. */
 
-.bodyDetailOpen .fab,
+/* When list snaps to 'full' (under the global header), the sheet covers
+   the whole map area — hide attribution/controls so taps don't fall
+   through and there's no peeking pixel. (Tiny chrome — fade is fine.) */
 .bodyDetailOpen :global(.maplibregl-ctrl-top-left),
 .bodyDetailOpen :global(.maplibregl-ctrl-top-right),
-/* When list snaps to 'full' (under the global header), the sheet covers
-   the whole map area — FAB + attribution would be visually behind it.
-   Hide them too so taps don't fall through and there's no peeking pixel. */
-.bodyListAtFull .fab,
 .bodyListAtFull :global(.maplibregl-ctrl-top-left),
 .bodyListAtFull :global(.maplibregl-ctrl-top-right) {
   opacity: 0;
@@ -377,37 +389,32 @@ html[data-theme="dark"] .mapBurger {
   pointer-events: none;
   transition: opacity 0.18s ease, visibility 0s;
 }
+/* FAB: NO opacity fade (brand rule — no fades for motion; it visually
+   reads as "the list fades" because the FAB rides the sheet's top edge).
+   When the sheet reaches full / a detail opens, it slides off to the
+   right instead. */
+.bodyDetailOpen .fab,
+.bodyListAtFull .fab {
+  transform: translateX(calc(100% + 18px));
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 0.24s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s 0.24s;
+}
 /* Desktop: detail opens in the side rail and the map stays fully visible —
    the locate FAB must stay reachable. Override the mobile-targeted hide
    rule above so the FAB persists when detail is open on wide viewports. */
 @media (min-width: 1024px) {
   .bodyDetailOpen .fab {
-    opacity: 1;
+    transform: none;
     visibility: visible;
     pointer-events: auto;
   }
 }
 
-/* At list-peek on mobile, the visible strip differs by layer:
-   - Restaurants: count/sort/search/filter row + category tabs (no rows)
-   - Must-eats: back button + first must-eats clipped at the bottom edge
-     (visual hint "the list is one drag away")
-   Only the restaurant rows scroll fades; everything else stays visible. */
-@media (max-width: 1023.98px) {
-  .listAtPeek .listScroll:not(.listScrollNoCats) {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.18s ease;
-  }
-}
-@media (max-width: 1023.98px) {
-  .bodyDetailOpen .fab{
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: opacity 0.18s ease, visibility 0s;
-  }
-}
+/* No opacity fade on the list at peek (removed 2026-06-04): the rows are
+   simply clipped by the sheet edge and slide up with the drag — at peek the
+   header chips + first rows blur through the iOS URL bar, which reads as
+   continuity instead of content popping in. */
 
 .fabIcon {
   width: 20px;
@@ -442,9 +449,15 @@ html[data-theme="dark"] .list { background: #1c1c1c; }
   }
 }
 
-/* Mobile: list is an absolutely-positioned draggable bottom sheet.
-   Height matches the max-expanded sheet (FULL_VISIBLE_PX in useBottomSheet)
-   so content inside never extends below the sheet's visible area. */
+/* Mobile: list is an absolutely-positioned draggable bottom sheet. The page
+   container is 100lvh tall (see globals.css [data-active-page="map"]) so the
+   sheet's bottom --map-bar-overhang px sit behind iOS Safari's translucent
+   URL bar — rows blur through it while scrolling, like on window-scroll
+   pages. (Safari only paints in-flow document content into the bar backdrop;
+   a position:fixed overhang on a viewport-height document does NOT show up
+   there — tried and failed.) Snap math in useBottomSheet anchors to
+   window.innerHeight (the visual-viewport bottom), not the sheet height,
+   so the peek/mid strips stay above the bar. */
 @media (max-width: 1023.98px) {
   .list {
     position: absolute;
@@ -542,9 +555,7 @@ html[data-theme="dark"] .list[data-view="detail"] .handle::before {
   .handle { display: none; }
 }
 @media (min-width: 1024px) {
-  /* Remove the mobile-based cap so the scroll area fills the full panel height.
-     Applies to both restaurant list (.listScroll) and Must Eat list
-     (.listScrollNoCats). */
+  /* Remove the mobile-based cap so the scroll area fills the full panel height. */
   .listScroll {
     max-height: none;
   }
@@ -580,6 +591,9 @@ html[data-theme="dark"] .list[data-view="detail"] .handle::before {
   padding: 16px 12px 0;
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
+  /* The map page is 100lvh tall, so the window CAN scroll by a bar-height —
+     keep list overscroll from chaining into it. */
+  overscroll-behavior: contain;
 }
 
 /* Mobile only: cap scroll viewport to the sheet's visible area so content
@@ -597,9 +611,18 @@ html[data-theme="dark"] .list[data-view="detail"] .handle::before {
        breathing band so the last row sits clear above the iOS home indicator
        AND is fully visible on devices without safe-area (Chrome on Android) —
        the unsafe-area fallback of 24px keeps the last row from feeling
-       clipped against the sheet's edge. */
-    max-height: calc(var(--sheet-visible-px, 100%) - 80px);
-    padding-bottom: max(env(safe-area-inset-bottom, 0px), 24px);
+       clipped against the sheet's edge.
+       Keyed to --sheet-y (written every drag frame by useBottomSheet), NOT
+       --sheet-visible-px (written only at snap-settle) — so the port grows
+       live under the finger while dragging up instead of popping at
+       release. 100dvh − sheet-y = visible strip; the formula lands the
+       port bottom exactly on the sheet bottom at every snap.
+       + --map-bar-overhang: the port extends into the URL-bar zone (rows
+       blur through the bar while scrolling); the padding keeps the last
+       row reachable above it, with only a slim 8px band so the list runs
+       out close to the bar edge. */
+    max-height: calc(100dvh - var(--sheet-y, 40px) - 80px + var(--map-bar-overhang, 0px));
+    padding-bottom: calc(max(env(safe-area-inset-bottom, 0px), 8px) + var(--map-bar-overhang, 0px));
   }
 }
 
@@ -1249,7 +1272,10 @@ html[data-theme="dark"] .btn:hover {
    at any snap. */
 @media (max-width: 1023.98px) {
   .detailMount {
-    max-height: calc(var(--sheet-visible-px, 100dvh) - 24px);
+    /* Keyed to --sheet-y for live tracking during drag (see .listScroll).
+       + overhang: the detail scroll-port extends into the URL-bar zone;
+       .detailV13Scroll's bottom padding compensates. */
+    max-height: calc(100dvh - var(--sheet-y, 0px) - 24px + var(--map-bar-overhang, 0px));
   }
 }
 
@@ -1271,11 +1297,6 @@ html[data-theme="dark"] .btn:hover {
    hidden so the user sees a clean "name + actions" header strip. */
 @media (max-width: 1023.98px) {
   .list[data-view="detail"][data-snap="peek"] .detailInSheetScroll {
-    visibility: hidden;
-  }
-  /* List peek: show count-row + category tabs, hide only the restaurant
-     rows. User pulls up to reveal the rows. */
-  .list[data-view="list"][data-snap="peek"] .listScroll {
     visibility: hidden;
   }
 }
@@ -2326,7 +2347,9 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   min-height: 0;
   overflow-y: auto;
   background: var(--d-bg);
-  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  /* + overhang so the last block scrolls clear above the iOS URL bar
+     (the scroll-port extends behind it — see .detailMount). */
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px) + var(--map-bar-overhang, 0px));
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   /* Vertical scroll stays native; horizontal swipes are delivered to JS for

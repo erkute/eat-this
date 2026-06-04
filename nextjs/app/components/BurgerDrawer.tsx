@@ -81,27 +81,29 @@ export default function BurgerDrawer() {
     <div className="burger-drawer" id="burgerDrawer">
       <div className="burger-drawer-backdrop" id="burgerBackdrop"></div>
       <div className="burger-drawer-panel" onClick={onPanelClick}>
-        <div className="bd-lang" role="group" aria-label="Language / Sprache">
-          <button
-            className={`bd-lang-btn${lang === 'de' ? ' on' : ''}`}
-            aria-label="Deutsch"
-            onClick={() => setLang('de')}
-          >
-            DE
-          </button>
-          <span className="bd-lang-sep" aria-hidden="true">/</span>
-          <button
-            className={`bd-lang-btn${lang === 'en' ? ' on' : ''}`}
-            aria-label="English"
-            onClick={() => setLang('en')}
-          >
-            EN
-          </button>
-        </div>
-
         <button className="burger-drawer-close" id="burgerClose" aria-label="Close">×</button>
 
         <div className="bd-scroller">
+          {/* In-flow (not pinned): scrolls with the menu so it never collides
+              with the logo when the drawer content scrolls. */}
+          <div className="bd-lang" role="group" aria-label="Language / Sprache">
+            <button
+              className={`bd-lang-btn${lang === 'de' ? ' on' : ''}`}
+              aria-label="Deutsch"
+              onClick={() => setLang('de')}
+            >
+              DE
+            </button>
+            <span className="bd-lang-sep" aria-hidden="true">/</span>
+            <button
+              className={`bd-lang-btn${lang === 'en' ? ' on' : ''}`}
+              aria-label="English"
+              onClick={() => setLang('en')}
+            >
+              EN
+            </button>
+          </div>
+
           <div className="bd-logo">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" width="660" height="265" />

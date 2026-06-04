@@ -527,6 +527,25 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     )
   }, [category, bezirk, cuisine, openOnly, selectedRestaurant, selectedMustEat])
 
+  /* Scroll keeper — the map page is in-flow and taller than the visual
+     viewport (100lvh + 80px apron, see globals.css) so its bottom sheet can
+     blur through iOS Safari's translucent URL bar. That gives the window a
+     ~bar-height of scroll range it must never actually use: every map
+     gesture is captured (canvas touch-action none, sheet drags
+     preventDefault, list overscroll contained), but stray vectors (input
+     focus, rubber-band edge cases) could leave the page parked mid-scroll
+     with the toolbar clipped. Pin it back to 0. */
+  useEffect(() => {
+    if (!isActive) return
+    if (!window.matchMedia('(max-width: 1023.98px)').matches) return
+    const onScroll = () => {
+      if (window.scrollY !== 0) window.scrollTo(0, 0)
+    }
+    onScroll() // entering the map with a leftover scroll position
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [isActive])
+
   const prevActiveRef = useRef(false)
   useEffect(() => {
     const justActivated = isActive && !prevActiveRef.current

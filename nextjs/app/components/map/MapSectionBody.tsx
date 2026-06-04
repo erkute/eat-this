@@ -1,5 +1,6 @@
 'use client'
 import type { Ref, RefObject } from 'react'
+import { useTranslations } from 'next-intl'
 import type { MapRef } from 'react-map-gl/maplibre'
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types'
 import type { CategoryDef } from '@/lib/categories'
@@ -115,6 +116,7 @@ export type MapSectionBodyProps =
   & MapBodyAria
 
 export default function MapSectionBody(props: MapSectionBodyProps) {
+  const tNav = useTranslations('nav')
   const {
     isActive,
     mapRef, handleRef, setHeaderRef, setContentRef, setSheetRef,
@@ -244,7 +246,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
           <button
             type="button"
             className={styles.mapBurger}
-            aria-label="Menü"
+            aria-label={tNav('menuAriaLabel')}
             onClick={() => { document.getElementById('burgerBtn')?.click() }}
           >
             <img src="/pics/icon-burger.webp?v=3" alt="" aria-hidden="true" draggable={false} />

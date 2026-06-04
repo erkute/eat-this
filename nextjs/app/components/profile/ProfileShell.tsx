@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import { useUnlockedMustEats, useMapData } from '@/lib/map';
 import { defaultAvatarFromUid, useUserProfile } from '@/lib/firebase/useUserProfile';
@@ -30,6 +30,7 @@ function memberSince(creationTime: string | undefined, locale: string): string |
 export default function ProfileShell({ mustEats }: Props) {
   const { user, loading, signOut } = useAuth();
   const locale = useLocale();
+  const t = useTranslations('profile');
   // Map-page reveals write to users/{uid}/unlockedMustEats — read them so the
   // collected grid shows face-up cards.
   const { unlockedIds } = useUnlockedMustEats(user?.uid ?? null);
@@ -73,7 +74,7 @@ export default function ProfileShell({ mustEats }: Props) {
         </header>
 
         <div className={styles.section}>
-          <h2 className={styles.sectionHeading}>Gespeicherte Spots</h2>
+          <h2 className={styles.sectionHeading}>{t('savedHeading')}</h2>
         </div>
         <ProfileSpots uid={user.uid} />
 
@@ -97,7 +98,7 @@ export default function ProfileShell({ mustEats }: Props) {
             void signOut();
           }}
         >
-          Abmelden
+          {t('signOut')}
         </button>
       </main>
       <SiteFooter />

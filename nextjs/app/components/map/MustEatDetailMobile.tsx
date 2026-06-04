@@ -2,6 +2,7 @@
 import type { MapMustEat } from '@/lib/types'
 import { Link } from '@/i18n/navigation'
 import { formatDistance } from '@/lib/map'
+import { useTranslations } from 'next-intl'
 import { useTranslation } from '@/lib/i18n'
 import { pickLocale } from '@/lib/i18n/pickLocale'
 import { normalizeName } from '@/lib/normalizeName'
@@ -55,6 +56,8 @@ export default function MustEatDetailMobile({
   state,
 }: Props) {
   const { t, lang } = useTranslation()
+  // Legacy t() can't interpolate ICU values — parametrized keys go through next-intl directly.
+  const tMap = useTranslations('map')
   const localizedDescription = pickLocale(mustEat.description, mustEat.descriptionEn, lang)
   const { distance, canUnlock, vibrateIntensity, tapping, revealOrigin, handleCardClick, handleCardZoom } = state
   const { name: restaurantName } = mustEat.restaurant
@@ -65,13 +68,13 @@ export default function MustEatDetailMobile({
     <div
       className={`${styles.detailV13} ${styles.detailV13MustEat}`}
       role="dialog"
-      aria-label={`Must Eat at ${restaurantName}`}
+      aria-label={tMap('mustEatAtAria', { name: restaurantName })}
     >
       <div className={styles.detailV13Scroll} data-detail-scroll>
         <button
           type="button"
           className={styles.fdClose}
-          aria-label={t('map.searchClose') ?? 'Schließen'}
+          aria-label={t('map.searchClose')}
           onClick={onClose}
         >
           <CloseIcon />
@@ -121,15 +124,15 @@ export default function MustEatDetailMobile({
           <div className={`${styles.fdProximity}${canUnlock ? ` ${styles.fdProximityReady}` : ''}`}>
             <p className={styles.fdProximityHead}>
               {canUnlock
-                ? 'Du bist da!'
+                ? tMap('proximityHere')
                 : distance !== null
-                  ? `Noch ${formatDistance(distance)}`
-                  : 'Komm näher'}
+                  ? tMap('proximityAway', { distance: formatDistance(distance) })
+                  : tMap('proximityCloser')}
             </p>
             <p className={styles.fdProximitySub}>
               {canUnlock
-                ? 'Tippe die Karte, um dein Must Eat aufzudecken.'
-                : `Komm auf ${UNLOCK_RADIUS_METERS} m an den Spot heran, dann kannst du die Karte aufdecken.`}
+                ? tMap('proximityTapReveal')
+                : tMap('proximityHint', { meters: UNLOCK_RADIUS_METERS })}
             </p>
           </div>
         )}

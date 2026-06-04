@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useFavorites } from '@/lib/map/useFavorites';
 import { normalizeName } from '@/lib/normalizeName';
@@ -9,6 +10,7 @@ import styles from './ProfileSlim.module.css';
 // Each card carries a remove button so spots can be un-saved here too (not
 // only via the map's bookmark toggle).
 export default function ProfileSpots({ uid }: { uid: string }) {
+  const t = useTranslations('profile');
   const { favorites, loading, toggle } = useFavorites(uid);
 
   if (loading) return null;
@@ -17,9 +19,9 @@ export default function ProfileSpots({ uid }: { uid: string }) {
     return (
       <div className={styles.empty}>
         <p className={styles.emptyLine}>
-          Noch nichts gespeichert. Tipp auf der Map einen Spot an und drück Bookmark — er landet hier.
+          {t('emptySpots')}
         </p>
-        <Link href="/map" className={styles.emptyCta}>Zur Map →</Link>
+        <Link href="/map" className={styles.emptyCta}>{t('toMap')}</Link>
       </div>
     );
   }
@@ -44,7 +46,7 @@ export default function ProfileSpots({ uid }: { uid: string }) {
           <button
             type="button"
             className={styles.spotRemove}
-            aria-label={`${normalizeName(f.name)} aus Gespeicherten entfernen`}
+            aria-label={t('removeSaved', { name: normalizeName(f.name) })}
             onClick={() => void toggle({ _id: f.restaurantId, name: f.name, slug: f.slug, photo: f.photo, district: f.district })}
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

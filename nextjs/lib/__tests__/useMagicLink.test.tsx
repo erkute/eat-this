@@ -1,8 +1,19 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { renderHook as renderHookBase, act } from '@testing-library/react'
+import type { ReactNode } from 'react'
+import { NextIntlClientProvider } from 'next-intl'
+import { translations } from '../i18n/translations'
 
 import { useMagicLink } from '../auth/useMagicLink'
+
+// Error messages resolve through next-intl (auth.* keys) — render with the DE
+// dictionary, mirroring production where the hook always sits under the
+// [locale] layout's provider.
+const wrapper = ({ children }: { children: ReactNode }) => (
+  <NextIntlClientProvider locale="de" messages={translations.de}>{children}</NextIntlClientProvider>
+)
+const renderHook = <T,>(cb: () => T) => renderHookBase(cb, { wrapper })
 
 const fetchMock = vi.fn()
 
@@ -54,7 +65,7 @@ describe('useMagicLink', () => {
     fetchMock.mockReturnValueOnce(apiResponse(false, { error: 'something-new' }))
     const { result } = renderHook(() => useMagicLink())
     await act(async () => { await result.current.sendLink('x@y.com') })
-    expect(result.current.errorMessage).toBe('Etwas ist schiefgelaufen. Versuch es nochmal.')
+    expect(result.current.errorMessage).toBe('Etwas ist schiefgelaufen. Bitte versuch es nochmal.')
   })
 
   it('shows the network message when fetch rejects', async () => {

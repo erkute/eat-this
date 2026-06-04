@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import type { MustEatAlbumCard } from '@/lib/types';
 import MustEatImageLightbox from '@/app/components/map/MustEatImageLightbox';
@@ -15,14 +16,13 @@ interface Props {
   ownedRestaurantIds: Set<string>;
 }
 
-// What is a Must Eat — explainer copy (mockup screen 15/16). Reveal happens by
-// map proximity, not by tapping here, so locked cards are static "Verdeckt".
-const EXPLAINER =
-  'Eat This kuratiert die besten Orte Berlins — und für ausgewählte Spots gibt’s das passende Must Eat gleich mit. Manche siehst du sofort, andere sind verdeckt: komm einem verdeckten Spot nah, dreht sich die Karte von selbst auf.';
-
 // Collected must-eats: unlocked cards face-up (the trading-card art has the
 // name baked in), curated-but-locked cards face-down as "Verdeckt · <spot>".
+// What-is-a-Must-Eat explainer copy (mockup screen 15/16) lives in the
+// profile.* dictionary — reveal happens by map proximity, not by tapping here.
 export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaurantIds }: Props) {
+  const t = useTranslations('profile');
+  const tCovered = useTranslations('mustEats');
   // Every must-eat that belongs to a spot the user owns — split into revealed
   // (face-up) and still-covered (face-down). Spots the user doesn't own don't
   // appear here at all.
@@ -61,11 +61,11 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaur
         id="gesammelte-must-eats"
         style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
       >
-        <h2 className={styles.sectionHeading}>Gesammelte Must Eats</h2>
+        <h2 className={styles.sectionHeading}>{t('collectedHeading')}</h2>
       </div>
       <div className={styles.explainer}>
-        <p className={styles.explainerKicker}>Was ist ein Must Eat?</p>
-        <p className={styles.explainerLine}>{EXPLAINER}</p>
+        <p className={styles.explainerKicker}>{t('explainerKicker')}</p>
+        <p className={styles.explainerLine}>{t('explainer')}</p>
       </div>
       <div className={styles.meGrid}>
         {unlocked.map((m) => (
@@ -100,10 +100,10 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaur
             >
               <div className={styles.mePh}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/pics/card-back.webp?v=5" alt="Verdeckt" loading="lazy" />
+                <img src="/pics/card-back.webp?v=5" alt={tCovered('covered')} loading="lazy" />
               </div>
               <div className={styles.meLabel}>
-                <h4 className={styles.meName}>Verdeckt</h4>
+                <h4 className={styles.meName}>{tCovered('covered')}</h4>
                 <div className={styles.meRest}>{m.restaurant}</div>
               </div>
             </Link>

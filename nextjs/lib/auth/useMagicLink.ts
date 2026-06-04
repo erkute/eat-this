@@ -1,18 +1,21 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 
 export type MagicLinkState = 'idle' | 'sending' | 'sent' | 'error';
 
-const ERROR_MESSAGES: Record<string, string> = {
-  'invalid-email':          'Bitte gib eine gültige E-Mail-Adresse ein.',
-  'send-failed':            'Wir konnten die E-Mail nicht zustellen. Bitte versuch es nochmal.',
-  'link-generation-failed': 'Etwas ist schiefgelaufen. Bitte versuch es nochmal.',
-  'email-misconfigured':    'Service-Fehler – bitte später nochmal versuchen.',
-  'network':                'Netzwerkfehler – bitte erneut versuchen.',
+// API error code → auth.* dictionary key (localized via next-intl).
+const ERROR_KEYS: Record<string, string> = {
+  'invalid-email':          'errInvalidEmail',
+  'send-failed':            'errSendFailed',
+  'link-generation-failed': 'errGeneric',
+  'email-misconfigured':    'errService',
+  'network':                'errNetwork',
 };
 
 export function useMagicLink() {
+  const t = useTranslations('auth');
   const [state, setState]               = useState<MagicLinkState>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -31,7 +34,7 @@ export function useMagicLink() {
       if (!response.ok) {
         localStorage.removeItem('emailForSignIn');
         const code = (data as { error?: string }).error ?? '';
-        setErrorMessage(ERROR_MESSAGES[code] ?? 'Etwas ist schiefgelaufen. Versuch es nochmal.');
+        setErrorMessage(t(ERROR_KEYS[code] ?? 'errGeneric'));
         setState('error');
         return;
       }
@@ -39,10 +42,10 @@ export function useMagicLink() {
       setState('sent');
     } catch {
       localStorage.removeItem('emailForSignIn');
-      setErrorMessage(ERROR_MESSAGES['network']);
+      setErrorMessage(t(ERROR_KEYS['network']));
       setState('error');
     }
-  }, []);
+  }, [t]);
 
   const reset = useCallback(() => {
     setState('idle');

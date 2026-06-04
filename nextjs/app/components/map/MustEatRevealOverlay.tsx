@@ -8,6 +8,7 @@ import {
   useSpring,
   useTransform,
 } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import styles from './MustEatRevealOverlay.module.css'
 
 type Phase = 'flyIn' | 'idle' | 'flipping' | 'revealed' | 'flyOut' | 'done'
@@ -54,6 +55,7 @@ function locateProfileTarget(): { cx: number; cy: number; size: number } {
 }
 
 export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone, flyOutTarget, landOpaque }: Props) {
+  const tMap = useTranslations('map')
   const [mounted, setMounted] = useState(false)
   const [phase, setPhase] = useState<Phase>('flyIn')
   const [target, setTarget] = useState<{ cx: number; cy: number; size: number } | null>(null)
@@ -244,8 +246,8 @@ export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone
         onClick={handleTap}
         disabled={phase !== 'idle' && phase !== 'revealed'}
         aria-label={
-          phase === 'idle' ? 'Aufdecken' :
-          phase === 'revealed' ? 'In dein Deck legen' :
+          phase === 'idle' ? tMap('revealAria') :
+          phase === 'revealed' ? tMap('addToDeckAria') :
           'Must Eat'
         }
         initial={{

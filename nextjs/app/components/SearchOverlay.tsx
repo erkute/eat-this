@@ -188,7 +188,7 @@ export default function SearchOverlay() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <button type="button" className={styles.closeBtn} aria-label="Schließen" onClick={close}>
+          <button type="button" className={styles.closeBtn} aria-label={t('nav.closeAriaLabel')} onClick={close}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
@@ -206,7 +206,7 @@ export default function SearchOverlay() {
           {trimmed && dataLoading && !dataLoaded && (
             <div className={styles.loadingRow}>
               <span className={styles.spinner} aria-hidden="true" />
-              <span>Suche läuft …</span>
+              <span>{t('search.searching')}</span>
             </div>
           )}
 
@@ -275,7 +275,7 @@ export default function SearchOverlay() {
 
           {noResults && (
             <div className={styles.hint}>
-              {t('search.empty') || 'Nichts gefunden.'}
+              {t('search.empty')}
             </div>
           )}
         </div>

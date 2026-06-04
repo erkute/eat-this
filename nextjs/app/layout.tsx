@@ -7,18 +7,37 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
   /* Cream paper matches the html/body bg in globals.css so iOS Safari's
      URL bar + status bar tint blends with the page surface instead of
-     showing as a default white/grey stripe. Per-route overrides (e.g.
-     the launch holding page) can replace this in their own layout. */
+     showing as a default white/grey stripe. Per-route overrides can
+     replace this in their own layout. */
   themeColor: '#fbf8ee',
 }
 
 export const metadata: Metadata = {
   title: {
     template: '%s | Eat This Berlin',
-    default: 'Eat This Berlin — Must Eat Guide',
+    default: 'EAT THIS – Berlin Food Guide: Restaurants & Geheimtipps',
   },
-  description: "The must eat guide to Berlin's best dishes.",
+  description:
+    'We tell you what to eat — die kuratierte Food Map mit den besten Restaurants, Cafés und Bars in Berlin.',
   metadataBase: new URL('https://www.eatthisdot.com'),
+  // Site-wide social-card defaults (Google, Meta/WhatsApp, Twitter/X) —
+  // routes with richer cards (restaurant, news, …) override these.
+  openGraph: {
+    type: 'website',
+    siteName: 'EAT THIS',
+    images: [
+      {
+        url: 'https://www.eatthisdot.com/pics/og-card.png',
+        width: 1200,
+        height: 630,
+        alt: 'EAT THIS – We tell you what to eat',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@eatthisdotcom',
+  },
 }
 
 // Root layout is a pass-through; <html>/<body> live in app/[locale]/layout.tsx

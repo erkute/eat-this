@@ -18,7 +18,11 @@ const DESCRIPTION =
 const OG_IMAGE = SITE_URL + '/pics/og-card.png'
 
 export const metadata: Metadata = {
-  title: TITLE,
+  // `absolute` bypasses the root '%s | Eat This Berlin' template — the brand
+  // title already carries "Berlin"; the suffix would just duplicate it. The
+  // template re-establishes the suffix for child segments (news, about, …)
+  // because `absolute` would otherwise null it out for the whole subtree.
+  title: { absolute: TITLE, template: '%s | Eat This Berlin' },
   description: DESCRIPTION,
   robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
   openGraph: {

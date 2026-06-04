@@ -52,9 +52,15 @@ export async function POST(req: NextRequest) {
   if (inviterUid === friendUid) return respond(true)
 
   let inviterEmail: string | null
+  let inviterIdentity: Parameters<typeof resolveEntitlements>[1] = {}
   try {
     const inviter = await getAdminAuth().getUser(inviterUid)
     inviterEmail = inviter.email?.toLowerCase() ?? null
+    inviterIdentity = {
+      email:         inviterEmail,
+      emailVerified: inviter.emailVerified === true,
+      admin:         inviter.customClaims?.admin === true,
+    }
   } catch {
     return respond(true)
   }
@@ -82,7 +88,7 @@ export async function POST(req: NextRequest) {
     const signedSet = composeSignedRestaurants(all, anonIds, mustEatCount)
     const signedIds = new Set(signedSet.map((r) => r._id))
 
-    const inviterEnt = await resolveEntitlements(inviterUid, inviterEmail)
+    const inviterEnt = await resolveEntitlements(inviterUid, inviterIdentity)
     const inviterEntitledIds = new Set<string>(inviterEnt.restaurantIds)
     if (inviterEnt.isAdmin || inviterEnt.hasAllBerlin) {
       for (const id of allIds) inviterEntitledIds.add(id)

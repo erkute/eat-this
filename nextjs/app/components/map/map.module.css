@@ -294,7 +294,7 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-comp
   border-radius: 0;
   color: var(--c-black);
   /* Frosted glass like the search control — see .mapSearchToolbar. */
-  background: rgba(251, 248, 238, 0.82);
+  background: rgba(255, 255, 255, 0.85);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border: 1.5px solid var(--c-black);
@@ -319,7 +319,7 @@ html[data-theme="dark"] .fab {
    from sticking on touch devices after a tap (no mouseleave fires). */
 @media (hover: hover) {
   .fab:hover {
-    background: var(--c-cream);
+    background: #ffffff;
   }
   html[data-theme="dark"] .fab:hover {
     background: rgba(240, 232, 208, 0.18);
@@ -344,7 +344,7 @@ html[data-theme="dark"] .fab {
   align-items: center;
   justify-content: center;
   /* Frosted glass like the search control — see .mapSearchToolbar. */
-  background: rgba(251, 248, 238, 0.82);
+  background: rgba(255, 255, 255, 0.85);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border: 1.5px solid var(--c-black);
@@ -900,7 +900,7 @@ html[data-theme="dark"] .openPill:not(.openPillClosed)::before { background: #fb
 }
 
 /* Floating search toolbar — expanded state of the search control, top-left
-   of the map. Frosted-glass treatment (2026-06-04): translucent cream +
+   of the map. Frosted-glass treatment (2026-06-04): translucent white +
    blur, hairline ink border, NO offset shadow — the controls were reading
    louder than the map. Collapsed state is .mapSearchBtn below. */
 .mapSearchToolbar {
@@ -915,7 +915,7 @@ html[data-theme="dark"] .openPill:not(.openPillClosed)::before { background: #fb
   align-items: center;
   gap: 8px;
   height: 38px;
-  background: rgba(251, 248, 238, 0.82);
+  background: rgba(255, 255, 255, 0.85);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   color: var(--c-black);
@@ -947,7 +947,7 @@ html[data-theme="dark"] .mapSearchClear { color: #f0e8d0; }
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(251, 248, 238, 0.82);
+  background: rgba(255, 255, 255, 0.85);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border: 1.5px solid var(--c-black);
@@ -2068,8 +2068,9 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
   justify-content: center;
   gap: 5px;
   padding: 8px 8px 9px;
-  /* Frosted glass — same pane treatment as the floating map controls. */
-  background: rgba(251, 248, 238, 0.82);
+  /* Frosted glass like the floating controls, but WHITE — cream sank into
+     the cream sheet, white pops fresher against it (User 2026-06-04). */
+  background: rgba(255, 255, 255, 0.85);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border: 1.5px solid var(--c-black);

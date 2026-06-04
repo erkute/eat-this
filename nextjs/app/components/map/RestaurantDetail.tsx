@@ -405,9 +405,16 @@ export default function RestaurantDetail({
               try {
                 if (navigator?.clipboard?.writeText) await navigator.clipboard.writeText(url)
                 else {
+                  // readonly = no iOS keyboard; restore scroll after select() —
+                  // the map page is 100lvh tall (URL-bar apron) and iOS scrolls
+                  // it to "reveal" the focused textarea, which left every
+                  // floating control sitting a bar-height too high.
+                  const sx = window.scrollX, sy = window.scrollY
                   const ta = document.createElement('textarea')
-                  ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0'
+                  ta.value = url; ta.readOnly = true
+                  ta.style.position = 'fixed'; ta.style.top = '0'; ta.style.opacity = '0'
                   document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove()
+                  window.scrollTo(sx, sy)
                 }
               } catch {}
               setShareDone(true)

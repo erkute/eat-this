@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements';
 import { CATALOG } from '@/lib/stripe-catalog';
@@ -9,6 +10,7 @@ import styles from './ProfileSlim.module.css';
 // resolve their display name from the Stripe catalog. When nothing beyond the
 // welcome pack is owned, nudge toward the booster index.
 export default function ProfilePacks({ uid }: { uid: string }) {
+  const t = useTranslations('profile');
   const owned = useOwnedEntitlements(uid);
   const names = (owned ? [...owned] : [])
     .map((id) => CATALOG[id]?.displayName)
@@ -18,7 +20,7 @@ export default function ProfilePacks({ uid }: { uid: string }) {
   return (
     <>
       <div className={styles.section}>
-        <h2 className={styles.sectionHeading}>Meine Packs</h2>
+        <h2 className={styles.sectionHeading}>{t('packsHeading')}</h2>
       </div>
       <div className={styles.packs}>
         <span className={`${styles.pck} ${styles.pckGift}`}>Welcome Pack</span>
@@ -28,8 +30,8 @@ export default function ProfilePacks({ uid }: { uid: string }) {
       </div>
       {onlyWelcome && (
         <div className={styles.packHint}>
-          <p className={styles.packLine}>Mehr Map, mehr Karten — Pack für Pack.</p>
-          <Link href="/#hub-packs" className={styles.packCta}>Booster Packs ansehen →</Link>
+          <p className={styles.packLine}>{t('packsLine')}</p>
+          <Link href="/#hub-packs" className={styles.packCta}>{t('packsCta')}</Link>
         </div>
       )}
     </>

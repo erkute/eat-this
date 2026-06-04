@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin'
 import { getStripe } from '@/lib/stripe'
+import { resolvePriceId } from '@/lib/stripe-price'
 import { getPack } from '@/lib/stripe-catalog'
 
 export const runtime  = 'nodejs'
@@ -71,7 +72,9 @@ export async function POST(req: Request) {
   try {
     session = await getStripe().checkout.sessions.create({
       mode: 'payment',
-      line_items: [{ price: pack.stripePriceId, quantity: 1 }],
+      // Live mode uses the catalog ID directly; test mode (staging/local)
+      // resolves the seeded test price via lookup_key — see lib/stripe-price.ts.
+      line_items: [{ price: await resolvePriceId(pack), quantity: 1 }],
       // Methods (card, PayPal, Link, Apple/Google Pay, Klarna, …) are
       // driven by the Stripe Dashboard. For guests we omit customer_email
       // so Stripe Hosted Checkout collects it on the form itself.

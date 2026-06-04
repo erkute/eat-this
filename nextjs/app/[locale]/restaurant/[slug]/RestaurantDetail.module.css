@@ -732,3 +732,12 @@ html[data-theme="dark"] .heroTags .chipOpen::before,
 html[data-theme="dark"] .heroTags .chipClosed::before { background: #fbf8ee; }
 html[data-theme="dark"] .openPill.closed { color: #fbf8ee; }
 html[data-theme="dark"] .openPill.closed::before { background: #fbf8ee; }
+
+.sibAllLink {
+  display: inline-block;
+  margin-top: 14px;
+  font-weight: 700;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

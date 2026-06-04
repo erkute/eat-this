@@ -6,6 +6,7 @@ import { setRequestLocale } from 'next-intl/server'
 import { getRestaurantBySlug, getAllRestaurantSlugs, getMustEatsByRestaurant, getRestaurantsByBezirk, getRestaurantsByCategory } from '@/lib/sanity.server'
 import { buildRestaurantJsonLd } from '@/lib/json-ld'
 import { buildRestaurantTitle, truncateAtSentence } from '@/lib/seo/restaurantMeta'
+import { siblingWindow } from '@/lib/seo/siblingWindow'
 import { SITE_URL } from '@/lib/constants'
 import { localeUrl } from '@/lib/locale-url'
 import { routing } from '@/i18n/routing'
@@ -114,10 +115,11 @@ export default async function RestaurantPage({ params }: PageProps) {
   ])
 
   const SIBLING_LIMIT = 3
-  const siblingsBezirk = siblingsBezirkRaw.filter(s => s.slug !== slug).slice(0, SIBLING_LIMIT)
-  const siblingsCategoryAll = siblingsCategoryRaw.filter(s => s.slug !== slug)
+  const siblingsBezirk = siblingWindow(siblingsBezirkRaw, slug, SIBLING_LIMIT)
   const bezirkSlugSet = new Set(siblingsBezirk.map(s => s.slug))
-  const siblingsCategory = siblingsCategoryAll.filter(s => !bezirkSlugSet.has(s.slug)).slice(0, SIBLING_LIMIT)
+  const siblingsCategory = siblingWindow(siblingsCategoryRaw, slug, SIBLING_LIMIT * 2)
+    .filter(s => !bezirkSlugSet.has(s.slug))
+    .slice(0, SIBLING_LIMIT)
   const categoryDef = primaryCategory
     ? {
         slug: primaryCategory.slug,
@@ -322,6 +324,9 @@ export default async function RestaurantPage({ params }: PageProps) {
                     </IntlLink>
                   ))}
                 </div>
+                <IntlLink href={`/bezirk/${r.bezirk.slug}`} className={styles.sibAllLink}>
+                  {de ? `Alle Spots in ${r.bezirk.name}` : `All spots in ${r.bezirk.name}`}
+                </IntlLink>
               </div>
             )}
             {siblingsCategory.length > 0 && categoryDef && (

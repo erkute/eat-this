@@ -344,3 +344,38 @@ html:not([data-auth="1"]) [data-auth-only] {
   pointer-events: none !important;
 }
 
+/* ── Notification toast (window.showNotification) ──────────────────────
+   Mounted globally in app/[locale]/layout.tsx (NotificationToast.tsx).
+   Styled here instead of style.css because /profile and /login don't load
+   the SPA stylesheet. Brand motion: slide up from below the viewport edge
+   (transform only — no opacity fade), square sticker box, inverted per
+   theme so it pops on both page backgrounds. */
+.notification {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  /* Parked fully below the viewport edge (own height + the 100px offset). */
+  transform: translate(-50%, calc(100% + 120px));
+  background: #111110;
+  color: #f0e8d0;
+  font-family: var(--font-saira-condensed), sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.2; /* ≥1.15 against umlaut clipping in uppercase Saira */
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 12px 22px;
+  max-width: calc(100vw - 32px);
+  z-index: 10000; /* above the legacy navbar (9999) */
+  pointer-events: none;
+  transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.notification.show {
+  transform: translate(-50%, 0);
+}
+html[data-theme="dark"] .notification {
+  background: #f0e8d0;
+  color: #111110;
+}
+

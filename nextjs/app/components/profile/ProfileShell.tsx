@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth';
 import { useUnlockedMustEats, useMapData } from '@/lib/map';
 import { defaultAvatarFromUid, useUserProfile } from '@/lib/firebase/useUserProfile';
 import type { MustEatAlbumCard } from '@/lib/types';
+import { TOAST_HANDOFF_KEY } from '../NotificationToast';
 import ProfileSpots from './ProfileSpots';
 import ProfileMustEats from './ProfileMustEats';
 import ProfilePacks from './ProfilePacks';
@@ -87,7 +88,14 @@ export default function ProfileShell({ mustEats }: Props) {
         <button
           type="button"
           className={styles.logout}
-          onClick={() => { void signOut(); }}
+          onClick={() => {
+            // Sign-out hard-navigates to '/' (ProfileAuthGuard) — park the
+            // confirmation so the toast shows after the reload.
+            try {
+              sessionStorage.setItem(TOAST_HANDOFF_KEY, locale === 'de' ? 'Du bist abgemeldet' : "You're signed out");
+            } catch { /* private mode */ }
+            void signOut();
+          }}
         >
           Abmelden
         </button>

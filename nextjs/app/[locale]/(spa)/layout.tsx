@@ -6,7 +6,6 @@ import { routing } from '@/i18n/routing'
 import { AuthProvider, LoginModalProvider } from '@/lib/auth'
 import SiteNav from '@/app/components/SiteNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
-import NotificationToast from '@/app/components/NotificationToast'
 import SearchOverlay from '@/app/components/SearchOverlay'
 import CookieConsent from '@/app/components/CookieConsent'
 import BridgeAuth from './BridgeAuth'
@@ -55,7 +54,7 @@ export default async function SPALayout({
     <>
       {/* Full SPA stylesheet — hoisted to <head> by Next.js */}
       {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/css/style.min.css?v=164" precedence="default" />
+      <link rel="stylesheet" href="/css/style.min.css?v=165" precedence="default" />
 
       <link rel="preconnect" href="https://ehwjnjr2.apicdn.sanity.io" crossOrigin="anonymous" />
       <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
@@ -70,7 +69,6 @@ export default async function SPALayout({
           <BridgeAuth />
           <SiteNav />
           <BurgerDrawer />
-          <NotificationToast />
           <div className="app-pages" id="appPages">
             {children}
           </div>

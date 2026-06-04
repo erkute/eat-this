@@ -6,6 +6,7 @@ import Script from 'next/script';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
 import ReferralToastListener from '@/app/components/ReferralToastListener';
+import NotificationToast from '@/app/components/NotificationToast';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { SITE_URL } from '@/lib/constants';
 
@@ -204,6 +205,10 @@ export default async function LocaleLayout({
       <body>
         <ClientIntlProvider locale={locale} messages={messages}>
           <ReferralToastListener />
+          {/* Global toast (window.showNotification) — mounted here, not in the
+              SPA layout, so /profile and /login get feedback too. Styled in
+              globals.css (those routes don't load the SPA stylesheet). */}
+          <NotificationToast />
           {children}
           {modal}
         </ClientIntlProvider>

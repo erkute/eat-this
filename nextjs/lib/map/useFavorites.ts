@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
+import { useLocale } from 'next-intl'
 import { collection, doc, getDocs, setDoc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { client as sanityClient } from '@/lib/sanity'
@@ -22,6 +23,7 @@ interface UseFavoritesResult {
 }
 
 export function useFavorites(uid: string | null): UseFavoritesResult {
+  const locale = useLocale()
   // Per-uid localStorage cache so a returning user sees their saved spots
   // instantly on first paint instead of waiting on auth-resolve + the Firestore
   // read. The live getDocs reconciles + refreshes the cache right after.
@@ -98,13 +100,15 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
       await deleteDoc(ref)
       setFavoriteIds(prev => { const s = new Set(prev); s.delete(r._id); return s })
       setFavorites(prev => { const next = prev.filter(f => f.restaurantId !== r._id); writeCache(next); return next })
+      window.showNotification?.(locale === 'en' ? 'Spot removed' : 'Spot entfernt')
     } else {
       const entry = { name: r.name, slug: r.slug ?? '', photo: r.photo ?? '', district: r.district ?? '', savedAt: serverTimestamp() }
       await setDoc(ref, entry)
       setFavoriteIds(prev => new Set([...prev, r._id]))
       setFavorites(prev => { const next = [...prev, { restaurantId: r._id, name: r.name, slug: r.slug, photo: r.photo, district: r.district }]; writeCache(next); return next })
+      window.showNotification?.(locale === 'en' ? 'Spot saved' : 'Spot gespeichert')
     }
-  }, [uid, favoriteIds])
+  }, [uid, favoriteIds, locale])
 
   const updateNote = useCallback(async (restaurantId: string, note: string) => {
     if (!uid) return

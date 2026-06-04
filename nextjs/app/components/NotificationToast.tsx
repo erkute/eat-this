@@ -8,6 +8,11 @@ declare global {
   }
 }
 
+// sessionStorage handoff: a message stored under this key (e.g. by the
+// profile logout button, whose sign-out triggers a hard navigation to '/')
+// is toasted once on the next page load, then cleared.
+export const TOAST_HANDOFF_KEY = 'eatthis_toast';
+
 export default function NotificationToast() {
   const [text, setText] = useState('');
   const [visible, setVisible] = useState(false);
@@ -25,6 +30,19 @@ export default function NotificationToast() {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
+  }, [show]);
+
+  // Pick up a handoff message left by the previous page (survives the hard
+  // navigation). Small delay so the slide-in transition plays after paint.
+  useEffect(() => {
+    let msg: string | null = null;
+    try {
+      msg = sessionStorage.getItem(TOAST_HANDOFF_KEY);
+      if (msg) sessionStorage.removeItem(TOAST_HANDOFF_KEY);
+    } catch { /* private mode */ }
+    if (!msg) return;
+    const t = setTimeout(() => show(msg as string, 3500), 600);
+    return () => clearTimeout(t);
   }, [show]);
 
   return (

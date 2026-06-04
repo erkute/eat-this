@@ -461,7 +461,11 @@
     gap: 28px;
   }
   .bezirkGrid {
-    grid-template-columns: repeat(4, 1fr);
+    /* 3 cols, not 4 — single-word names like FRIEDRICHSHAIN can't wrap, and
+       their min-content blew the 4-col 1fr tracks past the container (right
+       column clipped). minmax(0,1fr) removes the min-content floor so the
+       grid can never overflow the page again. */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   /* Hero desktop-treatment: H1 fills the space typographically — no photo,
      no decoration, just Anton at full presence so the cream column doesn't
@@ -525,10 +529,12 @@
   .price {
     font-size: 14px;
   }
-  /* Bezirk index card name (4-col grid) — 32px fix was OK on mobile but
-     plain on desktop. */
+  /* Bezirk index card name (3-col grid) — 32px fix was OK on mobile but
+     plain on desktop. Clamp is calibrated so the longest name
+     (FRIEDRICHSHAIN, ~6.8px text width per font px) fits a 3-col track at
+     every viewport from 960 up. */
   .bezirkName {
-    font-size: clamp(34px, 2.6vw, 44px);
+    font-size: clamp(30px, 3.2vw, 40px);
   }
   /* Kategorie index poster name — was 30 max. Bump for wider posters. */
   .posterName {

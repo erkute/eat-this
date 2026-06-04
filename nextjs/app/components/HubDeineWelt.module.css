@@ -180,17 +180,19 @@
   cursor: pointer;
 }
 .teaser:hover .cap {
-  color: var(--text-primary);
+  color: var(--brand-red);
 }
 
 .cap {
   text-align: center;
-  font-family: var(--font);
-  font-size: 12px;
-  letter-spacing: .1em;
+  font-family: var(--font-ranchers);
+  font-size: 19px;
+  letter-spacing: .04em;
   text-transform: uppercase;
-  color: var(--text-secondary);
-  margin: 0 0 26px;
+  color: var(--text-primary);
+  /* No bottom margin — the section's padding-bottom alone closes the gap to
+     the Spot-des-Tages hero, matching the divider gap above the cards. */
+  margin: 0;
 }
 
 .pack {
@@ -199,6 +201,7 @@
   gap: 16px;
   align-items: center;
   border-top: 1px solid var(--c-row-rule);
+  margin-top: 26px;
   padding-top: 22px;
 }
 .packArt {
@@ -243,14 +246,20 @@
 
 /* ── Desktop: focused 760px column (personal panel), scaled-up greeting ── */
 @media (min-width: 720px) {
-  .section { padding: 64px max(24px, calc((100% - 760px) / 2)) 64px; }
+  /* Bottom deliberately tight: when this panel renders, the hero below drops
+     its top padding to 40px (see HubHero.module.css), so the card-back teaser
+     gets equal air above (divider 22 + cards 38 = 60px) and below
+     (padding 20 + hero 40 = 60px). */
+  .section { padding: 64px max(24px, calc((100% - 760px) / 2)) 20px; }
   .kicker { font-size: 20px; }
   .name { font-size: clamp(58px, 7vw, 80px); }
   .here { font-size: 13px; margin-top: 16px; }
   .here strong { font-size: 14px; }
   .freshRow { gap: 16px; }
   .freshName { font-size: 22px; }
-  .cards { min-height: 220px; margin: 16px 0 28px; }
+  /* No min-height slack — explicit margins keep the centering math honest. */
+  .cards { min-height: 0; margin: 38px 0 22px; }
+  .cap { font-size: 24px; }
   .card { width: 124px; height: 176px; }
   .card:nth-child(1) { margin-right: -22px; }
   .card:nth-child(3) { margin-left: -22px; }
@@ -265,7 +274,9 @@ html[data-theme="dark"] .name,
 html[data-theme="dark"] .here,
 html[data-theme="dark"] .freshK,
 html[data-theme="dark"] .freshName,
+html[data-theme="dark"] .cap,
 html[data-theme="dark"] .packName { color: var(--dk-ink); }
+html[data-theme="dark"] .teaser:hover .cap { color: var(--c-coral-bright); }
 /* "EAT/THIS"-style emphasis: yellow fill → red text accent, ink stroke → cream */
 html[data-theme="dark"] .em {
   color: var(--c-coral-bright);

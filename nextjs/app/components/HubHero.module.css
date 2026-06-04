@@ -77,6 +77,12 @@
     display: flex;
     flex-direction: column;
   }
+  /* Signed-in hub: the "Deine Welt" panel above ends in the card-back teaser.
+     Give up top padding so the teaser floats with equal air above and below
+     (the math lives in HubDeineWelt.module.css). Scoped to html[data-auth] so
+     the hidden SSR guest shell doesn't pull the hero up for logged-out
+     visitors — they keep the full 72px as the first block. */
+  html[data-auth="1"] :global([data-hub-deinewelt]) + .hero { padding-top: 40px; }
   .kicker { margin: 0 0 12px; font-size: 16px; }
   .headline { margin: 0 0 22px; font-size: clamp(64px, 6vw, 92px); line-height: 1.06; }
   .sub { margin: 0 0 28px; font-size: 17px; max-width: 42ch; }

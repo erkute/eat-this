@@ -45,6 +45,10 @@
   scroll-snap-align: start;
   margin: 0;
 }
+/* The anchor is layout-invisible — the card image inside stays the visual. */
+.cardLink {
+  display: block;
+}
 .card {
   display: block;
   width: 100%;

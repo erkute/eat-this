@@ -74,13 +74,21 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
           const open = faceUp.has(m._id)
           return (
             <li key={m._id} className={styles.item}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                className={styles.card}
-                src={open ? m.image : CARD_BACK}
-                alt={open ? normalizeName(m.dish) : ''}
-                loading="lazy"
-              />
+              {/* Deep-link into the map: ?me= opens the must-eat detail (locked
+                  ones open in their locked state — same handler as in-app taps). */}
+              <Link
+                href={`/map?me=${m._id}`}
+                className={styles.cardLink}
+                aria-label={open ? undefined : t('mustEats.teaserCardLocked')}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  className={styles.card}
+                  src={open ? m.image : CARD_BACK}
+                  alt={open ? normalizeName(m.dish) : ''}
+                  loading="lazy"
+                />
+              </Link>
             </li>
           )
         })}

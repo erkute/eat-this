@@ -303,7 +303,11 @@
   .kicker { font-size: 12px; }
 }
 
-/* ── Desktop: standalone /login centers the sheet in a tighter column. ── */
+/* ── Desktop: standalone /login centers the sheet in a tighter column.
+   The sheet must never scroll on desktop: the booster hero is the only
+   flexible block, so its height tracks the viewport (fixed content ≈
+   481px incl. paddings + hero margins; page padding = 64px). On flat
+   windows the hero is dropped entirely instead of shrinking to a stamp. ── */
 @media (min-width: 768px) {
   .page {
     align-items: center;
@@ -313,7 +317,19 @@
   .frame {
     flex: 0 0 auto;
     width: min(460px, 94vw);
-    max-height: 96vh;
+    max-height: calc(100dvh - 64px);
+    padding-top: 40px;
+  }
+  .packHero img {
+    width: auto;
+    /* −562px = fixed content (≈481px) + page padding (64px) + the extra
+       bounding-box height the −3° rotation adds (≈13–17px). */
+    height: min(calc(100dvh - 562px), 370px);
+  }
+}
+@media (min-width: 768px) and (max-height: 660px) {
+  .packHero {
+    display: none;
   }
 }
 

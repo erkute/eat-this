@@ -24,7 +24,7 @@ const en = {
       newMeta: "just added",
       newMetaTag: "{tag} · just added",
       coveredAria: "View your face-down Must Eats in your profile",
-      mustEatsWaiting: "Must Eats waiting · not yet revealed →",
+      mustEatsWaiting: "Still face-down. Flip them →",
       packProgress: "A few revealed already. Keep going.",
       toMap: "To the map →",
     },
@@ -101,6 +101,7 @@ const en = {
     teaserTitle: "Must Eats",
     teaserSub: "The dishes you can't miss in Berlin.",
     teaserCta: "All Must Eats \u2192",
+    teaserCardLocked: "View face-down Must Eat on the map",
   },
   news: {
     sectionLabel: "Berlin",
@@ -332,7 +333,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       newMeta: "neu dabei",
       newMetaTag: "{tag} · neu dabei",
       coveredAria: "Deine verdeckten Must Eats im Profil ansehen",
-      mustEatsWaiting: "Must Eats warten · noch nicht aufgedeckt →",
+      mustEatsWaiting: "Noch verdeckt. Deck sie auf →",
       packProgress: "Schon ein paar aufgedeckt. Weiter geht’s.",
       toMap: "Auf die Map →",
     },
@@ -399,6 +400,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     covered: "Verdeckt",
     teaserSub: "Die Gerichte, die du nicht verpassen darfst.",
     teaserCta: "Alle Must Eats →",
+    teaserCardLocked: "Verdecktes Must Eat auf der Map ansehen",
   },
   news: {
     errorLoad: "Artikel konnten nicht geladen werden. Bitte versuche es sp\u00e4ter erneut.",

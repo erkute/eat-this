@@ -84,7 +84,8 @@ export default function HubNearby({ initialMapData }: Props) {
           <ul className={styles.meRow} role="list">
             {me.map((m) => (
               <li key={m._id} className={styles.meItem}>
-                <Link href={`/map?r=${m.restaurant.slug}`} rel="nofollow" className={styles.meCard}>
+                {/* ?me= opens the must-eat detail itself on the map, not the restaurant. */}
+                <Link href={`/map?me=${m._id}`} rel="nofollow" className={styles.meCard}>
                   {m.image && (
                     <Image
                       src={m.image}

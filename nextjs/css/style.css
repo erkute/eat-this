@@ -3981,12 +3981,17 @@ html:not([data-theme="dark"]) .site-footer-copy {
   display: flex;
   align-items: center;
   width: 100%;
+  /* Viewport-height-scaled: short phones (SE, 667px) stay at the compact
+     28px/11px so the drawer never scrolls; tall screens grow into the
+     leftover space above .bd-foot instead of leaving a dead cream band. */
   padding: 11px 0;
+  padding: clamp(11px, 1.9dvh, 16px) 0;
   border: 0;
   border-bottom: 2px solid #000;
   background: transparent;
   font-family: var(--font-poster);
   font-size: 28px;
+  font-size: clamp(28px, 4.3dvh, 36px);
   line-height: 1;
   letter-spacing: -0.005em;
   text-transform: uppercase;

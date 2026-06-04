@@ -320,6 +320,11 @@ html:not([data-auth="1"]) [data-auth-only] {
   }
 }
 
+/* Login modal behind the iOS bottom URL bar: handled by
+   app/components/LoginModalBarLock.tsx (inline-style scroll-lock + canvas
+   recolor on modal mount) — a stylesheet :has() variant computed correctly
+   but did not recolor the bar on device. */
+
 @media (min-width: 1024px) {
   [data-active-page="map"] .app-pages { margin-top: 0 !important; height: 100dvh !important; }
 }

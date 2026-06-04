@@ -24,8 +24,9 @@ export const revalidate = 3600
 
 export async function generateStaticParams() {
   const bezirke = await getAllBezirkeWithStats()
+  // Skip districts without open spots — their detail page 404s (see below).
   return routing.locales.flatMap(locale =>
-    bezirke.map(b => ({ locale, slug: b.slug })),
+    bezirke.filter(b => (b.restaurantCount ?? 0) > 0).map(b => ({ locale, slug: b.slug })),
   )
 }
 
@@ -91,7 +92,10 @@ export default async function BezirkDetailPage({ params }: PageProps) {
     getBezirkBySlug(slug),
     getRestaurantsByBezirk(slug),
   ])
-  if (!b) notFound()
+  // A district without spots renders hero + FAQ around an empty grid —
+  // dead end + thin content. 404 until the first spot is curated; the page
+  // reappears automatically via ISR once a restaurant references the bezirk.
+  if (!b || restaurants.length === 0) notFound()
 
   const bezirkDescription = pickLocale(b.description, b.descriptionEn, loc)
   const faqEntries = buildBezirkFAQEntries({ bezirk: b, restaurants, locale: loc })

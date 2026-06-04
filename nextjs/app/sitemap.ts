@@ -57,7 +57,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       { next: { revalidate: 3600, tags: ['sitemap-articles'] } },
     ),
     client.fetch<{ slug: string; descriptionEn?: string }[]>(
-      `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, descriptionEn }`,
+      // Districts without open spots 404 (bezirk/[slug]/page.tsx) — keep them
+      // out of the sitemap too.
+      `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**")) && count(*[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false]) > 0] { "slug": slug.current, descriptionEn }`,
       {},
       { next: { revalidate: 3600, tags: ['sitemap-bezirke'] } },
     ),

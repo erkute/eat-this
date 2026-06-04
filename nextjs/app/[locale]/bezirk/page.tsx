@@ -48,7 +48,9 @@ export default async function BezirkIndexPage({ params }: PageProps) {
   const de = locale === 'de'
   const bezirkUrl = (slug: string) =>
     locale === 'de' ? `/bezirk/${slug}` : `/${locale}/bezirk/${slug}`
-  const bezirke = await getAllBezirkeWithStats()
+  // Empty districts (no open spots) are hidden — an empty grid page is a
+  // dead end for users and thin content for Google. Same rule as the Hub chips.
+  const bezirke = (await getAllBezirkeWithStats()).filter(b => (b.restaurantCount ?? 0) > 0)
 
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',

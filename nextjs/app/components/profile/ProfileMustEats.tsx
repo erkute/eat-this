@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import type { MustEatAlbumCard } from '@/lib/types';
 import MustEatImageLightbox from '@/app/components/map/MustEatImageLightbox';
@@ -42,12 +42,16 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaur
   // Tap an unlocked card → deck-style fly-out lightbox (same as the old deck).
   const [expanded, setExpanded] = useState<{ imageUrl: string; alt: string; rect: DOMRect; id: string } | null>(null);
   // Which grid card is visually hidden while its zoomed clone is on screen, so
-  // it isn't shown twice (once in its slot, once zoomed). Kept set until the
-  // close fly-back finishes so the origin doesn't flash back mid-animation.
+  // it isn't shown twice (once in its slot, once zoomed). Revealed again in
+  // onExitComplete — the same frame the fly-back clone unmounts — so there's
+  // no blink between clone and origin (a timer left a visible gap).
   const [hiddenId, setHiddenId] = useState<string | null>(null);
-  const closeExpanded = () => {
-    setExpanded(null);
-    window.setTimeout(() => setHiddenId(null), 380);
+  const expandedRef = useRef(expanded);
+  expandedRef.current = expanded;
+  const closeExpanded = () => setExpanded(null);
+  const handleExitComplete = () => {
+    // If another card was opened mid fly-back, its origin must stay hidden.
+    if (!expandedRef.current) setHiddenId(null);
   };
 
   return (
@@ -112,6 +116,7 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaur
         alt={expanded?.alt ?? ''}
         originRect={expanded?.rect ?? null}
         onClose={closeExpanded}
+        onExitComplete={handleExitComplete}
       />
     </>
   );

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from '@/lib/auth'
 import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
@@ -68,11 +68,15 @@ export default function MustEatsGallery({ initialMapData }: Props) {
   // (the card-back). Tapping the zoomed card flies it back to its slot.
   const [expanded, setExpanded] = useState<{ imageUrl: string; alt: string; rect: DOMRect; id: string } | null>(null)
   // The origin card is hidden while its zoomed clone is on screen so it doesn't
-  // show twice; kept hidden until the fly-back finishes.
+  // show twice; revealed again in onExitComplete — the same frame the fly-back
+  // clone unmounts — so there's no blink between clone and origin.
   const [hiddenId, setHiddenId] = useState<string | null>(null)
-  const closeExpanded = () => {
-    setExpanded(null)
-    window.setTimeout(() => setHiddenId(null), 380)
+  const expandedRef = useRef(expanded)
+  expandedRef.current = expanded
+  const closeExpanded = () => setExpanded(null)
+  const handleExitComplete = () => {
+    // If another card was opened mid fly-back, its origin must stay hidden.
+    if (!expandedRef.current) setHiddenId(null)
   }
 
   return (
@@ -121,6 +125,7 @@ export default function MustEatsGallery({ initialMapData }: Props) {
         alt={expanded?.alt ?? ''}
         originRect={expanded?.rect ?? null}
         onClose={closeExpanded}
+        onExitComplete={handleExitComplete}
       />
     </>
   )

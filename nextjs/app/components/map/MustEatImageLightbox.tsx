@@ -18,6 +18,10 @@ interface Props {
   // animates back to the same origin rect.
   originRect: DOMRect | null
   onClose: () => void
+  // Fires on the exact frame the fly-back clone unmounts. Callers that hide
+  // the origin card while the clone is on screen reveal it here — a timer
+  // would leave a gap where neither is visible (the slot blinks).
+  onExitComplete?: () => void
 }
 
 interface InnerProps {
@@ -67,6 +71,15 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, onClose }: InnerP
     pointerY.set(0)
   }
 
+  // Flatten the pointer/gyro 3D-tilt before flying back — the springs would
+  // otherwise hold the last tilt through the exit and the card lands skewed
+  // against the flat origin card.
+  const handleClose = () => {
+    pointerX.set(0)
+    pointerY.set(0)
+    onClose()
+  }
+
   // Calibrating gyroscope tilt on mobile — first event sets neutral so
   // the phone's resting orientation reads as 0,0. Same pointer values
   // feed the same springs so pointer + gyro compose without conflict.
@@ -106,16 +119,19 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, onClose }: InnerP
   // Escape closes.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key !== 'Escape') return
+      pointerX.set(0)
+      pointerY.set(0)
+      onClose()
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [onClose])
+  }, [onClose, pointerX, pointerY])
 
   return (
     <motion.div
       className={styles.lightboxWrapper}
-      onClick={onClose}
+      onClick={handleClose}
       aria-modal="true"
       role="dialog"
     >
@@ -129,24 +145,24 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, onClose }: InnerP
       <motion.div
         ref={cardRef}
         className={styles.lightboxCard}
-        initial={{ x: fromX, y: fromY, scale: fromScale, rotateZ: tiltZ, opacity: 1 }}
+        initial={{ x: fromX, y: fromY, scale: fromScale, rotateZ: tiltZ }}
         animate={{
-          x: 0, y: 0, scale: 1, rotateZ: 0, opacity: 1,
+          x: 0, y: 0, scale: 1, rotateZ: 0,
           transition: { duration: 0.46, ease: [0.22, 1, 0.36, 1] },
         }}
+        // No opacity fade on the way back — the card stays fully visible
+        // until it has landed in its slot, then onExitComplete swaps in the
+        // origin card on the same frame. A fade made it vanish mid-flight.
         exit={{
-          x: fromX, y: fromY, scale: fromScale, rotateZ: 0, opacity: 0,
-          transition: {
-            default: { duration: 0.34, ease: [0.4, 0, 0.2, 1] },
-            opacity: { delay: 0.22, duration: 0.07, ease: 'linear' },
-          },
+          x: fromX, y: fromY, scale: fromScale, rotateZ: 0,
+          transition: { duration: 0.34, ease: [0.4, 0, 0.2, 1] },
         }}
         style={{
           rotateX: rotateXSpring,
           rotateY: rotateYSpring,
           transformStyle: 'preserve-3d',
         }}
-        onClick={onClose}
+        onClick={handleClose}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
       >
@@ -171,13 +187,13 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, onClose }: InnerP
   )
 })
 
-export default function MustEatImageLightbox({ imageUrl, alt, originRect, onClose }: Props) {
+export default function MustEatImageLightbox({ imageUrl, alt, originRect, onClose, onExitComplete }: Props) {
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
   if (!mounted) return null
 
   return createPortal(
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={onExitComplete}>
       {originRect && (
         <Inner
           key="must-eat-lightbox"

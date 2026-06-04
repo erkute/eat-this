@@ -274,18 +274,15 @@ export default async function RestaurantPage({ params }: PageProps) {
           )}
         </dl>
 
-        <div className={styles.acts}>
-          {websiteUrl && (
+        {/* Map entry lives in the big MapPromoCTA banner below — no second
+            "Map öffnen" button up here. */}
+        {websiteUrl && (
+          <div className={styles.acts}>
             <a className={`${styles.act} ${styles.actPrimary}`} href={websiteUrl} target="_blank" rel="noopener nofollow noreferrer">
               Website
             </a>
-          )}
-          {/* Opens our own map (deep-linked to this spot), not Google Maps.
-              rel="nofollow" — /map is noindex. */}
-          <IntlLink className={`${styles.act} ${styles.actAlt}`} href={mapHref} rel="nofollow">
-            {de ? 'Map öffnen' : 'Open the map'}
-          </IntlLink>
-        </div>
+          </div>
+        )}
 
         {mustEats.length > 0 && (
           <MustEatTeaserSection mustEats={mustEats} locale={loc} />

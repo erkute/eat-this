@@ -379,11 +379,6 @@
   background: var(--ink);
   color: var(--cream);
 }
-.actAlt {
-  background: transparent;
-  color: var(--ink);
-}
-
 /* ============================================================
    SIBLING CROSS-LINKS
 ============================================================ */

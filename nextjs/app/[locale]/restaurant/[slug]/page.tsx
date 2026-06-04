@@ -5,6 +5,7 @@ import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
 import { getRestaurantBySlug, getAllRestaurantSlugs, getMustEatsByRestaurant, getRestaurantsByBezirk, getRestaurantsByCategory } from '@/lib/sanity.server'
 import { buildRestaurantJsonLd } from '@/lib/json-ld'
+import { buildRestaurantTitle, truncateAtSentence } from '@/lib/seo/restaurantMeta'
 import { SITE_URL } from '@/lib/constants'
 import { localeUrl } from '@/lib/locale-url'
 import { routing } from '@/i18n/routing'
@@ -38,24 +39,32 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!r) return {}
   const loc = locale === 'de' ? 'de' : 'en'
 
-  const description = pickLocale(
-    r.seo?.metaDescription ||
-      r.shortDescription ||
-      r.description ||
-      r.tip ||
-      `${r.name} in Berlin${r.district ? `, ${r.district}` : ''}.`,
-    r.seo?.metaDescriptionEn ||
-      r.shortDescriptionEn ||
-      r.descriptionEn ||
-      r.tipEn ||
-      undefined,
-    loc,
+  const districtName = r.bezirk?.name ?? r.district ?? null
+
+  const description = truncateAtSentence(
+    pickLocale(
+      r.seo?.metaDescription ||
+        r.shortDescription ||
+        r.tip ||
+        r.description ||
+        `${r.name} in Berlin${districtName ? `, ${districtName}` : ''}.`,
+      r.seo?.metaDescriptionEn ||
+        r.shortDescriptionEn ||
+        r.tipEn ||
+        r.descriptionEn ||
+        undefined,
+      loc,
+    ) ?? '',
   )
-  const title = pickLocale(
-    r.seo?.metaTitle || `${r.name} — Eat This Berlin`,
-    r.seo?.metaTitleEn || undefined,
-    loc,
-  )
+  const title =
+    pickLocale(
+      r.seo?.metaTitle ||
+        buildRestaurantTitle({ name: r.name, cuisineType: r.cuisineType, district: districtName, locale: 'de' }),
+      r.seo?.metaTitleEn ||
+        buildRestaurantTitle({ name: r.name, cuisineType: r.cuisineType, district: districtName, locale: 'en' }),
+      loc,
+    ) ??
+    buildRestaurantTitle({ name: r.name, cuisineType: r.cuisineType, district: districtName, locale: 'de' })
 
   const baseImage = r.seo?.ogImageUrl || r.photo?.split('?')[0]
   const image = baseImage

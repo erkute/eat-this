@@ -111,6 +111,10 @@ export default function MustEatDetailMobile({
           </span>
         </h1>
 
+        {/* Description directly under the dish name (User 2026-06-05) —
+            the read flows name → what it is → where to get it. */}
+        {open && localizedDescription && <p className={styles.fdText}>{localizedDescription}</p>}
+
         {/* Locked: the proximity hint is the actionable info — it sits right
             under the stamped card, not below the fold (User 2026-06-05). */}
         {!open && (
@@ -171,7 +175,6 @@ export default function MustEatDetailMobile({
           </div>
         )}
 
-        {open && localizedDescription && <p className={styles.fdText}>{localizedDescription}</p>}
       </div>
     </div>
   )

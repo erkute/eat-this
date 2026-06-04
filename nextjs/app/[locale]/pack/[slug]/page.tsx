@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     : `${pack.displayName} Pack — Eat This`
   return {
     title,
-    description: pack.description,
+    description: pack.description[de ? 'de' : 'en'],
     // Conversion page reached from the app — keep it out of the index so it
     // doesn't cannibalise the /kategorie SEO pages, but let links be followed.
     robots: { index: false, follow: true },
@@ -119,7 +119,7 @@ export default async function PackDetailPage({ params }: PageProps) {
           <h1 className={`${styles.name} ${styles.allName}`}>
             All<br /><span className={styles.y}>Berlin</span>
           </h1>
-          <p className={styles.sub}>{pack.description}</p>
+          <p className={styles.sub}>{pack.description[loc]}</p>
 
           <div className={styles.facts}>
             <span className={`${styles.price} ${styles.bigPrice}`}>{priceLabel}</span>
@@ -173,7 +173,7 @@ export default async function PackDetailPage({ params }: PageProps) {
       <div className={styles.inner}>
         <div className={styles.kicker}>Booster Pack</div>
         <h1 className={styles.name}>{heroName}<br />Pack</h1>
-        <p className={styles.sub}>{pack.description}</p>
+        <p className={styles.sub}>{pack.description[loc]}</p>
 
         <div className={styles.facts}>
           <span className={styles.price}>{priceLabel}</span>

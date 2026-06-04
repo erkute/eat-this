@@ -34,7 +34,8 @@ async function main() {
     }
     const product = await stripe.products.create({
       name: pack.displayName,
-      description: pack.description,
+      description: pack.description.de, // Stripe Hosted Checkout body — DE mirrors the live Dashboard copy
+
       metadata: { packId: pack.packId },
     })
     const price = await stripe.prices.create({

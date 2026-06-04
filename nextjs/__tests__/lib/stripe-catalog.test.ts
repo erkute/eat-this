@@ -37,18 +37,22 @@ describe('stripe-catalog', () => {
     expect(getPack('not-a-real-pack')).toBeNull()
   })
 
-  it('every pack has a non-empty description (mirrors Stripe Dashboard copy)', () => {
+  it('every pack has a non-empty description in both locales (de mirrors Stripe Dashboard copy)', () => {
     for (const p of Object.values(CATALOG)) {
-      expect(p.description).toBeTruthy()
-      expect(p.description.length).toBeGreaterThan(20)
+      for (const loc of ['de', 'en'] as const) {
+        expect(p.description[loc]).toBeTruthy()
+        expect(p.description[loc].length).toBeGreaterThan(20)
+      }
     }
   })
 
-  it('every pack has a tight spectrum line (rendered as ProfileBooster headline)', () => {
+  it('every pack has a tight spectrum line in both locales (rendered as ProfileBooster headline)', () => {
     for (const p of Object.values(CATALOG)) {
-      expect(p.spectrum).toBeTruthy()
-      // Editor-Pick voice: deklarativ, mit Punkten — kurz genug für die Karte
-      expect(p.spectrum.length).toBeLessThan(60)
+      for (const loc of ['de', 'en'] as const) {
+        expect(p.spectrum[loc]).toBeTruthy()
+        // Editor-Pick voice: deklarativ, mit Punkten — kurz genug für die Karte
+        expect(p.spectrum[loc].length).toBeLessThan(60)
+      }
     }
   })
 })

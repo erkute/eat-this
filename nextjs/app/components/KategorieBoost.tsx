@@ -44,8 +44,8 @@ export default function KategorieBoost({ categorySlug, locale }: Props) {
       <div className={styles.body}>
         <div className={styles.kicker}>{de ? 'Map-Pack' : 'Map pack'}</div>
         <h2 className={styles.title}>{pack.displayName}</h2>
-        <div className={styles.spectrum}>{pack.spectrum}</div>
-        <p className={styles.desc}>{pack.description}</p>
+        <div className={styles.spectrum}>{pack.spectrum[locale]}</div>
+        <p className={styles.desc}>{pack.description[locale]}</p>
         <div className={styles.priceRow}>
           <span className={styles.price}>{priceLabel}</span>
           <Link href={packHref} className={styles.cta}>

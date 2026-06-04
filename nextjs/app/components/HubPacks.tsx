@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { CATALOG } from '@/lib/stripe-catalog'
 import { categoryArt } from '@/lib/categoryArt'
@@ -16,6 +16,7 @@ function formatPrice(amountCents: number): string {
 
 export default function HubPacks({ categoryNames }: Props) {
   const t = useTranslations('hub.packs')
+  const loc: 'de' | 'en' = useLocale() === 'de' ? 'de' : 'en'
   const categoryPacks = Object.values(CATALOG).filter((p) => p.type === 'category' && p.slug)
   return (
     <section className={styles.section} id="hub-packs" data-hub-packs="">
@@ -34,8 +35,8 @@ export default function HubPacks({ categoryNames }: Props) {
               <p className={styles.packCat}>{t('cat', { name })}</p>
               <h3 className={styles.packName}>{name}</h3>
               <p className={styles.packMeta}>
-                <span className={styles.tags}>{p.spectrum}</span>
-                {p.description}
+                <span className={styles.tags}>{p.spectrum[loc]}</span>
+                {p.description[loc]}
               </p>
               <div className={styles.packFoot}>
                 <span className={styles.packPrice}>{formatPrice(p.amountCents)}</span>

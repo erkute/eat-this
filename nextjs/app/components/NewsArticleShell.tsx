@@ -55,13 +55,15 @@ export default function NewsArticleShell({
   const spotsLabel = de ? 'Spots im Artikel' : 'Spots in this story';
   const toMapLabel = de ? 'Auf die Map →' : 'To the map →';
 
-  // Inline "Must Eat" card (mockup-chewy screen 8) — the image is the full
-  // collectible trading card. The whole card links to the Must-Eat detail on
-  // the map (?me=<id>), mirroring an in-app tap.
+  // Inline "Must Eat" banner — dark poster block in the article column, same
+  // sticker language as MapPromoCTA. The image is the full collectible trading
+  // card, floating freigestellt with a tilt. The whole banner links to the
+  // Must-Eat detail on the map (?me=<id>), mirroring an in-app tap.
   const renderMustEatCard = (block: MustEatCardBlock) => {
     if (!block.dish && !block.dishImage) return null;
-    const ctaLabel = de ? 'Zum Must Eat →' : 'See the Must Eat →';
+    const ctaLabel = de ? 'Zum Must Eat' : 'See the Must Eat';
     const restName = block.restaurantName ? normalizeName(block.restaurantName) : '';
+    const whereLine = [restName, block.district].filter(Boolean).join(' · ');
     const inner = (
       <>
         {block.dishImage && (
@@ -73,8 +75,18 @@ export default function NewsArticleShell({
         <div className={styles.mustEatBody}>
           <span className={styles.mustEatKicker}>Must Eat</span>
           {block.dish && <h3 className={styles.mustEatName}>{block.dish}</h3>}
-          {restName && <span className={styles.mustEatRest}>@ {restName}</span>}
-          <span className={styles.mustEatCta}>{ctaLabel}</span>
+          {whereLine && <span className={styles.mustEatRest}>@ {whereLine}</span>}
+          <span className={styles.mustEatCta}>
+            <span>{ctaLabel}</span>
+            <svg
+              width="26" height="17" viewBox="0 0 32 20" fill="none"
+              stroke="currentColor" strokeWidth="3" strokeLinecap="round"
+              strokeLinejoin="round" aria-hidden="true"
+            >
+              <path d="M3 10 L24 10" />
+              <path d="M18 3 L27 10 L18 17" />
+            </svg>
+          </span>
         </div>
       </>
     );

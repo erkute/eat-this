@@ -94,8 +94,8 @@ export default function MustEatDetail({
           onDone={() => {
             state.handleRevealDone()
             if (demo) setDemoRevealed(true)
-            // Card has landed → burn the stamp off (right-to-left), then the
-            // name un-blurs. Covers the 1.7s burn + 0.55s delayed un-blur.
+            // Card has landed → the blurred dish name slowly sharpens into
+            // focus (0.2s delay + 1.9s unblur, see .fdNameUnblurring).
             setStampBurning(true)
             window.setTimeout(() => setStampBurning(false), 2350)
           }}

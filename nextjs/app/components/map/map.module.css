@@ -2536,6 +2536,11 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
 }
 .fdHeroLocked {
   cursor: pointer;
+  /* Locked card-back stays a teaser, not a poster — noticeably smaller than
+     the unlocked dish hero, with the proximity hint pulled up under it
+     (User 2026-06-05: locked view read oversized + key info below the fold). */
+  width: min(46vw, 185px);
+  margin-top: 14px;
   /* Wiggle scaled by proximity (--vibrate-intensity, set inline on the button):
      subtle far away, lively within tap range — signals "tap me". The duration
      var is also what the .mustEatCardCanUnlock rule below reads. */
@@ -2571,97 +2576,36 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   overflow-wrap: anywhere;
   color: var(--d-text);
 }
-/* Covered must-eat name. The wrapper is ALWAYS rendered identically (covered,
-   burning, revealed) so the name never changes box/size between states — no
-   "pop" when it reveals. inline-block hugs the word so the stamp sits over it. */
-.fdNameWrap {
-  position: relative;
-  display: inline-block;
-  max-width: 100%;
-}
 .fdNameText {
   display: inline;
 }
-/* Covered: blur the letters so they can't be read through the stamp's edges. */
+/* Covered: the name is spelled out but heavily blurred — present, punchy,
+   unreadable. No stamp (User 2026-06-05). user-select off so the surprise
+   can't be copied out. */
 .fdNameBlur {
-  filter: blur(4px);
+  filter: blur(14px);
+  -webkit-user-select: none;
+  user-select: none;
 }
-/* Thick stamp slapped diagonally over the spelled-out name — the name keeps
-   its full weight underneath, the stamp blocks it from being read. */
-.fdNameStamp {
-  position: absolute;
-  /* Span the full height of the name (top/bottom anchored) so the stamp
-     covers BOTH lines when the dish name wraps — a single centred band only
-     hid one line (e.g. "Sophie's Breakfast Plate"). */
-  top: -2px;
-  bottom: -2px;
-  left: 50%;
-  transform: translateX(-50%) rotate(-7deg);
-  min-width: 84%;
-  max-width: 112%;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-  padding: 4px 20px;
-  background: var(--d-ink);
-  color: var(--d-bg);
-  font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-size: clamp(22px, 6.5vw, 38px);
-  line-height: 1;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border: 2px solid var(--d-bg);
-  box-shadow: 4px 4px 0 var(--d-ink);
-  pointer-events: none;
-}
-/* Reveal: the stamp burns away from right to left — like a banner catching
-   fire — uncovering the name underneath bit by bit. A gradient mask slides
-   across (the soft edge = the burning front) while a warm ember tint flashes. */
-.fdNameStampBurning {
-  -webkit-mask-image: linear-gradient(to right, #000 0 45%, transparent 58%);
-          mask-image: linear-gradient(to right, #000 0 45%, transparent 58%);
-  -webkit-mask-size: 320% 100%;
-          mask-size: 320% 100%;
-  -webkit-mask-repeat: no-repeat;
-          mask-repeat: no-repeat;
-  animation: fdStampBurn 1.7s ease-in forwards;
-}
-@keyframes fdStampBurn {
-  0% {
-    -webkit-mask-position: 0% 0;
-            mask-position: 0% 0;
-    filter: none;
-  }
-  20% {
-    filter: brightness(1.45) saturate(3.5) sepia(0.45) hue-rotate(-12deg);
-  }
-  100% {
-    -webkit-mask-position: 100% 0;
-            mask-position: 100% 0;
-    filter: sepia(1) saturate(4) brightness(0.7);
-  }
-}
-/* Two-step reveal: the name stays blurred while the banner burns away
-   (the 1.7s delay + `both` fill holds blur(4px)), THEN it un-blurs into
-   focus once the banner is gone. */
+/* Reveal: the name slowly sharpens into focus once the card has landed.
+   `both` holds the full blur until the animation starts; 2.1s total stays
+   inside the parent's 2350ms nameBurning window. */
 .fdNameUnblurring {
-  animation: fdNameUnblur 0.55s ease 1.7s both;
+  animation: fdNameUnblur 1.9s ease-out 0.2s both;
 }
 @keyframes fdNameUnblur {
-  from { filter: blur(4px); }
+  from { filter: blur(14px); }
   to   { filter: blur(0); }
 }
-/* Proximity prompt under the covered card — big + present so it can't be
-   missed: a Chewy headline (distance / "Du bist da!") + a readable subline. */
+/* Proximity prompt — sits right under the stamped card (moved up from the
+   sheet bottom 2026-06-05): distance headline + a readable subline. */
 .fdProximity {
-  margin: 18px 16px 16px;
+  margin: 14px 24px 4px;
   text-align: center;
 }
 .fdProximityHead {
   font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-size: clamp(26px, 8vw, 38px);
+  font-size: clamp(22px, 6vw, 30px);
   line-height: 1.05;
   text-transform: uppercase;
   color: var(--d-text);
@@ -2686,6 +2630,10 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   padding-bottom: 16px;
   border-bottom: 4px solid var(--d-ink);
 }
+/* Locked: the proximity block sits above — no stamp overlap risk, tighter. */
+.fdRestLocked {
+  margin-top: 14px;
+}
 .fdPrice { /* sits next to the restaurant block on the left */ }
 .fdK {
   font-family: var(--font-chewy), 'Chewy', sans-serif;
@@ -2708,11 +2656,11 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   background: var(--brand-yellow);
   color: #0a0a0a;
   font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   letter-spacing: 0.08em;
   line-height: 1;
   text-transform: uppercase;
-  padding: 11px 16px 12px;
+  padding: 9px 13px 10px;
   border-radius: 0;
   border: 0;
   cursor: pointer;
@@ -2800,12 +2748,12 @@ html[data-theme="dark"] .ctaPill {
 /* X close — sits top-right over the sheet, square sticker like the burger. */
 .fdClose {
   position: absolute;
-  top: 12px;
+  top: 10px;
   right: 12px;
   z-index: 5;
   appearance: none;
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;

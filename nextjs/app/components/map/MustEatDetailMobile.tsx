@@ -60,7 +60,6 @@ export default function MustEatDetailMobile({
   const { name: restaurantName } = mustEat.restaurant
   const open = isUnlocked && !revealOrigin
   const nameRevealed = open && !nameBurning
-  const showStamp = !open || nameBurning
 
   return (
     <div
@@ -100,30 +99,39 @@ export default function MustEatDetailMobile({
           </button>
         )}
 
-        {/* Big punchy dish name. Locked spells the name out at full weight but
-            slaps a thick stamp over it so it can't be read — the presence
-            stays, the surprise stays. */}
+        {/* Big punchy dish name. Locked: heavily blurred — present but
+            unreadable (no stamp, User 2026-06-05). On reveal it slowly
+            sharpens into focus. Box is identical in both states → no pop. */}
         <h1 className={styles.fdName} aria-label={nameRevealed ? undefined : t('mustEats.covered')}>
-          <span className={styles.fdNameWrap}>
-            <span
-              className={`${styles.fdNameText}${!open ? ` ${styles.fdNameBlur}` : ''}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}
-              aria-hidden={nameRevealed ? undefined : true}
-            >
-              {normalizeName(mustEat.dish)}
-            </span>
-            {showStamp && (
-              <span
-                className={`${styles.fdNameStamp}${nameBurning ? ` ${styles.fdNameStampBurning}` : ''}`}
-                aria-hidden="true"
-              >
-                {t('mustEats.covered')}
-              </span>
-            )}
+          <span
+            className={`${styles.fdNameText}${!open ? ` ${styles.fdNameBlur}` : ''}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}
+            aria-hidden={nameRevealed ? undefined : true}
+          >
+            {normalizeName(mustEat.dish)}
           </span>
         </h1>
 
+        {/* Locked: the proximity hint is the actionable info — it sits right
+            under the stamped card, not below the fold (User 2026-06-05). */}
+        {!open && (
+          <div className={`${styles.fdProximity}${canUnlock ? ` ${styles.fdProximityReady}` : ''}`}>
+            <p className={styles.fdProximityHead}>
+              {canUnlock
+                ? 'Du bist da!'
+                : distance !== null
+                  ? `Noch ${formatDistance(distance)}`
+                  : 'Komm näher'}
+            </p>
+            <p className={styles.fdProximitySub}>
+              {canUnlock
+                ? 'Tippe die Karte, um dein Must Eat aufzudecken.'
+                : `Komm auf ${UNLOCK_RADIUS_METERS} m an den Spot heran, dann kannst du die Karte aufdecken.`}
+            </p>
+          </div>
+        )}
+
         {/* Restaurant / price / Zum Spot — one thick stripe underneath. */}
-        <div className={styles.fdRest}>
+        <div className={`${styles.fdRest}${!open ? ` ${styles.fdRestLocked}` : ''}`}>
           <div>
             <div className={styles.fdK}>{t('map.inRestaurant')}</div>
             <div className={styles.fdV}>{normalizeName(restaurantName)}</div>
@@ -163,24 +171,7 @@ export default function MustEatDetailMobile({
           </div>
         )}
 
-        {open
-          ? localizedDescription && <p className={styles.fdText}>{localizedDescription}</p>
-          : (
-            <div className={`${styles.fdProximity}${canUnlock ? ` ${styles.fdProximityReady}` : ''}`}>
-              <p className={styles.fdProximityHead}>
-                {canUnlock
-                  ? 'Du bist da!'
-                  : distance !== null
-                    ? `Noch ${formatDistance(distance)}`
-                    : 'Komm näher'}
-              </p>
-              <p className={styles.fdProximitySub}>
-                {canUnlock
-                  ? 'Tippe die Karte, um dein Must Eat aufzudecken.'
-                  : `Komm auf ${UNLOCK_RADIUS_METERS} m an den Spot heran, dann kannst du die Karte aufdecken.`}
-              </p>
-            </div>
-          )}
+        {open && localizedDescription && <p className={styles.fdText}>{localizedDescription}</p>}
       </div>
     </div>
   )

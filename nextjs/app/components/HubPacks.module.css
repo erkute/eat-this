@@ -105,9 +105,11 @@
   width: 100%;
   border: 2px solid #0a0a0a;
   background: #fbf8ee;
-  padding: 13px 14px;
-  font-family: var(--font);
-  font-size: 15px;
+  padding: 11px 14px;
+  /* Schoolbell (brand display) for the typed value + placeholder; runs small,
+     so 17px ≈ the optical size of the previous 15px sans. */
+  font-family: var(--font-chewy), cursive;
+  font-size: 17px;
   color: #0a0a0a;
   outline: none;
 }

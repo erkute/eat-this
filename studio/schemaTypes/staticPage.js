@@ -23,6 +23,7 @@ export default {
           { title: 'Normal',    value: 'normal' },
           { title: 'Heading 2', value: 'h2' },
           { title: 'Heading 3', value: 'h3' },
+          { title: 'Blockquote', value: 'blockquote' },
         ],
         marks: {
           decorators: [
@@ -42,6 +43,7 @@ export default {
           { title: 'Normal',    value: 'normal' },
           { title: 'Heading 2', value: 'h2' },
           { title: 'Heading 3', value: 'h3' },
+          { title: 'Blockquote', value: 'blockquote' },
         ],
         marks: {
           decorators: [

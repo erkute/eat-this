@@ -295,7 +295,8 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-comp
   color: var(--c-black);
   background: #ffffff;
   border: 1.5px solid var(--c-black);
-  box-shadow: 2px 2px 0 var(--c-black);
+  /* Same soft sticker shadow as .mapSearchToolbar — see comment there. */
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.28);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -312,19 +313,19 @@ html[data-theme="dark"] .fab {
   background: #f0e8d0;
   color: var(--c-black);
   border-color: #f0e8d0;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
 }
 /* Hover-only on devices that actually support hover — prevents the lift
    from sticking on touch devices after a tap (no mouseleave fires). */
 @media (hover: hover) {
   .fab:hover {
     transform: translate(-1px, -1px);
-    box-shadow: 3px 3px 0 var(--c-black);
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.28);
     background: var(--c-cream);
   }
   html[data-theme="dark"] .fab:hover {
     background: #ffffff;
-    box-shadow: 3px 3px 0 var(--c-cream);
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
   }
 }
 
@@ -348,7 +349,8 @@ html[data-theme="dark"] .fab {
   background: var(--c-cream);
   border: 2px solid var(--c-black);
   border-radius: 0;
-  box-shadow: 4px 4px 0 var(--c-black);
+  /* Same soft sticker shadow as .mapSearchToolbar — see comment there. */
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.28);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   appearance: none;
@@ -357,7 +359,7 @@ html[data-theme="dark"] .fab {
 html[data-theme="dark"] .mapBurger {
   background: #f0e8d0;
   border-color: #f0e8d0;
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.55);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
 }
 .mapBurger img {
   height: 18px;
@@ -534,21 +536,14 @@ html[data-theme="dark"] .list[data-view="detail"] .handle { background: #1c1c1c;
 html[data-theme="dark"] .list[data-view="detail"] .handle::before {
   background: rgba(240, 232, 208, 0.35);
 }
-/* At full snap, shrink the handle's vertical chrome so the content (header
-   in detail / count-row + tabs in list) sits closer to the top of the
-   viewport. The chevron-down (overlay, position: absolute) is unaffected.
-   The detail body padding stays the same across snaps so the gap between
-   name and meta line doesn't shift when the sheet hits full. */
+/* List view: the handle keeps the SAME chrome at every snap — a taller
+   strip at full pushed the chip rail ~6px further from the pip, which read
+   as the filters "wandering" between mid and full (User 2026-06-04). */
 @media (max-width: 1023.98px) {
-  .list[data-snap="full"] .handle {
-    min-height: 36px;
-    padding: 8px 0 8px;
-  }
-  /* Detail view keeps the taller handle even at full snap — needs the
-     extra vertical room for the absolutely-positioned Share/Save/X icons
-     on the right. Overrides the snap-full shrink rule above. */
-  .list[data-view="detail"] .handle,
-  .list[data-view="detail"][data-snap="full"] .handle {
+  /* Detail view keeps a taller handle (all snaps) — needs the extra
+     vertical room for the absolutely-positioned Share/Save/X icons on
+     the right. */
+  .list[data-view="detail"] .handle {
     min-height: 36px;
     padding: 10px 0 8px;
   }
@@ -610,7 +605,7 @@ html[data-theme="dark"] .list[data-view="detail"] .handle::before {
    added chip-rail row.) */
 @media (max-width: 1023.98px) {
   .listScroll {
-    /* Header stack: handle (~28px) + chip-row padding 24+4 + chip (~24px) ≈ 80px.
+    /* Header stack: handle (~28px) + chip-row padding 12+10 + chip (~20px) ≈ 70px.
        max-height covers full sheet minus header only. Bottom padding adds a
        breathing band so the last row sits clear above the iOS home indicator
        AND is fully visible on devices without safe-area (Chrome on Android) —
@@ -625,7 +620,7 @@ html[data-theme="dark"] .list[data-view="detail"] .handle::before {
        blur through the bar while scrolling); the padding keeps the last
        row reachable above it, with only a slim 8px band so the list runs
        out close to the bar edge. */
-    max-height: calc(100dvh - var(--sheet-y, 40px) - 80px + var(--map-bar-overhang, 0px));
+    max-height: calc(100dvh - var(--sheet-y, 40px) - 70px + var(--map-bar-overhang, 0px));
     padding-bottom: calc(max(env(safe-area-inset-bottom, 0px), 8px) + var(--map-bar-overhang, 0px));
   }
 }
@@ -917,7 +912,10 @@ html[data-theme="dark"] .openPill:not(.openPillClosed)::before { background: #fb
   border-radius: 0;
   padding: 0 14px;
   box-sizing: border-box;
-  box-shadow: 4px 4px 0 var(--c-black);
+  /* Soft sticker shadow (2026-06-04): hard offset stays (brand), but the
+     full-ink 4px block read too heavy floating over map tiles — translucent
+     2px is a hint of lift instead of a second border. */
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.28);
   pointer-events: auto;
 }
 html[data-theme="dark"] .mapSearchToolbar {
@@ -925,7 +923,7 @@ html[data-theme="dark"] .mapSearchToolbar {
   background: #f0e8d0;
   border-color: #f0e8d0;
   color: var(--c-black);
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.55);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
 }
 .mapSearchIcon {
   width: 18px;
@@ -1984,11 +1982,13 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
    Active state = coral bg + cream text. */
 .filterChipRow {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  padding: 24px 14px 10px;
+  /* Tight to the drag handle above — 24px top read as a dead band between
+     pip and chips (User 2026-06-04). */
+  padding: 12px 14px 10px;
   /* Axis split with the sheet drag (Google-Maps feel): the browser only
      handles HORIZONTAL pans natively here; vertical touches stay
      cancelable so useBottomSheet's header-drag owns them exclusively.
@@ -2002,44 +2002,45 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
   /* Vertically centre the chip row on the same line as the floating search
      toolbar + burger (both top:14px, height:42px → centre 35px). Chips are
      35px tall, so padding-top 18px puts their centre at ~35px too.
-     The desktop list rail is 360px — too tight for the four chips at the
-     mobile size (≈467px), which clipped "JETZT GEÖFFNET" off the rail edge.
-     Shrink the chips on desktop so the full set fits on one line. */
-  .filterChipRow { padding: 18px 14px 12px; gap: 6px; }
-  .filterChipRow .filterChip {
-    font-size: 11px;
-    letter-spacing: .04em;
-    padding: 7px 8px 8px;
-    gap: 5px;
-  }
-  .filterChipWrap .filterChip { padding-right: 7px; }
+     The list rail is a fixed 360px — pin the font back to the floor the
+     vw-clamp would otherwise blow past. */
+  .filterChipRow { padding: 18px 14px 12px; }
+  .filterChipRow .filterChip { font-size: 11px; }
 }
 
 .filterChipWrap {
   display: inline-flex;
   align-items: stretch;
-  flex-shrink: 0;
+  /* Grow with the row so the chip rail runs flush edge-to-edge. */
+  flex: 1 0 auto;
   background: transparent;
   border: 0;
   border-radius: 0;
   overflow: visible;
 }
 .filterChip {
-  flex: 0 0 auto;
+  /* All four chips — Kategorie / Bezirk / Küche / Jetzt geöffnet — fit a
+     360px viewport on one line; flex-grow distributes the leftover width
+     on wider phones so the rail is flush left AND right (no half-off-screen
+     scroll start, no ragged right edge). */
+  flex: 1 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 12px 10px;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 8px 9px;
   background: var(--c-cream);
   border: 1.5px solid var(--c-black);
   border-radius: 0;
   color: var(--c-black);
   font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-size: 13px;
+  /* Scales with viewport width: 11px floor at 360px → ~13px on a 430px
+     phone, so the stretched chips don't read undersized. */
+  font-size: clamp(11px, 3vw, 13px);
   /* ≥1.15 + the chip's top padding keeps Chewy's uppercase umlaut dots
      (KÜCHE / JETZT GEÖFFNET) from clipping at the top of the line box. */
   line-height: 1.15;
-  letter-spacing: .12em;
+  letter-spacing: .04em;
   text-transform: uppercase;
   cursor: pointer;
   white-space: nowrap;
@@ -2053,7 +2054,7 @@ html[data-theme="dark"] .filterChip {
 }
 
 .filterChipWrap .filterChip {
-  padding-right: 10px;
+  padding-right: 7px;
 }
 
 .filterChipActive,

@@ -1,71 +1,104 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo } from 'react';
+import { useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth';
-import { useUnlockedMustEats } from '@/lib/map';
+import { useUnlockedMustEats, useMapData } from '@/lib/map';
+import { defaultAvatarFromUid, useUserProfile } from '@/lib/firebase/useUserProfile';
 import type { MustEatAlbumCard } from '@/lib/types';
-import ProfileHeader from './ProfileHeader';
-import ProfileTabs, { type ProfileTab } from './ProfileTabs';
-import ProfileDeck from './ProfileDeck';
-import ProfileRestaurants from './ProfileRestaurants';
-import ProfileBooster from './ProfileBooster';
-import ProfileSettings from './ProfileSettings';
+import { TOAST_HANDOFF_KEY } from '../NotificationToast';
+import ProfileSpots from './ProfileSpots';
+import ProfileMustEats from './ProfileMustEats';
+import ProfilePacks from './ProfilePacks';
 import SiteFooter from '../SiteFooter';
-import styles from './profile.module.css';
+import styles from './ProfileSlim.module.css';
 
 interface Props {
   mustEats: MustEatAlbumCard[];
-  restaurantCount: number;
-  curatedRevealedIds: string[];
 }
 
-export default function ProfileShell({ mustEats, restaurantCount, curatedRevealedIds }: Props) {
-  const { user, loading } = useAuth();
-  // Map-page reveals write to users/{uid}/unlockedMustEats — read them here
-  // so the deck can show those cards.
-  const { unlockedIds: mapUnlockedIds, unlock } = useUnlockedMustEats(user?.uid ?? null);
-  // Read the URL hash on mount so deep-links from elsewhere in the app
-  // (e.g. the map's booster CTAs use /profile#booster) land on the right
-  // tab instead of always defaulting to "deck". Special case: a Stripe
-  // cancel redirect carries `?booster=canceled` and we force the booster
-  // tab regardless of whether the #booster fragment survived the round-trip
-  // (some Stripe Checkout flows strip fragments).
-  const [tab, setTab] = useState<ProfileTab>(() => {
-    if (typeof window === 'undefined') return 'deck';
-    if (new URLSearchParams(window.location.search).get('booster') === 'canceled') {
-      return 'booster';
-    }
-    const h = window.location.hash.replace('#', '');
-    return h === 'restaurants' || h === 'booster' || h === 'settings' ? h : 'deck';
-  });
+function memberSince(creationTime: string | undefined, locale: string): string | null {
+  if (!creationTime) return null;
+  const d = new Date(creationTime);
+  if (Number.isNaN(d.getTime())) return null;
+  const intlLocale = locale === 'de' ? 'de-DE' : 'en-US';
+  return new Intl.DateTimeFormat(intlLocale, { month: 'long', year: 'numeric' }).format(d);
+}
+
+// Slim profile (mockup-chewy screens 15/16): one cream scroll — head, saved
+// spots, collected must-eats, packs, logout, footer. No tabs/settings/referral.
+export default function ProfileShell({ mustEats }: Props) {
+  const { user, loading, signOut } = useAuth();
+  const locale = useLocale();
+  // Map-page reveals write to users/{uid}/unlockedMustEats — read them so the
+  // collected grid shows face-up cards.
+  const { unlockedIds } = useUnlockedMustEats(user?.uid ?? null);
+  const { profile } = useUserProfile(user?.uid ?? null);
+  // Owned spots (the user's map tier) → drives which must-eats appear in the
+  // collected grid. Fetches /api/map-data on mount; cached for instant repaint.
+  const { restaurants: ownedRestaurants } = useMapData({ uid: user?.uid ?? null, authLoading: loading });
+  const ownedRestaurantIds = useMemo(
+    () => new Set(ownedRestaurants.map((r) => r._id)),
+    [ownedRestaurants],
+  );
 
   if (loading || !user) {
     return (
       <main className={styles.page}>
-        <div className={styles.deckPlaceholder}>
+        <div className={styles.loading}>
           <div className={styles.spinner} aria-hidden="true" />
         </div>
       </main>
     );
   }
 
+  const avatarIdx = profile.avatar ?? defaultAvatarFromUid(user.uid);
+  const name = user.displayName || (user.email ?? '').split('@')[0] || 'Du';
+  const since = memberSince(user.metadata?.creationTime, locale);
+  const sinceLabel = locale === 'de' ? 'Mitglied seit' : 'Member since';
+
   return (
     <>
       <main className={styles.page}>
-        <ProfileHeader user={user} />
-        <ProfileTabs active={tab} onChange={setTab} />
+        <header className={styles.head}>
+          <div className={styles.avatar}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`/pics/avatar/${avatarIdx}.webp`} alt="" />
+          </div>
+          <div className={styles.info}>
+            {since && <div className={styles.kicker}>{sinceLabel} {since}</div>}
+            <h1 className={styles.name}>{name}</h1>
+            {user.email && <div className={styles.email}>{user.email}</div>}
+          </div>
+        </header>
 
-        {tab === 'deck' && (
-          <ProfileDeck
-            mustEats={mustEats}
-            mapUnlockedIds={mapUnlockedIds}
-            unlock={unlock}
-            curatedRevealedIds={curatedRevealedIds}
-          />
-        )}
-        {tab === 'restaurants' && <ProfileRestaurants uid={user.uid} />}
-        {tab === 'booster'     && <ProfileBooster restaurantCount={restaurantCount} />}
-        {tab === 'settings'    && <ProfileSettings email={user.email ?? ''} />}
+        <div className={styles.section}>
+          <h2 className={styles.sectionHeading}>Gespeicherte Spots</h2>
+        </div>
+        <ProfileSpots uid={user.uid} />
+
+        <ProfileMustEats
+          mustEats={mustEats}
+          mapUnlockedIds={unlockedIds}
+          ownedRestaurantIds={ownedRestaurantIds}
+        />
+
+        <ProfilePacks uid={user.uid} />
+
+        <button
+          type="button"
+          className={styles.logout}
+          onClick={() => {
+            // Sign-out hard-navigates to '/' (ProfileAuthGuard) — park the
+            // confirmation so the toast shows after the reload.
+            try {
+              sessionStorage.setItem(TOAST_HANDOFF_KEY, locale === 'de' ? 'Du bist abgemeldet' : "You're signed out");
+            } catch { /* private mode */ }
+            void signOut();
+          }}
+        >
+          Abmelden
+        </button>
       </main>
       <SiteFooter />
     </>

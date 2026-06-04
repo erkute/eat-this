@@ -1,0 +1,473 @@
+/* Booster pack detail — ported from mockup-chewy.html screens 17/18.
+   Mockup tokens mapped to live palette: --green → ink #0a0a0a,
+   --yellow → var(--brand-yellow) #ffd84a, --cream → #fbf8ee, display
+   font → var(--font-ranchers) (= Chewy). Cream/black/yellow only. */
+
+.page {
+  background: #fbf8ee;
+  color: #0a0a0a;
+  display: flow-root; /* contain margins over the dark footer */
+  /* Clear the fixed 64px SiteNav — this route has its own layout, not the
+     (spa) .app-pages margin. On staging the 32px banner (--staging-banner-h)
+     pushes the navbar down, so account for it too. Mirrors ProfileSlim. */
+  padding-top: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
+}
+
+.inner {
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 8px 22px 36px;
+}
+
+/* ── Category pack hero ── */
+.stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 22px 18px;
+}
+.packArt {
+  width: 64%;
+  max-width: 240px;
+  height: auto;
+  transform: rotate(-2deg);
+  /* Soft single shadow — matches HubPacks; a hard double shadow read as a
+     boxy rectangle on the cut-out pack art. */
+  filter: drop-shadow(0 16px 24px rgba(0, 0, 0, .18));
+}
+
+.kicker {
+  font-family: var(--font-ranchers);
+  font-size: 12px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  opacity: .55;
+  margin-bottom: 6px;
+}
+.name {
+  font-family: var(--font-ranchers);
+  font-size: 56px;
+  line-height: .95;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 0 0 14px;
+  letter-spacing: -.005em;
+}
+.sub {
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  color: #0a0a0a;
+  margin: 0 0 18px;
+}
+
+.facts {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1.5px solid rgba(10, 10, 10, .18);
+  border-bottom: 1.5px solid rgba(10, 10, 10, .18);
+  margin: 0 0 20px;
+}
+.price {
+  font-family: var(--font-ranchers);
+  font-size: 36px;
+  color: #0a0a0a;
+  line-height: 1;
+}
+.updates {
+  margin-left: auto;
+  background: var(--brand-yellow);
+  color: #0a0a0a;
+  padding: 6px 10px 7px;
+  font-family: var(--font-ranchers);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.insideLabel {
+  font-family: var(--font-ranchers);
+  font-size: 12px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(10, 10, 10, .5);
+  margin: 0 0 10px;
+}
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 22px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(10, 10, 10, .12);
+}
+.row:last-child {
+  border-bottom: 0;
+}
+.thumb {
+  width: 34px;
+  height: 34px;
+  background: #0a0a0a;
+  color: var(--brand-yellow);
+  font-family: var(--font-ranchers);
+  font-size: 12px;
+  letter-spacing: .04em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.rn {
+  flex: 1;
+  font-family: var(--font-ranchers);
+  font-size: 17px;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  color: #0a0a0a;
+  line-height: 1.05;
+}
+.mn {
+  font-family: var(--font);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(10, 10, 10, .5);
+}
+.rowLocked .thumb {
+  background: rgba(10, 10, 10, .18);
+  color: #fbf8ee;
+}
+.rowLocked .rn {
+  color: rgba(10, 10, 10, .5);
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 56px;
+  background: var(--brand-yellow);
+  color: #0a0a0a;
+  border: 2px solid #0a0a0a;
+  box-shadow: 4px 4px 0 #0a0a0a;
+  font-family: var(--font-ranchers);
+  font-size: 17px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+.cta:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 #0a0a0a;
+}
+.cta:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #0a0a0a;
+}
+.cta:disabled {
+  cursor: default;
+  opacity: .7;
+  transform: none;
+  box-shadow: 4px 4px 0 #0a0a0a;
+}
+.ctaError {
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--brand-red);
+  margin: 0 0 14px;
+}
+
+.trust {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  font-family: var(--font);
+  font-size: 12px;
+  color: rgba(10, 10, 10, .5);
+}
+.trust svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.trust strong {
+  color: #0a0a0a;
+  font-weight: 600;
+}
+
+.upsell {
+  text-align: center;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1.5px solid rgba(10, 10, 10, .15);
+}
+.upsell a {
+  font-family: var(--font-ranchers);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  border-bottom: 1.5px solid #0a0a0a;
+  padding-bottom: 1px;
+  text-decoration: none;
+}
+
+/* ── All Berlin variant ── */
+.allKicker {
+  margin: 10px 0 6px;
+}
+.allName .y {
+  background: #0a0a0a;
+  color: #fbf8ee;
+  padding: 0 10px 4px;
+  display: inline-block;
+  line-height: 1;
+}
+.allStage {
+  position: relative;
+  margin: 22px -14px 24px;
+  overflow: visible;
+}
+.allStack {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.allRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.allRowMid {
+  margin-top: -56px;
+}
+.allRowBottom {
+  margin-top: -58px;
+}
+.allStack img {
+  position: relative;
+  width: 132px;
+  height: auto;
+  margin: 0 -28px;
+  /* Soft single shadow — matches HubAllBerlin fan. */
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .4));
+}
+.allRowTop img:nth-child(1)    { transform: rotate(-11deg) translateY(6px);  z-index: 2; }
+.allRowTop img:nth-child(2)    { transform: rotate(0deg)   translateY(-4px); z-index: 5; width: 148px; }
+.allRowTop img:nth-child(3)    { transform: rotate(11deg)  translateY(6px);  z-index: 2; }
+.allRowMid img:nth-child(1)    { transform: rotate(-7deg)  translateY(2px);  z-index: 3; }
+.allRowMid img:nth-child(2)    { transform: rotate(2deg)   translateY(-6px); z-index: 9; width: 156px; }
+.allRowMid img:nth-child(3)    { transform: rotate(8deg)   translateY(2px);  z-index: 3; }
+.allRowBottom img:nth-child(1) { transform: rotate(-9deg)  translateY(6px);  z-index: 1; }
+.allRowBottom img:nth-child(2) { transform: rotate(0deg)   translateY(2px);  z-index: 4; width: 138px; }
+.allRowBottom img:nth-child(3) { transform: rotate(9deg)   translateY(6px);  z-index: 1; }
+
+.bigPrice {
+  font-size: 30px;
+}
+
+.allPacks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 0 0 18px;
+}
+.allPack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: #f3eedd;
+  padding: 12px 6px 10px;
+  border: 1.5px solid rgba(10, 10, 10, .18);
+}
+.allPack img {
+  width: 100%;
+  max-width: 68px;
+  height: auto;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .16));
+}
+.allPack .cat {
+  font-family: var(--font-ranchers);
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.bonus {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  margin: 0 0 18px;
+  background: var(--brand-yellow);
+  color: #0a0a0a;
+}
+.bonusIcon {
+  width: 28px;
+  height: 28px;
+  background: #0a0a0a;
+  color: var(--brand-yellow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ranchers);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.bonusText {
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.bonusText strong {
+  font-family: var(--font-ranchers);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+/* ── Desktop: focused centered column, larger hero ── */
+@media (min-width: 720px) {
+  .inner {
+    max-width: 560px;
+    padding: 24px 22px 56px;
+  }
+  .name {
+    font-size: 76px;
+  }
+  .allName .y {
+    padding: 0 12px 6px;
+  }
+}
+
+/* ══════════════════════════════════════════════
+   DARK MODE — cream world flips dark, yellow → red.
+   Append-only; layout (padding-top/--staging-banner-h) untouched.
+   ══════════════════════════════════════════════ */
+html[data-theme="dark"] .page {
+  background: #111110;
+  color: #f0e8d0;
+}
+
+/* Pack art is freigestellt cut-out → never filter; soft shadow stays. */
+
+html[data-theme="dark"] .kicker,
+html[data-theme="dark"] .name,
+html[data-theme="dark"] .sub {
+  color: #f0e8d0;
+}
+
+/* ── Facts row ── */
+html[data-theme="dark"] .facts {
+  border-top-color: rgba(240, 232, 208, 0.3);
+  border-bottom-color: rgba(240, 232, 208, 0.3);
+}
+html[data-theme="dark"] .price {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .updates {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+
+/* ── Inside list ── */
+html[data-theme="dark"] .insideLabel {
+  color: rgba(240, 232, 208, 0.55);
+}
+html[data-theme="dark"] .row {
+  border-bottom-color: rgba(240, 232, 208, 0.18);
+}
+html[data-theme="dark"] .thumb {
+  background: #f0e8d0;
+  color: var(--c-coral-bright);
+}
+html[data-theme="dark"] .rn {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .mn {
+  color: rgba(240, 232, 208, 0.55);
+}
+html[data-theme="dark"] .rowLocked .thumb {
+  background: rgba(240, 232, 208, 0.18);
+  color: #0a0a0a;
+}
+html[data-theme="dark"] .rowLocked .rn {
+  color: rgba(240, 232, 208, 0.5);
+}
+
+/* ── CTA — yellow sticker → red sticker, ink chrome → cream chrome ── */
+html[data-theme="dark"] .cta {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-color: #f0e8d0;
+  box-shadow: 4px 4px 0 rgba(240, 232, 208, 0.25);
+}
+html[data-theme="dark"] .cta:hover {
+  box-shadow: 5px 5px 0 rgba(240, 232, 208, 0.25);
+}
+html[data-theme="dark"] .cta:active {
+  box-shadow: 1px 1px 0 rgba(240, 232, 208, 0.25);
+}
+html[data-theme="dark"] .cta:disabled {
+  box-shadow: 4px 4px 0 rgba(240, 232, 208, 0.25);
+}
+html[data-theme="dark"] .ctaError {
+  color: var(--c-coral-bright);
+}
+
+/* ── Trust row ── */
+html[data-theme="dark"] .trust {
+  color: rgba(240, 232, 208, 0.55);
+}
+html[data-theme="dark"] .trust strong {
+  color: #f0e8d0;
+}
+
+/* ── Upsell ── */
+html[data-theme="dark"] .upsell {
+  border-top-color: rgba(240, 232, 208, 0.3);
+}
+html[data-theme="dark"] .upsell a {
+  color: #f0e8d0;
+  border-bottom-color: #f0e8d0;
+}
+
+/* ── All Berlin variant ── (stack art = freigestellt cut-outs: leave) ── */
+html[data-theme="dark"] .allName .y {
+  background: #f0e8d0;
+  color: #0a0a0a;
+}
+html[data-theme="dark"] .allPack {
+  background: #1d1c19;
+  border-color: rgba(240, 232, 208, 0.3);
+}
+html[data-theme="dark"] .allPack .cat {
+  color: #f0e8d0;
+}
+
+/* ── Bonus banner — yellow fill → red fill ── */
+html[data-theme="dark"] .bonus {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+html[data-theme="dark"] .bonusIcon {
+  background: #0a0a0a;
+  color: var(--c-coral-bright);
+}

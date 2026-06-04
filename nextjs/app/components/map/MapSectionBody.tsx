@@ -1,25 +1,21 @@
 'use client'
 import type { Ref, RefObject } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
-import type { MapRestaurant, MapMustEat, MapLayer, MapCategory } from '@/lib/types'
+import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types'
 import type { CategoryDef } from '@/lib/categories'
 import type {
   SheetView,
   SheetSnap,
-  MustEatWithDisplay,
   UserLocation,
   UserTier,
 } from '@/lib/map'
 
 import MapCanvas from './MapCanvas'
 import RestaurantMarker from './RestaurantMarker'
-import MustEatMarker from './MustEatMarker'
 import RestaurantList from './RestaurantList'
 import MapSheetDetail from './MapSheetDetail'
 import UserLocationMarker from './UserLocationMarker'
-import MapMustEatsList from './MapMustEatsList'
 import MapListHeader from './MapListHeader'
-import { BackIcon, CloseIcon, HeartIcon, ShareIcon } from './icons'
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
 import styles from './map.module.css'
@@ -40,20 +36,18 @@ interface MapBodyState {
   sheetView: SheetView
   snap: SheetSnap
   dragging: boolean
-  layer: MapLayer
   desktopPanelHidden: boolean
   displayedRestaurants: MapRestaurant[]
   /** Locked preview rows — same filter pipeline as displayedRestaurants,
    *  rendered as blurred entries below the booster banner in the list. */
   displayedLockedRestaurants: MapRestaurant[]
-  fannedMustEats: MustEatWithDisplay<MapMustEat>[]
-  displayedMustEats: MapMustEat[]
   restaurantMustEats: MapMustEat[]
   /** Total restaurant count in Sanity — shown in the sheet-count-mini so
    *  visitors see the catalog size, not the trial-cap-filtered count. */
   totalCount: number
   selectedRestaurant: MapRestaurant | null
   selectedMustEat: MapMustEat | null
+  primaryMustEats: Map<string, MapMustEat>
   unlockedIds: Set<string>
   /** Must-eat IDs pre-revealed for anon visitors. Empty for signed-in users. */
   revealedMustEatIds: Set<string>
@@ -90,12 +84,16 @@ interface MapBodyHandlers {
   onMapClick: () => void
   onRestaurantClick: (r: MapRestaurant) => void
   onMustEatClick: (m: MapMustEat) => void
+  pagerPrev: MapRestaurant | null
+  pagerNext: MapRestaurant | null
+  onPageRestaurant: (dir: 'prev' | 'next') => void
   onLocateMe: () => void
   onRestaurantClose: () => void
   onMustEatClose: () => void
   onMustEatBack: (() => void) | undefined
-  onViewAllMustEats: () => void
-  onSwitchToRestaurants: () => void
+  mustEatPagerPrev: MapMustEat | null
+  mustEatPagerNext: MapMustEat | null
+  onPageMustEat: (dir: 'prev' | 'next') => void
   onViewRestaurantFromMustEat: () => void
   onUnlock: () => Promise<void>
   onToggleFavorite: () => void
@@ -107,7 +105,6 @@ interface MapBodyHandlers {
 interface MapBodyAria {
   myLocationAriaLabel: string
   restaurantsListAriaLabel: string
-  mustEatsListAriaLabel: string
 }
 
 export type MapSectionBodyProps =
@@ -121,25 +118,33 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const {
     isActive,
     mapRef, handleRef, setHeaderRef, setContentRef, setSheetRef,
-    sheetView, snap, dragging, layer,
-    displayedRestaurants, displayedLockedRestaurants, fannedMustEats, displayedMustEats, restaurantMustEats,
+    sheetView, snap, dragging,
+    displayedRestaurants, displayedLockedRestaurants, restaurantMustEats,
+    pagerPrev, pagerNext, onPageRestaurant,
     totalCount,
     selectedRestaurant, selectedMustEat,
-    unlockedIds, revealedMustEatIds, favoriteIds, location, uid, userTier,
+    primaryMustEats, unlockedIds, revealedMustEatIds, favoriteIds, location, uid, userTier,
     categories, category, setCategory, search, bezirk, bezirkNames,
     cuisine, setCuisine, cuisineNames,
     openOnly, setOpenOnly,
     searchOpen, setSearchOpen,
     onMapMove, onMapClick, onRestaurantClick, onMustEatClick, onLocateMe,
     onRestaurantClose, onMustEatClose, onMustEatBack,
-    onViewAllMustEats,
-    onSwitchToRestaurants,
+    mustEatPagerPrev, mustEatPagerNext, onPageMustEat,
     onViewRestaurantFromMustEat, onUnlock,
     onSearchChange, onBezirkChange, onResetBezirkPill, onToggleFavorite,
     onCollapseDetailToMid,
     desktopPanelHidden, onToggleDesktopPanel,
-    myLocationAriaLabel, restaurantsListAriaLabel, mustEatsListAriaLabel,
+    myLocationAriaLabel, restaurantsListAriaLabel,
   } = props
+
+  const handleResetFilters = () => {
+    setCategory('All')
+    onBezirkChange(null)
+    setCuisine(null)
+    setOpenOnly(false)
+    onSearchChange('')
+  }
 
   return (
     <div
@@ -148,10 +153,13 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     >
       <div className={styles.shell}>
 
+        {/* bodyListAtFull / bodyDetailOpen slide the floating search toolbar +
+            burger chip up off-screen (see map.module.css) — Google-Maps
+            behavior. */}
         <div className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}${sheetView === 'list' && snap === 'full' ? ` ${styles.bodyListAtFull}` : ''}${desktopPanelHidden ? ` ${styles.bodyPanelHidden}` : ''}`}>
           <div className={styles.mapWrap}>
             <MapCanvas ref={mapRef} onMove={onMapMove} onMapClick={onMapClick}>
-              {layer === 'restaurants' && displayedRestaurants.map(r => (
+              {displayedRestaurants.map(r => (
                 <RestaurantMarker
                   key={r._id}
                   restaurant={r}
@@ -159,46 +167,33 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   onClick={onRestaurantClick}
                 />
               ))}
-              {layer === 'mustEats' && fannedMustEats.map(m => (
-                <MustEatMarker
-                  key={m._id}
-                  mustEat={m}
-                  isUnlocked={unlockedIds.has(m._id)}
-                  isCoveredAnon={!uid && !revealedMustEatIds.has(m._id)}
-                  isSelected={selectedMustEat?._id === m._id}
-                  userLocation={location}
-                  displayLat={m.displayLat}
-                  displayLng={m.displayLng}
-                  fanRotation={m.fanRotation}
-                  fanIndex={m.fanIndex}
-                  fanCount={m.fanCount}
-                  onClick={onMustEatClick}
-                />
-              ))}
               {location && <UserLocationMarker location={location} />}
             </MapCanvas>
 
-            {/* Floating search bar — Apple/Google-Maps-style toolbar over
-                the map, always visible. Was previously a toggle inside
-                the sheet header (per editorial v13 preview). */}
-            <div className={styles.mapSearchToolbar}>
-              <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              <input
-                type="text"
-                value={search}
-                onChange={e => onSearchChange(e.target.value)}
-                placeholder="Suchen in Berlin"
-                className={styles.mapSearchInput}
-                aria-label="Search"
-              />
-              {search && (
+            {/* Floating search — collapsed to a square icon button by
+                default (2026-06-04: the always-on toolbar read too loud over
+                the tiles). Tapping expands the full input; it stays open
+                while a query is active so the filter is never invisible. */}
+            {searchOpen || search ? (
+              <div className={styles.mapSearchToolbar}>
+                <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                <input
+                  type="text"
+                  value={search}
+                  onChange={e => onSearchChange(e.target.value)}
+                  onBlur={() => { if (!search) setSearchOpen(false) }}
+                  placeholder="Suchen in Berlin"
+                  className={styles.mapSearchInput}
+                  aria-label="Search"
+                  autoFocus
+                />
                 <button
                   type="button"
                   className={styles.mapSearchClear}
-                  onClick={() => onSearchChange('')}
+                  onClick={() => { onSearchChange(''); setSearchOpen(false) }}
                   aria-label="Clear"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -207,8 +202,20 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     <line x1="18" y1="6" x2="6" y2="18" />
                   </svg>
                 </button>
-              )}
-            </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className={styles.mapSearchBtn}
+                onClick={() => setSearchOpen(true)}
+                aria-label="Search"
+              >
+                <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            )}
 
             <button
               type="button"
@@ -231,91 +238,34 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 selected marker stays visible on the map. */}
           </div>
 
+          {/* Floating burger — lives in .body's stacking context, BELOW the
+              bottom-sheet (z-index 3 vs 4): when the sheet is dragged up it
+              slides over the burger, same as the search toolbar. */}
+          <button
+            type="button"
+            className={styles.mapBurger}
+            aria-label="Menü"
+            onClick={() => { document.getElementById('burgerBtn')?.click() }}
+          >
+            <img src="/pics/icon-burger.webp?v=3" alt="" aria-hidden="true" draggable={false} />
+          </button>
+
           <aside
             ref={setSheetRef}
-            className={`${styles.list} ${dragging ? styles.listDragging : ''}${
-              sheetView === 'list' && snap === 'peek' ? ` ${styles.listAtPeek}` : ''
-            }`}
+            className={`${styles.list} ${dragging ? styles.listDragging : ''}`}
             data-snap={snap}
             data-view={sheetView}
-            aria-label={layer === 'restaurants' ? restaurantsListAriaLabel : mustEatsListAriaLabel}
+            aria-label={restaurantsListAriaLabel}
           >
             <div ref={handleRef} className={styles.handle} data-sheet-handle="" aria-hidden="true" />
 
-            {/* Detail-only handle-bar icons — share / save / close. Sit on
-                the swipe-handle strip so they stay fixed regardless of
-                content scroll (they're rendered OUTSIDE detailMount which
-                owns the inner overflow). */}
-            {sheetView === 'detail' && selectedRestaurant && (
-              <div className={styles.sheetHandleActions}>
-                <button
-                  type="button"
-                  className={`${styles.heroAction} ${styles.heroActionOnHandle}`}
-                  aria-label="Teilen"
-                  onClick={async () => {
-                    const url = typeof window !== 'undefined' ? window.location.href : ''
-                    const shareData = { title: selectedRestaurant.name, url }
-                    try {
-                      if (typeof navigator !== 'undefined' && 'share' in navigator) {
-                        await navigator.share(shareData)
-                        return
-                      }
-                    } catch {}
-                    try {
-                      if (typeof navigator !== 'undefined' && navigator.clipboard) {
-                        await navigator.clipboard.writeText(url)
-                      }
-                    } catch {}
-                  }}
-                >
-                  <ShareIcon />
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.heroAction} ${styles.heroActionOnHandle} ${favoriteIds.has(selectedRestaurant._id) ? styles.heroActionSaved : ''}`}
-                  aria-label={favoriteIds.has(selectedRestaurant._id) ? 'Remove from saved' : 'Speichern'}
-                  aria-pressed={favoriteIds.has(selectedRestaurant._id)}
-                  onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
-                >
-                  <HeartIcon filled={favoriteIds.has(selectedRestaurant._id)} />
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.heroAction} ${styles.heroActionOnHandle} ${styles.heroActionClose}`}
-                  aria-label="Close"
-                  onClick={onRestaurantClose}
-                >
-                  <CloseIcon />
-                </button>
-              </div>
-            )}
+            {/* Restaurant detail's chrome now lives on the photo hero (back
+                pill + save bookmark, per the Chewy mockup) — no handle-bar
+                icons here. */}
 
-            {/* Must-Eat-Detail handle-bar icons: Back (zum Restaurant) +
-                Close. Auf Mobile sind die heroActionsDesktop-Icons im
-                Coral-Hero unsichtbar (display:none), deshalb hier
-                explizit auf der Handle-Bar gerendert. */}
-            {sheetView === 'detail' && selectedMustEat && (
-              <div className={styles.sheetHandleActions}>
-                {onMustEatBack && (
-                  <button
-                    type="button"
-                    className={`${styles.heroAction} ${styles.heroActionOnHandle}`}
-                    aria-label="Zurück zum Restaurant"
-                    onClick={onMustEatBack}
-                  >
-                    <BackIcon />
-                  </button>
-                )}
-                <button
-                  type="button"
-                  className={`${styles.heroAction} ${styles.heroActionOnHandle} ${styles.heroActionClose}`}
-                  aria-label="Close"
-                  onClick={onMustEatClose}
-                >
-                  <CloseIcon />
-                </button>
-              </div>
-            )}
+            {/* Must-Eat detail has no handle-bar X/back chrome — the sheet is
+                dismissed by dragging it down; "Zum Spot" + the pager are the
+                in-sheet actions. */}
 
             {sheetView === 'detail' && selectedMustEat ? (
               <MapSheetDetail
@@ -329,8 +279,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 onUnlock={onUnlock}
                 onClose={onMustEatClose}
                 onBack={onMustEatBack}
-                onViewAllMustEats={onViewAllMustEats}
                 onViewRestaurant={onViewRestaurantFromMustEat}
+                prevMustEat={mustEatPagerPrev}
+                nextMustEat={mustEatPagerNext}
+                onPagePrev={() => onPageMustEat('prev')}
+                onPageNext={() => onPageMustEat('next')}
               />
             ) : sheetView === 'detail' && selectedRestaurant ? (
               <MapSheetDetail
@@ -342,16 +295,21 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 unlockedIds={unlockedIds}
                 restaurant={selectedRestaurant}
                 mustEats={restaurantMustEats}
+                revealedMustEatIds={revealedMustEatIds}
                 onClose={onRestaurantClose}
                 onMustEatClick={onMustEatClick}
                 isFavorite={favoriteIds.has(selectedRestaurant._id)}
                 onToggleFavorite={onToggleFavorite}
+                prevRestaurant={pagerPrev}
+                nextRestaurant={pagerNext}
+                onPagePrev={() => onPageRestaurant('prev')}
+                onPageNext={() => onPageRestaurant('next')}
               />
             ) : (
               <>
                 <MapListHeader
                   headerRef={setHeaderRef}
-                  resultCount={layer === 'restaurants' ? displayedRestaurants.length : displayedMustEats.length}
+                  resultCount={displayedRestaurants.length}
                   totalCount={totalCount}
                   searchOpen={searchOpen}
                   setSearchOpen={setSearchOpen}
@@ -368,33 +326,23 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   cuisineNames={cuisineNames}
                   cuisine={cuisine}
                   onCuisine={setCuisine}
-                  layer={layer}
-                  onSwitchToRestaurants={onSwitchToRestaurants}
                 />
-                {layer === 'restaurants' ? (
-                  <div ref={setContentRef} className={styles.listScroll}>
-                    <RestaurantList
-                      restaurants={displayedRestaurants}
-                      lockedRestaurants={displayedLockedRestaurants}
-                      userLocation={location}
-                      selectedId={selectedRestaurant?._id ?? null}
-                      uid={uid}
-                      userTier={userTier}
-                      onSelect={onRestaurantClick}
-                    />
-                  </div>
-                ) : (
-                  <MapMustEatsList
-                    displayedMustEats={displayedMustEats}
-                    unlockedIds={unlockedIds}
-                    selectedMustEat={selectedMustEat}
-                    location={location}
+                <div ref={setContentRef} className={styles.listScroll}>
+                  <RestaurantList
+                    restaurants={displayedRestaurants}
+                    lockedRestaurants={displayedLockedRestaurants}
+                    userLocation={location}
+                    selectedId={selectedRestaurant?._id ?? null}
                     uid={uid}
                     userTier={userTier}
-                    contentRef={setContentRef}
-                    onSelect={onMustEatClick}
+                    onSelect={onRestaurantClick}
+                    primaryMustEats={primaryMustEats}
+                    unlockedIds={unlockedIds}
+                    revealedMustEatIds={revealedMustEatIds}
+                    onResetFilters={handleResetFilters}
+                    activeBezirk={bezirk}
                   />
-                )}
+                </div>
               </>
             )}
           </aside>

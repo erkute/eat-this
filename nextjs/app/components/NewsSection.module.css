@@ -1,291 +1,352 @@
-/* ─────────────────────────────────────────────────────────────
- * NewsSection — magazine-cover treatment for the /news hub.
- * Matches Bar-Basta editorial family: cream canvas, Ranchers
- * brand-red wordmark masthead, brand-red marquee ticker,
- * comic-sticker cards with hard ink shadow + ±tilt.
- * ───────────────────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════════
+   "Auf dem Teller" — magazine index (mockup-chewy screen 7).
+   Cream sheet, centered Chewy cover headline, vertical feature blocks
+   (ink-bordered image · italic tag + byline · Chewy headline · drop-cap
+   lede · "Weiterlesen →"). Lives in the SPA, gets the Chewy header + footer.
+   ════════════════════════════════════════════════════════════ */
 
 .page {
   background: #fbf8ee;
-  color: var(--text-primary);
+  color: #0a0a0a;
+  /* flow-root so the dark footer below never gets a child margin collapsed
+     out onto the body bg (the grey-strip trap). */
+  display: flow-root;
+  min-height: 100%;
 }
 
-.section {
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 32px 22px 80px;
+/* ── Cover headline ── */
+.cover {
+  padding: 28px 18px 6px;
+  text-align: center;
 }
-
-@media (min-width: 720px) {
-  .section {
-    padding: 56px 32px 120px;
-  }
+.coverRule {
+  width: 56px;
+  height: 1.5px;
+  background: #0a0a0a;
+  margin: 0 auto 14px;
 }
-
-/* ── Masthead ───────────────────────────────────────────────── */
-.masthead {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin: 0 0 28px;
+.coverEyebrow {
+  font-family: var(--font-poster);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #6b5a44;
+  margin: 0 0 8px;
 }
-
-@media (min-width: 720px) {
-  .masthead {
-    margin-bottom: 44px;
-  }
-}
-
-.eyebrow {
-  font-family: var(--font-ranchers);
-  font-size: clamp(18px, 4.4vw, 26px);
-  letter-spacing: 0.04em;
+.coverH {
+  font-family: var(--font-poster);
+  font-size: clamp(52px, 16vw, 84px);
+  line-height: 0.92;
   text-transform: uppercase;
   color: #0a0a0a;
   margin: 0;
-  line-height: 1;
+  letter-spacing: -0.01em;
+}
+.coverSub {
+  font-family: var(--font-display);
+  font-size: 19px;
+  line-height: 1.35;
+  color: #0a0a0a;
+  opacity: 0.85;
+  margin: 14px auto 0;
+  max-width: 30ch;
 }
 
-.wordmark {
-  font-family: var(--font-ranchers);
-  font-weight: 400;
-  font-size: clamp(72px, 22vw, 168px);
-  line-height: 0.88;
-  letter-spacing: -0.005em;
-  color: var(--brand-red);
-  margin: 0;
-  text-wrap: balance;
-}
-
-.deck {
-  font-family: var(--font);
-  font-size: clamp(15px, 3.4vw, 19px);
-  line-height: 1.4;
-  color: #2a2a2a;
-  margin: 14px 0 0;
-  max-width: 44ch;
-  text-wrap: pretty;
-}
-
-/* ── Ticker — sticker bar ───────────────────────────────────── */
-.tickerWrap {
-  margin: 0 -22px 32px;
-  background: var(--brand-red);
-  border-top: 3px solid #0a0a0a;
-  border-bottom: 3px solid #0a0a0a;
-  box-shadow:
-    0 -4px 0 0 #0a0a0a inset,
-    0 4px 0 0 #0a0a0a inset;
-  /* The double-inset shadow trick adds a black band feel without using
-     extra divs. Combined with the borders it reads as a printed sticker
-     strip. */
-}
-
-@media (min-width: 720px) {
-  .tickerWrap {
-    margin: 0 0 44px;
-  }
-}
-
-/* ── Editorial grid ─────────────────────────────────────────── */
-/* auto-fit + minmax keeps the layout balanced no matter how many articles
-   are published — 1 col on phones, up to 3 columns on desktop. Cards cap at
-   ~360 px so they don't stretch awkwardly when only 2 articles exist; the
-   row is centred so the cards sit visually anchored instead of left-stuck. */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 32px;
+/* ── Feature blocks ── */
+.list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-
-@media (min-width: 720px) {
-  .grid {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 360px));
-    gap: 36px;
-    justify-content: center;
-  }
-}
-
-@media (min-width: 1024px) {
-  .grid {
-    gap: 40px;
-  }
-}
-
-.item {
-  /* Cards inherit a ±tilt from inline --tilt var; on hover they straighten
-     and the ink-shadow grows — same gesture as Featured Spots + outro. */
-  transform: rotate(var(--tilt, 0deg));
-  transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.item:hover {
-  transform: rotate(0) translate(-2px, -3px);
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  border: 3px solid #0a0a0a;
-  box-shadow: 8px 8px 0 0 #0a0a0a;
-  text-decoration: none;
-  color: inherit;
-  height: 100%;
-  transition: box-shadow 280ms ease;
-}
-
-.item:hover .card {
-  box-shadow: 12px 12px 0 0 #0a0a0a;
-}
-
-.cardImage {
-  position: relative;
-  /* Mobile: portrait 5:6 so the photo fills phone canvas instead of
-     reading as a flat landscape banner. Desktop reflows to 4:3. */
-  aspect-ratio: 5 / 6;
-  width: 100%;
-  overflow: hidden;
-  background: #f3f1ea;
-  border-bottom: 3px solid #0a0a0a;
-}
-
-@media (min-width: 720px) {
-  .cardImage {
-    aspect-ratio: 4 / 3;
-  }
-}
-
-.cardImage img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.feat {
   display: block;
-  transition: transform 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  margin: 24px 14px 28px;
+  text-decoration: none;
+  color: #0a0a0a;
 }
-
-.item:hover .cardImage img {
-  transform: scale(1.04);
+.featImg {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background-size: cover;
+  background-position: center;
+  background-color: #14100c;
+  border: 1.5px solid #0a0a0a;
 }
-
-.cardBody {
-  padding: 18px 20px 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  flex: 1;
-}
-
-.cardMeta {
+.featMeta {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--font);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  margin: 18px 0 16px;
 }
-
-.cardCategory {
-  color: var(--brand-red);
-}
-
-.cardDate {
-  color: #707070;
-  font-weight: 600;
-}
-
-.cardSep {
-  color: #c4c1b9;
-}
-
-.cardHeadline {
-  font-family: var(--font);
-  font-size: clamp(20px, 4.5vw, 24px);
-  font-weight: 800;
-  line-height: 1.18;
-  letter-spacing: -0.015em;
-  margin: 0;
+.featTag {
+  font-style: italic;
+  font-size: 13px;
   color: #0a0a0a;
-  text-wrap: balance;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+}
+.featRule {
+  flex: 1;
+  height: 1px;
+  background: #0a0a0a;
+}
+.featByline {
+  font-family: var(--font-poster);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #6b5a44;
+  white-space: nowrap;
+}
+.featH {
+  font-family: var(--font-poster);
+  font-size: clamp(32px, 9vw, 40px);
+  line-height: 0.94;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 0 0 12px;
+  letter-spacing: -0.005em;
+}
+.featLede {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: #0a0a0a;
+  margin: 0 0 14px;
+}
+.featLede::first-letter {
+  font-family: var(--font-poster);
+  font-size: 66px;
+  float: left;
+  line-height: 0.85;
+  padding: 5px 10px 0 0;
+  color: #0a0a0a;
+}
+.featCta {
+  font-family: var(--font-poster);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  border-bottom: 1.5px solid #0a0a0a;
+  padding-bottom: 1px;
 }
 
-.cardExcerpt {
-  font-family: var(--font);
-  font-size: 14px;
-  line-height: 1.5;
-  color: #2a2a2a;
+/* ── Pull-quote — brand-voice anchor pulled from the article ── */
+.pullquote {
+  position: relative;
+  background: #0a0a0a;
+  color: #fbf8ee;
+  padding: 36px 22px 26px;
+  margin: 8px 14px 28px;
+}
+.pullquote::before {
+  content: "“";
+  position: absolute;
+  top: -8px;
+  left: 16px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 100px;
+  line-height: 1;
+  color: var(--brand-yellow);
+}
+.pqText {
+  font-family: var(--font-poster);
+  font-size: 22px;
+  line-height: 1.15;
+  text-transform: uppercase;
+  margin: 0 0 14px;
+  letter-spacing: -0.005em;
+  color: #fbf8ee;
+}
+.pqAttr {
+  font-style: italic;
+  font-size: 12px;
+  color: var(--brand-yellow);
+}
+
+/* ── "Bald auf dem Teller" — curated coming-soon list ── */
+.comingLabel {
+  font-family: var(--font-poster);
+  font-size: 12px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  padding: 0 18px;
+  margin: 8px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.comingLabel::before,
+.comingLabel::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #0a0a0a;
+  opacity: 0.4;
+}
+.coming {
+  margin: 0 18px 32px;
+  border-top: 1.5px solid #0a0a0a;
+  border-bottom: 1.5px solid #0a0a0a;
+}
+.comingRow {
+  display: grid;
+  grid-template-columns: 1fr 70px;
+  gap: 12px;
+  align-items: baseline;
+  padding: 14px 0;
+  border-top: 1px solid rgba(17, 13, 9, 0.18);
+}
+.comingRow:first-child {
+  border-top: 0;
+}
+.comingH {
+  font-family: var(--font-poster);
+  font-size: 17px;
+  text-transform: uppercase;
+  line-height: 1.1;
+  color: #0a0a0a;
   margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-wrap: pretty;
+}
+.comingH em {
+  font-style: italic;
+  font-weight: 500;
+  text-transform: none;
+  font-size: 13px;
+  letter-spacing: 0;
+  color: #6b5a44;
+  display: block;
+  margin-top: 2px;
+}
+.comingStamp {
+  font-family: var(--font-poster);
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  text-align: right;
 }
 
 .empty {
-  font-family: var(--font);
+  margin: 32px 18px;
   font-size: 15px;
-  color: var(--text-muted);
-  padding: 32px 0;
+  line-height: 1.5;
+  color: #0a0a0a;
+  opacity: 0.8;
   text-align: center;
 }
 
-/* ── Dark mode ──────────────────────────────────────────────── */
-:global([data-theme="dark"]) .page {
-  background: #0a0a0a;
-  color: #f7f5f0;
+/* ── Desktop — centered column, larger cover ── */
+@media (min-width: 768px) {
+  .cover {
+    padding: 48px 24px 8px;
+  }
+  .list {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .feat {
+    margin: 36px 24px 44px;
+  }
+  .comingLabel,
+  .coming {
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
-:global([data-theme="dark"]) .eyebrow {
-  color: #f7f5f0;
+/* ════════════════════════════════════════════════════════════
+   DARK MODE — everything goes dark, yellow accents flip to red.
+   ════════════════════════════════════════════════════════════ */
+html[data-theme="dark"] .page {
+  background: #111110;
+  color: #f0e8d0;
 }
 
-:global([data-theme="dark"]) .deck {
-  color: rgba(255, 255, 255, 0.7);
+/* ── Cover headline ── */
+html[data-theme="dark"] .coverRule {
+  background: rgba(240, 232, 208, 0.3);
+}
+html[data-theme="dark"] .coverEyebrow {
+  color: rgba(240, 232, 208, 0.72);
+}
+html[data-theme="dark"] .coverH {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .coverSub {
+  color: #f0e8d0;
 }
 
-:global([data-theme="dark"]) .card {
-  background: #141414;
-  border-color: #f7f5f0;
-  box-shadow: 8px 8px 0 0 #f7f5f0;
+/* ── Feature blocks ── */
+html[data-theme="dark"] .feat {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .featImg {
+  border-color: #f0e8d0;
+}
+html[data-theme="dark"] .featTag {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .featRule {
+  background: rgba(240, 232, 208, 0.3);
+}
+html[data-theme="dark"] .featByline {
+  color: rgba(240, 232, 208, 0.72);
+}
+html[data-theme="dark"] .featH {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .featLede {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .featLede::first-letter {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .featCta {
+  color: #f0e8d0;
+  border-bottom-color: #f0e8d0;
 }
 
-:global([data-theme="dark"]) .item:hover .card {
-  box-shadow: 12px 12px 0 0 #f7f5f0;
+/* ── Pull-quote — already dark panel, only flip yellow accents to red ── */
+html[data-theme="dark"] .pullquote {
+  background: #1d1c19;
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .pullquote::before {
+  color: var(--c-coral-bright);
+}
+html[data-theme="dark"] .pqText {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .pqAttr {
+  color: var(--c-coral-bright);
 }
 
-:global([data-theme="dark"]) .cardImage {
-  border-bottom-color: #f7f5f0;
+/* ── "Bald auf dem Teller" ── */
+html[data-theme="dark"] .comingLabel {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .comingLabel::before,
+html[data-theme="dark"] .comingLabel::after {
+  background: rgba(240, 232, 208, 0.3);
+}
+html[data-theme="dark"] .coming {
+  border-top-color: rgba(240, 232, 208, 0.3);
+  border-bottom-color: rgba(240, 232, 208, 0.3);
+}
+html[data-theme="dark"] .comingRow {
+  border-top-color: rgba(240, 232, 208, 0.18);
+}
+html[data-theme="dark"] .comingH {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .comingH em {
+  color: rgba(240, 232, 208, 0.72);
+}
+html[data-theme="dark"] .comingStamp {
+  color: #f0e8d0;
 }
 
-:global([data-theme="dark"]) .cardHeadline {
-  color: #f7f5f0;
-}
-
-:global([data-theme="dark"]) .cardExcerpt {
-  color: #d8d8d8;
-}
-
-:global([data-theme="dark"]) .cardDate {
-  color: #b0b0b0;
-}
-
-:global([data-theme="dark"]) .cardSep {
-  color: #555;
-}
-
-:global([data-theme="dark"]) .tickerWrap {
-  border-color: #f7f5f0;
-  box-shadow:
-    0 -4px 0 0 #f7f5f0 inset,
-    0 4px 0 0 #f7f5f0 inset;
+html[data-theme="dark"] .empty {
+  color: #f0e8d0;
 }

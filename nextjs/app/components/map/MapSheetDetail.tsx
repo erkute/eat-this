@@ -20,18 +20,26 @@ type MustEatProps = CommonProps & {
   onUnlock: () => void
   onClose: () => void
   onBack?: () => void
-  onViewAllMustEats?: () => void
   onViewRestaurant: () => void
+  prevMustEat: MapMustEat | null
+  nextMustEat: MapMustEat | null
+  onPagePrev: () => void
+  onPageNext: () => void
 }
 
 type RestaurantProps = CommonProps & {
   kind: 'restaurant'
   restaurant: MapRestaurant
   mustEats: MapMustEat[]
+  revealedMustEatIds: Set<string>
   onClose: () => void
   onMustEatClick: (m: MapMustEat) => void
   isFavorite: boolean
   onToggleFavorite: () => void
+  prevRestaurant: MapRestaurant | null
+  nextRestaurant: MapRestaurant | null
+  onPagePrev: () => void
+  onPageNext: () => void
 }
 
 type Props = MustEatProps | RestaurantProps
@@ -47,16 +55,21 @@ export default function MapSheetDetail(props: Props) {
           onUnlock={props.onUnlock}
           onClose={props.onClose}
           onBack={props.onBack}
-          onViewAllMustEats={props.onViewAllMustEats}
           onViewRestaurant={props.onViewRestaurant}
+          prevMustEat={props.prevMustEat}
+          nextMustEat={props.nextMustEat}
+          prevUnlocked={!!props.prevMustEat && props.unlockedIds.has(props.prevMustEat._id)}
+          nextUnlocked={!!props.nextMustEat && props.unlockedIds.has(props.nextMustEat._id)}
+          onPagePrev={props.onPagePrev}
+          onPageNext={props.onPageNext}
           uid={props.uid}
-          inSheet
         />
       ) : (
         <RestaurantDetail
           restaurant={props.restaurant}
           mustEats={props.mustEats}
           unlockedIds={props.unlockedIds}
+          revealedMustEatIds={props.revealedMustEatIds}
           userLocation={props.userLocation}
           uid={props.uid}
           userTier={props.userTier}
@@ -64,6 +77,10 @@ export default function MapSheetDetail(props: Props) {
           onMustEatClick={props.onMustEatClick}
           isFavorite={props.isFavorite}
           onToggleFavorite={props.onToggleFavorite}
+          prevRestaurant={props.prevRestaurant}
+          nextRestaurant={props.nextRestaurant}
+          onPagePrev={props.onPagePrev}
+          onPageNext={props.onPageNext}
         />
       )}
     </div>

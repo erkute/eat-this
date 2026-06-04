@@ -12,25 +12,21 @@
 .inner {
   max-width: 760px;
   margin: 0 auto;
-  padding: 32px 22px 64px;
+  padding: 12px 22px 64px;
 }
 
 .title {
-  font-family: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
-  /* Legal pages don't need the marketing-page Anton scale (was up to 168
-     on desktop). Scaled back so Impressum/Datenschutz/AGB read as
-     documents rather than brand statements. */
-  font-size: clamp(40px, 10vw, 60px);
-  /* 1.18 leaves enough clearance for Ä/Ö/Ü umlaut dots on the
-     second line — long titles like DATENSCHUTZERKLÄRUNG wrap and
-     Anton's umlauts sit high above the cap height, so tighter
-     line-heights make them collide with line-1 descenders. */
-  line-height: 1.18;
-  padding-top: 0.12em;
+  font-family: var(--font-poster);
+  /* Chewy is wider than the old condensed Anton, so legal-doc titles
+     (e.g. DATENSCHUTZERKLÄRUNG) are scaled back to read as documents,
+     not oversized brand statements. */
+  font-size: clamp(34px, 8.5vw, 50px);
+  line-height: 1.06;
+  padding-top: 0.06em;
   letter-spacing: 0;
   text-transform: uppercase;
   color: #000;
-  margin: 12px 0 24px;
+  margin: 0 0 24px;
   word-break: break-word;
   hyphens: auto;
 }
@@ -45,7 +41,7 @@
 }
 
 .body h2 {
-  font-family: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
+  font-family: var(--font-poster);
   font-size: clamp(22px, 5.5vw, 30px);
   line-height: 1.06;
   letter-spacing: 0;
@@ -55,7 +51,7 @@
 }
 
 .body h3 {
-  font-family: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
+  font-family: var(--font-poster);
   font-size: clamp(18px, 4vw, 22px);
   line-height: 1.1;
   letter-spacing: 0.02em;
@@ -65,7 +61,7 @@
 }
 
 .body h4 {
-  font-family: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
+  font-family: var(--font-poster);
   font-size: 16px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -112,7 +108,7 @@
   border-left: 3px solid #000;
   padding-left: 18px;
   margin: 22px 0;
-  font-family: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
+  font-family: var(--font-poster);
   font-size: 18px;
   line-height: 1.2;
   text-transform: uppercase;
@@ -132,15 +128,59 @@
   padding: 2px 6px;
 }
 
+/* ============================================================
+   ABOUT — editorial brand-story treatment (mockup Screen 22).
+   Scoped to [data-page="about"] so the legal/document pages keep
+   their plain treatment (no drop-cap, no pull-quote restyle).
+============================================================ */
+/* Lede — first paragraph reads as the editorial intro, Chewy with a
+   thin coral underline (mockup .art-lede). */
+.page[data-page="about"] .body > p:first-of-type {
+  font-family: var(--font-poster);
+  font-size: clamp(20px, 5vw, 26px);
+  line-height: 1.25;
+  margin: 18px 0 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(160, 40, 20, 0.4);
+}
+
+/* Drop-cap on the first body-proper paragraph (the one after the lede). */
+.page[data-page="about"] .body > p:nth-of-type(2)::first-letter {
+  font-family: var(--font-poster);
+  font-size: 60px;
+  line-height: 0.78;
+  float: left;
+  padding: 6px 10px 0 0;
+  color: #000;
+}
+
+/* Sub-headings lift to editorial scale (mockup .art-h). */
+.page[data-page="about"] .body h3 {
+  font-size: clamp(22px, 5.5vw, 30px);
+  letter-spacing: 0;
+  margin: 32px 0 10px;
+}
+
+/* Pull-quote — a coral brand statement, not the plain legal blockquote. */
+.page[data-page="about"] .body blockquote {
+  border-left: 0;
+  padding: 0;
+  margin: 28px 0;
+  font-size: clamp(22px, 5.5vw, 30px);
+  line-height: 1.18;
+  text-transform: none;
+  color: #a02814;
+}
+
 @media (min-width: 720px) {
   .inner {
-    padding: 48px 32px 72px;
+    padding: 16px 32px 72px;
     max-width: 760px;
   }
   .title {
-    font-size: clamp(52px, 7vw, 72px);
-    line-height: 1.12;
-    margin: 12px 0 28px;
+    font-size: clamp(42px, 6vw, 60px);
+    line-height: 1.05;
+    margin: 0 0 28px;
   }
   .body {
     font-size: 16px;
@@ -153,11 +193,11 @@
     /* Modest desktop envelope — legal doc shouldn't sprawl. Reading
        column stays focused; no over-wide layout. */
     max-width: 820px;
-    padding: 80px 48px 96px;
+    padding: 28px 48px 96px;
   }
   .title {
-    font-size: clamp(72px, 6vw, 96px);
-    line-height: 1.08;
+    font-size: clamp(54px, 5vw, 72px);
+    line-height: 1.04;
     margin: 0 0 36px;
   }
   .body {
@@ -177,4 +217,45 @@
     margin: 28px 0;
     padding-left: 22px;
   }
+}
+
+/* ============================================================
+   DARK MODE — legal/about docs go dark, ink text → cream.
+   Coral accents (link hover, about lede rule, pull-quote)
+   brighten so they read on the dark surface.
+============================================================ */
+html[data-theme="dark"] .page {
+  background: #111110;
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .title,
+html[data-theme="dark"] .body,
+html[data-theme="dark"] .body h2,
+html[data-theme="dark"] .body h3,
+html[data-theme="dark"] .body h4,
+html[data-theme="dark"] .body a {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .body a:hover {
+  color: var(--c-coral-bright);
+}
+html[data-theme="dark"] .body blockquote {
+  border-left-color: rgba(240, 232, 208, 0.4);
+}
+html[data-theme="dark"] .body hr {
+  border-top-color: rgba(240, 232, 208, 0.3);
+}
+html[data-theme="dark"] .body code {
+  background: rgba(240, 232, 208, 0.1);
+}
+
+/* About editorial treatment — coral lede rule + drop-cap + pull-quote */
+html[data-theme="dark"] .page[data-page="about"] .body > p:first-of-type {
+  border-bottom-color: rgba(214, 58, 42, 0.5);
+}
+html[data-theme="dark"] .page[data-page="about"] .body > p:nth-of-type(2)::first-letter {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .page[data-page="about"] .body blockquote {
+  color: var(--c-coral-bright);
 }

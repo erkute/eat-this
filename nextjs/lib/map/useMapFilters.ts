@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types'
+import type { MapRestaurant, MapCategory } from '@/lib/types'
 import { getOpenStatus } from './openingHours'
 import { haversineDistance } from './distance'
 
@@ -13,7 +13,6 @@ interface Args {
   /** Visible-but-not-clickable preview rows — filtered through the same
    *  pipeline so a Pizza-Filter shrinks both unlocked AND locked groups. */
   lockedRestaurants?: MapRestaurant[]
-  mustEats: MapMustEat[]
   location: { lat: number; lng: number } | null
 }
 
@@ -21,7 +20,7 @@ function districtOf(r: MapRestaurant): string | null {
   return r.bezirk?.name ?? r.district ?? null
 }
 
-export function useMapFilters({ restaurants, lockedRestaurants = [], mustEats, location }: Args) {
+export function useMapFilters({ restaurants, lockedRestaurants = [], location }: Args) {
   const [category, setCategory] = useState<MapCategory>('All')
   const [search,   setSearch]   = useState('')
   const [bezirk,   setBezirk]   = useState<string | null>(null)
@@ -112,48 +111,6 @@ export function useMapFilters({ restaurants, lockedRestaurants = [], mustEats, l
     return sorted.slice(0, LOCKED_PREVIEW_SIZE)
   }, [lockedRestaurants, filterRestaurant, location])
 
-  /* Restaurant-by-ID index so a must-eat can be tested against the same
-     filters as its parent restaurant (categories, cuisine, openingHours).
-     The embedded `mustEat.restaurant` shape only carries id/name/lat/lng,
-     so without this lookup we'd be missing the fields the filters check. */
-  const restaurantById = useMemo(() => {
-    const map = new Map<string, MapRestaurant>()
-    for (const r of restaurants) map.set(r._id, r)
-    return map
-  }, [restaurants])
-
-  // Must-eats inherit the active restaurant filter — Kategorie/Küche/Bezirk/
-  // Jetzt-offen apply via the parent restaurant. Default sort: distance from
-  // user location, falling back to Berlin Mitte when GPS is unavailable.
-  const displayedMustEats = useMemo(() => {
-    const q = search.trim().toLowerCase()
-    const filtered = mustEats.filter(m => {
-      if (q) {
-        const hit =
-          m.dish.toLowerCase().includes(q) ||
-          m.restaurant.name.toLowerCase().includes(q) ||
-          (m.restaurant.district ?? '').toLowerCase().includes(q)
-        return Boolean(hit)
-      }
-      const parent = restaurantById.get(m.restaurant._id)
-      // No parent in the current restaurant set → drop (out of view filter scope).
-      if (!parent) return false
-      return filterRestaurant(parent)
-    })
-    const sortLat = location?.lat ?? 52.52
-    const sortLng = location?.lng ?? 13.405
-    return [...filtered].sort((a, b) => {
-      if (bezirk) {
-        const aMatch = a.restaurant.district === bezirk
-        const bMatch = b.restaurant.district === bezirk
-        if (aMatch !== bMatch) return aMatch ? -1 : 1
-      }
-      const aD = haversineDistance(sortLat, sortLng, a.restaurant.lat, a.restaurant.lng)
-      const bD = haversineDistance(sortLat, sortLng, b.restaurant.lat, b.restaurant.lng)
-      return aD - bD
-    })
-  }, [mustEats, search, bezirk, location, restaurantById, filterRestaurant])
-
   return {
     category, setCategory,
     search, setSearch,
@@ -164,6 +121,5 @@ export function useMapFilters({ restaurants, lockedRestaurants = [], mustEats, l
     cuisineNames,
     displayedRestaurants,
     displayedLockedRestaurants,
-    displayedMustEats,
   }
 }

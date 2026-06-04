@@ -1,0 +1,309 @@
+.section {
+  position: relative;
+  background: #fbf8ee;
+  padding: 42px 18px 42px;
+  margin-top: 8px;
+}
+
+.hi {
+  margin-bottom: 26px;
+}
+/* Greeting can carry umlauts (e.g. "Jürgen") → Saira, which has the glyphs. */
+.kicker {
+  font-family: var(--font-ranchers);
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--brand-red);
+  margin: 0 0 8px;
+}
+/* "Heute auf deiner Map." has no umlaut → brand display font (Chewy). */
+.name {
+  font-family: var(--font-ranchers);
+  font-size: clamp(40px, 13vw, 58px);
+  line-height: 1.06;
+  text-transform: none;
+  color: var(--text-primary);
+  margin: 0;
+}
+.em {
+  color: var(--brand-yellow);
+  -webkit-text-stroke: 1px var(--text-primary);
+}
+
+/* "Dein Bezirk X" pill — Bezirk names can carry umlauts (Neukölln, Schöneberg)
+   → Saira (the brand display font has no accented glyphs). */
+.here {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-ranchers);
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--text-primary);
+  opacity: .75;
+  margin: 12px 0 0;
+}
+.here strong {
+  font-weight: 800;
+  background: var(--brand-yellow);
+  color: #0a0a0a;
+  padding: 4px 9px 5px;
+  border: 2px solid #0a0a0a;
+  letter-spacing: .04em;
+  font-size: 13px;
+  line-height: 1;
+  opacity: 1;
+}
+
+.div {
+  height: 1px;
+  background: var(--text-primary);
+  opacity: .16;
+  margin: 22px 0;
+}
+
+/* "Frisch in <Bezirk>" — two newest spots in the user's district. */
+.fresh { margin: 0; }
+.freshK {
+  font-family: var(--font-ranchers);
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--text-primary);
+  opacity: .7;
+  margin: 0 0 12px;
+}
+.freshRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.freshCard {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  background: #fbf8ee;
+  border: 1px solid rgba(10, 10, 10, 0.10);
+  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06);
+  overflow: hidden;
+  text-decoration: none;
+  color: #0a0a0a;
+}
+.freshPill {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  background: var(--brand-red);
+  color: #fbf8ee;
+  font-family: var(--font-ranchers);
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  padding: 3px 8px 4px;
+  border: 2px solid #0a0a0a;
+  line-height: 1;
+}
+.freshImg {
+  position: relative;
+  display: block;
+  aspect-ratio: 5 / 4;
+  background-color: #14100c;
+  border-bottom: 2px solid #0a0a0a;
+}
+.freshImg img { object-fit: cover; }
+.freshName {
+  font-family: var(--font-ranchers);
+  font-size: 18px;
+  line-height: 1;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: -.005em;
+  margin: 12px 12px 4px;
+}
+.freshMeta {
+  display: block;
+  font-family: var(--font);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--brand-red);
+  margin: 0 12px 12px;
+}
+
+.cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  margin: 10px 0 20px;
+  min-height: 150px;
+}
+/* Freigestellt: the card-back image floats — no frame, no dark box. */
+.card {
+  display: block;
+  width: 92px;
+  height: 130px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .20));
+}
+.card:nth-child(1) {
+  transform: rotate(-5deg);
+  margin-right: -16px;
+  z-index: 1;
+}
+.card:nth-child(2) {
+  transform: rotate(0deg);
+  z-index: 3;
+}
+.card:nth-child(3) {
+  transform: rotate(5deg);
+  margin-left: -16px;
+  z-index: 2;
+}
+
+/* The card-back stack + caption is a link into the profile's covered Must-Eat
+   cards (where each card routes on to its spot on the map). */
+.teaser {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+.teaser:hover .cap {
+  color: var(--brand-red);
+}
+
+.cap {
+  text-align: center;
+  font-family: var(--font-ranchers);
+  font-size: 19px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  /* No bottom margin — the section's padding-bottom alone closes the gap to
+     the Spot-des-Tages hero, matching the divider gap above the cards. */
+  margin: 0;
+}
+
+.pack {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 16px;
+  align-items: center;
+  border-top: 1px solid var(--c-row-rule);
+  margin-top: 26px;
+  padding-top: 22px;
+}
+.packArt {
+  width: 84px;
+  height: auto;
+  transform: rotate(-3deg);
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .22));
+}
+.packBody {
+  min-width: 0;
+}
+.packName {
+  font-family: var(--font-ranchers);
+  font-size: 22px;
+  line-height: 1.0;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+.packProgress {
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0 0 10px;
+}
+.packCta {
+  display: inline-block;
+  background: var(--brand-yellow);
+  color: #0a0a0a;
+  border: 2px solid #0a0a0a;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  text-decoration: none;
+}
+.packCta:active {
+  transform: translate(1px, 1px);
+}
+
+/* ── Desktop: focused 760px column (personal panel), scaled-up greeting ── */
+@media (min-width: 720px) {
+  /* Bottom deliberately tight: when this panel renders, the hero below drops
+     its top padding to 40px (see HubHero.module.css), so the card-back teaser
+     gets equal air above (divider 22 + cards 38 = 60px) and below
+     (padding 20 + hero 40 = 60px). */
+  .section { padding: 64px max(24px, calc((100% - 760px) / 2)) 20px; }
+  .kicker { font-size: 20px; }
+  .name { font-size: clamp(58px, 7vw, 80px); }
+  .here { font-size: 13px; margin-top: 16px; }
+  .here strong { font-size: 14px; }
+  .freshRow { gap: 16px; }
+  .freshName { font-size: 22px; }
+  /* No min-height slack — explicit margins keep the centering math honest. */
+  .cards { min-height: 0; margin: 38px 0 22px; }
+  .cap { font-size: 24px; }
+  .card { width: 124px; height: 176px; }
+  .card:nth-child(1) { margin-right: -22px; }
+  .card:nth-child(3) { margin-left: -22px; }
+  .pack { padding-top: 30px; }
+  .packArt { width: 104px; }
+  .packName { font-size: 26px; }
+}
+
+/* ── Dark mode: dark page, warm-cream ink, red replaces yellow. ── */
+html[data-theme="dark"] .section { background: var(--dk-page); }
+html[data-theme="dark"] .name,
+html[data-theme="dark"] .here,
+html[data-theme="dark"] .freshK,
+html[data-theme="dark"] .freshName,
+html[data-theme="dark"] .cap,
+html[data-theme="dark"] .packName { color: var(--dk-ink); }
+html[data-theme="dark"] .teaser:hover .cap { color: var(--c-coral-bright); }
+/* "EAT/THIS"-style emphasis: yellow fill → red text accent, ink stroke → cream */
+html[data-theme="dark"] .em {
+  color: var(--c-coral-bright);
+  -webkit-text-stroke: 1px var(--dk-ink);
+}
+/* Dein-Bezirk pill: yellow fill → red, ink border → cream. No offset
+   shadows anywhere in this section (User 2026-06-05) — borders carry. */
+html[data-theme="dark"] .here strong {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-color: var(--dk-ink);
+}
+html[data-theme="dark"] .div { background: var(--dk-ink); }
+/* Fresh cards: cream surface → dark card, ink border → cream */
+html[data-theme="dark"] .freshCard {
+  background: var(--dk-card);
+  color: var(--dk-ink);
+  border-color: var(--dk-ink);
+  box-shadow: none;
+}
+html[data-theme="dark"] .freshImg { border-bottom-color: var(--dk-ink); }
+/* Fresh pill stays brand-red; only its ink border flips to cream */
+html[data-theme="dark"] .freshPill { border-color: var(--dk-ink); }
+html[data-theme="dark"] .pack { border-top-color: var(--dk-rule); }
+/* Pack CTA: yellow fill + ink → cream fill + ink (invert on dark surface) */
+html[data-theme="dark"] .packCta {
+  background: var(--dk-ink);
+  color: #0a0a0a;
+  border-color: var(--dk-ink);
+}

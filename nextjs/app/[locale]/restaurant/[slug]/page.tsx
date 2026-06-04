@@ -13,7 +13,7 @@ import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaura
 import { buildFAQEntries, splitDescriptionForMagazine } from '@/lib/restaurant-prose'
 import { getOpenStatus } from '@/lib/map/openingHours'
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection'
-import SeoSignupCTA from '@/app/components/SeoSignupCTA'
+import MapPromoCTA from '@/app/components/MapPromoCTA'
 import RestaurantFAQ from '@/app/components/RestaurantFAQ'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
 import { Link as IntlLink } from '@/i18n/navigation'
@@ -140,9 +140,9 @@ export default async function RestaurantPage({ params }: PageProps) {
   const websiteInfo = classifyWebsite(r.website)
   const websiteUrl = websiteInfo?.url ?? null
   const address = r.address
-  const mapsUrl = address
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.name}, ${address}`)}`
-    : null
+  // Map CTAs land on the spot's district list (breadth over re-opening the
+  // detail the user just read), falling back to the full map.
+  const mapHref = r.bezirk?.slug ? `/map?bezirk=${r.bezirk.slug}` : '/map'
 
   const homeLabel = de ? 'Start' : 'Home'
   const districtsLabel = de ? 'Bezirke' : 'Districts'
@@ -274,24 +274,21 @@ export default async function RestaurantPage({ params }: PageProps) {
           )}
         </dl>
 
-        {(websiteUrl || mapsUrl) && (
+        {/* Map entry lives in the big MapPromoCTA banner below — no second
+            "Map öffnen" button up here. */}
+        {websiteUrl && (
           <div className={styles.acts}>
-            {websiteUrl && (
-              <a className={`${styles.act} ${styles.actPrimary}`} href={websiteUrl} target="_blank" rel="noopener nofollow noreferrer">
-                Website
-              </a>
-            )}
-            {mapsUrl && (
-              <a className={`${styles.act} ${styles.actAlt}`} href={mapsUrl} target="_blank" rel="noopener nofollow noreferrer">
-                {de ? 'In Maps öffnen' : 'Open in Maps'}
-              </a>
-            )}
+            <a className={`${styles.act} ${styles.actPrimary}`} href={websiteUrl} target="_blank" rel="noopener nofollow noreferrer">
+              Website
+            </a>
           </div>
         )}
 
         {mustEats.length > 0 && (
           <MustEatTeaserSection mustEats={mustEats} locale={loc} />
         )}
+
+        <MapPromoCTA kind="restaurant" name={r.name} mapHref={mapHref} locale={loc} />
 
         <RestaurantFAQ entries={faqEntries} locale={loc} />
 
@@ -342,7 +339,6 @@ export default async function RestaurantPage({ params }: PageProps) {
         )}
 
       </main>
-      <SeoSignupCTA />
     </>
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 import { useRef, useState, useMemo, useCallback, useEffect, useLayoutEffect } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
-import type { MapRestaurant, MapMustEat, MapLayer } from '@/lib/types'
+import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import {
   useMapData,
   useUserLocation,
@@ -13,13 +13,15 @@ import {
   useMapSheet,
   useMapDeepLinks,
   useUserTier,
-  applyFanOffset,
+  buildPrimaryMustEatMap,
+  resolveUnlockedMustEatIds,
 } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import MapSectionBody from './map/MapSectionBody'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
+import { resolveAdjacent } from '@/lib/map/pager'
 import { auth, db } from '@/lib/firebase/config'
 import { onAuthStateChanged } from 'firebase/auth'
 import { collection, onSnapshot } from 'firebase/firestore'
@@ -37,9 +39,9 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   /* Tracks woher der gerade offene Must-Eat-Detail aufgemacht wurde, damit
      der Zurück-Button die Origin-View wiederherstellt:
      - 'restaurant' = aus dem Restaurant-Detail heraus → zurück zum Restaurant
-     - 'list'       = direkter Map-Marker-Klick oder Click in der Must-Eats-Liste
-                      → zurück zur Must-Eats-Liste */
-  const mustEatOriginRef = useRef<'restaurant' | 'list'>('list')
+     - 'me'         = Must-Eat-Detail direkt geöffnet (Deep-Link ?me=)
+                      → zurück zur Restaurant-Liste */
+  const mustEatOriginRef = useRef<'restaurant' | 'me'>('me')
   const { t } = useTranslation()
   const locale = useLocale()
 
@@ -69,25 +71,13 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   // Free-and-open trial — 10/10 split: the first half of the trial-20
   // restaurants (deterministic order from /api/map-data, most-must-eats
   // first) get their must-eats unlocked; the second half stays locked
-  // (card-back). Gives the map a sense of „discover more" without a
-  // signup wall. Authed users keep the stored Firestore unlock set.
-  const TRIAL_UNLOCKED_COUNT = 10
-  const unlockedIds = useMemo(() => {
-    if (uid) {
-      // Signed-in: Firestore-collected reveals ∪ the server-curated revealed
-      // set (the SAME set the profile deck shows as teasers). The curated set
-      // is on visible anon-tier spots, so each revealed must-eat's spot shows.
-      return new Set<string>([...storedUnlockedIds, ...revealedMustEatIds])
-    }
-    const unlockedRestaurantIds = new Set(
-      restaurants.slice(0, TRIAL_UNLOCKED_COUNT).map((r) => r._id),
-    )
-    return new Set(
-      mustEats
-        .filter((m) => unlockedRestaurantIds.has(m.restaurant._id))
-        .map((m) => m._id),
-    )
-  }, [uid, storedUnlockedIds, revealedMustEatIds, mustEats, restaurants])
+  // (card-back). Authed users keep the stored Firestore unlock set ∪ the
+  // server-curated reveals. Shared helper — the SAME face-up computation
+  // drives the /must-eats gallery and the /home teaser.
+  const unlockedIds = useMemo(
+    () => resolveUnlockedMustEatIds({ uid, storedUnlockedIds, revealedMustEatIds, mustEats, restaurants }),
+    [uid, storedUnlockedIds, revealedMustEatIds, mustEats, restaurants],
+  )
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
   const userTier = useUserTier(uid)
 
@@ -110,14 +100,12 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     })
   }, [uid, refetchMapData])
 
-  const [layer, setLayer] = useState<MapLayer>('restaurants')
-
   const {
     handleRef, contentRef, setContentRef, setHeaderRef,
     snap, setSnap, dragging, reapplySnap,
     sheetView, setSheetView,
     sheetElRef, setSheetRef,
-  } = useMapSheet({ layer })
+  } = useMapSheet()
 
   const {
     category, setCategory,
@@ -127,10 +115,9 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     openOnly, setOpenOnly,
     bezirkNames, bezirkCenters,
     cuisineNames,
-    displayedRestaurants, displayedLockedRestaurants, displayedMustEats,
-  } = useMapFilters({ restaurants, lockedRestaurants, mustEats, location })
+    displayedRestaurants, displayedLockedRestaurants,
+  } = useMapFilters({ restaurants, lockedRestaurants, location })
 
-  const [mapZoom,            setMapZoom]            = useState(12)
   const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
   const [selectedMustEat,    setSelectedMustEat]    = useState<MapMustEat | null>(null)
   const [searchOpen,         setSearchOpen]         = useState(false)
@@ -161,24 +148,23 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
      - Filter / sort changes reset it to 0 so a new filter always starts at
        the top of the new result set. */
   const listScrollRef = useRef(0)
-  const prevFiltersRef = useRef({ category, bezirk, cuisine, openOnly, search, layer })
+  const prevFiltersRef = useRef({ category, bezirk, cuisine, openOnly, search })
   useEffect(() => {
     if (sheetView !== 'list') return
     const prev = prevFiltersRef.current
-    const next = { category, bezirk, cuisine, openOnly, search, layer }
+    const next = { category, bezirk, cuisine, openOnly, search }
     prevFiltersRef.current = next
     const filtersChanged =
       prev.category !== next.category ||
       prev.bezirk !== next.bezirk ||
       prev.cuisine !== next.cuisine ||
       prev.openOnly !== next.openOnly ||
-      prev.search !== next.search ||
-      prev.layer !== next.layer
+      prev.search !== next.search
     if (!filtersChanged) return
     listScrollRef.current = 0
     const el = contentRef.current
     if (el) el.scrollTop = 0
-  }, [sheetView, category, bezirk, cuisine, openOnly, search, layer, contentRef])
+  }, [sheetView, category, bezirk, cuisine, openOnly, search, contentRef])
 
   useLayoutEffect(() => {
     if (sheetView !== 'list') return
@@ -192,17 +178,6 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
 
   const handleMapMove = useCallback((bounds: Parameters<typeof updateBounds>[0]) => {
     updateBounds(bounds)
-    // Avoid updating mapZoom on every pan tick (60×/s) — fanOffset only
-    // changes behavior around z≈13.5, so only re-render when crossing the
-    // threshold. Without this guard, every pan re-renders every must-eat
-    // marker (the fanned memo is keyed on mapZoom).
-    if (!mapRef.current) return
-    const z = mapRef.current.getMap().getZoom()
-    setMapZoom(prev => {
-      const wasBelow = prev < 13.5
-      const isBelow  = z   < 13.5
-      return wasBelow !== isBelow ? z : prev
-    })
   }, [updateBounds])
 
   const restaurantMustEats = useMemo(() => {
@@ -210,9 +185,9 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     return mustEats.filter(m => m.restaurant._id === selectedRestaurant._id)
   }, [mustEats, selectedRestaurant])
 
-  const fannedMustEats = useMemo(
-    () => applyFanOffset(displayedMustEats, mapZoom),
-    [displayedMustEats, mapZoom]
+  const primaryMustEats = useMemo(
+    () => buildPrimaryMustEatMap(mustEats),
+    [mustEats],
   )
 
   /* ---------- Handlers ---------- */
@@ -282,6 +257,57 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     })
   }, [getFlyPadding, setSearch, setSheetView, setSnap, sheetView, contentRef])
 
+  // Pager: neighbours of the open restaurant within the filtered list the
+  // user is browsing (same order as the list view). Paging swaps the
+  // selection in place — no list↔detail view switch (already in detail).
+  const pagerAdjacent = useMemo(
+    () => selectedRestaurant
+      ? resolveAdjacent(displayedRestaurants, selectedRestaurant._id)
+      : { index: -1, prev: null, next: null },
+    [displayedRestaurants, selectedRestaurant],
+  )
+
+  const handlePageRestaurant = useCallback((dir: 'prev' | 'next') => {
+    const target = dir === 'prev' ? pagerAdjacent.prev : pagerAdjacent.next
+    if (!target) return
+    userInteractedRef.current = true
+    const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
+    setSelectedRestaurant(target)
+    mapRef.current?.flyTo({
+      center: [target.lng, target.lat],
+      zoom: 15,
+      duration: 400,
+      padding: getFlyPadding(isMobile ? 'full' : undefined),
+    })
+    const sc = document.querySelector('[data-detail-scroll]')
+    if (sc) (sc as HTMLElement).scrollTop = 0
+  }, [pagerAdjacent, getFlyPadding])
+
+  // Global must-eat pager: neighbours within the FULL must-eat list (no
+  // filtering — the layer/list is gone). Paging swaps the selection in place.
+  const mustEatPagerAdjacent = useMemo(
+    () => selectedMustEat
+      ? resolveAdjacent(mustEats, selectedMustEat._id)
+      : { index: -1, prev: null, next: null },
+    [mustEats, selectedMustEat],
+  )
+
+  const handlePageMustEat = useCallback((dir: 'prev' | 'next') => {
+    const target = dir === 'prev' ? mustEatPagerAdjacent.prev : mustEatPagerAdjacent.next
+    if (!target) return
+    userInteractedRef.current = true
+    const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
+    setSelectedMustEat(target)
+    mapRef.current?.flyTo({
+      center: [target.restaurant.lng, target.restaurant.lat],
+      zoom: 15,
+      duration: 400,
+      padding: getFlyPadding(isMobile ? 'full' : undefined),
+    })
+    const sc = document.querySelector('[data-detail-scroll]')
+    if (sc) (sc as HTMLElement).scrollTop = 0
+  }, [mustEatPagerAdjacent, getFlyPadding])
+
   const handleMustEatClick = useCallback((m: MapMustEat) => {
     userInteractedRef.current = true
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
@@ -289,16 +315,15 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     if (sheetView === 'list' && contentRef.current) {
       listScrollRef.current = contentRef.current.scrollTop
     }
-    // Selecting a search result accepts it — clear the query so subsequent
-    // navigation (e.g. tapping "alle Must Eats") shows the full list.
+    // Selecting a search result accepts it — clear the query so the list
+    // shows the full result set again when the user returns to it.
     setSearch('')
     setSearchOpen(false)
     // Coming from a restaurant detail (mobile sheet OR desktop floating modal)
-    // → switch to mustEats layer + list view, fly to the must-eat. Same flow
-    // on both platforms.
+    // → open the must-eat detail, fly to the must-eat. Same flow on both
+    // platforms.
     if (selectedRestaurant) {
       mustEatOriginRef.current = 'restaurant'
-      setLayer('mustEats')
       setSelectedRestaurant(null)
       setSelectedMustEat(m)
       setSheetView('detail')
@@ -312,8 +337,8 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       })
       return
     }
-    // Direct marker click oder Click in der Must-Eats-Liste — Origin = list.
-    mustEatOriginRef.current = 'list'
+    // Direkt geöffnetes Must-Eat-Detail (Deep-Link ?me=) — Origin = me.
+    mustEatOriginRef.current = 'me'
     const isLocked = !unlockedIds.has(m._id)
     const open = () => {
       setSelectedMustEat(m)
@@ -351,47 +376,27 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     const restaurant = restaurants.find(r => r._id === selectedMustEat.restaurant._id)
     if (!restaurant) return
     setSelectedMustEat(null)
-    setLayer('restaurants')
     handleRestaurantClick(restaurant)
   }, [selectedMustEat, restaurants, handleRestaurantClick])
 
   /* Back-Button im Must-Eat-Detail — restauriert die Origin-View:
      - origin 'restaurant' → öffnet den parent Restaurant-Detail
-     - origin 'list'       → zurück zur Must-Eats-Liste (Detail clearen,
-                             Sheet-View auf 'list'). */
+     - origin 'me' (Default) → zurück zur Restaurant-Liste (Detail clearen,
+                               Sheet-View auf 'list'). */
   const handleMustEatBack = useCallback(() => {
     if (!selectedMustEat) return
     if (mustEatOriginRef.current === 'restaurant') {
       const restaurant = restaurants.find(r => r._id === selectedMustEat.restaurant._id)
       if (restaurant) {
         setSelectedMustEat(null)
-        setLayer('restaurants')
         handleRestaurantClick(restaurant)
         return
       }
     }
-    // origin 'list' (Default) — zurück zur Must-Eats-Liste.
+    // origin 'me' (Default) — zurück zur Restaurant-Liste.
     setSelectedMustEat(null)
     setSheetView('list')
   }, [selectedMustEat, restaurants, handleRestaurantClick, setSheetView])
-
-  /* "Alle Must Eats anzeigen" button in must-eat detail — clears the
-     current selection and flips the sheet from detail → list while
-     staying on the mustEats layer, so the user sees the full list. */
-  const handleViewAllMustEats = useCallback(() => {
-    setSelectedMustEat(null)
-    setSheetView('list')
-    const nextSnap: typeof snap = snap === 'peek' ? 'mid' : snap
-    if (nextSnap !== snap) setSnap(nextSnap)
-  }, [setSheetView, snap, setSnap])
-
-  /* „Zu den Restaurants"-Button auf der Must-Eats-Liste — flippt den
-     Layer zurück auf 'restaurants', clearet die Must-Eat-Selection.
-     Sheet-View bleibt 'list', der bisherige Snap bleibt erhalten. */
-  const handleSwitchToRestaurants = useCallback(() => {
-    setSelectedMustEat(null)
-    setLayer('restaurants')
-  }, [])
 
   const handleMustEatClose = useCallback(() => {
     const m = selectedMustEat
@@ -401,11 +406,8 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       mapRef.current?.flyTo({ center: [selectedRestaurant.lng, selectedRestaurant.lat], zoom: 15, duration: 400, padding: getFlyPadding() })
       return
     }
-    // No layer-toggle in the UI anymore — make sure closing a must-eat
-    // detail (reached from a restaurant detail) puts the user back on the
-    // restaurants list rather than stranding them in must-eats list with no
-    // way to switch layers.
-    setLayer('restaurants')
+    // Closing a must-eat detail (reached from a restaurant detail or deep
+    // link) puts the user back on the restaurants list.
     setSheetView('list')
     // Same nudge as handleRestaurantClose: peek → mid so the list is usable.
     const nextSnap: typeof snap = snap === 'peek' ? 'mid' : snap
@@ -525,6 +527,25 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     )
   }, [category, bezirk, cuisine, openOnly, selectedRestaurant, selectedMustEat])
 
+  /* Scroll keeper — the map page is in-flow and taller than the visual
+     viewport (100lvh + 80px apron, see globals.css) so its bottom sheet can
+     blur through iOS Safari's translucent URL bar. That gives the window a
+     ~bar-height of scroll range it must never actually use: every map
+     gesture is captured (canvas touch-action none, sheet drags
+     preventDefault, list overscroll contained), but stray vectors (input
+     focus, rubber-band edge cases) could leave the page parked mid-scroll
+     with the toolbar clipped. Pin it back to 0. */
+  useEffect(() => {
+    if (!isActive) return
+    if (!window.matchMedia('(max-width: 1023.98px)').matches) return
+    const onScroll = () => {
+      if (window.scrollY !== 0) window.scrollTo(0, 0)
+    }
+    onScroll() // entering the map with a leftover scroll position
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [isActive])
+
   const prevActiveRef = useRef(false)
   useEffect(() => {
     const justActivated = isActive && !prevActiveRef.current
@@ -547,12 +568,16 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   const { resetBezirkPill } = useMapDeepLinks({
     mapRef,
     restaurants,
+    lockedRestaurants,
+    mustEats,
     isActive,
     sheetView,
     userInteractedRef,
     setBezirk,
+    setCategory,
     setSnap,
     onRestaurantSlugMatch: handleRestaurantClick,
+    onMustEatIdMatch: handleMustEatClick,
     getFlyPadding,
   })
 
@@ -568,15 +593,16 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       sheetView={sheetView}
       snap={snap}
       dragging={dragging}
-      layer={layer}
       displayedRestaurants={displayedRestaurants}
       displayedLockedRestaurants={displayedLockedRestaurants}
-      fannedMustEats={fannedMustEats}
-      displayedMustEats={displayedMustEats}
+      pagerPrev={pagerAdjacent.prev}
+      pagerNext={pagerAdjacent.next}
+      onPageRestaurant={handlePageRestaurant}
       totalCount={totalCount}
       restaurantMustEats={restaurantMustEats}
       selectedRestaurant={selectedRestaurant}
       selectedMustEat={selectedMustEat}
+      primaryMustEats={primaryMustEats}
       unlockedIds={unlockedIds}
       revealedMustEatIds={revealedMustEatIds}
       favoriteIds={favoriteIds}
@@ -604,8 +630,9 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       onRestaurantClose={handleRestaurantClose}
       onMustEatClose={handleMustEatClose}
       onMustEatBack={handleMustEatBack}
-      onViewAllMustEats={handleViewAllMustEats}
-      onSwitchToRestaurants={handleSwitchToRestaurants}
+      mustEatPagerPrev={mustEatPagerAdjacent.prev}
+      mustEatPagerNext={mustEatPagerAdjacent.next}
+      onPageMustEat={handlePageMustEat}
       onViewRestaurantFromMustEat={handleViewRestaurantFromMustEat}
       onUnlock={handleUnlock}
       onSearchChange={handleSearchChange}
@@ -617,7 +644,6 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       onToggleDesktopPanel={() => setDesktopPanelHidden(v => !v)}
       myLocationAriaLabel={t('map.myLocationAriaLabel') ?? 'My location'}
       restaurantsListAriaLabel={t('map.restaurantsListAriaLabel') ?? 'Restaurants nearby'}
-      mustEatsListAriaLabel={t('map.mustEatsListAriaLabel') ?? 'Must Eats'}
     />
   )
 }

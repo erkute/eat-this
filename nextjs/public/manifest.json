@@ -1,13 +1,13 @@
 {
   "name": "EAT THIS — Berlin Food Guide",
   "short_name": "EAT THIS",
-  "description": "Ein Gericht pro Restaurant — das eine, das du bestellen musst.",
+  "description": "We tell you what to eat — die kuratierte Food Map mit den besten Restaurants, Cafés und Bars in Berlin.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#fbf8ee",
+  "theme_color": "#fbf8ee",
   "categories": ["food", "lifestyle", "travel"],
   "icons": [
     {

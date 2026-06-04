@@ -53,10 +53,10 @@ const PALETTE = {
   muted:  '#6B6B6B',
 };
 
-// Brand-display stack: Anton where the client supports webfonts (Apple/iOS
-// Mail), heavy condensed system fallback everywhere else.
+// Brand-display stack: Chewy where the client supports webfonts (Apple/iOS
+// Mail), heavy rounded system fallback (Arial Black) everywhere else.
 const DISPLAY_FONT =
-  "'Anton', 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif";
+  "'Chewy', 'Arial Black', 'Helvetica Neue', Arial, sans-serif";
 const BODY_FONT =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
@@ -90,7 +90,7 @@ export default function MagicLinkEmail({
   return (
     <Html lang="de">
       <Head>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');`}</style>
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=Chewy&display=swap');`}</style>
       </Head>
       <Preview>{preview}</Preview>
 
@@ -170,7 +170,7 @@ export default function MagicLinkEmail({
                     style={{
                       backgroundColor: PALETTE.yellow,
                       padding:         '3px 12px 5px',
-                      borderRadius:    '6px',
+                      borderRadius:    '0',
                     }}
                   >
                     <span
@@ -220,7 +220,7 @@ export default function MagicLinkEmail({
                     align="center"
                     style={{
                       backgroundColor: PALETTE.yellow,
-                      borderRadius:    '8px',
+                      borderRadius:    '0',
                       boxShadow:        `4px 4px 0 ${PALETTE.ink}`,
                     }}
                   >

@@ -15,7 +15,7 @@
   --cream-deep: #f1ecdd;
   --yellow: #ffd84a;
   --muted: #6b5a44;
-  --f-display: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
+  --f-display: var(--font-poster, "Chewy"), "Comic Sans MS", cursive;
   --f-body: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
 
   /* Bridge semantic tokens so shared components (Breadcrumbs,
@@ -39,7 +39,7 @@
      collapse out of the page and expose body bg between main + footer. */
   display: flow-root;
   /* Clears the fixed legacy .navbar (60px + safe-area) */
-  padding: calc(60px + env(safe-area-inset-top, 0px) + 24px) 22px 48px;
+  padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 24px) 22px 48px;
   position: relative;
   overflow-x: clip;
 }
@@ -54,7 +54,7 @@
 .kicker {
   font-family: var(--f-display);
   font-size: 14px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.14em;
   color: var(--ink);
   text-transform: uppercase;
   margin: 14px 0 0;
@@ -62,22 +62,23 @@
 }
 .h1 {
   font-family: var(--f-display);
-  font-size: clamp(56px, 16vw, 96px);
-  line-height: 1;
+  font-size: clamp(38px, 11vw, 64px);
+  line-height: 1.0;
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--ink);
-  /* Top margin clears umlaut dots (SÜSSES, KÖPENICK) from the kicker
-     line above — Anton positions them well above cap height. */
+  /* Chewy is far wider/rounder than the old Anton — smaller max + a touch
+     more top margin so long names (FRIEDRICHSHAIN) don't overflow and the
+     umlaut dots (SÜSSES, KÖPENICK) clear the kicker line above. */
   margin: 18px 0 14px;
   overflow-wrap: break-word;
   hyphens: manual;
 }
 .tagline {
   font-family: var(--f-display);
-  font-size: clamp(22px, 6vw, 32px);
-  line-height: 1;
-  letter-spacing: 0.02em;
+  font-size: clamp(19px, 5vw, 27px);
+  line-height: 1.05;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--ink);
   margin: 0 0 12px;
@@ -92,49 +93,15 @@
 }
 
 /* ============================================================
-   STATS STRIP
-============================================================ */
-.stats {
-  display: grid;
-  grid-template-columns: repeat(var(--stats-cols, 3), 1fr);
-  border-top: 2px solid var(--ink);
-  border-bottom: 2px solid var(--ink);
-  margin: 14px 0 28px;
-}
-.statCell {
-  padding: 18px 12px;
-  text-align: center;
-  border-right: 1px solid var(--ink);
-}
-.statCell:last-child {
-  border-right: 0;
-}
-.statN {
-  font-family: var(--f-display);
-  font-size: 42px;
-  line-height: 1;
-  color: var(--ink);
-}
-.statK {
-  font-family: var(--f-body);
-  font-size: 12px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink);
-  margin-top: 6px;
-  font-weight: 600;
-}
-
-/* ============================================================
-   SECTION HEAD (zwischen Stats und Restaurant-Grid, sowie über FAQ)
+   SECTION HEAD (Lead-in über Restaurant-Grid, sowie über FAQ)
 ============================================================ */
 .sectionHead {
   margin: 32px 0 18px;
 }
 .sectionHead h2 {
   font-family: var(--f-display);
-  font-size: clamp(38px, 10vw, 56px);
-  line-height: 0.96;
+  font-size: clamp(28px, 7.5vw, 44px);
+  line-height: 1.1;
   color: var(--ink);
   margin: 0 0 8px;
   text-transform: uppercase;
@@ -190,7 +157,7 @@
 .cardName {
   font-family: var(--f-display);
   font-size: 24px;
-  line-height: 1.05;
+  line-height: 1.12;
   letter-spacing: 0;
   text-transform: uppercase;
   margin: 0 0 8px;
@@ -210,8 +177,10 @@
   font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 4px 9px 5px;
-  line-height: 1;
+  /* Chewy is round/tall — a touch more vertical room so caps and umlaut
+     cuisines (TÜRKISCH, SÜSSES) sit centred like the hero pills (1.15). */
+  padding: 5px 10px 6px;
+  line-height: 1.16;
 }
 .chipOutline {
   background: transparent;
@@ -221,8 +190,8 @@
   font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 2.5px 9px 3.5px;
-  line-height: 1;
+  padding: 4px 10px 5px;
+  line-height: 1.16;
 }
 .price {
   font-family: var(--f-body);
@@ -250,7 +219,7 @@
 .faqKicker {
   font-family: var(--f-display);
   font-size: 13px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.14em;
   color: var(--ink);
   text-transform: uppercase;
   padding: 16px 0 8px;
@@ -332,15 +301,15 @@
 .fcKicker {
   font-family: var(--f-display);
   font-size: 13px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.14em;
   color: var(--yellow);
   text-transform: uppercase;
   margin-bottom: 8px;
 }
 .finalCta h2 {
   font-family: var(--f-display);
-  font-size: clamp(48px, 12vw, 72px);
-  line-height: 0.96;
+  font-size: clamp(36px, 9vw, 56px);
+  line-height: 1.0;
   text-transform: uppercase;
   margin: 0 0 14px;
   color: var(--cream);
@@ -386,14 +355,6 @@
   line-height: 1;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: var(--ink);
-}
-.bezirkCount {
-  font-family: var(--f-body);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 600;
   color: var(--ink);
 }
 
@@ -454,15 +415,6 @@
   color: var(--ink);
   margin: 0 0 4px;
 }
-.posterCount {
-  font-family: var(--f-body);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--ink);
-  opacity: 0.62;
-}
 
 @media (min-width: 720px) {
   .posterGrid {
@@ -483,7 +435,7 @@
 ============================================================ */
 @media (min-width: 720px) {
   .page {
-    padding: calc(60px + env(safe-area-inset-top, 0px) + 32px) 32px 56px;
+    padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 32px) 32px 56px;
   }
   .grid,
   .bezirkGrid {
@@ -497,14 +449,23 @@
 }
 @media (min-width: 960px) {
   .page {
-    padding: 88px 80px 72px;
+    /* Centred content column — full-bleed 1280 left the left-aligned hero
+       hugging the left edge with a dead void on the right. A capped, centred
+       measure turns that into balanced gutters and reins the grid in. */
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 88px 64px 72px;
   }
   .grid {
     grid-template-columns: 1fr 1fr 1fr;
     gap: 28px;
   }
   .bezirkGrid {
-    grid-template-columns: repeat(4, 1fr);
+    /* 3 cols, not 4 — single-word names like FRIEDRICHSHAIN can't wrap, and
+       their min-content blew the 4-col 1fr tracks past the container (right
+       column clipped). minmax(0,1fr) removes the min-content floor so the
+       grid can never overflow the page again. */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   /* Hero desktop-treatment: H1 fills the space typographically — no photo,
      no decoration, just Anton at full presence so the cream column doesn't
@@ -514,18 +475,17 @@
   }
   .kicker {
     font-size: 15px;
-    letter-spacing: 0.26em;
+    letter-spacing: 0.15em;
   }
   .h1 {
-    /* Scale back from 192 — at that max short bezirk names like MITTE
-       look over-blown and visually clip page rhythm. 160 still reads as
-       statement on 1440+ without overwhelming. */
-    font-size: clamp(88px, 10vw, 160px);
-    line-height: 0.94;
-    margin: 24px 0 18px;
+    /* Confident middle: commands the centred column without the Anton-era
+       104 "riesig" feel. */
+    font-size: clamp(52px, 6.4vw, 92px);
+    line-height: 1.0;
+    margin: 20px 0 16px;
   }
   .tagline {
-    font-size: clamp(28px, 4vw, 52px);
+    font-size: clamp(24px, 2.8vw, 38px);
   }
   .sub {
     max-width: 52ch;
@@ -533,21 +493,12 @@
     line-height: 1.5;
     margin: 0 0 28px;
   }
-  .stats {
-    margin: 18px 0 40px;
-  }
-  .statN {
-    font-size: 56px;
-  }
-  .statCell {
-    padding: 26px 16px;
-  }
   /* Section h2 ("Was du hier essen solltest" / "Die handverlesene
-     Auswahl") — was capped at 56, too small to sit between a 160 H1
-     and the restaurant grid below. Lift to second-tier display. */
+     Auswahl") — clear second-tier under the hero H1, not a competing
+     headline. Chewy needs less px than Anton to carry the same weight. */
   .sectionHead h2 {
-    font-size: clamp(56px, 6.5vw, 96px);
-    line-height: 0.96;
+    font-size: clamp(34px, 3.8vw, 54px);
+    line-height: 1.06;
   }
   .sectionHead p {
     font-size: 16px;
@@ -558,7 +509,7 @@
      so the cuisine/district pills don't read as tiny tags. */
   .cardName {
     font-size: clamp(26px, 2vw, 32px);
-    line-height: 1.04;
+    line-height: 1.12;
     margin-bottom: 12px;
   }
   .cardTip {
@@ -578,10 +529,12 @@
   .price {
     font-size: 14px;
   }
-  /* Bezirk index card name (4-col grid) — 32px fix was OK on mobile but
-     plain on desktop. */
+  /* Bezirk index card name (3-col grid) — 32px fix was OK on mobile but
+     plain on desktop. Clamp is calibrated so the longest name
+     (FRIEDRICHSHAIN, ~6.8px text width per font px) fits a 3-col track at
+     every viewport from 960 up. */
   .bezirkName {
-    font-size: clamp(34px, 2.6vw, 44px);
+    font-size: clamp(30px, 3.2vw, 40px);
   }
   /* Kategorie index poster name — was 30 max. Bump for wider posters. */
   .posterName {
@@ -603,4 +556,87 @@
 .detailOutroWrap :global([data-detail-outro]) {
   background: var(--cream);
   color: var(--ink);
+}
+
+/* ============================================================
+   DARK MODE — everything goes dark, yellow accents → red.
+   The page leans on scoped tokens (--ink/--cream/--yellow/--muted)
+   so re-pointing those flips most surfaces; hard-coded values and
+   yellow-fill special cases are handled below.
+============================================================ */
+html[data-theme="dark"] .page {
+  --ink: #f0e8d0;
+  --cream: #111110;
+  --cream-deep: #1d1c19;
+  --yellow: var(--c-coral);
+  --muted: rgba(240, 232, 208, 0.72);
+
+  --text-primary: #f0e8d0;
+  --text-secondary: rgba(240, 232, 208, 0.82);
+  --text-muted: rgba(240, 232, 208, 0.72);
+  --surface-bg: #111110;
+  --surface-card: #1d1c19;
+  --border-subtle: rgba(240, 232, 208, 0.3);
+  --border-strong: #f0e8d0;
+  --accent: var(--c-coral);
+}
+
+/* Cards on now-dark surface — raised tone + cream hairline */
+html[data-theme="dark"] .card {
+  background: var(--cream-deep);
+  border-bottom-color: rgba(240, 232, 208, 0.3);
+}
+html[data-theme="dark"] .card:hover {
+  border-bottom-color: #f0e8d0;
+}
+html[data-theme="dark"] .cardPhoto {
+  background: #111110;
+}
+
+/* Yellow cuisine chip → coral fill with cream label */
+html[data-theme="dark"] .chipYellow {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+
+/* FAQ row hairlines */
+html[data-theme="dark"] .faqRow {
+  border-bottom-color: rgba(240, 232, 208, 0.2);
+}
+
+/* Final CTA is already an ink panel — keep bg/text, only flip the
+   yellow kicker accent to bright coral. NB: color explizit pinnen —
+   var(--cream) ist im Dark auf #111110 umgebogen, .finalCta/h2 nutzen
+   es aber als TEXTfarbe. */
+html[data-theme="dark"] .finalCta {
+  background: #1d1c19;
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .finalCta h2 { color: #f0e8d0; }
+html[data-theme="dark"] .fcKicker {
+  color: var(--c-coral-bright);
+}
+
+/* Bezirk index card — yellow hover → coral with cream name */
+html[data-theme="dark"] .bezirkCard:hover {
+  background: var(--c-coral);
+}
+html[data-theme="dark"] .bezirkCard:hover .bezirkName {
+  color: #fbf8ee;
+}
+
+/* Kategorie poster — empty placeholder yellow fill → coral, and the
+   drop-shadow on poster art deepens for the dark canvas. */
+html[data-theme="dark"] .posterFrameEmpty {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+html[data-theme="dark"] .posterFrame img {
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+}
+
+/* DetailPageOutro bridge → dark surface */
+html[data-theme="dark"] .detailOutroWrap :global([data-detail-outro]) {
+  background: #111110;
+  color: #f0e8d0;
 }

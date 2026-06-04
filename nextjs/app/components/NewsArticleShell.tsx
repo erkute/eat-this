@@ -1,11 +1,10 @@
-import { CSSProperties } from 'react';
-import { PortableTextRenderer } from '@/lib/PortableTextRenderer';
+import { PortableTextRenderer, extractHeadings, extractArticleSpots } from '@/lib/PortableTextRenderer';
 import { Link } from '@/i18n/navigation';
-import type { NewsArticle } from '@/lib/types';
+import type { NewsArticle, MustEatCardBlock } from '@/lib/types';
+import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
 import Breadcrumbs, { type BreadcrumbItem } from './Breadcrumbs';
-import SeoSignupCTA from './SeoSignupCTA';
 import styles from './NewsArticleShell.module.css';
 
 interface Props {
@@ -15,21 +14,20 @@ interface Props {
   isActive?: boolean;
 }
 
-const REL_TILTS = [-1.6, 2.0, -1.2];
-
 function formatDate(iso: string | undefined, locale: string): string {
   if (!iso) return '';
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
   return d.toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US', {
-    month: 'long',
     day: 'numeric',
+    month: 'long',
     year: 'numeric',
   });
 }
 
-// Magazine-feature article shell — matches restaurant-detail visual language
-// (Ranchers brand-red cover lockup, ink-shadow related cards, cream column).
+// Article detail — Chewy magazine feature (mockup-chewy screen 8). Inline
+// must-eat cards, the "Spots im Artikel" grid and the sticky spotrail are driven
+// by mustEatCard reference blocks in the body; TOC + drop-cap come from the body.
 export default function NewsArticleShell({
   article,
   relatedArticles = [],
@@ -44,15 +42,70 @@ export default function NewsArticleShell({
   const excerpt =
     (de ? article.excerptDe : article.excerpt) || article.excerpt || '';
   const categoryLabel =
-    (de ? article.categoryLabelDe : article.categoryLabel) ||
-    article.categoryLabel ||
-    '';
+    (de ? article.categoryLabelDe : article.categoryLabel) || article.categoryLabel || '';
   const content =
     (de ? article.contentDe : article.content) || article.content || [];
   const dateFormatted = formatDate(article.date, locale);
 
+  const headings = extractHeadings(content);
+  const showToc = headings.length >= 2;
+  const tocLabel = de ? 'In diesem Artikel' : 'In this article';
+
+  const spots = extractArticleSpots(content);
+  const spotsLabel = de ? 'Spots im Artikel' : 'Spots in this story';
+  const toMapLabel = de ? 'Auf die Map →' : 'To the map →';
+
+  // Inline "Must Eat" banner — dark poster block in the article column, same
+  // sticker language as MapPromoCTA. The image is the full collectible trading
+  // card, floating freigestellt with a tilt. The whole banner links to the
+  // Must-Eat detail on the map (?me=<id>), mirroring an in-app tap.
+  const renderMustEatCard = (block: MustEatCardBlock) => {
+    if (!block.dish && !block.dishImage) return null;
+    const ctaLabel = de ? 'Zum Must Eat' : 'See the Must Eat';
+    const restName = block.restaurantName ? normalizeName(block.restaurantName) : '';
+    const whereLine = [restName, block.district].filter(Boolean).join(' · ');
+    const inner = (
+      <>
+        {block.dishImage && (
+          <div className={styles.mustEatPh}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={block.dishImage} alt={block.dish || ''} />
+          </div>
+        )}
+        <div className={styles.mustEatBody}>
+          <span className={styles.mustEatKicker}>Must Eat</span>
+          {block.dish && <h3 className={styles.mustEatName}>{block.dish}</h3>}
+          {whereLine && <span className={styles.mustEatRest}>@ {whereLine}</span>}
+          <span className={styles.mustEatCta}>
+            <span>{ctaLabel}</span>
+            <svg
+              width="26" height="17" viewBox="0 0 32 20" fill="none"
+              stroke="currentColor" strokeWidth="3" strokeLinecap="round"
+              strokeLinejoin="round" aria-hidden="true"
+            >
+              <path d="M3 10 L24 10" />
+              <path d="M18 3 L27 10 L18 17" />
+            </svg>
+          </span>
+        </div>
+      </>
+    );
+    return block.mustEatId ? (
+      <Link
+        href={`/map?me=${block.mustEatId}`}
+        rel="nofollow"
+        className={styles.mustEat}
+        aria-label={`${block.dish || 'Must Eat'}${restName ? ` — ${restName}` : ''}`}
+      >
+        {inner}
+      </Link>
+    ) : (
+      <div className={styles.mustEat}>{inner}</div>
+    );
+  };
+
   const homeLabel = de ? 'Start' : 'Home';
-  const newsLabel = 'News';
+  const newsLabel = de ? 'Auf dem Teller' : 'On the Menu';
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: homeLabel, href: '/' },
     { name: newsLabel, href: '/news' },
@@ -60,9 +113,9 @@ export default function NewsArticleShell({
   ];
 
   const recommendations = relatedArticles
-    .filter(a => a.slug !== article.slug)
+    .filter((a) => a.slug !== article.slug)
     .slice(0, 3);
-  const moreLabel = de ? 'Weitere News' : 'More news';
+  const moreLabel = de ? 'Weiter auf dem Teller' : 'More on the menu';
 
   return (
     <div
@@ -70,94 +123,143 @@ export default function NewsArticleShell({
       data-page="news-article"
       id="newsModal"
     >
-      <article className={styles.article}>
-        {/* ── Hero — magazine cover lockup over the photo ── */}
-        <div className={styles.hero}>
-          {article.imageUrl && (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={article.imageUrl} alt={title} className={styles.heroImg} />
-          )}
-          <div className={styles.heroShade} aria-hidden="true" />
-          <div className={styles.heroLockup}>
-            {(categoryLabel || dateFormatted) && (
-              <p className={styles.heroEyebrow}>
-                {categoryLabel && <span>{categoryLabel}</span>}
-                {categoryLabel && dateFormatted && (
-                  <span className={styles.heroEyebrowDot} aria-hidden="true" />
-                )}
-                {dateFormatted && (
-                  <time dateTime={article.date}>{dateFormatted}</time>
-                )}
-              </p>
-            )}
-            <h1 className={styles.heroHeadline}>{title}</h1>
-          </div>
+      <article className={`${styles.article}${spots.length > 0 ? ` ${styles.hasSpotrail}` : ''}`}>
+        {article.imageUrl && (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src={article.imageUrl} alt={title} className={styles.hero} />
+        )}
+
+        <div className={styles.byline}>
+          <span>{categoryLabel || 'Berlin · Die Kolumne'}</span>
+          {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
         </div>
 
-        {/* ── Editorial column ── */}
-        <div className={styles.body}>
-          <div className={styles.breadcrumbWrap}>
-            <Breadcrumbs
-              items={breadcrumbItems}
-              ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
-            />
-          </div>
+        <h1 className={styles.title}>{title}</h1>
 
-          <div className={styles.shareRow}>
-            <span className={styles.shareLabel}>{de ? 'Teilen' : 'Share'}</span>
-            <NewsArticleShare title={title} excerpt={excerpt} />
-          </div>
+        {excerpt && <p className={styles.lede}>{excerpt}</p>}
 
-          <div className={styles.content}>
-            <PortableTextRenderer blocks={content} />
-          </div>
+        <div className={styles.breadcrumbWrap}>
+          <Breadcrumbs
+            items={breadcrumbItems}
+            ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
+          />
+        </div>
+
+        {showToc && (
+          <nav className={styles.toc} aria-label={tocLabel}>
+            <p className={styles.tocLabel}>{tocLabel}</p>
+            <ol className={styles.tocList}>
+              {headings.map((h) => (
+                <li key={h.id} className={styles.tocItem}>
+                  <a href={`#${h.id}`} className={styles.tocLink}>{h.text}</a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )}
+
+        <div className={styles.content}>
+          <PortableTextRenderer blocks={content} renderMustEatCard={renderMustEatCard} />
+        </div>
+
+        {spots.length > 0 && (
+          <section className={styles.spots} aria-label={spotsLabel}>
+            <h2 className={styles.spotsHeading}>{spotsLabel}</h2>
+            <div className={styles.spotsRow}>
+              {spots.map((s) => {
+                const name = normalizeName(s.name);
+                const meta = [s.district, s.cuisineType].filter(Boolean).join(' · ');
+                const inner = (
+                  <span className={styles.spotCardFoot}>
+                    {meta && <span className={styles.spotMeta}>{meta}</span>}
+                    <span className={styles.spotName}>{name}</span>
+                  </span>
+                );
+                const bg = s.photo ? { backgroundImage: `url(${s.photo})` } : undefined;
+                return s.slug ? (
+                  <Link
+                    key={s.slug}
+                    href={`/map?r=${s.slug}`}
+                    rel="nofollow"
+                    className={styles.spotCard}
+                    style={bg}
+                    aria-label={name}
+                  >
+                    {inner}
+                  </Link>
+                ) : (
+                  <div key={s.name} className={styles.spotCard} style={bg}>
+                    {inner}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        <div className={styles.shareRow}>
+          <NewsArticleShare
+            title={title}
+            excerpt={excerpt}
+            label={de ? 'Teilen' : 'Share'}
+            className={styles.shareBtn}
+          />
         </div>
 
         {recommendations.length > 0 && (
           <section className={styles.related}>
-            <div className={styles.relatedInner}>
-              <h2 className={styles.relatedHeading}>{moreLabel}</h2>
-              <ul className={styles.relatedGrid} role="list">
-                {recommendations.map((rec, i) => {
-                  const recTitle =
-                    (de ? rec.titleDe : rec.title) || rec.title || '';
-                  const recCategory =
-                    (de ? rec.categoryLabelDe : rec.categoryLabel) ||
-                    rec.categoryLabel ||
-                    '';
-                  return (
-                    <li
-                      key={rec.slug}
-                      className={styles.relatedItem}
-                      style={
-                        {
-                          ['--tilt' as string]: `${REL_TILTS[i % REL_TILTS.length]}deg`,
-                        } as CSSProperties
-                      }
-                    >
-                      <Link href={`/news/${rec.slug}`} className={styles.relatedCard}>
-                        <div className={styles.relatedImage}>
-                          {rec.imageUrl && (
-                            /* eslint-disable-next-line @next/next/no-img-element */
-                            <img src={rec.imageUrl} alt={recTitle} loading="lazy" />
-                          )}
-                        </div>
-                        <div className={styles.relatedBody}>
-                          {recCategory && (
-                            <span className={styles.relatedCategory}>{recCategory}</span>
-                          )}
-                          <h3 className={styles.relatedHeadline}>{recTitle}</h3>
-                        </div>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+            <h2 className={styles.relatedHeading}>{moreLabel}</h2>
+            <ul className={styles.relatedGrid} role="list">
+              {recommendations.map((rec) => {
+                const recTitle = (de ? rec.titleDe : rec.title) || rec.title || '';
+                const recCategory =
+                  (de ? rec.categoryLabelDe : rec.categoryLabel) || rec.categoryLabel || '';
+                return (
+                  <li key={rec.slug}>
+                    <Link href={`/news/${rec.slug}`} className={styles.relatedCard}>
+                      <div
+                        className={styles.relatedImage}
+                        style={rec.imageUrl ? { backgroundImage: `url(${rec.imageUrl})` } : undefined}
+                        role="img"
+                        aria-label={recTitle}
+                      />
+                      <div className={styles.relatedBody}>
+                        {recCategory && <span className={styles.relatedCategory}>{recCategory}</span>}
+                        <h3 className={styles.relatedHeadline}>{recTitle}</h3>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
           </section>
         )}
       </article>
-      <SeoSignupCTA />
+
+      {spots.length > 0 && (
+        <aside className={styles.spotrail} aria-label={spotsLabel}>
+          <div className={styles.spotrailPics}>
+            {spots.slice(0, 3).map((s) => (
+              <span
+                key={s.slug ?? s.name}
+                className={styles.spotrailPic}
+                style={s.photo ? { backgroundImage: `url(${s.photo})` } : undefined}
+                aria-hidden="true"
+              />
+            ))}
+          </div>
+          <div className={styles.spotrailMeta}>
+            <span className={styles.spotrailKicker}>{spotsLabel}</span>
+            <span className={styles.spotrailNames}>
+              {spots.map((s) => normalizeName(s.name)).join(' · ')}
+            </span>
+          </div>
+          <Link href="/map" rel="nofollow" className={styles.spotrailCta}>
+            {toMapLabel}
+          </Link>
+        </aside>
+      )}
+
       <SiteFooter />
     </div>
   );

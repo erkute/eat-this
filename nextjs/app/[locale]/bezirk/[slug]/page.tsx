@@ -13,9 +13,8 @@ import { routing } from '@/i18n/routing'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import { buildBezirkFAQEntries } from '@/lib/bezirk-prose'
 import styles from '../Bezirk.module.css'
-import HubMapCTA from '@/app/components/HubMapCTA'
+import MapPromoCTA from '@/app/components/MapPromoCTA'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
-import SeoSignupCTA from '@/app/components/SeoSignupCTA'
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>
@@ -25,8 +24,9 @@ export const revalidate = 3600
 
 export async function generateStaticParams() {
   const bezirke = await getAllBezirkeWithStats()
+  // Skip districts without open spots — their detail page 404s (see below).
   return routing.locales.flatMap(locale =>
-    bezirke.map(b => ({ locale, slug: b.slug })),
+    bezirke.filter(b => (b.restaurantCount ?? 0) > 0).map(b => ({ locale, slug: b.slug })),
   )
 }
 
@@ -92,25 +92,13 @@ export default async function BezirkDetailPage({ params }: PageProps) {
     getBezirkBySlug(slug),
     getRestaurantsByBezirk(slug),
   ])
-  if (!b) notFound()
+  // A district without spots renders hero + FAQ around an empty grid —
+  // dead end + thin content. 404 until the first spot is curated; the page
+  // reappears automatically via ISR once a restaurant references the bezirk.
+  if (!b || restaurants.length === 0) notFound()
 
   const bezirkDescription = pickLocale(b.description, b.descriptionEn, loc)
   const faqEntries = buildBezirkFAQEntries({ bezirk: b, restaurants, locale: loc })
-
-  // Stats: SPOTS + PREISE (2-up). When mustEatCount data lands on RestaurantCard
-  // in the future, expand to SPOTS + MUST EATS + PREISE (3-up).
-  const priceMins = restaurants
-    .map(r => r.priceRange?.min)
-    .filter((n): n is number => typeof n === 'number')
-  const priceMaxs = restaurants
-    .map(r => r.priceRange?.max)
-    .filter((n): n is number => typeof n === 'number')
-  const priceRangeLabel =
-    priceMins.length > 0 && priceMaxs.length > 0
-      ? `${Math.min(...priceMins)}–${Math.max(...priceMaxs)} €`
-      : null
-  const statsCols = priceRangeLabel ? 2 : 1
-  const statsStyle = { ['--stats-cols' as string]: String(statsCols) } as React.CSSProperties
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/' },
@@ -128,10 +116,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
     districtsLabel: de ? 'Bezirke' : 'Districts',
     faqs: faqEntries,
   })
-
-  const hubCtaTitle = de
-    ? `${b.name} auf der Map ansehen`
-    : `See ${b.name} on the map`
 
   return (
     <>
@@ -151,21 +135,8 @@ export default async function BezirkDetailPage({ params }: PageProps) {
               {`Restaurants in ${b.name}`}
             </div>
           )}
-          <HubMapCTA href="/" title={hubCtaTitle} variant="chip" />
+          <MapPromoCTA variant="chip" kind="bezirk" name={b.name} mapHref={`/map?bezirk=${slug}`} locale={loc} />
         </header>
-
-        <div className={styles.stats} style={statsStyle}>
-          <div className={styles.statCell}>
-            <div className={styles.statN}>{restaurants.length}</div>
-            <div className={styles.statK}>Spots</div>
-          </div>
-          {priceRangeLabel && (
-            <div className={styles.statCell}>
-              <div className={styles.statN}>{priceRangeLabel}</div>
-              <div className={styles.statK}>{de ? 'Preise' : 'Prices'}</div>
-            </div>
-          )}
-        </div>
 
         <div className={styles.sectionHead}>
           <h2>{de ? 'Was du hier essen solltest' : 'What to eat here'}</h2>
@@ -204,6 +175,8 @@ export default async function BezirkDetailPage({ params }: PageProps) {
           })}
         </section>
 
+        <MapPromoCTA kind="bezirk" name={b.name} mapHref={`/map?bezirk=${slug}`} locale={loc} />
+
         {faqEntries.length > 0 && (
           <section className={styles.faq} aria-label={de ? 'Häufige Fragen' : 'FAQ'}>
             <div className={styles.faqKicker}>{de ? 'Häufige Fragen' : 'Frequently asked'}</div>
@@ -220,7 +193,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
         )}
 
       </main>
-      <SeoSignupCTA />
     </>
   )
 }

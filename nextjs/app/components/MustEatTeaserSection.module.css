@@ -1,8 +1,7 @@
 /* MustEatTeaserSection — locked card-back stack on restaurant detail page.
  *
- * Header switched to the page's editorial scale (Anton display + Inter body,
- * ink-on-cream) so the section reads as part of the cream/Anton SEO surface
- * instead of leftover Ranchers-script from the prior Bowlby/Coral design.
+ * Header uses the page display font (Chewy) + Inter body, ink-on-cream, so the
+ * section reads as part of the cream/Chewy SEO surface.
  */
 
 .section {
@@ -34,23 +33,27 @@
 }
 
 .eyebrow {
-  font-family: var(--font-anton), "Anton", "Bebas Neue", sans-serif;
+  font-family: var(--font-display), "Chewy", "Comic Sans MS", cursive;
   font-size: 13px;
   /* Inherit the parent page's ink token — restaurant detail bridges its
      own --text-primary even when the global theme is dark, so the
      teaser stays readable on the cream surface. */
   color: var(--text-primary, #000);
-  letter-spacing: 0.22em;
+  /* Tracking eased from .22em — Chewy is wide/round, matches the SEO
+     kicker treatment (.14em) rather than the old tight Anton caps. */
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   margin: 0 0 8px;
   line-height: 1;
 }
 
 .heading {
-  font-family: var(--font-anton), "Anton", "Bebas Neue", sans-serif;
+  font-family: var(--font-display), "Chewy", "Comic Sans MS", cursive;
   font-weight: 400;
-  font-size: clamp(34px, 7vw, 56px);
-  line-height: 0.96;
+  /* Chewy carries more weight per px than Anton — pulled back from 56 to
+     sit as a calm second-tier line under the page H1. */
+  font-size: clamp(28px, 5.5vw, 44px);
+  line-height: 1.04;
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--text-primary, #000);
@@ -73,7 +76,7 @@
     font-size: 14px;
   }
   .heading {
-    font-size: clamp(48px, 5.5vw, 80px);
+    font-size: clamp(34px, 3.6vw, 52px);
   }
   .body {
     font-size: 16px;
@@ -132,8 +135,8 @@
   position: relative;
   display: block;
   width: 100%;
-  /* Card-back asset aspect ratio (1082×1454 — yellow-frame swirl design). */
-  aspect-ratio: 1082 / 1454;
+  /* Card-back asset aspect ratio (760×1076 — yellow-frame swirl design). */
+  aspect-ratio: 760 / 1076;
   background: transparent;
   border: 0;
   padding: 0;
@@ -163,6 +166,9 @@
 }
 
 .cardBack {
-  object-fit: cover;
+  /* Freigestellt card-back: show the whole asset, never crop (rule:
+     feedback_musteat_cards_freigestellt). Box ratio matches the asset so
+     contain fills cleanly without letterboxing. */
+  object-fit: contain;
 }
 

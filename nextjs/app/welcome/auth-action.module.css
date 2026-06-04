@@ -1,167 +1,237 @@
 /* ════════════════════════════════════════════════════════════
-   /welcome — magic-link landing page.
-   Full-bleed hero, same visual language as /login.
+   /welcome — magic-link landing, Chewy (mockup screens 13/14 language).
+
+   Cream sheet, ink hairlines, big Chewy headings, square fields, ink CTA,
+   yellow-ringed avatar tiles. /welcome has its own root layout, so colors
+   are literal (no globals tokens) and Chewy comes from --font-chewy loaded
+   in welcome/layout.tsx. No dark variant.
    ════════════════════════════════════════════════════════════ */
 
 .page {
-  height: 100dvh;
+  min-height: 100dvh;
   width: 100%;
-  background: #0d0d0d;
+  background: #fbf8ee;
+  color: #0a0a0a;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
 }
 
-/* Phone-frame card on desktop */
 .frame {
   position: relative;
   flex: 1;
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  padding: 56px 22px max(28px, env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
 }
 
-/* ── Logo top-center ─────────────────────────────────── */
+/* Logo top-center */
 .logoWrap {
-  position: absolute;
-  top: max(28px, calc(env(safe-area-inset-top, 0px) + 20px));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 5;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
 }
-
 .logoMark {
-  width: min(56vw, 200px);
+  width: min(48vw, 180px);
   height: auto;
   user-select: none;
   -webkit-user-drag: none;
 }
 
-/* ── Content floats at the bottom ───────────────────── */
+/* Content — bottom-anchored on the landing states. */
 .content {
-  position: relative;
-  z-index: 2;
   margin-top: auto;
-  padding: 0 22px max(28px, env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 10px;
-  width: 100%;
-  max-width: 420px;
-  align-self: center;
+  gap: 12px;
 }
 
 .title {
-  margin: 0 0 2px;
-  font-size: clamp(22px, 6vw, 28px);
-  font-weight: 900;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  color: #fff;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
+  margin: 0;
+  font-family: var(--font-chewy), cursive;
+  font-size: clamp(40px, 12vw, 56px);
+  line-height: 0.92;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  color: #0a0a0a;
 }
-
 .sub {
   margin: 0 0 6px;
-  font-size: 14px;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.72);
+  font-size: 15px;
+  line-height: 1.5;
+  color: #0a0a0a;
+  opacity: 0.85;
+  max-width: 32ch;
 }
 
-/* ── Frosted-glass input ─────────────────────────────── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Name label */
+.nameLabel {
+  font-family: var(--font-chewy), cursive;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* Square fields */
 .input {
   width: 100%;
-  padding: 13px 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.1);
-  -webkit-backdrop-filter: blur(14px) saturate(1.2);
-  backdrop-filter: blur(14px) saturate(1.2);
+  height: 50px;
+  padding: 0 14px;
+  border: 2px solid #0a0a0a;
+  border-radius: 0;
+  background: #fbf8ee;
   font-size: 16px; /* iOS no-zoom */
-  font-family: inherit;
-  color: #fff;
+  color: #0a0a0a;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 0.18s, background 0.18s;
 }
-.input::placeholder { color: rgba(255, 255, 255, 0.45); }
-.input:focus {
-  border-color: rgba(255, 255, 255, 0.42);
-  background: rgba(255, 255, 255, 0.14);
-}
+.input::placeholder { color: rgba(17, 13, 9, 0.4); }
 
-/* ── Primary CTA ─────────────────────────────────────── */
+/* CTA — ink sticker */
 .cta {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  padding: 13px;
-  background: #b71c1c;
-  color: #fff;
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.005em;
-  border: none;
-  border-radius: 14px;
+  height: 56px;
+  background: #0a0a0a;
+  color: #fbf8ee;
+  border: 0;
+  border-radius: 0;
+  font-family: var(--font-chewy), cursive;
+  font-size: 17px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.18s, transform 0.08s;
-  outline: none;
 }
-.cta:hover:not(:disabled) { background: #9a1818; }
-.cta:active:not(:disabled) { transform: scale(0.99); }
 .cta:disabled { opacity: 0.55; cursor: not-allowed; }
 
-/* ── Error text ──────────────────────────────────────── */
 .error {
   margin: 0;
   font-size: 13px;
-  color: #ff8b8b;
+  color: #a02814;
   line-height: 1.4;
 }
 
-/* ── Processing splash (branded loading) ─────────────────
-   The yellow EAT THIS wordmark only reads on a LIGHT surface, so this splash
-   uses the cream brand background with dark ink elements — independent of the
-   dark .page used by the other (white-logo) states. */
-.splashPage {
-  height: 100dvh;
+/* Avatars — 3 named tiles (screen 14) */
+.avatars {
+  display: flex;
+  gap: 12px;
+  margin: 6px 0 4px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.avatar {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.avatarPh {
   width: 100%;
-  background: #F7F2E8;
+  aspect-ratio: 1 / 1;
+  background: #efe9d8;
+  border: 2px solid rgba(17, 13, 9, 0.18);
+  position: relative;
+  overflow: hidden;
+}
+.avatarPh img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  padding: 10% 6% 4%;
+  box-sizing: border-box;
+}
+.avatarActive .avatarPh {
+  border-color: #0a0a0a;
+  box-shadow: 0 0 0 3px #ffd84a;
+}
+.avatarName {
+  font-family: var(--font-chewy), cursive;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  opacity: 0.5;
+  text-align: center;
+  width: 100%;
+  line-height: 1.15;
+  word-break: break-word;
+}
+.avatarActive .avatarName { opacity: 1; }
+
+/* Checkmark (success) */
+.checkmark {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #ffd84a;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  margin-bottom: 4px;
+}
+.checkmark svg {
+  width: 26px;
+  height: 26px;
+  stroke: #0a0a0a;
+  stroke-width: 3;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── Processing splash ── */
+.splashPage {
+  min-height: 100dvh;
+  width: 100%;
+  background: #fbf8ee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
 }
-
 .splash {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 26px;
   padding: 24px;
 }
-
 .splashLogo {
   width: min(74vw, 300px);
   height: auto;
   user-select: none;
   -webkit-user-drag: none;
 }
-
-/* Fast sweeping bar — reads quicker than a slow circular spinner.
-   Ink fill on a light track (yellow would wash out on cream). */
 .bar {
   width: 172px;
   height: 5px;
@@ -177,122 +247,36 @@
   height: 100%;
   width: 42%;
   border-radius: 999px;
-  background: #0A0A0A;
-  animation: sweep 1.05s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  background: #0a0a0a;
+  animation: welcomeSweep 1.05s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
-
-@keyframes sweep {
+@keyframes welcomeSweep {
   0%   { transform: translateX(-115%); }
   100% { transform: translateX(345%); }
 }
-
 .splashTitle {
   margin: 0;
-  font-size: clamp(20px, 5.4vw, 24px);
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  color: #0A0A0A;
+  font-family: var(--font-chewy), cursive;
+  font-size: clamp(26px, 8vw, 36px);
+  text-transform: uppercase;
+  letter-spacing: -0.005em;
+  color: #0a0a0a;
   text-align: center;
 }
 
-/* ── Checkmark (success) ─────────────────────────────── */
-.checkmark {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: #E8B82A;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 4px;
-}
-
-.checkmark svg {
-  width: 26px;
-  height: 26px;
-  stroke: #0A0A0A;
-  stroke-width: 3;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-/* ── Avatar hero ──────────────────────────────────── */
-.avatarHero {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 8px;
-}
-
-.avatarHeroImg {
-  width: clamp(80px, 22vw, 120px);
-  height: auto;
-  border-radius: 50%;
-  object-fit: cover;
-  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.45));
-}
-
-.avatarRow {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin: 4px 0;
-}
-
-.avatarChoice {
-  appearance: none;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  padding: 3px;
-  background: transparent;
-  cursor: pointer;
-  width: 52px;
-  height: 52px;
-  overflow: hidden;
-  transition: border-color 0.18s, transform 0.12s;
-  outline: none;
-}
-
-.avatarChoice img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-}
-
-.avatarChoice:hover { border-color: rgba(255, 255, 255, 0.5); }
-.avatarChoiceActive {
-  border-color: #fff;
-  transform: scale(1.08);
-}
-
-/* ── Desktop: phone-card (same as /login) ─────────── */
+/* ── Desktop — sticker card ── */
 @media (min-width: 768px) {
   .page {
-    background: #faf8f3;
     align-items: center;
     justify-content: center;
     padding: 32px;
   }
-  [data-theme="dark"] .page { background: #0a0a0a; }
-
   .frame {
     flex: 0 0 auto;
-    width: 100%;
-    max-width: 400px;
-    height: min(90vh, 820px);
-    border-radius: 28px;
-    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.22);
-    overflow: hidden;
-    /* Desktop flips .page to light cream — the card itself must stay dark so the
-       white title/sub/logo stay readable (mobile uses the dark full-page bg). */
-    background: #0d0d0d;
+    width: min(460px, 94vw);
+    max-height: 96vh;
+    border: 2px solid #0a0a0a;
+    box-shadow: 5px 5px 0 #0a0a0a;
+    background: #fbf8ee;
   }
-  [data-theme="dark"] .frame {
-    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
-  }
-
-  .logoMark { width: min(40%, 140px); }
-  .content { padding: 0 22px 28px; max-width: none; }
 }

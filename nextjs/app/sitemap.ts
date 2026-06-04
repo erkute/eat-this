@@ -11,13 +11,12 @@ import { isStaging } from '@/lib/env'
 // revalidatePath('/sitemap.xml') on Sanity webhooks.
 export const revalidate = 86400
 
-// `/contact`, `/press`, `/impressum`, `/datenschutz`, `/agb` are marked
+// `/contact`, `/impressum`, `/datenschutz`, `/agb` are marked
 // `noindex,follow` in [...slug]/page.tsx — listing them in the sitemap
 // would send a conflicting signal, so they're omitted.
-// `''` (root) is omitted during the launch-holding-page phase — the launch
-// landing at / is `noindex,follow`, so listing it would conflict. Sub-pages
-// stay live + indexed.
-const STATIC_PATHS = ['/news', '/bezirk', '/kategorie', '/about'] as const
+// `''` (root) is the Hub home page — `index,follow`, self-canonical — so it
+// leads the sitemap at top priority.
+const STATIC_PATHS = ['', '/news', '/bezirk', '/kategorie', '/about'] as const
 
 function withAlternates(path: string, lastModified?: string, priority = 0.5, changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] = 'monthly'): MetadataRoute.Sitemap[number] {
   return {
@@ -62,7 +61,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       { next: { revalidate: 3600, tags: ['sitemap-articles'] } },
     ),
     client.fetch<{ slug: string; descriptionEn?: string }[]>(
-      `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, descriptionEn }`,
+      // Districts without open spots 404 (bezirk/[slug]/page.tsx) — keep them
+      // out of the sitemap too.
+      `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**")) && count(*[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false]) > 0] { "slug": slug.current, descriptionEn }`,
       {},
       { next: { revalidate: 3600, tags: ['sitemap-bezirke'] } },
     ),
@@ -74,9 +75,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ])
 
   const staticEntries = STATIC_PATHS.map(p => {
-    const priority = p === '/news' || p === '/bezirk' || p === '/kategorie' ? 0.7 : 0.5
+    const priority = p === '' ? 1.0 : p === '/news' || p === '/bezirk' || p === '/kategorie' ? 0.7 : 0.5
     const changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] =
-      p === '/news' ? 'weekly' : 'monthly'
+      p === '' ? 'daily' : p === '/news' ? 'weekly' : 'monthly'
     return withAlternates(p, undefined, priority, changeFrequency)
   })
 

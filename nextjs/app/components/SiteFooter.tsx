@@ -2,10 +2,12 @@
 
 import { useTranslation } from '@/lib/i18n'
 import { Link } from '@/i18n/navigation'
+import { useTheme } from '@/lib/useTheme'
 import styles from './SiteFooter.module.css'
 
 export default function SiteFooter() {
   const { t, lang, setLang } = useTranslation()
+  const { isDark, toggleTheme } = useTheme()
   const de = lang === 'de'
   const follow = de ? 'Folgen' : 'Follow'
 
@@ -44,23 +46,34 @@ export default function SiteFooter() {
         >
           Instagram
         </a>
-        <a
-          href="https://www.tiktok.com/@eatthis"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.socialLink}
-        >
-          TikTok
-        </a>
       </div>
 
       <nav className={styles.legal} aria-label="Footer legal">
         <Link href="/impressum" className={styles.legalLink}>{t('footer.impressum')}</Link>
         <Link href="/datenschutz" className={styles.legalLink}>{t('footer.datenschutz')}</Link>
         <Link href="/agb" className={styles.legalLink}>{t('footer.agb')}</Link>
+        <button
+          type="button"
+          className={`${styles.legalLink} ${styles.legalBtn}`}
+          onClick={() => window.dispatchEvent(new Event('eatthis:open-cookie-settings'))}
+        >
+          {t('footer.cookieSettings')}
+        </button>
       </nav>
 
       <div className={styles.meta}>
+        <button
+          type="button"
+          className={`${styles.themeToggle} ${isDark ? styles.themeToggleOn : ''}`}
+          aria-label="Toggle dark mode"
+          aria-pressed={isDark}
+          onClick={toggleTheme}
+        >
+          <span className={styles.themeTrack}>
+            <span className={styles.themeThumb}></span>
+          </span>
+          <span className={styles.themeLabel}>{t('theme.darkMode')}</span>
+        </button>
         <span className={styles.copy}>{t('footer.copyright')}</span>
         <div className={styles.lang} role="group" aria-label="Language / Sprache">
           <button

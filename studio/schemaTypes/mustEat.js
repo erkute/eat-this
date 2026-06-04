@@ -35,10 +35,17 @@ export default {
     },
     {
       name: 'description',
-      title: 'Beschreibung',
+      title: 'Beschreibung (DE)',
       type: 'text',
       rows: 2,
-      description: 'Kurze Beschreibung des Gerichts',
+      description: 'Kurze Beschreibung des Gerichts auf Deutsch (Standard, wird DE-Besuchern gezeigt)',
+    },
+    {
+      name: 'descriptionEn',
+      title: 'Beschreibung (EN)',
+      type: 'text',
+      rows: 2,
+      description: 'English description — shown to EN visitors (falls back to DE if empty)',
     },
     {
       name: 'image',

@@ -110,24 +110,25 @@ export default function SiteNav() {
     <>
       <a href="#appPages" className="skip-link">{t('a11y.skip')}</a>
       <nav className="navbar" id="navbar">
+        {/* Left: Map icon */}
+        <div className="navbar-actions" style={{ flex: 1, justifyContent: 'flex-start' }}>
+          <Link href="/map" className={`navbar-icon-btn${activePage === 'map' ? ' active' : ''}`} id="navMapBtn" aria-label="Map">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/pics/icon-map.webp?v=3" alt="" height={30} style={{ display: 'block', height: 30, width: 'auto' }} />
+          </Link>
+        </div>
+        {/* Center: Logo */}
         <div className="navbar-home">
           <Link href="/" className={styles.logo} aria-label="Eat This — Start">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" className={styles.logoImg} />
           </Link>
         </div>
-        <div className="navbar-actions">
-          <Link href="/news" className={`navbar-icon-btn${activePage === 'news' ? ' active' : ''}`} id="navNewsBtn" aria-label="News">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/icon-news.webp?v=2" alt="" width={30} height={30} style={{ display: 'block' }} />
-          </Link>
-          <Link href="/map" className={`navbar-icon-btn${activePage === 'map' ? ' active' : ''}`} id="navMapBtn" aria-label="Map">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/icon-map.webp?v=2" alt="" width={30} height={30} style={{ display: 'block' }} />
-          </Link>
+        {/* Right: Burger (News lives in the drawer) */}
+        <div className="navbar-actions" style={{ flex: 1, justifyContent: 'flex-end' }}>
           <button className="burger-btn" id="burgerBtn" aria-label="Menu">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/icon-burger.webp?v=2" alt="" width={30} height={30} style={{ display: 'block' }} />
+            <img src="/pics/icon-burger.webp?v=3" alt="" height={30} style={{ display: 'block', height: 30, width: 'auto' }} />
           </button>
         </div>
       </nav>

@@ -2,11 +2,10 @@
 import { Fragment, useCallback } from 'react'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
-import type { MapRestaurant, OpenStatus } from '@/lib/types'
-import { haversineDistance, formatWalkingTime, getOpenStatus, abbreviateBezirk, type UserLocation, type UserTier } from '@/lib/map'
+import type { MapRestaurant, MapMustEat, OpenStatus } from '@/lib/types'
+import { haversineDistance, formatWalkingTime, getOpenStatus, abbreviateBezirk, resolvePeek, type UserLocation, type UserTier, type Peek } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { localizedCategoryName } from '@/lib/categories'
-import { formatPriceLabel } from './restaurantDetail.helpers'
 import { normalizeName } from '@/lib/normalizeName'
 import BoosterOfferInline from './BoosterOfferInline'
 import MapListEmpty from './MapListEmpty'
@@ -16,13 +15,17 @@ interface ItemProps {
   restaurant: MapRestaurant
   userLocation: UserLocation | null
   isSelected: boolean
+  peek: Peek
   /** Visual-only blurred preview row — click routes to the booster/signup
    *  flow instead of opening restaurant detail. */
   locked?: boolean
+  /** Suppress the per-card "Freischalten" lock badge (used in the calmer
+   *  locked-bezirk view where a single block carries the upsell instead). */
+  hideBadge?: boolean
   onClick: (r: MapRestaurant) => void
 }
 
-function Item({ restaurant, userLocation, isSelected, locked, onClick }: ItemProps) {
+function Item({ restaurant, userLocation, isSelected, peek, locked, hideBadge, onClick }: ItemProps) {
   const { t, lang } = useTranslation()
   const loc = lang === 'de' ? 'de' : 'en'
   const statusLabels = {
@@ -50,8 +53,6 @@ function Item({ restaurant, userLocation, isSelected, locked, onClick }: ItemPro
     ? localizedCategoryName(restaurant.categories[0], loc)
     : null
 
-  const priceLabel = formatPriceLabel(restaurant)
-
   // Status label: `getOpenStatus` returns "Geöffnet · schließt 22:00" /
   // "Geschlossen · öffnet 9:00". The main word drives the dot-lockup;
   // the suffix becomes the small `bis 22:00` under it.
@@ -61,55 +62,52 @@ function Item({ restaurant, userLocation, isSelected, locked, onClick }: ItemPro
   return (
     <button
       type="button"
-      className={`${styles.rrow} ${isSelected ? styles.rrowActive : ''} ${locked ? styles.rrowLocked : ''}`}
+      className={`${styles.rcard} ${isSelected ? styles.rcardActive : ''} ${locked ? styles.rcardBlur : ''}`}
       onClick={() => onClick(restaurant)}
       aria-label={locked ? t('map.starterEyebrow') : undefined}
     >
+      {locked && !hideBadge && (
+        <span className={styles.rcardBlurBadge}>
+          <svg className={styles.rcardBlurLock} viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+            <rect x="5" y="11" width="14" height="9" rx="1" />
+            <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+          </svg>
+          {t('map.lockedCardBadge')}
+        </span>
+      )}
+
       <div
-        className={styles.rrowCoral}
+        className={styles.rcardImg}
         style={restaurant.photo ? { backgroundImage: `url(${restaurant.photo})` } : undefined}
-      >
-        {restaurant.mustEatCount > 0 && !locked && (
+      />
+
+      {statusMain && (
+        <span className={`${styles.openPill} ${status.isOpen ? '' : styles.openPillClosed}`} role="status">
+          {statusMain}
+        </span>
+      )}
+
+      {peek.kind !== 'none' && !locked && (
+        <span className={styles.mustPeek}>
           <img
-            src="/pics/card-back.webp?v=5"
+            src={peek.kind === 'open' ? peek.image : '/pics/card-back.webp?v=5'}
             alt=""
-            className={styles.rrowMust}
             aria-hidden="true"
             draggable={false}
           />
-        )}
-      </div>
+        </span>
+      )}
 
-      <div className={styles.rrowMeta}>
-        <p className={styles.rrowEye}>
-          {district && <span className={styles.rrowBezirk}>{district}</span>}
-          {categoryLabel && <span className={styles.rrowCat}>{categoryLabel}</span>}
+      <div className={styles.rcardBody}>
+        <h3 className={styles.rcardName}>{normalizeName(restaurant.name)}</h3>
+        <p className={styles.rcardMeta}>
+          {[district, categoryLabel].filter(Boolean).join(' · ')}
         </p>
-        <h3 className={styles.rrowTitle}>{normalizeName(restaurant.name)}</h3>
-        <p className={styles.rrowInfo}>
-          {priceLabel && <span>{priceLabel}</span>}
-          {priceLabel && walkingTime && <span className={styles.rrowInfoSep} aria-hidden="true" />}
-          {walkingTime && (
-            <span>
-              <svg className={styles.walkIco} viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7" />
-              </svg>
-              {walkingTime}
-            </span>
-          )}
+        <p className={styles.rcardTime}>
+          {statusSub && <span className={status.isOpen ? styles.rcardNow : undefined}>{statusSub}</span>}
+          {statusSub && walkingTime && <span className={styles.rcardDot} aria-hidden="true" />}
+          {walkingTime && <span>{walkingTime}</span>}
         </p>
-      </div>
-
-      <div className={styles.rrowAside}>
-        {statusMain && (
-          <span
-            className={`${styles.rrowStatus} ${status.isOpen ? '' : styles.rrowStatusClosed}`}
-            role="status"
-          >
-            {statusMain}
-          </span>
-        )}
-        {statusSub && <span className={styles.rrowWhen}>{statusSub}</span>}
       </div>
     </button>
   )
@@ -125,25 +123,39 @@ interface RestaurantListProps {
   uid: string | null
   userTier: UserTier
   onSelect: (r: MapRestaurant) => void
+  primaryMustEats: Map<string, MapMustEat>
+  unlockedIds: Set<string>
+  revealedMustEatIds: Set<string>
+  onResetFilters?: () => void
+  /** Active bezirk filter name, if any. When a district has ONLY locked spots
+   *  we swap the triple upsell (divider + per-card badges + end-cap) for a
+   *  single calm block that pitches All Berlin. */
+  activeBezirk?: string | null
 }
 
 export default function RestaurantList({
   restaurants, lockedRestaurants = [], userLocation, selectedId, uid, userTier, onSelect,
+  primaryMustEats, unlockedIds, revealedMustEatIds, onResetFilters, activeBezirk,
 }: RestaurantListProps) {
   const locale = useLocale()
+  const { t } = useTranslation()
 
   // Locked-row click routes to the same upgrade target the booster banner
-  // CTA uses — anon → /login, signed-in → /profile#booster. Keeps the
+  // CTA uses — anon → /login, signed-in → /#hub-packs. Keeps the
   // conversion path consistent regardless of which surface the user clicks.
   const upgradeHref = uid
-    ? (locale === routing.defaultLocale ? '/profile#booster' : `/${locale}/profile#booster`)
+    ? (locale === routing.defaultLocale ? '/#hub-packs' : `/${locale}#hub-packs`)
     : (locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
 
   const handleLockedClick = useCallback((_r: MapRestaurant) => {
     window.location.assign(upgradeHref)
   }, [upgradeHref])
 
-  if (restaurants.length === 0 && lockedRestaurants.length === 0) return <MapListEmpty />
+  const onUpgradeClick = useCallback(() => {
+    window.location.assign(upgradeHref)
+  }, [upgradeHref])
+
+  if (restaurants.length === 0 && lockedRestaurants.length === 0) return <MapListEmpty onReset={onResetFilters} />
 
   // Booster CTA sits between unlocked and locked groups — communicates
   // „these are yours / these unlock with signup". Hidden only for the
@@ -151,6 +163,11 @@ export default function RestaurantList({
   // empty (filter mismatched the trial set) the banner sits at the very
   // top so the user still sees the upsell.
   const showBooster = userTier !== 'allBerlin'
+
+  // A district the user can't browse yet (filter active, every spot locked).
+  // Show one calm All-Berlin block instead of divider + badges + end-cap.
+  const bezirkLockedOnly = !!activeBezirk && showBooster && restaurants.length === 0 && lockedRestaurants.length > 0
+  const allBerlinHref = locale === routing.defaultLocale ? '/pack/all-berlin' : `/${locale}/pack/all-berlin`
 
   return (
     <>
@@ -160,11 +177,26 @@ export default function RestaurantList({
           restaurant={r}
           userLocation={userLocation}
           isSelected={selectedId === r._id}
+          // Beide Sets werden gebraucht: bei Anon-Nutzern enthält `unlockedIds` die
+          // pre-revealed Must-Eat-IDs NICHT, daher prüft `resolvePeek` `revealedMustEatIds`
+          // separat. Bei eingeloggten Nutzern ist `revealedMustEatIds` leer — harmloser No-op.
+          peek={resolvePeek(primaryMustEats.get(r._id), unlockedIds, revealedMustEatIds)}
           onClick={onSelect}
         />
       ))}
-      {showBooster && (lockedRestaurants.length > 0 || restaurants.length === 0) && (
-        <BoosterOfferInline uid={uid} variant="list" />
+      {bezirkLockedOnly ? (
+        <section className={styles.bezirkLocked}>
+          <h3 className={styles.bezirkLockedTitle}>{activeBezirk} {t('map.bezirkLockedTitleSuffix')}</h3>
+          <p className={styles.bezirkLockedBody}>{t('map.bezirkLockedBodyPre')}{activeBezirk}{t('map.bezirkLockedBodyPost')}</p>
+          <a href={allBerlinHref} className={styles.bezirkLockedCta}>
+            <span>{t('map.bezirkLockedCta')}</span>
+            <svg viewBox="0 0 14 10" width="15" height="11" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M1 5h11M8 1l4 4-4 4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </a>
+        </section>
+      ) : (
+        showBooster && (lockedRestaurants.length > 0 || restaurants.length === 0) && (
+          <BoosterOfferInline uid={uid} variant="list" />
+        )
       )}
       {lockedRestaurants.map((r) => (
         <Item
@@ -172,10 +204,21 @@ export default function RestaurantList({
           restaurant={r}
           userLocation={userLocation}
           isSelected={false}
+          peek={{ kind: 'covered' }}
           locked
+          hideBadge={bezirkLockedOnly}
           onClick={handleLockedClick}
         />
       ))}
+      {showBooster && !bezirkLockedOnly && (
+        <div className={styles.listEnd}>
+          <h3 className={styles.listEndTitle}>{t('map.listEndTitle')}</h3>
+          <button type="button" className={styles.listEndCta} onClick={() => onUpgradeClick()}>
+            <span>{t(uid ? 'map.boosterCta' : 'map.starterCta')}</span>
+            <svg viewBox="0 0 14 10" width="15" height="11" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M1 5h11M8 1l4 4-4 4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </button>
+        </div>
+      )}
     </>
   )
 }

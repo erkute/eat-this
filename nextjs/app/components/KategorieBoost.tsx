@@ -26,6 +26,7 @@ export default function KategorieBoost({ categorySlug, locale }: Props) {
   if (!pack) return null
   const image = IMAGE_MAP[categorySlug]
   const priceLabel = `€${(pack.amountCents / 100).toFixed(2).replace('.', ',')}`
+  const packHref = de ? `/pack/${categorySlug}` : `/${locale}/pack/${categorySlug}`
 
   return (
     <aside className={styles.boost} aria-label={`${pack.displayName} Pack`}>
@@ -43,12 +44,12 @@ export default function KategorieBoost({ categorySlug, locale }: Props) {
       <div className={styles.body}>
         <div className={styles.kicker}>{de ? 'Map-Pack' : 'Map pack'}</div>
         <h2 className={styles.title}>{pack.displayName}</h2>
-        <div className={styles.spectrum}>{pack.spectrum}</div>
-        <p className={styles.desc}>{pack.description}</p>
+        <div className={styles.spectrum}>{pack.spectrum[locale]}</div>
+        <p className={styles.desc}>{pack.description[locale]}</p>
         <div className={styles.priceRow}>
           <span className={styles.price}>{priceLabel}</span>
-          <Link href="/" className={styles.cta}>
-            {de ? 'Bald da →' : 'Coming soon →'}
+          <Link href={packHref} className={styles.cta}>
+            {de ? 'Kaufen →' : 'Buy →'}
           </Link>
         </div>
       </div>

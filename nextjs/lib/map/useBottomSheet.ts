@@ -44,15 +44,20 @@ function pxToNearestSnap(px: number, sheetH: number, peekPx: number, allowed: Sh
    reaching `peek`, requiring a second gesture (feels like extra stops).
 
    Combined rule:
-   - Intent guarantees the *minimum* one-step move if |dy| ≥ 40 px.
+   - Intent guarantees the *minimum* one-step move if |dy| ≥ 40 px OR the
+     release velocity reads as a flick (≥ 0.4 px/ms) — a short fast swipe
+     moves the sheet even when the finger only travelled ~20 px. That's
+     the Google-Maps feel; distance-only made quick flicks feel ignored.
    - Nearest-by-distance overrides if the finger went further in the same
      direction (so a long hard swipe still spans multiple snaps).
 */
 const INTENT_THRESHOLD_PX = 40
+const FLICK_VELOCITY_PX_MS = 0.4
 
 function pickSnapAfterDrag(
   startSnap: SheetSnap,
   dy: number,
+  velocity: number,
   finalPx: number,
   sheetH: number,
   peekPx: number,
@@ -67,24 +72,55 @@ function pickSnapAfterDrag(
   const nearest = pxToNearestSnap(finalPx, sheetH, peekPx, allowed)
   const nearestIdx = order.indexOf(nearest)
 
-  if (Math.abs(dy) < INTENT_THRESHOLD_PX || startIdx === -1) {
-    // Below the intent threshold (or unknown start) → pure nearest.
+  const flick = Math.abs(velocity) >= FLICK_VELOCITY_PX_MS
+  if ((Math.abs(dy) < INTENT_THRESHOLD_PX && !flick) || startIdx === -1) {
+    // Below the intent threshold and no flick (or unknown start) → nearest.
     return nearest
   }
 
-  const step = dy < 0 ? -1 : 1   // up = -1 (smaller idx), down = +1 (larger idx)
-  const intentIdx = Math.max(0, Math.min(order.length - 1, startIdx + step))
+  // up = -1 (smaller idx), down = +1 (larger idx). A flick's direction
+  // wins over the net displacement (finger may have doubled back).
+  const dir = flick ? (velocity < 0 ? -1 : 1) : (dy < 0 ? -1 : 1)
+  const intentIdx = Math.max(0, Math.min(order.length - 1, startIdx + dir))
 
   // Combine: pick the snap that's further in the drag direction.
-  // dy < 0 (up) wants the smaller idx → min.
-  // dy > 0 (down) wants the larger idx → max.
-  const finalIdx = dy < 0 ? Math.min(intentIdx, nearestIdx) : Math.max(intentIdx, nearestIdx)
+  // dir -1 (up) wants the smaller idx → min.
+  // dir +1 (down) wants the larger idx → max.
+  const finalIdx = dir < 0 ? Math.min(intentIdx, nearestIdx) : Math.max(intentIdx, nearestIdx)
   return order[finalIdx]
+}
+
+/* Release-velocity tracker (px/ms, positive = downward). EMA over the move
+   samples so a single jittery event doesn't dominate, but the most recent
+   motion outweighs the start of the gesture. */
+interface VelocityState { lastY: number; lastT: number; vel: number }
+
+function velocityInit(y: number, t: number): VelocityState {
+  return { lastY: y, lastT: t, vel: 0 }
+}
+
+function velocitySample(v: VelocityState, y: number, t: number): void {
+  const dt = t - v.lastT
+  if (dt <= 0) return
+  const inst = (y - v.lastY) / dt
+  v.vel = v.vel * 0.4 + inst * 0.6
+  v.lastY = y
+  v.lastT = t
 }
 
 function isMobile(): boolean {
   if (typeof window === 'undefined') return false
   return window.matchMedia(`(max-width: ${MOBILE_MAX}px)`).matches
+}
+
+/* Snap math anchors to the VISIBLE viewport height (the dvh line), not the
+   sheet's own height: the sheet is 100lvh tall with an overhang that extends
+   below the visual viewport into iOS Safari's URL-bar zone (see map.module.css
+   .list), so measuring the element would push every snap position down by the
+   bar height. window.innerHeight == visual viewport on mobile (innerHeight
+   ignores the iOS keyboard, same as dvh — intended). */
+function visibleViewportH(): number {
+  return window.innerHeight
 }
 
 interface SheetConfig {
@@ -130,7 +166,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       setHeaderTick(t => t + 1)
     }
   }, [])
-  const dragRef    = useRef<{ startY: number; basePx: number; pointerId: number } | null>(null)
+  const dragRef    = useRef<{ startY: number; basePx: number; pointerId: number; v: VelocityState } | null>(null)
   const snapRef    = useRef<SheetSnap>(initial)
   const configRef  = useRef<SheetConfig>({ maxSnap: null, dragMode: 'all', peekVisiblePx: DEFAULT_PEEK_VISIBLE_PX })
   snapRef.current = snap
@@ -162,8 +198,9 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
                  above the new sheet height. Only runs at drag-release and
                  programmatic snap calls (a handful of times per session).
 
-     Sheet height is cached at drag-start (sheetHRef) so we don't trigger a
-     layout-flush every frame just to compute `visible = h - px`.
+     The visible viewport height is cached at drag-start (sheetHRef) so the
+     move handler doesn't re-read it every frame just to compute
+     `visible = h - px`.
   */
   const sheetHRef = useRef<number>(0)
 
@@ -204,14 +241,18 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     const el = sheetNode.current
     if (!el) return
     el.style.setProperty('--sheet-y', `${px}px`)
-    const h = el.getBoundingClientRect().height
+    const h = visibleViewportH()
     sheetHRef.current = h
     const visible = Math.max(0, h - px)
     el.style.setProperty('--sheet-visible-px', `${visible}px`)
     const parent = el.parentElement
     if (parent) {
       parent.style.setProperty('--sheet-visible-px', `${visible}px`)
-      const offset = visible + 10
+      /* Controls are bottom-anchored inside the 100lvh-tall map body — lift
+         them past the URL-bar overhang (body height minus visual viewport)
+         so they stay above the visual-viewport bottom. */
+      const overhang = Math.max(0, parent.getBoundingClientRect().height - h)
+      const offset = visible + 10 + overhang
       lastControlOffsetRef.current = offset
       updateControls(parent, offset)
       // Cancel any pending retries from previous applyY calls so stale
@@ -235,9 +276,10 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       // freshly-mounted controls don't sit at the default `bottom: 0`.
       let offset = lastControlOffsetRef.current
       if (!offset && el && isMobile()) {
-        const h = el.getBoundingClientRect().height
+        const h = visibleViewportH()
         const px = snapToPx(snapRef.current, h, configRef.current.peekVisiblePx)
-        offset = Math.max(0, h - px) + 10
+        const overhang = Math.max(0, parent.getBoundingClientRect().height - h)
+        offset = Math.max(0, h - px) + 10 + overhang
       }
       if (offset) updateControls(parent, offset)
     }
@@ -256,7 +298,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       setSheetMounted(true)   // triggers re-run of the handle effect after delayed mount
     }
     if (el && isMobile()) {
-      const h = el.getBoundingClientRect().height
+      const h = visibleViewportH()
       const px = snapToPx(snapRef.current, h, configRef.current.peekVisiblePx)
       const visible = Math.max(0, h - px)
       el.style.setProperty('--sheet-y', `${px}px`)
@@ -264,7 +306,9 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const parent = el.parentElement
       if (parent) {
         parent.style.setProperty('--sheet-visible-px', `${visible}px`)
-        const offset = visible + 10
+        // Same overhang lift as applyY — body is 100lvh tall.
+        const overhang = Math.max(0, parent.getBoundingClientRect().height - h)
+        const offset = visible + 10 + overhang
         lastControlOffsetRef.current = offset
         updateControls(parent, offset)
         // Retry — maplibre might still be mounting its controls async
@@ -282,8 +326,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     if (dragging) return
     const el = sheetNode.current
     if (!el || !isMobile()) return
-    const h = el.getBoundingClientRect().height
-    applyY(snapToPx(snap, h, configRef.current.peekVisiblePx))
+    applyY(snapToPx(snap, visibleViewportH(), configRef.current.peekVisiblePx))
   }, [snap, dragging, applyY])
 
   // Re-sync on resize
@@ -291,8 +334,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     const onResize = () => {
       const el = sheetNode.current
       if (!el || !isMobile()) return
-      const h = el.getBoundingClientRect().height
-      applyY(snapToPx(snap, h, configRef.current.peekVisiblePx))
+      applyY(snapToPx(snap, visibleViewportH(), configRef.current.peekVisiblePx))
     }
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
@@ -306,14 +348,14 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
 
     const onDown = (e: PointerEvent) => {
       if (!isMobile() || configRef.current.dragMode === 'none') return
-      // Cache sheet height once at drag-start so the move handler doesn't
-      // trigger a layout-flush on every frame just to clamp the target px.
-      const h = sheet.getBoundingClientRect().height
+      // Cache the visible viewport height once at drag-start so the move
+      // handler doesn't re-read it on every frame just to clamp the target px.
+      const h = visibleViewportH()
       sheetHRef.current = h
       // Read actual CSS position so custom content-fit snap is the drag baseline.
       const cssY = sheet.style.getPropertyValue('--sheet-y')
       const basePx = cssY ? parseFloat(cssY) : snapToPx(snap, h, configRef.current.peekVisiblePx)
-      dragRef.current = { startY: e.clientY, basePx, pointerId: e.pointerId }
+      dragRef.current = { startY: e.clientY, basePx, pointerId: e.pointerId, v: velocityInit(e.clientY, e.timeStamp) }
       handle.setPointerCapture(e.pointerId)
       setDragging(true)
       e.preventDefault()
@@ -321,6 +363,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     const onMove = (e: PointerEvent) => {
       const d = dragRef.current
       if (!d) return
+      velocitySample(d.v, e.clientY, e.timeStamp)
       const { maxSnap } = configRef.current
       const h = sheetHRef.current
       const upperCap = maxSnap ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx) : FULL_TOP_PX
@@ -346,7 +389,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const upperCap = maxSnap ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx) : FULL_TOP_PX
       const finalPx = Math.max(upperCap, Math.min(h - 40, d.basePx + dy))
       const allowed: SheetSnap[] = maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']
-      setSnap(pickSnapAfterDrag(snapRef.current, dy, finalPx, h, configRef.current.peekVisiblePx, allowed))
+      setSnap(pickSnapAfterDrag(snapRef.current, dy, d.v.vel, finalPx, h, configRef.current.peekVisiblePx, allowed))
     }
 
     handle.addEventListener('pointerdown',   onDown)
@@ -377,15 +420,17 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
 
     let touchState: {
       startY: number
+      startX: number
       basePx: number
       active: boolean
       atScrollTop: boolean
+      v: VelocityState
     } | null = null
 
     const onTouchStart = (e: TouchEvent) => {
       if (configRef.current.dragMode !== 'all') return
       if (e.touches.length !== 1) return
-      const h = sheet.getBoundingClientRect().height
+      const h = visibleViewportH()
       sheetHRef.current = h
       /* The detail view's actual scroller is nested inside the contentRef
          wrapper (marked with data-detail-scroll). Read scrollTop from there
@@ -394,17 +439,25 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const scroller = content.querySelector<HTMLElement>('[data-detail-scroll]') ?? content
       touchState = {
         startY: e.touches[0].clientY,
+        startX: e.touches[0].clientX,
         basePx: snapToPx(snapRef.current, h, configRef.current.peekVisiblePx),
         active: false,
         atScrollTop: scroller.scrollTop <= 0,
+        v: velocityInit(e.touches[0].clientY, e.timeStamp),
       }
     }
 
     const onTouchMove = (e: TouchEvent) => {
       if (!touchState) return
       const dy = e.touches[0].clientY - touchState.startY
+      velocitySample(touchState.v, e.touches[0].clientY, e.timeStamp)
       if (!touchState.active) {
-        if (Math.abs(dy) < 6) return
+        const dx = e.touches[0].clientX - touchState.startX
+        if (Math.abs(dy) < 6 && Math.abs(dx) < 6) return
+        /* Axis lock (Google-Maps style): the first dominant axis owns the
+           whole gesture. A horizontal start belongs to a horizontal scroller
+           / swipe handler inside the sheet — never also move the sheet. */
+        if (Math.abs(dx) > Math.abs(dy)) { touchState = null; return }
         /* Conflict resolution between sheet-drag and content-scroll, so the
            user can swipe up/down anywhere in the sheet without fighting
            native scroll:
@@ -412,8 +465,8 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
            - Swiping DOWN with the content scrolled past the top → native scroll
            - Otherwise → drag the sheet between snaps. */
         const atFull = snapRef.current === 'full'
-        if (atFull && dy < 0) return
-        if (dy > 0 && !touchState.atScrollTop) return
+        if (atFull && dy < 0) { touchState = null; return }
+        if (dy > 0 && !touchState.atScrollTop) { touchState = null; return }
         touchState.active = true
         setDragging(true)
       }
@@ -436,7 +489,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
         const finalPx = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
         const allowed: SheetSnap[] = maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']
         setDragging(false)
-        setSnap(pickSnapAfterDrag(snapRef.current, dy, finalPx, h, configRef.current.peekVisiblePx, allowed))
+        setSnap(pickSnapAfterDrag(snapRef.current, dy, touchState.v.vel, finalPx, h, configRef.current.peekVisiblePx, allowed))
       }
       touchState = null
     }
@@ -467,29 +520,40 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
 
     let touchState: {
       startY: number
+      startX: number
       basePx: number
       active: boolean
+      v: VelocityState
     } | null = null
 
     const onTouchStart = (e: TouchEvent) => {
       if (configRef.current.dragMode !== 'all') return
       if (e.touches.length !== 1) return
-      const h = sheet.getBoundingClientRect().height
+      const h = visibleViewportH()
       sheetHRef.current = h
       touchState = {
         startY: e.touches[0].clientY,
+        startX: e.touches[0].clientX,
         basePx: snapToPx(snapRef.current, h, configRef.current.peekVisiblePx),
         active: false,
+        v: velocityInit(e.touches[0].clientY, e.timeStamp),
       }
     }
 
     const onTouchMove = (e: TouchEvent) => {
       if (!touchState) return
       const dy = e.touches[0].clientY - touchState.startY
+      velocitySample(touchState.v, e.touches[0].clientY, e.timeStamp)
       if (!touchState.active) {
+        const dx = e.touches[0].clientX - touchState.startX
         // 8 px threshold — below this it's a tap, leave the click event
         // alone so buttons inside the header still receive their onClick.
-        if (Math.abs(dy) < 8) return
+        if (Math.abs(dy) < 8 && Math.abs(dx) < 8) return
+        /* Axis lock (Google-Maps style): the chip rail inside this zone is
+           a native horizontal scroller (touch-action: pan-x). A horizontal
+           start belongs exclusively to the rail — never also drag the
+           sheet, otherwise both move at once (diagonal mess). */
+        if (Math.abs(dx) > Math.abs(dy)) { touchState = null; return }
         touchState.active = true
         setDragging(true)
       }
@@ -512,7 +576,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
         const finalPx = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
         const allowed: SheetSnap[] = maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']
         setDragging(false)
-        setSnap(pickSnapAfterDrag(snapRef.current, dy, finalPx, h, configRef.current.peekVisiblePx, allowed))
+        setSnap(pickSnapAfterDrag(snapRef.current, dy, touchState.v.vel, finalPx, h, configRef.current.peekVisiblePx, allowed))
       }
       touchState = null
     }
@@ -537,8 +601,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   const reapplySnap = useCallback((target: SheetSnap) => {
     const el = sheetNode.current
     if (!el || !isMobile()) return
-    const h = el.getBoundingClientRect().height
-    applyY(snapToPx(target, h, configRef.current.peekVisiblePx))
+    applyY(snapToPx(target, visibleViewportH(), configRef.current.peekVisiblePx))
     snapRef.current = target
   }, [applyY])
 

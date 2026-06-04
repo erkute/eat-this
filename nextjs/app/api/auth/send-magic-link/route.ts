@@ -61,7 +61,13 @@ export async function POST(request: Request) {
 
   const continueUrl = sanitizeContinueUrl(body.continueUrl, origin, `${origin}/profile`);
 
-  const result = await sendMagicLinkEmail({ email, continueUrl, appUrl: origin });
+  // Email artwork must load from a publicly reachable, non-auth host. `origin`
+  // can be localhost (dev) or the Basic-Auth-gated staging URL, where mail
+  // clients can't fetch the logo/slogan/card images — so always point email
+  // assets at production (override via EMAIL_ASSET_BASE_URL if ever needed).
+  const emailAssetBase = process.env.EMAIL_ASSET_BASE_URL || 'https://www.eatthisdot.com';
+
+  const result = await sendMagicLinkEmail({ email, continueUrl, appUrl: emailAssetBase });
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 500 });
   }

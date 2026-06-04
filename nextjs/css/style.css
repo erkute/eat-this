@@ -99,7 +99,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px;
+  padding: 17px 16px;
   /* Brand-yellow header bar. */
   background: #F5C518;
   border-bottom: 1px solid rgba(10, 10, 10, 0.12);
@@ -107,9 +107,16 @@ body {
   backdrop-filter: none;
 }
 [data-theme="dark"] .navbar {
-  /* Header stays brand-yellow in dark theme too. */
-  background: #F5C518;
-  border-bottom-color: rgba(10, 10, 10, 0.12);
+  /* Dark mode: Header kippt auf Brand-Rot (User-Entscheidung 2026-06-03,
+     Dark-Akzent rot statt gelb). Bubble-Logo (cream+ink) liest auf Rot. */
+  background: #a02814;
+  border-bottom-color: rgba(0, 0, 0, 0.25);
+}
+/* Schwarze Line-Art-Icons (webp) wären auf Rot zu kontrastarm — invert
+   macht sie weiß. Logo bleibt unangetastet (eigener .navbar-home-Slot). */
+[data-theme="dark"] .navbar-icon-btn img,
+[data-theme="dark"] .burger-btn img {
+  filter: invert(1);
 }
 /* Legacy brand-plate slots — kept hidden so old markup paths stay quiet. */
 .navbar-brand,
@@ -211,23 +218,6 @@ body {
 /* ============================================
    HERO — rules moved to HeroSection.module.css
    ============================================ */
-
-/* Start page — komplette Landing-Surface in EINER Farbe pro Theme.
-   Light: #ffffff / Dark: #1c1c1c. Gilt für die fixed Navbar und alle
-   Sektionen innerhalb der Landing. */
-html:not([data-theme="dark"])[data-active-page="start"] .navbar {
-  background: #F5C518;
-  border-bottom-color: transparent;
-}
-html:not([data-theme="dark"])[data-active-page="start"] .navbar .navbar-icon-btn,
-html:not([data-theme="dark"])[data-active-page="start"] .navbar .burger-btn { color: #1c1c1c; }
-
-html[data-theme="dark"][data-active-page="start"] .navbar {
-  background: #F5C518;
-  border-bottom-color: transparent;
-}
-html[data-theme="dark"][data-active-page="start"] .navbar .navbar-icon-btn,
-html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #1c1c1c; }
 
 /* Map page on mobile: header is almost gone — Start + Profile chip float
    in the top-right next to the floating search toolbar. Map canvas claims
@@ -594,11 +584,12 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
 }
 .cookie-btn-decline {
   background: transparent;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--white);
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.55);
 }
 .cookie-btn-decline:hover {
   color: var(--white);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.12);
 }
 @media (max-width: 560px) {
   .cookie-consent {
@@ -932,7 +923,7 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
 .app-page {
   display: none !important;
   width: 100%;
-  height: calc(100vh - 48px);
+  height: calc(100vh - 64px);
   overflow-y: auto;
   overflow-x: hidden;
 /*  padding-bottom: max(80px, calc(61px + env(safe-area-inset-bottom)));*/
@@ -948,7 +939,7 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
 
 
 .app-page[data-page="start"] {
-  min-height: calc(100vh - 48px);
+  min-height: calc(100vh - 64px);
 }
 
 /* ============================================
@@ -983,21 +974,21 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
      Use !important — the global rule has overflow-y:auto which the browser
      keeps even when we set overflow-x:clip (clip not reliably supported). */
   .app-pages {
-    /* 48px navbar + safe-area-inset-top (notch/Dynamic Island ~47px) */
-    margin-top: calc(48px + env(safe-area-inset-top, 0px));
+    /* 64px navbar + safe-area-inset-top (notch/Dynamic Island ~47px) */
+    margin-top: calc(64px + env(safe-area-inset-top, 0px));
     height: auto !important;
     overflow: visible !important;
   }
 
-  /* Thin strip on mobile — 48 px + safe-area, white in light, black in dark. */
+  /* Strip on mobile — 64 px + safe-area, white in light, black in dark. */
   .navbar,
   .navbar.scrolled {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
-    height: calc(48px + env(safe-area-inset-top, 0px));
-    min-height: calc(48px + env(safe-area-inset-top, 0px));
-    padding: 6px 16px calc(6px) 16px;
-    padding-top: calc(6px + env(safe-area-inset-top, 0px));
+    height: calc(64px + env(safe-area-inset-top, 0px));
+    min-height: calc(64px + env(safe-area-inset-top, 0px));
+    padding: 14px 16px;
+    padding-top: calc(14px + env(safe-area-inset-top, 0px));
     box-sizing: border-box;
   }
   /* Mobile header: News hidden so the right cluster (Map + Burger) and the
@@ -1031,9 +1022,13 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
     overscroll-behavior: none;
   }
 
-  /* Pages ending with site-footer: let the footer own the bottom clearance so
-     its black bg covers the tab-bar gap. Remove app-page padding-bottom here. */
-  .app-page:has(.site-footer) {
+  /* Pages ending with the site footer: let the footer own the bottom
+     clearance. Remove app-page padding-bottom here — otherwise 80px of
+     page bg show as a dead band UNDER the footer. The live footer is the
+     CSS-module <SiteFooter/> (hashed class, matched via attribute);
+     .site-footer is the legacy class kept for old markup. */
+  .app-page:has(.site-footer),
+  .app-page:has(footer[class*="SiteFooter_footer"]) {
     padding-bottom: 0;
   }
 
@@ -1041,18 +1036,25 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
     z-index: auto;
   }
 
-  /* Map page MUST be fixed — natural flow causes map pan to move the
-     restaurant list. Accept URL bar won't auto-hide here.
-     top:0 — the navbar is transparent over the map (see [data-active-page="map"]
-     block above), so the map canvas claims the full viewport including the
-     strip the navbar used to reserve. */
+  /* Map page: in-flow + 100lvh tall, so the bottom sheet's last
+     (lvh − dvh) px sit behind iOS Safari's translucent bottom URL bar and
+     the list rows blur through it while scrolling — same effect as the
+     window-scroll start page. Verified on-device via a probe page: Safari
+     composites only IN-FLOW content of a scrollable document into the bar
+     backdrop; position:fixed layers / overflow-hidden bodies show the body
+     bg (the "cream behind the bar") instead.
+     Historic: this used to be position:fixed + body overflow:hidden ("map
+     pan moves the list") — obsolete since the MapLibre canvas is
+     touch-action:none and the sheet drags preventDefault; no gesture
+     reaches the window. The window CAN scroll by the bar height (~40px);
+     if it ever does, the bar minimizes and the sheet snap math re-anchors
+     on resize (useBottomSheet). */
   .app-page[data-page="map"] {
-    position: fixed !important;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: auto !important;
+    position: relative !important;
+    height: 100dvh !important; /* fallback: browsers without lvh */
+    /* +80px apron past lvh — Safari's bar backdrop samples deeper than the
+       document end; must match --map-bar-overhang in map.module.css. */
+    height: calc(100lvh + 80px) !important;
     min-height: 0;
     z-index: 9990;
     overflow: hidden !important;
@@ -1062,14 +1064,13 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
     z-index: 9995;
   }
 
-  /* Disable window scroll when map is active so map can own the gestures */
+  /* Safari paints the body bg behind the URL bar wherever the sheet's lvh
+     overhang doesn't cover it — keep it matched to the sheet surface. */
   body:has(.app-page[data-page="map"].active) {
-    overflow: hidden;
-    /* Safari shows body background behind URL bar — match the sheet color */
-    background: #f8f8f8;
+    background: #ffffff;
   }
   [data-theme="dark"] body:has(.app-page[data-page="map"].active) {
-    background: #111111;
+    background: #1c1c1c;
   }
   
   .app-page[data-page="start"] {
@@ -1398,43 +1399,6 @@ html[data-theme="dark"][data-active-page="start"] .navbar .burger-btn { color: #
 }
 [data-theme="dark"] .lang-btn:hover:not(.active) {
   color: rgba(255, 255, 255, 0.8);
-}
-
-/* Burger Drawer */
-[data-theme="dark"] .burger-drawer-panel {
-  background: #000000;
-}
-[data-theme="dark"] .burger-drawer-close {
-  color: rgba(255, 255, 255, 0.7);
-}
-[data-theme="dark"] .burger-primary-item {
-  color: rgba(255, 255, 255, 0.92);
-}
-[data-theme="dark"] .burger-primary-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-}
-[data-theme="dark"] .burger-section-divider {
-  background: rgba(255, 255, 255, 0.07);
-}
-[data-theme="dark"] .burger-secondary-item {
-  color: rgba(255, 255, 255, 0.5);
-}
-[data-theme="dark"] .burger-secondary-item:hover {
-  color: rgba(255, 255, 255, 0.9);
-}
-[data-theme="dark"] .burger-util-btn {
-  color: rgba(255, 255, 255, 0.5);
-}
-[data-theme="dark"] .burger-util-btn:hover {
-  color: rgba(255, 255, 255, 0.9);
-}
-[data-theme="dark"] .burger-drawer-footer {
-  color: rgba(255, 255, 255, 0.25);
-}
-[data-theme="dark"] .burger-drawer-footer a,
-[data-theme="dark"] .burger-drawer-footer-btn,
-[data-theme="dark"] .burger-drawer-footer span {
-  color: rgba(255, 255, 255, 0.25);
 }
 
 /* News section */
@@ -1815,13 +1779,13 @@ html:not([data-theme="dark"]) .site-footer .theme-toggle-label {
   .navbar {
     left: 0; right: 0; transform: none;
     width: 100%; max-width: none;
-    height: 48px; padding: 0 32px;
+    height: 64px; padding: 0 32px;
     display: flex; align-items: center; justify-content: space-between;
   }
 
   .app-pages {
-    max-width: none; margin: 48px 0 0; box-shadow: none;
-    height: calc(100dvh - 48px);
+    max-width: none; margin: 64px 0 0; box-shadow: none;
+    height: calc(100dvh - 64px);
     overflow-y: auto;
     overflow-x: hidden;
   }
@@ -2259,7 +2223,11 @@ body:has(.burger-drawer.active) .burger-btn {
   color: var(--accent-ink);
 }
 
-/* Drawer */
+/* Drawer. NOTE: position:fixed layers do NOT composite into iOS Safari's
+   bottom-URL-bar backdrop (verified on device — only in-flow document
+   content shows up there). Don't try to extend the drawer below the
+   viewport; the behind-bar zone is mirrored in-flow instead (see the
+   [data-active-page="map"] ::after strip in globals.css). */
 .burger-drawer {
   position: fixed;
   inset: 0;
@@ -2309,134 +2277,7 @@ body:has(.burger-drawer.active) .burger-btn {
   padding: 4px;
   color: var(--black);
 }
-.burger-primary {
-  display: flex;
-  flex-direction: column;
-  margin-top: 56px;
-  padding: 0 16px;
-  gap: 2px;
-}
-.burger-primary-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  padding: 14px 14px;
-  border-radius: 14px;
-  background: none;
-  border: none;
-  text-align: left;
-  font-family: inherit;
-  font-size: 1.0625rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--black);
-  text-decoration: none;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-  -webkit-tap-highlight-color: transparent;
-}
-.burger-primary-item svg {
-  width: 22px;
-  height: 22px;
-  stroke: currentColor;
-  flex-shrink: 0;
-  opacity: 0.85;
-}
-.burger-primary-item:hover {
-  background: var(--gray-100);
-}
-.burger-primary-item:active {
-  transform: scale(0.985);
-}
-.burger-primary-item.logged-in {
-  font-weight: 700;
-}
-
-.burger-section-divider {
-  height: 1px;
-  background: var(--gray-100);
-  margin: 14px 24px;
-  border: 0;
-}
-
-.burger-secondary {
-  display: flex;
-  flex-direction: column;
-  padding: 0 28px;
-  gap: 2px;
-}
-.burger-secondary-item {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--gray-400);
-  text-decoration: none;
-  padding: 7px 4px;
-  transition: color 0.15s;
-}
-.burger-secondary-item:hover {
-  color: var(--black);
-}
-.burger-drawer-footer {
-  margin-top: auto;
-  padding: 24px 32px calc(24px + env(safe-area-inset-bottom));
-  display: flex;
-  gap: 12px;
-  font-size: 0.75rem;
-  color: var(--gray-400);
-}
-.burger-drawer-footer a, .burger-drawer-footer-btn {
-  color: var(--gray-400);
-  text-decoration: none;
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: inherit;
-  font-family: inherit;
-  cursor: pointer;
-}
-.burger-drawer-footer span {
-  color: var(--gray-400);
-}
-.burger-utils {
-  display: flex;
-  flex-direction: column;
-  padding: 0 32px;
-  gap: 2px;
-}
-.burger-util-btn {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: none;
-  border: none;
-  text-align: left;
-  font-size: 0.95rem;
-  font-weight: 600;
-  font-family: inherit;
-  color: var(--gray-400);
-  cursor: pointer;
-  padding: 10px 0;
-  text-decoration: none;
-  transition: color 0.15s;
-  -webkit-tap-highlight-color: transparent;
-}
-.burger-util-btn svg {
-  width: 18px;
-  height: 18px;
-  stroke: currentColor;
-  flex-shrink: 0;
-}
-.burger-util-btn:hover {
-  color: var(--black);
-}
-.burger-lang-row {
-  padding: 16px 32px 0;
-}
-.burger-lang-row .lang-switcher {
-  background: var(--gray-100);
-  display: inline-flex;
-}
+/* Burger content styles live in the Chewy menu block further down. */
 
 /* Profil-Avatar (Initialen-Kreis) */
 .profile-avatar {
@@ -3322,27 +3163,8 @@ html:not([data-theme="dark"]) .site-footer-copy {
   }
 }
 
-/* ── Notifications (moved from JS to avoid CSP unsafe-inline) ── */
-.notification {
-  position: fixed;
-  bottom: 100px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--black);
-  color: var(--white);
-  padding: 14px 24px;
-  border-radius: 100px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  z-index: 10000;
-  opacity: 0;
-  transition: all 0.3s ease;
-  pointer-events: none;
-}
-.notification.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
+/* ── Notification toast: styled in app/globals.css (mounted in the root
+   locale layout, also on routes that don't load this stylesheet). ── */
 
 
 /* ============================================
@@ -4029,227 +3851,214 @@ html:not([data-theme="dark"]) .site-footer-copy {
 }
 
 /* ══════════════════════════════════════════════
-   BURGER DRAWER — editorial restyle (2026)
-   Overrides the iOS-rounded burger panel with a bold, type-led editorial
-   sheet that mirrors the new hero composition: cream surface, ink border,
-   big uppercase Archivo Black labels, brand-red accents.
+   BURGER DRAWER — Chewy menu (mockup-chewy.html "menu" screen)
+   Cream sheet, ink hairlines, big Chewy uppercase nav, DE/EN top-left,
+   yellow Anmelden sticker with hard 4px offset shadow. No dark variant.
    ══════════════════════════════════════════════ */
 .burger-drawer-backdrop {
-  background: rgba(10, 10, 10, 0.55);
+  background: rgba(10, 10, 10, 0.5);
   backdrop-filter: blur(8px) saturate(1.1);
   -webkit-backdrop-filter: blur(8px) saturate(1.1);
 }
 .burger-drawer-panel {
   width: 360px;
   max-width: 92vw;
-  background: var(--surface-canvas);
-  border-left: 3px solid #0a0a0a;
-  box-shadow: -10px 0 0 0 #0a0a0a;
-  padding: max(24px, env(safe-area-inset-top, 0px)) 0 0;
+  background: var(--cream, #fbf8ee);
+  border-left: 3px solid #000;
+  box-shadow: -10px 0 0 0 #000;
+  padding: 0;
+  overflow: hidden;
 }
+/* Language toggle — first row of the scroller, Chewy caps. In-flow
+   (2026-06-04): scrolls with the menu — the old absolute top-left pin
+   collided with the logo as soon as the drawer content scrolled. */
+.bd-lang {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-family: var(--font-poster);
+  font-size: 16px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+.bd-lang-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  color: #000;
+  opacity: 0.42;
+  cursor: pointer;
+}
+.bd-lang-btn.on {
+  opacity: 1;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--brand-yellow);
+}
+.bd-lang-sep { opacity: 0.42; color: #000; }
+/* Close — square ink-bordered × glyph */
 .burger-drawer-close {
-  top: 18px;
-  right: 18px;
-  width: 36px;
-  height: 36px;
+  top: 16px;
+  right: 16px;
+  z-index: 60;
+  width: 42px;
+  height: 42px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #0a0a0a;
-  border-radius: 6px;
-  background: var(--surface-canvas);
-  color: #0a0a0a;
+  border: 2px solid #000;
+  border-radius: 0;
+  background: var(--cream, #fbf8ee);
+  color: #000;
+  font-family: var(--font-poster);
+  font-size: 26px;
+  line-height: 1;
+  padding: 0 0 4px;
   transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1), background 160ms ease;
 }
 .burger-drawer-close:hover {
-  background: var(--brand-red);
-  color: #f7f5f0;
+  background: var(--brand-yellow);
+  color: #000;
   transform: rotate(90deg);
 }
-.burger-drawer-close svg { width: 18px; height: 18px; }
 
-/* Primary nav — big uppercase block list with row-by-row ink rules. */
-.burger-primary {
-  margin-top: 64px;
-  padding: 0 24px;
-  gap: 0;
-  border-top: 2px solid #0a0a0a;
+/* Scroller — fills the panel, owns the scroll */
+.bd-scroller {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow-y: auto;
+  /* Top: clear the notch/status bar (drawer spans the full viewport) — the
+     lang row sits in-flow up here. Spacing is compressed so the full menu
+     (lang/logo/nav/CTA/legal) fits the viewport WITHOUT scrolling on common
+     phones; overflow-y:auto stays as a fallback for very short screens. */
+  padding: max(16px, env(safe-area-inset-top, 0px)) 22px calc(20px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
 }
-.burger-primary-item {
+.bd-logo {
+  margin-bottom: 18px;
+}
+.bd-logo img {
+  width: 150px;
+  height: auto;
+  display: block;
+}
+/* Primary nav — big Chewy uppercase block list with ink rules */
+.bd-nav {
+  display: flex;
+  flex-direction: column;
+  border-top: 2px solid #000;
+  /* Floor for the gap to .bd-foot when its margin-top:auto collapses to 0
+     (drawer content exactly fills the viewport). */
+  margin-bottom: 18px;
+}
+.bd-nav-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 18px 4px;
-  border-bottom: 2px solid #0a0a0a;
-  border-radius: 0;
+  width: 100%;
+  /* Viewport-height-scaled: short phones (SE, 667px) stay at the compact
+     28px/11px so the drawer never scrolls; tall screens grow into the
+     leftover space above .bd-foot instead of leaving a dead cream band. */
+  padding: 11px 0;
+  padding: clamp(11px, 1.9dvh, 16px) 0;
+  border: 0;
+  border-bottom: 2px solid #000;
   background: transparent;
   font-family: var(--font-poster);
-  font-weight: 900;
-  font-size: clamp(20px, 6vw, 26px);
+  font-size: 28px;
+  font-size: clamp(28px, 4.3dvh, 36px);
   line-height: 1;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.005em;
   text-transform: uppercase;
-  color: #0a0a0a;
+  color: #000;
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
-.burger-primary-item svg {
-  width: 24px;
-  height: 24px;
-  order: 2;
-  margin-left: auto;
-  opacity: 1;
-}
-.burger-primary-item:hover {
+.bd-nav-item:hover { background: var(--brand-yellow); }
+/* Anmelden CTA — yellow sticker with hard offset shadow */
+.bd-nav-item.bd-cta {
+  margin: 12px 4px 4px 0;
+  padding: 14px 16px 16px;
   background: var(--brand-yellow);
-  color: #0a0a0a;
+  color: #000;
+  border-bottom: 0;
+  box-shadow: 4px 4px 0 0 #000;
+  transition: transform 140ms ease, box-shadow 140ms ease;
 }
-.burger-primary-item:active { transform: none; }
-
-/* Sub-rail dividers go away — borders on the items already create rules. */
-.burger-section-divider {
-  display: none;
+.bd-nav-item.bd-cta:hover {
+  background: var(--brand-yellow);
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 0 #000;
 }
-
-/* Utility row (search + Instagram) */
-.burger-utils {
-  margin-top: 20px;
-  padding: 0 24px;
-  gap: 0;
-}
-.burger-util-btn {
-  padding: 14px 4px;
-  border-bottom: 1px solid rgba(10, 10, 10, 0.18);
+/* Legal foot — 2-col grid, Inter caps. margin-top:auto docks it to the
+   drawer bottom: leftover height collects ABOVE it instead of leaving a
+   dead cream band under the links. */
+.bd-foot {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 2px solid #000;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 18px;
   font-family: var(--font);
-  font-weight: 700;
   font-size: 13px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: #0a0a0a;
 }
-.burger-util-btn:last-child { border-bottom: 0; }
-.burger-util-btn svg { width: 16px; height: 16px; }
-.burger-util-btn:hover { color: var(--accent-ink); }
+.bd-foot-link {
+  color: #000;
+  opacity: 0.72;
+  text-decoration: none;
+}
+.bd-foot-link:hover { opacity: 1; }
 
-/* Secondary nav (about/contact/press/impressum) */
-.burger-secondary {
-  margin-top: 18px;
-  padding: 0 24px;
-  gap: 0;
-}
-.burger-secondary-item {
-  font-family: var(--font);
-  font-weight: 700;
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(10, 10, 10, 0.55);
-  padding: 10px 4px;
-  border-bottom: 1px solid rgba(10, 10, 10, 0.12);
-}
-.burger-secondary-item:last-child { border-bottom: 0; }
-.burger-secondary-item:hover { color: var(--accent-ink); }
-
-/* Theme + language row */
-.burger-theme-row {
-  margin-top: 18px;
-  padding: 14px 24px;
-  border-top: 2px solid #0a0a0a;
-}
-.burger-lang-row {
-  padding: 6px 24px 0;
-}
-.burger-lang-row .lang-switcher {
-  background: var(--surface-canvas);
-  border: 2px solid #0a0a0a;
-  border-radius: 999px;
-  padding: 3px;
-}
-.burger-lang-row .lang-btn {
-  color: rgba(10, 10, 10, 0.55);
-  font-family: var(--font-poster);
-  font-weight: 900;
-  letter-spacing: 0.06em;
-}
-.burger-lang-row .lang-btn.active {
-  background: #0a0a0a;
-  color: var(--surface-canvas);
-}
-
-/* Footer chip */
-.burger-drawer-footer {
-  padding: 22px 24px calc(22px + env(safe-area-inset-bottom));
-  font-size: 12px;
-  letter-spacing: 0.04em;
-}
-.burger-drawer-footer a,
-.burger-drawer-footer-btn,
-.burger-drawer-footer span {
-  color: rgba(10, 10, 10, 0.55);
-}
-.burger-drawer-footer a:hover,
-.burger-drawer-footer-btn:hover {
-  color: var(--brand-red);
-}
-
-/* ── Dark-mode burger ── */
+/* ── Burger drawer dark mode (2026-06-03): dunkles Panel, Cream-Ink,
+   Akzent rot statt gelb. Bubble-Logo (cream+ink) liest auf dunkel as-is. ── */
 [data-theme="dark"] .burger-drawer-panel {
-  background: #0d0d0d;
-  border-left-color: #f7f5f0;
-  box-shadow: -10px 0 0 0 #f7f5f0;
+  background: #111110;
+  border-left-color: #f0e8d0;
+  /* No offset band — the faint 10px cream shadow read as a second stripe
+     next to the border (User 2026-06-04). The cream border alone is the
+     edge. */
+  box-shadow: none;
 }
+[data-theme="dark"] .bd-lang-btn,
+[data-theme="dark"] .bd-lang-sep { color: #f0e8d0; }
+[data-theme="dark"] .bd-lang-btn.on { text-decoration-color: var(--c-coral-bright); }
 [data-theme="dark"] .burger-drawer-close {
-  background: #0d0d0d;
-  border-color: #f7f5f0;
-  color: #f7f5f0;
+  background: #111110;
+  border-color: #f0e8d0;
+  color: #f0e8d0;
 }
 [data-theme="dark"] .burger-drawer-close:hover {
-  background: var(--brand-red);
-  color: #f7f5f0;
+  background: var(--c-coral);
+  color: #fbf8ee;
 }
-[data-theme="dark"] .burger-primary {
-  border-top-color: #f7f5f0;
+[data-theme="dark"] .bd-nav { border-top-color: rgba(240, 232, 208, 0.3); }
+[data-theme="dark"] .bd-nav-item {
+  border-bottom-color: rgba(240, 232, 208, 0.3);
+  color: #f0e8d0;
 }
-[data-theme="dark"] .burger-primary-item {
-  color: #f7f5f0;
-  border-bottom-color: rgba(247, 245, 240, 0.85);
+[data-theme="dark"] .bd-nav-item:hover { background: var(--c-coral); color: #fbf8ee; }
+[data-theme="dark"] .bd-nav-item.bd-cta {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  box-shadow: 4px 4px 0 0 rgba(240, 232, 208, 0.25);
 }
-[data-theme="dark"] .burger-primary-item:hover {
-  background: var(--brand-red);
-  color: #f7f5f0;
+[data-theme="dark"] .bd-nav-item.bd-cta:hover {
+  background: var(--c-coral);
+  box-shadow: 5px 5px 0 0 rgba(240, 232, 208, 0.25);
 }
-[data-theme="dark"] .burger-util-btn {
-  color: #f7f5f0;
-  border-bottom-color: rgba(247, 245, 240, 0.18);
-}
-[data-theme="dark"] .burger-util-btn:hover {
-  color: var(--brand-yellow);
-}
-[data-theme="dark"] .burger-secondary-item {
-  color: rgba(247, 245, 240, 0.55);
-  border-bottom-color: rgba(247, 245, 240, 0.12);
-}
-[data-theme="dark"] .burger-secondary-item:hover {
-  color: var(--brand-yellow);
-}
-[data-theme="dark"] .burger-theme-row {
-  border-top-color: #f7f5f0;
-}
-[data-theme="dark"] .burger-lang-row .lang-switcher {
-  background: transparent;
-  border-color: #f7f5f0;
-}
-[data-theme="dark"] .burger-lang-row .lang-btn {
-  color: rgba(247, 245, 240, 0.55);
-}
-[data-theme="dark"] .burger-lang-row .lang-btn.active {
-  background: #f7f5f0;
-  color: #0d0d0d;
-}
-[data-theme="dark"] .burger-drawer-footer a,
-[data-theme="dark"] .burger-drawer-footer-btn,
-[data-theme="dark"] .burger-drawer-footer span {
-  color: rgba(247, 245, 240, 0.5);
-}
+[data-theme="dark"] .bd-foot { border-top-color: rgba(240, 232, 208, 0.3); }
+[data-theme="dark"] .bd-foot-link { color: #f0e8d0; }
 
 /* ══════════════════════════════════════════════
    SITE FOOTER — editorial restyle (2026)

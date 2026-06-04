@@ -10,6 +10,8 @@ import {
   composeAnonRestaurants,
   composeRevealedMustEats,
 } from './tier-composition'
+import { applySpotOfDayReveal } from './spotOfDayReveal'
+import { getSpotOfDayId } from '@/lib/home/spotOfDay.server'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import type { CategoryDef } from '@/lib/categories'
 
@@ -37,14 +39,26 @@ export async function getInitialAnonMapData(): Promise<InitialMapData> {
   const anonIds         = new Set(anonSet.map((r) => r._id))
   const visibleMustEats = allMustEats.filter((m) => anonIds.has(m.restaurant._id))
   const lockedRestaurants = all.filter((r) => !anonIds.has(r._id))
-  const revealedMustEatIds = Array.from(composeRevealedMustEats(allMustEats, anonIds))
+  const revealedSet     = composeRevealedMustEats(allMustEats, anonIds)
 
-  return {
+  // Spot des Tages — a free, daily-rotating gift for everyone. Surface today's
+  // spot + reveal its must-eat (ephemeral: recomputed per request from the
+  // date, so tomorrow's replaces it and the previous one falls back to locked).
+  const today  = new Date().toISOString().slice(0, 10)
+  const spotId = await getSpotOfDayId(today)
+  const gifted = applySpotOfDayReveal(spotId, all, allMustEats, {
     restaurants:        anonSet,
     lockedRestaurants,
     mustEats:           visibleMustEats,
+    revealedMustEatIds: revealedSet,
+  })
+
+  return {
+    restaurants:        gifted.restaurants,
+    lockedRestaurants:  gifted.lockedRestaurants,
+    mustEats:           gifted.mustEats,
     categories,
     totalCount:         all.length,
-    revealedMustEatIds,
+    revealedMustEatIds: Array.from(gifted.revealedMustEatIds),
   }
 }

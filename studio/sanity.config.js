@@ -32,7 +32,8 @@ export default defineConfig({
           "restaurantTotal": count(array::unique(*[_type=="restaurant" && defined(slug.current)].slug.current)),
           "bezirk":      count(*[_type=="bezirk"      && !(_id in path("drafts.**"))]),
           "category":    count(*[_type=="category"    && !(_id in path("drafts.**"))]),
-          "waitlistSignup": count(*[_type=="waitlistSignup"])
+          "waitlistSignup": count(*[_type=="waitlistSignup"]),
+          "homeWeek":    count(*[_type=="homeWeek"    && !(_id in path("drafts.**"))]),
         }`)
         const label = (icon, title, n) => `${icon}  ${title} (${n ?? 0})`
         const labelPair = (icon, title, live, total) =>
@@ -47,6 +48,11 @@ export default defineConfig({
 
             // ── Static Pages ─────────────────────────────────────────────
             S.documentTypeListItem('staticPage').title(label('📄', 'Seiten', counts.staticPage)),
+
+            S.divider(),
+
+            // ── Editorial / Home ─────────────────────────────────────────
+            S.documentTypeListItem('homeWeek').title(label('🏠', 'Home der Woche', counts.homeWeek)),
 
             S.divider(),
 

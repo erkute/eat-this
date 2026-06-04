@@ -6,7 +6,6 @@ import { getAllBezirkeWithStats } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { localeUrl } from '@/lib/locale-url'
 import styles from './Bezirk.module.css'
-import SeoSignupCTA from '@/app/components/SeoSignupCTA'
 
 interface PageProps {
   params: Promise<{ locale: string }>
@@ -49,7 +48,9 @@ export default async function BezirkIndexPage({ params }: PageProps) {
   const de = locale === 'de'
   const bezirkUrl = (slug: string) =>
     locale === 'de' ? `/bezirk/${slug}` : `/${locale}/bezirk/${slug}`
-  const bezirke = await getAllBezirkeWithStats()
+  // Empty districts (no open spots) are hidden — an empty grid page is a
+  // dead end for users and thin content for Google. Same rule as the Hub chips.
+  const bezirke = (await getAllBezirkeWithStats()).filter(b => (b.restaurantCount ?? 0) > 0)
 
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
@@ -95,17 +96,11 @@ export default async function BezirkIndexPage({ params }: PageProps) {
           {bezirke.map(b => (
             <Link key={b._id} href={bezirkUrl(b.slug)} className={styles.bezirkCard}>
               <span className={styles.bezirkName}>{b.name}</span>
-              <span className={styles.bezirkCount}>
-                {b.restaurantCount} {b.restaurantCount === 1
-                  ? (de ? 'Restaurant' : 'restaurant')
-                  : (de ? 'Restaurants' : 'restaurants')}
-              </span>
             </Link>
           ))}
         </section>
 
       </main>
-      <SeoSignupCTA />
     </>
   )
 }

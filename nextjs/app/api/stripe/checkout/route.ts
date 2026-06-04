@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin'
 import { getStripe } from '@/lib/stripe'
+import { resolvePriceId } from '@/lib/stripe-price'
 import { getPack } from '@/lib/stripe-catalog'
 
 export const runtime  = 'nodejs'
@@ -62,16 +63,18 @@ export async function POST(req: Request) {
   const successPath = locale === 'en'
     ? `/en/checkout/success?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`
     : `/checkout/success?session_id={CHECKOUT_SESSION_ID}&pack=${pack.packId}`
-  // Guests cancel back to the landing; auth users hit profile's Booster tab.
+  // Guests cancel back to the home hub; auth users return to the packs section.
   const cancelPath  = mode === 'auth'
-    ? (locale === 'en' ? '/en/profile?booster=canceled#booster' : '/profile?booster=canceled#booster')
+    ? (locale === 'en' ? '/en#hub-packs' : '/#hub-packs')
     : (locale === 'en' ? '/en' : '/')
 
   let session
   try {
     session = await getStripe().checkout.sessions.create({
       mode: 'payment',
-      line_items: [{ price: pack.stripePriceId, quantity: 1 }],
+      // Live mode uses the catalog ID directly; test mode (staging/local)
+      // resolves the seeded test price via lookup_key — see lib/stripe-price.ts.
+      line_items: [{ price: await resolvePriceId(pack), quantity: 1 }],
       // Methods (card, PayPal, Link, Apple/Google Pay, Klarna, …) are
       // driven by the Stripe Dashboard. For guests we omit customer_email
       // so Stripe Hosted Checkout collects it on the form itself.

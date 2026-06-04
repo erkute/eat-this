@@ -74,3 +74,15 @@
 .iconBtn svg {
   filter: drop-shadow(0 0 1px rgba(10, 10, 10, 0.6)) drop-shadow(0 1px 1px rgba(10, 10, 10, 0.4));
 }
+
+/* ============================================================
+   DARK MODE — header goes brand red, content stays cream.
+   Icons are already cream (currentColor #fbf8ee) and the logo
+   <img> is bubble art that reads on red as-is — never filter it.
+============================================================ */
+html[data-theme="dark"] .hdr {
+  background: var(--c-coral);
+}
+html[data-theme="dark"] .iconBtn:focus-visible {
+  outline-color: #fbf8ee;
+}

@@ -8,9 +8,10 @@
 // with "Hook only works in a Client Component".
 
 // Pure helpers
+export { buildPrimaryMustEatMap, resolvePeek } from './mustEatPeek'
+export type { Peek } from './mustEatPeek'
+export { resolveUnlockedMustEatIds, TRIAL_UNLOCKED_COUNT } from './unlockedMustEats'
 export { haversineDistance, formatDistance, formatWalkingTime } from './distance'
-export { applyFanOffset } from './fanOffset'
-export type { MustEatWithDisplay } from './fanOffset'
 export { getOpenStatus } from './openingHours'
 export type { OpenStatusLabels } from './openingHours'
 export { abbreviateBezirk } from './abbreviateBezirk'

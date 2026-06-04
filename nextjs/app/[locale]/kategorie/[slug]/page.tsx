@@ -14,9 +14,8 @@ import { routing } from '@/i18n/routing'
 import { pickLocale } from '@/lib/i18n/pickLocale'
 import styles from '../../bezirk/Bezirk.module.css'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
-import HubMapCTA from '@/app/components/HubMapCTA'
+import MapPromoCTA from '@/app/components/MapPromoCTA'
 import KategorieBoost from '@/app/components/KategorieBoost'
-import SeoSignupCTA from '@/app/components/SeoSignupCTA'
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>
@@ -75,12 +74,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const label = localizedCategoryName(c, loc)
   const blurb = localizedCategoryBlurb(c, loc)
 
-  // Stats: SPOTS + BEZIRKE (always 2-up, no must-eat dependency)
-  const bezirkSet = new Set(
-    restaurants.map(r => r.district).filter((d): d is string => Boolean(d))
-  )
-  const statsStyle = { ['--stats-cols' as string]: '2' } as React.CSSProperties
-
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/' },
     { name: de ? 'Kategorien' : 'Categories' },
@@ -123,10 +116,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
     ],
   })
 
-  const hubCtaTitle = de
-    ? `Alle ${label}-Spots auf der Map`
-    : `See all ${label.toLowerCase()} spots on the map`
-
   return (
     <>
       <Script id={`schema-kategorie-${slug}`} type="application/ld+json" strategy="beforeInteractive">
@@ -140,19 +129,8 @@ export default async function KategorieDetailPage({ params }: PageProps) {
           <h1 className={styles.h1}>{label}</h1>
           <div className={styles.tagline}>in Berlin</div>
           {blurb && <p className={styles.sub}>{blurb}</p>}
-          <HubMapCTA href="/" title={hubCtaTitle} variant="chip" />
+          <MapPromoCTA variant="chip" kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />
         </header>
-
-        <div className={styles.stats} style={statsStyle}>
-          <div className={styles.statCell}>
-            <div className={styles.statN}>{restaurants.length}</div>
-            <div className={styles.statK}>Spots</div>
-          </div>
-          <div className={styles.statCell}>
-            <div className={styles.statN}>{bezirkSet.size}</div>
-            <div className={styles.statK}>{de ? 'Bezirke' : 'Districts'}</div>
-          </div>
-        </div>
 
         <KategorieBoost categorySlug={c.slug} locale={loc} />
 
@@ -194,8 +172,9 @@ export default async function KategorieDetailPage({ params }: PageProps) {
           })}
         </section>
 
+        <MapPromoCTA kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />
+
       </main>
-      <SeoSignupCTA />
     </>
   )
 }

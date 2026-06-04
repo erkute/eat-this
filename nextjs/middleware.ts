@@ -91,13 +91,6 @@ export default function middleware(req: NextRequest) {
 
   const res = intlMiddleware(req);
 
-  // Launch holding page iterates daily — keep browsers from serving stale
-  // HTML that points at older CSS/JS hashes. Only applies to the two
-  // launch entry-points; SEO pages keep their normal caching behavior.
-  if (pathname === '/' || pathname === '/en' || pathname === '/en/') {
-    res.headers.set('Cache-Control', 'private, max-age=0, must-revalidate');
-  }
-
   // Staging: tell every crawler to ignore everything, even if robots.txt
   // got bypassed.
   if (isStaging) {

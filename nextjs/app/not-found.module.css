@@ -1,19 +1,17 @@
 /* ============================================================
-   404 — matches the launch holding-page brand language (paper
-   surface, Anton stamp, Permanent Marker copy line, sticker
-   button with hard ink shadow). Standalone styles, isolated
+   404 — Chewy brand surface: cream paper, rounded Chewy stamp,
+   sticker button with hard ink shadow. Standalone styles, isolated
    from /css/style.min.css so it works even when the SPA bundle
    hasn't loaded.
    ============================================================ */
 
 .page {
-  --f-anton: var(--font-anton), "Anton", "Bebas Neue", sans-serif;
-  --f-marker: var(--font-permanent-marker), "Permanent Marker", "Marker Felt", cursive;
+  --f-display: var(--font-chewy, "Chewy"), "Comic Sans MS", cursive;
   --f-body: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
   --ink: #0a0a0a;
   --coral: #a02814;
-  --yellow: #FEC802;
-  --paper: #fdfdfd;
+  --yellow: #ffd84a;
+  --paper: #fbf8ee;
   --muted: rgba(10, 10, 10, 0.62);
 
   background: var(--paper);
@@ -36,9 +34,9 @@
 
 /* ── Eyebrow stamp ──────────────────────────────────────────── */
 .kicker {
-  font-family: var(--f-anton);
+  font-family: var(--f-display);
   font-size: 13px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink);
   margin: 6px 0 0;
@@ -47,10 +45,10 @@
   z-index: 2;
 }
 
-/* ── 404 — yellow Anton hero stamp with black stroke so it
-       carries the same letter-press energy as EAT THIS. ───── */
+/* ── 404 — yellow Chewy hero stamp with black stroke so it
+       carries the same sticker energy as the EAT THIS wordmark. ── */
 .code {
-  font-family: var(--f-anton);
+  font-family: var(--f-display);
   font-weight: 400;
   font-size: clamp(140px, 38vw, 220px);
   line-height: 0.86;
@@ -66,10 +64,10 @@
   z-index: 2;
 }
 
-/* ── Permanent-Marker red headline — sits like the launch-page
-       red tagline ("we tell you what to eat.") ───────────── */
+/* ── Chewy coral headline — the brand-red one-liner, tilted
+       a hair for sticker energy. ──────────────────────────── */
 .headline {
-  font-family: var(--f-marker);
+  font-family: var(--f-display);
   font-size: clamp(22px, 6.4vw, 30px);
   line-height: 1.1;
   color: var(--coral);
@@ -93,8 +91,8 @@
   z-index: 2;
 }
 
-/* ── Sticker button — same hard-offset shadow language as the
-       launch form pill so the surface reads as one family. ── */
+/* ── Sticker button — cream pill with the hard-offset ink shadow
+       that runs across the brand's CTA surfaces. ──────────── */
 .cta {
   display: inline-flex;
   align-items: center;
@@ -102,7 +100,7 @@
   background: var(--paper);
   border: 3px solid var(--ink);
   color: var(--ink);
-  font-family: var(--f-marker);
+  font-family: var(--f-display);
   font-size: 18px;
   letter-spacing: 0.02em;
   text-decoration: none;
@@ -118,49 +116,8 @@
   box-shadow: 4px 4px 0 0 var(--ink);
 }
 
-/* ── Cat illustration ───────────────────────────────────────── */
-.cat {
-  display: block;
-  width: 88%;
-  max-width: 320px;
-  height: auto;
-  margin: 12px auto 0;
-  position: relative;
-  z-index: 1;
-  pointer-events: none;
-  user-select: none;
-}
-
-/* ── Drifting card-back loop (same actor as the launch page) ──*/
-.floatCard {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 92px;
-  height: auto;
-  z-index: 0;
-  pointer-events: none;
-  user-select: none;
-  will-change: transform;
-  animation: cardDrift404 34s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-  transform: translate3d(-30vw, 20vh, 0) rotate(-10deg);
-}
-@keyframes cardDrift404 {
-  0%   { transform: translate3d(-35vw, 24vh, 0) rotate(-10deg); }
-  22%  { transform: translate3d(48vw,  6vh, 0) rotate(10deg); }
-  44%  { transform: translate3d(98vw, 28vh, 0) rotate(-4deg); }
-  60%  { transform: translate3d(115vw, 62vh, 0) rotate(14deg); }
-  78%  { transform: translate3d(40vw, 82vh, 0) rotate(-6deg); }
-  100% { transform: translate3d(-35vw, 24vh, 0) rotate(-10deg); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .floatCard { animation: none; display: none; }
-}
-
 /* ============================================================
-   Desktop ≥ 900px — same centered stack, bigger type, cat
-   anchored to the bottom-right corner like the launch page so
-   the 404 reads as the same family of surface.
+   Desktop ≥ 900px — same centered stack, bigger type.
    ============================================================ */
 @media (min-width: 900px) {
   .page {
@@ -188,17 +145,42 @@
     padding: 18px 36px;
     box-shadow: 8px 8px 0 0 var(--ink);
   }
-  .cat {
-    position: absolute;
-    right: 2vw;
-    bottom: 0;
-    left: auto;
-    width: 28vw;
-    max-width: 380px;
-    margin: 0;
-    transform: translateY(8%);
+}
+
+/* ============================================================
+   DARK MODE — paper goes dark, ink → cream, yellow stamp → coral.
+============================================================ */
+html[data-theme="dark"] .page {
+  --ink: #f0e8d0;
+  --paper: #111110;
+  --yellow: var(--c-coral);
+  --coral: var(--c-coral-bright);
+  --muted: rgba(240, 232, 208, 0.62);
+}
+/* 404 stamp — coral fill now reads with a cream stroke + cream offset. */
+html[data-theme="dark"] .code {
+  color: var(--c-coral);
+  -webkit-text-stroke-color: #f0e8d0;
+  text-shadow: 6px 6px 0 #f0e8d0;
+}
+/* Sticker CTA — was cream paper + ink border/shadow. On a dark page it
+   inverts to the cream block so it stays the high-contrast action. */
+html[data-theme="dark"] .cta {
+  background: #f0e8d0;
+  border-color: #f0e8d0;
+  color: #0a0a0a;
+  box-shadow: 6px 6px 0 0 rgba(240, 232, 208, 0.25);
+}
+html[data-theme="dark"] .cta:hover {
+  box-shadow: 4px 4px 0 0 rgba(240, 232, 208, 0.25);
+}
+
+@media (min-width: 900px) {
+  html[data-theme="dark"] .code {
+    -webkit-text-stroke-color: #f0e8d0;
+    text-shadow: 9px 9px 0 #f0e8d0;
   }
-  .floatCard {
-    width: 180px;
+  html[data-theme="dark"] .cta {
+    box-shadow: 8px 8px 0 0 rgba(240, 232, 208, 0.25);
   }
 }

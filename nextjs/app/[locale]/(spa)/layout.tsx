@@ -6,7 +6,6 @@ import { routing } from '@/i18n/routing'
 import { AuthProvider, LoginModalProvider } from '@/lib/auth'
 import SiteNav from '@/app/components/SiteNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
-import NotificationToast from '@/app/components/NotificationToast'
 import SearchOverlay from '@/app/components/SearchOverlay'
 import CookieConsent from '@/app/components/CookieConsent'
 import BridgeAuth from './BridgeAuth'
@@ -19,7 +18,11 @@ const DESCRIPTION =
 const OG_IMAGE = SITE_URL + '/pics/og-card.png'
 
 export const metadata: Metadata = {
-  title: TITLE,
+  // `absolute` bypasses the root '%s | Eat This Berlin' template — the brand
+  // title already carries "Berlin"; the suffix would just duplicate it. The
+  // template re-establishes the suffix for child segments (news, about, …)
+  // because `absolute` would otherwise null it out for the whole subtree.
+  title: { absolute: TITLE, template: '%s | Eat This Berlin' },
   description: DESCRIPTION,
   robots: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
   openGraph: {
@@ -55,7 +58,7 @@ export default async function SPALayout({
     <>
       {/* Full SPA stylesheet — hoisted to <head> by Next.js */}
       {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/css/style.min.css?v=146" precedence="default" />
+      <link rel="stylesheet" href="/css/style.min.css?v=165" precedence="default" />
 
       <link rel="preconnect" href="https://ehwjnjr2.apicdn.sanity.io" crossOrigin="anonymous" />
       <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
@@ -70,7 +73,6 @@ export default async function SPALayout({
           <BridgeAuth />
           <SiteNav />
           <BurgerDrawer />
-          <NotificationToast />
           <div className="app-pages" id="appPages">
             {children}
           </div>

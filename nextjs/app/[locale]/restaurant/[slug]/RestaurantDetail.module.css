@@ -11,7 +11,7 @@
   --cream-deep: #f1ecdd;
   --yellow: #ffd84a;
   --muted: #6b5a44;
-  --f-display: var(--font-anton, "Anton"), "Bebas Neue", sans-serif;
+  --f-display: var(--font-poster, "Chewy"), "Comic Sans MS", cursive;
   --f-body: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
 
   /* Bridge semantic tokens so shared components (MustEatTeaserSection,
@@ -30,7 +30,7 @@
   font-family: var(--f-body);
   min-height: 100vh;
   min-height: 100dvh;
-  padding: calc(60px + env(safe-area-inset-top, 0px) + 16px) 0 0;
+  padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 16px) 0 0;
   display: flow-root;
   position: relative;
   overflow-x: clip;
@@ -86,7 +86,7 @@
   color: var(--ink);
   font-family: var(--f-display);
   font-size: 11px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 5px 9px 6px;
   display: inline-flex;
@@ -117,11 +117,10 @@
 }
 .heroName {
   font-family: var(--f-display);
-  font-size: clamp(48px, 14vw, 84px);
-  /* 1.06 keeps the dense magazine-cover punch on line 1 while leaving
-     enough vertical clearance for Ä/Ö/Ü umlauts on line 2 (e.g.
-     "Albatross Bäckerei" — at 0.95 the Ä-dots clip the L above). */
-  line-height: 1.06;
+  font-size: clamp(38px, 11vw, 64px);
+  /* Chewy is wider/rounder than the old Anton — smaller max so long names
+     fit; 1.05 keeps Ä/Ö/Ü dots clear from line 1 when the name wraps. */
+  line-height: 1.05;
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--cream);
@@ -135,19 +134,20 @@
   flex-wrap: wrap;
   font-family: var(--f-display);
   font-size: 13px;
+  line-height: 1.15;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 .heroTags .chip {
   background: var(--yellow);
   color: var(--ink);
-  padding: 4px 9px 5px;
+  padding: 5px 10px 5px;
 }
 .heroTags .chipAlt {
   background: rgba(255, 255, 255, 0.16);
   color: var(--cream);
   border: 1.5px solid rgba(255, 255, 255, 0.5);
-  padding: 2.5px 9px 3.5px;
+  padding: 4px 10px 4px;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
@@ -177,9 +177,9 @@
 ============================================================ */
 .name {
   font-family: var(--f-display);
-  font-size: clamp(48px, 12vw, 78px);
+  font-size: clamp(38px, 10vw, 60px);
   /* See .heroName note — same umlaut-clearance fix when names wrap. */
-  line-height: 1.06;
+  line-height: 1.05;
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--ink);
@@ -191,6 +191,7 @@
   margin: 8px 16px 16px;
   font-family: var(--f-display);
   font-size: 14px;
+  line-height: 1.15;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink);
@@ -201,13 +202,13 @@
 .tags .chip {
   background: var(--yellow);
   color: var(--ink);
-  padding: 3px 9px 4px;
+  padding: 5px 10px 5px;
 }
 .tags .chipAlt {
   background: transparent;
   border: 1.5px solid var(--ink);
   color: var(--ink);
-  padding: 2px 9px 3px;
+  padding: 4px 10px 4px;
 }
 
 /* ============================================================
@@ -227,7 +228,7 @@
 .tippLabel {
   font-family: var(--f-display);
   font-size: 14px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink);
   display: inline-flex;
@@ -263,8 +264,8 @@
 }
 .lede::first-letter {
   font-family: var(--f-display);
-  font-size: 70px;
-  line-height: 0.82;
+  font-size: 60px;
+  line-height: 0.9;
   color: var(--ink);
   float: left;
   padding: 8px 10px 0 0;
@@ -272,7 +273,7 @@
 }
 .pullQuote {
   font-family: var(--f-display);
-  font-size: clamp(24px, 6.5vw, 28px);
+  font-size: clamp(22px, 6vw, 26px);
   line-height: 1.05;
   text-transform: uppercase;
   color: var(--ink);
@@ -301,10 +302,10 @@
 .factsKey {
   font-family: var(--f-display);
   font-size: 15px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   color: var(--ink);
   text-transform: uppercase;
-  line-height: 1;
+  line-height: 1.15;
 }
 .factsVal {
   font-family: var(--f-body);
@@ -378,11 +379,6 @@
   background: var(--ink);
   color: var(--cream);
 }
-.actAlt {
-  background: transparent;
-  color: var(--ink);
-}
-
 /* ============================================================
    SIBLING CROSS-LINKS
 ============================================================ */
@@ -393,8 +389,8 @@
 }
 .siblings h2 {
   font-family: var(--f-display);
-  font-size: clamp(40px, 9vw, 56px);
-  line-height: 0.98;
+  font-size: clamp(30px, 7vw, 46px);
+  line-height: 1.0;
   text-transform: uppercase;
   color: var(--ink);
   margin: 0 0 20px;
@@ -461,7 +457,7 @@
 ============================================================ */
 @media (min-width: 720px) {
   .page {
-    padding: calc(60px + env(safe-area-inset-top, 0px) + 24px) 0 0;
+    padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 24px) 0 0;
     max-width: 760px;
     margin: 0 auto;
   }
@@ -486,26 +482,31 @@
      narrower than the Bezirk hub on desktop. Story/tipp self-cap at
      680px so the reading rhythm survives the wider canvas. */
   .page {
-    max-width: none;
-    margin: 0;
-    padding: 88px 80px 0;
+    /* Centred content column, matching the Bezirk/Kategorie hub measure so
+       all SEO surfaces share one rhythm (was full-bleed 1280, too wide). */
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 88px 64px 0;
   }
 
-  /* HERO — Cover-style letterbox spanning content width. Bigger than
-     mobile's 4/5 portrait; reads as editorial cover. */
+  /* HERO — Cover-style letterbox spanning the full content column. A wide
+     2.2/1 ratio keeps the height calm (~480px in the 1180 column) WITHOUT a
+     max-height cap — aspect-ratio + max-height made Chrome derive the width
+     from the capped height (→ 818px, left-aligned with a void). Full width
+     now, edge to edge of the centred column. */
   .hero {
     margin: 12px 0 0;
-    aspect-ratio: 16 / 9;
-    max-height: none;
+    width: 100%;
+    aspect-ratio: 2 / 1;
   }
   .heroOverlay {
-    inset: auto 40px 40px;
+    inset: auto 40px 36px;
   }
   .heroName {
-    /* Match Bezirk/Kategorie H1 scale (160 max) so all page-level
-       titles share one rhythm across SEO surfaces. */
-    font-size: clamp(80px, 10vw, 160px);
-    margin: 0 0 16px;
+    /* Shared scale with the Bezirk/Kategorie H1 (confident middle, not the
+       Anton-era 104). */
+    font-size: clamp(48px, 5.6vw, 84px);
+    margin: 0 0 14px;
   }
   .heroTags {
     font-size: 15px;
@@ -517,25 +518,25 @@
 
   /* H1 (when no photo) — same scale as the overlay variant. */
   .name {
-    font-size: clamp(80px, 10vw, 160px);
-    margin: 32px 0 0;
+    font-size: clamp(48px, 5.6vw, 84px);
+    margin: 28px 0 0;
   }
 
   /* STORY — narrow reading column, centered with auto margins. Stays
      legible while page itself is wider. */
   .story {
-    font-size: 17px;
+    font-size: 18px;
     line-height: 1.65;
     padding: 0;
-    margin: 56px auto 12px;
-    max-width: 680px;
+    margin: 48px auto 12px;
+    max-width: 700px;
   }
   .lede::first-letter {
-    font-size: 96px;
+    font-size: 80px;
     padding: 12px 14px 0 0;
   }
   .pullQuote {
-    font-size: clamp(32px, 3.5vw, 42px);
+    font-size: clamp(28px, 3vw, 36px);
     line-height: 1.05;
     margin: 32px 0;
   }
@@ -580,7 +581,7 @@
   }
   .factsKey {
     font-size: 13px;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.14em;
   }
   .factsVal {
     font-size: 17px;
@@ -591,16 +592,18 @@
     row-gap: 5px;
   }
 
-  /* ACTS — full-width row of buttons under facts strip. */
+  /* ACTS — centred row of buttons under the facts strip. Start-aligned in
+     the wide column left them hugging the left edge, looking lost. */
   .acts {
     grid-template-columns: auto auto;
-    justify-content: start;
+    justify-content: center;
     gap: 12px;
     padding: 0 0 40px;
   }
   .act {
     font-size: 15px;
     padding: 16px 28px 17px;
+    min-width: 220px;
   }
 
   /* SIBLINGS — way bigger typography. The "Mehr in Berlin" lockup carries
@@ -611,16 +614,16 @@
     border-top: 3px solid var(--ink);
   }
   .siblings h2 {
-    font-size: clamp(64px, 8vw, 128px);
-    line-height: 0.92;
-    margin: 0 0 40px;
+    font-size: clamp(40px, 4.4vw, 68px);
+    line-height: 1.0;
+    margin: 0 0 36px;
   }
   .sibRow {
     margin-bottom: 56px;
   }
   .sibRowHead {
     font-family: var(--f-display);
-    font-size: clamp(28px, 3.5vw, 44px);
+    font-size: clamp(22px, 2.2vw, 32px);
     font-weight: 400;
     line-height: 1;
     letter-spacing: 0;
@@ -645,3 +648,87 @@
     font-size: 12px;
   }
 }
+
+/* ============================================================
+   DARK MODE — dark surfaces, red accents replace yellow.
+   Token re-point flips most of the page; the yellow Insider-Tipp,
+   the ink action button, and the hero gradient/photo overlays get
+   explicit handling. Photos and text-over-photo stay untouched.
+============================================================ */
+html[data-theme="dark"] .page {
+  --ink: #f0e8d0;
+  --cream: #111110;
+  --cream-deep: #1d1c19;
+  --yellow: var(--c-coral);
+  --muted: rgba(240, 232, 208, 0.72);
+
+  --text-primary: #f0e8d0;
+  --text-secondary: rgba(240, 232, 208, 0.82);
+  --text-muted: rgba(240, 232, 208, 0.72);
+  --surface-bg: #111110;
+  --surface-card: #1d1c19;
+  --border-subtle: rgba(240, 232, 208, 0.3);
+  --border-strong: #f0e8d0;
+  --accent: var(--c-coral);
+}
+
+/* Hero pill + chips sit on the photo (already dark) — flip the yellow
+   fill to coral with cream label, leave the white-glass alt chip. */
+html[data-theme="dark"] .openPill {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+html[data-theme="dark"] .openPill::before {
+  background: #fbf8ee;
+}
+html[data-theme="dark"] .openPill.closed {
+  background: rgba(240, 232, 208, 0.16);
+  color: var(--cream);
+}
+html[data-theme="dark"] .openPill.closed::before {
+  background: var(--cream);
+}
+html[data-theme="dark"] .heroTags .chip,
+html[data-theme="dark"] .tags .chip {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+
+/* Insider-Tipp — was yellow fill + ink border + ink offset shadow.
+   In dark it becomes a coral sticker with cream label and a cream
+   offset shadow so it still reads as a raised callout. */
+html[data-theme="dark"] .tipp {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-color: #f0e8d0;
+  box-shadow: 6px 6px 0 0 rgba(240, 232, 208, 0.25);
+}
+html[data-theme="dark"] .tippLabel,
+html[data-theme="dark"] .tippText {
+  color: #fbf8ee;
+}
+
+/* Primary action button — was ink bg / cream label. On a now-dark page
+   that inverts so the CTA stays the high-contrast block. */
+html[data-theme="dark"] .actPrimary {
+  background: #f0e8d0;
+  color: #0a0a0a;
+}
+
+@media (min-width: 1024px) {
+  /* Tipp offset shadow grows on desktop — keep it cream in dark. */
+  html[data-theme="dark"] .tipp {
+    box-shadow: 8px 8px 0 0 rgba(240, 232, 208, 0.25);
+  }
+}
+
+/* On-photo text: --cream is in dark auf #111110 umgebogen (Seitenflächen),
+   aber Hero-Name/Overlay/Chips nutzen --cream als TEXT über dem Foto —
+   die müssen hell bleiben. Explizit auf literal cream pinnen. */
+html[data-theme="dark"] .heroOverlay { color: #fbf8ee; }
+html[data-theme="dark"] .heroName { color: #fbf8ee; }
+html[data-theme="dark"] .heroTags .chipAlt { color: #fbf8ee; }
+html[data-theme="dark"] .heroTags .chipOpen::before,
+html[data-theme="dark"] .heroTags .chipClosed::before { background: #fbf8ee; }
+html[data-theme="dark"] .openPill.closed { color: #fbf8ee; }
+html[data-theme="dark"] .openPill.closed::before { background: #fbf8ee; }

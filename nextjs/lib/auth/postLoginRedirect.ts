@@ -4,14 +4,14 @@ interface RouterLike {
   replace: (href: string) => void;
 }
 
-// Routes to /profile after sign-in. Used by /login (Google popup) and
-// /welcome (magic-link return). The previous onboarding gate was removed
-// — every signed-in user now lands directly in their profile deck.
+// Routes to the home hub (`/`) after sign-in. Used by /login (Google popup)
+// and /welcome (magic-link return). The hub's logged-in "Deine Welt" section
+// sits at the top of the home page, so signed-in users land back there.
 export async function postLoginRedirect(
   _uid: string,
   router: RouterLike,
   locale: string,
 ): Promise<void> {
-  const href = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
+  const href = locale === routing.defaultLocale ? '/' : `/${locale}`;
   router.replace(href);
 }

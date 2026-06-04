@@ -43,6 +43,7 @@ export const mapMustEatsQuery = `
     _id,
     dish,
     description,
+    descriptionEn,
     price,
     revealedForAnon,
     "image": image.asset->url + "?w=600&auto=format&q=80",

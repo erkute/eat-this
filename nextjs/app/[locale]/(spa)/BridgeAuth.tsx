@@ -24,6 +24,7 @@ import { useAuth, useLoginModal } from '@/lib/auth';
 import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { useTranslation } from '@/lib/i18n';
 import LoginPanel from '@/app/components/LoginPanel';
+import LoginModalBarLock from '@/app/components/LoginModalBarLock';
 import modalStyles from '@/app/[locale]/@modal/(.)login/modal.module.css';
 
 export default function BridgeAuth() {
@@ -42,18 +43,9 @@ export default function BridgeAuth() {
     void postLoginRedirect(user.uid, router, locale);
   }, [user, loading, loginOpen, router, locale]);
 
-  // Lock body scroll while the login modal is open.
-  useEffect(() => {
-    if (!loginOpen) return;
-    const prevOverflow    = document.body.style.overflow;
-    const prevTouchAction = document.body.style.touchAction;
-    document.body.style.overflow    = 'hidden';
-    document.body.style.touchAction = 'none';
-    return () => {
-      document.body.style.overflow    = prevOverflow;
-      document.body.style.touchAction = prevTouchAction;
-    };
-  }, [loginOpen]);
+  // Scroll lock + iOS bar recolor live in <LoginModalBarLock /> inside the
+  // overlay (single owner — a second snapshot-restore lock here raced with
+  // the closing burger drawer and left the page scroll-locked).
 
   // Sync auth state into the login button + the _authHint localStorage that
   // the pre-hydration bootstrap reads.
@@ -68,12 +60,16 @@ export default function BridgeAuth() {
         .split(' ')[0] || t('footer.signIn');
       loginBtn?.classList.add('logged-in');
       if (loginSpan) loginSpan.textContent = firstName;
+      // Keep the pre-paint flag accurate once auth actually resolves (the
+      // bootstrap only guesses from the possibly-stale _authHint).
+      document.documentElement.setAttribute('data-auth', '1');
       try { localStorage.setItem('_authHint', JSON.stringify({ n: firstName })); } catch {}
       // Close the modal if the user just signed in.
       closeLogin();
     } else {
       loginBtn?.classList.remove('logged-in');
       if (loginSpan) loginSpan.textContent = t('footer.signIn');
+      document.documentElement.removeAttribute('data-auth');
       try { localStorage.removeItem('_authHint'); } catch {}
     }
   }, [user, loading, t, closeLogin]);
@@ -83,6 +79,8 @@ export default function BridgeAuth() {
       className={modalStyles.overlay}
       onClick={(e) => { if (e.target === e.currentTarget) closeLogin(); }}
     >
+      {/* Recolors the iOS bottom-URL-bar zone while the modal is open. */}
+      <LoginModalBarLock />
       <LoginPanel onBack={closeLogin} modal />
     </div>,
     document.body,

@@ -153,6 +153,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     >
       <div className={styles.shell}>
 
+        {/* bodyListAtFull / bodyDetailOpen slide the floating search toolbar +
+            burger chip up off-screen (see map.module.css) — Google-Maps
+            behavior. */}
         <div className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}${sheetView === 'list' && snap === 'full' ? ` ${styles.bodyListAtFull}` : ''}${desktopPanelHidden ? ` ${styles.bodyPanelHidden}` : ''}`}>
           <div className={styles.mapWrap}>
             <MapCanvas ref={mapRef} onMove={onMapMove} onMapClick={onMapClick}>

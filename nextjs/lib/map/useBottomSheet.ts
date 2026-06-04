@@ -44,15 +44,20 @@ function pxToNearestSnap(px: number, sheetH: number, peekPx: number, allowed: Sh
    reaching `peek`, requiring a second gesture (feels like extra stops).
 
    Combined rule:
-   - Intent guarantees the *minimum* one-step move if |dy| ≥ 40 px.
+   - Intent guarantees the *minimum* one-step move if |dy| ≥ 40 px OR the
+     release velocity reads as a flick (≥ 0.4 px/ms) — a short fast swipe
+     moves the sheet even when the finger only travelled ~20 px. That's
+     the Google-Maps feel; distance-only made quick flicks feel ignored.
    - Nearest-by-distance overrides if the finger went further in the same
      direction (so a long hard swipe still spans multiple snaps).
 */
 const INTENT_THRESHOLD_PX = 40
+const FLICK_VELOCITY_PX_MS = 0.4
 
 function pickSnapAfterDrag(
   startSnap: SheetSnap,
   dy: number,
+  velocity: number,
   finalPx: number,
   sheetH: number,
   peekPx: number,
@@ -67,19 +72,40 @@ function pickSnapAfterDrag(
   const nearest = pxToNearestSnap(finalPx, sheetH, peekPx, allowed)
   const nearestIdx = order.indexOf(nearest)
 
-  if (Math.abs(dy) < INTENT_THRESHOLD_PX || startIdx === -1) {
-    // Below the intent threshold (or unknown start) → pure nearest.
+  const flick = Math.abs(velocity) >= FLICK_VELOCITY_PX_MS
+  if ((Math.abs(dy) < INTENT_THRESHOLD_PX && !flick) || startIdx === -1) {
+    // Below the intent threshold and no flick (or unknown start) → nearest.
     return nearest
   }
 
-  const step = dy < 0 ? -1 : 1   // up = -1 (smaller idx), down = +1 (larger idx)
-  const intentIdx = Math.max(0, Math.min(order.length - 1, startIdx + step))
+  // up = -1 (smaller idx), down = +1 (larger idx). A flick's direction
+  // wins over the net displacement (finger may have doubled back).
+  const dir = flick ? (velocity < 0 ? -1 : 1) : (dy < 0 ? -1 : 1)
+  const intentIdx = Math.max(0, Math.min(order.length - 1, startIdx + dir))
 
   // Combine: pick the snap that's further in the drag direction.
-  // dy < 0 (up) wants the smaller idx → min.
-  // dy > 0 (down) wants the larger idx → max.
-  const finalIdx = dy < 0 ? Math.min(intentIdx, nearestIdx) : Math.max(intentIdx, nearestIdx)
+  // dir -1 (up) wants the smaller idx → min.
+  // dir +1 (down) wants the larger idx → max.
+  const finalIdx = dir < 0 ? Math.min(intentIdx, nearestIdx) : Math.max(intentIdx, nearestIdx)
   return order[finalIdx]
+}
+
+/* Release-velocity tracker (px/ms, positive = downward). EMA over the move
+   samples so a single jittery event doesn't dominate, but the most recent
+   motion outweighs the start of the gesture. */
+interface VelocityState { lastY: number; lastT: number; vel: number }
+
+function velocityInit(y: number, t: number): VelocityState {
+  return { lastY: y, lastT: t, vel: 0 }
+}
+
+function velocitySample(v: VelocityState, y: number, t: number): void {
+  const dt = t - v.lastT
+  if (dt <= 0) return
+  const inst = (y - v.lastY) / dt
+  v.vel = v.vel * 0.4 + inst * 0.6
+  v.lastY = y
+  v.lastT = t
 }
 
 function isMobile(): boolean {
@@ -140,7 +166,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       setHeaderTick(t => t + 1)
     }
   }, [])
-  const dragRef    = useRef<{ startY: number; basePx: number; pointerId: number } | null>(null)
+  const dragRef    = useRef<{ startY: number; basePx: number; pointerId: number; v: VelocityState } | null>(null)
   const snapRef    = useRef<SheetSnap>(initial)
   const configRef  = useRef<SheetConfig>({ maxSnap: null, dragMode: 'all', peekVisiblePx: DEFAULT_PEEK_VISIBLE_PX })
   snapRef.current = snap
@@ -329,7 +355,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       // Read actual CSS position so custom content-fit snap is the drag baseline.
       const cssY = sheet.style.getPropertyValue('--sheet-y')
       const basePx = cssY ? parseFloat(cssY) : snapToPx(snap, h, configRef.current.peekVisiblePx)
-      dragRef.current = { startY: e.clientY, basePx, pointerId: e.pointerId }
+      dragRef.current = { startY: e.clientY, basePx, pointerId: e.pointerId, v: velocityInit(e.clientY, e.timeStamp) }
       handle.setPointerCapture(e.pointerId)
       setDragging(true)
       e.preventDefault()
@@ -337,6 +363,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     const onMove = (e: PointerEvent) => {
       const d = dragRef.current
       if (!d) return
+      velocitySample(d.v, e.clientY, e.timeStamp)
       const { maxSnap } = configRef.current
       const h = sheetHRef.current
       const upperCap = maxSnap ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx) : FULL_TOP_PX
@@ -362,7 +389,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const upperCap = maxSnap ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx) : FULL_TOP_PX
       const finalPx = Math.max(upperCap, Math.min(h - 40, d.basePx + dy))
       const allowed: SheetSnap[] = maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']
-      setSnap(pickSnapAfterDrag(snapRef.current, dy, finalPx, h, configRef.current.peekVisiblePx, allowed))
+      setSnap(pickSnapAfterDrag(snapRef.current, dy, d.v.vel, finalPx, h, configRef.current.peekVisiblePx, allowed))
     }
 
     handle.addEventListener('pointerdown',   onDown)
@@ -393,9 +420,11 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
 
     let touchState: {
       startY: number
+      startX: number
       basePx: number
       active: boolean
       atScrollTop: boolean
+      v: VelocityState
     } | null = null
 
     const onTouchStart = (e: TouchEvent) => {
@@ -410,17 +439,25 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const scroller = content.querySelector<HTMLElement>('[data-detail-scroll]') ?? content
       touchState = {
         startY: e.touches[0].clientY,
+        startX: e.touches[0].clientX,
         basePx: snapToPx(snapRef.current, h, configRef.current.peekVisiblePx),
         active: false,
         atScrollTop: scroller.scrollTop <= 0,
+        v: velocityInit(e.touches[0].clientY, e.timeStamp),
       }
     }
 
     const onTouchMove = (e: TouchEvent) => {
       if (!touchState) return
       const dy = e.touches[0].clientY - touchState.startY
+      velocitySample(touchState.v, e.touches[0].clientY, e.timeStamp)
       if (!touchState.active) {
-        if (Math.abs(dy) < 6) return
+        const dx = e.touches[0].clientX - touchState.startX
+        if (Math.abs(dy) < 6 && Math.abs(dx) < 6) return
+        /* Axis lock (Google-Maps style): the first dominant axis owns the
+           whole gesture. A horizontal start belongs to a horizontal scroller
+           / swipe handler inside the sheet — never also move the sheet. */
+        if (Math.abs(dx) > Math.abs(dy)) { touchState = null; return }
         /* Conflict resolution between sheet-drag and content-scroll, so the
            user can swipe up/down anywhere in the sheet without fighting
            native scroll:
@@ -428,8 +465,8 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
            - Swiping DOWN with the content scrolled past the top → native scroll
            - Otherwise → drag the sheet between snaps. */
         const atFull = snapRef.current === 'full'
-        if (atFull && dy < 0) return
-        if (dy > 0 && !touchState.atScrollTop) return
+        if (atFull && dy < 0) { touchState = null; return }
+        if (dy > 0 && !touchState.atScrollTop) { touchState = null; return }
         touchState.active = true
         setDragging(true)
       }
@@ -452,7 +489,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
         const finalPx = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
         const allowed: SheetSnap[] = maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']
         setDragging(false)
-        setSnap(pickSnapAfterDrag(snapRef.current, dy, finalPx, h, configRef.current.peekVisiblePx, allowed))
+        setSnap(pickSnapAfterDrag(snapRef.current, dy, touchState.v.vel, finalPx, h, configRef.current.peekVisiblePx, allowed))
       }
       touchState = null
     }
@@ -483,8 +520,10 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
 
     let touchState: {
       startY: number
+      startX: number
       basePx: number
       active: boolean
+      v: VelocityState
     } | null = null
 
     const onTouchStart = (e: TouchEvent) => {
@@ -494,18 +533,27 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       sheetHRef.current = h
       touchState = {
         startY: e.touches[0].clientY,
+        startX: e.touches[0].clientX,
         basePx: snapToPx(snapRef.current, h, configRef.current.peekVisiblePx),
         active: false,
+        v: velocityInit(e.touches[0].clientY, e.timeStamp),
       }
     }
 
     const onTouchMove = (e: TouchEvent) => {
       if (!touchState) return
       const dy = e.touches[0].clientY - touchState.startY
+      velocitySample(touchState.v, e.touches[0].clientY, e.timeStamp)
       if (!touchState.active) {
+        const dx = e.touches[0].clientX - touchState.startX
         // 8 px threshold — below this it's a tap, leave the click event
         // alone so buttons inside the header still receive their onClick.
-        if (Math.abs(dy) < 8) return
+        if (Math.abs(dy) < 8 && Math.abs(dx) < 8) return
+        /* Axis lock (Google-Maps style): the chip rail inside this zone is
+           a native horizontal scroller (touch-action: pan-x). A horizontal
+           start belongs exclusively to the rail — never also drag the
+           sheet, otherwise both move at once (diagonal mess). */
+        if (Math.abs(dx) > Math.abs(dy)) { touchState = null; return }
         touchState.active = true
         setDragging(true)
       }
@@ -528,7 +576,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
         const finalPx = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
         const allowed: SheetSnap[] = maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']
         setDragging(false)
-        setSnap(pickSnapAfterDrag(snapRef.current, dy, finalPx, h, configRef.current.peekVisiblePx, allowed))
+        setSnap(pickSnapAfterDrag(snapRef.current, dy, touchState.v.vel, finalPx, h, configRef.current.peekVisiblePx, allowed))
       }
       touchState = null
     }

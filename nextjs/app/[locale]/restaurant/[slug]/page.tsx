@@ -57,15 +57,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       loc,
     ) ?? '',
   )
-  const title =
-    pickLocale(
-      r.seo?.metaTitle ||
-        buildRestaurantTitle({ name: r.name, cuisineType: r.cuisineType, district: districtName, locale: 'de' }),
-      r.seo?.metaTitleEn ||
-        buildRestaurantTitle({ name: r.name, cuisineType: r.cuisineType, district: districtName, locale: 'en' }),
-      loc,
-    ) ??
-    buildRestaurantTitle({ name: r.name, cuisineType: r.cuisineType, district: districtName, locale: 'de' })
+  // Kuratierte Sanity-Titles sind brandlos und laufen wie bisher durchs
+  // Layout-Template (`%s | Eat This Berlin`). Der Builder liefert den Brand
+  // schon mit („| EAT THIS") und muss deshalb als absolute raus, sonst
+  // doppelt das Template den Brand.
+  const curatedTitle = pickLocale(r.seo?.metaTitle || undefined, r.seo?.metaTitleEn || undefined, loc)
+  const builtTitle = buildRestaurantTitle({ name: r.name, cuisineType: r.cuisineType, district: districtName, locale: loc })
+  const title = curatedTitle ?? builtTitle
 
   const baseImage = r.seo?.ogImageUrl || r.photo?.split('?')[0]
   const image = baseImage
@@ -84,7 +82,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (hasEn) languages.en = localeUrl('en', `/restaurant/${slug}`)
 
   return {
-    title,
+    title: curatedTitle ?? { absolute: builtTitle },
     description,
     robots: r.seo?.noIndex ? 'noindex,nofollow' : undefined,
     alternates: {

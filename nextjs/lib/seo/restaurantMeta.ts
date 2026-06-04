@@ -48,6 +48,8 @@ export function truncateAtSentence(text: string, max = 160): string {
   if (clean.length <= max) return clean
   const slice = clean.slice(0, max)
   const stop = Math.max(slice.lastIndexOf('. '), slice.lastIndexOf('! '), slice.lastIndexOf('? '))
+  // Satzgrenze muss hinter der 40-Zeichen-Marke liegen — frühere Treffer
+  // sind eher Abkürzungen oder Mini-Opener, die allein keinen Sinn ergeben.
   if (stop >= 40) return slice.slice(0, stop + 1)
   // Ellipsis path: reserve 2 chars (' …') so the total stays ≤ max.
   const fallbackSlice = clean.slice(0, max - 2)

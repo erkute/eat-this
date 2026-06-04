@@ -74,4 +74,10 @@ describe('truncateAtSentence', () => {
   it('collapses whitespace', () => {
     expect(truncateAtSentence('Zwei  Leerzeichen\nund Umbruch.')).toBe('Zwei Leerzeichen und Umbruch.')
   })
+
+  it('falls back to ellipsis when the only sentence end is in the first 40 chars', () => {
+    const short = 'Ja. ' + 'x '.repeat(80).trim()
+    const out = truncateAtSentence(short)
+    expect(out.endsWith(' …')).toBe(true)
+  })
 })

@@ -1,12 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
+import { translations } from '@/lib/i18n/translations'
 import HubCategories from '@/app/components/HubCategories'
 import type { HubCategory } from '@/lib/home/getHomeData'
 
 function render(categories: HubCategory[]) {
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale="de" messages={{}}>
+    <NextIntlClientProvider locale="de" messages={translations.de}>
       <HubCategories categories={categories} />
     </NextIntlClientProvider>,
   )

@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { normalizeName } from '@/lib/normalizeName'
 import HubMapCTA from './HubMapCTA'
@@ -13,7 +14,9 @@ interface Props {
 }
 
 export default function HubHero({ spot, today }: Props) {
-  const dateLabel = formatHeroDate(today)
+  const t = useTranslations('hub.hero')
+  const locale = useLocale() as 'de' | 'en'
+  const dateLabel = formatHeroDate(today, locale)
   return (
     <section className={styles.hero} data-hub-hero="">
       {spot.image && (
@@ -29,14 +32,14 @@ export default function HubHero({ spot, today }: Props) {
       )}
       <div className={styles.body}>
         <p className={styles.kicker}>
-          Spot des Tages{dateLabel ? ` · ${dateLabel}` : ''}
+          {t('kicker')}{dateLabel ? ` · ${dateLabel}` : ''}
         </p>
         <h1 className={styles.headline}>{normalizeName(spot.name)}</h1>
         {spot.sub && <p className={styles.sub}>{spot.sub}</p>}
         <div className={styles.actions}>
-          <HubMapCTA href={`/map?r=${spot.slug}`} title="Auf die Map" variant="chip" />
+          <HubMapCTA href={`/map?r=${spot.slug}`} title={t('toMap')} variant="chip" />
           <Link href={`/restaurant/${spot.slug}`} className={styles.read}>
-            Lesen
+            {t('read')}
           </Link>
         </div>
       </div>

@@ -1,11 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
+import { translations } from '@/lib/i18n/translations'
 import HubAllBerlin from '@/app/components/HubAllBerlin'
 
 function render() {
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale="de" messages={{}}>
+    <NextIntlClientProvider locale="de" messages={translations.de}>
       <HubAllBerlin />
     </NextIntlClientProvider>,
   )

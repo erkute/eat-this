@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/lib/auth'
 import { useMapData } from '@/lib/map'
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export default function HubNearby({ initialMapData }: Props) {
+  const t = useTranslations('hub.nearby')
   const { user, loading: authLoading } = useAuth()
   const uid = user?.uid ?? null
   const live = useMapData({ uid, authLoading, initialMapData })
@@ -41,20 +43,18 @@ export default function HubNearby({ initialMapData }: Props) {
   return (
     <section className={styles.section} data-hub-nearby="">
       <div className={styles.head}>
-        <h2 className={styles.heading}>In deiner Nähe</h2>
+        <h2 className={styles.heading}>{t('title')}</h2>
         <button
           type="button"
           className={styles.locBtn}
           onClick={() => request()}
-          aria-label="Mein Standort verwenden"
+          aria-label={t('locationAria')}
         >
-          <span>Standort</span>
+          <span>{t('location')}</span>
         </button>
       </div>
       <p className={styles.sub}>
-        {activeLocation
-          ? 'Restaurants und Must Eats um dich herum'
-          : 'Mitte · Restaurants und Must Eats um dich herum'}
+        {activeLocation ? t('sub') : t('subFallback')}
       </p>
 
       <ul className={styles.row} role="list">
@@ -79,8 +79,8 @@ export default function HubNearby({ initialMapData }: Props) {
 
       {me.length > 0 && (
         <>
-          <h3 className={styles.meHeading}>Must Eats in deiner Nähe</h3>
-          <p className={styles.meSub}>Die Gerichte, die du nicht verpassen darfst</p>
+          <h3 className={styles.meHeading}>{t('mustEatsTitle')}</h3>
+          <p className={styles.meSub}>{t('mustEatsSub')}</p>
           <ul className={styles.meRow} role="list">
             {me.map((m) => (
               <li key={m._id} className={styles.meItem}>
@@ -100,7 +100,7 @@ export default function HubNearby({ initialMapData }: Props) {
           </ul>
           <p className={styles.foot}>
             <Link href="/map" rel="nofollow" className={styles.footLink}>
-              Mehr Must Eats →
+              {t('more')}
             </Link>
           </p>
         </>

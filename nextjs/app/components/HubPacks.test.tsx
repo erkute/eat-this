@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
+import { translations } from '@/lib/i18n/translations'
 
 // HubWelcomePack reads auth to hide itself for signed-in users. In this
 // isolated SSR render there's no AuthProvider — mock anon so the gift pack
@@ -13,7 +14,7 @@ const names = { breakfast: 'Frühstück', pizza: 'Pizza', sweets: 'Süßes' }
 
 function render(categoryNames: Record<string, string> = names) {
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale="de" messages={{}}>
+    <NextIntlClientProvider locale="de" messages={translations.de}>
       <HubPacks categoryNames={categoryNames} />
     </NextIntlClientProvider>,
   )

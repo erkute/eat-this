@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { normalizeName } from '@/lib/normalizeName'
 import type { NewOnMapCard } from '@/lib/home/getHomeData'
@@ -9,13 +10,14 @@ interface Props {
 }
 
 export default function HubNewOnMap({ cards }: Props) {
+  const t = useTranslations('hub.newOnMap')
   if (cards.length === 0) return null
   return (
     <section className={styles.section} data-hub-newonmap="">
-      <h2 className={styles.heading}>Neu auf der Map</h2>
+      <h2 className={styles.heading}>{t('title')}</h2>
       <p className={styles.meta}>
         <Link href="/map" rel="nofollow" className={styles.metaLink}>
-          Alle neuen Spots →
+          {t('all')}
         </Link>
       </p>
       <ul className={styles.cards} role="list">

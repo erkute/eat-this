@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import type { HubArticle } from '@/lib/home/getHomeData'
 import styles from './HubMagazine.module.css'
@@ -8,13 +9,14 @@ interface Props {
 }
 
 export default function HubMagazine({ articles }: Props) {
+  const t = useTranslations('hub.magazine')
   if (articles.length === 0) return null
   return (
     <section className={styles.section} data-hub-magazine="">
-      <h2 className={styles.heading}>Im Magazin</h2>
+      <h2 className={styles.heading}>{t('title')}</h2>
       <p className={styles.meta}>
         <Link href="/news" className={styles.metaLink}>
-          Alle Storys →
+          {t('all')}
         </Link>
       </p>
       <ul className={styles.scroller} role="list">
@@ -29,7 +31,7 @@ export default function HubMagazine({ articles }: Props) {
               </div>
               <div className={styles.cardBody}>
                 <h3 className={styles.cardName}>{a.title}</h3>
-                <span className={styles.read}>Lesen →</span>
+                <span className={styles.read}>{t('read')}</span>
               </div>
             </Link>
           </li>

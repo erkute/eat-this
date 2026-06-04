@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useEffect, useState, type FormEvent } from 'react'
+import { useTranslations } from 'next-intl'
 import { useMagicLink } from '@/lib/auth/useMagicLink'
 import { useAuth } from '@/lib/auth'
 import styles from './HubPacks.module.css'
@@ -14,6 +15,7 @@ const GIFT_ART = '/pics/booster/booster_free.webp'
  * form for a "Check deine Mail" confirmation — no modal detour.
  */
 export default function HubWelcomePack() {
+  const t = useTranslations('hub.welcomePack')
   const { sendLink, state, errorMessage } = useMagicLink()
   const { user } = useAuth()
   // The Welcome Pack is a signup gift — pointless once you're logged in. Hide
@@ -43,27 +45,27 @@ export default function HubWelcomePack() {
       <div className={styles.packArt}>
         <Image src={GIFT_ART} alt="" fill sizes="200px" className={styles.artImg} />
       </div>
-      <p className={styles.packCat}>Booster Pack</p>
-      <h3 className={styles.packName}>Welcome Pack</h3>
+      <p className={styles.packCat}>{t('cat')}</p>
+      <h3 className={styles.packName}>{t('name')}</h3>
       <p className={styles.packMeta}>
-        Weitere kuratierte Spots samt Must Eats — direkt nach deiner Anmeldung.
+        {t('desc')}
       </p>
       {sent ? (
-        <p className={styles.giftSent} role="status">Check deine Mail ✓</p>
+        <p className={styles.giftSent} role="status">{t('checkMail')}</p>
       ) : (
         <form className={styles.signup} onSubmit={onSubmit} noValidate>
           <input
             type="email"
             name="email"
-            placeholder="deine@email.com"
-            aria-label="E-Mail Adresse"
+            placeholder={t('emailPlaceholder')}
+            aria-label={t('emailAria')}
             required
             autoComplete="email"
             disabled={sending}
             className={styles.signupInput}
           />
           <button type="submit" disabled={sending} className={styles.signupBtn}>
-            {sending ? 'Sende…' : 'Anmelden →'}
+            {sending ? t('sending') : t('signUp')}
           </button>
         </form>
       )}

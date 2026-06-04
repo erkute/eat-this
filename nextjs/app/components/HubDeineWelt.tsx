@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/lib/auth'
 import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements'
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export default function HubDeineWelt({ initialMapData }: Props) {
+  const t = useTranslations('hub.deineWelt')
   const { user, loading } = useAuth()
   const uid = user?.uid ?? null
   const owned = useOwnedEntitlements(uid)
@@ -71,13 +73,13 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   return (
     <section className={styles.section} data-hub-deinewelt="" data-auth-only="">
       <header className={styles.hi}>
-        <p className={styles.kicker}>{firstName ? `Hallo ${firstName}` : 'Hallo'}</p>
+        <p className={styles.kicker}>{firstName ? t('helloName', { name: firstName }) : t('hello')}</p>
         <h2 className={styles.name}>
-          Heute auf <span className={styles.em}>deiner</span> Map.
+          {t.rich('today', { em: (chunks) => <span className={styles.em}>{chunks}</span> })}
         </h2>
         {bezirk && (
           <p className={styles.here}>
-            Dein Bezirk <strong>{bezirk}</strong>
+            {t.rich('yourBezirk', { bezirk, b: (chunks) => <strong>{chunks}</strong> })}
           </p>
         )}
       </header>
@@ -86,7 +88,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
         <>
           <div className={styles.div} />
           <div className={styles.fresh}>
-            <p className={styles.freshK}>Frisch in {bezirk}</p>
+            <p className={styles.freshK}>{t('freshIn', { bezirk })}</p>
             <div className={styles.freshRow}>
               {fresh.map((r) => {
                 const tag = r.cuisineType ?? r.categories?.[0]?.name ?? null
@@ -97,12 +99,12 @@ export default function HubDeineWelt({ initialMapData }: Props) {
                     rel="nofollow"
                     className={styles.freshCard}
                   >
-                    <span className={styles.freshPill}>Neu</span>
+                    <span className={styles.freshPill}>{t('newPill')}</span>
                     <span className={styles.freshImg}>
                       {r.photo && <Image src={r.photo} alt="" fill sizes="200px" />}
                     </span>
                     <h4 className={styles.freshName}>{normalizeName(r.name)}</h4>
-                    <span className={styles.freshMeta}>{tag ? `${tag} · neu dabei` : 'neu dabei'}</span>
+                    <span className={styles.freshMeta}>{tag ? t('newMetaTag', { tag }) : t('newMeta')}</span>
                   </Link>
                 )
               })}
@@ -117,14 +119,14 @@ export default function HubDeineWelt({ initialMapData }: Props) {
         href="/profile#gesammelte-must-eats"
         className={styles.teaser}
         rel="nofollow"
-        aria-label="Deine verdeckten Must Eats im Profil ansehen"
+        aria-label={t('coveredAria')}
       >
         <div className={styles.cards} aria-hidden="true">
           <span className={styles.card} style={{ backgroundImage: `url(${CARD_BACK})` }} />
           <span className={styles.card} style={{ backgroundImage: `url(${CARD_BACK})` }} />
           <span className={styles.card} style={{ backgroundImage: `url(${CARD_BACK})` }} />
         </div>
-        <p className={styles.cap}>Must Eats warten · noch nicht aufgedeckt →</p>
+        <p className={styles.cap}>{t('mustEatsWaiting')}</p>
       </Link>
 
       {packArt && ownedSlug && ownedPack && (
@@ -132,9 +134,9 @@ export default function HubDeineWelt({ initialMapData }: Props) {
           <Image src={packArt} alt="" width={84} height={130} className={styles.packArt} />
           <div className={styles.packBody}>
             <h3 className={styles.packName}>{ownedPack.displayName}</h3>
-            <p className={styles.packProgress}>Schon ein paar aufgedeckt. Weiter geht&apos;s.</p>
+            <p className={styles.packProgress}>{t('packProgress')}</p>
             <Link href={`/map?cat=${ownedSlug}`} rel="nofollow" className={styles.packCta}>
-              Auf die Map →
+              {t('toMap')}
             </Link>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
+import { translations } from '@/lib/i18n/translations'
 import HubHero from '@/app/components/HubHero'
 import type { HomeSpot } from '@/lib/home/getHomeData'
 
@@ -18,7 +19,7 @@ const baseSpot: HomeSpot = {
 
 function render(ui: React.ReactElement) {
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale="de" messages={{}}>
+    <NextIntlClientProvider locale="de" messages={translations.de}>
       {ui}
     </NextIntlClientProvider>,
   )

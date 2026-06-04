@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
+import { translations } from '@/lib/i18n/translations'
 import HubNewOnMap from '@/app/components/HubNewOnMap'
 import type { NewOnMapCard } from '@/lib/home/getHomeData'
 
@@ -11,7 +12,7 @@ const card = (o: Partial<NewOnMapCard> = {}): NewOnMapCard => ({
 
 function render(cards: NewOnMapCard[]) {
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale="de" messages={{}}>
+    <NextIntlClientProvider locale="de" messages={translations.de}>
       <HubNewOnMap cards={cards} />
     </NextIntlClientProvider>,
   )

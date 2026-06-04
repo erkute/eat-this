@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { CATALOG } from '@/lib/stripe-catalog'
 import { categoryArt } from '@/lib/categoryArt'
@@ -14,10 +15,11 @@ function formatPrice(amountCents: number): string {
 }
 
 export default function HubPacks({ categoryNames }: Props) {
+  const t = useTranslations('hub.packs')
   const categoryPacks = Object.values(CATALOG).filter((p) => p.type === 'category' && p.slug)
   return (
     <section className={styles.section} id="hub-packs" data-hub-packs="">
-      <h2 className={styles.heading}>Booster Packs</h2>
+      <h2 className={styles.heading}>{t('title')}</h2>
       <div className={styles.scroller}>
         <HubWelcomePack />
         {categoryPacks.map((p) => {
@@ -29,7 +31,7 @@ export default function HubPacks({ categoryNames }: Props) {
               <div className={styles.packArt}>
                 {art && <Image src={art} alt="" fill sizes="200px" className={styles.artImg} />}
               </div>
-              <p className={styles.packCat}>Pack · {name}</p>
+              <p className={styles.packCat}>{t('cat', { name })}</p>
               <h3 className={styles.packName}>{name}</h3>
               <p className={styles.packMeta}>
                 <span className={styles.tags}>{p.spectrum}</span>
@@ -38,7 +40,7 @@ export default function HubPacks({ categoryNames }: Props) {
               <div className={styles.packFoot}>
                 <span className={styles.packPrice}>{formatPrice(p.amountCents)}</span>
                 <Link href={`/pack/${slug}`} className={styles.packCta}>
-                  Ansehen →
+                  {t('view')}
                 </Link>
               </div>
             </article>

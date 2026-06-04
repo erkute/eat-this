@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { CATALOG } from '@/lib/stripe-catalog'
 import { categoryArt } from '@/lib/categoryArt'
@@ -8,6 +9,7 @@ function formatPrice(cents: number): string {
 }
 
 export default function HubAllBerlin() {
+  const t = useTranslations('hub.allBerlin')
   const categoryPacks = Object.values(CATALOG).filter((p) => p.type === 'category' && p.slug)
   const allBerlin = CATALOG['all-berlin']
   const sumCents = categoryPacks.reduce((s, p) => s + p.amountCents, 0)
@@ -17,7 +19,7 @@ export default function HubAllBerlin() {
 
   return (
     <section className={styles.section} data-hub-allberlin="">
-      <p className={styles.kicker}>Berlin · Komplett</p>
+      <p className={styles.kicker}>{t('kicker')}</p>
       <h2 className={styles.heading}>All<br />Berlin</h2>
       <div className={styles.fan}>
         {fanArt.map((src) => (
@@ -26,15 +28,14 @@ export default function HubAllBerlin() {
         ))}
       </div>
       <p className={styles.copy}>
-        Alle neun Booster Packs in einem. Alle Kategorien dabei, jeder Spot drauf.{' '}
-        <strong>Plus alle Updates</strong> — neue Spots und Must Eats landen automatisch auf deiner Map.
+        {t.rich('copy', { b: (chunks) => <strong>{chunks}</strong> })}
       </p>
       <div className={styles.priceRow}>
         <span className={styles.strike}>{formatPrice(sumCents)}</span>
         <span className={styles.price}>{formatPrice(allBerlin.amountCents)}</span>
-        <span className={styles.save}>Spar {formatPrice(sumCents - allBerlin.amountCents)}</span>
+        <span className={styles.save}>{t('save', { amount: formatPrice(sumCents - allBerlin.amountCents) })}</span>
       </div>
-      <Link href="/pack/all-berlin" aria-label="All Berlin ansehen" className={styles.cta}>Kaufen →</Link>
+      <Link href="/pack/all-berlin" aria-label={t('viewAria')} className={styles.cta}>{t('buy')}</Link>
     </section>
   )
 }

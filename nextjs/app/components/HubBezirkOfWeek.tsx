@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { normalizeName } from '@/lib/normalizeName'
 import type { HubBezirk } from '@/lib/home/getHomeData'
@@ -9,11 +10,12 @@ interface Props {
 }
 
 export default function HubBezirkOfWeek({ bezirk }: Props) {
+  const t = useTranslations('hub.bezirkOfWeek')
   if (!bezirk || !bezirk.name) return null
   const spots = bezirk.spots ?? []
   return (
     <section className={styles.section} data-hub-bezirk="">
-      <p className={styles.kicker}>Bezirk der Woche</p>
+      <p className={styles.kicker}>{t('kicker')}</p>
       <h2 className={styles.heading}>{bezirk.name}</h2>
       {bezirk.tagline && <p className={styles.tag}>{bezirk.tagline}</p>}
       <div className={styles.grid}>
@@ -33,7 +35,7 @@ export default function HubBezirkOfWeek({ bezirk }: Props) {
       </div>
       <p className={styles.foot}>
         <Link href={`/map?bezirk=${bezirk.slug}`} rel="nofollow" className={styles.footLink}>
-          Mehr aus {bezirk.name} →
+          {t('more', { name: bezirk.name })}
         </Link>
       </p>
     </section>

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
+import { translations } from '@/lib/i18n/translations'
 import HubMagazine from '@/app/components/HubMagazine'
 import type { HubArticle } from '@/lib/home/getHomeData'
 
@@ -14,7 +15,7 @@ const article = (o: Partial<HubArticle> = {}): HubArticle => ({
 
 function render(articles: HubArticle[]) {
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale="de" messages={{}}>
+    <NextIntlClientProvider locale="de" messages={translations.de}>
       <HubMagazine articles={articles} />
     </NextIntlClientProvider>,
   )

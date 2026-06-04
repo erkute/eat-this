@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
+import { translations } from '@/lib/i18n/translations'
 import HubBezirkOfWeek from '@/app/components/HubBezirkOfWeek'
 import type { HubBezirk } from '@/lib/home/getHomeData'
 
@@ -16,7 +17,7 @@ const bezirk = (o: Partial<HubBezirk> = {}): HubBezirk => ({
 
 function render(b: HubBezirk | null) {
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale="de" messages={{}}>
+    <NextIntlClientProvider locale="de" messages={translations.de}>
       <HubBezirkOfWeek bezirk={b} />
     </NextIntlClientProvider>,
   )

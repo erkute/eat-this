@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
+import { translations } from '@/lib/i18n/translations'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 
 // Auth state is swapped per test: while loading (= the SSR pass) the static
@@ -18,7 +19,7 @@ const initialMapData = { restaurants: [] } as unknown as InitialMapData
 
 function render() {
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale="de" messages={{}}>
+    <NextIntlClientProvider locale="de" messages={translations.de}>
       <HubDeineWelt initialMapData={initialMapData} />
     </NextIntlClientProvider>,
   )

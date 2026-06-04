@@ -12,4 +12,8 @@ describe('formatHeroDate', () => {
   it('returns empty string for an invalid date', () => {
     expect(formatHeroDate('not-a-date')).toBe('')
   })
+  it('formats an English short weekday + month/day for en', () => {
+    // 2026-06-01 is a Monday
+    expect(formatHeroDate('2026-06-01', 'en')).toBe('Mon · Jun 1')
+  })
 })

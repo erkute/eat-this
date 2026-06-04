@@ -101,8 +101,10 @@ export default function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // Match all request paths except static assets, API routes, and Next internals.
+  // Match all request paths except static assets, API routes, and Next
+  // internals. `__` exempts the Firebase Auth helper proxy (/__/auth/*,
+  // see rewrites() in next.config.ts) from locale routing and redirects.
   matcher: [
-    '/((?!api|_next|_vercel|css|js|pics|fonts|welcome|favicon.ico|manifest.json|robots.txt|sitemap.xml|.*\\..*).*)',
+    '/((?!api|_next|_vercel|__|css|js|pics|fonts|welcome|favicon.ico|manifest.json|robots.txt|sitemap.xml|.*\\..*).*)',
   ],
 };

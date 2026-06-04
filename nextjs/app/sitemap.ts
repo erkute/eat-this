@@ -5,7 +5,11 @@ import { routing } from '@/i18n/routing'
 import { hasEnContent } from '@/lib/i18n/pickLocale'
 import { isStaging } from '@/lib/env'
 
-export const revalidate = 0
+// Cache the generated sitemap for a day instead of rebuilding it (full Sanity
+// fetch of all restaurants/articles/bezirke) on every crawler hit. Content
+// changes still surface immediately: /api/revalidate calls
+// revalidatePath('/sitemap.xml') on Sanity webhooks.
+export const revalidate = 86400
 
 // `/contact`, `/impressum`, `/datenschutz`, `/agb` are marked
 // `noindex,follow` in [...slug]/page.tsx — listing them in the sitemap

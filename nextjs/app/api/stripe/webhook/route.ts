@@ -3,13 +3,16 @@ import * as Sentry from '@sentry/nextjs'
 import type Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe'
 import { assembleAndWriteEntitlement, findOrCreateUserByEmail } from '@/lib/stripe-fulfill'
+import { sendMagicLinkEmail } from '@/lib/auth/sendMagicLink'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-// After fulfilling a guest purchase we trigger the existing magic-link
-// route so the buyer can sign in and access their freshly-attached
-// entitlement. Fire-and-forget — webhook must return 2xx fast.
+// After fulfilling a guest purchase we email the buyer a magic link so they
+// can sign in and access their freshly-attached entitlement. We call the
+// shared sender DIRECTLY (not the public /api/auth/send-magic-link route) so
+// this trusted, Stripe-signature-verified path isn't subject to the route's
+// shared-IP rate limit. Fire-and-forget — webhook must return 2xx fast.
 async function triggerGuestMagicLink(req: Request, email: string, locale: 'de' | 'en') {
   const host  = req.headers.get('x-forwarded-host') ?? req.headers.get('host')
   const proto = req.headers.get('x-forwarded-proto') ?? 'https'
@@ -18,11 +21,10 @@ async function triggerGuestMagicLink(req: Request, email: string, locale: 'de' |
   const continueUrl = locale === 'en' ? `${origin}/en/profile` : `${origin}/profile`
 
   try {
-    await fetch(`${origin}/api/auth/send-magic-link`, {
-      method:  'POST',
-      headers: { 'content-type': 'application/json' },
-      body:    JSON.stringify({ email, locale, continueUrl }),
-    })
+    const result = await sendMagicLinkEmail({ email, continueUrl, appUrl: origin })
+    if (!result.ok) {
+      Sentry.captureMessage(`webhook magic-link send failed: ${result.error}`, 'error')
+    }
   } catch (err) {
     Sentry.captureException(err, { extra: { email, source: 'webhook-magic-link' } })
   }

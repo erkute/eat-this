@@ -170,27 +170,30 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               {location && <UserLocationMarker location={location} />}
             </MapCanvas>
 
-            {/* Floating search bar — Apple/Google-Maps-style toolbar over
-                the map, always visible. Was previously a toggle inside
-                the sheet header (per editorial v13 preview). */}
-            <div className={styles.mapSearchToolbar}>
-              <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              <input
-                type="text"
-                value={search}
-                onChange={e => onSearchChange(e.target.value)}
-                placeholder="Suchen in Berlin"
-                className={styles.mapSearchInput}
-                aria-label="Search"
-              />
-              {search && (
+            {/* Floating search — collapsed to a square icon button by
+                default (2026-06-04: the always-on toolbar read too loud over
+                the tiles). Tapping expands the full input; it stays open
+                while a query is active so the filter is never invisible. */}
+            {searchOpen || search ? (
+              <div className={styles.mapSearchToolbar}>
+                <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                <input
+                  type="text"
+                  value={search}
+                  onChange={e => onSearchChange(e.target.value)}
+                  onBlur={() => { if (!search) setSearchOpen(false) }}
+                  placeholder="Suchen in Berlin"
+                  className={styles.mapSearchInput}
+                  aria-label="Search"
+                  autoFocus
+                />
                 <button
                   type="button"
                   className={styles.mapSearchClear}
-                  onClick={() => onSearchChange('')}
+                  onClick={() => { onSearchChange(''); setSearchOpen(false) }}
                   aria-label="Clear"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -199,8 +202,20 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     <line x1="18" y1="6" x2="6" y2="18" />
                   </svg>
                 </button>
-              )}
-            </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className={styles.mapSearchBtn}
+                onClick={() => setSearchOpen(true)}
+                aria-label="Search"
+              >
+                <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            )}
 
             <button
               type="button"

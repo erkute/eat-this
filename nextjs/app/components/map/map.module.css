@@ -293,10 +293,11 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-comp
   height: 38px;
   border-radius: 0;
   color: var(--c-black);
-  background: #ffffff;
+  /* Frosted glass like the search control — see .mapSearchToolbar. */
+  background: rgba(251, 248, 238, 0.82);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   border: 1.5px solid var(--c-black);
-  /* Same soft sticker shadow as .mapSearchToolbar — see comment there. */
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.28);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -310,22 +311,18 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-comp
   .fab { right: 12px; bottom: 12px; top: auto; }
 }
 html[data-theme="dark"] .fab {
-  background: #f0e8d0;
-  color: var(--c-black);
+  background: rgba(20, 20, 18, 0.5);
+  color: #f0e8d0;
   border-color: #f0e8d0;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
 }
 /* Hover-only on devices that actually support hover — prevents the lift
    from sticking on touch devices after a tap (no mouseleave fires). */
 @media (hover: hover) {
   .fab:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.28);
     background: var(--c-cream);
   }
   html[data-theme="dark"] .fab:hover {
-    background: #ffffff;
-    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
+    background: rgba(240, 232, 208, 0.18);
   }
 }
 
@@ -341,25 +338,30 @@ html[data-theme="dark"] .fab {
      covers the burger, same as the search toolbar — the sheet is the top
      surface. (Used to be 60 / above the sheet; design changed 2026-06-04.) */
   z-index: 3;
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--c-cream);
-  border: 2px solid var(--c-black);
+  /* Frosted glass like the search control — see .mapSearchToolbar. */
+  background: rgba(251, 248, 238, 0.82);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid var(--c-black);
   border-radius: 0;
-  /* Same soft sticker shadow as .mapSearchToolbar — see comment there. */
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.28);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   appearance: none;
   transition: transform 240ms cubic-bezier(.2, .8, .2, 1);
 }
 html[data-theme="dark"] .mapBurger {
-  background: #f0e8d0;
+  background: rgba(20, 20, 18, 0.5);
   border-color: #f0e8d0;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
+}
+/* Burger glyph is black line-art webp — flip it to paper-white on the
+   dark glass pane. */
+html[data-theme="dark"] .mapBurger img {
+  filter: invert(1);
 }
 .mapBurger img {
   height: 18px;
@@ -789,7 +791,10 @@ html[data-theme="dark"] .rcardActive { box-shadow: 4px 4px 0 var(--c-coral-brigh
   text-transform: uppercase;
   color: var(--c-mustard);
 }
-html[data-theme="dark"] .rcardMeta { color: var(--c-coral-bright); }
+/* Literal value, NOT the --c-coral-bright token: on photos the global
+   #d63a2a sank into the image — this is one tick lighter for legibility.
+   Re-pointing the token would shift every dark-mode accent. */
+html[data-theme="dark"] .rcardMeta { color: #ef5a45; }
 .rcardTime {
   display: flex;
   gap: 6px;
@@ -802,7 +807,7 @@ html[data-theme="dark"] .rcardMeta { color: var(--c-coral-bright); }
   color: rgba(255,255,255,.85);
 }
 .rcardNow { color: var(--c-mustard); font-weight: 700; }
-html[data-theme="dark"] .rcardNow { color: var(--c-coral-bright); }
+html[data-theme="dark"] .rcardNow { color: #ef5a45; } /* same photo-legibility red as .rcardMeta */
 .rcardDot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .6; }
 
 /* Locked preview cards — blurred photo + signup badge. Peek is forced to the
@@ -868,8 +873,11 @@ html[data-theme="dark"] .rcardBlurBadge {
 }
 .openPillClosed { background: rgba(255,255,255,.92); color: var(--c-black); }
 .openPillClosed::before { background: rgba(10,10,10,.5); }
+/* Open = GREEN also in dark mode (User 2026-06-04) — the coral re-accent
+   made "Geöffnet" read as a warning. Kelly green = the map's open
+   vocabulary (list dot / detail status). */
 html[data-theme="dark"] .openPill:not(.openPillClosed) {
-  background: var(--c-coral);
+  background: #34a85a;
   color: #fbf8ee;
 }
 html[data-theme="dark"] .openPill:not(.openPillClosed)::before { background: #fbf8ee; }
@@ -891,39 +899,67 @@ html[data-theme="dark"] .openPill:not(.openPillClosed)::before { background: #fb
   transform: rotate(11deg);
 }
 
-/* Floating search toolbar — square ink sticker, top-left of the map.
-   Top-aligned with the floating burger (top: 14px). Right edge clears
-   the 42px burger at right:14px + 10px gap = right:66px. */
+/* Floating search toolbar — expanded state of the search control, top-left
+   of the map. Frosted-glass treatment (2026-06-04): translucent cream +
+   blur, hairline ink border, NO offset shadow — the controls were reading
+   louder than the map. Collapsed state is .mapSearchBtn below. */
 .mapSearchToolbar {
   position: absolute;
   top: 14px;
   left: 14px;
-  /* Clears the 42px burger at right:14px (+10px gap). */
-  right: 66px;
+  /* Clears the 38px burger at right:14px (+8px gap). */
+  right: 60px;
   z-index: 55;
   transition: transform 240ms cubic-bezier(.2, .8, .2, 1);
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 42px;
-  background: var(--c-cream);
+  height: 38px;
+  background: rgba(251, 248, 238, 0.82);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   color: var(--c-black);
-  border: 2px solid var(--c-black);
+  border: 1.5px solid var(--c-black);
   border-radius: 0;
-  padding: 0 14px;
+  padding: 0 12px;
   box-sizing: border-box;
-  /* Soft sticker shadow (2026-06-04): hard offset stays (brand), but the
-     full-ink 4px block read too heavy floating over map tiles — translucent
-     2px is a hint of lift instead of a second border. */
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.28);
   pointer-events: auto;
 }
+/* Dark mode: true glass — dark translucent pane, cream ink/border, the
+   tiles glow through (User 2026-06-04: „komplett Glas"). */
 html[data-theme="dark"] .mapSearchToolbar {
-  /* Cream-Ink statt grellem Weiß (wie MAPS-Button im Detail). */
-  background: #f0e8d0;
+  background: rgba(20, 20, 18, 0.5);
   border-color: #f0e8d0;
-  color: var(--c-black);
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .mapSearchIcon { color: #f0e8d0; }
+html[data-theme="dark"] .mapSearchInput { color: #f0e8d0; }
+html[data-theme="dark"] .mapSearchInput::placeholder { color: #f0e8d0; opacity: 0.55; }
+html[data-theme="dark"] .mapSearchClear { color: #f0e8d0; }
+/* Collapsed search — square glass button mirroring the burger, top-left. */
+.mapSearchBtn {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 55;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(251, 248, 238, 0.82);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid var(--c-black);
+  border-radius: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+  transition: transform 240ms cubic-bezier(.2, .8, .2, 1);
+}
+html[data-theme="dark"] .mapSearchBtn {
+  background: rgba(20, 20, 18, 0.5);
+  border-color: #f0e8d0;
 }
 .mapSearchIcon {
   width: 18px;
@@ -964,7 +1000,9 @@ html[data-theme="dark"] .mapSearchToolbar {
    detail view takes over the screen — translate out of view (no opacity
    fade per project brand rule). */
 .bodyListAtFull .mapSearchToolbar,
-.bodyDetailOpen .mapSearchToolbar {
+.bodyDetailOpen .mapSearchToolbar,
+.bodyListAtFull .mapSearchBtn,
+.bodyDetailOpen .mapSearchBtn {
   transform: translateY(calc(-100% - 80px));
   pointer-events: none;
 }
@@ -985,7 +1023,7 @@ html[data-theme="dark"] .mapSearchToolbar {
     left: 14px;
     right: auto;
     width: 360px;
-    height: 42px;
+    height: 38px;
     padding: 0 14px;
   }
 
@@ -996,6 +1034,7 @@ html[data-theme="dark"] .mapSearchToolbar {
      `bodyListAtFull` lingers in list view and would keep them off-screen.
      A detail takeover (`bodyDetailOpen`) still slides them out. */
   .bodyListAtFull .mapSearchToolbar,
+  .bodyListAtFull .mapSearchBtn,
   .bodyListAtFull .mapBurger {
     transform: none;
     pointer-events: auto;
@@ -2029,7 +2068,10 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
   justify-content: center;
   gap: 5px;
   padding: 8px 8px 9px;
-  background: var(--c-cream);
+  /* Frosted glass — same pane treatment as the floating map controls. */
+  background: rgba(251, 248, 238, 0.82);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   border: 1.5px solid var(--c-black);
   border-radius: 0;
   color: var(--c-black);
@@ -2046,11 +2088,12 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
   white-space: nowrap;
   appearance: none;
 }
-/* Dark mode: kein grelles Weiß — Cream-Ink wie der MAPS-Button im
-   Restaurant-Detail (User-Vorgabe). */
+/* Dark mode: true glass like the floating controls — dark translucent
+   pane, cream ink/border (2026-06-04, replaced the solid cream chips). */
 html[data-theme="dark"] .filterChip {
-  background: #f0e8d0;
+  background: rgba(20, 20, 18, 0.5);
   border-color: #f0e8d0;
+  color: #f0e8d0;
 }
 
 .filterChipWrap .filterChip {

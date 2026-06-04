@@ -99,5 +99,8 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
 }
 
 export function getLandingFaqs(locale: 'de' | 'en'): LandingFaqEntry[] {
-  return FAQS[locale]
+  // Defensive fallback: callers can receive the raw URL segment as `locale`
+  // (dotted paths bypass the locale middleware), and undefined here turns
+  // into a 500 on the home page.
+  return FAQS[locale] ?? []
 }

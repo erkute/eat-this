@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   const auth = req.headers.get('authorization')
   const token = auth?.startsWith('Bearer ') ? auth.slice(7) : null
   if (!token) {
-    const ent = await resolveEntitlements(null, null)
+    const ent = await resolveEntitlements(null)
     return NextResponse.json({
       uid:   null,
       email: null,
@@ -20,10 +20,15 @@ export async function GET(req: Request) {
 
   try {
     const decoded = await getAdminAuth().verifyIdToken(token)
-    const ent = await resolveEntitlements(decoded.uid, decoded.email ?? null)
+    const ent = await resolveEntitlements(decoded.uid, {
+      email:         decoded.email ?? null,
+      emailVerified: decoded.email_verified === true,
+      admin:         decoded.admin === true,
+    })
     return NextResponse.json({
-      uid:   decoded.uid,
-      email: decoded.email,
+      uid:           decoded.uid,
+      email:         decoded.email,
+      emailVerified: decoded.email_verified === true,
       ent: serializeEnt(ent),
     })
   } catch (err) {

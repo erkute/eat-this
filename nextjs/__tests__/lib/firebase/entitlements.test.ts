@@ -2,6 +2,7 @@ import { describe, it, expect, afterEach } from 'vitest'
 import {
   reduceEntitlements,
   isAdminEmail,
+  isAdminToken,
   isRestaurantVisible,
   type Entitlement,
 } from '../../../lib/firebase/entitlements'
@@ -99,6 +100,42 @@ describe('isAdminEmail', () => {
     process.env.ADMIN_EMAILS = ' a@x.com , b@y.com '
     expect(isAdminEmail('b@y.com')).toBe(true)
     expect(isAdminEmail('c@z.com')).toBe(false)
+  })
+})
+
+describe('isAdminToken', () => {
+  const origEnv = process.env.ADMIN_EMAILS
+
+  afterEach(() => {
+    process.env.ADMIN_EMAILS = origEnv
+  })
+
+  it('grants admin for the `admin` custom claim regardless of email', () => {
+    process.env.ADMIN_EMAILS = 'admin@example.com'
+    expect(isAdminToken({ admin: true })).toBe(true)
+    expect(isAdminToken({ admin: true, email: 'nobody@elsewhere.com', emailVerified: false })).toBe(true)
+  })
+
+  it('grants admin for a VERIFIED email in ADMIN_EMAILS', () => {
+    process.env.ADMIN_EMAILS = 'admin@example.com'
+    expect(isAdminToken({ email: 'admin@example.com', emailVerified: true })).toBe(true)
+  })
+
+  it('DENIES admin for an UNVERIFIED email in ADMIN_EMAILS (the vuln)', () => {
+    process.env.ADMIN_EMAILS = 'admin@example.com'
+    expect(isAdminToken({ email: 'admin@example.com', emailVerified: false })).toBe(false)
+    // missing emailVerified is treated as unverified
+    expect(isAdminToken({ email: 'admin@example.com' })).toBe(false)
+  })
+
+  it('denies admin for a verified non-admin email', () => {
+    process.env.ADMIN_EMAILS = 'admin@example.com'
+    expect(isAdminToken({ email: 'random@user.com', emailVerified: true })).toBe(false)
+  })
+
+  it('denies admin for an empty identity', () => {
+    process.env.ADMIN_EMAILS = 'admin@example.com'
+    expect(isAdminToken({})).toBe(false)
   })
 })
 

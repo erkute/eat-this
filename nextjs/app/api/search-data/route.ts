@@ -20,19 +20,23 @@ export async function GET(req: Request) {
   const authHeader = req.headers.get('authorization')
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
 
-  let uid:   string | null = null
-  let email: string | null = null
+  let uid: string | null = null
+  let identity: Parameters<typeof resolveEntitlements>[1] = {}
   if (token) {
     try {
       const decoded = await getAdminAuth().verifyIdToken(token)
-      uid   = decoded.uid
-      email = decoded.email ?? null
+      uid = decoded.uid
+      identity = {
+        email:         decoded.email ?? null,
+        emailVerified: decoded.email_verified === true,
+        admin:         decoded.admin === true,
+      }
     } catch {
       // Expired / invalid → treat as anonymous; client retries after token refresh.
     }
   }
 
-  const ent = await resolveEntitlements(uid, email)
+  const ent = await resolveEntitlements(uid, identity)
   const { restaurants: all, mustEats: allMustEats } = await getCachedMapData()
   const news = await client.fetch(allNewsArticlesQuery)
 

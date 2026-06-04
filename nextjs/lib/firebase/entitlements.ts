@@ -61,15 +61,38 @@ export function isAdminEmail(email: string | null): boolean {
   return list.includes(email.toLowerCase())
 }
 
+// Identity attributes derived from a verified Firebase ID token (or, for
+// server-side lookups, from a UserRecord). These drive the admin decision.
+export interface TokenIdentity {
+  email?:         string | null
+  // From the ID token's `email_verified` claim / UserRecord.emailVerified.
+  emailVerified?: boolean
+  // The `admin` custom claim, set out-of-band for trusted operators
+  // (see scripts/set-admin-claims.ts).
+  admin?:         boolean
+}
+
+// Authoritative admin check. SECURITY: never trust the `email` claim on its
+// own — Email/Password and unverified signups let a caller pick an arbitrary
+// (unverified) email, which would otherwise hand them admin + all-berlin.
+// Admin is granted only via the `admin` custom claim, or a *verified* email
+// present in ADMIN_EMAILS (kept as a bootstrap path so the operator keeps
+// access before claims are provisioned — Google / magic-link both yield
+// email_verified === true).
+export function isAdminToken(id: TokenIdentity): boolean {
+  if (id.admin === true) return true
+  return id.emailVerified === true && isAdminEmail(id.email ?? null)
+}
+
 // Firestore-reading wrapper. Anonymous users (uid === null) get an empty
 // resolved view — the map gate (separate plan) redirects them to /login.
 export async function resolveEntitlements(
-  uid:   string | null,
-  email: string | null,
+  uid:      string | null,
+  identity: TokenIdentity = {},
 ): Promise<ResolvedEntitlements> {
   if (!uid) return EMPTY_RESOLVED()
 
-  if (isAdminEmail(email)) {
+  if (isAdminToken(identity)) {
     return { ...EMPTY_RESOLVED(), isAdmin: true, hasAllBerlin: true }
   }
 

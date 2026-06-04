@@ -1891,6 +1891,13 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
   perspective: 1100px;
   perspective-origin: 50% 45%;
 }
+/* During the close fly-back the wrapper drops below the fixed navbar
+   (9999) so the card slides back UNDER the header into the page — at
+   10020 it would visibly fly across the opaque header bar and then pop
+   behind it at the swap. */
+.lightboxWrapperClosing {
+  z-index: 9990;
+}
 .lightboxBg {
   position: absolute;
   inset: 0;

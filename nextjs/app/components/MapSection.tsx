@@ -8,7 +8,6 @@ import {
   useBounds,
   useUnlockedMustEats,
   useFavorites,
-  useInitialFit,
   useMapFilters,
   useMapSheet,
   useMapDeepLinks,
@@ -65,7 +64,6 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     revealedMustEatIds,
     refetch: refetchMapData,
   } = useMapData({ uid, authLoading, initialMapData })
-  useInitialFit(mapRef, restaurants)
   const { location, request: requestLocation } = useUserLocation()
   const { unlockedIds: storedUnlockedIds, unlock } = useUnlockedMustEats(uid)
   // Free-and-open trial — 10/10 split: the first half of the trial-20
@@ -222,10 +220,17 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
         ? parsed
         : (snap === 'peek' ? 28 : snap === 'mid' ? 440 : Math.round(window.innerHeight * 0.58))
     }
-    // top: 70 leaves room for the global header (~60 px) plus a tiny gap.
+    // The mobile canvas extends (100lvh − 100dvh) + 80px past the visual
+    // viewport (iOS-bar apron, see --map-bar-overhang in map.module.css).
+    // flyTo padding is in CANVAS coordinates, so without this correction the
+    // centre lands ~overhang/2 too low on screen. Measure the real container
+    // height so lvh/dvh bar states are handled for free.
+    const canvasH = mapRef.current?.getContainer().clientHeight ?? window.innerHeight
+    const overhang = Math.max(0, canvasH - window.innerHeight)
+    // top: 70 leaves room for the floating top controls plus a tiny gap.
     // Centring then matches the geometric centre of the actually-visible
-    // map area between the header bottom and the sheet top.
-    return { top: 70, bottom: Math.round(visible) + 20, left: 20, right: 20 }
+    // map area between the controls and the sheet top.
+    return { top: 70, bottom: Math.round(visible + overhang) + 20, left: 20, right: 20 }
   }, [snap, sheetElRef])
 
   const handleRestaurantClick = useCallback((r: MapRestaurant) => {
@@ -474,16 +479,41 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     }
   }, [requestLocation, getFlyPadding])
 
-  /* Request the user's position once on mount so the user-location marker
-     renders. Don't auto-fly — useInitialFit already framed all spots, and
-     zooming back in to z=14 around the user clipped most pins off-screen
-     (the typical "I see only Mitte" complaint). The "Mein Standort" button
-     stays available for explicit centering. */
+  /* Default camera = the user's position. Request it once on mount and, as
+     soon as it resolves, centre the map there — unless the user already
+     interacted, a deep-link is steering the camera (?r/?me/?bezirk/?cat all
+     set userInteractedRef, but they may consume AFTER the location resolves,
+     so check the URL too), or the position is outside Berlin. When the
+     location is denied/unavailable the canvas default stays: Berlin Mitte,
+     zoomed (see BERLIN in MapCanvas). Polls mapRef like the deep-link
+     effects — a granted permission can resolve before the canvas mounts. */
+  const getFlyPaddingRef = useRef(getFlyPadding)
+  getFlyPaddingRef.current = getFlyPadding
   const autoLocatedRef = useRef(false)
   useEffect(() => {
     if (autoLocatedRef.current) return
     autoLocatedRef.current = true
-    requestLocation()
+    const params = new URLSearchParams(window.location.search)
+    const hasDeepLink = ['r', 'me', 'bezirk', 'cat'].some(p => params.has(p))
+    void requestLocation().then(loc => {
+      if (!loc || hasDeepLink) return
+      const inBerlin = loc.lat > 52.3 && loc.lat < 52.7 && loc.lng > 12.9 && loc.lng < 13.8
+      if (!inBerlin) return
+      const tryFly = () => {
+        if (userInteractedRef.current) return
+        if (mapRef.current) {
+          mapRef.current.flyTo({
+            center: [loc.lng, loc.lat],
+            zoom: 14,
+            duration: 600,
+            padding: getFlyPaddingRef.current(),
+          })
+        } else {
+          setTimeout(tryFly, 120)
+        }
+      }
+      tryFly()
+    })
   }, [requestLocation])
 
   /* Refit the map whenever a structured filter narrows or widens the visible
@@ -492,8 +522,6 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
      other two. Search (live keystrokes) is intentionally excluded — refitting
      mid-type feels jittery. Skip during a detail view so the selected pin's
      centering isn't overridden. */
-  const getFlyPaddingRef = useRef(getFlyPadding)
-  getFlyPaddingRef.current = getFlyPadding
   const didFirstFilterRefitRef = useRef(false)
   const displayedRestaurantsRef = useRef(displayedRestaurants)
   displayedRestaurantsRef.current = displayedRestaurants

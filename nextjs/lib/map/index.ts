@@ -26,7 +26,6 @@ export type { UserLocation } from './useUserLocation'
 export { useBounds } from './useBounds'
 export { useFavorites } from './useFavorites'
 export type { FavoriteEntry } from './useFavorites'
-export { useInitialFit } from './useInitialFit'
 export { useUnlockedMustEats } from './useUnlockedMustEats'
 
 // List/filter logic

@@ -1,0 +1,37 @@
+// DE-Labels für die 31 kanonischen cuisineType-Werte (EN-Seiten nutzen den
+// rohen Sanity-Wert). Venue-Typen als Nomen, Küchen als Adjektiv-Tag —
+// kurz genug fürs 62-Zeichen-Title-Budget. Unbekannte Werte fallen im
+// Title-Builder auf den Rohwert zurück.
+export const CUISINE_LABELS_DE: Record<string, string> = {
+  American: 'Amerikanisch',
+  Austrian: 'Österreichisch',
+  Bakery: 'Bäckerei',
+  Bar: 'Bar',
+  Burgers: 'Burger',
+  Café: 'Café',
+  Chinese: 'Chinesisch',
+  European: 'Europäisch',
+  'Fine Dining': 'Fine Dining',
+  French: 'Französisch',
+  German: 'Deutsche Küche',
+  Greek: 'Griechisch',
+  'Ice Cream': 'Eisdiele',
+  Indian: 'Indisch',
+  Indonesian: 'Indonesisch',
+  Israeli: 'Israelisch',
+  Italian: 'Italienisch',
+  Japanese: 'Japanisch',
+  Korean: 'Koreanisch',
+  Mediterranean: 'Mediterran',
+  Mexican: 'Mexikanisch',
+  'Middle Eastern': 'Orientalisch',
+  Peruvian: 'Peruanisch',
+  Seafood: 'Seafood',
+  'Sri Lankan': 'Sri-lankisch',
+  Steakhouse: 'Steakhouse',
+  Thai: 'Thai',
+  Turkish: 'Türkisch',
+  Vegan: 'Vegan',
+  Vietnamese: 'Vietnamesisch',
+  'Wine Bar': 'Weinbar',
+}

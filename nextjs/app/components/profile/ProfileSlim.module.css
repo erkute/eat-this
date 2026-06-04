@@ -397,6 +397,12 @@
   .meGrid {
     grid-template-columns: repeat(3, 1fr);
   }
+  /* Saved spots: two cards side by side — a full-column 16:10 card read
+     oversized on desktop (User 2026-06-05). */
+  .spotsCards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
 }
 
 /* ══════════════════════════════════════════════

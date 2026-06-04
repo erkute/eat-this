@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
+import { notFound } from 'next/navigation'
+import { hasLocale } from 'next-intl'
 import { setRequestLocale } from 'next-intl/server'
+import { routing } from '@/i18n/routing'
 import { localeUrl } from '@/lib/locale-url'
 import HubSection from '@/app/components/HubSection'
 import { getHomeData } from '@/lib/home/getHomeData'
@@ -27,6 +30,7 @@ const EN_DESCRIPTION =
 // title/description/OG for the English home.
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params
+  if (!hasLocale(routing.locales, locale)) notFound()
   const en = locale === 'en'
   return {
     ...(en && {
@@ -53,6 +57,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function HomePage({ params }: PageProps) {
   const { locale } = await params
+  // Dotted paths (/news-sitemap.xml, /foo.txt, …) bypass the next-intl
+  // middleware (matcher excludes them), so this page renders with the raw
+  // first segment as `locale`. The [locale] layout's notFound() doesn't
+  // preempt the page (they render concurrently) — guard here too, or the
+  // data fetches below crash with a 500 instead of a clean 404.
+  if (!hasLocale(routing.locales, locale)) notFound()
   setRequestLocale(locale)
 
   // The hub's client islands (HubNearby) reuse the map's anon dataset, so SSR

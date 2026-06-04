@@ -26,9 +26,9 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
   const handleClick = (id: string) => {
     setShakingId(id)
     // Brief shake before flying out so the click registers visually,
-    // then route to the holding/launch page (Login is off until launch).
+    // then route to the map — that's where the cards get revealed.
     window.setTimeout(() => {
-      router.push('/')
+      router.push('/map')
     }, 280)
   }
 
@@ -36,16 +36,16 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
     ? {
         eyebrow:  'Must Eats',
         heading:  'Noch nicht aufgedeckt.',
-        body:     'Bald geht es los — sei dabei.',
+        body:     'Deck sie auf der Map auf.',
         ariaList: 'Must Eats aufdecken',
-        ariaCard: 'Zur Launch-Seite',
+        ariaCard: 'Zur Map',
       }
     : {
         eyebrow:  'Must Eats',
         heading:  'Still face-down.',
-        body:     'Going live soon — get on the list.',
+        body:     'Reveal them on the map.',
         ariaList: 'Reveal Must Eats',
-        ariaCard: 'Open launch page',
+        ariaCard: 'Open the map',
       }
 
   return (

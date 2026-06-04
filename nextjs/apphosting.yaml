@@ -33,49 +33,6 @@ env:
     value: Eat This
     availability:
       - RUNTIME
-  - variable: RESEND_LAUNCH_SEGMENT_ID
-    secret: RESEND_LAUNCH_SEGMENT_ID
-    availability:
-      - RUNTIME
-
-  # Per-locale launch segments — once created in Resend + as App Hosting
-  # secrets, the DOI confirm endpoint routes EN signups into _EN instead
-  # of the legacy _ID. Code falls back to RESEND_LAUNCH_SEGMENT_ID for
-  # both locales until these secrets exist. To enable:
-  #   firebase apphosting:secrets:set RESEND_LAUNCH_SEGMENT_DE
-  #   firebase apphosting:secrets:set RESEND_LAUNCH_SEGMENT_EN
-  # then uncomment the two blocks below + redeploy.
-  # - variable: RESEND_LAUNCH_SEGMENT_DE
-  #   secret: RESEND_LAUNCH_SEGMENT_DE
-  #   availability: [RUNTIME]
-  # - variable: RESEND_LAUNCH_SEGMENT_EN
-  #   secret: RESEND_LAUNCH_SEGMENT_EN
-  #   availability: [RUNTIME]
-
-  # Double-opt-in HMAC signing key. Created via:
-  #   openssl rand -hex 32 | firebase apphosting:secrets:set LAUNCH_CONFIRM_SECRET --data-file -
-  - variable: LAUNCH_CONFIRM_SECRET
-    secret: LAUNCH_CONFIRM_SECRET
-    availability:
-      - RUNTIME
-
-  # reCAPTCHA Enterprise v3 — score-based bot protection. Honeypot +
-  # time-gate + rate-limit always run; reCAPTCHA layers on top. Site-key
-  # ships in the client bundle (public by design), API key is a secret.
-  - variable: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
-    value: 6LcHwv0sAAAAAOYhCmKATrUoLMUS3XrC6pwMoR5u
-    availability:
-      - RUNTIME
-      - BUILD
-  - variable: RECAPTCHA_PROJECT_ID
-    value: eat-this-8a13b
-    availability:
-      - RUNTIME
-  - variable: RECAPTCHA_API_KEY
-    secret: RECAPTCHA_API_KEY
-    availability:
-      - RUNTIME
-
   # Firebase Admin SDK (server-side magic link generation)
   - variable: FIREBASE_ADMIN_PROJECT_ID
     value: eat-this-8a13b

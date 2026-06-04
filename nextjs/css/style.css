@@ -4044,7 +4044,10 @@ html:not([data-theme="dark"]) .site-footer-copy {
 [data-theme="dark"] .burger-drawer-panel {
   background: #111110;
   border-left-color: #f0e8d0;
-  box-shadow: -10px 0 0 0 rgba(240, 232, 208, 0.25);
+  /* No offset band — the faint 10px cream shadow read as a second stripe
+     next to the border (User 2026-06-04). The cream border alone is the
+     edge. */
+  box-shadow: none;
 }
 [data-theme="dark"] .bd-lang-btn,
 [data-theme="dark"] .bd-lang-sep { color: #f0e8d0; }

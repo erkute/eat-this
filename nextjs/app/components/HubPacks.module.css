@@ -182,9 +182,11 @@ html[data-theme="dark"] .pack {
   border-color: var(--dk-ink);
 }
 @media (min-width: 720px) {
-  /* Desktop adds hard offset shadows on the packs → flip ink to cream */
-  html[data-theme="dark"] .pack { box-shadow: 4px 4px 0 var(--dk-rule); }
-  html[data-theme="dark"] .pack:hover { box-shadow: 6px 6px 0 var(--dk-rule); }
+  /* No hard offset shadows in dark mode (User 2026-06-05) — the cream
+     border carries the card edge; soft light-mode shadows are invisible
+     on the dark page anyway. */
+  html[data-theme="dark"] .pack,
+  html[data-theme="dark"] .pack:hover { box-shadow: none; }
 }
 /* Gift (welcome-pack) card: yellow fill → red, all its ink text → cream */
 html[data-theme="dark"] .gift {

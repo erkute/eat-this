@@ -743,7 +743,6 @@ html[data-theme="dark"] .esBtnPrimary {
   margin: 0 0 12px;
   border: 2px solid var(--c-black);
   border-radius: 0;
-  box-shadow: 4px 4px 0 var(--c-black);
   background: var(--c-black);
   overflow: visible;
   cursor: pointer;
@@ -765,9 +764,11 @@ html[data-theme="dark"] .esBtnPrimary {
   background: linear-gradient(180deg, transparent 35%, rgba(0,0,0,.82) 100%);
   pointer-events: none;
 }
-.rcardActive { box-shadow: 4px 4px 0 var(--c-mustard); }
+/* Active card: border cue instead of the old fat offset shadow
+   (User 2026-06-05: fette Schatten raus). */
+.rcardActive { border-color: var(--c-mustard); }
 /* Dark mode: Akzent rot statt gelb (gilt für alle Mustard-Akzente im Modul). */
-html[data-theme="dark"] .rcardActive { box-shadow: 4px 4px 0 var(--c-coral-bright); }
+html[data-theme="dark"] .rcardActive { border-color: var(--c-coral-bright); }
 
 .rcardBody {
   position: absolute;
@@ -794,7 +795,7 @@ html[data-theme="dark"] .rcardActive { box-shadow: 4px 4px 0 var(--c-coral-brigh
 /* Literal value, NOT the --c-coral-bright token: on photos the global
    #d63a2a sank into the image — this is one tick lighter for legibility.
    Re-pointing the token would shift every dark-mode accent. */
-html[data-theme="dark"] .rcardMeta { color: #ef5a45; }
+html[data-theme="dark"] .rcardMeta { color: #ff8270; }
 .rcardTime {
   display: flex;
   gap: 6px;
@@ -807,7 +808,7 @@ html[data-theme="dark"] .rcardMeta { color: #ef5a45; }
   color: rgba(255,255,255,.85);
 }
 .rcardNow { color: var(--c-mustard); font-weight: 700; }
-html[data-theme="dark"] .rcardNow { color: #ef5a45; } /* same photo-legibility red as .rcardMeta */
+html[data-theme="dark"] .rcardNow { color: #ff8270; } /* same photo-legibility red as .rcardMeta */
 .rcardDot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .6; }
 
 /* Locked preview cards — blurred photo + signup badge. Peek is forced to the
@@ -837,7 +838,6 @@ html[data-theme="dark"] .rcardNow { color: #ef5a45; } /* same photo-legibility r
   color: var(--c-black);
   border: 2px solid var(--c-black);
   border-radius: 0;
-  box-shadow: 4px 4px 0 var(--c-black);
   font-family: var(--font-chewy), 'Chewy', sans-serif;
   font-size: 14px;
   letter-spacing: .12em;
@@ -1556,8 +1556,7 @@ html[data-theme="dark"] .btn:hover {
   cursor: pointer;
   letter-spacing: -0.005em;
   border: 1.5px solid #0a0a0a;
-  box-shadow: 2px 2px 0 #0a0a0a;
-  transition: background 0.18s, transform 0.1s, box-shadow 0.2s;
+  transition: background 0.18s, transform 0.1s;
 }
 html[data-theme="dark"] .boosterCta {
   background: var(--c-coral);
@@ -1565,7 +1564,6 @@ html[data-theme="dark"] .boosterCta {
 }
 .boosterCta:hover {
   background: var(--c-mustard-deep);
-  box-shadow: 3px 3px 0 #0a0a0a;
   transform: translate(-1px, -1px);
 }
 html[data-theme="dark"] .boosterCta:hover { background: var(--brand-red-hover); }
@@ -1744,8 +1742,7 @@ html[data-theme="dark"] .boosterCta:hover { background: var(--brand-red-hover); 
   border-radius: 0;
   padding: 0;
   cursor: pointer;
-  box-shadow: 2px 2px 0 var(--c-black);
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  transition: transform 160ms ease;
   font: inherit;
   appearance: none;
   white-space: nowrap;
@@ -1753,14 +1750,9 @@ html[data-theme="dark"] .boosterCta:hover { background: var(--brand-red-hover); 
 [data-theme="dark"] .btnPromo {
   background: var(--c-coral);
   color: #fbf8ee;
-  box-shadow: 2px 2px 0 var(--c-cream);
 }
 .btnPromo:hover {
   transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0 var(--c-black);
-}
-[data-theme="dark"] .btnPromo:hover {
-  box-shadow: 3px 3px 0 var(--c-cream);
 }
 .btnPromoLbl {
   padding: 7px 14px 7px 16px;
@@ -2103,8 +2095,10 @@ html[data-theme="dark"] .filterChip {
 
 .filterChipActive,
 .filterChipOpenActive { background: var(--c-mustard); color: var(--c-black); }
-html[data-theme="dark"] .filterChipActive,
-html[data-theme="dark"] .filterChipOpenActive { background: var(--c-coral); color: #fbf8ee; }
+html[data-theme="dark"] .filterChipActive { background: var(--c-coral); color: #fbf8ee; }
+/* "Jetzt geöffnet" active = GREEN, not red — open vocabulary like the list
+   pill (User 2026-06-05). */
+html[data-theme="dark"] .filterChipOpenActive { background: #34a85a; color: #fbf8ee; }
 
 .filterChipLabel {
   display: inline-block;
@@ -2535,12 +2529,9 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   cursor: zoom-in;
 }
 .fdHeroLocked {
+  /* Same size/position as the unlocked hero — the card must NOT grow when
+     the reveal lands (User 2026-06-05: post-reveal size jump felt broken). */
   cursor: pointer;
-  /* Locked card-back stays a teaser, not a poster — noticeably smaller than
-     the unlocked dish hero, with the proximity hint pulled up under it
-     (User 2026-06-05: locked view read oversized + key info below the fold). */
-  width: min(46vw, 185px);
-  margin-top: 14px;
   /* Wiggle scaled by proximity (--vibrate-intensity, set inline on the button):
      subtle far away, lively within tap range — signals "tap me". The duration
      var is also what the .mustEatCardCanUnlock rule below reads. */
@@ -2597,10 +2588,10 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   from { filter: blur(14px); }
   to   { filter: blur(0); }
 }
-/* Proximity prompt — sits right under the stamped card (moved up from the
-   sheet bottom 2026-06-05): distance headline + a readable subline. */
+/* Proximity prompt — sits under the blurred name, mirroring the unlocked
+   description slot so locked/unlocked layouts line up 1:1. */
 .fdProximity {
-  margin: 14px 24px 4px;
+  margin: 16px 20px 0;
   text-align: center;
 }
 .fdProximityHead {
@@ -2629,10 +2620,6 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   gap: 18px;
   padding-bottom: 16px;
   border-bottom: 4px solid var(--d-ink);
-}
-/* Locked: the proximity block sits above — no stamp overlap risk, tighter. */
-.fdRestLocked {
-  margin-top: 14px;
 }
 .fdPrice { /* sits next to the restaurant block on the left */ }
 .fdK {
@@ -2904,7 +2891,6 @@ html[data-theme="dark"] .ctaPill {
   padding: 16px 16px 18px;
   background: #f3eedd;
   border: 2px solid #0a0a0a;
-  box-shadow: 4px 4px 0 #0a0a0a;
   position: relative;
   overflow: hidden;
   display: grid;
@@ -2973,18 +2959,14 @@ html[data-theme="dark"] .ctaPill {
   text-decoration: none;
   border: none;
   padding: 0;
-  box-shadow: 3px 3px 0 #1a1610;
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  transition: transform 160ms ease;
   position: relative;
 }
 html[data-theme="dark"] .btnPackPromo {
   background: var(--c-coral);
   color: #fbf8ee;
-  box-shadow: 3px 3px 0 var(--c-cream);
 }
-:global(html[data-theme="dark"]) .btnPackPromo { box-shadow: 3px 3px 0 var(--c-coral); }
-.btnPackPromo:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 #1a1610; }
-:global(html[data-theme="dark"]) .btnPackPromo:hover { box-shadow: 5px 5px 0 var(--c-coral); }
+.btnPackPromo:hover { transform: translate(-2px, -2px); }
 .btnPackPromoLbl {
   padding: 7px 9px 7px 10px;
   font-family: var(--font-chewy), 'Chewy', 'Anton', 'Impact', sans-serif;
@@ -3112,7 +3094,6 @@ html[data-theme="dark"] .bezirkLockedTitle { color: #f0e8d0; }
   color: var(--c-black);
   border: 2px solid var(--c-black);
   border-radius: 0;
-  box-shadow: 4px 4px 0 var(--c-black);
   font-family: var(--font-chewy);
   font-size: 15px;
   letter-spacing: .1em;
@@ -3124,7 +3105,6 @@ html[data-theme="dark"] .bezirkLockedCta {
   background: var(--c-coral);
   color: #fbf8ee;
   border-color: #fbf8ee;
-  box-shadow: 4px 4px 0 rgba(251, 248, 238, 0.25);
 }
 
 .listEnd {
@@ -3154,7 +3134,6 @@ html[data-theme="dark"] .listEndTitle { color: #f0e8d0; }
   color: var(--c-black);
   border: 2px solid var(--c-black);
   border-radius: 0;
-  box-shadow: 4px 4px 0 var(--c-black);
   font-family: var(--font-chewy);
   font-size: 15px;
   letter-spacing: .1em;
@@ -3165,7 +3144,6 @@ html[data-theme="dark"] .listEndCta {
   background: var(--c-coral);
   color: #fbf8ee;
   border-color: #fbf8ee;
-  box-shadow: 4px 4px 0 rgba(251, 248, 238, 0.25);
 }
 
 /* ============ Restaurant Detail (Chewy Screen 04) ============ */

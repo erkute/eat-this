@@ -85,9 +85,14 @@ export default function BoosterOfferInline({ uid, variant }: Props) {
                 </span>
               )}
             </button>
-            {isAnon && (
+            {isAnon ? (
               <a href={upgradeHref} className={styles.linkPromo}>
                 {t('map.starterPromoLogin')}
+              </a>
+            ) : (
+              /* All-Berlin on its own second line under the pack CTA. */
+              <a href={upgradeHref} className={styles.linkPromo}>
+                {t('map.boosterSecondary')}
               </a>
             )}
           </div>

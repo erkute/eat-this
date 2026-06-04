@@ -53,7 +53,6 @@
   color: #0a0a0a;
   padding: 4px 9px 5px;
   border: 2px solid #0a0a0a;
-  box-shadow: 2px 2px 0 #0a0a0a;
   letter-spacing: .04em;
   font-size: 13px;
   line-height: 1;
@@ -230,7 +229,6 @@
   background: var(--brand-yellow);
   color: #0a0a0a;
   border: 2px solid #0a0a0a;
-  box-shadow: 3px 3px 0 #0a0a0a;
   font-family: var(--font);
   font-size: 12px;
   font-weight: 800;
@@ -240,8 +238,7 @@
   text-decoration: none;
 }
 .packCta:active {
-  box-shadow: 0 0 0 #0a0a0a;
-  transform: translate(3px, 3px);
+  transform: translate(1px, 1px);
 }
 
 /* ── Desktop: focused 760px column (personal panel), scaled-up greeting ── */
@@ -274,20 +271,20 @@ html[data-theme="dark"] .em {
   color: var(--c-coral-bright);
   -webkit-text-stroke: 1px var(--dk-ink);
 }
-/* Dein-Bezirk pill: yellow fill → red, ink border/shadow → cream */
+/* Dein-Bezirk pill: yellow fill → red, ink border → cream. No offset
+   shadows anywhere in this section (User 2026-06-05) — borders carry. */
 html[data-theme="dark"] .here strong {
   background: var(--c-coral);
   color: #fbf8ee;
   border-color: var(--dk-ink);
-  box-shadow: 2px 2px 0 var(--dk-rule);
 }
 html[data-theme="dark"] .div { background: var(--dk-ink); }
-/* Fresh cards: cream surface → dark card, ink border/shadow → cream */
+/* Fresh cards: cream surface → dark card, ink border → cream */
 html[data-theme="dark"] .freshCard {
   background: var(--dk-card);
   color: var(--dk-ink);
   border-color: var(--dk-ink);
-  box-shadow: 4px 4px 0 var(--dk-rule);
+  box-shadow: none;
 }
 html[data-theme="dark"] .freshImg { border-bottom-color: var(--dk-ink); }
 /* Fresh pill stays brand-red; only its ink border flips to cream */
@@ -298,6 +295,4 @@ html[data-theme="dark"] .packCta {
   background: var(--dk-ink);
   color: #0a0a0a;
   border-color: var(--dk-ink);
-  box-shadow: 3px 3px 0 var(--dk-rule);
 }
-html[data-theme="dark"] .packCta:active { box-shadow: 0 0 0 var(--dk-rule); }

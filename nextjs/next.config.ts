@@ -34,6 +34,21 @@ const nextConfig: NextConfig = {
     ];
   },
 
+  async rewrites() {
+    // Same-origin Firebase Auth helper (official "Option 3" reverse proxy):
+    // serving /__/auth/* from our own domain makes the signInWithPopup
+    // credential return same-origin (no COOP/storage-access breakage) and
+    // the Google consent screen shows "Weiter zu eatthisdot.com" instead of
+    // the raw firebaseapp.com project domain. /__/firebase/init.json is
+    // fetched by the helper, hence the broad /__/ prefix.
+    return [
+      {
+        source: "/__/:path*",
+        destination: "https://eat-this-8a13b.firebaseapp.com/__/:path*",
+      },
+    ];
+  },
+
   async redirects() {
     return [
       // Engelbecken — Sanity-Slug hatte historisch "engelsbecken" (Typo);

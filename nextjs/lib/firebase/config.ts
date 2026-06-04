@@ -7,12 +7,24 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getFunctions } from 'firebase/functions';
 
-// authDomain uses the default Firebase domain (not auth.eatthisdot.com) for
-// reliable signInWithPopup — the custom domain breaks cross-origin credential
-// return under modern browser COOP/storage-access rules.
+// authDomain: on production the auth helper (/__/auth/*) is reverse-proxied
+// through our own domain (see rewrites() in next.config.ts), so the popup is
+// SAME-origin — no COOP/storage-access breakage — and the Google consent
+// screen shows "Weiter zu eatthisdot.com" instead of the firebaseapp.com
+// project domain. (An earlier auth.eatthisdot.com subdomain attempt failed
+// because the credential return was still cross-origin; same-origin avoids
+// that entirely.) Everywhere else (localhost, staging) we keep the default
+// domain — only the production handler URL is registered as an OAuth
+// redirect URI in Google Cloud Console.
+const PROD_HOST = 'www.eatthisdot.com';
+const authDomain =
+  typeof window !== 'undefined' && window.location.hostname === PROD_HOST
+    ? PROD_HOST
+    : 'eat-this-8a13b.firebaseapp.com';
+
 const firebaseConfig = {
   apiKey:            'AIzaSyDs0361Db_lwHGW9WZfT5ivj-WIB4fyUw0',
-  authDomain:        'eat-this-8a13b.firebaseapp.com',
+  authDomain,
   projectId:         'eat-this-8a13b',
   storageBucket:     'eat-this-8a13b.firebasestorage.app',
   messagingSenderId: '768781457409',

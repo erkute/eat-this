@@ -176,6 +176,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               {selectedRestaurant &&
                 !displayedRestaurants.some((r) => r._id === selectedRestaurant._id) && (
                   <RestaurantMarker
+                    key={selectedRestaurant._id}
                     restaurant={selectedRestaurant}
                     isSelected
                     onClick={onRestaurantClick}

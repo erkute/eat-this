@@ -107,6 +107,9 @@ export async function getHomeData(
 ): Promise<HomeData> {
   const [candidates, freeSurface, categories, bezirkOfWeek, articles, catNameRows, bezirkRows] = await Promise.all([
     client.fetch<HomeSpot[]>(spotCandidatesQuery, { locale }, { next: { revalidate: 3600, tags: ['restaurant', 'mustEat'] } }),
+    // 60s-Modul-TTL (Sanity-Webhook flusht eager via invalidateFreeSurfaceCache)
+    // — bewusst kürzer als die 1h-Next.js-Tag-Caches drumherum, konsistent mit
+    // getInitialAnonMapData + /api/map-data.
     getFreeSurfaceData(),
     client.fetch<HubCategory[] | null>(homeWeekCategoriesQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
     client.fetch<HubBezirk | null>(bezirkOfWeekQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),

@@ -2,7 +2,6 @@ import {
   Body,
   Container,
   Head,
-  Heading,
   Html,
   Img,
   Link,
@@ -83,8 +82,13 @@ export default function MagicLinkEmail({
   const spots = restaurants.slice(0, 4);
 
   // First-time signup pitches the product; a returning login just greets back.
-  const headlineLine1 = returning ? 'Willkommen' : 'Deine kuratierte';
-  const headlineLine2 = returning ? 'zurück.' : 'Food Discovery Map';
+  // The headline is a pre-rendered Schoolbell PNG (yellow highlight baked in):
+  // Gmail never loads webfonts, so live text always fell back to Arial Black —
+  // an image is the only way the brand font reaches Gmail. The alt text keeps
+  // the full wording for blocked-images clients and screen readers.
+  const headline = returning
+    ? { src: 'headline-returning.png', alt: 'Willkommen zurück.', width: 189 }
+    : { src: 'headline-first.png', alt: 'Deine kuratierte Food Discovery Map', width: 320 };
   const preview = returning
     ? 'Willkommen zurück bei Eat This — tipp drauf, du bist drin.'
     : 'Dein Login-Link für Eat This — tipp drauf, du bist drin.';
@@ -142,59 +146,20 @@ export default function MagicLinkEmail({
             />
           </Section>
 
-          {/* HEADLINE — big editorial brand statement */}
+          {/* HEADLINE — big editorial brand statement, Schoolbell baked into a
+              transparent PNG (2x) so the brand font survives Gmail */}
           <Section style={{ textAlign: 'center', padding: '6px 0 18px' }}>
-            <Heading
-              as="h1"
+            <Img
+              src={`${appUrl}/pics/email/${headline.src}`}
+              alt={headline.alt}
+              width={headline.width}
               style={{
-                margin:        0,
-                fontFamily:    DISPLAY_FONT,
-                fontWeight:    400,
-                fontSize:      '34px',
-                lineHeight:    1.04,
-                letterSpacing: '0.01em',
-                textTransform: 'uppercase',
-                color:         PALETTE.ink,
+                display:  'block',
+                margin:   '0 auto',
+                maxWidth: '88%',
+                height:   'auto',
               }}
-            >
-              {headlineLine1}
-            </Heading>
-            {/* Second line carries the yellow brand highlight */}
-            <table
-              role="presentation"
-              cellPadding={0}
-              cellSpacing={0}
-              border={0}
-              align="center"
-              style={{ margin: '8px auto 0', borderCollapse: 'collapse' }}
-            >
-              <tbody>
-                <tr>
-                  <td
-                    align="center"
-                    style={{
-                      backgroundColor: PALETTE.yellow,
-                      padding:         '3px 12px 5px',
-                      borderRadius:    '0',
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontFamily:    DISPLAY_FONT,
-                        fontWeight:    400,
-                        fontSize:      '34px',
-                        lineHeight:    1.04,
-                        letterSpacing: '0.01em',
-                        textTransform: 'uppercase',
-                        color:         PALETTE.ink,
-                      }}
-                    >
-                      {headlineLine2}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            />
           </Section>
 
           {/* SUBLINE + CTA — up top: product line + yellow call-to-action */}

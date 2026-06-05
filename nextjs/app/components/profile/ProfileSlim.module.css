@@ -236,6 +236,16 @@
   margin: 0;
 }
 
+/* Progress counter — "X von Y aufgedeckt" above the grid. */
+.meCount {
+  margin: 0 16px 10px;
+  font-family: var(--font-poster);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+}
+
 /* ── Collected must-eats grid ── */
 .meGrid {
   display: grid;
@@ -461,7 +471,8 @@ html[data-theme="dark"] .explainer {
   border-left-color: var(--c-coral);
 }
 html[data-theme="dark"] .explainerKicker,
-html[data-theme="dark"] .explainerLine {
+html[data-theme="dark"] .explainerLine,
+html[data-theme="dark"] .meCount {
   color: #f0e8d0;
 }
 

@@ -37,8 +37,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const de = locale === 'de'
   const loc = de ? 'de' : 'en'
 
-  const fallbackTitleDe = `Beste Restaurants in ${b.name} — Eat This Berlin`
-  const fallbackTitleEn = `Best restaurants in ${b.name} — Eat This Berlin`
+  // Brandlos — das Layout-Template hängt „| Eat This Berlin" an (die
+  // kuratierten seo.metaTitle sind ebenfalls brandlos).
+  const fallbackTitleDe = `Beste Restaurants in ${b.name}`
+  const fallbackTitleEn = `Best restaurants in ${b.name}`
   const title = pickLocale(
     b.seo?.metaTitle || fallbackTitleDe,
     b.seo?.metaTitleEn || fallbackTitleEn,

@@ -24,9 +24,19 @@ export function resolveUnlockedMustEatIds(args: {
   revealedMustEatIds: Set<string>
   mustEats: MapMustEat[]
   restaurants: MapRestaurant[]
+  /** The server-computed anon face-up set (trial-10 ∪ spot-of-day) — "publicly
+   *  face-up means face-up everywhere", so it's unioned in for signed-in users
+   *  too. Ids not present in the consumer's `mustEats` are inert. Compute it
+   *  from `getInitialAnonMapData()` — the trial-10 slice is only valid on the
+   *  anon restaurant ordering, never on a signed-in user's owned list. */
+  publicFaceUpIds?: Set<string>
 }): Set<string> {
-  const { uid, storedUnlockedIds, revealedMustEatIds, mustEats, restaurants } = args
-  if (uid) return new Set<string>([...storedUnlockedIds, ...revealedMustEatIds])
+  const { uid, storedUnlockedIds, revealedMustEatIds, mustEats, restaurants, publicFaceUpIds } = args
+  if (uid) {
+    const out = new Set<string>([...storedUnlockedIds, ...revealedMustEatIds])
+    if (publicFaceUpIds) for (const id of publicFaceUpIds) out.add(id)
+    return out
+  }
   const unlockedRestaurantIds = new Set(
     restaurants.slice(0, TRIAL_UNLOCKED_COUNT).map((r) => r._id),
   )
@@ -34,5 +44,6 @@ export function resolveUnlockedMustEatIds(args: {
     mustEats.filter((m) => unlockedRestaurantIds.has(m.restaurant._id)).map((m) => m._id),
   )
   for (const id of revealedMustEatIds) out.add(id)
+  if (publicFaceUpIds) for (const id of publicFaceUpIds) out.add(id)
   return out
 }

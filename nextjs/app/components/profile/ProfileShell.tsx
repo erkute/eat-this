@@ -15,6 +15,9 @@ import styles from './ProfileSlim.module.css';
 
 interface Props {
   mustEats: MustEatAlbumCard[];
+  /** Server-computed anon face-up set (trial-10 ∪ spot-of-day). Publicly
+   *  face-up cards stay face-up in the collection too. */
+  publicFaceUpIds: string[];
 }
 
 function memberSince(creationTime: string | undefined, locale: string): string | null {
@@ -27,13 +30,18 @@ function memberSince(creationTime: string | undefined, locale: string): string |
 
 // Slim profile (mockup-chewy screens 15/16): one cream scroll — head, saved
 // spots, collected must-eats, packs, logout, footer. No tabs/settings/referral.
-export default function ProfileShell({ mustEats }: Props) {
+export default function ProfileShell({ mustEats, publicFaceUpIds }: Props) {
   const { user, loading, signOut } = useAuth();
   const locale = useLocale();
   const t = useTranslations('profile');
-  // Map-page reveals write to users/{uid}/unlockedMustEats — read them so the
-  // collected grid shows face-up cards.
-  const { unlockedIds } = useUnlockedMustEats(user?.uid ?? null);
+  // Map-page reveals write to users/{uid}/unlockedMustEats — unioned with the
+  // public face-up set (trial-10 ∪ spot-of-day) so anything publicly revealed
+  // is open in the collection too, even right after first signup.
+  const { unlockedIds: storedUnlockedIds } = useUnlockedMustEats(user?.uid ?? null);
+  const unlockedIds = useMemo(
+    () => new Set<string>([...storedUnlockedIds, ...publicFaceUpIds]),
+    [storedUnlockedIds, publicFaceUpIds],
+  );
   const { profile } = useUserProfile(user?.uid ?? null);
   // Owned spots (the user's map tier) → drives which must-eats appear in the
   // collected grid. Fetches /api/map-data on mount; cached for instant repaint.

@@ -10,7 +10,6 @@ import { splitMustEats } from '@/lib/home/mustEatsGallery'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import styles from './HubMustEatsTeaser.module.css'
 
-const CARD_BACK = '/pics/card-back.webp?v=5'
 const TEASER_COUNT = 6
 
 interface Props {
@@ -60,11 +59,11 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
     [effUid, storedSet, revealedMustEatIds, publicFaceUpIds],
   )
 
-  // Mix: up to 3 revealed dishes face-up, the rest face-down — communicates the
-  // reveal game without leaking dish names on the locked cards.
+  // Showcase: nur face-up Karten — der „Schatzkarte"-Job (verdeckte Karten in
+  // deiner Nähe) lebt jetzt in HubNearby.
   const teaser = useMemo(() => {
-    const { open, locked } = splitMustEats(mustEats, faceUp)
-    return [...open.slice(0, 3), ...locked].slice(0, TEASER_COUNT)
+    const { open } = splitMustEats(mustEats, faceUp)
+    return open.slice(0, TEASER_COUNT)
   }, [mustEats, faceUp])
 
   if (teaser.length === 0) return null
@@ -75,28 +74,20 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
       <p className={styles.sub}>{t('mustEats.teaserSub')}</p>
 
       <ul className={styles.row} role="list">
-        {teaser.map((m) => {
-          const open = faceUp.has(m._id)
-          return (
-            <li key={m._id} className={styles.item}>
-              {/* Deep-link into the map: ?me= opens the must-eat detail (locked
-                  ones open in their locked state — same handler as in-app taps). */}
-              <Link
-                href={`/map?me=${m._id}`}
-                className={styles.cardLink}
-                aria-label={open ? undefined : t('mustEats.teaserCardLocked')}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className={styles.card}
-                  src={open ? m.image : CARD_BACK}
-                  alt={open ? normalizeName(m.dish) : ''}
-                  loading="lazy"
-                />
-              </Link>
-            </li>
-          )
-        })}
+        {teaser.map((m) => (
+          <li key={m._id} className={styles.item}>
+            {/* Deep-link into the map: ?me= opens the must-eat detail. */}
+            <Link href={`/map?me=${m._id}`} className={styles.cardLink}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className={styles.card}
+                src={m.image}
+                alt={normalizeName(m.dish)}
+                loading="lazy"
+              />
+            </Link>
+          </li>
+        ))}
       </ul>
 
       <p className={styles.foot}>

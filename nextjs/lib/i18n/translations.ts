@@ -100,7 +100,6 @@ const en = {
     teaserTitle: "Must Eats",
     teaserSub: "The dishes you can't miss in Berlin.",
     teaserCta: "All Must Eats \u2192",
-    teaserCardLocked: "View face-down Must Eat on the map",
   },
   news: {
     sectionLabel: "Berlin",
@@ -435,7 +434,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     covered: "Verdeckt",
     teaserSub: "Die Gerichte, die du nicht verpassen darfst.",
     teaserCta: "Alle Must Eats →",
-    teaserCardLocked: "Verdecktes Must Eat auf der Map ansehen",
   },
   news: {
     errorLoad: "Artikel konnten nicht geladen werden. Bitte versuche es sp\u00e4ter erneut.",

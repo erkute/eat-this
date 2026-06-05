@@ -12,9 +12,12 @@ import styles from '@/app/[locale]/login/login.module.css';
 interface LoginPanelProps {
   onBack: () => void;
   modal?: boolean;
+  /** Guest revealed a must-eat on site (50 m) — swap the sub line to explain
+   *  why login is needed: the card lands in the deck only with an account. */
+  mustEatGate?: boolean;
 }
 
-export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
+export default function LoginPanel({ onBack, modal = false, mustEatGate = false }: LoginPanelProps) {
   const { t } = useTranslation();
   const { user, loading, signInWithGoogle } = useAuth();
   const router = useRouter();
@@ -117,7 +120,7 @@ export default function LoginPanel({ onBack, modal = false }: LoginPanelProps) {
 
           <div className={styles.kicker}>{t('modals.login.kicker')}</div>
           <h1 className={styles.h1}>{t('modals.login.heroH1')}</h1>
-          <p className={styles.sub}>{t('modals.login.heroSub')}</p>
+          <p className={styles.sub}>{t(mustEatGate ? 'modals.login.mustEatGateSub' : 'modals.login.heroSub')}</p>
 
           <form
             className={styles.form}

@@ -10,16 +10,19 @@ interface Args {
   userLocation: UserLocation | null
   onUnlock: () => void
   // Anon visitors must not enter the reveal-overlay path — the overlay
-  // doesn't (and shouldn't) advance phases without a signed-in user, so
-  // gating here keeps the locked-card tap a no-op tap-feedback instead.
+  // doesn't (and shouldn't) advance phases without a signed-in user. An
+  // in-range guest tap routes to login instead (see onRequireLogin).
   isAuthed: boolean
+  // Guest within the unlock radius taps the card → login gate ("want this
+  // Must Eat in your deck? log in"). Out-of-range taps keep the shake.
+  onRequireLogin?: () => void
   // Demo mode (?revealdemo): play the reveal animation on tap regardless of
   // distance/auth, with no unlock side effects — lets the look be reviewed
   // without physically walking into a 50 m radius.
   demo?: boolean
 }
 
-export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthed, demo }: Args) {
+export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthed, onRequireLogin, demo }: Args) {
   const distance = userLocation
     ? haversineDistance(userLocation.lat, userLocation.lng, mustEat.restaurant.lat, mustEat.restaurant.lng)
     : null
@@ -54,6 +57,12 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthe
       const rect = e.currentTarget.getBoundingClientRect()
       setRevealOrigin(rect)
       onUnlock()
+      return
+    }
+    // In range but not signed in: the reveal is earned — route to login so it
+    // can land in the user's deck.
+    if (canUnlock && !isAuthed && onRequireLogin) {
+      onRequireLogin()
       return
     }
     setTapping(true)

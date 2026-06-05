@@ -66,24 +66,27 @@ export function composeSignedRestaurants(
 }
 
 // Revealed must-eats (anon view): up to TARGET_REVEALED total, all of
-// them on restaurants in the anon set. Fallback: pick the next must-eats
-// on anon-restaurants by stable _id ordering.
+// them on restaurants in the anon set, and at most ONE card per restaurant —
+// a spot with two must-eats keeps the second face-down (something left to
+// discover on site). Flagged (`revealedForAnon`) first, then fallback fill
+// by stable _id ordering.
 export function composeRevealedMustEats(
   all:     MapMustEat[],
   anonIds: Set<string>,
 ): Set<string> {
   const onAnonRestaurants = all.filter((m) => anonIds.has(m.restaurant._id))
-  const flagged = onAnonRestaurants.filter((m) => m.revealedForAnon)
-  if (flagged.length >= TIER_TARGETS.REVEALED) {
-    return new Set(flagged.slice(0, TIER_TARGETS.REVEALED).map((m) => m._id))
+  const out = new Set<string>()
+  const usedRestaurants = new Set<string>()
+  const take = (m: MapMustEat) => {
+    if (out.size >= TIER_TARGETS.REVEALED) return
+    if (usedRestaurants.has(m.restaurant._id)) return
+    usedRestaurants.add(m.restaurant._id)
+    out.add(m._id)
   }
-  const flaggedIds = new Set(flagged.map((m) => m._id))
+  for (const m of onAnonRestaurants) if (m.revealedForAnon) take(m)
   const fallbackPool = onAnonRestaurants
-    .filter((m) => !flaggedIds.has(m._id))
+    .filter((m) => !out.has(m._id))
     .sort((a, b) => a._id.localeCompare(b._id))
-  const fillCount = TIER_TARGETS.REVEALED - flagged.length
-  return new Set([
-    ...flagged.map((m) => m._id),
-    ...fallbackPool.slice(0, fillCount).map((m) => m._id),
-  ])
+  for (const m of fallbackPool) take(m)
+  return out
 }

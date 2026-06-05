@@ -27,32 +27,37 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
   // The first client render must match SSR exactly: SSR renders the anonymous
   // view (uid=null) from `initialMapData`, so the pre-mount render here mirrors
   // it — uid=null + initialMapData fed through the shared face-up helper. That
-  // yields the deterministic anon trial split (first-10 restaurants' must-eats
-  // + server reveals) face-up, identical on server and first client paint.
-  // After mount, swap to the live dataset + the real uid so signed-in stored
-  // unlocks + proximity reveals show too — exactly like the map.
+  // yields the deterministic anon view (10 curated cards + spot-of-day) face-up,
+  // identical on server and first client paint. After mount, swap to the live
+  // dataset + the real uid so signed-in stored unlocks + proximity reveals show
+  // too — exactly like the map.
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
     setMounted(true)
   }, [])
 
   const effUid = mounted ? uid : null
-  const restaurants = mounted ? live.restaurants : initialMapData.restaurants
   const mustEats = mounted ? live.mustEats : initialMapData.mustEats
   const revealedMustEatIds = mounted
     ? live.revealedMustEatIds
     : new Set<string>(initialMapData.revealedMustEatIds)
   const storedSet = mounted ? storedUnlockedIds : new Set<string>()
+  // Public anon face-up set — folded in for signed-in users too so the teaser
+  // matches the map/profile ("publicly face-up means face-up everywhere"; the
+  // signed-in /api/map-data ships revealedMustEatIds: []).
+  const publicFaceUpIds = useMemo(
+    () => new Set<string>(initialMapData.revealedMustEatIds),
+    [initialMapData],
+  )
   const faceUp = useMemo(
     () =>
       resolveUnlockedMustEatIds({
         uid: effUid,
         storedUnlockedIds: storedSet,
         revealedMustEatIds,
-        mustEats,
-        restaurants,
+        publicFaceUpIds,
       }),
-    [effUid, storedSet, revealedMustEatIds, mustEats, restaurants],
+    [effUid, storedSet, revealedMustEatIds, publicFaceUpIds],
   )
 
   // Mix: up to 3 revealed dishes face-up, the rest face-down — communicates the

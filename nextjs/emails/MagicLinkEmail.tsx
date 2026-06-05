@@ -18,9 +18,11 @@ export interface EmailMustEat {
   cardPhoto: string;
 }
 
-/** One curated restaurant: its photo on the left, its Must-Eat cards on the right. */
+/** One curated restaurant teased in the email. */
 export interface EmailSpot {
   name: string;
+  /** Sanity slug — drives the /map?r= deep-link and the composed card image. */
+  slug: string;
   /** Neighborhood / district, e.g. "Mitte". */
   area: string;
   /** Cuisine label, e.g. "Bakery". */
@@ -52,26 +54,10 @@ const PALETTE = {
   muted:  '#6B6B6B',
 };
 
-// Brand-display stack: Schoolbell (the sitewide display font, see
-// app/[locale]/layout.tsx) where the client supports webfonts (Apple/iOS
-// Mail), heavy system fallback (Arial Black) everywhere else — Gmail
-// never loads webfonts.
-const DISPLAY_FONT =
-  "'Schoolbell', 'Arial Black', 'Helvetica Neue', Arial, sans-serif";
+// Body copy only — every display-font surface (headline, spot cards) is a
+// pre-rendered image, because Gmail never loads webfonts.
 const BODY_FONT =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-
-// Banner-crop a Sanity CDN URL for the restaurant layer — server-side crop so
-// we don't rely on object-fit (unsupported in several email clients).
-function restaurantBanner(photo: string): string {
-  return `${photo.split('?')[0]}?w=640&h=360&fit=crop&auto=format&q=80`;
-}
-
-// Size a Sanity CDN image without cropping — the Must-Eat cards are pre-composed
-// portrait artwork, kept whole and shown larger so they read as cards.
-function cardImage(photo: string): string {
-  return `${photo.split('?')[0]}?w=400&auto=format&q=80`;
-}
 
 export default function MagicLinkEmail({
   magicLink,
@@ -95,9 +81,7 @@ export default function MagicLinkEmail({
 
   return (
     <Html lang="de">
-      <Head>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Schoolbell&display=swap');`}</style>
-      </Head>
+      <Head />
       <Preview>{preview}</Preview>
 
       <Body
@@ -225,117 +209,54 @@ export default function MagicLinkEmail({
             >
               Klick auf den Button, um dich anzumelden und deine Map zu öffnen.
             </Text>
+
+            {spots.length > 0 && (
+              <Text
+                style={{
+                  margin:     '26px 0 0',
+                  fontSize:   '16px',
+                  lineHeight: 1.5,
+                  color:      PALETTE.ink,
+                }}
+              >
+                Diese und mehr Empfehlungen warten auf dich — mit den Must
+                Eats, die du dort unbedingt probieren solltest.
+              </Text>
+            )}
           </Section>
 
-          {/* SPOTS — curated restaurants: the proof, branded + crisp.
-             Pure table/flow layout: Gmail and Outlook strip position/transform/
-             z-index/filter, so the Must-Eat card must NOT be absolutely tucked
-             onto the corner — it sits in a real table cell beside the name. */}
+          {/* SPOTS — each one a single server-composed PNG (photo + scrim +
+              name + tilted Must-Eat badge, see /api/email/spot-card) wrapped
+              in a /map?r= deep-link. One flat image is the only composition
+              email clients can't break: Gmail strips position/transform/
+              filter/box-shadow and never loads webfonts. */}
           {spots.length > 0 && (
-            <Section style={{ padding: '0 0 8px' }}>
+            <Section style={{ padding: '0 0 8px', textAlign: 'center' }}>
               {spots.map((s, i) => {
                 const mustEat = s.mustEats[0];
                 const meta = [s.area, s.cuisine].filter(Boolean).join(' · ');
+                const alt = `${s.name} — ${meta}${mustEat ? `: ${mustEat.dish}` : ''}`;
                 return (
-                  <table
-                    key={`${s.name}-${i}`}
-                    role="presentation"
-                    cellPadding={0}
-                    cellSpacing={0}
-                    border={0}
-                    width="100%"
-                    align="center"
-                    style={{
-                      borderCollapse:  'collapse',
-                      margin:          '0 auto 18px',
-                      maxWidth:        '360px',
-                      backgroundColor: PALETTE.paper,
-                      border:          `1px solid ${PALETTE.hair}`,
-                    }}
+                  <Link
+                    key={`${s.slug}-${i}`}
+                    href={`${appUrl}/map?r=${s.slug}`}
+                    style={{ display: 'block', margin: '0 auto 18px' }}
                   >
-                    <tbody>
-                      {/* restaurant banner — server-cropped, full width */}
-                      <tr>
-                        <td style={{ padding: 0, fontSize: 0, lineHeight: 0 }}>
-                          <Img
-                            src={restaurantBanner(s.photo)}
-                            alt={s.name}
-                            width="360"
-                            style={{ display: 'block', width: '100%', height: 'auto', border: 0 }}
-                          />
-                        </td>
-                      </tr>
-                      {/* info bar — meta + name on the left, Must-Eat card on the right */}
-                      <tr>
-                        <td style={{ padding: '14px 18px 16px' }}>
-                          <table
-                            role="presentation"
-                            cellPadding={0}
-                            cellSpacing={0}
-                            border={0}
-                            width="100%"
-                            style={{ borderCollapse: 'collapse' }}
-                          >
-                            <tbody>
-                              <tr>
-                                <td valign="middle" style={{ verticalAlign: 'middle' }}>
-                                  {meta && (
-                                    <Text
-                                      style={{
-                                        margin:        '0 0 3px',
-                                        fontSize:      '11px',
-                                        fontWeight:    700,
-                                        letterSpacing: '0.1em',
-                                        textTransform: 'uppercase',
-                                        color:         PALETTE.muted,
-                                      }}
-                                    >
-                                      {meta}
-                                    </Text>
-                                  )}
-                                  <Text
-                                    style={{
-                                      margin:        0,
-                                      fontFamily:    DISPLAY_FONT,
-                                      fontWeight:    400,
-                                      fontSize:      '28px',
-                                      lineHeight:    1.0,
-                                      letterSpacing: '0.01em',
-                                      textTransform: 'uppercase',
-                                      color:         PALETTE.ink,
-                                    }}
-                                  >
-                                    {s.name}
-                                  </Text>
-                                </td>
-                                {mustEat && (
-                                  <td
-                                    valign="middle"
-                                    align="right"
-                                    width="96"
-                                    style={{ verticalAlign: 'middle', width: '96px', paddingLeft: '12px' }}
-                                  >
-                                    <Img
-                                      src={cardImage(mustEat.cardPhoto)}
-                                      alt={`Must Eat: ${mustEat.dish}`}
-                                      width="84"
-                                      style={{
-                                        display:   'block',
-                                        width:     '84px',
-                                        height:    'auto',
-                                        border:    0,
-                                        marginLeft: 'auto',
-                                      }}
-                                    />
-                                  </td>
-                                )}
-                              </tr>
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                    <Img
+                      src={`${appUrl}/api/email/spot-card?slug=${s.slug}`}
+                      alt={alt}
+                      width="360"
+                      height="360"
+                      style={{
+                        display:  'block',
+                        margin:   '0 auto',
+                        width:    '360px',
+                        maxWidth: '100%',
+                        height:   'auto',
+                        border:   0,
+                      }}
+                    />
+                  </Link>
                 );
               })}
             </Section>

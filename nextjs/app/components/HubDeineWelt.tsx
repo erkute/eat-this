@@ -15,7 +15,7 @@ import { normalizeName } from '@/lib/normalizeName'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import styles from './HubDeineWelt.module.css'
 
-const CARD_BACK = '/pics/card-back.webp'
+const CARD_BACK = '/pics/card-back.webp?v=5'
 
 interface Props {
   initialMapData: InitialMapData

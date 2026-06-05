@@ -51,10 +51,10 @@ export default function HubNearby({ initialMapData }: Props) {
         storedUnlockedIds: mounted ? storedUnlockedIds : new Set<string>(),
         revealedMustEatIds: mounted
           ? live.revealedMustEatIds
-          : new Set<string>(initialMapData.revealedMustEatIds),
+          : publicFaceUpIds,
         publicFaceUpIds,
       }),
-    [mounted, uid, storedUnlockedIds, live.revealedMustEatIds, initialMapData, publicFaceUpIds],
+    [mounted, uid, storedUnlockedIds, live.revealedMustEatIds, publicFaceUpIds],
   )
   const faceDown = useMemo(
     () => mustEats.filter((m) => !faceUp.has(m._id)),

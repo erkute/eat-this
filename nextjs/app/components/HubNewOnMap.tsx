@@ -15,11 +15,6 @@ export default function HubNewOnMap({ cards }: Props) {
   return (
     <section className={styles.section} data-hub-newonmap="">
       <h2 className={styles.heading}>{t('title')}</h2>
-      <p className={styles.meta}>
-        <Link href="/map" rel="nofollow" className={styles.metaLink}>
-          {t('all')}
-        </Link>
-      </p>
       <ul className={styles.cards} role="list">
         {cards.map((c) => (
           <li key={c._id} className={styles.cardItem}>

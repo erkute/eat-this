@@ -33,10 +33,25 @@ export async function sendMagicLinkEmail(params: {
 }): Promise<SendMagicLinkResult> {
   const { email, continueUrl, appUrl } = params;
 
+  // The continue URL doubles as the cross-browser email carrier: /welcome
+  // reads `e` to complete the sign-in when the link opens in a browser that
+  // never stored emailForSignIn (e.g. Gmail app handing off to Chrome while
+  // the link was requested in Safari). Trade-off: the address is visible in
+  // the link URL — acceptable, the link already sits in that very inbox.
+  let linkUrl = continueUrl;
+  try {
+    const u = new URL(continueUrl);
+    u.searchParams.set('e', email);
+    linkUrl = u.toString();
+  } catch {
+    // Non-absolute continueUrl (shouldn't happen — callers build absolute
+    // URLs): fall back to the raw value, /welcome then asks for the email.
+  }
+
   let magicLink: string;
   try {
     magicLink = await getAdminAuth().generateSignInWithEmailLink(email, {
-      url:             continueUrl,
+      url:             linkUrl,
       handleCodeInApp: true,
     });
   } catch (err) {

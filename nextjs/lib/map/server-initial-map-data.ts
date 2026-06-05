@@ -28,7 +28,10 @@ export interface InitialMapData {
 }
 
 export async function getInitialAnonMapData(): Promise<InitialMapData> {
-  const { restaurants: all, mustEats: allMustEats, categories } = await getCachedMapData()
+  const [{ restaurants: all, mustEats: allMustEats, categories }, freeSurface] = await Promise.all([
+    getCachedMapData(),
+    getFreeSurfaceData(),
+  ])
 
   const mustEatCountByRestaurant = new Map<string, number>()
   for (const m of allMustEats) {
@@ -42,11 +45,10 @@ export async function getInitialAnonMapData(): Promise<InitialMapData> {
   // liefern nur Card-Backs (siehe Spec).
   const revealedSet = composeRevealedMustEats(allMustEats, anonIds)
 
-  const freeSurface = await getFreeSurfaceData()
   const visibleRestaurants = applyFreeSurface(anonSet, all, freeSurface.restaurantIds)
-  const visibleIds = new Set(visibleRestaurants.map((r) => r._id))
-  const visibleMustEats = allMustEats.filter((m) => visibleIds.has(m.restaurant._id))
-  const lockedRestaurants = all.filter((r) => !visibleIds.has(r._id))
+  const visibleIdSet = new Set(visibleRestaurants.map((r) => r._id))
+  const visibleMustEats = allMustEats.filter((m) => visibleIdSet.has(m.restaurant._id))
+  const lockedRestaurants = all.filter((r) => !visibleIdSet.has(r._id))
 
   // Spot des Tages — a free, daily-rotating gift for everyone. Surface today's
   // spot + reveal its must-eat (ephemeral: recomputed per request from the

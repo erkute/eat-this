@@ -19,9 +19,10 @@ function getCopy(kind: Kind, name: string, locale: 'de' | 'en'): { title: string
   const de = locale === 'de'
   switch (kind) {
     case 'restaurant':
+      // Headline = Brand-Slogan (bleibt auch auf DE englisch).
       return de
-        ? { title: 'Auf der Map ansehen', sub: 'Dieser Spot und die besten anderen in Berlin.' }
-        : { title: 'See it on the map', sub: 'This spot and the best of the rest in Berlin.' }
+        ? { title: 'The map for people who care about food.', sub: 'Mit den besten Restaurants, Cafés und Bars in Berlin.' }
+        : { title: 'The map for people who care about food.', sub: 'With the best restaurants, cafés and bars in Berlin.' }
     case 'bezirk':
       return de
         ? { title: `Ganz ${name} auf der Map`, sub: 'Die besten Spots in der Gegend.' }

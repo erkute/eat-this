@@ -4,12 +4,12 @@ import MagicLinkEmail from '../MagicLinkEmail'
 
 const spots = [
   {
-    name: 'SOFI', area: 'Mitte', cuisine: 'Bakery',
+    name: 'SOFI', slug: 'sofi', area: 'Mitte', cuisine: 'Bakery',
     photo: 'https://cdn.sanity.io/images/x/y/rest.png',
     mustEats: [{ dish: 'Breakfast Plate', cardPhoto: 'https://cdn.sanity.io/images/x/y/a.png' }],
   },
   {
-    name: 'GEMELLO', area: 'Prenzlauer Berg', cuisine: 'Italian',
+    name: 'GEMELLO', slug: 'gemello', area: 'Prenzlauer Berg', cuisine: 'Italian',
     photo: 'https://cdn.sanity.io/images/x/y/rest2.png?w=800',
     mustEats: [{ dish: 'Pizza', cardPhoto: 'https://cdn.sanity.io/images/x/y/b.png?w=800' }],
   },
@@ -31,18 +31,28 @@ describe('MagicLinkEmail', () => {
     expect(html).toContain('Anmelden')
   })
 
-  it('renders the editorial headline and curated restaurant spots', async () => {
+  it('renders the editorial headline and the spots teaser line', async () => {
     const html = await render(MagicLinkEmail(props))
     expect(html).toContain('Deine kuratierte')
     expect(html).toContain('Food Discovery Map')
     expect(html).toContain('besten Restaurants, Cafés und Bars in Berlin')
-    expect(html).toContain('SOFI')
-    expect(html).toContain('Breakfast Plate')
-    // Restaurant photo is banner-cropped; Must-Eat card is resized (not cropped).
-    // (HTML-escapes `&` to `&amp;` in the attribute.)
-    expect(html).toContain('rest.png?w=640&amp;h=360&amp;fit=crop')
-    expect(html).toContain('a.png?w=400&amp;auto=format')
-    expect(html).toContain('b.png?w=400&amp;auto=format')
+    expect(html).toContain('Diese und mehr Empfehlungen warten auf dich')
+    expect(html).toContain('Must Eats, die du dort unbedingt probieren solltest')
+  })
+
+  it('spots are server-composed cards that deep-link onto the map', async () => {
+    const html = await render(MagicLinkEmail(props))
+    // Each spot is ONE composed image (photo + name + badge baked in)…
+    expect(html).toContain('/api/email/spot-card?slug=sofi')
+    expect(html).toContain('/api/email/spot-card?slug=gemello')
+    // …wrapped in a link that opens the restaurant on the map.
+    expect(html).toContain('/map?r=sofi')
+    expect(html).toContain('/map?r=gemello')
+    // Alt text carries the full wording for blocked-images clients.
+    expect(html).toContain('SOFI — Mitte · Bakery: Breakfast Plate')
+    // The old in-HTML photo/card layers are gone.
+    expect(html).not.toContain('rest.png?w=640')
+    expect(html).not.toContain('a.png?w=400')
   })
 
   it('drops the retired promo image', async () => {

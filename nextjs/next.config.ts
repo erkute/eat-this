@@ -8,6 +8,11 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 const nextConfig: NextConfig = {
   output: "standalone",
   outputFileTracingRoot: path.resolve(__dirname),
+  // Satori fonts for the composed email spot-card image — read via
+  // fs.readFile at runtime, so the tracer can't see them on its own.
+  outputFileTracingIncludes: {
+    "/api/email/spot-card": ["./assets/fonts/**/*"],
+  },
 
   images: {
     // Sanity already serves WebP via ?auto=format. The custom loader hits

@@ -93,10 +93,10 @@ CLI: `cwebp -q 80 in.png -o out.webp` (`brew install webp` once).
 - `app/[locale]/layout.tsx` owns the `<html>`/`<body>` and the `CRITICAL_BOOTSTRAP` inline script that runs synchronously in `<head>` before hydration. The bootstrap sets:
   - `data-theme` on `<html>` (light/dark, from localStorage / prefers-color-scheme)
   - `data-active-page` on `<html>` (start/news/map/profile/news-article/about/...) — read by CSS selectors like `[data-active-page="start"] .navbar:not(.scrolled)`
-  - `history.scrollRestoration = 'manual'`
   - `screen.orientation.lock('portrait')` on mobile
   - Pre-hydration login button state from `localStorage._authHint`
-- `useTranslation()` in `lib/i18n/I18nContext.tsx` wraps next-intl, exposes `{ lang, t, setLang, applyTranslations }`. `setLang` does a full-page reload (`window.location.assign`) — kept that way for now because some legacy `<a class="lang-btn">` clicks rely on a fresh DOM.
+- `app/components/ScrollRestorer.tsx` owns back/forward scroll restoration (App Router soft-nav popstate clamps the browser's native restore — see the component header). It sets `history.scrollRestoration = 'manual'` client-side; don't re-add that to the bootstrap or fight it with own popstate scroll code.
+- `useTranslation()` in `lib/i18n/I18nContext.tsx` wraps next-intl, exposes `{ lang, t, setLang }`. `setLang` sets the NEXT_LOCALE cookie and soft-navigates via the intl router (`router.replace(pathname, { locale })`).
 
 ## Modals
 

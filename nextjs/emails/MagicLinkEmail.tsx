@@ -53,10 +53,12 @@ const PALETTE = {
   muted:  '#6B6B6B',
 };
 
-// Brand-display stack: Chewy where the client supports webfonts (Apple/iOS
-// Mail), heavy rounded system fallback (Arial Black) everywhere else.
+// Brand-display stack: Schoolbell (the sitewide display font, see
+// app/[locale]/layout.tsx) where the client supports webfonts (Apple/iOS
+// Mail), heavy system fallback (Arial Black) everywhere else — Gmail
+// never loads webfonts.
 const DISPLAY_FONT =
-  "'Chewy', 'Arial Black', 'Helvetica Neue', Arial, sans-serif";
+  "'Schoolbell', 'Arial Black', 'Helvetica Neue', Arial, sans-serif";
 const BODY_FONT =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
@@ -90,7 +92,7 @@ export default function MagicLinkEmail({
   return (
     <Html lang="de">
       <Head>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Chewy&display=swap');`}</style>
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=Schoolbell&display=swap');`}</style>
       </Head>
       <Preview>{preview}</Preview>
 
@@ -111,10 +113,13 @@ export default function MagicLinkEmail({
             maxWidth: '600px',
           }}
         >
-          {/* BRAND — wordmark + handwritten slogan */}
+          {/* BRAND — wordmark + handwritten slogan. PNG, not WebP: Gmail's
+              image proxy transcodes WebP and flattens the alpha channel
+              (logo got a white box, slogan a black bar), and Outlook can't
+              decode WebP at all. PNG keeps transparency everywhere. */}
           <Section style={{ textAlign: 'center', padding: '0 0 22px' }}>
             <Img
-              src={`${appUrl}/pics/eat-this-logo.webp?v=3`}
+              src={`${appUrl}/pics/email/eat-this-logo.png`}
               alt="Eat This"
               width="220"
               style={{
@@ -125,7 +130,7 @@ export default function MagicLinkEmail({
               }}
             />
             <Img
-              src={`${appUrl}/pics/slogan.webp?v=3`}
+              src={`${appUrl}/pics/email/slogan.png`}
               alt="We tell you what to eat."
               width="300"
               style={{
@@ -387,7 +392,7 @@ export default function MagicLinkEmail({
                 Dein Starter Pack
               </Text>
               <Img
-                src={`${appUrl}/pics/booster/booster_free.webp`}
+                src={`${appUrl}/pics/email/booster_free.png`}
                 alt="Dein Eat This Starter Pack — 20 Must Eats"
                 width="216"
                 style={{

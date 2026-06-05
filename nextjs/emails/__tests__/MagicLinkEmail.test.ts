@@ -24,9 +24,9 @@ const props = {
 describe('MagicLinkEmail', () => {
   it('renders the new brand assets, link and CTA', async () => {
     const html = await render(MagicLinkEmail(props))
-    expect(html).toContain('/pics/eat-this-logo.webp')
-    expect(html).toContain('/pics/slogan.webp')
-    expect(html).toContain('/pics/booster/booster_free.webp')
+    expect(html).toContain('/pics/email/eat-this-logo.png')
+    expect(html).toContain('/pics/email/slogan.png')
+    expect(html).toContain('/pics/email/booster_free.png')
     expect(html).toContain('https://x/verify?abc=1')
     expect(html).toContain('Anmelden')
   })
@@ -61,7 +61,7 @@ describe('MagicLinkEmail', () => {
     const html = await render(MagicLinkEmail({ ...props, returning: false }))
     expect(html).toContain('Deine kuratierte')
     expect(html).toContain('Dein Starter Pack')
-    expect(html).toContain('/pics/booster/booster_free.webp')
+    expect(html).toContain('/pics/email/booster_free.png')
   })
 
   it('uses only Gmail-safe CSS — no properties the Gmail sanitizer strips', async () => {
@@ -76,13 +76,18 @@ describe('MagicLinkEmail', () => {
     expect(html).not.toMatch(/box-shadow\s*:/i)
   })
 
+  it("ships no WebP artwork — Gmail's image proxy flattens WebP alpha, Outlook can't decode it", async () => {
+    const html = await render(MagicLinkEmail(props))
+    expect(html).not.toMatch(/\.webp/i)
+  })
+
   it('returning variant greets back and drops the starter pack', async () => {
     const html = await render(MagicLinkEmail({ ...props, returning: true }))
     expect(html).toContain('Willkommen')
     expect(html).toContain('zurück.')
     // No first-time starter-pack framing
     expect(html).not.toContain('Dein Starter Pack')
-    expect(html).not.toContain('/pics/booster/booster_free.webp')
+    expect(html).not.toContain('/pics/email/booster_free.png')
     expect(html).not.toContain('Deine kuratierte')
     // Still keeps the curated spots + CTA
     expect(html).toContain('SOFI')

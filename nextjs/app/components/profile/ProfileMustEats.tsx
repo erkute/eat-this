@@ -67,6 +67,11 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaur
         <p className={styles.explainerKicker}>{t('explainerKicker')}</p>
         <p className={styles.explainerLine}>{t('explainer')}</p>
       </div>
+      {ownedMustEats.length > 0 && (
+        <p className={styles.meCount}>
+          {t('collectedCount', { x: unlocked.length, y: ownedMustEats.length })}
+        </p>
+      )}
       <div className={styles.meGrid}>
         {unlocked.map((m) => (
           <button

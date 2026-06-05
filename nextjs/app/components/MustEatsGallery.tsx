@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { useAuth } from '@/lib/auth'
-import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map'
+import { useMemo, useRef, useState } from 'react'
+import { resolveUnlockedMustEatIds } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { filterMustEats, type MustEatFilter } from '@/lib/home/mustEatsGallery'
 import MustEatImageLightbox from '@/app/components/map/MustEatImageLightbox'
@@ -23,45 +22,26 @@ const FILTER_LABEL: Record<MustEatFilter, string> = {
 }
 
 export default function MustEatsGallery({ initialMapData }: Props) {
-  const { user, loading: authLoading } = useAuth()
-  const uid = user?.uid ?? null
-  const live = useMapData({ uid, authLoading, initialMapData })
-  const { unlockedIds: storedUnlockedIds } = useUnlockedMustEats(uid)
   const { t } = useTranslation()
   const [filter, setFilter] = useState<MustEatFilter>('all')
 
-  // The first client render must match SSR exactly: SSR can only render the
-  // anonymous view (uid=null) from `initialMapData`, so the pre-mount render
-  // here mirrors that — uid=null + initialMapData fed through the shared
-  // face-up helper. That yields the deterministic anon trial split (first-10
-  // restaurants' must-eats + server reveals) face-up, identical on server and
-  // first client paint. After mount, swap to the live dataset + the real uid
-  // so signed-in stored unlocks + proximity reveals show too — exactly like
-  // the map.
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  const effUid = mounted ? uid : null
-  const restaurants = mounted ? live.restaurants : initialMapData.restaurants
-  const mustEats = mounted ? live.mustEats : initialMapData.mustEats
-  const revealedMustEatIds = mounted
-    ? live.revealedMustEatIds
-    : new Set<string>(initialMapData.revealedMustEatIds)
-  const storedSet = mounted ? storedUnlockedIds : new Set<string>()
+  // Deterministic public catalog: every visitor — guest or signed-in — sees
+  // the same anon view (trial-10 + spot-of-day face-up, rest covered). The
+  // personal collection lives in the profile; this page never personalizes.
+  // Pure function of `initialMapData` → identical on server and client, no
+  // hydration risk.
   const faceUp = useMemo(
     () =>
       resolveUnlockedMustEatIds({
-        uid: effUid,
-        storedUnlockedIds: storedSet,
-        revealedMustEatIds,
-        mustEats,
-        restaurants,
+        uid: null,
+        storedUnlockedIds: new Set<string>(),
+        revealedMustEatIds: new Set<string>(initialMapData.revealedMustEatIds),
+        mustEats: initialMapData.mustEats,
+        restaurants: initialMapData.restaurants,
       }),
-    [effUid, storedSet, revealedMustEatIds, mustEats, restaurants],
+    [initialMapData],
   )
-  const visible = filterMustEats(mustEats, faceUp, filter)
+  const visible = filterMustEats(initialMapData.mustEats, faceUp, filter)
 
   // Tap a card → deck-style fly-out zoom (same lightbox the profile deck and
   // the map detail use). Works for open cards (the dish art) AND locked cards

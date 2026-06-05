@@ -66,14 +66,14 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   } = useMapData({ uid, authLoading, initialMapData })
   const { location, request: requestLocation } = useUserLocation()
   const { unlockedIds: storedUnlockedIds, unlock } = useUnlockedMustEats(uid)
-  // Free-and-open trial — 10/10 split: the first half of the trial-20
-  // restaurants (deterministic order from /api/map-data, most-must-eats
-  // first) get their must-eats unlocked; the second half stays locked
-  // (card-back). Authed users keep the stored Firestore unlock set ∪ the
-  // server-curated reveals ∪ the public anon face-up set — what a guest sees
-  // open on /must-eats never flips back after signup ("publicly face-up means
-  // face-up everywhere"). Shared helper — the SAME face-up computation drives
-  // the /must-eats gallery, the profile collection and the /home teaser.
+  // Free-and-open map: anon visitors see exactly the server-revealed set
+  // face-up — 10 curated cards (one per spot) + the daily spot-of-day gift.
+  // Everything else stays card-back until revealed on site (50 m). Authed
+  // users keep the stored Firestore unlock set ∪ the public anon face-up
+  // set — what a guest sees open on /must-eats never flips back after signup
+  // ("publicly face-up means face-up everywhere"). Shared helper — the SAME
+  // face-up computation drives the /must-eats gallery, the profile collection
+  // and the /home teaser.
   const publicFaceUpIds = useMemo(
     () =>
       initialMapData
@@ -81,15 +81,13 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
             uid: null,
             storedUnlockedIds: new Set<string>(),
             revealedMustEatIds: new Set<string>(initialMapData.revealedMustEatIds),
-            mustEats: initialMapData.mustEats,
-            restaurants: initialMapData.restaurants,
           })
         : undefined,
     [initialMapData],
   )
   const unlockedIds = useMemo(
-    () => resolveUnlockedMustEatIds({ uid, storedUnlockedIds, revealedMustEatIds, mustEats, restaurants, publicFaceUpIds }),
-    [uid, storedUnlockedIds, revealedMustEatIds, mustEats, restaurants, publicFaceUpIds],
+    () => resolveUnlockedMustEatIds({ uid, storedUnlockedIds, revealedMustEatIds, publicFaceUpIds }),
+    [uid, storedUnlockedIds, revealedMustEatIds, publicFaceUpIds],
   )
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
   const userTier = useUserTier(uid)

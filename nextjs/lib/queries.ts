@@ -239,6 +239,23 @@ export const emailSpotsQuery = `
     | order(coalesce(featured, false) desc, count(*[_type == "mustEat" && restaurantRef._ref == ^._id]) desc, _createdAt desc)
     [0...$limit] {
     name,
+    "slug": slug.current,
+    "area": coalesce(bezirkRef->name, district),
+    "cuisine": cuisineType,
+    "photo": image.asset->url,
+    "mustEats": *[_type == "mustEat" && restaurantRef._ref == ^._id && defined(image.asset)]
+      | order(order asc)[0...1] {
+      dish,
+      "cardPhoto": image.asset->url
+    }
+  }
+`
+
+// One spot for the composed email card image (/api/email/spot-card) — same
+// shape as emailSpotsQuery, addressed by slug.
+export const emailSpotCardQuery = `
+  *[_type == "restaurant" && slug.current == $slug && defined(image.asset)][0] {
+    name,
     "area": coalesce(bezirkRef->name, district),
     "cuisine": cuisineType,
     "photo": image.asset->url,

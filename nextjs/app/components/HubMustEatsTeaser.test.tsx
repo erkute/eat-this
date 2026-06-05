@@ -77,7 +77,7 @@ describe('HubMustEatsTeaser', () => {
   })
 
   it('renders only face-up cards: shows dish image, no card-back', () => {
-    const html = render(dataRevealed([me({ dish: 'Smash Burger', image: 'https://cdn.sanity.io/i.png' })]))
+    const html = render(dataRevealed([me()]))
     expect(html).toContain('cdn.sanity.io')
     expect(html).not.toContain('card-back')
   })

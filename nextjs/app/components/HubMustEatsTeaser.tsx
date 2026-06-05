@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/auth'
 import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { normalizeName } from '@/lib/normalizeName'
-import { splitMustEats } from '@/lib/home/mustEatsGallery'
+import { filterMustEats } from '@/lib/home/mustEatsGallery'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import styles from './HubMustEatsTeaser.module.css'
 
@@ -62,8 +62,7 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
   // Showcase: nur face-up Karten — der „Schatzkarte"-Job (verdeckte Karten in
   // deiner Nähe) lebt jetzt in HubNearby.
   const teaser = useMemo(() => {
-    const { open } = splitMustEats(mustEats, faceUp)
-    return open.slice(0, TEASER_COUNT)
+    return filterMustEats(mustEats, faceUp, 'open').slice(0, TEASER_COUNT)
   }, [mustEats, faceUp])
 
   if (teaser.length === 0) return null

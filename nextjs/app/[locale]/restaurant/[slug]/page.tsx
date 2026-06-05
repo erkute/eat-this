@@ -5,6 +5,8 @@ import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
 import { getRestaurantBySlug, getAllRestaurantSlugs, getMustEatsByRestaurant, getRestaurantsByBezirk, getRestaurantsByCategory } from '@/lib/sanity.server'
 import { buildRestaurantJsonLd } from '@/lib/json-ld'
+import { buildRestaurantTitle, truncateAtSentence } from '@/lib/seo/restaurantMeta'
+import { siblingWindow } from '@/lib/seo/siblingWindow'
 import { SITE_URL } from '@/lib/constants'
 import { localeUrl } from '@/lib/locale-url'
 import { routing } from '@/i18n/routing'
@@ -38,24 +40,30 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!r) return {}
   const loc = locale === 'de' ? 'de' : 'en'
 
-  const description = pickLocale(
-    r.seo?.metaDescription ||
-      r.shortDescription ||
-      r.description ||
-      r.tip ||
-      `${r.name} in Berlin${r.district ? `, ${r.district}` : ''}.`,
-    r.seo?.metaDescriptionEn ||
-      r.shortDescriptionEn ||
-      r.descriptionEn ||
-      r.tipEn ||
-      undefined,
-    loc,
+  const districtName = r.bezirk?.name ?? r.district ?? null
+
+  const description = truncateAtSentence(
+    pickLocale(
+      r.seo?.metaDescription ||
+        r.shortDescription ||
+        r.tip ||
+        r.description ||
+        `${r.name} in Berlin${districtName ? `, ${districtName}` : ''}.`,
+      r.seo?.metaDescriptionEn ||
+        r.shortDescriptionEn ||
+        r.tipEn ||
+        r.descriptionEn ||
+        undefined,
+      loc,
+    ) ?? '',
   )
-  const title = pickLocale(
-    r.seo?.metaTitle || `${r.name} — Eat This Berlin`,
-    r.seo?.metaTitleEn || undefined,
-    loc,
-  )
+  // Kuratierte Sanity-Titles sind brandlos und laufen wie bisher durchs
+  // Layout-Template (`%s | Eat This Berlin`). Der Builder liefert den Brand
+  // schon mit („| EAT THIS") und muss deshalb als absolute raus, sonst
+  // doppelt das Template den Brand.
+  const curatedTitle = pickLocale(r.seo?.metaTitle || undefined, r.seo?.metaTitleEn || undefined, loc)
+  const builtTitle = buildRestaurantTitle({ name: r.name, cuisineType: r.cuisineType, district: districtName, locale: loc })
+  const title = curatedTitle ?? builtTitle
 
   const baseImage = r.seo?.ogImageUrl || r.photo?.split('?')[0]
   const image = baseImage
@@ -74,7 +82,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (hasEn) languages.en = localeUrl('en', `/restaurant/${slug}`)
 
   return {
-    title,
+    title: curatedTitle ?? { absolute: builtTitle },
     description,
     robots: r.seo?.noIndex ? 'noindex,nofollow' : undefined,
     alternates: {
@@ -105,10 +113,11 @@ export default async function RestaurantPage({ params }: PageProps) {
   ])
 
   const SIBLING_LIMIT = 3
-  const siblingsBezirk = siblingsBezirkRaw.filter(s => s.slug !== slug).slice(0, SIBLING_LIMIT)
-  const siblingsCategoryAll = siblingsCategoryRaw.filter(s => s.slug !== slug)
+  const siblingsBezirk = siblingWindow(siblingsBezirkRaw, slug, SIBLING_LIMIT)
   const bezirkSlugSet = new Set(siblingsBezirk.map(s => s.slug))
-  const siblingsCategory = siblingsCategoryAll.filter(s => !bezirkSlugSet.has(s.slug)).slice(0, SIBLING_LIMIT)
+  const siblingsCategory = siblingWindow(siblingsCategoryRaw, slug, SIBLING_LIMIT * 2)
+    .filter(s => !bezirkSlugSet.has(s.slug))
+    .slice(0, SIBLING_LIMIT)
   const categoryDef = primaryCategory
     ? {
         slug: primaryCategory.slug,
@@ -313,6 +322,9 @@ export default async function RestaurantPage({ params }: PageProps) {
                     </IntlLink>
                   ))}
                 </div>
+                <IntlLink href={`/bezirk/${r.bezirk.slug}`} className={styles.sibAllLink}>
+                  {de ? `Alle Spots in ${r.bezirk.name}` : `All spots in ${r.bezirk.name}`}
+                </IntlLink>
               </div>
             )}
             {siblingsCategory.length > 0 && categoryDef && (

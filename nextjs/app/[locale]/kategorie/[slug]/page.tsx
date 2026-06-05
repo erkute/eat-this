@@ -37,7 +37,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const de = locale === 'de'
   const loc = de ? 'de' : 'en'
   const label = localizedCategoryName(c, loc)
-  const title = `${label} in Berlin — Eat This`
+  // Brandlos — das Layout-Template hängt „| Eat This Berlin" an.
+  const title = `${label} in Berlin`
   const description = localizedCategoryBlurb(c, loc) || undefined
   const canonical = localeUrl(locale, `/kategorie/${slug}`)
   return {

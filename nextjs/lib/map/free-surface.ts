@@ -10,6 +10,7 @@
 
 import { normalizeName } from '@/lib/normalizeName'
 import type { MapRestaurant } from '@/lib/types'
+import { client } from '@/lib/sanity'
 
 export interface FreeSurfaceCard {
   _id: string
@@ -85,4 +86,59 @@ export function applyFreeSurface(
   const have = new Set(visible.map((r) => r._id))
   const surfaced = all.filter((r) => freeIds.has(r._id) && !have.has(r._id))
   return surfaced.length ? [...visible, ...surfaced] : visible
+}
+
+// Pool größer als der Anzeige-Count, damit der Brand-Dedupe Filialen
+// wegwerfen kann und trotzdem 6 Karten übrig bleiben.
+const newOnMapPoolQuery = `*[_type == "restaurant" && isOpen == true && defined(image) && !(_id in path("drafts.**"))] | order(_createdAt desc)[0...12]{
+  _id,
+  "name": name,
+  "slug": slug.current,
+  "image": image.asset->url,
+  "district": coalesce(bezirkRef->name, district, null),
+  "categoryDe": categories[0]->name,
+  "categoryEn": categories[0]->nameEn
+}`
+
+const bezirkOfWeekIdsQuery = `*[_type == "homeWeek" && weekStart <= $today] | order(weekStart desc)[0].bezirkSpots[]._ref`
+
+// Restaurants, die in irgendeinem veröffentlichten Artikel per mustEatCard
+// referenziert sind (beide Locale-Bodies). Flatten passiert in JS.
+const newsSpotIdsQuery = `*[_type == "newsArticle" && !(_id in path("drafts.**"))]{
+  "de": contentDe[_type == "mustEatCard"].mustEatRef->restaurantRef._ref,
+  "en": content[_type == "mustEatCard"].mustEatRef->restaurantRef._ref
+}`
+
+const TTL_MS = 60_000
+
+let cached: { data: FreeSurfaceData; expiresAt: number } | null = null
+let inflight: Promise<FreeSurfaceData> | null = null
+
+export async function getFreeSurfaceData(): Promise<FreeSurfaceData> {
+  if (cached && Date.now() < cached.expiresAt) return cached.data
+  if (inflight) return inflight
+
+  inflight = (async () => {
+    const today = new Date().toISOString().slice(0, 10)
+    const [pool, bezirkIds, newsRows] = await Promise.all([
+      client.fetch<FreeSurfaceCard[]>(newOnMapPoolQuery),
+      client.fetch<string[] | null>(bezirkOfWeekIdsQuery, { today }),
+      client.fetch<NewsSpotRow[]>(newsSpotIdsQuery),
+    ])
+    const data = composeFreeSurface(pool ?? [], bezirkIds ?? [], newsRows ?? [])
+    cached = { data, expiresAt: Date.now() + TTL_MS }
+    return data
+  })()
+
+  try {
+    return await inflight
+  } finally {
+    inflight = null
+  }
+}
+
+// Test-only Reset — nicht aus dem Barrel exportieren.
+export function __resetFreeSurfaceForTests(): void {
+  cached = null
+  inflight = null
 }

@@ -24,9 +24,9 @@ const props = {
 describe('MagicLinkEmail', () => {
   it('renders the new brand assets, link and CTA', async () => {
     const html = await render(MagicLinkEmail(props))
-    expect(html).toContain('/pics/eat-this-logo.webp')
-    expect(html).toContain('/pics/slogan.webp')
-    expect(html).toContain('/pics/booster/booster_free.webp')
+    expect(html).toContain('/pics/email/eat-this-logo.png')
+    expect(html).toContain('/pics/email/slogan.png')
+    expect(html).toContain('/pics/email/booster_free.png')
     expect(html).toContain('https://x/verify?abc=1')
     expect(html).toContain('Anmelden')
   })
@@ -61,7 +61,24 @@ describe('MagicLinkEmail', () => {
     const html = await render(MagicLinkEmail({ ...props, returning: false }))
     expect(html).toContain('Deine kuratierte')
     expect(html).toContain('Dein Starter Pack')
-    expect(html).toContain('/pics/booster/booster_free.webp')
+    expect(html).toContain('/pics/email/booster_free.png')
+  })
+
+  it('uses only Gmail-safe CSS — no properties the Gmail sanitizer strips', async () => {
+    // Gmail removes these declarations from inline styles entirely; any layout
+    // that depends on them collapses for Gmail recipients (the Must-Eat card
+    // was once absolutely positioned and fell into flow as a stray image).
+    const html = await render(MagicLinkEmail(props))
+    expect(html).not.toMatch(/position\s*:/i)
+    expect(html).not.toMatch(/z-index\s*:/i)
+    expect(html).not.toMatch(/(?<![a-z-])transform\s*:/i) // text-transform is fine
+    expect(html).not.toMatch(/(?<![a-z-])filter\s*:/i)
+    expect(html).not.toMatch(/box-shadow\s*:/i)
+  })
+
+  it("ships no WebP artwork — Gmail's image proxy flattens WebP alpha, Outlook can't decode it", async () => {
+    const html = await render(MagicLinkEmail(props))
+    expect(html).not.toMatch(/\.webp/i)
   })
 
   it('returning variant greets back and drops the starter pack', async () => {
@@ -70,7 +87,7 @@ describe('MagicLinkEmail', () => {
     expect(html).toContain('zurück.')
     // No first-time starter-pack framing
     expect(html).not.toContain('Dein Starter Pack')
-    expect(html).not.toContain('/pics/booster/booster_free.webp')
+    expect(html).not.toContain('/pics/email/booster_free.png')
     expect(html).not.toContain('Deine kuratierte')
     // Still keeps the curated spots + CTA
     expect(html).toContain('SOFI')

@@ -2,7 +2,6 @@ import {
   Body,
   Container,
   Head,
-  Heading,
   Html,
   Img,
   Link,
@@ -53,10 +52,12 @@ const PALETTE = {
   muted:  '#6B6B6B',
 };
 
-// Brand-display stack: Chewy where the client supports webfonts (Apple/iOS
-// Mail), heavy rounded system fallback (Arial Black) everywhere else.
+// Brand-display stack: Schoolbell (the sitewide display font, see
+// app/[locale]/layout.tsx) where the client supports webfonts (Apple/iOS
+// Mail), heavy system fallback (Arial Black) everywhere else — Gmail
+// never loads webfonts.
 const DISPLAY_FONT =
-  "'Chewy', 'Arial Black', 'Helvetica Neue', Arial, sans-serif";
+  "'Schoolbell', 'Arial Black', 'Helvetica Neue', Arial, sans-serif";
 const BODY_FONT =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
@@ -81,8 +82,13 @@ export default function MagicLinkEmail({
   const spots = restaurants.slice(0, 4);
 
   // First-time signup pitches the product; a returning login just greets back.
-  const headlineLine1 = returning ? 'Willkommen' : 'Deine kuratierte';
-  const headlineLine2 = returning ? 'zurück.' : 'Food Discovery Map';
+  // The headline is a pre-rendered Schoolbell PNG (yellow highlight baked in):
+  // Gmail never loads webfonts, so live text always fell back to Arial Black —
+  // an image is the only way the brand font reaches Gmail. The alt text keeps
+  // the full wording for blocked-images clients and screen readers.
+  const headline = returning
+    ? { src: 'headline-returning.png', alt: 'Willkommen zurück.', width: 189 }
+    : { src: 'headline-first.png', alt: 'Deine kuratierte Food Discovery Map', width: 320 };
   const preview = returning
     ? 'Willkommen zurück bei Eat This — tipp drauf, du bist drin.'
     : 'Dein Login-Link für Eat This — tipp drauf, du bist drin.';
@@ -90,7 +96,7 @@ export default function MagicLinkEmail({
   return (
     <Html lang="de">
       <Head>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Chewy&display=swap');`}</style>
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=Schoolbell&display=swap');`}</style>
       </Head>
       <Preview>{preview}</Preview>
 
@@ -111,10 +117,13 @@ export default function MagicLinkEmail({
             maxWidth: '600px',
           }}
         >
-          {/* BRAND — wordmark + handwritten slogan */}
+          {/* BRAND — wordmark + handwritten slogan. PNG, not WebP: Gmail's
+              image proxy transcodes WebP and flattens the alpha channel
+              (logo got a white box, slogan a black bar), and Outlook can't
+              decode WebP at all. PNG keeps transparency everywhere. */}
           <Section style={{ textAlign: 'center', padding: '0 0 22px' }}>
             <Img
-              src={`${appUrl}/pics/eat-this-logo.webp?v=3`}
+              src={`${appUrl}/pics/email/eat-this-logo.png`}
               alt="Eat This"
               width="220"
               style={{
@@ -125,7 +134,7 @@ export default function MagicLinkEmail({
               }}
             />
             <Img
-              src={`${appUrl}/pics/slogan.webp?v=3`}
+              src={`${appUrl}/pics/email/slogan.png`}
               alt="We tell you what to eat."
               width="300"
               style={{
@@ -137,59 +146,20 @@ export default function MagicLinkEmail({
             />
           </Section>
 
-          {/* HEADLINE — big editorial brand statement */}
+          {/* HEADLINE — big editorial brand statement, Schoolbell baked into a
+              transparent PNG (2x) so the brand font survives Gmail */}
           <Section style={{ textAlign: 'center', padding: '6px 0 18px' }}>
-            <Heading
-              as="h1"
+            <Img
+              src={`${appUrl}/pics/email/${headline.src}`}
+              alt={headline.alt}
+              width={headline.width}
               style={{
-                margin:        0,
-                fontFamily:    DISPLAY_FONT,
-                fontWeight:    400,
-                fontSize:      '34px',
-                lineHeight:    1.04,
-                letterSpacing: '0.01em',
-                textTransform: 'uppercase',
-                color:         PALETTE.ink,
+                display:  'block',
+                margin:   '0 auto',
+                maxWidth: '88%',
+                height:   'auto',
               }}
-            >
-              {headlineLine1}
-            </Heading>
-            {/* Second line carries the yellow brand highlight */}
-            <table
-              role="presentation"
-              cellPadding={0}
-              cellSpacing={0}
-              border={0}
-              align="center"
-              style={{ margin: '8px auto 0', borderCollapse: 'collapse' }}
-            >
-              <tbody>
-                <tr>
-                  <td
-                    align="center"
-                    style={{
-                      backgroundColor: PALETTE.yellow,
-                      padding:         '3px 12px 5px',
-                      borderRadius:    '0',
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontFamily:    DISPLAY_FONT,
-                        fontWeight:    400,
-                        fontSize:      '34px',
-                        lineHeight:    1.04,
-                        letterSpacing: '0.01em',
-                        textTransform: 'uppercase',
-                        color:         PALETTE.ink,
-                      }}
-                    >
-                      {headlineLine2}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            />
           </Section>
 
           {/* SUBLINE + CTA — up top: product line + yellow call-to-action */}
@@ -205,7 +175,8 @@ export default function MagicLinkEmail({
               mit den besten Restaurants, Cafés und Bars in Berlin.
             </Text>
 
-            {/* Yellow CTA — logo color + hard brand shadow */}
+            {/* Yellow CTA — logo color + sticker border. Gmail strips
+                box-shadow, so the brand edge has to be a real border. */}
             <table
               role="presentation"
               cellPadding={0}
@@ -221,7 +192,7 @@ export default function MagicLinkEmail({
                     style={{
                       backgroundColor: PALETTE.yellow,
                       borderRadius:    '0',
-                      boxShadow:        `4px 4px 0 ${PALETTE.ink}`,
+                      border:          `2px solid ${PALETTE.ink}`,
                     }}
                   >
                     <Link
@@ -386,7 +357,7 @@ export default function MagicLinkEmail({
                 Dein Starter Pack
               </Text>
               <Img
-                src={`${appUrl}/pics/booster/booster_free.webp`}
+                src={`${appUrl}/pics/email/booster_free.png`}
                 alt="Dein Eat This Starter Pack — 20 Must Eats"
                 width="216"
                 style={{

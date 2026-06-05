@@ -61,6 +61,9 @@ export function composeFreeSurface(
   bezirkSpotIds: string[],
   newsRows: NewsSpotRow[],
 ): FreeSurfaceData {
+  // Bewusst: free ist nur, was Home tatsächlich ZEIGT — also die gecappten
+  // 6 Karten, nicht der ganze Pool. Pool-Spots jenseits des Caps bleiben
+  // locked, bis sie (durch neuere Spots) in die Sektion rotieren.
   const newOnMap = dedupeByBrand(newOnMapPool).slice(0, NEW_ON_MAP_COUNT)
   const restaurantIds = new Set<string>()
   for (const c of newOnMap) restaurantIds.add(c._id)

@@ -33,6 +33,9 @@ describe('brandKey', () => {
     expect(brandKey('Prism')).toBe('prism')
     expect(brandKey('ZOLA')).toBe('zola')
   })
+  it('collapses German umlaut brands case-insensitively', () => {
+    expect(brandKey('Überblick Berlin')).toBe(brandKey('ÜBERBLICK BERLIN'))
+  })
 })
 
 describe('dedupeByBrand', () => {

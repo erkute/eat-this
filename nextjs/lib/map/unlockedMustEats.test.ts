@@ -99,6 +99,38 @@ describe('resolveUnlockedMustEatIds', () => {
     expect(out).toEqual(new Set(['a', 'b', 'c']))
   })
 
+  it('signed-in: publicFaceUpIds are unioned in (publicly face-up ⇒ face-up everywhere)', () => {
+    const restaurants = Array.from({ length: 20 }, (_, i) => r(`r${i}`))
+    const mustEats = restaurants.map((rest, i) => m(`m${i}`, rest._id))
+    const out = resolveUnlockedMustEatIds({
+      uid: 'user-1',
+      storedUnlockedIds: new Set(['stored-a']),
+      revealedMustEatIds: new Set(),
+      mustEats,
+      restaurants,
+      // m3 is in the public/anon face-up set but neither stored nor revealed.
+      publicFaceUpIds: new Set(['m3']),
+    })
+    expect(out).toEqual(new Set(['stored-a', 'm3']))
+  })
+
+  it('anon: publicFaceUpIds fold in without disturbing the trial split', () => {
+    const restaurants = Array.from({ length: 15 }, (_, i) => r(`r${i}`))
+    const mustEats = restaurants.map((rest, i) => m(`m${i}`, rest._id))
+    const out = resolveUnlockedMustEatIds({
+      uid: null,
+      storedUnlockedIds: new Set(),
+      revealedMustEatIds: new Set(),
+      mustEats,
+      restaurants,
+      // m12 (outside trial-10) face-up via the public set; trial-10 unchanged.
+      publicFaceUpIds: new Set(['m0', 'm12']),
+    })
+    expect(out.has('m12')).toBe(true)
+    expect(out.has('m9')).toBe(true)
+    expect(out.has('m13')).toBe(false)
+  })
+
   it('empty inputs → empty set (signed-in)', () => {
     expect(
       resolveUnlockedMustEatIds({

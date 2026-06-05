@@ -70,11 +70,26 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   // restaurants (deterministic order from /api/map-data, most-must-eats
   // first) get their must-eats unlocked; the second half stays locked
   // (card-back). Authed users keep the stored Firestore unlock set ∪ the
-  // server-curated reveals. Shared helper — the SAME face-up computation
-  // drives the /must-eats gallery and the /home teaser.
+  // server-curated reveals ∪ the public anon face-up set — what a guest sees
+  // open on /must-eats never flips back after signup ("publicly face-up means
+  // face-up everywhere"). Shared helper — the SAME face-up computation drives
+  // the /must-eats gallery, the profile collection and the /home teaser.
+  const publicFaceUpIds = useMemo(
+    () =>
+      initialMapData
+        ? resolveUnlockedMustEatIds({
+            uid: null,
+            storedUnlockedIds: new Set<string>(),
+            revealedMustEatIds: new Set<string>(initialMapData.revealedMustEatIds),
+            mustEats: initialMapData.mustEats,
+            restaurants: initialMapData.restaurants,
+          })
+        : undefined,
+    [initialMapData],
+  )
   const unlockedIds = useMemo(
-    () => resolveUnlockedMustEatIds({ uid, storedUnlockedIds, revealedMustEatIds, mustEats, restaurants }),
-    [uid, storedUnlockedIds, revealedMustEatIds, mustEats, restaurants],
+    () => resolveUnlockedMustEatIds({ uid, storedUnlockedIds, revealedMustEatIds, mustEats, restaurants, publicFaceUpIds }),
+    [uid, storedUnlockedIds, revealedMustEatIds, mustEats, restaurants, publicFaceUpIds],
   )
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
   const userTier = useUserTier(uid)

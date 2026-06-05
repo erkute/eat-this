@@ -61,9 +61,18 @@ export default function NewsArticleShell({
   // Must-Eat detail on the map (?me=<id>), mirroring an in-app tap.
   const renderMustEatCard = (block: MustEatCardBlock) => {
     if (!block.dish && !block.dishImage) return null;
-    const ctaLabel = de ? 'Zum Must Eat' : 'See the Must Eat';
+    // "Must Eat" lives in the kicker only — the CTA reuses the canonical map
+    // wording (same as toMapLabel) so the label doesn't repeat itself.
+    const ctaLabel = de ? 'Auf die Map' : 'To the map';
     const restName = block.restaurantName ? normalizeName(block.restaurantName) : '';
-    const whereLine = [restName, block.district].filter(Boolean).join(' · ');
+    const description =
+      (de ? block.dishDescription : block.dishDescriptionEn || block.dishDescription) || '';
+    // Natural sentence instead of "@ Name · Bezirk" metadata soup.
+    const whereLine = restName
+      ? de
+        ? `Gibt's bei ${restName}${block.district ? ` in ${block.district}` : ''}`
+        : `Get it at ${restName}${block.district ? ` in ${block.district}` : ''}`
+      : block.district || '';
     const inner = (
       <>
         {block.dishImage && (
@@ -75,7 +84,8 @@ export default function NewsArticleShell({
         <div className={styles.mustEatBody}>
           <span className={styles.mustEatKicker}>Must Eat</span>
           {block.dish && <h3 className={styles.mustEatName}>{block.dish}</h3>}
-          {whereLine && <span className={styles.mustEatRest}>@ {whereLine}</span>}
+          {description && <p className={styles.mustEatDesc}>{description}</p>}
+          {whereLine && <span className={styles.mustEatRest}>{whereLine}</span>}
           <span className={styles.mustEatCta}>
             <span>{ctaLabel}</span>
             <svg

@@ -69,6 +69,8 @@ const articleContentProjection = `{
       _key,
       "mustEatId": mustEatRef->_id,
       "dish": mustEatRef->dish,
+      "dishDescription": mustEatRef->description,
+      "dishDescriptionEn": mustEatRef->descriptionEn,
       "dishImage": mustEatRef->image.asset->url + "?w=400&auto=format&q=80",
       "restaurantName": mustEatRef->restaurantRef->name,
       "restaurantSlug": mustEatRef->restaurantRef->slug.current,

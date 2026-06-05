@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const baseImage = r.seo?.ogImageUrl || r.photo?.split('?')[0]
   const image = baseImage
     ? `${baseImage}?w=1200&h=630&fit=crop&auto=format`
-    : `${SITE_URL}/pics/og-card.png`
+    : `${SITE_URL}/pics/og-card.png?v=2`
 
   const hasEn = hasEnContent(r)
   const canonical = hasEn

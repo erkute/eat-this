@@ -141,16 +141,35 @@ describe('composeSignedRestaurants', () => {
 })
 
 describe('composeRevealedMustEats', () => {
-  it('returns flagged when >= TARGET_REVEALED (capped at target)', () => {
+  it('caps at TARGET_REVEALED when enough spots have cards', () => {
+    // 15 restaurants, one flagged card each → exactly 10 revealed.
+    const anonIds = new Set(Array.from({ length: 15 }, (_, i) => `r${i}`))
     const allMustEats = Array.from({ length: 15 }, (_, i) =>
-      mkMustEat(`m${i}`, 'r0', { revealedForAnon: i < 12 })
+      mkMustEat(`m${i}`, `r${i}`, { revealedForAnon: true })
     )
-    const result = composeRevealedMustEats(allMustEats, new Set(['r0']))
-    // 12 flagged but TARGET is 10 — should cap at 10
+    const result = composeRevealedMustEats(allMustEats, anonIds)
     expect(result.size).toBe(TIER_TARGETS.REVEALED)
   })
 
-  it('tops up to TARGET_REVEALED among anon-restaurant must-eats only', () => {
+  it('reveals at most ONE card per restaurant — the second stays face-down', () => {
+    // r0 carries 12 flagged cards; only one of them may flip.
+    const allMustEats = Array.from({ length: 12 }, (_, i) =>
+      mkMustEat(`m${i}`, 'r0', { revealedForAnon: true })
+    )
+    const result = composeRevealedMustEats(allMustEats, new Set(['r0']))
+    expect(result.size).toBe(1)
+  })
+
+  it('flagged wins over fallback on the same restaurant', () => {
+    const allMustEats = [
+      mkMustEat('a-fallback', 'r0'),
+      mkMustEat('z-flagged', 'r0', { revealedForAnon: true }),
+    ]
+    const result = composeRevealedMustEats(allMustEats, new Set(['r0']))
+    expect(result).toEqual(new Set(['z-flagged']))
+  })
+
+  it('tops up one-per-spot among anon-restaurant must-eats only', () => {
     const anonIds = new Set(['r0', 'r1'])
     const allMustEats = [
       ...Array.from({ length: 5 }, (_, i) => mkMustEat(`f${i}`, 'r0', { revealedForAnon: true })),
@@ -158,9 +177,11 @@ describe('composeRevealedMustEats', () => {
       ...Array.from({ length: 10 }, (_, i) => mkMustEat(`x${i}`, 'r2')),
     ]
     const result = composeRevealedMustEats(allMustEats, anonIds)
-    expect(result.size).toBe(TIER_TARGETS.REVEALED)
-
-    // All revealed must-eats are on anon restaurants
+    // One card per anon spot: one flagged from r0, one fallback from r1. r2 is
+    // outside the anon set and contributes nothing.
+    expect(result.size).toBe(2)
+    expect(result.has('f0')).toBe(true)
+    expect(result.has('u0')).toBe(true)
     for (const m of allMustEats) {
       if (result.has(m._id)) {
         expect(anonIds.has(m.restaurant._id)).toBe(true)
@@ -168,11 +189,12 @@ describe('composeRevealedMustEats', () => {
     }
   })
 
-  it('returns fewer than target when pool exhausted', () => {
+  it('returns fewer than target when fewer spots carry cards', () => {
+    const anonIds = new Set(['r0', 'r1', 'r2', 'r3'])
     const allMustEats = Array.from({ length: 4 }, (_, i) =>
-      mkMustEat(`m${i}`, 'r0', { revealedForAnon: true })
+      mkMustEat(`m${i}`, `r${i}`, { revealedForAnon: true })
     )
-    const result = composeRevealedMustEats(allMustEats, new Set(['r0']))
+    const result = composeRevealedMustEats(allMustEats, anonIds)
     expect(result.size).toBe(4)
   })
 })

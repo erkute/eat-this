@@ -122,10 +122,11 @@ export async function getHomeData(
     client.fetch<{ slug: string; name: string }[]>(categoryNamesQuery, { locale }, { next: { revalidate: 3600, tags: ['category'] } }),
     getAllBezirkeWithStats(),
   ])
-  // Browse-by-district chips → /map?bezirk=. Only districts with open spots
-  // (an empty filter would be a dead end), most-populated first.
+  // Browse-by-district chips → /map?bezirk=. Only districts with a real
+  // selection (≥5 open spots) — a near-empty filter would be a dead end.
+  // Most-populated first.
   const bezirke: HubBezirkChip[] = (bezirkRows ?? [])
-    .filter((b) => b.slug && (b.restaurantCount ?? 0) > 0)
+    .filter((b) => b.slug && (b.restaurantCount ?? 0) >= 5)
     .sort((a, b) => (b.restaurantCount ?? 0) - (a.restaurantCount ?? 0))
     .map((b) => ({ name: b.name, slug: b.slug, count: b.restaurantCount ?? 0 }))
   // a.title is already the EN base (or DE fallback) via the news GROQ coalesce;

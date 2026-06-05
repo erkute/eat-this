@@ -77,6 +77,8 @@ export interface MustEatCardBlock {
   _key?: string
   mustEatId?: string
   dish?: string
+  dishDescription?: string
+  dishDescriptionEn?: string
   dishImage?: string
   restaurantName?: string
   restaurantSlug?: string

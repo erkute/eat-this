@@ -322,9 +322,6 @@ export default async function RestaurantPage({ params }: PageProps) {
                     </IntlLink>
                   ))}
                 </div>
-                <IntlLink href={`/bezirk/${r.bezirk.slug}`} className={styles.sibAllLink}>
-                  {de ? `Alle Spots in ${r.bezirk.name}` : `All spots in ${r.bezirk.name}`}
-                </IntlLink>
               </div>
             )}
             {siblingsCategory.length > 0 && categoryDef && (

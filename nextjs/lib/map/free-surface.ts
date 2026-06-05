@@ -137,6 +137,11 @@ export async function getFreeSurfaceData(): Promise<FreeSurfaceData> {
   }
 }
 
+/** Invalidates the free-surface cache (called from Sanity revalidation webhook). */
+export function invalidateFreeSurfaceCache(): void {
+  cached = null
+}
+
 // Test-only Reset — nicht aus dem Barrel exportieren.
 export function __resetFreeSurfaceForTests(): void {
   cached = null

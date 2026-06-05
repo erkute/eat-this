@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidateTag, revalidatePath } from 'next/cache'
 import { invalidateMapDataCache } from '@/lib/map/cached-sanity'
+import { invalidateFreeSurfaceCache } from '@/lib/map/free-surface'
 import crypto from 'node:crypto'
 
 export const runtime = 'nodejs'
@@ -113,6 +114,7 @@ export async function POST(req: NextRequest) {
   }
 
   invalidateMapDataCache()
+  invalidateFreeSurfaceCache()
 
   return NextResponse.json({ ok: true, type, slug, revalidated })
 }

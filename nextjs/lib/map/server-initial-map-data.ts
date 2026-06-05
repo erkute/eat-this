@@ -11,6 +11,7 @@ import {
   composeRevealedMustEats,
 } from './tier-composition'
 import { applySpotOfDayReveal } from './spotOfDayReveal'
+import { getFreeSurfaceData, applyFreeSurface } from './free-surface'
 import { getSpotOfDayId } from '@/lib/home/spotOfDay.server'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import type { CategoryDef } from '@/lib/categories'
@@ -35,11 +36,17 @@ export async function getInitialAnonMapData(): Promise<InitialMapData> {
     mustEatCountByRestaurant.set(rid, (mustEatCountByRestaurant.get(rid) ?? 0) + 1)
   }
 
-  const anonSet         = composeAnonRestaurants(all, mustEatCountByRestaurant)
-  const anonIds         = new Set(anonSet.map((r) => r._id))
-  const visibleMustEats = allMustEats.filter((m) => anonIds.has(m.restaurant._id))
-  const lockedRestaurants = all.filter((r) => !anonIds.has(r._id))
-  const revealedSet     = composeRevealedMustEats(allMustEats, anonIds)
+  const anonSet = composeAnonRestaurants(all, mustEatCountByRestaurant)
+  const anonIds = new Set(anonSet.map((r) => r._id))
+  // Face-up-Set bleibt auf dem kuratierten Anon-Tier — Free-Surface-Spots
+  // liefern nur Card-Backs (siehe Spec).
+  const revealedSet = composeRevealedMustEats(allMustEats, anonIds)
+
+  const freeSurface = await getFreeSurfaceData()
+  const visibleRestaurants = applyFreeSurface(anonSet, all, freeSurface.restaurantIds)
+  const visibleIds = new Set(visibleRestaurants.map((r) => r._id))
+  const visibleMustEats = allMustEats.filter((m) => visibleIds.has(m.restaurant._id))
+  const lockedRestaurants = all.filter((r) => !visibleIds.has(r._id))
 
   // Spot des Tages — a free, daily-rotating gift for everyone. Surface today's
   // spot + reveal its must-eat (ephemeral: recomputed per request from the
@@ -47,7 +54,7 @@ export async function getInitialAnonMapData(): Promise<InitialMapData> {
   const today  = new Date().toISOString().slice(0, 10)
   const spotId = await getSpotOfDayId(today)
   const gifted = applySpotOfDayReveal(spotId, all, allMustEats, {
-    restaurants:        anonSet,
+    restaurants:        visibleRestaurants,
     lockedRestaurants,
     mustEats:           visibleMustEats,
     revealedMustEatIds: revealedSet,

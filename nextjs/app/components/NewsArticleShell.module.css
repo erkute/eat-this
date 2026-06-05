@@ -210,7 +210,18 @@ a.mustEat:hover .mustEatPh img {
   text-transform: uppercase;
   color: #ffd84a;
 }
-.mustEatName {
+/* Format definition right under the kicker — sentence case and muted so it
+   reads as a footnote to the "Must Eat" label, not as another metadata row. */
+.mustEatExplain {
+  font-size: 12.5px;
+  line-height: 1.4;
+  max-width: 36ch;
+  margin-top: -3px; /* tuck against the kicker it explains */
+  opacity: 0.66;
+}
+/* `.mustEat` prefix beats `.content h3` (which forces ink-black and would
+   render the headline invisible on the dark banner). */
+.mustEat .mustEatName {
   font-family: var(--font-poster);
   font-size: clamp(28px, 7vw, 40px);
   line-height: 1.05;
@@ -219,11 +230,21 @@ a.mustEat:hover .mustEatPh img {
   margin: 0;
   max-width: 18ch;
 }
+/* Appetite line from the Sanity description — sentence case, reads like a
+   recommendation, not metadata. `.mustEat` prefix beats `.content p` margins. */
+.mustEat .mustEatDesc {
+  font-size: 14.5px;
+  line-height: 1.55;
+  max-width: 40ch;
+  margin: 2px 0 0;
+  opacity: 0.92;
+}
 .mustEatRest {
-  font-size: 13px;
-  letter-spacing: 0.14em;
+  font-size: 12.5px;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
-  opacity: 0.78;
+  opacity: 0.72;
+  margin-top: 4px;
 }
 .mustEatCta {
   display: inline-flex;

@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
+import { AppRouterContext } from 'next/dist/shared/lib/app-router-context.shared-runtime'
+import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import type { MapMustEat } from '@/lib/types'
 
@@ -42,11 +44,24 @@ const data = (mustEats: MapMustEat[]): InitialMapData => ({
   revealedMustEatIds: [],
 })
 
+// useTranslation() pulls in next-intl's useRouter, which needs the app router
+// context mounted. The test never navigates — a stub is enough.
+const routerStub = {
+  push: vi.fn(),
+  replace: vi.fn(),
+  back: vi.fn(),
+  forward: vi.fn(),
+  refresh: vi.fn(),
+  prefetch: vi.fn(),
+} as unknown as AppRouterInstance
+
 function render(mustEats: MapMustEat[], locale: 'de' | 'en' = 'de') {
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale={locale} messages={{}}>
-      <HubMustEatsTeaser initialMapData={data(mustEats)} />
-    </NextIntlClientProvider>,
+    <AppRouterContext.Provider value={routerStub}>
+      <NextIntlClientProvider locale={locale} messages={{}}>
+        <HubMustEatsTeaser initialMapData={data(mustEats)} />
+      </NextIntlClientProvider>
+    </AppRouterContext.Provider>,
   )
 }
 

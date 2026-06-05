@@ -256,11 +256,15 @@ export default function MagicLinkEmail({
             </Text>
           </Section>
 
-          {/* SPOTS — curated restaurants: the proof, branded + crisp */}
+          {/* SPOTS — curated restaurants: the proof, branded + crisp.
+             Pure table/flow layout: Gmail and Outlook strip position/transform/
+             z-index/filter, so the Must-Eat card must NOT be absolutely tucked
+             onto the corner — it sits in a real table cell beside the name. */}
           {spots.length > 0 && (
             <Section style={{ padding: '0 0 8px' }}>
               {spots.map((s, i) => {
                 const mustEat = s.mustEats[0];
+                const meta = [s.area, s.cuisine].filter(Boolean).join(' · ');
                 return (
                   <table
                     key={`${s.name}-${i}`}
@@ -269,85 +273,94 @@ export default function MagicLinkEmail({
                     cellSpacing={0}
                     border={0}
                     width="100%"
-                    style={{ borderCollapse: 'collapse' }}
+                    align="center"
+                    style={{
+                      borderCollapse:  'collapse',
+                      margin:          '0 auto 18px',
+                      maxWidth:        '360px',
+                      backgroundColor: PALETTE.paper,
+                      border:          `1px solid ${PALETTE.hair}`,
+                    }}
                   >
                     <tbody>
+                      {/* restaurant banner — server-cropped, full width */}
                       <tr>
-                        <td align="center" style={{ padding: '20px 0' }}>
-                          {/* centered restaurant layer with the Must-Eat card tucked onto its corner */}
-                          <div
-                            style={{
-                              position:     'relative',
-                              display:      'inline-block',
-                              width:        '360px',
-                              maxWidth:     '100%',
-                              textAlign:    'left',
-                            }}
+                        <td style={{ padding: 0, fontSize: 0, lineHeight: 0 }}>
+                          <Img
+                            src={restaurantBanner(s.photo)}
+                            alt={s.name}
+                            width="360"
+                            style={{ display: 'block', width: '100%', height: 'auto', border: 0 }}
+                          />
+                        </td>
+                      </tr>
+                      {/* info bar — meta + name on the left, Must-Eat card on the right */}
+                      <tr>
+                        <td style={{ padding: '14px 18px 16px' }}>
+                          <table
+                            role="presentation"
+                            cellPadding={0}
+                            cellSpacing={0}
+                            border={0}
+                            width="100%"
+                            style={{ borderCollapse: 'collapse' }}
                           >
-                            {/* restaurant layer — square, photo + name + bezirk · kategorie */}
-                            <div
-                              style={{
-                                position:        'relative',
-                                zIndex:          1,
-                                backgroundColor: PALETTE.paper,
-                                overflow:        'hidden',
-                                boxShadow:        '0 8px 22px rgba(10,10,10,0.10)',
-                              }}
-                            >
-                              <Img
-                                src={restaurantBanner(s.photo)}
-                                alt={s.name}
-                                width="360"
-                                style={{ display: 'block', width: '100%', height: 'auto' }}
-                              />
-                              <div style={{ padding: '14px 18px 16px' }}>
-                                <Text
-                                  style={{
-                                    margin:        '0 0 3px',
-                                    fontSize:      '11px',
-                                    fontWeight:    700,
-                                    letterSpacing: '0.1em',
-                                    textTransform: 'uppercase',
-                                    color:         PALETTE.muted,
-                                  }}
-                                >
-                                  {[s.area, s.cuisine].filter(Boolean).join(' · ')}
-                                </Text>
-                                <Text
-                                  style={{
-                                    margin:        0,
-                                    fontFamily:    DISPLAY_FONT,
-                                    fontWeight:    400,
-                                    fontSize:      '28px',
-                                    lineHeight:    1.0,
-                                    letterSpacing: '0.01em',
-                                    textTransform: 'uppercase',
-                                    color:         PALETTE.ink,
-                                  }}
-                                >
-                                  {s.name}
-                                </Text>
-                              </div>
-                            </div>
-                            {/* Must-Eat card — tucked onto the top-right corner like the spot's badge */}
-                            {mustEat && (
-                              <Img
-                                src={cardImage(mustEat.cardPhoto)}
-                                alt={`Must Eat: ${mustEat.dish}`}
-                                width="112"
-                                style={{
-                                  position:  'absolute',
-                                  top:       '-22px',
-                                  right:     '-28px',
-                                  zIndex:    2,
-                                  width:     '112px',
-                                  height:    'auto',
-                                  transform: 'rotate(7deg)',
-                                  filter:    'drop-shadow(0 12px 20px rgba(10,10,10,0.26))',
-                                }}
-                              />
-                            )}
-                          </div>
+                            <tbody>
+                              <tr>
+                                <td valign="middle" style={{ verticalAlign: 'middle' }}>
+                                  {meta && (
+                                    <Text
+                                      style={{
+                                        margin:        '0 0 3px',
+                                        fontSize:      '11px',
+                                        fontWeight:    700,
+                                        letterSpacing: '0.1em',
+                                        textTransform: 'uppercase',
+                                        color:         PALETTE.muted,
+                                      }}
+                                    >
+                                      {meta}
+                                    </Text>
+                                  )}
+                                  <Text
+                                    style={{
+                                      margin:        0,
+                                      fontFamily:    DISPLAY_FONT,
+                                      fontWeight:    400,
+                                      fontSize:      '28px',
+                                      lineHeight:    1.0,
+                                      letterSpacing: '0.01em',
+                                      textTransform: 'uppercase',
+                                      color:         PALETTE.ink,
+                                    }}
+                                  >
+                                    {s.name}
+                                  </Text>
+                                </td>
+                                {mustEat && (
+                                  <td
+                                    valign="middle"
+                                    align="right"
+                                    width="96"
+                                    style={{ verticalAlign: 'middle', width: '96px', paddingLeft: '12px' }}
+                                  >
+                                    <Img
+                                      src={cardImage(mustEat.cardPhoto)}
+                                      alt={`Must Eat: ${mustEat.dish}`}
+                                      width="84"
+                                      style={{
+                                        display:   'block',
+                                        width:     '84px',
+                                        height:    'auto',
+                                        border:    0,
+                                        marginLeft: 'auto',
+                                      }}
+                                    />
+                                  </td>
+                                )}
+                              </tr>
+                            </tbody>
+                          </table>
                         </td>
                       </tr>
                     </tbody>

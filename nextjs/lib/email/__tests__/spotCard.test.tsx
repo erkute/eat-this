@@ -49,13 +49,13 @@ describe('SpotCardImage', () => {
     expect(tree).toContain('fm=jpg')          // photo layer
     expect(tree).toContain('MITTE · BAKERY')  // meta caps on the photo
     expect(tree).toContain('Sofi')            // name in Schoolbell
-    expect(tree).toContain('rotate(8deg)')    // badge tilt
+    expect(tree).toContain('rotate(14deg)')   // badge tilt
     expect(tree).toContain('fm=png')          // badge keeps alpha
   })
 
   it('drops the badge when the spot has no must-eat card', () => {
     const tree = flatten(SpotCardImage({ spot: { ...spot, mustEats: [] } }))
-    expect(tree).not.toContain('rotate(8deg)')
+    expect(tree).not.toContain('rotate(14deg)')
     expect(tree).not.toContain('fm=png')
   })
 

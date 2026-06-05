@@ -56,7 +56,6 @@ const en = {
     },
     newOnMap: {
       title: "New on the map",
-      all: "All new spots →",
     },
     magazine: {
       title: "In the magazine",
@@ -400,7 +399,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     },
     newOnMap: {
       title: "Neu auf der Map",
-      all: "Alle neuen Spots →",
     },
     magazine: {
       title: "Im Magazin",

@@ -1,10 +1,11 @@
 /* ════════════════════════════════════════════════════════════
-   /welcome — magic-link landing, Chewy (mockup screens 13/14 language).
+   /welcome — magic-link landing (mockup screens 13/14 language).
 
-   Cream sheet, ink hairlines, big Chewy headings, square fields, ink CTA,
-   yellow-ringed avatar tiles. /welcome has its own root layout, so colors
-   are literal (no globals tokens) and Chewy comes from --font-chewy loaded
-   in welcome/layout.tsx. No dark variant.
+   Cream sheet, ink hairlines, big Schoolbell headings, square fields,
+   yellow sticker CTA, yellow-ringed avatar tiles, red error accents.
+   /welcome has its own root layout, so colors are literal (no globals
+   tokens) and Schoolbell comes via --font-chewy loaded in
+   welcome/layout.tsx (same alias the app layout uses). No dark variant.
    ════════════════════════════════════════════════════════════ */
 
 .page {
@@ -102,7 +103,8 @@
 }
 .input::placeholder { color: rgba(17, 13, 9, 0.4); }
 
-/* CTA — ink sticker */
+/* CTA — yellow sticker (brand CTA: yellow surface, ink border, hard
+   4px offset shadow; press = translate into the shadow, no opacity) */
 .cta {
   display: flex;
   align-items: center;
@@ -110,18 +112,24 @@
   gap: 10px;
   width: 100%;
   height: 56px;
-  background: #0a0a0a;
-  color: #fbf8ee;
-  border: 0;
+  background: #ffd84a;
+  color: #0a0a0a;
+  border: 2px solid #0a0a0a;
   border-radius: 0;
+  box-shadow: 4px 4px 0 #0a0a0a;
   font-family: var(--font-chewy), cursive;
   font-size: 17px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   cursor: pointer;
   text-decoration: none;
+  box-sizing: border-box;
 }
-.cta:disabled { opacity: 0.55; cursor: not-allowed; }
+.cta:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 #0a0a0a;
+}
+.cta:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
 
 .error {
   margin: 0;

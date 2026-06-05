@@ -40,7 +40,10 @@ export async function GET(req: Request) {
   }
 
   const ent = await resolveEntitlements(uid, identity)
-  const { restaurants: all, mustEats: allMustEats, categories } = await getCachedMapData()
+  const [{ restaurants: all, mustEats: allMustEats, categories }, freeSurface] = await Promise.all([
+    getCachedMapData(),
+    getFreeSurfaceData(),
+  ])
 
   // Precompute must-eat counts (shared across tier composers + visibility predicates).
   const mustEatCountByRestaurant = new Map<string, number>()
@@ -118,7 +121,6 @@ export async function GET(req: Request) {
   // eingeloggter User weniger als ein Gast). Wichtig: revealedSet ist oben
   // bereits aus dem puren Anon-Tier berechnet — Free-Surface-Spots liefern
   // Card-Backs, nie zusätzliche face-up-Karten.
-  const freeSurface = await getFreeSurfaceData()
   visibleRestaurants = applyFreeSurface(visibleRestaurants, all, freeSurface.restaurantIds)
 
   const visibleIdSet      = new Set(visibleRestaurants.map((r) => r._id))

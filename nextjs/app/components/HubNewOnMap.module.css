@@ -7,22 +7,8 @@
   line-height: 1.15;
   text-transform: uppercase;
   color: var(--text-primary);
-  margin: 36px 16px 6px;
+  margin: 36px 16px 18px;
   padding-top: 6px;
-}
-.meta {
-  margin: 0 16px 16px;
-  font-family: var(--font);
-  font-size: 12px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-}
-.metaLink {
-  color: var(--text-primary);
-  border-bottom: 2px solid var(--text-primary);
-  padding-bottom: 1px;
-  text-decoration: none;
 }
 .cards {
   display: grid;
@@ -79,8 +65,7 @@
 /* ── Desktop: centered column, 4-up card grid ── */
 @media (min-width: 720px) {
   .section { padding-inline: max(14px, calc((100% - 1120px) / 2)); }
-  .heading { margin: 48px 0 4px; font-size: clamp(44px, 5vw, 56px); }
-  .meta { margin: 0 0 18px; }
+  .heading { margin: 48px 0 22px; font-size: clamp(44px, 5vw, 56px); }
   .cards {
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
@@ -92,9 +77,6 @@
 /* ── Dark mode: dark page, warm-cream ink, red replaces yellow. Photos and
    text-on-photo left untouched. ── */
 html[data-theme="dark"] .section { background: var(--dk-page); }
-html[data-theme="dark"] .heading,
-html[data-theme="dark"] .meta,
-html[data-theme="dark"] .metaLink { color: var(--dk-ink); }
-html[data-theme="dark"] .metaLink { border-bottom-color: var(--dk-ink); }
+html[data-theme="dark"] .heading { color: var(--dk-ink); }
 html[data-theme="dark"] .card { border-color: var(--dk-ink); }
 html[data-theme="dark"] .cardMeta { color: var(--c-coral-bright); }

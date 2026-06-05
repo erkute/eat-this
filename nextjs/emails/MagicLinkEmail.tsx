@@ -205,7 +205,8 @@ export default function MagicLinkEmail({
               mit den besten Restaurants, Cafés und Bars in Berlin.
             </Text>
 
-            {/* Yellow CTA — logo color + hard brand shadow */}
+            {/* Yellow CTA — logo color + sticker border. Gmail strips
+                box-shadow, so the brand edge has to be a real border. */}
             <table
               role="presentation"
               cellPadding={0}
@@ -221,7 +222,7 @@ export default function MagicLinkEmail({
                     style={{
                       backgroundColor: PALETTE.yellow,
                       borderRadius:    '0',
-                      boxShadow:        `4px 4px 0 ${PALETTE.ink}`,
+                      border:          `2px solid ${PALETTE.ink}`,
                     }}
                   >
                     <Link

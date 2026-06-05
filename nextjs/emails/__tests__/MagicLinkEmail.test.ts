@@ -64,6 +64,18 @@ describe('MagicLinkEmail', () => {
     expect(html).toContain('/pics/booster/booster_free.webp')
   })
 
+  it('uses only Gmail-safe CSS — no properties the Gmail sanitizer strips', async () => {
+    // Gmail removes these declarations from inline styles entirely; any layout
+    // that depends on them collapses for Gmail recipients (the Must-Eat card
+    // was once absolutely positioned and fell into flow as a stray image).
+    const html = await render(MagicLinkEmail(props))
+    expect(html).not.toMatch(/position\s*:/i)
+    expect(html).not.toMatch(/z-index\s*:/i)
+    expect(html).not.toMatch(/(?<![a-z-])transform\s*:/i) // text-transform is fine
+    expect(html).not.toMatch(/(?<![a-z-])filter\s*:/i)
+    expect(html).not.toMatch(/box-shadow\s*:/i)
+  })
+
   it('returning variant greets back and drops the starter pack', async () => {
     const html = await render(MagicLinkEmail({ ...props, returning: true }))
     expect(html).toContain('Willkommen')

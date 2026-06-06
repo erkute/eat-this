@@ -44,6 +44,12 @@ const data = (mustEats: MapMustEat[]): InitialMapData => ({
   revealedMustEatIds: [],
 })
 
+/** Helper: same as data() but with all must-eat ids in revealedMustEatIds */
+const dataRevealed = (mustEats: MapMustEat[]): InitialMapData => ({
+  ...data(mustEats),
+  revealedMustEatIds: mustEats.map((m) => m._id),
+})
+
 // useTranslation() pulls in next-intl's useRouter, which needs the app router
 // context mounted. The test never navigates — a stub is enough.
 const routerStub = {
@@ -55,11 +61,11 @@ const routerStub = {
   prefetch: vi.fn(),
 } as unknown as AppRouterInstance
 
-function render(mustEats: MapMustEat[], locale: 'de' | 'en' = 'de') {
+function render(initialMapData: InitialMapData, locale: 'de' | 'en' = 'de') {
   return renderToStaticMarkup(
     <AppRouterContext.Provider value={routerStub}>
       <NextIntlClientProvider locale={locale} messages={{}}>
-        <HubMustEatsTeaser initialMapData={data(mustEats)} />
+        <HubMustEatsTeaser initialMapData={initialMapData} />
       </NextIntlClientProvider>
     </AppRouterContext.Provider>,
   )
@@ -69,29 +75,30 @@ describe('HubMustEatsTeaser', () => {
   // messages={{}} → next-intl echoes the key, which is enough to prove the
   // title/sub/cta are wired to the right i18n keys.
   it('renders the title + sub via the mustEats teaser keys', () => {
-    const html = render([me()])
+    const html = render(dataRevealed([me()]))
     expect(html).toContain('mustEats.teaserTitle')
     expect(html).toContain('mustEats.teaserSub')
     expect(html).toContain('mustEats.teaserCta')
   })
 
   it('points the CTA at the standalone /must-eats page', () => {
-    const html = render([me()])
+    const html = render(dataRevealed([me()]))
     expect(html).toMatch(/href="\/must-eats"/)
   })
 
   it('locale-prefixes the CTA for en', () => {
-    const html = render([me()], 'en')
+    const html = render(dataRevealed([me()]), 'en')
     expect(html).toMatch(/href="\/en\/must-eats"/)
   })
 
-  it('paints cards face-down pre-mount (no dish names leaked)', () => {
-    const html = render([me({ dish: 'Secret Dish' })])
-    expect(html).toContain('card-back.webp')
-    expect(html).not.toContain('Secret Dish')
+  it('renders only face-up cards: shows dish image, no card-back', () => {
+    const html = render(dataRevealed([me()]))
+    expect(html).toContain('cdn.sanity.io')
+    expect(html).not.toContain('card-back')
   })
 
-  it('renders nothing when there are no must-eats', () => {
-    expect(render([])).toBe('')
+  it('renders nothing when no card is face-up', () => {
+    // revealedMustEatIds is empty → no face-up cards → section should be empty
+    expect(render(data([me()]))).toBe('')
   })
 })

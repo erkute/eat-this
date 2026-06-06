@@ -69,7 +69,7 @@ const en = {
       sub: "Restaurants and Must Eats around you",
       subFallback: "Mitte · Restaurants and Must Eats around you",
       mustEatsTitle: "Must Eats near you",
-      mustEatsSub: "The dishes you can’t miss",
+      mustEatsSub: "Face-down cards around you — go there and flip them",
       more: "More Must Eats →",
     },
     welcomePack: {
@@ -100,7 +100,6 @@ const en = {
     teaserTitle: "Must Eats",
     teaserSub: "The dishes you can't miss in Berlin.",
     teaserCta: "All Must Eats \u2192",
-    teaserCardLocked: "View face-down Must Eat on the map",
   },
   news: {
     sectionLabel: "Berlin",
@@ -413,7 +412,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       sub: "Restaurants und Must Eats um dich herum",
       subFallback: "Mitte · Restaurants und Must Eats um dich herum",
       mustEatsTitle: "Must Eats in deiner Nähe",
-      mustEatsSub: "Die Gerichte, die du nicht verpassen darfst",
+      mustEatsSub: "Verdeckte Karten um dich herum — geh hin und dreh sie um",
       more: "Mehr Must Eats →",
     },
     welcomePack: {
@@ -435,7 +434,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     covered: "Verdeckt",
     teaserSub: "Die Gerichte, die du nicht verpassen darfst.",
     teaserCta: "Alle Must Eats →",
-    teaserCardLocked: "Verdecktes Must Eat auf der Map ansehen",
   },
   news: {
     errorLoad: "Artikel konnten nicht geladen werden. Bitte versuche es sp\u00e4ter erneut.",

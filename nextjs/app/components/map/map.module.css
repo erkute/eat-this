@@ -305,6 +305,10 @@ html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-comp
   transition: transform 140ms ease, box-shadow 140ms ease, background 120ms ease, color 120ms ease;
   -webkit-tap-highlight-color: transparent;
 }
+/* Locating in flight: block re-clicks without dimming (no opacity motion). */
+.fab:disabled {
+  cursor: wait;
+}
 @media (min-width: 1024px) {
   /* Desktop: bottom-right corner of the map. Zoom controls live in the same
      corner above the FAB; same edge margins MapLibre would use. */

@@ -1,0 +1,54 @@
+{
+  "name": "nextjs",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run build:css && next dev",
+    "build:css": "esbuild css/style.css --bundle=false --minify --outfile=public/css/style.min.css",
+    "build": "npm run build:css && next build && cp -r public/. .next/standalone/public/",
+    "start": "next start",
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.94.0",
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.0.7",
+    "@sanity/client": "^7.21.0",
+    "@sentry/nextjs": "^10.52.0",
+    "dotenv": "^17.4.2",
+    "firebase": "^12.12.1",
+    "firebase-admin": "^13.8.0",
+    "framer-motion": "^12.38.0",
+    "maplibre-gl": "^5.24.0",
+    "next": "15.5.15",
+    "next-intl": "^4.9.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-map-gl": "^8.1.1",
+    "resend": "^6.12.2",
+    "sharp": "^0.34.5",
+    "stripe": "^17.7.0"
+  },
+  "optionalDependencies": {
+    "@parcel/watcher-linux-x64-glibc": "2.5.6",
+    "@swc/core-linux-x64-gnu": "1.15.30"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.0.1",
+    "esbuild": "^0.28.0",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.15",
+    "jsdom": "^29.0.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5",
+    "vitest": "^4.1.4"
+  }
+}

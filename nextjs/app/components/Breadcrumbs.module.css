@@ -1,0 +1,71 @@
+/* Compact breadcrumb above detail-page H1.
+   Mirrors the BreadcrumbList JSON-LD on the same pages so SERP snippets
+   and the visible page agree. Token-based — flips with theme. */
+
+.nav {
+  margin-bottom: 12px;
+}
+
+.list {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-muted);
+  /* Long restaurant names used to overflow off-screen invisibly. We keep
+     the row on a single line but force the *current* item (the last <li>)
+     to shrink with ellipsis so the user never loses the start of the
+     breadcrumb to a hidden horizontal scroll. */
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+/* Last item carries the long restaurant name — let it shrink and clip
+   with an ellipsis instead of pushing the row past the viewport. */
+.item:last-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.item:last-child .current {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 120ms ease;
+}
+
+.link:hover,
+.link:focus-visible {
+  color: var(--text-primary);
+}
+
+.current {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.sep {
+  color: var(--text-muted);
+  opacity: 0.6;
+}

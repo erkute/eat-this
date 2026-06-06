@@ -1,0 +1,23 @@
+name: Feature
+description: A new capability — user-visible behavior to add.
+labels: ["feature"]
+body:
+  - type: textarea
+    id: story
+    attributes:
+      label: User story
+      placeholder: "As a <role>, I want <action> so that <outcome>"
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Bullet list — what must be true for this to be done.
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: Likely files touched
+      description: Best guess at the files involved — informs scope estimation.

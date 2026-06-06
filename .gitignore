@@ -1,0 +1,19 @@
+.DS_Store
+node_modules/
+.env
+.env.local
+*.log
+
+# Build artifacts & caches
+.firebase/
+.claude/
+.worktrees/
+.superpowers/
+test-results/
+.qa-tmp/
+studio/.sanity/
+
+# Workflow screenshots from browser sessions — stay local
+/peek-*.png
+/handle-*.png
+/mobile-scroll-*.png

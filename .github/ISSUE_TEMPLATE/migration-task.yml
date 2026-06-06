@@ -1,0 +1,30 @@
+name: Migration task
+description: A single step in the Guest+20 migration.
+labels: ["migration"]
+body:
+  - type: textarea
+    id: rip
+    attributes:
+      label: What rips out
+      description: File paths + functions being deleted or replaced.
+  - type: textarea
+    id: adds
+    attributes:
+      label: What comes in
+      description: New file paths + behaviour.
+    validations:
+      required: true
+  - type: textarea
+    id: testplan
+    attributes:
+      label: Test plan
+      description: Vitest cases + manual smoke steps on staging URL.
+    validations:
+      required: true
+  - type: textarea
+    id: rollback
+    attributes:
+      label: Rollback path
+      description: How to undo if the change breaks staging.
+    validations:
+      required: true

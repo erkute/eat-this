@@ -1,0 +1,174 @@
+/* MustEatTeaserSection — locked card-back stack on restaurant detail page.
+ *
+ * Header uses the page display font (Chewy) + Inter body, ink-on-cream, so the
+ * section reads as part of the cream/Chewy SEO surface.
+ */
+
+.section {
+  /* Horizontal margin matches sibling restaurant-detail blocks (.tipp,
+     .facts, .siblings = 16px) so the header lockup and card grid sit
+     flush with the rest of the page, not 16px further out. */
+  margin: 56px 16px 0;
+}
+
+@media (min-width: 720px) {
+  .section {
+    margin: 80px 22px 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section {
+    /* Desktop drops side margin — page itself has 56px padding, content
+       runs full content-width like .facts and .siblings. */
+    margin: 80px 0 0;
+  }
+}
+
+/* ── Header ──────────────────────────────────────────────────────────── */
+
+.head {
+  margin: 0 0 28px;
+  max-width: 38em;
+}
+
+.eyebrow {
+  font-family: var(--font-display), "Chewy", "Comic Sans MS", cursive;
+  font-size: 13px;
+  /* Inherit the parent page's ink token — restaurant detail bridges its
+     own --text-primary even when the global theme is dark, so the
+     teaser stays readable on the cream surface. */
+  color: var(--text-primary, #000);
+  /* Tracking eased from .22em — Chewy is wide/round, matches the SEO
+     kicker treatment (.14em) rather than the old tight Anton caps. */
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+  line-height: 1;
+}
+
+.heading {
+  font-family: var(--font-display), "Chewy", "Comic Sans MS", cursive;
+  font-weight: 400;
+  /* Chewy carries more weight per px than Anton — pulled back from 56 to
+     sit as a calm second-tier line under the page H1. */
+  font-size: clamp(28px, 5.5vw, 44px);
+  line-height: 1.04;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--text-primary, #000);
+  margin: 0 0 12px;
+  text-wrap: balance;
+}
+
+.body {
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--text-secondary, #2a2218);
+  margin: 0;
+  max-width: 36ch;
+}
+
+@media (min-width: 1024px) {
+  .eyebrow {
+    font-size: 14px;
+  }
+  .heading {
+    font-size: clamp(34px, 3.6vw, 52px);
+  }
+  .body {
+    font-size: 16px;
+  }
+}
+
+/* ── Card grid — trading-card scatter ────────────────────────────────── */
+
+.grid {
+  list-style: none;
+  margin: 0;
+  /* Padding 0 — section's outer margin already handles horizontal inset.
+     Previously had 8/12px extra padding which pushed cards further in
+     than neighbouring content. */
+  padding: 14px 0 28px;
+  display: grid;
+  /* Mobile: 3-up so the row reads as "spread on the table" instead of
+     "stacked vertically". */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px 18px;
+  justify-items: center;
+}
+
+@media (min-width: 480px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px 20px;
+  }
+}
+
+@media (min-width: 720px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 160px));
+    justify-content: start;
+    justify-items: start;
+    gap: 28px 24px;
+    padding: 20px 0 36px;
+  }
+}
+
+/* Wrapper carries the tilt + breathing-room. The card-back is shown in
+   full (cream border is part of the design) — no shadow, no frame, just
+   the asset on its own. */
+.cardWrap {
+  width: 100%;
+  max-width: 160px;
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cardWrap:hover {
+  transform: rotate(0) translate(-2px, -3px);
+}
+
+.card {
+  position: relative;
+  display: block;
+  width: 100%;
+  /* Card-back asset aspect ratio (760×1076 — yellow-frame swirl design). */
+  aspect-ratio: 760 / 1076;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card:active {
+  transform: scale(0.97);
+}
+
+/* Locked-card shake — fires once on click in parallel with login modal
+   opening, then resets. Anchored on the wrapper-applied tilt so the shake
+   wobbles around the resting orientation, not (0). */
+@keyframes mustEatShake {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  10% { transform: translate3d(-4px, 0, 0) rotate(-1.2deg); }
+  25% { transform: translate3d(5px, 0, 0) rotate(1.4deg); }
+  40% { transform: translate3d(-4px, 0, 0) rotate(-1deg); }
+  55% { transform: translate3d(3px, 0, 0) rotate(0.8deg); }
+  70% { transform: translate3d(-2px, 0, 0) rotate(-0.5deg); }
+  85% { transform: translate3d(2px, 0, 0) rotate(0.3deg); }
+}
+
+.cardShake {
+  animation: mustEatShake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+.cardBack {
+  /* Freigestellt card-back: show the whole asset, never crop (rule:
+     feedback_musteat_cards_freigestellt). Box ratio matches the asset so
+     contain fills cleanly without letterboxing. */
+  object-fit: contain;
+}
+

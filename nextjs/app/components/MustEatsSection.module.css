@@ -1,0 +1,189 @@
+/* Must Eats gallery — Chewy mockup "Screen 05".
+   Tokens: --green→#0a0a0a ink · --cream→#fbf8ee · --yellow→var(--brand-yellow)
+   --font-display→var(--font-chewy). border-radius:0 throughout. */
+
+.head {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 18px 16px 6px;
+}
+.kicker {
+  font-family: var(--font-chewy);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  color: #0a0a0a;
+  text-transform: uppercase;
+  margin: 0;
+}
+.title {
+  font-family: var(--font-chewy);
+  font-size: 64px;
+  line-height: 0.96;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 4px 0 6px;
+}
+.sub {
+  font-size: 14px;
+  color: #0a0a0a;
+  line-height: 1.4;
+  max-width: 44ch;
+  margin: 0;
+}
+
+/* Filter chips */
+.filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 16px 18px;
+}
+.filters::-webkit-scrollbar {
+  display: none;
+}
+.fchip {
+  flex: 0 0 auto;
+  background: transparent;
+  border: 2px solid #0a0a0a;
+  color: #0a0a0a;
+  font-family: var(--font-chewy);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  padding: 8px 14px 9px;
+  border-radius: 0;
+  line-height: 1;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.fchipOn {
+  background: #0a0a0a;
+  color: #fbf8ee;
+}
+
+/* Grid of all must-eats — centred, capped width so cards never blow up on
+   desktop; uniform cell heights (align-items:start + fixed card aspect). */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  align-items: start;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 16px 30px;
+}
+@media (min-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+}
+@media (min-width: 960px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+}
+
+/* Must-Eat = a full trading card (own bg/corners/text baked into the art).
+   Each card fills its grid cell at a fixed card aspect so the grid stays
+   uniform; NO drop-shadow (the art carries its own depth — an extra shadow
+   reads as ugly overlapping flaps). The whole card is a tap-to-zoom button. */
+/* Every cell is just the trading card (the art carries name/restaurant/etc.),
+   at one fixed aspect → the grid stays perfectly uniform. Tap = zoom. */
+.medish {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+}
+.ph {
+  position: relative;
+  aspect-ratio: 1539 / 2115;
+}
+.ph img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Closing block — keeps the bottom from feeling empty */
+.close {
+  max-width: min(1120px, calc(100% - 32px));
+  margin: 18px auto 30px;
+  padding: 22px 22px 24px;
+  background: #0a0a0a;
+  color: #fbf8ee;
+  text-align: left;
+}
+.closeK {
+  font-family: var(--font-chewy);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: var(--brand-yellow);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.closeTitle {
+  font-family: var(--font-chewy);
+  font-size: 38px;
+  line-height: 0.96;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+.closeBody {
+  font-size: 13.5px;
+  line-height: 1.5;
+  opacity: 0.82;
+  margin: 0 0 14px;
+}
+.closeCta {
+  display: inline-block;
+  background: var(--brand-yellow);
+  color: #0a0a0a;
+  font-family: var(--font-chewy);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 11px 16px 12px;
+  border: 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* ============================================================
+   DARK MODE — section goes dark, yellow accents → red.
+   Trading-card art (.ph img) is never touched. The .close panel
+   is already ink+cream, so only its yellow accents flip.
+============================================================ */
+html[data-theme="dark"] .kicker,
+html[data-theme="dark"] .title,
+html[data-theme="dark"] .sub {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .fchip {
+  border-color: rgba(240, 232, 208, 0.55);
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .fchipOn {
+  background: #f0e8d0;
+  color: #0a0a0a;
+}
+html[data-theme="dark"] .close {
+  background: #1d1c19;
+}
+html[data-theme="dark"] .closeK {
+  color: var(--c-coral-bright);
+}
+html[data-theme="dark"] .closeCta {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}

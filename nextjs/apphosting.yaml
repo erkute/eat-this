@@ -1,0 +1,133 @@
+runConfig:
+  runtime: nodejs20
+  maxInstances: 10
+  minInstances: 0
+  concurrency: 80
+  # The import-restaurant route runs Places + photo upload + 3 Sonnet calls
+  # synchronously, ~25–45 s total. Default 60 s timeout cuts it short on
+  # slow LLM days; 120 s leaves headroom without inviting runaway requests.
+  timeoutSeconds: 120
+
+env:
+  - variable: NEXT_PUBLIC_ENV
+    value: production
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: SANITY_REVALIDATE_SECRET
+    secret: SANITY_REVALIDATE_SECRET
+    availability:
+      - RUNTIME
+
+  # Resend (Transactional Email)
+  - variable: RESEND_API_KEY
+    secret: RESEND_API_KEY
+    availability:
+      - RUNTIME
+  - variable: RESEND_FROM_EMAIL
+    value: hello@eatthisdot.com
+    availability:
+      - RUNTIME
+  - variable: RESEND_FROM_NAME
+    value: Eat This
+    availability:
+      - RUNTIME
+  # Firebase Admin SDK (server-side magic link generation)
+  - variable: FIREBASE_ADMIN_PROJECT_ID
+    value: eat-this-8a13b
+    availability:
+      - RUNTIME
+  - variable: FIREBASE_ADMIN_CLIENT_EMAIL
+    secret: FIREBASE_ADMIN_CLIENT_EMAIL
+    availability:
+      - RUNTIME
+  - variable: FIREBASE_ADMIN_PRIVATE_KEY
+    secret: FIREBASE_ADMIN_PRIVATE_KEY
+    availability:
+      - RUNTIME
+
+  # Admin-bypass allowlist for the entitlements resolver. Users whose
+  # verified email matches one of these get isAdmin: true and see the full
+  # map (treated like a paid All-Berlin holder). Comma-separated, case-
+  # insensitive. Identifiers, not secrets — `value:` is fine, no Secret
+  # Manager needed.
+  - variable: ADMIN_EMAILS
+    value: dirtyersan@gmail.com
+    availability:
+      - RUNTIME
+
+  # Public App URL (used as fallback for image asset base URL in emails)
+  - variable: NEXT_PUBLIC_APP_URL
+    value: https://www.eatthisdot.com
+    availability:
+      - RUNTIME
+      - BUILD
+
+  # Sentry — error tracking + performance monitoring (EU region)
+  # DSN is "public" by Sentry's design (gets bundled into the client) — value is fine.
+  - variable: NEXT_PUBLIC_SENTRY_DSN
+    value: https://8263bedea4ad73eab1d9c910ab4247eb@o4511200513818624.ingest.de.sentry.io/4511200529285200
+    availability:
+      - RUNTIME
+      - BUILD
+  - variable: SENTRY_ORG
+    value: eat-this
+    availability:
+      - BUILD
+  - variable: SENTRY_PROJECT
+    value: javascript
+    availability:
+      - BUILD
+  # Auth token only needed at build-time for the @sentry/nextjs build plugin
+  # to upload sourcemaps. Without it the plugin warns + skips upload — the
+  # build itself does not fail. Create the secret with:
+  #   firebase apphosting:secrets:set SENTRY_AUTH_TOKEN
+  # then grant the App Hosting backend access when prompted.
+  - variable: SENTRY_AUTH_TOKEN
+    secret: SENTRY_AUTH_TOKEN
+    availability:
+      - BUILD
+
+  # /api/admin/import-restaurant — pulls Places data, uploads photo to Sanity,
+  # runs the 3 Anthropic generators (DE / EN / SEO). All four secrets are
+  # required at runtime; create them with:
+  #   firebase apphosting:secrets:set IMPORT_SECRET
+  #   firebase apphosting:secrets:set GOOGLE_API_KEY
+  #   firebase apphosting:secrets:set ANTHROPIC_API_KEY
+  #   firebase apphosting:secrets:set SANITY_API_WRITE_TOKEN
+  # IMPORT_SECRET must match the Studio's SANITY_STUDIO_IMPORT_SECRET — rotate
+  # both together (Studio bakes the value in at build time, so a rotation
+  # needs a `sanity deploy` afterwards too).
+  - variable: IMPORT_SECRET
+    secret: IMPORT_SECRET
+    availability:
+      - RUNTIME
+  - variable: GOOGLE_API_KEY
+    secret: GOOGLE_API_KEY
+    availability:
+      - RUNTIME
+  - variable: ANTHROPIC_API_KEY
+    secret: ANTHROPIC_API_KEY
+    availability:
+      - RUNTIME
+  - variable: SANITY_API_WRITE_TOKEN
+    secret: SANITY_API_WRITE_TOKEN
+    availability:
+      - RUNTIME
+
+  # Stripe (one-time payments for category packs + all-berlin bundle).
+  # Secrets are seeded with TEST-mode values; rotate to LIVE values via
+  #   firebase apphosting:secrets:set STRIPE_SECRET_KEY
+  #   firebase apphosting:secrets:set STRIPE_WEBHOOK_SECRET
+  # when the Stripe account is activated for live charges. The webhook
+  # secret is the signing secret of the registered endpoint, NOT an API
+  # key — get it from Stripe Dashboard → Developers → Webhooks → endpoint.
+  - variable: STRIPE_SECRET_KEY
+    secret: STRIPE_SECRET_KEY
+    availability:
+      - RUNTIME
+  - variable: STRIPE_WEBHOOK_SECRET
+    secret: STRIPE_WEBHOOK_SECRET
+    availability:
+      - RUNTIME

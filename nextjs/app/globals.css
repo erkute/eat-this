@@ -1,0 +1,381 @@
+/* Design tokens — keep in sync with ../css/style.css */
+:root {
+  --black: #000000;
+  --white: #FFFFFF;
+  --off-white: #ffffff;        /* aligned to surface-canvas — 2026 cream direction */
+  --gray-50: #F5F5F5;
+  --gray-100: #E8E8E8;
+  --gray-200: #D4D4D4;
+  --gray-400: #888888;
+  --gray-600: #555555;
+  --orange: #FF3B00;
+  --darkred: #8B1A1A;
+
+  /* Brand palette — Bar-Basta inspired. Coral-warm red is the primary brand
+     mark (CTAs, eyebrows, accents). Pastel pink + sunny yellow are secondary
+     accents. Navy is the script-accent color (matches the "Lunch"
+     handwritten overlay on the BASTA LUNCH menu). Replaced the previous
+     brick-red #E32831 brand. */
+  /* ── 2026-05 Black/White/Red/Yellow pivot ──
+     Palette beschränkt auf: schwarz, weiß, dunkles Rot, mustard-yellow.
+     Keine Grautöne mehr. Cream/Paper bleiben als warm-neutrale Surfaces
+     (das ist sticker-paper, kein Grau). Token-Namen unverändert für
+     einfachen Rollback. */
+  --brand-coral:      #a02814;                  /* dunklerer Brand-Akzent (war #e35433) */
+  --brand-coral-soft: rgba(160, 40, 20, 0.12);
+
+  --c-cream:        #ffffff;                    /* sticker bg — war warmer cream #f3ead4, jetzt rein weiß */
+  --c-paper:        #ffffff;                    /* paper-tint — auch weiß */
+  --c-mustard:      #ffd84a;                    /* mustard yellow — secondary CTA */
+  --c-mustard-deep: #c89e1f;                    /* mustard hover/pressed */
+  --c-coral:        #a02814;                    /* primary action — dunkles Rot */
+  --c-coral-bright: #d63a2a;                    /* Brand-Rot aufgehellt — Text-Akzent auf dunklen Surfaces (Dark Mode ersetzt Gelb durch Rot) */
+  --c-green:        #0a0a0a;                    /* multi-direction green → schwarz */
+  --c-black:        #0a0a0a;
+  --c-row-rule:     rgba(10, 10, 10, 0.14);
+  --brand-pink:       #ffd84a;                  /* re-purposed to yellow (kein pink mehr) */
+  --brand-yellow:     #ffd84a;                  /* yellow alias */
+  --brand-navy:       #0a0a0a;                  /* navy → schwarz */
+  --brand-red:        #a02814;                  /* dunkler Brand-Akzent */
+  --brand-red-hover:  #7e1f0f;
+
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  /* Display pair — Bar-Basta visual direction. Bungee (solid, fully filled
+     letters) matches the BAR BASTA wordmark exactly. Caveat is the
+     handwritten script accent (matches the cursive overlays on the menu).
+     Both loaded via next/font in [locale]/layout.tsx; consumers reference
+     these vars. Inter stays the body + eyebrow workhorse. */
+  /* 2026 EAT THIS-direction: ALL display + section-headline tokens collapsed
+     onto Chewy — a rounded, friendly bubble display that replaces Bowlby One
+     sitewide as the brand wordmark family. Section heads read as a
+     continuation of the brand wordmark, not as a separate display type. Chewy
+     ships full Latin-1 glyph coverage (incl. ä ö ü ß), so German headings
+     render natively — no Saira fallback needed for umlauts.
+     Bungee/Ranchers/Knewave/Slackey still loaded for any bespoke component
+     that opts in via the per-font var, but the design-system tokens below
+     all point at Chewy. */
+  --font-display: var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-script:  var(--font-caveat, 'Caveat'), 'Bradley Hand', 'Lucida Handwriting', cursive;
+  --font-marker:  var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-poster:  var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-ranchers: var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-slackey:  var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  /* Barlow Condensed Light — condensed grotesque used for Voices testimonial
+     bodies. Same narrow-display vibe as Ranchers ("Berlin & beyond." /
+     "Häufige Fragen.") but with a real Light 300 weight, so the stroke is
+     naturally schmal instead of chunky like Ranchers' single 400. */
+  --font-quote:    var(--font-barlow-condensed, 'Barlow Condensed'), 'Impact', 'Arial Narrow', sans-serif;
+  --radius: 2px;
+
+  /* Semantic surface/text tokens — used by the map UI and newer React components.
+     Kept theme-agnostic here via [data-theme] overrides below. */
+  --surface-bg:        var(--off-white);
+  --surface-card:      var(--white);
+  --surface-raised:    var(--white);
+  --surface-overlay:   rgba(255, 255, 255, 0.95);
+  --border-subtle:     var(--gray-100);
+  --border-strong:     var(--gray-200);
+  --text-primary:      var(--black);
+  --text-secondary:    var(--gray-600);
+  --text-muted:        var(--gray-400);
+  --accent:            var(--orange);
+  --accent-soft:       rgba(255, 59, 0, 0.12);
+  --cta-red:           #b71c1c;
+  --shadow-sm:         0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md:         0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg:         0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
+
+  /* Landing-page-specific surfaces — warmer/paper palette distinct from the
+     cool-toned --surface-bg used elsewhere. The landing uses these to evoke
+     a magazine feel: 9 of 12 sections sit on --surface-canvas, two trust-beats
+     get the paper tint, decision-moments (Packs) sit on --surface-deep. */
+  --surface-canvas: #ffffff;        /* Site-„weiß" — neutraler Hellgrauton (Cover2-matched). */
+  --surface-paper:  #dcdcdc;        /* einen Tick tiefer für Kontraste, gleiche Familie */
+  --surface-deep:   #0a0a0a;        /* decision-moment — pure ink, no warm cast */
+  --surface-deep-2: #161616;        /* card surface on --surface-deep */
+
+  /* ── 2026 Editorial accents — black/white/red/yellow pivot ── */
+  --frame-ink:      #0a0a0a;
+  --accent-mustard: #ffd84a;        /* mustard yellow — secondary hero blocks */
+  --accent-coral:   #a02814;        /* dunkles Rot — pull-quote + accent */
+  --accent-ink:     #0a0a0a;
+}
+
+/* next/font assigns --font-ranchers/--font-bungee/etc. via a hashed class on
+   <html> (specificity 0,1,0), which beats a plain :root re-point (also 0,1,0,
+   so source order decides and next/font wins). Components that reference those
+   variable names directly (e.g. the Hub headlines use var(--font-ranchers))
+   would therefore render the literal next/font face (Ranchers), not the brand
+   display font. Win the collision from html:root (specificity 0,1,1) so every
+   display token that shares a next/font variable name resolves to Chewy. */
+html:root {
+  --font-ranchers:      var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-bungee:        var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-knewave:       var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-slackey:       var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-archivo-black: var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+}
+
+html[data-theme="dark"] {
+  --c-row-rule: rgba(240, 232, 208, 0.14);
+
+  --surface-bg:        #0d0d0d;
+  --surface-card:      #1a1a1a;
+  --surface-raised:    #232323;
+  --surface-overlay:   rgba(26, 26, 26, 0.95);
+  --border-subtle:     #2a2a2a;
+  --border-strong:     #3a3a3a;
+  --text-primary:      #f5f5f5;
+  --text-secondary:    #c5c5c5;
+  --text-muted:        #8a8a8a;
+  --accent-soft:       rgba(255, 59, 0, 0.22);
+  --shadow-sm:         0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md:         0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg:         0 10px 30px rgba(0, 0, 0, 0.6);
+
+  /* Landing surfaces — dark-mode versions stay close-to-black with subtle
+     elevation steps so card hierarchy remains readable. */
+  --surface-canvas: #0a0a0a;
+  --surface-paper:  #14141a;
+  --surface-deep:   #050505;
+  --surface-deep-2: #161616;
+}
+
+/* ── Dark-Mode-Designsprache (2026-06-03, User-Entscheidung) ──
+   ALLE Seiten folgen dem Dark Mode (vorher waren Hub/News/SEO cream gepinnt).
+   Rezept: Seiten-Bg #111110 · Karten/Raised #1d1c19 · Ink #f0e8d0 ·
+   Sub-Ink rgba(240,232,208,.72) · Hairlines rgba(240,232,208,.3) ·
+   Sticker-Borders #f0e8d0 · Akzent ROT statt GELB: Fills var(--c-coral)
+   #a02814 mit #fbf8ee-Text, Text-Akzente var(--c-coral-bright) #d63a2a.
+   Header+Footer kippen auf Brand-Rot. Die Umsetzung liegt in den jeweiligen
+   CSS-Modulen als additive html[data-theme="dark"]-Blöcke. */
+html[data-theme="dark"] {
+  --dk-page: #111110;
+  --dk-card: #1d1c19;
+  --dk-ink:  #f0e8d0;
+  --dk-sub:  rgba(240, 232, 208, 0.72);
+  --dk-rule: rgba(240, 232, 208, 0.3);
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  /* Cream universal — matches the SEO-page surface (#fbf8ee) so the side
+     strips that appear on Desktop when .page is centered with max-width
+     blend into the page bg instead of showing grey/white body underneath.
+     iOS rubber-band overscroll also picks up cream. */
+  background-color: #fbf8ee;
+}
+html[data-theme="dark"] {
+  /* Dark-Mode-Rollout 2026-06-03: Seiten folgen jetzt wirklich dem Theme —
+     Rubber-Band/Side-Strips müssen dunkel sein, nicht cream. */
+  background-color: #111110;
+}
+
+body {
+  font-family: var(--font);
+  background: #fbf8ee;
+  color: var(--black);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+html[data-theme="dark"] body {
+  background: #111110;
+}
+
+/* Hub wrapper surface. The section stack has intentional gaps between some
+   sections; without a wrapper background those gaps expose the body, which
+   style.css paints with --surface-canvas (#fff) — producing a cream→white seam
+   between sections. Fill the hub so the gaps read as the cream page surface. */
+[data-hub] { background: #fbf8ee; }
+html[data-theme="dark"] [data-hub] { background: var(--dk-page, #111110); }
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Prevent FOUC flash of overlays that only become visible via a toggled class.
+   Lives here (inlined by Next.js) instead of style.min.css so the rule is
+   applied before the external stylesheet loads on first paint. */
+.map-spot-overlay:not(.active),
+.search-overlay:not(.active),
+.burger-drawer:not(.active) {
+  display: none;
+}
+
+/* Signup-only blocks (e.g. the Welcome Pack gift card) are SSR'd for everyone
+   because the server can't know the auth state. The CRITICAL_BOOTSTRAP sets
+   data-auth="1" pre-paint from localStorage._authHint, so signed-in visitors
+   never see them flash before client-side auth resolves and removes them. */
+html[data-auth="1"] [data-signup-gift] {
+  display: none;
+}
+
+/* The inverse: signed-in-only blocks (e.g. the Deine-Welt hub section) are
+   SSR'd as a static shell so they don't pop in / shift the page once client
+   auth resolves. Anyone without the pre-paint flag never sees the shell. */
+html:not([data-auth="1"]) [data-auth-only] {
+  display: none;
+}
+
+/* 2026 EDITORIAL FRAME removed — the dark border-mat read as heavy chrome
+   over the editorial-v13 redesign. Navbar + app-pages now go flush. */
+
+/* Map page is position:fixed and owns the full viewport below the top nav.
+   Override the generic .app-page padding-bottom (reserved for fixed tab bars)
+   so the bottom sheet reaches the bottom of the screen without a gap.
+   Use 100dvh (dynamic viewport) instead of the base rule's 100vh — on iOS
+   Safari, 100vh is the LARGE viewport (URL bar hidden) which makes the
+   page overflow when the URL bar is shown, leaving a strip of whitespace
+   below the sheet. dvh adjusts as the URL bar shows/hides.
+   (See memory feedback_ios_overlay_pattern.md.) */
+.app-page[data-page="map"] {
+  padding-bottom: 0 !important;
+  /* Map has no navbar (hidden via [data-active-page="map"] .navbar) — the
+     canvas claims the full viewport. */
+  height: 100dvh !important;
+}
+
+/* Mobile: the navbar goes transparent over the map (see style.css
+   [data-active-page="map"] block). Map canvas now claims the full
+   viewport including the top 60px the navbar used to reserve. */
+@media (max-width: 1023.98px) {
+  /* 100lvh (large viewport, URL bar collapsed) instead of 100dvh: the page
+     extends in-flow behind iOS Safari's translucent bottom URL bar, so the
+     bottom sheet's last --map-bar-overhang px blur through it while the
+     list scrolls — same effect as the window-scroll start page. Safari only
+     paints IN-FLOW document content into the bar backdrop (a position:fixed
+     overhang doesn't show up there). The window gains a bar-height scroll
+     range, but every map gesture is captured (canvas touch-action none,
+     sheet drag preventDefault, list overscroll-behavior contain) so it
+     stays at scroll 0 in practice. Sheet snap math anchors to
+     window.innerHeight — see useBottomSheet.ts. */
+  [data-active-page="map"] .app-pages {
+    margin-top: 0 !important;
+    height: 100dvh !important; /* fallback: browsers without lvh */
+    /* +80px apron past lvh — Safari's bar backdrop samples deeper than the
+       document end; must match --map-bar-overhang in map.module.css. */
+    height: calc(100lvh + 80px) !important;
+  }
+  .app-page[data-page="map"] {
+    height: 100dvh !important;
+    height: calc(100lvh + 80px) !important;
+  }
+}
+
+/* Map redesign: no solid header — a single floating burger (in MapSectionBody)
+   sits over the map. Hide the navbar entirely and reclaim its height. SiteNav
+   stays mounted so #burgerBtn's open handler keeps working when triggered
+   programmatically by the floating burger. */
+[data-active-page="map"] .navbar,
+[data-active-page="map"] header[role="banner"] { display: none !important; }
+
+/* No footer below the map page — it would extend the document past the
+   page's 100lvh and let the window scroll the whole map UI away; its black
+   top edge also peeks into Safari's bottom-bar zone. (style.css has a
+   :has()-based copy of this, but only inside the ≥768px block.) */
+[data-active-page="map"] .site-footer { display: none !important; }
+
+/* Burger drawer over the map: Safari composites only IN-FLOW content into
+   the bottom-URL-bar backdrop — the position:fixed drawer can't paint
+   there, so with the drawer open the bar would keep blurring the sheet
+   rows behind it. Mirror the drawer surface in the page's behind-bar zone
+   (the lvh+80px apron) while it's open; fades with the drawer's own
+   0.25s opacity transition (state change, not motion). */
+@media (max-width: 1023.98px) {
+  .app-page[data-page="map"]::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(100lvh + 80px - 100dvh);
+    background: #fbf8ee; /* drawer panel cream */
+    z-index: 50; /* above the bottom sheet (z 4) */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  body:has(.burger-drawer.active) .app-page[data-page="map"]::after {
+    opacity: 1;
+  }
+  html[data-theme="dark"] .app-page[data-page="map"]::after {
+    background: #111110; /* dark drawer panel */
+  }
+}
+
+/* Login modal behind the iOS bottom URL bar: handled by
+   app/components/LoginModalBarLock.tsx (inline-style scroll-lock + canvas
+   recolor on modal mount) — a stylesheet :has() variant computed correctly
+   but did not recolor the bar on device. */
+
+@media (min-width: 1024px) {
+  [data-active-page="map"] .app-pages { margin-top: 0 !important; height: 100dvh !important; }
+}
+
+/* User-location marker is purely informational. The avatar must visually
+   sit ABOVE every restaurant + must-eat marker (so the figure is never
+   hidden behind a card), yet clicks must fall through to whichever
+   marker sits beneath it. z-index 1000 beats the per-card fan z-indexes
+   (which max at ~100 when a card is selected); pointer-events:none
+   sends the click to the marker behind. The class is added via
+   react-map-gl Marker's className prop on the maplibre wrapper. */
+.user-loc-marker {
+  z-index: 1000 !important;
+}
+.user-loc-marker,
+.user-loc-marker * {
+  pointer-events: none !important;
+}
+
+/* ── Notification toast (window.showNotification) ──────────────────────
+   Mounted globally in app/[locale]/layout.tsx (NotificationToast.tsx).
+   Styled here instead of style.css because /profile and /login don't load
+   the SPA stylesheet. Brand motion: slide up from below the viewport edge
+   (transform only — no opacity fade), square sticker box, inverted per
+   theme so it pops on both page backgrounds. */
+.notification {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  /* Parked fully below the viewport edge (own height + the 100px offset). */
+  transform: translate(-50%, calc(100% + 120px));
+  background: #111110;
+  color: #f0e8d0;
+  font-family: var(--font-saira-condensed), sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.2; /* ≥1.15 against umlaut clipping in uppercase Saira */
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 12px 22px;
+  max-width: calc(100vw - 32px);
+  z-index: 10000; /* above the legacy navbar (9999) */
+  pointer-events: none;
+  transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.notification.show {
+  transform: translate(-50%, 0);
+}
+html[data-theme="dark"] .notification {
+  background: #f0e8d0;
+  color: #111110;
+}
+

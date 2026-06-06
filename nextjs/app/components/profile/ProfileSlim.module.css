@@ -1,0 +1,507 @@
+/* ══════════════════════════════════════════════
+   PROFILE — slim (mockup-chewy screens 15/16)
+   Single cream scroll: head · saved spots · collected must-eats · packs ·
+   logout · footer. No tabs. Chewy display, ink hairlines, yellow accents.
+   Freigestellt must-eat cards float flat — NO drop-shadow (brand rule).
+   ══════════════════════════════════════════════ */
+
+.page {
+  background: #fbf8ee;
+  min-height: 100vh;
+  /* Clear the fixed 64px navbar (SiteNav) — this route has its own layout, not
+     the SPA's .app-pages offset. Mirror the SPA's expression so the staging
+     banner (--staging-banner-h: 32px on staging, 0 on prod) is accounted for
+     too, otherwise the banner pushes the navbar down onto the profile head. */
+  padding-top: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
+}
+
+/* Loading spinner (auth gate) */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(10, 10, 10, 0.15);
+  border-top-color: #0a0a0a;
+  border-radius: 50%;
+  animation: profileSpin 0.7s linear infinite;
+}
+@keyframes profileSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Head ── */
+.head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 18px 18px;
+  border-bottom: 2px solid #0a0a0a;
+}
+.avatar {
+  width: 78px;
+  height: 78px;
+  background: #efe9d8;
+  border: 2px solid #0a0a0a;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.avatar img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+.info {
+  flex: 1;
+  min-width: 0;
+}
+.kicker {
+  font-family: var(--font-poster);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: #0a0a0a;
+  text-transform: uppercase;
+}
+.name {
+  font-family: var(--font-poster);
+  font-size: 28px;
+  line-height: 1;
+  color: #0a0a0a;
+  text-transform: uppercase;
+  margin: 2px 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.email {
+  font-size: 13px;
+  color: #0a0a0a;
+  opacity: 0.75;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Section heading ── */
+.section {
+  padding: 18px 18px 8px;
+}
+.sectionHeading {
+  font-family: var(--font-poster);
+  font-size: 36px;
+  line-height: 0.96;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 0;
+}
+
+/* ── Saved spots ── */
+.spotsCards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 0 14px 8px;
+}
+.spotCardWrap {
+  position: relative;
+}
+/* Remove-from-saved button, top-right over the photo. */
+.spotRemove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 10, 0.72);
+  color: #fbf8ee;
+  border: 1.5px solid rgba(251, 248, 238, 0.5);
+  border-radius: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  transition: background 0.15s;
+}
+.spotRemove:hover,
+.spotRemove:active {
+  background: var(--c-coral, #a02814);
+}
+.spotCard {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  border: 2px solid #0a0a0a;
+  overflow: hidden;
+  text-decoration: none;
+}
+.spotImg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-color: #14100c;
+}
+.spotCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 35%, rgba(0, 0, 0, 0.82) 100%);
+}
+.spotBody {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  z-index: 1;
+  color: #fbf8ee;
+}
+.spotName {
+  font-family: var(--font-poster);
+  font-size: 26px;
+  line-height: 0.92;
+  text-transform: uppercase;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  margin: 0;
+}
+.spotMeta {
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brand-yellow);
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* Empty state */
+.empty {
+  margin: 4px 16px 22px;
+  padding: 16px 18px;
+  background: #fbf8ee;
+  border: 2px solid #0a0a0a;
+  display: grid;
+  gap: 10px;
+}
+.emptyLine {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #0a0a0a;
+  opacity: 0.85;
+  margin: 0;
+}
+.emptyCta {
+  font-family: var(--font-poster);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  justify-self: start;
+  text-decoration: none;
+}
+
+/* ── Must-eat explainer ── */
+.explainer {
+  margin: 4px 16px 14px;
+  padding: 14px 16px 16px;
+  background: #fbf8ee;
+  border-left: 4px solid var(--brand-yellow);
+  display: grid;
+  gap: 4px;
+}
+.explainerKicker {
+  font-family: var(--font-poster);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 0;
+}
+.explainerLine {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #0a0a0a;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* Progress counter — "X von Y aufgedeckt" above the grid. */
+.meCount {
+  margin: 0 16px 10px;
+  font-family: var(--font-poster);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+}
+
+/* ── Collected must-eats grid ── */
+.meGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 14px 14px;
+}
+.me {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 6px;
+  padding: 6px 4px 10px;
+}
+/* Unlocked cards are tappable — open the deck-style fly-out lightbox. */
+.meBtn {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s ease;
+}
+.meBtn:active {
+  transform: scale(0.97);
+}
+.mePh {
+  position: relative;
+  aspect-ratio: 1539 / 2115;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 12px;
+}
+/* Fill the fixed card box so every card is the SAME size — `width/height:auto`
+   rendered each image at its natural size, which made them uneven. The art is
+   the trading-card ratio (matches the box) so cover doesn't crop meaningfully;
+   the radius clips the baked-in white corners. */
+.mePh img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* Face-up cards are full trading cards (name baked into the art) → no label. */
+.meLabel {
+  display: none;
+}
+.meLocked .meLabel {
+  display: grid;
+  gap: 2px;
+  padding: 0 4px;
+  min-height: 46px;
+  align-content: start;
+  text-align: center;
+}
+.meName {
+  font-family: var(--font-poster);
+  font-size: 16px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  opacity: 0.55;
+  margin: 0;
+}
+.meRest {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+/* ── Packs ── */
+.packs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0 18px 14px;
+}
+.pck {
+  background: #0a0a0a;
+  color: #fbf8ee;
+  font-family: var(--font-poster);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 9px 14px 10px;
+}
+.pckGift {
+  background: var(--brand-yellow);
+  color: #0a0a0a;
+}
+.packHint {
+  margin: 0 18px 22px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.packLine {
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: #0a0a0a;
+  opacity: 0.8;
+  margin: 0;
+  flex: 1;
+}
+.packCta {
+  font-family: var(--font-poster);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+/* ── Logout ── */
+.logout {
+  display: block;
+  margin: 14px 18px 30px;
+  background: transparent;
+  color: #0a0a0a;
+  border: 1.5px solid #0a0a0a;
+  font-family: var(--font-poster);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 12px 16px 13px;
+  width: calc(100% - 36px);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.logout:hover {
+  background: #0a0a0a;
+  color: #fbf8ee;
+}
+
+/* Desktop — center the column, the page is a standalone scroll (not a sheet). */
+@media (min-width: 720px) {
+  .head,
+  .section,
+  .spotsCards,
+  .meGrid,
+  .explainer,
+  .empty,
+  .packs,
+  .packHint,
+  .logout {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .meGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  /* Saved spots: two cards side by side — a full-column 16:10 card read
+     oversized on desktop (User 2026-06-05). */
+  .spotsCards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+/* ══════════════════════════════════════════════
+   DARK MODE — cream world flips dark, yellow → red.
+   Append-only; light mode above stays pixel-identical.
+   ══════════════════════════════════════════════ */
+html[data-theme="dark"] .page {
+  background: #111110;
+}
+
+html[data-theme="dark"] .spinner {
+  border-color: rgba(240, 232, 208, 0.18);
+  border-top-color: #f0e8d0;
+}
+
+/* ── Head ── */
+html[data-theme="dark"] .head {
+  border-bottom-color: #f0e8d0;
+}
+html[data-theme="dark"] .avatar {
+  background: #1d1c19;
+  border-color: #f0e8d0;
+}
+html[data-theme="dark"] .kicker,
+html[data-theme="dark"] .name,
+html[data-theme="dark"] .email {
+  color: #f0e8d0;
+}
+
+/* ── Section heading ── */
+html[data-theme="dark"] .sectionHeading {
+  color: #f0e8d0;
+}
+
+/* ── Saved spots ── (photos + text-over-photo: leave; only chrome) */
+html[data-theme="dark"] .spotCard {
+  border-color: #f0e8d0;
+}
+html[data-theme="dark"] .spotMeta {
+  color: var(--c-coral-bright);
+}
+
+/* ── Empty state ── */
+html[data-theme="dark"] .empty {
+  background: #1d1c19;
+  border-color: #f0e8d0;
+}
+html[data-theme="dark"] .emptyLine,
+html[data-theme="dark"] .emptyCta {
+  color: #f0e8d0;
+}
+
+/* ── Must-eat explainer ── */
+html[data-theme="dark"] .explainer {
+  background: #1d1c19;
+  border-left-color: var(--c-coral);
+}
+html[data-theme="dark"] .explainerKicker,
+html[data-theme="dark"] .explainerLine,
+html[data-theme="dark"] .meCount {
+  color: #f0e8d0;
+}
+
+/* ── Collected must-eats (card art = freigestellt photos: leave) ── */
+html[data-theme="dark"] .meName,
+html[data-theme="dark"] .meRest {
+  color: #f0e8d0;
+}
+
+/* ── Packs ── black pills invert; gift pill yellow → red ── */
+html[data-theme="dark"] .pck {
+  background: #f0e8d0;
+  color: #0a0a0a;
+}
+html[data-theme="dark"] .pckGift {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+html[data-theme="dark"] .packLine,
+html[data-theme="dark"] .packCta {
+  color: #f0e8d0;
+}
+
+/* ── Logout ── */
+html[data-theme="dark"] .logout {
+  color: #f0e8d0;
+  border-color: #f0e8d0;
+}
+html[data-theme="dark"] .logout:hover {
+  background: #f0e8d0;
+  color: #0a0a0a;
+}

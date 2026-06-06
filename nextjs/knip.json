@@ -1,0 +1,11 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "scripts/*.ts",
+    "lib/sanityImageLoader.ts"
+  ],
+  "ignoreDependencies": [
+    "eslint-config-next",
+    "tsx"
+  ]
+}

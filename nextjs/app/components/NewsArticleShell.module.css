@@ -1,0 +1,684 @@
+/* ════════════════════════════════════════════════════════════
+   Article detail — Chewy (mockup-chewy screen 8).
+   Cream column: full-bleed hero photo, byline, big Chewy title, Chewy lede,
+   ink TOC (numbered anchors), drop-cap body with Chewy section headings,
+   ink share button, dark related cards. Lives in the SPA (gets the header).
+   ════════════════════════════════════════════════════════════ */
+
+.page {
+  background: #fbf8ee;
+  color: #0a0a0a;
+  display: flow-root;
+  min-height: 100%;
+}
+
+.article {
+  margin: 0 auto;
+  max-width: 720px;
+}
+
+/* ── Hero photo ── */
+.hero {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background-color: #14100c;
+}
+
+/* ── Byline + title + lede ── */
+.byline {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px 4px;
+  font-family: var(--font-poster);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  opacity: 0.65;
+}
+.title {
+  font-family: var(--font-poster);
+  font-size: clamp(38px, 11vw, 54px);
+  line-height: 1;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 14px 16px 14px;
+}
+.lede {
+  font-family: var(--font-poster);
+  font-size: clamp(19px, 5.5vw, 22px);
+  line-height: 1.25;
+  letter-spacing: 0.005em;
+  color: #0a0a0a;
+  opacity: 0.9;
+  margin: 0 16px 18px;
+  padding: 0 0 14px;
+  border-bottom: 1px solid rgba(160, 40, 20, 0.28);
+}
+
+.breadcrumbWrap {
+  padding: 0 18px;
+  margin: 0 0 6px;
+  font-size: 12px;
+}
+
+/* ── Table of contents — ink block, numbered anchors ── */
+.toc {
+  background: #0a0a0a;
+  color: #fbf8ee;
+  padding: 20px 24px 22px;
+  margin: 22px 0 26px;
+  border-top: 4px solid var(--brand-yellow);
+  border-bottom: 4px solid var(--brand-yellow);
+}
+.tocLabel {
+  font-family: var(--font-poster);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--brand-yellow);
+  margin: 0 0 12px;
+}
+.tocList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: art-toc;
+}
+.tocItem {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(247, 238, 216, 0.18);
+  align-items: baseline;
+}
+.tocItem:last-child {
+  border-bottom: 0;
+}
+.tocItem::before {
+  counter-increment: art-toc;
+  content: counter(art-toc, decimal-leading-zero);
+  font-family: var(--font-poster);
+  font-size: 13px;
+  color: var(--brand-yellow);
+  letter-spacing: 0.04em;
+}
+.tocLink {
+  font-family: var(--font-poster);
+  font-size: 19px;
+  line-height: 1.12;
+  color: #fbf8ee;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  transition: color 0.15s;
+}
+.tocLink:hover {
+  color: var(--brand-yellow);
+}
+
+/* ── Body ── */
+.content {
+  padding: 12px 18px 6px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #0a0a0a;
+}
+.content > p:first-of-type::first-letter {
+  font-family: var(--font-poster);
+  font-size: 72px;
+  line-height: 0.82;
+  color: #0a0a0a;
+  float: left;
+  padding: 8px 10px 0 0;
+  text-transform: uppercase;
+}
+.content p {
+  margin: 0 0 14px;
+}
+.content h2,
+.content h3 {
+  font-family: var(--font-poster);
+  font-size: clamp(26px, 8vw, 30px);
+  line-height: 1.02;
+  text-transform: uppercase;
+  letter-spacing: -0.005em;
+  color: #0a0a0a;
+  margin: 26px 0 10px;
+  scroll-margin-top: 80px;
+}
+.content ul,
+.content ol {
+  margin: 0 0 14px;
+  padding-left: 22px;
+}
+.content li {
+  margin: 0 0 6px;
+}
+.content strong {
+  font-weight: 700;
+}
+
+/* ── Inline Must Eat banner (mustEatCard block) ──
+   Dark ink poster block in the article column — same sticker language as the
+   MapPromoCTA at the bottom of the SEO pages. The `image` is the full
+   collectible trading card (own background + rounded corners baked in); it
+   floats freigestellt with a tilt, no frame around it. Yellow sticker CTA
+   (brand-red in dark mode). */
+.mustEat {
+  margin: 34px 0 30px;
+  padding: 28px 20px 30px;
+  background: #0a0a0a;
+  color: #fbf8ee;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  text-decoration: none;
+}
+.mustEatPh {
+  display: block;
+  margin-bottom: 18px;
+}
+.mustEatPh img {
+  display: block;
+  width: 180px;
+  height: auto;
+  /* The asset has white (non-transparent) corners — round to the card's own
+     corner radius so no white triangles show on the ink surface. */
+  border-radius: 14px;
+  transform: rotate(-4deg);
+  transition: transform 0.18s ease;
+}
+a.mustEat:hover .mustEatPh img {
+  transform: rotate(-1deg) translateY(-4px);
+}
+.mustEatBody {
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+}
+.mustEatKicker {
+  font-family: var(--font-poster);
+  font-size: 15px;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em; /* recenter — tracking adds trailing space */
+  text-transform: uppercase;
+  color: #ffd84a;
+}
+/* `.mustEat` prefix beats `.content h3` (which forces ink-black and would
+   render the headline invisible on the dark banner). */
+.mustEat .mustEatName {
+  font-family: var(--font-poster);
+  font-size: clamp(28px, 7vw, 40px);
+  line-height: 1.05;
+  text-transform: uppercase;
+  color: inherit;
+  margin: 0;
+  max-width: 18ch;
+}
+/* Appetite line from the Sanity description — sentence case, reads like a
+   recommendation, not metadata. `.mustEat` prefix beats `.content p` margins. */
+.mustEat .mustEatDesc {
+  font-size: 14.5px;
+  line-height: 1.55;
+  max-width: 40ch;
+  margin: 2px 0 0;
+  opacity: 0.92;
+}
+.mustEatRest {
+  font-size: 12.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  opacity: 0.72;
+  margin-top: 4px;
+}
+.mustEatCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  background: #ffd84a;
+  color: #0a0a0a;
+  font-family: var(--font-poster);
+  font-size: 18px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
+  padding: 13px 20px 14px;
+  transition: transform 0.15s ease;
+}
+a.mustEat:hover .mustEatCta {
+  transform: translateY(-1px);
+}
+.mustEatCta svg {
+  flex-shrink: 0;
+}
+
+/* Desktop: card left, text right — the banner reads as one wide poster. */
+@media (min-width: 720px) {
+  .mustEat {
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 32px;
+    justify-items: start;
+    text-align: left;
+    padding: 32px 36px;
+  }
+  .mustEatPh {
+    margin-bottom: 0;
+  }
+  .mustEatPh img {
+    width: 210px;
+  }
+  .mustEatBody {
+    justify-items: start;
+  }
+  .mustEatKicker {
+    text-indent: 0;
+  }
+}
+
+/* ── Pull-quote (blockquote in body) ── */
+.content blockquote {
+  margin: 18px 0 22px;
+  padding: 18px 0 4px;
+  border-top: 2px solid #0a0a0a;
+  border-bottom: 2px solid #0a0a0a;
+  font-family: var(--font-poster);
+  font-size: clamp(24px, 7vw, 28px);
+  line-height: 1.05;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+}
+
+/* ── Spots im Artikel — horizontal restaurant cards ── */
+.spots {
+  margin: 0;
+}
+.spotsHeading {
+  font-family: var(--font-poster);
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 0;
+  padding: 18px 18px 4px;
+}
+.spotsRow {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 8px 18px 22px;
+}
+.spotsRow::-webkit-scrollbar {
+  display: none;
+}
+.spotCard {
+  flex: 0 0 188px;
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background-size: cover;
+  background-position: center;
+  background-color: #14100c;
+  color: #fbf8ee;
+  text-decoration: none;
+}
+.spotCard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 35%, rgba(0, 0, 0, 0.78) 100%);
+}
+/* Bottom-anchored stack so meta sits above the name and they never overlap,
+   even when a long (normalized) restaurant name wraps to two lines. */
+.spotCardFoot {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.spotMeta {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brand-yellow);
+  font-weight: 600;
+}
+.spotName {
+  font-family: var(--font-poster);
+  font-size: 22px;
+  line-height: 1.02;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+/* ── Share — single full-width ink button (mockup .art-share) ── */
+.shareRow {
+  display: flex;
+  padding: 6px 18px 28px;
+}
+.shareBtn {
+  flex: 1;
+  font-family: var(--font-poster);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 14px 18px 15px;
+  border: 1.5px solid #0a0a0a;
+  background: #0a0a0a;
+  color: #fbf8ee;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.shareBtn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--brand-yellow);
+}
+
+/* ── Related — dark horizontal cards ── */
+.related {
+  border-top: 2px solid #0a0a0a;
+  margin: 0 18px;
+  padding: 22px 0 26px;
+}
+.relatedHeading {
+  font-family: var(--font-poster);
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 0 0 14px;
+}
+.relatedGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+.relatedCard {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  background: #0a0a0a;
+  color: #fbf8ee;
+  text-decoration: none;
+  overflow: hidden;
+}
+.relatedImage {
+  background-size: cover;
+  background-position: center;
+  background-color: #14100c;
+  min-height: 100%;
+}
+.relatedBody {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 152px;
+}
+.relatedCategory {
+  display: inline-flex;
+  align-self: flex-start;
+  background: var(--brand-yellow);
+  color: #0a0a0a;
+  font-family: var(--font-poster);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 4px 8px 5px;
+}
+.relatedHeadline {
+  font-family: var(--font-poster);
+  font-size: 22px;
+  line-height: 1.02;
+  text-transform: uppercase;
+  letter-spacing: 0.015em;
+  color: #fbf8ee;
+  margin: 12px 0 0;
+}
+
+/* ── Sticky spotrail — floats at the viewport bottom while reading, yields to
+   the footer below it. Sibling of .article inside .page (so there's flow space
+   below it to float over). Degrades to a static end-bar if an overflow ancestor
+   prevents stickiness. ── */
+.spotrail {
+  position: sticky;
+  bottom: 0;
+  z-index: 40;
+  max-width: 720px;
+  margin: 0 auto;
+  background: #fbf8ee;
+  border-top: 2px solid #0a0a0a;
+  box-shadow: 0 -8px 24px rgba(17, 13, 9, 0.22);
+  padding: 12px 14px 14px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+/* When the spotrail is present, pad the article so its last content isn't
+   hidden behind the floating bar. */
+.hasSpotrail {
+  padding-bottom: 76px;
+}
+.spotrailPics {
+  display: flex;
+}
+.spotrailPic {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #fbf8ee;
+  background: #f2eddf center / cover no-repeat;
+  margin-left: -10px;
+  box-shadow: 0 2px 4px rgba(17, 13, 9, 0.3);
+  outline: 1.5px solid #0a0a0a;
+}
+.spotrailPic:first-child {
+  margin-left: 0;
+}
+.spotrailMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  overflow: hidden;
+}
+.spotrailKicker {
+  font-family: var(--font-poster);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 10px;
+  color: #0a0a0a;
+  opacity: 0.7;
+  line-height: 1.2;
+}
+.spotrailNames {
+  font-family: var(--font-poster);
+  font-size: 15px;
+  line-height: 1.05;
+  color: #0a0a0a;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.spotrailCta {
+  font-family: var(--font-poster);
+  background: var(--brand-yellow);
+  color: #0a0a0a;
+  border: 2px solid #0a0a0a;
+  padding: 9px 12px 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 12px;
+  box-shadow: 3px 3px 0 #0a0a0a;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.spotrailCta:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #0a0a0a;
+}
+
+@media (min-width: 768px) {
+  .toc {
+    margin-left: 18px;
+    margin-right: 18px;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   DARK MODE — everything goes dark, yellow accents flip to red.
+   ════════════════════════════════════════════════════════════ */
+html[data-theme="dark"] .page {
+  background: #111110;
+  color: #f0e8d0;
+}
+
+/* ── Byline + title + lede ── */
+html[data-theme="dark"] .byline {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .title {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .lede {
+  color: #f0e8d0;
+  border-bottom-color: rgba(240, 232, 208, 0.3);
+}
+
+/* ── Table of contents — already dark block, flip yellow accents to red ── */
+html[data-theme="dark"] .toc {
+  background: #1d1c19;
+  color: #f0e8d0;
+  border-top-color: var(--c-coral);
+  border-bottom-color: var(--c-coral);
+}
+html[data-theme="dark"] .tocLabel {
+  color: var(--c-coral-bright);
+}
+html[data-theme="dark"] .tocItem {
+  border-bottom-color: rgba(240, 232, 208, 0.18);
+}
+html[data-theme="dark"] .tocItem::before {
+  color: var(--c-coral-bright);
+}
+html[data-theme="dark"] .tocLink {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .tocLink:hover {
+  color: var(--c-coral-bright);
+}
+
+/* ── Body ── */
+html[data-theme="dark"] .content {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .content > p:first-of-type::first-letter {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .content h2,
+html[data-theme="dark"] .content h3 {
+  color: #f0e8d0;
+}
+
+/* ── Inline Must Eat banner — stays a dark panel, raised card surface on the
+   dark page; yellow accents flip to brand-red. ── */
+html[data-theme="dark"] .mustEat {
+  background: #1d1c19;
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .mustEatKicker {
+  color: var(--c-coral-bright);
+}
+html[data-theme="dark"] .mustEatCta {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+
+/* ── Pull-quote (blockquote in body) ── */
+html[data-theme="dark"] .content blockquote {
+  border-top-color: #f0e8d0;
+  border-bottom-color: #f0e8d0;
+  color: #f0e8d0;
+}
+
+/* ── Spots im Artikel ── */
+html[data-theme="dark"] .spotsHeading {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .spotMeta {
+  color: var(--c-coral-bright);
+}
+
+/* ── Share — ink button on now-dark surface → invert to cream button ── */
+html[data-theme="dark"] .shareBtn {
+  border-color: #f0e8d0;
+  background: #f0e8d0;
+  color: #0a0a0a;
+}
+html[data-theme="dark"] .shareBtn:hover {
+  box-shadow: 3px 3px 0 var(--c-coral);
+}
+
+/* ── Related — already dark cards, flip yellow accents to red ── */
+html[data-theme="dark"] .related {
+  border-top-color: #f0e8d0;
+}
+html[data-theme="dark"] .relatedHeading {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .relatedCard {
+  background: #1d1c19;
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .relatedCategory {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+html[data-theme="dark"] .relatedHeadline {
+  color: #f0e8d0;
+}
+
+/* ── Sticky spotrail — cream bar → dark bar, yellow CTA → red ── */
+html[data-theme="dark"] .spotrail {
+  background: #111110;
+  border-top-color: #f0e8d0;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.55);
+}
+html[data-theme="dark"] .spotrailPic {
+  border-color: #111110;
+  background-color: #1d1c19;
+  outline-color: #f0e8d0;
+}
+html[data-theme="dark"] .spotrailKicker {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .spotrailNames {
+  color: #f0e8d0;
+}
+html[data-theme="dark"] .spotrailCta {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-color: #f0e8d0;
+  box-shadow: 3px 3px 0 rgba(240, 232, 208, 0.25);
+}
+html[data-theme="dark"] .spotrailCta:hover {
+  box-shadow: 4px 4px 0 rgba(240, 232, 208, 0.25);
+}

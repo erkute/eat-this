@@ -1,0 +1,186 @@
+/* ============================================================
+   404 — Chewy brand surface: cream paper, rounded Chewy stamp,
+   sticker button with hard ink shadow. Standalone styles, isolated
+   from /css/style.min.css so it works even when the SPA bundle
+   hasn't loaded.
+   ============================================================ */
+
+.page {
+  --f-display: var(--font-chewy, "Chewy"), "Comic Sans MS", cursive;
+  --f-body: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  --ink: #0a0a0a;
+  --coral: #a02814;
+  --yellow: #ffd84a;
+  --paper: #fbf8ee;
+  --muted: rgba(10, 10, 10, 0.62);
+
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-body);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  padding: 32px 22px 28px;
+  padding-bottom: max(28px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+}
+
+/* ── Eyebrow stamp ──────────────────────────────────────────── */
+.kicker {
+  font-family: var(--f-display);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 6px 0 0;
+  line-height: 1;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── 404 — yellow Chewy hero stamp with black stroke so it
+       carries the same sticker energy as the EAT THIS wordmark. ── */
+.code {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: clamp(140px, 38vw, 220px);
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+  color: var(--yellow);
+  /* Stroke approximation across browsers: text-stroke pulls modern
+     engines, the multi-shadow falls back to a hand-pressed ink halo. */
+  -webkit-text-stroke: 4px var(--ink);
+  text-shadow:
+    6px 6px 0 var(--ink);
+  margin: 4px 0 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Chewy coral headline — the brand-red one-liner, tilted
+       a hair for sticker energy. ──────────────────────────── */
+.headline {
+  font-family: var(--f-display);
+  font-size: clamp(22px, 6.4vw, 30px);
+  line-height: 1.1;
+  color: var(--coral);
+  letter-spacing: 0.005em;
+  margin: 18px 0 6px;
+  transform: rotate(-1.2deg);
+  position: relative;
+  z-index: 2;
+  max-width: 22ch;
+}
+
+/* ── Editorial sub copy ─────────────────────────────────────── */
+.sub {
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+  margin: 0 0 8px;
+  max-width: 32ch;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Sticker button — cream pill with the hard-offset ink shadow
+       that runs across the brand's CTA surfaces. ──────────── */
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  color: var(--ink);
+  font-family: var(--f-display);
+  font-size: 18px;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  padding: 14px 28px;
+  margin: 14px 0 4px;
+  box-shadow: 6px 6px 0 0 var(--ink);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  position: relative;
+  z-index: 2;
+}
+.cta:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 4px 4px 0 0 var(--ink);
+}
+
+/* ============================================================
+   Desktop ≥ 900px — same centered stack, bigger type.
+   ============================================================ */
+@media (min-width: 900px) {
+  .page {
+    padding: 56px 6vw 48px;
+    gap: 18px;
+  }
+  .kicker {
+    font-size: 15px;
+  }
+  .code {
+    font-size: clamp(220px, 22vw, 320px);
+    -webkit-text-stroke: 6px var(--ink);
+    text-shadow: 9px 9px 0 var(--ink);
+  }
+  .headline {
+    font-size: clamp(32px, 3.4vw, 46px);
+    margin-top: 26px;
+  }
+  .sub {
+    font-size: 17px;
+    max-width: 38ch;
+  }
+  .cta {
+    font-size: 22px;
+    padding: 18px 36px;
+    box-shadow: 8px 8px 0 0 var(--ink);
+  }
+}
+
+/* ============================================================
+   DARK MODE — paper goes dark, ink → cream, yellow stamp → coral.
+============================================================ */
+html[data-theme="dark"] .page {
+  --ink: #f0e8d0;
+  --paper: #111110;
+  --yellow: var(--c-coral);
+  --coral: var(--c-coral-bright);
+  --muted: rgba(240, 232, 208, 0.62);
+}
+/* 404 stamp — coral fill now reads with a cream stroke + cream offset. */
+html[data-theme="dark"] .code {
+  color: var(--c-coral);
+  -webkit-text-stroke-color: #f0e8d0;
+  text-shadow: 6px 6px 0 #f0e8d0;
+}
+/* Sticker CTA — was cream paper + ink border/shadow. On a dark page it
+   inverts to the cream block so it stays the high-contrast action. */
+html[data-theme="dark"] .cta {
+  background: #f0e8d0;
+  border-color: #f0e8d0;
+  color: #0a0a0a;
+  box-shadow: 6px 6px 0 0 rgba(240, 232, 208, 0.25);
+}
+html[data-theme="dark"] .cta:hover {
+  box-shadow: 4px 4px 0 0 rgba(240, 232, 208, 0.25);
+}
+
+@media (min-width: 900px) {
+  html[data-theme="dark"] .code {
+    -webkit-text-stroke-color: #f0e8d0;
+    text-shadow: 9px 9px 0 #f0e8d0;
+  }
+  html[data-theme="dark"] .cta {
+    box-shadow: 8px 8px 0 0 rgba(240, 232, 208, 0.25);
+  }
+}

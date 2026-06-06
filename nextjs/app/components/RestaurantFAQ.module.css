@@ -1,0 +1,86 @@
+.faq {
+  margin: 32px 16px 24px;
+  border-top: 2px solid var(--ink, #000);
+  padding-top: 18px;
+}
+.heading {
+  font-family: var(--f-display, "Anton"), "Bebas Neue", sans-serif;
+  font-size: clamp(28px, 7vw, 40px);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--ink, #000);
+  margin: 0 0 14px;
+}
+.row {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+.row summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.row summary::-webkit-details-marker { display: none; }
+.q {
+  font-family: var(--f-display, "Anton"), "Bebas Neue", sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  color: var(--ink, #000);
+  flex: 1;
+  line-height: 1.35;
+}
+.plus {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--ink, #000);
+  color: var(--ink, #000);
+  position: relative;
+}
+/* "+" drawn as two CSS strokes — font-independent so Anton's quirky
+   glyph metrics can't shift it off center. Horizontal stroke is always
+   visible; vertical stroke hides when [open] so the symbol turns into a
+   minus. Both strokes anchor at exact center (50/50, translate -50/-50). */
+.plus::before,
+.plus::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: currentColor;
+}
+.plus::before {
+  width: 12px;
+  height: 2px;
+  transform: translate(-50%, -50%);
+}
+.plus::after {
+  width: 2px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+}
+.row[open] .plus::after {
+  display: none;
+}
+.a {
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink, #000);
+  margin: 0 0 18px;
+  opacity: 0.88;
+}
+
+@media (min-width: 720px) {
+  .faq { margin: 40px 22px 28px; }
+}
+
+/* ── Dark mode: text/borders/plus-icon ride the parent page's flipped
+   --ink token; only the hard-coded row hairline needs flipping. ── */
+html[data-theme="dark"] .row {
+  border-bottom-color: rgba(240, 232, 208, 0.2);
+}

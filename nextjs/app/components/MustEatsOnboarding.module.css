@@ -1,0 +1,140 @@
+/* Must-Eats first-visit onboarding. Tokens match MustEatsSection.module.css:
+   ink #0a0a0a · cream #fbf8ee · display font var(--font-chewy) · radius 0. */
+
+/* Trigger link under the section sub copy */
+.how {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #0a0a0a;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* Backdrop tint — a state change, not motion (opacity rule exception) */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10020; /* above the fixed navbar (9999) — same tier as the lightbox */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 10, 0.5);
+  padding: 16px;
+}
+
+/* Panel flies in from below the viewport — translate, never opacity */
+.panel {
+  position: relative;
+  width: min(92vw, 360px);
+  background: #fbf8ee;
+  border: 2px solid #0a0a0a;
+  border-radius: 0;
+  padding: 40px 24px 24px;
+  text-align: center;
+  animation: onbRise 0.46s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes onbRise {
+  from {
+    transform: translateY(110vh);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.x {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 26px;
+  line-height: 1;
+  color: #0a0a0a;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* Demo card — same aspect as the freigestellt card art (1539×2115) */
+.cardBox {
+  width: min(52vw, 190px);
+  margin: 0 auto 18px;
+  perspective: 900px;
+}
+.flipper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1539 / 2115;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+.flipped {
+  transform: rotateY(180deg);
+}
+.face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  backface-visibility: hidden;
+}
+.back {
+  transform: rotateY(180deg);
+}
+/* Booster pack art on step 3 — own aspect (1008×1560), no flip faces */
+.pack {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.text {
+  font-size: 15px;
+  line-height: 1.45;
+  color: #0a0a0a;
+  margin: 0 0 14px;
+  min-height: 3.6em;
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border: 2px solid #0a0a0a;
+  background: transparent;
+}
+.dotOn {
+  background: #0a0a0a;
+}
+
+.next {
+  background: #0a0a0a;
+  color: #fbf8ee;
+  border: 2px solid #0a0a0a;
+  border-radius: 0;
+  font-family: var(--font-chewy);
+  font-size: 17px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 10px 22px 11px;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+  .flipper {
+    transition: none;
+  }
+}

@@ -1,0 +1,82 @@
+.section {
+  background: #fbf8ee;
+}
+.heading {
+  font-family: var(--font-ranchers);
+  font-size: clamp(34px, 11vw, 44px);
+  line-height: 1.15;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 36px 16px 18px;
+  padding-top: 6px;
+}
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 14px 14px;
+  margin: 0;
+  list-style: none;
+}
+.cardItem { margin: 0; }
+.card {
+  display: block;
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border: 1px solid rgba(10, 10, 10, 0.10);
+  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06);
+  overflow: hidden;
+  text-decoration: none;
+  color: #fbf8ee;
+}
+.cardImage { position: absolute; inset: 0; background-color: #14100c; }
+.cardImage img { object-fit: cover; }
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 35%, rgba(0,0,0,.82) 100%);
+}
+.cardBody {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  z-index: 1;
+}
+.cardName {
+  font-family: var(--font-ranchers);
+  font-size: 26px;
+  line-height: 1.02;
+  text-transform: uppercase;
+  margin: 0;
+  text-shadow: 0 2px 8px rgba(0,0,0,.45);
+}
+.cardMeta {
+  font-family: var(--font);
+  font-size: 10.5px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--brand-yellow);
+  margin: 4px 0 0;
+  font-weight: 600;
+}
+
+/* ── Desktop: centered column, 4-up card grid ── */
+@media (min-width: 720px) {
+  .section { padding-inline: max(14px, calc((100% - 1120px) / 2)); }
+  .heading { margin: 48px 0 22px; font-size: clamp(44px, 5vw, 56px); }
+  .cards {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding: 0 0 28px;
+  }
+  .cardName { font-size: 30px; }
+}
+
+/* ── Dark mode: dark page, warm-cream ink, red replaces yellow. Photos and
+   text-on-photo left untouched. ── */
+html[data-theme="dark"] .section { background: var(--dk-page); }
+html[data-theme="dark"] .heading { color: var(--dk-ink); }
+html[data-theme="dark"] .card { border-color: var(--dk-ink); }
+html[data-theme="dark"] .cardMeta { color: var(--c-coral-bright); }

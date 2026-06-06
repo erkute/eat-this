@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /_rateLimits/{doc} {
+      allow read, write: if false;
+    }
+
+    // Legacy path — kept for backwards compatibility
+    match /favorites/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // User profile doc — owner-readable; writes restricted to the avatar
+    // field so the client can't bloat the doc with arbitrary fields.
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['avatar', 'onboardedAt'])
+        && (!('avatar' in request.resource.data)
+            || request.resource.data.avatar == null
+            || request.resource.data.avatar in [1, 2, 3])
+        && (!('onboardedAt' in request.resource.data)
+            || request.resource.data.onboardedAt is timestamp);
+    }
+
+    // Current paths used by the React app
+    match /users/{uid}/favorites/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /users/{uid}/unlockedMustEats/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Referral bonuses (Plan 4) — owner-readable so the client can subscribe
+    // with onSnapshot (ReferralToastListener + MapSection). Writes are
+    // server-only via the Admin SDK (/api/referral/confirm).
+    match /users/{uid}/referralBonuses/{document=**} {
+      allow read:  if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // Entitlements (Sub-Project 1 of monetisation) — owner-readable so the
+    // client can subscribe with onSnapshot to react when a Stripe webhook
+    // lands a new entitlement doc. Writes are server-only via Admin SDK
+    // (Cloud Functions / future Stripe webhook handler).
+    match /users/{uid}/entitlements/{packId} {
+      allow read:  if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

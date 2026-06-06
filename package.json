@@ -1,0 +1,19 @@
+{
+  "name": "eat-this",
+  "version": "2.0.0",
+  "private": true,
+  "description": "EAT THIS — Berlin Food Guide (nextjs app, sanity studio, cloud functions)",
+  "author": "EAT THIS",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run dev --prefix nextjs",
+    "build": "npm run build --prefix nextjs",
+    "test": "npm test --prefix nextjs",
+    "lint": "npm run lint --prefix nextjs",
+    "format": "prettier --write \"functions/**/*.js\"",
+    "format:check": "prettier --check \"functions/**/*.js\""
+  },
+  "devDependencies": {
+    "prettier": "^3.8.2"
+  }
+}

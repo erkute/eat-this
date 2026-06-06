@@ -1,0 +1,272 @@
+.footer {
+  background: #F5C518;
+  color: #000;
+  padding: 28px 16px 32px;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  position: relative;
+  overflow: hidden;
+  border-top: 2px solid #000;
+}
+@media (max-width: 767.98px) {
+  /* Slim in-flow apron in the footer's own bg: iOS Safari samples its
+     bottom bar / home-indicator backdrop PAST the document end — pages
+     ending with the footer otherwise show the body-canvas color as a
+     mismatched band under it (black in dark mode). 56px total reads as
+     normal footer bottom padding; safe-area grows it under the home
+     indicator when the bar is minimized. */
+  .footer {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.mega {
+  margin: 0 0 6px;
+  text-align: center;
+  font-weight: 400;
+  /* Hide accessible label text; renders the image instead */
+  font-size: 0;
+  line-height: 0;
+  color: transparent;
+}
+/* New wordmark is wide (~2.5:1) — sized for a bold but not oversized footer mega. */
+.megaImg {
+  display: block;
+  margin: 0 auto;
+  width: auto;
+  height: auto;
+  max-width: min(68vw, 260px);
+}
+.tagImg {
+  display: block;
+  margin: 10px auto 24px;
+  width: auto;
+  height: auto;
+  max-width: min(60vw, 230px);
+}
+
+.tag {
+  font-family: var(--font-poster);
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #000;
+  text-align: center;
+  margin: 0 0 28px;
+}
+
+.links {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.linksKicker {
+  font-family: var(--font-poster);
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  opacity: 0.6;
+  margin-bottom: 10px;
+}
+
+.socialLink {
+  display: block;
+  font-family: var(--font-poster);
+  font-size: 28px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #000;
+  text-decoration: none;
+  line-height: 1.2;
+  margin: 4px 0;
+  transition: opacity 0.15s ease;
+}
+.socialLink:hover {
+  opacity: 0.55;
+}
+
+.legal {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-family: var(--font-poster);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin: 26px 0 0;
+}
+
+.legalLink {
+  color: #000;
+  text-decoration: none;
+  opacity: 0.75;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+.legalLink:hover {
+  opacity: 1;
+}
+/* "Cookies verwalten" renders as a <button> but must read as a legal link —
+   strip the native button chrome and inherit the .legal row's type styling. */
+.legalBtn {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.meta {
+  margin: 22px 0 0;
+  padding: 18px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-poster);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.copy {
+  color: #000;
+  opacity: 0.6;
+}
+
+/* Dark-mode toggle (iOS-style switch). The footer is brand-yellow in both
+   themes, so the toggle keeps ink colours regardless of theme — only the
+   thumb position + track fill signal the state. */
+.themeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 0;
+  padding: 4px 6px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.themeTrack {
+  position: relative;
+  width: 44px;
+  height: 22px;
+  background: transparent;
+  border: 1.5px solid #000;
+  border-radius: 999px;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+.themeThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 15px;
+  height: 15px;
+  background: #000;
+  border-radius: 50%;
+  transition: left 0.2s ease;
+}
+.themeToggleOn .themeTrack {
+  background: rgba(0, 0, 0, 0.18);
+}
+.themeToggleOn .themeThumb {
+  left: 24px;
+}
+.themeLabel {
+  font-family: var(--font-poster);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #000;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+.themeToggle:hover .themeLabel {
+  opacity: 1;
+}
+
+.lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.langBtn {
+  background: transparent;
+  border: 0;
+  padding: 4px 6px;
+  font-family: var(--font-poster);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #000;
+  opacity: 0.55;
+  cursor: pointer;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+.langBtn:hover {
+  opacity: 1;
+}
+.langBtnActive {
+  opacity: 1;
+  color: #0a0a0a;
+}
+
+.langSep {
+  color: #000;
+  opacity: 0.3;
+}
+
+@media (min-width: 720px) {
+  .footer {
+    padding: 56px 32px 40px;
+  }
+  .megaImg {
+    max-width: 340px;
+  }
+  .tagImg {
+    max-width: 290px;
+  }
+}
+
+@media (min-width: 960px) {
+  .footer {
+    padding: 72px 80px 48px;
+  }
+  .megaImg {
+    max-width: 400px;
+  }
+  .tagImg {
+    max-width: 340px;
+  }
+}
+
+/* ── Dark mode: Footer kippt auf Brand-Rot (User-Entscheidung 2026-06-03) ──
+   Cream-Inhalte auf #a02814. Bubble-Logo (cream+ink) liest auf Rot as-is;
+   der schwarze Slogan-Schriftzug wird per invert weiß. */
+html[data-theme="dark"] .footer {
+  background: #a02814;
+  color: #fbf8ee;
+  border-top-color: rgba(0, 0, 0, 0.35);
+}
+html[data-theme="dark"] .tagImg { filter: invert(1); }
+html[data-theme="dark"] .tag,
+html[data-theme="dark"] .socialLink,
+html[data-theme="dark"] .legalLink,
+html[data-theme="dark"] .langBtn,
+html[data-theme="dark"] .langSep,
+html[data-theme="dark"] .copy,
+html[data-theme="dark"] .langBtnActive {
+  color: #fbf8ee;
+}
+html[data-theme="dark"] .linksKicker { color: #fbf8ee; opacity: 0.7; }
+html[data-theme="dark"] .themeTrack { border-color: #fbf8ee; }
+html[data-theme="dark"] .themeThumb { background: #fbf8ee; }
+html[data-theme="dark"] .themeToggleOn .themeTrack { background: rgba(251, 248, 238, 0.25); }
+html[data-theme="dark"] .themeLabel { color: #fbf8ee; }

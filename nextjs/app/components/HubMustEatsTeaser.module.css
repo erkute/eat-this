@@ -1,0 +1,112 @@
+.section {
+  background: #fbf8ee;
+  padding: 20px 0 28px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 11vw, 44px);
+  line-height: 1.08;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 36px 16px 2px;
+  padding-top: 6px;
+}
+
+.sub {
+  margin: 0 16px 14px;
+  font-family: var(--font);
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* Freigestellt (cut-out) trading cards — no frame, no background, no
+   border-radius (would clip the card's own white corners). Just the floating
+   card with a slight deterministic tilt + drop-shadow lift. */
+.row {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 6px 16px 12px;
+  margin: 0;
+  list-style: none;
+}
+.row::-webkit-scrollbar {
+  display: none;
+}
+.item {
+  flex: 0 0 132px;
+  scroll-snap-align: start;
+  margin: 0;
+}
+/* The anchor is layout-invisible — the card image inside stays the visual. */
+.cardLink {
+  display: block;
+}
+.card {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1539 / 2115;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 10px rgba(10, 10, 10, .28));
+}
+.item:nth-child(odd) .card {
+  transform: rotate(-2deg);
+}
+.item:nth-child(even) .card {
+  transform: rotate(2deg);
+}
+
+.foot {
+  margin: 4px 16px 12px;
+  text-align: right;
+}
+.cta {
+  display: inline-block;
+  background: var(--brand-yellow);
+  color: #0a0a0a;
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1;
+  padding: 12px 18px;
+  border: 2px solid #0a0a0a;
+  box-shadow: 4px 4px 0 #0a0a0a;
+  text-decoration: none;
+}
+.cta:active {
+  box-shadow: 0 0 0 #0a0a0a;
+  transform: translate(4px, 4px);
+}
+
+/* ── Desktop: centered column, scroller becomes a centered row ── */
+@media (min-width: 720px) {
+  .section { padding-inline: max(16px, calc((100% - 1120px) / 2)); }
+  .title { margin: 44px 0 4px; font-size: clamp(44px, 5vw, 56px); }
+  .sub { margin-left: 0; margin-right: 0; }
+  .row {
+    overflow: visible;
+    flex-wrap: wrap;
+    padding: 8px 0 14px;
+  }
+  .item { flex: 0 0 150px; }
+  .foot { margin: 10px 0 18px; }
+}
+
+/* ── Dark mode: dark page, warm-cream ink, red CTA. Freigestellt cards left
+   untouched. ── */
+html[data-theme="dark"] .section { background: var(--dk-page); }
+html[data-theme="dark"] .title { color: var(--dk-ink); }
+/* CTA: yellow fill + ink → red fill + cream label, ink border/shadow → cream */
+html[data-theme="dark"] .cta {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-color: var(--dk-ink);
+  box-shadow: 4px 4px 0 var(--dk-rule);
+}
+html[data-theme="dark"] .cta:active { box-shadow: 0 0 0 var(--dk-rule); }

@@ -1,0 +1,734 @@
+/* ============================================================
+   Restaurant Detail — SCREEN 3 (Bar Basta) translation.
+   Cream/ink/yellow palette identisch zu Bezirk-Hub. Anton display,
+   Inter body. Drop-cap auf description, yellow Insider-Tipp mit
+   6px ink box-shadow, editorial facts list.
+============================================================ */
+
+.page {
+  --ink: #000;
+  --cream: #fbf8ee;
+  --cream-deep: #f1ecdd;
+  --yellow: #ffd84a;
+  --muted: #6b5a44;
+  --f-display: var(--font-poster, "Chewy"), "Comic Sans MS", cursive;
+  --f-body: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+
+  /* Bridge semantic tokens so shared components (MustEatTeaserSection,
+     Breadcrumbs, RestaurantFAQ) render in cream palette. */
+  --text-primary: var(--ink);
+  --text-secondary: #2a2218;
+  --text-muted: var(--muted);
+  --surface-bg: var(--cream);
+  --surface-card: var(--cream);
+  --border-subtle: rgba(0, 0, 0, 0.18);
+  --border-strong: var(--ink);
+  --accent: var(--yellow);
+
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--f-body);
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 16px) 0 0;
+  display: flow-root;
+  position: relative;
+  overflow-x: clip;
+}
+
+/* Breadcrumbs container should respect horizontal page padding */
+.page > nav[aria-label] {
+  padding: 0 16px;
+  margin-bottom: 4px;
+}
+
+/* ============================================================
+   HERO PHOTO (4/5) with bottom gradient + tags overlay
+============================================================ */
+.hero {
+  position: relative;
+  margin: 8px 14px 0;
+  aspect-ratio: 4 / 5;
+  background-color: #14100c;
+  overflow: hidden;
+}
+.heroImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.heroGradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.15) 0%,
+    rgba(0, 0, 0, 0) 22%,
+    rgba(0, 0, 0, 0) 45%,
+    rgba(0, 0, 0, 0.55) 75%,
+    rgba(0, 0, 0, 0.92) 100%
+  );
+  pointer-events: none;
+}
+.heroTopcap {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: flex-start;
+  z-index: 2;
+}
+.openPill {
+  background: var(--yellow);
+  color: var(--ink);
+  font-family: var(--f-display);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 9px 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.openPill::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--ink);
+  border-radius: 999px;
+}
+.openPill.closed {
+  background: var(--cream-deep);
+  color: var(--ink);
+  opacity: 0.85;
+}
+.openPill.closed::before {
+  background: var(--ink);
+  opacity: 0.45;
+}
+.heroOverlay {
+  position: absolute;
+  inset: auto 18px 18px;
+  z-index: 2;
+  color: var(--cream);
+}
+.heroName {
+  font-family: var(--f-display);
+  font-size: clamp(38px, 11vw, 64px);
+  /* Chewy is wider/rounder than the old Anton — smaller max so long names
+     fit; 1.05 keeps Ä/Ö/Ü dots clear from line 1 when the name wraps. */
+  line-height: 1.05;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--cream);
+  margin: 0 0 10px;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
+  word-break: break-word;
+}
+.heroTags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-family: var(--f-display);
+  font-size: 13px;
+  line-height: 1.15;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.heroTags .chip {
+  background: var(--yellow);
+  color: var(--ink);
+  padding: 5px 10px 5px;
+}
+.heroTags .chipAlt {
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--cream);
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  padding: 4px 10px 4px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.heroTags .chipOpen,
+.heroTags .chipClosed {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.heroTags .chipOpen::before,
+.heroTags .chipClosed::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--cream);
+}
+.heroTags .chipClosed {
+  opacity: 0.72;
+}
+.heroTags .chipClosed::before {
+  opacity: 0.55;
+}
+
+/* ============================================================
+   NAME (h1 unter Hero)
+============================================================ */
+.name {
+  font-family: var(--f-display);
+  font-size: clamp(38px, 10vw, 60px);
+  /* See .heroName note — same umlaut-clearance fix when names wrap. */
+  line-height: 1.05;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 16px 14px 0;
+  word-break: break-word;
+  hyphens: auto;
+}
+.tags {
+  margin: 8px 16px 16px;
+  font-family: var(--f-display);
+  font-size: 14px;
+  line-height: 1.15;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.tags .chip {
+  background: var(--yellow);
+  color: var(--ink);
+  padding: 5px 10px 5px;
+}
+.tags .chipAlt {
+  background: transparent;
+  border: 1.5px solid var(--ink);
+  color: var(--ink);
+  padding: 4px 10px 4px;
+}
+
+/* ============================================================
+   INSIDER TIPP — yellow surface with offset ink shadow
+============================================================ */
+.tipp {
+  margin: 24px 16px 28px;
+  background: var(--yellow);
+  color: var(--ink);
+  padding: 18px 20px 20px;
+  position: relative;
+  display: grid;
+  gap: 8px;
+  border: 2px solid var(--ink);
+  box-shadow: 6px 6px 0 0 var(--ink);
+}
+.tippLabel {
+  font-family: var(--f-display);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.tippLabel::before {
+  content: "\2726";
+  font-size: 18px;
+  line-height: 1;
+}
+.tippText {
+  font-family: var(--f-body);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* ============================================================
+   STORY (description with drop-cap)
+============================================================ */
+.story {
+  margin: 32px 0 8px;
+  padding: 0 18px;
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.story p {
+  margin: 0 0 14px;
+}
+.lede::first-letter {
+  font-family: var(--f-display);
+  font-size: 60px;
+  line-height: 0.9;
+  color: var(--ink);
+  float: left;
+  padding: 8px 10px 0 0;
+  text-transform: uppercase;
+}
+.pullQuote {
+  font-family: var(--f-display);
+  font-size: clamp(22px, 6vw, 26px);
+  line-height: 1.05;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 22px 0 22px;
+  padding: 0;
+  border: 0;
+}
+
+/* ============================================================
+   FACTS — editorial key/value list
+============================================================ */
+.facts {
+  margin: 18px 16px 26px;
+  display: grid;
+  gap: 0;
+  border-top: 1.5px solid var(--ink);
+}
+.factsRow {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 14px;
+  padding: 13px 2px;
+  border-bottom: 1.5px solid var(--ink);
+  align-items: baseline;
+}
+.factsKey {
+  font-family: var(--f-display);
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  text-transform: uppercase;
+  line-height: 1.15;
+}
+.factsVal {
+  font-family: var(--f-body);
+  color: var(--ink);
+  font-size: 14.5px;
+  line-height: 1.5;
+  font-weight: 400;
+}
+.factsVal a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+.hours {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 12px;
+  row-gap: 4px;
+  font-variant-numeric: tabular-nums;
+  align-items: baseline;
+}
+.hoursDay {
+  font-family: var(--f-display);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  /* Hyphen-minus in "Mo-Fr" is a soft-break point in CSS — without
+     nowrap, the day token can split across two lines on narrow mobile
+     columns. */
+  white-space: nowrap;
+}
+.hoursTime {
+  font-family: var(--f-body);
+  font-size: 14.5px;
+  line-height: 1.4;
+  /* Same reason as .hoursDay — keep "12:00-22:00" on a single visual
+     line so the row reads as one tidy day/time pair. */
+  white-space: nowrap;
+}
+
+/* ============================================================
+   ACTIONS — primary ink, alt outline
+============================================================ */
+.acts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 6px 14px 26px;
+}
+.acts:has(> .act:only-child) {
+  grid-template-columns: 1fr;
+}
+.act {
+  font-family: var(--f-display);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 13px 16px 14px;
+  cursor: pointer;
+  border: 1.5px solid var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1;
+  text-decoration: none;
+}
+.actPrimary {
+  background: var(--ink);
+  color: var(--cream);
+}
+/* ============================================================
+   SIBLING CROSS-LINKS
+============================================================ */
+.siblings {
+  padding: 24px 16px 8px;
+  border-top: 2px solid var(--ink);
+  margin-top: 16px;
+}
+.siblings h2 {
+  font-family: var(--f-display);
+  font-size: clamp(30px, 7vw, 46px);
+  line-height: 1.0;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0 0 20px;
+}
+.sibRow {
+  margin-bottom: 28px;
+}
+.sibRowHead {
+  /* Mobile lifts from 12px caps low-opacity label into a proper Anton
+     subhead — matches the desktop treatment so the hierarchy reads on
+     both viewports instead of shrinking to a quiet label on phone. */
+  font-family: var(--f-display);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0 0 14px;
+}
+.sibCards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 12px;
+}
+.sibCard {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform 0.15s ease;
+}
+.sibCard:hover {
+  transform: translateY(-2px);
+}
+.sibPhoto {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--cream-deep);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.sibName {
+  font-family: var(--f-display);
+  font-size: 20px;
+  line-height: 1.05;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0 0 5px;
+}
+.sibMeta {
+  font-family: var(--f-body);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.65;
+  font-weight: 600;
+}
+
+/* ============================================================
+   Responsive
+============================================================ */
+@media (min-width: 720px) {
+  .page {
+    padding: calc(64px + var(--staging-banner-h, 0px) + env(safe-area-inset-top, 0px) + 24px) 0 0;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .hero { margin: 8px 22px 0; }
+  .name { margin: 20px 22px 0; }
+  .tags { margin: 10px 22px 18px; }
+  .tipp { margin: 8px 22px 28px; }
+  .story { padding: 0 22px 8px; }
+  .facts { margin: 18px 22px 28px; }
+  .acts { padding: 6px 22px 28px; }
+  .siblings { padding: 28px 22px 8px; }
+  .sibCards {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Full-viewport envelope to match the Bezirk/Kategorie hub pages
+     (same 80px gutters, no max-width cap). Reset the 760px tablet cap
+     from the 720px block — without this the cascade keeps the page
+     narrower than the Bezirk hub on desktop. Story/tipp self-cap at
+     680px so the reading rhythm survives the wider canvas. */
+  .page {
+    /* Centred content column, matching the Bezirk/Kategorie hub measure so
+       all SEO surfaces share one rhythm (was full-bleed 1280, too wide). */
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 88px 64px 0;
+  }
+
+  /* HERO — Cover-style letterbox spanning the full content column. A wide
+     2.2/1 ratio keeps the height calm (~480px in the 1180 column) WITHOUT a
+     max-height cap — aspect-ratio + max-height made Chrome derive the width
+     from the capped height (→ 818px, left-aligned with a void). Full width
+     now, edge to edge of the centred column. */
+  .hero {
+    margin: 12px 0 0;
+    width: 100%;
+    aspect-ratio: 2 / 1;
+  }
+  .heroOverlay {
+    inset: auto 40px 36px;
+  }
+  .heroName {
+    /* Shared scale with the Bezirk/Kategorie H1 (confident middle, not the
+       Anton-era 104). */
+    font-size: clamp(48px, 5.6vw, 84px);
+    margin: 0 0 14px;
+  }
+  .heroTags {
+    font-size: 15px;
+  }
+  .heroTags .chip,
+  .heroTags .chipAlt {
+    padding: 5px 12px 6px;
+  }
+
+  /* H1 (when no photo) — same scale as the overlay variant. */
+  .name {
+    font-size: clamp(48px, 5.6vw, 84px);
+    margin: 28px 0 0;
+  }
+
+  /* STORY — narrow reading column, centered with auto margins. Stays
+     legible while page itself is wider. */
+  .story {
+    font-size: 18px;
+    line-height: 1.65;
+    padding: 0;
+    margin: 48px auto 12px;
+    max-width: 700px;
+  }
+  .lede::first-letter {
+    font-size: 80px;
+    padding: 12px 14px 0 0;
+  }
+  .pullQuote {
+    font-size: clamp(28px, 3vw, 36px);
+    line-height: 1.05;
+    margin: 32px 0;
+  }
+
+  /* TIPP — sits with the story column for narrative tie-in. */
+  .tipp {
+    margin: 32px auto 40px;
+    max-width: 680px;
+    padding: 26px 28px 28px;
+    box-shadow: 8px 8px 0 0 var(--ink);
+  }
+  .tippLabel {
+    font-size: 16px;
+  }
+  .tippText {
+    font-size: 17px;
+    line-height: 1.55;
+  }
+
+  /* FACTS — horizontal 3-col strip spanning full content width. Much
+     more impactful than the mobile vertical list when the eye has room. */
+  .facts {
+    margin: 16px 0 32px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    display: grid;
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    column-gap: 0;
+  }
+  .factsRow {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    grid-template-columns: none;
+    padding: 22px 24px 24px;
+    border-bottom: 0;
+    border-right: 1.5px solid var(--ink);
+    gap: 10px;
+  }
+  .factsRow:last-child {
+    border-right: 0;
+  }
+  .factsKey {
+    font-size: 13px;
+    letter-spacing: 0.14em;
+  }
+  .factsVal {
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .hours {
+    column-gap: 16px;
+    row-gap: 5px;
+  }
+
+  /* ACTS — centred row of buttons under the facts strip. Start-aligned in
+     the wide column left them hugging the left edge, looking lost. */
+  .acts {
+    grid-template-columns: auto auto;
+    justify-content: center;
+    gap: 12px;
+    padding: 0 0 40px;
+  }
+  .act {
+    font-size: 15px;
+    padding: 16px 28px 17px;
+    min-width: 220px;
+  }
+
+  /* SIBLINGS — way bigger typography. The "Mehr in Berlin" lockup carries
+     the bottom of the page; cards get more room to land. */
+  .siblings {
+    padding: 56px 0 16px;
+    margin-top: 24px;
+    border-top: 3px solid var(--ink);
+  }
+  .siblings h2 {
+    font-size: clamp(40px, 4.4vw, 68px);
+    line-height: 1.0;
+    margin: 0 0 36px;
+  }
+  .sibRow {
+    margin-bottom: 56px;
+  }
+  .sibRowHead {
+    font-family: var(--f-display);
+    font-size: clamp(22px, 2.2vw, 32px);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
+    opacity: 1;
+    text-transform: uppercase;
+    margin: 0 0 24px;
+  }
+  .sibCards {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px 28px;
+  }
+  .sibPhoto {
+    aspect-ratio: 4 / 3;
+    margin-bottom: 16px;
+  }
+  .sibName {
+    font-size: clamp(22px, 1.8vw, 30px);
+    line-height: 1.04;
+    margin-bottom: 6px;
+  }
+  .sibMeta {
+    font-size: 12px;
+  }
+}
+
+/* ============================================================
+   DARK MODE — dark surfaces, red accents replace yellow.
+   Token re-point flips most of the page; the yellow Insider-Tipp,
+   the ink action button, and the hero gradient/photo overlays get
+   explicit handling. Photos and text-over-photo stay untouched.
+============================================================ */
+html[data-theme="dark"] .page {
+  --ink: #f0e8d0;
+  --cream: #111110;
+  --cream-deep: #1d1c19;
+  --yellow: var(--c-coral);
+  --muted: rgba(240, 232, 208, 0.72);
+
+  --text-primary: #f0e8d0;
+  --text-secondary: rgba(240, 232, 208, 0.82);
+  --text-muted: rgba(240, 232, 208, 0.72);
+  --surface-bg: #111110;
+  --surface-card: #1d1c19;
+  --border-subtle: rgba(240, 232, 208, 0.3);
+  --border-strong: #f0e8d0;
+  --accent: var(--c-coral);
+}
+
+/* Hero pill + chips sit on the photo (already dark) — flip the yellow
+   fill to coral with cream label, leave the white-glass alt chip. */
+html[data-theme="dark"] .openPill {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+html[data-theme="dark"] .openPill::before {
+  background: #fbf8ee;
+}
+html[data-theme="dark"] .openPill.closed {
+  background: rgba(240, 232, 208, 0.16);
+  color: var(--cream);
+}
+html[data-theme="dark"] .openPill.closed::before {
+  background: var(--cream);
+}
+html[data-theme="dark"] .heroTags .chip,
+html[data-theme="dark"] .tags .chip {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+
+/* Insider-Tipp — was yellow fill + ink border + ink offset shadow.
+   In dark it becomes a coral sticker with cream label and a cream
+   offset shadow so it still reads as a raised callout. */
+html[data-theme="dark"] .tipp {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-color: #f0e8d0;
+  box-shadow: 6px 6px 0 0 rgba(240, 232, 208, 0.25);
+}
+html[data-theme="dark"] .tippLabel,
+html[data-theme="dark"] .tippText {
+  color: #fbf8ee;
+}
+
+/* Primary action button — was ink bg / cream label. On a now-dark page
+   that inverts so the CTA stays the high-contrast block. */
+html[data-theme="dark"] .actPrimary {
+  background: #f0e8d0;
+  color: #0a0a0a;
+}
+
+@media (min-width: 1024px) {
+  /* Tipp offset shadow grows on desktop — keep it cream in dark. */
+  html[data-theme="dark"] .tipp {
+    box-shadow: 8px 8px 0 0 rgba(240, 232, 208, 0.25);
+  }
+}
+
+/* On-photo text: --cream is in dark auf #111110 umgebogen (Seitenflächen),
+   aber Hero-Name/Overlay/Chips nutzen --cream als TEXT über dem Foto —
+   die müssen hell bleiben. Explizit auf literal cream pinnen. */
+html[data-theme="dark"] .heroOverlay { color: #fbf8ee; }
+html[data-theme="dark"] .heroName { color: #fbf8ee; }
+html[data-theme="dark"] .heroTags .chipAlt { color: #fbf8ee; }
+html[data-theme="dark"] .heroTags .chipOpen::before,
+html[data-theme="dark"] .heroTags .chipClosed::before { background: #fbf8ee; }
+html[data-theme="dark"] .openPill.closed { color: #fbf8ee; }
+html[data-theme="dark"] .openPill.closed::before { background: #fbf8ee; }

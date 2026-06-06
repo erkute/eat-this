@@ -103,7 +103,7 @@ const en = {
     howItWorks: "How does it work?",
     onbStep1: "Every top restaurant has ONE dish you need to try.",
     onbStep2: "Face-down cards flip by themselves when you're at the restaurant.",
-    onbStep3: "Booster Packs bring you new spots \u2014 many with a Must Eat.",
+    onbStep3: "Booster Packs bring you new spots — many with a Must Eat.",
     onbNext: "Next",
     onbStart: "Let's go",
     onbClose: "Close",

@@ -12,6 +12,7 @@ import {
 } from '@/lib/map/tier-composition'
 import { applySpotOfDayReveal } from '@/lib/map/spotOfDayReveal'
 import { getSpotOfDayId } from '@/lib/home/spotOfDay.server'
+import { getFreeSurfaceData, applyFreeSurface } from '@/lib/map/free-surface'
 
 // Per-user response. Disable framework-level caching; the expensive Sanity
 // fetch is shared via the module-level cache in cached-sanity.ts.
@@ -39,7 +40,10 @@ export async function GET(req: Request) {
   }
 
   const ent = await resolveEntitlements(uid, identity)
-  const { restaurants: all, mustEats: allMustEats, categories } = await getCachedMapData()
+  const [{ restaurants: all, mustEats: allMustEats, categories }, freeSurface] = await Promise.all([
+    getCachedMapData(),
+    getFreeSurfaceData(),
+  ])
 
   // Precompute must-eat counts (shared across tier composers + visibility predicates).
   const mustEatCountByRestaurant = new Map<string, number>()
@@ -111,6 +115,13 @@ export async function GET(req: Request) {
       visibleRestaurants = tierUnion
     }
   }
+
+  // Free surface: alles, was Home/News anteasert (Neu auf der Map, Bezirk der
+  // Woche, Artikel-Spots), ist für ALLE free — Gast und signed (sonst sähe ein
+  // eingeloggter User weniger als ein Gast). Wichtig: revealedSet ist oben
+  // bereits aus dem puren Anon-Tier berechnet — Free-Surface-Spots liefern
+  // Card-Backs, nie zusätzliche face-up-Karten.
+  visibleRestaurants = applyFreeSurface(visibleRestaurants, all, freeSurface.restaurantIds)
 
   const visibleIdSet      = new Set(visibleRestaurants.map((r) => r._id))
   const visibleMustEats   = allMustEats.filter((m) => visibleIdSet.has(m.restaurant._id))

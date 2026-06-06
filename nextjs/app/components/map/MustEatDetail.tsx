@@ -1,5 +1,8 @@
 'use client'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useLocale } from 'next-intl'
+import { routing } from '@/i18n/routing'
 import type { MapMustEat } from '@/lib/types'
 import type { UserLocation } from '@/lib/map'
 import MustEatRevealOverlay from './MustEatRevealOverlay'
@@ -53,7 +56,15 @@ export default function MustEatDetail({
     }
     try { return sessionStorage.getItem('revealdemo') === '1' } catch { return false }
   })
-  const state = useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthed: Boolean(uid), demo })
+  // Guest revealed on site (within 50 m) → login gate: the card goes into
+  // the deck only with an account.
+  const router = useRouter()
+  const locale = useLocale()
+  const handleRequireLogin = useCallback(() => {
+    const base = locale === routing.defaultLocale ? '/login' : `/${locale}/login`
+    router.push(`${base}?ctx=musteat`)
+  }, [router, locale])
+  const state = useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthed: Boolean(uid), onRequireLogin: handleRequireLogin, demo })
   // In demo the card stays face-down until the reveal animation finishes, then
   // latches open in place. Real flow: the entitlement flips `isUnlocked`.
   const [demoRevealed, setDemoRevealed] = useState(false)

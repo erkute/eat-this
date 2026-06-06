@@ -7,6 +7,7 @@ import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
 import ReferralToastListener from '@/app/components/ReferralToastListener';
 import NotificationToast from '@/app/components/NotificationToast';
+import ScrollRestorer from '@/app/components/ScrollRestorer';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { SITE_URL } from '@/lib/constants';
 
@@ -125,9 +126,9 @@ export function generateStaticParams() {
 // Hardcoded bootstrap constant (no user input) — safely inlined via script tag.
 // Runs synchronously in <head>: sets data-theme, data-active-page (read by CSS
 // selectors like [data-active-page="map"] .navbar), locks
-// portrait orientation on mobile, disables browser scroll restoration, and
-// applies the _authHint pre-hydration login-button state plus a data-auth
-// flag on <html> so signed-in-only/anon-only blocks can hide before paint.
+// portrait orientation on mobile, and applies the _authHint pre-hydration
+// login-button state plus a data-auth flag on <html> so signed-in-only/anon-only
+// blocks can hide before paint.
 const CRITICAL_BOOTSTRAP = `(function(){
   var s=localStorage.getItem('theme');
   var dark=s==='dark'||(!s&&window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -139,7 +140,6 @@ const CRITICAL_BOOTSTRAP = `(function(){
   else if(p.indexOf('/news/')===0&&p.length>6)slug='news-article';
   else slug=p.replace(/^\\//,'').split('/')[0];
   document.documentElement.setAttribute('data-active-page',slug);
-  if('scrollRestoration' in history)history.scrollRestoration='manual';
   if(window.innerWidth<=767&&screen.orientation&&screen.orientation.lock){screen.orientation.lock('portrait').catch(function(){});}
   try{var ah=JSON.parse(localStorage.getItem('_authHint')||'null');if(ah&&ah.n){document.documentElement.setAttribute('data-auth','1');document.addEventListener('DOMContentLoaded',function(){var lb=document.getElementById('loginBtn');if(!lb)return;lb.classList.add('logged-in');var sp=lb.querySelector('span');if(sp)sp.textContent=ah.n;});}}catch(_){}
 }());`;
@@ -209,6 +209,7 @@ export default async function LocaleLayout({
               SPA layout, so /profile and /login get feedback too. Styled in
               globals.css (those routes don't load the SPA stylesheet). */}
           <NotificationToast />
+          <ScrollRestorer />
           {children}
           {modal}
         </ClientIntlProvider>

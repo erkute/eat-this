@@ -169,6 +169,19 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   onClick={onRestaurantClick}
                 />
               ))}
+              {/* Deep-Link/Locked-Selektion: der selektierte Spot kann außerhalb
+                  des sichtbaren Sets liegen (alter Share-Link, locked Preview).
+                  Immer einen Pin geben — sonst zentriert die Kamera sichtbar
+                  auf nichts. */}
+              {selectedRestaurant &&
+                !displayedRestaurants.some((r) => r._id === selectedRestaurant._id) && (
+                  <RestaurantMarker
+                    key={selectedRestaurant._id}
+                    restaurant={selectedRestaurant}
+                    isSelected
+                    onClick={onRestaurantClick}
+                  />
+                )}
               {location && <UserLocationMarker location={location} />}
             </MapCanvas>
 

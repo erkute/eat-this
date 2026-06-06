@@ -15,7 +15,7 @@ const SITE_URL = 'https://www.eatthisdot.com'
 const TITLE = 'EAT THIS – Berlin Food Guide: Restaurants & Geheimtipps'
 const DESCRIPTION =
   'We tell you what to eat — die kuratierte Food Map mit den besten Restaurants, Cafés und Bars in Berlin. Dazu exklusive Must Eats auf der interaktiven Karte.'
-const OG_IMAGE = SITE_URL + '/pics/og-card.png'
+const OG_IMAGE = SITE_URL + '/pics/og-card.png?v=2'
 
 export const metadata: Metadata = {
   // `absolute` bypasses the root '%s | Eat This Berlin' template — the brand
@@ -58,7 +58,7 @@ export default async function SPALayout({
     <>
       {/* Full SPA stylesheet — hoisted to <head> by Next.js */}
       {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/css/style.min.css?v=165" precedence="default" />
+      <link rel="stylesheet" href="/css/style.min.css?v=167" precedence="default" />
 
       <link rel="preconnect" href="https://ehwjnjr2.apicdn.sanity.io" crossOrigin="anonymous" />
       <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />

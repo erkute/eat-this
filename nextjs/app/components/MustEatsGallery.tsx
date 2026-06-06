@@ -26,18 +26,16 @@ export default function MustEatsGallery({ initialMapData }: Props) {
   const [filter, setFilter] = useState<MustEatFilter>('all')
 
   // Deterministic public catalog: every visitor — guest or signed-in — sees
-  // the same anon view (trial-10 + spot-of-day face-up, rest covered). The
-  // personal collection lives in the profile; this page never personalizes.
-  // Pure function of `initialMapData` → identical on server and client, no
-  // hydration risk.
+  // the same anon view (10 curated cards + spot-of-day face-up, rest covered).
+  // The personal collection lives in the profile; this page never
+  // personalizes. Pure function of `initialMapData` → identical on server and
+  // client, no hydration risk.
   const faceUp = useMemo(
     () =>
       resolveUnlockedMustEatIds({
         uid: null,
         storedUnlockedIds: new Set<string>(),
         revealedMustEatIds: new Set<string>(initialMapData.revealedMustEatIds),
-        mustEats: initialMapData.mustEats,
-        restaurants: initialMapData.restaurants,
       }),
     [initialMapData],
   )

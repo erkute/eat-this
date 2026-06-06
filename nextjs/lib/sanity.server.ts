@@ -20,6 +20,7 @@ import {
   featuredSpotsQuery,
   featuredSpotsFallbackQuery,
   emailSpotsQuery,
+  emailSpotCardQuery,
 } from './queries'
 import type { Restaurant, NewsArticle, StaticPageDoc, MustEatAlbumCard, BezirkDoc, RestaurantCard } from './types'
 import type { CategoryDef } from './categories'
@@ -190,6 +191,7 @@ export async function getFeaturedSpots(limit: number): Promise<RestaurantCard[]>
 
 export type EmailSpot = {
   name: string
+  slug: string
   area: string
   cuisine?: string
   photo: string
@@ -201,6 +203,17 @@ export async function getEmailSpots(limit: number): Promise<EmailSpot[]> {
   return client.fetch<EmailSpot[]>(
     emailSpotsQuery,
     { limit },
+    { next: { revalidate: 3600, tags: ['restaurant'] } }
+  )
+}
+
+// One spot for the composed email card image (/api/email/spot-card).
+export async function getEmailSpotCard(
+  slug: string
+): Promise<Omit<EmailSpot, 'slug'> | null> {
+  return client.fetch<Omit<EmailSpot, 'slug'> | null>(
+    emailSpotCardQuery,
+    { slug },
     { next: { revalidate: 3600, tags: ['restaurant'] } }
   )
 }

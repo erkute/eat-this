@@ -56,7 +56,6 @@ const en = {
     },
     newOnMap: {
       title: "New on the map",
-      all: "All new spots →",
     },
     magazine: {
       title: "In the magazine",
@@ -70,7 +69,7 @@ const en = {
       sub: "Restaurants and Must Eats around you",
       subFallback: "Mitte · Restaurants and Must Eats around you",
       mustEatsTitle: "Must Eats near you",
-      mustEatsSub: "The dishes you can’t miss",
+      mustEatsSub: "Face-down cards around you — go there and flip them",
       more: "More Must Eats →",
     },
     welcomePack: {
@@ -101,7 +100,6 @@ const en = {
     teaserTitle: "Must Eats",
     teaserSub: "The dishes you can't miss in Berlin.",
     teaserCta: "All Must Eats \u2192",
-    teaserCardLocked: "View face-down Must Eat on the map",
   },
   news: {
     sectionLabel: "Berlin",
@@ -301,6 +299,7 @@ const en = {
       kicker: "Welcome Pack",
       heroH1: "More on it",
       heroSub: "More curated spots and their Must Eats — on your map right after sign-in.",
+      mustEatGateSub: "Want this Must Eat in your deck? Log in — then reveal it right here on site.",
       legalLead: "By signing in you accept our",
       legalAnd: "and our",
       sentKicker: "Sign-in link on its way",
@@ -400,7 +399,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     },
     newOnMap: {
       title: "Neu auf der Map",
-      all: "Alle neuen Spots →",
     },
     magazine: {
       title: "Im Magazin",
@@ -414,7 +412,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       sub: "Restaurants und Must Eats um dich herum",
       subFallback: "Mitte · Restaurants und Must Eats um dich herum",
       mustEatsTitle: "Must Eats in deiner Nähe",
-      mustEatsSub: "Die Gerichte, die du nicht verpassen darfst",
+      mustEatsSub: "Verdeckte Karten um dich herum — geh hin und dreh sie um",
       more: "Mehr Must Eats →",
     },
     welcomePack: {
@@ -436,7 +434,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     covered: "Verdeckt",
     teaserSub: "Die Gerichte, die du nicht verpassen darfst.",
     teaserCta: "Alle Must Eats →",
-    teaserCardLocked: "Verdecktes Must Eat auf der Map ansehen",
   },
   news: {
     errorLoad: "Artikel konnten nicht geladen werden. Bitte versuche es sp\u00e4ter erneut.",
@@ -625,6 +622,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       kicker: "Welcome Pack",
       heroH1: "Mehr drauf",
       heroSub: "Mehr kuratierte Spots samt Must Eats \u2014 direkt nach der Anmeldung auf deiner Map.",
+      mustEatGateSub: "Wenn du dein Must Eat ins Deck willst, log dich ein \u2014 danach deckst du es direkt vor Ort auf.",
       legalLead: "Mit deiner Anmeldung akzeptierst du unsere",
       legalAnd: "und die",
       sentKicker: "Anmelde-Link unterwegs",

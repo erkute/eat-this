@@ -2,7 +2,6 @@ import {
   Body,
   Container,
   Head,
-  Heading,
   Html,
   Img,
   Link,
@@ -19,9 +18,11 @@ export interface EmailMustEat {
   cardPhoto: string;
 }
 
-/** One curated restaurant: its photo on the left, its Must-Eat cards on the right. */
+/** One curated restaurant teased in the email. */
 export interface EmailSpot {
   name: string;
+  /** Sanity slug — drives the /map?r= deep-link and the composed card image. */
+  slug: string;
   /** Neighborhood / district, e.g. "Mitte". */
   area: string;
   /** Cuisine label, e.g. "Bakery". */
@@ -53,24 +54,10 @@ const PALETTE = {
   muted:  '#6B6B6B',
 };
 
-// Brand-display stack: Chewy where the client supports webfonts (Apple/iOS
-// Mail), heavy rounded system fallback (Arial Black) everywhere else.
-const DISPLAY_FONT =
-  "'Chewy', 'Arial Black', 'Helvetica Neue', Arial, sans-serif";
+// Body copy only — every display-font surface (headline, spot cards) is a
+// pre-rendered image, because Gmail never loads webfonts.
 const BODY_FONT =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-
-// Banner-crop a Sanity CDN URL for the restaurant layer — server-side crop so
-// we don't rely on object-fit (unsupported in several email clients).
-function restaurantBanner(photo: string): string {
-  return `${photo.split('?')[0]}?w=640&h=360&fit=crop&auto=format&q=80`;
-}
-
-// Size a Sanity CDN image without cropping — the Must-Eat cards are pre-composed
-// portrait artwork, kept whole and shown larger so they read as cards.
-function cardImage(photo: string): string {
-  return `${photo.split('?')[0]}?w=400&auto=format&q=80`;
-}
 
 export default function MagicLinkEmail({
   magicLink,
@@ -81,17 +68,20 @@ export default function MagicLinkEmail({
   const spots = restaurants.slice(0, 4);
 
   // First-time signup pitches the product; a returning login just greets back.
-  const headlineLine1 = returning ? 'Willkommen' : 'Deine kuratierte';
-  const headlineLine2 = returning ? 'zurück.' : 'Food Discovery Map';
+  // The headline is a pre-rendered Schoolbell PNG (yellow highlight baked in):
+  // Gmail never loads webfonts, so live text always fell back to Arial Black —
+  // an image is the only way the brand font reaches Gmail. The alt text keeps
+  // the full wording for blocked-images clients and screen readers.
+  const headline = returning
+    ? { src: 'headline-returning.png', alt: 'Willkommen zurück.', width: 189 }
+    : { src: 'headline-first.png', alt: 'Deine kuratierte Food Discovery Map', width: 320 };
   const preview = returning
     ? 'Willkommen zurück bei Eat This — tipp drauf, du bist drin.'
     : 'Dein Login-Link für Eat This — tipp drauf, du bist drin.';
 
   return (
     <Html lang="de">
-      <Head>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Chewy&display=swap');`}</style>
-      </Head>
+      <Head />
       <Preview>{preview}</Preview>
 
       <Body
@@ -111,10 +101,13 @@ export default function MagicLinkEmail({
             maxWidth: '600px',
           }}
         >
-          {/* BRAND — wordmark + handwritten slogan */}
+          {/* BRAND — wordmark + handwritten slogan. PNG, not WebP: Gmail's
+              image proxy transcodes WebP and flattens the alpha channel
+              (logo got a white box, slogan a black bar), and Outlook can't
+              decode WebP at all. PNG keeps transparency everywhere. */}
           <Section style={{ textAlign: 'center', padding: '0 0 22px' }}>
             <Img
-              src={`${appUrl}/pics/eat-this-logo.webp?v=3`}
+              src={`${appUrl}/pics/email/eat-this-logo.png`}
               alt="Eat This"
               width="220"
               style={{
@@ -125,7 +118,7 @@ export default function MagicLinkEmail({
               }}
             />
             <Img
-              src={`${appUrl}/pics/slogan.webp?v=3`}
+              src={`${appUrl}/pics/email/slogan.png`}
               alt="We tell you what to eat."
               width="300"
               style={{
@@ -137,59 +130,20 @@ export default function MagicLinkEmail({
             />
           </Section>
 
-          {/* HEADLINE — big editorial brand statement */}
+          {/* HEADLINE — big editorial brand statement, Schoolbell baked into a
+              transparent PNG (2x) so the brand font survives Gmail */}
           <Section style={{ textAlign: 'center', padding: '6px 0 18px' }}>
-            <Heading
-              as="h1"
+            <Img
+              src={`${appUrl}/pics/email/${headline.src}`}
+              alt={headline.alt}
+              width={headline.width}
               style={{
-                margin:        0,
-                fontFamily:    DISPLAY_FONT,
-                fontWeight:    400,
-                fontSize:      '34px',
-                lineHeight:    1.04,
-                letterSpacing: '0.01em',
-                textTransform: 'uppercase',
-                color:         PALETTE.ink,
+                display:  'block',
+                margin:   '0 auto',
+                maxWidth: '88%',
+                height:   'auto',
               }}
-            >
-              {headlineLine1}
-            </Heading>
-            {/* Second line carries the yellow brand highlight */}
-            <table
-              role="presentation"
-              cellPadding={0}
-              cellSpacing={0}
-              border={0}
-              align="center"
-              style={{ margin: '8px auto 0', borderCollapse: 'collapse' }}
-            >
-              <tbody>
-                <tr>
-                  <td
-                    align="center"
-                    style={{
-                      backgroundColor: PALETTE.yellow,
-                      padding:         '3px 12px 5px',
-                      borderRadius:    '0',
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontFamily:    DISPLAY_FONT,
-                        fontWeight:    400,
-                        fontSize:      '34px',
-                        lineHeight:    1.04,
-                        letterSpacing: '0.01em',
-                        textTransform: 'uppercase',
-                        color:         PALETTE.ink,
-                      }}
-                    >
-                      {headlineLine2}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            />
           </Section>
 
           {/* SUBLINE + CTA — up top: product line + yellow call-to-action */}
@@ -205,44 +159,25 @@ export default function MagicLinkEmail({
               mit den besten Restaurants, Cafés und Bars in Berlin.
             </Text>
 
-            {/* Yellow CTA — logo color + hard brand shadow */}
-            <table
-              role="presentation"
-              cellPadding={0}
-              cellSpacing={0}
-              border={0}
-              align="center"
-              style={{ margin: '0 auto' }}
-            >
-              <tbody>
-                <tr>
-                  <td
-                    align="center"
-                    style={{
-                      backgroundColor: PALETTE.yellow,
-                      borderRadius:    '0',
-                      boxShadow:        `4px 4px 0 ${PALETTE.ink}`,
-                    }}
-                  >
-                    <Link
-                      href={magicLink}
-                      style={{
-                        display:        'inline-block',
-                        padding:        '16px 46px',
-                        color:          PALETTE.ink,
-                        fontSize:       '16px',
-                        fontWeight:     800,
-                        letterSpacing:  '0.04em',
-                        textTransform:  'uppercase',
-                        textDecoration: 'none',
-                      }}
-                    >
-                      Anmelden
-                    </Link>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            {/* Yellow CTA — pre-rendered Schoolbell button image (yellow
+                sticker + ink border baked in): Gmail never loads webfonts,
+                an image is the only way the brand font reaches the button.
+                The whole image is the click target. */}
+            <Link href={magicLink} style={{ display: 'block' }}>
+              <Img
+                src={`${appUrl}/pics/email/cta-anmelden.png`}
+                alt="Anmelden"
+                width="198"
+                style={{
+                  display:  'block',
+                  margin:   '0 auto',
+                  width:    '198px',
+                  maxWidth: '70%',
+                  height:   'auto',
+                  border:   0,
+                }}
+              />
+            </Link>
 
             <Text
               style={{
@@ -254,117 +189,55 @@ export default function MagicLinkEmail({
             >
               Klick auf den Button, um dich anzumelden und deine Map zu öffnen.
             </Text>
+
+            {spots.length > 0 && (
+              <Img
+                src={`${appUrl}/pics/email/teaser-spots.png`}
+                alt="Diese und mehr Empfehlungen warten auf dich — mit den Must Eats, die du dort unbedingt probieren solltest."
+                width="366"
+                style={{
+                  display:  'block',
+                  margin:   '30px auto 0',
+                  width:    '366px',
+                  maxWidth: '94%',
+                  height:   'auto',
+                }}
+              />
+            )}
           </Section>
 
-          {/* SPOTS — curated restaurants: the proof, branded + crisp.
-             Pure table/flow layout: Gmail and Outlook strip position/transform/
-             z-index/filter, so the Must-Eat card must NOT be absolutely tucked
-             onto the corner — it sits in a real table cell beside the name. */}
+          {/* SPOTS — each one a single server-composed PNG (photo + scrim +
+              name + tilted Must-Eat badge, see /api/email/spot-card) wrapped
+              in a /map?r= deep-link. One flat image is the only composition
+              email clients can't break: Gmail strips position/transform/
+              filter/box-shadow and never loads webfonts. */}
           {spots.length > 0 && (
-            <Section style={{ padding: '0 0 8px' }}>
+            <Section style={{ padding: '0 0 8px', textAlign: 'center' }}>
               {spots.map((s, i) => {
                 const mustEat = s.mustEats[0];
                 const meta = [s.area, s.cuisine].filter(Boolean).join(' · ');
+                const alt = `${s.name} — ${meta}${mustEat ? `: ${mustEat.dish}` : ''}`;
                 return (
-                  <table
-                    key={`${s.name}-${i}`}
-                    role="presentation"
-                    cellPadding={0}
-                    cellSpacing={0}
-                    border={0}
-                    width="100%"
-                    align="center"
-                    style={{
-                      borderCollapse:  'collapse',
-                      margin:          '0 auto 18px',
-                      maxWidth:        '360px',
-                      backgroundColor: PALETTE.paper,
-                      border:          `1px solid ${PALETTE.hair}`,
-                    }}
+                  <Link
+                    key={`${s.slug}-${i}`}
+                    href={`${appUrl}/map?r=${s.slug}`}
+                    style={{ display: 'block', margin: '0 auto 18px' }}
                   >
-                    <tbody>
-                      {/* restaurant banner — server-cropped, full width */}
-                      <tr>
-                        <td style={{ padding: 0, fontSize: 0, lineHeight: 0 }}>
-                          <Img
-                            src={restaurantBanner(s.photo)}
-                            alt={s.name}
-                            width="360"
-                            style={{ display: 'block', width: '100%', height: 'auto', border: 0 }}
-                          />
-                        </td>
-                      </tr>
-                      {/* info bar — meta + name on the left, Must-Eat card on the right */}
-                      <tr>
-                        <td style={{ padding: '14px 18px 16px' }}>
-                          <table
-                            role="presentation"
-                            cellPadding={0}
-                            cellSpacing={0}
-                            border={0}
-                            width="100%"
-                            style={{ borderCollapse: 'collapse' }}
-                          >
-                            <tbody>
-                              <tr>
-                                <td valign="middle" style={{ verticalAlign: 'middle' }}>
-                                  {meta && (
-                                    <Text
-                                      style={{
-                                        margin:        '0 0 3px',
-                                        fontSize:      '11px',
-                                        fontWeight:    700,
-                                        letterSpacing: '0.1em',
-                                        textTransform: 'uppercase',
-                                        color:         PALETTE.muted,
-                                      }}
-                                    >
-                                      {meta}
-                                    </Text>
-                                  )}
-                                  <Text
-                                    style={{
-                                      margin:        0,
-                                      fontFamily:    DISPLAY_FONT,
-                                      fontWeight:    400,
-                                      fontSize:      '28px',
-                                      lineHeight:    1.0,
-                                      letterSpacing: '0.01em',
-                                      textTransform: 'uppercase',
-                                      color:         PALETTE.ink,
-                                    }}
-                                  >
-                                    {s.name}
-                                  </Text>
-                                </td>
-                                {mustEat && (
-                                  <td
-                                    valign="middle"
-                                    align="right"
-                                    width="96"
-                                    style={{ verticalAlign: 'middle', width: '96px', paddingLeft: '12px' }}
-                                  >
-                                    <Img
-                                      src={cardImage(mustEat.cardPhoto)}
-                                      alt={`Must Eat: ${mustEat.dish}`}
-                                      width="84"
-                                      style={{
-                                        display:   'block',
-                                        width:     '84px',
-                                        height:    'auto',
-                                        border:    0,
-                                        marginLeft: 'auto',
-                                      }}
-                                    />
-                                  </td>
-                                )}
-                              </tr>
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                    <Img
+                      src={`${appUrl}/api/email/spot-card?slug=${s.slug}&v=3`}
+                      alt={alt}
+                      width="360"
+                      height="360"
+                      style={{
+                        display:  'block',
+                        margin:   '0 auto',
+                        width:    '360px',
+                        maxWidth: '100%',
+                        height:   'auto',
+                        border:   0,
+                      }}
+                    />
+                  </Link>
                 );
               })}
             </Section>
@@ -386,7 +259,7 @@ export default function MagicLinkEmail({
                 Dein Starter Pack
               </Text>
               <Img
-                src={`${appUrl}/pics/booster/booster_free.webp`}
+                src={`${appUrl}/pics/email/booster_free.png`}
                 alt="Dein Eat This Starter Pack — 20 Must Eats"
                 width="216"
                 style={{

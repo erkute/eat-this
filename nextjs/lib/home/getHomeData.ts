@@ -1,5 +1,6 @@
 import { client } from '@/lib/sanity'
 import { getAllNewsArticles, getAllBezirkeWithStats } from '@/lib/sanity.server'
+import { getFreeSurfaceData } from '@/lib/map/free-surface'
 import { pickSpotOfDay, type SpotCandidate } from './pickSpotOfDay'
 
 export interface HomeSpot extends SpotCandidate {
@@ -75,15 +76,6 @@ const spotCandidatesQuery = `*[_type == "restaurant" && isOpen == true && !(_id 
   "mustEatCount": count(*[_type == "mustEat" && references(^._id)])
 }`
 
-const newOnMapQuery = `*[_type == "restaurant" && isOpen == true && defined(image) && !(_id in path("drafts.**"))] | order(_createdAt desc)[0...6]{
-  _id,
-  "name": name,
-  "slug": slug.current,
-  "image": image.asset->url,
-  "district": coalesce(bezirkRef->name, district, null),
-  "category": select($locale == "en" => categories[0]->nameEn, categories[0]->name)
-}`
-
 const homeWeekCategoriesQuery = `*[_type == "homeWeek" && weekStart <= $today] | order(weekStart desc)[0].categories[]{
   "name": select($locale == "en" => category->nameEn, category->name),
   "slug": category->slug.current,
@@ -113,19 +105,23 @@ export async function getHomeData(
   locale: 'de' | 'en',
   today: string = new Date().toISOString().slice(0, 10),
 ): Promise<HomeData> {
-  const [candidates, newOnMap, categories, bezirkOfWeek, articles, catNameRows, bezirkRows] = await Promise.all([
+  const [candidates, freeSurface, categories, bezirkOfWeek, articles, catNameRows, bezirkRows] = await Promise.all([
     client.fetch<HomeSpot[]>(spotCandidatesQuery, { locale }, { next: { revalidate: 3600, tags: ['restaurant', 'mustEat'] } }),
-    client.fetch<NewOnMapCard[]>(newOnMapQuery, { locale }, { next: { revalidate: 3600, tags: ['restaurant'] } }),
+    // 60s-Modul-TTL (Sanity-Webhook flusht eager via invalidateFreeSurfaceCache)
+    // — bewusst kürzer als die 1h-Next.js-Tag-Caches drumherum, konsistent mit
+    // getInitialAnonMapData + /api/map-data.
+    getFreeSurfaceData(),
     client.fetch<HubCategory[] | null>(homeWeekCategoriesQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
     client.fetch<HubBezirk | null>(bezirkOfWeekQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
     getAllNewsArticles(),
     client.fetch<{ slug: string; name: string }[]>(categoryNamesQuery, { locale }, { next: { revalidate: 3600, tags: ['category'] } }),
     getAllBezirkeWithStats(),
   ])
-  // Browse-by-district chips → /map?bezirk=. Only districts with open spots
-  // (an empty filter would be a dead end), most-populated first.
+  // Browse-by-district chips → /map?bezirk=. Only districts with a real
+  // selection (≥5 open spots) — a near-empty filter would be a dead end.
+  // Most-populated first.
   const bezirke: HubBezirkChip[] = (bezirkRows ?? [])
-    .filter((b) => b.slug && (b.restaurantCount ?? 0) > 0)
+    .filter((b) => b.slug && (b.restaurantCount ?? 0) >= 5)
     .sort((a, b) => (b.restaurantCount ?? 0) - (a.restaurantCount ?? 0))
     .map((b) => ({ name: b.name, slug: b.slug, count: b.restaurantCount ?? 0 }))
   // a.title is already the EN base (or DE fallback) via the news GROQ coalesce;
@@ -137,5 +133,15 @@ export async function getHomeData(
     kicker: (locale === 'de' ? a.categoryLabelDe : a.categoryLabel) ?? a.categoryLabel ?? null,
   }))
   const categoryNames: Record<string, string> = Object.fromEntries((catNameRows ?? []).map((r) => [r.slug, r.name]))
+  // newOnMap kommt aus dem Free-Surface-Modul → exakt die Spots, die auf der
+  // Map free sind, brand-deduped (1× Hokey Pokey statt 3 Filialen).
+  const newOnMap: NewOnMapCard[] = freeSurface.newOnMap.map((c) => ({
+    _id: c._id,
+    name: c.name,
+    slug: c.slug,
+    image: c.image,
+    district: c.district,
+    category: locale === 'en' ? (c.categoryEn ?? c.categoryDe) : c.categoryDe,
+  }))
   return { spotOfDay: pickSpotOfDay(candidates, today), newOnMap, categories: categories ?? [], bezirkOfWeek, bezirke, magazine, categoryNames }
 }

@@ -7,10 +7,9 @@ export const metadata: Metadata = {
 };
 
 // /welcome has its own root layout (separate <html> tree), so it doesn't get
-// the brand display font from app/[locale]/layout. Load it here too — next/font
-// dedupes, so this shares the cached face. Schoolbell is the sitewide display
-// font; the variable stays `--font-chewy` to match the app layout's alias
-// (see the NOTE there) so auth-action.module.css reads the same token.
+// the Schoolbell display font from app/[locale]/layout. Load it here too —
+// next/font dedupes, so this shares the cached face. Exposed as --font-chewy
+// (the legacy variable name the sitewide display aliases still point at).
 const schoolbell = Schoolbell({
   weight: '400',
   subsets: ['latin'],

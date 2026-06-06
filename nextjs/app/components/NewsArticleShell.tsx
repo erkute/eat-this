@@ -64,12 +64,6 @@ export default function NewsArticleShell({
     // "Must Eat" lives in the kicker only — the CTA reuses the canonical map
     // wording (same as toMapLabel) so the label doesn't repeat itself.
     const ctaLabel = de ? 'Auf die Map' : 'To the map';
-    // One-liner under the kicker defining the format for first-time readers
-    // (e.g. landing from Google): a Must Eat is the dish a spot earns its
-    // place on the map with — not just "a tasty dish".
-    const explainLine = de
-      ? 'Das Gericht, weswegen dieser Spot auf unserer Map ist.'
-      : 'The dish that put this spot on our map.';
     const restName = block.restaurantName ? normalizeName(block.restaurantName) : '';
     const description =
       (de ? block.dishDescription : block.dishDescriptionEn || block.dishDescription) || '';
@@ -89,7 +83,6 @@ export default function NewsArticleShell({
         )}
         <div className={styles.mustEatBody}>
           <span className={styles.mustEatKicker}>Must Eat</span>
-          <span className={styles.mustEatExplain}>{explainLine}</span>
           {block.dish && <h3 className={styles.mustEatName}>{block.dish}</h3>}
           {description && <p className={styles.mustEatDesc}>{description}</p>}
           {whereLine && <span className={styles.mustEatRest}>{whereLine}</span>}

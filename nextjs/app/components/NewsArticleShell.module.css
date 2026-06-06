@@ -210,15 +210,6 @@ a.mustEat:hover .mustEatPh img {
   text-transform: uppercase;
   color: #ffd84a;
 }
-/* Format definition right under the kicker — sentence case and muted so it
-   reads as a footnote to the "Must Eat" label, not as another metadata row. */
-.mustEatExplain {
-  font-size: 12.5px;
-  line-height: 1.4;
-  max-width: 36ch;
-  margin-top: -3px; /* tuck against the kicker it explains */
-  opacity: 0.66;
-}
 /* `.mustEat` prefix beats `.content h3` (which forces ink-black and would
    render the headline invisible on the dark banner). */
 .mustEat .mustEatName {

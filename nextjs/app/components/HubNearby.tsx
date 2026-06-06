@@ -26,7 +26,7 @@ export default function HubNearby({ initialMapData }: Props) {
   const uid = user?.uid ?? null
   const live = useMapData({ uid, authLoading, initialMapData })
   const { unlockedIds: storedUnlockedIds } = useUnlockedMustEats(uid)
-  const { location, request } = useUserLocationContext()
+  const { location, loading: locating, error: locError, request } = useUserLocationContext()
   // The first client render must match SSR (anon initialMapData + Mitte). Only
   // after mount switch to live data (which may be the cached signed-in payload)
   // + the resolved geolocation — otherwise the nearby list/distances mismatch
@@ -73,14 +73,23 @@ export default function HubNearby({ initialMapData }: Props) {
           type="button"
           className={styles.locBtn}
           onClick={() => request()}
+          disabled={locating}
           aria-label={t('locationAria')}
         >
-          <span>{t('location')}</span>
+          <span>{locating ? t('locating') : t('location')}</span>
         </button>
       </div>
-      <p className={styles.sub}>
-        {activeLocation ? t('sub') : t('subFallback')}
-      </p>
+      {/* Geolocation failed → tell the user instead of silently staying on the
+          Mitte fallback (denied permission no-ops on every further click). */}
+      {mounted && locError && !activeLocation ? (
+        <p className={`${styles.sub} ${styles.subError}`} role="status">
+          {locError === 'denied' ? t('errDenied') : t('errRetry')}
+        </p>
+      ) : (
+        <p className={styles.sub}>
+          {activeLocation ? t('sub') : t('subFallback')}
+        </p>
+      )}
 
       <ul className={styles.row} role="list">
         {cards.map((r) => {

@@ -133,19 +133,22 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
       </div>
 
       {/* Must-Eat card — hangs off the photo's top-right corner into the
-          cream margin, tilted hard. No drop shadow: cutouts ship without
-          shadows (brand rule). */}
+          cream margin, tilted hard. Inset from the canvas edges: rotation
+          happens around the center, so the corners swing ~28px past the
+          element box horizontally and ~18px vertically — without the inset
+          they get clipped at the canvas bounds. No drop shadow: cutouts
+          ship without shadows (brand rule). */}
       {mustEat && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={mustEatCardUrl(mustEat.cardPhoto)}
           alt=""
-          width={232}
-          height={325}
+          width={180}
+          height={252}
           style={{
             position:  'absolute',
-            top:       0,
-            right:     0,
+            top:       22,
+            right:     30,
             transform: 'rotate(14deg)',
           }}
         />

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, cleanup } from '@testing-library/react'
+import { render, screen, fireEvent, cleanup, act } from '@testing-library/react'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 
 vi.mock('@/lib/i18n', () => ({
@@ -71,8 +71,24 @@ describe('MustEatsOnboarding', () => {
 
   it('backdrop click closes the overlay', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />)
-    fireEvent.click(screen.getByRole('dialog'))
+    fireEvent.click(screen.getByRole('dialog').parentElement!)
     expect(screen.queryByRole('dialog')).toBeNull()
     expect(window.localStorage.getItem(ONBOARDING_SEEN_KEY)).toBe('1')
+  })
+
+  it('step 2 shows the card back, then auto-flips open after the dwell', () => {
+    vi.useFakeTimers()
+    try {
+      render(<MustEatsOnboarding initialMapData={DATA} />)
+      fireEvent.click(screen.getByText('mustEats.onbNext'))
+      const flipper = screen.getByTestId('onb-flipper')
+      expect(flipper.className).toContain('flipped')
+      act(() => {
+        vi.advanceTimersByTime(800)
+      })
+      expect(flipper.className).not.toContain('flipped')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

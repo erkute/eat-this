@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from '@/lib/i18n'
 import { resolveUnlockedMustEatIds } from '@/lib/map'
@@ -33,13 +33,17 @@ export default function MustEatsOnboarding({ initialMapData }: Props) {
 
   // Same anon face-up set the gallery shows — the demo card is one the
   // visitor can actually see face-up in the grid below.
-  const demo = pickOnboardingDemoCard(
-    initialMapData.mustEats,
-    resolveUnlockedMustEatIds({
-      uid: null,
-      storedUnlockedIds: new Set<string>(),
-      revealedMustEatIds: new Set<string>(initialMapData.revealedMustEatIds),
-    }),
+  const demo = useMemo(
+    () =>
+      pickOnboardingDemoCard(
+        initialMapData.mustEats,
+        resolveUnlockedMustEatIds({
+          uid: null,
+          storedUnlockedIds: new Set<string>(),
+          revealedMustEatIds: new Set<string>(initialMapData.revealedMustEatIds),
+        }),
+      ),
+    [initialMapData],
   )
 
   useEffect(() => {
@@ -113,14 +117,14 @@ export default function MustEatsOnboarding({ initialMapData }: Props) {
 
       {open &&
         createPortal(
-          <div className={styles.backdrop} onClick={close} role="dialog" aria-modal="true">
-            <div className={styles.panel} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.backdrop} onClick={close}>
+            <div className={styles.panel} role="dialog" aria-modal="true" aria-labelledby="must-eats-onb-text" onClick={(e) => e.stopPropagation()}>
               <button type="button" className={styles.x} aria-label={t('mustEats.onbClose')} onClick={close}>
                 ×
               </button>
 
               <div className={styles.cardBox}>
-                <div className={showBack ? `${styles.flipper} ${styles.flipped}` : styles.flipper}>
+                <div data-testid="onb-flipper" className={showBack ? `${styles.flipper} ${styles.flipped}` : styles.flipper}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img className={styles.face} src={demo?.image ?? CARD_BACK} alt={demo?.dish ?? ''} />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -128,7 +132,7 @@ export default function MustEatsOnboarding({ initialMapData }: Props) {
                 </div>
               </div>
 
-              <p className={styles.text}>{t(STEP_KEYS[step])}</p>
+              <p className={styles.text} id="must-eats-onb-text">{t(STEP_KEYS[step])}</p>
 
               <div className={styles.dots} aria-hidden="true">
                 {STEP_KEYS.map((k, i) => (

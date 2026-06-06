@@ -1,6 +1,7 @@
 import { UserLocationProvider } from '@/lib/map/UserLocationContext'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import MustEatsGallery from './MustEatsGallery'
+import MustEatsOnboarding from './MustEatsOnboarding'
 import SiteFooter from './SiteFooter'
 import styles from './MustEatsSection.module.css'
 
@@ -16,7 +17,7 @@ const COPY = {
   de: {
     kicker: 'In Berlin',
     title: ['Must', 'Eats'],
-    sub: 'Ein paar liegen offen — der Vorgeschmack. Die anderen kommen mit deinen Spots und werden vor Ort aufgedeckt.',
+    sub: 'Jedes Top-Restaurant hat ein Gericht, das du probiert haben musst — sein Must Eat. Ein paar Karten liegen schon offen. Den Rest deckst du vor Ort auf.',
     closeKicker: 'Noch verdeckt',
     closeTitle: ['Mehr', 'aufdecken.'],
     closeBody:
@@ -26,7 +27,7 @@ const COPY = {
   en: {
     kicker: 'In Berlin',
     title: ['Must', 'Eats'],
-    sub: 'A few are face-up — a taste. The rest come with your spots, revealed on site.',
+    sub: "Every top restaurant has one dish you need to try — its Must Eat. A few cards are already face-up. The rest you reveal on site.",
     closeKicker: 'Still face-down',
     closeTitle: ['Reveal', 'more.'],
     closeBody:
@@ -50,6 +51,7 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
             {c.title[1]}
           </h1>
           <p className={styles.sub}>{c.sub}</p>
+          <MustEatsOnboarding initialMapData={initialMapData} />
         </div>
 
         <MustEatsGallery initialMapData={initialMapData} />

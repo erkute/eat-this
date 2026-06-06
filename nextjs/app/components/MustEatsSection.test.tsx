@@ -13,6 +13,9 @@ vi.mock('@/app/components/MustEatsGallery', () => ({
 vi.mock('@/app/components/SiteFooter', () => ({
   default: () => null,
 }))
+vi.mock('@/app/components/MustEatsOnboarding', () => ({
+  default: () => null,
+}))
 
 import MustEatsSection from '@/app/components/MustEatsSection'
 
@@ -47,5 +50,17 @@ describe('MustEatsSection', () => {
   it('locale-prefixes the packs CTA for en', () => {
     const html = render('en')
     expect(html).toMatch(/href="\/en#hub-packs"/)
+  })
+
+  it('renders the explanatory sub copy (de)', () => {
+    const html = render()
+    expect(html).toContain('sein Must Eat')
+    expect(html).toContain('Den Rest deckst du vor Ort auf.')
+  })
+
+  it('renders the explanatory sub copy (en)', () => {
+    const html = render('en')
+    expect(html).toContain('its Must Eat')
+    expect(html).toContain('The rest you reveal on site.')
   })
 })

@@ -35,6 +35,13 @@ export type SpotCardData = Pick<
   'name' | 'area' | 'cuisine' | 'photo' | 'mustEats'
 >;
 
+// The badge hangs OFF the photo corner: the canvas keeps a cream margin on
+// top/right (matches the email body background, so the JPEG reads as
+// transparent) and the photo sits bottom-left. The Must-Eat card straddles
+// the photo's top-right edge into that margin.
+const OVERHANG = 96;
+const PHOTO = SPOT_CARD_SIZE - OVERHANG; // 624
+
 // Satori subset: flexbox only, every multi-child element needs display:flex.
 export function SpotCardImage({ spot }: { spot: SpotCardData }) {
   const meta = [spot.area, spot.cuisine].filter(Boolean).join(' · ').toUpperCase();
@@ -47,28 +54,42 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
         height:   SPOT_CARD_SIZE,
         display:  'flex',
         position: 'relative',
-        backgroundColor: PALETTE.ink,
-        border:   `4px solid ${PALETTE.ink}`,
+        // Must match the email body bg — the overhang margin poses as
+        // transparency in the flattened JPEG.
+        backgroundColor: PALETTE.cream,
       }}
     >
-      {/* photo layer — full bleed */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={spotPhotoUrl(spot.photo)}
-        alt=""
-        width={SPOT_CARD_SIZE}
-        height={SPOT_CARD_SIZE}
-        style={{ position: 'absolute', top: 0, left: 0, objectFit: 'cover' }}
-      />
-
-      {/* scrim — bottom gradient so the type stays readable on any photo */}
+      {/* photo sticker — bottom-left, ink border */}
       <div
         style={{
           position: 'absolute',
           left:     0,
-          right:    0,
-          bottom:   0,
-          height:   320,
+          top:      OVERHANG,
+          width:    PHOTO,
+          height:   PHOTO,
+          display:  'flex',
+          border:   `4px solid ${PALETTE.ink}`,
+          backgroundColor: PALETTE.ink,
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={spotPhotoUrl(spot.photo)}
+          alt=""
+          width={PHOTO - 8}
+          height={PHOTO - 8}
+          style={{ objectFit: 'cover' }}
+        />
+      </div>
+
+      {/* scrim — bottom gradient on the photo so the type stays readable */}
+      <div
+        style={{
+          position: 'absolute',
+          left:     4,
+          bottom:   4,
+          width:    PHOTO - 8,
+          height:   300,
           backgroundImage:
             'linear-gradient(to bottom, rgba(10,10,10,0) 0%, rgba(10,10,10,0.82) 78%)',
         }}
@@ -79,8 +100,8 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
         style={{
           position:      'absolute',
           left:          36,
-          right:         36,
           bottom:        32,
+          width:         PHOTO - 72,
           display:       'flex',
           flexDirection: 'column',
         }}
@@ -111,20 +132,24 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
         </div>
       </div>
 
-      {/* Must-Eat card — the spot's badge, tilted onto the top-right corner.
-          No drop shadow: cutouts ship without shadows (brand rule). */}
+      {/* Must-Eat card — hangs off the photo's top-right corner into the
+          cream margin, tilted hard. Inset from the canvas edges: rotation
+          happens around the center, so the corners swing ~28px past the
+          element box horizontally and ~18px vertically — without the inset
+          they get clipped at the canvas bounds. No drop shadow: cutouts
+          ship without shadows (brand rule). */}
       {mustEat && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={mustEatCardUrl(mustEat.cardPhoto)}
           alt=""
-          width={200}
-          height={280}
+          width={180}
+          height={252}
           style={{
             position:  'absolute',
-            top:       28,
-            right:     28,
-            transform: 'rotate(8deg)',
+            top:       22,
+            right:     30,
+            transform: 'rotate(14deg)',
           }}
         />
       )}

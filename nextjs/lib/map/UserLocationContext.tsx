@@ -14,11 +14,21 @@ export interface UserLocation {
   lng: number
 }
 
+export type UserLocationError = 'denied' | 'unavailable' | 'timeout'
+
 interface UserLocationValue {
   location: UserLocation | null
   loading: boolean
-  error: string | null
+  error: UserLocationError | null
   request: () => Promise<UserLocation | null>
+}
+
+// GeolocationPositionError.code → typed error (1=PERMISSION_DENIED,
+// 2=POSITION_UNAVAILABLE, 3=TIMEOUT)
+function mapGeoError(code: number): UserLocationError {
+  if (code === 1) return 'denied'
+  if (code === 3) return 'timeout'
+  return 'unavailable'
 }
 
 const UserLocationContext = createContext<UserLocationValue | null>(null)
@@ -37,12 +47,12 @@ const UserLocationContext = createContext<UserLocationValue | null>(null)
 export function UserLocationProvider({ children }: { children: ReactNode }) {
   const [location, setLocation] = useState<UserLocation | null>(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<UserLocationError | null>(null)
 
   const request = useCallback((): Promise<UserLocation | null> => {
     return new Promise((resolve) => {
       if (typeof navigator === 'undefined' || !navigator.geolocation) {
-        setError('Geolocation not supported')
+        setError('unavailable')
         resolve(null)
         return
       }
@@ -56,7 +66,7 @@ export function UserLocationProvider({ children }: { children: ReactNode }) {
           resolve(loc)
         },
         (err) => {
-          setError(err.message)
+          setError(mapGeoError(err.code))
           setLoading(false)
           resolve(null)
         },

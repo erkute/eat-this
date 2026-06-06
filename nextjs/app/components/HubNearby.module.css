@@ -43,6 +43,11 @@
   box-shadow: 0 0 0 var(--text-primary);
   transform: translate(2px, 2px);
 }
+.locBtn:disabled {
+  cursor: wait;
+  box-shadow: 0 0 0 var(--text-primary);
+  transform: translate(2px, 2px);
+}
 
 .sub {
   margin: 0 16px 14px;
@@ -51,6 +56,10 @@
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--text-secondary);
+}
+/* Geolocation error line (denied/timeout) — same typo, coral for visibility */
+.subError {
+  color: var(--c-coral);
 }
 
 .row {
@@ -236,6 +245,8 @@ html[data-theme="dark"] .locBtn {
   color: var(--dk-ink);
 }
 html[data-theme="dark"] .locBtn:active { box-shadow: 0 0 0 var(--dk-rule); }
+html[data-theme="dark"] .locBtn:disabled { box-shadow: 0 0 0 var(--dk-rule); }
+html[data-theme="dark"] .subError { color: var(--c-coral-bright); }
 /* Photo cards keep their image; frame border → cream */
 html[data-theme="dark"] .card { border-color: var(--dk-ink); }
 /* Distance chip: yellow fill → red, ink → cream label + cream border */

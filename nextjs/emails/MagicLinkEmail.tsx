@@ -243,7 +243,7 @@ export default function MagicLinkEmail({
                     style={{ display: 'block', margin: '0 auto 18px' }}
                   >
                     <Img
-                      src={`${appUrl}/api/email/spot-card?slug=${s.slug}&v=2`}
+                      src={`${appUrl}/api/email/spot-card?slug=${s.slug}&v=3`}
                       alt={alt}
                       width="360"
                       height="360"

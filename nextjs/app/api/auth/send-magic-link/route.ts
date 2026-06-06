@@ -59,7 +59,9 @@ export async function POST(request: Request) {
     request.headers.get('origin') ||
     'https://www.eatthisdot.com';
 
-  const continueUrl = sanitizeContinueUrl(body.continueUrl, origin, `${origin}/profile`);
+  // /welcome owns the post-sign-in destination (Home) — the continue URL is
+  // only Firebase's required link target plus the `e` email carrier param.
+  const continueUrl = sanitizeContinueUrl(body.continueUrl, origin, `${origin}/`);
 
   // Email artwork must load from a publicly reachable, non-auth host. `origin`
   // can be localhost (dev) or the Basic-Auth-gated staging URL, where mail

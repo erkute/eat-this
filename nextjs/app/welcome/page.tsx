@@ -8,6 +8,7 @@ import {
   signInWithEmailLink,
   applyActionCode,
   updateProfile,
+  type User,
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase/config';
@@ -18,9 +19,9 @@ import styles from './auth-action.module.css';
 // post-sign-in landing pages live under [locale]/. Crossing root layouts
 // with router.replace can silently no-op, so we hard-navigate via
 // window.location.assign to guarantee the page actually changes.
-function hardRedirectToProfile() {
+function hardRedirectToHome() {
   const locale = detectLocale();
-  const target = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
+  const target = locale === routing.defaultLocale ? '/' : `/${locale}`;
   window.location.assign(target);
 }
 
@@ -32,6 +33,19 @@ function detectLocale(): string {
   const m = document.cookie.match(/(?:^|;\s*)NEXT_LOCALE=([^;]+)/);
   const v = m ? decodeURIComponent(m[1]) : '';
   return (routing.locales as readonly string[]).includes(v) ? v : routing.defaultLocale;
+}
+
+// The magic link carries the address as `e` inside its continueUrl (set by
+// sendMagicLinkEmail), so sign-in completes even when the link opens in a
+// different browser than the one that requested it (Gmail app → Chrome).
+function emailFromContinueUrl(params: URLSearchParams): string {
+  const cu = params.get('continueUrl');
+  if (!cu) return '';
+  try {
+    return new URL(cu).searchParams.get('e') ?? '';
+  } catch {
+    return '';
+  }
 }
 
 type AvatarChoice = 1 | 2 | 3;
@@ -48,8 +62,21 @@ type State =
   | { kind: 'processing' }
   | { kind: 'success'; title: string; sub: string }
   | { kind: 'needs-email'; href: string }
+  | { kind: 'needs-identity'; user: User }
   | { kind: 'expired' }
   | { kind: 'error'; title: string; sub: string };
+
+// First sign-in ever (no display name yet) → identity onboarding before the
+// redirect; returning users go straight home. Shared by the silent path and
+// the needs-email fallback.
+function finishSignIn(user: User, setState: (s: State) => void) {
+  localStorage.removeItem('emailForSignIn');
+  if (!user.displayName) {
+    setState({ kind: 'needs-identity', user });
+    return;
+  }
+  hardRedirectToHome();
+}
 
 export default function AuthActionPage() {
   return (
@@ -73,16 +100,15 @@ function AuthActionInner() {
         setState({ kind: 'expired' });
         return;
       }
-      const email = localStorage.getItem('emailForSignIn') ?? '';
+      const email =
+        localStorage.getItem('emailForSignIn') || emailFromContinueUrl(params);
       if (!email) {
+        // Legacy links without the `e` param, opened in a foreign browser.
         setState({ kind: 'needs-email', href: url });
         return;
       }
       signInWithEmailLink(auth, email, url)
-        .then(() => {
-          localStorage.removeItem('emailForSignIn');
-          hardRedirectToProfile();
-        })
+        .then((result) => finishSignIn(result.user, setState))
         .catch((err) => {
           console.warn('[welcome] signInWithEmailLink failed:', err);
           setState({ kind: 'expired' });
@@ -147,6 +173,10 @@ function AuthActionInner() {
             <NeedsEmailForm href={state.href} setState={setState} />
           )}
 
+          {state.kind === 'needs-identity' && (
+            <IdentityForm user={state.user} />
+          )}
+
           {state.kind === 'expired' && (
             <>
               <h1 className={styles.title}>Dieser Link funktioniert nicht.</h1>
@@ -171,18 +201,9 @@ function AuthActionInner() {
   );
 }
 
-// The "needs-email" state is shown when the magic link is opened on a
-// different device than where it was requested (localStorage is empty).
-// We collect email + identity (name + avatar) in one step so the profile
-// renders with the user's chosen avatar right after sign-in.
-function NeedsEmailForm({
-  href,
-  setState,
-}: {
-  href: string;
-  setState: (s: State) => void;
-}) {
-  const [email,      setEmail]      = useState('');
+// First-sign-in onboarding: pick name + avatar once, then land on Home.
+// Shown to every new account (the sign-in itself already happened).
+function IdentityForm({ user }: { user: User }) {
   const [name,       setName]       = useState('');
   const [avatarPick, setAvatarPick] = useState<AvatarChoice>(1);
   const [error,      setError]      = useState('');
@@ -190,31 +211,18 @@ function NeedsEmailForm({
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !name.trim()) return;
+    if (!name.trim()) return;
     setBusy(true);
     setError('');
     try {
-      const result = await signInWithEmailLink(auth, email.trim(), href);
-      localStorage.removeItem('emailForSignIn');
-      const uid = result.user.uid;
       // Save display name + avatar so the profile renders with the user's
       // chosen identity right after sign-in.
-      await updateProfile(result.user, { displayName: name.trim() });
-      await setDoc(doc(db, 'users', uid), { avatar: avatarPick }, { merge: true });
-      hardRedirectToProfile();
-    } catch (err: unknown) {
+      await updateProfile(user, { displayName: name.trim() });
+      await setDoc(doc(db, 'users', user.uid), { avatar: avatarPick }, { merge: true });
+      hardRedirectToHome();
+    } catch {
       setBusy(false);
-      const code = (err as { code?: string }).code ?? '';
-      if (code === 'auth/invalid-email') {
-        setError('Bitte gib eine gültige E-Mail-Adresse ein.');
-      } else if (
-        code === 'auth/expired-action-code' ||
-        code === 'auth/invalid-action-code'
-      ) {
-        setState({ kind: 'expired' });
-      } else {
-        setError('Etwas ist schiefgelaufen. Versuch es nochmal.');
-      }
+      setError('Etwas ist schiefgelaufen. Versuch es nochmal.');
     }
   };
 
@@ -223,7 +231,7 @@ function NeedsEmailForm({
       <h1 className={styles.title}>Wer bist du<br />auf der Map?</h1>
       <p className={styles.sub}>
         Such dir Name und Avatar — beides siehst nur du im Profil, später nicht
-        mehr änderbar. Bestätige kurz deine E-Mail.
+        mehr änderbar.
       </p>
 
       <form onSubmit={submit} className={styles.form}>
@@ -241,17 +249,6 @@ function NeedsEmailForm({
             className={styles.input}
           />
         </div>
-
-        <input
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          placeholder="deine@email.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className={styles.input}
-        />
 
         <div className={styles.avatars} role="radiogroup" aria-label="Avatar auswählen">
           {AVATARS.map(({ id, label }) => (
@@ -274,7 +271,80 @@ function NeedsEmailForm({
         </div>
 
         {error && <p className={styles.error}>{error}</p>}
-        <button type="submit" className={styles.cta} disabled={busy || !name.trim() || !email}>
+        <button type="submit" className={styles.cta} disabled={busy || !name.trim()}>
+          <span>{busy ? 'Speichern …' : 'Weiter'}</span>
+          {!busy && (
+            <svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="currentColor" strokeWidth={2.6}>
+              <path d="M5 12h14M13 5l7 7-7 7" />
+            </svg>
+          )}
+        </button>
+      </form>
+    </>
+  );
+}
+
+// Fallback for legacy links without the `e` carrier param that were opened
+// in a different browser than where they were requested (localStorage empty).
+// Firebase needs the address to complete the sign-in; identity onboarding
+// follows separately via finishSignIn.
+function NeedsEmailForm({
+  href,
+  setState,
+}: {
+  href: string;
+  setState: (s: State) => void;
+}) {
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [busy,  setBusy]  = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setBusy(true);
+    setError('');
+    try {
+      const result = await signInWithEmailLink(auth, email.trim(), href);
+      finishSignIn(result.user, setState);
+    } catch (err: unknown) {
+      setBusy(false);
+      const code = (err as { code?: string }).code ?? '';
+      if (code === 'auth/invalid-email') {
+        setError('Bitte gib eine gültige E-Mail-Adresse ein.');
+      } else if (
+        code === 'auth/expired-action-code' ||
+        code === 'auth/invalid-action-code'
+      ) {
+        setState({ kind: 'expired' });
+      } else {
+        setError('Etwas ist schiefgelaufen. Versuch es nochmal.');
+      }
+    }
+  };
+
+  return (
+    <>
+      <h1 className={styles.title}>Fast drin.</h1>
+      <p className={styles.sub}>
+        Du hast den Link in einem anderen Browser geöffnet. Bestätige kurz die
+        E-Mail-Adresse, an die er geschickt wurde.
+      </p>
+
+      <form onSubmit={submit} className={styles.form}>
+        <input
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          placeholder="deine@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className={styles.input}
+        />
+
+        {error && <p className={styles.error}>{error}</p>}
+        <button type="submit" className={styles.cta} disabled={busy || !email}>
           <span>{busy ? 'Anmelden …' : 'Weiter'}</span>
           {!busy && (
             <svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="currentColor" strokeWidth={2.6}>

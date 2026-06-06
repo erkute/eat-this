@@ -64,7 +64,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     revealedMustEatIds,
     refetch: refetchMapData,
   } = useMapData({ uid, authLoading, initialMapData })
-  const { location, request: requestLocation } = useUserLocation()
+  const { location, loading: locating, request: requestLocation } = useUserLocation()
   const { unlockedIds: storedUnlockedIds, unlock } = useUnlockedMustEats(uid)
   // Free-and-open map: anon visitors see exactly the server-revealed set
   // face-up — 10 curated cards (one per spot) + the daily spot-of-day gift.
@@ -486,11 +486,18 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
 
   const handleLocateMe = useCallback(async () => {
     userInteractedRef.current = true
-    const loc = await requestLocation()
+    const { location: loc, error } = await requestLocation()
     if (loc) {
       mapRef.current?.flyTo({ center: [loc.lng, loc.lat], zoom: 14, duration: 600, padding: getFlyPadding() })
+    } else if (error) {
+      // Icon-only FAB has no room for an inline hint — toast instead. Only on
+      // explicit click; the silent auto-locate on mount must NOT toast.
+      window.showNotification?.(
+        error === 'denied' ? t('hub.nearby.errDenied') : t('hub.nearby.errRetry'),
+        4000,
+      )
     }
-  }, [requestLocation, getFlyPadding])
+  }, [requestLocation, getFlyPadding, t])
 
   /* Default camera = the user's position. Request it once on mount and, as
      soon as it resolves, centre the map there — unless the user already
@@ -508,7 +515,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     autoLocatedRef.current = true
     const params = new URLSearchParams(window.location.search)
     const hasDeepLink = ['r', 'me', 'bezirk', 'cat'].some(p => params.has(p))
-    void requestLocation().then(loc => {
+    void requestLocation().then(({ location: loc }) => {
       if (!loc || hasDeepLink) return
       const inBerlin = loc.lat > 52.3 && loc.lat < 52.7 && loc.lng > 12.9 && loc.lng < 13.8
       if (!inBerlin) return
@@ -668,6 +675,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       onRestaurantClick={handleRestaurantClick}
       onMustEatClick={handleMustEatClick}
       onLocateMe={handleLocateMe}
+      locateLoading={locating}
       onRestaurantClose={handleRestaurantClose}
       onMustEatClose={handleMustEatClose}
       onMustEatBack={handleMustEatBack}

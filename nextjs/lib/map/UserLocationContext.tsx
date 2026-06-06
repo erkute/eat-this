@@ -9,26 +9,18 @@ import {
   type ReactNode,
 } from 'react'
 
+import { mapGeoError, type UserLocationError } from './useUserLocation'
+
 export interface UserLocation {
   lat: number
   lng: number
 }
-
-export type UserLocationError = 'denied' | 'unavailable' | 'timeout'
 
 interface UserLocationValue {
   location: UserLocation | null
   loading: boolean
   error: UserLocationError | null
   request: () => Promise<UserLocation | null>
-}
-
-// GeolocationPositionError.code → typed error (1=PERMISSION_DENIED,
-// 2=POSITION_UNAVAILABLE, 3=TIMEOUT)
-function mapGeoError(code: number): UserLocationError {
-  if (code === 1) return 'denied'
-  if (code === 3) return 'timeout'
-  return 'unavailable'
 }
 
 const UserLocationContext = createContext<UserLocationValue | null>(null)

@@ -89,6 +89,7 @@ interface MapBodyHandlers {
   pagerNext: MapRestaurant | null
   onPageRestaurant: (dir: 'prev' | 'next') => void
   onLocateMe: () => void
+  locateLoading: boolean
   onRestaurantClose: () => void
   onMustEatClose: () => void
   onMustEatBack: (() => void) | undefined
@@ -130,7 +131,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     cuisine, setCuisine, cuisineNames,
     openOnly, setOpenOnly,
     searchOpen, setSearchOpen,
-    onMapMove, onMapClick, onRestaurantClick, onMustEatClick, onLocateMe,
+    onMapMove, onMapClick, onRestaurantClick, onMustEatClick, onLocateMe, locateLoading,
     onRestaurantClose, onMustEatClose, onMustEatBack,
     mustEatPagerPrev, mustEatPagerNext, onPageMustEat,
     onViewRestaurantFromMustEat, onUnlock,
@@ -235,6 +236,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             <button
               type="button"
               onClick={onLocateMe}
+              disabled={locateLoading}
               aria-label={myLocationAriaLabel}
               className={styles.fab}
             >

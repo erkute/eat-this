@@ -159,45 +159,25 @@ export default function MagicLinkEmail({
               mit den besten Restaurants, Cafés und Bars in Berlin.
             </Text>
 
-            {/* Yellow CTA — logo color + sticker border. Gmail strips
-                box-shadow, so the brand edge has to be a real border. */}
-            <table
-              role="presentation"
-              cellPadding={0}
-              cellSpacing={0}
-              border={0}
-              align="center"
-              style={{ margin: '0 auto' }}
-            >
-              <tbody>
-                <tr>
-                  <td
-                    align="center"
-                    style={{
-                      backgroundColor: PALETTE.yellow,
-                      borderRadius:    '0',
-                      border:          `2px solid ${PALETTE.ink}`,
-                    }}
-                  >
-                    <Link
-                      href={magicLink}
-                      style={{
-                        display:        'inline-block',
-                        padding:        '16px 46px',
-                        color:          PALETTE.ink,
-                        fontSize:       '16px',
-                        fontWeight:     800,
-                        letterSpacing:  '0.04em',
-                        textTransform:  'uppercase',
-                        textDecoration: 'none',
-                      }}
-                    >
-                      Anmelden
-                    </Link>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            {/* Yellow CTA — pre-rendered Schoolbell button image (yellow
+                sticker + ink border baked in): Gmail never loads webfonts,
+                an image is the only way the brand font reaches the button.
+                The whole image is the click target. */}
+            <Link href={magicLink} style={{ display: 'block' }}>
+              <Img
+                src={`${appUrl}/pics/email/cta-anmelden.png`}
+                alt="Anmelden"
+                width="198"
+                style={{
+                  display:  'block',
+                  margin:   '0 auto',
+                  width:    '198px',
+                  maxWidth: '70%',
+                  height:   'auto',
+                  border:   0,
+                }}
+              />
+            </Link>
 
             <Text
               style={{
@@ -211,17 +191,18 @@ export default function MagicLinkEmail({
             </Text>
 
             {spots.length > 0 && (
-              <Text
+              <Img
+                src={`${appUrl}/pics/email/teaser-spots.png`}
+                alt="Diese und mehr Empfehlungen warten auf dich — mit den Must Eats, die du dort unbedingt probieren solltest."
+                width="366"
                 style={{
-                  margin:     '26px 0 0',
-                  fontSize:   '16px',
-                  lineHeight: 1.5,
-                  color:      PALETTE.ink,
+                  display:  'block',
+                  margin:   '30px auto 0',
+                  width:    '366px',
+                  maxWidth: '94%',
+                  height:   'auto',
                 }}
-              >
-                Diese und mehr Empfehlungen warten auf dich — mit den Must
-                Eats, die du dort unbedingt probieren solltest.
-              </Text>
+              />
             )}
           </Section>
 

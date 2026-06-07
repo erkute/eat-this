@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Script from 'next/script'
 import { notFound } from 'next/navigation'
 import { hasLocale } from 'next-intl'
 import { setRequestLocale } from 'next-intl/server'
@@ -80,9 +79,11 @@ export default async function HomePage({ params }: PageProps) {
   return (
     <>
       {jsonLd && (
-        <Script id={`schema-home-${locale}`} type="application/ld+json" strategy="beforeInteractive">
-          {jsonLd}
-        </Script>
+        <script
+          id={`schema-home-${locale}`}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd }}
+        />
       )}
       <HubSection
         initialData={initialData}

@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
 import { getAllBezirkeWithStats } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
@@ -76,9 +75,11 @@ export default async function BezirkIndexPage({ params }: PageProps) {
 
   return (
     <>
-      <Script id="schema-bezirk-index" type="application/ld+json" strategy="beforeInteractive">
-        {jsonLd}
-      </Script>
+      <script
+        id="schema-bezirk-index"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd }}
+      />
       <main className={styles.page}>
         <header className={styles.hero}>
           <div className={styles.kicker}>{de ? 'Bezirke' : 'Districts'}</div>

@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
 import { getRestaurantBySlug, getAllRestaurantSlugs, getMustEatsByRestaurant, getRestaurantsByBezirk, getRestaurantsByCategory } from '@/lib/sanity.server'
 import { buildRestaurantJsonLd } from '@/lib/json-ld'
@@ -177,9 +176,11 @@ export default async function RestaurantPage({ params }: PageProps) {
 
   return (
     <>
-      <Script id={`schema-restaurant-${slug}`} type="application/ld+json" strategy="beforeInteractive">
-        {jsonLd}
-      </Script>
+      <script
+        id={`schema-restaurant-${slug}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd }}
+      />
       <main className={styles.page}>
         <Breadcrumbs items={breadcrumbItems} ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'} />
 

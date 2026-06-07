@@ -49,16 +49,13 @@ export default function BoosterOfferInline({ uid, variant }: Props) {
       <section className={styles.boosterOfferList}>
         {isAnon ? (
           <div className={`${styles.boosterStage} ${styles.boosterStageSolo}`} aria-hidden="true">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/pics/booster/booster_free.webp" alt="" loading="lazy" className={`${styles.boosterStageCard} ${styles.boosterStageCardCenter}`} />
           </div>
         ) : (
           <div className={styles.boosterStage} aria-hidden="true">
-            {/* eslint-disable @next/next/no-img-element */}
             <img src="/pics/booster/booster_lunch.webp" alt="" loading="lazy" className={`${styles.boosterStageCard} ${styles.boosterStageCardLeft}`} />
             <img src="/pics/booster/booster_dinner.webp" alt="" loading="lazy" className={`${styles.boosterStageCard} ${styles.boosterStageCardCenter}`} />
             <img src="/pics/booster/booster_drinks.webp" alt="" loading="lazy" className={`${styles.boosterStageCard} ${styles.boosterStageCardRight}`} />
-            {/* eslint-enable @next/next/no-img-element */}
           </div>
         )}
         <div className={styles.boosterPromoCopy}>
@@ -106,11 +103,9 @@ export default function BoosterOfferInline({ uid, variant }: Props) {
   return (
     <div className={styles.boosterOffer}>
       <div className={styles.boosterFan} aria-hidden="true">
-        {/* eslint-disable @next/next/no-img-element */}
         <img src="/pics/booster/booster_coffee.webp" alt="" loading="lazy" className={`${styles.boosterFanPack} ${styles.boosterFanPackLeft}`} />
         <img src="/pics/booster/booster_pizza.webp" alt="" loading="lazy" className={`${styles.boosterFanPack} ${styles.boosterFanPackRight}`} />
         <img src="/pics/booster/booster_dinner.webp" alt="" loading="lazy" className={`${styles.boosterFanPack} ${styles.boosterFanPackFront}`} />
-        {/* eslint-enable @next/next/no-img-element */}
       </div>
 
       <div className={styles.boosterInfo}>

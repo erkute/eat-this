@@ -16,8 +16,6 @@ import {
   resolveUnlockedMustEatIds,
 } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
-import { useLocale } from 'next-intl'
-import { routing } from '@/i18n/routing'
 import MapSectionBody from './map/MapSectionBody'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import { resolveAdjacent } from '@/lib/map/pager'
@@ -35,14 +33,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   // Set true synchronously in any click handler that flies the camera so
   // the slow auto-locate Promise can't overwrite the user's selection.
   const userInteractedRef = useRef(false)
-  /* Tracks woher der gerade offene Must-Eat-Detail aufgemacht wurde, damit
-     der Zurück-Button die Origin-View wiederherstellt:
-     - 'restaurant' = aus dem Restaurant-Detail heraus → zurück zum Restaurant
-     - 'me'         = Must-Eat-Detail direkt geöffnet (Deep-Link ?me=)
-                      → zurück zur Restaurant-Liste */
-  const mustEatOriginRef = useRef<'restaurant' | 'me'>('me')
   const { t } = useTranslation()
-  const locale = useLocale()
 
   const [uid,         setUid]         = useState<string | null>(() => auth.currentUser?.uid ?? null)
   const [authLoading, setAuthLoading] = useState<boolean>(() => auth.currentUser === null)
@@ -60,7 +51,6 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     lockedRestaurants,
     mustEats,
     categories,
-    totalCount,
     revealedMustEatIds,
     refetch: refetchMapData,
   } = useMapData({ uid, authLoading, initialMapData })
@@ -347,7 +337,6 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     // → open the must-eat detail, fly to the must-eat. Same flow on both
     // platforms.
     if (selectedRestaurant) {
-      mustEatOriginRef.current = 'restaurant'
       setSelectedRestaurant(null)
       setSelectedMustEat(m)
       setSheetView('detail')
@@ -361,8 +350,6 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       })
       return
     }
-    // Direkt geöffnetes Must-Eat-Detail (Deep-Link ?me=) — Origin = me.
-    mustEatOriginRef.current = 'me'
     const isLocked = !unlockedIds.has(m._id)
     const open = () => {
       setSelectedMustEat(m)
@@ -374,7 +361,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     // Let the back-card wiggle animation play before the detail modal covers it.
     if (isLocked) setTimeout(open, 420)
     else open()
-  }, [unlockedIds, getFlyPadding, selectedRestaurant, setSearch, setSheetView, snap, sheetView, contentRef])
+  }, [unlockedIds, getFlyPadding, selectedRestaurant, setSearch, setSheetView, setSnap, sheetView, contentRef])
 
   const handleRestaurantClose = useCallback(() => {
     const r = selectedRestaurant
@@ -402,25 +389,6 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     setSelectedMustEat(null)
     handleRestaurantClick(restaurant)
   }, [selectedMustEat, restaurants, handleRestaurantClick])
-
-  /* Back-Button im Must-Eat-Detail — restauriert die Origin-View:
-     - origin 'restaurant' → öffnet den parent Restaurant-Detail
-     - origin 'me' (Default) → zurück zur Restaurant-Liste (Detail clearen,
-                               Sheet-View auf 'list'). */
-  const handleMustEatBack = useCallback(() => {
-    if (!selectedMustEat) return
-    if (mustEatOriginRef.current === 'restaurant') {
-      const restaurant = restaurants.find(r => r._id === selectedMustEat.restaurant._id)
-      if (restaurant) {
-        setSelectedMustEat(null)
-        handleRestaurantClick(restaurant)
-        return
-      }
-    }
-    // origin 'me' (Default) — zurück zur Restaurant-Liste.
-    setSelectedMustEat(null)
-    setSheetView('list')
-  }, [selectedMustEat, restaurants, handleRestaurantClick, setSheetView])
 
   const handleMustEatClose = useCallback(() => {
     const m = selectedMustEat
@@ -626,9 +594,8 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
 
   // Deep-links: ?r=<slug> opens a restaurant detail; ?bezirk=<slug> pre-filters
   // the map. Both poll mapRef so the camera moves don't no-op before the
-  // canvas finishes mounting. Returns the pill-reset handler that clears
-  // ?bezirk= from the URL.
-  const { resetBezirkPill } = useMapDeepLinks({
+  // canvas finishes mounting.
+  useMapDeepLinks({
     mapRef,
     restaurants,
     lockedRestaurants,
@@ -641,7 +608,6 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     setSnap,
     onRestaurantSlugMatch: handleRestaurantClick,
     onMustEatIdMatch: handleMustEatClick,
-    getFlyPadding,
   })
 
   /* ---------- Render ---------- */
@@ -661,7 +627,6 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       pagerPrev={pagerAdjacent.prev}
       pagerNext={pagerAdjacent.next}
       onPageRestaurant={handlePageRestaurant}
-      totalCount={totalCount}
       restaurantMustEats={restaurantMustEats}
       selectedRestaurant={selectedRestaurant}
       selectedMustEat={selectedMustEat}
@@ -693,7 +658,6 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       locateLoading={locating}
       onRestaurantClose={handleRestaurantClose}
       onMustEatClose={handleMustEatClose}
-      onMustEatBack={handleMustEatBack}
       mustEatPagerPrev={mustEatPagerAdjacent.prev}
       mustEatPagerNext={mustEatPagerAdjacent.next}
       onPageMustEat={handlePageMustEat}
@@ -701,9 +665,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       onUnlock={handleUnlock}
       onSearchChange={handleSearchChange}
       onBezirkChange={handleBezirkChange}
-      onResetBezirkPill={resetBezirkPill}
       onToggleFavorite={() => { if (selectedRestaurant) toggleFavorite(selectedRestaurant) }}
-      onCollapseDetailToMid={() => { setSnap('mid'); reapplySnap('mid') }}
       desktopPanelHidden={desktopPanelHidden}
       onToggleDesktopPanel={() => setDesktopPanelHidden(v => !v)}
       myLocationAriaLabel={t('map.myLocationAriaLabel') ?? 'My location'}

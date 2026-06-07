@@ -43,9 +43,6 @@ interface MapBodyState {
    *  rendered as blurred entries below the booster banner in the list. */
   displayedLockedRestaurants: MapRestaurant[]
   restaurantMustEats: MapMustEat[]
-  /** Total restaurant count in Sanity — shown in the sheet-count-mini so
-   *  visitors see the catalog size, not the trial-cap-filtered count. */
-  totalCount: number
   selectedRestaurant: MapRestaurant | null
   selectedMustEat: MapMustEat | null
   primaryMustEats: Map<string, MapMustEat>
@@ -71,7 +68,6 @@ interface MapBodyFilterState {
   bezirk: string | null
   bezirkNames: string[]
   onBezirkChange: (name: string | null) => void
-  onResetBezirkPill: () => void
   cuisine: string | null
   setCuisine: (c: string | null) => void
   cuisineNames: string[]
@@ -92,14 +88,12 @@ interface MapBodyHandlers {
   locateLoading: boolean
   onRestaurantClose: () => void
   onMustEatClose: () => void
-  onMustEatBack: (() => void) | undefined
   mustEatPagerPrev: MapMustEat | null
   mustEatPagerNext: MapMustEat | null
   onPageMustEat: (dir: 'prev' | 'next') => void
   onViewRestaurantFromMustEat: () => void
   onUnlock: () => Promise<void>
   onToggleFavorite: () => void
-  onCollapseDetailToMid: () => void
   onToggleDesktopPanel: () => void
 }
 
@@ -124,7 +118,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     sheetView, snap, dragging,
     displayedRestaurants, displayedLockedRestaurants, restaurantMustEats,
     pagerPrev, pagerNext, onPageRestaurant,
-    totalCount,
     selectedRestaurant, selectedMustEat,
     primaryMustEats, unlockedIds, revealedMustEatIds, favoriteIds, location, uid, userTier,
     categories, category, setCategory, search, bezirk, bezirkNames,
@@ -132,11 +125,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     openOnly, setOpenOnly,
     searchOpen, setSearchOpen,
     onMapMove, onMapClick, onRestaurantClick, onMustEatClick, onLocateMe, locateLoading,
-    onRestaurantClose, onMustEatClose, onMustEatBack,
+    onRestaurantClose, onMustEatClose,
     mustEatPagerPrev, mustEatPagerNext, onPageMustEat,
     onViewRestaurantFromMustEat, onUnlock,
-    onSearchChange, onBezirkChange, onResetBezirkPill, onToggleFavorite,
-    onCollapseDetailToMid,
+    onSearchChange, onBezirkChange, onToggleFavorite,
     desktopPanelHidden, onToggleDesktopPanel,
     myLocationAriaLabel, restaurantsListAriaLabel,
   } = props
@@ -295,7 +287,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 mustEat={selectedMustEat}
                 onUnlock={onUnlock}
                 onClose={onMustEatClose}
-                onBack={onMustEatBack}
                 onViewRestaurant={onViewRestaurantFromMustEat}
                 prevMustEat={mustEatPagerPrev}
                 nextMustEat={mustEatPagerNext}
@@ -326,12 +317,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               <>
                 <MapListHeader
                   headerRef={setHeaderRef}
-                  resultCount={displayedRestaurants.length}
-                  totalCount={totalCount}
-                  searchOpen={searchOpen}
-                  setSearchOpen={setSearchOpen}
-                  search={search}
-                  onSearchChange={onSearchChange}
                   categories={categories}
                   category={category}
                   onCategoryChange={setCategory}

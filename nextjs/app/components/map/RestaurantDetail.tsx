@@ -35,7 +35,6 @@ function MustEatMiniCard({
         aria-label={unlocked ? mustEat.dish : 'Locked Must Eat'}
       >
         <div className={styles.medishPh}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={unlocked ? mustEat.image : '/pics/card-back.webp?v=5'} alt={unlocked ? mustEat.dish : ''} loading="lazy" />
         </div>
         {!unlocked && (
@@ -477,7 +476,6 @@ export default function RestaurantDetail({
         {showBooster && (
           <section className={styles.packPromo}>
             <div className={styles.packPromoCardWrap} aria-hidden="true">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={isAnon ? '/pics/booster/booster_free.webp' : '/pics/booster/booster_lunch.webp'}
                 alt=""

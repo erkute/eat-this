@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, type RefObject } from 'react'
+import { useEffect, useRef, type RefObject } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
 
@@ -43,7 +43,6 @@ interface Args {
   setSnap: (snap: 'peek' | 'mid' | 'full') => void
   onRestaurantSlugMatch: (r: MapRestaurant) => void
   onMustEatIdMatch: (m: MapMustEat) => void
-  getFlyPadding: () => { top: number; bottom: number; left: number; right: number }
 }
 
 export function useMapDeepLinks({
@@ -59,7 +58,6 @@ export function useMapDeepLinks({
   setSnap,
   onRestaurantSlugMatch,
   onMustEatIdMatch,
-  getFlyPadding,
 }: Args) {
   // ?r=<slug> opens the matching restaurant detail directly. Used by profile
   // favourites and any external link that wants to land on the map with a
@@ -214,24 +212,4 @@ export function useMapDeepLinks({
     setCategory(canonical)
     if (sheetView === 'list') setSnap('mid')
   }, [isActive, restaurants, sheetView, setSnap, setCategory, userInteractedRef])
-
-  // The pill's ✕ — clears the URL param and re-centres on Berlin Mitte.
-  const resetBezirkPill = useCallback(() => {
-    userInteractedRef.current = true
-    setBezirk(null)
-    const params = new URLSearchParams(window.location.search)
-    if (params.has('bezirk')) {
-      params.delete('bezirk')
-      const qs = params.toString()
-      window.history.replaceState(null, '', qs ? `${window.location.pathname}?${qs}` : window.location.pathname)
-    }
-    mapRef.current?.flyTo({
-      center: [13.405, 52.52],
-      zoom: 11.6,
-      duration: 600,
-      padding: getFlyPadding(),
-    })
-  }, [setBezirk, getFlyPadding, mapRef, userInteractedRef])
-
-  return { resetBezirkPill }
 }

@@ -64,14 +64,15 @@ export function useMapSheet(onDetailDismiss?: () => void) {
     const detailPeek = detailHeroPx != null
       ? HANDLE_PX + detailHeroPx + 4 + safeAreaBottom
       : DETAIL_PEEK_BASE_PX + safeAreaBottom
-    const fullOnly: SheetSnap[] = ['full']
+    const detailSnaps: SheetSnap[] = ['full', 'peek']
     return {
-      // Detail: a SINGLE anchor at the top ('full', minimal map strip above);
-      // a downward swipe dismisses (back to the list) via onDismiss instead of
-      // stopping at a mid/peek snap. List: full/mid/peek (snaps undefined =
-      // default), no dismiss. Both keys are set explicitly so configure()'s
-      // merge clears the other view's value when switching.
-      detail: { maxSnap: null, snaps: fullOnly, dragMode: 'all' as const, peekVisiblePx: detailPeek, onDismiss: onDetailDismiss },
+      // Detail: TWO anchors — 'full' at the top (minimal map strip) and 'peek'
+      // at the bottom (small detail strip, lots of map). No 'mid'. A downward
+      // swipe settles at peek; only a swipe well BELOW peek dismisses (back to
+      // the list) via onDismiss. List: full/mid/peek (snaps undefined =
+      // default), no dismiss. Both keys set explicitly so configure()'s merge
+      // clears the other view's value when switching.
+      detail: { maxSnap: null, snaps: detailSnaps, dragMode: 'all' as const, peekVisiblePx: detailPeek, onDismiss: onDetailDismiss },
       list:   { maxSnap: null, snaps: undefined, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX + safeAreaBottom, onDismiss: undefined },
     }
   }, [detailHeroPx, onDetailDismiss])

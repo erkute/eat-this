@@ -147,7 +147,7 @@ export default function RestaurantList({
     ? (locale === routing.defaultLocale ? '/#hub-packs' : `/${locale}#hub-packs`)
     : (locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
 
-  const handleLockedClick = useCallback((_r: MapRestaurant) => {
+  const handleLockedClick = useCallback(() => {
     window.location.assign(upgradeHref)
   }, [upgradeHref])
 

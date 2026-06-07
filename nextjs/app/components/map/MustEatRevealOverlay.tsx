@@ -289,9 +289,7 @@ export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone
             onPointerLeave={phase === 'revealed' ? handlePointerLeave : undefined}
           >
             <div className={flipperClass}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className={styles.faceBack} src="/pics/card-back.webp?v=5" alt="" aria-hidden="true" />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className={styles.faceFront} src={imageUrl} alt={alt} />
             </div>
           </motion.div>

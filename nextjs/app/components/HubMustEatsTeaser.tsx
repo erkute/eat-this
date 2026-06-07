@@ -37,10 +37,19 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
 
   const effUid = mounted ? uid : null
   const mustEats = mounted ? live.mustEats : initialMapData.mustEats
-  const revealedMustEatIds = mounted
-    ? live.revealedMustEatIds
-    : new Set<string>(initialMapData.revealedMustEatIds)
-  const storedSet = mounted ? storedUnlockedIds : new Set<string>()
+  // Memoized: the pre-mount fallbacks construct fresh Sets, which would
+  // otherwise re-trigger the faceUp memo below on every render.
+  const revealedMustEatIds = useMemo(
+    () =>
+      mounted
+        ? live.revealedMustEatIds
+        : new Set<string>(initialMapData.revealedMustEatIds),
+    [mounted, live.revealedMustEatIds, initialMapData],
+  )
+  const storedSet = useMemo(
+    () => (mounted ? storedUnlockedIds : new Set<string>()),
+    [mounted, storedUnlockedIds],
+  )
   // Public anon face-up set — folded in for signed-in users too so the teaser
   // matches the map/profile ("publicly face-up means face-up everywhere"; the
   // signed-in /api/map-data ships revealedMustEatIds: []).

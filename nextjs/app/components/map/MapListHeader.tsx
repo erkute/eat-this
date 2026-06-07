@@ -9,18 +9,6 @@ import styles from './map.module.css'
 interface Props {
   headerRef: Ref<HTMLDivElement | null>
 
-  /** Currently visible / filtered count — what's actually in the list now
-   *  (20 for an anon viewer with no filter, less with a filter applied). */
-  resultCount: number
-  /** Catalog size — total restaurants in Sanity, independent of trial cap
-   *  / current filters. Pairs with resultCount to read „20 / 172 SPOTS". */
-  totalCount: number
-
-  searchOpen: boolean
-  setSearchOpen: (open: boolean) => void
-  search: string
-  onSearchChange: (value: string) => void
-
   categories: CategoryDef[]
   category: MapCategory
   onCategoryChange: (c: MapCategory) => void
@@ -41,7 +29,6 @@ type ChipKind = 'category' | 'bezirk' | 'cuisine'
 
 export default function MapListHeader({
   headerRef,
-  searchOpen, setSearchOpen, search, onSearchChange,
   categories, category, onCategoryChange,
   openOnly, onOpenOnly,
   bezirkNames, bezirk, onBezirk,

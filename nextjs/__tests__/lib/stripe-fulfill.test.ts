@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // vi.hoisted ensures these are available inside vi.mock factories
 const { setFn, getFn, sanityFetch } = vi.hoisted(() => {
-  const setFn      = vi.fn(async (_doc: any) => undefined)
+  const setFn      = vi.fn<(doc: Record<string, unknown>) => Promise<undefined>>(async () => undefined)
   const getFn      = vi.fn(async () => ({ exists: false }))
   const sanityFetch = vi.fn(async () => [
     { _id: 'mustEat-1', rid: 'rest-A' },

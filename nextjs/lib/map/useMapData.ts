@@ -135,7 +135,6 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
     setRevealedMustEatIds(new Set<string>(cached.revealedMustEatIds ?? []))
     setLoading(false)
     // Mount-only: the seed is a one-shot first-paint optimisation.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Anon-with-SSR mount-skip: if we hydrated with the SSR anon view AND the user

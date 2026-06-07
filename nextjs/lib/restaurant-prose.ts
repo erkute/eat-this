@@ -22,7 +22,7 @@ export function buildQuickFacts(r: Restaurant, locale: Loc): string | null {
   if (!cuisine && !bezirk) return null
 
   const priceLabel = formatPriceLabel(r)
-  const hoursSummary = summarizeHours(r.openingHours, locale)
+  const hoursSummary = summarizeHours(r.openingHours)
 
   const segments: string[] = []
   if (de) {
@@ -44,7 +44,7 @@ export function buildQuickFacts(r: Restaurant, locale: Loc): string | null {
 }
 
 /** Concise multi-slot opening-hours summary, comma-separated. Null when empty. */
-export function summarizeHours(slots: OpeningHourSlot[] | undefined, _locale: Loc): string | null {
+export function summarizeHours(slots: OpeningHourSlot[] | undefined): string | null {
   if (!slots || slots.length === 0) return null
   return slots.map(s => `${s.days} ${s.hours}`).join(', ')
 }
@@ -180,7 +180,7 @@ export function buildFAQEntries(r: Restaurant, locale: Loc): FAQEntry[] {
   }
 
   if (r.openingHours && r.openingHours.length > 0) {
-    const summary = summarizeHours(r.openingHours, locale)
+    const summary = summarizeHours(r.openingHours)
     if (summary) {
       entries.push(
         de

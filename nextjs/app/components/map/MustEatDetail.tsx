@@ -16,7 +16,6 @@ interface MustEatDetailProps {
   isUnlocked: boolean
   onUnlock: () => void
   onClose: () => void
-  onBack?: () => void
   onViewRestaurant?: () => void
   /** Global must-eat pager — adjacent cards + page handlers. */
   prevMustEat?: MapMustEat | null
@@ -34,7 +33,6 @@ export default function MustEatDetail({
   isUnlocked,
   onUnlock,
   onClose,
-  onBack,
   onViewRestaurant,
   prevMustEat,
   nextMustEat,
@@ -82,7 +80,6 @@ export default function MustEatDetail({
         isUnlocked={effectiveUnlocked}
         nameBurning={stampBurning}
         onClose={onClose}
-        onBack={onBack}
         onViewRestaurant={onViewRestaurant}
         prevMustEat={prevMustEat}
         nextMustEat={nextMustEat}
@@ -90,7 +87,6 @@ export default function MustEatDetail({
         nextUnlocked={nextUnlocked}
         onPagePrev={onPagePrev}
         onPageNext={onPageNext}
-        uid={uid}
         state={state}
       />
       {r && (

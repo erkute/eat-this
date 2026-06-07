@@ -171,7 +171,6 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, onClose }: InnerP
             the card's rounded shape — without it the sheen leaks past
             the right edge at strong rotateY tilts. */}
         <div className={styles.lightboxClip}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={imageUrl}
             alt={alt}

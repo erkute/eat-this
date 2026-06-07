@@ -19,7 +19,6 @@ interface Props {
    *  burns away and the name un-blurs into view. */
   nameBurning?: boolean
   onClose: () => void
-  onBack?: () => void
   onViewRestaurant?: () => void
   /** Global must-eat pager — adjacent cards + page handlers. */
   prevMustEat?: MapMustEat | null
@@ -30,7 +29,6 @@ interface Props {
   nextUnlocked?: boolean
   onPagePrev?: () => void
   onPageNext?: () => void
-  uid?: string | null
   state: MustEatDetailState
 }
 
@@ -44,7 +42,6 @@ export default function MustEatDetailMobile({
   isUnlocked,
   nameBurning,
   onClose,
-  onBack: _onBack,
   onViewRestaurant,
   prevMustEat,
   nextMustEat,
@@ -52,7 +49,6 @@ export default function MustEatDetailMobile({
   nextUnlocked,
   onPagePrev,
   onPageNext,
-  uid: _uid,
   state,
 }: Props) {
   const { t, lang } = useTranslation()
@@ -83,7 +79,6 @@ export default function MustEatDetailMobile({
         {/* HERO — dish card (open) or card-back (locked, tap to reveal in range). */}
         {open ? (
           <button type="button" className={styles.fdHero} onClick={handleCardZoom} aria-label={t('map.zoomCard')}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={mustEat.image} alt={mustEat.dish} />
           </button>
         ) : (
@@ -97,7 +92,6 @@ export default function MustEatDetailMobile({
               ['--vibrate-intensity' as string]: tapping ? '2.4' : vibrateIntensity.toFixed(3),
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={CARD_BACK} alt={t('mustEats.covered')} />
           </button>
         )}

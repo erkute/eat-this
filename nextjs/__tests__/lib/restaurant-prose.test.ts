@@ -52,19 +52,16 @@ describe('buildQuickFacts', () => {
 describe('summarizeHours', () => {
   it('joins multiple slots with a comma', () => {
     expect(
-      summarizeHours(
-        [
-          { days: 'Mo-Fr', hours: '11:00-15:00' },
-          { days: 'Sa', hours: '11:00-22:00' },
-        ],
-        'de',
-      ),
+      summarizeHours([
+        { days: 'Mo-Fr', hours: '11:00-15:00' },
+        { days: 'Sa', hours: '11:00-22:00' },
+      ]),
     ).toBe('Mo-Fr 11:00-15:00, Sa 11:00-22:00')
   })
 
   it('returns null on empty input', () => {
-    expect(summarizeHours(undefined, 'de')).toBeNull()
-    expect(summarizeHours([], 'de')).toBeNull()
+    expect(summarizeHours(undefined)).toBeNull()
+    expect(summarizeHours([])).toBeNull()
   })
 })
 

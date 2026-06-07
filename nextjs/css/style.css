@@ -1102,10 +1102,16 @@ body {
   }
 
   /* Safari paints the body bg behind the URL bar wherever the sheet's lvh
-     overhang doesn't cover it — keep it matched to the sheet surface. */
+     overhang doesn't cover it — keep it matched to the sheet surface. The
+     html bg (theme cream) shows through the translucent bar at the very
+     bottom past the body's paint, reading as a light fade in light mode
+     (invisible in dark, where html is near-black) — pin it to the sheet
+     surface too so there's no cream band behind the bar. */
+  html:has(.app-page[data-page="map"].active),
   body:has(.app-page[data-page="map"].active) {
     background: #ffffff;
   }
+  html[data-theme="dark"]:has(.app-page[data-page="map"].active),
   [data-theme="dark"] body:has(.app-page[data-page="map"].active) {
     background: #1c1c1c;
   }

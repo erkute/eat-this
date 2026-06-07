@@ -96,12 +96,17 @@ function pickSnapAfterDrag(
    ends at/below peek. Returns false for the list view (no onDismiss). */
 function dismissGesture(cfg: SheetConfig, finalPx: number, dy: number, vel: number, sheetH: number): boolean {
   if (!cfg.onDismiss || dy <= 0) return false
-  // Dismiss only when pulled clearly PAST the peek (bottom) anchor — a gentle
-  // drag down just settles at peek; you have to swipe well below it to close
-  // (back to the list). Otherwise the list "comes back too fast".
+  // Dismiss ONLY when swiped almost all the way to the bottom — past the peek
+  // (bottom) anchor and ~80% of the remaining way down to the drag clamp. Top,
+  // middle and the peek rest never bring the list; you have to swipe the detail
+  // right down. Position-only (no velocity/flick shortcut) so a quick swipe
+  // that stops higher up doesn't trigger it.
+  void vel
   const peekTopPx = snapToPx('peek', sheetH, cfg.peekVisiblePx)
+  const bottomPx = sheetH - 40 // matches the drag clamp: Math.min(h - 40, …)
+  const belowPeekRange = bottomPx - peekTopPx
   const overshoot = finalPx - peekTopPx // > 0 = dragged below the peek line
-  return overshoot > 100 || (vel >= FLICK_VELOCITY_PX_MS && overshoot > 40)
+  return belowPeekRange > 0 && overshoot > belowPeekRange * 0.8
 }
 
 /* Release-velocity tracker (px/ms, positive = downward). EMA over the move

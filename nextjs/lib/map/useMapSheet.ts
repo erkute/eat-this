@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useBottomSheet } from './useBottomSheet'
+import { useBottomSheet, type SheetSnap } from './useBottomSheet'
 
 export type SheetView = 'list' | 'detail'
 
@@ -45,7 +45,7 @@ const LIST_PEEK_BASE_PX            = 90
  * without a one-frame race where reapplySnap reads the previous view's peek
  * size and parks the sheet at the wrong height.
  */
-export function useMapSheet() {
+export function useMapSheet(onDetailDismiss?: () => void) {
   const sheet = useBottomSheet('mid')
   const [sheetView, setSheetViewState] = useState<SheetView>('list')
   /* Measured hero-block height drives the detail peek. Initialized null so
@@ -64,11 +64,18 @@ export function useMapSheet() {
     const detailPeek = detailHeroPx != null
       ? HANDLE_PX + detailHeroPx + 4 + safeAreaBottom
       : DETAIL_PEEK_BASE_PX + safeAreaBottom
+    const detailSnaps: SheetSnap[] = ['full', 'peek']
     return {
-      detail: { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: detailPeek },
-      list:   { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX + safeAreaBottom },
+      // Detail: TWO anchors — 'full' at the top (minimal map strip) and 'peek'
+      // at the bottom (small detail strip, lots of map). No 'mid'. A downward
+      // swipe settles at peek; only a swipe well BELOW peek dismisses (back to
+      // the list) via onDismiss. List: full/mid/peek (snaps undefined =
+      // default), no dismiss. Both keys set explicitly so configure()'s merge
+      // clears the other view's value when switching.
+      detail: { maxSnap: null, snaps: detailSnaps, dragMode: 'all' as const, peekVisiblePx: detailPeek, onDismiss: onDetailDismiss },
+      list:   { maxSnap: null, snaps: undefined, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX + safeAreaBottom, onDismiss: undefined },
     }
-  }, [detailHeroPx])
+  }, [detailHeroPx, onDetailDismiss])
 
   const sheetElRef = useRef<HTMLDivElement | null>(null)
   const sheetRef = sheet.sheetRef

@@ -90,6 +90,25 @@ function pickSnapAfterDrag(
   return order[finalIdx]
 }
 
+/* Should a drag-release dismiss the sheet? Only when the view configured an
+   onDismiss (detail view) and the finger pulled DOWN clearly past the peek
+   snap — either dragged ~64px below the peek line, or a downward flick that
+   ends at/below peek. Returns false for the list view (no onDismiss). */
+function dismissGesture(cfg: SheetConfig, finalPx: number, dy: number, vel: number, sheetH: number): boolean {
+  if (!cfg.onDismiss || dy <= 0) return false
+  // Dismiss ONLY when swiped almost all the way to the bottom — past the peek
+  // (bottom) anchor and ~92% of the remaining way down to the drag clamp. Top,
+  // middle and the peek rest never bring the list; you have to swipe the detail
+  // right down. Position-only (no velocity/flick shortcut) so a quick swipe
+  // that stops higher up doesn't trigger it.
+  void vel
+  const peekTopPx = snapToPx('peek', sheetH, cfg.peekVisiblePx)
+  const bottomPx = sheetH - 40 // matches the drag clamp: Math.min(h - 40, …)
+  const belowPeekRange = bottomPx - peekTopPx
+  const overshoot = finalPx - peekTopPx // > 0 = dragged below the peek line
+  return belowPeekRange > 0 && overshoot > belowPeekRange * 0.92
+}
+
 /* Release-velocity tracker (px/ms, positive = downward). EMA over the move
    samples so a single jittery event doesn't dominate, but the most recent
    motion outweighs the start of the gesture. */
@@ -125,6 +144,11 @@ function visibleViewportH(): number {
 
 interface SheetConfig {
   maxSnap: SheetSnap | null  // cap drag; null = allow full
+  // Explicit list of snap points this view rests at. When set it overrides the
+  // maxSnap-derived list — e.g. the detail view uses ['full','peek'] so it
+  // anchors at the top (minimal map strip) or the bottom peek (lots of map),
+  // and only a swipe well below peek dismisses. Undefined = derive from maxSnap.
+  snaps?: SheetSnap[]
   // 'all'        — handle + content + header drags active (list view)
   // 'handleOnly' — only the grab handle drags; content/header skip
   // 'none'       — disable all drag + hide handle
@@ -132,6 +156,10 @@ interface SheetConfig {
   // How much of the sheet stays visible at the 'peek' snap. Detail view
   // raises this so the name + action buttons remain reachable when collapsed.
   peekVisiblePx: number
+  // Optional: a strong downward pull *past* the peek snap dismisses the sheet
+  // (instead of parking at peek) by calling this. The detail view wires it to
+  // "close detail → back to list"; the list view leaves it undefined.
+  onDismiss?: () => void
 }
 
 export function useBottomSheet(initial: SheetSnap = 'peek') {
@@ -388,8 +416,12 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       }
       const upperCap = maxSnap ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx) : FULL_TOP_PX
       const finalPx = Math.max(upperCap, Math.min(h - 40, d.basePx + dy))
-      const allowed: SheetSnap[] = maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']
-      setSnap(pickSnapAfterDrag(snapRef.current, dy, d.v.vel, finalPx, h, configRef.current.peekVisiblePx, allowed))
+      const allowed: SheetSnap[] = configRef.current.snaps ?? (maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek'])
+      if (dismissGesture(configRef.current, finalPx, dy, d.v.vel, h)) {
+        configRef.current.onDismiss?.()
+      } else {
+        setSnap(pickSnapAfterDrag(snapRef.current, dy, d.v.vel, finalPx, h, configRef.current.peekVisiblePx, allowed))
+      }
     }
 
     handle.addEventListener('pointerdown',   onDown)
@@ -487,9 +519,13 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
         const upperCap = maxSnap ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx) : FULL_TOP_PX
         const dy = (e.changedTouches[0]?.clientY ?? touchState.startY) - touchState.startY
         const finalPx = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
-        const allowed: SheetSnap[] = maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']
+        const allowed: SheetSnap[] = configRef.current.snaps ?? (maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek'])
         setDragging(false)
-        setSnap(pickSnapAfterDrag(snapRef.current, dy, touchState.v.vel, finalPx, h, configRef.current.peekVisiblePx, allowed))
+        if (dismissGesture(configRef.current, finalPx, dy, touchState.v.vel, h)) {
+          configRef.current.onDismiss?.()
+        } else {
+          setSnap(pickSnapAfterDrag(snapRef.current, dy, touchState.v.vel, finalPx, h, configRef.current.peekVisiblePx, allowed))
+        }
       }
       touchState = null
     }
@@ -574,9 +610,13 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
         const upperCap = maxSnap ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx) : FULL_TOP_PX
         const dy = (e.changedTouches[0]?.clientY ?? touchState.startY) - touchState.startY
         const finalPx = Math.max(upperCap, Math.min(h - 40, touchState.basePx + dy))
-        const allowed: SheetSnap[] = maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek']
+        const allowed: SheetSnap[] = configRef.current.snaps ?? (maxSnap ? ['mid', 'peek'] : ['full', 'mid', 'peek'])
         setDragging(false)
-        setSnap(pickSnapAfterDrag(snapRef.current, dy, touchState.v.vel, finalPx, h, configRef.current.peekVisiblePx, allowed))
+        if (dismissGesture(configRef.current, finalPx, dy, touchState.v.vel, h)) {
+          configRef.current.onDismiss?.()
+        } else {
+          setSnap(pickSnapAfterDrag(snapRef.current, dy, touchState.v.vel, finalPx, h, configRef.current.peekVisiblePx, allowed))
+        }
       }
       touchState = null
     }

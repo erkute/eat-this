@@ -97,7 +97,7 @@ function pickSnapAfterDrag(
 function dismissGesture(cfg: SheetConfig, finalPx: number, dy: number, vel: number, sheetH: number): boolean {
   if (!cfg.onDismiss || dy <= 0) return false
   // Dismiss ONLY when swiped almost all the way to the bottom — past the peek
-  // (bottom) anchor and ~80% of the remaining way down to the drag clamp. Top,
+  // (bottom) anchor and ~92% of the remaining way down to the drag clamp. Top,
   // middle and the peek rest never bring the list; you have to swipe the detail
   // right down. Position-only (no velocity/flick shortcut) so a quick swipe
   // that stops higher up doesn't trigger it.
@@ -106,7 +106,7 @@ function dismissGesture(cfg: SheetConfig, finalPx: number, dy: number, vel: numb
   const bottomPx = sheetH - 40 // matches the drag clamp: Math.min(h - 40, …)
   const belowPeekRange = bottomPx - peekTopPx
   const overshoot = finalPx - peekTopPx // > 0 = dragged below the peek line
-  return belowPeekRange > 0 && overshoot > belowPeekRange * 0.8
+  return belowPeekRange > 0 && overshoot > belowPeekRange * 0.92
 }
 
 /* Release-velocity tracker (px/ms, positive = downward). EMA over the move

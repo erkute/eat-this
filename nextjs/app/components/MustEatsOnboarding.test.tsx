@@ -76,6 +76,14 @@ describe('MustEatsOnboarding', () => {
     expect(window.localStorage.getItem(ONBOARDING_SEEN_KEY)).toBe('1')
   })
 
+  it('step 3 shows the booster pack art instead of the demo card', () => {
+    render(<MustEatsOnboarding initialMapData={DATA} />)
+    fireEvent.click(screen.getByText('mustEats.onbNext'))
+    fireEvent.click(screen.getByText('mustEats.onbNext'))
+    expect(screen.getByTestId('onb-pack').getAttribute('src')).toContain('/pics/booster/booster.webp')
+    expect(screen.queryByTestId('onb-flipper')).toBeNull()
+  })
+
   it('step 2 shows the card back, then auto-flips open after the dwell', () => {
     vi.useFakeTimers()
     try {

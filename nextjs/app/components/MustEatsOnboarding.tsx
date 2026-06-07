@@ -9,6 +9,8 @@ import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import styles from './MustEatsOnboarding.module.css'
 
 const CARD_BACK = '/pics/card-back.webp?v=5'
+// Step 3 swaps the demo card for the pack art — the thing that brings new spots.
+const BOOSTER_ART = '/pics/booster/booster.webp'
 export const ONBOARDING_SEEN_KEY = 'mustEatsOnboardingSeen'
 
 // Dwell on the card back in step 2 before it auto-flips open — the live
@@ -124,12 +126,17 @@ export default function MustEatsOnboarding({ initialMapData }: Props) {
               </button>
 
               <div className={styles.cardBox}>
-                <div data-testid="onb-flipper" className={showBack ? `${styles.flipper} ${styles.flipped}` : styles.flipper}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className={styles.face} src={demo?.image ?? CARD_BACK} alt={demo?.dish ?? ''} />
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className={`${styles.face} ${styles.back}`} src={CARD_BACK} alt="" aria-hidden="true" />
-                </div>
+                {last ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img data-testid="onb-pack" className={styles.pack} src={BOOSTER_ART} alt="Booster Pack" />
+                ) : (
+                  <div data-testid="onb-flipper" className={showBack ? `${styles.flipper} ${styles.flipped}` : styles.flipper}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img className={styles.face} src={demo?.image ?? CARD_BACK} alt={demo?.dish ?? ''} />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img className={`${styles.face} ${styles.back}`} src={CARD_BACK} alt="" aria-hidden="true" />
+                  </div>
+                )}
               </div>
 
               <p className={styles.text} id="must-eats-onb-text">{t(STEP_KEYS[step])}</p>

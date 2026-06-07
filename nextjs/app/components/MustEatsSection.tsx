@@ -17,21 +17,21 @@ const COPY = {
   de: {
     kicker: 'In Berlin',
     title: ['Must', 'Eats'],
-    sub: 'Jedes Top-Restaurant hat ein Gericht, das du probiert haben musst — sein Must Eat. Ein paar Karten liegen schon offen. Den Rest deckst du vor Ort auf.',
+    sub: 'Einige Restaurants haben ein Must Eat — unsere klare Empfehlung: das Gericht, das du dort essen solltest. Ein paar Karten liegen offen, den Rest deckst du vor Ort selbst auf.',
     closeKicker: 'Noch verdeckt',
     closeTitle: ['Mehr', 'aufdecken.'],
     closeBody:
-      'Booster Packs bringen dir neue Spots — viele mit einem Must Eat. Aufgedeckt wird vor Ort: komm dem Spot nah, dreht sich die Karte von selbst um.',
+      'Booster Packs bringen dir neue Spots — viele mit einem oder mehreren Must Eats. Aufgedeckt wird vor Ort: geh hin und dreh die Karte mit einem Tap um.',
     closeCta: 'Packs ansehen →',
   },
   en: {
     kicker: 'In Berlin',
     title: ['Must', 'Eats'],
-    sub: "Every top restaurant has one dish you need to try — its Must Eat. A few cards are already face-up. The rest you reveal on site.",
+    sub: 'Some restaurants have a Must Eat — our clear recommendation: the dish to order there. A few cards are face-up; you reveal the rest yourself, on site.',
     closeKicker: 'Still face-down',
     closeTitle: ['Reveal', 'more.'],
     closeBody:
-      'Booster Packs bring you new spots — many with a Must Eat. Revealing happens on site: get close to the spot and the card flips by itself.',
+      'Booster Packs bring you new spots — many with one or more Must Eats. Revealing happens on site: go there and tap the card to flip it.',
     closeCta: 'View packs →',
   },
 } as const

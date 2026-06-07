@@ -54,13 +54,19 @@ describe('MustEatsSection', () => {
 
   it('renders the explanatory sub copy (de)', () => {
     const html = render()
-    expect(html).toContain('sein Must Eat')
-    expect(html).toContain('Den Rest deckst du vor Ort auf.')
+    expect(html).toContain('unsere klare Empfehlung')
+    expect(html).toContain('den Rest deckst du vor Ort selbst auf.')
   })
 
   it('renders the explanatory sub copy (en)', () => {
     const html = render('en')
-    expect(html).toContain('its Must Eat')
-    expect(html).toContain('The rest you reveal on site.')
+    expect(html).toContain('our clear recommendation')
+    expect(html).toContain('you reveal the rest yourself, on site.')
+  })
+
+  it('closing block describes the tap-to-reveal mechanic (de)', () => {
+    const html = render()
+    expect(html).toContain('einem oder mehreren Must Eats')
+    expect(html).toContain('dreh die Karte mit einem Tap um.')
   })
 })

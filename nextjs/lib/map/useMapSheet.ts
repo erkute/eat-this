@@ -45,7 +45,7 @@ const LIST_PEEK_BASE_PX            = 90
  * without a one-frame race where reapplySnap reads the previous view's peek
  * size and parks the sheet at the wrong height.
  */
-export function useMapSheet() {
+export function useMapSheet(onDetailDismiss?: () => void) {
   const sheet = useBottomSheet('mid')
   const [sheetView, setSheetViewState] = useState<SheetView>('list')
   /* Measured hero-block height drives the detail peek. Initialized null so
@@ -65,10 +65,13 @@ export function useMapSheet() {
       ? HANDLE_PX + detailHeroPx + 4 + safeAreaBottom
       : DETAIL_PEEK_BASE_PX + safeAreaBottom
     return {
-      detail: { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: detailPeek },
-      list:   { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX + safeAreaBottom },
+      // Detail: a strong swipe-down past peek closes the detail (back to the
+      // list) via onDismiss. List: no dismiss (undefined clears any prior one
+      // when configure() merges this view's config).
+      detail: { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: detailPeek, onDismiss: onDetailDismiss },
+      list:   { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX + safeAreaBottom, onDismiss: undefined },
     }
-  }, [detailHeroPx])
+  }, [detailHeroPx, onDetailDismiss])
 
   const sheetElRef = useRef<HTMLDivElement | null>(null)
   const sheetRef = sheet.sheetRef

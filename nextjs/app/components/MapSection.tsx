@@ -111,12 +111,18 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     })
   }, [uid, refetchMapData])
 
+  // Swipe the open detail down past peek → close it (back to the list). The
+  // close logic lives in the handlers below, so route the sheet's dismiss
+  // through a ref we keep pointed at the right handler (restaurant vs must-eat).
+  const dismissDetailRef = useRef<() => void>(() => {})
+  const dismissDetail = useCallback(() => { dismissDetailRef.current() }, [])
+
   const {
     handleRef, contentRef, setContentRef, setHeaderRef,
     snap, setSnap, dragging, reapplySnap,
     sheetView, setSheetView,
     sheetElRef, setSheetRef,
-  } = useMapSheet()
+  } = useMapSheet(dismissDetail)
 
   const {
     category, setCategory,
@@ -439,6 +445,15 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       })
     }
   }, [selectedMustEat, selectedRestaurant, getFlyPadding, setSheetView, snap, setSnap])
+
+  // Point the sheet's swipe-down-dismiss at the right close handler for
+  // whichever detail is open (must-eat stacked on a restaurant, or plain).
+  useEffect(() => {
+    dismissDetailRef.current = () => {
+      if (selectedMustEat) handleMustEatClose()
+      else handleRestaurantClose()
+    }
+  }, [selectedMustEat, handleMustEatClose, handleRestaurantClose])
 
   const handleMapClick = useCallback(() => {
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches

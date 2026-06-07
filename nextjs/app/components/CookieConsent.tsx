@@ -161,6 +161,12 @@ export default function CookieConsent() {
   const { t, lang } = useTranslation();
   const [show, setShow] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  // After the dismiss slide-out finishes we UNMOUNT the banner (collapsed=true).
+  // The banner is position:fixed; on iOS Safari the GPU layer the slide
+  // animation promotes lingers in the bottom-URL-bar zone and paints the bar
+  // solid (black in dark mode) until a reload. Dropping it from the DOM clears
+  // that layer so the bar recovers immediately. Reset when the banner reopens.
+  const [collapsed, setCollapsed] = useState(false);
   const sections = lang === 'de' ? COOKIE_SECTIONS_DE : COOKIE_SECTIONS_EN;
 
   // On mount: if user already accepted, load GA. If undecided, schedule the
@@ -205,6 +211,7 @@ export default function CookieConsent() {
   useEffect(() => {
     const reopen = () => {
       localStorage.removeItem('cookieConsent');
+      setCollapsed(false);
       setShow(true);
       setExpanded(true);
     };
@@ -235,12 +242,23 @@ export default function CookieConsent() {
     };
   }, [expanded]);
 
+  if (collapsed) return null;
+
   return (
     <div
       className={`cookie-consent${show ? ' show' : ''}${expanded ? ' expanded' : ''}`}
       id="cookieConsent"
       role="dialog"
       aria-label={t('cookie.text')}
+      onTransitionEnd={(e) => {
+        // When the dismiss slide-out (the banner's own transform) finishes,
+        // drop the banner from the DOM so its fixed compositing layer can't
+        // keep iOS Safari's bottom bar painted solid. Guard to the banner
+        // itself (not a child like the chevron) and only on the way out.
+        if (e.target === e.currentTarget && e.propertyName === 'transform' && !show) {
+          setCollapsed(true);
+        }
+      }}
     >
       <div className="cookie-content">
         <div className="cookie-text">

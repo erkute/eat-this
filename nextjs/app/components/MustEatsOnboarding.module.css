@@ -61,9 +61,21 @@
 
 /* Demo card — same aspect as the freigestellt card art (1539×2115) */
 .cardBox {
+  position: relative;
   width: min(52vw, 190px);
   margin: 0 auto 18px;
   perspective: 900px;
+}
+/* Mini booster pack peeking out beside the flipping card on slide 2 */
+.packMini {
+  position: absolute;
+  right: -22%;
+  bottom: -6px;
+  width: 52%;
+  height: auto;
+  transform: rotate(9deg);
+  filter: drop-shadow(0 4px 10px rgba(10, 10, 10, 0.25));
+  pointer-events: none;
 }
 .flipper {
   position: relative;
@@ -86,19 +98,30 @@
 .back {
   transform: rotateY(180deg);
 }
-/* Booster pack art on step 3 — own aspect (1008×1560), no flip faces */
-.pack {
-  display: block;
-  width: 100%;
-  height: auto;
-}
 
+/* Slide copy — section-head hierarchy: kicker, display headline, short body */
+.kicker {
+  font-family: var(--font-chewy);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 0 0 2px;
+}
+.title {
+  font-family: var(--font-chewy);
+  font-size: 30px;
+  line-height: 0.98;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 0 0 10px;
+}
 .text {
   font-size: 15px;
   line-height: 1.45;
   color: #0a0a0a;
   margin: 0 0 14px;
-  min-height: 3.6em;
+  min-height: 4.4em;
 }
 
 .dots {

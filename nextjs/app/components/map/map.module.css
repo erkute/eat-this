@@ -3468,34 +3468,71 @@ html[data-theme="dark"] .medishLbl { color: #f0e8d0; }
 /* horizontal page transition */
 
 /* ══════════════════════════════════════════════════════════════════════
-   STAGE 0 SPIKE (temporary, phones ≤767px) — window-scrolled in-flow map.
-   Replaces the absolute drag-sheet with an in-flow document so the list rows
-   are in-flow content that frosts through iOS Safari's bottom URL bar (the
-   whole point — proves the rebuild premise before Stages 1-3). Crude on
-   purpose: no sticky map, no sticky filter header, floating controls may sit
-   oddly. Appended last + scoped ≤767px so it wins over the ≤1023.98px sheet
-   rules above without touching desktop (≥1024px) or tablet (768-1023px).
+   STAGE 1 (phones ≤767px) — in-flow map list that OVERLAYS the map.
+   The whole map page is a window-scrolled in-flow document (so the list rows
+   are in-flow content that frosts through iOS Safari's bottom URL bar — proven
+   in the Stage 0 spike). The map is a full-screen STICKY background; the list
+   is an in-flow sheet pulled up over the map's lower part (peek) that rises
+   over the sticky map as the window scrolls — the Google-Maps bottom-sheet
+   feel, but driven by scroll instead of the old drag (the drag bindings are
+   off, see useBottomSheet INFLOW_SPIKE). Appended last + scoped ≤767px so it
+   wins over the ≤1023.98px sheet rules without touching desktop or tablet.
    ══════════════════════════════════════════════════════════════════════ */
 @media (max-width: 767px) {
-  /* Let the page grow and the WINDOW scroll — shell/body were flex/grid with
-     overflow:hidden, which clipped any in-flow growth. */
+  /* Page grows & the WINDOW scrolls (shell/body were flex/grid + overflow
+     hidden, which clipped in-flow growth). */
   .shell { height: auto; overflow: visible; }
-  .body  { display: block; height: auto; overflow: visible; }
-  /* The map needs an explicit height now that .body no longer stretches it. */
-  .mapWrap { height: 58dvh; }
-  /* The sheet becomes a plain in-flow block below the map. */
+  .body  { display: block; height: auto; overflow: visible; position: relative; }
+
+  /* Map = full-screen sticky background. Sticks under the page navbar; the
+     list sheet scrolls over it. */
+  .mapWrap {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    z-index: 0;
+  }
+
+  /* List sheet overlays the map but stays IN-FLOW so its rows frost through the
+     iOS bar. The negative margin pulls it up so a peek of the first rows sits
+     over the bottom of the map; scrolling raises it over the sticky map.
+     min-height guarantees scroll range (and behind-bar reach) even with few
+     rows. */
   .list {
-    position: static;
+    position: relative;
     transform: none;
+    z-index: 1;
     height: auto;
+    margin-top: -44dvh;      /* peek: map shows the top ~56dvh */
+    min-height: 86dvh;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.14);
+  }
+  /* Detail view = full-screen takeover (no map peek). */
+  .list[data-view="detail"] {
+    margin-top: 0;
+    min-height: 100dvh;
     border-radius: 0;
+    box-shadow: none;
   }
-  /* Kill the inner scroll-port so the rows flow into the document and the
-     window scrolls them — an inner overflow:auto would re-break the frosting.
-     The existing bottom padding (incl. --map-bar-overhang) is kept so the last
-     rows can scroll behind the bar. */
-  .listScroll {
-    max-height: none;
-    overflow: visible;
+
+  /* The grab pip is now a pure affordance — scrolling replaces dragging. */
+  .handle { cursor: default; }
+
+  /* Filter header sticks below the navbar as the sheet rises, so search +
+     filters stay reachable while scrolling the rows. */
+  .listHeader {
+    position: sticky;
+    top: calc(64px + env(safe-area-inset-top, 0px));
+    z-index: 2;
+    background: var(--surface-bg, #fff);
   }
+
+  /* No inner scroll-ports — content flows into the document and the WINDOW
+     scrolls it (an inner overflow:auto would re-break the frosting). Existing
+     bottom paddings (incl. --map-bar-overhang) keep the last rows / last
+     detail block able to scroll behind the bar. */
+  .listScroll     { max-height: none; overflow: visible; }
+  .detailMount    { max-height: none; overflow: visible; }
+  .detailV13Scroll { overflow: visible; }
 }

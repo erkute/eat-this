@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useBottomSheet } from './useBottomSheet'
+import { useBottomSheet, type SheetSnap } from './useBottomSheet'
 
 export type SheetView = 'list' | 'detail'
 
@@ -64,12 +64,15 @@ export function useMapSheet(onDetailDismiss?: () => void) {
     const detailPeek = detailHeroPx != null
       ? HANDLE_PX + detailHeroPx + 4 + safeAreaBottom
       : DETAIL_PEEK_BASE_PX + safeAreaBottom
+    const fullOnly: SheetSnap[] = ['full']
     return {
-      // Detail: a strong swipe-down past peek closes the detail (back to the
-      // list) via onDismiss. List: no dismiss (undefined clears any prior one
-      // when configure() merges this view's config).
-      detail: { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: detailPeek, onDismiss: onDetailDismiss },
-      list:   { maxSnap: null, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX + safeAreaBottom, onDismiss: undefined },
+      // Detail: a SINGLE anchor at the top ('full', minimal map strip above);
+      // a downward swipe dismisses (back to the list) via onDismiss instead of
+      // stopping at a mid/peek snap. List: full/mid/peek (snaps undefined =
+      // default), no dismiss. Both keys are set explicitly so configure()'s
+      // merge clears the other view's value when switching.
+      detail: { maxSnap: null, snaps: fullOnly, dragMode: 'all' as const, peekVisiblePx: detailPeek, onDismiss: onDetailDismiss },
+      list:   { maxSnap: null, snaps: undefined, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX + safeAreaBottom, onDismiss: undefined },
     }
   }, [detailHeroPx, onDetailDismiss])
 

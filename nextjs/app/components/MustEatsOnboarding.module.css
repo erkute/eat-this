@@ -86,6 +86,12 @@
 .back {
   transform: rotateY(180deg);
 }
+/* Booster pack art on step 3 — own aspect (1008×1560), no flip faces */
+.pack {
+  display: block;
+  width: 100%;
+  height: auto;
+}
 
 .text {
   font-size: 15px;

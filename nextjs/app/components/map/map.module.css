@@ -3466,3 +3466,36 @@ html[data-theme="dark"] .rdSecH { color: #f0e8d0; }
 html[data-theme="dark"] .medishLbl { color: #f0e8d0; }
 
 /* horizontal page transition */
+
+/* ══════════════════════════════════════════════════════════════════════
+   STAGE 0 SPIKE (temporary, phones ≤767px) — window-scrolled in-flow map.
+   Replaces the absolute drag-sheet with an in-flow document so the list rows
+   are in-flow content that frosts through iOS Safari's bottom URL bar (the
+   whole point — proves the rebuild premise before Stages 1-3). Crude on
+   purpose: no sticky map, no sticky filter header, floating controls may sit
+   oddly. Appended last + scoped ≤767px so it wins over the ≤1023.98px sheet
+   rules above without touching desktop (≥1024px) or tablet (768-1023px).
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  /* Let the page grow and the WINDOW scroll — shell/body were flex/grid with
+     overflow:hidden, which clipped any in-flow growth. */
+  .shell { height: auto; overflow: visible; }
+  .body  { display: block; height: auto; overflow: visible; }
+  /* The map needs an explicit height now that .body no longer stretches it. */
+  .mapWrap { height: 58dvh; }
+  /* The sheet becomes a plain in-flow block below the map. */
+  .list {
+    position: static;
+    transform: none;
+    height: auto;
+    border-radius: 0;
+  }
+  /* Kill the inner scroll-port so the rows flow into the document and the
+     window scrolls them — an inner overflow:auto would re-break the frosting.
+     The existing bottom padding (incl. --map-bar-overhang) is kept so the last
+     rows can scroll behind the bar. */
+  .listScroll {
+    max-height: none;
+    overflow: visible;
+  }
+}

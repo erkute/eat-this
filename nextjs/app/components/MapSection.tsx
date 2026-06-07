@@ -586,12 +586,10 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   useEffect(() => {
     if (!isActive) return
     if (!window.matchMedia('(max-width: 1023.98px)').matches) return
-    const onScroll = () => {
-      if (window.scrollY !== 0) window.scrollTo(0, 0)
-    }
-    onScroll() // entering the map with a leftover scroll position
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    /* STAGE 0 SPIKE: the map list is now a window-scrolled in-flow document so
+       its rows frost through the iOS bar. Reset to the top once on entry, but
+       do NOT pin scroll — the window MUST be free to scroll the list. */
+    window.scrollTo(0, 0)
   }, [isActive])
 
   const prevActiveRef = useRef(false)

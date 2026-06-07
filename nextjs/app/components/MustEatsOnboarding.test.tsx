@@ -34,7 +34,8 @@ describe('MustEatsOnboarding', () => {
   it('opens on first visit (no localStorage flag)', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />)
     expect(screen.getByRole('dialog')).toBeTruthy()
-    expect(screen.getByText('mustEats.onbStep1')).toBeTruthy()
+    expect(screen.getByText('mustEats.onb1Title')).toBeTruthy()
+    expect(screen.getByText('mustEats.onb1Kicker')).toBeTruthy()
   })
 
   it('stays closed when the seen flag is set', () => {
@@ -55,15 +56,14 @@ describe('MustEatsOnboarding', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />)
     fireEvent.click(screen.getByText('mustEats.howItWorks'))
     expect(screen.getByRole('dialog')).toBeTruthy()
-    expect(screen.getByText('mustEats.onbStep1')).toBeTruthy()
+    expect(screen.getByText('mustEats.onb1Title')).toBeTruthy()
   })
 
-  it('steps forward through all three steps; last button closes and sets flag', () => {
+  it('steps through both slides; last button closes and sets flag', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />)
     fireEvent.click(screen.getByText('mustEats.onbNext'))
-    expect(screen.getByText('mustEats.onbStep2')).toBeTruthy()
-    fireEvent.click(screen.getByText('mustEats.onbNext'))
-    expect(screen.getByText('mustEats.onbStep3')).toBeTruthy()
+    expect(screen.getByText('mustEats.onb2Title')).toBeTruthy()
+    expect(screen.getByText('mustEats.onb2Body')).toBeTruthy()
     fireEvent.click(screen.getByText('mustEats.onbStart'))
     expect(screen.queryByRole('dialog')).toBeNull()
     expect(window.localStorage.getItem(ONBOARDING_SEEN_KEY)).toBe('1')
@@ -76,12 +76,12 @@ describe('MustEatsOnboarding', () => {
     expect(window.localStorage.getItem(ONBOARDING_SEEN_KEY)).toBe('1')
   })
 
-  it('step 3 shows the booster pack art instead of the demo card', () => {
+  it('slide 2 shows the mini pack art next to the flipping card', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />)
-    fireEvent.click(screen.getByText('mustEats.onbNext'))
+    expect(screen.queryByTestId('onb-pack')).toBeNull()
     fireEvent.click(screen.getByText('mustEats.onbNext'))
     expect(screen.getByTestId('onb-pack').getAttribute('src')).toContain('/pics/booster/booster.webp')
-    expect(screen.queryByTestId('onb-flipper')).toBeNull()
+    expect(screen.getByTestId('onb-flipper')).toBeTruthy()
   })
 
   it('step 2 shows the card back, then auto-flips open after the dwell', () => {

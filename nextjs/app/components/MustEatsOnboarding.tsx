@@ -13,11 +13,16 @@ const CARD_BACK = '/pics/card-back.webp?v=5'
 const BOOSTER_ART = '/pics/booster/booster.webp'
 export const ONBOARDING_SEEN_KEY = 'mustEatsOnboardingSeen'
 
-// Dwell on the card back in step 2 before it auto-flips open — the live
+// Dwell on the card back in slide 2 before it auto-flips open — the live
 // demo of the on-site reveal. Keep shorter than the user's reading time.
 const STEP2_FLIP_DELAY_MS = 800
 
-const STEP_KEYS = ['mustEats.onbStep1', 'mustEats.onbStep2', 'mustEats.onbStep3'] as const
+// Two casual slides: what a Must Eat is, then how revealing works.
+// Each slide is kicker + display headline + short body (section-head style).
+const SLIDES = [
+  { kicker: 'mustEats.onb1Kicker', title: 'mustEats.onb1Title', body: 'mustEats.onb1Body' },
+  { kicker: 'mustEats.onb2Kicker', title: 'mustEats.onb2Title', body: 'mustEats.onb2Body' },
+] as const
 
 interface Props {
   initialMapData: InitialMapData
@@ -73,7 +78,7 @@ export default function MustEatsOnboarding({ initialMapData }: Props) {
     setOpen(true)
   }
 
-  // Step 2 choreography: card turns face-down on entry, then auto-flips
+  // Slide 2 choreography: card turns face-down on entry, then auto-flips
   // open after a short dwell — demonstrating the on-site reveal.
   const [showBack, setShowBack] = useState(false)
   useEffect(() => {
@@ -109,7 +114,8 @@ export default function MustEatsOnboarding({ initialMapData }: Props) {
     return () => document.removeEventListener('keydown', onKey)
   }, [open, close])
 
-  const last = step === STEP_KEYS.length - 1
+  const last = step === SLIDES.length - 1
+  const slide = SLIDES[step]
 
   return (
     <>
@@ -120,30 +126,31 @@ export default function MustEatsOnboarding({ initialMapData }: Props) {
       {open &&
         createPortal(
           <div className={styles.backdrop} onClick={close}>
-            <div className={styles.panel} role="dialog" aria-modal="true" aria-labelledby="must-eats-onb-text" onClick={(e) => e.stopPropagation()}>
+            <div className={styles.panel} role="dialog" aria-modal="true" aria-labelledby="must-eats-onb-title" onClick={(e) => e.stopPropagation()}>
               <button type="button" className={styles.x} aria-label={t('mustEats.onbClose')} onClick={close}>
                 ×
               </button>
 
               <div className={styles.cardBox}>
-                {last ? (
+                <div data-testid="onb-flipper" className={showBack ? `${styles.flipper} ${styles.flipped}` : styles.flipper}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className={styles.face} src={demo?.image ?? CARD_BACK} alt={demo?.dish ?? ''} />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className={`${styles.face} ${styles.back}`} src={CARD_BACK} alt="" aria-hidden="true" />
+                </div>
+                {last && (
                   /* eslint-disable-next-line @next/next/no-img-element */
-                  <img data-testid="onb-pack" className={styles.pack} src={BOOSTER_ART} alt="Booster Pack" />
-                ) : (
-                  <div data-testid="onb-flipper" className={showBack ? `${styles.flipper} ${styles.flipped}` : styles.flipper}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img className={styles.face} src={demo?.image ?? CARD_BACK} alt={demo?.dish ?? ''} />
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img className={`${styles.face} ${styles.back}`} src={CARD_BACK} alt="" aria-hidden="true" />
-                  </div>
+                  <img data-testid="onb-pack" className={styles.packMini} src={BOOSTER_ART} alt="Booster Pack" />
                 )}
               </div>
 
-              <p className={styles.text} id="must-eats-onb-text">{t(STEP_KEYS[step])}</p>
+              <p className={styles.kicker}>{t(slide.kicker)}</p>
+              <h2 className={styles.title} id="must-eats-onb-title">{t(slide.title)}</h2>
+              <p className={styles.text}>{t(slide.body)}</p>
 
               <div className={styles.dots} aria-hidden="true">
-                {STEP_KEYS.map((k, i) => (
-                  <span key={k} className={i === step ? `${styles.dot} ${styles.dotOn}` : styles.dot} />
+                {SLIDES.map((s, i) => (
+                  <span key={s.title} className={i === step ? `${styles.dot} ${styles.dotOn}` : styles.dot} />
                 ))}
               </div>
 

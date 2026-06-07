@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { setRequestLocale, getMessages } from 'next-intl/server';
 import { Bungee, Caveat, Knewave, Archivo_Black, Ranchers, Slackey, Barlow_Condensed, Schoolbell, Saira_Condensed, Permanent_Marker, Anton } from 'next/font/google';
-import Script from 'next/script';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
 import ReferralToastListener from '@/app/components/ReferralToastListener';
@@ -197,9 +196,11 @@ export default async function LocaleLayout({
       <head>
         {/* Safe: hardcoded constant, no user input */}
         <script dangerouslySetInnerHTML={{ __html: CRITICAL_BOOTSTRAP }} />
-        <Script id="schema-org" type="application/ld+json" strategy="beforeInteractive">
-          {ORG_JSON_LD}
-        </Script>
+        <script
+          id="schema-org"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: ORG_JSON_LD }}
+        />
       </head>
       <body>
         <ClientIntlProvider locale={locale} messages={messages}>

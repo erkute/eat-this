@@ -2,10 +2,11 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
 import { getRestaurantsByCategory, getCategoryBySlug, getAllCategories } from '@/lib/sanity.server'
 import { localizedCategoryName, localizedCategoryBlurb } from '@/lib/categories'
+import { buildCategoryTitle, buildCategoryDescription } from '@/lib/seo/categoryMeta'
+import { buildKategorieQuickFacts, buildKategorieFAQEntries } from '@/lib/kategorie-prose'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
@@ -37,9 +38,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const de = locale === 'de'
   const loc = de ? 'de' : 'en'
   const label = localizedCategoryName(c, loc)
+  const restaurants = await getRestaurantsByCategory(c.slug)
   // Brandlos — das Layout-Template hängt „| Eat This Berlin" an.
-  const title = `${label} in Berlin`
-  const description = localizedCategoryBlurb(c, loc) || undefined
+  // Suchsprache statt Katalog-Label: „Die beste Pizza in Berlin".
+  const title = buildCategoryTitle(slug, label, loc)
+  const description = buildCategoryDescription({
+    blurb: localizedCategoryBlurb(c, loc),
+    restaurants,
+    locale: loc,
+  })
   const canonical = localeUrl(locale, `/kategorie/${slug}`)
   return {
     title,
@@ -74,6 +81,8 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const restaurants = await getRestaurantsByCategory(c.slug)
   const label = localizedCategoryName(c, loc)
   const blurb = localizedCategoryBlurb(c, loc)
+  const quickFacts = buildKategorieQuickFacts({ label, restaurants, locale: loc })
+  const faqEntries = buildKategorieFAQEntries({ label, restaurants, locale: loc })
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/' },
@@ -95,9 +104,19 @@ export default async function KategorieDetailPage({ params }: PageProps) {
           { '@type': 'ListItem', position: 3, name: label, item: localeUrl(locale, `/kategorie/${slug}`) },
         ],
       },
+      ...(faqEntries.length > 0
+        ? [{
+            '@type': 'FAQPage',
+            mainEntity: faqEntries.map(entry => ({
+              '@type': 'Question',
+              name: entry.question,
+              acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+            })),
+          }]
+        : []),
       {
         '@type': 'ItemList',
-        name: `${label} in Berlin`,
+        name: buildCategoryTitle(slug, label, loc),
         numberOfItems: restaurants.length,
         itemListElement: restaurants.map((r, i) => {
           const priceLabel = formatPriceLabel(r)
@@ -119,17 +138,20 @@ export default async function KategorieDetailPage({ params }: PageProps) {
 
   return (
     <>
-      <Script id={`schema-kategorie-${slug}`} type="application/ld+json" strategy="beforeInteractive">
-        {jsonLd}
-      </Script>
+      <script
+        id={`schema-kategorie-${slug}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd }}
+      />
       <main className={styles.page}>
         <Breadcrumbs items={breadcrumbItems} ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'} />
 
         <header className={styles.hero}>
           <div className={styles.kicker}>{de ? 'Kategorie' : 'Category'}</div>
           <h1 className={styles.h1}>{label}</h1>
-          <div className={styles.tagline}>in Berlin</div>
+          <div className={styles.tagline}>{de ? 'Die besten Spots in Berlin' : 'The best spots in Berlin'}</div>
           {blurb && <p className={styles.sub}>{blurb}</p>}
+          {quickFacts && <p className={styles.sub}>{quickFacts}</p>}
           <MapPromoCTA variant="chip" kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />
         </header>
 
@@ -174,6 +196,21 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         </section>
 
         <MapPromoCTA kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />
+
+        {faqEntries.length > 0 && (
+          <section className={styles.faq} aria-label={de ? 'Häufige Fragen' : 'FAQ'}>
+            <div className={styles.faqKicker}>{de ? 'Häufige Fragen' : 'Frequently asked'}</div>
+            {faqEntries.map((entry, i) => (
+              <details key={i} className={styles.faqRow}>
+                <summary>
+                  <span className={styles.faqQ}>{entry.question}</span>
+                  <span className={styles.faqPlus} aria-hidden="true" />
+                </summary>
+                <p className={styles.faqA}>{entry.answer}</p>
+              </details>
+            ))}
+          </section>
+        )}
 
       </main>
     </>

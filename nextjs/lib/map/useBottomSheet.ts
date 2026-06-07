@@ -15,16 +15,6 @@ const MID_VISIBLE_PX = 420
 const FULL_TOP_PX     = 40
 const MOBILE_MAX = 1023.98
 
-/* STAGE 0 SPIKE (temporary): when true, the mobile drag bindings (handle /
-   list-content / header) are NOT attached, so the list scrolls via the window
-   as an in-flow document and its rows frost through iOS Safari's bottom URL
-   bar. Proves the in-flow-rebuild premise before Stages 1-3 delete this hook.
-   The content/header touchmove handlers preventDefault on upward swipes, which
-   would otherwise block the window scroll the spike depends on.
-   Typed `boolean` (not the `true` literal) so the guarded drag code below
-   isn't flagged as statically unreachable by tsc. */
-const INFLOW_SPIKE: boolean = true
-
 function snapToPx(snap: SheetSnap, sheetH: number, peekPx: number): number {
   switch (snap) {
     case 'full': return FULL_TOP_PX
@@ -352,7 +342,6 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
 
   // Drag handlers on the grab handle
   useEffect(() => {
-    if (INFLOW_SPIKE) return
     const handle = handleRef.current
     const sheet  = sheetNode.current
     if (!handle || !sheet) return
@@ -424,7 +413,6 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   //     the top of the list collapses the whole sheet (header bar included).
   useEffect(() => {
     void contentTick // re-run when the content element re-mounts
-    if (INFLOW_SPIKE) return
     const content = contentRef.current
     const sheet   = sheetNode.current
     if (!content || !sheet) return
@@ -524,7 +512,6 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   // tap-as-click on the buttons inside.
   useEffect(() => {
     void headerTick
-    if (INFLOW_SPIKE) return
     const header = headerRef.current
     const sheet = sheetNode.current
     if (!header || !sheet) return

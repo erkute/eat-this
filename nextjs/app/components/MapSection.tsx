@@ -185,16 +185,6 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     el.scrollTop = listScrollRef.current
   }, [sheetView, contentRef])
 
-  /* STAGE 1: the mobile map list is a window-scrolled in-flow document that
-     overlays a sticky map. Reset the window to the top when switching
-     list <-> detail so the detail opens at its top and returning to the list
-     shows the peek. Mobile only — desktop is the side rail. */
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    if (!window.matchMedia('(max-width: 1023.98px)').matches) return
-    window.scrollTo(0, 0)
-  }, [sheetView])
-
   const { updateBounds } = useBounds(displayedRestaurants, location)
 
   const handleMapMove = useCallback((bounds: Parameters<typeof updateBounds>[0]) => {
@@ -596,10 +586,12 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   useEffect(() => {
     if (!isActive) return
     if (!window.matchMedia('(max-width: 1023.98px)').matches) return
-    /* STAGE 0 SPIKE: the map list is now a window-scrolled in-flow document so
-       its rows frost through the iOS bar. Reset to the top once on entry, but
-       do NOT pin scroll — the window MUST be free to scroll the list. */
-    window.scrollTo(0, 0)
+    const onScroll = () => {
+      if (window.scrollY !== 0) window.scrollTo(0, 0)
+    }
+    onScroll() // entering the map with a leftover scroll position
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [isActive])
 
   const prevActiveRef = useRef(false)

@@ -1086,19 +1086,15 @@ body {
      reaches the window. The window CAN scroll by the bar height (~40px);
      if it ever does, the bar minimizes and the sheet snap math re-anchors
      on resize (useBottomSheet). */
-  /* STAGE 0 SPIKE: window-scrolled in-flow map (was fixed 100lvh+80px box with
-     overflow:hidden + an absolute drag-sheet). Now the page grows with its
-     in-flow list content and the WINDOW scrolls it — the only way iOS Safari
-     composites the rows into its bottom-URL-bar backdrop (real frosted glass,
-     like the start page). min-height keeps the +80px apron so the last rows can
-     sit behind the bar and no black void shows below the URL capsule. */
   .app-page[data-page="map"] {
     position: relative !important;
-    min-height: 100dvh !important; /* fallback: browsers without lvh */
-    min-height: calc(100lvh + 80px) !important;
-    height: auto !important;
+    height: 100dvh !important; /* fallback: browsers without lvh */
+    /* +80px apron past lvh — Safari's bar backdrop samples deeper than the
+       document end; must match --map-bar-overhang in map.module.css. */
+    height: calc(100lvh + 80px) !important;
+    min-height: 0;
     z-index: 9990;
-    overflow: visible !important;
+    overflow: hidden !important;
   }
 
   .app-page[data-page="map"].active {

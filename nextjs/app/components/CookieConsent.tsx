@@ -104,14 +104,20 @@ function clearGaCookies() {
 // tag; we restore to the cream paper (matches globals.css body bg) so the
 // notch stays blended instead of falling back to a default white stripe.
 function flushPostBannerChrome() {
+  const activePage = document.documentElement.getAttribute('data-active-page');
+  // The flip re-blends the notch on scrollable pages, but on the map page it
+  // forces iOS Safari's translucent bottom URL bar to repaint as a solid
+  // color — and it stays opaque until a reload, killing the sheet's
+  // blur-through. The map sets its own bar chrome (body bg behind the bar),
+  // so skip the theme-color poke there entirely.
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) {
+  if (meta && activePage !== 'map') {
     const restore = meta.getAttribute('content') || '#fbf8ee';
     meta.setAttribute('content', '#000000');
     requestAnimationFrame(() => meta.setAttribute('content', restore));
   }
   const navbar = document.querySelector('.navbar');
-  if (navbar && document.documentElement.getAttribute('data-active-page') === 'start') {
+  if (navbar && activePage === 'start') {
     navbar.classList.toggle('scrolled', window.scrollY > 60);
   }
 }

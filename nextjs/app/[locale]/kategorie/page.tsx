@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import Script from 'next/script'
 import { setRequestLocale } from 'next-intl/server'
 import { getAllCategories } from '@/lib/sanity.server'
 import { localizedCategoryName } from '@/lib/categories'
@@ -89,9 +88,11 @@ export default async function KategorieIndexPage({ params }: PageProps) {
 
   return (
     <>
-      <Script id="schema-kategorie-index" type="application/ld+json" strategy="beforeInteractive">
-        {jsonLd}
-      </Script>
+      <script
+        id="schema-kategorie-index"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd }}
+      />
       <main className={styles.page}>
         <header className={styles.hero}>
           <div className={styles.kicker}>{de ? 'Kategorien' : 'Categories'}</div>

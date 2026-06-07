@@ -98,24 +98,19 @@ function clearGaCookies() {
   }
 }
 
-// Refresh iOS Safari notch theme-color and recompute navbar.scrolled state
-// after the banner slides out — both can drift while the banner is overlaying.
-// The flip-to-black-then-back trick forces Safari to re-evaluate the meta
-// tag; we restore to the cream paper (matches globals.css body bg) so the
-// notch stays blended instead of falling back to a default white stripe.
+// Recompute navbar.scrolled state after the banner slides out — it can drift
+// while the banner is overlaying.
+//
+// We deliberately do NOT poke the theme-color meta here anymore. The old
+// flip-to-black-then-back trick re-blended the start-page notch, but on iOS
+// `theme-color` drives BOTH the notch and the bottom URL bar: the poke made
+// Safari paint the translucent bottom bar as a solid color, and the effect
+// persisted across soft-navigation (accept on the landing page → bottom bar
+// stayed opaque all the way onto the map until a reload). The map's
+// blur-through bar matters more than re-blending the post-banner notch, so
+// the poke is gone entirely — the bottom bar keeps its default translucency.
 function flushPostBannerChrome() {
   const activePage = document.documentElement.getAttribute('data-active-page');
-  // The flip re-blends the notch on scrollable pages, but on the map page it
-  // forces iOS Safari's translucent bottom URL bar to repaint as a solid
-  // color — and it stays opaque until a reload, killing the sheet's
-  // blur-through. The map sets its own bar chrome (body bg behind the bar),
-  // so skip the theme-color poke there entirely.
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta && activePage !== 'map') {
-    const restore = meta.getAttribute('content') || '#fbf8ee';
-    meta.setAttribute('content', '#000000');
-    requestAnimationFrame(() => meta.setAttribute('content', restore));
-  }
   const navbar = document.querySelector('.navbar');
   if (navbar && activePage === 'start') {
     navbar.classList.toggle('scrolled', window.scrollY > 60);

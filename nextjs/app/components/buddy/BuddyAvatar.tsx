@@ -8,6 +8,8 @@ import styles from './BuddyAvatar.module.css'
 export function BuddyAvatarFallback({ isTalking }: { isTalking: boolean }) {
   return (
     <div className={styles.wrap} data-talking={isTalking ? 'true' : 'false'} aria-hidden="true">
+      {/* Single stable frame with a subtle nod/jaw motion while talking. True
+          mouth lip-sync needs pixel-aligned frames or a separate mouth layer. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className={styles.face} src="/buddy/buddy.webp" alt="" width={56} height={56} />
     </div>

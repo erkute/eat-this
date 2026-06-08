@@ -1,7 +1,7 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocale } from 'next-intl'
-import { Link } from '@/i18n/navigation'
+import { Link, usePathname } from '@/i18n/navigation'
 import BuddyAvatar from './BuddyAvatar'
 import { useBuddyChat } from './useBuddyChat'
 import type { Locale, SpotCandidate } from '@/lib/buddy/types'
@@ -116,9 +116,27 @@ export default function BuddyWidget() {
   const launcherRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
 
+  const [scrolling, setScrolling] = useState(false)
+
   const closePanel = useCallback(() => {
     setOpen(false)
     launcherRef.current?.focus()
+  }, [])
+
+  // Make Remy "talk" while the page is scrolling — a little sign of life on the
+  // launcher. Goes quiet ~400ms after scrolling stops.
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout>
+    const onScroll = () => {
+      setScrolling(true)
+      clearTimeout(t)
+      t = setTimeout(() => setScrolling(false), 400)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      clearTimeout(t)
+    }
   }, [])
 
   // Move focus into the dialog when it opens (keyboard/screen-reader users).
@@ -151,6 +169,10 @@ export default function BuddyWidget() {
 
   const title = 'Remy'
 
+  // No buddy on the map page — it would cover the map.
+  const pathname = usePathname()
+  if ((pathname ?? '').startsWith('/map')) return null
+
   return (
     <>
       <button
@@ -162,7 +184,7 @@ export default function BuddyWidget() {
         aria-controls="buddy-panel"
         onClick={() => setOpen((v) => !v)}
       >
-        <BuddyAvatar isTalking={isStreaming && open} />
+        <BuddyAvatar isTalking={open ? isStreaming : scrolling} />
       </button>
 
       {open && (

@@ -1,7 +1,7 @@
 .wrap { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; background: #f4f1ea; flex-shrink: 0; }
 .face { width: 100%; height: 100%; object-fit: cover; object-position: 50% 6%; display: block;
   transform: scale(1.5); transform-origin: 50% 10%; }
-/* subtle nod + jaw squash while talking — transform only, no opacity fade */
+/* subtle nod + jaw squash while talking — smooth transform, no blink/fade */
 .wrap[data-talking='true'] .face { animation: buddyTalk .5s infinite ease-in-out; }
 @keyframes buddyTalk {
   0%, 100% { transform: scale(1.5) translateY(0) scaleY(1); }

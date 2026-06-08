@@ -22,4 +22,14 @@ describe('sanitizeLinks', () => {
     const text = 'Lies [den Artikel](/de/news/kaffee).'
     expect(sanitizeLinks(text, new Set())).toBe(text)
   })
+
+  it('handles locale-prefix-less restaurant links (German default route)', () => {
+    const textFake = 'Schau mal [Fake](/restaurant/fake).'
+    expect(sanitizeLinks(textFake, new Set())).toBe('Schau mal Fake.')
+    expect(sanitizeLinks(textFake, new Set())).not.toContain('/restaurant/fake')
+
+    const textReal = 'Ich empfehle [Real](/restaurant/real).'
+    const out = sanitizeLinks(textReal, new Set(['real']))
+    expect(out).toContain('[Real](/restaurant/real)')
+  })
 })

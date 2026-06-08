@@ -27,9 +27,9 @@ export const metadata: Metadata = {
     siteName: 'EAT THIS',
     images: [
       {
-        url: 'https://www.eatthisdot.com/pics/og-card.png?v=2',
+        url: 'https://www.eatthisdot.com/pics/og-card.png?v=3',
         width: 1200,
-        height: 630,
+        height: 1200,
         alt: 'EAT THIS – We tell you what to eat',
       },
     ],

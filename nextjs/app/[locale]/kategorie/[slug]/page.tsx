@@ -22,6 +22,16 @@ interface PageProps {
   params: Promise<{ locale: string; slug: string }>
 }
 
+// Square (1:1) pack-card social images so Google's square SERP thumbnail
+// shows the FULL packet (padded on brand yellow) instead of center-cropping
+// the portrait booster art and cutting off the bottom. One per category slug;
+// bump the version to force re-fetch by Google/social caches.
+const PACK_OG_SLUGS = new Set([
+  'breakfast', 'coffee', 'dinner', 'drinks', 'fast-food',
+  'fine-dining', 'lunch', 'pizza', 'sweets',
+])
+const PACK_OG_VERSION = 1
+
 export const revalidate = 3600
 
 export async function generateStaticParams() {
@@ -65,6 +75,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: canonical,
       type: 'website',
       locale: de ? 'de_DE' : 'en_US',
+      ...(PACK_OG_SLUGS.has(slug) && {
+        images: [
+          {
+            url: `${SITE_URL}/pics/og/og_${slug}.png?v=${PACK_OG_VERSION}`,
+            width: 1200,
+            height: 1200,
+            alt: `${label} Pack — Eat This Berlin`,
+          },
+        ],
+      }),
     },
   }
 }

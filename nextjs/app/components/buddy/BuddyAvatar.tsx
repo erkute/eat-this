@@ -1,0 +1,51 @@
+'use client'
+import { useEffect, useState } from 'react'
+import styles from './BuddyAvatar.module.css'
+
+export function BuddyAvatarFallback({ isTalking }: { isTalking: boolean }) {
+  return (
+    <div className={styles.wrap} aria-hidden="true">
+      <div className={styles.mouth} data-talking={isTalking ? 'true' : 'false'} />
+    </div>
+  )
+}
+
+// Public component: tries Rive if a .riv asset is configured, else falls back.
+// RIVE SWAP (Task 13): set NEXT_PUBLIC_BUDDY_RIVE_SRC to the published .riv URL.
+export default function BuddyAvatar({ isTalking }: { isTalking: boolean }) {
+  const src = process.env.NEXT_PUBLIC_BUDDY_RIVE_SRC
+  const [Rive, setRive] = useState<null | typeof import('@rive-app/react-canvas')>(null)
+
+  useEffect(() => {
+    if (!src) return
+    let active = true
+    import('@rive-app/react-canvas').then((mod) => active && setRive(mod))
+    return () => {
+      active = false
+    }
+  }, [src])
+
+  if (src && Rive) {
+    return <RiveAvatar mod={Rive} src={src} isTalking={isTalking} />
+  }
+  return <BuddyAvatarFallback isTalking={isTalking} />
+}
+
+function RiveAvatar({
+  mod,
+  src,
+  isTalking,
+}: {
+  mod: typeof import('@rive-app/react-canvas')
+  src: string
+  isTalking: boolean
+}) {
+  const { useRive, useStateMachineInput } = mod
+  const STATE_MACHINE = 'Buddy'
+  const { rive, RiveComponent } = useRive({ src, stateMachines: STATE_MACHINE, autoplay: true })
+  const talking = useStateMachineInput(rive, STATE_MACHINE, 'isTalking')
+  useEffect(() => {
+    if (talking) talking.value = isTalking
+  }, [talking, isTalking])
+  return <RiveComponent style={{ width: 56, height: 56 }} />
+}

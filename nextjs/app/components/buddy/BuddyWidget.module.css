@@ -1,7 +1,7 @@
 /* nextjs/app/components/buddy/BuddyWidget.module.css */
-/* The panel is a fixed light surface, so set explicit dark text everywhere —
-   otherwise the site's dark-theme global color (white) cascades in and we get
-   white-on-white. Colors are theme-independent on purpose. */
+/* Light surface by default with explicit text colors (so the site's dark-theme
+   global white doesn't cascade in and cause white-on-white). The dark variant
+   lives in the additive html[data-theme="dark"] block at the bottom. */
 .launcher { position: fixed; right: 20px; bottom: 20px; z-index: 10001; border: none;
   background: transparent; cursor: pointer; padding: 0; }
 .panel { position: fixed; right: 20px; bottom: 88px; z-index: 10001; width: 360px; max-width: calc(100vw - 32px);
@@ -65,3 +65,28 @@
     height: auto; max-height: none; border-radius: 14px; }
   .launcher { right: 16px; bottom: 16px; }
 }
+
+/* Dark mode — additive override so the whole panel follows the site theme
+   (was a fixed light surface). Uses the site's dark surface/text palette. */
+html[data-theme="dark"] .panel { background: #1a1a1a; color: #f5f5f5;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.55); }
+html[data-theme="dark"] .header { border-bottom-color: #2c2c2c; color: #f5f5f5; }
+html[data-theme="dark"] .log { color: #f5f5f5; }
+html[data-theme="dark"] .msgUser { background: #2c2c2c; color: #f5f5f5; }
+html[data-theme="dark"] .msgBot { color: #f5f5f5; }
+html[data-theme="dark"] .chip { background: #232323; border-color: #333; color: #f5f5f5; }
+html[data-theme="dark"] .chip:hover { background: #2c2c2c; border-color: #444; }
+html[data-theme="dark"] .spotCard { background: #232323; border-color: #333; color: #f5f5f5; }
+html[data-theme="dark"] .spotCard:hover { background: #2c2c2c; border-color: #444; }
+html[data-theme="dark"] .spotImg { background: #2c2c2c; }
+html[data-theme="dark"] .spotMeta { color: #8a8a8a; }
+html[data-theme="dark"] .spotDesc { color: #c5c5c5; }
+html[data-theme="dark"] .spotCta { color: #e0763a; }
+html[data-theme="dark"] .form { border-top-color: #2c2c2c; background: #1a1a1a; }
+html[data-theme="dark"] .input { background: #232323; border-color: #333; color: #f5f5f5; }
+html[data-theme="dark"] .input::placeholder { color: #8a8a8a; }
+html[data-theme="dark"] .send { background: #f5f5f5; color: #1a1a1a; }
+html[data-theme="dark"] .send:disabled { background: #3a3a3a; color: #8a8a8a; }
+html[data-theme="dark"] .close { color: #8a8a8a; }
+html[data-theme="dark"] .close:hover { color: #f5f5f5; }
+html[data-theme="dark"] .dot { background: #e0763a; }

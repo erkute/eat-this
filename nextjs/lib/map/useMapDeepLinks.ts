@@ -85,20 +85,28 @@ export function useMapDeepLinks({
     params.delete('r')
     const next = window.location.pathname + (params.toString() ? `?${params}` : '') + window.location.hash
     window.history.replaceState(null, '', next)
-    // No cancel-on-cleanup: once consumed we always finish the open, even if a
-    // re-render (e.g. the /api/map-data fetch landing, or restaurants updating)
-    // re-runs the effect — the consumed guard makes re-runs no-ops. Cancelling
-    // here killed the mapRef poll before the canvas mounted on client-side nav
-    // from the hub, so the detail never opened (only the list showed).
-    const tryOpen = () => {
+    // Open the detail IMMEDIATELY from the SSR'd data — it only sets state and
+    // the sheet/sidebar is already in the SSR shell, so it must NOT wait for the
+    // ~800 KB MapLibre canvas chunk to download (that was the "spot takes long
+    // to open after clicking" delay). The handler's flyTo uses optional
+    // chaining, so it simply no-ops while mapRef is null.
+    userInteractedRef.current = true
+    onRestaurantSlugMatchRef.current(target)
+    // …then re-run once the canvas has mounted so the camera flies to the spot.
+    // No cancel-on-cleanup: once consumed we always finish, even if a re-render
+    // (e.g. the /api/map-data fetch landing, or restaurants updating) re-runs the
+    // effect — the consumed guard makes re-runs no-ops. The repeat call is
+    // idempotent (same state) and only adds the flyTo. Cancelling here killed the
+    // poll before the canvas mounted on client-side nav from the hub, so the
+    // camera never moved.
+    const tryFly = () => {
       if (mapRef.current) {
-        userInteractedRef.current = true
         onRestaurantSlugMatchRef.current(target)
       } else {
-        setTimeout(tryOpen, 120)
+        setTimeout(tryFly, 120)
       }
     }
-    tryOpen()
+    tryFly()
   }, [isActive, restaurants, lockedRestaurants, mapRef, userInteractedRef])
 
   // ?me=<mustEatId> opens the matching Must-Eat detail directly. Used by the

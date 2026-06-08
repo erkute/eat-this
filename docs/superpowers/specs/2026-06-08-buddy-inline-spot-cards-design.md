@@ -47,6 +47,12 @@ Erweiterung der „So empfiehlst du (gestuft)"-Sektion:
 - Nutze **nur Slugs aus dem Tool-Ergebnis**; erfinde keine.
 - Extra-/stadtbekannte Tipps kommen **danach** als reiner Text **ohne Marker**.
 - Bestehende Regel bleibt: keine rohen URLs/Links im Text ausgeben.
+- **Wording (neu):** Remy stellt die Spots **natürlich** vor, wie ein Freund,
+  der Tipps gibt. Verbotene Floskeln im Output: „aus unserer geprüften Auswahl",
+  „aus unserem Bestand", „kuratierte/geprüfte Auswahl" o.Ä. — diese klingen
+  behördlich. Der Fallback-Hinweis für nicht-Eat-This-Spots wird ebenfalls
+  natürlich formuliert (z.B. „Kein klassischer Eat-This-Tipp, aber in Berlin
+  etabliert:") statt mit „geprüft".
 
 Die bestehende Zeile „…erscheinen als verlinkte Karten unter deiner Antwort"
 wird entsprechend angepasst (Karten erscheinen jetzt am Marker, nicht pauschal
@@ -92,13 +98,17 @@ Pro Assistant-Nachricht:
   ihrem noch nicht gestreamten Text erscheinen — das frühere „Karte schiebt sich
   unter den Text"-Problem entfällt strukturell (die `!(isStreaming && i===last)`-
   Sonderbehandlung für den unteren Block bleibt nur für den Fallback nötig).
-- **Fallback-Block unten:** Spots aus `m.spots`, deren Slug **nicht** in
-  `placedSlugs` ist, werden — wie heute — als Karten-Block am Ende der Nachricht
-  gerendert, aber erst wenn `!isStreaming` (Streaming fertig), damit ein noch
-  ausstehender Marker nicht vorschnell als „unreferenziert" gilt.
+- **Fallback-Block unten:** Nur wenn Remy **gar keinen** Marker gesetzt hat
+  (`placedSlugs` leer), werden die ersten 4 Spots als Karten-Block am Ende
+  gerendert — wie heute. Sobald **mindestens ein** Spot inline platziert wurde,
+  zeigen wir **nur** die inline-Karten (Remy hat bewusst ausgewählt); die
+  restlichen Kandidaten — bei großer Trefferzahl bis zu 30 — werden **nicht** als
+  Block nachgeschoben (das wäre genau das alte Rauschen). Der Fallback-Block wird
+  erst gerendert, wenn `!isStreaming` (Streaming fertig), damit ein noch
+  ausstehender Marker nicht vorschnell zum Fallback führt.
 
-Konsequenz: Setzt Remy gar keine Marker (Haiku-Compliance), landen alle Karten
-unten → identisch zum heutigen Verhalten. Graceful Degradation.
+Konsequenz: Setzt Remy gar keine Marker (Haiku-Compliance), landen die ersten 4
+Karten unten → identisch zum heutigen Verhalten. Graceful Degradation.
 
 ## Daten-/Kontrollfluss (unverändert außer Rendering)
 

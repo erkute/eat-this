@@ -15,7 +15,7 @@ const SITE_URL = 'https://www.eatthisdot.com'
 const TITLE = 'EAT THIS – Berlin Food Guide: Restaurants & Geheimtipps'
 const DESCRIPTION =
   'We tell you what to eat — die kuratierte Food Map mit den besten Restaurants, Cafés und Bars in Berlin. Dazu exklusive Must Eats auf der interaktiven Karte.'
-const OG_IMAGE = SITE_URL + '/pics/og-card.png?v=2'
+const OG_IMAGE = SITE_URL + '/pics/og-card.png?v=3'
 
 export const metadata: Metadata = {
   // `absolute` bypasses the root '%s | Eat This Berlin' template — the brand
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     url: SITE_URL,
-    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: 'EAT THIS – We tell you what to eat' }],
+    images: [{ url: OG_IMAGE, width: 1200, height: 1200, alt: 'EAT THIS – We tell you what to eat' }],
     locale: 'de_DE',
   },
   twitter: {

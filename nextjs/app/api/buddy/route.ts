@@ -36,11 +36,14 @@ function parseBody(body: unknown):
   return { ok: true, sessionId, messages, locale }
 }
 
-// Real client IP behind Firebase App Hosting / Cloud Run: first hop of
-// x-forwarded-for, else x-real-ip. Hashed before use so no raw IP is stored.
+// Real client IP behind Firebase App Hosting / Cloud Run. The LEFTMOST entries
+// of x-forwarded-for are client-supplied and spoofable; the platform appends the
+// actual connecting IP as the RIGHTMOST hop, so read that. Hashed before use so
+// no raw IP is ever stored (rate-limit bucketing only).
 function clientIpHash(request: Request): string | null {
   const xff = request.headers.get('x-forwarded-for')
-  const ip = (xff ? xff.split(',')[0] : request.headers.get('x-real-ip') ?? '').trim()
+  const hops = xff ? xff.split(',').map((h) => h.trim()).filter(Boolean) : []
+  const ip = hops.length > 0 ? hops[hops.length - 1] : (request.headers.get('x-real-ip') ?? '').trim()
   if (!ip) return null
   const salt = process.env.BUDDY_IP_SALT ?? 'eat-this-buddy'
   return createHash('sha256').update(ip + salt).digest('hex').slice(0, 40)

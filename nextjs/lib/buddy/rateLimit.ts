@@ -40,22 +40,39 @@ export function evaluateRateLimit(
   return { allowed: true, state }
 }
 
-function limitsFromEnv(): RateLimits {
+const num = (v: string | undefined, d: number) => {
+  const n = Number(v)
+  return Number.isFinite(n) && n > 0 ? n : d
+}
+
+// Per-session limits: catch one user's UI spamming.
+export function sessionLimitsFromEnv(): RateLimits {
   return {
-    perMinute: Number(process.env.BUDDY_RATE_LIMIT_PER_MIN ?? 10),
-    perDay: Number(process.env.BUDDY_RATE_LIMIT_PER_DAY ?? 100),
+    perMinute: num(process.env.BUDDY_RATE_LIMIT_PER_MIN, 10),
+    perDay: num(process.env.BUDDY_RATE_LIMIT_PER_DAY, 100),
   }
 }
 
-// Firestore-backed wrapper. One doc per session in collection `buddyRateLimits`.
-// Uses a transaction so concurrent requests for the same session stay consistent.
+// Per-IP limits: catch someone scripting the endpoint (sessionId is trivially
+// reset client-side, so this is the real abuse guard). Higher than the session
+// limits because several real users can share one IP (NAT / mobile carriers).
+export function ipLimitsFromEnv(): RateLimits {
+  return {
+    perMinute: num(process.env.BUDDY_RATE_LIMIT_IP_PER_MIN, 30),
+    perDay: num(process.env.BUDDY_RATE_LIMIT_IP_PER_DAY, 400),
+  }
+}
+
+// Firestore-backed sliding-window counter, one doc per key in `buddyRateLimits`.
+// Transaction keeps concurrent requests for the same key consistent. `key` is a
+// namespaced id like `s:<sessionId>` or `ip:<sha256>` (never a raw IP).
 export async function checkRateLimit(
-  sessionId: string,
+  key: string,
+  limits: RateLimits,
   now: number = Date.now(),
 ): Promise<RateLimitDecision> {
   const db = getAdminFirestore()
-  const ref = db.collection('buddyRateLimits').doc(sessionId)
-  const limits = limitsFromEnv()
+  const ref = db.collection('buddyRateLimits').doc(key)
   return db.runTransaction(async (tx) => {
     const snap = await tx.get(ref)
     const prev = (snap.exists ? (snap.data() as RateLimitState) : null) ?? null

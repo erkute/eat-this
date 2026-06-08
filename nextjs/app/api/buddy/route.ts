@@ -1,6 +1,7 @@
 // nextjs/app/api/buddy/route.ts
+import { createHash } from 'node:crypto'
 import { NextResponse } from 'next/server'
-import { checkRateLimit } from '@/lib/buddy/rateLimit'
+import { checkRateLimit, sessionLimitsFromEnv, ipLimitsFromEnv } from '@/lib/buddy/rateLimit'
 import { createAnthropicLlmClient, runBuddyTurn } from '@/lib/buddy/orchestrator'
 import { searchSpots, searchArticles } from '@/lib/buddy/retrieval'
 import { encodeBuddyEvent } from '@/lib/buddy/stream'
@@ -35,6 +36,16 @@ function parseBody(body: unknown):
   return { ok: true, sessionId, messages, locale }
 }
 
+// Real client IP behind Firebase App Hosting / Cloud Run: first hop of
+// x-forwarded-for, else x-real-ip. Hashed before use so no raw IP is stored.
+function clientIpHash(request: Request): string | null {
+  const xff = request.headers.get('x-forwarded-for')
+  const ip = (xff ? xff.split(',')[0] : request.headers.get('x-real-ip') ?? '').trim()
+  if (!ip) return null
+  const salt = process.env.BUDDY_IP_SALT ?? 'eat-this-buddy'
+  return createHash('sha256').update(ip + salt).digest('hex').slice(0, 40)
+}
+
 export async function POST(request: Request) {
   let raw: unknown
   try {
@@ -45,7 +56,16 @@ export async function POST(request: Request) {
   const parsed = parseBody(raw)
   if (!parsed.ok) return NextResponse.json({ error: 'invalid_request' }, { status: 400 })
 
-  const limit = await checkRateLimit(parsed.sessionId)
+  // IP limit first (the real abuse guard — sessionId is client-controlled),
+  // then the per-session limit. Either tripping returns 429 before any LLM work.
+  const ipHash = clientIpHash(request)
+  if (ipHash) {
+    const ipLimit = await checkRateLimit(`ip:${ipHash}`, ipLimitsFromEnv())
+    if (!ipLimit.allowed) {
+      return NextResponse.json({ error: 'rate_limited', reason: ipLimit.reason }, { status: 429 })
+    }
+  }
+  const limit = await checkRateLimit(`s:${parsed.sessionId}`, sessionLimitsFromEnv())
   if (!limit.allowed) {
     return NextResponse.json({ error: 'rate_limited', reason: limit.reason }, { status: 429 })
   }

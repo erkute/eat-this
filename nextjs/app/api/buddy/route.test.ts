@@ -3,6 +3,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/buddy/rateLimit', () => ({
   checkRateLimit: vi.fn(),
+  sessionLimitsFromEnv: () => ({ perMinute: 10, perDay: 100 }),
+  ipLimitsFromEnv: () => ({ perMinute: 30, perDay: 400 }),
 }))
 vi.mock('@/lib/buddy/orchestrator', () => ({
   createAnthropicLlmClient: () => ({ runTurn: () => ({}) }),
@@ -63,5 +65,20 @@ describe('POST /api/buddy', () => {
     const text = await res.text()
     expect(text).toContain('"type":"text"')
     expect(text).toContain('"type":"done"')
+  })
+
+  it('applies a per-IP limit (hashed) before the session limit', async () => {
+    vi.mocked(checkRateLimit).mockResolvedValue({ allowed: true, state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 } })
+    const request = new Request('http://localhost/api/buddy', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-forwarded-for': '203.0.113.7, 10.0.0.1' },
+      body: JSON.stringify({ sessionId: 's1', messages: [{ role: 'user', content: 'hi' }], locale: 'de' }),
+    })
+    await POST(request)
+    const keys = vi.mocked(checkRateLimit).mock.calls.map((c) => c[0])
+    // first call is the IP bucket (hashed, never the raw IP), then the session
+    expect(keys[0]).toMatch(/^ip:[a-f0-9]{40}$/)
+    expect(keys[0]).not.toContain('203.0.113.7')
+    expect(keys).toContain('s:s1')
   })
 })

@@ -48,3 +48,51 @@ export function buildSpotsParams(filters: SpotFilters, locale: Locale) {
     locale,
   }
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface SanityLike {
+  fetch: (query: string, params?: Record<string, unknown>) => Promise<any>
+}
+interface RetrievalDeps {
+  client?: SanityLike
+}
+
+const SPOTS_LIMIT = 30
+
+export async function searchSpots(
+  filters: SpotFilters,
+  locale: Locale,
+  deps: RetrievalDeps = {},
+): Promise<SpotCandidate[]> {
+  const client = deps.client ?? (sanityClient as unknown as SanityLike)
+  const query = buildSpotsQuery(SPOTS_LIMIT)
+  const params = buildSpotsParams(filters, locale)
+  const rows = (await client.fetch(query, params)) as SpotCandidate[]
+  return rows ?? []
+}
+
+export interface ArticleQuery {
+  query: string
+}
+
+const ARTICLES_QUERY = `*[
+  _type == "newsArticle"
+  && defined(slug.current)
+  && (coalesce(titleDe, title) match $q || coalesce(excerptDe, excerpt) match $q || pt::text(content) match $q)
+] | order(date desc) [0...5] {
+  "title": select($locale == "en" => coalesce(title, titleDe), coalesce(titleDe, title)),
+  "slug": slug.current,
+  "excerpt": select($locale == "en" => coalesce(excerpt, excerptDe), coalesce(excerptDe, excerpt))
+}`
+
+export async function searchArticles(
+  input: ArticleQuery,
+  locale: Locale,
+  deps: RetrievalDeps = {},
+): Promise<ArticleResult[]> {
+  const client = deps.client ?? (sanityClient as unknown as SanityLike)
+  const term = input.query.trim()
+  const q = term.length > 0 ? `*${term}*` : '*'
+  const rows = (await client.fetch(ARTICLES_QUERY, { q, locale })) as ArticleResult[]
+  return rows ?? []
+}

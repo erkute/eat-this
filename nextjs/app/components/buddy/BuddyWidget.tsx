@@ -215,6 +215,22 @@ export default function BuddyWidget() {
     if (open) panelRef.current?.focus()
   }, [open])
 
+  // Lock background scroll while the panel is open so the page doesn't scroll
+  // behind the chat. Desktop scrolls an inner `.app-pages` container; mobile
+  // scrolls the document — lock both and restore on close.
+  useEffect(() => {
+    if (!open) return
+    const ap = document.querySelector('.app-pages') as HTMLElement | null
+    const prevAp = ap?.style.overflow ?? ''
+    const prevBody = document.body.style.overflow
+    if (ap) ap.style.overflow = 'hidden'
+    document.body.style.overflow = 'hidden'
+    return () => {
+      if (ap) ap.style.overflow = prevAp
+      document.body.style.overflow = prevBody
+    }
+  }, [open])
+
   // Escape closes the panel and returns focus to the launcher.
   useEffect(() => {
     if (!open) return
@@ -286,7 +302,7 @@ export default function BuddyWidget() {
           tabIndex={-1}
         >
           <div className={styles.header}>
-            <BuddyAvatar mood={panelMood} />
+            <BuddyAvatar mood={panelMood} size={72} />
             <strong>{title}</strong>
             <button className={styles.close} type="button" aria-label={t.close} onClick={closePanel}>
               ×

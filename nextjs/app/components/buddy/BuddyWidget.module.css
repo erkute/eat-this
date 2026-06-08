@@ -9,7 +9,7 @@
   background: #fff; color: #1a1a1a; border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.18); overflow: hidden; }
 .header { display: flex; align-items: center; gap: 10px; padding: 12px 14px;
   border-bottom: 1px solid #eee; color: #1a1a1a; font-weight: 600; }
-.log { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; color: #1a1a1a; }
+.log { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 14px; display: flex; flex-direction: column; gap: 10px; color: #1a1a1a; }
 .msgUser { align-self: flex-end; background: #f0efe9; color: #1a1a1a; padding: 8px 12px;
   border-radius: 12px; max-width: 85%; white-space: pre-wrap; }
 .msgBot { align-self: flex-start; color: #1a1a1a; max-width: 92%; line-height: 1.45; }

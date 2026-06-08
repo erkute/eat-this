@@ -18,23 +18,23 @@ const BASE_SRC: Record<BuddyMood, string> = {
   greeting: '/buddy/buddy-smile.webp',
 }
 
-export function BuddyAvatarFallback({ mood }: { mood: BuddyMood }) {
+export function BuddyAvatarFallback({ mood, size = 56 }: { mood: BuddyMood; size?: number }) {
   return (
-    <div className={styles.wrap} data-mood={mood} aria-hidden="true">
+    <div className={styles.wrap} data-mood={mood} aria-hidden="true" style={{ width: size, height: size }}>
       {/* Base frame for the current mood. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className={styles.face} src={BASE_SRC[mood]} alt="" width={56} height={56} />
+      <img className={styles.face} src={BASE_SRC[mood]} alt="" width={size} height={size} />
       {/* Teeth overlay — hard-cuts on/off only while talking so just the mouth
           moves (the head stays put). Hidden in every other mood. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className={styles.faceOpen} src="/buddy/buddy-open.webp" alt="" width={56} height={56} />
+      <img className={styles.faceOpen} src="/buddy/buddy-open.webp" alt="" width={size} height={size} />
     </div>
   )
 }
 
 // Public component: tries Rive if a .riv asset is configured, else falls back.
 // RIVE SWAP (Task 13): set NEXT_PUBLIC_BUDDY_RIVE_SRC to the published .riv URL.
-export default function BuddyAvatar({ mood }: { mood: BuddyMood }) {
+export default function BuddyAvatar({ mood, size = 56 }: { mood: BuddyMood; size?: number }) {
   const src = process.env.NEXT_PUBLIC_BUDDY_RIVE_SRC
   const [Rive, setRive] = useState<null | typeof import('@rive-app/react-canvas')>(null)
 
@@ -48,19 +48,21 @@ export default function BuddyAvatar({ mood }: { mood: BuddyMood }) {
   }, [src])
 
   if (src && Rive) {
-    return <RiveAvatar mod={Rive} src={src} mood={mood} />
+    return <RiveAvatar mod={Rive} src={src} mood={mood} size={size} />
   }
-  return <BuddyAvatarFallback mood={mood} />
+  return <BuddyAvatarFallback mood={mood} size={size} />
 }
 
 function RiveAvatar({
   mod,
   src,
   mood,
+  size,
 }: {
   mod: typeof import('@rive-app/react-canvas')
   src: string
   mood: BuddyMood
+  size: number
 }) {
   const { useRive, useStateMachineInput } = mod
   const STATE_MACHINE = 'Buddy'
@@ -69,5 +71,5 @@ function RiveAvatar({
   useEffect(() => {
     if (talking) talking.value = mood === 'talking'
   }, [talking, mood])
-  return <RiveComponent style={{ width: 56, height: 56 }} />
+  return <RiveComponent style={{ width: size, height: size }} />
 }

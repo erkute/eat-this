@@ -2,9 +2,11 @@ import {useCallback, useState} from 'react'
 import {Box, Button, Card, Container, Heading, Inline, Spinner, Stack, Text, TextArea} from '@sanity/ui'
 import {useRouter} from 'sanity/router'
 
-const API_BASE: string = (import.meta as unknown as {env: {MODE: string}}).env.MODE === 'production'
-  ? 'https://www.eatthisdot.com'
-  : 'http://localhost:3000'
+const API_BASE: string =
+  (import.meta as unknown as {env: {SANITY_STUDIO_API_BASE?: string}}).env.SANITY_STUDIO_API_BASE ||
+  ((import.meta as unknown as {env: {MODE: string}}).env.MODE === 'production'
+    ? 'https://www.eatthisdot.com'
+    : 'http://localhost:3000')
 
 const IMPORT_SECRET: string | undefined = (import.meta as unknown as {
   env: {SANITY_STUDIO_IMPORT_SECRET?: string}

@@ -35,7 +35,13 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 35%, rgba(0,0,0,.82) 100%);
+  background: linear-gradient(
+    to top,
+    rgba(11, 8, 6, 0.95) 0%,
+    rgba(11, 8, 6, 0.66) 20%,
+    rgba(11, 8, 6, 0.2) 44%,
+    transparent 66%
+  );
 }
 .cardBody {
   position: absolute;
@@ -57,9 +63,10 @@
   font-size: 10.5px;
   letter-spacing: .16em;
   text-transform: uppercase;
-  color: var(--brand-yellow);
+  color: var(--accent-warm);
   margin: 4px 0 0;
-  font-weight: 600;
+  font-weight: 700;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
 }
 
 /* ── Desktop: centered column, 4-up card grid ── */
@@ -79,4 +86,4 @@
 html[data-theme="dark"] .section { background: var(--dk-page); }
 html[data-theme="dark"] .heading { color: var(--dk-ink); }
 html[data-theme="dark"] .card { border-color: var(--dk-ink); }
-html[data-theme="dark"] .cardMeta { color: var(--c-coral-bright); }
+html[data-theme="dark"] .cardMeta { color: var(--accent-warm); }

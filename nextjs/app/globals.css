@@ -30,6 +30,7 @@
   --c-mustard-deep: #c89e1f;                    /* mustard hover/pressed */
   --c-coral:        #a02814;                    /* primary action — dunkles Rot */
   --c-coral-bright: #d63a2a;                    /* Brand-Rot aufgehellt — Text-Akzent auf dunklen Surfaces (Dark Mode ersetzt Gelb durch Rot) */
+  --accent-warm:    #ff8b42;                    /* helles Warm-Orange — Bezirk/Kategorie-Label auf Foto-Kacheln (lesbarer als Rot, beide Themes) */
   --c-green:        #0a0a0a;                    /* multi-direction green → schwarz */
   --c-black:        #0a0a0a;
   --c-row-rule:     rgba(10, 10, 10, 0.14);

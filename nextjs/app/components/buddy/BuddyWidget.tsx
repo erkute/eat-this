@@ -55,9 +55,9 @@ function FormattedText({ text }: { text: string }) {
 
 function SpotCard({ spot, locale }: { spot: SpotCandidate; locale: Locale }) {
   const meta = [spot.cuisineType, spot.bezirk, spot.priceRange].filter(Boolean).join(' · ')
-  const cta = locale === 'en' ? 'Details & map' : 'Details & Karte'
+  const cta = locale === 'en' ? 'Show on map' : 'Auf der Karte ansehen'
   return (
-    <Link className={styles.spotCard} href={`/restaurant/${spot.slug}`}>
+    <Link className={styles.spotCard} href={`/map?r=${spot.slug}`}>
       {spot.image && (
         // eslint-disable-next-line @next/next/no-img-element
         <img className={styles.spotImg} src={spot.image} alt="" width={56} height={56} loading="lazy" />

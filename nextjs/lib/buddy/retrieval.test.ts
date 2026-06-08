@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest'
 import { buildSpotsQuery, buildSpotsParams } from './retrieval'
 import { searchSpots, searchArticles } from './retrieval'
-import type { SpotCandidate, ArticleResult } from './types'
+import type { ArticleResult } from './types'
 
 describe('buildSpotsQuery', () => {
   it('inlines a clamped limit and selects the projection fields', () => {
@@ -64,17 +64,18 @@ describe('buildSpotsParams', () => {
 })
 
 describe('searchSpots', () => {
-  it('passes the built query+params to the client and returns results', async () => {
+  it('passes the built query+params to the client and formats the price label', async () => {
     const calls: Array<{ query: string; params: unknown }> = []
-    const fakeSpot: SpotCandidate = {
+    // Sanity returns priceRange as a raw {min,max,currency} object.
+    const rawRow = {
       name: 'Standard Serif', slug: 'standard-serif', cuisineType: 'Pizza',
       bezirk: 'Mitte', shortDescription: 'Neapolitan', tip: null,
-      priceRange: '€€', mapsUrl: 'https://maps.example/x', image: null,
+      priceRange: { min: 10, max: 20, currency: 'EUR' }, mapsUrl: 'https://maps.example/x', image: null,
     }
     const fakeClient = {
       fetch: async (query: string, params: unknown) => {
         calls.push({ query, params })
-        return [fakeSpot]
+        return [rawRow]
       },
     }
     const out = await searchSpots(
@@ -82,7 +83,8 @@ describe('searchSpots', () => {
       'de',
       { client: fakeClient },
     )
-    expect(out).toEqual([fakeSpot])
+    expect(out[0].name).toBe('Standard Serif')
+    expect(out[0].priceRange).toBe('10–20 €')
     expect(calls).toHaveLength(1)
     expect(calls[0].query).toContain('_type == "restaurant"')
     expect(calls[0].params).toMatchObject({ cuisine: '*Pizza*', bezirk: '*Mitte*', locale: 'de' })

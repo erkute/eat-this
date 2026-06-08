@@ -1,5 +1,6 @@
 // nextjs/lib/buddy/retrieval.ts
 import { client as sanityClient } from '@/lib/sanity'
+import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import type { Locale, SpotCandidate, ArticleResult } from './types'
 
 export interface SpotFilters {
@@ -19,7 +20,7 @@ const SPOTS_PROJECTION = `{
   "bezirk": bezirkRef->name,
   "shortDescription": select($locale == "en" => coalesce(shortDescriptionEn, shortDescription), shortDescription),
   "tip": select($locale == "en" => coalesce(tipEn, tip), tip),
-  priceRange,
+  priceRange, // raw {min,max,currency} object — formatted to a label in searchSpots
   mapsUrl,
   "image": image.asset->url + "?w=120&h=120&fit=crop&auto=format&q=80"
 }`
@@ -70,6 +71,11 @@ interface RetrievalDeps {
 
 const SPOTS_LIMIT = 30
 
+// The raw row before priceRange is collapsed to a display label.
+type RawSpotRow = Omit<SpotCandidate, 'priceRange'> & {
+  priceRange?: { min?: number; max?: number; currency?: string } | null
+}
+
 export async function searchSpots(
   filters: SpotFilters,
   locale: Locale,
@@ -78,8 +84,13 @@ export async function searchSpots(
   const client = deps.client ?? (sanityClient as unknown as SanityLike)
   const query = buildSpotsQuery(SPOTS_LIMIT)
   const params = buildSpotsParams(filters, locale)
-  const rows = (await client.fetch(query, params)) as SpotCandidate[]
-  return rows ?? []
+  const rows = (await client.fetch(query, params)) as RawSpotRow[]
+  // priceRange is a {min,max,currency} object in Sanity — format it to the
+  // same "10–20 €" label the rest of the app uses (was rendering [object Object]).
+  return (rows ?? []).map((r) => ({
+    ...r,
+    priceRange: formatPriceLabel({ priceRange: r.priceRange ?? undefined }),
+  }))
 }
 
 export interface ArticleQuery {

@@ -2,10 +2,14 @@
 import { useEffect, useState } from 'react'
 import styles from './BuddyAvatar.module.css'
 
+// Real mascot image with a subtle transform-based "talking" motion. True
+// mouth lip-sync needs the mouth as a separate layer (Rive path below); this
+// flat PNG gives a lively nod while streaming.
 export function BuddyAvatarFallback({ isTalking }: { isTalking: boolean }) {
   return (
-    <div className={styles.wrap} aria-hidden="true">
-      <div className={styles.mouth} data-talking={isTalking ? 'true' : 'false'} />
+    <div className={styles.wrap} data-talking={isTalking ? 'true' : 'false'} aria-hidden="true">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className={styles.face} src="/buddy/buddy.webp" alt="" width={56} height={56} />
     </div>
   )
 }

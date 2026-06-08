@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import BuddyAvatar from './BuddyAvatar'
@@ -53,6 +53,16 @@ function FormattedText({ text }: { text: string }) {
   return <>{blocks}</>
 }
 
+function TypingDots({ label }: { label: string }) {
+  return (
+    <span className={styles.typing} role="status" aria-label={label}>
+      <span className={styles.dot} />
+      <span className={styles.dot} />
+      <span className={styles.dot} />
+    </span>
+  )
+}
+
 function SpotCard({ spot, locale, onSelect }: { spot: SpotCandidate; locale: Locale; onSelect: () => void }) {
   const meta = [spot.cuisineType, spot.bezirk, spot.priceRange].filter(Boolean).join(' · ')
   const cta = locale === 'en' ? 'Show on map' : 'Auf der Karte ansehen'
@@ -92,11 +102,39 @@ const SUGGESTIONS: Record<Locale, string[]> = {
   ],
 }
 
+const T = {
+  de: { open: 'Eat This Buddy öffnen', close: 'Schließen', thinking: 'Buddy denkt nach', placeholder: 'Frag mich über Berliner Food…' },
+  en: { open: 'Open Eat This Buddy', close: 'Close', thinking: 'Buddy is thinking', placeholder: 'Ask me about Berlin food…' },
+} satisfies Record<Locale, Record<string, string>>
+
 export default function BuddyWidget() {
   const locale = useLocale() as Locale
+  const t = T[locale]
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState('')
   const { messages, isStreaming, send } = useBuddyChat()
+  const launcherRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  const closePanel = useCallback(() => {
+    setOpen(false)
+    launcherRef.current?.focus()
+  }, [])
+
+  // Move focus into the dialog when it opens (keyboard/screen-reader users).
+  useEffect(() => {
+    if (open) panelRef.current?.focus()
+  }, [open])
+
+  // Escape closes the panel and returns focus to the launcher.
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closePanel()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, closePanel])
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -111,27 +149,41 @@ export default function BuddyWidget() {
     void send(text)
   }
 
-  const placeholder = locale === 'en' ? 'Ask me about Berlin food…' : 'Frag mich über Berliner Food…'
   const title = 'Eat This Buddy'
 
   return (
     <>
       <button
+        ref={launcherRef}
         className={styles.launcher}
         data-buddy-launcher
-        aria-label={title}
+        aria-label={t.open}
+        aria-expanded={open}
+        aria-controls="buddy-panel"
         onClick={() => setOpen((v) => !v)}
       >
         <BuddyAvatar isTalking={isStreaming && open} />
       </button>
 
       {open && (
-        <div className={styles.panel} data-buddy-panel="open" role="dialog" aria-label={title}>
+        <div
+          ref={panelRef}
+          id="buddy-panel"
+          className={styles.panel}
+          data-buddy-panel="open"
+          role="dialog"
+          aria-modal="true"
+          aria-label={title}
+          tabIndex={-1}
+        >
           <div className={styles.header}>
             <BuddyAvatar isTalking={isStreaming} />
             <strong>{title}</strong>
+            <button className={styles.close} type="button" aria-label={t.close} onClick={closePanel}>
+              ×
+            </button>
           </div>
-          <div className={styles.log}>
+          <div className={styles.log} aria-live="polite">
             {messages.length === 0 && (
               <div className={styles.intro}>
                 <div className={styles.msgBot}>
@@ -153,7 +205,11 @@ export default function BuddyWidget() {
                 </div>
               ) : (
                 <div key={i} className={styles.msgBot}>
-                  <FormattedText text={m.content} />
+                  {m.content ? (
+                    <FormattedText text={m.content} />
+                  ) : isStreaming && i === messages.length - 1 ? (
+                    <TypingDots label={t.thinking} />
+                  ) : null}
                   {m.spots && m.spots.length > 0 && (
                     <div className={styles.spots}>
                       {m.spots.slice(0, 4).map((s) => (
@@ -170,10 +226,11 @@ export default function BuddyWidget() {
               className={styles.input}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              placeholder={placeholder}
+              placeholder={t.placeholder}
               disabled={isStreaming}
+              aria-label={t.placeholder}
             />
-            <button className={styles.send} type="submit" disabled={isStreaming || !draft.trim()}>
+            <button className={styles.send} type="submit" disabled={isStreaming || !draft.trim()} aria-label="Senden">
               →
             </button>
           </form>

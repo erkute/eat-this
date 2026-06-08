@@ -163,6 +163,19 @@
 .content strong {
   font-weight: 700;
 }
+.content a {
+  color: var(--c-coral);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+  font-weight: 600;
+}
+.content a:hover {
+  background: rgba(160, 40, 20, 0.07);
+}
+html[data-theme="dark"] .content a {
+  color: var(--c-coral-bright);
+}
 
 /* ── Inline Must Eat banner (mustEatCard block) ──
    Dark ink poster block in the article column — same sticker language as the

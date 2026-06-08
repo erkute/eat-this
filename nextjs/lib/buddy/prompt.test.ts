@@ -11,6 +11,10 @@ describe('buildSystemPrompt', () => {
     expect(p).toMatch(/geprüft|kuratiert/i)
     // unverified own additions must be clearly labelled
     expect(p).toMatch(/nicht.*geprüft|etabliert/i)
+    // inline cards: a per-spot marker instruction is present
+    expect(p).toMatch(/\[\[spot:/)
+    // spots are introduced naturally (no clinical framing)
+    expect(p).toMatch(/natürlich/i)
   })
 
   it('switches answer language by locale', () => {

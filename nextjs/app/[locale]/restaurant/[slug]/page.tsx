@@ -1,8 +1,9 @@
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
-import { getRestaurantBySlug, getAllRestaurantSlugs, getMustEatsByRestaurant, getRestaurantsByBezirk, getRestaurantsByCategory } from '@/lib/sanity.server'
+import { getRestaurantBySlug, getAllRestaurantSlugs, getAllRestaurantsLite, getMustEatsByRestaurant, getRestaurantsByBezirk, getRestaurantsByCategory } from '@/lib/sanity.server'
+import { resolveLegacyRestaurantSlug } from '@/lib/seo/legacyRedirects'
 import { buildRestaurantJsonLd } from '@/lib/json-ld'
 import { buildRestaurantTitle, truncateAtSentence } from '@/lib/seo/restaurantMeta'
 import { siblingWindow } from '@/lib/seo/siblingWindow'
@@ -103,7 +104,15 @@ export default async function RestaurantPage({ params }: PageProps) {
   const { locale, slug } = await params
   setRequestLocale(locale)
   const r = await getRestaurantBySlug(slug)
-  if (!r) notFound()
+  if (!r) {
+    // Post-rebuild slug migration: try to 301 an old/404 slug to its current
+    // page before giving up. See lib/seo/legacyRedirects.ts.
+    const dest = resolveLegacyRestaurantSlug(slug, await getAllRestaurantsLite())
+    if (dest && dest !== slug) {
+      permanentRedirect(locale === 'de' ? `/restaurant/${dest}` : `/${locale}/restaurant/${dest}`)
+    }
+    notFound()
+  }
   const primaryCategory = r.categories?.[0] ?? null
   const [mustEats, siblingsBezirkRaw, siblingsCategoryRaw] = await Promise.all([
     getMustEatsByRestaurant(r._id),

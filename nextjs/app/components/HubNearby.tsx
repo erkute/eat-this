@@ -98,7 +98,7 @@ export default function HubNearby({ initialMapData }: Props) {
             <li key={r._id} className={styles.cardItem}>
               <Link href={`/map?r=${r.slug}`} rel="nofollow" className={styles.card}>
                 <div className={styles.cardImage}>
-                  {r.photo && <Image src={r.photo} alt="" fill sizes="168px" />}
+                  {r.photo && <Image src={r.photo} alt={normalizeName(r.name)} fill sizes="168px" />}
                   {walk && <span className={styles.dist}>{walk}</span>}
                 </div>
                 <div className={styles.cardBody}>

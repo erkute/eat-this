@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
   // fs.readFile at runtime, so the tracer can't see them on its own.
   outputFileTracingIncludes: {
     "/api/email/spot-card": ["./assets/fonts/**/*"],
+    "/api/og/restaurant": ["./assets/fonts/**/*"],
   },
 
   images: {

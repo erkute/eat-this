@@ -13,7 +13,7 @@ import { useTranslation } from '@/lib/i18n'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import styles from './map.module.css'
-import { BookmarkIcon, BackIcon } from './icons'
+import { BookmarkIcon, CloseIcon } from './icons'
 import {
   classifyWebsite,
   formatPriceLabel,
@@ -248,21 +248,22 @@ export default function RestaurantDetail({
           data-detail-hero
           style={restaurant.photo ? { backgroundImage: `url(${restaurant.photo})` } : undefined}
         >
-          <button type="button" className={styles.rdBackPill} aria-label={backLabel} onClick={onClose}>
-            <BackIcon />
-            <span>{backLabel}</span>
-          </button>
-          {onToggleFavorite && (
-            <button
-              type="button"
-              className={`${styles.rdHeroSave} ${isFavorite ? styles.rdHeroSaveActive : ''}`}
-              aria-label={isFavorite ? 'Remove from saved' : t('map.save')}
-              aria-pressed={!!isFavorite}
-              onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
-            >
-              <BookmarkIcon filled={!!isFavorite} />
+          <div className={styles.rdHeroActions}>
+            {onToggleFavorite && (
+              <button
+                type="button"
+                className={`${styles.rdHeroSave} ${isFavorite ? styles.rdHeroSaveActive : ''}`}
+                aria-label={isFavorite ? 'Remove from saved' : t('map.save')}
+                aria-pressed={!!isFavorite}
+                onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
+              >
+                <BookmarkIcon filled={!!isFavorite} />
+              </button>
+            )}
+            <button type="button" className={styles.rdClose} aria-label={backLabel} onClick={onClose}>
+              <CloseIcon />
             </button>
-          )}
+          </div>
           <div className={styles.rdOverlay}>
             <h1 className={styles.rdNameOv} style={{ ['--rd-name-max' as string]: `${nameMaxPx}px` }}>{displayName}</h1>
             <div className={styles.rdTagsOv}>

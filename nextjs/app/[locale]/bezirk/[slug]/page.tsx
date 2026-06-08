@@ -10,7 +10,8 @@ import { localeUrl } from '@/lib/locale-url'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { routing } from '@/i18n/routing'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
-import { buildBezirkFAQEntries } from '@/lib/bezirk-prose'
+import { buildBezirkQuickFacts, buildBezirkFAQEntries } from '@/lib/bezirk-prose'
+import { districtCategoryLinks } from '@/lib/seo/crossLinks'
 import styles from '../Bezirk.module.css'
 import MapPromoCTA from '@/app/components/MapPromoCTA'
 import Breadcrumbs, { type BreadcrumbItem } from '@/app/components/Breadcrumbs'
@@ -99,6 +100,8 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   if (!b || restaurants.length === 0) notFound()
 
   const bezirkDescription = pickLocale(b.description, b.descriptionEn, loc)
+  const quickFacts = buildBezirkQuickFacts({ bezirk: b, restaurants, locale: loc })
+  const categoryLinks = districtCategoryLinks(restaurants, loc)
   const faqEntries = buildBezirkFAQEntries({ bezirk: b, restaurants, locale: loc })
 
   const breadcrumbItems: BreadcrumbItem[] = [
@@ -109,6 +112,8 @@ export default async function BezirkDetailPage({ params }: PageProps) {
 
   const restaurantUrl = (rSlug: string) =>
     locale === 'de' ? `/restaurant/${rSlug}` : `/${locale}/restaurant/${rSlug}`
+  const kategorieUrl = (cSlug: string) =>
+    locale === 'de' ? `/kategorie/${cSlug}` : `/${locale}/kategorie/${cSlug}`
 
   const jsonLd = buildBezirkJsonLd({
     bezirk: b,
@@ -135,11 +140,25 @@ export default async function BezirkDetailPage({ params }: PageProps) {
             <p className={styles.sub}>{bezirkDescription}</p>
           ) : (
             <div className={styles.tagline}>
-              {`Restaurants in ${b.name}`}
+              {de ? `Die besten Restaurants in ${b.name}` : `The best restaurants in ${b.name}`}
             </div>
           )}
+          {quickFacts && <p className={styles.sub}>{quickFacts}</p>}
           <MapPromoCTA variant="chip" kind="bezirk" name={b.name} mapHref={`/map?bezirk=${slug}`} locale={loc} />
         </header>
+
+        {categoryLinks.length > 0 && (
+          <nav className={styles.crossLinks} aria-label={de ? `Kategorien in ${b.name}` : `Categories in ${b.name}`}>
+            <span className={styles.crossLinksHead}>
+              {de ? `Beliebt in ${b.name}:` : `Popular in ${b.name}:`}
+            </span>
+            {categoryLinks.map(c => (
+              <Link key={c.slug} href={kategorieUrl(c.slug)} className={styles.crossLink}>
+                {c.label}
+              </Link>
+            ))}
+          </nav>
+        )}
 
         <div className={styles.sectionHead}>
           <h2>{de ? 'Was du hier essen solltest' : 'What to eat here'}</h2>

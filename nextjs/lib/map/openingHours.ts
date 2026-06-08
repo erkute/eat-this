@@ -59,6 +59,43 @@ interface OpenStatusLabels {
   unitMin?: string
 }
 
+// schema.org dayOfWeek names, indexed to match DayIndex (0 = Sunday).
+const SCHEMA_DAYS = [
+  'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
+] as const
+
+export interface OpeningHoursSpecification {
+  '@type': 'OpeningHoursSpecification'
+  dayOfWeek: string[]
+  opens: string
+  closes: string
+}
+
+/**
+ * Maps the free-text opening-hours slots into schema.org
+ * OpeningHoursSpecification entries for the Restaurant JSON-LD — reusing the
+ * same `parseDays` / `parseTimeRange` the live "open now" badge relies on, so
+ * the structured data can never drift from what the site shows. Unparseable or
+ * closed slots (no time range) are dropped; an empty result means "emit no
+ * openingHoursSpecification at all" rather than a misleading partial one.
+ * Overnight slots keep opens > closes, which schema.org permits.
+ */
+export function buildOpeningHoursSpec(openingHours: OpeningHourSlot[]): OpeningHoursSpecification[] {
+  const specs: OpeningHoursSpecification[] = []
+  for (const slot of openingHours) {
+    const days = parseDays(slot.days)
+    const range = parseTimeRange(slot.hours)
+    if (days.length === 0 || !range) continue
+    specs.push({
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: days.map(d => SCHEMA_DAYS[d]),
+      opens: fmt(range.open),
+      closes: fmt(range.close),
+    })
+  }
+  return specs
+}
+
 export function getOpenStatus(
   openingHours: OpeningHourSlot[],
   now: Date = new Date(),

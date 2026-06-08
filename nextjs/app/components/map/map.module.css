@@ -3181,11 +3181,21 @@ html[data-theme="dark"] .listEndCta {
   inset: 0;
   background: linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 45%, rgba(0,0,0,.55) 75%, rgba(0,0,0,.92) 100%);
 }
-.rdHeroSave {
+/* Hero action icons — bookmark + close (X), grouped top-right as naked
+   glyphs (no frame) with a drop-shadow for legibility on any photo. The X
+   sits outermost at the corner (the universal close affordance); the save
+   bookmark sits just to its left. */
+.rdHeroActions {
   position: absolute;
   top: 14px;
   right: 14px;
   z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.rdHeroSave,
+.rdClose {
   width: 30px;
   height: 30px;
   background: transparent;
@@ -3197,33 +3207,14 @@ html[data-theme="dark"] .listEndCta {
   justify-content: center;
   cursor: pointer;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,.65));
+  transition: transform .12s ease;
 }
+.rdHeroSave:active,
+.rdClose:active { transform: scale(.9); }
 .rdHeroSave svg { width: 22px; height: 26px; }
+.rdClose svg { width: 26px; height: 26px; }
 .rdHeroSaveActive { color: var(--c-mustard); }
 html[data-theme="dark"] .rdHeroSaveActive { color: var(--c-coral-bright); }
-
-/* Back-to-list pill on the hero (mockup .map-back-pill) — the smart close. */
-.rdBackPill {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 8px;
-  background: transparent;
-  border: 0;
-  color: #fbf8ee;
-  font-family: var(--font-chewy);
-  font-size: 14px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,.7));
-}
-.rdBackPill svg { width: 16px; height: 16px; }
 .rdOverlay {
   position: absolute;
   /* Bottom raised to 28px so the tags row clears the photo-credit line that

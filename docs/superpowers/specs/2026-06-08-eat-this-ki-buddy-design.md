@@ -27,7 +27,7 @@ halluzinieren** — keine erfundenen Orte, Adressen oder Öffnungszeiten. Beispi
 | **Platzierung** | Floating-Widget (Avatar-Bubble unten in der Ecke), überall auf der Seite. |
 | **Animation** | Rive-Rig: Idle (Blinzeln/Wippen) + `isTalking`-Bool, Mund klappt beim Text-Einlaufen. |
 | **Grenzen** | Empfehlungen **strikt** aus eigenen Daten. Allgemeines Food-Wissen (Erklärungen) aus Modellwissen erlaubt — aber keine erfundenen konkreten Orte/Fakten. |
-| **Retrieval** | Hybrid: harte Filter (Bezirk/Küche/Preis) + semantische Suche darin. |
+| **Retrieval** | Hybrid: harte GROQ-Filter (Bezirk/Küche/Preis) liefern echtes Kandidatenset; **Claude rankt** nach Vibe (keine Vektor-DB — Sanity-Embeddings sind plan-gesperrt und bei 347 Docs unnötig). |
 | **Modell** | Haiku 4.5 + Prompt-Caching + Streaming; per ENV-Flag auf Sonnet 4.6 hochziehbar. |
 
 ---
@@ -41,10 +41,15 @@ halluzinieren** — keine erfundenen Orte, Adressen oder Öffnungszeiten. Beispi
   `tip`/`tipEn`, `hours`/`openingHours`, `address`, `mapsUrl`, `website`,
   `isOpen`, `isClosed`, `tierAnon`/`tierSigned`, `featured`.
   Weitere Typen: `newsArticle` (Editorial), `bezirk`, `category`, `mustEat`.
-- **`@anthropic-ai/sdk`** ist bereits in `nextjs/package.json` (noch ungenutzt im App-Code).
-- **`@sanity/client`** vorhanden; bestehendes API-Pattern unter `app/api/` (z.B. `search-data`).
-- **firebase-admin** vorhanden (für Rate-Limiting via Firestore nutzbar).
-- **next-intl** für Lokalisierung.
+- **`@anthropic-ai/sdk`** ist bereits in `nextjs/package.json`; **`ANTHROPIC_API_KEY` ist bereits** in `.env.local` und `apphosting.yaml` konfiguriert.
+- **`@sanity/client`** vorhanden — Read-Client exportiert als `client` aus `nextjs/lib/sanity.ts` (projectId `ehwjnjr2`, dataset `production`, apiVersion `2024-01-01`, `useCdn: true`). GROQ-Queries in `nextjs/lib/queries.ts`.
+- **API-Routes** unter `app/api/*` laufen **Node** (nicht Edge), mit `export const dynamic = 'force-dynamic'` / `revalidate = 0`, Antworten via `NextResponse.json()`.
+- **firebase-admin** vorhanden: `getAdminFirestore()` / `getAdminAuth()` aus `nextjs/lib/firebase/admin.ts` (für Rate-Limiting via Firestore).
+- **Tests:** Vitest (`npm test` → `vitest run`), `describe/it/expect`, `environment: 'node'`; Komponenten-Tests via `renderToStaticMarkup` + `NextIntlClientProvider`.
+- **TS-Alias** `@/*` → `./*`. Komponenten `.tsx`, Libs `.ts`.
+- **next-intl** v4 für Lokalisierung (DE default, EN unter `/en`); Client-Locale via `useLocale()`.
+- **Datenbestand (Stand 2026-06-08):** 340 sichtbare `restaurant`-Docs, 7 `newsArticle`-Docs — klein genug, dass Claude direkt über Kandidatensets ranken kann.
+- **Sanity-Embeddings-Index-API ist im aktuellen Plan NICHT verfügbar** → die semantische Schicht wird durch Claude-Ranking ersetzt (siehe §4.2).
 
 ---
 
@@ -62,12 +67,12 @@ Nutzer tippt  →  BuddyWidget (Frontend)
          └────────────┬─────────────┘
             ruft Tool: search_spots / search_articles
                       ▼
-        lib/buddy/retrieval.ts  →  Sanity
+        lib/buddy/retrieval.ts  →  Sanity (Standard-GROQ, kein Vektor-Index)
           • harte GROQ-Filter (bezirk/cuisine/price + Sichtbarkeit)
-          • semantische Suche (Sanity Embeddings) innerhalb der Filter-Treffer
-          • Top-K Treffer als kompaktes JSON
+          • optional GROQ-`match` auf Vibe-Stichworte als Soft-Widener
+          • Kandidatenset (bis ~30, geordnet featured/lastReviewed) als kompaktes JSON
                       ▼
-        Claude formuliert Antwort NUR aus Treffern (+ allg. Wissen für Erklärungen)
+        Claude rankt nach Vibe & formuliert Antwort NUR aus Treffern (+ allg. Wissen für Erklärungen)
                       │  Stream (Token für Token, SSE)
                       ▼
    BuddyWidget rendert Text  +  BuddyAvatar (Rive) setzt isTalking
@@ -94,18 +99,21 @@ ein `get_opening_hours`-Tool).
 - Modell-ID aus ENV (`BUDDY_MODEL`, Default `claude-haiku-4-5`).
 - `max_tokens` großzügig fürs Streaming; `thinking` aus oder adaptiv (Haiku: kein adaptiv → weglassen).
 
-### 4.2 `lib/buddy/retrieval.ts` — Hybrid-Suche
+### 4.2 `lib/buddy/retrieval.ts` — Hybrid-Suche (GROQ-Filter + Claude-Ranking)
 - `searchSpots({ cuisine?, bezirk?, priceRange?, vibeQuery, locale })`:
   1. **Harte Filter** → GROQ auf `restaurant`, immer mit Sichtbarkeits-Constraint
      (`isOpen == true && isClosed != true`; Tier-Logik: im MVP nur öffentlich sichtbare
      Spots, d.h. `tierAnon == true`).
-  2. **Semantische Suche** über den Sanity Embeddings-Index, eingegrenzt auf die
-     Filter-Treffer-IDs; Ranking nach Score.
-  3. Rückgabe **Top 5–8** als kompaktes JSON: `{ name, slug, cuisineType, bezirk,
-     shortDescription, tip, priceRange, mapsUrl }` (locale-passend: `*En` bei `en`).
-- `searchArticles({ query, locale })`: semantische Suche über `newsArticle`, Top 3–5,
-  Rückgabe `{ title, slug, excerpt }`.
+  2. **Optionaler Soft-Widener:** GROQ-`match` auf `vibeQuery`-Stichworte über
+     Name/Beschreibung/Tip, nur um die Kandidaten zu erweitern (nicht hart zu filtern).
+  3. Rückgabe **bis ~30 Kandidaten**, geordnet nach `featured desc, lastReviewed desc`,
+     als kompaktes JSON: `{ name, slug, cuisineType, bezirk, shortDescription, tip,
+     priceRange, mapsUrl }` (locale-passend: `*En` bei `en`).
+  4. **Claude rankt** das Kandidatenset im Antwort-Schritt nach Vibe und wählt 5–8 aus.
+- `searchArticles({ query, locale })`: GROQ-`match`/Volltext über `newsArticle` (nur 7 Docs
+  — notfalls alle), Rückgabe `{ title, slug, excerpt }`.
 - Datenfelder werden auf das **Nötige reduziert** (Token-Effizienz), volle Texte bleiben in Sanity.
+- **Kein Vektor-Index, kein zweiter Provider** — Standard-Sanity-GROQ genügt bei dieser Datengröße.
 
 ### 4.3 `lib/buddy/tools.ts` — Tool-Definitionen
 - `search_spots`: Parameter `cuisine?`, `bezirk?`, `priceRange?`, `vibe_query` (string, immer).
@@ -139,12 +147,9 @@ ein `get_opening_hours`-Tool).
 - Während Tokens streamen: `isTalking = true`; bei Stream-Ende: `isTalking = false`.
 - Keine Audio-Ausgabe (per Anforderung).
 
-### 4.8 Sanity Embeddings-Index + Sync
-- Embeddings-Index über `restaurant` + `newsArticle` (Sanity Embeddings Index API).
-- Indexierter Text pro Spot: Name + cuisine + bezirk + shortDescription + tip
-  (DE und EN). Pro Artikel: Titel + Teaser/Body-Auszug.
-- **Sync:** Index initial befüllen; bei Publish aktuell halten (Sanity-Function/Webhook
-  oder geplanter Re-Index). Implementierungsdetail im Plan.
+> **Hinweis:** Eine separate Embeddings-Index-/Sync-Komponente entfällt — die Sanity-
+> Embeddings-API ist plan-gesperrt und bei 347 Docs nicht nötig. Retrieval ist reine
+> Standard-GROQ (§4.2); das semantische Ranking macht Claude.
 
 ---
 
@@ -185,7 +190,7 @@ ein `get_opening_hours`-Tool).
 |---|---|
 | Avatar-Artwork in **trennbaren Layern** (SVG/PNG, Mund separat) | Rive-Rigging (Idle + `isTalking`) + Einbau |
 | Tonalitäts-Feinschliff (Beispielsätze, Do/Don't) | System-Prompt, Tool-Loop, Hybrid-Retrieval |
-| Anthropic-API-Key (Projekt-ENV) | Embeddings-Index + Sync, Widget-UI, Rate-Limiting |
+| (Anthropic-Key ist bereits gesetzt) | Hybrid-Retrieval (GROQ), Widget-UI, Rate-Limiting |
 
 ---
 
@@ -201,7 +206,7 @@ ein `get_opening_hours`-Tool).
 
 ## 10. Offene Implementierungsdetails (für den Plan)
 
-- Exakter Sanity-Embeddings-Index-Mechanismus + Sync-Trigger (Function vs. Webhook vs. Cron).
+- Cap-Größe des Kandidatensets (~30) und Ordering-Heuristik final tunen.
 - Streaming-Transport (Web-Stream-Response vs. SSE) und Client-Parsing.
 - Tier-/Sichtbarkeitslogik exakt (welche Spots gelten als „öffentlich sichtbar").
 - Rate-Limit-Schwellen und Firestore-Collection-Shape.

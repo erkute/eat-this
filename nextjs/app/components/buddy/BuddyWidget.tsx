@@ -53,11 +53,11 @@ function FormattedText({ text }: { text: string }) {
   return <>{blocks}</>
 }
 
-function SpotCard({ spot, locale }: { spot: SpotCandidate; locale: Locale }) {
+function SpotCard({ spot, locale, onSelect }: { spot: SpotCandidate; locale: Locale; onSelect: () => void }) {
   const meta = [spot.cuisineType, spot.bezirk, spot.priceRange].filter(Boolean).join(' · ')
   const cta = locale === 'en' ? 'Show on map' : 'Auf der Karte ansehen'
   return (
-    <Link className={styles.spotCard} href={`/map?r=${spot.slug}`}>
+    <Link className={styles.spotCard} href={`/map?r=${spot.slug}`} onClick={onSelect}>
       {spot.image && (
         // eslint-disable-next-line @next/next/no-img-element
         <img className={styles.spotImg} src={spot.image} alt="" width={56} height={56} loading="lazy" />
@@ -157,7 +157,7 @@ export default function BuddyWidget() {
                   {m.spots && m.spots.length > 0 && (
                     <div className={styles.spots}>
                       {m.spots.slice(0, 4).map((s) => (
-                        <SpotCard key={s.slug} spot={s} locale={locale} />
+                        <SpotCard key={s.slug} spot={s} locale={locale} onSelect={() => setOpen(false)} />
                       ))}
                     </div>
                   )}

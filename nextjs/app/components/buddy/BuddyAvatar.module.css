@@ -1,10 +1,13 @@
-.wrap { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; background: #f4f1ea; flex-shrink: 0; }
-.face { width: 100%; height: 100%; object-fit: cover; object-position: 50% 6%; display: block;
-  transform: scale(1.5); transform-origin: 50% 10%; }
-/* subtle nod + jaw squash while talking — smooth transform, no blink/fade */
-.wrap[data-talking='true'] .face { animation: buddyTalk .5s infinite ease-in-out; }
-@keyframes buddyTalk {
-  0%, 100% { transform: scale(1.5) translateY(0) scaleY(1); }
-  50% { transform: scale(1.5) translateY(1px) scaleY(0.97); }
+.wrap { position: relative; width: 56px; height: 56px; border-radius: 50%; overflow: hidden;
+  background: #f4f1ea; flex-shrink: 0; }
+/* Both frames share identical framing so only the mouth differs between them. */
+.face, .faceOpen { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  object-position: 50% 0%; transform: scale(1.15); transform-origin: 50% 0%; display: block; }
+.faceOpen { opacity: 0; }
+/* hard-cut 2-frame mouth flap while talking (near-instant switch, not a fade) */
+.wrap[data-talking='true'] .faceOpen { animation: buddyFlap .3s infinite; }
+@keyframes buddyFlap {
+  0%, 49.9% { opacity: 0; }
+  50%, 100% { opacity: 1; }
 }
-@media (prefers-reduced-motion: reduce) { .wrap[data-talking='true'] .face { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .wrap[data-talking='true'] .faceOpen { animation: none; } }

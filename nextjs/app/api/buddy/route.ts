@@ -20,6 +20,7 @@ function parseBody(body: unknown):
   const b = body as Record<string, unknown>
   const sessionId = typeof b.sessionId === 'string' ? b.sessionId.trim() : ''
   if (!sessionId) return { ok: false }
+  if (sessionId.length > 128 || sessionId.includes('/') || sessionId === '.' || sessionId === '..') return { ok: false }
   if (!Array.isArray(b.messages) || b.messages.length === 0) return { ok: false }
   const messages: ChatMessage[] = []
   for (const m of b.messages.slice(-MAX_MESSAGES)) {

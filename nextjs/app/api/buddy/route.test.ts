@@ -40,6 +40,20 @@ describe('POST /api/buddy', () => {
     expect(res.status).toBe(429)
   })
 
+  it('400s on a sessionId containing a slash', async () => {
+    const res = await POST(
+      req({ sessionId: 'a/b', messages: [{ role: 'user', content: 'hi' }], locale: 'de' }),
+    )
+    expect(res.status).toBe(400)
+  })
+
+  it('400s on an overlong sessionId', async () => {
+    const res = await POST(
+      req({ sessionId: 'x'.repeat(200), messages: [{ role: 'user', content: 'hi' }], locale: 'de' }),
+    )
+    expect(res.status).toBe(400)
+  })
+
   it('streams NDJSON when allowed', async () => {
     ;(checkRateLimit as any).mockResolvedValue({ allowed: true, state: {} })
     const res = await POST(

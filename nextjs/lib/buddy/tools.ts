@@ -15,11 +15,11 @@ export const BUDDY_TOOLS: Anthropic.Tool[] = [
   {
     name: 'search_spots',
     description:
-      'Suche Restaurants/Cafés/Spots aus dem Eat-This-Bestand. Nutze dies, sobald der Nutzer nach einem Ort zum Essen/Trinken fragt. Setze cuisine/bezirk/price_range NUR, wenn der Nutzer sie explizit nennt. vibe_query immer mit Stimmung/Art der Anfrage füllen (z.B. "gemütlich, erstes Date" oder "schnelle Pizza").',
+      'Suche Restaurants/Cafés/Spots aus dem Eat-This-Bestand. Nutze dies, sobald der Nutzer nach einem Ort zum Essen/Trinken fragt. WICHTIG: Sobald der Nutzer ein konkretes Gericht oder eine Küche nennt (z.B. Pizza, Burger, Döner, Ramen, Sushi, Pasta, Kaffee, Brunch, Natural Wine), setze GENAU DIESES EINE Wort als `cuisine` — das trifft die kuratierten Tags am genauesten. bezirk/price_range nur, wenn explizit genannt. vibe_query immer zusätzlich mit Stimmung/Art füllen (z.B. "gemütlich, erstes Date").',
     input_schema: {
       type: 'object',
       properties: {
-        cuisine: { type: 'string', description: 'Küche, z.B. "Pizza", "Ramen". Nur wenn genannt.' },
+        cuisine: { type: 'string', description: 'Das genannte Gericht ODER die Küche als EIN Stichwort, z.B. "pizza", "burger", "döner", "ramen", "kaffee", "brunch". Setzen, sobald der Nutzer ein Gericht/eine Küche nennt.' },
         bezirk: { type: 'string', description: 'Berliner Bezirk, z.B. "Schöneberg". Nur wenn genannt.' },
         price_range: { type: 'string', description: 'Preisklasse, z.B. "€", "€€", "€€€". Nur wenn genannt.' },
         vibe_query: { type: 'string', description: 'Stimmung/Art der Anfrage in eigenen Worten.' },

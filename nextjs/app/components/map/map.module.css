@@ -149,6 +149,14 @@ html[data-theme="dark"] .bodyPanelHidden .panelToggle {
      detail panels. */
   isolation: isolate;
 }
+/* Placeholder shown while the lazy maplibre chunk loads (next/dynamic in
+   MapSectionBody). Fills the canvas slot with a neutral tile-grey so there's
+   no flash before the real map paints — theme-aware via --surface-paper. */
+.mapLoading {
+  position: absolute;
+  inset: 0;
+  background: var(--surface-paper);
+}
 .mapWrap :global(.maplibregl-ctrl-attrib) {
   font-size: 10px;
   background: var(--surface-overlay);

@@ -11,15 +11,22 @@ import type {
   UserTier,
 } from '@/lib/map'
 
-import MapCanvas from './MapCanvas'
-import RestaurantMarker from './RestaurantMarker'
+import dynamic from 'next/dynamic'
 import RestaurantList from './RestaurantList'
 import MapSheetDetail from './MapSheetDetail'
-import UserLocationMarker from './UserLocationMarker'
 import MapListHeader from './MapListHeader'
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
 import styles from './map.module.css'
+
+/* The map canvas pulls in react-map-gl + maplibre-gl (~800 KB) and only runs
+   in the browser. Lazy-load it (ssr: false) so the SSR'd list/sheet paints and
+   hydrates immediately, with the heavy maplibre chunk streaming in behind a
+   neutral placeholder. */
+const MapCanvasLayer = dynamic(() => import('./MapCanvasLayer'), {
+  ssr: false,
+  loading: () => <div className={styles.mapLoading} aria-hidden="true" />,
+})
 
 /* Refs (mutable + callback) wired up by `useMapSheet` / `useBottomSheet`. */
 interface MapBodyRefs {
@@ -153,30 +160,15 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             behavior. */}
         <div className={`${styles.body}${sheetView === 'detail' ? ` ${styles.bodyDetailOpen}` : ''}${sheetView === 'list' && snap === 'full' ? ` ${styles.bodyListAtFull}` : ''}${desktopPanelHidden ? ` ${styles.bodyPanelHidden}` : ''}`}>
           <div className={styles.mapWrap}>
-            <MapCanvas ref={mapRef} onMove={onMapMove} onMapClick={onMapClick}>
-              {displayedRestaurants.map(r => (
-                <RestaurantMarker
-                  key={r._id}
-                  restaurant={r}
-                  isSelected={selectedRestaurant?._id === r._id}
-                  onClick={onRestaurantClick}
-                />
-              ))}
-              {/* Deep-Link/Locked-Selektion: der selektierte Spot kann außerhalb
-                  des sichtbaren Sets liegen (alter Share-Link, locked Preview).
-                  Immer einen Pin geben — sonst zentriert die Kamera sichtbar
-                  auf nichts. */}
-              {selectedRestaurant &&
-                !displayedRestaurants.some((r) => r._id === selectedRestaurant._id) && (
-                  <RestaurantMarker
-                    key={selectedRestaurant._id}
-                    restaurant={selectedRestaurant}
-                    isSelected
-                    onClick={onRestaurantClick}
-                  />
-                )}
-              {location && <UserLocationMarker location={location} />}
-            </MapCanvas>
+            <MapCanvasLayer
+              mapRef={mapRef}
+              onMapMove={onMapMove}
+              onMapClick={onMapClick}
+              displayedRestaurants={displayedRestaurants}
+              selectedRestaurant={selectedRestaurant}
+              onRestaurantClick={onRestaurantClick}
+              location={location}
+            />
 
             {/* Floating search — collapsed to a square icon button by
                 default (2026-06-04: the always-on toolbar read too loud over

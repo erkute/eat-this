@@ -33,7 +33,7 @@ describe('POST /api/buddy', () => {
   })
 
   it('429s when rate limited', async () => {
-    ;(checkRateLimit as any).mockResolvedValue({ allowed: false, reason: 'per_minute', state: {} })
+    vi.mocked(checkRateLimit).mockResolvedValue({ allowed: false, reason: 'per_minute', state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 } })
     const res = await POST(
       req({ sessionId: 's1', messages: [{ role: 'user', content: 'hi' }], locale: 'de' }),
     )
@@ -55,7 +55,7 @@ describe('POST /api/buddy', () => {
   })
 
   it('streams NDJSON when allowed', async () => {
-    ;(checkRateLimit as any).mockResolvedValue({ allowed: true, state: {} })
+    vi.mocked(checkRateLimit).mockResolvedValue({ allowed: true, state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 } })
     const res = await POST(
       req({ sessionId: 's1', messages: [{ role: 'user', content: 'hi' }], locale: 'de' }),
     )

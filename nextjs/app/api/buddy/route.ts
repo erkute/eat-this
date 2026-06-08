@@ -25,8 +25,9 @@ function parseBody(body: unknown):
   const messages: ChatMessage[] = []
   for (const m of b.messages.slice(-MAX_MESSAGES)) {
     if (typeof m !== 'object' || m === null) return { ok: false }
-    const role = (m as any).role
-    const content = (m as any).content
+    const msg = m as Record<string, unknown>
+    const role = msg.role
+    const content = msg.content
     if ((role !== 'user' && role !== 'assistant') || typeof content !== 'string') return { ok: false }
     messages.push({ role, content: content.slice(0, MAX_CONTENT) })
   }
@@ -61,7 +62,7 @@ export async function POST(request: Request) {
         )) {
           controller.enqueue(encoder.encode(encodeBuddyEvent(event)))
         }
-      } catch (err) {
+      } catch {
         controller.enqueue(
           encoder.encode(encodeBuddyEvent({ type: 'error', value: 'buddy_failed' })),
         )

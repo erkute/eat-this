@@ -77,6 +77,15 @@ const articleContentProjection = `{
       "district": coalesce(mustEatRef->restaurantRef->district, mustEatRef->restaurantRef->bezirkRef->name, mustEatRef->district),
       "cuisineType": mustEatRef->restaurantRef->cuisineType,
       "restaurantPhoto": mustEatRef->restaurantRef->image.asset->url + "?w=500&auto=format&q=75"
+    },
+    _type == "spotCard" => {
+      _type,
+      _key,
+      "restaurantName": restaurantRef->name,
+      "restaurantSlug": restaurantRef->slug.current,
+      "district": coalesce(restaurantRef->district, restaurantRef->bezirkRef->name),
+      "cuisineType": restaurantRef->cuisineType,
+      "restaurantPhoto": restaurantRef->image.asset->url + "?w=800&auto=format&q=80"
     }
   }`
 

@@ -1,6 +1,6 @@
 import { PortableTextRenderer, extractHeadings, extractArticleSpots } from '@/lib/PortableTextRenderer';
 import { Link } from '@/i18n/navigation';
-import type { NewsArticle, MustEatCardBlock } from '@/lib/types';
+import type { NewsArticle, MustEatCardBlock, SpotCardBlock } from '@/lib/types';
 import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
@@ -114,6 +114,49 @@ export default function NewsArticleShell({
     );
   };
 
+  // Inline "Spot" card — wide image card in the article column (photo + a
+  // Bezirk·Küche kicker + name + map CTA), same sticker language as the home
+  // tiles. Links to the restaurant detail on the map (?r=<slug>), nofollow
+  // because the map is the noindex tool.
+  const renderSpotCard = (block: SpotCardBlock) => {
+    if (!block.restaurantName) return null;
+    const name = normalizeName(block.restaurantName);
+    const meta = [block.district, block.cuisineType].filter(Boolean).join(' · ');
+    const bg = block.restaurantPhoto
+      ? { backgroundImage: `url(${block.restaurantPhoto})` }
+      : undefined;
+    const inner = (
+      <span className={styles.inlineSpotFoot}>
+        {meta && <span className={styles.inlineSpotMeta}>{meta}</span>}
+        <span className={styles.inlineSpotName}>{name}</span>
+        <span className={styles.inlineSpotCta}>
+          <span>{de ? 'Auf der Map ansehen' : 'View on the map'}</span>
+          <svg
+            width="24" height="15" viewBox="0 0 32 20" fill="none"
+            stroke="currentColor" strokeWidth="3" strokeLinecap="round"
+            strokeLinejoin="round" aria-hidden="true"
+          >
+            <path d="M3 10 L24 10" />
+            <path d="M18 3 L27 10 L18 17" />
+          </svg>
+        </span>
+      </span>
+    );
+    return block.restaurantSlug ? (
+      <Link
+        href={`/map?r=${block.restaurantSlug}`}
+        rel="nofollow"
+        className={styles.inlineSpot}
+        style={bg}
+        aria-label={name}
+      >
+        {inner}
+      </Link>
+    ) : (
+      <div className={styles.inlineSpot} style={bg}>{inner}</div>
+    );
+  };
+
   const homeLabel = de ? 'Start' : 'Home';
   const newsLabel = de ? 'Auf dem Teller' : 'On the Menu';
   const breadcrumbItems: BreadcrumbItem[] = [
@@ -169,7 +212,7 @@ export default function NewsArticleShell({
         )}
 
         <div className={styles.content}>
-          <PortableTextRenderer blocks={content} renderMustEatCard={renderMustEatCard} />
+          <PortableTextRenderer blocks={content} renderMustEatCard={renderMustEatCard} renderSpotCard={renderSpotCard} />
         </div>
 
         {spots.length > 0 && (

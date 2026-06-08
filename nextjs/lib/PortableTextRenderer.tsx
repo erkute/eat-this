@@ -1,5 +1,5 @@
 import { Fragment, type ReactNode } from 'react'
-import type { PortableTextBlock, MustEatCardBlock, ArticleSpot } from './types'
+import type { PortableTextBlock, MustEatCardBlock, SpotCardBlock, ArticleSpot } from './types'
 
 type Span = {
   _type?: string
@@ -82,14 +82,15 @@ export interface ArticleHeading {
 }
 
 /** Walk article blocks and return the unique restaurants referenced by inline
- *  mustEatCard blocks, in order of first appearance. Feeds the "Spots im
- *  Artikel" grid + spotrail. */
+ *  mustEatCard + spotCard blocks, in order of first appearance. Feeds the
+ *  "Spots im Artikel" grid + spotrail. */
 export function extractArticleSpots(blocks?: PortableTextBlock[]): ArticleSpot[] {
   if (!blocks?.length) return []
   const seen = new Set<string>()
   const out: ArticleSpot[] = []
-  for (const raw of blocks as MustEatCardBlock[]) {
-    if (raw._type !== 'mustEatCard' || !raw.restaurantName) continue
+  for (const raw of blocks as (MustEatCardBlock | SpotCardBlock)[]) {
+    if (raw._type !== 'mustEatCard' && raw._type !== 'spotCard') continue
+    if (!raw.restaurantName) continue
     const key = raw.restaurantSlug || raw.restaurantName
     if (seen.has(key)) continue
     seen.add(key)
@@ -122,15 +123,18 @@ export function extractHeadings(blocks?: PortableTextBlock[]): ArticleHeading[] 
 
 // Mirrors the shape of the legacy renderPortableText helper in app.min.js:
 // handles block-level style (h2/h3/blockquote/normal), listItem (number/bullet),
-// and inline marks (strong/em). Inline `mustEatCard` blocks are delegated to the
-// optional `renderMustEatCard` render-prop (so this stays presentation-agnostic);
-// callers that don't pass it simply skip those blocks. Other unknown types skip.
+// and inline marks (strong/em + link). Inline `mustEatCard` / `spotCard` blocks
+// are delegated to the optional `renderMustEatCard` / `renderSpotCard` render-
+// props (so this stays presentation-agnostic); callers that don't pass them
+// simply skip those blocks. Other unknown types skip.
 export function PortableTextRenderer({
   blocks,
   renderMustEatCard,
+  renderSpotCard,
 }: {
   blocks?: PortableTextBlock[]
   renderMustEatCard?: (block: MustEatCardBlock) => ReactNode
+  renderSpotCard?: (block: SpotCardBlock) => ReactNode
 }) {
   if (!blocks?.length) return null
 
@@ -150,6 +154,12 @@ export function PortableTextRenderer({
     if (raw._type === 'mustEatCard') {
       flushList()
       const card = renderMustEatCard?.(raw as unknown as MustEatCardBlock)
+      if (card) out.push(<Fragment key={raw._key ?? out.length}>{card}</Fragment>)
+      continue
+    }
+    if (raw._type === 'spotCard') {
+      flushList()
+      const card = renderSpotCard?.(raw as unknown as SpotCardBlock)
       if (card) out.push(<Fragment key={raw._key ?? out.length}>{card}</Fragment>)
       continue
     }

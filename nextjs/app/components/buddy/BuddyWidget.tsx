@@ -7,12 +7,15 @@ import { useBuddyChat } from './useBuddyChat'
 import type { Locale, SpotCandidate } from '@/lib/buddy/types'
 import styles from './BuddyWidget.module.css'
 
-function SpotCard({ spot }: { spot: SpotCandidate }) {
+function SpotCard({ spot, locale }: { spot: SpotCandidate; locale: Locale }) {
+  const meta = [spot.cuisineType, spot.bezirk, spot.priceRange].filter(Boolean).join(' · ')
+  const cta = locale === 'en' ? 'Details & map' : 'Details & Karte'
   return (
     <Link className={styles.spotCard} href={`/restaurant/${spot.slug}`}>
-      <strong>{spot.name}</strong>
-      {spot.cuisineType ? ` · ${spot.cuisineType}` : ''}
-      {spot.bezirk ? ` · ${spot.bezirk}` : ''}
+      <span className={styles.spotName}>{spot.name}</span>
+      {meta && <span className={styles.spotMeta}>{meta}</span>}
+      {spot.shortDescription && <span className={styles.spotDesc}>{spot.shortDescription}</span>}
+      <span className={styles.spotCta}>📍 {cta} →</span>
     </Link>
   )
 }
@@ -103,7 +106,7 @@ export default function BuddyWidget() {
                   {m.spots && m.spots.length > 0 && (
                     <div className={styles.spots}>
                       {m.spots.slice(0, 4).map((s) => (
-                        <SpotCard key={s.slug} spot={s} />
+                        <SpotCard key={s.slug} spot={s} locale={locale} />
                       ))}
                     </div>
                   )}

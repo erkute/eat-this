@@ -95,6 +95,38 @@ const contentBlocks = [
       },
     },
   },
+  // Inline „Spot"-Karte — referenziert direkt ein Restaurant (kein Must Eat
+  // nötig). Rendert eine Bildkarte (Foto + Bezirk·Küche + Name, klickbar auf
+  // die Map) im Fließtext UND speist automatisch das „Spots im Artikel"-Grid +
+  // die Sticky-Spotrail. Für Listicles („Die besten X in Berlin").
+  {
+    type: 'object',
+    name: 'spotCard',
+    title: '📍 Spot einfügen',
+    fields: [
+      {
+        name: 'restaurantRef',
+        title: 'Restaurant',
+        type: 'reference',
+        to: [{type: 'restaurant'}],
+        validation: (Rule) => Rule.required(),
+      },
+    ],
+    preview: {
+      select: {
+        name: 'restaurantRef.name',
+        district: 'restaurantRef.district',
+        media: 'restaurantRef.image',
+      },
+      prepare({name, district, media}) {
+        return {
+          title: `📍 ${name || 'Spot'}`,
+          subtitle: district || 'Restaurant',
+          media,
+        }
+      },
+    },
+  },
 ]
 
 export default defineType({

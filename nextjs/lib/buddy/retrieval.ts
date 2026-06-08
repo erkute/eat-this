@@ -50,7 +50,7 @@ export function buildSpotsParams(filters: SpotFilters, locale: Locale) {
 }
 
 interface SanityLike {
-  fetch: <T>(query: string, params?: Record<string, unknown>) => Promise<T>
+  fetch: (query: string, params?: Record<string, unknown>) => Promise<unknown>
 }
 interface RetrievalDeps {
   client?: SanityLike
@@ -66,7 +66,7 @@ export async function searchSpots(
   const client = deps.client ?? (sanityClient as unknown as SanityLike)
   const query = buildSpotsQuery(SPOTS_LIMIT)
   const params = buildSpotsParams(filters, locale)
-  const rows = await client.fetch<SpotCandidate[]>(query, params)
+  const rows = (await client.fetch(query, params)) as SpotCandidate[]
   return rows ?? []
 }
 
@@ -92,6 +92,6 @@ export async function searchArticles(
   const client = deps.client ?? (sanityClient as unknown as SanityLike)
   const term = input.query.trim()
   const q = term.length > 0 ? `*${term}*` : '*'
-  const rows = await client.fetch<ArticleResult[]>(ARTICLES_QUERY, { q, locale })
+  const rows = (await client.fetch(ARTICLES_QUERY, { q, locale })) as ArticleResult[]
   return rows ?? []
 }

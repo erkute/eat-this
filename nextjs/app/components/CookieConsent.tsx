@@ -70,7 +70,11 @@ const COOKIE_SECTIONS_EN: ModalBodySection[] = [
 const GA_ID = 'G-8EWFYGPNTT';
 
 function loadGA() {
-  const w = window as Window & { __gaLoaded?: boolean; dataLayer?: unknown[] };
+  const w = window as Window & {
+    __gaLoaded?: boolean;
+    dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
+  };
   if (w.__gaLoaded) return;
   w.__gaLoaded = true;
   const script = document.createElement('script');
@@ -78,9 +82,17 @@ function loadGA() {
   script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
   document.head.appendChild(script);
   w.dataLayer = w.dataLayer || [];
-  const gtag = (...args: unknown[]) => w.dataLayer!.push(args);
-  gtag('js', new Date());
-  gtag('config', GA_ID);
+  // gtag.js only treats the native `arguments` object as a command-queue entry.
+  // The previous `(...args) => dataLayer.push(args)` pushed a plain ARRAY, which
+  // gtag.js silently ignores — the script loaded but `config` never ran, so no
+  // page_view hit was ever sent and no _ga cookie was set: GA4 recorded zero
+  // traffic. Use the canonical snippet shape that pushes `arguments`.
+  w.gtag = function () {
+    // eslint-disable-next-line prefer-rest-params
+    w.dataLayer!.push(arguments);
+  };
+  w.gtag('js', new Date());
+  w.gtag('config', GA_ID);
 }
 
 // Best-effort removal of GA's first-party cookies when consent is withdrawn.

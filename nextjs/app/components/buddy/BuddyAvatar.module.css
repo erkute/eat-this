@@ -22,3 +22,5 @@
   .wrap[data-mood='talking'] .faceOpen { animation: none; }
   .wrap[data-mood='happy'] .face { animation: none; }
 }
+/* dark mode: the cutout's circle backdrop follows the theme too */
+html[data-theme="dark"] .wrap { background: #2c2c2c; }

@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocale } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
-import BuddyAvatar from './BuddyAvatar'
+import BuddyAvatar, { type BuddyMood } from './BuddyAvatar'
 import { useBuddyChat } from './useBuddyChat'
 import type { Locale, SpotCandidate } from '@/lib/buddy/types'
 import styles from './BuddyWidget.module.css'
@@ -117,6 +117,8 @@ export default function BuddyWidget() {
   const panelRef = useRef<HTMLDivElement>(null)
 
   const [scrolling, setScrolling] = useState(false)
+  const [happyBeat, setHappyBeat] = useState(false)
+  const wasStreaming = useRef(false)
 
   const closePanel = useCallback(() => {
     setOpen(false)
@@ -125,6 +127,10 @@ export default function BuddyWidget() {
 
   // Make Remy "talk" while the page is scrolling — a little sign of life on the
   // launcher. Goes quiet ~400ms after scrolling stops.
+  // NOTE: capture:true — on desktop the SPA scrolls an inner `.app-pages`
+  // container, not the window. Scroll events don't bubble, but they DO trickle
+  // in the capture phase, so this catches both the inner scroller (desktop) and
+  // the document (mobile).
   useEffect(() => {
     let t: ReturnType<typeof setTimeout>
     const onScroll = () => {
@@ -132,12 +138,28 @@ export default function BuddyWidget() {
       clearTimeout(t)
       t = setTimeout(() => setScrolling(false), 400)
     }
-    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('scroll', onScroll, { passive: true, capture: true })
     return () => {
-      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('scroll', onScroll, { capture: true })
       clearTimeout(t)
     }
   }, [])
+
+  // A short "happy" laugh beat the moment an answer with spot recommendations
+  // finishes streaming.
+  useEffect(() => {
+    const prev = wasStreaming.current
+    wasStreaming.current = isStreaming
+    if (prev && !isStreaming) {
+      const last = messages[messages.length - 1]
+      if (last?.role === 'assistant' && last.spots && last.spots.length > 0) setHappyBeat(true)
+    }
+  }, [isStreaming, messages])
+  useEffect(() => {
+    if (!happyBeat) return
+    const t = setTimeout(() => setHappyBeat(false), 1600)
+    return () => clearTimeout(t)
+  }, [happyBeat])
 
   // Move focus into the dialog when it opens (keyboard/screen-reader users).
   useEffect(() => {
@@ -169,6 +191,22 @@ export default function BuddyWidget() {
 
   const title = 'Remy'
 
+  // Map Remy's state to a facial expression.
+  const last = messages[messages.length - 1]
+  const waiting = isStreaming && last?.role === 'assistant' && !last.content
+  const speaking = isStreaming && last?.role === 'assistant' && !!last.content
+  const panelMood: BuddyMood = happyBeat
+    ? 'happy'
+    : waiting
+      ? 'thinking'
+      : speaking
+        ? 'talking'
+        : messages.length === 0
+          ? 'greeting'
+          : 'idle'
+  // Launcher mirrors the panel when open; otherwise it flaps while scrolling.
+  const launcherMood: BuddyMood = open ? panelMood : scrolling ? 'talking' : 'idle'
+
   // No buddy on the map page — it would cover the map.
   const pathname = usePathname()
   if ((pathname ?? '').startsWith('/map')) return null
@@ -184,7 +222,7 @@ export default function BuddyWidget() {
         aria-controls="buddy-panel"
         onClick={() => setOpen((v) => !v)}
       >
-        <BuddyAvatar isTalking={open ? isStreaming : scrolling} />
+        <BuddyAvatar mood={launcherMood} />
       </button>
 
       {open && (
@@ -199,7 +237,7 @@ export default function BuddyWidget() {
           tabIndex={-1}
         >
           <div className={styles.header}>
-            <BuddyAvatar isTalking={isStreaming} />
+            <BuddyAvatar mood={panelMood} />
             <strong>{title}</strong>
             <button className={styles.close} type="button" aria-label={t.close} onClick={closePanel}>
               ×
@@ -232,7 +270,10 @@ export default function BuddyWidget() {
                   ) : isStreaming && i === messages.length - 1 ? (
                     <TypingDots label={t.thinking} />
                   ) : null}
-                  {m.spots && m.spots.length > 0 && (
+                  {/* Spots arrive (tool result) before the answer text streams.
+                      Hold the cards until streaming finishes so the text doesn't
+                      render on top and shove the cards down. */}
+                  {m.spots && m.spots.length > 0 && !(isStreaming && i === messages.length - 1) && (
                     <div className={styles.spots}>
                       {m.spots.slice(0, 4).map((s) => (
                         <SpotCard key={s.slug} spot={s} locale={locale} onSelect={() => setOpen(false)} />

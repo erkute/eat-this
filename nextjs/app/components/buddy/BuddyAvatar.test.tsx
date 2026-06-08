@@ -3,12 +3,16 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { BuddyAvatarFallback } from './BuddyAvatar'
 
 describe('BuddyAvatarFallback', () => {
-  it('marks the mouth as talking when isTalking is true', () => {
-    const html = renderToStaticMarkup(<BuddyAvatarFallback isTalking={true} />)
-    expect(html).toMatch(/data-talking="true"/)
+  it('marks the mood on the wrapper', () => {
+    const html = renderToStaticMarkup(<BuddyAvatarFallback mood="talking" />)
+    expect(html).toMatch(/data-mood="talking"/)
   })
-  it('marks the mouth as idle when isTalking is false', () => {
-    const html = renderToStaticMarkup(<BuddyAvatarFallback isTalking={false} />)
-    expect(html).toMatch(/data-talking="false"/)
+  it('swaps the base frame per mood', () => {
+    const thinking = renderToStaticMarkup(<BuddyAvatarFallback mood="thinking" />)
+    expect(thinking).toMatch(/buddy-think\.webp/)
+    const happy = renderToStaticMarkup(<BuddyAvatarFallback mood="happy" />)
+    expect(happy).toMatch(/buddy-laugh\.webp/)
+    const idle = renderToStaticMarkup(<BuddyAvatarFallback mood="idle" />)
+    expect(idle).toMatch(/buddy\.webp/)
   })
 })

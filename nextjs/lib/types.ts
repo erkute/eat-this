@@ -175,6 +175,8 @@ export interface RestaurantCard {
   name: string
   slug: string
   district?: string
+  /** Only projected by restaurantsByCategoryQuery (district hub doesn't need it). */
+  bezirk?: { name: string; slug?: string }
   priceRange?: PriceRange
   cuisineType?: string
   categories?: CategoryRef[]

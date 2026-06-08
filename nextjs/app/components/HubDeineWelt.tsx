@@ -101,7 +101,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
                   >
                     <span className={styles.freshPill}>{t('newPill')}</span>
                     <span className={styles.freshImg}>
-                      {r.photo && <Image src={r.photo} alt="" fill sizes="200px" />}
+                      {r.photo && <Image src={r.photo} alt={normalizeName(r.name)} fill sizes="200px" />}
                     </span>
                     <h4 className={styles.freshName}>{normalizeName(r.name)}</h4>
                     <span className={styles.freshMeta}>{tag ? t('newMetaTag', { tag }) : t('newMeta')}</span>

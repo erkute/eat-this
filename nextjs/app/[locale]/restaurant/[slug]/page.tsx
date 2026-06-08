@@ -65,10 +65,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const builtTitle = buildRestaurantTitle({ name: r.name, cuisineType: r.cuisineType, district: districtName, locale: loc })
   const title = curatedTitle ?? builtTitle
 
-  const baseImage = r.seo?.ogImageUrl || r.photo?.split('?')[0]
-  const image = baseImage
-    ? `${baseImage}?w=1200&h=630&fit=crop&auto=format`
-    : `${SITE_URL}/pics/og-card.png?v=3`
+  // Branded share card — the dynamic OG route overlays name + cuisine + district
+  // on the restaurant photo (and falls back to a brand card when there is none),
+  // which previews far stronger on social than the bare photo did.
+  const ogImage = `${SITE_URL}/api/og/restaurant?slug=${slug}`
 
   const hasEn = hasEnContent(r)
   const canonical = hasEn
@@ -93,9 +93,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       url: canonical,
-      images: [{ url: image, width: 1200, height: 630, alt: r.name }],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: r.name }],
       type: 'website',
       locale: loc === 'de' ? 'de_DE' : 'en_US',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
     },
   }
 }

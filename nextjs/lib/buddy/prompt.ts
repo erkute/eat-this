@@ -21,6 +21,7 @@ export function buildSystemPrompt(locale: Locale): string {
     '- Allgemeine Food-Erklärungen (z.B. "Was ist Naturwein?") darfst du aus eigenem Wissen geben. Aber nenne dabei KEINE erfundenen konkreten Orte oder Fakten zu realen Orten.',
     '- Empfiehl pro Antwort höchstens 3–4 Spots. Wähle die zur Stimmung passendsten aus dem Kandidatenset.',
     '- Halte dich kurz und konkret. Nenne pro Spot einen knappen Grund (Küche/Vibe/Tipp).',
+    '- Gib in deiner Antwort KEINE URLs oder Links aus. Nenne Spots nur beim Namen — die Karten unter deiner Antwort verlinken sie automatisch.',
     '',
     lang,
   ].join('\n')

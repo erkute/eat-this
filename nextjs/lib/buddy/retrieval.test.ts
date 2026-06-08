@@ -9,10 +9,18 @@ describe('buildSpotsQuery', () => {
     const q = buildSpotsQuery(30)
     expect(q).toContain('[0...30]')
     expect(q).toContain('_type == "restaurant"')
-    expect(q).toContain('isOpen == true && isClosed != true && tierAnon == true')
+    expect(q).toContain('isOpen == true && isClosed != true')
+    expect(q).not.toContain('tierAnon')
     expect(q).toContain('"slug": slug.current')
     expect(q).toContain('"bezirk": bezirkRef->name')
     expect(q).toContain('order(featured desc, lastReviewed desc)')
+  })
+
+  it('matches the cuisine term across name and descriptions, not just cuisineType', () => {
+    const q = buildSpotsQuery(30)
+    expect(q).toContain('cuisineType match $cuisine')
+    expect(q).toContain('name match $cuisine')
+    expect(q).toContain('description match $cuisine')
   })
 
   it('clamps the limit to the 1..40 range', () => {

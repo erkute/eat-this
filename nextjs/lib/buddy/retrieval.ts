@@ -27,8 +27,8 @@ export function buildSpotsQuery(limit: number): string {
   const n = clamp(limit, 1, 40)
   return `*[
     _type == "restaurant"
-    && isOpen == true && isClosed != true && tierAnon == true
-    && (!defined($cuisine) || cuisineType match $cuisine)
+    && isOpen == true && isClosed != true
+    && (!defined($cuisine) || cuisineType match $cuisine || name match $cuisine || shortDescription match $cuisine || shortDescriptionEn match $cuisine || description match $cuisine || descriptionEn match $cuisine || tip match $cuisine || tipEn match $cuisine)
     && (!defined($bezirk) || bezirkRef->name match $bezirk)
     && (!defined($price) || priceRange == $price)
     && defined(slug.current)

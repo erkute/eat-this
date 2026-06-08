@@ -6,8 +6,8 @@
   background: transparent; cursor: pointer; padding: 0; }
 /* hide the floating launcher while the panel is open (no duplicate face; close via ×) */
 .launcher[aria-expanded='true'] { display: none; }
-.panel { position: fixed; right: 20px; bottom: 88px; z-index: 10001; width: 360px; max-width: calc(100vw - 32px);
-  height: 520px; max-height: calc(100vh - 120px); display: flex; flex-direction: column;
+.panel { position: fixed; right: 20px; bottom: 20px; z-index: 10001; width: 360px; max-width: calc(100vw - 32px);
+  height: 560px; max-height: calc(100vh - 40px); display: flex; flex-direction: column;
   background: #fff; color: #1a1a1a; border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.18); overflow: hidden; }
 .header { display: flex; align-items: center; gap: 10px; padding: 12px 14px;
   border-bottom: 1px solid #eee; color: #1a1a1a; font-weight: 600; }

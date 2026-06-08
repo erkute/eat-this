@@ -211,14 +211,15 @@ export default function BuddyWidget() {
     return () => clearTimeout(t)
   }, [happyBeat])
 
-  // A brief "greeting" smile when the panel opens on an empty chat, then back.
+  // When the panel opens on an empty chat the greeting text is already there,
+  // so Remy "speaks" it: a brief mouth flap, then settle.
   useEffect(() => {
     if (!(open && messages.length === 0)) {
       setGreetingBeat(false)
       return
     }
     setGreetingBeat(true)
-    const t = setTimeout(() => setGreetingBeat(false), 1500)
+    const t = setTimeout(() => setGreetingBeat(false), 2500)
     return () => clearTimeout(t)
   }, [open, messages.length])
 
@@ -273,11 +274,9 @@ export default function BuddyWidget() {
   // scrolling. The smile (greeting) and laugh (happy) are brief stills only.
   const panelMood: BuddyMood = happyBeat
     ? 'happy'
-    : isStreaming
+    : isStreaming || greetingBeat
       ? 'talking'
-      : greetingBeat
-        ? 'greeting'
-        : 'idle'
+      : 'idle'
   const launcherMood: BuddyMood = open ? panelMood : scrolling ? 'talking' : 'idle'
 
   // No buddy on the map page — it would cover the map.

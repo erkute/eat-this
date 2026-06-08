@@ -32,6 +32,17 @@ function loadFonts() {
   return fontsPromise;
 }
 
+// The Eat This wordmark — the brand's WebP logo can't be decoded by resvg, so
+// the PNG variant (the one the emails use) is read once and inlined as a data
+// URI; that avoids a network fetch for an asset that ships with the app.
+let logoPromise: Promise<string> | null = null;
+function loadLogo() {
+  logoPromise ??= readFile(
+    join(process.cwd(), 'public', 'pics', 'email', 'eat-this-logo.png'),
+  ).then(buf => `data:image/png;base64,${buf.toString('base64')}`);
+  return logoPromise;
+}
+
 // resvg (Satori's rasterizer) cannot decode WebP, so `fm=jpg` is mandatory —
 // `auto=format` would hand back WebP and the photo layer would render blank.
 function ogPhotoUrl(photo: string): string {
@@ -49,7 +60,7 @@ export async function GET(request: Request) {
     return new Response('not found', { status: 404 });
   }
 
-  const { saira, schoolbell } = await loadFonts();
+  const [{ saira, schoolbell }, logo] = await Promise.all([loadFonts(), loadLogo()]);
 
   const district = r.bezirk?.name ?? r.district ?? null;
   const basePhoto = r.seo?.ogImageUrl || r.photo;
@@ -93,24 +104,16 @@ export async function GET(request: Request) {
               'linear-gradient(to top, rgba(0,0,0,0.86) 0%, rgba(0,0,0,0.40) 40%, rgba(0,0,0,0) 68%)',
           }}
         />
-        {/* Brand wordmark — top-left chip in brand yellow. */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 46,
-            left: 52,
-            display: 'flex',
-            alignItems: 'center',
-            backgroundColor: '#ffd84a',
-            color: '#000',
-            fontSize: 32,
-            letterSpacing: 2,
-            textTransform: 'uppercase',
-            padding: '8px 20px 10px',
-          }}
-        >
-          Eat This
-        </div>
+        {/* Brand wordmark — the actual Eat This logo, top-left. Its built-in
+            black outline keeps it legible over the (un-scrimmed) top of the photo. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={logo}
+          width={216}
+          height={86}
+          style={{ position: 'absolute', top: 44, left: 50 }}
+          alt=""
+        />
         {/* Content — cuisine/district eyebrow + restaurant name, bottom-left. */}
         <div
           style={{

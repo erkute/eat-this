@@ -100,3 +100,44 @@ describe('middleware: referral ?ref capture', () => {
     expect(res.cookies.get('pending_referrer')).toBeUndefined()
   })
 })
+
+describe('middleware: legacy 404 cleanup (post-rebuild re-slug)', () => {
+  const ORIGINAL_ENV = process.env.NEXT_PUBLIC_ENV
+  afterEach(() => {
+    process.env.NEXT_PUBLIC_ENV = ORIGINAL_ENV
+    vi.resetModules()
+  })
+
+  async function mw() {
+    process.env.NEXT_PUBLIC_ENV = 'production'
+    vi.resetModules()
+    return (await import('@/middleware')).default
+  }
+
+  it('permanently closed spot → 410 Gone (DE + EN)', async () => {
+    const middleware = await mw()
+    expect(middleware(makeReq('/restaurant/zeit-caf')).status).toBe(410)
+    expect(middleware(makeReq('/en/restaurant/phantom-bar')).status).toBe(410)
+  })
+
+  it('removed news article → 308 to /news, locale preserved', async () => {
+    const middleware = await mw()
+    const de = middleware(makeReq('/news/bun-society'))
+    expect(de.status).toBe(308)
+    expect(new URL(de.headers.get('location')!).pathname).toBe('/news')
+    const en = middleware(makeReq('/en/news/ramen-berlin'))
+    expect(new URL(en.headers.get('location')!).pathname).toBe('/en/news')
+  })
+
+  it('File Asto article → 308 to its restaurant page', async () => {
+    const middleware = await mw()
+    const res = middleware(makeReq('/news/file-asto-brings-a-taste-of-athens-to-kreuzberg'))
+    expect(res.status).toBe(308)
+    expect(new URL(res.headers.get('location')!).pathname).toBe('/restaurant/file-asto')
+  })
+
+  it('living restaurant slug is not 410', async () => {
+    const middleware = await mw()
+    expect(middleware(makeReq('/restaurant/borchardt')).status).not.toBe(410)
+  })
+})

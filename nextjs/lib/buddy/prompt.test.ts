@@ -3,11 +3,14 @@ import { describe, it, expect } from 'vitest'
 import { buildSystemPrompt } from './prompt'
 
 describe('buildSystemPrompt', () => {
-  it('includes the anti-hallucination rule and tool guidance', () => {
+  it('keeps the hard anti-hallucination rule and tiered recommendation policy', () => {
     const p = buildSystemPrompt('de')
     expect(p).toMatch(/search_spots/)
     expect(p).toMatch(/erfinde? nie/i)
-    expect(p).toMatch(/nur.*Tool-Ergebnis|ausschließlich.*Tool/i)
+    // tiered: verified Eat-This spots come first
+    expect(p).toMatch(/geprüft|kuratiert/i)
+    // unverified own additions must be clearly labelled
+    expect(p).toMatch(/nicht.*geprüft|etabliert/i)
   })
 
   it('switches answer language by locale', () => {

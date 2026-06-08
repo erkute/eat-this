@@ -60,6 +60,7 @@ describe('buildBezirkFAQEntries', () => {
     expect(entries.map(e => e.question)).toEqual([
       'Wie viele Restaurants empfiehlt Eat This in Mitte?',
       'Welche Restaurant-Kategorien gibt es in Mitte?',
+      'Wo gibt es die besten Café-Spots in Mitte?',
       'Was sind bekannte Restaurants in Mitte?',
       'Wo isst man in Mitte günstig?',
       'Wo isst man in Mitte gehoben?',

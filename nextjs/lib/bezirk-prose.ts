@@ -106,6 +106,34 @@ export function buildBezirkFAQEntries({ bezirk, restaurants, locale }: BezirkCon
     )
   }
 
+  // 2b. Discovery-Intent: "wo gibt es die beste {Kategorie} in {Bezirk}" —
+  // genau die Long-Tail-Query, für die der Hub ranken soll. Nennt die
+  // Top-Kategorie + bis zu drei Spots, die dieser Kategorie angehören.
+  const topCat = cats[0]
+  if (topCat) {
+    const inCat = restaurants
+      .filter(r => (r.categories ?? []).some(c => localizedCategoryName(c, locale) === topCat.label))
+      .slice(0, 3)
+      .map(r => r.name)
+    if (inCat.length > 0) {
+      const list = inCat.join(', ')
+      // "die besten {Kategorie}-Spots" statt "die beste {Kategorie}" — vermeidet
+      // den Genus-Bruch ("die beste Café"/"die beste Frühstück" wären falsch) und
+      // bleibt brand-konform (das Team sagt durchgängig "Spots").
+      entries.push(
+        de
+          ? {
+              question: `Wo gibt es die besten ${topCat.label}-Spots in ${name}?`,
+              answer: `Für ${topCat.label} in ${name} empfiehlt Eat This: ${list}.`,
+            }
+          : {
+              question: `Where are the best ${topCat.label} spots in ${name}?`,
+              answer: `For ${topCat.label} in ${name}, Eat This recommends: ${list}.`,
+            },
+      )
+    }
+  }
+
   // 3. Highlights (top 5 by name order — alpha)
   if (restaurants.length >= 3) {
     const highlights = restaurants.slice(0, 5).map(r => r.name).join(', ')

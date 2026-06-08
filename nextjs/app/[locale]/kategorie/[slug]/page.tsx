@@ -7,6 +7,7 @@ import { getRestaurantsByCategory, getCategoryBySlug, getAllCategories } from '@
 import { localizedCategoryName, localizedCategoryBlurb } from '@/lib/categories'
 import { buildCategoryTitle, buildCategoryDescription } from '@/lib/seo/categoryMeta'
 import { buildKategorieQuickFacts, buildKategorieFAQEntries } from '@/lib/kategorie-prose'
+import { categoryDistrictLinks } from '@/lib/seo/crossLinks'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
@@ -102,6 +103,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const label = localizedCategoryName(c, loc)
   const blurb = localizedCategoryBlurb(c, loc)
   const quickFacts = buildKategorieQuickFacts({ label, restaurants, locale: loc })
+  const districtLinks = categoryDistrictLinks(restaurants)
   const faqEntries = buildKategorieFAQEntries({ label, restaurants, locale: loc })
 
   const breadcrumbItems: BreadcrumbItem[] = [
@@ -112,6 +114,8 @@ export default async function KategorieDetailPage({ params }: PageProps) {
 
   const restaurantUrl = (rSlug: string) =>
     locale === 'de' ? `/restaurant/${rSlug}` : `/${locale}/restaurant/${rSlug}`
+  const bezirkUrl = (bSlug: string) =>
+    locale === 'de' ? `/bezirk/${bSlug}` : `/${locale}/bezirk/${bSlug}`
 
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
@@ -174,6 +178,19 @@ export default async function KategorieDetailPage({ params }: PageProps) {
           {quickFacts && <p className={styles.sub}>{quickFacts}</p>}
           <MapPromoCTA variant="chip" kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />
         </header>
+
+        {districtLinks.length > 0 && (
+          <nav className={styles.crossLinks} aria-label={de ? `${label} nach Bezirk` : `${label} by district`}>
+            <span className={styles.crossLinksHead}>
+              {de ? `${label} nach Bezirk:` : `${label} by district:`}
+            </span>
+            {districtLinks.map(b => (
+              <Link key={b.slug} href={bezirkUrl(b.slug)} className={styles.crossLink}>
+                {b.label}
+              </Link>
+            ))}
+          </nav>
+        )}
 
         <KategorieBoost categorySlug={c.slug} locale={loc} />
 

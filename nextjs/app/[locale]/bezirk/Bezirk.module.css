@@ -93,6 +93,47 @@
 }
 
 /* ============================================================
+   CROSS-LINKS (Bezirk ↔ Kategorie Querverweise direkt unter dem Hero)
+   Lenkt internen Link-Saft zwischen den Hub-Typen und gibt Google +
+   Nutzern einen On-Page-Pfad zur "beste {Kategorie} in {Bezirk}"-Intent.
+   Tokens erben aus .page → flippen im Dark-Theme automatisch mit.
+============================================================ */
+.crossLinks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 30px;
+}
+.crossLinksHead {
+  font-family: var(--f-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  opacity: 0.62;
+  margin-right: 2px;
+}
+.crossLink {
+  display: inline-block;
+  background: transparent;
+  color: var(--ink);
+  border: 1.5px solid var(--ink);
+  font-family: var(--f-display);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 5px 11px 6px;
+  line-height: 1.16;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+.crossLink:hover {
+  background: var(--yellow);
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+
+/* ============================================================
    SECTION HEAD (Lead-in über Restaurant-Grid, sowie über FAQ)
 ============================================================ */
 .sectionHead {

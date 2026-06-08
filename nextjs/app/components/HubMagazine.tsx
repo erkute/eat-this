@@ -25,7 +25,7 @@ export default function HubMagazine({ articles }: Props) {
             <Link href={`/news/${a.slug}`} className={styles.card}>
               <div className={styles.cardImage}>
                 {a.image && (
-                  <Image src={a.image} alt="" fill sizes="(max-width: 720px) 80vw, 284px" />
+                  <Image src={a.image} alt={a.title} fill sizes="(max-width: 720px) 80vw, 284px" />
                 )}
                 {a.kicker && <span className={styles.stamp}>{a.kicker}</span>}
               </div>

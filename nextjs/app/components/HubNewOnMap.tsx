@@ -21,7 +21,7 @@ export default function HubNewOnMap({ cards }: Props) {
             <Link href={`/map?r=${c.slug}`} rel="nofollow" className={styles.card}>
               <div className={styles.cardImage}>
                 {c.image && (
-                  <Image src={c.image} alt="" fill sizes="(max-width: 720px) 50vw, 320px" />
+                  <Image src={c.image} alt={normalizeName(c.name)} fill sizes="(max-width: 720px) 50vw, 320px" />
                 )}
               </div>
               <div className={styles.cardBody}>

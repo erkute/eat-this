@@ -163,17 +163,20 @@
 .content strong {
   font-weight: 700;
 }
-.content a {
+/* Prose links only — NOT the .inlineSpot photo cards (also <a> inside .content).
+   Wichtig: das `background`-Shorthand im :hover würde sonst background-size der
+   Karte von cover → auto resetten = ungewollter „Zoom"-Effekt. */
+.content a:not(.inlineSpot) {
   color: var(--c-coral);
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-underline-offset: 2px;
   font-weight: 600;
 }
-.content a:hover {
-  background: rgba(160, 40, 20, 0.07);
+.content a:not(.inlineSpot):hover {
+  background-color: rgba(160, 40, 20, 0.07);
 }
-html[data-theme="dark"] .content a {
+html[data-theme="dark"] .content a:not(.inlineSpot) {
   color: var(--c-coral-bright);
 }
 

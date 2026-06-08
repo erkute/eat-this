@@ -3386,6 +3386,7 @@ html[data-theme="dark"] .rdTag {
 .rdHours { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; row-gap: 4px; font-variant-numeric: tabular-nums; }
 .rdHoursD { font-family: var(--font-chewy); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
 .rdHoursT { font-family: var(--font); font-size: 14.5px; }
+.rdAddrLine { display: block; }
 .rdVMeta { display: block; margin-top: 4px; font-size: 12px; opacity: .7; }
 
 .rdActs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 6px 14px 16px; }

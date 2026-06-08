@@ -68,7 +68,7 @@ function SpotCard({ spot, locale, onSelect }: { spot: SpotCandidate; locale: Loc
   const meta = [spot.cuisineType, spot.bezirk, spot.priceRange].filter(Boolean).join(' · ')
   const cta = locale === 'en' ? 'Show on map' : 'Auf der Karte ansehen'
   return (
-    <Link className={styles.spotCard} href={`/map?r=${spot.slug}`} onClick={onSelect}>
+    <Link className={styles.spotCard} href={`/map?r=${spot.slug}`} prefetch onClick={onSelect}>
       {spot.image && (
         // eslint-disable-next-line @next/next/no-img-element
         <img className={styles.spotImg} src={spot.image} alt="" width={56} height={56} loading="lazy" />
@@ -167,6 +167,7 @@ export default function BuddyWidget() {
 
   const [scrolling, setScrolling] = useState(false)
   const [happyBeat, setHappyBeat] = useState(false)
+  const [greetingBeat, setGreetingBeat] = useState(false)
   const wasStreaming = useRef(false)
 
   const closePanel = useCallback(() => {
@@ -209,6 +210,17 @@ export default function BuddyWidget() {
     const t = setTimeout(() => setHappyBeat(false), 1600)
     return () => clearTimeout(t)
   }, [happyBeat])
+
+  // A brief "greeting" smile when the panel opens on an empty chat, then back.
+  useEffect(() => {
+    if (!(open && messages.length === 0)) {
+      setGreetingBeat(false)
+      return
+    }
+    setGreetingBeat(true)
+    const t = setTimeout(() => setGreetingBeat(false), 1500)
+    return () => clearTimeout(t)
+  }, [open, messages.length])
 
   // Move focus into the dialog when it opens (keyboard/screen-reader users).
   useEffect(() => {
@@ -256,20 +268,16 @@ export default function BuddyWidget() {
 
   const title = 'Remy'
 
-  // Map Remy's state to a facial expression.
-  const last = messages[messages.length - 1]
-  const waiting = isStreaming && last?.role === 'assistant' && !last.content
-  const speaking = isStreaming && last?.role === 'assistant' && !!last.content
+  // Expression policy: the mouth flap (open/close) is the only ongoing
+  // animation — it plays whenever Remy is active (streaming) or the launcher is
+  // scrolling. The smile (greeting) and laugh (happy) are brief stills only.
   const panelMood: BuddyMood = happyBeat
     ? 'happy'
-    : waiting
-      ? 'thinking'
-      : speaking
-        ? 'talking'
-        : messages.length === 0
-          ? 'greeting'
-          : 'idle'
-  // Launcher mirrors the panel when open; otherwise it flaps while scrolling.
+    : isStreaming
+      ? 'talking'
+      : greetingBeat
+        ? 'greeting'
+        : 'idle'
   const launcherMood: BuddyMood = open ? panelMood : scrolling ? 'talking' : 'idle'
 
   // No buddy on the map page — it would cover the map.

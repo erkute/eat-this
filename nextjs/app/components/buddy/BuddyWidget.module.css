@@ -4,6 +4,8 @@
    lives in the additive html[data-theme="dark"] block at the bottom. */
 .launcher { position: fixed; right: 20px; bottom: 20px; z-index: 10001; border: none;
   background: transparent; cursor: pointer; padding: 0; }
+/* hide the floating launcher while the panel is open (no duplicate face; close via ×) */
+.launcher[aria-expanded='true'] { display: none; }
 .panel { position: fixed; right: 20px; bottom: 88px; z-index: 10001; width: 360px; max-width: calc(100vw - 32px);
   height: 520px; max-height: calc(100vh - 120px); display: flex; flex-direction: column;
   background: #fff; color: #1a1a1a; border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.18); overflow: hidden; }
@@ -12,17 +14,18 @@
 .log { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 14px; display: flex; flex-direction: column; gap: 10px; color: #1a1a1a; }
 .msgUser { align-self: flex-end; background: #f0efe9; color: #1a1a1a; padding: 8px 12px;
   border-radius: 12px; max-width: 85%; white-space: pre-wrap; }
-.msgBot { align-self: flex-start; color: #1a1a1a; max-width: 92%; line-height: 1.45; }
-.botP { margin: 0 0 8px; }
+.msgBot { align-self: flex-start; color: #1a1a1a; max-width: 100%; line-height: 1.55; }
+.botP { margin: 0 0 10px; }
 .botP:last-child { margin-bottom: 0; }
-.botList { margin: 0 0 8px; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.botList { margin: 0 0 10px; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
 .botList li { line-height: 1.4; }
 .intro { display: flex; flex-direction: column; gap: 12px; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip { border: 1px solid #e6e2d8; background: #faf8f3; color: #1a1a1a; border-radius: 999px;
   padding: 8px 12px; font: inherit; font-size: 0.9em; cursor: pointer; text-align: left; line-height: 1.2; }
 .chip:hover { background: #f0ece2; border-color: #d8d2c4; }
-.spots { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+/* inline cards: symmetric breathing room above and below the spot card */
+.spots { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
 .spotCard { display: flex; flex-direction: row; gap: 10px; align-items: flex-start; background: #fff;
   border: 1px solid #e6e2d8; border-radius: 12px; padding: 10px; text-decoration: none;
   color: #1a1a1a; transition: background .12s ease, border-color .12s ease; }

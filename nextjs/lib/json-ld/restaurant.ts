@@ -3,6 +3,7 @@ import { localeUrl } from '@/lib/locale-url'
 import type { Restaurant } from '@/lib/types'
 import type { FAQEntry } from '@/lib/restaurant-prose'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
+import { buildOpeningHoursSpec } from '@/lib/map/openingHours'
 
 interface BuildRestaurantJsonLdArgs {
   restaurant: Restaurant
@@ -30,6 +31,8 @@ export function buildRestaurantJsonLd({
   districtsLabel,
   faqs,
 }: BuildRestaurantJsonLdArgs): string {
+  const openingHours = r.openingHours ? buildOpeningHoursSpec(r.openingHours) : []
+
   const faqEntity =
     faqs && faqs.length > 0
       ? {
@@ -70,6 +73,7 @@ export function buildRestaurantJsonLd({
             longitude: r.lng,
           },
         }),
+        ...(openingHours.length > 0 && { openingHoursSpecification: openingHours }),
       },
       {
         '@type': 'BreadcrumbList',

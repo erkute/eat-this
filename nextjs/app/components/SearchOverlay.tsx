@@ -225,7 +225,7 @@ export default function SearchOverlay() {
                   >
                     {a.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={a.imageUrl} alt="" className={styles.thumb} loading="lazy" />
+                      <img src={a.imageUrl} alt={title} className={styles.thumb} loading="lazy" />
                     ) : (
                       <div className={styles.thumbPlaceholder} aria-hidden="true">📰</div>
                     )}
@@ -256,7 +256,7 @@ export default function SearchOverlay() {
                   >
                     {r.photo ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={r.photo} alt="" className={styles.thumb} loading="lazy" />
+                      <img src={r.photo} alt={r.name} className={styles.thumb} loading="lazy" />
                     ) : (
                       <div className={styles.thumbPlaceholder} aria-hidden="true">🍽</div>
                     )}

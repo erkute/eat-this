@@ -23,7 +23,7 @@ export default function HubBezirkOfWeek({ bezirk }: Props) {
           <Link key={s._id} href={`/map?r=${s.slug}`} rel="nofollow" className={styles.tile}>
             {s.image && (
               <div className={styles.tileImage}>
-                <Image src={s.image} alt="" fill sizes="(max-width: 720px) 50vw, 240px" />
+                <Image src={s.image} alt={normalizeName(s.name)} fill sizes="(max-width: 720px) 50vw, 240px" />
               </div>
             )}
             <div className={styles.tileBody}>

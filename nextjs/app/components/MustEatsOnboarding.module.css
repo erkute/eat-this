@@ -8,10 +8,17 @@
   padding: 0;
   margin: 6px 0 0;
   font-size: 13px;
+  font-weight: 600;
   color: #0a0a0a;
   text-decoration: underline;
+  text-decoration-color: var(--brand-yellow);
+  text-decoration-thickness: 2px;
   text-underline-offset: 3px;
   cursor: pointer;
+}
+/* Dark mode: was #0a0a0a on a dark surface → black-on-black + invisible. */
+html[data-theme="dark"] .how {
+  color: var(--dk-ink);
 }
 
 /* Backdrop tint — a state change, not motion (opacity rule exception) */

@@ -386,7 +386,9 @@ a.mustEat:hover .mustEatCta {
   display: block;
   margin: 26px 0 28px;
   min-height: 240px;
-  aspect-ratio: 3 / 2;
+  /* 4:3 (statt 3:2) zeigt mehr vom Foto — quadratische/hochkant Spot-Bilder
+     wurden vorher hart beschnitten und wirkten reingezoomt. */
+  aspect-ratio: 4 / 3;
   background-color: #14100c;
   background-size: cover;
   background-position: center;
@@ -398,7 +400,15 @@ a.mustEat:hover .mustEatCta {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 30%, rgba(0, 0, 0, 0.82) 100%);
+  /* Kinoreifer, tief verankerter Scrim: oben bleibt das Bild frei, unten
+     trägt ein satter warm-schwarzer Sockel die Schrift. */
+  background: linear-gradient(
+    to top,
+    rgba(11, 8, 6, 0.95) 0%,
+    rgba(11, 8, 6, 0.66) 20%,
+    rgba(11, 8, 6, 0.2) 42%,
+    transparent 64%
+  );
 }
 .inlineSpotFoot {
   position: absolute;
@@ -414,8 +424,9 @@ a.mustEat:hover .mustEatCta {
   font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--brand-yellow);
-  font-weight: 600;
+  color: var(--accent-warm);
+  font-weight: 700;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
 }
 .inlineSpotName {
   font-family: var(--font-poster);

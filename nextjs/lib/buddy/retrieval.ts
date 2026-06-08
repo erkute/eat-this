@@ -28,13 +28,14 @@ export function buildSpotsQuery(limit: number): string {
   return `*[
     _type == "restaurant"
     && isOpen == true && isClosed != true
-    && (!defined($cuisine) || cuisineType match $cuisine || name match $cuisine || shortDescription match $cuisine || shortDescriptionEn match $cuisine || description match $cuisine || descriptionEn match $cuisine || tip match $cuisine || tipEn match $cuisine)
+    && (!defined($cuisine) || count(tags[@ match $cuisine]) > 0 || cuisineType match $cuisine || name match $cuisine || shortDescription match $cuisine || shortDescriptionEn match $cuisine || description match $cuisine || descriptionEn match $cuisine || tip match $cuisine || tipEn match $cuisine)
     && (!defined($bezirk) || bezirkRef->name match $bezirk)
     && (!defined($price) || priceRange == $price)
     && defined(slug.current)
   ] | order(
     select(
       !defined($cuisine) => 0,
+      count(tags[@ match $cuisine]) > 0 => 4,
       cuisineType match $cuisine => 3,
       name match $cuisine => 2,
       shortDescription match $cuisine || shortDescriptionEn match $cuisine || description match $cuisine || descriptionEn match $cuisine => 1,

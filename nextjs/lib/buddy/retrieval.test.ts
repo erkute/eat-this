@@ -24,11 +24,17 @@ describe('buildSpotsQuery', () => {
     expect(q).toContain('description match $cuisine')
   })
 
-  it('ranks a cuisineType match above an incidental text match', () => {
+  it('ranks a curated tag highest, then cuisineType, then name, then text', () => {
     const q = buildSpotsQuery(30)
-    // relevance score: cuisineType (3) > name (2) > description (1), then featured/recency
+    // relevance score: tag (4) > cuisineType (3) > name (2) > description (1)
+    expect(q).toContain('count(tags[@ match $cuisine]) > 0 => 4')
     expect(q).toContain('cuisineType match $cuisine => 3')
     expect(q).toContain('name match $cuisine => 2')
+  })
+
+  it('includes curated tags in the candidate match', () => {
+    const q = buildSpotsQuery(30)
+    expect(q).toContain('count(tags[@ match $cuisine]) > 0')
   })
 
   it('clamps the limit to the 1..40 range', () => {

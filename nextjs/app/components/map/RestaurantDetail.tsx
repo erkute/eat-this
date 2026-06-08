@@ -211,6 +211,19 @@ export default function RestaurantDetail({
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${restaurant.name}, ${restaurant.address}`)}`
     : (restaurant.mapsUrl ?? null)
 
+  // Split a single-line address ("Street 1, 10119 Berlin, Deutschland") into
+  // street on line 1 and PLZ + city on line 2; drop the country.
+  const addressLines = restaurant.address
+    ? (() => {
+        const parts = restaurant.address
+          .split(',')
+          .map((p) => p.trim())
+          .filter((p) => p && !/^(deutschland|germany)$/i.test(p))
+        const [street, ...rest] = parts
+        return { street, locality: rest.join(', ') }
+      })()
+    : null
+
   const storyText = restaurant.description ?? restaurant.shortDescription ?? ''
   const hasStory = !!storyText
   const hasTipp = !!restaurant.tip
@@ -324,11 +337,14 @@ export default function RestaurantDetail({
 
         {/* FACTS — opening hours shown in full, no expander */}
         <div className={styles.rdFacts}>
-          {restaurant.address && (
+          {addressLines && (
             <div className={styles.rdRow}>
               <span className={styles.rdK}>{t('map.address')}</span>
               <span className={styles.rdV}>
-                {restaurant.address}
+                {addressLines.street}
+                {addressLines.locality && (
+                  <span className={styles.rdAddrLine}>{addressLines.locality}</span>
+                )}
                 {walkingTime && <span className={styles.rdVMeta}>{walkingTime} {t('map.walkMinutes')}</span>}
               </span>
             </div>

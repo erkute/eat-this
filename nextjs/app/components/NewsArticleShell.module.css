@@ -436,9 +436,6 @@ a.mustEat:hover .mustEatCta {
   letter-spacing: 0.04em;
   color: #fbf8ee;
 }
-.inlineSpot:hover .inlineSpotCta {
-  color: var(--brand-yellow);
-}
 
 /* ── Share — single full-width ink button (mockup .art-share) ── */
 .shareRow {

@@ -8,23 +8,55 @@ type Span = {
   marks?: string[]
 }
 
+type LinkDef = { _key: string; _type: 'link'; href?: string; blank?: boolean }
+type MarkDef = LinkDef | { _key: string; _type: string }
+
 type Block = PortableTextBlock & {
   style?: string
   listItem?: string
   children?: Span[]
+  markDefs?: MarkDef[]
 }
 
-function renderSpan(span: Span, key: number): ReactNode {
+/** Internal deep-link to the (noindex) map view, e.g. `/map?r=sofi` or
+ *  `/en/map?r=sofi`. Such links get rel="nofollow" so the indexable article
+ *  doesn't bleed link equity into the map — same policy as the spot cards and
+ *  Hub tiles (see feedback_seo_nofollow_into_noindex). */
+function isMapLink(href: string): boolean {
+  return /^\/(?:[a-z]{2}\/)?map(?:[/?#]|$)/.test(href)
+}
+
+function renderLink(def: LinkDef, node: ReactNode): ReactNode {
+  const href = def.href
+  if (!href) return node
+  const internal = href.startsWith('/')
+  const rel = [isMapLink(href) ? 'nofollow' : null, internal ? null : 'noopener noreferrer']
+    .filter(Boolean)
+    .join(' ')
+  const target = !internal && def.blank ? '_blank' : undefined
+  return (
+    <a href={href} {...(rel ? { rel } : {})} {...(target ? { target } : {})}>
+      {node}
+    </a>
+  )
+}
+
+function renderSpan(span: Span, key: number, markDefs: MarkDef[] = []): ReactNode {
   let node: ReactNode = span.text ?? ''
   for (const mark of span.marks ?? []) {
     if (mark === 'strong') node = <strong>{node}</strong>
     else if (mark === 'em') node = <em>{node}</em>
+    else {
+      // Annotation mark (key into markDefs) — currently only `link`.
+      const def = markDefs.find((d) => d._key === mark)
+      if (def && def._type === 'link') node = renderLink(def as LinkDef, node)
+    }
   }
   return <span key={key}>{node}</span>
 }
 
-function renderChildren(children: Span[] = []): ReactNode {
-  return children.map((c, i) => renderSpan(c, i))
+function renderChildren(children: Span[] = [], markDefs: MarkDef[] = []): ReactNode {
+  return children.map((c, i) => renderSpan(c, i, markDefs))
 }
 
 /** Concatenated plain text of a block's spans — used for heading anchors. */
@@ -126,17 +158,17 @@ export function PortableTextRenderer({
     if (raw.listItem) {
       const wantTag = raw.listItem === 'number' ? 'ol' : 'ul'
       if (listTag !== wantTag) { flushList(); listTag = wantTag }
-      listItems.push(<li key={raw._key ?? listItems.length}>{renderChildren(raw.children)}</li>)
+      listItems.push(<li key={raw._key ?? listItems.length}>{renderChildren(raw.children, raw.markDefs)}</li>)
       continue
     }
 
     flushList()
     const style = raw.style ?? 'normal'
     const key = raw._key ?? out.length
-    if (style === 'h2') out.push(<h2 key={key} id={slugifyHeading(headingText(raw.children))}>{renderChildren(raw.children)}</h2>)
-    else if (style === 'h3') out.push(<h3 key={key} id={slugifyHeading(headingText(raw.children))}>{renderChildren(raw.children)}</h3>)
-    else if (style === 'blockquote') out.push(<blockquote key={key}>{renderChildren(raw.children)}</blockquote>)
-    else out.push(<p key={key}>{renderChildren(raw.children)}</p>)
+    if (style === 'h2') out.push(<h2 key={key} id={slugifyHeading(headingText(raw.children))}>{renderChildren(raw.children, raw.markDefs)}</h2>)
+    else if (style === 'h3') out.push(<h3 key={key} id={slugifyHeading(headingText(raw.children))}>{renderChildren(raw.children, raw.markDefs)}</h3>)
+    else if (style === 'blockquote') out.push(<blockquote key={key}>{renderChildren(raw.children, raw.markDefs)}</blockquote>)
+    else out.push(<p key={key}>{renderChildren(raw.children, raw.markDefs)}</p>)
   }
 
   flushList()

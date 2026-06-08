@@ -87,8 +87,21 @@ export interface MustEatCardBlock {
   restaurantPhoto?: string
 }
 
+// Inline "Spot" block embedded in article Portable Text — references a
+// restaurant directly (no mustEat needed). Resolved in articleBySlugQuery;
+// renders an image card and feeds the "Spots im Artikel" grid / spotrail.
+export interface SpotCardBlock {
+  _type: 'spotCard'
+  _key?: string
+  restaurantName?: string
+  restaurantSlug?: string
+  district?: string
+  cuisineType?: string
+  restaurantPhoto?: string
+}
+
 // A unique restaurant referenced by an article (derived from its mustEatCard
-// blocks) — feeds the "Spots im Artikel" grid + spotrail.
+// and spotCard blocks) — feeds the "Spots im Artikel" grid + spotrail.
 export interface ArticleSpot {
   name: string
   slug?: string

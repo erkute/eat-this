@@ -32,7 +32,17 @@ export function buildSpotsQuery(limit: number): string {
     && (!defined($bezirk) || bezirkRef->name match $bezirk)
     && (!defined($price) || priceRange == $price)
     && defined(slug.current)
-  ] | order(featured desc, lastReviewed desc) [0...${n}] ${SPOTS_PROJECTION}`
+  ] | order(
+    select(
+      !defined($cuisine) => 0,
+      cuisineType match $cuisine => 3,
+      name match $cuisine => 2,
+      shortDescription match $cuisine || shortDescriptionEn match $cuisine || description match $cuisine || descriptionEn match $cuisine => 1,
+      0
+    ) desc,
+    featured desc,
+    lastReviewed desc
+  ) [0...${n}] ${SPOTS_PROJECTION}`
 }
 
 const wildcard = (s?: string) => {

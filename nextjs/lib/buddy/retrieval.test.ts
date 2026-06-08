@@ -13,7 +13,8 @@ describe('buildSpotsQuery', () => {
     expect(q).not.toContain('tierAnon')
     expect(q).toContain('"slug": slug.current')
     expect(q).toContain('"bezirk": bezirkRef->name')
-    expect(q).toContain('order(featured desc, lastReviewed desc)')
+    expect(q).toContain('featured desc')
+    expect(q).toContain('lastReviewed desc')
   })
 
   it('matches the cuisine term across name and descriptions, not just cuisineType', () => {
@@ -21,6 +22,13 @@ describe('buildSpotsQuery', () => {
     expect(q).toContain('cuisineType match $cuisine')
     expect(q).toContain('name match $cuisine')
     expect(q).toContain('description match $cuisine')
+  })
+
+  it('ranks a cuisineType match above an incidental text match', () => {
+    const q = buildSpotsQuery(30)
+    // relevance score: cuisineType (3) > name (2) > description (1), then featured/recency
+    expect(q).toContain('cuisineType match $cuisine => 3')
+    expect(q).toContain('name match $cuisine => 2')
   })
 
   it('clamps the limit to the 1..40 range', () => {

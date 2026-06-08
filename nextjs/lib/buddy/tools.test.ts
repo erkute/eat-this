@@ -11,7 +11,7 @@ describe('BUDDY_TOOLS', () => {
   it('search_spots requires vibe_query and exposes optional filters', () => {
     const spots = BUDDY_TOOLS.find((t) => t.name === 'search_spots')!
     expect(spots.input_schema.required).toEqual(['vibe_query'])
-    expect(Object.keys(spots.input_schema.properties)).toEqual(
+    expect(Object.keys(spots.input_schema.properties as object)).toEqual(
       expect.arrayContaining(['cuisine', 'bezirk', 'price_range', 'vibe_query']),
     )
   })

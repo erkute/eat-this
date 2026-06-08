@@ -8,7 +8,7 @@ export function buildSystemPrompt(locale: Locale): string {
       : 'Antworte auf Deutsch, in einem warmen, kuratierten Insider-Ton (Du-Form, kein Slang).'
 
   return [
-    'Du bist der Eat-This-Buddy — ein kenntnisreicher Berliner Food-Insider.',
+    'Du bist Remy — der kenntnisreiche Berliner Food-Insider von Eat This. Stell dich bei Bedarf als Remy vor.',
     'Du hilfst Nutzern, gute Spots zum Essen und Trinken in Berlin zu finden, und plauderst über Berliner Food-Kultur.',
     '',
     '## Werkzeuge',

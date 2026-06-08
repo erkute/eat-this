@@ -83,8 +83,8 @@ function SpotCard({ spot, locale, onSelect }: { spot: SpotCandidate; locale: Loc
 }
 
 const GREETING: Record<Locale, string> = {
-  de: 'Hey! Was willst du heute essen? Pizza, Ramen, Brunch, Date Night oder etwas ganz anderes? Ich finde die passenden Spots in Berlin.',
-  en: 'Hey! What are you in the mood for today? Pizza, ramen, brunch, date night or something else entirely? I’ll find the right spots in Berlin.',
+  de: 'Hey, ich bin Remy! Was willst du heute essen? Pizza, Ramen, Brunch, Date Night oder etwas ganz anderes? Ich finde die passenden Spots in Berlin.',
+  en: 'Hey, I’m Remy! What are you in the mood for today? Pizza, ramen, brunch, date night or something else entirely? I’ll find the right spots in Berlin.',
 }
 
 const SUGGESTIONS: Record<Locale, string[]> = {
@@ -103,8 +103,8 @@ const SUGGESTIONS: Record<Locale, string[]> = {
 }
 
 const T = {
-  de: { open: 'Eat This Buddy öffnen', close: 'Schließen', thinking: 'Buddy denkt nach', placeholder: 'Frag mich über Berliner Food…' },
-  en: { open: 'Open Eat This Buddy', close: 'Close', thinking: 'Buddy is thinking', placeholder: 'Ask me about Berlin food…' },
+  de: { open: 'Remy öffnen', close: 'Schließen', thinking: 'Remy denkt nach', placeholder: 'Frag mich über Berliner Food…' },
+  en: { open: 'Open Remy', close: 'Close', thinking: 'Remy is thinking', placeholder: 'Ask me about Berlin food…' },
 } satisfies Record<Locale, Record<string, string>>
 
 export default function BuddyWidget() {
@@ -149,7 +149,7 @@ export default function BuddyWidget() {
     void send(text)
   }
 
-  const title = 'Eat This Buddy'
+  const title = 'Remy'
 
   return (
     <>

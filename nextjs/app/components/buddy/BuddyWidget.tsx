@@ -3,7 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocale } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
 import BuddyAvatar, { type BuddyMood } from './BuddyAvatar'
-import { useBuddyChat } from './useBuddyChat'
+import { useBuddyChat, type BuddyDisplayMessage } from './useBuddyChat'
+import { splitAnswerSegments } from '@/lib/buddy/stream'
 import type { Locale, SpotCandidate } from '@/lib/buddy/types'
 import styles from './BuddyWidget.module.css'
 
@@ -106,6 +107,54 @@ const T = {
   de: { open: 'Remy öffnen', close: 'Schließen', thinking: 'Remy denkt nach', placeholder: 'Frag mich über Berliner Food…' },
   en: { open: 'Open Remy', close: 'Close', thinking: 'Remy is thinking', placeholder: 'Ask me about Berlin food…' },
 } satisfies Record<Locale, Record<string, string>>
+
+// Renders one assistant message: prose with spot cards interleaved at their
+// `[[spot:<slug>]]` markers. Spots Remy didn't place inline fall back to a block
+// at the end — but only when he placed NONE (else we'd re-introduce the noise of
+// dumping unrelated candidates) and only once streaming for this message ended.
+function BotMessage({
+  m,
+  locale,
+  streaming,
+  onSpotSelect,
+  thinkingLabel,
+}: {
+  m: BuddyDisplayMessage
+  locale: Locale
+  streaming: boolean
+  onSpotSelect: () => void
+  thinkingLabel: string
+}) {
+  if (!m.content) {
+    return streaming ? <TypingDots label={thinkingLabel} /> : null
+  }
+  const spots = m.spots ?? []
+  const allowed = new Set(spots.map((s) => s.slug))
+  const bySlug = new Map(spots.map((s) => [s.slug, s]))
+  const { segments, placedSlugs } = splitAnswerSegments(m.content, allowed)
+  const showFallback = !streaming && placedSlugs.length === 0 && spots.length > 0
+
+  return (
+    <>
+      {segments.map((seg, si) =>
+        seg.type === 'text' ? (
+          <FormattedText key={si} text={seg.text} />
+        ) : bySlug.has(seg.slug) ? (
+          <div key={si} className={styles.spots}>
+            <SpotCard spot={bySlug.get(seg.slug)!} locale={locale} onSelect={onSpotSelect} />
+          </div>
+        ) : null,
+      )}
+      {showFallback && (
+        <div className={styles.spots}>
+          {spots.slice(0, 4).map((s) => (
+            <SpotCard key={s.slug} spot={s} locale={locale} onSelect={onSpotSelect} />
+          ))}
+        </div>
+      )}
+    </>
+  )
+}
 
 export default function BuddyWidget() {
   const locale = useLocale() as Locale
@@ -265,21 +314,13 @@ export default function BuddyWidget() {
                 </div>
               ) : (
                 <div key={i} className={styles.msgBot}>
-                  {m.content ? (
-                    <FormattedText text={m.content} />
-                  ) : isStreaming && i === messages.length - 1 ? (
-                    <TypingDots label={t.thinking} />
-                  ) : null}
-                  {/* Spots arrive (tool result) before the answer text streams.
-                      Hold the cards until streaming finishes so the text doesn't
-                      render on top and shove the cards down. */}
-                  {m.spots && m.spots.length > 0 && !(isStreaming && i === messages.length - 1) && (
-                    <div className={styles.spots}>
-                      {m.spots.slice(0, 4).map((s) => (
-                        <SpotCard key={s.slug} spot={s} locale={locale} onSelect={() => setOpen(false)} />
-                      ))}
-                    </div>
-                  )}
+                  <BotMessage
+                    m={m}
+                    locale={locale}
+                    streaming={isStreaming && i === messages.length - 1}
+                    onSpotSelect={() => setOpen(false)}
+                    thinkingLabel={t.thinking}
+                  />
                 </div>
               ),
             )}

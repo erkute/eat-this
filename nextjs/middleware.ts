@@ -3,8 +3,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { routing } from './i18n/routing';
 import { isStaging } from '@/lib/env';
 import { REFERRER_COOKIE, COOKIE_MAX_AGE, UID_SHAPE } from '@/lib/referral/constants';
+import { GONE_SLUGS, NEWS_REDIRECTS } from '@/lib/seo/legacyRedirects';
 
 const intlMiddleware = createMiddleware(routing);
+
+// 410 body for permanently closed spots. No inline CSS (CSP forbids it) —
+// plain semantic HTML; crawlers read the 410 status, humans get a link home.
+const GONE_HTML = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Nicht mehr verfügbar – Eat This</title></head><body><h1>Dieser Spot ist dauerhaft geschlossen</h1><p>Die Seite gibt es nicht mehr. Entdecke andere Berliner Spots:</p><p><a href="https://www.eatthisdot.com/">Zur Startseite</a></p></body></html>`;
 
 function basicAuthChallenge(): NextResponse {
   return new NextResponse('Authentication required', {
@@ -87,6 +92,30 @@ export default function middleware(req: NextRequest) {
       });
     }
     return redirect;
+  }
+
+  // Post-rebuild legacy URL cleanup (2026-06 re-slug). Static cases only —
+  // accent/split restaurant redirects need the DB and live in the route.
+  {
+    const isEn = pathname === '/en' || pathname.startsWith('/en/');
+    const rest = isEn ? pathname.slice(3) || '/' : pathname;
+    const prefix = isEn ? '/en' : '';
+
+    const gone = rest.match(/^\/restaurant\/([^/]+)\/?$/);
+    if (gone && GONE_SLUGS.has(gone[1])) {
+      return new NextResponse(GONE_HTML, {
+        status: 410,
+        headers: { 'content-type': 'text/html; charset=utf-8' },
+      });
+    }
+
+    const news = rest.match(/^\/news\/([^/]+)\/?$/);
+    if (news && NEWS_REDIRECTS[news[1]]) {
+      const url = req.nextUrl.clone();
+      url.search = '';
+      url.pathname = `${prefix}${NEWS_REDIRECTS[news[1]]}`;
+      return NextResponse.redirect(url, 308);
+    }
   }
 
   const res = intlMiddleware(req);

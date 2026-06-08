@@ -38,6 +38,16 @@ export async function getAllRestaurantSlugs(): Promise<string[]> {
   return results.map(r => r.slug)
 }
 
+// Lightweight name+slug+bezirk list, used by the legacy-slug resolver to map
+// post-rebuild 404 URLs to their current slug. See lib/seo/legacyRedirects.ts.
+export async function getAllRestaurantsLite(): Promise<{ name: string; slug: string; bezirk: string | null }[]> {
+  return client.fetch(
+    `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**"))]{ name, "slug": slug.current, "bezirk": bezirkRef->slug.current }`,
+    {},
+    { next: { revalidate: 3600, tags: ['restaurants-lite'] } }
+  )
+}
+
 export async function getArticleBySlug(slug: string): Promise<NewsArticle | null> {
   return client.fetch<NewsArticle | null>(
     articleBySlugQuery,

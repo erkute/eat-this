@@ -69,7 +69,7 @@ describe('searchSpots', () => {
     const fakeSpot: SpotCandidate = {
       name: 'Standard Serif', slug: 'standard-serif', cuisineType: 'Pizza',
       bezirk: 'Mitte', shortDescription: 'Neapolitan', tip: null,
-      priceRange: '€€', mapsUrl: 'https://maps.example/x',
+      priceRange: '€€', mapsUrl: 'https://maps.example/x', image: null,
     }
     const fakeClient = {
       fetch: async (query: string, params: unknown) => {

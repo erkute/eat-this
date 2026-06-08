@@ -10,6 +10,7 @@ export interface SpotCandidate {
   tip: string | null
   priceRange: string | null
   mapsUrl: string | null
+  image: string | null
 }
 
 export interface ArticleResult {

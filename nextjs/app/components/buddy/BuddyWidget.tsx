@@ -7,36 +7,88 @@ import { useBuddyChat } from './useBuddyChat'
 import type { Locale, SpotCandidate } from '@/lib/buddy/types'
 import styles from './BuddyWidget.module.css'
 
+// Minimal inline markdown: **bold** only (Claude's main inline marker).
+function inlineBold(text: string): React.ReactNode[] {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+    /^\*\*[^*]+\*\*$/.test(part) ? <strong key={i}>{part.slice(2, -2)}</strong> : part,
+  )
+}
+
+// Render Claude's plain-text answer as light markdown: paragraphs, bullet
+// lists and bold — so it doesn't read as one flat wall with raw ** markers.
+function FormattedText({ text }: { text: string }) {
+  const blocks: React.ReactNode[] = []
+  let bullets: string[] = []
+  let key = 0
+  const flush = () => {
+    if (bullets.length) {
+      const items = bullets
+      blocks.push(
+        <ul key={`ul${key++}`} className={styles.botList}>
+          {items.map((b, i) => (
+            <li key={i}>{inlineBold(b)}</li>
+          ))}
+        </ul>,
+      )
+      bullets = []
+    }
+  }
+  for (const raw of text.split('\n')) {
+    const line = raw.trim()
+    const bullet = line.match(/^[-*]\s+(.*)/)
+    if (bullet) {
+      bullets.push(bullet[1])
+      continue
+    }
+    flush()
+    if (!line) continue
+    const heading = line.match(/^#{1,4}\s+(.*)/)
+    blocks.push(
+      <p key={`p${key++}`} className={styles.botP}>
+        {heading ? <strong>{inlineBold(heading[1])}</strong> : inlineBold(line)}
+      </p>,
+    )
+  }
+  flush()
+  return <>{blocks}</>
+}
+
 function SpotCard({ spot, locale }: { spot: SpotCandidate; locale: Locale }) {
   const meta = [spot.cuisineType, spot.bezirk, spot.priceRange].filter(Boolean).join(' · ')
   const cta = locale === 'en' ? 'Details & map' : 'Details & Karte'
   return (
     <Link className={styles.spotCard} href={`/restaurant/${spot.slug}`}>
-      <span className={styles.spotName}>{spot.name}</span>
-      {meta && <span className={styles.spotMeta}>{meta}</span>}
-      {spot.shortDescription && <span className={styles.spotDesc}>{spot.shortDescription}</span>}
-      <span className={styles.spotCta}>📍 {cta} →</span>
+      {spot.image && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className={styles.spotImg} src={spot.image} alt="" width={56} height={56} loading="lazy" />
+      )}
+      <span className={styles.spotBody}>
+        <span className={styles.spotName}>{spot.name}</span>
+        {meta && <span className={styles.spotMeta}>{meta}</span>}
+        {spot.shortDescription && <span className={styles.spotDesc}>{spot.shortDescription}</span>}
+        <span className={styles.spotCta}>{cta} →</span>
+      </span>
     </Link>
   )
 }
 
 const GREETING: Record<Locale, string> = {
-  de: 'Hey! 👋 Ich bin dein Eat This Buddy. Sag mir, worauf du Lust hast — ich kenn die guten Spots in Berlin.',
-  en: "Hey! 👋 I'm your Eat This Buddy. Tell me what you're craving — I know the good spots in Berlin.",
+  de: 'Hey! Was willst du heute essen? Pizza, Ramen, Brunch, Date Night oder etwas ganz anderes? Ich finde die passenden Spots in Berlin.',
+  en: 'Hey! What are you in the mood for today? Pizza, ramen, brunch, date night or something else entirely? I’ll find the right spots in Berlin.',
 }
 
 const SUGGESTIONS: Record<Locale, string[]> = {
   de: [
-    '🍕 Ich hab Bock auf richtig gute Pizza',
-    '☕ Kaffee-Spot in Schöneberg',
-    '🍜 Wo gibt’s gutes Ramen?',
-    '✨ Was macht Berliner Kaffee besonders?',
+    'Ich hab Bock auf richtig gute Pizza',
+    'Wo gibt’s guten Ramen?',
+    'Ein schöner Brunch-Spot',
+    'Date Night – wo hin?',
   ],
   en: [
-    '🍕 I’m craving really good pizza',
-    '☕ A coffee spot in Schöneberg',
-    '🍜 Where’s good ramen?',
-    '✨ What makes Berlin coffee special?',
+    'I’m craving really good pizza',
+    'Where’s good ramen?',
+    'A nice brunch spot',
+    'Date night – where to go?',
   ],
 }
 
@@ -82,15 +134,12 @@ export default function BuddyWidget() {
           <div className={styles.log}>
             {messages.length === 0 && (
               <div className={styles.intro}>
-                <div className={styles.msgBot}>{GREETING[locale]}</div>
+                <div className={styles.msgBot}>
+                  <FormattedText text={GREETING[locale]} />
+                </div>
                 <div className={styles.chips}>
                   {SUGGESTIONS[locale].map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      className={styles.chip}
-                      onClick={() => ask(s.replace(/^\S+\s/, ''))}
-                    >
+                    <button key={s} type="button" className={styles.chip} onClick={() => ask(s)}>
                       {s}
                     </button>
                   ))}
@@ -99,10 +148,12 @@ export default function BuddyWidget() {
             )}
             {messages.map((m, i) =>
               m.role === 'user' ? (
-                <div key={i} className={styles.msgUser}>{m.content}</div>
+                <div key={i} className={styles.msgUser}>
+                  {m.content}
+                </div>
               ) : (
                 <div key={i} className={styles.msgBot}>
-                  {m.content}
+                  <FormattedText text={m.content} />
                   {m.spots && m.spots.length > 0 && (
                     <div className={styles.spots}>
                       {m.spots.slice(0, 4).map((s) => (

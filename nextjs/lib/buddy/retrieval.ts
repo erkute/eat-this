@@ -20,7 +20,8 @@ const SPOTS_PROJECTION = `{
   "shortDescription": select($locale == "en" => coalesce(shortDescriptionEn, shortDescription), shortDescription),
   "tip": select($locale == "en" => coalesce(tipEn, tip), tip),
   priceRange,
-  mapsUrl
+  mapsUrl,
+  "image": image.asset->url + "?w=120&h=120&fit=crop&auto=format&q=80"
 }`
 
 export function buildSpotsQuery(limit: number): string {

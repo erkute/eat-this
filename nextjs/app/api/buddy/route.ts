@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 import { checkRateLimit, sessionLimitsFromEnv, ipLimitsFromEnv } from '@/lib/buddy/rateLimit'
 import { createAnthropicLlmClient, runBuddyTurn } from '@/lib/buddy/orchestrator'
 import { searchSpots, searchArticles } from '@/lib/buddy/retrieval'
+import { clientIpFromXff } from '@/lib/buddy/clientIp'
 import { encodeBuddyEvent } from '@/lib/buddy/stream'
 import type { ChatMessage, Locale } from '@/lib/buddy/types'
 
@@ -46,14 +47,14 @@ function parseBody(body: unknown):
   return { ok: true, sessionId, messages, locale, geo }
 }
 
-// Real client IP behind Firebase App Hosting / Cloud Run. The LEFTMOST entries
-// of x-forwarded-for are client-supplied and spoofable; the platform appends the
-// actual connecting IP as the RIGHTMOST hop, so read that. Hashed before use so
-// no raw IP is ever stored (rate-limit bucketing only).
+// Hashed before use so no raw IP is ever stored (rate-limit bucketing only).
+// IP-hop selection (which x-forwarded-for hop is the real client) lives in
+// lib/buddy/clientIp — route files can't carry extra exports.
 function clientIpHash(request: Request): string | null {
-  const xff = request.headers.get('x-forwarded-for')
-  const hops = xff ? xff.split(',').map((h) => h.trim()).filter(Boolean) : []
-  const ip = hops.length > 0 ? hops[hops.length - 1] : (request.headers.get('x-real-ip') ?? '').trim()
+  const ip = clientIpFromXff(
+    request.headers.get('x-forwarded-for'),
+    request.headers.get('x-real-ip'),
+  )
   if (!ip) return null
   const salt = process.env.BUDDY_IP_SALT ?? 'eat-this-buddy'
   return createHash('sha256').update(ip + salt).digest('hex').slice(0, 40)

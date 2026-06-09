@@ -1,0 +1,63 @@
+// nextjs/lib/buddy/greeting.ts
+import type { Locale } from './types'
+
+// Remy's opener + starter chips adapt to the time of day so the empty chat
+// feels alive and relevant instead of one fixed line. Kept in his voice:
+// short, opinionated, no filler.
+export type Daypart = 'morning' | 'midday' | 'afternoon' | 'evening' | 'late'
+
+export function daypartFor(hour: number): Daypart {
+  if (hour >= 5 && hour < 11) return 'morning'
+  if (hour >= 11 && hour < 15) return 'midday'
+  if (hour >= 15 && hour < 18) return 'afternoon'
+  if (hour >= 18 && hour < 23) return 'evening'
+  return 'late'
+}
+
+const GREETINGS: Record<Locale, Record<Daypart, string>> = {
+  de: {
+    morning: 'Morgen. Brauchst du erstmal einen guten Kaffee, oder soll’s gleich was Richtiges zum Frühstück sein?',
+    midday: 'Mittagszeit. Schnell was Gutes auf die Hand, oder lieber in Ruhe hinsetzen? Ich kenn die Läden für beides.',
+    afternoon: 'Nachmittag. Zeit für Kaffee und was Süßes — oder ist dir schon nach dem ersten Drink?',
+    evening: 'Abend. Worauf hast du Lust — ein gutes Essen, ein Drink, oder beides nacheinander?',
+    late: 'Schon spät. Wenn dich jetzt noch der Hunger packt: Döner, Pizza oder eine Bar, die offen hat — ich weiß, wo.',
+  },
+  en: {
+    morning: 'Morning. Need a good coffee first, or shall we go straight for a proper breakfast?',
+    midday: 'Lunchtime. Something quick and good on the go, or a proper sit-down? I know the places for both.',
+    afternoon: 'Afternoon. Time for coffee and something sweet — or are you already after the first drink?',
+    evening: 'Evening. What are you in the mood for — a good dinner, a drink, or both in a row?',
+    late: 'Getting late. If hunger strikes now: döner, pizza, or a bar that’s still open — I know where.',
+  },
+}
+
+const SUGGESTIONS: Record<Locale, Record<Daypart, string[]>> = {
+  de: {
+    morning: ['Guter Kaffee in der Nähe', 'Wo gibt’s ordentliches Frühstück?', 'Bäckerei mit gutem Sauerteig', 'Shakshuka oder Eggs?'],
+    midday: ['Schnelles Mittagessen', 'Wo gibt’s gute Bowls?', 'Ramen für die Pause', 'Mittag zum Hinsetzen'],
+    afternoon: ['Kaffee und was Süßes', 'Beste Eisdiele', 'Cinnamon Bun oder Babka?', 'Wo gibt’s guten Kuchen?'],
+    evening: ['Wo gibt’s richtig gute Pizza?', 'Schönes Dinner für zwei', 'Natural-Wine-Bar', 'Wo trinkt man gut?'],
+    late: ['Bester Döner jetzt', 'Pizza um die Zeit', 'Bar, die noch offen hat', 'Was hat jetzt noch auf?'],
+  },
+  en: {
+    morning: ['Good coffee nearby', 'Where’s a proper breakfast?', 'Bakery with real sourdough', 'Shakshuka or eggs?'],
+    midday: ['Quick lunch', 'Where’s good bowls?', 'Ramen for the break', 'A lunch with substance'],
+    afternoon: ['Coffee and something sweet', 'Best ice cream', 'Cinnamon bun or babka?', 'Where’s good cake?'],
+    evening: ['Where’s really good pizza?', 'A nice dinner for two', 'Natural wine bar', 'Where do you drink well?'],
+    late: ['Best döner right now', 'Pizza at this hour', 'A bar that’s still open', 'What’s still open now?'],
+  },
+}
+
+// Remy introduces himself, warmly, before the time-of-day hook.
+const INTRO: Record<Locale, string> = {
+  de: 'Hey, ich bin Remy — dein Mann für gutes Essen in Berlin.',
+  en: 'Hey, I’m Remy — your guy for good food in Berlin.',
+}
+
+export function greetingFor(hour: number, locale: Locale): { greeting: string; suggestions: string[] } {
+  const part = daypartFor(hour)
+  return {
+    greeting: `${INTRO[locale]} ${GREETINGS[locale][part]}`,
+    suggestions: SUGGESTIONS[locale][part],
+  }
+}

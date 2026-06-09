@@ -15,6 +15,7 @@
     "@anthropic-ai/sdk": "^0.94.0",
     "@react-email/components": "^1.0.12",
     "@react-email/render": "^2.0.7",
+    "@rive-app/react-canvas": "^4.29.0",
     "@sanity/client": "^7.21.0",
     "@sentry/nextjs": "^10.52.0",
     "dotenv": "^17.4.2",

@@ -8,6 +8,7 @@ import SiteNav from '@/app/components/SiteNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
 import SearchOverlay from '@/app/components/SearchOverlay'
 import CookieConsent from '@/app/components/CookieConsent'
+import BuddyWidget from '@/app/components/buddy/BuddyWidget'
 import BridgeAuth from './BridgeAuth'
 
 const SITE_URL = 'https://www.eatthisdot.com'
@@ -58,7 +59,7 @@ export default async function SPALayout({
     <>
       {/* Full SPA stylesheet — hoisted to <head> by Next.js */}
       {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/css/style.min.css?v=168" precedence="default" />
+      <link rel="stylesheet" href="/css/style.min.css?v=169" precedence="default" />
 
       <link rel="preconnect" href="https://ehwjnjr2.apicdn.sanity.io" crossOrigin="anonymous" />
       <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
@@ -78,6 +79,7 @@ export default async function SPALayout({
           </div>
           <SearchOverlay />
           <CookieConsent />
+          <BuddyWidget />
         </LoginModalProvider>
       </AuthProvider>
     </>

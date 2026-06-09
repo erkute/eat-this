@@ -1,0 +1,49 @@
+.wrap { position: relative; width: 56px; height: 56px; border-radius: 50%; overflow: hidden;
+  /* glossy backdrop: soft highlight top-left fading to a deeper tone */
+  background: radial-gradient(125% 125% at 32% 22%, #ffffff 0%, #f3eee2 52%, #e2dac8 100%);
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.6), inset 0 -3px 6px rgba(0,0,0,0.06);
+  flex-shrink: 0; }
+/* Matched moods (neutral/teeth/laugh) share framing so only the mouth differs;
+   think/greeting swap the whole base frame (slightly different zoom = pose change). */
+.face, .faceOpen { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  object-position: 50% 0%; transform: scale(1.15); transform-origin: 50% 0%; display: block; }
+.faceOpen { opacity: 0; }
+/* Mouth flap while talking. Two uneven opens per cycle (not a metronome 50/50)
+   so the rhythm reads like speech rather than a robotic blink. */
+.wrap[data-mood='talking'] .faceOpen { animation: buddyFlap .42s infinite; }
+@keyframes buddyFlap {
+  0%, 18%   { opacity: 0; }
+  26%, 44%  { opacity: 1; }   /* first open */
+  52%, 60%  { opacity: 0; }   /* brief close */
+  66%, 82%  { opacity: 1; }   /* second, slightly shorter open */
+  92%, 100% { opacity: 0; }
+}
+/* Idle: Remy breathes (slow scale swell) with a quick squash "blink" tick once
+   per cycle, so the resting launcher/avatar feels alive instead of frozen.
+   Scale-only swell keeps the top edge pinned (no gap under the circle mask). */
+.wrap[data-mood='idle'] .face { animation: buddyIdle 4.6s ease-in-out infinite; transform-box: fill-box; }
+@keyframes buddyIdle {
+  0%, 100%  { transform: scale(1.15); }
+  18%       { transform: scale(1.166); }              /* inhale */
+  36%, 40%  { transform: scale(1.15); }               /* exhale, settle */
+  43%       { transform: scale(1.15) scaleY(0.92); }  /* quick blink squash */
+  46%, 70%  { transform: scale(1.15); }
+  82%       { transform: scale(1.16); }               /* soft second breath */
+}
+/* tiny scale pop when Remy laughs after delivering an answer */
+.wrap[data-mood='happy'] .face { animation: buddyPop .5s ease-out; }
+@keyframes buddyPop {
+  0% { transform: scale(1.15); }
+  40% { transform: scale(1.24); }
+  100% { transform: scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wrap[data-mood='talking'] .faceOpen { animation: none; }
+  .wrap[data-mood='idle'] .face { animation: none; }
+  .wrap[data-mood='happy'] .face { animation: none; }
+}
+/* dark mode: glossy dark backdrop with the same top-left sheen */
+html[data-theme="dark"] .wrap {
+  background: radial-gradient(125% 125% at 32% 22%, #404040 0%, #272727 52%, #161616 100%);
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.12), inset 0 -3px 6px rgba(0,0,0,0.35);
+}

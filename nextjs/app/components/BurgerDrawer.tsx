@@ -4,6 +4,7 @@ import { useCallback, useEffect } from 'react';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
+import { useTheme } from '@/lib/useTheme';
 import { routing } from '@/i18n/routing';
 import { Link, usePathname } from '@/i18n/navigation';
 
@@ -16,6 +17,7 @@ export interface BurgerCloseDetail {
 export default function BurgerDrawer() {
   const { t, lang, setLang } = useTranslation();
   const { user } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const locale = useLocale();
   const pathname = usePathname();
 
@@ -87,21 +89,36 @@ export default function BurgerDrawer() {
         <div className="bd-scroller">
           {/* In-flow (not pinned): scrolls with the menu so it never collides
               with the logo when the drawer content scrolls. */}
-          <div className="bd-lang" role="group" aria-label="Language / Sprache">
+          <div className="bd-topbar">
+            <div className="bd-lang" role="group" aria-label="Language / Sprache">
+              <button
+                className={`bd-lang-btn${lang === 'de' ? ' on' : ''}`}
+                aria-label="Deutsch"
+                onClick={() => setLang('de')}
+              >
+                DE
+              </button>
+              <span className="bd-lang-sep" aria-hidden="true">/</span>
+              <button
+                className={`bd-lang-btn${lang === 'en' ? ' on' : ''}`}
+                aria-label="English"
+                onClick={() => setLang('en')}
+              >
+                EN
+              </button>
+            </div>
+
             <button
-              className={`bd-lang-btn${lang === 'de' ? ' on' : ''}`}
-              aria-label="Deutsch"
-              onClick={() => setLang('de')}
+              type="button"
+              className={`bd-theme-toggle${isDark ? ' on' : ''}`}
+              aria-label="Toggle dark mode"
+              aria-pressed={isDark}
+              onClick={toggleTheme}
             >
-              DE
-            </button>
-            <span className="bd-lang-sep" aria-hidden="true">/</span>
-            <button
-              className={`bd-lang-btn${lang === 'en' ? ' on' : ''}`}
-              aria-label="English"
-              onClick={() => setLang('en')}
-            >
-              EN
+              <span className="bd-theme-label">{t('theme.darkMode')}</span>
+              <span className="bd-theme-track">
+                <span className="bd-theme-thumb"></span>
+              </span>
             </button>
           </div>
 

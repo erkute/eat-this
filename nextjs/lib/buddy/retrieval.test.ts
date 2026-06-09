@@ -106,6 +106,23 @@ describe('searchSpots', () => {
     expect(calls[0].query).toContain('_type == "restaurant"')
     expect(calls[0].params).toMatchObject({ cuisine: '*Pizza*', bezirk: '*Mitte*', locale: 'de' })
   })
+
+  it('sorts by distance and labels when userGeo is given', async () => {
+    const base = {
+      cuisineType: null, bezirk: null, shortDescription: null, tip: null,
+      priceRange: null, mapsUrl: null, image: null,
+    }
+    const far = { ...base, name: 'Far', slug: 'far', lat: 52.6, lng: 13.5 }
+    const near = { ...base, name: 'Near', slug: 'near', lat: 52.521, lng: 13.413 }
+    const fakeClient = { fetch: async () => [far, near] }
+    const out = await searchSpots(
+      { vibeQuery: 'x', userGeo: { lat: 52.5219, lng: 13.4132 } },
+      'de',
+      { client: fakeClient },
+    )
+    expect(out.map((s) => s.slug)).toEqual(['near', 'far']) // nearest first
+    expect(out[0].distanceLabel).toMatch(/m|km/)
+  })
 })
 
 describe('searchArticles', () => {

@@ -43,6 +43,12 @@ export function useBuddyChat() {
   const [messages, setMessages] = useState<BuddyDisplayMessage[]>([])
   const [isStreaming, setIsStreaming] = useState(false)
   const allowedSlugs = useRef<Set<string>>(new Set())
+  // User location (once granted) — sent with each request so spots can be
+  // distance-sorted. Held in a ref so it doesn't re-create `send`.
+  const geoRef = useRef<{ lat: number; lng: number } | null>(null)
+  const setGeo = useCallback((g: { lat: number; lng: number } | null) => {
+    geoRef.current = g
+  }, [])
 
   const send = useCallback(
     async (text: string) => {
@@ -70,6 +76,7 @@ export function useBuddyChat() {
           body: JSON.stringify({
             sessionId: getSessionId(),
             locale,
+            geo: geoRef.current ?? undefined,
             messages: history.map((m) => ({ role: m.role, content: m.content })),
           }),
         })
@@ -130,5 +137,5 @@ export function useBuddyChat() {
     [messages, isStreaming, locale],
   )
 
-  return { messages, isStreaming, send }
+  return { messages, isStreaming, send, setGeo }
 }

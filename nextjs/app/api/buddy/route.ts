@@ -15,7 +15,7 @@ const MAX_MESSAGES = 20
 const MAX_CONTENT = 2000
 
 function parseBody(body: unknown):
-  | { ok: true; sessionId: string; messages: ChatMessage[]; locale: Locale }
+  | { ok: true; sessionId: string; messages: ChatMessage[]; locale: Locale; geo?: { lat: number; lng: number } }
   | { ok: false } {
   if (typeof body !== 'object' || body === null) return { ok: false }
   const b = body as Record<string, unknown>
@@ -33,7 +33,17 @@ function parseBody(body: unknown):
     messages.push({ role, content: content.slice(0, MAX_CONTENT) })
   }
   const locale: Locale = b.locale === 'en' ? 'en' : 'de'
-  return { ok: true, sessionId, messages, locale }
+  let geo: { lat: number; lng: number } | undefined
+  if (typeof b.geo === 'object' && b.geo !== null) {
+    const g = b.geo as Record<string, unknown>
+    if (
+      typeof g.lat === 'number' && typeof g.lng === 'number' &&
+      g.lat >= -90 && g.lat <= 90 && g.lng >= -180 && g.lng <= 180
+    ) {
+      geo = { lat: g.lat, lng: g.lng }
+    }
+  }
+  return { ok: true, sessionId, messages, locale, geo }
 }
 
 // Real client IP behind Firebase App Hosting / Cloud Run. The LEFTMOST entries
@@ -80,7 +90,7 @@ export async function POST(request: Request) {
     async start(controller) {
       try {
         for await (const event of runBuddyTurn(
-          { messages: parsed.messages, locale: parsed.locale },
+          { messages: parsed.messages, locale: parsed.locale, geo: parsed.geo },
           { llm, searchSpots, searchArticles },
         )) {
           controller.enqueue(encoder.encode(encodeBuddyEvent(event)))

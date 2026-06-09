@@ -34,7 +34,7 @@ const MAX_TOKENS = 2048
 const MODEL = process.env.BUDDY_MODEL ?? 'claude-haiku-4-5'
 
 export async function* runBuddyTurn(
-  input: { messages: ChatMessage[]; locale: Locale },
+  input: { messages: ChatMessage[]; locale: Locale; geo?: { lat: number; lng: number } },
   deps: OrchestratorDeps,
 ): AsyncGenerator<BuddyStreamEvent> {
   const system: Anthropic.TextBlockParam[] = [
@@ -66,6 +66,7 @@ export async function* runBuddyTurn(
             bezirk: tu.input.bezirk as string | undefined,
             priceRange: tu.input.price_range as string | undefined,
             name: tu.input.name as string | undefined,
+            userGeo: input.geo,
             vibeQuery: String(tu.input.vibe_query ?? ''),
           },
           input.locale,

@@ -2,6 +2,7 @@
 import { client as sanityClient } from '@/lib/sanity'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import { getOpenStatus } from '@/lib/map/openingHours'
+import { distanceKm, distanceLabel, type LatLng } from './geo'
 import type { OpeningHourSlot } from '@/lib/types'
 import type { Locale, SpotCandidate, ArticleResult } from './types'
 
@@ -11,6 +12,8 @@ export interface SpotFilters {
   priceRange?: string
   /** A specific spot named by the user (e.g. "Gazzo"). Matched against name. */
   name?: string
+  /** User location — when set, results are sorted by distance and labelled. */
+  userGeo?: LatLng
   vibeQuery: string
 }
 
@@ -27,6 +30,7 @@ const SPOTS_PROJECTION = `{
   priceRange, // raw {min,max,currency} object — formatted to a label in searchSpots
   mapsUrl,
   openingHours, // [{days, hours}] — open-now status computed in searchSpots
+  lat, lng, // used to compute distance when the user shares their location
   "image": image.asset->url + "?w=120&h=120&fit=crop&auto=format&q=80"
 }`
 
@@ -97,10 +101,12 @@ interface RetrievalDeps {
 
 const SPOTS_LIMIT = 30
 
-// The raw row before priceRange/openingHours are collapsed to display values.
-type RawSpotRow = Omit<SpotCandidate, 'priceRange' | 'openNow' | 'openLabel'> & {
+// The raw row before priceRange/openingHours/coords are collapsed to display values.
+type RawSpotRow = Omit<SpotCandidate, 'priceRange' | 'openNow' | 'openLabel' | 'distanceLabel'> & {
   priceRange?: { min?: number; max?: number; currency?: string } | null
   openingHours?: OpeningHourSlot[] | null
+  lat?: number | null
+  lng?: number | null
 }
 
 export async function searchSpots(
@@ -114,9 +120,10 @@ export async function searchSpots(
   const rows = (await client.fetch(query, params)) as RawSpotRow[]
   const now = berlinNow(deps.now ?? new Date())
   const labels = OPEN_LABELS[locale]
-  // Drop openingHours + the raw price object from the payload; keep only the
-  // derived label/status so the streamed spots stay lean.
-  return (rows ?? []).map(({ openingHours, priceRange: rawPrice, ...rest }) => {
+  const userGeo = filters.userGeo
+  // Drop openingHours/coords + the raw price object from the payload; keep only
+  // the derived label/status so the streamed spots stay lean.
+  const mapped = (rows ?? []).map(({ openingHours, priceRange: rawPrice, lat, lng, ...rest }) => {
     // priceRange is a {min,max,currency} object in Sanity — format it to the
     // same "10–20 €" label the rest of the app uses (was rendering [object Object]).
     const priceRange = formatPriceLabel({ priceRange: rawPrice ?? undefined })
@@ -124,13 +131,23 @@ export async function searchSpots(
     // the card can show a status badge. Null when there's no hours data.
     const hours = openingHours ?? []
     const status = hours.length > 0 ? getOpenStatus(hours, now, labels) : null
+    // Distance from the user, when they shared their location.
+    const km =
+      userGeo && typeof lat === 'number' && typeof lng === 'number'
+        ? distanceKm(userGeo, { lat, lng })
+        : null
     return {
       ...rest,
       priceRange,
       openNow: status ? status.isOpen : null,
       openLabel: status ? status.label : null,
+      distanceLabel: km !== null ? distanceLabel(km, locale) : null,
+      _km: km,
     }
   })
+  // Nearest first when we know where the user is.
+  if (userGeo) mapped.sort((a, b) => (a._km ?? Infinity) - (b._km ?? Infinity))
+  return mapped.map(({ _km, ...spot }) => spot)
 }
 
 export interface ArticleQuery {

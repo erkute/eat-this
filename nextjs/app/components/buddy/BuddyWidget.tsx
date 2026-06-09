@@ -67,7 +67,7 @@ function TypingDots({ label }: { label: string }) {
 }
 
 function SpotCard({ spot, locale, onSelect }: { spot: SpotCandidate; locale: Locale; onSelect: () => void }) {
-  const meta = [spot.cuisineType, spot.bezirk, spot.priceRange].filter(Boolean).join(' · ')
+  const meta = [spot.cuisineType, spot.bezirk, spot.priceRange, spot.distanceLabel].filter(Boolean).join(' · ')
   const cta = locale === 'en' ? 'Show on map' : 'Auf der Karte ansehen'
   return (
     <Link className={styles.spotCard} href={`/map?r=${spot.slug}`} prefetch onClick={onSelect}>
@@ -218,7 +218,7 @@ export default function BuddyWidget() {
   const t = T[locale]
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState('')
-  const { messages, isStreaming, send } = useBuddyChat()
+  const { messages, isStreaming, send, setGeo } = useBuddyChat()
   const launcherRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -344,6 +344,25 @@ export default function BuddyWidget() {
     void send(text)
   }
 
+  // "Near me": grab the location (best-effort), then ask. The query is sent
+  // either way — without coords Remy just answers without distance sorting.
+  const askNearby = () => {
+    if (isStreaming) return
+    const q = locale === 'en' ? "What's good near me right now?" : 'Was Gutes in meiner Nähe?'
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      ask(q)
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        ask(q)
+      },
+      () => ask(q),
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 },
+    )
+  }
+
   const title = 'Remy'
 
   // Expression policy: the mouth flap (open/close) is the only ongoing
@@ -431,6 +450,13 @@ export default function BuddyWidget() {
                       <FormattedText text={intro.greeting} />
                     </div>
                     <div className={styles.chips}>
+                      <button type="button" className={styles.chipNear} onClick={askNearby}>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        {locale === 'en' ? 'Near me' : 'In meiner Nähe'}
+                      </button>
                       {intro.suggestions.map((s) => (
                         <button key={s} type="button" className={styles.chip} onClick={() => ask(s)}>
                           {s}

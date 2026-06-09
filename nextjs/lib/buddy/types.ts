@@ -15,6 +15,8 @@ export interface SpotCandidate {
   openNow: boolean | null
   /** Short status label, e.g. "Offen · bis 23:00" / "Geschlossen". null if unknown. */
   openLabel: string | null
+  /** Distance from the user, e.g. "240 m" / "1,8 km". null unless location shared. */
+  distanceLabel: string | null
 }
 
 export interface ArticleResult {

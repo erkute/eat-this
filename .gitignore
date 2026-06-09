@@ -17,3 +17,6 @@ studio/.sanity/
 /peek-*.png
 /handle-*.png
 /mobile-scroll-*.png
+
+# Rive working assets (PNG/.riv source) — not shipped
+rive-src/

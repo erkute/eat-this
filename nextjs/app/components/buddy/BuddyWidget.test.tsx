@@ -1,7 +1,15 @@
 // nextjs/app/components/buddy/BuddyWidget.test.tsx
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
+
+// BuddyWidget reads auth + favourites for the "save to my map" button; stub
+// them so the component renders without an <AuthProvider> / Firebase.
+vi.mock('@/lib/auth', () => ({ useAuth: () => ({ user: null }) }))
+vi.mock('@/lib/map/useFavorites', () => ({
+  useFavorites: () => ({ favoriteIds: new Set<string>(), toggle: vi.fn() }),
+}))
+
 import BuddyWidget from './BuddyWidget'
 
 describe('BuddyWidget', () => {

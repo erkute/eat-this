@@ -7,6 +7,8 @@ import { useBuddyChat, type BuddyDisplayMessage } from './useBuddyChat'
 import { splitAnswerSegments, extractFollowups } from '@/lib/buddy/stream'
 import { greetingFor } from '@/lib/buddy/greeting'
 import { speechText } from '@/lib/buddy/speech'
+import { useAuth } from '@/lib/auth'
+import { useFavorites } from '@/lib/map/useFavorites'
 import type { Locale, SpotCandidate, ArticleResult } from '@/lib/buddy/types'
 import styles from './BuddyWidget.module.css'
 
@@ -66,7 +68,19 @@ function TypingDots({ label }: { label: string }) {
   )
 }
 
-function SpotCard({ spot, locale, onSelect }: { spot: SpotCandidate; locale: Locale; onSelect: () => void }) {
+function SpotCard({
+  spot,
+  locale,
+  onSelect,
+  isSaved,
+  onSave,
+}: {
+  spot: SpotCandidate
+  locale: Locale
+  onSelect: () => void
+  isSaved?: boolean
+  onSave?: () => void
+}) {
   const meta = [spot.cuisineType, spot.bezirk, spot.priceRange, spot.distanceLabel].filter(Boolean).join(' · ')
   const cta = locale === 'en' ? 'Show on map' : 'Auf der Karte ansehen'
   return (
@@ -86,6 +100,28 @@ function SpotCard({ spot, locale, onSelect }: { spot: SpotCandidate; locale: Loc
         {spot.shortDescription && <span className={styles.spotDesc}>{spot.shortDescription}</span>}
         <span className={styles.spotCta}>{cta} →</span>
       </span>
+      {onSave && (
+        <button
+          type="button"
+          className={styles.spotSave}
+          data-saved={isSaved ? 'true' : 'false'}
+          aria-pressed={isSaved}
+          aria-label={
+            isSaved
+              ? locale === 'en' ? 'Remove from my map' : 'Von meiner Map entfernen'
+              : locale === 'en' ? 'Save to my map' : 'Auf meine Map'
+          }
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            onSave()
+          }}
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill={isSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+          </svg>
+        </button>
+      )}
     </Link>
   )
 }
@@ -120,6 +156,8 @@ function BotMessage({
   isLast,
   onSpotSelect,
   onFollowup,
+  savedIds,
+  onSaveSpot,
   thinkingLabel,
 }: {
   m: BuddyDisplayMessage
@@ -128,6 +166,8 @@ function BotMessage({
   isLast: boolean
   onSpotSelect: () => void
   onFollowup: (text: string) => void
+  savedIds: Set<string>
+  onSaveSpot: (spot: SpotCandidate) => void
   thinkingLabel: string
 }) {
   if (!m.content) {
@@ -154,14 +194,27 @@ function BotMessage({
           <FormattedText key={si} text={seg.text} />
         ) : bySlug.has(seg.slug) ? (
           <div key={si} className={styles.spots}>
-            <SpotCard spot={bySlug.get(seg.slug)!} locale={locale} onSelect={onSpotSelect} />
+            <SpotCard
+              spot={bySlug.get(seg.slug)!}
+              locale={locale}
+              onSelect={onSpotSelect}
+              isSaved={savedIds.has(bySlug.get(seg.slug)!._id)}
+              onSave={() => onSaveSpot(bySlug.get(seg.slug)!)}
+            />
           </div>
         ) : null,
       )}
       {showFallback && (
         <div className={styles.spots}>
           {spots.slice(0, 4).map((s) => (
-            <SpotCard key={s.slug} spot={s} locale={locale} onSelect={onSpotSelect} />
+            <SpotCard
+              key={s.slug}
+              spot={s}
+              locale={locale}
+              onSelect={onSpotSelect}
+              isSaved={savedIds.has(s._id)}
+              onSave={() => onSaveSpot(s)}
+            />
           ))}
         </div>
       )}
@@ -221,6 +274,23 @@ export default function BuddyWidget() {
   const { messages, isStreaming, send, setGeo } = useBuddyChat()
   const launcherRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+
+  // Save a spot to the user's map (Firestore favourites). Anonymous users are
+  // sent to /login by toggle() — same behaviour as the map's save button.
+  const { user } = useAuth()
+  const { favoriteIds, toggle: toggleFav } = useFavorites(user?.uid ?? null)
+  const onSaveSpot = useCallback(
+    (s: SpotCandidate) => {
+      void toggleFav({
+        _id: s._id,
+        name: s.name,
+        slug: s.slug,
+        photo: s.image ?? undefined,
+        district: s.bezirk ?? undefined,
+      })
+    },
+    [toggleFav],
+  )
 
   const [scrolling, setScrolling] = useState(false)
   const [happyBeat, setHappyBeat] = useState(false)
@@ -480,6 +550,8 @@ export default function BuddyWidget() {
                     isLast={i === messages.length - 1}
                     onSpotSelect={() => setOpen(false)}
                     onFollowup={ask}
+                    savedIds={favoriteIds}
+                    onSaveSpot={onSaveSpot}
                     thinkingLabel={t.thinking}
                   />
                 </div>

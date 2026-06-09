@@ -81,7 +81,7 @@ describe('searchSpots', () => {
     const calls: Array<{ query: string; params: unknown }> = []
     // Sanity returns priceRange as a raw {min,max,currency} object.
     const rawRow = {
-      name: 'Standard Serif', slug: 'standard-serif', cuisineType: 'Pizza',
+      _id: 'r-standard', name: 'Standard Serif', slug: 'standard-serif', cuisineType: 'Pizza',
       bezirk: 'Mitte', shortDescription: 'Neapolitan', tip: null,
       priceRange: { min: 10, max: 20, currency: 'EUR' }, mapsUrl: 'https://maps.example/x', image: null,
       openingHours: [{ days: 'Mon–Sun', hours: '12:00–23:00' }],
@@ -112,8 +112,8 @@ describe('searchSpots', () => {
       cuisineType: null, bezirk: null, shortDescription: null, tip: null,
       priceRange: null, mapsUrl: null, image: null,
     }
-    const far = { ...base, name: 'Far', slug: 'far', lat: 52.6, lng: 13.5 }
-    const near = { ...base, name: 'Near', slug: 'near', lat: 52.521, lng: 13.413 }
+    const far = { ...base, _id: 'r-far', name: 'Far', slug: 'far', lat: 52.6, lng: 13.5 }
+    const near = { ...base, _id: 'r-near', name: 'Near', slug: 'near', lat: 52.521, lng: 13.413 }
     const fakeClient = { fetch: async () => [far, near] }
     const out = await searchSpots(
       { vibeQuery: 'x', userGeo: { lat: 52.5219, lng: 13.4132 } },

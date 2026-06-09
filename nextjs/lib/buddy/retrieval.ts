@@ -21,6 +21,7 @@ const clamp = (n: number, lo: number, hi: number) =>
   Math.max(lo, Math.min(hi, Math.trunc(Number.isFinite(n) ? n : lo)))
 
 const SPOTS_PROJECTION = `{
+  _id,
   name,
   "slug": slug.current,
   cuisineType,

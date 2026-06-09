@@ -2,6 +2,7 @@
 export type Locale = 'de' | 'en'
 
 export interface SpotCandidate {
+  _id: string
   name: string
   slug: string
   cuisineType: string | null

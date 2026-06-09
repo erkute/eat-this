@@ -30,10 +30,15 @@
 .chipNear:hover { background: #fdf3ec; }
 /* inline cards: symmetric breathing room above and below the spot card */
 .spots { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
-.spotCard { display: flex; flex-direction: row; gap: 10px; align-items: flex-start; background: #fff;
-  border: 1px solid #e6e2d8; border-radius: 12px; padding: 10px; text-decoration: none;
+.spotCard { position: relative; display: flex; flex-direction: row; gap: 10px; align-items: flex-start; background: #fff;
+  border: 1px solid #e6e2d8; border-radius: 12px; padding: 10px 34px 10px 10px; text-decoration: none;
   color: #1a1a1a; transition: background .12s ease, border-color .12s ease; }
 .spotCard:hover { background: #faf8f3; border-color: #d8d2c4; }
+.spotSave { position: absolute; top: 6px; right: 6px; border: none; background: transparent; color: #b4a99a;
+  cursor: pointer; padding: 4px; border-radius: 8px; display: inline-flex; line-height: 0; }
+.spotSave:hover { color: #b4541f; }
+.spotSave[data-saved='true'] { color: #b4541f; }
+.spotSave:focus-visible { outline: 2px solid #b4541f; outline-offset: 1px; }
 .spotImg { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #f0ece2; }
 .spotBody { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .spotName { font-weight: 700; font-size: 1em; line-height: 1.25; }
@@ -104,6 +109,9 @@ html[data-theme="dark"] .chipNear { background: #232323; border-color: #e0763a; 
 html[data-theme="dark"] .chipNear:hover { background: #2c2c2c; }
 html[data-theme="dark"] .spotCard { background: #232323; border-color: #333; color: #f5f5f5; }
 html[data-theme="dark"] .spotCard:hover { background: #2c2c2c; border-color: #444; }
+html[data-theme="dark"] .spotSave { color: #6a6a6a; }
+html[data-theme="dark"] .spotSave:hover { color: #e0763a; }
+html[data-theme="dark"] .spotSave[data-saved='true'] { color: #e0763a; }
 html[data-theme="dark"] .spotImg { background: #2c2c2c; }
 html[data-theme="dark"] .spotMeta { color: #8a8a8a; }
 html[data-theme="dark"] .spotDesc { color: #c5c5c5; }

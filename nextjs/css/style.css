@@ -3587,17 +3587,72 @@ body:has(.burger-drawer.active) .burger-btn {
 /* Language toggle — first row of the scroller, Chewy caps. In-flow
    (2026-06-04): scrolls with the menu — the old absolute top-left pin
    collided with the logo as soon as the drawer content scrolled. */
+/* Top bar — language toggle (left) + dark-mode toggle (right) on one row. */
+.bd-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  /* Right clearance for the absolutely-positioned close × (42px @ right:16px),
+     so the dark-mode toggle keeps a comfortable gap from it. */
+  padding-right: 68px;
+  margin: 0 0 12px;
+}
 .bd-lang {
   display: inline-flex;
-  align-self: flex-start;
   align-items: baseline;
   gap: 8px;
-  margin: 0 0 12px;
   font-family: var(--font-poster);
   font-size: 16px;
   letter-spacing: 0.10em;
   text-transform: uppercase;
 }
+/* Dark-mode toggle — mirrors the SiteFooter switch (track + thumb), Chewy
+   caps label. Lives in the burger top bar opposite the language toggle. */
+.bd-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 0;
+  padding: 4px 2px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.bd-theme-label {
+  font-family: var(--font-poster);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #000;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+.bd-theme-toggle:hover .bd-theme-label { opacity: 1; }
+.bd-theme-track {
+  position: relative;
+  width: 44px;
+  height: 22px;
+  background: transparent;
+  border: 1.5px solid #000;
+  border-radius: 999px;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+.bd-theme-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 15px;
+  height: 15px;
+  background: #000;
+  border-radius: 50%;
+  transition: left 0.2s ease;
+}
+.bd-theme-toggle.on .bd-theme-track { background: rgba(0, 0, 0, 0.18); }
+.bd-theme-toggle.on .bd-theme-thumb { left: 24px; }
 .bd-lang-btn {
   background: none;
   border: 0;
@@ -3748,6 +3803,10 @@ body:has(.burger-drawer.active) .burger-btn {
 [data-theme="dark"] .bd-lang-btn,
 [data-theme="dark"] .bd-lang-sep { color: #f0e8d0; }
 [data-theme="dark"] .bd-lang-btn.on { text-decoration-color: var(--c-coral-bright); }
+[data-theme="dark"] .bd-theme-label { color: #f0e8d0; }
+[data-theme="dark"] .bd-theme-track { border-color: #f0e8d0; }
+[data-theme="dark"] .bd-theme-thumb { background: #f0e8d0; }
+[data-theme="dark"] .bd-theme-toggle.on .bd-theme-track { background: rgba(240, 232, 208, 0.25); }
 [data-theme="dark"] .burger-drawer-close {
   background: #111110;
   border-color: #f0e8d0;

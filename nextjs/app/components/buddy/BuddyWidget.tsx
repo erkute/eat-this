@@ -4,7 +4,7 @@ import { useLocale } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
 import BuddyAvatar, { type BuddyMood } from './BuddyAvatar'
 import { useBuddyChat, type BuddyDisplayMessage } from './useBuddyChat'
-import { splitAnswerSegments } from '@/lib/buddy/stream'
+import { splitAnswerSegments, extractFollowups } from '@/lib/buddy/stream'
 import { greetingFor } from '@/lib/buddy/greeting'
 import type { Locale, SpotCandidate } from '@/lib/buddy/types'
 import styles from './BuddyWidget.module.css'
@@ -97,13 +97,17 @@ function BotMessage({
   m,
   locale,
   streaming,
+  isLast,
   onSpotSelect,
+  onFollowup,
   thinkingLabel,
 }: {
   m: BuddyDisplayMessage
   locale: Locale
   streaming: boolean
+  isLast: boolean
   onSpotSelect: () => void
+  onFollowup: (text: string) => void
   thinkingLabel: string
 }) {
   if (!m.content) {
@@ -112,8 +116,13 @@ function BotMessage({
   const spots = m.spots ?? []
   const allowed = new Set(spots.map((s) => s.slug))
   const bySlug = new Map(spots.map((s) => [s.slug, s]))
-  const { segments, placedSlugs } = splitAnswerSegments(m.content, allowed)
+  // Pull the follow-up chips off the end first, then split the rest into
+  // text + spot-card segments.
+  const { chips, rest } = extractFollowups(m.content)
+  const { segments, placedSlugs } = splitAnswerSegments(rest, allowed)
   const showFallback = !streaming && placedSlugs.length === 0 && spots.length > 0
+  // Follow-up chips only on the newest answer, once it finished streaming.
+  const showChips = isLast && !streaming && chips.length > 0
 
   return (
     <>
@@ -130,6 +139,15 @@ function BotMessage({
         <div className={styles.spots}>
           {spots.slice(0, 4).map((s) => (
             <SpotCard key={s.slug} spot={s} locale={locale} onSelect={onSpotSelect} />
+          ))}
+        </div>
+      )}
+      {showChips && (
+        <div className={styles.chips}>
+          {chips.map((c) => (
+            <button key={c} type="button" className={styles.chip} onClick={() => onFollowup(c)}>
+              {c}
+            </button>
           ))}
         </div>
       )}
@@ -328,7 +346,9 @@ export default function BuddyWidget() {
                     m={m}
                     locale={locale}
                     streaming={isStreaming && i === messages.length - 1}
+                    isLast={i === messages.length - 1}
                     onSpotSelect={() => setOpen(false)}
+                    onFollowup={ask}
                     thinkingLabel={t.thinking}
                   />
                 </div>

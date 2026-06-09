@@ -16,6 +16,23 @@ export function sanitizeLinks(text: string, allowedSlugs: Set<string>): string {
   )
 }
 
+// Remy ends a spot answer with `[[chips: a | b | c]]` — short tappable
+// follow-ups. Pull them out (and strip the marker from the visible text). An
+// incomplete marker mid-stream simply isn't matched yet, so nothing flashes.
+const CHIPS_MARKER = /\[\[chips:([^\]]*)\]\]/
+
+export function extractFollowups(content: string): { chips: string[]; rest: string } {
+  const m = content.match(CHIPS_MARKER)
+  if (!m || m.index === undefined) return { chips: [], rest: content }
+  const chips = m[1]
+    .split('|')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .slice(0, 3)
+  const rest = (content.slice(0, m.index) + content.slice(m.index + m[0].length)).trimEnd()
+  return { chips, rest }
+}
+
 export type AnswerSegment =
   | { type: 'text'; text: string }
   | { type: 'spot'; slug: string }

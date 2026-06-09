@@ -1,6 +1,6 @@
 // nextjs/lib/buddy/stream.test.ts
 import { describe, it, expect } from 'vitest'
-import { encodeBuddyEvent, sanitizeLinks, splitAnswerSegments } from './stream'
+import { encodeBuddyEvent, sanitizeLinks, splitAnswerSegments, extractFollowups } from './stream'
 
 describe('encodeBuddyEvent', () => {
   it('encodes one NDJSON line per event', () => {
@@ -76,5 +76,22 @@ describe('splitAnswerSegments', () => {
     const { segments, placedSlugs } = splitAnswerSegments('Nur Text ohne Marker', allowed)
     expect(segments).toEqual([{ type: 'text', text: 'Nur Text ohne Marker' }])
     expect(placedSlugs).toEqual([])
+  })
+})
+
+describe('extractFollowups', () => {
+  it('pulls the chips out and strips the marker from the text', () => {
+    const { chips, rest } = extractFollowups('Hier die Spots.\n[[chips: eher vegan? | mit Terrasse? | günstiger?]]')
+    expect(chips).toEqual(['eher vegan?', 'mit Terrasse?', 'günstiger?'])
+    expect(rest).toBe('Hier die Spots.')
+    expect(rest).not.toContain('[[chips')
+  })
+  it('caps at 3 chips and drops empties', () => {
+    const { chips } = extractFollowups('x [[chips: a |  | b | c | d]]')
+    expect(chips).toEqual(['a', 'b', 'c'])
+  })
+  it('returns no chips when the marker is absent or still incomplete', () => {
+    expect(extractFollowups('Nur Text').chips).toEqual([])
+    expect(extractFollowups('Text [[chips: eher veg').chips).toEqual([])
   })
 })

@@ -16,18 +16,18 @@ export function daypartFor(hour: number): Daypart {
 
 const GREETINGS: Record<Locale, Record<Daypart, string>> = {
   de: {
-    morning: 'Morgen. Kaffee, Frühstück, irgendwas mit Ei — sag, worauf du Lust hast, ich kenn die richtigen Läden.',
-    midday: 'Mittag. Schnell was Gutes oder in Ruhe? Sag mir, wonach dir ist, ich hab die Adressen.',
-    afternoon: 'Nachmittag — Kaffee und was Süßes, oder schon der erste Drink? Sag an.',
-    evening: 'Abend. Dinner, Drinks oder einfach ehrlich essen? Sag, worauf du Lust hast — ich kenn die Spots.',
-    late: 'Späte Stunde. Döner, Pizza oder eine Bar, die noch offen hat? Ich weiß, wo’s das gibt.',
+    morning: 'Morgen. Brauchst du erstmal einen guten Kaffee, oder soll’s gleich was Richtiges zum Frühstück sein?',
+    midday: 'Mittagszeit. Schnell was Gutes auf die Hand, oder lieber in Ruhe hinsetzen? Ich kenn die Läden für beides.',
+    afternoon: 'Nachmittag. Zeit für Kaffee und was Süßes — oder ist dir schon nach dem ersten Drink?',
+    evening: 'Abend. Worauf hast du Lust — ein gutes Essen, ein Drink, oder beides nacheinander?',
+    late: 'Schon spät. Wenn dich jetzt noch der Hunger packt: Döner, Pizza oder eine Bar, die offen hat — ich weiß, wo.',
   },
   en: {
-    morning: 'Morning. Coffee, breakfast, something with eggs — tell me what you’re after, I know the right places.',
-    midday: 'Lunchtime. Quick and good, or a proper sit-down? Tell me what you’re after, I’ve got the addresses.',
-    afternoon: 'Afternoon — coffee and something sweet, or the first drink already? Tell me.',
-    evening: 'Evening. Dinner, drinks, or just honest food? Tell me what you’re after — I know the spots.',
-    late: 'Late one. Döner, pizza, or a bar that’s still open? I know where to find it.',
+    morning: 'Morning. Need a good coffee first, or shall we go straight for a proper breakfast?',
+    midday: 'Lunchtime. Something quick and good on the go, or a proper sit-down? I know the places for both.',
+    afternoon: 'Afternoon. Time for coffee and something sweet — or are you already after the first drink?',
+    evening: 'Evening. What are you in the mood for — a good dinner, a drink, or both in a row?',
+    late: 'Getting late. If hunger strikes now: döner, pizza, or a bar that’s still open — I know where.',
   },
 }
 
@@ -48,7 +48,16 @@ const SUGGESTIONS: Record<Locale, Record<Daypart, string[]>> = {
   },
 }
 
+// Remy introduces himself, warmly, before the time-of-day hook.
+const INTRO: Record<Locale, string> = {
+  de: 'Hey, ich bin Remy — dein Mann für gutes Essen in Berlin.',
+  en: 'Hey, I’m Remy — your guy for good food in Berlin.',
+}
+
 export function greetingFor(hour: number, locale: Locale): { greeting: string; suggestions: string[] } {
   const part = daypartFor(hour)
-  return { greeting: GREETINGS[locale][part], suggestions: SUGGESTIONS[locale][part] }
+  return {
+    greeting: `${INTRO[locale]} ${GREETINGS[locale][part]}`,
+    suggestions: SUGGESTIONS[locale][part],
+  }
 }

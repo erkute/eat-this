@@ -140,8 +140,8 @@ function ArticleCard({ article, locale, onSelect }: { article: ArticleResult; lo
 }
 
 const T = {
-  de: { open: 'Remy öffnen', close: 'Schließen', thinking: 'Remy denkt nach', placeholder: 'Frag mich über Berliner Food…' },
-  en: { open: 'Open Remy', close: 'Close', thinking: 'Remy is thinking', placeholder: 'Ask me about Berlin food…' },
+  de: { open: 'Remy öffnen', close: 'Schließen', thinking: 'Remy denkt nach', placeholder: 'Schreib Remy…' },
+  en: { open: 'Open Remy', close: 'Close', thinking: 'Remy is thinking', placeholder: 'Message Remy…' },
 } satisfies Record<Locale, Record<string, string>>
 
 // Renders one assistant message: prose with spot cards interleaved at their
@@ -429,11 +429,6 @@ export default function BuddyWidget() {
         onClick={() => setOpen((v) => !v)}
       >
         <BuddyAvatar mood={launcherMood} />
-        <span className={styles.launcherBadge} aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true">
-            <path d="M12 3C6.5 3 2 6.6 2 11c0 2.2 1.1 4.2 3 5.6V21l3.5-2c1.1.3 2.3.4 3.5.4 5.5 0 10-3.6 10-8s-4.5-8-10-8z" />
-          </svg>
-        </span>
       </button>
 
       {open && (

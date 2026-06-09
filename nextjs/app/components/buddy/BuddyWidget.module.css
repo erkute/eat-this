@@ -8,10 +8,6 @@
 .launcher:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 10px 24px rgba(0,0,0,0.34); }
 .launcher:active { transform: scale(0.98); }
 .launcher:focus-visible { outline: 3px solid #b4541f; outline-offset: 3px; }
-/* chat-bubble badge so it reads as a "tap to chat" button, not just a face */
-.launcherBadge { position: absolute; right: -3px; bottom: -3px; width: 24px; height: 24px;
-  border-radius: 50%; background: #b4541f; color: #fff; display: inline-flex; align-items: center;
-  justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 2px solid #fff; }
 /* hide the floating launcher while the panel is open (no duplicate face; close via ×) */
 .launcher[aria-expanded='true'] { display: none; }
 .panel { position: fixed; right: 20px; bottom: 20px; z-index: 10001; width: 360px; max-width: calc(100vw - 32px);
@@ -32,16 +28,14 @@
 .chip { border: 1px solid #e6e2d8; background: #faf8f3; color: #1a1a1a; border-radius: 999px;
   padding: 8px 12px; font: inherit; font-size: 0.9em; cursor: pointer; text-align: left; line-height: 1.2; }
 .chip:hover { background: #f0ece2; border-color: #d8d2c4; }
-.chipNear { display: inline-flex; align-items: center; gap: 7px; border: none; background: #b4541f; color: #fff;
-  border-radius: 999px; padding: 9px 14px 9px 12px; font: inherit; font-size: 0.9em; font-weight: 700;
-  cursor: pointer; line-height: 1.2; box-shadow: 0 2px 8px rgba(180, 84, 31, 0.28);
-  transition: background .12s ease, transform .08s ease; }
-.chipNear:hover { background: #9e4719; }
-.chipNear:active { transform: scale(0.97); }
-.chipNear:disabled { opacity: 0.85; cursor: default; }
-.chipNear svg { opacity: 0.9; }
-.nearSpinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.45);
-  border-top-color: #fff; animation: nearSpin .7s linear infinite; }
+.chipNear { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #e6e2d8; background: #faf8f3;
+  color: #1a1a1a; border-radius: 999px; padding: 8px 12px; font: inherit; font-size: 0.9em; cursor: pointer;
+  line-height: 1.2; }
+.chipNear:hover { background: #f0ece2; border-color: #d8d2c4; }
+.chipNear:disabled { opacity: 0.6; cursor: default; }
+.chipNear svg { color: #b4541f; }
+.nearSpinner { width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(0, 0, 0, 0.15);
+  border-top-color: #b4541f; animation: nearSpin .7s linear infinite; }
 @keyframes nearSpin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .nearSpinner { animation: none; } }
 /* inline cards: symmetric breathing room above and below the spot card */
@@ -102,7 +96,7 @@
   .panel { top: 8px; right: 8px; bottom: 8px; left: 8px; width: auto; max-width: none;
     height: auto; max-height: none; border-radius: 14px; }
   /* push the header (avatar) down from the top edge / notch on mobile */
-  .header { padding-top: calc(24px + env(safe-area-inset-top, 0px)); }
+  .header { padding-top: calc(36px + env(safe-area-inset-top, 0px)); }
   /* more breathing room from the edge on mobile + clear the iOS home indicator */
   .launcher { right: 20px; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); }
 }
@@ -117,8 +111,10 @@ html[data-theme="dark"] .msgUser { background: #2c2c2c; color: #f5f5f5; }
 html[data-theme="dark"] .msgBot { color: #f5f5f5; }
 html[data-theme="dark"] .chip { background: #232323; border-color: #333; color: #f5f5f5; }
 html[data-theme="dark"] .chip:hover { background: #2c2c2c; border-color: #444; }
-html[data-theme="dark"] .chipNear { background: #e0763a; border: none; color: #1a1a1a; box-shadow: none; }
-html[data-theme="dark"] .chipNear:hover { background: #ec853f; }
+html[data-theme="dark"] .chipNear { background: #232323; border-color: #333; color: #f5f5f5; }
+html[data-theme="dark"] .chipNear:hover { background: #2c2c2c; border-color: #444; }
+html[data-theme="dark"] .chipNear svg { color: #e0763a; }
+html[data-theme="dark"] .nearSpinner { border-color: rgba(255, 255, 255, 0.2); border-top-color: #e0763a; }
 html[data-theme="dark"] .spotCard { background: #232323; border-color: #333; color: #f5f5f5; }
 html[data-theme="dark"] .spotCard:hover { background: #2c2c2c; border-color: #444; }
 html[data-theme="dark"] .spotSave { color: #6a6a6a; }

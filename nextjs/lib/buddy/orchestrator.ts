@@ -38,7 +38,7 @@ export async function* runBuddyTurn(
   deps: OrchestratorDeps,
 ): AsyncGenerator<BuddyStreamEvent> {
   const system: Anthropic.TextBlockParam[] = [
-    { type: 'text', text: buildSystemPrompt(input.locale), cache_control: { type: 'ephemeral' } },
+    { type: 'text', text: buildSystemPrompt(input.locale, { hasGeo: !!input.geo }), cache_control: { type: 'ephemeral' } },
   ]
   const messages: Anthropic.MessageParam[] = input.messages.map((m) => ({
     role: m.role,

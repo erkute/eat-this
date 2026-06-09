@@ -6,6 +6,7 @@ import BuddyAvatar, { type BuddyMood } from './BuddyAvatar'
 import { useBuddyChat, type BuddyDisplayMessage } from './useBuddyChat'
 import { splitAnswerSegments, extractFollowups } from '@/lib/buddy/stream'
 import { greetingFor } from '@/lib/buddy/greeting'
+import { speechText } from '@/lib/buddy/speech'
 import type { Locale, SpotCandidate, ArticleResult } from '@/lib/buddy/types'
 import styles from './BuddyWidget.module.css'
 
@@ -184,6 +185,34 @@ function BotMessage({
   )
 }
 
+// Browser text-to-speech for Remy's answers (opt-in). Prefers a German voice;
+// exposes `speaking` so the avatar can flap its mouth while it talks.
+function useSpeech(enabled: boolean) {
+  const [speaking, setSpeaking] = useState(false)
+  const cancel = useCallback(() => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel()
+    setSpeaking(false)
+  }, [])
+  const speak = useCallback(
+    (text: string) => {
+      if (!enabled || !text || typeof window === 'undefined' || !window.speechSynthesis) return
+      const synth = window.speechSynthesis
+      synth.cancel()
+      const u = new SpeechSynthesisUtterance(text)
+      const de = synth.getVoices().find((v) => v.lang?.toLowerCase().startsWith('de'))
+      if (de) u.voice = de
+      u.lang = de?.lang ?? 'de-DE'
+      u.rate = 1.02
+      u.onstart = () => setSpeaking(true)
+      u.onend = () => setSpeaking(false)
+      u.onerror = () => setSpeaking(false)
+      synth.speak(u)
+    },
+    [enabled],
+  )
+  return { speaking, speak, cancel }
+}
+
 export default function BuddyWidget() {
   const locale = useLocale() as Locale
   const t = T[locale]
@@ -196,12 +225,28 @@ export default function BuddyWidget() {
   const [scrolling, setScrolling] = useState(false)
   const [happyBeat, setHappyBeat] = useState(false)
   const [greetingBeat, setGreetingBeat] = useState(false)
+  const [ttsOn, setTtsOn] = useState(false)
   const wasStreaming = useRef(false)
+  const { speaking, speak, cancel: cancelSpeech } = useSpeech(ttsOn)
+
+  // Remember the TTS opt-in across sessions.
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.localStorage.getItem('buddyTts') === '1') setTtsOn(true)
+  }, [])
+  const toggleTts = useCallback(() => {
+    setTtsOn((v) => {
+      const next = !v
+      if (typeof window !== 'undefined') window.localStorage.setItem('buddyTts', next ? '1' : '0')
+      if (!next && typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel()
+      return next
+    })
+  }, [])
 
   const closePanel = useCallback(() => {
+    cancelSpeech()
     setOpen(false)
     launcherRef.current?.focus()
-  }, [])
+  }, [cancelSpeech])
 
   // Make Remy "talk" while the page is scrolling — a little sign of life on the
   // launcher. Goes quiet ~400ms after scrolling stops.
@@ -231,8 +276,10 @@ export default function BuddyWidget() {
     if (prev && !isStreaming) {
       const last = messages[messages.length - 1]
       if (last?.role === 'assistant' && last.spots && last.spots.length > 0) setHappyBeat(true)
+      // Read the finished answer aloud (no-op unless TTS is on).
+      if (last?.role === 'assistant' && last.content) speak(speechText(last.content))
     }
-  }, [isStreaming, messages])
+  }, [isStreaming, messages, speak])
   useEffect(() => {
     if (!happyBeat) return
     const t = setTimeout(() => setHappyBeat(false), 1600)
@@ -286,12 +333,14 @@ export default function BuddyWidget() {
     e.preventDefault()
     const text = draft
     setDraft('')
+    cancelSpeech()
     void send(text)
   }
 
   const ask = (text: string) => {
     if (isStreaming) return
     setDraft('')
+    cancelSpeech()
     void send(text)
   }
 
@@ -302,7 +351,7 @@ export default function BuddyWidget() {
   // scrolling. The smile (greeting) and laugh (happy) are brief stills only.
   const panelMood: BuddyMood = happyBeat
     ? 'happy'
-    : isStreaming || greetingBeat
+    : isStreaming || greetingBeat || speaking
       ? 'talking'
       : 'idle'
   const launcherMood: BuddyMood = open ? panelMood : scrolling ? 'talking' : 'idle'
@@ -339,6 +388,33 @@ export default function BuddyWidget() {
           <div className={styles.header}>
             <BuddyAvatar mood={panelMood} size={72} />
             <strong>{title}</strong>
+            <button
+              className={styles.tts}
+              type="button"
+              aria-pressed={ttsOn}
+              data-on={ttsOn ? 'true' : 'false'}
+              aria-label={
+                ttsOn
+                  ? locale === 'en' ? 'Mute voice' : 'Stimme aus'
+                  : locale === 'en' ? 'Read answers aloud' : 'Antworten vorlesen'
+              }
+              onClick={toggleTts}
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M11 5 6 9H2v6h4l5 4V5z" />
+                {ttsOn ? (
+                  <>
+                    <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+                    <path d="M18.5 5.5a9 9 0 0 1 0 13" />
+                  </>
+                ) : (
+                  <>
+                    <line x1="22" y1="9" x2="16" y2="15" />
+                    <line x1="16" y1="9" x2="22" y2="15" />
+                  </>
+                )}
+              </svg>
+            </button>
             <button className={styles.close} type="button" aria-label={t.close} onClick={closePanel}>
               ×
             </button>

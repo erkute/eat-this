@@ -1,0 +1,42 @@
+/* Heart toggle + public count for the SEO restaurant page. A client island on
+   an otherwise static page. See docs/specs/2026-06-09-hearts-design.md. */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 14px 22px;
+}
+
+.btn {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: transform .12s ease, color .12s ease, border-color .12s ease;
+}
+.btn:active { transform: scale(.9); }
+.btn svg { width: 22px; height: 22px; }
+
+.btnActive {
+  color: var(--c-coral);
+  border-color: var(--c-coral);
+}
+html[data-theme="dark"] .btnActive {
+  color: var(--c-coral-bright);
+  border-color: var(--c-coral-bright);
+}
+
+.label {
+  font-family: var(--f-display);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+.labelMuted { opacity: .6; }

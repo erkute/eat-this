@@ -1,0 +1,19 @@
+.heartCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--f-display);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--c-coral);
+}
+
+html[data-theme="dark"] .heartCount {
+  color: var(--c-coral-bright);
+}
+
+.heartCount::before {
+  content: "\2665"; /* ♥ */
+  font-size: 12px;
+  line-height: 1;
+}

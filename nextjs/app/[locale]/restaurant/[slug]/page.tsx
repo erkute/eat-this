@@ -14,6 +14,7 @@ import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaurantDetail.helpers'
 import { buildFAQEntries, splitDescriptionForMagazine } from '@/lib/restaurant-prose'
 import { getOpenStatus } from '@/lib/map/openingHours'
+import HeartButton from '@/app/components/HeartButton'
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection'
 import MapPromoCTA from '@/app/components/MapPromoCTA'
 import RestaurantFAQ from '@/app/components/RestaurantFAQ'
@@ -316,6 +317,17 @@ export default async function RestaurantPage({ params }: PageProps) {
             </div>
           )}
         </dl>
+
+        {/* HEARTS — toggle + public "geherzt von N Leuten" count. Client island
+            on this otherwise-static page (auth + Firestore are client-side). */}
+        <HeartButton
+          restaurantId={r._id}
+          name={r.name}
+          slug={slug}
+          photo={r.photo ?? undefined}
+          district={r.bezirk?.name ?? undefined}
+          locale={loc}
+        />
 
         {/* Map entry lives in the big MapPromoCTA banner below — no second
             "Map öffnen" button up here. */}

@@ -62,6 +62,9 @@ export function buildSpotsQuery(limit: number): string {
     && (!defined($price) || priceRange == $price)
     && defined(slug.current)
   ] | order(
+    // When the user shared their location, nearest first (squared distance with
+    // a Berlin longitude weight ~cos(52.5°)²≈0.37; searchSpots re-sorts exactly).
+    select(defined($lat) => (lat - $lat) * (lat - $lat) + (lng - $lng) * (lng - $lng) * 0.37, 0) asc,
     select(defined($name) && name match $name => 1, 0) desc,
     select(
       !defined($cuisine) => 0,
@@ -87,6 +90,8 @@ export function buildSpotsParams(filters: SpotFilters, locale: Locale) {
     bezirk: wildcard(filters.bezirk),
     name: wildcard(filters.name),
     price: (filters.priceRange ?? '').trim() || null,
+    lat: filters.userGeo?.lat ?? null,
+    lng: filters.userGeo?.lng ?? null,
     locale,
   }
 }

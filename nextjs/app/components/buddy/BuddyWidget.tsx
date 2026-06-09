@@ -238,10 +238,40 @@ function BotMessage({
   )
 }
 
-// Browser text-to-speech for Remy's answers (opt-in). Prefers a German voice;
-// exposes `speaking` so the avatar can flap its mouth while it talks.
+// Pick the most natural-sounding German voice the browser offers. The default
+// `lang=de` voice is often the robotic compact one; prefer cloud/neural voices
+// (Google/Natural/Premium) and penalise "compact".
+function pickGermanVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
+  const de = voices.filter((v) => v.lang?.toLowerCase().startsWith('de'))
+  if (de.length === 0) return null
+  const score = (v: SpeechSynthesisVoice) => {
+    const n = v.name.toLowerCase()
+    let s = 0
+    if (n.includes('google')) s += 6
+    if (/natural|neural|wavenet|premium|enhanced/.test(n)) s += 5
+    if (v.localService === false) s += 2
+    if (n.includes('compact')) s -= 4
+    if (v.lang?.toLowerCase() === 'de-de') s += 1
+    return s
+  }
+  return [...de].sort((a, b) => score(b) - score(a))[0]
+}
+
+// Browser text-to-speech for Remy's answers (opt-in). Exposes `speaking` so the
+// avatar can flap its mouth while it talks.
 function useSpeech(enabled: boolean) {
   const [speaking, setSpeaking] = useState(false)
+  // Warm the voice list (Chrome populates it asynchronously via voiceschanged).
+  const voicesRef = useRef<SpeechSynthesisVoice[]>([])
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return
+    const load = () => {
+      voicesRef.current = window.speechSynthesis.getVoices()
+    }
+    load()
+    window.speechSynthesis.addEventListener('voiceschanged', load)
+    return () => window.speechSynthesis.removeEventListener('voiceschanged', load)
+  }, [])
   const cancel = useCallback(() => {
     if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel()
     setSpeaking(false)
@@ -252,10 +282,11 @@ function useSpeech(enabled: boolean) {
       const synth = window.speechSynthesis
       synth.cancel()
       const u = new SpeechSynthesisUtterance(text)
-      const de = synth.getVoices().find((v) => v.lang?.toLowerCase().startsWith('de'))
-      if (de) u.voice = de
-      u.lang = de?.lang ?? 'de-DE'
-      u.rate = 1.02
+      const voice = pickGermanVoice(voicesRef.current.length ? voicesRef.current : synth.getVoices())
+      if (voice) u.voice = voice
+      u.lang = voice?.lang ?? 'de-DE'
+      u.rate = 0.97 // a touch slower reads more naturally than the default
+      u.pitch = 1.0
       u.onstart = () => setSpeaking(true)
       u.onend = () => setSpeaking(false)
       u.onerror = () => setSpeaking(false)

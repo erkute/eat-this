@@ -65,15 +65,16 @@
 .panel:focus { outline: none; }
 .panel:focus-visible { outline: 2px solid #b4541f; outline-offset: -2px; }
 
-/* read-aloud (TTS) toggle */
-.tts { margin-left: auto; border: none; background: transparent; color: #6b6358; cursor: pointer;
-  padding: 4px; border-radius: 8px; display: inline-flex; align-items: center; }
+/* read-aloud (TTS) toggle — sits near the top-right corner */
+.tts { margin-left: auto; align-self: flex-start; margin-top: -4px; border: none; background: transparent;
+  color: #6b6358; cursor: pointer; padding: 4px; border-radius: 8px; display: inline-flex; align-items: center; }
 .tts:hover { color: #1a1a1a; }
 .tts[data-on='true'] { color: #b4541f; }
 .tts:focus-visible { outline: 2px solid #b4541f; outline-offset: 2px; }
 
-/* close button (esp. needed on mobile fullscreen) */
-.close { margin-left: 2px; border: none; background: transparent; color: #6b6358;
+/* close button (esp. needed on mobile fullscreen) — top-right corner */
+.close { margin-left: 2px; align-self: flex-start; margin-top: -6px; margin-right: -4px;
+  border: none; background: transparent; color: #6b6358;
   font-size: 1.5em; line-height: 1; cursor: pointer; padding: 0 2px; border-radius: 8px; }
 .close:hover { color: #1a1a1a; }
 .close:focus-visible { outline: 2px solid #b4541f; outline-offset: 2px; }

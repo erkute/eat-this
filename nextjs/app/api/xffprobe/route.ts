@@ -2,6 +2,7 @@
 // IP behind Firebase App Hosting, so the buddy rate-limiter hashes the right one.
 // /api is not behind staging Basic Auth (see middleware matcher), so this is
 // reachable directly. Token-gated and returns only IPs. REMOVE after probing.
+// (Folder must NOT start with "_" — Next.js treats those as private/unrouted.)
 import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'

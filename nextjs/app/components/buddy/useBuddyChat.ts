@@ -104,6 +104,10 @@ export function useBuddyChat() {
                 m.spots = e.value
                 m.content = sanitizeLinks(raw, allowedSlugs.current)
               })
+            } else if (e.type === 'articles') {
+              updateAssistant((m) => {
+                m.articles = e.value
+              })
             } else if (e.type === 'error') {
               updateAssistant((m) => {
                 m.content = locale === 'en'

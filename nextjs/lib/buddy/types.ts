@@ -31,5 +31,6 @@ export interface ChatMessage {
 export type BuddyStreamEvent =
   | { type: 'text'; value: string }
   | { type: 'spots'; value: SpotCandidate[] }
+  | { type: 'articles'; value: ArticleResult[] }
   | { type: 'error'; value: string }
   | { type: 'done' }

@@ -6,7 +6,7 @@ import BuddyAvatar, { type BuddyMood } from './BuddyAvatar'
 import { useBuddyChat, type BuddyDisplayMessage } from './useBuddyChat'
 import { splitAnswerSegments, extractFollowups } from '@/lib/buddy/stream'
 import { greetingFor } from '@/lib/buddy/greeting'
-import type { Locale, SpotCandidate } from '@/lib/buddy/types'
+import type { Locale, SpotCandidate, ArticleResult } from '@/lib/buddy/types'
 import styles from './BuddyWidget.module.css'
 
 // Minimal inline markdown: **bold** only (Claude's main inline marker).
@@ -89,6 +89,20 @@ function SpotCard({ spot, locale, onSelect }: { spot: SpotCandidate; locale: Loc
   )
 }
 
+function ArticleCard({ article, locale, onSelect }: { article: ArticleResult; locale: Locale; onSelect: () => void }) {
+  const cta = locale === 'en' ? 'Read' : 'Lesen'
+  return (
+    <Link className={styles.articleCard} href={`/news/${article.slug}`} prefetch onClick={onSelect}>
+      <span className={styles.spotBody}>
+        <span className={styles.articleKicker}>{locale === 'en' ? 'From the magazine' : 'Aus dem Magazin'}</span>
+        <span className={styles.spotName}>{article.title}</span>
+        {article.excerpt && <span className={styles.spotDesc}>{article.excerpt}</span>}
+        <span className={styles.spotCta}>{cta} →</span>
+      </span>
+    </Link>
+  )
+}
+
 const T = {
   de: { open: 'Remy öffnen', close: 'Schließen', thinking: 'Remy denkt nach', placeholder: 'Frag mich über Berliner Food…' },
   en: { open: 'Open Remy', close: 'Close', thinking: 'Remy is thinking', placeholder: 'Ask me about Berlin food…' },
@@ -126,6 +140,9 @@ function BotMessage({
   const { chips, rest } = extractFollowups(m.content)
   const { segments, placedSlugs } = splitAnswerSegments(rest, allowed)
   const showFallback = !streaming && placedSlugs.length === 0 && spots.length > 0
+  // Linked magazine articles Remy pulled via search_articles.
+  const articles = m.articles ?? []
+  const showArticles = !streaming && articles.length > 0
   // Follow-up chips only on the newest answer, once it finished streaming.
   const showChips = isLast && !streaming && chips.length > 0
 
@@ -144,6 +161,13 @@ function BotMessage({
         <div className={styles.spots}>
           {spots.slice(0, 4).map((s) => (
             <SpotCard key={s.slug} spot={s} locale={locale} onSelect={onSpotSelect} />
+          ))}
+        </div>
+      )}
+      {showArticles && (
+        <div className={styles.spots}>
+          {articles.slice(0, 2).map((a) => (
+            <ArticleCard key={a.slug} article={a} locale={locale} onSelect={onSpotSelect} />
           ))}
         </div>
       )}

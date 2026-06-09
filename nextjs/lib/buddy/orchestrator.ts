@@ -65,6 +65,7 @@ export async function* runBuddyTurn(
             cuisine: tu.input.cuisine as string | undefined,
             bezirk: tu.input.bezirk as string | undefined,
             priceRange: tu.input.price_range as string | undefined,
+            name: tu.input.name as string | undefined,
             vibeQuery: String(tu.input.vibe_query ?? ''),
           },
           input.locale,
@@ -76,6 +77,7 @@ export async function* runBuddyTurn(
           { query: String(tu.input.query ?? '') },
           input.locale,
         )
+        yield { type: 'articles', value: articles }
         toolResults.push({ type: 'tool_result', tool_use_id: tu.id, content: JSON.stringify(articles) })
       } else {
         toolResults.push({

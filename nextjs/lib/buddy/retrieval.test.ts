@@ -37,6 +37,14 @@ describe('buildSpotsQuery', () => {
     expect(q).toContain('count(tags[@ match $cuisine]) > 0')
   })
 
+  it('filters by an optional spot name and floats a name match to the very top', () => {
+    const q = buildSpotsQuery(30)
+    // named-spot lookup (e.g. "kennst du Gazzo?") restricts to the matching name…
+    expect(q).toContain('!defined($name) || name match $name')
+    // …and the named spot outranks any cuisine-relevance scoring.
+    expect(q).toContain('defined($name) && name match $name => 1')
+  })
+
   it('clamps the limit to the 1..40 range', () => {
     expect(buildSpotsQuery(999)).toContain('[0...40]')
     expect(buildSpotsQuery(0)).toContain('[0...1]')
@@ -60,6 +68,11 @@ describe('buildSpotsParams', () => {
     expect(p.bezirk).toBe('*Schöneberg*')
     expect(p.price).toBe('€€')
     expect(p.locale).toBe('en')
+  })
+
+  it('wildcards an optional spot name, null when absent', () => {
+    expect(buildSpotsParams({ name: 'Gazzo', vibeQuery: 'x' }, 'de').name).toBe('*Gazzo*')
+    expect(buildSpotsParams({ vibeQuery: 'x' }, 'de').name).toBeNull()
   })
 })
 

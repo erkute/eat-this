@@ -9,6 +9,8 @@ export interface SpotFilters {
   cuisine?: string
   bezirk?: string
   priceRange?: string
+  /** A specific spot named by the user (e.g. "Gazzo"). Matched against name. */
+  name?: string
   vibeQuery: string
 }
 
@@ -49,11 +51,13 @@ export function buildSpotsQuery(limit: number): string {
   return `*[
     _type == "restaurant"
     && isOpen == true && isClosed != true
+    && (!defined($name) || name match $name)
     && (!defined($cuisine) || count(tags[@ match $cuisine]) > 0 || cuisineType match $cuisine || name match $cuisine || shortDescription match $cuisine || shortDescriptionEn match $cuisine || description match $cuisine || descriptionEn match $cuisine || tip match $cuisine || tipEn match $cuisine)
     && (!defined($bezirk) || bezirkRef->name match $bezirk)
     && (!defined($price) || priceRange == $price)
     && defined(slug.current)
   ] | order(
+    select(defined($name) && name match $name => 1, 0) desc,
     select(
       !defined($cuisine) => 0,
       count(tags[@ match $cuisine]) > 0 => 4,
@@ -76,6 +80,7 @@ export function buildSpotsParams(filters: SpotFilters, locale: Locale) {
   return {
     cuisine: wildcard(filters.cuisine),
     bezirk: wildcard(filters.bezirk),
+    name: wildcard(filters.name),
     price: (filters.priceRange ?? '').trim() || null,
     locale,
   }

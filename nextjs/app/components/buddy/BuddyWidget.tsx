@@ -327,6 +327,7 @@ export default function BuddyWidget() {
   const [happyBeat, setHappyBeat] = useState(false)
   const [greetingBeat, setGreetingBeat] = useState(false)
   const [ttsOn, setTtsOn] = useState(false)
+  const [locating, setLocating] = useState(false)
   const wasStreaming = useRef(false)
   const { speaking, speak, cancel: cancelSpeech } = useSpeech(ttsOn)
 
@@ -445,21 +446,37 @@ export default function BuddyWidget() {
     void send(text)
   }
 
-  // "Near me": grab the location (best-effort), then ask. The query is sent
-  // either way — without coords Remy just answers without distance sorting.
+  // "Near me": locate the user (with visible feedback), then ask. On failure we
+  // tell the user what happened instead of silently searching city-wide.
   const askNearby = () => {
-    if (isStreaming) return
+    if (isStreaming || locating) return
     const q = locale === 'en' ? "What's good near me right now?" : 'Was Gutes in meiner Nähe?'
+    const notify = (msg: string) =>
+      typeof window !== 'undefined' && window.showNotification?.(msg)
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      ask(q)
+      notify(locale === 'en' ? 'Location not available on this device.' : 'Standort auf diesem Gerät nicht verfügbar.')
       return
     }
+    setLocating(true)
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        setLocating(false)
         setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude })
         ask(q)
       },
-      () => ask(q),
+      (err) => {
+        setLocating(false)
+        const denied = err.code === err.PERMISSION_DENIED
+        notify(
+          denied
+            ? locale === 'en'
+              ? 'Location access is blocked — allow it, or tell me your district.'
+              : 'Standortzugriff ist blockiert — erlaub ihn oder sag mir deinen Bezirk.'
+            : locale === 'en'
+              ? "Couldn't get your location — tell me your district instead."
+              : 'Standort ließ sich nicht ermitteln — sag mir einfach deinen Bezirk.',
+        )
+      },
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 },
     )
   }
@@ -551,12 +568,18 @@ export default function BuddyWidget() {
                       <FormattedText text={intro.greeting} />
                     </div>
                     <div className={styles.chips}>
-                      <button type="button" className={styles.chipNear} onClick={askNearby}>
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                          <circle cx="12" cy="10" r="3" />
-                        </svg>
-                        {locale === 'en' ? 'Near me' : 'In meiner Nähe'}
+                      <button type="button" className={styles.chipNear} onClick={askNearby} disabled={locating} aria-busy={locating}>
+                        {locating ? (
+                          <span className={styles.nearSpinner} aria-hidden="true" />
+                        ) : (
+                          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                        )}
+                        {locating
+                          ? locale === 'en' ? 'Locating…' : 'Standort…'
+                          : locale === 'en' ? 'Near me' : 'In meiner Nähe'}
                       </button>
                       {intro.suggestions.map((s) => (
                         <button key={s} type="button" className={styles.chip} onClick={() => ask(s)}>

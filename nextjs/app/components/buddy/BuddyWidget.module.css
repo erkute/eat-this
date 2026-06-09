@@ -66,7 +66,8 @@
 @media (max-width: 480px) {
   .panel { top: 8px; right: 8px; bottom: 8px; left: 8px; width: auto; max-width: none;
     height: auto; max-height: none; border-radius: 14px; }
-  .launcher { right: 16px; bottom: 16px; }
+  /* more breathing room from the edge on mobile + clear the iOS home indicator */
+  .launcher { right: 20px; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); }
 }
 
 /* Dark mode — additive override so the whole panel follows the site theme

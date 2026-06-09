@@ -10,6 +10,10 @@
 .launcher:focus-visible { outline: 3px solid #b4541f; outline-offset: 3px; }
 /* hide the floating launcher while the panel is open (no duplicate face; close via ×) */
 .launcher[aria-expanded='true'] { display: none; }
+/* On news-article pages the sticky .spotrail (spot avatars + "auf die Karte" CTA)
+   floats at the viewport bottom — lift the launcher above it so the KI avatar
+   sits over the bar instead of covering the spotrail face/CTA. */
+html[data-active-page='news-article'] .launcher { bottom: 96px; }
 .panel { position: fixed; right: 20px; bottom: 20px; z-index: 10001; width: 360px; max-width: calc(100vw - 32px);
   height: 560px; max-height: calc(100vh - 40px); display: flex; flex-direction: column;
   background: #fff; color: #1a1a1a; border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.18); overflow: hidden; }
@@ -99,6 +103,8 @@
   .header { padding-top: calc(36px + env(safe-area-inset-top, 0px)); }
   /* more breathing room from the edge on mobile + clear the iOS home indicator */
   .launcher { right: 20px; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); }
+  /* lift above the floating spotrail on news articles (see note above) */
+  html[data-active-page='news-article'] .launcher { bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
 }
 
 /* Dark mode — additive override so the whole panel follows the site theme

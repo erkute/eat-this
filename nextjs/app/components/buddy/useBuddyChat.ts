@@ -1,7 +1,7 @@
 'use client'
 import { useCallback, useRef, useState } from 'react'
 import { useLocale } from 'next-intl'
-import type { BuddyStreamEvent, ChatMessage, SpotCandidate, Locale } from '@/lib/buddy/types'
+import type { BuddyStreamEvent, ChatMessage, SpotCandidate, ArticleResult, Locale } from '@/lib/buddy/types'
 import { sanitizeLinks } from '@/lib/buddy/stream'
 
 export function parseNdjsonLines(
@@ -35,6 +35,7 @@ function getSessionId(): string {
 
 export interface BuddyDisplayMessage extends ChatMessage {
   spots?: SpotCandidate[]
+  articles?: ArticleResult[]
 }
 
 export function useBuddyChat() {

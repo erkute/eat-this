@@ -59,7 +59,7 @@ export function buildSpotsQuery(limit: number): string {
     && (!defined($name) || name match $name)
     && (!defined($cuisine) || count(tags[@ match $cuisine]) > 0 || cuisineType match $cuisine || name match $cuisine || shortDescription match $cuisine || shortDescriptionEn match $cuisine || description match $cuisine || descriptionEn match $cuisine || tip match $cuisine || tipEn match $cuisine)
     && (!defined($bezirk) || bezirkRef->name match $bezirk)
-    && (!defined($price) || priceRange == $price)
+    && (!defined($priceMin) || (priceRange.min >= $priceMin && (!defined($priceMaxExcl) || priceRange.min < $priceMaxExcl)))
     && defined(slug.current)
   ] | order(
     // When the user shared their location, nearest first (squared distance with
@@ -84,12 +84,30 @@ const wildcard = (s?: string) => {
   return t.length > 0 ? `*${t}*` : null
 }
 
+// Map the user-facing "€"/"€€"/"€€€" level to a band on priceRange.min (the
+// entry price per person in €). Sanity stores priceRange as a {min,max} object,
+// so the old `priceRange == "€€"` comparison never matched — any price filter
+// silently returned zero spots. Bands are derived from the live data, where min
+// clusters at 1/10/20/30/40+: € = cheap eats, €€ = mid, €€€ = upscale. Counting
+// € signs (rather than exact-matching the string) tolerates stray whitespace and
+// €€€€; an unparseable value yields null so the filter is dropped (fail open)
+// rather than returning nothing.
+export function priceBand(raw?: string): { min: number; maxExcl: number | null } | null {
+  const level = (raw ?? '').split('').filter((c) => c === '€').length
+  if (level <= 0) return null
+  if (level === 1) return { min: 0, maxExcl: 15 }
+  if (level === 2) return { min: 15, maxExcl: 35 }
+  return { min: 35, maxExcl: null }
+}
+
 export function buildSpotsParams(filters: SpotFilters, locale: Locale) {
+  const band = priceBand(filters.priceRange)
   return {
     cuisine: wildcard(filters.cuisine),
     bezirk: wildcard(filters.bezirk),
     name: wildcard(filters.name),
-    price: (filters.priceRange ?? '').trim() || null,
+    priceMin: band ? band.min : null,
+    priceMaxExcl: band ? band.maxExcl : null,
     lat: filters.userGeo?.lat ?? null,
     lng: filters.userGeo?.lng ?? null,
     locale,

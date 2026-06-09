@@ -1,6 +1,6 @@
 // nextjs/lib/buddy/retrieval.test.ts
 import { describe, it, expect } from 'vitest'
-import { buildSpotsQuery, buildSpotsParams } from './retrieval'
+import { buildSpotsQuery, buildSpotsParams, priceBand } from './retrieval'
 import { searchSpots, searchArticles } from './retrieval'
 import type { ArticleResult } from './types'
 
@@ -56,23 +56,43 @@ describe('buildSpotsParams', () => {
     const p = buildSpotsParams({ cuisine: 'Pizza', vibeQuery: 'gemütlich' }, 'de')
     expect(p.cuisine).toBe('*Pizza*')
     expect(p.bezirk).toBeNull()
-    expect(p.price).toBeNull()
+    expect(p.priceMin).toBeNull()
+    expect(p.priceMaxExcl).toBeNull()
     expect(p.locale).toBe('de')
   })
 
-  it('trims and wildcards bezirk and passes price exactly', () => {
+  it('trims and wildcards bezirk and maps the price level to a min band', () => {
     const p = buildSpotsParams(
       { bezirk: ' Schöneberg ', priceRange: '€€', vibeQuery: 'x' },
       'en',
     )
     expect(p.bezirk).toBe('*Schöneberg*')
-    expect(p.price).toBe('€€')
+    // "€€" → mid band on priceRange.min (15..35), not an exact object compare.
+    expect(p.priceMin).toBe(15)
+    expect(p.priceMaxExcl).toBe(35)
     expect(p.locale).toBe('en')
   })
 
   it('wildcards an optional spot name, null when absent', () => {
     expect(buildSpotsParams({ name: 'Gazzo', vibeQuery: 'x' }, 'de').name).toBe('*Gazzo*')
     expect(buildSpotsParams({ vibeQuery: 'x' }, 'de').name).toBeNull()
+  })
+})
+
+describe('priceBand', () => {
+  it('maps € levels to disjoint min bands and is open-ended at the top', () => {
+    expect(priceBand('€')).toEqual({ min: 0, maxExcl: 15 })
+    expect(priceBand('€€')).toEqual({ min: 15, maxExcl: 35 })
+    expect(priceBand('€€€')).toEqual({ min: 35, maxExcl: null })
+    // €€€€ collapses into the top (upscale) band rather than a fourth tier.
+    expect(priceBand('€€€€')).toEqual({ min: 35, maxExcl: null })
+  })
+
+  it('tolerates whitespace and fails open on unparseable input', () => {
+    expect(priceBand(' €€ ')).toEqual({ min: 15, maxExcl: 35 })
+    expect(priceBand('')).toBeNull()
+    expect(priceBand(undefined)).toBeNull()
+    expect(priceBand('billig')).toBeNull()
   })
 })
 

@@ -11,6 +11,10 @@ export interface SpotCandidate {
   priceRange: string | null
   mapsUrl: string | null
   image: string | null
+  /** Open right now (Berlin time)? null when the spot has no opening-hours data. */
+  openNow: boolean | null
+  /** Short status label, e.g. "Offen · bis 23:00" / "Geschlossen". null if unknown. */
+  openLabel: string | null
 }
 
 export interface ArticleResult {

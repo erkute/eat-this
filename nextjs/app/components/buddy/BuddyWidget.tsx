@@ -77,6 +77,11 @@ function SpotCard({ spot, locale, onSelect }: { spot: SpotCandidate; locale: Loc
       <span className={styles.spotBody}>
         <span className={styles.spotName}>{spot.name}</span>
         {meta && <span className={styles.spotMeta}>{meta}</span>}
+        {spot.openLabel && (
+          <span className={styles.spotStatus} data-open={spot.openNow ? 'true' : 'false'}>
+            {spot.openLabel}
+          </span>
+        )}
         {spot.shortDescription && <span className={styles.spotDesc}>{spot.shortDescription}</span>}
         <span className={styles.spotCta}>{cta} →</span>
       </span>

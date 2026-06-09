@@ -1,6 +1,8 @@
 // nextjs/lib/buddy/retrieval.ts
 import { client as sanityClient } from '@/lib/sanity'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
+import { getOpenStatus } from '@/lib/map/openingHours'
+import type { OpeningHourSlot } from '@/lib/types'
 import type { Locale, SpotCandidate, ArticleResult } from './types'
 
 export interface SpotFilters {
@@ -22,8 +24,25 @@ const SPOTS_PROJECTION = `{
   "tip": select($locale == "en" => coalesce(tipEn, tip), tip),
   priceRange, // raw {min,max,currency} object — formatted to a label in searchSpots
   mapsUrl,
+  openingHours, // [{days, hours}] — open-now status computed in searchSpots
   "image": image.asset->url + "?w=120&h=120&fit=crop&auto=format&q=80"
 }`
+
+// Server runs in UTC; build a Date whose local accessors (getDay/getHours/…)
+// reflect Europe/Berlin so getOpenStatus reads the right wall-clock time.
+function berlinNow(base: Date): Date {
+  const p = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Berlin',
+    year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: false,
+  }).formatToParts(base)
+  const get = (t: string) => Number(p.find((x) => x.type === t)?.value)
+  return new Date(get('year'), get('month') - 1, get('day'), get('hour') % 24, get('minute'))
+}
+
+const OPEN_LABELS: Record<Locale, { open: string; closed: string; opens: string; closes: string }> = {
+  de: { open: 'Offen', closed: 'Geschlossen', opens: 'öffnet', closes: 'bis' },
+  en: { open: 'Open', closed: 'Closed', opens: 'opens', closes: 'till' },
+}
 
 export function buildSpotsQuery(limit: number): string {
   const n = clamp(limit, 1, 40)
@@ -67,13 +86,16 @@ interface SanityLike {
 }
 interface RetrievalDeps {
   client?: SanityLike
+  /** Override "now" for deterministic tests; defaults to the real clock. */
+  now?: Date
 }
 
 const SPOTS_LIMIT = 30
 
-// The raw row before priceRange is collapsed to a display label.
-type RawSpotRow = Omit<SpotCandidate, 'priceRange'> & {
+// The raw row before priceRange/openingHours are collapsed to display values.
+type RawSpotRow = Omit<SpotCandidate, 'priceRange' | 'openNow' | 'openLabel'> & {
   priceRange?: { min?: number; max?: number; currency?: string } | null
+  openingHours?: OpeningHourSlot[] | null
 }
 
 export async function searchSpots(
@@ -85,12 +107,25 @@ export async function searchSpots(
   const query = buildSpotsQuery(SPOTS_LIMIT)
   const params = buildSpotsParams(filters, locale)
   const rows = (await client.fetch(query, params)) as RawSpotRow[]
-  // priceRange is a {min,max,currency} object in Sanity — format it to the
-  // same "10–20 €" label the rest of the app uses (was rendering [object Object]).
-  return (rows ?? []).map((r) => ({
-    ...r,
-    priceRange: formatPriceLabel({ priceRange: r.priceRange ?? undefined }),
-  }))
+  const now = berlinNow(deps.now ?? new Date())
+  const labels = OPEN_LABELS[locale]
+  // Drop openingHours + the raw price object from the payload; keep only the
+  // derived label/status so the streamed spots stay lean.
+  return (rows ?? []).map(({ openingHours, priceRange: rawPrice, ...rest }) => {
+    // priceRange is a {min,max,currency} object in Sanity — format it to the
+    // same "10–20 €" label the rest of the app uses (was rendering [object Object]).
+    const priceRange = formatPriceLabel({ priceRange: rawPrice ?? undefined })
+    // Compute "open now" (Berlin time) so Remy can prioritise open spots and
+    // the card can show a status badge. Null when there's no hours data.
+    const hours = openingHours ?? []
+    const status = hours.length > 0 ? getOpenStatus(hours, now, labels) : null
+    return {
+      ...rest,
+      priceRange,
+      openNow: status ? status.isOpen : null,
+      openLabel: status ? status.label : null,
+    }
+  })
 }
 
 export interface ArticleQuery {

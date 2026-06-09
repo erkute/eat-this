@@ -37,6 +37,10 @@
 .spotDesc { font-size: 0.86em; color: #4a463f; line-height: 1.35;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .spotCta { font-size: 0.8em; font-weight: 600; color: #b4541f; margin-top: 2px; }
+.spotStatus { font-size: 0.76em; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; width: fit-content; }
+.spotStatus::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.spotStatus[data-open='true'] { color: #1a7f3c; }
+.spotStatus[data-open='false'] { color: #9a8f86; }
 .form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid #eee; background: #fff; }
 .input { flex: 1; border: 1px solid #ddd; border-radius: 10px; padding: 8px 10px; font: inherit;
   background: #fff; color: #1a1a1a; }
@@ -86,6 +90,8 @@ html[data-theme="dark"] .spotImg { background: #2c2c2c; }
 html[data-theme="dark"] .spotMeta { color: #8a8a8a; }
 html[data-theme="dark"] .spotDesc { color: #c5c5c5; }
 html[data-theme="dark"] .spotCta { color: #e0763a; }
+html[data-theme="dark"] .spotStatus[data-open='true'] { color: #4caf67; }
+html[data-theme="dark"] .spotStatus[data-open='false'] { color: #8a8a8a; }
 html[data-theme="dark"] .form { border-top-color: #2c2c2c; background: #1a1a1a; }
 html[data-theme="dark"] .input { background: #232323; border-color: #333; color: #f5f5f5; }
 html[data-theme="dark"] .input::placeholder { color: #8a8a8a; }

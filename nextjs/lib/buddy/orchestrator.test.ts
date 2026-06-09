@@ -31,7 +31,7 @@ describe('runBuddyTurn', () => {
     const spot: SpotCandidate = {
       name: 'Standard Serif', slug: 'standard-serif', cuisineType: 'Pizza',
       bezirk: 'Mitte', shortDescription: 'Neapolitan', tip: null,
-      priceRange: '€€', mapsUrl: null, image: null,
+      priceRange: '€€', mapsUrl: null, image: null, openNow: null, openLabel: null,
     }
     const turns = [
       turnOf(['Lass mich schauen… '], [

@@ -71,6 +71,7 @@ describe('searchSpots', () => {
       name: 'Standard Serif', slug: 'standard-serif', cuisineType: 'Pizza',
       bezirk: 'Mitte', shortDescription: 'Neapolitan', tip: null,
       priceRange: { min: 10, max: 20, currency: 'EUR' }, mapsUrl: 'https://maps.example/x', image: null,
+      openingHours: [{ days: 'Mon–Sun', hours: '12:00–23:00' }],
     }
     const fakeClient = {
       fetch: async (query: string, params: unknown) => {
@@ -78,13 +79,16 @@ describe('searchSpots', () => {
         return [rawRow]
       },
     }
+    // Fixed clock: a Wednesday 20:00 Berlin time → spot is open till 23:00.
     const out = await searchSpots(
       { cuisine: 'Pizza', bezirk: 'Mitte', vibeQuery: 'gut' },
       'de',
-      { client: fakeClient },
+      { client: fakeClient, now: new Date('2026-06-10T18:00:00Z') },
     )
     expect(out[0].name).toBe('Standard Serif')
     expect(out[0].priceRange).toBe('10–20 €')
+    expect(out[0].openNow).toBe(true)
+    expect(out[0].openLabel).toContain('Offen')
     expect(calls).toHaveLength(1)
     expect(calls[0].query).toContain('_type == "restaurant"')
     expect(calls[0].params).toMatchObject({ cuisine: '*Pizza*', bezirk: '*Mitte*', locale: 'de' })

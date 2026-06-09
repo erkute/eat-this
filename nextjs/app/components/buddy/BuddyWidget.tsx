@@ -5,6 +5,7 @@ import { Link, usePathname } from '@/i18n/navigation'
 import BuddyAvatar, { type BuddyMood } from './BuddyAvatar'
 import { useBuddyChat, type BuddyDisplayMessage } from './useBuddyChat'
 import { splitAnswerSegments } from '@/lib/buddy/stream'
+import { greetingFor } from '@/lib/buddy/greeting'
 import type { Locale, SpotCandidate } from '@/lib/buddy/types'
 import styles from './BuddyWidget.module.css'
 
@@ -81,26 +82,6 @@ function SpotCard({ spot, locale, onSelect }: { spot: SpotCandidate; locale: Loc
       </span>
     </Link>
   )
-}
-
-const GREETING: Record<Locale, string> = {
-  de: 'Hey, ich bin Remy! Was willst du heute essen? Pizza, Ramen, Brunch, Date Night oder etwas ganz anderes? Ich finde die passenden Spots in Berlin.',
-  en: 'Hey, I’m Remy! What are you in the mood for today? Pizza, ramen, brunch, date night or something else entirely? I’ll find the right spots in Berlin.',
-}
-
-const SUGGESTIONS: Record<Locale, string[]> = {
-  de: [
-    'Ich hab Bock auf richtig gute Pizza',
-    'Wo gibt’s guten Ramen?',
-    'Ein schöner Brunch-Spot',
-    'Date Night – wo hin?',
-  ],
-  en: [
-    'I’m craving really good pizza',
-    'Where’s good ramen?',
-    'A nice brunch spot',
-    'Date night – where to go?',
-  ],
 }
 
 const T = {
@@ -316,20 +297,26 @@ export default function BuddyWidget() {
             </button>
           </div>
           <div className={styles.log} aria-live="polite">
-            {messages.length === 0 && (
-              <div className={styles.intro}>
-                <div className={styles.msgBot}>
-                  <FormattedText text={GREETING[locale]} />
-                </div>
-                <div className={styles.chips}>
-                  {SUGGESTIONS[locale].map((s) => (
-                    <button key={s} type="button" className={styles.chip} onClick={() => ask(s)}>
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+            {messages.length === 0 &&
+              (() => {
+                // Time-of-day opener + starter chips (computed client-side; the
+                // intro only renders after the user opens the panel).
+                const intro = greetingFor(new Date().getHours(), locale)
+                return (
+                  <div className={styles.intro}>
+                    <div className={styles.msgBot}>
+                      <FormattedText text={intro.greeting} />
+                    </div>
+                    <div className={styles.chips}>
+                      {intro.suggestions.map((s) => (
+                        <button key={s} type="button" className={styles.chip} onClick={() => ask(s)}>
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })()}
             {messages.map((m, i) =>
               m.role === 'user' ? (
                 <div key={i} className={styles.msgUser}>

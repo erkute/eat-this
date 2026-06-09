@@ -3,7 +3,15 @@
    global white doesn't cascade in and cause white-on-white). The dark variant
    lives in the additive html[data-theme="dark"] block at the bottom. */
 .launcher { position: fixed; right: 20px; bottom: 20px; z-index: 10001; border: none;
-  background: transparent; cursor: pointer; padding: 0; }
+  background: transparent; cursor: pointer; padding: 0; border-radius: 50%;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.28); transition: transform .12s ease, box-shadow .12s ease; }
+.launcher:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 10px 24px rgba(0,0,0,0.34); }
+.launcher:active { transform: scale(0.98); }
+.launcher:focus-visible { outline: 3px solid #b4541f; outline-offset: 3px; }
+/* chat-bubble badge so it reads as a "tap to chat" button, not just a face */
+.launcherBadge { position: absolute; right: -3px; bottom: -3px; width: 24px; height: 24px;
+  border-radius: 50%; background: #b4541f; color: #fff; display: inline-flex; align-items: center;
+  justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 2px solid #fff; }
 /* hide the floating launcher while the panel is open (no duplicate face; close via ×) */
 .launcher[aria-expanded='true'] { display: none; }
 .panel { position: fixed; right: 20px; bottom: 20px; z-index: 10001; width: 360px; max-width: calc(100vw - 32px);
@@ -73,8 +81,8 @@
 .panel:focus { outline: none; }
 .panel:focus-visible { outline: 2px solid #b4541f; outline-offset: -2px; }
 
-/* close button (esp. needed on mobile fullscreen) — top-right corner */
-.close { margin-left: auto; align-self: flex-start; margin-top: -6px; margin-right: -4px;
+/* close button (esp. needed on mobile fullscreen) — slightly up-right */
+.close { margin-left: auto; align-self: flex-start; margin-top: -2px;
   border: none; background: transparent; color: #6b6358;
   font-size: 1.5em; line-height: 1; cursor: pointer; padding: 0 2px; border-radius: 8px; }
 .close:hover { color: #1a1a1a; }
@@ -93,6 +101,8 @@
 @media (max-width: 480px) {
   .panel { top: 8px; right: 8px; bottom: 8px; left: 8px; width: auto; max-width: none;
     height: auto; max-height: none; border-radius: 14px; }
+  /* push the header (avatar) down from the top edge / notch on mobile */
+  .header { padding-top: calc(24px + env(safe-area-inset-top, 0px)); }
   /* more breathing room from the edge on mobile + clear the iOS home indicator */
   .launcher { right: 20px; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); }
 }

@@ -34,7 +34,7 @@ const GREETINGS: Record<Locale, Record<Daypart, string>> = {
 const SUGGESTIONS: Record<Locale, Record<Daypart, string[]>> = {
   de: {
     morning: ['Guter Kaffee in der Nähe', 'Wo gibt’s ordentliches Frühstück?', 'Bäckerei mit gutem Sauerteig', 'Shakshuka oder Eggs?'],
-    midday: ['Schnelles Mittagessen', 'Wo gibt’s gute Bowls?', 'Ramen für die Pause', 'Mittagstisch mit Substanz'],
+    midday: ['Schnelles Mittagessen', 'Wo gibt’s gute Bowls?', 'Ramen für die Pause', 'Mittag zum Hinsetzen'],
     afternoon: ['Kaffee und was Süßes', 'Beste Eisdiele', 'Cinnamon Bun oder Babka?', 'Wo gibt’s guten Kuchen?'],
     evening: ['Wo gibt’s richtig gute Pizza?', 'Schönes Dinner für zwei', 'Natural-Wine-Bar', 'Wo trinkt man gut?'],
     late: ['Bester Döner jetzt', 'Pizza um die Zeit', 'Bar, die noch offen hat', 'Was hat jetzt noch auf?'],

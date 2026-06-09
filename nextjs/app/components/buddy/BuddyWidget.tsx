@@ -429,6 +429,11 @@ export default function BuddyWidget() {
         onClick={() => setOpen((v) => !v)}
       >
         <BuddyAvatar mood={launcherMood} />
+        <span className={styles.launcherBadge} aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true">
+            <path d="M12 3C6.5 3 2 6.6 2 11c0 2.2 1.1 4.2 3 5.6V21l3.5-2c1.1.3 2.3.4 3.5.4 5.5 0 10-3.6 10-8s-4.5-8-10-8z" />
+          </svg>
+        </span>
       </button>
 
       {open && (

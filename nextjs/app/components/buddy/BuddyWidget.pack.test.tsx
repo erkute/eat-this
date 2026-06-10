@@ -44,7 +44,9 @@ const PIZZA_PACK: PackTeaser = {
   packId: 'category-pizza',
   slug: 'pizza',
   name: 'Pizza',
-  spectrum: 'Neapolitanisch. Holzofen. 24h-Teig.',
+  spectrum: 'Holzofen. Pinsa. NY-Slice.',
+  description: 'Berlins Pizza-Spots auf deiner Map.',
+  art: '/pics/booster/booster_pizza.webp',
   priceLabel: '2,99 €',
 }
 
@@ -71,9 +73,11 @@ describe('BuddyWidget pack teaser', () => {
     const card = packCards()[0] as HTMLAnchorElement
     expect(card).toBeTruthy()
     expect(card.getAttribute('href')).toBe('/pack/pizza')
-    expect(card.textContent).toContain('Booster Pack')
-    expect(card.textContent).toContain('Pizza')
+    expect(card.textContent).toContain('Booster Pack · Pizza')
+    expect(card.textContent).toContain('Holzofen. Pinsa. NY-Slice.')
+    expect(card.textContent).toContain('Berlins Pizza-Spots auf deiner Map.')
     expect(card.textContent).toContain('2,99 €')
+    expect(card.querySelector('img')?.getAttribute('src')).toBe('/pics/booster/booster_pizza.webp')
   })
 
   it('shows only the first pack card of a conversation', () => {

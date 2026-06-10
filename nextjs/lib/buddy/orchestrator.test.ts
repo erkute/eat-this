@@ -69,8 +69,8 @@ describe('runBuddyTurn', () => {
       categorySlugs: ['pizza'],
     })
     const turns = [
-      turnOf([''], [{ id: 'tu1', name: 'search_spots', input: { vibe_query: 'pizza' } }]),
-      turnOf([''], [{ id: 'tu2', name: 'search_spots', input: { vibe_query: 'pizza nochmal' } }]),
+      turnOf([''], [{ id: 'tu1', name: 'search_spots', input: { cuisine: 'pizza', vibe_query: 'pizza' } }]),
+      turnOf([''], [{ id: 'tu2', name: 'search_spots', input: { cuisine: 'pizza', vibe_query: 'pizza nochmal' } }]),
       turnOf(['Fertig.']),
     ]
     let i = 0
@@ -99,6 +99,29 @@ describe('runBuddyTurn', () => {
     }
   })
 
+  it('emits no pack teaser without an explicit cuisine, even on uniform results', async () => {
+    const pizzaSpot = (id: string): SpotCandidate => ({
+      _id: id, name: id, slug: id, cuisineType: 'Pizza',
+      bezirk: null, shortDescription: null, tip: null,
+      priceRange: null, mapsUrl: null, image: null, openNow: null, openLabel: null, distanceLabel: null,
+      categorySlugs: ['pizza'],
+    })
+    const turns = [
+      // generic question — the LLM sets no `cuisine`
+      turnOf([''], [{ id: 'tu1', name: 'search_spots', input: { vibe_query: 'wo gut essen?' } }]),
+      turnOf(['Fertig.']),
+    ]
+    let i = 0
+    const llm: LlmClient = { runTurn: () => turns[i++] }
+    const events = await collect(
+      runBuddyTurn(
+        { messages: [{ role: 'user', content: 'wo kann man gut essen?' }], locale: 'de' },
+        { llm, searchSpots: async () => [pizzaSpot('a'), pizzaSpot('b'), pizzaSpot('c')], searchArticles: async () => [] },
+      ),
+    )
+    expect(events.filter((e) => e.type === 'pack')).toHaveLength(0)
+  })
+
   it('emits no pack teaser when results span categories', async () => {
     const mixed = (id: string, cat: string): SpotCandidate => ({
       _id: id, name: id, slug: id, cuisineType: null,
@@ -107,7 +130,8 @@ describe('runBuddyTurn', () => {
       categorySlugs: [cat],
     })
     const turns = [
-      turnOf([''], [{ id: 'tu1', name: 'search_spots', input: { vibe_query: 'essen' } }]),
+      // cuisine set, but the results don't agree on one category
+      turnOf([''], [{ id: 'tu1', name: 'search_spots', input: { cuisine: 'essen', vibe_query: 'essen' } }]),
       turnOf(['Fertig.']),
     ]
     let i = 0

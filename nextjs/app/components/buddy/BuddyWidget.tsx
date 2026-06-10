@@ -166,10 +166,14 @@ function PackCard({
 }) {
   return (
     <Link className={styles.packCard} href={`/pack/${pack.slug}`} prefetch onClick={onSelect} data-buddy-pack={pack.packId}>
+      {pack.art && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className={styles.packArt} src={pack.art} alt="" width={52} height={70} loading="lazy" />
+      )}
       <span className={styles.spotBody}>
-        <span className={styles.articleKicker}>Booster Pack</span>
-        <span className={styles.spotName}>{pack.name}</span>
-        <span className={styles.packSpectrum}>{pack.spectrum}</span>
+        <span className={styles.articleKicker}>Booster Pack · {pack.name}</span>
+        <span className={styles.spotName}>{pack.spectrum}</span>
+        <span className={styles.spotDesc}>{pack.description}</span>
         <span className={styles.spotCta}>{locale === 'en' ? 'View' : 'Ansehen'} →</span>
       </span>
       <span className={styles.packPrice}>{pack.priceLabel}</span>

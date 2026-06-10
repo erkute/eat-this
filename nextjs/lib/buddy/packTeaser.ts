@@ -5,6 +5,7 @@
 // is a deterministic majority vote over the curated category refs of the top
 // results; all teaser copy comes verbatim from the canonical stripe-catalog.
 import { CATALOG, type PackDef } from '@/lib/stripe-catalog'
+import { categoryArt } from '@/lib/categoryArt'
 import type { Locale, PackTeaser, SpotCandidate } from './types'
 
 // Vote over the most relevant results only — the query orders by match
@@ -52,6 +53,8 @@ export function buildPackTeaser(pack: PackDef, locale: Locale): PackTeaser {
     slug: pack.slug ?? '',
     name: pack.displayName,
     spectrum: pack.spectrum[locale],
+    description: pack.description[locale],
+    art: pack.slug ? categoryArt(pack.slug) : null,
     priceLabel: formatPackPrice(pack.amountCents, locale),
   }
 }

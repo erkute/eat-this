@@ -84,7 +84,11 @@ export async function* runBuddyTurn(
           return lean
         })
         yield { type: 'spots', value: spots }
-        if (!packSent) {
+        // Teaser only when the user explicitly named a dish/cuisine (the LLM
+        // sets `cuisine` exactly then) AND the results agree on one pack
+        // category — a generic "wo kann man gut essen?" never gets a card.
+        const explicitCuisine = typeof tu.input.cuisine === 'string' && tu.input.cuisine.trim().length > 0
+        if (!packSent && explicitCuisine) {
           const pack = pickPackForSpots(rawSpots)
           if (pack) {
             packSent = true

@@ -73,9 +73,13 @@ describe('buildPackTeaser', () => {
       slug: 'pizza',
       name: 'Pizza',
       spectrum: pack.spectrum.de,
+      description: pack.description.de,
+      art: '/pics/booster/booster_pizza.webp',
       priceLabel: '2,99 €',
     })
-    expect(norm(buildPackTeaser(pack, 'en').priceLabel)).toBe('€2.99')
+    const en = buildPackTeaser(pack, 'en')
+    expect(norm(en.priceLabel)).toBe('€2.99')
+    expect(en.description).toBe(pack.description.en)
   })
 })
 

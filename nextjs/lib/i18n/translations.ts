@@ -278,7 +278,7 @@ const en = {
   },
   profile: {
     savedHeading: "Saved Spots",
-    emptySpots: "Nothing saved yet. Tap a spot on the map and hit bookmark — it lands here.",
+    emptySpots: "Nothing saved yet. Tap a spot on the map and hit the heart — it lands here.",
     toMap: "To the map →",
     removeSaved: "Remove {name} from saved",
     collectedHeading: "Collected Must Eats",
@@ -633,7 +633,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
   },
   profile: {
     savedHeading: "Gespeicherte Spots",
-    emptySpots: "Noch nichts gespeichert. Tipp auf der Map einen Spot an und dr\u00fcck Bookmark \u2014 er landet hier.",
+    emptySpots: "Noch nichts gespeichert. Tipp auf der Map einen Spot an und dr\u00fcck aufs Herz \u2014 er landet hier.",
     toMap: "Zur Map \u2192",
     removeSaved: "{name} aus Gespeicherten entfernen",
     collectedHeading: "Gesammelte Must Eats",

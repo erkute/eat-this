@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // nextjs/app/components/HubFragRemy.test.tsx
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, cleanup } from '@testing-library/react'
+import { render, fireEvent, cleanup } from '@testing-library/react'
 import { NextIntlClientProvider } from 'next-intl'
 import { BUDDY_ASK_EVENT, BUDDY_STAGE_EVENT, type BuddyAskDetail, type BuddyStageDetail } from '@/lib/buddy/homeStage'
 import HubFragRemy from './HubFragRemy'
@@ -46,10 +46,8 @@ const fakeEntry = (visible: boolean): Partial<IntersectionObserverEntry> => ({
 })
 
 describe('HubFragRemy', () => {
-  it('renders the greeting bubble and time-of-day starter chips', () => {
+  it('renders the time-of-day starter chips after mount', () => {
     renderSection()
-    // Full greeting (intro + daypart hook) lands after mount via useEffect.
-    expect(screen.getByText(/ich bin Remy/)).toBeTruthy()
     const chips = document.querySelectorAll('[data-fragremy-chips] button')
     expect(chips.length).toBeGreaterThan(0)
   })

@@ -333,6 +333,11 @@ export default function BuddyWidget() {
   const [locating, setLocating] = useState(false)
   const wasStreaming = useRef(false)
   const [onStage, setOnStage] = useState(false)
+  // The corner launcher stays hidden until the visitor has actually reached the
+  // hub's "Frag Remy" section and scrolled on past it (or engaged Remy via the
+  // section's CTA) — so he doesn't float in the corner from the top of the page,
+  // before he's been introduced. Once revealed he stays around for the session.
+  const [revealed, setRevealed] = useState(false)
   const [arrivalBeat, setArrivalBeat] = useState(false)
   const stageRect = useRef<BuddyStageRect | null>(null)
 
@@ -454,6 +459,8 @@ export default function BuddyWidget() {
     const was = wasOnStage.current
     wasOnStage.current = onStage
     if (!was || onStage) return
+    // Stage just scrolled away: this is the moment Remy "moves into" the corner.
+    setRevealed(true)
     const btn = launcherRef.current
     const from = stageRect.current
     // No rect (section unmounted) or no WAAPI (jsdom): just appear in place.
@@ -485,6 +492,9 @@ export default function BuddyWidget() {
     const onAsk = (e: Event) => {
       const { question } = (e as CustomEvent<BuddyAskDetail>).detail ?? {}
       setOpen(true)
+      // Engaging Remy from the section's chips/CTA also "introduces" him, so the
+      // corner launcher should persist once the panel is closed again.
+      setRevealed(true)
       if (question) void send(question)
     }
     window.addEventListener(BUDDY_ASK_EVENT, onAsk)
@@ -565,9 +575,12 @@ export default function BuddyWidget() {
         ? 'talking'
         : 'idle'
 
-  // No buddy on the map page — it would cover the map.
+  // Remy lives ONLY on the home hub — its "Frag Remy" stage hands him off to
+  // this corner widget (see HubFragRemy). On every other route (news, article,
+  // must-eats, map, …) the fixed launcher would just float without context, so
+  // we don't mount it there at all.
   const pathname = usePathname()
-  if ((pathname ?? '').startsWith('/map')) return null
+  if ((pathname ?? '/') !== '/') return null
 
   return (
     <>
@@ -575,7 +588,7 @@ export default function BuddyWidget() {
         ref={launcherRef}
         className={styles.launcher}
         data-buddy-launcher
-        data-stage={onStage ? 'true' : undefined}
+        data-stage={!revealed || onStage ? 'true' : undefined}
         aria-label={t.open}
         aria-expanded={open}
         aria-controls="buddy-panel"

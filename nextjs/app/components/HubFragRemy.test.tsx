@@ -67,6 +67,22 @@ describe('HubFragRemy', () => {
     expect(got).toEqual({ question: chip.textContent })
   })
 
+  it('opens the chat (buddy:ask, no question) when the input pill is clicked', () => {
+    let got: BuddyAskDetail | null = null
+    let calls = 0
+    const onAsk = (e: Event) => {
+      calls++
+      got = (e as CustomEvent<BuddyAskDetail>).detail
+    }
+    window.addEventListener(BUDDY_ASK_EVENT, onAsk)
+    renderSection()
+    const pill = document.querySelector<HTMLButtonElement>('[data-fragremy-open]')!
+    fireEvent.click(pill)
+    window.removeEventListener(BUDDY_ASK_EVENT, onAsk)
+    expect(calls).toBe(1)
+    expect(got).toEqual({})
+  })
+
   it('dispatches buddy:stage with a rect when the stage enters and leaves', () => {
     const events: BuddyStageDetail[] = []
     const onStage = (e: Event) => events.push((e as CustomEvent<BuddyStageDetail>).detail)

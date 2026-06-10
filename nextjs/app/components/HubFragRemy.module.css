@@ -1,11 +1,13 @@
 /* nextjs/app/components/HubFragRemy.module.css
-   Comic-strip stage: the bubble hangs over Remy's head (ink outline,
-   handwriting face, slight sticker tilt) with a tail pointing down at him.
-   The comic elements deliberately stay white-on-ink in dark mode — speech
-   bubbles don't theme. */
+   Remy as a freigestellt character rising out of the section, a comic speech
+   bubble over his head, quick-reply chips, and a chat-input-styled pill that
+   invites typing. The comic bubble stays white-on-ink in dark mode. */
 .section {
   background: #fbf8ee;
-  padding-bottom: 30px;
+  /* no bottom padding: the cut-out figure meets the section's bottom edge so
+     he reads as rising out of it rather than floating with a cropped chest */
+  padding-bottom: 0;
+  overflow: hidden;
 }
 .heading {
   font-family: var(--font-ranchers);
@@ -20,88 +22,91 @@
   font-family: var(--font);
   font-size: 14px;
   color: #6b6358;
-  margin: 0 16px 24px;
+  margin: 0 16px 14px;
 }
+/* figure + talk column share a baseline so Remy stands next to the controls */
 .stage {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
   padding: 0 14px;
 }
-/* ── the bubble ── */
+.figureCol {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-end;
+}
+.figure {
+  display: block;
+  width: clamp(132px, 38vw, 168px);
+  height: auto;
+  /* sit flush on the section's bottom edge */
+  margin-bottom: -2px;
+}
+.talk {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 22px;
+  /* slight overlap so Remy tucks behind the talk column and feels present
+     rather than stranded in the corner */
+  margin-left: -14px;
+}
+/* ── comic speech bubble ── */
 .bubble {
   position: relative;
-  display: inline-block;
-  max-width: 540px;
-  margin: 0 6px 22px 20px;
+  align-self: flex-start;
   background: #fff;
   border: 2.5px solid #14100c;
   border-radius: 18px;
-  padding: 14px 18px 12px;
-  transform: rotate(-1.2deg);
-  /* pop grows out of the tail tip, not the bubble center */
-  transform-origin: 52px calc(100% + 18px);
+  padding: 13px 16px 11px;
+  transform: rotate(-1deg);
+  transform-origin: 30px calc(100% + 16px);
 }
-/* tail: ink outline triangle behind a white fill triangle, slanted so it
-   reads drawn rather than constructed */
 .bubble::before {
   content: '';
   position: absolute;
-  bottom: -20px;
-  left: 38px;
-  border-left: 17px solid transparent;
+  bottom: -19px;
+  left: 26px;
+  border-left: 16px solid transparent;
   border-right: 9px solid transparent;
-  border-top: 21px solid #14100c;
+  border-top: 20px solid #14100c;
 }
 .bubble::after {
   content: '';
   position: absolute;
-  bottom: -13px;
-  left: 43px;
-  border-left: 12px solid transparent;
+  bottom: -12px;
+  left: 31px;
+  border-left: 11px solid transparent;
   border-right: 6px solid transparent;
-  border-top: 15px solid #fff;
+  border-top: 14px solid #fff;
 }
 .bubbleText {
   margin: 0;
   font-family: var(--font-ranchers);
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1.3;
   color: #14100c;
 }
 @keyframes bubblePop {
-  0%   { transform: scale(0.4) rotate(-1.2deg); opacity: 0; }
-  70%  { transform: scale(1.07) rotate(-1.2deg); opacity: 1; }
-  100% { transform: scale(1) rotate(-1.2deg); opacity: 1; }
+  0%   { transform: scale(0.4) rotate(-1deg); opacity: 0; }
+  70%  { transform: scale(1.06) rotate(-1deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-1deg); opacity: 1; }
 }
-/* additive: without JS the bubble is simply there; data-pop replays it once */
 .bubble[data-pop] { animation: bubblePop 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.15) both; }
-@media (prefers-reduced-motion: reduce) {
-  .bubble[data-pop] { animation: none; }
-}
-/* ── Remy + quick replies ── */
-.row {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-}
-.avatar { flex-shrink: 0; }
-.talk {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 14px;
-  min-width: 0;
-  padding-top: 6px;
-}
+@media (prefers-reduced-motion: reduce) { .bubble[data-pop] { animation: none; } }
+/* ── quick-reply chips ── */
 .chips {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  /* reserve roughly two chip rows so the post-hydration chips don't shift
-     the sections below (CLS) */
-  min-height: 76px;
+  min-height: 72px;
   align-content: flex-start;
 }
 .chip {
-  border: 2px solid #14100c;
+  border: 1.5px solid #14100c;
   background: #fff;
   color: #14100c;
   border-radius: 999px;
@@ -112,40 +117,57 @@
   cursor: pointer;
   text-align: left;
   line-height: 1.2;
+  transition: background .12s ease;
 }
 .chip:hover { background: #ffd84a; }
-/* yellow sticker CTA — same energy as the EAT THIS header roundel */
-.cta {
-  border: 2.5px solid #14100c;
-  border-radius: 14px;
-  padding: 10px 22px;
+/* ── chat-input-styled pill (the inviting open-chat affordance) ── */
+.input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: #fff;
+  border: 2px solid #14100c;
+  border-radius: 999px;
+  padding: 7px 7px 7px 16px;
   cursor: pointer;
+  text-align: left;
+  font: inherit;
+  transition: box-shadow .12s ease, transform .1s ease;
+}
+.input:hover { box-shadow: 3px 3px 0 #14100c; transform: translate(-1px, -1px); }
+.input:active { box-shadow: 1px 1px 0 #14100c; transform: translate(1px, 1px); }
+.inputText { flex: 1; color: #8a8377; font-size: 0.98em; }
+.inputSend {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
   background: #ffd84a;
   color: #14100c;
-  font-family: var(--font-ranchers);
-  font-size: 19px;
-  line-height: 1.1;
-  box-shadow: 3px 3px 0 #14100c;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  font-size: 18px;
+  font-weight: 700;
 }
-.cta:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #14100c; }
-.cta:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #14100c; }
-.cta:focus-visible,
+.input:focus-visible,
 .chip:focus-visible { outline: 2px solid #b4541f; outline-offset: 2px; }
 
-/* ── Desktop: centered column like the other hub sections ── */
+/* ── Desktop: roomier, bigger Remy ── */
 @media (min-width: 720px) {
   .section { padding-inline: max(14px, calc((100% - 1120px) / 2)); }
   .heading { margin: 48px 0 6px; font-size: clamp(44px, 5vw, 56px); }
-  .sub { margin: 0 0 26px; font-size: 15px; }
-  .stage { padding: 0; }
-  .bubble { margin-left: 20px; }
-  .bubbleText { font-size: 22px; }
-  .row { gap: 22px; }
+  .sub { margin: 0 0 18px; font-size: 15px; }
+  .stage { padding: 0; gap: 22px; }
+  .figure { width: clamp(150px, 18vw, 200px); }
+  .talk { padding-bottom: 32px; max-width: 620px; }
+  .bubbleText { font-size: 20px; }
   .chips { min-height: 0; }
+  .input { max-width: 440px; }
 }
 
-/* ── Dark mode: page follows the theme, the comic stays white-on-ink ── */
+/* ── Dark mode: dark page, comic stays white-on-ink ── */
 html[data-theme="dark"] .section { background: var(--dk-page); }
 html[data-theme="dark"] .heading { color: var(--dk-ink); }
 html[data-theme="dark"] .sub { color: #8a8a8a; }

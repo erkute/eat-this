@@ -7,7 +7,6 @@
 // corner launcher and flies him into the corner once the section scrolls away.
 import { useEffect, useRef, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import BuddyAvatar, { type BuddyMood } from './buddy/BuddyAvatar'
 import { greetingFor, introFor } from '@/lib/buddy/greeting'
 import { dispatchBuddyAsk, dispatchBuddyStage } from '@/lib/buddy/homeStage'
 import type { Locale } from '@/lib/buddy/types'
@@ -18,10 +17,8 @@ export default function HubFragRemy() {
   const t = useTranslations('hub.fragRemy')
   const stageRef = useRef<HTMLDivElement>(null)
   const [intro, setIntro] = useState<{ greeting: string; suggestions: string[] } | null>(null)
-  const [mood, setMood] = useState<BuddyMood>('idle')
   const [popped, setPopped] = useState(false)
   const spoke = useRef(false)
-  const moodTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   // Daypart greeting is client-only (the server's clock isn't the user's):
   // SSR shows Remy's static intro line, the hook + chips land after hydration.
@@ -40,13 +37,10 @@ export default function HubFragRemy() {
           visible: entry.isIntersecting,
           rect: { left: r.left, top: r.top, width: r.width, height: r.height },
         })
-        // First appearance: the bubble pops in and Remy's mouth flaps briefly,
-        // as if he speaks the greeting right at you.
+        // First time he scrolls into view, the bubble pops in (a sign of life).
         if (entry.isIntersecting && !spoke.current) {
           spoke.current = true
           setPopped(true)
-          setMood('talking')
-          moodTimer.current = setTimeout(() => setMood('idle'), 2500)
         }
       },
       { threshold: 0.3 },
@@ -54,7 +48,6 @@ export default function HubFragRemy() {
     io.observe(el)
     return () => {
       io.disconnect()
-      clearTimeout(moodTimer.current)
       // Section gone (e.g. soft-nav away): release the launcher, no flight.
       dispatchBuddyStage({ visible: false })
     }
@@ -65,31 +58,34 @@ export default function HubFragRemy() {
       <h2 className={styles.heading}>{t('title')}</h2>
       <p className={styles.sub}>{t('sub')}</p>
       <div className={styles.stage}>
-        {/* Comic strip: bubble hangs over Remy's head, tail points down at him. */}
-        <div className={styles.bubble} data-pop={popped ? '' : undefined}>
-          <p className={styles.bubbleText}>{intro ? intro.greeting : introFor(locale)}</p>
+        {/* Full cut-out Remy, bottom-aligned so he rises out of the section;
+            the speech bubble hangs over his head, tail pointing down at him. */}
+        <div className={styles.figureCol} ref={stageRef} data-fragremy-avatar="">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className={styles.figure} src="/buddy/buddy.webp" alt="Remy" width={220} height={220} />
         </div>
-        <div className={styles.row}>
-          <div className={styles.avatar} ref={stageRef} data-fragremy-avatar="">
-            <BuddyAvatar mood={mood} size={132} />
+        <div className={styles.talk}>
+          <div className={styles.bubble} data-pop={popped ? '' : undefined}>
+            <p className={styles.bubbleText}>{intro ? intro.greeting : introFor(locale)}</p>
           </div>
-          <div className={styles.talk}>
-            <div className={styles.chips} data-fragremy-chips="">
-              {(intro?.suggestions ?? []).map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  className={styles.chip}
-                  onClick={() => dispatchBuddyAsk({ question: s })}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-            <button type="button" className={styles.cta} onClick={() => dispatchBuddyAsk()}>
-              {t('cta')}
-            </button>
+          <div className={styles.chips} data-fragremy-chips="">
+            {(intro?.suggestions ?? []).map((s) => (
+              <button
+                key={s}
+                type="button"
+                className={styles.chip}
+                onClick={() => dispatchBuddyAsk({ question: s })}
+              >
+                {s}
+              </button>
+            ))}
           </div>
+          {/* Looks like a chat input — invites typing, opens the panel. The
+              placeholder avoids repeating the "Frag Remy" heading. */}
+          <button type="button" className={styles.input} onClick={() => dispatchBuddyAsk()} aria-label={t('open')} data-fragremy-open="">
+            <span className={styles.inputText}>{t('inputPlaceholder')}</span>
+            <span className={styles.inputSend} aria-hidden="true">→</span>
+          </button>
         </div>
       </div>
     </section>

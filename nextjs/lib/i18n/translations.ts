@@ -59,8 +59,9 @@ const en = {
     },
     fragRemy: {
       title: "Ask Remy",
-      sub: "He knows every spot on the map. Ask him anything.",
-      cta: "Ask Remy →",
+      sub: "Berlin's food insider — he knows every spot on the map.",
+      inputPlaceholder: "What are you in the mood for?",
+      open: "Start chatting with Remy",
     },
     magazine: {
       title: "In the magazine",
@@ -420,8 +421,9 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     },
     fragRemy: {
       title: "Frag Remy",
-      sub: "Er kennt jeden Spot auf der Karte. Frag ihn einfach.",
-      cta: "Frag Remy →",
+      sub: "Berlins Food-Insider — er kennt jeden Spot auf der Karte.",
+      inputPlaceholder: "Wonach ist dir gerade?",
+      open: "Chat mit Remy starten",
     },
     magazine: {
       title: "Im Magazin",

@@ -1,4 +1,11 @@
 .section { background: #fbf8ee; }
+/* Anchor target (/#hub-packs). On mobile the window scrolls and the fixed
+   navbar (64px + safe-area, see .navbar in css/style.css) overlays the top —
+   without this margin the headline lands hidden under the bar. Desktop scrolls
+   inside .app-pages, which already starts below the navbar. */
+@media (max-width: 767px) {
+  .section { scroll-margin-top: calc(64px + env(safe-area-inset-top, 0px)); }
+}
 .heading {
   font-family: var(--font-ranchers);
   font-size: clamp(34px, 11vw, 44px);

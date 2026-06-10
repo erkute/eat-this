@@ -131,6 +131,10 @@ export default function BurgerDrawer() {
             <Link href="/" className="bd-nav-item">{t('burger.home')}</Link>
             <Link href="/map" className="bd-nav-item">{t('burger.map')}</Link>
             <Link href="/must-eats" className="bd-nav-item">{t('burger.mustEats')}</Link>
+            {/* Remy lives only on the home hub now (no corner launcher elsewhere),
+                so the burger is the way to reach him from any page — scrolls to
+                his "Frag Remy" section via HubHashScroll. */}
+            <Link href="/#hub-fragremy" className="bd-nav-item">{t('burger.fragRemy')}</Link>
             <Link href="/news" className="bd-nav-item">{t('burger.aufDemTeller')}</Link>
             <Link href="/#hub-packs" className="bd-nav-item">{t('burger.boosterPacks')}</Link>
             <Link href="/about" className="bd-nav-item">{t('burger.about')}</Link>

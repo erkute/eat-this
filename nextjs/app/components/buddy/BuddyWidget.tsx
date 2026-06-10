@@ -408,6 +408,20 @@ export default function BuddyWidget() {
     return () => window.removeEventListener('keydown', onKey)
   }, [open, closePanel])
 
+  // Click/tap anywhere outside the panel closes it — standard overlay
+  // behaviour, relevant on desktop where the page stays visible next to the
+  // panel (mobile is near-fullscreen, so outside barely exists). pointerdown
+  // (not click) so a drag that starts inside and ends outside doesn't close.
+  useEffect(() => {
+    if (!open) return
+    const onPointerDown = (e: Event) => {
+      const panel = panelRef.current
+      if (panel && e.target instanceof Node && !panel.contains(e.target)) closePanel()
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    return () => document.removeEventListener('pointerdown', onPointerDown)
+  }, [open, closePanel])
+
   // ── Home-stage protocol ──
   // While the hub's "Frag Remy" section is on screen there is only ONE Remy —
   // the stage one — so the corner launcher hides. When the stage scrolls away,

@@ -74,4 +74,16 @@ describe('BuddyWidget home-stage protocol', () => {
     expect(document.querySelector('[data-buddy-panel="open"]')).not.toBeNull()
     expect(send).not.toHaveBeenCalled()
   })
+
+  it('closes the panel on pointerdown outside, stays open on inside interaction', () => {
+    renderWidget()
+    fireEvent(window, new CustomEvent(BUDDY_ASK_EVENT, { detail: {} }))
+    const panel = document.querySelector('[data-buddy-panel="open"]')!
+
+    fireEvent.pointerDown(panel)
+    expect(document.querySelector('[data-buddy-panel="open"]')).not.toBeNull()
+
+    fireEvent.pointerDown(document.body)
+    expect(document.querySelector('[data-buddy-panel="open"]')).toBeNull()
+  })
 })

@@ -8,7 +8,7 @@ import MustEatImageLightbox from '@/app/components/map/MustEatImageLightbox'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import styles from './MustEatsSection.module.css'
 
-const CARD_BACK = '/pics/card-back.webp?v=5'
+const CARD_BACK = '/pics/card-back.webp?v=6'
 
 interface Props {
   initialMapData: InitialMapData

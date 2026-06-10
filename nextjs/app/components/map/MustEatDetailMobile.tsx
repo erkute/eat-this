@@ -10,7 +10,7 @@ import styles from './map.module.css'
 import { UNLOCK_RADIUS_METERS, type MustEatDetailState } from './useMustEatDetailState'
 import { CloseIcon, PagerArrowIcon } from './icons'
 
-const CARD_BACK = '/pics/card-back.webp?v=5'
+const CARD_BACK = '/pics/card-back.webp?v=6'
 
 interface Props {
   mustEat: MapMustEat

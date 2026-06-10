@@ -110,7 +110,7 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaur
             >
               <div className={styles.mePh}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/pics/card-back.webp?v=5" alt={tCovered('covered')} loading="lazy" />
+                <img src="/pics/card-back.webp?v=6" alt={tCovered('covered')} loading="lazy" />
               </div>
               <div className={styles.meLabel}>
                 <h4 className={styles.meName}>{tCovered('covered')}</h4>

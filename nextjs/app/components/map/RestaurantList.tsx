@@ -100,7 +100,7 @@ function Item({ restaurant, userLocation, isSelected, peek, locked, hideBadge, o
       {peek.kind !== 'none' && !locked && (
         <span className={styles.mustPeek}>
           <img
-            src={peek.kind === 'open' ? sanityImageLoader({ src: peek.image, width: 160 }) : '/pics/card-back.webp?v=5'}
+            src={peek.kind === 'open' ? sanityImageLoader({ src: peek.image, width: 160 }) : '/pics/card-back-sm.webp?v=6'}
             alt=""
             aria-hidden="true"
             loading="lazy"

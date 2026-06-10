@@ -72,3 +72,88 @@ export function greetingFor(hour: number, locale: Locale): { greeting: string; s
 export function introFor(locale: Locale): string {
   return INTRO[locale]
 }
+
+// ── Home-stage variant ────────────────────────────────────────────────────
+// The "Remy kennt die Spots" hero on the home hub speaks one self-contained
+// line in his voice (Döner-&-Donuts tone: dry, concrete, no filler, no emojis).
+// The identity opener stays constant; the second clause shifts with the daypart
+// so the hero reads fresh morning vs. midnight. Two tappable answers per daypart
+// hand off to the chat (see HubFragRemy + homeStage.ts).
+const STAGE_LINE: Record<Locale, Record<Daypart, string>> = {
+  de: {
+    morning: 'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin — der Tag ist zu kurz für schlechten Kaffee.',
+    midday: 'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin — schnell essen, ohne sich mit Mittelmaß abzufinden.',
+    afternoon: 'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin — Kaffee, Kuchen, kurze Pause. Aber bitte richtig.',
+    evening: 'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin — für Dinner, Drinks und Orte, die den Abend tragen.',
+    late: 'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin — wenn es spät wird, zählt nicht nur, was noch offen ist.',
+  },
+  en: {
+    morning: "Hi, I'm Remy. I know the best spots in Berlin — the day's too short for bad coffee.",
+    midday: "Hi, I'm Remy. I know the best spots in Berlin — eat quick, without settling for mediocre.",
+    afternoon: "Hi, I'm Remy. I know the best spots in Berlin — coffee, cake, a short break. But done right.",
+    evening: "Hi, I'm Remy. I know the best spots in Berlin — for dinner, drinks, and places that carry the night.",
+    late: "Hi, I'm Remy. I know the best spots in Berlin — when it gets late, it's not just about what's still open.",
+  },
+}
+
+// Two quick answers per daypart — the user's side of the conversation. Tapping
+// one opens the chat with that exact question.
+const STAGE_ANSWERS: Record<Locale, Record<Daypart, [string, string]>> = {
+  de: {
+    morning: ['Guter Kaffee in der Nähe', 'Ordentliches Frühstück'],
+    midday: ['Schnelles Mittagessen', 'Lieber in Ruhe hinsetzen'],
+    afternoon: ['Kaffee und was Süßes', 'Schon der erste Drink'],
+    evening: ['Richtig gute Pizza', 'Schönes Dinner für zwei'],
+    late: ['Bester Döner jetzt', 'Bar, die noch offen hat'],
+  },
+  en: {
+    morning: ['Good coffee nearby', 'A proper breakfast'],
+    midday: ['Quick lunch', 'A proper sit-down'],
+    afternoon: ['Coffee and something sweet', 'Already the first drink'],
+    evening: ['Really good pizza', 'A nice dinner for two'],
+    late: ['Best döner right now', "A bar that's still open"],
+  },
+}
+
+// Daypart-independent opener — server-renders before the client clock is known,
+// then the daypart line swaps in after hydration. Both contain "ich bin Remy".
+const STAGE_INTRO: Record<Locale, string> = {
+  de: 'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin.',
+  en: "Hi, I'm Remy. I know the best spots in Berlin.",
+}
+
+// Editorial lead — the daypart clause as a standalone sentence (the bold hero's
+// headline already carries "Remy kennt die Spots", so the lead need not repeat
+// it). Shifts with the time of day; SSR falls back to the generic sub.
+const STAGE_LEAD: Record<Locale, Record<Daypart, string>> = {
+  de: {
+    morning: 'Der Tag ist zu kurz für schlechten Kaffee.',
+    midday: 'Schnell essen, ohne sich mit Mittelmaß abzufinden.',
+    afternoon: 'Kaffee, Kuchen, kurze Pause. Aber bitte richtig.',
+    evening: 'Für Dinner, Drinks und lange Abende.',
+    late: 'Wenn es spät wird, zählt nicht nur, was noch offen ist.',
+  },
+  en: {
+    morning: "The day's too short for bad coffee.",
+    midday: 'Eat quick, without settling for mediocre.',
+    afternoon: 'Coffee, cake, a short break. But done right.',
+    evening: 'For dinner, drinks, and long nights.',
+    late: "When it gets late, it's not just about what's still open.",
+  },
+}
+
+export function stageIntroFor(locale: Locale): string {
+  return STAGE_INTRO[locale]
+}
+
+export function stageFor(
+  hour: number,
+  locale: Locale,
+): { line: string; lead: string; answers: [string, string] } {
+  const part = daypartFor(hour)
+  return {
+    line: STAGE_LINE[locale][part],
+    lead: STAGE_LEAD[locale][part],
+    answers: STAGE_ANSWERS[locale][part],
+  }
+}

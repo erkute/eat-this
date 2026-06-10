@@ -59,8 +59,10 @@ const en = {
     },
     fragRemy: {
       title: "Ask Remy",
-      sub: "He knows every spot on the map. Ask him anything.",
-      cta: "Ask Remy →",
+      headline: "Remy knows the spots.",
+      sub: "Your Berlin food insider – just ask.",
+      inputPlaceholder: "…or just ask Remy",
+      sendAria: "Send",
     },
     magazine: {
       title: "In the magazine",
@@ -249,6 +251,7 @@ const en = {
     home: "Home",
     map: "Map",
     mustEats: "Must Eats",
+    fragRemy: "Ask Remy",
     aufDemTeller: "On the Menu",
     boosterPacks: "Booster Packs",
     profile: "Profile",
@@ -420,8 +423,10 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     },
     fragRemy: {
       title: "Frag Remy",
-      sub: "Er kennt jeden Spot auf der Karte. Frag ihn einfach.",
-      cta: "Frag Remy →",
+      headline: "Remy kennt die Spots.",
+      sub: "Dein Food-Insider für Berlin – frag ihn einfach.",
+      inputPlaceholder: "…oder frag Remy direkt",
+      sendAria: "Senden",
     },
     magazine: {
       title: "Im Magazin",
@@ -593,6 +598,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     restaurants: "Restaurants",
     home: "Home",
     map: "Map",
+    fragRemy: "Frag Remy",
     aufDemTeller: "Auf dem Teller",
     boosterPacks: "Booster Packs",
     profile: "Profil",

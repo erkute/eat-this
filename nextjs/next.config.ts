@@ -78,4 +78,14 @@ export default withSentryConfig(withNextIntl(nextConfig), {
   // Tunneling routes errors through our own /monitoring endpoint, dodging
   // ad-blockers that strip Sentry calls. Cheap insurance for prod traffic.
   tunnelRoute: '/monitoring',
+  // Tree-shake code we never run. Session Replay is disabled, so its
+  // iframe/shadow-DOM/worker helpers are dead weight in the client bundle;
+  // excludeDebugStatements drops Sentry's internal debug logging. Trims the
+  // ~126 KB gzip Sentry chunk without touching runtime error reporting.
+  bundleSizeOptimizations: {
+    excludeReplayIframe: true,
+    excludeReplayShadowDom: true,
+    excludeReplayWorker: true,
+    excludeDebugStatements: true,
+  },
 });

@@ -1,39 +1,23 @@
 /* nextjs/app/components/HubFragRemy.module.css
-   Bold yellow Remy panel: the full freigestellt figure rises out of the panel,
-   handwritten headline, white sticker chips, and a sticker-styled chat input
-   (hard ink offset shadow, ink send circle with a yellow arrow). Ink-on-yellow
-   stays the same in dark mode — the panel is the section's identity. */
+   Bold yellow Remy panel. Mobile: content stacked, big Remy rising out of the
+   bottom edge. Desktop: content left, big Remy rising on the right. Equal-width
+   sticker chips and a one-line sticker chat input. Ink-on-yellow in both themes
+   — the panel is the section's identity. */
 .section {
   background: var(--brand-yellow, #ffd84a);
-  /* no bottom padding: the cut-out figure meets the panel's bottom edge */
-  padding-bottom: 0;
+  padding-bottom: 0; /* the cut-out figure meets the panel's bottom edge */
   overflow: hidden;
 }
 .stage {
   display: flex;
-  align-items: flex-end;
-  gap: 12px;
+  flex-direction: column;
   padding: 0 14px;
 }
-.figureCol {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: flex-end;
-}
-.figure {
-  display: block;
-  width: clamp(128px, 36vw, 160px);
-  height: auto;
-  margin-bottom: -2px; /* sit flush on the panel's bottom edge */
-}
-.talk {
-  flex: 1 1 auto;
-  min-width: 0;
+.content {
   display: flex;
   flex-direction: column;
   gap: 11px;
-  padding: 30px 0 22px;
-  margin-left: -8px; /* Remy tucks slightly behind the column */
+  padding: 30px 0 0;
 }
 .heading {
   font-family: var(--font-ranchers);
@@ -48,12 +32,12 @@
   font-size: 13.5px;
   line-height: 1.4;
   color: #5a4a12;
-  margin: 0 0 3px;
+  margin: 0 0 2px;
 }
-/* ── white sticker chips ── */
+/* ── equal-width sticker chips (2-up grid) ── */
 .chips {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 .chip {
@@ -61,28 +45,27 @@
   background: #fff;
   color: #14100c;
   border-radius: 999px;
-  padding: 8px 13px;
+  padding: 9px 12px;
   font: inherit;
   font-size: 0.9em;
   font-weight: 600;
   line-height: 1.2;
   cursor: pointer;
-  text-align: left;
+  text-align: center;
   transition: background .12s ease, color .12s ease;
 }
 .chip:hover { background: #14100c; color: #fff; }
-/* ── sticker-styled chat input (the hero CTA) ── */
+/* ── one-line sticker chat input (the hero CTA) ── */
 .input {
   display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
-  max-width: 440px;
   margin-top: 5px;
   background: #fff;
   border: 2.5px solid #14100c;
   border-radius: 999px;
-  padding: 8px 8px 8px 18px;
+  padding: 9px 9px 9px 18px;
   cursor: pointer;
   text-align: left;
   font: inherit;
@@ -91,7 +74,15 @@
 }
 .input:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #14100c; }
 .input:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #14100c; }
-.inputText { flex: 1; color: #8a8377; font-size: 15px; }
+.inputText {
+  flex: 1;
+  min-width: 0;
+  color: #8a8377;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .inputSend {
   flex: 0 0 auto;
   display: inline-flex;
@@ -107,13 +98,26 @@
 }
 .input:focus-visible,
 .chip:focus-visible { outline: 3px solid #14100c; outline-offset: 2px; }
+/* ── big Remy ── */
+.figureCol {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 8px;
+}
+.figure {
+  display: block;
+  width: clamp(200px, 56vw, 260px);
+  height: auto;
+  margin-bottom: -2px; /* sit flush on the panel's bottom edge */
+}
 
-/* ── Desktop: roomier, bigger Remy ── */
+/* ── Desktop: content left, big Remy rising on the right ── */
 @media (min-width: 720px) {
   .section { padding-inline: max(14px, calc((100% - 1120px) / 2)); }
-  .stage { padding: 0; gap: 26px; align-items: flex-end; }
-  .figure { width: clamp(170px, 19vw, 220px); }
-  .talk { padding: 44px 0 40px; margin-left: 0; max-width: 560px; }
+  .stage { flex-direction: row; align-items: flex-end; gap: 28px; padding: 0; }
+  .content { flex: 1 1 auto; max-width: 560px; padding: 48px 0 46px; }
   .heading { font-size: clamp(52px, 6vw, 68px); }
-  .sub { font-size: 15px; margin-bottom: 6px; }
+  .sub { font-size: 15px; }
+  .figureCol { flex: 0 0 auto; align-self: flex-end; margin-top: 0; }
+  .figure { width: clamp(230px, 26vw, 320px); }
 }

@@ -49,14 +49,10 @@ export default function HubFragRemy() {
   return (
     <section className={styles.section} data-hub-fragremy="">
       <div className={styles.stage}>
-        {/* Full cut-out Remy, bottom-aligned so he rises out of the yellow panel. */}
-        <div className={styles.figureCol} ref={stageRef} data-fragremy-avatar="">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className={styles.figure} src="/buddy/buddy.webp" alt="Remy" width={220} height={220} />
-        </div>
-        <div className={styles.talk}>
+        <div className={styles.content}>
           <h2 className={styles.heading}>{t('title')}</h2>
           <p className={styles.sub}>{t('sub')}</p>
+          {/* equal-width starter chips */}
           <div className={styles.chips} data-fragremy-chips="">
             {suggestions.map((s) => (
               <button
@@ -70,11 +66,17 @@ export default function HubFragRemy() {
             ))}
           </div>
           {/* Sticker-styled chat input — invites typing, opens the panel. The
-              placeholder avoids repeating the "Frag Remy" heading. */}
+              placeholder avoids repeating the "Frag Remy" heading and stays on
+              one line. */}
           <button type="button" className={styles.input} onClick={() => dispatchBuddyAsk()} aria-label={t('open')} data-fragremy-open="">
             <span className={styles.inputText}>{t('inputPlaceholder')}</span>
             <span className={styles.inputSend} aria-hidden="true">→</span>
           </button>
+        </div>
+        {/* Full cut-out Remy, bottom-aligned so he rises out of the yellow panel. */}
+        <div className={styles.figureCol} ref={stageRef} data-fragremy-avatar="">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className={styles.figure} src="/buddy/buddy.webp" alt="Remy" width={260} height={260} />
         </div>
       </div>
     </section>

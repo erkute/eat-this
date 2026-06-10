@@ -29,9 +29,14 @@ vi.mock('@/lib/firebase/admin', () => ({
   }),
 }))
 
+vi.mock('@/lib/firebase/unlockedMustEats.server', () => ({
+  getUnlockedMustEatIds: vi.fn().mockResolvedValue(new Set<string>()),
+}))
+
 import { GET } from '@/app/api/map-data/route'
 import { getCachedMapData } from '@/lib/map/cached-sanity'
 import { resolveEntitlements } from '@/lib/firebase/entitlements'
+import { getUnlockedMustEatIds } from '@/lib/firebase/unlockedMustEats.server'
 
 function mkReq(token: string | null = null): Request {
   const headers = new Headers()
@@ -58,6 +63,9 @@ function mkMustEat(id: string, restaurantId: string, opts: Partial<{ revealedFor
   return {
     _id: id,
     dish: `Dish ${id}`,
+    description: `Secret ${id}`,
+    price: '12 €',
+    image: `https://cdn.example/${id}.jpg`,
     revealedForAnon: false,
     restaurant: { _id: restaurantId, name: `R-${restaurantId}`, slug: restaurantId },
     ...opts,
@@ -297,5 +305,95 @@ describe('/api/map-data — tier composition', () => {
     const json = await res.json()
     expect(json.restaurants.length).toBe(2)
     expect(json.lockedRestaurants).toEqual([])
+  })
+})
+
+describe('/api/map-data — covered must-eats are stripped (paywall)', () => {
+  const baseEnt = {
+    isAdmin: false,
+    hasAllBerlin: false,
+    categorySlugs: new Set<string>(),
+    restaurantIds: new Set<string>(),
+    mustEatIds: new Set<string>(),
+  }
+
+  it('anonymous: covered cards carry no dish/image/price/description, revealed ones stay full', async () => {
+    const restaurants = [
+      mkRestaurant('a1', { tierAnon: true }),
+      mkRestaurant('a2', { tierAnon: true }),
+    ]
+    // One face-up per spot max (composeRevealedMustEats) — the second card on
+    // a2 is guaranteed covered.
+    const mustEats = [
+      mkMustEat('m1', 'a1', { revealedForAnon: true }),
+      mkMustEat('m2', 'a2', { revealedForAnon: true }),
+      mkMustEat('m2b', 'a2'),
+    ]
+    vi.mocked(getCachedMapData).mockResolvedValue({
+      restaurants: restaurants as any,
+      mustEats: mustEats as any,
+      categories: [],
+    })
+    vi.mocked(resolveEntitlements).mockResolvedValue(baseEnt)
+
+    const json = await (await GET(mkReq(null))).json()
+
+    const revealed = json.mustEats.find((m: any) => m._id === 'm1')
+    expect(revealed.dish).toBe('Dish m1')
+    expect(revealed.image).toBeDefined()
+
+    const covered = json.mustEats.find((m: any) => m._id === 'm2b')
+    expect(covered).toBeDefined()
+    expect(covered.dish).toBeUndefined()
+    expect(covered.image).toBeUndefined()
+    expect(covered.price).toBeUndefined()
+    expect(covered.description).toBeUndefined()
+    // The card-back rendering still needs the restaurant ref.
+    expect(covered.restaurant._id).toBe('a2')
+    expect(covered.restaurant.name).toBe('R-a2')
+  })
+
+  it('signed-in: on-site unlocks and purchased mustEatIds stay face-up', async () => {
+    const restaurants = [
+      mkRestaurant('a1', { tierAnon: true }),
+      mkRestaurant('a2', { tierAnon: true }),
+      mkRestaurant('a3', { tierAnon: true }),
+    ]
+    // The curated reveal takes one card per spot (m1/m2/m3 by id order) —
+    // the *b cards are covered unless unlocked or purchased.
+    const mustEats = [
+      mkMustEat('m1', 'a1'), mkMustEat('m1b', 'a1'),
+      mkMustEat('m2', 'a2'), mkMustEat('m2b', 'a2'),
+      mkMustEat('m3', 'a3'), mkMustEat('m3b', 'a3'),
+    ]
+    vi.mocked(getCachedMapData).mockResolvedValue({
+      restaurants: restaurants as any,
+      mustEats: mustEats as any,
+      categories: [],
+    })
+    vi.mocked(resolveEntitlements).mockResolvedValue({
+      ...baseEnt,
+      mustEatIds: new Set(['m2b']),
+    })
+    vi.mocked(getUnlockedMustEatIds).mockResolvedValueOnce(new Set(['m1b']))
+
+    const json = await (await GET(mkReq('valid-token'))).json()
+
+    const byId = new Map(json.mustEats.map((m: any) => [m._id, m]))
+    expect((byId.get('m1b') as any).dish).toBe('Dish m1b')  // on-site unlock
+    expect((byId.get('m2b') as any).dish).toBe('Dish m2b')  // purchased grant
+    expect((byId.get('m3b') as any).dish).toBeUndefined()   // still covered
+  })
+
+  it('anonymous: never reads the unlock collection', async () => {
+    vi.mocked(getCachedMapData).mockResolvedValue({
+      restaurants: [mkRestaurant('a1', { tierAnon: true })] as any,
+      mustEats: [] as any,
+      categories: [],
+    })
+    vi.mocked(resolveEntitlements).mockResolvedValue(baseEnt)
+
+    await GET(mkReq(null))
+    expect(getUnlockedMustEatIds).not.toHaveBeenCalled()
   })
 })

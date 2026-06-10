@@ -301,23 +301,6 @@ export const mustEatsByRestaurantQuery = `
   }
 `
 
-// Must Eat album grid — matches legacy window.CMS.fetchMustEats projection,
-// plus the teaser fields the profile deck needs to make cards revealable.
-export const allMustEatsAlbumQuery = `
-  *[_type == "mustEat"] | order(order asc) {
-    _id,
-    dish,
-    restaurant,
-    district,
-    price,
-    "imageUrl": image.asset->url + "?w=600&auto=format&q=80",
-    "restaurantSlug": restaurantRef->slug.current,
-    "restaurantId": restaurantRef->_id,
-    revealedForAnon,
-    order
-  }
-`
-
 // All static pages (about, contact, press, impressum, datenschutz, agb)
 export const allStaticPagesQuery = `
   *[_type == "staticPage" && defined(slug.current)] {

@@ -5,7 +5,6 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import { useUnlockedMustEats, useMapData } from '@/lib/map';
 import { defaultAvatarFromUid, useUserProfile } from '@/lib/firebase/useUserProfile';
-import type { MustEatAlbumCard } from '@/lib/types';
 import { TOAST_HANDOFF_KEY } from '../NotificationToast';
 import ProfileSpots from './ProfileSpots';
 import ProfileMustEats from './ProfileMustEats';
@@ -14,7 +13,6 @@ import SiteFooter from '../SiteFooter';
 import styles from './ProfileSlim.module.css';
 
 interface Props {
-  mustEats: MustEatAlbumCard[];
   /** Server-computed anon face-up set (trial-10 ∪ spot-of-day). Publicly
    *  face-up cards stay face-up in the collection too. */
   publicFaceUpIds: string[];
@@ -30,7 +28,7 @@ function memberSince(creationTime: string | undefined, locale: string): string |
 
 // Slim profile (mockup-chewy screens 15/16): one cream scroll — head, saved
 // spots, collected must-eats, packs, logout, footer. No tabs/settings/referral.
-export default function ProfileShell({ mustEats, publicFaceUpIds }: Props) {
+export default function ProfileShell({ publicFaceUpIds }: Props) {
   const { user, loading, signOut } = useAuth();
   const locale = useLocale();
   const t = useTranslations('profile');
@@ -45,7 +43,9 @@ export default function ProfileShell({ mustEats, publicFaceUpIds }: Props) {
   const { profile } = useUserProfile(user?.uid ?? null);
   // Owned spots (the user's map tier) → drives which must-eats appear in the
   // collected grid. Fetches /api/map-data on mount; cached for instant repaint.
-  const { restaurants: ownedRestaurants } = useMapData({ uid: user?.uid ?? null, authLoading: loading });
+  // The same per-user payload also feeds the deck itself — covered cards come
+  // back stripped (no dish/image), unlocked ones carry the full card data.
+  const { restaurants: ownedRestaurants, mustEats } = useMapData({ uid: user?.uid ?? null, authLoading: loading });
   const ownedRestaurantIds = useMemo(
     () => new Set(ownedRestaurants.map((r) => r._id)),
     [ownedRestaurants],

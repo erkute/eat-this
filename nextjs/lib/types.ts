@@ -136,19 +136,6 @@ export interface StaticPageDoc {
   bodyDe?: PortableTextBlock[]
 }
 
-export interface MustEatAlbumCard {
-  _id: string
-  dish: string
-  restaurant: string
-  district?: string
-  price?: string
-  imageUrl: string
-  restaurantSlug?: string
-  restaurantId?: string
-  revealedForAnon?: boolean
-  order?: number
-}
-
 interface BezirkSeo {
   metaTitle?: string
   metaTitleEn?: string
@@ -220,11 +207,14 @@ export interface MapRestaurant {
 
 export interface MapMustEat {
   _id: string
-  dish: string
+  // dish/image/description/price are the paid content: the server strips them
+  // for covered (face-down) cards (see lib/map/stripCoveredMustEats.ts), so
+  // they're only present when the card is face-up for this viewer.
+  dish?: string
   description?: string
   descriptionEn?: string
   price?: string
-  image: string
+  image?: string
   order?: number
   restaurant: {
     _id: string

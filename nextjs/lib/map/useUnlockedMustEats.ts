@@ -1,11 +1,15 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { collection, doc, getDocs, setDoc, serverTimestamp } from 'firebase/firestore'
-import { db } from '@/lib/firebase/config'
+import { collection, getDocs } from 'firebase/firestore'
+import { auth, db } from '@/lib/firebase/config'
+import type { MapMustEat } from '@/lib/types'
 
 interface UseUnlockedMustEatsResult {
   unlockedIds: Set<string>
-  unlock: (mustEatId: string, restaurantId: string, dish: string) => Promise<void>
+  /** On-site reveal: persists the unlock server-side and returns the full
+   *  must-eat (covered cards ship stripped — see stripCoveredMustEats), or
+   *  null when not signed in / the request failed. */
+  unlock: (mustEatId: string) => Promise<MapMustEat | null>
   loading: boolean
 }
 
@@ -53,18 +57,25 @@ export function useUnlockedMustEats(uid: string | null): UseUnlockedMustEatsResu
       .finally(() => setLoading(false))
   }, [uid])
 
-  const unlock = useCallback(async (mustEatId: string, restaurantId: string, dish: string) => {
-    if (!uid) return
-    await setDoc(doc(db, 'users', uid, 'unlockedMustEats', mustEatId), {
-      restaurantId,
-      dish,
-      unlockedAt: serverTimestamp(),
+  const unlock = useCallback(async (mustEatId: string): Promise<MapMustEat | null> => {
+    if (!uid || !auth.currentUser) return null
+    const token = await auth.currentUser.getIdToken()
+    const r = await fetch('/api/must-eat-reveal', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ mustEatId }),
     })
+    if (!r.ok) return null
+    const { mustEat } = (await r.json()) as { mustEat: MapMustEat }
     setUnlockedIds(prev => {
       const next = new Set([...prev, mustEatId])
       writeCache(uid, next)
       return next
     })
+    return mustEat
   }, [uid])
 
   return { unlockedIds, unlock, loading }

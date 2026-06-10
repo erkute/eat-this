@@ -12,6 +12,7 @@ import {
 } from './tier-composition'
 import { applySpotOfDayReveal } from './spotOfDayReveal'
 import { getFreeSurfaceData, applyFreeSurface } from './free-surface'
+import { stripCoveredMustEats } from './stripCoveredMustEats'
 import { getSpotOfDayId } from '@/lib/home/spotOfDay.server'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import type { CategoryDef } from '@/lib/categories'
@@ -65,7 +66,9 @@ export async function getInitialAnonMapData(): Promise<InitialMapData> {
   return {
     restaurants:        gifted.restaurants,
     lockedRestaurants:  gifted.lockedRestaurants,
-    mustEats:           gifted.mustEats,
+    // Anon view: only the curated set + spot-of-day gift are face-up; covered
+    // cards ship stripped so the paid fields never reach the public HTML.
+    mustEats:           stripCoveredMustEats(gifted.mustEats, gifted.revealedMustEatIds),
     categories,
     totalCount:         all.length,
     revealedMustEatIds: Array.from(gifted.revealedMustEatIds),

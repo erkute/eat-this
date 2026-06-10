@@ -34,6 +34,10 @@ interface MapData {
   loading:     boolean
   error:       string | null
   refetch:     () => void
+  /** Swap a single must-eat in place — used after an on-site reveal, where the
+   *  /api/must-eat-reveal response carries the full card data that the bulk
+   *  payload ships stripped (covered cards have no dish/image). */
+  mergeMustEat: (m: MapMustEat) => void
 }
 
 // Per-uid localStorage cache of the signed-in map payload. SSR can only render
@@ -113,6 +117,9 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
   // Bump when refetch() is invoked to re-fire the fetch effect.
   const [tick,        setTick]        = useState(0)
   const refetch = useCallback(() => setTick((n) => n + 1), [])
+  const mergeMustEat = useCallback((m: MapMustEat) => {
+    setMustEats((prev) => prev.map((x) => (x._id === m._id ? m : x)))
+  }, [])
 
   // Track latest effect to avoid setting state from a stale fetch when uid
   // changes mid-request (e.g. sign-out during a fetch).
@@ -195,5 +202,5 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
     })()
   }, [uid, authLoading, tick])
 
-  return { restaurants, lockedRestaurants, mustEats, categories, totalCount, revealedMustEatIds, loading, error, refetch }
+  return { restaurants, lockedRestaurants, mustEats, categories, totalCount, revealedMustEatIds, loading, error, refetch, mergeMustEat }
 }

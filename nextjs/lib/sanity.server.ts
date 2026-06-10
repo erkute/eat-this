@@ -7,7 +7,6 @@ import {
   allNewsArticlesQuery,
   latestNewsArticlesQuery,
   allStaticPagesQuery,
-  allMustEatsAlbumQuery,
   mustEatsByRestaurantQuery,
   allBezirkeWithStatsQuery,
   bezirkBySlugQuery,
@@ -18,7 +17,7 @@ import {
   emailSpotsQuery,
   emailSpotCardQuery,
 } from './queries'
-import type { Restaurant, NewsArticle, StaticPageDoc, MustEatAlbumCard, BezirkDoc, RestaurantCard } from './types'
+import type { Restaurant, NewsArticle, StaticPageDoc, BezirkDoc, RestaurantCard } from './types'
 import type { CategoryDef } from './categories'
 
 export async function getRestaurantBySlug(slug: string): Promise<Restaurant | null> {
@@ -78,14 +77,6 @@ export async function getAllStaticPages(): Promise<StaticPageDoc[]> {
     allStaticPagesQuery,
     {},
     { next: { revalidate: 3600, tags: ['staticPage'] } }
-  )
-}
-
-export async function getAllMustEats(): Promise<MustEatAlbumCard[]> {
-  return client.fetch<MustEatAlbumCard[]>(
-    allMustEatsAlbumQuery,
-    {},
-    { next: { revalidate: 3600, tags: ['mustEat'] } }
   )
 }
 

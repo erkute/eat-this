@@ -13,6 +13,8 @@ import {
 import { applySpotOfDayReveal } from '@/lib/map/spotOfDayReveal'
 import { getSpotOfDayId } from '@/lib/home/spotOfDay.server'
 import { getFreeSurfaceData, applyFreeSurface } from '@/lib/map/free-surface'
+import { stripCoveredMustEats } from '@/lib/map/stripCoveredMustEats'
+import { getUnlockedMustEatIds } from '@/lib/firebase/unlockedMustEats.server'
 
 // Per-user response. Disable framework-level caching; the expensive Sanity
 // fetch is shared via the module-level cache in cached-sanity.ts.
@@ -39,11 +41,13 @@ export async function GET(req: Request) {
     }
   }
 
-  const ent = await resolveEntitlements(uid, identity)
-  const [{ restaurants: all, mustEats: allMustEats, categories }, freeSurface] = await Promise.all([
-    getCachedMapData(),
-    getFreeSurfaceData(),
-  ])
+  const [ent, unlockedIds, [{ restaurants: all, mustEats: allMustEats, categories }, freeSurface]] =
+    await Promise.all([
+      resolveEntitlements(uid, identity),
+      // On-site reveals — they keep their must-eats face-up in the payload.
+      uid ? getUnlockedMustEatIds(uid) : Promise.resolve(new Set<string>()),
+      Promise.all([getCachedMapData(), getFreeSurfaceData()]),
+    ])
 
   // Precompute must-eat counts (shared across tier composers + visibility predicates).
   const mustEatCountByRestaurant = new Map<string, number>()
@@ -138,9 +142,18 @@ export async function GET(req: Request) {
     revealedMustEatIds: revealedSet,
   })
 
+  // Face-up for THIS viewer: curated/spot-of-day reveals ∪ on-site unlocks ∪
+  // purchased must-eat grants. Everything else ships stripped — covered cards
+  // render only the card-back, so the paid fields must not leave the server.
+  const faceUpIds = new Set([
+    ...gifted.revealedMustEatIds,
+    ...unlockedIds,
+    ...ent.mustEatIds,
+  ])
+
   const res = NextResponse.json({
     restaurants: gifted.restaurants,
-    mustEats: gifted.mustEats,
+    mustEats: stripCoveredMustEats(gifted.mustEats, faceUpIds),
     categories,
     totalCount: all.length,
     lockedRestaurants: gifted.lockedRestaurants,

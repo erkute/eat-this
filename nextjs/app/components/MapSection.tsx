@@ -53,6 +53,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     categories,
     revealedMustEatIds,
     refetch: refetchMapData,
+    mergeMustEat,
   } = useMapData({ uid, authLoading, initialMapData })
   const { location, loading: locating, request: requestLocation } = useUserLocation()
   const { unlockedIds: storedUnlockedIds, unlock } = useUnlockedMustEats(uid)
@@ -461,11 +462,17 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
 
   const handleUnlock = useCallback(async () => {
     if (!selectedMustEat) return
-    // Free-and-open map: anon visitors already see every must-eat as
-    // unlocked (see `unlockedIds` memo above). Nothing to persist.
+    // Anon taps never reach this handler — useMustEatDetailState routes
+    // in-range guests to the login gate instead.
     if (!uid) return
-    await unlock(selectedMustEat._id, selectedMustEat.restaurant._id, selectedMustEat.dish)
-  }, [selectedMustEat, uid, unlock])
+    // The reveal response carries the full card data (covered cards ship
+    // stripped) — merge it so the open detail and the list peek flip face-up.
+    const full = await unlock(selectedMustEat._id)
+    if (full) {
+      mergeMustEat(full)
+      setSelectedMustEat(full)
+    }
+  }, [selectedMustEat, uid, unlock, mergeMustEat])
 
   const handleLocateMe = useCallback(async () => {
     userInteractedRef.current = true

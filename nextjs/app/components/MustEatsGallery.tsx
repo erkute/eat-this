@@ -76,8 +76,8 @@ export default function MustEatsGallery({ initialMapData }: Props) {
       <div className={styles.grid}>
         {visible.map((m) => {
           const open = faceUp.has(m._id)
-          const imageUrl = open ? m.image : CARD_BACK
-          const alt = open ? m.dish : t('mustEats.covered')
+          const imageUrl = (open && m.image) || CARD_BACK
+          const alt = (open ? m.dish : undefined) ?? t('mustEats.covered')
           return (
             <button
               key={m._id}

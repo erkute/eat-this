@@ -573,7 +573,7 @@ async function main(): Promise<void> {
 }
 
 // Only run main when invoked directly via tsx; skipped when imported by the
-// API route. Symlink-safe via realpath (macOS /tmp → /private/tmp).
+// another local script. Symlink-safe via realpath (macOS /tmp → /private/tmp).
 import { realpathSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 function isCliEntry(): boolean {

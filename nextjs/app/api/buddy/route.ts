@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 import { checkRateLimit, sessionLimitsFromEnv, ipLimitsFromEnv } from '@/lib/buddy/rateLimit'
 import { createAnthropicLlmClient, runBuddyTurn } from '@/lib/buddy/orchestrator'
 import { searchSpots, searchArticles } from '@/lib/buddy/retrieval'
-import { clientIpFromXff } from '@/lib/buddy/clientIp'
+import { clientIpFromXff } from '@/lib/clientIp'
 import { encodeBuddyEvent } from '@/lib/buddy/stream'
 import type { ChatMessage, Locale } from '@/lib/buddy/types'
 
@@ -49,7 +49,7 @@ function parseBody(body: unknown):
 
 // Hashed before use so no raw IP is ever stored (rate-limit bucketing only).
 // IP-hop selection (which x-forwarded-for hop is the real client) lives in
-// lib/buddy/clientIp — route files can't carry extra exports.
+// lib/clientIp — route files can't carry extra exports.
 function clientIpHash(request: Request): string | null {
   const ip = clientIpFromXff(
     request.headers.get('x-forwarded-for'),

@@ -4,9 +4,9 @@ import { NextRequest } from 'next/server'
 // --- mocks (vars must be `mock`-prefixed to satisfy vi.mock hoisting) ---
 const mockVerifyIdToken     = vi.fn()
 const mockGetUser           = vi.fn()
-const mockIdempotencyGet    = vi.fn()
-const mockBatchSet          = vi.fn()
-const mockBatchCommit       = vi.fn()
+const mockTransactionGet    = vi.fn()
+const mockTransactionSet    = vi.fn()
+const mockRunTransaction    = vi.fn()
 
 vi.mock('@/lib/firebase/admin', () => ({
   getAdminAuth: () => ({ verifyIdToken: mockVerifyIdToken, getUser: mockGetUser }),
@@ -14,12 +14,11 @@ vi.mock('@/lib/firebase/admin', () => ({
     collection: () => ({
       doc: () => ({
         collection: () => ({
-          where: () => ({ limit: () => ({ get: mockIdempotencyGet }) }),
-          doc: () => ({ id: 'auto-id' }),
+          doc: (id: string) => ({ id }),
         }),
       }),
     }),
-    batch: () => ({ set: mockBatchSet, commit: mockBatchCommit }),
+    runTransaction: mockRunTransaction,
   }),
 }))
 
@@ -79,8 +78,10 @@ function primeHappyPath() {
       ? { email: 'friend@x.com', metadata: { creationTime: new Date().toISOString() } }
       : { email: 'inviter@x.com', metadata: { creationTime: new Date().toISOString() } },
   )
-  mockIdempotencyGet.mockResolvedValue({ empty: true })
-  mockBatchCommit.mockResolvedValue(undefined)
+  mockTransactionGet.mockResolvedValue({ exists: false })
+  mockRunTransaction.mockImplementation(async (fn) =>
+    fn({ get: mockTransactionGet, set: mockTransactionSet }),
+  )
 }
 
 beforeEach(() => {
@@ -99,8 +100,8 @@ describe('/api/referral/confirm', () => {
     primeHappyPath()
     const res = await POST(mkReq(INVITER))
     expect(res.status).toBe(200)
-    expect(mockBatchSet).toHaveBeenCalledTimes(2)
-    expect(mockBatchCommit).toHaveBeenCalledTimes(1)
+    expect(mockTransactionSet).toHaveBeenCalledTimes(2)
+    expect(mockRunTransaction).toHaveBeenCalledTimes(1)
     expect(res.cookies.get('pending_referrer')?.value).toBe('')
   })
 
@@ -109,7 +110,7 @@ describe('/api/referral/confirm', () => {
     mockVerifyIdToken.mockResolvedValue({ uid: INVITER })
     const res = await POST(mkReq(INVITER))
     expect(res.status).toBe(200)
-    expect(mockBatchSet).not.toHaveBeenCalled()
+    expect(mockTransactionSet).not.toHaveBeenCalled()
     expect(res.cookies.get('pending_referrer')?.value).toBe('')
   })
 
@@ -121,15 +122,15 @@ describe('/api/referral/confirm', () => {
         : { email: 'inviter@x.com', metadata: { creationTime: new Date().toISOString() } },
     )
     const res = await POST(mkReq(INVITER))
-    expect(mockBatchSet).not.toHaveBeenCalled()
+    expect(mockTransactionSet).not.toHaveBeenCalled()
     expect(res.cookies.get('pending_referrer')?.value).toBe('')
   })
 
   it('idempotent repeat (friend already invited-by) → no write, clears cookie', async () => {
     primeHappyPath()
-    mockIdempotencyGet.mockResolvedValue({ empty: false })
+    mockTransactionGet.mockResolvedValue({ exists: true })
     const res = await POST(mkReq(INVITER))
-    expect(mockBatchSet).not.toHaveBeenCalled()
+    expect(mockTransactionSet).not.toHaveBeenCalled()
     expect(res.cookies.get('pending_referrer')?.value).toBe('')
   })
 
@@ -141,7 +142,7 @@ describe('/api/referral/confirm', () => {
     })
     const res = await POST(mkReq(INVITER))
     expect(res.status).toBe(200)
-    expect(mockBatchSet).toHaveBeenCalledTimes(1)
+    expect(mockTransactionSet).toHaveBeenCalledTimes(1)
   })
 
   it('sanity outage → 200, no write, KEEPS cookie for retry', async () => {
@@ -149,7 +150,7 @@ describe('/api/referral/confirm', () => {
     vi.mocked(getCachedMapData).mockRejectedValue(new Error('sanity down'))
     const res = await POST(mkReq(INVITER))
     expect(res.status).toBe(200)
-    expect(mockBatchCommit).not.toHaveBeenCalled()
+    expect(mockRunTransaction).not.toHaveBeenCalled()
     expect(res.cookies.get('pending_referrer')).toBeUndefined()
   })
 
@@ -174,15 +175,17 @@ describe('/api/referral/confirm', () => {
         ? { email: 'friend@x.com', metadata: { creationTime: new Date().toISOString() } }
         : { email: 'inviter@x.com', metadata: { creationTime: new Date().toISOString() } },
     )
-    mockIdempotencyGet.mockResolvedValue({ empty: true })
-    mockBatchCommit.mockResolvedValue(undefined)
+    mockTransactionGet.mockResolvedValue({ exists: false })
+    mockRunTransaction.mockImplementation(async (fn) =>
+      fn({ get: mockTransactionGet, set: mockTransactionSet }),
+    )
 
     const res = await POST(mkReq(INVITER))
     expect(res.status).toBe(200)
-    expect(mockBatchSet).toHaveBeenCalledTimes(2)
+    expect(mockTransactionSet).toHaveBeenCalledTimes(2)
 
-    // First batch.set call is always the friend doc (source: 'invited-by')
-    const friendDoc = mockBatchSet.mock.calls[0][1] as { restaurantIds: string[]; source: string }
+    // First transaction.set call is always the friend doc (source: 'invited-by')
+    const friendDoc = mockTransactionSet.mock.calls[0][1] as { restaurantIds: string[]; source: string }
     expect(friendDoc.source).toBe('invited-by')
     // friendPool must NOT contain the anon-tier restaurant
     expect(friendDoc.restaurantIds).not.toContain('a-anon')
@@ -197,7 +200,7 @@ describe('/api/referral/confirm', () => {
       metadata: { creationTime: new Date().toISOString() },
     }))
     const res = await POST(mkReq(INVITER))
-    expect(mockBatchSet).not.toHaveBeenCalled()
+    expect(mockTransactionSet).not.toHaveBeenCalled()
     expect(res.cookies.get('pending_referrer')?.value).toBe('')
   })
 
@@ -208,7 +211,7 @@ describe('/api/referral/confirm', () => {
       return { email: 'friend@x.com', metadata: { creationTime: new Date().toISOString() } }
     })
     const res = await POST(mkReq(INVITER))
-    expect(mockBatchSet).not.toHaveBeenCalled()
+    expect(mockTransactionSet).not.toHaveBeenCalled()
     expect(res.cookies.get('pending_referrer')?.value).toBe('')
   })
 })

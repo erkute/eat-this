@@ -7,6 +7,7 @@
     "build:css": "esbuild css/style.css --bundle=false --minify --outfile=public/css/style.min.css",
     "build": "npm run build:css && next build && cp -r public/. .next/standalone/public/",
     "start": "next start",
+    "import:restaurant": "tsx scripts/import-enriched.ts",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -34,6 +35,7 @@
   },
   "optionalDependencies": {
     "@parcel/watcher-linux-x64-glibc": "2.5.6",
+    "@rolldown/binding-linux-x64-gnu": "^1.0.0-rc.16",
     "@swc/core-linux-x64-gnu": "1.15.30"
   },
   "devDependencies": {

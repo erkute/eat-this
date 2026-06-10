@@ -16,7 +16,7 @@ vi.mock('@/lib/buddy/orchestrator', () => ({
 vi.mock('@/lib/buddy/retrieval', () => ({ searchSpots: vi.fn(), searchArticles: vi.fn() }))
 
 import { POST } from './route'
-import { clientIpFromXff } from '@/lib/buddy/clientIp'
+import { clientIpFromXff } from '@/lib/clientIp'
 import { checkRateLimit } from '@/lib/buddy/rateLimit'
 
 function req(body: unknown): Request {

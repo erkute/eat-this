@@ -45,6 +45,7 @@ beforeEach(() => {
   mocks.sessionsCreate.mockReset()
   mocks.sessionsCreate.mockResolvedValue({ id: 'cs_test', url: 'https://checkout.stripe.com/test' })
   mocks.entitlementDocs.clear()
+  process.env.NEXT_PUBLIC_APP_URL = 'https://trusted.example'
 })
 
 describe('/api/stripe/checkout', () => {
@@ -115,5 +116,6 @@ describe('/api/stripe/checkout', () => {
     expect(args.line_items[0].price).toBe(getPack('category-pizza')!.stripePriceId)
     expect(args.success_url).toContain('/checkout/success')
     expect(args.cancel_url).toContain('/#hub-packs')
+    expect(args.success_url).toMatch(/^https:\/\/trusted\.example\//)
   })
 })

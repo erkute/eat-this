@@ -4,6 +4,7 @@ import type Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe'
 import { assembleAndWriteEntitlement, findOrCreateUserByEmail } from '@/lib/stripe-fulfill'
 import { sendMagicLinkEmail } from '@/lib/auth/sendMagicLink'
+import { getAppUrl } from '@/lib/constants'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -12,12 +13,10 @@ export const dynamic = 'force-dynamic'
 // can sign in and access their freshly-attached entitlement. We call the
 // shared sender DIRECTLY (not the public /api/auth/send-magic-link route) so
 // this trusted, Stripe-signature-verified path isn't subject to the route's
-// shared-IP rate limit. Fire-and-forget — webhook must return 2xx fast.
-async function triggerGuestMagicLink(req: Request, email: string, locale: 'de' | 'en') {
-  const host  = req.headers.get('x-forwarded-host') ?? req.headers.get('host')
-  const proto = req.headers.get('x-forwarded-proto') ?? 'https'
-  if (!host) return
-  const origin = `${proto}://${host}`
+// shared-IP rate limit. Delivery errors are caught here so they don't make
+// Stripe retry an otherwise fulfilled purchase.
+async function triggerGuestMagicLink(email: string, locale: 'de' | 'en') {
+  const origin = getAppUrl()
   const continueUrl = locale === 'en' ? `${origin}/en/profile` : `${origin}/profile`
 
   try {
@@ -93,7 +92,7 @@ export async function POST(req: Request) {
     // Mail the magic-link only for guest purchases — authed users already
     // have a session and will see the entitlement next page-load.
     if (meta.mode === 'guest' && guestEmail) {
-      void triggerGuestMagicLink(req, guestEmail, meta.locale === 'en' ? 'en' : 'de')
+      await triggerGuestMagicLink(guestEmail, meta.locale === 'en' ? 'en' : 'de')
     }
 
     return NextResponse.json({ received: true, result }, { status: 200 })

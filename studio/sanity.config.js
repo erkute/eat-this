@@ -1,9 +1,7 @@
 import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
-import {DownloadIcon} from '@sanity/icons'
 import {schemaTypes} from './schemaTypes'
-import RestaurantImporter from './tools/RestaurantImporter'
 
 export default defineConfig({
   name: 'default',
@@ -32,7 +30,6 @@ export default defineConfig({
           "restaurantTotal": count(array::unique(*[_type=="restaurant" && defined(slug.current)].slug.current)),
           "bezirk":      count(*[_type=="bezirk"      && !(_id in path("drafts.**"))]),
           "category":    count(*[_type=="category"    && !(_id in path("drafts.**"))]),
-          "waitlistSignup": count(*[_type=="waitlistSignup"]),
           "homeWeek":    count(*[_type=="homeWeek"    && !(_id in path("drafts.**"))]),
         }`)
         const label = (icon, title, n) => `${icon}  ${title} (${n ?? 0})`
@@ -62,28 +59,10 @@ export default defineConfig({
             S.documentTypeListItem('bezirk').title(label('🏙', 'Bezirke', counts.bezirk)),
             S.documentTypeListItem('category').title(label('🏷', 'Kategorien', counts.category)),
 
-            S.divider(),
-
-            // ── Waitlist Signups ─────────────────────────────────────────
-            S.documentTypeListItem('waitlistSignup').title(label('✉️', 'Waitlist', counts.waitlistSignup)),
           ])
       },
     }),
     visionTool(),
-  ],
-
-  // Custom sidebar tool for one-shot restaurant import from a Maps URL.
-  // Sanity v5's initial-value-template parameter-dialog flow only fires for
-  // programmatic invocations (e.g. reference fields), not user-driven create
-  // actions, so a dedicated tool with its own form is the canonical UI.
-  tools: (prev) => [
-    ...prev,
-    {
-      name: 'restaurant-importer',
-      title: 'Import Restaurant',
-      icon: DownloadIcon,
-      component: RestaurantImporter,
-    },
   ],
 
   schema: {

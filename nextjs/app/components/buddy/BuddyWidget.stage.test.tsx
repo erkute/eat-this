@@ -44,14 +44,17 @@ const stage = (visible: boolean) =>
   })
 
 describe('BuddyWidget home-stage protocol', () => {
-  it('hides the launcher while the stage is visible, shows it again after', () => {
+  it('keeps the launcher hidden until the stage is passed, then reveals it', () => {
     renderWidget()
     const launcher = document.querySelector('[data-buddy-launcher]')!
-    expect(launcher.getAttribute('data-stage')).toBeNull()
+    // Hidden from the top of the page — Remy isn't introduced yet.
+    expect(launcher.getAttribute('data-stage')).toBe('true')
 
+    // Still hidden while the "Frag Remy" section is on screen (it IS Remy).
     fireEvent(window, stage(true))
     expect(launcher.getAttribute('data-stage')).toBe('true')
 
+    // Scrolled past the section: now the corner launcher reveals.
     fireEvent(window, stage(false))
     expect(launcher.getAttribute('data-stage')).toBeNull()
   })

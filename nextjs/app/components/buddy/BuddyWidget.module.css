@@ -10,9 +10,11 @@
 .launcher:focus-visible { outline: 3px solid #b4541f; outline-offset: 3px; }
 /* hide the floating launcher while the panel is open (no duplicate face; close via ×) */
 .launcher[aria-expanded='true'] { display: none; }
-/* hide it while the home "Frag Remy" stage section is on screen — there is
-   only one Remy. visibility (not display) so the FLIP hand-off can measure
-   the launcher's target rect the moment the stage scrolls away. */
+/* Hidden in two cases (same flag): before Remy has been "introduced" — i.e.
+   until the visitor scrolls past the home "Frag Remy" section — and while that
+   section is itself on screen (there is only one Remy). visibility (not display)
+   so the FLIP hand-off can measure the launcher's target rect the moment the
+   stage scrolls away. */
 .launcher[data-stage='true'] { visibility: hidden; pointer-events: none; }
 /* On news-article pages the sticky .spotrail (spot avatars + "auf die Karte" CTA)
    floats at the viewport bottom — lift the launcher above it so the KI avatar

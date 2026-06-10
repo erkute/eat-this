@@ -57,6 +57,11 @@ const en = {
     newOnMap: {
       title: "New on the map",
     },
+    fragRemy: {
+      title: "Ask Remy",
+      sub: "He knows every spot on the map. Ask him anything.",
+      cta: "Ask Remy →",
+    },
     magazine: {
       title: "In the magazine",
       all: "All stories →",
@@ -412,6 +417,11 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     },
     newOnMap: {
       title: "Neu auf der Map",
+    },
+    fragRemy: {
+      title: "Frag Remy",
+      sub: "Er kennt jeden Spot auf der Karte. Frag ihn einfach.",
+      cta: "Frag Remy →",
     },
     magazine: {
       title: "Im Magazin",

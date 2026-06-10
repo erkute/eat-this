@@ -41,31 +41,25 @@
   --brand-red-hover:  #7e1f0f;
 
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-  /* Display pair — Bar-Basta visual direction. Bungee (solid, fully filled
-     letters) matches the BAR BASTA wordmark exactly. Caveat is the
-     handwritten script accent (matches the cursive overlays on the menu).
-     Both loaded via next/font in [locale]/layout.tsx; consumers reference
-     these vars. Inter stays the body + eyebrow workhorse. */
   /* 2026 EAT THIS-direction: ALL display + section-headline tokens collapsed
      onto Chewy — a rounded, friendly bubble display that replaces Bowlby One
      sitewide as the brand wordmark family. Section heads read as a
      continuation of the brand wordmark, not as a separate display type. Chewy
      ships full Latin-1 glyph coverage (incl. ä ö ü ß), so German headings
      render natively — no Saira fallback needed for umlauts.
-     Bungee/Ranchers/Knewave/Slackey still loaded for any bespoke component
-     that opts in via the per-font var, but the design-system tokens below
-     all point at Chewy. */
+     Only Schoolbell (--font-chewy), Saira Condensed and Anton are loaded via
+     next/font; the legacy display families (Bungee/Ranchers/Knewave/Slackey/
+     Archivo Black) were removed — their var names resolve via the html:root
+     remap below. Inter stays the body + eyebrow workhorse. */
   --font-display: var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  --font-script:  var(--font-caveat, 'Caveat'), 'Bradley Hand', 'Lucida Handwriting', cursive;
+  /* --font-script/--font-quote: zero consumers; Caveat/Barlow Condensed are
+     no longer loaded, so the tokens carry pure system fallbacks. */
+  --font-script:  'Bradley Hand', 'Lucida Handwriting', cursive;
   --font-marker:  var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
   --font-poster:  var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
   --font-ranchers: var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
   --font-slackey:  var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  /* Barlow Condensed Light — condensed grotesque used for Voices testimonial
-     bodies. Same narrow-display vibe as Ranchers ("Berlin & beyond." /
-     "Häufige Fragen.") but with a real Light 300 weight, so the stroke is
-     naturally schmal instead of chunky like Ranchers' single 400. */
-  --font-quote:    var(--font-barlow-condensed, 'Barlow Condensed'), 'Impact', 'Arial Narrow', sans-serif;
+  --font-quote:    'Impact', 'Arial Narrow', sans-serif;
   --radius: 2px;
 
   /* Semantic surface/text tokens — used by the map UI and newer React components.
@@ -102,13 +96,12 @@
   --accent-ink:     #0a0a0a;
 }
 
-/* next/font assigns --font-ranchers/--font-bungee/etc. via a hashed class on
-   <html> (specificity 0,1,0), which beats a plain :root re-point (also 0,1,0,
-   so source order decides and next/font wins). Components that reference those
-   variable names directly (e.g. the Hub headlines use var(--font-ranchers))
-   would therefore render the literal next/font face (Ranchers), not the brand
-   display font. Win the collision from html:root (specificity 0,1,1) so every
-   display token that shares a next/font variable name resolves to Chewy. */
+/* The Ranchers/Bungee/Knewave/Slackey/Archivo Black font files are no longer
+   loaded via next/font — these definitions are what keeps components that
+   reference the variable names directly (e.g. the Hub headlines use
+   var(--font-ranchers)) resolving to Chewy. Kept at html:root (specificity
+   0,1,1) from the era when next/font's hashed <html> class competed with a
+   plain :root re-point; harmless now and still wins any future collision. */
 html:root {
   --font-ranchers:      var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
   --font-bungee:        var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;

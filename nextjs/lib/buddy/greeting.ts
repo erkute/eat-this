@@ -14,20 +14,25 @@ export function daypartFor(hour: number): Daypart {
   return 'late'
 }
 
+// The hook follows directly after Remy's intro sentence, so it must read as
+// ONE flowing line ("…dein Mann für gutes Essen in Berlin. Brauchst du…").
+// No standalone daypart salutation ("Morgen.", "Mittagszeit.") — that collided
+// with the intro's "Hey" as a double greeting. The daypart shows through the
+// content instead (Frühstück, Mittag, Drink, spät).
 const GREETINGS: Record<Locale, Record<Daypart, string>> = {
   de: {
-    morning: 'Morgen. Brauchst du erstmal einen guten Kaffee, oder soll’s gleich was Richtiges zum Frühstück sein?',
-    midday: 'Mittagszeit. Schnell was Gutes auf die Hand, oder lieber in Ruhe hinsetzen? Ich kenn die Läden für beides.',
-    afternoon: 'Nachmittag. Zeit für Kaffee und was Süßes — oder ist dir schon nach dem ersten Drink?',
-    evening: 'Abend. Worauf hast du Lust — ein gutes Essen, ein Drink, oder beides nacheinander?',
-    late: 'Schon spät. Wenn dich jetzt noch der Hunger packt: Döner, Pizza oder eine Bar, die offen hat — ich weiß, wo.',
+    morning: 'Brauchst du erstmal einen guten Kaffee, oder soll’s gleich was Richtiges zum Frühstück sein?',
+    midday: 'Schnell was Gutes auf die Hand zum Mittag, oder lieber in Ruhe hinsetzen? Ich kenn die Läden für beides.',
+    afternoon: 'Zeit für Kaffee und was Süßes — oder ist dir schon nach dem ersten Drink?',
+    evening: 'Worauf hast du heute Abend Lust — ein gutes Essen, ein Drink, oder beides nacheinander?',
+    late: 'Wenn dich so spät noch der Hunger packt: Döner, Pizza oder eine Bar, die offen hat — ich weiß, wo.',
   },
   en: {
-    morning: 'Morning. Need a good coffee first, or shall we go straight for a proper breakfast?',
-    midday: 'Lunchtime. Something quick and good on the go, or a proper sit-down? I know the places for both.',
-    afternoon: 'Afternoon. Time for coffee and something sweet — or are you already after the first drink?',
-    evening: 'Evening. What are you in the mood for — a good dinner, a drink, or both in a row?',
-    late: 'Getting late. If hunger strikes now: döner, pizza, or a bar that’s still open — I know where.',
+    morning: 'Need a good coffee first, or shall we go straight for a proper breakfast?',
+    midday: 'Something quick and good for lunch, or a proper sit-down? I know the places for both.',
+    afternoon: 'Time for coffee and something sweet — or are you already after the first drink?',
+    evening: 'What are you in the mood for tonight — a good dinner, a drink, or both in a row?',
+    late: 'If hunger strikes this late: döner, pizza, or a bar that’s still open — I know where.',
   },
 }
 
@@ -60,4 +65,10 @@ export function greetingFor(hour: number, locale: Locale): { greeting: string; s
     greeting: `${INTRO[locale]} ${GREETINGS[locale][part]}`,
     suggestions: SUGGESTIONS[locale][part],
   }
+}
+
+// The time-independent first sentence alone — safe to server-render (the
+// daypart hook depends on the user's local clock, which the server can't know).
+export function introFor(locale: Locale): string {
+  return INTRO[locale]
 }

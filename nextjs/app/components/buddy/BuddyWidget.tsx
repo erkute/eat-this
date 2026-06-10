@@ -6,9 +6,17 @@ import BuddyAvatar, { type BuddyMood } from './BuddyAvatar'
 import { useBuddyChat, type BuddyDisplayMessage } from './useBuddyChat'
 import { splitAnswerSegments, extractFollowups } from '@/lib/buddy/stream'
 import { greetingFor } from '@/lib/buddy/greeting'
+import {
+  BUDDY_ASK_EVENT,
+  BUDDY_STAGE_EVENT,
+  type BuddyAskDetail,
+  type BuddyStageDetail,
+  type BuddyStageRect,
+} from '@/lib/buddy/homeStage'
 import { useAuth } from '@/lib/auth'
 import { useFavorites } from '@/lib/map/useFavorites'
-import type { Locale, SpotCandidate, ArticleResult } from '@/lib/buddy/types'
+import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements'
+import type { Locale, SpotCandidate, ArticleResult, PackTeaser } from '@/lib/buddy/types'
 import styles from './BuddyWidget.module.css'
 
 // Minimal inline markdown: **bold** only (Claude's main inline marker).
@@ -144,6 +152,42 @@ const T = {
   en: { open: 'Open Remy', close: 'Close', thinking: 'Remy is thinking', placeholder: 'Message Remy…' },
 } satisfies Record<Locale, Record<string, string>>
 
+// A short line in Remy's voice that hands the pack card over, so it doesn't
+// just appear unannounced. Canned (app-controlled, not LLM) so his streamed
+// answer stays sales-free — this aside is clearly the app nudging, in his tone.
+const PACK_INTRO: Record<Locale, (name: string) => string> = {
+  de: (name) => `Ach, und falls dich ${name} öfter packt — dafür hätte ich was:`,
+  en: (name) => `Oh, and if ${name} is your thing — I’ve got something for that:`,
+}
+
+// Booster-Pack teaser card — rendered by the APP under a matching answer (the
+// server picks at most one per request, see lib/buddy/packTeaser.ts). Remy's
+// streamed text never sells; this card does, with canonical catalog copy.
+function PackCard({
+  pack,
+  locale,
+  onSelect,
+}: {
+  pack: PackTeaser
+  locale: Locale
+  onSelect: () => void
+}) {
+  return (
+    <Link className={styles.packCard} href={`/pack/${pack.slug}`} prefetch onClick={onSelect} data-buddy-pack={pack.packId}>
+      {pack.art && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className={styles.packArt} src={pack.art} alt="" width={52} height={70} loading="lazy" />
+      )}
+      <span className={styles.spotBody}>
+        <span className={styles.articleKicker}>Booster Pack · {pack.name}</span>
+        <span className={styles.spotName}>{pack.spectrum}</span>
+        <span className={styles.packDesc}>{pack.description}</span>
+        <span className={styles.spotCta}>{locale === 'en' ? 'View' : 'Ansehen'} →</span>
+      </span>
+    </Link>
+  )
+}
+
 // Renders one assistant message: prose with spot cards interleaved at their
 // `[[spot:<slug>]]` markers. Spots Remy didn't place inline fall back to a block
 // at the end — but only when he placed NONE (else we'd re-introduce the noise of
@@ -158,6 +202,7 @@ function BotMessage({
   savedIds,
   onSaveSpot,
   thinkingLabel,
+  pack,
 }: {
   m: BuddyDisplayMessage
   locale: Locale
@@ -168,6 +213,8 @@ function BotMessage({
   savedIds: Set<string>
   onSaveSpot: (spot: SpotCandidate) => void
   thinkingLabel: string
+  /** Booster-Pack teaser — set only on the one message that may show it. */
+  pack?: PackTeaser
 }) {
   if (!m.content) {
     return streaming ? <TypingDots label={thinkingLabel} /> : null
@@ -224,6 +271,12 @@ function BotMessage({
           ))}
         </div>
       )}
+      {pack && !streaming && (
+        <div className={styles.packBlock}>
+          <p className={styles.packIntro}>{PACK_INTRO[locale](pack.name)}</p>
+          <PackCard pack={pack} locale={locale} onSelect={onSpotSelect} />
+        </div>
+      )}
       {showChips && (
         <div className={styles.chips}>
           {chips.map((c) => (
@@ -250,6 +303,17 @@ export default function BuddyWidget() {
   // sent to /login by toggle() — same behaviour as the map's save button.
   const { user } = useAuth()
   const { favoriteIds, toggle: toggleFav } = useFavorites(user?.uid ?? null)
+
+  // Booster-Pack teaser: at most ONE card per conversation, and never for a
+  // pack the user already owns (or anything when they own All Berlin). For a
+  // signed-in user we wait for the ownership snapshot (null = loading) instead
+  // of flashing a card at a buyer and yanking it away.
+  const ownedPacks = useOwnedEntitlements(user?.uid ?? null)
+  const packVisible = (p: PackTeaser) =>
+    user
+      ? ownedPacks !== null && !ownedPacks.has(p.packId) && !ownedPacks.has('all-berlin')
+      : true
+  const firstPackIdx = messages.findIndex((m) => m.role === 'assistant' && m.pack && packVisible(m.pack))
   const onSaveSpot = useCallback(
     (s: SpotCandidate) => {
       void toggleFav({
@@ -268,6 +332,9 @@ export default function BuddyWidget() {
   const [greetingBeat, setGreetingBeat] = useState(false)
   const [locating, setLocating] = useState(false)
   const wasStreaming = useRef(false)
+  const [onStage, setOnStage] = useState(false)
+  const [arrivalBeat, setArrivalBeat] = useState(false)
+  const stageRect = useRef<BuddyStageRect | null>(null)
 
   const closePanel = useCallback(() => {
     setOpen(false)
@@ -353,6 +420,77 @@ export default function BuddyWidget() {
     return () => window.removeEventListener('keydown', onKey)
   }, [open, closePanel])
 
+  // Click/tap anywhere outside the panel closes it — standard overlay
+  // behaviour, relevant on desktop where the page stays visible next to the
+  // panel (mobile is near-fullscreen, so outside barely exists). pointerdown
+  // (not click) so a drag that starts inside and ends outside doesn't close.
+  useEffect(() => {
+    if (!open) return
+    const onPointerDown = (e: Event) => {
+      const panel = panelRef.current
+      if (panel && e.target instanceof Node && !panel.contains(e.target)) closePanel()
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    return () => document.removeEventListener('pointerdown', onPointerDown)
+  }, [open, closePanel])
+
+  // ── Home-stage protocol ──
+  // While the hub's "Frag Remy" section is on screen there is only ONE Remy —
+  // the stage one — so the corner launcher hides. When the stage scrolls away,
+  // the launcher flies in from where the stage avatar last stood (FLIP) and
+  // smiles briefly on arrival. See lib/buddy/homeStage.ts.
+  useEffect(() => {
+    const onStageEvent = (e: Event) => {
+      const { visible, rect } = (e as CustomEvent<BuddyStageDetail>).detail
+      stageRect.current = rect ?? null
+      setOnStage(visible)
+    }
+    window.addEventListener(BUDDY_STAGE_EVENT, onStageEvent)
+    return () => window.removeEventListener(BUDDY_STAGE_EVENT, onStageEvent)
+  }, [])
+
+  const wasOnStage = useRef(false)
+  useEffect(() => {
+    const was = wasOnStage.current
+    wasOnStage.current = onStage
+    if (!was || onStage) return
+    const btn = launcherRef.current
+    const from = stageRect.current
+    // No rect (section unmounted) or no WAAPI (jsdom): just appear in place.
+    if (!btn || !from || typeof btn.animate !== 'function') return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const to = btn.getBoundingClientRect()
+    if (to.width === 0) return
+    const dx = from.left + from.width / 2 - (to.left + to.width / 2)
+    const dy = from.top + from.height / 2 - (to.top + to.height / 2)
+    btn.animate(
+      [
+        { transform: `translate(${dx}px, ${dy}px) scale(${from.width / to.width})`, opacity: 0.85 },
+        { transform: 'none', opacity: 1 },
+      ],
+      { duration: 480, easing: 'cubic-bezier(0.22, 0.8, 0.3, 1)' },
+    )
+    setArrivalBeat(true)
+  }, [onStage])
+
+  useEffect(() => {
+    if (!arrivalBeat) return
+    const t = setTimeout(() => setArrivalBeat(false), 1600)
+    return () => clearTimeout(t)
+  }, [arrivalBeat])
+
+  // Stage chips / CTA hand-off: open the panel and (optionally) ask right away.
+  // `send` self-guards against empty text and concurrent streams.
+  useEffect(() => {
+    const onAsk = (e: Event) => {
+      const { question } = (e as CustomEvent<BuddyAskDetail>).detail ?? {}
+      setOpen(true)
+      if (question) void send(question)
+    }
+    window.addEventListener(BUDDY_ASK_EVENT, onAsk)
+    return () => window.removeEventListener(BUDDY_ASK_EVENT, onAsk)
+  }, [send])
+
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const text = draft
@@ -403,15 +541,29 @@ export default function BuddyWidget() {
 
   const title = 'Remy'
 
-  // Expression policy: the mouth flap (open/close) is the only ongoing
-  // animation — it plays whenever Remy is active (streaming) or the launcher is
-  // scrolling. The smile (greeting) and laugh (happy) are brief stills only.
+  // Expression policy: while Remy is still "thinking" (streaming, but no
+  // answer text yet — the typing-dots phase) he ponders with the O-mouth
+  // still. The mouth flap only runs once answer text is actually appearing,
+  // or when he "speaks" the already-visible greeting. Smile (greeting) and
+  // laugh (happy) stay brief stills.
+  const lastMsg = messages[messages.length - 1]
+  const answerStarted = lastMsg?.role === 'assistant' && lastMsg.content.length > 0
   const panelMood: BuddyMood = happyBeat
     ? 'happy'
-    : isStreaming || greetingBeat
-      ? 'talking'
-      : 'idle'
-  const launcherMood: BuddyMood = open ? panelMood : scrolling ? 'talking' : 'idle'
+    : isStreaming
+      ? answerStarted
+        ? 'talking'
+        : 'thinking'
+      : greetingBeat
+        ? 'talking'
+        : 'idle'
+  const launcherMood: BuddyMood = open
+    ? panelMood
+    : arrivalBeat
+      ? 'greeting'
+      : scrolling
+        ? 'talking'
+        : 'idle'
 
   // No buddy on the map page — it would cover the map.
   const pathname = usePathname()
@@ -423,6 +575,7 @@ export default function BuddyWidget() {
         ref={launcherRef}
         className={styles.launcher}
         data-buddy-launcher
+        data-stage={onStage ? 'true' : undefined}
         aria-label={t.open}
         aria-expanded={open}
         aria-controls="buddy-panel"
@@ -500,6 +653,7 @@ export default function BuddyWidget() {
                     savedIds={favoriteIds}
                     onSaveSpot={onSaveSpot}
                     thinkingLabel={t.thinking}
+                    pack={i === firstPackIdx ? m.pack : undefined}
                   />
                 </div>
               ),

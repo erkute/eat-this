@@ -61,8 +61,14 @@ export default async function SPALayout({
       {/* eslint-disable-next-line @next/next/no-css-tags */}
       <link rel="stylesheet" href="/css/style.min.css?v=170" precedence="default" />
 
-      <link rel="preconnect" href="https://ehwjnjr2.apicdn.sanity.io" crossOrigin="anonymous" />
+      {/* Sanity image CDN only — map/search data flows through same-origin
+          /api/map-data, so the browser (almost) never talks to apicdn. */}
       <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
+      {/* Inter is the body font with font-display:optional — without a preload
+          it misses the first-paint window on first visits and the whole session
+          renders the system fallback. latin covers German (umlauts are U+00xx);
+          latin-ext stays lazy. */}
+      <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
 
       <link rel="manifest" href="/manifest.json" />
       <link rel="icon" type="image/x-icon" href="/favicon.ico?v=6" />

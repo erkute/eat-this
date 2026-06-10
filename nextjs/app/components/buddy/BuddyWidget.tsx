@@ -470,14 +470,22 @@ export default function BuddyWidget() {
 
   const title = 'Remy'
 
-  // Expression policy: the mouth flap (open/close) is the only ongoing
-  // animation — it plays whenever Remy is active (streaming) or the launcher is
-  // scrolling. The smile (greeting) and laugh (happy) are brief stills only.
+  // Expression policy: while Remy is still "thinking" (streaming, but no
+  // answer text yet — the typing-dots phase) he ponders with the O-mouth
+  // still. The mouth flap only runs once answer text is actually appearing,
+  // or when he "speaks" the already-visible greeting. Smile (greeting) and
+  // laugh (happy) stay brief stills.
+  const lastMsg = messages[messages.length - 1]
+  const answerStarted = lastMsg?.role === 'assistant' && lastMsg.content.length > 0
   const panelMood: BuddyMood = happyBeat
     ? 'happy'
-    : isStreaming || greetingBeat
-      ? 'talking'
-      : 'idle'
+    : isStreaming
+      ? answerStarted
+        ? 'talking'
+        : 'thinking'
+      : greetingBeat
+        ? 'talking'
+        : 'idle'
   const launcherMood: BuddyMood = open
     ? panelMood
     : arrivalBeat

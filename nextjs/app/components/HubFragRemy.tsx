@@ -1,14 +1,13 @@
 'use client'
-// Home-hub stage for Remy, the KI buddy: he introduces himself with the same
-// time-of-day greeting + starter chips the chat uses, so the section IS the
-// chat entrance, not an ad for it. Chips and CTA hand off to the globally
-// mounted BuddyWidget via window events (see lib/buddy/homeStage.ts); an
+// Home-hub hero for Remy, the KI buddy — bold editorial: oversized headline on
+// a yellow band, a giant Remy bust bleeding off the corner, a time-of-day lead
+// and two quick answers + a chat input that hand off to the globally mounted
+// BuddyWidget via window events (see lib/buddy/homeStage.ts). An
 // IntersectionObserver reports when Remy is "on stage" so the widget hides its
 // corner launcher and flies him into the corner once the section scrolls away.
 import { useEffect, useRef, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import BuddyAvatar, { type BuddyMood } from './buddy/BuddyAvatar'
-import { greetingFor, introFor } from '@/lib/buddy/greeting'
+import { stageFor } from '@/lib/buddy/greeting'
 import { dispatchBuddyAsk, dispatchBuddyStage } from '@/lib/buddy/homeStage'
 import type { Locale } from '@/lib/buddy/types'
 import styles from './HubFragRemy.module.css'
@@ -17,16 +16,16 @@ export default function HubFragRemy() {
   const locale = useLocale() as Locale
   const t = useTranslations('hub.fragRemy')
   const stageRef = useRef<HTMLDivElement>(null)
-  const [intro, setIntro] = useState<{ greeting: string; suggestions: string[] } | null>(null)
-  const [mood, setMood] = useState<BuddyMood>('idle')
-  const [popped, setPopped] = useState(false)
+  const [stage, setStage] = useState<{ line: string; lead: string; answers: [string, string] } | null>(null)
+  const [talking, setTalking] = useState(false)
+  const [draft, setDraft] = useState('')
   const spoke = useRef(false)
   const moodTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
-  // Daypart greeting is client-only (the server's clock isn't the user's):
-  // SSR shows Remy's static intro line, the hook + chips land after hydration.
+  // Daypart copy is client-only (the server's clock isn't the user's): SSR shows
+  // the generic sub, the daypart lead + answers land after hydration.
   useEffect(() => {
-    setIntro(greetingFor(new Date().getHours(), locale))
+    setStage(stageFor(new Date().getHours(), locale))
   }, [locale])
 
   useEffect(() => {
@@ -40,13 +39,11 @@ export default function HubFragRemy() {
           visible: entry.isIntersecting,
           rect: { left: r.left, top: r.top, width: r.width, height: r.height },
         })
-        // First appearance: the bubble pops in and Remy's mouth flaps briefly,
-        // as if he speaks the greeting right at you.
+        // First appearance: Remy's mouth flaps briefly, as if he greets you.
         if (entry.isIntersecting && !spoke.current) {
           spoke.current = true
-          setPopped(true)
-          setMood('talking')
-          moodTimer.current = setTimeout(() => setMood('idle'), 2500)
+          setTalking(true)
+          moodTimer.current = setTimeout(() => setTalking(false), 2500)
         }
       },
       { threshold: 0.3 },
@@ -60,35 +57,63 @@ export default function HubFragRemy() {
     }
   }, [])
 
+  const lead = stage ? stage.lead : t('sub')
+  const answers = stage?.answers ?? []
+
+  function submitDraft() {
+    const q = draft.trim()
+    if (!q) return
+    dispatchBuddyAsk({ question: q })
+    setDraft('')
+  }
+
   return (
     <section className={styles.section} data-hub-fragremy="">
-      <h2 className={styles.heading}>{t('title')}</h2>
-      <p className={styles.sub}>{t('sub')}</p>
-      <div className={styles.stage}>
-        {/* Comic strip: bubble hangs over Remy's head, tail points down at him. */}
-        <div className={styles.bubble} data-pop={popped ? '' : undefined}>
-          <p className={styles.bubbleText}>{intro ? intro.greeting : introFor(locale)}</p>
-        </div>
-        <div className={styles.row}>
-          <div className={styles.avatar} ref={stageRef} data-fragremy-avatar="">
-            <BuddyAvatar mood={mood} size={132} />
-          </div>
-          <div className={styles.talk}>
+      <div className={styles.inner}>
+        <div className={styles.copy}>
+          <p className={styles.kicker}>{t('title')} · Dein Food-Insider</p>
+          <h2 className={styles.headline}>{t('headline')}</h2>
+          <p className={styles.lead} data-fragremy-lead="">
+            {lead}
+          </p>
+
+          <div className={styles.actions}>
             <div className={styles.chips} data-fragremy-chips="">
-              {(intro?.suggestions ?? []).map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  className={styles.chip}
-                  onClick={() => dispatchBuddyAsk({ question: s })}
-                >
-                  {s}
+              {answers.map((a) => (
+                <button key={a} type="button" className={styles.chip} onClick={() => dispatchBuddyAsk({ question: a })}>
+                  {a}
                 </button>
               ))}
             </div>
-            <button type="button" className={styles.cta} onClick={() => dispatchBuddyAsk()}>
-              {t('cta')}
-            </button>
+            <form
+              className={styles.chatin}
+              onSubmit={(e) => {
+                e.preventDefault()
+                submitDraft()
+              }}
+            >
+              <input
+                className={styles.input}
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                placeholder={t('inputPlaceholder')}
+                aria-label={t('inputPlaceholder')}
+              />
+              <button className={styles.send} type="submit" aria-label={t('sendAria')}>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div className={styles.avatarWrap} ref={stageRef} data-fragremy-avatar="">
+          <div className={styles.avatar} data-talking={talking ? '' : undefined}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className={styles.face} src="/buddy/buddy.webp" alt="Remy" width={460} height={460} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className={styles.faceOpen} src="/buddy/buddy-open.webp" alt="" width={460} height={460} aria-hidden="true" />
           </div>
         </div>
       </div>

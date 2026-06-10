@@ -86,9 +86,9 @@ describe('runBuddyTurn', () => {
       (e): e is Extract<BuddyStreamEvent, { type: 'pack' }> => e.type === 'pack',
     )
     expect(packs).toHaveLength(1) // capped at one per request despite two searches
-    expect(packs[0]).toMatchObject({ value: { packId: 'category-pizza' } })
-    // Intl puts a no-break space before € — normalize before comparing
-    expect(packs[0].value.priceLabel.replace(/[  ]/g, ' ')).toBe('2,99 €')
+    expect(packs[0]).toMatchObject({ value: { packId: 'category-pizza', art: '/pics/booster/booster_pizza.webp' } })
+    // teaser carries no price — the chat never names one
+    expect('priceLabel' in packs[0].value).toBe(false)
     // streamed spots must not leak the internal category slugs
     const spotsEvents = events.filter(
       (e): e is Extract<BuddyStreamEvent, { type: 'spots' }> => e.type === 'spots',

@@ -47,7 +47,6 @@ const PIZZA_PACK: PackTeaser = {
   spectrum: 'Holzofen. Pinsa. NY-Slice.',
   description: 'Berlins Pizza-Spots auf deiner Map.',
   art: '/pics/booster/booster_pizza.webp',
-  priceLabel: '2,99 €',
 }
 
 function renderOpenWidget() {
@@ -76,8 +75,9 @@ describe('BuddyWidget pack teaser', () => {
     expect(card.textContent).toContain('Booster Pack · Pizza')
     expect(card.textContent).toContain('Holzofen. Pinsa. NY-Slice.')
     expect(card.textContent).toContain('Berlins Pizza-Spots auf deiner Map.')
-    expect(card.textContent).toContain('2,99 €')
     expect(card.querySelector('img')?.getAttribute('src')).toBe('/pics/booster/booster_pizza.webp')
+    // the chat teaser never names a price
+    expect(card.textContent).not.toMatch(/€|\d,\d{2}/)
   })
 
   it('shows only the first pack card of a conversation', () => {

@@ -173,10 +173,9 @@ function PackCard({
       <span className={styles.spotBody}>
         <span className={styles.articleKicker}>Booster Pack · {pack.name}</span>
         <span className={styles.spotName}>{pack.spectrum}</span>
-        <span className={styles.spotDesc}>{pack.description}</span>
+        <span className={styles.packDesc}>{pack.description}</span>
         <span className={styles.spotCta}>{locale === 'en' ? 'View' : 'Ansehen'} →</span>
       </span>
-      <span className={styles.packPrice}>{pack.priceLabel}</span>
     </Link>
   )
 }

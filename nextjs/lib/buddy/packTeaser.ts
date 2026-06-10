@@ -40,13 +40,6 @@ export function pickPackForSpots(spots: SpotCandidate[]): PackDef | null {
   )
 }
 
-export function formatPackPrice(amountCents: number, locale: Locale): string {
-  return new Intl.NumberFormat(locale === 'en' ? 'en-IE' : 'de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(amountCents / 100)
-}
-
 export function buildPackTeaser(pack: PackDef, locale: Locale): PackTeaser {
   return {
     packId: pack.packId,
@@ -55,6 +48,5 @@ export function buildPackTeaser(pack: PackDef, locale: Locale): PackTeaser {
     spectrum: pack.spectrum[locale],
     description: pack.description[locale],
     art: pack.slug ? categoryArt(pack.slug) : null,
-    priceLabel: formatPackPrice(pack.amountCents, locale),
   }
 }

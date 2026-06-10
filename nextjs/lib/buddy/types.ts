@@ -24,7 +24,8 @@ export interface SpotCandidate {
 }
 
 /** Booster-Pack teaser the app (not Remy) renders under a matching answer.
- *  All copy comes verbatim from the canonical stripe-catalog. */
+ *  All copy comes verbatim from the canonical stripe-catalog. No price — the
+ *  chat teaser never names a price; that lives on the pack page. */
 export interface PackTeaser {
   packId: string
   /** Pack page slug → /pack/<slug> */
@@ -35,7 +36,6 @@ export interface PackTeaser {
   description: string
   /** Booster-card artwork (public path), e.g. /pics/booster/booster_pizza.webp */
   art: string | null
-  priceLabel: string
 }
 
 export interface ArticleResult {

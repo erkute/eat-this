@@ -1,11 +1,8 @@
 // nextjs/lib/buddy/packTeaser.test.ts
 import { describe, it, expect } from 'vitest'
-import { pickPackForSpots, buildPackTeaser, formatPackPrice } from './packTeaser'
+import { pickPackForSpots, buildPackTeaser } from './packTeaser'
 import { CATALOG } from '@/lib/stripe-catalog'
 import type { SpotCandidate } from './types'
-
-// Intl uses (narrow) no-break spaces between amount and € — normalize for asserts.
-const norm = (s: string) => s.replace(/[  ]/g, ' ')
 
 function spot(slug: string, categorySlugs: string[]): SpotCandidate {
   return {
@@ -65,27 +62,18 @@ describe('pickPackForSpots', () => {
 })
 
 describe('buildPackTeaser', () => {
-  it('builds a localized teaser with canonical copy and price', () => {
+  it('builds a localized teaser with canonical copy and artwork (no price)', () => {
     const pack = CATALOG['category-pizza']
     const de = buildPackTeaser(pack, 'de')
-    expect({ ...de, priceLabel: norm(de.priceLabel) }).toEqual({
+    expect(de).toEqual({
       packId: 'category-pizza',
       slug: 'pizza',
       name: 'Pizza',
       spectrum: pack.spectrum.de,
       description: pack.description.de,
       art: '/pics/booster/booster_pizza.webp',
-      priceLabel: '2,99 €',
     })
-    const en = buildPackTeaser(pack, 'en')
-    expect(norm(en.priceLabel)).toBe('€2.99')
-    expect(en.description).toBe(pack.description.en)
-  })
-})
-
-describe('formatPackPrice', () => {
-  it('formats cents per locale', () => {
-    expect(norm(formatPackPrice(299, 'de'))).toBe('2,99 €')
-    expect(norm(formatPackPrice(2000, 'en'))).toBe('€20.00')
+    expect('priceLabel' in de).toBe(false)
+    expect(buildPackTeaser(pack, 'en').description).toBe(pack.description.en)
   })
 })

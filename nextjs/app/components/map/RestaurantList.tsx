@@ -1,5 +1,5 @@
 'use client'
-import { Fragment, useCallback } from 'react'
+import { useCallback } from 'react'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import type { MapRestaurant, MapMustEat, OpenStatus } from '@/lib/types'
@@ -7,6 +7,7 @@ import { haversineDistance, formatWalkingTime, getOpenStatus, abbreviateBezirk, 
 import { useTranslation } from '@/lib/i18n'
 import { localizedCategoryName } from '@/lib/categories'
 import { normalizeName } from '@/lib/normalizeName'
+import sanityImageLoader from '@/lib/sanityImageLoader'
 import BoosterOfferInline from './BoosterOfferInline'
 import MapListEmpty from './MapListEmpty'
 import styles from './map.module.css'
@@ -76,10 +77,19 @@ function Item({ restaurant, userLocation, isSelected, peek, locked, hideBadge, o
         </span>
       )}
 
-      <div
-        className={styles.rcardImg}
-        style={restaurant.photo ? { backgroundImage: `url(${restaurant.photo})` } : undefined}
-      />
+      {/* Real <img> instead of a CSS background so the browser can natively
+          lazy-load off-screen card photos (backgrounds always fetch eagerly). */}
+      <div className={styles.rcardImg}>
+        {restaurant.photo && (
+          <img
+            src={sanityImageLoader({ src: restaurant.photo, width: 600 })}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+          />
+        )}
+      </div>
 
       {statusMain && (
         <span className={`${styles.openPill} ${status.isOpen ? '' : styles.openPillClosed}`} role="status">
@@ -90,9 +100,11 @@ function Item({ restaurant, userLocation, isSelected, peek, locked, hideBadge, o
       {peek.kind !== 'none' && !locked && (
         <span className={styles.mustPeek}>
           <img
-            src={peek.kind === 'open' ? peek.image : '/pics/card-back.webp?v=5'}
+            src={peek.kind === 'open' ? sanityImageLoader({ src: peek.image, width: 160 }) : '/pics/card-back.webp?v=5'}
             alt=""
             aria-hidden="true"
+            loading="lazy"
+            decoding="async"
             draggable={false}
           />
         </span>

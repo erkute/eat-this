@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import ProfileShell from '@/app/components/profile/ProfileShell';
 import ProfileAuthGuard from '@/app/components/profile/ProfileAuthGuard';
-import { getAllMustEats } from '@/lib/sanity.server';
 import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data';
 // Deep import on purpose — the @/lib/map barrel pulls client hooks into this
 // server component.
@@ -21,7 +20,10 @@ interface PageProps {
 export default async function ProfileRoute({ params }: PageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [mustEats, anon] = await Promise.all([getAllMustEats(), getInitialAnonMapData()]);
+  // The deck itself comes from the (per-user, server-stripped) /api/map-data
+  // fetch inside ProfileShell — the page only precomputes the public face-up
+  // set. The old unauthenticated full-album fetch leaked every dish + image.
+  const anon = await getInitialAnonMapData();
   // The publicly face-up set (10 curated cards + spot-of-day) — "publicly
   // face-up means face-up everywhere", so the collected grid shows these open
   // even before the user revealed anything on site.
@@ -34,7 +36,7 @@ export default async function ProfileRoute({ params }: PageProps) {
   );
   return (
     <ProfileAuthGuard>
-      <ProfileShell mustEats={mustEats} publicFaceUpIds={publicFaceUpIds} />
+      <ProfileShell publicFaceUpIds={publicFaceUpIds} />
     </ProfileAuthGuard>
   );
 }

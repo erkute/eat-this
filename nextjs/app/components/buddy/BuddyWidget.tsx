@@ -596,7 +596,7 @@ export default function BuddyWidget() {
           tabIndex={-1}
         >
           <div className={styles.header}>
-            <BuddyAvatar mood={panelMood} size={72} />
+            <BuddyAvatar mood={panelMood} size={48} />
             <strong>{title}</strong>
             <button className={styles.close} type="button" aria-label={t.close} onClick={closePanel}>
               ×

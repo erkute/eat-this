@@ -1,7 +1,7 @@
 .wrap { position: relative; width: 56px; height: 56px; border-radius: 50%; overflow: hidden;
-  /* glossy backdrop: soft highlight top-left fading to a deeper tone */
-  background: radial-gradient(125% 125% at 32% 22%, #ffffff 0%, #f3eee2 52%, #e2dac8 100%);
-  box-shadow: inset 0 1px 2px rgba(255,255,255,0.6), inset 0 -3px 6px rgba(0,0,0,0.06);
+  /* brand-yellow glossy backdrop, same family as the home "Frag Remy" band */
+  background: radial-gradient(125% 125% at 32% 22%, #ffe487 0%, #ffd84a 54%, #f3c200 100%);
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.5), inset 0 -3px 6px rgba(20,16,12,0.10);
   flex-shrink: 0; }
 /* Matched moods (neutral/teeth/laugh) share framing so only the mouth differs;
    think/greeting swap the whole base frame (slightly different zoom = pose change). */
@@ -42,8 +42,8 @@
   .wrap[data-mood='idle'] .face { animation: none; }
   .wrap[data-mood='happy'] .face { animation: none; }
 }
-/* dark mode: glossy dark backdrop with the same top-left sheen */
+/* dark mode: the comic avatar keeps its brand-yellow backdrop (doesn't theme) */
 html[data-theme="dark"] .wrap {
-  background: radial-gradient(125% 125% at 32% 22%, #404040 0%, #272727 52%, #161616 100%);
-  box-shadow: inset 0 1px 2px rgba(255,255,255,0.12), inset 0 -3px 6px rgba(0,0,0,0.35);
+  background: radial-gradient(125% 125% at 32% 22%, #ffe487 0%, #ffd84a 54%, #f3c200 100%);
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.25), inset 0 -3px 6px rgba(20,16,12,0.30);
 }

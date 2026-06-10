@@ -1,13 +1,13 @@
 'use client'
-// Home-hub stage for Remy, the KI buddy: he introduces himself with the same
-// time-of-day greeting + starter chips the chat uses, so the section IS the
-// chat entrance, not an ad for it. Chips and CTA hand off to the globally
-// mounted BuddyWidget via window events (see lib/buddy/homeStage.ts); an
-// IntersectionObserver reports when Remy is "on stage" so the widget hides its
-// corner launcher and flies him into the corner once the section scrolls away.
+// Home-hub hero for Remy, the KI buddy. Left: kicker + headline + lede + the
+// chat-input CTA + quick-reply chips. Right: big cut-out Remy with a compact
+// speech bubble (short daypart hook) over his head. Chips and CTA hand off to
+// the globally mounted BuddyWidget via window events (see lib/buddy/homeStage);
+// an IntersectionObserver reports when Remy is "on stage" so the widget hides
+// its corner launcher and flies him into the corner once the section leaves.
 import { useEffect, useRef, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { greetingFor } from '@/lib/buddy/greeting'
+import { bubbleHookFor, bubbleHookDefault } from '@/lib/buddy/greeting'
 import { dispatchBuddyAsk, dispatchBuddyStage } from '@/lib/buddy/homeStage'
 import type { Locale } from '@/lib/buddy/types'
 import styles from './HubFragRemy.module.css'
@@ -16,12 +16,14 @@ export default function HubFragRemy() {
   const locale = useLocale() as Locale
   const t = useTranslations('hub.fragRemy')
   const stageRef = useRef<HTMLDivElement>(null)
-  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [hook, setHook] = useState<string>(() => bubbleHookDefault(locale))
+  const [popped, setPopped] = useState(false)
+  const spoke = useRef(false)
 
-  // Daypart starter chips are client-only (the server's clock isn't the user's),
-  // so they land after hydration; the rest of the section renders server-side.
+  // The daypart bubble hook is client-only (the server's clock isn't the
+  // user's), so it settles after hydration; SSR shows the neutral hook.
   useEffect(() => {
-    setSuggestions(greetingFor(new Date().getHours(), locale).suggestions)
+    setHook(bubbleHookFor(new Date().getHours(), locale))
   }, [locale])
 
   useEffect(() => {
@@ -35,6 +37,10 @@ export default function HubFragRemy() {
           visible: entry.isIntersecting,
           rect: { left: r.left, top: r.top, width: r.width, height: r.height },
         })
+        if (entry.isIntersecting && !spoke.current) {
+          spoke.current = true
+          setPopped(true)
+        }
       },
       { threshold: 0.3 },
     )
@@ -49,34 +55,30 @@ export default function HubFragRemy() {
   return (
     <section className={styles.section} data-hub-fragremy="">
       <div className={styles.stage}>
-        <div className={styles.content}>
+        {/* Order — mobile: copy → Remy → actions. desktop (grid): copy+actions
+            left, Remy right. */}
+        <div className={styles.copy}>
+          <span className={styles.kicker}>{t('kicker')}</span>
           <h2 className={styles.heading}>{t('title')}</h2>
-          <p className={styles.sub}>{t('sub')}</p>
-          {/* equal-width starter chips */}
-          <div className={styles.chips} data-fragremy-chips="">
-            {suggestions.map((s) => (
-              <button
-                key={s}
-                type="button"
-                className={styles.chip}
-                onClick={() => dispatchBuddyAsk({ question: s })}
-              >
-                {s}
-              </button>
-            ))}
+          <p className={styles.lede}>{t('sub')}</p>
+        </div>
+
+        {/* Big Remy with a compact speech bubble (short daypart hook) over his head. */}
+        <div className={styles.hero}>
+          <div className={styles.bubble} data-pop={popped ? '' : undefined}>
+            <p className={styles.bubbleText}>{hook}</p>
           </div>
-          {/* Sticker-styled chat input — invites typing, opens the panel. The
-              placeholder avoids repeating the "Frag Remy" heading and stays on
-              one line. */}
+          <div className={styles.figureCol} ref={stageRef} data-fragremy-avatar="">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className={styles.figure} src="/buddy/buddy.webp" alt="Remy" width={320} height={320} />
+          </div>
+        </div>
+
+        <div className={styles.actions}>
           <button type="button" className={styles.input} onClick={() => dispatchBuddyAsk()} aria-label={t('open')} data-fragremy-open="">
             <span className={styles.inputText}>{t('inputPlaceholder')}</span>
             <span className={styles.inputSend} aria-hidden="true">→</span>
           </button>
-        </div>
-        {/* Full cut-out Remy, bottom-aligned so he rises out of the yellow panel. */}
-        <div className={styles.figureCol} ref={stageRef} data-fragremy-avatar="">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className={styles.figure} src="/buddy/buddy.webp" alt="Remy" width={260} height={260} />
         </div>
       </div>
     </section>

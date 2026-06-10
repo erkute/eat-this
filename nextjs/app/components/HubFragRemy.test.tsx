@@ -46,25 +46,6 @@ const fakeEntry = (visible: boolean): Partial<IntersectionObserverEntry> => ({
 })
 
 describe('HubFragRemy', () => {
-  it('renders the time-of-day starter chips after mount', () => {
-    renderSection()
-    const chips = document.querySelectorAll('[data-fragremy-chips] button')
-    expect(chips.length).toBeGreaterThan(0)
-  })
-
-  it('dispatches buddy:ask with the chip question on chip click', () => {
-    let got: BuddyAskDetail | null = null
-    const onAsk = (e: Event) => {
-      got = (e as CustomEvent<BuddyAskDetail>).detail
-    }
-    window.addEventListener(BUDDY_ASK_EVENT, onAsk)
-    renderSection()
-    const chip = document.querySelector<HTMLButtonElement>('[data-fragremy-chips] button')!
-    fireEvent.click(chip)
-    window.removeEventListener(BUDDY_ASK_EVENT, onAsk)
-    expect(got).toEqual({ question: chip.textContent })
-  })
-
   it('opens the chat (buddy:ask, no question) when the input pill is clicked', () => {
     let got: BuddyAskDetail | null = null
     let calls = 0

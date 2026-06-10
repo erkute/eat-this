@@ -58,8 +58,9 @@ const en = {
       title: "New on the map",
     },
     fragRemy: {
+      kicker: "Your Berlin food buddy",
       title: "Ask Remy",
-      sub: "Berlin's food insider — he knows every spot on the map.",
+      sub: "Tell him what you fancy — he knows the place for it.",
       inputPlaceholder: "What are you in the mood for?",
       open: "Start chatting with Remy",
     },
@@ -420,8 +421,9 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       title: "Neu auf der Map",
     },
     fragRemy: {
+      kicker: "Dein Berlin-Food-Kumpel",
       title: "Frag Remy",
-      sub: "Berlins Food-Insider — er kennt jeden Spot auf der Karte.",
+      sub: "Sag ihm, worauf du Lust hast — er kennt den Laden dafür.",
       inputPlaceholder: "Wonach ist dir gerade?",
       open: "Chat mit Remy starten",
     },

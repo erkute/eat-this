@@ -72,3 +72,37 @@ export function greetingFor(hour: number, locale: Locale): { greeting: string; s
 export function introFor(locale: Locale): string {
   return INTRO[locale]
 }
+
+// Short, punchy daypart one-liners for the home section's speech bubble (the
+// full greeting above is for the chat panel; a bubble over Remy's head needs
+// to stay tight).
+const BUBBLE_HOOKS: Record<Locale, Record<Daypart, string>> = {
+  de: {
+    morning: 'Na, erstmal ’nen guten Kaffee?',
+    midday: 'Mittagshunger? Ich weiß, wo.',
+    afternoon: 'Zeit für ’ne süße Pause?',
+    evening: 'Worauf hast du heute Abend Lust?',
+    late: 'So spät noch Hunger? Kein Ding.',
+  },
+  en: {
+    morning: 'Coffee first, yeah?',
+    midday: 'Lunch? I know the spots.',
+    afternoon: 'Time for a sweet break?',
+    evening: 'What are you after tonight?',
+    late: 'Hungry this late? I got you.',
+  },
+}
+
+// Neutral short line for SSR (before the user's clock is known).
+const BUBBLE_DEFAULT: Record<Locale, string> = {
+  de: 'Na, worauf hast du Hunger?',
+  en: 'So, what are you hungry for?',
+}
+
+export function bubbleHookFor(hour: number, locale: Locale): string {
+  return BUBBLE_HOOKS[locale][daypartFor(hour)]
+}
+
+export function bubbleHookDefault(locale: Locale): string {
+  return BUBBLE_DEFAULT[locale]
+}

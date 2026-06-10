@@ -68,7 +68,7 @@ export default function HubFragRemy() {
   }
 
   return (
-    <section className={styles.section} data-hub-fragremy="">
+    <section className={styles.section} id="hub-fragremy" data-hub-fragremy="">
       <div className={styles.inner}>
         <div className={styles.copy}>
           <p className={styles.kicker}>{t('title')} · Dein Food-Insider</p>

@@ -19,6 +19,7 @@ export default function HubFragRemy() {
   const stageRef = useRef<HTMLDivElement>(null)
   const [intro, setIntro] = useState<{ greeting: string; suggestions: string[] } | null>(null)
   const [mood, setMood] = useState<BuddyMood>('idle')
+  const [popped, setPopped] = useState(false)
   const spoke = useRef(false)
   const moodTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
@@ -39,9 +40,11 @@ export default function HubFragRemy() {
           visible: entry.isIntersecting,
           rect: { left: r.left, top: r.top, width: r.width, height: r.height },
         })
-        // First appearance: a short mouth flap, as if he speaks the greeting.
+        // First appearance: the bubble pops in and Remy's mouth flaps briefly,
+        // as if he speaks the greeting right at you.
         if (entry.isIntersecting && !spoke.current) {
           spoke.current = true
+          setPopped(true)
           setMood('talking')
           moodTimer.current = setTimeout(() => setMood('idle'), 2500)
         }
@@ -62,28 +65,31 @@ export default function HubFragRemy() {
       <h2 className={styles.heading}>{t('title')}</h2>
       <p className={styles.sub}>{t('sub')}</p>
       <div className={styles.stage}>
-        <div className={styles.avatar} ref={stageRef} data-fragremy-avatar="">
-          <BuddyAvatar mood={mood} size={132} />
+        {/* Comic strip: bubble hangs over Remy's head, tail points down at him. */}
+        <div className={styles.bubble} data-pop={popped ? '' : undefined}>
+          <p className={styles.bubbleText}>{intro ? intro.greeting : introFor(locale)}</p>
         </div>
-        <div className={styles.talk}>
-          <div className={styles.bubble}>
-            <p className={styles.bubbleText}>{intro ? intro.greeting : introFor(locale)}</p>
+        <div className={styles.row}>
+          <div className={styles.avatar} ref={stageRef} data-fragremy-avatar="">
+            <BuddyAvatar mood={mood} size={132} />
           </div>
-          <div className={styles.chips} data-fragremy-chips="">
-            {(intro?.suggestions ?? []).map((s) => (
-              <button
-                key={s}
-                type="button"
-                className={styles.chip}
-                onClick={() => dispatchBuddyAsk({ question: s })}
-              >
-                {s}
-              </button>
-            ))}
+          <div className={styles.talk}>
+            <div className={styles.chips} data-fragremy-chips="">
+              {(intro?.suggestions ?? []).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  className={styles.chip}
+                  onClick={() => dispatchBuddyAsk({ question: s })}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+            <button type="button" className={styles.cta} onClick={() => dispatchBuddyAsk()}>
+              {t('cta')}
+            </button>
           </div>
-          <button type="button" className={styles.cta} onClick={() => dispatchBuddyAsk()}>
-            {t('cta')}
-          </button>
         </div>
       </div>
     </section>

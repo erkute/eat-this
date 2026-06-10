@@ -171,7 +171,10 @@ export async function searchSpots(
   })
   // Nearest first when we know where the user is.
   if (userGeo) mapped.sort((a, b) => (a._km ?? Infinity) - (b._km ?? Infinity))
-  return mapped.map(({ _km, ...spot }) => spot)
+  return mapped.map(({ _km, ...spot }) => {
+    void _km
+    return spot
+  })
 }
 
 export interface ArticleQuery {

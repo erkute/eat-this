@@ -1,11 +1,9 @@
 // Firestore-backed sliding-window rate limiter for Next.js route handlers.
-// Mirrors functions/index.js checkRateLimit so the App-Hosting API routes
-// get the same per-key abuse protection the Cloud Functions already have.
-//
 // Keys live in _rateLimits/{key}; the collection is deny-all in
 // firestore.rules, so only the Admin SDK (this code) can touch it.
 
 import { getAdminFirestore } from './firebase/admin'
+export { clientIp } from './clientIp'
 
 /**
  * Returns true if the request is allowed, false if the key has hit its limit
@@ -35,11 +33,4 @@ export async function checkRateLimit(
   } catch {
     return true
   }
-}
-
-/** Best-effort client IP from the proxy headers App Hosting sets. */
-export function clientIp(req: Request): string {
-  const xff = req.headers.get('x-forwarded-for')
-  if (xff) return xff.split(',')[0].trim()
-  return req.headers.get('x-real-ip') ?? 'unknown'
 }

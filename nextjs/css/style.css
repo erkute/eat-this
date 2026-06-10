@@ -2822,7 +2822,7 @@ body:has(.burger-drawer.active) .burger-btn {
   .app-page[data-page="start"] .start-section:has(.start-philo-list) {
     padding-bottom: 24px;
   }
-  /* Section 6 (What's next): more bottom space before newsletter */
+  /* Section 6 (What's next): more bottom space at the end */
   .app-page[data-page="start"] .start-section:last-of-type:not(:has(.start-editorial-row)) {
     padding-bottom: 100px;
   }
@@ -2881,105 +2881,6 @@ body:has(.burger-drawer.active) .burger-btn {
 /* ── Notification toast: styled in app/globals.css (mounted in the root
    locale layout, also on routes that don't load this stylesheet). ── */
 
-
-/* ============================================
-   NEWSLETTER SECTION
-   ============================================ */
-.newsletter-section {
-  background: #fff;
-  padding: 48px 24px;
-  text-align: center;
-  border-top: 1px solid #ececec;
-}
-.newsletter-eyebrow {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--orange);
-  margin-bottom: 8px;
-}
-.newsletter-title {
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  color: var(--black);
-  margin-bottom: 6px;
-}
-.newsletter-sub {
-  font-size: 13px;
-  color: var(--gray-400);
-  line-height: 1.55;
-  max-width: 320px;
-  margin: 0 auto 20px;
-}
-.newsletter-form {
-  display: flex;
-  gap: 6px;
-  max-width: 320px;
-  margin: 0 auto;
-}
-.newsletter-input {
-  flex: 1;
-  border: 1px solid var(--gray-200);
-  padding: 11px 14px;
-  font-size: 13px;
-  font-family: var(--font);
-  border-radius: var(--radius);
-  outline: none;
-  color: var(--black);
-  transition: border-color 0.2s;
-}
-.newsletter-input:focus { border-color: var(--black); }
-.newsletter-btn {
-  background: var(--orange);
-  color: #fff;
-  border: none;
-  padding: 11px 18px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  cursor: pointer;
-  border-radius: var(--radius);
-  font-family: var(--font);
-  white-space: nowrap;
-  transition: opacity 0.2s;
-}
-.newsletter-btn:disabled { opacity: 0.5; cursor: default; }
-.newsletter-error {
-  font-size: 11px;
-  color: var(--orange);
-  margin-top: 8px;
-}
-.newsletter-success {
-  font-size: 11px;
-  color: #2a7a2a;
-  font-weight: 600;
-  margin-top: 8px;
-}
-.newsletter-fine {
-  font-size: 10px;
-  color: #bbb;
-  margin-top: 12px;
-}
-
-/* Dark mode newsletter */
-[data-theme="dark"] .newsletter-section {
-  background: #000;
-  border-top-color: rgba(255, 255, 255, 0.08);
-}
-[data-theme="dark"] .newsletter-title { color: var(--white); }
-[data-theme="dark"] .newsletter-sub   { color: rgba(255, 255, 255, 0.6); }
-[data-theme="dark"] .newsletter-input {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: var(--white);
-}
-[data-theme="dark"] .newsletter-input::placeholder { color: rgba(255, 255, 255, 0.4); }
-[data-theme="dark"] .newsletter-input:focus { border-color: var(--white); }
-[data-theme="dark"] .newsletter-fine { color: rgba(255, 255, 255, 0.35); }
-[data-theme="dark"] .newsletter-success { color: #6fbf6f; }
 
 /* ============================================
    ONBOARDING OVERLAY

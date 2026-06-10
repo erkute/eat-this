@@ -12,6 +12,9 @@ vi.mock('@/lib/auth', () => ({ useAuth: () => ({ user: null }) }))
 vi.mock('@/lib/map/useFavorites', () => ({
   useFavorites: () => ({ favoriteIds: new Set<string>(), toggle: vi.fn() }),
 }))
+vi.mock('@/lib/firebase/useOwnedEntitlements', () => ({
+  useOwnedEntitlements: () => new Set<string>(),
+}))
 vi.mock('@/i18n/navigation', () => ({
   usePathname: () => '/',
   Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,

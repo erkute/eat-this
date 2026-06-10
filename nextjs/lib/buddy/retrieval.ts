@@ -32,6 +32,7 @@ const SPOTS_PROJECTION = `{
   mapsUrl,
   openingHours, // [{days, hours}] — open-now status computed in searchSpots
   lat, lng, // used to compute distance when the user shares their location
+  "categorySlugs": categories[defined(@->_id)]->slug.current, // pack-teaser vote (server-internal)
   "image": image.asset->url + "?w=120&h=120&fit=crop&auto=format&q=80"
 }`
 

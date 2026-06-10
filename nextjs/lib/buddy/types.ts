@@ -18,6 +18,20 @@ export interface SpotCandidate {
   openLabel: string | null
   /** Distance from the user, e.g. "240 m" / "1,8 km". null unless location shared. */
   distanceLabel: string | null
+  /** Category slugs (pack taxonomy) — server-internal input for the Booster-Pack
+   *  teaser pick; stripped before spots are streamed or fed back to the LLM. */
+  categorySlugs?: string[]
+}
+
+/** Booster-Pack teaser the app (not Remy) renders under a matching answer.
+ *  All copy comes verbatim from the canonical stripe-catalog. */
+export interface PackTeaser {
+  packId: string
+  /** Pack page slug → /pack/<slug> */
+  slug: string
+  name: string
+  spectrum: string
+  priceLabel: string
 }
 
 export interface ArticleResult {
@@ -35,5 +49,6 @@ export type BuddyStreamEvent =
   | { type: 'text'; value: string }
   | { type: 'spots'; value: SpotCandidate[] }
   | { type: 'articles'; value: ArticleResult[] }
+  | { type: 'pack'; value: PackTeaser }
   | { type: 'error'; value: string }
   | { type: 'done' }

@@ -1,7 +1,7 @@
 'use client'
 import { useCallback, useRef, useState } from 'react'
 import { useLocale } from 'next-intl'
-import type { BuddyStreamEvent, ChatMessage, SpotCandidate, ArticleResult, Locale } from '@/lib/buddy/types'
+import type { BuddyStreamEvent, ChatMessage, SpotCandidate, ArticleResult, PackTeaser, Locale } from '@/lib/buddy/types'
 import { sanitizeLinks } from '@/lib/buddy/stream'
 
 export function parseNdjsonLines(
@@ -36,6 +36,7 @@ function getSessionId(): string {
 export interface BuddyDisplayMessage extends ChatMessage {
   spots?: SpotCandidate[]
   articles?: ArticleResult[]
+  pack?: PackTeaser
 }
 
 export function useBuddyChat() {
@@ -114,6 +115,10 @@ export function useBuddyChat() {
             } else if (e.type === 'articles') {
               updateAssistant((m) => {
                 m.articles = e.value
+              })
+            } else if (e.type === 'pack') {
+              updateAssistant((m) => {
+                m.pack = e.value
               })
             } else if (e.type === 'error') {
               updateAssistant((m) => {

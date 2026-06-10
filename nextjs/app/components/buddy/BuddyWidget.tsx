@@ -15,7 +15,8 @@ import {
 } from '@/lib/buddy/homeStage'
 import { useAuth } from '@/lib/auth'
 import { useFavorites } from '@/lib/map/useFavorites'
-import type { Locale, SpotCandidate, ArticleResult } from '@/lib/buddy/types'
+import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements'
+import type { Locale, SpotCandidate, ArticleResult, PackTeaser } from '@/lib/buddy/types'
 import styles from './BuddyWidget.module.css'
 
 // Minimal inline markdown: **bold** only (Claude's main inline marker).
@@ -151,6 +152,31 @@ const T = {
   en: { open: 'Open Remy', close: 'Close', thinking: 'Remy is thinking', placeholder: 'Message Remy…' },
 } satisfies Record<Locale, Record<string, string>>
 
+// Booster-Pack teaser card — rendered by the APP under a matching answer (the
+// server picks at most one per request, see lib/buddy/packTeaser.ts). Remy's
+// text never sells; this card does, with canonical catalog copy and price.
+function PackCard({
+  pack,
+  locale,
+  onSelect,
+}: {
+  pack: PackTeaser
+  locale: Locale
+  onSelect: () => void
+}) {
+  return (
+    <Link className={styles.packCard} href={`/pack/${pack.slug}`} prefetch onClick={onSelect} data-buddy-pack={pack.packId}>
+      <span className={styles.spotBody}>
+        <span className={styles.articleKicker}>Booster Pack</span>
+        <span className={styles.spotName}>{pack.name}</span>
+        <span className={styles.packSpectrum}>{pack.spectrum}</span>
+        <span className={styles.spotCta}>{locale === 'en' ? 'View' : 'Ansehen'} →</span>
+      </span>
+      <span className={styles.packPrice}>{pack.priceLabel}</span>
+    </Link>
+  )
+}
+
 // Renders one assistant message: prose with spot cards interleaved at their
 // `[[spot:<slug>]]` markers. Spots Remy didn't place inline fall back to a block
 // at the end — but only when he placed NONE (else we'd re-introduce the noise of
@@ -165,6 +191,7 @@ function BotMessage({
   savedIds,
   onSaveSpot,
   thinkingLabel,
+  pack,
 }: {
   m: BuddyDisplayMessage
   locale: Locale
@@ -175,6 +202,8 @@ function BotMessage({
   savedIds: Set<string>
   onSaveSpot: (spot: SpotCandidate) => void
   thinkingLabel: string
+  /** Booster-Pack teaser — set only on the one message that may show it. */
+  pack?: PackTeaser
 }) {
   if (!m.content) {
     return streaming ? <TypingDots label={thinkingLabel} /> : null
@@ -231,6 +260,11 @@ function BotMessage({
           ))}
         </div>
       )}
+      {pack && !streaming && (
+        <div className={styles.spots}>
+          <PackCard pack={pack} locale={locale} onSelect={onSpotSelect} />
+        </div>
+      )}
       {showChips && (
         <div className={styles.chips}>
           {chips.map((c) => (
@@ -257,6 +291,17 @@ export default function BuddyWidget() {
   // sent to /login by toggle() — same behaviour as the map's save button.
   const { user } = useAuth()
   const { favoriteIds, toggle: toggleFav } = useFavorites(user?.uid ?? null)
+
+  // Booster-Pack teaser: at most ONE card per conversation, and never for a
+  // pack the user already owns (or anything when they own All Berlin). For a
+  // signed-in user we wait for the ownership snapshot (null = loading) instead
+  // of flashing a card at a buyer and yanking it away.
+  const ownedPacks = useOwnedEntitlements(user?.uid ?? null)
+  const packVisible = (p: PackTeaser) =>
+    user
+      ? ownedPacks !== null && !ownedPacks.has(p.packId) && !ownedPacks.has('all-berlin')
+      : true
+  const firstPackIdx = messages.findIndex((m) => m.role === 'assistant' && m.pack && packVisible(m.pack))
   const onSaveSpot = useCallback(
     (s: SpotCandidate) => {
       void toggleFav({
@@ -582,6 +627,7 @@ export default function BuddyWidget() {
                     savedIds={favoriteIds}
                     onSaveSpot={onSaveSpot}
                     thinkingLabel={t.thinking}
+                    pack={i === firstPackIdx ? m.pack : undefined}
                   />
                 </div>
               ),

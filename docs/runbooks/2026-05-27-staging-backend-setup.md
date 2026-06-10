@@ -120,9 +120,8 @@ Open in incognito:
 
 Expected: browser prompts for username/password. Enter the values from step 3.
 
-After successful auth, the staging banner ("STAGING — not production") should appear at the top of the page in coral.
-
-If you see the homepage with no banner — Task 7 didn't deploy. Check the rollout log.
+After successful auth, verify that the authenticated response includes
+`X-Robots-Tag: noindex, nofollow`. There is no visible staging banner.
 
 ## 7. Create GitHub Project + Migration milestone
 

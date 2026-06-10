@@ -64,8 +64,9 @@ App Hosting backend (`eat-this-staging`). Feature work flows:
 - Staging URL is gated by Basic Auth + `noindex` — see
   `docs/runbooks/2026-05-27-staging-backend-setup.md` for credentials lookup
 - Staging runs Stripe in test mode (price IDs differ), Resend is disabled
-- The `StagingBanner` component renders only when `NEXT_PUBLIC_ENV=staging`
-  is set — if you don't see it on the staging URL, the env var didn't deploy
+- Verify `NEXT_PUBLIC_ENV=staging` via the Basic Auth gate and the
+  `X-Robots-Tag: noindex, nofollow` response header. There is no visible
+  staging banner.
 
 For the migration breakdown, see
 `docs/specs/2026-05-27-staging-and-migration-design.md`.

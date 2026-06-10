@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { collection, onSnapshot } from 'firebase/firestore'
-import { db } from './config'
+import { getDb } from './config'
 
 // Per-uid localStorage cache of owned packIds. Lets the map/profile resolve the
 // user's tier (starter vs all-berlin) on first paint instead of flashing the
@@ -36,14 +35,23 @@ export function useOwnedEntitlements(uid: string | null): Set<string> | null {
     if (!uid) { setOwned(new Set()); return }
     // uid may have changed since mount — reseed from this uid's cache first.
     setOwned(readCache(uid))
-    const ref = collection(db, 'users', uid, 'entitlements')
-    const unsub = onSnapshot(ref, (snap) => {
-      const next = new Set<string>()
-      for (const d of snap.docs) next.add(d.id)
-      setOwned(next)
-      writeCache(uid, next)
-    })
-    return () => unsub()
+    let unsub = () => {}
+    let active = true
+    void (async () => {
+      const [{ collection, onSnapshot }, db] = await Promise.all([
+        import('firebase/firestore'),
+        getDb(),
+      ])
+      if (!active) return
+      const ref = collection(db, 'users', uid, 'entitlements')
+      unsub = onSnapshot(ref, (snap) => {
+        const next = new Set<string>()
+        for (const d of snap.docs) next.add(d.id)
+        setOwned(next)
+        writeCache(uid, next)
+      })
+    })()
+    return () => { active = false; unsub() }
   }, [uid])
 
   return owned

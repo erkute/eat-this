@@ -4,7 +4,7 @@
 
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import type { Firestore } from 'firebase/firestore';
 
 // authDomain: on production the auth helper (/__/auth/*) is reverse-proxied
 // through our own domain (see rewrites() in next.config.ts), so the popup is
@@ -34,7 +34,21 @@ const firebaseConfig = {
 const app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
 
 export const auth        = getAuth(app);
-export const db          = getFirestore(app);
+
+// Lazy Firestore. A static `getFirestore(app)` pulls the ~85 KB gzip
+// firebase/firestore SDK into every route's first-load via the global
+// AuthProvider, even though only a handful of hooks ever read Firestore.
+// getDb() code-splits the SDK behind a dynamic import and memoizes the
+// instance, so callers `await getDb()` (alongside a dynamic
+// `import('firebase/firestore')` for the query fns) on demand. Auth stays
+// eager — login state is needed on first paint.
+let _dbPromise: Promise<Firestore> | null = null;
+export function getDb(): Promise<Firestore> {
+  if (!_dbPromise) {
+    _dbPromise = import('firebase/firestore').then(({ getFirestore }) => getFirestore(app));
+  }
+  return _dbPromise;
+}
 
 // Dev-only debug hook so the entitlements smoke test in
 // /api/_debug/whoami can be exercised from the browser console:

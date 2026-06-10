@@ -10,8 +10,7 @@ import {
   updateProfile,
   type User,
 } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase/config';
+import { auth, getDb } from '@/lib/firebase/config';
 import { routing } from '@/i18n/routing';
 import styles from './auth-action.module.css';
 
@@ -218,6 +217,10 @@ function IdentityForm({ user }: { user: User }) {
       // Save display name + avatar so the profile renders with the user's
       // chosen identity right after sign-in.
       await updateProfile(user, { displayName: name.trim() });
+      const [{ doc, setDoc }, db] = await Promise.all([
+        import('firebase/firestore'),
+        getDb(),
+      ]);
       await setDoc(doc(db, 'users', user.uid), { avatar: avatarPick }, { merge: true });
       hardRedirectToHome();
     } catch {

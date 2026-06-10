@@ -10,6 +10,7 @@ import HubAllBerlin from './HubAllBerlin'
 import HubFaq from './HubFaq'
 import HubNearby from './HubNearby'
 import HubDeineWelt from './HubDeineWelt'
+import HubFragRemy from './HubFragRemy'
 import HubHashScroll from './HubHashScroll'
 import SiteFooter from './SiteFooter'
 import { UserLocationProvider } from '@/lib/map/UserLocationContext'
@@ -32,6 +33,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         <HubDeineWelt initialMapData={initialMapData} />
         {spot ? <HubHero spot={spot} today={today} /> : <h1>Eat This</h1>}
         <HubNearby initialMapData={initialMapData} />
+        <HubFragRemy />
         <HubNewOnMap cards={initialData.newOnMap} />
         <HubMustEatsTeaser initialMapData={initialMapData} />
         <HubMagazine articles={initialData.magazine} />

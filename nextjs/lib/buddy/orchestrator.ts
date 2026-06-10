@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import type { Locale, ChatMessage, BuddyStreamEvent, SpotCandidate, ArticleResult } from './types'
 import { BUDDY_TOOLS } from './tools'
 import { buildSystemPrompt } from './prompt'
+import { pickPackForSpots, buildPackTeaser } from './packTeaser'
 import type { SpotFilters, ArticleQuery } from './retrieval'
 
 export interface LlmToolUse {
@@ -45,6 +46,10 @@ export async function* runBuddyTurn(
     content: m.content,
   }))
 
+  // At most ONE pack teaser per request — repeated cards would be exactly the
+  // pushy selling the prompt forbids Remy himself.
+  let packSent = false
+
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
     const turn = deps.llm.runTurn({ system, tools: BUDDY_TOOLS, messages })
 
@@ -60,7 +65,7 @@ export async function* runBuddyTurn(
     const toolResults: Anthropic.ToolResultBlockParam[] = []
     for (const tu of final.toolUses) {
       if (tu.name === 'search_spots') {
-        const spots = await deps.searchSpots(
+        const rawSpots = await deps.searchSpots(
           {
             cuisine: tu.input.cuisine as string | undefined,
             bezirk: tu.input.bezirk as string | undefined,
@@ -71,7 +76,25 @@ export async function* runBuddyTurn(
           },
           input.locale,
         )
+        // categorySlugs only feed the pack vote — strip them before the spots
+        // reach the client or go back to the LLM as tool result.
+        const spots = rawSpots.map((s) => {
+          const lean = { ...s }
+          delete lean.categorySlugs
+          return lean
+        })
         yield { type: 'spots', value: spots }
+        // Teaser only when the user explicitly named a dish/cuisine (the LLM
+        // sets `cuisine` exactly then) AND the results agree on one pack
+        // category — a generic "wo kann man gut essen?" never gets a card.
+        const explicitCuisine = typeof tu.input.cuisine === 'string' && tu.input.cuisine.trim().length > 0
+        if (!packSent && explicitCuisine) {
+          const pack = pickPackForSpots(rawSpots)
+          if (pack) {
+            packSent = true
+            yield { type: 'pack', value: buildPackTeaser(pack, input.locale) }
+          }
+        }
         toolResults.push({ type: 'tool_result', tool_use_id: tu.id, content: JSON.stringify(spots) })
       } else if (tu.name === 'search_articles') {
         const articles = await deps.searchArticles(

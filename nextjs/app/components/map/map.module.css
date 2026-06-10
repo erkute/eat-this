@@ -761,12 +761,20 @@ html[data-theme="dark"] .esBtnPrimary {
   text-align: left;
   -webkit-tap-highlight-color: transparent;
 }
+/* Container clips the inner <img> (real element instead of a CSS background
+   so it can lazy-load); background-color stays as the loading placeholder. */
 .rcardImg {
   position: absolute;
   inset: 0;
-  background-size: cover;
-  background-position: center;
+  overflow: hidden;
   background-color: #1a1a1a;
+}
+.rcardImg img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 .rcard::after {
   content: '';

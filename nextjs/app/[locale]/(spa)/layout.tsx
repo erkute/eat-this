@@ -8,7 +8,7 @@ import SiteNav from '@/app/components/SiteNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
 import SearchOverlay from '@/app/components/SearchOverlay'
 import CookieConsent from '@/app/components/CookieConsent'
-import BuddyWidget from '@/app/components/buddy/BuddyWidget'
+import BuddyWidget from '@/app/components/buddy/BuddyWidgetLazy'
 import BridgeAuth from './BridgeAuth'
 
 const SITE_URL = 'https://www.eatthisdot.com'

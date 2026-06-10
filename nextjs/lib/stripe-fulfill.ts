@@ -36,10 +36,9 @@ interface Args {
 
 type Result = 'created' | 'exists'
 
-// For category entitlements, restaurantIds are derived from the
-// mustEatIds' parent restaurants — same projection the welcome-pack
-// path uses (see functions/index.js parentRestaurantIdsOf). We query
-// both in one Sanity round-trip to avoid two cold fetches.
+// For category entitlements, restaurantIds are derived from the mustEatIds'
+// parent restaurants. We query both in one Sanity round-trip to avoid two
+// cold fetches.
 async function categoryEntitlementPayload(slug: string): Promise<{ mustEatIds: string[]; restaurantIds: string[] }> {
   const rows = await sanity.fetch<{ _id: string; rid: string | null }[]>(
     `*[_type == "mustEat" && defined(image.asset) && defined(restaurantRef._ref) && restaurantRef->isOpen != false && $slug in restaurantRef->categories[defined(@->_id)]->slug.current]{ _id, "rid": restaurantRef._ref }`,

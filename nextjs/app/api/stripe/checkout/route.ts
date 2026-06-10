@@ -4,6 +4,7 @@ import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin'
 import { getStripe } from '@/lib/stripe'
 import { resolvePriceId } from '@/lib/stripe-price'
 import { getPack } from '@/lib/stripe-catalog'
+import { getAppUrl } from '@/lib/constants'
 
 export const runtime  = 'nodejs'
 export const dynamic  = 'force-dynamic'
@@ -52,12 +53,7 @@ export async function POST(req: Request) {
     }
   }
 
-  // Cloud Run sees the internal listen address in req.url (e.g.
-  // http://0.0.0.0:8080). Stripe's success/cancel URLs need the public
-  // origin — derive it from the forwarded headers App Hosting sets.
-  const host  = req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? new URL(req.url).host
-  const proto = req.headers.get('x-forwarded-proto') ?? 'https'
-  const origin = `${proto}://${host}`
+  const origin = getAppUrl()
 
   const mode = uid ? 'auth' : 'guest'
   const successPath = locale === 'en'

@@ -20,6 +20,13 @@ const eslintConfig = [
     rules: { "@next/next/no-img-element": "off" },
   },
   {
+    // Test fixtures and Firebase/Stripe mocks intentionally cast partial
+    // objects into SDK shapes. Requiring complete SDK object types here adds
+    // noise without improving production type safety.
+    files: ["**/*.test.{ts,tsx}", "__tests__/**/*.{ts,tsx}"],
+    rules: { "@typescript-eslint/no-explicit-any": "off" },
+  },
+  {
     ignores: [
       "node_modules/**",
       ".next/**",

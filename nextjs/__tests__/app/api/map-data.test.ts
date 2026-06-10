@@ -4,6 +4,15 @@ vi.mock('@/lib/map/cached-sanity', () => ({
   getCachedMapData: vi.fn(),
 }))
 
+vi.mock('@/lib/map/free-surface', () => ({
+  getFreeSurfaceData: vi.fn().mockResolvedValue({ restaurantIds: new Set(), newOnMap: [] }),
+  applyFreeSurface: (visible: unknown[]) => visible,
+}))
+
+vi.mock('@/lib/home/spotOfDay.server', () => ({
+  getSpotOfDayId: vi.fn().mockResolvedValue(null),
+}))
+
 vi.mock('@/lib/firebase/entitlements', async () => {
   const actual = await vi.importActual<typeof import('@/lib/firebase/entitlements')>(
     '@/lib/firebase/entitlements',

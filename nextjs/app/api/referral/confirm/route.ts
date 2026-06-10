@@ -69,12 +69,6 @@ export async function POST(req: NextRequest) {
   const db = getAdminFirestore()
 
   try {
-    // Idempotency — friend already earned an invited-by bonus.
-    const existing = await db
-      .collection('users').doc(friendUid).collection('referralBonuses')
-      .where('source', '==', 'invited-by').limit(1).get()
-    if (!existing.empty) return respond(true)
-
     const { restaurants: all, mustEats: allMustEats } = await getCachedMapData()
     const allIds = all.map((r) => r._id)
 
@@ -106,26 +100,32 @@ export async function POST(req: NextRequest) {
     const friendPicks  = sampleN(friendPool,  REFERRAL_BONUS_SIZE)
     const inviterPicks = sampleN(inviterPool, REFERRAL_BONUS_SIZE)
 
-    const batch = db.batch()
     const friendDocRef = db
-      .collection('users').doc(friendUid).collection('referralBonuses').doc()
-    batch.set(friendDocRef, {
-      restaurantIds: friendPicks,
-      source: 'invited-by',
-      partnerUid: inviterUid,
-      createdAt: FieldValue.serverTimestamp(),
-    })
-    if (inviterPicks.length > 0) {
-      const inviterDocRef = db
-        .collection('users').doc(inviterUid).collection('referralBonuses').doc()
-      batch.set(inviterDocRef, {
-        restaurantIds: inviterPicks,
-        source: 'invited',
-        partnerUid: friendUid,
+      .collection('users').doc(friendUid).collection('referralBonuses').doc('invited-by')
+    const inviterDocRef = db
+      .collection('users').doc(inviterUid).collection('referralBonuses').doc(`invited-${friendUid}`)
+
+    // The deterministic friend document is the idempotency lock. Reading and
+    // creating it inside one transaction prevents parallel confirm requests
+    // from awarding the same signup more than once.
+    await db.runTransaction(async (tx) => {
+      const existing = await tx.get(friendDocRef)
+      if (existing.exists) return
+      tx.set(friendDocRef, {
+        restaurantIds: friendPicks,
+        source: 'invited-by',
+        partnerUid: inviterUid,
         createdAt: FieldValue.serverTimestamp(),
       })
-    }
-    await batch.commit()
+      if (inviterPicks.length > 0) {
+        tx.set(inviterDocRef, {
+          restaurantIds: inviterPicks,
+          source: 'invited',
+          partnerUid: friendUid,
+          createdAt: FieldValue.serverTimestamp(),
+        })
+      }
+    })
 
     return respond(true)
   } catch (err) {

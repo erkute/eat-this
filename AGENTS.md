@@ -15,7 +15,7 @@ Re-confirm only if the change crosses obvious module boundaries.
 
 ## Git Hygiene (parallel sessions)
 
-This repo is occasionally worked on in **multiple agent sessions simultaneously**. The working tree and git index are shared between them, which means one session's staged changes can accidentally be committed by another.
+This repo is occasionally worked on in **multiple Codex sessions simultaneously**. The working tree and git index are shared between them, which means one session's staged changes can accidentally be committed by another.
 
 **Before any `git commit`:**
 

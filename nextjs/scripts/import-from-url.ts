@@ -523,8 +523,7 @@ function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildCo
 // ----- Reusable runner ------------------------------------------------------
 
 /** Throws when the URL can't be parsed, no Places match exists, or a published
- *  restaurant with the matched name is already in Sanity. The Studio flow and
- *  the CLI both surface these as user-facing errors. */
+ *  restaurant with the matched name is already in Sanity. */
 export class ImportError extends Error {
   constructor(message: string, public hint?: string) {
     super(message)
@@ -554,10 +553,8 @@ export interface RunImportResult {
 }
 
 /** Resolves a Google Maps URL to a draft-ready restaurant doc shape. Used by
- *  the CLI here and by the Studio template via the /api/admin/import-restaurant
- *  endpoint. The doc carries a generated `drafts.<uuid>` id which the CLI
- *  passes to sanity.create; the API endpoint strips it so Sanity assigns a
- *  fresh id at draft-creation time. */
+ *  the CLI entrypoints in this directory. The doc carries a generated
+ *  `drafts.<uuid>` id which the basic importer passes to sanity.create. */
 export async function runImport(url: string, opts: RunImportOptions = {}): Promise<RunImportResult> {
   const canonicalUrl = await resolveUrl(url)
   const parsed = parseMapsUrl(canonicalUrl)
@@ -578,8 +575,8 @@ export async function runImportFromParsed(
   canonicalUrl: string,
   opts: RunImportOptions = {},
 ): Promise<RunImportResult> {
-  if (!GOOGLE_API_KEY) throw new ImportError('GOOGLE_API_KEY is not set on the server.')
-  if (!SANITY_TOKEN) throw new ImportError('SANITY_API_WRITE_TOKEN is not set on the server.')
+  if (!GOOGLE_API_KEY) throw new ImportError('GOOGLE_API_KEY is not set.')
+  if (!SANITY_TOKEN) throw new ImportError('SANITY_API_WRITE_TOKEN is not set.')
 
   const uploadPhoto = opts.uploadPhoto !== false
   const duplicateCheck = opts.duplicateCheck !== false
@@ -694,7 +691,7 @@ async function main() {
 }
 
 // Only run main when invoked directly via tsx — skipped when this module is
-// imported by the API route (which uses runImport instead). Symlink-safe via
+// imported by the enriched local importer. Symlink-safe via
 // realpath: on macOS /tmp resolves to /private/tmp so a naive URL/path
 // comparison would mis-detect.
 import { realpathSync } from 'node:fs'

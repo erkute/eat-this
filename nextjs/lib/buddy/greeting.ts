@@ -61,3 +61,9 @@ export function greetingFor(hour: number, locale: Locale): { greeting: string; s
     suggestions: SUGGESTIONS[locale][part],
   }
 }
+
+// The time-independent first sentence alone — safe to server-render (the
+// daypart hook depends on the user's local clock, which the server can't know).
+export function introFor(locale: Locale): string {
+  return INTRO[locale]
+}

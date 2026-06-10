@@ -6,6 +6,13 @@ import BuddyAvatar, { type BuddyMood } from './BuddyAvatar'
 import { useBuddyChat, type BuddyDisplayMessage } from './useBuddyChat'
 import { splitAnswerSegments, extractFollowups } from '@/lib/buddy/stream'
 import { greetingFor } from '@/lib/buddy/greeting'
+import {
+  BUDDY_ASK_EVENT,
+  BUDDY_STAGE_EVENT,
+  type BuddyAskDetail,
+  type BuddyStageDetail,
+  type BuddyStageRect,
+} from '@/lib/buddy/homeStage'
 import { useAuth } from '@/lib/auth'
 import { useFavorites } from '@/lib/map/useFavorites'
 import type { Locale, SpotCandidate, ArticleResult } from '@/lib/buddy/types'
@@ -268,6 +275,9 @@ export default function BuddyWidget() {
   const [greetingBeat, setGreetingBeat] = useState(false)
   const [locating, setLocating] = useState(false)
   const wasStreaming = useRef(false)
+  const [onStage, setOnStage] = useState(false)
+  const [arrivalBeat, setArrivalBeat] = useState(false)
+  const stageRect = useRef<BuddyStageRect | null>(null)
 
   const closePanel = useCallback(() => {
     setOpen(false)
@@ -353,6 +363,63 @@ export default function BuddyWidget() {
     return () => window.removeEventListener('keydown', onKey)
   }, [open, closePanel])
 
+  // ── Home-stage protocol ──
+  // While the hub's "Frag Remy" section is on screen there is only ONE Remy —
+  // the stage one — so the corner launcher hides. When the stage scrolls away,
+  // the launcher flies in from where the stage avatar last stood (FLIP) and
+  // smiles briefly on arrival. See lib/buddy/homeStage.ts.
+  useEffect(() => {
+    const onStageEvent = (e: Event) => {
+      const { visible, rect } = (e as CustomEvent<BuddyStageDetail>).detail
+      stageRect.current = rect ?? null
+      setOnStage(visible)
+    }
+    window.addEventListener(BUDDY_STAGE_EVENT, onStageEvent)
+    return () => window.removeEventListener(BUDDY_STAGE_EVENT, onStageEvent)
+  }, [])
+
+  const wasOnStage = useRef(false)
+  useEffect(() => {
+    const was = wasOnStage.current
+    wasOnStage.current = onStage
+    if (!was || onStage) return
+    const btn = launcherRef.current
+    const from = stageRect.current
+    // No rect (section unmounted) or no WAAPI (jsdom): just appear in place.
+    if (!btn || !from || typeof btn.animate !== 'function') return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const to = btn.getBoundingClientRect()
+    if (to.width === 0) return
+    const dx = from.left + from.width / 2 - (to.left + to.width / 2)
+    const dy = from.top + from.height / 2 - (to.top + to.height / 2)
+    btn.animate(
+      [
+        { transform: `translate(${dx}px, ${dy}px) scale(${from.width / to.width})`, opacity: 0.85 },
+        { transform: 'none', opacity: 1 },
+      ],
+      { duration: 480, easing: 'cubic-bezier(0.22, 0.8, 0.3, 1)' },
+    )
+    setArrivalBeat(true)
+  }, [onStage])
+
+  useEffect(() => {
+    if (!arrivalBeat) return
+    const t = setTimeout(() => setArrivalBeat(false), 1600)
+    return () => clearTimeout(t)
+  }, [arrivalBeat])
+
+  // Stage chips / CTA hand-off: open the panel and (optionally) ask right away.
+  // `send` self-guards against empty text and concurrent streams.
+  useEffect(() => {
+    const onAsk = (e: Event) => {
+      const { question } = (e as CustomEvent<BuddyAskDetail>).detail ?? {}
+      setOpen(true)
+      if (question) void send(question)
+    }
+    window.addEventListener(BUDDY_ASK_EVENT, onAsk)
+    return () => window.removeEventListener(BUDDY_ASK_EVENT, onAsk)
+  }, [send])
+
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const text = draft
@@ -411,7 +478,13 @@ export default function BuddyWidget() {
     : isStreaming || greetingBeat
       ? 'talking'
       : 'idle'
-  const launcherMood: BuddyMood = open ? panelMood : scrolling ? 'talking' : 'idle'
+  const launcherMood: BuddyMood = open
+    ? panelMood
+    : arrivalBeat
+      ? 'greeting'
+      : scrolling
+        ? 'talking'
+        : 'idle'
 
   // No buddy on the map page — it would cover the map.
   const pathname = usePathname()
@@ -423,6 +496,7 @@ export default function BuddyWidget() {
         ref={launcherRef}
         className={styles.launcher}
         data-buddy-launcher
+        data-stage={onStage ? 'true' : undefined}
         aria-label={t.open}
         aria-expanded={open}
         aria-controls="buddy-panel"

@@ -152,9 +152,17 @@ const T = {
   en: { open: 'Open Remy', close: 'Close', thinking: 'Remy is thinking', placeholder: 'Message Remy…' },
 } satisfies Record<Locale, Record<string, string>>
 
+// A short line in Remy's voice that hands the pack card over, so it doesn't
+// just appear unannounced. Canned (app-controlled, not LLM) so his streamed
+// answer stays sales-free — this aside is clearly the app nudging, in his tone.
+const PACK_INTRO: Record<Locale, (name: string) => string> = {
+  de: (name) => `Ach, und falls dich ${name} öfter packt — dafür hätte ich was:`,
+  en: (name) => `Oh, and if ${name} is your thing — I’ve got something for that:`,
+}
+
 // Booster-Pack teaser card — rendered by the APP under a matching answer (the
 // server picks at most one per request, see lib/buddy/packTeaser.ts). Remy's
-// text never sells; this card does, with canonical catalog copy and price.
+// streamed text never sells; this card does, with canonical catalog copy.
 function PackCard({
   pack,
   locale,
@@ -264,7 +272,8 @@ function BotMessage({
         </div>
       )}
       {pack && !streaming && (
-        <div className={styles.spots}>
+        <div className={styles.packBlock}>
+          <p className={styles.packIntro}>{PACK_INTRO[locale](pack.name)}</p>
           <PackCard pack={pack} locale={locale} onSelect={onSpotSelect} />
         </div>
       )}

@@ -72,15 +72,19 @@ html[data-active-page='news-article'] .launcher { bottom: 96px; }
   border-radius: 12px; padding: 10px; text-decoration: none; color: #1a1a1a;
   transition: background .12s ease, border-color .12s ease; }
 .articleCard:hover { background: #faf8f3; border-color: #d8d2c4; }
-/* Booster-Pack teaser — article-card anatomy plus a yellow price tag */
-.packCard { display: flex; flex-direction: row; gap: 10px; align-items: flex-start; background: #fff;
-  border: 1px solid #e6e2d8; border-radius: 12px; padding: 10px; text-decoration: none; color: #1a1a1a;
-  transition: background .12s ease, border-color .12s ease; }
-.packCard:hover { background: #faf8f3; border-color: #d8d2c4; }
+/* Booster-Pack teaser block: a short Remy aside + a card that stands out from
+   the white restaurant cards — warm cream-yellow surface, gold border, and a
+   left accent bar so it reads as "an offer", not another spot. */
+.packBlock { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+.packIntro { margin: 0 2px; font-size: 0.92em; line-height: 1.4; color: #6b5a2a; font-style: italic; }
+.packCard { display: flex; flex-direction: row; gap: 10px; align-items: flex-start; background: #fff7e0;
+  border: 1.5px solid #eccf73; border-left-width: 5px; border-radius: 12px; padding: 10px 10px 10px 9px;
+  text-decoration: none; color: #1a1a1a; transition: background .12s ease, border-color .12s ease; }
+.packCard:hover { background: #fdf0c8; border-color: #e3bd49; }
 /* booster trading-card artwork — show the whole pack, never crop it (contain) */
 .packArt { width: 52px; height: 70px; object-fit: contain; flex-shrink: 0; }
 /* pack copy shows in full — no line-clamp, the teaser shouldn't read truncated */
-.packDesc { font-size: 0.86em; color: #4a463f; line-height: 1.35; }
+.packDesc { font-size: 0.86em; color: #5a4f33; line-height: 1.35; }
 .articleKicker { font-size: 0.72em; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #b4541f; }
 .form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid #eee; background: #fff; }
 .input { flex: 1; border: 1px solid #ddd; border-radius: 10px; padding: 8px 10px; font: inherit;
@@ -148,9 +152,10 @@ html[data-theme="dark"] .spotStatus[data-open='false'] { color: #8a8a8a; }
 html[data-theme="dark"] .articleCard { background: #232323; border-color: #333; color: #f5f5f5; }
 html[data-theme="dark"] .articleCard:hover { background: #2c2c2c; border-color: #444; }
 html[data-theme="dark"] .articleKicker { color: #e0763a; }
-html[data-theme="dark"] .packCard { background: #232323; border-color: #333; color: #f5f5f5; }
-html[data-theme="dark"] .packCard:hover { background: #2c2c2c; border-color: #444; }
-html[data-theme="dark"] .packDesc { color: #c5c5c5; }
+html[data-theme="dark"] .packIntro { color: #d8c082; }
+html[data-theme="dark"] .packCard { background: #2b2616; border-color: #6a541f; color: #f5f5f5; }
+html[data-theme="dark"] .packCard:hover { background: #342d18; border-color: #8a6f2a; }
+html[data-theme="dark"] .packDesc { color: #d6cba8; }
 html[data-theme="dark"] .form { border-top-color: #2c2c2c; background: #1a1a1a; }
 html[data-theme="dark"] .input { background: #232323; border-color: #333; color: #f5f5f5; }
 html[data-theme="dark"] .input::placeholder { color: #8a8a8a; }

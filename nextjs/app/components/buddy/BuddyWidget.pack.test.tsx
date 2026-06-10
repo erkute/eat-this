@@ -78,6 +78,10 @@ describe('BuddyWidget pack teaser', () => {
     expect(card.querySelector('img')?.getAttribute('src')).toBe('/pics/booster/booster_pizza.webp')
     // the chat teaser never names a price
     expect(card.textContent).not.toMatch(/€|\d,\d{2}/)
+    // Remy introduces the card with a short aside naming the pack
+    const block = card.closest('div')!
+    expect(block.textContent).toContain('Pizza')
+    expect(block.querySelector('p')?.textContent ?? '').toMatch(/Pizza/)
   })
 
   it('shows only the first pack card of a conversation', () => {

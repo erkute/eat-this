@@ -90,7 +90,7 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
               <img
                 className={styles.card}
                 src={m.image}
-                alt={normalizeName(m.dish)}
+                alt={normalizeName(m.dish ?? '')}
                 loading="lazy"
               />
             </Link>

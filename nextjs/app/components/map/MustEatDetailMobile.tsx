@@ -104,7 +104,9 @@ export default function MustEatDetailMobile({
             className={`${styles.fdNameText}${!open ? ` ${styles.fdNameBlur}` : ''}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}
             aria-hidden={nameRevealed ? undefined : true}
           >
-            {normalizeName(mustEat.dish)}
+            {/* Covered cards arrive without the dish name (server-stripped) —
+                blur the covered label instead so the box keeps its height. */}
+            {mustEat.dish ? normalizeName(mustEat.dish) : t('mustEats.covered')}
           </span>
         </h1>
 
@@ -160,12 +162,12 @@ export default function MustEatDetailMobile({
             <button type="button" className={styles.fdPagerPrev} disabled={!prevMustEat} onClick={onPagePrev}>
               <span className={styles.fdPagerArrow}><PagerArrowIcon /></span>
               <span className={styles.fdPagerName}>
-                {prevMustEat ? (prevUnlocked ? normalizeName(prevMustEat.dish) : t('mustEats.covered')) : ''}
+                {prevMustEat ? (prevUnlocked ? normalizeName(prevMustEat.dish ?? '') : t('mustEats.covered')) : ''}
               </span>
             </button>
             <button type="button" className={styles.fdPagerNext} disabled={!nextMustEat} onClick={onPageNext}>
               <span className={styles.fdPagerName}>
-                {nextMustEat ? (nextUnlocked ? normalizeName(nextMustEat.dish) : t('mustEats.covered')) : ''}
+                {nextMustEat ? (nextUnlocked ? normalizeName(nextMustEat.dish ?? '') : t('mustEats.covered')) : ''}
               </span>
               <span className={styles.fdPagerArrow}><PagerArrowIcon /></span>
             </button>

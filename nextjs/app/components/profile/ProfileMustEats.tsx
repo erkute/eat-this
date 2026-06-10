@@ -3,12 +3,14 @@
 import { useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import type { MustEatAlbumCard } from '@/lib/types';
+import type { MapMustEat } from '@/lib/types';
 import MustEatImageLightbox from '@/app/components/map/MustEatImageLightbox';
 import styles from './ProfileSlim.module.css';
 
 interface Props {
-  mustEats: MustEatAlbumCard[];
+  /** Per-user map payload — covered cards arrive stripped (no dish/image),
+   *  which is fine: they render the card-back + restaurant label only. */
+  mustEats: MapMustEat[];
   mapUnlockedIds: Set<string>;
   /** Restaurant IDs the user owns (their map tier). Drives which must-eats
    *  appear here: every must-eat of an owned spot, face-up if revealed,
@@ -27,7 +29,10 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaur
   // (face-up) and still-covered (face-down). Spots the user doesn't own don't
   // appear here at all.
   const ownedMustEats = useMemo(
-    () => mustEats.filter((m) => m.restaurantId != null && ownedRestaurantIds.has(m.restaurantId)),
+    () =>
+      mustEats
+        .filter((m) => ownedRestaurantIds.has(m.restaurant._id))
+        .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity)),
     [mustEats, ownedRestaurantIds],
   );
   const unlocked = useMemo(
@@ -81,12 +86,12 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaur
             style={{ visibility: hiddenId === m._id ? 'hidden' : undefined }}
             onClick={(e) => {
               setHiddenId(m._id);
-              setExpanded({ imageUrl: m.imageUrl, alt: m.dish, rect: e.currentTarget.getBoundingClientRect(), id: m._id });
+              setExpanded({ imageUrl: m.image ?? '', alt: m.dish ?? '', rect: e.currentTarget.getBoundingClientRect(), id: m._id });
             }}
           >
             <div className={styles.mePh}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={m.imageUrl} alt={m.dish} loading="lazy" />
+              <img src={m.image} alt={m.dish ?? ''} loading="lazy" />
             </div>
           </button>
         ))}
@@ -94,7 +99,7 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaur
           // Covered card → its spot on the map. Prefer the restaurant detail
           // (?r=) so you land ON the restaurant; fall back to the must-eat
           // deep-link if the slug is missing.
-          const href = m.restaurantSlug ? `/map?r=${m.restaurantSlug}` : `/map?me=${m._id}`;
+          const href = m.restaurant.slug ? `/map?r=${m.restaurant.slug}` : `/map?me=${m._id}`;
           return (
             <Link
               key={m._id}
@@ -109,7 +114,7 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaur
               </div>
               <div className={styles.meLabel}>
                 <h4 className={styles.meName}>{tCovered('covered')}</h4>
-                <div className={styles.meRest}>{m.restaurant}</div>
+                <div className={styles.meRest}>{m.restaurant.name}</div>
               </div>
             </Link>
           );

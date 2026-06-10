@@ -91,8 +91,11 @@ export default function MustEatDetail({
       />
       {r && (
         <MustEatRevealOverlay
-          imageUrl={mustEat.image}
-          alt={mustEat.dish}
+          // Covered cards arrive stripped; the reveal response merges the real
+          // image in well before the ~800 ms flip exposes the card face. Until
+          // then the overlay shows the card-back it animates anyway.
+          imageUrl={mustEat.image ?? '/pics/card-back.webp?v=5'}
+          alt={mustEat.dish ?? ''}
           originRect={r}
           // Fly back onto the card's own slot and land face-up there (instead
           // of shrinking off toward the header) — the detail reveals in place.
@@ -109,8 +112,8 @@ export default function MustEatDetail({
         />
       )}
       <MustEatImageLightbox
-        imageUrl={mustEat.image}
-        alt={mustEat.dish}
+        imageUrl={mustEat.image ?? ''}
+        alt={mustEat.dish ?? ''}
         originRect={state.zoomRect}
         onClose={state.handleZoomClose}
       />

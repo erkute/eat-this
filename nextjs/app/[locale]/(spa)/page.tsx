@@ -4,6 +4,7 @@ import { hasLocale } from 'next-intl'
 import { setRequestLocale } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 import { localeUrl } from '@/lib/locale-url'
+import { buildHreflangAlternates } from '@/lib/seo/metadata'
 import HubSection from '@/app/components/HubSection'
 import { getHomeData } from '@/lib/home/getHomeData'
 import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data'
@@ -43,14 +44,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       },
       twitter: { title: EN_TITLE, description: EN_DESCRIPTION },
     }),
-    alternates: {
-      canonical: localeUrl(locale, '/'),
-      languages: {
-        de: localeUrl('de', '/'),
-        en: localeUrl('en', '/'),
-        'x-default': localeUrl('de', '/'),
-      },
-    },
+    alternates: buildHreflangAlternates('/', en ? 'en' : 'de'),
   }
 }
 

@@ -6,6 +6,7 @@ import { getAllCategories } from '@/lib/sanity.server'
 import { localizedCategoryName } from '@/lib/categories'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { localeUrl } from '@/lib/locale-url'
+import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import styles from '../bezirk/Bezirk.module.css'
 
 const POSTER_MAP: Record<string, string> = {
@@ -33,24 +34,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = de
     ? 'Berliner Restaurants nach Anlass — Frühstück, Lunch, Dinner, Café, Süßes und Pizza.'
     : 'Berlin restaurants by occasion — breakfast, lunch, dinner, coffee, sweets, and pizza.'
-  const canonical = localeUrl(locale, '/kategorie')
+  const alternates = buildHreflangAlternates('/kategorie', de ? 'de' : 'en')
   return {
     title,
     description,
-    alternates: {
-      canonical,
-      languages: {
-        de: localeUrl('de', '/kategorie'),
-        en: localeUrl('en', '/kategorie'),
-        'x-default': localeUrl('de', '/kategorie'),
-      },
-    },
+    alternates,
     openGraph: {
       title,
       description,
-      url: canonical,
+      url: alternates.canonical,
       type: 'website',
-      locale: de ? 'de_DE' : 'en_US',
+      locale: toOgLocale(de ? 'de' : 'en'),
     },
   }
 }

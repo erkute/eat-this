@@ -238,7 +238,8 @@
 
 /* Progress counter — "X von Y aufgedeckt" above the grid. */
 .meCount {
-  margin: 0 16px 10px;
+  margin: 0 0 10px;
+  padding: 0 16px;
   font-family: var(--font-poster);
   font-size: 12px;
   letter-spacing: 0.16em;
@@ -394,6 +395,7 @@
   .head,
   .section,
   .spotsCards,
+  .meCount,
   .meGrid,
   .explainer,
   .empty,

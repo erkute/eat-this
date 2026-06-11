@@ -19,6 +19,8 @@ import { useTranslation } from '@/lib/i18n'
 import MapSectionBody from './map/MapSectionBody'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import { resolveAdjacent } from '@/lib/map/pager'
+import { estimateDetailMidVisiblePx } from '@/lib/map/detailSnap'
+import { readSafeAreaBottom } from '@/lib/map/useMapSheet'
 import { auth, db } from '@/lib/firebase/config'
 import { onAuthStateChanged } from 'firebase/auth'
 import { collection, onSnapshot } from 'firebase/firestore'
@@ -134,16 +136,29 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   const [desktopPanelHidden, setDesktopPanelHidden] = useState(false)
 
   // Snap the sheet when entering detail view (or switching selections).
-  // Preserve the full snap if the user was at full when clicking — Google
-  // Maps does the same: clicking a place from the full-screen list keeps
-  // you in the full-screen view. Otherwise default to mid.
   const snapRef = useRef(snap)
   snapRef.current = snap
+  /* Snap explicitly requested by an open-detail handler (pin-tap → 'peek',
+     list/search/deep-link → 'full'). Consumed once by the layout effect
+     below; null for selection changes that arrive WITHOUT a handler call
+     (prev/next paging), which keep the current position. */
+  const pendingDetailSnapRef = useRef<'full' | 'peek' | null>(null)
+  /* iOS safe-area inset, read once — feeds the pin-tap flyTo padding estimate. */
+  const safeAreaBottomRef = useRef<number | null>(null)
+  if (safeAreaBottomRef.current === null) {
+    safeAreaBottomRef.current = typeof document !== 'undefined' ? readSafeAreaBottom() : 0
+  }
   useLayoutEffect(() => {
     if (sheetView !== 'detail') return
     if (typeof window === 'undefined') return
     if (!window.matchMedia('(max-width: 1023.98px)').matches) return
-    const target = snapRef.current === 'full' ? 'full' : 'mid'
+    const requested = pendingDetailSnapRef.current
+    pendingDetailSnapRef.current = null
+    /* No explicit request = pager-driven selection swap → keep the user's
+       position: stay at the middle stage when paging from there, stay at
+       full when paging from full. ('mid' can only be a transient leftover
+       from the list view — normalize it to full like before.) */
+    const target = requested ?? (snapRef.current === 'peek' ? 'peek' : 'full')
     setSnap(target)
     reapplySnap(target)
   }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, setSnap, reapplySnap])
@@ -204,7 +219,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   // We derive the mobile bottom from the snap STATE rather than the DOM
   // CSS variable so flyTo always uses the up-to-date target — reading from
   // the DOM races the sheet's transform/animation tick.
-  const getFlyPadding = useCallback((targetSnap?: 'peek' | 'mid' | 'full') => {
+  const getFlyPadding = useCallback((targetSnap?: 'peek' | 'mid' | 'full', visiblePxOverride?: number) => {
     if (typeof window === 'undefined') return { top: 60, bottom: 60, left: 40, right: 40 }
     const isMobile = window.matchMedia('(max-width: 1023.98px)').matches
     if (!isMobile) {
@@ -215,11 +230,15 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       return { top: 80, bottom: 100, left: 24, right: 24 }
     }
     // When the caller specifies a target snap, use known pixel heights for
-    // that snap. Otherwise read the *actual* current sheet height from the
-    // CSS var the bottom-sheet hook sets — this is the only source of truth
-    // that handles drag in-progress AND the content-fit detail snap.
+    // that snap (or an explicit visible-height override — the detail middle
+    // stage is content-sized, not a fixed constant). Otherwise read the
+    // *actual* current sheet height from the CSS var the bottom-sheet hook
+    // sets — the only source of truth that handles drag in-progress AND the
+    // content-fit detail snap.
     let visible: number
-    if (targetSnap) {
+    if (visiblePxOverride != null) {
+      visible = visiblePxOverride
+    } else if (targetSnap) {
       visible = targetSnap === 'peek' ? 28
         : targetSnap === 'mid' ? 440
         : Math.round(window.innerHeight * 0.58)
@@ -243,7 +262,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     return { top: 70, bottom: Math.round(visible + overhang) + 20, left: 20, right: 20 }
   }, [snap, sheetElRef])
 
-  const handleRestaurantClick = useCallback((r: MapRestaurant) => {
+  const handleRestaurantClick = useCallback((r: MapRestaurant, origin: 'list' | 'map' = 'list') => {
     userInteractedRef.current = true
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
     // Capture the list scroll *before* the view switches and the content
@@ -261,16 +280,22 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     // Both mobile sheet AND desktop sidebar render the detail inline now —
     // desktop no longer uses a centered floating modal that hid the marker.
     setSheetView('detail')
-    // Always open the detail fully on restaurant select — peek/mid hides
-    // the content the user just clicked to see.
-    setSnap('full')
+    // List/search/deep-link → open fully (the user clicked to read content).
+    // Pin-tap on the map → open at the middle stage (photo + pager) so the
+    // map context stays visible; pull up for the full detail.
+    const openAtPeek = isMobile && origin === 'map'
+    const target = openAtPeek ? 'peek' : 'full'
+    pendingDetailSnapRef.current = target
+    setSnap(target)
     mapRef.current?.flyTo({
       center: [r.lng, r.lat],
       zoom: 15,
       duration: 500,
-      padding: getFlyPadding(isMobile ? 'full' : undefined),
+      padding: openAtPeek
+        ? getFlyPadding('peek', estimateDetailMidVisiblePx(window.innerWidth, displayedRestaurants.length > 1, safeAreaBottomRef.current ?? 0))
+        : getFlyPadding(isMobile ? 'full' : undefined),
     })
-  }, [getFlyPadding, setSearch, setSheetView, setSnap, sheetView, contentRef])
+  }, [getFlyPadding, setSearch, setSheetView, setSnap, sheetView, contentRef, displayedRestaurants.length])
 
   // Pager: neighbours of the open restaurant within the filtered list the
   // user is browsing (same order as the list view). Paging swaps the
@@ -342,6 +367,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       setSelectedMustEat(m)
       setSheetView('detail')
       // Must-Eat-Detail Mobile = viewport-füllend → immer full snap.
+      pendingDetailSnapRef.current = 'full'
       if (isMobile) setSnap('full')
       mapRef.current?.flyTo({
         center: [m.restaurant.lng, m.restaurant.lat],
@@ -356,6 +382,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       setSelectedMustEat(m)
       setSheetView('detail')
       // Must-Eat-Detail Mobile = viewport-füllend → immer full snap.
+      pendingDetailSnapRef.current = 'full'
       if (isMobile) setSnap('full')
       mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500, padding: getFlyPadding(isMobile ? 'full' : undefined) })
     }

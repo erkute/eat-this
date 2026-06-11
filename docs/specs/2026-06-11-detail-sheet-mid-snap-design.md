@@ -113,6 +113,7 @@ anchor name to avoid churn in the gesture engine.
 - Manual smoke on staging (mobile viewport): list-card open → full; pin tap
   → middle with photo + pager fully visible; pager taps at middle page
   prev/next with camera flight; drag below middle → list at mid; must-eat
-  pin opens at middle with the card fully visible (no 220 px cut-off);
-  iPhone safe-area check (pager not clipped); single-result filter → no
-  empty band below photo.
+  detail dragged down shows the card fully at its bottom stage (no 220 px
+  cut-off; note: the map renders restaurant markers only — must-eats have
+  no pins); iPhone safe-area check (pager not clipped); single-result
+  filter → no empty band below photo.

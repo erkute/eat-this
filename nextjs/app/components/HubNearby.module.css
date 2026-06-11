@@ -5,10 +5,10 @@
 
 .head {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin: 36px 16px 4px;
+  gap: 14px;
+  margin: 36px 16px 10px;
 }
 /* "Nähe" carries an umlaut → Saira Condensed (the brand display font has no
    accented glyphs); line-height 1.15 + padding-top guard against clipping. */
@@ -25,27 +25,42 @@
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: #fbf8ee;
-  border: 2px solid var(--text-primary);
-  box-shadow: 2px 2px 0 var(--text-primary);
-  color: var(--text-primary);
+  gap: 5px;
+  background: var(--brand-yellow);
+  border: 2px solid #0a0a0a;
+  box-shadow: 2px 2px 0 #0a0a0a;
+  color: #0a0a0a;
   font-family: var(--font);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .12em;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .08em;
   text-transform: uppercase;
-  padding: 7px 12px;
-  margin-bottom: 4px;
+  padding: 6px 10px;
   cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease, background-color .15s ease;
+}
+.locIcon {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.locBtn:hover {
+  background: #ffdf3d;
+  box-shadow: 3px 3px 0 #0a0a0a;
+  transform: translate(-1px, -1px);
 }
 .locBtn:active {
-  box-shadow: 0 0 0 var(--text-primary);
+  box-shadow: 0 0 0 #0a0a0a;
   transform: translate(2px, 2px);
 }
 .locBtn:disabled {
   cursor: wait;
-  box-shadow: 0 0 0 var(--text-primary);
+  opacity: .75;
+  box-shadow: 0 0 0 #0a0a0a;
   transform: translate(2px, 2px);
 }
 
@@ -223,19 +238,35 @@
 /* ── Desktop: centered column, scrollers become wrapping grids ── */
 @media (min-width: 720px) {
   .section { padding-inline: max(16px, calc((100% - 1120px) / 2)); }
-  .head { margin: 44px 0 6px; }
+  /* Group the Standort button next to the heading instead of stranding it in
+     the far-right corner across a big empty gap; vertically centered to the
+     headline with comfortable spacing. */
+  .head { margin: 44px 0 14px; justify-content: flex-start; gap: 22px; }
   .heading { font-size: clamp(44px, 5vw, 56px); }
   .sub, .meSub { margin-left: 0; margin-right: 0; }
   .meHeading { margin: 44px 0 4px; font-size: 20px; }
-  .row, .meRow {
+  /* Restaurant cards: exactly 4 across, filling the full 1120 column (bigger
+     cards, no empty tracks on the right). */
+  .row {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     overflow: visible;
     padding: 6px 0 12px;
   }
-  .cardItem, .meItem { flex: initial; }
-  .foot { margin: 10px 0 18px; }
+  /* Nearby Must-Eat cut-outs: bigger and centered as a group rather than
+     left-clustered in an auto-fill grid. */
+  .meRow {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 22px;
+    overflow: visible;
+    padding: 8px 0 12px;
+  }
+  .cardItem { flex: initial; }
+  .meItem { flex: 0 0 200px; }
+  .foot { margin: 12px 0 18px; text-align: center; }
 }
 
 /* ── Dark mode: dark page, warm-cream ink, red replaces yellow. Photos and
@@ -246,10 +277,14 @@ html[data-theme="dark"] .meHeading,
 html[data-theme="dark"] .footLink { color: var(--dk-ink); }
 /* Location button: cream surface → dark, ink border/shadow → cream */
 html[data-theme="dark"] .locBtn {
-  background: var(--dk-card);
+  background: var(--c-coral);
   border-color: var(--dk-ink);
-  box-shadow: 2px 2px 0 var(--dk-rule);
-  color: var(--dk-ink);
+  box-shadow: 3px 3px 0 var(--dk-rule);
+  color: #fbf8ee;
+}
+html[data-theme="dark"] .locBtn:hover {
+  background: var(--c-coral-bright);
+  box-shadow: 4px 4px 0 var(--dk-rule);
 }
 html[data-theme="dark"] .locBtn:active { box-shadow: 0 0 0 var(--dk-rule); }
 html[data-theme="dark"] .locBtn:disabled { box-shadow: 0 0 0 var(--dk-rule); }

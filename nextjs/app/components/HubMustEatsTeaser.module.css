@@ -89,13 +89,19 @@
   .section { padding-inline: max(16px, calc((100% - 1120px) / 2)); }
   .title { margin: 44px 0 4px; font-size: clamp(44px, 5vw, 56px); }
   .sub { margin-left: 0; margin-right: 0; }
+  /* 6 cut-out cards fill the full 1120 column as an even grid (bigger cards,
+     evenly distributed) instead of a left-clustered 150px flex row. */
   .row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    align-items: end;
+    gap: 18px;
     overflow: visible;
-    flex-wrap: wrap;
-    padding: 8px 0 14px;
+    padding: 12px 0 16px;
   }
-  .item { flex: 0 0 150px; }
-  .foot { margin: 10px 0 18px; }
+  .item { flex: initial; }
+  /* CTA centered under the row, not stranded in the corner. */
+  .foot { margin: 16px 0 18px; text-align: center; }
 }
 
 /* ── Dark mode: dark page, warm-cream ink, red CTA. Freigestellt cards left

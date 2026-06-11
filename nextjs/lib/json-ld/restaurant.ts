@@ -58,6 +58,12 @@ export function buildRestaurantJsonLd({
         servesCuisine: r.categories?.map(c => c.nameEn || c.name).filter(Boolean),
         url: r.website,
         hasMap: r.mapsUrl,
+        // schema.org allows a reservation URL here, not just a boolean —
+        // richer signal for crawlers when we have one.
+        ...(r.reservationUrl && { acceptsReservations: r.reservationUrl }),
+        ...(r.instagramHandle && {
+          sameAs: [`https://www.instagram.com/${r.instagramHandle.replace(/^@/, '')}/`],
+        }),
         ...(r.address && {
           address: {
             '@type': 'PostalAddress',

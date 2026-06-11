@@ -31,7 +31,7 @@ const PACK_OG_SLUGS = new Set([
   'breakfast', 'coffee', 'dinner', 'drinks', 'fast-food',
   'fine-dining', 'lunch', 'pizza', 'sweets',
 ])
-const PACK_OG_VERSION = 1
+const PACK_OG_VERSION = 2
 
 export const revalidate = 3600
 

@@ -51,8 +51,13 @@ export function buildCategoryTitle(slug: string, label: string, locale: Loc): st
 
 /**
  * Meta-Description: kuratiertes Sanity-Blurb + datengetriebener Zusatz
- * (Spot-Anzahl + Beispiel-Namen) — unique pro Kategorie, klick-relevanter
- * als das Blurb allein. Satzgrenzen-Kürzung auf ≤160.
+ * (Spot-Anzahl + Trust-Signal) — unique pro Kategorie über das Blurb,
+ * klick-relevanter als das Blurb allein. Satzgrenzen-Kürzung auf ≤160.
+ *
+ * Bewusst KEINE Restaurant-Namen mehr: `restaurants` kommt in Roh-
+ * Reihenfolge (nicht „die besten zuerst"), sodass `slice(0,2)` früher
+ * Datenmüll wie „u. a. 136 Berlin Restaurant, 1811" ins SERP-Snippet
+ * gespült hat. Anzahl + „persönlich getestet" trägt das Vertrauen.
  */
 export function buildCategoryDescription({
   blurb,
@@ -67,11 +72,10 @@ export function buildCategoryDescription({
   const parts: string[] = []
   if (blurb) parts.push(blurb.trim())
   if (restaurants.length >= 3) {
-    const names = restaurants.slice(0, 2).map(r => r.name).join(', ')
     parts.push(
       de
-        ? `${restaurants.length} kuratierte Spots, u. a. ${names}.`
-        : `${restaurants.length} curated spots, incl. ${names}.`,
+        ? `${restaurants.length} kuratierte Spots, alle persönlich getestet.`
+        : `${restaurants.length} curated spots, every one tested in person.`,
     )
   }
   if (parts.length === 0) return undefined

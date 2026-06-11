@@ -27,14 +27,17 @@ describe('buildCategoryTitle', () => {
 })
 
 describe('buildCategoryDescription', () => {
-  it('combines blurb with count and example names', () => {
+  it('combines blurb with count and a trust signal — no raw names', () => {
     const desc = buildCategoryDescription({
       blurb: 'Pizza in Berlin — Napoletana und mehr.',
       restaurants: [r('Gemello'), r('Zola'), r('Standard')],
       locale: 'de',
     })
     expect(desc).toContain('Pizza in Berlin — Napoletana und mehr.')
-    expect(desc).toContain('3 kuratierte Spots, u. a. Gemello, Zola.')
+    expect(desc).toContain('3 kuratierte Spots, alle persönlich getestet.')
+    // Raw restaurant names must never leak into the snippet (order is not
+    // "best first", so slicing produced garbage like "136 Berlin Restaurant").
+    expect(desc).not.toContain('Gemello')
   })
 
   it('caps at 160 chars via sentence truncation', () => {

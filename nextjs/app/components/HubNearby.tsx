@@ -76,6 +76,14 @@ export default function HubNearby({ initialMapData }: Props) {
           disabled={locating}
           aria-label={t('locationAria')}
         >
+          <svg className={styles.locIcon} viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="8" />
+            <line x1="12" y1="2" x2="12" y2="5" />
+            <line x1="12" y1="19" x2="12" y2="22" />
+            <line x1="2" y1="12" x2="5" y2="12" />
+            <line x1="19" y1="12" x2="22" y2="12" />
+            <circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none" />
+          </svg>
           <span>{locating ? t('locating') : t('location')}</span>
         </button>
       </div>

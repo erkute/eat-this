@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useBottomSheet, type SheetSnap } from './useBottomSheet'
 
 export type SheetView = 'list' | 'detail'
+export type DetailKind = 'restaurant' | 'mustEat'
 
 /* Read the iOS safe-area-inset-bottom (~34 px on iPhones with home
    indicator, 0 on Android / desktop) so the peek snap accounts for it.
@@ -21,16 +22,27 @@ function readSafeAreaBottom(): number {
 
 /* Base content heights (above any iOS safe-area). Per-view peek sizes
    reflect what's actually rendered at the top of the sheet:
-   - detail: handle (~24) + the [data-detail-hero] block — beim Restaurant
-             der coral Hero, beim Must-Eat der Gerichtsname (die Card ist
-             am Peek-Snap ausgeblendet, siehe map.module.css). Die Höhe
-             variiert mit dem Umbruch (1 vs 2 Zeilen) und wird zur Laufzeit
-             per ResizeObserver gemessen (see effect below).
-             DETAIL_PEEK_BASE_PX is the fallback used before the first
-             measurement lands.
+   - restaurant detail: handle (~24) + coral hero block. Die Höhe variiert
+             mit dem Namens-Umbruch (1 vs 2 Zeilen) und wird zur Laufzeit
+             per ResizeObserver am [data-detail-hero]-Element gemessen
+             (see effect below). DETAIL_PEEK_BASE_PX is the fallback used
+             before the first measurement lands.
+   - must-eat detail: unterer Snap = Karte + Gerichtsname sichtbar
+             (≈ halbe Höhe, User 2026-06-11). Handle + Card-Block +
+             gemessener Name ([data-detail-hero] = .fdName). Die
+             Card-Geometrie spiegelt .detailV13MustEat .fdHero in
+             map.module.css: clamp(180px, 36dvh, 340px) + 26px oben /
+             12px unten — zusammen ändern.
    - list: handle + listHeaderRow + filterChipRow = 120 */
 const DETAIL_PEEK_BASE_PX = 220
+const MUST_EAT_NAME_BASE_PX = 60
+const MUST_EAT_CARD_MARGINS_PX = 26 + 12
 const HANDLE_PX = 44
+
+function mustEatCardPx(): number {
+  if (typeof window === 'undefined') return 300
+  return Math.min(340, Math.max(180, window.innerHeight * 0.36))
+}
 /* List peek = handle (~24) + filter chip row (padding 24+10 + chip ~24 ≈ 58)
    ≈ 82, plus a little buffer. After map-v2 the listHeaderRow is gone, so
    the old 120 left empty sheet-bg between the chip row and the visible
@@ -50,6 +62,7 @@ const LIST_PEEK_BASE_PX            = 90
 export function useMapSheet(onDetailDismiss?: () => void) {
   const sheet = useBottomSheet('mid')
   const [sheetView, setSheetViewState] = useState<SheetView>('list')
+  const [detailKind, setDetailKindState] = useState<DetailKind>('restaurant')
   /* Measured hero-block height drives the detail peek. Initialized null so
      the first config uses the static fallback; flips to the measured value
      once the ResizeObserver below fires. */
@@ -63,19 +76,28 @@ export function useMapSheet(onDetailDismiss?: () => void) {
     /* +4 px buffer below the hero — just enough to keep fractional
        sub-pixel rounding from clipping the last meta-row pixel, while
        avoiding a visible band of the photo underneath. */
-    const detailPeek = detailHeroPx != null
+    const restaurantPeek = detailHeroPx != null
       ? HANDLE_PX + detailHeroPx + 4 + safeAreaBottom
       : DETAIL_PEEK_BASE_PX + safeAreaBottom
+    /* Must-Eat: Handle + Card-Block + Name — der gemessene [data-detail-hero]
+       ist hier der Gerichtsname (.fdName, padding inklusive). Kein safe-area
+       Aufschlag: die Messlinie endet unter dem Namen, nicht an einer
+       Interaktionszeile. */
+    const mustEatPeek = HANDLE_PX + MUST_EAT_CARD_MARGINS_PX + mustEatCardPx()
+      + (detailHeroPx ?? MUST_EAT_NAME_BASE_PX)
     const detailSnaps: SheetSnap[] = ['full', 'peek']
+    // Detail: TWO anchors — 'full' at the top (minimal map strip) and 'peek'
+    // lower down (restaurant: hero strip; must-eat: Karte + Name ≈ halbe
+    // Höhe). No 'mid'. A downward swipe settles at peek; only a swipe well
+    // BELOW peek dismisses (back to the list) via onDismiss. List:
+    // full/mid/peek (snaps undefined = default), no dismiss. All keys set
+    // explicitly so configure()'s merge clears the other view's value when
+    // switching.
+    const detailBase = { maxSnap: null, snaps: detailSnaps, dragMode: 'all' as const, onDismiss: onDetailDismiss }
     return {
-      // Detail: TWO anchors — 'full' at the top (minimal map strip) and 'peek'
-      // at the bottom (small detail strip, lots of map). No 'mid'. A downward
-      // swipe settles at peek; only a swipe well BELOW peek dismisses (back to
-      // the list) via onDismiss. List: full/mid/peek (snaps undefined =
-      // default), no dismiss. Both keys set explicitly so configure()'s merge
-      // clears the other view's value when switching.
-      detail: { maxSnap: null, snaps: detailSnaps, dragMode: 'all' as const, peekVisiblePx: detailPeek, onDismiss: onDetailDismiss },
-      list:   { maxSnap: null, snaps: undefined, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX + safeAreaBottom, onDismiss: undefined },
+      detailRestaurant: { ...detailBase, peekVisiblePx: restaurantPeek },
+      detailMustEat:    { ...detailBase, peekVisiblePx: mustEatPeek },
+      list: { maxSnap: null, snaps: undefined, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX + safeAreaBottom, onDismiss: undefined },
     }
   }, [detailHeroPx, onDetailDismiss])
 
@@ -157,9 +179,9 @@ export function useMapSheet(onDetailDismiss?: () => void) {
      If currently parked at peek, reapply so the visual updates immediately. */
   useEffect(() => {
     if (sheetView !== 'detail') return
-    configure(viewConfig.detail)
+    configure(detailKind === 'mustEat' ? viewConfig.detailMustEat : viewConfig.detailRestaurant)
     if (currentSnap === 'peek') reapplySnap('peek')
-  }, [sheetView, viewConfig, configure, reapplySnap, currentSnap])
+  }, [sheetView, detailKind, viewConfig, configure, reapplySnap, currentSnap])
 
   /* Re-konfigurieren wenn sich die List-View-Config ändert während die
      Liste offen ist; bei peek-Snap sofort reapply. */
@@ -169,12 +191,15 @@ export function useMapSheet(onDetailDismiss?: () => void) {
     if (currentSnap === 'peek') reapplySnap('peek')
   }, [sheetView, viewConfig, configure, reapplySnap, currentSnap])
 
-  const setSheetView = useCallback((view: SheetView) => {
+  const setSheetView = useCallback((view: SheetView, kind: DetailKind = 'restaurant') => {
     /* Configure synchronously BEFORE the state update so any reapplySnap that
        follows in the same handler reads this view's peek size, not the previous
        view's. Otherwise the sheet briefly parks at the old peek height (white
        space gap) until the next render's effect catches up. */
-    configure(viewConfig[view])
+    configure(view === 'list'
+      ? viewConfig.list
+      : kind === 'mustEat' ? viewConfig.detailMustEat : viewConfig.detailRestaurant)
+    setDetailKindState(kind)
     setSheetViewState(view)
   }, [configure, viewConfig])
 

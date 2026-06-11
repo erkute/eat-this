@@ -117,9 +117,9 @@ export default function MustEatDetailMobile({
         {/* Big punchy dish name. Locked: heavily blurred — present but
             unreadable (no stamp, User 2026-06-05). On reveal it slowly
             sharpens into focus. Box is identical in both states → no pop.
-            data-detail-hero: useMapSheet misst dieses Element für die
-            Peek-Höhe — am Peek-Snap ist die Card ausgeblendet und der Name
-            ist die sichtbare Peek-Leiste. */}
+            data-detail-hero: useMapSheet misst dieses Element — der untere
+            Snap (≈ halbe Höhe) endet exakt unter dem Namen: Karte + Name
+            sichtbar, Rest unterhalb der Falz. */}
         <h1 className={styles.fdName} data-detail-hero aria-label={nameRevealed ? undefined : t('mustEats.covered')}>
           <span
             className={`${styles.fdNameText}${!open ? ` ${styles.fdNameBlur}` : ''}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}

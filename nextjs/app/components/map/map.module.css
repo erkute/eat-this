@@ -2662,13 +2662,13 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
 }
 .fdRest {
   /* Extra top room so the rotated "VERDECKT" stamp (centred over the name)
-     never overlaps the "Im Restaurant" block on short names. */
+     never overlaps the "Im Restaurant" block on short names. Kein
+     Border-Strich mehr darunter (User 2026-06-11: schwarzer Rahmen raus). */
   margin: 30px 14px 0;
   display: flex;
   align-items: end;
   gap: 18px;
   padding-bottom: 16px;
-  border-bottom: 4px solid var(--d-ink);
 }
 .fdPrice { /* sits next to the restaurant block on the left */ }
 .fdK {
@@ -2815,15 +2815,17 @@ html[data-theme="dark"] .ctaPill {
   color: var(--d-text);
 }
 
-/* Must-Eat-Detail mobile — alles im sichtbaren Bereich, kein Scrollen
-   (User 2026-06-11): Der Scroll-Container wird zur Flex-Spalte, die Card
-   ist das flexible Element (schrumpft bei langem Text, wächst bei kurzem,
-   zwischen min/max geklemmt), der Pager pinnt per margin-top:auto an die
-   Unterkante. Restaurant-Streifen + Pager sitzen dadurch bei jedem
-   Must-Eat an derselben Stelle — beim Swipen sieht man die nächste Karte
-   sofort komplett, ohne runterzuscrollen. Läuft der Inhalt doch über
-   (sehr lange Beschreibung, mid/peek-Snap), bleibt overflow-y:auto als
-   Ventil und nur die Card kollabiert auf ihre Mindesthöhe. */
+/* Must-Eat-Detail mobile — zwei Snap-Höhen (User 2026-06-11):
+   FULL = alles sichtbar, große Karte + Text, ganzer Viewport ohne
+   Whitespace-Loch; der untere Snap (≈ halbe Höhe) zeigt Karte + Name —
+   seine Höhe rechnet useMapSheet aus genau dieser Geometrie aus
+   (Handle + 26px + Card 36dvh + 12px + gemessener Name).
+   Der Scroll-Container ist eine Flex-Spalte: Card fest (jede Karte gleich
+   groß, beim Blättern springt nichts), Name/Text hängen direkt unter der
+   Card, Restaurant-Block UND Pager tragen margin-top:auto — freier Raum
+   verteilt sich 50/50 auf die beiden Anker statt als ein Loch überm Pager.
+   Läuft der Inhalt über (sehr lange Beschreibung), bleibt overflow-y:auto
+   als Ventil und die Auto-Margins kollabieren auf ihre Paddings. */
 @media (max-width: 1023.98px) {
   .detailV13MustEat .detailV13Scroll {
     display: flex;
@@ -2831,20 +2833,18 @@ html[data-theme="dark"] .ctaPill {
     padding-bottom: calc(max(env(safe-area-inset-bottom, 0px), 10px) + var(--map-bar-overhang, 0px));
   }
   .detailV13MustEat .fdHero {
-    /* Feste Höhe pro Gerät statt flex-grow — jede Karte ist exakt gleich
-       groß, egal wie lang Name/Beschreibung des jeweiligen Must Eats sind;
-       beim Blättern springt nichts (User 2026-06-11). Den Restraum schluckt
-       der Pager-Anker (margin-top: auto). */
+    /* Feste Höhe pro Gerät. ACHTUNG: 36dvh/180/340 + die 26/12px-Margins
+       spiegeln sich in useMapSheet (mustEatPeek) — zusammen ändern. */
     flex: 0 0 auto;
-    height: clamp(170px, 34dvh, 330px);
+    height: clamp(180px, 36dvh, 340px);
     width: auto;
-    max-width: min(60vw, 240px);
+    max-width: min(62vw, 250px);
     margin: 26px auto 12px;
   }
   .detailV13MustEat .fdName {
     /* padding statt margin: das Element trägt data-detail-hero und wird per
-       ResizeObserver für die Peek-Höhe gemessen (border-box) — die Abstände
-       müssen in die Messung einfließen. */
+       ResizeObserver gemessen (border-box) — useMapSheet braucht die volle
+       Name-Höhe inkl. Abständen für den unteren Karte+Name-Snap. */
     margin: 0;
     padding: 12px 14px 6px;
     font-size: clamp(32px, 8.5vw, 44px);
@@ -2858,26 +2858,14 @@ html[data-theme="dark"] .ctaPill {
   .detailV13MustEat .fdProximityHead { font-size: clamp(20px, 5.5vw, 26px); }
   .detailV13MustEat .fdProximitySub { margin-top: 5px; font-size: 14px; }
   .detailV13MustEat .fdRest {
-    margin: 14px 14px 12px;
+    margin: auto 14px 12px;
+    padding-top: 14px;
     padding-bottom: 12px;
   }
   .detailV13MustEat .fdV { font-size: 22px; }
   .detailV13MustEat .fdPager {
     margin: auto 0 0;
     padding: 14px 16px;
-  }
-  /* Peek-Snap: Die Card ausblenden, damit der GERICHTSNAME die sichtbare
-     Peek-Leiste füllt (User 2026-06-11) — der Name trägt data-detail-hero,
-     useMapSheet misst ihn und setzt die Peek-Höhe exakt auf Handle + Name.
-     :not(.listDragging): sobald der User das Sheet anfasst/hochzieht,
-     kommt die Card sofort wieder rein statt erst am Snap-Settle. */
-  .list[data-view="detail"][data-snap="peek"]:not(.listDragging) .detailV13MustEat .fdHero {
-    display: none;
-  }
-  /* Am Peek rückt der Name an die Oberkante, wo rechts der absolute
-     X-Button sitzt — Platz freihalten, damit lange Namen nicht drunterlaufen. */
-  .list[data-view="detail"][data-snap="peek"]:not(.listDragging) .detailV13MustEat .fdName {
-    padding-right: 58px;
   }
 }
 

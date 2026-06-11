@@ -357,7 +357,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     if (selectedRestaurant) {
       setSelectedRestaurant(null)
       setSelectedMustEat(m)
-      setSheetView('detail')
+      setSheetView('detail', 'mustEat')
       // Must-Eat-Detail Mobile = viewport-füllend → immer full snap.
       if (isMobile) setSnap('full')
       mapRef.current?.flyTo({
@@ -371,7 +371,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     const isLocked = !unlockedIds.has(m._id)
     const open = () => {
       setSelectedMustEat(m)
-      setSheetView('detail')
+      setSheetView('detail', 'mustEat')
       // Must-Eat-Detail Mobile = viewport-füllend → immer full snap.
       if (isMobile) setSnap('full')
       mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500, padding: getFlyPadding(isMobile ? 'full' : undefined) })

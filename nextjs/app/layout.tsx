@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     default: 'EAT THIS – Berlin Food Guide: Restaurants & Geheimtipps',
   },
   description:
-    'We tell you what to eat — die kuratierte Food Map mit den besten Restaurants, Cafés und Bars in Berlin.',
+    'Die kuratierte Food-Map mit den besten Restaurants, Cafés und Bars in Berlin. Frag Remy, unsere KI-Suche, und finde sofort deinen Spot.',
   metadataBase: new URL('https://www.eatthisdot.com'),
   // Site-wide social-card defaults (Google, Meta/WhatsApp, Twitter/X) —
   // routes with richer cards (restaurant, news, …) override these.
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     siteName: 'EAT THIS',
     images: [
       {
-        url: 'https://www.eatthisdot.com/pics/og-card.png?v=3',
+        url: 'https://www.eatthisdot.com/pics/og-card.png?v=4',
         width: 1200,
         height: 1200,
         alt: 'EAT THIS – We tell you what to eat',

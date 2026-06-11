@@ -122,7 +122,7 @@ Live React modals: `agbModal`, `datenschutzModal` (rendered by `CookieConsent.ts
 
 2. **Mobile rubber-band flash.** `html` has explicit `background-color` per theme in `globals.css`, otherwise iOS Safari bounce exposes the browser default. Body bg is also theme-aware. If you change either, test rubber-band overscroll at top and bottom in both light and dark.
 
-3. **Restaurant + Bezirk pages have no per-locale fields in Sanity yet.** Their EN URL canonical points to the DE URL (see `app/[locale]/restaurant/[slug]/page.tsx`) and the sitemap drops the EN alternate (`deOnly` helper in `app/sitemap.ts`). Do not "fix" by re-adding EN canonical/hreflang until the schema actually has translated content — Google previously flagged 6 EN restaurant URLs as duplicates and chose its own canonical, that's what we worked around.
+3. **Restaurant + Bezirk EN pages are gated per document by `hasEnContent` (= non-empty `descriptionEn`, see `lib/i18n/pickLocale.ts`).** The schema HAS the EN fields and the enriched importer fills them — as of 2026-06 all restaurants and bezirke have EN content, so their EN canonicals/hreflang/sitemap alternates are live. The gate exists because Google previously flagged EN restaurant URLs without real translations as duplicates and chose its own canonical. If a future doc lacks `descriptionEn`, its EN URL correctly falls back to the DE canonical — don't bypass `hasEnContent`, fill the field instead.
 
 4. **`StaticPages.tsx` renders only the active page.** It used to render all six (about/contact/press/impressum/datenschutz/agb) on every route, which made the SSR'd HTML almost identical across URLs and Google refused to index them. If you bring it back to "render all", you'll re-introduce the duplicate-content trap.
 

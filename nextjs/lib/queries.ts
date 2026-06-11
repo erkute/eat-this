@@ -103,6 +103,7 @@ export const articleBySlugQuery = `
     excerpt, excerptDe,
     content[] ${articleContentProjection},
     contentDe[] ${articleContentProjection},
+    "author": author->{ name, "slug": slug.current, "photo": image.asset->url },
     seo {
       metaTitle,
       metaDescription,
@@ -291,12 +292,13 @@ export const latestNewsArticlesQuery = `
   }
 `
 
-// Must Eat cards for a specific restaurant
+// Must Eat cards for a specific restaurant — card-back teaser only.
+// Deliberately NO dish/photo: the teaser renders covered cards, and any
+// extra field would ship to every anon in the RSC payload of the public,
+// indexed /restaurant/[slug] page (same leak class as the P1 map leak).
 export const mustEatsByRestaurantQuery = `
   *[_type == "mustEat" && restaurantRef._ref == $restaurantId] | order(order asc) {
     _id,
-    dish,
-    "photo": image.asset->url + "?w=800&auto=format&q=80",
     order
   }
 `

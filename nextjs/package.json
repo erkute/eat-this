@@ -9,6 +9,7 @@
     "start": "next start",
     "import:restaurant": "tsx scripts/import-enriched.ts",
     "lint": "eslint",
+    "lint:content": "tsx scripts/content-lint.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

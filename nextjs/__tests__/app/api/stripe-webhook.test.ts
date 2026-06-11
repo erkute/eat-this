@@ -65,7 +65,7 @@ describe('/api/stripe/webhook', () => {
     mocks.constructEvent.mockReturnValueOnce({
       id:   'evt_1',
       type: 'checkout.session.completed',
-      data: { object: { id: 'cs_test', metadata: { uid: 'u1', packId: 'category-pizza' } } },
+      data: { object: { id: 'cs_test', payment_status: 'paid', metadata: { uid: 'u1', packId: 'category-pizza' } } },
     })
     mocks.assembleAndWriteEntitlement.mockResolvedValueOnce('created')
     const res = await POST(makeReq('raw', 'sig'))
@@ -82,11 +82,37 @@ describe('/api/stripe/webhook', () => {
     expect(mocks.assembleAndWriteEntitlement).not.toHaveBeenCalled()
   })
 
+  it('does NOT fulfill an unpaid session (Klarna/SEPA fires completed before the money clears)', async () => {
+    mocks.constructEvent.mockReturnValueOnce({
+      id:   'evt_unpaid',
+      type: 'checkout.session.completed',
+      data: { object: { id: 'cs_async', payment_status: 'unpaid', metadata: { uid: 'u1', packId: 'category-pizza' } } },
+    })
+    const res = await POST(makeReq('raw', 'sig'))
+    expect(res.status).toBe(200)
+    expect(await res.json()).toMatchObject({ pending: 'unpaid' })
+    expect(mocks.assembleAndWriteEntitlement).not.toHaveBeenCalled()
+  })
+
+  it('fulfills on checkout.session.async_payment_succeeded once paid', async () => {
+    mocks.constructEvent.mockReturnValueOnce({
+      id:   'evt_async_ok',
+      type: 'checkout.session.async_payment_succeeded',
+      data: { object: { id: 'cs_async', payment_status: 'paid', metadata: { uid: 'u1', packId: 'category-pizza' } } },
+    })
+    mocks.assembleAndWriteEntitlement.mockResolvedValueOnce('created')
+    const res = await POST(makeReq('raw', 'sig'))
+    expect(res.status).toBe(200)
+    expect(mocks.assembleAndWriteEntitlement).toHaveBeenCalledWith({
+      uid: 'u1', packId: 'category-pizza', stripeSessionId: 'cs_async',
+    })
+  })
+
   it('returns 200 when entitlement already exists (idempotent)', async () => {
     mocks.constructEvent.mockReturnValueOnce({
       id:   'evt_3',
       type: 'checkout.session.completed',
-      data: { object: { id: 'cs_test', metadata: { uid: 'u1', packId: 'category-pizza' } } },
+      data: { object: { id: 'cs_test', payment_status: 'paid', metadata: { uid: 'u1', packId: 'category-pizza' } } },
     })
     mocks.assembleAndWriteEntitlement.mockResolvedValueOnce('exists')
     const res = await POST(makeReq('raw', 'sig'))
@@ -108,7 +134,7 @@ describe('/api/stripe/webhook', () => {
     mocks.constructEvent.mockReturnValueOnce({
       id:   'evt_5',
       type: 'checkout.session.completed',
-      data: { object: { id: 'cs_test', metadata: { uid: 'u1', packId: 'category-pizza' } } },
+      data: { object: { id: 'cs_test', payment_status: 'paid', metadata: { uid: 'u1', packId: 'category-pizza' } } },
     })
     mocks.assembleAndWriteEntitlement.mockRejectedValueOnce(new Error('sanity down'))
     const res = await POST(makeReq('raw', 'sig'))
@@ -123,6 +149,7 @@ describe('/api/stripe/webhook', () => {
       data: {
         object: {
           id: 'cs_guest',
+          payment_status: 'paid',
           customer_details: { email: 'guest@example.com' },
           metadata: { packId: 'category-pizza', mode: 'guest', locale: 'en' },
         },

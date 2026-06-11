@@ -86,7 +86,9 @@ export default async function NewsArticlePage({ params }: PageProps) {
         image: a.imageUrl,
         datePublished: a.date,
         dateModified: a.date,
-        author: { '@type': 'Organization', name: 'Eat This Berlin', url: SITE_URL },
+        author: a.author?.name
+          ? { '@type': 'Person', name: a.author.name }
+          : { '@type': 'Organization', name: 'Eat This Berlin', url: SITE_URL },
         publisher: {
           '@type': 'Organization',
           name: 'Eat This Berlin',

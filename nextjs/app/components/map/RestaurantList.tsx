@@ -1,5 +1,5 @@
 'use client'
-import { useCallback } from 'react'
+import { memo, useCallback } from 'react'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import type { MapRestaurant, MapMustEat, OpenStatus } from '@/lib/types'
@@ -26,7 +26,14 @@ interface ItemProps {
   onClick: (r: MapRestaurant) => void
 }
 
-function Item({ restaurant, userLocation, isSelected, peek, locked, hideBadge, onClick }: ItemProps) {
+// `resolvePeek` returns a fresh object per render, so the memo comparison
+// checks it by value — everything else is identity-stable from the parent.
+function peekEqual(a: Peek, b: Peek): boolean {
+  if (a.kind !== b.kind) return false
+  return a.kind !== 'open' || b.kind !== 'open' || a.image === b.image
+}
+
+const Item = memo(function Item({ restaurant, userLocation, isSelected, peek, locked, hideBadge, onClick }: ItemProps) {
   const { t, lang } = useTranslation()
   const loc = lang === 'de' ? 'de' : 'en'
   const statusLabels = {
@@ -123,7 +130,14 @@ function Item({ restaurant, userLocation, isSelected, peek, locked, hideBadge, o
       </div>
     </button>
   )
-}
+}, (prev, next) =>
+  prev.restaurant === next.restaurant &&
+  prev.userLocation === next.userLocation &&
+  prev.isSelected === next.isSelected &&
+  prev.locked === next.locked &&
+  prev.hideBadge === next.hideBadge &&
+  prev.onClick === next.onClick &&
+  peekEqual(prev.peek, next.peek))
 
 interface RestaurantListProps {
   restaurants: MapRestaurant[]
@@ -184,17 +198,18 @@ export default function RestaurantList({
   return (
     <>
       {restaurants.map((r) => (
-        <Item
-          key={r._id}
-          restaurant={r}
-          userLocation={userLocation}
-          isSelected={selectedId === r._id}
-          // Beide Sets werden gebraucht: bei Anon-Nutzern enthält `unlockedIds` die
-          // pre-revealed Must-Eat-IDs NICHT, daher prüft `resolvePeek` `revealedMustEatIds`
-          // separat. Bei eingeloggten Nutzern ist `revealedMustEatIds` leer — harmloser No-op.
-          peek={resolvePeek(primaryMustEats.get(r._id), unlockedIds, revealedMustEatIds)}
-          onClick={onSelect}
-        />
+        <div key={r._id} className={styles.rcardSlot}>
+          <Item
+            restaurant={r}
+            userLocation={userLocation}
+            isSelected={selectedId === r._id}
+            // Beide Sets werden gebraucht: bei Anon-Nutzern enthält `unlockedIds` die
+            // pre-revealed Must-Eat-IDs NICHT, daher prüft `resolvePeek` `revealedMustEatIds`
+            // separat. Bei eingeloggten Nutzern ist `revealedMustEatIds` leer — harmloser No-op.
+            peek={resolvePeek(primaryMustEats.get(r._id), unlockedIds, revealedMustEatIds)}
+            onClick={onSelect}
+          />
+        </div>
       ))}
       {bezirkLockedOnly ? (
         <section className={styles.bezirkLocked}>
@@ -211,16 +226,17 @@ export default function RestaurantList({
         )
       )}
       {lockedRestaurants.map((r) => (
-        <Item
-          key={`locked-${r._id}`}
-          restaurant={r}
-          userLocation={userLocation}
-          isSelected={false}
-          peek={{ kind: 'covered' }}
-          locked
-          hideBadge={bezirkLockedOnly}
-          onClick={handleLockedClick}
-        />
+        <div key={`locked-${r._id}`} className={styles.rcardSlot}>
+          <Item
+            restaurant={r}
+            userLocation={userLocation}
+            isSelected={false}
+            peek={{ kind: 'covered' }}
+            locked
+            hideBadge={bezirkLockedOnly}
+            onClick={handleLockedClick}
+          />
+        </div>
       ))}
       {showBooster && !bezirkLockedOnly && (
         <div className={styles.listEnd}>

@@ -56,6 +56,16 @@ export async function POST(req: Request) {
   }
 
   const session = event.data.object as Stripe.Checkout.Session
+  const meta    = (session.metadata ?? {}) as {
+    uid?: string
+    packId?: string
+    mode?: 'auth' | 'guest'
+    locale?: 'de' | 'en'
+  }
+  if (!meta.packId) {
+    Sentry.captureMessage(`webhook missing packId: ${event.id}`, 'error')
+    return NextResponse.json({ error: 'missing_packId' }, { status: 400 })
+  }
 
   // Async methods (Klarna, SEPA) fire checkout.session.completed while the
   // money hasn't cleared yet (payment_status: 'unpaid'). Fulfilling here
@@ -67,16 +77,6 @@ export async function POST(req: Request) {
       { received: true, pending: session.payment_status },
       { status: 200 },
     )
-  }
-  const meta    = (session.metadata ?? {}) as {
-    uid?: string
-    packId?: string
-    mode?: 'auth' | 'guest'
-    locale?: 'de' | 'en'
-  }
-  if (!meta.packId) {
-    Sentry.captureMessage(`webhook missing packId: ${event.id}`, 'error')
-    return NextResponse.json({ error: 'missing_packId' }, { status: 400 })
   }
 
   // Resolve uid. Authed flow: metadata.uid is set at session creation.

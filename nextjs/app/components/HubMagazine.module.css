@@ -24,6 +24,7 @@
 }
 .scroller {
   display: flex;
+  align-items: stretch;
   gap: 12px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -36,7 +37,7 @@
 .card {
   display: flex;
   flex-direction: column;
-  aspect-ratio: 4 / 5;
+  height: 100%;
   position: relative;
   background: #0a0a0a;
   overflow: hidden;
@@ -44,7 +45,8 @@
   color: #fbf8ee;
 }
 .cardImage {
-  flex: 0 0 56%;
+  flex: 0 0 auto;
+  aspect-ratio: 3 / 2;
   position: relative;
   background: #14100c;
 }
@@ -63,12 +65,14 @@
   text-transform: uppercase;
   padding: 5px 10px 6px;
 }
+/* Body fills the remaining (equalized) card height; the title is clamped to a
+   fixed 2 lines and the read link is pinned to the bottom, so every card is the
+   same height with the CTA aligned — no tall black void, no uneven boxes. */
 .cardBody {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 18px;
+  padding: 16px 18px 18px;
   background: #0a0a0a;
 }
 .cardName {
@@ -79,6 +83,13 @@
   letter-spacing: 0;
   margin: 0;
   color: #fbf8ee;
+  /* Reserve exactly two lines so 1- and 2-line titles produce equal-height
+     bodies; longer titles clamp with an ellipsis. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  min-height: 2.16em;
+  overflow: hidden;
 }
 .read {
   font-family: var(--font-ranchers);
@@ -86,7 +97,8 @@
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--brand-yellow);
-  margin-top: 12px;
+  margin-top: auto;
+  padding-top: 12px;
 }
 
 /* ── Desktop: centered column, scroller becomes a 3-up grid ── */
@@ -97,6 +109,7 @@
   .scroller {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    align-items: stretch;
     gap: 18px;
     overflow: visible;
     padding: 6px 0 36px;

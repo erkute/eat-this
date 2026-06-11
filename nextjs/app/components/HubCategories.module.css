@@ -44,6 +44,7 @@
 }
 .card:nth-child(2) .art { transform: rotate(2.5deg); }
 .card:nth-child(3) .art { transform: rotate(-1.5deg); }
+.card:nth-child(4) .art { transform: rotate(3deg); }
 .body { display: grid; gap: 4px; min-width: 0; }
 .meta {
   font-family: var(--font-ranchers);

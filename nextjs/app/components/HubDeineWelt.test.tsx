@@ -10,12 +10,16 @@ import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 const authState = { user: null as { uid: string } | null, loading: true }
 vi.mock('@/lib/auth', () => ({ useAuth: () => authState }))
 vi.mock('@/lib/firebase/useOwnedEntitlements', () => ({ useOwnedEntitlements: () => null }))
-vi.mock('@/lib/map', () => ({ useMapData: () => ({ restaurants: [] }) }))
+vi.mock('@/lib/map', () => ({
+  useMapData: () => ({ restaurants: [], mustEats: [], revealedMustEatIds: new Set<string>() }),
+  useUnlockedMustEats: () => ({ unlockedIds: new Set<string>() }),
+  resolveUnlockedMustEatIds: () => new Set<string>(),
+}))
 vi.mock('@/lib/map/UserLocationContext', () => ({ useUserLocationContext: () => ({ location: null }) }))
 
 import HubDeineWelt from '@/app/components/HubDeineWelt'
 
-const initialMapData = { restaurants: [] } as unknown as InitialMapData
+const initialMapData = { restaurants: [], mustEats: [], revealedMustEatIds: [] } as unknown as InitialMapData
 
 function render() {
   return renderToStaticMarkup(

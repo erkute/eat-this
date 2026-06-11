@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/lib/auth'
 import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements'
-import { useMapData } from '@/lib/map'
+import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map'
 import { useUserLocationContext } from '@/lib/map/UserLocationContext'
 import { freshInBezirk } from '@/lib/home/freshInBezirk'
 import { getPack } from '@/lib/stripe-catalog'
@@ -26,8 +26,16 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   const { user, loading } = useAuth()
   const uid = user?.uid ?? null
   const owned = useOwnedEntitlements(uid)
-  const { restaurants } = useMapData({ uid, authLoading: loading, initialMapData })
+  const { restaurants, mustEats, revealedMustEatIds } = useMapData({ uid, authLoading: loading, initialMapData })
+  const { unlockedIds } = useUnlockedMustEats(uid)
   const { location } = useUserLocationContext()
+
+  // The live face-up set depends on the per-uid localStorage cache + the live
+  // /api/map-data payload, so it's client-only — until mount, fall back to the
+  // SSR anon payload so the shell and first client paint match (no hydration
+  // mismatch); after mount it switches to the signed-in data.
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
 
   // Real reverse-geocode of the granted location → exact Berlin Ortsteil via
   // point-in-polygon (/api/bezirk). Falls back to "Mitte" until a location is
@@ -61,7 +69,31 @@ export default function HubDeineWelt({ initialMapData }: Props) {
     : null
 
   const bezirk = geoBezirk ?? 'Mitte'
-  const fresh = freshInBezirk(restaurants, bezirk, 2)
+  const fresh = freshInBezirk(restaurants, bezirk, 4)
+
+  // Collection progress = how many Must-Eats are face-up for this visitor vs the
+  // total on the map. "Aufgedeckt" must mean the SAME face-up set the map/teaser
+  // show: the user's stored unlocks + live proximity/server reveals + the public
+  // curated face-up cards (≈10). Counting only the personal unlock cache would
+  // wrongly read 0 for someone who already sees the public cards face-up.
+  const effUid = mounted ? uid : null
+  const dataMustEats = mounted ? mustEats : initialMapData.mustEats
+  const liveRevealed = mounted ? revealedMustEatIds : new Set<string>(initialMapData.revealedMustEatIds)
+  const storedUnlocked = mounted ? unlockedIds : new Set<string>()
+  const publicFaceUpIds = new Set<string>(initialMapData.revealedMustEatIds)
+  const faceUp = resolveUnlockedMustEatIds({
+    uid: effUid,
+    storedUnlockedIds: storedUnlocked,
+    revealedMustEatIds: liveRevealed,
+    publicFaceUpIds,
+  })
+  // Only count ids that exist in the current dataset (face-up may carry stale
+  // ids from other datasets — they're inert but shouldn't inflate the count).
+  const mustEatIdSet = new Set(dataMustEats.map((m) => m._id))
+  const collected = [...faceUp].filter((id) => mustEatIdSet.has(id)).length
+  const totalMustEats = dataMustEats.length
+  const collectPct =
+    totalMustEats > 0 ? Math.min(100, Math.round((collected / totalMustEats) * 100)) : 0
 
   // First owned CATEGORY pack → resolve its real category slug via the catalog
   // (packId 'category-fastfood' maps to slug 'fast-food', not 'fastfood').
@@ -84,6 +116,38 @@ export default function HubDeineWelt({ initialMapData }: Props) {
         )}
       </header>
 
+      <div className={styles.div} />
+
+      {/* Collection-progress panel — the dashboard's primary stat: how many
+          Must-Eats this user has flipped face-up, with a progress bar, linking
+          into the profile's collected cards. */}
+      <Link
+        href="/profile#gesammelte-must-eats"
+        className={styles.collect}
+        rel="nofollow"
+        aria-label={t('coveredAria')}
+      >
+        <div className={styles.collectCards} aria-hidden="true">
+          <span className={styles.card} style={{ backgroundImage: `url(${CARD_BACK})` }} />
+          <span className={styles.card} style={{ backgroundImage: `url(${CARD_BACK})` }} />
+          <span className={styles.card} style={{ backgroundImage: `url(${CARD_BACK})` }} />
+        </div>
+        <div className={styles.collectStat}>
+          <p className={styles.collectK}>{t('collectionKicker')}</p>
+          <p className={styles.collectNum}>
+            <strong>{mounted ? collected : '–'}</strong>
+            <span className={styles.collectTotal}>/ {mounted ? totalMustEats : '–'}</span>
+          </p>
+          <p className={styles.collectUnit}>{t('collectionUnit')}</p>
+          <span className={styles.bar} aria-hidden="true">
+            <span className={styles.barFill} style={{ width: `${collectPct}%` }} />
+          </span>
+          <span className={styles.collectCta}>
+            {collected > 0 ? t('collectionCta') : t('mustEatsWaiting')}
+          </span>
+        </div>
+      </Link>
+
       {fresh.length > 0 && bezirk && (
         <>
           <div className={styles.div} />
@@ -101,7 +165,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
                   >
                     <span className={styles.freshPill}>{t('newPill')}</span>
                     <span className={styles.freshImg}>
-                      {r.photo && <Image src={r.photo} alt={normalizeName(r.name)} fill sizes="200px" />}
+                      {r.photo && <Image src={r.photo} alt={normalizeName(r.name)} fill sizes="(max-width: 720px) 50vw, 260px" />}
                     </span>
                     <h4 className={styles.freshName}>{normalizeName(r.name)}</h4>
                     <span className={styles.freshMeta}>{tag ? t('newMetaTag', { tag }) : t('newMeta')}</span>
@@ -112,22 +176,6 @@ export default function HubDeineWelt({ initialMapData }: Props) {
           </div>
         </>
       )}
-
-      <div className={styles.div} />
-
-      <Link
-        href="/profile#gesammelte-must-eats"
-        className={styles.teaser}
-        rel="nofollow"
-        aria-label={t('coveredAria')}
-      >
-        <div className={styles.cards} aria-hidden="true">
-          <span className={styles.card} style={{ backgroundImage: `url(${CARD_BACK})` }} />
-          <span className={styles.card} style={{ backgroundImage: `url(${CARD_BACK})` }} />
-          <span className={styles.card} style={{ backgroundImage: `url(${CARD_BACK})` }} />
-        </div>
-        <p className={styles.cap}>{t('mustEatsWaiting')}</p>
-      </Link>
 
       {packArt && ownedSlug && ownedPack && (
         <div className={styles.pack}>

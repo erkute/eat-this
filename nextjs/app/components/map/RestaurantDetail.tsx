@@ -1,5 +1,6 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import { useRestaurantDetail } from '@/lib/map/useRestaurantDetail'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import {
   abbreviateBezirk,
@@ -88,6 +89,16 @@ export default function RestaurantDetail({
   const [shareDone, setShareDone] = useState(false)
   const scrollWrapRef = useRef<HTMLDivElement>(null)
 
+  // The map list payload is now trimmed to hero/list fields; the editorial +
+  // contact fields (address, phone, tip, description, …) load on demand when
+  // the sheet opens and merge over the list object. Cached per slug, so paging
+  // back or re-opening is instant. `r` is the merged view used for rendering.
+  const detail = useRestaurantDetail(restaurant.slug)
+  const r = useMemo(
+    () => (detail ? { ...restaurant, ...detail } : restaurant),
+    [restaurant, detail],
+  )
+
   useSwipePager(scrollWrapRef, {
     onPrev: onPagePrev,
     onNext: onPageNext,
@@ -95,8 +106,8 @@ export default function RestaurantDetail({
     hasNext: !!nextRestaurant,
   })
 
-  const status = restaurant.openingHours
-    ? getOpenStatus(restaurant.openingHours, new Date(), {
+  const status = r.openingHours
+    ? getOpenStatus(r.openingHours, new Date(), {
         open: t('map.open'),
         closed: t('map.closed'),
         opens: t('map.opens'),
@@ -106,7 +117,7 @@ export default function RestaurantDetail({
       })
     : { isOpen: false, label: '', minutesUntilChange: null }
   const { sub: statusSub } = splitStatusLabel(status.label)
-  const hasHours = !!(restaurant.openingHours && restaurant.openingHours.length > 0)
+  const hasHours = !!(r.openingHours && r.openingHours.length > 0)
   const closeTime = status.isOpen ? (statusSub.match(/(\d{1,2}:\d{2})/)?.[1] ?? null) : null
   const openTag = status.isOpen
     ? (closeTime ? `${t('map.open')} bis ${closeTime}` : t('map.open'))
@@ -114,26 +125,26 @@ export default function RestaurantDetail({
 
   // Scale the hero name down for long single words so they fit on one line
   // (no ugly mid-word break). Upper bound ≈ heroWidth / (longestWord · 0.62).
-  const displayName = normalizeName(restaurant.name)
+  const displayName = normalizeName(r.name)
   const longestWord = displayName.split(/\s+/).reduce((m, w) => Math.max(m, w.length), 0)
   const nameMaxPx = Math.max(26, Math.min(56, Math.round(360 / (Math.max(longestWord, 1) * 0.62))))
 
-  const district = abbreviateBezirk(restaurant.bezirk?.name ?? restaurant.district ?? null)
+  const district = abbreviateBezirk(r.bezirk?.name ?? r.district ?? null)
 
   const meters = userLocation
-    ? haversineDistance(userLocation.lat, userLocation.lng, restaurant.lat, restaurant.lng)
+    ? haversineDistance(userLocation.lat, userLocation.lng, r.lat, r.lng)
     : null
   const walkingTime = meters !== null ? formatWalkingTime(meters) : null
 
-  const priceLabel = formatPriceLabel(restaurant)
-  const cuisine = restaurant.cuisineType ?? null
+  const priceLabel = formatPriceLabel(r)
+  const cuisine = r.cuisineType ?? null
 
-  const websiteInfo = classifyWebsite(restaurant.website)
+  const websiteInfo = classifyWebsite(r.website)
   let igHandle: string | null = null
   let igUrl: string | null = null
-  if (restaurant.instagramHandle) {
-    igHandle = restaurant.instagramHandle
-    igUrl = `https://instagram.com/${restaurant.instagramHandle}`
+  if (r.instagramHandle) {
+    igHandle = r.instagramHandle
+    igUrl = `https://instagram.com/${r.instagramHandle}`
   } else if (websiteInfo?.kind === 'instagram') {
     igHandle = websiteInfo.handle
     igUrl = websiteInfo.url
@@ -141,15 +152,15 @@ export default function RestaurantDetail({
 
   // Single Maps button (mockup). Prefer a name+address Google search — it
   // always resolves to a result — over a possibly-stale curated mapsUrl.
-  const mapsHref = restaurant.address
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${restaurant.name}, ${restaurant.address}`)}`
-    : (restaurant.mapsUrl ?? null)
+  const mapsHref = r.address
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.name}, ${r.address}`)}`
+    : (r.mapsUrl ?? null)
 
   // Split a single-line address ("Street 1, 10119 Berlin, Deutschland") into
   // street on line 1 and PLZ + city on line 2; drop the country.
-  const addressLines = restaurant.address
+  const addressLines = r.address
     ? (() => {
-        const parts = restaurant.address
+        const parts = r.address
           .split(',')
           .map((p) => p.trim())
           .filter((p) => p && !/^(deutschland|germany)$/i.test(p))
@@ -158,15 +169,15 @@ export default function RestaurantDetail({
       })()
     : null
 
-  const storyText = restaurant.description ?? restaurant.shortDescription ?? ''
+  const storyText = r.description ?? r.shortDescription ?? ''
   const hasStory = !!storyText
-  const hasTipp = !!restaurant.tip
+  const hasTipp = !!r.tip
 
   // Detect booking provider from host for the OpenTable lockup.
   let reservationProvider: string | null = null
-  if (restaurant.reservationUrl) {
+  if (r.reservationUrl) {
     try {
-      const host = new URL(restaurant.reservationUrl).hostname.toLowerCase()
+      const host = new URL(r.reservationUrl).hostname.toLowerCase()
       if (host.includes('opentable')) reservationProvider = 'OpenTable'
       else if (host.includes('resy.com')) reservationProvider = 'Resy'
       else if (host.includes('thefork')) reservationProvider = 'TheFork'
@@ -186,14 +197,14 @@ export default function RestaurantDetail({
     : (locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
 
   return (
-    <div className={styles.detailV13} role="dialog" aria-label={restaurant.name}>
+    <div className={styles.detailV13} role="dialog" aria-label={r.name}>
       <div className={styles.detailV13Scroll} data-detail-scroll ref={scrollWrapRef}>
 
         {/* HERO — full-bleed photo, back-to-list pill, save bookmark, name. */}
         <header
           className={styles.rdHero}
           data-detail-hero
-          style={restaurant.photo ? { backgroundImage: `url(${restaurant.photo})` } : undefined}
+          style={r.photo ? { backgroundImage: `url(${r.photo})` } : undefined}
         >
           <div className={styles.rdHeroActions}>
             {onToggleFavorite && (
@@ -219,11 +230,11 @@ export default function RestaurantDetail({
               {hasHours && <span className={styles.rdTagAlt}>{openTag}</span>}
             </div>
           </div>
-          {restaurant.photoCredit && (
+          {r.photoCredit && (
             <span className={styles.rdCredit}>
-              {restaurant.photoCreditUrl
-                ? <a href={restaurant.photoCreditUrl} target="_blank" rel="noopener noreferrer">{restaurant.photoCredit}</a>
-                : restaurant.photoCredit}
+              {r.photoCreditUrl
+                ? <a href={r.photoCreditUrl} target="_blank" rel="noopener noreferrer">{r.photoCredit}</a>
+                : r.photoCredit}
             </span>
           )}
         </header>
@@ -265,7 +276,7 @@ export default function RestaurantDetail({
         {hasTipp && (
           <div className={styles.rdTipp}>
             <span className={styles.rdTippLabel}>{t('map.insiderTip')}</span>
-            <p className={styles.rdTippText}>{restaurant.tip}</p>
+            <p className={styles.rdTippText}>{r.tip}</p>
           </div>
         )}
 
@@ -310,7 +321,7 @@ export default function RestaurantDetail({
             <div className={styles.rdRow}>
               <span className={styles.rdK}>{t('map.openingHours')}</span>
               <div className={`${styles.rdV} ${styles.rdHours}`}>
-                {restaurant.openingHours!.map((slot, i) => (
+                {r.openingHours!.map((slot, i) => (
                   <div key={i} style={{ display: 'contents' }}>
                     <span className={styles.rdHoursD}>{slot.days}</span>
                     <span className={styles.rdHoursT}>{slot.hours}</span>
@@ -325,10 +336,10 @@ export default function RestaurantDetail({
               <span className={styles.rdV}>{priceLabel}</span>
             </div>
           )}
-          {restaurant.phone && (
+          {r.phone && (
             <div className={styles.rdRow}>
               <span className={styles.rdK}>{t('map.phone')}</span>
-              <span className={styles.rdV}><a href={`tel:${restaurant.phone.replace(/\s+/g, '')}`}>{restaurant.phone}</a></span>
+              <span className={styles.rdV}><a href={`tel:${r.phone.replace(/\s+/g, '')}`}>{r.phone}</a></span>
             </div>
           )}
           {websiteInfo?.kind === 'web' && (
@@ -361,7 +372,7 @@ export default function RestaurantDetail({
             className={styles.rdActBtn}
             onClick={async () => {
               const url = typeof window !== 'undefined' ? window.location.href : ''
-              const shareData = { title: restaurant.name, text: restaurant.name, url }
+              const shareData = { title: r.name, text: r.name, url }
               // Native share sheet only on touch devices (mobile). Desktop
               // Chrome exposes navigator.share but it's a poor fit there — so
               // desktop always copies the link and shows a confirmation.
@@ -393,10 +404,10 @@ export default function RestaurantDetail({
         </div>
 
         {/* RESERVIEREN — kept */}
-        {restaurant.reservationUrl && (
+        {r.reservationUrl && (
           <section className={styles.actions}>
             <a
-              href={restaurant.reservationUrl}
+              href={r.reservationUrl}
               target="_blank"
               rel="noopener noreferrer"
               className={styles.btnPrimary}
@@ -410,7 +421,7 @@ export default function RestaurantDetail({
             {reservationProvider === 'OpenTable' && (
               <div className={styles.ctaFoot}>
                 <a
-                  href={restaurant.reservationUrl}
+                  href={r.reservationUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={styles.opentableLockup}

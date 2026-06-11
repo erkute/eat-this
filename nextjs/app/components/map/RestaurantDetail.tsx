@@ -93,7 +93,7 @@ export default function RestaurantDetail({
   // contact fields (address, phone, tip, description, …) load on demand when
   // the sheet opens and merge over the list object. Cached per slug, so paging
   // back or re-opening is instant. `r` is the merged view used for rendering.
-  const detail = useRestaurantDetail(restaurant.slug)
+  const { detail, loading: detailLoading } = useRestaurantDetail(restaurant.slug)
   const r = useMemo(
     () => (detail ? { ...restaurant, ...detail } : restaurant),
     [restaurant, detail],
@@ -261,8 +261,10 @@ export default function RestaurantDetail({
           </nav>
         )}
 
-        {/* BODY — story prose with drop cap */}
-        {hasStory && (
+        {/* BODY — story prose with drop cap. While the on-demand detail fetch
+            is still in flight, hold the space with skeleton lines so the
+            sections below don't jump up and the text doesn't pop in. */}
+        {hasStory ? (
           <div className={styles.rdBody}>
             {storyText.split('\n\n').map((para, idx) =>
               idx === 0 && para.length > 0
@@ -270,7 +272,11 @@ export default function RestaurantDetail({
                 : <p key={idx}>{para}</p>
             )}
           </div>
-        )}
+        ) : detailLoading ? (
+          <div className={`${styles.rdBody} ${styles.rdBodySkel}`} aria-hidden="true">
+            <span /><span /><span /><span />
+          </div>
+        ) : null}
 
         {/* INSIDER TIPP */}
         {hasTipp && (

@@ -6,6 +6,7 @@ import { distanceKm, distanceLabel, type LatLng } from './geo'
 import type { OpeningHourSlot } from '@/lib/types'
 import type { Locale, SpotCandidate, ArticleResult } from './types'
 import { groqImageUrl } from '@/lib/sanity-image-presets'
+import { semanticRank, applySemanticOrder } from './semanticSearch'
 
 export interface SpotFilters {
   cuisine?: string
@@ -299,7 +300,22 @@ export async function searchSpots(
   })
   // Nearest first when we know where the user is.
   if (userGeo) mapped.sort((a, b) => (a._km ?? Infinity) - (b._km ?? Infinity))
-  return mapped.map(({ _km, ...spot }) => {
+
+  // Semantic re-ranking: reorder the GROQ candidates by how well they match the
+  // free-text intent (vibe + cuisine). Only when location isn't driving the
+  // order and the user didn't name a specific spot — and it degrades to a no-op
+  // if the embeddings index or Voyage key is absent (see semanticRank). The
+  // GROQ filter stays the hard gate; this only changes order.
+  let ordered = mapped
+  if (!userGeo && !resolvedSlug && mapped.length > 1) {
+    const semanticQuery = [filters.cuisine, filters.vibeQuery].filter((s) => s && s.trim()).join(', ')
+    if (semanticQuery.trim().length >= 3) {
+      const semantic = await semanticRank(semanticQuery)
+      ordered = applySemanticOrder(mapped, semantic)
+    }
+  }
+
+  return ordered.map(({ _km, ...spot }) => {
     void _km
     return spot
   })

@@ -1,5 +1,5 @@
 'use client'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useEffect, useRef } from 'react'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import type { MapRestaurant, MapMustEat, OpenStatus } from '@/lib/types'
@@ -8,6 +8,7 @@ import { useTranslation } from '@/lib/i18n'
 import { localizedCategoryName } from '@/lib/categories'
 import { normalizeName } from '@/lib/normalizeName'
 import sanityImageLoader from '@/lib/sanityImageLoader'
+import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail'
 import BoosterOfferInline from './BoosterOfferInline'
 import MapListEmpty from './MapListEmpty'
 import styles from './map.module.css'
@@ -67,8 +68,31 @@ const Item = memo(function Item({ restaurant, userLocation, isSelected, peek, lo
   const [statusMain, ...statusRest] = status.label ? status.label.split(' · ') : []
   const statusSub = statusRest.join(' · ')
 
+  // Warm the on-demand detail fields once a card scrolls near the viewport —
+  // by the time the user taps it, the story text is already cached and the
+  // detail opens complete (no skeleton). Locked rows route to the booster
+  // flow, so there is nothing to prefetch for them.
+  const cardRef = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    if (locked) return
+    const el = cardRef.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          prefetchRestaurantDetail(restaurant.slug)
+          io.disconnect()
+        }
+      },
+      { rootMargin: '300px 0px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [locked, restaurant.slug])
+
   return (
     <button
+      ref={cardRef}
       type="button"
       className={`${styles.rcard} ${isSelected ? styles.rcardActive : ''} ${locked ? styles.rcardBlur : ''}`}
       onClick={() => onClick(restaurant)}

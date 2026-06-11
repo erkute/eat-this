@@ -746,6 +746,27 @@ html[data-theme="dark"] .esBtnPrimary {
 /* Mini variant (restaurant list) */
 
 /* ===== Full-bleed photo card (Chewy mockup Screen 02) ===== */
+
+/* P6 — Listen-Virtualisierung. Off-screen-Slots überspringen Layout+Paint
+   komplett (content-visibility: auto); contain-intrinsic-size hält die
+   Scrollbar stabil, `auto` merkt sich die echte Höhe nach dem ersten
+   Rendern. Paint-Containment clippt Ink-Overflow an der Border-Box des
+   Slots — deshalb trägt der Slot rundum 8px Padding als Pufferzone für
+   den mustPeek-Überhang (-8px oben/rechts) und den Fokus-Ring des
+   Karten-Buttons, und zieht sie per negativer Margin wieder zurück. Die
+   Geometrie ist identisch zur ungewrappten Karte: Karten-Abstand = 8px
+   Padding-Bottom + kollabierte Margin (4px ∧ −8px → −4px) + 8px
+   Padding-Top des Folge-Slots = 12px. */
+.rcardSlot {
+  content-visibility: auto;
+  /* 210px ≈ echte Kartenhöhe (16:10 bei ~340px Panel-/Mobile-Breite) —
+     minimiert Scrollbar-Drift, bis `auto` die gemessene Höhe übernimmt. */
+  contain-intrinsic-size: auto 210px;
+  padding: 8px;
+  margin: -8px -8px 4px;
+}
+.rcardSlot .rcard { margin: 0; }
+
 .rcard {
   position: relative;
   display: block;

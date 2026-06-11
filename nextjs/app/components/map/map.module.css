@@ -2456,10 +2456,9 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
 }
 .detailV13Scroll::-webkit-scrollbar { width: 0; }
 
-/* Must-Eat-Detail mobile: viewport-füllend nur am FULL-Snap. Bei mid/peek
-   regulären Scroll-Modus behalten — sonst absorbiert flex:1 die ganze
-   Sheet-Höhe für die Card und der Lock-Block + Actions + Utility werden
-   nach unten weggedrückt. Restaurant-Detail unverändert (kein .detailV13MustEat). */
+/* Must-Eat-Detail mobile: viewport-füllendes Layout ohne Scrollen — siehe
+   den .detailV13MustEat-Block unter den .fd-* Regeln weiter unten.
+   Restaurant-Detail unverändert (kein .detailV13MustEat). */
 /* 1. Utility bar */
 
 /* 2. Hero panel — coral with mustard district pill + Saira name */
@@ -2808,6 +2807,52 @@ html[data-theme="dark"] .ctaPill {
   font-weight: 500;
   line-height: 1.6;
   color: var(--d-text);
+}
+
+/* Must-Eat-Detail mobile — alles im sichtbaren Bereich, kein Scrollen
+   (User 2026-06-11): Der Scroll-Container wird zur Flex-Spalte, die Card
+   ist das flexible Element (schrumpft bei langem Text, wächst bei kurzem,
+   zwischen min/max geklemmt), der Pager pinnt per margin-top:auto an die
+   Unterkante. Restaurant-Streifen + Pager sitzen dadurch bei jedem
+   Must-Eat an derselben Stelle — beim Swipen sieht man die nächste Karte
+   sofort komplett, ohne runterzuscrollen. Läuft der Inhalt doch über
+   (sehr lange Beschreibung, mid/peek-Snap), bleibt overflow-y:auto als
+   Ventil und nur die Card kollabiert auf ihre Mindesthöhe. */
+@media (max-width: 1023.98px) {
+  .detailV13MustEat .detailV13Scroll {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: calc(max(env(safe-area-inset-bottom, 0px), 10px) + var(--map-bar-overhang, 0px));
+  }
+  .detailV13MustEat .fdHero {
+    flex: 1 1 0px;
+    min-height: 150px;
+    max-height: 330px;
+    width: auto;
+    max-width: min(60vw, 240px);
+    margin: 12px auto 0;
+  }
+  .detailV13MustEat .fdName {
+    margin: 12px 14px 0;
+    font-size: clamp(32px, 8.5vw, 44px);
+  }
+  .detailV13MustEat .fdText {
+    margin: 10px 16px 0;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  .detailV13MustEat .fdProximity { margin: 10px 20px 0; }
+  .detailV13MustEat .fdProximityHead { font-size: clamp(20px, 5.5vw, 26px); }
+  .detailV13MustEat .fdProximitySub { margin-top: 5px; font-size: 14px; }
+  .detailV13MustEat .fdRest {
+    margin: 14px 14px 12px;
+    padding-bottom: 12px;
+  }
+  .detailV13MustEat .fdV { font-size: 22px; }
+  .detailV13MustEat .fdPager {
+    margin: auto 0 0;
+    padding: 14px 16px;
+  }
 }
 
 /* Must-Eat detail v13 strip — wobble card-back (locked, proximity-reveal

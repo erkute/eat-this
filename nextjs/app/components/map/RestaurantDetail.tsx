@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import {
   abbreviateBezirk,
@@ -20,6 +20,7 @@ import {
   splitStatusLabel,
 } from './restaurantDetail.helpers'
 import { normalizeName } from '@/lib/normalizeName'
+import { useSwipePager } from './useSwipePager'
 
 function MustEatMiniCard({
   mustEat,
@@ -86,80 +87,13 @@ export default function RestaurantDetail({
   const locale = useLocale()
   const [shareDone, setShareDone] = useState(false)
   const scrollWrapRef = useRef<HTMLDivElement>(null)
-  const onPagePrevRef = useRef(onPagePrev); onPagePrevRef.current = onPagePrev
-  const onPageNextRef = useRef(onPageNext); onPageNextRef.current = onPageNext
 
-  // Swipe left → next, right → prev. Axis-locked so it never fights the
-  // vertical sheet-drag / content scroll: the first significant move decides
-  // the axis; only a clearly-horizontal gesture pages (and preventDefault's).
-  // Touch-only — mouse drags bail (desktop uses the pager arrows). No opacity
-  // fades (project rule): the page transition is a translate.
-  useEffect(() => {
-    const el = scrollWrapRef.current
-    if (!el) return
-    let startX = 0, startY = 0, axis: 'h' | 'v' | null = null, active = false
-    const onDown = (e: PointerEvent) => {
-      if (e.pointerType === 'mouse') return
-      startX = e.clientX; startY = e.clientY; axis = null; active = true
-    }
-    const onMove = (e: PointerEvent) => {
-      if (!active) return
-      const dx = e.clientX - startX, dy = e.clientY - startY
-      if (axis === null) {
-        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
-        axis = Math.abs(dx) > Math.abs(dy) + 6 ? 'h' : 'v'
-      }
-      if (axis === 'h') {
-        e.preventDefault()
-        // Light resistance so the empty sheet beside the pane barely shows.
-        el.style.transform = `translateX(${dx * 0.42}px)`
-      }
-    }
-    const settle = () => {
-      el.style.transition = 'transform .2s ease-out'
-      el.style.transform = 'translateX(0)'
-      window.setTimeout(() => { el.style.transition = ''; el.style.transform = '' }, 220)
-    }
-    const end = (e: PointerEvent) => {
-      if (!active) return
-      const dx = e.clientX - startX
-      const wasH = axis === 'h'
-      active = false
-      axis = null
-      if (wasH && Math.abs(dx) > 60) {
-        // Instagram-style page: current pane slides out, the new one slides
-        // in from the opposite edge (translate only — no opacity fade).
-        const dir: 'next' | 'prev' = dx < 0 ? 'next' : 'prev'
-        const w = el.clientWidth
-        const outX = dir === 'next' ? -w : w
-        el.style.transition = 'transform .17s ease-out'
-        el.style.transform = `translateX(${outX}px)`
-        window.setTimeout(() => {
-          if (dir === 'next') onPageNextRef.current?.()
-          else onPagePrevRef.current?.()
-          // Place the freshly-swapped content on the opposite edge, then in.
-          el.style.transition = 'none'
-          el.style.transform = `translateX(${-outX}px)`
-          void el.offsetWidth // force reflow so the next transition animates
-          el.style.transition = 'transform .2s ease-out'
-          el.style.transform = 'translateX(0)'
-          window.setTimeout(() => { el.style.transition = ''; el.style.transform = '' }, 220)
-        }, 170)
-      } else {
-        settle()
-      }
-    }
-    el.addEventListener('pointerdown', onDown)
-    el.addEventListener('pointermove', onMove, { passive: false })
-    el.addEventListener('pointerup', end)
-    el.addEventListener('pointercancel', end)
-    return () => {
-      el.removeEventListener('pointerdown', onDown)
-      el.removeEventListener('pointermove', onMove)
-      el.removeEventListener('pointerup', end)
-      el.removeEventListener('pointercancel', end)
-    }
-  }, [])
+  useSwipePager(scrollWrapRef, {
+    onPrev: onPagePrev,
+    onNext: onPageNext,
+    hasPrev: !!prevRestaurant,
+    hasNext: !!nextRestaurant,
+  })
 
   const status = restaurant.openingHours
     ? getOpenStatus(restaurant.openingHours, new Date(), {

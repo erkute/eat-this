@@ -1,4 +1,5 @@
 'use client'
+import { useRef } from 'react'
 import type { MapMustEat } from '@/lib/types'
 import { Link } from '@/i18n/navigation'
 import { formatDistance } from '@/lib/map'
@@ -8,6 +9,7 @@ import { pickLocale } from '@/lib/i18n/pickLocale'
 import { normalizeName } from '@/lib/normalizeName'
 import styles from './map.module.css'
 import { UNLOCK_RADIUS_METERS, type MustEatDetailState } from './useMustEatDetailState'
+import { useSwipePager } from './useSwipePager'
 import { CloseIcon, PagerArrowIcon } from './icons'
 
 const CARD_BACK = '/pics/card-back.webp?v=6'
@@ -60,8 +62,19 @@ export default function MustEatDetailMobile({
   const open = isUnlocked && !revealOrigin
   const nameRevealed = open && !nameBurning
 
+  // Swipe anywhere on the sheet (hero, name, pager band) pages to the
+  // neighbouring must-eat — same gesture as the restaurant detail.
+  const rootRef = useRef<HTMLDivElement>(null)
+  useSwipePager(rootRef, {
+    onPrev: onPagePrev,
+    onNext: onPageNext,
+    hasPrev: !!prevMustEat,
+    hasNext: !!nextMustEat,
+  })
+
   return (
     <div
+      ref={rootRef}
       className={`${styles.detailV13} ${styles.detailV13MustEat}`}
       role="dialog"
       aria-label={tMap('mustEatAtAria', { name: restaurantName })}

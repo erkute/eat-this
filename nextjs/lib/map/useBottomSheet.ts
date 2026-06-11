@@ -409,9 +409,12 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       const displacement = Math.abs(dy)
       dragRef.current = null
       setDragging(false)
-      // Tap on handle when peeking → expand to mid
+      // Tap on handle when peeking → expand one step: 'mid' in the list
+      // view, 'full' in the detail views ('mid' is not an allowed rest
+      // there — hardcoding it parked the detail at a third, foreign height).
       if (displacement < 6 && snapRef.current === 'peek') {
-        setSnap('mid')
+        const allowed = configRef.current.snaps ?? ['full', 'mid', 'peek']
+        setSnap(allowed.includes('mid') ? 'mid' : 'full')
         return
       }
       const upperCap = maxSnap ? snapToPx(maxSnap, h, configRef.current.peekVisiblePx) : FULL_TOP_PX

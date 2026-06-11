@@ -106,7 +106,20 @@ export function useMapSheet(onDetailDismiss?: () => void) {
     let ro: ResizeObserver | null = null
     const attach = () => {
       const el = root.querySelector('[data-detail-hero]')
-      if (!el || el === observed) return
+      if (!el) {
+        /* Detail ohne Hero-Block (Must-Eat-Detail) → statischer Peek-Fallback.
+           Ohne den Reset erbt das Must-Eat-Sheet beim Wechsel
+           Restaurant-Detail → Must-Eat die gemessene Hero-Höhe des
+           Restaurants und peekt je nach Herkunft unterschiedlich hoch. */
+        if (observed) {
+          ro?.disconnect()
+          ro = null
+          observed = null
+          setDetailHeroPx(null)
+        }
+        return
+      }
+      if (el === observed) return
       if (ro) ro.disconnect()
       observed = el
       ro = new ResizeObserver(entries => {

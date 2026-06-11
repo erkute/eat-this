@@ -303,6 +303,15 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     [displayedRestaurants, selectedRestaurant],
   )
 
+  // Warm the neighbours' detail fields while a detail pane is open, so a
+  // pager swipe lands on fully-populated content instead of popping the
+  // story text in after the transition.
+  useEffect(() => {
+    if (!selectedRestaurant) return
+    if (pagerAdjacent.prev) prefetchRestaurantDetail(pagerAdjacent.prev.slug)
+    if (pagerAdjacent.next) prefetchRestaurantDetail(pagerAdjacent.next.slug)
+  }, [selectedRestaurant, pagerAdjacent])
+
   const handlePageRestaurant = useCallback((dir: 'prev' | 'next') => {
     const target = dir === 'prev' ? pagerAdjacent.prev : pagerAdjacent.next
     if (!target) return

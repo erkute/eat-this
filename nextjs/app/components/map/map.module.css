@@ -3428,6 +3428,25 @@ html[data-theme="dark"] .rdTag {
   color: #0a0a0a;
 }
 .rdBody p { margin: 0 0 12px; }
+/* Skeleton lines while the on-demand detail fields are in flight — holds the
+   story block's space so Tipp/Facts/Must-Eats don't jump when the text lands.
+   Shimmer runs on background-position (no opacity animation, project rule). */
+.rdBodySkel { display: grid; gap: 11px; padding-bottom: 16px; }
+.rdBodySkel span {
+  height: 13px;
+  border-radius: 7px;
+  background: linear-gradient(90deg, rgba(10, 10, 10, .08) 25%, rgba(10, 10, 10, .15) 50%, rgba(10, 10, 10, .08) 75%);
+  background-size: 200% 100%;
+  animation: rdSkelShimmer 1.2s linear infinite;
+}
+.rdBodySkel span:nth-child(2) { width: 94%; }
+.rdBodySkel span:nth-child(3) { width: 88%; }
+.rdBodySkel span:nth-child(4) { width: 55%; }
+@keyframes rdSkelShimmer { to { background-position: -200% 0; } }
+html[data-theme="dark"] .rdBodySkel span {
+  background: linear-gradient(90deg, rgba(240, 232, 208, .10) 25%, rgba(240, 232, 208, .18) 50%, rgba(240, 232, 208, .10) 75%);
+  background-size: 200% 100%;
+}
 .rdDropCap {
   font-family: var(--font-chewy);
   font-size: 70px;

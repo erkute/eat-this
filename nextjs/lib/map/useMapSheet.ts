@@ -49,26 +49,26 @@ const LIST_PEEK_BASE_PX            = 90
 export function useMapSheet(onDetailDismiss?: () => void) {
   const sheet = useBottomSheet('mid')
   const [sheetView, setSheetViewState] = useState<SheetView>('list')
-  /* Measured hero-block height drives the detail peek. Initialized null so
-     the first config uses the static fallback; flips to the measured value
-     once the ResizeObserver below fires. */
-  const [detailHeroPx, setDetailHeroPx] = useState<number | null>(null)
-  /* Measured pager height — part of the detail middle stage. 0 when the
-     pager isn't rendered (single-result filter, or must-eat detail whose
-     pager is not tagged). */
-  const [detailPagerPx, setDetailPagerPx] = useState(0)
+  /* Measured bottom-edge offset (relative to the sheet's top) of the last
+     element visible at the detail middle stage — the pager when rendered,
+     otherwise the hero. Measuring the offset instead of summing element
+     heights keeps margins/gaps included. Initialized null so the first
+     config uses the estimate fallback; flips to the measured value once
+     the ResizeObservers below fire. */
+  const [detailContentBottomPx, setDetailContentBottomPx] = useState<number | null>(null)
 
   /* Per-view config rebuilds whenever the measured hero height changes so the
      bottom-sheet's peek snap reflects the live content. iOS safe-area is read
      once at mount. */
   const viewConfig = useMemo(() => {
     const safeAreaBottom = readSafeAreaBottom()
-    /* Middle stage = handle + hero + pager (+4px sub-pixel buffer, + safe
-       area) — the formula lives in detailSnap.ts. Pre-measurement the
-       viewport-width estimate stands in (assumes a pager; the measurement
-       corrects within a frame of the detail mounting). */
-    const detailPeek = detailHeroPx != null
-      ? detailMidVisiblePx(detailHeroPx, detailPagerPx, safeAreaBottom)
+    /* Middle stage = sheet top → pager bottom (or hero bottom without a
+       pager), +4px sub-pixel buffer, + safe area — the formula lives in
+       detailSnap.ts. Pre-measurement the viewport-width estimate stands in
+       (assumes a pager; the measurement corrects within a frame of the
+       detail mounting). */
+    const detailPeek = detailContentBottomPx != null
+      ? detailMidVisiblePx(detailContentBottomPx, safeAreaBottom)
       : typeof window !== 'undefined'
         ? estimateDetailMidVisiblePx(window.innerWidth, true, safeAreaBottom)
         : DETAIL_PEEK_BASE_PX + safeAreaBottom
@@ -83,7 +83,7 @@ export function useMapSheet(onDetailDismiss?: () => void) {
       detail: { maxSnap: null, snaps: detailSnaps, dragMode: 'all' as const, peekVisiblePx: detailPeek, onDismiss: onDetailDismiss },
       list:   { maxSnap: null, snaps: undefined, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX + safeAreaBottom, onDismiss: undefined },
     }
-  }, [detailHeroPx, detailPagerPx, onDetailDismiss])
+  }, [detailContentBottomPx, onDetailDismiss])
 
   const sheetElRef = useRef<HTMLDivElement | null>(null)
   const sheetRef = sheet.sheetRef
@@ -104,8 +104,7 @@ export function useMapSheet(onDetailDismiss?: () => void) {
      Cleans up when the view goes back to 'list'. */
   useEffect(() => {
     if (sheetView !== 'detail') {
-      setDetailHeroPx(null)
-      setDetailPagerPx(0)
+      setDetailContentBottomPx(null)
       return
     }
     const root = sheetElRef.current
@@ -116,14 +115,17 @@ export function useMapSheet(onDetailDismiss?: () => void) {
     let roHero: ResizeObserver | null = null
     let roPager: ResizeObserver | null = null
 
-    /* borderBoxSize includes padding so the measurement matches what's
-       actually rendered; contentRect is content-box and would under-measure
-       — enough to clip the bottom row at the middle stage. Fallback to
-       getBoundingClientRect for older browsers without borderBoxSize. */
-    const readHeight = (entry: ResizeObserverEntry | undefined): number | null => {
-      const h = entry?.borderBoxSize?.[0]?.blockSize
-        ?? entry?.target?.getBoundingClientRect()?.height
-      return typeof h === 'number' && h > 0 ? Math.ceil(h) : null
+    /* Bottom edge of the last middle-stage element (pager, else hero)
+       relative to the sheet's top. Both rects live inside the same
+       translated sheet, so the difference is invariant under the sheet's
+       transform — safe to read mid-animation. */
+    const measure = () => {
+      const heroEl = root.querySelector('[data-detail-hero]')
+      if (!heroEl) return
+      const pagerEl = root.querySelector('[data-detail-pager]')
+      const last = pagerEl ?? heroEl
+      const bottom = last.getBoundingClientRect().bottom - root.getBoundingClientRect().top
+      if (bottom > 0) setDetailContentBottomPx(Math.ceil(bottom))
     }
 
     const attach = () => {
@@ -131,10 +133,7 @@ export function useMapSheet(onDetailDismiss?: () => void) {
       if (heroEl && heroEl !== observedHero) {
         if (roHero) roHero.disconnect()
         observedHero = heroEl
-        roHero = new ResizeObserver(entries => {
-          const h = readHeight(entries[0])
-          if (h != null) setDetailHeroPx(h)
-        })
+        roHero = new ResizeObserver(measure)
         roHero.observe(heroEl)
       }
 
@@ -142,19 +141,21 @@ export function useMapSheet(onDetailDismiss?: () => void) {
       if (!pagerEl) {
         /* Pager unmounted (single-result filter, must-eat detail) → the
            middle stage degrades to photo-only. */
-        if (observedPager) { roPager?.disconnect(); roPager = null; observedPager = null }
-        setDetailPagerPx(0)
+        if (observedPager) {
+          roPager?.disconnect()
+          roPager = null
+          observedPager = null
+          measure()
+        }
       } else if (pagerEl !== observedPager) {
         if (roPager) roPager.disconnect()
         observedPager = pagerEl
-        roPager = new ResizeObserver(entries => {
-          const h = readHeight(entries[0])
-          if (h != null) setDetailPagerPx(h)
-        })
+        roPager = new ResizeObserver(measure)
         roPager.observe(pagerEl)
       }
     }
     attach()
+    measure()
     /* The hero/pager elements are conditionally rendered (per restaurant
        change). A MutationObserver on the sheet root re-attaches whenever
        the DOM swaps. */

@@ -1,31 +1,33 @@
 import { describe, expect, it } from 'vitest'
 import {
-  DETAIL_HANDLE_PX,
-  DETAIL_PEEK_BUFFER_PX,
+  DETAIL_SHEET_TOP_TO_HERO_PX,
+  DETAIL_HERO_MARGIN_BOTTOM_PX,
   DETAIL_PAGER_ESTIMATE_PX,
+  DETAIL_PEEK_BUFFER_PX,
   detailMidVisiblePx,
   estimateDetailMidVisiblePx,
 } from './detailSnap'
 
 describe('detailMidVisiblePx', () => {
-  it('sums handle + hero + pager + buffer + safe area', () => {
-    expect(detailMidVisiblePx(453, 41, 34)).toBe(DETAIL_HANDLE_PX + 453 + 41 + DETAIL_PEEK_BUFFER_PX + 34)
+  it('adds buffer + safe area to the measured content bottom offset', () => {
+    expect(detailMidVisiblePx(558, 34)).toBe(558 + DETAIL_PEEK_BUFFER_PX + 34)
   })
 
-  it('degrades to photo-only when no pager is rendered (pagerPx 0)', () => {
-    expect(detailMidVisiblePx(453, 0, 0)).toBe(DETAIL_HANDLE_PX + 453 + DETAIL_PEEK_BUFFER_PX)
+  it('works without a safe area', () => {
+    expect(detailMidVisiblePx(500, 0)).toBe(500 + DETAIL_PEEK_BUFFER_PX)
   })
 })
 
 describe('estimateDetailMidVisiblePx', () => {
-  it('estimates the hero as a 4:5 photo with 14px side margins', () => {
+  it('estimates handle zone + 4:5 hero + hero bottom margin + pager', () => {
     // 390px viewport: hero width 390-28=362 → height 362*5/4=452.5 → round 453
-    const expected = detailMidVisiblePx(453, DETAIL_PAGER_ESTIMATE_PX, 34)
-    expect(estimateDetailMidVisiblePx(390, true, 34)).toBe(expected)
+    const contentBottom = DETAIL_SHEET_TOP_TO_HERO_PX + 453
+      + DETAIL_HERO_MARGIN_BOTTOM_PX + DETAIL_PAGER_ESTIMATE_PX
+    expect(estimateDetailMidVisiblePx(390, true, 34)).toBe(detailMidVisiblePx(contentBottom, 34))
   })
 
-  it('omits the pager estimate when hasPager is false', () => {
-    const expected = detailMidVisiblePx(453, 0, 0)
-    expect(estimateDetailMidVisiblePx(390, false, 0)).toBe(expected)
+  it('ends at the hero bottom when hasPager is false', () => {
+    const contentBottom = DETAIL_SHEET_TOP_TO_HERO_PX + 453
+    expect(estimateDetailMidVisiblePx(390, false, 0)).toBe(detailMidVisiblePx(contentBottom, 0))
   })
 })

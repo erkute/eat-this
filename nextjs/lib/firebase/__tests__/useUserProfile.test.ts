@@ -7,7 +7,7 @@ vi.mock('firebase/firestore', () => ({
   onSnapshot: vi.fn(),
   setDoc: vi.fn(),
 }))
-vi.mock('../config', () => ({ db: {} }))
+vi.mock('../config', () => ({ getDb: () => Promise.resolve({}) }))
 
 import { onSnapshot, setDoc } from 'firebase/firestore'
 import { useUserProfile } from '../useUserProfile'
@@ -42,10 +42,17 @@ describe('useUserProfile', () => {
   })
 
   it('setAvatar writes via merge', async () => {
-    vi.mocked(onSnapshot).mockImplementation(() => () => {})
+    // Fire onNext so the subscribe effect settles (loading → false). This also
+    // lets the hook's lazy `import('firebase/firestore')` resolve before we call
+    // setAvatar, which reuses the same code-split chunk.
+    vi.mocked(onSnapshot).mockImplementation((_ref, onNext) => {
+      ;(onNext as (s: { data: () => unknown }) => void)({ data: () => ({}) })
+      return () => {}
+    })
     vi.mocked(setDoc).mockResolvedValue(undefined)
 
     const { result } = renderHook(() => useUserProfile('u1'))
+    await waitFor(() => expect(result.current.loading).toBe(false))
     await act(async () => { await result.current.setAvatar(3) })
 
     expect(setDoc).toHaveBeenCalledWith(

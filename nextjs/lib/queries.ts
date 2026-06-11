@@ -103,6 +103,7 @@ export const articleBySlugQuery = `
     excerpt, excerptDe,
     content[] ${articleContentProjection},
     contentDe[] ${articleContentProjection},
+    "author": author->{ name, "slug": slug.current, "photo": image.asset->url },
     seo {
       metaTitle,
       metaDescription,

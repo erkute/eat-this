@@ -335,6 +335,23 @@ export default function RestaurantDetail({
           </div>
         )}
 
+        {/* MUST EATS — reveal state mirrors the map/list (unlocked OR proximity-revealed) */}
+        {mustEats.length > 0 && (
+          <section>
+            <h2 className={styles.rdSecH}>Must Eats</h2>
+            <ol className={styles.rdMustGrid}>
+              {mustEats.slice(0, 4).map(m => (
+                <MustEatMiniCard
+                  key={m._id}
+                  mustEat={m}
+                  unlocked={unlockedIds.has(m._id) || revealedMustEatIds.has(m._id)}
+                  onClick={() => onMustEatClick(m)}
+                />
+              ))}
+            </ol>
+          </section>
+        )}
+
         {/* FACTS — opening hours shown in full, no expander */}
         <div className={styles.rdFacts}>
           {addressLines && (
@@ -469,23 +486,6 @@ export default function RestaurantDetail({
                 </a>
               </div>
             )}
-          </section>
-        )}
-
-        {/* MUST EATS — reveal state mirrors the map/list (unlocked OR proximity-revealed) */}
-        {mustEats.length > 0 && (
-          <section>
-            <h2 className={styles.rdSecH}>Must Eats</h2>
-            <ol className={styles.rdMustGrid}>
-              {mustEats.slice(0, 4).map(m => (
-                <MustEatMiniCard
-                  key={m._id}
-                  mustEat={m}
-                  unlocked={unlockedIds.has(m._id) || revealedMustEatIds.has(m._id)}
-                  onClick={() => onMustEatClick(m)}
-                />
-              ))}
-            </ol>
           </section>
         )}
 

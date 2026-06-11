@@ -595,11 +595,11 @@ html[data-theme="dark"] .list[data-view="detail"] .handle::before {
   flex: 1;
   overflow-x: hidden;
   overflow-y: auto;
-  /* Inset cards 12px each side so the mustPeek (-8px) and 4px box-shadow
-     both sit inside the padding box — nothing overflows, no horizontal
-     swipe/scroll on mobile or desktop. Top padding gives the first card's
-     upward peek room to clear the filter bar. */
-  padding: 16px 12px 0;
+  /* Inset cards 14px each side so the mustPeek (-8px box + ~6px Ink-Überhang
+     durch die 11°-Rotation) and 4px box-shadow sit inside the padding box —
+     nothing overflows, no horizontal swipe/scroll on mobile or desktop. Top
+     padding gives the first card's upward peek room to clear the filter bar. */
+  padding: 16px 14px 0;
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
   /* The map page is 100lvh tall, so the window CAN scroll by a bar-height —
@@ -751,19 +751,21 @@ html[data-theme="dark"] .esBtnPrimary {
    komplett (content-visibility: auto); contain-intrinsic-size hält die
    Scrollbar stabil, `auto` merkt sich die echte Höhe nach dem ersten
    Rendern. Paint-Containment clippt Ink-Overflow an der Border-Box des
-   Slots — deshalb trägt der Slot rundum 8px Padding als Pufferzone für
-   den mustPeek-Überhang (-8px oben/rechts) und den Fokus-Ring des
-   Karten-Buttons, und zieht sie per negativer Margin wieder zurück. Die
-   Geometrie ist identisch zur ungewrappten Karte: Karten-Abstand = 8px
-   Padding-Bottom + kollabierte Margin (4px ∧ −8px → −4px) + 8px
-   Padding-Top des Folge-Slots = 12px. */
+   Slots — deshalb trägt der Slot eine Pufferzone für den mustPeek-Überhang
+   (−8px oben/rechts) PLUS dessen 11°-Rotation: Die rotierten Ecken malen
+   ~6px über die Layout-Box hinaus und wurden mit nur 8px Puffer oben/rechts
+   flach abgeschnitten → 14px oben/seitlich, 8px unten (Fokus-Ring/Schatten),
+   per negativer Margin wieder zurückgezogen. Die Geometrie ist identisch
+   zur ungewrappten Karte: Karten-Abstand = 8px Padding-Bottom +
+   kollabierte Margin (4px ∧ −14px → −10px) + 14px Padding-Top des
+   Folge-Slots = 12px. */
 .rcardSlot {
   content-visibility: auto;
-  /* 210px ≈ echte Kartenhöhe (16:10 bei ~340px Panel-/Mobile-Breite) —
+  /* ≈ Karte (16:10 bei ~340px Panel-/Mobile-Breite) + 22px Slot-Padding —
      minimiert Scrollbar-Drift, bis `auto` die gemessene Höhe übernimmt. */
-  contain-intrinsic-size: auto 210px;
-  padding: 8px;
-  margin: -8px -8px 4px;
+  contain-intrinsic-size: auto 216px;
+  padding: 14px 14px 8px;
+  margin: -14px -14px 4px;
 }
 .rcardSlot .rcard { margin: 0; }
 

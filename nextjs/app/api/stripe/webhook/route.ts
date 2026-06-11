@@ -48,11 +48,26 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'invalid_signature' }, { status: 400 })
   }
 
-  if (event.type !== 'checkout.session.completed') {
+  if (
+    event.type !== 'checkout.session.completed' &&
+    event.type !== 'checkout.session.async_payment_succeeded'
+  ) {
     return NextResponse.json({ received: true, ignored: event.type }, { status: 200 })
   }
 
   const session = event.data.object as Stripe.Checkout.Session
+
+  // Async methods (Klarna, SEPA) fire checkout.session.completed while the
+  // money hasn't cleared yet (payment_status: 'unpaid'). Fulfilling here
+  // would hand out the entitlement for a payment that can still fail —
+  // wait for checkout.session.async_payment_succeeded instead (the polling
+  // fallback in /api/stripe/fulfill applies the same gate).
+  if (session.payment_status !== 'paid') {
+    return NextResponse.json(
+      { received: true, pending: session.payment_status },
+      { status: 200 },
+    )
+  }
   const meta    = (session.metadata ?? {}) as {
     uid?: string
     packId?: string

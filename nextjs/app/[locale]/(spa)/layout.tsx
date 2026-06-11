@@ -15,8 +15,8 @@ const SITE_URL = 'https://www.eatthisdot.com'
 
 const TITLE = 'EAT THIS – Berlin Food Guide: Restaurants & Geheimtipps'
 const DESCRIPTION =
-  'We tell you what to eat — die kuratierte Food Map mit den besten Restaurants, Cafés und Bars in Berlin. Dazu exklusive Must Eats auf der interaktiven Karte.'
-const OG_IMAGE = SITE_URL + '/pics/og-card.png?v=3'
+  'Die kuratierte Food-Map mit Berlins besten Restaurants, Cafés und Bars — plus exklusive Must Eats. Frag Remy, unsere KI-Suche, und finde sofort deinen Spot.'
+const OG_IMAGE = SITE_URL + '/pics/og-card.png?v=4'
 
 export const metadata: Metadata = {
   // `absolute` bypasses the root '%s | Eat This Berlin' template — the brand
@@ -71,9 +71,9 @@ export default async function SPALayout({
       <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
 
       <link rel="manifest" href="/manifest.json" />
-      <link rel="icon" type="image/x-icon" href="/favicon.ico?v=6" />
-      <link rel="icon" type="image/png" sizes="192x192" href="/pics/favicon-192.png?v=6" />
-      <link rel="apple-touch-icon" sizes="192x192" href="/pics/favicon-192.png?v=6" />
+      <link rel="icon" type="image/x-icon" href="/favicon.ico?v=7" />
+      <link rel="icon" type="image/png" sizes="192x192" href="/pics/favicon-192.png?v=7" />
+      <link rel="apple-touch-icon" sizes="192x192" href="/pics/favicon-192.png?v=7" />
 
       <AuthProvider>
         <LoginModalProvider>

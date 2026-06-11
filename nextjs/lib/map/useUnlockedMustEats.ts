@@ -1,7 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { collection, getDocs } from 'firebase/firestore'
-import { auth, db } from '@/lib/firebase/config'
+import { auth, getDb } from '@/lib/firebase/config'
 import type { MapMustEat } from '@/lib/types'
 
 interface UseUnlockedMustEatsResult {
@@ -48,13 +47,24 @@ export function useUnlockedMustEats(uid: string | null): UseUnlockedMustEatsResu
     const cached = readCache(uid)
     setUnlockedIds(cached)
     setLoading(cached.size === 0)
-    getDocs(collection(db, 'users', uid, 'unlockedMustEats'))
-      .then(snap => {
+    let active = true
+    void (async () => {
+      const [{ collection, getDocs }, db] = await Promise.all([
+        import('firebase/firestore'),
+        getDb(),
+      ])
+      if (!active) return
+      try {
+        const snap = await getDocs(collection(db, 'users', uid, 'unlockedMustEats'))
+        if (!active) return
         const next = new Set(snap.docs.map(d => d.id))
         setUnlockedIds(next)
         writeCache(uid, next)
-      })
-      .finally(() => setLoading(false))
+      } finally {
+        if (active) setLoading(false)
+      }
+    })()
+    return () => { active = false }
   }, [uid])
 
   const unlock = useCallback(async (mustEatId: string): Promise<MapMustEat | null> => {

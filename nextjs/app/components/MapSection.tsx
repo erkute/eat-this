@@ -19,9 +19,8 @@ import { useTranslation } from '@/lib/i18n'
 import MapSectionBody from './map/MapSectionBody'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import { resolveAdjacent } from '@/lib/map/pager'
-import { auth, db } from '@/lib/firebase/config'
+import { auth, getDb } from '@/lib/firebase/config'
 import { onAuthStateChanged } from 'firebase/auth'
-import { collection, onSnapshot } from 'firebase/firestore'
 
 interface Props {
   isActive?:       boolean
@@ -83,23 +82,41 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
   const userTier = useUserTier(uid)
 
-  // Live-refetch map data whenever the user's entitlements change (e.g. after purchase).
+  // Live-refetch map data whenever the user's entitlements change (e.g. after
+  // purchase). Firestore SDK is code-split (see getDb) — loaded on demand here
+  // so it stays out of the landing first-load bundle.
   useEffect(() => {
     if (!uid) return
-    const ref = collection(db, 'users', uid, 'entitlements')
-    return onSnapshot(ref, () => {
-      refetchMapData()
-    })
+    let unsub = () => {}
+    let active = true
+    void (async () => {
+      const [{ collection, onSnapshot }, db] = await Promise.all([
+        import('firebase/firestore'),
+        getDb(),
+      ])
+      if (!active) return
+      const ref = collection(db, 'users', uid, 'entitlements')
+      unsub = onSnapshot(ref, () => { refetchMapData() })
+    })()
+    return () => { active = false; unsub() }
   }, [uid, refetchMapData])
 
   // Live-refetch when a referral bonus lands — covers both the inviter
   // (friend just signed up) and the friend (their welcome bonus was written).
   useEffect(() => {
     if (!uid) return
-    const ref = collection(db, 'users', uid, 'referralBonuses')
-    return onSnapshot(ref, () => {
-      refetchMapData()
-    })
+    let unsub = () => {}
+    let active = true
+    void (async () => {
+      const [{ collection, onSnapshot }, db] = await Promise.all([
+        import('firebase/firestore'),
+        getDb(),
+      ])
+      if (!active) return
+      const ref = collection(db, 'users', uid, 'referralBonuses')
+      unsub = onSnapshot(ref, () => { refetchMapData() })
+    })()
+    return () => { active = false; unsub() }
   }, [uid, refetchMapData])
 
   // Swipe the open detail down past peek → close it (back to the list). The

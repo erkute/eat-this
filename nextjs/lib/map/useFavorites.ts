@@ -1,8 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { useLocale } from 'next-intl'
-import { collection, doc, getDocs, setDoc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
-import { db } from '@/lib/firebase/config'
+import { getDb } from '@/lib/firebase/config'
 import { client as sanityClient } from '@/lib/sanity'
 
 interface FavoriteEntry {
@@ -49,8 +48,17 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
     } catch { /* ignore bad cache */ }
 
     // 2) Live read — show as soon as it lands; don't block on the slug back-fill.
-    getDocs(collection(db, 'users', uid, 'favorites'))
-      .then(async snap => {
+    //    Firestore SDK is code-split (see getDb) so it stays out of first-load.
+    let active = true
+    void (async () => {
+      const [{ collection, doc, getDocs, updateDoc }, db] = await Promise.all([
+        import('firebase/firestore'),
+        getDb(),
+      ])
+      if (!active) return
+      try {
+        const snap = await getDocs(collection(db, 'users', uid, 'favorites'))
+        if (!active) return
         const entries: FavoriteEntry[] = snap.docs.map(d => ({
           restaurantId: d.id,
           ...(d.data() as Omit<FavoriteEntry, 'restaurantId'>),
@@ -70,6 +78,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
               `*[_type == "restaurant" && _id in $ids]{ _id, "slug": slug.current }`,
               { ids },
             )
+            if (!active) return
             const bySlug = new Map(found.filter(r => r.slug).map(r => [r._id, r.slug]))
             if (bySlug.size > 0) {
               setFavorites(prev => {
@@ -83,8 +92,11 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
             }
           } catch { /* ignore — slug stays empty, link falls back to /map */ }
         }
-      })
-      .catch(() => setLoading(false))
+      } catch {
+        if (active) setLoading(false)
+      }
+    })()
+    return () => { active = false }
   }, [uid])
 
   const toggle = useCallback(async (r: { _id: string; name: string; slug?: string; photo?: string; district?: string }) => {
@@ -92,6 +104,10 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
       window.location.assign('/login')
       return
     }
+    const [{ doc, setDoc, deleteDoc, serverTimestamp }, db] = await Promise.all([
+      import('firebase/firestore'),
+      getDb(),
+    ])
     const ref = doc(db, 'users', uid, 'favorites', r._id)
     const writeCache = (next: FavoriteEntry[]) => {
       try { window.localStorage.setItem(`eatthis_favorites_${uid}`, JSON.stringify(next)) } catch { /* quota */ }
@@ -112,6 +128,10 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
 
   const updateNote = useCallback(async (restaurantId: string, note: string) => {
     if (!uid) return
+    const [{ doc, updateDoc }, db] = await Promise.all([
+      import('firebase/firestore'),
+      getDb(),
+    ])
     const ref = doc(db, 'users', uid, 'favorites', restaurantId)
     await updateDoc(ref, { note })
     setFavorites(prev => prev.map(f => f.restaurantId === restaurantId ? { ...f, note } : f))

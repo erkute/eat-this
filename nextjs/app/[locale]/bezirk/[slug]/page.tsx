@@ -6,7 +6,7 @@ import { setRequestLocale } from 'next-intl/server'
 import { getBezirkBySlug, getRestaurantsByBezirk, getAllBezirkeWithStats } from '@/lib/sanity.server'
 import { buildBezirkJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
-import { localeUrl } from '@/lib/locale-url'
+import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { routing } from '@/i18n/routing'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
@@ -57,29 +57,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const baseImage = b.seo?.ogImageUrl || b.imageUrl
   const image = baseImage || `${SITE_URL}/pics/og-card.png?v=4`
 
-  const hasEn = hasEnContent(b)
-  const canonical = hasEn
-    ? localeUrl(loc, `/bezirk/${slug}`)
-    : localeUrl('de', `/bezirk/${slug}`)
-
-  const languages: Record<string, string> = {
-    de: localeUrl('de', `/bezirk/${slug}`),
-    'x-default': localeUrl('de', `/bezirk/${slug}`),
-  }
-  if (hasEn) languages.en = localeUrl('en', `/bezirk/${slug}`)
+  const alternates = buildHreflangAlternates(`/bezirk/${slug}`, loc, { hasEnContent: hasEnContent(b) })
 
   return {
     title,
     description,
     robots: b.seo?.noIndex ? 'noindex,nofollow' : undefined,
-    alternates: { canonical, languages },
+    alternates,
     openGraph: {
       title,
       description,
-      url: canonical,
+      url: alternates.canonical,
       images: [{ url: image, width: 1200, height: 630, alt: b.name }],
       type: 'website',
-      locale: de ? 'de_DE' : 'en_US',
+      locale: toOgLocale(loc),
     },
   }
 }

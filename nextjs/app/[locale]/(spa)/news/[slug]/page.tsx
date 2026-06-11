@@ -5,6 +5,7 @@ import { getArticleBySlug, getAllArticleSlugs, getAllNewsArticles } from '@/lib/
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { localeUrl } from '@/lib/locale-url'
+import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import { routing } from '@/i18n/routing'
 import NewsArticleShell from '@/app/components/NewsArticleShell'
 
@@ -37,28 +38,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ? `${baseImage}?w=1200&h=630&fit=crop&auto=format`
     : `${SITE_URL}/pics/og-card.png?v=4`
 
-  const canonical = localeUrl(locale, `/news/${slug}`)
+  const alternates = buildHreflangAlternates(`/news/${slug}`, de ? 'de' : 'en')
 
   return {
     title,
     description,
     robots: a.seo?.noIndex ? 'noindex,nofollow' : 'index,follow',
-    alternates: {
-      canonical,
-      languages: {
-        de: localeUrl('de', `/news/${slug}`),
-        en: localeUrl('en', `/news/${slug}`),
-        'x-default': localeUrl('de', `/news/${slug}`),
-      },
-    },
+    alternates,
     openGraph: {
       title: `${title} | Eat This Berlin`,
       description,
-      url: canonical,
+      url: alternates.canonical,
       images: [{ url: image, width: 1200, height: 630, alt: title }],
       type: 'article',
       publishedTime: a.date,
-      locale: de ? 'de_DE' : 'en_US',
+      locale: toOgLocale(de ? 'de' : 'en'),
     },
   }
 }

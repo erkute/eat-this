@@ -1361,6 +1361,13 @@ html[data-theme="dark"] .btn:hover {
        .detailV13Scroll's bottom padding compensates. */
     max-height: calc(100dvh - var(--sheet-y, 0px) - 24px + var(--map-bar-overhang, 0px));
   }
+  /* Must-Eat-Detail: KEIN URL-Bar-Apron. Das Layout ist fix (Karte + Text,
+     kein Scrollen) — der Overhang stünde als toter Weißraum unterm Pager
+     (Screenshots User 2026-06-11). Mount endet an der sichtbaren
+     Viewport-Unterkante; 36px = Detail-Handle überm Mount. */
+  .detailMountMustEat {
+    max-height: calc(100dvh - var(--sheet-y, 0px) - 36px);
+  }
 }
 
 /* Body container — Apple Maps / Spotify rhythm: tight blocks with breathing
@@ -2830,16 +2837,18 @@ html[data-theme="dark"] .ctaPill {
   .detailV13MustEat .detailV13Scroll {
     display: flex;
     flex-direction: column;
-    padding-bottom: calc(max(env(safe-area-inset-bottom, 0px), 10px) + var(--map-bar-overhang, 0px));
+    /* Kein Overhang — der Mount endet am sichtbaren Viewport
+       (.detailMountMustEat), der Pager sitzt direkt über der Unterkante. */
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 10px);
   }
   .detailV13MustEat .fdHero {
-    /* Feste Höhe pro Gerät. ACHTUNG: 36dvh/180/340 + die 26/12px-Margins
+    /* Feste Höhe pro Gerät. ACHTUNG: 40dvh/190/380 + die 22/12px-Margins
        spiegeln sich in useMapSheet (mustEatPeek) — zusammen ändern. */
     flex: 0 0 auto;
-    height: clamp(180px, 36dvh, 340px);
+    height: clamp(190px, 40dvh, 380px);
     width: auto;
-    max-width: min(62vw, 250px);
-    margin: 26px auto 12px;
+    max-width: min(66vw, 280px);
+    margin: 22px auto 12px;
   }
   .detailV13MustEat .fdName {
     /* padding statt margin: das Element trägt data-detail-hero und wird per
@@ -2847,26 +2856,28 @@ html[data-theme="dark"] .ctaPill {
        Name-Höhe inkl. Abständen für den unteren Karte+Name-Snap. */
     margin: 0;
     padding: 12px 14px 6px;
-    font-size: clamp(32px, 8.5vw, 44px);
+    font-size: clamp(36px, 10vw, 50px);
   }
   .detailV13MustEat .fdText {
     margin: 10px 16px 0;
-    font-size: 15px;
-    line-height: 1.45;
+    font-size: 16px;
+    line-height: 1.5;
   }
   .detailV13MustEat .fdProximity { margin: 10px 20px 0; }
-  .detailV13MustEat .fdProximityHead { font-size: clamp(20px, 5.5vw, 26px); }
-  .detailV13MustEat .fdProximitySub { margin-top: 5px; font-size: 14px; }
+  .detailV13MustEat .fdProximityHead { font-size: clamp(22px, 6.5vw, 30px); }
+  .detailV13MustEat .fdProximitySub { margin-top: 6px; font-size: 15px; }
   .detailV13MustEat .fdRest {
-    margin: auto 14px 12px;
+    margin: auto 14px 14px;
     padding-top: 14px;
-    padding-bottom: 12px;
+    padding-bottom: 0;
   }
-  .detailV13MustEat .fdV { font-size: 22px; }
+  .detailV13MustEat .fdV { font-size: 25px; }
+  .detailV13MustEat .ctaPill { font-size: 14px; padding: 11px 15px 12px; }
   .detailV13MustEat .fdPager {
     margin: auto 0 0;
-    padding: 14px 16px;
+    padding: 17px 16px;
   }
+  .detailV13MustEat .fdPagerName { font-size: 17px; }
 }
 
 /* Must-Eat detail v13 strip — wobble card-back (locked, proximity-reveal

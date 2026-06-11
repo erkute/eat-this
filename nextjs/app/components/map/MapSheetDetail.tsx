@@ -45,7 +45,13 @@ type Props = MustEatProps | RestaurantProps
 
 export default function MapSheetDetail(props: Props) {
   return (
-    <div ref={props.contentRef} className={styles.detailMount}>
+    <div
+      ref={props.contentRef}
+      // mustEat: Mount endet am sichtbaren Viewport (kein URL-Bar-Apron) —
+      // das fixe Karte+Text-Layout scrollt nicht, der Overhang wäre nur
+      // toter Weißraum unterm Pager. Siehe .detailMountMustEat.
+      className={`${styles.detailMount}${props.kind === 'mustEat' ? ` ${styles.detailMountMustEat}` : ''}`}
+    >
       {props.kind === 'mustEat' ? (
         <MustEatDetail
           mustEat={props.mustEat}

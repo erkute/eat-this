@@ -31,17 +31,18 @@ function readSafeAreaBottom(): number {
              (≈ halbe Höhe, User 2026-06-11). Handle + Card-Block +
              gemessener Name ([data-detail-hero] = .fdName). Die
              Card-Geometrie spiegelt .detailV13MustEat .fdHero in
-             map.module.css: clamp(180px, 36dvh, 340px) + 26px oben /
+             map.module.css: clamp(190px, 40dvh, 380px) + 22px oben /
              12px unten — zusammen ändern.
    - list: handle + listHeaderRow + filterChipRow = 120 */
 const DETAIL_PEEK_BASE_PX = 220
 const MUST_EAT_NAME_BASE_PX = 60
-const MUST_EAT_CARD_MARGINS_PX = 26 + 12
+const MUST_EAT_CARD_MARGINS_PX = 22 + 12
 const HANDLE_PX = 44
 
+/* Spiegelt .detailV13MustEat .fdHero: clamp(190px, 40dvh, 380px). */
 function mustEatCardPx(): number {
   if (typeof window === 'undefined') return 300
-  return Math.min(340, Math.max(180, window.innerHeight * 0.36))
+  return Math.min(380, Math.max(190, window.innerHeight * 0.40))
 }
 /* List peek = handle (~24) + filter chip row (padding 24+10 + chip ~24 ≈ 58)
    ≈ 82, plus a little buffer. After map-v2 the listHeaderRow is gone, so

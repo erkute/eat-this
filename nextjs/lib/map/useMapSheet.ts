@@ -21,11 +21,13 @@ function readSafeAreaBottom(): number {
 
 /* Base content heights (above any iOS safe-area). Per-view peek sizes
    reflect what's actually rendered at the top of the sheet:
-   - detail: handle (~24) + coral hero block. The hero height varies with
-             name wrap (1 vs 2 lines) so the actual size is measured at
-             runtime via a ResizeObserver on the [data-detail-hero] element
-             (see effect below). DETAIL_PEEK_BASE_PX is the fallback used
-             before the first measurement lands.
+   - detail: handle (~24) + the [data-detail-hero] block — beim Restaurant
+             der coral Hero, beim Must-Eat der Gerichtsname (die Card ist
+             am Peek-Snap ausgeblendet, siehe map.module.css). Die Höhe
+             variiert mit dem Umbruch (1 vs 2 Zeilen) und wird zur Laufzeit
+             per ResizeObserver gemessen (see effect below).
+             DETAIL_PEEK_BASE_PX is the fallback used before the first
+             measurement lands.
    - list: handle + listHeaderRow + filterChipRow = 120 */
 const DETAIL_PEEK_BASE_PX = 220
 const HANDLE_PX = 44
@@ -107,10 +109,10 @@ export function useMapSheet(onDetailDismiss?: () => void) {
     const attach = () => {
       const el = root.querySelector('[data-detail-hero]')
       if (!el) {
-        /* Detail ohne Hero-Block (Must-Eat-Detail) → statischer Peek-Fallback.
-           Ohne den Reset erbt das Must-Eat-Sheet beim Wechsel
-           Restaurant-Detail → Must-Eat die gemessene Hero-Höhe des
-           Restaurants und peekt je nach Herkunft unterschiedlich hoch. */
+        /* Detail-Inhalt (noch) ohne [data-detail-hero] → statischer
+           Peek-Fallback statt der zuletzt gemessenen Höhe des VORHERIGEN
+           Inhalts — sonst peekt das Sheet je nach Herkunft unterschiedlich
+           hoch (z. B. beim Wechsel Restaurant-Detail → Must-Eat). */
         if (observed) {
           ro?.disconnect()
           ro = null

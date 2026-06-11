@@ -79,6 +79,11 @@ export default function MustEatDetailMobile({
       role="dialog"
       aria-label={tMap('mustEatAtAria', { name: restaurantName })}
     >
+      {/* Nachbar-Bilder vorladen, damit beim Swipen die nächste Karte sofort
+          komplett dasteht statt nachzuladen (Card-Back der Locked-Karten ist
+          eh im Cache). React hoisted die link-Tags in den <head>. */}
+      {prevUnlocked && prevMustEat?.image && <link rel="preload" as="image" href={prevMustEat.image} />}
+      {nextUnlocked && nextMustEat?.image && <link rel="preload" as="image" href={nextMustEat.image} />}
       <div className={styles.detailV13Scroll} data-detail-scroll>
         <button
           type="button"
@@ -111,8 +116,11 @@ export default function MustEatDetailMobile({
 
         {/* Big punchy dish name. Locked: heavily blurred — present but
             unreadable (no stamp, User 2026-06-05). On reveal it slowly
-            sharpens into focus. Box is identical in both states → no pop. */}
-        <h1 className={styles.fdName} aria-label={nameRevealed ? undefined : t('mustEats.covered')}>
+            sharpens into focus. Box is identical in both states → no pop.
+            data-detail-hero: useMapSheet misst dieses Element für die
+            Peek-Höhe — am Peek-Snap ist die Card ausgeblendet und der Name
+            ist die sichtbare Peek-Leiste. */}
+        <h1 className={styles.fdName} data-detail-hero aria-label={nameRevealed ? undefined : t('mustEats.covered')}>
           <span
             className={`${styles.fdNameText}${!open ? ` ${styles.fdNameBlur}` : ''}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}
             aria-hidden={nameRevealed ? undefined : true}

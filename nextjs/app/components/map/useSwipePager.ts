@@ -41,6 +41,14 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
         el.style.transform = `translateX(${dx * 0.42}px)`
       }
     }
+    /* preventDefault on pointermove does NOT stop native scrolling — once a
+       slightly diagonal swipe accumulates vertical movement, iOS Safari
+       claims the gesture as a pan-y scroll and fires pointercancel, killing
+       the swipe midway. Only a non-passive touchmove preventDefault keeps
+       the gesture once we've locked the horizontal axis. */
+    const onTouchMove = (e: TouchEvent) => {
+      if (active && axis === 'h' && e.cancelable) e.preventDefault()
+    }
     const settle = () => {
       el.style.transition = 'transform .2s ease-out'
       el.style.transform = 'translateX(0)'
@@ -78,11 +86,13 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
     }
     el.addEventListener('pointerdown', onDown)
     el.addEventListener('pointermove', onMove, { passive: false })
+    el.addEventListener('touchmove', onTouchMove, { passive: false })
     el.addEventListener('pointerup', end)
     el.addEventListener('pointercancel', end)
     return () => {
       el.removeEventListener('pointerdown', onDown)
       el.removeEventListener('pointermove', onMove)
+      el.removeEventListener('touchmove', onTouchMove)
       el.removeEventListener('pointerup', end)
       el.removeEventListener('pointercancel', end)
     }

@@ -2774,9 +2774,13 @@ html[data-theme="dark"] .ctaPill {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Kein Nachbar in der Richtung → Pfeil + Slot komplett ausblenden statt
+   ausgegraut: ein sichtbarer Pfeil am Listenende suggeriert "da geht's
+   weiter" (User 2026-06-11). visibility statt display, damit das Grid
+   stabil bleibt und der verbleibende Nachbar nicht rüberrutscht. */
 .fdPagerPrev:disabled,
 .fdPagerNext:disabled {
-  opacity: 0.35;
+  visibility: hidden;
   cursor: default;
 }
 /* X close — sits top-right over the sheet, square sticker like the burger. */
@@ -2825,17 +2829,22 @@ html[data-theme="dark"] .ctaPill {
     padding-bottom: calc(max(env(safe-area-inset-bottom, 0px), 10px) + var(--map-bar-overhang, 0px));
   }
   .detailV13MustEat .fdHero {
-    flex: 1 1 0px;
-    min-height: 150px;
-    max-height: 330px;
+    /* Feste Höhe pro Gerät statt flex-grow — jede Karte ist exakt gleich
+       groß, egal wie lang Name/Beschreibung des jeweiligen Must Eats sind;
+       beim Blättern springt nichts (User 2026-06-11). Den Restraum schluckt
+       der Pager-Anker (margin-top: auto). */
+    flex: 0 0 auto;
+    height: clamp(170px, 34dvh, 330px);
     width: auto;
     max-width: min(60vw, 240px);
-    /* Luft über/unter der Card (User 2026-06-11) — feste Margins, die Card
-       selbst federt die Höhe über flex ab. */
     margin: 26px auto 12px;
   }
   .detailV13MustEat .fdName {
-    margin: 12px 14px 0;
+    /* padding statt margin: das Element trägt data-detail-hero und wird per
+       ResizeObserver für die Peek-Höhe gemessen (border-box) — die Abstände
+       müssen in die Messung einfließen. */
+    margin: 0;
+    padding: 12px 14px 6px;
     font-size: clamp(32px, 8.5vw, 44px);
   }
   .detailV13MustEat .fdText {
@@ -2854,6 +2863,19 @@ html[data-theme="dark"] .ctaPill {
   .detailV13MustEat .fdPager {
     margin: auto 0 0;
     padding: 14px 16px;
+  }
+  /* Peek-Snap: Die Card ausblenden, damit der GERICHTSNAME die sichtbare
+     Peek-Leiste füllt (User 2026-06-11) — der Name trägt data-detail-hero,
+     useMapSheet misst ihn und setzt die Peek-Höhe exakt auf Handle + Name.
+     :not(.listDragging): sobald der User das Sheet anfasst/hochzieht,
+     kommt die Card sofort wieder rein statt erst am Snap-Settle. */
+  .list[data-view="detail"][data-snap="peek"]:not(.listDragging) .detailV13MustEat .fdHero {
+    display: none;
+  }
+  /* Am Peek rückt der Name an die Oberkante, wo rechts der absolute
+     X-Button sitzt — Platz freihalten, damit lange Namen nicht drunterlaufen. */
+  .list[data-view="detail"][data-snap="peek"]:not(.listDragging) .detailV13MustEat .fdName {
+    padding-right: 58px;
   }
 }
 

@@ -47,31 +47,43 @@ export function prefetchRestaurantDetail(slug: string): void {
 }
 
 /** Lazy-loads the detail-only fields for a slug. Returns the cached object
- *  synchronously on repeat opens; null until the first fetch resolves. */
-export function useRestaurantDetail(slug: string | undefined): RestaurantMapDetail | null {
+ *  synchronously on repeat opens; `detail` is null until the first fetch
+ *  resolves. `loading` distinguishes "fetch in flight" (render a skeleton)
+ *  from "loaded but empty / failed" (render nothing). */
+export function useRestaurantDetail(slug: string | undefined): {
+  detail: RestaurantMapDetail | null
+  loading: boolean
+} {
   const [detail, setDetail] = useState<RestaurantMapDetail | null>(() =>
     slug ? cache.get(slug) ?? null : null,
   )
+  const [loading, setLoading] = useState(() => !!slug && !cache.has(slug))
 
   useEffect(() => {
     if (!slug) {
       setDetail(null)
+      setLoading(false)
       return
     }
     const cached = cache.get(slug)
     if (cached) {
       setDetail(cached)
+      setLoading(false)
       return
     }
     setDetail(null)
+    setLoading(true)
     let active = true
     void load(slug).then((d) => {
-      if (active) setDetail(d)
+      if (active) {
+        setDetail(d)
+        setLoading(false)
+      }
     })
     return () => {
       active = false
     }
   }, [slug])
 
-  return detail
+  return { detail, loading }
 }

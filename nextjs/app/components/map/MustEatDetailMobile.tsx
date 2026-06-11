@@ -78,12 +78,13 @@ export default function MustEatDetailMobile({
 
         {/* HERO — dish card (open) or card-back (locked, tap to reveal in range). */}
         {open ? (
-          <button type="button" className={styles.fdHero} onClick={handleCardZoom} aria-label={t('map.zoomCard')}>
+          <button type="button" className={styles.fdHero} data-detail-hero onClick={handleCardZoom} aria-label={t('map.zoomCard')}>
             <img src={mustEat.image} alt={mustEat.dish} />
           </button>
         ) : (
           <button
             type="button"
+            data-detail-hero
             className={`${styles.fdHero} ${styles.fdHeroLocked} ${canUnlock ? styles.mustEatCardCanUnlock : ''} ${tapping ? styles.mustEatCardTapping : ''}`}
             onClick={handleCardClick}
             aria-label={canUnlock ? t('map.revealHere') : t('map.tooFarToReveal')}

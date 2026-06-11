@@ -296,7 +296,7 @@ export default function RestaurantDetail({
 
         {/* PAGER — prev/next restaurant in the filtered list */}
         {(prevRestaurant || nextRestaurant) && (
-          <nav className={styles.rdPager} aria-label="Restaurant pager">
+          <nav className={styles.rdPager} data-detail-pager aria-label="Restaurant pager">
             <button type="button" className={styles.rdPagerBtn} disabled={!prevRestaurant} onClick={onPagePrev}>
               {prevRestaurant && (
                 <>

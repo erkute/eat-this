@@ -5,6 +5,7 @@ import { getOpenStatus } from '@/lib/map/openingHours'
 import { distanceKm, distanceLabel, type LatLng } from './geo'
 import type { OpeningHourSlot } from '@/lib/types'
 import type { Locale, SpotCandidate, ArticleResult } from './types'
+import { groqImageUrl } from '@/lib/sanity-image-presets'
 
 export interface SpotFilters {
   cuisine?: string
@@ -33,7 +34,7 @@ const SPOTS_PROJECTION = `{
   openingHours, // [{days, hours}] — open-now status computed in searchSpots
   lat, lng, // used to compute distance when the user shares their location
   "categorySlugs": categories[defined(@->_id)]->slug.current, // pack-teaser vote (server-internal)
-  "image": image.asset->url + "?w=120&h=120&fit=crop&auto=format&q=80"
+  "image": ${groqImageUrl('image', 'buddyThumb')}
 }`
 
 // Server runs in UTC; build a Date whose local accessors (getDay/getHours/…)

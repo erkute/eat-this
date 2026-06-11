@@ -3067,6 +3067,11 @@ html[data-theme="dark"] .btnPackPromoTag {
 @media (min-width: 1024px) {
   .heroName { font-size: 40px; line-height: 0.94; }
 
+  /* Desktop has no iOS URL bar, so the --map-bar-overhang apron (80px) would
+     just be dead white space below the last block (e.g. the booster banner).
+     Drop it from the detail scroll padding here; iOS keeps the apron. */
+  .detailV13Scroll { padding-bottom: 20px; }
+
   /* Must-Eat-Detail kompakter auf Desktop — Ziel: alles in den Viewport
      ohne internen Scroll. Schrumpfen Card-Strip + Lock-Block gezielt
      zusammen ohne dass die Komposition leer wirkt. */

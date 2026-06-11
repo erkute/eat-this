@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useBottomSheet, type SheetSnap } from './useBottomSheet'
+import { detailMidVisiblePx, estimateDetailMidVisiblePx } from './detailSnap'
 
 export type SheetView = 'list' | 'detail'
 
@@ -7,7 +8,7 @@ export type SheetView = 'list' | 'detail'
    indicator, 0 on Android / desktop) so the peek snap accounts for it.
    Without this, the bottom of the visible peek strip falls behind the
    home indicator and content there appears cut off. */
-function readSafeAreaBottom(): number {
+export function readSafeAreaBottom(): number {
   if (typeof document === 'undefined') return 0
   const probe = document.createElement('div')
   probe.style.cssText =
@@ -21,14 +22,14 @@ function readSafeAreaBottom(): number {
 
 /* Base content heights (above any iOS safe-area). Per-view peek sizes
    reflect what's actually rendered at the top of the sheet:
-   - detail: handle (~24) + coral hero block. The hero height varies with
-             name wrap (1 vs 2 lines) so the actual size is measured at
-             runtime via a ResizeObserver on the [data-detail-hero] element
-             (see effect below). DETAIL_PEEK_BASE_PX is the fallback used
-             before the first measurement lands.
+   - detail ("middle stage"): handle + hero photo + prev/next pager. Hero
+     and pager are measured at runtime via ResizeObservers on the
+     [data-detail-hero] / [data-detail-pager] elements (see effect below).
+     Before the first measurement lands, a viewport-width estimate
+     (estimateDetailMidVisiblePx) stands in so the sheet doesn't visibly
+     jump; DETAIL_PEEK_BASE_PX is only the SSR-safe last resort.
    - list: handle + listHeaderRow + filterChipRow = 120 */
 const DETAIL_PEEK_BASE_PX = 220
-const HANDLE_PX = 44
 /* List peek = handle (~24) + filter chip row (padding 24+10 + chip ~24 ≈ 58)
    ≈ 82, plus a little buffer. After map-v2 the listHeaderRow is gone, so
    the old 120 left empty sheet-bg between the chip row and the visible
@@ -52,18 +53,25 @@ export function useMapSheet(onDetailDismiss?: () => void) {
      the first config uses the static fallback; flips to the measured value
      once the ResizeObserver below fires. */
   const [detailHeroPx, setDetailHeroPx] = useState<number | null>(null)
+  /* Measured pager height — part of the detail middle stage. 0 when the
+     pager isn't rendered (single-result filter, or must-eat detail whose
+     pager is not tagged). */
+  const [detailPagerPx, setDetailPagerPx] = useState(0)
 
   /* Per-view config rebuilds whenever the measured hero height changes so the
      bottom-sheet's peek snap reflects the live content. iOS safe-area is read
      once at mount. */
   const viewConfig = useMemo(() => {
     const safeAreaBottom = readSafeAreaBottom()
-    /* +4 px buffer below the hero — just enough to keep fractional
-       sub-pixel rounding from clipping the last meta-row pixel, while
-       avoiding a visible band of the photo underneath. */
+    /* Middle stage = handle + hero + pager (+4px sub-pixel buffer, + safe
+       area) — the formula lives in detailSnap.ts. Pre-measurement the
+       viewport-width estimate stands in (assumes a pager; the measurement
+       corrects within a frame of the detail mounting). */
     const detailPeek = detailHeroPx != null
-      ? HANDLE_PX + detailHeroPx + 4 + safeAreaBottom
-      : DETAIL_PEEK_BASE_PX + safeAreaBottom
+      ? detailMidVisiblePx(detailHeroPx, detailPagerPx, safeAreaBottom)
+      : typeof window !== 'undefined'
+        ? estimateDetailMidVisiblePx(window.innerWidth, true, safeAreaBottom)
+        : DETAIL_PEEK_BASE_PX + safeAreaBottom
     const detailSnaps: SheetSnap[] = ['full', 'peek']
     return {
       // Detail: TWO anchors — 'full' at the top (minimal map strip) and 'peek'
@@ -75,7 +83,7 @@ export function useMapSheet(onDetailDismiss?: () => void) {
       detail: { maxSnap: null, snaps: detailSnaps, dragMode: 'all' as const, peekVisiblePx: detailPeek, onDismiss: onDetailDismiss },
       list:   { maxSnap: null, snaps: undefined, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX + safeAreaBottom, onDismiss: undefined },
     }
-  }, [detailHeroPx, onDetailDismiss])
+  }, [detailHeroPx, detailPagerPx, onDetailDismiss])
 
   const sheetElRef = useRef<HTMLDivElement | null>(null)
   const sheetRef = sheet.sheetRef
@@ -97,43 +105,70 @@ export function useMapSheet(onDetailDismiss?: () => void) {
   useEffect(() => {
     if (sheetView !== 'detail') {
       setDetailHeroPx(null)
+      setDetailPagerPx(0)
       return
     }
     const root = sheetElRef.current
     if (!root || typeof ResizeObserver === 'undefined') return
 
-    let observed: Element | null = null
-    let ro: ResizeObserver | null = null
+    let observedHero: Element | null = null
+    let observedPager: Element | null = null
+    let roHero: ResizeObserver | null = null
+    let roPager: ResizeObserver | null = null
+
+    /* borderBoxSize includes padding so the measurement matches what's
+       actually rendered; contentRect is content-box and would under-measure
+       — enough to clip the bottom row at the middle stage. Fallback to
+       getBoundingClientRect for older browsers without borderBoxSize. */
+    const readHeight = (entry: ResizeObserverEntry | undefined): number | null => {
+      const h = entry?.borderBoxSize?.[0]?.blockSize
+        ?? entry?.target?.getBoundingClientRect()?.height
+      return typeof h === 'number' && h > 0 ? Math.ceil(h) : null
+    }
+
     const attach = () => {
-      const el = root.querySelector('[data-detail-hero]')
-      if (!el || el === observed) return
-      if (ro) ro.disconnect()
-      observed = el
-      ro = new ResizeObserver(entries => {
-        /* borderBoxSize includes the hero's padding (14px top/bottom) so
-           the measurement matches what's actually rendered. contentRect
-           is content-box and would under-measure by ~28px — enough to
-           clip the meta-line (district/category/price) at peek. Fallback
-           to getBoundingClientRect for older browsers without
-           borderBoxSize. */
-        const entry = entries[0]
-        const h = entry?.borderBoxSize?.[0]?.blockSize
-          ?? entry?.target?.getBoundingClientRect()?.height
-        if (typeof h === 'number' && h > 0) setDetailHeroPx(Math.ceil(h))
-      })
-      ro.observe(el)
+      const heroEl = root.querySelector('[data-detail-hero]')
+      if (heroEl && heroEl !== observedHero) {
+        if (roHero) roHero.disconnect()
+        observedHero = heroEl
+        roHero = new ResizeObserver(entries => {
+          const h = readHeight(entries[0])
+          if (h != null) setDetailHeroPx(h)
+        })
+        roHero.observe(heroEl)
+      }
+
+      const pagerEl = root.querySelector('[data-detail-pager]')
+      if (!pagerEl) {
+        /* Pager unmounted (single-result filter, must-eat detail) → the
+           middle stage degrades to photo-only. */
+        if (observedPager) { roPager?.disconnect(); roPager = null; observedPager = null }
+        setDetailPagerPx(0)
+      } else if (pagerEl !== observedPager) {
+        if (roPager) roPager.disconnect()
+        observedPager = pagerEl
+        roPager = new ResizeObserver(entries => {
+          const h = readHeight(entries[0])
+          if (h != null) setDetailPagerPx(h)
+        })
+        roPager.observe(pagerEl)
+      }
     }
     attach()
-    /* The hero element is conditionally rendered (per restaurant change). A
-       MutationObserver on the sheet root re-attaches whenever the DOM swaps. */
+    /* The hero/pager elements are conditionally rendered (per restaurant
+       change). A MutationObserver on the sheet root re-attaches whenever
+       the DOM swaps. */
     const mo = new MutationObserver(attach)
     mo.observe(root, { childList: true, subtree: true })
 
     return () => {
       mo.disconnect()
-      ro?.disconnect()
-      observed = null
-      ro = null
+      roHero?.disconnect()
+      roPager?.disconnect()
+      observedHero = null
+      observedPager = null
+      roHero = null
+      roPager = null
     }
   }, [sheetView])
 

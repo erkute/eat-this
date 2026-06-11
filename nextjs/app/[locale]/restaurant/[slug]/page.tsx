@@ -8,7 +8,7 @@ import { buildRestaurantJsonLd } from '@/lib/json-ld'
 import { buildRestaurantTitle, truncateAtSentence } from '@/lib/seo/restaurantMeta'
 import { siblingWindow } from '@/lib/seo/siblingWindow'
 import { SITE_URL } from '@/lib/constants'
-import { localeUrl } from '@/lib/locale-url'
+import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import { routing } from '@/i18n/routing'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
 import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaurantDetail.helpers'
@@ -70,32 +70,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // which previews far stronger on social than the bare photo did.
   const ogImage = `${SITE_URL}/api/og/restaurant?slug=${slug}`
 
-  const hasEn = hasEnContent(r)
-  const canonical = hasEn
-    ? localeUrl(loc, `/restaurant/${slug}`)
-    : localeUrl('de', `/restaurant/${slug}`)
-
-  const languages: Record<string, string> = {
-    de: localeUrl('de', `/restaurant/${slug}`),
-    'x-default': localeUrl('de', `/restaurant/${slug}`),
-  }
-  if (hasEn) languages.en = localeUrl('en', `/restaurant/${slug}`)
+  const alternates = buildHreflangAlternates(`/restaurant/${slug}`, loc, { hasEnContent: hasEnContent(r) })
 
   return {
     title: curatedTitle ?? { absolute: builtTitle },
     description,
     robots: r.seo?.noIndex ? 'noindex,nofollow' : undefined,
-    alternates: {
-      canonical,
-      languages,
-    },
+    alternates,
     openGraph: {
       title,
       description,
-      url: canonical,
+      url: alternates.canonical,
       images: [{ url: ogImage, width: 1200, height: 630, alt: r.name }],
       type: 'website',
-      locale: loc === 'de' ? 'de_DE' : 'en_US',
+      locale: toOgLocale(loc),
     },
     twitter: {
       card: 'summary_large_image',

@@ -4,6 +4,7 @@ import { setRequestLocale } from 'next-intl/server'
 import { getAllBezirkeWithStats } from '@/lib/sanity.server'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { localeUrl } from '@/lib/locale-url'
+import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import styles from './Bezirk.module.css'
 
 interface PageProps {
@@ -19,24 +20,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = de
     ? 'Kuratierte Restaurant-Empfehlungen für jeden Berliner Bezirk — Mitte, Kreuzberg, Prenzlauer Berg, Neukölln, Schöneberg und mehr.'
     : "Curated restaurant picks for every Berlin district — Mitte, Kreuzberg, Prenzlauer Berg, Neukölln, Schöneberg, and beyond."
-  const canonical = localeUrl(locale, '/bezirk')
+  const alternates = buildHreflangAlternates('/bezirk', de ? 'de' : 'en')
   return {
     title,
     description,
-    alternates: {
-      canonical,
-      languages: {
-        de: localeUrl('de', '/bezirk'),
-        en: localeUrl('en', '/bezirk'),
-        'x-default': localeUrl('de', '/bezirk'),
-      },
-    },
+    alternates,
     openGraph: {
       title,
       description,
-      url: canonical,
+      url: alternates.canonical,
       type: 'website',
-      locale: de ? 'de_DE' : 'en_US',
+      locale: toOgLocale(de ? 'de' : 'en'),
     },
   }
 }

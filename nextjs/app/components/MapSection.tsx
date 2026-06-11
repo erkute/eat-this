@@ -19,6 +19,7 @@ import { useTranslation } from '@/lib/i18n'
 import MapSectionBody from './map/MapSectionBody'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import { resolveAdjacent } from '@/lib/map/pager'
+import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail'
 import { auth, getDb } from '@/lib/firebase/config'
 import { onAuthStateChanged } from 'firebase/auth'
 
@@ -262,6 +263,9 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
 
   const handleRestaurantClick = useCallback((r: MapRestaurant) => {
     userInteractedRef.current = true
+    // Kick off the detail-field fetch now so it's usually cached by the time
+    // the sheet finishes opening (the map payload no longer carries them).
+    prefetchRestaurantDetail(r.slug)
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
     // Capture the list scroll *before* the view switches and the content
     // element unmounts — useLayoutEffect on return restores it.
@@ -357,7 +361,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     if (selectedRestaurant) {
       setSelectedRestaurant(null)
       setSelectedMustEat(m)
-      setSheetView('detail')
+      setSheetView('detail', 'mustEat')
       // Must-Eat-Detail Mobile = viewport-füllend → immer full snap.
       if (isMobile) setSnap('full')
       mapRef.current?.flyTo({
@@ -371,7 +375,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     const isLocked = !unlockedIds.has(m._id)
     const open = () => {
       setSelectedMustEat(m)
-      setSheetView('detail')
+      setSheetView('detail', 'mustEat')
       // Must-Eat-Detail Mobile = viewport-füllend → immer full snap.
       if (isMobile) setSnap('full')
       mapRef.current?.flyTo({ center: [m.restaurant.lng, m.restaurant.lat], zoom: 15, duration: 500, padding: getFlyPadding(isMobile ? 'full' : undefined) })

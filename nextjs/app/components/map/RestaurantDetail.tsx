@@ -1,5 +1,6 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import { useRestaurantDetail } from '@/lib/map/useRestaurantDetail'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import {
   abbreviateBezirk,
@@ -20,6 +21,7 @@ import {
   splitStatusLabel,
 } from './restaurantDetail.helpers'
 import { normalizeName } from '@/lib/normalizeName'
+import { useSwipePager } from './useSwipePager'
 
 function MustEatMiniCard({
   mustEat,
@@ -86,83 +88,26 @@ export default function RestaurantDetail({
   const locale = useLocale()
   const [shareDone, setShareDone] = useState(false)
   const scrollWrapRef = useRef<HTMLDivElement>(null)
-  const onPagePrevRef = useRef(onPagePrev); onPagePrevRef.current = onPagePrev
-  const onPageNextRef = useRef(onPageNext); onPageNextRef.current = onPageNext
 
-  // Swipe left → next, right → prev. Axis-locked so it never fights the
-  // vertical sheet-drag / content scroll: the first significant move decides
-  // the axis; only a clearly-horizontal gesture pages (and preventDefault's).
-  // Touch-only — mouse drags bail (desktop uses the pager arrows). No opacity
-  // fades (project rule): the page transition is a translate.
-  useEffect(() => {
-    const el = scrollWrapRef.current
-    if (!el) return
-    let startX = 0, startY = 0, axis: 'h' | 'v' | null = null, active = false
-    const onDown = (e: PointerEvent) => {
-      if (e.pointerType === 'mouse') return
-      startX = e.clientX; startY = e.clientY; axis = null; active = true
-    }
-    const onMove = (e: PointerEvent) => {
-      if (!active) return
-      const dx = e.clientX - startX, dy = e.clientY - startY
-      if (axis === null) {
-        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
-        axis = Math.abs(dx) > Math.abs(dy) + 6 ? 'h' : 'v'
-      }
-      if (axis === 'h') {
-        e.preventDefault()
-        // Light resistance so the empty sheet beside the pane barely shows.
-        el.style.transform = `translateX(${dx * 0.42}px)`
-      }
-    }
-    const settle = () => {
-      el.style.transition = 'transform .2s ease-out'
-      el.style.transform = 'translateX(0)'
-      window.setTimeout(() => { el.style.transition = ''; el.style.transform = '' }, 220)
-    }
-    const end = (e: PointerEvent) => {
-      if (!active) return
-      const dx = e.clientX - startX
-      const wasH = axis === 'h'
-      active = false
-      axis = null
-      if (wasH && Math.abs(dx) > 60) {
-        // Instagram-style page: current pane slides out, the new one slides
-        // in from the opposite edge (translate only — no opacity fade).
-        const dir: 'next' | 'prev' = dx < 0 ? 'next' : 'prev'
-        const w = el.clientWidth
-        const outX = dir === 'next' ? -w : w
-        el.style.transition = 'transform .17s ease-out'
-        el.style.transform = `translateX(${outX}px)`
-        window.setTimeout(() => {
-          if (dir === 'next') onPageNextRef.current?.()
-          else onPagePrevRef.current?.()
-          // Place the freshly-swapped content on the opposite edge, then in.
-          el.style.transition = 'none'
-          el.style.transform = `translateX(${-outX}px)`
-          void el.offsetWidth // force reflow so the next transition animates
-          el.style.transition = 'transform .2s ease-out'
-          el.style.transform = 'translateX(0)'
-          window.setTimeout(() => { el.style.transition = ''; el.style.transform = '' }, 220)
-        }, 170)
-      } else {
-        settle()
-      }
-    }
-    el.addEventListener('pointerdown', onDown)
-    el.addEventListener('pointermove', onMove, { passive: false })
-    el.addEventListener('pointerup', end)
-    el.addEventListener('pointercancel', end)
-    return () => {
-      el.removeEventListener('pointerdown', onDown)
-      el.removeEventListener('pointermove', onMove)
-      el.removeEventListener('pointerup', end)
-      el.removeEventListener('pointercancel', end)
-    }
-  }, [])
+  // The map list payload is now trimmed to hero/list fields; the editorial +
+  // contact fields (address, phone, tip, description, …) load on demand when
+  // the sheet opens and merge over the list object. Cached per slug, so paging
+  // back or re-opening is instant. `r` is the merged view used for rendering.
+  const detail = useRestaurantDetail(restaurant.slug)
+  const r = useMemo(
+    () => (detail ? { ...restaurant, ...detail } : restaurant),
+    [restaurant, detail],
+  )
 
-  const status = restaurant.openingHours
-    ? getOpenStatus(restaurant.openingHours, new Date(), {
+  useSwipePager(scrollWrapRef, {
+    onPrev: onPagePrev,
+    onNext: onPageNext,
+    hasPrev: !!prevRestaurant,
+    hasNext: !!nextRestaurant,
+  })
+
+  const status = r.openingHours
+    ? getOpenStatus(r.openingHours, new Date(), {
         open: t('map.open'),
         closed: t('map.closed'),
         opens: t('map.opens'),
@@ -172,7 +117,7 @@ export default function RestaurantDetail({
       })
     : { isOpen: false, label: '', minutesUntilChange: null }
   const { sub: statusSub } = splitStatusLabel(status.label)
-  const hasHours = !!(restaurant.openingHours && restaurant.openingHours.length > 0)
+  const hasHours = !!(r.openingHours && r.openingHours.length > 0)
   const closeTime = status.isOpen ? (statusSub.match(/(\d{1,2}:\d{2})/)?.[1] ?? null) : null
   const openTag = status.isOpen
     ? (closeTime ? `${t('map.open')} bis ${closeTime}` : t('map.open'))
@@ -180,26 +125,26 @@ export default function RestaurantDetail({
 
   // Scale the hero name down for long single words so they fit on one line
   // (no ugly mid-word break). Upper bound ≈ heroWidth / (longestWord · 0.62).
-  const displayName = normalizeName(restaurant.name)
+  const displayName = normalizeName(r.name)
   const longestWord = displayName.split(/\s+/).reduce((m, w) => Math.max(m, w.length), 0)
   const nameMaxPx = Math.max(26, Math.min(56, Math.round(360 / (Math.max(longestWord, 1) * 0.62))))
 
-  const district = abbreviateBezirk(restaurant.bezirk?.name ?? restaurant.district ?? null)
+  const district = abbreviateBezirk(r.bezirk?.name ?? r.district ?? null)
 
   const meters = userLocation
-    ? haversineDistance(userLocation.lat, userLocation.lng, restaurant.lat, restaurant.lng)
+    ? haversineDistance(userLocation.lat, userLocation.lng, r.lat, r.lng)
     : null
   const walkingTime = meters !== null ? formatWalkingTime(meters) : null
 
-  const priceLabel = formatPriceLabel(restaurant)
-  const cuisine = restaurant.cuisineType ?? null
+  const priceLabel = formatPriceLabel(r)
+  const cuisine = r.cuisineType ?? null
 
-  const websiteInfo = classifyWebsite(restaurant.website)
+  const websiteInfo = classifyWebsite(r.website)
   let igHandle: string | null = null
   let igUrl: string | null = null
-  if (restaurant.instagramHandle) {
-    igHandle = restaurant.instagramHandle
-    igUrl = `https://instagram.com/${restaurant.instagramHandle}`
+  if (r.instagramHandle) {
+    igHandle = r.instagramHandle
+    igUrl = `https://instagram.com/${r.instagramHandle}`
   } else if (websiteInfo?.kind === 'instagram') {
     igHandle = websiteInfo.handle
     igUrl = websiteInfo.url
@@ -207,15 +152,15 @@ export default function RestaurantDetail({
 
   // Single Maps button (mockup). Prefer a name+address Google search — it
   // always resolves to a result — over a possibly-stale curated mapsUrl.
-  const mapsHref = restaurant.address
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${restaurant.name}, ${restaurant.address}`)}`
-    : (restaurant.mapsUrl ?? null)
+  const mapsHref = r.address
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.name}, ${r.address}`)}`
+    : (r.mapsUrl ?? null)
 
   // Split a single-line address ("Street 1, 10119 Berlin, Deutschland") into
   // street on line 1 and PLZ + city on line 2; drop the country.
-  const addressLines = restaurant.address
+  const addressLines = r.address
     ? (() => {
-        const parts = restaurant.address
+        const parts = r.address
           .split(',')
           .map((p) => p.trim())
           .filter((p) => p && !/^(deutschland|germany)$/i.test(p))
@@ -224,15 +169,15 @@ export default function RestaurantDetail({
       })()
     : null
 
-  const storyText = restaurant.description ?? restaurant.shortDescription ?? ''
+  const storyText = r.description ?? r.shortDescription ?? ''
   const hasStory = !!storyText
-  const hasTipp = !!restaurant.tip
+  const hasTipp = !!r.tip
 
   // Detect booking provider from host for the OpenTable lockup.
   let reservationProvider: string | null = null
-  if (restaurant.reservationUrl) {
+  if (r.reservationUrl) {
     try {
-      const host = new URL(restaurant.reservationUrl).hostname.toLowerCase()
+      const host = new URL(r.reservationUrl).hostname.toLowerCase()
       if (host.includes('opentable')) reservationProvider = 'OpenTable'
       else if (host.includes('resy.com')) reservationProvider = 'Resy'
       else if (host.includes('thefork')) reservationProvider = 'TheFork'
@@ -252,14 +197,14 @@ export default function RestaurantDetail({
     : (locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
 
   return (
-    <div className={styles.detailV13} role="dialog" aria-label={restaurant.name}>
+    <div className={styles.detailV13} role="dialog" aria-label={r.name}>
       <div className={styles.detailV13Scroll} data-detail-scroll ref={scrollWrapRef}>
 
         {/* HERO — full-bleed photo, back-to-list pill, save bookmark, name. */}
         <header
           className={styles.rdHero}
           data-detail-hero
-          style={restaurant.photo ? { backgroundImage: `url(${restaurant.photo})` } : undefined}
+          style={r.photo ? { backgroundImage: `url(${r.photo})` } : undefined}
         >
           <div className={styles.rdHeroActions}>
             {onToggleFavorite && (
@@ -285,11 +230,11 @@ export default function RestaurantDetail({
               {hasHours && <span className={styles.rdTagAlt}>{openTag}</span>}
             </div>
           </div>
-          {restaurant.photoCredit && (
+          {r.photoCredit && (
             <span className={styles.rdCredit}>
-              {restaurant.photoCreditUrl
-                ? <a href={restaurant.photoCreditUrl} target="_blank" rel="noopener noreferrer">{restaurant.photoCredit}</a>
-                : restaurant.photoCredit}
+              {r.photoCreditUrl
+                ? <a href={r.photoCreditUrl} target="_blank" rel="noopener noreferrer">{r.photoCredit}</a>
+                : r.photoCredit}
             </span>
           )}
         </header>
@@ -331,7 +276,7 @@ export default function RestaurantDetail({
         {hasTipp && (
           <div className={styles.rdTipp}>
             <span className={styles.rdTippLabel}>{t('map.insiderTip')}</span>
-            <p className={styles.rdTippText}>{restaurant.tip}</p>
+            <p className={styles.rdTippText}>{r.tip}</p>
           </div>
         )}
 
@@ -376,7 +321,7 @@ export default function RestaurantDetail({
             <div className={styles.rdRow}>
               <span className={styles.rdK}>{t('map.openingHours')}</span>
               <div className={`${styles.rdV} ${styles.rdHours}`}>
-                {restaurant.openingHours!.map((slot, i) => (
+                {r.openingHours!.map((slot, i) => (
                   <div key={i} style={{ display: 'contents' }}>
                     <span className={styles.rdHoursD}>{slot.days}</span>
                     <span className={styles.rdHoursT}>{slot.hours}</span>
@@ -391,10 +336,10 @@ export default function RestaurantDetail({
               <span className={styles.rdV}>{priceLabel}</span>
             </div>
           )}
-          {restaurant.phone && (
+          {r.phone && (
             <div className={styles.rdRow}>
               <span className={styles.rdK}>{t('map.phone')}</span>
-              <span className={styles.rdV}><a href={`tel:${restaurant.phone.replace(/\s+/g, '')}`}>{restaurant.phone}</a></span>
+              <span className={styles.rdV}><a href={`tel:${r.phone.replace(/\s+/g, '')}`}>{r.phone}</a></span>
             </div>
           )}
           {websiteInfo?.kind === 'web' && (
@@ -427,7 +372,7 @@ export default function RestaurantDetail({
             className={styles.rdActBtn}
             onClick={async () => {
               const url = typeof window !== 'undefined' ? window.location.href : ''
-              const shareData = { title: restaurant.name, text: restaurant.name, url }
+              const shareData = { title: r.name, text: r.name, url }
               // Native share sheet only on touch devices (mobile). Desktop
               // Chrome exposes navigator.share but it's a poor fit there — so
               // desktop always copies the link and shows a confirmation.
@@ -459,10 +404,10 @@ export default function RestaurantDetail({
         </div>
 
         {/* RESERVIEREN — kept */}
-        {restaurant.reservationUrl && (
+        {r.reservationUrl && (
           <section className={styles.actions}>
             <a
-              href={restaurant.reservationUrl}
+              href={r.reservationUrl}
               target="_blank"
               rel="noopener noreferrer"
               className={styles.btnPrimary}
@@ -476,7 +421,7 @@ export default function RestaurantDetail({
             {reservationProvider === 'OpenTable' && (
               <div className={styles.ctaFoot}>
                 <a
-                  href={restaurant.reservationUrl}
+                  href={r.reservationUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={styles.opentableLockup}

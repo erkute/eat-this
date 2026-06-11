@@ -18,12 +18,17 @@
 }
 
 /* ── Hero photo ── */
-.hero {
+/* Positioned box for the fill-mode hero <Image>; keeps the 4:3 frame the
+   raw <img> used to define on itself. */
+.heroWrap {
+  position: relative;
   display: block;
   width: 100%;
   aspect-ratio: 4 / 3;
-  object-fit: cover;
   background-color: #14100c;
+}
+.hero {
+  object-fit: cover;
 }
 
 /* ── Byline + title + lede ── */

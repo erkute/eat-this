@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Image from 'next/image';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
@@ -224,8 +225,9 @@ export default function SearchOverlay() {
                     onClick={() => goNews(a.slug)}
                   >
                     {a.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={a.imageUrl} alt={title} className={styles.thumb} loading="lazy" />
+                      // Rendered at 48px — the loader builds a 48/96px srcset
+                      // instead of shipping the GROQ projection's w=800 file.
+                      <Image src={a.imageUrl} alt={title} width={48} height={48} sizes="48px" className={styles.thumb} loading="lazy" />
                     ) : (
                       <div className={styles.thumbPlaceholder} aria-hidden="true">📰</div>
                     )}
@@ -255,8 +257,7 @@ export default function SearchOverlay() {
                     onClick={() => goRestaurant(r.slug)}
                   >
                     {r.photo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={r.photo} alt={r.name} className={styles.thumb} loading="lazy" />
+                      <Image src={r.photo} alt={r.name} width={48} height={48} sizes="48px" className={styles.thumb} loading="lazy" />
                     ) : (
                       <div className={styles.thumbPlaceholder} aria-hidden="true">🍽</div>
                     )}

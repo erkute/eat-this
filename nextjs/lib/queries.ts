@@ -1,3 +1,4 @@
+import { groqImageUrl } from './sanity-image-presets'
 // Category projection — only resolves reference entries; legacy string entries
 // (left over from before the migration) are dropped. GROQ's object projection
 // `{...}` returns null for primitive array elements, so a unified dual-shape
@@ -38,7 +39,7 @@ export const restaurantBySlugQuery = `
     tipEn,
     description,
     descriptionEn,
-    "photo": image.asset->url + "?w=1200&auto=format&q=85",
+    "photo": ${groqImageUrl('image', 'detailHero')},
     "photoCredit": image.credit,
     "photoCreditUrl": image.creditUrl,
     seo {
@@ -71,12 +72,12 @@ const articleContentProjection = `{
       "dish": mustEatRef->dish,
       "dishDescription": mustEatRef->description,
       "dishDescriptionEn": mustEatRef->descriptionEn,
-      "dishImage": mustEatRef->image.asset->url + "?w=400&auto=format&q=80",
+      "dishImage": ${groqImageUrl('mustEatRef->image', 'articleDish')},
       "restaurantName": mustEatRef->restaurantRef->name,
       "restaurantSlug": mustEatRef->restaurantRef->slug.current,
       "district": coalesce(mustEatRef->restaurantRef->district, mustEatRef->restaurantRef->bezirkRef->name, mustEatRef->district),
       "cuisineType": mustEatRef->restaurantRef->cuisineType,
-      "restaurantPhoto": mustEatRef->restaurantRef->image.asset->url + "?w=500&auto=format&q=75"
+      "restaurantPhoto": ${groqImageUrl('mustEatRef->restaurantRef->image', 'articleDishRestaurant')}
     },
     _type == "spotCard" => {
       _type,
@@ -85,7 +86,7 @@ const articleContentProjection = `{
       "restaurantSlug": restaurantRef->slug.current,
       "district": coalesce(restaurantRef->district, restaurantRef->bezirkRef->name),
       "cuisineType": restaurantRef->cuisineType,
-      "restaurantPhoto": restaurantRef->image.asset->url + "?w=800&auto=format&q=80"
+      "restaurantPhoto": ${groqImageUrl('restaurantRef->image', 'card')}
     }
   }`
 
@@ -98,7 +99,7 @@ export const articleBySlugQuery = `
     category,
     categoryLabel, categoryLabelDe,
     date,
-    "imageUrl": image.asset->url + "?w=1200&auto=format&q=85",
+    "imageUrl": ${groqImageUrl('image', 'detailHero')},
     "alt": coalesce(image.alt, alt),
     excerpt, excerptDe,
     content[] ${articleContentProjection},
@@ -135,7 +136,7 @@ export const restaurantsByBezirkQuery = `
     lng,
     tip,
     tipEn,
-    "photo": image.asset->url + "?w=800&auto=format&q=80"
+    "photo": ${groqImageUrl('image', 'card')}
   }
 `
 
@@ -161,7 +162,7 @@ export const restaurantsByCategoryQuery = `
     lng,
     tip,
     tipEn,
-    "photo": image.asset->url + "?w=800&auto=format&q=80"
+    "photo": ${groqImageUrl('image', 'card')}
   }
 `
 
@@ -210,7 +211,7 @@ export const allBezirkeWithStatsQuery = `
     name,
     "slug": slug.current,
     description,
-    "imageUrl": image.asset->url + "?w=800&auto=format&q=80",
+    "imageUrl": ${groqImageUrl('image', 'card')},
     "restaurantCount": count(*[_type == "restaurant" && bezirkRef._ref == ^._id && isOpen != false])
   }
 `
@@ -223,7 +224,7 @@ export const bezirkBySlugQuery = `
     "slug": slug.current,
     description,
     descriptionEn,
-    "imageUrl": image.asset->url + "?w=1600&auto=format&q=85",
+    "imageUrl": ${groqImageUrl('image', 'bezirkHero')},
     seo {
       metaTitle,
       metaTitleEn,
@@ -271,7 +272,7 @@ export const allNewsArticlesQuery = `
     category,
     categoryLabel, categoryLabelDe,
     date,
-    "imageUrl": image.asset->url + "?w=800&auto=format&q=80",
+    "imageUrl": ${groqImageUrl('image', 'card')},
     "alt": coalesce(image.alt, alt),
     excerpt, excerptDe,
     "author": author->{ name, "slug": slug.current, "photo": image.asset->url }
@@ -288,7 +289,7 @@ export const latestNewsArticlesQuery = `
     date,
     excerpt, excerptDe,
     categoryLabel, categoryLabelDe,
-    "imageUrl": image.asset->url + "?w=800&auto=format&q=80"
+    "imageUrl": ${groqImageUrl('image', 'card')}
   }
 `
 

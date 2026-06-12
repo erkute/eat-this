@@ -6,6 +6,15 @@
  */
 import Anthropic from '@anthropic-ai/sdk'
 
+/** Thrown when Haiku judging can't run at all (no credits / bad auth). Batch
+ *  callers should abort rather than write un-judged fallback galleries. */
+export class HaikuUnavailableError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'HaikuUnavailableError'
+  }
+}
+
 export interface PhotoJudgment {
   index: number
   category: 'food' | 'interior' | 'exterior' | 'drink' | 'menu' | 'unusable'
@@ -13,36 +22,54 @@ export interface PhotoJudgment {
 }
 
 const MAX_GALLERY = 4
-const SCORE_THRESHOLD = 6
-const FALLBACK_COUNT = 3
+// Product rule: galleries show only plated food and interior atmosphere.
+// Drinks, menu cards, exterior/building shots and unusable photos are dropped.
+const KEEP_CATEGORIES = new Set<PhotoJudgment['category']>(['food', 'interior'])
 
-/** Returns candidate indexes to keep, best first. `judgments === null`
- *  (scoring unavailable) falls back to the first 3 candidates unscored. */
+const normName = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '')
+
+/** Owner-uploaded Places photos carry the business name as their author
+ *  attribution (e.g. "Foto: 136 Berlin Restaurant"); guest photos carry a
+ *  person's name. We prefer owner photos — they're the on-brand, professional
+ *  ones — so flag them here. Match when the (normalised) display name CONTAINS
+ *  the restaurant name; require ≥4 chars so a very short name can't false-match
+ *  a guest who happens to share those letters. */
+export function isOwnerPhoto(displayName: string | null | undefined, restaurantName: string): boolean {
+  if (!displayName) return false
+  const dn = normName(displayName)
+  const rn = normName(restaurantName)
+  if (rn.length < 4) return dn === rn
+  return dn.includes(rn)
+}
+
+/** Picks up to 4 gallery candidate indexes from Haiku judgments. Rules:
+ *   - keep only food + interior categories (KEEP_CATEGORIES)
+ *   - owner photos first, then the best-scored guest photos
+ *   - fill to 4 even with weaker guest photos (no score floor); if fewer than
+ *     4 food/interior photos exist at all, return fewer.
+ *  `owners[i]` flags whether candidate i is an owner photo. `judgments === null`
+ *  (Haiku unavailable) can't categorise, so it falls back to owner-first in the
+ *  candidates' original order. */
 export function selectGalleryPhotos(
   judgments: PhotoJudgment[] | null,
+  owners: boolean[],
   candidateCount: number,
 ): number[] {
+  const ownerRank = (i: number) => (owners[i] ? 0 : 1)
   if (judgments === null) {
-    return Array.from({ length: Math.min(FALLBACK_COUNT, candidateCount) }, (_, i) => i)
+    const idx = Array.from({ length: candidateCount }, (_, i) => i)
+    idx.sort((a, b) => ownerRank(a) - ownerRank(b)) // stable sort: owners first, else original order
+    return idx.slice(0, MAX_GALLERY)
   }
-  const usable = judgments.filter(
-    (jd) =>
-      jd.category !== 'unusable' &&
-      jd.score >= SCORE_THRESHOLD &&
-      jd.index >= 0 &&
-      jd.index < candidateCount,
+  const eligible = judgments.filter(
+    (jd) => KEEP_CATEGORIES.has(jd.category) && jd.index >= 0 && jd.index < candidateCount,
   )
-  const sorted = [...usable].sort((a, b) => b.score - a.score)
-  const picked: PhotoJudgment[] = []
-  // A food shot sells a restaurant better than three interiors — always keep
-  // the best usable one, even if other categories out-score it.
-  const bestFood = sorted.find((jd) => jd.category === 'food')
-  if (bestFood) picked.push(bestFood)
-  for (const jd of sorted) {
-    if (picked.length >= MAX_GALLERY) break
-    if (!picked.includes(jd)) picked.push(jd)
-  }
-  return picked.slice(0, MAX_GALLERY).map((jd) => jd.index)
+  eligible.sort((a, b) => {
+    const r = ownerRank(a.index) - ownerRank(b.index)
+    if (r !== 0) return r        // owner photos before guest photos
+    return b.score - a.score     // then best-scored first
+  })
+  return eligible.slice(0, MAX_GALLERY).map((jd) => jd.index)
 }
 
 /** German alt-text label per category, used for gallery image alt fields. */
@@ -135,7 +162,16 @@ export async function judgePhotos(
       .join('')
     return parseJudgments(text, images.length)
   } catch (err) {
-    console.warn(`  photo judging failed: ${(err as Error).message} — falling back to unscored`)
+    const status = (err as { status?: number })?.status
+    const msg = err instanceof Error ? err.message : String(err)
+    // Credit exhaustion / auth failures are persistent — every later call
+    // fails too. Surface them so a batch run aborts instead of silently
+    // writing un-judged (category-unfiltered) fallback galleries over good
+    // ones. Transient errors still fall back to unscored for single imports.
+    if (status === 401 || status === 403 || (status === 400 && /credit balance|billing|quota/i.test(msg))) {
+      throw new HaikuUnavailableError(msg)
+    }
+    console.warn(`  photo judging failed: ${msg} — falling back to unscored`)
     return null
   }
 }

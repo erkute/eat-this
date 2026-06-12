@@ -28,6 +28,8 @@ export const IMAGE_PRESETS = {
   articleDishRestaurant: { w: 500, q: 75 },
   // Square buddy retrieval thumbnail
   buddyThumb: { w: 120, h: 120, fit: 'crop', q: 80 },
+  // Restaurant detail-sheet gallery strip (fixed 4:3 crop for a uniform look)
+  galleryThumb: { w: 400, h: 300, fit: 'crop', q: 80 },
 } as const satisfies Record<string, Preset>
 
 export type ImagePresetName = keyof typeof IMAGE_PRESETS

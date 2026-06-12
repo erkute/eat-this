@@ -22,6 +22,8 @@ import {
 } from './restaurantDetail.helpers'
 import { normalizeName } from '@/lib/normalizeName'
 import { useSwipePager } from './useSwipePager'
+import RestaurantGallery from './RestaurantGallery'
+import { safeHttpUrl } from './MustEatImageLightbox'
 
 function MustEatMiniCard({
   mustEat,
@@ -230,13 +232,16 @@ export default function RestaurantDetail({
               {hasHours && <span className={styles.rdTagAlt}>{openTag}</span>}
             </div>
           </div>
-          {r.photoCredit && (
-            <span className={styles.rdCredit}>
-              {r.photoCreditUrl
-                ? <a href={r.photoCreditUrl} target="_blank" rel="noopener noreferrer">{r.photoCredit}</a>
-                : r.photoCredit}
-            </span>
-          )}
+          {r.photoCredit && (() => {
+            const creditHref = safeHttpUrl(r.photoCreditUrl)
+            return (
+              <span className={styles.rdCredit}>
+                {creditHref
+                  ? <a href={creditHref} target="_blank" rel="noopener noreferrer">{r.photoCredit}</a>
+                  : r.photoCredit}
+              </span>
+            )
+          })()}
         </header>
 
         {/* PAGER — prev/next restaurant in the filtered list */}
@@ -259,6 +264,11 @@ export default function RestaurantDetail({
               )}
             </button>
           </nav>
+        )}
+
+        {/* GALLERY — curated Places photos, lazy via the same detail fetch */}
+        {!!detail?.gallery?.length && (
+          <RestaurantGallery images={detail.gallery} restaurantName={displayName} />
         )}
 
         {/* BODY — story prose with drop cap. While the on-demand detail fetch

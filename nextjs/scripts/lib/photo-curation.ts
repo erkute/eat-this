@@ -116,7 +116,9 @@ export interface JudgeInput {
   mediaType: 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif'
 }
 
-const JUDGE_MODEL = 'claude-haiku-4-5'
+// Sonnet judges categories + aesthetic quality more accurately than Haiku; the
+// cost delta is a couple of cents per restaurant. Override via env if needed.
+const JUDGE_MODEL = process.env.GALLERY_JUDGE_MODEL ?? 'claude-sonnet-4-6'
 
 /** Scores gallery candidates with Haiku vision in ONE request (the model
  *  sees all photos and scores them relative to each other). Returns null on

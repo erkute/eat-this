@@ -21,7 +21,9 @@ export default function RestaurantGallery({ images, restaurantName }: Props) {
   if (!usable.length) return null
   return (
     <>
-      <div className={styles.rdGallery} role="list" aria-label="Fotos">
+      {/* data-h-scroll: tells useSwipePager to leave horizontal gestures that
+          start here to the carousel's native scroll instead of paging. */}
+      <div className={styles.rdGallery} role="list" aria-label="Fotos" data-h-scroll>
         {usable.map((img) => (
           <button
             key={img._key}

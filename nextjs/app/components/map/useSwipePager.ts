@@ -26,6 +26,11 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
     let startX = 0, startY = 0, axis: 'h' | 'v' | null = null, active = false
     const onDown = (e: PointerEvent) => {
       if (e.pointerType === 'mouse') return
+      // Don't hijack horizontal gestures that begin inside a region owning its
+      // own horizontal scrolling (e.g. the photo-gallery carousel) — same axis
+      // split the filter-chip rail uses against the sheet drag: a gesture moves
+      // either that rail or the sheet, never both.
+      if ((e.target as Element | null)?.closest?.('[data-h-scroll]')) return
       startX = e.clientX; startY = e.clientY; axis = null; active = true
     }
     const onMove = (e: PointerEvent) => {

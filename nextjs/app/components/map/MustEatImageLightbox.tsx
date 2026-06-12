@@ -42,7 +42,7 @@ interface InnerProps {
 // Credit URLs come from CMS content (Google attribution data / manual Studio
 // entry) — only link out for http(s) so a poisoned value can't become a
 // javascript: href.
-function safeHttpUrl(url: string | null | undefined): string | null {
+export function safeHttpUrl(url: string | null | undefined): string | null {
   if (!url) return null
   try {
     const u = new URL(url)

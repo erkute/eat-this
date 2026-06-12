@@ -3168,6 +3168,21 @@ html[data-theme="dark"] .btnPackPromoTag {
      zusammen ohne dass die Komposition leer wirkt. */
   /* Unlocked Chewy view: tighten hero + name on the rail panel */
   .fdName { font-size: clamp(40px, 4vw, 56px); }
+
+  /* Whitespace unten füllen (User 2026-06-12): der Scroll-Container wird
+     zur Flex-Spalte, Restaurant-Block UND Pager tragen margin-top:auto.
+     Card + Name + Beschreibung bleiben oben, der freie Raum verteilt sich
+     50/50 auf die beiden unteren Anker — der Switcher sitzt an der Unterkante
+     statt mit einem Loch darunter in der Mitte zu schweben. Gleiche Lösung
+     wie mobil (siehe .detailV13MustEat-Block unter den .fd-* Regeln). Läuft
+     der Inhalt über, kollabieren die Auto-Margins und overflow-y greift. */
+  .detailV13MustEat .detailV13Scroll {
+    display: flex;
+    flex-direction: column;
+  }
+  .detailV13MustEat .fdHero { flex: 0 0 auto; }
+  .detailV13MustEat .fdRest { margin-top: auto; }
+  .detailV13MustEat .fdPager { margin-top: auto; }
   .actions { padding: 26px 22px 32px; gap: 16px; }
   .actions::before { top: 26px; right: 22px; }
   .btnPrimaryLbl { font-size: 58px; }

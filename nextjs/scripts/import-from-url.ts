@@ -253,8 +253,21 @@ async function searchPlace(parsed: ParsedUrl): Promise<Place | null> {
     body: JSON.stringify({
       textQuery: parsed.name,
       languageCode: 'de',
-      locationBias: {
-        circle: { center: { latitude: parsed.lat, longitude: parsed.lng }, radius: 200 },
+      // Hard-bound the search to a small box around the pin from the URL.
+      // The URL's !3d!4d coords ARE the venue's location, so the real place
+      // sits essentially at the pin. A soft `locationBias` lets an ambiguous
+      // name outrank the venue with a famous namesake — e.g. textQuery "Bari"
+      // returned the Italian *city*, not the Neukölln restaurant at the pin
+      // (city ranks far above the venue, which then wasn't returned at all).
+      // A hard `locationRestriction` rectangle excludes everything outside the
+      // box, so only the venue at the pin can match. The ±0.02° box is ≈ ±2.2 km
+      // N/S and ±1.4 km E/W at Berlin's latitude — tolerant of coordinate
+      // jitter, far too tight to admit another locality.
+      locationRestriction: {
+        rectangle: {
+          low: { latitude: parsed.lat - 0.02, longitude: parsed.lng - 0.02 },
+          high: { latitude: parsed.lat + 0.02, longitude: parsed.lng + 0.02 },
+        },
       },
     }),
   })

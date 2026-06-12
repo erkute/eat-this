@@ -257,7 +257,7 @@ VERBOTENES WORDING (komplett raus, ohne Ausnahmen):
 - "ein wahrer …", "ein echter …"
 - "es lohnt sich" (Floskel)
 - "konsequent" (außer wenn fachlich genau zutreffend, z.B. "konsequent vegan")
-- Konstrukte wie "die Karte ist X, die Y sind es nicht" sind verboten.
+- ANTITHESE-KONSTRUKTE sind komplett verboten — auch als Halbsatz oder Gedankenstrich-Anhang am Satzende. Dazu gehören "X, nicht Y", "Fokus auf A, nicht auf B", "A, kein B", "die Karte ist X, die Y sind es nicht". Real passiert und beide falsch: "…der Fokus liegt auf dem Handwerk, nicht auf der Karte" und "…am Abend, kein Restaurant-Betrieb". Statt zu sagen, was etwas NICHT ist: einen weiteren konkreten Fakt nennen — oder den Satz einfach beenden. Bei dünnen Quelldaten lieber EIN kurzer, wahrer Satz als ein zweiter Satz, der mit einer Negation auffüllt.
 
 KEINE LIEFER-ERWÄHNUNGEN — Brand-Position:
 - Eat This empfiehlt für den BESUCH vor Ort. Liefer-Services sind nicht das Thema.
@@ -278,6 +278,12 @@ Du bekommst zwei Datenblöcke:
 1. SANITY-FAKTEN: was wir intern über das Restaurant wissen (Name, Adresse, Bezirk, Preisklasse, Kategorien, Cuisine-Typ).
 2. GOOGLE-PLACES-KONTEXT: editorialSummary, Rating, Review-Auszüge. **Reviews sind interne Recherchequelle — Atmosphäre- und Spezialitäten-Hinweise daraus destillieren und als Fakt formulieren, NIEMALS zitieren oder Reviewer/Stammgäste/Kunden erwähnen.**
 
+WEB-RECHERCHE (Pflicht, mit Augenmaß):
+Du hast ein web_search-Tool, das NUR kuratierte Berliner Food-Redaktionen durchsucht (tip Berlin, Berlin Food Stories, Mit Vergnügen, Crème Guides u.a.). Recherchiere das KONKRETE Restaurant (Name + Adresse) dort, um die Beschreibung mit echten, konkreten Details zu füllen: Signature-Dishes, Küchenstil, Inhaber/Köche (nur wenn namentlich genannt), Konzept, Raum, Geschichte.
+- EIN bis ZWEI gezielte Suchen genügen. Findest du den Laden nicht oder nur Belangloses (andere Lokale derselben Straße, reine Adress-Listings): NICHT weitersuchen, NICHT raten.
+- DESTILLIEREN, NICHT zitieren: Aus dem Recherchierten EIGENE, knappe Kuratoren-Sätze formen. NIEMALS Formulierungen übernehmen oder paraphrasieren, NIEMALS die Quelle nennen ("laut tip Berlin", "Berlin Food Stories schreibt"), NIEMALS Redaktionen/Autoren/Gäste als Stimme erwähnen. Recherche ist interne Faktenbasis, kein Zitat.
+- Quelle dünn = Beschreibung kürzer. Lieber 150 wahre Zeichen aus belegten Fakten als 600 erfundene. KEIN Fülltext, um Länge zu treffen.
+
 NO-HALLUCINATION + KEINE FREMDEN STIMMEN (hart):
 - Jede konkrete Aussage muss durch SANITY-FAKTEN oder GOOGLE-PLACES-KONTEXT gedeckt sein. Nichts erfinden — auch nicht "passend klingende" Details.
 - KEINE Personennamen (Inhaber/Chef/Barista) erfinden. Wenn nicht in den Quellen erwähnt → weglassen.
@@ -290,7 +296,7 @@ NO-HALLUCINATION + KEINE FREMDEN STIMMEN (hart):
 - Rating-Zahlen NICHT erwähnen (Google-Rating ändert sich, würde stale werden).
 
 LÄNGEN-BUDGETS (harte Limits):
-- description: 200-300 Zeichen, ein bis zwei Sätze. Konkret, das "warum geht man da hin".
+- description: LANGFORM. Ziel 500-650 Zeichen, hartes Maximum 700. 2-4 dichte Sätze, WENN Recherche/Fakten genug konkrete Substanz hergeben (Dishes, Konzept, Raum, Geschichte) — das "warum geht man da hin". Ist wenig belegt: lieber 150-300 wahre Zeichen als aufgeblähter Fülltext. Länge NIE mit Floskeln, Wiederholung oder Antithese erreichen.
 - shortDescription: max 160 Zeichen, EIN Satz. SEO-Meta-Description-Stil. Komprimierte Essenz.
 - tip: 1-2 kurze Sätze (max 200 Zeichen).
 
@@ -382,7 +388,11 @@ interface BezirkGen {
 }
 
 function extractJsonText(content: Anthropic.ContentBlock[], docId: string): string {
-  const textBlock = content.find(b => b.type === 'text')
+  // With the web_search server tool the model narrates between searches, so the
+  // response holds several text blocks. The JSON answer is the LAST one. Without
+  // tools there's a single text block, so last === first.
+  const textBlocks = content.filter(b => b.type === 'text')
+  const textBlock = textBlocks[textBlocks.length - 1]
   if (!textBlock || textBlock.type !== 'text') {
     throw new Error(`No text block in response for ${docId}`)
   }
@@ -393,6 +403,35 @@ function extractJsonText(content: Anthropic.ContentBlock[], docId: string): stri
     .replace(/\s*```$/, '')
     .trim()
 }
+
+// Curated, editorial Berlin food sources the model may research for grounding
+// the long-form description. The web_search server tool is HARD-restricted to
+// these domains via `allowed_domains` — random blogspam / aggregators are
+// excluded, which keeps the distilled facts on-brand. Edit this list to add or
+// drop sources; keep it to quality editorial outlets, not user-review sites.
+const RESEARCH_DOMAINS = [
+  'tip-berlin.de',
+  'berlinfoodstories.com',
+  'mitvergnuegen.com',
+  'creme-guides.com',
+  'gault-millau.de',
+  'falstaff.de',
+  'bonjour-berlin.de',
+  'theberliner.com',
+]
+
+// Server tool — Anthropic runs the search on its infra and returns results
+// inline. `allowed_domains` hard-bounds it to RESEARCH_DOMAINS; `max_uses` caps
+// cost/latency (each search ≈ a few cents). Typed loosely because the exact
+// web_search tool literal isn't in every @anthropic-ai/sdk type version.
+const RESEARCH_TOOLS = [
+  {
+    type: 'web_search_20260209',
+    name: 'web_search',
+    allowed_domains: RESEARCH_DOMAINS,
+    max_uses: 5,
+  },
+] as unknown as Anthropic.Messages.ToolUnion[]
 
 export async function generateRestaurant(r: RestaurantSource, places: PlaceContext | null): Promise<RestaurantGen> {
   const sanityFacts = {
@@ -421,14 +460,29 @@ export async function generateRestaurant(r: RestaurantSource, places: PlaceConte
 
   const callOnce = async (extraReminder = false) => {
     const content = extraReminder
-      ? userMsg + '\n\nWICHTIG: Antworte AUSSCHLIESSLICH mit gültigem JSON in der oben definierten Form. Keine deutsche Prosa, keine Erklärungen, keine Markdown-Codeblöcke. Wenn Source-Daten dünn sind, schreibe trotzdem JSON — mit description nur aus Sanity-Fakten und tip/shortDescription auf null falls keine Substanz da ist.'
+      ? userMsg + '\n\nWICHTIG: Recherche ist abgeschlossen — gib JETZT die finale Antwort. AUSSCHLIESSLICH gültiges JSON in der oben definierten Form, keine Prosa, keine Erklärungen, keine Markdown-Codeblöcke. Wenn Recherche/Source-Daten dünn sind, schreibe trotzdem JSON — eine kürzere description NUR aus belegten Fakten, tip/shortDescription auf null falls keine Substanz da ist.'
       : userMsg
-    const msg = await anthropic.messages.create({
+    const messages: Anthropic.MessageParam[] = [{ role: 'user', content }]
+    let msg = await anthropic.messages.create({
       model: TRANSLATION_MODEL,
-      max_tokens: 1024,
+      max_tokens: 2048,
       system: RESTAURANT_PROMPT,
-      messages: [{ role: 'user', content }],
+      tools: RESEARCH_TOOLS,
+      messages,
     })
+    // The web_search server loop can return `pause_turn` if it hits its internal
+    // iteration cap before finishing — re-send the accumulated turn to resume.
+    let guard = 0
+    while ((msg.stop_reason as string) === 'pause_turn' && guard++ < 4) {
+      messages.push({ role: 'assistant', content: msg.content })
+      msg = await anthropic.messages.create({
+        model: TRANSLATION_MODEL,
+        max_tokens: 2048,
+        system: RESTAURANT_PROMPT,
+        tools: RESEARCH_TOOLS,
+        messages,
+      })
+    }
     return JSON.parse(extractJsonText(msg.content, r._id)) as RestaurantGen
   }
 
@@ -445,7 +499,7 @@ export async function generateRestaurant(r: RestaurantSource, places: PlaceConte
     }
   }
 
-  if (!parsed.description || parsed.description.length > 320) {
+  if (!parsed.description || parsed.description.length > 700) {
     throw new Error(`description out of bounds (${parsed.description?.length ?? 0} chars) for ${r._id}`)
   }
   if (parsed.shortDescription && parsed.shortDescription.length > 170) {

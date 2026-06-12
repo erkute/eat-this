@@ -22,12 +22,15 @@ export function readSafeAreaBottom(): number {
 
 /* Base content heights (above any iOS safe-area). Per-view peek sizes
    reflect what's actually rendered at the top of the sheet:
-   - detail ("middle stage"): handle + hero photo + prev/next pager. Hero
-     and pager are measured at runtime via ResizeObservers on the
-     [data-detail-hero] / [data-detail-pager] elements (see effect below).
-     Before the first measurement lands, a viewport-width estimate
-     (estimateDetailMidVisiblePx) stands in so the sheet doesn't visibly
-     jump; DETAIL_PEEK_BASE_PX is only the SSR-safe last resort.
+   - detail ("middle stage" / bottom anchor): everything from the sheet's
+     top down to the bottom of the last element visible there — the
+     prev/next pager for a restaurant (photo + pager), or the dish-name
+     block for a must-eat (card + name). That bottom edge is measured live
+     via ResizeObservers on the [data-detail-hero] / [data-detail-pager]
+     elements (see effect below). Before the first measurement lands a
+     viewport-width estimate (estimateDetailMidVisiblePx) stands in so the
+     sheet doesn't visibly jump; DETAIL_PEEK_BASE_PX is only the SSR-safe
+     last resort.
    - list: handle + listHeaderRow + filterChipRow = 120 */
 const DETAIL_PEEK_BASE_PX = 220
 /* List peek = handle (~24) + filter chip row (padding 24+10 + chip ~24 ≈ 58)
@@ -50,11 +53,13 @@ export function useMapSheet(onDetailDismiss?: () => void) {
   const sheet = useBottomSheet('mid')
   const [sheetView, setSheetViewState] = useState<SheetView>('list')
   /* Measured bottom-edge offset (relative to the sheet's top) of the last
-     element visible at the detail middle stage — the pager when rendered,
-     otherwise the hero. Measuring the offset instead of summing element
-     heights keeps margins/gaps included. Initialized null so the first
-     config uses the estimate fallback; flips to the measured value once
-     the ResizeObservers below fire. */
+     element visible at the detail middle stage — the pager when rendered
+     (restaurant), otherwise the hero/dish-name (must-eat). Measuring the
+     offset instead of summing element heights keeps margins/gaps included,
+     and the same code serves both detail kinds (the rendered DOM differs,
+     the formula doesn't). Initialized null so the first config uses the
+     estimate fallback; flips to the measured value once the ResizeObservers
+     below fire. */
   const [detailContentBottomPx, setDetailContentBottomPx] = useState<number | null>(null)
 
   /* Per-view config rebuilds whenever the measured hero height changes so the
@@ -62,24 +67,25 @@ export function useMapSheet(onDetailDismiss?: () => void) {
      once at mount. */
   const viewConfig = useMemo(() => {
     const safeAreaBottom = readSafeAreaBottom()
-    /* Middle stage = sheet top → pager bottom (or hero bottom without a
-       pager), +4px sub-pixel buffer, + safe area — the formula lives in
-       detailSnap.ts. Pre-measurement the viewport-width estimate stands in
-       (assumes a pager; the measurement corrects within a frame of the
-       detail mounting). */
+    /* Middle stage = sheet top → pager bottom (restaurant) or dish-name
+       bottom (must-eat), +4px sub-pixel buffer, + safe area — the formula
+       lives in detailSnap.ts. Pre-measurement the viewport-width estimate
+       stands in (assumes a restaurant photo + pager; the measurement
+       corrects within a frame of the detail mounting, must-eat included). */
     const detailPeek = detailContentBottomPx != null
       ? detailMidVisiblePx(detailContentBottomPx, safeAreaBottom)
       : typeof window !== 'undefined'
         ? estimateDetailMidVisiblePx(window.innerWidth, true, safeAreaBottom)
         : DETAIL_PEEK_BASE_PX + safeAreaBottom
     const detailSnaps: SheetSnap[] = ['full', 'peek']
+    // Detail: TWO anchors — 'full' at the top (minimal map strip) and 'peek'
+    // lower down (restaurant: photo + pager; must-eat: card + dish name ≈
+    // half height). No 'mid'. A downward swipe settles at peek; only a swipe
+    // well BELOW peek dismisses (back to the list) via onDismiss. List:
+    // full/mid/peek (snaps undefined = default), no dismiss. Both keys set
+    // explicitly so configure()'s merge clears the other view's value when
+    // switching.
     return {
-      // Detail: TWO anchors — 'full' at the top (minimal map strip) and 'peek'
-      // at the bottom (small detail strip, lots of map). No 'mid'. A downward
-      // swipe settles at peek; only a swipe well BELOW peek dismisses (back to
-      // the list) via onDismiss. List: full/mid/peek (snaps undefined =
-      // default), no dismiss. Both keys set explicitly so configure()'s merge
-      // clears the other view's value when switching.
       detail: { maxSnap: null, snaps: detailSnaps, dragMode: 'all' as const, peekVisiblePx: detailPeek, onDismiss: onDetailDismiss },
       list:   { maxSnap: null, snaps: undefined, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX + safeAreaBottom, onDismiss: undefined },
     }
@@ -139,8 +145,9 @@ export function useMapSheet(onDetailDismiss?: () => void) {
 
       const pagerEl = root.querySelector('[data-detail-pager]')
       if (!pagerEl) {
-        /* Pager unmounted (single-result filter, must-eat detail) → the
-           middle stage degrades to photo-only. */
+        /* Pager unmounted (single-result filter, or must-eat detail which
+           has no pager) → the middle stage measures down to the hero/
+           dish-name instead. */
         if (observedPager) {
           roPager?.disconnect()
           roPager = null
@@ -195,7 +202,7 @@ export function useMapSheet(onDetailDismiss?: () => void) {
        follows in the same handler reads this view's peek size, not the previous
        view's. Otherwise the sheet briefly parks at the old peek height (white
        space gap) until the next render's effect catches up. */
-    configure(viewConfig[view])
+    configure(view === 'list' ? viewConfig.list : viewConfig.detail)
     setSheetViewState(view)
   }, [configure, viewConfig])
 

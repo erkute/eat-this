@@ -1,7 +1,7 @@
 // nextjs/lib/buddy/retrieval.test.ts
 import { describe, it, expect } from 'vitest'
 import { buildSpotsQuery, buildSpotsParams, priceBand } from './retrieval'
-import { searchSpots, searchArticles } from './retrieval'
+import { searchSpots, searchArticles, foldName, resolveNameToSlug, vibeTokens, __resetNameIndexCache } from './retrieval'
 import type { ArticleResult } from './types'
 
 describe('buildSpotsQuery', () => {
@@ -159,5 +159,95 @@ describe('searchArticles', () => {
     expect(out).toEqual([fakeArticle])
     expect(calls[0].query).toContain('_type == "newsArticle"')
     expect(calls[0].params).toMatchObject({ q: '*Kaffee*', locale: 'de' })
+  })
+})
+
+describe('foldName', () => {
+  it('strips diacritics, case and non-alphanumerics', () => {
+    expect(foldName('amatō')).toBe('amato')
+    expect(foldName('Kuréme')).toBe('kureme')
+    expect(foldName('Boii Boii')).toBe('boiiboii')
+    expect(foldName('Café Krème 23')).toBe('cafekreme23')
+  })
+})
+
+describe('resolveNameToSlug', () => {
+  const index = [
+    { name: 'amatō', slug: 'amato', folded: foldName('amatō') },
+    { name: 'Kuréme', slug: 'kureme', folded: foldName('Kuréme') },
+    { name: 'Boii Boii', slug: 'boii-boii', folded: foldName('Boii Boii') },
+    { name: 'Gazzo', slug: 'gazzo', folded: foldName('Gazzo') },
+    { name: 'La Maison', slug: 'la-maison', folded: foldName('La Maison') },
+    { name: 'Maison Blanche', slug: 'maison-blanche', folded: foldName('Maison Blanche') },
+  ]
+
+  it('resolves exact folded matches across diacritics', () => {
+    expect(resolveNameToSlug('amato', index)).toBe('amato')
+    expect(resolveNameToSlug('AMATŌ', index)).toBe('amato')
+    expect(resolveNameToSlug('kureme', index)).toBe('kureme')
+  })
+
+  it('resolves common misspellings via fuzzy distance', () => {
+    // GSC-real: "boi boi" → Boii Boii (folded distance 2 on length 6)
+    expect(resolveNameToSlug('boi boi', index)).toBe('boii-boii')
+    expect(resolveNameToSlug('kurème', index)).toBe('kureme')
+  })
+
+  it('prefers the exact folded match over substring candidates', () => {
+    expect(resolveNameToSlug('gazzo', index)).toBe('gazzo')
+  })
+
+  it('returns null when ambiguous or unconvincing', () => {
+    // "maison" is a substring of two entries and exact match of none → ambiguous.
+    expect(resolveNameToSlug('maison', index)).toBeNull()
+    expect(resolveNameToSlug('xy', index)).toBeNull()
+    expect(resolveNameToSlug('völlig anderes lokal', index)).toBeNull()
+  })
+})
+
+describe('vibeTokens', () => {
+  it('keeps diacritics (GROQ matches unfolded text), drops stopwords and short tokens', () => {
+    expect(vibeTokens('etwas gemütliches für ein date')).toEqual(['*gemütliches*', '*date*', null])
+  })
+
+  it('caps at three unique tokens and pads with null', () => {
+    expect(vibeTokens('vegan ramen spicy cozy late')).toEqual(['*vegan*', '*ramen*', '*spicy*'])
+    expect(vibeTokens('')).toEqual([null, null, null])
+  })
+})
+
+describe('searchSpots name resolution', () => {
+  it('resolves a diacritic-blind name to a slug filter and drops raw name match', async () => {
+    __resetNameIndexCache()
+    const calls: Array<{ query: string; params: Record<string, unknown> }> = []
+    const fakeClient = {
+      fetch: async (query: string, params?: unknown) => {
+        calls.push({ query, params: (params ?? {}) as Record<string, unknown> })
+        if (query.includes('{ name, "slug": slug.current }')) {
+          return [{ name: 'amatō', slug: 'amato' }]
+        }
+        return []
+      },
+    }
+    await searchSpots({ name: 'amato', vibeQuery: '' }, 'de', { client: fakeClient })
+    const spotCall = calls.find((c) => c.query.includes('order('))
+    expect(spotCall?.params.slug).toBe('amato')
+    expect(spotCall?.params.name).toBeNull()
+  })
+
+  it('falls back to raw name match when nothing resolves', async () => {
+    __resetNameIndexCache()
+    const calls: Array<{ query: string; params: Record<string, unknown> }> = []
+    const fakeClient = {
+      fetch: async (query: string, params?: unknown) => {
+        calls.push({ query, params: (params ?? {}) as Record<string, unknown> })
+        if (query.includes('{ name, "slug": slug.current }')) return [{ name: 'Gazzo', slug: 'gazzo' }]
+        return []
+      },
+    }
+    await searchSpots({ name: 'Totally Unknown Place', vibeQuery: '' }, 'de', { client: fakeClient })
+    const spotCall = calls.find((c) => c.query.includes('order('))
+    expect(spotCall?.params.slug).toBeNull()
+    expect(spotCall?.params.name).toBe('*Totally Unknown Place*')
   })
 })

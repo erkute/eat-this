@@ -94,7 +94,7 @@ export default function MustEatDetail({
           // Covered cards arrive stripped; the reveal response merges the real
           // image in well before the ~800 ms flip exposes the card face. Until
           // then the overlay shows the card-back it animates anyway.
-          imageUrl={mustEat.image ?? '/pics/card-back.webp?v=5'}
+          imageUrl={mustEat.image ?? '/pics/card-back.webp?v=6'}
           alt={mustEat.dish ?? ''}
           originRect={r}
           // Fly back onto the card's own slot and land face-up there (instead

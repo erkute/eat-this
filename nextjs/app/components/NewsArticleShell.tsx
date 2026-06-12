@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { PortableTextRenderer, extractHeadings, extractArticleSpots } from '@/lib/PortableTextRenderer';
 import { Link } from '@/i18n/navigation';
 import type { NewsArticle, MustEatCardBlock, SpotCardBlock } from '@/lib/types';
@@ -178,8 +179,18 @@ export default function NewsArticleShell({
     >
       <article className={`${styles.article}${spots.length > 0 ? ` ${styles.hasSpotrail}` : ''}`}>
         {article.imageUrl && (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={article.imageUrl} alt={title} className={styles.hero} />
+          // Hero = LCP element. fill + the Sanity loader serve a width-matched
+          // srcset (mobile no longer downloads the w=1200 desktop file).
+          <div className={styles.heroWrap}>
+            <Image
+              src={article.imageUrl}
+              alt={title}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 720px"
+              className={styles.hero}
+            />
+          </div>
         )}
 
         <div className={styles.byline}>

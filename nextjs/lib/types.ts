@@ -110,6 +110,12 @@ export interface ArticleSpot {
   photo?: string
 }
 
+export interface NewsArticleAuthor {
+  name: string
+  slug?: string
+  photo?: string
+}
+
 export interface NewsArticle {
   _id: string
   slug: string
@@ -125,6 +131,7 @@ export interface NewsArticle {
   excerptDe?: string
   content?: PortableTextBlock[]
   contentDe?: PortableTextBlock[]
+  author?: NewsArticleAuthor
   seo?: NewsArticleSeo
 }
 

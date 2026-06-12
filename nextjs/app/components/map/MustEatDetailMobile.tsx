@@ -1,4 +1,5 @@
 'use client'
+import { useRef } from 'react'
 import type { MapMustEat } from '@/lib/types'
 import { Link } from '@/i18n/navigation'
 import { formatDistance } from '@/lib/map'
@@ -8,9 +9,10 @@ import { pickLocale } from '@/lib/i18n/pickLocale'
 import { normalizeName } from '@/lib/normalizeName'
 import styles from './map.module.css'
 import { UNLOCK_RADIUS_METERS, type MustEatDetailState } from './useMustEatDetailState'
+import { useSwipePager } from './useSwipePager'
 import { CloseIcon, PagerArrowIcon } from './icons'
 
-const CARD_BACK = '/pics/card-back.webp?v=5'
+const CARD_BACK = '/pics/card-back.webp?v=6'
 
 interface Props {
   mustEat: MapMustEat
@@ -60,12 +62,28 @@ export default function MustEatDetailMobile({
   const open = isUnlocked && !revealOrigin
   const nameRevealed = open && !nameBurning
 
+  // Swipe anywhere on the sheet (hero, name, pager band) pages to the
+  // neighbouring must-eat — same gesture as the restaurant detail.
+  const rootRef = useRef<HTMLDivElement>(null)
+  useSwipePager(rootRef, {
+    onPrev: onPagePrev,
+    onNext: onPageNext,
+    hasPrev: !!prevMustEat,
+    hasNext: !!nextMustEat,
+  })
+
   return (
     <div
+      ref={rootRef}
       className={`${styles.detailV13} ${styles.detailV13MustEat}`}
       role="dialog"
       aria-label={tMap('mustEatAtAria', { name: restaurantName })}
     >
+      {/* Nachbar-Bilder vorladen, damit beim Swipen die nächste Karte sofort
+          komplett dasteht statt nachzuladen (Card-Back der Locked-Karten ist
+          eh im Cache). React hoisted die link-Tags in den <head>. */}
+      {prevUnlocked && prevMustEat?.image && <link rel="preload" as="image" href={prevMustEat.image} />}
+      {nextUnlocked && nextMustEat?.image && <link rel="preload" as="image" href={nextMustEat.image} />}
       <div className={styles.detailV13Scroll} data-detail-scroll>
         <button
           type="button"
@@ -78,13 +96,12 @@ export default function MustEatDetailMobile({
 
         {/* HERO — dish card (open) or card-back (locked, tap to reveal in range). */}
         {open ? (
-          <button type="button" className={styles.fdHero} data-detail-hero onClick={handleCardZoom} aria-label={t('map.zoomCard')}>
+          <button type="button" className={styles.fdHero} onClick={handleCardZoom} aria-label={t('map.zoomCard')}>
             <img src={mustEat.image} alt={mustEat.dish} />
           </button>
         ) : (
           <button
             type="button"
-            data-detail-hero
             className={`${styles.fdHero} ${styles.fdHeroLocked} ${canUnlock ? styles.mustEatCardCanUnlock : ''} ${tapping ? styles.mustEatCardTapping : ''}`}
             onClick={handleCardClick}
             aria-label={canUnlock ? t('map.revealHere') : t('map.tooFarToReveal')}
@@ -99,8 +116,11 @@ export default function MustEatDetailMobile({
 
         {/* Big punchy dish name. Locked: heavily blurred — present but
             unreadable (no stamp, User 2026-06-05). On reveal it slowly
-            sharpens into focus. Box is identical in both states → no pop. */}
-        <h1 className={styles.fdName} aria-label={nameRevealed ? undefined : t('mustEats.covered')}>
+            sharpens into focus. Box is identical in both states → no pop.
+            data-detail-hero: useMapSheet misst dieses Element — der untere
+            Snap (≈ halbe Höhe) endet exakt unter dem Namen: Karte + Name
+            sichtbar, Rest unterhalb der Falz. */}
+        <h1 className={styles.fdName} data-detail-hero aria-label={nameRevealed ? undefined : t('mustEats.covered')}>
           <span
             className={`${styles.fdNameText}${!open ? ` ${styles.fdNameBlur}` : ''}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}
             aria-hidden={nameRevealed ? undefined : true}

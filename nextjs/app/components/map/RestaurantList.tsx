@@ -1,5 +1,5 @@
 'use client'
-import { useCallback } from 'react'
+import { memo, useCallback, useEffect, useRef } from 'react'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import type { MapRestaurant, MapMustEat, OpenStatus } from '@/lib/types'
@@ -8,6 +8,7 @@ import { useTranslation } from '@/lib/i18n'
 import { localizedCategoryName } from '@/lib/categories'
 import { normalizeName } from '@/lib/normalizeName'
 import sanityImageLoader from '@/lib/sanityImageLoader'
+import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail'
 import BoosterOfferInline from './BoosterOfferInline'
 import MapListEmpty from './MapListEmpty'
 import styles from './map.module.css'
@@ -26,7 +27,14 @@ interface ItemProps {
   onClick: (r: MapRestaurant) => void
 }
 
-function Item({ restaurant, userLocation, isSelected, peek, locked, hideBadge, onClick }: ItemProps) {
+// `resolvePeek` returns a fresh object per render, so the memo comparison
+// checks it by value — everything else is identity-stable from the parent.
+function peekEqual(a: Peek, b: Peek): boolean {
+  if (a.kind !== b.kind) return false
+  return a.kind !== 'open' || b.kind !== 'open' || a.image === b.image
+}
+
+const Item = memo(function Item({ restaurant, userLocation, isSelected, peek, locked, hideBadge, onClick }: ItemProps) {
   const { t, lang } = useTranslation()
   const loc = lang === 'de' ? 'de' : 'en'
   const statusLabels = {
@@ -60,8 +68,31 @@ function Item({ restaurant, userLocation, isSelected, peek, locked, hideBadge, o
   const [statusMain, ...statusRest] = status.label ? status.label.split(' · ') : []
   const statusSub = statusRest.join(' · ')
 
+  // Warm the on-demand detail fields once a card scrolls near the viewport —
+  // by the time the user taps it, the story text is already cached and the
+  // detail opens complete (no skeleton). Locked rows route to the booster
+  // flow, so there is nothing to prefetch for them.
+  const cardRef = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    if (locked) return
+    const el = cardRef.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          prefetchRestaurantDetail(restaurant.slug)
+          io.disconnect()
+        }
+      },
+      { rootMargin: '300px 0px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [locked, restaurant.slug])
+
   return (
     <button
+      ref={cardRef}
       type="button"
       className={`${styles.rcard} ${isSelected ? styles.rcardActive : ''} ${locked ? styles.rcardBlur : ''}`}
       onClick={() => onClick(restaurant)}
@@ -100,7 +131,7 @@ function Item({ restaurant, userLocation, isSelected, peek, locked, hideBadge, o
       {peek.kind !== 'none' && !locked && (
         <span className={styles.mustPeek}>
           <img
-            src={peek.kind === 'open' ? sanityImageLoader({ src: peek.image, width: 160 }) : '/pics/card-back.webp?v=5'}
+            src={peek.kind === 'open' ? sanityImageLoader({ src: peek.image, width: 160 }) : '/pics/card-back-sm.webp?v=6'}
             alt=""
             aria-hidden="true"
             loading="lazy"
@@ -123,7 +154,14 @@ function Item({ restaurant, userLocation, isSelected, peek, locked, hideBadge, o
       </div>
     </button>
   )
-}
+}, (prev, next) =>
+  prev.restaurant === next.restaurant &&
+  prev.userLocation === next.userLocation &&
+  prev.isSelected === next.isSelected &&
+  prev.locked === next.locked &&
+  prev.hideBadge === next.hideBadge &&
+  prev.onClick === next.onClick &&
+  peekEqual(prev.peek, next.peek))
 
 interface RestaurantListProps {
   restaurants: MapRestaurant[]
@@ -184,17 +222,18 @@ export default function RestaurantList({
   return (
     <>
       {restaurants.map((r) => (
-        <Item
-          key={r._id}
-          restaurant={r}
-          userLocation={userLocation}
-          isSelected={selectedId === r._id}
-          // Beide Sets werden gebraucht: bei Anon-Nutzern enthält `unlockedIds` die
-          // pre-revealed Must-Eat-IDs NICHT, daher prüft `resolvePeek` `revealedMustEatIds`
-          // separat. Bei eingeloggten Nutzern ist `revealedMustEatIds` leer — harmloser No-op.
-          peek={resolvePeek(primaryMustEats.get(r._id), unlockedIds, revealedMustEatIds)}
-          onClick={onSelect}
-        />
+        <div key={r._id} className={styles.rcardSlot}>
+          <Item
+            restaurant={r}
+            userLocation={userLocation}
+            isSelected={selectedId === r._id}
+            // Beide Sets werden gebraucht: bei Anon-Nutzern enthält `unlockedIds` die
+            // pre-revealed Must-Eat-IDs NICHT, daher prüft `resolvePeek` `revealedMustEatIds`
+            // separat. Bei eingeloggten Nutzern ist `revealedMustEatIds` leer — harmloser No-op.
+            peek={resolvePeek(primaryMustEats.get(r._id), unlockedIds, revealedMustEatIds)}
+            onClick={onSelect}
+          />
+        </div>
       ))}
       {bezirkLockedOnly ? (
         <section className={styles.bezirkLocked}>
@@ -211,16 +250,17 @@ export default function RestaurantList({
         )
       )}
       {lockedRestaurants.map((r) => (
-        <Item
-          key={`locked-${r._id}`}
-          restaurant={r}
-          userLocation={userLocation}
-          isSelected={false}
-          peek={{ kind: 'covered' }}
-          locked
-          hideBadge={bezirkLockedOnly}
-          onClick={handleLockedClick}
-        />
+        <div key={`locked-${r._id}`} className={styles.rcardSlot}>
+          <Item
+            restaurant={r}
+            userLocation={userLocation}
+            isSelected={false}
+            peek={{ kind: 'covered' }}
+            locked
+            hideBadge={bezirkLockedOnly}
+            onClick={handleLockedClick}
+          />
+        </div>
       ))}
       {showBooster && !bezirkLockedOnly && (
         <div className={styles.listEnd}>

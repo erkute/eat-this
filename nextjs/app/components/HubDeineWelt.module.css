@@ -138,61 +138,107 @@
   margin: 0 12px 12px;
 }
 
-.cards {
+/* ── Collection-progress panel ───────────────────────────────────────────
+   Card-back stack + live "X / Y aufgedeckt" stat + progress bar. Links into
+   the profile's collected Must-Eats. Stacks on mobile, goes side-by-side on
+   desktop so it fills the full column width. */
+.collect {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+.collectCards {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0;
-  margin: 10px 0 20px;
-  min-height: 150px;
+  flex: 0 0 auto;
 }
 /* Freigestellt: the card-back image floats — no frame, no dark box. */
 .card {
   display: block;
-  width: 92px;
-  height: 130px;
+  width: 84px;
+  height: 119px;
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .20));
 }
-.card:nth-child(1) {
-  transform: rotate(-5deg);
-  margin-right: -16px;
-  z-index: 1;
-}
-.card:nth-child(2) {
-  transform: rotate(0deg);
-  z-index: 3;
-}
-.card:nth-child(3) {
-  transform: rotate(5deg);
-  margin-left: -16px;
-  z-index: 2;
-}
+.card:nth-child(1) { transform: rotate(-5deg); margin-right: -16px; z-index: 1; }
+.card:nth-child(2) { transform: rotate(0deg); z-index: 3; }
+.card:nth-child(3) { transform: rotate(5deg); margin-left: -16px; z-index: 2; }
 
-/* The card-back stack + caption is a link into the profile's covered Must-Eat
-   cards (where each card routes on to its spot on the map). */
-.teaser {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
+.collectStat {
+  min-width: 0;
 }
-.teaser:hover .cap {
-  color: var(--brand-red);
-}
-
-.cap {
-  text-align: center;
+.collectK {
   font-family: var(--font-ranchers);
-  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--text-primary);
+  opacity: .7;
+  margin: 0 0 6px;
+}
+.collectNum {
+  font-family: var(--font-ranchers);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+}
+.collectNum strong {
+  font-size: 44px;
+  font-weight: 800;
+}
+.collectTotal {
+  font-size: 22px;
+  opacity: .45;
+}
+.collectUnit {
+  font-family: var(--font);
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin: 6px 0 12px;
+}
+.bar {
+  display: block;
+  height: 9px;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  background: rgba(10, 10, 10, .10);
+  border: 2px solid #0a0a0a;
+  overflow: hidden;
+}
+.barFill {
+  display: block;
+  height: 100%;
+  background: var(--brand-yellow);
+}
+.collectCta {
+  display: inline-block;
+  margin-top: 14px;
+  font-family: var(--font-ranchers);
+  font-size: 16px;
   letter-spacing: .04em;
   text-transform: uppercase;
   color: var(--text-primary);
-  /* No bottom margin — the section's padding-bottom alone closes the gap to
-     the Spot-des-Tages hero, matching the divider gap above the cards. */
-  margin: 0;
+  border-bottom: 2px solid var(--brand-yellow);
+  padding-bottom: 1px;
+}
+.collect:hover .collectCta {
+  color: var(--brand-red);
 }
 
 .pack {
@@ -244,25 +290,34 @@
   transform: translate(1px, 1px);
 }
 
-/* ── Desktop: focused 760px column (personal panel), scaled-up greeting ── */
+/* ── Desktop: full 1120 column (matches the sibling Hub sections), scaled-up
+   greeting, side-by-side collection band + 4-up fresh row. ── */
 @media (min-width: 720px) {
-  /* Bottom deliberately tight: when this panel renders, the hero below drops
-     its top padding to 40px (see HubHero.module.css), so the card-back teaser
-     gets equal air above (divider 22 + cards 38 = 60px) and below
-     (padding 20 + hero 40 = 60px). */
-  .section { padding: 64px max(24px, calc((100% - 760px) / 2)) 20px; }
+  .section { padding: 64px max(24px, calc((100% - 1120px) / 2)) 28px; }
   .kicker { font-size: 20px; }
   .name { font-size: clamp(58px, 7vw, 80px); }
   .here { font-size: 13px; margin-top: 16px; }
   .here strong { font-size: 14px; }
-  .freshRow { gap: 16px; }
-  .freshName { font-size: 22px; }
-  /* No min-height slack — explicit margins keep the centering math honest. */
-  .cards { min-height: 0; margin: 38px 0 22px; }
-  .cap { font-size: 24px; }
+  /* Collection band goes horizontal and fills the width: card stack left,
+     stat + progress bar + CTA right. */
+  .collect {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 40px;
+  }
+  .collectStat { flex: 1 1 auto; }
+  .collectNum { justify-content: flex-start; }
+  .collectNum strong { font-size: 58px; }
+  .collectTotal { font-size: 28px; }
+  .bar { margin: 0; max-width: 460px; }
+  .collectCta { font-size: 18px; margin-top: 16px; }
   .card { width: 124px; height: 176px; }
   .card:nth-child(1) { margin-right: -22px; }
   .card:nth-child(3) { margin-left: -22px; }
+  /* Fresh row: 4 across, filling the column. */
+  .freshRow { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .freshName { font-size: 20px; }
   .pack { padding-top: 30px; }
   .packArt { width: 104px; }
   .packName { font-size: 26px; }
@@ -274,9 +329,19 @@ html[data-theme="dark"] .name,
 html[data-theme="dark"] .here,
 html[data-theme="dark"] .freshK,
 html[data-theme="dark"] .freshName,
-html[data-theme="dark"] .cap,
+html[data-theme="dark"] .collectK,
+html[data-theme="dark"] .collectNum,
+html[data-theme="dark"] .collectUnit,
+html[data-theme="dark"] .collectCta,
 html[data-theme="dark"] .packName { color: var(--dk-ink); }
-html[data-theme="dark"] .teaser:hover .cap { color: var(--c-coral-bright); }
+html[data-theme="dark"] .collect:hover .collectCta { color: var(--c-coral-bright); }
+/* Progress bar: ink frame → cream, yellow fill → coral */
+html[data-theme="dark"] .bar {
+  background: var(--dk-rule);
+  border-color: var(--dk-ink);
+}
+html[data-theme="dark"] .barFill { background: var(--c-coral); }
+html[data-theme="dark"] .collectCta { border-bottom-color: var(--c-coral); }
 /* "EAT/THIS"-style emphasis: yellow fill → red text accent, ink stroke → cream */
 html[data-theme="dark"] .em {
   color: var(--c-coral-bright);

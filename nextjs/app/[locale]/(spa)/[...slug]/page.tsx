@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { setRequestLocale } from 'next-intl/server'
 import { SITE_URL } from '@/lib/constants'
-import { localeUrl } from '@/lib/locale-url'
+import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server'
 import NewsSection from '@/app/components/NewsSection'
 import MapSection from '@/app/components/MapSection'
@@ -87,27 +87,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const meta = PAGE_META[top]
   const copy = locale === 'en' ? meta.en : meta.de
   const path = `/${top}`
-  const canonical = localeUrl(locale, path)
+  const alternates = buildHreflangAlternates(path, locale === 'en' ? 'en' : 'de')
 
   return {
     title: copy.title,
     description: copy.description,
     robots: meta.noIndex ? 'noindex,follow' : 'index,follow',
-    alternates: {
-      canonical,
-      languages: {
-        de: localeUrl('de', path),
-        en: localeUrl('en', path),
-        'x-default': localeUrl('de', path),
-      },
-    },
+    alternates,
     openGraph: {
       title: copy.title,
       description: copy.description,
-      url: canonical,
+      url: alternates.canonical,
       type: 'website',
-      images: [{ url: `${SITE_URL}/pics/og-card.png?v=3`, width: 1200, height: 1200, alt: 'EAT THIS – We tell you what to eat' }],
-      locale: locale === 'de' ? 'de_DE' : 'en_US',
+      images: [{ url: `${SITE_URL}/pics/og-card.png?v=4`, width: 1200, height: 1200, alt: 'EAT THIS – We tell you what to eat' }],
+      locale: toOgLocale(locale === 'en' ? 'en' : 'de'),
     },
   }
 }

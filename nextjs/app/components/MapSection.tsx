@@ -21,9 +21,9 @@ import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import { resolveAdjacent } from '@/lib/map/pager'
 import { estimateDetailMidVisiblePx } from '@/lib/map/detailSnap'
 import { readSafeAreaBottom } from '@/lib/map/useMapSheet'
-import { auth, db } from '@/lib/firebase/config'
+import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail'
+import { auth, getDb } from '@/lib/firebase/config'
 import { onAuthStateChanged } from 'firebase/auth'
-import { collection, onSnapshot } from 'firebase/firestore'
 
 interface Props {
   isActive?:       boolean
@@ -85,23 +85,41 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
   const userTier = useUserTier(uid)
 
-  // Live-refetch map data whenever the user's entitlements change (e.g. after purchase).
+  // Live-refetch map data whenever the user's entitlements change (e.g. after
+  // purchase). Firestore SDK is code-split (see getDb) — loaded on demand here
+  // so it stays out of the landing first-load bundle.
   useEffect(() => {
     if (!uid) return
-    const ref = collection(db, 'users', uid, 'entitlements')
-    return onSnapshot(ref, () => {
-      refetchMapData()
-    })
+    let unsub = () => {}
+    let active = true
+    void (async () => {
+      const [{ collection, onSnapshot }, db] = await Promise.all([
+        import('firebase/firestore'),
+        getDb(),
+      ])
+      if (!active) return
+      const ref = collection(db, 'users', uid, 'entitlements')
+      unsub = onSnapshot(ref, () => { refetchMapData() })
+    })()
+    return () => { active = false; unsub() }
   }, [uid, refetchMapData])
 
   // Live-refetch when a referral bonus lands — covers both the inviter
   // (friend just signed up) and the friend (their welcome bonus was written).
   useEffect(() => {
     if (!uid) return
-    const ref = collection(db, 'users', uid, 'referralBonuses')
-    return onSnapshot(ref, () => {
-      refetchMapData()
-    })
+    let unsub = () => {}
+    let active = true
+    void (async () => {
+      const [{ collection, onSnapshot }, db] = await Promise.all([
+        import('firebase/firestore'),
+        getDb(),
+      ])
+      if (!active) return
+      const ref = collection(db, 'users', uid, 'referralBonuses')
+      unsub = onSnapshot(ref, () => { refetchMapData() })
+    })()
+    return () => { active = false; unsub() }
   }, [uid, refetchMapData])
 
   // Swipe the open detail down past peek → close it (back to the list). The
@@ -264,6 +282,9 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
 
   const handleRestaurantClick = useCallback((r: MapRestaurant, origin: 'list' | 'map' = 'list') => {
     userInteractedRef.current = true
+    // Kick off the detail-field fetch now so it's usually cached by the time
+    // the sheet finishes opening (the map payload no longer carries them).
+    prefetchRestaurantDetail(r.slug)
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
     // Capture the list scroll *before* the view switches and the content
     // element unmounts — useLayoutEffect on return restores it.
@@ -306,6 +327,15 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       : { index: -1, prev: null, next: null },
     [displayedRestaurants, selectedRestaurant],
   )
+
+  // Warm the neighbours' detail fields while a detail pane is open, so a
+  // pager swipe lands on fully-populated content instead of popping the
+  // story text in after the transition.
+  useEffect(() => {
+    if (!selectedRestaurant) return
+    if (pagerAdjacent.prev) prefetchRestaurantDetail(pagerAdjacent.prev.slug)
+    if (pagerAdjacent.next) prefetchRestaurantDetail(pagerAdjacent.next.slug)
+  }, [selectedRestaurant, pagerAdjacent])
 
   const handlePageRestaurant = useCallback((dir: 'prev' | 'next') => {
     const target = dir === 'prev' ? pagerAdjacent.prev : pagerAdjacent.next

@@ -1,9 +1,8 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { auth, db } from '@/lib/firebase/config'
+import { auth, getDb } from '@/lib/firebase/config'
 import { onAuthStateChanged } from 'firebase/auth'
-import { collection, onSnapshot } from 'firebase/firestore'
 import { useTranslation } from '@/lib/i18n'
 
 // Fire the confirm POST at most once per browser session.
@@ -42,27 +41,39 @@ export default function ReferralToastListener() {
       unsubBonuses?.()
       unsubBonuses = null
       if (!user) return
-      const seen = new Set<string>()
-      let seeded = false
-      const ref = collection(db, 'users', user.uid, 'referralBonuses')
-      unsubBonuses = onSnapshot(ref, (snap) => {
-        if (!seeded) {
-          snap.forEach((d) => seen.add(d.id))
-          seeded = true
-          return
-        }
-        snap.docChanges().forEach((chg) => {
-          if (chg.type !== 'added' || seen.has(chg.doc.id)) return
-          seen.add(chg.doc.id)
-          if (chg.doc.data().source === 'invited') {
-            const msg =
-              langRef.current === 'en'
-                ? 'Someone joined through your link — new spots unlocked!'
-                : 'Jemand ist über deinen Link gestartet — neue Spots freigeschaltet!'
-            window.showNotification?.(msg, 5000)
+      // Code-split Firestore (see getDb) — load on demand inside the auth
+      // callback so the SDK stays out of the global first-load bundle.
+      let cancelled = false
+      let innerUnsub: (() => void) | null = null
+      unsubBonuses = () => { cancelled = true; innerUnsub?.() }
+      void (async () => {
+        const [{ collection, onSnapshot }, db] = await Promise.all([
+          import('firebase/firestore'),
+          getDb(),
+        ])
+        if (cancelled) return
+        const seen = new Set<string>()
+        let seeded = false
+        const ref = collection(db, 'users', user.uid, 'referralBonuses')
+        innerUnsub = onSnapshot(ref, (snap) => {
+          if (!seeded) {
+            snap.forEach((d) => seen.add(d.id))
+            seeded = true
+            return
           }
+          snap.docChanges().forEach((chg) => {
+            if (chg.type !== 'added' || seen.has(chg.doc.id)) return
+            seen.add(chg.doc.id)
+            if (chg.doc.data().source === 'invited') {
+              const msg =
+                langRef.current === 'en'
+                  ? 'Someone joined through your link — new spots unlocked!'
+                  : 'Jemand ist über deinen Link gestartet — neue Spots freigeschaltet!'
+              window.showNotification?.(msg, 5000)
+            }
+          })
         })
-      })
+      })()
     })
     return () => {
       unsubBonuses?.()

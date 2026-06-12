@@ -6,6 +6,9 @@
 .section {
   background: #fbf8ee;
   padding: 6px 14px 40px;
+  /* Anchor target (#hub-fragremy): clear the fixed navbar so the jump lands on
+     the Remy card headline, not behind the bar — consistent mobile/desktop. */
+  scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
 }
 
 .inner {

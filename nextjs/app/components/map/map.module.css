@@ -595,11 +595,11 @@ html[data-theme="dark"] .list[data-view="detail"] .handle::before {
   flex: 1;
   overflow-x: hidden;
   overflow-y: auto;
-  /* Inset cards 12px each side so the mustPeek (-8px) and 4px box-shadow
-     both sit inside the padding box — nothing overflows, no horizontal
-     swipe/scroll on mobile or desktop. Top padding gives the first card's
-     upward peek room to clear the filter bar. */
-  padding: 16px 12px 0;
+  /* Inset cards 14px each side so the mustPeek (-8px box + ~6px Ink-Überhang
+     durch die 11°-Rotation) and 4px box-shadow sit inside the padding box —
+     nothing overflows, no horizontal swipe/scroll on mobile or desktop. Top
+     padding gives the first card's upward peek room to clear the filter bar. */
+  padding: 16px 14px 0;
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
   /* The map page is 100lvh tall, so the window CAN scroll by a bar-height —
@@ -746,6 +746,29 @@ html[data-theme="dark"] .esBtnPrimary {
 /* Mini variant (restaurant list) */
 
 /* ===== Full-bleed photo card (Chewy mockup Screen 02) ===== */
+
+/* P6 — Listen-Virtualisierung. Off-screen-Slots überspringen Layout+Paint
+   komplett (content-visibility: auto); contain-intrinsic-size hält die
+   Scrollbar stabil, `auto` merkt sich die echte Höhe nach dem ersten
+   Rendern. Paint-Containment clippt Ink-Overflow an der Border-Box des
+   Slots — deshalb trägt der Slot eine Pufferzone für den mustPeek-Überhang
+   (−8px oben/rechts) PLUS dessen 11°-Rotation: Die rotierten Ecken malen
+   ~6px über die Layout-Box hinaus und wurden mit nur 8px Puffer oben/rechts
+   flach abgeschnitten → 14px oben/seitlich, 8px unten (Fokus-Ring/Schatten),
+   per negativer Margin wieder zurückgezogen. Die Geometrie ist identisch
+   zur ungewrappten Karte: Karten-Abstand = 8px Padding-Bottom +
+   kollabierte Margin (4px ∧ −14px → −10px) + 14px Padding-Top des
+   Folge-Slots = 12px. */
+.rcardSlot {
+  content-visibility: auto;
+  /* ≈ Karte (16:10 bei ~340px Panel-/Mobile-Breite) + 22px Slot-Padding —
+     minimiert Scrollbar-Drift, bis `auto` die gemessene Höhe übernimmt. */
+  contain-intrinsic-size: auto 216px;
+  padding: 14px 14px 8px;
+  margin: -14px -14px 4px;
+}
+.rcardSlot .rcard { margin: 0; }
+
 .rcard {
   position: relative;
   display: block;
@@ -1152,7 +1175,7 @@ html[data-theme="dark"] .btn:hover {
   right: -4px;
   width: 12px;
   height: 17px;
-  background: transparent url('/pics/card-back.webp?v=5') center/contain no-repeat;
+  background: transparent url('/pics/card-back-sm.webp?v=6') center/contain no-repeat;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
   transform: rotate(8deg);
   z-index: 1;
@@ -1337,6 +1360,13 @@ html[data-theme="dark"] .btn:hover {
        + overhang: the detail scroll-port extends into the URL-bar zone;
        .detailV13Scroll's bottom padding compensates. */
     max-height: calc(100dvh - var(--sheet-y, 0px) - 24px + var(--map-bar-overhang, 0px));
+  }
+  /* Must-Eat-Detail: KEIN URL-Bar-Apron. Das Layout ist fix (Karte + Text,
+     kein Scrollen) — der Overhang stünde als toter Weißraum unterm Pager
+     (Screenshots User 2026-06-11). Mount endet an der sichtbaren
+     Viewport-Unterkante; 36px = Detail-Handle überm Mount. */
+  .detailMountMustEat {
+    max-height: calc(100dvh - var(--sheet-y, 0px) - 36px);
   }
 }
 
@@ -2435,10 +2465,9 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
 }
 .detailV13Scroll::-webkit-scrollbar { width: 0; }
 
-/* Must-Eat-Detail mobile: viewport-füllend nur am FULL-Snap. Bei mid/peek
-   regulären Scroll-Modus behalten — sonst absorbiert flex:1 die ganze
-   Sheet-Höhe für die Card und der Lock-Block + Actions + Utility werden
-   nach unten weggedrückt. Restaurant-Detail unverändert (kein .detailV13MustEat). */
+/* Must-Eat-Detail mobile: viewport-füllendes Layout ohne Scrollen — siehe
+   den .detailV13MustEat-Block unter den .fd-* Regeln weiter unten.
+   Restaurant-Detail unverändert (kein .detailV13MustEat). */
 /* 1. Utility bar */
 
 /* 2. Hero panel — coral with mustard district pill + Saira name */
@@ -2640,13 +2669,13 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
 }
 .fdRest {
   /* Extra top room so the rotated "VERDECKT" stamp (centred over the name)
-     never overlaps the "Im Restaurant" block on short names. */
+     never overlaps the "Im Restaurant" block on short names. Kein
+     Border-Strich mehr darunter (User 2026-06-11: schwarzer Rahmen raus). */
   margin: 30px 14px 0;
   display: flex;
   align-items: end;
   gap: 18px;
   padding-bottom: 16px;
-  border-bottom: 4px solid var(--d-ink);
 }
 .fdPrice { /* sits next to the restaurant block on the left */ }
 .fdK {
@@ -2754,9 +2783,13 @@ html[data-theme="dark"] .ctaPill {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Kein Nachbar in der Richtung → Pfeil + Slot komplett ausblenden statt
+   ausgegraut: ein sichtbarer Pfeil am Listenende suggeriert "da geht's
+   weiter" (User 2026-06-11). visibility statt display, damit das Grid
+   stabil bleibt und der verbleibende Nachbar nicht rüberrutscht. */
 .fdPagerPrev:disabled,
 .fdPagerNext:disabled {
-  opacity: 0.35;
+  visibility: hidden;
   cursor: default;
 }
 /* X close — sits top-right over the sheet, square sticker like the burger. */
@@ -2787,6 +2820,64 @@ html[data-theme="dark"] .ctaPill {
   font-weight: 500;
   line-height: 1.6;
   color: var(--d-text);
+}
+
+/* Must-Eat-Detail mobile — zwei Snap-Höhen (User 2026-06-11):
+   FULL = alles sichtbar, große Karte + Text, ganzer Viewport ohne
+   Whitespace-Loch; der untere Snap (≈ halbe Höhe) zeigt Karte + Name —
+   seine Höhe rechnet useMapSheet aus genau dieser Geometrie aus
+   (Handle + 26px + Card 36dvh + 12px + gemessener Name).
+   Der Scroll-Container ist eine Flex-Spalte: Card fest (jede Karte gleich
+   groß, beim Blättern springt nichts), Name/Text hängen direkt unter der
+   Card, Restaurant-Block UND Pager tragen margin-top:auto — freier Raum
+   verteilt sich 50/50 auf die beiden Anker statt als ein Loch überm Pager.
+   Läuft der Inhalt über (sehr lange Beschreibung), bleibt overflow-y:auto
+   als Ventil und die Auto-Margins kollabieren auf ihre Paddings. */
+@media (max-width: 1023.98px) {
+  .detailV13MustEat .detailV13Scroll {
+    display: flex;
+    flex-direction: column;
+    /* Kein Overhang — der Mount endet am sichtbaren Viewport
+       (.detailMountMustEat), der Pager sitzt direkt über der Unterkante. */
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 10px);
+  }
+  .detailV13MustEat .fdHero {
+    /* Feste Höhe pro Gerät. ACHTUNG: 40dvh/190/380 + die 22/12px-Margins
+       spiegeln sich in useMapSheet (mustEatPeek) — zusammen ändern. */
+    flex: 0 0 auto;
+    height: clamp(190px, 40dvh, 380px);
+    width: auto;
+    max-width: min(66vw, 280px);
+    margin: 22px auto 12px;
+  }
+  .detailV13MustEat .fdName {
+    /* padding statt margin: das Element trägt data-detail-hero und wird per
+       ResizeObserver gemessen (border-box) — useMapSheet braucht die volle
+       Name-Höhe inkl. Abständen für den unteren Karte+Name-Snap. */
+    margin: 0;
+    padding: 12px 14px 6px;
+    font-size: clamp(36px, 10vw, 50px);
+  }
+  .detailV13MustEat .fdText {
+    margin: 10px 16px 0;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .detailV13MustEat .fdProximity { margin: 10px 20px 0; }
+  .detailV13MustEat .fdProximityHead { font-size: clamp(22px, 6.5vw, 30px); }
+  .detailV13MustEat .fdProximitySub { margin-top: 6px; font-size: 15px; }
+  .detailV13MustEat .fdRest {
+    margin: auto 14px 14px;
+    padding-top: 14px;
+    padding-bottom: 0;
+  }
+  .detailV13MustEat .fdV { font-size: 25px; }
+  .detailV13MustEat .ctaPill { font-size: 14px; padding: 11px 15px 12px; }
+  .detailV13MustEat .fdPager {
+    margin: auto 0 0;
+    padding: 17px 16px;
+  }
+  .detailV13MustEat .fdPagerName { font-size: 17px; }
 }
 
 /* Must-Eat detail v13 strip — wobble card-back (locked, proximity-reveal
@@ -3067,6 +3158,11 @@ html[data-theme="dark"] .btnPackPromoTag {
 @media (min-width: 1024px) {
   .heroName { font-size: 40px; line-height: 0.94; }
 
+  /* Desktop has no iOS URL bar, so the --map-bar-overhang apron (80px) would
+     just be dead white space below the last block (e.g. the booster banner).
+     Drop it from the detail scroll padding here; iOS keeps the apron. */
+  .detailV13Scroll { padding-bottom: 20px; }
+
   /* Must-Eat-Detail kompakter auf Desktop — Ziel: alles in den Viewport
      ohne internen Scroll. Schrumpfen Card-Strip + Lock-Block gezielt
      zusammen ohne dass die Komposition leer wirkt. */
@@ -3332,6 +3428,25 @@ html[data-theme="dark"] .rdTag {
   color: #0a0a0a;
 }
 .rdBody p { margin: 0 0 12px; }
+/* Skeleton lines while the on-demand detail fields are in flight — holds the
+   story block's space so Tipp/Facts/Must-Eats don't jump when the text lands.
+   Shimmer runs on background-position (no opacity animation, project rule). */
+.rdBodySkel { display: grid; gap: 11px; padding-bottom: 16px; }
+.rdBodySkel span {
+  height: 13px;
+  border-radius: 7px;
+  background: linear-gradient(90deg, rgba(10, 10, 10, .08) 25%, rgba(10, 10, 10, .15) 50%, rgba(10, 10, 10, .08) 75%);
+  background-size: 200% 100%;
+  animation: rdSkelShimmer 1.2s linear infinite;
+}
+.rdBodySkel span:nth-child(2) { width: 94%; }
+.rdBodySkel span:nth-child(3) { width: 88%; }
+.rdBodySkel span:nth-child(4) { width: 55%; }
+@keyframes rdSkelShimmer { to { background-position: -200% 0; } }
+html[data-theme="dark"] .rdBodySkel span {
+  background: linear-gradient(90deg, rgba(240, 232, 208, .10) 25%, rgba(240, 232, 208, .18) 50%, rgba(240, 232, 208, .10) 75%);
+  background-size: 200% 100%;
+}
 .rdDropCap {
   font-family: var(--font-chewy);
   font-size: 70px;

@@ -91,6 +91,16 @@ env:
     secret: ANTHROPIC_API_KEY
     availability:
       - RUNTIME
+  # Voyage AI — semantic spot ranking (embeds the user's query at request
+  # time). Restaurant embeddings are baked into
+  # lib/buddy/restaurant-embeddings.json at build time; this key only embeds
+  # the live query. Without it the buddy falls back to keyword search
+  # (semanticRank returns null). Set with:
+  #   firebase apphosting:secrets:set VOYAGE_API_KEY
+  - variable: VOYAGE_API_KEY
+    secret: VOYAGE_API_KEY
+    availability:
+      - RUNTIME
 
   # Stripe (one-time payments for category packs + all-berlin bundle).
   # Secrets are seeded with TEST-mode values; rotate to LIVE values via

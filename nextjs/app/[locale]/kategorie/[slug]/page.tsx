@@ -12,6 +12,7 @@ import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { localeUrl } from '@/lib/locale-url'
+import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import { routing } from '@/i18n/routing'
 import { pickLocale } from '@/lib/i18n/pickLocale'
 import styles from '../../bezirk/Bezirk.module.css'
@@ -31,7 +32,7 @@ const PACK_OG_SLUGS = new Set([
   'breakfast', 'coffee', 'dinner', 'drinks', 'fast-food',
   'fine-dining', 'lunch', 'pizza', 'sweets',
 ])
-const PACK_OG_VERSION = 1
+const PACK_OG_VERSION = 2
 
 export const revalidate = 3600
 
@@ -58,24 +59,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     restaurants,
     locale: loc,
   })
-  const canonical = localeUrl(locale, `/kategorie/${slug}`)
+  const alternates = buildHreflangAlternates(`/kategorie/${slug}`, de ? 'de' : 'en')
   return {
     title,
     description,
-    alternates: {
-      canonical,
-      languages: {
-        de: localeUrl('de', `/kategorie/${slug}`),
-        en: localeUrl('en', `/kategorie/${slug}`),
-        'x-default': localeUrl('de', `/kategorie/${slug}`),
-      },
-    },
+    alternates,
     openGraph: {
       title,
       description,
-      url: canonical,
+      url: alternates.canonical,
       type: 'website',
-      locale: de ? 'de_DE' : 'en_US',
+      locale: toOgLocale(de ? 'de' : 'en'),
       ...(PACK_OG_SLUGS.has(slug) && {
         images: [
           {

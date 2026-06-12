@@ -289,7 +289,7 @@ export default function MustEatRevealOverlay({ imageUrl, alt, originRect, onDone
             onPointerLeave={phase === 'revealed' ? handlePointerLeave : undefined}
           >
             <div className={flipperClass}>
-              <img className={styles.faceBack} src="/pics/card-back.webp?v=5" alt="" aria-hidden="true" />
+              <img className={styles.faceBack} src="/pics/card-back.webp?v=6" alt="" aria-hidden="true" />
               <img className={styles.faceFront} src={imageUrl} alt={alt} />
             </div>
           </motion.div>

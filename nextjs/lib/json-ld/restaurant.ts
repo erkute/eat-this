@@ -58,6 +58,9 @@ export function buildRestaurantJsonLd({
         servesCuisine: r.categories?.map(c => c.nameEn || c.name).filter(Boolean),
         url: r.website,
         hasMap: r.mapsUrl,
+        // Official menu URL — schema.org Restaurant.hasMenu accepts a URL;
+        // pairs with the on-page "Was bestellen?" block.
+        ...(r.menuUrl && { hasMenu: r.menuUrl }),
         // schema.org allows a reservation URL here, not just a boolean —
         // richer signal for crawlers when we have one.
         ...(r.reservationUrl && { acceptsReservations: r.reservationUrl }),

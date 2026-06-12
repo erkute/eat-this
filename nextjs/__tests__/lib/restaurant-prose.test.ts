@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { Restaurant } from '@/lib/types'
-import { buildQuickFacts, buildFAQEntries, summarizeHours } from '@/lib/restaurant-prose'
+import { buildQuickFacts, buildFAQEntries, buildWhatToOrderAnswer, summarizeHours } from '@/lib/restaurant-prose'
 
 function makeRestaurant(overrides: Partial<Restaurant> = {}): Restaurant {
   return {
@@ -100,5 +100,58 @@ describe('buildFAQEntries', () => {
     const entries = buildFAQEntries(makeRestaurant(), 'en')
     expect(entries[0].question).toBe('Where do I find 893 Ryōtei?')
     expect(entries[0].answer).toBe('893 Ryōtei is in Charlottenburg, Kantstraße 135, 10623 Berlin.')
+  })
+
+  it('answers the order question from whatToOrder when maintained, beating tip', () => {
+    const entries = buildFAQEntries(
+      makeRestaurant({
+        tip: 'Unbedingt das Omakase.',
+        whatToOrder: [{ dish: 'Omakase-Menü', note: 'Zwölf Gänge, jeden Cent wert.', price: '120 €' }],
+      }),
+      'de',
+    )
+    expect(entries[0].question).toBe('Was sollte man bei 893 Ryōtei bestellen?')
+    expect(entries[0].answer).toBe('Unsere Empfehlungen: Omakase-Menü (120 €) — Zwölf Gänge, jeden Cent wert.')
+  })
+
+  it('falls back to tip for the order question without whatToOrder', () => {
+    const entries = buildFAQEntries(makeRestaurant({ tip: 'Unbedingt das Omakase.' }), 'de')
+    expect(entries[0]).toEqual({
+      question: 'Was sollte man bei 893 Ryōtei bestellen?',
+      answer: 'Unbedingt das Omakase.',
+    })
+  })
+})
+
+describe('buildWhatToOrderAnswer', () => {
+  it('joins multiple dishes as sentences with price and reason', () => {
+    const r = makeRestaurant({
+      whatToOrder: [
+        { dish: 'Pork Belly', note: 'Knusprig und fettig — das Signature Dish.', price: '18 €' },
+        { dish: 'Wolfsbarsch', note: 'Ganzer Fisch vom Grill' },
+        { dish: 'Kimchi Pancake' },
+      ],
+    })
+    expect(buildWhatToOrderAnswer(r, 'de')).toBe(
+      'Unsere Empfehlungen: Pork Belly (18 €) — Knusprig und fettig — das Signature Dish. Wolfsbarsch — Ganzer Fisch vom Grill. Kimchi Pancake.',
+    )
+  })
+
+  it('prefers the EN note on locale en and falls back to German', () => {
+    const r = makeRestaurant({
+      whatToOrder: [
+        { dish: 'Pork Belly', note: 'Knusprig.', noteEn: 'Crispy, the signature dish.', price: '18 €' },
+        { dish: 'Wolfsbarsch', note: 'Vom Grill.' },
+      ],
+    })
+    expect(buildWhatToOrderAnswer(r, 'en')).toBe(
+      'Our picks: Pork Belly (18 €) — Crispy, the signature dish. Wolfsbarsch — Vom Grill.',
+    )
+  })
+
+  it('returns null when no recommendations are maintained', () => {
+    expect(buildWhatToOrderAnswer(makeRestaurant(), 'de')).toBeNull()
+    expect(buildWhatToOrderAnswer(makeRestaurant({ whatToOrder: [] }), 'de')).toBeNull()
+    expect(buildWhatToOrderAnswer(makeRestaurant({ whatToOrder: [{ dish: '  ' }] }), 'de')).toBeNull()
   })
 })

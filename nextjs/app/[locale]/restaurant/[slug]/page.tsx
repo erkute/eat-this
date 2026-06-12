@@ -5,7 +5,7 @@ import { setRequestLocale } from 'next-intl/server'
 import { getRestaurantBySlug, getAllRestaurantSlugs, getAllRestaurantsLite, getMustEatsByRestaurant, getRestaurantsByBezirk, getRestaurantsByCategory } from '@/lib/sanity.server'
 import { resolveLegacyRestaurantSlug } from '@/lib/seo/legacyRedirects'
 import { buildRestaurantJsonLd } from '@/lib/json-ld'
-import { buildRestaurantTitle, truncateAtSentence } from '@/lib/seo/restaurantMeta'
+import { buildRestaurantTitle, buildOrderPromiseDescription, truncateAtSentence } from '@/lib/seo/restaurantMeta'
 import { siblingWindow } from '@/lib/seo/siblingWindow'
 import { SITE_URL } from '@/lib/constants'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
@@ -42,14 +42,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const districtName = r.bezirk?.name ?? r.district ?? null
 
+  // Antwort-Versprechen aus den whatToOrder-Empfehlungen: schlägt die
+  // beschreibenden Fallbacks, kuratierte seo.metaDescription gewinnt weiter.
+  const orderDishes = (r.whatToOrder ?? []).map(i => i.dish)
+  const orderPriceLabel = formatPriceLabel(r)
+  const orderPromiseDe = buildOrderPromiseDescription({ name: r.name, dishes: orderDishes, priceLabel: orderPriceLabel, locale: 'de' })
+  const orderPromiseEn = buildOrderPromiseDescription({ name: r.name, dishes: orderDishes, priceLabel: orderPriceLabel, locale: 'en' })
+
   const description = truncateAtSentence(
     pickLocale(
       r.seo?.metaDescription ||
+        orderPromiseDe ||
         r.shortDescription ||
         r.tip ||
         r.description ||
         `${r.name} in Berlin${districtName ? `, ${districtName}` : ''}.`,
       r.seo?.metaDescriptionEn ||
+        orderPromiseEn ||
         r.shortDescriptionEn ||
         r.tipEn ||
         r.descriptionEn ||
@@ -136,6 +145,7 @@ export default async function RestaurantPage({ params }: PageProps) {
   const tipText = pickLocale(r.tip, r.tipEn, loc)
   const magazine = splitDescriptionForMagazine(description)
   const faqEntries = buildFAQEntries(r, loc)
+  const orderItems = (r.whatToOrder ?? []).filter(i => i?.dish?.trim())
 
   const openStatus =
     r.openingHours && r.openingHours.length > 0
@@ -247,6 +257,36 @@ export default async function RestaurantPage({ params }: PageProps) {
             <div className={styles.tippLabel}>{de ? 'Insider Tipp' : 'Insider Tip'}</div>
             <p className={styles.tippText}>{tipText}</p>
           </aside>
+        )}
+
+        {orderItems.length > 0 && (
+          <section className={styles.order} aria-label={de ? 'Was bestellen?' : 'What to order?'}>
+            <h2 className={styles.orderHead}>{de ? 'Was bestellen?' : 'What to order?'}</h2>
+            <ul className={styles.orderList}>
+              {orderItems.map(item => {
+                const note = pickLocale(item.note, item.noteEn, loc)
+                return (
+                  <li key={item.dish} className={styles.orderItem}>
+                    <div className={styles.orderTop}>
+                      <span className={styles.orderDish}>{item.dish}</span>
+                      {item.price && <span className={styles.orderPrice}>{item.price}</span>}
+                    </div>
+                    {note && <p className={styles.orderNote}>{note}</p>}
+                  </li>
+                )
+              })}
+            </ul>
+            {r.menuUrl && (
+              <a
+                className={styles.orderMenuLink}
+                href={r.menuUrl}
+                target="_blank"
+                rel="noopener nofollow noreferrer"
+              >
+                {de ? 'Zur offiziellen Speisekarte' : 'See the full menu'}
+              </a>
+            )}
+          </section>
         )}
 
         <dl className={styles.facts}>

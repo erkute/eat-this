@@ -55,6 +55,28 @@ export interface FAQEntry {
 }
 
 /**
+ * Natural-language answer for "Was bestellen?" built from the editorial
+ * `whatToOrder` recommendations: dish (price) — reason, joined as sentences.
+ * Null when no recommendations are maintained (callers fall back to `tip`).
+ */
+export function buildWhatToOrderAnswer(r: Restaurant, locale: Loc): string | null {
+  const items = (r.whatToOrder ?? []).filter(i => i?.dish?.trim())
+  if (items.length === 0) return null
+
+  const parts = items.map(i => {
+    const note = pickLocale(i.note, i.noteEn, locale)?.trim().replace(/\.$/, '')
+    const price = i.price?.trim()
+    let s = i.dish.trim()
+    if (price) s += ` (${price})`
+    if (note) s += ` — ${note}`
+    return s
+  })
+
+  const lead = locale === 'de' ? 'Unsere Empfehlungen' : 'Our picks'
+  return `${lead}: ${parts.join('. ')}.`
+}
+
+/**
  * Magazine-style split of the long description into editorial pieces.
  * Preserves the author's paragraph breaks (`\n\n`) so rhythm survives —
  * the previous flat-string body was visually compressing multi-paragraph
@@ -155,11 +177,14 @@ export function buildFAQEntries(r: Restaurant, locale: Loc): FAQEntry[] {
   const tip = pickLocale(r.tip, r.tipEn, locale)
   const entries: FAQEntry[] = []
 
-  if (tip) {
+  // Curated whatToOrder recommendations beat the one-line tip — they answer
+  // the "karte/speisekarte" search intent with concrete dishes + prices.
+  const orderAnswer = buildWhatToOrderAnswer(r, locale) ?? tip
+  if (orderAnswer) {
     entries.push(
       de
-        ? { question: `Was sollte man bei ${name} bestellen?`, answer: tip }
-        : { question: `What should I order at ${name}?`, answer: tip },
+        ? { question: `Was sollte man bei ${name} bestellen?`, answer: orderAnswer }
+        : { question: `What should I order at ${name}?`, answer: orderAnswer },
     )
   }
 

@@ -59,6 +59,71 @@ describe('pickPackForSpots', () => {
     ]
     expect(pickPackForSpots(spots)?.packId).toBe('category-dinner')
   })
+
+  it('returns null when the vote is tied between two categories', () => {
+    // lunch and dinner tie 4:4 — insertion order must not pick the winner
+    const spots = [
+      spot('a', ['lunch', 'dinner']),
+      spot('b', ['lunch', 'dinner']),
+      spot('c', ['lunch', 'dinner']),
+      spot('d', ['lunch', 'dinner']),
+    ]
+    expect(pickPackForSpots(spots)).toBeNull()
+  })
+})
+
+describe('pickPackForSpots with user intent', () => {
+  // Real catalog shape: breakfast cafés and cocktail bars also carry the
+  // near-universal lunch/dinner refs, which otherwise outvote the topic the
+  // user actually asked for (breakfast search → Lunch card).
+  const breakfastScene = [
+    spot('a', ['breakfast', 'lunch']),
+    spot('b', ['breakfast', 'lunch', 'coffee']),
+    spot('c', ['lunch', 'dinner']),
+    spot('d', ['lunch', 'dinner']),
+    spot('e', ['lunch', 'dinner']),
+  ]
+  const barScene = [
+    spot('a', ['drinks']),
+    spot('b', ['drinks', 'dinner']),
+    spot('c', ['lunch', 'dinner']),
+    spot('d', ['lunch', 'dinner']),
+    spot('e', ['lunch', 'dinner']),
+  ]
+
+  it('anchors on the pack the user asked for even when generic tags outnumber it', () => {
+    expect(pickPackForSpots(breakfastScene, 'frühstück')?.packId).toBe('category-breakfast')
+    expect(pickPackForSpots(barScene, 'drinks')?.packId).toBe('category-drinks')
+  })
+
+  it('maps DE/EN synonyms and multi-word terms to the pack topic', () => {
+    expect(pickPackForSpots(breakfastScene, 'brunch')?.packId).toBe('category-breakfast')
+    expect(pickPackForSpots(breakfastScene, 'breakfast')?.packId).toBe('category-breakfast')
+    expect(pickPackForSpots(barScene, 'cocktails')?.packId).toBe('category-drinks')
+    expect(pickPackForSpots(barScene, 'bar')?.packId).toBe('category-drinks')
+    expect(pickPackForSpots(barScene, 'natural wine')?.packId).toBe('category-drinks')
+  })
+
+  it('shows nothing when the asked-for topic has no support in the results', () => {
+    // user asked for breakfast, results carry no breakfast ref at all — a
+    // Lunch card here is exactly the reported bug, no card is correct
+    const spots = [
+      spot('a', ['lunch', 'dinner']),
+      spot('b', ['lunch', 'dinner']),
+      spot('c', ['lunch']),
+    ]
+    expect(pickPackForSpots(spots, 'frühstück')).toBeNull()
+  })
+
+  it('falls back to the majority vote for dish terms that name no pack topic', () => {
+    const spots = [
+      spot('a', ['pizza']),
+      spot('b', ['pizza', 'dinner']),
+      spot('c', ['pizza']),
+      spot('d', ['dinner']),
+    ]
+    expect(pickPackForSpots(spots, 'ramen')?.packId).toBe('category-pizza')
+  })
 })
 
 describe('buildPackTeaser', () => {

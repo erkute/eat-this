@@ -85,11 +85,14 @@ export async function* runBuddyTurn(
         })
         yield { type: 'spots', value: spots }
         // Teaser only when the user explicitly named a dish/cuisine (the LLM
-        // sets `cuisine` exactly then) AND the results agree on one pack
-        // category — a generic "wo kann man gut essen?" never gets a card.
+        // sets `cuisine` exactly then) AND that term or the results pin down
+        // one pack category — a generic "wo kann man gut essen?" never gets a
+        // card. The cuisine term anchors the pick: a breakfast question must
+        // show the Breakfast pack even when the results' generic lunch/dinner
+        // refs hold the majority.
         const explicitCuisine = typeof tu.input.cuisine === 'string' && tu.input.cuisine.trim().length > 0
         if (!packSent && explicitCuisine) {
-          const pack = pickPackForSpots(rawSpots)
+          const pack = pickPackForSpots(rawSpots, tu.input.cuisine as string)
           if (pack) {
             packSent = true
             yield { type: 'pack', value: buildPackTeaser(pack, input.locale) }

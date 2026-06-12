@@ -7,6 +7,7 @@ const mockGetUser           = vi.fn()
 const mockTransactionGet    = vi.fn()
 const mockTransactionSet    = vi.fn()
 const mockRunTransaction    = vi.fn()
+const mockCount             = vi.fn()
 
 vi.mock('@/lib/firebase/admin', () => ({
   getAdminAuth: () => ({ verifyIdToken: mockVerifyIdToken, getUser: mockGetUser }),
@@ -15,6 +16,8 @@ vi.mock('@/lib/firebase/admin', () => ({
       doc: () => ({
         collection: () => ({
           doc: (id: string) => ({ id }),
+          // Inviter farming-cap count: .where('source','==','invited').count().get()
+          where: () => ({ count: () => ({ get: mockCount }) }),
         }),
       }),
     }),
@@ -82,10 +85,15 @@ function primeHappyPath() {
   mockRunTransaction.mockImplementation(async (fn) =>
     fn({ get: mockTransactionGet, set: mockTransactionSet }),
   )
+  // Default: inviter well below the farming cap.
+  mockCount.mockResolvedValue({ data: () => ({ count: 0 }) })
 }
 
 beforeEach(() => {
   vi.clearAllMocks()
+  // Inviter below the farming cap unless a test overrides it. Set here (not
+  // only in primeHappyPath) so the manually-primed tests get it too.
+  mockCount.mockResolvedValue({ data: () => ({ count: 0 }) })
 })
 
 describe('/api/referral/confirm', () => {
@@ -213,5 +221,26 @@ describe('/api/referral/confirm', () => {
     const res = await POST(mkReq(INVITER))
     expect(mockTransactionSet).not.toHaveBeenCalled()
     expect(res.cookies.get('pending_referrer')?.value).toBe('')
+  })
+
+  it('inviter at farming cap → friend doc still written, inviter doc withheld', async () => {
+    primeHappyPath()
+    // 25 awarded referrals already → at the cap (MAX_REFERRALS_PER_INVITER).
+    mockCount.mockResolvedValue({ data: () => ({ count: 25 }) })
+    const res = await POST(mkReq(INVITER))
+    expect(res.status).toBe(200)
+    // Only the friend's welcome bonus is written; the inviter-side reward stops.
+    expect(mockTransactionSet).toHaveBeenCalledTimes(1)
+    const friendDoc = mockTransactionSet.mock.calls[0][1] as { source: string }
+    expect(friendDoc.source).toBe('invited-by')
+    expect(res.cookies.get('pending_referrer')?.value).toBe('')
+  })
+
+  it('inviter one below cap → both docs written', async () => {
+    primeHappyPath()
+    mockCount.mockResolvedValue({ data: () => ({ count: 24 }) })
+    const res = await POST(mkReq(INVITER))
+    expect(res.status).toBe(200)
+    expect(mockTransactionSet).toHaveBeenCalledTimes(2)
   })
 })

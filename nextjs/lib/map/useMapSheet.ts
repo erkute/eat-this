@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useBottomSheet, type SheetSnap } from './useBottomSheet'
+import { detailMidVisiblePx, estimateDetailMidVisiblePx } from './detailSnap'
 
 export type SheetView = 'list' | 'detail'
-export type DetailKind = 'restaurant' | 'mustEat'
 
 /* Read the iOS safe-area-inset-bottom (~34 px on iPhones with home
    indicator, 0 on Android / desktop) so the peek snap accounts for it.
    Without this, the bottom of the visible peek strip falls behind the
    home indicator and content there appears cut off. */
-function readSafeAreaBottom(): number {
+export function readSafeAreaBottom(): number {
   if (typeof document === 'undefined') return 0
   const probe = document.createElement('div')
   probe.style.cssText =
@@ -22,28 +22,17 @@ function readSafeAreaBottom(): number {
 
 /* Base content heights (above any iOS safe-area). Per-view peek sizes
    reflect what's actually rendered at the top of the sheet:
-   - restaurant detail: handle (~24) + coral hero block. Die Höhe variiert
-             mit dem Namens-Umbruch (1 vs 2 Zeilen) und wird zur Laufzeit
-             per ResizeObserver am [data-detail-hero]-Element gemessen
-             (see effect below). DETAIL_PEEK_BASE_PX is the fallback used
-             before the first measurement lands.
-   - must-eat detail: unterer Snap = Karte + Gerichtsname sichtbar
-             (≈ halbe Höhe, User 2026-06-11). Handle + Card-Block +
-             gemessener Name ([data-detail-hero] = .fdName). Die
-             Card-Geometrie spiegelt .detailV13MustEat .fdHero in
-             map.module.css: clamp(190px, 40dvh, 380px) + 22px oben /
-             12px unten — zusammen ändern.
+   - detail ("middle stage" / bottom anchor): everything from the sheet's
+     top down to the bottom of the last element visible there — the
+     prev/next pager for a restaurant (photo + pager), or the dish-name
+     block for a must-eat (card + name). That bottom edge is measured live
+     via ResizeObservers on the [data-detail-hero] / [data-detail-pager]
+     elements (see effect below). Before the first measurement lands a
+     viewport-width estimate (estimateDetailMidVisiblePx) stands in so the
+     sheet doesn't visibly jump; DETAIL_PEEK_BASE_PX is only the SSR-safe
+     last resort.
    - list: handle + listHeaderRow + filterChipRow = 120 */
 const DETAIL_PEEK_BASE_PX = 220
-const MUST_EAT_NAME_BASE_PX = 60
-const MUST_EAT_CARD_MARGINS_PX = 22 + 12
-const HANDLE_PX = 44
-
-/* Spiegelt .detailV13MustEat .fdHero: clamp(190px, 40dvh, 380px). */
-function mustEatCardPx(): number {
-  if (typeof window === 'undefined') return 300
-  return Math.min(380, Math.max(190, window.innerHeight * 0.40))
-}
 /* List peek = handle (~24) + filter chip row (padding 24+10 + chip ~24 ≈ 58)
    ≈ 82, plus a little buffer. After map-v2 the listHeaderRow is gone, so
    the old 120 left empty sheet-bg between the chip row and the visible
@@ -63,44 +52,44 @@ const LIST_PEEK_BASE_PX            = 90
 export function useMapSheet(onDetailDismiss?: () => void) {
   const sheet = useBottomSheet('mid')
   const [sheetView, setSheetViewState] = useState<SheetView>('list')
-  const [detailKind, setDetailKindState] = useState<DetailKind>('restaurant')
-  /* Measured hero-block height drives the detail peek. Initialized null so
-     the first config uses the static fallback; flips to the measured value
-     once the ResizeObserver below fires. */
-  const [detailHeroPx, setDetailHeroPx] = useState<number | null>(null)
+  /* Measured bottom-edge offset (relative to the sheet's top) of the last
+     element visible at the detail middle stage — the pager when rendered
+     (restaurant), otherwise the hero/dish-name (must-eat). Measuring the
+     offset instead of summing element heights keeps margins/gaps included,
+     and the same code serves both detail kinds (the rendered DOM differs,
+     the formula doesn't). Initialized null so the first config uses the
+     estimate fallback; flips to the measured value once the ResizeObservers
+     below fire. */
+  const [detailContentBottomPx, setDetailContentBottomPx] = useState<number | null>(null)
 
   /* Per-view config rebuilds whenever the measured hero height changes so the
      bottom-sheet's peek snap reflects the live content. iOS safe-area is read
      once at mount. */
   const viewConfig = useMemo(() => {
     const safeAreaBottom = readSafeAreaBottom()
-    /* +4 px buffer below the hero — just enough to keep fractional
-       sub-pixel rounding from clipping the last meta-row pixel, while
-       avoiding a visible band of the photo underneath. */
-    const restaurantPeek = detailHeroPx != null
-      ? HANDLE_PX + detailHeroPx + 4 + safeAreaBottom
-      : DETAIL_PEEK_BASE_PX + safeAreaBottom
-    /* Must-Eat: Handle + Card-Block + Name — der gemessene [data-detail-hero]
-       ist hier der Gerichtsname (.fdName, padding inklusive). Kein safe-area
-       Aufschlag: die Messlinie endet unter dem Namen, nicht an einer
-       Interaktionszeile. */
-    const mustEatPeek = HANDLE_PX + MUST_EAT_CARD_MARGINS_PX + mustEatCardPx()
-      + (detailHeroPx ?? MUST_EAT_NAME_BASE_PX)
+    /* Middle stage = sheet top → pager bottom (restaurant) or dish-name
+       bottom (must-eat), +4px sub-pixel buffer, + safe area — the formula
+       lives in detailSnap.ts. Pre-measurement the viewport-width estimate
+       stands in (assumes a restaurant photo + pager; the measurement
+       corrects within a frame of the detail mounting, must-eat included). */
+    const detailPeek = detailContentBottomPx != null
+      ? detailMidVisiblePx(detailContentBottomPx, safeAreaBottom)
+      : typeof window !== 'undefined'
+        ? estimateDetailMidVisiblePx(window.innerWidth, true, safeAreaBottom)
+        : DETAIL_PEEK_BASE_PX + safeAreaBottom
     const detailSnaps: SheetSnap[] = ['full', 'peek']
     // Detail: TWO anchors — 'full' at the top (minimal map strip) and 'peek'
-    // lower down (restaurant: hero strip; must-eat: Karte + Name ≈ halbe
-    // Höhe). No 'mid'. A downward swipe settles at peek; only a swipe well
-    // BELOW peek dismisses (back to the list) via onDismiss. List:
-    // full/mid/peek (snaps undefined = default), no dismiss. All keys set
+    // lower down (restaurant: photo + pager; must-eat: card + dish name ≈
+    // half height). No 'mid'. A downward swipe settles at peek; only a swipe
+    // well BELOW peek dismisses (back to the list) via onDismiss. List:
+    // full/mid/peek (snaps undefined = default), no dismiss. Both keys set
     // explicitly so configure()'s merge clears the other view's value when
     // switching.
-    const detailBase = { maxSnap: null, snaps: detailSnaps, dragMode: 'all' as const, onDismiss: onDetailDismiss }
     return {
-      detailRestaurant: { ...detailBase, peekVisiblePx: restaurantPeek },
-      detailMustEat:    { ...detailBase, peekVisiblePx: mustEatPeek },
-      list: { maxSnap: null, snaps: undefined, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX + safeAreaBottom, onDismiss: undefined },
+      detail: { maxSnap: null, snaps: detailSnaps, dragMode: 'all' as const, peekVisiblePx: detailPeek, onDismiss: onDetailDismiss },
+      list:   { maxSnap: null, snaps: undefined, dragMode: 'all' as const, peekVisiblePx: LIST_PEEK_BASE_PX + safeAreaBottom, onDismiss: undefined },
     }
-  }, [detailHeroPx, onDetailDismiss])
+  }, [detailContentBottomPx, onDetailDismiss])
 
   const sheetElRef = useRef<HTMLDivElement | null>(null)
   const sheetRef = sheet.sheetRef
@@ -121,57 +110,73 @@ export function useMapSheet(onDetailDismiss?: () => void) {
      Cleans up when the view goes back to 'list'. */
   useEffect(() => {
     if (sheetView !== 'detail') {
-      setDetailHeroPx(null)
+      setDetailContentBottomPx(null)
       return
     }
     const root = sheetElRef.current
     if (!root || typeof ResizeObserver === 'undefined') return
 
-    let observed: Element | null = null
-    let ro: ResizeObserver | null = null
+    let observedHero: Element | null = null
+    let observedPager: Element | null = null
+    let roHero: ResizeObserver | null = null
+    let roPager: ResizeObserver | null = null
+
+    /* Bottom edge of the last middle-stage element (pager, else hero)
+       relative to the sheet's top. Both rects live inside the same
+       translated sheet, so the difference is invariant under the sheet's
+       transform — safe to read mid-animation. */
+    const measure = () => {
+      const heroEl = root.querySelector('[data-detail-hero]')
+      if (!heroEl) return
+      const pagerEl = root.querySelector('[data-detail-pager]')
+      const last = pagerEl ?? heroEl
+      const bottom = last.getBoundingClientRect().bottom - root.getBoundingClientRect().top
+      if (bottom > 0) setDetailContentBottomPx(Math.ceil(bottom))
+    }
+
     const attach = () => {
-      const el = root.querySelector('[data-detail-hero]')
-      if (!el) {
-        /* Detail-Inhalt (noch) ohne [data-detail-hero] → statischer
-           Peek-Fallback statt der zuletzt gemessenen Höhe des VORHERIGEN
-           Inhalts — sonst peekt das Sheet je nach Herkunft unterschiedlich
-           hoch (z. B. beim Wechsel Restaurant-Detail → Must-Eat). */
-        if (observed) {
-          ro?.disconnect()
-          ro = null
-          observed = null
-          setDetailHeroPx(null)
-        }
-        return
+      const heroEl = root.querySelector('[data-detail-hero]')
+      if (heroEl && heroEl !== observedHero) {
+        if (roHero) roHero.disconnect()
+        observedHero = heroEl
+        roHero = new ResizeObserver(measure)
+        roHero.observe(heroEl)
       }
-      if (el === observed) return
-      if (ro) ro.disconnect()
-      observed = el
-      ro = new ResizeObserver(entries => {
-        /* borderBoxSize includes the hero's padding (14px top/bottom) so
-           the measurement matches what's actually rendered. contentRect
-           is content-box and would under-measure by ~28px — enough to
-           clip the meta-line (district/category/price) at peek. Fallback
-           to getBoundingClientRect for older browsers without
-           borderBoxSize. */
-        const entry = entries[0]
-        const h = entry?.borderBoxSize?.[0]?.blockSize
-          ?? entry?.target?.getBoundingClientRect()?.height
-        if (typeof h === 'number' && h > 0) setDetailHeroPx(Math.ceil(h))
-      })
-      ro.observe(el)
+
+      const pagerEl = root.querySelector('[data-detail-pager]')
+      if (!pagerEl) {
+        /* Pager unmounted (single-result filter, or must-eat detail which
+           has no pager) → the middle stage measures down to the hero/
+           dish-name instead. */
+        if (observedPager) {
+          roPager?.disconnect()
+          roPager = null
+          observedPager = null
+          measure()
+        }
+      } else if (pagerEl !== observedPager) {
+        if (roPager) roPager.disconnect()
+        observedPager = pagerEl
+        roPager = new ResizeObserver(measure)
+        roPager.observe(pagerEl)
+      }
     }
     attach()
-    /* The hero element is conditionally rendered (per restaurant change). A
-       MutationObserver on the sheet root re-attaches whenever the DOM swaps. */
+    measure()
+    /* The hero/pager elements are conditionally rendered (per restaurant
+       change). A MutationObserver on the sheet root re-attaches whenever
+       the DOM swaps. */
     const mo = new MutationObserver(attach)
     mo.observe(root, { childList: true, subtree: true })
 
     return () => {
       mo.disconnect()
-      ro?.disconnect()
-      observed = null
-      ro = null
+      roHero?.disconnect()
+      roPager?.disconnect()
+      observedHero = null
+      observedPager = null
+      roHero = null
+      roPager = null
     }
   }, [sheetView])
 
@@ -180,9 +185,9 @@ export function useMapSheet(onDetailDismiss?: () => void) {
      If currently parked at peek, reapply so the visual updates immediately. */
   useEffect(() => {
     if (sheetView !== 'detail') return
-    configure(detailKind === 'mustEat' ? viewConfig.detailMustEat : viewConfig.detailRestaurant)
+    configure(viewConfig.detail)
     if (currentSnap === 'peek') reapplySnap('peek')
-  }, [sheetView, detailKind, viewConfig, configure, reapplySnap, currentSnap])
+  }, [sheetView, viewConfig, configure, reapplySnap, currentSnap])
 
   /* Re-konfigurieren wenn sich die List-View-Config ändert während die
      Liste offen ist; bei peek-Snap sofort reapply. */
@@ -192,15 +197,12 @@ export function useMapSheet(onDetailDismiss?: () => void) {
     if (currentSnap === 'peek') reapplySnap('peek')
   }, [sheetView, viewConfig, configure, reapplySnap, currentSnap])
 
-  const setSheetView = useCallback((view: SheetView, kind: DetailKind = 'restaurant') => {
+  const setSheetView = useCallback((view: SheetView) => {
     /* Configure synchronously BEFORE the state update so any reapplySnap that
        follows in the same handler reads this view's peek size, not the previous
        view's. Otherwise the sheet briefly parks at the old peek height (white
        space gap) until the next render's effect catches up. */
-    configure(view === 'list'
-      ? viewConfig.list
-      : kind === 'mustEat' ? viewConfig.detailMustEat : viewConfig.detailRestaurant)
-    setDetailKindState(kind)
+    configure(view === 'list' ? viewConfig.list : viewConfig.detail)
     setSheetViewState(view)
   }, [configure, viewConfig])
 

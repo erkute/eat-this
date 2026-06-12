@@ -86,7 +86,7 @@ interface MapBodyFilterState {
 interface MapBodyHandlers {
   onMapMove: (bounds: { north: number; south: number; east: number; west: number }) => void
   onMapClick: () => void
-  onRestaurantClick: (r: MapRestaurant) => void
+  onRestaurantClick: (r: MapRestaurant, origin?: 'list' | 'map') => void
   onMustEatClick: (m: MapMustEat) => void
   pagerPrev: MapRestaurant | null
   pagerNext: MapRestaurant | null
@@ -166,7 +166,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               onMapClick={onMapClick}
               displayedRestaurants={displayedRestaurants}
               selectedRestaurant={selectedRestaurant}
-              onRestaurantClick={onRestaurantClick}
+              onRestaurantClick={(r) => onRestaurantClick(r, 'map')}
               location={location}
             />
 

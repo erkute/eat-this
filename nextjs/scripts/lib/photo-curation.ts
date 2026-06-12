@@ -6,6 +6,15 @@
  */
 import Anthropic from '@anthropic-ai/sdk'
 
+/** Thrown when Haiku judging can't run at all (no credits / bad auth). Batch
+ *  callers should abort rather than write un-judged fallback galleries. */
+export class HaikuUnavailableError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'HaikuUnavailableError'
+  }
+}
+
 export interface PhotoJudgment {
   index: number
   category: 'food' | 'interior' | 'exterior' | 'drink' | 'menu' | 'unusable'
@@ -153,7 +162,16 @@ export async function judgePhotos(
       .join('')
     return parseJudgments(text, images.length)
   } catch (err) {
-    console.warn(`  photo judging failed: ${(err as Error).message} — falling back to unscored`)
+    const status = (err as { status?: number })?.status
+    const msg = err instanceof Error ? err.message : String(err)
+    // Credit exhaustion / auth failures are persistent — every later call
+    // fails too. Surface them so a batch run aborts instead of silently
+    // writing un-judged (category-unfiltered) fallback galleries over good
+    // ones. Transient errors still fall back to unscored for single imports.
+    if (status === 401 || status === 403 || (status === 400 && /credit balance|billing|quota/i.test(msg))) {
+      throw new HaikuUnavailableError(msg)
+    }
+    console.warn(`  photo judging failed: ${msg} — falling back to unscored`)
     return null
   }
 }

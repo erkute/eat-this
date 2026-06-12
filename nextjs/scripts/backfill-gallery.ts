@@ -19,6 +19,7 @@ import { config as loadEnv } from 'dotenv'
 import { createClient } from '@sanity/client'
 import { randomUUID } from 'node:crypto'
 import { importGalleryPhotos } from './import-from-url'
+import { HaikuUnavailableError } from './lib/photo-curation'
 
 loadEnv({ path: '.env.local' })
 
@@ -82,14 +83,20 @@ async function main() {
     console.error('--limit requires a positive integer, e.g. --limit 5')
     process.exit(1)
   }
+  // --from "<name>" resumes from the first restaurant whose name sorts >= it
+  // (targets are name-ordered), so an aborted run can continue without paying
+  // to re-curate the part that already succeeded.
+  const fromArg = args.indexOf('--from')
+  const from = fromArg >= 0 ? args[fromArg + 1] : null
 
   const galleryFilter = force ? '' : '&& (!defined(gallery) || count(gallery) == 0)'
-  const targets = await sanity.fetch<Target[]>(
+  let targets = await sanity.fetch<Target[]>(
     `*[_type == "restaurant" && defined(googlePlaceId) && !(_id in path("drafts.**"))
        ${galleryFilter}]
        | order(name asc) { _id, name, "slug": slug.current, googlePlaceId }`,
   )
-  console.log(`${targets.length} restaurants ${force ? 'to re-curate' : 'without gallery'}${dryRun ? ' (dry-run)' : ''}`)
+  if (from) targets = targets.filter((t) => t.name.localeCompare(from) >= 0)
+  console.log(`${targets.length} restaurants ${force ? 'to re-curate' : 'without gallery'}${from ? ` (from "${from}")` : ''}${dryRun ? ' (dry-run)' : ''}`)
 
   let attempted = 0
   let written = 0
@@ -138,6 +145,12 @@ async function main() {
       console.log(`  gallery:  ${items.length} photos written${items.length < 4 ? ' (under 4 — few food/interior photos)' : ''}`)
       await sleep(500) // be polite to both APIs
     } catch (err) {
+      if (err instanceof HaikuUnavailableError) {
+        console.error(`\n⛔ Anthropic API unavailable (credits/billing): ${err.message}`)
+        console.error(`Aborted at "${target.name}" — no fallback gallery written. Top up credits, then resume:`)
+        console.error(`   npx tsx scripts/backfill-gallery.ts --force --from "${target.name}"`)
+        break
+      }
       console.error(`  ✗ ${target.name} (${target._id}):`, err instanceof Error ? err.message : err)
     }
   }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { selectGalleryPhotos, type PhotoJudgment } from './photo-curation'
+import { selectGalleryPhotos, parseJudgments, type PhotoJudgment } from './photo-curation'
 
 const j = (index: number, score: number, category: PhotoJudgment['category'] = 'interior'): PhotoJudgment =>
   ({ index, score, category })
@@ -31,5 +31,26 @@ describe('selectGalleryPhotos', () => {
 
   it('ignores judgments with out-of-range indexes', () => {
     expect(selectGalleryPhotos([j(7, 9), j(0, 8)], 2)).toEqual([0])
+  })
+})
+
+describe('parseJudgments', () => {
+  it('parses a clean JSON array', () => {
+    const text = '[{"index":0,"category":"food","score":8.5},{"index":1,"category":"unusable","score":2}]'
+    expect(parseJudgments(text, 2)).toEqual([
+      { index: 0, category: 'food', score: 8.5 },
+      { index: 1, category: 'unusable', score: 2 },
+    ])
+  })
+
+  it('extracts the array from surrounding prose / code fences', () => {
+    const text = 'Here you go:\n```json\n[{"index":0,"category":"interior","score":7}]\n```'
+    expect(parseJudgments(text, 1)).toEqual([{ index: 0, category: 'interior', score: 7 }])
+  })
+
+  it('returns null on garbage or wrong shapes', () => {
+    expect(parseJudgments('not json', 2)).toBeNull()
+    expect(parseJudgments('[{"index":"a"}]', 2)).toBeNull()
+    expect(parseJudgments('[{"index":0,"category":"selfie","score":5}]', 1)).toBeNull()
   })
 })

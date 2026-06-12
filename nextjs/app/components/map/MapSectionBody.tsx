@@ -181,13 +181,15 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 </svg>
                 <input
-                  type="text"
+                  type="search"
+                  name="map-search"
                   value={search}
                   onChange={e => onSearchChange(e.target.value)}
                   onBlur={() => { if (!search) setSearchOpen(false) }}
                   placeholder="Suchen in Berlin"
                   className={styles.mapSearchInput}
                   aria-label="Search"
+                  autoComplete="off"
                   autoFocus
                 />
                 <button

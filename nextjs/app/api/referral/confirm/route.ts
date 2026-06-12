@@ -10,6 +10,7 @@ import {
   REFERRAL_BONUS_SIZE,
   UID_SHAPE,
   ACCOUNT_FRESHNESS_MS,
+  MAX_REFERRALS_PER_INVITER,
 } from '@/lib/referral/constants'
 
 export const dynamic = 'force-dynamic'
@@ -69,6 +70,18 @@ export async function POST(req: NextRequest) {
   const db = getAdminFirestore()
 
   try {
+    // Anti-farming: count the referrals this inviter has already been rewarded
+    // for ('invited' bonus docs; the inviter's own 'invited-by' doc is excluded
+    // by the source filter). Past the cap the friend still gets their welcome
+    // bonus below — only the inviter-side reward is withheld. Approximate under
+    // concurrency (count reads before the award transaction), which is fine for
+    // an abuse ceiling. Single-field equality → served by the automatic index,
+    // no composite index needed.
+    const inviterBonuses = db
+      .collection('users').doc(inviterUid).collection('referralBonuses')
+    const awarded = await inviterBonuses.where('source', '==', 'invited').count().get()
+    const inviterAtCap = awarded.data().count >= MAX_REFERRALS_PER_INVITER
+
     const { restaurants: all, mustEats: allMustEats } = await getCachedMapData()
     const allIds = all.map((r) => r._id)
 
@@ -117,7 +130,7 @@ export async function POST(req: NextRequest) {
         partnerUid: inviterUid,
         createdAt: FieldValue.serverTimestamp(),
       })
-      if (inviterPicks.length > 0) {
+      if (inviterPicks.length > 0 && !inviterAtCap) {
         tx.set(inviterDocRef, {
           restaurantIds: inviterPicks,
           source: 'invited',

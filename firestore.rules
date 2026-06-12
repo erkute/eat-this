@@ -25,8 +25,14 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
 
+    // On-site must-eat reveals — owner-readable so the client can seed its
+    // unlocked set on load. Writes are server-only via the Admin SDK
+    // (/api/must-eat-reveal), which also enforces the per-uid reveal
+    // rate-limit; client-side writes would route around that limit, so they
+    // are denied here (the client only ever reads this collection).
     match /users/{uid}/unlockedMustEats/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read:  if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
     }
 
     // Referral bonuses (Plan 4) — owner-readable so the client can subscribe

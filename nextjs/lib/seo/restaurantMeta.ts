@@ -39,6 +39,32 @@ export function buildRestaurantTitle(opts: {
 }
 
 /**
+ * Antwort-Versprechen-Description für Seiten mit gepflegten `whatToOrder`-
+ * Empfehlungen: bedient die „karte/speisekarte"-Suchintention direkt im
+ * Snippet („Was bestellen? Was kostet's?") statt nur zu beschreiben.
+ * Kuratierte `seo.metaDescription` überschreibt den Builder im Aufrufer.
+ * Null ohne Gerichte.
+ */
+export function buildOrderPromiseDescription(opts: {
+  name: string
+  dishes: string[]
+  priceLabel?: string | null
+  locale: 'de' | 'en'
+}): string | null {
+  const { name, priceLabel, locale } = opts
+  const dishes = opts.dishes.map(d => d.trim()).filter(Boolean).slice(0, 3)
+  if (dishes.length === 0) return null
+
+  const dishList =
+    dishes.length === 1 ? dishes[0]! : `${dishes.slice(0, -1).join(', ')} & ${dishes[dishes.length - 1]}`
+  const price = priceLabel ? ` (${priceLabel})` : ''
+
+  return locale === 'de'
+    ? `Was bestellen bei ${name}? ${dishList} — unsere Empfehlungen mit Preisen${price}, und ob sich der Besuch lohnt.`
+    : `What to order at ${name}? ${dishList} — our picks with prices${price}, and whether it's worth the visit.`
+}
+
+/**
  * Meta-Description-Kürzung auf ≤max Zeichen an der letzten Satzgrenze
  * (statt Google-Hard-Cut mitten im Wort). Ohne Satzende im Fenster:
  * Wortgrenze + Ellipse.

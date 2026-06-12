@@ -249,6 +249,75 @@
 }
 
 /* ============================================================
+   WAS BESTELLEN? — editorial order recommendations
+============================================================ */
+.order {
+  margin: 28px 16px 28px;
+}
+.orderHead {
+  font-family: var(--f-display);
+  font-size: clamp(22px, 6vw, 26px);
+  line-height: 1.05;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0 0 12px;
+}
+.orderList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  border-top: 1.5px solid var(--ink);
+}
+.orderItem {
+  padding: 13px 2px 14px;
+  border-bottom: 1.5px solid var(--ink);
+  display: grid;
+  gap: 5px;
+}
+.orderTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+}
+.orderDish {
+  font-family: var(--f-display);
+  font-size: 16px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.orderPrice {
+  font-family: var(--f-body);
+  font-size: 14.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.orderNote {
+  font-family: var(--f-body);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  margin: 0;
+}
+.orderMenuLink {
+  display: inline-block;
+  margin-top: 14px;
+  font-family: var(--f-display);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+/* ============================================================
    STORY (description with drop-cap)
 ============================================================ */
 .story {

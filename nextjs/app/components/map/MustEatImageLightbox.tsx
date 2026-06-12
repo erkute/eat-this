@@ -22,8 +22,6 @@ interface Props {
   // the origin card while the clone is on screen reveal it here — a timer
   // would leave a gap where neither is visible (the slot blinks).
   onExitComplete?: () => void
-  credit?: string | null
-  creditUrl?: string | null
 }
 
 interface InnerProps {
@@ -31,17 +29,11 @@ interface InnerProps {
   alt:        string
   originRect: DOMRect
   onClose:    () => void
-  credit?: string | null
-  creditUrl?: string | null
 }
 
-// Mirrors profile/ProfileDeck.ExpandedOverlay almost line-for-line so the
-// two zoom interactions feel identical: open from origin → settle in
-// centre with Apple-style ease-out, pointer-driven 3D-tilt, sheen drifts
-// with rotateY, body scroll/touch locked. Click anywhere closes.
 // Credit URLs come from CMS content (Google attribution data / manual Studio
 // entry) — only link out for http(s) so a poisoned value can't become a
-// javascript: href.
+// javascript: href. Shared with the restaurant gallery viewer + detail hero.
 export function safeHttpUrl(url: string | null | undefined): string | null {
   if (!url) return null
   try {
@@ -52,7 +44,11 @@ export function safeHttpUrl(url: string | null | undefined): string | null {
   }
 }
 
-const Inner = memo(function Inner({ imageUrl, alt, originRect, onClose, credit, creditUrl }: InnerProps) {
+// Mirrors profile/ProfileDeck.ExpandedOverlay almost line-for-line so the
+// two zoom interactions feel identical: open from origin → settle in centre
+// with Apple-style ease-out, pointer-driven 3D-tilt, sheen drifts with
+// rotateY, body scroll/touch locked. Click anywhere closes.
+const Inner = memo(function Inner({ imageUrl, alt, originRect, onClose }: InnerProps) {
   const overlayW  = Math.min(420, window.innerWidth * 0.88)
   const screenCx  = window.innerWidth / 2
   const screenCy  = window.innerHeight / 2
@@ -199,22 +195,12 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, onClose, credit, 
             aria-hidden="true"
           />
         </div>
-        {credit && (() => {
-          const href = safeHttpUrl(creditUrl)
-          return (
-            <span className={styles.lightboxCredit}>
-              {href
-                ? <a href={href} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>{credit}</a>
-                : credit}
-            </span>
-          )
-        })()}
       </motion.div>
     </motion.div>
   )
 })
 
-export default function MustEatImageLightbox({ imageUrl, alt, originRect, onClose, onExitComplete, credit, creditUrl }: Props) {
+export default function MustEatImageLightbox({ imageUrl, alt, originRect, onClose, onExitComplete }: Props) {
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
   if (!mounted) return null
@@ -228,8 +214,6 @@ export default function MustEatImageLightbox({ imageUrl, alt, originRect, onClos
           alt={alt}
           originRect={originRect}
           onClose={onClose}
-          credit={credit}
-          creditUrl={creditUrl}
         />
       )}
     </AnimatePresence>,

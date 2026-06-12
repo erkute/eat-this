@@ -281,6 +281,13 @@ export default {
       type: 'url',
     },
     {
+      name: 'menuUrl',
+      title: 'Speisekarte (URL)',
+      type: 'url',
+      description:
+        'Link zur offiziellen Speisekarte. Wird im „Was bestellen?"-Block verlinkt und als hasMenu ins JSON-LD geschrieben.',
+    },
+    {
       name: 'instagramHandle',
       title: 'Instagram Handle',
       type: 'string',
@@ -390,6 +397,51 @@ export default {
       title: 'Insider Tip (EN)',
       type: 'string',
       description: 'Optional EN override. Leave empty to fall back to German.',
+    },
+    {
+      name: 'whatToOrder',
+      title: 'Was bestellen? (Empfehlungen)',
+      type: 'array',
+      description:
+        '2–4 konkrete Gerichte mit Ein-Satz-Begründung für den „Was bestellen?"-Block auf der Detail-Seite. Bedient die „karte/speisekarte"-Suchintention und landet als FAQ im JSON-LD. Redaktionell, kein Ersatz für Must-Eats.',
+      validation: Rule => Rule.max(4),
+      of: [
+        {
+          type: 'object',
+          name: 'orderRec',
+          fields: [
+            {
+              name: 'dish',
+              title: 'Gericht',
+              type: 'string',
+              validation: Rule => Rule.required(),
+            },
+            {
+              name: 'note',
+              title: 'Begründung (1 Satz)',
+              type: 'string',
+              description: 'Warum bestellen? Z.B. „Knusprig, fettig, perfekt — das Signature Dish."',
+              validation: Rule => Rule.max(160),
+            },
+            {
+              name: 'noteEn',
+              title: 'Begründung (EN)',
+              type: 'string',
+              description: 'Optional EN override. Leave empty to fall back to German.',
+              validation: Rule => Rule.max(160),
+            },
+            {
+              name: 'price',
+              title: 'Preis',
+              type: 'string',
+              description: 'Frei formatiert, z.B. "14 €" oder "ab 12 €". Leer lassen wenn unbekannt.',
+            },
+          ],
+          preview: {
+            select: { title: 'dish', subtitle: 'price' },
+          },
+        },
+      ],
     },
   ],
   preview: {

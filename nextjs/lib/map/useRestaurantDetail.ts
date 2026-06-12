@@ -3,6 +3,15 @@ import { useEffect, useState } from 'react'
 
 // The detail-only fields the map sheet lazy-loads (the map list payload no
 // longer carries these — see mapRestaurantsQuery / /api/restaurant-detail).
+export interface RestaurantGalleryImage {
+  _key: string
+  thumb: string
+  full: string
+  alt?: string
+  credit?: string
+  creditUrl?: string
+}
+
 export interface RestaurantMapDetail {
   address?: string
   phone?: string
@@ -15,6 +24,7 @@ export interface RestaurantMapDetail {
   shortDescription?: string
   photoCredit?: string
   photoCreditUrl?: string
+  gallery?: RestaurantGalleryImage[]
 }
 
 // Module-level cache so re-opening or paging back to a spot is instant and

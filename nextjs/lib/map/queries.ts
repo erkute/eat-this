@@ -1,4 +1,4 @@
-import { groqImageUrl } from '@/lib/sanity-image-presets'
+import { groqImageUrl, presetQuery } from '@/lib/sanity-image-presets'
 // Category projection — only resolves reference entries. See lib/queries.ts.
 const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
   "slug": slug.current,
@@ -49,7 +49,15 @@ export const restaurantMapDetailQuery = `
     description,
     shortDescription,
     "photoCredit": image.credit,
-    "photoCreditUrl": image.creditUrl
+    "photoCreditUrl": image.creditUrl,
+    "gallery": gallery[]{
+      _key,
+      "thumb": asset->url + "${presetQuery('galleryThumb')}",
+      "full": asset->url + "${presetQuery('detailHero')}",
+      alt,
+      credit,
+      creditUrl
+    }
   }
 `
 

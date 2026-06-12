@@ -24,9 +24,10 @@ describe('selectGalleryPhotos', () => {
     expect(selectGalleryPhotos(judgments, owners([4], 5), 5)).toEqual([4, 0, 1, 2])
   })
 
-  it('fills to 4 with weaker guest food/interior — no score floor', () => {
-    const judgments = [j(0, 3, 'food'), j(1, 2, 'interior'), j(2, 9, 'food'), j(3, 4, 'interior')]
-    expect(selectGalleryPhotos(judgments, owners([], 4), 4)).toEqual([2, 3, 0, 1])
+  it('drops amateur photos below the score floor (5), even if it means fewer than 4', () => {
+    const judgments = [j(0, 3, 'food'), j(1, 2, 'interior'), j(2, 9, 'food'), j(3, 6, 'interior')]
+    // only 2 and 3 clear the floor; 0 and 3 are amateur (score < 5)
+    expect(selectGalleryPhotos(judgments, owners([], 4), 4)).toEqual([2, 3])
   })
 
   it('returns fewer than 4 when too few food/interior photos exist', () => {

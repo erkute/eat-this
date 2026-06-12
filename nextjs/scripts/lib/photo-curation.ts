@@ -25,6 +25,11 @@ const MAX_GALLERY = 4
 // Product rule: galleries show only plated food and interior atmosphere.
 // Drinks, menu cards, exterior/building shots and unusable photos are dropped.
 const KEEP_CATEGORIES = new Set<PhotoJudgment['category']>(['food', 'interior'])
+// Quality floor: with the strict "professional vs amateur" judging prompt,
+// casual phone snapshots score ≤4. Dropping anything below 5 keeps amateur
+// shots out even when it means a gallery shows fewer than 4 photos — the
+// product wants professional-looking galleries, not padded ones.
+const SCORE_FLOOR = 5
 
 const normName = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '')
 
@@ -62,7 +67,11 @@ export function selectGalleryPhotos(
     return idx.slice(0, MAX_GALLERY)
   }
   const eligible = judgments.filter(
-    (jd) => KEEP_CATEGORIES.has(jd.category) && jd.index >= 0 && jd.index < candidateCount,
+    (jd) =>
+      KEEP_CATEGORIES.has(jd.category) &&
+      jd.score >= SCORE_FLOOR &&
+      jd.index >= 0 &&
+      jd.index < candidateCount,
   )
   eligible.sort((a, b) => {
     const r = ownerRank(a.index) - ownerRank(b.index)
@@ -147,11 +156,17 @@ export async function judgePhotos(
     content.push({
       type: 'text',
       text:
-        `These are candidate gallery photos for the restaurant "${restaurantName}" on a curated vegan food map. ` +
+        `These are candidate gallery photos for the restaurant "${restaurantName}" on a curated, design-led vegan food map. ` +
+        `We only want photos that look PROFESSIONALLY shot — clean composition, good lighting, sharp, magazine-quality. ` +
         `Judge each photo. Respond with ONLY a JSON array, one entry per photo: ` +
         `[{"index": <photo number>, "category": "food"|"interior"|"exterior"|"drink"|"menu"|"unusable", "score": <0-10>}]. ` +
-        `category "unusable": selfies, people as main subject, receipts, blurry/dark shots, parking lots, unrelated content. ` +
-        `score: sharpness, exposure, composition, and how appetizing/inviting it looks. Be strict — 8+ only for genuinely good photos.`,
+        `category "unusable": selfies, people as the subject, receipts, parking lots, screenshots, unrelated content. ` +
+        `score = production quality + how appetizing/inviting it looks. ` +
+        `Score HIGH (8-10) ONLY for clearly professional shots: even/intentional lighting, deliberate composition, ` +
+        `clean uncluttered background, sharp focus. ` +
+        `Score LOW (0-4) for amateur phone snapshots: harsh on-camera flash, cluttered tables, busy or distracting ` +
+        `backgrounds, people/hands in the background, dim or yellow lighting, food shot in the kitchen/oven/in production, ` +
+        `crooked or careless framing. Be strict — most casual phone photos should score 4 or below.`,
     })
     const res = await anthropic.messages.create({
       model: JUDGE_MODEL,

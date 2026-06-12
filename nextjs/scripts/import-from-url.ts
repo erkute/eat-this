@@ -16,7 +16,7 @@
 import { config as loadEnv } from 'dotenv'
 import { createClient } from '@sanity/client'
 import { randomUUID } from 'node:crypto'
-import { judgePhotos, selectGalleryPhotos, CATEGORY_LABEL_DE, type JudgeInput, type PhotoJudgment } from './lib/photo-curation'
+import { judgePhotos, selectGalleryPhotos, isOwnerPhoto, CATEGORY_LABEL_DE, type JudgeInput, type PhotoJudgment } from './lib/photo-curation'
 
 loadEnv({ path: '.env.local' })
 
@@ -491,11 +491,13 @@ export async function importGalleryPhotos(
   }
   if (!previews.length) return []
 
-  // 2) Judge + select (indexes refer to the previews array)
+  // 2) Judge + select (indexes refer to the previews array). Owner photos
+  //    (attribution = the business name) are preferred over guest photos.
   const judgments = await judgePhotos(previews.map((p) => p.input), restaurantName)
-  const pickedIdx = selectGalleryPhotos(judgments, previews.length)
+  const owners = previews.map((p) => isOwnerPhoto(p.photo.authorAttributions?.[0]?.displayName, restaurantName))
+  const pickedIdx = selectGalleryPhotos(judgments, owners, previews.length)
   if (!pickedIdx.length) {
-    console.log('  gallery:  no candidates cleared the quality bar')
+    console.log('  gallery:  no usable food/interior photos')
     return []
   }
 

@@ -5,9 +5,10 @@
  * Run from `nextjs/`:
  *   npx tsx scripts/backfill-gallery.ts --dry-run            # count Google candidates only, no curation, no writes
  *   npx tsx scripts/backfill-gallery.ts --limit 5            # first 5 restaurants only
- *   npx tsx scripts/backfill-gallery.ts                      # full run
+ *   npx tsx scripts/backfill-gallery.ts                      # full run (fills gaps only)
+ *   npx tsx scripts/backfill-gallery.ts --force             # re-curate ALL, overwriting existing galleries
  *
- * Idempotent: restaurants with a non-empty gallery are skipped. Costs per
+ * Without --force, restaurants with a non-empty gallery are skipped. Costs per
  * restaurant: 1 Place-Details call + up to 9 preview photo calls + up to 4
  * full-size photo calls (~7 USD / 1000 photo calls) + <1 ct Haiku.
  *
@@ -72,6 +73,9 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 async function main() {
   const args = process.argv.slice(2)
   const dryRun = args.includes('--dry-run')
+  // --force re-curates restaurants that ALREADY have a gallery, overwriting it
+  // (used when the curation rules change). Without it the run only fills gaps.
+  const force = args.includes('--force')
   const limitArg = args.indexOf('--limit')
   const limit = limitArg >= 0 ? Number(args[limitArg + 1]) : Infinity
   if (limitArg >= 0 && (Number.isNaN(limit) || limit < 1)) {
@@ -79,15 +83,17 @@ async function main() {
     process.exit(1)
   }
 
+  const galleryFilter = force ? '' : '&& (!defined(gallery) || count(gallery) == 0)'
   const targets = await sanity.fetch<Target[]>(
     `*[_type == "restaurant" && defined(googlePlaceId) && !(_id in path("drafts.**"))
-       && (!defined(gallery) || count(gallery) == 0)]
+       ${galleryFilter}]
        | order(name asc) { _id, name, "slug": slug.current, googlePlaceId }`,
   )
-  console.log(`${targets.length} restaurants without gallery${dryRun ? ' (dry-run)' : ''}`)
+  console.log(`${targets.length} restaurants ${force ? 'to re-curate' : 'without gallery'}${dryRun ? ' (dry-run)' : ''}`)
 
   let attempted = 0
   let written = 0
+  let under4 = 0
   for (const target of targets) {
     if (attempted >= limit) break
     attempted++
@@ -108,7 +114,14 @@ async function main() {
 
       const assets = await importGalleryPhotos(place, target.slug, target.name)
       if (!assets.length) {
-        console.log('  gallery:  nothing usable — left empty')
+        // Re-curation can legitimately empty a gallery (e.g. a place with only
+        // menu/exterior photos under the new rules) — clear the stale one.
+        if (force) {
+          await sanity.patch(target._id).unset(['gallery']).commit()
+          console.log('  gallery:  nothing usable — cleared')
+        } else {
+          console.log('  gallery:  nothing usable — left empty')
+        }
         continue
       }
       const items = assets.map((g) => ({
@@ -121,13 +134,14 @@ async function main() {
       }))
       await sanity.patch(target._id).set({ gallery: items }).commit()
       written++
-      console.log(`  gallery:  ${items.length} photos written`)
+      if (items.length < 4) under4++
+      console.log(`  gallery:  ${items.length} photos written${items.length < 4 ? ' (under 4 — few food/interior photos)' : ''}`)
       await sleep(500) // be polite to both APIs
     } catch (err) {
       console.error(`  ✗ ${target.name} (${target._id}):`, err instanceof Error ? err.message : err)
     }
   }
-  console.log(`\nDone: ${attempted} attempted, ${written} galleries written, ${attempted - written} skipped.`)
+  console.log(`\nDone: ${attempted} attempted, ${written} galleries written (${under4} with fewer than 4), ${attempted - written} skipped.`)
 }
 
 main().catch((err) => {

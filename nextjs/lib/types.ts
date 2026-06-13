@@ -31,6 +31,14 @@ interface PriceRange {
   currency?: string
 }
 
+/** Editorial "Was bestellen?" recommendation (2–4 per restaurant). */
+export interface WhatToOrderItem {
+  dish: string
+  note?: string
+  noteEn?: string
+  price?: string
+}
+
 export interface Restaurant {
   _id: string
   name: string
@@ -44,11 +52,13 @@ export interface Restaurant {
   lng: number
   mapsUrl?: string
   website?: string
+  menuUrl?: string
   instagramHandle?: string
   reservationUrl?: string
   openingHours?: OpeningHourSlot[]
   tip?: string
   tipEn?: string
+  whatToOrder?: WhatToOrderItem[]
   shortDescription?: string
   shortDescriptionEn?: string
   description?: string

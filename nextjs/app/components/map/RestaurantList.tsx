@@ -113,7 +113,10 @@ const Item = memo(function Item({ restaurant, userLocation, isSelected, peek, lo
       <div className={styles.rcardImg}>
         {restaurant.photo && (
           <img
-            src={sanityImageLoader({ src: restaurant.photo, width: 600 })}
+            // Locked cards render the photo behind a blur (.rcardBlur), so a
+            // low-res variant is visually identical and saves ~270 spots'
+            // worth of full-size image bytes for the anon teaser.
+            src={sanityImageLoader({ src: restaurant.photo, width: locked ? 224 : 600 })}
             alt=""
             loading="lazy"
             decoding="async"

@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { hasLocale } from 'next-intl'
 import { setRequestLocale } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
+import { CSS_VERSION } from '@/lib/constants'
 import { AuthProvider, LoginModalProvider } from '@/lib/auth'
 import SiteNav from '@/app/components/SiteNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
@@ -24,8 +25,7 @@ export default async function BezirkLayout({
     <AuthProvider>
       <LoginModalProvider>
         {/* Full SPA stylesheet — needed for SiteNav/burger styling on this non-(spa) route */}
-        {/* eslint-disable-next-line @next/next/no-css-tags */}
-        <link rel="stylesheet" href="/css/style.min.css?v=154" precedence="default" />
+        <link rel="stylesheet" href={`/css/style.min.css?v=${CSS_VERSION}`} precedence="default" />
         <BridgeAuth />
         <SiteNav />
         <BurgerDrawer />

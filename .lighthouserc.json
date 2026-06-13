@@ -1,8 +1,12 @@
 {
   "ci": {
     "collect": {
-      "url": ["https://www.eatthisdot.com/"],
-      "numberOfRuns": 2,
+      "url": [
+        "https://www.eatthisdot.com/",
+        "https://www.eatthisdot.com/map",
+        "https://www.eatthisdot.com/restaurant/engelbecken"
+      ],
+      "numberOfRuns": 3,
       "settings": {
         "chromeFlags": "--no-sandbox"
       }
@@ -13,7 +17,10 @@
         "categories:accessibility":  ["warn",  { "minScore": 0.90 }],
         "categories:best-practices": ["warn",  { "minScore": 0.90 }],
         "categories:seo":            ["warn",  { "minScore": 0.90 }],
-        "categories:pwa":            ["warn",  { "minScore": 0.80 }]
+
+        "cumulative-layout-shift":   ["error", { "maxNumericValue": 0.1,  "aggregationMethod": "median-run" }],
+        "largest-contentful-paint":  ["warn",  { "maxNumericValue": 4000, "aggregationMethod": "median-run" }],
+        "total-blocking-time":       ["warn",  { "maxNumericValue": 800,  "aggregationMethod": "median-run" }]
       }
     },
     "upload": {

@@ -3,7 +3,13 @@
   "fieldOverrides": [
     {
       "collectionGroup": "_rateLimits",
-      "fieldPath": "updatedAt",
+      "fieldPath": "expiresAt",
+      "ttl": true,
+      "indexes": []
+    },
+    {
+      "collectionGroup": "buddyRateLimits",
+      "fieldPath": "expiresAt",
       "ttl": true,
       "indexes": []
     }

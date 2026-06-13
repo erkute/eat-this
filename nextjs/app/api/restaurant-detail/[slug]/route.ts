@@ -18,7 +18,14 @@ export async function GET(
     { slug },
     { next: { revalidate: 3600, tags: [`restaurant:${slug}`] } },
   )
-  if (!detail) return NextResponse.json({ error: 'not_found' }, { status: 404 })
+  // Never let a 404 stick in the CDN/browser: a slug that isn't published yet
+  // would otherwise be cached as "not found" for up to s-maxage+SWR, so the
+  // restaurant appears with a delay after it goes live.
+  if (!detail)
+    return NextResponse.json(
+      { error: 'not_found' },
+      { status: 404, headers: { 'Cache-Control': 'no-store' } },
+    )
   return NextResponse.json(detail, {
     headers: { 'Cache-Control': 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400' },
   })

@@ -6,7 +6,7 @@ import { CATALOG } from '@/lib/stripe-catalog'
 import { getRestaurantsByCategory, getAllCategories } from '@/lib/sanity.server'
 import { localizedCategoryName } from '@/lib/categories'
 import { categoryArt } from '@/lib/categoryArt'
-import { localeUrl } from '@/lib/locale-url'
+import { hreflangAlternates } from '@/lib/seo/metadata'
 import { routing } from '@/i18n/routing'
 import {
   resolvePackByUrlSlug,
@@ -43,7 +43,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // Conversion page reached from the app — keep it out of the index so it
     // doesn't cannibalise the /kategorie SEO pages, but let links be followed.
     robots: { index: false, follow: true },
-    alternates: { canonical: localeUrl(locale, `/pack/${slug}`) },
+    // Packs are always bilingual (CATALOG ships de+en copy), so emit the full
+    // de/en/x-default set like every other route instead of a bare canonical.
+    alternates: hreflangAlternates(`/pack/${slug}`, de ? 'de' : 'en'),
   }
 }
 

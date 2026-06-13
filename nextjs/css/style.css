@@ -3848,3 +3848,20 @@ body:has(.burger-drawer.active) .burger-btn {
     0 8px 14px -2px rgba(0, 0, 0, 0.6),
     0 16px 30px -8px rgba(0, 0, 0, 0.5);
 }
+
+/* ── A11y: keyboard focus ring (WCAG 2.4.7) ──────────────────────────────
+   Placed last so it wins source-order ties against the scattered
+   `outline:none` resets above. :focus-visible fires only for keyboard /
+   non-pointer focus → mouse clicks stay ring-free. The input selectors carry
+   class+pseudo specificity to override the inputs' own `outline:none`, which a
+   bare :focus-visible (0,1,0) can't beat. */
+:focus-visible {
+  outline: 2px solid var(--c-coral, #a02814);
+  outline-offset: 2px;
+}
+.profile-settings-input:focus-visible,
+.ob-name-input:focus-visible,
+.wm-field input:focus-visible {
+  outline: 2px solid var(--c-coral, #a02814);
+  outline-offset: 1px;
+}

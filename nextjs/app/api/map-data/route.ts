@@ -14,6 +14,7 @@ import { applySpotOfDayReveal } from '@/lib/map/spotOfDayReveal'
 import { getSpotOfDayId } from '@/lib/home/spotOfDay.server'
 import { getFreeSurfaceData, applyFreeSurface } from '@/lib/map/free-surface'
 import { stripCoveredMustEats } from '@/lib/map/stripCoveredMustEats'
+import { stripLockedRestaurants } from '@/lib/map/stripLockedRestaurant'
 import { getUnlockedMustEatIds } from '@/lib/firebase/unlockedMustEats.server'
 
 // Per-user response. Disable framework-level caching; the expensive Sanity
@@ -156,7 +157,7 @@ export async function GET(req: Request) {
     mustEats: stripCoveredMustEats(gifted.mustEats, faceUpIds),
     categories,
     totalCount: all.length,
-    lockedRestaurants: gifted.lockedRestaurants,
+    lockedRestaurants: stripLockedRestaurants(gifted.lockedRestaurants),
     revealedMustEatIds: Array.from(gifted.revealedMustEatIds),
   })
   res.headers.set('Cache-Control', 'private, no-store')

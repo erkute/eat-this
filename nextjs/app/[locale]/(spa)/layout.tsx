@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { hasLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
+import { CSS_VERSION } from '@/lib/constants'
 import { AuthProvider, LoginModalProvider } from '@/lib/auth'
 import SiteNav from '@/app/components/SiteNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
@@ -58,8 +59,7 @@ export default async function SPALayout({
   return (
     <>
       {/* Full SPA stylesheet — hoisted to <head> by Next.js */}
-      {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/css/style.min.css?v=170" precedence="default" />
+      <link rel="stylesheet" href={`/css/style.min.css?v=${CSS_VERSION}`} precedence="default" />
 
       {/* Sanity image CDN only — map/search data flows through same-origin
           /api/map-data, so the browser (almost) never talks to apicdn. */}

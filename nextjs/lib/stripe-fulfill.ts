@@ -53,12 +53,15 @@ export async function assembleAndWriteEntitlement({ uid, packId, stripeSessionId
   const pack = getPack(packId)
   if (!pack) throw new Error(`unknown pack: ${packId}`)
 
-  const ref = getAdminFirestore()
+  const db = getAdminFirestore()
+  const ref = db
     .collection('users').doc(uid)
     .collection('entitlements').doc(packId)
-  const snap = await ref.get()
-  if (snap.exists) return 'exists'
 
+  // Resolve the category payload BEFORE the transaction — it's a read-only,
+  // idempotent Sanity round-trip and must not run inside Firestore's
+  // transaction (which only permits Firestore reads). Doing it here also
+  // keeps the transaction's read→write window tiny.
   let restaurantIds: string[] = []
   let mustEatIds:    string[] = []
   if (pack.type === 'category' && pack.slug) {
@@ -76,6 +79,15 @@ export async function assembleAndWriteEntitlement({ uid, packId, stripeSessionId
     stripeSessionId,
     source:          'stripe',
   }
-  await ref.set(doc)
-  return 'created'
+
+  // Race-safe first-writer-wins: webhook and the success-page poll can both
+  // reach here concurrently. A plain get()-then-set() leaves a window where
+  // both read "not exists" and both write. The transaction makes the
+  // exists-check and the write atomic — exactly one path creates the doc.
+  return db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref)
+    if (snap.exists) return 'exists'
+    tx.set(ref, doc)
+    return 'created'
+  })
 }

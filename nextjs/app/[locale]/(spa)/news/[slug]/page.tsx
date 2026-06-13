@@ -5,7 +5,7 @@ import { getArticleBySlug, getAllArticleSlugs, getAllNewsArticles } from '@/lib/
 import { serializeJsonLd } from '@/lib/json-ld'
 import { SITE_URL } from '@/lib/constants'
 import { localeUrl } from '@/lib/locale-url'
-import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
+import { toOgLocale } from '@/lib/seo/metadata'
 import { routing } from '@/i18n/routing'
 import NewsArticleShell from '@/app/components/NewsArticleShell'
 
@@ -38,7 +38,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ? `${baseImage}?w=1200&h=630&fit=crop&auto=format`
     : `${SITE_URL}/pics/og-card.png?v=4`
 
-  const alternates = buildHreflangAlternates(`/news/${slug}`, de ? 'de' : 'en')
+  // News uses the inverse i18n convention (base = EN `title`/`content`, DE
+  // override = `titleDe`/`contentDe`), so the DE-base `buildHreflangAlternates`
+  // gate can't express it. Emit a language alternate ONLY for the locales that
+  // actually have a real translation — otherwise a single-language article gets
+  // an `en` (or `de`) URL that just re-renders the other language's body, the
+  // exact duplicate-content trap `hasEnContent` prevents for restaurants.
+  const hasDe = Boolean(a.titleDe?.trim() && a.contentDe && a.contentDe.length > 0)
+  const hasEn = Boolean(a.title?.trim() && a.content && a.content.length > 0)
+  const languages: Record<string, string> = {}
+  if (hasDe) languages.de = localeUrl('de', `/news/${slug}`)
+  if (hasEn) languages.en = localeUrl('en', `/news/${slug}`)
+  languages['x-default'] = localeUrl(hasDe ? 'de' : 'en', `/news/${slug}`)
+  // Canonical = the requested locale if it has its own content, else the locale
+  // that does (so the untranslated fallback page points at the real version).
+  const selfHasContent = de ? hasDe : hasEn
+  const canonicalLocale: 'de' | 'en' = selfHasContent ? (de ? 'de' : 'en') : hasDe ? 'de' : 'en'
+  const alternates = { canonical: localeUrl(canonicalLocale, `/news/${slug}`), languages }
 
   return {
     title,

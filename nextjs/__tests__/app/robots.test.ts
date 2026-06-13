@@ -10,7 +10,10 @@ describe('robots.ts', () => {
     const mod = await import('@/app/robots')
     const result = mod.default()
     expect(result.rules).toEqual({ userAgent: '*', allow: '/' })
-    expect(result.sitemap).toMatch(/\/sitemap\.xml$/)
+    expect(result.sitemap).toEqual(expect.arrayContaining([
+      expect.stringMatching(/\/sitemap\.xml$/),
+      expect.stringMatching(/\/news-sitemap\.xml$/),
+    ]))
   })
 
   it('staging: disallow all, no sitemap reference', async () => {

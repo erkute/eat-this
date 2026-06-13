@@ -33,6 +33,15 @@ export function buildRestaurantJsonLd({
 }: BuildRestaurantJsonLdArgs): string {
   const openingHours = r.openingHours ? buildOpeningHoursSpec(r.openingHours) : []
 
+  // The Restaurant entity's canonical URL/@id must be OUR detail page, not the
+  // venue's own website — that belongs in `sameAs`. This gives the entity a
+  // stable, locale-tagged identity that DE/EN pages can both reference.
+  const selfUrl = localeUrl(locale, `/restaurant/${slug}`)
+  const sameAs = [
+    r.website,
+    r.instagramHandle && `https://www.instagram.com/${r.instagramHandle.replace(/^@/, '')}/`,
+  ].filter((x): x is string => Boolean(x))
+
   const faqEntity =
     faqs && faqs.length > 0
       ? {
@@ -50,13 +59,15 @@ export function buildRestaurantJsonLd({
     '@graph': [
       {
         '@type': 'Restaurant',
+        '@id': `${selfUrl}#restaurant`,
         name: r.name,
         description,
+        inLanguage: locale === 'de' ? 'de-DE' : 'en-US',
         image: r.photo,
         priceRange: formatPriceLabel(r) || undefined,
         // schema.org expects strings; prefer EN labels (canonical for crawlers).
         servesCuisine: r.categories?.map(c => c.nameEn || c.name).filter(Boolean),
-        url: r.website,
+        url: selfUrl,
         hasMap: r.mapsUrl,
         // Official menu URL — schema.org Restaurant.hasMenu accepts a URL;
         // pairs with the on-page "Was bestellen?" block.
@@ -64,9 +75,7 @@ export function buildRestaurantJsonLd({
         // schema.org allows a reservation URL here, not just a boolean —
         // richer signal for crawlers when we have one.
         ...(r.reservationUrl && { acceptsReservations: r.reservationUrl }),
-        ...(r.instagramHandle && {
-          sameAs: [`https://www.instagram.com/${r.instagramHandle.replace(/^@/, '')}/`],
-        }),
+        ...(sameAs.length > 0 && { sameAs }),
         ...(r.address && {
           address: {
             '@type': 'PostalAddress',

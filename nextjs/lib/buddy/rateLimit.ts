@@ -1,5 +1,6 @@
 // nextjs/lib/buddy/rateLimit.ts
 import { getAdminFirestore } from '@/lib/firebase/admin'
+import { Timestamp } from 'firebase-admin/firestore'
 
 export interface RateLimitState {
   minuteStart: number
@@ -77,7 +78,15 @@ export async function checkRateLimit(
     const snap = await tx.get(ref)
     const prev = (snap.exists ? (snap.data() as RateLimitState) : null) ?? null
     const decision = evaluateRateLimit(now, prev, limits)
-    tx.set(ref, decision.state)
+    // `expiresAt` is a real Firestore Timestamp so the native TTL policy
+    // (firestore.indexes.json → buddyRateLimits.expiresAt) garbage-collects
+    // stale per-session/per-IP/per-uid docs. Without it this collection grew
+    // forever (one doc per key, never deleted). Expire one full day-window
+    // after the day bucket opened.
+    tx.set(ref, {
+      ...decision.state,
+      expiresAt: Timestamp.fromMillis(decision.state.dayStart + DAY),
+    })
     return decision
   })
 }

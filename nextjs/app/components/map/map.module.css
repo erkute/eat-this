@@ -2907,11 +2907,35 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   height: 22px;
 }
 
-/* Must-Eat-Detail mobile: das Layout (Karte oben fix, Mittelteil clip-sicher,
-   Footer + Pager unten fix, kein Scroll) steckt komplett in den Basisregeln
-   oben — gilt mobil wie Desktop. Hier nur die iOS-Safe-Area: die dunkle
-   Pager-Leiste reicht bis unter den Home-Indicator, bleibt aber bündig. */
+/* Must-Eat-Detail mobile: das Sheet ist ZIEHBAR (Snaps full/peek, --sheet-y),
+   sein Mount (.detailMountMustEat) klippt auf max-height:100dvh−sheet-y−36.
+   Würde der Inhalt den Mount per flex:1 füllen, reflowt er beim Draggen
+   (Footer wandert, Mittelteil clippt) → „ganze Design dahin". Deshalb:
+
+   1) Inhalt = FESTE Höhe der Full-Snap-Sichtfläche: bei full ist
+      --sheet-y = 40px (FULL_TOP_PX in useBottomSheet) → 100dvh−40−36 =
+      100dvh−76. Dadurch ist es ein fester Stack; beim Draggen schaut das
+      Sheet nur HINEIN (Mount klippt unten weg), nichts springt.
+   2) Karte mobil kompakter + schrumpfbar (max-height/flex-shrink), damit auf
+      kurzen Geräten der Text (Beschreibung/Näherungs-Hinweis) nicht klippt.
+   3) iOS-Safe-Area unter dem Pager. (User 2026-06-14) */
 @media (max-width: 1023.98px) {
+  .detailV13MustEat .detailV13Scroll {
+    flex: none;
+    height: calc(100dvh - 76px);
+  }
+  .detailV13MustEat .fdHeroWrap {
+    /* Hoher flex-shrink → auf kurzen Geräten gibt die KARTE den Platz ab
+       (sie schrumpft), nicht der Text im fdMid (sonst klippt die Beschreibung
+       / der Näherungs-Hinweis). */
+    flex: 0 8 auto;
+    min-height: 0;
+    margin-top: 38px;
+  }
+  .detailV13MustEat .fdHero {
+    height: clamp(180px, 30dvh, 300px);
+    max-height: 100%;
+  }
   .detailV13MustEat .fdPager {
     padding-bottom: calc(11px + env(safe-area-inset-bottom, 0px));
   }

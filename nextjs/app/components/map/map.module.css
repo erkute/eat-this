@@ -3603,4 +3603,175 @@ html[data-theme="dark"] .rdActPrimary {
 html[data-theme="dark"] .rdSecH { color: #f0e8d0; }
 html[data-theme="dark"] .medishLbl { color: #f0e8d0; }
 
+/* ---- Restaurant detail gallery strip ---- */
+.rdGallery {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 12px 16px 4px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* The detail sheet (.detailV13Scroll) sets touch-action: pan-y, which would
+     otherwise block horizontal touch-panning of this carousel. Reclaim pan-x
+     here — same axis split the filter-chip rail uses inside the sheet. */
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+}
+.rdGallery::-webkit-scrollbar { display: none; }
+.rdGalleryThumb {
+  position: relative;
+  flex: 0 0 auto;
+  width: 148px;
+  aspect-ratio: 4 / 3;
+  border: 0;
+  padding: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  scroll-snap-align: start;
+  background: rgba(127, 127, 127, 0.12);
+}
+.rdGalleryThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.rdGalleryCredit {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 4px;
+  font-size: 9px;
+  line-height: 1.2;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+/* ---- Restaurant gallery lightbox (flat, swipeable photo viewer) ----
+   Distinct from .lightbox* (the 3D-tilt must-eat "playing card"): no tilt,
+   no sheen — just a full image you page through. */
+.galleryLb {
+  position: fixed;
+  inset: 0;
+  z-index: 10020;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+.galleryLbBg {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.94);
+  pointer-events: none;
+}
+.galleryLbStage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  cursor: default;
+}
+.galleryLbSlide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 16px;
+}
+.galleryLbImg {
+  max-width: 92vw;
+  max-height: 84vh;
+  object-fit: contain;
+  border-radius: 8px;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+.galleryLbClose {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  cursor: pointer;
+}
+.galleryLbClose svg {
+  width: 22px;
+  height: 22px;
+}
+.galleryLbCounter {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+.galleryLbArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  cursor: pointer;
+}
+.galleryLbArrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.galleryLbArrow svg {
+  width: 24px;
+  height: 24px;
+}
+.galleryLbArrowPrev { left: 10px; }
+.galleryLbArrowNext { right: 10px; }
+/* Touch devices lead with the swipe — hide the chevrons there. */
+@media (hover: none) and (pointer: coarse) {
+  .galleryLbArrow { display: none; }
+}
+.galleryLbCredit {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  max-width: 90vw;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+.galleryLbCredit a {
+  color: inherit;
+  text-decoration: underline;
+}
+
 /* horizontal page transition */

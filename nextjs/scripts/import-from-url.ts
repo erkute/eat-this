@@ -16,6 +16,7 @@
 import { config as loadEnv } from 'dotenv'
 import { createClient } from '@sanity/client'
 import { randomUUID } from 'node:crypto'
+import { judgePhotos, selectGalleryPhotos, isOwnerPhoto, CATEGORY_LABEL_DE, type JudgeInput, type PhotoJudgment } from './lib/photo-curation'
 
 loadEnv({ path: '.env.local' })
 
@@ -418,6 +419,21 @@ interface PhotoAsset {
   creditUrl: string | null
 }
 
+/** Credit/creditUrl from a photo's authorAttributions, with the Places
+ *  placeholder string mapped to a clean "Foto: Google Maps" fallback. */
+function photoAttribution(
+  photo: NonNullable<Place['photos']>[number],
+  place: Pick<Place, 'googleMapsUri'>,
+) {
+  const author = photo.authorAttributions?.[0]
+  const displayName = author?.displayName
+  const isPlaceholder = !displayName || /copyrighted by their owners/i.test(displayName)
+  return {
+    credit: isPlaceholder ? 'Foto: Google Maps' : `Foto: ${displayName}`,
+    creditUrl: isPlaceholder ? (place.googleMapsUri ?? null) : (author?.uri ?? null),
+  }
+}
+
 /** Downloads the first Places photo (≤1600px wide) and uploads it to Sanity
  *  as an image asset; also returns the photographer attribution from Places.
  *  Skips silently on any failure so a single bad photo doesn't kill the
@@ -440,22 +456,96 @@ async function importPhoto(place: Place, restaurantSlug: string): Promise<PhotoA
       filename: `${restaurantSlug}.${ext}`,
       contentType,
     })
-    const author = photo.authorAttributions?.[0]
-    const displayName = author?.displayName
-    // Google returns a generic placeholder string when the photo has no real
-    // author attribution. Catch it and fall back to a clean "Foto: Google Maps"
-    // with the place's mapsUri as the credit URL — satisfies the Places ToS
-    // attribution requirement without leaking the awkward placeholder text.
-    const isPlaceholder = !displayName || /copyrighted by their owners/i.test(displayName)
-    return {
-      _id: asset._id,
-      credit: isPlaceholder ? 'Foto: Google Maps' : `Foto: ${displayName}`,
-      creditUrl: isPlaceholder ? (place.googleMapsUri ?? null) : (author?.uri ?? null),
-    }
+    const { credit, creditUrl } = photoAttribution(photo, place)
+    return { _id: asset._id, credit, creditUrl }
   } catch (err) {
     console.warn(`  photo upload failed: ${(err as Error).message} — skipping image`)
     return null
   }
+}
+
+export interface GalleryAsset {
+  _id: string
+  alt: string
+  credit: string | null
+  creditUrl: string | null
+}
+
+const GALLERY_MAX_CANDIDATES = 9
+
+/** Downloads small previews of photos[1..9], has Haiku score them, then
+ *  uploads only the winners in full size. photos[0] stays hero-only so the
+ *  gallery never duplicates the hero. Every failure path degrades softly:
+ *  a failed preview drops that candidate, a failed judging falls back to
+ *  "first 3 unscored", a failed full-size upload skips that one photo. */
+export async function importGalleryPhotos(
+  place: Pick<Place, 'photos' | 'googleMapsUri'>,
+  restaurantSlug: string,
+  restaurantName: string,
+): Promise<GalleryAsset[]> {
+  const candidates = (place.photos ?? []).slice(1, 1 + GALLERY_MAX_CANDIDATES).filter((p) => p?.name)
+  if (!candidates.length) return []
+
+  // 1) Small previews for judging (cheap: 400px media calls)
+  const previews: { photo: (typeof candidates)[number]; input: JudgeInput }[] = []
+  for (const photo of candidates) {
+    try {
+      const url = `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=400&key=${GOOGLE_API_KEY}`
+      const res = await fetch(url, { redirect: 'follow' })
+      if (!res.ok) continue
+      const buffer = Buffer.from(await res.arrayBuffer())
+      const ct = res.headers.get('content-type') ?? 'image/jpeg'
+      const mediaType = (['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const)
+        .find((m) => ct.includes(m.split('/')[1])) ?? 'image/jpeg'
+      previews.push({ photo, input: { data: buffer.toString('base64'), mediaType } })
+    } catch {
+      // drop this candidate
+    }
+  }
+  if (!previews.length) return []
+
+  // 2) Judge + select (indexes refer to the previews array). Owner photos
+  //    (attribution = the business name) are preferred over guest photos.
+  const judgments = await judgePhotos(previews.map((p) => p.input), restaurantName)
+  const owners = previews.map((p) => isOwnerPhoto(p.photo.authorAttributions?.[0]?.displayName, restaurantName))
+  const pickedIdx = selectGalleryPhotos(judgments, owners, previews.length)
+  if (!pickedIdx.length) {
+    console.log('  gallery:  no usable food/interior photos')
+    return []
+  }
+
+  // 3) Upload winners in full size
+  const out: GalleryAsset[] = []
+  for (const idx of pickedIdx) {
+    const { photo } = previews[idx]
+    try {
+      const url = `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=1600&key=${GOOGLE_API_KEY}`
+      const res = await fetch(url, { redirect: 'follow' })
+      if (!res.ok) {
+        console.warn(`  gallery photo ${idx + 1} fetch ${res.status} — skipping`)
+        continue
+      }
+      const buffer = Buffer.from(await res.arrayBuffer())
+      const contentType = res.headers.get('content-type') ?? 'image/jpeg'
+      const ext = contentType.includes('png') ? 'png' : 'jpg'
+      const asset = await sanity.assets.upload('image', buffer, {
+        filename: `${restaurantSlug}-gallery-${out.length + 1}.${ext}`,
+        contentType,
+      })
+      const category: PhotoJudgment['category'] =
+        judgments?.find((jd) => jd.index === idx)?.category ?? 'interior'
+      const { credit, creditUrl } = photoAttribution(photo, place)
+      out.push({
+        _id: asset._id,
+        alt: `${restaurantName} – ${CATEGORY_LABEL_DE[category]}`,
+        credit,
+        creditUrl,
+      })
+    } catch (err) {
+      console.warn(`  gallery photo upload failed: ${(err as Error).message} — skipping`)
+    }
+  }
+  return out
 }
 
 // ----- Doc construction -----------------------------------------------------
@@ -476,6 +566,7 @@ interface BuildContext {
   bezirkRefId: string | null
   ortsteil: string | null
   photoAsset: PhotoAsset | null
+  galleryAssets: GalleryAsset[]
   categoryRefs: { _key: string; _type: 'reference'; _ref: string }[]
   slug: string
 }
@@ -528,6 +619,20 @@ function buildDoc(parsed: ParsedUrl, place: Place, mapsUrl: string, ctx: BuildCo
     if (ctx.photoAsset.credit) image.credit = ctx.photoAsset.credit
     if (ctx.photoAsset.creditUrl) image.creditUrl = ctx.photoAsset.creditUrl
     doc.image = image
+  }
+
+  if (ctx.galleryAssets.length) {
+    doc.gallery = ctx.galleryAssets.map((g) => {
+      const item: Record<string, unknown> = {
+        _key: randomUUID(),
+        _type: 'image',
+        asset: { _type: 'reference', _ref: g._id },
+        alt: g.alt,
+      }
+      if (g.credit) item.credit = g.credit
+      if (g.creditUrl) item.creditUrl = g.creditUrl
+      return item
+    })
   }
 
   return doc
@@ -629,6 +734,7 @@ export async function runImportFromParsed(
 
   const slug = await uniqueSlug(slugify(matchedName), ortsteil)
   const photoAsset = uploadPhoto ? await importPhoto(place, slug) : null
+  const galleryAssets = uploadPhoto ? await importGalleryPhotos(place, slug, matchedName) : []
 
   const categoryNames = inferCategories(place.types)
   const categoryRefs = await lookupCategoryRefs(categoryNames)
@@ -637,6 +743,7 @@ export async function runImportFromParsed(
     bezirkRefId,
     ortsteil,
     photoAsset,
+    galleryAssets,
     categoryRefs,
     slug,
   })
@@ -686,6 +793,8 @@ async function main() {
   if (result.photoAsset) console.log(`  photo:    uploaded ${result.photoAsset._id}`)
   else if (result.place.photos?.length) console.log(`  photo:    ${dryRun ? 'skipped (--dry-run)' : 'failed'}`)
   else console.log(`  photo:    none on Places`)
+  const galleryCount = Array.isArray(result.doc.gallery) ? result.doc.gallery.length : 0
+  if (galleryCount) console.log(`  gallery:  ${galleryCount} photos uploaded`)
 
   console.log(`\n→ Draft preview:\n${JSON.stringify(result.doc, null, 2)}\n`)
 

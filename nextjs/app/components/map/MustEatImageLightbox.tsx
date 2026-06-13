@@ -31,10 +31,23 @@ interface InnerProps {
   onClose:    () => void
 }
 
+// Credit URLs come from CMS content (Google attribution data / manual Studio
+// entry) — only link out for http(s) so a poisoned value can't become a
+// javascript: href. Shared with the restaurant gallery viewer + detail hero.
+export function safeHttpUrl(url: string | null | undefined): string | null {
+  if (!url) return null
+  try {
+    const u = new URL(url)
+    return u.protocol === 'http:' || u.protocol === 'https:' ? u.toString() : null
+  } catch {
+    return null
+  }
+}
+
 // Mirrors profile/ProfileDeck.ExpandedOverlay almost line-for-line so the
-// two zoom interactions feel identical: open from origin → settle in
-// centre with Apple-style ease-out, pointer-driven 3D-tilt, sheen drifts
-// with rotateY, body scroll/touch locked. Click anywhere closes.
+// two zoom interactions feel identical: open from origin → settle in centre
+// with Apple-style ease-out, pointer-driven 3D-tilt, sheen drifts with
+// rotateY, body scroll/touch locked. Click anywhere closes.
 const Inner = memo(function Inner({ imageUrl, alt, originRect, onClose }: InnerProps) {
   const overlayW  = Math.min(420, window.innerWidth * 0.88)
   const screenCx  = window.innerWidth / 2

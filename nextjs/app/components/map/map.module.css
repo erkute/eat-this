@@ -2571,35 +2571,93 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
    --yellow → brand yellow, --font-display → Chewy. Uses the
    shared detailV13 tokens (--d-*) so dark mode stays correct.
    ========================================================== */
+/* Branded coral "poster" surface, theme-independent: spotlight glow from the
+   top + fine grain. Fixed layout, NO internal scroll — the card is pinned top,
+   name/description live in a clip-safe middle, the footer is pinned bottom. */
+.detailV13MustEat .detailV13Scroll {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  color: #f3ecd6;
+  background:
+    radial-gradient(120% 58% at 50% 17%, rgba(255, 170, 90, 0.30), transparent 60%),
+    radial-gradient(92% 44% at 50% 18%, rgba(255, 216, 74, 0.18), transparent 55%),
+    linear-gradient(170deg, #a82c16, #7c2010);
+}
+.detailV13MustEat .detailV13Scroll::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.10) 0.5px, transparent 0.6px);
+  background-size: 4px 4px;
+}
+
+/* HERO — freigestellte Karte mit Glow-Halo, dezent in 3D geneigt. */
+.fdHeroWrap {
+  position: relative;
+  z-index: 3;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin-top: 46px;
+  perspective: 1000px;
+}
+.fdHalo {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 216, 74, 0.32), transparent 62%);
+  z-index: 0;
+  pointer-events: none;
+}
 .fdHero {
   appearance: none;
   border: 0;
   padding: 0;
-  /* Fixed, modest size centred with breathing room above — the card does NOT
-     grow with the sheet snap/drag, and it's tap-to-zoom for a closer look. */
-  margin: 22px auto 12px;
-  width: min(58vw, 240px);
-  aspect-ratio: 1539 / 2115;
   background: transparent;
+  position: relative;
+  z-index: 2;
+  /* Feste Kartengröße pro Gerät (User 2026-06-14) — wächst NICHT mit
+     Snap/Drag (dvh = Geräte-Viewport, konstant pro Gerät). Groß & präsent. */
+  height: clamp(300px, 42dvh, 380px);
+  aspect-ratio: 1539 / 2115;
   display: block;
   cursor: zoom-in;
 }
+.fdHero img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 11px;
+}
+/* Dezente 3D-Neigung auf BEIDEN Karten (aufgedeckt + verdeckt, User
+   2026-06-14) + geworfener Schatten — sieht aus wie ein echtes Objekt. */
+.detailV13MustEat .fdHero {
+  transform: rotate(-2deg) rotateY(-7deg) rotateX(3deg);
+  filter: drop-shadow(10px 16px 16px rgba(0, 0, 0, 0.45));
+}
 .fdHeroLocked {
-  /* Same size/position as the unlocked hero — the card must NOT grow when
-     the reveal lands (User 2026-06-05: post-reveal size jump felt broken). */
   cursor: pointer;
-  /* Wiggle scaled by proximity (--vibrate-intensity, set inline on the button):
-     subtle far away, lively within tap range — signals "tap me". The duration
-     var is also what the .mustEatCardCanUnlock rule below reads. */
-  --vibrate-duration: calc(1.05s - 0.6s * var(--vibrate-intensity, 0.18));
+  /* Verdeckte Karte wackelt dezent UM die 3D-Neigung herum (Antippen-Signal,
+     skaliert mit der Nähe via --vibrate-intensity). */
+  --vibrate-duration: calc(1.15s - 0.6s * var(--vibrate-intensity, 0.18));
   animation: fdCardWiggle var(--vibrate-duration) ease-in-out infinite;
   will-change: transform;
 }
 @keyframes fdCardWiggle {
-  0%, 100% { transform: rotate(0deg) translateX(0); }
-  20% { transform: rotate(calc(var(--vibrate-intensity, 0.18) * -2.6deg)) translateX(calc(var(--vibrate-intensity, 0.18) * -2.4px)); }
-  55% { transform: rotate(calc(var(--vibrate-intensity, 0.18) * 2.6deg)) translateX(calc(var(--vibrate-intensity, 0.18) * 2.4px)); }
-  80% { transform: rotate(calc(var(--vibrate-intensity, 0.18) * -1.5deg)); }
+  0%, 100% { transform: rotate(-2deg) rotateY(-7deg) rotateX(3deg); }
+  30% { transform: rotate(calc(-2deg + var(--vibrate-intensity, 0.18) * 3deg)) rotateY(calc(-7deg + var(--vibrate-intensity, 0.18) * 6deg)) rotateX(3deg); }
+  70% { transform: rotate(calc(-2deg - var(--vibrate-intensity, 0.18) * 2.4deg)) rotateY(calc(-7deg - var(--vibrate-intensity, 0.18) * 2deg)) rotateX(3deg); }
 }
 /* Tap when out of range → a firm "nope" shake (reuses the marker keyframes). */
 .fdHeroLocked.mustEatCardTapping {
@@ -2608,138 +2666,173 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
 @media (prefers-reduced-motion: reduce) {
   .fdHeroLocked { animation: none; }
 }
-.fdHero img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+
+/* MIDDLE — clip-safe flexible region: name + description (open) or proximity
+   (locked), top-anchored under the card. Long copy clips here instead of
+   pushing the pinned footer off-screen. */
+.fdMid {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 3;
 }
 .fdName {
-  margin: 16px 14px 0;
-  font-family: var(--font-chewy), 'Chewy', 'Arial Black', sans-serif;
-  font-size: clamp(48px, 13vw, 84px);
-  line-height: 0.95;
-  text-transform: uppercase;
+  margin: 0;
+  padding: 14px 18px 0;
+  font-family: var(--font-chewy), 'Schoolbell', cursive;
+  font-size: clamp(46px, 13vw, 56px);
+  line-height: 0.92;
+  text-align: center;
   overflow-wrap: anywhere;
-  color: var(--d-text);
+  color: #f3ecd6;
+  /* 2 Zeilen reserviert, Name UNTEN verankert → eine 2. Zeile füllt nach
+     oben, die Beschreibung darunter bleibt ortsfest (User 2026-06-14). */
+  min-height: calc(2 * 0.92em + 14px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
 }
-.fdNameText {
-  display: inline;
-}
-/* Covered: the name is spelled out but heavily blurred — present, punchy,
-   unreadable. No stamp (User 2026-06-05). user-select off so the surprise
-   can't be copied out. */
+.fdNameText { display: inline; }
+/* Covered: der Name ist da, aber stark verschwommen — unlesbar, kein Stempel. */
 .fdNameBlur {
-  filter: blur(14px);
+  filter: blur(11px);
+  opacity: 0.85;
   -webkit-user-select: none;
   user-select: none;
 }
-/* Reveal: the name slowly sharpens into focus once the card has landed.
-   `both` holds the full blur until the animation starts; 2.1s total stays
-   inside the parent's 2350ms nameBurning window. */
+/* Reveal: der Name schärft sich, sobald die Karte gelandet ist. */
 .fdNameUnblurring {
   animation: fdNameUnblur 1.9s ease-out 0.2s both;
 }
 @keyframes fdNameUnblur {
-  from { filter: blur(14px); }
+  from { filter: blur(11px); }
   to   { filter: blur(0); }
 }
-/* Proximity prompt — sits under the blurred name, mirroring the unlocked
-   description slot so locked/unlocked layouts line up 1:1. */
+/* Beschreibung — komplett (keine Klemmung), Marken-Schrift, ~19px unter
+   dem Namen. */
+.fdText {
+  margin: 0;
+  padding: 20px 24px 0;
+  font-family: var(--font-chewy), 'Schoolbell', cursive;
+  font-size: 18.5px;
+  line-height: 1.4;
+  text-align: center;
+  color: rgba(243, 236, 214, 0.95);
+}
+/* Locked: Näherungs-Hinweis statt Beschreibung — großes „Du bist da!"
+   bzw. Entfernung + Sub-Hinweis. */
 .fdProximity {
-  margin: 16px 20px 0;
+  padding: 19px 24px 0;
   text-align: center;
 }
 .fdProximityHead {
-  font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-size: clamp(22px, 6vw, 30px);
-  line-height: 1.05;
-  text-transform: uppercase;
-  color: var(--d-text);
+  font-family: var(--font-chewy), 'Schoolbell', cursive;
+  font-size: clamp(34px, 9.5vw, 42px);
+  line-height: 1;
+  color: #ffffff;
 }
 .fdProximityReady .fdProximityHead {
-  color: var(--c-coral);
+  color: var(--brand-yellow);
 }
 .fdProximitySub {
-  margin-top: 7px;
-  font-size: 16px;
-  line-height: 1.5;
-  color: var(--d-text);
-  opacity: 0.82;
+  margin-top: 9px;
+  font-family: var(--font-chewy), 'Schoolbell', cursive;
+  font-size: 17px;
+  line-height: 1.35;
+  color: rgba(243, 236, 214, 0.92);
 }
+/* FOOTER — cream-Leiste mit FESTER Höhe; der Restaurant-Name reserviert
+   2 Zeilen, also ist die Leiste bei 1- und 2-zeiligem Namen gleich hoch und
+   beim Blättern springt nichts (User 2026-06-14). */
 .fdRest {
-  /* Extra top room so the rotated "VERDECKT" stamp (centred over the name)
-     never overlaps the "Im Restaurant" block on short names. Kein
-     Border-Strich mehr darunter (User 2026-06-11: schwarzer Rahmen raus). */
-  margin: 30px 14px 0;
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 4;
+  height: 92px;
+  padding: 0 18px;
   display: flex;
-  align-items: end;
-  gap: 18px;
-  padding-bottom: 16px;
+  align-items: flex-end;
+  gap: 12px;
+  background: #f3ecd6;
+  color: #141210;
+  border-top: 3px solid #0d0d0d;
 }
-.fdPrice { /* sits next to the restaurant block on the left */ }
+.fdRestName {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 15px;
+}
 .fdK {
-  font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-size: 13px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--d-text);
-  margin-bottom: 2px;
+  color: var(--c-coral);
+  margin: 0 0 4px;
 }
 .fdV {
-  font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-size: 28px;
-  letter-spacing: 0.03em;
-  line-height: 1;
-  text-transform: uppercase;
-  color: var(--d-text);
+  font-family: var(--font-chewy), 'Schoolbell', cursive;
+  font-size: 25px;
+  line-height: 1.04;
+  color: #141210;
+  /* 2 Zeilen reserviert, Name unten verankert → konstante Footer-Höhe. */
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
 }
+/* Zum-Spot — gelbe, leicht getiltete Sticker-Pille mit hartem Offset-Schatten,
+   am unteren Rand der Footer-Leiste verankert. */
 .ctaPill {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  margin: 0 0 16px;
   appearance: none;
   background: var(--brand-yellow);
-  color: #0a0a0a;
-  font-family: var(--font-chewy), 'Chewy', sans-serif;
-  font-size: 13px;
-  letter-spacing: 0.08em;
+  color: #141210;
+  font-family: var(--font-chewy), 'Schoolbell', cursive;
+  font-size: 17px;
   line-height: 1;
-  text-transform: uppercase;
-  padding: 9px 13px 10px;
-  border-radius: 0;
-  border: 0;
+  padding: 11px 16px;
+  border: 2.5px solid #0d0d0d;
+  border-radius: 3px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 7px;
   text-decoration: none;
   white-space: nowrap;
-  /* Anchor the pill to the right edge regardless of whether the price
-     column is present (some must-eats have no price). */
-  margin-left: auto;
+  transform: rotate(-2deg);
+  box-shadow: 3px 3px 0 #0d0d0d;
   transition: transform 140ms ease, box-shadow 140ms ease;
 }
-html[data-theme="dark"] .ctaPill {
-  background: var(--c-coral);
-  color: #fbf8ee;
-}
 .ctaPill:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 2px 2px 0 #0a0a0a;
+  transform: rotate(-2deg) translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #0d0d0d;
 }
-/* Colour-set-off pager field — full-bleed band (wider than the 14px content
-   inset) with the neighbouring must-eats flush left & right, big punchy
-   Chewy + oversized arrows. */
+/* PAGER — dunkle Leiste am unteren Rand; Nachbar-Gerichte links & rechts,
+   Pfeile in gelben Kreisen. Locked-Nachbarn zeigen „Verdeckt". */
 .fdPager {
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 4;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 10px;
-  margin: 14px 0 16px;
-  padding: 16px;
-  background: color-mix(in srgb, var(--d-bg) 91%, var(--d-ink));
-  font-family: var(--font-chewy), 'Chewy', sans-serif;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--d-text);
+  margin: 0;
+  padding: 13px 16px;
+  background: #141210;
+  color: #f3ecd6;
+  font-family: var(--font-chewy), 'Schoolbell', cursive;
 }
 .fdPagerPrev,
 .fdPagerNext {
@@ -2750,150 +2843,78 @@ html[data-theme="dark"] .ctaPill {
   margin: 0;
   min-width: 0;
   font: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
   color: inherit;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
 }
 .fdPagerNext {
   justify-content: flex-end;
 }
-/* SVG arrow, centred in its box → flex `align-items: center` lines it up
-   with the name deterministically (the old unicode ←/→ glyph sat too low). */
+/* Pfeil im gelben Kreis. */
 .fdPagerArrow {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--brand-yellow);
+  color: #141210;
 }
 .fdPagerArrow svg {
   display: block;
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
 }
 .fdPagerNext .fdPagerArrow svg { transform: scaleX(-1); }
 .fdPagerName {
   min-width: 0;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* Kein Nachbar in der Richtung → Pfeil + Slot komplett ausblenden statt
-   ausgegraut: ein sichtbarer Pfeil am Listenende suggeriert "da geht's
-   weiter" (User 2026-06-11). visibility statt display, damit das Grid
-   stabil bleibt und der verbleibende Nachbar nicht rüberrutscht. */
+/* Kein Nachbar in der Richtung → Pfeil + Slot ausblenden (Grid bleibt stabil). */
 .fdPagerPrev:disabled,
 .fdPagerNext:disabled {
   visibility: hidden;
   cursor: default;
 }
-/* X close — sits top-right over the sheet, square sticker like the burger. */
+/* X — nackter cremefarbener Glyph oben rechts. */
 .fdClose {
   position: absolute;
-  top: 10px;
-  right: 12px;
-  z-index: 5;
+  top: 11px;
+  right: 13px;
+  z-index: 8;
   appearance: none;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--d-bg);
-  color: var(--d-text);
-  border: 2px solid var(--d-ink);
+  background: transparent;
+  color: #f3ecd6;
+  border: 0;
   border-radius: 0;
   cursor: pointer;
 }
 .fdClose svg {
-  width: 18px;
-  height: 18px;
-}
-/* Must-Eat-Detail: X ohne Rahmen — nur der Glyph, kein Sticker-Kasten, auf
-   Mobile wie Desktop gleich (User 2026-06-13). */
-.detailV13MustEat .fdClose {
-  border: 0;
-  background: transparent;
-}
-.fdText {
-  margin: 16px 16px 16px;
-  font-size: 16.5px;
-  font-weight: 500;
-  line-height: 1.6;
-  color: var(--d-text);
+  width: 22px;
+  height: 22px;
 }
 
-/* Must-Eat-Detail mobile — zwei Snap-Höhen (User 2026-06-11):
-   FULL = alles sichtbar, große Karte + Text, ganzer Viewport ohne
-   Whitespace-Loch; der untere Snap (≈ halbe Höhe) zeigt Karte + Name —
-   seine Höhe rechnet useMapSheet aus genau dieser Geometrie aus
-   (Handle + 26px + Card 36dvh + 12px + gemessener Name).
-   Der Scroll-Container ist eine Flex-Spalte: Card fest oben (jede Karte
-   gleich groß), Name/Text hängen direkt darunter, und der ganze Fuß-Block
-   (Restaurant-Zeile + „Zum Spot" + Pager) ist über EIN margin-top:auto am
-   .fdRest an die Unterkante geankert. Dadurch bleiben Karte (oben) und
-   Fuß-Block (unten) ortsfest — beim Blättern von Gericht zu Gericht springt
-   nichts, nur Name/Text fließen mit dem Inhalt (User 2026-06-13, wie Desktop).
-   Läuft der Inhalt über (sehr lange Beschreibung), bleibt overflow-y:auto
-   als Ventil und die Auto-Margin kollabiert auf ihr Padding. */
+/* Must-Eat-Detail mobile: das Layout (Karte oben fix, Mittelteil clip-sicher,
+   Footer + Pager unten fix, kein Scroll) steckt komplett in den Basisregeln
+   oben — gilt mobil wie Desktop. Hier nur die iOS-Safe-Area: die dunkle
+   Pager-Leiste reicht bis unter den Home-Indicator, bleibt aber bündig. */
 @media (max-width: 1023.98px) {
-  .detailV13MustEat .detailV13Scroll {
-    display: flex;
-    flex-direction: column;
-    /* Kein Overhang — der Mount endet am sichtbaren Viewport
-       (.detailMountMustEat), der Pager sitzt direkt über der Unterkante. */
-    padding-bottom: max(env(safe-area-inset-bottom, 0px), 10px);
-  }
-  .detailV13MustEat .fdHero {
-    /* Feste Höhe pro Gerät. Der untere Snap wird live aus der Geometrie
-       gemessen (ResizeObserver auf [data-detail-hero]), daher passt sich
-       die Peek-Höhe an diesen margin-top automatisch an. margin-top 50px:
-       die Karte beginnt unter dem X (top 10 + 34px Höhe ≈ 44px), das X steht
-       allein darüber — wie auf Desktop (User 2026-06-13). */
-    flex: 0 0 auto;
-    height: clamp(190px, 40dvh, 380px);
-    width: auto;
-    max-width: min(66vw, 280px);
-    margin: 50px auto 12px;
-  }
-  .detailV13MustEat .fdName {
-    /* padding statt margin: das Element trägt data-detail-hero und wird per
-       ResizeObserver gemessen (border-box) — useMapSheet braucht die volle
-       Name-Höhe inkl. Abständen für den unteren Karte+Name-Snap. */
-    margin: 0;
-    padding: 12px 14px 6px;
-    font-size: clamp(36px, 10vw, 50px);
-  }
-  /* Gleiche horizontale Ausrichtung wie Name/Restaurant (14px Inset), damit
-     alle Inhaltsblöcke an derselben Kante stehen (User 2026-06-13). */
-  .detailV13MustEat .fdText {
-    margin: 10px 14px 0;
-    font-size: 16px;
-    line-height: 1.5;
-  }
-  .detailV13MustEat .fdProximity { margin: 10px 14px 0; }
-  .detailV13MustEat .fdProximityHead { font-size: clamp(22px, 6.5vw, 30px); }
-  .detailV13MustEat .fdProximitySub { margin-top: 6px; font-size: 15px; }
-  .detailV13MustEat .fdRest {
-    margin: auto 14px 14px;
-    padding-top: 14px;
-    padding-bottom: 0;
-  }
-  .detailV13MustEat .fdV { font-size: 25px; }
-  .detailV13MustEat .ctaPill { font-size: 14px; padding: 11px 15px 12px; }
   .detailV13MustEat .fdPager {
-    /* Kein eigenes auto-top mehr — der Fuß-Block hängt komplett am
-       .fdRest:margin-top:auto, sonst splittet sich der freie Raum auf zwei
-       Anker und die Elemente springen beim Blättern. */
-    margin: 0;
-    padding: 17px 16px;
+    padding-bottom: calc(11px + env(safe-area-inset-bottom, 0px));
   }
-  .detailV13MustEat .fdPagerName { font-size: 17px; }
 }
 
 /* Must-Eat detail v13 strip — wobble card-back (locked, proximity-reveal
@@ -3179,26 +3200,9 @@ html[data-theme="dark"] .btnPackPromoTag {
      Drop it from the detail scroll padding here; iOS keeps the apron. */
   .detailV13Scroll { padding-bottom: 20px; }
 
-  /* Must-Eat-Detail kompakter auf Desktop — Ziel: alles in den Viewport
-     ohne internen Scroll. Schrumpfen Card-Strip + Lock-Block gezielt
-     zusammen ohne dass die Komposition leer wirkt. */
-  /* Unlocked Chewy view: tighten hero + name on the rail panel */
-  .fdName { font-size: clamp(40px, 4vw, 56px); }
-
-  /* Whitespace unten füllen (User 2026-06-12): der Scroll-Container wird
-     zur Flex-Spalte, Restaurant-Block UND Pager tragen margin-top:auto.
-     Card + Name + Beschreibung bleiben oben, der freie Raum verteilt sich
-     50/50 auf die beiden unteren Anker — der Switcher sitzt an der Unterkante
-     statt mit einem Loch darunter in der Mitte zu schweben. Gleiche Lösung
-     wie mobil (siehe .detailV13MustEat-Block unter den .fd-* Regeln). Läuft
-     der Inhalt über, kollabieren die Auto-Margins und overflow-y greift. */
-  .detailV13MustEat .detailV13Scroll {
-    display: flex;
-    flex-direction: column;
-  }
-  .detailV13MustEat .fdHero { flex: 0 0 auto; }
-  .detailV13MustEat .fdRest { margin-top: auto; }
-  .detailV13MustEat .fdPager { margin-top: auto; }
+  /* Must-Eat-Detail nutzt auf Desktop dieselben Basisregeln wie mobil
+     (fix, kein Scroll, Karte oben / Footer + Pager unten) — keine eigenen
+     Desktop-Overrides mehr nötig (Redesign 2026-06-14). */
   .actions { padding: 26px 22px 32px; gap: 16px; }
   .actions::before { top: 26px; right: 22px; }
   .btnPrimaryLbl { font-size: 58px; }

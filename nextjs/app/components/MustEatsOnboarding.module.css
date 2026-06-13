@@ -1,24 +1,71 @@
 /* Must-Eats first-visit onboarding. Tokens match MustEatsSection.module.css:
    ink #0a0a0a · cream #fbf8ee · display font var(--font-chewy) · radius 0. */
 
-/* Trigger link under the section sub copy */
+/* Trigger chip under the section sub copy — matches the filter chips / yellow
+   CTA: square, 2px ink border, Chewy uppercase, with a round yellow "?" badge.
+   Hover inverts to ink + lifts (translate, never opacity — brand motion rule). */
 .how {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 6px 0 0;
-  font-size: 13px;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 14px 0 0;
+  padding: 8px 15px 8px 9px;
+  background: transparent;
+  border: 2px solid #0a0a0a;
+  border-radius: 0;
+  font-family: var(--font-chewy);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
   color: #0a0a0a;
-  text-decoration: underline;
-  text-decoration-color: var(--brand-yellow);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 3px;
   cursor: pointer;
+  transition:
+    transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
 }
-/* Dark mode: was #0a0a0a on a dark surface → black-on-black + invisible. */
+.how:hover {
+  background: #0a0a0a;
+  color: #fbf8ee;
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--brand-yellow);
+}
+.how:active {
+  transform: translateY(0);
+  box-shadow: 2px 2px 0 var(--brand-yellow);
+}
+/* Round yellow badge stays put through the hover invert — the contrast anchor */
+.howBadge {
+  display: inline-grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 999px;
+  background: var(--brand-yellow);
+  color: #0a0a0a;
+  font-family: var(--font-chewy);
+  font-size: 14px;
+  line-height: 1;
+  padding-top: 1px;
+}
+/* Dark mode: ink border vanishes on the dark surface → switch to cream + coral. */
 html[data-theme="dark"] .how {
-  color: var(--dk-ink);
+  color: #f0e8d0;
+  border-color: rgba(240, 232, 208, 0.55);
+}
+html[data-theme="dark"] .how:hover {
+  background: #f0e8d0;
+  color: #0a0a0a;
+  box-shadow: 4px 4px 0 var(--c-coral);
+}
+html[data-theme="dark"] .how:active {
+  box-shadow: 2px 2px 0 var(--c-coral);
+}
+html[data-theme="dark"] .howBadge {
+  background: var(--c-coral);
+  color: #fbf8ee;
 }
 
 /* Backdrop tint — a state change, not motion (opacity rule exception) */
@@ -73,15 +120,15 @@ html[data-theme="dark"] .how {
   margin: 0 auto 18px;
   perspective: 900px;
 }
-/* Mini booster pack peeking out beside the flipping card on slide 2 */
-.packMini {
-  position: absolute;
-  right: -22%;
-  bottom: -6px;
-  width: 52%;
+/* Booster pack as the hero of slide 3 — replaces the demo card. Same box, so
+   it keeps the vertical rhythm; tilted a touch for that sticker-pack energy. */
+.packHero {
+  display: block;
+  width: 86%;
   height: auto;
-  transform: rotate(9deg);
-  filter: drop-shadow(0 4px 10px rgba(10, 10, 10, 0.25));
+  margin: 0 auto;
+  transform: rotate(-4deg);
+  filter: drop-shadow(0 6px 14px rgba(10, 10, 10, 0.28));
   pointer-events: none;
 }
 .flipper {
@@ -166,5 +213,12 @@ html[data-theme="dark"] .how {
   }
   .flipper {
     transition: none;
+  }
+  .how {
+    transition: background-color 0.16s ease, color 0.16s ease;
+  }
+  .how:hover,
+  .how:active {
+    transform: none;
   }
 }

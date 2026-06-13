@@ -116,6 +116,9 @@ export default function MustEatDetail({
         alt={mustEat.dish ?? ''}
         originRect={state.zoomRect}
         onClose={state.handleZoomClose}
+        // Origin-Karte erst wieder einblenden, wenn der Fly-Back-Klon
+        // unmountet — sonst sieht man sie doppelt während des Zooms.
+        onExitComplete={state.handleZoomExitComplete}
       />
     </>
   )

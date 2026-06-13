@@ -94,78 +94,83 @@ export default function MustEatDetailMobile({
           <CloseIcon />
         </button>
 
-        {/* HERO — dish card (open) or card-back (locked, tap to reveal in range). */}
-        {open ? (
-          <button type="button" className={styles.fdHero} onClick={handleCardZoom} aria-label={t('map.zoomCard')}>
-            <img src={mustEat.image} alt={mustEat.dish} />
-          </button>
-        ) : (
-          <button
-            type="button"
-            className={`${styles.fdHero} ${styles.fdHeroLocked} ${canUnlock ? styles.mustEatCardCanUnlock : ''} ${tapping ? styles.mustEatCardTapping : ''}`}
-            onClick={handleCardClick}
-            aria-label={canUnlock ? t('map.revealHere') : t('map.tooFarToReveal')}
-            style={{
-              ...(revealOrigin ? { visibility: 'hidden' } : {}),
-              ['--vibrate-intensity' as string]: tapping ? '2.4' : vibrateIntensity.toFixed(3),
-            }}
-          >
-            <img src={CARD_BACK} alt={t('mustEats.covered')} />
-          </button>
-        )}
+        {/* HERO — freigestellte Karte mit Glow-Halo. Open: dish card (3D-Tilt
+            via CSS, tap-to-zoom). Locked: card-back (flach + Wackeln, tap to
+            reveal in range — flach bleibt wichtig für die Reveal-Fly-Origin). */}
+        <div className={styles.fdHeroWrap}>
+          <span className={styles.fdHalo} aria-hidden="true" />
+          {open ? (
+            <button
+              type="button"
+              className={styles.fdHero}
+              onClick={handleCardZoom}
+              aria-label={t('map.zoomCard')}
+              /* Während des Zooms (inkl. Fly-Back) verstecken, sonst liegt die
+                 Karte doppelt da — Zoom-Klon + statische Slot-Karte. */
+              style={state.zoomActive ? { visibility: 'hidden' } : undefined}
+            >
+              <img src={mustEat.image} alt={mustEat.dish} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={`${styles.fdHero} ${styles.fdHeroLocked} ${canUnlock ? styles.mustEatCardCanUnlock : ''} ${tapping ? styles.mustEatCardTapping : ''}`}
+              onClick={handleCardClick}
+              aria-label={canUnlock ? t('map.revealHere') : t('map.tooFarToReveal')}
+              style={{
+                ...(revealOrigin ? { visibility: 'hidden' } : {}),
+                ['--vibrate-intensity' as string]: tapping ? '2.4' : vibrateIntensity.toFixed(3),
+              }}
+            >
+              <img src={CARD_BACK} alt={t('mustEats.covered')} />
+            </button>
+          )}
+        </div>
 
-        {/* Big punchy dish name. Locked: heavily blurred — present but
-            unreadable (no stamp, User 2026-06-05). On reveal it slowly
-            sharpens into focus. Box is identical in both states → no pop.
-            data-detail-hero: useMapSheet misst dieses Element — der untere
-            Snap (≈ halbe Höhe) endet exakt unter dem Namen: Karte + Name
-            sichtbar, Rest unterhalb der Falz. */}
-        <h1 className={styles.fdName} data-detail-hero aria-label={nameRevealed ? undefined : t('mustEats.covered')}>
-          <span
-            className={`${styles.fdNameText}${!open ? ` ${styles.fdNameBlur}` : ''}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}
-            aria-hidden={nameRevealed ? undefined : true}
-          >
-            {/* Covered cards arrive without the dish name (server-stripped) —
-                blur the covered label instead so the box keeps its height. */}
-            {mustEat.dish ? normalizeName(mustEat.dish) : t('mustEats.covered')}
-          </span>
-        </h1>
+        {/* Clip-sicherer Mittelteil: Gericht-Name + Beschreibung (open) bzw.
+            Näherungs-Hinweis (locked) hängen direkt unter der Karte; läuft der
+            Text über, klemmt fdMid statt den fixen Footer zu verdrängen. */}
+        <div className={styles.fdMid}>
+          {/* Gericht-Name — unten im 2-Zeilen-Feld verankert, sitzt direkt über
+              der Beschreibung; eine 2. Zeile füllt nach oben → nichts darunter
+              springt. Locked: stark verschwommen (kein Stempel). */}
+          <h1 className={styles.fdName} data-detail-hero aria-label={nameRevealed ? undefined : t('mustEats.covered')}>
+            <span
+              className={`${styles.fdNameText}${!open ? ` ${styles.fdNameBlur}` : ''}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}
+              aria-hidden={nameRevealed ? undefined : true}
+            >
+              {mustEat.dish ? normalizeName(mustEat.dish) : t('mustEats.covered')}
+            </span>
+          </h1>
 
-        {/* Description directly under the dish name (User 2026-06-05) —
-            the read flows name → what it is → where to get it. */}
-        {open && localizedDescription && <p className={styles.fdText}>{localizedDescription}</p>}
+          {/* Beschreibung — komplett (keine Klemmung), in der Marken-Schrift. */}
+          {open && localizedDescription && <p className={styles.fdText}>{localizedDescription}</p>}
 
-        {/* Locked: the proximity hint is the actionable info — it sits right
-            under the stamped card, not below the fold (User 2026-06-05). */}
-        {!open && (
-          <div className={`${styles.fdProximity}${canUnlock ? ` ${styles.fdProximityReady}` : ''}`}>
-            <p className={styles.fdProximityHead}>
-              {canUnlock
-                ? tMap('proximityHere')
-                : distance !== null
-                  ? tMap('proximityAway', { distance: formatDistance(distance) })
-                  : tMap('proximityCloser')}
-            </p>
-            <p className={styles.fdProximitySub}>
-              {canUnlock
-                ? tMap('proximityTapReveal')
-                : tMap('proximityHint', { meters: UNLOCK_RADIUS_METERS })}
-            </p>
-          </div>
-        )}
+          {/* Locked: Näherungs-Hinweis statt Beschreibung. */}
+          {!open && (
+            <div className={`${styles.fdProximity}${canUnlock ? ` ${styles.fdProximityReady}` : ''}`}>
+              <p className={styles.fdProximityHead}>
+                {canUnlock
+                  ? tMap('proximityHere')
+                  : distance !== null
+                    ? tMap('proximityAway', { distance: formatDistance(distance) })
+                    : tMap('proximityCloser')}
+              </p>
+              <p className={styles.fdProximitySub}>
+                {canUnlock
+                  ? tMap('proximityTapReveal')
+                  : tMap('proximityHint', { meters: UNLOCK_RADIUS_METERS })}
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Restaurant / price / Zum Spot — one thick stripe underneath. */}
         <div className={styles.fdRest}>
-          <div>
+          <div className={styles.fdRestName}>
             <div className={styles.fdK}>{t('map.inRestaurant')}</div>
             <div className={styles.fdV}>{normalizeName(restaurantName)}</div>
           </div>
-          {open && mustEat.price && (
-            <div className={styles.fdPrice}>
-              <div className={styles.fdK}>{t('map.price')}</div>
-              <div className={styles.fdV}>{mustEat.price}</div>
-            </div>
-          )}
           {onViewRestaurant ? (
             <button type="button" className={styles.ctaPill} onClick={onViewRestaurant}>
               {t('map.toSpot')}

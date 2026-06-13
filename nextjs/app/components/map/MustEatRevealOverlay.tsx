@@ -32,9 +32,10 @@ interface Props {
 // Total choreography ~4 s end-to-end. Sum of all phase durations below.
 const FLY_IN_MS = 400
 const IDLE_AUTO_FLIP_MS = 400
-// Tornado spin with hin-und-her oscillation + slow zoom-in at the end.
-// Keep in sync with .flipperOpen CSS animation duration.
-const FLIP_MS = 1700
+// Tornado spin: durchgehende monotone Mehrfach-Drehung (starr, kein Recoil)
+// + sanfter Zoom. Langsamer & flüssiger (User 2026-06-14).
+// Keep in sync with .flipperOpen CSS animation duration (2.4s).
+const FLIP_MS = 2400
 // Dwell window where pointer/gyroscope tilt is live so the user can
 // move the card before it auto-flies to the profile icon.
 const REVEALED_MS = 900

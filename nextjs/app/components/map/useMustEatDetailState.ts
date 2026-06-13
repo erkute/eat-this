@@ -73,10 +73,16 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthe
   // Click-to-zoom on the unlocked card. Origin rect lets the lightbox fly out
   // from where the card sat and back to that exact spot on close.
   const [zoomRect, setZoomRect] = useState<DOMRect | null>(null)
+  // True from open through the fly-back exit (until the lightbox clone
+  // unmounts via onExitComplete). The detail hides the origin card the whole
+  // time so it never shows doubled (zoom-clone + static slot card at once).
+  const [zoomActive, setZoomActive] = useState(false)
   const handleCardZoom = (e: React.MouseEvent<HTMLButtonElement>) => {
     setZoomRect(e.currentTarget.getBoundingClientRect())
+    setZoomActive(true)
   }
   const handleZoomClose = () => setZoomRect(null)
+  const handleZoomExitComplete = () => setZoomActive(false)
 
   return {
     distance,
@@ -85,10 +91,12 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthe
     tapping,
     revealOrigin,
     zoomRect,
+    zoomActive,
     handleCardClick,
     handleRevealDone,
     handleCardZoom,
     handleZoomClose,
+    handleZoomExitComplete,
   }
 }
 

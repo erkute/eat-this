@@ -11,45 +11,43 @@ const owners = (ownerIdx: number[], n: number) =>
 describe('selectGalleryPhotos', () => {
   it('puts product (food + drink) before interior, then by score', () => {
     const judgments = [j(0, 8, 'food'), j(1, 9, 'interior'), j(2, 7, 'food'), j(3, 7, 'drink')]
-    // products first by score: food0(8), food2(7), drink3(7); then interior1
-    expect(selectGalleryPhotos(judgments, owners([], 4), 4)).toEqual([0, 2, 3, 1])
+    // all owners; products first by score: food0(8), food2(7), drink3(7); then interior1
+    expect(selectGalleryPhotos(judgments, owners([0, 1, 2, 3], 4), 4)).toEqual([0, 2, 3, 1])
   })
 
-  it('only keeps top-tier photos (floor is 7 across categories)', () => {
-    const judgments = [j(0, 7, 'food'), j(1, 8, 'drink'), j(2, 6, 'drink'), j(3, 6, 'food')]
-    // drink2 (6) and food3 (6) fail the floor; eligible drink1(8) + food0(7)
-    expect(selectGalleryPhotos(judgments, owners([], 4), 4)).toEqual([1, 0])
+  it('uses only original (owner) photos, never guests', () => {
+    const judgments = [j(0, 9, 'food'), j(1, 9, 'food')]
+    // index 1 is a guest → excluded even at the same score
+    expect(selectGalleryPhotos(judgments, owners([0], 2), 2)).toEqual([0])
   })
 
-  it('drops drink/menu/exterior and amateur food below floor', () => {
+  it('returns nothing when a spot has no usable originals', () => {
+    const judgments = [j(0, 9, 'food'), j(1, 8, 'food')]
+    expect(selectGalleryPhotos(judgments, owners([], 2), 2)).toEqual([])
+  })
+
+  it('drops menu/exterior and a bad original below the floor', () => {
     const judgments = [j(0, 9, 'food'), j(1, 8, 'menu'), j(2, 7, 'exterior'), j(3, 4, 'food')]
-    expect(selectGalleryPhotos(judgments, owners([], 4), 4)).toEqual([0])
+    expect(selectGalleryPhotos(judgments, owners([0, 1, 2, 3], 4), 4)).toEqual([0])
   })
 
   it('never returns an all-interior ("just the shop") gallery', () => {
-    expect(selectGalleryPhotos([j(0, 9, 'interior'), j(1, 8, 'interior')], owners([], 2), 2)).toEqual([])
-    // amateur food fails the floor, leaving only shop interiors → nothing
-    expect(selectGalleryPhotos([j(0, 4, 'food'), j(1, 5, 'interior')], owners([], 2), 2)).toEqual([])
+    expect(selectGalleryPhotos([j(0, 9, 'interior'), j(1, 8, 'interior')], owners([0, 1], 2), 2)).toEqual([])
   })
 
-  it('puts originals (owner photos) first, even an owner interior before a guest product', () => {
-    const judgments = [j(0, 9, 'food'), j(1, 7, 'interior')]
-    expect(selectGalleryPhotos(judgments, owners([1], 2), 2)).toEqual([1, 0])
-  })
-
-  it('fills all 4 with originals when 4 owner photos exist', () => {
+  it('fills up to 4 from originals, product-first', () => {
     const judgments = [j(0, 8, 'food'), j(1, 7, 'interior'), j(2, 9, 'food'), j(3, 7, 'drink'), j(4, 9, 'food')]
-    // 0-3 are owners → fill the gallery (product-first), guest 4 excluded
+    // 0-3 are owners (guest 4 excluded): products food2(9), food0(8), drink3(7), then interior1
     expect(selectGalleryPhotos(judgments, owners([0, 1, 2, 3], 5), 5)).toEqual([2, 0, 3, 1])
   })
 
-  it('falls back to owner-first original order when judgments are null (model down)', () => {
-    expect(selectGalleryPhotos(null, owners([2, 4], 5), 5)).toEqual([2, 4, 0, 1])
-    expect(selectGalleryPhotos(null, owners([], 2), 2)).toEqual([0, 1])
+  it('falls back to original photos in candidate order when judgments are null', () => {
+    expect(selectGalleryPhotos(null, owners([1, 3], 4), 4)).toEqual([1, 3])
+    expect(selectGalleryPhotos(null, owners([], 2), 2)).toEqual([])
   })
 
-  it('ignores judgments with out-of-range indexes', () => {
-    expect(selectGalleryPhotos([j(7, 9, 'food'), j(0, 8, 'food')], owners([], 2), 2)).toEqual([0])
+  it('ignores out-of-range indexes', () => {
+    expect(selectGalleryPhotos([j(7, 9, 'food'), j(0, 8, 'food')], owners([0, 7], 2), 2)).toEqual([0])
   })
 })
 

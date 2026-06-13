@@ -26,13 +26,13 @@ const MAX_GALLERY = 4
 // drink. Interior (atmosphere) is supporting only. Exterior, menu, unusable
 // (machines, bare shops, equipment, …) are dropped entirely.
 const PRODUCT_CATEGORIES = new Set<PhotoJudgment['category']>(['food', 'drink'])
-// Quality floor: the product owner wants ONLY genuinely professional photos —
-// no casual phone shots — even if that leaves a casual spot (bakery, ice-cream
-// parlour, simple café) with one photo or none. The strict judging prompt
-// reserves 7+ for professional shots, so that's the bar across all categories.
-const FOOD_FLOOR = 7
-const DRINK_FLOOR = 7
-const INTERIOR_FLOOR = 7
+// Galleries use ONLY original (owner-uploaded) photos — the restaurant's own
+// professional brand shots, never guest phone snaps. That owner-only rule is
+// the real "professional" guarantee, so the per-category floor only needs to
+// drop a genuinely bad original upload, not police phone quality.
+const FOOD_FLOOR = 5
+const DRINK_FLOOR = 5
+const INTERIOR_FLOOR = 5
 
 function passesFloor(jd: PhotoJudgment): boolean {
   if (jd.category === 'food') return jd.score >= FOOD_FLOOR
@@ -57,40 +57,39 @@ export function isOwnerPhoto(displayName: string | null | undefined, restaurantN
   return dn.includes(rn)
 }
 
-/** Picks up to 4 gallery candidate indexes. Rules, in priority order:
- *   1. Original (owner-uploaded) photos first — if 4 exist, the gallery is all
- *      originals. Owner photos carry the business name as attribution.
- *   2. Then product photos (food + top-tier drinks) before interior; interior
- *      is supporting atmosphere only.
+/** Picks up to 4 gallery candidate indexes. Rules:
+ *   1. ONLY original (owner-uploaded) photos — never guest photos. Owner photos
+ *      carry the business name as attribution; they are the restaurant's own
+ *      professional brand shots. A spot with no usable originals gets nothing.
+ *   2. Product photos (food + drink) before interior; interior is supporting
+ *      atmosphere only.
  *   3. Higher score breaks ties.
- *   4. Quality floors per category drop amateur shots; machines / bare shops /
- *      menus / exteriors are already excluded as non-product, non-interior.
+ *   4. A per-category floor drops a genuinely bad original; machines / bare
+ *      shops / menus / exteriors are already excluded as non-product,
+ *      non-interior.
  *   5. Never an all-interior ("just the shop") gallery — if nothing but
  *      interior survives, return nothing so the spot stays hero-only.
  *  `owners[i]` flags candidate i as an owner photo. `judgments === null`
- *  (model unavailable) can't categorise, so it falls back to owner-first in
- *  the candidates' original order. */
+ *  (model unavailable) can't categorise, so it falls back to the original
+ *  photos in candidate order. */
 export function selectGalleryPhotos(
   judgments: PhotoJudgment[] | null,
   owners: boolean[],
   candidateCount: number,
 ): number[] {
-  const ownerRank = (i: number) => (owners[i] ? 0 : 1)
   if (judgments === null) {
-    const idx = Array.from({ length: candidateCount }, (_, i) => i)
-    idx.sort((a, b) => ownerRank(a) - ownerRank(b)) // stable sort: owners first, else original order
-    return idx.slice(0, MAX_GALLERY)
+    return Array.from({ length: candidateCount }, (_, i) => i)
+      .filter((i) => owners[i])
+      .slice(0, MAX_GALLERY)
   }
   const eligible = judgments.filter(
-    (jd) => jd.index >= 0 && jd.index < candidateCount && passesFloor(jd),
+    (jd) => jd.index >= 0 && jd.index < candidateCount && owners[jd.index] && passesFloor(jd),
   )
   const productRank = (jd: PhotoJudgment) => (PRODUCT_CATEGORIES.has(jd.category) ? 0 : 1)
   eligible.sort((a, b) => {
-    const o = ownerRank(a.index) - ownerRank(b.index)
-    if (o !== 0) return o                       // originals first
     const p = productRank(a) - productRank(b)
-    if (p !== 0) return p                        // product before interior
-    return b.score - a.score                     // then best-scored first
+    if (p !== 0) return p        // product before interior
+    return b.score - a.score     // then best-scored first
   })
   const picked = eligible.slice(0, MAX_GALLERY)
   // No "just the shop" gallery: if every survivor is interior, show none.

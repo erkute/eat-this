@@ -22,14 +22,23 @@ export interface PhotoJudgment {
 }
 
 const MAX_GALLERY = 4
-// Product rule: galleries show only plated food and interior atmosphere.
-// Drinks, menu cards, exterior/building shots and unusable photos are dropped.
-const KEEP_CATEGORIES = new Set<PhotoJudgment['category']>(['food', 'interior'])
-// Quality floor: with the strict "professional vs amateur" judging prompt,
-// casual phone snapshots score ≤4. Dropping anything below 5 keeps amateur
-// shots out even when it means a gallery shows fewer than 4 photos — the
-// product wants professional-looking galleries, not padded ones.
-const SCORE_FLOOR = 5
+// "Product" = the thing you consume: a plated dish/pastry (food) or a finished
+// drink. Interior (atmosphere) is supporting only. Exterior, menu, unusable
+// (machines, bare shops, equipment, …) are dropped entirely.
+const PRODUCT_CATEGORIES = new Set<PhotoJudgment['category']>(['food', 'drink'])
+// Per-category quality floors. Casual phone snapshots score ≤4 under the strict
+// judging prompt. Drinks must be genuinely top-tier (the product owner asked for
+// only professional beverage shots), so they carry a higher bar than food.
+const FOOD_FLOOR = 5
+const DRINK_FLOOR = 7
+const INTERIOR_FLOOR = 5
+
+function passesFloor(jd: PhotoJudgment): boolean {
+  if (jd.category === 'food') return jd.score >= FOOD_FLOOR
+  if (jd.category === 'drink') return jd.score >= DRINK_FLOOR
+  if (jd.category === 'interior') return jd.score >= INTERIOR_FLOOR
+  return false // exterior, menu, unusable
+}
 
 const normName = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '')
 
@@ -47,14 +56,19 @@ export function isOwnerPhoto(displayName: string | null | undefined, restaurantN
   return dn.includes(rn)
 }
 
-/** Picks up to 4 gallery candidate indexes from Haiku judgments. Rules:
- *   - keep only food + interior categories (KEEP_CATEGORIES)
- *   - owner photos first, then the best-scored guest photos
- *   - fill to 4 even with weaker guest photos (no score floor); if fewer than
- *     4 food/interior photos exist at all, return fewer.
- *  `owners[i]` flags whether candidate i is an owner photo. `judgments === null`
- *  (Haiku unavailable) can't categorise, so it falls back to owner-first in the
- *  candidates' original order. */
+/** Picks up to 4 gallery candidate indexes. Rules, in priority order:
+ *   1. Original (owner-uploaded) photos first — if 4 exist, the gallery is all
+ *      originals. Owner photos carry the business name as attribution.
+ *   2. Then product photos (food + top-tier drinks) before interior; interior
+ *      is supporting atmosphere only.
+ *   3. Higher score breaks ties.
+ *   4. Quality floors per category drop amateur shots; machines / bare shops /
+ *      menus / exteriors are already excluded as non-product, non-interior.
+ *   5. Never an all-interior ("just the shop") gallery — if nothing but
+ *      interior survives, return nothing so the spot stays hero-only.
+ *  `owners[i]` flags candidate i as an owner photo. `judgments === null`
+ *  (model unavailable) can't categorise, so it falls back to owner-first in
+ *  the candidates' original order. */
 export function selectGalleryPhotos(
   judgments: PhotoJudgment[] | null,
   owners: boolean[],
@@ -67,18 +81,20 @@ export function selectGalleryPhotos(
     return idx.slice(0, MAX_GALLERY)
   }
   const eligible = judgments.filter(
-    (jd) =>
-      KEEP_CATEGORIES.has(jd.category) &&
-      jd.score >= SCORE_FLOOR &&
-      jd.index >= 0 &&
-      jd.index < candidateCount,
+    (jd) => jd.index >= 0 && jd.index < candidateCount && passesFloor(jd),
   )
+  const productRank = (jd: PhotoJudgment) => (PRODUCT_CATEGORIES.has(jd.category) ? 0 : 1)
   eligible.sort((a, b) => {
-    const r = ownerRank(a.index) - ownerRank(b.index)
-    if (r !== 0) return r        // owner photos before guest photos
-    return b.score - a.score     // then best-scored first
+    const o = ownerRank(a.index) - ownerRank(b.index)
+    if (o !== 0) return o                       // originals first
+    const p = productRank(a) - productRank(b)
+    if (p !== 0) return p                        // product before interior
+    return b.score - a.score                     // then best-scored first
   })
-  return eligible.slice(0, MAX_GALLERY).map((jd) => jd.index)
+  const picked = eligible.slice(0, MAX_GALLERY)
+  // No "just the shop" gallery: if every survivor is interior, show none.
+  if (picked.length && picked.every((jd) => !PRODUCT_CATEGORIES.has(jd.category))) return []
+  return picked.map((jd) => jd.index)
 }
 
 /** German alt-text label per category, used for gallery image alt fields. */
@@ -157,10 +173,16 @@ export async function judgePhotos(
       type: 'text',
       text:
         `These are candidate gallery photos for the restaurant "${restaurantName}" on a curated, design-led vegan food map. ` +
-        `We only want photos that look PROFESSIONALLY shot — clean composition, good lighting, sharp, magazine-quality. ` +
+        `We want professional, magazine-quality photos that showcase the FOOD and DRINKS — the actual product. ` +
         `Judge each photo. Respond with ONLY a JSON array, one entry per photo: ` +
         `[{"index": <photo number>, "category": "food"|"interior"|"exterior"|"drink"|"menu"|"unusable", "score": <0-10>}]. ` +
-        `category "unusable": selfies, people as the subject, receipts, parking lots, screenshots, unrelated content. ` +
+        `Categories: "food" = dishes, pastries, baked goods, pizza, the actual product; ` +
+        `"drink" = a finished beverage (coffee, cocktail, juice); ` +
+        `"interior" = an INVITING dining room or café with character and atmosphere (tables, warm light, ambiance) — ` +
+        `NOT equipment and NOT a bare or empty shop. ` +
+        `"unusable" = a machine or equipment as the main subject (espresso machine, grinder, oven), bare retail shelves ` +
+        `or rows of bottles/products, an empty counter or empty room with no food/drink/atmosphere, selfies, people as ` +
+        `the subject, receipts, parking lots, screenshots, unrelated content. ` +
         `score = production quality + how appetizing/inviting it looks. ` +
         `Score HIGH (8-10) ONLY for clearly professional shots: even/intentional lighting, deliberate composition, ` +
         `clean uncluttered background, sharp focus. ` +

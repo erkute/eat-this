@@ -9,33 +9,41 @@ const owners = (ownerIdx: number[], n: number) =>
   Array.from({ length: n }, (_, i) => ownerIdx.includes(i))
 
 describe('selectGalleryPhotos', () => {
-  it('keeps only food + interior, dropping drink/menu/exterior/unusable', () => {
-    const judgments = [
-      j(0, 9, 'food'), j(1, 5, 'menu'), j(2, 8, 'interior'),
-      j(3, 7, 'drink'), j(4, 6.5, 'food'), j(5, 10, 'exterior'),
-    ]
-    // eligible: 0(food,9), 2(interior,8), 4(food,6.5) — no owners → by score
-    expect(selectGalleryPhotos(judgments, owners([], 6), 6)).toEqual([0, 2, 4])
+  it('puts product (food + drink) before interior, then by score', () => {
+    const judgments = [j(0, 8, 'food'), j(1, 9, 'interior'), j(2, 7, 'food'), j(3, 7, 'drink')]
+    // products first by score: food0(8), food2(7), drink3(7); then interior1
+    expect(selectGalleryPhotos(judgments, owners([], 4), 4)).toEqual([0, 2, 3, 1])
   })
 
-  it('puts owner photos first, then guest photos by score', () => {
-    const judgments = [j(0, 9, 'food'), j(1, 8.5, 'interior'), j(2, 8, 'food'), j(3, 7.5, 'interior'), j(4, 6, 'food')]
-    // index 4 is the owner → first despite the lowest score, then 0,1,2 by score
-    expect(selectGalleryPhotos(judgments, owners([4], 5), 5)).toEqual([4, 0, 1, 2])
+  it('only keeps top-tier drinks (drink floor is 7)', () => {
+    const judgments = [j(0, 6, 'food'), j(1, 8, 'drink'), j(2, 6, 'drink')]
+    // drink2 (6) fails the drink floor; eligible drink1(8) + food0(6)
+    expect(selectGalleryPhotos(judgments, owners([], 3), 3)).toEqual([1, 0])
   })
 
-  it('drops amateur photos below the score floor (5), even if it means fewer than 4', () => {
-    const judgments = [j(0, 3, 'food'), j(1, 2, 'interior'), j(2, 9, 'food'), j(3, 6, 'interior')]
-    // only 2 and 3 clear the floor; 0 and 3 are amateur (score < 5)
-    expect(selectGalleryPhotos(judgments, owners([], 4), 4)).toEqual([2, 3])
-  })
-
-  it('returns fewer than 4 when too few food/interior photos exist', () => {
-    const judgments = [j(0, 9, 'food'), j(1, 8, 'menu'), j(2, 7, 'exterior'), j(3, 6, 'drink')]
+  it('drops drink/menu/exterior and amateur food below floor', () => {
+    const judgments = [j(0, 9, 'food'), j(1, 8, 'menu'), j(2, 7, 'exterior'), j(3, 4, 'food')]
     expect(selectGalleryPhotos(judgments, owners([], 4), 4)).toEqual([0])
   })
 
-  it('falls back to owner-first original order when judgments are null (Haiku down)', () => {
+  it('never returns an all-interior ("just the shop") gallery', () => {
+    expect(selectGalleryPhotos([j(0, 9, 'interior'), j(1, 8, 'interior')], owners([], 2), 2)).toEqual([])
+    // amateur food fails the floor, leaving only shop interiors → nothing
+    expect(selectGalleryPhotos([j(0, 4, 'food'), j(1, 5, 'interior')], owners([], 2), 2)).toEqual([])
+  })
+
+  it('puts originals (owner photos) first, even an owner interior before a guest product', () => {
+    const judgments = [j(0, 9, 'food'), j(1, 6, 'interior')]
+    expect(selectGalleryPhotos(judgments, owners([1], 2), 2)).toEqual([1, 0])
+  })
+
+  it('fills all 4 with originals when 4 owner photos exist', () => {
+    const judgments = [j(0, 8, 'food'), j(1, 7, 'interior'), j(2, 9, 'food'), j(3, 7, 'drink'), j(4, 9, 'food')]
+    // 0-3 are owners → fill the gallery (product-first), guest 4 excluded
+    expect(selectGalleryPhotos(judgments, owners([0, 1, 2, 3], 5), 5)).toEqual([2, 0, 3, 1])
+  })
+
+  it('falls back to owner-first original order when judgments are null (model down)', () => {
     expect(selectGalleryPhotos(null, owners([2, 4], 5), 5)).toEqual([2, 4, 0, 1])
     expect(selectGalleryPhotos(null, owners([], 2), 2)).toEqual([0, 1])
   })

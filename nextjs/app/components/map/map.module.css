@@ -3195,14 +3195,20 @@ html[data-theme="dark"] .btnPackPromoTag {
   .detailV13MustEat .detailV13Scroll {
     display: flex;
     flex-direction: column;
+    /* Kein Boden-Padding: der graue Pager-Streifen sitzt bündig an der
+       Unterkante, kein Whitespace darunter (User 2026-06-13, wie Mobile). */
+    padding-bottom: 0;
   }
-  /* margin-top hebt die Karte unter das X (top 10 + 34px) — das X steht allein
-     darüber, höher als die Karte, wie auf Mobile (User 2026-06-13). */
-  .detailV13MustEat .fdHero { flex: 0 0 auto; margin-top: 48px; }
+  /* Karte tiefer ansetzen: das X bekommt eine eigene Zeile ganz oben, alle
+     Inhalte rücken nach unten — das X klebt nicht mehr direkt an der Karte
+     (User 2026-06-13). */
+  .detailV13MustEat .fdHero { flex: 0 0 auto; margin-top: 64px; }
   .detailV13MustEat .fdRest { margin-top: auto; }
-  /* Kein eigener auto-Anker mehr — der Pager hängt am Fuß-Block, sonst
-     splittet sich der Freiraum auf zwei Anker und es springt beim Blättern. */
-  .detailV13MustEat .fdPager { margin-top: 0; }
+  /* Pager hängt als eine Einheit am Fuß-Block (.fdRest:margin-top:auto) und
+     sitzt bündig an der Unterkante — kein eigener Anker (sonst splittet sich
+     der Freiraum und es springt beim Blättern), kein Boden-Margin (sonst
+     Whitespace unter dem grauen Streifen). */
+  .detailV13MustEat .fdPager { margin: 0; }
   .actions { padding: 26px 22px 32px; gap: 16px; }
   .actions::before { top: 26px; right: 22px; }
   .btnPrimaryLbl { font-size: 58px; }

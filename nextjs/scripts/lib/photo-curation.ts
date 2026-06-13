@@ -21,7 +21,7 @@ export interface PhotoJudgment {
   score: number
 }
 
-const MAX_GALLERY = 4
+const MAX_GALLERY = 5
 // "Product" = the thing you consume: a plated dish/pastry (food) or a finished
 // drink. Interior (atmosphere) is supporting only. Exterior, menu, unusable
 // (machines, bare shops, equipment, …) are dropped entirely.
@@ -41,20 +41,55 @@ function passesFloor(jd: PhotoJudgment): boolean {
   return false // exterior, menu, unusable
 }
 
-const normName = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '')
+// Normalise for comparison: lower-case, German umlauts → ae/oe/ue/ss, strip
+// remaining accents, drop everything non-alphanumeric.
+const normName = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]/g, '')
+
+// Generic words that don't identify a specific business — a business's own
+// Google name often varies these (e.g. "Albatross Bäckerei" vs "Albatross
+// Bakery"), so they must not be required for an owner match.
+const GENERIC_NAME_WORDS = new Set([
+  'restaurant', 'cafe', 'bar', 'bakery', 'baeckerei', 'coffee', 'kaffee', 'kitchen',
+  'deli', 'pizza', 'pizzeria', 'ristorante', 'trattoria', 'osteria', 'bistro', 'bistrot',
+  'eis', 'eiscafe', 'icecream', 'ice', 'cream', 'gelato', 'shop', 'club', 'haus', 'house',
+  'berlin', 'the', 'und', 'and', 'der', 'die', 'das', 'le', 'la', 'el', 'di', 'by', 'gmbh',
+])
+
+/** The distinctive words of a restaurant name, normalised — generic words and
+ *  very short tokens removed. "Albatross Bäckerei" → ["albatross"]. */
+function distinctiveTokens(name: string): string[] {
+  return name
+    .toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .split(/[^a-z0-9]+/)
+    .filter((t) => t.length >= 3 && !GENERIC_NAME_WORDS.has(t))
+}
 
 /** Owner-uploaded Places photos carry the business name as their author
  *  attribution (e.g. "Foto: 136 Berlin Restaurant"); guest photos carry a
- *  person's name. We prefer owner photos — they're the on-brand, professional
- *  ones — so flag them here. Match when the (normalised) display name CONTAINS
- *  the restaurant name; require ≥4 chars so a very short name can't false-match
- *  a guest who happens to share those letters. */
+ *  person's name. We match on the restaurant's DISTINCTIVE words so a business
+ *  whose Google name varies the generic part still counts — "Albatross Bakery"
+ *  matches "Albatross Bäckerei" on the shared token "albatross". A spot whose
+ *  name is entirely generic/short falls back to a whole-name containment check. */
 export function isOwnerPhoto(displayName: string | null | undefined, restaurantName: string): boolean {
   if (!displayName) return false
   const dn = normName(displayName)
+  const toks = distinctiveTokens(restaurantName)
+  // A distinctive word of 4+ chars is a reliable brand signal — match on the
+  // tokens so name variants (Bakery/Bäckerei, dropped suffixes) still count.
+  if (toks.some((t) => t.length >= 4)) {
+    return toks.every((t) => dn.includes(t))
+  }
+  // Short / numeric / all-generic names ("963") — a substring would false-match
+  // a guest who merely contains the token, so require the display to BE the name.
   const rn = normName(restaurantName)
-  if (rn.length < 4) return dn === rn
-  return dn.includes(rn)
+  return rn.length >= 3 && dn === rn
 }
 
 /** Picks up to 4 gallery candidate indexes. Rules:

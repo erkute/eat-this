@@ -9,38 +9,45 @@ const owners = (ownerIdx: number[], n: number) =>
   Array.from({ length: n }, (_, i) => ownerIdx.includes(i))
 
 describe('selectGalleryPhotos', () => {
-  it('keeps only food + interior, dropping drink/menu/exterior/unusable', () => {
-    const judgments = [
-      j(0, 9, 'food'), j(1, 5, 'menu'), j(2, 8, 'interior'),
-      j(3, 7, 'drink'), j(4, 6.5, 'food'), j(5, 10, 'exterior'),
-    ]
-    // eligible: 0(food,9), 2(interior,8), 4(food,6.5) — no owners → by score
-    expect(selectGalleryPhotos(judgments, owners([], 6), 6)).toEqual([0, 2, 4])
+  it('puts product (food + drink) before interior, then by score', () => {
+    const judgments = [j(0, 8, 'food'), j(1, 9, 'interior'), j(2, 7, 'food'), j(3, 7, 'drink')]
+    // all owners; products first by score: food0(8), food2(7), drink3(7); then interior1
+    expect(selectGalleryPhotos(judgments, owners([0, 1, 2, 3], 4), 4)).toEqual([0, 2, 3, 1])
   })
 
-  it('puts owner photos first, then guest photos by score', () => {
-    const judgments = [j(0, 9, 'food'), j(1, 8.5, 'interior'), j(2, 8, 'food'), j(3, 7.5, 'interior'), j(4, 6, 'food')]
-    // index 4 is the owner → first despite the lowest score, then 0,1,2 by score
-    expect(selectGalleryPhotos(judgments, owners([4], 5), 5)).toEqual([4, 0, 1, 2])
+  it('uses only original (owner) photos, never guests', () => {
+    const judgments = [j(0, 9, 'food'), j(1, 9, 'food')]
+    // index 1 is a guest → excluded even at the same score
+    expect(selectGalleryPhotos(judgments, owners([0], 2), 2)).toEqual([0])
   })
 
-  it('fills to 4 with weaker guest food/interior — no score floor', () => {
-    const judgments = [j(0, 3, 'food'), j(1, 2, 'interior'), j(2, 9, 'food'), j(3, 4, 'interior')]
-    expect(selectGalleryPhotos(judgments, owners([], 4), 4)).toEqual([2, 3, 0, 1])
+  it('returns nothing when a spot has no usable originals', () => {
+    const judgments = [j(0, 9, 'food'), j(1, 8, 'food')]
+    expect(selectGalleryPhotos(judgments, owners([], 2), 2)).toEqual([])
   })
 
-  it('returns fewer than 4 when too few food/interior photos exist', () => {
-    const judgments = [j(0, 9, 'food'), j(1, 8, 'menu'), j(2, 7, 'exterior'), j(3, 6, 'drink')]
-    expect(selectGalleryPhotos(judgments, owners([], 4), 4)).toEqual([0])
+  it('drops menu/exterior and a bad original below the floor', () => {
+    const judgments = [j(0, 9, 'food'), j(1, 8, 'menu'), j(2, 7, 'exterior'), j(3, 4, 'food')]
+    expect(selectGalleryPhotos(judgments, owners([0, 1, 2, 3], 4), 4)).toEqual([0])
   })
 
-  it('falls back to owner-first original order when judgments are null (Haiku down)', () => {
-    expect(selectGalleryPhotos(null, owners([2, 4], 5), 5)).toEqual([2, 4, 0, 1])
-    expect(selectGalleryPhotos(null, owners([], 2), 2)).toEqual([0, 1])
+  it('never returns an all-interior ("just the shop") gallery', () => {
+    expect(selectGalleryPhotos([j(0, 9, 'interior'), j(1, 8, 'interior')], owners([0, 1], 2), 2)).toEqual([])
   })
 
-  it('ignores judgments with out-of-range indexes', () => {
-    expect(selectGalleryPhotos([j(7, 9, 'food'), j(0, 8, 'food')], owners([], 2), 2)).toEqual([0])
+  it('fills up to 4 from originals, product-first', () => {
+    const judgments = [j(0, 8, 'food'), j(1, 7, 'interior'), j(2, 9, 'food'), j(3, 7, 'drink'), j(4, 9, 'food')]
+    // 0-3 are owners (guest 4 excluded): products food2(9), food0(8), drink3(7), then interior1
+    expect(selectGalleryPhotos(judgments, owners([0, 1, 2, 3], 5), 5)).toEqual([2, 0, 3, 1])
+  })
+
+  it('falls back to original photos in candidate order when judgments are null', () => {
+    expect(selectGalleryPhotos(null, owners([1, 3], 4), 4)).toEqual([1, 3])
+    expect(selectGalleryPhotos(null, owners([], 2), 2)).toEqual([])
+  })
+
+  it('ignores out-of-range indexes', () => {
+    expect(selectGalleryPhotos([j(7, 9, 'food'), j(0, 8, 'food')], owners([0, 7], 2), 2)).toEqual([0])
   })
 })
 
@@ -60,6 +67,12 @@ describe('isOwnerPhoto', () => {
   it('requires an exact match for very short restaurant names', () => {
     expect(isOwnerPhoto('963', '963')).toBe(true)
     expect(isOwnerPhoto('Bob 963 fan', '963')).toBe(false)
+  })
+
+  it('matches owners across name variants (English/German, dropped suffix)', () => {
+    expect(isOwnerPhoto('Albatross Bakery', 'Albatross Bäckerei')).toBe(true)
+    expect(isOwnerPhoto('Five Elephant Kreuzberg', 'Five Elephant Kreuzberg')).toBe(true)
+    expect(isOwnerPhoto('Albert Rossi', 'Albatross Bäckerei')).toBe(false)
   })
 })
 

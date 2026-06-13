@@ -2814,6 +2814,12 @@ html[data-theme="dark"] .ctaPill {
   width: 18px;
   height: 18px;
 }
+/* Must-Eat-Detail: X ohne Rahmen — nur der Glyph, kein Sticker-Kasten, auf
+   Mobile wie Desktop gleich (User 2026-06-13). */
+.detailV13MustEat .fdClose {
+  border: 0;
+  background: transparent;
+}
 .fdText {
   margin: 16px 16px 16px;
   font-size: 16.5px;
@@ -2827,12 +2833,14 @@ html[data-theme="dark"] .ctaPill {
    Whitespace-Loch; der untere Snap (≈ halbe Höhe) zeigt Karte + Name —
    seine Höhe rechnet useMapSheet aus genau dieser Geometrie aus
    (Handle + 26px + Card 36dvh + 12px + gemessener Name).
-   Der Scroll-Container ist eine Flex-Spalte: Card fest (jede Karte gleich
-   groß, beim Blättern springt nichts), Name/Text hängen direkt unter der
-   Card, Restaurant-Block UND Pager tragen margin-top:auto — freier Raum
-   verteilt sich 50/50 auf die beiden Anker statt als ein Loch überm Pager.
+   Der Scroll-Container ist eine Flex-Spalte: Card fest oben (jede Karte
+   gleich groß), Name/Text hängen direkt darunter, und der ganze Fuß-Block
+   (Restaurant-Zeile + „Zum Spot" + Pager) ist über EIN margin-top:auto am
+   .fdRest an die Unterkante geankert. Dadurch bleiben Karte (oben) und
+   Fuß-Block (unten) ortsfest — beim Blättern von Gericht zu Gericht springt
+   nichts, nur Name/Text fließen mit dem Inhalt (User 2026-06-13, wie Desktop).
    Läuft der Inhalt über (sehr lange Beschreibung), bleibt overflow-y:auto
-   als Ventil und die Auto-Margins kollabieren auf ihre Paddings. */
+   als Ventil und die Auto-Margin kollabiert auf ihr Padding. */
 @media (max-width: 1023.98px) {
   .detailV13MustEat .detailV13Scroll {
     display: flex;
@@ -2842,13 +2850,16 @@ html[data-theme="dark"] .ctaPill {
     padding-bottom: max(env(safe-area-inset-bottom, 0px), 10px);
   }
   .detailV13MustEat .fdHero {
-    /* Feste Höhe pro Gerät. ACHTUNG: 40dvh/190/380 + die 22/12px-Margins
-       spiegeln sich in useMapSheet (mustEatPeek) — zusammen ändern. */
+    /* Feste Höhe pro Gerät. Der untere Snap wird live aus der Geometrie
+       gemessen (ResizeObserver auf [data-detail-hero]), daher passt sich
+       die Peek-Höhe an diesen margin-top automatisch an. margin-top 50px:
+       die Karte beginnt unter dem X (top 10 + 34px Höhe ≈ 44px), das X steht
+       allein darüber — wie auf Desktop (User 2026-06-13). */
     flex: 0 0 auto;
     height: clamp(190px, 40dvh, 380px);
     width: auto;
     max-width: min(66vw, 280px);
-    margin: 22px auto 12px;
+    margin: 50px auto 12px;
   }
   .detailV13MustEat .fdName {
     /* padding statt margin: das Element trägt data-detail-hero und wird per
@@ -2858,12 +2869,14 @@ html[data-theme="dark"] .ctaPill {
     padding: 12px 14px 6px;
     font-size: clamp(36px, 10vw, 50px);
   }
+  /* Gleiche horizontale Ausrichtung wie Name/Restaurant (14px Inset), damit
+     alle Inhaltsblöcke an derselben Kante stehen (User 2026-06-13). */
   .detailV13MustEat .fdText {
-    margin: 10px 16px 0;
+    margin: 10px 14px 0;
     font-size: 16px;
     line-height: 1.5;
   }
-  .detailV13MustEat .fdProximity { margin: 10px 20px 0; }
+  .detailV13MustEat .fdProximity { margin: 10px 14px 0; }
   .detailV13MustEat .fdProximityHead { font-size: clamp(22px, 6.5vw, 30px); }
   .detailV13MustEat .fdProximitySub { margin-top: 6px; font-size: 15px; }
   .detailV13MustEat .fdRest {
@@ -2874,7 +2887,10 @@ html[data-theme="dark"] .ctaPill {
   .detailV13MustEat .fdV { font-size: 25px; }
   .detailV13MustEat .ctaPill { font-size: 14px; padding: 11px 15px 12px; }
   .detailV13MustEat .fdPager {
-    margin: auto 0 0;
+    /* Kein eigenes auto-top mehr — der Fuß-Block hängt komplett am
+       .fdRest:margin-top:auto, sonst splittet sich der freie Raum auf zwei
+       Anker und die Elemente springen beim Blättern. */
+    margin: 0;
     padding: 17px 16px;
   }
   .detailV13MustEat .fdPagerName { font-size: 17px; }
@@ -3168,6 +3184,21 @@ html[data-theme="dark"] .btnPackPromoTag {
      zusammen ohne dass die Komposition leer wirkt. */
   /* Unlocked Chewy view: tighten hero + name on the rail panel */
   .fdName { font-size: clamp(40px, 4vw, 56px); }
+
+  /* Whitespace unten füllen (User 2026-06-12): der Scroll-Container wird
+     zur Flex-Spalte, Restaurant-Block UND Pager tragen margin-top:auto.
+     Card + Name + Beschreibung bleiben oben, der freie Raum verteilt sich
+     50/50 auf die beiden unteren Anker — der Switcher sitzt an der Unterkante
+     statt mit einem Loch darunter in der Mitte zu schweben. Gleiche Lösung
+     wie mobil (siehe .detailV13MustEat-Block unter den .fd-* Regeln). Läuft
+     der Inhalt über, kollabieren die Auto-Margins und overflow-y greift. */
+  .detailV13MustEat .detailV13Scroll {
+    display: flex;
+    flex-direction: column;
+  }
+  .detailV13MustEat .fdHero { flex: 0 0 auto; }
+  .detailV13MustEat .fdRest { margin-top: auto; }
+  .detailV13MustEat .fdPager { margin-top: auto; }
   .actions { padding: 26px 22px 32px; gap: 16px; }
   .actions::before { top: 26px; right: 22px; }
   .btnPrimaryLbl { font-size: 58px; }

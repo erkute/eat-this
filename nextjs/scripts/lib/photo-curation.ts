@@ -21,55 +21,115 @@ export interface PhotoJudgment {
   score: number
 }
 
-const MAX_GALLERY = 4
-// Product rule: galleries show only plated food and interior atmosphere.
-// Drinks, menu cards, exterior/building shots and unusable photos are dropped.
-const KEEP_CATEGORIES = new Set<PhotoJudgment['category']>(['food', 'interior'])
+const MAX_GALLERY = 5
+// "Product" = the thing you consume: a plated dish/pastry (food) or a finished
+// drink. Interior (atmosphere) is supporting only. Exterior, menu, unusable
+// (machines, bare shops, equipment, …) are dropped entirely.
+const PRODUCT_CATEGORIES = new Set<PhotoJudgment['category']>(['food', 'drink'])
+// Galleries use ONLY original (owner-uploaded) photos — the restaurant's own
+// professional brand shots, never guest phone snaps. That owner-only rule is
+// the real "professional" guarantee, so the per-category floor only needs to
+// drop a genuinely bad original upload, not police phone quality.
+const FOOD_FLOOR = 5
+const DRINK_FLOOR = 5
+const INTERIOR_FLOOR = 5
 
-const normName = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '')
+function passesFloor(jd: PhotoJudgment): boolean {
+  if (jd.category === 'food') return jd.score >= FOOD_FLOOR
+  if (jd.category === 'drink') return jd.score >= DRINK_FLOOR
+  if (jd.category === 'interior') return jd.score >= INTERIOR_FLOOR
+  return false // exterior, menu, unusable
+}
+
+// Normalise for comparison: lower-case, German umlauts → ae/oe/ue/ss, strip
+// remaining accents, drop everything non-alphanumeric.
+const normName = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]/g, '')
+
+// Generic words that don't identify a specific business — a business's own
+// Google name often varies these (e.g. "Albatross Bäckerei" vs "Albatross
+// Bakery"), so they must not be required for an owner match.
+const GENERIC_NAME_WORDS = new Set([
+  'restaurant', 'cafe', 'bar', 'bakery', 'baeckerei', 'coffee', 'kaffee', 'kitchen',
+  'deli', 'pizza', 'pizzeria', 'ristorante', 'trattoria', 'osteria', 'bistro', 'bistrot',
+  'eis', 'eiscafe', 'icecream', 'ice', 'cream', 'gelato', 'shop', 'club', 'haus', 'house',
+  'berlin', 'the', 'und', 'and', 'der', 'die', 'das', 'le', 'la', 'el', 'di', 'by', 'gmbh',
+])
+
+/** The distinctive words of a restaurant name, normalised — generic words and
+ *  very short tokens removed. "Albatross Bäckerei" → ["albatross"]. */
+function distinctiveTokens(name: string): string[] {
+  return name
+    .toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .split(/[^a-z0-9]+/)
+    .filter((t) => t.length >= 3 && !GENERIC_NAME_WORDS.has(t))
+}
 
 /** Owner-uploaded Places photos carry the business name as their author
  *  attribution (e.g. "Foto: 136 Berlin Restaurant"); guest photos carry a
- *  person's name. We prefer owner photos — they're the on-brand, professional
- *  ones — so flag them here. Match when the (normalised) display name CONTAINS
- *  the restaurant name; require ≥4 chars so a very short name can't false-match
- *  a guest who happens to share those letters. */
+ *  person's name. We match on the restaurant's DISTINCTIVE words so a business
+ *  whose Google name varies the generic part still counts — "Albatross Bakery"
+ *  matches "Albatross Bäckerei" on the shared token "albatross". A spot whose
+ *  name is entirely generic/short falls back to a whole-name containment check. */
 export function isOwnerPhoto(displayName: string | null | undefined, restaurantName: string): boolean {
   if (!displayName) return false
   const dn = normName(displayName)
+  const toks = distinctiveTokens(restaurantName)
+  // A distinctive word of 4+ chars is a reliable brand signal — match on the
+  // tokens so name variants (Bakery/Bäckerei, dropped suffixes) still count.
+  if (toks.some((t) => t.length >= 4)) {
+    return toks.every((t) => dn.includes(t))
+  }
+  // Short / numeric / all-generic names ("963") — a substring would false-match
+  // a guest who merely contains the token, so require the display to BE the name.
   const rn = normName(restaurantName)
-  if (rn.length < 4) return dn === rn
-  return dn.includes(rn)
+  return rn.length >= 3 && dn === rn
 }
 
-/** Picks up to 4 gallery candidate indexes from Haiku judgments. Rules:
- *   - keep only food + interior categories (KEEP_CATEGORIES)
- *   - owner photos first, then the best-scored guest photos
- *   - fill to 4 even with weaker guest photos (no score floor); if fewer than
- *     4 food/interior photos exist at all, return fewer.
- *  `owners[i]` flags whether candidate i is an owner photo. `judgments === null`
- *  (Haiku unavailable) can't categorise, so it falls back to owner-first in the
- *  candidates' original order. */
+/** Picks up to 4 gallery candidate indexes. Rules:
+ *   1. ONLY original (owner-uploaded) photos — never guest photos. Owner photos
+ *      carry the business name as attribution; they are the restaurant's own
+ *      professional brand shots. A spot with no usable originals gets nothing.
+ *   2. Product photos (food + drink) before interior; interior is supporting
+ *      atmosphere only.
+ *   3. Higher score breaks ties.
+ *   4. A per-category floor drops a genuinely bad original; machines / bare
+ *      shops / menus / exteriors are already excluded as non-product,
+ *      non-interior.
+ *   5. Never an all-interior ("just the shop") gallery — if nothing but
+ *      interior survives, return nothing so the spot stays hero-only.
+ *  `owners[i]` flags candidate i as an owner photo. `judgments === null`
+ *  (model unavailable) can't categorise, so it falls back to the original
+ *  photos in candidate order. */
 export function selectGalleryPhotos(
   judgments: PhotoJudgment[] | null,
   owners: boolean[],
   candidateCount: number,
 ): number[] {
-  const ownerRank = (i: number) => (owners[i] ? 0 : 1)
   if (judgments === null) {
-    const idx = Array.from({ length: candidateCount }, (_, i) => i)
-    idx.sort((a, b) => ownerRank(a) - ownerRank(b)) // stable sort: owners first, else original order
-    return idx.slice(0, MAX_GALLERY)
+    return Array.from({ length: candidateCount }, (_, i) => i)
+      .filter((i) => owners[i])
+      .slice(0, MAX_GALLERY)
   }
   const eligible = judgments.filter(
-    (jd) => KEEP_CATEGORIES.has(jd.category) && jd.index >= 0 && jd.index < candidateCount,
+    (jd) => jd.index >= 0 && jd.index < candidateCount && owners[jd.index] && passesFloor(jd),
   )
+  const productRank = (jd: PhotoJudgment) => (PRODUCT_CATEGORIES.has(jd.category) ? 0 : 1)
   eligible.sort((a, b) => {
-    const r = ownerRank(a.index) - ownerRank(b.index)
-    if (r !== 0) return r        // owner photos before guest photos
+    const p = productRank(a) - productRank(b)
+    if (p !== 0) return p        // product before interior
     return b.score - a.score     // then best-scored first
   })
-  return eligible.slice(0, MAX_GALLERY).map((jd) => jd.index)
+  const picked = eligible.slice(0, MAX_GALLERY)
+  // No "just the shop" gallery: if every survivor is interior, show none.
+  if (picked.length && picked.every((jd) => !PRODUCT_CATEGORIES.has(jd.category))) return []
+  return picked.map((jd) => jd.index)
 }
 
 /** German alt-text label per category, used for gallery image alt fields. */
@@ -116,7 +176,9 @@ export interface JudgeInput {
   mediaType: 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif'
 }
 
-const JUDGE_MODEL = 'claude-haiku-4-5'
+// Sonnet judges categories + aesthetic quality more accurately than Haiku; the
+// cost delta is a couple of cents per restaurant. Override via env if needed.
+const JUDGE_MODEL = process.env.GALLERY_JUDGE_MODEL ?? 'claude-sonnet-4-6'
 
 /** Scores gallery candidates with Haiku vision in ONE request (the model
  *  sees all photos and scores them relative to each other). Returns null on
@@ -145,11 +207,23 @@ export async function judgePhotos(
     content.push({
       type: 'text',
       text:
-        `These are candidate gallery photos for the restaurant "${restaurantName}" on a curated vegan food map. ` +
+        `These are candidate gallery photos for the restaurant "${restaurantName}" on a curated, design-led vegan food map. ` +
+        `We want professional, magazine-quality photos that showcase the FOOD and DRINKS — the actual product. ` +
         `Judge each photo. Respond with ONLY a JSON array, one entry per photo: ` +
         `[{"index": <photo number>, "category": "food"|"interior"|"exterior"|"drink"|"menu"|"unusable", "score": <0-10>}]. ` +
-        `category "unusable": selfies, people as main subject, receipts, blurry/dark shots, parking lots, unrelated content. ` +
-        `score: sharpness, exposure, composition, and how appetizing/inviting it looks. Be strict — 8+ only for genuinely good photos.`,
+        `Categories: "food" = dishes, pastries, baked goods, pizza, the actual product; ` +
+        `"drink" = a finished beverage (coffee, cocktail, juice); ` +
+        `"interior" = an INVITING dining room or café with character and atmosphere (tables, warm light, ambiance) — ` +
+        `NOT equipment and NOT a bare or empty shop. ` +
+        `"unusable" = a machine or equipment as the main subject (espresso machine, grinder, oven), bare retail shelves ` +
+        `or rows of bottles/products, an empty counter or empty room with no food/drink/atmosphere, selfies, people as ` +
+        `the subject, receipts, parking lots, screenshots, unrelated content. ` +
+        `score = production quality + how appetizing/inviting it looks. ` +
+        `Score HIGH (8-10) ONLY for clearly professional shots: even/intentional lighting, deliberate composition, ` +
+        `clean uncluttered background, sharp focus. ` +
+        `Score LOW (0-4) for amateur phone snapshots: harsh on-camera flash, cluttered tables, busy or distracting ` +
+        `backgrounds, people/hands in the background, dim or yellow lighting, food shot in the kitchen/oven/in production, ` +
+        `crooked or careless framing. Be strict — most casual phone photos should score 4 or below.`,
     })
     const res = await anthropic.messages.create({
       model: JUDGE_MODEL,

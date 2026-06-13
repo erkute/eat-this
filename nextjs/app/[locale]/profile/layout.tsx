@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
+import { CSS_VERSION } from '@/lib/constants';
 import { AuthProvider, LoginModalProvider } from '@/lib/auth';
 import SiteNav from '@/app/components/SiteNav';
 import BurgerDrawer from '@/app/components/BurgerDrawer';
@@ -29,8 +30,7 @@ export default async function ProfileLayout({
     <>
       {/* Full SPA stylesheet — same as (spa) layout, since profile components
           rely on global classes (e.g. site-nav). */}
-      {/* eslint-disable-next-line @next/next/no-css-tags */}
-      <link rel="stylesheet" href="/css/style.min.css?v=154" precedence="default" />
+      <link rel="stylesheet" href={`/css/style.min.css?v=${CSS_VERSION}`} precedence="default" />
 
       <AuthProvider>
         <LoginModalProvider>

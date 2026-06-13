@@ -8,7 +8,12 @@
   --gray-200: #D4D4D4;
   --gray-400: #888888;
   --gray-600: #555555;
-  --orange: #FF3B00;
+  /* Single source of truth, aligned to css/style.css's "mono pivot — was coral".
+     Previously #FF3B00 here vs #0a0a0a there: the same var resolved to a
+     different value depending on stylesheet load order. No module consumes
+     --orange/--accent (only style.css does, where it always wins as #0a0a0a),
+     so this only removes the pre-stylesheet red flash — no live colour change. */
+  --orange: #0a0a0a;
   --darkred: #8B1A1A;
 
   /* Brand palette — Bar-Basta inspired. Coral-warm red is the primary brand
@@ -159,7 +164,36 @@ html[data-theme="dark"] {
   box-sizing: border-box;
 }
 
+/* A11y: honour the OS "reduce motion" setting site-wide (WCAG 2.3.3). Lives in
+   the inline-critical sheet with `!important` so it neutralises every CSS/JS
+   transition+animation regardless of which stylesheet declared them, on first
+   paint, before style.min.css loads. Movement-based brand reveals degrade to a
+   near-instant cut rather than vestibular-triggering motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* A11y: a visible keyboard focus ring everywhere (WCAG 2.4.7). :focus-visible
+   only fires for keyboard / non-pointer focus, so mouse clicks stay ring-free.
+   Profile/login don't load style.css, so this generic rule must live here too;
+   style.css re-asserts it (and adds input-specific overrides) for SPA pages
+   whose `outline:none` resets would otherwise win the cascade. */
+:focus-visible {
+  outline: 2px solid var(--c-coral, #a02814);
+  outline-offset: 2px;
+}
+
 html {
+  /* Native form controls, scrollbars and autofill follow the active theme
+     instead of defaulting to the browser's light UI in dark mode. */
+  color-scheme: light;
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
   /* Cream universal — matches the SEO-page surface (#fbf8ee) so the side
@@ -171,6 +205,7 @@ html {
 html[data-theme="dark"] {
   /* Dark-Mode-Rollout 2026-06-03: Seiten folgen jetzt wirklich dem Theme —
      Rubber-Band/Side-Strips müssen dunkel sein, nicht cream. */
+  color-scheme: dark;
   background-color: #111110;
 }
 

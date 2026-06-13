@@ -29,12 +29,39 @@ const nextConfig: NextConfig = {
   },
 
   async headers() {
-    // Required for Firebase signInWithPopup to poll popup.closed without console warnings.
+    // Content-Security-Policy shipped in REPORT-ONLY first: it breaks nothing
+    // but surfaces violations so we can validate the allowlist (CARTO map
+    // tiles, Firebase Auth, Stripe Checkout, GA) on staging before flipping to
+    // an enforcing `Content-Security-Policy`. 'unsafe-inline' on script-src is
+    // required by the synchronous CRITICAL_BOOTSTRAP and the gtag shim (no
+    // nonce plumbing in the static App Router output yet). Sentry is tunnelled
+    // through same-origin /monitoring, so it needs no extra connect-src host.
+    const csp = [
+      "default-src 'self'",
+      "base-uri 'self'",
+      "object-src 'none'",
+      "frame-ancestors 'self'",
+      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https://cdn.sanity.io https://*.cartocdn.com https://*.googleusercontent.com https://www.googletagmanager.com https://www.google-analytics.com",
+      "font-src 'self' data:",
+      "connect-src 'self' https://cdn.sanity.io https://*.cartocdn.com https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseapp.com https://www.google-analytics.com https://*.analytics.google.com",
+      "frame-src 'self' https://*.firebaseapp.com https://checkout.stripe.com https://accounts.google.com",
+      "worker-src 'self' blob:",
+      "form-action 'self' https://checkout.stripe.com",
+    ].join("; ");
+
     return [
       {
         source: "/:path*",
         headers: [
+          // Required for Firebase signInWithPopup to poll popup.closed without console warnings.
           { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+          { key: "Content-Security-Policy-Report-Only", value: csp },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" },
         ],
       },
     ];

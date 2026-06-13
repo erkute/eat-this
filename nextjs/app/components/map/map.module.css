@@ -2694,6 +2694,15 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   text-transform: uppercase;
   color: var(--d-text);
 }
+/* Restaurant-Name reserviert immer 2 Zeilen Höhe → der Fuß-Block ist gleich
+   hoch, egal ob der Name 1- oder 2-zeilig umbricht. Damit springt beim
+   Blättern das unten verankerte „Im Restaurant"-Label nicht mehr nach oben
+   (bei 2 Zeilen wuchs der Block sonst nach oben). line-height:1 → 2em = exakt
+   2 Zeilen. Nur der Name, nicht der Preis (eigene .fdPrice-Spalte). Mobile
+   wie Desktop (User 2026-06-13). */
+.detailV13MustEat .fdRestName .fdV {
+  min-height: 2em;
+}
 .ctaPill {
   appearance: none;
   background: var(--brand-yellow);

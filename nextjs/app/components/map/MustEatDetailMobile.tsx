@@ -156,7 +156,7 @@ export default function MustEatDetailMobile({
 
         {/* Restaurant / price / Zum Spot — one thick stripe underneath. */}
         <div className={styles.fdRest}>
-          <div>
+          <div className={styles.fdRestName}>
             <div className={styles.fdK}>{t('map.inRestaurant')}</div>
             <div className={styles.fdV}>{normalizeName(restaurantName)}</div>
           </div>

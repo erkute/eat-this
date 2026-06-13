@@ -68,6 +68,12 @@ describe('isOwnerPhoto', () => {
     expect(isOwnerPhoto('963', '963')).toBe(true)
     expect(isOwnerPhoto('Bob 963 fan', '963')).toBe(false)
   })
+
+  it('matches owners across name variants (English/German, dropped suffix)', () => {
+    expect(isOwnerPhoto('Albatross Bakery', 'Albatross Bäckerei')).toBe(true)
+    expect(isOwnerPhoto('Five Elephant Kreuzberg', 'Five Elephant Kreuzberg')).toBe(true)
+    expect(isOwnerPhoto('Albert Rossi', 'Albatross Bäckerei')).toBe(false)
+  })
 })
 
 describe('parseJudgments', () => {

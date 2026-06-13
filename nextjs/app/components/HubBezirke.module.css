@@ -24,24 +24,32 @@
 .grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 14px 12px;
 }
+
+/* Each chip is a "sticker": white card, hard ink border + offset shadow,
+   slightly tilted (--rot, set per-index inline). On hover it straightens,
+   pops up and turns yellow — no opacity fades, pure motion + colour. */
 .chip {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  background: #fbf8ee;
-  border: 1px solid rgba(10, 10, 10, 0.10);
-  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06);
-  padding: 11px 14px 12px;
+  gap: 9px;
+  background: #fff;
+  border: 2px solid #0a0a0a;
+  box-shadow: 3px 3px 0 #0a0a0a;
+  border-radius: 14px;
+  padding: 9px 12px 10px;
   text-decoration: none;
-  color: var(--text-primary);
-  transition: transform .2s, box-shadow .2s, background .2s;
+  color: #0a0a0a;
+  transform: rotate(var(--rot, 0deg));
+  transition: transform .18s cubic-bezier(.34, 1.56, .64, 1), box-shadow .18s, background .18s;
 }
 .chip:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(10, 10, 10, 0.12);
+  transform: rotate(0deg) translateY(-3px);
+  box-shadow: 6px 6px 0 #0a0a0a;
   background: var(--brand-yellow, #ffd84a);
+  z-index: 1;
 }
 .name {
   font-family: var(--font-ranchers);
@@ -51,10 +59,30 @@
   text-transform: uppercase;
   padding-top: 3px;
 }
+/* Open-spot count as a pill badge; inverts on hover so it stays legible
+   once the chip itself goes yellow. */
+.count {
+  font-family: var(--font-ranchers);
+  font-size: 12px;
+  line-height: 1;
+  padding: 4px 7px 3px;
+  border-radius: 999px;
+  background: var(--brand-yellow, #ffd84a);
+  color: #0a0a0a;
+  border: 1.5px solid #0a0a0a;
+  transition: background .18s, color .18s;
+}
+.chip:hover .count {
+  background: #0a0a0a;
+  color: var(--brand-yellow, #ffd84a);
+}
 .arrow {
   font-family: var(--font-ranchers);
   font-size: 15px;
-  opacity: .55;
+  transition: transform .18s;
+}
+.chip:hover .arrow {
+  transform: translateX(3px);
 }
 
 /* Desktop: centred 1120px band, like the other hub sections. */
@@ -64,23 +92,32 @@
   .name { font-size: 19px; }
 }
 
-/* ── Dark mode: dark page, warm-cream ink, red replaces yellow on hover. ── */
+/* ── Dark mode: dark page, warm-cream ink/borders, red replaces yellow. ── */
 html[data-theme="dark"] .section {
   background: var(--dk-page);
   border-top-color: var(--dk-ink);
 }
 html[data-theme="dark"] .heading,
 html[data-theme="dark"] .sub { color: var(--dk-ink); }
-/* Chips: cream surface → dark card, ink border/shadow → cream */
+/* Chips: white sticker → dark card, ink border/shadow → cream */
 html[data-theme="dark"] .chip {
   background: var(--dk-card);
   border-color: var(--dk-ink);
   box-shadow: 3px 3px 0 var(--dk-rule);
   color: var(--dk-ink);
 }
-/* Hover fill: yellow → red, label/arrow → cream */
 html[data-theme="dark"] .chip:hover {
   background: var(--c-coral);
-  box-shadow: 5px 5px 0 var(--dk-rule);
+  box-shadow: 6px 6px 0 var(--dk-rule);
   color: #fbf8ee;
+}
+/* Badge: red pill on dark card, inverts to cream on the red hover fill */
+html[data-theme="dark"] .count {
+  background: var(--c-coral);
+  color: #fbf8ee;
+  border-color: var(--dk-ink);
+}
+html[data-theme="dark"] .chip:hover .count {
+  background: #fbf8ee;
+  color: var(--c-coral);
 }

@@ -168,20 +168,23 @@
 .content strong {
   font-weight: 700;
 }
-/* Prose links only — NOT the .inlineSpot photo cards (also <a> inside .content).
+/* Prose links only — NOT the .inlineSpot photo cards or the .mustEat poster
+   banner (both are full <a> blocks inside .content with their own styling).
+   Ohne das `:not(.mustEat)` würde diese Regel (Spezifität 0,2,1) den ganzen
+   Must-Eat-Block rot einfärben + unterstreichen.
    Wichtig: das `background`-Shorthand im :hover würde sonst background-size der
    Karte von cover → auto resetten = ungewollter „Zoom"-Effekt. */
-.content a:not(.inlineSpot) {
+.content a:not(.inlineSpot):not(.mustEat) {
   color: var(--c-coral);
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-underline-offset: 2px;
   font-weight: 600;
 }
-.content a:not(.inlineSpot):hover {
+.content a:not(.inlineSpot):not(.mustEat):hover {
   background-color: rgba(160, 40, 20, 0.07);
 }
-html[data-theme="dark"] .content a:not(.inlineSpot) {
+html[data-theme="dark"] .content a:not(.inlineSpot):not(.mustEat) {
   color: var(--c-coral-bright);
 }
 
@@ -192,92 +195,150 @@ html[data-theme="dark"] .content a:not(.inlineSpot) {
    floats freigestellt with a tilt, no frame around it. Yellow sticker CTA
    (brand-red in dark mode). */
 .mustEat {
-  margin: 34px 0 30px;
-  padding: 28px 20px 30px;
-  background: #0a0a0a;
+  position: relative;
+  margin: 40px 0 36px;
+  padding: 32px 22px 36px;
+  /* Warm spotlight from the card side fades into the ink — gives the flat
+     poster depth, like the card sits under a display light. */
+  background:
+    radial-gradient(115% 90% at 24% 32%, rgba(214, 58, 42, 0.22), transparent 58%),
+    #0a0a0a;
   color: #fbf8ee;
   display: grid;
   justify-items: center;
   text-align: center;
   text-decoration: none;
+  border-radius: 18px;
+  box-shadow: 0 22px 46px -24px rgba(0, 0, 0, 0.75);
+  overflow: hidden;
+  isolation: isolate;
 }
 .mustEatPh {
+  position: relative;
   display: block;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
+  z-index: 1;
+}
+/* Glow disc behind the freigestellt card — follows the card in both layouts. */
+.mustEatPh::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 250px;
+  height: 250px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 184, 64, 0.30), rgba(214, 58, 42, 0.12) 46%, transparent 70%);
+  z-index: -1;
+  pointer-events: none;
+  transition: transform 0.28s ease;
 }
 .mustEatPh img {
   display: block;
-  width: 180px;
+  width: 184px;
   height: auto;
   /* The asset has white (non-transparent) corners — round to the card's own
      corner radius so no white triangles show on the ink surface. */
   border-radius: 14px;
   transform: rotate(-4deg);
-  transition: transform 0.18s ease;
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.5));
 }
 a.mustEat:hover .mustEatPh img {
-  transform: rotate(-1deg) translateY(-4px);
+  transform: rotate(-2deg) translateY(-7px) scale(1.04);
+}
+a.mustEat:hover .mustEatPh::before {
+  transform: translate(-50%, -50%) scale(1.14);
 }
 .mustEatBody {
+  position: relative;
+  z-index: 1;
   display: grid;
   justify-items: center;
-  gap: 7px;
+  gap: 9px;
 }
+/* Kicker is a tilted yellow sticker-stamp instead of plain tracked text. */
 .mustEatKicker {
+  justify-self: center;
   font-family: var(--font-poster);
-  font-size: 15px;
-  letter-spacing: 0.3em;
-  text-indent: 0.3em; /* recenter — tracking adds trailing space */
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em; /* recenter — tracking adds trailing space */
   text-transform: uppercase;
-  color: #ffd84a;
+  color: #0a0a0a;
+  background: #ffd84a;
+  padding: 5px 13px 6px;
+  border-radius: 999px;
+  transform: rotate(-2.5deg);
+  margin-bottom: 9px; /* lift the stamp off the dish name */
 }
 /* `.mustEat` prefix beats `.content h3` (which forces ink-black and would
-   render the headline invisible on the dark banner). */
+   render the headline invisible on the dark banner). Hard coral offset shadow
+   gives it screen-printed poster punch. */
 .mustEat .mustEatName {
   font-family: var(--font-poster);
-  font-size: clamp(28px, 7vw, 40px);
-  line-height: 1.05;
+  font-size: clamp(30px, 7.5vw, 44px);
+  line-height: 1;
   text-transform: uppercase;
-  color: inherit;
-  margin: 0;
+  color: #fbf8ee;
+  margin: 2px 0 0;
   max-width: 18ch;
+  text-shadow: 3px 3px 0 var(--c-coral);
 }
 /* Appetite line from the Sanity description — sentence case, reads like a
    recommendation, not metadata. `.mustEat` prefix beats `.content p` margins. */
 .mustEat .mustEatDesc {
-  font-size: 14.5px;
+  font-size: 15px;
   line-height: 1.55;
-  max-width: 40ch;
-  margin: 2px 0 0;
-  opacity: 0.92;
+  max-width: 42ch;
+  margin: 4px 0 0;
+  color: rgba(251, 248, 238, 0.9);
 }
 .mustEatRest {
-  font-size: 12.5px;
-  letter-spacing: 0.13em;
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  opacity: 0.72;
+  color: rgba(251, 248, 238, 0.62);
   margin-top: 4px;
 }
+.mustEatRest::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-coral-bright);
+  margin-right: 9px;
+}
+/* Tactile sticker button — hard coral shadow that "presses in" on hover. */
 .mustEatCta {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin-top: 14px;
+  margin-top: 10px;
   background: #ffd84a;
   color: #0a0a0a;
   font-family: var(--font-poster);
   font-size: 18px;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   line-height: 1;
-  padding: 13px 20px 14px;
-  transition: transform 0.15s ease;
+  padding: 13px 22px 14px;
+  border-radius: 10px;
+  box-shadow: 4px 4px 0 var(--c-coral);
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
 }
 a.mustEat:hover .mustEatCta {
-  transform: translateY(-1px);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--c-coral);
 }
 .mustEatCta svg {
   flex-shrink: 0;
+  transition: transform 0.18s ease;
+}
+a.mustEat:hover .mustEatCta svg {
+  transform: translateX(4px);
 }
 
 /* Desktop: card left, text right — the banner reads as one wide poster. */
@@ -285,22 +346,35 @@ a.mustEat:hover .mustEatCta {
   .mustEat {
     grid-template-columns: auto 1fr;
     align-items: center;
-    gap: 32px;
+    gap: 36px;
     justify-items: start;
     text-align: left;
-    padding: 32px 36px;
+    padding: 36px 40px;
+    background:
+      radial-gradient(90% 120% at 18% 50%, rgba(214, 58, 42, 0.24), transparent 56%),
+      #0a0a0a;
   }
   .mustEatPh {
     margin-bottom: 0;
   }
   .mustEatPh img {
-    width: 210px;
+    width: 216px;
   }
   .mustEatBody {
     justify-items: start;
   }
   .mustEatKicker {
+    justify-self: start;
     text-indent: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mustEatPh img,
+  .mustEatPh::before,
+  .mustEatCta,
+  .mustEatCta svg {
+    transition: none;
   }
 }
 
@@ -693,15 +767,34 @@ html[data-theme="dark"] .content h3 {
 /* ── Inline Must Eat banner — stays a dark panel, raised card surface on the
    dark page; yellow accents flip to brand-red. ── */
 html[data-theme="dark"] .mustEat {
-  background: #1d1c19;
+  background:
+    radial-gradient(115% 90% at 24% 32%, rgba(214, 58, 42, 0.18), transparent 56%),
+    #1d1c19;
   color: #f0e8d0;
 }
+@media (min-width: 720px) {
+  html[data-theme="dark"] .mustEat {
+    background:
+      radial-gradient(90% 120% at 18% 50%, rgba(214, 58, 42, 0.20), transparent 54%),
+      #1d1c19;
+  }
+}
+/* Dark mode swaps the yellow accents for brand-red (documented brand decision
+   "Akzent ROT statt GELB"). Stamp + button go coral; shadows go ink-black. */
 html[data-theme="dark"] .mustEatKicker {
-  color: var(--c-coral-bright);
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+html[data-theme="dark"] .mustEat .mustEatName {
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.55);
 }
 html[data-theme="dark"] .mustEatCta {
   background: var(--c-coral);
   color: #fbf8ee;
+  box-shadow: 4px 4px 0 #0a0a0a;
+}
+html[data-theme="dark"] a.mustEat:hover .mustEatCta {
+  box-shadow: 2px 2px 0 #0a0a0a;
 }
 
 /* ── Pull-quote (blockquote in body) ── */

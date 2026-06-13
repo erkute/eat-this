@@ -26,12 +26,13 @@ const MAX_GALLERY = 4
 // drink. Interior (atmosphere) is supporting only. Exterior, menu, unusable
 // (machines, bare shops, equipment, …) are dropped entirely.
 const PRODUCT_CATEGORIES = new Set<PhotoJudgment['category']>(['food', 'drink'])
-// Per-category quality floors. Casual phone snapshots score ≤4 under the strict
-// judging prompt. Drinks must be genuinely top-tier (the product owner asked for
-// only professional beverage shots), so they carry a higher bar than food.
-const FOOD_FLOOR = 5
+// Quality floor: the product owner wants ONLY genuinely professional photos —
+// no casual phone shots — even if that leaves a casual spot (bakery, ice-cream
+// parlour, simple café) with one photo or none. The strict judging prompt
+// reserves 7+ for professional shots, so that's the bar across all categories.
+const FOOD_FLOOR = 7
 const DRINK_FLOOR = 7
-const INTERIOR_FLOOR = 5
+const INTERIOR_FLOOR = 7
 
 function passesFloor(jd: PhotoJudgment): boolean {
   if (jd.category === 'food') return jd.score >= FOOD_FLOOR

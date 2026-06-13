@@ -15,10 +15,10 @@ describe('selectGalleryPhotos', () => {
     expect(selectGalleryPhotos(judgments, owners([], 4), 4)).toEqual([0, 2, 3, 1])
   })
 
-  it('only keeps top-tier drinks (drink floor is 7)', () => {
-    const judgments = [j(0, 6, 'food'), j(1, 8, 'drink'), j(2, 6, 'drink')]
-    // drink2 (6) fails the drink floor; eligible drink1(8) + food0(6)
-    expect(selectGalleryPhotos(judgments, owners([], 3), 3)).toEqual([1, 0])
+  it('only keeps top-tier photos (floor is 7 across categories)', () => {
+    const judgments = [j(0, 7, 'food'), j(1, 8, 'drink'), j(2, 6, 'drink'), j(3, 6, 'food')]
+    // drink2 (6) and food3 (6) fail the floor; eligible drink1(8) + food0(7)
+    expect(selectGalleryPhotos(judgments, owners([], 4), 4)).toEqual([1, 0])
   })
 
   it('drops drink/menu/exterior and amateur food below floor', () => {
@@ -33,7 +33,7 @@ describe('selectGalleryPhotos', () => {
   })
 
   it('puts originals (owner photos) first, even an owner interior before a guest product', () => {
-    const judgments = [j(0, 9, 'food'), j(1, 6, 'interior')]
+    const judgments = [j(0, 9, 'food'), j(1, 7, 'interior')]
     expect(selectGalleryPhotos(judgments, owners([1], 2), 2)).toEqual([1, 0])
   })
 

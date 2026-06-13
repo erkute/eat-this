@@ -9,7 +9,7 @@ import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import styles from './MustEatsOnboarding.module.css'
 
 const CARD_BACK = '/pics/card-back.webp?v=6'
-// Step 3 swaps the demo card for the pack art — the thing that brings new spots.
+// Slide 3 replaces the demo card with the pack art — the thing that brings new spots.
 const BOOSTER_ART = '/pics/booster/booster.webp'
 export const ONBOARDING_SEEN_KEY = 'mustEatsOnboardingSeen'
 
@@ -17,11 +17,13 @@ export const ONBOARDING_SEEN_KEY = 'mustEatsOnboardingSeen'
 // demo of the on-site reveal. Keep shorter than the user's reading time.
 const STEP2_FLIP_DELAY_MS = 800
 
-// Two casual slides: what a Must Eat is, then how revealing works.
-// Each slide is kicker + display headline + short body (section-head style).
+// Three casual slides: what a Must Eat is, how revealing works, then where new
+// spots come from (Booster Packs). Each slide is kicker + display headline +
+// short body (section-head style).
 const SLIDES = [
   { kicker: 'mustEats.onb1Kicker', title: 'mustEats.onb1Title', body: 'mustEats.onb1Body' },
   { kicker: 'mustEats.onb2Kicker', title: 'mustEats.onb2Title', body: 'mustEats.onb2Body' },
+  { kicker: 'mustEats.onb3Kicker', title: 'mustEats.onb3Title', body: 'mustEats.onb3Body' },
 ] as const
 
 interface Props {
@@ -120,6 +122,7 @@ export default function MustEatsOnboarding({ initialMapData }: Props) {
   return (
     <>
       <button type="button" className={styles.how} onClick={reopen}>
+        <span className={styles.howBadge} aria-hidden="true">?</span>
         {t('mustEats.howItWorks')}
       </button>
 
@@ -132,15 +135,16 @@ export default function MustEatsOnboarding({ initialMapData }: Props) {
               </button>
 
               <div className={styles.cardBox}>
-                <div data-testid="onb-flipper" className={showBack ? `${styles.flipper} ${styles.flipped}` : styles.flipper}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className={styles.face} src={demo?.image ?? CARD_BACK} alt={demo?.dish ?? ''} />
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className={`${styles.face} ${styles.back}`} src={CARD_BACK} alt="" aria-hidden="true" />
-                </div>
-                {last && (
+                {last ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
-                  <img data-testid="onb-pack" className={styles.packMini} src={BOOSTER_ART} alt="Booster Pack" />
+                  <img data-testid="onb-pack" className={styles.packHero} src={BOOSTER_ART} alt="Booster Pack" />
+                ) : (
+                  <div data-testid="onb-flipper" className={showBack ? `${styles.flipper} ${styles.flipped}` : styles.flipper}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img className={styles.face} src={demo?.image ?? CARD_BACK} alt={demo?.dish ?? ''} />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img className={`${styles.face} ${styles.back}`} src={CARD_BACK} alt="" aria-hidden="true" />
+                  </div>
                 )}
               </div>
 

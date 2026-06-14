@@ -377,7 +377,7 @@ export default function RestaurantDetail({
           )}
         </div>
 
-        {/* ACTIONS — Maps + Teilen, 50/50 */}
+        {/* ACTIONS — menu joins Maps + Teilen when an official URL exists. */}
         <div className={styles.rdActs}>
           {mapsHref && (
             <a
@@ -388,6 +388,17 @@ export default function RestaurantDetail({
               onClick={() => trackEvent('restaurant_maps_clicked', { restaurant_id: r._id, restaurant_slug: r.slug })}
             >
               {t('map.maps')}
+            </a>
+          )}
+          {r.menuUrl && (
+            <a
+              className={styles.rdActBtn}
+              href={r.menuUrl}
+              target="_blank"
+              rel="noopener nofollow noreferrer"
+              onClick={() => trackEvent('restaurant_menu_clicked', { restaurant_id: r._id, restaurant_slug: r.slug })}
+            >
+              {locale === 'en' ? 'Menu' : 'Speisekarte'}
             </a>
           )}
           <button

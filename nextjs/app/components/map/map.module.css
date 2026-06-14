@@ -3571,7 +3571,7 @@ html[data-theme="dark"] .rdBodySkel span {
 .rdAddrLine { display: block; }
 .rdVMeta { display: block; margin-top: 4px; font-size: 12px; opacity: .7; }
 
-.rdActs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 6px 14px 16px; }
+.rdActs { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; padding: 6px 14px 16px; }
 .rdActBtn {
   font-family: var(--font-chewy);
   font-size: 14px;
@@ -3587,6 +3587,7 @@ html[data-theme="dark"] .rdBodySkel span {
   line-height: 1;
   background: transparent;
   color: #0a0a0a;
+  min-width: 0;
 }
 .rdActPrimary { background: #0a0a0a; color: #fbf8ee; }
 

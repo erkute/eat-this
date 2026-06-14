@@ -70,26 +70,17 @@ export async function GET(request: Request) {
             padding: '26px 52px 30px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
-            <div
-              style={{
-                color: '#fbf8ee',
-                fontSize: 30,
-                letterSpacing: 4,
-                textTransform: 'uppercase',
-              }}
-            >
-              {kicker}
-            </div>
-            <div
-              style={{
-                width: 12,
-                height: 12,
-                borderRadius: 6,
-                backgroundColor: '#ffd84a',
-                marginLeft: 12,
-              }}
-            />
+          <div
+            style={{
+              display: 'flex',
+              color: '#fbf8ee',
+              fontSize: 30,
+              letterSpacing: 4,
+              textTransform: 'uppercase',
+              marginBottom: 10,
+            }}
+          >
+            {kicker}
           </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={logo} width={184} height={75} alt="" />

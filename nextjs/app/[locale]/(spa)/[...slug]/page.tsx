@@ -54,8 +54,8 @@ const PAGE_META: Record<string, SlugMeta> = {
     en: { title: 'News', description: "Latest restaurant news, recommendations and stories from Berlin's food scene." },
   },
   about: {
-    de: { title: 'Über uns', description: 'Was Eat This ist, wer dahinter steckt und warum wir Berlins Restaurants kuratieren.' },
-    en: { title: 'About', description: "What Eat This is, who's behind it, and why we curate Berlin's restaurants." },
+    de: { title: 'Über uns', description: 'Was Eat This ist, wer dahinter steckt und warum wir Berlins Restaurants kuratieren – plus Remy, unsere KI-Suche für deinen nächsten Spot.' },
+    en: { title: 'About', description: "What Eat This is, who's behind it, why we curate Berlin's restaurants – plus Remy, our AI search for your next spot." },
   },
   contact: {
     de: { title: 'Kontakt', description: 'Kontaktiere das Eat-This-Team für Anfragen, Kooperationen oder Feedback.' },

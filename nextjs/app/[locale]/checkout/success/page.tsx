@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server'
 import Link from 'next/link'
 import { getStripe } from '@/lib/stripe'
 import { getPack } from '@/lib/stripe-catalog'
+import CheckoutSuccessAnalytics from './CheckoutSuccessAnalytics'
 import styles from './success.module.css'
 
 export const dynamic = 'force-dynamic'
@@ -31,6 +32,7 @@ export default async function CheckoutSuccessPage({
   // generic copy without the email/pack name.
   let email: string | null = null
   let packLabel: string | null = null
+  let amountCents: number | null = null
   if (session_id) {
     try {
       const session = await getStripe().checkout.sessions.retrieve(session_id)
@@ -41,7 +43,10 @@ export default async function CheckoutSuccessPage({
   }
   if (packId) {
     const pack = getPack(packId)
-    if (pack) packLabel = pack.displayName
+    if (pack) {
+      packLabel = pack.displayName
+      amountCents = pack.amountCents
+    }
   }
 
   const t = locale === 'de'
@@ -68,6 +73,14 @@ export default async function CheckoutSuccessPage({
 
   return (
     <main className={styles.page}>
+      {session_id && packId && packLabel && amountCents !== null && (
+        <CheckoutSuccessAnalytics
+          transactionId={session_id}
+          packId={packId}
+          packName={packLabel}
+          amountCents={amountCents}
+        />
+      )}
       <div className={styles.card}>
         <span className={styles.eyebrow}>{t.eyebrow}</span>
         <h1 className={styles.h1}>{t.headline}</h1>

@@ -24,6 +24,7 @@ import { normalizeName } from '@/lib/normalizeName'
 import { useSwipePager } from './useSwipePager'
 import RestaurantGallery from './RestaurantGallery'
 import { safeHttpUrl } from './MustEatImageLightbox'
+import { trackEvent } from '@/lib/analytics'
 
 function MustEatMiniCard({
   mustEat,
@@ -379,7 +380,13 @@ export default function RestaurantDetail({
         {/* ACTIONS — Maps + Teilen, 50/50 */}
         <div className={styles.rdActs}>
           {mapsHref && (
-            <a className={`${styles.rdActBtn} ${styles.rdActPrimary}`} href={mapsHref} target="_blank" rel="noopener noreferrer">
+            <a
+              className={`${styles.rdActBtn} ${styles.rdActPrimary}`}
+              href={mapsHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackEvent('restaurant_maps_clicked', { restaurant_id: r._id, restaurant_slug: r.slug })}
+            >
               {t('map.maps')}
             </a>
           )}
@@ -394,7 +401,11 @@ export default function RestaurantDetail({
               // desktop always copies the link and shows a confirmation.
               const isTouch = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches
               if (isTouch && typeof navigator !== 'undefined' && 'share' in navigator) {
-                try { await navigator.share(shareData); return } catch { return }
+                try {
+                  await navigator.share(shareData)
+                  trackEvent('share', { content_type: 'restaurant', item_id: r.slug, method: 'native' })
+                  return
+                } catch { return }
               }
               try {
                 if (navigator?.clipboard?.writeText) await navigator.clipboard.writeText(url)
@@ -411,6 +422,7 @@ export default function RestaurantDetail({
                   window.scrollTo(sx, sy)
                 }
               } catch {}
+              trackEvent('share', { content_type: 'restaurant', item_id: r.slug, method: 'copy_link' })
               setShareDone(true)
               window.setTimeout(() => setShareDone(false), 1800)
             }}
@@ -427,6 +439,7 @@ export default function RestaurantDetail({
               target="_blank"
               rel="noopener noreferrer"
               className={styles.btnPrimary}
+              onClick={() => trackEvent('restaurant_reservation_clicked', { restaurant_id: r._id, restaurant_slug: r.slug, provider: reservationProvider ?? 'other' })}
             >
               <span className={styles.btnPrimaryLbl}>{t('map.reserve')}</span>
               <svg className={styles.btnPrimaryArr} viewBox="0 0 24 18" aria-hidden="true">
@@ -441,6 +454,7 @@ export default function RestaurantDetail({
                   target="_blank"
                   rel="noopener noreferrer"
                   className={styles.opentableLockup}
+                  onClick={() => trackEvent('restaurant_reservation_clicked', { restaurant_id: r._id, restaurant_slug: r.slug, provider: 'OpenTable' })}
                 >
                   <span className={styles.otMark}>ot</span>
                   <span className={styles.otWord}>OpenTable</span>

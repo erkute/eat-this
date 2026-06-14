@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import { MODAL_CONTACT_EMAIL, type ModalBodySection } from '@/lib/i18n/translations';
+import { loadAnalytics, trackEvent } from '@/lib/analytics';
 
 // Cookie info sections — kept here (not in MODAL_BODIES) so the banner copy
 // stays close to what's actually loaded by the site, and DE is properly
@@ -66,34 +67,6 @@ const COOKIE_SECTIONS_EN: ModalBodySection[] = [
   },
   { h: 'Contact', p: 'Questions? {mail}' },
 ];
-
-const GA_ID = 'G-8EWFYGPNTT';
-
-function loadGA() {
-  const w = window as Window & {
-    __gaLoaded?: boolean;
-    dataLayer?: unknown[];
-    gtag?: (...args: unknown[]) => void;
-  };
-  if (w.__gaLoaded) return;
-  w.__gaLoaded = true;
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
-  document.head.appendChild(script);
-  w.dataLayer = w.dataLayer || [];
-  // gtag.js only treats the native `arguments` object as a command-queue entry.
-  // The previous `(...args) => dataLayer.push(args)` pushed a plain ARRAY, which
-  // gtag.js silently ignores — the script loaded but `config` never ran, so no
-  // page_view hit was ever sent and no _ga cookie was set: GA4 recorded zero
-  // traffic. Use the canonical snippet shape that pushes `arguments`.
-  w.gtag = function () {
-    // eslint-disable-next-line prefer-rest-params
-    w.dataLayer!.push(arguments);
-  };
-  w.gtag('js', new Date());
-  w.gtag('config', GA_ID);
-}
 
 // Best-effort removal of GA's first-party cookies when consent is withdrawn.
 // The injected GA script can't be "unloaded" in-place, so handleDecline also
@@ -187,7 +160,7 @@ export default function CookieConsent() {
   useEffect(() => {
     const stored = localStorage.getItem('cookieConsent');
     if (stored === 'accepted') {
-      loadGA();
+      loadAnalytics();
       return;
     }
     if (stored) return;
@@ -200,7 +173,16 @@ export default function CookieConsent() {
     setShow(false);
     setExpanded(false);
     setTimeout(flushPostBannerChrome, 350);
-    setTimeout(loadGA, 600);
+    setTimeout(() => {
+      loadAnalytics();
+      // The route-level page-view effect ran before consent and correctly
+      // dropped that event. Count the page where consent was granted now.
+      trackEvent('page_view', {
+        page_location: window.location.href,
+        page_path: `${window.location.pathname}${window.location.search}`,
+        page_title: document.title,
+      });
+    }, 600);
   };
 
   const handleDecline = () => {

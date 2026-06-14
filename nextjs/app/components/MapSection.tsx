@@ -24,6 +24,7 @@ import { readSafeAreaBottom } from '@/lib/map/useMapSheet'
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail'
 import { auth, getDb } from '@/lib/firebase/config'
 import { onAuthStateChanged } from 'firebase/auth'
+import { trackEvent } from '@/lib/analytics'
 
 interface Props {
   isActive?:       boolean
@@ -35,6 +36,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   // Set true synchronously in any click handler that flies the camera so
   // the slow auto-locate Promise can't overwrite the user's selection.
   const userInteractedRef = useRef(false)
+  const mapTrackedRef = useRef(false)
   const { t } = useTranslation()
 
   const [uid,         setUid]         = useState<string | null>(() => auth.currentUser?.uid ?? null)
@@ -84,6 +86,12 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   )
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid)
   const userTier = useUserTier(uid)
+
+  useEffect(() => {
+    if (!isActive || mapTrackedRef.current) return
+    mapTrackedRef.current = true
+    trackEvent('map_opened', { tier: userTier })
+  }, [isActive, userTier])
 
   // Live-refetch map data whenever the user's entitlements change (e.g. after
   // purchase). Firestore SDK is code-split (see getDb) — loaded on demand here
@@ -282,6 +290,11 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
 
   const handleRestaurantClick = useCallback((r: MapRestaurant, origin: 'list' | 'map' = 'list') => {
     userInteractedRef.current = true
+    trackEvent('restaurant_opened', {
+      restaurant_id: r._id,
+      restaurant_slug: r.slug,
+      origin,
+    })
     // Kick off the detail-field fetch now so it's usually cached by the time
     // the sheet finishes opening (the map payload no longer carries them).
     prefetchRestaurantDetail(r.slug)
@@ -341,6 +354,12 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     const target = dir === 'prev' ? pagerAdjacent.prev : pagerAdjacent.next
     if (!target) return
     userInteractedRef.current = true
+    trackEvent('restaurant_opened', {
+      restaurant_id: target._id,
+      restaurant_slug: target.slug,
+      origin: 'pager',
+      direction: dir,
+    })
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
     setSelectedRestaurant(target)
     mapRef.current?.flyTo({
@@ -366,6 +385,13 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     const target = dir === 'prev' ? mustEatPagerAdjacent.prev : mustEatPagerAdjacent.next
     if (!target) return
     userInteractedRef.current = true
+    trackEvent('must_eat_opened', {
+      must_eat_id: target._id,
+      restaurant_id: target.restaurant._id,
+      origin: 'pager',
+      direction: dir,
+      unlocked: unlockedIds.has(target._id),
+    })
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
     setSelectedMustEat(target)
     mapRef.current?.flyTo({
@@ -376,10 +402,16 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     })
     const sc = document.querySelector('[data-detail-scroll]')
     if (sc) (sc as HTMLElement).scrollTop = 0
-  }, [mustEatPagerAdjacent, getFlyPadding])
+  }, [mustEatPagerAdjacent, getFlyPadding, unlockedIds])
 
   const handleMustEatClick = useCallback((m: MapMustEat) => {
     userInteractedRef.current = true
+    trackEvent('must_eat_opened', {
+      must_eat_id: m._id,
+      restaurant_id: m.restaurant._id,
+      origin: selectedRestaurant ? 'restaurant_detail' : 'map',
+      unlocked: unlockedIds.has(m._id),
+    })
     const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches
     // Capture the list scroll before the view switches (mirrors handleRestaurantClick).
     if (sheetView === 'list' && contentRef.current) {

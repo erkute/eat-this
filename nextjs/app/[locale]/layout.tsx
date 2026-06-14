@@ -7,6 +7,7 @@ import ClientIntlProvider from './ClientIntlProvider';
 import ReferralToastListener from '@/app/components/ReferralToastListener';
 import NotificationToast from '@/app/components/NotificationToast';
 import ScrollRestorer from '@/app/components/ScrollRestorer';
+import AnalyticsPageViews from '@/app/components/AnalyticsPageViews';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { SITE_URL } from '@/lib/constants';
 
@@ -137,6 +138,7 @@ export default async function LocaleLayout({
               globals.css (those routes don't load the SPA stylesheet). */}
           <NotificationToast />
           <ScrollRestorer />
+          <AnalyticsPageViews />
           {children}
           {modal}
         </ClientIntlProvider>

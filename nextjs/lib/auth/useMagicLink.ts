@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { trackEvent } from '@/lib/analytics';
 
 type MagicLinkState = 'idle' | 'sending' | 'sent' | 'error';
 
@@ -20,6 +21,7 @@ export function useMagicLink() {
   const [errorMessage, setErrorMessage] = useState('');
 
   const sendLink = useCallback(async (email: string) => {
+    trackEvent('login_start', { method: 'email_link' });
     setState('sending');
     setErrorMessage('');
     localStorage.setItem('emailForSignIn', email);
@@ -40,6 +42,7 @@ export function useMagicLink() {
       }
 
       setState('sent');
+      trackEvent('login_link_sent', { method: 'email_link' });
     } catch {
       localStorage.removeItem('emailForSignIn');
       setErrorMessage(t(ERROR_KEYS['network']));

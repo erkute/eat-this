@@ -150,7 +150,7 @@ export default async function PackDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          <PackBuyButton packId={pack.packId} locale={loc} {...buyLabels} />
+          <PackBuyButton packId={pack.packId} packName={pack.displayName} amountCents={pack.amountCents} locale={loc} {...buyLabels} />
           {trust}
         </div>
       </main>
@@ -209,7 +209,7 @@ export default async function PackDetailPage({ params }: PageProps) {
           </>
         )}
 
-        <PackBuyButton packId={pack.packId} locale={loc} {...buyLabels} />
+        <PackBuyButton packId={pack.packId} packName={pack.displayName} amountCents={pack.amountCents} locale={loc} {...buyLabels} />
         {trust}
 
         <div className={styles.upsell}>

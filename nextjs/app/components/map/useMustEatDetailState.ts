@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { haversineDistance, type UserLocation } from '@/lib/map'
 import type { MapMustEat } from '@/lib/types'
+import { trackEvent } from '@/lib/analytics'
 
 export const UNLOCK_RADIUS_METERS = 50
 
@@ -54,6 +55,12 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthe
       return
     }
     if (canUnlock && isAuthed) {
+      trackEvent('must_eat_reveal_attempt', {
+        must_eat_id: mustEat._id,
+        restaurant_id: mustEat.restaurant._id,
+        result: 'unlocked',
+        distance_meters: distance === null ? -1 : Math.round(distance),
+      })
       const rect = e.currentTarget.getBoundingClientRect()
       setRevealOrigin(rect)
       onUnlock()
@@ -62,9 +69,21 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthe
     // In range but not signed in: the reveal is earned — route to login so it
     // can land in the user's deck.
     if (canUnlock && !isAuthed && onRequireLogin) {
+      trackEvent('must_eat_reveal_attempt', {
+        must_eat_id: mustEat._id,
+        restaurant_id: mustEat.restaurant._id,
+        result: 'login_required',
+        distance_meters: distance === null ? -1 : Math.round(distance),
+      })
       onRequireLogin()
       return
     }
+    trackEvent('must_eat_reveal_attempt', {
+      must_eat_id: mustEat._id,
+      restaurant_id: mustEat.restaurant._id,
+      result: distance === null ? 'location_missing' : 'too_far',
+      distance_meters: distance === null ? -1 : Math.round(distance),
+    })
     setTapping(true)
     window.setTimeout(() => setTapping(false), 600)
   }

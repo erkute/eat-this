@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth, useMagicLink } from '@/lib/auth';
 import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { routing } from '@/i18n/routing';
+import { trackEvent } from '@/lib/analytics';
 import styles from '@/app/[locale]/login/login.module.css';
 
 interface LoginPanelProps {
@@ -26,6 +27,23 @@ export default function LoginPanel({ onBack, modal = false, mustEatGate = false 
 
   const [email, setEmail]           = useState('');
   const [googleBusy, setGoogleBusy] = useState(false);
+  const authMethod = useRef<'google' | null>(null);
+
+  useEffect(() => {
+    trackEvent('login_view', {
+      surface: modal ? 'modal' : 'page',
+      context: mustEatGate ? 'must_eat_gate' : 'general',
+    });
+  }, [modal, mustEatGate]);
+
+  useEffect(() => {
+    if (!user || authMethod.current !== 'google') return;
+    authMethod.current = null;
+    const created = new Date(user.metadata.creationTime ?? 0).getTime();
+    const signedIn = new Date(user.metadata.lastSignInTime ?? 0).getTime();
+    const event = Math.abs(signedIn - created) < 10_000 ? 'sign_up' : 'login';
+    trackEvent(event, { method: 'google' });
+  }, [user]);
 
   // Redirect to the home hub after sign-in on the standalone /login page. In the
   // modal, BridgeAuth owns this redirect (it controls the modal lifecycle), so
@@ -36,10 +54,13 @@ export default function LoginPanel({ onBack, modal = false, mustEatGate = false 
   }, [user, loading, modal, router, locale]);
 
   const handleGoogle = useCallback(async () => {
+    authMethod.current = 'google';
+    trackEvent('login_start', { method: 'google' });
     setGoogleBusy(true);
     try {
       await signInWithGoogle();
     } catch {
+      authMethod.current = null;
       setGoogleBusy(false);
     }
   }, [signInWithGoogle]);

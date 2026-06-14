@@ -1,10 +1,13 @@
 'use client'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '@/lib/auth'
+import { trackEvent } from '@/lib/analytics'
 import styles from './PackDetail.module.css'
 
 interface Props {
   packId: string
+  packName: string
+  amountCents: number
   locale: 'de' | 'en'
   label: string
   pendingLabel: string
@@ -19,6 +22,8 @@ interface Props {
 // hand the browser off to it.
 export default function PackBuyButton({
   packId,
+  packName,
+  amountCents,
   locale,
   label,
   pendingLabel,
@@ -29,8 +34,24 @@ export default function PackBuyButton({
   const { user } = useAuth()
   const [state, setState] = useState<'idle' | 'pending' | 'owned' | 'error'>('idle')
 
+  useEffect(() => {
+    trackEvent('view_item', {
+      item_id: packId,
+      item_name: packName,
+      currency: 'EUR',
+      value: amountCents / 100,
+    })
+  }, [packId, packName, amountCents])
+
   const onBuy = useCallback(async () => {
     if (state === 'pending') return
+    trackEvent('begin_checkout', {
+      item_id: packId,
+      item_name: packName,
+      currency: 'EUR',
+      value: amountCents / 100,
+      checkout_mode: user ? 'authenticated' : 'guest',
+    })
     setState('pending')
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' }
@@ -43,10 +64,12 @@ export default function PackBuyButton({
       })
 
       if (res.status === 409) {
+        trackEvent('checkout_already_owned', { item_id: packId })
         setState('owned')
         return
       }
       if (!res.ok) {
+        trackEvent('checkout_error', { item_id: packId, status: res.status })
         setState('error')
         return
       }
@@ -57,9 +80,10 @@ export default function PackBuyButton({
       }
       setState('error')
     } catch {
+      trackEvent('checkout_error', { item_id: packId, status: 'network' })
       setState('error')
     }
-  }, [user, packId, locale, state])
+  }, [user, packId, packName, amountCents, locale, state])
 
   if (state === 'owned') {
     return (

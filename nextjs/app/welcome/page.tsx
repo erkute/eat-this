@@ -12,6 +12,7 @@ import {
 } from 'firebase/auth';
 import { auth, getDb } from '@/lib/firebase/config';
 import { routing } from '@/i18n/routing';
+import { handoffEvent } from '@/lib/analytics';
 import styles from './auth-action.module.css';
 
 // /welcome lives under its own root layout (separate <html> tree); the
@@ -70,6 +71,7 @@ type State =
 // the needs-email fallback.
 function finishSignIn(user: User, setState: (s: State) => void) {
   localStorage.removeItem('emailForSignIn');
+  handoffEvent(user.displayName ? 'login' : 'sign_up', { method: 'email_link' });
   if (!user.displayName) {
     setState({ kind: 'needs-identity', user });
     return;

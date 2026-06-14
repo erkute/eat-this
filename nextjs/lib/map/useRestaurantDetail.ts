@@ -17,6 +17,7 @@ export interface RestaurantMapDetail {
   phone?: string
   mapsUrl?: string
   website?: string
+  menuUrl?: string
   instagramHandle?: string
   reservationUrl?: string
   tip?: string

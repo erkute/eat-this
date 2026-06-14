@@ -3,7 +3,7 @@ import { getAllNewsArticles } from '@/lib/sanity.server'
 import { getFreeSurfaceData } from '@/lib/map/free-surface'
 import { categoryArt } from '@/lib/categoryArt'
 import { pickSpotOfDay, type SpotCandidate } from './pickSpotOfDay'
-import { assembleDistricts, type FeatureRaw, type DistrictRow } from './assembleDistricts'
+import { assembleDistricts, pickWeeklyFeatureSlug, type DistrictRow } from './assembleDistricts'
 export type { HubDistrict, HubDistrictSpot } from './assembleDistricts'
 
 export interface HomeSpot extends SpotCandidate {
@@ -63,18 +63,6 @@ const homeWeekCategoriesQuery = `*[_type == "homeWeek" && weekStart <= $today] |
   line
 }`
 
-const featureQuery = `*[_type == "homeWeek" && weekStart <= $today] | order(weekStart desc)[0]{
-  "name": bezirk->name,
-  "slug": bezirk->slug.current,
-  "tagline": coalesce(bezirkTagline, select($locale == "en" => coalesce(bezirk->descriptionEn, bezirk->description), bezirk->description)),
-  "spots": coalesce(bezirkSpots[]->{
-    "name": name,
-    "slug": slug.current,
-    "image": image.asset->url,
-    "category": select($locale == "en" => categories[0]->nameEn, categories[0]->name)
-  }, [])
-}`
-
 const districtsQuery = `*[_type == "bezirk" && defined(slug.current)]{
   "name": name,
   "slug": slug.current,
@@ -98,14 +86,13 @@ export async function getHomeData(
   locale: 'de' | 'en',
   today: string = new Date().toISOString().slice(0, 10),
 ): Promise<HomeData> {
-  const [candidates, freeSurface, categories, feature, districtRows, articles, catNameRows] = await Promise.all([
+  const [candidates, freeSurface, categories, districtRows, articles, catNameRows] = await Promise.all([
     client.fetch<HomeSpot[]>(spotCandidatesQuery, { locale }, { next: { revalidate: 3600, tags: ['restaurant', 'mustEat'] } }),
     // 60s-Modul-TTL (Sanity-Webhook flusht eager via invalidateFreeSurfaceCache)
     // — bewusst kürzer als die 1h-Next.js-Tag-Caches drumherum, konsistent mit
     // getInitialAnonMapData + /api/map-data.
     getFreeSurfaceData(),
     client.fetch<HubCategory[] | null>(homeWeekCategoriesQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
-    client.fetch<FeatureRaw | null>(featureQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
     client.fetch<DistrictRow[]>(districtsQuery, { locale }, { next: { revalidate: 3600, tags: ['bezirk', 'restaurant', 'mustEat'] } }),
     getAllNewsArticles(),
     client.fetch<{ slug: string; name: string }[]>(categoryNamesQuery, { locale }, { next: { revalidate: 3600, tags: ['category'] } }),
@@ -144,9 +131,10 @@ export async function getHomeData(
     district: c.district,
     category: locale === 'en' ? (c.categoryEn ?? c.categoryDe) : c.categoryDe,
   }))
-  // Unified district switcher: editorial feature first (marked), rest by spot
-  // count. Feature keeps its curated picks; others get featured→must-eat ranked
-  // auto-picks. Capped at 10 tabs.
-  const districts = assembleDistricts(feature, districtRows ?? [])
+  // Unified district switcher: the weekly-rotated feature first (marked "★ Diese
+  // Woche"), the rest by spot count. The rotation is deterministic per calendar
+  // week — no homeWeek doc needed. Capped at 10 tabs.
+  const featureSlug = pickWeeklyFeatureSlug(districtRows ?? [], today)
+  const districts = assembleDistricts(featureSlug, districtRows ?? [])
   return { spotOfDay: pickSpotOfDay(candidates, today), newOnMap, categories: homeCategories, districts, magazine, categoryNames }
 }

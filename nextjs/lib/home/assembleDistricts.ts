@@ -22,25 +22,32 @@ export interface DistrictRow {
   spots: HubDistrictSpot[]
 }
 
-/** The editorial "Bezirk der Woche" from the homeWeek doc. `spots` are the curated picks (may be empty). */
-export interface FeatureRaw {
-  name: string
-  slug: string
-  tagline: string | null
-  spots: HubDistrictSpot[]
+/**
+ * Deterministic weekly rotation for the featured district ("Bezirk der Woche").
+ * Advances exactly one step per calendar week (Monday boundary) over a stable,
+ * slug-sorted pool — no editorial doc or cron needed; the same `today` always
+ * yields the same pick, so it is cache-safe. `today` is an ISO date (YYYY-MM-DD).
+ */
+export function pickWeeklyFeatureSlug(rows: DistrictRow[], today: string): string | null {
+  if (rows.length === 0) return null
+  const pool = rows.map((r) => r.slug).sort((a, b) => a.localeCompare(b))
+  const epochDays = Math.floor(Date.parse(`${today}T00:00:00Z`) / 86_400_000)
+  // 1970-01-01 was a Thursday; +3 shifts the weekly boundary to Monday.
+  const week = Math.floor((epochDays + 3) / 7)
+  return pool[((week % pool.length) + pool.length) % pool.length]
 }
 
 /**
- * Build the unified district list for the home switcher: editorial feature first
- * (marked), the rest by spot count. Feature uses its curated spots/tagline when
- * present, otherwise falls back to the matching auto-picked row. Capped at `cap`.
+ * Build the unified district list for the home switcher: the rotated feature
+ * first (marked), the rest by spot count. Tagline + spots come straight from the
+ * district row. Capped at `cap`.
  */
 export function assembleDistricts(
-  feature: FeatureRaw | null,
+  featureSlug: string | null,
   rows: DistrictRow[],
   cap = 10,
 ): HubDistrict[] {
-  const others: HubDistrict[] = rows.map((r) => ({
+  const all: HubDistrict[] = rows.map((r) => ({
     name: r.name,
     slug: r.slug,
     tagline: r.tagline,
@@ -48,17 +55,10 @@ export function assembleDistricts(
     spots: r.spots,
   }))
 
-  if (!feature || !feature.slug) return others.slice(0, cap)
+  const idx = featureSlug ? all.findIndex((d) => d.slug === featureSlug) : -1
+  if (idx < 0) return all.slice(0, cap)
 
-  const rowMatch = rows.find((r) => r.slug === feature.slug)
-  const featureDistrict: HubDistrict = {
-    name: feature.name,
-    slug: feature.slug,
-    tagline: feature.tagline ?? rowMatch?.tagline ?? null,
-    isFeature: true,
-    spots: feature.spots.length ? feature.spots : (rowMatch?.spots ?? []),
-  }
-
-  const rest = others.filter((d) => d.slug !== feature.slug)
-  return [featureDistrict, ...rest].slice(0, cap)
+  const [feat] = all.splice(idx, 1)
+  feat.isFeature = true
+  return [feat, ...all].slice(0, cap)
 }

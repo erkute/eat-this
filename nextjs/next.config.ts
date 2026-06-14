@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/email/spot-card": ["./assets/fonts/**/*"],
     "/api/og/restaurant": ["./assets/fonts/**/*"],
+    "/api/og/badge": ["./assets/fonts/**/*"],
   },
 
   images: {

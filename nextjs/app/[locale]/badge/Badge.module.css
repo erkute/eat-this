@@ -1,0 +1,107 @@
+.wrap {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: clamp(24px, 6vw, 64px) 20px 96px;
+  display: flex;
+  flex-direction: column;
+}
+
+.h1 {
+  font-family: var(--font-display, 'Schoolbell'), cursive;
+  font-size: clamp(2rem, 6vw, 3rem);
+  color: var(--brand-red, #a02814);
+  margin: 0 0 12px;
+  line-height: 1.05;
+}
+
+.intro {
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--accent-ink, #1c1c1c);
+  margin: 0 0 32px;
+  opacity: 0.9;
+}
+
+.label {
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-ink, #1c1c1c);
+  opacity: 0.7;
+  margin: 18px 0 8px;
+}
+
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 1rem;
+  border: 2px solid var(--brand-red, #a02814);
+  border-radius: 12px;
+  background: var(--bg, #fff);
+  color: var(--accent-ink, #1c1c1c);
+}
+
+.input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(160, 40, 20, 0.18);
+}
+
+.previewBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 28px 0 8px;
+  padding: 24px;
+  border-radius: 16px;
+  background: rgba(160, 40, 20, 0.05);
+}
+
+.previewLink {
+  display: inline-flex;
+  text-decoration: none;
+}
+
+.previewLink img {
+  display: block;
+  height: auto;
+}
+
+.snippet {
+  width: 100%;
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  padding: 14px 16px;
+  border: 2px solid rgba(0, 0, 0, 0.18);
+  border-radius: 12px;
+  background: var(--bg, #fff);
+  color: var(--accent-ink, #1c1c1c);
+  resize: vertical;
+}
+
+.copyBtn {
+  align-self: flex-start;
+  margin-top: 14px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--brand-red, #a02814);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.copyBtn:hover {
+  background: var(--brand-red-hover, #7e1f0f);
+}
+
+.hint {
+  font-size: 0.9rem;
+  color: var(--accent-ink, #1c1c1c);
+  opacity: 0.7;
+  margin: 14px 0 0;
+}

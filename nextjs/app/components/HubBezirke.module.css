@@ -24,7 +24,7 @@
 .tabs::-webkit-scrollbar { display: none; }
 .tab {
   position: relative; flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px;
-  background: transparent; color: #fbf8ee; border: 1.6px solid #4a443b; border-radius: 11px;
+  background: transparent; color: #fbf8ee; border: 1.6px solid #4a443b; border-radius: 0;
   padding: 10px 16px 11px; cursor: pointer; font-family: var(--font-ranchers);
   text-transform: uppercase; font-size: 16px; line-height: 1; letter-spacing: .03em; white-space: nowrap;
   transition: transform .16s cubic-bezier(.34, 1.56, .64, 1), border-color .16s, background .16s, color .16s;
@@ -36,7 +36,7 @@
 .featBadge {
   position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
   font-size: 8px; letter-spacing: .14em; background: var(--c-coral, #ff5a4d); color: #fff;
-  border-radius: 6px; padding: 3px 7px 2px; white-space: nowrap;
+  border-radius: 0; padding: 3px 7px 2px; white-space: nowrap;
 }
 
 .panel { padding-top: 14px; }
@@ -52,10 +52,6 @@
 }
 .tileImg { object-fit: cover; transition: transform .5s cubic-bezier(.22, .9, .3, 1); }
 .tile:hover .tileImg { transform: scale(1.06); }
-.rank {
-  position: absolute; top: 11px; left: 12px; font-family: var(--font-ranchers); font-size: 15px;
-  color: var(--brand-yellow, #ffd84a); line-height: 1; text-shadow: 0 1px 6px rgba(0, 0, 0, .6); z-index: 1;
-}
 .tileBody {
   position: absolute; left: 0; right: 0; bottom: 0; padding: 46px 13px 14px;
   background: linear-gradient(180deg, rgba(10, 8, 6, 0) 0%, rgba(10, 8, 6, .35) 42%, rgba(10, 8, 6, .9) 100%);
@@ -66,7 +62,7 @@
 .foot { margin-top: 24px; }
 .cta {
   display: inline-block; font-family: var(--font-ranchers); text-transform: uppercase; letter-spacing: .1em;
-  font-size: 13px; text-decoration: none; padding: 12px 18px; border-radius: 10px;
+  font-size: 13px; text-decoration: none; padding: 12px 18px; border-radius: 0;
   background: var(--brand-yellow, #ffd84a); color: #0a0a0a;
 }
 

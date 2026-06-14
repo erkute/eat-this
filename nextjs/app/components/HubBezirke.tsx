@@ -69,7 +69,7 @@ export default function HubBezirke({ districts }: Props) {
             <h3 className={styles.panelName}>{d.name}</h3>
             {d.tagline && <p className={styles.panelTag}>{d.tagline}</p>}
             <div className={styles.grid}>
-              {d.spots.map((s, n) => (
+              {d.spots.map((s) => (
                 <Link key={s.slug} href={`/restaurant/${s.slug}`} className={styles.tile}>
                   {i === active && s.image && (
                     <Image
@@ -80,7 +80,6 @@ export default function HubBezirke({ districts }: Props) {
                       className={styles.tileImg}
                     />
                   )}
-                  <span className={styles.rank}>{String(n + 1).padStart(2, '0')}</span>
                   <div className={styles.tileBody}>
                     {s.category && <p className={styles.tileCat}>{s.category}</p>}
                     <h4 className={styles.tileName}>{normalizeName(s.name)}</h4>

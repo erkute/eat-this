@@ -1,8 +1,10 @@
 import { client } from '@/lib/sanity'
-import { getAllNewsArticles, getAllBezirkeWithStats } from '@/lib/sanity.server'
+import { getAllNewsArticles } from '@/lib/sanity.server'
 import { getFreeSurfaceData } from '@/lib/map/free-surface'
 import { categoryArt } from '@/lib/categoryArt'
 import { pickSpotOfDay, type SpotCandidate } from './pickSpotOfDay'
+import { assembleDistricts, type FeatureRaw, type DistrictRow } from './assembleDistricts'
+export type { HubDistrict, HubDistrictSpot } from './assembleDistricts'
 
 export interface HomeSpot extends SpotCandidate {
   name: string
@@ -27,21 +29,6 @@ export interface HubCategory {
   line: string | null
 }
 
-interface HubBezirkSpot {
-  _id: string
-  name: string
-  slug: string
-  image: string | null
-  category: string | null
-}
-
-export interface HubBezirk {
-  name: string
-  slug: string
-  tagline: string | null
-  spots: HubBezirkSpot[]
-}
-
 export interface HubArticle {
   title: string
   slug: string
@@ -49,18 +36,11 @@ export interface HubArticle {
   kicker: string | null
 }
 
-export interface HubBezirkChip {
-  name: string
-  slug: string
-  count: number
-}
-
 export interface HomeData {
   spotOfDay: HomeSpot | null
   newOnMap: NewOnMapCard[]
   categories: HubCategory[]
-  bezirkOfWeek: HubBezirk | null
-  bezirke: HubBezirkChip[]
+  districts: import('./assembleDistricts').HubDistrict[]
   magazine: HubArticle[]
   categoryNames: Record<string, string>
 }
@@ -83,18 +63,30 @@ const homeWeekCategoriesQuery = `*[_type == "homeWeek" && weekStart <= $today] |
   line
 }`
 
-const bezirkOfWeekQuery = `*[_type == "homeWeek" && weekStart <= $today] | order(weekStart desc)[0]{
+const featureQuery = `*[_type == "homeWeek" && weekStart <= $today] | order(weekStart desc)[0]{
   "name": bezirk->name,
   "slug": bezirk->slug.current,
-  "tagline": bezirkTagline,
-  "spots": bezirkSpots[]->{
-    _id,
+  "tagline": coalesce(bezirkTagline, select($locale == "en" => coalesce(bezirk->descriptionEn, bezirk->description), bezirk->description)),
+  "spots": coalesce(bezirkSpots[]->{
+    "name": name,
+    "slug": slug.current,
+    "image": image.asset->url,
+    "category": select($locale == "en" => categories[0]->nameEn, categories[0]->name)
+  }, [])
+}`
+
+const districtsQuery = `*[_type == "bezirk" && defined(slug.current)]{
+  "name": name,
+  "slug": slug.current,
+  "tagline": select($locale == "en" => coalesce(descriptionEn, description), description),
+  "count": count(*[_type == "restaurant" && isOpen == true && !(_id in path("drafts.**")) && references(^._id)]),
+  "spots": *[_type == "restaurant" && isOpen == true && defined(image) && !(_id in path("drafts.**")) && references(^._id)] | order(featured desc, count(*[_type == "mustEat" && references(^._id)]) desc)[0...4]{
     "name": name,
     "slug": slug.current,
     "image": image.asset->url,
     "category": select($locale == "en" => categories[0]->nameEn, categories[0]->name)
   }
-}`
+}[count >= 5] | order(count desc)`
 
 const categoryNamesQuery = `*[_type == "category" && defined(slug.current)]{
   "slug": slug.current,
@@ -106,25 +98,18 @@ export async function getHomeData(
   locale: 'de' | 'en',
   today: string = new Date().toISOString().slice(0, 10),
 ): Promise<HomeData> {
-  const [candidates, freeSurface, categories, bezirkOfWeek, articles, catNameRows, bezirkRows] = await Promise.all([
+  const [candidates, freeSurface, categories, feature, districtRows, articles, catNameRows] = await Promise.all([
     client.fetch<HomeSpot[]>(spotCandidatesQuery, { locale }, { next: { revalidate: 3600, tags: ['restaurant', 'mustEat'] } }),
     // 60s-Modul-TTL (Sanity-Webhook flusht eager via invalidateFreeSurfaceCache)
     // — bewusst kürzer als die 1h-Next.js-Tag-Caches drumherum, konsistent mit
     // getInitialAnonMapData + /api/map-data.
     getFreeSurfaceData(),
     client.fetch<HubCategory[] | null>(homeWeekCategoriesQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
-    client.fetch<HubBezirk | null>(bezirkOfWeekQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
+    client.fetch<FeatureRaw | null>(featureQuery, { locale, today }, { next: { revalidate: 3600, tags: ['homeWeek'] } }),
+    client.fetch<DistrictRow[]>(districtsQuery, { locale }, { next: { revalidate: 3600, tags: ['bezirk', 'restaurant', 'mustEat'] } }),
     getAllNewsArticles(),
     client.fetch<{ slug: string; name: string }[]>(categoryNamesQuery, { locale }, { next: { revalidate: 3600, tags: ['category'] } }),
-    getAllBezirkeWithStats(),
   ])
-  // Browse-by-district chips → /map?bezirk=. Only districts with a real
-  // selection (≥5 open spots) — a near-empty filter would be a dead end.
-  // Most-populated first.
-  const bezirke: HubBezirkChip[] = (bezirkRows ?? [])
-    .filter((b) => b.slug && (b.restaurantCount ?? 0) >= 5)
-    .sort((a, b) => (b.restaurantCount ?? 0) - (a.restaurantCount ?? 0))
-    .map((b) => ({ name: b.name, slug: b.slug, count: b.restaurantCount ?? 0 }))
   // a.title is already the EN base (or DE fallback) via the news GROQ coalesce;
   // a.titleDe is the German override. So de → titleDe||title, en → title.
   // Desktop renders the magazine as a 3-up grid → 6 fills two full rows
@@ -159,5 +144,9 @@ export async function getHomeData(
     district: c.district,
     category: locale === 'en' ? (c.categoryEn ?? c.categoryDe) : c.categoryDe,
   }))
-  return { spotOfDay: pickSpotOfDay(candidates, today), newOnMap, categories: homeCategories, bezirkOfWeek, bezirke, magazine, categoryNames }
+  // Unified district switcher: editorial feature first (marked), rest by spot
+  // count. Feature keeps its curated picks; others get featured→must-eat ranked
+  // auto-picks. Capped at 10 tabs.
+  const districts = assembleDistricts(feature, districtRows ?? [])
+  return { spotOfDay: pickSpotOfDay(candidates, today), newOnMap, categories: homeCategories, districts, magazine, categoryNames }
 }

@@ -2,7 +2,6 @@ import HubHero from './HubHero'
 import HubNewOnMap from './HubNewOnMap'
 import HubMustEatsTeaser from './HubMustEatsTeaser'
 import HubCategories from './HubCategories'
-import HubBezirkOfWeek from './HubBezirkOfWeek'
 import HubBezirke from './HubBezirke'
 import HubMagazine from './HubMagazine'
 import HubPacks from './HubPacks'
@@ -38,8 +37,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         <HubMustEatsTeaser initialMapData={initialMapData} />
         <HubMagazine articles={initialData.magazine} />
         <HubCategories categories={initialData.categories} />
-        <HubBezirkOfWeek bezirk={initialData.bezirkOfWeek} />
-        <HubBezirke bezirke={initialData.bezirke} />
+        <HubBezirke districts={initialData.districts} />
         <HubPacks categoryNames={initialData.categoryNames} />
         <HubAllBerlin />
         <HubFaq locale={locale} />

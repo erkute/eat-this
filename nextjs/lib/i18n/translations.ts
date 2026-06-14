@@ -43,12 +43,11 @@ const en = {
       toMap: "To the map →",
     },
     bezirke: {
-      title: "Berlin by district",
-      sub: "Pick your neighbourhood",
-    },
-    bezirkOfWeek: {
-      kicker: "District of the week",
-      more: "More from {name} →",
+      kicker: "Discover Berlin",
+      title: "By district",
+      lead: "Every neighbourhood cooks differently. Pick yours — we'll show you where to eat well.",
+      featBadge: "★ This week",
+      cta: "All spots in {name} →",
     },
     allBerlin: {
       kicker: "Berlin · Complete",
@@ -413,12 +412,11 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       toMap: "Auf die Map →",
     },
     bezirke: {
-      title: "Berlin nach Bezirken",
-      sub: "Wähl dein Viertel",
-    },
-    bezirkOfWeek: {
-      kicker: "Bezirk der Woche",
-      more: "Mehr aus {name} →",
+      kicker: "Entdecke Berlin",
+      title: "Nach Bezirken",
+      lead: "Jeder Kiez kocht anders. Wähl deinen Bezirk – wir zeigen dir, wo du dort wirklich gut isst.",
+      featBadge: "★ Diese Woche",
+      cta: "Alle Spots in {name} →",
     },
     allBerlin: {
       kicker: "Berlin · Komplett",

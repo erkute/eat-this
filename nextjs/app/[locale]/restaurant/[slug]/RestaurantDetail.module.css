@@ -304,19 +304,6 @@
   color: var(--ink);
   margin: 0;
 }
-.orderMenuLink {
-  display: inline-block;
-  margin-top: 14px;
-  font-family: var(--f-display);
-  font-size: 13px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink);
-  text-decoration: underline;
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 3px;
-}
-
 /* ============================================================
    STORY (description with drop-cap)
 ============================================================ */

@@ -276,16 +276,6 @@ export default async function RestaurantPage({ params }: PageProps) {
                 )
               })}
             </ul>
-            {r.menuUrl && (
-              <a
-                className={styles.orderMenuLink}
-                href={r.menuUrl}
-                target="_blank"
-                rel="noopener nofollow noreferrer"
-              >
-                {de ? 'Zur offiziellen Speisekarte' : 'See the full menu'}
-              </a>
-            )}
           </section>
         )}
 
@@ -329,11 +319,18 @@ export default async function RestaurantPage({ params }: PageProps) {
 
         {/* Map entry lives in the big MapPromoCTA banner below — no second
             "Map öffnen" button up here. */}
-        {websiteUrl && (
+        {(websiteUrl || r.menuUrl) && (
           <div className={styles.acts}>
-            <a className={`${styles.act} ${styles.actPrimary}`} href={websiteUrl} target="_blank" rel="noopener nofollow noreferrer">
-              Website
-            </a>
+            {websiteUrl && (
+              <a className={`${styles.act} ${styles.actPrimary}`} href={websiteUrl} target="_blank" rel="noopener nofollow noreferrer">
+                Website
+              </a>
+            )}
+            {r.menuUrl && (
+              <a className={styles.act} href={r.menuUrl} target="_blank" rel="noopener nofollow noreferrer">
+                {de ? 'Speisekarte' : 'Menu'}
+              </a>
+            )}
           </div>
         )}
 

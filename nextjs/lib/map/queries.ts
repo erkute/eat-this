@@ -7,7 +7,7 @@ const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
 }`
 
 // Map list/marker payload — deliberately WITHOUT the detail-only fields
-// (address, phone, website, reservationUrl, mapsUrl, instagramHandle, tip,
+// (address, phone, website, menuUrl, reservationUrl, mapsUrl, instagramHandle, tip,
 // description, photoCredit*). Those are fetched on demand when the detail
 // sheet opens (restaurantMapDetailQuery / /api/restaurant-detail). Two wins:
 // the anon map payload shrinks (description is the bulk), and the whole
@@ -43,6 +43,7 @@ export const restaurantMapDetailQuery = `
     phone,
     mapsUrl,
     website,
+    menuUrl,
     instagramHandle,
     reservationUrl,
     tip,

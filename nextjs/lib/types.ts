@@ -208,6 +208,7 @@ export interface MapRestaurant {
   lng: number
   mapsUrl?: string
   website?: string
+  menuUrl?: string
   instagramHandle?: string
   reservationUrl?: string
   openingHours?: OpeningHourSlot[]
@@ -253,4 +254,3 @@ export interface OpenStatus {
   label: string
   minutesUntilChange: number | null
 }
-

@@ -6,29 +6,30 @@
   flex-direction: column;
 }
 
+/* Home display language: big Schoolbell, uppercase. */
 .h1 {
-  font-family: var(--font-display, 'Schoolbell'), cursive;
-  font-size: clamp(2rem, 6vw, 3rem);
-  color: var(--brand-red, #a02814);
-  margin: 0 0 12px;
+  font-family: var(--font-ranchers), var(--font-display, 'Schoolbell'), cursive;
+  font-size: clamp(2.4rem, 8vw, 3.6rem);
+  text-transform: uppercase;
   line-height: 1.05;
+  color: var(--text-primary, #14100c);
+  margin: 0 0 14px;
 }
 
 .intro {
   font-size: 1.05rem;
   line-height: 1.55;
-  color: var(--accent-ink, #1c1c1c);
+  color: var(--text-secondary, #444);
   margin: 0 0 32px;
-  opacity: 0.9;
+  max-width: 46ch;
 }
 
 .label {
-  font-weight: 700;
-  font-size: 0.82rem;
-  letter-spacing: 0.04em;
+  font-family: var(--font-ranchers), var(--font-display, 'Schoolbell'), cursive;
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--accent-ink, #1c1c1c);
-  opacity: 0.7;
+  color: var(--text-secondary, #555);
   margin: 18px 0 8px;
 }
 
@@ -38,24 +39,31 @@
   font-size: 1rem;
   border: 2px solid var(--brand-red, #a02814);
   border-radius: 12px;
-  background: var(--bg, #fff);
-  color: var(--accent-ink, #1c1c1c);
+  background: var(--surface-card, #fff);
+  color: var(--text-primary, #14100c);
+}
+
+.input::placeholder {
+  color: var(--text-muted, #999);
 }
 
 .input:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(160, 40, 20, 0.18);
+  box-shadow: 0 0 0 3px rgba(160, 40, 20, 0.25);
 }
 
 .previewBlock {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
   margin: 28px 0 8px;
-  padding: 24px;
+  padding: 28px;
   border-radius: 16px;
-  background: rgba(160, 40, 20, 0.05);
+  /* Warm cream tile in both themes so the red badge always reads on it —
+     mirrors the home hero's #fbf8ee surface. */
+  background: #fbf8ee;
+  border: 1px solid rgba(20, 16, 12, 0.12);
 }
 
 .previewLink {
@@ -74,20 +82,23 @@
   font-size: 0.82rem;
   line-height: 1.5;
   padding: 14px 16px;
-  border: 2px solid rgba(0, 0, 0, 0.18);
+  border: 2px solid rgba(127, 127, 127, 0.35);
   border-radius: 12px;
-  background: var(--bg, #fff);
-  color: var(--accent-ink, #1c1c1c);
+  background: var(--surface-card, #fff);
+  color: var(--text-primary, #14100c);
   resize: vertical;
 }
 
+/* Home primary-button language: red pill, cream label, Schoolbell. */
 .copyBtn {
   align-self: flex-start;
-  margin-top: 14px;
-  padding: 12px 24px;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #fff;
+  margin-top: 16px;
+  padding: 13px 28px;
+  font-family: var(--font-ranchers), var(--font-display, 'Schoolbell'), cursive;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fbf8ee;
   background: var(--brand-red, #a02814);
   border: none;
   border-radius: 999px;
@@ -101,7 +112,6 @@
 
 .hint {
   font-size: 0.9rem;
-  color: var(--accent-ink, #1c1c1c);
-  opacity: 0.7;
+  color: var(--text-muted, #777);
   margin: 14px 0 0;
 }

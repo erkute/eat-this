@@ -50,12 +50,16 @@ export default function BadgeGenerator({ restaurants, locale, siteUrl }: Props) 
     [restaurants, query],
   )
 
-  const badgeSrc = `${siteUrl}/api/og/badge${locale === 'en' ? '?lang=en' : ''}`
+  const langQuery = locale === 'en' ? '?lang=en' : ''
+  // Preview loads from the current host (works locally AND in prod); the copy
+  // snippet must be the absolute prod URL, since restaurants embed it elsewhere.
+  const previewSrc = `/api/og/badge${langQuery}`
+  const snippetSrc = `${siteUrl}/api/og/badge${langQuery}`
   const pageBase = locale === 'en' ? `${siteUrl}/en` : siteUrl
   const linkHref = selected ? `${pageBase}/restaurant/${selected.slug}` : ''
 
   const snippet = selected
-    ? `<a href="${linkHref}" target="_blank" rel="noopener">\n  <img src="${badgeSrc}" alt="${t.alt}" width="260" height="75" loading="lazy" style="border:0" />\n</a>`
+    ? `<a href="${linkHref}" target="_blank" rel="noopener">\n  <img src="${snippetSrc}" alt="${t.alt}" width="270" height="85" loading="lazy" style="border:0" />\n</a>`
     : ''
 
   async function copy() {
@@ -98,7 +102,7 @@ export default function BadgeGenerator({ restaurants, locale, siteUrl }: Props) 
             <span className={styles.label}>{t.previewLabel}</span>
             <a className={styles.previewLink} href={linkHref} target="_blank" rel="noopener">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={badgeSrc} alt={t.alt} width={260} height={75} />
+              <img src={previewSrc} alt={t.alt} width={270} height={85} />
             </a>
           </div>
 

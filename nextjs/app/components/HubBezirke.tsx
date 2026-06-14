@@ -1,40 +1,99 @@
-import { CSSProperties } from 'react'
+'use client'
+
+import { useState, type KeyboardEvent } from 'react'
+import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
-import type { HubBezirkChip } from '@/lib/home/getHomeData'
+import { normalizeName } from '@/lib/normalizeName'
+import type { HubDistrict } from '@/lib/home/getHomeData'
 import styles from './HubBezirke.module.css'
 
 interface Props {
-  bezirke: HubBezirkChip[]
+  districts: HubDistrict[]
 }
 
-// Deterministic tilt per chip (index-based, not random) so SSR and client
-// agree — the slight rotation gives the chips a pinned-sticker feel.
-const TILTS = [-2.4, 1.6, -1, 2.2, -1.8, 1.2, -2, 0.8]
-
-// Browse-by-district: each chip is a "sticker" deep-linking to the map with
-// that bezirk filter pre-applied (?bezirk=<slug>), with its open-spot count as
-// a badge. rel="nofollow" — the map is the noindex tool.
-export default function HubBezirke({ bezirke }: Props) {
+// One always-dark block that merges "Bezirk der Woche" + browse-by-district.
+// Every district panel is rendered into the SSR HTML (inactive ones `hidden`)
+// so all /bezirk/[slug] and /restaurant/[slug] links stay crawlable; only the
+// active panel mounts its <Image>s to keep image requests to four at a time.
+export default function HubBezirke({ districts }: Props) {
   const t = useTranslations('hub.bezirke')
-  if (bezirke.length === 0) return null
+  const [active, setActive] = useState(0)
+  if (districts.length === 0) return null
+
+  function onTabKey(e: KeyboardEvent<HTMLButtonElement>, i: number) {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return
+    e.preventDefault()
+    const next = e.key === 'ArrowRight' ? (i + 1) % districts.length : (i - 1 + districts.length) % districts.length
+    setActive(next)
+    const sibling = e.currentTarget.parentElement?.children[next] as HTMLElement | undefined
+    sibling?.focus()
+  }
+
   return (
     <section className={styles.section} data-hub-bezirke="">
-      <h2 className={styles.heading}>{t('title')}</h2>
-      <p className={styles.sub}>{t('sub')}</p>
-      <div className={styles.grid}>
-        {bezirke.map((b, i) => (
-          <Link
-            key={b.slug}
-            href={`/map?bezirk=${b.slug}`}
-            rel="nofollow"
-            className={styles.chip}
-            style={{ ['--rot' as string]: `${TILTS[i % TILTS.length]}deg` } as CSSProperties}
+      <div className={styles.inner}>
+        <p className={styles.kicker}>{t('kicker')}</p>
+        <h2 className={styles.heading}>{t('title')}</h2>
+        <p className={styles.lead}>{t('lead')}</p>
+
+        <div className={styles.tabs} role="tablist" aria-label={t('title')}>
+          {districts.map((d, i) => (
+            <button
+              key={d.slug}
+              type="button"
+              role="tab"
+              id={`bz-tab-${d.slug}`}
+              aria-selected={i === active}
+              aria-controls={`bz-panel-${d.slug}`}
+              tabIndex={i === active ? 0 : -1}
+              className={`${styles.tab} ${d.isFeature ? styles.feat : ''} ${i === active ? styles.active : ''}`}
+              onClick={() => setActive(i)}
+              onKeyDown={(e) => onTabKey(e, i)}
+            >
+              {d.isFeature && <span className={styles.featBadge}>{t('featBadge')}</span>}
+              {d.name}
+            </button>
+          ))}
+        </div>
+
+        {districts.map((d, i) => (
+          <div
+            key={d.slug}
+            role="tabpanel"
+            id={`bz-panel-${d.slug}`}
+            aria-labelledby={`bz-tab-${d.slug}`}
+            hidden={i !== active}
+            className={styles.panel}
           >
-            <span className={styles.name}>{b.name}</span>
-            <span className={styles.count}>{b.count}</span>
-            <span className={styles.arrow} aria-hidden="true">→</span>
-          </Link>
+            <h3 className={styles.panelName}>{d.name}</h3>
+            {d.tagline && <p className={styles.panelTag}>{d.tagline}</p>}
+            <div className={styles.grid}>
+              {d.spots.map((s, n) => (
+                <Link key={s.slug} href={`/restaurant/${s.slug}`} className={styles.tile}>
+                  {i === active && s.image && (
+                    <Image
+                      src={s.image}
+                      alt={normalizeName(s.name)}
+                      fill
+                      sizes="(max-width: 720px) 50vw, 260px"
+                      className={styles.tileImg}
+                    />
+                  )}
+                  <span className={styles.rank}>{String(n + 1).padStart(2, '0')}</span>
+                  <div className={styles.tileBody}>
+                    {s.category && <p className={styles.tileCat}>{s.category}</p>}
+                    <h4 className={styles.tileName}>{normalizeName(s.name)}</h4>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <div className={styles.foot}>
+              <Link href={`/bezirk/${d.slug}`} className={styles.cta}>
+                {t('cta', { name: d.name })}
+              </Link>
+            </div>
+          </div>
         ))}
       </div>
     </section>

@@ -1,123 +1,85 @@
+/* Always-dark statement band — stays ink even in light theme (no theme override). */
 .section {
-  padding: 44px 22px 40px;
-  background: #fbf8ee;
+  background: #0a0a0a;
+  color: #fbf8ee;
+  border-top: 4px solid var(--brand-yellow, #ffd84a);
+  border-bottom: 4px solid var(--brand-yellow, #ffd84a);
+  padding: 46px 22px 50px;
+}
+.inner { max-width: 1120px; margin: 0 auto; }
+.kicker {
+  font-family: var(--font-ranchers);
+  letter-spacing: .26em; text-transform: uppercase; font-size: 12px;
+  color: var(--brand-yellow, #ffd84a); margin: 0 0 10px;
 }
 .heading {
   font-family: var(--font-ranchers);
-  font-size: clamp(38px, 12vw, 48px);
-  line-height: .94;
-  color: var(--text-primary);
-  margin: 0 0 8px;
-  letter-spacing: -.01em;
-  text-transform: uppercase;
-  padding-top: 6px;
+  text-transform: uppercase; line-height: .94; letter-spacing: -.01em;
+  font-size: clamp(40px, 11vw, 72px); margin: 0 0 6px; color: #fbf8ee;
 }
-.sub {
-  font-family: var(--font-ranchers);
-  font-size: 11px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  opacity: .65;
-  margin: 0 0 22px;
+.lead { font-size: 14px; color: #b8b1a4; margin: 0 0 24px; max-width: 52ch; line-height: 1.5; }
+
+/* Tab strip — outline pills, horizontally scrollable on mobile. */
+.tabs { display: flex; gap: 10px; overflow-x: auto; padding: 8px 2px 14px; margin: 0 -2px 4px; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  position: relative; flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px;
+  background: transparent; color: #fbf8ee; border: 1.6px solid #4a443b; border-radius: 0;
+  padding: 10px 16px 11px; cursor: pointer; font-family: var(--font-ranchers);
+  text-transform: uppercase; font-size: 16px; line-height: 1; letter-spacing: .03em; white-space: nowrap;
+  transition: transform .16s cubic-bezier(.34, 1.56, .64, 1), border-color .16s, background .16s, color .16s;
 }
-.grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px 12px;
+.tab:hover { border-color: #fbf8ee; transform: translateY(-2px); }
+.tab.active { background: var(--brand-yellow, #ffd84a); border-color: var(--brand-yellow, #ffd84a); color: #0a0a0a; }
+.feat { border-color: var(--c-coral, #ff5a4d); }
+.feat.active { border-color: var(--brand-yellow, #ffd84a); }
+.featBadge {
+  position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+  font-size: 8px; letter-spacing: .14em; background: var(--c-coral, #ff5a4d); color: #fff;
+  border-radius: 0; padding: 3px 7px 2px; white-space: nowrap;
 }
 
-/* Each chip is a "sticker": white card, hard ink border + offset shadow,
-   slightly tilted (--rot, set per-index inline). On hover it straightens,
-   pops up and turns yellow — no opacity fades, pure motion + colour. */
-.chip {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  background: #fff;
-  border: 2px solid #0a0a0a;
-  box-shadow: 3px 3px 0 #0a0a0a;
-  border-radius: 14px;
-  padding: 9px 12px 10px;
-  text-decoration: none;
-  color: #0a0a0a;
-  transform: rotate(var(--rot, 0deg));
-  transition: transform .18s cubic-bezier(.34, 1.56, .64, 1), box-shadow .18s, background .18s;
+.panel { padding-top: 14px; }
+.panel[hidden] { display: none; }
+.panelName { font-family: var(--font-ranchers); text-transform: uppercase; font-size: clamp(28px, 7vw, 46px); line-height: 1; margin: 0 0 6px; color: #fbf8ee; }
+.panelTag { font-size: 14px; color: #b8b1a4; line-height: 1.55; margin: 0 0 22px; max-width: 62ch; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tile {
+  position: relative; display: block; aspect-ratio: 4 / 5; overflow: hidden;
+  background: #14100c; text-decoration: none; color: #fbf8ee; border-radius: 0;
+  border: 1px solid rgba(251, 248, 238, .10);
 }
-.chip:hover {
-  transform: rotate(0deg) translateY(-3px);
-  box-shadow: 6px 6px 0 #0a0a0a;
-  background: var(--brand-yellow, #ffd84a);
-  z-index: 1;
+.tileImg { object-fit: cover; transition: transform .5s cubic-bezier(.22, .9, .3, 1); }
+.tile:hover .tileImg { transform: scale(1.06); }
+.tileBody {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 46px 13px 14px;
+  background: linear-gradient(180deg, rgba(10, 8, 6, 0) 0%, rgba(10, 8, 6, .35) 42%, rgba(10, 8, 6, .9) 100%);
 }
-.name {
-  font-family: var(--font-ranchers);
-  font-size: 17px;
-  line-height: 1;
-  letter-spacing: .01em;
-  text-transform: uppercase;
-  padding-top: 3px;
-}
-/* Open-spot count as a pill badge; inverts on hover so it stays legible
-   once the chip itself goes yellow. */
-.count {
-  font-family: var(--font-ranchers);
-  font-size: 12px;
-  line-height: 1;
-  padding: 4px 7px 3px;
-  border-radius: 999px;
-  background: var(--brand-yellow, #ffd84a);
-  color: #0a0a0a;
-  border: 1.5px solid #0a0a0a;
-  transition: background .18s, color .18s;
-}
-.chip:hover .count {
-  background: #0a0a0a;
-  color: var(--brand-yellow, #ffd84a);
-}
-.arrow {
-  font-family: var(--font-ranchers);
-  font-size: 15px;
-  transition: transform .18s;
-}
-.chip:hover .arrow {
-  transform: translateX(3px);
+.tileCat { font-family: var(--font-ranchers); text-transform: uppercase; font-size: 11px; letter-spacing: .1em; margin: 0 0 3px; color: var(--brand-yellow, #ffd84a); }
+.tileName { font-family: var(--font-ranchers); text-transform: uppercase; font-size: 16px; line-height: 1.08; margin: 0; color: #fbf8ee; }
+
+.foot { margin-top: 24px; }
+.cta {
+  display: inline-block; font-family: var(--font-ranchers); text-transform: uppercase; letter-spacing: .1em;
+  font-size: 13px; text-decoration: none; padding: 12px 18px; border-radius: 0;
+  background: var(--brand-yellow, #ffd84a); color: #0a0a0a;
 }
 
-/* Desktop: centred 1120px band, like the other hub sections. */
+/* Swap motion when a panel is un-hidden — translate only (brand rule: no opacity fades). */
+@keyframes hubBzSwap { from { transform: translateX(20px); } to { transform: translateX(0); } }
+.panel:not([hidden]) .panelName,
+.panel:not([hidden]) .panelTag,
+.panel:not([hidden]) .grid { animation: hubBzSwap .26s cubic-bezier(.22, .9, .3, 1); }
+@media (prefers-reduced-motion: reduce) {
+  .panel:not([hidden]) .panelName,
+  .panel:not([hidden]) .panelTag,
+  .panel:not([hidden]) .grid { animation: none; }
+}
+
 @media (min-width: 720px) {
   .section { padding: 56px max(22px, calc((100% - 1120px) / 2)) 64px; }
-  .heading { font-size: clamp(48px, 7vw, 72px); }
-  .name { font-size: 19px; }
-}
-
-/* ── Dark mode: dark page, warm-cream ink/borders, red replaces yellow. ── */
-html[data-theme="dark"] .section {
-  background: var(--dk-page);
-  border-top-color: var(--dk-ink);
-}
-html[data-theme="dark"] .heading,
-html[data-theme="dark"] .sub { color: var(--dk-ink); }
-/* Chips: white sticker → dark card, ink border/shadow → cream */
-html[data-theme="dark"] .chip {
-  background: var(--dk-card);
-  border-color: var(--dk-ink);
-  box-shadow: 3px 3px 0 var(--dk-rule);
-  color: var(--dk-ink);
-}
-html[data-theme="dark"] .chip:hover {
-  background: var(--c-coral);
-  box-shadow: 6px 6px 0 var(--dk-rule);
-  color: #fbf8ee;
-}
-/* Badge: red pill on dark card, inverts to cream on the red hover fill */
-html[data-theme="dark"] .count {
-  background: var(--c-coral);
-  color: #fbf8ee;
-  border-color: var(--dk-ink);
-}
-html[data-theme="dark"] .chip:hover .count {
-  background: #fbf8ee;
-  color: var(--c-coral);
+  .heading { font-size: clamp(56px, 7vw, 84px); }
+  .grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .tileName { font-size: 19px; }
 }

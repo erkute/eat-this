@@ -65,10 +65,10 @@ export default async function HomePage({ params }: PageProps) {
     getInitialAnonMapData(),
   ])
 
-  // FAQPage graph — mirrors the FAQ entries the hub actually renders (HubFaq
-  // uses the same getLandingFaqs source). Organization/WebSite come from the
-  // site-wide schema-org script in the locale layout.
-  const jsonLd = buildHomeJsonLd(getLandingFaqs(locale as 'de' | 'en'))
+  // WebPage (representative image) + FAQPage graph — the FAQ entries mirror what
+  // the hub renders (HubFaq uses the same getLandingFaqs source). Organization/
+  // WebSite come from the site-wide schema-org script in the locale layout.
+  const jsonLd = buildHomeJsonLd(getLandingFaqs(locale as 'de' | 'en'), locale as 'de' | 'en')
 
   return (
     <>

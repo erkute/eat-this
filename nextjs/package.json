@@ -9,6 +9,7 @@
     "start": "next start",
     "import:restaurant": "tsx scripts/import-enriched.ts",
     "embed:restaurants": "tsx scripts/embed-restaurants.ts",
+    "content:backlog": "tsx scripts/content-backlog.ts",
     "lint": "eslint",
     "lint:content": "tsx scripts/content-lint.ts",
     "test": "vitest run",

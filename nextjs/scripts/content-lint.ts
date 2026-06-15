@@ -18,35 +18,55 @@ const client = createClient({
   projectId: 'ehwjnjr2',
   dataset: 'production',
   apiVersion: '2024-01-01',
-  useCdn: true,
+  // A maintenance lint must reflect the current dataset immediately after
+  // editorial fixes; CDN staleness would keep reporting already-fixed issues.
+  useCdn: false,
 })
 
 interface LintRestaurant {
   slug: string
   name: string
   openingHours?: { days: string; hours: string }[]
-  hasImage: boolean
-  imageAlt?: string
+  cuisineType?: string
+  shortDescription?: string
+  tip?: string
   descLen?: number
   metaTitle?: string
   metaDescription?: string
   website?: string
+  menuUrl?: string
   instagramHandle?: string
   reservationUrl?: string
+  categoryCount: number
+  gallery?: {
+    assetRef?: string
+    alt?: string
+    credit?: string
+    creditUrl?: string
+  }[]
 }
 
 const QUERY = `*[_type == "restaurant" && isOpen == true && isClosed != true] | order(slug.current asc) {
   "slug": slug.current,
   name,
   openingHours[] { days, hours },
-  "hasImage": defined(image),
-  "imageAlt": image.alt,
+  cuisineType,
+  shortDescription,
+  tip,
   "descLen": length(description),
   "metaTitle": seo.metaTitle,
   "metaDescription": seo.metaDescription,
   website,
+  menuUrl,
   instagramHandle,
-  reservationUrl
+  reservationUrl,
+  "categoryCount": coalesce(count(categories), 0),
+  "gallery": gallery[] {
+    "assetRef": asset._ref,
+    alt,
+    credit,
+    creditUrl
+  }
 }`
 
 interface Finding {
@@ -56,24 +76,29 @@ interface Finding {
   detail: string
 }
 
-type LinkResult = 'ok' | 'dead' | 'bot-blocked'
+type LinkResult = 'ok' | 'dead' | 'bot-blocked' | 'unreachable'
 
 async function checkLink(url: string): Promise<LinkResult> {
   try {
     const ctrl = new AbortController()
     const t = setTimeout(() => ctrl.abort(), 10_000)
-    // Erst HEAD, bei 405/403 GET probieren — manche Hoster blocken HEAD.
+    // Erst HEAD, bei jedem Fehlerstatus GET probieren — manche Hoster liefern
+    // für HEAD sogar 404, obwohl die normale Seite per GET erreichbar ist.
     let r = await fetch(url, { method: 'HEAD', redirect: 'follow', signal: ctrl.signal })
-    if (r.status === 405 || r.status === 403) {
+    if (!r.ok) {
       r = await fetch(url, { method: 'GET', redirect: 'follow', signal: ctrl.signal })
     }
     clearTimeout(t)
     if (r.ok) return 'ok'
+    // Nur explizite "weg"-Antworten sind ein belastbarer Dead-Link-Befund.
     // 403/429 heißt meist Bot-Schutz (OpenTable & Co.), nicht toter Link —
     // als eigener Befund, damit kein Redakteur funktionierende Links löscht.
-    return r.status === 403 || r.status === 429 ? 'bot-blocked' : 'dead'
+    if (r.status === 404 || r.status === 410) return 'dead'
+    return r.status === 401 || r.status === 403 || r.status === 429 ? 'bot-blocked' : 'unreachable'
   } catch {
-    return 'dead'
+    // DNS-, TLS- und Timeout-Fehler können lokal oder temporär sein. Sie sind
+    // ein Prüfhinweis, aber kein Beleg dafür, dass die Zielseite verschwunden ist.
+    return 'unreachable'
   }
 }
 
@@ -97,17 +122,63 @@ async function main() {
     if ((r.descLen ?? 0) < 350) {
       findings.push({ check: 'description-thin', severity: 'mittel', slug: r.slug, detail: `description nur ${r.descLen ?? 0} Zeichen` })
     }
-    if (r.hasImage && !r.imageAlt) {
-      findings.push({ check: 'image-alt-missing', severity: 'info', slug: r.slug, detail: 'image.alt leer (Frontend rendert derzeit eh r.name — erst relevant, wenn verdrahtet)' })
+    if (!r.cuisineType) {
+      findings.push({ check: 'cuisine-type-missing', severity: 'mittel', slug: r.slug, detail: 'cuisineType fehlt → schwächt Suche und strukturierte Detailseiten-Fakten' })
+    }
+    if (!r.shortDescription) {
+      findings.push({ check: 'short-description-missing', severity: 'mittel', slug: r.slug, detail: 'shortDescription fehlt → keine kompakte Vorschau' })
+    }
+    if (!r.tip) {
+      findings.push({ check: 'tip-missing', severity: 'info', slug: r.slug, detail: 'Insider-Tipp fehlt im Map-Popup' })
     }
     if (!r.website && !r.instagramHandle) {
       findings.push({ check: 'no-external-presence', severity: 'info', slug: r.slug, detail: 'weder website noch instagramHandle gepflegt' })
+    }
+    if (r.categoryCount === 0) {
+      findings.push({ check: 'categories-missing', severity: 'hoch', slug: r.slug, detail: 'keine Kategorie → fehlt auf allen Kategorie-Hubs und in Category-Entitlements' })
+    }
+    if (r.gallery?.length) {
+      const seen = new Set<string>()
+      const duplicateRefs = new Set<string>()
+      let missingAlt = 0
+      let missingCredit = 0
+      let missingCreditUrl = 0
+      for (const image of r.gallery) {
+        if (image.assetRef && seen.has(image.assetRef)) duplicateRefs.add(image.assetRef)
+        if (image.assetRef) seen.add(image.assetRef)
+        if (!image.alt) missingAlt++
+        if (!image.credit) missingCredit++
+        if (!image.creditUrl) missingCreditUrl++
+      }
+      if (duplicateRefs.size) {
+        findings.push({
+          check: 'gallery-duplicate-assets',
+          severity: 'mittel',
+          slug: r.slug,
+          detail: `${duplicateRefs.size} Bild${duplicateRefs.size === 1 ? '' : 'er'} mehrfach in gallery referenziert`,
+        })
+      }
+      if (missingAlt) {
+        findings.push({ check: 'gallery-alt-missing', severity: 'mittel', slug: r.slug, detail: `${missingAlt} Galerie-Bild${missingAlt === 1 ? '' : 'er'} ohne Alt-Text` })
+      }
+      if (missingCredit || missingCreditUrl) {
+        findings.push({
+          check: 'gallery-attribution-missing',
+          severity: 'hoch',
+          slug: r.slug,
+          detail: `${missingCredit} ohne Credit, ${missingCreditUrl} ohne Credit-URL`,
+        })
+      }
     }
   }
 
   if (links) {
     const targets = restaurants.flatMap(r =>
-      [r.website && { slug: r.slug, kind: 'website', url: r.website }, r.reservationUrl && { slug: r.slug, kind: 'reservationUrl', url: r.reservationUrl }].filter(Boolean) as { slug: string; kind: string; url: string }[],
+      [
+        r.website && { slug: r.slug, kind: 'website', url: r.website },
+        r.menuUrl && { slug: r.slug, kind: 'menuUrl', url: r.menuUrl },
+        r.reservationUrl && { slug: r.slug, kind: 'reservationUrl', url: r.reservationUrl },
+      ].filter(Boolean) as { slug: string; kind: string; url: string }[],
     )
     // Begrenzte Parallelität, damit das kein unfreiwilliger Lasttest wird.
     const POOL = 8
@@ -115,8 +186,9 @@ async function main() {
       const batch = targets.slice(i, i + POOL)
       const results = await Promise.all(batch.map(async t => ({ t, result: await checkLink(t.url) })))
       for (const { t, result } of results) {
-        if (result === 'dead') findings.push({ check: 'dead-link', severity: 'mittel', slug: t.slug, detail: `${t.kind} nicht erreichbar: ${t.url}` })
+        if (result === 'dead') findings.push({ check: 'dead-link', severity: 'mittel', slug: t.slug, detail: `${t.kind} liefert 404/410: ${t.url}` })
         if (result === 'bot-blocked') findings.push({ check: 'link-bot-blocked', severity: 'info', slug: t.slug, detail: `${t.kind} blockt automatisierte Checks (403/429) — manuell prüfen: ${t.url}` })
+        if (result === 'unreachable') findings.push({ check: 'link-unreachable', severity: 'info', slug: t.slug, detail: `${t.kind} technisch nicht prüfbar — manuell prüfen: ${t.url}` })
       }
       process.stderr.write(`\rLink-Check ${Math.min(i + POOL, targets.length)}/${targets.length}`)
     }

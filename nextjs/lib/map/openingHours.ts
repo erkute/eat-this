@@ -38,6 +38,10 @@ function parseDays(str: string): DayIndex[] {
 
 function parseTimeRange(str: string): { open: number; close: number } | null {
   if (/closed|ruhetag|geschlossen/i.test(str)) return null
+  const compact = str.toLowerCase().replace(/\s/g, '')
+  if (/24(?:stunden?)?(?:geöffnet|offen)|24\/7/.test(compact)) {
+    return { open: 0, close: 24 * 60 }
+  }
   const m = str.match(/(\d{1,2}):(\d{2})[–\-](\d{1,2}):(\d{2})/)
   if (!m) return null
   return {

@@ -3348,36 +3348,43 @@ html[data-theme="dark"] .listEndCta {
    glyphs (no frame) with a drop-shadow for legibility on any photo. The X
    sits outermost at the corner (the universal close affordance); the save
    bookmark sits just to its left. */
-.rdHeroActions {
+/* Merged heart toggle + count, and the close button — both frosted-glass pills
+   on the hero photo, matched in size. The toggle sits top-left (its heart is
+   outline-white until you heart the spot, then coral-filled; the number is the
+   public count); the close X sits top-right. */
+.rdHeartToggle,
+.rdCloseGlass {
   position: absolute;
   top: 14px;
-  right: 14px;
   z-index: 3;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-}
-.rdHeroSave,
-.rdClose {
-  width: 30px;
-  height: 30px;
-  background: transparent;
-  color: #fbf8ee;
+  gap: 6px;
+  background: rgba(20, 14, 11, 0.52);
+  -webkit-backdrop-filter: blur(7px) saturate(1.1);
+  backdrop-filter: blur(7px) saturate(1.1);
+  color: #fff;
   border: 0;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,.65));
+  border-radius: 999px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
   transition: transform .12s ease;
 }
-.rdHeroSave:active,
-.rdClose:active { transform: scale(.9); }
-.rdHeroSave svg { width: 22px; height: 26px; }
-.rdClose svg { width: 26px; height: 26px; }
-.rdHeroSaveActive { color: var(--c-mustard); }
-html[data-theme="dark"] .rdHeroSaveActive { color: var(--c-coral-bright); }
+.rdHeartToggle { left: 14px; padding: 7px 12px; }
+.rdCloseGlass  { right: 14px; padding: 7px; justify-content: center; }
+.rdHeartToggle:active,
+.rdCloseGlass:active { transform: scale(.92); }
+.rdHeartToggle svg,
+.rdCloseGlass svg { width: 16px; height: 16px; }
+.rdHeartToggle svg { color: #fff; } /* outline heart until hearted */
+.rdHeartToggleOn svg { color: var(--c-coral-bright); } /* filled coral when hearted */
+.rdHeartToggleCount {
+  font-family: var(--f-display);
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: #fff;
+}
 .rdOverlay {
   position: absolute;
   /* Bottom raised to 28px so the tags row clears the photo-credit line that
@@ -3573,8 +3580,6 @@ html[data-theme="dark"] .rdBodySkel span {
 
 .rdActs { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; padding: 6px 14px 16px; }
 /* Public heart count under the actions — centred, quiet. */
-/* Public heart-count badge — photo corner, opposite the save/close actions. */
-.rdHeartBadge { position: absolute; top: 14px; left: 14px; z-index: 3; }
 .rdActBtn {
   font-family: var(--font-chewy);
   font-size: 14px;

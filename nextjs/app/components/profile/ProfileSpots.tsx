@@ -8,7 +8,7 @@ import styles from './ProfileSlim.module.css';
 
 // Saved spots (Firestore favorites) as full-image cards → tap opens the map.
 // Each card carries a remove button so spots can be un-saved here too (not
-// only via the map's bookmark toggle).
+// only via the heart toggle on the map / restaurant page).
 export default function ProfileSpots({ uid }: { uid: string }) {
   const t = useTranslations('profile');
   const { favorites, loading, toggle } = useFavorites(uid);

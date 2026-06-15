@@ -1,6 +1,6 @@
 # Product Roadmap — post Guest+20 Migration
 
-**Last updated:** 2026-05-27
+**Last updated:** 2026-06-14
 
 This is the parking lot for features brainstormed but not in scope for the
 [Guest+20 Migration](../superpowers/specs/2026-05-27-staging-and-migration-design.md).
@@ -9,41 +9,45 @@ gets written and the epic gets cross-linked from here.
 
 Each entry below should have a matching `epic` issue on GitHub for tracking.
 
----
-
-## Hearts (loved-by-N count)
-
-**Concept**
-- Logged-in users can heart a spot on the map or detail page
-- Aggregate count displayed publicly: "geherzt von 50 Leuten"
-- No ratings, no dislike, no comments — only positive signal, no toxicity surface
-
-**Data model (sketch)**
-- `restaurants/{slug}/hearts/{uid}` — one doc per heart
-- `restaurants/{slug}.heartCount` — denormalised counter, updated via Cloud Function trigger on hearts subcollection write/delete
-- Or simpler: read-time aggregation if heart counts stay small
-
-**Open questions**
-- Can anonymous users heart? Recommendation: no — too easy to spam, no per-user state
-- Where does the count surface? Restaurant detail page for sure; map list rows optional
-- Do users see their own hearts collated anywhere (de facto favorites list)?
-- Should hearts unlock anything (entitlement-style) or stay purely social?
-
-**Dependencies:** Tier-model migration complete (so we know which spots a user can see)
+**Status legend:** ✅ done · 🚧 in progress · 💡 parking lot
 
 ---
 
-## Saved Lists / Favorites
+## ✅ Hearts (loved-by-N count) — BUILT
 
-**Concept**
-- User can mark a spot as a favorite and see all favorites in one place
-- Could overlap with hearts (heart = favorite) or be separate (heart = public signal, favorite = private)
+**Status:** Implemented (PR #170, branch `claude/task-review-kevr6c`).
+Design spec: [`docs/specs/2026-06-09-hearts-design.md`](../specs/2026-06-09-hearts-design.md).
 
-**Decision needed:** Merge with hearts or keep separate?
-- Merge: simpler, less UI, but "loved-by-50" implies public signal which conflicts with private bookmark
-- Separate: cleaner semantics, more UI (two icons on the spot card)
+**What shipped**
+- A heart **is** a saved spot — merged with the existing `users/{uid}/favorites`,
+  so there's no separate private-bookmark concept. (Resolves the "merge with
+  Saved Lists?" open question below.)
+- Public count "geherzt von N Leuten" / "loved by N people" on the **map detail
+  sheet** and the **SEO restaurant page**. Logged-in users only can heart
+  (anon → `/login`); everyone sees the count. No ratings/dislike/comments.
+- Counter lives in `restaurants/{_id}.heartCount` (Sanity `_id` key), maintained
+  server-side by the **`/api/heart`** Admin SDK transaction — the original
+  Cloud Function trigger was replaced when the `functions/` layer was removed in
+  the clean-architecture reset. One account contributes at most +1.
 
-**Recommendation:** Merge — a heart IS a favorite. The public count is the heart count.
+**Resolved open questions**
+- Anonymous hearts → **no** (spam surface, no per-user state).
+- Count surfaces on the restaurant detail surfaces; **map list-row badge deferred**.
+- Users' own hearts are collated in profile (= their saved spots).
+- Hearts stay **purely social** — no entitlement unlock.
+
+**Deferred follow-ups:** map list-row count badge.
+
+---
+
+## ✅ Saved Lists / Favorites — DECIDED (merged into Hearts)
+
+**Resolved with the Hearts epic:** **merged.** A heart IS a favorite; the saved
+spots in `users/{uid}/favorites` are the hearts, and the public aggregate is the
+heart count. No separate private-bookmark concept. Users see their own saved
+spots collated in the profile. (Was: "Merge with hearts or keep separate?" —
+merge won; "loved-by-N" being a public signal is acceptable because the heart
+*is* the save.)
 
 ---
 

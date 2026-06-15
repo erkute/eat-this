@@ -226,6 +226,8 @@ export default function RestaurantDetail({
               <CloseIcon />
             </button>
           </div>
+          {/* Public heart count — frosted badge in the photo corner (≥ 1 only) */}
+          <HeartCount restaurantId={restaurant._id} className={styles.rdHeartBadge} />
           <div className={styles.rdOverlay}>
             <h1 className={styles.rdNameOv} style={{ ['--rd-name-max' as string]: `${nameMaxPx}px` }}>{displayName}</h1>
             <div className={styles.rdTagsOv}>
@@ -441,11 +443,6 @@ export default function RestaurantDetail({
           >
             {shareDone ? (locale === 'en' ? 'Link copied ✓' : 'Link kopiert ✓') : t('map.share')}
           </button>
-        </div>
-
-        {/* HEARTS — public "geherzt von N Leuten" (renders only when ≥ 1) */}
-        <div className={styles.rdHeartCount}>
-          <HeartCount restaurantId={restaurant._id} />
         </div>
 
         {/* RESERVIEREN — kept */}

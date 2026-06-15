@@ -81,19 +81,28 @@ read/write) and stays untouched.
 
 ## Client
 
-- `lib/map/useHeartCount.ts` — reads `restaurants/{id}.heartCount` once
-  (`getDoc`). Public doc, so it works for anon visitors too.
-- `lib/map/heartLabel.ts` — pure `heartLabel(count, locale)` → the localized
-  phrase, or `null` when `count < 1` (so we never render "loved by 0"). Unit
-  tested.
-- `app/components/HeartCount.tsx` — read-only count line. Used in the **map
-  detail sheet**, below the Maps/Teilen actions.
-- `app/components/HeartButton.tsx` — heart toggle **+** count, a client island
-  for the **SEO restaurant page** (which is statically generated and had no
-  favorite control before). Wires `useAuth` → `useFavorites().toggle`. Anon tap
-  → `/login` (existing `useFavorites` behaviour). Optimistic ±1 on the count.
-- `icons.tsx` — new `HeartIcon` (outline → filled). The map detail toggle swaps
-  its `BookmarkIcon` for `HeartIcon` so the icon matches the "geherzt" wording.
+> **UI update (2026-06-15).** The public count is shown as a **frosted-glass
+> badge in the corner of the hero photo** (Airbnb "Guest favorite" placement),
+> not as a caption under the action buttons — researched against how venue apps
+> surface social proof (Maps/Yelp near the title, Airbnb on the photo). The
+> count is **live** (onSnapshot), and it's kept **separate** from the personal
+> save/heart toggle.
+
+- `lib/map/useHeartCount.ts` — subscribes to `restaurants/{id}.heartCount` with
+  `onSnapshot` (live; updates everywhere the moment `/api/heart` lands). Public
+  doc, so it works for anon visitors too. SDK is code-split (dynamic import).
+- `lib/map/heartLabel.ts` — pure, unit-tested: `heartLabel(count, locale)` (full
+  phrase for the accessible label, `null` below 1) and `heartCountShort(count,
+  locale)` (compact `142` / `1,2k` shown in the badge).
+- `app/components/HeartCount.tsx` — the read-only **glass badge** (`♥ 142`).
+  Rendered in the hero of **both** the map detail sheet (`.rdHeartBadge`) and the
+  SEO restaurant page (`.heroHeartBadge`); the host positions it via `className`.
+  Renders nothing below 1 (no "geherzt von 0").
+- `app/components/HeartButton.tsx` — the personal **heart toggle** on the SEO
+  page (no count — that's the badge's job). Wires `useAuth` →
+  `useFavorites().toggle`. Anon tap → `/login`.
+- `icons.tsx` — `HeartIcon` (outline → filled). The map detail save toggle uses
+  it so the icon matches the "geherzt" wording.
 
 ## Deployment notes
 

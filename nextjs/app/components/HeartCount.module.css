@@ -1,19 +1,29 @@
+/* Prominent social-proof badge for the public heart count — a filled-heart
+   coral pill, big enough to read as a real signal (not a quiet caption). Same
+   treatment on the map detail sheet and the SEO restaurant page. */
 .heartCount {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   font-family: var(--f-display);
-  font-size: 13px;
-  letter-spacing: 0.04em;
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: 0.02em;
   color: var(--c-coral);
+  background: color-mix(in srgb, var(--c-coral) 10%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--c-coral) 30%, transparent);
+  border-radius: 999px;
+  padding: 9px 16px;
+}
+
+.heartCount::before {
+  content: "\2665"; /* ♥ filled */
+  font-size: 17px;
+  line-height: 1;
 }
 
 html[data-theme="dark"] .heartCount {
   color: var(--c-coral-bright);
-}
-
-.heartCount::before {
-  content: "\2665"; /* ♥ */
-  font-size: 12px;
-  line-height: 1;
+  background: color-mix(in srgb, var(--c-coral-bright) 15%, transparent);
+  border-color: color-mix(in srgb, var(--c-coral-bright) 34%, transparent);
 }

@@ -15,7 +15,8 @@ import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import styles from './map.module.css'
 import { HeartIcon, CloseIcon } from './icons'
-import HeartCount from '@/app/components/HeartCount'
+import { useHeartCount } from '@/lib/map/useHeartCount'
+import { heartCountShort } from '@/lib/map/heartLabel'
 import {
   classifyWebsite,
   formatPriceLabel,
@@ -90,6 +91,7 @@ export default function RestaurantDetail({
 }: RestaurantDetailProps) {
   const { t } = useTranslation()
   const locale = useLocale()
+  const { count: heartCount } = useHeartCount(restaurant._id)
   const [shareDone, setShareDone] = useState(false)
   const scrollWrapRef = useRef<HTMLDivElement>(null)
 
@@ -210,24 +212,26 @@ export default function RestaurantDetail({
           data-detail-hero
           style={r.photo ? { backgroundImage: `url(${r.photo})` } : undefined}
         >
-          <div className={styles.rdHeroActions}>
-            {onToggleFavorite && (
-              <button
-                type="button"
-                className={`${styles.rdHeroSave} ${isFavorite ? styles.rdHeroSaveActive : ''}`}
-                aria-label={isFavorite ? (locale === 'en' ? 'Remove heart' : 'Herz entfernen') : (locale === 'en' ? 'Heart this spot' : 'Spot herzen')}
-                aria-pressed={!!isFavorite}
-                onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
-              >
-                <HeartIcon filled={!!isFavorite} />
-              </button>
-            )}
-            <button type="button" className={styles.rdClose} aria-label={backLabel} onClick={onClose}>
-              <CloseIcon />
+          {/* Merged heart toggle + public count — one frosted pill, top-left.
+              Outline white heart when you haven't hearted it, filled coral when
+              you have; the number is the public count (≥ 1). Tapping toggles. */}
+          {onToggleFavorite && (
+            <button
+              type="button"
+              className={`${styles.rdHeartToggle} ${isFavorite ? styles.rdHeartToggleOn : ''}`}
+              aria-label={isFavorite ? (locale === 'en' ? 'Remove heart' : 'Herz entfernen') : (locale === 'en' ? 'Heart this spot' : 'Spot herzen')}
+              aria-pressed={!!isFavorite}
+              onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
+            >
+              <HeartIcon filled={!!isFavorite} />
+              {heartCount >= 1 && (
+                <span className={styles.rdHeartToggleCount}>{heartCountShort(heartCount, locale)}</span>
+              )}
             </button>
-          </div>
-          {/* Public heart count — frosted badge in the photo corner (≥ 1 only) */}
-          <HeartCount restaurantId={restaurant._id} className={styles.rdHeartBadge} />
+          )}
+          <button type="button" className={styles.rdCloseGlass} aria-label={backLabel} onClick={onClose}>
+            <CloseIcon />
+          </button>
           <div className={styles.rdOverlay}>
             <h1 className={styles.rdNameOv} style={{ ['--rd-name-max' as string]: `${nameMaxPx}px` }}>{displayName}</h1>
             <div className={styles.rdTagsOv}>

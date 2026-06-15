@@ -52,6 +52,16 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Public heart counts (loved-by-N). The per-user heart docs live under
+    // users/{uid}/favorites; this is the denormalised aggregate, maintained
+    // server-side by the /api/heart Admin SDK transaction (same transaction
+    // that writes the favorite). Anyone may read it (incl. anon visitors); the
+    // client never writes it.
+    match /restaurants/{restaurantId} {
+      allow read:  if true;
+      allow write: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

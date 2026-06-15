@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { useLocale } from 'next-intl'
-import { getDb } from '@/lib/firebase/config'
+import { auth, getDb } from '@/lib/firebase/config'
 import { client as sanityClient } from '@/lib/sanity'
 
 interface FavoriteEntry {
@@ -100,29 +100,43 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
   }, [uid])
 
   const toggle = useCallback(async (r: { _id: string; name: string; slug?: string; photo?: string; district?: string }) => {
-    if (!uid) {
+    if (!uid || !auth.currentUser) {
       window.location.assign('/login')
       return
     }
-    const [{ doc, setDoc, deleteDoc, serverTimestamp }, db] = await Promise.all([
-      import('firebase/firestore'),
-      getDb(),
-    ])
-    const ref = doc(db, 'users', uid, 'favorites', r._id)
+    // The heart write goes through /api/heart (Admin SDK), which is the single
+    // writer of both the favorite doc and the public restaurants/{id}.heartCount
+    // aggregate — the two move in one transaction so the count can't drift.
+    // (Replaces the old client-side setDoc/deleteDoc + the removed Cloud
+    // Function trigger.) Local state + cache update only after the call lands.
+    const adding = !favoriteIds.has(r._id)
     const writeCache = (next: FavoriteEntry[]) => {
       try { window.localStorage.setItem(`eatthis_favorites_${uid}`, JSON.stringify(next)) } catch { /* quota */ }
     }
-    if (favoriteIds.has(r._id)) {
-      await deleteDoc(ref)
-      setFavoriteIds(prev => { const s = new Set(prev); s.delete(r._id); return s })
-      setFavorites(prev => { const next = prev.filter(f => f.restaurantId !== r._id); writeCache(next); return next })
-      window.showNotification?.(locale === 'en' ? 'Spot removed' : 'Spot entfernt')
-    } else {
-      const entry = { name: r.name, slug: r.slug ?? '', photo: r.photo ?? '', district: r.district ?? '', savedAt: serverTimestamp() }
-      await setDoc(ref, entry)
+    try {
+      const token = await auth.currentUser.getIdToken()
+      const res = await fetch('/api/heart', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          restaurantId: r._id,
+          action: adding ? 'add' : 'remove',
+          name: r.name, slug: r.slug ?? '', photo: r.photo ?? '', district: r.district ?? '',
+        }),
+      })
+      if (!res.ok) throw new Error(`heart ${res.status}`)
+    } catch {
+      window.showNotification?.(locale === 'en' ? 'Something went wrong' : 'Etwas ist schiefgelaufen')
+      return
+    }
+    if (adding) {
       setFavoriteIds(prev => new Set([...prev, r._id]))
       setFavorites(prev => { const next = [...prev, { restaurantId: r._id, name: r.name, slug: r.slug, photo: r.photo, district: r.district }]; writeCache(next); return next })
-      window.showNotification?.(locale === 'en' ? 'Spot saved' : 'Spot gespeichert')
+      window.showNotification?.(locale === 'en' ? 'Spot hearted' : 'Spot geherzt')
+    } else {
+      setFavoriteIds(prev => { const s = new Set(prev); s.delete(r._id); return s })
+      setFavorites(prev => { const next = prev.filter(f => f.restaurantId !== r._id); writeCache(next); return next })
+      window.showNotification?.(locale === 'en' ? 'Heart removed' : 'Herz entfernt')
     }
   }, [uid, favoriteIds, locale])
 

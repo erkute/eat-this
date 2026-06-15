@@ -59,6 +59,13 @@
   height: 100%;
   object-fit: cover;
 }
+/* Public heart-count badge — frosted chip in the top-left of the hero photo. */
+.heroHeartBadge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+}
 .heroGradient {
   position: absolute;
   inset: 0;

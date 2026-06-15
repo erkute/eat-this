@@ -3572,6 +3572,8 @@ html[data-theme="dark"] .rdBodySkel span {
 .rdVMeta { display: block; margin-top: 4px; font-size: 12px; opacity: .7; }
 
 .rdActs { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; padding: 6px 14px 16px; }
+/* Public heart count under the actions — centred, quiet. */
+.rdHeartCount { display: flex; justify-content: center; padding: 0 14px 18px; }
 .rdActBtn {
   font-family: var(--font-chewy);
   font-size: 14px;

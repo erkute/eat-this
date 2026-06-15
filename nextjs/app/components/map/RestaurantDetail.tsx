@@ -14,7 +14,8 @@ import { useTranslation } from '@/lib/i18n'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import styles from './map.module.css'
-import { BookmarkIcon, CloseIcon } from './icons'
+import { HeartIcon, CloseIcon } from './icons'
+import HeartCount from '@/app/components/HeartCount'
 import {
   classifyWebsite,
   formatPriceLabel,
@@ -214,11 +215,11 @@ export default function RestaurantDetail({
               <button
                 type="button"
                 className={`${styles.rdHeroSave} ${isFavorite ? styles.rdHeroSaveActive : ''}`}
-                aria-label={isFavorite ? 'Remove from saved' : t('map.save')}
+                aria-label={isFavorite ? (locale === 'en' ? 'Remove heart' : 'Herz entfernen') : (locale === 'en' ? 'Heart this spot' : 'Spot herzen')}
                 aria-pressed={!!isFavorite}
                 onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
               >
-                <BookmarkIcon filled={!!isFavorite} />
+                <HeartIcon filled={!!isFavorite} />
               </button>
             )}
             <button type="button" className={styles.rdClose} aria-label={backLabel} onClick={onClose}>
@@ -440,6 +441,11 @@ export default function RestaurantDetail({
           >
             {shareDone ? (locale === 'en' ? 'Link copied ✓' : 'Link kopiert ✓') : t('map.share')}
           </button>
+        </div>
+
+        {/* HEARTS — public "geherzt von N Leuten" (renders only when ≥ 1) */}
+        <div className={styles.rdHeartCount}>
+          <HeartCount restaurantId={restaurant._id} />
         </div>
 
         {/* RESERVIEREN — kept */}

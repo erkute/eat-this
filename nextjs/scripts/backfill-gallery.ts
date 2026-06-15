@@ -5,6 +5,7 @@
  * Run from `nextjs/`:
  *   npx tsx scripts/backfill-gallery.ts --dry-run            # count Google candidates only, no curation, no writes
  *   npx tsx scripts/backfill-gallery.ts --limit 5            # first 5 restaurants only
+ *   npx tsx scripts/backfill-gallery.ts --slug cafe-a --slug cafe-b
  *   npx tsx scripts/backfill-gallery.ts                      # full run (fills gaps only)
  *   npx tsx scripts/backfill-gallery.ts --force             # re-curate ALL, overwriting existing galleries
  *
@@ -20,6 +21,7 @@ import { createClient } from '@sanity/client'
 import { randomUUID } from 'node:crypto'
 import { importGalleryPhotos } from './import-from-url'
 import { HaikuUnavailableError } from './lib/photo-curation'
+import { filterBySlugs } from './lib/content-backlog'
 
 loadEnv({ path: '.env.local' })
 
@@ -88,6 +90,11 @@ async function main() {
   // to re-curate the part that already succeeded.
   const fromArg = args.indexOf('--from')
   const from = fromArg >= 0 ? args[fromArg + 1] : null
+  const slugs = args.flatMap((arg, index) => arg === '--slug' ? [args[index + 1]] : [])
+  if (slugs.some((slug) => !slug || slug.startsWith('--'))) {
+    console.error('--slug requires an exact restaurant slug, e.g. --slug cafe-a')
+    process.exit(1)
+  }
 
   const galleryFilter = force ? '' : '&& (!defined(gallery) || count(gallery) == 0)'
   let targets = await sanity.fetch<Target[]>(
@@ -96,6 +103,7 @@ async function main() {
        | order(name asc) { _id, name, "slug": slug.current, googlePlaceId }`,
   )
   if (from) targets = targets.filter((t) => t.name.localeCompare(from) >= 0)
+  targets = filterBySlugs(targets, slugs)
   console.log(`${targets.length} restaurants ${force ? 'to re-curate' : 'without gallery'}${from ? ` (from "${from}")` : ''}${dryRun ? ' (dry-run)' : ''}`)
 
   let attempted = 0

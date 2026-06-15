@@ -32,6 +32,17 @@ describe('buildOpeningHoursSpec', () => {
   it('returns an empty array when nothing is parseable', () => {
     expect(buildOpeningHoursSpec([{ days: 'Mo', hours: 'closed' }])).toEqual([])
   })
+
+  it('maps common 24-hour labels to a full-day specification', () => {
+    expect(buildOpeningHoursSpec([{ days: 'Mon-Sun', hours: '24Stundengeöffnet' }])).toEqual([
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        opens: '00:00',
+        closes: '24:00',
+      },
+    ])
+  })
 })
 
 // Monday 14:00 — within Mo–Fr 12:00–22:00
@@ -48,6 +59,15 @@ const weekdaySlot: OpeningHourSlot[] = [
 ]
 
 describe('getOpenStatus', () => {
+  it('treats 24-hour labels as open throughout the day', () => {
+    const hours: OpeningHourSlot[] = [{ days: 'Mon-Sun', hours: '24/7' }]
+    expect(getOpenStatus(hours, new Date('2026-06-14T23:59:00'))).toMatchObject({
+      isOpen: true,
+      label: 'Open · Closes 24:00',
+      minutesUntilChange: 1,
+    })
+  })
+
   it('returns open when within hours', () => {
     const { isOpen, label } = getOpenStatus(weekdaySlot, MON_2PM)
     expect(isOpen).toBe(true)

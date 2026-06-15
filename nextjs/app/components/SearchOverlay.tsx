@@ -182,7 +182,8 @@ export default function SearchOverlay() {
           </svg>
           <input
             ref={inputRef}
-            type="text"
+            type="search"
+            name="site-search"
             className={styles.input}
             placeholder={t('search.placeholder')}
             autoComplete="off"

@@ -2433,7 +2433,7 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   --d-hero-accent: var(--c-cream);
   background: var(--d-bg);
   color: var(--d-text);
-  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font);
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -2769,7 +2769,7 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   padding-bottom: 15px;
 }
 .fdK {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font);
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -3054,7 +3054,7 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   padding-bottom: 2px;
 }
 .otWord {
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: var(--font);
   font-weight: 700;
   font-size: 12.5px;
   letter-spacing: -0.005em;
@@ -3115,7 +3115,7 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
 }
 .packPromoBody {
   margin: 0 0 10px;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: var(--font);
   font-weight: 500;
   font-size: 13px;
   line-height: 1.45;
@@ -3167,7 +3167,7 @@ html[data-theme="dark"] .btnPackPromo {
   align-items: center;
   gap: 5px;
   border-left: 1.2px solid rgba(26, 22, 16, 0.34);
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: var(--font);
   font-weight: 700;
   font-size: 10px;
   letter-spacing: 0.02em;
@@ -3192,8 +3192,7 @@ html[data-theme="dark"] .btnPackPromoTag {
 .btnPackPromo:hover .btnPackPromoTag svg { transform: translateX(3px); }
 
 .linkPromo {
-  /* Saira Condensed statt DM Sans (DM Sans wird gar nicht via next/font geladen
-     und matched die UI-Caps-Familie). */
+  /* Saira Condensed instead of the global DM Sans body face. */
   font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
   font-weight: 800;
   font-size: 11.5px;
@@ -3388,8 +3387,11 @@ html[data-theme="dark"] .listEndCta {
 .rdOverlay {
   position: absolute;
   /* Bottom raised to 28px so the tags row clears the photo-credit line that
-     sits at the very bottom-right (they nearly touched at 18px). */
-  inset: auto 18px 28px;
+     sits at the very bottom-right (they nearly touched at 18px).
+     Side inset trimmed 18→10px to widen the name's usable width on the narrow
+     360px desktop panel, so long single words (e.g. "Schüsseldienst") render
+     a few px larger before the per-name shrink kicks in. */
+  inset: auto 10px 28px;
   color: #fbf8ee;
   z-index: 2;
 }
@@ -3409,6 +3411,17 @@ html[data-theme="dark"] .listEndCta {
   overflow-wrap: normal;
   word-break: normal;
   hyphens: manual;
+}
+/* Desktop: the detail panel is only 360px wide, so a short name at the 56px
+   cap dwarfs a long name that had to shrink to ~36px to fit (User 2026-06-15:
+   "der Unterschied ist sehr stark"). Cap the upper bound at 40px here so short
+   and long names sit close together — still bold, just harmonised. The
+   per-name fit (--rd-name-max) still wins when it's smaller, so nothing clips.
+   Mobile keeps the full 56px range (wider hero, no disparity there). */
+@media (min-width: 1024px) {
+  .rdNameOv {
+    font-size: clamp(24px, 12vw, min(var(--rd-name-max, 56px), 40px));
+  }
 }
 .rdTagsOv {
   display: flex;
@@ -3825,6 +3838,144 @@ html[data-theme="dark"] .medishLbl { color: #f0e8d0; }
 .galleryLbCredit a {
   color: inherit;
   text-decoration: underline;
+}
+
+/* ============================================================
+   Map controls — STICKER style (User 2026-06-15): burger, search and
+   location FAB read as EAT-THIS editorial stickers — cream fill, 2px
+   ink border, hard offset shadow, ink glyphs. Dark mode flips to a
+   solid brand-RED sticker with cream glyphs. Self-contained override
+   so it's easy to revert. Selectors carry an extra `html`/`html[data-
+   theme=...]` so they win over the original glass rules + dark overrides.
+   ============================================================ */
+/* Light = cream sticker */
+html .mapBurger,
+html .mapSearchBtn,
+html .mapSearchToolbar,
+html .fab {
+  background: #fbf8ee;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  color: #14100c;
+  border: 2px solid #14100c;
+  border-radius: 14px;
+  box-shadow: 2px 2px 0 #14100c;
+}
+/* Dark = solid brand-red sticker, cream glyphs */
+html[data-theme="dark"] .mapBurger,
+html[data-theme="dark"] .mapSearchBtn,
+html[data-theme="dark"] .mapSearchToolbar,
+html[data-theme="dark"] .fab {
+  background: #a02814;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  color: #fbf8ee;
+  border: 2px solid #14100c;
+  border-radius: 14px;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
+}
+/* Glyph colours follow the text colour (search icon / input / clear). */
+html .mapSearchIcon, html .mapSearchInput, html .mapSearchClear { color: #14100c; }
+html[data-theme="dark"] .mapSearchIcon,
+html[data-theme="dark"] .mapSearchInput,
+html[data-theme="dark"] .mapSearchClear { color: #fbf8ee; }
+html .mapSearchInput::placeholder { color: #14100c; opacity: 0.5; }
+html[data-theme="dark"] .mapSearchInput::placeholder { color: #fbf8ee; opacity: 0.6; }
+/* Burger raster is black line-art: keep black on the cream sticker (light),
+   flip it to cream on the red sticker (dark). */
+html .mapBurger img { filter: none; }
+html[data-theme="dark"] .mapBurger img { filter: brightness(0) invert(1); }
+
+/* Home link (top-left) — the square two-line EAT THIS mark (favicon family)
+   as a clickable sticker so users can always jump back to the start page. The
+   logo image carries its own fill, so this only adds the ink frame + hard
+   shadow (not the cream/red fill). */
+html .mapHome {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+  display: block;
+  width: 46px;
+  height: 46px;
+  border: 2px solid #14100c;
+  border-radius: 12px;
+  box-shadow: 2px 2px 0 #14100c;
+  /* Background image so the theme can swap it: yellow mark (light) → red mark
+     (dark) to match the red buttons. */
+  background: url('/pics/logo.webp') center / cover no-repeat;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+html[data-theme="dark"] .mapHome {
+  background-image: url('/pics/logo-red.webp');
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* Hover: a small sticker "peel" lift, no colour flash (hover-capable only). */
+@media (hover: hover) {
+  html .mapBurger:hover, html .mapSearchBtn:hover, html .fab:hover, html .mapHome:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 #14100c;
+  }
+  html[data-theme="dark"] .mapBurger:hover, html[data-theme="dark"] .mapSearchBtn:hover,
+  html[data-theme="dark"] .fab:hover, html[data-theme="dark"] .mapHome:hover {
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* ============================================================
+   Vertical control rail (User 2026-06-15, "vertikale Glas-Leiste"):
+   search + burger stacked at the top-right, location FAB at the
+   bottom-right — all on ONE right-edge axis (Apple-Maps style),
+   instead of the old split (search top-left / burger top-right).
+   Search (collapsed) is the top chip; burger sits 46px below it;
+   the expanded search bar is anchored to the same right edge and
+   grows leftward. Self-contained so it's easy to revert.
+   Note: burger/search live in the full-width .body context (so on
+   desktop they need the +360px panel offset), the FAB lives in the
+   map-only container (no offset) but lands on the same visual edge.
+   ============================================================ */
+/* Mobile / base — axis at right:14px */
+html .mapSearchBtn { top: 14px; right: 14px; left: auto; }
+html .mapBurger    { top: 52px; right: 14px; left: auto; }
+html .mapSearchToolbar { top: 14px; right: 14px; left: 14px; width: auto; }
+html .fab { right: 14px; }
+@media (min-width: 1024px) {
+  /* Desktop — the stack hugs the map's right edge, left of the 360px panel.
+     Search + FAB live in the map-only container (mapWrap), whose right edge IS
+     the map's right edge → right:14px. The burger lives in the full-width body
+     container → it needs the +360px panel offset to land on the same edge. */
+  html .mapSearchBtn { top: 14px; right: 14px; left: auto; }
+  html .mapBurger    { top: 52px; right: calc(360px + 14px); left: auto; }
+  html .mapSearchToolbar {
+    top: 14px; right: 14px; left: auto; width: 320px;
+  }
+  html .fab { right: 14px; }
+  /* Panel hidden: the body container collapses to the true right edge, so the
+     burger no longer needs the offset. */
+  html .bodyPanelHidden .mapBurger { right: 14px; }
+}
+
+/* Burger removed from the map (User 2026-06-15) — search is now a standalone
+   sticker (full radius + hard shadow come from the base sticker rule above), so
+   no segment-fuse override is needed here anymore. */
+
+/* Keep ALL map controls visible while a restaurant detail is open (User
+   2026-06-15). On desktop the detail opens in the side panel and the map stays
+   interactive, so search/burger/location must NOT slide away (the base rules
+   hide them via translateY). Desktop only — on mobile the detail sheet takes
+   over the whole screen, where hiding them still makes sense. The home link has
+   no hide rule, so it stays put on its own. */
+@media (min-width: 1024px) {
+  html .bodyDetailOpen .mapSearchBtn,
+  html .bodyDetailOpen .mapSearchToolbar,
+  html .bodyDetailOpen .mapBurger,
+  html .bodyDetailOpen .fab {
+    transform: none;
+    pointer-events: auto;
+  }
 }
 
 /* horizontal page transition */

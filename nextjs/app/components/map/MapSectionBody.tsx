@@ -1,6 +1,5 @@
 'use client'
 import type { Ref, RefObject } from 'react'
-import { useTranslations } from 'next-intl'
 import type { MapRef } from 'react-map-gl/maplibre'
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types'
 import type { CategoryDef } from '@/lib/categories'
@@ -12,6 +11,7 @@ import type {
 } from '@/lib/map'
 
 import dynamic from 'next/dynamic'
+import { Link } from '@/i18n/navigation'
 import RestaurantList from './RestaurantList'
 import MapSheetDetail from './MapSheetDetail'
 import MapListHeader from './MapListHeader'
@@ -118,7 +118,6 @@ export type MapSectionBodyProps =
   & MapBodyAria
 
 export default function MapSectionBody(props: MapSectionBodyProps) {
-  const tNav = useTranslations('nav')
   const {
     isActive,
     mapRef, handleRef, setHeaderRef, setContentRef, setSheetRef,
@@ -241,17 +240,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 selected marker stays visible on the map. */}
           </div>
 
-          {/* Floating burger — lives in .body's stacking context, BELOW the
-              bottom-sheet (z-index 3 vs 4): when the sheet is dragged up it
-              slides over the burger, same as the search toolbar. */}
-          <button
-            type="button"
-            className={styles.mapBurger}
-            aria-label={tNav('menuAriaLabel')}
-            onClick={() => { document.getElementById('burgerBtn')?.click() }}
-          >
-            <img src="/pics/icon-burger.webp?v=3" alt="" aria-hidden="true" draggable={false} />
-          </button>
+          {/* Home link — top-left of the map (the corner freed up by moving
+              search to the right rail). Uses the square two-line EAT THIS mark
+              (same asset family as the favicon) as a sticker so users can
+              always get back to the start page. */}
+          <Link href="/" className={styles.mapHome} aria-label="EAT THIS — Start" />
 
           <aside
             ref={setSheetRef}

@@ -130,10 +130,14 @@ export default function RestaurantDetail({
     : t('map.closed')
 
   // Scale the hero name down for long single words so they fit on one line
-  // (no ugly mid-word break). Upper bound ≈ heroWidth / (longestWord · 0.62).
+  // (no ugly mid-word break). Upper bound ≈ usableWidth / (longestWord · 0.62).
+  // Budget is the REAL hero text width on desktop (~285px inside the 360px
+  // panel), not the old 360 — that was too optimistic and only survived with
+  // narrow Schoolbell; a wider display font overflowed and the
+  // last letter got clipped by the hero's overflow:hidden (e.g. "Schüsseldienst").
   const displayName = normalizeName(r.name)
   const longestWord = displayName.split(/\s+/).reduce((m, w) => Math.max(m, w.length), 0)
-  const nameMaxPx = Math.max(26, Math.min(56, Math.round(360 / (Math.max(longestWord, 1) * 0.62))))
+  const nameMaxPx = Math.max(26, Math.min(56, Math.round(311 / (Math.max(longestWord, 1) * 0.62))))
 
   const district = abbreviateBezirk(r.bezirk?.name ?? r.district ?? null)
 

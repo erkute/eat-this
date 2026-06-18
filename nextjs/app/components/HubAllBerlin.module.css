@@ -1,9 +1,9 @@
 .section {
   position: relative;
   display: grid;
-  gap: 30px;
-  margin: 0 16px;
-  padding: 34px 22px 38px;
+  gap: 22px;
+  margin: 0 12px;
+  padding: 26px 14px 30px;
   overflow: hidden;
   color: var(--et-red);
   background: var(--et-yellow-bright);
@@ -13,93 +13,96 @@
   isolation: isolate;
 }
 
-.section::before {
-  content: none;
-}
-
 .copyBlock {
   position: relative;
-  z-index: 4;
-  max-width: 540px;
+  z-index: 2;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
 }
 
 .kicker {
-  width: max-content;
-  margin: 0 0 12px;
+  justify-self: start;
+  margin: 0;
   padding: 7px 10px 8px;
   color: var(--et-cream);
   background: var(--et-red);
+  border-radius: var(--radius-pill, 999px);
   font-family: var(--font-label, var(--font-ranchers));
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1;
-  letter-spacing: .18em;
+  letter-spacing: .16em;
   text-transform: uppercase;
-  transform: none;
+  white-space: nowrap;
 }
 
 .heading {
   margin: 0;
   color: var(--et-red);
   font-family: var(--font-label, var(--font-ranchers));
-  font-size: clamp(88px, 25vw, 148px);
-  line-height: .84;
+  font-size: clamp(62px, 16vw, 108px);
+  line-height: .86;
   letter-spacing: 0;
   text-transform: uppercase;
-  text-wrap: balance;
-  text-shadow: none;
 }
 
 .copy {
-  max-width: 42ch;
-  margin: 20px 0 22px;
-  color: rgba(201, 67, 50, .76);
+  max-width: 34ch;
+  margin: 0;
+  color: rgba(103, 43, 30, .78);
   font-family: var(--font);
-  font-size: 15.5px;
-  font-weight: 650;
-  line-height: 1.5;
+  font-size: 16px;
+  font-weight: 750;
+  line-height: 1.38;
 }
 
 .copy strong {
   color: var(--et-red);
-  font-weight: 900;
+  font-weight: 950;
 }
 
 .dealSummary {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  white-space: nowrap;
-  border: 0;
-  clip: rect(0, 0, 0, 0);
-  clip-path: inset(50%);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin: 0;
+  color: rgba(103, 43, 30, .74);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.dealSummary strong {
+  color: var(--et-red);
 }
 
 .ctaWrap {
   position: relative;
   display: grid;
-  gap: 6px;
-  width: 100%;
+  width: min(100%, 360px);
+  margin-top: 2px;
 }
 
 .cta {
-  min-height: 68px;
+  min-height: 50px;
   width: 100%;
   justify-content: center;
+  padding-right: 92px !important;
   font-size: 15px;
   letter-spacing: .08em;
 }
 
 .ctaPrice {
   position: absolute;
-  right: 24px;
+  right: 20px;
   top: 50%;
   transform: translateY(-50%) rotate(-2deg);
   color: var(--et-cream);
   font-family: var(--font-label, var(--font-ranchers));
-  font-size: clamp(21px, 6vw, 30px);
+  font-size: 22px;
   line-height: .9;
   letter-spacing: .02em;
   pointer-events: none;
@@ -121,123 +124,146 @@
 .visual {
   position: relative;
   z-index: 1;
-  min-height: 0;
-  margin-top: 0;
+  min-width: 0;
 }
 
 .fan {
-  position: relative;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(3, minmax(68px, 1fr));
+  gap: 10px;
+  align-items: center;
+  justify-items: center;
+  max-width: 390px;
+  margin: 0 auto;
   pointer-events: none;
 }
 
 .fan img {
-  position: relative;
-  width: 100%;
+  display: block;
+  width: min(100%, 112px);
   height: auto;
-  filter: drop-shadow(0 16px 20px rgba(118, 51, 36, .2));
-  transform: none;
+  filter: drop-shadow(0 14px 18px rgba(118, 51, 36, .18));
 }
 
-.fan img:nth-child(n) {
-  left: auto;
-  top: auto;
-  height: auto;
-  transform: none;
+.fan img:nth-child(3n + 1) {
+  transform: rotate(-4deg);
+}
+
+.fan img:nth-child(3n + 2) {
+  transform: translateY(-5px) rotate(2deg);
+}
+
+.fan img:nth-child(3n) {
+  transform: rotate(4deg);
 }
 
 @media (min-width: 720px) {
   .section {
-    grid-template-columns: minmax(0, .78fr) minmax(500px, 1.22fr);
+    grid-template-columns: minmax(330px, .82fr) minmax(0, 1.18fr);
     align-items: center;
-    gap: 48px;
+    gap: clamp(28px, 4vw, 58px);
     width: min(1180px, calc(100% - 44px));
     margin: 0 auto;
-    padding: 72px clamp(46px, 5vw, 82px);
+    padding: clamp(42px, 5vw, 72px) clamp(36px, 5vw, 76px);
     min-height: 620px;
   }
 
+  .visual {
+    order: 0;
+  }
+
   .heading {
-    font-size: clamp(132px, 10.2vw, 188px);
+    font-size: clamp(98px, 8.2vw, 156px);
   }
 
   .copy {
-    font-size: 18px;
-    margin-top: 22px;
+    max-width: 32ch;
+    font-size: clamp(18px, 1.65vw, 23px);
+  }
+
+  .dealSummary {
+    max-width: 42ch;
+    font-size: 13px;
   }
 
   .ctaWrap {
-    width: auto;
-    min-width: 340px;
+    width: min(100%, 390px);
   }
 
   .cta {
-    width: 100%;
-    font-size: 15px;
-    padding-inline: 36px;
+    min-height: 54px;
+    font-size: 16px;
+    padding-inline: 22px 104px !important;
   }
 
   .ctaPrice {
-    right: 32px;
-    font-size: 28px;
-  }
-
-  .visual {
-    min-height: 0;
-    margin-top: 0;
+    right: 24px;
+    font-size: 27px;
   }
 
   .fan {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 22px;
+    grid-template-columns: repeat(3, minmax(108px, 1fr));
+    gap: clamp(14px, 2vw, 24px);
+    max-width: 600px;
   }
 
+  .fan img {
+    width: min(100%, 164px);
+    filter: drop-shadow(0 18px 24px rgba(118, 51, 36, .22));
+  }
+}
+
+@media (min-width: 1080px) {
+  .section {
+    grid-template-columns: minmax(390px, .76fr) minmax(0, 1.24fr);
+  }
+
+  .fan {
+    max-width: 760px;
+  }
+
+  .fan img {
+    width: min(100%, 198px);
+  }
+}
+
+@media (min-width: 720px) and (max-width: 899px) {
+  .section {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .copy {
+    max-width: 44ch;
+  }
+
+  .fan {
+    max-width: 640px;
+  }
+
+  .fan img {
+    width: min(100%, 178px);
+  }
 }
 
 html[data-theme="dark"] .section {
   background: var(--et-yellow-bright);
   color: var(--et-red);
-  box-shadow: 0 18px 44px rgba(118, 51, 36, .11);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .28);
 }
 
-html[data-theme="dark"] .heading {
-  color: var(--et-red);
-  text-shadow: none;
-}
-
-html[data-theme="dark"] .copy {
-  color: rgba(201, 67, 50, .76);
-}
-
-html[data-theme="dark"] .copy strong {
-  color: var(--et-red);
-}
-
-.section,
-.kicker,
-html[data-theme="dark"] .section,
-html[data-theme="dark"] .kicker {
-  border: 0;
-}
-
-html[data-theme="dark"] .section {
-  background: var(--et-black);
-  color: var(--et-red-hot);
-}
 html[data-theme="dark"] .heading,
 html[data-theme="dark"] .copy strong,
+html[data-theme="dark"] .dealSummary strong {
+  color: var(--et-red);
+}
+
+html[data-theme="dark"] .copy,
+html[data-theme="dark"] .dealSummary {
+  color: rgba(103, 43, 30, .78);
+}
+
 html[data-theme="dark"] .kicker {
-  color: var(--et-red-hot);
-}
-html[data-theme="dark"] .kicker {
-  color: var(--et-black);
-}
-html[data-theme="dark"] .copy {
-  color: rgba(242, 223, 184, .78);
-}
-html[data-theme="dark"] .dealCard {
-  background: var(--et-dark-card);
-  color: var(--et-red-hot);
+  color: var(--et-cream);
+  background: var(--et-red);
 }

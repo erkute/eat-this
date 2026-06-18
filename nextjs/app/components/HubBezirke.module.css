@@ -36,10 +36,12 @@
   gap: 6px;
   min-width: 0;
   min-height: 46px;
-  padding-inline: 12px;
-  white-space: normal;
+  padding-inline: 10px;
+  white-space: nowrap;
   text-align: center;
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: clip;
+  font-size: clamp(12px, 3.4vw, 17px) !important;
 }
 .tab.active {
   background: var(--et-cream);
@@ -95,8 +97,12 @@
 @media (min-width: 720px) {
   .section { padding: 56px max(22px, calc((100% - 1120px) / 2)) 64px; }
   .heading { font-size: clamp(56px, 7vw, 84px); }
-  .tabs { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
-  .tab { font-size: 17px; padding-inline: 14px; white-space: normal; }
+  .tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .tab {
+    min-height: 50px;
+    padding-inline: 14px;
+    font-size: clamp(15px, 2.05vw, 19px) !important;
+  }
   .grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
   .tileName { font-size: 19px; }
 }

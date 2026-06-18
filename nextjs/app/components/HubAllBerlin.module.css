@@ -81,30 +81,39 @@
 
 .ctaWrap {
   position: relative;
-  display: grid;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   width: min(100%, 360px);
   margin-top: 2px;
 }
 
 .cta {
   min-height: 50px;
-  width: 100%;
+  flex: 1 1 auto;
+  width: auto;
   justify-content: center;
-  padding-right: 92px !important;
+  padding-inline: 22px !important;
   font-size: 15px;
   letter-spacing: .08em;
 }
 
 .ctaPrice {
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%) rotate(-2deg);
-  color: var(--et-cream);
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 14px 2px;
+  color: var(--et-red);
+  background: rgba(255, 248, 234, .72);
+  border: 2px solid rgba(201, 67, 50, .24);
+  border-radius: var(--radius-pill, 999px);
   font-family: var(--font-label, var(--font-ranchers));
-  font-size: 22px;
+  font-size: 20px;
   line-height: .9;
   letter-spacing: .02em;
+  box-shadow: inset 0 -2px 0 rgba(201, 67, 50, .12);
   pointer-events: none;
 }
 
@@ -187,18 +196,19 @@
   }
 
   .ctaWrap {
-    width: min(100%, 390px);
+    width: min(100%, 400px);
   }
 
   .cta {
     min-height: 54px;
     font-size: 16px;
-    padding-inline: 22px 104px !important;
+    padding-inline: 26px !important;
   }
 
   .ctaPrice {
-    right: 24px;
-    font-size: 27px;
+    min-height: 52px;
+    padding-inline: 18px;
+    font-size: 24px;
   }
 
   .fan {

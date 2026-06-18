@@ -4762,41 +4762,43 @@ html[data-theme="dark"] .rdHeartToggleCount {
   color: #14100c;
 }
 
-/* In the restaurant hero, the save action sits directly on photography. Keep
-   the action quiet and premium: a small glass control, not a sticker-heart. */
+/* In the restaurant hero, the save action sits directly on photography: no
+   control circle, just a restrained heart glyph with enough shadow to read. */
 .rdHero .rdHeartToggle,
 html[data-theme="dark"] .rdHero .rdHeartToggle {
-  min-width: 40px;
-  min-height: 40px;
-  padding: 8px 10px;
+  min-width: 0;
+  min-height: 0;
+  padding: 7px;
   gap: 6px;
-  background: rgba(18, 14, 11, .58);
+  background: transparent;
   color: #fff8ea;
-  border: 1px solid rgba(255, 248, 234, .34);
-  border-radius: 999px;
+  border: 0;
+  border-radius: 0;
   clip-path: none;
   transform: none;
   filter: none;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, .26);
-  -webkit-backdrop-filter: blur(10px) saturate(1.15);
-  backdrop-filter: blur(10px) saturate(1.15);
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 .rdHero .rdHeartToggle:active,
 html[data-theme="dark"] .rdHero .rdHeartToggle:active {
-  transform: scale(.96);
-  box-shadow: 0 5px 14px rgba(0, 0, 0, .24);
+  transform: scale(.94);
+  box-shadow: none;
 }
 .rdHero .rdHeartToggle svg,
 .rdHero .rdHeartToggleOn svg,
 html[data-theme="dark"] .rdHero .rdHeartToggle svg,
 html[data-theme="dark"] .rdHero .rdHeartToggleOn svg {
-  width: 20px;
-  height: 20px;
+  width: 26px;
+  height: 26px;
   color: #fff8ea;
   stroke: currentColor;
-  stroke-width: 2.15;
+  stroke-width: 2.05;
   fill: transparent;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .32));
+  filter:
+    drop-shadow(0 1px 2px rgba(0, 0, 0, .42))
+    drop-shadow(0 4px 10px rgba(0, 0, 0, .28));
 }
 .rdHero .rdHeartToggleOn svg,
 html[data-theme="dark"] .rdHero .rdHeartToggleOn svg {

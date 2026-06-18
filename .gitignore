@@ -6,7 +6,10 @@ node_modules/
 
 # Build artifacts & caches
 .firebase/
+.agents/
 .claude/
+.codex/
+.mcp.json
 .worktrees/
 .superpowers/
 test-results/
@@ -17,6 +20,8 @@ studio/.sanity/
 /peek-*.png
 /handle-*.png
 /mobile-scroll-*.png
+/.home-*.png
+/.s[0-9]*.png
 
 # Rive working assets (PNG/.riv source) — not shipped
 rive-src/

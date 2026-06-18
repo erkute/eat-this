@@ -4,7 +4,7 @@
    font → var(--font-ranchers) (= Chewy). Cream/black/yellow only. */
 
 .page {
-  background: transparent;
+  background: var(--et-yellow);
   color: #0a0a0a;
   display: flow-root; /* contain margins over the dark footer */
   /* Clear the fixed 64px SiteNav — this route has its own layout, not the
@@ -17,8 +17,9 @@
   max-width: 460px;
   margin: 0 auto;
   padding: 28px 28px 42px;
-  background: rgba(255, 255, 255, .9);
-  box-shadow: var(--collage-shadow);
+  background: var(--et-cream);
+  box-shadow: 0 18px 34px rgba(43, 33, 28, .13);
+  transform: rotate(-.2deg);
 }
 
 /* ── Category pack hero ── */
@@ -162,7 +163,6 @@
   height: 56px;
   background: var(--collage-red);
   color: #fff;
-  color: #0a0a0a;
   border: 2px solid #0a0a0a;
   box-shadow: 4px 4px 0 #0a0a0a;
   font-family: var(--font-ranchers);
@@ -214,20 +214,53 @@
 }
 
 .upsell {
-  text-align: center;
-  margin-top: 22px;
-  padding-top: 18px;
-  border-top: 1.5px solid rgba(10, 10, 10, .15);
+  margin-top: 24px;
 }
 .upsell a {
-  font-family: var(--font-ranchers);
-  font-size: 12px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
+  display: grid;
+  gap: 8px;
+  padding: 18px 18px 20px;
   color: #0a0a0a;
-  border-bottom: 1.5px solid #0a0a0a;
-  padding-bottom: 1px;
+  background: #fbf8ee;
+  border: 2px solid rgba(10, 10, 10, .88);
+  box-shadow: 4px 4px 0 #0a0a0a;
   text-decoration: none;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.upsell a:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 #0a0a0a;
+}
+.upsell a:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #0a0a0a;
+}
+.upsellKicker {
+  font-family: var(--font-ranchers);
+  font-size: 14px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(10, 10, 10, .58);
+}
+.upsellMain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  font-family: var(--font-ranchers);
+  font-size: clamp(34px, 10vw, 48px);
+  line-height: .9;
+  text-transform: uppercase;
+  color: var(--collage-red);
+}
+.upsellMain strong {
+  flex: 0 0 auto;
+  padding: 8px 10px 10px;
+  color: #fbf8ee;
+  background: #0a0a0a;
+  font: inherit;
+  font-size: .58em;
+  line-height: 1;
 }
 
 /* ── All Berlin variant ── */
@@ -295,7 +328,7 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  background: #f3eedd;
+  background: #fff;
   padding: 12px 6px 10px;
   border: 1.5px solid rgba(10, 10, 10, .18);
 }
@@ -369,6 +402,10 @@
 html[data-theme="dark"] .page {
   background: #111110;
   color: #f0e8d0;
+}
+html[data-theme="dark"] .inner {
+  background: #181112;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, .35);
 }
 
 /* Pack art is freigestellt cut-out → never filter; soft shadow stays. */
@@ -445,13 +482,27 @@ html[data-theme="dark"] .trust strong {
   color: #f0e8d0;
 }
 
-/* ── Upsell ── */
-html[data-theme="dark"] .upsell {
-  border-top-color: rgba(240, 232, 208, 0.3);
-}
 html[data-theme="dark"] .upsell a {
   color: #f0e8d0;
-  border-bottom-color: #f0e8d0;
+  background: #181112;
+  border-color: rgba(240, 232, 208, .72);
+  box-shadow: 4px 4px 0 rgba(240, 232, 208, .22);
+}
+html[data-theme="dark"] .upsell a:hover {
+  box-shadow: 5px 5px 0 rgba(240, 232, 208, .22);
+}
+html[data-theme="dark"] .upsell a:active {
+  box-shadow: 1px 1px 0 rgba(240, 232, 208, .22);
+}
+html[data-theme="dark"] .upsellKicker {
+  color: rgba(240, 232, 208, .62);
+}
+html[data-theme="dark"] .upsellMain {
+  color: var(--c-coral-bright);
+}
+html[data-theme="dark"] .upsellMain strong {
+  background: #f0e8d0;
+  color: #0a0a0a;
 }
 
 /* ── All Berlin variant ── (stack art = freigestellt cut-outs: leave) ── */

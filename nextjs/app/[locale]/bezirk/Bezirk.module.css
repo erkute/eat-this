@@ -48,8 +48,12 @@
    HERO BLOCK
 ============================================================ */
 .hero {
-  margin: 8px 0 12px;
+  margin: 8px 0 28px;
+  padding: clamp(24px, 5vw, 52px);
+  background: var(--et-cream);
+  box-shadow: 0 18px 34px rgba(43, 33, 28, .12);
   text-align: left;
+  transform: rotate(-.2deg);
 }
 .kicker {
   font-family: var(--f-display);
@@ -103,7 +107,8 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  margin: 0 0 30px;
+  margin: 0 0 34px;
+  padding: 0 2px;
 }
 .crossLinksHead {
   font-family: var(--f-body);
@@ -192,7 +197,7 @@
   display: block;
 }
 .cardBody {
-  padding: 14px 8px 12px;
+  padding: 16px 10px 14px;
 }
 .cardName {
   font-family: var(--f-display);
@@ -383,14 +388,16 @@
   gap: 6px;
   padding: 28px 22px;
   min-height: 130px;
-  background: var(--cream);
-  border: 1.5px solid var(--ink);
+  background: var(--et-cream);
+  border: 0;
+  box-shadow: 0 16px 28px rgba(43, 33, 28, .12);
   text-decoration: none;
   color: var(--ink);
   transition: background 0.15s ease;
 }
 .bezirkCard:hover {
-  background: var(--yellow);
+  background: var(--et-cream);
+  transform: rotate(0) translateY(-4px);
 }
 .bezirkName {
   font-family: var(--f-display);
@@ -514,7 +521,7 @@
      no decoration, just Anton at full presence so the cream column doesn't
      feel empty on wide screens. */
   .hero {
-    margin: 16px 0 40px;
+    margin: 16px 0 46px;
   }
   .kicker {
     font-size: 15px;
@@ -624,10 +631,16 @@ html[data-theme="dark"] .page {
   --accent: var(--c-coral);
 }
 
+html[data-theme="dark"] .hero,
+html[data-theme="dark"] .bezirkCard {
+  background: #181112;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, .32);
+}
+
 /* Cards on now-dark surface — raised tone + cream hairline */
 html[data-theme="dark"] .card {
   background: var(--cream-deep);
-  border-bottom-color: rgba(240, 232, 208, 0.3);
+  border-color: var(--cream-deep);
 }
 html[data-theme="dark"] .card:hover {
   border-bottom-color: #f0e8d0;

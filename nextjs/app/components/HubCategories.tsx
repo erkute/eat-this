@@ -31,11 +31,8 @@ export default function HubCategories({ categories }: Props) {
                 <h3 className={styles.name}>{c.name}</h3>
                 {c.line && <p className={styles.line}>{c.line}</p>}
                 <div className={styles.actions}>
-                  <Link href={`/map?cat=${c.slug}`} rel="nofollow" className={`${styles.cta} homeCta homeCtaPrimary homeCtaSmall`}>
-                    {t('toMap')}
-                  </Link>
                   {pack && (
-                    <Link href={`/pack/${c.slug}`} className={`${styles.cta} ${styles.ctaPack} homeCta homeCtaSmall`}>
+                    <Link href={`/pack/${c.slug}`} className={`${styles.cta} ${styles.ctaPack} homeCta homeCtaPrimary homeCtaSmall`}>
                       {t('pack')}
                     </Link>
                   )}

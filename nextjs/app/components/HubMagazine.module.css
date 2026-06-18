@@ -1,6 +1,6 @@
 .section {
   background: transparent;
-  padding-top: 44px;
+  padding-top: 12px;
 }
 .heading {
   font-family: var(--font-ranchers);
@@ -8,7 +8,7 @@
   line-height: 1.15;
   text-transform: uppercase;
   color: var(--et-red);
-  margin: 28px 18px 8px;
+  margin: 8px 18px 8px;
   padding-top: 6px;
 }
 .meta {
@@ -118,7 +118,10 @@
 
 /* ── Desktop: centered column, scroller becomes a 3-up grid ── */
 @media (min-width: 720px) {
-  .section { padding-inline: max(16px, calc((100% - 1120px) / 2)); }
+  .section {
+    padding-top: 44px;
+    padding-inline: max(16px, calc((100% - 1120px) / 2));
+  }
   .heading { margin: 38px 0 4px; font-size: clamp(44px, 5vw, 56px); }
   .meta { margin: 0 0 18px; }
   .scroller {

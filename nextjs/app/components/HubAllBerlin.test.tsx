@@ -1,7 +1,10 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
 import { translations } from '@/lib/i18n/translations'
+
+vi.mock('@/lib/auth', () => ({ useAuth: () => ({ user: null, loading: false }) }))
+
 import HubAllBerlin from '@/app/components/HubAllBerlin'
 
 function render() {
@@ -20,8 +23,9 @@ describe('HubAllBerlin', () => {
     expect(html).toContain('€26,91')
     expect(html).toContain('Spar €6,91')
   })
-  it('links the CTA to the All Berlin pack detail page', () => {
+  it('renders a direct checkout CTA instead of linking to the detail page', () => {
     const html = render()
-    expect(html).toMatch(/href="[^"]*\/pack\/all-berlin"/)
+    expect(html).toContain('All Berlin kaufen · €20,00')
+    expect(html).not.toMatch(/href="[^"]*\/pack\/all-berlin"/)
   })
 })

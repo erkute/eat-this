@@ -376,22 +376,6 @@ html:not([data-active-page="map"]) .app-page:not([data-page="start"]) {
   isolation: isolate;
 }
 
-html:not([data-active-page="map"]) main::before,
-html:not([data-active-page="map"]) .app-page:not([data-page="start"])::before {
-  content: "EAT THIS / BERLIN";
-  position: absolute;
-  z-index: -1;
-  top: 118px;
-  right: 10px;
-  color: var(--collage-red);
-  font-family: var(--font-display);
-  font-size: 10px;
-  letter-spacing: .16em;
-  line-height: 1;
-  transform: rotate(90deg);
-  pointer-events: none;
-}
-
 html:not([data-active-page="map"]) main h1,
 html:not([data-active-page="map"]) main h2,
 html:not([data-active-page="map"]) .app-page:not([data-page="start"]) h1,

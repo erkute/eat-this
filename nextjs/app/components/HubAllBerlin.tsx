@@ -1,7 +1,7 @@
-import { useTranslations } from 'next-intl'
-import { Link } from '@/i18n/navigation'
+import { useLocale, useTranslations } from 'next-intl'
 import { CATALOG } from '@/lib/stripe-catalog'
 import { categoryArt } from '@/lib/categoryArt'
+import HubPackBuyButton from './HubPackBuyButton'
 import styles from './HubAllBerlin.module.css'
 
 function formatPrice(cents: number): string {
@@ -10,6 +10,8 @@ function formatPrice(cents: number): string {
 
 export default function HubAllBerlin() {
   const t = useTranslations('hub.allBerlin')
+  const loc: 'de' | 'en' = useLocale() === 'de' ? 'de' : 'en'
+  const ownedHref = loc === 'de' ? '/map' : '/en/map'
   const categoryPacks = Object.values(CATALOG).filter((p) => p.type === 'category' && p.slug)
   const allBerlin = CATALOG['all-berlin']
   const sumCents = categoryPacks.reduce((s, p) => s + p.amountCents, 0)
@@ -31,7 +33,25 @@ export default function HubAllBerlin() {
           <strong>{formatPrice(allBerlin.amountCents)}. </strong>
           <span>{t('save', { amount: formatPrice(sumCents - allBerlin.amountCents) })}.</span>
         </p>
-        <Link href="/pack/all-berlin" aria-label={t('viewAria')} className={`${styles.cta} homeCta homeCtaPrimary`}>{t('buy')}</Link>
+        <div className={styles.ctaWrap}>
+          <HubPackBuyButton
+            packId={allBerlin.packId}
+            packName={allBerlin.displayName}
+            amountCents={allBerlin.amountCents}
+            locale={loc}
+            label={t('buyDirect', { price: formatPrice(allBerlin.amountCents) })}
+            pendingLabel={t('pending')}
+            ownedLabel={t('owned')}
+            ownedHref={ownedHref}
+            errorLabel={t('error')}
+            className={`${styles.cta} homeCta homeCtaPrimary`}
+            errorClassName={styles.error}
+            ariaLabel={t('viewAria')}
+          />
+          <span className={styles.ctaPrice} aria-hidden="true">
+            {formatPrice(allBerlin.amountCents)}
+          </span>
+        </div>
       </div>
 
       <div className={styles.visual} aria-hidden="true">
@@ -40,12 +60,6 @@ export default function HubAllBerlin() {
             // eslint-disable-next-line @next/next/no-img-element
             <img key={src} src={src} alt="" loading="lazy" />
           ))}
-        </div>
-        <div className={styles.dealCard}>
-          <span>9 Packs</span>
-          <small className={styles.compare}>{t('compare', { amount: formatPrice(sumCents) })}</small>
-          <strong>{formatPrice(allBerlin.amountCents)}</strong>
-          <small>{t('save', { amount: formatPrice(sumCents - allBerlin.amountCents) })}</small>
         </div>
       </div>
     </section>

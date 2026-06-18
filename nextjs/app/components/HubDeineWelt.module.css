@@ -233,6 +233,7 @@
 
 .locationControl {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
   gap: 6px;
   align-items: stretch;
 }
@@ -259,12 +260,42 @@
 }
 
 .locateBtn {
-  justify-content: flex-start;
-  padding: 7px 12px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   color: var(--et-black, #100d0f);
   background: rgba(255, 255, 255, .62);
   box-shadow: 0 6px 14px rgba(92, 50, 19, .07);
   cursor: pointer;
+}
+
+.locateIcon {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.locateIcon circle:last-child {
+  fill: currentColor;
+  stroke: none;
+}
+
+.locateText {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
 }
 
 .districtSelect {
@@ -352,7 +383,7 @@
   color: var(--et-cream, #f2dfb8);
   background: var(--et-black, #100d0f);
   border-color: var(--et-black, #100d0f);
-  transform: translateX(-4px);
+  transform: translateY(-2px);
 }
 
 .districtSelect:hover {
@@ -367,7 +398,7 @@
 }
 
 .locateBtn:active:not(:disabled) {
-  transform: translateX(-2px);
+  transform: translateY(0);
 }
 
 .districtSelect:active {
@@ -389,6 +420,7 @@
 .lockedCard {
   display: grid;
   gap: 7px;
+  min-width: 0;
   color: inherit;
   text-align: center;
   text-decoration: none;
@@ -403,6 +435,25 @@
   background-repeat: no-repeat;
   background-size: contain;
   filter: drop-shadow(0 10px 10px rgba(16, 13, 15, .2));
+}
+
+.foodCard strong,
+.lockedCard strong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: normal;
+}
+
+.lockedCard strong {
+  font-size: clamp(17px, 1.55vw, 21px);
+}
+
+.lockedCard small {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: normal;
 }
 
 .empty {

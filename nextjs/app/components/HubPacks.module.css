@@ -21,13 +21,13 @@
 }
 .scroller::-webkit-scrollbar { display: none; }
 .pack {
-  flex: 0 0 268px;
+  flex: 0 0 304px;
   background: var(--et-yellow-bright);
   color: var(--et-red);
   border: 2px solid var(--et-red);
   border-radius: 8px;
   box-shadow: 10px 10px 0 rgba(201, 67, 50, .14);
-  padding: 18px;
+  padding: 20px;
   display: grid;
   gap: 12px;
   position: relative;
@@ -39,7 +39,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 200px;
+  height: 232px;
   margin: -4px 0 -2px;
 }
 .artImg {
@@ -59,7 +59,7 @@
 }
 .packName {
   font-family: var(--font-ranchers);
-  font-size: 28px;
+  font-size: clamp(30px, 9vw, 36px);
   line-height: 1.08;
   text-transform: uppercase;
   letter-spacing: 0;
@@ -78,14 +78,29 @@
   margin-bottom: 6px;
 }
 .packFoot {
-  display: flex;
+  display: grid;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: stretch;
   gap: 12px;
-  margin-top: 2px;
+  margin-top: 6px;
 }
 .packCta {
+  width: 100%;
+  min-height: 52px;
+  justify-content: center;
+  font-size: 13px;
   white-space: nowrap;
+}
+.packCta:disabled {
+  cursor: progress;
+}
+.packError {
+  margin: 0;
+  color: var(--et-red);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.25;
 }
 /* Welcome-pack inline magic-link signup (mockup .p-signup, stacked). On the
    yellow gift card: cream input w/ ink border, ink button w/ yellow label. */
@@ -95,21 +110,30 @@
 }
 .signupInput {
   width: 100%;
-  border: 2px solid var(--et-red);
-  background: var(--et-yellow-bright);
+  border: 0;
+  border-radius: 0;
+  background: #fff;
   padding: 11px 14px;
   /* Schoolbell (brand display) for the typed value + placeholder; runs small,
      so 17px ≈ the optical size of the previous 15px sans. */
   font-family: var(--font-chewy), cursive;
   font-size: 17px;
-  color: var(--et-red);
+  color: #000;
   outline: none;
 }
-.signupInput::placeholder { color: rgba(201, 67, 50, .45); }
+.signupInput::placeholder { color: rgba(0, 0, 0, .38); }
 .signupInput:disabled { opacity: .6; }
 .signupBtn {
   width: 100%;
   gap: 8px;
+  background: var(--et-black);
+  color: var(--et-cream);
+  box-shadow: 0 12px 24px rgba(16, 13, 15, .16);
+}
+.signupBtn:hover:not(:disabled) {
+  background: var(--et-red);
+  color: var(--et-black);
+  transform: translateY(-2px);
 }
 .signupBtn:disabled { cursor: default; opacity: .75; }
 .giftSent {
@@ -138,19 +162,20 @@
   }
   .scroller {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
     overflow: visible;
     padding: 12px max(22px, calc((100% - 1180px) / 2)) 64px;
   }
-  .pack { flex: initial; padding: 22px; }
-  .packArt { height: 220px; }
+  .pack { flex: initial; padding: 24px; }
+  .packArt { height: 252px; }
   .pack:hover { transform: translateY(-4px); box-shadow: 8px 8px 0 rgba(201, 67, 50, .2); }
   .pack { transition: transform .2s, box-shadow .2s; }
 }
 
 @media (min-width: 1080px) {
-  .scroller { grid-template-columns: repeat(4, 1fr); }
+  .scroller { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .packArt { height: 278px; }
 }
 
 /* ── Dark mode: dark page, warm-cream ink, red replaces yellow. Pack art
@@ -179,11 +204,6 @@ html[data-theme="dark"] .giftSent,
 html[data-theme="dark"] .giftError { color: var(--et-red); }
 /* Signup input stays cream-paper with ink text so the field reads as an input
    on the red gift card (matches light mode's cream-on-yellow contrast). */
-html[data-theme="dark"] .signupInput {
-  background: var(--et-yellow-bright);
-  border-color: var(--et-red);
-  color: var(--et-red);
-}
 .pack,
 .signupInput,
 html[data-theme="dark"] .pack,
@@ -198,14 +218,28 @@ html[data-theme="dark"] .giftError {
   color: var(--et-red-hot);
 }
 html[data-theme="dark"] .pack,
-html[data-theme="dark"] .signupInput {
+html[data-theme="dark"] .pack:not(.gift) {
   background: var(--et-dark-card);
   color: var(--et-cream);
 }
-html[data-theme="dark"] .gift,
-html[data-theme="dark"] .signupBtn {
+html[data-theme="dark"] .gift {
   background: var(--et-red-hot);
   color: var(--et-black);
+}
+html[data-theme="dark"] .gift .signupBtn {
+  background: var(--et-black);
+  color: var(--et-cream);
+}
+html[data-theme="dark"] .gift .signupBtn:hover:not(:disabled) {
+  background: var(--et-cream);
+  color: var(--et-black);
+}
+html[data-theme="dark"] .gift .signupInput {
+  background: #fff;
+  color: #000;
+}
+html[data-theme="dark"] .gift .signupInput::placeholder {
+  color: rgba(0, 0, 0, .38);
 }
 html[data-theme="dark"] .gift .packName,
 html[data-theme="dark"] .gift .packCat,

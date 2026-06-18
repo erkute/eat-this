@@ -81,16 +81,17 @@
   margin: 2px 0 4px;
 }
 .actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 8px;
   align-items: center;
   margin-top: 2px;
 }
 .cta {
+  width: max-content;
   min-height: 38px;
 }
 .ctaPack {
+  justify-content: center;
   gap: 7px;
 }
 

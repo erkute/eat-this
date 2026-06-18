@@ -1,9 +1,9 @@
 .section {
   position: relative;
   display: grid;
-  gap: 28px;
+  gap: 30px;
   margin: 0 16px;
-  padding: 30px 22px 34px;
+  padding: 34px 22px 38px;
   overflow: hidden;
   color: var(--et-red);
   background: var(--et-yellow-bright);
@@ -41,7 +41,7 @@
   margin: 0;
   color: var(--et-red);
   font-family: var(--font-ranchers);
-  font-size: clamp(72px, 23vw, 132px);
+  font-size: clamp(88px, 25vw, 148px);
   line-height: .84;
   letter-spacing: 0;
   text-transform: uppercase;
@@ -51,7 +51,7 @@
 
 .copy {
   max-width: 42ch;
-  margin: 18px 0 20px;
+  margin: 20px 0 22px;
   color: rgba(201, 67, 50, .76);
   font-family: var(--font);
   font-size: 15.5px;
@@ -77,9 +77,45 @@
   clip-path: inset(50%);
 }
 
-.cta {
-  min-height: 58px;
+.ctaWrap {
+  position: relative;
+  display: grid;
+  gap: 6px;
   width: 100%;
+}
+
+.cta {
+  min-height: 68px;
+  width: 100%;
+  justify-content: center;
+  font-size: 15px;
+  letter-spacing: .08em;
+}
+
+.ctaPrice {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-2deg);
+  color: var(--et-cream);
+  font-family: var(--font-ranchers);
+  font-size: clamp(21px, 6vw, 30px);
+  line-height: .9;
+  letter-spacing: .02em;
+  pointer-events: none;
+}
+
+.cta:disabled {
+  cursor: progress;
+}
+
+.error {
+  margin: 10px 0 0;
+  color: var(--et-red);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.3;
 }
 
 .visual {
@@ -93,7 +129,7 @@
   position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: 16px;
   pointer-events: none;
 }
 
@@ -101,7 +137,7 @@
   position: relative;
   width: 100%;
   height: auto;
-  filter: drop-shadow(0 12px 18px rgba(118, 51, 36, .16));
+  filter: drop-shadow(0 16px 20px rgba(118, 51, 36, .2));
   transform: none;
 }
 
@@ -112,63 +148,19 @@
   transform: none;
 }
 
-.dealCard {
-  position: relative;
-  right: auto;
-  bottom: auto;
-  z-index: 12;
-  display: grid;
-  gap: 4px;
-  width: 100%;
-  margin-top: 16px;
-  padding: 16px 16px 15px;
-  color: var(--et-red);
-  background: var(--et-cream);
-  border: 0;
-  border-radius: 8px;
-  box-shadow: none;
-  transform: none;
-}
-
-.dealCard span,
-.dealCard small {
-  font-family: var(--font);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: .14em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.dealCard strong {
-  font-family: var(--font-ranchers);
-  font-size: 48px;
-  line-height: .95;
-  color: var(--et-red);
-}
-
-.dealCard small,
-.dealCard .compare {
-  color: rgba(201, 67, 50, .58);
-}
-
-.dealCard .compare {
-  text-decoration: line-through;
-}
-
 @media (min-width: 720px) {
   .section {
-    grid-template-columns: minmax(0, .82fr) minmax(470px, 1.18fr);
+    grid-template-columns: minmax(0, .78fr) minmax(500px, 1.22fr);
     align-items: center;
     gap: 48px;
     width: min(1180px, calc(100% - 44px));
     margin: 0 auto;
-    padding: 64px clamp(42px, 5vw, 72px);
-    min-height: 560px;
+    padding: 72px clamp(46px, 5vw, 82px);
+    min-height: 620px;
   }
 
   .heading {
-    font-size: clamp(104px, 8.8vw, 150px);
+    font-size: clamp(132px, 10.2vw, 188px);
   }
 
   .copy {
@@ -176,11 +168,20 @@
     margin-top: 22px;
   }
 
-  .cta {
+  .ctaWrap {
     width: auto;
-    min-width: 276px;
-    font-size: 13px;
+    min-width: 340px;
+  }
+
+  .cta {
+    width: 100%;
+    font-size: 15px;
     padding-inline: 36px;
+  }
+
+  .ctaPrice {
+    right: 32px;
+    font-size: 28px;
   }
 
   .visual {
@@ -190,19 +191,9 @@
 
   .fan {
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 18px;
+    gap: 22px;
   }
 
-  .dealCard {
-    width: min(100%, 360px);
-    margin: 22px auto 0;
-    padding: 20px;
-    text-align: center;
-  }
-
-  .dealCard strong {
-    font-size: 56px;
-  }
 }
 
 html[data-theme="dark"] .section {
@@ -224,16 +215,10 @@ html[data-theme="dark"] .copy strong {
   color: var(--et-red);
 }
 
-html[data-theme="dark"] .dealCard {
-  background: var(--et-cream);
-}
-
 .section,
 .kicker,
-.dealCard,
 html[data-theme="dark"] .section,
-html[data-theme="dark"] .kicker,
-html[data-theme="dark"] .dealCard {
+html[data-theme="dark"] .kicker {
   border: 0;
 }
 

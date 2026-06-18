@@ -80,7 +80,8 @@
 
 .dishLink {
   position: relative;
-  display: block;
+  display: grid;
+  justify-items: center;
   color: inherit;
   text-decoration: none;
   transform-origin: center;
@@ -107,17 +108,20 @@
 }
 
 .label {
-  position: absolute;
+  position: relative;
   z-index: 3;
-  left: var(--label-left, 50%);
-  bottom: var(--label-bottom, 3%);
-  transform: translate(-50%, 10%) rotate(var(--label-rot, -2deg));
+  left: auto;
+  bottom: auto;
+  transform: rotate(var(--label-rot, -2deg));
   display: grid;
+  justify-items: center;
   gap: 2px;
-  width: max-content;
+  width: min(170px, 94%);
   max-width: min(170px, 92%);
+  margin: -12px auto 0;
   padding: 0;
   color: var(--et-black);
+  text-align: center;
   text-shadow: 0 2px 0 rgba(255, 248, 234, .55);
 }
 
@@ -410,7 +414,7 @@
     justify-items: center;
     width: min(142px, 94%);
     max-width: 142px;
-    margin: -14px auto 0;
+    margin: -10px auto 0;
     text-align: center;
     transform: rotate(var(--label-rot, -2deg));
   }

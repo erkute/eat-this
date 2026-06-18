@@ -501,45 +501,63 @@ body {
 }
 
 
-/* Cookie Consent — square cream sticker card (2026 brand language).
-   Light: cream surface, 2px ink border, hard offset shadow, yellow CTA.
-   Dark: ink panel, cream border, red CTA (dark accent is red, not yellow).
-   Entry is pure translate — no opacity fade (brand motion rule). */
+/* Cookie Consent — compact brand sticker.
+   It should feel like Eat This UI, not a browser/system banner. Entry remains
+   pure translate — no opacity fade (brand motion rule). */
 .cookie-consent {
   position: fixed;
-  left: 16px;
-  right: 16px;
-  bottom: 16px;
-  margin: 0 auto;
-  max-width: 720px;
-  background: var(--cream, var(--et-yellow));
-  color: #000;
-  padding: 18px 20px;
-  border: 2px solid #000;
-  box-shadow: 4px 4px 0 0 #000;
+  left: max(16px, env(safe-area-inset-left, 0px));
+  right: auto;
+  bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  width: min(560px, calc(100vw - 32px));
+  margin: 0;
+  padding: 13px 14px 14px;
+  color: var(--et-black);
+  background: var(--et-cream);
+  border: 1px solid rgba(16, 13, 15, .14);
+  border-radius: 8px;
+  box-shadow: 0 18px 46px rgba(16, 13, 15, .22);
   z-index: 10002;
   transform: translateY(calc(100% + 32px));
   transition: transform 0.46s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cookie-consent::before {
+  content: "Cookies";
+  display: inline-flex;
+  width: max-content;
+  margin: 0 0 8px;
+  padding: 5px 9px 7px;
+  color: var(--et-cream);
+  background: var(--et-red);
+  border-radius: 6px;
+  font-family: var(--font-poster, var(--font));
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: .06em;
+  line-height: .82;
+  text-transform: uppercase;
 }
 .cookie-consent.show {
   transform: translateY(0);
 }
 .cookie-content {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 14px 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
 }
 .cookie-text {
-  flex: 1 1 280px;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 4px 8px;
+  gap: 7px 10px;
   margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
-  color: rgba(0, 0, 0, 0.85);
+  color: rgba(16, 13, 15, .78);
+  font-family: var(--font-poster, var(--font));
+  font-size: clamp(19px, 5vw, 24px);
+  font-weight: 400;
+  letter-spacing: .01em;
+  line-height: .98;
 }
 .cookie-info-trigger {
   background: none;
@@ -547,112 +565,115 @@ body {
   padding: 0;
   cursor: pointer;
   font: inherit;
-  font-weight: 600;
-  color: #000;
+  font-size: .95em;
+  font-weight: 400;
+  color: var(--et-black);
   text-decoration: underline;
-  text-underline-offset: 3px;
+  text-underline-offset: 5px;
   text-decoration-thickness: 1.5px;
 }
 .cookie-info-trigger:hover {
-  color: var(--c-coral, #a02814);
+  color: var(--et-red);
 }
 .cookie-buttons {
-  display: flex;
-  gap: 12px;
-  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 8px;
+  align-items: center;
 }
 .cookie-btn {
-  padding: 12px 20px;
-  font-family: var(--font);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  min-height: 42px;
+  padding: 10px 16px 11px;
+  border: 0;
+  border-radius: 8px;
+  font-family: var(--font-poster, var(--font));
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: .01em;
+  line-height: .9;
   text-transform: uppercase;
-  border: 2px solid #000;
-  border-radius: 0;
   cursor: pointer;
   white-space: nowrap;
-  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+  transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease, color 140ms ease;
 }
 .cookie-btn-accept {
-  background: var(--brand-yellow, #ffd84a);
-  color: #000;
-  box-shadow: 3px 3px 0 0 #000;
+  color: var(--et-black);
+  background: var(--et-red);
+  box-shadow: 0 9px 18px rgba(228, 61, 24, .26);
 }
 .cookie-btn-accept:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 0 #000;
+  transform: translateY(-2px);
+  background: var(--et-red-hot);
+  box-shadow: 0 13px 22px rgba(228, 61, 24, .3);
 }
 .cookie-btn-accept:active {
-  transform: translate(3px, 3px);
-  box-shadow: none;
+  transform: translateY(0);
 }
 .cookie-btn-decline {
-  background: transparent;
-  color: #000;
+  color: rgba(16, 13, 15, .72);
+  background: rgba(16, 13, 15, .08);
 }
 .cookie-btn-decline:hover {
-  background: rgba(0, 0, 0, 0.06);
+  color: var(--et-black);
+  background: rgba(16, 13, 15, .12);
 }
 .cookie-btn-decline:active {
-  transform: translate(1px, 1px);
+  transform: translateY(1px);
 }
-@media (max-width: 560px) {
+@media (max-width: 640px) {
   .cookie-consent {
-    padding: 16px;
+    left: 12px;
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom, 0px));
+    width: auto;
+    padding: 12px;
   }
   .cookie-content {
-    gap: 12px 14px;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
-  /* Full-width 2-up grid — equal, generous tap targets instead of two
-     cramped pills squeezed against the right edge. */
   .cookie-buttons {
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 8px;
   }
   .cookie-btn {
-    padding: 13px 8px;
-    min-height: 48px;
+    min-height: 46px;
+    padding-inline: 10px;
   }
 }
 
-/* Dark mode — mirrors the burger-drawer dark treatment. */
 [data-theme="dark"] .cookie-consent {
-  background: var(--et-black);
-  color: #f0e8d0;
-  border-color: #f0e8d0;
-  box-shadow: 4px 4px 0 0 rgba(240, 232, 208, 0.25);
+  color: var(--et-cream);
+  background: var(--et-dark-card);
+  border-color: rgba(242, 223, 184, .14);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, .34);
 }
 [data-theme="dark"] .cookie-text {
-  color: rgba(240, 232, 208, 0.88);
+  color: rgba(242, 223, 184, .82);
 }
 [data-theme="dark"] .cookie-info-trigger {
-  color: #f0e8d0;
+  color: var(--et-cream);
 }
 [data-theme="dark"] .cookie-info-trigger:hover {
-  color: var(--c-coral-bright, #d63a2a);
-}
-[data-theme="dark"] .cookie-btn {
-  border-color: #f0e8d0;
+  color: var(--et-red-hot);
 }
 [data-theme="dark"] .cookie-btn-accept {
-  background: var(--c-coral, #a02814);
-  color: var(--et-yellow);
-  box-shadow: 3px 3px 0 0 rgba(240, 232, 208, 0.25);
+  color: var(--et-black);
+  background: var(--et-red-hot);
+  box-shadow: 0 10px 22px rgba(240, 54, 8, .24);
 }
 [data-theme="dark"] .cookie-btn-accept:hover {
-  box-shadow: 4px 4px 0 0 rgba(240, 232, 208, 0.25);
-}
-[data-theme="dark"] .cookie-btn-accept:active {
-  box-shadow: none;
+  box-shadow: 0 14px 26px rgba(240, 54, 8, .3);
 }
 [data-theme="dark"] .cookie-btn-decline {
-  color: #f0e8d0;
+  color: rgba(242, 223, 184, .76);
+  background: rgba(242, 223, 184, .1);
 }
 [data-theme="dark"] .cookie-btn-decline:hover {
-  background: rgba(240, 232, 208, 0.1);
+  color: var(--et-cream);
+  background: rgba(242, 223, 184, .16);
 }
 
 
@@ -2073,9 +2094,9 @@ body {
   transform: rotate(180deg);
 }
 .cookie-expand {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 2px solid #000;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(16, 13, 15, .14);
   max-height: min(54dvh, 380px);
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -2084,8 +2105,8 @@ body {
 /* Each section sits in its own div inside .cookie-info-body — give them
    strong vertical separation so heading↔text grouping is obvious. */
 .cookie-expand .cookie-info-body > div {
-  padding: 14px 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  padding: 12px 0;
+  border-top: 1px solid rgba(16, 13, 15, .1);
 }
 .cookie-expand .cookie-info-body > div:first-child {
   padding-top: 0;
@@ -2096,18 +2117,19 @@ body {
 }
 /* Section headings in DM Sans caps — same voice as the drawer legal foot. */
 .cookie-expand .cookie-info-body h3 {
-  font-size: 12.5px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #000;
+  color: var(--et-red);
   margin: 0 0 6px;
   line-height: 1.3;
 }
 .cookie-expand .cookie-info-body p {
-  font-size: 13px;
-  line-height: 1.6;
-  color: rgba(0, 0, 0, 0.72);
+  font-size: 12.5px;
+  font-weight: 650;
+  line-height: 1.5;
+  color: rgba(16, 13, 15, .7);
   margin: 0;
 }
 .cookie-expand .cookie-info-body ul {
@@ -2118,9 +2140,10 @@ body {
 .cookie-expand .cookie-info-body ul li {
   position: relative;
   padding-left: 14px;
-  font-size: 13px;
-  line-height: 1.55;
-  color: rgba(0, 0, 0, 0.72);
+  font-size: 12.5px;
+  font-weight: 650;
+  line-height: 1.5;
+  color: rgba(16, 13, 15, .7);
   margin-bottom: 4px;
 }
 /* Square bullet — brand is square/sticker, no circles. */
@@ -2131,37 +2154,38 @@ body {
   top: 8px;
   width: 4px;
   height: 4px;
-  background: #000;
+  background: var(--et-red);
 }
 .cookie-expand .cookie-info-body strong {
-  color: #000;
-  font-weight: 700;
+  color: var(--et-black);
+  font-weight: 900;
 }
 .cookie-expand .cookie-info-body a {
-  color: var(--c-coral, #a02814);
+  color: var(--et-red);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-/* Dark mode — cream ink on var(--et-black), red link accent. */
 [data-theme="dark"] .cookie-expand {
-  border-top-color: rgba(240, 232, 208, 0.4);
+  border-top-color: rgba(242, 223, 184, .16);
 }
 [data-theme="dark"] .cookie-expand .cookie-info-body > div {
-  border-top-color: rgba(240, 232, 208, 0.18);
+  border-top-color: rgba(242, 223, 184, .12);
 }
-[data-theme="dark"] .cookie-expand .cookie-info-body h3,
+[data-theme="dark"] .cookie-expand .cookie-info-body h3 {
+  color: var(--et-red-hot);
+}
 [data-theme="dark"] .cookie-expand .cookie-info-body strong {
-  color: #f0e8d0;
+  color: var(--et-cream);
 }
 [data-theme="dark"] .cookie-expand .cookie-info-body p,
 [data-theme="dark"] .cookie-expand .cookie-info-body ul li {
-  color: rgba(240, 232, 208, 0.75);
+  color: rgba(242, 223, 184, .72);
 }
 [data-theme="dark"] .cookie-expand .cookie-info-body ul li::before {
-  background: rgba(240, 232, 208, 0.6);
+  background: var(--et-red-hot);
 }
 [data-theme="dark"] .cookie-expand .cookie-info-body a {
-  color: var(--c-coral-bright, #d63a2a);
+  color: var(--et-red-hot);
 }
 
 /* ── BURGER MENU ─────────────────────────────────── */
@@ -4333,10 +4357,10 @@ body:has(.burger-drawer.active) .burger-btn {
 }
 .bd-foot,
 [data-theme="dark"] .bd-foot {
-  background: rgba(255, 211, 90, .32);
+  background: transparent;
   color: var(--et-black);
   clip-path: none;
-  border-radius: 8px;
+  border-radius: 0;
 }
 .bd-foot-link,
 [data-theme="dark"] .bd-foot-link {
@@ -4424,12 +4448,77 @@ body:has(.burger-drawer.active) .burger-btn {
 }
 
 [data-theme="dark"] .bd-foot {
-  background: rgba(255, 248, 234, .08);
+  background: transparent;
   color: var(--et-cream);
 }
 
 [data-theme="dark"] .bd-foot-link {
   color: var(--et-cream);
+}
+
+.bd-foot,
+[data-theme="dark"] .bd-foot {
+  margin-top: auto;
+  padding: 16px 0 0;
+  border: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px 10px;
+  background: transparent;
+}
+
+.bd-foot-link,
+[data-theme="dark"] .bd-foot-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 9px 10px 10px;
+  color: var(--et-black);
+  background: rgba(255, 255, 255, .62);
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 9px 20px rgba(92, 50, 19, .08);
+  font-family: var(--font-poster);
+  font-size: clamp(17px, 2.4dvh, 22px);
+  font-weight: 400;
+  letter-spacing: .02em;
+  line-height: .86;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  opacity: 1;
+  transform: rotate(-.8deg);
+  transition: transform 140ms ease, background-color 140ms ease, color 140ms ease;
+}
+
+.bd-foot-link:nth-child(2),
+.bd-foot-link:nth-child(4) {
+  transform: rotate(.8deg);
+}
+
+.bd-foot-link:hover,
+[data-theme="dark"] .bd-foot-link:hover {
+  color: var(--et-red);
+  background: var(--et-cream);
+  opacity: 1;
+  transform: translateY(-2px) rotate(-.8deg);
+}
+
+.bd-foot-link:nth-child(2):hover,
+.bd-foot-link:nth-child(4):hover {
+  transform: translateY(-2px) rotate(.8deg);
+}
+
+[data-theme="dark"] .bd-foot-link {
+  color: var(--et-cream);
+  background: rgba(255, 248, 234, .08);
+  box-shadow: 0 9px 20px rgba(0, 0, 0, .18);
+}
+
+[data-theme="dark"] .bd-foot-link:hover {
+  color: var(--et-black);
+  background: var(--et-cream);
 }
 
 .app-page[data-page="map"] .map-location-btn-fixed,

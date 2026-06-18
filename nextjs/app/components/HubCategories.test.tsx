@@ -20,10 +20,10 @@ describe('HubCategories', () => {
     expect(html).toContain('Frühstück')
     expect(html).toContain('Egg, Toast, repeat.')
   })
-  it('links each category to the map and its pack', () => {
+  it('links each category to its pack without repeating the map CTA', () => {
     const html = render([{ name: 'Pizza', slug: 'pizza', line: null }])
-    expect(html).toContain('cat=pizza')
-    expect(html).toContain('rel="nofollow"')
+    expect(html).not.toContain('cat=pizza')
+    expect(html).not.toContain('rel="nofollow"')
     expect(html).toContain('/pack/pizza')
     expect(html).not.toContain('€2,99')
     expect(html).toContain('booster_pizza.webp')

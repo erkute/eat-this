@@ -147,18 +147,6 @@ export default function HubDeineWelt({ initialMapData }: Props) {
               <span className={styles.actionLabel}>{t('profileAction')}</span>
             </Link>
             <div className={styles.locationControl}>
-              <button
-                type="button"
-                className={`${styles.locateBtn} homeCta homeCtaFull`}
-                onClick={() => {
-                  setSelectedDistrict('')
-                  setDistrictOpen(false)
-                  request()
-                }}
-                disabled={locating}
-              >
-                <span className={styles.actionLabel}>{locating ? t('districtLocating') : t('districtUseLocationShort')}</span>
-              </button>
               <div className={styles.districtPicker} ref={districtMenuRef}>
                 <button
                   type="button"
@@ -201,6 +189,25 @@ export default function HubDeineWelt({ initialMapData }: Props) {
                   </div>
                 )}
               </div>
+              <button
+                type="button"
+                className={`${styles.locateBtn} homeCta`}
+                onClick={() => {
+                  setSelectedDistrict('')
+                  setDistrictOpen(false)
+                  request()
+                }}
+                disabled={locating}
+                aria-label={locating ? t('districtLocating') : t('districtUseLocation')}
+                title={locating ? t('districtLocating') : t('districtUseLocation')}
+              >
+                <svg className={styles.locateIcon} viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
+                  <circle cx="12" cy="12" r="5.5" />
+                  <circle cx="12" cy="12" r="1.8" />
+                </svg>
+                <span className={styles.locateText}>{locating ? t('districtLocating') : t('districtUseLocationShort')}</span>
+              </button>
             </div>
           </div>
         </header>
@@ -241,7 +248,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
                   <Link href={`/map?me=${m._id}`} rel="nofollow" className={styles.lockedCard}>
                     <span style={{ backgroundImage: `url(${CARD_BACK})` }} aria-hidden="true" />
                     <strong>{normalizeName(m.restaurant.name)}</strong>
-                    <small>{m.restaurant.district ?? t('nearHiddenMeta')}</small>
+                    <small>{m.restaurant.district ? `${m.restaurant.district} · ${t('nearHiddenMeta')}` : t('nearHiddenMeta')}</small>
                   </Link>
                 </li>
               )) : (

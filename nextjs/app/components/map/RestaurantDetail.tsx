@@ -1,6 +1,6 @@
 'use client'
 import { useMemo, useRef, useState } from 'react'
-import { useRestaurantDetail } from '@/lib/map/useRestaurantDetail'
+import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import {
   abbreviateBezirk,
@@ -25,7 +25,6 @@ import {
 import { normalizeName } from '@/lib/normalizeName'
 import { useSwipePager } from './useSwipePager'
 import RestaurantGallery from './RestaurantGallery'
-import { safeHttpUrl } from './MustEatImageLightbox'
 import { trackEvent } from '@/lib/analytics'
 
 function MustEatMiniCard({
@@ -206,11 +205,45 @@ export default function RestaurantDetail({
     ? (locale === routing.defaultLocale ? '/#hub-packs' : `/${locale}#hub-packs`)
     : (locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
 
+  const galleryImages = useMemo<RestaurantGalleryImage[]>(() => {
+    const images: RestaurantGalleryImage[] = []
+    const seen = new Set<string>()
+
+    const add = (img: RestaurantGalleryImage) => {
+      if (!img.thumb || !img.full) return
+      const key = img.full || img.thumb
+      if (seen.has(key)) return
+      seen.add(key)
+      images.push(img)
+    }
+
+    if (r.photo) {
+      add({
+        _key: 'hero-photo',
+        thumb: r.photo,
+        full: r.photo,
+        alt: displayName,
+        credit: r.photoCredit,
+        creditUrl: r.photoCreditUrl,
+      })
+    }
+
+    for (const img of detail?.gallery ?? []) add(img)
+
+    return images
+  }, [detail?.gallery, displayName, r.photo, r.photoCredit, r.photoCreditUrl])
+
   return (
     <div className={styles.detailV13} role="dialog" aria-label={r.name}>
       <div className={styles.detailV13Scroll} data-detail-scroll ref={scrollWrapRef}>
 
-        {/* HERO — full-bleed photo, back-to-list pill, save bookmark, name. */}
+        <div className={styles.rdSheetActions}>
+          <button type="button" className={styles.rdCloseGlass} aria-label={backLabel} onClick={onClose}>
+            <CloseIcon />
+          </button>
+        </div>
+
+        {/* HERO — full-bleed photo, save bookmark, name. */}
         <header
           className={styles.rdHero}
           data-detail-hero
@@ -233,9 +266,6 @@ export default function RestaurantDetail({
               )}
             </button>
           )}
-          <button type="button" className={styles.rdCloseGlass} aria-label={backLabel} onClick={onClose}>
-            <CloseIcon />
-          </button>
           <div className={styles.rdOverlay}>
             <h1 className={styles.rdNameOv} style={{ ['--rd-name-max' as string]: `${nameMaxPx}px` }}>{displayName}</h1>
             <div className={styles.rdTagsOv}>
@@ -248,16 +278,6 @@ export default function RestaurantDetail({
               )}
             </div>
           </div>
-          {r.photoCredit && (() => {
-            const creditHref = safeHttpUrl(r.photoCreditUrl)
-            return (
-              <span className={styles.rdCredit}>
-                {creditHref
-                  ? <a href={creditHref} target="_blank" rel="noopener noreferrer">{r.photoCredit}</a>
-                  : r.photoCredit}
-              </span>
-            )
-          })()}
         </header>
 
         {/* PAGER — prev/next restaurant in the filtered list */}
@@ -283,8 +303,8 @@ export default function RestaurantDetail({
         )}
 
         {/* GALLERY — curated Places photos, lazy via the same detail fetch */}
-        {!!detail?.gallery?.length && (
-          <RestaurantGallery images={detail.gallery} restaurantName={displayName} />
+        {!!galleryImages.length && (
+          <RestaurantGallery images={galleryImages} restaurantName={displayName} />
         )}
 
         {/* BODY — story prose with drop cap. While the on-demand detail fetch

@@ -41,8 +41,8 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         <HubMagazine articles={initialData.magazine} />
         <HubCategories categories={initialData.categories} />
         <HubBezirke districts={initialData.districts} />
-        <HubPacks categoryNames={initialData.categoryNames} />
         <HubAllBerlin />
+        <HubPacks categoryNames={initialData.categoryNames} />
         <HubFaq locale={locale} />
         <SiteFooter />
       </UserLocationProvider>

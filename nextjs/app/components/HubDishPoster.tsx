@@ -51,6 +51,22 @@ const dishes = [
     image: '/pics/home-dishes/rinderschaufel-print.webp',
     href: '/map?r=schuesseldienst',
   },
+  {
+    key: 'uludag',
+    restaurant: 'Uludag',
+    dish: 'Döner',
+    note: 'Paper, heat, sharp bite.',
+    image: '/pics/home-dishes/uludag-doener-print.webp',
+    href: '/map?r=uludag',
+  },
+  {
+    key: 'theGrain',
+    restaurant: 'The Grain',
+    dish: 'Pizza',
+    note: 'Puffy edge, soft center.',
+    image: '/pics/home-dishes/the-grain-pizza-print.webp',
+    href: '/map?r=the-grain',
+  },
 ] as const
 
 export default function HubDishPoster() {

@@ -33,15 +33,15 @@ describe('HubPacks', () => {
     // returning signed-in visitors before client auth resolves.
     expect(render()).toContain('data-signup-gift')
   })
-  it('links category packs to their pack detail page and offers gift email signup', () => {
+  it('renders direct checkout CTAs for category packs and offers gift email signup', () => {
     const html = render()
-    expect(html).toContain('/pack/breakfast')
+    expect(html).toContain('Kaufen · €2,99')
+    expect(html).not.toContain('/pack/breakfast')
     expect(html).toContain('type="email"')
     expect(html).toContain('Anmelden')
   })
-  it('does not show per-pack prices and does NOT render the all-berlin pack', () => {
+  it('does NOT render the all-berlin pack', () => {
     const html = render()
-    expect(html).not.toContain('€2,99')
     expect(html).not.toContain('All Berlin')
   })
   it('falls back to the English displayName when no localized name exists', () => {

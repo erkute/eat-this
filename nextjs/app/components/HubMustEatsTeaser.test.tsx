@@ -91,10 +91,10 @@ describe('HubMustEatsTeaser', () => {
     expect(html).toMatch(/href="\/en\/must-eats"/)
   })
 
-  it('renders only face-up cards: shows dish image, no card-back', () => {
+  it('renders face-up cards with the card back as the reverse side', () => {
     const html = render(dataRevealed([me()]))
     expect(html).toContain('cdn.sanity.io')
-    expect(html).not.toContain('card-back')
+    expect(html).toContain('/pics/card-back.webp?v=6')
   })
 
   it('renders nothing when no card is face-up', () => {

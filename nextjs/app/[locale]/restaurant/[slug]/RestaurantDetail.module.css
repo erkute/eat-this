@@ -25,7 +25,7 @@
   --border-strong: var(--ink);
   --accent: var(--yellow);
 
-  background: transparent;
+  background: var(--et-yellow);
   color: var(--ink);
   font-family: var(--f-body);
   min-height: 100vh;
@@ -52,7 +52,7 @@
   background-color: #14100c;
   overflow: hidden;
   border: 11px solid #fff;
-  box-shadow: var(--collage-shadow);
+  box-shadow: 0 18px 34px rgba(43, 33, 28, .18);
   transform: rotate(-1deg);
 }
 .heroImg {
@@ -231,7 +231,7 @@
 ============================================================ */
 .tipp {
   margin: 24px 16px 28px;
-  background: var(--yellow);
+  background: var(--et-yellow-bright);
   color: var(--ink);
   padding: 18px 20px 20px;
   position: relative;
@@ -268,6 +268,9 @@
 ============================================================ */
 .order {
   margin: 28px 16px 28px;
+  padding: 18px 18px 20px;
+  background: var(--et-cream);
+  box-shadow: 0 14px 28px rgba(43, 33, 28, .1);
 }
 .orderHead {
   font-family: var(--f-display);
@@ -455,7 +458,7 @@
 ============================================================ */
 .siblings {
   padding: 24px 16px 8px;
-  border-top: 2px solid var(--ink);
+  border-top: 2px solid rgba(20, 16, 12, .22);
   margin-top: 16px;
 }
 .siblings h2 {
@@ -503,6 +506,8 @@
   background: var(--cream-deep);
   overflow: hidden;
   margin-bottom: 12px;
+  border: 8px solid #fff;
+  box-shadow: 0 12px 20px rgba(43, 33, 28, .14);
 }
 .sibName {
   font-family: var(--f-display);
@@ -618,6 +623,11 @@
     max-width: 680px;
     padding: 26px 28px 28px;
     box-shadow: 8px 8px 0 0 var(--ink);
+  }
+  .order {
+    max-width: 700px;
+    margin: 36px auto 40px;
+    padding: 24px 26px 26px;
   }
   .tippLabel {
     font-size: 16px;
@@ -741,6 +751,11 @@ html[data-theme="dark"] .page {
   --border-subtle: rgba(240, 232, 208, 0.3);
   --border-strong: #f0e8d0;
   --accent: var(--c-coral);
+}
+
+html[data-theme="dark"] .order {
+  background: #181112;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, .28);
 }
 
 /* Hero pill + chips sit on the photo (already dark) — flip the yellow

@@ -3355,6 +3355,14 @@ html[data-theme="dark"] .listEndCta {
   inset: 0;
   background: linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 45%, rgba(0,0,0,.55) 75%, rgba(0,0,0,.92) 100%);
 }
+.rdSheetActions {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 30px 0;
+  margin-bottom: -8px;
+}
 /* Hero action icons — bookmark + close (X), grouped top-right as naked
    glyphs (no frame) with a drop-shadow for legibility on any photo. The X
    sits outermost at the corner (the universal close affordance); the save
@@ -3383,6 +3391,14 @@ html[data-theme="dark"] .listEndCta {
 }
 .rdHeartToggle { left: 14px; padding: 7px 12px; }
 .rdCloseGlass  { right: 14px; padding: 7px; justify-content: center; }
+.rdSheetActions .rdCloseGlass {
+  position: relative;
+  top: auto;
+  right: auto;
+  width: 42px;
+  height: 42px;
+  padding: 8px;
+}
 .rdHeartToggle:active,
 .rdCloseGlass:active { transform: scale(.92); }
 .rdHeartToggle svg,
@@ -3467,18 +3483,6 @@ html[data-theme="dark"] .rdTagOpen {
   color: #fff;
   border-color: #fff;
 }
-.rdCredit {
-  position: absolute;
-  bottom: 6px;
-  right: 8px;
-  z-index: 2;
-  font-family: var(--font);
-  font-size: 9px;
-  letter-spacing: .06em;
-  color: rgba(255,255,255,.7);
-}
-.rdCredit a { color: inherit; }
-
 .rdPager {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -3878,6 +3882,10 @@ html[data-theme="dark"] .list[data-view="detail"] .handle {
   background-image: none;
 }
 
+.list[data-view="detail"] .handle {
+  background: var(--map-collage-paper);
+}
+
 .rdHero {
   margin: 24px;
   border: 11px solid #fff;
@@ -3925,6 +3933,9 @@ html[data-theme="dark"] .detailV13Scroll {
   --map-collage-ink: #f8f1e5;
   background-color: var(--map-collage-paper);
   background-image: none;
+}
+html[data-theme="dark"] .list[data-view="detail"] .handle {
+  background: var(--map-collage-paper);
 }
 html[data-theme="dark"] .mapSearchToolbar,
 html[data-theme="dark"] .mapSearchBtn,
@@ -4723,13 +4734,69 @@ html[data-theme="dark"] .rdHeartToggleCount {
   color: #14100c;
 }
 
+/* In the restaurant hero, the save action sits directly on photography. Keep
+   the heart itself visible instead of wrapping it in another control shape. */
+.rdHero .rdHeartToggle,
+html[data-theme="dark"] .rdHero .rdHeartToggle {
+  min-width: 0;
+  min-height: 0;
+  padding: 7px;
+  background: transparent;
+  color: #ef3108;
+  border: 0;
+  border-radius: 0;
+  clip-path: none;
+  transform: none;
+  filter: none;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.rdHero .rdHeartToggle:active,
+html[data-theme="dark"] .rdHero .rdHeartToggle:active {
+  transform: scale(.94);
+  box-shadow: none;
+}
+.rdHero .rdHeartToggle svg,
+.rdHero .rdHeartToggleOn svg,
+html[data-theme="dark"] .rdHero .rdHeartToggle svg,
+html[data-theme="dark"] .rdHero .rdHeartToggleOn svg {
+  width: 36px;
+  height: 36px;
+  color: #ef3108;
+  stroke: #ef3108;
+  stroke-width: 2.7;
+  fill: rgba(255, 248, 234, .72);
+  filter:
+    drop-shadow(0 0 1px rgba(255, 255, 255, .95))
+    drop-shadow(0 0 5px rgba(255, 255, 255, .72))
+    drop-shadow(0 3px 7px rgba(0, 0, 0, .34));
+}
+.rdHero .rdHeartToggleOn svg,
+html[data-theme="dark"] .rdHero .rdHeartToggleOn svg {
+  fill: #ef3108;
+  stroke: #fff8ea;
+  transform: scale(1.04);
+}
+.rdHero .rdHeartToggleCount,
+html[data-theme="dark"] .rdHero .rdHeartToggleCount {
+  margin-left: 1px;
+  padding: 4px 8px 5px;
+  color: #14100c;
+  background: rgba(255, 248, 234, .78);
+  border-radius: 0;
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  backdrop-filter: blur(10px) saturate(1.2);
+  text-shadow: none;
+}
+
 /* Map brand mark: a clean free-standing logo cut-out, not another control tile. */
 html .mapHome,
 html[data-theme="dark"] .mapHome {
-  width: 82px;
-  height: 86px;
-  top: 8px;
-  left: 8px;
+  width: 56px;
+  height: 58px;
+  top: 12px;
+  left: 12px;
   overflow: visible;
   border: 0;
   border-radius: 0;
@@ -4871,4 +4938,137 @@ html[data-theme="dark"] .fab {
 .fabIcon,
 html[data-theme="dark"] .fabIcon {
   stroke: var(--et-red);
+}
+
+/* Final map-control system: paper-cut controls in the red/cream brand world.
+   This intentionally sits after the older glass/sticker layers above. */
+html .mapSearchBtn,
+html .mapBurger,
+html .fab {
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  filter: drop-shadow(0 9px 9px rgba(43, 33, 28, .26));
+}
+
+html .mapSearchBtn {
+  background: var(--et-cream, #fff8ea);
+  color: var(--et-black, #100d0f);
+  clip-path: polygon(6% 10%, 94% 0, 100% 88%, 10% 100%);
+  transform: rotate(-4deg);
+}
+
+html .mapBurger {
+  background: var(--et-black, #100d0f);
+  color: var(--et-cream, #fff8ea);
+  clip-path: polygon(8% 0, 100% 12%, 90% 100%, 0 88%);
+  transform: rotate(4deg);
+}
+
+html .fab {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 248, 234, .92);
+  color: var(--et-red, #e43d18);
+  border-radius: 16px;
+  clip-path: none;
+  transform: none;
+  filter:
+    drop-shadow(0 8px 12px rgba(43, 33, 28, .18))
+    drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+  -webkit-backdrop-filter: blur(10px) saturate(1.12);
+  backdrop-filter: blur(10px) saturate(1.12);
+}
+
+html .mapSearchIcon {
+  width: 21px;
+  height: 21px;
+  color: currentColor;
+}
+
+html .fabIcon {
+  width: 19px;
+  height: 19px;
+  stroke: currentColor;
+}
+
+html .mapBurger img {
+  height: 21px;
+  filter: brightness(0) invert(1);
+}
+
+html .mapSearchToolbar,
+html[data-theme="dark"] .mapSearchToolbar {
+  min-height: 52px;
+  color: var(--et-black, #100d0f);
+  background: var(--et-cream, #fff8ea);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  clip-path: polygon(2% 8%, 98% 0, 100% 88%, 2% 100%);
+  filter: drop-shadow(0 9px 9px rgba(43, 33, 28, .24));
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html .mapSearchInput,
+html .mapSearchClear,
+html[data-theme="dark"] .mapSearchInput,
+html[data-theme="dark"] .mapSearchIcon,
+html[data-theme="dark"] .mapSearchClear {
+  color: var(--et-black, #100d0f);
+}
+
+html .mapSearchInput::placeholder,
+html[data-theme="dark"] .mapSearchInput::placeholder {
+  color: rgba(16, 13, 15, .54);
+}
+
+html[data-theme="dark"] .mapSearchBtn {
+  background: var(--et-cream, #fff8ea);
+  color: var(--et-black, #100d0f);
+}
+
+html[data-theme="dark"] .mapBurger {
+  background: var(--et-cream, #fff8ea);
+  color: var(--et-black, #100d0f);
+}
+
+html[data-theme="dark"] .mapBurger img {
+  filter: none;
+}
+
+html[data-theme="dark"] .fab {
+  background: rgba(255, 248, 234, .9);
+  color: var(--et-red, #e43d18);
+}
+
+html[data-theme="dark"] .fabIcon {
+  stroke: currentColor;
+}
+
+.mapWrap :global(.maplibregl-ctrl-group) {
+  background: var(--et-cream, #fff8ea) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  clip-path: polygon(5% 2%, 96% 0, 100% 92%, 8% 100%);
+  filter: drop-shadow(0 8px 7px rgba(43, 33, 28, .24));
+}
+
+.mapWrap :global(.maplibregl-ctrl-group button) {
+  color: var(--et-black, #100d0f);
+}
+
+@media (hover: hover) {
+  html .mapSearchBtn:hover,
+  html .mapBurger:hover,
+  html .fab:hover {
+    box-shadow: none;
+    transform: translateY(-3px) scale(1.03);
+  }
 }

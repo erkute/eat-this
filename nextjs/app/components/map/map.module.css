@@ -4763,58 +4763,60 @@ html[data-theme="dark"] .rdHeartToggleCount {
 }
 
 /* In the restaurant hero, the save action sits directly on photography. Keep
-   the heart itself visible instead of wrapping it in another control shape. */
+   the action quiet and premium: a small glass control, not a sticker-heart. */
 .rdHero .rdHeartToggle,
 html[data-theme="dark"] .rdHero .rdHeartToggle {
-  min-width: 0;
-  min-height: 0;
-  padding: 7px;
-  background: transparent;
-  color: #ef3108;
-  border: 0;
-  border-radius: 0;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 8px 10px;
+  gap: 6px;
+  background: rgba(18, 14, 11, .58);
+  color: #fff8ea;
+  border: 1px solid rgba(255, 248, 234, .34);
+  border-radius: 999px;
   clip-path: none;
   transform: none;
   filter: none;
-  box-shadow: none;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .26);
+  -webkit-backdrop-filter: blur(10px) saturate(1.15);
+  backdrop-filter: blur(10px) saturate(1.15);
 }
 .rdHero .rdHeartToggle:active,
 html[data-theme="dark"] .rdHero .rdHeartToggle:active {
-  transform: scale(.94);
-  box-shadow: none;
+  transform: scale(.96);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, .24);
 }
 .rdHero .rdHeartToggle svg,
 .rdHero .rdHeartToggleOn svg,
 html[data-theme="dark"] .rdHero .rdHeartToggle svg,
 html[data-theme="dark"] .rdHero .rdHeartToggleOn svg {
-  width: 36px;
-  height: 36px;
-  color: #ef3108;
-  stroke: #ef3108;
-  stroke-width: 2.7;
-  fill: rgba(255, 248, 234, .72);
-  filter:
-    drop-shadow(0 0 1px rgba(255, 255, 255, .95))
-    drop-shadow(0 0 5px rgba(255, 255, 255, .72))
-    drop-shadow(0 3px 7px rgba(0, 0, 0, .34));
+  width: 20px;
+  height: 20px;
+  color: #fff8ea;
+  stroke: currentColor;
+  stroke-width: 2.15;
+  fill: transparent;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .32));
 }
 .rdHero .rdHeartToggleOn svg,
 html[data-theme="dark"] .rdHero .rdHeartToggleOn svg {
   fill: #ef3108;
   stroke: #fff8ea;
-  transform: scale(1.04);
+  transform: none;
 }
 .rdHero .rdHeartToggleCount,
 html[data-theme="dark"] .rdHero .rdHeartToggleCount {
-  margin-left: 1px;
-  padding: 4px 8px 5px;
-  color: #14100c;
-  background: rgba(255, 248, 234, .78);
+  margin-left: 0;
+  padding: 1px 0 0;
+  color: #fff8ea;
+  background: transparent;
   border-radius: 0;
-  -webkit-backdrop-filter: blur(10px) saturate(1.2);
-  backdrop-filter: blur(10px) saturate(1.2);
+  font-family: var(--font-ui, var(--f-body));
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   text-shadow: none;
 }
 

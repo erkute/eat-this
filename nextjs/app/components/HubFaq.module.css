@@ -4,7 +4,7 @@
   border-top: 2px solid rgba(201, 67, 50, .18);
 }
 .heading {
-  font-family: var(--font-ranchers);
+  font-family: var(--font-label, var(--font-ranchers));
   font-size: clamp(34px, 11vw, 44px);
   line-height: 1;
   text-transform: uppercase;

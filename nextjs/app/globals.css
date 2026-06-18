@@ -36,6 +36,18 @@
   --et-black: #100d0f;
   --et-dark-card: #181112;
 
+  /* Foundation token aliases (EAT-15) — new component work should use the
+     semantic/component names below. Existing --et/--surface/--font tokens stay
+     as compatibility aliases while the CSS modules migrate gradually. */
+  --et-raw-red: var(--et-red);
+  --et-raw-red-hot: var(--et-red-hot);
+  --et-raw-red-deep: var(--et-red-deep);
+  --et-raw-yellow: var(--et-yellow);
+  --et-raw-yellow-bright: var(--et-yellow-bright);
+  --et-raw-cream: var(--et-cream);
+  --et-raw-ink: var(--et-black);
+  --et-raw-dark-card: var(--et-dark-card);
+
   /* Brand palette — Bar-Basta inspired. Coral-warm red is the primary brand
      mark (CTAs, eyebrows, accents). Pastel pink + sunny yellow are secondary
      accents. Navy is the script-accent color (matches the "Lunch"
@@ -90,7 +102,33 @@
   --font-ranchers: var(--font-chewy, 'moonblossom'), sans-serif;
   --font-slackey:  var(--font-chewy, 'moonblossom'), sans-serif;
   --font-quote:    'Impact', 'Arial Narrow', sans-serif;
+  --font-body: var(--font);
+  --font-label: var(--font-poster);
   --radius: 2px;
+  --radius-none: 0;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-pill: 999px;
+  --radius-circle: 50%;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --motion-fast: 120ms;
+  --motion-base: 180ms;
+  --motion-slow: 320ms;
+  --motion-reveal: 700ms;
+  --ease-standard: cubic-bezier(.2, .8, .2, 1);
+  --ease-snap: cubic-bezier(.22, .61, .36, 1);
 
   /* Semantic surface/text tokens — used by the map UI and newer React components.
      Kept theme-agnostic here via [data-theme] overrides below. */
@@ -109,6 +147,56 @@
   --shadow-sm:         0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.05);
   --shadow-md:         0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
   --shadow-lg:         0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
+  --color-page:        var(--surface-bg);
+  --color-surface:     var(--surface-card);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-surface-inverse: var(--et-black);
+  --color-text:        var(--text-primary);
+  --color-text-muted:  var(--text-secondary);
+  --color-text-subtle: var(--text-muted);
+  --color-border:      var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-action:      var(--accent);
+  --color-action-hover: var(--et-red-hot);
+  --color-action-text: var(--et-cream);
+  --color-warning:     var(--et-yellow-bright);
+  --color-success:     #34a85a;
+  --color-danger:      var(--et-red);
+  --shadow-none:       none;
+  --shadow-soft:       0 10px 24px rgba(16, 13, 15, .12);
+  --shadow-lifted:     0 18px 38px rgba(43, 33, 28, .16);
+  --shadow-hard-sm:    2px 2px 0 currentColor;
+  --shadow-hard-md:    4px 4px 0 currentColor;
+  --shadow-physical-card: 10px 16px 16px rgba(70, 23, 16, .24);
+  --button-primary-bg: var(--color-action);
+  --button-primary-text: var(--color-action-text);
+  --button-primary-border: var(--color-surface-inverse);
+  --button-primary-shadow: var(--shadow-hard-md);
+  --button-secondary-bg: var(--color-surface);
+  --button-secondary-text: var(--color-action);
+  --button-disabled-bg: rgba(16, 13, 15, .14);
+  --button-disabled-text: rgba(16, 13, 15, .5);
+  --card-bg:           var(--color-surface);
+  --card-text:         var(--color-text);
+  --card-border:       var(--color-border);
+  --card-shadow:       var(--shadow-soft);
+  --card-physical-shadow: var(--shadow-physical-card);
+  --chip-bg:           var(--color-surface);
+  --chip-text:         var(--color-text);
+  --chip-border:       var(--color-border-strong);
+  --chip-active-bg:    var(--color-action);
+  --chip-active-text:  var(--color-action-text);
+  --sheet-bg:          var(--color-surface);
+  --sheet-text:        var(--color-text);
+  --sheet-border:      var(--color-border);
+  --sheet-handle:      var(--color-action);
+  --input-bg:          var(--color-surface);
+  --input-text:        var(--color-text);
+  --input-border:      var(--color-border-strong);
+  --input-placeholder: var(--color-text-subtle);
+  --input-focus-ring:  var(--color-action);
+  --input-error:       var(--color-danger);
 
   /* Landing-page-specific surfaces — warmer/paper palette distinct from the
      cool-toned --surface-bg used elsewhere. The landing uses these to evoke
@@ -156,6 +244,12 @@ html[data-theme="dark"] {
   --shadow-sm:         0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md:         0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-lg:         0 10px 30px rgba(0, 0, 0, 0.6);
+  --color-surface-inverse: var(--et-cream);
+  --color-action-hover: var(--et-red-hot);
+  --color-action-text: var(--et-black);
+  --color-success:     #34a85a;
+  --button-disabled-bg: rgba(242, 223, 184, .14);
+  --button-disabled-text: rgba(242, 223, 184, .5);
 
   /* Landing surfaces — dark-mode versions stay close-to-black with subtle
      elevation steps so card hierarchy remains readable. */

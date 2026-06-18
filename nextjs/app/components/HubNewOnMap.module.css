@@ -3,7 +3,7 @@
   padding-top: 42px;
 }
 .heading {
-  font-family: var(--font-ranchers);
+  font-family: var(--font-label, var(--font-ranchers));
   font-size: clamp(32px, 9vw, 44px);
   line-height: 1.15;
   text-transform: uppercase;
@@ -25,12 +25,12 @@
   position: relative;
   aspect-ratio: 4 / 5;
   border: 2px solid var(--et-red);
-  border-radius: 8px;
+  border-radius: var(--home-card-radius, var(--radius-md, 8px));
   box-shadow: none;
   overflow: hidden;
   text-decoration: none;
   color: var(--et-yellow);
-  transition: transform .16s ease, box-shadow .16s ease;
+  transition: transform var(--motion-base, 180ms) var(--ease-standard, ease), box-shadow var(--motion-base, 180ms) ease;
 }
 .card:hover { transform: translateY(-4px); box-shadow: none; }
 .cardImage { position: absolute; inset: 0; background-color: var(--et-yellow-bright); }
@@ -50,7 +50,7 @@
   z-index: 1;
 }
 .cardName {
-  font-family: var(--font-ranchers);
+  font-family: var(--font-label, var(--font-ranchers));
   font-size: 24px;
   line-height: .94;
   text-transform: uppercase;

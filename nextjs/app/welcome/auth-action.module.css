@@ -9,11 +9,24 @@
    ════════════════════════════════════════════════════════════ */
 
 .page {
+  --conversion-bg: #f8f6f1;
+  --conversion-surface: rgba(255, 255, 255, .9);
+  --conversion-field: #fbf8ee;
+  --conversion-ink: #0a0a0a;
+  --conversion-action: #ef3108;
+  --conversion-action-text: #fff;
+  --conversion-accent: #ffd84a;
+  --conversion-border: rgba(17, 13, 9, .18);
+  --conversion-radius: 8px;
+  --conversion-pill: 999px;
+  --conversion-shadow: 0 16px 30px rgba(43, 33, 28, .18);
+  --conversion-hard-shadow: 4px 4px 0 #0a0a0a;
+  --conversion-motion: 180ms cubic-bezier(.22, .9, .3, 1);
   min-height: 100dvh;
   width: 100%;
-  background-color: #f8f6f1;
+  background-color: var(--conversion-bg);
   background-image: none;
-  color: #0a0a0a;
+  color: var(--conversion-ink);
   display: flex;
   flex-direction: column;
   font-family:
@@ -31,8 +44,8 @@
   flex-direction: column;
   padding: 56px 22px max(28px, env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
-  background: rgba(255, 255, 255, .9);
-  box-shadow: 0 16px 30px rgba(43, 33, 28, .18);
+  background: var(--conversion-surface);
+  box-shadow: var(--conversion-shadow);
 }
 
 /* Logo top-center */
@@ -58,18 +71,18 @@
 
 .title {
   margin: 0;
-  font-family: var(--font-chewy), cursive;
+  font-family: var(--font-label, var(--font-chewy)), cursive;
   font-size: clamp(40px, 12vw, 56px);
   line-height: 0.92;
   letter-spacing: -0.005em;
   text-transform: uppercase;
-  color: #ef3108;
+  color: var(--conversion-action);
 }
 .sub {
   margin: 0 0 6px;
   font-size: 15px;
   line-height: 1.5;
-  color: #0a0a0a;
+  color: var(--conversion-ink);
   opacity: 0.85;
   max-width: 32ch;
 }
@@ -82,11 +95,11 @@
 
 /* Name label */
 .nameLabel {
-  font-family: var(--font-chewy), cursive;
+  font-family: var(--font-label, var(--font-chewy)), cursive;
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #0a0a0a;
+  color: var(--conversion-ink);
   display: block;
   margin-bottom: 6px;
 }
@@ -94,13 +107,13 @@
 /* Square fields */
 .input {
   width: 100%;
-  height: 50px;
+  height: 48px;
   padding: 0 14px;
-  border: 2px solid #0a0a0a;
-  border-radius: 0;
-  background: #fbf8ee;
+  border: 2px solid var(--conversion-ink);
+  border-radius: var(--conversion-radius);
+  background: var(--conversion-field);
   font-size: 16px; /* iOS no-zoom */
-  color: #0a0a0a;
+  color: var(--conversion-ink);
   outline: none;
   box-sizing: border-box;
 }
@@ -114,30 +127,31 @@
   justify-content: center;
   gap: 10px;
   width: 100%;
-  height: 56px;
-  background: #ef3108;
-  color: #fff;
-  border: 2px solid #0a0a0a;
-  border-radius: 0;
-  box-shadow: 4px 4px 0 #0a0a0a;
-  font-family: var(--font-chewy), cursive;
-  font-size: 17px;
+  height: 50px;
+  background: var(--conversion-action);
+  color: var(--conversion-action-text);
+  border: 2px solid var(--conversion-ink);
+  border-radius: var(--conversion-pill);
+  box-shadow: var(--conversion-hard-shadow);
+  font-family: var(--font-label, var(--font-chewy)), cursive;
+  font-size: 15px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   cursor: pointer;
   text-decoration: none;
   box-sizing: border-box;
+  transition: transform var(--conversion-motion), box-shadow var(--conversion-motion), background-color var(--conversion-motion);
 }
 .cta:active:not(:disabled) {
   transform: translate(3px, 3px);
-  box-shadow: 1px 1px 0 #0a0a0a;
+  box-shadow: 1px 1px 0 var(--conversion-ink);
 }
 .cta:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
 
 .error {
   margin: 0;
   font-size: 13px;
-  color: #a02814;
+  color: var(--conversion-action);
   line-height: 1.4;
 }
 
@@ -165,7 +179,8 @@
   width: 100%;
   aspect-ratio: 1 / 1;
   background: #efe9d8;
-  border: 2px solid rgba(17, 13, 9, 0.18);
+  border: 2px solid var(--conversion-border);
+  border-radius: var(--conversion-radius);
   position: relative;
   overflow: hidden;
 }
@@ -180,15 +195,15 @@
   box-sizing: border-box;
 }
 .avatarActive .avatarPh {
-  border-color: #0a0a0a;
-  box-shadow: 0 0 0 3px #ffd84a;
+  border-color: var(--conversion-ink);
+  box-shadow: 0 0 0 3px var(--conversion-accent);
 }
 .avatarName {
-  font-family: var(--font-chewy), cursive;
+  font-family: var(--font-label, var(--font-chewy)), cursive;
   font-size: 12px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #0a0a0a;
+  color: var(--conversion-ink);
   opacity: 0.5;
   text-align: center;
   width: 100%;
@@ -201,8 +216,8 @@
 .checkmark {
   width: 52px;
   height: 52px;
-  border-radius: 50%;
-  background: #ffd84a;
+  border-radius: var(--conversion-pill);
+  background: var(--conversion-accent);
   display: flex;
   align-items: center;
   justify-content: center;

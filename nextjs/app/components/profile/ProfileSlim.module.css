@@ -5,6 +5,16 @@
    ══════════════════════════════════════════════ */
 
 .page {
+  --profile-surface: var(--color-surface, #fbf8ee);
+  --profile-surface-elevated: var(--color-surface-elevated, #fff);
+  --profile-ink: var(--color-text, #0a0a0a);
+  --profile-action: var(--color-action, var(--collage-red, #ef3108));
+  --profile-accent: var(--color-accent, var(--brand-yellow, #ffd84a));
+  --profile-border: var(--color-border-strong, #0a0a0a);
+  --profile-muted: rgba(10, 10, 10, .72);
+  --profile-radius: var(--radius-md, 8px);
+  --profile-pill: var(--radius-pill, 999px);
+  --profile-motion: var(--motion-base, 180ms) var(--ease-standard, ease);
   background: linear-gradient(180deg, #fff 0%, #f7f4ec 100%);
   min-height: 100vh;
   /* Clear the fixed 64px navbar (SiteNav) — this route has its own layout, not
@@ -49,7 +59,8 @@
   width: 78px;
   height: 78px;
   background: #efe9d8;
-  border: 2px solid #0a0a0a;
+  border: 2px solid var(--profile-border);
+  border-radius: var(--profile-radius);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -68,14 +79,14 @@
   min-width: 0;
 }
 .kicker {
-  font-family: var(--font-poster);
+  font-family: var(--font-label, var(--font-poster));
   font-size: 11px;
   letter-spacing: 0.22em;
   color: #0a0a0a;
   text-transform: uppercase;
 }
 .name {
-  font-family: var(--font-poster);
+  font-family: var(--font-label, var(--font-poster));
   font-size: 28px;
   line-height: 1;
   color: var(--collage-red);
@@ -101,14 +112,14 @@
 .command {
   margin: 16px 14px 12px;
   padding: 18px 18px 16px;
-  background: #fff;
-  border: 2px solid #0a0a0a;
-  border-radius: 22px;
+  background: var(--profile-surface-elevated);
+  border: 2px solid var(--profile-border);
+  border-radius: var(--profile-radius);
   transform: rotate(-.6deg);
 }
 
 .commandKicker {
-  font-family: var(--font-poster);
+  font-family: var(--font-label, var(--font-poster));
   font-size: 11px;
   letter-spacing: .22em;
   text-transform: uppercase;
@@ -117,7 +128,7 @@
 }
 
 .commandTitle {
-  font-family: var(--font-poster);
+  font-family: var(--font-label, var(--font-poster));
   font-size: clamp(31px, 9vw, 54px);
   line-height: .92;
   text-transform: uppercase;
@@ -134,9 +145,9 @@
 .stat {
   min-height: 74px;
   padding: 12px 12px 10px;
-  background: #0a0a0a;
+  background: var(--profile-ink);
   color: #fff;
-  border-radius: 16px;
+  border-radius: var(--profile-radius);
 }
 
 .stat:nth-child(2) {
@@ -145,7 +156,7 @@
 
 .stat strong {
   display: block;
-  font-family: var(--font-poster);
+  font-family: var(--font-label, var(--font-poster));
   font-size: 30px;
   line-height: .9;
   letter-spacing: .02em;
@@ -176,25 +187,25 @@
 
 .tab {
   min-height: 44px;
-  border: 2px solid #0a0a0a;
-  border-radius: 999px;
-  background: #fff;
-  color: #0a0a0a;
-  font-family: var(--font-poster);
+  border: 2px solid var(--profile-border);
+  border-radius: var(--profile-pill);
+  background: var(--profile-surface-elevated);
+  color: var(--profile-ink);
+  font-family: var(--font-label, var(--font-poster));
   font-size: 11px;
   line-height: 1;
   letter-spacing: .11em;
   text-transform: uppercase;
   cursor: pointer;
   transform: rotate(-1.5deg);
-  transition: transform .16s cubic-bezier(.34, 1.56, .64, 1), background-color .16s, color .16s;
+  transition: transform var(--profile-motion), background-color var(--profile-motion), color var(--profile-motion), border-color var(--profile-motion);
 }
 
 .tab:nth-child(2) { transform: rotate(1.4deg); }
 .tab:nth-child(3) { transform: rotate(-.6deg); }
 
 .tabActive {
-  background: var(--collage-red);
+  background: var(--profile-action);
   color: #fff;
 }
 
@@ -223,7 +234,7 @@
   padding: 18px 18px 10px;
 }
 .sectionHeading {
-  font-family: var(--font-poster);
+  font-family: var(--font-label, var(--font-poster));
   font-size: clamp(34px, 9vw, 52px);
   line-height: 0.96;
   text-transform: uppercase;
@@ -310,7 +321,7 @@
   color: #fbf8ee;
 }
 .spotName {
-  font-family: var(--font-poster);
+  font-family: var(--font-label, var(--font-poster));
   font-size: 26px;
   line-height: 0.92;
   text-transform: uppercase;
@@ -330,8 +341,9 @@
 .empty {
   margin: 4px 16px 22px;
   padding: 16px 18px;
-  background: #fbf8ee;
-  border: 2px solid #0a0a0a;
+  background: var(--profile-surface);
+  border: 2px solid var(--profile-border);
+  border-radius: var(--profile-radius);
   display: grid;
   gap: 10px;
 }
@@ -343,7 +355,7 @@
   margin: 0;
 }
 .emptyCta {
-  font-family: var(--font-poster);
+  font-family: var(--font-label, var(--font-poster));
   font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -357,13 +369,13 @@
   margin: 4px 16px 14px;
   padding: 14px 16px 16px;
   background: #fff;
-  border: 2px solid #0a0a0a;
-  border-radius: 18px;
+  border: 2px solid var(--profile-border);
+  border-radius: var(--profile-radius);
   display: grid;
   gap: 4px;
 }
 .explainerKicker {
-  font-family: var(--font-poster);
+  font-family: var(--font-label, var(--font-poster));
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -382,7 +394,7 @@
 .meCount {
   margin: 0 0 10px;
   padding: 0 16px;
-  font-family: var(--font-poster);
+  font-family: var(--font-label, var(--font-poster));
   font-size: 12px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -399,12 +411,12 @@
   margin: 0 14px 0;
   padding: 14px 0 4px;
   background: #fff;
-  border: 2px solid #0a0a0a;
-  border-radius: 22px;
+  border: 2px solid var(--profile-border);
+  border-radius: var(--profile-radius);
 }
 
 .meGroupTitle {
-  font-family: var(--font-poster);
+  font-family: var(--font-label, var(--font-poster));
   font-size: 22px;
   line-height: .96;
   text-transform: uppercase;
@@ -443,7 +455,7 @@
   cursor: pointer;
   width: 100%;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.1s ease;
+  transition: transform var(--profile-motion);
 }
 .meBtn:active {
   transform: scale(0.97);
@@ -480,7 +492,7 @@
   text-align: center;
 }
 .meName {
-  font-family: var(--font-poster);
+  font-family: var(--font-label, var(--font-poster));
   font-size: 13px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -508,7 +520,8 @@
 .pck {
   background: #0a0a0a;
   color: #fbf8ee;
-  font-family: var(--font-poster);
+  font-family: var(--font-label, var(--font-poster));
+  border-radius: var(--profile-pill);
   font-size: 13px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -534,7 +547,7 @@
   flex: 1;
 }
 .packCta {
-  font-family: var(--font-poster);
+  font-family: var(--font-label, var(--font-poster));
   font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -548,19 +561,20 @@
   display: block;
   margin: 14px 18px 30px;
   background: transparent;
-  color: #0a0a0a;
-  border: 1.5px solid #0a0a0a;
-  font-family: var(--font-poster);
+  color: var(--profile-ink);
+  border: 1.5px solid var(--profile-border);
+  border-radius: var(--profile-pill);
+  font-family: var(--font-label, var(--font-poster));
   font-size: 14px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   padding: 12px 16px 13px;
   width: calc(100% - 36px);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background-color var(--profile-motion), color var(--profile-motion);
 }
 .logout:hover {
-  background: #0a0a0a;
+  background: var(--profile-ink);
   color: #fbf8ee;
 }
 

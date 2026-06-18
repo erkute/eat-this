@@ -6,6 +6,19 @@
 /* -------------------- Shell & layout -------------------- */
 
 .shell {
+  --map-surface: var(--color-surface-elevated, var(--et-cream, #fff8ea));
+  --map-surface-muted: rgba(255, 248, 234, .92);
+  --map-ink: var(--color-text, var(--et-black, #100d0f));
+  --map-action: var(--color-action, var(--et-red, #e43d18));
+  --map-action-strong: var(--et-red-deep, #a62812);
+  --map-accent: var(--color-accent, var(--et-yellow-bright, #ffd84a));
+  --map-control-radius: var(--radius-md, 8px);
+  --map-pill-radius: var(--radius-pill, 999px);
+  --map-card-radius: var(--radius-sm, 4px);
+  --map-border-soft: var(--color-border, rgba(201, 67, 50, .22));
+  --map-control-shadow: 0 10px 24px rgba(201, 67, 50, .22);
+  --map-cutout-shadow: drop-shadow(0 9px 9px rgba(43, 33, 28, .26));
+  --map-motion: var(--motion-base, 180ms) var(--ease-standard, ease);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -27,6 +40,18 @@
   touch-action: pan-y;
 }
 
+html[data-theme="dark"] .shell {
+  --map-surface: rgba(255, 248, 234, .9);
+  --map-surface-muted: rgba(255, 248, 234, .9);
+  --map-ink: var(--et-black, #100d0f);
+  --map-action: var(--et-red-hot, #f03608);
+  --map-action-strong: var(--et-red, #e43d18);
+  --map-accent: #34a85a;
+  --map-border-soft: rgba(240, 232, 208, .24);
+  --map-control-shadow: 0 12px 28px rgba(0, 0, 0, .34);
+  --map-cutout-shadow: drop-shadow(0 9px 10px rgba(0, 0, 0, .42));
+}
+
 /* Category chips */
 .chip {
   appearance: none;
@@ -38,9 +63,9 @@
   font-size: 12px;
   font-weight: 500;
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: var(--map-control-radius);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition: background-color var(--map-motion), color var(--map-motion), border-color var(--map-motion), transform var(--map-motion);
   scroll-snap-align: start;
 }
 .chip:hover { color: var(--text-primary); border-color: var(--text-muted); }
@@ -88,13 +113,13 @@
   color: var(--text-primary);
   border: 1px solid rgba(28, 37, 32, 0.16);
   border-right: 0;
-  border-radius: 6px 0 0 6px;
+  border-radius: var(--map-control-radius) 0 0 var(--map-control-radius);
   cursor: pointer;
   z-index: 6;
   appearance: none;
   -webkit-tap-highlight-color: transparent;
   box-shadow: -3px 0 10px rgba(0, 0, 0, 0.08);
-  transition: right 280ms cubic-bezier(0.2, 0.8, 0.2, 1), background 160ms ease;
+  transition: right var(--motion-slow, 280ms) var(--ease-standard, cubic-bezier(0.2, 0.8, 0.2, 1)), background-color var(--map-motion);
 }
 .panelToggle:hover { background: #f4f2ec; }
 .panelToggle svg {
@@ -124,7 +149,7 @@ html[data-theme="dark"] .panelToggle:hover { background: #221f1c; }
    polyline points (not via CSS rotate) so the two signals don't fight. */
 .bodyPanelHidden .panelToggle {
   right: 0;
-  border-radius: 6px;
+  border-radius: var(--map-control-radius);
   border-right: 1px solid rgba(28, 37, 32, 0.16);
 }
 html[data-theme="dark"] .bodyPanelHidden .panelToggle {
@@ -776,9 +801,9 @@ html[data-theme="dark"] .esBtnPrimary {
   aspect-ratio: 16 / 10;
   padding: 0;
   margin: 0 0 12px;
-  border: 2px solid var(--c-black);
-  border-radius: 0;
-  background: var(--c-black);
+  border: 2px solid var(--map-ink);
+  border-radius: var(--map-card-radius);
+  background: var(--map-ink);
   overflow: visible;
   cursor: pointer;
   text-align: left;
@@ -809,9 +834,9 @@ html[data-theme="dark"] .esBtnPrimary {
 }
 /* Active card: border cue instead of the old fat offset shadow
    (User 2026-06-05: fette Schatten raus). */
-.rcardActive { border-color: var(--c-mustard); }
+.rcardActive { border-color: var(--map-accent); }
 /* Dark mode: Akzent rot statt gelb (gilt für alle Mustard-Akzente im Modul). */
-html[data-theme="dark"] .rcardActive { border-color: var(--c-coral-bright); }
+html[data-theme="dark"] .rcardActive { border-color: var(--map-action); }
 
 .rcardBody {
   position: absolute;
@@ -820,7 +845,7 @@ html[data-theme="dark"] .rcardActive { border-color: var(--c-coral-bright); }
   color: #fff;
 }
 .rcardName {
-  font-family: var(--font-chewy);
+  font-family: var(--font-label, var(--font-chewy));
   font-size: 26px;
   line-height: .92;
   margin: 0;
@@ -833,7 +858,7 @@ html[data-theme="dark"] .rcardActive { border-color: var(--c-coral-bright); }
   font-weight: 600;
   letter-spacing: .16em;
   text-transform: uppercase;
-  color: var(--c-mustard);
+  color: var(--map-accent);
 }
 /* Literal value, NOT the --c-coral-bright token: on photos the global
    #d63a2a sank into the image — this is one tick lighter for legibility.
@@ -850,7 +875,7 @@ html[data-theme="dark"] .rcardMeta { color: #ff8270; }
   text-transform: uppercase;
   color: rgba(255,255,255,.85);
 }
-.rcardNow { color: var(--c-mustard); font-weight: 700; }
+.rcardNow { color: var(--map-accent); font-weight: 700; }
 html[data-theme="dark"] .rcardNow { color: #ff8270; } /* same photo-legibility red as .rcardMeta */
 .rcardDot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .6; }
 
@@ -877,11 +902,11 @@ html[data-theme="dark"] .rcardNow { color: #ff8270; } /* same photo-legibility r
   align-items: center;
   gap: 7px;
   padding: 10px 15px 11px;
-  background: var(--c-mustard);
-  color: var(--c-black);
-  border: 2px solid var(--c-black);
-  border-radius: 0;
-  font-family: var(--font-chewy), 'Chewy', sans-serif;
+  background: var(--map-accent);
+  color: var(--map-ink);
+  border: 2px solid var(--map-ink);
+  border-radius: var(--map-pill-radius);
+  font-family: var(--font-label, var(--font-chewy)), 'Chewy', sans-serif;
   font-size: 14px;
   letter-spacing: .12em;
   text-transform: uppercase;
@@ -901,9 +926,10 @@ html[data-theme="dark"] .rcardBlurBadge {
   align-items: center;
   gap: 5px;
   padding: 4px 8px 5px;
-  background: var(--c-mustard);
-  color: var(--c-black);
-  font-family: var(--font-chewy);
+  background: var(--map-accent);
+  color: var(--map-ink);
+  border-radius: var(--map-pill-radius);
+  font-family: var(--font-label, var(--font-chewy));
   font-size: 10.5px;
   letter-spacing: .16em;
   text-transform: uppercase;
@@ -912,9 +938,9 @@ html[data-theme="dark"] .rcardBlurBadge {
   content: '';
   width: 6px; height: 6px;
   border-radius: 999px;
-  background: var(--c-black);
+  background: var(--map-ink);
 }
-.openPillClosed { background: rgba(255,255,255,.92); color: var(--c-black); }
+.openPillClosed { background: var(--map-surface-muted); color: var(--map-ink); }
 .openPillClosed::before { background: rgba(10,10,10,.5); }
 /* Open = GREEN also in dark mode (User 2026-06-04) — the coral re-accent
    made "Geöffnet" read as a warning. Kelly green = the map's open
@@ -1271,15 +1297,15 @@ html[data-theme="dark"] .btn:hover {
   align-items: center;
   gap: 5px;
   padding: 8px 11px;
-  border-radius: 6px;
-  border: 1px solid var(--border-strong);
-  background: var(--surface-raised);
+  border-radius: var(--map-pill-radius);
+  border: 1px solid var(--map-border-soft);
+  background: var(--map-surface-muted);
   color: var(--text-secondary);
   font: inherit;
   font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition: background-color var(--map-motion), color var(--map-motion), border-color var(--map-motion), transform var(--map-motion);
   white-space: nowrap;
 }
 .openChip:hover { color: var(--text-primary); border-color: var(--text-muted); }
@@ -2122,13 +2148,13 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
   padding: 8px 8px 9px;
   /* Frosted glass like the floating controls, but WHITE — cream sank into
      the cream sheet, white pops fresher against it (User 2026-06-04). */
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--map-surface-muted);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
-  border: 1.5px solid var(--c-black);
-  border-radius: 0;
-  color: var(--c-black);
-  font-family: var(--font-chewy), 'Chewy', sans-serif;
+  border: 1.5px solid var(--map-ink);
+  border-radius: var(--map-control-radius);
+  color: var(--map-ink);
+  font-family: var(--font-label, var(--font-chewy)), 'Chewy', sans-serif;
   /* Scales with viewport width: 11px floor at 360px → ~13px on a 430px
      phone, so the stretched chips don't read undersized. */
   font-size: clamp(11px, 3vw, 13px);
@@ -2145,7 +2171,7 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
    pane, cream ink/border (2026-06-04, replaced the solid cream chips). */
 html[data-theme="dark"] .filterChip {
   background: rgba(20, 20, 18, 0.5);
-  border-color: #f0e8d0;
+  border-color: var(--map-border-soft);
   color: #f0e8d0;
 }
 
@@ -2154,8 +2180,8 @@ html[data-theme="dark"] .filterChip {
 }
 
 .filterChipActive,
-.filterChipOpenActive { background: var(--c-mustard); color: var(--c-black); }
-html[data-theme="dark"] .filterChipActive { background: var(--c-coral); color: #fbf8ee; }
+.filterChipOpenActive { background: var(--map-accent); color: var(--map-ink); }
+html[data-theme="dark"] .filterChipActive { background: var(--map-action); color: #fbf8ee; }
 /* "Jetzt geöffnet" active = GREEN, not red — open vocabulary like the list
    pill (User 2026-06-05). */
 html[data-theme="dark"] .filterChipOpenActive { background: #34a85a; color: #fbf8ee; }
@@ -2178,17 +2204,17 @@ html[data-theme="dark"] .filterChipOpenActive { background: #34a85a; color: #fbf
   place-items: center;
   width: 24px;
   border: 0;
-  border-left: 1.5px solid var(--c-black);
-  background: var(--c-mustard);
-  color: var(--c-black);
+  border-left: 1.5px solid var(--map-ink);
+  background: var(--map-accent);
+  color: var(--map-ink);
   cursor: pointer;
   padding: 0;
   margin-left: -1px;
   border-radius: 0;
-  transition: background 120ms ease;
+  transition: background-color var(--map-motion), color var(--map-motion);
 }
 html[data-theme="dark"] .filterChipReset {
-  background: var(--c-coral);
+  background: var(--map-action);
   color: #fbf8ee;
   border-left-color: #fbf8ee;
 }
@@ -2805,14 +2831,14 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   align-self: center;
   margin: 0;
   appearance: none;
-  background: var(--et-red);
-  color: var(--et-yellow-bright);
-  font-family: var(--font-display);
+  background: var(--map-action);
+  color: var(--map-surface);
+  font-family: var(--font-label, var(--font-display));
   font-size: 20px;
   line-height: 1;
   padding: 13px 16px 14px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--map-pill-radius);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -2821,10 +2847,10 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   white-space: nowrap;
   transform: none;
   box-shadow: none;
-  transition: transform 140ms ease, background-color 140ms ease;
+  transition: transform var(--map-motion), background-color var(--map-motion);
 }
 .ctaPill:hover {
-  background: var(--et-red-deep);
+  background: var(--map-action-strong);
   transform: translateY(-2px);
 }
 /* PAGER — dunkle Leiste am unteren Rand; Nachbar-Gerichte links & rechts,
@@ -2841,7 +2867,7 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   padding: 8px;
   background: rgba(255, 250, 240, 0.16);
   color: var(--et-yellow-bright);
-  border-radius: 999px;
+  border-radius: var(--map-pill-radius);
   font-family: var(--font);
 }
 .fdPagerPrev,
@@ -2849,7 +2875,7 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   appearance: none;
   background: var(--et-yellow-bright);
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--map-pill-radius);
   padding: 8px 10px;
   margin: 0;
   min-width: 0;
@@ -2994,34 +3020,34 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   align-items: baseline;
   gap: 14px;
   text-decoration: none;
-  color: var(--c-coral);
+  color: var(--map-action);
   background: transparent;
   border: none;
   padding: 0;
   margin: 0;
-  transition: gap 200ms ease;
+  transition: gap var(--map-motion);
 }
 .btnPrimary:hover { gap: 20px; }
 .btnPrimaryLbl {
-  font-family: var(--font-chewy), 'Chewy', 'Anton', 'Impact', sans-serif;
+  font-family: var(--font-label, var(--font-chewy)), 'Chewy', 'Anton', 'Impact', sans-serif;
   font-weight: 900;
   font-size: 44px;
   line-height: 0.92;
   letter-spacing: -0.014em;
   text-transform: uppercase;
-  color: var(--c-coral);
+  color: var(--map-action);
 }
 .btnPrimaryArr {
   width: 36px;
   height: 20px;
-  stroke: var(--c-coral);
+  stroke: var(--map-action);
   fill: none;
   stroke-width: 2.8;
   stroke-linecap: round;
   stroke-linejoin: round;
   align-self: center;
   margin-bottom: 6px;
-  transition: transform 220ms ease;
+  transition: transform var(--map-motion);
 }
 .btnPrimary:hover .btnPrimaryArr { transform: translateX(8px); }
 
@@ -3084,6 +3110,7 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
     radial-gradient(circle at 18% 18%, rgba(245, 197, 24, 0.22), transparent 34%),
     linear-gradient(135deg, #fff7df 0%, #f3eedd 52%, #eadfc3 100%);
   border: 2px solid #0a0a0a;
+  border-radius: var(--map-control-radius);
   position: relative;
   overflow: hidden;
   display: grid;
@@ -3116,7 +3143,7 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   object-fit: contain;
   transform: rotate(-7deg) translateX(2px);
   filter: drop-shadow(4px 5px 0 rgba(0, 0, 0, 0.24));
-  transition: transform 220ms ease, filter 220ms ease;
+  transition: transform var(--map-motion), filter var(--map-motion);
 }
 :global(html[data-theme="dark"]) .packPromoSingleCard {
   filter: drop-shadow(3px 4px 0 rgba(0, 0, 0, 0.55));
@@ -3133,7 +3160,7 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
 :global(html[data-theme="dark"]) .packPromoEyebrow { color: var(--c-coral); }
 .packPromoTitle {
   margin: 0 0 6px;
-  font-family: var(--font-chewy), 'Chewy', 'Anton', 'Impact', sans-serif;
+  font-family: var(--font-label, var(--font-chewy)), 'Chewy', 'Anton', 'Impact', sans-serif;
   font-weight: 400;
   font-size: 20px;
   line-height: 0.95;
@@ -3166,8 +3193,9 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   color: #fbf8ee;
   text-decoration: none;
   border: 2px solid #0a0a0a;
+  border-radius: var(--map-control-radius);
   padding: 8px 12px 9px 13px;
-  transition: transform 160ms ease, background 160ms ease, color 160ms ease;
+  transition: transform var(--map-motion), background-color var(--map-motion), color var(--map-motion);
   position: relative;
   box-shadow: 3px 3px 0 #0a0a0a;
 }
@@ -3179,7 +3207,7 @@ html[data-theme="dark"] .btnPackPromo {
 }
 .btnPackPromo:hover { transform: translate(-2px, -2px); }
 .btnPackPromoLbl {
-  font-family: var(--font-chewy), 'Chewy', 'Anton', 'Impact', sans-serif;
+  font-family: var(--font-label, var(--font-chewy)), 'Chewy', 'Anton', 'Impact', sans-serif;
   font-weight: 400;
   font-size: 13.5px;
   letter-spacing: 0;
@@ -3199,7 +3227,7 @@ html[data-theme="dark"] .btnPackPromo {
   stroke-width: 2.6;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: transform 200ms ease;
+  transition: transform var(--map-motion);
 }
 .btnPackPromo:hover .btnPackPromoIcon { transform: translateX(3px); }
 
@@ -3309,7 +3337,7 @@ html[data-theme="dark"] .bezirkLockedCta {
   gap: 14px;
 }
 .listEndTitle {
-  font-family: var(--font-chewy);
+  font-family: var(--font-label, var(--font-chewy));
   font-size: 26px;
   line-height: .98;
   text-transform: uppercase;
@@ -3323,18 +3351,18 @@ html[data-theme="dark"] .listEndTitle { color: #f0e8d0; }
   align-items: center;
   gap: 9px;
   padding: 12px 20px 13px;
-  background: var(--c-mustard);
-  color: var(--c-black);
-  border: 2px solid var(--c-black);
-  border-radius: 0;
-  font-family: var(--font-chewy);
+  background: var(--map-accent);
+  color: var(--map-ink);
+  border: 2px solid var(--map-ink);
+  border-radius: var(--map-pill-radius);
+  font-family: var(--font-label, var(--font-chewy));
   font-size: 15px;
   letter-spacing: .1em;
   text-transform: uppercase;
   cursor: pointer;
 }
 html[data-theme="dark"] .listEndCta {
-  background: var(--c-coral);
+  background: var(--map-action);
   color: #fbf8ee;
   border-color: #fbf8ee;
 }
@@ -4928,16 +4956,16 @@ html[data-theme="dark"] .mapHome {
 .fab,
 html .fab,
 html[data-theme="dark"] .fab {
-  background: var(--et-cream);
-  color: var(--et-red);
+  background: var(--map-surface);
+  color: var(--map-action);
   border: 0;
-  border-radius: 999px;
-  box-shadow: 0 10px 24px rgba(201, 67, 50, .22);
+  border-radius: var(--map-pill-radius);
+  box-shadow: var(--map-control-shadow);
 }
 
 .fabIcon,
 html[data-theme="dark"] .fabIcon {
-  stroke: var(--et-red);
+  stroke: currentColor;
 }
 
 /* Final map-control system: paper-cut controls in the red/cream brand world.
@@ -4952,19 +4980,19 @@ html .fab {
   box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  filter: drop-shadow(0 9px 9px rgba(43, 33, 28, .26));
+  filter: var(--map-cutout-shadow);
 }
 
 html .mapSearchBtn {
-  background: var(--et-cream, #fff8ea);
-  color: var(--et-black, #100d0f);
+  background: var(--map-surface);
+  color: var(--map-ink);
   clip-path: polygon(6% 10%, 94% 0, 100% 88%, 10% 100%);
   transform: rotate(-4deg);
 }
 
 html .mapBurger {
-  background: var(--et-black, #100d0f);
-  color: var(--et-cream, #fff8ea);
+  background: var(--map-ink);
+  color: var(--map-surface);
   clip-path: polygon(8% 0, 100% 12%, 90% 100%, 0 88%);
   transform: rotate(4deg);
 }
@@ -4972,8 +5000,8 @@ html .mapBurger {
 html .fab {
   width: 40px;
   height: 40px;
-  background: rgba(255, 248, 234, .92);
-  color: var(--et-red, #e43d18);
+  background: var(--map-surface-muted);
+  color: var(--map-action);
   border-radius: 16px;
   clip-path: none;
   transform: none;
@@ -5004,13 +5032,13 @@ html .mapBurger img {
 html .mapSearchToolbar,
 html[data-theme="dark"] .mapSearchToolbar {
   min-height: 52px;
-  color: var(--et-black, #100d0f);
-  background: var(--et-cream, #fff8ea);
+  color: var(--map-ink);
+  background: var(--map-surface);
   border: 0;
   border-radius: 0;
   box-shadow: none;
   clip-path: polygon(2% 8%, 98% 0, 100% 88%, 2% 100%);
-  filter: drop-shadow(0 9px 9px rgba(43, 33, 28, .24));
+  filter: var(--map-cutout-shadow);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -5020,22 +5048,22 @@ html .mapSearchClear,
 html[data-theme="dark"] .mapSearchInput,
 html[data-theme="dark"] .mapSearchIcon,
 html[data-theme="dark"] .mapSearchClear {
-  color: var(--et-black, #100d0f);
+  color: var(--map-ink);
 }
 
 html .mapSearchInput::placeholder,
 html[data-theme="dark"] .mapSearchInput::placeholder {
-  color: rgba(16, 13, 15, .54);
+  color: color-mix(in srgb, var(--map-ink) 54%, transparent);
 }
 
 html[data-theme="dark"] .mapSearchBtn {
-  background: var(--et-cream, #fff8ea);
-  color: var(--et-black, #100d0f);
+  background: var(--map-surface);
+  color: var(--map-ink);
 }
 
 html[data-theme="dark"] .mapBurger {
-  background: var(--et-cream, #fff8ea);
-  color: var(--et-black, #100d0f);
+  background: var(--map-surface);
+  color: var(--map-ink);
 }
 
 html[data-theme="dark"] .mapBurger img {
@@ -5043,8 +5071,8 @@ html[data-theme="dark"] .mapBurger img {
 }
 
 html[data-theme="dark"] .fab {
-  background: rgba(255, 248, 234, .9);
-  color: var(--et-red, #e43d18);
+  background: var(--map-surface-muted);
+  color: var(--map-action);
 }
 
 html[data-theme="dark"] .fabIcon {
@@ -5052,16 +5080,16 @@ html[data-theme="dark"] .fabIcon {
 }
 
 .mapWrap :global(.maplibregl-ctrl-group) {
-  background: var(--et-cream, #fff8ea) !important;
+  background: var(--map-surface) !important;
   border: 0 !important;
   border-radius: 0 !important;
   box-shadow: none !important;
   clip-path: polygon(5% 2%, 96% 0, 100% 92%, 8% 100%);
-  filter: drop-shadow(0 8px 7px rgba(43, 33, 28, .24));
+  filter: var(--map-cutout-shadow);
 }
 
 .mapWrap :global(.maplibregl-ctrl-group button) {
-  color: var(--et-black, #100d0f);
+  color: var(--map-ink);
 }
 
 @media (hover: hover) {

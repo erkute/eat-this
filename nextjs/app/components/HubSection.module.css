@@ -6,6 +6,22 @@
   --home-surface: var(--et-yellow, #ffeec8);
   --home-muted: rgba(16, 13, 15, .22);
   --collage-ink: var(--et-black, #100d0f);
+  --home-column: 1180px;
+  --home-section-gap: clamp(26px, 5vw, 64px);
+  --home-card-radius: var(--radius-md, 8px);
+  --home-cta-bg: rgba(255, 248, 234, .78);
+  --home-cta-text: var(--color-action, var(--et-red, #e43d18));
+  --home-cta-border: rgba(228, 61, 24, .32);
+  --home-cta-shadow: inset 0 -2px 0 rgba(228, 61, 24, .1), 0 8px 18px rgba(92, 50, 19, .1);
+  --home-cta-hover-bg: var(--et-cream, #f2dfb8);
+  --home-cta-hover-text: var(--color-surface-inverse, var(--et-black, #100d0f));
+  --home-cta-hover-border: var(--color-action, var(--et-red, #e43d18));
+  --home-cta-transition:
+    transform var(--motion-base, 180ms) var(--ease-standard, ease),
+    color var(--motion-base, 180ms) ease,
+    background-color var(--motion-base, 180ms) ease,
+    border-color var(--motion-base, 180ms) ease,
+    box-shadow var(--motion-base, 180ms) ease;
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -62,7 +78,7 @@
 .collage :global([data-hub-allberlin]),
 .collage :global([data-hub-packs]),
 .collage :global([data-hub-faq]) {
-  margin-top: clamp(26px, 5vw, 64px);
+  margin-top: var(--home-section-gap);
 }
 
 .collage :global([data-hub-nearby]),
@@ -71,7 +87,7 @@
 .collage :global([data-hub-categories]),
 .collage :global([data-hub-faq]) {
   border: 2px solid rgba(201, 67, 50, .18);
-  border-radius: 8px;
+  border-radius: var(--home-card-radius);
   background: transparent;
 }
 
@@ -93,7 +109,7 @@
 }
 
 .collage :global([data-hub-bezirke]) {
-  border-radius: 8px;
+  border-radius: var(--home-card-radius);
   overflow: hidden;
 }
 
@@ -109,7 +125,7 @@
   .collage :global([data-hub-allberlin]),
   .collage :global([data-hub-faq]) {
     margin-inline: auto;
-    max-width: 1180px;
+    max-width: var(--home-column);
   }
 
   .collage :global([data-hub-nearby]),
@@ -117,7 +133,7 @@
   .collage :global([data-hub-magazine]),
   .collage :global([data-hub-categories]),
   .collage :global([data-hub-faq]) {
-    width: calc(100% - 48px);
+    width: calc(100% - var(--space-12, 48px));
   }
 }
 
@@ -129,6 +145,13 @@
   --home-surface: var(--food-cream, #201612);
   --home-muted: rgba(255, 248, 234, .2);
   --collage-ink: var(--food-ink, #fff8ea);
+  --home-cta-bg: rgba(242, 223, 184, .12);
+  --home-cta-text: var(--et-red-hot, #f03608);
+  --home-cta-border: rgba(240, 54, 8, .36);
+  --home-cta-shadow: inset 0 -2px 0 rgba(240, 54, 8, .14), 0 8px 18px rgba(0, 0, 0, .16);
+  --home-cta-hover-bg: var(--et-cream, #f2dfb8);
+  --home-cta-hover-text: var(--et-black, #100d0f);
+  --home-cta-hover-border: var(--et-red-hot, #f03608);
   background-image: none;
 }
 
@@ -169,22 +192,22 @@
 .collage :global([data-hub] button[class*="location"]),
 .collage :global([data-hub] button[class*="reroll"]),
 .collage :global([data-hub] button[class*="locBtn"]) {
-  min-height: 56px !important;
-  padding: 11px 20px 12px !important;
-  color: var(--et-red, #e43d18) !important;
-  background: rgba(255, 248, 234, .78) !important;
-  border: 2px solid rgba(228, 61, 24, .32) !important;
-  border-radius: 999px !important;
-  box-shadow: inset 0 -3px 0 rgba(228, 61, 24, .12), 0 12px 24px rgba(92, 50, 19, .12) !important;
-  font-family: var(--font-poster) !important;
-  font-size: clamp(20px, 5vw, 28px) !important;
+  min-height: 44px !important;
+  padding: 8px 14px 9px !important;
+  color: var(--home-cta-text) !important;
+  background: var(--home-cta-bg) !important;
+  border: 2px solid var(--home-cta-border) !important;
+  border-radius: var(--radius-pill, 999px) !important;
+  box-shadow: var(--home-cta-shadow) !important;
+  font-family: var(--font-label, var(--font-poster)) !important;
+  font-size: clamp(15px, 3.6vw, 20px) !important;
   font-weight: 400 !important;
   letter-spacing: .02em !important;
   line-height: .86 !important;
   text-decoration: none !important;
   text-transform: uppercase !important;
   transform: translateY(0) rotate(0deg) !important;
-  transition: transform 150ms ease, color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease !important;
+  transition: var(--home-cta-transition) !important;
 }
 
 .collage :global([data-hub] :is(a, button)[class*="cta"]:hover),
@@ -199,9 +222,9 @@
 .collage :global([data-hub] button[class*="location"]:hover),
 .collage :global([data-hub] button[class*="reroll"]:hover),
 .collage :global([data-hub] button[class*="locBtn"]:hover) {
-  color: var(--et-black, #100d0f) !important;
-  background: var(--et-cream, #f2dfb8) !important;
-  border-color: var(--et-red, #e43d18) !important;
+  color: var(--home-cta-hover-text) !important;
+  background: var(--home-cta-hover-bg) !important;
+  border-color: var(--home-cta-hover-border) !important;
   transform: translateY(-3px) rotate(-1deg) !important;
 }
 
@@ -221,21 +244,21 @@
 }
 
 .collage :global([data-hub-packs] button[class*="packCta"]) {
-  min-height: 56px !important;
-  padding: 11px 20px 12px !important;
-  color: var(--et-red, #e43d18) !important;
-  background: rgba(255, 248, 234, .78) !important;
-  border: 2px solid rgba(228, 61, 24, .32) !important;
-  border-radius: 999px !important;
-  box-shadow: inset 0 -3px 0 rgba(228, 61, 24, .12), 0 12px 24px rgba(92, 50, 19, .12) !important;
-  font-size: clamp(20px, 5vw, 28px) !important;
+  min-height: 44px !important;
+  padding: 8px 14px 9px !important;
+  color: var(--home-cta-text) !important;
+  background: var(--home-cta-bg) !important;
+  border: 2px solid var(--home-cta-border) !important;
+  border-radius: var(--radius-pill, 999px) !important;
+  box-shadow: var(--home-cta-shadow) !important;
+  font-size: clamp(15px, 3.6vw, 20px) !important;
   letter-spacing: .02em !important;
 }
 
 .collage :global([data-hub-packs] button[class*="packCta"]:hover) {
-  color: var(--et-black, #100d0f) !important;
-  background: var(--et-cream, #f2dfb8) !important;
-  border-color: var(--et-red, #e43d18) !important;
+  color: var(--home-cta-hover-text) !important;
+  background: var(--home-cta-hover-bg) !important;
+  border-color: var(--home-cta-hover-border) !important;
   transform: translateY(-3px) rotate(-1deg) !important;
 }
 
@@ -244,28 +267,28 @@
 }
 
 .collage :global([data-hub] .homeCta) {
-  min-height: 56px !important;
-  padding: 11px 20px 12px !important;
-  color: var(--et-red, #e43d18) !important;
-  background: rgba(255, 248, 234, .78) !important;
-  border: 2px solid rgba(228, 61, 24, .32) !important;
-  border-radius: 999px !important;
-  box-shadow: inset 0 -3px 0 rgba(228, 61, 24, .12), 0 12px 24px rgba(92, 50, 19, .12) !important;
-  font-family: var(--font-poster) !important;
-  font-size: clamp(20px, 5vw, 28px) !important;
+  min-height: 44px !important;
+  padding: 8px 14px 9px !important;
+  color: var(--home-cta-text) !important;
+  background: var(--home-cta-bg) !important;
+  border: 2px solid var(--home-cta-border) !important;
+  border-radius: var(--radius-pill, 999px) !important;
+  box-shadow: var(--home-cta-shadow) !important;
+  font-family: var(--font-label, var(--font-poster)) !important;
+  font-size: clamp(15px, 3.6vw, 20px) !important;
   font-weight: 400 !important;
   letter-spacing: .02em !important;
   line-height: .86 !important;
   text-decoration: none !important;
   text-transform: uppercase !important;
   transform: translateY(0) rotate(0deg) !important;
-  transition: transform 150ms ease, color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease !important;
+  transition: var(--home-cta-transition) !important;
 }
 
 .collage :global([data-hub] .homeCta:hover) {
-  color: var(--et-black, #100d0f) !important;
-  background: var(--et-cream, #f2dfb8) !important;
-  border-color: var(--et-red, #e43d18) !important;
+  color: var(--home-cta-hover-text) !important;
+  background: var(--home-cta-hover-bg) !important;
+  border-color: var(--home-cta-hover-border) !important;
   transform: translateY(-3px) rotate(-1deg) !important;
 }
 
@@ -285,17 +308,17 @@
 :global(html[data-theme="dark"]) .collage :global([data-hub] button[class*="location"]),
 :global(html[data-theme="dark"]) .collage :global([data-hub] button[class*="reroll"]),
 :global(html[data-theme="dark"]) .collage :global([data-hub] button[class*="locBtn"]) {
-  color: var(--et-red-hot, #f03608) !important;
-  background: rgba(242, 223, 184, .12) !important;
-  border-color: rgba(240, 54, 8, .36) !important;
-  box-shadow: inset 0 -3px 0 rgba(240, 54, 8, .14), 0 12px 24px rgba(0, 0, 0, .18) !important;
+  color: var(--home-cta-text) !important;
+  background: var(--home-cta-bg) !important;
+  border-color: var(--home-cta-border) !important;
+  box-shadow: var(--home-cta-shadow) !important;
 }
 
 :global(html[data-theme="dark"]) .collage :global([data-hub] .homeCta) {
-  color: var(--et-red-hot, #f03608) !important;
-  background: rgba(242, 223, 184, .12) !important;
-  border-color: rgba(240, 54, 8, .36) !important;
-  box-shadow: inset 0 -3px 0 rgba(240, 54, 8, .14), 0 12px 24px rgba(0, 0, 0, .18) !important;
+  color: var(--home-cta-text) !important;
+  background: var(--home-cta-bg) !important;
+  border-color: var(--home-cta-border) !important;
+  box-shadow: var(--home-cta-shadow) !important;
 }
 
 :global(html[data-theme="dark"]) .collage :global([data-hub-fragremy] button[class*="chip"]) {
@@ -308,7 +331,7 @@
 :global(html[data-theme="dark"]) .collage :global([data-hub-fragremy] button[class*="chip"]:hover),
 :global(html[data-theme="dark"]) .collage :global([data-hub-fragremy] button[class*="chip"]:focus-visible),
 :global(html[data-theme="dark"]) .collage :global([data-hub-fragremy] button[type="submit"]) {
-  color: var(--et-black, #100d0f) !important;
+  color: var(--home-cta-hover-text) !important;
   background: var(--et-red-hot, #ff7a52) !important;
   border-color: var(--et-red-hot, #ff7a52) !important;
   box-shadow: none !important;
@@ -316,7 +339,7 @@
 
 .collage :global([data-hub-hero] a[class*="ctaChip"]),
 .collage :global([data-hub-hero] a[class*="read"]) {
-  border-radius: 999px !important;
+  border-radius: var(--radius-pill, 999px) !important;
 }
 
 .collage :global([data-hub-bezirke] button[class*="active"]) {
@@ -335,28 +358,28 @@
 
 /* Canonical home buttons: all shared CTAs follow the buy-button shape. */
 .collage :global(.homeCta) {
-  min-height: 56px !important;
-  padding: 11px 20px 12px !important;
-  color: var(--et-red, #e43d18) !important;
-  background: rgba(255, 248, 234, .78) !important;
-  border: 2px solid rgba(228, 61, 24, .32) !important;
-  border-radius: 999px !important;
-  box-shadow: inset 0 -3px 0 rgba(228, 61, 24, .12), 0 12px 24px rgba(92, 50, 19, .12) !important;
-  font-family: var(--font-poster) !important;
-  font-size: clamp(20px, 5vw, 28px) !important;
+  min-height: 44px !important;
+  padding: 8px 14px 9px !important;
+  color: var(--home-cta-text) !important;
+  background: var(--home-cta-bg) !important;
+  border: 2px solid var(--home-cta-border) !important;
+  border-radius: var(--radius-pill, 999px) !important;
+  box-shadow: var(--home-cta-shadow) !important;
+  font-family: var(--font-label, var(--font-poster)) !important;
+  font-size: clamp(15px, 3.6vw, 20px) !important;
   font-weight: 400 !important;
   letter-spacing: .02em !important;
   line-height: .86 !important;
   text-decoration: none !important;
   text-transform: uppercase !important;
   transform: translateY(0) rotate(0deg) !important;
-  transition: transform 150ms ease, color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease !important;
+  transition: var(--home-cta-transition) !important;
 }
 
 .collage :global(.homeCta:hover) {
-  color: var(--et-black, #100d0f) !important;
-  background: var(--et-cream, #f2dfb8) !important;
-  border-color: var(--et-red, #e43d18) !important;
+  color: var(--home-cta-hover-text) !important;
+  background: var(--home-cta-hover-bg) !important;
+  border-color: var(--home-cta-hover-border) !important;
   transform: translateY(-3px) rotate(-1deg) !important;
 }
 
@@ -365,17 +388,17 @@
 }
 
 :global(html[data-theme="dark"]) .collage :global(.homeCta) {
-  color: var(--et-red-hot, #f03608) !important;
-  background: rgba(242, 223, 184, .12) !important;
-  border-color: rgba(240, 54, 8, .36) !important;
-  box-shadow: inset 0 -3px 0 rgba(240, 54, 8, .14), 0 12px 24px rgba(0, 0, 0, .18) !important;
+  color: var(--home-cta-text) !important;
+  background: var(--home-cta-bg) !important;
+  border-color: var(--home-cta-border) !important;
+  box-shadow: var(--home-cta-shadow) !important;
 }
 
 .collage :global([data-hub-allberlin] .homeCta) {
-  min-height: 72px !important;
+  min-height: 58px !important;
   color: var(--et-cream, #fff8ea) !important;
   background: var(--et-red, #e43d18) !important;
-  border-color: var(--et-red, #e43d18) !important;
+  border-color: var(--home-cta-text) !important;
   box-shadow:
     inset 0 -5px 0 rgba(93, 25, 13, .28),
     0 18px 34px rgba(201, 67, 50, .26),
@@ -384,9 +407,9 @@
 
 .collage :global([data-hub-allberlin] .homeCta:hover),
 .collage :global([data-hub-allberlin] .homeCta:focus-visible) {
-  color: var(--et-black, #100d0f) !important;
+  color: var(--home-cta-hover-text) !important;
   background: var(--et-yellow-bright, #ffd84a) !important;
-  border-color: var(--et-black, #100d0f) !important;
+  border-color: var(--home-cta-hover-text) !important;
   box-shadow:
     inset 0 -5px 0 rgba(93, 25, 13, .16),
     0 20px 38px rgba(201, 67, 50, .3),
@@ -394,7 +417,7 @@
 }
 
 :global(html[data-theme="dark"]) .collage :global([data-hub-allberlin] .homeCta) {
-  color: var(--et-black, #100d0f) !important;
+  color: var(--home-cta-hover-text) !important;
   background: var(--et-red-hot, #ff7a52) !important;
   border-color: var(--et-red-hot, #ff7a52) !important;
   box-shadow:

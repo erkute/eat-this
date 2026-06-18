@@ -1,10 +1,20 @@
 .page {
+  --conversion-bg: var(--et-red, #e43d18);
+  --conversion-surface: var(--color-surface, var(--et-cream, #f2dfb8));
+  --conversion-ink: var(--color-text, var(--et-black, #100d0f));
+  --conversion-action: var(--color-action, var(--et-red, #e43d18));
+  --conversion-action-text: var(--et-cream, #f2dfb8);
+  --conversion-border: rgba(16, 13, 15, .2);
+  --conversion-radius: var(--radius-md, 8px);
+  --conversion-pill: var(--radius-pill, 999px);
+  --conversion-shadow: var(--shadow-strong, 0 18px 42px rgba(16, 13, 15, .24));
+  --conversion-motion: var(--motion-base, 180ms) var(--ease-standard, ease);
   min-height: 100dvh;
   width: 100%;
   display: grid;
   place-items: center;
   padding: 18px;
-  background: var(--et-red, #e43d18);
+  background: var(--conversion-bg);
 }
 
 .frame {
@@ -15,11 +25,11 @@
   margin: 0 auto;
   padding: 28px 20px max(24px, env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
-  color: var(--et-black, #100d0f);
-  background: var(--et-cream, #f2dfb8);
+  color: var(--conversion-ink);
+  background: var(--conversion-surface);
   border: 0;
-  border-radius: 8px;
-  box-shadow: 0 18px 42px rgba(16, 13, 15, .24);
+  border-radius: var(--conversion-radius);
+  box-shadow: var(--conversion-shadow);
   isolation: isolate;
 }
 
@@ -46,11 +56,11 @@
   width: 38px;
   height: 38px;
   padding: 0 0 3px;
-  color: var(--et-cream, #f2dfb8);
-  background: var(--et-red, #e43d18);
+  color: var(--conversion-action-text);
+  background: var(--conversion-action);
   border: 0;
-  border-radius: 8px;
-  font-family: var(--font-display);
+  border-radius: var(--conversion-radius);
+  font-family: var(--font-label, var(--font-display));
   font-size: 28px;
   line-height: 1;
   cursor: pointer;
@@ -101,8 +111,8 @@
 
 .kicker {
   margin: 4px 44px 10px 0;
-  color: var(--et-red, #e43d18);
-  font-family: var(--font-poster);
+  color: var(--conversion-action);
+  font-family: var(--font-label, var(--font-poster));
   font-size: clamp(16px, 5.4vw, 24px);
   font-weight: 400;
   letter-spacing: .02em;
@@ -113,8 +123,8 @@
 .h1 {
   max-width: none;
   margin: 0 44px 14px 0;
-  color: var(--et-black, #100d0f);
-  font-family: var(--font-poster);
+  color: var(--conversion-ink);
+  font-family: var(--font-label, var(--font-poster));
   font-size: clamp(48px, 14vw, 76px);
   letter-spacing: 0;
   line-height: .86;
@@ -125,7 +135,7 @@
 .sub {
   max-width: 30ch;
   margin: 0 0 22px;
-  color: rgba(16, 13, 15, .76);
+  color: color-mix(in srgb, var(--conversion-ink) 76%, transparent);
   font-family: var(--font);
   font-size: 17px;
   font-weight: 750;
@@ -179,12 +189,12 @@
 
 .input {
   width: 100%;
-  min-height: 56px;
+  min-height: 50px;
   padding: 0 16px;
-  color: var(--et-black, #100d0f);
+  color: var(--conversion-ink);
   background: rgba(255, 250, 240, .76);
-  border: 1.5px solid rgba(16, 13, 15, .2);
-  border-radius: 8px;
+  border: 1.5px solid var(--conversion-border);
+  border-radius: var(--conversion-radius);
   font-family: var(--font);
   font-size: 16px;
   font-weight: 750;
@@ -202,30 +212,30 @@
   justify-content: center;
   gap: 10px;
   width: 100%;
-  min-height: 56px;
-  padding: 12px 16px;
-  border-radius: 999px;
-  font-family: var(--font-poster);
-  font-size: clamp(21px, 6vw, 28px);
+  min-height: 50px;
+  padding: 10px 14px;
+  border-radius: var(--conversion-pill);
+  font-family: var(--font-label, var(--font-poster));
+  font-size: clamp(17px, 4.6vw, 23px);
   font-weight: 400;
   letter-spacing: .02em;
   line-height: .86;
   text-transform: uppercase;
   cursor: pointer;
-  transition: transform .16s ease, background-color .16s ease, color .16s ease;
+  transition: transform var(--conversion-motion), background-color var(--conversion-motion), color var(--conversion-motion), border-color var(--conversion-motion);
 }
 
 .ctaPrimary {
-  color: var(--et-cream, #f2dfb8);
-  background: var(--et-red, #e43d18);
+  color: var(--conversion-action-text);
+  background: var(--conversion-action);
   border: 0;
   box-shadow: 0 12px 24px rgba(228, 61, 24, .24);
 }
 
 .ctaGoogle {
-  color: var(--et-black, #100d0f);
+  color: var(--conversion-ink);
   background: rgba(255, 250, 240, .62);
-  border: 1.5px solid rgba(16, 13, 15, .2);
+  border: 1.5px solid var(--conversion-border);
 }
 
 .ctaPrimary:hover,

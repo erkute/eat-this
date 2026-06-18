@@ -8,7 +8,7 @@
   color: var(--et-red);
   background: var(--et-yellow-bright);
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--home-card-radius, var(--radius-md, 8px));
   box-shadow: 0 18px 44px rgba(118, 51, 36, .11);
   isolation: isolate;
 }
@@ -29,7 +29,7 @@
   padding: 7px 10px 8px;
   color: var(--et-cream);
   background: var(--et-red);
-  font-family: var(--font-ranchers);
+  font-family: var(--font-label, var(--font-ranchers));
   font-size: 12px;
   line-height: 1;
   letter-spacing: .18em;
@@ -40,7 +40,7 @@
 .heading {
   margin: 0;
   color: var(--et-red);
-  font-family: var(--font-ranchers);
+  font-family: var(--font-label, var(--font-ranchers));
   font-size: clamp(88px, 25vw, 148px);
   line-height: .84;
   letter-spacing: 0;
@@ -98,7 +98,7 @@
   top: 50%;
   transform: translateY(-50%) rotate(-2deg);
   color: var(--et-cream);
-  font-family: var(--font-ranchers);
+  font-family: var(--font-label, var(--font-ranchers));
   font-size: clamp(21px, 6vw, 30px);
   line-height: .9;
   letter-spacing: .02em;

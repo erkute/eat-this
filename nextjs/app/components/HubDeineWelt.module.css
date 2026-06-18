@@ -1,374 +1,635 @@
 .section {
   position: relative;
-  background: #fbf8ee;
-  padding: 42px 18px 42px;
-  margin-top: 8px;
-}
-
-.hi {
-  margin-bottom: 26px;
-}
-/* Greeting can carry umlauts (e.g. "Jürgen") → Saira, which has the glyphs. */
-.kicker {
-  font-family: var(--font-ranchers);
-  font-weight: 800;
-  font-size: 17px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--brand-red);
-  margin: 0 0 8px;
-}
-/* "Heute auf deiner Map." has no umlaut → brand display font (Chewy). */
-.name {
-  font-family: var(--font-ranchers);
-  font-size: clamp(40px, 13vw, 58px);
-  line-height: 1.06;
-  text-transform: none;
-  color: var(--text-primary);
   margin: 0;
-}
-.em {
-  color: var(--brand-yellow);
-  -webkit-text-stroke: 1px var(--text-primary);
-}
-
-/* "Dein Bezirk X" pill — Bezirk names can carry umlauts (Neukölln, Schöneberg)
-   → Saira (the brand display font has no accented glyphs). */
-.here {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-ranchers);
-  font-weight: 800;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  font-size: 12px;
-  color: var(--text-primary);
-  opacity: .75;
-  margin: 12px 0 0;
-}
-.here strong {
-  font-weight: 800;
-  background: var(--brand-yellow);
-  color: #0a0a0a;
-  padding: 4px 9px 5px;
-  border: 2px solid #0a0a0a;
-  letter-spacing: .04em;
-  font-size: 13px;
-  line-height: 1;
-  opacity: 1;
+  padding: 32px 14px 12px;
+  color: var(--et-black, #100d0f);
+  background: var(--et-cream, #f2dfb8);
 }
 
-.div {
-  height: 1px;
-  background: var(--text-primary);
-  opacity: .16;
-  margin: 22px 0;
-}
-
-/* "Frisch in <Bezirk>" — two newest spots in the user's district. */
-.fresh { margin: 0; }
-.freshK {
-  font-family: var(--font-ranchers);
-  font-weight: 800;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  font-size: 12px;
-  color: var(--text-primary);
-  opacity: .7;
-  margin: 0 0 12px;
-}
-.freshRow {
+.inner {
+  width: min(100%, 1180px);
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.copy {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  min-width: 0;
+}
+
+.kicker {
+  margin: 0 0 8px;
+  color: var(--et-red, #e43d18);
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: .14em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.title {
+  max-width: 9ch;
+  margin: 0;
+  color: var(--et-black, #100d0f);
+  font-family: var(--font-display);
+  font-size: clamp(44px, 14vw, 78px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: .84;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.title span {
+  color: var(--et-red, #e43d18);
+}
+
+.lead {
+  max-width: 48ch;
+  margin: 12px 0 0;
+  color: rgba(16, 13, 15, .72);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.board {
+  display: grid;
   gap: 12px;
 }
-.freshCard {
-  position: relative;
-  display: grid;
-  grid-template-rows: auto auto auto;
-  background: #fbf8ee;
-  border: 1px solid rgba(10, 10, 10, 0.10);
-  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06);
-  overflow: hidden;
-  text-decoration: none;
-  color: #0a0a0a;
-}
-.freshPill {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  z-index: 2;
-  background: var(--brand-red);
-  color: #fbf8ee;
-  font-family: var(--font-ranchers);
-  font-weight: 800;
-  font-size: 10px;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  padding: 3px 8px 4px;
-  border: 2px solid #0a0a0a;
-  line-height: 1;
-}
-.freshImg {
-  position: relative;
-  display: block;
-  aspect-ratio: 5 / 4;
-  background-color: #14100c;
-  border-bottom: 2px solid #0a0a0a;
-}
-.freshImg img { object-fit: cover; }
-.freshName {
-  font-family: var(--font-ranchers);
-  font-size: 18px;
-  line-height: 1;
-  color: var(--text-primary);
-  text-transform: uppercase;
-  letter-spacing: -.005em;
-  margin: 12px 12px 4px;
-}
-.freshMeta {
-  display: block;
-  font-family: var(--font);
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--brand-red);
-  margin: 0 12px 12px;
+
+.panel {
+  min-width: 0;
+  padding: 14px;
+  color: var(--et-black, #100d0f);
+  background: rgba(255, 250, 240, .54);
+  border: 1px solid rgba(16, 13, 15, .18);
+  border-radius: 8px;
 }
 
-/* ── Collection-progress panel ───────────────────────────────────────────
-   Card-back stack + live "X / Y aufgedeckt" stat + progress bar. Links into
-   the profile's collected Must-Eats. Stacks on mobile, goes side-by-side on
-   desktop so it fills the full column width. */
-.collect {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 16px;
-  text-decoration: none;
+.cardsPanel {
+  overflow: hidden;
+  background: var(--et-black, #100d0f);
+  color: var(--et-cream, #f2dfb8);
+  border-color: var(--et-black, #100d0f);
+}
+
+.panelHead {
+  min-width: 0;
+}
+
+.panelHead p {
+  margin: 0 0 6px;
+  color: var(--et-red, #e43d18);
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: .14em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.cardsPanel .panelHead p {
+  color: var(--et-red-hot, #f03608);
+}
+
+.panelHead h3 {
+  margin: 0;
   color: inherit;
-  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 9vw, 48px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: .86;
+  text-transform: uppercase;
 }
-.collectCards {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 0 0 auto;
+
+.cardFan,
+.nearCards,
+.restaurantGrid {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
-/* Freigestellt: the card-back image floats — no frame, no dark box. */
-.card {
+
+.cardFan {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  align-items: start;
+  margin-top: 14px;
+}
+
+.cardFan li {
+  min-width: 0;
+  transform: rotate(var(--tilt));
+}
+
+.foodCard {
+  display: grid;
+  gap: 8px;
+  color: inherit;
+  text-align: center;
+  text-decoration: none;
+}
+
+.foodCardImage {
+  position: relative;
   display: block;
-  width: 84px;
-  height: 119px;
-  background-size: contain;
+  width: min(100%, 118px);
+  aspect-ratio: 1539 / 2115;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.foodCardImage[data-locked='false'] {
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 16px 24px rgba(0, 0, 0, .32);
+}
+
+.foodCardImage[data-locked='true'] span {
+  display: block;
+  width: 100%;
+  height: 100%;
   background-position: center;
   background-repeat: no-repeat;
-  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .20));
+  background-size: contain;
+  filter: drop-shadow(0 14px 16px rgba(0, 0, 0, .32));
 }
-.card:nth-child(1) { transform: rotate(-5deg); margin-right: -16px; z-index: 1; }
-.card:nth-child(2) { transform: rotate(0deg); z-index: 3; }
-.card:nth-child(3) { transform: rotate(5deg); margin-left: -16px; z-index: 2; }
 
-.collectStat {
+.foodCardImg {
+  object-fit: cover;
+}
+
+.foodCard strong,
+.lockedCard strong,
+.restaurantCard strong {
   min-width: 0;
-}
-.collectK {
-  font-family: var(--font-ranchers);
-  font-weight: 800;
-  letter-spacing: .14em;
+  color: inherit;
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: .88;
   text-transform: uppercase;
-  font-size: 12px;
-  color: var(--text-primary);
-  opacity: .7;
-  margin: 0 0 6px;
-}
-.collectNum {
-  font-family: var(--font-ranchers);
-  color: var(--text-primary);
-  margin: 0;
-  line-height: 1;
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 8px;
-}
-.collectNum strong {
-  font-size: 44px;
-  font-weight: 800;
-}
-.collectTotal {
-  font-size: 22px;
-  opacity: .45;
-}
-.collectUnit {
-  font-family: var(--font);
-  font-size: 12px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  margin: 6px 0 12px;
-}
-.bar {
-  display: block;
-  height: 9px;
-  width: 100%;
-  max-width: 320px;
-  margin: 0 auto;
-  background: rgba(10, 10, 10, .10);
-  border: 2px solid #0a0a0a;
-  overflow: hidden;
-}
-.barFill {
-  display: block;
-  height: 100%;
-  background: var(--brand-yellow);
-}
-.collectCta {
-  display: inline-block;
-  margin-top: 14px;
-  font-family: var(--font-ranchers);
-  font-size: 16px;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  border-bottom: 2px solid var(--brand-yellow);
-  padding-bottom: 1px;
-}
-.collect:hover .collectCta {
-  color: var(--brand-red);
+  overflow-wrap: anywhere;
 }
 
-.pack {
+.foodCard small,
+.lockedCard small,
+.restaurantCard small {
+  min-width: 0;
+  color: rgba(16, 13, 15, .62);
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.cardsPanel .foodCard small {
+  color: rgba(242, 223, 184, .68);
+}
+
+.headerActions {
   display: grid;
-  grid-template-columns: 84px 1fr;
-  gap: 16px;
+  flex: 0 0 auto;
+  width: min(100%, 244px);
+  gap: 6px;
+}
+
+.profileLink {
+  position: relative;
+  display: inline-flex;
   align-items: center;
-  border-top: 1px solid var(--c-row-rule);
-  margin-top: 26px;
-  padding-top: 22px;
-}
-.packArt {
-  width: 84px;
-  height: auto;
-  transform: rotate(-3deg);
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .22));
-}
-.packBody {
-  min-width: 0;
-}
-.packName {
-  font-family: var(--font-ranchers);
-  font-size: 22px;
-  line-height: 1.0;
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 12px 8px;
+  border: 1px solid rgba(16, 13, 15, .18);
+  border-radius: 8px;
+  font-family: var(--font-poster);
+  font-size: clamp(17px, 1.7vw, 22px);
+  font-weight: 400;
+  letter-spacing: .01em;
+  line-height: .86;
   text-transform: uppercase;
-  color: var(--text-primary);
-  margin: 0 0 4px;
-}
-.packProgress {
-  font-family: var(--font);
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin: 0 0 10px;
-}
-.packCta {
-  display: inline-block;
-  background: var(--brand-yellow);
-  color: #0a0a0a;
-  border: 2px solid #0a0a0a;
-  font-family: var(--font);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  padding: 8px 14px;
+  transform: translateY(0);
+  transition: transform .14s ease, box-shadow .14s ease, background-color .14s ease, border-color .14s ease;
+  color: var(--et-black, #100d0f);
+  background: rgba(255, 255, 255, .62);
+  box-shadow: 0 6px 14px rgba(92, 50, 19, .07);
   text-decoration: none;
 }
-.packCta:active {
-  transform: translate(1px, 1px);
+
+.locationControl {
+  display: grid;
+  gap: 6px;
+  align-items: stretch;
 }
 
-/* ── Desktop: full 1120 column (matches the sibling Hub sections), scaled-up
-   greeting, side-by-side collection band + 4-up fresh row. ── */
-@media (min-width: 720px) {
-  .section { padding: 64px max(24px, calc((100% - 1120px) / 2)) 28px; }
-  .kicker { font-size: 20px; }
-  .name { font-size: clamp(58px, 7vw, 80px); }
-  .here { font-size: 13px; margin-top: 16px; }
-  .here strong { font-size: 14px; }
-  /* Collection band goes horizontal and fills the width: card stack left,
-     stat + progress bar + CTA right. */
-  .collect {
-    flex-direction: row;
-    align-items: center;
-    text-align: left;
-    gap: 40px;
+.districtPicker {
+  position: relative;
+  min-width: 0;
+}
+
+.locateBtn,
+.districtSelect {
+  min-width: 0;
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid rgba(16, 13, 15, .18);
+  border-radius: 8px;
+  font-family: var(--font-poster);
+  font-size: clamp(17px, 1.7vw, 22px);
+  font-weight: 400;
+  letter-spacing: .01em;
+  line-height: .86;
+  text-transform: uppercase;
+  transition: transform .14s ease, background-color .14s ease, border-color .14s ease, color .14s ease;
+}
+
+.locateBtn {
+  justify-content: flex-start;
+  padding: 7px 12px 8px;
+  color: var(--et-black, #100d0f);
+  background: rgba(255, 255, 255, .62);
+  box-shadow: 0 6px 14px rgba(92, 50, 19, .07);
+  cursor: pointer;
+}
+
+.districtSelect {
+  padding: 7px 12px 8px;
+  color: var(--et-black, #100d0f);
+  background: rgba(255, 255, 255, .62);
+  box-shadow: 0 6px 14px rgba(92, 50, 19, .07);
+  cursor: pointer;
+}
+
+.districtSelect::after {
+  content: "";
+  display: block;
+  width: 8px;
+  height: 8px;
+  margin-left: auto;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+}
+
+.districtMenu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 20;
+  display: grid;
+  gap: 6px;
+  max-height: min(340px, 58vh);
+  overflow: auto;
+  padding: 8px;
+  background: var(--et-yellow-bright, #f3c32c);
+  border: 1px solid rgba(37, 23, 15, .14);
+  border-radius: 8px;
+  box-shadow: 0 18px 34px rgba(92, 50, 19, .18);
+}
+
+.districtOption {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 38px;
+  padding: 8px 12px 9px;
+  border: 1px solid rgba(37, 23, 15, .14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .62);
+  color: var(--et-black, #100d0f);
+  box-shadow: 0 7px 14px rgba(92, 50, 19, .07);
+  cursor: pointer;
+  font-family: var(--font-poster);
+  font-size: clamp(17px, 1.7vw, 22px);
+  line-height: .9;
+  letter-spacing: .01em;
+  text-align: left;
+  text-transform: uppercase;
+  transition: transform .14s ease, background-color .14s ease, color .14s ease, border-color .14s ease;
+}
+
+.districtOption:hover,
+.districtOption[aria-selected='true'] {
+  background: var(--et-black, #100d0f);
+  border-color: var(--et-black, #100d0f);
+  color: var(--et-cream, #f2dfb8);
+  transform: translateX(-3px);
+}
+
+.actionLabel {
+  display: inline-block;
+  transform: translateY(1px);
+  white-space: nowrap;
+}
+
+.profileLink:hover {
+  transform: translateX(-4px);
+}
+
+.profileLink:hover {
+  color: var(--et-cream, #f2dfb8);
+  background: var(--et-black, #100d0f);
+  border-color: var(--et-black, #100d0f);
+}
+
+.locateBtn:hover:not(:disabled) {
+  color: var(--et-cream, #f2dfb8);
+  background: var(--et-black, #100d0f);
+  border-color: var(--et-black, #100d0f);
+  transform: translateX(-4px);
+}
+
+.districtSelect:hover {
+  color: var(--et-cream, #f2dfb8);
+  background: var(--et-black, #100d0f);
+  border-color: var(--et-black, #100d0f);
+  transform: translateX(-4px);
+}
+
+.profileLink:active {
+  transform: translateX(-2px);
+}
+
+.locateBtn:active:not(:disabled) {
+  transform: translateX(-2px);
+}
+
+.districtSelect:active {
+  transform: translateX(-2px);
+}
+
+.locateBtn:disabled {
+  cursor: progress;
+  opacity: .7;
+}
+
+.nearCards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.lockedCard {
+  display: grid;
+  gap: 7px;
+  color: inherit;
+  text-align: center;
+  text-decoration: none;
+}
+
+.lockedCard > span {
+  display: block;
+  width: min(100%, 88px);
+  aspect-ratio: 1539 / 2115;
+  margin: 0 auto;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  filter: drop-shadow(0 10px 10px rgba(16, 13, 15, .2));
+}
+
+.empty {
+  grid-column: 1 / -1;
+  color: rgba(16, 13, 15, .68);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.restaurantGrid {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.restaurantCard {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  grid-template-areas:
+    "photo title"
+    "photo meta";
+  gap: 5px 12px;
+  align-items: center;
+  min-height: 92px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.restaurantPhoto {
+  position: relative;
+  grid-area: photo;
+  display: block;
+  width: 86px;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--et-yellow-bright, #f6c84f);
+  border-radius: 8px;
+}
+
+.restaurantImg {
+  object-fit: cover;
+}
+
+.restaurantPhoto em {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 3px 6px;
+  color: var(--et-red, #e43d18);
+  background: var(--et-cream, #f2dfb8);
+  border-radius: 999px;
+  font-family: var(--font);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.restaurantCard strong {
+  grid-area: title;
+  align-self: end;
+}
+
+.restaurantCard small {
+  grid-area: meta;
+  align-self: start;
+}
+
+@media (min-width: 760px) {
+  .section {
+    padding: 46px 24px 16px;
   }
-  .collectStat { flex: 1 1 auto; }
-  .collectNum { justify-content: flex-start; }
-  .collectNum strong { font-size: 58px; }
-  .collectTotal { font-size: 28px; }
-  .bar { margin: 0; max-width: 460px; }
-  .collectCta { font-size: 18px; margin-top: 16px; }
-  .card { width: 124px; height: 176px; }
-  .card:nth-child(1) { margin-right: -22px; }
-  .card:nth-child(3) { margin-left: -22px; }
-  /* Fresh row: 4 across, filling the column. */
-  .freshRow { grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  .freshName { font-size: 20px; }
-  .pack { padding-top: 30px; }
-  .packArt { width: 104px; }
-  .packName { font-size: 26px; }
+
+  .inner {
+    gap: 18px;
+  }
+
+  .board {
+    grid-template-columns: minmax(420px, 1fr) minmax(260px, .58fr) minmax(320px, .72fr);
+    align-items: stretch;
+  }
+
+  .panel {
+    padding: 16px;
+  }
+
+  .cardsPanel {
+    min-height: 268px;
+  }
+
+  .foodCardImage {
+    width: min(96%, 156px);
+  }
+
+  .nearCards {
+    gap: 10px;
+  }
+
+  .lockedCard > span {
+    width: min(100%, 102px);
+  }
 }
 
-/* ── Dark mode: dark page, warm-cream ink, red replaces yellow. ── */
-html[data-theme="dark"] .section { background: var(--dk-page); }
-html[data-theme="dark"] .name,
-html[data-theme="dark"] .here,
-html[data-theme="dark"] .freshK,
-html[data-theme="dark"] .freshName,
-html[data-theme="dark"] .collectK,
-html[data-theme="dark"] .collectNum,
-html[data-theme="dark"] .collectUnit,
-html[data-theme="dark"] .collectCta,
-html[data-theme="dark"] .packName { color: var(--dk-ink); }
-html[data-theme="dark"] .collect:hover .collectCta { color: var(--c-coral-bright); }
-/* Progress bar: ink frame → cream, yellow fill → coral */
-html[data-theme="dark"] .bar {
-  background: var(--dk-rule);
-  border-color: var(--dk-ink);
+@media (max-width: 430px) {
+  .copy {
+    display: grid;
+  }
+
+  .headerActions {
+    width: 100%;
+  }
+
+  .profileLink {
+    min-height: 38px;
+    font-size: clamp(17px, 5.8vw, 22px);
+  }
+
+  .locateBtn,
+  .districtSelect {
+    min-height: 38px;
+    font-size: clamp(17px, 5.8vw, 22px);
+  }
+
+  .panel {
+    padding: 12px;
+  }
+
+  .nearCards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .lockedCard > span {
+    width: min(100%, 96px);
+  }
+
+  .cardFan {
+    gap: 2px;
+  }
+
+  .foodCard strong,
+  .lockedCard strong,
+  .restaurantCard strong {
+    font-size: 18px;
+  }
 }
-html[data-theme="dark"] .barFill { background: var(--c-coral); }
-html[data-theme="dark"] .collectCta { border-bottom-color: var(--c-coral); }
-/* "EAT/THIS"-style emphasis: yellow fill → red text accent, ink stroke → cream */
-html[data-theme="dark"] .em {
-  color: var(--c-coral-bright);
-  -webkit-text-stroke: 1px var(--dk-ink);
+
+html[data-theme="dark"] .section {
+  color: var(--et-cream, #f2dfb8);
+  background: var(--et-black, #100d0f);
 }
-/* Dein-Bezirk pill: yellow fill → red, ink border → cream. No offset
-   shadows anywhere in this section (User 2026-06-05) — borders carry. */
-html[data-theme="dark"] .here strong {
-  background: var(--c-coral);
-  color: #fbf8ee;
-  border-color: var(--dk-ink);
+
+html[data-theme="dark"] .kicker,
+html[data-theme="dark"] .title span,
+html[data-theme="dark"] .panelHead p {
+  color: var(--et-red-hot, #f03608);
 }
-html[data-theme="dark"] .div { background: var(--dk-ink); }
-/* Fresh cards: cream surface → dark card, ink border → cream */
-html[data-theme="dark"] .freshCard {
-  background: var(--dk-card);
-  color: var(--dk-ink);
-  border-color: var(--dk-ink);
-  box-shadow: none;
+
+html[data-theme="dark"] .title,
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .restaurantCard {
+  color: var(--et-cream, #f2dfb8);
 }
-html[data-theme="dark"] .freshImg { border-bottom-color: var(--dk-ink); }
-/* Fresh pill stays brand-red; only its ink border flips to cream */
-html[data-theme="dark"] .freshPill { border-color: var(--dk-ink); }
-html[data-theme="dark"] .pack { border-top-color: var(--dk-rule); }
-/* Pack CTA: yellow fill + ink → cream fill + ink (invert on dark surface) */
-html[data-theme="dark"] .packCta {
-  background: var(--dk-ink);
-  color: #0a0a0a;
-  border-color: var(--dk-ink);
+
+html[data-theme="dark"] .lead,
+html[data-theme="dark"] .foodCard small,
+html[data-theme="dark"] .lockedCard small,
+html[data-theme="dark"] .restaurantCard small,
+html[data-theme="dark"] .empty {
+  color: rgba(242, 223, 184, .68);
+}
+
+html[data-theme="dark"] .panel {
+  background: rgba(242, 223, 184, .06);
+  border-color: rgba(242, 223, 184, .22);
+}
+
+html[data-theme="dark"] .profileLink {
+  color: var(--et-black, #100d0f);
+  background: rgba(255, 255, 255, .62);
+}
+
+html[data-theme="dark"] .profileLink:hover {
+  color: var(--et-cream, #f2dfb8);
+  background: var(--et-black, #100d0f);
+}
+
+html[data-theme="dark"] .locateBtn {
+  color: var(--et-black, #100d0f);
+  background: rgba(255, 255, 255, .62);
+}
+
+html[data-theme="dark"] .locateBtn:hover:not(:disabled) {
+  color: var(--et-cream, #f2dfb8);
+  background: var(--et-black, #100d0f);
+}
+
+html[data-theme="dark"] .districtSelect {
+  color: var(--et-black, #100d0f);
+  background: rgba(255, 255, 255, .62);
+  border-color: rgba(37, 23, 15, .14);
+}
+
+html[data-theme="dark"] .districtSelect:hover {
+  color: var(--et-cream, #f2dfb8);
+  background: var(--et-black, #100d0f);
+  border-color: var(--et-black, #100d0f);
+}
+
+html[data-theme="dark"] .districtMenu {
+  background: var(--et-red-hot);
+  border-color: rgba(37, 23, 15, .14);
+}
+
+html[data-theme="dark"] .districtOption {
+  background: rgba(255, 255, 255, .62);
+  color: var(--et-black, #100d0f);
+}
+
+html[data-theme="dark"] .districtOption:hover,
+html[data-theme="dark"] .districtOption[aria-selected='true'] {
+  background: var(--et-black, #100d0f);
+  color: var(--et-cream, #f2dfb8);
+}
+
+html[data-theme="dark"] .cardsPanel {
+  background: rgba(242, 223, 184, .1);
 }

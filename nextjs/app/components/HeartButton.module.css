@@ -14,24 +14,37 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1.5px solid var(--ink);
-  background: transparent;
+  border: 2px solid var(--ink);
+  background: #fff;
   color: var(--ink);
   cursor: pointer;
-  border-radius: 50%;
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--ink);
   transition: transform .12s ease, color .12s ease, border-color .12s ease;
 }
 .btn:active { transform: scale(.9); }
 .btn svg { width: 22px; height: 22px; }
 
 .btnActive {
-  color: var(--c-coral);
-  border-color: var(--c-coral);
+  color: var(--collage-red, #ef3108);
+  background: #fff;
+  border-color: var(--ink);
 }
 html[data-theme="dark"] .btnActive {
-  color: var(--c-coral-bright);
-  border-color: var(--c-coral-bright);
+  color: var(--collage-red, #ef3108);
+  background: #fff;
+  border-color: var(--ink);
 }
+
+.btn {
+  border: 0;
+  box-shadow: none;
+  clip-path: polygon(6% 8%, 92% 0, 100% 90%, 12% 100%);
+  transform: rotate(-4deg);
+  filter: drop-shadow(0 6px 5px rgba(43, 33, 28, .24));
+}
+.btn:active { transform: rotate(2deg) scale(.92); }
+.btnActive { transform: rotate(4deg); }
 
 .label {
   font-family: var(--f-display);

@@ -1694,11 +1694,12 @@ html[data-theme="dark"] .boosterCta:hover { background: var(--brand-red-hover); 
 /* ── List-variant booster — dir-divider look: top ink hairline, centered
    Chewy kicker + big heading + mustard sticker CTA. No image fan. */
 .boosterOfferList {
-  margin: 22px 0 0;
-  padding: 18px 0;
-  background: transparent;
-  color: var(--c-black);
-  border-top: 2px solid var(--c-black);
+  margin: 22px 14px 8px;
+  padding: 18px 16px 20px;
+  background: #fbf8ee;
+  color: #14100c;
+  border: 2px solid #14100c;
+  box-shadow: 5px 5px 0 #14100c;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -1706,8 +1707,10 @@ html[data-theme="dark"] .boosterCta:hover { background: var(--brand-red-hover); 
   gap: 0;
 }
 [data-theme="dark"] .boosterOfferList {
-  border-top-color: var(--c-cream);
-  color: var(--c-cream);
+  background: #fbf8ee;
+  border-color: #f0e8d0;
+  box-shadow: 5px 5px 0 #f0e8d0;
+  color: #14100c;
 }
 
 /* Image fan is hidden in the dir-divider layout */
@@ -1740,7 +1743,7 @@ html[data-theme="dark"] .boosterCta:hover { background: var(--brand-red-hover); 
   color: var(--c-black);
   order: 2;
 }
-[data-theme="dark"] .boosterPromoTitle { color: var(--c-cream); }
+[data-theme="dark"] .boosterPromoTitle { color: #14100c; }
 
 /* Kicker — small uppercase Chewy above the heading via order */
 .boosterPromoSub {
@@ -1754,7 +1757,7 @@ html[data-theme="dark"] .boosterCta:hover { background: var(--brand-red-hover); 
   line-height: 1.1;
   order: 1;
 }
-[data-theme="dark"] .boosterPromoSub { color: var(--c-cream); }
+[data-theme="dark"] .boosterPromoSub { color: rgba(20, 16, 12, .72); }
 
 /* Inline arrow inside the CTA label (anon variant has no price-tag) */
 .btnPromoArr {
@@ -2586,14 +2589,14 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
     linear-gradient(170deg, #a82c16, #7c2010);
 }
 .detailV13MustEat .detailV13Scroll::after {
-  content: "";
+  content: none;
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   opacity: 0.5;
-  background-image: radial-gradient(rgba(0, 0, 0, 0.10) 0.5px, transparent 0.6px);
-  background-size: 4px 4px;
+  background-image: none;
+  background-size: auto;
 }
 
 /* HERO — freigestellte Karte mit Glow-Halo, dezent in 3D geneigt. */
@@ -2605,6 +2608,7 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   align-items: flex-start;
   justify-content: center;
   margin-top: 46px;
+  margin-bottom: 18px;
   perspective: 1000px;
 }
 .fdHalo {
@@ -2678,10 +2682,11 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   flex-direction: column;
   position: relative;
   z-index: 3;
+  padding-top: 4px;
 }
 .fdName {
   margin: 0;
-  padding: 14px 18px 0;
+  padding: 18px 18px 0;
   font-family: var(--font-chewy), 'Schoolbell', cursive;
   font-size: clamp(46px, 13vw, 56px);
   line-height: 0.92;
@@ -2751,22 +2756,26 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   flex: 0 0 auto;
   position: relative;
   z-index: 4;
-  height: 92px;
-  padding: 0 18px;
+  min-height: 96px;
+  height: auto;
+  margin: 0 14px 10px;
+  padding: 16px;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 12px;
-  background: #f3ecd6;
-  color: #141210;
-  border-top: 3px solid #0d0d0d;
+  background: var(--et-yellow-bright);
+  color: var(--et-red-deep);
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 16px 34px rgba(70, 23, 16, 0.16);
 }
 .fdRestName {
   flex: 1 1 auto;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding-bottom: 15px;
+  justify-content: center;
+  padding-bottom: 0;
 }
 .fdK {
   font-family: var(--font);
@@ -2774,16 +2783,16 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--c-coral);
-  margin: 0 0 4px;
+  color: rgba(169, 52, 39, 0.68);
+  margin: 0 0 7px;
 }
 .fdV {
-  font-family: var(--font-chewy), 'Schoolbell', cursive;
-  font-size: 25px;
-  line-height: 1.04;
-  color: #141210;
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 0.98;
+  color: var(--et-red-deep);
   /* 2 Zeilen reserviert, Name unten verankert → konstante Footer-Höhe. */
-  min-height: 52px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -2793,30 +2802,30 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
    am unteren Rand der Footer-Leiste verankert. */
 .ctaPill {
   flex: 0 0 auto;
-  align-self: flex-end;
-  margin: 0 0 16px;
+  align-self: center;
+  margin: 0;
   appearance: none;
-  background: var(--brand-yellow);
-  color: #141210;
-  font-family: var(--font-chewy), 'Schoolbell', cursive;
-  font-size: 17px;
+  background: var(--et-red);
+  color: var(--et-yellow-bright);
+  font-family: var(--font-display);
+  font-size: 20px;
   line-height: 1;
-  padding: 11px 16px;
-  border: 2.5px solid #0d0d0d;
-  border-radius: 3px;
+  padding: 13px 16px 14px;
+  border: 0;
+  border-radius: 999px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 7px;
   text-decoration: none;
   white-space: nowrap;
-  transform: rotate(-2deg);
-  box-shadow: 3px 3px 0 #0d0d0d;
-  transition: transform 140ms ease, box-shadow 140ms ease;
+  transform: none;
+  box-shadow: none;
+  transition: transform 140ms ease, background-color 140ms ease;
 }
 .ctaPill:hover {
-  transform: rotate(-2deg) translate(-1px, -1px);
-  box-shadow: 4px 4px 0 #0d0d0d;
+  background: var(--et-red-deep);
+  transform: translateY(-2px);
 }
 /* PAGER — dunkle Leiste am unteren Rand; Nachbar-Gerichte links & rechts,
    Pfeile in gelben Kreisen. Locked-Nachbarn zeigen „Verdeckt". */
@@ -2827,23 +2836,25 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
-  gap: 10px;
-  margin: 0;
-  padding: 13px 16px;
-  background: #141210;
-  color: #f3ecd6;
-  font-family: var(--font-chewy), 'Schoolbell', cursive;
+  gap: 8px;
+  margin: 0 14px 14px;
+  padding: 8px;
+  background: rgba(255, 250, 240, 0.16);
+  color: var(--et-yellow-bright);
+  border-radius: 999px;
+  font-family: var(--font);
 }
 .fdPagerPrev,
 .fdPagerNext {
   appearance: none;
-  background: transparent;
+  background: var(--et-yellow-bright);
   border: 0;
-  padding: 0;
+  border-radius: 999px;
+  padding: 8px 10px;
   margin: 0;
   min-width: 0;
   font: inherit;
-  color: inherit;
+  color: var(--et-red-deep);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2858,11 +2869,11 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: var(--brand-yellow);
-  color: #141210;
+  background: var(--et-red);
+  color: var(--et-yellow-bright);
 }
 .fdPagerArrow svg {
   display: block;
@@ -2872,11 +2883,14 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
 .fdPagerNext .fdPagerArrow svg { transform: scaleX(-1); }
 .fdPagerName {
   min-width: 0;
-  font-size: 17px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
   line-height: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-transform: uppercase;
 }
 /* Kein Nachbar in der Richtung → Pfeil + Slot ausblenden (Grid bleibt stabil). */
 .fdPagerPrev:disabled,
@@ -2931,13 +2945,14 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
     flex: 0 8 auto;
     min-height: 0;
     margin-top: 38px;
+    margin-bottom: 22px;
   }
   .detailV13MustEat .fdHero {
     height: clamp(180px, 30dvh, 300px);
     max-height: 100%;
   }
   .detailV13MustEat .fdPager {
-    padding-bottom: calc(11px + env(safe-area-inset-bottom, 0px));
+    margin-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -3061,24 +3076,31 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   color: var(--d-text);
 }
 
-/* Pack Promo — editorial ticket: asymmetric 2-col with a single big
-   tilted booster card on the left, copy + sticker CTA on the right.
-   Coral hairlines top + bottom give the ticket-stub vibe; mustard stamp
-   in the top-right corner echoes the bezirk-pill family. */
+/* Pack Promo — compact unlock panel in the restaurant detail sheet. */
 .packPromo {
-  margin: 16px 14px 22px;
-  padding: 16px 16px 18px;
-  background: #f3eedd;
+  margin: 18px 14px 24px;
+  padding: 14px;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(245, 197, 24, 0.22), transparent 34%),
+    linear-gradient(135deg, #fff7df 0%, #f3eedd 52%, #eadfc3 100%);
   border: 2px solid #0a0a0a;
   position: relative;
   overflow: hidden;
   display: grid;
-  grid-template-columns: 88px 1fr;
-  column-gap: 14px;
+  grid-template-columns: 74px 1fr;
+  column-gap: 13px;
   align-items: center;
+  box-shadow: 5px 5px 0 #0a0a0a;
 }
 :global(html[data-theme="dark"]) .packPromo {
-  background: #14110d;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(232, 76, 61, 0.28), transparent 34%),
+    linear-gradient(135deg, #211a13 0%, #15110d 58%, #0d0b09 100%);
+  border-color: #f0e8d0;
+  box-shadow: 5px 5px 0 #f0e8d0;
+}
+.packPromo::before {
+  content: none;
 }
 .packPromoCardWrap {
   position: relative;
@@ -3086,41 +3108,47 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   align-items: center;
   justify-content: center;
   pointer-events: none;
+  min-height: 96px;
 }
 .packPromoSingleCard {
-  width: 82px;
+  width: 68px;
   aspect-ratio: 2 / 3;
   object-fit: contain;
-  transform: rotate(-8deg);
-  filter: drop-shadow(3px 4px 0 rgba(0, 0, 0, 0.20));
-  transition: transform 220ms ease;
+  transform: rotate(-7deg) translateX(2px);
+  filter: drop-shadow(4px 5px 0 rgba(0, 0, 0, 0.24));
+  transition: transform 220ms ease, filter 220ms ease;
 }
 :global(html[data-theme="dark"]) .packPromoSingleCard {
-  filter: drop-shadow(3px 4px 0 rgba(160, 40, 20, 0.55));
+  filter: drop-shadow(3px 4px 0 rgba(0, 0, 0, 0.55));
 }
-.packPromo:hover .packPromoSingleCard { transform: rotate(-4deg) translateY(-2px); }
+.packPromo:hover .packPromoSingleCard {
+  transform: rotate(-3deg) translate(3px, -3px);
+  filter: drop-shadow(5px 7px 0 rgba(0, 0, 0, 0.26));
+}
 .packPromoCopy {
   min-width: 0;
+  position: relative;
+  z-index: 1;
 }
 :global(html[data-theme="dark"]) .packPromoEyebrow { color: var(--c-coral); }
 .packPromoTitle {
-  margin: 0 0 5px;
+  margin: 0 0 6px;
   font-family: var(--font-chewy), 'Chewy', 'Anton', 'Impact', sans-serif;
   font-weight: 400;
-  font-size: 16px;
-  line-height: 1.02;
+  font-size: 20px;
+  line-height: 0.95;
   letter-spacing: 0;
   text-transform: uppercase;
   color: var(--d-text);
 }
 .packPromoBody {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   font-family: var(--font);
-  font-weight: 500;
-  font-size: 13px;
-  line-height: 1.45;
+  font-weight: 650;
+  font-size: 12.5px;
+  line-height: 1.38;
   color: var(--d-text-2);
-  max-width: 32ch;
+  max-width: 30ch;
 }
 .packPromoActions {
   display: flex;
@@ -3132,54 +3160,38 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
 /* Sticker-style mustard CTA with hard-offset shadow */
 .btnPackPromo {
   display: inline-flex;
-  align-items: stretch;
-  background: var(--c-mustard);
-  color: #1a1610;
+  align-items: center;
+  gap: 8px;
+  background: #0a0a0a;
+  color: #fbf8ee;
   text-decoration: none;
-  border: none;
-  padding: 0;
-  transition: transform 160ms ease;
+  border: 2px solid #0a0a0a;
+  padding: 8px 12px 9px 13px;
+  transition: transform 160ms ease, background 160ms ease, color 160ms ease;
   position: relative;
+  box-shadow: 3px 3px 0 #0a0a0a;
 }
 html[data-theme="dark"] .btnPackPromo {
   background: var(--c-coral);
+  border-color: var(--c-coral);
   color: #fbf8ee;
+  box-shadow: 3px 3px 0 #f0e8d0;
 }
 .btnPackPromo:hover { transform: translate(-2px, -2px); }
 .btnPackPromoLbl {
-  padding: 7px 9px 7px 10px;
   font-family: var(--font-chewy), 'Chewy', 'Anton', 'Impact', sans-serif;
   font-weight: 400;
-  font-size: 13px;
+  font-size: 13.5px;
   letter-spacing: 0;
   line-height: 1;
   text-transform: uppercase;
-  color: #1a1610;
+  color: currentColor;
   display: inline-flex;
   align-items: center;
-  /* Im 235 px schmalen Side-Panel-Copy-Slot wrappte das Label sonst auf
-     zwei Zeilen („Pack / holen") und blow up den CTA auf 88 px Höhe. */
+  /* Keep the short action label on one line inside the narrow side panel. */
   white-space: nowrap;
 }
-.btnPackPromoTag {
-  padding: 7px 9px 7px 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  border-left: 1.2px solid rgba(26, 22, 16, 0.34);
-  font-family: var(--font);
-  font-weight: 700;
-  font-size: 10px;
-  letter-spacing: 0.02em;
-  color: #1a1610;
-  white-space: nowrap;
-}
-html[data-theme="dark"] .btnPackPromoLbl { color: #fbf8ee; }
-html[data-theme="dark"] .btnPackPromoTag {
-  color: #fbf8ee;
-  border-left-color: rgba(251, 248, 238, 0.4);
-}
-.btnPackPromoTag svg {
+.btnPackPromoIcon {
   width: 13px;
   height: 9px;
   stroke: currentColor;
@@ -3189,7 +3201,7 @@ html[data-theme="dark"] .btnPackPromoTag {
   stroke-linejoin: round;
   transition: transform 200ms ease;
 }
-.btnPackPromo:hover .btnPackPromoTag svg { transform: translateX(3px); }
+.btnPackPromo:hover .btnPackPromoIcon { transform: translateX(3px); }
 
 .linkPromo {
   /* Saira Condensed instead of the global DM Sans body face. */
@@ -3449,6 +3461,12 @@ html[data-theme="dark"] .rdTag {
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
+.rdTagOpen,
+html[data-theme="dark"] .rdTagOpen {
+  background: #34a85a;
+  color: #fff;
+  border-color: #fff;
+}
 .rdCredit {
   position: absolute;
   bottom: 6px;
@@ -3498,6 +3516,22 @@ html[data-theme="dark"] .rdTag {
   white-space: nowrap;
 }
 .rdPagerArrow { flex: 0 0 auto; width: 22px; height: 22px; }
+
+@media (min-width: 1024px) {
+  .rdPager {
+    gap: 8px;
+    padding: 8px 13px;
+    font-size: 10px;
+    letter-spacing: .055em;
+  }
+  .rdPagerBtn {
+    gap: 4px;
+  }
+  .rdPagerArrow {
+    width: 16px;
+    height: 16px;
+  }
+}
 
 .rdBody {
   padding: 16px 18px 8px;
@@ -3567,11 +3601,16 @@ html[data-theme="dark"] .rdBodySkel span {
 }
 .rdRow {
   display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: 16px;
+  grid-template-columns: minmax(0, 120px) minmax(0, 1fr);
+  gap: 12px;
   padding: 13px 2px;
   border-bottom: 1.5px solid #0a0a0a;
   align-items: baseline;
+}
+.rdRowHours {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 7px;
+  align-items: start;
 }
 .rdK {
   font-family: var(--font-chewy);
@@ -3581,17 +3620,46 @@ html[data-theme="dark"] .rdBodySkel span {
   text-transform: uppercase;
   line-height: 1.05;
 }
-.rdV { font-family: var(--font); color: #0a0a0a; font-size: 14.5px; line-height: 1.5; }
+.rdV {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font);
+  color: #0a0a0a;
+  font-size: 14.5px;
+  line-height: 1.5;
+}
 .rdV a { color: #0a0a0a; text-decoration: underline; }
+.rdVHandle {
+  overflow-wrap: normal;
+  word-break: normal;
+  font-size: 13px;
+}
+.rdVHandle a {
+  white-space: nowrap;
+}
 .rdV > summary { cursor: pointer; list-style: none; }
 .rdV > summary::-webkit-details-marker { display: none; }
-.rdHours { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; row-gap: 4px; font-variant-numeric: tabular-nums; }
+.rdHours {
+  display: grid;
+  grid-template-columns: minmax(72px, auto) minmax(0, 1fr);
+  column-gap: 14px;
+  row-gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
 .rdHoursD { font-family: var(--font-chewy); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
 .rdHoursT { font-family: var(--font); font-size: 14.5px; }
 .rdAddrLine { display: block; }
 .rdVMeta { display: block; margin-top: 4px; font-size: 12px; opacity: .7; }
 
-.rdActs { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; padding: 6px 14px 16px; }
+.rdActs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 6px 14px 16px;
+}
+.rdActs > :last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
 /* Public heart count under the actions — centred, quiet. */
 .rdActBtn {
   font-family: var(--font-chewy);
@@ -3609,6 +3677,8 @@ html[data-theme="dark"] .rdBodySkel span {
   background: transparent;
   color: #0a0a0a;
   min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 .rdActPrimary { background: #0a0a0a; color: #fbf8ee; }
 
@@ -3669,6 +3739,221 @@ html[data-theme="dark"] .rdActPrimary {
 html[data-theme="dark"] .rdSecH { color: #f0e8d0; }
 html[data-theme="dark"] .medishLbl { color: #f0e8d0; }
 
+/* ============================================================
+   Providence collage map — print controls laid over the live map.
+   Geometry, drag/snap behavior and MapLibre interaction stay untouched.
+============================================================ */
+.shell {
+  --map-collage-red: #ef3108;
+  --map-collage-yellow: #ffd079;
+  --map-collage-paper: #f8f6f1;
+  --map-collage-ink: #2b211c;
+}
+
+.mapLoading {
+  background-color: var(--map-collage-paper);
+  background-image: none;
+}
+
+.mapSearchToolbar,
+.mapSearchBtn,
+.mapBurger,
+.fab,
+.panelToggle {
+  background: var(--map-collage-red);
+  color: #fff;
+  border: 2px solid var(--map-collage-ink);
+  box-shadow: 4px 4px 0 var(--map-collage-ink);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.mapBurger img { filter: invert(1); }
+.mapSearchIcon,
+.mapSearchInput,
+.mapSearchInput::placeholder,
+.mapSearchClear { color: #fff; }
+.mapSearchInput::placeholder { opacity: .72; }
+
+.mapWrap :global(.maplibregl-ctrl-group) {
+  background: var(--map-collage-yellow) !important;
+  border: 2px solid var(--map-collage-ink) !important;
+  box-shadow: 4px 4px 0 var(--map-collage-ink) !important;
+}
+
+.list {
+  background-color: var(--map-collage-paper);
+  background-image: none;
+  color: var(--map-collage-ink);
+}
+
+@media (max-width: 1023.98px) {
+  .list {
+    border-top: 3px solid var(--map-collage-ink);
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    box-shadow: 0 -16px 28px rgba(43, 33, 28, .22);
+  }
+  .listDragging {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+}
+
+.handle::before {
+  width: 64px;
+  height: 6px;
+  border-radius: 0;
+  background: var(--map-collage-red);
+}
+
+.list[data-view="detail"] .handle {
+  background: #ffffff;
+}
+html[data-theme="dark"] .list[data-view="detail"] .handle {
+  background: #1c1c1c;
+}
+
+.filterChip {
+  background: #fff;
+  color: var(--map-collage-ink);
+  border: 2px solid var(--map-collage-ink);
+  box-shadow: 3px 3px 0 var(--map-collage-ink);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.filterChipActive,
+.filterChipOpenActive {
+  background: var(--map-collage-red);
+  color: #fff;
+}
+.filterChipOpenActive {
+  background: #34a85a;
+  color: #fff;
+}
+.filterChipReset {
+  background: var(--map-collage-yellow);
+  border-left: 2px solid var(--map-collage-ink);
+}
+
+.rcardSlot:nth-child(odd) .rcard { transform: rotate(-.8deg); }
+.rcardSlot:nth-child(even) .rcard { transform: rotate(.8deg); }
+.rcard {
+  border: 9px solid #fff;
+  background: #fff;
+  box-shadow: 0 14px 24px rgba(43, 33, 28, .2);
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+.rcardActive {
+  border-color: var(--map-collage-yellow);
+  box-shadow: 0 0 0 3px var(--map-collage-ink), 0 14px 24px rgba(43, 33, 28, .22);
+}
+@media (hover: hover) {
+  .rcard:hover {
+    transform: rotate(0) translateY(-3px);
+    box-shadow: 0 18px 28px rgba(43, 33, 28, .24);
+  }
+}
+.rcardName { color: #fff; }
+.rcardMeta { color: var(--map-collage-yellow); }
+.rcardNow { color: #34a85a; }
+.openPill:not(.openPillClosed) {
+  background: #34a85a;
+  color: #fff;
+  border-color: var(--map-collage-ink);
+}
+.openPill:not(.openPillClosed)::before {
+  background: #fff;
+}
+.openPillClosed,
+.rcardBlurBadge {
+  background: var(--map-collage-red);
+  color: #fff;
+  border-color: var(--map-collage-ink);
+}
+
+.detailV13,
+.detailV13Scroll {
+  background-color: var(--map-collage-paper);
+  background-image: none;
+}
+
+.rdHero {
+  margin: 24px;
+  border: 11px solid #fff;
+  box-shadow: 0 16px 28px rgba(43, 33, 28, .22);
+  transform: rotate(-1deg);
+}
+.rdHeartToggle,
+.rdCloseGlass {
+  border-radius: 0;
+  background: var(--map-collage-red);
+  border: 2px solid #fff;
+  box-shadow: 3px 3px 0 rgba(43, 33, 28, .72);
+}
+.rdPager {
+  margin: -6px 18px 12px;
+  background: var(--map-collage-yellow);
+  color: var(--map-collage-ink);
+  box-shadow: 0 10px 20px rgba(43, 33, 28, .14);
+  transform: rotate(.6deg);
+}
+.rdDropCap,
+.rdK,
+.rdSecH { color: var(--map-collage-red); }
+.rdTipp {
+  background: var(--map-collage-yellow);
+  box-shadow: 6px 6px 0 var(--map-collage-ink);
+  transform: rotate(-.7deg);
+}
+.rdActPrimary {
+  background: var(--map-collage-red);
+  color: #fff;
+}
+.rdGalleryThumb {
+  border-radius: 0;
+  border: 7px solid #fff;
+  box-shadow: 0 8px 14px rgba(43, 33, 28, .18);
+}
+.rdGalleryThumb:nth-child(odd) { transform: rotate(-1deg); }
+.rdGalleryThumb:nth-child(even) { transform: rotate(1deg); }
+
+html[data-theme="dark"] .list,
+html[data-theme="dark"] .detailV13,
+html[data-theme="dark"] .detailV13Scroll {
+  --map-collage-paper: #17130f;
+  --map-collage-ink: #f8f1e5;
+  background-color: var(--map-collage-paper);
+  background-image: none;
+}
+html[data-theme="dark"] .mapSearchToolbar,
+html[data-theme="dark"] .mapSearchBtn,
+html[data-theme="dark"] .mapBurger,
+html[data-theme="dark"] .fab,
+html[data-theme="dark"] .panelToggle {
+  background: var(--map-collage-red);
+  color: #fff;
+  border-color: #f8f1e5;
+  box-shadow: 4px 4px 0 #f8f1e5;
+}
+html[data-theme="dark"] .filterChip {
+  background: #211a15;
+  color: #f8f1e5;
+  border-color: #f8f1e5;
+  box-shadow: 3px 3px 0 #f8f1e5;
+}
+html[data-theme="dark"] .filterChipActive,
+html[data-theme="dark"] .filterChipOpenActive {
+  background: var(--map-collage-red);
+}
+html[data-theme="dark"] .filterChipOpenActive {
+  background: #34a85a;
+  color: #fff;
+}
+html[data-theme="dark"] .rdDropCap,
+html[data-theme="dark"] .rdK,
+html[data-theme="dark"] .rdSecH { color: #ff6645; }
+
 /* ---- Restaurant detail gallery strip ---- */
 .rdGallery {
   display: flex;
@@ -3703,20 +3988,6 @@ html[data-theme="dark"] .medishLbl { color: #f0e8d0; }
   height: 100%;
   object-fit: cover;
   display: block;
-}
-.rdGalleryCredit {
-  position: absolute;
-  left: 6px;
-  right: 6px;
-  bottom: 4px;
-  font-size: 9px;
-  line-height: 1.2;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: left;
 }
 /* ---- Restaurant gallery lightbox (flat, swipeable photo viewer) ----
    Distinct from .lightbox* (the 3D-tilt must-eat "playing card"): no tilt,
@@ -3825,19 +4096,158 @@ html[data-theme="dark"] .medishLbl { color: #f0e8d0; }
 }
 .galleryLbCredit {
   position: absolute;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
-  max-width: 90vw;
-  text-align: center;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.85);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  right: 12px;
+  bottom: 8px;
+  max-width: calc(100% - 24px);
+  color: rgba(20, 16, 12, .58);
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: .02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .galleryLbCredit a {
   color: inherit;
-  text-decoration: underline;
+  text-decoration: none;
+}
+
+/* ============================================================
+   Map controls — STICKER style (User 2026-06-15): burger, search and
+   location FAB read as EAT-THIS editorial stickers — cream fill, 2px
+   ink border, hard offset shadow, ink glyphs. Dark mode flips to a
+   solid brand-RED sticker with cream glyphs. Self-contained override
+   so it's easy to revert. Selectors carry an extra `html`/`html[data-
+   theme=...]` so they win over the original glass rules + dark overrides.
+   ============================================================ */
+/* Light = cream sticker */
+html .mapBurger,
+html .mapSearchBtn,
+html .mapSearchToolbar,
+html .fab {
+  background: var(--et-cream);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  color: var(--et-red);
+  border: 0;
+  border-radius: 999px;
+  box-shadow: 0 10px 24px rgba(201, 67, 50, .2);
+}
+/* Dark = solid brand-red sticker, cream glyphs */
+html[data-theme="dark"] .mapBurger,
+html[data-theme="dark"] .mapSearchBtn,
+html[data-theme="dark"] .mapSearchToolbar,
+html[data-theme="dark"] .fab {
+  background: var(--et-red);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  color: #fbf8ee;
+  border: 0;
+  border-radius: 999px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .28);
+}
+/* Glyph colours follow the text colour (search icon / input / clear). */
+html .mapSearchIcon, html .mapSearchInput, html .mapSearchClear { color: var(--et-red); }
+html[data-theme="dark"] .mapSearchIcon,
+html[data-theme="dark"] .mapSearchInput,
+html[data-theme="dark"] .mapSearchClear { color: #fbf8ee; }
+html .mapSearchInput::placeholder { color: #14100c; opacity: 0.5; }
+html[data-theme="dark"] .mapSearchInput::placeholder { color: #fbf8ee; opacity: 0.6; }
+/* Burger raster is black line-art: keep black on the cream sticker (light),
+   flip it to cream on the red sticker (dark). */
+html .mapBurger img { filter: none; }
+html[data-theme="dark"] .mapBurger img { filter: brightness(0) invert(1); }
+
+/* Home link (top-left) — the square two-line EAT THIS mark (favicon family)
+   as a clickable sticker so users can always jump back to the start page. The
+   logo image carries its own fill, so this only adds the ink frame + hard
+   shadow (not the cream/red fill). */
+html .mapHome {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+  display: block;
+  width: 46px;
+  height: 46px;
+  border: 2px solid #14100c;
+  border-radius: 12px;
+  box-shadow: 2px 2px 0 #14100c;
+  /* Background image so the theme can swap it: yellow mark (light) → red mark
+     (dark) to match the red buttons. */
+  background: url('/pics/logo.webp') center / cover no-repeat;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+html[data-theme="dark"] .mapHome {
+  background-image: url('/pics/logo-red.webp');
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* Hover: a small sticker "peel" lift, no colour flash (hover-capable only). */
+@media (hover: hover) {
+  html .mapBurger:hover, html .mapSearchBtn:hover, html .fab:hover, html .mapHome:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 #14100c;
+  }
+  html[data-theme="dark"] .mapBurger:hover, html[data-theme="dark"] .mapSearchBtn:hover,
+  html[data-theme="dark"] .fab:hover, html[data-theme="dark"] .mapHome:hover {
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* ============================================================
+   Vertical control rail (User 2026-06-15, "vertikale Glas-Leiste"):
+   search + burger stacked at the top-right, location FAB at the
+   bottom-right — all on ONE right-edge axis (Apple-Maps style),
+   instead of the old split (search top-left / burger top-right).
+   Search (collapsed) is the top chip; burger sits 46px below it;
+   the expanded search bar is anchored to the same right edge and
+   grows leftward. Self-contained so it's easy to revert.
+   Note: burger/search live in the full-width .body context (so on
+   desktop they need the +360px panel offset), the FAB lives in the
+   map-only container (no offset) but lands on the same visual edge.
+   ============================================================ */
+/* Mobile / base — axis at right:14px */
+html .mapSearchBtn { top: 14px; right: 14px; left: auto; }
+html .mapBurger    { top: 52px; right: 14px; left: auto; }
+html .mapSearchToolbar { top: 14px; right: 14px; left: 14px; width: auto; }
+html .fab { right: 14px; }
+@media (min-width: 1024px) {
+  /* Desktop — the stack hugs the map's right edge, left of the 360px panel.
+     Search + FAB live in the map-only container (mapWrap), whose right edge IS
+     the map's right edge → right:14px. The burger lives in the full-width body
+     container → it needs the +360px panel offset to land on the same edge. */
+  html .mapSearchBtn { top: 14px; right: 14px; left: auto; }
+  html .mapBurger    { top: 52px; right: calc(360px + 14px); left: auto; }
+  html .mapSearchToolbar {
+    top: 14px; right: 14px; left: auto; width: 320px;
+  }
+  html .fab { right: 14px; }
+  /* Panel hidden: the body container collapses to the true right edge, so the
+     burger no longer needs the offset. */
+  html .bodyPanelHidden .mapBurger { right: 14px; }
+}
+
+/* Burger removed from the map (User 2026-06-15) — search is now a standalone
+   sticker (full radius + hard shadow come from the base sticker rule above), so
+   no segment-fuse override is needed here anymore. */
+
+/* Keep ALL map controls visible while a restaurant detail is open (User
+   2026-06-15). On desktop the detail opens in the side panel and the map stays
+   interactive, so search/burger/location must NOT slide away (the base rules
+   hide them via translateY). Desktop only — on mobile the detail sheet takes
+   over the whole screen, where hiding them still makes sense. The home link has
+   no hide rule, so it stays put on its own. */
+@media (min-width: 1024px) {
+  html .bodyDetailOpen .mapSearchBtn,
+  html .bodyDetailOpen .mapSearchToolbar,
+  html .bodyDetailOpen .mapBurger,
+  html .bodyDetailOpen .fab {
+    transform: none;
+    pointer-events: auto;
+  }
 }
 
 /* ============================================================
@@ -3979,3 +4389,486 @@ html .fab { right: 14px; }
 }
 
 /* horizontal page transition */
+
+/* Providence collage icon system — final override after the legacy rounded
+   sticker layer above. */
+html .mapBurger,
+html .mapSearchBtn,
+html .mapSearchToolbar,
+html .fab,
+html .mapHome {
+  border: 2px solid #14100c;
+  border-radius: 0;
+  box-shadow: 4px 4px 0 #14100c;
+}
+html .mapBurger,
+html .fab,
+html .mapHome {
+  background-color: #ef3108;
+  color: #fff;
+}
+html .mapSearchBtn,
+html .mapSearchToolbar {
+  background-color: #fff;
+  color: #14100c;
+}
+html .mapSearchIcon,
+html .mapSearchInput,
+html .mapSearchClear { color: #14100c; }
+html .mapSearchInput::placeholder { color: #14100c; opacity: .58; }
+html .mapBurger img { filter: brightness(0) invert(1); }
+html .mapHome {
+  background-image: url('/pics/logo-red.webp');
+  background-size: cover;
+}
+html[data-theme="dark"] .mapBurger,
+html[data-theme="dark"] .mapSearchBtn,
+html[data-theme="dark"] .mapSearchToolbar,
+html[data-theme="dark"] .fab,
+html[data-theme="dark"] .mapHome {
+  border-color: #f0e8d0;
+  border-radius: 0;
+  box-shadow: 4px 4px 0 #f0e8d0;
+}
+html[data-theme="dark"] .mapBurger,
+html[data-theme="dark"] .fab,
+html[data-theme="dark"] .mapHome {
+  background-color: #ef3108;
+  color: #fff;
+}
+html[data-theme="dark"] .mapSearchBtn,
+html[data-theme="dark"] .mapSearchToolbar {
+  background-color: #fff;
+  color: #14100c;
+}
+.rdHeartToggle,
+.rdCloseGlass,
+.galleryLbClose,
+.galleryLbArrow {
+  border-radius: 0;
+  background: #ef3108;
+  color: #fff;
+  border: 2px solid #fff;
+  box-shadow: 4px 4px 0 #14100c;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.rdHeartToggle:active,
+.rdCloseGlass:active,
+.galleryLbClose:active,
+.galleryLbArrow:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #14100c;
+}
+.filterChipCaret {
+  width: 14px;
+  height: 14px;
+  padding: 2px;
+  background: #ffd079;
+  border: 1px solid #14100c;
+  box-shadow: 1px 1px 0 #14100c;
+  opacity: 1;
+}
+.panelToggle {
+  border-radius: 0;
+  background: #ffd079;
+  color: #14100c;
+  box-shadow: -4px 4px 0 #14100c;
+}
+
+/* Map restaurant photo gallery — tabletop print stack */
+.rdGallery {
+  gap: 18px;
+  padding: 20px 24px 28px;
+}
+.rdGalleryThumb {
+  width: 174px;
+  aspect-ratio: 4 / 3;
+  overflow: visible;
+  border: 10px solid #fff;
+  border-bottom-width: 28px;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: 0 14px 22px rgba(43, 33, 28, .2);
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+.rdGalleryThumb:nth-child(3n + 1) { transform: rotate(-2deg); }
+.rdGalleryThumb:nth-child(3n + 2) { transform: rotate(1.4deg); }
+.rdGalleryThumb:nth-child(3n) { transform: rotate(-.5deg); }
+.rdGalleryThumb img {
+  position: absolute;
+  inset: 0 0 -18px;
+  width: 100%;
+  height: calc(100% + 18px);
+  object-fit: cover;
+}
+@media (hover: hover) {
+  .rdGalleryThumb:hover {
+    transform: rotate(0) translateY(-5px);
+    box-shadow: 0 20px 30px rgba(43, 33, 28, .25);
+  }
+}
+
+.galleryLbBg {
+  background-color: #201712;
+  background-image: none;
+}
+.galleryLbSlide {
+  padding: 64px 34px 72px;
+}
+.galleryLbPrint {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: min(86vw, 1080px);
+  max-height: 76vh;
+  padding: clamp(12px, 2vw, 24px);
+  padding-bottom: clamp(28px, 4vw, 52px);
+  background: #fff;
+  box-shadow: 0 30px 70px rgba(0,0,0,.5);
+  transform: rotate(-.7deg);
+}
+.galleryLbImg {
+  display: block;
+  max-width: 100%;
+  max-height: calc(76vh - clamp(40px, 6vw, 76px));
+  border: 0;
+  border-radius: 0;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+.galleryLbStage::before {
+  content: none;
+}
+.galleryLbCounter {
+  top: 18px;
+  padding: 7px 12px 8px;
+  background: #ffd079;
+  color: #14100c;
+  border: 2px solid #14100c;
+  box-shadow: 3px 3px 0 #14100c;
+  font-family: var(--font-chewy);
+  font-size: 15px;
+  text-shadow: none;
+}
+.galleryLbCredit {
+  font-family: var(--font);
+  text-shadow: none;
+}
+
+@media (max-width: 600px) {
+  .galleryLbSlide { padding: 74px 18px 92px; }
+  .galleryLbPrint {
+    max-width: calc(100vw - 42px);
+    max-height: 70vh;
+    padding: 10px;
+    padding-bottom: 30px;
+    box-shadow: 0 22px 44px rgba(0,0,0,.5);
+  }
+  .galleryLbImg { max-height: calc(70vh - 40px); }
+}
+
+html[data-theme="dark"] .galleryLbClose,
+html[data-theme="dark"] .galleryLbArrow {
+  border-color: #f0e8d0;
+  box-shadow: 4px 4px 0 #f0e8d0;
+}
+
+/* Home-collage map icons — independent paper cut-outs with varied shapes. */
+html .mapSearchBtn,
+html .mapBurger,
+html .fab,
+html .mapHome,
+.rdHeartToggle,
+.rdCloseGlass,
+.galleryLbClose,
+.galleryLbArrow,
+.panelToggle {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  filter: drop-shadow(0 6px 5px rgba(43, 33, 28, .3));
+}
+html .mapSearchBtn {
+  background-color: #fff;
+  color: #14100c;
+  clip-path: polygon(5% 12%, 93% 0, 100% 88%, 11% 100%);
+  transform: rotate(-4deg);
+}
+html .mapSearchIcon { color: #14100c; }
+html .mapBurger {
+  background-color: #fff;
+  clip-path: polygon(9% 0, 100% 11%, 90% 100%, 0 88%);
+  transform: rotate(4deg);
+}
+html .mapBurger img { filter: none; }
+html .fab {
+  background-color: #fff;
+  color: #14100c;
+  clip-path: polygon(3% 8%, 92% 0, 100% 91%, 9% 100%);
+  transform: rotate(-3deg);
+}
+html .mapHome {
+  clip-path: polygon(4% 0, 100% 8%, 91% 100%, 0 92%);
+  transform: rotate(3deg);
+}
+.mapSearchToolbar {
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  color: #14100c;
+  box-shadow: none;
+  clip-path: polygon(1% 8%, 98% 0, 100% 88%, 2% 100%);
+  transform: rotate(-.6deg);
+  filter: drop-shadow(0 7px 6px rgba(43, 33, 28, .28));
+}
+.mapSearchInput,
+.mapSearchIcon,
+.mapSearchClear {
+  color: #14100c;
+}
+.mapSearchInput::placeholder {
+  color: rgba(20, 16, 12, .58);
+}
+.rdHeartToggle,
+.galleryLbArrowPrev {
+  background: #fff;
+  color: #14100c;
+  clip-path: polygon(4% 10%, 93% 0, 100% 90%, 10% 100%);
+  transform: rotate(-4deg);
+}
+.rdCloseGlass,
+.galleryLbClose,
+.galleryLbArrowNext {
+  background: #fff;
+  color: #14100c;
+  clip-path: polygon(8% 0, 100% 10%, 90% 100%, 0 88%);
+  transform: rotate(4deg);
+}
+.filterChipCaret {
+  background: #fff;
+  border: 0;
+  box-shadow: none;
+  clip-path: polygon(4% 8%, 94% 0, 100% 90%, 9% 100%);
+  transform: rotate(5deg);
+  filter: drop-shadow(0 2px 2px rgba(43, 33, 28, .25));
+}
+.panelToggle {
+  background: #fff;
+  color: #14100c;
+  clip-path: polygon(0 8%, 100% 0, 92% 100%, 0 91%);
+  transform: translateY(-50%) rotate(-2deg);
+}
+@media (hover: hover) {
+  html .mapSearchBtn:hover,
+  html .mapBurger:hover,
+  html .fab:hover,
+  html .mapHome:hover {
+    box-shadow: none;
+    transform: rotate(0) translateY(-4px) scale(1.05);
+  }
+}
+html[data-theme="dark"] .mapSearchBtn,
+html[data-theme="dark"] .mapBurger,
+html[data-theme="dark"] .fab,
+html[data-theme="dark"] .mapHome,
+html[data-theme="dark"] .galleryLbClose,
+html[data-theme="dark"] .galleryLbArrow,
+html[data-theme="dark"] .rdHeartToggle,
+html[data-theme="dark"] .rdCloseGlass {
+  border: 0;
+  box-shadow: none;
+}
+html[data-theme="dark"] .mapSearchBtn {
+  background: #fff;
+  color: #14100c;
+}
+html[data-theme="dark"] .mapSearchToolbar,
+html[data-theme="dark"] .panelToggle {
+  background: #fff;
+  color: #14100c;
+}
+html[data-theme="dark"] .mapSearchInput,
+html[data-theme="dark"] .mapSearchIcon,
+html[data-theme="dark"] .mapSearchClear {
+  color: #14100c;
+}
+html[data-theme="dark"] .mapSearchInput::placeholder {
+  color: rgba(20, 16, 12, .58);
+}
+html[data-theme="dark"] .mapBurger {
+  background: #fff;
+}
+html[data-theme="dark"] .mapBurger img { filter: none; }
+
+/* Spot hearts: yellow/white paper carries the control; red belongs only to
+   the heart signal, avoiding red-on-red when a spot is saved. */
+.rdHeartToggle,
+html[data-theme="dark"] .rdHeartToggle {
+  background: #fff;
+  color: #14100c;
+}
+.rdHeartToggle svg,
+.rdHeartToggleOn svg,
+html[data-theme="dark"] .rdHeartToggle svg,
+html[data-theme="dark"] .rdHeartToggleOn svg {
+  color: #ef3108;
+}
+.rdHeartToggleCount,
+html[data-theme="dark"] .rdHeartToggleCount {
+  color: #14100c;
+}
+
+/* Map brand mark: a clean free-standing logo cut-out, not another control tile. */
+html .mapHome,
+html[data-theme="dark"] .mapHome {
+  width: 82px;
+  height: 86px;
+  top: 8px;
+  left: 8px;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  background-image: url('/pics/eat-this-square.webp');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  box-shadow: none;
+  clip-path: none;
+  filter: none;
+  transform: rotate(-4deg);
+}
+@media (hover: hover) {
+  html .mapHome:hover,
+  html[data-theme="dark"] .mapHome:hover {
+    box-shadow: none;
+    filter: none;
+    transform: rotate(2deg) translateY(-4px) scale(1.07);
+  }
+}
+
+/* Desktop filter panel: show every control in one compact row without a
+   horizontal swipe rail. */
+@media (min-width: 1024px) {
+  .filterChipRow {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    overflow: visible;
+    padding: 14px 8px 16px;
+    touch-action: auto;
+  }
+  .filterChipWrap,
+  .filterChipRow > .filterChip {
+    width: 100%;
+    min-width: 0;
+  }
+  .filterChipWrap .filterChip {
+    min-width: 0;
+    padding: 7px 3px 8px;
+  }
+  .filterChipRow > .filterChip {
+    padding: 7px 3px 8px;
+  }
+  .filterChipRow .filterChipLabel {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 9px;
+    letter-spacing: .01em;
+  }
+  .filterChipRow .filterChipCaret {
+    width: 10px;
+    height: 10px;
+    padding: 1px;
+  }
+}
+
+/* Collage spot pins: every spot keeps the EAT THIS logo; Must-Eat card backs
+   sit outside the pin so they never get clipped. */
+.pinLogo,
+:global(html[data-theme="dark"]) .pinLogo {
+  width: 38px;
+  height: 42px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  clip-path: none;
+  filter: none;
+  transform: rotate(-4deg);
+  transition: transform .16s ease, filter .16s ease, width .16s ease, height .16s ease;
+}
+.pinLogoShape {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: #f5c518;
+  clip-path: polygon(5% 4%, 96% 0, 100% 82%, 62% 86%, 50% 100%, 38% 86%, 0 80%);
+  filter: drop-shadow(0 3px 2px rgba(20, 16, 12, .32));
+}
+.pinLogoShape img {
+  position: absolute;
+  inset: 8% 9% 17%;
+  width: 82%;
+  height: 75%;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+}
+.pinLogo:hover {
+  transform: rotate(3deg) translateY(-3px) scale(1.12);
+}
+.pinLogoActive,
+:global(html[data-theme="dark"]) .pinLogoActive {
+  width: 50px;
+  height: 55px;
+  transform: rotate(3deg);
+  z-index: 4;
+}
+.pinLogoActive .pinLogoShape {
+  filter: drop-shadow(0 7px 5px rgba(20, 16, 12, .38));
+}
+.pinLogoActive .pinLogoShape img {
+  inset: 7% 8% 17%;
+  width: 84%;
+  height: 76%;
+}
+.pinLogoActive:hover {
+  transform: rotate(-2deg) translateY(-4px) scale(1.06);
+}
+.pinLogoHasMust::after {
+  top: -8px;
+  right: -9px;
+  width: 15px;
+  height: 21px;
+  transform: rotate(10deg);
+}
+.pinLogoActive.pinLogoHasMust::after {
+  top: -9px;
+  right: -10px;
+  width: 18px;
+  height: 25px;
+}
+
+/* Final home-refresh override: the locate FAB should feel like the rest of the
+   red/cream system, not like a clipped legacy sticker. */
+.fab,
+html .fab,
+html[data-theme="dark"] .fab {
+  background: var(--et-cream);
+  color: var(--et-red);
+  border: 0;
+  border-radius: 999px;
+  box-shadow: 0 10px 24px rgba(201, 67, 50, .22);
+}
+
+.fabIcon,
+html[data-theme="dark"] .fabIcon {
+  stroke: var(--et-red);
+}

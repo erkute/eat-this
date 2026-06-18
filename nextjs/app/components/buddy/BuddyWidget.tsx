@@ -148,8 +148,22 @@ function ArticleCard({ article, locale, onSelect }: { article: ArticleResult; lo
 }
 
 const T = {
-  de: { open: 'Remy öffnen', close: 'Schließen', thinking: 'Remy denkt nach', placeholder: 'Schreib Remy…' },
-  en: { open: 'Open Remy', close: 'Close', thinking: 'Remy is thinking', placeholder: 'Message Remy…' },
+  de: {
+    open: 'Remy öffnen',
+    close: 'Schließen',
+    thinking: 'Remy denkt nach',
+    placeholder: 'Schreib Remy…',
+    launcherTop: 'Frag',
+    launcherMain: 'Remy',
+  },
+  en: {
+    open: 'Open Remy',
+    close: 'Close',
+    thinking: 'Remy is thinking',
+    placeholder: 'Message Remy…',
+    launcherTop: 'Ask',
+    launcherMain: 'Remy',
+  },
 } satisfies Record<Locale, Record<string, string>>
 
 // A short line in Remy's voice that hands the pack card over, so it doesn't
@@ -470,12 +484,13 @@ export default function BuddyWidget() {
     if (to.width === 0) return
     const dx = from.left + from.width / 2 - (to.left + to.width / 2)
     const dy = from.top + from.height / 2 - (to.top + to.height / 2)
+    const scale = Math.min(1.9, Math.max(1.05, from.width / to.width))
     btn.animate(
       [
-        { transform: `translate(${dx}px, ${dy}px) scale(${from.width / to.width})`, opacity: 0.85 },
-        { transform: 'none', opacity: 1 },
+        { transform: `translate(${dx}px, ${dy}px) scale(${scale}) rotate(-3deg)` },
+        { transform: 'translate(0, 0) scale(1) rotate(0deg)' },
       ],
-      { duration: 480, easing: 'cubic-bezier(0.22, 0.8, 0.3, 1)' },
+      { duration: 520, easing: 'cubic-bezier(0.22, 0.8, 0.3, 1)' },
     )
     setArrivalBeat(true)
   }, [onStage])
@@ -594,7 +609,13 @@ export default function BuddyWidget() {
         aria-controls="buddy-panel"
         onClick={() => setOpen((v) => !v)}
       >
-        <BuddyAvatar mood={launcherMood} />
+        <span className={styles.launcherText} aria-hidden="true">
+          <span>{t.launcherTop}</span>
+          <strong>{t.launcherMain}</strong>
+        </span>
+        <span className={styles.launcherAvatar} aria-hidden="true">
+          <BuddyAvatar mood={launcherMood} size={38} />
+        </span>
       </button>
 
       {open && (
@@ -610,7 +631,10 @@ export default function BuddyWidget() {
         >
           <div className={styles.header}>
             <BuddyAvatar mood={panelMood} size={48} />
-            <strong>{title}</strong>
+            <span className={styles.headerTitle}>
+              <strong>{title}</strong>
+              <span>{locale === 'en' ? 'Food insider' : 'Food-Insider'}</span>
+            </span>
             <button className={styles.close} type="button" aria-label={t.close} onClick={closePanel}>
               ×
             </button>

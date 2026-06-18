@@ -86,20 +86,26 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
           <li key={m._id} className={styles.item}>
             {/* Deep-link into the map: ?me= opens the must-eat detail. */}
             <Link href={`/map?me=${m._id}`} className={styles.cardLink}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                className={styles.card}
-                src={m.image}
-                alt={normalizeName(m.dish ?? '')}
-                loading="lazy"
-              />
+              <span className={styles.cutoutFrame}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  className={styles.card}
+                  src={m.image}
+                  alt={normalizeName(m.dish ?? '')}
+                  loading="lazy"
+                />
+              </span>
+              <span className={styles.meta}>
+                <span className={styles.dish}>{normalizeName(m.dish ?? '')}</span>
+                <span className={styles.restaurant}>{normalizeName(m.restaurant.name)}</span>
+              </span>
             </Link>
           </li>
         ))}
       </ul>
 
       <p className={styles.foot}>
-        <Link href="/must-eats" className={styles.cta}>
+        <Link href="/map" rel="nofollow" className={`${styles.cta} homeCta homeCtaPrimary`}>
           {t('mustEats.teaserCta')}
         </Link>
       </p>

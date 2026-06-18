@@ -39,9 +39,9 @@ describe('HubPacks', () => {
     expect(html).toContain('type="email"')
     expect(html).toContain('Anmelden')
   })
-  it('shows a formatted price and does NOT render the all-berlin pack', () => {
+  it('does not show per-pack prices and does NOT render the all-berlin pack', () => {
     const html = render()
-    expect(html).toContain('€2,99')
+    expect(html).not.toContain('€2,99')
     expect(html).not.toContain('All Berlin')
   })
   it('falls back to the English displayName when no localized name exists', () => {

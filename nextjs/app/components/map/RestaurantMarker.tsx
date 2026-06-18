@@ -33,7 +33,9 @@ function RestaurantMarker({ restaurant, isSelected, onClick }: RestaurantMarkerP
         className={className}
         style={{ position: 'relative' }}
       >
-        <img src="/pics/eat-this-square.webp?v=5" alt="" draggable={false} />
+        <span className={styles.pinLogoShape} aria-hidden="true">
+          <img src="/pics/eat-this-square.webp?v=5" alt="" draggable={false} />
+        </span>
       </div>
     </Marker>
   )

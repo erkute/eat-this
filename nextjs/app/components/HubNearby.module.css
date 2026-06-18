@@ -1,6 +1,6 @@
 .section {
-  background: #fbf8ee;
-  padding: 20px 0 28px;
+  background: transparent;
+  padding: 24px 0 42px;
 }
 
 .head {
@@ -8,7 +8,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  margin: 36px 16px 10px;
+  margin: 26px 18px 10px;
 }
 /* "Nähe" carries an umlaut → Saira Condensed (the brand display font has no
    accented glyphs); line-height 1.15 + padding-top guard against clipping. */
@@ -17,27 +17,13 @@
   font-size: clamp(34px, 11vw, 44px);
   line-height: 1.08;
   text-transform: uppercase;
-  color: var(--text-primary);
+  color: var(--et-red);
   padding-top: 6px;
   margin: 0;
 }
 .locBtn {
   flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
   gap: 5px;
-  background: var(--brand-yellow);
-  border: 2px solid #0a0a0a;
-  box-shadow: 2px 2px 0 #0a0a0a;
-  color: #0a0a0a;
-  font-family: var(--font);
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  padding: 6px 10px;
-  cursor: pointer;
-  transition: transform .12s ease, box-shadow .12s ease, background-color .15s ease;
 }
 .locIcon {
   width: 12px;
@@ -48,20 +34,8 @@
   stroke-width: 2.4;
   stroke-linecap: round;
 }
-.locBtn:hover {
-  background: #ffdf3d;
-  box-shadow: 3px 3px 0 #0a0a0a;
-  transform: translate(-1px, -1px);
-}
-.locBtn:active {
-  box-shadow: 0 0 0 #0a0a0a;
-  transform: translate(2px, 2px);
-}
 .locBtn:disabled {
   cursor: wait;
-  opacity: .75;
-  box-shadow: 0 0 0 #0a0a0a;
-  transform: translate(2px, 2px);
 }
 
 .sub {
@@ -70,7 +44,7 @@
   font-size: 12px;
   letter-spacing: .12em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: rgba(201, 67, 50, .64);
 }
 /* Geolocation error line (denied/timeout) — same typo, coral for visibility */
 .subError {
@@ -101,16 +75,17 @@
   display: block;
   position: relative;
   aspect-ratio: 4 / 5;
-  border: 1px solid rgba(10, 10, 10, 0.10);
-  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06);
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 16px 32px rgba(118, 51, 36, .14);
   overflow: hidden;
   text-decoration: none;
-  color: #fbf8ee;
+  color: var(--et-yellow);
 }
 .cardImage {
   position: absolute;
   inset: 0;
-  background-color: #14100c;
+  background-color: var(--et-yellow-bright);
 }
 .cardImage img {
   object-fit: cover;
@@ -118,28 +93,24 @@
 .card::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(11, 8, 6, 0.95) 0%,
-    rgba(11, 8, 6, 0.66) 20%,
-    rgba(11, 8, 6, 0.2) 44%,
-    transparent 66%
-  );
+  inset: auto 0 0;
+  height: 46%;
+  background: linear-gradient(180deg, rgba(201, 67, 50, 0), rgba(201, 67, 50, .86));
 }
 .dist {
   position: absolute;
   top: 8px;
   right: 8px;
   z-index: 2;
-  background: var(--brand-yellow);
-  color: #0a0a0a;
+  background: var(--et-cream);
+  color: var(--et-red);
   font-family: var(--font);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: .04em;
   padding: 3px 7px;
-  border: 1.5px solid #0a0a0a;
+  border: 0;
+  border-radius: 999px;
 }
 .cardBody {
   position: absolute;
@@ -150,102 +121,34 @@
 }
 .name {
   font-family: var(--font-ranchers);
-  font-size: 22px;
+  font-size: 25px;
   line-height: .92;
   text-transform: uppercase;
   margin: 0;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, .45);
+  color: var(--et-cream);
+  text-shadow: none;
 }
 .meta {
   font-family: var(--font);
   font-size: 10.5px;
   letter-spacing: .16em;
   text-transform: uppercase;
-  color: var(--accent-warm);
+  color: rgba(240, 232, 212, .78);
   margin: 4px 0 0;
   font-weight: 700;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
-}
-
-.meHeading {
-  font-family: var(--font-ranchers);
-  font-size: 17px;
-  line-height: 1.05;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  margin: 30px 16px 2px;
-  padding-top: 4px;
-}
-.meSub {
-  margin: 0 16px 12px;
-  font-family: var(--font);
-  font-size: 12px;
-  letter-spacing: .06em;
-  color: var(--text-secondary);
-}
-.meRow {
-  display: flex;
-  gap: 14px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding: 4px 16px 10px;
-  margin: 0;
-  list-style: none;
-}
-.meRow::-webkit-scrollbar {
-  display: none;
-}
-.meItem {
-  flex: 0 0 168px;
-  scroll-snap-align: start;
-  margin: 0;
-}
-/* Must-eats are freigestellt (cut-out) cards — no frame, no background, just
-   the floating dish with a tilt + drop-shadow (matches the map fan + teaser). */
-.meCard {
-  display: block;
-  position: relative;
-  aspect-ratio: 1539 / 2115;
-  background: transparent;
-}
-.meImg {
-  object-fit: contain;
-}
-.meItem:nth-child(odd) .meCard {
-  transform: rotate(-1.5deg);
-}
-.meItem:nth-child(even) .meCard {
-  transform: rotate(1.5deg);
-}
-.foot {
-  margin: 2px 16px 12px;
-  text-align: right;
-}
-.footLink {
-  font-family: var(--font);
-  font-size: 12px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  border-bottom: 2px solid var(--brand-yellow);
-  padding-bottom: 1px;
-  text-decoration: none;
+  text-shadow: none;
 }
 
 /* ── Desktop: centered column, scrollers become wrapping grids ── */
 @media (min-width: 720px) {
-  .section { padding-inline: max(16px, calc((100% - 1120px) / 2)); }
+  .section { padding-inline: max(22px, calc((100% - 1180px) / 2)); }
   /* Group the Standort button next to the heading instead of stranding it in
      the far-right corner across a big empty gap; vertically centered to the
      headline with comfortable spacing. */
-  .head { margin: 44px 0 14px; justify-content: flex-start; gap: 22px; }
+  .head { margin: 36px 0 14px; justify-content: flex-start; gap: 22px; }
   .heading { font-size: clamp(44px, 5vw, 56px); }
-  .sub, .meSub { margin-left: 0; margin-right: 0; }
-  .meHeading { margin: 44px 0 4px; font-size: 20px; }
-  /* Restaurant cards: exactly 4 across, filling the full 1120 column (bigger
+  .sub { margin-left: 0; margin-right: 0; }
+  /* Restaurant cards: exactly 4 across, filling the full column (bigger
      cards, no empty tracks on the right). */
   .row {
     display: grid;
@@ -254,50 +157,44 @@
     overflow: visible;
     padding: 6px 0 12px;
   }
-  /* Nearby Must-Eat cut-outs: bigger and centered as a group rather than
-     left-clustered in an auto-fill grid. */
-  .meRow {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 22px;
-    overflow: visible;
-    padding: 8px 0 12px;
-  }
   .cardItem { flex: initial; }
-  .meItem { flex: 0 0 200px; }
-  .foot { margin: 12px 0 18px; text-align: center; }
 }
 
 /* ── Dark mode: dark page, warm-cream ink, red replaces yellow. Photos and
    text-on-photo (cream + shadow) left untouched. ── */
-html[data-theme="dark"] .section { background: var(--dk-page); }
-html[data-theme="dark"] .heading,
-html[data-theme="dark"] .meHeading,
-html[data-theme="dark"] .footLink { color: var(--dk-ink); }
+html[data-theme="dark"] .section { background: transparent; }
+html[data-theme="dark"] .heading { color: var(--et-red); }
+html[data-theme="dark"] .sub {
+  color: rgba(242, 223, 184, .72);
+}
 /* Location button: cream surface → dark, ink border/shadow → cream */
-html[data-theme="dark"] .locBtn {
-  background: var(--c-coral);
-  border-color: var(--dk-ink);
-  box-shadow: 3px 3px 0 var(--dk-rule);
-  color: #fbf8ee;
-}
-html[data-theme="dark"] .locBtn:hover {
-  background: var(--c-coral-bright);
-  box-shadow: 4px 4px 0 var(--dk-rule);
-}
-html[data-theme="dark"] .locBtn:active { box-shadow: 0 0 0 var(--dk-rule); }
-html[data-theme="dark"] .locBtn:disabled { box-shadow: 0 0 0 var(--dk-rule); }
 html[data-theme="dark"] .subError { color: var(--c-coral-bright); }
 /* Photo cards keep their image; frame border → cream */
-html[data-theme="dark"] .card { border-color: var(--dk-ink); }
+html[data-theme="dark"] .card { border-color: var(--et-red); }
 /* Distance chip: yellow fill → red, ink → cream label + cream border */
 html[data-theme="dark"] .dist {
-  background: var(--c-coral);
-  color: #fbf8ee;
-  border-color: var(--dk-ink);
+  background: var(--et-cream);
+  color: var(--et-red);
+  border-color: var(--et-red);
 }
-/* Yellow text accents → bright red */
-html[data-theme="dark"] .meta { color: var(--accent-warm); }
-/* Foot link underline: yellow → red */
-html[data-theme="dark"] .footLink { border-bottom-color: var(--c-coral); }
+/* Card text stays on-photo; meta needs cream contrast in dark mode. */
+html[data-theme="dark"] .meta { color: rgba(242, 223, 184, .78); }
+/* Remove thin linework; keep separation through spacing and imagery. */
+.card,
+.dist,
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .dist {
+  border: 0;
+}
+
+html[data-theme="dark"] .heading {
+  color: var(--et-red-hot);
+}
+html[data-theme="dark"] .card {
+  background: var(--et-dark-card);
+  color: var(--et-cream);
+}
+html[data-theme="dark"] .dist {
+  background: var(--et-red-hot);
+  color: var(--et-black);
+}

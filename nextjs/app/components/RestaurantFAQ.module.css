@@ -67,7 +67,7 @@
   display: none;
 }
 .a {
-  font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  font-family: var(--font);
   font-size: 14.5px;
   line-height: 1.55;
   color: var(--ink, #000);

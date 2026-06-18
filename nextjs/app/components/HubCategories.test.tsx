@@ -16,14 +16,16 @@ function render(categories: HubCategory[]) {
 describe('HubCategories', () => {
   it('renders heading, category name (with umlaut) and line', () => {
     const html = render([{ name: 'Frühstück', slug: 'breakfast', line: 'Egg, Toast, repeat.' }])
-    expect(html).toContain('Berlin nach Kategorien')
+    expect(html).toContain('Kategorien &amp; Packs')
     expect(html).toContain('Frühstück')
     expect(html).toContain('Egg, Toast, repeat.')
   })
-  it('links each card to the category-filtered map with nofollow', () => {
+  it('links each category to the map and its pack', () => {
     const html = render([{ name: 'Pizza', slug: 'pizza', line: null }])
     expect(html).toContain('cat=pizza')
     expect(html).toContain('rel="nofollow"')
+    expect(html).toContain('/pack/pizza')
+    expect(html).not.toContain('€2,99')
     expect(html).toContain('booster_pizza.webp')
   })
   it('renders nothing when there are no categories', () => {

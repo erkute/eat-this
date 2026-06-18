@@ -1,99 +1,196 @@
 .hero {
   position: relative;
-  margin: 0;
-  background: #fbf8ee;
-}
-.photo {
-  position: relative;
-  aspect-ratio: 1 / 1;
-  margin: 0 14px;
+  width: min(100% - 28px, 1220px);
+  min-height: clamp(540px, calc(100svh - 160px), 680px);
+  margin: 18px auto 0;
   overflow: hidden;
-  background-color: #14100c;
+  color: var(--et-cream, #f2dfb8);
+  background: var(--et-black, #100d0f);
+  border-radius: 10px;
+  isolation: isolate;
 }
-.photo img { object-fit: cover; }
-.photo::after {
+
+.photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.photo img {
+  object-fit: cover;
+  filter: saturate(1.06) contrast(1.03) brightness(.98);
+  transform: scale(1.025);
+}
+
+.hero::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 60%, rgba(0,0,0,.55) 100%);
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(16, 13, 15, .64) 0%, rgba(16, 13, 15, .38) 42%, rgba(16, 13, 15, .08) 100%),
+    linear-gradient(0deg, rgba(16, 13, 15, .52) 0%, rgba(16, 13, 15, .1) 48%, rgba(16, 13, 15, .16) 100%);
+  pointer-events: none;
 }
+
+.shell {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  align-items: end;
+  min-height: inherit;
+  padding: clamp(22px, 4vw, 54px);
+}
+
+.copy {
+  display: grid;
+  justify-items: start;
+  width: min(100%, 680px);
+}
+
 .kicker {
-  margin: 32px 16px 6px;
-  font-family: var(--font-ranchers);
-  font-size: 14px;
-  letter-spacing: .22em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-}
-.headline {
-  margin: 0 16px 14px;
-  font-family: var(--font-ranchers);
-  font-size: clamp(56px, 16vw, 84px);
-  line-height: 1.08;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  text-wrap: balance;
-}
-.sub {
-  margin: 0 16px 16px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  margin: 0 0 18px;
+  padding: 9px 14px 8px;
+  color: var(--et-cream, #f2dfb8);
+  background: var(--et-red, #e43d18);
+  border-radius: 999px;
   font-family: var(--font);
-  font-size: 14.5px;
-  line-height: 1.45;
-  color: var(--text-primary);
-  max-width: 32ch;
+  font-size: clamp(13px, 1.2vw, 16px);
+  font-weight: 950;
+  letter-spacing: .14em;
+  line-height: 1;
+  text-transform: uppercase;
 }
+
+.headline {
+  max-width: 8ch;
+  margin: 0;
+  color: var(--et-cream, #f2dfb8);
+  font-family: var(--font-display);
+  font-size: clamp(64px, 8vw, 112px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: .78;
+  text-transform: uppercase;
+  text-wrap: balance;
+  text-shadow: 0 18px 44px rgba(0, 0, 0, .42);
+}
+
+.sub {
+  max-width: 42ch;
+  margin: 18px 0 0;
+  color: rgba(242, 223, 184, .86);
+  font-family: var(--font);
+  font-size: clamp(16px, 1.45vw, 19px);
+  font-weight: 750;
+  line-height: 1.38;
+}
+
 .actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-  margin: 0 16px 24px;
+  margin-top: 24px;
 }
+
 .read {
-  font-family: var(--font-ranchers);
-  font-size: 14px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  border-bottom: 2px solid var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  color: rgba(242, 223, 184, .9);
+  font-family: var(--font);
+  font-size: clamp(14px, 1.2vw, 16px);
+  font-weight: 950;
+  line-height: 1;
   text-decoration: none;
-  padding-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  text-shadow: 0 12px 30px rgba(0, 0, 0, .55);
 }
 
-/* ── Desktop: portrait photo left, vertically-centered text right ── */
-@media (min-width: 720px) {
+.read:hover,
+.read:focus-visible {
+  color: var(--et-cream, #f2dfb8);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+.read:focus-visible {
+  outline: 2px solid var(--et-cream, #f2dfb8);
+  outline-offset: 5px;
+  border-radius: 4px;
+}
+
+.read span {
+  font-size: 1.18em;
+  line-height: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .copy {
+    animation: heroCopyIn .8s cubic-bezier(.2, .8, .2, 1) both;
+  }
+}
+
+@keyframes heroCopyIn {
+  from { transform: translateX(-96px) rotate(-2deg); }
+  to { transform: translateX(0); }
+}
+
+@media (max-width: 899px) {
   .hero {
-    display: grid;
-    grid-template-columns: minmax(0, 460px) minmax(0, 1fr);
-    column-gap: clamp(40px, 5vw, 72px);
-    align-items: center;
-    padding: 72px max(40px, calc((100% - 1120px) / 2));
+    min-height: 620px;
   }
-  .photo {
-    margin: 0;
-    aspect-ratio: 4 / 5;
+
+  .shell {
+    padding: 22px;
   }
-  .body {
-    display: flex;
-    flex-direction: column;
+
+  .headline {
+    font-size: clamp(54px, 14vw, 88px);
   }
-  /* Signed-in hub: the "Deine Welt" panel above ends in the card-back teaser.
-     Give up top padding so the teaser floats with equal air above and below
-     (the math lives in HubDeineWelt.module.css). Scoped to html[data-auth] so
-     the hidden SSR guest shell doesn't pull the hero up for logged-out
-     visitors — they keep the full 72px as the first block. */
-  html[data-auth="1"] :global([data-hub-deinewelt]) + .hero { padding-top: 40px; }
-  .kicker { margin: 0 0 12px; font-size: 16px; }
-  .headline { margin: 0 0 22px; font-size: clamp(64px, 6vw, 92px); line-height: 1.06; }
-  .sub { margin: 0 0 28px; font-size: 17px; max-width: 42ch; }
-  .actions { margin: 0; }
 }
 
-/* ── Dark mode: dark page surface, warm-cream ink (photo + its overlays
-   left untouched). ── */
-html[data-theme="dark"] .hero { background: var(--dk-page); }
-html[data-theme="dark"] .kicker,
-html[data-theme="dark"] .headline,
-html[data-theme="dark"] .sub,
-html[data-theme="dark"] .read { color: var(--dk-ink); }
-html[data-theme="dark"] .read { border-bottom-color: var(--dk-ink); }
+@media (max-width: 520px) {
+  .hero {
+    width: calc(100% - 20px);
+    min-height: 590px;
+    margin-top: 14px;
+  }
+
+  .photo img {
+    object-position: 58% center;
+  }
+
+  .shell {
+    padding: 18px;
+  }
+
+  .kicker {
+    margin-bottom: 14px;
+    font-size: 10px;
+    line-height: 1.12;
+  }
+
+  .sub {
+    margin-top: 16px;
+    font-size: 15px;
+  }
+
+  .actions {
+    margin-top: 20px;
+  }
+
+  .read { min-height: 38px; }
+}
+
+html[data-theme="dark"] .hero {
+  background: var(--et-black, #100d0f);
+}

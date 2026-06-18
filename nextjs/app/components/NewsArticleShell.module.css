@@ -6,7 +6,7 @@
    ════════════════════════════════════════════════════════════ */
 
 .page {
-  background: #fbf8ee;
+  background: transparent;
   color: #0a0a0a;
   display: flow-root;
   min-height: 100%;
@@ -15,6 +15,8 @@
 .article {
   margin: 0 auto;
   max-width: 720px;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: var(--collage-shadow);
 }
 
 /* ── Hero photo ── */
@@ -26,6 +28,9 @@
   width: 100%;
   aspect-ratio: 4 / 3;
   background-color: #14100c;
+  border: 12px solid #fff;
+  box-shadow: var(--collage-shadow);
+  transform: rotate(-.8deg);
 }
 .hero {
   object-fit: cover;
@@ -50,7 +55,7 @@
   line-height: 1;
   letter-spacing: -0.005em;
   text-transform: uppercase;
-  color: #0a0a0a;
+  color: var(--collage-red);
   margin: 14px 16px 14px;
 }
 .lede {
@@ -283,7 +288,7 @@ a.mustEat:hover .mustEatPh::before {
   color: #fbf8ee;
   margin: 2px 0 0;
   max-width: 18ch;
-  text-shadow: 3px 3px 0 var(--c-coral);
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, .62);
 }
 /* Appetite line from the Sanity description — sentence case, reads like a
    recommendation, not metadata. `.mustEat` prefix beats `.content p` margins. */
@@ -326,12 +331,12 @@ a.mustEat:hover .mustEatPh::before {
   line-height: 1;
   padding: 13px 22px 14px;
   border-radius: 10px;
-  box-shadow: 4px 4px 0 var(--c-coral);
+  box-shadow: 4px 4px 0 #0a0a0a;
   transition: transform 0.14s ease, box-shadow 0.14s ease;
 }
 a.mustEat:hover .mustEatCta {
   transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--c-coral);
+  box-shadow: 2px 2px 0 #0a0a0a;
 }
 .mustEatCta svg {
   flex-shrink: 0;
@@ -543,8 +548,9 @@ a.mustEat:hover .mustEatCta svg {
   text-transform: uppercase;
   padding: 14px 18px 15px;
   border: 1.5px solid #0a0a0a;
-  background: #0a0a0a;
-  color: #fbf8ee;
+  background: var(--collage-red);
+  color: #fff;
+  box-shadow: 4px 4px 0 #0a0a0a;
   cursor: pointer;
   transition: transform 0.12s, box-shadow 0.12s;
 }
@@ -819,7 +825,7 @@ html[data-theme="dark"] .shareBtn {
   color: #0a0a0a;
 }
 html[data-theme="dark"] .shareBtn:hover {
-  box-shadow: 3px 3px 0 var(--c-coral);
+  box-shadow: 3px 3px 0 #0a0a0a;
 }
 
 /* ── Related — already dark cards, flip yellow accents to red ── */

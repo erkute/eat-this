@@ -241,7 +241,11 @@ export default function RestaurantDetail({
             <div className={styles.rdTagsOv}>
               {district && <span className={styles.rdTag}>{district}</span>}
               {cuisine && <span className={styles.rdTagAlt}>{cuisine}</span>}
-              {hasHours && <span className={styles.rdTagAlt}>{openTag}</span>}
+              {hasHours && (
+                <span className={`${styles.rdTagAlt} ${status.isOpen ? styles.rdTagOpen : ''}`}>
+                  {openTag}
+                </span>
+              )}
             </div>
           </div>
           {r.photoCredit && (() => {
@@ -346,7 +350,7 @@ export default function RestaurantDetail({
             </div>
           )}
           {hasHours && (
-            <div className={styles.rdRow}>
+            <div className={`${styles.rdRow} ${styles.rdRowHours}`}>
               <span className={styles.rdK}>{t('map.openingHours')}</span>
               <div className={`${styles.rdV} ${styles.rdHours}`}>
                 {r.openingHours!.map((slot, i) => (
@@ -381,7 +385,7 @@ export default function RestaurantDetail({
           {igUrl && (
             <div className={styles.rdRow}>
               <span className={styles.rdK}>Instagram</span>
-              <span className={styles.rdV}>
+              <span className={`${styles.rdV} ${styles.rdVHandle}`}>
                 <a href={igUrl} target="_blank" rel="noopener noreferrer">{igHandle ? `@${igHandle}` : 'Profil ↗'}</a>
               </span>
             </div>
@@ -486,7 +490,7 @@ export default function RestaurantDetail({
           </section>
         )}
 
-        {/* PACK PROMO — anon + starter only, qualitative (no counts) */}
+        {/* PACK PROMO — anon + starter only, qualitative (no counts/prices) */}
         {showBooster && (
           <section className={styles.packPromo}>
             <div className={styles.packPromoCardWrap} aria-hidden="true">
@@ -509,15 +513,10 @@ export default function RestaurantDetail({
                   <span className={styles.btnPackPromoLbl}>
                     {isAnon ? t('map.starterCta') : t('map.boosterCta')}
                   </span>
-                  {!isAnon && (
-                    <span className={styles.btnPackPromoTag}>
-                      {t('map.boosterPriceTag')}
-                      <svg viewBox="0 0 24 18" aria-hidden="true">
-                        <line x1="2" y1="9" x2="20" y2="9" />
-                        <polyline points="14 3 20 9 14 15" />
-                      </svg>
-                    </span>
-                  )}
+                  <svg className={styles.btnPackPromoIcon} viewBox="0 0 24 18" aria-hidden="true">
+                    <line x1="2" y1="9" x2="20" y2="9" />
+                    <polyline points="14 3 20 9 14 15" />
+                  </svg>
                 </a>
                 {isAnon && (
                   <a href={boosterHref} className={styles.linkPromo}>

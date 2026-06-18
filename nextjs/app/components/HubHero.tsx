@@ -20,27 +20,30 @@ export default function HubHero({ spot, today }: Props) {
   return (
     <section className={styles.hero} data-hub-hero="">
       {spot.image && (
-        <div className={styles.photo}>
+        <div className={styles.photo} aria-hidden="true">
           <Image
             src={spot.image}
-            alt={spot.name}
+            alt=""
             fill
-            sizes="(max-width: 720px) 100vw, 640px"
+            sizes="100vw"
             priority
           />
         </div>
       )}
-      <div className={styles.body}>
-        <p className={styles.kicker}>
-          {t('kicker')}{dateLabel ? ` · ${dateLabel}` : ''}
-        </p>
-        <h1 className={styles.headline}>{normalizeName(spot.name)}</h1>
-        {spot.sub && <p className={styles.sub}>{spot.sub}</p>}
-        <div className={styles.actions}>
-          <HubMapCTA href={`/map?r=${spot.slug}`} title={t('toMap')} variant="chip" />
-          <Link href={`/restaurant/${spot.slug}`} className={styles.read}>
-            {t('read')}
-          </Link>
+
+      <div className={styles.shell}>
+        <div className={styles.copy}>
+          <p className={styles.kicker}>
+            {t('kicker')}{dateLabel ? ` · ${dateLabel}` : ''}
+          </p>
+          <h1 className={styles.headline}>{normalizeName(spot.name)}</h1>
+          {spot.sub && <p className={styles.sub}>{normalizeName(spot.sub)}</p>}
+          <div className={styles.actions}>
+            <HubMapCTA href={`/map?r=${spot.slug}`} title={t('toMap')} variant="chip" />
+            <Link href={`/restaurant/${spot.slug}`} className={styles.read}>
+              {t('read')} <span aria-hidden="true">→</span>
+            </Link>
+          </div>
         </div>
       </div>
     </section>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import { useUnlockedMustEats, useMapData } from '@/lib/map';
@@ -18,6 +18,24 @@ interface Props {
   publicFaceUpIds: string[];
 }
 
+type ProfileTab = 'spots' | 'must-eats' | 'packs';
+
+function tabFromHash(hash: string): ProfileTab | null {
+  switch (hash) {
+    case '#profile-panel-spots':
+    case '#gespeicherte-spots':
+      return 'spots';
+    case '#profile-panel-must-eats':
+    case '#gesammelte-must-eats':
+      return 'must-eats';
+    case '#profile-panel-packs':
+    case '#meine-packs':
+      return 'packs';
+    default:
+      return null;
+  }
+}
+
 function memberSince(creationTime: string | undefined, locale: string): string | null {
   if (!creationTime) return null;
   const d = new Date(creationTime);
@@ -32,6 +50,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   const { user, loading, signOut } = useAuth();
   const locale = useLocale();
   const t = useTranslations('profile');
+  const [activeTab, setActiveTab] = useState<ProfileTab>('spots');
   // Map-page reveals write to users/{uid}/unlockedMustEats — unioned with the
   // public face-up set (trial-10 ∪ spot-of-day) so anything publicly revealed
   // is open in the collection too, even right after first signup.
@@ -51,6 +70,25 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     [ownedRestaurants],
   );
 
+  useEffect(() => {
+    const syncHash = () => {
+      const tab = tabFromHash(window.location.hash);
+      if (tab) setActiveTab(tab);
+    };
+    syncHash();
+    window.addEventListener('hashchange', syncHash);
+    return () => window.removeEventListener('hashchange', syncHash);
+  }, []);
+
+  useEffect(() => {
+    if (loading) return;
+    const hash = window.location.hash;
+    if (!tabFromHash(hash)) return;
+    requestAnimationFrame(() => {
+      document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start' });
+    });
+  }, [activeTab, loading]);
+
   if (loading || !user) {
     return (
       <main className={styles.page}>
@@ -65,6 +103,8 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   const name = user.displayName || (user.email ?? '').split('@')[0] || 'Du';
   const since = memberSince(user.metadata?.creationTime, locale);
   const sinceLabel = locale === 'de' ? 'Mitglied seit' : 'Member since';
+  const ownedMustEatTotal = mustEats.filter((m) => ownedRestaurantIds.has(m.restaurant._id)).length;
+  const revealedMustEatTotal = mustEats.filter((m) => ownedRestaurantIds.has(m.restaurant._id) && unlockedIds.has(m._id)).length;
 
   return (
     <>
@@ -79,20 +119,96 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             <h1 className={styles.name}>{name}</h1>
             {user.email && <div className={styles.email}>{user.email}</div>}
           </div>
+          <div className={styles.heroCard} aria-hidden="true">
+            <span>{t('heroKicker')}</span>
+            <strong>{t('heroLine')}</strong>
+          </div>
         </header>
 
-        <div className={styles.section}>
-          <h2 className={styles.sectionHeading}>{t('savedHeading')}</h2>
+        <section className={styles.command}>
+          <p className={styles.commandKicker}>{t('heroKicker')}</p>
+          <h2 className={styles.commandTitle}>{t('heroTitle')}</h2>
+          <div className={styles.stats} aria-label={t('heroTitle')}>
+            <div className={styles.stat}>
+              <strong>{ownedRestaurants.length}</strong>
+              <span>{t('statMap')}</span>
+            </div>
+            <div className={styles.stat}>
+              <strong>{revealedMustEatTotal}/{ownedMustEatTotal || '–'}</strong>
+              <span>{t('statRevealed')}</span>
+            </div>
+          </div>
+        </section>
+
+        <div className={styles.tabs} role="tablist" aria-label={t('heroTitle')}>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'spots'}
+            aria-controls="profile-panel-spots"
+            className={`${styles.tab} ${activeTab === 'spots' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('spots')}
+          >
+            {t('tabSpots')}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'must-eats'}
+            aria-controls="profile-panel-must-eats"
+            className={`${styles.tab} ${activeTab === 'must-eats' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('must-eats')}
+          >
+            {t('tabMustEats')}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'packs'}
+            aria-controls="profile-panel-packs"
+            className={`${styles.tab} ${activeTab === 'packs' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('packs')}
+          >
+            {t('tabPacks')}
+          </button>
         </div>
-        <ProfileSpots uid={user.uid} />
 
-        <ProfileMustEats
-          mustEats={mustEats}
-          mapUnlockedIds={unlockedIds}
-          ownedRestaurantIds={ownedRestaurantIds}
-        />
+        <section
+          id="profile-panel-spots"
+          role="tabpanel"
+          hidden={activeTab !== 'spots'}
+          className={styles.tabPanel}
+          style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
+        >
+          <div className={styles.section}>
+            <h2 className={styles.sectionHeading}>{t('savedHeading')}</h2>
+          </div>
+          <ProfileSpots uid={user.uid} />
+        </section>
 
-        <ProfilePacks uid={user.uid} />
+        <section
+          id="profile-panel-must-eats"
+          role="tabpanel"
+          hidden={activeTab !== 'must-eats'}
+          className={styles.tabPanel}
+          style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
+        >
+          <ProfileMustEats
+            mustEats={mustEats}
+            mapUnlockedIds={unlockedIds}
+            ownedRestaurantIds={ownedRestaurantIds}
+          />
+        </section>
+
+        <section
+          id="profile-panel-packs"
+          role="tabpanel"
+          hidden={activeTab !== 'packs'}
+          className={styles.tabPanel}
+          style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
+        >
+          <ProfilePacks uid={user.uid} />
+        </section>
 
         <button
           type="button"

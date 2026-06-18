@@ -1,7 +1,7 @@
 /* ============================================================
    Restaurant Detail — SCREEN 3 (Bar Basta) translation.
    Cream/ink/yellow palette identisch zu Bezirk-Hub. Anton display,
-   Inter body. Drop-cap auf description, yellow Insider-Tipp mit
+   DM Sans body. Drop-cap auf description, yellow Insider-Tipp mit
    6px ink box-shadow, editorial facts list.
 ============================================================ */
 
@@ -12,7 +12,7 @@
   --yellow: #ffd84a;
   --muted: #6b5a44;
   --f-display: var(--font-poster, "Chewy"), "Comic Sans MS", cursive;
-  --f-body: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  --f-body: var(--font);
 
   /* Bridge semantic tokens so shared components (MustEatTeaserSection,
      Breadcrumbs, RestaurantFAQ) render in cream palette. */
@@ -25,7 +25,7 @@
   --border-strong: var(--ink);
   --accent: var(--yellow);
 
-  background: var(--cream);
+  background: transparent;
   color: var(--ink);
   font-family: var(--f-body);
   min-height: 100vh;
@@ -47,10 +47,13 @@
 ============================================================ */
 .hero {
   position: relative;
-  margin: 8px 14px 0;
+  margin: 18px 24px 0;
   aspect-ratio: 4 / 5;
   background-color: #14100c;
   overflow: hidden;
+  border: 11px solid #fff;
+  box-shadow: var(--collage-shadow);
+  transform: rotate(-1deg);
 }
 .heroImg {
   position: absolute;
@@ -164,6 +167,11 @@
   align-items: center;
   gap: 6px;
 }
+.heroTags .chipOpen {
+  background: #34a85a;
+  color: #fff;
+  border-color: #fff;
+}
 .heroTags .chipOpen::before,
 .heroTags .chipClosed::before {
   content: '';
@@ -189,7 +197,7 @@
   line-height: 1.05;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--collage-red);
   margin: 16px 14px 0;
   word-break: break-word;
   hyphens: auto;

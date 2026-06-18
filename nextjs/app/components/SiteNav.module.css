@@ -1,47 +1,211 @@
-/* Centered EAT THIS brand mark in the SiteNav header (replaces the old
-   home icon). Links to home. The navbar container itself is styled by the
-   global .navbar / .navbar-home rules in css/style.css — the logo is pulled
-   out of the left flex slot and absolutely centered over the fixed navbar so
-   it sits dead-centre while the action cluster stays right. */
+/* Centered EAT THIS brand mark. The wordmark stands free on the header; the
+   link keeps the generous hit area, but adds no plate/pill around the logo. */
 .logo {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
+  translate: 0 -50%;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  width: 154px;
+  height: 48px;
   text-decoration: none;
+  z-index: 2;
+}
+
+.logo::before,
+.logo::after {
+  content: none;
 }
 
 .logoImg {
   display: block;
-  height: 48px;
+  height: 40px;
   width: auto;
+  filter: none;
 }
 
-/* On the map (mobile), the navbar collapses to floating glass chips on the
-   right edge. The wide wordmark is presented as a glass pill (round chip can't
-   fit a horizontal logo) at the profile-icon height so they pair visually. */
+.mapSticker,
+.menuSticker {
+  overflow: visible;
+  isolation: isolate;
+}
+
+:global(.navbar-icon-btn).mapSticker {
+  width: auto;
+  min-width: 84px;
+  padding: 8px 12px 9px;
+  gap: 7px;
+  border: 0 !important;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+  clip-path: none;
+  color: var(--et-black);
+  transform: none;
+}
+
+.mapWord,
+.menuWord {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.mapFold {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 8px);
+  width: 24px;
+  height: 18px;
+  color: currentColor;
+  transform: rotate(-2deg);
+}
+
+.mapFold span {
+  display: block;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-right: 0;
+  background:
+    linear-gradient(135deg, transparent 42%, currentColor 43% 50%, transparent 51%);
+}
+
+.mapFold span:nth-child(2) {
+  transform: translateY(2px);
+}
+
+.mapFold span:nth-child(3) {
+  border-right: 2px solid currentColor;
+  transform: translateY(-1px);
+}
+
+:global(.burger-btn).menuSticker {
+  width: auto;
+  min-width: 88px;
+  padding: 8px 12px 9px;
+  gap: 7px;
+  border: 0 !important;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+  clip-path: none;
+  color: var(--et-black);
+  transform: none;
+}
+
+:global(.navbar-icon-btn).mapSticker.active,
+:global(.navbar-icon-btn).mapSticker:hover,
+:global(.burger-btn).menuSticker:hover {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--et-red);
+}
+
+.menuLines {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 4px;
+  width: 22px;
+}
+
+.menuLines span {
+  display: block;
+  height: 4px;
+  background: currentColor;
+  border-radius: 999px;
+}
+
+.menuLines span:nth-child(1) { width: 19px; transform: rotate(-3deg); }
+.menuLines span:nth-child(2) { width: 22px; transform: rotate(2deg); }
+.menuLines span:nth-child(3) { width: 15px; transform: rotate(-2deg); justify-self: end; }
+
+@media (min-width: 1024px) {
+  .logo {
+    top: 50%;
+    width: 232px;
+    height: 58px;
+  }
+
+  .logoImg { height: 52px; }
+
+  :global(.navbar-icon-btn).mapSticker,
+  :global(.burger-btn).menuSticker {
+    height: 40px;
+  }
+
+  :global(.navbar-icon-btn).mapSticker {
+    min-width: 92px;
+    padding-inline: 15px;
+  }
+
+  :global(.burger-btn).menuSticker {
+    min-width: 104px;
+    padding-inline: 15px;
+  }
+
+  .mapWord,
+  .menuWord {
+    font-size: 24px;
+  }
+
+  :global(.navbar-icon-btn).mapSticker:hover {
+    transform: translateY(-2px);
+    box-shadow: none;
+  }
+
+  :global(.burger-btn).menuSticker:hover {
+    transform: translateY(-2px);
+    box-shadow: none;
+  }
+}
+
+/* On the map (mobile), the navbar collapses to floating chips. Keep the logo
+   freestanding here too — no glass pill, no shadow plate. */
 @media (max-width: 1023.98px) {
   :global(html[data-active-page="map"]) .logo {
     /* Map keeps its floating-chip layout — undo the absolute centering. */
     position: static;
     transform: none;
+    translate: none;
     width: auto;
     height: 36px;
-    padding: 0 12px;
+    padding: 0 4px;
     justify-content: center;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
   }
   :global(html[data-active-page="map"]) .logoImg {
-    height: 16px;
+    height: 22px;
   }
   :global(html[data-theme="dark"][data-active-page="map"]) .logo {
-    background: rgba(32, 30, 28, 0.96);
-    box-shadow:
-      0 4px 14px rgba(0, 0, 0, 0.5),
-      inset 0 0 0 1px rgba(243, 234, 212, 0.18);
+    background: transparent;
+    box-shadow: none;
+  }
+
+  :global(html[data-active-page="map"]) .menuSticker {
+    min-width: 40px;
+    padding: 0;
+    gap: 0;
+    transform: none;
+    clip-path: none;
+  }
+
+  :global(html[data-active-page="map"]) .menuWord {
+    display: none;
+  }
+
+  :global(html[data-active-page="map"]) .menuLines {
+    width: 20px;
+  }
+
+  :global(html[data-active-page="map"]) .menuLines span {
+    height: 3px;
   }
 }

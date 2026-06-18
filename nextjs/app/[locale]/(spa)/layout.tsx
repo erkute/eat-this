@@ -64,12 +64,6 @@ export default async function SPALayout({
       {/* Sanity image CDN only — map/search data flows through same-origin
           /api/map-data, so the browser (almost) never talks to apicdn. */}
       <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
-      {/* Inter is the body font with font-display:optional — without a preload
-          it misses the first-paint window on first visits and the whole session
-          renders the system fallback. latin covers German (umlauts are U+00xx);
-          latin-ext stays lazy. */}
-      <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-
       <link rel="manifest" href="/manifest.json" />
       <link rel="icon" type="image/x-icon" href="/favicon.ico?v=7" />
       <link rel="icon" type="image/png" sizes="192x192" href="/pics/favicon-192.png?v=7" />

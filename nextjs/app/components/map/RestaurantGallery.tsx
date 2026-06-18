@@ -10,9 +10,9 @@ interface Props {
 }
 
 // Horizontal swipe strip of curated Places photos under the detail hero.
-// Tapping a thumb opens the flat, swipeable gallery viewer at that index;
-// per-photo credit shows as a thumb overlay and full-size in the viewer
-// (Places attribution requirement).
+// Tapping a thumb opens the flat, swipeable gallery viewer at that index.
+// Photo attribution stays out of the compact detail strip and appears with
+// the full-size image in the viewer.
 export default function RestaurantGallery({ images, restaurantName }: Props) {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   // Defensive: a broken asset ref yields null thumb/full from GROQ despite
@@ -33,7 +33,6 @@ export default function RestaurantGallery({ images, restaurantName }: Props) {
             onClick={() => setOpenIndex(i)}
           >
             <img src={img.thumb} alt={img.alt ?? restaurantName} loading="lazy" decoding="async" />
-            {img.credit && <span className={styles.rdGalleryCredit} aria-hidden="true">{img.credit}</span>}
           </button>
         ))}
       </div>

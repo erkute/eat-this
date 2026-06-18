@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: 48px 24px;
-  background: var(--surface-canvas, #f7f5f0);
+  background: transparent;
   color: var(--text-primary, #0a0a0a);
 }
 
@@ -16,6 +16,10 @@
   flex-direction: column;
   align-items: center;
   gap: 16px;
+  padding: 42px 32px;
+  background: var(--collage-yellow);
+  box-shadow: var(--collage-shadow);
+  transform: rotate(-1deg);
 }
 
 .eyebrow {
@@ -32,6 +36,8 @@
   font-weight: 900;
   letter-spacing: -0.035em;
   line-height: 1.05;
+  color: var(--collage-red);
+  font-family: var(--font-display);
 }
 
 .packTag {
@@ -71,8 +77,8 @@
   justify-content: center;
   height: 52px;
   padding: 0 32px;
-  border-radius: 999px;
-  background: var(--brand-coral);
+  border-radius: 0;
+  background: var(--collage-red);
   color: #fff;
   font-weight: 800;
   font-size: 16px;

@@ -23,6 +23,8 @@ describe('BuddyWidget', () => {
       </NextIntlClientProvider>,
     )
     expect(html).toMatch(/data-buddy-launcher/)
+    expect(html).toMatch(/Frag/)
+    expect(html).toMatch(/Remy/)
     // panel is not open initially
     expect(html).not.toMatch(/data-buddy-panel="open"/)
   })

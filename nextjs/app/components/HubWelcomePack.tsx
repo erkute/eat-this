@@ -64,7 +64,7 @@ export default function HubWelcomePack() {
             disabled={sending}
             className={styles.signupInput}
           />
-          <button type="submit" disabled={sending} className={styles.signupBtn}>
+          <button type="submit" disabled={sending} className={`${styles.signupBtn} homeCta homeCtaPrimary homeCtaFull`}>
             {sending ? t('sending') : t('signUp')}
           </button>
         </form>

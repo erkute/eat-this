@@ -139,9 +139,28 @@ export default function LoginPanel({ onBack, modal = false, mustEatGate = false 
             <img src="/pics/booster/booster_free.webp" alt="Welcome Pack" width={360} height={490} decoding="async" />
           </div>
 
+          <div className={styles.menuTop}>
+            <span>{t('modals.login.menuTitle')}</span>
+            <span>{t('modals.login.menuPrice')}</span>
+          </div>
           <div className={styles.kicker}>{t('modals.login.kicker')}</div>
           <h1 className={styles.h1}>{t('modals.login.heroH1')}</h1>
           <p className={styles.sub}>{t(mustEatGate ? 'modals.login.mustEatGateSub' : 'modals.login.heroSub')}</p>
+
+          <ul className={styles.menuList} aria-label={t('modals.login.menuTitle')}>
+            <li>
+              <span>{t('modals.login.menuSpotsLabel')}</span>
+              <strong>{t('modals.login.menuSpotsText')}</strong>
+            </li>
+            <li>
+              <span>{t('modals.login.menuMustEatsLabel')}</span>
+              <strong>{t('modals.login.menuMustEatsText')}</strong>
+            </li>
+            <li>
+              <span>{t('modals.login.menuProfileLabel')}</span>
+              <strong>{t('modals.login.menuProfileText')}</strong>
+            </li>
+          </ul>
 
           <form
             className={styles.form}

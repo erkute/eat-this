@@ -58,7 +58,11 @@ export default function HubFragRemy() {
   }, [])
 
   const lead = stage ? stage.lead : t('sub')
-  const answers = stage?.answers ?? []
+  const fallbackAnswers: [string, string] =
+    locale === 'de'
+      ? ['Richtig gute Pizza', 'Schönes Dinner für zwei']
+      : ['Really good pizza', 'A nice dinner for two']
+  const answers = stage?.answers ?? fallbackAnswers
 
   function submitDraft() {
     const q = draft.trim()
@@ -80,7 +84,7 @@ export default function HubFragRemy() {
           <div className={styles.actions}>
             <div className={styles.chips} data-fragremy-chips="">
               {answers.map((a) => (
-                <button key={a} type="button" className={styles.chip} onClick={() => dispatchBuddyAsk({ question: a })}>
+                <button key={a} type="button" className={`${styles.chip} homeCta homeCtaSmall`} onClick={() => dispatchBuddyAsk({ question: a })}>
                   {a}
                 </button>
               ))}
@@ -99,10 +103,8 @@ export default function HubFragRemy() {
                 placeholder={t('inputPlaceholder')}
                 aria-label={t('inputPlaceholder')}
               />
-              <button className={styles.send} type="submit" aria-label={t('sendAria')}>
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
+              <button className={`${styles.send} homeCta homeCtaPrimary homeCtaSmall`} type="submit" aria-label={t('sendAria')}>
+                <span aria-hidden="true">{t('sendAria')}</span>
               </button>
             </form>
           </div>

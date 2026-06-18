@@ -13,6 +13,7 @@ vi.mock('@/lib/firebase/useOwnedEntitlements', () => ({ useOwnedEntitlements: ()
 vi.mock('@/lib/map', () => ({
   useMapData: () => ({ restaurants: [], mustEats: [], revealedMustEatIds: new Set<string>() }),
   useUnlockedMustEats: () => ({ unlockedIds: new Set<string>() }),
+  useFavorites: () => ({ favorites: [] }),
   resolveUnlockedMustEatIds: () => new Set<string>(),
 }))
 vi.mock('@/lib/map/UserLocationContext', () => ({ useUserLocationContext: () => ({ location: null }) }))

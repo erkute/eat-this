@@ -1,20 +1,21 @@
 .section {
-  background: #fbf8ee;
+  background: transparent;
+  padding-top: 42px;
 }
 .heading {
   font-family: var(--font-ranchers);
-  font-size: clamp(34px, 11vw, 44px);
+  font-size: clamp(32px, 9vw, 44px);
   line-height: 1.15;
   text-transform: uppercase;
-  color: var(--text-primary);
-  margin: 36px 16px 18px;
+  color: var(--et-red);
+  margin: 0 18px 18px;
   padding-top: 6px;
 }
 .cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  padding: 0 14px 14px;
+  padding: 0 16px 18px;
   margin: 0;
   list-style: none;
 }
@@ -23,25 +24,23 @@
   display: block;
   position: relative;
   aspect-ratio: 4 / 5;
-  border: 1px solid rgba(10, 10, 10, 0.10);
-  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06);
+  border: 2px solid var(--et-red);
+  border-radius: 8px;
+  box-shadow: none;
   overflow: hidden;
   text-decoration: none;
-  color: #fbf8ee;
+  color: var(--et-yellow);
+  transition: transform .16s ease, box-shadow .16s ease;
 }
-.cardImage { position: absolute; inset: 0; background-color: #14100c; }
+.card:hover { transform: translateY(-4px); box-shadow: none; }
+.cardImage { position: absolute; inset: 0; background-color: var(--et-yellow-bright); }
 .cardImage img { object-fit: cover; }
 .card::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(11, 8, 6, 0.95) 0%,
-    rgba(11, 8, 6, 0.66) 20%,
-    rgba(11, 8, 6, 0.2) 44%,
-    transparent 66%
-  );
+  inset: auto 0 0;
+  height: 46%;
+  background: linear-gradient(180deg, rgba(201, 67, 50, 0), rgba(201, 67, 50, .86));
 }
 .cardBody {
   position: absolute;
@@ -52,38 +51,63 @@
 }
 .cardName {
   font-family: var(--font-ranchers);
-  font-size: 26px;
-  line-height: 1.02;
+  font-size: 24px;
+  line-height: .94;
   text-transform: uppercase;
   margin: 0;
-  text-shadow: 0 2px 8px rgba(0,0,0,.45);
+  color: var(--et-cream);
+  text-shadow: none;
 }
 .cardMeta {
   font-family: var(--font);
   font-size: 10.5px;
   letter-spacing: .16em;
   text-transform: uppercase;
-  color: var(--accent-warm);
+  color: rgba(240, 232, 212, .78);
   margin: 4px 0 0;
   font-weight: 700;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+  text-shadow: none;
 }
 
 /* ── Desktop: centered column, 4-up card grid ── */
 @media (min-width: 720px) {
-  .section { padding-inline: max(14px, calc((100% - 1120px) / 2)); }
-  .heading { margin: 48px 0 22px; font-size: clamp(44px, 5vw, 56px); }
+  .section { padding-inline: max(22px, calc((100% - 1180px) / 2)); }
+  .heading { margin: 0 0 22px; font-size: clamp(40px, 4vw, 54px); }
   .cards {
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     padding: 0 0 28px;
   }
-  .cardName { font-size: 30px; }
+  .cardName { font-size: 27px; }
 }
 
 /* ── Dark mode: dark page, warm-cream ink, red replaces yellow. Photos and
    text-on-photo left untouched. ── */
-html[data-theme="dark"] .section { background: var(--dk-page); }
-html[data-theme="dark"] .heading { color: var(--dk-ink); }
-html[data-theme="dark"] .card { border-color: var(--dk-ink); }
-html[data-theme="dark"] .cardMeta { color: var(--accent-warm); }
+html[data-theme="dark"] .section { background: transparent; }
+html[data-theme="dark"] .heading { color: var(--et-red); }
+html[data-theme="dark"] .card { box-shadow: none; }
+html[data-theme="dark"] .card { border-color: var(--et-red); }
+html[data-theme="dark"] .cardMeta { color: rgba(240, 232, 212, .78); }
+
+.card,
+html[data-theme="dark"] .card {
+  border: 0;
+}
+
+html[data-theme="dark"] .heading {
+  color: var(--et-red-hot);
+}
+html[data-theme="dark"] .card {
+  background: var(--et-dark-card);
+  color: var(--et-cream);
+}
+html[data-theme="dark"] .card::after {
+  height: 58%;
+  background: linear-gradient(180deg, rgba(19, 15, 13, 0), rgba(19, 15, 13, .9));
+}
+html[data-theme="dark"] .cardName {
+  color: var(--et-cream);
+}
+html[data-theme="dark"] .cardMeta {
+  color: rgba(242, 223, 184, .82);
+}

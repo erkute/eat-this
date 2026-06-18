@@ -1,3 +1,11 @@
+@font-face {
+  font-family: 'Providence Sans Pro Regular';
+  src: url('https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3') format('woff2');
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
 /* Design tokens — keep in sync with ../css/style.css */
 :root {
   --black: #000000;
@@ -9,12 +17,24 @@
   --gray-400: #888888;
   --gray-600: #555555;
   /* Single source of truth, aligned to css/style.css's "mono pivot — was coral".
-     Previously #FF3B00 here vs #0a0a0a there: the same var resolved to a
+     Previously #FF3B00 here vs var(--et-black) there: the same var resolved to a
      different value depending on stylesheet load order. No module consumes
-     --orange/--accent (only style.css does, where it always wins as #0a0a0a),
+     --orange/--accent (only style.css does, where it always wins as var(--et-black)),
      so this only removes the pre-stylesheet red flash — no live colour change. */
-  --orange: #0a0a0a;
+  --orange: var(--et-black);
   --darkred: #8B1A1A;
+
+  /* Eat This 2026 image palette:
+     Light = Japanese design-cover yellow + hot poster red.
+     Dark = near-black room + glowing red window. */
+  --et-red: #e43d18;
+  --et-red-hot: #f03608;
+  --et-red-deep: #9f2616;
+  --et-yellow: #e8b626;
+  --et-yellow-bright: #f3c32c;
+  --et-cream: #f2dfb8;
+  --et-black: #100d0f;
+  --et-dark-card: #181112;
 
   /* Brand palette — Bar-Basta inspired. Coral-warm red is the primary brand
      mark (CTAs, eyebrows, accents). Pastel pink + sunny yellow are secondary
@@ -26,50 +46,55 @@
      Keine Grautöne mehr. Cream/Paper bleiben als warm-neutrale Surfaces
      (das ist sticker-paper, kein Grau). Token-Namen unverändert für
      einfachen Rollback. */
-  --brand-coral:      #a02814;                  /* dunklerer Brand-Akzent (war #e35433) */
-  --brand-coral-soft: rgba(160, 40, 20, 0.12);
+  --brand-coral:      var(--et-red);            /* poster-red */
+  --brand-coral-soft: rgba(228, 61, 24, 0.14);
 
-  --c-cream:        #ffffff;                    /* sticker bg — war warmer cream #f3ead4, jetzt rein weiß */
-  --c-paper:        #ffffff;                    /* paper-tint — auch weiß */
-  --c-mustard:      #ffd84a;                    /* mustard yellow — secondary CTA */
-  --c-mustard-deep: #c89e1f;                    /* mustard hover/pressed */
-  --c-coral:        #a02814;                    /* primary action — dunkles Rot */
-  --c-coral-bright: #d63a2a;                    /* Brand-Rot aufgehellt — Text-Akzent auf dunklen Surfaces (Dark Mode ersetzt Gelb durch Rot) */
+  --c-cream:        var(--et-cream);
+  --c-paper:        var(--et-yellow);
+  --c-mustard:      var(--et-yellow-bright);
+  --c-mustard-deep: #c89216;
+  --c-coral:        var(--et-red);
+  --c-coral-bright: var(--et-red-hot);
   --accent-warm:    #ff8b42;                    /* helles Warm-Orange — Bezirk/Kategorie-Label auf Foto-Kacheln (lesbarer als Rot, beide Themes) */
-  --c-green:        #0a0a0a;                    /* multi-direction green → schwarz */
-  --c-black:        #0a0a0a;
+  --c-green:        var(--et-black);                    /* multi-direction green → schwarz */
+  --c-black:        var(--et-black);
   --c-row-rule:     rgba(10, 10, 10, 0.14);
   --brand-pink:       #ffd84a;                  /* re-purposed to yellow (kein pink mehr) */
-  --brand-yellow:     #ffd84a;                  /* yellow alias */
-  --brand-navy:       #0a0a0a;                  /* navy → schwarz */
-  --brand-red:        #a02814;                  /* dunkler Brand-Akzent */
-  --brand-red-hover:  #7e1f0f;
+  --brand-yellow:     var(--et-yellow-bright);  /* yellow alias */
+  --brand-navy:       var(--et-black);                  /* navy → schwarz */
+  --brand-red:        var(--et-red);
+  --brand-red-hover:  var(--et-red-deep);
+  --collage-red:      var(--et-red-hot);
+  --collage-orange:   #ff8b42;
+  --collage-yellow:   var(--et-yellow-bright);
+  --collage-paper:    var(--et-yellow);
+  --collage-ink:      var(--et-red-deep);
+  --collage-shadow:   0 16px 30px rgba(43, 33, 28, 0.18);
 
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font: var(--font-dm-sans), 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-chewy: 'moonblossom-1', 'moonblossom-2', 'moonblossom', 'Providence Sans Pro Regular', sans-serif;
   /* 2026 EAT THIS-direction: ALL display + section-headline tokens collapsed
-     onto Chewy — a rounded, friendly bubble display that replaces Bowlby One
-     sitewide as the brand wordmark family. Section heads read as a
-     continuation of the brand wordmark, not as a separate display type. Chewy
-     ships full Latin-1 glyph coverage (incl. ä ö ü ß), so German headings
-     render natively — no Saira fallback needed for umlauts.
-     Only Schoolbell (--font-chewy), Saira Condensed and Anton are loaded via
-     next/font; the legacy display families (Bungee/Ranchers/Knewave/Slackey/
+     onto Moonblossom sitewide as the brand display family. Section
+     heads read as a continuation of the brand wordmark, not as a separate
+     display type. Moonblossom and FF Providence Sans Pro are served through the Adobe Fonts web
+     project; Saira Condensed and Anton are loaded via next/font. The legacy
+     display families (Bungee/Ranchers/Knewave/Slackey/
      Archivo Black) were removed — their var names resolve via the html:root
-     remap below. Inter stays the body + eyebrow workhorse. */
-  --font-display: var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  /* --font-script/--font-quote: zero consumers; Caveat/Barlow Condensed are
+     remap below. DM Sans stays the body + eyebrow workhorse. */
+  --font-display: var(--font-chewy, 'moonblossom'), sans-serif;
+  /* --font-script/--font-quote: zero consumers; their old dedicated faces are
      no longer loaded, so the tokens carry pure system fallbacks. */
   --font-script:  'Bradley Hand', 'Lucida Handwriting', cursive;
-  --font-marker:  var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  --font-poster:  var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  --font-ranchers: var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  --font-slackey:  var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-marker:  var(--font-chewy, 'moonblossom'), sans-serif;
+  --font-poster:  var(--font-chewy, 'moonblossom'), sans-serif;
+  --font-ranchers: var(--font-chewy, 'moonblossom'), sans-serif;
+  --font-slackey:  var(--font-chewy, 'moonblossom'), sans-serif;
   --font-quote:    'Impact', 'Arial Narrow', sans-serif;
   --radius: 2px;
 
   /* Semantic surface/text tokens — used by the map UI and newer React components.
      Kept theme-agnostic here via [data-theme] overrides below. */
-  --surface-bg:        var(--off-white);
+  --surface-bg:        var(--et-yellow);
   --surface-card:      var(--white);
   --surface-raised:    var(--white);
   --surface-overlay:   rgba(255, 255, 255, 0.95);
@@ -78,8 +103,8 @@
   --text-primary:      var(--black);
   --text-secondary:    var(--gray-600);
   --text-muted:        var(--gray-400);
-  --accent:            var(--orange);
-  --accent-soft:       rgba(255, 59, 0, 0.12);
+  --accent:            var(--et-red);
+  --accent-soft:       rgba(228, 61, 24, 0.14);
   --cta-red:           #b71c1c;
   --shadow-sm:         0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.05);
   --shadow-md:         0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
@@ -89,71 +114,71 @@
      cool-toned --surface-bg used elsewhere. The landing uses these to evoke
      a magazine feel: 9 of 12 sections sit on --surface-canvas, two trust-beats
      get the paper tint, decision-moments (Packs) sit on --surface-deep. */
-  --surface-canvas: #ffffff;        /* Site-„weiß" — neutraler Hellgrauton (Cover2-matched). */
-  --surface-paper:  #dcdcdc;        /* einen Tick tiefer für Kontraste, gleiche Familie */
-  --surface-deep:   #0a0a0a;        /* decision-moment — pure ink, no warm cast */
-  --surface-deep-2: #161616;        /* card surface on --surface-deep */
+  --surface-canvas: var(--et-yellow);
+  --surface-paper:  var(--et-cream);
+  --surface-deep:   var(--et-black);
+  --surface-deep-2: var(--et-dark-card);
 
   /* ── 2026 Editorial accents — black/white/red/yellow pivot ── */
-  --frame-ink:      #0a0a0a;
-  --accent-mustard: #ffd84a;        /* mustard yellow — secondary hero blocks */
-  --accent-coral:   #a02814;        /* dunkles Rot — pull-quote + accent */
-  --accent-ink:     #0a0a0a;
+  --frame-ink:      var(--et-black);
+  --accent-mustard: var(--et-yellow-bright);
+  --accent-coral:   var(--et-red);
+  --accent-ink:     var(--et-black);
 }
 
 /* The Ranchers/Bungee/Knewave/Slackey/Archivo Black font files are no longer
    loaded via next/font — these definitions are what keeps components that
    reference the variable names directly (e.g. the Hub headlines use
-   var(--font-ranchers)) resolving to Chewy. Kept at html:root (specificity
+   var(--font-ranchers)) resolving to Moonblossom. Kept at html:root (specificity
    0,1,1) from the era when next/font's hashed <html> class competed with a
    plain :root re-point; harmless now and still wins any future collision. */
 html:root {
-  --font-ranchers:      var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  --font-bungee:        var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  --font-knewave:       var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  --font-slackey:       var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  --font-archivo-black: var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-ranchers:      var(--font-chewy, 'moonblossom'), sans-serif;
+  --font-bungee:        var(--font-chewy, 'moonblossom'), sans-serif;
+  --font-knewave:       var(--font-chewy, 'moonblossom'), sans-serif;
+  --font-slackey:       var(--font-chewy, 'moonblossom'), sans-serif;
+  --font-archivo-black: var(--font-chewy, 'moonblossom'), sans-serif;
 }
 
 html[data-theme="dark"] {
   --c-row-rule: rgba(240, 232, 208, 0.14);
 
-  --surface-bg:        #0d0d0d;
-  --surface-card:      #1a1a1a;
-  --surface-raised:    #232323;
-  --surface-overlay:   rgba(26, 26, 26, 0.95);
+  --surface-bg:        var(--et-black);
+  --surface-card:      var(--et-dark-card);
+  --surface-raised:    #211416;
+  --surface-overlay:   rgba(16, 13, 15, 0.95);
   --border-subtle:     #2a2a2a;
   --border-strong:     #3a3a3a;
-  --text-primary:      #f5f5f5;
-  --text-secondary:    #c5c5c5;
-  --text-muted:        #8a8a8a;
-  --accent-soft:       rgba(255, 59, 0, 0.22);
+  --text-primary:      var(--et-cream);
+  --text-secondary:    rgba(242, 223, 184, 0.74);
+  --text-muted:        rgba(242, 223, 184, 0.52);
+  --accent-soft:       rgba(240, 54, 8, 0.22);
   --shadow-sm:         0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md:         0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-lg:         0 10px 30px rgba(0, 0, 0, 0.6);
 
   /* Landing surfaces — dark-mode versions stay close-to-black with subtle
      elevation steps so card hierarchy remains readable. */
-  --surface-canvas: #0a0a0a;
-  --surface-paper:  #14141a;
-  --surface-deep:   #050505;
-  --surface-deep-2: #161616;
+  --surface-canvas: var(--et-black);
+  --surface-paper:  #181112;
+  --surface-deep:   #050405;
+  --surface-deep-2: #1f1415;
 }
 
 /* ── Dark-Mode-Designsprache (2026-06-03, User-Entscheidung) ──
    ALLE Seiten folgen dem Dark Mode (vorher waren Hub/News/SEO cream gepinnt).
-   Rezept: Seiten-Bg #111110 · Karten/Raised #1d1c19 · Ink #f0e8d0 ·
+   Rezept: Seiten-Bg var(--et-black) · Karten/Raised #1d1c19 · Ink #f0e8d0 ·
    Sub-Ink rgba(240,232,208,.72) · Hairlines rgba(240,232,208,.3) ·
    Sticker-Borders #f0e8d0 · Akzent ROT statt GELB: Fills var(--c-coral)
-   #a02814 mit #fbf8ee-Text, Text-Akzente var(--c-coral-bright) #d63a2a.
+   #a02814 mit var(--et-yellow)-Text, Text-Akzente var(--c-coral-bright) #d63a2a.
    Header+Footer kippen auf Brand-Rot. Die Umsetzung liegt in den jeweiligen
    CSS-Modulen als additive html[data-theme="dark"]-Blöcke. */
 html[data-theme="dark"] {
-  --dk-page: #111110;
-  --dk-card: #1d1c19;
-  --dk-ink:  #f0e8d0;
-  --dk-sub:  rgba(240, 232, 208, 0.72);
-  --dk-rule: rgba(240, 232, 208, 0.3);
+  --dk-page: var(--et-black);
+  --dk-card: var(--et-dark-card);
+  --dk-ink:  var(--et-cream);
+  --dk-sub:  rgba(242, 223, 184, 0.72);
+  --dk-rule: rgba(242, 223, 184, 0.28);
 }
 
 *,
@@ -194,39 +219,229 @@ html {
   /* Native form controls, scrollbars and autofill follow the active theme
      instead of defaulting to the browser's light UI in dark mode. */
   color-scheme: light;
+  font-synthesis-weight: none;
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  /* Cream universal — matches the SEO-page surface (#fbf8ee) so the side
+  /* Cream universal — matches the SEO-page surface (var(--et-yellow)) so the side
      strips that appear on Desktop when .page is centered with max-width
      blend into the page bg instead of showing grey/white body underneath.
      iOS rubber-band overscroll also picks up cream. */
-  background-color: #fbf8ee;
+  background-color: var(--et-yellow);
 }
 html[data-theme="dark"] {
   /* Dark-Mode-Rollout 2026-06-03: Seiten folgen jetzt wirklich dem Theme —
      Rubber-Band/Side-Strips müssen dunkel sein, nicht cream. */
   color-scheme: dark;
-  background-color: #111110;
+  background-color: var(--et-black);
 }
 
 body {
   font-family: var(--font);
-  background: #fbf8ee;
+  background-color: var(--collage-paper);
+  background-image: none;
+  background-size: auto;
   color: var(--black);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
 }
 html[data-theme="dark"] body {
-  background: #111110;
+  --collage-paper: #17130f;
+  --collage-ink: #f8f1e5;
+  background-color: var(--collage-paper);
+  background-image: none;
+}
+
+html[data-active-page="home"],
+html[data-active-page="start"],
+html[data-active-page="home"] body,
+html[data-active-page="start"] body {
+  --food-ink: #25170f;
+  --food-paper: #fff8ea;
+  --food-cream: #ffeec8;
+  --food-butter: #ffd35a;
+  --food-tomato: #e84a2a;
+  --food-tomato-dark: #a83220;
+  --food-basil: #2f6b42;
+  --food-olive: #7b7d32;
+
+  --et-red: var(--food-tomato);
+  --et-red-hot: #ff5a30;
+  --et-red-deep: var(--food-tomato-dark);
+  --et-yellow: var(--food-cream);
+  --et-yellow-bright: var(--food-butter);
+  --et-cream: var(--food-paper);
+  --et-black: var(--food-ink);
+  --et-dark-card: #ffe7b5;
+  --surface-bg: var(--food-paper);
+  --surface-canvas: var(--food-paper);
+  --surface-paper: var(--food-cream);
+  --accent-coral: var(--food-tomato);
+  --accent-mustard: var(--food-butter);
+  --accent-warm: var(--food-tomato);
+  --c-coral: var(--food-tomato);
+  --c-coral-bright: #ff5a30;
+  --c-mustard: var(--food-butter);
+  --brand-yellow: var(--food-butter);
+  --brand-red: var(--food-tomato);
+  --collage-orange: var(--food-tomato);
+  --collage-yellow: var(--food-butter);
+  --collage-paper: var(--food-paper);
+  --collage-ink: var(--food-ink);
+  --collage-shadow: 0 18px 38px rgba(78, 47, 24, 0.13);
+
+  background-color: var(--food-paper);
+  background-image: none;
+  color-scheme: light;
+}
+
+html[data-theme="dark"][data-active-page="home"],
+html[data-theme="dark"][data-active-page="start"],
+html[data-theme="dark"][data-active-page="home"] body,
+html[data-theme="dark"][data-active-page="start"] body {
+  --food-ink: #fff8ea;
+  --food-paper: #130f0d;
+  --food-cream: #201612;
+  --food-butter: #ffc54d;
+  --food-tomato: #ff5a30;
+  --food-tomato-dark: #ff8a62;
+  --food-basil: #91c78f;
+  --food-olive: #d2c95f;
+
+  --et-red: var(--food-tomato);
+  --et-red-hot: #ff7a52;
+  --et-red-deep: var(--food-tomato-dark);
+  --et-yellow: var(--food-cream);
+  --et-yellow-bright: var(--food-butter);
+  --et-cream: var(--food-ink);
+  --et-black: var(--food-paper);
+  --et-dark-card: #241915;
+  --surface-bg: var(--food-paper);
+  --surface-canvas: var(--food-paper);
+  --surface-paper: var(--food-cream);
+  --accent-coral: var(--food-tomato);
+  --accent-mustard: var(--food-butter);
+  --accent-warm: var(--food-tomato);
+  --c-coral: var(--food-tomato);
+  --c-coral-bright: #ff7a52;
+  --c-mustard: var(--food-butter);
+  --brand-yellow: var(--food-butter);
+  --brand-red: var(--food-tomato);
+  --collage-orange: var(--food-tomato);
+  --collage-yellow: var(--food-butter);
+  --collage-paper: var(--food-paper);
+  --collage-ink: var(--food-ink);
+  --collage-shadow: 0 18px 38px rgba(0, 0, 0, 0.35);
+
+  background-color: var(--food-paper);
+  background-image: none;
+  color-scheme: dark;
 }
 
 /* Hub wrapper surface. The section stack has intentional gaps between some
    sections; without a wrapper background those gaps expose the body, which
    style.css paints with --surface-canvas (#fff) — producing a cream→white seam
    between sections. Fill the hub so the gaps read as the cream page surface. */
-[data-hub] { background: #fbf8ee; }
-html[data-theme="dark"] [data-hub] { background: var(--dk-page, #111110); }
+[data-hub] { background: var(--et-yellow); }
+html[data-theme="dark"] [data-hub] { background: var(--dk-page, var(--et-black)); }
+html[data-active-page="home"] [data-hub],
+html[data-active-page="start"] [data-hub] {
+  background: var(--food-paper);
+}
+html[data-theme="dark"][data-active-page="home"],
+html[data-theme="dark"][data-active-page="start"],
+html[data-theme="dark"][data-active-page="home"] body,
+html[data-theme="dark"][data-active-page="start"] body {
+  --collage-paper: var(--food-paper);
+  --collage-ink: var(--food-ink);
+  background-color: var(--food-paper);
+  color-scheme: dark;
+}
+html[data-theme="dark"][data-active-page="home"] [data-hub],
+html[data-theme="dark"][data-active-page="start"] [data-hub] {
+  background: var(--food-paper);
+}
+
+/* Sitewide Providence collage language. The map remains a purpose-built
+   full-screen tool; every content page gets the paper/print treatment. */
+html:not([data-active-page="map"]) .app-pages,
+html:not([data-active-page="map"]) main,
+html:not([data-active-page="map"]) .app-page {
+  background-color: transparent;
+}
+
+html:not([data-active-page="map"]) main,
+html:not([data-active-page="map"]) .app-page:not([data-page="start"]) {
+  position: relative;
+  isolation: isolate;
+}
+
+html:not([data-active-page="map"]) main::before,
+html:not([data-active-page="map"]) .app-page:not([data-page="start"])::before {
+  content: "EAT THIS / BERLIN";
+  position: absolute;
+  z-index: -1;
+  top: 118px;
+  right: 10px;
+  color: var(--collage-red);
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: .16em;
+  line-height: 1;
+  transform: rotate(90deg);
+  pointer-events: none;
+}
+
+html:not([data-active-page="map"]) main h1,
+html:not([data-active-page="map"]) main h2,
+html:not([data-active-page="map"]) .app-page:not([data-page="start"]) h1,
+html:not([data-active-page="map"]) .app-page:not([data-page="start"]) h2 {
+  color: var(--collage-red);
+  letter-spacing: -.025em;
+}
+
+html:not([data-active-page="map"]) main blockquote,
+html:not([data-active-page="map"]) .app-page:not([data-page="start"]) blockquote {
+  position: relative;
+  background: var(--collage-yellow);
+  color: var(--collage-ink);
+  border: 0;
+  box-shadow: var(--collage-shadow);
+  transform: rotate(-1deg);
+}
+
+html:not([data-active-page="map"]) main blockquote::before,
+html:not([data-active-page="map"]) .app-page:not([data-page="start"]) blockquote::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 82px;
+  height: 20px;
+  background: rgba(255, 255, 255, .62);
+  box-shadow: 0 1px 2px rgba(43, 33, 28, .12);
+  transform: translateX(-50%) rotate(3deg);
+}
+
+html:not([data-active-page="map"]) main article img,
+html:not([data-active-page="map"]) .app-page:not([data-page="start"]) article img {
+  box-shadow: var(--collage-shadow);
+}
+
+html:not([data-active-page="map"]) main button:not([aria-label]),
+html:not([data-active-page="map"]) main a[role="button"],
+html:not([data-active-page="map"]) .app-page:not([data-page="start"]) button:not([aria-label]),
+html:not([data-active-page="map"]) .app-page:not([data-page="start"]) a[role="button"] {
+  border-radius: 0;
+}
+
+@media (min-width: 720px) {
+  html:not([data-active-page="map"]) main::before,
+  html:not([data-active-page="map"]) .app-page:not([data-page="start"])::before {
+    right: 28px;
+    font-size: 13px;
+  }
+}
 
 img {
   max-width: 100%;
@@ -260,6 +475,13 @@ html[data-auth="1"] [data-signup-gift] {
    SSR'd as a static shell so they don't pop in / shift the page once client
    auth resolves. Anyone without the pre-paint flag never sees the shell. */
 html:not([data-auth="1"]) [data-auth-only] {
+  display: none;
+}
+
+/* Logged-out-only Home blocks are SSR'd for everyone for the same reason:
+   the server cannot know auth state. Hide them pre-paint for signed-in
+   visitors once the bootstrap has an auth hint. */
+html[data-auth="1"] [data-guest-only] {
   display: none;
 }
 
@@ -335,7 +557,7 @@ html:not([data-auth="1"]) [data-auth-only] {
     right: 0;
     bottom: 0;
     height: calc(100lvh + 80px - 100dvh);
-    background: #fbf8ee; /* drawer panel cream */
+    background: var(--et-yellow); /* drawer panel cream */
     z-index: 50; /* above the bottom sheet (z 4) */
     opacity: 0;
     pointer-events: none;
@@ -345,7 +567,7 @@ html:not([data-auth="1"]) [data-auth-only] {
     opacity: 1;
   }
   html[data-theme="dark"] .app-page[data-page="map"]::after {
-    background: #111110; /* dark drawer panel */
+    background: var(--et-black); /* dark drawer panel */
   }
 }
 
@@ -385,7 +607,7 @@ html:not([data-auth="1"]) [data-auth-only] {
   left: 50%;
   /* Parked fully below the viewport edge (own height + the 100px offset). */
   transform: translate(-50%, calc(100% + 120px));
-  background: #111110;
+  background: var(--et-black);
   color: #f0e8d0;
   font-family: var(--font-saira-condensed), sans-serif;
   font-weight: 800;
@@ -405,6 +627,101 @@ html:not([data-auth="1"]) [data-auth-only] {
 }
 html[data-theme="dark"] .notification {
   background: #f0e8d0;
-  color: #111110;
+  color: var(--et-black);
 }
 
+/* Compact home actions. Mirrors the final burger-drawer button language, but
+   sized down for section CTAs, chips, pack prices and local controls. */
+.homeCta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  min-width: 0;
+  padding: 9px 16px 10px;
+  border: 1px solid rgba(37, 23, 15, .14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .62);
+  color: var(--et-black);
+  box-shadow: 0 9px 20px rgba(92, 50, 19, .08);
+  font-family: var(--font-poster);
+  font-size: clamp(19px, 2vw, 25px);
+  font-weight: 400;
+  letter-spacing: .01em;
+  line-height: .86;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transform: translateX(0);
+  transition: transform .14s ease, background-color .14s ease, border-color .14s ease, color .14s ease, box-shadow .14s ease;
+}
+
+.homeCta:hover,
+.homeCta:focus-visible {
+  background: var(--et-black);
+  border-color: var(--et-black);
+  color: var(--et-cream);
+  transform: translateX(-5px);
+}
+
+.homeCta:active {
+  transform: translateX(-2px);
+}
+
+.homeCta:disabled,
+.homeCta[aria-disabled="true"] {
+  cursor: progress;
+  opacity: .7;
+  transform: none;
+}
+
+.homeCtaPrimary {
+  background: var(--et-red);
+  border-color: var(--et-red);
+  color: var(--et-cream);
+}
+
+.homeCtaPrimary:hover,
+.homeCtaPrimary:focus-visible {
+  background: var(--et-black);
+  border-color: var(--et-black);
+  color: var(--et-cream);
+}
+
+.homeCtaSmall {
+  min-height: 38px;
+  padding: 8px 13px 9px;
+  font-size: clamp(17px, 1.7vw, 22px);
+}
+
+.homeCtaFull {
+  width: 100%;
+}
+
+html[data-theme="dark"] .homeCta {
+  background: rgba(255, 255, 255, .62);
+  border-color: rgba(37, 23, 15, .14);
+  color: var(--et-black);
+}
+
+html[data-theme="dark"] .homeCta:hover,
+html[data-theme="dark"] .homeCta:focus-visible {
+  background: var(--et-black);
+  border-color: var(--et-black);
+  color: var(--et-cream);
+}
+
+html[data-theme="dark"] .homeCtaPrimary {
+  background: var(--et-red-hot);
+  border-color: var(--et-red-hot);
+  color: var(--et-black);
+}
+
+html[data-theme="dark"] .homeCtaPrimary:hover,
+html[data-theme="dark"] .homeCtaPrimary:focus-visible {
+  background: var(--et-black);
+  border-color: var(--et-black);
+  color: var(--et-cream);
+}

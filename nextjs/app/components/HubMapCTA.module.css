@@ -1,69 +1,28 @@
-/* Yellow chip — used as Hero CTA on hub pages and elsewhere where a
-   single inline yellow call-to-action makes sense. No border-radius,
-   no shadow, Anton caps with tight tracking. */
+/* Shared Home CTA — plain text, no arrow ornament. */
 .ctaChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--yellow, #ffd84a);
-  color: var(--ink, #000);
-  font-family: var(--font-display);
-  font-size: 20px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 14px 20px 15px;
-  border: 0;
-  text-decoration: none;
-  line-height: 1;
-  transition: transform 0.15s ease;
+  white-space: nowrap;
 }
-.ctaChip:hover { transform: translateY(-1px); }
 .ctaChip .subline { display: none; }
 
-/* Block variant — sits inside the Final-CTA dark surface. Same yellow
-   chip aesthetic but larger and with optional subline beneath. */
+/* Block variant — larger and with optional subline beneath. */
 .ctaBlock {
-  display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 4px;
-  background: var(--yellow, #ffd84a);
-  color: var(--ink, #000);
-  font-family: var(--font-display);
-  padding: 16px 22px 17px;
-  border: 0;
-  text-decoration: none;
   line-height: 1.05;
-  transition: transform 0.15s ease;
 }
-.ctaBlock:hover { transform: translateY(-1px); }
 .ctaBlock .title {
-  font-size: 22px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  display: inline;
 }
 .ctaBlock .subline {
-  font-family: var(--f-body, -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif);
+  font-family: var(--f-body, var(--font));
   font-size: 13px;
   letter-spacing: 0.04em;
   text-transform: none;
   font-weight: 500;
-  opacity: 0.78;
 }
-.ctaBlock .arrow { display: none; }
 
 /* Title for chip variant — inline */
 .ctaChip .title {
   display: inline;
-}
-
-.arrow {
-  flex-shrink: 0;
-}
-
-/* ── Dark mode: yellow CTA chips/blocks → brand-red fill with cream label. ── */
-html[data-theme="dark"] .ctaChip,
-html[data-theme="dark"] .ctaBlock {
-  background: var(--c-coral);
-  color: #fbf8ee;
 }

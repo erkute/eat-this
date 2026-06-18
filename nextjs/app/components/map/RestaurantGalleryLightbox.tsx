@@ -129,7 +129,20 @@ function Viewer({
               else if (info.offset.x > SWIPE_THRESHOLD) go(-1)
             }}
           >
-            <img src={img.full} alt={img.alt ?? restaurantName} className={styles.galleryLbImg} draggable={false} />
+            <div className={styles.galleryLbPrint}>
+              <img src={img.full} alt={img.alt ?? restaurantName} className={styles.galleryLbImg} draggable={false} />
+              {img.credit && (
+                <span className={styles.galleryLbCredit}>
+                  {href ? (
+                    <a href={href} target="_blank" rel="noopener noreferrer">
+                      {img.credit}
+                    </a>
+                  ) : (
+                    img.credit
+                  )}
+                </span>
+              )}
+            </div>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -163,17 +176,6 @@ function Viewer({
         </>
       )}
 
-      {img.credit && (
-        <span className={styles.galleryLbCredit} onClick={(e) => e.stopPropagation()}>
-          {href ? (
-            <a href={href} target="_blank" rel="noopener noreferrer">
-              {img.credit}
-            </a>
-          ) : (
-            img.credit
-          )}
-        </span>
-      )}
     </motion.div>
   )
 }

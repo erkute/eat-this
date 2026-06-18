@@ -10,10 +10,6 @@ interface Props {
   categoryNames: Record<string, string>
 }
 
-function formatPrice(amountCents: number): string {
-  return `€${(amountCents / 100).toFixed(2).replace('.', ',')}`
-}
-
 export default function HubPacks({ categoryNames }: Props) {
   const t = useTranslations('hub.packs')
   const loc: 'de' | 'en' = useLocale() === 'de' ? 'de' : 'en'
@@ -39,8 +35,7 @@ export default function HubPacks({ categoryNames }: Props) {
                 {p.description[loc]}
               </p>
               <div className={styles.packFoot}>
-                <span className={styles.packPrice}>{formatPrice(p.amountCents)}</span>
-                <Link href={`/pack/${slug}`} className={styles.packCta}>
+                <Link href={`/pack/${slug}`} className={`${styles.packCta} homeCta homeCtaSmall`}>
                   {t('view')}
                 </Link>
               </div>

@@ -1,187 +1,258 @@
-/* All Berlin — all 9 packs cascade diagonally across the whole section as a
-   backdrop behind the text (mockup .lp-allberlin / .ab-fan). */
 .section {
   position: relative;
+  display: grid;
+  gap: 28px;
+  margin: 0 16px;
+  padding: 30px 22px 34px;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 78% 40%, rgba(255,255,255,.28) 0%, rgba(255,255,255,0) 60%),
-    #0a0a0a;
-  color: #fbf8ee;
-  padding: 40px 22px 38px;
-  min-height: 440px;
-  text-align: left;
+  color: var(--et-red);
+  background: var(--et-yellow-bright);
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 18px 44px rgba(118, 51, 36, .11);
+  isolation: isolate;
 }
-/* diagonal darkening so the text stays legible over the cascade */
-.section::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(98deg, rgba(10,10,10,.62) 0%, rgba(10,10,10,.22) 50%, rgba(10,10,10,0) 100%);
-  z-index: 2;
-  pointer-events: none;
+
+.section::before {
+  content: none;
 }
-.fan {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  /* Nudge the mobile cascade toward the bottom-right. Desktop overrides
-     transform below, so this only affects mobile. */
-  transform: translate(30px, 38px);
+
+.copyBlock {
+  position: relative;
+  z-index: 4;
+  max-width: 540px;
 }
-.fan img {
-  position: absolute;
-  width: auto;
-  transform-origin: 50% 50%;
-  filter: drop-shadow(0 10px 18px rgba(0,0,0,.4));
-}
-.fan img:nth-child(1) { left:  -26px; top:   8px; transform: rotate(-20deg); height: 128px; z-index: 1; }
-.fan img:nth-child(2) { left:   18px; top:  38px; transform: rotate(-13deg); height: 136px; z-index: 2; }
-.fan img:nth-child(3) { left:   60px; top:  68px; transform: rotate(-7deg);  height: 142px; z-index: 3; }
-.fan img:nth-child(4) { left:  102px; top:  98px; transform: rotate(-2deg);  height: 148px; z-index: 4; }
-.fan img:nth-child(5) { left:  144px; top: 128px; transform: rotate(4deg);   height: 152px; z-index: 5; }
-.fan img:nth-child(6) { left:  184px; top: 158px; transform: rotate(10deg);  height: 154px; z-index: 6; }
-.fan img:nth-child(7) { left:  222px; top: 190px; transform: rotate(15deg);  height: 152px; z-index: 7; }
-.fan img:nth-child(8) { left:  256px; top: 222px; transform: rotate(20deg);  height: 146px; z-index: 8; }
-.fan img:nth-child(9) { left:  288px; top: 254px; transform: rotate(25deg);  height: 136px; z-index: 9; }
+
 .kicker {
-  position: relative;
-  z-index: 3;
+  width: max-content;
+  margin: 0 0 12px;
+  padding: 7px 10px 8px;
+  color: var(--et-cream);
+  background: var(--et-red);
   font-family: var(--font-ranchers);
-  font-size: 14px;
-  letter-spacing: .22em;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: .18em;
   text-transform: uppercase;
-  color: var(--brand-yellow);
-  text-shadow: 0 1px 4px rgba(0,0,0,.8);
-  margin: 0 0 6px;
+  transform: none;
 }
+
 .heading {
-  position: relative;
-  z-index: 3;
-  font-family: var(--font-ranchers);
-  font-size: clamp(76px, 26vw, 104px);
-  line-height: .98;
-  text-transform: uppercase;
-  color: #fbf8ee;
   margin: 0;
-  text-shadow: 0 6px 22px rgba(0,0,0,.95), 0 2px 6px rgba(0,0,0,.85);
+  color: var(--et-red);
+  font-family: var(--font-ranchers);
+  font-size: clamp(72px, 23vw, 132px);
+  line-height: .84;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-wrap: balance;
+  text-shadow: none;
 }
+
 .copy {
-  position: relative;
-  z-index: 3;
+  max-width: 42ch;
+  margin: 18px 0 20px;
+  color: rgba(201, 67, 50, .76);
   font-family: var(--font);
   font-size: 15.5px;
+  font-weight: 650;
   line-height: 1.5;
-  max-width: 26ch;
-  color: #fbf8ee;
-  margin: 18px 0 18px;
-  text-shadow: 0 1px 4px rgba(0,0,0,.85), 0 0 12px rgba(0,0,0,.6);
-}
-.copy strong { color: var(--brand-yellow); font-weight: 700; }
-.priceRow {
-  position: relative;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-  font-family: var(--font-ranchers);
-  letter-spacing: .04em;
-  margin: 0;
-}
-.strike {
-  font-size: 16px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  text-decoration: line-through;
-  color: rgba(255,255,255,.6);
-  text-shadow: 0 1px 3px rgba(0,0,0,.7);
-}
-.price {
-  font-size: 24px;
-  color: #fbf8ee;
-  text-shadow: 0 2px 6px rgba(0,0,0,.75);
-  line-height: 1;
-}
-.save {
-  background: var(--brand-yellow);
-  color: #0a0a0a;
-  font-size: 14px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  padding: 5px 10px 6px;
-}
-.cta {
-  position: relative;
-  z-index: 3;
-  margin-top: 18px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  font-family: var(--font-ranchers);
-  font-size: 20px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  background: var(--brand-yellow);
-  color: #0a0a0a;
-  padding: 16px 22px 17px;
-  text-decoration: none;
 }
 
-/* ── Desktop: full-bleed dark band, text left + fan cascade right ── */
+.copy strong {
+  color: var(--et-red);
+  font-weight: 900;
+}
+
+.dealSummary {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+}
+
+.cta {
+  min-height: 58px;
+  width: 100%;
+}
+
+.visual {
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+  margin-top: 0;
+}
+
+.fan {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  pointer-events: none;
+}
+
+.fan img {
+  position: relative;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 12px 18px rgba(118, 51, 36, .16));
+  transform: none;
+}
+
+.fan img:nth-child(n) {
+  left: auto;
+  top: auto;
+  height: auto;
+  transform: none;
+}
+
+.dealCard {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  z-index: 12;
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 16px 16px 15px;
+  color: var(--et-red);
+  background: var(--et-cream);
+  border: 0;
+  border-radius: 8px;
+  box-shadow: none;
+  transform: none;
+}
+
+.dealCard span,
+.dealCard small {
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.dealCard strong {
+  font-family: var(--font-ranchers);
+  font-size: 48px;
+  line-height: .95;
+  color: var(--et-red);
+}
+
+.dealCard small,
+.dealCard .compare {
+  color: rgba(201, 67, 50, .58);
+}
+
+.dealCard .compare {
+  text-decoration: line-through;
+}
+
 @media (min-width: 720px) {
   .section {
+    grid-template-columns: minmax(0, .82fr) minmax(470px, 1.18fr);
+    align-items: center;
+    gap: 48px;
+    width: min(1180px, calc(100% - 44px));
+    margin: 0 auto;
+    padding: 64px clamp(42px, 5vw, 72px);
     min-height: 560px;
-    padding-block: 84px;
-    padding-inline: max(40px, calc((100% - 1120px) / 2));
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
   }
-  .kicker { font-size: 16px; margin-bottom: 10px; }
-  .heading { font-size: clamp(104px, 11vw, 156px); margin: 0 0 6px; }
-  .copy { font-size: 18px; max-width: 42ch; margin: 20px 0 22px; }
-  .priceRow { gap: 18px; }
-  .strike { font-size: 18px; }
-  .price { font-size: 30px; }
-  .save { font-size: 16px; }
+
+  .heading {
+    font-size: clamp(104px, 8.8vw, 150px);
+  }
+
+  .copy {
+    font-size: 18px;
+    margin-top: 22px;
+  }
+
   .cta {
     width: auto;
-    align-self: flex-start;
-    font-size: 22px;
-    padding: 18px 44px 19px;
+    min-width: 276px;
+    font-size: 13px;
+    padding-inline: 36px;
   }
-  /* The fan coordinates live in a 390px design space; pin that box to the
-     right edge of the centered content column, vertically centered, scaled. */
+
+  .visual {
+    min-height: 0;
+    margin-top: 0;
+  }
+
   .fan {
-    inset: auto;
-    top: 50%;
-    right: max(0px, calc((100% - 1120px) / 2));
-    width: 390px;
-    height: 420px;
-    transform: translateY(-50%) scale(1.4);
-    transform-origin: right center;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .dealCard {
+    width: min(100%, 360px);
+    margin: 22px auto 0;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .dealCard strong {
+    font-size: 56px;
   }
 }
 
-@media (min-width: 1080px) {
-  .fan { transform: translateY(-50%) scale(1.62); }
+html[data-theme="dark"] .section {
+  background: var(--et-yellow-bright);
+  color: var(--et-red);
+  box-shadow: 0 18px 44px rgba(118, 51, 36, .11);
 }
 
-/* ── Dark mode: this block is already dark (ink bg / cream text / pack fan) —
-   keep all of that, only flip yellow accents to red. ── */
-html[data-theme="dark"] .kicker { color: var(--c-coral-bright); }
-html[data-theme="dark"] .copy strong { color: var(--c-coral-bright); }
-/* Save badge: yellow fill + ink → red fill + cream label */
-html[data-theme="dark"] .save {
-  background: var(--c-coral);
-  color: #fbf8ee;
+html[data-theme="dark"] .heading {
+  color: var(--et-red);
+  text-shadow: none;
 }
-/* CTA: yellow fill + ink → red fill + cream label */
-html[data-theme="dark"] .cta {
-  background: var(--c-coral);
-  color: #fbf8ee;
+
+html[data-theme="dark"] .copy {
+  color: rgba(201, 67, 50, .76);
+}
+
+html[data-theme="dark"] .copy strong {
+  color: var(--et-red);
+}
+
+html[data-theme="dark"] .dealCard {
+  background: var(--et-cream);
+}
+
+.section,
+.kicker,
+.dealCard,
+html[data-theme="dark"] .section,
+html[data-theme="dark"] .kicker,
+html[data-theme="dark"] .dealCard {
+  border: 0;
+}
+
+html[data-theme="dark"] .section {
+  background: var(--et-black);
+  color: var(--et-red-hot);
+}
+html[data-theme="dark"] .heading,
+html[data-theme="dark"] .copy strong,
+html[data-theme="dark"] .kicker {
+  color: var(--et-red-hot);
+}
+html[data-theme="dark"] .kicker {
+  color: var(--et-black);
+}
+html[data-theme="dark"] .copy {
+  color: rgba(242, 223, 184, .78);
+}
+html[data-theme="dark"] .dealCard {
+  background: var(--et-dark-card);
+  color: var(--et-red-hot);
 }

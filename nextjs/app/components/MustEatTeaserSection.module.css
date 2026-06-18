@@ -1,6 +1,6 @@
 /* MustEatTeaserSection — locked card-back stack on restaurant detail page.
  *
- * Header uses the page display font (Chewy) + Inter body, ink-on-cream, so the
+ * Header uses the page display font (Chewy) + DM Sans body, ink-on-cream, so the
  * section reads as part of the cream/Chewy SEO surface.
  */
 
@@ -62,7 +62,7 @@
 }
 
 .body {
-  font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  font-family: var(--font);
   font-size: 15px;
   line-height: 1.5;
   font-weight: 400;
@@ -171,4 +171,3 @@
      contain fills cleanly without letterboxing. */
   object-fit: contain;
 }
-

@@ -104,7 +104,7 @@ const STAGE_ANSWERS: Record<Locale, Record<Daypart, [string, string]>> = {
     midday: ['Schnelles Mittagessen', 'Lieber in Ruhe hinsetzen'],
     afternoon: ['Kaffee und was Süßes', 'Schon der erste Drink'],
     evening: ['Richtig gute Pizza', 'Schönes Dinner für zwei'],
-    late: ['Bester Döner jetzt', 'Bar, die noch offen hat'],
+    late: ['Beste Döner jetzt', 'Bars, die noch offen haben'],
   },
   en: {
     morning: ['Good coffee nearby', 'A proper breakfast'],

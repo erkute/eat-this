@@ -1,6 +1,6 @@
 /* ──────────────────────────────────────────────────────────────────────
  * PacksSection — Speisekarte redesign (2026-05-17 iteration)
- * Cream canvas, Ranchers display headlines, Inter body, Slackey on buy
+ * Cream canvas, Ranchers display headlines, DM Sans body, Slackey on buy
  * CTAs. Section flow: masthead → Starter Pack row (free, opens login) →
  * All Berlin hero card with 9-pack fan + stats grid + Slackey CTA →
  * Boosterpacks block header + 9 single-category rows with direct buy
@@ -122,7 +122,7 @@
 
 /* ── Comic-sticker buy button ─────────────────────────────────────────
    Red filled, ink border, hard 4px offset shadow. Slackey on the price
-   row (the brand-voice element); Inter caption „Hol dir →" stays clean
+   row (the brand-voice element); DM Sans caption „Hol dir →" stays clean
    small caps for legibility. Free variant (Starter) uses same red but
    the price reads „Gratis" in Slackey — colour identity stays
    consistent across the section. */

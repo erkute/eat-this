@@ -47,7 +47,7 @@ export default function HubBezirke({ districts }: Props) {
               aria-selected={i === active}
               aria-controls={`bz-panel-${d.slug}`}
               tabIndex={i === active ? 0 : -1}
-              className={`${styles.tab} ${d.isFeature ? styles.feat : ''} ${i === active ? styles.active : ''}`}
+              className={`${styles.tab} homeCta homeCtaSmall ${d.isFeature ? styles.feat : ''} ${i === active ? styles.active : ''}`}
               onClick={() => setActive(i)}
               onKeyDown={(e) => onTabKey(e, i)}
             >
@@ -88,7 +88,7 @@ export default function HubBezirke({ districts }: Props) {
               ))}
             </div>
             <div className={styles.foot}>
-              <Link href={`/bezirk/${d.slug}`} className={styles.cta}>
+              <Link href={`/bezirk/${d.slug}`} className={`${styles.cta} homeCta homeCtaPrimary`}>
                 {t('cta', { name: d.name })}
               </Link>
             </div>

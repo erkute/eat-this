@@ -1,69 +1,84 @@
 /* Always-dark statement band — stays ink even in light theme (no theme override). */
 .section {
-  background: #0a0a0a;
-  color: #fbf8ee;
-  border-top: 4px solid var(--brand-yellow, #ffd84a);
-  border-bottom: 4px solid var(--brand-yellow, #ffd84a);
+  background: var(--et-yellow-bright);
+  color: var(--et-red);
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 18px 44px rgba(118, 51, 36, .11);
   padding: 46px 22px 50px;
 }
 .inner { max-width: 1120px; margin: 0 auto; }
 .kicker {
   font-family: var(--font-ranchers);
   letter-spacing: .26em; text-transform: uppercase; font-size: 12px;
-  color: var(--brand-yellow, #ffd84a); margin: 0 0 10px;
+  color: rgba(201, 67, 50, .66); margin: 0 0 10px;
 }
 .heading {
   font-family: var(--font-ranchers);
-  text-transform: uppercase; line-height: .94; letter-spacing: -.01em;
-  font-size: clamp(40px, 11vw, 72px); margin: 0 0 6px; color: #fbf8ee;
+  text-transform: uppercase; line-height: .94; letter-spacing: 0;
+  font-size: clamp(40px, 11vw, 72px); margin: 0 0 6px; color: var(--et-red);
 }
-.lead { font-size: 14px; color: #b8b1a4; margin: 0 0 24px; max-width: 52ch; line-height: 1.5; }
+.lead { font-size: 14px; color: rgba(103, 43, 30, .68); margin: 0 0 24px; max-width: 52ch; line-height: 1.5; }
 
-/* Tab strip — outline pills, horizontally scrollable on mobile. */
-.tabs { display: flex; gap: 10px; overflow-x: auto; padding: 8px 2px 14px; margin: 0 -2px 4px; scrollbar-width: none; }
+/* Tab strip — all district names visible; no hidden horizontal rail. */
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  overflow: visible;
+  padding: 10px 0 18px;
+  margin: 0 0 8px;
+  scrollbar-width: none;
+}
 .tabs::-webkit-scrollbar { display: none; }
 .tab {
-  position: relative; flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px;
-  background: transparent; color: #fbf8ee; border: 1.6px solid #4a443b; border-radius: 0;
-  padding: 10px 16px 11px; cursor: pointer; font-family: var(--font-ranchers);
-  text-transform: uppercase; font-size: 16px; line-height: 1; letter-spacing: .03em; white-space: nowrap;
-  transition: transform .16s cubic-bezier(.34, 1.56, .64, 1), border-color .16s, background .16s, color .16s;
+  position: relative;
+  gap: 6px;
+  min-width: 0;
+  min-height: 46px;
+  padding-inline: 12px;
+  white-space: normal;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
-.tab:hover { border-color: #fbf8ee; transform: translateY(-2px); }
-.tab.active { background: var(--brand-yellow, #ffd84a); border-color: var(--brand-yellow, #ffd84a); color: #0a0a0a; }
-.feat { border-color: var(--c-coral, #ff5a4d); }
-.feat.active { border-color: var(--brand-yellow, #ffd84a); }
+.tab.active {
+  background: var(--et-cream);
+  color: var(--et-red);
+  box-shadow: inset 0 0 0 2px rgba(201, 67, 50, .34);
+}
+.feat { border-color: transparent; }
+.feat.active { border-color: transparent; }
 .featBadge {
-  position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
-  font-size: 8px; letter-spacing: .14em; background: var(--c-coral, #ff5a4d); color: #fff;
-  border-radius: 0; padding: 3px 7px 2px; white-space: nowrap;
+  position: absolute; left: 8px; top: -8px; transform: rotate(-2deg);
+  font-size: 8px; letter-spacing: .14em; background: var(--et-cream); color: var(--et-red);
+  border-radius: 999px; padding: 4px 7px 3px; white-space: nowrap;
+  box-shadow: inset 0 0 0 1px rgba(201, 67, 50, .24);
 }
 
 .panel { padding-top: 14px; }
 .panel[hidden] { display: none; }
-.panelName { font-family: var(--font-ranchers); text-transform: uppercase; font-size: clamp(28px, 7vw, 46px); line-height: 1; margin: 0 0 6px; color: #fbf8ee; }
-.panelTag { font-size: 14px; color: #b8b1a4; line-height: 1.55; margin: 0 0 22px; max-width: 62ch; }
+.panelName { font-family: var(--font-ranchers); text-transform: uppercase; font-size: clamp(28px, 7vw, 46px); line-height: 1; margin: 0 0 6px; color: var(--et-red); }
+.panelTag { font-size: 14px; color: rgba(103, 43, 30, .68); line-height: 1.55; margin: 0 0 22px; max-width: 62ch; }
 
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .tile {
   position: relative; display: block; aspect-ratio: 4 / 5; overflow: hidden;
-  background: #14100c; text-decoration: none; color: #fbf8ee; border-radius: 0;
-  border: 1px solid rgba(251, 248, 238, .10);
+  background: var(--et-yellow-bright); text-decoration: none; color: var(--et-cream); border-radius: 8px;
+  border: 0;
+  box-shadow: 0 14px 30px rgba(118, 51, 36, .13);
 }
 .tileImg { object-fit: cover; transition: transform .5s cubic-bezier(.22, .9, .3, 1); }
 .tile:hover .tileImg { transform: scale(1.06); }
 .tileBody {
   position: absolute; left: 0; right: 0; bottom: 0; padding: 46px 13px 14px;
-  background: linear-gradient(180deg, rgba(10, 8, 6, 0) 0%, rgba(10, 8, 6, .35) 42%, rgba(10, 8, 6, .9) 100%);
+  background: linear-gradient(180deg, rgba(201, 67, 50, 0), rgba(201, 67, 50, .9));
 }
-.tileCat { font-family: var(--font-ranchers); text-transform: uppercase; font-size: 11px; letter-spacing: .1em; margin: 0 0 3px; color: var(--brand-yellow, #ffd84a); }
-.tileName { font-family: var(--font-ranchers); text-transform: uppercase; font-size: 16px; line-height: 1.08; margin: 0; color: #fbf8ee; }
+.tileCat { font-family: var(--font-ranchers); text-transform: uppercase; font-size: 11px; letter-spacing: .1em; margin: 0 0 3px; color: rgba(240, 232, 212, .72); }
+.tileName { font-family: var(--font-ranchers); text-transform: uppercase; font-size: 16px; line-height: 1.08; margin: 0; color: var(--et-cream); }
 
 .foot { margin-top: 24px; }
 .cta {
-  display: inline-block; font-family: var(--font-ranchers); text-transform: uppercase; letter-spacing: .1em;
-  font-size: 13px; text-decoration: none; padding: 12px 18px; border-radius: 0;
-  background: var(--brand-yellow, #ffd84a); color: #0a0a0a;
+  min-height: 44px;
 }
 
 /* Swap motion when a panel is un-hidden — translate only (brand rule: no opacity fades). */
@@ -80,6 +95,77 @@
 @media (min-width: 720px) {
   .section { padding: 56px max(22px, calc((100% - 1120px) / 2)) 64px; }
   .heading { font-size: clamp(56px, 7vw, 84px); }
+  .tabs { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+  .tab { font-size: 17px; padding-inline: 14px; white-space: normal; }
   .grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
   .tileName { font-size: 19px; }
+}
+
+.section,
+.tab,
+.feat,
+.tile {
+  border: 0;
+}
+.tileBody {
+  background: linear-gradient(180deg, rgba(201, 67, 50, 0), rgba(201, 67, 50, .82));
+}
+
+html[data-theme="dark"] .section {
+  background: var(--et-dark-card);
+  color: var(--et-red-hot);
+}
+html[data-theme="dark"] .heading,
+html[data-theme="dark"] .panelName,
+html[data-theme="dark"] .kicker {
+  color: var(--et-red-hot);
+}
+html[data-theme="dark"] .lead,
+html[data-theme="dark"] .panelTag {
+  color: rgba(242, 223, 184, .76);
+}
+html[data-theme="dark"] .tab.active {
+  background: rgba(255, 248, 234, .14);
+  color: var(--et-cream);
+  box-shadow: inset 0 0 0 2px rgba(255, 248, 234, .2);
+}
+html[data-theme="dark"] .tab:hover {
+  background: rgba(255, 248, 234, .12);
+  color: var(--et-cream);
+}
+html[data-theme="dark"] .tile {
+  background: var(--et-dark-card);
+  color: var(--et-cream);
+}
+html[data-theme="dark"] .tileBody {
+  background: linear-gradient(180deg, rgba(19, 15, 13, 0), rgba(19, 15, 13, .88));
+}
+html[data-theme="dark"] .tileCat {
+  color: rgba(255, 248, 234, .7);
+}
+html[data-theme="dark"] .tileName {
+  color: var(--et-cream);
+}
+html[data-theme="dark"] .cta {
+  background: var(--et-red-hot);
+  color: var(--et-black);
+}
+html[data-theme="dark"] .featBadge {
+  background: rgba(255, 248, 234, .14);
+  color: var(--et-cream);
+  box-shadow: inset 0 0 0 1px rgba(255, 248, 234, .2);
+}
+
+.tab.active:global(.homeCta) {
+  background: var(--et-cream) !important;
+  color: var(--et-red) !important;
+  border-color: transparent !important;
+  box-shadow: inset 0 0 0 2px rgba(201, 67, 50, .34) !important;
+}
+
+html[data-theme="dark"] .tab.active:global(.homeCta) {
+  background: rgba(255, 248, 234, .14) !important;
+  color: var(--et-cream) !important;
+  border-color: transparent !important;
+  box-shadow: inset 0 0 0 2px rgba(255, 248, 234, .2) !important;
 }

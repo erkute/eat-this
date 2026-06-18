@@ -21,7 +21,7 @@
   line-height: 0.96;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: #0a0a0a;
+  color: var(--collage-red);
   margin: 4px 0 6px;
 }
 .sub {
@@ -103,7 +103,11 @@
   cursor: pointer;
   display: block;
   width: 100%;
+  transition: transform .18s ease;
 }
+.medish:nth-child(odd) { transform: rotate(-1deg); }
+.medish:nth-child(even) { transform: rotate(1deg); }
+.medish:hover { transform: rotate(0) translateY(-4px); }
 .ph {
   position: relative;
   aspect-ratio: 1539 / 2115;

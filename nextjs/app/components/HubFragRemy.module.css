@@ -4,8 +4,8 @@
    a giant Remy bust bleeding off the corner (head + shoulders, softly faded so
    there's no floating torso). Comic stays yellow-on-ink in dark mode. */
 .section {
-  background: #fbf8ee;
-  padding: 6px 14px 40px;
+  background: transparent;
+  padding: 0 16px 34px;
   /* Anchor target (#hub-fragremy): clear the fixed navbar so the jump lands on
      the Remy card headline, not behind the bar — consistent mobile/desktop. */
   scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
@@ -14,13 +14,18 @@
 .inner {
   position: relative;
   overflow: hidden;
-  border: 3px solid #14100c;
-  border-radius: 28px;
-  background: radial-gradient(120% 135% at 84% 16%, #ffe487 0%, #ffd400 66%, #f4c400 100%);
-  box-shadow: 0 22px 50px rgba(20, 16, 12, 0.16), inset 0 2px 0 rgba(255, 255, 255, 0.4);
-  padding: 30px 24px 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--et-cream);
+  box-shadow: none;
+  padding: 30px 22px 0;
   display: flex;
   flex-direction: column;
+  isolation: isolate;
+}
+
+.inner::before {
+  content: none;
 }
 
 /* ── copy column ── */
@@ -40,11 +45,11 @@
   font-family: var(--font-display);
   text-transform: uppercase;
   color: #14100c;
-  font-size: clamp(46px, 15vw, 64px);
-  line-height: 0.86;
+  font-size: clamp(44px, 13vw, 64px);
+  line-height: 0.9;
   letter-spacing: 0.5px;
   margin: 0 0 14px;
-  text-shadow: 3px 3px 0 rgba(255, 255, 255, 0.55);
+  text-shadow: none;
 }
 .lead {
   font: 600 17px/1.4 var(--font);
@@ -68,18 +73,8 @@
   align-content: flex-start;
 }
 .chip {
-  background: #fff;
-  color: #14100c;
-  border: 2.5px solid #14100c;
-  border-radius: 999px;
-  padding: 10px 17px;
-  font: 700 15px var(--font);
-  cursor: pointer;
-  box-shadow: 2px 2px 0 #14100c;
-  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  justify-content: flex-start;
 }
-.chip:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 #14100c; }
-.chip:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 #14100c; }
 .chatin {
   display: flex;
   gap: 10px;
@@ -88,7 +83,7 @@
 .input {
   flex: 1;
   min-width: 0;
-  border: 2.5px solid #14100c;
+  border: 0;
   border-radius: 14px;
   padding: 13px 16px;
   font: 500 15px var(--font);
@@ -98,20 +93,8 @@
 .input::placeholder { color: #8c857a; }
 .send {
   flex: 0 0 auto;
-  width: 48px;
-  height: 48px;
-  border: 2.5px solid #14100c;
-  border-radius: 14px;
-  background: #a02814;
-  box-shadow: 3px 3px 0 #14100c;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  min-width: 70px;
 }
-.send:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #14100c; }
-.send:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #14100c; }
 .chip:focus-visible,
 .send:focus-visible,
 .input:focus-visible { outline: 2px solid #14100c; outline-offset: 3px; }
@@ -121,18 +104,22 @@
   position: relative;
   z-index: 1;
   align-self: center;
-  width: 340px;
-  height: 250px; /* cover + top anchor → crisp head-and-shoulders bust, cut just above the chest */
-  margin-top: 14px;
-  /* sits flush on the band's bottom border (padding-bottom: 0) → clean, intentional cut */
+  width: min(340px, 92vw);
+  height: 280px;
+  margin-top: 18px;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
 }
 .avatar {
   position: relative;
-  width: 100%;
-  height: 100%;
+  width: 112%;
+  height: 112%;
+  left: -6%;
+  top: 4%;
   transform-origin: 50% 100%;
   animation: remyBob 3.8s ease-in-out infinite;
-  filter: drop-shadow(-5px 6px 12px rgba(20, 16, 12, 0.18));
+  filter: drop-shadow(0 14px 20px rgba(20, 16, 12, 0.20));
 }
 .face,
 .faceOpen {
@@ -159,24 +146,26 @@
 
 /* ── desktop: copy left, giant Remy bleeding off the bottom-right ── */
 @media (min-width: 720px) {
-  .section { padding: 6px max(14px, calc((100% - 1120px) / 2)) 48px; }
+  .section { padding: 6px max(22px, calc((100% - 1180px) / 2)) 56px; }
   .inner {
-    min-height: 400px;
-    padding: 48px 52px 40px;
+    min-height: 390px;
+    padding: 48px 56px 48px;
     justify-content: center;
   }
   .copy { max-width: 600px; }
-  .headline { font-size: clamp(60px, 7vw, 92px); margin-bottom: 18px; }
+  .headline { font-size: clamp(62px, 5.8vw, 86px); margin-bottom: 18px; }
   .lead { font-size: 19px; margin-bottom: 28px; }
   .avatarWrap {
     position: absolute;
-    right: -10px;
-    bottom: -40px; /* reach past the content padding to the band's bottom border */
-    width: 560px;
-    height: 440px; /* larger → head sits higher, crisp bust still cut above the chest */
+    right: 34px;
+    bottom: -26px;
+    width: 420px;
+    height: 390px;
     margin: 0;
     align-self: auto;
+    border-radius: 0;
   }
+  .avatar { width: 116%; height: 116%; left: -8%; top: 5%; }
   .face,
   .faceOpen { object-position: 50% 0%; }
 }
@@ -188,4 +177,108 @@
 }
 
 /* ── dark mode: page follows theme, the yellow band stays ── */
-html[data-theme="dark"] .section { background: var(--dk-page, #15140f); }
+html[data-theme="dark"] .section { background: transparent; }
+
+/* Slice-inspired home refresh */
+.inner {
+  background: var(--et-yellow-bright);
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 18px 44px rgba(118, 51, 36, .11);
+}
+.kicker,
+.headline,
+.lead {
+  color: var(--et-red);
+}
+.chip {
+  border-radius: 8px;
+}
+.input {
+  border: 0;
+  border-radius: 14px;
+  background: var(--et-cream);
+  color: var(--et-red);
+}
+.send {
+  border-radius: 8px;
+}
+.chip:focus-visible,
+.send:focus-visible,
+.input:focus-visible { outline-color: var(--et-red); }
+
+html[data-theme="dark"] .inner {
+  background: var(--et-cream);
+  border-color: transparent;
+}
+html[data-theme="dark"] .kicker,
+html[data-theme="dark"] .headline,
+html[data-theme="dark"] .lead {
+  color: var(--et-red);
+}
+html[data-theme="dark"] .chip,
+html[data-theme="dark"] .input {
+  border-color: var(--et-red);
+}
+html[data-theme="dark"] .send {
+  background: var(--et-red);
+  border-color: var(--et-red);
+}
+
+.inner,
+.chip,
+.input,
+.send,
+html[data-theme="dark"] .inner,
+html[data-theme="dark"] .chip,
+html[data-theme="dark"] .input,
+html[data-theme="dark"] .send {
+  background-image: none;
+  border: 0;
+}
+
+html[data-theme="dark"] .inner {
+  background: var(--et-black);
+}
+html[data-theme="dark"] .kicker,
+html[data-theme="dark"] .headline {
+  color: var(--et-red-hot);
+}
+html[data-theme="dark"] .lead {
+  color: rgba(242, 223, 184, .78);
+}
+html[data-theme="dark"] .chip,
+html[data-theme="dark"] .input {
+  background: var(--et-dark-card);
+  color: var(--et-cream);
+}
+html[data-theme="dark"] .send {
+  background: var(--et-red-hot);
+  color: var(--et-black);
+}
+
+html[data-theme="dark"] .chip:global(.homeCta) {
+  background: rgba(255, 248, 234, .10) !important;
+  color: var(--et-cream) !important;
+  border: 1px solid rgba(255, 248, 234, .18) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] .chip:global(.homeCta):hover,
+html[data-theme="dark"] .chip:global(.homeCta):focus-visible {
+  background: var(--et-red-hot) !important;
+  color: var(--et-black) !important;
+  border-color: var(--et-red-hot) !important;
+  transform: translateY(-2px) !important;
+}
+
+html[data-theme="dark"] .send:global(.homeCta) {
+  background: var(--et-red-hot) !important;
+  color: var(--et-black) !important;
+  border: 1px solid var(--et-red-hot) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] .input::placeholder {
+  color: rgba(242, 223, 184, .58);
+}

@@ -130,6 +130,11 @@ export default function BurgerDrawer() {
           <nav className="bd-nav" aria-label="Primary">
             <Link href="/" className="bd-nav-item">{t('burger.home')}</Link>
             <Link href="/map" className="bd-nav-item">{t('burger.map')}</Link>
+            {/* Profile/login is a primary action, not footer furniture. Keep it
+                high in the stack so signed-in users can reach their deck fast. */}
+            <button type="button" className="bd-nav-item bd-cta" id="loginBtn" onClick={handleLoginBtn} suppressHydrationWarning>
+              <span suppressHydrationWarning>{user ? t('burger.profile') : t('burger.signIn')}</span>
+            </button>
             <Link href="/must-eats" className="bd-nav-item">{t('burger.mustEats')}</Link>
             {/* Remy lives only on the home hub now (no corner launcher elsewhere),
                 so the burger is the way to reach him from any page — scrolls to
@@ -138,12 +143,6 @@ export default function BurgerDrawer() {
             <Link href="/news" className="bd-nav-item">{t('burger.aufDemTeller')}</Link>
             <Link href="/#hub-packs" className="bd-nav-item">{t('burger.boosterPacks')}</Link>
             <Link href="/about" className="bd-nav-item">{t('burger.about')}</Link>
-            {/* Pre-hydration bootstrap in [locale]/layout.tsx may set .logged-in
-                + username from _authHint, and BridgeAuth overwrites the span on
-                auth state change. Suppress hydration warnings on both. */}
-            <button type="button" className="bd-nav-item bd-cta" id="loginBtn" onClick={handleLoginBtn} suppressHydrationWarning>
-              <span suppressHydrationWarning>{t('burger.signIn')}</span>
-            </button>
           </nav>
 
           <div className="bd-foot">

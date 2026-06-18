@@ -77,49 +77,71 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaur
           {t('collectedCount', { x: unlocked.length, y: ownedMustEats.length })}
         </p>
       )}
-      <div className={styles.meGrid}>
-        {unlocked.map((m) => (
-          <button
-            key={m._id}
-            type="button"
-            className={`${styles.me} ${styles.meBtn}`}
-            style={{ visibility: hiddenId === m._id ? 'hidden' : undefined }}
-            onClick={(e) => {
-              setHiddenId(m._id);
-              setExpanded({ imageUrl: m.image ?? '', alt: m.dish ?? '', rect: e.currentTarget.getBoundingClientRect(), id: m._id });
-            }}
-          >
-            <div className={styles.mePh}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={m.image} alt={m.dish ?? ''} loading="lazy" />
-            </div>
-          </button>
-        ))}
-        {locked.map((m) => {
-          // Covered card → its spot on the map. Prefer the restaurant detail
-          // (?r=) so you land ON the restaurant; fall back to the must-eat
-          // deep-link if the slug is missing.
-          const href = m.restaurant.slug ? `/map?r=${m.restaurant.slug}` : `/map?me=${m._id}`;
-          return (
-            <Link
-              key={m._id}
-              href={href}
-              rel="nofollow"
-              className={`${styles.me} ${styles.meLocked}`}
-              style={{ textDecoration: 'none', color: 'inherit' }}
-            >
-              <div className={styles.mePh}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/pics/card-back.webp?v=6" alt={tCovered('covered')} loading="lazy" />
+      {ownedMustEats.length === 0 ? (
+        <div className={styles.empty}>
+          <p className={styles.emptyLine}>{t('emptyMustEats')}</p>
+          <Link href="/#hub-packs" className={styles.emptyCta}>{t('packsCta')}</Link>
+        </div>
+      ) : (
+        <div className={styles.meDeck}>
+          {unlocked.length > 0 && (
+            <section className={styles.meGroup}>
+              <h3 className={styles.meGroupTitle}>{t('revealedSubhead')}</h3>
+              <div className={`${styles.meGrid} ${styles.meGridOpen}`}>
+                {unlocked.map((m) => (
+                  <button
+                    key={m._id}
+                    type="button"
+                    className={`${styles.me} ${styles.meBtn}`}
+                    style={{ visibility: hiddenId === m._id ? 'hidden' : undefined }}
+                    onClick={(e) => {
+                      setHiddenId(m._id);
+                      setExpanded({ imageUrl: m.image ?? '', alt: m.dish ?? '', rect: e.currentTarget.getBoundingClientRect(), id: m._id });
+                    }}
+                  >
+                    <div className={styles.mePh}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={m.image} alt={m.dish ?? ''} loading="lazy" />
+                    </div>
+                  </button>
+                ))}
               </div>
-              <div className={styles.meLabel}>
-                <h4 className={styles.meName}>{tCovered('covered')}</h4>
-                <div className={styles.meRest}>{m.restaurant.name}</div>
+            </section>
+          )}
+
+          {locked.length > 0 && (
+            <section className={styles.meGroup}>
+              <h3 className={styles.meGroupTitle}>{t('lockedSubhead')}</h3>
+              <div className={`${styles.meGrid} ${styles.meGridLocked}`}>
+                {locked.map((m) => {
+                  // Covered card → its spot on the map. Prefer the restaurant detail
+                  // (?r=) so you land ON the restaurant; fall back to the must-eat
+                  // deep-link if the slug is missing.
+                  const href = m.restaurant.slug ? `/map?r=${m.restaurant.slug}` : `/map?me=${m._id}`;
+                  return (
+                    <Link
+                      key={m._id}
+                      href={href}
+                      rel="nofollow"
+                      className={`${styles.me} ${styles.meLocked}`}
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      <div className={styles.mePh}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/pics/card-back.webp?v=6" alt={tCovered('covered')} loading="lazy" />
+                      </div>
+                      <div className={styles.meLabel}>
+                        <h4 className={styles.meName}>{tCovered('covered')}</h4>
+                        <div className={styles.meRest}>{m.restaurant.name}</div>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
-            </Link>
-          );
-        })}
-      </div>
+            </section>
+          )}
+        </div>
+      )}
 
       <MustEatImageLightbox
         imageUrl={expanded?.imageUrl ?? ''}

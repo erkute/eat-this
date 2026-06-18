@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { setRequestLocale, getMessages } from 'next-intl/server';
-import { Schoolbell, Saira_Condensed, Anton } from 'next/font/google';
+import { DM_Sans, Saira_Condensed, Anton } from 'next/font/google';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
 import ReferralToastListener from '@/app/components/ReferralToastListener';
@@ -11,20 +11,10 @@ import AnalyticsPageViews from '@/app/components/AnalyticsPageViews';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { SITE_URL } from '@/lib/constants';
 
-// Chewy — rounded, friendly bubble display. The 2026 EAT THIS brand display
-// font, replacing Bowlby One sitewide. Full Latin-1 glyph coverage incl.
-// German umlauts (ä ö ü ß) and accented Latin, so it carries every German
-// heading natively. Used as the universal display font so every section
-// reads as one EAT THIS poster.
-// NOTE: variable kept as `--font-chewy` for now so the downstream aliases
-// (--font-display / --font-poster) and direct var(--font-chewy) refs pick up
-// Schoolbell without touching every file. Rename to --font-schoolbell once the
-// font is signed off.
-const schoolbell = Schoolbell({
-  weight: '400',
+const dmSans = DM_Sans({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-chewy',
+  variable: '--font-dm-sans',
 });
 // Saira Condensed — heavy condensed grotesque used as the editorial-poster
 // display font for the Map list rows + Detail v13. Drives the BAR BASTA-
@@ -120,8 +110,9 @@ export default async function LocaleLayout({
 
   return (
     // suppressHydrationWarning: critical script mutates data-theme before hydration
-    <html lang={locale} data-scroll-behavior="smooth" className={`${schoolbell.variable} ${sairaCondensed.variable} ${anton.variable}`} suppressHydrationWarning>
+    <html lang={locale} data-scroll-behavior="smooth" className={`${dmSans.variable} ${sairaCondensed.variable} ${anton.variable}`} suppressHydrationWarning>
       <head>
+        <link rel="stylesheet" href="https://use.typekit.net/kgb1lmh.css" />
         {/* Safe: hardcoded constant, no user input */}
         <script dangerouslySetInnerHTML={{ __html: CRITICAL_BOOTSTRAP }} />
         <script

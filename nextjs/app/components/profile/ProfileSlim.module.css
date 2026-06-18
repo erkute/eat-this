@@ -1,18 +1,18 @@
 /* ══════════════════════════════════════════════
    PROFILE — slim (mockup-chewy screens 15/16)
-   Single cream scroll: head · saved spots · collected must-eats · packs ·
-   logout · footer. No tabs. Chewy display, ink hairlines, yellow accents.
+   Account hub: head · command card · tabs · active collection.
    Freigestellt must-eat cards float flat — NO drop-shadow (brand rule).
    ══════════════════════════════════════════════ */
 
 .page {
-  background: #fbf8ee;
+  background: linear-gradient(180deg, #fff 0%, #f7f4ec 100%);
   min-height: 100vh;
   /* Clear the fixed 64px navbar (SiteNav) — this route has its own layout, not
      the SPA's .app-pages offset. Mirror the SPA's expression so the staging
      banner (--staging-banner-h: 32px on staging, 0 on prod) is accounted for
      too, otherwise the banner pushes the navbar down onto the profile head. */
-  padding-top: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
+  padding-top: calc(74px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
+  padding-bottom: 24px;
 }
 
 /* Loading spinner (auth gate) */
@@ -39,8 +39,11 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 22px 18px 18px;
+  padding: 24px 18px 20px;
   border-bottom: 2px solid #0a0a0a;
+  background:
+    linear-gradient(96deg, var(--collage-yellow) 0%, #ffe06c 62%, #f0b91a 100%);
+  background-size: 100% 100%;
 }
 .avatar {
   width: 78px;
@@ -75,7 +78,7 @@
   font-family: var(--font-poster);
   font-size: 28px;
   line-height: 1;
-  color: #0a0a0a;
+  color: var(--collage-red);
   text-transform: uppercase;
   margin: 2px 0 4px;
   overflow: hidden;
@@ -91,16 +94,140 @@
   white-space: nowrap;
 }
 
+.heroCard {
+  display: none;
+}
+
+.command {
+  margin: 16px 14px 12px;
+  padding: 18px 18px 16px;
+  background: #fff;
+  border: 2px solid #0a0a0a;
+  border-radius: 22px;
+  transform: rotate(-.6deg);
+}
+
+.commandKicker {
+  font-family: var(--font-poster);
+  font-size: 11px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--collage-red);
+  margin: 0 0 6px;
+}
+
+.commandTitle {
+  font-family: var(--font-poster);
+  font-size: clamp(31px, 9vw, 54px);
+  line-height: .92;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 0 0 14px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.stat {
+  min-height: 74px;
+  padding: 12px 12px 10px;
+  background: #0a0a0a;
+  color: #fff;
+  border-radius: 16px;
+}
+
+.stat:nth-child(2) {
+  background: var(--collage-red);
+}
+
+.stat strong {
+  display: block;
+  font-family: var(--font-poster);
+  font-size: 30px;
+  line-height: .9;
+  letter-spacing: .02em;
+}
+
+.stat span {
+  display: block;
+  margin-top: 6px;
+  font-size: 10px;
+  line-height: 1.15;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.tabs {
+  position: sticky;
+  top: calc(74px + var(--staging-banner-h, 0px));
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  padding: 10px 14px 12px;
+  background: rgba(255, 255, 255, .92);
+  border-bottom: 2px solid rgba(10, 10, 10, .12);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+  backdrop-filter: blur(12px) saturate(1.1);
+}
+
+.tab {
+  min-height: 44px;
+  border: 2px solid #0a0a0a;
+  border-radius: 999px;
+  background: #fff;
+  color: #0a0a0a;
+  font-family: var(--font-poster);
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transform: rotate(-1.5deg);
+  transition: transform .16s cubic-bezier(.34, 1.56, .64, 1), background-color .16s, color .16s;
+}
+
+.tab:nth-child(2) { transform: rotate(1.4deg); }
+.tab:nth-child(3) { transform: rotate(-.6deg); }
+
+.tabActive {
+  background: var(--collage-red);
+  color: #fff;
+}
+
+.tab:hover {
+  transform: translateY(-2px) rotate(0deg);
+}
+
+.tabPanel {
+  padding-top: 8px;
+}
+
+.tabPanel[hidden] {
+  display: none;
+}
+
+.tabPanel:not([hidden]) {
+  animation: profilePanelIn .22s cubic-bezier(.22, .9, .3, 1);
+}
+
+@keyframes profilePanelIn {
+  from { transform: translateY(18px); }
+}
+
 /* ── Section heading ── */
 .section {
-  padding: 18px 18px 8px;
+  padding: 18px 18px 10px;
 }
 .sectionHeading {
   font-family: var(--font-poster);
-  font-size: 36px;
+  font-size: clamp(34px, 9vw, 52px);
   line-height: 0.96;
   text-transform: uppercase;
-  color: #0a0a0a;
+  color: var(--collage-red);
   margin: 0;
 }
 
@@ -116,6 +243,8 @@
 }
 /* Remove-from-saved button, top-right over the photo. */
 .spotRemove {
+  background: #fff;
+  color: #ef3108;
   position: absolute;
   top: 8px;
   right: 8px;
@@ -125,28 +254,40 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(10, 10, 10, 0.72);
-  color: #fbf8ee;
-  border: 1.5px solid rgba(251, 248, 238, 0.5);
+  background: var(--collage-red);
+  color: #fff;
+  border: 2px solid #fff;
+  box-shadow: 3px 3px 0 #0a0a0a;
   border-radius: 0;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   transition: background 0.15s;
 }
 .spotRemove:hover,
 .spotRemove:active {
   background: var(--c-coral, #a02814);
 }
+.spotRemove {
+  border: 0;
+  box-shadow: none;
+  clip-path: polygon(5% 9%, 95% 0, 100% 89%, 10% 100%);
+  transform: rotate(5deg);
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, .32));
+}
 .spotCard {
   position: relative;
   display: block;
   aspect-ratio: 16 / 10;
-  border: 2px solid #0a0a0a;
+  border: 9px solid #fff;
+  box-shadow: none;
   overflow: hidden;
   text-decoration: none;
+  border-radius: 18px;
 }
+.spotCardWrap:nth-child(odd) { transform: rotate(-.8deg); }
+.spotCardWrap:nth-child(even) { transform: rotate(.8deg); }
 .spotImg {
   position: absolute;
   inset: 0;
@@ -215,8 +356,9 @@
 .explainer {
   margin: 4px 16px 14px;
   padding: 14px 16px 16px;
-  background: #fbf8ee;
-  border-left: 4px solid var(--brand-yellow);
+  background: #fff;
+  border: 2px solid #0a0a0a;
+  border-radius: 18px;
   display: grid;
   gap: 4px;
 }
@@ -248,18 +390,49 @@
 }
 
 /* ── Collected must-eats grid ── */
+.meDeck {
+  display: grid;
+  gap: 16px;
+}
+
+.meGroup {
+  margin: 0 14px 0;
+  padding: 14px 0 4px;
+  background: #fff;
+  border: 2px solid #0a0a0a;
+  border-radius: 22px;
+}
+
+.meGroupTitle {
+  font-family: var(--font-poster);
+  font-size: 22px;
+  line-height: .96;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  margin: 0 14px 12px;
+}
+
 .meGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  padding: 0 14px 14px;
+  padding: 0 12px 12px;
+}
+
+.meGridOpen {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.meGridLocked {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 .me {
   position: relative;
   display: grid;
   grid-template-rows: 1fr auto;
   gap: 6px;
-  padding: 6px 4px 10px;
+  padding: 0 2px 8px;
 }
 /* Unlocked cards are tappable — open the deck-style fly-out lightbox. */
 .meBtn {
@@ -282,7 +455,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: 14px;
 }
 /* Fill the fixed card box so every card is the SAME size — `width/height:auto`
    rendered each image at its natural size, which made them uneven. The art is
@@ -301,23 +474,24 @@
 .meLocked .meLabel {
   display: grid;
   gap: 2px;
-  padding: 0 4px;
-  min-height: 46px;
+  padding: 0 2px;
+  min-height: 44px;
   align-content: start;
   text-align: center;
 }
 .meName {
   font-family: var(--font-poster);
-  font-size: 16px;
-  letter-spacing: 0.18em;
+  font-size: 13px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #0a0a0a;
   opacity: 0.55;
   margin: 0;
 }
 .meRest {
-  font-size: 11px;
-  letter-spacing: 0.14em;
+  font-size: 9.5px;
+  line-height: 1.15;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   color: #0a0a0a;
   opacity: 0.85;
@@ -393,10 +567,13 @@
 /* Desktop — center the column, the page is a standalone scroll (not a sheet). */
 @media (min-width: 720px) {
   .head,
+  .command,
+  .tabs,
+  .tabPanel,
   .section,
   .spotsCards,
   .meCount,
-  .meGrid,
+  .meDeck,
   .explainer,
   .empty,
   .packs,
@@ -406,9 +583,78 @@
     margin-left: auto;
     margin-right: auto;
   }
+
+  .page {
+    padding-top: calc(90px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
+  }
+
+  .head {
+    border: 2px solid #0a0a0a;
+    border-radius: 30px;
+    margin-top: 22px;
+    padding: 26px 24px;
+  }
+
+  .avatar {
+    width: 94px;
+    height: 94px;
+    border-radius: 22px;
+  }
+
+  .name {
+    font-size: 42px;
+  }
+
+  .heroCard {
+    display: grid;
+    align-content: center;
+    gap: 5px;
+    width: 172px;
+    min-height: 84px;
+    padding: 16px;
+    background: #fff;
+    border: 2px solid #0a0a0a;
+    border-radius: 20px;
+    transform: rotate(2deg);
+  }
+
+  .heroCard span {
+    font-size: 10px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+  }
+
+  .heroCard strong {
+    font-family: var(--font-poster);
+    font-size: 24px;
+    line-height: .9;
+    text-transform: uppercase;
+  }
+
+  .tabs {
+    top: 74px;
+    border: 2px solid rgba(10, 10, 10, .12);
+    border-radius: 999px;
+    margin-top: 14px;
+  }
+
   .meGrid {
     grid-template-columns: repeat(3, 1fr);
   }
+
+  .meGridOpen {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .meGridLocked {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .meGroup {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
   /* Saved spots: two cards side by side — a full-column 16:10 card read
      oversized on desktop (User 2026-06-05). */
   .spotsCards {
@@ -422,7 +668,7 @@
    Append-only; light mode above stays pixel-identical.
    ══════════════════════════════════════════════ */
 html[data-theme="dark"] .page {
-  background: #111110;
+  background: linear-gradient(180deg, #111110 0%, #050505 100%);
 }
 
 html[data-theme="dark"] .spinner {
@@ -433,15 +679,52 @@ html[data-theme="dark"] .spinner {
 /* ── Head ── */
 html[data-theme="dark"] .head {
   border-bottom-color: #f0e8d0;
+  background:
+    linear-gradient(96deg, #7f2111 0%, #a02814 68%, #c33416 100%);
 }
 html[data-theme="dark"] .avatar {
   background: #1d1c19;
   border-color: #f0e8d0;
 }
 html[data-theme="dark"] .kicker,
-html[data-theme="dark"] .name,
 html[data-theme="dark"] .email {
   color: #f0e8d0;
+}
+
+html[data-theme="dark"] .name {
+  color: #fff;
+}
+
+html[data-theme="dark"] .heroCard,
+html[data-theme="dark"] .command,
+html[data-theme="dark"] .stat,
+html[data-theme="dark"] .tabs,
+html[data-theme="dark"] .tab,
+html[data-theme="dark"] .meGroup {
+  border-color: #f0e8d0;
+}
+
+html[data-theme="dark"] .heroCard,
+html[data-theme="dark"] .command,
+html[data-theme="dark"] .tab,
+html[data-theme="dark"] .meGroup {
+  background: #1d1c19;
+  color: #f0e8d0;
+}
+
+html[data-theme="dark"] .commandTitle,
+html[data-theme="dark"] .meGroupTitle {
+  color: #f0e8d0;
+}
+
+html[data-theme="dark"] .tabs {
+  background: rgba(17, 17, 16, .9);
+  border-bottom-color: rgba(240, 232, 208, .18);
+}
+
+html[data-theme="dark"] .tabActive {
+  background: #f0e8d0;
+  color: #0a0a0a;
 }
 
 /* ── Section heading ── */
@@ -470,7 +753,7 @@ html[data-theme="dark"] .emptyCta {
 /* ── Must-eat explainer ── */
 html[data-theme="dark"] .explainer {
   background: #1d1c19;
-  border-left-color: var(--c-coral);
+  border-color: #f0e8d0;
 }
 html[data-theme="dark"] .explainerKicker,
 html[data-theme="dark"] .explainerLine,

@@ -5,6 +5,7 @@ import { AppRouterContext } from 'next/dist/shared/lib/app-router-context.shared
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import type { MapMustEat } from '@/lib/types'
+import { translations } from '@/lib/i18n/translations'
 
 // The island pulls in Firebase/auth + browser-only map context. Stub the hooks
 // so the component renders in its pre-mount state (initialMapData, all
@@ -64,7 +65,7 @@ const routerStub = {
 function render(initialMapData: InitialMapData, locale: 'de' | 'en' = 'de') {
   return renderToStaticMarkup(
     <AppRouterContext.Provider value={routerStub}>
-      <NextIntlClientProvider locale={locale} messages={{}}>
+      <NextIntlClientProvider locale={locale} messages={translations[locale]} timeZone="Europe/Berlin">
         <HubMustEatsTeaser initialMapData={initialMapData} />
       </NextIntlClientProvider>
     </AppRouterContext.Provider>,
@@ -72,29 +73,27 @@ function render(initialMapData: InitialMapData, locale: 'de' | 'en' = 'de') {
 }
 
 describe('HubMustEatsTeaser', () => {
-  // messages={{}} → next-intl echoes the key, which is enough to prove the
-  // title/sub/cta are wired to the right i18n keys.
-  it('renders the title + sub via the mustEats teaser keys', () => {
+  it('renders the title + sub via the mustEats teaser translations', () => {
     const html = render(dataRevealed([me()]))
-    expect(html).toContain('mustEats.teaserTitle')
-    expect(html).toContain('mustEats.teaserSub')
-    expect(html).toContain('mustEats.teaserCta')
+    expect(html).toContain(translations.de.mustEats.teaserTitle)
+    expect(html).toContain(translations.de.mustEats.teaserSub)
+    expect(html).toContain(translations.de.mustEats.teaserCta)
   })
 
-  it('points the CTA at the standalone /must-eats page', () => {
+  it('points the CTA at the map must-eats flow', () => {
     const html = render(dataRevealed([me()]))
-    expect(html).toMatch(/href="\/must-eats"/)
+    expect(html).toMatch(/href="\/map"/)
   })
 
   it('locale-prefixes the CTA for en', () => {
     const html = render(dataRevealed([me()]), 'en')
-    expect(html).toMatch(/href="\/en\/must-eats"/)
+    expect(html).toMatch(/href="\/en\/map"/)
   })
 
-  it('renders face-up cards with the card back as the reverse side', () => {
+  it('renders face-up cards with their must-eat image', () => {
     const html = render(dataRevealed([me()]))
     expect(html).toContain('cdn.sanity.io')
-    expect(html).toContain('/pics/card-back.webp?v=6')
+    expect(html).toContain('Smash Burger')
   })
 
   it('renders nothing when no card is face-up', () => {

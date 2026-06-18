@@ -25,7 +25,8 @@ describe('HubAllBerlin', () => {
   })
   it('renders a direct checkout CTA instead of linking to the detail page', () => {
     const html = render()
-    expect(html).toContain('All Berlin kaufen · €20,00')
+    expect(html).toContain('Kaufen')
+    expect(html).toContain('aria-hidden="true">€20,00')
     expect(html).not.toMatch(/href="[^"]*\/pack\/all-berlin"/)
   })
 })

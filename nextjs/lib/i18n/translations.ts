@@ -688,6 +688,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onbNext: "Weiter",
     onbStart: "Los geht's",
     onbClose: "Schließen",
+    teaserTitle: "Must Eats",
     teaserSub: "Die Gerichte, die du nicht verpassen darfst.",
     teaserCta: "Must Eats öffnen",
   },

@@ -200,7 +200,7 @@
 
 .item4 {
   left: 7%;
-  top: 43%;
+  top: 39%;
   z-index: 5;
   width: clamp(168px, 18vw, 258px);
   transform: rotate(4deg);
@@ -259,10 +259,10 @@
 }
 
 .item8 {
-  left: 0;
+  left: 20%;
   bottom: 2%;
   z-index: 3;
-  width: clamp(142px, 16vw, 230px);
+  width: clamp(132px, 14vw, 212px);
   transform: rotate(-5deg);
   --label-left: 55%;
   --label-bottom: 0%;

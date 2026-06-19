@@ -3,14 +3,18 @@ import { describe, it, expect } from 'vitest'
 import { buildSystemPrompt } from './prompt'
 
 describe('buildSystemPrompt', () => {
-  it('keeps the hard anti-hallucination rule and tiered recommendation policy', () => {
+  it('only ever recommends spots from the search result — never invents or adds own-knowledge places', () => {
     const p = buildSystemPrompt('de')
     expect(p).toMatch(/search_spots/)
     expect(p).toMatch(/erfinde? nie/i)
-    // tiered: verified Eat-This spots come first
-    expect(p).toMatch(/geprüft|kuratiert/i)
-    // unverified own additions must be clearly labelled
-    expect(p).toMatch(/nicht.*geprüft|etabliert/i)
+    // recommendations come ONLY from the CMS search result
+    expect(p).toMatch(/ausschließlich|nur .*(ergebnis|search_spots)/i)
+    // empty/thin result -> decline honestly, do NOT fill from own knowledge
+    expect(p).toMatch(/aus deinem wissen|eigenem wissen|stadtbekannt/i)
+    expect(p).toMatch(/(nie|niemals|kein).{0,60}(aus deinem wissen|eigenem wissen|erfundene?n? spot|stadtbekannt)/i)
+    // the old "add 1-2 own-knowledge spots when results are thin" permission is gone
+    expect(p).not.toMatch(/darfst du.{0,40}ergänz/i)
+    expect(p).not.toMatch(/etabliert/i)
     // inline cards: a per-spot marker instruction is present
     expect(p).toMatch(/\[\[spot:/)
     // spots are introduced naturally (no clinical framing)

@@ -1,15 +1,15 @@
 .section {
   position: relative;
   display: grid;
-  gap: 22px;
+  gap: 18px;
   margin: 0 12px;
-  padding: 26px 14px 30px;
+  padding: 28px 18px 30px;
   overflow: hidden;
   color: var(--et-red);
   background: var(--et-yellow-bright);
   border: 0;
   border-radius: var(--home-card-radius, var(--radius-md, 8px));
-  box-shadow: 0 18px 44px rgba(118, 51, 36, .11);
+  box-shadow: none;
   isolation: isolate;
 }
 
@@ -17,7 +17,7 @@
   position: relative;
   z-index: 2;
   display: grid;
-  gap: 14px;
+  gap: 13px;
   min-width: 0;
 }
 
@@ -38,10 +38,10 @@
 
 .heading {
   margin: 0;
-  color: var(--et-red);
+  color: #5d2f26;
   font-family: var(--font-label, var(--font-ranchers));
-  font-size: clamp(62px, 16vw, 108px);
-  line-height: .86;
+  font-size: clamp(58px, 14vw, 88px);
+  line-height: .84;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -61,31 +61,13 @@
   font-weight: 950;
 }
 
-.dealSummary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 8px;
-  margin: 0;
-  color: rgba(103, 43, 30, .74);
-  font-family: var(--font);
-  font-size: 12px;
-  font-weight: 900;
-  line-height: 1.2;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-
-.dealSummary strong {
-  color: var(--et-red);
-}
-
 .ctaWrap {
   position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
-  width: min(100%, 360px);
-  margin-top: 2px;
+  width: min(100%, 310px);
+  margin-top: 8px;
 }
 
 .cta {
@@ -96,25 +78,6 @@
   padding-inline: 22px !important;
   font-size: 15px;
   letter-spacing: .08em;
-}
-
-.ctaPrice {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 0 14px 2px;
-  color: var(--et-red);
-  background: rgba(255, 248, 234, .72);
-  border: 2px solid rgba(201, 67, 50, .24);
-  border-radius: var(--radius-pill, 999px);
-  font-family: var(--font-label, var(--font-ranchers));
-  font-size: 20px;
-  line-height: .9;
-  letter-spacing: .02em;
-  box-shadow: inset 0 -2px 0 rgba(201, 67, 50, .12);
-  pointer-events: none;
 }
 
 .cta:disabled {
@@ -134,6 +97,7 @@
   position: relative;
   z-index: 1;
   min-width: 0;
+  padding-top: 6px;
 }
 
 .fan {
@@ -151,7 +115,7 @@
   display: block;
   width: min(100%, 112px);
   height: auto;
-  filter: drop-shadow(0 14px 18px rgba(118, 51, 36, .18));
+  filter: none;
 }
 
 .fan img:nth-child(3n + 1) {
@@ -182,7 +146,7 @@
   }
 
   .heading {
-    font-size: clamp(98px, 8.2vw, 156px);
+    font-size: clamp(92px, 7.2vw, 138px);
   }
 
   .copy {
@@ -190,25 +154,14 @@
     font-size: clamp(18px, 1.65vw, 23px);
   }
 
-  .dealSummary {
-    max-width: 42ch;
-    font-size: 13px;
-  }
-
   .ctaWrap {
-    width: min(100%, 400px);
+    width: min(100%, 340px);
   }
 
   .cta {
     min-height: 54px;
     font-size: 16px;
     padding-inline: 26px !important;
-  }
-
-  .ctaPrice {
-    min-height: 52px;
-    padding-inline: 18px;
-    font-size: 24px;
   }
 
   .fan {
@@ -219,7 +172,7 @@
 
   .fan img {
     width: min(100%, 164px);
-    filter: drop-shadow(0 18px 24px rgba(118, 51, 36, .22));
+    filter: none;
   }
 }
 
@@ -259,17 +212,15 @@
 html[data-theme="dark"] .section {
   background: var(--et-yellow-bright);
   color: var(--et-red);
-  box-shadow: 0 18px 44px rgba(0, 0, 0, .28);
+  box-shadow: none;
 }
 
 html[data-theme="dark"] .heading,
-html[data-theme="dark"] .copy strong,
-html[data-theme="dark"] .dealSummary strong {
-  color: var(--et-red);
+html[data-theme="dark"] .copy strong {
+  color: #5d2f26;
 }
 
-html[data-theme="dark"] .copy,
-html[data-theme="dark"] .dealSummary {
+html[data-theme="dark"] .copy {
   color: rgba(103, 43, 30, .78);
 }
 

@@ -581,18 +581,17 @@
 
 .meGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   padding: 0 12px 12px;
 }
 
 .meGridOpen {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .meGridLocked {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
 }
 .me {
   position: relative;
@@ -642,7 +641,7 @@
   display: grid;
   gap: 2px;
   padding: 0 2px;
-  min-height: 44px;
+  min-height: 38px;
   align-content: start;
   text-align: center;
 }
@@ -656,9 +655,10 @@
   margin: 0;
 }
 .meRest {
-  font-size: 9.5px;
-  line-height: 1.15;
-  letter-spacing: 0.09em;
+  font-family: var(--font-label, var(--font-poster));
+  font-size: 13px;
+  line-height: .95;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: #0a0a0a;
   opacity: 0.85;
@@ -800,11 +800,11 @@
   }
 
   .meGrid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .meGridOpen {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .meGridLocked {

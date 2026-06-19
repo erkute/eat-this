@@ -16,17 +16,18 @@ function render() {
 }
 
 describe('HubAllBerlin', () => {
-  it('renders the All Berlin heading, price and savings', () => {
+  it('renders the All Berlin heading and offer copy', () => {
     const html = render()
     expect(html).toMatch(/All<br\/?>Berlin/)
+    expect(html).toContain('Alle neuen Booster Packs in einem')
     expect(html).toContain('€20,00')
-    expect(html).toContain('€26,91')
-    expect(html).toContain('Spar €6,91')
+    expect(html).not.toContain('€26,91')
+    expect(html).not.toContain('Spar €6,91')
   })
   it('renders a direct checkout CTA instead of linking to the detail page', () => {
     const html = render()
     expect(html).toContain('Kaufen')
-    expect(html).toContain('aria-hidden="true">€20,00')
+    expect(html).not.toContain('aria-hidden="true">€20,00')
     expect(html).not.toMatch(/href="[^"]*\/pack\/all-berlin"/)
   })
 })

@@ -26,7 +26,7 @@
   color: var(--et-red);
   border: 2px solid var(--et-red);
   border-radius: var(--home-card-radius, var(--radius-md, 8px));
-  box-shadow: 10px 10px 0 rgba(201, 67, 50, .14);
+  box-shadow: none;
   padding: 20px;
   display: grid;
   gap: 12px;
@@ -44,7 +44,7 @@
 }
 .artImg {
   object-fit: contain;
-  filter: drop-shadow(0 16px 24px rgba(0,0,0,.18));
+  filter: none;
   transform: rotate(-3deg);
 }
 .packCat {
@@ -128,7 +128,7 @@
   gap: 8px;
   background: var(--et-black);
   color: var(--et-cream);
-  box-shadow: 0 12px 24px rgba(16, 13, 15, .16);
+  box-shadow: none;
 }
 .signupBtn:hover:not(:disabled) {
   background: var(--et-red);
@@ -169,8 +169,8 @@
   }
   .pack { flex: initial; padding: 24px; }
   .packArt { height: 252px; }
-  .pack:hover { transform: translateY(-4px); box-shadow: 8px 8px 0 rgba(201, 67, 50, .2); }
-  .pack { transition: transform .2s, box-shadow .2s; }
+  .pack:hover { transform: translateY(-4px); box-shadow: none; }
+  .pack { transition: transform .2s; }
 }
 
 @media (min-width: 1080px) {

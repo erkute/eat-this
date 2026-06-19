@@ -68,10 +68,6 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaur
       >
         <h2 className={styles.sectionHeading}>{t('collectedHeading')}</h2>
       </div>
-      <div className={styles.explainer}>
-        <p className={styles.explainerKicker}>{t('explainerKicker')}</p>
-        <p className={styles.explainerLine}>{t('explainer')}</p>
-      </div>
       {ownedMustEats.length > 0 && (
         <p className={styles.meCount}>
           {t('collectedCount', { x: unlocked.length, y: ownedMustEats.length })}
@@ -131,7 +127,6 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaur
                         <img src="/pics/card-back.webp?v=6" alt={tCovered('covered')} loading="lazy" />
                       </div>
                       <div className={styles.meLabel}>
-                        <h4 className={styles.meName}>{tCovered('covered')}</h4>
                         <div className={styles.meRest}>{m.restaurant.name}</div>
                       </div>
                     </Link>

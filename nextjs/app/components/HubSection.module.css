@@ -68,6 +68,10 @@
   letter-spacing: 0;
 }
 
+.collage :global([data-hub-allberlin]) h2 {
+  color: #5d2f26;
+}
+
 .collage :global([data-hub-nearby]),
 .collage :global([data-hub-newonmap]),
 .collage :global([data-hub-dish-poster]),
@@ -400,15 +404,77 @@
   box-shadow: var(--home-cta-shadow) !important;
 }
 
+.collage :global([data-hub-categories] .homeCta) {
+  color: var(--et-red-hot, #ff7a52) !important;
+  background: var(--et-cream, #fff8ea) !important;
+  border-color: var(--et-red-hot, #ff7a52) !important;
+  box-shadow: none !important;
+}
+
+.collage :global([data-hub-categories] .homeCta:hover),
+.collage :global([data-hub-categories] .homeCta:focus-visible) {
+  color: var(--et-black, #100d0f) !important;
+  background: var(--et-red-hot, #ff7a52) !important;
+  border-color: var(--et-red-hot, #ff7a52) !important;
+  box-shadow: none !important;
+}
+
+:global(html[data-theme="dark"]) .collage :global([data-hub-categories] .homeCta) {
+  color: var(--et-red-hot, #ff7a52) !important;
+  background: var(--et-cream, #fff8ea) !important;
+  border-color: var(--et-red-hot, #ff7a52) !important;
+  box-shadow: none !important;
+}
+
+.collage :global([data-hub-packs] .homeCta) {
+  color: var(--et-red-hot, #ff7a52) !important;
+  background: var(--et-cream, #fff8ea) !important;
+  border-color: var(--et-red-hot, #ff7a52) !important;
+  box-shadow: none !important;
+}
+
+.collage :global([data-hub-packs] .homeCta:hover),
+.collage :global([data-hub-packs] .homeCta:focus-visible) {
+  color: var(--et-black, #100d0f) !important;
+  background: var(--et-red-hot, #ff7a52) !important;
+  border-color: var(--et-red-hot, #ff7a52) !important;
+  box-shadow: none !important;
+}
+
+:global(html[data-theme="dark"]) .collage :global([data-hub-packs] .homeCta) {
+  color: var(--et-red-hot, #ff7a52) !important;
+  background: var(--et-cream, #fff8ea) !important;
+  border-color: var(--et-red-hot, #ff7a52) !important;
+  box-shadow: none !important;
+}
+
+.collage :global([data-hub-packs] button[class*="signupBtn"]) {
+  color: var(--et-cream, #fff8ea) !important;
+  background: var(--et-black, #100d0f) !important;
+  border-color: var(--et-black, #100d0f) !important;
+  box-shadow: none !important;
+}
+
+:global(html[data-theme="dark"]) .collage :global([data-hub-packs] button[class*="signupBtn"]) {
+  color: var(--et-cream, #fff8ea) !important;
+  background: var(--et-black, #100d0f) !important;
+  border-color: var(--et-black, #100d0f) !important;
+  box-shadow: none !important;
+}
+
+.collage :global([data-hub-packs] button[class*="signupBtn"]:hover),
+.collage :global([data-hub-packs] button[class*="signupBtn"]:focus-visible) {
+  color: var(--et-black, #100d0f) !important;
+  background: var(--et-cream, #fff8ea) !important;
+  border-color: var(--et-black, #100d0f) !important;
+}
+
 .collage :global([data-hub-allberlin] .homeCta) {
   min-height: 58px !important;
   color: var(--et-cream, #fff8ea) !important;
   background: var(--et-red, #e43d18) !important;
   border-color: var(--home-cta-text) !important;
-  box-shadow:
-    inset 0 -5px 0 rgba(93, 25, 13, .28),
-    0 18px 34px rgba(201, 67, 50, .26),
-    0 0 0 6px rgba(228, 61, 24, .08) !important;
+  box-shadow: none !important;
 }
 
 .collage :global([data-hub-allberlin] .homeCta:hover),
@@ -416,18 +482,12 @@
   color: var(--home-cta-hover-text) !important;
   background: var(--et-yellow-bright, #ffd84a) !important;
   border-color: var(--home-cta-hover-text) !important;
-  box-shadow:
-    inset 0 -5px 0 rgba(93, 25, 13, .16),
-    0 20px 38px rgba(201, 67, 50, .3),
-    0 0 0 6px rgba(228, 61, 24, .1) !important;
+  box-shadow: none !important;
 }
 
 :global(html[data-theme="dark"]) .collage :global([data-hub-allberlin] .homeCta) {
   color: var(--home-cta-hover-text) !important;
   background: var(--et-red-hot, #ff7a52) !important;
   border-color: var(--et-red-hot, #ff7a52) !important;
-  box-shadow:
-    inset 0 -5px 0 rgba(16, 13, 15, .22),
-    0 18px 34px rgba(0, 0, 0, .28),
-    0 0 0 6px rgba(255, 122, 82, .12) !important;
+  box-shadow: none !important;
 }

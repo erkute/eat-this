@@ -35,10 +35,17 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   // SSR anon payload so the shell and first client paint match (no hydration
   // mismatch); after mount it switches to the signed-in data.
   const [mounted, setMounted] = useState(false)
+  const [authHintName, setAuthHintName] = useState<string | null>(null)
   const [selectedDistrict, setSelectedDistrict] = useState('')
   const [districtOpen, setDistrictOpen] = useState(false)
   const districtMenuRef = useRef<HTMLDivElement>(null)
-  useEffect(() => { setMounted(true) }, [])
+  useEffect(() => {
+    setMounted(true)
+    try {
+      const hint = JSON.parse(window.localStorage.getItem('_authHint') || 'null') as { n?: string } | null
+      if (hint?.n) setAuthHintName(hint.n)
+    } catch {}
+  }, [])
   useEffect(() => {
     if (!districtOpen) return
     function onPointerDown(e: PointerEvent) {
@@ -73,7 +80,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
 
   const firstName = user
     ? (user.displayName ?? '').split(' ')[0] || (user.email ?? '').split('@')[0] || null
-    : null
+    : authHintName
 
   // Resolved logged-out → render nothing (the hero stays the first block).
   // While auth is still loading (SSR + pre-hydration) the static shell is
@@ -118,19 +125,26 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   )
   const restaurantNearby = nearestRestaurants(dataRestaurants, loc, 3)
   const nearbyLabel = selectedDistrict || (mounted && location ? t('nearbyLive') : t('nearbyFallback'))
-  const cardSlots: Array<{ key: string; src?: string; label: string; href: string; meta: string }> = openedCards.map((m) => ({
+  const cardSlots: Array<{ key: string; src?: string; label: string; href: string; meta?: string }> = openedCards.map((m) => ({
     key: m._id,
     src: m.image,
     label: normalizeName(m.dish ?? t('cardFallback')),
     href: `/map?me=${m._id}`,
     meta: normalizeName(m.restaurant.name),
   }))
+  for (const m of hiddenNearby) {
+    if (cardSlots.length >= 3) break
+    cardSlots.push({
+      key: m._id,
+      label: normalizeName(m.restaurant.name),
+      href: `/map?me=${m._id}`,
+    })
+  }
   while (cardSlots.length < 3) {
     cardSlots.push({
       key: `locked-${cardSlots.length}`,
       label: t('lockedCardLabel'),
       href: '/map',
-      meta: t('lockedCardMeta'),
     })
   }
 
@@ -162,8 +176,13 @@ export default function HubDeineWelt({ initialMapData }: Props) {
                 <img src={`/pics/avatar/${avatarIdx}.webp`} alt="" />
               </span>
               <span className={styles.profileText}>
-                <span className={styles.actionLabel}>{t('profileAction')}</span>
-                <small>{t('profileActionMeta')}</small>
+                <span className={styles.actionLabel}>{firstName || t('profileAction')}</span>
+                {firstName && <small>{t('profileAction')}</small>}
+              </span>
+              <span className={styles.profileCue} aria-hidden="true">
+                <span />
+                <span />
+                <span />
               </span>
             </Link>
             <div className={styles.locationControl}>
@@ -211,7 +230,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
               </div>
               <button
                 type="button"
-                className={`${styles.locateBtn} homeCta`}
+                className={styles.locateBtn}
                 onClick={() => {
                   setSelectedDistrict('')
                   setDistrictOpen(false)
@@ -235,11 +254,6 @@ export default function HubDeineWelt({ initialMapData }: Props) {
               <p>{t('cardsKicker')}</p>
               <h3>{t('cardsTitle')}</h3>
             </div>
-            <div className={styles.deckMeter} aria-label={t('profileStatsLabel')}>
-              <span>{collected}</span>
-              <i />
-              <span>{hiddenCount}</span>
-            </div>
             <ul className={styles.cardFan} role="list">
               {cardSlots.map((card, index) => (
                 <li key={card.key} style={{ '--tilt': `${index === 1 ? 1.5 : index === 2 ? 7 : -6}deg` } as CSSProperties}>
@@ -252,7 +266,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
                       )}
                     </span>
                     <strong>{card.label}</strong>
-                    <small>{card.meta}</small>
+                    {card.meta && <small>{card.meta}</small>}
                   </Link>
                 </li>
               ))}
@@ -270,7 +284,6 @@ export default function HubDeineWelt({ initialMapData }: Props) {
                   <Link href={`/map?me=${m._id}`} rel="nofollow" className={styles.lockedCard}>
                     <span style={{ backgroundImage: `url(${CARD_BACK})` }} aria-hidden="true" />
                     <strong>{normalizeName(m.restaurant.name)}</strong>
-                    <small>{m.restaurant.district ? `${m.restaurant.district} · ${t('nearHiddenMeta')}` : t('nearHiddenMeta')}</small>
                   </Link>
                 </li>
               )) : (

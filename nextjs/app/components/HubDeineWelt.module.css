@@ -26,9 +26,9 @@
   margin: 0 0 8px;
   color: var(--et-red, #e43d18);
   font-family: var(--font);
-  font-size: 11px;
+  font-size: clamp(15px, 1.55vw, 21px);
   font-weight: 950;
-  letter-spacing: .14em;
+  letter-spacing: .11em;
   line-height: 1;
   text-transform: uppercase;
 }
@@ -112,12 +112,10 @@
 
 .cardsPanel {
   position: relative;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 82% 12%, rgba(240, 54, 8, .28) 0 21%, transparent 22%),
-    var(--et-black, #100d0f);
-  color: var(--et-cream, #f2dfb8);
-  border-color: var(--et-black, #100d0f);
+  overflow: visible;
+  background: rgba(255, 250, 240, .54);
+  color: var(--et-black, #100d0f);
+  border-color: rgba(16, 13, 15, .18);
 }
 
 .panelHead {
@@ -135,18 +133,14 @@
   text-transform: uppercase;
 }
 
-.cardsPanel .panelHead p {
-  color: var(--et-red-hot, #f03608);
-}
-
 .panelHead h3 {
   margin: 0;
   color: inherit;
   font-family: var(--font-display);
-  font-size: clamp(30px, 9vw, 48px);
+  font-size: clamp(28px, 7vw, 40px);
   font-weight: 400;
   letter-spacing: 0;
-  line-height: .86;
+  line-height: .9;
   text-transform: uppercase;
 }
 
@@ -173,7 +167,8 @@
 
 .foodCard {
   display: grid;
-  gap: 8px;
+  grid-template-rows: auto auto auto;
+  gap: 4px;
   color: inherit;
   text-align: center;
   text-decoration: none;
@@ -214,7 +209,7 @@
   min-width: 0;
   color: inherit;
   font-family: var(--font-display);
-  font-size: 21px;
+  font-size: 19px;
   font-weight: 400;
   letter-spacing: 0;
   line-height: .88;
@@ -236,8 +231,8 @@
   overflow-wrap: anywhere;
 }
 
-.cardsPanel .foodCard small {
-  color: rgba(242, 223, 184, .68);
+.foodCard small {
+  margin-top: 1px;
 }
 
 .headerActions {
@@ -254,7 +249,7 @@
   justify-content: flex-start;
   gap: 10px;
   width: 100%;
-  min-height: 68px;
+  min-height: 60px;
   padding: 8px 12px 9px 8px;
   border: 1px solid rgba(16, 13, 15, .18);
   border-radius: 8px;
@@ -292,7 +287,9 @@
 
 .profileText {
   display: grid;
-  gap: 3px;
+  gap: 2px;
+  align-content: center;
+  flex: 1 1 auto;
   min-width: 0;
 }
 
@@ -309,11 +306,49 @@
   white-space: normal;
 }
 
+.profileText .actionLabel {
+  font-size: clamp(23px, 2.35vw, 32px);
+  line-height: .82;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profileCue {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 54px;
+  height: 42px;
+  margin-left: auto;
+}
+
+.profileCue span {
+  position: absolute;
+  width: 24px;
+  aspect-ratio: 1539 / 2115;
+  background: url('/pics/card-back.webp?v=6') center / contain no-repeat;
+  filter: drop-shadow(0 6px 7px rgba(92, 50, 19, .18));
+}
+
+.profileCue span:nth-child(1) {
+  transform: translateX(-13px) rotate(-10deg);
+}
+
+.profileCue span:nth-child(2) {
+  transform: translateY(-2px) rotate(2deg);
+}
+
+.profileCue span:nth-child(3) {
+  transform: translateX(13px) rotate(11deg);
+}
+
 .locationControl {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 54px;
-  gap: 8px;
-  align-items: stretch;
+  grid-template-columns: minmax(0, 1fr) 48px;
+  gap: 10px;
+  align-items: center;
 }
 
 .districtPicker {
@@ -341,6 +376,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 48px;
+  min-height: 48px;
   padding: 0;
   color: var(--et-black, #100d0f);
   background: transparent;
@@ -352,10 +389,10 @@
 
 .locateIcon {
   display: block;
-  width: 46px;
-  height: 46px;
+  width: 42px;
+  height: 42px;
   object-fit: contain;
-  transform: translateY(1px);
+  transform: translateY(0);
 }
 
 .locateText {
@@ -442,28 +479,6 @@
   white-space: nowrap;
 }
 
-.deckMeter {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  display: inline-grid;
-  grid-template-columns: auto 32px auto;
-  align-items: center;
-  gap: 6px;
-  color: var(--et-cream, #f2dfb8);
-  font-family: var(--font-display);
-  font-size: 29px;
-  line-height: .82;
-}
-
-.deckMeter i {
-  display: block;
-  height: 5px;
-  background: var(--et-red-hot, #f03608);
-  border-radius: 999px;
-  transform: rotate(-8deg);
-}
-
 .profileLink:hover {
   transform: translateX(-4px);
 }
@@ -507,12 +522,13 @@
 .nearCards {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 9px;
+  gap: 10px;
   margin-top: 14px;
 }
 
 .lockedCard {
   display: grid;
+  grid-template-rows: auto minmax(38px, auto);
   gap: 7px;
   min-width: 0;
   color: inherit;
@@ -522,7 +538,7 @@
 
 .lockedCard > span {
   display: block;
-  width: min(100%, 88px);
+  width: min(100%, 118px);
   aspect-ratio: 1539 / 2115;
   margin: 0 auto;
   background-position: center;
@@ -533,27 +549,25 @@
 
 .foodCard strong,
 .lockedCard strong {
-  white-space: nowrap;
+  white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
-  overflow-wrap: normal;
+  overflow-wrap: anywhere;
 }
 
 .lockedCard strong {
-  font-size: clamp(17px, 1.55vw, 21px);
+  display: -webkit-box;
+  max-width: 9.5ch;
+  margin: 0 auto;
+  font-size: clamp(14px, 1.2vw, 17px);
   white-space: normal;
-  overflow: visible;
+  overflow: hidden;
   text-overflow: clip;
   overflow-wrap: anywhere;
-  line-height: .92;
-}
-
-.lockedCard small {
-  white-space: normal;
-  overflow: visible;
-  text-overflow: clip;
-  overflow-wrap: anywhere;
-  line-height: 1.16;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: .96;
+  text-wrap: balance;
 }
 
 .empty {
@@ -635,7 +649,7 @@
 
   .board {
     grid-template-columns: minmax(420px, 1fr) minmax(260px, .58fr) minmax(320px, .72fr);
-    align-items: stretch;
+    align-items: start;
   }
 
   .panel {
@@ -643,20 +657,26 @@
   }
 
   .cardsPanel {
-    min-height: 292px;
+    min-height: 286px;
   }
 
-  .foodCardImage {
-    width: min(96%, 156px);
+  .foodCardImage,
+  .lockedCard > span {
+    width: min(92%, 142px);
+  }
+
+  .board .panelHead h3 {
+    font-size: clamp(32px, 3.15vw, 42px);
+  }
+
+  .foodCard strong {
+    font-size: clamp(18px, 1.55vw, 22px);
   }
 
   .nearCards {
     gap: 10px;
   }
 
-  .lockedCard > span {
-    width: min(100%, 102px);
-  }
 }
 
 @media (max-width: 430px) {
@@ -677,16 +697,18 @@
     font-size: clamp(17px, 5.8vw, 22px);
   }
 
+  .profileCue {
+    width: 48px;
+    height: 38px;
+  }
+
+  .profileCue span {
+    width: 21px;
+  }
+
   .profileAvatar {
     width: 46px;
     height: 46px;
-  }
-
-  .deckMeter {
-    top: 12px;
-    right: 12px;
-    font-size: 24px;
-    grid-template-columns: auto 24px auto;
   }
 
   .locateBtn,
@@ -704,6 +726,17 @@
     gap: 6px;
   }
 
+  .locateBtn {
+    width: 46px;
+    min-height: 46px;
+  }
+
+  .locateIcon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .foodCardImage,
   .lockedCard > span {
     width: min(100%, 96px);
   }
@@ -713,9 +746,12 @@
   }
 
   .foodCard strong,
-  .lockedCard strong,
   .restaurantCard strong {
     font-size: 18px;
+  }
+
+  .lockedCard strong {
+    font-size: 14px;
   }
 }
 
@@ -740,7 +776,6 @@ html[data-theme="dark"] .restaurantCard {
 html[data-theme="dark"] .lead,
 html[data-theme="dark"] .profileText small,
 html[data-theme="dark"] .foodCard small,
-html[data-theme="dark"] .lockedCard small,
 html[data-theme="dark"] .restaurantCard small,
 html[data-theme="dark"] .empty {
   color: rgba(242, 223, 184, .68);

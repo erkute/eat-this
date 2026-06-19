@@ -1,16 +1,17 @@
 .section {
   position: relative;
   margin: 0;
-  padding: 32px 14px 12px;
+  padding: 36px 14px 16px;
   color: var(--et-black, #100d0f);
-  background: var(--et-cream, #f2dfb8);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .82) 0%, rgba(242, 223, 184, .96) 42%, var(--et-cream, #f2dfb8) 100%);
 }
 
 .inner {
   width: min(100%, 1180px);
   margin: 0 auto;
   display: grid;
-  gap: 16px;
+  gap: 18px;
 }
 
 .copy {
@@ -59,6 +60,41 @@
   line-height: 1.35;
 }
 
+.insightBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.insightBar span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  min-height: 34px;
+  padding: 7px 10px 8px;
+  color: var(--et-black, #100d0f);
+  background: rgba(255, 255, 255, .68);
+  border: 1px solid rgba(16, 13, 15, .18);
+  border-radius: 8px;
+  box-shadow: 0 6px 14px rgba(92, 50, 19, .07);
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: .12em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.insightBar strong {
+  color: var(--et-red, #e43d18);
+  font-family: var(--font-display);
+  font-size: 27px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: .82;
+}
+
 .board {
   display: grid;
   gap: 12px;
@@ -71,11 +107,15 @@
   background: rgba(255, 250, 240, .54);
   border: 1px solid rgba(16, 13, 15, .18);
   border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(92, 50, 19, .07);
 }
 
 .cardsPanel {
+  position: relative;
   overflow: hidden;
-  background: var(--et-black, #100d0f);
+  background:
+    radial-gradient(circle at 82% 12%, rgba(240, 54, 8, .28) 0 21%, transparent 22%),
+    var(--et-black, #100d0f);
   color: var(--et-cream, #f2dfb8);
   border-color: var(--et-black, #100d0f);
 }
@@ -123,7 +163,7 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 4px;
   align-items: start;
-  margin-top: 14px;
+  margin-top: 16px;
 }
 
 .cardFan li {
@@ -203,7 +243,7 @@
 .headerActions {
   display: grid;
   flex: 0 0 auto;
-  width: min(100%, 244px);
+  width: min(100%, 282px);
   gap: 6px;
 }
 
@@ -212,9 +252,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
+  gap: 10px;
   width: 100%;
-  min-height: 38px;
-  padding: 7px 12px 8px;
+  min-height: 68px;
+  padding: 8px 12px 9px 8px;
   border: 1px solid rgba(16, 13, 15, .18);
   border-radius: 8px;
   font-family: var(--font-poster);
@@ -231,10 +272,47 @@
   text-decoration: none;
 }
 
+.profileAvatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+  background: var(--et-yellow-bright, #f6c84f);
+  border: 1px solid rgba(16, 13, 15, .2);
+  border-radius: 8px;
+}
+
+.profileAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.profileText {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.profileText small {
+  display: block;
+  max-width: 100%;
+  color: rgba(16, 13, 15, .65);
+  font-family: var(--font);
+  font-size: 9.5px;
+  font-weight: 950;
+  letter-spacing: .1em;
+  line-height: 1.12;
+  text-transform: uppercase;
+  white-space: normal;
+}
+
 .locationControl {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 42px;
-  gap: 6px;
+  grid-template-columns: minmax(0, 1fr) 54px;
+  gap: 8px;
   align-items: stretch;
 }
 
@@ -265,24 +343,19 @@
   justify-content: center;
   padding: 0;
   color: var(--et-black, #100d0f);
-  background: rgba(255, 255, 255, .62);
-  box-shadow: 0 6px 14px rgba(92, 50, 19, .07);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
   cursor: pointer;
 }
 
 .locateIcon {
-  width: 19px;
-  height: 19px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.25;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.locateIcon circle:last-child {
-  fill: currentColor;
-  stroke: none;
+  display: block;
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  transform: translateY(1px);
 }
 
 .locateText {
@@ -369,6 +442,28 @@
   white-space: nowrap;
 }
 
+.deckMeter {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-grid;
+  grid-template-columns: auto 32px auto;
+  align-items: center;
+  gap: 6px;
+  color: var(--et-cream, #f2dfb8);
+  font-family: var(--font-display);
+  font-size: 29px;
+  line-height: .82;
+}
+
+.deckMeter i {
+  display: block;
+  height: 5px;
+  background: var(--et-red-hot, #f03608);
+  border-radius: 999px;
+  transform: rotate(-8deg);
+}
+
 .profileLink:hover {
   transform: translateX(-4px);
 }
@@ -380,10 +475,9 @@
 }
 
 .locateBtn:hover:not(:disabled) {
-  color: var(--et-cream, #f2dfb8);
-  background: var(--et-black, #100d0f);
-  border-color: var(--et-black, #100d0f);
-  transform: translateY(-2px);
+  color: var(--et-black, #100d0f);
+  background: transparent;
+  transform: translateY(-2px) scale(1.06);
 }
 
 .districtSelect:hover {
@@ -447,13 +541,19 @@
 
 .lockedCard strong {
   font-size: clamp(17px, 1.55vw, 21px);
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  line-height: .92;
 }
 
 .lockedCard small {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  overflow-wrap: normal;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  line-height: 1.16;
 }
 
 .empty {
@@ -526,7 +626,7 @@
 
 @media (min-width: 760px) {
   .section {
-    padding: 46px 24px 16px;
+    padding: 54px 24px 18px;
   }
 
   .inner {
@@ -543,7 +643,7 @@
   }
 
   .cardsPanel {
-    min-height: 268px;
+    min-height: 292px;
   }
 
   .foodCardImage {
@@ -564,13 +664,29 @@
     display: grid;
   }
 
+  .title {
+    max-width: 10ch;
+  }
+
   .headerActions {
     width: 100%;
   }
 
   .profileLink {
-    min-height: 38px;
+    min-height: 64px;
     font-size: clamp(17px, 5.8vw, 22px);
+  }
+
+  .profileAvatar {
+    width: 46px;
+    height: 46px;
+  }
+
+  .deckMeter {
+    top: 12px;
+    right: 12px;
+    font-size: 24px;
+    grid-template-columns: auto 24px auto;
   }
 
   .locateBtn,
@@ -605,7 +721,8 @@
 
 html[data-theme="dark"] .section {
   color: var(--et-cream, #f2dfb8);
-  background: var(--et-black, #100d0f);
+  background:
+    linear-gradient(180deg, #181412 0%, var(--et-black, #100d0f) 100%);
 }
 
 html[data-theme="dark"] .kicker,
@@ -621,6 +738,7 @@ html[data-theme="dark"] .restaurantCard {
 }
 
 html[data-theme="dark"] .lead,
+html[data-theme="dark"] .profileText small,
 html[data-theme="dark"] .foodCard small,
 html[data-theme="dark"] .lockedCard small,
 html[data-theme="dark"] .restaurantCard small,
@@ -638,6 +756,16 @@ html[data-theme="dark"] .profileLink {
   background: rgba(255, 255, 255, .62);
 }
 
+html[data-theme="dark"] .insightBar span {
+  color: var(--et-cream, #f2dfb8);
+  background: rgba(242, 223, 184, .08);
+  border-color: rgba(242, 223, 184, .22);
+}
+
+html[data-theme="dark"] .insightBar strong {
+  color: var(--et-red-hot, #f03608);
+}
+
 html[data-theme="dark"] .profileLink:hover {
   color: var(--et-cream, #f2dfb8);
   background: var(--et-black, #100d0f);
@@ -645,12 +773,12 @@ html[data-theme="dark"] .profileLink:hover {
 
 html[data-theme="dark"] .locateBtn {
   color: var(--et-black, #100d0f);
-  background: rgba(255, 255, 255, .62);
+  background: transparent;
 }
 
 html[data-theme="dark"] .locateBtn:hover:not(:disabled) {
-  color: var(--et-cream, #f2dfb8);
-  background: var(--et-black, #100d0f);
+  color: var(--et-black, #100d0f);
+  background: transparent;
 }
 
 html[data-theme="dark"] .districtSelect {

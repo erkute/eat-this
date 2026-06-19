@@ -2600,19 +2600,19 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
    --yellow → brand yellow, --font-display → Chewy. Uses the
    shared detailV13 tokens (--d-*) so dark mode stays correct.
    ========================================================== */
-/* Branded coral "poster" surface, theme-independent: spotlight glow from the
-   top + fine grain. Fixed layout, NO internal scroll — the card is pinned top,
-   name/description live in a clip-safe middle, the footer is pinned bottom. */
+/* Must-eat detail uses the home palette, but reads like a modern map sheet:
+   compact coral card stage, warm paper content, normal prose typography, and
+   real scrolling so long dish copy stays readable on short phones. */
 .detailV13MustEat .detailV13Scroll {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  padding: 0;
-  color: #f3ecd6;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 0 calc(18px + env(safe-area-inset-bottom, 0px) + var(--map-bar-overhang, 0px));
+  color: #2b211c;
   background:
-    radial-gradient(120% 58% at 50% 17%, rgba(255, 170, 90, 0.30), transparent 60%),
-    radial-gradient(92% 44% at 50% 18%, rgba(255, 216, 74, 0.18), transparent 55%),
-    linear-gradient(170deg, #a82c16, #7c2010);
+    linear-gradient(180deg, rgba(239, 49, 8, 0) 0, rgba(239, 49, 8, 0) 238px, #f8f6f1 238px),
+    linear-gradient(154deg, #ef3108 0%, #a82c16 70%);
 }
 .detailV13MustEat .detailV13Scroll::after {
   content: none;
@@ -2633,19 +2633,19 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  margin-top: 46px;
-  margin-bottom: 18px;
+  margin: 0;
+  padding: 34px 24px 26px;
   perspective: 1000px;
 }
 .fdHalo {
   position: absolute;
-  top: 4px;
+  top: 26px;
   left: 50%;
   transform: translateX(-50%);
-  width: 200px;
-  height: 200px;
+  width: 210px;
+  height: 210px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 216, 74, 0.32), transparent 62%);
+  background: radial-gradient(circle, rgba(255, 216, 74, 0.34), transparent 64%);
   z-index: 0;
   pointer-events: none;
 }
@@ -2656,9 +2656,7 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   background: transparent;
   position: relative;
   z-index: 2;
-  /* Feste Kartengröße pro Gerät (User 2026-06-14) — wächst NICHT mit
-     Snap/Drag (dvh = Geräte-Viewport, konstant pro Gerät). Groß & präsent. */
-  height: clamp(300px, 42dvh, 380px);
+  height: clamp(214px, 33dvh, 310px);
   aspect-ratio: 1539 / 2115;
   display: block;
   cursor: zoom-in;
@@ -2674,7 +2672,7 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
    2026-06-14) + geworfener Schatten — sieht aus wie ein echtes Objekt. */
 .detailV13MustEat .fdHero {
   transform: rotate(-2deg) rotateY(-7deg) rotateX(3deg);
-  filter: drop-shadow(10px 16px 16px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(10px 16px 16px rgba(43, 33, 28, 0.38));
 }
 .fdHeroLocked {
   cursor: pointer;
@@ -2697,34 +2695,35 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   .fdHeroLocked { animation: none; }
 }
 
-/* MIDDLE — clip-safe flexible region: name + description (open) or proximity
-   (locked), top-anchored under the card. Long copy clips here instead of
-   pushing the pinned footer off-screen. */
+/* MIDDLE — readable content card: dish name + description (open) or proximity
+   hint (locked). This is intentionally scroll-friendly, not clipped. */
 .fdMid {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 3;
-  padding-top: 4px;
+  margin: -10px 14px 0;
+  padding: 18px 18px 20px;
+  background: #f8f6f1;
+  border: 1px solid rgba(43, 33, 28, 0.08);
+  border-radius: 8px;
+  box-shadow: 0 10px 22px rgba(43, 33, 28, 0.08);
 }
 .fdName {
   margin: 0;
-  padding: 18px 18px 0;
-  font-family: var(--font-chewy), 'Schoolbell', cursive;
-  font-size: clamp(46px, 13vw, 56px);
-  line-height: 0.92;
-  text-align: center;
+  padding: 0;
+  font-family: var(--font-display);
+  font-size: clamp(36px, 10vw, 48px);
+  line-height: 0.94;
+  text-align: left;
   overflow-wrap: anywhere;
-  color: #f3ecd6;
-  /* 2 Zeilen reserviert, Name UNTEN verankert → eine 2. Zeile füllt nach
-     oben, die Beschreibung darunter bleibt ortsfest (User 2026-06-14). */
-  min-height: calc(2 * 0.92em + 14px);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  color: #2b211c;
+  min-height: 0;
+  display: block;
+  text-transform: uppercase;
 }
 .fdNameText { display: inline; }
 /* Covered: der Name ist da, aber stark verschwommen — unlesbar, kein Stempel. */
@@ -2734,9 +2733,11 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   -webkit-user-select: none;
   user-select: none;
 }
-/* Reveal: der Name schärft sich, sobald die Karte gelandet ist. */
+/* Reveal: readability wins over the old slow unblur flourish. The locked state
+   still hides the name via .fdNameBlur; once opened, the title is sharp. */
 .fdNameUnblurring {
-  animation: fdNameUnblur 1.9s ease-out 0.2s both;
+  filter: none;
+  animation: none;
 }
 @keyframes fdNameUnblur {
   from { filter: blur(11px); }
@@ -2746,34 +2747,37 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
    dem Namen. */
 .fdText {
   margin: 0;
-  padding: 20px 24px 0;
-  font-family: var(--font-chewy), 'Schoolbell', cursive;
-  font-size: 18.5px;
-  line-height: 1.4;
-  text-align: center;
-  color: rgba(243, 236, 214, 0.95);
+  padding: 14px 0 0;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.48;
+  text-align: left;
+  color: rgba(43, 33, 28, 0.82);
 }
 /* Locked: Näherungs-Hinweis statt Beschreibung — großes „Du bist da!"
    bzw. Entfernung + Sub-Hinweis. */
 .fdProximity {
-  padding: 19px 24px 0;
-  text-align: center;
+  padding: 14px 0 0;
+  text-align: left;
 }
 .fdProximityHead {
-  font-family: var(--font-chewy), 'Schoolbell', cursive;
-  font-size: clamp(34px, 9.5vw, 42px);
-  line-height: 1;
-  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 8.5vw, 40px);
+  line-height: 0.98;
+  color: #2b211c;
+  text-transform: uppercase;
 }
 .fdProximityReady .fdProximityHead {
-  color: var(--brand-yellow);
+  color: #ef3108;
 }
 .fdProximitySub {
   margin-top: 9px;
-  font-family: var(--font-chewy), 'Schoolbell', cursive;
-  font-size: 17px;
-  line-height: 1.35;
-  color: rgba(243, 236, 214, 0.92);
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.42;
+  color: rgba(43, 33, 28, 0.7);
 }
 /* FOOTER — cream-Leiste mit FESTER Höhe; der Restaurant-Name reserviert
    2 Zeilen, also ist die Leiste bei 1- und 2-zeiligem Namen gleich hoch und
@@ -2782,18 +2786,18 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   flex: 0 0 auto;
   position: relative;
   z-index: 4;
-  min-height: 96px;
+  min-height: 86px;
   height: auto;
-  margin: 0 14px 10px;
-  padding: 16px;
+  margin: 10px 14px 10px;
+  padding: 14px;
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--et-yellow-bright);
-  color: var(--et-red-deep);
-  border: 0;
+  background: #ffd079;
+  color: #2b211c;
+  border: 1px solid rgba(43, 33, 28, 0.08);
   border-radius: 8px;
-  box-shadow: 0 16px 34px rgba(70, 23, 16, 0.16);
+  box-shadow: 0 8px 18px rgba(43, 33, 28, 0.08);
 }
 .fdRestName {
   flex: 1 1 auto;
@@ -2809,14 +2813,14 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(169, 52, 39, 0.68);
+  color: rgba(43, 33, 28, 0.62);
   margin: 0 0 7px;
 }
 .fdV {
   font-family: var(--font-display);
-  font-size: 28px;
-  line-height: 0.98;
-  color: var(--et-red-deep);
+  font-size: 26px;
+  line-height: 1;
+  color: #2b211c;
   /* 2 Zeilen reserviert, Name unten verankert → konstante Footer-Höhe. */
   min-height: 0;
   display: flex;
@@ -2831,12 +2835,12 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   align-self: center;
   margin: 0;
   appearance: none;
-  background: var(--map-action);
-  color: var(--map-surface);
+  background: #ef3108;
+  color: #fff;
   font-family: var(--font-label, var(--font-display));
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
-  padding: 13px 16px 14px;
+  padding: 12px 15px 13px;
   border: 0;
   border-radius: var(--map-pill-radius);
   cursor: pointer;
@@ -2850,11 +2854,11 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   transition: transform var(--map-motion), background-color var(--map-motion);
 }
 .ctaPill:hover {
-  background: var(--map-action-strong);
+  background: #a82c16;
   transform: translateY(-2px);
 }
-/* PAGER — dunkle Leiste am unteren Rand; Nachbar-Gerichte links & rechts,
-   Pfeile in gelben Kreisen. Locked-Nachbarn zeigen „Verdeckt". */
+/* PAGER — light control rail; no heavy black block. Locked neighbours show
+   "Verdeckt" without overpowering the card and prose above. */
 .fdPager {
   flex: 0 0 auto;
   position: relative;
@@ -2862,25 +2866,25 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
-  gap: 8px;
-  margin: 0 14px 14px;
-  padding: 8px;
-  background: rgba(255, 250, 240, 0.16);
-  color: var(--et-yellow-bright);
-  border-radius: var(--map-pill-radius);
+  gap: 7px;
+  margin: 0 14px;
+  padding: 0;
+  background: transparent;
+  color: #2b211c;
+  border-radius: 8px;
   font-family: var(--font);
 }
 .fdPagerPrev,
 .fdPagerNext {
   appearance: none;
-  background: var(--et-yellow-bright);
-  border: 0;
-  border-radius: var(--map-pill-radius);
-  padding: 8px 10px;
+  background: rgba(248, 246, 241, 0.96);
+  border: 1px solid rgba(43, 33, 28, 0.1);
+  border-radius: 6px;
+  padding: 9px 10px;
   margin: 0;
   min-width: 0;
   font: inherit;
-  color: var(--et-red-deep);
+  color: #2b211c;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2895,11 +2899,11 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: var(--et-red);
-  color: var(--et-yellow-bright);
+  background: #ef3108;
+  color: #fff;
 }
 .fdPagerArrow svg {
   display: block;
@@ -2910,7 +2914,7 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
 .fdPagerName {
   min-width: 0;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 850;
   letter-spacing: 0.04em;
   line-height: 1;
   overflow: hidden;
@@ -2927,54 +2931,46 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
 /* X — nackter cremefarbener Glyph oben rechts. */
 .fdClose {
   position: absolute;
-  top: 11px;
-  right: 13px;
+  top: 12px;
+  right: 12px;
   z-index: 8;
   appearance: none;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
-  color: #f3ecd6;
+  background: rgba(248, 246, 241, 0.96);
+  color: #2b211c;
   border: 0;
-  border-radius: 0;
+  border-radius: 999px;
   cursor: pointer;
+  box-shadow: 0 8px 18px rgba(43, 33, 28, 0.18);
 }
 .fdClose svg {
   width: 22px;
   height: 22px;
 }
 
-/* Must-Eat-Detail mobile: das Sheet ist ZIEHBAR (Snaps full/peek, --sheet-y),
-   sein Mount (.detailMountMustEat) klippt auf max-height:100dvh−sheet-y−36.
-   Würde der Inhalt den Mount per flex:1 füllen, reflowt er beim Draggen
-   (Footer wandert, Mittelteil clippt) → „ganze Design dahin". Deshalb:
-
-   1) Inhalt = FESTE Höhe der Full-Snap-Sichtfläche: bei full ist
-      --sheet-y = 40px (FULL_TOP_PX in useBottomSheet) → 100dvh−40−36 =
-      100dvh−76. Dadurch ist es ein fester Stack; beim Draggen schaut das
-      Sheet nur HINEIN (Mount klippt unten weg), nichts springt.
-   2) Karte mobil kompakter + schrumpfbar (max-height/flex-shrink), damit auf
-      kurzen Geräten der Text (Beschreibung/Näherungs-Hinweis) nicht klippt.
-   3) iOS-Safe-Area unter dem Pager. (User 2026-06-14) */
+/* Mobile: keep the sheet height tied to the visible full-snap slice, while the
+   content itself scrolls. The hero gets smaller on short phones so the first
+   viewport still shows image, title, and the start of the copy. */
 @media (max-width: 1023.98px) {
   .detailV13MustEat .detailV13Scroll {
     flex: none;
     height: calc(100dvh - 76px);
+    background:
+      linear-gradient(180deg, rgba(239, 49, 8, 0) 0, rgba(239, 49, 8, 0) 210px, #f8f6f1 210px),
+      linear-gradient(154deg, #ef3108 0%, #a82c16 70%);
   }
   .detailV13MustEat .fdHeroWrap {
-    /* Hoher flex-shrink → auf kurzen Geräten gibt die KARTE den Platz ab
-       (sie schrumpft), nicht der Text im fdMid (sonst klippt die Beschreibung
-       / der Näherungs-Hinweis). */
-    flex: 0 8 auto;
+    flex: 0 0 auto;
     min-height: 0;
-    margin-top: 38px;
-    margin-bottom: 22px;
+    margin: 0;
+    padding: 32px 20px 22px;
   }
   .detailV13MustEat .fdHero {
-    height: clamp(180px, 30dvh, 300px);
+    height: clamp(174px, 28dvh, 268px);
     max-height: 100%;
   }
   .detailV13MustEat .fdPager {
@@ -3263,9 +3259,8 @@ html[data-theme="dark"] .btnPackPromo {
      Drop it from the detail scroll padding here; iOS keeps the apron. */
   .detailV13Scroll { padding-bottom: 20px; }
 
-  /* Must-Eat-Detail nutzt auf Desktop dieselben Basisregeln wie mobil
-     (fix, kein Scroll, Karte oben / Footer + Pager unten) — keine eigenen
-     Desktop-Overrides mehr nötig (Redesign 2026-06-14). */
+  /* Must-Eat detail shares the same readable, scrollable card system on
+     desktop and mobile; the rail width is handled by the base component rules. */
   .actions { padding: 26px 22px 32px; gap: 16px; }
   .actions::before { top: 26px; right: 22px; }
   .btnPrimaryLbl { font-size: 58px; }
@@ -3961,6 +3956,41 @@ html[data-theme="dark"] .detailV13Scroll {
   --map-collage-ink: #f8f1e5;
   background-color: var(--map-collage-paper);
   background-image: none;
+}
+html[data-theme="dark"] .detailV13MustEat .detailV13Scroll {
+  color: #f8f1e5;
+  background:
+    linear-gradient(180deg, rgba(239, 49, 8, 0) 0, rgba(239, 49, 8, 0) 238px, #17130f 238px),
+    linear-gradient(154deg, #ef3108 0%, #7d1d0f 70%);
+}
+html[data-theme="dark"] .detailV13MustEat .fdMid {
+  background: #211a15;
+  border-color: rgba(248, 241, 229, 0.14);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.34);
+}
+html[data-theme="dark"] .detailV13MustEat .fdName,
+html[data-theme="dark"] .detailV13MustEat .fdProximityHead {
+  color: #f8f1e5;
+}
+html[data-theme="dark"] .detailV13MustEat .fdText {
+  color: rgba(248, 241, 229, 0.82);
+}
+html[data-theme="dark"] .detailV13MustEat .fdProximitySub {
+  color: rgba(248, 241, 229, 0.7);
+}
+html[data-theme="dark"] .detailV13MustEat .fdClose {
+  background: rgba(33, 26, 21, 0.96);
+  color: #f8f1e5;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+html[data-theme="dark"] .detailV13MustEat .fdPager {
+  color: #f8f1e5;
+}
+html[data-theme="dark"] .detailV13MustEat .fdPagerPrev,
+html[data-theme="dark"] .detailV13MustEat .fdPagerNext {
+  background: #211a15;
+  color: #f8f1e5;
+  border-color: rgba(248, 241, 229, 0.16);
 }
 html[data-theme="dark"] .list[data-view="detail"] .handle {
   background: var(--map-collage-paper);

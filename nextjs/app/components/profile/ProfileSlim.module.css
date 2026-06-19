@@ -15,14 +15,15 @@
   --profile-radius: var(--radius-md, 8px);
   --profile-pill: var(--radius-pill, 999px);
   --profile-motion: var(--motion-base, 180ms) var(--ease-standard, ease);
-  background: linear-gradient(180deg, #fff 0%, #f7f4ec 100%);
+  background:
+    linear-gradient(180deg, #fff 0%, #f7f1df 48%, #efe6cf 100%);
   min-height: 100vh;
   /* Clear the fixed 64px navbar (SiteNav) — this route has its own layout, not
      the SPA's .app-pages offset. Mirror the SPA's expression so the staging
      banner (--staging-banner-h: 32px on staging, 0 on prod) is accounted for
      too, otherwise the banner pushes the navbar down onto the profile head. */
   padding-top: calc(74px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
-  padding-bottom: 24px;
+  padding-bottom: 30px;
 }
 
 /* Loading spinner (auth gate) */
@@ -46,21 +47,23 @@
 
 /* ── Head ── */
 .head {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 14px;
-  padding: 24px 18px 20px;
-  border-bottom: 2px solid #0a0a0a;
+  padding: 22px 16px 18px;
+  border-bottom: 1px solid rgba(10, 10, 10, .18);
   background:
+    radial-gradient(circle at 88% 16%, rgba(239, 49, 8, .25) 0 18%, transparent 19%),
     linear-gradient(96deg, var(--collage-yellow) 0%, #ffe06c 62%, #f0b91a 100%);
   background-size: 100% 100%;
 }
 .avatar {
-  width: 78px;
-  height: 78px;
-  background: #efe9d8;
-  border: 2px solid var(--profile-border);
-  border-radius: var(--profile-radius);
+  width: 84px;
+  height: 84px;
+  background: rgba(255, 255, 255, .74);
+  border: 1.5px solid rgba(10, 10, 10, .2);
+  border-radius: 8px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -87,7 +90,7 @@
 }
 .name {
   font-family: var(--font-label, var(--font-poster));
-  font-size: 28px;
+  font-size: clamp(30px, 8.8vw, 44px);
   line-height: 1;
   color: var(--collage-red);
   text-transform: uppercase;
@@ -106,16 +109,130 @@
 }
 
 .heroCard {
-  display: none;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 5px;
+  width: 82px;
+  min-height: 74px;
+  padding: 10px 8px;
+  background: rgba(255, 255, 255, .72);
+  border: 1.5px solid rgba(10, 10, 10, .18);
+  border-radius: 8px;
+  color: #0a0a0a;
+  text-align: center;
+}
+
+.heroCard span {
+  font-family: var(--font-label, var(--font-poster));
+  font-size: 9px;
+  letter-spacing: .14em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.heroCard strong {
+  font-family: var(--font-label, var(--font-poster));
+  font-size: 25px;
+  line-height: .86;
+}
+
+.character {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  margin: 14px 14px 0;
+  padding: 16px;
+  background: rgba(255, 255, 255, .66);
+  border: 1px solid rgba(10, 10, 10, .16);
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(92, 50, 19, .07);
+}
+
+.characterKicker {
+  margin: 0 0 5px;
+  color: var(--collage-red);
+  font-family: var(--font-label, var(--font-poster));
+  font-size: 10px;
+  letter-spacing: .18em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.characterTitle {
+  margin: 0;
+  color: #0a0a0a;
+  font-family: var(--font-label, var(--font-poster));
+  font-size: clamp(28px, 7.6vw, 40px);
+  line-height: .92;
+  text-transform: uppercase;
+}
+
+.avatarPicker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.avatarChoice {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  aspect-ratio: 1;
+  padding: 6px;
+  overflow: hidden;
+  background: #f5c83b;
+  border: 1.5px solid rgba(10, 10, 10, .22);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform var(--profile-motion), background-color var(--profile-motion), border-color var(--profile-motion), box-shadow var(--profile-motion);
+}
+
+.avatarChoice:nth-child(2) {
+  background: #f7f1df;
+}
+
+.avatarChoice:nth-child(3) {
+  background: #ef3108;
+}
+
+.avatarChoice:hover:not(:disabled) {
+  transform: translateY(-3px);
+}
+
+.avatarChoiceActive {
+  border-color: #0a0a0a;
+  box-shadow: inset 0 0 0 3px #fff, 0 8px 0 #0a0a0a;
+  transform: translateY(-2px);
+}
+
+.avatarChoice:disabled {
+  cursor: wait;
+}
+
+.avatarChoice img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.avatarStatus {
+  min-height: 16px;
+  margin: 0;
+  color: rgba(10, 10, 10, .66);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.3;
 }
 
 .command {
-  margin: 16px 14px 12px;
+  margin: 12px 14px 12px;
   padding: 18px 18px 16px;
   background: var(--profile-surface-elevated);
-  border: 2px solid var(--profile-border);
+  border: 1px solid rgba(10, 10, 10, .16);
   border-radius: var(--profile-radius);
-  transform: rotate(-.6deg);
+  box-shadow: 0 14px 32px rgba(92, 50, 19, .07);
 }
 
 .commandKicker {
@@ -138,28 +255,35 @@
 
 .stats {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .stat {
-  min-height: 74px;
-  padding: 12px 12px 10px;
+  min-height: 76px;
+  padding: 12px 10px 10px;
   background: var(--profile-ink);
   color: #fff;
   border-radius: var(--profile-radius);
+  overflow: hidden;
 }
 
 .stat:nth-child(2) {
   background: var(--collage-red);
 }
 
+.stat:nth-child(3) {
+  background: #f0b91a;
+  color: #0a0a0a;
+}
+
 .stat strong {
   display: block;
   font-family: var(--font-label, var(--font-poster));
-  font-size: 30px;
+  font-size: clamp(25px, 7.2vw, 32px);
   line-height: .9;
   letter-spacing: .02em;
+  overflow-wrap: anywhere;
 }
 
 .stat span {
@@ -169,6 +293,40 @@
   line-height: 1.15;
   letter-spacing: .13em;
   text-transform: uppercase;
+}
+
+.quickActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.quickAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 9px 12px 10px;
+  color: #0a0a0a;
+  background: #f7f1df;
+  border: 1.5px solid rgba(10, 10, 10, .18);
+  border-radius: 999px;
+  font-family: var(--font-label, var(--font-poster));
+  font-size: 12px;
+  letter-spacing: .12em;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: transform var(--profile-motion), background-color var(--profile-motion), color var(--profile-motion), border-color var(--profile-motion);
+}
+
+.quickAction:hover {
+  transform: translateY(-2px);
+  color: #fff;
+  background: #0a0a0a;
+  border-color: #0a0a0a;
 }
 
 .tabs {
@@ -187,7 +345,7 @@
 
 .tab {
   min-height: 44px;
-  border: 2px solid var(--profile-border);
+  border: 1.5px solid rgba(10, 10, 10, .2);
   border-radius: var(--profile-pill);
   background: var(--profile-surface-elevated);
   color: var(--profile-ink);
@@ -197,20 +355,17 @@
   letter-spacing: .11em;
   text-transform: uppercase;
   cursor: pointer;
-  transform: rotate(-1.5deg);
   transition: transform var(--profile-motion), background-color var(--profile-motion), color var(--profile-motion), border-color var(--profile-motion);
 }
-
-.tab:nth-child(2) { transform: rotate(1.4deg); }
-.tab:nth-child(3) { transform: rotate(-.6deg); }
 
 .tabActive {
   background: var(--profile-action);
   color: #fff;
+  border-color: var(--profile-action);
 }
 
 .tab:hover {
-  transform: translateY(-2px) rotate(0deg);
+  transform: translateY(-2px);
 }
 
 .tabPanel {
@@ -581,6 +736,7 @@
 /* Desktop — center the column, the page is a standalone scroll (not a sheet). */
 @media (min-width: 720px) {
   .head,
+  .character,
   .command,
   .tabs,
   .tabPanel,
@@ -603,16 +759,15 @@
   }
 
   .head {
-    border: 2px solid #0a0a0a;
-    border-radius: 30px;
+    border: 1px solid rgba(10, 10, 10, .18);
+    border-radius: 8px;
     margin-top: 22px;
     padding: 26px 24px;
   }
 
   .avatar {
-    width: 94px;
-    height: 94px;
-    border-radius: 22px;
+    width: 104px;
+    height: 104px;
   }
 
   .name {
@@ -620,29 +775,21 @@
   }
 
   .heroCard {
-    display: grid;
-    align-content: center;
-    gap: 5px;
-    width: 172px;
-    min-height: 84px;
-    padding: 16px;
-    background: #fff;
-    border: 2px solid #0a0a0a;
-    border-radius: 20px;
-    transform: rotate(2deg);
-  }
-
-  .heroCard span {
-    font-size: 10px;
-    letter-spacing: .18em;
-    text-transform: uppercase;
+    width: 128px;
+    min-height: 92px;
   }
 
   .heroCard strong {
-    font-family: var(--font-poster);
-    font-size: 24px;
-    line-height: .9;
-    text-transform: uppercase;
+    font-size: 34px;
+  }
+
+  .character {
+    grid-template-columns: minmax(0, 1fr) 270px;
+    align-items: center;
+  }
+
+  .avatarStatus {
+    grid-column: 1 / -1;
   }
 
   .tabs {
@@ -710,6 +857,7 @@ html[data-theme="dark"] .name {
 }
 
 html[data-theme="dark"] .heroCard,
+html[data-theme="dark"] .character,
 html[data-theme="dark"] .command,
 html[data-theme="dark"] .stat,
 html[data-theme="dark"] .tabs,
@@ -719,6 +867,7 @@ html[data-theme="dark"] .meGroup {
 }
 
 html[data-theme="dark"] .heroCard,
+html[data-theme="dark"] .character,
 html[data-theme="dark"] .command,
 html[data-theme="dark"] .tab,
 html[data-theme="dark"] .meGroup {
@@ -727,8 +876,26 @@ html[data-theme="dark"] .meGroup {
 }
 
 html[data-theme="dark"] .commandTitle,
+html[data-theme="dark"] .characterTitle,
 html[data-theme="dark"] .meGroupTitle {
   color: #f0e8d0;
+}
+
+html[data-theme="dark"] .characterKicker {
+  color: var(--c-coral-bright);
+}
+
+html[data-theme="dark"] .avatarChoice {
+  border-color: rgba(240, 232, 208, .28);
+}
+
+html[data-theme="dark"] .avatarChoiceActive {
+  border-color: #f0e8d0;
+  box-shadow: inset 0 0 0 3px #1d1c19, 0 8px 0 #f0e8d0;
+}
+
+html[data-theme="dark"] .avatarStatus {
+  color: rgba(240, 232, 208, .7);
 }
 
 html[data-theme="dark"] .tabs {
@@ -739,6 +906,23 @@ html[data-theme="dark"] .tabs {
 html[data-theme="dark"] .tabActive {
   background: #f0e8d0;
   color: #0a0a0a;
+}
+
+html[data-theme="dark"] .stat:nth-child(3) {
+  background: var(--c-coral);
+  color: #fbf8ee;
+}
+
+html[data-theme="dark"] .quickAction {
+  color: #f0e8d0;
+  background: rgba(240, 232, 208, .08);
+  border-color: rgba(240, 232, 208, .24);
+}
+
+html[data-theme="dark"] .quickAction:hover {
+  color: #0a0a0a;
+  background: #f0e8d0;
+  border-color: #f0e8d0;
 }
 
 /* ── Section heading ── */

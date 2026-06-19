@@ -199,8 +199,8 @@
 }
 
 .item4 {
-  left: 7%;
-  top: 39%;
+  left: -1%;
+  top: 43%;
   z-index: 5;
   width: clamp(168px, 18vw, 258px);
   transform: rotate(4deg);
@@ -229,7 +229,7 @@
 }
 
 .item6 {
-  left: 41%;
+  left: 47%;
   bottom: 4%;
   z-index: 4;
   width: clamp(176px, 19vw, 280px);
@@ -259,8 +259,8 @@
 }
 
 .item8 {
-  left: 17%;
-  bottom: 0;
+  left: 25%;
+  bottom: -2%;
   z-index: 3;
   width: clamp(132px, 14vw, 212px);
   transform: rotate(-5deg);

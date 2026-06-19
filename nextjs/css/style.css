@@ -4606,6 +4606,118 @@ body:has(.burger-drawer.active) .burger-btn {
   background: var(--et-cream);
 }
 
+/* Keep the full burger menu inside the visible viewport on desktop and mobile.
+   The drawer intentionally avoids internal scrolling for normal viewports, so
+   the logo/nav/footer compress by viewport height instead of clipping. */
+.burger-drawer-panel,
+[data-theme="dark"] .burger-drawer-panel {
+  height: 100dvh;
+  max-height: 100dvh;
+}
+
+.bd-scroller {
+  box-sizing: border-box;
+  height: 100%;
+  max-height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  padding: max(14px, env(safe-area-inset-top, 0px)) clamp(16px, 5vw, 26px) calc(14px + env(safe-area-inset-bottom));
+}
+
+.bd-topbar {
+  flex: 0 0 auto;
+  margin-bottom: clamp(2px, .7dvh, 6px);
+}
+
+.bd-logo {
+  flex: 0 0 auto;
+  width: min(64%, clamp(132px, 30dvh, 280px));
+  margin: clamp(2px, .9dvh, 8px) auto clamp(6px, 1.5dvh, 14px);
+}
+
+.bd-nav,
+[data-theme="dark"] .bd-nav {
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: clamp(3px, .7dvh, 6px);
+  margin-bottom: clamp(6px, 1.5dvh, 14px);
+}
+
+.bd-nav-item,
+[data-theme="dark"] .bd-nav-item {
+  flex: 1 1 0;
+  min-height: clamp(34px, 6.2dvh, 47px);
+  padding: clamp(5px, 1.1dvh, 9px) clamp(14px, 4.5vw, 20px) clamp(6px, 1.2dvh, 10px);
+  font-size: clamp(22px, 4.2dvh, 39px);
+}
+
+.bd-nav-item.bd-cta,
+[data-theme="dark"] .bd-nav-item.bd-cta {
+  flex-grow: 1.08;
+  margin-bottom: clamp(2px, .7dvh, 4px);
+  padding-top: clamp(7px, 1.4dvh, 14px);
+  padding-bottom: clamp(8px, 1.5dvh, 15px);
+}
+
+.bd-foot,
+[data-theme="dark"] .bd-foot {
+  flex: 0 0 auto;
+  padding-top: clamp(6px, 1.5dvh, 16px);
+  gap: clamp(5px, 1.2dvh, 9px) 10px;
+}
+
+.bd-foot-link,
+[data-theme="dark"] .bd-foot-link {
+  min-height: clamp(30px, 5.3dvh, 40px);
+  padding: clamp(6px, 1.2dvh, 9px) 8px clamp(7px, 1.3dvh, 10px);
+  font-size: clamp(14px, 2.35dvh, 22px);
+}
+
+@media (max-height: 560px) {
+  .bd-scroller {
+    padding-top: max(10px, env(safe-area-inset-top, 0px));
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  }
+
+  .bd-theme-label {
+    display: none;
+  }
+
+  .bd-logo {
+    width: clamp(92px, 24dvh, 132px);
+    margin-top: 0;
+    margin-bottom: 4px;
+  }
+
+  .bd-nav,
+  [data-theme="dark"] .bd-nav {
+    gap: 2px;
+    margin-bottom: 4px;
+  }
+
+  .bd-nav-item,
+  [data-theme="dark"] .bd-nav-item {
+    min-height: 25px;
+    padding-top: 3px;
+    padding-bottom: 4px;
+    font-size: clamp(18px, 5dvh, 22px);
+  }
+
+  .bd-foot,
+  [data-theme="dark"] .bd-foot {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding-top: 4px;
+    gap: 4px;
+  }
+
+  .bd-foot-link,
+  [data-theme="dark"] .bd-foot-link {
+    min-height: 24px;
+    padding: 4px 5px 5px;
+    font-size: clamp(11px, 3dvh, 13px);
+  }
+}
+
 .app-page[data-page="map"] .map-location-btn-fixed,
 [data-theme="dark"] .app-page[data-page="map"] .map-location-btn-fixed {
   background: var(--et-cream);

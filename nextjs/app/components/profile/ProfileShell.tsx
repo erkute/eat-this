@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
 import { useUnlockedMustEats, useMapData } from '@/lib/map';
-import { defaultAvatarFromUid, useUserProfile } from '@/lib/firebase/useUserProfile';
+import { defaultAvatarFromUid, useUserProfile, type AvatarChoice } from '@/lib/firebase/useUserProfile';
 import { TOAST_HANDOFF_KEY } from '../NotificationToast';
 import ProfileSpots from './ProfileSpots';
 import ProfileMustEats from './ProfileMustEats';
@@ -19,6 +20,7 @@ interface Props {
 }
 
 type ProfileTab = 'spots' | 'must-eats' | 'packs';
+const AVATAR_CHOICES = [1, 2, 3] as const;
 
 function tabFromHash(hash: string): ProfileTab | null {
   switch (hash) {
@@ -51,6 +53,8 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   const locale = useLocale();
   const t = useTranslations('profile');
   const [activeTab, setActiveTab] = useState<ProfileTab>('spots');
+  const [avatarSaving, setAvatarSaving] = useState<AvatarChoice | null>(null);
+  const [avatarError, setAvatarError] = useState(false);
   // Map-page reveals write to users/{uid}/unlockedMustEats — unioned with the
   // public face-up set (trial-10 ∪ spot-of-day) so anything publicly revealed
   // is open in the collection too, even right after first signup.
@@ -59,7 +63,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     () => new Set<string>([...storedUnlockedIds, ...publicFaceUpIds]),
     [storedUnlockedIds, publicFaceUpIds],
   );
-  const { profile } = useUserProfile(user?.uid ?? null);
+  const { profile, loading: profileLoading, setAvatar } = useUserProfile(user?.uid ?? null);
   // Owned spots (the user's map tier) → drives which must-eats appear in the
   // collected grid. Fetches /api/map-data on mount; cached for instant repaint.
   // The same per-user payload also feeds the deck itself — covered cards come
@@ -105,12 +109,26 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   const sinceLabel = locale === 'de' ? 'Mitglied seit' : 'Member since';
   const ownedMustEatTotal = mustEats.filter((m) => ownedRestaurantIds.has(m.restaurant._id)).length;
   const revealedMustEatTotal = mustEats.filter((m) => ownedRestaurantIds.has(m.restaurant._id) && unlockedIds.has(m._id)).length;
+  const hiddenMustEatTotal = Math.max(ownedMustEatTotal - revealedMustEatTotal, 0);
+
+  async function handleAvatarChange(choice: AvatarChoice) {
+    if (choice === avatarIdx || avatarSaving) return;
+    setAvatarError(false);
+    setAvatarSaving(choice);
+    try {
+      await setAvatar(choice);
+    } catch {
+      setAvatarError(true);
+    } finally {
+      setAvatarSaving(null);
+    }
+  }
 
   return (
     <>
       <main className={styles.page}>
         <header className={styles.head}>
-          <div className={styles.avatar}>
+          <div className={styles.avatar} aria-hidden="true">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={`/pics/avatar/${avatarIdx}.webp`} alt="" />
           </div>
@@ -119,11 +137,37 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             <h1 className={styles.name}>{name}</h1>
             {user.email && <div className={styles.email}>{user.email}</div>}
           </div>
-          <div className={styles.heroCard} aria-hidden="true">
+          <div className={styles.heroCard}>
             <span>{t('heroKicker')}</span>
-            <strong>{t('heroLine')}</strong>
+            <strong>{revealedMustEatTotal}/{ownedMustEatTotal || '–'}</strong>
           </div>
         </header>
+
+        <section className={styles.character} aria-labelledby="profile-character-title">
+          <div>
+            <p className={styles.characterKicker}>{t('avatarKicker')}</p>
+            <h2 id="profile-character-title" className={styles.characterTitle}>{t('avatarTitle')}</h2>
+          </div>
+          <div className={styles.avatarPicker} role="radiogroup" aria-label={t('avatarTitle')}>
+            {AVATAR_CHOICES.map((choice) => (
+              <button
+                key={choice}
+                type="button"
+                role="radio"
+                aria-checked={avatarIdx === choice}
+                className={`${styles.avatarChoice} ${avatarIdx === choice ? styles.avatarChoiceActive : ''}`}
+                disabled={profileLoading || avatarSaving !== null}
+                onClick={() => void handleAvatarChange(choice)}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/pics/avatar/${choice}.webp`} alt={t('avatarChoice', { n: choice })} />
+              </button>
+            ))}
+          </div>
+          <p className={styles.avatarStatus}>
+            {avatarError ? t('avatarError') : avatarSaving ? t('avatarSaving') : t('avatarHint')}
+          </p>
+        </section>
 
         <section className={styles.command}>
           <p className={styles.commandKicker}>{t('heroKicker')}</p>
@@ -137,6 +181,14 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
               <strong>{revealedMustEatTotal}/{ownedMustEatTotal || '–'}</strong>
               <span>{t('statRevealed')}</span>
             </div>
+            <div className={styles.stat}>
+              <strong>{hiddenMustEatTotal}</strong>
+              <span>{t('statHidden')}</span>
+            </div>
+          </div>
+          <div className={styles.quickActions} aria-label={t('quickActions')}>
+            <Link href="/map" rel="nofollow" className={styles.quickAction}>{t('toMap')}</Link>
+            <Link href="/must-eats" rel="nofollow" className={styles.quickAction}>{t('tabMustEats')}</Link>
           </div>
         </section>
 

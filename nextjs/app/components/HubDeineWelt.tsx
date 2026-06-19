@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/lib/auth'
+import { defaultAvatarFromUid, useUserProfile } from '@/lib/firebase/useUserProfile'
 import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map'
 import { useUserLocationContext } from '@/lib/map/UserLocationContext'
 import { haversineDistance, formatWalkingTime } from '@/lib/map/distance'
@@ -24,6 +25,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   const t = useTranslations('hub.deineWelt')
   const { user, loading } = useAuth()
   const uid = user?.uid ?? null
+  const { profile } = useUserProfile(uid)
   const { restaurants, mustEats, revealedMustEatIds } = useMapData({ uid, authLoading: loading, initialMapData })
   const { unlockedIds } = useUnlockedMustEats(uid)
   const { location, loading: locating, request } = useUserLocationContext()
@@ -103,6 +105,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   const collected = [...faceUp].filter((id) => mustEatIdSet.has(id)).length
   const totalMustEats = dataMustEats.length
   const hiddenCount = Math.max(totalMustEats - collected, 0)
+  const avatarIdx = user ? (profile.avatar ?? defaultAvatarFromUid(user.uid)) : 1
   const loc = selectedDistrictCenter ?? (mounted && location ? location : MITTE)
   const openedCards = dataMustEats
     .filter((m) => faceUp.has(m._id) && m.image)
@@ -141,10 +144,27 @@ export default function HubDeineWelt({ initialMapData }: Props) {
               {t.rich('today', { em: (chunks) => <span>{chunks}</span> })}
             </h2>
             <p className={styles.lead}>{t('lead')}</p>
+            <div className={styles.insightBar} aria-label={t('profileStatsLabel')}>
+              <span>
+                <strong>{collected}</strong>
+                {t('insightRevealed')}
+              </span>
+              <span>
+                <strong>{hiddenCount}</strong>
+                {t('insightHidden')}
+              </span>
+            </div>
           </div>
           <div className={styles.headerActions}>
             <Link href="/profile" rel="nofollow" className={`${styles.profileLink} homeCta homeCtaFull`}>
-              <span className={styles.actionLabel}>{t('profileAction')}</span>
+              <span className={styles.profileAvatar} aria-hidden="true">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/pics/avatar/${avatarIdx}.webp`} alt="" />
+              </span>
+              <span className={styles.profileText}>
+                <span className={styles.actionLabel}>{t('profileAction')}</span>
+                <small>{t('profileActionMeta')}</small>
+              </span>
             </Link>
             <div className={styles.locationControl}>
               <div className={styles.districtPicker} ref={districtMenuRef}>
@@ -201,11 +221,8 @@ export default function HubDeineWelt({ initialMapData }: Props) {
                 aria-label={locating ? t('districtLocating') : t('districtUseLocation')}
                 title={locating ? t('districtLocating') : t('districtUseLocation')}
               >
-                <svg className={styles.locateIcon} viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
-                  <circle cx="12" cy="12" r="5.5" />
-                  <circle cx="12" cy="12" r="1.8" />
-                </svg>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className={styles.locateIcon} src="/pics/icons/standort.webp" alt="" width="256" height="256" aria-hidden="true" />
                 <span className={styles.locateText}>{locating ? t('districtLocating') : t('districtUseLocationShort')}</span>
               </button>
             </div>
@@ -217,6 +234,11 @@ export default function HubDeineWelt({ initialMapData }: Props) {
             <div className={styles.panelHead}>
               <p>{t('cardsKicker')}</p>
               <h3>{t('cardsTitle')}</h3>
+            </div>
+            <div className={styles.deckMeter} aria-label={t('profileStatsLabel')}>
+              <span>{collected}</span>
+              <i />
+              <span>{hiddenCount}</span>
             </div>
             <ul className={styles.cardFan} role="list">
               {cardSlots.map((card, index) => (

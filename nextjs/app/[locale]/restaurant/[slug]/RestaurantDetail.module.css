@@ -818,3 +818,161 @@ html[data-theme="dark"] .heroTags .chipOpen::before,
 html[data-theme="dark"] .heroTags .chipClosed::before { background: #fbf8ee; }
 html[data-theme="dark"] .openPill.closed { color: #fbf8ee; }
 html[data-theme="dark"] .openPill.closed::before { background: #fbf8ee; }
+
+/* ============================================================
+   Print palette pass — restaurant detail surfaces.
+   ============================================================ */
+
+.page {
+  --ink: var(--brand-ink);
+  --cream: var(--brand-paper);
+  --cream-deep: color-mix(in srgb, var(--brand-paper) 86%, var(--brand-rule));
+  --yellow: var(--brand-action);
+  --muted: var(--brand-muted);
+  --text-primary: var(--brand-ink);
+  --text-secondary: var(--brand-ink);
+  --text-muted: var(--brand-muted);
+  --surface-bg: var(--brand-paper);
+  --surface-card: var(--brand-paper);
+  --border-subtle: var(--brand-rule);
+  --border-strong: var(--brand-ink);
+  --accent: var(--brand-action);
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+}
+
+.hero {
+  background-color: var(--brand-ink);
+  border-color: var(--brand-paper);
+}
+
+.openPill,
+.heroTags .chip,
+.heroTags .chipAlt,
+.tags .chip,
+.tags .chipAlt {
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  border-color: var(--brand-ink);
+  border-radius: var(--radius-sm, 4px);
+}
+
+.heroTags .chipOpen,
+.openPill {
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border-color: var(--brand-paper);
+}
+
+.tipp {
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border-color: var(--brand-ink);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: 6px 6px 0 var(--brand-ink);
+}
+
+.tippLabel,
+.tippText {
+  color: var(--brand-paper);
+}
+
+.order {
+  background: var(--brand-paper);
+  border: 1.5px solid var(--brand-ink);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: 4px 4px 0 var(--brand-ink);
+}
+
+.orderHead,
+.orderDish,
+.orderPrice,
+.orderNote,
+.story,
+.lede::first-letter,
+.pullQuote {
+  color: var(--brand-ink);
+}
+
+.orderList,
+.orderItem,
+.facts,
+.factsRow {
+  border-color: var(--brand-ink);
+}
+
+.factsKey {
+  color: var(--brand-action);
+}
+
+.factsVal,
+.factsVal a {
+  color: var(--brand-ink);
+}
+
+.act {
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  border: 1.5px solid var(--brand-ink);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: 3px 3px 0 var(--brand-ink);
+}
+
+.actPrimary {
+  background: var(--brand-action);
+  color: var(--brand-paper);
+}
+
+.act:hover {
+  background: var(--brand-ink);
+  color: var(--brand-paper);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--brand-action);
+}
+
+html[data-theme="dark"] .page {
+  --ink: var(--brand-paper);
+  --cream: var(--brand-ink);
+  --cream-deep: var(--brand-ink);
+  --yellow: var(--brand-action);
+  --muted: color-mix(in srgb, var(--brand-paper) 72%, transparent);
+  --text-primary: var(--brand-paper);
+  --text-secondary: color-mix(in srgb, var(--brand-paper) 82%, transparent);
+  --text-muted: color-mix(in srgb, var(--brand-paper) 72%, transparent);
+  --surface-bg: var(--brand-ink);
+  --surface-card: var(--brand-ink);
+  --border-subtle: color-mix(in srgb, var(--brand-rule) 42%, transparent);
+  --border-strong: var(--brand-paper);
+  background: var(--brand-ink);
+  color: var(--brand-paper);
+}
+
+html[data-theme="dark"] .order,
+html[data-theme="dark"] .act {
+  background: var(--brand-ink);
+  color: var(--brand-paper);
+  border-color: var(--brand-paper);
+  box-shadow: 4px 4px 0 var(--brand-action);
+}
+
+html[data-theme="dark"] .tipp {
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border-color: var(--brand-paper);
+  box-shadow: 6px 6px 0 var(--brand-paper);
+}
+
+html[data-theme="dark"] .factsKey {
+  color: var(--brand-action);
+}
+
+/* Flat controls: buttons and icon controls use line + fill, no shadows. */
+.act,
+.actPrimary,
+.act:hover,
+.actPrimary:hover,
+html[data-theme="dark"] .act,
+html[data-theme="dark"] .actPrimary {
+  box-shadow: none;
+  text-shadow: none;
+}

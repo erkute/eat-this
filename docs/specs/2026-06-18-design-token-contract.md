@@ -49,24 +49,54 @@ stable semantic handles.
 
 Raw brand tokens describe the Eat This world. They should be few and stable.
 
-Proposed names:
+Canonical six-color palette:
 
 ```css
---et-raw-red: #e43d18;
---et-raw-red-hot: #f03608;
---et-raw-red-deep: #9f2616;
---et-raw-yellow: #e8b626;
---et-raw-yellow-bright: #f3c32c;
---et-raw-cream: #f2dfb8;
---et-raw-ink: #100d0f;
---et-raw-dark-card: #181112;
+--et-poster-red: #EF3528;
+--et-print-black: #171A17;
+--et-program-paper: #F1F1EC;
+--et-ticket-grey: #B9BBB4;
+--et-offset-grey: #6E716A;
+--et-pressed-red: #B92820;
 ```
 
 Compatibility:
 
 - Keep existing `--et-red`, `--et-yellow`, `--et-cream`, `--et-black`, etc. as
-  aliases during migration.
+  aliases during migration. The old yellow/cream names now point into the
+  red-black-program-paper print system.
 - New component work should prefer semantic tokens, not raw colors.
+
+### 1a. Brand Color Roles
+
+Raw colors are not enough for consistent UI/UX. Eat This colors need defined
+jobs so every screen can use the brand palette for orientation, recognition,
+and usability instead of decoration.
+
+```css
+--brand-stage;        /* program paper: readable UI canvas */
+--brand-stage-bright; /* poster red: selected/active emphasis */
+--brand-action;       /* poster red: primary action and brand punch */
+--brand-action-hot;   /* poster red: hover heat without adding a 7th color */
+--brand-action-deep;  /* pressed red: pressed states and depth */
+--brand-paper;        /* program paper: warm readable surface */
+--brand-ink;          /* print black: structure, contrast, trust */
+--brand-night;        /* print black: dark-mode surface */
+--brand-rule;         /* ticket grey: dividers and table rules */
+--brand-muted;        /* offset grey: meta text and quieter hierarchy */
+```
+
+Usage:
+
+- Use poster red when the interface asks for intent: buy, open, save,
+  continue, or look here.
+- Use program paper for reading comfort, list surfaces, forms, and editorial
+  calm.
+- Use print black for structure, borders, text, and confidence.
+- Use ticket grey for rules and layout structure; use offset grey for metadata,
+  timestamps, secondary labels, and less urgent helper text.
+- Do not introduce new one-off brand colors unless they map to a named role or
+  solve a documented accessibility problem.
 
 ### 2. Semantic Product Colors
 

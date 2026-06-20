@@ -8,33 +8,40 @@
 
 /* Design tokens — keep in sync with ../css/style.css */
 :root {
-  --black: #000000;
-  --white: #FFFFFF;
-  --off-white: #ffffff;        /* aligned to surface-canvas — 2026 cream direction */
-  --gray-50: #F5F5F5;
-  --gray-100: #E8E8E8;
-  --gray-200: #D4D4D4;
-  --gray-400: #888888;
-  --gray-600: #555555;
+  --black: #171A17;
+  --white: #F1F1EC;
+  --off-white: #F1F1EC;
+  --gray-50: #F1F1EC;
+  --gray-100: #B9BBB4;
+  --gray-200: #B9BBB4;
+  --gray-400: #6E716A;
+  --gray-600: #6E716A;
   /* Single source of truth, aligned to css/style.css's "mono pivot — was coral".
      Previously #FF3B00 here vs var(--et-black) there: the same var resolved to a
      different value depending on stylesheet load order. No module consumes
      --orange/--accent (only style.css does, where it always wins as var(--et-black)),
      so this only removes the pre-stylesheet red flash — no live colour change. */
   --orange: var(--et-black);
-  --darkred: #8B1A1A;
+  --darkred: #B92820;
 
-  /* Eat This 2026 image palette:
-     Light = Japanese design-cover yellow + hot poster red.
-     Dark = near-black room + glowing red window. */
-  --et-red: #e43d18;
-  --et-red-hot: #f03608;
-  --et-red-deep: #9f2616;
-  --et-yellow: #e8b626;
-  --et-yellow-bright: #f3c32c;
-  --et-cream: #f2dfb8;
-  --et-black: #100d0f;
-  --et-dark-card: #181112;
+  /* Eat This print palette: 6 colors from the theater-program reference. */
+  --et-poster-red: #EF3528;
+  --et-print-black: #171A17;
+  --et-program-paper: #F1F1EC;
+  --et-ticket-grey: #B9BBB4;
+  --et-offset-grey: #6E716A;
+  --et-pressed-red: #B92820;
+
+  /* Legacy aliases. Keep names stable while the visual system pivots from
+     yellow/cream to red/black/program-paper. */
+  --et-red: var(--et-poster-red);
+  --et-red-hot: var(--et-poster-red);
+  --et-red-deep: var(--et-pressed-red);
+  --et-yellow: var(--et-program-paper);
+  --et-yellow-bright: var(--et-ticket-grey);
+  --et-cream: var(--et-program-paper);
+  --et-black: var(--et-print-black);
+  --et-dark-card: var(--et-print-black);
 
   /* Foundation token aliases (EAT-15) — new component work should use the
      semantic/component names below. Existing --et/--surface/--font tokens stay
@@ -48,6 +55,22 @@
   --et-raw-ink: var(--et-black);
   --et-raw-dark-card: var(--et-dark-card);
 
+  /* Brand color roles:
+     Red = brand impact and action.
+     Paper = readable program surface.
+     Grey = rules, hierarchy, and secondary information.
+     Ink = contrast, structure, and trust. */
+  --brand-stage: var(--et-raw-cream);
+  --brand-stage-bright: var(--et-raw-red);
+  --brand-action: var(--et-raw-red);
+  --brand-action-hot: var(--et-raw-red-hot);
+  --brand-action-deep: var(--et-raw-red-deep);
+  --brand-paper: var(--et-raw-cream);
+  --brand-ink: var(--et-raw-ink);
+  --brand-night: var(--et-raw-dark-card);
+  --brand-rule: var(--et-ticket-grey);
+  --brand-muted: var(--et-offset-grey);
+
   /* Brand palette — Bar-Basta inspired. Coral-warm red is the primary brand
      mark (CTAs, eyebrows, accents). Pastel pink + sunny yellow are secondary
      accents. Navy is the script-accent color (matches the "Lunch"
@@ -58,29 +81,29 @@
      Keine Grautöne mehr. Cream/Paper bleiben als warm-neutrale Surfaces
      (das ist sticker-paper, kein Grau). Token-Namen unverändert für
      einfachen Rollback. */
-  --brand-coral:      var(--et-red);            /* poster-red */
+  --brand-coral:      var(--brand-action);      /* poster-red */
   --brand-coral-soft: rgba(228, 61, 24, 0.14);
 
-  --c-cream:        var(--et-cream);
-  --c-paper:        var(--et-yellow);
-  --c-mustard:      var(--et-yellow-bright);
-  --c-mustard-deep: #c89216;
-  --c-coral:        var(--et-red);
-  --c-coral-bright: var(--et-red-hot);
-  --accent-warm:    #ff8b42;                    /* helles Warm-Orange — Bezirk/Kategorie-Label auf Foto-Kacheln (lesbarer als Rot, beide Themes) */
-  --c-green:        var(--et-black);                    /* multi-direction green → schwarz */
-  --c-black:        var(--et-black);
+  --c-cream:        var(--brand-paper);
+  --c-paper:        var(--brand-stage);
+  --c-mustard:      var(--brand-stage-bright);
+  --c-mustard-deep: var(--brand-rule);
+  --c-coral:        var(--brand-action);
+  --c-coral-bright: var(--brand-action-hot);
+  --accent-warm:    var(--brand-action);
+  --c-green:        var(--brand-ink);                    /* multi-direction green → schwarz */
+  --c-black:        var(--brand-ink);
   --c-row-rule:     rgba(10, 10, 10, 0.14);
-  --brand-pink:       #ffd84a;                  /* re-purposed to yellow (kein pink mehr) */
-  --brand-yellow:     var(--et-yellow-bright);  /* yellow alias */
-  --brand-navy:       var(--et-black);                  /* navy → schwarz */
-  --brand-red:        var(--et-red);
-  --brand-red-hover:  var(--et-red-deep);
-  --collage-red:      var(--et-red-hot);
-  --collage-orange:   #ff8b42;
-  --collage-yellow:   var(--et-yellow-bright);
-  --collage-paper:    var(--et-yellow);
-  --collage-ink:      var(--et-red-deep);
+  --brand-pink:       var(--brand-paper);
+  --brand-yellow:     var(--brand-stage-bright); /* yellow alias */
+  --brand-navy:       var(--brand-ink);          /* navy → schwarz */
+  --brand-red:        var(--brand-action);
+  --brand-red-hover:  var(--brand-action-deep);
+  --collage-red:      var(--brand-action-hot);
+  --collage-orange:   var(--brand-action);
+  --collage-yellow:   var(--brand-stage-bright);
+  --collage-paper:    var(--brand-stage);
+  --collage-ink:      var(--brand-action-deep);
   --collage-shadow:   0 16px 30px rgba(43, 33, 28, 0.18);
 
   --font: var(--font-dm-sans), 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -141,7 +164,7 @@
   --text-primary:      var(--black);
   --text-secondary:    var(--gray-600);
   --text-muted:        var(--gray-400);
-  --accent:            var(--et-red);
+  --accent:            var(--brand-action);
   --accent-soft:       rgba(228, 61, 24, 0.14);
   --cta-red:           #b71c1c;
   --shadow-sm:         0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -157,12 +180,12 @@
   --color-text-subtle: var(--text-muted);
   --color-border:      var(--border-subtle);
   --color-border-strong: var(--border-strong);
-  --color-action:      var(--accent);
-  --color-action-hover: var(--et-red-hot);
-  --color-action-text: var(--et-cream);
-  --color-warning:     var(--et-yellow-bright);
+  --color-action:      var(--brand-action);
+  --color-action-hover: var(--brand-action-hot);
+  --color-action-text: var(--brand-paper);
+  --color-warning:     var(--brand-stage-bright);
   --color-success:     #34a85a;
-  --color-danger:      var(--et-red);
+  --color-danger:      var(--brand-action);
   --shadow-none:       none;
   --shadow-soft:       0 10px 24px rgba(16, 13, 15, .12);
   --shadow-lifted:     0 18px 38px rgba(43, 33, 28, .16);
@@ -202,16 +225,16 @@
      cool-toned --surface-bg used elsewhere. The landing uses these to evoke
      a magazine feel: 9 of 12 sections sit on --surface-canvas, two trust-beats
      get the paper tint, decision-moments (Packs) sit on --surface-deep. */
-  --surface-canvas: var(--et-yellow);
-  --surface-paper:  var(--et-cream);
-  --surface-deep:   var(--et-black);
-  --surface-deep-2: var(--et-dark-card);
+  --surface-canvas: var(--brand-stage);
+  --surface-paper:  var(--brand-paper);
+  --surface-deep:   var(--brand-ink);
+  --surface-deep-2: var(--brand-night);
 
   /* ── 2026 Editorial accents — black/white/red/yellow pivot ── */
   --frame-ink:      var(--et-black);
-  --accent-mustard: var(--et-yellow-bright);
-  --accent-coral:   var(--et-red);
-  --accent-ink:     var(--et-black);
+  --accent-mustard: var(--brand-stage-bright);
+  --accent-coral:   var(--brand-action);
+  --accent-ink:     var(--brand-ink);
 }
 
 /* The Ranchers/Bungee/Knewave/Slackey/Archivo Black font files are no longer
@@ -233,10 +256,10 @@ html[data-theme="dark"] {
 
   --surface-bg:        var(--et-black);
   --surface-card:      var(--et-dark-card);
-  --surface-raised:    #211416;
+  --surface-raised:    var(--et-print-black);
   --surface-overlay:   rgba(16, 13, 15, 0.95);
-  --border-subtle:     #2a2a2a;
-  --border-strong:     #3a3a3a;
+  --border-subtle:     color-mix(in srgb, var(--brand-rule) 36%, var(--brand-ink));
+  --border-strong:     color-mix(in srgb, var(--brand-rule) 54%, var(--brand-ink));
   --text-primary:      var(--et-cream);
   --text-secondary:    rgba(242, 223, 184, 0.74);
   --text-muted:        rgba(242, 223, 184, 0.52);
@@ -254,19 +277,16 @@ html[data-theme="dark"] {
   /* Landing surfaces — dark-mode versions stay close-to-black with subtle
      elevation steps so card hierarchy remains readable. */
   --surface-canvas: var(--et-black);
-  --surface-paper:  #181112;
-  --surface-deep:   #050405;
-  --surface-deep-2: #1f1415;
+  --surface-paper:  var(--et-print-black);
+  --surface-deep:   var(--et-print-black);
+  --surface-deep-2: var(--et-print-black);
 }
 
 /* ── Dark-Mode-Designsprache (2026-06-03, User-Entscheidung) ──
    ALLE Seiten folgen dem Dark Mode (vorher waren Hub/News/SEO cream gepinnt).
-   Rezept: Seiten-Bg var(--et-black) · Karten/Raised #1d1c19 · Ink #f0e8d0 ·
-   Sub-Ink rgba(240,232,208,.72) · Hairlines rgba(240,232,208,.3) ·
-   Sticker-Borders #f0e8d0 · Akzent ROT statt GELB: Fills var(--c-coral)
-   #a02814 mit var(--et-yellow)-Text, Text-Akzente var(--c-coral-bright) #d63a2a.
-   Header+Footer kippen auf Brand-Rot. Die Umsetzung liegt in den jeweiligen
-   CSS-Modulen als additive html[data-theme="dark"]-Blöcke. */
+   Rezept: Print Black als Raum, Program Paper als Lesefläche, Poster Red als
+   Handlung und Ticket Grey als Ordnungslinie. Die Umsetzung liegt in den
+   jeweiligen CSS-Modulen als additive html[data-theme="dark"]-Blöcke. */
 html[data-theme="dark"] {
   --dk-page: var(--et-black);
   --dk-card: var(--et-dark-card);
@@ -305,7 +325,7 @@ html[data-theme="dark"] {
    style.css re-asserts it (and adds input-specific overrides) for SPA pages
    whose `outline:none` resets would otherwise win the cascade. */
 :focus-visible {
-  outline: 2px solid var(--c-coral, #a02814);
+  outline: 2px solid var(--c-coral, #EF3528);
   outline-offset: 2px;
 }
 
@@ -686,7 +706,7 @@ html[data-auth="1"] [data-guest-only] {
   /* Parked fully below the viewport edge (own height + the 100px offset). */
   transform: translate(-50%, calc(100% + 120px));
   background: var(--et-black);
-  color: #f0e8d0;
+  color: var(--brand-paper);
   font-family: var(--font-saira-condensed), sans-serif;
   font-weight: 800;
   font-size: 15px;
@@ -704,7 +724,7 @@ html[data-auth="1"] [data-guest-only] {
   transform: translate(-50%, 0);
 }
 html[data-theme="dark"] .notification {
-  background: #f0e8d0;
+  background: var(--brand-paper);
   color: var(--et-black);
 }
 

@@ -39,24 +39,30 @@ ul,ol{list-style:none}
 
 /* DESIGN TOKENS */
 :root {
-  --black: #000000;
-  --white: #FFFFFF;
-  --off-white: #ffffff;        /* aligned to surface-canvas — 2026 cream direction */
-  --gray-50: #F5F5F5;
-  --gray-100: #E8E8E8;
-  --gray-200: #D4D4D4;
-  --gray-400: #888888;
-  --gray-600: #555555;
+  --black: #171A17;
+  --white: #F1F1EC;
+  --off-white: #F1F1EC;
+  --gray-50: #F1F1EC;
+  --gray-100: #B9BBB4;
+  --gray-200: #B9BBB4;
+  --gray-400: #6E716A;
+  --gray-600: #6E716A;
   --orange: var(--et-black);        /* mono pivot — was coral */
-  --darkred: #8B1A1A;
-  --et-red: #e43d18;
-  --et-red-hot: #f03608;
-  --et-red-deep: #9f2616;
-  --et-yellow: #e8b626;
-  --et-yellow-bright: #f3c32c;
-  --et-cream: #f2dfb8;
-  --et-black: #100d0f;
-  --et-dark-card: #181112;
+  --darkred: #B92820;
+  --et-poster-red: #EF3528;
+  --et-print-black: #171A17;
+  --et-program-paper: #F1F1EC;
+  --et-ticket-grey: #B9BBB4;
+  --et-offset-grey: #6E716A;
+  --et-pressed-red: #B92820;
+  --et-red: var(--et-poster-red);
+  --et-red-hot: var(--et-poster-red);
+  --et-red-deep: var(--et-pressed-red);
+  --et-yellow: var(--et-program-paper);
+  --et-yellow-bright: var(--et-ticket-grey);
+  --et-cream: var(--et-program-paper);
+  --et-black: var(--et-print-black);
+  --et-dark-card: var(--et-print-black);
   --et-raw-red: var(--et-red);
   --et-raw-red-hot: var(--et-red-hot);
   --et-raw-red-deep: var(--et-red-deep);
@@ -65,8 +71,20 @@ ul,ol{list-style:none}
   --et-raw-cream: var(--et-cream);
   --et-raw-ink: var(--et-black);
   --et-raw-dark-card: var(--et-dark-card);
-  --surface-canvas: var(--et-yellow);
-  --accent-ink: var(--et-black);
+  /* Brand color roles mirror app/globals.css. Raw colors describe the Eat This
+     palette; roles describe the UX job each color is allowed to do. */
+  --brand-stage: var(--et-raw-cream);
+  --brand-stage-bright: var(--et-raw-red);
+  --brand-action: var(--et-raw-red);
+  --brand-action-hot: var(--et-raw-red-hot);
+  --brand-action-deep: var(--et-raw-red-deep);
+  --brand-paper: var(--et-raw-cream);
+  --brand-ink: var(--et-raw-ink);
+  --brand-night: var(--et-raw-dark-card);
+  --brand-rule: var(--et-ticket-grey);
+  --brand-muted: var(--et-offset-grey);
+  --surface-canvas: var(--brand-stage);
+  --accent-ink: var(--brand-ink);
   --font: var(--font-dm-sans), 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body: var(--font);
   --font-display: var(--font-chewy, 'moonblossom'), sans-serif;
@@ -102,18 +120,18 @@ ul,ol{list-style:none}
   --color-surface: #fff;
   --color-surface-raised: #fff;
   --color-surface-overlay: rgba(255, 255, 255, .95);
-  --color-surface-inverse: var(--et-black);
-  --color-text: var(--et-black);
+  --color-surface-inverse: var(--brand-ink);
+  --color-text: var(--brand-ink);
   --color-text-muted: rgba(16, 13, 15, .72);
   --color-text-subtle: rgba(16, 13, 15, .52);
   --color-border: rgba(16, 13, 15, .14);
   --color-border-strong: rgba(16, 13, 15, .32);
-  --color-action: var(--et-red);
-  --color-action-hover: var(--et-red-hot);
-  --color-action-text: var(--et-cream);
-  --color-warning: var(--et-yellow-bright);
+  --color-action: var(--brand-action);
+  --color-action-hover: var(--brand-action-hot);
+  --color-action-text: var(--brand-paper);
+  --color-warning: var(--brand-stage-bright);
   --color-success: #34a85a;
-  --color-danger: var(--et-red);
+  --color-danger: var(--brand-action);
   --shadow-none: none;
   --shadow-soft: 0 10px 24px rgba(16, 13, 15, .12);
   --shadow-lifted: 0 18px 38px rgba(43, 33, 28, .16);
@@ -270,7 +288,7 @@ body {
   bottom: -6px;
   width: 14px;
   height: 2px;
-  background: var(--brand-yellow, #ffd84a);
+  background: var(--brand-action);
   transform: translateX(-50%);
   border-radius: 2px;
 }
@@ -3825,11 +3843,11 @@ body:has(.burger-drawer.active) .burger-btn {
   box-shadow: none;
 }
 [data-theme="dark"] .bd-lang-btn,
-[data-theme="dark"] .bd-lang-sep { color: #f0e8d0; }
+[data-theme="dark"] .bd-lang-sep { color: var(--brand-paper); }
 [data-theme="dark"] .bd-lang-btn.on { text-decoration-color: var(--c-coral-bright); }
-[data-theme="dark"] .bd-theme-label { color: #f0e8d0; }
-[data-theme="dark"] .bd-theme-track { border-color: #f0e8d0; }
-[data-theme="dark"] .bd-theme-thumb { background: #f0e8d0; }
+[data-theme="dark"] .bd-theme-label { color: var(--brand-paper); }
+[data-theme="dark"] .bd-theme-track { border-color: var(--brand-paper); }
+[data-theme="dark"] .bd-theme-thumb { background: var(--brand-paper); }
 [data-theme="dark"] .bd-theme-toggle.on .bd-theme-track { background: rgba(240, 232, 208, 0.25); }
 [data-theme="dark"] .burger-drawer-close {
   background: var(--et-cream);
@@ -3843,7 +3861,7 @@ body:has(.burger-drawer.active) .burger-btn {
 [data-theme="dark"] .bd-nav { border-top-color: transparent; }
 [data-theme="dark"] .bd-nav-item {
   border-bottom-color: transparent;
-  color: #f0e8d0;
+  color: var(--brand-paper);
 }
 [data-theme="dark"] .bd-nav-item:hover { background: rgba(240, 232, 212, .14); color: var(--et-yellow); }
 [data-theme="dark"] .bd-nav-item.bd-cta {
@@ -3856,7 +3874,7 @@ body:has(.burger-drawer.active) .burger-btn {
   box-shadow: none;
 }
 [data-theme="dark"] .bd-foot { border-top-color: transparent; }
-[data-theme="dark"] .bd-foot-link { color: #f0e8d0; }
+[data-theme="dark"] .bd-foot-link { color: var(--brand-paper); }
 
 /* ══════════════════════════════════════════════
    SITE FOOTER — editorial restyle (2026)
@@ -3979,13 +3997,13 @@ body:has(.burger-drawer.active) .burger-btn {
    class+pseudo specificity to override the inputs' own `outline:none`, which a
    bare :focus-visible (0,1,0) can't beat. */
 :focus-visible {
-  outline: 2px solid var(--c-coral, #a02814);
+  outline: 2px solid var(--c-coral, #EF3528);
   outline-offset: 2px;
 }
 .profile-settings-input:focus-visible,
 .ob-name-input:focus-visible,
 .wm-field input:focus-visible {
-  outline: 2px solid var(--c-coral, #a02814);
+  outline: 2px solid var(--c-coral, #EF3528);
   outline-offset: 1px;
 }
 
@@ -3994,10 +4012,10 @@ body:has(.burger-drawer.active) .burger-btn {
 .burger-btn {
   width: 38px;
   height: 38px;
-  background: #ffd079;
-  border: 2px solid #14100c;
-  box-shadow: 3px 3px 0 #14100c;
-  color: #14100c;
+  background: var(--brand-paper);
+  border: 2px solid var(--brand-ink);
+  box-shadow: 3px 3px 0 var(--brand-ink);
+  color: var(--brand-ink);
   transition: transform .14s ease, box-shadow .14s ease, background-color .14s ease;
 }
 .navbar-icon-btn img,
@@ -4005,54 +4023,54 @@ body:has(.burger-drawer.active) .burger-btn {
   filter: none !important;
   height: 24px !important;
 }
-.navbar-icon-btn.active { background: #fff; }
+.navbar-icon-btn.active { background: var(--brand-action); }
 .navbar-icon-btn.active::before { display: none; }
 @media (hover: hover) {
   .navbar-icon-btn:hover,
   .burger-btn:hover {
-    background: #fff;
-    color: #14100c;
+    background: var(--brand-paper);
+    color: var(--brand-ink);
     transform: translate(-2px, -2px);
-    box-shadow: 5px 5px 0 #14100c;
+    box-shadow: 5px 5px 0 var(--brand-ink);
   }
 }
 .navbar-icon-btn:active,
 .burger-btn:active {
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 #14100c;
+  box-shadow: 1px 1px 0 var(--brand-ink);
 }
 .burger-drawer-close {
-  background: #ef3108;
-  color: #fff;
-  border: 2px solid #14100c;
-  box-shadow: 4px 4px 0 #14100c;
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border: 2px solid var(--brand-ink);
+  box-shadow: 4px 4px 0 var(--brand-ink);
 }
 .burger-drawer-close:hover {
-  background: #ffd079;
-  color: #14100c;
-  box-shadow: 4px 4px 0 #14100c;
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  box-shadow: 4px 4px 0 var(--brand-ink);
 }
 .bd-theme-track {
   border-radius: 0;
-  background: #fff;
-  box-shadow: 2px 2px 0 #000;
+  background: var(--brand-paper);
+  box-shadow: 2px 2px 0 var(--brand-ink);
 }
 .bd-theme-thumb {
   border-radius: 0;
-  background: #ef3108;
+  background: var(--brand-action);
 }
 [data-theme="dark"] .navbar-icon-btn,
 [data-theme="dark"] .burger-btn {
-  background: #ffd079;
-  color: #14100c;
-  border-color: #14100c;
-  box-shadow: 3px 3px 0 #14100c;
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  border-color: var(--brand-ink);
+  box-shadow: 3px 3px 0 var(--brand-ink);
 }
 [data-theme="dark"] .burger-drawer-close {
-  background: #ef3108;
-  color: #fff;
-  border-color: #f0e8d0;
-  box-shadow: 4px 4px 0 #f0e8d0;
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border-color: var(--brand-paper);
+  box-shadow: 4px 4px 0 var(--brand-paper);
 }
 
 /* Header controls: typographic paper stickers instead of bitmap icons. */
@@ -4061,23 +4079,23 @@ body:has(.burger-drawer.active) .burger-btn {
   width: auto;
   height: 40px;
   min-width: 42px;
-  border: 2px solid #14100c;
+  border: 2px solid var(--brand-ink);
   border-radius: 999px;
   box-shadow: none;
-  background: #fff;
-  color: #14100c;
+  background: var(--brand-paper);
+  color: var(--brand-ink);
   clip-path: none;
   filter: none;
   transform: none;
 }
 .navbar-icon-btn.active {
-  background: var(--brand-yellow, #ffd84a);
-  color: #14100c;
+  background: var(--brand-action);
+  color: var(--brand-paper);
 }
 @media (hover: hover) {
   .navbar-icon-btn:hover,
   .burger-btn:hover {
-    background: var(--brand-yellow, #ffd84a);
+    background: var(--brand-action);
     transform: translateY(-2px);
     box-shadow: none;
   }
@@ -4088,8 +4106,8 @@ body:has(.burger-drawer.active) .burger-btn {
   box-shadow: none;
 }
 .burger-drawer-close {
-  background: #fff;
-  color: #14100c;
+  background: var(--brand-paper);
+  color: var(--brand-ink);
   border: 0;
   box-shadow: none;
   clip-path: polygon(8% 0, 100% 9%, 90% 100%, 0 88%);
@@ -4110,9 +4128,9 @@ body:has(.burger-drawer.active) .burger-btn {
 [data-theme="dark"] .navbar-icon-btn,
 [data-theme="dark"] .burger-btn,
 [data-theme="dark"] .burger-drawer-close {
-  background: #fff;
-  color: #14100c;
-  border-color: #14100c;
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  border-color: var(--brand-ink);
   box-shadow: none;
 }
 
@@ -4122,9 +4140,9 @@ body:has(.burger-drawer.active) .burger-btn {
   width: min(480px, 100vw);
   max-width: 100vw;
   border-left: 0;
-  background-color: #f5c518;
+  background-color: var(--brand-paper);
   background-image: none;
-  color: #14100c;
+  color: var(--brand-ink);
   box-shadow: -14px 0 0 rgba(20, 16, 12, .92);
 }
 .burger-drawer-backdrop {
@@ -4149,21 +4167,21 @@ body:has(.burger-drawer.active) .burger-btn {
 [data-theme="dark"] .bd-lang-btn,
 [data-theme="dark"] .bd-lang-sep,
 [data-theme="dark"] .bd-theme-label {
-  color: #14100c;
+  color: var(--brand-ink);
 }
 .bd-lang-btn.on,
 [data-theme="dark"] .bd-lang-btn.on {
-  text-decoration-color: #ef3108;
+  text-decoration-color: var(--brand-action);
 }
 .bd-theme-track,
 [data-theme="dark"] .bd-theme-track {
-  background: #fff;
-  color: #14100c;
-  filter: drop-shadow(3px 3px 0 #14100c);
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  filter: drop-shadow(3px 3px 0 var(--brand-ink));
 }
 .bd-theme-thumb,
 [data-theme="dark"] .bd-theme-thumb {
-  background: #ef3108;
+  background: var(--brand-action);
 }
 .burger-drawer-close,
 [data-theme="dark"] .burger-drawer-close {
@@ -4171,17 +4189,17 @@ body:has(.burger-drawer.active) .burger-btn {
   right: 16px;
   width: 46px;
   height: 44px;
-  background: #fff;
-  color: #14100c;
+  background: var(--brand-paper);
+  color: var(--brand-ink);
   font-size: 31px;
   clip-path: polygon(7% 4%, 100% 0, 92% 100%, 0 87%);
-  filter: drop-shadow(5px 5px 0 #14100c);
+  filter: drop-shadow(5px 5px 0 var(--brand-ink));
 }
 .burger-drawer-close:hover,
 [data-theme="dark"] .burger-drawer-close:hover {
-  background: #fff;
-  color: #ef3108;
-  filter: drop-shadow(7px 7px 0 #14100c);
+  background: var(--brand-paper);
+  color: var(--brand-action);
+  filter: drop-shadow(7px 7px 0 var(--brand-ink));
 }
 .bd-logo {
   position: relative;
@@ -4206,8 +4224,8 @@ body:has(.burger-drawer.active) .burger-btn {
   min-height: 47px;
   padding: 9px 20px 10px;
   border: 0;
-  background: #fff;
-  color: #14100c;
+  background: var(--brand-paper);
+  color: var(--brand-ink);
   clip-path: polygon(1% 8%, 98% 0, 100% 89%, 2% 100%);
   filter: drop-shadow(4px 4px 0 rgba(20, 16, 12, .92));
   font-family: var(--font-poster);
@@ -4229,8 +4247,8 @@ body:has(.burger-drawer.active) .burger-btn {
 @media (hover: hover) {
   .bd-nav-item:hover,
   [data-theme="dark"] .bd-nav-item:hover {
-    background: #14100c;
-    color: #fff;
+    background: var(--brand-ink);
+    color: var(--brand-paper);
     transform: translateX(-7px) rotate(-1.7deg) scale(1.02);
   }
   .bd-nav-item:nth-child(even):hover,
@@ -4243,10 +4261,10 @@ body:has(.burger-drawer.active) .burger-btn {
   order: -1;
   margin: 0 0 4px;
   padding: 14px 20px 15px;
-  background: #ef3108;
-  color: #fff;
+  background: var(--brand-action);
+  color: var(--brand-paper);
   clip-path: polygon(0 8%, 98% 0, 100% 88%, 3% 100%);
-  filter: drop-shadow(6px 6px 0 #14100c);
+  filter: drop-shadow(6px 6px 0 var(--brand-ink));
   box-shadow: none;
   transform: rotate(-1.6deg);
 }
@@ -4256,8 +4274,8 @@ body:has(.burger-drawer.active) .burger-btn {
 }
 .bd-nav-item.bd-cta:hover,
 [data-theme="dark"] .bd-nav-item.bd-cta:hover {
-  background: #14100c;
-  color: #fff;
+  background: var(--brand-ink);
+  color: var(--brand-paper);
   box-shadow: none;
   transform: translateY(-3px) rotate(1deg);
 }
@@ -4266,18 +4284,18 @@ body:has(.burger-drawer.active) .burger-btn {
   margin-top: auto;
   padding: 12px 14px 13px;
   border: 0;
-  background: #14100c;
+  background: var(--brand-ink);
   clip-path: polygon(1% 4%, 100% 0, 98% 94%, 0 100%);
-  color: #fff;
+  color: var(--brand-paper);
 }
 .bd-foot-link,
 [data-theme="dark"] .bd-foot-link {
-  color: #fff;
+  color: var(--brand-paper);
   opacity: .72;
 }
 .bd-foot-link:hover,
 [data-theme="dark"] .bd-foot-link:hover {
-  color: #f5c518;
+  color: var(--brand-action);
   opacity: 1;
 }
 .burger-drawer.active .bd-nav-item {
@@ -4730,4 +4748,46 @@ body:has(.burger-drawer.active) .burger-btn {
 .app-page[data-page="map"] .map-location-btn-fixed svg,
 [data-theme="dark"] .app-page[data-page="map"] .map-location-btn-fixed svg {
   stroke: var(--et-red);
+}
+
+/* Flat controls: the print palette uses line, fill and position. Icon buttons
+   and menu buttons should not carry hard or soft shadows. */
+.navbar-icon-btn,
+.burger-btn,
+.burger-drawer-close,
+.bd-theme-track,
+.bd-nav-item,
+.bd-nav-item.bd-cta,
+.bd-foot-link,
+.app-page[data-page="map"] .map-location-btn-fixed,
+[data-theme="dark"] .navbar-icon-btn,
+[data-theme="dark"] .burger-btn,
+[data-theme="dark"] .burger-drawer-close,
+[data-theme="dark"] .bd-theme-track,
+[data-theme="dark"] .bd-nav-item,
+[data-theme="dark"] .bd-nav-item.bd-cta,
+[data-theme="dark"] .bd-foot-link,
+[data-theme="dark"] .app-page[data-page="map"] .map-location-btn-fixed {
+  box-shadow: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+@media (hover: hover) {
+  .navbar-icon-btn:hover,
+  .burger-btn:hover,
+  .burger-drawer-close:hover,
+  .bd-nav-item:hover,
+  .bd-nav-item.bd-cta:hover,
+  .bd-foot-link:hover,
+  [data-theme="dark"] .navbar-icon-btn:hover,
+  [data-theme="dark"] .burger-btn:hover,
+  [data-theme="dark"] .burger-drawer-close:hover,
+  [data-theme="dark"] .bd-nav-item:hover,
+  [data-theme="dark"] .bd-nav-item.bd-cta:hover,
+  [data-theme="dark"] .bd-foot-link:hover {
+    box-shadow: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+  }
 }

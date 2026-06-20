@@ -1,11 +1,16 @@
 .footer {
-  background: #F5C518;
-  color: #000;
+  --footer-bg: var(--brand-action, var(--et-red));
+  --footer-fg: var(--brand-paper, var(--et-cream));
+  --footer-muted: color-mix(in srgb, var(--footer-fg) 68%, transparent);
+  --footer-track-bg: var(--brand-paper, var(--et-cream));
+  --footer-thumb-bg: var(--brand-action, var(--et-red));
+  background: var(--footer-bg);
+  color: var(--footer-fg);
   padding: 28px 16px 32px;
   font-family: var(--font);
   position: relative;
   overflow: hidden;
-  border-top: 2px solid #000;
+  border-top: 0;
 }
 @media (max-width: 767.98px) {
   /* Slim in-flow apron in the footer's own bg: iOS Safari samples its
@@ -49,7 +54,7 @@
   font-size: 22px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #000;
+  color: var(--footer-fg);
   text-align: center;
   margin: 0 0 28px;
 }
@@ -64,8 +69,7 @@
   font-size: 13px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--et-black);
-  opacity: 0.6;
+  color: var(--footer-muted);
   margin-bottom: 10px;
 }
 
@@ -75,7 +79,7 @@
   font-size: 28px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #000;
+  color: var(--footer-fg);
   text-decoration: none;
   line-height: 1.2;
   margin: 4px 0;
@@ -98,7 +102,7 @@
 }
 
 .legalLink {
-  color: #000;
+  color: var(--footer-fg);
   text-decoration: none;
   opacity: 0.75;
   transition: color 0.15s ease, opacity 0.15s ease;
@@ -133,13 +137,12 @@
 }
 
 .copy {
-  color: #000;
+  color: var(--footer-fg);
   opacity: 0.6;
 }
 
-/* Dark-mode toggle (iOS-style switch). The footer is brand-yellow in both
-   themes, so the toggle keeps ink colours regardless of theme — only the
-   thumb position + track fill signal the state. */
+/* Dark-mode toggle: inherits the footer palette so the control remains part of
+   the brand endpoint instead of introducing its own mini color system. */
 .themeToggle {
   display: inline-flex;
   align-items: center;
@@ -156,11 +159,10 @@
   position: relative;
   width: 44px;
   height: 22px;
-  background: transparent;
-  border: 1.5px solid #000;
+  border: 0;
   border-radius: 0;
-  background: #fff;
-  box-shadow: 2px 2px 0 #000;
+  background: var(--footer-track-bg);
+  box-shadow: none;
   flex-shrink: 0;
   transition: background 0.2s ease;
 }
@@ -170,12 +172,12 @@
   left: 2px;
   width: 15px;
   height: 15px;
-  background: #ef3108;
+  background: var(--footer-thumb-bg);
   border-radius: 0;
   transition: left 0.2s ease;
 }
 .themeToggleOn .themeTrack {
-  background: rgba(0, 0, 0, 0.18);
+  background: color-mix(in srgb, var(--footer-fg) 28%, transparent);
 }
 .themeToggleOn .themeThumb {
   left: 24px;
@@ -185,7 +187,7 @@
   font-size: 12px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #000;
+  color: var(--footer-fg);
   opacity: 0.55;
   transition: opacity 0.15s ease;
 }
@@ -207,7 +209,7 @@
   font-size: 12px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #000;
+  color: var(--footer-fg);
   opacity: 0.55;
   cursor: pointer;
   transition: color 0.15s ease, opacity 0.15s ease;
@@ -217,11 +219,11 @@
 }
 .langBtnActive {
   opacity: 1;
-  color: var(--et-black);
+  color: var(--footer-fg);
 }
 
 .langSep {
-  color: #000;
+  color: var(--footer-fg);
   opacity: 0.3;
 }
 
@@ -249,115 +251,13 @@
   }
 }
 
-/* ── Dark mode: Footer kippt auf Brand-Rot (User-Entscheidung 2026-06-03) ──
-   Cream-Inhalte auf #a02814. Bubble-Logo (cream+ink) liest auf Rot as-is;
-   der schwarze Slogan-Schriftzug wird per invert weiß. */
-html[data-theme="dark"] .footer {
-  background: #a02814;
-  color: var(--et-yellow);
-  border-top-color: rgba(0, 0, 0, 0.35);
-}
-html[data-theme="dark"] .tagImg { filter: invert(1); }
-html[data-theme="dark"] .tag,
-html[data-theme="dark"] .socialLink,
-html[data-theme="dark"] .legalLink,
-html[data-theme="dark"] .langBtn,
-html[data-theme="dark"] .langSep,
-html[data-theme="dark"] .copy,
-html[data-theme="dark"] .langBtnActive {
-  color: var(--et-yellow);
-}
-html[data-theme="dark"] .linksKicker { color: var(--et-yellow); opacity: 0.7; }
-html[data-theme="dark"] .themeTrack { border-color: var(--et-yellow); }
-html[data-theme="dark"] .themeThumb { background: var(--et-yellow); }
-html[data-theme="dark"] .themeToggleOn .themeTrack { background: rgba(251, 248, 238, 0.25); }
-html[data-theme="dark"] .themeLabel { color: var(--et-yellow); }
-
-html[data-theme="dark"] .themeTrack {
-  border-radius: 0;
-  background: #fff;
-  border-color: #000;
-  box-shadow: 2px 2px 0 #000;
-}
-html[data-theme="dark"] .themeThumb {
-  border-radius: 0;
-  background: #ef3108;
-}
-
-/* Slice-inspired home refresh */
-.footer,
-html[data-theme="dark"] .footer {
-  background: var(--et-red);
-  color: var(--et-cream);
-  border-top: 2px solid var(--et-cream);
-}
-.tag,
-.socialLink,
-.legalLink,
-.langBtn,
-.langSep,
-.copy,
-.langBtnActive,
-.themeLabel,
-html[data-theme="dark"] .tag,
-html[data-theme="dark"] .socialLink,
-html[data-theme="dark"] .legalLink,
-html[data-theme="dark"] .langBtn,
-html[data-theme="dark"] .langSep,
-html[data-theme="dark"] .copy,
-html[data-theme="dark"] .langBtnActive,
-html[data-theme="dark"] .themeLabel {
-  color: var(--et-cream);
-}
-.linksKicker,
-html[data-theme="dark"] .linksKicker {
-  color: var(--et-cream);
-  opacity: .68;
-}
-.tagImg,
-html[data-theme="dark"] .tagImg {
-  filter: invert(1);
-}
-.themeTrack,
-html[data-theme="dark"] .themeTrack {
-  background: var(--et-cream);
-  border-color: var(--et-cream);
-  box-shadow: none;
-}
-.themeThumb,
-html[data-theme="dark"] .themeThumb {
-  background: var(--et-red);
-}
-.themeToggleOn .themeTrack,
-html[data-theme="dark"] .themeToggleOn .themeTrack {
-  background: rgba(240, 232, 212, .28);
-}
-
-.footer,
-html[data-theme="dark"] .footer,
-.themeTrack,
-html[data-theme="dark"] .themeTrack {
-  border: 0;
-}
+/* Final footer palette contract: the footer is an assertive brand endpoint in
+   light mode and a high-heat ink endpoint in dark mode. */
+.tagImg { filter: invert(1); }
 
 html[data-theme="dark"] .footer {
-  background: var(--et-black);
-  color: var(--et-red-hot);
-}
-html[data-theme="dark"] .tag,
-html[data-theme="dark"] .socialLink,
-html[data-theme="dark"] .legalLink,
-html[data-theme="dark"] .langBtn,
-html[data-theme="dark"] .langSep,
-html[data-theme="dark"] .copy,
-html[data-theme="dark"] .langBtnActive,
-html[data-theme="dark"] .themeLabel,
-html[data-theme="dark"] .linksKicker {
-  color: var(--et-red-hot);
-}
-html[data-theme="dark"] .themeTrack {
-  background: var(--et-dark-card);
-}
-html[data-theme="dark"] .themeThumb {
-  background: var(--et-red-hot);
+  --footer-bg: var(--brand-ink, var(--et-black));
+  --footer-fg: var(--brand-action-hot, var(--et-red-hot));
+  --footer-track-bg: var(--brand-night, var(--et-dark-card));
+  --footer-thumb-bg: var(--brand-action-hot, var(--et-red-hot));
 }

@@ -18,6 +18,7 @@ function render() {
 describe('HubAllBerlin', () => {
   it('renders the All Berlin heading and offer copy', () => {
     const html = render()
+    expect(html).toContain('id="hub-allberlin"')
     expect(html).toMatch(/All<br\/?>Berlin/)
     expect(html).toContain('Alle neuen Booster Packs in einem')
     expect(html).toContain('€20,00')

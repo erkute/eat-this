@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: var(--surface-canvas, var(--et-yellow, #e8b626));
+  background: var(--et-red, #e43d18);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -31,7 +31,7 @@
 @media (max-width: 767px) {
   .overlay {
     padding: 0;
-    background: var(--surface-canvas, var(--et-yellow, #e8b626));
+    background: var(--et-red, #e43d18);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     flex-direction: column;

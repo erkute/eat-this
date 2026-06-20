@@ -2,8 +2,9 @@
 import { useEffect } from 'react'
 
 /**
- * Hard navigations to /#<id> (e.g. #hub-packs from the map end-cap or the
- * burger) scroll to the anchor before the logged-in islands (HubDeineWelt)
+ * Hard navigations to /#<id> (e.g. #hub-allberlin from the burger or
+ * #hub-packs from the map end-cap) scroll to the anchor before the logged-in
+ * islands (HubDeineWelt)
  * mount and grow the page, leaving the user above the target. Re-scroll a few
  * times over the first ~700ms to track the layout settling; bail the moment the
  * user scrolls themselves.

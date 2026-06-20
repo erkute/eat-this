@@ -5264,3 +5264,453 @@ html .fab:active {
     rgba(255, 255, 255, .24);
   box-shadow: none;
 }
+
+/* ============================================================
+   Print palette pass — map controls, detail sheets, Must Eats,
+   insider blocks and booster banners.
+   ============================================================ */
+
+.shell {
+  --map-surface: var(--brand-paper);
+  --map-surface-muted: color-mix(in srgb, var(--brand-paper) 88%, transparent);
+  --map-ink: var(--brand-ink);
+  --map-action: var(--brand-action);
+  --map-action-strong: var(--brand-action-deep);
+  --map-accent: var(--brand-action);
+  --map-border-soft: color-mix(in srgb, var(--brand-rule) 72%, transparent);
+  --map-control-shadow: none;
+  --map-cutout-shadow: drop-shadow(0 8px 10px color-mix(in srgb, var(--brand-ink) 26%, transparent));
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+}
+
+html[data-theme="dark"] .shell {
+  --map-surface: var(--brand-ink);
+  --map-surface-muted: color-mix(in srgb, var(--brand-ink) 84%, transparent);
+  --map-ink: var(--brand-paper);
+  --map-action: var(--brand-action);
+  --map-action-strong: var(--brand-action-deep);
+  --map-accent: var(--brand-action);
+  --map-border-soft: color-mix(in srgb, var(--brand-rule) 34%, transparent);
+  background: var(--brand-ink);
+  color: var(--brand-paper);
+}
+
+html .mapSearchBtn,
+html .mapSearchToolbar,
+html .fab,
+html[data-theme="dark"] .mapSearchBtn,
+html[data-theme="dark"] .mapSearchToolbar,
+html[data-theme="dark"] .fab {
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  border: 1.5px solid var(--brand-ink);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: 3px 3px 0 var(--brand-ink);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html[data-theme="dark"] .mapSearchBtn,
+html[data-theme="dark"] .mapSearchToolbar,
+html[data-theme="dark"] .fab {
+  background: var(--brand-ink);
+  color: var(--brand-paper);
+  border-color: var(--brand-paper);
+  box-shadow: 3px 3px 0 var(--brand-action);
+}
+
+html .mapSearchIcon,
+html .mapSearchInput,
+html .mapSearchClear,
+html .fabIcon {
+  color: currentColor;
+}
+
+html .mapSearchInput::placeholder,
+html[data-theme="dark"] .mapSearchInput::placeholder {
+  color: currentColor;
+  opacity: .52;
+}
+
+@media (hover: hover) {
+  html .mapSearchBtn:hover,
+  html .fab:hover,
+  html[data-theme="dark"] .mapSearchBtn:hover,
+  html[data-theme="dark"] .fab:hover {
+    background: var(--brand-action);
+    color: var(--brand-paper);
+    border-color: var(--brand-ink);
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--brand-ink);
+  }
+}
+
+html .mapSearchBtn:active,
+html .fab:active,
+html[data-theme="dark"] .mapSearchBtn:active,
+html[data-theme="dark"] .fab:active {
+  background: var(--brand-action-deep);
+  color: var(--brand-paper);
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--brand-ink);
+}
+
+.filterChip,
+html[data-theme="dark"] .filterChip,
+.openChip {
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  border: 1.5px solid var(--brand-ink);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: none;
+}
+
+html[data-theme="dark"] .filterChip,
+html[data-theme="dark"] .openChip {
+  background: var(--brand-ink);
+  color: var(--brand-paper);
+  border-color: var(--brand-paper);
+}
+
+.filterChipActive,
+.filterChipOpenActive,
+html[data-theme="dark"] .filterChipActive,
+html[data-theme="dark"] .filterChipOpenActive,
+.openChipActive {
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border-color: var(--brand-ink);
+}
+
+.filterChipReset {
+  color: var(--brand-action);
+  border-left-color: var(--brand-rule);
+}
+
+.pickerSheet {
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  border-top: 2px solid var(--brand-ink);
+}
+
+html[data-theme="dark"] .pickerSheet {
+  background: var(--brand-ink);
+  color: var(--brand-paper);
+  border-top-color: var(--brand-paper);
+}
+
+.pickerHandle,
+html[data-theme="dark"] .pickerHandle {
+  background: var(--brand-rule);
+}
+
+.pickerTitle,
+.pickerItem,
+html[data-theme="dark"] .pickerTitle,
+html[data-theme="dark"] .pickerItem {
+  color: currentColor;
+}
+
+.pickerItem {
+  border-bottom-color: var(--brand-rule);
+}
+
+.pickerItem:hover,
+html[data-theme="dark"] .pickerItem:hover {
+  background: color-mix(in srgb, var(--brand-action) 12%, transparent);
+}
+
+.pickerItemActive,
+.pickerItemActive:hover,
+html[data-theme="dark"] .pickerItemActive,
+html[data-theme="dark"] .pickerItemActive:hover {
+  background: var(--brand-action);
+  color: var(--brand-paper);
+}
+
+.pickerCloseBtn,
+html[data-theme="dark"] .pickerCloseBtn {
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  border: 1.5px solid var(--brand-ink);
+  box-shadow: 2px 2px 0 var(--brand-ink);
+}
+
+.detailV13,
+.detailV13Scroll {
+  --d-bg: var(--brand-paper);
+  --d-ink: var(--brand-ink);
+  --d-text: var(--brand-ink);
+  --d-text-2: var(--brand-muted);
+  --d-text-3: color-mix(in srgb, var(--brand-muted) 72%, transparent);
+  --d-rule: var(--brand-rule);
+  --d-hero-bg: var(--brand-action);
+  --d-hero-text: var(--brand-paper);
+  --d-hero-accent: var(--brand-paper);
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+}
+
+html[data-theme="dark"] .detailV13,
+html[data-theme="dark"] .detailV13Scroll {
+  --d-bg: var(--brand-ink);
+  --d-ink: var(--brand-paper);
+  --d-text: var(--brand-paper);
+  --d-text-2: color-mix(in srgb, var(--brand-paper) 78%, transparent);
+  --d-text-3: color-mix(in srgb, var(--brand-paper) 52%, transparent);
+  --d-rule: color-mix(in srgb, var(--brand-rule) 40%, transparent);
+  background: var(--brand-ink);
+  color: var(--brand-paper);
+}
+
+.detailInSheet .detailActions .btn,
+.btn,
+.btnPrimary,
+.btnPackPromo,
+html[data-theme="dark"] .detailInSheet .detailActions .btn,
+html[data-theme="dark"] .btn {
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  border: 1.5px solid var(--brand-ink);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: 3px 3px 0 var(--brand-ink);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html[data-theme="dark"] .detailInSheet .detailActions .btn,
+html[data-theme="dark"] .btn {
+  background: var(--brand-ink);
+  color: var(--brand-paper);
+  border-color: var(--brand-paper);
+  box-shadow: 3px 3px 0 var(--brand-action);
+}
+
+.detailInSheet .detailActions .btn:hover,
+.btn:hover,
+.btnPrimary:hover,
+.btnPackPromo:hover {
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border-color: var(--brand-ink);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--brand-ink);
+}
+
+.boosterOffer,
+.boosterOfferList,
+html[data-theme="dark"] .boosterOfferList {
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border: 2px solid var(--brand-ink);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: 5px 5px 0 var(--brand-ink);
+}
+
+.boosterOffer::before,
+.boosterOffer::after {
+  content: none;
+}
+
+.boosterTitle,
+.boosterDesc,
+.boosterPromoTitle,
+.boosterPromoSub,
+html[data-theme="dark"] .boosterPromoTitle,
+html[data-theme="dark"] .boosterPromoSub {
+  color: var(--brand-paper);
+}
+
+.boosterDesc,
+.boosterPromoSub {
+  opacity: .82;
+}
+
+.boosterCta,
+.btnPromo,
+html[data-theme="dark"] .boosterCta,
+html[data-theme="dark"] .btnPromo {
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  border: 1.5px solid var(--brand-ink);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: none;
+}
+
+.boosterCta:hover,
+.btnPromo:hover,
+html[data-theme="dark"] .boosterCta:hover {
+  background: var(--brand-ink);
+  color: var(--brand-paper);
+}
+
+.btnPromoLbl,
+.btnPromoPriceTag,
+html[data-theme="dark"] .btnPromoLbl,
+html[data-theme="dark"] .btnPromoPriceTag {
+  color: currentColor;
+}
+
+.btnPromoPriceTag {
+  border-left-color: var(--brand-rule);
+}
+
+.detailV13MustEat .detailV13Scroll {
+  color: var(--brand-ink);
+  background:
+    linear-gradient(180deg, transparent 0, transparent 238px, var(--brand-paper) 238px),
+    var(--brand-action);
+}
+
+html[data-theme="dark"] .detailV13MustEat .detailV13Scroll {
+  color: var(--brand-paper);
+  background:
+    linear-gradient(180deg, transparent 0, transparent 238px, var(--brand-ink) 238px),
+    var(--brand-action-deep);
+}
+
+.fdHalo {
+  background: radial-gradient(circle, color-mix(in srgb, var(--brand-paper) 34%, transparent), transparent 64%);
+}
+
+.fdMid,
+.fdRest,
+.fdPagerPrev,
+.fdPagerNext {
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  border: 1.5px solid var(--brand-ink);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: 3px 3px 0 var(--brand-ink);
+}
+
+.fdName,
+.fdProximityHead,
+.fdV,
+.fdPager,
+.fdPagerPrev,
+.fdPagerNext {
+  color: var(--brand-ink);
+}
+
+.fdText,
+.fdProximitySub,
+.fdK {
+  color: var(--brand-muted);
+}
+
+.fdProximityReady .fdProximityHead {
+  color: var(--brand-action);
+}
+
+.ctaPill {
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border: 1.5px solid var(--brand-ink);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: 3px 3px 0 var(--brand-ink);
+}
+
+.ctaPill:hover {
+  background: var(--brand-action-deep);
+}
+
+html[data-theme="dark"] .detailV13MustEat .fdMid,
+html[data-theme="dark"] .detailV13MustEat .fdRest,
+html[data-theme="dark"] .detailV13MustEat .fdPagerPrev,
+html[data-theme="dark"] .detailV13MustEat .fdPagerNext {
+  background: var(--brand-ink);
+  color: var(--brand-paper);
+  border-color: var(--brand-paper);
+  box-shadow: 3px 3px 0 var(--brand-action);
+}
+
+html[data-theme="dark"] .detailV13MustEat .fdName,
+html[data-theme="dark"] .detailV13MustEat .fdProximityHead,
+html[data-theme="dark"] .detailV13MustEat .fdV,
+html[data-theme="dark"] .detailV13MustEat .fdPager,
+html[data-theme="dark"] .detailV13MustEat .fdPagerPrev,
+html[data-theme="dark"] .detailV13MustEat .fdPagerNext {
+  color: var(--brand-paper);
+}
+
+html[data-theme="dark"] .detailV13MustEat .fdText,
+html[data-theme="dark"] .detailV13MustEat .fdProximitySub,
+html[data-theme="dark"] .detailV13MustEat .fdK {
+  color: color-mix(in srgb, var(--brand-paper) 72%, transparent);
+}
+
+/* Flat controls: no shadows on icons, buttons, filter chips or CTAs. */
+.mapWrap :global(.maplibregl-ctrl-group),
+.mapWrap :global(.maplibregl-ctrl-group button),
+.mapWrap :global(.maplibregl-ctrl-attrib-button),
+html .mapSearchBtn,
+html .mapSearchToolbar,
+html .fab,
+.mapBurger,
+.mapHome,
+.rdCloseGlass,
+.galleryLbClose,
+.rdActBtn,
+.rdPagerBtn,
+.btn,
+.detailInSheet .detailActions .btn,
+.btnPrimary,
+.btnPackPromo,
+.boosterCta,
+.btnPromo,
+.filterChip,
+.filterChipReset,
+.openChip,
+.pickerCloseBtn,
+.pickerItemActive,
+.ctaPill,
+.fdClose,
+.fdPagerPrev,
+.fdPagerNext,
+html[data-theme="dark"] .mapSearchBtn,
+html[data-theme="dark"] .mapSearchToolbar,
+html[data-theme="dark"] .fab,
+html[data-theme="dark"] .rdCloseGlass,
+html[data-theme="dark"] .galleryLbClose,
+html[data-theme="dark"] .btn,
+html[data-theme="dark"] .detailInSheet .detailActions .btn,
+html[data-theme="dark"] .pickerCloseBtn,
+html[data-theme="dark"] .fdClose,
+html[data-theme="dark"] .detailV13MustEat .fdPagerPrev,
+html[data-theme="dark"] .detailV13MustEat .fdPagerNext {
+  box-shadow: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+@media (hover: hover) {
+  html .mapSearchBtn:hover,
+  html .fab:hover,
+  html .mapBurger:hover,
+  html .mapHome:hover,
+  .rdCloseGlass:hover,
+  .galleryLbClose:hover,
+  .rdActBtn:hover,
+  .rdPagerBtn:hover,
+  .btn:hover,
+  .detailInSheet .detailActions .btn:hover,
+  .btnPrimary:hover,
+  .btnPackPromo:hover,
+  .boosterCta:hover,
+  .btnPromo:hover,
+  .filterChip:hover,
+  .filterChipReset:hover,
+  .openChip:hover,
+  .pickerCloseBtn:hover,
+  .pickerItemActive:hover,
+  .ctaPill:hover,
+  .fdClose:hover,
+  .fdPagerPrev:hover,
+  .fdPagerNext:hover {
+    box-shadow: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+  }
+}

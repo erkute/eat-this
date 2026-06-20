@@ -19,7 +19,7 @@ export default function HubAllBerlin() {
     .filter((a): a is string => Boolean(a))
 
   return (
-    <section className={styles.section} data-hub-allberlin="">
+    <section className={styles.section} id="hub-allberlin" data-hub-allberlin="">
       <div className={styles.copyBlock}>
         <p className={styles.kicker}>{t('kicker')}</p>
         <h2 className={styles.heading}>All<br />Berlin</h2>

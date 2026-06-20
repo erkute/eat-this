@@ -176,8 +176,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             {searchOpen || search ? (
               <div className={styles.mapSearchToolbar}>
                 <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <circle cx="10.8" cy="10.8" r="5.9" fill="none" stroke="currentColor" strokeWidth="2.1" />
+                  <path d="M15.2 15.2 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
                 </svg>
                 <input
                   type="search"
@@ -212,8 +212,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 aria-label="Search"
               >
                 <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <circle cx="10.8" cy="10.8" r="5.9" fill="none" stroke="currentColor" strokeWidth="2.1" />
+                  <path d="M15.2 15.2 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
                 </svg>
               </button>
             )}
@@ -226,8 +226,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               className={styles.fab}
             >
               <svg className={styles.fabIcon} viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 3.5 19.5 20 12 16.5 4.5 20 12 3.5Z" fill="currentColor" stroke="currentColor" strokeLinejoin="round" />
-                <path d="M12 8.5v8" stroke="currentColor" strokeLinecap="round" />
+                <circle cx="12" cy="12" r="6.8" fill="none" stroke="currentColor" strokeWidth="2" />
+                <circle cx="12" cy="12" r="2" fill="currentColor" />
+                <path d="M12 3.8v2.2M12 18v2.2M3.8 12h2.2M18 12h2.2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </button>
 

@@ -237,18 +237,16 @@ export default function RestaurantDetail({
     <div className={styles.detailV13} role="dialog" aria-label={r.name}>
       <div className={styles.detailV13Scroll} data-detail-scroll ref={scrollWrapRef}>
 
-        <div className={styles.rdSheetActions}>
-          <button type="button" className={styles.rdCloseGlass} aria-label={backLabel} onClick={onClose}>
-            <CloseIcon />
-          </button>
-        </div>
-
         {/* HERO — full-bleed photo, save bookmark, name. */}
         <header
           className={styles.rdHero}
           data-detail-hero
           style={r.photo ? { backgroundImage: `url(${r.photo})` } : undefined}
         >
+          <button type="button" className={styles.rdCloseGlass} aria-label={backLabel} onClick={onClose}>
+            <CloseIcon />
+          </button>
+
           {/* Merged heart toggle + public count — one frosted pill, top-left.
               Outline white heart when you haven't hearted it, filled coral when
               you have; the number is the public count (≥ 1). Tapping toggles. */}

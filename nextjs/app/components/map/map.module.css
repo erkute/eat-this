@@ -3378,18 +3378,6 @@ html[data-theme="dark"] .listEndCta {
   inset: 0;
   background: linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 45%, rgba(0,0,0,.55) 75%, rgba(0,0,0,.92) 100%);
 }
-.rdSheetActions {
-  position: relative;
-  z-index: 5;
-  display: flex;
-  justify-content: flex-end;
-  padding: 12px 30px 0;
-  margin-bottom: -8px;
-}
-/* Hero action icons — bookmark + close (X), grouped top-right as naked
-   glyphs (no frame) with a drop-shadow for legibility on any photo. The X
-   sits outermost at the corner (the universal close affordance); the save
-   bookmark sits just to its left. */
 /* Merged heart toggle + count, and the close button — both frosted-glass pills
    on the hero photo, matched in size. The toggle sits top-left (its heart is
    outline-white until you heart the spot, then coral-filled; the number is the
@@ -3413,14 +3401,12 @@ html[data-theme="dark"] .listEndCta {
   transition: transform .12s ease;
 }
 .rdHeartToggle { left: 14px; padding: 7px 12px; }
-.rdCloseGlass  { right: 14px; padding: 7px; justify-content: center; }
-.rdSheetActions .rdCloseGlass {
-  position: relative;
-  top: auto;
-  right: auto;
+.rdCloseGlass  {
+  right: 12px;
   width: 42px;
   height: 42px;
-  padding: 8px;
+  padding: 7px;
+  justify-content: center;
 }
 .rdHeartToggle:active,
 .rdCloseGlass:active { transform: scale(.92); }
@@ -3910,7 +3896,7 @@ html[data-theme="dark"] .list[data-view="detail"] .handle {
 }
 
 .rdHero {
-  margin: 24px;
+  margin: 14px 24px 24px;
   border: 11px solid #fff;
   box-shadow: 0 16px 28px rgba(43, 33, 28, .22);
   transform: rotate(-1deg);
@@ -5133,4 +5119,148 @@ html[data-theme="dark"] .fabIcon {
     box-shadow: none;
     transform: translateY(-3px) scale(1.03);
   }
+}
+
+/* 2026-06 map control refresh: Apple-style glass, shadowless and quiet. The
+   opened search stays compact and right-anchored so it does not cover the home
+   mark or the upper map chrome. */
+html .mapSearchBtn,
+html .fab {
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255, 255, 255, .62);
+  border-radius: 999px;
+  clip-path: none;
+  filter: none;
+  box-shadow: none;
+  transform: none;
+  -webkit-backdrop-filter: blur(18px) saturate(1.45);
+  backdrop-filter: blur(18px) saturate(1.45);
+  transition:
+    background-color 150ms var(--ease-standard, ease),
+    border-color 150ms var(--ease-standard, ease),
+    color 150ms var(--ease-standard, ease);
+}
+
+html .mapSearchBtn {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .62), rgba(255, 255, 255, .34)),
+    rgba(255, 255, 255, .28);
+  color: rgba(16, 13, 15, .78);
+}
+
+html .fab {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .58), rgba(255, 255, 255, .3)),
+    rgba(255, 255, 255, .26);
+  color: rgba(16, 13, 15, .74);
+}
+
+html .mapSearchIcon,
+html .fabIcon {
+  width: 20px;
+  height: 20px;
+  color: currentColor;
+  stroke: currentColor;
+}
+
+html .mapSearchToolbar,
+html[data-theme="dark"] .mapSearchToolbar {
+  top: 14px;
+  right: 14px;
+  left: auto;
+  width: min(320px, calc(100vw - 96px));
+  min-height: 44px;
+  height: 44px;
+  padding: 0 9px 0 12px;
+  gap: 9px;
+  color: rgba(16, 13, 15, .82);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .66), rgba(255, 255, 255, .36)),
+    rgba(255, 255, 255, .3);
+  border: 1px solid rgba(255, 255, 255, .64);
+  border-radius: 999px;
+  clip-path: none;
+  filter: none;
+  box-shadow: none;
+  transform: none;
+  -webkit-backdrop-filter: blur(18px) saturate(1.45);
+  backdrop-filter: blur(18px) saturate(1.45);
+}
+
+html .mapSearchInput {
+  color: rgba(16, 13, 15, .84);
+  font-family: var(--font-body, var(--font));
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: 0;
+}
+
+html .mapSearchInput::placeholder,
+html[data-theme="dark"] .mapSearchInput::placeholder {
+  color: rgba(16, 13, 15, .46);
+}
+
+html .mapSearchClear,
+html[data-theme="dark"] .mapSearchClear {
+  color: rgba(16, 13, 15, .58);
+  border-radius: 999px;
+}
+
+html[data-theme="dark"] .mapSearchBtn {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .18), rgba(255, 255, 255, .07)),
+    rgba(10, 10, 10, .28);
+  color: rgba(255, 248, 234, .82);
+  border-color: rgba(255, 255, 255, .18);
+}
+
+html[data-theme="dark"] .fab {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .17), rgba(255, 255, 255, .06)),
+    rgba(10, 10, 10, .28);
+  color: rgba(255, 248, 234, .8);
+  border-color: rgba(255, 255, 255, .18);
+  box-shadow: none;
+}
+
+html[data-theme="dark"] .mapSearchToolbar {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .18), rgba(255, 255, 255, .07)),
+    rgba(10, 10, 10, .3);
+  border-color: rgba(255, 255, 255, .18);
+  color: rgba(255, 248, 234, .84);
+}
+
+@media (min-width: 1024px) {
+  html .mapSearchToolbar,
+  html[data-theme="dark"] .mapSearchToolbar {
+    width: 320px;
+  }
+}
+
+@media (hover: hover) {
+  html .mapSearchBtn:hover,
+  html .fab:hover {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, .74), rgba(255, 255, 255, .42)),
+      rgba(255, 255, 255, .36);
+    border-color: rgba(255, 255, 255, .72);
+  }
+
+  html[data-theme="dark"] .mapSearchBtn:hover,
+  html[data-theme="dark"] .fab:hover {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, .1)),
+      rgba(10, 10, 10, .34);
+    border-color: rgba(255, 255, 255, .26);
+  }
+}
+
+html .mapSearchBtn:active,
+html .fab:active {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, .28)),
+    rgba(255, 255, 255, .24);
+  box-shadow: none;
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from '@/i18n/navigation'
+import MapIntentLink from './MapIntentLink'
 import { useAuth } from '@/lib/auth'
 import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
@@ -85,7 +85,7 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
         {teaser.map((m) => (
           <li key={m._id} className={styles.item}>
             {/* Deep-link into the map: ?me= opens the must-eat detail. */}
-            <Link href={`/map?me=${m._id}`} className={styles.cardLink}>
+            <MapIntentLink href={`/map?me=${m._id}`} className={styles.cardLink}>
               <span className={styles.cutoutFrame}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -99,15 +99,15 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
                 <span className={styles.dish}>{normalizeName(m.dish ?? '')}</span>
                 <span className={styles.restaurant}>{normalizeName(m.restaurant.name)}</span>
               </span>
-            </Link>
+            </MapIntentLink>
           </li>
         ))}
       </ul>
 
       <p className={styles.foot}>
-        <Link href="/map" rel="nofollow" className={`${styles.cta} homeCta homeCtaPrimary`}>
+        <MapIntentLink href="/map" rel="nofollow" className={`${styles.cta} homeCta homeCtaPrimary`}>
           {t('mustEats.teaserCta')}
-        </Link>
+        </MapIntentLink>
       </p>
     </section>
   )

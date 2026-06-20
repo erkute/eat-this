@@ -1,4 +1,5 @@
 'use client'
+import { useCallback } from 'react'
 import type { Ref, RefObject } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types'
@@ -84,7 +85,6 @@ interface MapBodyFilterState {
 
 /* Map / sheet event handlers (everything not filter-related). */
 interface MapBodyHandlers {
-  onMapMove: (bounds: { north: number; south: number; east: number; west: number }) => void
   onMapClick: () => void
   onRestaurantClick: (r: MapRestaurant, origin?: 'list' | 'map') => void
   onMustEatClick: (m: MapMustEat) => void
@@ -130,7 +130,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     cuisine, setCuisine, cuisineNames,
     openOnly, setOpenOnly,
     searchOpen, setSearchOpen,
-    onMapMove, onMapClick, onRestaurantClick, onMustEatClick, onLocateMe, locateLoading,
+    onMapClick, onRestaurantClick, onMustEatClick, onLocateMe, locateLoading,
     onRestaurantClose, onMustEatClose,
     mustEatPagerPrev, mustEatPagerNext, onPageMustEat,
     onViewRestaurantFromMustEat, onUnlock,
@@ -146,6 +146,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     setOpenOnly(false)
     onSearchChange('')
   }
+  const handleMapRestaurantClick = useCallback(
+    (r: MapRestaurant) => onRestaurantClick(r, 'map'),
+    [onRestaurantClick],
+  )
 
   return (
     <div
@@ -161,11 +165,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
           <div className={styles.mapWrap}>
             <MapCanvasLayer
               mapRef={mapRef}
-              onMapMove={onMapMove}
               onMapClick={onMapClick}
               displayedRestaurants={displayedRestaurants}
               selectedRestaurant={selectedRestaurant}
-              onRestaurantClick={(r) => onRestaurantClick(r, 'map')}
+              onRestaurantClick={handleMapRestaurantClick}
               location={location}
             />
 
@@ -241,7 +244,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               search to the right rail). Uses the square two-line EAT THIS mark
               (same asset family as the favicon) as a sticker so users can
               always get back to the start page. */}
-          <Link href="/" className={styles.mapHome} aria-label="EAT THIS — Start" />
+          <Link href="/" className={styles.mapHome} aria-label="EAT THIS — Start">
+            <img className={styles.mapHomeLogo} src="/pics/eat-this-square.webp?v=5" alt="" draggable={false} />
+          </Link>
 
           <aside
             ref={setSheetRef}

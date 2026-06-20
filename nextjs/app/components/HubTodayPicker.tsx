@@ -3,13 +3,13 @@
 import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
-import { Link } from '@/i18n/navigation'
 import { trackEvent } from '@/lib/analytics'
 import { formatDistance } from '@/lib/map/distance'
 import { useUserLocationContext } from '@/lib/map/UserLocationContext'
 import { normalizeName } from '@/lib/normalizeName'
 import { pickTodayRestaurants, type TodayBudget, type TodayMood, type TodayRadius } from '@/lib/home/todayPicker'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
+import MapIntentLink from './MapIntentLink'
 import styles from './HubTodayPicker.module.css'
 
 const MITTE = { lat: 52.52, lng: 13.405 }
@@ -103,7 +103,7 @@ export default function HubTodayPicker({ initialMapData }: { initialMapData: Ini
                   const meta = [r.cuisineType, r.district].filter(Boolean).join(' · ')
                   return (
                     <li key={r._id} className={styles.cardItem}>
-                      <Link
+                      <MapIntentLink
                         href={`/map?r=${r.slug}`}
                         rel="nofollow"
                         className={styles.card}
@@ -121,7 +121,7 @@ export default function HubTodayPicker({ initialMapData }: { initialMapData: Ini
                             <span>{pick.opening === 'open' ? t('openNow') : t('checkHours')}</span>
                           </div>
                         </div>
-                      </Link>
+                      </MapIntentLink>
                     </li>
                   )
                 })}

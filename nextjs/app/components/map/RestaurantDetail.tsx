@@ -389,14 +389,18 @@ export default function RestaurantDetail({
           {r.phone && (
             <div className={styles.rdRow}>
               <span className={styles.rdK}>{t('map.phone')}</span>
-              <span className={styles.rdV}><a href={`tel:${r.phone.replace(/\s+/g, '')}`}>{r.phone}</a></span>
+              <span className={styles.rdV}>
+                <a className={styles.rdContactPlainLink} href={`tel:${r.phone.replace(/\s+/g, '')}`}>
+                  {r.phone}
+                </a>
+              </span>
             </div>
           )}
           {websiteInfo?.kind === 'web' && (
             <div className={styles.rdRow}>
               <span className={styles.rdK}>Website</span>
               <span className={styles.rdV}>
-                <a href={websiteInfo.url} target="_blank" rel="noopener noreferrer">{websiteInfo.display}</a>
+                <a className={styles.rdContactPlainLink} href={websiteInfo.url} target="_blank" rel="noopener noreferrer">{websiteInfo.display}</a>
               </span>
             </div>
           )}
@@ -404,7 +408,7 @@ export default function RestaurantDetail({
             <div className={styles.rdRow}>
               <span className={styles.rdK}>Instagram</span>
               <span className={`${styles.rdV} ${styles.rdVHandle}`}>
-                <a href={igUrl} target="_blank" rel="noopener noreferrer">{igHandle ? `@${igHandle}` : 'Profil ↗'}</a>
+                <a className={styles.rdContactPlainLink} href={igUrl} target="_blank" rel="noopener noreferrer">{igHandle ? `@${igHandle}` : 'Profil ↗'}</a>
               </span>
             </div>
           )}
@@ -420,7 +424,7 @@ export default function RestaurantDetail({
               rel="noopener noreferrer"
               onClick={() => trackEvent('restaurant_maps_clicked', { restaurant_id: r._id, restaurant_slug: r.slug })}
             >
-              {t('map.maps')}
+              <span>{t('map.maps')}</span>
             </a>
           )}
           {r.menuUrl && (
@@ -431,7 +435,7 @@ export default function RestaurantDetail({
               rel="noopener nofollow noreferrer"
               onClick={() => trackEvent('restaurant_menu_clicked', { restaurant_id: r._id, restaurant_slug: r.slug })}
             >
-              {locale === 'en' ? 'Menu' : 'Speisekarte'}
+              <span>{locale === 'en' ? 'Menu' : 'Speisekarte'}</span>
             </a>
           )}
           <button
@@ -471,7 +475,7 @@ export default function RestaurantDetail({
               window.setTimeout(() => setShareDone(false), 1800)
             }}
           >
-            {shareDone ? (locale === 'en' ? 'Link copied ✓' : 'Link kopiert ✓') : t('map.share')}
+            <span>{shareDone ? (locale === 'en' ? 'Copied' : 'Kopiert') : t('map.share')}</span>
           </button>
         </div>
 

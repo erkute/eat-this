@@ -3,8 +3,10 @@
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import type { BurgerCloseDetail } from './BurgerDrawer';
+import MapIntentLink from './MapIntentLink';
+import { preloadMapSurface } from './map/preloadMapSurface';
 import styles from './SiteNav.module.css';
 
 // Strip the optional /en prefix to get the route the SPA cares about.
@@ -23,6 +25,7 @@ function pageSlugFromPath(path: string): string {
 export default function SiteNav() {
   const { t } = useTranslation();
   const pathname = usePathname();
+  const router = useRouter();
   const activePage = pageSlugFromPath(pathname);
 
   // Keep the html[data-active-page] attribute in sync with the current
@@ -34,6 +37,26 @@ export default function SiteNav() {
   useEffect(() => {
     document.documentElement.setAttribute('data-active-page', activePage);
   }, [activePage]);
+
+  useEffect(() => {
+    if (activePage === 'map') return;
+    const connection = (navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string }
+    }).connection;
+    if (connection?.saveData || connection?.effectiveType === 'slow-2g' || connection?.effectiveType === '2g') return;
+
+    const warmMap = () => {
+      ;(router.prefetch as (href: string) => void)('/map');
+      void preloadMapSurface();
+    };
+    const ric = window.requestIdleCallback as ((cb: IdleRequestCallback, opts?: IdleRequestOptions) => number) | undefined;
+    if (ric) {
+      const id = ric(warmMap, { timeout: 3500 });
+      return () => window.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(warmMap, 2200);
+    return () => window.clearTimeout(id);
+  }, [activePage, router]);
 
   useEffect(() => {
     const drawer   = document.getElementById('burgerDrawer');
@@ -77,7 +100,7 @@ export default function SiteNav() {
       lockMode = null;
     };
 
-    const open  = () => { drawer.classList.add('active'); lock(); };
+    const open  = () => { void preloadMapSurface(); drawer.classList.add('active'); lock(); };
     const close = (restoreScroll = true) => {
       drawer.classList.remove('active');
       unlock(restoreScroll);
@@ -112,7 +135,7 @@ export default function SiteNav() {
       <nav className="navbar" id="navbar">
         {/* Left: map sticker */}
         <div className="navbar-actions" style={{ flex: 1, justifyContent: 'flex-start' }}>
-          <Link
+          <MapIntentLink
             href="/map"
             className={`navbar-icon-btn ${styles.mapSticker}${activePage === 'map' ? ' active' : ''}`}
             id="navMapBtn"
@@ -124,7 +147,7 @@ export default function SiteNav() {
               <span />
               <span />
             </span>
-          </Link>
+          </MapIntentLink>
         </div>
         {/* Center: Logo */}
         <div className="navbar-home">

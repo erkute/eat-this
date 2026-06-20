@@ -1,4 +1,4 @@
-import { Link } from '@/i18n/navigation'
+import MapIntentLink from './MapIntentLink'
 import styles from './HubMapCTA.module.css'
 
 interface Props {
@@ -20,9 +20,9 @@ export default function HubMapCTA({ href, title, subline, variant = 'chip' }: Pr
     // rel="nofollow" — map deep-links target the noindex /map route, so
     // we don't want Google to enumerate every bezirk/category variant in
     // GSC. See memory feedback_seo_nofollow_into_noindex.md.
-    <Link href={href} rel="nofollow" className={`${cls} ${homeCls}`} aria-label={title}>
+    <MapIntentLink href={href} rel="nofollow" className={`${cls} ${homeCls}`} aria-label={title}>
       <span className={styles.title}>{title}</span>
       {subline && <span className={styles.subline}>{subline}</span>}
-    </Link>
+    </MapIntentLink>
   )
 }

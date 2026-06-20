@@ -19,7 +19,6 @@ export { abbreviateBezirk } from './abbreviateBezirk'
 export { useMapData } from './useMapData'
 export { useUserLocation } from './useUserLocation'
 export type { UserLocation } from './useUserLocation'
-export { useBounds } from './useBounds'
 export { useFavorites } from './useFavorites'
 export { useUnlockedMustEats } from './useUnlockedMustEats'
 

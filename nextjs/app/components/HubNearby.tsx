@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
-import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/lib/auth'
 import { useMapData } from '@/lib/map'
 import { useUserLocationContext } from '@/lib/map/UserLocationContext'
@@ -11,6 +10,7 @@ import { haversineDistance, formatWalkingTime } from '@/lib/map/distance'
 import { normalizeName } from '@/lib/normalizeName'
 import { nearestRestaurants } from '@/lib/home/nearby'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
+import MapIntentLink from './MapIntentLink'
 import styles from './HubNearby.module.css'
 
 const MITTE = { lat: 52.52, lng: 13.405 }
@@ -78,7 +78,7 @@ export default function HubNearby({ initialMapData }: Props) {
           const walk = formatWalkingTime(haversineDistance(loc.lat, loc.lng, r.lat, r.lng))
           return (
             <li key={r._id} className={styles.cardItem}>
-              <Link href={`/map?r=${r.slug}`} rel="nofollow" className={styles.card}>
+              <MapIntentLink href={`/map?r=${r.slug}`} rel="nofollow" className={styles.card}>
                 <div className={styles.cardImage}>
                   {r.photo && <Image src={r.photo} alt={normalizeName(r.name)} fill sizes="168px" />}
                   {walk && <span className={styles.dist}>{walk}</span>}
@@ -87,7 +87,7 @@ export default function HubNearby({ initialMapData }: Props) {
                   <h3 className={styles.name}>{normalizeName(r.name)}</h3>
                   {r.district && <p className={styles.meta}>{r.district}</p>}
                 </div>
-              </Link>
+              </MapIntentLink>
             </li>
           )
         })}

@@ -1,4 +1,4 @@
-import { Link } from '@/i18n/navigation'
+import MapIntentLink from './MapIntentLink'
 import styles from './MapPromoCTA.module.css'
 
 type Kind = 'restaurant' | 'bezirk' | 'kategorie'
@@ -51,10 +51,10 @@ export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'bl
 
   if (variant === 'chip') {
     return (
-      <Link href={mapHref} rel="nofollow" className={styles.chip} aria-label={title}>
+      <MapIntentLink href={mapHref} rel="nofollow" className={styles.chip} aria-label={title}>
         <span>{title}</span>
         {arrow}
-      </Link>
+      </MapIntentLink>
     )
   }
 
@@ -64,10 +64,10 @@ export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'bl
       <p className={styles.sub}>{sub}</p>
       {/* rel="nofollow" — /map is noindex; without it Google enumerates every
           ?r=/?bezirk=/?cat= variant in GSC. See feedback_seo_nofollow_into_noindex. */}
-      <Link href={mapHref} rel="nofollow" className={styles.cta}>
+      <MapIntentLink href={mapHref} rel="nofollow" className={styles.cta}>
         <span>{ctaLabel}</span>
         {arrow}
-      </Link>
+      </MapIntentLink>
     </section>
   )
 }

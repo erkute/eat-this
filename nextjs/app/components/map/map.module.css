@@ -1112,6 +1112,16 @@ html[data-theme="dark"] .mapSearchBtn {
 
 /* -------------------- Markers on the map -------------------- */
 
+.mapWrap :global(.maplibregl-marker) {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  visibility: visible;
+  opacity: 1;
+  will-change: transform;
+}
+
 /* Restaurant pin */
 
 /* Must Eat polaroid marker */
@@ -2604,28 +2614,21 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
    compact coral card stage, warm paper content, normal prose typography, and
    real scrolling so long dish copy stays readable on short phones. */
 .detailV13MustEat .detailV13Scroll {
+  box-sizing: border-box;
+  width: 100%;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0 0 calc(18px + env(safe-area-inset-bottom, 0px) + var(--map-bar-overhang, 0px));
-  color: #2b211c;
-  background:
-    linear-gradient(180deg, rgba(239, 49, 8, 0) 0, rgba(239, 49, 8, 0) 238px, #f8f6f1 238px),
-    linear-gradient(154deg, #ef3108 0%, #a82c16 70%);
+  padding: 0 18px calc(26px + env(safe-area-inset-bottom, 0px) + var(--map-bar-overhang, 0px));
+  color: var(--brand-ink, #1c2520);
+  background: var(--brand-paper, #fff8ea);
 }
 .detailV13MustEat .detailV13Scroll::after {
   content: none;
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.5;
-  background-image: none;
-  background-size: auto;
 }
 
-/* HERO — freigestellte Karte mit Glow-Halo, dezent in 3D geneigt. */
+/* HERO — freigestellte Karte auf einer flachen Posterflaeche. */
 .fdHeroWrap {
   position: relative;
   z-index: 3;
@@ -2634,20 +2637,42 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   align-items: flex-start;
   justify-content: center;
   margin: 0;
-  padding: 34px 24px 26px;
+  padding: 44px 8px 24px;
   perspective: 1000px;
 }
 .fdHalo {
+  display: none;
+}
+.fdCardStack {
+  position: relative;
+  height: clamp(224px, 36dvh, 332px);
+  aspect-ratio: 1539 / 2115;
+  isolation: isolate;
+}
+.fdStackCard {
   position: absolute;
-  top: 26px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 210px;
-  height: 210px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 216, 74, 0.34), transparent 64%);
+  inset: 0;
   z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 11px;
   pointer-events: none;
+  transform-origin: center;
+}
+.fdStackCardOne {
+  transform: translate(15px, 11px) rotate(4deg);
+}
+.fdStackCardTwo {
+  transform: translate(-13px, 18px) rotate(-5deg);
+}
+.fdTopCard {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  transform: translateX(0);
+  will-change: transform;
 }
 .fdHero {
   appearance: none;
@@ -2656,8 +2681,8 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   background: transparent;
   position: relative;
   z-index: 2;
-  height: clamp(214px, 33dvh, 310px);
-  aspect-ratio: 1539 / 2115;
+  width: 100%;
+  height: 100%;
   display: block;
   cursor: zoom-in;
 }
@@ -2668,11 +2693,10 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   object-fit: contain;
   border-radius: 11px;
 }
-/* Dezente 3D-Neigung auf BEIDEN Karten (aufgedeckt + verdeckt, User
-   2026-06-14) + geworfener Schatten — sieht aus wie ein echtes Objekt. */
+/* Leichte Poster-Neigung, aber keine geworfenen Schatten oder Glow. */
 .detailV13MustEat .fdHero {
-  transform: rotate(-2deg) rotateY(-7deg) rotateX(3deg);
-  filter: drop-shadow(10px 16px 16px rgba(43, 33, 28, 0.38));
+  transform: rotate(-2.4deg) rotateY(-4deg) rotateX(1deg);
+  filter: none;
 }
 .fdHeroLocked {
   cursor: pointer;
@@ -2683,9 +2707,9 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   will-change: transform;
 }
 @keyframes fdCardWiggle {
-  0%, 100% { transform: rotate(-2deg) rotateY(-7deg) rotateX(3deg); }
-  30% { transform: rotate(calc(-2deg + var(--vibrate-intensity, 0.18) * 3deg)) rotateY(calc(-7deg + var(--vibrate-intensity, 0.18) * 6deg)) rotateX(3deg); }
-  70% { transform: rotate(calc(-2deg - var(--vibrate-intensity, 0.18) * 2.4deg)) rotateY(calc(-7deg - var(--vibrate-intensity, 0.18) * 2deg)) rotateX(3deg); }
+  0%, 100% { transform: rotate(-2.4deg) rotateY(-4deg) rotateX(1deg); }
+  30% { transform: rotate(calc(-2.4deg + var(--vibrate-intensity, 0.18) * 2.6deg)) rotateY(calc(-4deg + var(--vibrate-intensity, 0.18) * 4deg)) rotateX(1deg); }
+  70% { transform: rotate(calc(-2.4deg - var(--vibrate-intensity, 0.18) * 2.2deg)) rotateY(calc(-4deg - var(--vibrate-intensity, 0.18) * 2deg)) rotateX(1deg); }
 }
 /* Tap when out of range → a firm "nope" shake (reuses the marker keyframes). */
 .fdHeroLocked.mustEatCardTapping {
@@ -2705,22 +2729,23 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   flex-direction: column;
   position: relative;
   z-index: 3;
-  margin: -10px 14px 0;
-  padding: 18px 18px 20px;
-  background: #f8f6f1;
-  border: 1px solid rgba(43, 33, 28, 0.08);
-  border-radius: 8px;
-  box-shadow: 0 10px 22px rgba(43, 33, 28, 0.08);
+  margin: 12px 0 0;
+  padding: 0 0 18px;
+  background: transparent;
+  border: 0;
+  border-bottom: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 .fdName {
   margin: 0;
   padding: 0;
   font-family: var(--font-display);
-  font-size: clamp(36px, 10vw, 48px);
-  line-height: 0.94;
+  font-size: clamp(44px, 12vw, 64px);
+  line-height: 0.86;
   text-align: left;
   overflow-wrap: anywhere;
-  color: #2b211c;
+  color: var(--brand-action, #e43d18);
   min-height: 0;
   display: block;
   text-transform: uppercase;
@@ -2747,57 +2772,58 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
    dem Namen. */
 .fdText {
   margin: 0;
-  padding: 14px 0 0;
+  padding: 16px 0 0;
   font-family: var(--font);
-  font-size: 16px;
-  font-weight: 650;
-  line-height: 1.48;
+  font-size: 17px;
+  font-weight: 750;
+  line-height: 1.42;
   text-align: left;
-  color: rgba(43, 33, 28, 0.82);
+  color: color-mix(in srgb, var(--brand-ink, #1c2520) 78%, transparent);
 }
 /* Locked: Näherungs-Hinweis statt Beschreibung — großes „Du bist da!"
    bzw. Entfernung + Sub-Hinweis. */
 .fdProximity {
-  padding: 14px 0 0;
+  padding: 16px 0 0;
   text-align: left;
 }
 .fdProximityHead {
   font-family: var(--font-display);
-  font-size: clamp(30px, 8.5vw, 40px);
-  line-height: 0.98;
-  color: #2b211c;
+  font-size: clamp(38px, 10vw, 54px);
+  line-height: 0.88;
+  color: var(--brand-ink, #1c2520);
   text-transform: uppercase;
 }
 .fdProximityReady .fdProximityHead {
-  color: #ef3108;
+  color: var(--brand-action, #e43d18);
 }
 .fdProximitySub {
   margin-top: 9px;
   font-family: var(--font);
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.42;
-  color: rgba(43, 33, 28, 0.7);
+  color: color-mix(in srgb, var(--brand-ink, #1c2520) 68%, transparent);
 }
-/* FOOTER — cream-Leiste mit FESTER Höhe; der Restaurant-Name reserviert
-   2 Zeilen, also ist die Leiste bei 1- und 2-zeiligem Namen gleich hoch und
-   beim Blättern springt nichts (User 2026-06-14). */
+/* Spot action — typografischer Abschluss statt Footer-Kachel. */
 .fdRest {
+  box-sizing: border-box;
+  width: 100%;
   flex: 0 0 auto;
   position: relative;
   z-index: 4;
-  min-height: 86px;
+  min-height: 76px;
   height: auto;
-  margin: 10px 14px 10px;
-  padding: 14px;
+  margin: 2px 0 0;
+  padding: 13px 14px 14px;
   display: flex;
   align-items: center;
   gap: 12px;
-  background: #ffd079;
-  color: #2b211c;
-  border: 1px solid rgba(43, 33, 28, 0.08);
-  border-radius: 8px;
-  box-shadow: 0 8px 18px rgba(43, 33, 28, 0.08);
+  background: var(--brand-ink, #1c2520);
+  color: var(--brand-paper, #fff8ea);
+  border: 1.5px solid var(--brand-ink, #1c2520);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: none;
+  transform: rotate(-.5deg);
 }
 .fdRestName {
   flex: 1 1 auto;
@@ -2810,17 +2836,17 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
 .fdK {
   font-family: var(--font);
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 950;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(43, 33, 28, 0.62);
+  color: color-mix(in srgb, var(--brand-paper, #fff8ea) 64%, transparent);
   margin: 0 0 7px;
 }
 .fdV {
   font-family: var(--font-display);
-  font-size: 26px;
-  line-height: 1;
-  color: #2b211c;
+  font-size: clamp(25px, 6vw, 34px);
+  line-height: .92;
+  color: var(--brand-paper, #fff8ea);
   /* 2 Zeilen reserviert, Name unten verankert → konstante Footer-Höhe. */
   min-height: 0;
   display: flex;
@@ -2832,124 +2858,152 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
    am unteren Rand der Footer-Leiste verankert. */
 .ctaPill {
   flex: 0 0 auto;
+  max-width: 48%;
+  justify-content: center;
   align-self: center;
   margin: 0;
   appearance: none;
-  background: #ef3108;
-  color: #fff;
-  font-family: var(--font-label, var(--font-display));
-  font-size: 18px;
+  background: var(--brand-action, #e43d18);
+  color: var(--brand-paper, #fff8ea);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: .08em;
   line-height: 1;
-  padding: 12px 15px 13px;
-  border: 0;
-  border-radius: var(--map-pill-radius);
+  padding: 10px 12px 11px;
+  border: 1.5px solid var(--brand-paper, #fff8ea);
+  border-radius: var(--radius-sm, 4px);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 7px;
   text-decoration: none;
+  text-transform: uppercase;
   white-space: nowrap;
   transform: none;
   box-shadow: none;
   transition: transform var(--map-motion), background-color var(--map-motion);
 }
 .ctaPill:hover {
-  background: #a82c16;
-  transform: translateY(-2px);
+  background: var(--brand-action-deep, #a62812);
+  color: var(--brand-paper, #fff8ea);
+  transform: translateX(2px);
 }
-/* PAGER — light control rail; no heavy black block. Locked neighbours show
-   "Verdeckt" without overpowering the card and prose above. */
+
 .fdPager {
   flex: 0 0 auto;
   position: relative;
   z-index: 4;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  gap: 7px;
-  margin: 0 14px;
-  padding: 0;
-  background: transparent;
-  color: #2b211c;
-  border-radius: 8px;
-  font-family: var(--font);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  margin: 16px 0 0;
+  border: 0;
+  color: var(--brand-ink, #1c2520);
 }
+
 .fdPagerPrev,
 .fdPagerNext {
   appearance: none;
-  background: rgba(248, 246, 241, 0.96);
-  border: 1px solid rgba(43, 33, 28, 0.1);
-  border-radius: 6px;
-  padding: 9px 10px;
-  margin: 0;
   min-width: 0;
-  font: inherit;
-  color: #2b211c;
-  cursor: pointer;
+  min-height: 58px;
+  margin: 0;
+  padding: 10px 12px 11px;
   display: flex;
   align-items: center;
   gap: 8px;
+  border: 0;
+  border-radius: var(--radius-sm, 4px);
+  background: var(--brand-ink, #1c2520);
+  color: var(--brand-paper, #fff8ea);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+  transform: rotate(-.6deg);
+  box-shadow: inset 0 0 0 1.5px var(--brand-ink, #1c2520);
 }
+
 .fdPagerNext {
   justify-content: flex-end;
+  text-align: right;
+  transform: rotate(.6deg);
+  background: var(--brand-action, #e43d18);
+  color: var(--brand-paper, #fff8ea);
+  box-shadow: inset 0 0 0 1.5px var(--brand-ink, #1c2520);
 }
-/* Pfeil im gelben Kreis. */
+
+.fdPagerPrev {
+  padding-right: 11px;
+}
+
 .fdPagerArrow {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: #ef3108;
-  color: #fff;
+  width: 22px;
+  height: 22px;
+  color: currentColor;
 }
+
 .fdPagerArrow svg {
   display: block;
-  width: 16px;
-  height: 16px;
+  width: 19px;
+  height: 19px;
 }
-.fdPagerNext .fdPagerArrow svg { transform: scaleX(-1); }
+
+.fdPagerNext .fdPagerArrow svg {
+  transform: scaleX(-1);
+}
+
 .fdPagerName {
   min-width: 0;
-  font-size: 12px;
-  font-weight: 850;
-  letter-spacing: 0.04em;
-  line-height: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: .09em;
+  line-height: 1.08;
   text-transform: uppercase;
 }
-/* Kein Nachbar in der Richtung → Pfeil + Slot ausblenden (Grid bleibt stabil). */
+
 .fdPagerPrev:disabled,
 .fdPagerNext:disabled {
   visibility: hidden;
   cursor: default;
 }
+
+@media (hover: hover) {
+  .fdPagerPrev:hover,
+  .fdPagerNext:hover {
+    transform: translateY(-2px) rotate(0);
+  }
+}
+
 /* X — nackter cremefarbener Glyph oben rechts. */
 .fdClose {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 16px;
+  right: 16px;
   z-index: 8;
   appearance: none;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(248, 246, 241, 0.96);
-  color: #2b211c;
+  background: transparent;
+  color: var(--brand-ink, #1c2520);
   border: 0;
-  border-radius: 999px;
+  border-radius: 0;
   cursor: pointer;
-  box-shadow: 0 8px 18px rgba(43, 33, 28, 0.18);
+  box-shadow: none;
 }
 .fdClose svg {
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
 }
 
 /* Mobile: keep the sheet height tied to the visible full-snap slice, while the
@@ -2959,22 +3013,31 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   .detailV13MustEat .detailV13Scroll {
     flex: none;
     height: calc(100dvh - 76px);
-    background:
-      linear-gradient(180deg, rgba(239, 49, 8, 0) 0, rgba(239, 49, 8, 0) 210px, #f8f6f1 210px),
-      linear-gradient(154deg, #ef3108 0%, #a82c16 70%);
+    background: var(--brand-paper, #fff8ea);
   }
   .detailV13MustEat .fdHeroWrap {
     flex: 0 0 auto;
     min-height: 0;
     margin: 0;
-    padding: 32px 20px 22px;
+    padding: 42px 0 24px;
   }
-  .detailV13MustEat .fdHero {
-    height: clamp(174px, 28dvh, 268px);
+  .detailV13MustEat .fdCardStack {
+    height: clamp(198px, 32dvh, 286px);
     max-height: 100%;
   }
-  .detailV13MustEat .fdPager {
-    margin-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  .detailV13MustEat .fdMid {
+    margin-top: 16px;
+  }
+  .detailV13MustEat .fdRest {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 16px;
+  }
+  .detailV13MustEat .ctaPill {
+    width: auto;
+    max-width: none;
+    align-self: flex-start;
   }
 }
 
@@ -3979,18 +4042,9 @@ html[data-theme="dark"] .detailV13MustEat .fdProximitySub {
   color: rgba(248, 241, 229, 0.7);
 }
 html[data-theme="dark"] .detailV13MustEat .fdClose {
-  background: rgba(33, 26, 21, 0.96);
+  background: transparent;
   color: #f8f1e5;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
-}
-html[data-theme="dark"] .detailV13MustEat .fdPager {
-  color: #f8f1e5;
-}
-html[data-theme="dark"] .detailV13MustEat .fdPagerPrev,
-html[data-theme="dark"] .detailV13MustEat .fdPagerNext {
-  background: #211a15;
-  color: #f8f1e5;
-  border-color: rgba(248, 241, 229, 0.16);
+  box-shadow: none;
 }
 html[data-theme="dark"] .list[data-view="detail"] .handle {
   background: var(--map-collage-paper);
@@ -4684,6 +4738,13 @@ html .fab {
 html .mapHome {
   clip-path: polygon(4% 0, 100% 8%, 91% 100%, 0 92%);
   transform: rotate(3deg);
+}
+.mapHomeLogo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
 }
 .mapSearchToolbar {
   border: 0;
@@ -5572,40 +5633,55 @@ html[data-theme="dark"] .btnPromoPriceTag {
 
 .detailV13MustEat .detailV13Scroll {
   color: var(--brand-ink);
-  background:
-    linear-gradient(180deg, transparent 0, transparent 238px, var(--brand-paper) 238px),
-    var(--brand-action);
+  background: var(--brand-paper);
 }
 
 html[data-theme="dark"] .detailV13MustEat .detailV13Scroll {
   color: var(--brand-paper);
-  background:
-    linear-gradient(180deg, transparent 0, transparent 238px, var(--brand-ink) 238px),
-    var(--brand-action-deep);
+  background: var(--brand-ink);
 }
 
 .fdHalo {
-  background: radial-gradient(circle, color-mix(in srgb, var(--brand-paper) 34%, transparent), transparent 64%);
+  display: none;
 }
 
-.fdMid,
-.fdRest,
-.fdPagerPrev,
-.fdPagerNext {
-  background: var(--brand-paper);
+.fdMid {
+  background: transparent;
   color: var(--brand-ink);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.fdRest {
+  background: var(--brand-ink);
+  color: var(--brand-paper);
   border: 1.5px solid var(--brand-ink);
   border-radius: var(--radius-sm, 4px);
-  box-shadow: 3px 3px 0 var(--brand-ink);
+  box-shadow: none;
+}
+
+.detailV13MustEat .fdRest .fdV {
+  color: currentColor;
+}
+
+.detailV13MustEat .fdRest .fdK {
+  color: color-mix(in srgb, currentColor 64%, transparent);
+}
+
+.fdPager {
+  color: var(--brand-ink);
 }
 
 .fdName,
 .fdProximityHead,
 .fdV,
-.fdPager,
-.fdPagerPrev,
-.fdPagerNext {
+.fdClose {
   color: var(--brand-ink);
+}
+
+.detailV13MustEat .fdName {
+  color: var(--brand-action);
 }
 
 .fdText,
@@ -5621,9 +5697,9 @@ html[data-theme="dark"] .detailV13MustEat .detailV13Scroll {
 .ctaPill {
   background: var(--brand-action);
   color: var(--brand-paper);
-  border: 1.5px solid var(--brand-ink);
+  border: 1.5px solid var(--brand-paper);
   border-radius: var(--radius-sm, 4px);
-  box-shadow: 3px 3px 0 var(--brand-ink);
+  box-shadow: none;
 }
 
 .ctaPill:hover {
@@ -5631,22 +5707,41 @@ html[data-theme="dark"] .detailV13MustEat .detailV13Scroll {
 }
 
 html[data-theme="dark"] .detailV13MustEat .fdMid,
-html[data-theme="dark"] .detailV13MustEat .fdRest,
-html[data-theme="dark"] .detailV13MustEat .fdPagerPrev,
-html[data-theme="dark"] .detailV13MustEat .fdPagerNext {
-  background: var(--brand-ink);
+html[data-theme="dark"] .detailV13MustEat .fdPager {
+  background: transparent;
   color: var(--brand-paper);
   border-color: var(--brand-paper);
-  box-shadow: 3px 3px 0 var(--brand-action);
+  box-shadow: none;
+}
+
+html[data-theme="dark"] .detailV13MustEat .fdRest {
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  border-color: var(--brand-paper);
+  box-shadow: none;
+}
+
+html[data-theme="dark"] .detailV13MustEat .fdPagerPrev,
+html[data-theme="dark"] .detailV13MustEat .fdPagerNext {
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  border-color: var(--brand-paper);
+}
+
+html[data-theme="dark"] .detailV13MustEat .fdPagerNext {
+  background: var(--brand-action);
+  color: var(--brand-paper);
 }
 
 html[data-theme="dark"] .detailV13MustEat .fdName,
 html[data-theme="dark"] .detailV13MustEat .fdProximityHead,
 html[data-theme="dark"] .detailV13MustEat .fdV,
-html[data-theme="dark"] .detailV13MustEat .fdPager,
-html[data-theme="dark"] .detailV13MustEat .fdPagerPrev,
-html[data-theme="dark"] .detailV13MustEat .fdPagerNext {
+html[data-theme="dark"] .detailV13MustEat .fdClose {
   color: var(--brand-paper);
+}
+
+html[data-theme="dark"] .detailV13MustEat .fdName {
+  color: var(--brand-action);
 }
 
 html[data-theme="dark"] .detailV13MustEat .fdText,
@@ -5681,8 +5776,6 @@ html .fab,
 .pickerItemActive,
 .ctaPill,
 .fdClose,
-.fdPagerPrev,
-.fdPagerNext,
 html[data-theme="dark"] .mapSearchBtn,
 html[data-theme="dark"] .mapSearchToolbar,
 html[data-theme="dark"] .fab,
@@ -5691,9 +5784,7 @@ html[data-theme="dark"] .galleryLbClose,
 html[data-theme="dark"] .btn,
 html[data-theme="dark"] .detailInSheet .detailActions .btn,
 html[data-theme="dark"] .pickerCloseBtn,
-html[data-theme="dark"] .fdClose,
-html[data-theme="dark"] .detailV13MustEat .fdPagerPrev,
-html[data-theme="dark"] .detailV13MustEat .fdPagerNext {
+html[data-theme="dark"] .fdClose {
   box-shadow: none !important;
   filter: none !important;
   text-shadow: none !important;
@@ -5720,12 +5811,232 @@ html[data-theme="dark"] .detailV13MustEat .fdPagerNext {
   .pickerCloseBtn:hover,
   .pickerItemActive:hover,
   .ctaPill:hover,
-  .fdClose:hover,
-  .fdPagerPrev:hover,
-  .fdPagerNext:hover {
+  .fdClose:hover {
     box-shadow: none !important;
     filter: none !important;
     text-shadow: none !important;
+  }
+}
+
+/* Restaurant detail actions — flatter, closer to the Home brand palette. */
+html .rdActs {
+  grid-template-columns: 1.04fr 1.26fr 1fr;
+  gap: 8px;
+  padding: 10px 14px 20px;
+}
+
+html .rdActs > :last-child:nth-child(odd) {
+  grid-column: auto;
+}
+
+html .rdActs:has(> :only-child) {
+  grid-template-columns: 1fr;
+}
+
+html .rdActs:has(> :nth-child(2):last-child) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+html .rdActBtn,
+html[data-theme="dark"] .rdActBtn {
+  min-height: 54px;
+  padding: 14px 8px 13px;
+  flex-direction: row;
+  gap: 0;
+  border: 1.5px solid var(--brand-ink);
+  border-radius: var(--radius-sm, 4px);
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  box-shadow: none !important;
+  filter: none !important;
+  font-family: var(--font-label, var(--font-poster)), var(--font-display), sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: .035em;
+  line-height: .9;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  transition:
+    transform var(--map-motion),
+    background-color var(--map-motion),
+    color var(--map-motion),
+    border-color var(--map-motion);
+}
+
+html .rdActPrimary,
+html[data-theme="dark"] .rdActPrimary {
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border-color: var(--brand-ink);
+}
+
+@media (hover: hover) {
+  html .rdActBtn:hover,
+  html[data-theme="dark"] .rdActBtn:hover {
+    transform: translateY(-2px);
+    background: var(--brand-action);
+    color: var(--brand-paper);
+    border-color: var(--brand-ink);
+  }
+}
+
+html[data-theme="dark"] .rdActBtn {
+  background: transparent;
+  color: var(--brand-paper);
+  border-color: color-mix(in srgb, var(--brand-paper) 70%, transparent);
+}
+
+html[data-theme="dark"] .rdActPrimary {
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border-color: var(--brand-paper);
+}
+
+html .packPromo,
+html[data-theme="dark"] .packPromo {
+  margin: 8px 14px 28px;
+  padding: 18px 15px 16px;
+  grid-template-columns: 62px minmax(0, 1fr);
+  column-gap: 15px;
+  background: var(--brand-ink);
+  color: var(--brand-paper);
+  border: 1.5px solid var(--brand-ink);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+html .packPromo::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--brand-action);
+}
+
+html .packPromoCardWrap {
+  min-height: 90px;
+}
+
+html .packPromoSingleCard,
+html[data-theme="dark"] .packPromoSingleCard {
+  width: 58px;
+  transform: rotate(-4deg);
+  filter: none;
+}
+
+html .packPromo:hover .packPromoSingleCard {
+  transform: rotate(-2deg) translateY(-2px);
+  filter: none;
+}
+
+html .packPromoTitle,
+html[data-theme="dark"] .packPromoTitle {
+  margin-bottom: 8px;
+  color: var(--brand-action);
+  font-size: 24px;
+  line-height: .9;
+}
+
+html .packPromoBody,
+html[data-theme="dark"] .packPromoBody {
+  max-width: 31ch;
+  color: color-mix(in srgb, var(--brand-paper) 80%, transparent);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.36;
+}
+
+html .packPromoActions {
+  gap: 10px;
+}
+
+html .btnPackPromo,
+html[data-theme="dark"] .btnPackPromo {
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  border: 1.5px solid var(--brand-paper);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: none !important;
+  filter: none !important;
+  font-family: var(--font-label, var(--font-poster)), var(--font-display), sans-serif;
+  font-size: 15px;
+  letter-spacing: .035em;
+  line-height: .9;
+  text-transform: uppercase;
+  padding: 11px 13px 12px;
+}
+
+html .btnPackPromo:hover,
+html[data-theme="dark"] .btnPackPromo:hover {
+  transform: translateY(-1px);
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border-color: var(--brand-action);
+  box-shadow: none !important;
+}
+
+html .btnPackPromoLbl {
+  font-family: var(--font-label, var(--font-poster)), var(--font-display), sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: .035em;
+}
+
+html .btnPackPromoIcon {
+  width: 14px;
+  height: 10px;
+}
+
+html .linkPromo,
+html[data-theme="dark"] .linkPromo {
+  color: color-mix(in srgb, var(--brand-paper) 78%, transparent);
+  border-bottom: 0;
+  text-decoration: none;
+  font-size: 11.5px;
+  font-weight: 900;
+}
+
+html .linkPromo:hover,
+html[data-theme="dark"] .linkPromo:hover {
+  color: var(--brand-action);
+  border-bottom-color: transparent;
+}
+
+html[data-theme="dark"] .packPromo {
+  background: var(--brand-ink);
+  color: var(--brand-paper);
+  border-color: color-mix(in srgb, var(--brand-paper) 70%, transparent);
+}
+
+html[data-theme="dark"] .packPromoBody,
+html[data-theme="dark"] .linkPromo {
+  color: color-mix(in srgb, var(--brand-paper) 78%, transparent);
+}
+
+html[data-theme="dark"] .btnPackPromo {
+  border-color: var(--brand-paper);
+}
+
+@media (max-width: 380px) {
+  html .rdActBtn {
+    min-height: 50px;
+    padding-inline: 5px;
+    font-size: 15px;
+    letter-spacing: .025em;
+  }
+
+  html .packPromo {
+    grid-template-columns: 58px minmax(0, 1fr);
+    column-gap: 11px;
+    padding-inline: 12px;
+  }
+
+  html .packPromoSingleCard {
+    width: 54px;
   }
 }
 
@@ -6015,6 +6326,10 @@ html .rdV a {
   text-underline-offset: 3px;
 }
 
+html .rdV a.rdContactPlainLink {
+  text-decoration: none;
+}
+
 html .rdAddrLine {
   margin-top: 2px;
 }
@@ -6195,5 +6510,46 @@ html[data-theme="dark"] .filterChipOpenActive {
 
   html .bodyPanelHidden .mapBurger {
     right: 14px !important;
+  }
+}
+
+/* Final map brand override: freestanding transparent wordmark, not a glass tile. */
+html .mapHome,
+html[data-theme="dark"] .mapHome {
+  width: 58px !important;
+  height: 62px !important;
+  top: 14px !important;
+  left: 14px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  overflow: visible !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  filter: drop-shadow(0 5px 4px rgba(43, 33, 28, .28)) !important;
+}
+
+html .mapHomeLogo {
+  object-fit: contain;
+}
+
+/* Mobile sheet takeover: hide the freestanding brand mark with the search rail. */
+html .bodyListAtFull .mapHome,
+html .bodyDetailOpen .mapHome,
+html[data-theme="dark"] .bodyListAtFull .mapHome,
+html[data-theme="dark"] .bodyDetailOpen .mapHome {
+  transform: translateY(calc(-100% - 80px)) !important;
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  html .bodyListAtFull .mapHome,
+  html .bodyDetailOpen .mapHome,
+  html[data-theme="dark"] .bodyListAtFull .mapHome,
+  html[data-theme="dark"] .bodyDetailOpen .mapHome {
+    transform: none !important;
+    pointer-events: auto;
   }
 }

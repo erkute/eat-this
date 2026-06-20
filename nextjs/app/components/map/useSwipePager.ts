@@ -8,6 +8,8 @@ interface SwipePagerOptions {
    *  neighbour rubber-bands back instead of playing the page animation. */
   hasPrev: boolean
   hasNext: boolean
+  /** Optional element to animate while the root still owns the gesture. */
+  transformRef?: RefObject<HTMLElement | null>
 }
 
 /* Horizontal swipe paging for the detail sheets (restaurant + must-eat).
@@ -23,6 +25,7 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
   useEffect(() => {
     const el = ref.current
     if (!el) return
+    const animatedEl = () => optsRef.current.transformRef?.current ?? el
     let startX = 0, startY = 0, axis: 'h' | 'v' | null = null, active = false
     const onDown = (e: PointerEvent) => {
       if (e.pointerType === 'mouse') return
@@ -42,8 +45,9 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
       }
       if (axis === 'h') {
         e.preventDefault()
-        // Light resistance so the empty sheet beside the pane barely shows.
-        el.style.transform = `translateX(${dx * 0.42}px)`
+        // Keep the composition calm: drag previews the top card, not the
+        // whole sheet, and with enough resistance that text/content stays put.
+        animatedEl().style.transform = `translateX(${dx * 0.24}px)`
       }
     }
     /* preventDefault on pointermove does NOT stop native scrolling — once a
@@ -55,9 +59,10 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
       if (active && axis === 'h' && e.cancelable) e.preventDefault()
     }
     const settle = () => {
-      el.style.transition = 'transform .2s ease-out'
-      el.style.transform = 'translateX(0)'
-      window.setTimeout(() => { el.style.transition = ''; el.style.transform = '' }, 220)
+      const target = animatedEl()
+      target.style.transition = 'transform .2s ease-out'
+      target.style.transform = 'translateX(0)'
+      window.setTimeout(() => { target.style.transition = ''; target.style.transform = '' }, 220)
     }
     const end = (e: PointerEvent) => {
       if (!active) return
@@ -70,20 +75,22 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
       if (wasH && Math.abs(dx) > 60 && canPage) {
         // Instagram-style page: current pane slides out, the new one slides
         // in from the opposite edge (translate only — no opacity fade).
+        const target = animatedEl()
         const w = el.clientWidth
         const outX = dir === 'next' ? -w : w
-        el.style.transition = 'transform .17s ease-out'
-        el.style.transform = `translateX(${outX}px)`
+        target.style.transition = 'transform .17s ease-out'
+        target.style.transform = `translateX(${outX}px)`
         window.setTimeout(() => {
           if (dir === 'next') optsRef.current.onNext?.()
           else optsRef.current.onPrev?.()
           // Place the freshly-swapped content on the opposite edge, then in.
-          el.style.transition = 'none'
-          el.style.transform = `translateX(${-outX}px)`
-          void el.offsetWidth // force reflow so the next transition animates
-          el.style.transition = 'transform .2s ease-out'
-          el.style.transform = 'translateX(0)'
-          window.setTimeout(() => { el.style.transition = ''; el.style.transform = '' }, 220)
+          const nextTarget = animatedEl()
+          nextTarget.style.transition = 'none'
+          nextTarget.style.transform = `translateX(${-outX}px)`
+          void nextTarget.offsetWidth // force reflow so the next transition animates
+          nextTarget.style.transition = 'transform .2s ease-out'
+          nextTarget.style.transform = 'translateX(0)'
+          window.setTimeout(() => { nextTarget.style.transition = ''; nextTarget.style.transform = '' }, 220)
         }, 170)
       } else {
         settle()

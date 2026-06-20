@@ -13,16 +13,8 @@ import UserLocationMarker from './UserLocationMarker'
    one lazy chunk (see the `next/dynamic` boundary in MapSectionBody). The
    ~800 KB maplibre-gl bundle + its CSS then load only after /map mounts on
    the client, instead of blocking hydration of the SSR'd list/sheet. */
-interface MapBounds {
-  north: number
-  south: number
-  east: number
-  west: number
-}
-
 interface MapCanvasLayerProps {
   mapRef: RefObject<MapRef | null>
-  onMapMove: (bounds: MapBounds) => void
   onMapClick: () => void
   displayedRestaurants: MapRestaurant[]
   selectedRestaurant: MapRestaurant | null
@@ -32,7 +24,6 @@ interface MapCanvasLayerProps {
 
 export default function MapCanvasLayer({
   mapRef,
-  onMapMove,
   onMapClick,
   displayedRestaurants,
   selectedRestaurant,
@@ -40,7 +31,7 @@ export default function MapCanvasLayer({
   location,
 }: MapCanvasLayerProps) {
   return (
-    <MapCanvas ref={mapRef} onMove={onMapMove} onMapClick={onMapClick}>
+    <MapCanvas ref={mapRef} onMapClick={onMapClick}>
       {displayedRestaurants.map(r => (
         <RestaurantMarker
           key={r._id}

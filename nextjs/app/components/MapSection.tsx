@@ -5,7 +5,6 @@ import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import {
   useMapData,
   useUserLocation,
-  useBounds,
   useUnlockedMustEats,
   useFavorites,
   useMapFilters,
@@ -222,12 +221,6 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     if (!el) return
     el.scrollTop = listScrollRef.current
   }, [sheetView, contentRef])
-
-  const { updateBounds } = useBounds(displayedRestaurants, location)
-
-  const handleMapMove = useCallback((bounds: Parameters<typeof updateBounds>[0]) => {
-    updateBounds(bounds)
-  }, [updateBounds])
 
   const restaurantMustEats = useMemo(() => {
     if (!selectedRestaurant) return []
@@ -746,7 +739,6 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       setOpenOnly={setOpenOnly}
       searchOpen={searchOpen}
       setSearchOpen={setSearchOpen}
-      onMapMove={handleMapMove}
       onMapClick={handleMapClick}
       onRestaurantClick={handleRestaurantClick}
       onMustEatClick={handleMustEatClick}

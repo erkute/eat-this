@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/lib/useTheme';
 import { routing } from '@/i18n/routing';
 import { Link, usePathname } from '@/i18n/navigation';
+import MapIntentLink from './MapIntentLink';
 
 export interface BurgerCloseDetail {
   /** Skip the body-scroll restore — for cross-page navigation where the
@@ -129,7 +130,7 @@ export default function BurgerDrawer() {
 
           <nav className="bd-nav" aria-label="Primary">
             <Link href="/" className="bd-nav-item">{t('burger.home')}</Link>
-            <Link href="/map" className="bd-nav-item">{t('burger.map')}</Link>
+            <MapIntentLink href="/map" className="bd-nav-item">{t('burger.map')}</MapIntentLink>
             {/* Profile/login is a primary action, not footer furniture. Keep it
                 high in the stack so signed-in users can reach their deck fast. */}
             <button type="button" className="bd-nav-item bd-cta" id="loginBtn" onClick={handleLoginBtn} suppressHydrationWarning>

@@ -12,6 +12,7 @@ import { haversineDistance, formatWalkingTime } from '@/lib/map/distance'
 import { nearestRestaurants, nearbyMustEats } from '@/lib/home/nearby'
 import { normalizeName } from '@/lib/normalizeName'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
+import MapIntentLink from './MapIntentLink'
 import styles from './HubDeineWelt.module.css'
 
 const MITTE = { lat: 52.52, lng: 13.405 }
@@ -257,7 +258,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
             <ul className={styles.cardFan} role="list">
               {cardSlots.map((card, index) => (
                 <li key={card.key} style={{ '--tilt': `${index === 1 ? 1.5 : index === 2 ? 7 : -6}deg` } as CSSProperties}>
-                  <Link href={card.href} rel="nofollow" className={styles.foodCard}>
+                  <MapIntentLink href={card.href} rel="nofollow" className={styles.foodCard}>
                     <span className={styles.foodCardImage} data-locked={card.src ? 'false' : 'true'}>
                       {card.src ? (
                         <Image src={card.src} alt="" fill sizes="150px" className={styles.foodCardImg} />
@@ -267,7 +268,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
                     </span>
                     <strong>{card.label}</strong>
                     {card.meta && <small>{card.meta}</small>}
-                  </Link>
+                  </MapIntentLink>
                 </li>
               ))}
             </ul>
@@ -281,10 +282,10 @@ export default function HubDeineWelt({ initialMapData }: Props) {
             <ul className={styles.nearCards} role="list">
               {hiddenNearby.length > 0 ? hiddenNearby.map((m) => (
                 <li key={m._id}>
-                  <Link href={`/map?me=${m._id}`} rel="nofollow" className={styles.lockedCard}>
+                  <MapIntentLink href={`/map?me=${m._id}`} rel="nofollow" className={styles.lockedCard}>
                     <span style={{ backgroundImage: `url(${CARD_BACK})` }} aria-hidden="true" />
                     <strong>{normalizeName(m.restaurant.name)}</strong>
-                  </Link>
+                  </MapIntentLink>
                 </li>
               )) : (
                 <li className={styles.empty}>{t('nearMustEatsEmpty', { count: hiddenCount })}</li>
@@ -302,14 +303,14 @@ export default function HubDeineWelt({ initialMapData }: Props) {
                 const walk = formatWalkingTime(haversineDistance(loc.lat, loc.lng, r.lat, r.lng))
                 return (
                   <li key={r._id}>
-                    <Link href={`/map?r=${r.slug}`} rel="nofollow" className={styles.restaurantCard}>
+                    <MapIntentLink href={`/map?r=${r.slug}`} rel="nofollow" className={styles.restaurantCard}>
                       <span className={styles.restaurantPhoto}>
                         {r.photo && <Image src={r.photo} alt="" fill sizes="180px" className={styles.restaurantImg} />}
                         {walk && <em>{walk}</em>}
                       </span>
                       <strong>{normalizeName(r.name)}</strong>
                       <small>{r.district ?? t('nearRestaurantMeta')}</small>
-                    </Link>
+                    </MapIntentLink>
                   </li>
                 )
               })}

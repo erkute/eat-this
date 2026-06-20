@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl'
-import { Link } from '@/i18n/navigation'
+import MapIntentLink from './MapIntentLink'
 import styles from './HubDishPoster.module.css'
 
 const dishes = [
@@ -83,7 +83,7 @@ export default function HubDishPoster() {
           <ul className={styles.dishes} role="list">
             {dishes.map((item, index) => (
               <li key={item.key} className={`${styles.item} ${styles[`item${index + 1}`]}`}>
-                <Link href={item.href} rel="nofollow" className={styles.dishLink}>
+                <MapIntentLink href={item.href} rel="nofollow" className={styles.dishLink}>
                   <span className={styles.photoFrame}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={item.image} alt={`${item.restaurant}: ${item.dish}`} loading="lazy" />
@@ -93,7 +93,7 @@ export default function HubDishPoster() {
                     <span>{item.restaurant}</span>
                     <em>{item.note}</em>
                   </span>
-                </Link>
+                </MapIntentLink>
               </li>
             ))}
           </ul>

@@ -145,14 +145,14 @@
 }
 
 :global(html[data-theme="dark"]) .collage {
-  --collage-paper: var(--food-paper, #130f0d);
-  --home-surface: var(--food-cream, #201612);
-  --home-muted: rgba(255, 248, 234, .2);
-  --collage-ink: var(--food-ink, #fff8ea);
-  --home-cta-bg: rgba(242, 223, 184, .12);
-  --home-cta-text: var(--et-red-hot, #f03608);
-  --home-cta-border: rgba(240, 54, 8, .36);
-  --home-cta-shadow: inset 0 -2px 0 rgba(240, 54, 8, .14), 0 8px 18px rgba(0, 0, 0, .16);
+  --collage-paper: var(--food-paper, #F1F1EC);
+  --home-surface: var(--food-cream, #F1F1EC);
+  --home-muted: rgba(16, 13, 15, .22);
+  --collage-ink: var(--food-ink, #171A17);
+  --home-cta-bg: rgba(241, 241, 236, .78);
+  --home-cta-text: var(--et-red-hot, #EF3528);
+  --home-cta-border: rgba(239, 53, 40, .36);
+  --home-cta-shadow: inset 0 -2px 0 rgba(239, 53, 40, .14), 0 8px 18px rgba(92, 50, 19, .1);
   --home-cta-hover-bg: var(--et-cream, #f2dfb8);
   --home-cta-hover-text: var(--et-black, #100d0f);
   --home-cta-hover-border: var(--et-red-hot, #f03608);
@@ -165,7 +165,7 @@
 :global(html[data-theme="dark"]) .collage :global([data-hub-categories]),
 :global(html[data-theme="dark"]) .collage :global([data-hub-faq]) {
   background: transparent;
-  border-color: rgba(205, 255, 188, .2);
+  border-color: rgba(239, 53, 40, .18);
 }
 
 /* No thin section outlines in the softer red home direction. */

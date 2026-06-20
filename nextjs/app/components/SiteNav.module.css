@@ -106,7 +106,7 @@
 :global(.burger-btn).menuSticker:hover {
   background: transparent !important;
   box-shadow: none !important;
-  color: var(--et-red);
+  color: var(--et-black);
 }
 
 .menuLines {

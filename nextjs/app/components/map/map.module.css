@@ -6572,6 +6572,17 @@ html .mapHomeLogo {
   object-fit: contain;
 }
 
+@media (hover: hover) {
+  html .mapHome:hover,
+  html[data-theme="dark"] .mapHome:hover {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
 /* Mobile sheet takeover: hide the freestanding brand mark with the search rail. */
 html .bodyListAtFull .mapHome,
 html .bodyDetailOpen .mapHome,

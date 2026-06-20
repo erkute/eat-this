@@ -371,10 +371,10 @@ html[data-active-page="start"],
 html[data-active-page="home"] body,
 html[data-active-page="start"] body {
   --food-ink: #25170f;
-  --food-paper: #fff8ea;
-  --food-cream: #ffeec8;
+  --food-paper: #F1F1EC;
+  --food-cream: #F1F1EC;
   --food-butter: #ffd35a;
-  --food-tomato: #e84a2a;
+  --food-tomato: var(--et-poster-red);
   --food-tomato-dark: #a83220;
   --food-basil: #2f6b42;
   --food-olive: #7b7d32;
@@ -413,23 +413,23 @@ html[data-theme="dark"][data-active-page="home"],
 html[data-theme="dark"][data-active-page="start"],
 html[data-theme="dark"][data-active-page="home"] body,
 html[data-theme="dark"][data-active-page="start"] body {
-  --food-ink: #fff8ea;
-  --food-paper: #130f0d;
-  --food-cream: #201612;
+  --food-ink: #171A17;
+  --food-paper: #F1F1EC;
+  --food-cream: #F1F1EC;
   --food-butter: #ffc54d;
-  --food-tomato: #ff5a30;
-  --food-tomato-dark: #ff8a62;
+  --food-tomato: var(--et-poster-red);
+  --food-tomato-dark: #B92820;
   --food-basil: #91c78f;
   --food-olive: #d2c95f;
 
   --et-red: var(--food-tomato);
-  --et-red-hot: #ff7a52;
+  --et-red-hot: var(--et-poster-red);
   --et-red-deep: var(--food-tomato-dark);
   --et-yellow: var(--food-cream);
   --et-yellow-bright: var(--food-butter);
-  --et-cream: var(--food-ink);
-  --et-black: var(--food-paper);
-  --et-dark-card: #241915;
+  --et-cream: var(--food-paper);
+  --et-black: var(--food-ink);
+  --et-dark-card: #F1F1EC;
   --surface-bg: var(--food-paper);
   --surface-canvas: var(--food-paper);
   --surface-paper: var(--food-cream);
@@ -437,7 +437,7 @@ html[data-theme="dark"][data-active-page="start"] body {
   --accent-mustard: var(--food-butter);
   --accent-warm: var(--food-tomato);
   --c-coral: var(--food-tomato);
-  --c-coral-bright: #ff7a52;
+  --c-coral-bright: var(--et-poster-red);
   --c-mustard: var(--food-butter);
   --brand-yellow: var(--food-butter);
   --brand-red: var(--food-tomato);
@@ -445,11 +445,11 @@ html[data-theme="dark"][data-active-page="start"] body {
   --collage-yellow: var(--food-butter);
   --collage-paper: var(--food-paper);
   --collage-ink: var(--food-ink);
-  --collage-shadow: 0 18px 38px rgba(0, 0, 0, 0.35);
+  --collage-shadow: 0 18px 38px rgba(78, 47, 24, 0.13);
 
   background-color: var(--food-paper);
   background-image: none;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 /* Hub wrapper surface. The section stack has intentional gaps between some
@@ -469,7 +469,7 @@ html[data-theme="dark"][data-active-page="start"] body {
   --collage-paper: var(--food-paper);
   --collage-ink: var(--food-ink);
   background-color: var(--food-paper);
-  color-scheme: dark;
+  color-scheme: light;
 }
 html[data-theme="dark"][data-active-page="home"] [data-hub],
 html[data-theme="dark"][data-active-page="start"] [data-hub] {

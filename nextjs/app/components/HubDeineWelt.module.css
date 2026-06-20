@@ -756,9 +756,9 @@
 }
 
 html[data-theme="dark"] .section {
-  color: var(--et-cream, #f2dfb8);
+  color: var(--et-black, #171A17);
   background:
-    linear-gradient(180deg, #181412 0%, var(--et-black, #100d0f) 100%);
+    linear-gradient(180deg, rgba(255, 255, 255, .82) 0%, rgba(241, 241, 236, .96) 42%, var(--et-cream, #F1F1EC) 100%);
 }
 
 html[data-theme="dark"] .kicker,
@@ -770,7 +770,7 @@ html[data-theme="dark"] .panelHead p {
 html[data-theme="dark"] .title,
 html[data-theme="dark"] .panel,
 html[data-theme="dark"] .restaurantCard {
-  color: var(--et-cream, #f2dfb8);
+  color: var(--et-black, #171A17);
 }
 
 html[data-theme="dark"] .lead,
@@ -778,12 +778,12 @@ html[data-theme="dark"] .profileText small,
 html[data-theme="dark"] .foodCard small,
 html[data-theme="dark"] .restaurantCard small,
 html[data-theme="dark"] .empty {
-  color: rgba(242, 223, 184, .68);
+  color: rgba(16, 13, 15, .68);
 }
 
 html[data-theme="dark"] .panel {
-  background: rgba(242, 223, 184, .06);
-  border-color: rgba(242, 223, 184, .22);
+  background: rgba(255, 255, 255, .54);
+  border-color: rgba(16, 13, 15, .18);
 }
 
 html[data-theme="dark"] .profileLink {
@@ -792,9 +792,9 @@ html[data-theme="dark"] .profileLink {
 }
 
 html[data-theme="dark"] .insightBar span {
-  color: var(--et-cream, #f2dfb8);
-  background: rgba(242, 223, 184, .08);
-  border-color: rgba(242, 223, 184, .22);
+  color: var(--et-black, #171A17);
+  background: rgba(255, 255, 255, .68);
+  border-color: rgba(16, 13, 15, .18);
 }
 
 html[data-theme="dark"] .insightBar strong {

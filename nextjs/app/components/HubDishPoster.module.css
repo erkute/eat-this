@@ -447,11 +447,11 @@
 }
 
 html[data-theme="dark"] .section {
-  color: var(--et-cream);
+  color: var(--et-black);
 }
 
 html[data-theme="dark"] .title {
-  color: var(--et-cream);
+  color: var(--collage-ink, var(--et-black));
 }
 
 html[data-theme="dark"] .stage::before {
@@ -459,20 +459,20 @@ html[data-theme="dark"] .stage::before {
 }
 
 html[data-theme="dark"] .label {
-  color: var(--et-cream);
+  color: var(--et-black);
   padding: 6px 8px 7px;
   border-radius: 8px;
-  background: rgba(19, 15, 13, .82);
+  background: rgba(241, 241, 236, .86);
   text-shadow: none;
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
 }
 
 html[data-theme="dark"] .label strong {
-  color: var(--et-cream);
+  color: var(--et-black);
 }
 
 html[data-theme="dark"] .label span,
 html[data-theme="dark"] .label em {
-  color: rgba(242, 223, 184, .78);
+  color: rgba(16, 13, 15, .78);
 }

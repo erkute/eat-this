@@ -6,9 +6,9 @@
 .overlay {
   position: fixed;
   inset: 0;
-  /* Above the legacy .navbar (z-index: 9999 in style.min.css) so the header
-     is fully covered when the modal is open. */
-  z-index: 10000;
+  /* Above the legacy .navbar (9999) and cookie banner (10002) so the active
+     auth surface is never partially covered. */
+  z-index: 10004;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,7 +18,7 @@
   backdrop-filter: none;
 }
 
-/* Staging banner (z-index 100000) sits above this overlay (z-index 10000),
+/* Staging banner (z-index 100000) sits above this overlay (z-index 10004),
    so without a shift it paints over the overlay's top — covering the panel
    header / close button. Start the overlay below the banner, same pattern
    as .navbar / header[role="banner"] / .burger-drawer in globals.css.

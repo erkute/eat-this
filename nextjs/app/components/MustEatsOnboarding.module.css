@@ -222,3 +222,13 @@ html[data-theme="dark"] .howBadge {
     transform: none;
   }
 }
+
+/* Touch WebKit fallback: avoid rectangular compositing shadows on transparent
+   WebP pack art while Safari is animating/translating the onboarding panel. */
+@supports (-webkit-touch-callout: none) {
+  @media (pointer: coarse) {
+    .packHero {
+      filter: none;
+    }
+  }
+}

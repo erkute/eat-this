@@ -10,6 +10,10 @@ interface SwipePagerOptions {
   hasNext: boolean
   /** Optional element to animate while the root still owns the gesture. */
   transformRef?: RefObject<HTMLElement | null>
+  /** Called after the current pane/card has left, right before data swaps. */
+  onPageOut?: (dir: 'prev' | 'next') => void
+  /** Defaults to true. Must-eat cards opt out so the old face never re-enters. */
+  animateIn?: boolean
 }
 
 /* Horizontal swipe paging for the detail sheets (restaurant + must-eat).
@@ -81,8 +85,14 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
         target.style.transition = 'transform .17s ease-out'
         target.style.transform = `translateX(${outX}px)`
         window.setTimeout(() => {
+          optsRef.current.onPageOut?.(dir)
           if (dir === 'next') optsRef.current.onNext?.()
           else optsRef.current.onPrev?.()
+          if (optsRef.current.animateIn === false) {
+            target.style.transition = 'none'
+            target.style.transform = ''
+            return
+          }
           // Place the freshly-swapped content on the opposite edge, then in.
           const nextTarget = animatedEl()
           nextTarget.style.transition = 'none'

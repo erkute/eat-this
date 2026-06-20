@@ -546,3 +546,15 @@ html[data-theme="dark"] .bonusIcon {
   background: #0a0a0a;
   color: var(--c-coral-bright);
 }
+
+/* Touch WebKit fallback for transparent pack cut-outs. iOS Safari can turn
+   filter: drop-shadow() into a boxy raster shadow during transforms. */
+@supports (-webkit-touch-callout: none) {
+  @media (pointer: coarse) {
+    .packArt,
+    .allStack img,
+    .allPack img {
+      filter: none;
+    }
+  }
+}

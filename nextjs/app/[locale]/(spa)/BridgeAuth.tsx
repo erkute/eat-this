@@ -59,7 +59,7 @@ export default function BridgeAuth() {
       const firstName = (user.displayName ?? user.email ?? '')
         .split(' ')[0] || t('footer.signIn');
       loginBtn?.classList.add('logged-in');
-      if (loginSpan) loginSpan.textContent = firstName;
+      if (loginSpan) loginSpan.textContent = t('burger.profile');
       // Keep the pre-paint flag accurate once auth actually resolves (the
       // bootstrap only guesses from the possibly-stale _authHint).
       document.documentElement.setAttribute('data-auth', '1');
@@ -86,4 +86,3 @@ export default function BridgeAuth() {
     document.body,
   ) : null;
 }
-

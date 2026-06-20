@@ -63,7 +63,6 @@
   gap: 7px;
 }
 .choice,
-.location,
 .reroll {
   border: 1px solid rgba(20, 16, 12, .16);
   border-radius: 999px;
@@ -76,10 +75,8 @@
   transition: transform .1s ease, box-shadow .1s ease, background-color .15s ease;
 }
 .choice:hover,
-.location:hover,
 .reroll:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(43, 33, 28, .10); }
 .choice:active,
-.location:active,
 .reroll:active { transform: translateY(0); box-shadow: none; }
 .choiceActive {
   background: #14100c;
@@ -109,7 +106,6 @@
 }
 .primary:hover { transform: translateY(-2px); box-shadow: 0 20px 34px rgba(239, 49, 8, .30); }
 .primary:active { transform: translateY(1px); box-shadow: 0 10px 18px rgba(239, 49, 8, .18); }
-.location:disabled { cursor: wait; }
 .results {
   margin-top: 30px;
   padding-top: 24px;
@@ -218,7 +214,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .choice,
-  .location,
   .reroll,
   .primary,
   .card { transition: none; }
@@ -243,7 +238,6 @@ html[data-theme="dark"] .empty {
   color: rgba(242, 223, 184, .76);
 }
 html[data-theme="dark"] .choice,
-html[data-theme="dark"] .location,
 html[data-theme="dark"] .reroll {
   background: rgba(255, 248, 234, .08);
   color: var(--et-cream);
@@ -251,7 +245,6 @@ html[data-theme="dark"] .reroll {
   box-shadow: none;
 }
 html[data-theme="dark"] .choice:hover,
-html[data-theme="dark"] .location:hover,
 html[data-theme="dark"] .reroll:hover {
   background: rgba(255, 248, 234, .14);
   box-shadow: none;

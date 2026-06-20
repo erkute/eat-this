@@ -696,3 +696,14 @@ html[data-theme="dark"] .detailOutroWrap :global([data-detail-outro]) {
   background: #111110;
   color: #f0e8d0;
 }
+
+/* iOS Safari alpha-image fallback: prevent the category poster artwork shadow
+   from being rasterized as a rectangular tile on touch WebKit. */
+@supports (-webkit-touch-callout: none) {
+  @media (pointer: coarse) {
+    .posterFrame img,
+    html[data-theme="dark"] .posterFrame img {
+      filter: none;
+    }
+  }
+}

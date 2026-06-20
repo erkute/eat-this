@@ -3,7 +3,6 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
   motion,
-  AnimatePresence,
   useMotionValue,
   useSpring,
   useTransform,
@@ -28,7 +27,9 @@ interface InnerProps {
   imageUrl:   string
   alt:        string
   originRect: DOMRect
+  open:       boolean
   onClose:    () => void
+  onClosed:   () => void
 }
 
 // Credit URLs come from CMS content (Google attribution data / manual Studio
@@ -48,8 +49,11 @@ export function safeHttpUrl(url: string | null | undefined): string | null {
 // two zoom interactions feel identical: open from origin → settle in centre
 // with Apple-style ease-out, pointer-driven 3D-tilt, sheen drifts with
 // rotateY, body scroll/touch locked. Click anywhere closes.
-const Inner = memo(function Inner({ imageUrl, alt, originRect, onClose }: InnerProps) {
-  const overlayW  = Math.min(420, window.innerWidth * 0.88)
+const Inner = memo(function Inner({ imageUrl, alt, originRect, open, onClose, onClosed }: InnerProps) {
+  const cardAspect = originRect.width / originRect.height
+  const maxW = Math.min(420, window.innerWidth * 0.88)
+  const maxH = window.innerHeight * 0.78
+  const overlayW = Math.min(maxW, maxH * cardAspect)
   const screenCx  = window.innerWidth / 2
   const screenCy  = window.innerHeight / 2
   const slotCx    = originRect.left + originRect.width / 2
@@ -84,18 +88,17 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, onClose }: InnerP
     pointerY.set(0)
   }
 
-  // `closing` drops the wrapper below the fixed navbar for the fly-back so
-  // the card returns UNDER the header instead of sailing across it.
   const [closing, setClosing] = useState(false)
   // Flatten the pointer/gyro 3D-tilt before flying back — the springs would
   // otherwise hold the last tilt through the exit and the card lands skewed
   // against the flat origin card.
   const handleClose = useCallback(() => {
+    if (closing) return
     pointerX.set(0)
     pointerY.set(0)
     setClosing(true)
     onClose()
-  }, [onClose, pointerX, pointerY])
+  }, [closing, onClose, pointerX, pointerY])
 
   // Calibrating gyroscope tilt on mobile — first event sets neutral so
   // the phone's resting orientation reads as 0,0. Same pointer values
@@ -146,44 +149,47 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, onClose }: InnerP
     <motion.div
       className={closing ? `${styles.lightboxWrapper} ${styles.lightboxWrapperClosing}` : styles.lightboxWrapper}
       onClick={handleClose}
-      aria-modal="true"
       role="dialog"
     >
-      <motion.div
-        className={styles.lightboxBg}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.18 }}
-      />
       <motion.div
         ref={cardRef}
         className={styles.lightboxCard}
         initial={{ x: fromX, y: fromY, scale: fromScale, rotateZ: tiltZ }}
-        animate={{
-          x: 0, y: 0, scale: 1, rotateZ: 0,
-          transition: { duration: 0.46, ease: [0.22, 1, 0.36, 1] },
-        }}
+        animate={open
+          ? {
+              x: 0, y: 0, scale: 1, rotateZ: 0,
+              transition: { duration: 0.46, ease: [0.22, 1, 0.36, 1] },
+            }
+          : {
+              x: fromX, y: fromY, scale: fromScale, rotateZ: 0,
+              transition: { duration: 0.34, ease: [0.4, 0, 0.2, 1] },
+            }}
         // No opacity fade on the way back — the card stays fully visible
         // until it has landed in its slot, then onExitComplete swaps in the
         // origin card on the same frame. A fade made it vanish mid-flight.
-        exit={{
-          x: fromX, y: fromY, scale: fromScale, rotateZ: 0,
-          transition: { duration: 0.34, ease: [0.4, 0, 0.2, 1] },
+        onAnimationComplete={() => {
+          if (!open) onClosed()
         }}
         style={{
           rotateX: rotateXSpring,
           rotateY: rotateYSpring,
           transformStyle: 'preserve-3d',
         }}
-        onClick={handleClose}
+        onClick={(e) => {
+          e.stopPropagation()
+          handleClose()
+        }}
+        onPointerUp={(e) => {
+          e.stopPropagation()
+          handleClose()
+        }}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
       >
         {/* Inner clip wrapper keeps the sheen's drifting gradient inside
             the card's rounded shape — without it the sheen leaks past
             the right edge at strong rotateY tilts. */}
-        <div className={styles.lightboxClip}>
+        <div className={styles.lightboxClip} style={{ width: overlayW }}>
           <img
             src={imageUrl}
             alt={alt}
@@ -202,21 +208,40 @@ const Inner = memo(function Inner({ imageUrl, alt, originRect, onClose }: InnerP
 
 export default function MustEatImageLightbox({ imageUrl, alt, originRect, onClose, onExitComplete }: Props) {
   const [mounted, setMounted] = useState(false)
+  const [rendered, setRendered] = useState<{
+    imageUrl: string
+    alt: string
+    originRect: DOMRect
+    open: boolean
+  } | null>(null)
+
   useEffect(() => { setMounted(true) }, [])
+
+  useEffect(() => {
+    if (originRect) {
+      setRendered({ imageUrl, alt, originRect, open: true })
+      return
+    }
+    setRendered((current) => current ? { ...current, open: false } : null)
+  }, [alt, imageUrl, originRect])
+
   if (!mounted) return null
 
   return createPortal(
-    <AnimatePresence onExitComplete={onExitComplete}>
-      {originRect && (
-        <Inner
-          key="must-eat-lightbox"
-          imageUrl={imageUrl}
-          alt={alt}
-          originRect={originRect}
-          onClose={onClose}
-        />
-      )}
-    </AnimatePresence>,
+    rendered && (
+      <Inner
+        key="must-eat-lightbox"
+        imageUrl={rendered.imageUrl}
+        alt={rendered.alt}
+        originRect={rendered.originRect}
+        open={rendered.open}
+        onClose={onClose}
+        onClosed={() => {
+          setRendered(null)
+          onExitComplete?.()
+        }}
+      />
+    ),
     document.body,
   )
 }

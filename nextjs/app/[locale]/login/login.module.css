@@ -87,20 +87,37 @@
 }
 
 .packHero {
+  position: relative;
   display: flex;
+  align-items: center;
   justify-content: center;
   width: 100%;
-  margin: clamp(0px, 1dvh, 8px) 0 clamp(18px, 2.6dvh, 26px);
+  min-height: clamp(260px, 36dvh, 430px);
+  margin: clamp(4px, 1.2dvh, 10px) 0 clamp(18px, 2.8dvh, 28px);
+  isolation: isolate;
+}
+
+.packHero::before {
+  content: "";
+  position: absolute;
+  top: 53%;
+  left: 50%;
+  z-index: -1;
+  width: min(78vw, 360px);
+  height: clamp(132px, 19dvh, 210px);
+  border: 2px solid rgba(228, 61, 24, .36);
+  transform: translate(-50%, -50%) rotate(-4deg);
+  clip-path: polygon(0 12%, 100% 0, 92% 100%, 6% 92%);
 }
 
 .packHero img {
   display: block;
   width: auto;
-  max-width: min(72vw, 390px);
-  height: min(39dvh, 390px);
+  max-width: min(78vw, 420px);
+  height: min(42dvh, 430px);
   object-fit: contain;
   transform: rotate(2deg);
-  filter: drop-shadow(18px 28px 22px rgba(16, 13, 15, .24));
+  filter: drop-shadow(20px 30px 22px rgba(16, 13, 15, .26));
 }
 
 .menuTop {
@@ -229,35 +246,39 @@
   justify-content: center;
   gap: 10px;
   width: 100%;
-  min-height: clamp(54px, 6.8dvh, 62px);
+  min-height: clamp(58px, 7.4dvh, 70px);
   padding: 10px 18px;
   border-radius: var(--conversion-button-radius);
   font-family: var(--font-label, var(--font-poster));
-  font-size: clamp(22px, 3.4dvh, 32px);
+  font-size: clamp(24px, 3.8dvh, 36px);
   font-weight: 400;
   letter-spacing: .02em;
   line-height: .86;
   text-transform: uppercase;
   cursor: pointer;
-  transition: transform var(--conversion-motion), background-color var(--conversion-motion), color var(--conversion-motion), border-color var(--conversion-motion);
+  transition: transform var(--conversion-motion), background-color var(--conversion-motion), color var(--conversion-motion), border-color var(--conversion-motion), box-shadow var(--conversion-motion);
 }
 
 .ctaPrimary {
-  color: var(--conversion-action-text);
+  color: var(--et-black, #100d0f);
   background: var(--conversion-action);
-  border: 0;
-  box-shadow: 0 16px 28px rgba(228, 61, 24, .22);
+  border: 2px solid var(--conversion-action);
+  box-shadow: 0 12px 0 rgba(16, 13, 15, .18);
 }
 
 .ctaGoogle {
   color: var(--conversion-ink);
-  background: var(--conversion-field-bg);
+  background: transparent;
   border: 2px solid var(--conversion-border);
 }
 
 .ctaPrimary:hover,
 .ctaGoogle:hover {
   transform: translateY(-2px);
+}
+
+.ctaPrimary:hover svg {
+  transform: translateX(4px);
 }
 
 .ctaPrimary:disabled,
@@ -267,8 +288,10 @@
   transform: none;
 }
 
+.ctaPrimary svg,
 .ctaGoogle svg {
   flex: 0 0 auto;
+  transition: transform var(--conversion-motion);
 }
 
 .error {
@@ -438,6 +461,123 @@
 
 .frameModal {
   flex: 0 1 auto;
+  width: min(560px, calc(100vw - 44px));
+  max-height: calc(100dvh - 44px);
+  padding: clamp(26px, 3.8dvh, 36px) clamp(24px, 4vw, 38px) clamp(22px, 3.2dvh, 30px);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.frameModal .close {
+  top: 14px;
+  right: 14px;
+  width: 38px;
+  height: 38px;
+  padding: 0 0 2px;
+  color: var(--conversion-ink);
+  background: transparent;
+  border: 1px solid var(--conversion-border);
+  border-radius: var(--conversion-button-radius);
+  font-family: var(--font);
+  font-size: 25px;
+  font-weight: 750;
+}
+
+.frameModal .kicker {
+  max-width: 34ch;
+  margin: 2px auto 8px;
+  color: var(--conversion-muted);
+  font-family: var(--font);
+  font-size: clamp(11px, 1.45dvh, 13px);
+  font-weight: 950;
+  letter-spacing: .14em;
+  line-height: 1.15;
+}
+
+.frameModal .h1 {
+  margin-bottom: clamp(8px, 1.4dvh, 12px);
+  font-size: clamp(50px, 7.8dvh, 74px);
+}
+
+.frameModal .packHero {
+  min-height: clamp(300px, 39dvh, 390px);
+  margin: 0 0 clamp(10px, 1.6dvh, 14px);
+}
+
+.frameModal .packHero img {
+  max-width: min(66vw, 350px);
+  height: clamp(280px, 39dvh, 380px);
+  filter: drop-shadow(14px 22px 18px rgba(16, 13, 15, .22));
+}
+
+.frameModal .sub {
+  max-width: 34ch;
+  margin-bottom: clamp(14px, 2dvh, 18px);
+  font-size: clamp(16px, 2.1dvh, 19px);
+  font-weight: 850;
+  line-height: 1.24;
+}
+
+.frameModal .form {
+  gap: 9px;
+  margin-bottom: 12px;
+}
+
+.frameModal .input,
+.frameModal .ctaPrimary,
+.frameModal .ctaGoogle {
+  min-height: 58px;
+}
+
+.frameModal .input {
+  padding: 0 16px;
+  font-size: 16px;
+  font-weight: 750;
+}
+
+.frameModal .ctaPrimary,
+.frameModal .ctaGoogle {
+  gap: 8px;
+  font-size: clamp(22px, 3.1dvh, 28px);
+}
+
+.frameModal .ctaPrimary {
+  box-shadow: 0 8px 0 rgba(16, 13, 15, .18);
+}
+
+.frameModal .or {
+  margin: 12px auto;
+  gap: 10px;
+}
+
+.frameModal .legal {
+  max-width: 42ch;
+  margin-top: 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.frameModal .plane {
+  margin: 8px 0 14px;
+}
+
+.frameModal .plane svg {
+  width: 72px;
+}
+
+.frameModal .toBlock {
+  margin-bottom: 14px;
+  padding: 10px 0;
+}
+
+.frameModal .spam {
+  margin: 10px 0 16px;
+  padding: 10px;
+}
+
+.frameModal .actions {
+  gap: 8px;
 }
 
 @media (max-width: 767px) {
@@ -467,6 +607,9 @@
   .frameModal {
     height: 100dvh;
     min-height: 0;
+    width: 100%;
+    max-height: 100dvh;
+    padding: max(20px, env(safe-area-inset-top, 0px)) 18px max(14px, env(safe-area-inset-bottom, 0px));
   }
 
   .close {
@@ -480,6 +623,16 @@
     color: var(--conversion-action-text);
     background: var(--conversion-action);
     font-size: 30px;
+  }
+
+  .frameModal .close {
+    top: max(14px, env(safe-area-inset-top, 0px));
+    right: 14px;
+    width: 40px;
+    height: 40px;
+    color: var(--conversion-ink);
+    background: rgba(255, 250, 240, .42);
+    font-size: 26px;
   }
 
   .kicker {
@@ -546,6 +699,59 @@
     margin-bottom: clamp(8px, 1.4dvh, 12px);
   }
 
+  .frameModal .kicker {
+    max-width: calc(100vw - 72px);
+    margin-top: 4px;
+    font-size: clamp(10.5px, 3vw, 12px);
+  }
+
+  .frameModal .h1 {
+    margin-bottom: clamp(6px, 1.1dvh, 10px);
+    font-size: clamp(42px, 12.4vw, 62px);
+  }
+
+  .frameModal .packHero {
+    min-height: clamp(310px, 43dvh, 410px);
+    margin-bottom: clamp(10px, 1.4dvh, 14px);
+  }
+
+  .frameModal .packHero img {
+    max-width: min(84vw, 370px);
+    height: clamp(285px, 42dvh, 390px);
+  }
+
+  .frameModal .sub {
+    width: min(33ch, calc(100vw - 56px));
+    margin-bottom: clamp(14px, 1.8dvh, 18px);
+    font-size: clamp(14px, 4vw, 17px);
+    line-height: 1.22;
+  }
+
+  .frameModal .form,
+  .frameModal .or,
+  .frameModal .ctaGoogle {
+    width: calc(100vw - 36px);
+    max-width: calc(100vw - 36px);
+  }
+
+  .frameModal .input,
+  .frameModal .ctaPrimary,
+  .frameModal .ctaGoogle {
+    min-height: clamp(54px, 6.6dvh, 64px);
+  }
+
+  .frameModal .ctaPrimary,
+  .frameModal .ctaGoogle {
+    font-size: clamp(21px, 6vw, 28px);
+  }
+
+  .frameModal .legal {
+    width: min(36ch, calc(100vw - 56px));
+    max-width: calc(100vw - 56px);
+    margin-top: 10px;
+    font-size: 10.5px;
+  }
+
   .or {
     margin-top: clamp(8px, 1.4dvh, 12px);
     margin-bottom: clamp(8px, 1.4dvh, 12px);
@@ -566,9 +772,20 @@
     padding: clamp(34px, 4.4dvh, 52px) clamp(36px, 5vw, 64px) clamp(30px, 4dvh, 46px);
   }
 
+  .frame:not(.frameModal) .packHero {
+    min-height: clamp(230px, 30dvh, 330px);
+    margin-bottom: clamp(14px, 2dvh, 20px);
+  }
+
+  .frame:not(.frameModal) .packHero img {
+    max-width: min(58vw, 340px);
+    height: min(34dvh, 340px);
+  }
+
   .frameModal {
-    width: min(720px, calc(100vw - 44px));
+    width: min(560px, calc(100vw - 44px));
     max-height: calc(100dvh - 44px);
+    padding: clamp(26px, 3.8dvh, 36px) clamp(24px, 4vw, 38px) clamp(22px, 3.2dvh, 30px);
   }
 
   .h1,
@@ -766,4 +983,15 @@ html[data-theme="dark"] .spam {
 html[data-theme="dark"] .spamIcon {
   color: var(--et-black, #100d0f);
   background: var(--et-cream, #f2dfb8);
+}
+
+/* iOS Safari sometimes paints alpha WebP drop-shadows as a rectangular GPU
+   tile. Keep pack artwork flat on touch WebKit; desktop keeps the shadow. */
+@supports (-webkit-touch-callout: none) {
+  @media (pointer: coarse) {
+    .packHero img,
+    .frameModal .packHero img {
+      filter: none;
+    }
+  }
 }

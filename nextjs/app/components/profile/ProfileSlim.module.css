@@ -48,7 +48,7 @@
 /* ── Head ── */
 .head {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 14px;
   padding: 22px 16px 18px;
@@ -61,14 +61,14 @@
 .avatar {
   width: 84px;
   height: 84px;
-  background: rgba(255, 255, 255, .74);
-  border: 1.5px solid rgba(10, 10, 10, .2);
-  border-radius: 8px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: visible;
 }
 .avatar img {
   max-width: 100%;
@@ -99,44 +99,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.email {
-  font-size: 13px;
-  color: #0a0a0a;
-  opacity: 0.75;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.heroCard {
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 5px;
-  width: 82px;
-  min-height: 74px;
-  padding: 10px 8px;
-  background: rgba(255, 255, 255, .72);
-  border: 1.5px solid rgba(10, 10, 10, .18);
-  border-radius: 8px;
-  color: #0a0a0a;
-  text-align: center;
-}
-
-.heroCard span {
-  font-family: var(--font-label, var(--font-poster));
-  font-size: 9px;
-  letter-spacing: .14em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.heroCard strong {
-  font-family: var(--font-label, var(--font-poster));
-  font-size: 25px;
-  line-height: .86;
-}
-
 .character {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -255,7 +217,7 @@
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
 }
 
@@ -266,15 +228,6 @@
   color: #fff;
   border-radius: var(--profile-radius);
   overflow: hidden;
-}
-
-.stat:nth-child(2) {
-  background: var(--collage-red);
-}
-
-.stat:nth-child(3) {
-  background: #f0b91a;
-  color: #0a0a0a;
 }
 
 .stat strong {
@@ -545,17 +498,6 @@
   margin: 0;
 }
 
-/* Progress counter — "X von Y aufgedeckt" above the grid. */
-.meCount {
-  margin: 0 0 10px;
-  padding: 0 16px;
-  font-family: var(--font-label, var(--font-poster));
-  font-size: 12px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #0a0a0a;
-}
-
 /* ── Collected must-eats grid ── */
 .meDeck {
   display: grid;
@@ -742,7 +684,6 @@
   .tabPanel,
   .section,
   .spotsCards,
-  .meCount,
   .meDeck,
   .explainer,
   .empty,
@@ -772,15 +713,6 @@
 
   .name {
     font-size: 42px;
-  }
-
-  .heroCard {
-    width: 128px;
-    min-height: 92px;
-  }
-
-  .heroCard strong {
-    font-size: 34px;
   }
 
   .character {
@@ -844,11 +776,10 @@ html[data-theme="dark"] .head {
     linear-gradient(96deg, #7f2111 0%, #a02814 68%, #c33416 100%);
 }
 html[data-theme="dark"] .avatar {
-  background: #1d1c19;
-  border-color: #f0e8d0;
+  background: transparent;
+  border-color: transparent;
 }
-html[data-theme="dark"] .kicker,
-html[data-theme="dark"] .email {
+html[data-theme="dark"] .kicker {
   color: #f0e8d0;
 }
 
@@ -856,7 +787,6 @@ html[data-theme="dark"] .name {
   color: #fff;
 }
 
-html[data-theme="dark"] .heroCard,
 html[data-theme="dark"] .character,
 html[data-theme="dark"] .command,
 html[data-theme="dark"] .stat,
@@ -866,7 +796,6 @@ html[data-theme="dark"] .meGroup {
   border-color: #f0e8d0;
 }
 
-html[data-theme="dark"] .heroCard,
 html[data-theme="dark"] .character,
 html[data-theme="dark"] .command,
 html[data-theme="dark"] .tab,
@@ -906,11 +835,6 @@ html[data-theme="dark"] .tabs {
 html[data-theme="dark"] .tabActive {
   background: #f0e8d0;
   color: #0a0a0a;
-}
-
-html[data-theme="dark"] .stat:nth-child(3) {
-  background: var(--c-coral);
-  color: #fbf8ee;
 }
 
 html[data-theme="dark"] .quickAction {
@@ -954,8 +878,7 @@ html[data-theme="dark"] .explainer {
   border-color: #f0e8d0;
 }
 html[data-theme="dark"] .explainerKicker,
-html[data-theme="dark"] .explainerLine,
-html[data-theme="dark"] .meCount {
+html[data-theme="dark"] .explainerLine {
   color: #f0e8d0;
 }
 

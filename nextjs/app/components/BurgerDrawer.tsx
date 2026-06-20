@@ -3,7 +3,7 @@
 import { useCallback, useEffect } from 'react';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
-import { useAuth } from '@/lib/auth';
+import { useAuth, useLoginModal } from '@/lib/auth';
 import { useTheme } from '@/lib/useTheme';
 import { routing } from '@/i18n/routing';
 import { Link, usePathname } from '@/i18n/navigation';
@@ -18,6 +18,7 @@ export interface BurgerCloseDetail {
 export default function BurgerDrawer() {
   const { t, lang, setLang } = useTranslation();
   const { user } = useAuth();
+  const { open: openLogin } = useLoginModal();
   const { isDark, toggleTheme } = useTheme();
   const locale = useLocale();
   const pathname = usePathname();
@@ -63,17 +64,14 @@ export default function BurgerDrawer() {
   }, [closeBurger]);
 
   const handleLoginBtn = useCallback(() => {
-    document.getElementById('burgerClose')?.click();
-    // Hard navigation in both cases. For login: NOT openLogin() and NOT a
-    // client-side push — both render the fixed modal overlay, which iOS
-    // Safari never composites behind the bottom URL bar. The standalone
-    // /login page is in-flow content and paints there natively
-    // (User 2026-06-05).
-    const href = user
-      ? (locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`)
-      : (locale === routing.defaultLocale ? '/login' : `/${locale}/login`);
+    closeBurger(true);
+    if (!user) {
+      openLogin();
+      return;
+    }
+    const href = locale === routing.defaultLocale ? '/profile' : `/${locale}/profile`;
     window.location.assign(href);
-  }, [user, locale]);
+  }, [closeBurger, openLogin, user, locale]);
 
   // Event-delegated close: any anchor click bubbles up; we dispatch the close
   // event so same-route navigation also closes the drawer.

@@ -68,11 +68,6 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaur
       >
         <h2 className={styles.sectionHeading}>{t('collectedHeading')}</h2>
       </div>
-      {ownedMustEats.length > 0 && (
-        <p className={styles.meCount}>
-          {t('collectedCount', { x: unlocked.length, y: ownedMustEats.length })}
-        </p>
-      )}
       {ownedMustEats.length === 0 ? (
         <div className={styles.empty}>
           <p className={styles.emptyLine}>{t('emptyMustEats')}</p>
@@ -82,7 +77,6 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaur
         <div className={styles.meDeck}>
           {unlocked.length > 0 && (
             <section className={styles.meGroup}>
-              <h3 className={styles.meGroupTitle}>{t('revealedSubhead')}</h3>
               <div className={`${styles.meGrid} ${styles.meGridOpen}`}>
                 {unlocked.map((m) => (
                   <button

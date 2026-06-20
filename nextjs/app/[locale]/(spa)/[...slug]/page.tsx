@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { setRequestLocale } from 'next-intl/server'
 import { SITE_URL } from '@/lib/constants'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
@@ -102,6 +102,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       images: [{ url: `${SITE_URL}/pics/og-card.png?v=4`, width: 1200, height: 1200, alt: 'EAT THIS – We tell you what to eat' }],
       locale: toOgLocale(locale === 'en' ? 'en' : 'de'),
     },
+  }
+}
+
+export async function generateViewport({ params }: PageProps): Promise<Viewport> {
+  const { slug } = await params
+  return {
+    themeColor: slug?.[0] === 'map' ? '#171A17' : '#e8b626',
   }
 }
 

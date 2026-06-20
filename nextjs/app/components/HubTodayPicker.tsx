@@ -19,7 +19,7 @@ const RADII: TodayRadius[] = [1500, 3000, 8000]
 
 export default function HubTodayPicker({ initialMapData }: { initialMapData: InitialMapData }) {
   const t = useTranslations('hub.todayPicker')
-  const { location, loading: locating, request } = useUserLocationContext()
+  const { location } = useUserLocationContext()
   const [mood, setMood] = useState<TodayMood>('any')
   const [budget, setBudget] = useState<TodayBudget>('any')
   const [radius, setRadius] = useState<TodayRadius>(3000)
@@ -79,9 +79,6 @@ export default function HubTodayPicker({ initialMapData }: { initialMapData: Ini
         <div className={styles.primaryRow}>
           <button type="button" className={styles.primary} onClick={() => reveal()}>
             {t('go')}
-          </button>
-          <button type="button" className={styles.location} onClick={() => void request()} disabled={locating}>
-            {locating ? t('locating') : location ? t('located') : t('useLocation')}
           </button>
         </div>
 

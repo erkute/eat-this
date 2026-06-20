@@ -166,3 +166,15 @@ html[data-theme="dark"] .dish { color: var(--et-red-hot, #f03608); }
 html[data-theme="dark"] .cta {
   border-color: var(--et-red-hot, #f03608);
 }
+
+/* iOS Safari can render alpha WebP drop-shadows as a rectangular tile while
+   the cut-out card is transformed. Drop the filter only on touch WebKit. */
+@supports (-webkit-touch-callout: none) {
+  @media (pointer: coarse) {
+    .card,
+    .cardLink:hover .card,
+    .cardLink:focus-visible .card {
+      filter: none;
+    }
+  }
+}

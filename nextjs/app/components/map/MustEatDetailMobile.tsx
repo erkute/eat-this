@@ -1,5 +1,6 @@
 'use client'
-import { useRef } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import type { MapMustEat } from '@/lib/types'
 import { Link } from '@/i18n/navigation'
 import { formatDistance } from '@/lib/map'
@@ -63,12 +64,23 @@ export default function MustEatDetailMobile({
   // neighbouring must-eat — same gesture as the restaurant detail.
   const rootRef = useRef<HTMLDivElement>(null)
   const topCardRef = useRef<HTMLDivElement>(null)
+  const [cardHiddenForPage, setCardHiddenForPage] = useState(false)
+  useLayoutEffect(() => {
+    const target = topCardRef.current
+    if (target) {
+      target.style.transition = ''
+      target.style.transform = ''
+    }
+    setCardHiddenForPage(false)
+  }, [mustEat._id])
   useSwipePager(rootRef, {
     onPrev: onPagePrev,
     onNext: onPageNext,
     hasPrev: !!prevMustEat,
     hasNext: !!nextMustEat,
     transformRef: topCardRef,
+    onPageOut: () => flushSync(() => setCardHiddenForPage(true)),
+    animateIn: false,
   })
 
   const pageWithCard = (dir: 'prev' | 'next') => {
@@ -83,13 +95,10 @@ export default function MustEatDetailMobile({
     target.style.transition = 'transform .17s ease-out'
     target.style.transform = `translateX(${outX}px)`
     window.setTimeout(() => {
+      flushSync(() => setCardHiddenForPage(true))
       page()
       target.style.transition = 'none'
-      target.style.transform = `translateX(${-outX}px)`
-      void target.offsetWidth
-      target.style.transition = 'transform .2s ease-out'
-      target.style.transform = 'translateX(0)'
-      window.setTimeout(() => { target.style.transition = ''; target.style.transform = '' }, 220)
+      target.style.transform = ''
     }, 170)
   }
 
@@ -122,7 +131,7 @@ export default function MustEatDetailMobile({
           <div className={styles.fdCardStack}>
             <img className={`${styles.fdStackCard} ${styles.fdStackCardOne}`} src={CARD_BACK} alt="" aria-hidden="true" />
             <img className={`${styles.fdStackCard} ${styles.fdStackCardTwo}`} src={CARD_BACK} alt="" aria-hidden="true" />
-            <div className={styles.fdTopCard} ref={topCardRef}>
+            <div className={`${styles.fdTopCard}${cardHiddenForPage ? ` ${styles.fdTopCardHidden}` : ''}`} ref={topCardRef}>
               {open ? (
                 <button
                   type="button"

@@ -58,7 +58,7 @@ const CRITICAL_BOOTSTRAP = `(function(){
   else slug=p.replace(/^\\//,'').split('/')[0];
   document.documentElement.setAttribute('data-active-page',slug);
   if(window.innerWidth<=767&&screen.orientation&&screen.orientation.lock){screen.orientation.lock('portrait').catch(function(){});}
-  try{var ah=JSON.parse(localStorage.getItem('_authHint')||'null');if(ah&&ah.n){document.documentElement.setAttribute('data-auth','1');document.addEventListener('DOMContentLoaded',function(){var lb=document.getElementById('loginBtn');if(!lb)return;lb.classList.add('logged-in');var sp=lb.querySelector('span');if(sp)sp.textContent=ah.n;});}}catch(_){}
+  try{var ah=JSON.parse(localStorage.getItem('_authHint')||'null');if(ah&&ah.n){document.documentElement.setAttribute('data-auth','1');document.addEventListener('DOMContentLoaded',function(){var lb=document.getElementById('loginBtn');if(!lb)return;lb.classList.add('logged-in');var sp=lb.querySelector('span');if(sp)sp.textContent=(location.pathname==='/en'||location.pathname.indexOf('/en/')===0)?'Profile':'Profil';});}}catch(_){}
 }());`;
 
 // Sitewide Organization + WebSite schema. The Organization.logo is the

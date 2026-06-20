@@ -6,11 +6,13 @@ import { hasLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import { CSS_VERSION } from '@/lib/constants'
 import { AuthProvider, LoginModalProvider } from '@/lib/auth'
+import { UserLocationProvider } from '@/lib/map/UserLocationContext'
 import SiteNav from '@/app/components/SiteNav'
 import BurgerDrawer from '@/app/components/BurgerDrawer'
 import SearchOverlay from '@/app/components/SearchOverlay'
 import CookieConsent from '@/app/components/CookieConsent'
 import BuddyWidget from '@/app/components/buddy/BuddyWidgetLazy'
+import MapBrowserChrome from '@/app/components/MapBrowserChrome'
 import BridgeAuth from './BridgeAuth'
 
 const SITE_URL = 'https://www.eatthisdot.com'
@@ -72,15 +74,18 @@ export default async function SPALayout({
 
       <AuthProvider>
         <LoginModalProvider>
-          <BridgeAuth />
-          <SiteNav />
-          <BurgerDrawer />
-          <div className="app-pages" id="appPages">
-            {children}
-          </div>
-          <SearchOverlay />
-          <CookieConsent />
-          <BuddyWidget />
+          <UserLocationProvider>
+            <BridgeAuth />
+            <MapBrowserChrome />
+            <SiteNav />
+            <BurgerDrawer />
+            <div className="app-pages" id="appPages">
+              {children}
+            </div>
+            <SearchOverlay />
+            <CookieConsent />
+            <BuddyWidget />
+          </UserLocationProvider>
         </LoginModalProvider>
       </AuthProvider>
     </>

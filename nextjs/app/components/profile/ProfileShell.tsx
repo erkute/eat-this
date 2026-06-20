@@ -104,12 +104,8 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   }
 
   const avatarIdx = profile.avatar ?? defaultAvatarFromUid(user.uid);
-  const name = user.displayName || (user.email ?? '').split('@')[0] || 'Du';
   const since = memberSince(user.metadata?.creationTime, locale);
   const sinceLabel = locale === 'de' ? 'Mitglied seit' : 'Member since';
-  const ownedMustEatTotal = mustEats.filter((m) => ownedRestaurantIds.has(m.restaurant._id)).length;
-  const revealedMustEatTotal = mustEats.filter((m) => ownedRestaurantIds.has(m.restaurant._id) && unlockedIds.has(m._id)).length;
-  const hiddenMustEatTotal = Math.max(ownedMustEatTotal - revealedMustEatTotal, 0);
 
   async function handleAvatarChange(choice: AvatarChoice) {
     if (choice === avatarIdx || avatarSaving) return;
@@ -134,12 +130,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
           </div>
           <div className={styles.info}>
             {since && <div className={styles.kicker}>{sinceLabel} {since}</div>}
-            <h1 className={styles.name}>{name}</h1>
-            {user.email && <div className={styles.email}>{user.email}</div>}
-          </div>
-          <div className={styles.heroCard}>
-            <span>{t('heroKicker')}</span>
-            <strong>{revealedMustEatTotal}/{ownedMustEatTotal || '–'}</strong>
+            <h1 className={styles.name}>{t('profileTitle')}</h1>
           </div>
         </header>
 
@@ -176,14 +167,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             <div className={styles.stat}>
               <strong>{ownedRestaurants.length}</strong>
               <span>{t('statMap')}</span>
-            </div>
-            <div className={styles.stat}>
-              <strong>{revealedMustEatTotal}/{ownedMustEatTotal || '–'}</strong>
-              <span>{t('statRevealed')}</span>
-            </div>
-            <div className={styles.stat}>
-              <strong>{hiddenMustEatTotal}</strong>
-              <span>{t('statHidden')}</span>
             </div>
           </div>
           <div className={styles.quickActions} aria-label={t('quickActions')}>

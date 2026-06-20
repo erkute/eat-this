@@ -3325,7 +3325,8 @@ html[data-theme="dark"] .bezirkLockedCta {
 
 .listEnd {
   text-align: center;
-  padding: 28px 16px 8px;
+  padding: 28px 16px 18px;
+  margin-bottom: 42px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3345,21 +3346,34 @@ html[data-theme="dark"] .listEndTitle { color: #f0e8d0; }
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  padding: 12px 20px 13px;
-  background: var(--map-accent);
-  color: var(--map-ink);
-  border: 2px solid var(--map-ink);
+  padding: 13px 24px 14px;
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border: 0;
   border-radius: var(--map-pill-radius);
   font-family: var(--font-label, var(--font-chewy));
   font-size: 15px;
   letter-spacing: .1em;
   text-transform: uppercase;
   cursor: pointer;
+  box-shadow: none;
+  transition: background-color .16s ease, color .16s ease, transform .14s ease;
 }
 html[data-theme="dark"] .listEndCta {
-  background: var(--map-action);
-  color: #fbf8ee;
-  border-color: #fbf8ee;
+  background: var(--brand-action);
+  color: var(--brand-paper);
+}
+@media (hover: hover) {
+  .listEndCta:hover,
+  html[data-theme="dark"] .listEndCta:hover {
+    background: var(--brand-action-deep);
+    color: var(--brand-paper);
+    transform: translateY(-1px);
+  }
+}
+.listEndCta:active {
+  background: var(--brand-action-deep);
+  transform: translateY(1px);
 }
 
 /* ============ Restaurant Detail (Chewy Screen 04) ============ */
@@ -5712,5 +5726,474 @@ html[data-theme="dark"] .detailV13MustEat .fdPagerNext {
     box-shadow: none !important;
     filter: none !important;
     text-shadow: none !important;
+  }
+}
+
+/* Apple-glass overlay controls on the map: glass surface, no frame, no shadow. */
+html .mapSearchBtn,
+html .mapSearchToolbar,
+html .fab,
+html .mapHome,
+html .mapBurger {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .66), rgba(255, 255, 255, .34)),
+    rgba(255, 255, 255, .36) !important;
+  color: var(--brand-ink) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.65);
+  backdrop-filter: blur(18px) saturate(1.65);
+}
+
+html[data-theme="dark"] .mapSearchBtn,
+html[data-theme="dark"] .mapSearchToolbar,
+html[data-theme="dark"] .fab,
+html[data-theme="dark"] .mapHome,
+html[data-theme="dark"] .mapBurger {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .18), rgba(255, 255, 255, .07)),
+    rgba(23, 26, 23, .42) !important;
+  color: var(--brand-paper) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+@media (hover: hover) {
+  html .mapSearchBtn:hover,
+  html .fab:hover,
+  html .mapHome:hover,
+  html .mapBurger:hover {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, .78), rgba(255, 255, 255, .46)),
+      rgba(255, 255, 255, .46) !important;
+    color: var(--brand-ink) !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="dark"] .mapSearchBtn:hover,
+  html[data-theme="dark"] .fab:hover,
+  html[data-theme="dark"] .mapHome:hover,
+  html[data-theme="dark"] .mapBurger:hover {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, .23), rgba(255, 255, 255, .1)),
+      rgba(23, 26, 23, .52) !important;
+    color: var(--brand-paper) !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Refined filter controls: Apple-glass chips with a native-looking chevron. */
+html .filterChipRow {
+  gap: 8px;
+}
+
+html .filterChip,
+html[data-theme="dark"] .filterChip {
+  min-height: 38px;
+  padding: 9px 12px 10px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .72), rgba(255, 255, 255, .42)),
+    rgba(255, 255, 255, .38) !important;
+  color: var(--brand-ink) !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.55);
+  backdrop-filter: blur(18px) saturate(1.55);
+}
+
+html[data-theme="dark"] .filterChip {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, .06)),
+    rgba(23, 26, 23, .46) !important;
+  color: var(--brand-paper) !important;
+}
+
+html .filterChipActive,
+html .filterChipOpenActive,
+html[data-theme="dark"] .filterChipActive,
+html[data-theme="dark"] .filterChipOpenActive {
+  background:
+    linear-gradient(180deg, rgba(239, 53, 40, .96), rgba(185, 40, 32, .9)),
+    var(--brand-action) !important;
+  color: var(--brand-paper) !important;
+}
+
+html .filterChipCaret {
+  width: 15px;
+  height: 15px;
+  padding: 0 !important;
+  margin-left: 1px;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  filter: none !important;
+  color: currentColor;
+  opacity: .82;
+  transform: translateY(1px) !important;
+  transition: transform .18s ease;
+}
+
+html .filterChip[aria-expanded="true"] .filterChipCaret {
+  transform: translateY(1px) rotate(180deg) !important;
+}
+
+html .filterChipReset {
+  width: 22px;
+  margin-left: 4px;
+  background: transparent !important;
+  color: var(--brand-action) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+@media (max-width: 1023px) {
+  html .filterChipRow {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    padding: 12px 16px 11px;
+    overflow: visible;
+    touch-action: auto;
+  }
+
+  html .filterChipWrap,
+  html .filterChipRow > .filterChip {
+    width: 100%;
+    min-width: 0;
+  }
+
+  html .filterChipWrap .filterChip,
+  html .filterChipRow > .filterChip {
+    width: 100%;
+    min-width: 0;
+    padding: 9px 5px 10px;
+    gap: 3px;
+    font-size: clamp(9.5px, 2.45vw, 10.5px);
+    letter-spacing: .02em;
+  }
+
+  html .filterChipRow .filterChipLabel {
+    min-width: 0;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  html .filterChipRow .filterChipCaret {
+    width: 11px;
+    height: 11px;
+    margin-left: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  html .filterChipRow {
+    gap: 6px;
+  }
+
+  html .filterChipWrap .filterChip,
+  html .filterChipRow > .filterChip {
+    padding: 8px 7px 9px;
+  }
+
+  html .filterChipRow .filterChipCaret {
+    width: 12px;
+    height: 12px;
+    padding: 0 !important;
+  }
+}
+
+/* Simple mobile sheet handle: quiet top edge, small neutral drag affordance. */
+@media (max-width: 1023.98px) {
+  html .list {
+    border-top: 1px solid rgba(23, 26, 23, .12) !important;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="dark"] .list {
+    border-top-color: rgba(241, 241, 236, .14) !important;
+  }
+
+  html .listDragging {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+
+  html .handle,
+  html .list[data-view="detail"] .handle {
+    min-height: 26px;
+    padding: 8px 0 6px;
+    background: transparent !important;
+  }
+
+  html .handle::before,
+  html .list[data-view="detail"] .handle::before,
+  html[data-theme="dark"] .list[data-view="detail"] .handle::before {
+    width: 42px;
+    height: 3px;
+    border-radius: 999px;
+    background: rgba(23, 26, 23, .22) !important;
+  }
+
+  html[data-theme="dark"] .handle::before,
+  html[data-theme="dark"] .list[data-view="detail"] .handle::before {
+    background: rgba(241, 241, 236, .28) !important;
+  }
+}
+
+/* Restaurant detail hero back button: a touch smaller, less dominant on photos. */
+html .rdHero .rdCloseGlass,
+html[data-theme="dark"] .rdHero .rdCloseGlass {
+  width: 36px !important;
+  height: 36px !important;
+  padding: 7px !important;
+}
+
+html .rdHero .rdCloseGlass svg,
+html[data-theme="dark"] .rdHero .rdCloseGlass svg {
+  width: 13px !important;
+  height: 13px !important;
+}
+
+/* Restaurant detail facts: calmer rows with softer rhythm and lighter rules. */
+html .rdFacts {
+  margin: 10px 20px 24px;
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, .28)),
+    rgba(255, 255, 255, .22);
+  border: 1px solid rgba(23, 26, 23, .12) !important;
+  border-radius: 10px;
+  -webkit-backdrop-filter: blur(14px) saturate(1.28);
+  backdrop-filter: blur(14px) saturate(1.28);
+}
+
+html .rdRow,
+html .rdRowHours {
+  grid-template-columns: minmax(0, 118px) minmax(0, 1fr);
+  gap: 14px;
+  padding: 15px 16px;
+  border-bottom: 1px solid rgba(23, 26, 23, .1) !important;
+  align-items: start;
+}
+
+html .rdFacts .rdRow:last-child,
+html .rdFacts .rdRowHours:last-child {
+  border-bottom: 0 !important;
+}
+
+html .rdK,
+html[data-theme="dark"] .rdK {
+  color: var(--brand-action);
+  font-size: 13px;
+  letter-spacing: .1em;
+  line-height: 1.18;
+}
+
+html .rdV,
+html[data-theme="dark"] .rdV {
+  color: var(--brand-ink);
+  font-size: 15.5px;
+  line-height: 1.48;
+}
+
+html .rdV a {
+  color: var(--brand-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+html .rdAddrLine {
+  margin-top: 2px;
+}
+
+html .rdVMeta {
+  margin-top: 6px;
+  color: var(--brand-muted);
+  font-size: 12px;
+  opacity: 1;
+}
+
+html .rdHours {
+  grid-template-columns: minmax(62px, auto) minmax(0, 1fr);
+  column-gap: 14px;
+  row-gap: 7px;
+}
+
+html .rdHoursD {
+  color: var(--brand-muted);
+  font-size: 11.5px;
+  letter-spacing: .08em;
+  opacity: 1;
+}
+
+html .rdHoursT {
+  color: var(--brand-ink);
+  font-size: 15.5px;
+}
+
+html[data-theme="dark"] .rdFacts {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .03)),
+    rgba(23, 26, 23, .34);
+  border-color: rgba(241, 241, 236, .14) !important;
+}
+
+html[data-theme="dark"] .rdRow,
+html[data-theme="dark"] .rdRowHours {
+  border-bottom-color: rgba(241, 241, 236, .12) !important;
+}
+
+html[data-theme="dark"] .rdV,
+html[data-theme="dark"] .rdV a,
+html[data-theme="dark"] .rdHoursT {
+  color: var(--brand-paper);
+}
+
+/* Final list-end CTA color lock: strong primary action, never muted. */
+html .listEndCta,
+html[data-theme="dark"] .listEndCta {
+  background: var(--brand-action) !important;
+  color: var(--brand-paper) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+@media (hover: hover) {
+html .listEndCta:hover,
+html[data-theme="dark"] .listEndCta:hover {
+    background: var(--brand-action-deep) !important;
+    color: var(--brand-paper) !important;
+  }
+}
+
+/* Modern search-open state: slides open from the icon, with app-native input type. */
+@keyframes mapSearchOpen {
+  from {
+    transform: translateX(8px) scaleX(.2);
+    clip-path: inset(0 0 0 74% round 999px);
+  }
+  to {
+    transform: translateX(0) scaleX(1);
+    clip-path: inset(0 0 0 0 round 999px);
+  }
+}
+
+html .mapSearchToolbar,
+html[data-theme="dark"] .mapSearchToolbar {
+  top: 14px !important;
+  right: 14px !important;
+  left: auto !important;
+  width: min(326px, calc(100vw - 28px)) !important;
+  height: 46px !important;
+  min-height: 46px !important;
+  padding: 0 9px 0 14px !important;
+  gap: 10px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  clip-path: inset(0 0 0 0 round 999px);
+  filter: none !important;
+  transform-origin: right center;
+  animation: mapSearchOpen .24s cubic-bezier(.2, .9, .2, 1) both;
+  will-change: transform, clip-path;
+}
+
+html .mapSearchToolbar .mapSearchIcon,
+html[data-theme="dark"] .mapSearchToolbar .mapSearchIcon {
+  width: 18px !important;
+  height: 18px !important;
+  color: currentColor !important;
+}
+
+html .mapSearchInput,
+html[data-theme="dark"] .mapSearchInput {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", var(--font, sans-serif) !important;
+  font-size: 16px !important;
+  font-weight: 520 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.2 !important;
+  color: var(--brand-ink) !important;
+  caret-color: var(--brand-action);
+}
+
+html .mapSearchInput::placeholder {
+  color: color-mix(in srgb, var(--brand-ink) 48%, transparent) !important;
+  font-weight: 480;
+}
+
+html .mapSearchClear,
+html[data-theme="dark"] .mapSearchClear {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 999px !important;
+  color: color-mix(in srgb, var(--brand-ink) 62%, transparent) !important;
+}
+
+html .mapSearchClear:active {
+  background: rgba(23, 26, 23, .08);
+}
+
+html[data-theme="dark"] .mapSearchInput {
+  color: var(--brand-paper) !important;
+  caret-color: var(--brand-action);
+}
+
+html[data-theme="dark"] .mapSearchInput::placeholder {
+  color: color-mix(in srgb, var(--brand-paper) 54%, transparent) !important;
+}
+
+html[data-theme="dark"] .mapSearchClear {
+  color: color-mix(in srgb, var(--brand-paper) 68%, transparent) !important;
+}
+
+/* Open-now filter is semantic green, distinct from red category/district active chips. */
+html .filterChipOpenActive,
+html[data-theme="dark"] .filterChipOpenActive {
+  background:
+    linear-gradient(180deg, rgba(52, 168, 90, .98), rgba(34, 132, 70, .94)),
+    #34a85a !important;
+  color: #fff !important;
+}
+
+/* Desktop map rail: give list/detail/facts more room than the old 360px column. */
+@media (min-width: 1024px) {
+  html .shell {
+    --map-desktop-panel-width: clamp(400px, 28vw, 470px);
+  }
+
+  html .body {
+    grid-template-columns: minmax(0, 1fr) var(--map-desktop-panel-width) !important;
+  }
+
+  html .bodyPanelHidden {
+    grid-template-columns: minmax(0, 1fr) 0px !important;
+  }
+
+  html .panelToggle {
+    right: var(--map-desktop-panel-width) !important;
+  }
+
+  html .bodyPanelHidden .panelToggle {
+    right: 0 !important;
+  }
+
+  html .mapBurger {
+    right: calc(var(--map-desktop-panel-width) + 14px) !important;
+  }
+
+  html .bodyPanelHidden .mapBurger {
+    right: 14px !important;
   }
 }

@@ -641,7 +641,7 @@
      more impactful than the mobile vertical list when the eye has room. */
   .facts {
     margin: 16px 0 32px;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
     display: grid;
     border-top: 2px solid var(--ink);
     border-bottom: 2px solid var(--ink);
@@ -964,6 +964,15 @@ html[data-theme="dark"] .tipp {
 
 html[data-theme="dark"] .factsKey {
   color: var(--brand-action);
+}
+html[data-theme="dark"] .factsVal,
+html[data-theme="dark"] .factsVal a,
+html[data-theme="dark"] .hoursTime {
+  color: var(--brand-paper);
+}
+html[data-theme="dark"] .hoursDay {
+  color: color-mix(in srgb, var(--brand-paper) 66%, transparent);
+  opacity: 1;
 }
 
 /* Flat controls: buttons and icon controls use line + fill, no shadows. */

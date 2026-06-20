@@ -33,6 +33,7 @@
 
 .stage {
   position: relative;
+  box-sizing: border-box;
   min-height: clamp(720px, 72vw, 900px);
   overflow: visible;
   border-radius: 0;
@@ -154,10 +155,10 @@
 }
 
 .item1 {
-  left: 27%;
+  left: 31%;
   top: 6%;
   z-index: 7;
-  width: clamp(260px, 31vw, 430px);
+  width: clamp(188px, 20vw, 286px);
   transform: rotate(-5deg);
   --label-left: 56%;
   --label-bottom: 1%;
@@ -217,7 +218,7 @@
   right: 10%;
   top: 38%;
   z-index: 6;
-  width: clamp(176px, 19vw, 280px);
+  width: clamp(168px, 18vw, 258px);
   transform: rotate(8deg);
   --label-left: 48%;
   --label-bottom: -1%;
@@ -232,7 +233,7 @@
   left: 47%;
   bottom: 4%;
   z-index: 4;
-  width: clamp(176px, 19vw, 280px);
+  width: clamp(168px, 18vw, 258px);
   transform: rotate(-2deg);
   --label-left: 50%;
   --label-bottom: 0%;
@@ -357,24 +358,24 @@
     column-gap: clamp(12px, 4vw, 22px);
     row-gap: 30px;
     align-items: start;
-    padding: 4px 4px 14px;
+    padding: 4px 14px 14px;
   }
 
   .item {
     position: relative;
     inset: auto;
-    width: min(100%, 170px);
+    width: min(100%, 160px);
     justify-self: center;
   }
 
   .item1 {
-    grid-column: 1 / -1;
-    width: min(82vw, 310px);
+    grid-column: auto;
+    width: min(100%, 162px);
     transform: rotate(-4deg);
   }
 
   .item2 {
-    transform: translateY(2px) rotate(6deg);
+    transform: translate(-18px, 2px) rotate(6deg);
   }
 
   .item3 {
@@ -382,7 +383,7 @@
   }
 
   .item4 {
-    transform: translateY(8px) rotate(4deg);
+    transform: translate(-18px, 8px) rotate(4deg);
   }
 
   .item5 {
@@ -400,11 +401,11 @@
   }
 
   .item8 {
-    transform: translateY(4px) rotate(-5deg);
+    transform: translate(-18px, 4px) rotate(-5deg);
   }
 
   .item9 {
-    transform: translateY(20px) rotate(3deg);
+    transform: translate(-18px, 20px) rotate(3deg);
   }
 
   .label {
@@ -437,12 +438,16 @@
     min-height: 0;
   }
 
+  .dishes {
+    padding-inline: 18px;
+  }
+
   .item {
-    width: min(100%, 158px);
+    width: min(100%, 146px);
   }
 
   .item1 {
-    width: min(84vw, 300px);
+    width: min(100%, 148px);
   }
 }
 

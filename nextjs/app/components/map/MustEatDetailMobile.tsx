@@ -218,7 +218,7 @@ export default function MustEatDetailMobile({
         </div>
 
         {(prevMustEat || nextMustEat) && (
-          <div className={styles.fdPager} aria-label="Must Eat wechseln">
+          <div className={styles.fdPager} data-detail-pager aria-label="Must Eat wechseln">
             <button type="button" className={styles.fdPagerPrev} disabled={!prevMustEat} onClick={() => pageWithCard('prev')}>
               <span className={styles.fdPagerArrow}><PagerArrowIcon /></span>
               <span className={styles.fdPagerName}>

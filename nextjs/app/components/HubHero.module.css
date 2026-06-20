@@ -162,7 +162,7 @@
   .hero {
     width: calc(100% - 20px);
     min-height: 590px;
-    margin-top: 14px;
+    margin-top: 26px;
   }
 
   .photo img {

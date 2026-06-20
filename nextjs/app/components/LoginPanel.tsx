@@ -68,6 +68,7 @@ export default function LoginPanel({ onBack, modal = false, mustEatGate = false 
   const agbHref = locale === routing.defaultLocale ? '/agb' : `/${locale}/agb`;
   const dsHref  = locale === routing.defaultLocale ? '/datenschutz' : `/${locale}/datenschutz`;
   const sent = magicState === 'sent';
+  const sloganLines = t('modals.login.kicker').split('|');
 
   return (
     <div className={modal ? `${styles.frame} ${styles.frameModal}` : styles.frame}>
@@ -77,7 +78,7 @@ export default function LoginPanel({ onBack, modal = false, mustEatGate = false 
         onClick={onBack}
         aria-label={t('modals.login.backBtn')}
       >
-        ×
+        <span aria-hidden="true">×</span>
       </button>
 
       {/* SEO/SR headline — the single visible h1 is the Chewy one below. */}
@@ -134,11 +135,15 @@ export default function LoginPanel({ onBack, modal = false, mustEatGate = false 
         </>
       ) : (
         <>
-          <div className={styles.kicker}>{t('modals.login.kicker')}</div>
+          <div className={`${styles.kicker} ${styles.slogan}`} aria-label={sloganLines.join(' ')}>
+            {sloganLines.map((line) => (
+              <span key={line}>{line}</span>
+            ))}
+          </div>
           <h1 className={styles.h1}>{t('modals.login.heroH1')}</h1>
           <div className={styles.packHero} aria-hidden="true">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/booster/booster_free.webp" alt="" loading="eager" />
+            <img src="/pics/booster/booster_free.webp" alt="" loading="eager" decoding="sync" fetchPriority="high" />
           </div>
           <p className={styles.sub}>{t(mustEatGate ? 'modals.login.mustEatGateSub' : 'modals.login.heroSub')}</p>
 

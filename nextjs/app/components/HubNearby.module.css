@@ -6,9 +6,10 @@
 .head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  margin: 26px 18px 10px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin: 26px 16px 8px;
 }
 /* "Nähe" carries an umlaut → Saira Condensed (the brand display font has no
    accented glyphs); line-height 1.15 + padding-top guard against clipping. */
@@ -24,6 +25,7 @@
 .locBtn {
   flex: 0 0 auto;
   gap: 5px;
+  margin-top: -2px;
 }
 .locIcon {
   width: 12px;
@@ -140,6 +142,7 @@
      the far-right corner across a big empty gap; vertically centered to the
      headline with comfortable spacing. */
   .head { margin: 36px 0 14px; justify-content: flex-start; gap: 22px; }
+  .locBtn { margin-top: 0; }
   .heading { font-size: clamp(44px, 5vw, 56px); }
   .sub { margin-left: 0; margin-right: 0; }
   /* Restaurant cards: exactly 4 across, filling the full column (bigger

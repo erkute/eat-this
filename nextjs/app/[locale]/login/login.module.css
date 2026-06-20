@@ -56,22 +56,30 @@
 
 .close {
   position: absolute;
-  top: max(12px, env(safe-area-inset-top, 0px));
-  right: 12px;
+  top: max(10px, env(safe-area-inset-top, 0px));
+  right: 10px;
   z-index: 60;
   display: grid;
   place-items: center;
-  width: 56px;
-  height: 56px;
-  padding: 0 0 3px;
-  color: var(--conversion-action-text);
-  background: var(--conversion-action);
-  border: 0;
-  border-radius: var(--conversion-radius);
-  font-family: var(--font-label, var(--font-display));
-  font-size: 38px;
+  width: 42px;
+  height: 42px;
+  padding: 0 0 2px;
+  color: var(--conversion-ink);
+  background: transparent;
+  border: 1px solid rgba(16, 13, 15, .18);
+  border-radius: 50%;
+  font-family: var(--font);
+  font-size: 25px;
+  font-weight: 750;
   line-height: 1;
   cursor: pointer;
+  transition: background-color var(--conversion-motion), border-color var(--conversion-motion), transform var(--conversion-motion);
+}
+
+.close:hover {
+  background: rgba(16, 13, 15, .06);
+  border-color: rgba(16, 13, 15, .28);
+  transform: translateY(-1px);
 }
 
 .headlineSr {
@@ -140,6 +148,14 @@
   text-transform: uppercase;
 }
 
+.slogan {
+  max-width: none;
+}
+
+.slogan span {
+  display: block;
+}
+
 .h1 {
   max-width: none;
   margin: 0 auto clamp(14px, 2.2dvh, 22px);
@@ -158,9 +174,9 @@
   margin: 0 auto clamp(22px, 3dvh, 30px);
   color: var(--conversion-muted);
   font-family: var(--font);
-  font-size: clamp(18px, 2.6dvh, 24px);
-  font-weight: 850;
-  line-height: 1.24;
+  font-size: clamp(15px, 2dvh, 18px);
+  font-weight: 700;
+  line-height: 1.34;
   text-align: center;
 }
 
@@ -213,15 +229,15 @@
 .input {
   box-sizing: border-box;
   width: 100%;
-  min-height: clamp(54px, 6.8dvh, 62px);
-  padding: 0 clamp(18px, 3vw, 26px);
+  min-height: clamp(46px, 5.6dvh, 54px);
+  padding: 0 clamp(14px, 2.4vw, 20px);
   color: var(--conversion-ink);
   background: var(--conversion-field-bg);
   border: 2px solid rgba(16, 13, 15, .16);
   border-radius: var(--conversion-radius);
   font-family: var(--font);
-  font-size: clamp(18px, 2.5dvh, 23px);
-  font-weight: 850;
+  font-size: clamp(15px, 2dvh, 18px);
+  font-weight: 700;
   outline: none;
 }
 
@@ -237,11 +253,11 @@
   justify-content: center;
   gap: 10px;
   width: 100%;
-  min-height: clamp(58px, 7.4dvh, 70px);
-  padding: 10px 18px;
+  min-height: clamp(46px, 5.8dvh, 54px);
+  padding: 9px 16px;
   border-radius: var(--conversion-button-radius);
   font-family: var(--font-label, var(--font-poster));
-  font-size: clamp(24px, 3.8dvh, 36px);
+  font-size: clamp(19px, 2.7dvh, 25px);
   font-weight: 400;
   letter-spacing: .02em;
   line-height: .86;
@@ -452,9 +468,9 @@
 
 .frameModal {
   flex: 0 1 auto;
-  width: min(560px, calc(100vw - 44px));
+  width: min(520px, calc(100vw - 44px));
   max-height: calc(100dvh - 44px);
-  padding: clamp(26px, 3.8dvh, 36px) clamp(24px, 4vw, 38px) clamp(22px, 3.2dvh, 30px);
+  padding: clamp(30px, 4.2dvh, 42px) clamp(26px, 4vw, 40px) clamp(34px, 4.6dvh, 46px);
   overflow-y: auto;
   scrollbar-gutter: stable;
 }
@@ -462,25 +478,25 @@
 .frameModal .close {
   top: 14px;
   right: 14px;
-  width: 46px;
-  height: 46px;
-  padding: 0 0 2px;
-  color: var(--conversion-action-text);
-  background: var(--conversion-action);
-  border: 2px solid var(--conversion-action);
-  border-radius: var(--conversion-button-radius);
+  width: 36px;
+  height: 36px;
+  padding: 0 0 1px;
+  color: var(--conversion-ink);
+  background: transparent;
+  border: 1px solid rgba(16, 13, 15, .18);
+  border-radius: 50%;
   font-family: var(--font);
-  font-size: 30px;
-  font-weight: 850;
-  box-shadow: 0 8px 0 rgba(16, 13, 15, .16);
+  font-size: 22px;
+  font-weight: 700;
+  box-shadow: none;
 }
 
 .frameModal .kicker {
-  max-width: 21ch;
+  max-width: none;
   margin: 0 auto clamp(8px, 1.4dvh, 12px);
   color: var(--conversion-action);
   font-family: var(--font-label, var(--font-poster));
-  font-size: clamp(24px, 3.2dvh, 34px);
+  font-size: clamp(22px, 3dvh, 30px);
   font-weight: 400;
   letter-spacing: 0;
   line-height: .86;
@@ -491,50 +507,51 @@
 }
 
 .frameModal .packHero {
-  min-height: clamp(330px, 40dvh, 410px);
-  margin: clamp(18px, 2.4dvh, 26px) 0 clamp(12px, 1.8dvh, 16px);
+  min-height: clamp(280px, 34dvh, 350px);
+  margin: clamp(32px, 4.2dvh, 42px) 0 clamp(14px, 1.8dvh, 18px);
 }
 
 .frameModal .packHero img {
-  max-width: min(68vw, 370px);
-  height: clamp(285px, 38dvh, 370px);
+  max-width: min(62vw, 330px);
+  height: clamp(245px, 32dvh, 320px);
   transform: rotate(1deg) scale(1.12);
   filter: drop-shadow(14px 24px 18px rgba(16, 13, 15, .2));
 }
 
 .frameModal .sub {
-  max-width: 34ch;
-  margin-bottom: clamp(14px, 2dvh, 18px);
-  font-size: clamp(16px, 2.1dvh, 19px);
-  font-weight: 850;
-  line-height: 1.24;
+  max-width: 35ch;
+  margin-bottom: clamp(16px, 2.2dvh, 20px);
+  font-size: clamp(14px, 1.8dvh, 16px);
+  font-weight: 700;
+  line-height: 1.34;
 }
 
 .frameModal .form {
-  gap: 9px;
+  gap: 8px;
+  width: min(100%, 440px);
   margin-bottom: 12px;
 }
 
 .frameModal .input,
 .frameModal .ctaPrimary,
 .frameModal .ctaGoogle {
-  min-height: 50px;
+  min-height: 44px;
 }
 
 .frameModal .input {
-  padding: 0 16px;
-  font-size: 16px;
+  padding: 0 14px;
+  font-size: 14.5px;
   font-weight: 700;
 }
 
 .frameModal .ctaPrimary,
 .frameModal .ctaGoogle {
-  gap: 8px;
-  font-size: clamp(19px, 2.6dvh, 24px);
+  gap: 7px;
+  font-size: clamp(17px, 2.2dvh, 21px);
 }
 
 .frameModal .ctaPrimary {
-  box-shadow: 0 7px 0 rgba(16, 13, 15, .14);
+  box-shadow: 0 5px 0 rgba(16, 13, 15, .13);
 }
 
 .frameModal .or {
@@ -543,11 +560,11 @@
 }
 
 .frameModal .legal {
-  max-width: 42ch;
-  margin-top: 12px;
+  max-width: 44ch;
+  margin-top: 18px;
   font-size: 11.5px;
   font-weight: 700;
-  line-height: 1.35;
+  line-height: 1.42;
 }
 
 .frameModal .plane {
@@ -610,21 +627,21 @@
     right: 14px;
     z-index: 10001;
     display: grid;
-    width: 42px;
-    height: 42px;
-    color: var(--conversion-action-text);
-    background: var(--conversion-action);
-    font-size: 30px;
+    width: 38px;
+    height: 38px;
+    color: var(--conversion-ink);
+    background: transparent;
+    font-size: 23px;
   }
 
   .frameModal .close {
     top: max(14px, env(safe-area-inset-top, 0px));
     right: 14px;
-    width: 52px;
-    height: 52px;
-    color: var(--conversion-action-text);
-    background: var(--conversion-action);
-    font-size: 31px;
+    width: 38px;
+    height: 38px;
+    color: var(--conversion-ink);
+    background: transparent;
+    font-size: 23px;
   }
 
   .kicker {
@@ -644,8 +661,8 @@
     width: min(25ch, calc(100vw - 56px));
     max-width: calc(100vw - 48px);
     margin-bottom: clamp(8px, 1.6dvh, 12px);
-    font-size: clamp(13px, 3.9vw, 16px);
-    line-height: 1.16;
+    font-size: clamp(12.5px, 3.6vw, 15px);
+    line-height: 1.28;
   }
 
   .form,
@@ -677,13 +694,13 @@
   .ctaPrimary,
   .ctaGoogle {
     gap: 8px;
-    min-height: clamp(42px, 6.2dvh, 52px);
-    font-size: clamp(18px, 5.3vw, 22px);
+    min-height: clamp(40px, 5.5dvh, 48px);
+    font-size: clamp(16px, 4.7vw, 20px);
   }
 
   .input {
-    min-height: clamp(42px, 6.2dvh, 52px);
-    font-size: clamp(16px, 4.8vw, 20px);
+    min-height: clamp(40px, 5.5dvh, 48px);
+    font-size: clamp(14px, 4vw, 17px);
   }
 
   .form {
@@ -692,10 +709,10 @@
   }
 
   .frameModal .kicker {
-    max-width: calc(100vw - 142px);
+    max-width: calc(100vw - 88px);
     margin-top: 2px;
-    font-size: clamp(22px, 6.5vw, 30px);
-    line-height: .84;
+    font-size: clamp(20px, 5.9vw, 27px);
+    line-height: .88;
   }
 
   .frameModal .h1 {
@@ -703,22 +720,22 @@
   }
 
   .frameModal .packHero {
-    min-height: clamp(360px, 42dvh, 430px);
-    margin-top: clamp(18px, 2.2dvh, 24px);
+    min-height: clamp(290px, 36dvh, 370px);
+    margin-top: clamp(28px, 3.6dvh, 38px);
     margin-bottom: clamp(12px, 1.6dvh, 16px);
   }
 
   .frameModal .packHero img {
-    max-width: min(82vw, 390px);
-    height: clamp(290px, 39dvh, 380px);
+    max-width: min(78vw, 350px);
+    height: clamp(250px, 34dvh, 340px);
     transform: rotate(1deg) scale(1.12);
   }
 
   .frameModal .sub {
     width: min(33ch, calc(100vw - 56px));
-    margin-bottom: clamp(14px, 1.8dvh, 18px);
-    font-size: clamp(14px, 4vw, 17px);
-    line-height: 1.22;
+    margin-bottom: clamp(16px, 2dvh, 20px);
+    font-size: clamp(13px, 3.7vw, 15px);
+    line-height: 1.32;
   }
 
   .frameModal .form,
@@ -731,19 +748,20 @@
   .frameModal .input,
   .frameModal .ctaPrimary,
   .frameModal .ctaGoogle {
-    min-height: clamp(48px, 5.8dvh, 56px);
+    min-height: clamp(42px, 5.2dvh, 48px);
   }
 
   .frameModal .ctaPrimary,
   .frameModal .ctaGoogle {
-    font-size: clamp(20px, 5.5vw, 25px);
+    font-size: clamp(16px, 4.6vw, 20px);
   }
 
   .frameModal .legal {
     width: min(36ch, calc(100vw - 56px));
     max-width: calc(100vw - 56px);
-    margin-top: 10px;
+    margin-top: 16px;
     font-size: 10.5px;
+    line-height: 1.35;
   }
 
   .or {
@@ -767,28 +785,34 @@
   }
 
   .frame:not(.frameModal) .packHero {
-    min-height: clamp(230px, 30dvh, 330px);
+    min-height: clamp(200px, 26dvh, 280px);
     margin-bottom: clamp(14px, 2dvh, 20px);
   }
 
   .frame:not(.frameModal) .packHero img {
-    max-width: min(58vw, 340px);
-    height: min(34dvh, 340px);
+    max-width: min(54vw, 310px);
+    height: min(28dvh, 280px);
   }
 
   .frameModal {
-    width: min(560px, calc(100vw - 44px));
+    width: min(520px, calc(100vw - 44px));
     max-height: calc(100dvh - 44px);
-    padding: clamp(26px, 3.8dvh, 36px) clamp(24px, 4vw, 38px) clamp(22px, 3.2dvh, 30px);
+    padding: clamp(30px, 4.2dvh, 42px) clamp(26px, 4vw, 40px) clamp(34px, 4.6dvh, 46px);
   }
 
   .h1,
-  .sub,
+  .sub {
+    width: 100%;
+  }
+
   .form,
   .or,
-  .ctaGoogle,
+  .ctaGoogle {
+    width: min(100%, 440px);
+  }
+
   .legal {
-    width: 100%;
+    width: min(100%, 44ch);
   }
 }
 
@@ -823,7 +847,7 @@
   .input,
   .ctaPrimary,
   .ctaGoogle {
-    min-height: clamp(44px, 5.8dvh, 52px);
+    min-height: clamp(40px, 5.2dvh, 48px);
   }
 
   .legal {
@@ -896,25 +920,25 @@ html[data-theme="dark"] .page {
 }
 
 html[data-theme="dark"] .frame {
-  --conversion-surface: var(--et-dark-card, #181112);
-  --conversion-ink: var(--et-cream, #f2dfb8);
+  --conversion-surface: #171A17;
+  --conversion-ink: #F1F1EC;
   --conversion-action: var(--et-red-hot, #f03608);
-  --conversion-action-text: var(--et-cream, #f2dfb8);
-  --conversion-border: rgba(242, 223, 184, .34);
-  --conversion-muted: rgba(242, 223, 184, .76);
+  --conversion-action-text: #F1F1EC;
+  --conversion-border: rgba(241, 241, 236, .34);
+  --conversion-muted: rgba(241, 241, 236, .76);
   --conversion-field-bg: rgba(16, 13, 15, .34);
-  color: var(--et-cream, #f2dfb8);
+  color: #F1F1EC;
   background: var(--conversion-surface);
-  border-color: rgba(242, 223, 184, .72);
-  box-shadow: 12px 12px 0 rgba(242, 223, 184, .12);
+  border-color: rgba(241, 241, 236, .72);
+  box-shadow: 12px 12px 0 rgba(241, 241, 236, .12);
 }
 
 html[data-theme="dark"] .frame::before {
-  background: rgba(242, 223, 184, .2);
+  background: rgba(241, 241, 236, .2);
 }
 
 html[data-theme="dark"] .frame::after {
-  color: rgba(242, 223, 184, .07);
+  color: rgba(241, 241, 236, .07);
 }
 
 html[data-theme="dark"] .close,
@@ -925,7 +949,7 @@ html[data-theme="dark"] .ctaGoogle,
 html[data-theme="dark"] .toValue,
 html[data-theme="dark"] .legalLink,
 html[data-theme="dark"] .textlink {
-  color: var(--et-cream, #f2dfb8);
+  color: #F1F1EC;
 }
 
 html[data-theme="dark"] .menuTop,
@@ -957,6 +981,16 @@ html[data-theme="dark"] .input,
 html[data-theme="dark"] .ctaGoogle {
   background: rgba(16, 13, 15, .28);
   border-color: rgba(242, 223, 184, .72);
+}
+
+html[data-theme="dark"] .close {
+  background: transparent;
+  border-color: rgba(242, 223, 184, .26);
+}
+
+html[data-theme="dark"] .close:hover {
+  background: rgba(242, 223, 184, .08);
+  border-color: rgba(242, 223, 184, .42);
 }
 
 html[data-theme="dark"] .input::placeholder {

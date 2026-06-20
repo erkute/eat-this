@@ -1,13 +1,13 @@
 .page,
 .frame {
   --conversion-bg: var(--et-red, #e43d18);
-  --conversion-surface: var(--et-cream, #f2dfb8);
+  --conversion-surface: #fff4df;
   --conversion-ink: var(--color-text, var(--et-black, #100d0f));
   --conversion-action: var(--color-action, var(--et-red, #e43d18));
   --conversion-action-text: var(--et-cream, #f2dfb8);
   --conversion-border: rgba(16, 13, 15, .2);
   --conversion-muted: rgba(16, 13, 15, .72);
-  --conversion-field-bg: rgba(255, 250, 240, .62);
+  --conversion-field-bg: rgba(255, 250, 240, .36);
   --conversion-radius: var(--radius-md, 8px);
   --conversion-button-radius: var(--radius-sm, 4px);
   --conversion-shadow: var(--shadow-strong, 0 18px 42px rgba(16, 13, 15, .24));
@@ -98,16 +98,7 @@
 }
 
 .packHero::before {
-  content: "";
-  position: absolute;
-  top: 53%;
-  left: 50%;
-  z-index: -1;
-  width: min(78vw, 360px);
-  height: clamp(132px, 19dvh, 210px);
-  border: 2px solid rgba(228, 61, 24, .36);
-  transform: translate(-50%, -50%) rotate(-4deg);
-  clip-path: polygon(0 12%, 100% 0, 92% 100%, 6% 92%);
+  content: none;
 }
 
 .packHero img {
@@ -116,7 +107,7 @@
   max-width: min(78vw, 420px);
   height: min(42dvh, 430px);
   object-fit: contain;
-  transform: rotate(2deg);
+  transform: rotate(2deg) scale(1.16);
   filter: drop-shadow(20px 30px 22px rgba(16, 13, 15, .26));
 }
 
@@ -226,7 +217,7 @@
   padding: 0 clamp(18px, 3vw, 26px);
   color: var(--conversion-ink);
   background: var(--conversion-field-bg);
-  border: 2px solid var(--conversion-border);
+  border: 2px solid rgba(16, 13, 15, .16);
   border-radius: var(--conversion-radius);
   font-family: var(--font);
   font-size: clamp(18px, 2.5dvh, 23px);
@@ -235,7 +226,7 @@
 }
 
 .input::placeholder {
-  color: rgba(16, 13, 15, .5);
+  color: rgba(16, 13, 15, .3);
 }
 
 .ctaPrimary,
@@ -260,10 +251,10 @@
 }
 
 .ctaPrimary {
-  color: var(--et-black, #100d0f);
+  color: var(--conversion-action-text);
   background: var(--conversion-action);
   border: 2px solid var(--conversion-action);
-  box-shadow: 0 12px 0 rgba(16, 13, 15, .18);
+  box-shadow: 0 8px 0 rgba(16, 13, 15, .16);
 }
 
 .ctaGoogle {
@@ -471,43 +462,44 @@
 .frameModal .close {
   top: 14px;
   right: 14px;
-  width: 38px;
-  height: 38px;
+  width: 46px;
+  height: 46px;
   padding: 0 0 2px;
-  color: var(--conversion-ink);
-  background: transparent;
-  border: 1px solid var(--conversion-border);
+  color: var(--conversion-action-text);
+  background: var(--conversion-action);
+  border: 2px solid var(--conversion-action);
   border-radius: var(--conversion-button-radius);
   font-family: var(--font);
-  font-size: 25px;
-  font-weight: 750;
+  font-size: 30px;
+  font-weight: 850;
+  box-shadow: 0 8px 0 rgba(16, 13, 15, .16);
 }
 
 .frameModal .kicker {
-  max-width: 34ch;
-  margin: 2px auto 8px;
-  color: var(--conversion-muted);
-  font-family: var(--font);
-  font-size: clamp(11px, 1.45dvh, 13px);
-  font-weight: 950;
-  letter-spacing: .14em;
-  line-height: 1.15;
+  max-width: 21ch;
+  margin: 0 auto clamp(8px, 1.4dvh, 12px);
+  color: var(--conversion-action);
+  font-family: var(--font-label, var(--font-poster));
+  font-size: clamp(24px, 3.2dvh, 34px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: .86;
 }
 
 .frameModal .h1 {
-  margin-bottom: clamp(8px, 1.4dvh, 12px);
-  font-size: clamp(50px, 7.8dvh, 74px);
+  display: none;
 }
 
 .frameModal .packHero {
-  min-height: clamp(300px, 39dvh, 390px);
-  margin: 0 0 clamp(10px, 1.6dvh, 14px);
+  min-height: clamp(330px, 40dvh, 410px);
+  margin: clamp(18px, 2.4dvh, 26px) 0 clamp(12px, 1.8dvh, 16px);
 }
 
 .frameModal .packHero img {
-  max-width: min(66vw, 350px);
-  height: clamp(280px, 39dvh, 380px);
-  filter: drop-shadow(14px 22px 18px rgba(16, 13, 15, .22));
+  max-width: min(68vw, 370px);
+  height: clamp(285px, 38dvh, 370px);
+  transform: rotate(1deg) scale(1.12);
+  filter: drop-shadow(14px 24px 18px rgba(16, 13, 15, .2));
 }
 
 .frameModal .sub {
@@ -526,23 +518,23 @@
 .frameModal .input,
 .frameModal .ctaPrimary,
 .frameModal .ctaGoogle {
-  min-height: 58px;
+  min-height: 50px;
 }
 
 .frameModal .input {
   padding: 0 16px;
   font-size: 16px;
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .frameModal .ctaPrimary,
 .frameModal .ctaGoogle {
   gap: 8px;
-  font-size: clamp(22px, 3.1dvh, 28px);
+  font-size: clamp(19px, 2.6dvh, 24px);
 }
 
 .frameModal .ctaPrimary {
-  box-shadow: 0 8px 0 rgba(16, 13, 15, .18);
+  box-shadow: 0 7px 0 rgba(16, 13, 15, .14);
 }
 
 .frameModal .or {
@@ -628,11 +620,11 @@
   .frameModal .close {
     top: max(14px, env(safe-area-inset-top, 0px));
     right: 14px;
-    width: 40px;
-    height: 40px;
-    color: var(--conversion-ink);
-    background: rgba(255, 250, 240, .42);
-    font-size: 26px;
+    width: 52px;
+    height: 52px;
+    color: var(--conversion-action-text);
+    background: var(--conversion-action);
+    font-size: 31px;
   }
 
   .kicker {
@@ -700,24 +692,26 @@
   }
 
   .frameModal .kicker {
-    max-width: calc(100vw - 72px);
-    margin-top: 4px;
-    font-size: clamp(10.5px, 3vw, 12px);
+    max-width: calc(100vw - 142px);
+    margin-top: 2px;
+    font-size: clamp(22px, 6.5vw, 30px);
+    line-height: .84;
   }
 
   .frameModal .h1 {
-    margin-bottom: clamp(6px, 1.1dvh, 10px);
-    font-size: clamp(42px, 12.4vw, 62px);
+    display: none;
   }
 
   .frameModal .packHero {
-    min-height: clamp(310px, 43dvh, 410px);
-    margin-bottom: clamp(10px, 1.4dvh, 14px);
+    min-height: clamp(360px, 42dvh, 430px);
+    margin-top: clamp(18px, 2.2dvh, 24px);
+    margin-bottom: clamp(12px, 1.6dvh, 16px);
   }
 
   .frameModal .packHero img {
-    max-width: min(84vw, 370px);
-    height: clamp(285px, 42dvh, 390px);
+    max-width: min(82vw, 390px);
+    height: clamp(290px, 39dvh, 380px);
+    transform: rotate(1deg) scale(1.12);
   }
 
   .frameModal .sub {
@@ -737,12 +731,12 @@
   .frameModal .input,
   .frameModal .ctaPrimary,
   .frameModal .ctaGoogle {
-    min-height: clamp(54px, 6.6dvh, 64px);
+    min-height: clamp(48px, 5.8dvh, 56px);
   }
 
   .frameModal .ctaPrimary,
   .frameModal .ctaGoogle {
-    font-size: clamp(21px, 6vw, 28px);
+    font-size: clamp(20px, 5.5vw, 25px);
   }
 
   .frameModal .legal {
@@ -905,7 +899,7 @@ html[data-theme="dark"] .frame {
   --conversion-surface: var(--et-dark-card, #181112);
   --conversion-ink: var(--et-cream, #f2dfb8);
   --conversion-action: var(--et-red-hot, #f03608);
-  --conversion-action-text: var(--et-black, #100d0f);
+  --conversion-action-text: var(--et-cream, #f2dfb8);
   --conversion-border: rgba(242, 223, 184, .34);
   --conversion-muted: rgba(242, 223, 184, .76);
   --conversion-field-bg: rgba(16, 13, 15, .34);
@@ -966,11 +960,11 @@ html[data-theme="dark"] .ctaGoogle {
 }
 
 html[data-theme="dark"] .input::placeholder {
-  color: rgba(242, 223, 184, .54);
+  color: rgba(242, 223, 184, .34);
 }
 
 html[data-theme="dark"] .ctaPrimary {
-  color: var(--et-black, #100d0f);
+  color: var(--et-cream, #f2dfb8);
   background: var(--et-red-hot, #f03608);
   border-color: var(--et-red-hot, #f03608);
 }

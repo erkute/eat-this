@@ -11,7 +11,7 @@ import {
   useMapSheet,
   useMapDeepLinks,
   useUserTier,
-  buildPrimaryMustEatMap,
+  buildPeekMustEatMap,
   resolveUnlockedMustEatIds,
 } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
@@ -228,8 +228,8 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
   }, [mustEats, selectedRestaurant])
 
   const primaryMustEats = useMemo(
-    () => buildPrimaryMustEatMap(mustEats),
-    [mustEats],
+    () => buildPeekMustEatMap(mustEats, unlockedIds),
+    [mustEats, unlockedIds],
   )
 
   /* ---------- Handlers ---------- */

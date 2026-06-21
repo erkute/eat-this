@@ -109,6 +109,14 @@
   color: var(--et-black);
 }
 
+:global(html[data-theme="dark"]) :global(.navbar-icon-btn).mapSticker,
+:global(html[data-theme="dark"]) :global(.burger-btn).menuSticker,
+:global(html[data-theme="dark"]) :global(.navbar-icon-btn).mapSticker.active,
+:global(html[data-theme="dark"]) :global(.navbar-icon-btn).mapSticker:hover,
+:global(html[data-theme="dark"]) :global(.burger-btn).menuSticker:hover {
+  color: #000;
+}
+
 .menuLines {
   position: relative;
   z-index: 1;

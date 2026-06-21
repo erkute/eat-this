@@ -947,6 +947,22 @@ html[data-theme="dark"] .page {
   color: var(--brand-paper);
 }
 
+html[data-theme="dark"] .story,
+html[data-theme="dark"] .lede::first-letter,
+html[data-theme="dark"] .pullQuote,
+html[data-theme="dark"] .orderHead,
+html[data-theme="dark"] .orderDish,
+html[data-theme="dark"] .orderPrice,
+html[data-theme="dark"] .orderNote {
+  color: var(--brand-paper);
+}
+
+html[data-theme="dark"] .heroTags .chipAlt {
+  background: rgba(20, 16, 12, 0.58);
+  color: #fbf8ee;
+  border-color: rgba(251, 248, 238, 0.74);
+}
+
 html[data-theme="dark"] .order,
 html[data-theme="dark"] .act {
   background: var(--brand-ink);

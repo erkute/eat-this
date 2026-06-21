@@ -242,7 +242,7 @@ html[data-theme="dark"] .inner {
 }
 html[data-theme="dark"] .kicker,
 html[data-theme="dark"] .headline {
-  color: var(--et-red-hot);
+  color: var(--et-cream);
 }
 html[data-theme="dark"] .lead {
   color: rgba(242, 223, 184, .78);

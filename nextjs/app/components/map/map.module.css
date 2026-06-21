@@ -200,14 +200,14 @@ html[data-theme="dark"] .bodyPanelHidden .panelToggle {
 .mapWrap :global(.maplibregl-ctrl-group) {
   background: #ffffff !important;
   border: 1.5px solid var(--c-black) !important;
-  box-shadow: 2px 2px 0 var(--c-black) !important;
+  box-shadow: none !important;
   border-radius: 0 !important;
   overflow: hidden;
 }
 html[data-theme="dark"] .mapWrap :global(.maplibregl-ctrl-group) {
   background: #f0e8d0 !important;
   border-color: #f0e8d0 !important;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55) !important;
+  box-shadow: none !important;
 }
 .mapWrap :global(.maplibregl-ctrl-group button) {
   width: 34px;
@@ -661,6 +661,11 @@ html[data-theme="dark"] .list[data-view="detail"] .handle::before {
        shows it as a blank white block after the final restaurant. */
     max-height: calc(100dvh - var(--sheet-y, 40px) - 70px + var(--map-bar-overhang, 0px));
     padding-bottom: 8px;
+  }
+}
+@media (min-width: 1024px) {
+  .listScroll {
+    padding-bottom: 0;
   }
 }
 
@@ -1727,15 +1732,14 @@ html[data-theme="dark"] .boosterCta:hover { background: var(--brand-red-hover); 
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── List-variant booster — dir-divider look: top ink hairline, centered
-   Chewy kicker + big heading + mustard sticker CTA. No image fan. */
+/* ── List-variant booster — flat editorial panel, centered copy + CTA. */
 .boosterOfferList {
   margin: 22px 14px 8px;
   padding: 18px 16px 20px;
   background: #fbf8ee;
   color: #14100c;
-  border: 2px solid #14100c;
-  box-shadow: 5px 5px 0 #14100c;
+  border: 1.5px solid rgba(20, 16, 12, .18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .56);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -1744,8 +1748,8 @@ html[data-theme="dark"] .boosterCta:hover { background: var(--brand-red-hover); 
 }
 [data-theme="dark"] .boosterOfferList {
   background: #fbf8ee;
-  border-color: #f0e8d0;
-  box-shadow: 5px 5px 0 #f0e8d0;
+  border-color: rgba(240, 232, 208, .38);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .56);
   color: #14100c;
 }
 
@@ -1820,7 +1824,7 @@ html[data-theme="dark"] .boosterCta:hover { background: var(--brand-red-hover); 
   order: 3;
 }
 
-/* Sticker-style CTA: mustard fill + hard ink offset shadow, square corners */
+/* Flat editorial CTA */
 .btnPromo {
   display: inline-flex;
   align-items: stretch;
@@ -2010,7 +2014,7 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
   height: auto;
   object-fit: contain;
   border-radius: 6%;
-  filter: drop-shadow(0 24px 48px rgba(0, 0, 0, 0.7));
+  filter: none;
   display: block;
   transform: translateZ(0);
   backface-visibility: hidden;
@@ -2099,8 +2103,7 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
 /* -------------------- Filter chip row (row 2 of the header) -------------------- */
 
 /* Mustard-sticker filter chips — same family as the booster CTA + must-eat
-   card-back: hard-offset black/cream shadow, Saira caps, mustard fill.
-   Active state = coral bg + cream text. */
+   card-back: Saira caps, mustard fill. Active state = coral bg + cream text. */
 .filterChipRow {
   display: flex;
   gap: 6px;
@@ -2139,6 +2142,7 @@ html[data-theme="dark"] .detailInSheet .detailActions .btn:hover {
   border-radius: 0;
   overflow: visible;
 }
+
 .filterChip {
   /* All four chips — Kategorie / Bezirk / Küche / Jetzt geöffnet — fit a
      360px viewport on one line; flex-grow distributes the leftover width
@@ -2312,7 +2316,7 @@ html[data-theme="dark"] .pickerTitle { color: var(--c-cream); }
   cursor: pointer;
   border-radius: 0;
   padding: 0;
-  box-shadow: 2px 2px 0 var(--c-black);
+  box-shadow: none;
   transition: transform 140ms ease, box-shadow 140ms ease;
 }
 html[data-theme="dark"] .pickerCloseBtn {
@@ -2321,10 +2325,10 @@ html[data-theme="dark"] .pickerCloseBtn {
 }
 .pickerCloseBtn:hover {
   transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0 var(--c-black);
+  box-shadow: none;
 }
-html[data-theme="dark"] .pickerCloseBtn { box-shadow: 2px 2px 0 var(--c-cream); }
-html[data-theme="dark"] .pickerCloseBtn:hover { box-shadow: 3px 3px 0 var(--c-cream); }
+html[data-theme="dark"] .pickerCloseBtn { box-shadow: none; }
+html[data-theme="dark"] .pickerCloseBtn:hover { box-shadow: none; }
 
 .pickerList {
   flex: 1 1 auto;
@@ -2429,13 +2433,13 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
     max-height: calc(100vh - var(--picker-anchor-top, 100px) - 20px);
     border: 2px solid var(--c-green);
     border-radius: 0;
-    box-shadow: 4px 4px 0 var(--c-green), 0 12px 36px rgba(0, 0, 0, 0.22);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
     animation: pickerPopoverIn 0.18s ease-out;
     padding-bottom: 8px;
   }
   html[data-theme="dark"] .pickerSheet {
     border-color: var(--c-cream);
-    box-shadow: 4px 4px 0 var(--c-cream), 0 12px 36px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.42);
   }
   @keyframes pickerPopoverIn {
     from { transform: translateY(-6px); }
@@ -3208,14 +3212,14 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   grid-template-columns: 74px 1fr;
   column-gap: 13px;
   align-items: center;
-  box-shadow: 5px 5px 0 #0a0a0a;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .56);
 }
 :global(html[data-theme="dark"]) .packPromo {
   background:
     radial-gradient(circle at 18% 18%, rgba(232, 76, 61, 0.28), transparent 34%),
     linear-gradient(135deg, #211a13 0%, #15110d 58%, #0d0b09 100%);
   border-color: #f0e8d0;
-  box-shadow: 5px 5px 0 #f0e8d0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
 }
 .packPromo::before {
   content: none;
@@ -3233,15 +3237,15 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   aspect-ratio: 2 / 3;
   object-fit: contain;
   transform: rotate(-7deg) translateX(2px);
-  filter: drop-shadow(4px 5px 0 rgba(0, 0, 0, 0.24));
+  filter: none;
   transition: transform var(--map-motion), filter var(--map-motion);
 }
 :global(html[data-theme="dark"]) .packPromoSingleCard {
-  filter: drop-shadow(3px 4px 0 rgba(0, 0, 0, 0.55));
+  filter: none;
 }
 .packPromo:hover .packPromoSingleCard {
   transform: rotate(-3deg) translate(3px, -3px);
-  filter: drop-shadow(5px 7px 0 rgba(0, 0, 0, 0.26));
+  filter: none;
 }
 .packPromoCopy {
   min-width: 0;
@@ -3275,7 +3279,7 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   flex-wrap: wrap;
 }
 
-/* Sticker-style mustard CTA with hard-offset shadow */
+/* Flat pack CTA */
 .btnPackPromo {
   display: inline-flex;
   align-items: center;
@@ -3288,13 +3292,13 @@ html[data-theme="dark"] .pickerItemActive .pickerItemSub { color: #fbf8ee; opaci
   padding: 8px 12px 9px 13px;
   transition: transform var(--map-motion), background-color var(--map-motion), color var(--map-motion);
   position: relative;
-  box-shadow: 3px 3px 0 #0a0a0a;
+  box-shadow: none;
 }
 html[data-theme="dark"] .btnPackPromo {
   background: var(--c-coral);
   border-color: var(--c-coral);
   color: #fbf8ee;
-  box-shadow: 3px 3px 0 #f0e8d0;
+  box-shadow: none;
 }
 .btnPackPromo:hover { transform: translate(-2px, -2px); }
 .btnPackPromoLbl {
@@ -3419,24 +3423,158 @@ html[data-theme="dark"] .bezirkLockedCta {
 }
 
 .listEnd {
+  --list-end-bg: #14100c;
+  --list-end-ink: #fbf8ee;
+  --list-end-muted: rgba(251, 248, 238, .74);
+  --list-end-border: rgba(251, 248, 238, .28);
+  position: relative;
   text-align: center;
-  padding: 28px 16px 18px;
-  margin-bottom: 42px;
+  padding: 24px 16px 22px;
+  margin: 22px 0 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+  overflow: hidden;
+  background: var(--list-end-bg);
+  color: var(--list-end-ink);
+  border: 1px solid var(--list-end-border);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+html[data-theme="dark"] .listEnd {
+  --list-end-bg: #fbf8ee;
+  --list-end-ink: #14100c;
+  --list-end-muted: rgba(20, 16, 12, .70);
+  --list-end-border: rgba(20, 16, 12, .18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .58);
+}
+@media (max-width: 1023.98px) {
+  .listEnd {
+    /* The mobile list scrollport intentionally extends below the visual
+       viewport so rows paint into Safari's bottom-bar backdrop. The closing
+       CTA, however, must finish above that unsafe strip instead of being the
+       thing that gets sampled/clipped there. */
+    margin-bottom: calc(24px + var(--map-bar-overhang, 0px) + env(safe-area-inset-bottom, 0px));
+  }
+}
+.listEndFan {
+  position: relative;
+  width: min(100%, 304px);
+  height: 124px;
+  margin: 2px 0 20px;
+  flex: 0 0 auto;
+}
+.listEndPack {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  width: 56px;
+  height: 84px;
+  display: block;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  border-radius: 6px;
+  filter: none;
+  transform-origin: 50% 92%;
+  transition: transform 220ms cubic-bezier(.2, .8, .2, 1);
+}
+.listEndPackOne {
+  z-index: 1;
+  background-image: url('/pics/booster/booster_coffee.webp');
+  transform: translateX(-126px) translateY(7px) rotate(-22deg);
+}
+.listEndPackTwo {
+  z-index: 2;
+  background-image: url('/pics/booster/booster_pizza.webp');
+  transform: translateX(-86px) translateY(2px) rotate(-14deg);
+}
+.listEndPackThree {
+  z-index: 3;
+  background-image: url('/pics/booster/booster_dinner.webp');
+  transform: translateX(-47px) translateY(0) rotate(-6deg);
+}
+.listEndPackFour {
+  z-index: 6;
+  background-image: url('/pics/booster/booster_drinks.webp');
+  transform: translateX(-8px) translateY(-1px) rotate(2deg);
+}
+.listEndPackFive {
+  z-index: 4;
+  background-image: url('/pics/booster/booster_lunch.webp');
+  transform: translateX(32px) translateY(1px) rotate(10deg);
+}
+.listEndPackSix {
+  z-index: 2;
+  background-image: url('/pics/booster/booster_sweets.webp');
+  transform: translateX(72px) translateY(6px) rotate(18deg);
+}
+@media (hover: hover) {
+  .listEnd:hover .listEndPackOne { transform: translateX(-130px) translateY(3px) rotate(-25deg); }
+  .listEnd:hover .listEndPackTwo { transform: translateX(-89px) translateY(-1px) rotate(-16deg); }
+  .listEnd:hover .listEndPackThree { transform: translateX(-49px) translateY(-3px) rotate(-8deg); }
+  .listEnd:hover .listEndPackFour { transform: translateX(-8px) translateY(-5px) rotate(3deg); }
+  .listEnd:hover .listEndPackFive { transform: translateX(35px) translateY(-2px) rotate(12deg); }
+  .listEnd:hover .listEndPackSix { transform: translateX(76px) translateY(2px) rotate(21deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .listEndPack { transition: none; }
 }
 .listEndTitle {
   font-family: var(--font-label, var(--font-chewy));
-  font-size: 26px;
-  line-height: .98;
+  font-size: clamp(28px, 8vw, 34px);
+  line-height: .92;
   text-transform: uppercase;
-  color: var(--c-black);
-  margin: 0;
-  max-width: 18ch;
+  color: var(--list-end-ink);
+  margin: 2px 0 0;
+  max-width: 14ch;
 }
-html[data-theme="dark"] .listEndTitle { color: #f0e8d0; }
+html[data-theme="dark"] .listEndTitle { color: var(--list-end-ink); }
+.listEndSub {
+  max-width: 28ch;
+  margin: 0 0 12px;
+  color: var(--list-end-ink);
+  font-family: var(--font-label, var(--font-chewy)), var(--font-display), sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+@media (max-width: 600px) {
+  .listEnd {
+    padding: 18px 16px 18px;
+    gap: 8px;
+  }
+  .listEndTitle {
+    font-size: 30px;
+    max-width: 13ch;
+  }
+  .listEndFan {
+    width: min(100%, 286px);
+    height: 112px;
+    margin: 0 0 14px;
+  }
+  .listEndPack {
+    width: 52px;
+    height: 78px;
+    bottom: 10px;
+  }
+  .listEndPackOne { transform: translateX(-118px) translateY(6px) rotate(-22deg); }
+  .listEndPackTwo { transform: translateX(-80px) translateY(2px) rotate(-14deg); }
+  .listEndPackThree { transform: translateX(-44px) translateY(0) rotate(-6deg); }
+  .listEndPackFour { transform: translateX(-7px) translateY(-1px) rotate(2deg); }
+  .listEndPackFive { transform: translateX(30px) translateY(1px) rotate(10deg); }
+  .listEndPackSix { transform: translateX(66px) translateY(5px) rotate(18deg); }
+  .listEndSub {
+    max-width: 27ch;
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.07;
+  }
+}
 .listEndCta {
   display: inline-flex;
   align-items: center;
@@ -3469,6 +3607,20 @@ html[data-theme="dark"] .listEndCta {
 .listEndCta:active {
   background: var(--brand-action-deep);
   transform: translateY(1px);
+}
+.listEndSecondary {
+  margin-top: -2px;
+  color: var(--list-end-muted);
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+@media (hover: hover) {
+  .listEndSecondary:hover {
+    color: var(--list-end-ink);
+  }
 }
 
 /* ============ Restaurant Detail (Chewy Screen 04) ============ */
@@ -3700,7 +3852,7 @@ html[data-theme="dark"] .rdBodySkel span {
   display: grid;
   gap: 8px;
   border: 2px solid #0a0a0a;
-  box-shadow: 6px 6px 0 0 #0a0a0a;
+  box-shadow: none;
 }
 .rdTippLabel {
   font-family: var(--font-chewy);
@@ -3809,15 +3961,15 @@ html[data-theme="dark"] .rdBodySkel span {
 .medish { position: relative; display: grid; grid-template-rows: 1fr auto; gap: 6px; padding: 6px 4px 10px; background: transparent; border: 0; cursor: pointer; width: 100%; }
 .medishPh { position: relative; aspect-ratio: 1539 / 2115; display: flex; align-items: center; justify-content: center; }
 /* Must-Eat card images are FREIGESTELLT (cut-out, transparent corners) — take
-   the image AS-IS, never clip/crop it. A soft drop-shadow follows the cut-out
-   shape (not a boxy box-shadow); slight alternating tilt for a deck feel. */
+   the image AS-IS, never clip/crop it. No artificial shadow: alpha WebPs can
+   rasterize that shadow as a rectangular tile on Safari/3D transforms. */
 .medishPh img {
   max-width: 100%;
   max-height: 100%;
   width: auto;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 16px 26px rgba(0, 0, 0, .16));
+  filter: none;
   transition: transform .18s ease;
 }
 .rdMustGrid li:nth-child(odd) .medishPh img { transform: rotate(-2.5deg); }
@@ -3842,7 +3994,7 @@ html[data-theme="dark"] .rdTipp {
   background: var(--c-coral);
   color: #fbf8ee;
   border-color: #fbf8ee;
-  box-shadow: 6px 6px 0 0 rgba(251, 248, 238, 0.22);
+  box-shadow: none;
 }
 html[data-theme="dark"] .rdTippLabel { color: #fbf8ee; }
 html[data-theme="dark"] .rdFacts { border-top-color: rgba(240, 232, 208, 0.35); }
@@ -3885,7 +4037,7 @@ html[data-theme="dark"] .medishLbl { color: #f0e8d0; }
   background: var(--map-collage-red);
   color: #fff;
   border: 2px solid var(--map-collage-ink);
-  box-shadow: 4px 4px 0 var(--map-collage-ink);
+  box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -3900,7 +4052,7 @@ html[data-theme="dark"] .medishLbl { color: #f0e8d0; }
 .mapWrap :global(.maplibregl-ctrl-group) {
   background: var(--map-collage-yellow) !important;
   border: 2px solid var(--map-collage-ink) !important;
-  box-shadow: 4px 4px 0 var(--map-collage-ink) !important;
+  box-shadow: none !important;
 }
 
 .list {
@@ -3940,7 +4092,7 @@ html[data-theme="dark"] .list[data-view="detail"] .handle {
   background: #fff;
   color: var(--map-collage-ink);
   border: 2px solid var(--map-collage-ink);
-  box-shadow: 3px 3px 0 var(--map-collage-ink);
+  box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -4015,7 +4167,7 @@ html[data-theme="dark"] .list[data-view="detail"] .handle {
   border-radius: 0;
   background: var(--map-collage-red);
   border: 2px solid #fff;
-  box-shadow: 3px 3px 0 rgba(43, 33, 28, .72);
+  box-shadow: none;
 }
 .rdPager {
   margin: -6px 18px 12px;
@@ -4029,7 +4181,7 @@ html[data-theme="dark"] .list[data-view="detail"] .handle {
 .rdSecH { color: var(--map-collage-red); }
 .rdTipp {
   background: var(--map-collage-yellow);
-  box-shadow: 6px 6px 0 var(--map-collage-ink);
+  box-shadow: none;
   transform: rotate(-.7deg);
 }
 .rdActPrimary {
@@ -4087,13 +4239,13 @@ html[data-theme="dark"] .panelToggle {
   background: var(--map-collage-red);
   color: #fff;
   border-color: #f8f1e5;
-  box-shadow: 4px 4px 0 #f8f1e5;
+  box-shadow: none;
 }
 html[data-theme="dark"] .filterChip {
   background: #211a15;
   color: #f8f1e5;
   border-color: #f8f1e5;
-  box-shadow: 3px 3px 0 #f8f1e5;
+  box-shadow: none;
 }
 html[data-theme="dark"] .filterChipActive,
 html[data-theme="dark"] .filterChipOpenActive {
@@ -4268,7 +4420,7 @@ html[data-theme="dark"] .rdSecH { color: #ff6645; }
 /* ============================================================
    Map controls — STICKER style (User 2026-06-15): burger, search and
    location FAB read as EAT-THIS editorial stickers — cream fill, 2px
-   ink border, hard offset shadow, ink glyphs. Dark mode flips to a
+   ink border, ink glyphs. Dark mode flips to a
    solid brand-RED sticker with cream glyphs. Self-contained override
    so it's easy to revert. Selectors carry an extra `html`/`html[data-
    theme=...]` so they win over the original glass rules + dark overrides.
@@ -4325,7 +4477,7 @@ html .mapHome {
   height: 46px;
   border: 2px solid #14100c;
   border-radius: 12px;
-  box-shadow: 2px 2px 0 #14100c;
+  box-shadow: none;
   /* Background image so the theme can swap it: yellow mark (light) → red mark
      (dark) to match the red buttons. */
   background: url('/pics/logo.webp') center / cover no-repeat;
@@ -4335,18 +4487,18 @@ html .mapHome {
 }
 html[data-theme="dark"] .mapHome {
   background-image: url('/pics/logo-red.webp');
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
+  box-shadow: none;
 }
 
 /* Hover: a small sticker "peel" lift, no colour flash (hover-capable only). */
 @media (hover: hover) {
   html .mapBurger:hover, html .mapSearchBtn:hover, html .fab:hover, html .mapHome:hover {
     transform: translate(-1px, -1px);
-    box-shadow: 3px 3px 0 #14100c;
+    box-shadow: none;
   }
   html[data-theme="dark"] .mapBurger:hover, html[data-theme="dark"] .mapSearchBtn:hover,
   html[data-theme="dark"] .fab:hover, html[data-theme="dark"] .mapHome:hover {
-    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
+    box-shadow: none;
   }
 }
 
@@ -4384,7 +4536,7 @@ html .fab { right: 14px; }
 }
 
 /* Burger removed from the map (User 2026-06-15) — search is now a standalone
-   sticker (full radius + hard shadow come from the base sticker rule above), so
+   sticker (full radius comes from the base sticker rule above), so
    no segment-fuse override is needed here anymore. */
 
 /* Keep ALL map controls visible while a restaurant detail is open (User
@@ -4406,7 +4558,7 @@ html .fab { right: 14px; }
 /* ============================================================
    Map controls — STICKER style (User 2026-06-15): burger, search and
    location FAB read as EAT-THIS editorial stickers — cream fill, 2px
-   ink border, hard offset shadow, ink glyphs. Dark mode flips to a
+   ink border, ink glyphs. Dark mode flips to a
    solid brand-RED sticker with cream glyphs. Self-contained override
    so it's easy to revert. Selectors carry an extra `html`/`html[data-
    theme=...]` so they win over the original glass rules + dark overrides.
@@ -4422,7 +4574,7 @@ html .fab {
   color: #14100c;
   border: 2px solid #14100c;
   border-radius: 14px;
-  box-shadow: 2px 2px 0 #14100c;
+  box-shadow: none;
 }
 /* Dark = solid brand-red sticker, cream glyphs */
 html[data-theme="dark"] .mapBurger,
@@ -4435,7 +4587,7 @@ html[data-theme="dark"] .fab {
   color: #fbf8ee;
   border: 2px solid #14100c;
   border-radius: 14px;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
+  box-shadow: none;
 }
 /* Glyph colours follow the text colour (search icon / input / clear). */
 html .mapSearchIcon, html .mapSearchInput, html .mapSearchClear { color: #14100c; }
@@ -4451,8 +4603,8 @@ html[data-theme="dark"] .mapBurger img { filter: brightness(0) invert(1); }
 
 /* Home link (top-left) — the square two-line EAT THIS mark (favicon family)
    as a clickable sticker so users can always jump back to the start page. The
-   logo image carries its own fill, so this only adds the ink frame + hard
-   shadow (not the cream/red fill). */
+   logo image carries its own fill, so this only adds the ink frame
+   (not the cream/red fill). */
 html .mapHome {
   position: absolute;
   top: 14px;
@@ -4463,7 +4615,7 @@ html .mapHome {
   height: 46px;
   border: 2px solid #14100c;
   border-radius: 12px;
-  box-shadow: 2px 2px 0 #14100c;
+  box-shadow: none;
   /* Background image so the theme can swap it: yellow mark (light) → red mark
      (dark) to match the red buttons. */
   background: url('/pics/logo.webp') center / cover no-repeat;
@@ -4473,18 +4625,18 @@ html .mapHome {
 }
 html[data-theme="dark"] .mapHome {
   background-image: url('/pics/logo-red.webp');
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
+  box-shadow: none;
 }
 
 /* Hover: a small sticker "peel" lift, no colour flash (hover-capable only). */
 @media (hover: hover) {
   html .mapBurger:hover, html .mapSearchBtn:hover, html .fab:hover, html .mapHome:hover {
     transform: translate(-1px, -1px);
-    box-shadow: 3px 3px 0 #14100c;
+    box-shadow: none;
   }
   html[data-theme="dark"] .mapBurger:hover, html[data-theme="dark"] .mapSearchBtn:hover,
   html[data-theme="dark"] .fab:hover, html[data-theme="dark"] .mapHome:hover {
-    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
+    box-shadow: none;
   }
 }
 
@@ -4522,7 +4674,7 @@ html .fab { right: 14px; }
 }
 
 /* Burger removed from the map (User 2026-06-15) — search is now a standalone
-   sticker (full radius + hard shadow come from the base sticker rule above), so
+   sticker (full radius comes from the base sticker rule above), so
    no segment-fuse override is needed here anymore. */
 
 /* Keep ALL map controls visible while a restaurant detail is open (User
@@ -4552,7 +4704,7 @@ html .fab,
 html .mapHome {
   border: 2px solid #14100c;
   border-radius: 0;
-  box-shadow: 4px 4px 0 #14100c;
+  box-shadow: none;
 }
 html .mapBurger,
 html .fab,
@@ -4581,7 +4733,7 @@ html[data-theme="dark"] .fab,
 html[data-theme="dark"] .mapHome {
   border-color: #f0e8d0;
   border-radius: 0;
-  box-shadow: 4px 4px 0 #f0e8d0;
+  box-shadow: none;
 }
 html[data-theme="dark"] .mapBurger,
 html[data-theme="dark"] .fab,
@@ -4602,7 +4754,7 @@ html[data-theme="dark"] .mapSearchToolbar {
   background: #ef3108;
   color: #fff;
   border: 2px solid #fff;
-  box-shadow: 4px 4px 0 #14100c;
+  box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -4611,7 +4763,7 @@ html[data-theme="dark"] .mapSearchToolbar {
 .galleryLbClose:active,
 .galleryLbArrow:active {
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 #14100c;
+  box-shadow: none;
 }
 .filterChipCaret {
   width: 14px;
@@ -4619,14 +4771,14 @@ html[data-theme="dark"] .mapSearchToolbar {
   padding: 2px;
   background: #ffd079;
   border: 1px solid #14100c;
-  box-shadow: 1px 1px 0 #14100c;
+  box-shadow: none;
   opacity: 1;
 }
 .panelToggle {
   border-radius: 0;
   background: #ffd079;
   color: #14100c;
-  box-shadow: -4px 4px 0 #14100c;
+  box-shadow: none;
 }
 
 /* Map restaurant photo gallery — tabletop print stack */
@@ -4703,7 +4855,7 @@ html[data-theme="dark"] .mapSearchToolbar {
   background: #ffd079;
   color: #14100c;
   border: 2px solid #14100c;
-  box-shadow: 3px 3px 0 #14100c;
+  box-shadow: none;
   font-family: var(--font-chewy);
   font-size: 15px;
   text-shadow: none;
@@ -4728,7 +4880,7 @@ html[data-theme="dark"] .mapSearchToolbar {
 html[data-theme="dark"] .galleryLbClose,
 html[data-theme="dark"] .galleryLbArrow {
   border-color: #f0e8d0;
-  box-shadow: 4px 4px 0 #f0e8d0;
+  box-shadow: none;
 }
 
 /* Home-collage map icons — independent paper cut-outs with varied shapes. */
@@ -5411,7 +5563,7 @@ html[data-theme="dark"] .fab {
   color: var(--brand-ink);
   border: 1.5px solid var(--brand-ink);
   border-radius: var(--radius-sm, 4px);
-  box-shadow: 3px 3px 0 var(--brand-ink);
+  box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -5422,7 +5574,7 @@ html[data-theme="dark"] .fab {
   background: var(--brand-ink);
   color: var(--brand-paper);
   border-color: var(--brand-paper);
-  box-shadow: 3px 3px 0 var(--brand-action);
+  box-shadow: none;
 }
 
 html .mapSearchIcon,
@@ -5447,7 +5599,7 @@ html[data-theme="dark"] .mapSearchInput::placeholder {
     color: var(--brand-paper);
     border-color: var(--brand-ink);
     transform: translate(-1px, -1px);
-    box-shadow: 4px 4px 0 var(--brand-ink);
+    box-shadow: none;
   }
 }
 
@@ -5458,7 +5610,7 @@ html[data-theme="dark"] .fab:active {
   background: var(--brand-action-deep);
   color: var(--brand-paper);
   transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0 var(--brand-ink);
+  box-shadow: none;
 }
 
 .filterChip,
@@ -5539,7 +5691,7 @@ html[data-theme="dark"] .pickerCloseBtn {
   background: var(--brand-paper);
   color: var(--brand-ink);
   border: 1.5px solid var(--brand-ink);
-  box-shadow: 2px 2px 0 var(--brand-ink);
+  box-shadow: none;
 }
 
 .detailV13,
@@ -5579,7 +5731,7 @@ html[data-theme="dark"] .btn {
   color: var(--brand-ink);
   border: 1.5px solid var(--brand-ink);
   border-radius: var(--radius-sm, 4px);
-  box-shadow: 3px 3px 0 var(--brand-ink);
+  box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -5589,7 +5741,7 @@ html[data-theme="dark"] .btn {
   background: var(--brand-ink);
   color: var(--brand-paper);
   border-color: var(--brand-paper);
-  box-shadow: 3px 3px 0 var(--brand-action);
+  box-shadow: none;
 }
 
 .detailInSheet .detailActions .btn:hover,
@@ -5600,7 +5752,7 @@ html[data-theme="dark"] .btn {
   color: var(--brand-paper);
   border-color: var(--brand-ink);
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--brand-ink);
+  box-shadow: none;
 }
 
 .boosterOffer,
@@ -5610,7 +5762,7 @@ html[data-theme="dark"] .boosterOfferList {
   color: var(--brand-paper);
   border: 2px solid var(--brand-ink);
   border-radius: var(--radius-sm, 4px);
-  box-shadow: 5px 5px 0 var(--brand-ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12);
 }
 
 .boosterOffer::before,
@@ -5934,28 +6086,69 @@ html[data-theme="dark"] .rdActPrimary {
   border-color: var(--brand-paper);
 }
 
+html .rdTipp,
+html[data-theme="dark"] .rdTipp {
+  margin: 10px 18px 24px;
+  padding: 17px 18px 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .72), rgba(255, 255, 255, .32)),
+    #fff7e3;
+  color: var(--brand-ink);
+  border: 1px solid rgba(20, 16, 12, .16);
+  border-radius: 10px;
+  box-shadow:
+    0 14px 30px rgba(20, 16, 12, .08),
+    inset 0 1px 0 rgba(255, 255, 255, .66);
+  transform: none;
+}
+
+html .rdTippLabel,
+html[data-theme="dark"] .rdTippLabel {
+  color: var(--brand-action);
+  font-family: var(--font-label, var(--font-poster)), var(--font-display), sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: .11em;
+}
+
+html .rdTippText,
+html[data-theme="dark"] .rdTippText {
+  margin: 0;
+  color: var(--brand-ink);
+  font-size: 15px;
+  line-height: 1.54;
+}
+
+html[data-theme="dark"] .rdTipp {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .64), rgba(255, 255, 255, .22)),
+    #f0e8d0;
+  border-color: rgba(240, 232, 208, .72);
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, .24),
+    inset 0 1px 0 rgba(255, 255, 255, .72);
+}
+
 html .packPromo,
 html[data-theme="dark"] .packPromo {
   margin: 8px 14px 28px;
   padding: 18px 15px 16px;
   grid-template-columns: 62px minmax(0, 1fr);
   column-gap: 15px;
-  background: var(--brand-ink);
-  color: var(--brand-paper);
-  border: 1.5px solid var(--brand-ink);
-  border-radius: var(--radius-sm, 4px);
-  box-shadow: none !important;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .72), rgba(255, 255, 255, .28)),
+    #f0e8d0;
+  color: var(--brand-ink);
+  border: 1px solid rgba(20, 16, 12, .18);
+  border-radius: 10px;
+  box-shadow:
+    0 16px 34px rgba(20, 16, 12, .1),
+    inset 0 1px 0 rgba(255, 255, 255, .7) !important;
   filter: none !important;
 }
 
 html .packPromo::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background: var(--brand-action);
+  content: none;
 }
 
 html .packPromoCardWrap {
@@ -5985,7 +6178,7 @@ html[data-theme="dark"] .packPromoTitle {
 html .packPromoBody,
 html[data-theme="dark"] .packPromoBody {
   max-width: 31ch;
-  color: color-mix(in srgb, var(--brand-paper) 80%, transparent);
+  color: rgba(20, 16, 12, .74);
   font-size: 13px;
   font-weight: 750;
   line-height: 1.36;
@@ -5997,9 +6190,9 @@ html .packPromoActions {
 
 html .btnPackPromo,
 html[data-theme="dark"] .btnPackPromo {
-  background: var(--brand-paper);
-  color: var(--brand-ink);
-  border: 1.5px solid var(--brand-paper);
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border: 1.5px solid var(--brand-action);
   border-radius: var(--radius-sm, 4px);
   box-shadow: none !important;
   filter: none !important;
@@ -6014,9 +6207,9 @@ html[data-theme="dark"] .btnPackPromo {
 html .btnPackPromo:hover,
 html[data-theme="dark"] .btnPackPromo:hover {
   transform: translateY(-1px);
-  background: var(--brand-action);
+  background: var(--brand-ink);
   color: var(--brand-paper);
-  border-color: var(--brand-action);
+  border-color: var(--brand-ink);
   box-shadow: none !important;
 }
 
@@ -6034,7 +6227,7 @@ html .btnPackPromoIcon {
 
 html .linkPromo,
 html[data-theme="dark"] .linkPromo {
-  color: color-mix(in srgb, var(--brand-paper) 78%, transparent);
+  color: rgba(20, 16, 12, .66);
   border-bottom: 0;
   text-decoration: none;
   font-size: 11.5px;
@@ -6048,18 +6241,23 @@ html[data-theme="dark"] .linkPromo:hover {
 }
 
 html[data-theme="dark"] .packPromo {
-  background: var(--brand-ink);
-  color: var(--brand-paper);
-  border-color: color-mix(in srgb, var(--brand-paper) 70%, transparent);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .68), rgba(255, 255, 255, .24)),
+    #f0e8d0;
+  color: var(--brand-ink);
+  border-color: rgba(240, 232, 208, .72);
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, .28),
+    inset 0 1px 0 rgba(255, 255, 255, .7) !important;
 }
 
 html[data-theme="dark"] .packPromoBody,
 html[data-theme="dark"] .linkPromo {
-  color: color-mix(in srgb, var(--brand-paper) 78%, transparent);
+  color: rgba(20, 16, 12, .66);
 }
 
 html[data-theme="dark"] .btnPackPromo {
-  border-color: var(--brand-paper);
+  border-color: var(--brand-action);
 }
 
 @media (max-width: 380px) {
@@ -6557,9 +6755,69 @@ html[data-theme="dark"] .filterChipOpenActive {
     right: 14px !important;
   }
 
-  html .rdRowHours {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 8px;
+  html .filterChipRow {
+    grid-template-columns: minmax(74px, .95fr) minmax(62px, .78fr) minmax(58px, .72fr) minmax(98px, 1.25fr);
+  }
+
+  html .filterChipRow .filterChipLabel {
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
+html .filterChipWrap:has(.filterChipReset) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 16px;
+  align-items: stretch;
+  column-gap: 0;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(239, 53, 40, .96), rgba(185, 40, 32, .9)),
+    var(--brand-action);
+}
+
+html .filterChipWrap:has(.filterChipReset) .filterChip {
+  width: 100%;
+  min-width: 0;
+  padding-left: 6px;
+  padding-right: 2px;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+html .filterChipWrap:has(.filterChipReset) .filterChipLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html .filterChipWrap:has(.filterChipReset) .filterChipReset {
+  width: 16px;
+  min-width: 16px;
+  margin-left: 0;
+  color: var(--brand-paper) !important;
+  border-top-right-radius: 8px !important;
+  border-bottom-right-radius: 8px !important;
+}
+
+html .filterChipWrap:has(.filterChipReset) .filterChipReset svg {
+  width: 8px;
+  height: 8px;
+}
+
+@media (max-width: 1023px) {
+  html .filterChipRow {
+    gap: 4px;
+    padding-inline: 12px;
+  }
+}
+
+@media (min-width: 1024px) {
+  html .filterChipRow {
+    gap: 4px;
   }
 }
 

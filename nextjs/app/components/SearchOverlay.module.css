@@ -387,3 +387,25 @@
 :global(html[data-active-page="map"][data-theme="dark"]) .input::placeholder {
   color: rgba(20, 16, 12, .45);
 }
+:global(html[data-active-page="map"]) .hint,
+:global(html[data-active-page="map"][data-theme="dark"]) .hint,
+:global(html[data-active-page="map"]) .loadingRow,
+:global(html[data-active-page="map"][data-theme="dark"]) .loadingRow,
+:global(html[data-active-page="map"]) .meta,
+:global(html[data-active-page="map"][data-theme="dark"]) .meta {
+  color: rgba(20, 16, 12, .56);
+}
+:global(html[data-active-page="map"]) .title,
+:global(html[data-active-page="map"][data-theme="dark"]) .title,
+:global(html[data-active-page="map"]) .closeBtn,
+:global(html[data-active-page="map"][data-theme="dark"]) .closeBtn,
+:global(html[data-active-page="map"]) .chevron,
+:global(html[data-active-page="map"][data-theme="dark"]) .chevron {
+  color: #14100c;
+}
+:global(html[data-active-page="map"]) .closeBtn,
+:global(html[data-active-page="map"][data-theme="dark"]) .closeBtn,
+:global(html[data-active-page="map"]) .chevron,
+:global(html[data-active-page="map"][data-theme="dark"]) .chevron {
+  background: #fff;
+}

@@ -310,18 +310,18 @@ html[data-theme="dark"] .featCta {
 }
 
 /* ── Pull-quote — already dark panel, only flip yellow accents to red ── */
-html[data-theme="dark"] .pullquote {
+html[data-theme="dark"] .page .pullquote {
   background: #1d1c19;
   color: #f0e8d0;
 }
-html[data-theme="dark"] .pullquote::before {
+html[data-theme="dark"] .page .pullquote::before {
   color: var(--c-coral-bright);
 }
-html[data-theme="dark"] .pqText {
+html[data-theme="dark"] .page .pqText {
   color: #f0e8d0;
 }
-html[data-theme="dark"] .pqAttr {
-  color: var(--c-coral-bright);
+html[data-theme="dark"] .page .pqAttr {
+  color: rgba(240, 232, 208, 0.78);
 }
 
 /* ── "Bald auf dem Teller" ── */

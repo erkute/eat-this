@@ -194,5 +194,11 @@
 }
 
 html[data-theme="dark"] .hero {
-  background: var(--et-black, #100d0f);
+  background: #171a17;
+}
+html[data-theme="dark"] .headline {
+  color: #f1f1ec;
+}
+html[data-theme="dark"] .kicker {
+  color: #000;
 }

@@ -35,6 +35,13 @@ html[data-theme="dark"] .btnActive {
   background: #fff;
   border-color: var(--ink);
 }
+html[data-theme="dark"] .btn {
+  background: var(--brand-paper, #f1f1ec);
+  color: var(--brand-ink, #171a17);
+}
+html[data-theme="dark"] .btnActive {
+  color: var(--brand-action, #ef3528);
+}
 
 .btn {
   border: 0;

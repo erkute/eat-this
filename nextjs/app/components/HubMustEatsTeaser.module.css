@@ -72,10 +72,9 @@
   object-fit: contain;
   object-position: center;
   border-radius: 11px;
-  filter: drop-shadow(10px 16px 16px rgba(70, 23, 16, .24));
+  filter: none;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  transition: filter .22s cubic-bezier(.2, .8, .2, 1);
 }
 .cardLink:hover .cutoutFrame,
 .cardLink:focus-visible .cutoutFrame {
@@ -87,7 +86,7 @@
 }
 .cardLink:hover .card,
 .cardLink:focus-visible .card {
-  filter: drop-shadow(12px 20px 18px rgba(70, 23, 16, .3));
+  filter: none;
 }
 .meta {
   display: grid;
@@ -167,8 +166,8 @@ html[data-theme="dark"] .cta {
   border-color: var(--et-red-hot, #f03608);
 }
 
-/* iOS Safari can render alpha WebP drop-shadows as a rectangular tile while
-   the cut-out card is transformed. Drop the filter only on touch WebKit. */
+/* Freigestellte Must-Eat WebPs stay shadowless: browser-composited
+   drop-shadows can render as rectangular tiles around the alpha bounds. */
 @supports (-webkit-touch-callout: none) {
   @media (pointer: coarse) {
     .card,

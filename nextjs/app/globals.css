@@ -413,9 +413,9 @@ html[data-theme="dark"][data-active-page="home"],
 html[data-theme="dark"][data-active-page="start"],
 html[data-theme="dark"][data-active-page="home"] body,
 html[data-theme="dark"][data-active-page="start"] body {
-  --food-ink: #171A17;
-  --food-paper: #F1F1EC;
-  --food-cream: #F1F1EC;
+  --food-ink: #F1F1EC;
+  --food-paper: #171A17;
+  --food-cream: #211b17;
   --food-butter: #ffc54d;
   --food-tomato: var(--et-poster-red);
   --food-tomato-dark: #B92820;
@@ -427,9 +427,9 @@ html[data-theme="dark"][data-active-page="start"] body {
   --et-red-deep: var(--food-tomato-dark);
   --et-yellow: var(--food-cream);
   --et-yellow-bright: var(--food-butter);
-  --et-cream: var(--food-paper);
-  --et-black: var(--food-ink);
-  --et-dark-card: #F1F1EC;
+  --et-cream: var(--food-ink);
+  --et-black: var(--food-paper);
+  --et-dark-card: #211b17;
   --surface-bg: var(--food-paper);
   --surface-canvas: var(--food-paper);
   --surface-paper: var(--food-cream);
@@ -449,7 +449,7 @@ html[data-theme="dark"][data-active-page="start"] body {
 
   background-color: var(--food-paper);
   background-image: none;
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 /* Hub wrapper surface. The section stack has intentional gaps between some
@@ -469,7 +469,8 @@ html[data-theme="dark"][data-active-page="start"] body {
   --collage-paper: var(--food-paper);
   --collage-ink: var(--food-ink);
   background-color: var(--food-paper);
-  color-scheme: light;
+  color: var(--food-ink);
+  color-scheme: dark;
 }
 html[data-theme="dark"][data-active-page="home"] [data-hub],
 html[data-theme="dark"][data-active-page="start"] [data-hub] {
@@ -826,6 +827,9 @@ html[data-theme="dark"] .notification[data-tone="error"] {
   --toast-paper: var(--brand-action);
   --toast-ink: var(--brand-paper);
   --toast-shadow: rgba(0, 0, 0, .5);
+}
+html[data-theme="dark"] .notification[data-tone="info"] {
+  --toast-accent: var(--brand-action);
 }
 html[data-theme="dark"] .notification-detail {
   color: rgba(241, 241, 236, .78);

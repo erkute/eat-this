@@ -1,6 +1,6 @@
 'use client'
 import { useCallback } from 'react'
-import type { MouseEvent, Ref, RefObject } from 'react'
+import type { Ref, RefObject } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types'
 import type { CategoryDef } from '@/lib/categories'
@@ -12,7 +12,7 @@ import type {
 } from '@/lib/map'
 
 import dynamic from 'next/dynamic'
-import { Link, useRouter } from '@/i18n/navigation'
+import { Link } from '@/i18n/navigation'
 import RestaurantList from './RestaurantList'
 import MapSheetDetail from './MapSheetDetail'
 import MapListHeader from './MapListHeader'
@@ -118,7 +118,6 @@ export type MapSectionBodyProps =
   & MapBodyAria
 
 export default function MapSectionBody(props: MapSectionBodyProps) {
-  const router = useRouter()
   const {
     isActive,
     mapRef, handleRef, setHeaderRef, setContentRef, setSheetRef,
@@ -151,11 +150,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     (r: MapRestaurant) => onRestaurantClick(r, 'map'),
     [onRestaurantClick],
   )
-  const handleHomeClick = useCallback((event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault()
-    document.documentElement.setAttribute('data-active-page', 'start')
-    router.push('/')
-  }, [router])
 
   return (
     <div
@@ -250,7 +244,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               search to the right rail). Uses the square two-line EAT THIS mark
               (same asset family as the favicon) as a sticker so users can
               always get back to the start page. */}
-          <Link href="/" className={styles.mapHome} aria-label="EAT THIS — Start" onClick={handleHomeClick}>
+          <Link href="/" className={styles.mapHome} aria-label="EAT THIS — Start">
             <img className={styles.mapHomeLogo} src="/pics/eat-this-square.webp?v=5" alt="" draggable={false} />
           </Link>
 

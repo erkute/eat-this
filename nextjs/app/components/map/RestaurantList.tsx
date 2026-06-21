@@ -2,6 +2,7 @@
 import { memo, useCallback, useEffect, useRef } from 'react'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
+import { Link } from '@/i18n/navigation'
 import type { MapRestaurant, MapMustEat, OpenStatus } from '@/lib/types'
 import { haversineDistance, formatWalkingTime, getOpenStatus, abbreviateBezirk, resolvePeek, type UserLocation, type UserTier, type Peek } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
@@ -268,10 +269,22 @@ export default function RestaurantList({
       {showBooster && !bezirkLockedOnly && (
         <div className={styles.listEnd}>
           <h3 className={styles.listEndTitle}>{t('map.listEndTitle')}</h3>
+          <div className={styles.listEndFan} aria-hidden="true">
+            <span className={`${styles.listEndPack} ${styles.listEndPackOne}`} />
+            <span className={`${styles.listEndPack} ${styles.listEndPackTwo}`} />
+            <span className={`${styles.listEndPack} ${styles.listEndPackThree}`} />
+            <span className={`${styles.listEndPack} ${styles.listEndPackFour}`} />
+            <span className={`${styles.listEndPack} ${styles.listEndPackFive}`} />
+            <span className={`${styles.listEndPack} ${styles.listEndPackSix}`} />
+          </div>
+          <p className={styles.listEndSub}>{t('map.listEndSub')}</p>
           <button type="button" className={styles.listEndCta} onClick={() => onUpgradeClick()}>
             <span>{t(uid ? 'map.boosterCta' : 'map.starterCta')}</span>
             <svg viewBox="0 0 14 10" width="15" height="11" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M1 5h11M8 1l4 4-4 4" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </button>
+          {uid && (
+            <Link href="/#hub-packs" className={styles.listEndSecondary}>{t('map.boosterSecondary')}</Link>
+          )}
         </div>
       )}
     </>

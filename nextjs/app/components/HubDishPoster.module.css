@@ -117,8 +117,8 @@
   display: grid;
   justify-items: center;
   gap: 2px;
-  width: min(170px, 94%);
-  max-width: min(170px, 92%);
+  width: fit-content;
+  max-width: calc(100vw - 32px);
   margin: -12px auto 0;
   padding: 0;
   color: var(--et-black);
@@ -133,6 +133,7 @@
   font-weight: 400;
   letter-spacing: 0;
   line-height: .86;
+  white-space: nowrap;
   text-transform: uppercase;
 }
 
@@ -413,8 +414,8 @@
     left: auto;
     bottom: auto;
     justify-items: center;
-    width: min(142px, 94%);
-    max-width: 142px;
+    width: fit-content;
+    max-width: calc(100vw - 32px);
     margin: -10px auto 0;
     text-align: center;
     transform: rotate(var(--label-rot, -2deg));

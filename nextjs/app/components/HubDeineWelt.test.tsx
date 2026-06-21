@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import type { ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { NextIntlClientProvider } from 'next-intl'
 import { translations } from '@/lib/i18n/translations'
@@ -17,6 +18,13 @@ vi.mock('@/lib/map', () => ({
   resolveUnlockedMustEatIds: () => new Set<string>(),
 }))
 vi.mock('@/lib/map/UserLocationContext', () => ({ useUserLocationContext: () => ({ location: null }) }))
+vi.mock('@/app/components/MapIntentLink', () => ({
+  default: ({ href, rel, className, children }: { href: string; rel?: string; className?: string; children: ReactNode }) => (
+    <a href={href} rel={rel} className={className}>
+      {children}
+    </a>
+  ),
+}))
 
 import HubDeineWelt from '@/app/components/HubDeineWelt'
 
@@ -24,7 +32,7 @@ const initialMapData = { restaurants: [], mustEats: [], revealedMustEatIds: [] }
 
 function render() {
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale="de" messages={translations.de}>
+    <NextIntlClientProvider locale="de" messages={translations.de} timeZone="Europe/Berlin">
       <HubDeineWelt initialMapData={initialMapData} />
     </NextIntlClientProvider>,
   )
@@ -43,6 +51,8 @@ describe('HubDeineWelt', () => {
     // Deep links into the noindex map/profile routes must carry nofollow —
     // this markup now ships in the indexed SSR HTML of "/".
     expect(html).toContain('rel="nofollow"')
+    expect(html).not.toContain('standort.webp')
+    expect(html).not.toContain('Standort')
   })
 
   it('renders nothing once auth resolves to logged-out', () => {

@@ -238,8 +238,8 @@
 .headerActions {
   display: grid;
   flex: 0 0 auto;
-  width: min(100%, 282px);
-  gap: 6px;
+  width: min(100%, 246px);
+  gap: 8px;
 }
 
 .profileLink {
@@ -247,12 +247,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 10px;
+  gap: 7px;
   width: 100%;
-  min-height: 60px;
-  padding: 8px 12px 9px 8px;
-  border: 1px solid rgba(16, 13, 15, .18);
-  border-radius: 8px;
+  min-height: 56px;
+  padding: 2px 2px 4px 0;
+  border: 0;
+  border-radius: 0;
   font-family: var(--font-poster);
   font-size: clamp(17px, 1.7vw, 22px);
   font-weight: 400;
@@ -260,10 +260,10 @@
   line-height: .86;
   text-transform: uppercase;
   transform: translateY(0);
-  transition: transform .14s ease, box-shadow .14s ease, background-color .14s ease, border-color .14s ease;
+  transition: transform .14s ease, color .14s ease;
   color: var(--et-black, #100d0f);
-  background: rgba(255, 255, 255, .62);
-  box-shadow: 0 6px 14px rgba(92, 50, 19, .07);
+  background: transparent;
+  box-shadow: none;
   text-decoration: none;
 }
 
@@ -271,17 +271,20 @@
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  width: 50px;
-  height: 50px;
+  width: 64px;
+  height: 64px;
   overflow: hidden;
-  background: var(--et-yellow-bright, #f6c84f);
-  border: 1px solid rgba(16, 13, 15, .2);
-  border-radius: 8px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  filter: drop-shadow(0 10px 10px rgba(92, 50, 19, .18));
+  transform: translate(-5px, 2px) rotate(-4deg);
+  transition: transform .16s ease, filter .16s ease;
 }
 
 .profileAvatar img {
-  width: 100%;
-  height: 100%;
+  width: 112%;
+  height: 112%;
   object-fit: contain;
 }
 
@@ -313,41 +316,10 @@
   text-overflow: ellipsis;
 }
 
-.profileCue {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 54px;
-  height: 42px;
-  margin-left: auto;
-}
-
-.profileCue span {
-  position: absolute;
-  width: 24px;
-  aspect-ratio: 1539 / 2115;
-  background: url('/pics/card-back.webp?v=6') center / contain no-repeat;
-  filter: drop-shadow(0 6px 7px rgba(92, 50, 19, .18));
-}
-
-.profileCue span:nth-child(1) {
-  transform: translateX(-13px) rotate(-10deg);
-}
-
-.profileCue span:nth-child(2) {
-  transform: translateY(-2px) rotate(2deg);
-}
-
-.profileCue span:nth-child(3) {
-  transform: translateX(13px) rotate(11deg);
-}
-
 .locationControl {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 48px;
-  gap: 10px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
   align-items: center;
 }
 
@@ -356,7 +328,6 @@
   min-width: 0;
 }
 
-.locateBtn,
 .districtSelect {
   min-width: 0;
   width: 100%;
@@ -370,42 +341,6 @@
   line-height: .86;
   text-transform: uppercase;
   transition: transform .14s ease, background-color .14s ease, border-color .14s ease, color .14s ease;
-}
-
-.locateBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  min-height: 48px;
-  padding: 0;
-  color: var(--et-black, #100d0f);
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  cursor: pointer;
-}
-
-.locateIcon {
-  display: block;
-  width: 42px;
-  height: 42px;
-  object-fit: contain;
-  transform: translateY(0);
-}
-
-.locateText {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  white-space: nowrap;
-  border: 0;
-  clip: rect(0, 0, 0, 0);
-  clip-path: inset(50%);
 }
 
 .districtSelect {
@@ -479,20 +414,22 @@
   white-space: nowrap;
 }
 
-.profileLink:hover {
+.profileLink:hover,
+.profileLink:focus-visible {
   transform: translateX(-4px);
 }
 
-.profileLink:hover {
-  color: var(--et-cream, #f2dfb8);
-  background: var(--et-black, #100d0f);
-  border-color: var(--et-black, #100d0f);
+.profileLink:hover,
+.profileLink:focus-visible {
+  color: var(--et-red, #e43d18);
+  background: transparent;
+  box-shadow: none;
 }
 
-.locateBtn:hover:not(:disabled) {
-  color: var(--et-black, #100d0f);
-  background: transparent;
-  transform: translateY(-2px) scale(1.06);
+.profileLink:hover .profileAvatar,
+.profileLink:focus-visible .profileAvatar {
+  filter: drop-shadow(0 14px 13px rgba(92, 50, 19, .24));
+  transform: translate(-8px, 0) rotate(-8deg) scale(1.04);
 }
 
 .districtSelect:hover {
@@ -506,17 +443,8 @@
   transform: translateX(-2px);
 }
 
-.locateBtn:active:not(:disabled) {
-  transform: translateY(0);
-}
-
 .districtSelect:active {
   transform: translateX(-2px);
-}
-
-.locateBtn:disabled {
-  cursor: progress;
-  opacity: .7;
 }
 
 .nearCards {
@@ -697,21 +625,11 @@
     font-size: clamp(17px, 5.8vw, 22px);
   }
 
-  .profileCue {
-    width: 48px;
-    height: 38px;
-  }
-
-  .profileCue span {
-    width: 21px;
-  }
-
   .profileAvatar {
-    width: 46px;
-    height: 46px;
+    width: 58px;
+    height: 58px;
   }
 
-  .locateBtn,
   .districtSelect {
     min-height: 38px;
     font-size: clamp(17px, 5.8vw, 22px);
@@ -724,16 +642,6 @@
   .nearCards {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 6px;
-  }
-
-  .locateBtn {
-    width: 46px;
-    min-height: 46px;
-  }
-
-  .locateIcon {
-    width: 40px;
-    height: 40px;
   }
 
   .foodCardImage,
@@ -788,7 +696,7 @@ html[data-theme="dark"] .panel {
 
 html[data-theme="dark"] .profileLink {
   color: var(--et-black, #100d0f);
-  background: rgba(255, 255, 255, .62);
+  background: transparent;
 }
 
 html[data-theme="dark"] .insightBar span {
@@ -801,18 +709,9 @@ html[data-theme="dark"] .insightBar strong {
   color: var(--et-red-hot, #f03608);
 }
 
-html[data-theme="dark"] .profileLink:hover {
-  color: var(--et-cream, #f2dfb8);
-  background: var(--et-black, #100d0f);
-}
-
-html[data-theme="dark"] .locateBtn {
-  color: var(--et-black, #100d0f);
-  background: transparent;
-}
-
-html[data-theme="dark"] .locateBtn:hover:not(:disabled) {
-  color: var(--et-black, #100d0f);
+html[data-theme="dark"] .profileLink:hover,
+html[data-theme="dark"] .profileLink:focus-visible {
+  color: var(--et-red-hot, #f03608);
   background: transparent;
 }
 

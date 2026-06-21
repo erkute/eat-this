@@ -29,7 +29,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   const { profile } = useUserProfile(uid)
   const { restaurants, mustEats, revealedMustEatIds } = useMapData({ uid, authLoading: loading, initialMapData })
   const { unlockedIds } = useUnlockedMustEats(uid)
-  const { location, loading: locating, request } = useUserLocationContext()
+  const { location } = useUserLocationContext()
 
   // The live face-up set depends on the per-uid localStorage cache + the live
   // /api/map-data payload, so it's client-only — until mount, fall back to the
@@ -171,7 +171,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
             </div>
           </div>
           <div className={styles.headerActions}>
-            <Link href="/profile" rel="nofollow" className={`${styles.profileLink} homeCta homeCtaFull`}>
+            <Link href="/profile" rel="nofollow" className={styles.profileLink}>
               <span className={styles.profileAvatar} aria-hidden="true">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={`/pics/avatar/${avatarIdx}.webp`} alt="" />
@@ -179,11 +179,6 @@ export default function HubDeineWelt({ initialMapData }: Props) {
               <span className={styles.profileText}>
                 <span className={styles.actionLabel}>{firstName || t('profileAction')}</span>
                 {firstName && <small>{t('profileAction')}</small>}
-              </span>
-              <span className={styles.profileCue} aria-hidden="true">
-                <span />
-                <span />
-                <span />
               </span>
             </Link>
             <div className={styles.locationControl}>
@@ -229,22 +224,6 @@ export default function HubDeineWelt({ initialMapData }: Props) {
                   </div>
                 )}
               </div>
-              <button
-                type="button"
-                className={styles.locateBtn}
-                onClick={() => {
-                  setSelectedDistrict('')
-                  setDistrictOpen(false)
-                  request()
-                }}
-                disabled={locating}
-                aria-label={locating ? t('districtLocating') : t('districtUseLocation')}
-                title={locating ? t('districtLocating') : t('districtUseLocation')}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className={styles.locateIcon} src="/pics/icons/standort.webp" alt="" width="256" height="256" aria-hidden="true" />
-                <span className={styles.locateText}>{locating ? t('districtLocating') : t('districtUseLocationShort')}</span>
-              </button>
             </div>
           </div>
         </header>

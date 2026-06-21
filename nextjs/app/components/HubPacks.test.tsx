@@ -25,7 +25,9 @@ describe('HubPacks', () => {
     const html = render()
     expect(html).toContain('Booster Packs')
     expect(html).toContain('Welcome Pack')
+    expect(html).toContain('Booster Pack')
     expect(html).toContain('Frühstück')
+    expect(html).not.toContain('Pack · Frühstück')
   })
   it('marks the gift pack with the data-signup-gift hook (pre-paint hide for signed-in)', () => {
     // globals.css hides [data-signup-gift] under html[data-auth="1"] (set by

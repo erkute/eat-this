@@ -31,7 +31,7 @@ export default function ProfilePacks({ uid }: { uid: string }) {
       {onlyWelcome && (
         <div className={styles.packHint}>
           <p className={styles.packLine}>{t('packsLine')}</p>
-          <Link href="/#hub-packs" className={styles.packCta}>{t('packsCta')}</Link>
+          <Link href="/#hub-allberlin" className={styles.packCta}>{t('packsCta')}</Link>
         </div>
       )}
     </>

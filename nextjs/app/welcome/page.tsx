@@ -268,7 +268,7 @@ function IdentityForm({ user }: { user: User }) {
             >
               <span className={styles.avatarPh}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/pics/avatar/${id}.webp`} alt="" />
+                <img src={`/pics/avatar/${id}.webp?v=2`} alt="" />
               </span>
               <span className={styles.avatarName}>{label}</span>
             </button>

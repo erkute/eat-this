@@ -1,22 +1,16 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/lib/auth'
 import { defaultAvatarFromUid, useUserProfile } from '@/lib/firebase/useUserProfile'
 import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map'
-import { useUserLocationContext } from '@/lib/map/UserLocationContext'
-import { haversineDistance, formatWalkingTime } from '@/lib/map/distance'
-import { nearestRestaurants, nearbyMustEats } from '@/lib/home/nearby'
 import { normalizeName } from '@/lib/normalizeName'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import MapIntentLink from './MapIntentLink'
 import styles from './HubDeineWelt.module.css'
-
-const MITTE = { lat: 52.52, lng: 13.405 }
-const CARD_BACK = '/pics/card-back.webp?v=6'
 
 interface Props {
   initialMapData: InitialMapData
@@ -29,7 +23,6 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   const { profile } = useUserProfile(uid)
   const { restaurants, mustEats, revealedMustEatIds } = useMapData({ uid, authLoading: loading, initialMapData })
   const { unlockedIds } = useUnlockedMustEats(uid)
-  const { location } = useUserLocationContext()
 
   // The live face-up set depends on the per-uid localStorage cache + the live
   // /api/map-data payload, so it's client-only — until mount, fall back to the
@@ -69,15 +62,6 @@ export default function HubDeineWelt({ initialMapData }: Props) {
     () => Array.from(new Set(dataRestaurants.map((r) => r.district).filter((d): d is string => Boolean(d)))).sort((a, b) => a.localeCompare(b, 'de')),
     [dataRestaurants],
   )
-  const selectedDistrictCenter = useMemo(() => {
-    if (!selectedDistrict) return null
-    const inDistrict = dataRestaurants.filter((r) => r.district === selectedDistrict && Number.isFinite(r.lat) && Number.isFinite(r.lng))
-    if (inDistrict.length === 0) return null
-    return {
-      lat: inDistrict.reduce((sum, r) => sum + r.lat, 0) / inDistrict.length,
-      lng: inDistrict.reduce((sum, r) => sum + r.lng, 0) / inDistrict.length,
-    }
-  }, [dataRestaurants, selectedDistrict])
 
   const firstName = user
     ? (user.displayName ?? '').split(' ')[0] || (user.email ?? '').split('@')[0] || null
@@ -111,179 +95,135 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   // ids from other datasets — they're inert but shouldn't inflate the count).
   const mustEatIdSet = new Set(dataMustEats.map((m) => m._id))
   const collected = [...faceUp].filter((id) => mustEatIdSet.has(id)).length
-  const totalMustEats = dataMustEats.length
-  const hiddenCount = Math.max(totalMustEats - collected, 0)
   const avatarIdx = user ? (profile.avatar ?? defaultAvatarFromUid(user.uid)) : 1
-  const loc = selectedDistrictCenter ?? (mounted && location ? location : MITTE)
-  const openedCards = dataMustEats
-    .filter((m) => faceUp.has(m._id) && m.image)
-    .slice(0, 3)
-  const hiddenNearby = nearbyMustEats(
-    dataMustEats.filter((m) => !faceUp.has(m._id)),
-    loc,
-    4200,
-    3,
-  )
-  const restaurantNearby = nearestRestaurants(dataRestaurants, loc, 3)
-  const nearbyLabel = selectedDistrict || (mounted && location ? t('nearbyLive') : t('nearbyFallback'))
-  const cardSlots: Array<{ key: string; src?: string; label: string; href: string; meta?: string }> = openedCards.map((m) => ({
-    key: m._id,
-    src: m.image,
-    label: normalizeName(m.dish ?? t('cardFallback')),
-    href: `/map?me=${m._id}`,
-    meta: normalizeName(m.restaurant.name),
-  }))
-  for (const m of hiddenNearby) {
-    if (cardSlots.length >= 3) break
-    cardSlots.push({
-      key: m._id,
-      label: normalizeName(m.restaurant.name),
-      href: `/map?me=${m._id}`,
-    })
-  }
-  while (cardSlots.length < 3) {
-    cardSlots.push({
-      key: `locked-${cardSlots.length}`,
-      label: t('lockedCardLabel'),
-      href: '/map',
-    })
-  }
+  const districtRestaurants = selectedDistrict
+    ? dataRestaurants.filter((r) => r.district === selectedDistrict || r.bezirk?.name === selectedDistrict)
+    : dataRestaurants
+  const restaurantPool = districtRestaurants.length ? districtRestaurants : dataRestaurants
+  const spotPick =
+    restaurantPool.find((r) => !r.isClosed && r.photo && r.mustEatCount > 0) ??
+    restaurantPool.find((r) => !r.isClosed && r.photo) ??
+    restaurantPool.find((r) => !r.isClosed) ??
+    restaurantPool[0] ??
+    null
+  const districtMustEats = selectedDistrict
+    ? dataMustEats.filter((m) => m.restaurant.district === selectedDistrict)
+    : dataMustEats
+  const mustEatPool = districtMustEats.length ? districtMustEats : dataMustEats
+  const mustEatPick =
+    mustEatPool.find((m) => faceUp.has(m._id) && m.image) ??
+    mustEatPool.find((m) => !faceUp.has(m._id)) ??
+    mustEatPool[0] ??
+    null
+  const mustEatOpen = Boolean(mustEatPick && faceUp.has(mustEatPick._id) && mustEatPick.image)
+  const spotMeta =
+    spotPick
+      ? [spotPick.district ?? spotPick.bezirk?.name, spotPick.cuisineType ?? spotPick.categories?.[0]?.name]
+        .filter(Boolean)
+        .join(' · ') || t('spotPickFallbackMeta')
+      : t('spotPickFallbackMeta')
+  const mustEatTitle = mustEatPick
+    ? normalizeName(mustEatOpen ? mustEatPick.dish ?? t('cardFallback') : t('mustPickLockedTitle'))
+    : t('mustPickLockedTitle')
+  const mustEatMeta = mustEatPick ? normalizeName(mustEatPick.restaurant.name) : t('mustPickFallbackMeta')
+  const mustEatHref = mustEatPick ? (mustEatOpen ? `/map?me=${mustEatPick._id}` : `/map?r=${mustEatPick.restaurant.slug}`) : '/map'
 
   return (
     <section className={styles.section} data-hub-deinewelt="" data-auth-only="">
       <div className={styles.inner}>
-        <header className={styles.copy}>
-          <div className={styles.introCopy}>
-            <p className={styles.kicker}>{firstName ? t('helloName', { name: firstName }) : t('hello')}</p>
-            <h2 className={styles.title}>
-              {t.rich('today', { em: (chunks) => <span>{chunks}</span> })}
-            </h2>
-          </div>
-          <div className={styles.headerActions}>
+        <div className={styles.copy}>
+          <p className={styles.kicker}>{firstName ? t('dockHelloName', { name: firstName }) : t('dockHello')}</p>
+          <h2 className={styles.title}>{t('dockQuestion')}</h2>
+          <p className={styles.progress}>
+            {t('dockProgress', { count: collected, spots: dataRestaurants.length })}
+          </p>
+
+          <div className={styles.actionRow} aria-label={t('actionsLabel')}>
+            <MapIntentLink href="/map" rel="nofollow" className={styles.primaryAction}>
+              {t('mapAction')}
+            </MapIntentLink>
             <Link href="/profile" rel="nofollow" className={styles.profileLink}>
               <span className={styles.profileAvatar} aria-hidden="true">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/pics/avatar/${avatarIdx}.webp`} alt="" />
+                <img src={`/pics/avatar/${avatarIdx}.webp?v=2`} alt="" />
               </span>
-              <span className={styles.profileText}>
-                <span className={styles.actionLabel}>{firstName || t('profileAction')}</span>
-                {firstName && <small>{t('profileAction')}</small>}
-              </span>
+              <span className={styles.actionLabel}>{t('profileAction')}</span>
             </Link>
-            <div className={styles.locationControl}>
-              <div className={styles.districtPicker} ref={districtMenuRef}>
-                <button
-                  type="button"
-                  className={`${styles.districtSelect} homeCta homeCtaFull`}
-                  aria-haspopup="listbox"
-                  aria-expanded={districtOpen}
-                  onClick={() => setDistrictOpen((open) => !open)}
-                >
-                  <span className={styles.actionLabel}>{selectedDistrict || t('districtTitle')}</span>
-                </button>
-                {districtOpen && (
-                  <div className={styles.districtMenu} role="listbox" aria-label={t('districtTitle')}>
+            <div className={styles.districtPicker} ref={districtMenuRef}>
+              <button
+                type="button"
+                className={styles.districtSelect}
+                aria-haspopup="listbox"
+                aria-expanded={districtOpen}
+                onClick={() => setDistrictOpen((open) => !open)}
+              >
+                <span className={styles.actionLabel}>{selectedDistrict || t('districtTitle')}</span>
+              </button>
+              {districtOpen && (
+                <div className={styles.districtMenu} role="listbox" aria-label={t('districtTitle')}>
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={!selectedDistrict}
+                    className={styles.districtOption}
+                    onClick={() => {
+                      setSelectedDistrict('')
+                      setDistrictOpen(false)
+                    }}
+                  >
+                    {t('districtTitle')}
+                  </button>
+                  {districtOptions.map((district) => (
                     <button
+                      key={district}
                       type="button"
                       role="option"
-                      aria-selected={!selectedDistrict}
+                      aria-selected={selectedDistrict === district}
                       className={styles.districtOption}
                       onClick={() => {
-                        setSelectedDistrict('')
+                        setSelectedDistrict(district)
                         setDistrictOpen(false)
                       }}
                     >
-                      {t('districtTitle')}
+                      {district}
                     </button>
-                    {districtOptions.map((district) => (
-                      <button
-                        key={district}
-                        type="button"
-                        role="option"
-                        aria-selected={selectedDistrict === district}
-                        className={styles.districtOption}
-                        onClick={() => {
-                          setSelectedDistrict(district)
-                          setDistrictOpen(false)
-                        }}
-                      >
-                        {district}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-        </header>
+        </div>
 
-        <div className={styles.board}>
-          <section className={`${styles.panel} ${styles.cardsPanel}`} aria-label={t('cardsTitle')}>
-            <div className={styles.panelHead}>
-              <p>{t('cardsKicker')}</p>
-              <h3>{t('cardsTitle')}</h3>
-            </div>
-            <ul className={styles.cardFan} role="list">
-              {cardSlots.map((card, index) => (
-                <li key={card.key} style={{ '--tilt': `${index === 1 ? 1.5 : index === 2 ? 7 : -6}deg` } as CSSProperties}>
-                  <MapIntentLink href={card.href} rel="nofollow" className={styles.foodCard}>
-                    <span className={styles.foodCardImage} data-locked={card.src ? 'false' : 'true'}>
-                      {card.src ? (
-                        <Image src={card.src} alt="" fill sizes="150px" className={styles.foodCardImg} />
-                      ) : (
-                        <span style={{ backgroundImage: `url(${CARD_BACK})` }} />
-                      )}
-                    </span>
-                    <strong>{card.label}</strong>
-                    {card.meta && <small>{card.meta}</small>}
-                  </MapIntentLink>
-                </li>
-              ))}
-            </ul>
-          </section>
+        <div className={styles.recommendations} aria-label={t('recommendationsLabel')}>
+          <MapIntentLink href={spotPick ? `/map?r=${spotPick.slug}` : '/map'} rel="nofollow" className={`${styles.pickCard} ${styles.spotPick}`}>
+            <span className={styles.pickKicker}>{t('spotPickKicker')}</span>
+            <span className={styles.spotPhoto} data-empty={spotPick?.photo ? 'false' : 'true'}>
+              {spotPick?.photo ? (
+                <Image src={spotPick.photo} alt="" fill sizes="(min-width: 900px) 360px, 92vw" className={styles.spotImg} />
+              ) : null}
+            </span>
+            <span className={styles.pickBody}>
+              <strong className={styles.pickTitle}>{spotPick ? normalizeName(spotPick.name) : t('spotPickFallbackTitle')}</strong>
+              <span className={styles.pickMeta}>{spotMeta}</span>
+              <span className={styles.pickCta}>{t('openSpot')}</span>
+            </span>
+          </MapIntentLink>
 
-          <section className={`${styles.panel} ${styles.nearbyPanel}`} aria-label={t('nearMustEatsTitle')}>
-            <div className={styles.panelHead}>
-              <p>{nearbyLabel}</p>
-              <h3>{t('nearMustEatsTitle')}</h3>
-            </div>
-            <ul className={styles.nearCards} role="list">
-              {hiddenNearby.length > 0 ? hiddenNearby.map((m) => (
-                <li key={m._id}>
-                  <MapIntentLink href={`/map?me=${m._id}`} rel="nofollow" className={styles.lockedCard}>
-                    <span style={{ backgroundImage: `url(${CARD_BACK})` }} aria-hidden="true" />
-                    <strong>{normalizeName(m.restaurant.name)}</strong>
-                  </MapIntentLink>
-                </li>
-              )) : (
-                <li className={styles.empty}>{t('nearMustEatsEmpty', { count: hiddenCount })}</li>
+          <MapIntentLink href={mustEatHref} rel="nofollow" className={`${styles.pickCard} ${styles.mustPick}`}>
+            <span className={styles.pickKicker}>{t('mustPickKicker')}</span>
+            <span className={styles.mustArt} data-open={mustEatOpen ? 'true' : 'false'}>
+              {mustEatOpen && mustEatPick?.image ? (
+                <Image src={mustEatPick.image} alt="" fill sizes="160px" className={styles.mustImg} />
+              ) : (
+                <span className={styles.mustHiddenMark} aria-hidden="true" />
               )}
-            </ul>
-          </section>
-
-          <section className={`${styles.panel} ${styles.restaurantsPanel}`} aria-label={t('nearRestaurantsTitle')}>
-            <div className={styles.panelHead}>
-              <p>{nearbyLabel}</p>
-              <h3>{t('nearRestaurantsTitle')}</h3>
-            </div>
-            <ul className={styles.restaurantGrid} role="list">
-              {restaurantNearby.map((r) => {
-                const walk = formatWalkingTime(haversineDistance(loc.lat, loc.lng, r.lat, r.lng))
-                return (
-                  <li key={r._id}>
-                    <MapIntentLink href={`/map?r=${r.slug}`} rel="nofollow" className={styles.restaurantCard}>
-                      <span className={styles.restaurantPhoto}>
-                        {r.photo && <Image src={r.photo} alt="" fill sizes="180px" className={styles.restaurantImg} />}
-                        {walk && <em>{walk}</em>}
-                      </span>
-                      <strong>{normalizeName(r.name)}</strong>
-                      <small>{r.district ?? t('nearRestaurantMeta')}</small>
-                    </MapIntentLink>
-                  </li>
-                )
-              })}
-            </ul>
-          </section>
+            </span>
+            <span className={styles.pickBody}>
+              <strong className={styles.pickTitle}>{mustEatTitle}</strong>
+              <span className={styles.pickMeta}>{mustEatMeta}</span>
+              <span className={styles.pickCta}>{t('openMustEat')}</span>
+            </span>
+          </MapIntentLink>
         </div>
       </div>
     </section>

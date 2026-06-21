@@ -71,7 +71,7 @@ export default function ProfileMustEats({ mustEats, mapUnlockedIds, ownedRestaur
       {ownedMustEats.length === 0 ? (
         <div className={styles.empty}>
           <p className={styles.emptyLine}>{t('emptyMustEats')}</p>
-          <Link href="/#hub-packs" className={styles.emptyCta}>{t('packsCta')}</Link>
+          <Link href="/#hub-allberlin" className={styles.emptyCta}>{t('packsCta')}</Link>
         </div>
       ) : (
         <div className={styles.meDeck}>

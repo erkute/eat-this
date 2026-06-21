@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
@@ -19,24 +19,7 @@ interface Props {
   publicFaceUpIds: string[];
 }
 
-type ProfileTab = 'spots' | 'must-eats' | 'packs';
 const AVATAR_CHOICES = [1, 2, 3] as const;
-
-function tabFromHash(hash: string): ProfileTab | null {
-  switch (hash) {
-    case '#profile-panel-spots':
-    case '#gespeicherte-spots':
-      return 'spots';
-    case '#profile-panel-must-eats':
-    case '#gesammelte-must-eats':
-      return 'must-eats';
-    case '#profile-panel-packs':
-    case '#meine-packs':
-      return 'packs';
-    default:
-      return null;
-  }
-}
 
 function memberSince(creationTime: string | undefined, locale: string): string | null {
   if (!creationTime) return null;
@@ -52,7 +35,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   const { user, loading, signOut } = useAuth();
   const locale = useLocale();
   const t = useTranslations('profile');
-  const [activeTab, setActiveTab] = useState<ProfileTab>('spots');
   const [avatarSaving, setAvatarSaving] = useState<AvatarChoice | null>(null);
   const [avatarError, setAvatarError] = useState(false);
   // Map-page reveals write to users/{uid}/unlockedMustEats — unioned with the
@@ -74,25 +56,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     [ownedRestaurants],
   );
 
-  useEffect(() => {
-    const syncHash = () => {
-      const tab = tabFromHash(window.location.hash);
-      if (tab) setActiveTab(tab);
-    };
-    syncHash();
-    window.addEventListener('hashchange', syncHash);
-    return () => window.removeEventListener('hashchange', syncHash);
-  }, []);
-
-  useEffect(() => {
-    if (loading) return;
-    const hash = window.location.hash;
-    if (!tabFromHash(hash)) return;
-    requestAnimationFrame(() => {
-      document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start' });
-    });
-  }, [activeTab, loading]);
-
   if (loading || !user) {
     return (
       <main className={styles.page}>
@@ -106,6 +69,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   const avatarIdx = profile.avatar ?? defaultAvatarFromUid(user.uid);
   const since = memberSince(user.metadata?.creationTime, locale);
   const sinceLabel = locale === 'de' ? 'Mitglied seit' : 'Member since';
+  const discoveredCount = [...unlockedIds].filter((id) => mustEats.some((m) => m._id === id)).length;
 
   async function handleAvatarChange(choice: AvatarChoice) {
     if (choice === avatarIdx || avatarSaving) return;
@@ -123,142 +87,104 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   return (
     <>
       <main className={styles.page}>
-        <header className={styles.head}>
-          <div className={styles.avatar} aria-hidden="true">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/pics/avatar/${avatarIdx}.webp`} alt="" />
-          </div>
-          <div className={styles.info}>
-            {since && <div className={styles.kicker}>{sinceLabel} {since}</div>}
-            <h1 className={styles.name}>{t('profileTitle')}</h1>
-          </div>
-        </header>
-
-        <section className={styles.character} aria-labelledby="profile-character-title">
-          <div>
-            <p className={styles.characterKicker}>{t('avatarKicker')}</p>
-            <h2 id="profile-character-title" className={styles.characterTitle}>{t('avatarTitle')}</h2>
-          </div>
-          <div className={styles.avatarPicker} role="radiogroup" aria-label={t('avatarTitle')}>
-            {AVATAR_CHOICES.map((choice) => (
-              <button
-                key={choice}
-                type="button"
-                role="radio"
-                aria-checked={avatarIdx === choice}
-                className={`${styles.avatarChoice} ${avatarIdx === choice ? styles.avatarChoiceActive : ''}`}
-                disabled={profileLoading || avatarSaving !== null}
-                onClick={() => void handleAvatarChange(choice)}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/pics/avatar/${choice}.webp`} alt={t('avatarChoice', { n: choice })} />
-              </button>
-            ))}
-          </div>
-          <p className={styles.avatarStatus}>
-            {avatarError ? t('avatarError') : avatarSaving ? t('avatarSaving') : t('avatarHint')}
-          </p>
-        </section>
-
-        <section className={styles.command}>
-          <p className={styles.commandKicker}>{t('heroKicker')}</p>
-          <h2 className={styles.commandTitle}>{t('heroTitle')}</h2>
-          <div className={styles.stats} aria-label={t('heroTitle')}>
-            <div className={styles.stat}>
-              <strong>{ownedRestaurants.length}</strong>
-              <span>{t('statMap')}</span>
+        <div className={styles.shell}>
+          <header className={styles.head}>
+            <div className={styles.avatar} aria-hidden="true">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`/pics/avatar/${avatarIdx}.webp?v=2`} alt="" />
             </div>
-          </div>
-          <div className={styles.quickActions} aria-label={t('quickActions')}>
-            <Link href="/map" rel="nofollow" className={styles.quickAction}>{t('toMap')}</Link>
-            <Link href="/must-eats" rel="nofollow" className={styles.quickAction}>{t('tabMustEats')}</Link>
-          </div>
-        </section>
+            <div className={styles.info}>
+              {since && <div className={styles.kicker}>{sinceLabel} {since}</div>}
+              <h1 className={styles.name}>{t('heroTitle')}</h1>
+              <div className={styles.stats} aria-label={t('heroTitle')}>
+                <div className={styles.stat}>
+                  <strong>{ownedRestaurants.length}</strong>
+                  <span>{t('statMap')}</span>
+                </div>
+                <div className={styles.stat}>
+                  <strong>{discoveredCount}</strong>
+                  <span>{t('statDiscovered')}</span>
+                </div>
+              </div>
+              <div className={styles.quickActions} aria-label={t('quickActions')}>
+                <Link href="/map" rel="nofollow" className={styles.quickAction}>{t('toMap')}</Link>
+                <Link href="/#hub-allberlin" rel="nofollow" className={styles.quickAction}>{t('packsCta')}</Link>
+              </div>
+            </div>
+          </header>
 
-        <div className={styles.tabs} role="tablist" aria-label={t('heroTitle')}>
+          <section className={styles.character} aria-labelledby="profile-character-title">
+            <div className={styles.characterCopy}>
+              <p className={styles.characterKicker}>{t('avatarKicker')}</p>
+              <h2 id="profile-character-title" className={styles.characterTitle}>{t('avatarTitle')}</h2>
+              <p className={styles.avatarStatus}>
+                {avatarError ? t('avatarError') : avatarSaving ? t('avatarSaving') : t('avatarHint')}
+              </p>
+            </div>
+            <div className={styles.avatarPicker} role="radiogroup" aria-label={t('avatarTitle')}>
+              {AVATAR_CHOICES.map((choice) => (
+                <button
+                  key={choice}
+                  type="button"
+                  role="radio"
+                  aria-checked={avatarIdx === choice}
+                  className={`${styles.avatarChoice} ${avatarIdx === choice ? styles.avatarChoiceActive : ''}`}
+                  disabled={profileLoading || avatarSaving !== null}
+                  onClick={() => void handleAvatarChange(choice)}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`/pics/avatar/${choice}.webp?v=2`} alt={t('avatarChoice', { n: choice })} />
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section
+            id="profile-panel-spots"
+            className={styles.profileBlock}
+            style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
+          >
+            <div className={styles.section} id="gespeicherte-spots">
+              <h2 className={styles.sectionHeading}>{t('savedHeading')}</h2>
+            </div>
+            <ProfileSpots uid={user.uid} />
+          </section>
+
+          <section
+            id="profile-panel-must-eats"
+            className={styles.profileBlock}
+            style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
+          >
+            <ProfileMustEats
+              mustEats={mustEats}
+              mapUnlockedIds={unlockedIds}
+              ownedRestaurantIds={ownedRestaurantIds}
+            />
+          </section>
+
+          <section
+            id="profile-panel-packs"
+            className={styles.profileBlock}
+            style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
+          >
+            <ProfilePacks uid={user.uid} />
+          </section>
+
           <button
             type="button"
-            role="tab"
-            aria-selected={activeTab === 'spots'}
-            aria-controls="profile-panel-spots"
-            className={`${styles.tab} ${activeTab === 'spots' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('spots')}
+            className={styles.logout}
+            onClick={() => {
+              // Sign-out hard-navigates to '/' (ProfileAuthGuard) — park the
+              // confirmation so the toast shows after the reload.
+              try {
+                sessionStorage.setItem(TOAST_HANDOFF_KEY, locale === 'de' ? 'Du bist abgemeldet' : "You're signed out");
+              } catch { /* private mode */ }
+              void signOut();
+            }}
           >
-            {t('tabSpots')}
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'must-eats'}
-            aria-controls="profile-panel-must-eats"
-            className={`${styles.tab} ${activeTab === 'must-eats' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('must-eats')}
-          >
-            {t('tabMustEats')}
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'packs'}
-            aria-controls="profile-panel-packs"
-            className={`${styles.tab} ${activeTab === 'packs' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('packs')}
-          >
-            {t('tabPacks')}
+            {t('signOut')}
           </button>
         </div>
-
-        <section
-          id="profile-panel-spots"
-          role="tabpanel"
-          hidden={activeTab !== 'spots'}
-          className={styles.tabPanel}
-          style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
-        >
-          <div className={styles.section}>
-            <h2 className={styles.sectionHeading}>{t('savedHeading')}</h2>
-          </div>
-          <ProfileSpots uid={user.uid} />
-        </section>
-
-        <section
-          id="profile-panel-must-eats"
-          role="tabpanel"
-          hidden={activeTab !== 'must-eats'}
-          className={styles.tabPanel}
-          style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
-        >
-          <ProfileMustEats
-            mustEats={mustEats}
-            mapUnlockedIds={unlockedIds}
-            ownedRestaurantIds={ownedRestaurantIds}
-          />
-        </section>
-
-        <section
-          id="profile-panel-packs"
-          role="tabpanel"
-          hidden={activeTab !== 'packs'}
-          className={styles.tabPanel}
-          style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
-        >
-          <ProfilePacks uid={user.uid} />
-        </section>
-
-        <button
-          type="button"
-          className={styles.logout}
-          onClick={() => {
-            // Sign-out hard-navigates to '/' (ProfileAuthGuard) — park the
-            // confirmation so the toast shows after the reload.
-            try {
-              sessionStorage.setItem(TOAST_HANDOFF_KEY, locale === 'de' ? 'Du bist abgemeldet' : "You're signed out");
-            } catch { /* private mode */ }
-            void signOut();
-          }}
-        >
-          {t('signOut')}
-        </button>
       </main>
       <SiteFooter />
     </>

@@ -248,7 +248,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             onClick={openBurgerMenu}
             aria-label="Menu"
           >
-            <img src="/pics/icon-burger.webp" alt="" draggable={false} />
+            <span className={styles.mapBurgerLines} aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </span>
           </button>
 
           <aside

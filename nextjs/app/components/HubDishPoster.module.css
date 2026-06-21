@@ -34,7 +34,7 @@
 .stage {
   position: relative;
   box-sizing: border-box;
-  min-height: clamp(720px, 72vw, 900px);
+  min-height: clamp(780px, 74vw, 960px);
   overflow: visible;
   border-radius: 0;
   background: transparent;
@@ -157,9 +157,9 @@
 
 .item1 {
   left: 42%;
-  top: 17%;
+  top: 18%;
   z-index: 7;
-  width: clamp(190px, 20vw, 286px);
+  width: clamp(184px, 19vw, 270px);
   transform: translate(-50%, -50%) rotate(-5deg);
   --label-left: 56%;
   --label-bottom: 1%;
@@ -171,10 +171,10 @@
 }
 
 .item2 {
-  left: 76%;
-  top: 21%;
+  left: 79%;
+  top: 20%;
   z-index: 5;
-  width: clamp(170px, 18vw, 250px);
+  width: clamp(162px, 16.5vw, 232px);
   transform: translate(-50%, -50%) rotate(6deg);
   --label-left: 50%;
   --label-bottom: -2%;
@@ -187,9 +187,9 @@
 
 .item3 {
   left: 15%;
-  top: 28%;
+  top: 34%;
   z-index: 4;
-  width: clamp(170px, 18vw, 252px);
+  width: clamp(160px, 16.5vw, 228px);
   transform: translate(-50%, -50%) rotate(-8deg);
   --label-left: 54%;
   --label-bottom: -1%;
@@ -201,10 +201,10 @@
 }
 
 .item4 {
-  left: 32%;
-  top: 58%;
+  left: 31%;
+  top: 61%;
   z-index: 5;
-  width: clamp(168px, 18vw, 258px);
+  width: clamp(160px, 16.5vw, 236px);
   transform: translate(-50%, -50%) rotate(4deg);
   --label-left: 58%;
   --label-bottom: 0%;
@@ -216,10 +216,10 @@
 }
 
 .item5 {
-  left: 64%;
-  top: 51%;
+  left: 67%;
+  top: 49%;
   z-index: 6;
-  width: clamp(168px, 18vw, 258px);
+  width: clamp(166px, 17vw, 246px);
   transform: translate(-50%, -50%) rotate(8deg);
   --label-left: 48%;
   --label-bottom: -1%;
@@ -231,10 +231,10 @@
 }
 
 .item6 {
-  left: 48%;
-  top: 77%;
+  left: 54%;
+  top: 84%;
   z-index: 4;
-  width: clamp(168px, 18vw, 258px);
+  width: clamp(160px, 16.5vw, 236px);
   transform: translate(-50%, -50%) rotate(-2deg);
   --label-left: 50%;
   --label-bottom: 0%;
@@ -246,10 +246,10 @@
 }
 
 .item7 {
-  left: 82%;
-  top: 72%;
+  left: 84%;
+  top: 74%;
   z-index: 3;
-  width: clamp(142px, 16vw, 230px);
+  width: clamp(136px, 15vw, 212px);
   transform: translate(-50%, -50%) rotate(5deg);
   --label-left: 46%;
   --label-bottom: 0%;
@@ -261,10 +261,10 @@
 }
 
 .item8 {
-  left: 18%;
-  top: 76%;
+  left: 12%;
+  top: 82%;
   z-index: 3;
-  width: clamp(132px, 14vw, 212px);
+  width: clamp(124px, 12.5vw, 178px);
   transform: translate(-50%, -50%) rotate(-5deg);
   --label-left: 55%;
   --label-bottom: 0%;
@@ -318,7 +318,7 @@
   50% { translate: -8px 10px; }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .stage {
     min-height: 0;
     padding: 28px 10px 38px;

@@ -6882,20 +6882,77 @@ html[data-theme="dark"] .mapBurger {
   z-index: 55 !important;
   width: 42px !important;
   height: 42px !important;
-  background: var(--brand-action) !important;
-  border: 1.5px solid var(--brand-ink) !important;
-  border-radius: var(--radius-sm, 4px) !important;
+}
+
+html .mapSearchBtn,
+html .mapBurger,
+html .fab,
+html[data-theme="dark"] .mapSearchBtn,
+html[data-theme="dark"] .mapBurger,
+html[data-theme="dark"] .fab {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
   box-shadow: none !important;
-  filter: none !important;
+  clip-path: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }
 
-html[data-theme="dark"] .mapBurger {
-  border-color: var(--brand-paper) !important;
+html .mapSearchBtn,
+html .mapBurger,
+html .fab {
+  color: var(--brand-ink) !important;
+  filter:
+    drop-shadow(0 1px 0 rgba(255, 255, 255, .92))
+    drop-shadow(0 2px 4px rgba(20, 16, 12, .24)) !important;
 }
 
-html .mapBurger img,
-html[data-theme="dark"] .mapBurger img {
-  filter: brightness(0) invert(1) !important;
+html[data-theme="dark"] .mapSearchBtn,
+html[data-theme="dark"] .mapBurger,
+html[data-theme="dark"] .fab {
+  color: var(--brand-paper) !important;
+  filter:
+    drop-shadow(0 1px 0 rgba(0, 0, 0, .72))
+    drop-shadow(0 2px 5px rgba(0, 0, 0, .48)) !important;
+}
+
+.mapBurgerLines {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 4px;
+  width: 22px;
+  color: currentColor;
+}
+
+.mapBurgerLines span {
+  display: block;
+  height: 4px;
+  background: currentColor;
+  border-radius: 999px;
+}
+
+.mapBurgerLines span:nth-child(1) { width: 19px; transform: rotate(-3deg); }
+.mapBurgerLines span:nth-child(2) { width: 22px; transform: rotate(2deg); }
+.mapBurgerLines span:nth-child(3) { width: 15px; transform: rotate(-2deg); justify-self: end; }
+
+html[data-theme="dark"] .mapBurgerLines {
+  color: currentColor;
+}
+
+@media (hover: hover) {
+  html .mapSearchBtn:hover,
+  html .mapBurger:hover,
+  html .fab:hover,
+  html[data-theme="dark"] .mapSearchBtn:hover,
+  html[data-theme="dark"] .mapBurger:hover,
+  html[data-theme="dark"] .fab:hover {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    transform: translateY(-2px);
+  }
 }
 
 @media (min-width: 1024px) {

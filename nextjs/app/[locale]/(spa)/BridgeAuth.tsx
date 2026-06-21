@@ -19,13 +19,15 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { useLocale } from 'next-intl';
 import { useAuth, useLoginModal } from '@/lib/auth';
 import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { useTranslation } from '@/lib/i18n';
-import LoginPanel from '@/app/components/LoginPanel';
 import LoginModalBarLock from '@/app/components/LoginModalBarLock';
 import modalStyles from '@/app/[locale]/@modal/(.)login/modal.module.css';
+
+const LoginPanel = dynamic(() => import('@/app/components/LoginPanel'), { ssr: false });
 
 export default function BridgeAuth() {
   const { user, loading } = useAuth();

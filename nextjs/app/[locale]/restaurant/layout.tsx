@@ -8,7 +8,7 @@ import { UserLocationProvider } from '@/lib/map/UserLocationContext';
 import SiteNav from '@/app/components/SiteNav';
 import BurgerDrawer from '@/app/components/BurgerDrawer';
 import SiteFooter from '@/app/components/SiteFooter';
-import SearchOverlay from '@/app/components/SearchOverlay';
+import SearchOverlay from '@/app/components/SearchOverlayLazy';
 import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth';
 
 export default async function RestaurantLayout({

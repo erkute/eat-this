@@ -4,11 +4,7 @@ import { setRequestLocale } from 'next-intl/server'
 import { SITE_URL } from '@/lib/constants'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import { getAllNewsArticles, getAllStaticPages } from '@/lib/sanity.server'
-import NewsSection from '@/app/components/NewsSection'
-import MapSection from '@/app/components/MapSection'
 import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data'
-import StaticPages from '@/app/components/StaticPages'
-import MustEatsSection from '@/app/components/MustEatsSection'
 
 export const revalidate = 3600
 
@@ -123,22 +119,34 @@ export default async function SPACatchAllPage({ params }: PageProps) {
   if (!top || !VALID_SLUGS.has(top)) notFound()
 
   if (top === 'news') {
-    const articles = await getAllNewsArticles()
+    const [{ default: NewsSection }, articles] = await Promise.all([
+      import('@/app/components/NewsSection'),
+      getAllNewsArticles(),
+    ])
     return <NewsSection articles={articles} locale={locale as 'de' | 'en'} />
   }
   if (top === 'map') {
     // SSR the anon-tier set so spots are in the HTML from byte 0; signed-in
     // users refetch /api/map-data on mount for their +20 + entitlement union.
-    const initialMapData = await getInitialAnonMapData()
+    const [{ default: MapSection }, initialMapData] = await Promise.all([
+      import('@/app/components/MapSection'),
+      getInitialAnonMapData(),
+    ])
     return <MapSection isActive initialMapData={initialMapData} />
   }
   if (top === 'must-eats') {
-    const initialMapData = await getInitialAnonMapData()
+    const [{ default: MustEatsSection }, initialMapData] = await Promise.all([
+      import('@/app/components/MustEatsSection'),
+      getInitialAnonMapData(),
+    ])
     return <MustEatsSection initialMapData={initialMapData} locale={locale as 'de' | 'en'} />
   }
 
   if (STATIC_SLUGS.has(top)) {
-    const pages = await getAllStaticPages()
+    const [{ default: StaticPages }, pages] = await Promise.all([
+      import('@/app/components/StaticPages'),
+      getAllStaticPages(),
+    ])
     return <StaticPages pages={pages} activeSlug={top} />
   }
 

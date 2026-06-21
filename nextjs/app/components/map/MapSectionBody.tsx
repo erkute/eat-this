@@ -12,7 +12,6 @@ import type {
 } from '@/lib/map'
 
 import dynamic from 'next/dynamic'
-import { Link } from '@/i18n/navigation'
 import RestaurantList from './RestaurantList'
 import MapSheetDetail from './MapSheetDetail'
 import MapListHeader from './MapListHeader'
@@ -150,6 +149,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     (r: MapRestaurant) => onRestaurantClick(r, 'map'),
     [onRestaurantClick],
   )
+  const openBurgerMenu = useCallback(() => {
+    document.getElementById('burgerBtn')?.click()
+  }, [])
 
   return (
     <div
@@ -240,13 +242,14 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 selected marker stays visible on the map. */}
           </div>
 
-          {/* Home link — top-left of the map (the corner freed up by moving
-              search to the right rail). Uses the square two-line EAT THIS mark
-              (same asset family as the favicon) as a sticker so users can
-              always get back to the start page. */}
-          <Link href="/" className={styles.mapHome} aria-label="EAT THIS — Start">
-            <img className={styles.mapHomeLogo} src="/pics/eat-this-square.webp?v=5" alt="" draggable={false} />
-          </Link>
+          <button
+            type="button"
+            className={styles.mapBurger}
+            onClick={openBurgerMenu}
+            aria-label="Menu"
+          >
+            <img src="/pics/icon-burger.webp" alt="" draggable={false} />
+          </button>
 
           <aside
             ref={setSheetRef}

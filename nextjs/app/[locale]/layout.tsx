@@ -112,6 +112,7 @@ export default async function LocaleLayout({
     // suppressHydrationWarning: critical script mutates data-theme before hydration
     <html lang={locale} data-scroll-behavior="smooth" className={`${dmSans.variable} ${sairaCondensed.variable} ${anton.variable}`} suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
         <link rel="stylesheet" href="https://use.typekit.net/kgb1lmh.css" />
         {/* Safe: hardcoded constant, no user input */}
         <script dangerouslySetInnerHTML={{ __html: CRITICAL_BOOTSTRAP }} />

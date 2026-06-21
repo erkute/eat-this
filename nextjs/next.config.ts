@@ -51,8 +51,27 @@ const nextConfig: NextConfig = {
       "worker-src 'self' blob:",
       "form-action 'self' https://checkout.stripe.com",
     ].join("; ");
+    const immutableAssetHeaders = [
+      { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+    ];
 
     return [
+      {
+        source: "/css/:path*",
+        headers: immutableAssetHeaders,
+      },
+      {
+        source: "/pics/:path*",
+        headers: immutableAssetHeaders,
+      },
+      {
+        source: "/buddy/:path*",
+        headers: immutableAssetHeaders,
+      },
+      {
+        source: "/fonts/:path*",
+        headers: immutableAssetHeaders,
+      },
       {
         source: "/:path*",
         headers: [

@@ -6673,8 +6673,8 @@ html[data-theme="dark"] .listEndCta:hover {
 /* Modern search-open state: slides open from the icon, with app-native input type. */
 @keyframes mapSearchOpen {
   from {
-    transform: translateX(8px) scaleX(.2);
-    clip-path: inset(0 0 0 74% round 999px);
+    transform: translateX(-8px) scaleX(.2);
+    clip-path: inset(0 74% 0 0 round 999px);
   }
   to {
     transform: translateX(0) scaleX(1);
@@ -6855,57 +6855,58 @@ html .filterChipWrap:has(.filterChipReset) .filterChipReset svg {
   }
 }
 
-/* Final map brand override: freestanding transparent wordmark, not a glass tile. */
-html .mapHome,
-html[data-theme="dark"] .mapHome {
-  width: 58px !important;
-  height: 62px !important;
+/* Final map-control placement: search owns the former logo corner, burger owns
+   the top-right corner. The hidden SiteNav burger still controls the drawer. */
+html .mapSearchBtn,
+html[data-theme="dark"] .mapSearchBtn {
   top: 14px !important;
   left: 14px !important;
-  z-index: 7 !important;
-  padding: 0 !important;
-  background: transparent !important;
-  border: 0 !important;
+  right: auto !important;
+  z-index: 55 !important;
+}
+
+html .mapSearchToolbar,
+html[data-theme="dark"] .mapSearchToolbar {
+  top: 14px !important;
+  left: 14px !important;
+  right: auto !important;
+  width: min(326px, calc(100vw - 104px)) !important;
+  transform-origin: left center;
+}
+
+html .mapBurger,
+html[data-theme="dark"] .mapBurger {
+  top: 14px !important;
+  right: 14px !important;
+  left: auto !important;
+  z-index: 55 !important;
+  width: 42px !important;
+  height: 42px !important;
+  background: var(--brand-action) !important;
+  border: 1.5px solid var(--brand-ink) !important;
+  border-radius: var(--radius-sm, 4px) !important;
   box-shadow: none !important;
-  clip-path: none !important;
-  overflow: visible !important;
-  pointer-events: auto;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-  filter: drop-shadow(0 5px 4px rgba(43, 33, 28, .28)) !important;
+  filter: none !important;
 }
 
-html .mapHomeLogo {
-  object-fit: contain;
+html[data-theme="dark"] .mapBurger {
+  border-color: var(--brand-paper) !important;
 }
 
-@media (hover: hover) {
-  html .mapHome:hover,
-  html[data-theme="dark"] .mapHome:hover {
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
-}
-
-/* Mobile sheet takeover: hide the freestanding brand mark with the search rail. */
-html .bodyListAtFull .mapHome,
-html .bodyDetailOpen .mapHome,
-html[data-theme="dark"] .bodyListAtFull .mapHome,
-html[data-theme="dark"] .bodyDetailOpen .mapHome {
-  transform: translateY(calc(-100% - 80px)) !important;
-  pointer-events: none;
+html .mapBurger img,
+html[data-theme="dark"] .mapBurger img {
+  filter: brightness(0) invert(1) !important;
 }
 
 @media (min-width: 1024px) {
-  html .bodyListAtFull .mapHome,
-  html .bodyDetailOpen .mapHome,
-  html[data-theme="dark"] .bodyListAtFull .mapHome,
-  html[data-theme="dark"] .bodyDetailOpen .mapHome {
-    transform: none !important;
-    pointer-events: auto;
+  html .mapBurger,
+  html[data-theme="dark"] .mapBurger {
+    right: calc(var(--map-desktop-panel-width) + 14px) !important;
+  }
+
+  html .bodyPanelHidden .mapBurger,
+  html[data-theme="dark"] .bodyPanelHidden .mapBurger {
+    right: 14px !important;
   }
 }
 
@@ -6918,8 +6919,8 @@ html[data-theme="dark"] .bodyDetailOpen .mapHome {
     .boosterFanPack,
     .pinLogoHasMust::after,
     .pinLogoShape,
-    html .mapHome,
-    html[data-theme="dark"] .mapHome {
+    html .mapBurger,
+    html[data-theme="dark"] .mapBurger {
       filter: none !important;
     }
   }

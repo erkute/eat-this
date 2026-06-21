@@ -153,22 +153,11 @@ export default function HubDeineWelt({ initialMapData }: Props) {
     <section className={styles.section} data-hub-deinewelt="" data-auth-only="">
       <div className={styles.inner}>
         <header className={styles.copy}>
-          <div>
+          <div className={styles.introCopy}>
             <p className={styles.kicker}>{firstName ? t('helloName', { name: firstName }) : t('hello')}</p>
             <h2 className={styles.title}>
               {t.rich('today', { em: (chunks) => <span>{chunks}</span> })}
             </h2>
-            <p className={styles.lead}>{t('lead')}</p>
-            <div className={styles.insightBar} aria-label={t('profileStatsLabel')}>
-              <span>
-                <strong>{collected}</strong>
-                {t('insightRevealed')}
-              </span>
-              <span>
-                <strong>{hiddenCount}</strong>
-                {t('insightHidden')}
-              </span>
-            </div>
           </div>
           <div className={styles.headerActions}>
             <Link href="/profile" rel="nofollow" className={styles.profileLink}>
@@ -253,7 +242,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
             </ul>
           </section>
 
-          <section className={styles.panel} aria-label={t('nearMustEatsTitle')}>
+          <section className={`${styles.panel} ${styles.nearbyPanel}`} aria-label={t('nearMustEatsTitle')}>
             <div className={styles.panelHead}>
               <p>{nearbyLabel}</p>
               <h3>{t('nearMustEatsTitle')}</h3>
@@ -272,7 +261,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
             </ul>
           </section>
 
-          <section className={styles.panel} aria-label={t('nearRestaurantsTitle')}>
+          <section className={`${styles.panel} ${styles.restaurantsPanel}`} aria-label={t('nearRestaurantsTitle')}>
             <div className={styles.panelHead}>
               <p>{nearbyLabel}</p>
               <h3>{t('nearRestaurantsTitle')}</h3>

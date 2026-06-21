@@ -1,34 +1,43 @@
 /* Compact breadcrumb above detail-page H1.
    Mirrors the BreadcrumbList JSON-LD on the same pages so SERP snippets
-   and the visible page agree. Token-based — flips with theme. */
+   and the visible page agree. Token-based and scoped by the surrounding page. */
 
 .nav {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+  max-width: min(100%, 980px);
 }
 
 .list {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   margin: 0;
-  padding: 0;
+  padding: 4px;
   list-style: none;
-  font-size: 13px;
-  line-height: 1.4;
+  width: fit-content;
+  max-width: 100%;
+  border: 1.5px solid color-mix(in srgb, var(--border-strong, var(--text-primary)) 18%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-card, #fff) 82%, transparent);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--text-primary) 10%, transparent);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
   color: var(--text-muted);
-  /* Long restaurant names used to overflow off-screen invisibly. We keep
+  /* Long restaurant names used to overflow off-screen invisibly. Keep
      the row on a single line but force the *current* item (the last <li>)
      to shrink with ellipsis so the user never loses the start of the
      breadcrumb to a hidden horizontal scroll. */
   white-space: nowrap;
   min-width: 0;
+  overflow: hidden;
 }
 
 .item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   flex-shrink: 0;
   min-width: 0;
 }
@@ -50,22 +59,73 @@
 }
 
 .link {
-  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 9px;
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--text-primary) 72%, var(--text-muted));
   text-decoration: none;
-  transition: color 120ms ease;
+  transition: background-color 140ms ease, color 140ms ease, transform 140ms ease;
 }
 
 .link:hover,
 .link:focus-visible {
   color: var(--text-primary);
+  background: color-mix(in srgb, var(--accent, #ffd84a) 82%, transparent);
+  transform: translateY(-1px);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
 }
 
 .current {
-  color: var(--text-primary);
-  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--text-primary);
+  color: var(--surface-bg, #fff);
+  font-weight: 700;
 }
 
 .sep {
-  color: var(--text-muted);
-  opacity: 0.6;
+  display: inline-flex;
+  align-items: center;
+  color: color-mix(in srgb, var(--text-primary) 34%, transparent);
+  font-size: 15px;
+  line-height: 1;
+  transform: translateY(-0.5px);
+}
+
+@media (max-width: 520px) {
+  .list {
+    gap: 2px;
+    padding: 3px;
+    font-size: 11px;
+  }
+
+  .link {
+    min-height: 26px;
+    padding: 0 7px;
+  }
+
+  .current {
+    min-height: 26px;
+    padding: 0 8px;
+  }
+}
+
+:global(html[data-theme="dark"]) .list {
+  border-color: color-mix(in srgb, var(--border-strong, var(--text-primary)) 24%, transparent);
+  background: color-mix(in srgb, var(--surface-card, #151515) 88%, transparent);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.26);
+}
+
+:global(html[data-theme="dark"]) .current {
+  background: var(--text-primary);
+  color: var(--surface-bg, #111);
 }

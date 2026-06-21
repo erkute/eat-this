@@ -252,12 +252,12 @@
 }
 
 /* Final footer palette contract: the footer is an assertive brand endpoint in
-   light mode and a high-heat ink endpoint in dark mode. */
+   light mode and a deep red endpoint in dark mode. */
 .tagImg { filter: invert(1); }
 
 html[data-theme="dark"] .footer {
-  --footer-bg: var(--brand-ink, var(--et-black));
-  --footer-fg: var(--brand-action-hot, var(--et-red-hot));
-  --footer-track-bg: var(--brand-night, var(--et-dark-card));
-  --footer-thumb-bg: var(--brand-action-hot, var(--et-red-hot));
+  --footer-bg: #5A120F;
+  --footer-fg: var(--brand-paper, var(--et-cream));
+  --footer-track-bg: rgba(241, 241, 236, .18);
+  --footer-thumb-bg: var(--brand-paper, var(--et-cream));
 }

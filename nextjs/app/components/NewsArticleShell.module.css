@@ -722,6 +722,17 @@ html[data-theme="dark"] .page {
   background: #111110;
   color: #f0e8d0;
 }
+html[data-theme="dark"] .article {
+  --text-primary: #f0e8d0;
+  --text-muted: rgba(240, 232, 208, 0.72);
+  background: #171a17;
+  color: #f0e8d0;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.58);
+}
+html[data-theme="dark"] .heroWrap {
+  border-color: #f0e8d0;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.62);
+}
 
 /* ── Byline + title + lede ── */
 html[data-theme="dark"] .byline {
@@ -872,4 +883,28 @@ html[data-theme="dark"] .spotrailCta {
 }
 html[data-theme="dark"] .spotrailCta:hover {
   box-shadow: 4px 4px 0 rgba(240, 232, 208, 0.25);
+}
+
+/* Beat the broad collage h1/h2 + blockquote styling from globals.css. The
+   article shell owns these surfaces, and in dark mode they must stay readable
+   against the dark editorial sheet. */
+html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .title,
+html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .content h2,
+html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .content h3,
+html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .spotsHeading,
+html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .relatedHeading,
+html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .relatedHeadline,
+html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .mustEat .mustEatName {
+  color: #f0e8d0;
+}
+html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .content blockquote {
+  background: transparent;
+  color: #f0e8d0;
+  border-top: 2px solid #f0e8d0;
+  border-bottom: 2px solid #f0e8d0;
+  box-shadow: none;
+  transform: none;
+}
+html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .content blockquote::before {
+  content: none;
 }

@@ -134,7 +134,7 @@ export default function LoginPanel({ onBack, modal = false, mustEatGate = false 
               className={styles.textlink}
               onClick={() => { magicReset(); setEmail(''); }}
             >
-              {t('modals.login.otherEmail')} ←
+              {t('modals.login.otherEmail')}
             </button>
           </div>
         </>

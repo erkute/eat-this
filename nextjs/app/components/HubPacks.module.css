@@ -223,11 +223,11 @@ html[data-theme="dark"] .pack:not(.gift) {
   color: var(--et-cream);
 }
 html[data-theme="dark"] .gift {
-  background: var(--et-red-hot);
-  color: var(--et-black);
+  background: var(--et-dark-card);
+  color: var(--et-cream);
 }
 html[data-theme="dark"] .gift .signupBtn {
-  background: var(--et-black);
+  background: var(--et-red-hot);
   color: var(--et-cream);
 }
 html[data-theme="dark"] .gift .signupBtn:hover:not(:disabled) {
@@ -235,16 +235,22 @@ html[data-theme="dark"] .gift .signupBtn:hover:not(:disabled) {
   color: var(--et-black);
 }
 html[data-theme="dark"] .gift .signupInput {
-  background: #fff;
-  color: #000;
+  background: rgba(241, 241, 236, .08);
+  color: var(--et-cream);
+  box-shadow: inset 0 0 0 2px rgba(241, 241, 236, .18);
 }
 html[data-theme="dark"] .gift .signupInput::placeholder {
-  color: rgba(0, 0, 0, .38);
+  color: rgba(241, 241, 236, .46);
 }
 html[data-theme="dark"] .gift .packName,
 html[data-theme="dark"] .gift .packCat,
 html[data-theme="dark"] .gift .packMeta,
 html[data-theme="dark"] .giftSent,
 html[data-theme="dark"] .giftError {
-  color: var(--et-black);
+  color: var(--et-cream);
+}
+html[data-theme="dark"] .gift .packName,
+html[data-theme="dark"] .giftSent,
+html[data-theme="dark"] .giftError {
+  color: var(--et-red-hot);
 }

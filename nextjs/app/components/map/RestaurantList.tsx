@@ -240,7 +240,7 @@ export default function RestaurantList({
         </div>
       ))}
       {bezirkLockedOnly ? (
-        <section className={styles.bezirkLocked}>
+        <section className={styles.bezirkLocked} data-sheet-scroll-native>
           <h3 className={styles.bezirkLockedTitle}>{activeBezirk} {t('map.bezirkLockedTitleSuffix')}</h3>
           <p className={styles.bezirkLockedBody}>{t('map.bezirkLockedBodyPre')}{activeBezirk}{t('map.bezirkLockedBodyPost')}</p>
           <a href={allBerlinHref} className={styles.bezirkLockedCta}>
@@ -254,7 +254,7 @@ export default function RestaurantList({
         )
       )}
       {lockedRestaurants.map((r) => (
-        <div key={`locked-${r._id}`} className={styles.rcardSlot}>
+        <div key={`locked-${r._id}`} className={styles.rcardSlot} data-sheet-scroll-native={bezirkLockedOnly ? true : undefined}>
           <Item
             restaurant={r}
             userLocation={userLocation}

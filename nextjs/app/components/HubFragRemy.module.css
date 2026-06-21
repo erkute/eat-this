@@ -239,6 +239,10 @@ html[data-theme="dark"] .send {
 
 html[data-theme="dark"] .inner {
   background: var(--et-black);
+  border: 2px solid rgba(239, 53, 40, .72) !important;
+  box-shadow:
+    0 0 0 1px rgba(241, 241, 236, .08),
+    0 22px 52px rgba(0, 0, 0, .34);
 }
 html[data-theme="dark"] .kicker,
 html[data-theme="dark"] .headline {
@@ -249,8 +253,13 @@ html[data-theme="dark"] .lead {
 }
 html[data-theme="dark"] .chip,
 html[data-theme="dark"] .input {
-  background: var(--et-dark-card);
   color: var(--et-cream);
+}
+html[data-theme="dark"] .input {
+  background: var(--et-cream);
+  color: var(--et-black);
+  border: 2px solid var(--et-red-hot) !important;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .22);
 }
 html[data-theme="dark"] .send {
   background: var(--et-red-hot);
@@ -280,5 +289,5 @@ html[data-theme="dark"] .send:global(.homeCta) {
 }
 
 html[data-theme="dark"] .input::placeholder {
-  color: rgba(242, 223, 184, .58);
+  color: rgba(23, 26, 23, .62);
 }

@@ -53,6 +53,9 @@
   --conversion-elevated: #F1F1EC;
   --conversion-warning-bg: #FFEAA3;
   --conversion-shadow: 0 18px 38px rgba(23, 26, 23, .2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .frame::before {
@@ -199,6 +202,9 @@
 
 .slogan span {
   display: block;
+  overflow-wrap: normal;
+  white-space: nowrap;
+  word-break: normal;
 }
 
 .h1 {
@@ -401,7 +407,7 @@
 .plane {
   display: flex;
   justify-content: center;
-  margin: 22px 0 24px;
+  margin: clamp(10px, 1.8dvh, 18px) 0 clamp(16px, 2.5dvh, 24px);
 }
 
 .plane svg {
@@ -416,36 +422,48 @@
 
 .toBlock {
   box-sizing: border-box;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 10px;
-  align-items: baseline;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
   width: var(--conversion-control-w);
-  margin: 0 auto 16px;
-  padding: 12px 14px;
+  margin: 0 auto clamp(14px, 2dvh, 18px);
+  padding: 12px 16px 13px;
   background: var(--conversion-elevated);
   border: 2px solid var(--conversion-border-strong);
   border-radius: var(--conversion-button-radius);
+  text-align: center;
 }
 
 .toLabel {
   color: var(--conversion-action);
-  font-family: var(--font);
-  font-size: 11px;
-  font-weight: 950;
-  letter-spacing: .16em;
+  font-family: var(--font-label, var(--font-poster));
+  font-size: clamp(14px, 2dvh, 18px);
+  font-weight: 400;
+  letter-spacing: .03em;
+  line-height: .9;
   text-transform: uppercase;
 }
 
 .toValue {
   min-width: 0;
   color: var(--conversion-ink);
-  font-family: var(--font);
-  font-size: 15px;
-  font-weight: 850;
-  line-height: 1.25;
-  text-align: right;
+  font-family: 'Providence Sans Pro Regular', var(--font-body);
+  font-size: clamp(14px, 1.8dvh, 16px);
+  font-weight: 700;
+  line-height: 1.22;
+  text-align: center;
   word-break: break-all;
+}
+
+.frameSent .sub {
+  max-width: 37ch;
+  font-family: 'Providence Sans Pro Regular', var(--font-body);
+  font-size: clamp(14.5px, 1.9dvh, 17px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-transform: none;
 }
 
 .spam {
@@ -478,8 +496,9 @@
 
 .spamText {
   color: var(--conversion-warning-ink);
+  font-family: 'Providence Sans Pro Regular', var(--font-body);
   font-size: 13px;
-  font-weight: 650;
+  font-weight: 700;
   line-height: 1.4;
 }
 
@@ -491,18 +510,30 @@
 }
 
 .textlink {
+  box-sizing: border-box;
+  min-height: clamp(42px, 5.2dvh, 50px);
   width: 100%;
-  padding: 8px 0 0;
+  padding: 8px 16px;
   color: var(--conversion-ink);
-  background: transparent;
-  border: 0;
-  font-family: var(--font);
-  font-size: 11px;
-  font-weight: 950;
-  letter-spacing: .15em;
+  background: var(--conversion-elevated);
+  border: 2px solid var(--conversion-border-strong);
+  border-radius: var(--conversion-button-radius);
+  font-family: var(--font-label, var(--font-poster));
+  font-size: clamp(16px, 2.3dvh, 21px);
+  font-weight: 400;
+  letter-spacing: .02em;
+  line-height: .9;
   text-align: center;
   text-transform: uppercase;
   cursor: pointer;
+  transition: transform var(--conversion-motion), background-color var(--conversion-motion), color var(--conversion-motion), border-color var(--conversion-motion);
+}
+
+.textlink:hover {
+  color: var(--conversion-action-text);
+  background: var(--conversion-action);
+  border-color: var(--conversion-action);
+  transform: translate(-2px, -2px);
 }
 
 .loadingOverlay {
@@ -539,8 +570,8 @@
 }
 
 .frameModal .close {
-  top: 14px;
-  right: 14px;
+  top: 8px;
+  right: 8px;
   width: 36px;
   height: 36px;
   padding: 0 0 1px;
@@ -570,6 +601,11 @@
   font-weight: 400;
   letter-spacing: 0;
   line-height: .86;
+}
+
+.frameModal .slogan {
+  max-width: 100%;
+  font-size: clamp(18px, 4.8vw, 30px);
 }
 
 .frameModal .h1 {
@@ -648,7 +684,7 @@
 }
 
 .frameModal .plane {
-  margin: 8px 0 14px;
+  margin: 6px 0 14px;
 }
 
 .frameModal .plane svg {
@@ -657,7 +693,7 @@
 
 .frameModal .toBlock {
   margin-bottom: 14px;
-  padding: 10px 0;
+  padding: 11px 14px 12px;
 }
 
 .frameModal .spam {
@@ -721,8 +757,8 @@
 
   .frameModal .close {
     position: absolute;
-    top: max(14px, env(safe-area-inset-top, 0px));
-    right: 14px;
+    top: max(8px, env(safe-area-inset-top, 0px));
+    right: max(8px, env(safe-area-inset-right, 0px));
     width: 38px;
     height: 38px;
     color: var(--conversion-ink);
@@ -812,6 +848,10 @@
     margin-top: 2px;
     font-size: clamp(20px, 5.9vw, 27px);
     line-height: .88;
+  }
+
+  .frameModal .slogan {
+    font-size: clamp(15px, 5vw, 22px);
   }
 
   .frameModal .h1 {
@@ -1135,7 +1175,8 @@ html[data-theme="dark"] .toLabel {
 }
 
 html[data-theme="dark"] .input,
-html[data-theme="dark"] .ctaGoogle {
+html[data-theme="dark"] .ctaGoogle,
+html[data-theme="dark"] .textlink {
   background: var(--conversion-elevated);
   border-color: var(--conversion-border);
 }
@@ -1168,6 +1209,12 @@ html[data-theme="dark"] .input::placeholder {
 }
 
 html[data-theme="dark"] .ctaPrimary {
+  color: var(--et-cream, #f2dfb8);
+  background: var(--et-red-hot, #f03608);
+  border-color: var(--et-red-hot, #f03608);
+}
+
+html[data-theme="dark"] .textlink:hover {
   color: var(--et-cream, #f2dfb8);
   background: var(--et-red-hot, #f03608);
   border-color: var(--et-red-hot, #f03608);

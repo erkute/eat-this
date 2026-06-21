@@ -48,6 +48,7 @@ const arrow = (
 export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'block' }: Props) {
   const { title, sub } = getCopy(kind, name, locale)
   const ctaLabel = locale === 'de' ? 'Map öffnen' : 'Open the map'
+  const isRestaurant = kind === 'restaurant'
 
   if (variant === 'chip') {
     return (
@@ -60,7 +61,17 @@ export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'bl
 
   return (
     <section className={styles.promo} aria-label={title}>
-      <h2 className={styles.title}>{title}</h2>
+      <h2 className={`${styles.title} ${isRestaurant ? styles.titleRestaurant : ''}`}>
+        {isRestaurant ? (
+          <>
+            <span>The map for people</span>
+            {' '}
+            <span>who care about food.</span>
+          </>
+        ) : (
+          title
+        )}
+      </h2>
       <p className={styles.sub}>{sub}</p>
       {/* rel="nofollow" — /map is noindex; without it Google enumerates every
           ?r=/?bezirk=/?cat= variant in GSC. See feedback_seo_nofollow_into_noindex. */}

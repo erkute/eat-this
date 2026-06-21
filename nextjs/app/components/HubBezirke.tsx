@@ -45,13 +45,14 @@ export default function HubBezirke({ districts }: Props) {
               role="tab"
               id={`bz-tab-${d.slug}`}
               aria-selected={i === active}
+              aria-label={d.isFeature ? `${d.name} (${t('featBadge')})` : d.name}
               aria-controls={`bz-panel-${d.slug}`}
               tabIndex={i === active ? 0 : -1}
               className={`${styles.tab} homeCta homeCtaSmall ${d.isFeature ? styles.feat : ''} ${i === active ? styles.active : ''}`}
               onClick={() => setActive(i)}
               onKeyDown={(e) => onTabKey(e, i)}
             >
-              {d.isFeature && <span className={styles.featBadge}>{t('featBadge')}</span>}
+              {d.isFeature && <span className={styles.featBadge} aria-hidden="true">{t('featBadge')}</span>}
               {d.name}
             </button>
           ))}

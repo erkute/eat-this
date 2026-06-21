@@ -4791,3 +4791,87 @@ body:has(.burger-drawer.active) .burger-btn {
     text-shadow: none !important;
   }
 }
+
+/* Burger drawer close: plain ×, no framed button surface. */
+.burger-drawer-close,
+[data-theme="dark"] .burger-drawer-close {
+  background: transparent;
+  border: 0;
+  color: var(--et-red);
+}
+
+@media (hover: hover) {
+  .burger-drawer-close:hover,
+  [data-theme="dark"] .burger-drawer-close:hover {
+    background: transparent;
+    color: var(--et-black);
+  }
+}
+
+[data-theme="dark"] .burger-drawer-close {
+  color: var(--et-cream);
+}
+
+@media (hover: hover) {
+  [data-theme="dark"] .burger-drawer-close:hover {
+    color: var(--et-yellow);
+  }
+}
+
+/* Light drawer: keep the theme switch quiet on cream; the thumb is the accent. */
+html:not([data-theme="dark"]) .bd-theme-label {
+  color: var(--et-black);
+  opacity: .74;
+}
+
+html:not([data-theme="dark"]) .bd-theme-track {
+  background: rgba(37, 23, 15, .08);
+  border: 0;
+}
+
+html:not([data-theme="dark"]) .bd-theme-thumb {
+  background: var(--et-red);
+}
+
+.bd-theme-toggle:focus-visible {
+  outline: none;
+}
+
+.bd-theme-toggle:focus-visible .bd-theme-track {
+  box-shadow:
+    0 0 0 2px var(--et-cream),
+    0 0 0 4px rgba(37, 23, 15, .5);
+}
+
+[data-theme="dark"] .bd-theme-toggle:focus-visible .bd-theme-track {
+  box-shadow:
+    0 0 0 2px #130f0d,
+    0 0 0 4px rgba(255, 248, 234, .68);
+}
+
+@media (hover: hover) {
+  html:not([data-theme="dark"]) .bd-theme-toggle:hover .bd-theme-track {
+    background: rgba(37, 23, 15, .14);
+  }
+}
+
+/* Dark header mirrors the SiteFooter endpoint palette. */
+[data-theme="dark"] .navbar,
+[data-theme="dark"] .navbar.scrolled {
+  background-color: #5A120F;
+  color: var(--brand-paper, var(--et-cream));
+}
+
+[data-theme="dark"] .navbar-icon-btn,
+[data-theme="dark"] .burger-btn,
+[data-theme="dark"] .navbar-icon-btn.active,
+[data-theme="dark"] .navbar-icon-btn:hover,
+[data-theme="dark"] .navbar-icon-btn:active,
+[data-theme="dark"] .burger-btn:hover,
+[data-theme="dark"] .burger-btn:active {
+  color: var(--brand-paper, var(--et-cream));
+}
+
+[data-theme="dark"] .navbar-icon-btn.active::before {
+  background: currentColor;
+}

@@ -9,9 +9,10 @@
 }
 .inner { max-width: 1120px; margin: 0 auto; }
 .kicker {
-  font-family: var(--font-label, var(--font-ranchers));
-  letter-spacing: .26em; text-transform: uppercase; font-size: 12px;
-  color: rgba(201, 67, 50, .66); margin: 0 0 10px;
+  font-family: var(--font);
+  font-weight: 950;
+  letter-spacing: .16em; text-transform: uppercase; font-size: 11px;
+  color: rgba(201, 67, 50, .74); margin: 0 0 10px;
 }
 .heading {
   font-family: var(--font-label, var(--font-ranchers));
@@ -35,13 +36,18 @@
   position: relative;
   gap: 6px;
   min-width: 0;
-  min-height: 54px !important;
-  padding-inline: 10px;
+  min-height: 50px !important;
+  padding: 13px 10px 11px !important;
   white-space: nowrap;
   text-align: center;
   overflow: visible;
   text-overflow: clip;
-  font-size: clamp(12px, 3.4vw, 17px) !important;
+  font-family: var(--font) !important;
+  font-size: clamp(12px, 3.25vw, 15px) !important;
+  font-weight: 950 !important;
+  letter-spacing: .045em !important;
+  line-height: 1.05 !important;
+  text-transform: uppercase;
 }
 .tab.active {
   background: var(--et-cream);
@@ -52,27 +58,27 @@
 .feat.active { border-color: transparent; }
 .featBadge {
   position: absolute;
-  top: -13px;
-  left: 50%;
+  top: -10px;
+  left: 12px;
   z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 21px;
-  padding: 1px 12px 0;
-  color: var(--et-red);
-  background: var(--et-cream);
-  border: 1.5px solid rgba(201, 67, 50, .62);
-  border-radius: var(--radius-pill, 999px);
+  min-height: 18px;
+  padding: 4px 7px 3px;
+  color: var(--et-cream);
+  background: var(--et-red);
+  border: 1px solid rgba(23, 26, 23, .18);
+  border-radius: var(--radius-xs, 2px);
   box-shadow: none;
   font-family: var(--font);
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 950;
-  letter-spacing: .12em;
+  letter-spacing: .105em;
   line-height: 1;
   text-transform: uppercase;
   white-space: nowrap;
-  transform: translateX(-50%);
+  transform: rotate(-2deg);
 }
 
 .panel { padding-top: 14px; }
@@ -117,9 +123,9 @@
   .heading { font-size: clamp(56px, 7vw, 84px); }
   .tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
   .tab {
-    min-height: 58px;
-    padding-inline: 14px;
-    font-size: clamp(15px, 2.05vw, 19px) !important;
+    min-height: 52px;
+    padding-inline: 14px !important;
+    font-size: clamp(13px, 1.35vw, 15px) !important;
   }
   .grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
   .tileName { font-size: 19px; }
@@ -175,9 +181,9 @@ html[data-theme="dark"] .cta {
   color: var(--et-black);
 }
 html[data-theme="dark"] .featBadge {
-  background: var(--et-cream);
-  color: var(--et-red-hot);
-  border-color: var(--et-red-hot);
+  background: var(--et-red-hot);
+  color: var(--et-black);
+  border-color: rgba(255, 248, 234, .18);
   box-shadow: none;
 }
 

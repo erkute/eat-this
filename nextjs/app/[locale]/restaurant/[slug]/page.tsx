@@ -173,8 +173,8 @@ export default async function RestaurantPage({ params }: PageProps) {
     { name: homeLabel, href: '/' },
     ...(r.bezirk?.slug && r.bezirk?.name
       ? [
-          { name: districtsLabel },
-          { name: r.bezirk.name },
+          { name: districtsLabel, href: '/bezirk' },
+          { name: r.bezirk.name, href: `/bezirk/${r.bezirk.slug}` },
         ]
       : []),
     { name: r.name },

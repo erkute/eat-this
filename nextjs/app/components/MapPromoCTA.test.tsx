@@ -32,7 +32,7 @@ describe('MapPromoCTA', () => {
   it('renders restaurant copy (no name in headline) + ?r= deep-link', () => {
     const html = render({ kind: 'restaurant', name: 'Cocolo', mapHref: '/map?r=cocolo', locale: 'de' })
     expect(html).toContain('href="/map?r=cocolo"')
-    expect(html).toContain('The map for people who care about food.')
+    expect(html).toContain('<span>The map for people</span> <span>who care about food.</span>')
     expect(html).toContain('Mit den besten Restaurants, Cafés und Bars in Berlin.')
   })
 

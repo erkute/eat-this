@@ -459,6 +459,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       basePx: number
       active: boolean
       atScrollTop: boolean
+      nativeScrollOnUp: boolean
       v: VelocityState
     } | null = null
 
@@ -478,6 +479,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
         basePx: snapToPx(snapRef.current, h, configRef.current.peekVisiblePx),
         active: false,
         atScrollTop: scroller.scrollTop <= 0,
+        nativeScrollOnUp: !!(e.target as Element | null)?.closest?.('[data-sheet-scroll-native]'),
         v: velocityInit(e.touches[0].clientY, e.timeStamp),
       }
     }
@@ -497,10 +499,14 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
            user can swipe up/down anywhere in the sheet without fighting
            native scroll:
            - At full + swiping UP → already at top, let native scroll absorb it
+           - Marked scroll-native islands (e.g. locked-district upsell + rows)
+             also let UP gestures scroll content from mid, because their first
+             visible surface is list content, not a generic sheet drag zone
            - Swiping DOWN with the content scrolled past the top → native scroll
            - Otherwise → drag the sheet between snaps. */
         const atFull = snapRef.current === 'full'
         if (atFull && dy < 0) { touchState = null; return }
+        if (touchState.nativeScrollOnUp && dy < 0) { touchState = null; return }
         if (dy > 0 && !touchState.atScrollTop) { touchState = null; return }
         touchState.active = true
         setDragging(true)

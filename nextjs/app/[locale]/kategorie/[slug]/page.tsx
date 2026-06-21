@@ -102,7 +102,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/' },
-    { name: de ? 'Kategorien' : 'Categories' },
+    { name: de ? 'Kategorien' : 'Categories', href: '/kategorie' },
     { name: label },
   ]
 

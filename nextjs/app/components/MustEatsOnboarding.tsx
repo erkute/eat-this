@@ -93,6 +93,16 @@ export default function MustEatsOnboarding({ initialMapData }: Props) {
     return () => window.clearTimeout(timer)
   }, [open, step])
 
+  // Slide 3 art should already be decoded by the time the visitor taps next.
+  useEffect(() => {
+    if (!open) return
+    const preload = new window.Image()
+    preload.setAttribute('fetchpriority', 'high')
+    preload.decoding = 'async'
+    preload.src = BOOSTER_ART
+    void preload.decode?.().catch(() => {})
+  }, [open])
+
   // Body scroll lock while open (same pattern as MustEatImageLightbox).
   useEffect(() => {
     if (!open) return
@@ -137,7 +147,15 @@ export default function MustEatsOnboarding({ initialMapData }: Props) {
               <div className={styles.cardBox}>
                 {last ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
-                  <img data-testid="onb-pack" className={styles.packHero} src={BOOSTER_ART} alt="Booster Pack" />
+                  <img
+                    data-testid="onb-pack"
+                    className={styles.packHero}
+                    src={BOOSTER_ART}
+                    alt="Booster Pack"
+                    loading="eager"
+                    decoding="sync"
+                    fetchPriority="high"
+                  />
                 ) : (
                   <div data-testid="onb-flipper" className={showBack ? `${styles.flipper} ${styles.flipped}` : styles.flipper}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}

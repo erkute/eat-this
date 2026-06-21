@@ -190,7 +190,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   value={search}
                   onChange={e => onSearchChange(e.target.value)}
                   onBlur={() => { if (!search) setSearchOpen(false) }}
-                  placeholder="Suchen in Berlin"
+                  placeholder="Spot, Kiez, Gericht"
                   className={styles.mapSearchInput}
                   aria-label="Search"
                   autoComplete="off"

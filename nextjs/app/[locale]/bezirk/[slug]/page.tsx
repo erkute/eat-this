@@ -97,7 +97,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { name: de ? 'Start' : 'Home', href: '/' },
-    { name: de ? 'Bezirke' : 'Districts' },
+    { name: de ? 'Bezirke' : 'Districts', href: '/bezirk' },
     { name: b.name },
   ]
 

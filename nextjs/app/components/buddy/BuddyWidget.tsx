@@ -6,6 +6,7 @@ import BuddyAvatar, { type BuddyMood } from './BuddyAvatar'
 import { useBuddyChat, type BuddyDisplayMessage } from './useBuddyChat'
 import { splitAnswerSegments, extractFollowups } from '@/lib/buddy/stream'
 import { greetingFor } from '@/lib/buddy/greeting'
+import { isNearbyIntent } from '@/lib/buddy/nearbyIntent'
 import {
   BUDDY_ASK_EVENT,
   BUDDY_STAGE_EVENT,
@@ -15,6 +16,7 @@ import {
 } from '@/lib/buddy/homeStage'
 import { useAuth } from '@/lib/auth'
 import { useFavorites } from '@/lib/map/useFavorites'
+import { useUserLocationContext } from '@/lib/map/UserLocationContext'
 import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements'
 import type { Locale, SpotCandidate, ArticleResult, PackTeaser } from '@/lib/buddy/types'
 import styles from './BuddyWidget.module.css'
@@ -310,6 +312,7 @@ export default function BuddyWidget() {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState('')
   const { messages, isStreaming, send, setGeo } = useBuddyChat()
+  const { location, loading: locating, request: requestLocation } = useUserLocationContext()
   const launcherRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -344,7 +347,6 @@ export default function BuddyWidget() {
   const [scrolling, setScrolling] = useState(false)
   const [happyBeat, setHappyBeat] = useState(false)
   const [greetingBeat, setGreetingBeat] = useState(false)
-  const [locating, setLocating] = useState(false)
   const wasStreaming = useRef(false)
   const [onStage, setOnStage] = useState(false)
   // The corner launcher stays hidden until the visitor has actually reached the
@@ -359,6 +361,39 @@ export default function BuddyWidget() {
     setOpen(false)
     launcherRef.current?.focus()
   }, [])
+
+  useEffect(() => {
+    setGeo(location)
+  }, [location, setGeo])
+
+  const notifyLocationFailure = useCallback(() => {
+    if (typeof window === 'undefined') return
+    window.showNotification?.(
+      locale === 'en'
+        ? "Couldn't get your location — tell me your district instead."
+        : 'Standort ließ sich nicht ermitteln — sag mir einfach deinen Bezirk.',
+    )
+  }, [locale])
+
+  const sendWithLocationIfNeeded = useCallback(
+    async (text: string) => {
+      const trimmed = text.trim()
+      if (!trimmed || isStreaming || locating) return
+
+      if (isNearbyIntent(trimmed) && !location) {
+        const loc = await requestLocation()
+        if (!loc) {
+          notifyLocationFailure()
+          return
+        }
+        setGeo(loc)
+      }
+
+      setDraft('')
+      void send(trimmed)
+    },
+    [isStreaming, locating, location, notifyLocationFailure, requestLocation, send, setGeo],
+  )
 
   // Make Remy "talk" while the page is scrolling — a little sign of life on the
   // launcher. Goes quiet ~400ms after scrolling stops.
@@ -510,23 +545,19 @@ export default function BuddyWidget() {
       // Engaging Remy from the section's chips/CTA also "introduces" him, so the
       // corner launcher should persist once the panel is closed again.
       setRevealed(true)
-      if (question) void send(question)
+      if (question) void sendWithLocationIfNeeded(question)
     }
     window.addEventListener(BUDDY_ASK_EVENT, onAsk)
     return () => window.removeEventListener(BUDDY_ASK_EVENT, onAsk)
-  }, [send])
+  }, [sendWithLocationIfNeeded])
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const text = draft
-    setDraft('')
-    void send(text)
+    void sendWithLocationIfNeeded(draft)
   }
 
   const ask = (text: string) => {
-    if (isStreaming) return
-    setDraft('')
-    void send(text)
+    void sendWithLocationIfNeeded(text)
   }
 
   // "Near me": locate the user (with visible feedback), then ask. On failure we
@@ -534,34 +565,7 @@ export default function BuddyWidget() {
   const askNearby = () => {
     if (isStreaming || locating) return
     const q = locale === 'en' ? "What's good near me right now?" : 'Was Gutes in meiner Nähe?'
-    const notify = (msg: string) =>
-      typeof window !== 'undefined' && window.showNotification?.(msg)
-    if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      notify(locale === 'en' ? 'Location not available on this device.' : 'Standort auf diesem Gerät nicht verfügbar.')
-      return
-    }
-    setLocating(true)
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLocating(false)
-        setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude })
-        ask(q)
-      },
-      (err) => {
-        setLocating(false)
-        const denied = err.code === err.PERMISSION_DENIED
-        notify(
-          denied
-            ? locale === 'en'
-              ? 'Location access is blocked — allow it, or tell me your district.'
-              : 'Standortzugriff ist blockiert — erlaub ihn oder sag mir deinen Bezirk.'
-            : locale === 'en'
-              ? "Couldn't get your location — tell me your district instead."
-              : 'Standort ließ sich nicht ermitteln — sag mir einfach deinen Bezirk.',
-        )
-      },
-      { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 },
-    )
+    void sendWithLocationIfNeeded(q)
   }
 
   const title = 'Remy'

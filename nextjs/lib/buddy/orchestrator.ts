@@ -4,6 +4,7 @@ import type { Locale, ChatMessage, BuddyStreamEvent, SpotCandidate, ArticleResul
 import { BUDDY_TOOLS } from './tools'
 import { buildSystemPrompt } from './prompt'
 import { pickPackForSpots, buildPackTeaser } from './packTeaser'
+import { isNearbyIntent } from './nearbyIntent'
 import type { SpotFilters, ArticleQuery } from './retrieval'
 
 export interface LlmToolUse {
@@ -49,6 +50,8 @@ export async function* runBuddyTurn(
   // At most ONE pack teaser per request — repeated cards would be exactly the
   // pushy selling the prompt forbids Remy himself.
   let packSent = false
+  const latestUserText = [...input.messages].reverse().find((m) => m.role === 'user')?.content ?? ''
+  const forceGeoSearch = !!input.geo && isNearbyIntent(latestUserText)
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
     const turn = deps.llm.runTurn({ system, tools: BUDDY_TOOLS, messages })
@@ -68,7 +71,7 @@ export async function* runBuddyTurn(
         const rawSpots = await deps.searchSpots(
           {
             cuisine: tu.input.cuisine as string | undefined,
-            bezirk: tu.input.bezirk as string | undefined,
+            bezirk: forceGeoSearch ? undefined : tu.input.bezirk as string | undefined,
             priceRange: tu.input.price_range as string | undefined,
             name: tu.input.name as string | undefined,
             userGeo: input.geo,

@@ -1,16 +1,21 @@
 .page,
 .frame {
-  --conversion-bg: var(--brand-ink, #171A17);
-  --conversion-surface: var(--brand-ink, #171A17);
-  --conversion-ink: var(--brand-paper, #F1F1EC);
+  --conversion-bg: #F1F1EC;
+  --conversion-surface: #F7F3E8;
+  --conversion-ink: var(--brand-ink, #171A17);
   --conversion-action: var(--brand-action, #EF3528);
   --conversion-action-text: var(--brand-paper, #F1F1EC);
-  --conversion-border: rgba(241, 241, 236, .28);
-  --conversion-muted: rgba(241, 241, 236, .7);
-  --conversion-field-bg: rgba(16, 13, 15, .28);
+  --conversion-border: rgba(16, 13, 15, .22);
+  --conversion-border-strong: rgba(16, 13, 15, .82);
+  --conversion-muted: rgba(16, 13, 15, .68);
+  --conversion-field-bg: rgba(255, 255, 255, .52);
+  --conversion-elevated: #FFF9E9;
+  --conversion-warning-bg: #FFF2C4;
+  --conversion-warning-ink: rgba(16, 13, 15, .78);
+  --conversion-plane: #FFD84A;
   --conversion-radius: var(--radius-md, 8px);
   --conversion-button-radius: var(--radius-sm, 4px);
-  --conversion-shadow: 0 18px 38px rgba(23, 26, 23, .24);
+  --conversion-shadow: 0 18px 38px rgba(23, 26, 23, .18);
   --conversion-motion: var(--motion-base, 180ms) var(--ease-standard, ease);
   --conversion-control-w: min(100%, 440px);
 }
@@ -36,10 +41,18 @@
   overflow: hidden;
   color: var(--conversion-ink);
   background: var(--conversion-surface);
-  border: 2px solid transparent;
+  border: 2px solid var(--conversion-border-strong);
   border-radius: var(--conversion-radius);
   box-shadow: var(--conversion-shadow);
   isolation: isolate;
+}
+
+.frameSent {
+  --conversion-surface: #FFF8DF;
+  --conversion-field-bg: rgba(255, 255, 255, .62);
+  --conversion-elevated: #F1F1EC;
+  --conversion-warning-bg: #FFEAA3;
+  --conversion-shadow: 0 18px 38px rgba(23, 26, 23, .2);
 }
 
 .frame::before {
@@ -67,7 +80,7 @@
   padding: 0 0 2px;
   color: var(--conversion-ink);
   background: transparent;
-  border: 2px solid rgba(241, 241, 236, .58);
+  border: 2px solid var(--conversion-border-strong);
   border-radius: 4px;
   font-family: var(--font);
   font-size: 25px;
@@ -79,8 +92,8 @@
 
 .close:hover {
   color: var(--conversion-action-text);
-  background: var(--conversion-ink);
-  border-color: var(--conversion-ink);
+  background: var(--conversion-action);
+  border-color: var(--conversion-action);
   transform: translate(-2px, -2px);
 }
 
@@ -267,7 +280,7 @@
   padding: 0 clamp(14px, 2.4vw, 20px);
   color: var(--conversion-ink);
   background: var(--conversion-field-bg);
-  border: 2px solid var(--conversion-ink);
+  border: 2px solid var(--conversion-border-strong);
   border-radius: var(--conversion-button-radius);
   font-family: 'Providence Sans Pro Regular', var(--font-body);
   font-size: clamp(14px, 1.8dvh, 16px);
@@ -277,7 +290,7 @@
 }
 
 .input::placeholder {
-  color: rgba(241, 241, 236, .38);
+  color: rgba(16, 13, 15, .42);
   font-family: 'Providence Sans Pro Regular', var(--font-body);
   font-weight: 400;
 }
@@ -306,14 +319,14 @@
 .ctaPrimary {
   color: var(--conversion-action-text);
   background: var(--conversion-action);
-  border: 2px solid var(--conversion-ink);
+  border: 2px solid var(--conversion-action);
   box-shadow: 0 8px 16px rgba(23, 26, 23, .2);
 }
 
 .ctaGoogle {
   color: var(--conversion-ink);
-  background: transparent;
-  border: 2px solid var(--conversion-border);
+  background: var(--conversion-elevated);
+  border: 2px solid var(--conversion-border-strong);
   box-shadow: 0 7px 14px rgba(23, 26, 23, .14);
   margin-inline: auto;
 }
@@ -397,19 +410,26 @@
   filter: drop-shadow(7px 10px 9px rgba(16, 13, 15, .16));
 }
 
+.plane svg path:first-child {
+  fill: var(--conversion-plane);
+}
+
 .toBlock {
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 10px;
   align-items: baseline;
-  margin: 0 0 16px;
-  padding: 12px 0;
-  border-top: 2px solid var(--et-black, #100d0f);
-  border-bottom: 2px solid var(--et-black, #100d0f);
+  width: var(--conversion-control-w);
+  margin: 0 auto 16px;
+  padding: 12px 14px;
+  background: var(--conversion-elevated);
+  border: 2px solid var(--conversion-border-strong);
+  border-radius: var(--conversion-button-radius);
 }
 
 .toLabel {
-  color: var(--et-red, #e43d18);
+  color: var(--conversion-action);
   font-family: var(--font);
   font-size: 11px;
   font-weight: 950;
@@ -419,7 +439,7 @@
 
 .toValue {
   min-width: 0;
-  color: var(--et-black, #100d0f);
+  color: var(--conversion-ink);
   font-family: var(--font);
   font-size: 15px;
   font-weight: 850;
@@ -429,14 +449,16 @@
 }
 
 .spam {
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: 22px minmax(0, 1fr);
   gap: 10px;
   align-items: start;
-  margin: 12px 0 20px;
+  width: var(--conversion-control-w);
+  margin: 12px auto 20px;
   padding: 12px;
-  background: rgba(255, 250, 240, .52);
-  border: 1px solid rgba(16, 13, 15, .3);
+  background: var(--conversion-warning-bg);
+  border: 1px solid var(--conversion-border);
   border-radius: 4px;
 }
 
@@ -445,8 +467,8 @@
   place-items: center;
   width: 22px;
   height: 22px;
-  color: var(--et-cream, #f2dfb8);
-  background: var(--et-black, #100d0f);
+  color: var(--conversion-action-text);
+  background: var(--conversion-ink);
   border-radius: 50%;
   font-family: var(--font);
   font-size: 12px;
@@ -455,7 +477,7 @@
 }
 
 .spamText {
-  color: rgba(16, 13, 15, .74);
+  color: var(--conversion-warning-ink);
   font-size: 13px;
   font-weight: 650;
   line-height: 1.4;
@@ -464,12 +486,14 @@
 .actions {
   display: grid;
   gap: 10px;
+  width: var(--conversion-control-w);
+  margin: 0 auto;
 }
 
 .textlink {
   width: 100%;
   padding: 8px 0 0;
-  color: var(--et-black, #100d0f);
+  color: var(--conversion-ink);
   background: transparent;
   border: 0;
   font-family: var(--font);
@@ -559,6 +583,12 @@
   min-height: clamp(270px, 34dvh, 390px);
   margin: clamp(14px, 1.9dvh, 18px) auto clamp(16px, 2dvh, 22px);
   box-shadow: none;
+}
+
+.frameModal .packHero::before,
+.frameModal .packHero::after {
+  width: clamp(116px, 20dvh, 152px);
+  bottom: clamp(4px, 1dvh, 12px);
 }
 
 .frameModal .packHero img {
@@ -797,6 +827,12 @@
     margin-bottom: clamp(12px, 1.6dvh, 16px);
   }
 
+  .frameModal .packHero::before,
+  .frameModal .packHero::after {
+    width: clamp(92px, 25vw, 128px);
+    bottom: clamp(6px, 1.4dvh, 12px);
+  }
+
   .frameModal .packHero img {
     max-width: min(78vw, 350px);
     height: clamp(210px, 31dvh, 320px);
@@ -919,6 +955,14 @@
     margin-bottom: clamp(12px, 1.8dvh, 16px);
   }
 
+  .frame:not(.frameModal) .packHero::before,
+  .frame:not(.frameModal) .packHero::after,
+  .frameModal .packHero::before,
+  .frameModal .packHero::after {
+    width: clamp(112px, 19dvh, 144px);
+    bottom: clamp(4px, 1dvh, 10px);
+  }
+
   .packHero img {
     height: min(29dvh, 280px);
     max-width: min(52vw, 300px);
@@ -978,6 +1022,7 @@
   .packHero::before,
   .packHero::after {
     width: clamp(76px, 25vw, 100px);
+    bottom: clamp(5px, 1.1dvh, 8px);
   }
 
   .sub {
@@ -1019,17 +1064,30 @@ html[data-theme="dark"] .page {
 }
 
 html[data-theme="dark"] .frame {
+  --conversion-bg: var(--et-black, #100d0f);
   --conversion-surface: #171A17;
   --conversion-ink: #F1F1EC;
   --conversion-action: var(--et-red-hot, #f03608);
   --conversion-action-text: #F1F1EC;
   --conversion-border: rgba(241, 241, 236, .28);
+  --conversion-border-strong: rgba(241, 241, 236, .66);
   --conversion-muted: rgba(241, 241, 236, .76);
   --conversion-field-bg: rgba(16, 13, 15, .34);
+  --conversion-elevated: rgba(16, 13, 15, .38);
+  --conversion-warning-bg: rgba(255, 216, 74, .12);
+  --conversion-warning-ink: rgba(242, 223, 184, .74);
+  --conversion-plane: #FFD84A;
   color: #F1F1EC;
   background: var(--conversion-surface);
   border-color: transparent;
   box-shadow: 0 18px 38px rgba(0, 0, 0, .34);
+}
+
+html[data-theme="dark"] .frameSent {
+  --conversion-surface: #101211;
+  --conversion-elevated: rgba(241, 241, 236, .08);
+  --conversion-warning-bg: rgba(255, 216, 74, .14);
+  border-color: rgba(241, 241, 236, .2);
 }
 
 html[data-theme="dark"] .frame::before {
@@ -1054,7 +1112,7 @@ html[data-theme="dark"] .textlink {
 html[data-theme="dark"] .menuTop,
 html[data-theme="dark"] .menuList,
 html[data-theme="dark"] .toBlock {
-  border-color: rgba(242, 223, 184, .72);
+  border-color: var(--conversion-border-strong);
 }
 
 html[data-theme="dark"] .menuList li,
@@ -1078,7 +1136,7 @@ html[data-theme="dark"] .toLabel {
 
 html[data-theme="dark"] .input,
 html[data-theme="dark"] .ctaGoogle {
-  background: rgba(16, 13, 15, .28);
+  background: var(--conversion-elevated);
   border-color: var(--conversion-border);
 }
 

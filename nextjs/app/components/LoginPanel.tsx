@@ -69,9 +69,14 @@ export default function LoginPanel({ onBack, modal = false, mustEatGate = false 
   const dsHref  = locale === routing.defaultLocale ? '/datenschutz' : `/${locale}/datenschutz`;
   const sent = magicState === 'sent';
   const sloganLines = t('modals.login.kicker').split('|');
+  const frameClassName = [
+    styles.frame,
+    modal ? styles.frameModal : '',
+    sent ? styles.frameSent : '',
+  ].filter(Boolean).join(' ');
 
   return (
-    <div className={modal ? `${styles.frame} ${styles.frameModal}` : styles.frame}>
+    <div className={frameClassName}>
       <button
         type="button"
         className={styles.close}

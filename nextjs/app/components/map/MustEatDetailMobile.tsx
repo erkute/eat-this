@@ -183,7 +183,7 @@ export default function MustEatDetailMobile({
 
           {/* Locked: Näherungs-Hinweis statt Beschreibung. */}
           {!open && (
-            <div className={`${styles.fdProximity}${canUnlock ? ` ${styles.fdProximityReady}` : ''}`}>
+            <div className={`${styles.fdProximity}${canUnlock ? ` ${styles.fdProximityReady}` : ` ${styles.fdProximityAway}`}`}>
               <p className={styles.fdProximityHead}>
                 {canUnlock
                   ? tMap('proximityHere')

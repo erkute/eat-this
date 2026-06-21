@@ -156,11 +156,11 @@
 }
 
 .item1 {
-  left: 31%;
-  top: 6%;
+  left: 42%;
+  top: 17%;
   z-index: 7;
-  width: clamp(188px, 20vw, 286px);
-  transform: rotate(-5deg);
+  width: clamp(190px, 20vw, 286px);
+  transform: translate(-50%, -50%) rotate(-5deg);
   --label-left: 56%;
   --label-bottom: 1%;
   --label-rot: 3deg;
@@ -171,11 +171,11 @@
 }
 
 .item2 {
-  right: 5%;
-  top: 0;
+  left: 76%;
+  top: 21%;
   z-index: 5;
   width: clamp(170px, 18vw, 250px);
-  transform: rotate(6deg);
+  transform: translate(-50%, -50%) rotate(6deg);
   --label-left: 50%;
   --label-bottom: -2%;
   --label-rot: -4deg;
@@ -186,11 +186,11 @@
 }
 
 .item3 {
-  left: 3%;
-  top: 8%;
+  left: 15%;
+  top: 28%;
   z-index: 4;
   width: clamp(170px, 18vw, 252px);
-  transform: rotate(-8deg);
+  transform: translate(-50%, -50%) rotate(-8deg);
   --label-left: 54%;
   --label-bottom: -1%;
   --label-rot: 3deg;
@@ -201,11 +201,11 @@
 }
 
 .item4 {
-  left: -1%;
-  top: 43%;
+  left: 32%;
+  top: 58%;
   z-index: 5;
   width: clamp(168px, 18vw, 258px);
-  transform: rotate(4deg);
+  transform: translate(-50%, -50%) rotate(4deg);
   --label-left: 58%;
   --label-bottom: 0%;
   --label-rot: -3deg;
@@ -216,11 +216,11 @@
 }
 
 .item5 {
-  right: 10%;
-  top: 38%;
+  left: 64%;
+  top: 51%;
   z-index: 6;
   width: clamp(168px, 18vw, 258px);
-  transform: rotate(8deg);
+  transform: translate(-50%, -50%) rotate(8deg);
   --label-left: 48%;
   --label-bottom: -1%;
   --label-rot: -5deg;
@@ -231,11 +231,11 @@
 }
 
 .item6 {
-  left: 47%;
-  bottom: 4%;
+  left: 48%;
+  top: 77%;
   z-index: 4;
   width: clamp(168px, 18vw, 258px);
-  transform: rotate(-2deg);
+  transform: translate(-50%, -50%) rotate(-2deg);
   --label-left: 50%;
   --label-bottom: 0%;
   --label-rot: 2deg;
@@ -246,11 +246,11 @@
 }
 
 .item7 {
-  right: 0;
-  bottom: 3%;
+  left: 82%;
+  top: 72%;
   z-index: 3;
   width: clamp(142px, 16vw, 230px);
-  transform: rotate(5deg);
+  transform: translate(-50%, -50%) rotate(5deg);
   --label-left: 46%;
   --label-bottom: 0%;
   --label-rot: 3deg;
@@ -261,11 +261,11 @@
 }
 
 .item8 {
-  left: 25%;
-  bottom: -2%;
+  left: 18%;
+  top: 76%;
   z-index: 3;
   width: clamp(132px, 14vw, 212px);
-  transform: rotate(-5deg);
+  transform: translate(-50%, -50%) rotate(-5deg);
   --label-left: 55%;
   --label-bottom: 0%;
   --label-rot: -2deg;
@@ -273,21 +273,6 @@
   --enter-y: 180px;
   --enter-rot: -8deg;
   --enter-delay: 350ms;
-}
-
-.item9 {
-  left: 55%;
-  bottom: -1%;
-  z-index: 5;
-  width: clamp(154px, 17vw, 244px);
-  transform: rotate(3deg);
-  --label-left: 48%;
-  --label-bottom: 0%;
-  --label-rot: 2deg;
-  --enter-x: 120px;
-  --enter-y: 210px;
-  --enter-rot: 7deg;
-  --enter-delay: 390ms;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -308,8 +293,7 @@
   }
 
   .item3,
-  .item6,
-  .item9 {
+  .item6 {
     animation: driftC 10s ease-in-out infinite;
   }
 }
@@ -372,41 +356,37 @@
   .item1 {
     grid-column: auto;
     width: min(100%, 162px);
-    transform: rotate(-4deg);
+    transform: translate(-8px, 0) rotate(-4deg);
   }
 
   .item2 {
-    transform: translate(-18px, 2px) rotate(6deg);
+    transform: translate(10px, 18px) rotate(6deg);
   }
 
   .item3 {
-    transform: translateY(18px) rotate(-7deg);
+    transform: translate(-14px, 10px) rotate(-7deg);
   }
 
   .item4 {
-    transform: translate(-18px, 8px) rotate(4deg);
+    transform: translate(14px, 30px) rotate(4deg);
   }
 
   .item5 {
-    transform: translateY(28px) rotate(7deg);
+    transform: translate(-6px, 22px) rotate(7deg);
   }
 
   .item6 {
-    grid-column: 1 / -1;
-    width: min(50vw, 178px);
-    transform: translateY(8px) rotate(-2deg);
+    grid-column: auto;
+    width: min(100%, 164px);
+    transform: translate(12px, 44px) rotate(-2deg);
   }
 
   .item7 {
-    transform: translateY(26px) rotate(5deg);
+    transform: translate(-12px, 34px) rotate(5deg);
   }
 
   .item8 {
-    transform: translate(-18px, 4px) rotate(-5deg);
-  }
-
-  .item9 {
-    transform: translate(-18px, 20px) rotate(3deg);
+    transform: translate(12px, 16px) rotate(-5deg);
   }
 
   .label {

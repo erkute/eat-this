@@ -18,6 +18,9 @@ const owned: { value: Set<string> | null } = { value: new Set() }
 vi.mock('@/lib/firebase/useOwnedEntitlements', () => ({
   useOwnedEntitlements: () => owned.value,
 }))
+vi.mock('@/lib/map/UserLocationContext', () => ({
+  useUserLocationContext: () => ({ location: null, loading: false, error: null, request: vi.fn() }),
+}))
 const chat: { messages: BuddyDisplayMessage[]; isStreaming: boolean } = {
   messages: [],
   isStreaming: false,

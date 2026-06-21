@@ -14,9 +14,25 @@ vi.mock('@/lib/map/useFavorites', () => ({
 vi.mock('@/lib/firebase/useOwnedEntitlements', () => ({
   useOwnedEntitlements: () => new Set<string>(),
 }))
-const send = vi.fn()
+const { send, setGeo, locationState } = vi.hoisted(() => ({
+  send: vi.fn(),
+  setGeo: vi.fn(),
+  locationState: {
+    location: null as { lat: number; lng: number } | null,
+    loading: false,
+    request: vi.fn(),
+  },
+}))
 vi.mock('./useBuddyChat', () => ({
-  useBuddyChat: () => ({ messages: [], isStreaming: false, send, setGeo: vi.fn() }),
+  useBuddyChat: () => ({ messages: [], isStreaming: false, send, setGeo }),
+}))
+vi.mock('@/lib/map/UserLocationContext', () => ({
+  useUserLocationContext: () => ({
+    location: locationState.location,
+    loading: locationState.loading,
+    error: null,
+    request: locationState.request,
+  }),
 }))
 vi.mock('@/i18n/navigation', () => ({
   usePathname: () => '/',
@@ -28,6 +44,10 @@ import BuddyWidget from './BuddyWidget'
 afterEach(() => {
   cleanup()
   send.mockClear()
+  setGeo.mockClear()
+  locationState.location = null
+  locationState.loading = false
+  locationState.request = vi.fn()
 })
 
 function renderWidget() {
@@ -69,6 +89,21 @@ describe('BuddyWidget home-stage protocol', () => {
     )
     expect(document.querySelector('[data-buddy-panel="open"]')).not.toBeNull()
     expect(send).toHaveBeenCalledWith('Wo gibt’s gute Pizza?')
+  })
+
+  it('uses the shared location for nearby questions from the stage', () => {
+    const steglitz = { lat: 52.456, lng: 13.322 }
+    locationState.location = steglitz
+    renderWidget()
+
+    fireEvent(
+      window,
+      new CustomEvent(BUDDY_ASK_EVENT, { detail: { question: 'Guter Kaffee in meiner Nähe?' } }),
+    )
+
+    expect(setGeo).toHaveBeenCalledWith(steglitz)
+    expect(locationState.request).not.toHaveBeenCalled()
+    expect(send).toHaveBeenCalledWith('Guter Kaffee in meiner Nähe?')
   })
 
   it('opens the panel without sending when buddy:ask has no question', () => {

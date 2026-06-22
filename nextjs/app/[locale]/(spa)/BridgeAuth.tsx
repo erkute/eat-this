@@ -22,6 +22,7 @@ import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useLocale } from 'next-intl';
 import { useAuth, useLoginModal } from '@/lib/auth';
+import { useUserProfile } from '@/lib/firebase/useUserProfile';
 import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { useTranslation } from '@/lib/i18n';
 import LoginModalBarLock from '@/app/components/LoginModalBarLock';
@@ -33,6 +34,7 @@ export default function BridgeAuth() {
   const { user, loading } = useAuth();
   const { t } = useTranslation();
   const { isOpen: loginOpen, close: closeLogin } = useLoginModal();
+  const { profile } = useUserProfile(user?.uid ?? null);
   const router = useRouter();
   const locale = useLocale();
 
@@ -65,7 +67,7 @@ export default function BridgeAuth() {
       // Keep the pre-paint flag accurate once auth actually resolves (the
       // bootstrap only guesses from the possibly-stale _authHint).
       document.documentElement.setAttribute('data-auth', '1');
-      try { localStorage.setItem('_authHint', JSON.stringify({ n: firstName })); } catch {}
+      try { localStorage.setItem('_authHint', JSON.stringify({ n: firstName, ...(profile.avatar ? { a: profile.avatar } : {}) })); } catch {}
       // Close the modal if the user just signed in.
       closeLogin();
     } else {
@@ -74,7 +76,7 @@ export default function BridgeAuth() {
       document.documentElement.removeAttribute('data-auth');
       try { localStorage.removeItem('_authHint'); } catch {}
     }
-  }, [user, loading, t, closeLogin]);
+  }, [user, loading, profile.avatar, t, closeLogin]);
 
   return loginOpen ? createPortal(
     <div

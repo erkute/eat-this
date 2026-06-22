@@ -25,9 +25,14 @@ export interface AlbumPage {
   slots: AlbumSlot[];
 }
 
-const categoryOf = (m: AlbumMustEat): string => m.restaurant?.categories?.[0]?.name ?? 'Sonstige';
+const defaultCategoryOf = (m: AlbumMustEat): string =>
+  m.restaurant?.categories?.[0]?.name ?? 'Sonstige';
 
-export function buildAlbum(all: AlbumMustEat[], faceUpIds: Set<string>): AlbumPage[] {
+export function buildAlbum(
+  all: AlbumMustEat[],
+  faceUpIds: Set<string>,
+  categoryOf: (m: AlbumMustEat) => string = defaultCategoryOf
+): AlbumPage[] {
   const sorted = [...all].sort((a, b) => {
     const c = categoryOf(a).localeCompare(categoryOf(b), 'de');
     return c !== 0 ? c : a._id.localeCompare(b._id);

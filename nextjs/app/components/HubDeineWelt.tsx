@@ -1,12 +1,13 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
 import { defaultAvatarFromUid, useUserProfile } from '@/lib/firebase/useUserProfile';
 import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map';
+import { useUserLocationContext } from '@/lib/map/UserLocationContext';
 import { normalizeName } from '@/lib/normalizeName';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 import MapIntentLink from './MapIntentLink';
@@ -27,6 +28,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
     initialMapData,
   });
   const { unlockedIds } = useUnlockedMustEats(uid);
+  const { location, request } = useUserLocationContext();
 
   // The live face-up set depends on the per-uid localStorage cache + the live
   // /api/map-data payload, so it's client-only — until mount, fall back to the
@@ -35,9 +37,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   const [mounted, setMounted] = useState(false);
   const [authHintName, setAuthHintName] = useState<string | null>(null);
   const [authHintAvatar, setAuthHintAvatar] = useState<1 | 2 | 3 | null>(null);
-  const [selectedDistrict, setSelectedDistrict] = useState('');
-  const [districtOpen, setDistrictOpen] = useState(false);
-  const districtMenuRef = useRef<HTMLDivElement>(null);
+  const [geoBezirk, setGeoBezirk] = useState<string | null>(null);
   useEffect(() => {
     setMounted(true);
     try {
@@ -50,30 +50,21 @@ export default function HubDeineWelt({ initialMapData }: Props) {
     } catch {}
   }, []);
   useEffect(() => {
-    if (!districtOpen) return;
-    function onPointerDown(e: PointerEvent) {
-      if (!districtMenuRef.current?.contains(e.target as Node)) setDistrictOpen(false);
-    }
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') setDistrictOpen(false);
-    }
-    document.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
+    if (!location) return;
+    let cancelled = false;
+    fetch(`/api/bezirk?lat=${location.lat}&lng=${location.lng}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { bezirk?: string | null } | null) => {
+        if (!cancelled && data?.bezirk) setGeoBezirk(data.bezirk);
+      })
+      .catch(() => {});
     return () => {
-      document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
+      cancelled = true;
     };
-  }, [districtOpen]);
+  }, [location]);
 
   const dataMustEats = mounted ? mustEats : initialMapData.mustEats;
   const dataRestaurants = mounted ? restaurants : initialMapData.restaurants;
-  const districtOptions = useMemo(
-    () =>
-      Array.from(
-        new Set(dataRestaurants.map((r) => r.district).filter((d): d is string => Boolean(d)))
-      ).sort((a, b) => a.localeCompare(b, 'de')),
-    [dataRestaurants]
-  );
 
   const firstName = user
     ? (user.displayName ?? '').split(' ')[0] || (user.email ?? '').split('@')[0] || null
@@ -88,11 +79,9 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   // the first name swaps into the kicker, which doesn't move the layout.
   if (!loading && !user) return null;
 
-  // Collection progress = how many Must-Eats are face-up for this visitor vs the
-  // total on the map. "Aufgedeckt" must mean the SAME face-up set the map/teaser
-  // show: the user's stored unlocks + live proximity/server reveals + the public
-  // curated face-up cards (≈10). Counting only the personal unlock cache would
-  // wrongly read 0 for someone who already sees the public cards face-up.
+  // Face-up set for the Must-Eat pick = the SAME face-up set the map/teaser show:
+  // the user's stored unlocks + live proximity/server reveals + the public curated
+  // face-up cards (≈10).
   const effUid = mounted ? uid : null;
   const liveRevealed = mounted
     ? revealedMustEatIds
@@ -105,33 +94,19 @@ export default function HubDeineWelt({ initialMapData }: Props) {
     revealedMustEatIds: liveRevealed,
     publicFaceUpIds,
   });
-  // Only count ids that exist in the current dataset (face-up may carry stale
-  // ids from other datasets — they're inert but shouldn't inflate the count).
-  const mustEatIdSet = new Set(dataMustEats.map((m) => m._id));
-  const collected = [...faceUp].filter((id) => mustEatIdSet.has(id)).length;
   const avatarIdx = user
     ? (profile.avatar ?? authHintAvatar ?? defaultAvatarFromUid(user.uid))
     : (authHintAvatar ?? 2);
-  const districtRestaurants = selectedDistrict
-    ? dataRestaurants.filter(
-        (r) => r.district === selectedDistrict || r.bezirk?.name === selectedDistrict
-      )
-    : dataRestaurants;
-  const restaurantPool = districtRestaurants.length ? districtRestaurants : dataRestaurants;
   const spotPick =
-    restaurantPool.find((r) => !r.isClosed && r.photo && r.mustEatCount > 0) ??
-    restaurantPool.find((r) => !r.isClosed && r.photo) ??
-    restaurantPool.find((r) => !r.isClosed) ??
-    restaurantPool[0] ??
+    dataRestaurants.find((r) => !r.isClosed && r.photo && r.mustEatCount > 0) ??
+    dataRestaurants.find((r) => !r.isClosed && r.photo) ??
+    dataRestaurants.find((r) => !r.isClosed) ??
+    dataRestaurants[0] ??
     null;
-  const districtMustEats = selectedDistrict
-    ? dataMustEats.filter((m) => m.restaurant.district === selectedDistrict)
-    : dataMustEats;
-  const mustEatPool = districtMustEats.length ? districtMustEats : dataMustEats;
   const mustEatPick =
-    mustEatPool.find((m) => faceUp.has(m._id) && m.image) ??
-    mustEatPool.find((m) => !faceUp.has(m._id)) ??
-    mustEatPool[0] ??
+    dataMustEats.find((m) => faceUp.has(m._id) && m.image) ??
+    dataMustEats.find((m) => !faceUp.has(m._id)) ??
+    dataMustEats[0] ??
     null;
   const mustEatOpen = Boolean(mustEatPick && faceUp.has(mustEatPick._id) && mustEatPick.image);
   const spotMeta = spotPick
@@ -164,9 +139,6 @@ export default function HubDeineWelt({ initialMapData }: Props) {
             {firstName ? t('dockHelloName', { name: firstName }) : t('dockHello')}
           </p>
           <h2 className={styles.title}>{t('dockQuestion')}</h2>
-          <p className={styles.progress}>
-            {t('dockProgress', { count: collected, spots: dataRestaurants.length })}
-          </p>
 
           <div className={styles.actionRow} aria-label={t('actionsLabel')}>
             <MapIntentLink href="/map" rel="nofollow" className={styles.primaryAction}>
@@ -179,48 +151,15 @@ export default function HubDeineWelt({ initialMapData }: Props) {
               </span>
               <span className={styles.actionLabel}>{t('profileAction')}</span>
             </Link>
-            <div className={styles.districtPicker} ref={districtMenuRef}>
-              <button
-                type="button"
-                className={styles.districtSelect}
-                aria-haspopup="listbox"
-                aria-expanded={districtOpen}
-                onClick={() => setDistrictOpen((open) => !open)}
-              >
-                <span className={styles.actionLabel}>{selectedDistrict || t('districtTitle')}</span>
+            {location && geoBezirk ? (
+              <span className={styles.locChip} aria-live="polite">
+                {t('locationDetected', { bezirk: geoBezirk })}
+              </span>
+            ) : (
+              <button type="button" className={styles.locChip} onClick={() => void request()}>
+                {t('locationEnable')}
               </button>
-              {districtOpen && (
-                <div className={styles.districtMenu} role="listbox" aria-label={t('districtTitle')}>
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={!selectedDistrict}
-                    className={styles.districtOption}
-                    onClick={() => {
-                      setSelectedDistrict('');
-                      setDistrictOpen(false);
-                    }}
-                  >
-                    {t('districtTitle')}
-                  </button>
-                  {districtOptions.map((district) => (
-                    <button
-                      key={district}
-                      type="button"
-                      role="option"
-                      aria-selected={selectedDistrict === district}
-                      className={styles.districtOption}
-                      onClick={() => {
-                        setSelectedDistrict(district);
-                        setDistrictOpen(false);
-                      }}
-                    >
-                      {district}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </div>
 

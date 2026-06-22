@@ -44,15 +44,23 @@ describe('HubDeineWelt', () => {
     authState.loading = true
   })
 
-  it('SSRs the static shell with the data-auth-only hook while auth is loading', () => {
+  it('SSRs the launcher shell with the data-auth-only hook while auth is loading', () => {
     const html = render()
     expect(html).toContain('data-auth-only')
-    expect(html).toContain('Heute auf')
+    // Greeting + launcher question are the lean dock's copy.
+    expect(html).toContain('Hey.')
+    expect(html).toContain('Was essen wir heute?')
+    // The collection-progress line and the district picker are gone.
+    expect(html).not.toContain('auf deiner Map')
+    expect(html).not.toContain('Bezirk wählen')
+    // Both pick cards still render.
+    expect(html).toContain('Spot für dich')
+    expect(html).toContain('Must Eat für dich')
+    // No live location → the chip is the "enable location" button.
+    expect(html).toContain('Standort aktivieren')
     // Deep links into the noindex map/profile routes must carry nofollow —
     // this markup now ships in the indexed SSR HTML of "/".
     expect(html).toContain('rel="nofollow"')
-    expect(html).not.toContain('standort.webp')
-    expect(html).not.toContain('Standort')
   })
 
   it('renders nothing once auth resolves to logged-out', () => {
@@ -64,6 +72,6 @@ describe('HubDeineWelt', () => {
     authState.loading = false
     authState.user = { uid: 'u1', displayName: 'Ersan Tester' } as never
     const html = render()
-    expect(html).toContain('Hallo Ersan')
+    expect(html).toContain('Hey Ersan.')
   })
 })

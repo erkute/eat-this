@@ -10,9 +10,7 @@
   margin: 0;
   padding: clamp(26px, 3.7vw, 42px) 16px clamp(28px, 3.9vw, 46px);
   color: var(--dock-ink);
-  background:
-    radial-gradient(ellipse at 82% 38%, rgba(239, 53, 40, 0.24), transparent 34%),
-    linear-gradient(135deg, #171a17 0%, #211b17 58%, #2a1612 100%);
+  background: var(--dock-bg);
 }
 
 .section::before {
@@ -20,7 +18,7 @@
   position: absolute;
   inset: auto 0 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(241, 241, 236, 0.22), transparent);
+  background: rgba(241, 241, 236, 0.12);
 }
 
 .inner {
@@ -88,13 +86,11 @@
   line-height: 0.86;
   text-transform: uppercase;
   text-decoration: none;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transition:
     transform 0.14s ease,
     background-color 0.14s ease,
     border-color 0.14s ease,
-    color 0.14s ease,
-    box-shadow 0.14s ease;
+    color 0.14s ease;
 }
 
 .primaryAction {
@@ -106,9 +102,6 @@
   color: var(--dock-ink);
   background: var(--dock-accent);
   border: 1px solid var(--dock-accent);
-  box-shadow:
-    0 16px 28px rgba(239, 53, 40, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 .primaryAction:hover,
@@ -151,7 +144,6 @@
   color: var(--dock-ink);
   background: rgba(241, 241, 236, 0.14);
   border-color: rgba(241, 241, 236, 0.32);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
   transform: translateY(-2px);
 }
 
@@ -187,18 +179,6 @@
   justify-self: stretch;
   width: min(100%, 500px);
   margin: 0 auto;
-  padding-bottom: 22px;
-}
-
-.recommendations::before {
-  content: '';
-  position: absolute;
-  left: 11%;
-  right: 5%;
-  bottom: 2px;
-  height: 42px;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.36), transparent 72%);
-  pointer-events: none;
 }
 
 .pickCard {
@@ -211,7 +191,6 @@
   border: 1px solid rgba(241, 241, 236, 0.17);
   border-radius: 8px;
   text-decoration: none;
-  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.22);
   transition:
     transform 0.16s ease,
     background-color 0.16s ease,
@@ -242,7 +221,6 @@
   line-height: 1;
   text-transform: uppercase;
   transform: rotate(-3deg);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.32);
 }
 
 .pickBody {
@@ -302,8 +280,8 @@
   font-weight: 800;
 }
 
-/* Photo-overlay card: image fills the whole card; sticker top-left, title
-   block sits over a dark gradient at the bottom. */
+/* Photo-overlay card: image fills the whole card; sticker top-left, title in a
+   flat dark caption block bottom-left (no gradient, no shadow). */
 .spotPick {
   display: block;
   position: relative;
@@ -322,32 +300,23 @@
   inset: 0;
   width: 100%;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(239, 53, 40, 0.22), rgba(241, 241, 236, 0.08));
-}
-
-.spotPhoto::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(8, 6, 5, 0.92) 4%,
-    rgba(8, 6, 5, 0.5) 34%,
-    transparent 60%
-  );
+  background: #11130f;
 }
 
 .spotPick .pickBody {
   position: absolute;
-  left: 16px;
-  right: 16px;
-  bottom: 14px;
-  padding: 0;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  gap: 4px;
+  padding: 12px 14px 13px;
+  background: rgba(10, 8, 6, 0.62);
+  border-radius: 10px;
 }
 
-/* Body sits over a dark gradient in BOTH themes → force light text. */
+/* Caption block is dark in both themes → light text. */
 .spotPick .pickTitle {
-  font-size: clamp(34px, 3.6vw, 46px);
+  font-size: clamp(32px, 3.4vw, 44px);
   color: #fff;
 }
 .spotPick .pickMeta {
@@ -390,9 +359,7 @@
   min-height: 150px;
   margin: 0;
   overflow: hidden;
-  background:
-    radial-gradient(135% 130% at 16% 50%, rgba(239, 53, 40, 0.28), transparent 56%),
-    rgba(241, 241, 236, 0.06);
+  background: rgba(241, 241, 236, 0.06);
 }
 
 .mustPick:hover,
@@ -411,7 +378,7 @@
 }
 
 /* Art cell in col 1. The <Image fill> fills this box; object-fit keeps the
-   whole card visible. A warm spotlight glows behind the floating card. */
+   whole card visible. Flat — no glow, no shadow. */
 .mustArt {
   position: relative;
   display: block;
@@ -422,18 +389,9 @@
   margin: 16px 0;
 }
 
-.mustArt::before {
-  content: '';
-  position: absolute;
-  inset: 4% -4% 4% -2%;
-  background: radial-gradient(circle at 50% 46%, rgba(255, 205, 120, 0.42), transparent 60%);
-  pointer-events: none;
-}
-
 .mustImg {
   object-fit: contain;
   object-position: center;
-  filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.6));
   transform: rotate(-5deg);
 }
 
@@ -463,10 +421,12 @@
   transform: rotate(-5deg);
   border: 1px solid rgba(241, 241, 236, 0.22);
   border-radius: 8px;
-  box-shadow: 0 16px 22px rgba(0, 0, 0, 0.5);
-  background:
-    linear-gradient(135deg, rgba(241, 241, 236, 0.18), rgba(241, 241, 236, 0.04)),
-    repeating-linear-gradient(-35deg, rgba(241, 241, 236, 0.1) 0 1px, transparent 1px 11px);
+  background-color: rgba(241, 241, 236, 0.1);
+  background-image: repeating-linear-gradient(
+    -35deg,
+    rgba(241, 241, 236, 0.1) 0 1px,
+    transparent 1px 11px
+  );
 }
 
 /* The locked card has its own backdrop — drop the open-state spotlight. */
@@ -506,9 +466,7 @@ html:not([data-theme='dark']) .section {
   --dock-panel: rgba(255, 255, 255, 0.58);
   --dock-accent: var(--et-red, #ef3528);
   color: var(--dock-ink);
-  background:
-    radial-gradient(ellipse at 84% 34%, rgba(239, 53, 40, 0.16), transparent 36%),
-    linear-gradient(135deg, #fff8ea 0%, #f1f1ec 54%, #ffe7b5 100%);
+  background: var(--dock-bg);
 }
 
 html:not([data-theme='dark']) .title {
@@ -519,9 +477,6 @@ html:not([data-theme='dark']) .primaryAction {
   color: #fff8ea;
   background: var(--dock-accent);
   border-color: var(--dock-accent);
-  box-shadow:
-    0 16px 28px rgba(239, 53, 40, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 html:not([data-theme='dark']) .primaryAction:hover,
@@ -547,7 +502,6 @@ html:not([data-theme='dark']) .profileLink:focus-visible {
 html:not([data-theme='dark']) .pickCard {
   background: rgba(255, 255, 255, 0.62);
   border-color: rgba(37, 23, 15, 0.14);
-  box-shadow: 0 22px 50px rgba(92, 50, 19, 0.15);
 }
 
 html:not([data-theme='dark']) .pickCard:hover,
@@ -564,7 +518,7 @@ html:not([data-theme='dark']) .spotPick {
 }
 
 html:not([data-theme='dark']) .spotPhoto {
-  background: linear-gradient(135deg, rgba(239, 53, 40, 0.16), rgba(37, 23, 15, 0.06));
+  background: rgba(37, 23, 15, 0.06);
 }
 
 html:not([data-theme='dark']) .spotPhoto[data-empty='true']::before,
@@ -573,19 +527,16 @@ html:not([data-theme='dark']) .mustArt[data-open='false'] {
 }
 
 html:not([data-theme='dark']) .mustPick {
-  background:
-    radial-gradient(135% 130% at 16% 50%, rgba(239, 53, 40, 0.16), transparent 56%),
-    rgba(255, 255, 255, 0.62);
-}
-
-html:not([data-theme='dark']) .mustArt::before {
-  background: radial-gradient(circle at 50% 46%, rgba(239, 53, 40, 0.16), transparent 60%);
+  background: rgba(255, 255, 255, 0.62);
 }
 
 html:not([data-theme='dark']) .mustArt[data-open='false'] {
-  background:
-    linear-gradient(135deg, rgba(37, 23, 15, 0.1), rgba(255, 255, 255, 0.28)),
-    repeating-linear-gradient(-35deg, rgba(37, 23, 15, 0.08) 0 1px, transparent 1px 11px);
+  background-color: rgba(37, 23, 15, 0.05);
+  background-image: repeating-linear-gradient(
+    -35deg,
+    rgba(37, 23, 15, 0.08) 0 1px,
+    transparent 1px 11px
+  );
 }
 
 html:not([data-theme='dark']) .mustHiddenMark {

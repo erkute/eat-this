@@ -126,9 +126,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
                     <strong>{collected}</strong>/{total}
                   </span>
                   <span className={styles.progLabel}>{t('revealedLabel')}</span>
-                  <span className={styles.rankChip}>
-                    {t('levelChip', { level: rank.level, rank: t(`ranks.${rank.key}`) })}
-                  </span>
+                  <span className={styles.rankChip}>{t(`ranks.${rank.key}`)}</span>
                 </div>
                 <span className={styles.bar}>
                   <span

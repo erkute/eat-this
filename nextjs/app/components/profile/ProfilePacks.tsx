@@ -3,19 +3,21 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements';
-import { CATALOG } from '@/lib/stripe-catalog';
+import { CATALOG, allPackIds } from '@/lib/stripe-catalog';
 import styles from './ProfileSlim.module.css';
 
-// Owned packs as chips. Welcome Pack (gift) is always present; bought packs
-// resolve their display name from the Stripe catalog. When nothing beyond the
-// welcome pack is owned, nudge toward the booster index.
+// All Booster packs as chips: the Welcome Pack (gift) plus every catalog pack,
+// with owned ones solid and not-yet-owned ones as muted outlines — so the user
+// sees the full set and what's still missing. Nudge to the booster index unless
+// they already own at least one paid pack.
 export default function ProfilePacks({ uid }: { uid: string }) {
   const t = useTranslations('profile');
   const owned = useOwnedEntitlements(uid);
-  const names = (owned ? [...owned] : [])
-    .map((id) => CATALOG[id]?.displayName)
-    .filter((n): n is string => !!n);
-  const onlyWelcome = names.length === 0;
+  const ownedSet = owned ?? new Set<string>();
+  const boosters = allPackIds()
+    .map((id) => CATALOG[id])
+    .filter((p): p is NonNullable<typeof p> => !!p);
+  const hasBought = boosters.some((p) => ownedSet.has(p.packId));
 
   return (
     <>
@@ -24,14 +26,21 @@ export default function ProfilePacks({ uid }: { uid: string }) {
       </div>
       <div className={styles.packs}>
         <span className={`${styles.pck} ${styles.pckGift}`}>Welcome Pack</span>
-        {names.map((n) => (
-          <span key={n} className={styles.pck}>{n}</span>
+        {boosters.map((p) => (
+          <span
+            key={p.packId}
+            className={`${styles.pck} ${ownedSet.has(p.packId) ? '' : styles.pckLocked}`}
+          >
+            {p.displayName}
+          </span>
         ))}
       </div>
-      {onlyWelcome && (
+      {!hasBought && (
         <div className={styles.packHint}>
           <p className={styles.packLine}>{t('packsLine')}</p>
-          <Link href="/#hub-allberlin" className={styles.packCta}>{t('packsCta')}</Link>
+          <Link href="/#hub-allberlin" className={styles.packCta}>
+            {t('packsCta')}
+          </Link>
         </div>
       )}
     </>

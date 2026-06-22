@@ -263,7 +263,7 @@
 
 .editBtn {
   position: absolute;
-  bottom: -10px;
+  bottom: -24px;
   left: 50%;
   transform: translateX(-50%) rotate(4deg);
   background: var(--et-red);
@@ -606,6 +606,13 @@
 .pckGift {
   color: var(--profile-ink);
   background: var(--profile-yellow);
+}
+
+/* Not-yet-owned booster pack — muted outline so it reads as "available". */
+.pckLocked {
+  color: var(--profile-muted);
+  background: transparent;
+  border: 1px solid currentColor;
 }
 
 .packHint {

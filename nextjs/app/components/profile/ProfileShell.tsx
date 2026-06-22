@@ -5,11 +5,17 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
 import { useUnlockedMustEats, useMapData } from '@/lib/map';
-import { defaultAvatarFromUid, useUserProfile, type AvatarChoice } from '@/lib/firebase/useUserProfile';
+import {
+  defaultAvatarFromUid,
+  useUserProfile,
+  type AvatarChoice,
+} from '@/lib/firebase/useUserProfile';
 import { TOAST_HANDOFF_KEY } from '../NotificationToast';
+import { resolveRank } from '@/lib/profile/collectorRank';
 import ProfileSpots from './ProfileSpots';
-import ProfileMustEats from './ProfileMustEats';
+import ProfileAlbum from './ProfileAlbum';
 import ProfilePacks from './ProfilePacks';
+import AvatarPickerModal from './AvatarPickerModal';
 import SiteFooter from '../SiteFooter';
 import styles from './ProfileSlim.module.css';
 
@@ -18,8 +24,6 @@ interface Props {
    *  face-up cards stay face-up in the collection too. */
   publicFaceUpIds: string[];
 }
-
-const AVATAR_CHOICES = [1, 2, 3] as const;
 
 function memberSince(creationTime: string | undefined, locale: string): string | null {
   if (!creationTime) return null;
@@ -35,25 +39,38 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   const { user, loading, signOut } = useAuth();
   const locale = useLocale();
   const t = useTranslations('profile');
-  const [avatarSaving, setAvatarSaving] = useState<AvatarChoice | null>(null);
-  const [avatarError, setAvatarError] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
   // Map-page reveals write to users/{uid}/unlockedMustEats — unioned with the
   // public face-up set (trial-10 ∪ spot-of-day) so anything publicly revealed
   // is open in the collection too, even right after first signup.
   const { unlockedIds: storedUnlockedIds } = useUnlockedMustEats(user?.uid ?? null);
   const unlockedIds = useMemo(
     () => new Set<string>([...storedUnlockedIds, ...publicFaceUpIds]),
-    [storedUnlockedIds, publicFaceUpIds],
+    [storedUnlockedIds, publicFaceUpIds]
   );
-  const { profile, loading: profileLoading, setAvatar } = useUserProfile(user?.uid ?? null);
+  const { profile, setAvatar } = useUserProfile(user?.uid ?? null);
   // Owned spots (the user's map tier) → drives which must-eats appear in the
   // collected grid. Fetches /api/map-data on mount; cached for instant repaint.
   // The same per-user payload also feeds the deck itself — covered cards come
   // back stripped (no dish/image), unlocked ones carry the full card data.
-  const { restaurants: ownedRestaurants, mustEats } = useMapData({ uid: user?.uid ?? null, authLoading: loading });
+  const { restaurants: ownedRestaurants, mustEats } = useMapData({
+    uid: user?.uid ?? null,
+    authLoading: loading,
+  });
   const ownedRestaurantIds = useMemo(
     () => new Set(ownedRestaurants.map((r) => r._id)),
-    [ownedRestaurants],
+    [ownedRestaurants]
+  );
+  // Only Must-Eats whose spot the user owns appear in the album.
+  const ownedMustEats = useMemo(
+    () => mustEats.filter((m) => ownedRestaurantIds.has(m.restaurant._id)),
+    [mustEats, ownedRestaurantIds]
+  );
+  // MapMustEat.restaurant has no categories, so join through the owned
+  // restaurants (which carry categories) to give the album its page groups.
+  const catByRest = useMemo(
+    () => new Map(ownedRestaurants.map((r) => [r._id, r.categories?.[0]?.name ?? 'Sonstige'])),
+    [ownedRestaurants]
   );
 
   if (loading || !user) {
@@ -69,75 +86,67 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   const avatarIdx = profile.avatar ?? defaultAvatarFromUid(user.uid);
   const since = memberSince(user.metadata?.creationTime, locale);
   const sinceLabel = locale === 'de' ? 'Mitglied seit' : 'Member since';
-  const discoveredCount = [...unlockedIds].filter((id) => mustEats.some((m) => m._id === id)).length;
+  const total = ownedMustEats.length;
+  const collected = ownedMustEats.filter((m) => unlockedIds.has(m._id)).length;
+  const rank = resolveRank(collected, total);
+  const firstName =
+    (user.displayName ?? '').split(' ')[0] || (user.email ?? '').split('@')[0] || t('heroTitle');
 
   async function handleAvatarChange(choice: AvatarChoice) {
-    if (choice === avatarIdx || avatarSaving) return;
-    setAvatarError(false);
-    setAvatarSaving(choice);
-    try {
-      await setAvatar(choice);
-    } catch {
-      setAvatarError(true);
-    } finally {
-      setAvatarSaving(null);
-    }
+    if (choice === avatarIdx) return;
+    await setAvatar(choice);
   }
 
   return (
     <>
       <main className={styles.page}>
         <div className={styles.shell}>
-          <header className={styles.head}>
-            <div className={styles.avatar} aria-hidden="true">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/pics/avatar/${avatarIdx}.webp?v=2`} alt="" />
-            </div>
-            <div className={styles.info}>
-              {since && <div className={styles.kicker}>{sinceLabel} {since}</div>}
-              <h1 className={styles.name}>{t('heroTitle')}</h1>
-              <div className={styles.stats} aria-label={t('heroTitle')}>
-                <div className={styles.stat}>
-                  <strong>{ownedRestaurants.length}</strong>
-                  <span>{t('statMap')}</span>
-                </div>
-                <div className={styles.stat}>
-                  <strong>{discoveredCount}</strong>
-                  <span>{t('statDiscovered')}</span>
-                </div>
+          <header className={styles.heroDark}>
+            <div className={styles.heroRow}>
+              <div className={styles.heroAvatar}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/pics/avatar/${avatarIdx}.webp?v=2`} alt="" />
+                <button
+                  type="button"
+                  className={styles.editBtn}
+                  onClick={() => setPickerOpen(true)}
+                >
+                  {t('changeAvatar')}
+                </button>
               </div>
-              <div className={styles.quickActions} aria-label={t('quickActions')}>
-                <Link href="/map" rel="nofollow" className={styles.quickAction}>{t('toMap')}</Link>
-                <Link href="/#hub-allberlin" rel="nofollow" className={styles.quickAction}>{t('packsCta')}</Link>
+              <div className={styles.heroText}>
+                {since && (
+                  <div className={styles.heroKicker}>
+                    {sinceLabel} {since}
+                  </div>
+                )}
+                <h1 className={styles.heroName}>{firstName}</h1>
+                <div className={styles.progRow}>
+                  <span className={styles.progNum}>
+                    <strong>{collected}</strong>/{total}
+                  </span>
+                  <span className={styles.progLabel}>{t('revealedLabel')}</span>
+                  <span className={styles.rankChip}>
+                    {t('levelChip', { level: rank.level, rank: t(`ranks.${rank.key}`) })}
+                  </span>
+                </div>
+                <span className={styles.bar}>
+                  <span
+                    className={styles.barFill}
+                    style={{ width: `${total ? (collected / total) * 100 : 0}%` }}
+                  />
+                </span>
+                <div className={styles.heroActions}>
+                  <Link href="/map" rel="nofollow" className={styles.quickAction}>
+                    {t('toMap')}
+                  </Link>
+                  <Link href="/#hub-allberlin" rel="nofollow" className={styles.quickAction}>
+                    {t('packsCta')}
+                  </Link>
+                </div>
               </div>
             </div>
           </header>
-
-          <section className={styles.character} aria-labelledby="profile-character-title">
-            <div className={styles.characterCopy}>
-              <p className={styles.characterKicker}>{t('avatarKicker')}</p>
-              <h2 id="profile-character-title" className={styles.characterTitle}>{t('avatarTitle')}</h2>
-              <p className={styles.avatarStatus}>
-                {avatarError ? t('avatarError') : avatarSaving ? t('avatarSaving') : t('avatarHint')}
-              </p>
-            </div>
-            <div className={styles.avatarPicker} role="radiogroup" aria-label={t('avatarTitle')}>
-              {AVATAR_CHOICES.map((choice) => (
-                <button
-                  key={choice}
-                  type="button"
-                  role="radio"
-                  aria-checked={avatarIdx === choice}
-                  className={`${styles.avatarChoice} ${avatarIdx === choice ? styles.avatarChoiceActive : ''}`}
-                  disabled={profileLoading || avatarSaving !== null}
-                  onClick={() => void handleAvatarChange(choice)}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`/pics/avatar/${choice}.webp?v=2`} alt={t('avatarChoice', { n: choice })} />
-                </button>
-              ))}
-            </div>
-          </section>
 
           <section
             id="profile-panel-spots"
@@ -155,10 +164,10 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             className={styles.profileBlock}
             style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
           >
-            <ProfileMustEats
-              mustEats={mustEats}
-              mapUnlockedIds={unlockedIds}
-              ownedRestaurantIds={ownedRestaurantIds}
+            <ProfileAlbum
+              mustEats={ownedMustEats}
+              faceUpIds={unlockedIds}
+              categoryOf={(m) => catByRest.get(m.restaurant._id) ?? 'Sonstige'}
             />
           </section>
 
@@ -177,8 +186,13 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
               // Sign-out hard-navigates to '/' (ProfileAuthGuard) — park the
               // confirmation so the toast shows after the reload.
               try {
-                sessionStorage.setItem(TOAST_HANDOFF_KEY, locale === 'de' ? 'Du bist abgemeldet' : "You're signed out");
-              } catch { /* private mode */ }
+                sessionStorage.setItem(
+                  TOAST_HANDOFF_KEY,
+                  locale === 'de' ? 'Du bist abgemeldet' : "You're signed out"
+                );
+              } catch {
+                /* private mode */
+              }
               void signOut();
             }}
           >
@@ -187,6 +201,13 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
         </div>
       </main>
       <SiteFooter />
+      {pickerOpen && (
+        <AvatarPickerModal
+          current={avatarIdx}
+          onApply={handleAvatarChange}
+          onClose={() => setPickerOpen(false)}
+        />
+      )}
     </>
   );
 }

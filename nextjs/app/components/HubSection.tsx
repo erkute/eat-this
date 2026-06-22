@@ -31,16 +31,16 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       <HubHashScroll />
       <HubDeineWelt initialMapData={initialMapData} />
       {spot ? <HubHero spot={spot} today={today} /> : <h1>Eat This</h1>}
-      <HubDishPoster />
-      <HubFragRemy />
       <HubNearby initialMapData={initialMapData} />
       <HubNewOnMap cards={initialData.newOnMap} />
+      <HubFragRemy />
       <HubMustEatsTeaser initialMapData={initialMapData} />
+      <HubDishPoster />
       <HubMagazine articles={initialData.magazine} />
       <HubCategories categories={initialData.categories} />
       <HubBezirke districts={initialData.districts} />
-      <HubAllBerlin />
       <HubPacks categoryNames={initialData.categoryNames} />
+      <HubAllBerlin />
       <HubFaq locale={locale} />
       <SiteFooter />
     </div>

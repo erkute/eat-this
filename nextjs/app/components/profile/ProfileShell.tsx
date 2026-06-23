@@ -121,7 +121,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className={styles.heroAvatarImg}
-                src={`/pics/avatar/${avatarIdx}.webp?v=2`}
+                src={`/pics/avatar/${avatarIdx}.webp?v=3`}
                 alt=""
               />
               <button type="button" className={styles.heroEdit} onClick={() => setPickerOpen(true)}>

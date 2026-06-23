@@ -147,7 +147,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
             <Link href="/profile" rel="nofollow" className={styles.profileLink}>
               <span className={styles.profileAvatar} aria-hidden="true">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/pics/avatar/${avatarIdx}.webp?v=2`} alt="" />
+                <img src={`/pics/avatar/${avatarIdx}.webp?v=3`} alt="" />
               </span>
               <span className={styles.actionLabel}>{t('profileAction')}</span>
             </Link>

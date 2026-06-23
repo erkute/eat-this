@@ -78,7 +78,7 @@ export default function AvatarPickerModal({ current, onApply, onClose }: Props) 
               onClick={() => setSelected(c)}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/pics/avatar/${c}.webp?v=2`} alt={t('avatarChoice', { n: c })} />
+              <img src={`/pics/avatar/${c}.webp?v=3`} alt={t('avatarChoice', { n: c })} />
             </button>
           ))}
         </div>

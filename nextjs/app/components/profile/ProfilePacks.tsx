@@ -1,8 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements';
 import { CATALOG, allPackIds } from '@/lib/stripe-catalog';
+import { packUrlSlug } from '@/lib/pack/packDetail';
 import { categoryArt } from '@/lib/categoryArt';
 import styles from './ProfileSlim.module.css';
 
@@ -40,8 +42,8 @@ export default function ProfilePacks({ uid }: { uid: string }) {
         {boosters.map((p) => {
           const isOwned = ownedSet.has(p.packId);
           const art = p.slug ? (categoryArt(p.slug) ?? ALL_BERLIN_ART) : ALL_BERLIN_ART;
-          return (
-            <div key={p.packId} className={`${styles.pack} ${isOwned ? '' : styles.packOff}`}>
+          const inner = (
+            <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={art} alt="" />
               <span className={styles.packName}>{p.displayName}</span>
@@ -49,7 +51,21 @@ export default function ProfilePacks({ uid }: { uid: string }) {
               <span className={styles.packStatus}>
                 {isOwned ? t('packStatusOwned') : euro(p.amountCents)}
               </span>
+            </>
+          );
+          // Owned → static row; not-yet-owned → link into the pack's buy page.
+          return isOwned ? (
+            <div key={p.packId} className={styles.pack}>
+              {inner}
             </div>
+          ) : (
+            <Link
+              key={p.packId}
+              href={`/pack/${packUrlSlug(p)}`}
+              className={`${styles.pack} ${styles.packBuy}`}
+            >
+              {inner}
+            </Link>
           );
         })}
       </div>

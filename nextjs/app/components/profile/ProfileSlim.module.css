@@ -243,12 +243,19 @@
   white-space: nowrap;
 }
 
-.packOff {
-  opacity: 0.4;
+/* Not-yet-owned pack → clickable buy row: red price, name underlines on hover. */
+.packBuy {
+  text-decoration: none;
+  color: inherit;
 }
 
-.packOff img {
-  filter: grayscale(1);
+.packBuy .packStatus {
+  color: var(--profile-action);
+}
+
+.packBuy:hover .packName,
+.packBuy:focus-visible .packName {
+  text-decoration: underline;
 }
 
 /* ===== SAVED SPOTS (cards stay self-contained dark cards) ===== */

@@ -79,6 +79,10 @@
   border-radius: 5px;
   overflow: hidden;
   background: #e9e2ce;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
 }
 
 /* Uncollected → the face-down card back fills the slot. */

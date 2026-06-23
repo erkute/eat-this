@@ -112,9 +112,9 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
                 <Link href="/map" rel="nofollow" className={styles.heroLink}>
                   {t('toMap')}
                 </Link>
-                <Link href="/#hub-allberlin" rel="nofollow" className={styles.heroLink}>
+                <a href="#profile-panel-packs" className={styles.heroLink}>
                   {t('packsCta')}
-                </Link>
+                </a>
               </div>
             </div>
             <div className={styles.heroAvatar}>

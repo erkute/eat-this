@@ -11,7 +11,6 @@ import {
   type AvatarChoice,
 } from '@/lib/firebase/useUserProfile';
 import { TOAST_HANDOFF_KEY } from '../NotificationToast';
-import { resolveRank } from '@/lib/profile/collectorRank';
 import ProfileSpots from './ProfileSpots';
 import ProfileAlbum from './ProfileAlbum';
 import ProfilePacks from './ProfilePacks';
@@ -88,7 +87,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   const sinceLabel = locale === 'de' ? 'Mitglied seit' : 'Member since';
   const total = ownedMustEats.length;
   const collected = ownedMustEats.filter((m) => unlockedIds.has(m._id)).length;
-  const rank = resolveRank(collected, total);
   const firstName =
     (user.displayName ?? '').split(' ')[0] || (user.email ?? '').split('@')[0] || t('heroTitle');
 
@@ -101,65 +99,64 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     <>
       <main className={styles.page}>
         <div className={styles.shell}>
-          <header className={styles.heroDark}>
-            <div className={styles.heroRow}>
-              <div className={styles.heroAvatar}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/pics/avatar/${avatarIdx}.webp?v=2`} alt="" />
+          <header className={styles.hero}>
+            <div className={styles.heroMain}>
+              <div className={styles.heroMeta}>
+                {since && (
+                  <span>
+                    {sinceLabel} {since} ·{' '}
+                  </span>
+                )}
                 <button
                   type="button"
-                  className={styles.editBtn}
+                  className={styles.heroEdit}
                   onClick={() => setPickerOpen(true)}
                 >
                   {t('changeAvatar')}
                 </button>
               </div>
-              <div className={styles.heroText}>
-                {since && (
-                  <div className={styles.heroKicker}>
-                    {sinceLabel} {since}
-                  </div>
-                )}
-                <h1 className={styles.heroName}>{firstName}</h1>
-                <div className={styles.progRow}>
-                  <span className={styles.progNum}>
-                    <strong>{collected}</strong>/{total}
-                  </span>
-                  <span className={styles.progLabel}>{t('revealedLabel')}</span>
-                  <span className={styles.rankChip}>{t(`ranks.${rank.key}`)}</span>
-                </div>
-                <span className={styles.bar}>
-                  <span
-                    className={styles.barFill}
-                    style={{ width: `${total ? (collected / total) * 100 : 0}%` }}
-                  />
-                </span>
-                <div className={styles.heroActions}>
-                  <Link href="/map" rel="nofollow" className={styles.quickAction}>
-                    {t('toMap')}
-                  </Link>
-                  <Link href="/#hub-allberlin" rel="nofollow" className={styles.quickAction}>
-                    {t('packsCta')}
-                  </Link>
-                </div>
+              <div className={styles.heroName}>{firstName}</div>
+              <span className={styles.heroSub}>{t('collectorTag')}</span>
+              <div className={styles.heroActions}>
+                <Link href="/map" rel="nofollow" className={styles.heroLink}>
+                  {t('toMap')}
+                </Link>
+                <Link href="/#hub-allberlin" rel="nofollow" className={styles.heroLink}>
+                  {t('packsCta')}
+                </Link>
+              </div>
+            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className={styles.heroAvatar} src={`/pics/avatar/${avatarIdx}.webp?v=2`} alt="" />
+            <div className={styles.leaders}>
+              <div className={styles.leader}>
+                <span>{t('revealedLabel')}</span>
+                <span className={styles.dots} />
+                <b>
+                  {collected} / {total}
+                </b>
+              </div>
+              <div className={styles.leader}>
+                <span>{t('statMap')}</span>
+                <span className={styles.dots} />
+                <b>{ownedRestaurants.length}</b>
               </div>
             </div>
           </header>
 
           <section
             id="profile-panel-spots"
-            className={styles.profileBlock}
+            className={styles.menu}
             style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
           >
-            <div className={styles.section} id="gespeicherte-spots">
-              <h2 className={styles.sectionHeading}>{t('savedHeading')}</h2>
+            <div className={styles.secHead} id="gespeicherte-spots">
+              <h3>{t('savedHeading')}</h3>
             </div>
             <ProfileSpots uid={user.uid} />
           </section>
 
           <section
             id="profile-panel-must-eats"
-            className={styles.profileBlock}
             style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
           >
             <ProfileAlbum
@@ -171,7 +168,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
 
           <section
             id="profile-panel-packs"
-            className={styles.profileBlock}
+            className={styles.menu}
             style={{ scrollMarginTop: 'calc(72px + var(--staging-banner-h, 0px))' }}
           >
             <ProfilePacks uid={user.uid} />

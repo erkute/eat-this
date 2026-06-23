@@ -26,53 +26,54 @@ export default function ProfileAlbum({ mustEats, faceUpIds, categoryOf }: Props)
     () => buildAlbum(mustEats as AlbumMustEat[], faceUpIds, (m) => categoryOf(m as MapMustEat)),
     [mustEats, faceUpIds, categoryOf]
   );
-  const total = mustEats.length;
-  const collected = pages.reduce((n, p) => n + p.slots.filter((s) => s.collected).length, 0);
 
   return (
-    <div>
-      <div className={styles.head}>
-        <h2>{t('albumHeading')}</h2>
-        <span className={styles.count}>{t('albumStuck', { collected, total })}</span>
-      </div>
+    <div className={styles.panel}>
+      <h2 className={styles.title}>{t('albumHeading')}</h2>
 
-      {pages.map((page, pi) => (
-        <div key={page.category} className={styles.album}>
-          <p className={styles.pageHead}>
-            {page.category} · {pi + 1} / {pages.length}
-          </p>
-          <div className={styles.grid}>
-            {page.slots.map((slot) => {
-              if (slot.collected && slot.mustEat) {
+      {pages.map((page) => {
+        const collectedInPage = page.slots.filter((s) => s.collected).length;
+        return (
+          <div key={page.category} className={styles.sec}>
+            <div className={styles.secHead}>
+              <h3>{page.category}</h3>
+              <span className={styles.cnt}>
+                {collectedInPage} / {page.slots.length}
+              </span>
+            </div>
+            <div className={styles.grid}>
+              {page.slots.map((slot) => {
+                if (slot.collected && slot.mustEat) {
+                  return (
+                    <button
+                      key={slot.id}
+                      type="button"
+                      className={`${styles.slot} ${styles.filled}`}
+                      onClick={() => router.push(`/map?me=${slot.id}`)}
+                    >
+                      {slot.mustEat.image && (
+                        <Image
+                          src={slot.mustEat.image}
+                          alt=""
+                          fill
+                          sizes="200px"
+                          className={styles.img}
+                        />
+                      )}
+                    </button>
+                  );
+                }
                 return (
-                  <button
-                    key={slot.id}
-                    type="button"
-                    className={`${styles.slot} ${styles.filled}`}
-                    onClick={() => router.push(`/map?me=${slot.id}`)}
-                  >
-                    {slot.mustEat.image && (
-                      <Image
-                        src={slot.mustEat.image}
-                        alt=""
-                        fill
-                        sizes="200px"
-                        className={styles.img}
-                      />
-                    )}
-                  </button>
+                  <div key={slot.id} className={`${styles.slot} ${styles.empty}`}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img className={styles.backImg} src={CARD_BACK} alt="" loading="lazy" />
+                  </div>
                 );
-              }
-              return (
-                <div key={slot.id} className={`${styles.slot} ${styles.empty}`}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className={styles.backImg} src={CARD_BACK} alt="" loading="lazy" />
-                </div>
-              );
-            })}
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

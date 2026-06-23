@@ -9,7 +9,7 @@
   --profile-radius: 6px;
   --profile-motion: var(--motion-base, 180ms) var(--ease-standard, ease);
   min-height: 100vh;
-  padding-top: calc(26px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
+  padding-top: calc(72px + 20px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
   padding-bottom: 26px;
   color: var(--profile-ink);
   background: #0c0b0a;
@@ -69,13 +69,24 @@
   color: var(--profile-ink);
 }
 
+/* Edit pill hangs off the bottom of the avatar tile (at the avatar, clear of
+   the character). */
 .heroEdit {
-  background: none;
+  position: absolute;
+  bottom: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 6px 13px;
+  color: var(--profile-paper);
+  background: var(--profile-ink);
   border: 0;
-  color: inherit;
-  font: inherit;
+  border-radius: 999px;
   cursor: pointer;
-  text-decoration: underline;
+  font-family: var(--menu-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 11px;
 }
 
 .heroName {
@@ -115,12 +126,24 @@
   text-decoration: underline;
 }
 
+/* Clean tile behind the cut-out avatar — the freigestellt edges sit on paper,
+   not directly on the orange (which exposed the rough alpha fringe). */
 .heroAvatar {
-  width: 150px;
-  height: 200px;
-  object-fit: contain;
+  position: relative;
   align-self: end;
-  image-rendering: pixelated;
+  justify-self: end;
+  width: clamp(124px, 17vw, 156px);
+  margin-bottom: 16px;
+  padding: 12px 10px 0;
+  background: var(--profile-paper);
+  border-radius: 12px;
+}
+
+.heroAvatarImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 .leaders {
@@ -367,7 +390,7 @@
 
 @media (min-width: 720px) {
   .page {
-    padding-top: calc(40px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
+    padding-top: calc(72px + 30px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
   }
 
   .spotsCards {

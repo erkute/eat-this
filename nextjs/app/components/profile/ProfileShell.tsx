@@ -101,20 +101,11 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
         <div className={styles.shell}>
           <header className={styles.hero}>
             <div className={styles.heroMain}>
-              <div className={styles.heroMeta}>
-                {since && (
-                  <span>
-                    {sinceLabel} {since} ·{' '}
-                  </span>
-                )}
-                <button
-                  type="button"
-                  className={styles.heroEdit}
-                  onClick={() => setPickerOpen(true)}
-                >
-                  {t('changeAvatar')}
-                </button>
-              </div>
+              {since && (
+                <div className={styles.heroMeta}>
+                  {sinceLabel} {since}
+                </div>
+              )}
               <div className={styles.heroName}>{firstName}</div>
               <span className={styles.heroSub}>{t('collectorTag')}</span>
               <div className={styles.heroActions}>
@@ -126,8 +117,17 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
                 </Link>
               </div>
             </div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className={styles.heroAvatar} src={`/pics/avatar/${avatarIdx}.webp?v=2`} alt="" />
+            <div className={styles.heroAvatar}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className={styles.heroAvatarImg}
+                src={`/pics/avatar/${avatarIdx}.webp?v=2`}
+                alt=""
+              />
+              <button type="button" className={styles.heroEdit} onClick={() => setPickerOpen(true)}>
+                {t('changeAvatar')}
+              </button>
+            </div>
             <div className={styles.leaders}>
               <div className={styles.leader}>
                 <span>{t('revealedLabel')}</span>

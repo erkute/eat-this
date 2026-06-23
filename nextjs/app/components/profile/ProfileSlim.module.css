@@ -2,9 +2,9 @@
 
 .page {
   --menu-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  /* Adobe Fonts "Corsair PE" (must be in the kgb1lmh Typekit kit); Anton is the
+  /* Adobe Fonts "Chauncy Pro" (in the kgb1lmh Typekit kit); Anton is the
      fallback until it loads. */
-  --font-condensed: 'corsairpe-1', 'corsairpe-2', var(--font-anton), sans-serif;
+  --font-condensed: 'chauncy-pro-1', 'chauncy-pro-2', var(--font-anton), sans-serif;
   --profile-ink: #15120e;
   --profile-paper: #f1ecdd;
   --profile-paper2: #e9e2ce;

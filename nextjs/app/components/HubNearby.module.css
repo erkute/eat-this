@@ -1,31 +1,68 @@
+/* HUB "in deiner Nähe" — editorial print-menu cream panel on the near-black
+   home canvas: Chauncy ink heading with an ink underline rule, flat cream cards,
+   mono meta, orange accents. FLAT: no shadows, no gradients. Theme-independent. */
+
 .section {
-  background: transparent;
-  padding: 24px 0 42px;
+  width: min(100% - 28px, 1220px);
+  margin: 0 auto;
+  padding: clamp(22px, 3vw, 32px) clamp(20px, 2.6vw, 34px) clamp(24px, 3vw, 36px);
+  color: var(--menu-ink);
+  background: var(--menu-cream);
+  border-radius: 6px;
 }
 
+/* Section head: Chauncy title + mono "Standort" button, sharing an ink rule. */
 .head {
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: baseline;
+  justify-content: space-between;
   flex-wrap: wrap;
-  gap: 10px 14px;
-  margin: 26px 16px 8px;
+  gap: 8px 16px;
+  border-bottom: 2px solid var(--menu-ink);
+  padding-bottom: 8px;
+  margin: 0 0 6px;
 }
-/* "Nähe" carries an umlaut → Saira Condensed (the brand display font has no
-   accented glyphs); line-height 1.15 + padding-top guard against clipping. */
+/* "Nähe" carries an umlaut → Chauncy renders it; line-height guards clipping. */
 .heading {
-  font-family: var(--font-label, var(--font-ranchers));
-  font-size: clamp(34px, 11vw, 44px);
-  line-height: 1.08;
-  text-transform: uppercase;
-  color: var(--et-red);
-  padding-top: 6px;
   margin: 0;
+  font-family: var(--menu-condensed);
+  font-size: clamp(30px, 6vw, 44px);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--menu-ink);
 }
+
+/* Flat mono ink-outline location button. Overrides the global homeCta look. */
 .locBtn {
   flex: 0 0 auto;
-  gap: 5px;
-  margin-top: -2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 7px 13px 8px;
+  color: var(--menu-ink);
+  background: transparent;
+  border: 1px solid var(--menu-ink);
+  border-radius: 4px;
+  font-family: var(--menu-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color 0.14s ease,
+    background-color 0.14s ease,
+    transform 0.14s ease;
+}
+.locBtn:hover,
+.locBtn:focus-visible {
+  color: var(--menu-cream);
+  background: var(--menu-ink);
+  transform: translateY(-2px);
 }
 .locIcon {
   width: 12px;
@@ -41,16 +78,17 @@
 }
 
 .sub {
-  margin: 0 16px 14px;
-  font-family: var(--font);
-  font-size: 12px;
-  letter-spacing: .12em;
+  margin: 0 0 14px;
+  font-family: var(--menu-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(201, 67, 50, .64);
+  color: rgba(21, 18, 14, 0.62);
 }
-/* Geolocation error line (denied/timeout) — same typo, coral for visibility */
+/* Geolocation error line (denied/timeout) — orange for visibility. */
 .subError {
-  color: var(--c-coral);
+  color: var(--menu-orange);
 }
 
 .row {
@@ -61,7 +99,7 @@
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding: 4px 16px 8px;
+  padding: 2px 0 4px;
   margin: 0;
   list-style: none;
 }
@@ -69,129 +107,103 @@
   display: none;
 }
 .cardItem {
-  flex: 0 0 168px;
+  flex: 0 0 180px;
   scroll-snap-align: start;
   margin: 0;
 }
+
+/* Flat cream menu card: lighter surface + thin ink hairline, ink text. */
 .card {
   display: grid;
   grid-template-rows: auto 1fr;
   position: relative;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  overflow: visible;
+  overflow: hidden;
+  background: var(--menu-cream-2);
+  border: 1px solid rgba(21, 18, 14, 0.16);
+  border-radius: 6px;
   text-decoration: none;
-  color: var(--et-red);
+  color: var(--menu-ink);
+  transition:
+    transform 0.16s ease,
+    background-color 0.16s ease,
+    border-color 0.16s ease;
+}
+.card:hover,
+.card:focus-visible {
+  background: #fff;
+  border-color: rgba(21, 18, 14, 0.32);
+  transform: translateY(-4px);
 }
 .cardImage {
   position: relative;
   aspect-ratio: 4 / 3;
-  background-color: var(--et-yellow-bright);
+  background-color: #14100c;
   overflow: hidden;
 }
 .cardImage img {
   object-fit: cover;
 }
+/* Distance chip → orange mono sticker, slight tilt. */
 .dist {
   position: absolute;
   top: 8px;
   right: 8px;
   z-index: 2;
-  background: var(--et-cream);
-  color: var(--et-red);
-  font-family: var(--font);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .04em;
-  padding: 3px 7px;
-  border: 0;
-  border-radius: var(--radius-pill, 999px);
+  background: var(--menu-orange);
+  color: var(--menu-cream);
+  font-family: var(--menu-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transform: rotate(-3deg);
 }
 .cardBody {
   position: relative;
   display: grid;
-  gap: 4px;
-  padding: 12px 0 0;
+  gap: 5px;
+  padding: 12px 14px 14px;
   z-index: 1;
 }
 .name {
-  font-family: var(--font-label, var(--font-ranchers));
-  font-size: 25px;
-  line-height: .92;
+  font-family: var(--menu-condensed);
+  font-size: clamp(24px, 2.4vw, 28px);
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  line-height: 0.9;
   text-transform: uppercase;
   margin: 0;
-  color: var(--et-red);
-  text-shadow: none;
+  color: var(--menu-ink);
 }
 .meta {
-  font-family: var(--font);
+  font-family: var(--menu-mono);
   font-size: 10.5px;
-  letter-spacing: .16em;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(201, 67, 50, .72);
-  margin: 4px 0 0;
-  font-weight: 700;
-  text-shadow: none;
+  color: rgba(21, 18, 14, 0.62);
+  margin: 0;
 }
 
-/* ── Desktop: centered column, scrollers become wrapping grids ── */
+/* ── Desktop: scrollers become a wrapping 4-up grid ── */
 @media (min-width: 720px) {
-  .section { padding-inline: max(22px, calc((100% - 1180px) / 2)); }
-  /* Group the Standort button next to the heading instead of stranding it in
-     the far-right corner across a big empty gap; vertically centered to the
-     headline with comfortable spacing. */
-  .head { margin: 36px 0 14px; justify-content: flex-start; gap: 22px; }
-  .locBtn { margin-top: 0; }
-  .heading { font-size: clamp(44px, 5vw, 56px); }
-  .sub { margin-left: 0; margin-right: 0; }
-  /* Restaurant cards: exactly 4 across, filling the full column (bigger
-     cards, no empty tracks on the right). */
   .row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     overflow: visible;
-    padding: 6px 0 12px;
+    padding: 4px 0 6px;
   }
-  .cardItem { flex: initial; }
+  .cardItem {
+    flex: initial;
+  }
 }
 
-/* ── Dark mode: dark page, warm-cream ink, red replaces yellow. Photos and
-   text-on-photo (cream + shadow) left untouched. ── */
-html[data-theme="dark"] .section { background: transparent; }
-html[data-theme="dark"] .heading { color: var(--et-red); }
-html[data-theme="dark"] .sub {
-  color: rgba(242, 223, 184, .72);
-}
-/* Location button: cream surface → dark, ink border/shadow → cream */
-html[data-theme="dark"] .subError { color: var(--c-coral-bright); }
-/* Photo cards keep their image; frame border → cream */
-html[data-theme="dark"] .card { border-color: var(--et-red); }
-/* Distance chip: yellow fill → red, ink → cream label + cream border */
-html[data-theme="dark"] .dist {
-  background: var(--et-cream);
-  color: var(--et-red);
-  border-color: var(--et-red);
-}
-html[data-theme="dark"] .name { color: var(--et-red-hot); }
-html[data-theme="dark"] .meta { color: rgba(242, 223, 184, .72); }
-/* Remove thin linework; keep separation through spacing and imagery. */
-.card,
-.dist,
-html[data-theme="dark"] .card,
-html[data-theme="dark"] .dist {
-  border: 0;
-}
-
-html[data-theme="dark"] .heading {
-  color: var(--et-red-hot);
-}
-html[data-theme="dark"] .card {
-  background: transparent;
-  color: var(--et-cream);
-}
-html[data-theme="dark"] .dist {
-  background: var(--et-red-hot);
-  color: var(--et-black);
+@media (max-width: 520px) {
+  .section {
+    width: calc(100% - 20px);
+    padding: 22px 18px 26px;
+  }
 }

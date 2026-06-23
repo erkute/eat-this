@@ -2,7 +2,7 @@
 
 .panel {
   --menu-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  --font-condensed: 'corsair-pe', var(--font-anton), sans-serif;
+  --font-condensed: 'corsairpe-1', 'corsairpe-2', var(--font-anton), sans-serif;
   background: #f1ecdd;
   color: #15120e;
   border-radius: 6px;

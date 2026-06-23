@@ -2,6 +2,9 @@
 
 .page {
   --menu-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  /* Adobe Fonts "Corsair PE" (must be in the kgb1lmh Typekit kit); Anton is the
+     fallback until it loads. */
+  --font-condensed: 'corsair-pe', var(--font-anton), sans-serif;
   --profile-ink: #15120e;
   --profile-paper: #f1ecdd;
   --profile-paper2: #e9e2ce;
@@ -91,7 +94,7 @@
 
 .heroName {
   margin: 8px 0 0;
-  font-family: var(--font-anton);
+  font-family: var(--font-condensed);
   text-transform: uppercase;
   letter-spacing: 0.005em;
   font-weight: 400;
@@ -194,7 +197,7 @@
 
 .secHead h3 {
   margin: 0;
-  font-family: var(--font-anton);
+  font-family: var(--font-condensed);
   text-transform: uppercase;
   font-weight: 400;
   font-size: 24px;
@@ -272,26 +275,31 @@
 
 .spotRemove {
   position: absolute;
-  top: 9px;
-  right: 9px;
+  top: 10px;
+  right: 10px;
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   color: #f1ecdd;
-  background: var(--profile-action);
-  border: 0;
-  border-radius: var(--profile-radius);
+  background: rgba(21, 18, 14, 0.5);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(241, 236, 221, 0.3);
+  border-radius: 999px;
   cursor: pointer;
   transition:
     transform var(--profile-motion),
-    background-color var(--profile-motion);
+    background-color var(--profile-motion),
+    border-color var(--profile-motion);
 }
 
-.spotRemove:hover {
-  background: var(--profile-ink);
+.spotRemove:hover,
+.spotRemove:focus-visible {
+  border-color: var(--profile-action);
+  background: var(--profile-action);
   transform: translateY(-2px);
 }
 
@@ -330,7 +338,7 @@
 
 .spotName {
   margin: 0;
-  font-family: var(--font-anton);
+  font-family: var(--font-condensed);
   font-weight: 400;
   font-size: clamp(24px, 4vw, 34px);
   line-height: 0.88;

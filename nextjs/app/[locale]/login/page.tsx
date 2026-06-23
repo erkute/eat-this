@@ -28,7 +28,7 @@ export default function LoginPage() {
   }, [router, locale]);
 
   return (
-    <main className={styles.page}>
+    <main className={styles.page} data-menu>
       <LoginPanel onBack={handleBack} mustEatGate={mustEatGate} />
     </main>
   );

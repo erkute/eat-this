@@ -1,169 +1,202 @@
+/* HUB Magazine — editorial print-menu cream panel on the near-black home canvas:
+   Chauncy ink heading with an ink underline rule, a "ALLE" mono CTA with a →,
+   and flat article cards (image + orange mono sticker + Chauncy ink title + mono
+   read link). FLAT: no shadows, no gradients. Theme-independent. */
+
 .section {
-  background: transparent;
-  padding-top: 12px;
+  width: min(100% - 28px, 1220px);
+  margin: 18px auto 0;
+  padding: clamp(22px, 3vw, 32px) clamp(20px, 2.6vw, 34px) clamp(24px, 3vw, 36px);
+  color: var(--menu-ink);
+  background: var(--menu-cream);
+  border-radius: 6px;
 }
+
 .heading {
-  font-family: var(--font-label, var(--font-ranchers));
-  font-size: clamp(34px, 11vw, 44px);
-  line-height: 1.15;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--menu-ink);
+  font-family: var(--menu-condensed);
+  font-size: clamp(30px, 6vw, 44px);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1;
   text-transform: uppercase;
-  color: var(--et-red);
-  margin: 8px 18px 8px;
-  padding-top: 6px;
+  color: var(--menu-ink);
 }
+
 .meta {
-  margin: 0 18px 16px;
-  font-family: var(--font);
-  font-size: 12px;
-  letter-spacing: .14em;
+  margin: 10px 0 14px;
+  font-family: var(--menu-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(201, 67, 50, .72);
+  color: rgba(21, 18, 14, 0.62);
 }
+/* "ALLE" → mono ink link with a → arrow. */
 .metaLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   width: max-content;
-  color: inherit;
-  font-weight: 950;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
+  color: var(--menu-ink);
+  text-decoration: none;
+  transition: transform 0.14s ease;
+}
+.metaLink::after {
+  content: '→';
+  font-family: var(--menu-mono);
+  font-weight: 700;
 }
 .metaLink:hover,
 .metaLink:focus-visible {
-  color: var(--et-red);
+  color: var(--menu-orange);
+  transform: translateX(3px);
 }
+
 .scroller {
   display: flex;
   align-items: stretch;
   gap: 12px;
   overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding: 4px 16px 24px;
+  -ms-overflow-style: none;
+  padding: 2px 0 4px;
   margin: 0;
   list-style: none;
 }
-.scroller::-webkit-scrollbar { display: none; }
-.item { margin: 0; flex: 0 0 284px; }
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+.item {
+  flex: 0 0 284px;
+  scroll-snap-align: start;
+  margin: 0;
+}
+
+/* Flat cream menu card: lighter surface + thin ink hairline, ink text. */
 .card {
   display: flex;
   flex-direction: column;
   height: 100%;
   position: relative;
-  background: var(--et-yellow-bright);
-  border: 0;
-  border-radius: var(--home-card-radius, var(--radius-md, 8px));
-  box-shadow: 0 18px 40px rgba(118, 51, 36, .12);
   overflow: hidden;
+  background: var(--menu-cream-2);
+  border: 1px solid rgba(21, 18, 14, 0.16);
+  border-radius: 6px;
   text-decoration: none;
-  color: var(--et-red);
+  color: var(--menu-ink);
+  transition:
+    transform 0.16s ease,
+    background-color 0.16s ease,
+    border-color 0.16s ease;
+}
+.card:hover,
+.card:focus-visible {
+  background: #fff;
+  border-color: rgba(21, 18, 14, 0.32);
+  transform: translateY(-4px);
 }
 .cardImage {
   flex: 0 0 auto;
-  aspect-ratio: 4 / 3;
   position: relative;
-  background: var(--et-red);
+  aspect-ratio: 4 / 3;
+  background-color: #14100c;
+  overflow: hidden;
 }
-.cardImage img { object-fit: cover; }
+.cardImage img {
+  object-fit: cover;
+}
+/* Kicker → orange mono sticker, slight tilt. */
 .stamp {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: 10px;
+  left: 10px;
   z-index: 2;
-  background: var(--et-cream);
-  color: var(--et-red);
-  font-family: var(--font-label, var(--font-ranchers));
-  font-weight: 700;
-  font-size: 11px;
-  letter-spacing: .18em;
+  background: var(--menu-orange);
+  color: var(--menu-cream);
+  font-family: var(--menu-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 5px 10px 6px;
-  border-radius: var(--radius-pill, 999px);
+  padding: 4px 9px;
+  border-radius: 4px;
+  transform: rotate(-3deg);
 }
-/* Body fills the remaining card height; headlines are allowed to wrap fully so
-   article titles stay readable instead of ending in ellipses. */
 .cardBody {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  padding: 20px 20px 22px;
-  background: var(--et-yellow-bright);
+  padding: 14px 16px 16px;
 }
 .cardName {
-  font-family: var(--font-label, var(--font-ranchers));
-  font-size: 24px;
-  line-height: 1.02;
+  font-family: var(--menu-condensed);
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  line-height: 0.96;
   text-transform: uppercase;
-  letter-spacing: 0;
   margin: 0;
-  color: var(--et-red);
+  color: var(--menu-ink);
   overflow: visible;
 }
 .read {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   width: max-content;
-  margin-top: 16px;
-  color: rgba(201, 67, 50, .78);
-  font-family: var(--font);
-  font-size: 11px;
-  font-weight: 950;
-  letter-spacing: .14em;
-  line-height: 1.25;
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
+  margin-top: auto;
+  padding-top: 14px;
+  color: rgba(21, 18, 14, 0.62);
+  font-family: var(--menu-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
   text-transform: uppercase;
+  transition:
+    color 0.14s ease,
+    transform 0.14s ease;
+}
+.read::after {
+  content: '→';
+  font-family: var(--menu-mono);
+  font-weight: 700;
 }
 .card:hover .read,
 .card:focus-visible .read {
-  color: var(--et-red);
+  color: var(--menu-orange);
+  transform: translateX(3px);
 }
 
-/* ── Desktop: centered column, scroller becomes a 3-up grid ── */
+/* ── Desktop: scroller becomes a wrapping 3-up grid ── */
 @media (min-width: 720px) {
-  .section {
-    padding-top: 44px;
-    padding-inline: max(16px, calc((100% - 1120px) / 2));
+  .heading {
+    font-size: clamp(40px, 4vw, 54px);
   }
-  .heading { margin: 38px 0 4px; font-size: clamp(44px, 5vw, 56px); }
-  .meta { margin: 0 0 18px; }
   .scroller {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     align-items: stretch;
-    gap: 22px;
+    gap: 16px;
     overflow: visible;
-    padding: 6px 0 36px;
+    padding: 4px 0 6px;
   }
-  .item { flex: initial; }
-  .cardName { font-size: 29px; }
+  .item {
+    flex: initial;
+  }
+  .cardName {
+    font-size: 29px;
+  }
 }
 
-/* ── Dark mode: dark cards with cream reading text and red accents. ── */
-html[data-theme="dark"] .section { background: transparent; }
-.card,
-html[data-theme="dark"] .card {
-  border: 0;
-}
-
-/* Image-palette dark mode: glowing red on black, not yellow cards on black. */
-html[data-theme="dark"] .heading,
-html[data-theme="dark"] .meta,
-html[data-theme="dark"] .metaLink {
-  color: var(--et-red-hot);
-}
-html[data-theme="dark"] .cardName {
-  color: var(--et-cream);
-}
-html[data-theme="dark"] .read {
-  color: rgba(242, 223, 184, .72);
-}
-html[data-theme="dark"] .card:hover .read,
-html[data-theme="dark"] .card:focus-visible .read {
-  color: var(--et-red-hot);
-}
-html[data-theme="dark"] .card,
-html[data-theme="dark"] .cardBody {
-  background: var(--et-dark-card);
-}
-html[data-theme="dark"] .stamp {
-  background: var(--et-red-hot);
-  color: var(--et-black);
+@media (max-width: 520px) {
+  .section {
+    width: calc(100% - 20px);
+    padding: 22px 18px 26px;
+  }
 }

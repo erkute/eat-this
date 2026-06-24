@@ -478,23 +478,32 @@ html[data-theme='dark'][data-active-page='start'] body {
 html[data-theme='dark'] [data-hub] {
   background: var(--dk-page, var(--et-black));
 }
+/* Editorial menu look: the home canvas is the near-black menu page in BOTH
+   themes (the menu aesthetic is theme-independent — matches the profile). The
+   html/body fill near-black too so overscroll edges never expose a cream seam. */
 html[data-active-page='home'] [data-hub],
 html[data-active-page='start'] [data-hub] {
-  background: var(--food-paper);
+  background: var(--menu-page);
+}
+html[data-active-page='home'],
+html[data-active-page='start'],
+html[data-active-page='home'] body,
+html[data-active-page='start'] body {
+  background-color: var(--menu-page);
 }
 html[data-theme='dark'][data-active-page='home'],
 html[data-theme='dark'][data-active-page='start'],
 html[data-theme='dark'][data-active-page='home'] body,
 html[data-theme='dark'][data-active-page='start'] body {
-  --collage-paper: var(--food-paper);
+  --collage-paper: var(--menu-page);
   --collage-ink: var(--food-ink);
-  background-color: var(--food-paper);
+  background-color: var(--menu-page);
   color: var(--food-ink);
   color-scheme: dark;
 }
 html[data-theme='dark'][data-active-page='home'] [data-hub],
 html[data-theme='dark'][data-active-page='start'] [data-hub] {
-  background: var(--food-paper);
+  background: var(--menu-page);
 }
 
 /* Sitewide Providence collage language. The map remains a purpose-built

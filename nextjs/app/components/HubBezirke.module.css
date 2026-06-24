@@ -1,27 +1,55 @@
-/* Always-dark statement band — stays ink even in light theme (no theme override). */
+/* HUB Bezirke — editorial print-menu cream panel on the near-black home canvas:
+   Chauncy ink heading with an ink underline rule, mono kicker + lead, a flat
+   mono tab strip (ink-outline pills, orange when active), flat photo tiles with
+   a dark caption block, and a flat orange CTA with a →. FLAT: no shadows, no
+   gradients. Theme-independent. */
+
 .section {
-  background: var(--et-yellow-bright);
-  color: var(--et-red);
-  border: 0;
-  border-radius: var(--home-card-radius, var(--radius-md, 8px));
-  box-shadow: 0 18px 44px rgba(118, 51, 36, .11);
-  padding: 46px 22px 50px;
+  width: min(100% - 28px, 1220px);
+  margin: 18px auto 0;
+  padding: clamp(24px, 3.2vw, 40px) clamp(20px, 2.6vw, 34px) clamp(28px, 3.4vw, 46px);
+  color: var(--menu-ink);
+  background: var(--menu-cream);
+  border-radius: 6px;
 }
-.inner { max-width: 1120px; margin: 0 auto; }
+.inner {
+  max-width: 1120px;
+  margin: 0 auto;
+}
 .kicker {
-  font-family: var(--font);
-  font-weight: 950;
-  letter-spacing: .16em; text-transform: uppercase; font-size: 11px;
-  color: rgba(201, 67, 50, .74); margin: 0 0 10px;
+  margin: 0 0 10px;
+  font-family: var(--menu-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(21, 18, 14, 0.62);
 }
 .heading {
-  font-family: var(--font-label, var(--font-ranchers));
-  text-transform: uppercase; line-height: .94; letter-spacing: 0;
-  font-size: clamp(40px, 11vw, 72px); margin: 0 0 6px; color: var(--et-red);
+  margin: 0 0 8px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--menu-ink);
+  font-family: var(--menu-condensed);
+  font-size: clamp(34px, 8vw, 60px);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--menu-ink);
 }
-.lead { font-size: 14px; color: rgba(103, 43, 30, .68); margin: 0 0 24px; max-width: 52ch; line-height: 1.5; }
+.lead {
+  max-width: 52ch;
+  margin: 12px 0 0;
+  font-family: var(--menu-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  color: rgba(21, 18, 14, 0.62);
+}
 
-/* Tab strip — all district names visible; no hidden horizontal rail. */
+/* Tab strip — flat ink-outline mono pills; active = orange. All names visible. */
 .tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -29,174 +57,256 @@
   overflow: visible;
   padding: 18px 0 18px;
   margin: 0 0 8px;
-  scrollbar-width: none;
 }
-.tabs::-webkit-scrollbar { display: none; }
-.tab {
+.tab:global(.homeCta) {
   position: relative;
   gap: 6px;
   min-width: 0;
-  min-height: 50px !important;
-  padding: 13px 10px 11px !important;
+  min-height: 48px;
+  padding: 12px 10px 11px;
+  border: 1px solid var(--menu-ink);
+  border-radius: 4px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--menu-ink);
   white-space: nowrap;
   text-align: center;
   overflow: visible;
   text-overflow: clip;
-  font-family: var(--font) !important;
-  font-size: clamp(12px, 3.25vw, 15px) !important;
-  font-weight: 950 !important;
-  letter-spacing: .045em !important;
-  line-height: 1.05 !important;
+  font-family: var(--menu-mono);
+  font-size: clamp(11px, 3vw, 13px);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
   text-transform: uppercase;
+  transition:
+    transform 0.14s ease,
+    background-color 0.14s ease,
+    border-color 0.14s ease,
+    color 0.14s ease;
 }
-.tab.active {
-  background: var(--et-cream);
-  color: var(--et-red);
-  box-shadow: inset 0 0 0 2px rgba(201, 67, 50, .34);
+.tab:global(.homeCta):hover,
+.tab:global(.homeCta):focus-visible {
+  background: var(--menu-ink);
+  border-color: var(--menu-ink);
+  color: var(--menu-cream);
+  transform: translateY(-2px);
 }
-.feat { border-color: transparent; }
-.feat.active { border-color: transparent; }
+.tab.active:global(.homeCta) {
+  background: var(--menu-orange);
+  border-color: var(--menu-orange);
+  color: var(--menu-cream);
+}
+.feat:global(.homeCta) {
+  border-color: var(--menu-ink);
+}
+/* Feature badge → orange mono sticker, slight tilt. */
 .featBadge {
   position: absolute;
-  top: -10px;
+  top: -9px;
   left: 12px;
   z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 18px;
-  padding: 4px 7px 3px;
-  color: var(--et-cream);
-  background: var(--et-red);
-  border: 1px solid rgba(23, 26, 23, .18);
-  border-radius: var(--radius-xs, 2px);
+  min-height: 16px;
+  padding: 3px 7px;
+  color: var(--menu-cream);
+  background: var(--menu-orange);
+  border: 0;
+  border-radius: 4px;
   box-shadow: none;
-  font-family: var(--font);
+  font-family: var(--menu-mono);
   font-size: 8px;
-  font-weight: 950;
-  letter-spacing: .105em;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   line-height: 1;
   text-transform: uppercase;
   white-space: nowrap;
-  transform: rotate(-2deg);
+  transform: rotate(-3deg);
+}
+/* On the active orange tab, flip the badge to ink so it stays legible. */
+.tab.active .featBadge {
+  background: var(--menu-ink);
+  color: var(--menu-cream);
 }
 
-.panel { padding-top: 14px; }
-.panel[hidden] { display: none; }
-.panelName { font-family: var(--font-label, var(--font-ranchers)); text-transform: uppercase; font-size: clamp(28px, 7vw, 46px); line-height: 1; margin: 0 0 6px; color: var(--et-red); }
-.panelTag { font-size: 14px; color: rgba(103, 43, 30, .68); line-height: 1.55; margin: 0 0 22px; max-width: 62ch; }
+.panel {
+  padding-top: 14px;
+}
+.panel[hidden] {
+  display: none;
+}
+.panelName {
+  margin: 0 0 6px;
+  font-family: var(--menu-condensed);
+  font-size: clamp(28px, 7vw, 46px);
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  line-height: 0.9;
+  text-transform: uppercase;
+  color: var(--menu-ink);
+}
+.panelTag {
+  max-width: 62ch;
+  margin: 0 0 18px;
+  font-family: var(--menu-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  color: rgba(21, 18, 14, 0.62);
+}
 
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+/* Flat photo tile: image fills, thin ink hairline frame, no shadow. */
 .tile {
-  position: relative; display: block; aspect-ratio: 4 / 5; overflow: hidden;
-  background: var(--et-yellow-bright); text-decoration: none; color: var(--et-cream); border-radius: var(--home-card-radius, var(--radius-md, 8px));
-  border: 0;
-  box-shadow: 0 14px 30px rgba(118, 51, 36, .13);
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: #14100c;
+  border: 1px solid rgba(21, 18, 14, 0.16);
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--menu-cream);
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease;
 }
-.tileImg { object-fit: cover; transition: transform .5s cubic-bezier(.22, .9, .3, 1); }
-.tile:hover .tileImg { transform: scale(1.06); }
+.tile:hover,
+.tile:focus-visible {
+  transform: translateY(-4px);
+  border-color: rgba(21, 18, 14, 0.32);
+}
+.tileImg {
+  object-fit: cover;
+  transition: transform 0.28s ease;
+}
+.tile:hover .tileImg,
+.tile:focus-visible .tileImg {
+  transform: scale(1.04);
+}
+/* Flat dark caption block bottom — no gradient. */
 .tileBody {
-  position: absolute; left: 0; right: 0; bottom: 0; padding: 46px 13px 14px;
-  background: linear-gradient(180deg, rgba(201, 67, 50, 0), rgba(201, 67, 50, .9));
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  z-index: 1;
+  display: grid;
+  gap: 3px;
+  padding: 9px 11px 10px;
+  background: rgba(10, 8, 6, 0.62);
+  border-radius: 6px;
 }
-.tileCat { font-family: var(--font-label, var(--font-ranchers)); text-transform: uppercase; font-size: 11px; letter-spacing: .1em; margin: 0 0 3px; color: rgba(240, 232, 212, .72); }
-.tileName { font-family: var(--font-label, var(--font-ranchers)); text-transform: uppercase; font-size: 16px; line-height: 1.08; margin: 0; color: var(--et-cream); }
+.tileCat {
+  margin: 0;
+  font-family: var(--menu-mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(241, 236, 221, 0.82);
+}
+.tileName {
+  margin: 0;
+  font-family: var(--menu-condensed);
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  line-height: 0.9;
+  text-transform: uppercase;
+  color: var(--menu-cream);
+}
 
-.foot { margin-top: 24px; }
-.cta {
+.foot {
+  margin-top: 22px;
+}
+/* Flatten the global homeCta CTA → a flat orange menu button with a → arrow. */
+.cta:global(.homeCta) {
   min-height: 44px;
+  padding: 9px 16px 10px;
+  gap: 8px;
+  border: 1px solid var(--menu-orange);
+  border-radius: 4px;
+  background: var(--menu-orange);
+  box-shadow: none;
+  color: var(--menu-cream);
+  font-family: var(--menu-condensed);
+  font-size: clamp(18px, 1.8vw, 22px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.cta:global(.homeCta)::after {
+  content: '→';
+  font-family: var(--menu-mono);
+  font-weight: 700;
+}
+.cta:global(.homeCta):hover,
+.cta:global(.homeCta):focus-visible {
+  background: var(--menu-ink);
+  border-color: var(--menu-ink);
+  color: var(--menu-cream);
+  transform: translateX(-4px);
+}
+.cta:global(.homeCta):active {
+  transform: translateX(-2px);
 }
 
 /* Swap motion when a panel is un-hidden — translate only (brand rule: no opacity fades). */
-@keyframes hubBzSwap { from { transform: translateX(20px); } to { transform: translateX(0); } }
+@keyframes hubBzSwap {
+  from {
+    transform: translateX(20px);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
 .panel:not([hidden]) .panelName,
 .panel:not([hidden]) .panelTag,
-.panel:not([hidden]) .grid { animation: hubBzSwap .26s cubic-bezier(.22, .9, .3, 1); }
+.panel:not([hidden]) .grid {
+  animation: hubBzSwap 0.26s cubic-bezier(0.22, 0.9, 0.3, 1);
+}
 @media (prefers-reduced-motion: reduce) {
   .panel:not([hidden]) .panelName,
   .panel:not([hidden]) .panelTag,
-  .panel:not([hidden]) .grid { animation: none; }
+  .panel:not([hidden]) .grid {
+    animation: none;
+  }
 }
 
 @media (min-width: 720px) {
-  .section { padding: 56px max(22px, calc((100% - 1120px) / 2)) 64px; }
-  .heading { font-size: clamp(56px, 7vw, 84px); }
-  .tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-  .tab {
-    min-height: 52px;
-    padding-inline: 14px !important;
-    font-size: clamp(13px, 1.35vw, 15px) !important;
+  .heading {
+    font-size: clamp(48px, 6vw, 72px);
   }
-  .grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
-  .tileName { font-size: 19px; }
+  .tabs {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .tab:global(.homeCta) {
+    min-height: 50px;
+    padding-inline: 14px;
+    font-size: clamp(12px, 1.2vw, 14px);
+  }
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  .tileName {
+    font-size: 21px;
+  }
 }
 
-.section,
-.tab,
-.feat,
-.tile {
-  border: 0;
-}
-.tileBody {
-  background: linear-gradient(180deg, rgba(201, 67, 50, 0), rgba(201, 67, 50, .82));
-}
-
-html[data-theme="dark"] .section {
-  background: var(--et-dark-card);
-  color: var(--et-red-hot);
-}
-html[data-theme="dark"] .heading,
-html[data-theme="dark"] .panelName,
-html[data-theme="dark"] .kicker {
-  color: var(--et-red-hot);
-}
-html[data-theme="dark"] .lead,
-html[data-theme="dark"] .panelTag {
-  color: rgba(242, 223, 184, .76);
-}
-html[data-theme="dark"] .tab.active {
-  background: rgba(255, 248, 234, .14);
-  color: var(--et-cream);
-  box-shadow: inset 0 0 0 2px rgba(255, 248, 234, .2);
-}
-html[data-theme="dark"] .tab:hover {
-  background: rgba(255, 248, 234, .12);
-  color: var(--et-cream);
-}
-html[data-theme="dark"] .tile {
-  background: var(--et-dark-card);
-  color: var(--et-cream);
-}
-html[data-theme="dark"] .tileBody {
-  background: linear-gradient(180deg, rgba(19, 15, 13, 0), rgba(19, 15, 13, .88));
-}
-html[data-theme="dark"] .tileCat {
-  color: rgba(255, 248, 234, .7);
-}
-html[data-theme="dark"] .tileName {
-  color: var(--et-cream);
-}
-html[data-theme="dark"] .cta {
-  background: var(--et-red-hot);
-  color: var(--et-black);
-}
-html[data-theme="dark"] .featBadge {
-  background: var(--et-red-hot);
-  color: var(--et-black);
-  border-color: rgba(255, 248, 234, .18);
-  box-shadow: none;
-}
-
-.tab.active:global(.homeCta) {
-  background: var(--et-cream) !important;
-  color: var(--et-red) !important;
-  border-color: transparent !important;
-  box-shadow: inset 0 0 0 2px rgba(201, 67, 50, .34) !important;
-}
-
-html[data-theme="dark"] .tab.active:global(.homeCta) {
-  background: rgba(255, 248, 234, .14) !important;
-  color: var(--et-cream) !important;
-  border-color: transparent !important;
-  box-shadow: inset 0 0 0 2px rgba(255, 248, 234, .2) !important;
+@media (max-width: 520px) {
+  .section {
+    width: calc(100% - 20px);
+    padding: 24px 18px 30px;
+  }
 }

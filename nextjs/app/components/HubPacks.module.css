@@ -1,256 +1,278 @@
-/* Anchor target (#hub-packs from the burger / map end-cap): clear the fixed
-   navbar so the jump lands on the headline, not behind the bar — consistent on
-   mobile and desktop. */
-.section { background: transparent; scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px)); padding-top: 34px; }
+/* HUB Packs — editorial print-menu cream panel on the near-black home canvas:
+   Chauncy ink heading with an ink underline rule, a scroller of flat cream
+   menu tiles (freigestellt booster art untouched + mono eyebrow + Chauncy ink
+   name + mono line + flat orange pack CTA). The Welcome-Pack gift tile carries
+   an inline magic-link signup. FLAT: no shadows, no gradients. Theme-independent.
+   Anchor target (#hub-packs): clear the fixed navbar on the jump. */
+
+.section {
+  width: min(100% - 28px, 1220px);
+  margin: 18px auto 0;
+  padding: clamp(22px, 3vw, 32px) clamp(20px, 2.6vw, 34px) clamp(8px, 1.4vw, 14px);
+  color: var(--menu-ink);
+  background: var(--menu-cream);
+  border-radius: 6px;
+  scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
+}
 .heading {
-  font-family: var(--font-label, var(--font-ranchers));
-  font-size: clamp(32px, 9vw, 44px);
-  line-height: 1.15;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--menu-ink);
+  font-family: var(--menu-condensed);
+  font-size: clamp(30px, 6vw, 44px);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1;
   text-transform: uppercase;
-  color: var(--et-red);
-  margin: 0 16px 10px;
-  padding-top: 6px;
+  color: var(--menu-ink);
 }
 .scroller {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   overflow-x: auto;
   scrollbar-width: none;
-  padding: 8px 14px 24px;
+  padding: 18px 0 22px;
   margin: 0;
 }
-.scroller::-webkit-scrollbar { display: none; }
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+/* Flat cream menu tile. */
 .pack {
-  flex: 0 0 304px;
-  background: var(--et-yellow-bright);
-  color: var(--et-red);
-  border: 2px solid var(--et-red);
-  border-radius: var(--home-card-radius, var(--radius-md, 8px));
-  box-shadow: none;
-  padding: 20px;
+  flex: 0 0 290px;
   display: grid;
-  gap: 12px;
+  gap: 10px;
   position: relative;
   overflow: hidden;
+  padding: 18px 18px 20px;
+  color: var(--menu-ink);
+  background: var(--menu-cream-2);
+  border: 1px solid rgba(21, 18, 14, 0.16);
+  border-radius: 6px;
+  transition:
+    transform 0.16s ease,
+    background-color 0.16s ease,
+    border-color 0.16s ease;
 }
-.gift { background: var(--et-cream); color: var(--et-red); }
+.pack:hover {
+  background: #fff;
+  border-color: rgba(21, 18, 14, 0.32);
+  transform: translateY(-4px);
+}
+/* Welcome-pack gift tile: an orange top-rule accent marks it as the freebie. */
+.gift {
+  border-top: 4px solid var(--menu-orange);
+}
 .packArt {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 232px;
-  margin: -4px 0 -2px;
+  height: 224px;
+  margin: -2px 0;
 }
+/* Freigestellt booster art stays untouched — tilt only, no drop-shadow. */
 .artImg {
   object-fit: contain;
   filter: none;
   transform: rotate(-3deg);
 }
 .packCat {
-  font-family: var(--font-label, var(--font-ranchers));
-  font-weight: 600;
-  font-size: 12px;
-  letter-spacing: .22em;
-  text-transform: uppercase;
-  line-height: 1.15;
-  opacity: .8;
   margin: 0;
+  font-family: var(--menu-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  line-height: 1.15;
+  text-transform: uppercase;
+  color: rgba(21, 18, 14, 0.62);
 }
 .packName {
-  font-family: var(--font-label, var(--font-ranchers));
-  font-size: clamp(30px, 9vw, 36px);
-  line-height: 1.08;
-  text-transform: uppercase;
-  letter-spacing: 0;
   margin: 0;
+  font-family: var(--menu-condensed);
+  font-size: clamp(28px, 8vw, 34px);
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  line-height: 0.92;
+  text-transform: uppercase;
+  color: var(--menu-ink);
 }
 .packMeta {
-  font-family: var(--font);
-  font-size: 13px;
-  line-height: 1.4;
   margin: 0;
+  font-family: var(--menu-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  color: rgba(21, 18, 14, 0.72);
 }
 .tags {
   display: block;
-  font-weight: 600;
-  opacity: .72;
   margin-bottom: 6px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--menu-ink);
 }
 .packFoot {
   display: grid;
   align-items: center;
   justify-content: stretch;
-  gap: 12px;
-  margin-top: 6px;
+  gap: 10px;
+  margin-top: 4px;
 }
-.packCta {
+
+/* Flat orange menu button with a → arrow (legacy global .homeCta removed). */
+.packCta:global(.homeCta) {
   width: 100%;
-  min-height: 52px;
+  min-height: 46px;
   justify-content: center;
-  font-size: 13px;
+  gap: 8px;
+  padding: 9px 16px 10px;
+  border: 1px solid var(--menu-orange);
+  border-radius: 4px;
+  background: var(--menu-orange);
+  box-shadow: none;
+  color: var(--menu-cream);
+  font-family: var(--menu-condensed);
+  font-size: clamp(16px, 1.6vw, 19px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   white-space: nowrap;
+}
+.packCta:global(.homeCta)::after {
+  content: '→';
+  font-family: var(--menu-mono);
+  font-weight: 700;
+}
+.packCta:global(.homeCta):hover,
+.packCta:global(.homeCta):focus-visible {
+  background: var(--menu-ink);
+  border-color: var(--menu-ink);
+  color: var(--menu-cream);
 }
 .packCta:disabled {
   cursor: progress;
 }
 .packError {
   margin: 0;
-  color: var(--et-red);
-  font-family: var(--font);
-  font-size: 12px;
-  font-weight: 850;
-  line-height: 1.25;
+  font-family: var(--menu-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: var(--menu-orange);
 }
-/* Welcome-pack inline magic-link signup (mockup .p-signup, stacked). On the
-   yellow gift card: cream input w/ ink border, ink button w/ yellow label. */
+
+/* Welcome-pack inline magic-link signup. */
 .signup {
   display: grid;
   gap: 8px;
 }
 .signupInput {
   width: 100%;
-  border: 0;
-  border-radius: 0;
-  background: #fff;
   padding: 11px 14px;
-  /* Schoolbell (brand display) for the typed value + placeholder; runs small,
-     so 17px ≈ the optical size of the previous 15px sans. */
-  font-family: var(--font-chewy), cursive;
-  font-size: 17px;
-  color: #000;
+  border: 1px solid rgba(21, 18, 14, 0.3);
+  border-radius: 4px;
+  background: #fff;
+  font-family: var(--menu-mono);
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  color: var(--menu-ink);
   outline: none;
 }
-.signupInput::placeholder { color: rgba(0, 0, 0, .38); }
-.signupInput:disabled { opacity: .6; }
-.signupBtn {
+.signupInput::placeholder {
+  color: rgba(21, 18, 14, 0.42);
+}
+.signupInput:focus {
+  border-color: var(--menu-ink);
+}
+.signupInput:disabled {
+  opacity: 0.6;
+}
+.signupBtn:global(.homeCta) {
   width: 100%;
+  min-height: 46px;
+  justify-content: center;
   gap: 8px;
-  background: var(--et-black);
-  color: var(--et-cream);
+  padding: 9px 16px 10px;
+  border: 1px solid var(--menu-ink);
+  border-radius: 4px;
+  background: var(--menu-ink);
   box-shadow: none;
-}
-.signupBtn:hover:not(:disabled) {
-  background: var(--et-red);
-  color: var(--et-black);
-  transform: translateY(-2px);
-}
-.signupBtn:disabled { cursor: default; opacity: .75; }
-.giftSent {
-  font-family: var(--font-label, var(--font-ranchers));
-  font-size: 15px;
-  letter-spacing: .04em;
+  color: var(--menu-cream);
+  font-family: var(--menu-condensed);
+  font-size: clamp(16px, 1.6vw, 19px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--et-red);
+}
+.signupBtn:global(.homeCta):hover:not(:disabled),
+.signupBtn:global(.homeCta):focus-visible {
+  background: var(--menu-orange);
+  border-color: var(--menu-orange);
+  color: var(--menu-cream);
+}
+.signupBtn:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+.giftSent {
   margin: 0;
-  padding: 13px 0 2px;
+  padding: 11px 0 2px;
+  font-family: var(--menu-condensed);
+  font-size: 18px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--menu-ink);
 }
 .giftError {
-  font-family: var(--font);
-  font-size: 12.5px;
-  line-height: 1.35;
-  color: var(--et-red);
   margin: 4px 0 0;
+  font-family: var(--menu-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  color: var(--menu-orange);
 }
 
-/* ── Desktop: heading + packs grid centered in the shared home column ── */
+/* ── Desktop: heading + packs grid in the panel ── */
 @media (min-width: 720px) {
   .heading {
-    font-size: clamp(40px, 4.4vw, 56px);
-    margin: 0 0 8px;
-    padding: 6px max(22px, calc((100% - 1180px) / 2)) 0;
+    font-size: clamp(40px, 4vw, 54px);
   }
   .scroller {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
+    gap: 18px;
     overflow: visible;
-    padding: 12px max(22px, calc((100% - 1180px) / 2)) 64px;
+    padding: 22px 0 28px;
   }
-  .pack { flex: initial; padding: 24px; }
-  .packArt { height: 252px; }
-  .pack:hover { transform: translateY(-4px); box-shadow: none; }
-  .pack { transition: transform .2s; }
+  .pack {
+    flex: initial;
+    padding: 22px;
+  }
+  .packArt {
+    height: 248px;
+  }
 }
 
 @media (min-width: 1080px) {
-  .scroller { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .packArt { height: 278px; }
+  .scroller {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .packArt {
+    height: 268px;
+  }
 }
 
-/* ── Dark mode: dark page, warm-cream ink, red replaces yellow. Pack art
-   (freigestellt) untouched. ── */
-html[data-theme="dark"] .section { background: transparent; }
-html[data-theme="dark"] .heading { color: var(--et-red); }
-/* Standard pack cards: cream surface → dark card, ink border → cream */
-html[data-theme="dark"] .pack {
-  background: var(--et-yellow-bright);
-  color: var(--et-red);
-  border-color: var(--et-red);
-}
-@media (min-width: 720px) {
-  /* No hard offset shadows in dark mode (User 2026-06-05) — the cream
-     border carries the card edge; soft light-mode shadows are invisible
-     on the dark page anyway. */
-  html[data-theme="dark"] .pack,
-  html[data-theme="dark"] .pack:hover { box-shadow: none; }
-}
-/* Gift (welcome-pack) card: yellow fill → red, all its ink text → cream */
-html[data-theme="dark"] .gift {
-  background: var(--et-cream);
-  color: var(--et-red);
-}
-html[data-theme="dark"] .giftSent,
-html[data-theme="dark"] .giftError { color: var(--et-red); }
-/* Signup input stays cream-paper with ink text so the field reads as an input
-   on the red gift card (matches light mode's cream-on-yellow contrast). */
-.pack,
-.signupInput,
-html[data-theme="dark"] .pack,
-html[data-theme="dark"] .signupInput {
-  border: 0;
-}
-
-html[data-theme="dark"] .heading,
-html[data-theme="dark"] .packName,
-html[data-theme="dark"] .giftSent,
-html[data-theme="dark"] .giftError {
-  color: var(--et-red-hot);
-}
-html[data-theme="dark"] .pack,
-html[data-theme="dark"] .pack:not(.gift) {
-  background: var(--et-dark-card);
-  color: var(--et-cream);
-}
-html[data-theme="dark"] .gift {
-  background: var(--et-dark-card);
-  color: var(--et-cream);
-}
-html[data-theme="dark"] .gift .signupBtn {
-  background: var(--et-red-hot);
-  color: var(--et-cream);
-}
-html[data-theme="dark"] .gift .signupBtn:hover:not(:disabled) {
-  background: var(--et-cream);
-  color: var(--et-black);
-}
-html[data-theme="dark"] .gift .signupInput {
-  background: rgba(241, 241, 236, .08);
-  color: var(--et-cream);
-  box-shadow: inset 0 0 0 2px rgba(241, 241, 236, .18);
-}
-html[data-theme="dark"] .gift .signupInput::placeholder {
-  color: rgba(241, 241, 236, .46);
-}
-html[data-theme="dark"] .gift .packName,
-html[data-theme="dark"] .gift .packCat,
-html[data-theme="dark"] .gift .packMeta,
-html[data-theme="dark"] .giftSent,
-html[data-theme="dark"] .giftError {
-  color: var(--et-cream);
-}
-html[data-theme="dark"] .gift .packName,
-html[data-theme="dark"] .giftSent,
-html[data-theme="dark"] .giftError {
-  color: var(--et-red-hot);
+@media (max-width: 520px) {
+  .section {
+    width: calc(100% - 20px);
+    padding: 22px 18px 8px;
+  }
 }

@@ -65,8 +65,9 @@
 }
 
 .linksKicker {
-  font-family: var(--font-poster);
-  font-size: 13px;
+  font-family: var(--menu-mono);
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--footer-muted);
@@ -75,18 +76,19 @@
 
 .socialLink {
   display: block;
-  font-family: var(--font-poster);
-  font-size: 28px;
-  letter-spacing: 0.04em;
+  font-family: var(--menu-condensed);
+  font-size: 30px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--footer-fg);
   text-decoration: none;
   line-height: 1.2;
   margin: 4px 0;
-  transition: opacity 0.15s ease;
+  transition: transform 0.15s ease;
 }
 .socialLink:hover {
-  opacity: 0.55;
+  transform: translateY(-2px);
 }
 
 .legal {
@@ -94,8 +96,9 @@
   gap: 18px;
   flex-wrap: wrap;
   justify-content: center;
-  font-family: var(--font-poster);
-  font-size: 12px;
+  font-family: var(--menu-mono);
+  font-size: 11px;
+  font-weight: 500;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   margin: 26px 0 0;
@@ -105,7 +108,9 @@
   color: var(--footer-fg);
   text-decoration: none;
   opacity: 0.75;
-  transition: color 0.15s ease, opacity 0.15s ease;
+  transition:
+    color 0.15s ease,
+    opacity 0.15s ease;
 }
 .legalLink:hover {
   opacity: 1;
@@ -130,8 +135,9 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  font-family: var(--font-poster);
+  font-family: var(--menu-mono);
   font-size: 11px;
+  font-weight: 500;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -183,8 +189,9 @@
   left: 24px;
 }
 .themeLabel {
-  font-family: var(--font-poster);
-  font-size: 12px;
+  font-family: var(--menu-mono);
+  font-size: 11px;
+  font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--footer-fg);
@@ -205,14 +212,17 @@
   background: transparent;
   border: 0;
   padding: 4px 6px;
-  font-family: var(--font-poster);
-  font-size: 12px;
+  font-family: var(--menu-mono);
+  font-size: 11px;
+  font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--footer-fg);
   opacity: 0.55;
   cursor: pointer;
-  transition: color 0.15s ease, opacity 0.15s ease;
+  transition:
+    color 0.15s ease,
+    opacity 0.15s ease;
 }
 .langBtn:hover {
   opacity: 1;
@@ -253,11 +263,13 @@
 
 /* Final footer palette contract: the footer is an assertive brand endpoint in
    light mode and a deep red endpoint in dark mode. */
-.tagImg { filter: invert(1); }
+.tagImg {
+  filter: invert(1);
+}
 
-html[data-theme="dark"] .footer {
-  --footer-bg: #5A120F;
+html[data-theme='dark'] .footer {
+  --footer-bg: #5a120f;
   --footer-fg: var(--brand-paper, var(--et-cream));
-  --footer-track-bg: rgba(241, 241, 236, .18);
+  --footer-track-bg: rgba(241, 241, 236, 0.18);
   --footer-thumb-bg: var(--brand-paper, var(--et-cream));
 }

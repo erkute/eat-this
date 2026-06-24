@@ -1,16 +1,20 @@
+/* HUB All-Berlin — the bold closing CTA: a flat ORANGE menu panel on the
+   near-black home canvas (mirrors the profile's orange hero). Cream Chauncy
+   heading, mono cream eyebrow/copy, flat INK button with a → arrow (orange-on-
+   orange wouldn't read). FLAT: no shadows, no gradients. Theme-independent. */
+
 .section {
   position: relative;
   display: grid;
   gap: 18px;
   scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
-  margin: 0 12px;
-  padding: 28px 18px 30px;
+  width: min(100% - 28px, 1220px);
+  margin: 18px auto 0;
+  padding: clamp(30px, 6vw, 60px) clamp(20px, 3vw, 48px);
   overflow: hidden;
-  color: var(--et-red);
-  background: var(--et-yellow-bright);
-  border: 0;
-  border-radius: var(--home-card-radius, var(--radius-md, 8px));
-  box-shadow: none;
+  color: var(--menu-cream);
+  background: var(--menu-orange);
+  border-radius: 6px;
   isolation: isolate;
 }
 
@@ -18,48 +22,48 @@
   position: relative;
   z-index: 2;
   display: grid;
-  gap: 13px;
+  gap: 14px;
   min-width: 0;
 }
 
 .kicker {
   justify-self: start;
   margin: 0;
-  padding: 7px 10px 8px;
-  color: var(--et-cream);
-  background: var(--et-red);
-  border-radius: var(--radius-pill, 999px);
-  font-family: var(--font-label, var(--font-ranchers));
+  font-family: var(--menu-mono);
   font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
   line-height: 1;
-  letter-spacing: .16em;
   text-transform: uppercase;
-  white-space: nowrap;
+  color: var(--menu-cream);
 }
 
 .heading {
   margin: 0;
-  color: #5d2f26;
-  font-family: var(--font-label, var(--font-ranchers));
-  font-size: clamp(58px, 14vw, 88px);
-  line-height: .84;
-  letter-spacing: 0;
+  color: var(--menu-cream);
+  font-family: var(--menu-condensed);
+  font-size: clamp(58px, 16vw, 96px);
+  font-weight: 400;
+  line-height: 0.82;
+  letter-spacing: 0.005em;
   text-transform: uppercase;
 }
 
 .copy {
-  max-width: 34ch;
-  margin: 0;
-  color: rgba(103, 43, 30, .78);
-  font-family: var(--font);
-  font-size: 16px;
-  font-weight: 750;
-  line-height: 1.38;
+  max-width: 38ch;
+  margin: 4px 0 0;
+  color: var(--menu-cream);
+  font-family: var(--menu-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-transform: uppercase;
 }
 
 .copy strong {
-  color: var(--et-red);
-  font-weight: 950;
+  font-weight: 700;
+  color: var(--menu-cream);
 }
 
 .ctaWrap {
@@ -67,31 +71,51 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  width: min(100%, 310px);
-  margin-top: 8px;
+  width: min(100%, 340px);
+  margin-top: 10px;
 }
 
-.cta {
-  min-height: 50px;
+.cta:global(.homeCta) {
   flex: 1 1 auto;
-  width: auto;
+  min-height: 50px;
   justify-content: center;
-  padding-inline: 22px !important;
-  font-size: 15px;
-  letter-spacing: .08em;
+  gap: 8px;
+  padding: 12px 22px;
+  border: 1px solid var(--menu-ink);
+  border-radius: 4px;
+  background: var(--menu-ink);
+  box-shadow: none;
+  color: var(--menu-cream);
+  font-family: var(--menu-condensed);
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
-
+.cta:global(.homeCta)::after {
+  content: '→';
+  font-family: var(--menu-mono);
+  font-weight: 700;
+}
+.cta:global(.homeCta):hover,
+.cta:global(.homeCta):focus-visible {
+  background: var(--menu-cream);
+  border-color: var(--menu-cream);
+  color: var(--menu-ink);
+}
 .cta:disabled {
   cursor: progress;
 }
 
 .error {
   margin: 10px 0 0;
-  color: var(--et-red);
-  font-family: var(--font);
-  font-size: 13px;
-  font-weight: 850;
-  line-height: 1.3;
+  color: var(--menu-cream);
+  font-family: var(--menu-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
 }
 
 .visual {
@@ -122,70 +146,54 @@
 .fan img:nth-child(3n + 1) {
   transform: rotate(-4deg);
 }
-
 .fan img:nth-child(3n + 2) {
   transform: translateY(-5px) rotate(2deg);
 }
-
 .fan img:nth-child(3n) {
   transform: rotate(4deg);
 }
 
 @media (min-width: 720px) {
   .section {
-    grid-template-columns: minmax(330px, .82fr) minmax(0, 1.18fr);
+    grid-template-columns: minmax(330px, 0.82fr) minmax(0, 1.18fr);
     align-items: center;
     gap: clamp(28px, 4vw, 58px);
-    width: min(1180px, calc(100% - 44px));
-    margin: 0 auto;
-    padding: clamp(42px, 5vw, 72px) clamp(36px, 5vw, 76px);
-    min-height: 620px;
+    padding: clamp(42px, 5vw, 76px) clamp(36px, 5vw, 76px);
+    min-height: 560px;
   }
-
   .visual {
     order: 0;
   }
-
   .heading {
-    font-size: clamp(92px, 7.2vw, 138px);
+    font-size: clamp(92px, 7.6vw, 142px);
   }
-
   .copy {
-    max-width: 32ch;
-    font-size: clamp(18px, 1.65vw, 23px);
+    max-width: 34ch;
+    font-size: 13px;
   }
-
   .ctaWrap {
-    width: min(100%, 340px);
+    width: min(100%, 360px);
   }
-
-  .cta {
+  .cta:global(.homeCta) {
     min-height: 54px;
-    font-size: 16px;
-    padding-inline: 26px !important;
   }
-
   .fan {
     grid-template-columns: repeat(3, minmax(108px, 1fr));
     gap: clamp(14px, 2vw, 24px);
     max-width: 600px;
   }
-
   .fan img {
     width: min(100%, 164px);
-    filter: none;
   }
 }
 
 @media (min-width: 1080px) {
   .section {
-    grid-template-columns: minmax(390px, .76fr) minmax(0, 1.24fr);
+    grid-template-columns: minmax(390px, 0.76fr) minmax(0, 1.24fr);
   }
-
   .fan {
     max-width: 760px;
   }
-
   .fan img {
     width: min(100%, 198px);
   }
@@ -196,36 +204,20 @@
     grid-template-columns: 1fr;
     min-height: 0;
   }
-
   .copy {
     max-width: 44ch;
   }
-
   .fan {
     max-width: 640px;
   }
-
   .fan img {
     width: min(100%, 178px);
   }
 }
 
-html[data-theme="dark"] .section {
-  background: var(--et-yellow-bright);
-  color: var(--et-red);
-  box-shadow: none;
-}
-
-html[data-theme="dark"] .heading,
-html[data-theme="dark"] .copy strong {
-  color: #5d2f26;
-}
-
-html[data-theme="dark"] .copy {
-  color: rgba(103, 43, 30, .78);
-}
-
-html[data-theme="dark"] .kicker {
-  color: var(--et-cream);
-  background: var(--et-red);
+@media (max-width: 520px) {
+  .section {
+    width: calc(100% - 20px);
+    padding: 30px 20px 34px;
+  }
 }

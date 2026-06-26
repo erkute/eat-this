@@ -10,28 +10,28 @@
 /* Design tokens — keep in sync with ../css/style.css */
 :root {
   --black: #171a17;
-  --white: #f1f1ec;
-  --off-white: #f1f1ec;
-  --gray-50: #f1f1ec;
-  --gray-100: #b9bbb4;
-  --gray-200: #b9bbb4;
-  --gray-400: #6e716a;
-  --gray-600: #6e716a;
+  --white: #fff;
+  --off-white: #fff;
+  --gray-50: #fff;
+  --gray-100: #15120e;
+  --gray-200: #15120e;
+  --gray-400: #15120e;
+  --gray-600: #15120e;
   /* Single source of truth, aligned to css/style.css's "mono pivot — was coral".
      Previously #FF3B00 here vs var(--et-black) there: the same var resolved to a
      different value depending on stylesheet load order. No module consumes
      --orange/--accent (only style.css does, where it always wins as var(--et-black)),
      so this only removes the pre-stylesheet red flash — no live colour change. */
   --orange: var(--et-black);
-  --darkred: #b92820;
+  --darkred: #15120e;
 
   /* Eat This print palette: 6 colors from the theater-program reference. */
-  --et-poster-red: #ef3528;
-  --et-print-black: #171a17;
-  --et-program-paper: #f1f1ec;
-  --et-ticket-grey: #b9bbb4;
-  --et-offset-grey: #6e716a;
-  --et-pressed-red: #b92820;
+  --et-poster-red: #d9382a;
+  --et-print-black: #15120e;
+  --et-program-paper: #fff;
+  --et-ticket-grey: #15120e;
+  --et-offset-grey: #15120e;
+  --et-pressed-red: #15120e;
 
   /* Legacy aliases. Keep names stable while the visual system pivots from
      yellow/cream to red/black/program-paper. */
@@ -83,7 +83,7 @@
      (das ist sticker-paper, kein Grau). Token-Namen unverändert für
      einfachen Rollback. */
   --brand-coral: var(--brand-action); /* poster-red */
-  --brand-coral-soft: rgba(228, 61, 24, 0.14);
+  --brand-coral-soft: rgba(217, 56, 42, 0.14);
 
   --c-cream: var(--brand-paper);
   --c-paper: var(--brand-stage);
@@ -105,7 +105,7 @@
   --collage-yellow: var(--brand-stage-bright);
   --collage-paper: var(--brand-stage);
   --collage-ink: var(--brand-action-deep);
-  --collage-shadow: 0 16px 30px rgba(43, 33, 28, 0.18);
+  --collage-shadow: none;
 
   --font: var(--font-dm-sans), 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-chewy:
@@ -130,14 +130,14 @@
   --font-body: var(--font);
   --font-label: var(--font-poster);
 
-  /* ── Editorial "menu" design system (shared by profile → home → login) ──
-     Bold orange + cream panels on a near-black page, condensed Chauncy
+  /* ── Editorial "menu" design system (home + login) ──
+     Bold orange + cool-white panels on a near-black page, condensed Chauncy
      headings, monospace dotted-leader lists, handwritten brush accents,
-     FLAT (no shadows/gradients). Single source of truth for all three. */
+     FLAT (no shadows/gradients). Mirrors the orange/white/black references. */
   --menu-page: #0c0b0a;
-  --menu-orange: var(--et-red, #ef3528);
-  --menu-cream: #f1ecdd;
-  --menu-cream-2: #e9e2ce;
+  --menu-orange: var(--et-red, #d9382a);
+  --menu-cream: #fff;
+  --menu-cream-2: #fff;
   --menu-ink: #15120e;
   --menu-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   --menu-condensed: 'chauncy-pro-1', 'chauncy-pro-2', var(--font-anton), sans-serif;
@@ -386,23 +386,23 @@ html[data-active-page='home'],
 html[data-active-page='start'],
 html[data-active-page='home'] body,
 html[data-active-page='start'] body {
-  --food-ink: #25170f;
-  --food-paper: #f1f1ec;
-  --food-cream: #f1f1ec;
-  --food-butter: #ffd35a;
+  --food-ink: #15120e;
+  --food-paper: #fff;
+  --food-cream: #fff;
+  --food-butter: #d9382a;
   --food-tomato: var(--et-poster-red);
-  --food-tomato-dark: #a83220;
-  --food-basil: #2f6b42;
-  --food-olive: #7b7d32;
+  --food-tomato-dark: #15120e;
+  --food-basil: #15120e;
+  --food-olive: #15120e;
 
   --et-red: var(--food-tomato);
-  --et-red-hot: #ff5a30;
+  --et-red-hot: var(--food-tomato);
   --et-red-deep: var(--food-tomato-dark);
   --et-yellow: var(--food-cream);
   --et-yellow-bright: var(--food-butter);
   --et-cream: var(--food-paper);
   --et-black: var(--food-ink);
-  --et-dark-card: #ffe7b5;
+  --et-dark-card: var(--food-ink);
   --surface-bg: var(--food-paper);
   --surface-canvas: var(--food-paper);
   --surface-paper: var(--food-cream);
@@ -410,7 +410,7 @@ html[data-active-page='start'] body {
   --accent-mustard: var(--food-butter);
   --accent-warm: var(--food-tomato);
   --c-coral: var(--food-tomato);
-  --c-coral-bright: #ff5a30;
+  --c-coral-bright: var(--food-tomato);
   --c-mustard: var(--food-butter);
   --brand-yellow: var(--food-butter);
   --brand-red: var(--food-tomato);
@@ -418,7 +418,7 @@ html[data-active-page='start'] body {
   --collage-yellow: var(--food-butter);
   --collage-paper: var(--food-paper);
   --collage-ink: var(--food-ink);
-  --collage-shadow: 0 18px 38px rgba(78, 47, 24, 0.13);
+  --collage-shadow: none;
 
   background-color: var(--food-paper);
   background-image: none;
@@ -429,23 +429,23 @@ html[data-theme='dark'][data-active-page='home'],
 html[data-theme='dark'][data-active-page='start'],
 html[data-theme='dark'][data-active-page='home'] body,
 html[data-theme='dark'][data-active-page='start'] body {
-  --food-ink: #f1f1ec;
-  --food-paper: #171a17;
-  --food-cream: #211b17;
-  --food-butter: #ffc54d;
+  --food-ink: #15120e;
+  --food-paper: #fff;
+  --food-cream: #fff;
+  --food-butter: #d9382a;
   --food-tomato: var(--et-poster-red);
-  --food-tomato-dark: #b92820;
-  --food-basil: #91c78f;
-  --food-olive: #d2c95f;
+  --food-tomato-dark: #15120e;
+  --food-basil: #15120e;
+  --food-olive: #15120e;
 
   --et-red: var(--food-tomato);
   --et-red-hot: var(--et-poster-red);
   --et-red-deep: var(--food-tomato-dark);
   --et-yellow: var(--food-cream);
   --et-yellow-bright: var(--food-butter);
-  --et-cream: var(--food-ink);
-  --et-black: var(--food-paper);
-  --et-dark-card: #211b17;
+  --et-cream: var(--food-paper);
+  --et-black: var(--food-ink);
+  --et-dark-card: var(--food-ink);
   --surface-bg: var(--food-paper);
   --surface-canvas: var(--food-paper);
   --surface-paper: var(--food-cream);
@@ -461,11 +461,11 @@ html[data-theme='dark'][data-active-page='start'] body {
   --collage-yellow: var(--food-butter);
   --collage-paper: var(--food-paper);
   --collage-ink: var(--food-ink);
-  --collage-shadow: 0 18px 38px rgba(78, 47, 24, 0.13);
+  --collage-shadow: none;
 
   background-color: var(--food-paper);
   background-image: none;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 /* Hub wrapper surface. The section stack has intentional gaps between some
@@ -478,32 +478,31 @@ html[data-theme='dark'][data-active-page='start'] body {
 html[data-theme='dark'] [data-hub] {
   background: var(--dk-page, var(--et-black));
 }
-/* Editorial menu look: the home canvas is the near-black menu page in BOTH
-   themes (the menu aesthetic is theme-independent — matches the profile). The
-   html/body fill near-black too so overscroll edges never expose a cream seam. */
+/* Home uses a light cassette-table surface; black is reserved for rails,
+   outlines, and media frames rather than the page background. */
 html[data-active-page='home'] [data-hub],
 html[data-active-page='start'] [data-hub] {
-  background: var(--menu-page);
+  background: var(--food-paper);
 }
 html[data-active-page='home'],
 html[data-active-page='start'],
 html[data-active-page='home'] body,
 html[data-active-page='start'] body {
-  background-color: var(--menu-page);
+  background-color: var(--food-paper);
 }
 html[data-theme='dark'][data-active-page='home'],
 html[data-theme='dark'][data-active-page='start'],
 html[data-theme='dark'][data-active-page='home'] body,
 html[data-theme='dark'][data-active-page='start'] body {
-  --collage-paper: var(--menu-page);
+  --collage-paper: var(--food-paper);
   --collage-ink: var(--food-ink);
-  background-color: var(--menu-page);
+  background-color: var(--food-paper);
   color: var(--food-ink);
-  color-scheme: dark;
+  color-scheme: light;
 }
 html[data-theme='dark'][data-active-page='home'] [data-hub],
 html[data-theme='dark'][data-active-page='start'] [data-hub] {
-  background: var(--menu-page);
+  background: var(--food-paper);
 }
 
 /* Sitewide Providence collage language. The map remains a purpose-built
@@ -1010,4 +1009,56 @@ html[data-theme='dark'] .homeCtaPrimary:focus-visible {
   background: var(--et-black);
   border-color: var(--et-black);
   color: var(--et-cream);
+}
+
+/* Header reset for the cassette home system. Keep global navbar overrides out
+   of CSS Modules so Next's pure selector rules do not reject them. */
+.navbar,
+.navbar.scrolled,
+html[data-theme='dark'] .navbar,
+html[data-theme='dark'] .navbar.scrolled,
+html[data-active-page='start'] .navbar,
+html[data-active-page='start'] .navbar.scrolled,
+html[data-theme='dark'][data-active-page='start'] .navbar,
+html[data-theme='dark'][data-active-page='start'] .navbar.scrolled {
+  height: calc(72px + env(safe-area-inset-top, 0px)) !important;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) clamp(12px, 3vw, 32px) 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  background: #d9382a !important;
+  color: #fff !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.navbar::before,
+.navbar::after,
+html[data-theme='dark'] .navbar::before,
+html[data-theme='dark'] .navbar::after {
+  content: none !important;
+}
+
+@media (max-width: 520px) {
+  .navbar,
+  .navbar.scrolled,
+  html[data-theme='dark'] .navbar,
+  html[data-theme='dark'] .navbar.scrolled {
+    height: calc(64px + env(safe-area-inset-top, 0px)) !important;
+    padding-inline: 10px !important;
+  }
+}
+
+.bd-foot,
+html[data-theme='dark'] .bd-foot {
+  padding-top: 8px !important;
+  gap: 6px !important;
+}
+
+.bd-foot-link,
+html[data-theme='dark'] .bd-foot-link {
+  min-height: 32px !important;
+  padding: 6px 8px !important;
+  font-size: 10px !important;
 }

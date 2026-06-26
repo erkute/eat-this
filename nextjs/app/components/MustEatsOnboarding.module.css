@@ -1,74 +1,49 @@
-/* Must-Eats first-visit onboarding. Tokens match MustEatsSection.module.css:
-   ink #0a0a0a · cream #fbf8ee · display font var(--font-chewy) · radius 0. */
-
-/* Trigger chip under the section sub copy — matches the filter chips / yellow
-   CTA: square, 2px ink border, Chewy uppercase, with a round yellow "?" badge.
-   Hover inverts to ink + lifts (translate, never opacity — brand motion rule). */
 .how {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  margin: 14px 0 0;
-  padding: 8px 15px 8px 9px;
-  background: transparent;
-  border: 2px solid #0a0a0a;
+  margin: clamp(22px, 3vw, 34px) 0 0;
+  padding: 9px 16px 10px 10px;
+  background: #fff;
+  border: 2px solid #15120e;
   border-radius: 0;
-  font-family: var(--font-chewy);
-  font-size: 14px;
-  letter-spacing: 0.08em;
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
   line-height: 1;
   text-transform: uppercase;
-  color: #0a0a0a;
+  color: #15120e;
   cursor: pointer;
   transition:
     transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
     background-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
+    color 0.16s ease;
 }
 .how:hover {
-  background: #0a0a0a;
-  color: #fbf8ee;
+  background: #15120e;
+  color: #fff;
   transform: translateY(-2px);
-  box-shadow: 4px 4px 0 var(--brand-yellow);
 }
 .how:active {
   transform: translateY(0);
-  box-shadow: 2px 2px 0 var(--brand-yellow);
 }
-/* Round yellow badge stays put through the hover invert — the contrast anchor */
+
 .howBadge {
   display: inline-grid;
   place-items: center;
   width: 21px;
   height: 21px;
   border-radius: 999px;
-  background: var(--brand-yellow);
-  color: #0a0a0a;
-  font-family: var(--font-chewy);
+  background: #d9382a;
+  color: #15120e;
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 14px;
+  font-weight: 900;
   line-height: 1;
   padding-top: 1px;
 }
-/* Dark mode: ink border vanishes on the dark surface → switch to cream + coral. */
-html[data-theme="dark"] .how {
-  color: #f0e8d0;
-  border-color: rgba(240, 232, 208, 0.55);
-}
-html[data-theme="dark"] .how:hover {
-  background: #f0e8d0;
-  color: #0a0a0a;
-  box-shadow: 4px 4px 0 #f0e8d0;
-}
-html[data-theme="dark"] .how:active {
-  box-shadow: 2px 2px 0 #f0e8d0;
-}
-html[data-theme="dark"] .howBadge {
-  background: var(--c-coral);
-  color: #fbf8ee;
-}
 
-/* Backdrop tint — a state change, not motion (opacity rule exception) */
 .backdrop {
   position: fixed;
   inset: 0;
@@ -76,16 +51,15 @@ html[data-theme="dark"] .howBadge {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(10, 10, 10, 0.5);
+  background: rgba(21, 18, 14, 0.52);
   padding: 16px;
 }
 
-/* Panel flies in from below the viewport — translate, never opacity */
 .panel {
   position: relative;
   width: min(92vw, 360px);
-  background: #fbf8ee;
-  border: 2px solid #0a0a0a;
+  background: #fff;
+  border: 2px solid #15120e;
   border-radius: 0;
   padding: 40px 24px 24px;
   text-align: center;
@@ -108,7 +82,7 @@ html[data-theme="dark"] .howBadge {
   border: none;
   font-size: 26px;
   line-height: 1;
-  color: #0a0a0a;
+  color: #15120e;
   cursor: pointer;
   padding: 4px;
 }
@@ -155,25 +129,29 @@ html[data-theme="dark"] .howBadge {
 
 /* Slide copy — section-head hierarchy: kicker, display headline, short body */
 .kicker {
-  font-family: var(--font-chewy);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 13px;
+  font-weight: 900;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #0a0a0a;
+  color: #15120e;
   margin: 0 0 2px;
 }
 .title {
-  font-family: var(--font-chewy);
-  font-size: 30px;
-  line-height: 0.98;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 0.86;
   text-transform: uppercase;
-  color: #0a0a0a;
+  color: #15120e;
   margin: 0 0 10px;
 }
 .text {
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 15px;
-  line-height: 1.45;
-  color: #0a0a0a;
+  font-weight: 750;
+  line-height: 1.34;
+  color: #15120e;
   margin: 0 0 14px;
   min-height: 4.4em;
 }
@@ -187,21 +165,22 @@ html[data-theme="dark"] .howBadge {
 .dot {
   width: 8px;
   height: 8px;
-  border: 2px solid #0a0a0a;
+  border: 2px solid #15120e;
   background: transparent;
 }
 .dotOn {
-  background: #0a0a0a;
+  background: #15120e;
 }
 
 .next {
-  background: #0a0a0a;
-  color: #fbf8ee;
-  border: 2px solid #0a0a0a;
+  background: #15120e;
+  color: #fff;
+  border: 2px solid #15120e;
   border-radius: 0;
-  font-family: var(--font-chewy);
-  font-size: 17px;
-  letter-spacing: 0.06em;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: 0;
   text-transform: uppercase;
   padding: 10px 22px 11px;
   cursor: pointer;

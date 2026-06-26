@@ -19,7 +19,7 @@ interface PageProps {
 
 // EN title/description for `/en` — the (spa) layout's brand-level metadata is
 // German and stays the default for `/`.
-const EN_TITLE = 'EAT THIS – Berlin Food Guide: Restaurants & Hidden Gems'
+const EN_TITLE = 'EAT THIS – Restaurants & Hidden Gems'
 const EN_DESCRIPTION =
   'We tell you what to eat — the curated food map with the best restaurants, cafés and bars in Berlin. Plus exclusive Must Eats on the interactive map.'
 

@@ -3,11 +3,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   BUDDY_ASK_EVENT,
-  BUDDY_STAGE_EVENT,
   dispatchBuddyAsk,
-  dispatchBuddyStage,
   type BuddyAskDetail,
-  type BuddyStageDetail,
 } from './homeStage'
 
 describe('homeStage event bridge', () => {
@@ -31,16 +28,5 @@ describe('homeStage event bridge', () => {
     dispatchBuddyAsk()
     window.removeEventListener(BUDDY_ASK_EVENT, onAsk)
     expect(got).toEqual({})
-  })
-
-  it('round-trips stage visibility with a rect', () => {
-    let got: BuddyStageDetail | null = null
-    const onStage = (e: Event) => {
-      got = (e as CustomEvent<BuddyStageDetail>).detail
-    }
-    window.addEventListener(BUDDY_STAGE_EVENT, onStage)
-    dispatchBuddyStage({ visible: true, rect: { left: 10, top: 20, width: 120, height: 140 } })
-    window.removeEventListener(BUDDY_STAGE_EVENT, onStage)
-    expect(got).toEqual({ visible: true, rect: { left: 10, top: 20, width: 120, height: 140 } })
   })
 })

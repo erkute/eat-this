@@ -21,7 +21,9 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
   const uid = user?.uid ?? null
   const live = useMapData({ uid, authLoading, initialMapData })
   const { unlockedIds: storedUnlockedIds } = useUnlockedMustEats(uid)
-  const { t } = useTranslation()
+  const { lang, t } = useTranslation()
+  const mustEatAria = lang === 'de' ? 'auf der Map anzeigen' : 'show on the map'
+  const restaurantAria = lang === 'de' ? 'auf der Map anzeigen' : 'show on the map'
 
   // The first client render must match SSR exactly: SSR renders the anonymous
   // view (uid=null) from `initialMapData`, so the pre-mount render here mirrors
@@ -78,34 +80,44 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
 
   return (
     <section className={styles.section} data-hub-must-eats="">
-      <h2 className={styles.title}>{t('mustEats.teaserTitle')}</h2>
-      <p className={styles.sub}>{t('mustEats.teaserSub')}</p>
+      <div className={styles.head}>
+        <h2 className={styles.title}>{t('mustEats.teaserTitle')}</h2>
+        <div className={styles.subWrap}>
+          <p className={styles.sub}>{t('mustEats.teaserSub')}</p>
+        </div>
+      </div>
 
       <ul className={styles.row} role="list">
         {teaser.map((m) => (
           <li key={m._id} className={styles.item}>
-            {/* Deep-link into the map: ?me= opens the must-eat detail. */}
-            <MapIntentLink href={`/map?me=${m._id}`} className={styles.cardLink}>
-              <span className={styles.cutoutFrame}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className={styles.card}
-                  src={m.image}
-                  alt={normalizeName(m.dish ?? '')}
-                  loading="lazy"
-                />
-              </span>
+            <article className={styles.cardShell}>
+              {/* Deep-link into the map: ?me= opens the must-eat detail. */}
+              <MapIntentLink href={`/map?me=${m._id}`} className={styles.cardLink} aria-label={`${normalizeName(m.dish ?? '')} ${mustEatAria}`}>
+                <span className={styles.cutoutFrame}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    className={styles.card}
+                    src={m.image}
+                    alt={normalizeName(m.dish ?? '')}
+                    loading="lazy"
+                  />
+                </span>
+              </MapIntentLink>
               <span className={styles.meta}>
-                <span className={styles.dish}>{normalizeName(m.dish ?? '')}</span>
-                <span className={styles.restaurant}>{normalizeName(m.restaurant.name)}</span>
+                <MapIntentLink href={`/map?me=${m._id}`} className={styles.dishLink} aria-label={`${normalizeName(m.dish ?? '')} ${mustEatAria}`}>
+                  <span className={styles.dish}>{normalizeName(m.dish ?? '')}</span>
+                </MapIntentLink>
+                <MapIntentLink href={`/map?r=${m.restaurant.slug}`} className={styles.restaurantLink} aria-label={`${normalizeName(m.restaurant.name)} ${restaurantAria}`}>
+                  <span className={styles.restaurant}>{normalizeName(m.restaurant.name)}</span>
+                </MapIntentLink>
               </span>
-            </MapIntentLink>
+            </article>
           </li>
         ))}
       </ul>
 
       <p className={styles.foot}>
-        <MapIntentLink href="/map" rel="nofollow" className={`${styles.cta} homeCta homeCtaPrimary`}>
+        <MapIntentLink href="/must-eats" className={`${styles.cta} homeCta homeCtaPrimary`}>
           {t('mustEats.teaserCta')}
         </MapIntentLink>
       </p>

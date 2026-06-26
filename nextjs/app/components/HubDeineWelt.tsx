@@ -2,12 +2,11 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
-import { defaultAvatarFromUid, useUserProfile } from '@/lib/firebase/useUserProfile';
+import { useFavorites } from '@/lib/map/useFavorites';
 import { useMapData, useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map';
-import { useUserLocationContext } from '@/lib/map/UserLocationContext';
 import { normalizeName } from '@/lib/normalizeName';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 import MapIntentLink from './MapIntentLink';
@@ -19,16 +18,17 @@ interface Props {
 
 export default function HubDeineWelt({ initialMapData }: Props) {
   const t = useTranslations('hub.deineWelt');
+  const locale = useLocale();
+  const de = locale === 'de';
   const { user, loading } = useAuth();
   const uid = user?.uid ?? null;
-  const { profile } = useUserProfile(uid);
+  const { favorites } = useFavorites(uid);
   const { restaurants, mustEats, revealedMustEatIds } = useMapData({
     uid,
     authLoading: loading,
     initialMapData,
   });
   const { unlockedIds } = useUnlockedMustEats(uid);
-  const { location, request } = useUserLocationContext();
 
   // The live face-up set depends on the per-uid localStorage cache + the live
   // /api/map-data payload, so it's client-only — until mount, fall back to the
@@ -36,32 +36,15 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   // mismatch); after mount it switches to the signed-in data.
   const [mounted, setMounted] = useState(false);
   const [authHintName, setAuthHintName] = useState<string | null>(null);
-  const [authHintAvatar, setAuthHintAvatar] = useState<1 | 2 | 3 | null>(null);
-  const [geoBezirk, setGeoBezirk] = useState<string | null>(null);
   useEffect(() => {
     setMounted(true);
     try {
       const hint = JSON.parse(window.localStorage.getItem('_authHint') || 'null') as {
         n?: string;
-        a?: number;
       } | null;
       if (hint?.n) setAuthHintName(hint.n);
-      if (hint?.a === 1 || hint?.a === 2 || hint?.a === 3) setAuthHintAvatar(hint.a);
     } catch {}
   }, []);
-  useEffect(() => {
-    if (!location) return;
-    let cancelled = false;
-    fetch(`/api/bezirk?lat=${location.lat}&lng=${location.lng}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: { bezirk?: string | null } | null) => {
-        if (!cancelled && data?.bezirk) setGeoBezirk(data.bezirk);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, [location]);
 
   const dataMustEats = mounted ? mustEats : initialMapData.mustEats;
   const dataRestaurants = mounted ? restaurants : initialMapData.restaurants;
@@ -69,6 +52,7 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   const firstName = user
     ? (user.displayName ?? '').split(' ')[0] || (user.email ?? '').split('@')[0] || null
     : authHintName;
+  const greeting = firstName ? `Hey ${firstName}` : 'Hey';
 
   // Resolved logged-out → render nothing (the hero stays the first block).
   // While auth is still loading (SSR + pre-hydration) the static shell is
@@ -94,127 +78,101 @@ export default function HubDeineWelt({ initialMapData }: Props) {
     revealedMustEatIds: liveRevealed,
     publicFaceUpIds,
   });
-  const avatarIdx = user
-    ? (profile.avatar ?? authHintAvatar ?? defaultAvatarFromUid(user.uid))
-    : (authHintAvatar ?? 2);
-  const spotPick =
-    dataRestaurants.find((r) => !r.isClosed && r.photo && r.mustEatCount > 0) ??
-    dataRestaurants.find((r) => !r.isClosed && r.photo) ??
-    dataRestaurants.find((r) => !r.isClosed) ??
-    dataRestaurants[0] ??
-    null;
   const mustEatPick =
     dataMustEats.find((m) => faceUp.has(m._id) && m.image) ??
     dataMustEats.find((m) => !faceUp.has(m._id)) ??
     dataMustEats[0] ??
     null;
   const mustEatOpen = Boolean(mustEatPick && faceUp.has(mustEatPick._id) && mustEatPick.image);
-  const spotMeta = spotPick
-    ? [
-        spotPick.district ?? spotPick.bezirk?.name,
-        spotPick.cuisineType ?? spotPick.categories?.[0]?.name,
-      ]
-        .filter(Boolean)
-        .join(' · ') || t('spotPickFallbackMeta')
-    : t('spotPickFallbackMeta');
-  const mustEatTitle = mustEatPick
-    ? normalizeName(
-        mustEatOpen ? (mustEatPick.dish ?? t('cardFallback')) : t('mustPickLockedTitle')
-      )
-    : t('mustPickLockedTitle');
-  const mustEatMeta = mustEatPick
-    ? normalizeName(mustEatPick.restaurant.name)
-    : t('mustPickFallbackMeta');
   const mustEatHref = mustEatPick
     ? mustEatOpen
       ? `/map?me=${mustEatPick._id}`
       : `/map?r=${mustEatPick.restaurant.slug}`
     : '/map';
+  const savedCount = favorites.length;
+  const faceUpCount = faceUp.size;
+  const savedPreviewPool = favorites.map((f) => ({
+    _id: f.restaurantId,
+    name: f.name,
+    slug: f.slug ?? '',
+    photo: f.photo ?? '',
+    district: f.district ?? '',
+  }));
+  const spotPreviewPool = savedCount > 0 ? savedPreviewPool : dataRestaurants;
+  const spotPreviews = spotPreviewPool
+    .filter((r, index, all) => r.photo && r.slug && all.findIndex((x) => x.slug === r.slug) === index)
+    .slice(0, savedCount > 0 ? Math.min(savedCount, 3) : 3);
+  const mustEatCards = [
+    ...(mustEatOpen && mustEatPick?.image ? [mustEatPick] : []),
+    ...dataMustEats.filter((m) => m._id !== mustEatPick?._id && faceUp.has(m._id) && m.image),
+  ].slice(0, Math.min(Math.max(faceUpCount, 1), 5));
 
   return (
     <section className={styles.section} data-hub-deinewelt="" data-auth-only="">
       <div className={styles.inner}>
         <div className={styles.copy}>
-          <p className={styles.kicker}>
-            {firstName ? t('dockHelloName', { name: firstName }) : t('dockHello')}
+          <p className={styles.kicker}>{greeting}</p>
+          <h2 className={styles.title}>{de ? 'Deine Map wartet.' : 'Your map is ready.'}</h2>
+          <p className={styles.copyNote}>
+            {de ? 'Direkt zu deinen gespeicherten Orten und offenen Must Eats.' : 'Jump into your saved spots and open Must Eats.'}
           </p>
-          <h2 className={styles.title}>{t('dockQuestion')}</h2>
 
           <div className={styles.actionRow} aria-label={t('actionsLabel')}>
-            <MapIntentLink href="/map" rel="nofollow" className={styles.primaryAction}>
-              {t('mapAction')}
-            </MapIntentLink>
             <Link href="/profile" rel="nofollow" className={styles.profileLink}>
-              <span className={styles.profileAvatar} aria-hidden="true">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/pics/avatar/${avatarIdx}.webp?v=3`} alt="" />
-              </span>
               <span className={styles.actionLabel}>{t('profileAction')}</span>
             </Link>
-            {location && geoBezirk ? (
-              <span className={styles.locChip} aria-live="polite">
-                {t('locationDetected', { bezirk: geoBezirk })}
-              </span>
-            ) : (
-              <button type="button" className={styles.locChip} onClick={() => void request()}>
-                {t('locationEnable')}
-              </button>
-            )}
+            <MapIntentLink href="/map" rel="nofollow" className={styles.mapActionLink}>
+              {t('mapAction')}
+            </MapIntentLink>
           </div>
         </div>
 
-        <div className={styles.recommendations} aria-label={t('recommendationsLabel')}>
-          <MapIntentLink
-            href={spotPick ? `/map?r=${spotPick.slug}` : '/map'}
-            rel="nofollow"
-            className={`${styles.pickCard} ${styles.spotPick}`}
-          >
-            <span className={styles.pickKicker}>{t('spotPickKicker')}</span>
-            <span className={styles.spotPhoto} data-empty={spotPick?.photo ? 'false' : 'true'}>
-              {spotPick?.photo ? (
-                <Image
-                  src={spotPick.photo}
-                  alt=""
-                  fill
-                  sizes="(min-width: 900px) 360px, 92vw"
-                  className={styles.spotImg}
-                />
-              ) : null}
-            </span>
-            <span className={styles.pickBody}>
-              <strong className={styles.pickTitle}>
-                {spotPick ? normalizeName(spotPick.name) : t('spotPickFallbackTitle')}
-              </strong>
-              <span className={styles.pickMeta}>{spotMeta}</span>
-              <span className={styles.pickCta}>{t('openSpot')}</span>
-            </span>
-          </MapIntentLink>
+        <div className={styles.discovery}>
+          <div className={styles.collectionGrid} aria-label={de ? 'Deine Sammlung' : 'Your collection'}>
+            <div className={`${styles.collectionCard} ${styles.spotCard}`}>
+              <span className={styles.collectionKicker}>{de ? 'Spots' : 'Spots'}</span>
+              <span className={styles.spotStack} data-count={spotPreviews.length}>
+                {spotPreviews.map((spot) => (
+                  <MapIntentLink
+                    href={`/map?r=${spot.slug}`}
+                    rel="nofollow"
+                    className={styles.spotPhoto}
+                    key={spot._id}
+                    aria-label={`${normalizeName(spot.name)} ${de ? 'auf der Map öffnen' : 'open on the map'}`}
+                  >
+                    <span className={styles.spotImage}>
+                      <Image src={spot.photo ?? ''} alt="" fill sizes="120px" />
+                    </span>
+                    <span className={styles.spotName}>{normalizeName(spot.name)}</span>
+                  </MapIntentLink>
+                ))}
+              </span>
+            </div>
 
-          <MapIntentLink
-            href={mustEatHref}
-            rel="nofollow"
-            className={`${styles.pickCard} ${styles.mustPick}`}
-          >
-            <span className={styles.pickKicker}>{t('mustPickKicker')}</span>
-            <span className={styles.mustArt} data-open={mustEatOpen ? 'true' : 'false'}>
-              {mustEatOpen && mustEatPick?.image ? (
-                <Image
-                  src={mustEatPick.image}
-                  alt=""
-                  fill
-                  sizes="160px"
-                  className={styles.mustImg}
-                />
-              ) : (
-                <span className={styles.mustHiddenMark} aria-hidden="true" />
-              )}
-            </span>
-            <span className={styles.pickBody}>
-              <strong className={styles.pickTitle}>{mustEatTitle}</strong>
-              <span className={styles.pickMeta}>{mustEatMeta}</span>
-              <span className={styles.pickCta}>{t('openMustEat')}</span>
-            </span>
-          </MapIntentLink>
+            <div className={`${styles.collectionCard} ${styles.mustEatCard}`}>
+              <span className={styles.collectionKicker}>{de ? 'Must Eats' : 'Must Eats'}</span>
+              <span className={styles.mustStack} data-count={mustEatCards.length}>
+                {mustEatCards.length > 0 ? (
+                  mustEatCards.map((m) => (
+                    <MapIntentLink
+                      href={`/map?me=${m._id}`}
+                      rel="nofollow"
+                      className={styles.mustThumb}
+                      key={m._id}
+                      data-open="true"
+                      aria-label={`${m.dish ? normalizeName(m.dish) : 'Must Eat'} ${de ? 'auf der Map öffnen' : 'open on the map'}`}
+                    >
+                      {m.image && <Image src={m.image} alt="" fill sizes="110px" className={styles.mustImg} />}
+                    </MapIntentLink>
+                  ))
+                ) : (
+                  <MapIntentLink href={mustEatHref} rel="nofollow" className={styles.mustThumb} data-open="false">
+                    <span className={styles.mustHiddenMark} />
+                  </MapIntentLink>
+                )}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </section>

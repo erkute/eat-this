@@ -1,28 +1,29 @@
-/* Profile: editorial print-menu — orange hero + cream menu panels on near-black. */
+/* Profile: full-width cassette/menu sheet on a light table surface. */
 
 .page {
   --menu-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   /* Adobe Fonts "Chauncy Pro" (in the kgb1lmh Typekit kit); Anton is the
      fallback until it loads. */
-  --font-condensed: 'chauncy-pro-1', 'chauncy-pro-2', var(--font-anton), sans-serif;
+  --font-condensed: 'chauncy-pro-1', 'chauncy-pro-2', var(--font-anton, Impact), sans-serif;
   --profile-ink: #15120e;
-  --profile-paper: #f1ecdd;
-  --profile-paper2: #e9e2ce;
+  --profile-canvas: #f1f1ec;
+  --profile-paper: #f7f7f3;
+  --profile-paper2: #ececea;
   --profile-action: var(--et-red, #ef3528);
   --profile-radius: 6px;
   --profile-motion: var(--motion-base, 180ms) var(--ease-standard, ease);
   min-height: 100vh;
-  padding-top: calc(72px + 20px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
-  padding-bottom: 26px;
+  padding-top: calc(72px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
+  padding-bottom: 0;
   color: var(--profile-ink);
-  background: #0c0b0a;
+  background: var(--profile-canvas);
 }
 
 .shell {
   display: grid;
-  gap: 14px;
-  width: min(100% - 28px, 1080px);
-  margin: 0 auto;
+  gap: clamp(18px, 2.4vw, 30px);
+  width: 100%;
+  margin: 0;
 }
 
 .loading {
@@ -35,8 +36,8 @@
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid rgba(241, 236, 221, 0.2);
-  border-top-color: var(--profile-paper);
+  border: 3px solid rgba(21, 18, 14, 0.16);
+  border-top-color: var(--profile-action);
   border-radius: 50%;
   animation: profileSpin 0.7s linear infinite;
 }
@@ -51,25 +52,17 @@
 
 .hero {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 20px;
-  align-items: start;
-  padding: 30px 34px 26px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(20px, 4vw, 54px);
+  align-items: end;
+  padding: clamp(34px, 5vw, 64px) clamp(28px, 5vw, 64px);
   color: var(--profile-ink);
   background: var(--profile-action);
-  border-radius: var(--profile-radius);
+  border-radius: 0;
 }
 
 .heroMain {
   min-width: 0;
-}
-
-.heroMeta {
-  font-family: var(--menu-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 12px;
-  color: var(--profile-ink);
 }
 
 /* Edit pill hangs off the bottom of the avatar tile (at the avatar, clear of
@@ -81,10 +74,11 @@
   transform: translateX(-50%);
   white-space: nowrap;
   padding: 6px 13px;
-  color: var(--profile-paper);
-  background: var(--profile-ink);
-  border: 0;
-  border-radius: 999px;
+  color: var(--profile-ink);
+  background: rgba(247, 247, 243, 0.72);
+  border: 1px solid rgba(21, 18, 14, 0.36);
+  border-radius: 4px;
+  backdrop-filter: blur(6px);
   cursor: pointer;
   font-family: var(--menu-mono);
   text-transform: uppercase;
@@ -93,40 +87,60 @@
 }
 
 .heroName {
-  margin: 8px 0 0;
+  margin: 0;
   font-family: var(--font-condensed);
   text-transform: uppercase;
   letter-spacing: 0.005em;
   font-weight: 400;
-  font-size: clamp(54px, 12vw, 84px);
-  line-height: 0.84;
+  font-size: clamp(70px, 15vw, 156px);
+  line-height: 0.76;
   color: var(--profile-ink);
   word-break: break-word;
-}
-
-.heroSub {
-  display: block;
-  margin: 12px 0 0;
-  font-family: var(--font-display);
-  font-size: clamp(34px, 7vw, 46px);
-  line-height: 0.8;
-  color: var(--profile-ink);
 }
 
 .heroActions {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 16px;
+  gap: 10px;
+  margin-top: clamp(22px, 3vw, 34px);
 }
 
 .heroLink {
-  font-family: var(--menu-mono);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 50px;
+  padding: 12px 18px 13px;
+  font-family: var(--font-condensed);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 12px;
+  letter-spacing: 0;
+  font-size: clamp(22px, 2vw, 30px);
+  line-height: 0.9;
+  color: var(--profile-paper);
+  background: var(--profile-ink);
+  border: 0;
+  border-radius: var(--profile-radius);
+  text-decoration: none;
+  transition:
+    background-color var(--profile-motion),
+    color var(--profile-motion),
+    transform var(--profile-motion);
+}
+
+.heroLink::after {
+  content: '';
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  clip-path: polygon(15% 45%, 62% 45%, 45% 28%, 56% 17%, 92% 53%, 56% 89%, 45% 78%, 62% 61%, 15% 61%);
+}
+
+.heroLink:hover,
+.heroLink:focus-visible {
+  background: var(--profile-paper);
   color: var(--profile-ink);
-  text-decoration: underline;
+  transform: translateY(-2px);
 }
 
 /* Clean tile behind the cut-out avatar — the freigestellt edges sit on paper,
@@ -143,7 +157,8 @@
   height: clamp(158px, 21.6vw, 202px);
   margin-bottom: 16px;
   background: var(--profile-paper);
-  border-radius: 12px;
+  border: 1px solid rgba(21, 18, 14, 0.34);
+  border-radius: var(--profile-radius);
 }
 
 .heroAvatarImg {
@@ -158,29 +173,36 @@
 .leaders {
   grid-column: 1 / -1;
   display: grid;
-  gap: 7px;
-  margin-top: 22px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 2px;
 }
 
 .leader {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
+  display: grid;
+  min-height: 112px;
+  align-content: space-between;
+  gap: 14px;
+  padding: 15px 16px 14px;
   font-family: var(--menu-mono);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 14px;
+  letter-spacing: 0.08em;
+  font-size: 12px;
   color: var(--profile-ink);
+  background: rgba(247, 247, 243, 0.5);
+  border-radius: var(--profile-radius);
 }
 
 .leader .dots {
-  flex: 1;
-  border-bottom: 2px dotted rgba(21, 18, 14, 0.5);
-  transform: translateY(-4px);
+  display: none;
 }
 
 .leader b {
-  font-weight: 500;
+  font-family: var(--font-condensed);
+  font-size: clamp(34px, 5vw, 56px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.86;
 }
 
 /* ===== CREAM MENU PANELS ===== */
@@ -188,17 +210,16 @@
 .menu {
   background: var(--profile-paper);
   color: var(--profile-ink);
-  border-radius: var(--profile-radius);
-  padding: 30px 34px 40px;
+  border-radius: 0;
+  padding: clamp(28px, 3.6vw, 42px) clamp(28px, 5vw, 64px) clamp(34px, 4vw, 52px);
 }
 
 .secHead {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  border-bottom: 2px solid var(--profile-ink);
-  padding-bottom: 6px;
-  margin-bottom: 14px;
+  padding-bottom: 0;
+  margin-bottom: clamp(18px, 2.4vw, 28px);
 }
 
 .secHead h3 {
@@ -206,7 +227,8 @@
   font-family: var(--font-condensed);
   text-transform: uppercase;
   font-weight: 400;
-  font-size: 24px;
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 0.86;
   letter-spacing: 0.01em;
   color: var(--profile-ink);
 }
@@ -215,35 +237,48 @@
 
 .packs {
   display: grid;
-  gap: 12px;
-  margin-top: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: clamp(14px, 2vw, 22px);
+  margin-top: 0;
 }
 
 .pack {
-  display: flex;
+  display: grid;
+  grid-template-rows: minmax(172px, auto) auto auto;
   align-items: center;
-  gap: 14px;
+  justify-items: center;
+  gap: 10px;
+  min-height: 260px;
+  padding: 18px 14px 16px;
   font-family: var(--menu-mono);
-  letter-spacing: 0.04em;
-  font-size: 15px;
+  letter-spacing: 0.06em;
+  font-size: 13px;
   color: var(--profile-ink);
+  background: var(--profile-paper2);
+  border-radius: var(--profile-radius);
+  text-align: center;
+  text-decoration: none;
+  transition:
+    transform var(--profile-motion),
+    background-color var(--profile-motion);
 }
 
 .pack img {
-  width: 44px;
-  height: 64px;
+  width: min(108px, 100%);
+  height: 166px;
   object-fit: contain;
   flex: 0 0 auto;
+  filter: drop-shadow(0 10px 16px rgba(21, 18, 14, 0.18));
 }
 
 .packName {
+  min-height: 2.4em;
   font-weight: 500;
+  line-height: 1.2;
 }
 
 .pack .dots {
-  flex: 1;
-  border-bottom: 2px dotted rgba(21, 18, 14, 0.45);
-  transform: translateY(-4px);
+  display: none;
 }
 
 .packStatus {
@@ -254,25 +289,38 @@
 
 /* Not-yet-owned pack → clickable buy row: red price, name underlines on hover. */
 .packBuy {
-  text-decoration: none;
   color: inherit;
+  background: #fff;
 }
 
 .packBuy .packStatus {
   color: var(--profile-action);
+  font-weight: 700;
 }
 
-.packBuy:hover .packName,
-.packBuy:focus-visible .packName {
-  text-decoration: underline;
+.pack:hover,
+.pack:focus-visible {
+  transform: translateY(-5px);
+  background: #fff;
+}
+
+.packBuy:hover,
+.packBuy:focus-visible {
+  background: var(--profile-action);
+  color: var(--profile-ink);
+}
+
+.packBuy:hover .packStatus,
+.packBuy:focus-visible .packStatus {
+  color: var(--profile-ink);
 }
 
 /* ===== SAVED SPOTS (cards stay self-contained dark cards) ===== */
 
 .spotsCards {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: clamp(12px, 2vw, 20px);
 }
 
 .spotCardWrap {
@@ -281,19 +329,19 @@
 
 .spotRemove {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 8px;
+  right: 8px;
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 34px;
   height: 34px;
-  color: #f1ecdd;
+  color: var(--profile-paper);
   background: rgba(21, 18, 14, 0.5);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
-  border: 1px solid rgba(241, 236, 221, 0.3);
+  border: 1px solid rgba(247, 247, 243, 0.34);
   border-radius: 999px;
   cursor: pointer;
   transition:
@@ -312,11 +360,19 @@
 .spotCard {
   position: relative;
   display: block;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
   text-decoration: none;
   border-radius: var(--profile-radius);
   background: #14100c;
+  transition:
+    transform var(--profile-motion),
+    filter var(--profile-motion);
+}
+
+.spotCard:hover,
+.spotCard:focus-visible {
+  transform: translateY(-5px);
 }
 
 .spotImg {
@@ -335,20 +391,23 @@
 
 .spotBody {
   position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: 14px;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
   z-index: 1;
-  color: #f1ecdd;
+  color: var(--profile-paper);
 }
 
 .spotName {
   margin: 0;
   font-family: var(--font-condensed);
   font-weight: 400;
-  font-size: clamp(24px, 4vw, 34px);
-  line-height: 0.88;
+  font-size: clamp(20px, 2.3vw, 28px);
+  line-height: 0.9;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  text-wrap: balance;
 }
 
 .spotMeta {
@@ -357,7 +416,7 @@
   font-size: 10.5px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #f1ecdd;
+  color: var(--profile-paper);
 }
 
 .empty {
@@ -365,6 +424,7 @@
   gap: 12px;
   padding: 16px;
   background: var(--profile-paper2);
+  border: 1px solid rgba(21, 18, 14, 0.18);
   border-radius: var(--profile-radius);
 }
 
@@ -382,7 +442,7 @@
   align-items: center;
   min-height: 42px;
   padding: 9px 15px 10px;
-  color: #f1ecdd;
+  color: var(--profile-paper);
   background: var(--profile-ink);
   border-radius: var(--profile-radius);
   font-family: var(--menu-mono);
@@ -392,36 +452,46 @@
   text-decoration: none;
 }
 
-/* ===== LOGOUT (on the black page) ===== */
+/* ===== LOGOUT ===== */
 
 .logout {
   justify-self: center;
   min-height: 44px;
-  padding: 10px 18px 11px;
+  margin: 0 0 34px;
+  padding: 11px 20px 12px;
   color: var(--profile-paper);
-  background: transparent;
+  background: var(--profile-ink);
   border: 0;
+  border-radius: var(--profile-radius);
   cursor: pointer;
   font-family: var(--menu-mono);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-size: 13px;
-  text-decoration: underline;
+  text-decoration: none;
+  transition:
+    transform var(--profile-motion),
+    background-color var(--profile-motion),
+    color var(--profile-motion);
+}
+
+.logout:hover,
+.logout:focus-visible {
+  color: var(--profile-ink);
+  background: var(--profile-action);
+  transform: translateY(-2px);
 }
 
 @media (min-width: 720px) {
   .page {
-    padding-top: calc(72px + 30px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
-  }
-
-  .spotsCards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-top: calc(72px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px));
   }
 }
 
 @media (max-width: 520px) {
   .hero {
-    padding: 24px 22px 22px;
+    grid-template-columns: 1fr;
+    padding: 24px 20px 22px;
   }
 
   .menu {
@@ -429,7 +499,112 @@
   }
 
   .heroAvatar {
+    justify-self: start;
     width: 110px;
     height: 150px;
   }
+
+  .leaders {
+    margin-top: 10px;
+    grid-template-columns: 1fr;
+  }
+
+  .spotsCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .packs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pack {
+    grid-template-rows: minmax(142px, auto) auto auto;
+    min-height: 228px;
+    padding-inline: 10px;
+  }
+
+  .pack img {
+    height: 140px;
+  }
+}
+
+@media (max-width: 360px) {
+  .spotsCards,
+  .packs {
+    grid-template-columns: 1fr;
+  }
+}
+
+:global(html[data-theme='dark']) .page {
+  --profile-ink: #f7f7f3;
+  --profile-canvas: #0f0d0a;
+  --profile-paper: #15120e;
+  --profile-paper2: #24201a;
+  color: var(--profile-ink);
+  background: var(--profile-canvas);
+}
+
+:global(html[data-theme='dark']) .hero {
+  --profile-ink: #15120e;
+  --profile-paper: #f7f7f3;
+  color: #15120e;
+}
+
+:global(html[data-theme='dark']) .heroLink,
+:global(html[data-theme='dark']) .logout {
+  color: #15120e;
+  background: #f7f7f3;
+}
+
+:global(html[data-theme='dark']) .heroLink:hover,
+:global(html[data-theme='dark']) .heroLink:focus-visible,
+:global(html[data-theme='dark']) .logout:hover,
+:global(html[data-theme='dark']) .logout:focus-visible {
+  color: #15120e;
+  background: var(--profile-action);
+}
+
+:global(html[data-theme='dark']) .heroEdit {
+  color: #f7f7f3;
+  background: rgba(21, 18, 14, 0.72);
+  border-color: rgba(247, 247, 243, 0.34);
+}
+
+:global(html[data-theme='dark']) .leader {
+  color: #15120e;
+  background: rgba(247, 247, 243, 0.56);
+}
+
+:global(html[data-theme='dark']) .pack {
+  color: #f7f7f3;
+  background: #24201a;
+}
+
+:global(html[data-theme='dark']) .packBuy {
+  color: #15120e;
+  background: #f7f7f3;
+}
+
+:global(html[data-theme='dark']) .pack:hover,
+:global(html[data-theme='dark']) .pack:focus-visible {
+  color: #15120e;
+  background: #f7f7f3;
+}
+
+:global(html[data-theme='dark']) .packBuy:hover,
+:global(html[data-theme='dark']) .packBuy:focus-visible {
+  background: var(--profile-action);
+}
+
+:global(html[data-theme='dark']) .empty {
+  background: #24201a;
+}
+
+:global(html[data-theme='dark']) .emptyLine {
+  color: rgba(247, 247, 243, 0.72);
+}
+
+:global(html[data-theme='dark']) .emptyCta {
+  color: #15120e;
+  background: #f7f7f3;
 }

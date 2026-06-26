@@ -22,6 +22,8 @@ export interface DistrictRow {
   spots: HubDistrictSpot[]
 }
 
+const FAVORITE_DISTRICT_SLUGS = ['kreuzberg', 'neukoelln', 'mitte', 'prenzlauer-berg', 'schoeneberg']
+
 /**
  * Deterministic weekly rotation for the featured district ("Bezirk der Woche").
  * Advances exactly one step per calendar week (Monday boundary) over a stable,
@@ -38,27 +40,28 @@ export function pickWeeklyFeatureSlug(rows: DistrictRow[], today: string): strin
 }
 
 /**
- * Build the unified district list for the home switcher: the rotated feature
- * first (marked), the rest by spot count. Tagline + spots come straight from the
- * district row. Capped at `cap`.
+ * Build the unified district list for the home switcher: Berlin food-favorite
+ * districts first, then fall back to rows by spot count. The weekly feature is
+ * marked in-place instead of being forced to the first slot.
  */
 export function assembleDistricts(
   featureSlug: string | null,
   rows: DistrictRow[],
-  cap = 10,
+  cap = 5,
 ): HubDistrict[] {
-  const all: HubDistrict[] = rows.map((r) => ({
+  const bySlug = new Map(rows.map((r) => [r.slug, r]))
+  const favoriteRows = FAVORITE_DISTRICT_SLUGS
+    .map((slug) => bySlug.get(slug))
+    .filter((r): r is DistrictRow => Boolean(r))
+
+  const fallbackRows = rows.filter((r) => !FAVORITE_DISTRICT_SLUGS.includes(r.slug))
+  const orderedRows = [...favoriteRows, ...fallbackRows]
+
+  return orderedRows.slice(0, cap).map((r) => ({
     name: r.name,
     slug: r.slug,
     tagline: r.tagline,
-    isFeature: false,
+    isFeature: r.slug === featureSlug,
     spots: r.spots,
   }))
-
-  const idx = featureSlug ? all.findIndex((d) => d.slug === featureSlug) : -1
-  if (idx < 0) return all.slice(0, cap)
-
-  const [feat] = all.splice(idx, 1)
-  feat.isFeature = true
-  return [feat, ...all].slice(0, cap)
 }

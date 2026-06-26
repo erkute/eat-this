@@ -1,9 +1,8 @@
 'use client'
-import { forwardRef, useEffect, useState } from 'react'
+import { forwardRef, useEffect } from 'react'
 import Map, { AttributionControl, type MapRef } from 'react-map-gl/maplibre'
 
 const LIGHT_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'
-const DARK_STYLE  = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
 
 const BERLIN = { longitude: 13.405, latitude: 52.52, zoom: 12 }
 
@@ -13,17 +12,6 @@ interface MapCanvasProps {
 }
 
 const MapCanvas = forwardRef<MapRef, MapCanvasProps>(({ onMapClick, children }, ref) => {
-  const [isDark, setIsDark] = useState(false)
-
-  useEffect(() => {
-    const el = document.documentElement
-    const update = () => setIsDark(el.getAttribute('data-theme') === 'dark')
-    update()
-    const mo = new MutationObserver(update)
-    mo.observe(el, { attributes: true, attributeFilter: ['data-theme'] })
-    return () => mo.disconnect()
-  }, [])
-
   // MapLibre opens the compact attribution by default on mount. Collapse it
   // so only the small ⓘ button stays visible until the user taps it. Then
   // observe attribute changes for ~3 s after we find the element, undoing
@@ -65,7 +53,7 @@ const MapCanvas = forwardRef<MapRef, MapCanvasProps>(({ onMapClick, children }, 
       ref={ref}
       initialViewState={BERLIN}
       style={{ width: '100%', height: '100%' }}
-      mapStyle={isDark ? DARK_STYLE : LIGHT_STYLE}
+      mapStyle={LIGHT_STYLE}
       attributionControl={false}
       onClick={() => onMapClick?.()}
     >

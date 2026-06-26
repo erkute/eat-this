@@ -3,7 +3,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, fireEvent, cleanup } from '@testing-library/react'
 import { NextIntlClientProvider } from 'next-intl'
-import { BUDDY_ASK_EVENT, BUDDY_STAGE_EVENT, type BuddyAskDetail, type BuddyStageDetail } from '@/lib/buddy/homeStage'
+import { BUDDY_ASK_EVENT, type BuddyAskDetail } from '@/lib/buddy/homeStage'
 import HubFragRemy from './HubFragRemy'
 
 // jsdom has no IntersectionObserver — capture the callback so tests can drive
@@ -68,28 +68,15 @@ describe('HubFragRemy', () => {
     expect(got).toEqual({ question: chip.textContent })
   })
 
-  it('dispatches buddy:stage with a rect when the stage enters and leaves', () => {
-    const events: BuddyStageDetail[] = []
-    const onStage = (e: Event) => events.push((e as CustomEvent<BuddyStageDetail>).detail)
-    window.addEventListener(BUDDY_STAGE_EVENT, onStage)
+  it('animates Remy briefly when the section enters', () => {
     renderSection()
     ioCallback!([fakeEntry(true)])
-    ioCallback!([fakeEntry(false)])
-    window.removeEventListener(BUDDY_STAGE_EVENT, onStage)
-    expect(events).toHaveLength(2)
-    expect(events[0].visible).toBe(true)
-    expect(events[0].rect).toEqual({ left: 10, top: 20, width: 132, height: 132 })
-    expect(events[1].visible).toBe(false)
+    expect(document.querySelector('[data-talking]')).not.toBeNull()
   })
 
-  it('releases the stage (visible: false) on unmount', () => {
-    const events: BuddyStageDetail[] = []
-    const onStage = (e: Event) => events.push((e as CustomEvent<BuddyStageDetail>).detail)
+  it('disconnects the observer on unmount', () => {
     const { unmount } = renderSection()
-    window.addEventListener(BUDDY_STAGE_EVENT, onStage)
     unmount()
-    window.removeEventListener(BUDDY_STAGE_EVENT, onStage)
     expect(ioDisconnect).toHaveBeenCalled()
-    expect(events).toEqual([{ visible: false }])
   })
 })

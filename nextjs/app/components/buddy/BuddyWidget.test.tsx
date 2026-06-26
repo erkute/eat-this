@@ -19,16 +19,13 @@ vi.mock('@/lib/firebase/useOwnedEntitlements', () => ({
 import BuddyWidget from './BuddyWidget'
 
 describe('BuddyWidget', () => {
-  it('renders a launcher button (closed by default)', () => {
+  it('renders no floating launcher while closed', () => {
     const html = renderToStaticMarkup(
       <NextIntlClientProvider locale="de" messages={{}}>
         <BuddyWidget />
       </NextIntlClientProvider>,
     )
-    expect(html).toMatch(/data-buddy-launcher/)
-    expect(html).toMatch(/Frag/)
-    expect(html).toMatch(/Remy/)
-    // panel is not open initially
+    expect(html).not.toMatch(/data-buddy-launcher/)
     expect(html).not.toMatch(/data-buddy-panel="open"/)
   })
 })

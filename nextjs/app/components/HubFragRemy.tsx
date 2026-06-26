@@ -1,14 +1,12 @@
 'use client'
 // Home-hub hero for Remy, the KI buddy — bold editorial: oversized headline on
 // a yellow band, a giant Remy bust bleeding off the corner, a time-of-day lead
-// and two quick answers + a chat input that hand off to the globally mounted
-// BuddyWidget via window events (see lib/buddy/homeStage.ts). An
-// IntersectionObserver reports when Remy is "on stage" so the widget hides its
-// corner launcher and flies him into the corner once the section scrolls away.
+// and two quick answers + a chat input that open the globally mounted
+// BuddyWidget via window events (see lib/buddy/homeStage.ts).
 import { useEffect, useRef, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { stageFor } from '@/lib/buddy/greeting'
-import { dispatchBuddyAsk, dispatchBuddyStage } from '@/lib/buddy/homeStage'
+import { dispatchBuddyAsk } from '@/lib/buddy/homeStage'
 import type { Locale } from '@/lib/buddy/types'
 import styles from './HubFragRemy.module.css'
 
@@ -34,11 +32,6 @@ export default function HubFragRemy() {
     const io = new IntersectionObserver(
       (entries) => {
         const entry = entries[entries.length - 1]
-        const r = entry.boundingClientRect
-        dispatchBuddyStage({
-          visible: entry.isIntersecting,
-          rect: { left: r.left, top: r.top, width: r.width, height: r.height },
-        })
         // First appearance: Remy's mouth flaps briefly, as if he greets you.
         if (entry.isIntersecting && !spoke.current) {
           spoke.current = true
@@ -52,8 +45,6 @@ export default function HubFragRemy() {
     return () => {
       io.disconnect()
       clearTimeout(moodTimer.current)
-      // Section gone (e.g. soft-nav away): release the launcher, no flight.
-      dispatchBuddyStage({ visible: false })
     }
   }, [])
 
@@ -75,7 +66,7 @@ export default function HubFragRemy() {
     <section className={styles.section} id="hub-fragremy" data-hub-fragremy="">
       <div className={styles.inner}>
         <div className={styles.copy}>
-          <p className={styles.kicker}>{t('title')} · Dein Food-Insider</p>
+          <p className={styles.kicker}>{t('title')}</p>
           <h2 className={styles.headline}>{t('headline')}</h2>
           <p className={styles.lead} data-fragremy-lead="">
             {lead}

@@ -1,205 +1,226 @@
 .footer {
-  --footer-bg: var(--brand-action, var(--et-red));
-  --footer-fg: var(--brand-paper, var(--et-cream));
-  --footer-muted: color-mix(in srgb, var(--footer-fg) 68%, transparent);
-  --footer-track-bg: var(--brand-paper, var(--et-cream));
-  --footer-thumb-bg: var(--brand-action, var(--et-red));
-  background: var(--footer-bg);
-  color: var(--footer-fg);
-  padding: 28px 16px 32px;
-  font-family: var(--font);
-  position: relative;
-  overflow: hidden;
+  --footer-ink: #15120e;
+  --footer-paper: #fff;
+  --footer-red: #d9382a;
+  --footer-instagram: #c13584;
+  background: var(--footer-red);
+  color: var(--footer-ink);
+  padding: clamp(16px, 3vw, 34px) 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  text-align: center;
   border-top: 0;
+  overflow: hidden;
 }
-@media (max-width: 767.98px) {
-  /* Slim in-flow apron in the footer's own bg: iOS Safari samples its
-     bottom bar / home-indicator backdrop PAST the document end — pages
-     ending with the footer otherwise show the body-canvas color as a
-     mismatched band under it (black in dark mode). 56px total reads as
-     normal footer bottom padding; safe-area grows it under the home
-     indicator when the bar is minimized. */
-  .footer {
-    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
-  }
+
+.top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(12px, 2vw, 18px);
+  align-items: center;
+  justify-items: center;
+  max-width: 1180px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.brand {
+  min-width: 0;
+  display: grid;
+  justify-items: center;
 }
 
 .mega {
-  margin: 0 0 6px;
-  text-align: center;
-  font-weight: 400;
-  /* Hide accessible label text; renders the image instead */
+  margin: 0;
   font-size: 0;
   line-height: 0;
-  color: transparent;
-}
-/* New wordmark is wide (~2.5:1) — sized for a bold but not oversized footer mega. */
-.megaImg {
-  display: block;
-  margin: 0 auto;
-  width: auto;
-  height: auto;
-  max-width: min(68vw, 260px);
-}
-.tagImg {
-  display: block;
-  margin: 10px auto 24px;
-  width: auto;
-  height: auto;
-  max-width: min(60vw, 230px);
 }
 
-.tag {
-  font-family: var(--font-poster);
-  font-size: 22px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--footer-fg);
+.megaImg {
+  display: block;
+  width: min(56vw, 230px);
+  height: auto;
+  margin: 0 auto;
+  filter: none;
+}
+
+.tagImg {
+  display: block;
+  width: min(40vw, 170px);
+  height: auto;
+  margin-top: 10px;
+  margin-inline: auto;
+  filter: none;
+}
+
+.remyLink {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(8px, 1.6vw, 14px);
+  width: max-content;
+  max-width: min(100%, 260px);
+  min-height: 0;
+  color: var(--footer-ink);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  text-decoration: none;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  padding: 0;
   text-align: center;
-  margin: 0 0 28px;
+  overflow: visible;
+  cursor: pointer;
+  transform: rotate(-1deg);
+  transition:
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.remyLink::after {
+  content: none;
+}
+
+.remyLink img {
+  display: block;
+  align-self: flex-end;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  object-position: center bottom;
+  transform: translateY(0);
+  transition: transform 140ms ease;
+}
+
+.remyLink span {
+  font-family: var(--menu-condensed);
+  padding-bottom: 7px;
+  font-size: clamp(22px, 6vw, 32px);
+  line-height: 0.86;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-align: center;
 }
 
 .links {
-  text-align: center;
-  margin-bottom: 28px;
+  max-width: 1180px;
+  margin: clamp(12px, 2.4vw, 22px) auto 0;
+  padding-top: 0;
+  border-top: 0;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  gap: 10px;
 }
 
 .linksKicker {
   font-family: var(--menu-mono);
   font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.22em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--footer-muted);
-  margin-bottom: 10px;
+  color: var(--footer-ink);
 }
 
 .socialLink {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
   font-family: var(--menu-condensed);
-  font-size: 30px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
+  font-size: clamp(26px, 3.7vw, 40px);
+  line-height: 0.86;
   text-transform: uppercase;
-  color: var(--footer-fg);
+  color: var(--footer-paper);
   text-decoration: none;
-  line-height: 1.2;
-  margin: 4px 0;
-  transition: transform 0.15s ease;
+  text-shadow: 1.5px 1.5px 0 var(--footer-ink);
+  transform: rotate(1deg);
 }
-.socialLink:hover {
-  transform: translateY(-2px);
+
+.socialLink:hover,
+.remyLink:hover {
+  transform: translateY(-3px) rotate(0.8deg);
+}
+
+.remyLink:hover img,
+.remyLink:focus-visible img {
+  transform: translateY(-4px) rotate(-2deg);
+}
+
+.remyLink:hover::after,
+.remyLink:focus-visible::after {
+  content: none;
+}
+
+.remyLink:hover,
+.remyLink:focus-visible {
+  color: var(--footer-paper);
+  background: transparent;
+  box-shadow: none;
+  outline: 0;
 }
 
 .legal {
+  max-width: 1180px;
+  margin: clamp(12px, 2.4vw, 22px) auto 0;
   display: flex;
-  gap: 18px;
   flex-wrap: wrap;
   justify-content: center;
-  font-family: var(--menu-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  margin: 26px 0 0;
+  gap: clamp(12px, 2vw, 28px);
+  border: 0;
 }
 
 .legalLink {
-  color: var(--footer-fg);
-  text-decoration: none;
-  opacity: 0.75;
-  transition:
-    color 0.15s ease,
-    opacity 0.15s ease;
-}
-.legalLink:hover {
-  opacity: 1;
-}
-/* "Cookies verwalten" renders as a <button> but must read as a legal link —
-   strip the native button chrome and inherit the .legal row's type styling. */
-.legalBtn {
-  background: none;
-  border: 0;
+  min-height: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0;
-  margin: 0;
-  font: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
+  border: 0;
+  color: var(--footer-ink);
+  text-decoration: none;
+  font-family: var(--menu-mono);
+  font-size: clamp(11px, 2.8vw, 13px);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.legalLink:hover {
+  background: transparent;
+  color: var(--footer-paper);
+}
+
+.legalBtn {
+  appearance: none;
+  background: transparent;
   cursor: pointer;
 }
 
 .meta {
-  margin: 22px 0 0;
-  padding: 18px 0 0;
-  display: flex;
-  flex-direction: column;
+  max-width: 1180px;
+  margin: clamp(10px, 2vw, 18px) auto 0;
+  display: grid;
+  gap: 8px;
   align-items: center;
-  gap: 10px;
+  justify-items: center;
   font-family: var(--menu-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.25;
   text-transform: uppercase;
 }
 
 .copy {
-  color: var(--footer-fg);
-  opacity: 0.6;
-}
-
-/* Dark-mode toggle: inherits the footer palette so the control remains part of
-   the brand endpoint instead of introducing its own mini color system. */
-.themeToggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: none;
-  border: 0;
-  padding: 4px 6px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.themeTrack {
-  position: relative;
-  width: 44px;
-  height: 22px;
-  border: 0;
-  border-radius: 0;
-  background: var(--footer-track-bg);
-  box-shadow: none;
-  flex-shrink: 0;
-  transition: background 0.2s ease;
-}
-.themeThumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 15px;
-  height: 15px;
-  background: var(--footer-thumb-bg);
-  border-radius: 0;
-  transition: left 0.2s ease;
-}
-.themeToggleOn .themeTrack {
-  background: color-mix(in srgb, var(--footer-fg) 28%, transparent);
-}
-.themeToggleOn .themeThumb {
-  left: 24px;
-}
-.themeLabel {
-  font-family: var(--menu-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--footer-fg);
-  opacity: 0.55;
-  transition: opacity 0.15s ease;
-}
-.themeToggle:hover .themeLabel {
-  opacity: 1;
+  color: var(--footer-ink);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
 }
 
 .lang {
@@ -209,67 +230,71 @@
 }
 
 .langBtn {
-  background: transparent;
   border: 0;
-  padding: 4px 6px;
-  font-family: var(--menu-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--footer-fg);
-  opacity: 0.55;
+  background: transparent;
+  padding: 5px 0;
+  color: var(--footer-ink);
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
   cursor: pointer;
-  transition:
-    color 0.15s ease,
-    opacity 0.15s ease;
 }
-.langBtn:hover {
-  opacity: 1;
-}
+
 .langBtnActive {
-  opacity: 1;
-  color: var(--footer-fg);
+  color: var(--footer-paper);
 }
 
 .langSep {
-  color: var(--footer-fg);
-  opacity: 0.3;
+  color: var(--footer-paper);
 }
 
-@media (min-width: 720px) {
+@media (min-width: 740px) {
   .footer {
-    padding: 56px 32px 40px;
+    padding-inline: 32px;
   }
+
+  .top {
+    grid-template-columns: minmax(0, 1fr);
+    justify-content: center;
+    justify-items: center;
+    gap: clamp(14px, 2vw, 22px);
+  }
+
   .megaImg {
-    max-width: 340px;
+    width: min(31vw, 320px);
   }
+
   .tagImg {
-    max-width: 290px;
+    width: min(19vw, 210px);
+    margin-top: 8px;
+  }
+
+  .remyLink {
+    min-height: 68px;
+    max-width: min(100%, 300px);
+  }
+
+  .remyLink img {
+    width: 66px;
+    height: 66px;
+  }
+
+  .meta {
+    grid-template-columns: 1fr;
+  }
+
+  .copy {
+    text-align: center;
   }
 }
 
-@media (min-width: 960px) {
+@media (min-width: 1024px) {
   .footer {
-    padding: 72px 80px 48px;
+    padding-inline: 80px;
   }
-  .megaImg {
-    max-width: 400px;
-  }
-  .tagImg {
-    max-width: 340px;
-  }
-}
-
-/* Final footer palette contract: the footer is an assertive brand endpoint in
-   light mode and a deep red endpoint in dark mode. */
-.tagImg {
-  filter: invert(1);
 }
 
 html[data-theme='dark'] .footer {
-  --footer-bg: #5a120f;
-  --footer-fg: var(--brand-paper, var(--et-cream));
-  --footer-track-bg: rgba(241, 241, 236, 0.18);
-  --footer-thumb-bg: var(--brand-paper, var(--et-cream));
+  background: var(--footer-red);
+  color: var(--footer-ink);
 }

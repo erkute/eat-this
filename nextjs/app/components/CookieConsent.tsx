@@ -14,7 +14,7 @@ const COOKIE_SECTIONS_DE: ModalBodySection[] = [
     p: 'Wir speichern ein paar Daten lokal in deinem Browser, damit die Seite funktioniert — kein Tracking:',
     list: [
       { strong: 'Login-Session', text: ' — hält dich eingeloggt (Firebase Auth)' },
-      { strong: 'Sprache & Theme', text: ' — merkt sich DE/EN und Dark Mode' },
+      { strong: 'Sprache', text: ' — merkt sich DE/EN' },
       { strong: 'Cookie-Auswahl', text: ' — damit wir dich nicht nochmal fragen' },
     ],
   },
@@ -44,7 +44,7 @@ const COOKIE_SECTIONS_EN: ModalBodySection[] = [
     p: 'We store small bits of data locally on your device so the site works as expected — no tracking:',
     list: [
       { strong: 'Login session', text: ' — keeps you signed in (Firebase Auth)' },
-      { strong: 'Language & theme', text: ' — remembers DE/EN and dark mode' },
+      { strong: 'Language', text: ' — remembers DE/EN' },
       { strong: 'Cookie choice', text: " — so we don't ask you again" },
     ],
   },

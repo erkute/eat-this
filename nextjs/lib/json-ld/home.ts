@@ -24,7 +24,7 @@ export function buildHomeJsonLd(faqs: LandingFaqEntry[], locale: 'de' | 'en' = '
         '@type': 'WebPage',
         '@id': `${pageUrl}#webpage`,
         url: pageUrl,
-        name: 'EAT THIS – Berlin Food Guide',
+        name: 'EAT THIS – Food Map',
         inLanguage: locale === 'de' ? 'de-DE' : 'en-US',
         isPartOf: { '@id': `${SITE_URL}/#website` },
         primaryImageOfPage: { '@id': `${SITE_URL}/#primaryimage` },

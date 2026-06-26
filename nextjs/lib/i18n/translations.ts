@@ -143,7 +143,7 @@ const en = {
       title: 'New on the map',
     },
     dishPoster: {
-      title: 'What do you want to eat?',
+      title: 'This is what to eat.',
     },
     fragRemy: {
       title: 'Ask Remy',
@@ -172,15 +172,15 @@ const en = {
     },
     todayPicker: {
       kicker: 'Dinner decision',
-      title: 'What are we eating today?',
-      sub: 'Three quick choices. Three curated spots. No endless scrolling.',
+      title: 'Eat this today.',
+      sub: 'Three curated Berlin picks, already narrowed down for you.',
       moodLabel: 'Mood',
       budgetLabel: 'Budget',
       distanceLabel: 'Distance',
       mood: { any: 'Surprise me', quick: 'Quick', cozy: 'Cozy', special: 'Special' },
       budget: { any: 'Any', cheap: '€', medium: '€€' },
       radius: { '1500': 'Nearby', '3000': 'My area', '8000': 'All Berlin' },
-      go: 'Pick for me',
+      go: 'Give me three more',
       resultsKicker: 'Eat This picks',
       resultsTitle: 'Your three for today',
       reroll: 'Shuffle',
@@ -229,7 +229,7 @@ const en = {
     onbClose: 'Close',
     teaserTitle: 'Must Eats',
     teaserSub: "The dishes you can't miss in Berlin.",
-    teaserCta: 'Open Must Eats',
+    teaserCta: 'All Must Eats',
   },
   news: {
     sectionLabel: 'Berlin',
@@ -371,9 +371,6 @@ const en = {
     profile: 'Profile',
     location: 'Location',
     signIn: 'Sign in',
-  },
-  theme: {
-    darkMode: 'Dark Mode',
   },
   search: {
     placeholder: 'Search spots or dishes',
@@ -669,12 +666,12 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       title: 'Neu auf der Map',
     },
     dishPoster: {
-      title: 'Was willst du essen?',
+      title: 'Das willst du essen.',
     },
     fragRemy: {
       title: 'Frag Remy',
       headline: 'Remy kennt die Spots.',
-      sub: 'Dein Food-Insider für Berlin – frag ihn einfach.',
+      sub: 'Frag ihn nach deinem nächsten Spot.',
       inputPlaceholder: '…oder frag Remy direkt',
       sendAria: 'Senden',
     },
@@ -698,15 +695,15 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     },
     todayPicker: {
       kicker: 'Essensentscheidung',
-      title: 'Was essen wir heute?',
-      sub: 'Drei schnelle Entscheidungen. Drei kuratierte Spots. Kein endloses Scrollen.',
+      title: 'Das isst du heute.',
+      sub: 'Drei kuratierte Berliner Picks, schon für dich runtergebrochen.',
       moodLabel: 'Stimmung',
       budgetLabel: 'Budget',
       distanceLabel: 'Entfernung',
       mood: { any: 'Überrasch mich', quick: 'Schnell', cozy: 'Gemütlich', special: 'Besonders' },
       budget: { any: 'Egal', cheap: '€', medium: '€€' },
       radius: { '1500': 'Um die Ecke', '3000': 'Mein Kiez', '8000': 'Ganz Berlin' },
-      go: 'Entscheide für mich',
+      go: 'Drei neue Picks',
       resultsKicker: 'Eat This empfiehlt',
       resultsTitle: 'Deine drei für heute',
       reroll: 'Neu würfeln',
@@ -749,7 +746,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onbClose: 'Schließen',
     teaserTitle: 'Must Eats',
     teaserSub: 'Die Gerichte, die du nicht verpassen darfst.',
-    teaserCta: 'Must Eats öffnen',
+    teaserCta: 'Alle Must-Eats',
   },
   news: {
     errorLoad: 'Artikel konnten nicht geladen werden. Bitte versuche es sp\u00e4ter erneut.',
@@ -883,9 +880,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     profile: 'Profil',
     location: 'Standort',
     signIn: 'Anmelden',
-  },
-  theme: {
-    darkMode: 'Dark Mode',
   },
   cookie: {
     text: 'Wir verwenden Cookies, um dir das beste Erlebnis zu bieten.',

@@ -1,453 +1,341 @@
-/* HUB launcher — editorial print-menu: bold orange hero panel + cream pick
-   cards on the near-black home canvas. FLAT: no shadows, no gradients. The
-   menu look is theme-independent (identical in light + dark). */
-
 .section {
-  --menu-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  --menu-ink: #15120e;
-  --menu-paper: #f1ecdd;
-  --menu-paper2: #e9e2ce;
-  --menu-action: var(--et-red, #ef3528);
-  --menu-radius: 6px;
-  position: relative;
-  margin: 0;
-  padding: clamp(26px, 3.7vw, 42px) 16px clamp(28px, 3.9vw, 46px);
-  color: var(--menu-paper);
-  background: transparent;
+  --dock-ink: #15120e;
+  --dock-paper: #fff;
+  --dock-red: #d9382a;
+  --dock-muted: rgba(21, 18, 14, .64);
+  width: 100%;
+  box-sizing: border-box;
+  padding: calc(72px + env(safe-area-inset-top, 0px) + clamp(14px, 3vw, 30px)) clamp(14px, 3vw, 44px) clamp(28px, 5vw, 64px);
+  color: var(--dock-ink);
+  background: var(--dock-paper);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+.section *,
+.section *::before,
+.section *::after {
+  box-sizing: border-box;
 }
 
 .inner {
-  position: relative;
-  z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 14px;
-  width: min(100%, 1180px);
+  grid-template-columns: minmax(0, .76fr) minmax(360px, .64fr);
+  gap: clamp(14px, 2.4vw, 30px);
+  align-items: stretch;
+  width: min(100%, 1120px);
+  min-height: clamp(390px, 48svh, 500px);
   margin: 0 auto;
 }
 
-/* ===== ORANGE HERO PANEL ===== */
+.copy {
+  min-width: 0;
+  background: var(--dock-red);
+}
 
 .copy {
   display: grid;
-  gap: 16px;
-  align-content: center;
-  min-width: 0;
-  padding: clamp(24px, 3vw, 34px) clamp(22px, 3vw, 34px) clamp(26px, 3vw, 30px);
-  color: var(--menu-ink);
-  background: var(--menu-action);
-  border-radius: var(--menu-radius);
+  align-content: end;
+  gap: clamp(12px, 2vw, 20px);
+  padding: clamp(20px, 3.2vw, 40px);
+  position: relative;
+  overflow: hidden;
 }
 
 .kicker {
+  position: relative;
+  z-index: 1;
+  justify-self: start;
   margin: 0;
-  color: var(--menu-ink);
-  font-family: var(--menu-mono);
-  font-size: clamp(12px, 1.3vw, 14px);
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  line-height: 1.1;
+  padding: 0;
+  color: var(--dock-ink);
+  background: transparent;
+  font-size: clamp(22px, 2.2vw, 34px);
+  font-weight: 900;
+  letter-spacing: .02em;
+  line-height: .9;
   text-transform: uppercase;
 }
 
 .title {
-  max-width: 11ch;
+  position: relative;
+  z-index: 1;
+  max-width: 9ch;
   margin: 0;
-  color: var(--menu-ink);
-  font-family: var(--menu-condensed);
-  font-size: clamp(46px, 8vw, 92px);
+  color: var(--dock-ink);
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(52px, 7.4vw, 92px);
   font-weight: 400;
-  letter-spacing: 0.005em;
-  line-height: 0.84;
+  letter-spacing: 0;
+  line-height: .78;
   text-transform: uppercase;
-  text-wrap: balance;
+}
+
+.copyNote {
+  position: relative;
+  z-index: 1;
+  max-width: 34ch;
+  margin: 0;
+  color: rgba(21, 18, 14, .78);
+  font-size: clamp(12px, 1.1vw, 15px);
+  font-weight: 900;
+  letter-spacing: .04em;
+  line-height: 1.22;
+  text-transform: uppercase;
+}
+
+.collectionKicker {
+  color: var(--dock-muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  line-height: 1.1;
+  text-transform: uppercase;
 }
 
 .actionRow {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
-  margin-top: 4px;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.primaryAction,
 .profileLink,
-.locChip {
-  min-height: 46px;
-  border-radius: 4px;
-  font-family: var(--menu-condensed);
-  font-size: clamp(18px, 1.45vw, 22px);
+.mapActionLink {
+  min-height: 44px;
+  border: 0;
+  border-radius: 0;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(20px, 1.7vw, 26px);
   font-weight: 400;
-  letter-spacing: 0.02em;
-  line-height: 0.86;
+  letter-spacing: 0;
+  line-height: .86;
   text-transform: uppercase;
   text-decoration: none;
-  transition:
-    transform 0.14s ease,
-    background-color 0.14s ease,
-    border-color 0.14s ease,
-    color 0.14s ease;
+  transition: transform 140ms ease, color 140ms ease;
 }
 
-/* Solid ink CTA on the orange. */
-.primaryAction {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 152px;
-  padding: 9px 16px 10px;
-  color: var(--menu-paper);
-  background: var(--menu-ink);
-  border: 1px solid var(--menu-ink);
-}
-
-.primaryAction:hover,
-.primaryAction:focus-visible {
-  color: var(--menu-ink);
-  background: var(--menu-paper);
-  border-color: var(--menu-paper);
-  transform: translateY(-2px);
-}
-
-/* Mono / ink-outline secondary controls on the orange. */
-.profileLink {
+.profileLink,
+.mapActionLink {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 15px 6px 8px;
-  color: var(--menu-ink);
+  padding: 0;
+  color: var(--dock-ink);
   background: transparent;
-  border: 1px solid var(--menu-ink);
-  font-family: var(--menu-mono);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-}
-
-.profileAvatar {
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: 34px;
-  height: 34px;
-  overflow: hidden;
-  background: transparent;
-  transform: rotate(-5deg);
-}
-
-.profileAvatar img {
-  width: 118%;
-  height: 118%;
-  object-fit: contain;
 }
 
 .profileLink:hover,
-.profileLink:focus-visible {
-  color: var(--menu-paper);
-  background: var(--menu-ink);
-  border-color: var(--menu-ink);
-  transform: translateY(-2px);
-}
-
-.locChip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 46px;
-  padding: 8px 14px;
-  border-radius: 4px;
-  border: 1px solid var(--menu-ink);
-  background: transparent;
-  color: var(--menu-ink);
-  font-family: var(--menu-mono);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.locChip:hover,
-.locChip:focus-visible {
-  color: var(--menu-paper);
-  background: var(--menu-ink);
-  border-color: var(--menu-ink);
-  transform: translateY(-2px);
+.profileLink:focus-visible,
+.mapActionLink:hover,
+.mapActionLink:focus-visible {
+  color: var(--dock-paper);
+  transform: translateY(-3px) rotate(-.8deg);
 }
 
 .actionLabel {
-  display: inline-block;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   transform: translateY(1px);
 }
 
-/* ===== PICK CARDS — cream menu cards ===== */
+.discovery {
+  display: grid;
+  align-content: stretch;
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+}
 
-.recommendations {
+.collectionGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(18px, 2.5vw, 28px);
+  height: 100%;
+}
+
+.collectionCard {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
   gap: 12px;
-  justify-self: stretch;
-  width: min(100%, 500px);
-  margin: 0 auto;
-}
-
-.pickCard {
-  position: relative;
-  display: grid;
+  min-height: 0;
   min-width: 0;
-  overflow: hidden;
-  color: var(--menu-ink);
-  background: var(--menu-paper);
-  border: 1px solid rgba(21, 18, 14, 0.16);
-  border-radius: var(--menu-radius);
+  padding: 0;
+  overflow: visible;
+  color: var(--dock-ink);
+  background: transparent;
+  border: 0;
   text-decoration: none;
-  transition:
-    transform 0.16s ease,
-    background-color 0.16s ease,
-    border-color 0.16s ease;
+  transition: transform 140ms ease;
 }
 
-.pickCard:hover,
-.pickCard:focus-visible {
-  background: var(--menu-paper2);
-  border-color: rgba(21, 18, 14, 0.32);
-  transform: translateY(-4px);
+.spotCard {
+  min-height: 292px;
 }
 
-/* Card label — orange mono sticker, slapped on at a slight tilt. */
-.pickKicker {
+.mustEatCard {
+  min-height: 246px;
+  transform: rotate(-1deg);
+}
+
+.spotStack {
   position: relative;
-  z-index: 3;
-  justify-self: start;
-  max-width: calc(100% - 28px);
-  padding: 6px 12px 5px;
-  color: var(--menu-paper);
-  background: var(--menu-action);
-  border-radius: 4px;
-  font-family: var(--menu-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  line-height: 1;
-  text-transform: uppercase;
-  transform: rotate(-3deg);
-}
-
-.pickBody {
-  position: relative;
-  z-index: 2;
   display: grid;
-  gap: 6px;
-  min-width: 0;
-  padding: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  min-height: 218px;
+  z-index: 1;
 }
 
-.pickTitle,
-.pickMeta,
-.pickCta {
-  display: block;
-  min-width: 0;
+.spotStack[data-count='1'] {
+  grid-template-columns: minmax(0, 1fr);
 }
 
-.pickTitle {
-  color: var(--menu-ink);
-  font-family: var(--menu-condensed);
-  font-size: clamp(30px, 3.4vw, 46px);
-  font-weight: 400;
-  letter-spacing: 0.005em;
-  line-height: 0.86;
-  text-transform: uppercase;
-  text-wrap: balance;
+.spotStack[data-count='2'] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.pickMeta {
-  color: rgba(21, 18, 14, 0.62);
-  font-family: var(--menu-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.pickCta {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  width: max-content;
-  max-width: 100%;
-  margin-top: 6px;
-  color: var(--menu-ink);
-  font-family: var(--menu-mono);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  line-height: 0.9;
-  text-transform: uppercase;
-}
-.pickCta::after {
-  content: '→';
-  font-family: var(--menu-mono);
-  font-weight: 700;
-}
-
-/* Photo-overlay card: image fills the whole card; sticker top-left, title in a
-   flat dark caption block bottom-left (no gradient, no shadow). */
-.spotPick {
-  display: block;
-  position: relative;
-  min-height: clamp(300px, 30vw, 360px);
-  background: #14100c;
-}
-
-.spotPick .pickKicker {
-  position: absolute;
-  top: 14px;
-  left: 14px;
+.spotStack[data-count='3'] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .spotPhoto {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  overflow: hidden;
-  background: #14100c;
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 9px;
+  min-height: 0;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 140ms ease, color 140ms ease;
 }
 
-.spotPick .pickBody {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  gap: 4px;
-  padding: 12px 14px 13px;
-  background: rgba(10, 8, 6, 0.62);
-  border-radius: var(--menu-radius);
-}
-
-/* Caption block is dark → cream text. */
-.spotPick .pickTitle {
-  font-size: clamp(32px, 3.4vw, 44px);
-  color: var(--menu-paper);
-}
-.spotPick .pickMeta {
-  color: rgba(241, 236, 221, 0.82);
-}
-.spotPick .pickCta {
-  color: var(--menu-paper);
-}
-
-.spotPhoto[data-empty='true']::before {
-  content: '';
-  position: absolute;
-  inset: 18%;
-  border: 1px solid rgba(241, 236, 221, 0.28);
-  border-radius: 999px;
-  transform: rotate(-12deg);
-}
-
-.spotImg {
-  object-fit: cover;
-  object-position: center;
-  transition: transform 0.28s ease;
-}
-
-.spotPick:hover .spotImg,
-.spotPick:focus-visible .spotImg {
-  transform: scale(1.04);
-}
-
-.mustPick {
-  /* Spotlight slab on cream: the collectible card in col 1, eyebrow + title +
-     CTA stack in col 2. Deliberately more compact than the spot card above it.
-     The eyebrow lives in col 2, never over the card, so the art is always
-     fully visible. Flat — no glow, no shadow. */
-  grid-template-rows: auto auto;
-  grid-template-columns: clamp(108px, 32%, 150px) minmax(0, 1fr);
-  align-items: center;
-  column-gap: 8px;
-  width: 100%;
-  min-height: 150px;
-  margin: 0;
-  overflow: hidden;
-}
-
-.mustPick:hover,
-.mustPick:focus-visible {
-  transform: translateY(-4px);
-}
-
-/* Sticker label in col 2, above the title. */
-.mustPick .pickKicker {
-  grid-column: 2;
-  grid-row: 1;
-  align-self: end;
-  justify-self: start;
-  margin: 0 0 8px;
-}
-
-/* Art cell in col 1. The <Image fill> fills this box; object-fit keeps the
-   whole card visible. Flat. */
-.mustArt {
+.spotImage {
   position: relative;
   display: block;
-  grid-column: 1;
-  grid-row: 1 / -1;
-  align-self: stretch;
-  min-height: 124px;
-  margin: 16px 0;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: #f5ead5;
+}
+
+.spotPhoto:nth-child(2) {
+  transform: rotate(1.5deg) translateY(5px);
+}
+
+.spotPhoto:nth-child(3) {
+  transform: rotate(-1deg);
+}
+
+.spotImage img {
+  object-fit: cover;
+}
+
+.spotPhoto:hover,
+.spotPhoto:focus-visible {
+  color: var(--dock-red);
+  transform: translateY(-3px) rotate(-.8deg);
+}
+
+.spotName {
+  display: block;
+  min-width: 0;
+  color: inherit;
+  font-size: clamp(11px, 1.05vw, 13px);
+  font-weight: 900;
+  letter-spacing: .03em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.mapActionLink::after {
+  content: ' ->';
+}
+
+.mustStack {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 198px;
+  padding-right: 4px;
+  z-index: 1;
+}
+
+.mustThumb {
+  position: relative;
+  width: clamp(86px, 7.5vw, 112px);
+  aspect-ratio: 5 / 7;
+  display: grid;
+  place-items: center;
+  color: inherit;
+  text-decoration: none;
+  transform: rotate(8deg);
+  transition: transform 140ms ease;
+}
+
+.mustThumb:hover,
+.mustThumb:focus-visible {
+  transform: translateY(-4px) rotate(8deg);
+}
+
+.mustThumb:nth-child(2) {
+  margin-left: clamp(-34px, -2.7vw, -22px);
+  transform: rotate(-7deg);
+}
+
+.mustThumb:nth-child(2):hover,
+.mustThumb:nth-child(2):focus-visible {
+  transform: translateY(-4px) rotate(-7deg);
+}
+
+.mustThumb:nth-child(3) {
+  margin-left: clamp(-34px, -2.7vw, -22px);
+  transform: rotate(4deg);
+}
+
+.mustThumb:nth-child(3):hover,
+.mustThumb:nth-child(3):focus-visible {
+  transform: translateY(-4px) rotate(4deg);
+}
+
+.mustThumb:nth-child(4) {
+  margin-left: clamp(-34px, -2.7vw, -22px);
+  transform: rotate(-3deg);
+}
+
+.mustThumb:nth-child(4):hover,
+.mustThumb:nth-child(4):focus-visible {
+  transform: translateY(-4px) rotate(-3deg);
+}
+
+.mustThumb:nth-child(5) {
+  margin-left: clamp(-34px, -2.7vw, -22px);
+  transform: rotate(6deg);
+}
+
+.mustThumb:nth-child(5):hover,
+.mustThumb:nth-child(5):focus-visible {
+  transform: translateY(-4px) rotate(6deg);
 }
 
 .mustImg {
   object-fit: contain;
-  object-position: center;
-  transform: rotate(-5deg);
 }
 
-.mustPick .pickBody {
-  grid-column: 2;
-  grid-row: 2;
-  align-self: start;
-  gap: 5px;
-  padding: 4px 16px 16px 0;
-}
-
-.mustPick .pickTitle {
-  font-size: clamp(27px, 2.6vw, 38px);
-  overflow-wrap: anywhere;
-}
-
-/* Locked → a tilted face-down card carrying the hatch + X mark (flat ink
-   hatch on the cream surface). */
-.mustArt[data-open='false'] {
-  align-self: center;
-  justify-self: center;
-  width: clamp(92px, 28%, 116px);
-  aspect-ratio: 5 / 7;
-  min-height: 0;
-  margin: 16px 0;
-  display: grid;
-  place-items: center;
-  transform: rotate(-5deg);
-  border: 1px solid rgba(21, 18, 14, 0.22);
-  border-radius: 8px;
-  background-color: rgba(21, 18, 14, 0.06);
-}
-
-.mustArt[data-open='false']::before {
-  content: none;
+.mustThumb[data-open='false'] {
+  border: 2px solid currentColor;
+  background: transparent;
 }
 
 .mustHiddenMark {
   position: relative;
-  width: 40px;
+  width: 34px;
   aspect-ratio: 1;
-  border: 2px solid rgba(21, 18, 14, 0.46);
-  border-radius: 999px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
 }
 
 .mustHiddenMark::before,
@@ -456,9 +344,9 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 26px;
+  width: 22px;
   height: 2px;
-  background: rgba(21, 18, 14, 0.46);
+  background: currentColor;
   transform: translate(-50%, -50%) rotate(45deg);
 }
 
@@ -466,35 +354,33 @@
   transform: translate(-50%, -50%) rotate(-45deg);
 }
 
-@media (min-width: 760px) {
+@media (max-width: 940px) {
   .inner {
-    grid-template-columns: minmax(0, 1fr) minmax(330px, 480px);
-    align-items: center;
+    grid-template-columns: 1fr;
+    min-height: 0;
   }
 
   .copy {
-    max-width: 720px;
-  }
-
-  .recommendations {
-    justify-self: end;
-    width: min(100%, 480px);
+    min-height: clamp(330px, 48svh, 480px);
   }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 620px) {
   .section {
-    padding: 28px 14px 34px;
+    padding-inline: 10px;
   }
 
-  .copy {
-    gap: 13px;
-    padding: 22px 20px 24px;
+  .copy,
+  .discovery {
+    padding: 20px;
   }
 
   .title {
-    max-width: 9ch;
-    font-size: clamp(44px, 14vw, 66px);
+    font-size: clamp(62px, 18vw, 92px);
+  }
+
+  .collectionGrid {
+    grid-template-columns: 1fr;
   }
 
   .actionRow {
@@ -502,57 +388,29 @@
     grid-template-columns: 1fr;
   }
 
-  .primaryAction,
   .profileLink,
-  .locChip {
+  .mapActionLink {
     width: 100%;
     justify-content: center;
   }
 
-  .profileLink {
-    padding-right: 13px;
+  .collectionCard {
+    min-height: 0;
   }
 
-  .recommendations {
-    width: 100%;
-    gap: 10px;
+  .spotCard {
+    min-height: 280px;
   }
 
-  .spotPick {
-    min-height: clamp(300px, 76vw, 360px);
+  .mustEatCard {
+    min-height: 230px;
   }
 
-  .mustPick {
-    grid-template-columns: clamp(96px, 30%, 124px) minmax(0, 1fr);
-    width: 100%;
-    min-height: 146px;
-    margin: 0;
-    transform: none;
+  .spotStack {
+    min-height: 178px;
   }
 
-  .mustPick:hover,
-  .mustPick:focus-visible {
-    transform: translateY(-3px);
-  }
-
-  .mustArt {
-    min-height: 116px;
-    margin: 14px 0;
-  }
-
-  .pickBody {
-    padding: 14px;
-  }
-
-  .pickTitle {
-    font-size: clamp(30px, 10.6vw, 42px);
-  }
-
-  .mustPick .pickTitle {
-    font-size: clamp(26px, 8.6vw, 34px);
-  }
-
-  .pickCta {
-    font-size: 13px;
+  .mustStack {
+    min-height: 172px;
   }
 }

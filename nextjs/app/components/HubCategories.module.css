@@ -9,14 +9,14 @@
   margin: 18px auto 0;
   padding: clamp(22px, 3vw, 32px) clamp(20px, 2.6vw, 34px) clamp(24px, 3vw, 36px);
   color: var(--menu-ink);
-  background: var(--menu-cream);
-  border-radius: 6px;
+  background: var(--home-case-bg, rgba(247, 247, 243, 0.66));
+  border-radius: 8px;
   scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
 }
 .heading {
   margin: 0;
   padding-bottom: 8px;
-  border-bottom: 2px solid var(--menu-ink);
+  border-bottom: 1px solid rgba(21, 18, 14, 0.34);
   font-family: var(--menu-condensed);
   font-size: clamp(30px, 6vw, 44px);
   font-weight: 400;
@@ -38,34 +38,56 @@
 }
 .stack {
   display: grid;
-  gap: 14px;
+  gap: 12px;
+  counter-reset: category-track;
 }
 
-/* Flat cream menu tile: lighter surface + thin ink hairline, ink text. */
 .card {
+  counter-increment: category-track;
+  position: relative;
   display: grid;
-  grid-template-columns: 110px 1fr;
-  gap: 14px;
+  grid-template-columns: 104px 1fr;
+  gap: 16px;
   align-items: center;
-  padding: 14px 16px 16px 8px;
+  min-height: 174px;
+  padding: 14px 18px 16px 12px;
   color: var(--menu-ink);
-  background: var(--menu-cream-2);
-  border: 1px solid rgba(21, 18, 14, 0.16);
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(21, 18, 14, 0.22);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.34);
+  backdrop-filter: blur(14px) saturate(1.08);
+  -webkit-backdrop-filter: blur(14px) saturate(1.08);
+  overflow: visible;
   transition:
     transform 0.16s ease,
     background-color 0.16s ease,
     border-color 0.16s ease;
 }
+
+.card::after {
+  content: counter(category-track, decimal-leading-zero);
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  color: var(--menu-orange);
+  font-family: var(--menu-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
 .card:hover {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.84);
   border-color: rgba(21, 18, 14, 0.32);
   transform: translateY(-4px);
 }
 /* Freigestellt pack art stays untouched — tilt only, no drop-shadow. */
 .art {
-  width: 110px;
+  width: 104px;
   height: auto;
+  max-height: 172px;
+  object-fit: contain;
   transform: rotate(-3deg);
 }
 .card:nth-child(2) .art {
@@ -79,22 +101,34 @@
 }
 .body {
   display: grid;
-  gap: 6px;
+  gap: 7px;
   min-width: 0;
+  padding-right: 34px;
 }
 .meta {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  padding: 4px 8px;
   margin: 0;
   font-family: var(--menu-mono);
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(21, 18, 14, 0.62);
+  color: var(--home-ghost-ink, rgba(21, 18, 14, 0.88));
+  background: var(--home-ghost-bg, rgba(247, 247, 243, 0.46));
+  border: 1px solid rgba(21, 18, 14, 0.18);
+  border-radius: 4px;
+  box-shadow: var(--home-ghost-shadow, inset 0 0 0 1px rgba(255, 255, 255, 0.28));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .name {
   margin: 0;
   font-family: var(--menu-condensed);
-  font-size: clamp(24px, 6.5vw, 30px);
+  font-size: clamp(26px, 6.5vw, 34px);
   font-weight: 400;
   letter-spacing: 0.005em;
   line-height: 0.9;
@@ -102,7 +136,7 @@
   color: var(--menu-ink);
 }
 .line {
-  margin: 2px 0 4px;
+  margin: 2px 0 6px;
   font-family: var(--menu-mono);
   font-size: 11px;
   font-weight: 500;
@@ -126,7 +160,7 @@
   gap: 8px;
   padding: 7px 14px 8px;
   border: 1px solid var(--menu-orange);
-  border-radius: 4px;
+  border-radius: 0;
   background: var(--menu-orange);
   box-shadow: none;
   color: var(--menu-cream);
@@ -165,11 +199,13 @@
     gap: 16px;
   }
   .art {
-    width: 132px;
+    width: 124px;
+    max-height: 194px;
   }
   .card {
-    grid-template-columns: 132px 1fr;
-    padding: 18px 20px 20px 10px;
+    grid-template-columns: 124px 1fr;
+    min-height: 204px;
+    padding: 18px 22px 20px 12px;
   }
   .name {
     font-size: 32px;

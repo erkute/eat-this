@@ -16,16 +16,17 @@ interface Props {
   categoryOf: (m: MapMustEat) => string;
 }
 
-// Collection — cream menu panel of category sections. Collected slots show the
-// dish card, uncollected ones the face-down card back. Tapping any card does
-// the deck-style fly-out zoom (the same MustEatImageLightbox the gallery + map
-// use), flying back to its slot on close.
+// Collection — one continuous field. Collected slots show the dish card,
+// uncollected ones the face-down card back. Tapping any card does the
+// deck-style fly-out zoom, flying back to its slot on close.
 export default function ProfileAlbum({ mustEats, faceUpIds, categoryOf }: Props) {
   const t = useTranslations('profile');
   const pages = useMemo(
     () => buildAlbum(mustEats as AlbumMustEat[], faceUpIds, (m) => categoryOf(m as MapMustEat)),
     [mustEats, faceUpIds, categoryOf]
   );
+  const slots = useMemo(() => pages.flatMap((page) => page.slots), [pages]);
+  const collected = slots.filter((slot) => slot.collected).length;
 
   const [expanded, setExpanded] = useState<{
     imageUrl: string;
@@ -44,58 +45,56 @@ export default function ProfileAlbum({ mustEats, faceUpIds, categoryOf }: Props)
 
   return (
     <div className={styles.panel}>
-      <h2 className={styles.title}>{t('albumHeading')}</h2>
+      <div className={styles.head}>
+        <h2 className={styles.title}>{t('albumHeading')}</h2>
+        {slots.length > 0 && (
+          <span className={styles.count}>
+            {collected} / {slots.length}
+          </span>
+        )}
+      </div>
 
-      {pages.map((page) => {
-        const collectedInPage = page.slots.filter((s) => s.collected).length;
-        return (
-          <div key={page.category} className={styles.sec}>
-            <div className={styles.secHead}>
-              <h3>{page.category}</h3>
-              <span className={styles.cnt}>
-                {collectedInPage} / {page.slots.length}
-              </span>
-            </div>
-            <div className={styles.grid}>
-              {page.slots.map((slot) => {
-                const open = slot.collected && !!slot.mustEat?.image;
-                const imageUrl = (open && slot.mustEat?.image) || CARD_BACK;
-                const alt = (open ? slot.mustEat?.dish : undefined) ?? '';
-                return (
-                  <button
-                    key={slot.id}
-                    type="button"
-                    className={`${styles.slot} ${open ? styles.filled : styles.empty}`}
-                    style={{ visibility: hiddenId === slot.id ? 'hidden' : undefined }}
-                    onClick={(e) => {
-                      setHiddenId(slot.id);
-                      setExpanded({
-                        imageUrl,
-                        alt,
-                        rect: e.currentTarget.getBoundingClientRect(),
-                        id: slot.id,
-                      });
-                    }}
-                  >
-                    {open && slot.mustEat?.image ? (
-                      <Image
-                        src={slot.mustEat.image}
-                        alt=""
-                        fill
-                        sizes="200px"
-                        className={styles.img}
-                      />
-                    ) : (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img className={styles.backImg} src={CARD_BACK} alt="" loading="lazy" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
+      {slots.length === 0 ? (
+        <p className={styles.emptyText}>{t('emptyMustEats')}</p>
+      ) : (
+        <div className={styles.grid}>
+          {slots.map((slot) => {
+            const open = slot.collected && !!slot.mustEat?.image;
+            const imageUrl = (open && slot.mustEat?.image) || CARD_BACK;
+            const alt = (open ? slot.mustEat?.dish : undefined) ?? '';
+            return (
+              <button
+                key={slot.id}
+                type="button"
+                className={`${styles.slot} ${open ? styles.filled : styles.empty}`}
+                style={{ visibility: hiddenId === slot.id ? 'hidden' : undefined }}
+                onClick={(e) => {
+                  setHiddenId(slot.id);
+                  setExpanded({
+                    imageUrl,
+                    alt,
+                    rect: e.currentTarget.getBoundingClientRect(),
+                    id: slot.id,
+                  });
+                }}
+              >
+                {open && slot.mustEat?.image ? (
+                  <Image
+                    src={slot.mustEat.image}
+                    alt=""
+                    fill
+                    sizes="(min-width: 1040px) 160px, (min-width: 660px) 18vw, 30vw"
+                    className={styles.img}
+                  />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img className={styles.backImg} src={CARD_BACK} alt="" loading="lazy" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <MustEatImageLightbox
         imageUrl={expanded?.imageUrl ?? ''}

@@ -11,13 +11,13 @@ const plusDays = (iso: string, days: number) =>
   new Date(Date.parse(`${iso}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10)
 
 describe('assembleDistricts', () => {
-  it('puts the featured district first, marks it, and keeps it unique', () => {
+  it('puts favorite Berlin food districts first and marks the weekly feature in-place', () => {
     const rows = [row('mitte', 77), row('neukoelln', 30), row('kreuzberg', 58)]
     const out = assembleDistricts('neukoelln', rows)
-    expect(out[0].slug).toBe('neukoelln')
-    expect(out[0].isFeature).toBe(true)
+    expect(out.map(d => d.slug)).toEqual(['kreuzberg', 'neukoelln', 'mitte'])
+    expect(out[1].isFeature).toBe(true)
     expect(out.filter(d => d.slug === 'neukoelln')).toHaveLength(1)
-    expect(out.slice(1).every(d => d.isFeature === false)).toBe(true)
+    expect(out.filter(d => d.slug !== 'neukoelln').every(d => d.isFeature === false)).toBe(true)
   })
 
   it('takes tagline and spots straight from the district row', () => {
@@ -26,16 +26,16 @@ describe('assembleDistricts', () => {
     expect(out[0].spots.map(s => s.slug)).toEqual(['neukoelln-1', 'neukoelln-2'])
   })
 
-  it('returns rows as-is (no marker) when the feature slug is null or unknown', () => {
+  it('returns favorites first with no marker when the feature slug is null or unknown', () => {
     const rows = [row('mitte', 77), row('kreuzberg', 58)]
     expect(assembleDistricts(null, rows).every(d => d.isFeature === false)).toBe(true)
     expect(assembleDistricts('does-not-exist', rows).every(d => d.isFeature === false)).toBe(true)
-    expect(assembleDistricts(null, rows)[0].slug).toBe('mitte')
+    expect(assembleDistricts(null, rows)[0].slug).toBe('kreuzberg')
   })
 
-  it('caps the result at 10 districts', () => {
+  it('caps the result at 5 districts', () => {
     const rows = Array.from({ length: 14 }, (_, i) => row(`b${i}`, 100 - i))
-    expect(assembleDistricts(null, rows)).toHaveLength(10)
+    expect(assembleDistricts(null, rows)).toHaveLength(5)
   })
 })
 

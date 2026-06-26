@@ -4,7 +4,6 @@ import { useCallback, useEffect } from 'react';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth, useLoginModal } from '@/lib/auth';
-import { useTheme } from '@/lib/useTheme';
 import { routing } from '@/i18n/routing';
 import { Link, usePathname } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
@@ -19,7 +18,6 @@ export default function BurgerDrawer() {
   const { t, lang, setLang } = useTranslation();
   const { user } = useAuth();
   const { open: openLogin } = useLoginModal();
-  const { isDark, toggleTheme } = useTheme();
   const locale = useLocale();
   const pathname = usePathname();
 
@@ -107,18 +105,6 @@ export default function BurgerDrawer() {
               </button>
             </div>
 
-            <button
-              type="button"
-              className={`bd-theme-toggle${isDark ? ' on' : ''}`}
-              aria-label="Toggle dark mode"
-              aria-pressed={isDark}
-              onClick={toggleTheme}
-            >
-              <span className="bd-theme-label">{t('theme.darkMode')}</span>
-              <span className="bd-theme-track">
-                <span className="bd-theme-thumb"></span>
-              </span>
-            </button>
           </div>
 
           <div className="bd-logo">
@@ -135,8 +121,8 @@ export default function BurgerDrawer() {
               <span suppressHydrationWarning>{user ? t('burger.profile') : t('burger.signIn')}</span>
             </button>
             <Link href="/must-eats" className="bd-nav-item">{t('burger.mustEats')}</Link>
-            {/* Remy lives only on the home hub now (no corner launcher elsewhere),
-                so the burger is the way to reach him from any page — scrolls to
+            {/* Remy lives in the home hub now. From other pages the burger
+                sends users back to
                 his "Frag Remy" section via HubHashScroll. */}
             <Link href="/#hub-fragremy" className="bd-nav-item">{t('burger.fragRemy')}</Link>
             <Link href="/news" className="bd-nav-item">{t('burger.aufDemTeller')}</Link>

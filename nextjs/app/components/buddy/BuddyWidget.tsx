@@ -9,10 +9,7 @@ import { greetingFor } from '@/lib/buddy/greeting'
 import { isNearbyIntent } from '@/lib/buddy/nearbyIntent'
 import {
   BUDDY_ASK_EVENT,
-  BUDDY_STAGE_EVENT,
   type BuddyAskDetail,
-  type BuddyStageDetail,
-  type BuddyStageRect,
 } from '@/lib/buddy/homeStage'
 import { useAuth } from '@/lib/auth'
 import { useFavorites } from '@/lib/map/useFavorites'
@@ -155,16 +152,11 @@ const T = {
     close: 'Schließen',
     thinking: 'Remy denkt nach',
     placeholder: 'Schreib Remy…',
-    launcherTop: 'Frag',
-    launcherMain: 'Remy',
   },
   en: {
-    open: 'Open Remy',
     close: 'Close',
     thinking: 'Remy is thinking',
     placeholder: 'Message Remy…',
-    launcherTop: 'Ask',
-    launcherMain: 'Remy',
   },
 } satisfies Record<Locale, Record<string, string>>
 
@@ -313,7 +305,6 @@ export default function BuddyWidget() {
   const [draft, setDraft] = useState('')
   const { messages, isStreaming, send, setGeo } = useBuddyChat()
   const { location, loading: locating, request: requestLocation } = useUserLocationContext()
-  const launcherRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
 
   // Save a spot to the user's map (Firestore favourites). Anonymous users are
@@ -344,22 +335,12 @@ export default function BuddyWidget() {
     [toggleFav],
   )
 
-  const [scrolling, setScrolling] = useState(false)
   const [happyBeat, setHappyBeat] = useState(false)
   const [greetingBeat, setGreetingBeat] = useState(false)
   const wasStreaming = useRef(false)
-  const [onStage, setOnStage] = useState(false)
-  // The corner launcher stays hidden until the visitor has actually reached the
-  // hub's "Frag Remy" section and scrolled on past it (or engaged Remy via the
-  // section's CTA) — so he doesn't float in the corner from the top of the page,
-  // before he's been introduced. Once revealed he stays around for the session.
-  const [revealed, setRevealed] = useState(false)
-  const [arrivalBeat, setArrivalBeat] = useState(false)
-  const stageRect = useRef<BuddyStageRect | null>(null)
 
   const closePanel = useCallback(() => {
     setOpen(false)
-    launcherRef.current?.focus()
   }, [])
 
   useEffect(() => {
@@ -394,26 +375,6 @@ export default function BuddyWidget() {
     },
     [isStreaming, locating, location, notifyLocationFailure, requestLocation, send, setGeo],
   )
-
-  // Make Remy "talk" while the page is scrolling — a little sign of life on the
-  // launcher. Goes quiet ~400ms after scrolling stops.
-  // NOTE: capture:true — on desktop the SPA scrolls an inner `.app-pages`
-  // container, not the window. Scroll events don't bubble, but they DO trickle
-  // in the capture phase, so this catches both the inner scroller (desktop) and
-  // the document (mobile).
-  useEffect(() => {
-    let t: ReturnType<typeof setTimeout>
-    const onScroll = () => {
-      setScrolling(true)
-      clearTimeout(t)
-      t = setTimeout(() => setScrolling(false), 400)
-    }
-    window.addEventListener('scroll', onScroll, { passive: true, capture: true })
-    return () => {
-      window.removeEventListener('scroll', onScroll, { capture: true })
-      clearTimeout(t)
-    }
-  }, [])
 
   // A short "happy" laugh beat the moment an answer with spot recommendations
   // finishes streaming.
@@ -464,7 +425,7 @@ export default function BuddyWidget() {
     }
   }, [open])
 
-  // Escape closes the panel and returns focus to the launcher.
+  // Escape closes the panel.
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
@@ -488,63 +449,12 @@ export default function BuddyWidget() {
     return () => document.removeEventListener('pointerdown', onPointerDown)
   }, [open, closePanel])
 
-  // ── Home-stage protocol ──
-  // While the hub's "Frag Remy" section is on screen there is only ONE Remy —
-  // the stage one — so the corner launcher hides. When the stage scrolls away,
-  // the launcher flies in from where the stage avatar last stood (FLIP) and
-  // smiles briefly on arrival. See lib/buddy/homeStage.ts.
-  useEffect(() => {
-    const onStageEvent = (e: Event) => {
-      const { visible, rect } = (e as CustomEvent<BuddyStageDetail>).detail
-      stageRect.current = rect ?? null
-      setOnStage(visible)
-    }
-    window.addEventListener(BUDDY_STAGE_EVENT, onStageEvent)
-    return () => window.removeEventListener(BUDDY_STAGE_EVENT, onStageEvent)
-  }, [])
-
-  const wasOnStage = useRef(false)
-  useEffect(() => {
-    const was = wasOnStage.current
-    wasOnStage.current = onStage
-    if (!was || onStage) return
-    // Stage just scrolled away: this is the moment Remy "moves into" the corner.
-    setRevealed(true)
-    const btn = launcherRef.current
-    const from = stageRect.current
-    // No rect (section unmounted) or no WAAPI (jsdom): just appear in place.
-    if (!btn || !from || typeof btn.animate !== 'function') return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const to = btn.getBoundingClientRect()
-    if (to.width === 0) return
-    const dx = from.left + from.width / 2 - (to.left + to.width / 2)
-    const dy = from.top + from.height / 2 - (to.top + to.height / 2)
-    const scale = Math.min(1.9, Math.max(1.05, from.width / to.width))
-    btn.animate(
-      [
-        { transform: `translate(${dx}px, ${dy}px) scale(${scale}) rotate(-3deg)` },
-        { transform: 'translate(0, 0) scale(1) rotate(0deg)' },
-      ],
-      { duration: 520, easing: 'cubic-bezier(0.22, 0.8, 0.3, 1)' },
-    )
-    setArrivalBeat(true)
-  }, [onStage])
-
-  useEffect(() => {
-    if (!arrivalBeat) return
-    const t = setTimeout(() => setArrivalBeat(false), 1600)
-    return () => clearTimeout(t)
-  }, [arrivalBeat])
-
   // Stage chips / CTA hand-off: open the panel and (optionally) ask right away.
   // `send` self-guards against empty text and concurrent streams.
   useEffect(() => {
     const onAsk = (e: Event) => {
       const { question } = (e as CustomEvent<BuddyAskDetail>).detail ?? {}
       setOpen(true)
-      // Engaging Remy from the section's chips/CTA also "introduces" him, so the
-      // corner launcher should persist once the panel is closed again.
-      setRevealed(true)
       if (question) void sendWithLocationIfNeeded(question)
     }
     window.addEventListener(BUDDY_ASK_EVENT, onAsk)
@@ -586,42 +496,13 @@ export default function BuddyWidget() {
       : greetingBeat
         ? 'talking'
         : 'idle'
-  const launcherMood: BuddyMood = open
-    ? panelMood
-    : arrivalBeat
-      ? 'greeting'
-      : scrolling
-        ? 'talking'
-        : 'idle'
-
-  // Remy lives ONLY on the home hub — its "Frag Remy" stage hands him off to
-  // this corner widget (see HubFragRemy). On every other route (news, article,
-  // must-eats, map, …) the fixed launcher would just float without context, so
-  // we don't mount it there at all.
+  // Remy lives ONLY on the home hub and opens from the "Frag Remy" section.
+  // There is intentionally no fixed side launcher.
   const pathname = usePathname()
   if ((pathname ?? '/') !== '/') return null
 
   return (
     <>
-      <button
-        ref={launcherRef}
-        className={styles.launcher}
-        data-buddy-launcher
-        data-stage={!revealed || onStage ? 'true' : undefined}
-        aria-label={t.open}
-        aria-expanded={open}
-        aria-controls="buddy-panel"
-        onClick={() => setOpen((v) => !v)}
-      >
-        <span className={styles.launcherText} aria-hidden="true">
-          <span>{t.launcherTop}</span>
-          <strong>{t.launcherMain}</strong>
-        </span>
-        <span className={styles.launcherAvatar} aria-hidden="true">
-          <BuddyAvatar mood={launcherMood} size={38} />
-        </span>
-      </button>
-
       {open && (
         <div
           ref={panelRef}

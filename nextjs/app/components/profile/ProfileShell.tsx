@@ -24,14 +24,6 @@ interface Props {
   publicFaceUpIds: string[];
 }
 
-function memberSince(creationTime: string | undefined, locale: string): string | null {
-  if (!creationTime) return null;
-  const d = new Date(creationTime);
-  if (Number.isNaN(d.getTime())) return null;
-  const intlLocale = locale === 'de' ? 'de-DE' : 'en-US';
-  return new Intl.DateTimeFormat(intlLocale, { month: 'long', year: 'numeric' }).format(d);
-}
-
 // Slim profile (mockup-chewy screens 15/16): one cream scroll — head, saved
 // spots, collected must-eats, packs, logout, footer. No tabs/settings/referral.
 export default function ProfileShell({ publicFaceUpIds }: Props) {
@@ -83,12 +75,12 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   }
 
   const avatarIdx = profile.avatar ?? defaultAvatarFromUid(user.uid);
-  const since = memberSince(user.metadata?.creationTime, locale);
-  const sinceLabel = locale === 'de' ? 'Mitglied seit' : 'Member since';
   const total = ownedMustEats.length;
   const collected = ownedMustEats.filter((m) => unlockedIds.has(m._id)).length;
   const firstName =
     (user.displayName ?? '').split(' ')[0] || (user.email ?? '').split('@')[0] || t('heroTitle');
+  const toMapLabel = t('toMap').replace(/\s*→$/, '');
+  const packsLabel = t('packsCta').replace(/\s*→$/, '');
 
   async function handleAvatarChange(choice: AvatarChoice) {
     if (choice === avatarIdx) return;
@@ -101,19 +93,13 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
         <div className={styles.shell}>
           <header className={styles.hero}>
             <div className={styles.heroMain}>
-              {since && (
-                <div className={styles.heroMeta}>
-                  {sinceLabel} {since}
-                </div>
-              )}
               <div className={styles.heroName}>{firstName}</div>
-              <span className={styles.heroSub}>{t('collectorTag')}</span>
               <div className={styles.heroActions}>
                 <Link href="/map" rel="nofollow" className={styles.heroLink}>
-                  {t('toMap')}
+                  {toMapLabel}
                 </Link>
                 <a href="#profile-panel-packs" className={styles.heroLink}>
-                  {t('packsCta')}
+                  {packsLabel}
                 </a>
               </div>
             </div>

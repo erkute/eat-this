@@ -83,14 +83,14 @@ const STAGE_LINE: Record<Locale, Record<Daypart, string>> = {
   de: {
     morning: 'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin — der Tag ist zu kurz für schlechten Kaffee.',
     midday: 'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin — schnell essen, ohne sich mit Mittelmaß abzufinden.',
-    afternoon: 'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin — Kaffee, Kuchen, kurze Pause. Aber bitte richtig.',
+    afternoon: 'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin — Kaffee, Kuchen, kurze Pause.',
     evening: 'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin — für Dinner, Drinks und Orte, die den Abend tragen.',
     late: 'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin — wenn es spät wird, zählt nicht nur, was noch offen ist.',
   },
   en: {
     morning: "Hi, I'm Remy. I know the best spots in Berlin — the day's too short for bad coffee.",
     midday: "Hi, I'm Remy. I know the best spots in Berlin — eat quick, without settling for mediocre.",
-    afternoon: "Hi, I'm Remy. I know the best spots in Berlin — coffee, cake, a short break. But done right.",
+    afternoon: "Hi, I'm Remy. I know the best spots in Berlin — coffee, cake, a short break.",
     evening: "Hi, I'm Remy. I know the best spots in Berlin — for dinner, drinks, and places that carry the night.",
     late: "Hi, I'm Remy. I know the best spots in Berlin — when it gets late, it's not just about what's still open.",
   },
@@ -129,14 +129,14 @@ const STAGE_LEAD: Record<Locale, Record<Daypart, string>> = {
   de: {
     morning: 'Der Tag ist zu kurz für schlechten Kaffee.',
     midday: 'Schnell essen, ohne sich mit Mittelmaß abzufinden.',
-    afternoon: 'Kaffee, Kuchen, kurze Pause. Aber bitte richtig.',
+    afternoon: 'Kaffee, Kuchen, kurze Pause.',
     evening: 'Für Dinner, Drinks und lange Abende.',
     late: 'Wenn es spät wird, zählt nicht nur, was noch offen ist.',
   },
   en: {
     morning: "The day's too short for bad coffee.",
     midday: 'Eat quick, without settling for mediocre.',
-    afternoon: 'Coffee, cake, a short break. But done right.',
+    afternoon: 'Coffee, cake, a short break.',
     evening: 'For dinner, drinks, and long nights.',
     late: "When it gets late, it's not just about what's still open.",
   },

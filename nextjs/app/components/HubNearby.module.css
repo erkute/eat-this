@@ -1,14 +1,12 @@
-/* HUB "in deiner Nähe" — editorial print-menu cream panel on the near-black
-   home canvas: Chauncy ink heading with an ink underline rule, flat cream cards,
-   mono meta, orange accents. FLAT: no shadows, no gradients. Theme-independent. */
+/* HUB "in deiner Nähe" — strict white / ink / red system. */
 
 .section {
   width: min(100% - 28px, 1220px);
   margin: 0 auto;
   padding: clamp(22px, 3vw, 32px) clamp(20px, 2.6vw, 34px) clamp(24px, 3vw, 36px);
-  color: var(--menu-ink);
-  background: var(--menu-cream);
-  border-radius: 6px;
+  color: #15120e;
+  background: #fff;
+  border-radius: 0;
 }
 
 /* Section head: Chauncy title + mono "Standort" button, sharing an ink rule. */
@@ -18,9 +16,9 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px 16px;
-  border-bottom: 2px solid var(--menu-ink);
-  padding-bottom: 8px;
-  margin: 0 0 6px;
+  border-bottom: 2px solid #15120e;
+  padding-bottom: 12px;
+  margin: 0 0 10px;
 }
 /* "Nähe" carries an umlaut → Chauncy renders it; line-height guards clipping. */
 .heading {
@@ -31,21 +29,22 @@
   letter-spacing: 0.01em;
   line-height: 1;
   text-transform: uppercase;
-  color: var(--menu-ink);
+  color: #15120e;
 }
 
 /* Flat mono ink-outline location button. Overrides the global homeCta look. */
-.locBtn {
+.section .locBtn {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   min-height: 36px;
-  padding: 7px 13px 8px;
-  color: var(--menu-ink);
-  background: transparent;
-  border: 1px solid var(--menu-ink);
+  padding: 8px 14px 9px;
+  color: #15120e;
+  background: #fff !important;
+  border: 2px solid #15120e !important;
   border-radius: 4px;
+  box-shadow: none;
   font-family: var(--menu-mono);
   font-size: 12px;
   font-weight: 500;
@@ -58,10 +57,10 @@
     background-color 0.14s ease,
     transform 0.14s ease;
 }
-.locBtn:hover,
-.locBtn:focus-visible {
-  color: var(--menu-cream);
-  background: var(--menu-ink);
+.section .locBtn:hover,
+.section .locBtn:focus-visible {
+  color: #fff;
+  background: #15120e;
   transform: translateY(-2px);
 }
 .locIcon {
@@ -88,18 +87,18 @@
 }
 /* Geolocation error line (denied/timeout) — orange for visibility. */
 .subError {
-  color: var(--menu-orange);
+  color: #d9382a;
 }
 
 .row {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding: 2px 0 4px;
+  padding: 4px clamp(28px, 8vw, 80px) 6px 0;
   margin: 0;
   list-style: none;
 }
@@ -107,22 +106,22 @@
   display: none;
 }
 .cardItem {
-  flex: 0 0 180px;
+  flex: 0 0 min(78vw, 340px);
   scroll-snap-align: start;
   margin: 0;
 }
 
-/* Flat cream menu card: lighter surface + thin ink hairline, ink text. */
 .card {
   display: grid;
   grid-template-rows: auto 1fr;
   position: relative;
   overflow: hidden;
-  background: var(--menu-cream-2);
-  border: 1px solid rgba(21, 18, 14, 0.16);
-  border-radius: 6px;
+  background: #fff;
+  border: 2px solid #15120e;
+  border-radius: 0;
+  box-shadow: none;
   text-decoration: none;
-  color: var(--menu-ink);
+  color: #15120e;
   transition:
     transform 0.16s ease,
     background-color 0.16s ease,
@@ -131,13 +130,13 @@
 .card:hover,
 .card:focus-visible {
   background: #fff;
-  border-color: rgba(21, 18, 14, 0.32);
   transform: translateY(-4px);
+  outline: none;
 }
 .cardImage {
   position: relative;
-  aspect-ratio: 4 / 3;
-  background-color: #14100c;
+  aspect-ratio: 16 / 10;
+  background-color: #d9382a;
   overflow: hidden;
 }
 .cardImage img {
@@ -149,8 +148,10 @@
   top: 8px;
   right: 8px;
   z-index: 2;
-  background: var(--menu-orange);
-  color: var(--menu-cream);
+  background: #fff;
+  color: #15120e;
+  border: 2px solid #15120e;
+  box-shadow: none;
   font-family: var(--menu-mono);
   font-size: 10.5px;
   font-weight: 500;
@@ -163,35 +164,118 @@
 .cardBody {
   position: relative;
   display: grid;
-  gap: 5px;
+  grid-template-rows: minmax(46px, auto) auto;
+  align-content: end;
+  gap: 6px;
+  box-sizing: border-box;
+  height: 98px;
   padding: 12px 14px 14px;
   z-index: 1;
 }
 .name {
   font-family: var(--menu-condensed);
-  font-size: clamp(24px, 2.4vw, 28px);
+  font-size: clamp(21px, 2.1vw, 25px);
   font-weight: 400;
   letter-spacing: 0.005em;
   line-height: 0.9;
   text-transform: uppercase;
   margin: 0;
-  color: var(--menu-ink);
+  color: #15120e;
+  display: -webkit-box;
+  height: 46px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 .meta {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  padding: 4px 8px;
   font-family: var(--menu-mono);
   font-size: 10.5px;
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(21, 18, 14, 0.62);
+  color: #15120e;
+  background: #fff;
+  border: 1px solid #15120e;
+  border-radius: 0;
+  box-shadow: none;
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.section[data-auth-nearby] {
+  width: 100%;
+  padding: 0;
+  border: 0;
+}
+
+.section[data-auth-nearby] .head {
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+}
+
+.section[data-auth-nearby] .heading {
+  font-size: clamp(26px, 2.6vw, 36px);
+}
+
+.section[data-auth-nearby] .locBtn {
+  min-height: 34px;
+  padding: 7px 10px;
+  font-size: 10px;
+}
+
+.section[data-auth-nearby] .sub {
+  margin-bottom: 8px;
+  font-size: 10px;
+}
+
+.section[data-auth-nearby] .row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0;
+}
+
+.section[data-auth-nearby] .card {
+  grid-template-columns: 76px minmax(0, 1fr);
+  grid-template-rows: 1fr;
+  min-height: 68px;
+}
+
+.section[data-auth-nearby] .cardImage {
+  aspect-ratio: auto;
+  height: 100%;
+}
+
+.section[data-auth-nearby] .dist {
+  top: 5px;
+  right: 5px;
+  padding: 3px 5px;
+  font-size: 9px;
+}
+
+.section[data-auth-nearby] .cardBody {
+  height: auto;
+  min-height: 68px;
+  padding: 7px 9px;
+}
+
+.section[data-auth-nearby] .name {
+  height: auto;
+  min-height: 0;
+  font-size: clamp(21px, 2.1vw, 28px);
 }
 
 /* ── Desktop: scrollers become a wrapping 4-up grid ── */
 @media (min-width: 720px) {
   .row {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: 1.25fr repeat(3, 1fr);
     gap: 16px;
     overflow: visible;
     padding: 4px 0 6px;
@@ -205,5 +289,28 @@
   .section {
     width: calc(100% - 20px);
     padding: 22px 18px 26px;
+  }
+}
+
+.section[data-auth-nearby] {
+  width: 100%;
+  padding: 0;
+}
+
+.section[data-auth-nearby] .row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  overflow: visible;
+  padding: 0;
+}
+
+.section[data-auth-nearby] .cardItem {
+  flex: initial;
+}
+
+@media (max-width: 560px) {
+  .section[data-auth-nearby] .row {
+    grid-template-columns: 1fr;
   }
 }

@@ -80,14 +80,20 @@ describe('HubMustEatsTeaser', () => {
     expect(html).toContain(translations.de.mustEats.teaserCta)
   })
 
-  it('points the CTA at the map must-eats flow', () => {
+  it('points the CTA at the full must-eats page', () => {
     const html = render(dataRevealed([me()]))
-    expect(html).toMatch(/href="\/map"/)
+    expect(html).toMatch(/href="\/must-eats"/)
   })
 
   it('locale-prefixes the CTA for en', () => {
     const html = render(dataRevealed([me()]), 'en')
-    expect(html).toMatch(/href="\/en\/map"/)
+    expect(html).toMatch(/href="\/en\/must-eats"/)
+  })
+
+  it('links dish/card to must-eat map detail and restaurant name to restaurant map detail', () => {
+    const html = render(dataRevealed([me()]))
+    expect(html).toContain('href="/map?me=m1"')
+    expect(html).toContain('href="/map?r=bar-basta"')
   })
 
   it('renders face-up cards with their must-eat image', () => {

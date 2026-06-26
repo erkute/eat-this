@@ -17,10 +17,12 @@ const MITTE = { lat: 52.52, lng: 13.405 }
 
 interface Props {
   initialMapData: InitialMapData
+  mode?: 'guest' | 'auth'
 }
 
-export default function HubNearby({ initialMapData }: Props) {
+export default function HubNearby({ initialMapData, mode = 'guest' }: Props) {
   const t = useTranslations('hub.nearby')
+  const authMode = mode === 'auth'
   const { user, loading: authLoading } = useAuth()
   const uid = user?.uid ?? null
   const live = useMapData({ uid, authLoading, initialMapData })
@@ -35,12 +37,18 @@ export default function HubNearby({ initialMapData }: Props) {
   const activeLocation = mounted ? location : null
   const loc = activeLocation ?? MITTE
 
-  const cards = nearestRestaurants(restaurants, loc, 4)
-  if (mounted && user) return null
+  const cards = nearestRestaurants(restaurants, loc, authMode ? 2 : 4)
+  if (!authMode && mounted && user) return null
   if (cards.length === 0) return null
 
   return (
-    <section className={styles.section} data-hub-nearby="" data-guest-only="">
+    <section
+      className={styles.section}
+      data-hub-nearby=""
+      data-auth-nearby={authMode ? '' : undefined}
+      data-auth-only={authMode ? '' : undefined}
+      data-guest-only={authMode ? undefined : ''}
+    >
       <div className={styles.head}>
         <h2 className={styles.heading}>{t('title')}</h2>
         <button

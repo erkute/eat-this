@@ -90,6 +90,13 @@ When changing UI, CSS, cards, buttons, chips, pills, overlays, or detail sheets,
 - For scoped components, add scoped dark-mode overrides instead of relying on broad `.fdV`, `.btn`, `.chip`, or generic text rules.
 - If you touch a map/detail UI, capture or visually inspect at least one dark-mode mobile viewport and one desktop viewport when practical.
 
+## Browser QA preference
+
+The user does not want screenshot-based QA during normal iteration. Prefer the
+Chrome extension/browser-control path for frontend verification, and use DOM,
+computed-style, accessibility, layout, and interaction checks instead of taking
+screenshots. Only capture screenshots if the user explicitly asks for them.
+
 ## Image assets — PNG → WebP before commit
 
 Any image that ships to the browser (lands under `nextjs/public/`) **must be WebP before it's committed and pushed**. PNG bloats payload ~10× and decode-blocks the main thread on mobile — we've already paid that cost once on the FanCards (1-2 MB raw PNGs from Sanity CDN → ~60 KB WebP via `?auto=format`); don't re-introduce it from the asset side.

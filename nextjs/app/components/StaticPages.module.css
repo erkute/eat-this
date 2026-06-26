@@ -281,3 +281,69 @@ html[data-theme="dark"] .page[data-page="about"] .body > p:nth-of-type(2)::first
 html[data-theme="dark"] .page[data-page="about"] .body blockquote {
   color: var(--c-coral-bright);
 }
+
+/* Home-system pass: static/legal pages. */
+.page {
+  --static-ink: #15120e;
+  --static-red: #d9382a;
+  --static-paper: #fff;
+  background: var(--static-paper);
+  color: var(--static-ink);
+  padding-top: calc(72px + env(safe-area-inset-top, 0px) + 22px);
+}
+
+.inner {
+  max-width: 980px;
+  background: var(--static-paper);
+  border-top: 2px solid var(--static-ink);
+  box-shadow: none;
+}
+
+.kicker {
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  color: var(--static-red);
+}
+
+.title,
+.body h2,
+.body h3,
+.body h4 {
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  color: var(--static-ink);
+  letter-spacing: 0;
+}
+
+.title {
+  font-size: clamp(58px, 10vw, 128px);
+  line-height: .8;
+  color: var(--static-ink);
+}
+
+.body {
+  color: var(--static-ink);
+}
+
+.body h2 {
+  padding-top: 22px;
+  border-top: 2px solid var(--static-ink);
+}
+
+.body a {
+  color: var(--static-red);
+}
+
+.body blockquote {
+  background: var(--static-ink);
+  color: var(--static-paper);
+  box-shadow: none;
+}
+
+.page[data-page="about"] .body blockquote {
+  color: var(--static-red);
+}
+
+@media (min-width: 720px) {
+  .inner {
+    transform: none;
+  }
+}

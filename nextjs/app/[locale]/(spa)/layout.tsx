@@ -17,7 +17,7 @@ import BridgeAuth from './BridgeAuth'
 
 const SITE_URL = 'https://www.eatthisdot.com'
 
-const TITLE = 'EAT THIS – Berlin Food Guide: Restaurants & Geheimtipps'
+const TITLE = 'EAT THIS – Restaurants & Geheimtipps'
 const DESCRIPTION =
   'Die kuratierte Food-Map mit Berlins besten Restaurants, Cafés und Bars — plus exklusive Must Eats. Frag Remy, unsere KI-Suche, und finde sofort deinen Spot.'
 const OG_IMAGE = SITE_URL + '/pics/og-card.png?v=4'

@@ -1,117 +1,123 @@
-/* Must Eats gallery — Chewy mockup "Screen 05".
-   Tokens: --green→#0a0a0a ink · --cream→#fbf8ee · --yellow→var(--brand-yellow)
-   --font-display→var(--font-chewy). border-radius:0 throughout. */
-
 .head {
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 18px 16px 6px;
-}
-.kicker {
-  font-family: var(--font-chewy);
-  font-size: 14px;
-  letter-spacing: 0.14em;
-  color: #0a0a0a;
-  text-transform: uppercase;
-  margin: 0;
-}
-.title {
-  font-family: var(--font-chewy);
-  font-size: 64px;
-  line-height: 0.96;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  color: var(--collage-red);
-  margin: 4px 0 6px;
-}
-.sub {
-  font-size: 14px;
-  color: #0a0a0a;
-  line-height: 1.4;
-  max-width: 44ch;
-  margin: 0;
+  --must-red: #d9382a;
+  --must-ink: #15120e;
+  --must-paper: #fff;
+  width: min(100% - clamp(20px, 6vw, 88px), 1280px);
+  margin: clamp(10px, 2svh, 22px) auto clamp(34px, 5vw, 70px);
+  padding: clamp(28px, 5vw, 72px);
+  color: var(--must-ink);
+  background: var(--must-red);
 }
 
-/* Filter chips */
+.kicker {
+  margin: 0 0 clamp(14px, 2vw, 24px);
+  color: var(--must-ink);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: clamp(11px, 0.9vw, 13px);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: var(--must-ink);
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(72px, 13vw, 176px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.74;
+  text-transform: uppercase;
+}
+
+.sub {
+  max-width: 54ch;
+  margin: clamp(18px, 3vw, 34px) 0 0;
+  color: var(--must-ink);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: clamp(15px, 1.15vw, 18px);
+  font-weight: 750;
+  letter-spacing: 0;
+  line-height: 1.34;
+}
+
 .filters {
   display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 0 16px 18px;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: min(100% - clamp(20px, 6vw, 88px), 1280px);
+  margin: 0 auto clamp(26px, 4vw, 46px);
 }
-.filters::-webkit-scrollbar {
-  display: none;
-}
+
 .fchip {
-  flex: 0 0 auto;
-  background: transparent;
-  border: 2px solid #0a0a0a;
-  color: #0a0a0a;
-  font-family: var(--font-chewy);
-  font-size: 15px;
-  letter-spacing: 0.06em;
-  padding: 8px 14px 9px;
+  appearance: none;
+  min-height: 44px;
+  padding: 9px 16px 10px;
+  color: var(--must-ink, #15120e);
+  background: var(--must-paper, #fff);
+  border: 2px solid var(--must-ink, #15120e);
   border-radius: 0;
-  line-height: 1;
   cursor: pointer;
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  line-height: 1;
   text-transform: uppercase;
 }
-.fchipOn {
-  background: #0a0a0a;
-  color: #fbf8ee;
+
+.fchipOn,
+.fchip:hover,
+.fchip:focus-visible {
+  color: var(--must-paper, #fff);
+  background: var(--must-ink, #15120e);
 }
 
-/* Grid of all must-eats — centred, capped width so cards never blow up on
-   desktop; uniform cell heights (align-items:start + fixed card aspect). */
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(18px, 3vw, 42px);
   align-items: start;
-  max-width: 1120px;
+  width: min(100% - clamp(20px, 6vw, 88px), 1280px);
   margin: 0 auto;
-  padding: 0 16px 30px;
+  padding: 0 0 clamp(58px, 8vw, 112px);
 }
-@media (min-width: 600px) {
+
+@media (min-width: 660px) {
   .grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-  }
-}
-@media (min-width: 960px) {
-  .grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-/* Must-Eat = a full trading card (own bg/corners/text baked into the art).
-   Each card fills its grid cell at a fixed card aspect so the grid stays
-   uniform; NO drop-shadow (the art carries its own depth — an extra shadow
-   reads as ugly overlapping flaps). The whole card is a tap-to-zoom button. */
-/* Every cell is just the trading card (the art carries name/restaurant/etc.),
-   at one fixed aspect → the grid stays perfectly uniform. Tap = zoom. */
+@media (min-width: 1040px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 .medish {
   appearance: none;
-  border: 0;
+  display: block;
+  width: 100%;
   margin: 0;
   padding: 0;
   background: transparent;
+  border: 0;
   cursor: pointer;
-  display: block;
-  width: 100%;
-  transition: transform .18s ease;
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.medish:nth-child(odd) { transform: rotate(-1deg); }
-.medish:nth-child(even) { transform: rotate(1deg); }
-.medish:hover { transform: rotate(0) translateY(-4px); }
+
+.medish:hover,
+.medish:focus-visible {
+  transform: translateY(-6px);
+}
+
 .ph {
   position: relative;
   aspect-ratio: 1539 / 2115;
 }
+
 .ph img {
   display: block;
   width: 100%;
@@ -119,75 +125,84 @@
   object-fit: contain;
 }
 
-/* Closing block — keeps the bottom from feeling empty */
 .close {
-  max-width: min(1120px, calc(100% - 32px));
-  margin: 18px auto 30px;
-  padding: 22px 22px 24px;
-  background: #0a0a0a;
-  color: #fbf8ee;
-  text-align: left;
-}
-.closeK {
-  font-family: var(--font-chewy);
-  font-size: 12px;
-  letter-spacing: 0.22em;
-  color: var(--brand-yellow);
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-.closeTitle {
-  font-family: var(--font-chewy);
-  font-size: 38px;
-  line-height: 0.96;
-  text-transform: uppercase;
-  margin: 0 0 8px;
-}
-.closeBody {
-  font-size: 13.5px;
-  line-height: 1.5;
-  opacity: 0.82;
-  margin: 0 0 14px;
-}
-.closeCta {
-  display: inline-block;
-  background: var(--brand-yellow);
-  color: #0a0a0a;
-  font-family: var(--font-chewy);
-  font-size: 14px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  padding: 11px 16px 12px;
-  border: 0;
-  cursor: pointer;
-  text-decoration: none;
+  width: min(100% - clamp(20px, 6vw, 88px), 1280px);
+  margin: 0 auto clamp(54px, 8vw, 104px);
+  padding: clamp(28px, 5vw, 70px);
+  color: var(--must-ink, #15120e);
+  background: var(--must-red, #d9382a);
+  text-align: center;
 }
 
-/* ============================================================
-   DARK MODE — section goes dark, yellow accents → red.
-   Trading-card art (.ph img) is never touched. The .close panel
-   is already ink+cream, so only its yellow accents flip.
-============================================================ */
-html[data-theme="dark"] .kicker,
-html[data-theme="dark"] .title,
-html[data-theme="dark"] .sub {
-  color: #f0e8d0;
+.closeK {
+  margin: 0 0 14px;
+  color: var(--must-ink, #15120e);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  line-height: 1.15;
+  text-transform: uppercase;
 }
-html[data-theme="dark"] .fchip {
-  border-color: rgba(240, 232, 208, 0.55);
-  color: #f0e8d0;
+
+.closeTitle {
+  margin: 0;
+  color: var(--must-ink, #15120e);
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(58px, 10vw, 132px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.78;
+  text-transform: uppercase;
 }
-html[data-theme="dark"] .fchipOn {
-  background: #f0e8d0;
-  color: #0a0a0a;
+
+.closeBody {
+  max-width: 58ch;
+  margin: clamp(18px, 3vw, 30px) auto 0;
+  color: var(--must-ink, #15120e);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: clamp(15px, 1.15vw, 18px);
+  font-weight: 750;
+  line-height: 1.34;
 }
-html[data-theme="dark"] .close {
-  background: #1d1c19;
+
+.closeCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  margin-top: clamp(22px, 3vw, 34px);
+  padding: 9px 18px 10px;
+  color: var(--must-paper, #fff);
+  background: var(--must-ink, #15120e);
+  border: 2px solid var(--must-ink, #15120e);
+  border-radius: 0;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(22px, 2vw, 30px);
+  font-weight: 400;
+  line-height: 0.9;
+  text-decoration: none;
+  text-transform: uppercase;
 }
-html[data-theme="dark"] .closeK {
-  color: var(--c-coral-bright);
-}
-html[data-theme="dark"] .closeCta {
-  background: var(--c-coral);
-  color: #fbf8ee;
+
+@media (max-width: 560px) {
+  .head,
+  .filters,
+  .grid,
+  .close {
+    width: calc(100% - 20px);
+  }
+
+  .head {
+    padding: 28px 18px 32px;
+  }
+
+  .title {
+    font-size: clamp(58px, 20vw, 86px);
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
 }

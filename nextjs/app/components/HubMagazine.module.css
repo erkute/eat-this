@@ -1,21 +1,21 @@
-/* HUB Magazine — editorial print-menu cream panel on the near-black home canvas:
-   Chauncy ink heading with an ink underline rule, a "ALLE" mono CTA with a →,
-   and flat article cards (image + orange mono sticker + Chauncy ink title + mono
-   read link). FLAT: no shadows, no gradients. Theme-independent. */
+/* HUB Magazine — light editorial rail with compact print cards:
+   no featured-card voids, just image-led article tiles in the same paper system
+   as the rest of the home surface. FLAT: no shadows, no gradients. */
 
 .section {
   width: min(100% - 28px, 1220px);
   margin: 18px auto 0;
   padding: clamp(22px, 3vw, 32px) clamp(20px, 2.6vw, 34px) clamp(24px, 3vw, 36px);
   color: var(--menu-ink);
-  background: var(--menu-cream);
-  border-radius: 6px;
+  background: var(--home-case-bg, rgba(247, 247, 243, 0.66));
+  border: 1px solid rgba(21, 18, 14, 0.16);
+  border-radius: 8px;
 }
 
 .heading {
   margin: 0;
   padding-bottom: 8px;
-  border-bottom: 2px solid var(--menu-ink);
+  border-bottom: 1px solid rgba(21, 18, 14, 0.34);
   font-family: var(--menu-condensed);
   font-size: clamp(30px, 6vw, 44px);
   font-weight: 400;
@@ -40,8 +40,15 @@
   align-items: center;
   gap: 7px;
   width: max-content;
+  padding: 5px 9px;
   color: var(--menu-ink);
+  background: var(--home-ghost-bg, rgba(255, 255, 255, 0.42));
+  border: 1px solid var(--home-ghost-border, rgba(21, 18, 14, 0.2));
+  border-radius: 4px;
+  box-shadow: var(--home-ghost-shadow, inset 0 0 0 1px rgba(255, 255, 255, 0.28));
   text-decoration: none;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   transition: transform 0.14s ease;
 }
 .metaLink::after {
@@ -81,12 +88,15 @@
 .card {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: auto;
   position: relative;
   overflow: hidden;
-  background: var(--menu-cream-2);
-  border: 1px solid rgba(21, 18, 14, 0.16);
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(21, 18, 14, 0.22);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.34);
+  backdrop-filter: blur(14px) saturate(1.08);
+  -webkit-backdrop-filter: blur(14px) saturate(1.08);
   text-decoration: none;
   color: var(--menu-ink);
   transition:
@@ -96,7 +106,7 @@
 }
 .card:hover,
 .card:focus-visible {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.84);
   border-color: rgba(21, 18, 14, 0.32);
   transform: translateY(-4px);
 }
@@ -110,14 +120,18 @@
 .cardImage img {
   object-fit: cover;
 }
-/* Kicker → orange mono sticker, slight tilt. */
+/* Kicker → transparent mono label, slight tilt. */
 .stamp {
   position: absolute;
   top: 10px;
   left: 10px;
   z-index: 2;
-  background: var(--menu-orange);
-  color: var(--menu-cream);
+  background: var(--home-ghost-bg-strong, rgba(247, 247, 243, 0.68));
+  color: var(--menu-ink);
+  border: 1px solid var(--home-ghost-border, rgba(21, 18, 14, 0.38));
+  box-shadow: var(--home-ghost-shadow, inset 0 0 0 1px rgba(255, 255, 255, 0.28));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   font-family: var(--menu-mono);
   font-size: 10.5px;
   font-weight: 500;
@@ -128,9 +142,11 @@
   transform: rotate(-3deg);
 }
 .cardBody {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
+  flex: 0 0 auto;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 118px;
   padding: 14px 16px 16px;
 }
 .cardName {
@@ -142,15 +158,19 @@
   text-transform: uppercase;
   margin: 0;
   color: var(--menu-ink);
-  overflow: visible;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow-wrap: anywhere;
 }
 .read {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   width: max-content;
-  margin-top: auto;
-  padding-top: 14px;
+  margin-top: 0;
+  padding-top: 0;
   color: rgba(21, 18, 14, 0.62);
   font-family: var(--menu-mono);
   font-size: 10.5px;
@@ -175,13 +195,17 @@
 
 /* ── Desktop: scroller becomes a wrapping 3-up grid ── */
 @media (min-width: 720px) {
+  .section {
+    padding: clamp(18px, 2.2vw, 26px) clamp(18px, 2.2vw, 28px) clamp(20px, 2.4vw, 30px);
+  }
+
   .heading {
-    font-size: clamp(40px, 4vw, 54px);
+    font-size: clamp(34px, 3vw, 44px);
   }
   .scroller {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    align-items: stretch;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
     gap: 16px;
     overflow: visible;
     padding: 4px 0 6px;
@@ -189,8 +213,48 @@
   .item {
     flex: initial;
   }
+  .item:first-child {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .item:not(:first-child) {
+    grid-column: auto;
+  }
+  .item:first-child .card {
+    min-height: 0;
+  }
+  .item:first-child .cardImage {
+    aspect-ratio: 16 / 9;
+    min-height: 0;
+  }
+  .item:not(:first-child) .card {
+    min-height: 0;
+  }
+  .item:not(:first-child) .cardImage {
+    aspect-ratio: 16 / 9;
+  }
+  .item:not(:first-child) .cardBody {
+    padding: 12px 13px 14px;
+  }
+  .cardBody {
+    min-height: 96px;
+    padding: 12px 13px 14px;
+  }
   .cardName {
-    font-size: 29px;
+    font-size: clamp(20px, 1.8vw, 25px);
+    line-height: 1;
+    -webkit-line-clamp: 3;
+  }
+  .item:not(:first-child) .cardName {
+    font-size: clamp(20px, 1.8vw, 25px);
+    -webkit-line-clamp: 3;
+  }
+}
+
+@media (min-width: 1080px) {
+  .scroller {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
   }
 }
 
@@ -198,5 +262,8 @@
   .section {
     width: calc(100% - 20px);
     padding: 22px 18px 26px;
+  }
+  .item {
+    flex-basis: 82vw;
   }
 }

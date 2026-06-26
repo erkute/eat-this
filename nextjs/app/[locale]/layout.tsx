@@ -47,9 +47,8 @@ export function generateStaticParams() {
 // login-button state plus a data-auth flag on <html> so signed-in-only/anon-only
 // blocks can hide before paint.
 const CRITICAL_BOOTSTRAP = `(function(){
-  var s=localStorage.getItem('theme');
-  var dark=s==='dark'||(!s&&window.matchMedia('(prefers-color-scheme: dark)').matches);
-  document.documentElement.setAttribute('data-theme',dark?'dark':'light');
+  try{localStorage.removeItem('theme');}catch(_){}
+  document.documentElement.setAttribute('data-theme','light');
   var p=location.pathname;
   if(p==='/en'||p.indexOf('/en/')===0)p=p.slice(3)||'/';
   var slug;

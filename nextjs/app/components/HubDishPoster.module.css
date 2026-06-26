@@ -46,23 +46,14 @@
 .stage {
   position: relative;
   box-sizing: border-box;
-  min-height: clamp(780px, 74vw, 960px);
+  min-height: clamp(720px, 68vw, 880px);
   overflow: visible;
   border-radius: 0;
   background: transparent;
 }
 
-/* Flat cream-2 backing slab, slightly tilted — replaces the old yellow band.
-   No gradient drop-shadow under it (the old ::after is gone). */
 .stage::before {
-  content: '';
-  position: absolute;
-  inset: 8% -4% -9%;
-  z-index: 0;
-  background: var(--menu-cream-2);
-  border: 1px solid rgba(21, 18, 14, 0.16);
-  border-radius: 6px;
-  transform: rotate(-1.2deg);
+  content: none;
 }
 
 .dishes {
@@ -92,29 +83,27 @@
   transform-origin: center;
 }
 
-/* Flat thin ink frame around each dish photo — no drop-shadow. */
 .photoFrame {
   position: relative;
   display: block;
   width: 100%;
-  border: 1px solid rgba(21, 18, 14, 0.22);
-  border-radius: 4px;
-  overflow: hidden;
-  background: #14100c;
-  transition:
-    transform 0.2s ease,
-    border-color 0.2s ease;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  transition: transform 0.2s ease;
 }
 
 .photoFrame img {
   display: block;
   width: 100%;
   height: auto;
+  mix-blend-mode: multiply;
+  filter: saturate(1.05) contrast(1.04);
 }
 
 .dishLink:hover .photoFrame,
 .dishLink:focus-visible .photoFrame {
-  border-color: rgba(21, 18, 14, 0.4);
   transform: translateY(-10px) scale(1.03);
 }
 
@@ -131,9 +120,9 @@
   max-width: calc(100vw - 32px);
   margin: -10px auto 0;
   padding: 5px 10px 6px;
-  background: var(--menu-cream);
-  border: 1px solid rgba(21, 18, 14, 0.16);
-  border-radius: 4px;
+  background: #fff;
+  border: 1px solid rgba(21, 18, 14, 0.28);
+  border-radius: 0;
   color: var(--menu-ink);
   text-align: center;
 }
@@ -352,11 +341,11 @@
 @media (max-width: 900px) {
   .stage {
     min-height: 0;
-    padding: 28px 10px 38px;
+    padding: 20px 0 38px;
   }
 
   .stage::before {
-    inset: 2% -8% -2%;
+    content: none;
   }
 
   .dishes {

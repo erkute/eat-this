@@ -1,31 +1,13 @@
-/* Login modal overlay — shown when navigating client-side to /login.
-   The current page stays mounted behind; this sits on top.
-   On desktop: dark blurred backdrop + centered phone card.
-   On mobile:  full-screen (matches the standalone /login page). */
-
 .overlay {
   position: fixed;
   inset: 0;
-  /* Above the legacy .navbar (9999) and cookie banner (10002) so the active
-     auth surface is never partially covered. */
   z-index: 10004;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background:
-    linear-gradient(180deg, rgba(241, 241, 236, .72), rgba(242, 223, 184, .66)),
-    rgba(16, 13, 15, .14);
-  -webkit-backdrop-filter: blur(12px) saturate(1.04);
-  backdrop-filter: blur(12px) saturate(1.04);
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: #fff;
 }
 
-/* Staging banner (z-index 100000) sits above this overlay (z-index 10004),
-   so without a shift it paints over the overlay's top — covering the panel
-   header / close button. Start the overlay below the banner, same pattern
-   as .navbar / header[role="banner"] / .burger-drawer in globals.css.
-   --staging-banner-h is 0 on prod, 32px on staging, so this is a no-op
-   off staging. */
 :global(body[data-env='staging']) .overlay {
   top: var(--staging-banner-h, 0px);
 }
@@ -33,14 +15,5 @@
 @media (max-width: 767px) {
   .overlay {
     padding: 10px;
-    background:
-      linear-gradient(180deg, rgba(241, 241, 236, .76), rgba(242, 223, 184, .68)),
-      rgba(16, 13, 15, .12);
-    flex-direction: column;
-    align-items: center;
   }
-}
-
-:global(html[data-theme='dark']) .overlay {
-  background: rgba(16, 13, 15, .62);
 }

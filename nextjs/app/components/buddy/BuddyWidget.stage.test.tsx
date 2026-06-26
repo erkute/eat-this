@@ -1,11 +1,10 @@
 // @vitest-environment jsdom
 // nextjs/app/components/buddy/BuddyWidget.stage.test.tsx
-// Home-stage protocol: the corner launcher hides while the hub's "Frag Remy"
-// section is on screen, and buddy:ask opens the panel (optionally asking).
+// Remy opens from the home hub via buddy:ask. There is no floating launcher.
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, fireEvent, cleanup } from '@testing-library/react'
 import { NextIntlClientProvider } from 'next-intl'
-import { BUDDY_ASK_EVENT, BUDDY_STAGE_EVENT } from '@/lib/buddy/homeStage'
+import { BUDDY_ASK_EVENT } from '@/lib/buddy/homeStage'
 
 vi.mock('@/lib/auth', () => ({ useAuth: () => ({ user: null }) }))
 vi.mock('@/lib/map/useFavorites', () => ({
@@ -58,25 +57,10 @@ function renderWidget() {
   )
 }
 
-const stage = (visible: boolean) =>
-  new CustomEvent(BUDDY_STAGE_EVENT, {
-    detail: { visible, rect: { left: 10, top: 20, width: 132, height: 132 } },
-  })
-
-describe('BuddyWidget home-stage protocol', () => {
-  it('keeps the launcher hidden until the stage is passed, then reveals it', () => {
+describe('BuddyWidget home ask protocol', () => {
+  it('does not render a floating launcher', () => {
     renderWidget()
-    const launcher = document.querySelector('[data-buddy-launcher]')!
-    // Hidden from the top of the page — Remy isn't introduced yet.
-    expect(launcher.getAttribute('data-stage')).toBe('true')
-
-    // Still hidden while the "Frag Remy" section is on screen (it IS Remy).
-    fireEvent(window, stage(true))
-    expect(launcher.getAttribute('data-stage')).toBe('true')
-
-    // Scrolled past the section: now the corner launcher reveals.
-    fireEvent(window, stage(false))
-    expect(launcher.getAttribute('data-stage')).toBeNull()
+    expect(document.querySelector('[data-buddy-launcher]')).toBeNull()
   })
 
   it('opens the panel and sends the question on buddy:ask', () => {

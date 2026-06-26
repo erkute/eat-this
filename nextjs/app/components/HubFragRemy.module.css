@@ -1,12 +1,6 @@
-/* nextjs/app/components/HubFragRemy.module.css
-   "Frag Rémy" — editorial print-menu CTA block. A bold orange flat panel on the
-   near-black home canvas: cream mono eyebrow, oversized cream Chauncy headline,
-   cream mono lead, ink quick-answer chips + a flat ink send button on a cream
-   input. A giant Remy bust bleeds off the bottom-right corner. FLAT: no shadows,
-   no gradients. Theme-independent (identical in light + dark). */
 .section {
-  background: transparent;
-  padding: 0 16px 34px;
+  background: #fff;
+  padding: 0 16px 56px;
   /* Anchor target (#hub-fragremy): clear the fixed navbar so the jump lands on
      the Remy card headline, not behind the bar — consistent mobile/desktop. */
   scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
@@ -15,48 +9,66 @@
 .inner {
   position: relative;
   overflow: hidden;
-  border-radius: 6px;
-  background: var(--menu-orange);
-  padding: 30px 22px 0;
+  border: 0;
+  border-radius: 0;
+  background: #d9382a;
+  box-shadow: none;
+  padding: clamp(30px, 5vw, 74px) clamp(20px, 4vw, 70px) 0;
   display: flex;
   flex-direction: column;
   isolation: isolate;
+}
+
+.inner::before {
+  content: none;
 }
 
 /* ── copy column ── */
 .copy {
   position: relative;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 .kicker {
-  margin: 0 0 14px;
+  display: inline-flex;
+  width: max-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
   font-family: var(--menu-mono);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: clamp(15px, 1.15vw, 18px);
+  font-weight: 900;
   letter-spacing: 0.12em;
   line-height: 1.1;
   text-transform: uppercase;
-  color: var(--menu-cream);
+  color: #15120e;
+  background: transparent;
+}
+.copy .kicker {
+  margin-bottom: clamp(12px, 1.6vw, 18px);
 }
 .headline {
-  margin: 0 0 14px;
+  margin: 0;
   font-family: var(--menu-condensed);
-  font-size: clamp(44px, 13vw, 64px);
+  font-size: clamp(58px, 14vw, 104px);
   font-weight: 400;
-  letter-spacing: 0.01em;
-  line-height: 0.9;
+  letter-spacing: 0;
+  line-height: 0.78;
   text-transform: uppercase;
-  color: var(--menu-cream);
+  color: #fff;
 }
 .lead {
-  margin: 0 0 22px;
+  margin: 0;
+  padding: clamp(16px, 2.6vw, 26px) 0 clamp(22px, 3.8vw, 36px);
   max-width: 32ch;
-  font-family: var(--menu-mono);
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  line-height: 1.45;
-  color: rgba(241, 236, 221, 0.92);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: clamp(16px, 1.45vw, 21px);
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.16;
+  color: #15120e;
 }
 
 /* ── actions: quick answers + chat input ── */
@@ -81,18 +93,18 @@
 .input {
   flex: 1;
   min-width: 0;
-  border: 1px solid rgba(21, 18, 14, 0.16);
-  border-radius: 4px;
+  border: 2px solid #15120e;
+  border-radius: 0;
   padding: 13px 16px;
   font-family: var(--menu-mono);
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.02em;
-  color: var(--menu-ink);
-  background: var(--menu-cream);
+  color: #15120e;
+  background: #fff;
 }
 .input::placeholder {
-  color: rgba(21, 18, 14, 0.5);
+  color: rgba(21, 18, 14, 0.58);
 }
 .send {
   flex: 0 0 auto;
@@ -105,40 +117,37 @@
   outline-offset: 3px;
 }
 
-/* Flatten the global homeCta chips: tilted ink-outline mono stickers on the
-   orange, ink fill on hover. The quick-answer chips read as menu stickers. */
 .chip:global(.homeCta) {
   min-height: 38px;
   padding: 8px 13px 9px;
-  border: 1px solid var(--menu-ink);
-  border-radius: 4px;
+  border: 2px solid #15120e;
+  border-radius: 0;
   background: transparent;
   box-shadow: none;
-  color: var(--menu-ink);
+  color: #15120e;
   font-family: var(--menu-mono);
   font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  letter-spacing: 0;
   text-transform: uppercase;
   justify-content: flex-start;
 }
 .chip:global(.homeCta):hover,
 .chip:global(.homeCta):focus-visible {
-  background: var(--menu-ink);
-  border-color: var(--menu-ink);
-  color: var(--menu-cream);
+  background: #15120e;
+  border-color: #15120e;
+  color: #fff;
   transform: translateY(-2px);
 }
 
-/* Flat solid-ink send button. */
 .send:global(.homeCta) {
   min-height: 46px;
   padding: 9px 16px 10px;
-  border: 1px solid var(--menu-ink);
-  border-radius: 4px;
-  background: var(--menu-ink);
+  border: 2px solid #15120e;
+  border-radius: 0;
+  background: #15120e;
   box-shadow: none;
-  color: var(--menu-cream);
+  color: #fff;
   font-family: var(--menu-condensed);
   font-size: 18px;
   font-weight: 400;
@@ -147,16 +156,16 @@
 }
 .send:global(.homeCta):hover,
 .send:global(.homeCta):focus-visible {
-  background: var(--menu-cream);
-  border-color: var(--menu-cream);
-  color: var(--menu-ink);
+  background: #d9382a;
+  border-color: #d9382a;
+  color: #fff;
   transform: translateY(-2px);
 }
 
 /* ── giant Remy bust ── */
 .avatarWrap {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   align-self: center;
   width: min(340px, 92vw);
   height: 280px;
@@ -219,30 +228,37 @@
 /* ── desktop: copy left, giant Remy bleeding off the bottom-right ── */
 @media (min-width: 720px) {
   .section {
-    padding: 6px max(22px, calc((100% - 1180px) / 2)) 56px;
+    padding: 0 max(22px, calc((100% - 1240px) / 2)) 74px;
   }
   .inner {
-    min-height: 390px;
-    padding: 48px 56px 48px;
+    min-height: 420px;
+    padding: 56px 58px 54px 76px;
     justify-content: center;
   }
   .copy {
-    max-width: 600px;
+    max-width: 650px;
+    row-gap: 0;
+  }
+  .copy .kicker {
+    margin-bottom: clamp(14px, 1.5vw, 20px);
+  }
+  .kicker {
+    font-size: clamp(16px, 1.2vw, 20px);
   }
   .headline {
-    font-size: clamp(62px, 5.8vw, 86px);
-    margin-bottom: 18px;
+    font-size: clamp(78px, 7vw, 118px);
+    margin-bottom: 0;
   }
   .lead {
-    font-size: 15px;
-    margin-bottom: 28px;
+    font-size: clamp(18px, 1.55vw, 23px);
+    padding: clamp(20px, 1.9vw, 30px) 0 clamp(30px, 2.8vw, 44px);
   }
   .avatarWrap {
     position: absolute;
-    right: 34px;
-    bottom: -26px;
-    width: 420px;
-    height: 390px;
+    right: 24px;
+    bottom: 18px;
+    width: clamp(390px, 38vw, 560px);
+    height: clamp(360px, 34vw, 520px);
     margin: 0;
     align-self: auto;
   }

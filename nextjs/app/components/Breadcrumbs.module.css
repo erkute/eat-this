@@ -1,131 +1,99 @@
-/* Compact breadcrumb above detail-page H1.
-   Mirrors the BreadcrumbList JSON-LD on the same pages so SERP snippets
-   and the visible page agree. Token-based and scoped by the surrounding page. */
-
 .nav {
-  margin-bottom: 14px;
-  max-width: min(100%, 980px);
+  width: min(100%, 1280px);
+  margin: 0 auto clamp(18px, 3vw, 34px);
 }
 
 .list {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 5px;
+  gap: 7px 10px;
   margin: 0;
-  padding: 4px;
+  padding: 0 0 10px;
   list-style: none;
-  width: fit-content;
-  max-width: 100%;
-  border: 1.5px solid color-mix(in srgb, var(--border-strong, var(--text-primary)) 18%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--surface-card, #fff) 82%, transparent);
-  box-shadow: 0 10px 24px color-mix(in srgb, var(--text-primary) 10%, transparent);
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--text-muted);
-  /* Long restaurant names used to overflow off-screen invisibly. Keep
-     the row on a single line but force the *current* item (the last <li>)
-     to shrink with ellipsis so the user never loses the start of the
-     breadcrumb to a hidden horizontal scroll. */
-  white-space: nowrap;
-  min-width: 0;
-  overflow: hidden;
+  border: 0;
+  border-bottom: 2px solid var(--brand-ink, var(--text-primary, #15120e));
+  background: transparent;
+  box-shadow: none;
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: .1em;
+  color: var(--brand-ink, var(--text-primary, #15120e));
+  text-transform: uppercase;
 }
 
 .item {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
+  gap: 7px;
   min-width: 0;
 }
 
-/* Last item carries the long restaurant name — let it shrink and clip
-   with an ellipsis instead of pushing the row past the viewport. */
 .item:last-child {
-  flex: 1 1 auto;
   min-width: 0;
-  overflow: hidden;
+  max-width: 100%;
 }
 
-.item:last-child .current {
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.link,
+.current {
+  display: inline-flex;
+  align-items: center;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  text-decoration: none;
 }
 
 .link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 28px;
-  padding: 0 9px;
-  border-radius: 999px;
-  color: color-mix(in srgb, var(--text-primary) 72%, var(--text-muted));
-  text-decoration: none;
-  transition: background-color 140ms ease, color 140ms ease, transform 140ms ease;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  transition: color 140ms ease, transform 140ms ease, text-decoration-color 140ms ease;
 }
 
 .link:hover,
 .link:focus-visible {
-  color: var(--text-primary);
-  background: color-mix(in srgb, var(--accent, #ffd84a) 82%, transparent);
+  color: var(--brand-action, var(--accent, #d9382a));
+  text-decoration-line: underline;
   transform: translateY(-1px);
 }
 
 .link:focus-visible {
-  outline: 2px solid var(--text-primary);
-  outline-offset: 2px;
+  outline: 2px solid var(--brand-action, var(--accent, #d9382a));
+  outline-offset: 4px;
 }
 
 .current {
-  display: inline-flex;
-  align-items: center;
-  min-height: 28px;
-  padding: 0 10px;
-  border-radius: 999px;
-  background: var(--text-primary);
-  color: var(--surface-bg, #fff);
-  font-weight: 700;
+  max-width: min(100%, 42ch);
+  overflow: hidden;
+  color: var(--brand-action, var(--accent, #d9382a));
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sep {
-  display: inline-flex;
-  align-items: center;
-  color: color-mix(in srgb, var(--text-primary) 34%, transparent);
-  font-size: 15px;
+  color: var(--brand-action, var(--accent, #d9382a));
+  font-size: 12px;
   line-height: 1;
-  transform: translateY(-0.5px);
 }
 
-@media (max-width: 520px) {
-  .list {
-    gap: 2px;
-    padding: 3px;
-    font-size: 11px;
+@media (max-width: 640px) {
+  .nav {
+    margin-bottom: 18px;
   }
 
-  .link {
-    min-height: 26px;
-    padding: 0 7px;
+  .list {
+    gap: 6px 8px;
+    padding-bottom: 8px;
+    font-size: 10px;
+    letter-spacing: .08em;
   }
 
   .current {
-    min-height: 26px;
-    padding: 0 8px;
+    max-width: 20ch;
   }
-}
-
-:global(html[data-theme="dark"]) .list {
-  border-color: color-mix(in srgb, var(--border-strong, var(--text-primary)) 24%, transparent);
-  background: color-mix(in srgb, var(--surface-card, #151515) 88%, transparent);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.26);
-}
-
-:global(html[data-theme="dark"]) .current {
-  background: var(--text-primary);
-  color: var(--surface-bg, #111);
 }

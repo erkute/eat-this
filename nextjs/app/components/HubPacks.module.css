@@ -10,14 +10,14 @@
   margin: 18px auto 0;
   padding: clamp(22px, 3vw, 32px) clamp(20px, 2.6vw, 34px) clamp(8px, 1.4vw, 14px);
   color: var(--menu-ink);
-  background: var(--menu-cream);
-  border-radius: 6px;
+  background: var(--home-case-bg, rgba(247, 247, 243, 0.66));
+  border-radius: 8px;
   scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
 }
 .heading {
   margin: 0;
   padding-bottom: 8px;
-  border-bottom: 2px solid var(--menu-ink);
+  border-bottom: 1px solid rgba(21, 18, 14, 0.34);
   font-family: var(--menu-condensed);
   font-size: clamp(30px, 6vw, 44px);
   font-weight: 400;
@@ -44,41 +44,50 @@
   display: grid;
   gap: 10px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   padding: 18px 18px 20px;
   color: var(--menu-ink);
-  background: var(--menu-cream-2);
-  border: 1px solid rgba(21, 18, 14, 0.16);
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(21, 18, 14, 0.22);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.34);
+  backdrop-filter: blur(14px) saturate(1.08);
+  -webkit-backdrop-filter: blur(14px) saturate(1.08);
   transition:
     transform 0.16s ease,
     background-color 0.16s ease,
     border-color 0.16s ease;
 }
 .pack:hover {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.84);
   border-color: rgba(21, 18, 14, 0.32);
   transform: translateY(-4px);
 }
-/* Welcome-pack gift tile: an orange top-rule accent marks it as the freebie. */
 .gift {
-  border-top: 4px solid var(--menu-orange);
+  border-top: 1px solid rgba(21, 18, 14, 0.16);
 }
 .packArt {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 224px;
+  height: 248px;
   margin: -2px 0;
+  overflow: visible;
 }
 /* Freigestellt booster art stays untouched — tilt only, no drop-shadow. */
 .artImg {
-  object-fit: contain;
+  object-fit: contain !important;
+  object-position: center center;
   filter: none;
   transform: rotate(-3deg);
 }
 .packCat {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  padding: 4px 8px;
   margin: 0;
   font-family: var(--menu-mono);
   font-size: 10px;
@@ -86,7 +95,13 @@
   letter-spacing: 0.18em;
   line-height: 1.15;
   text-transform: uppercase;
-  color: rgba(21, 18, 14, 0.62);
+  color: var(--home-ghost-ink, rgba(21, 18, 14, 0.94));
+  background: var(--home-ghost-bg, rgba(255, 255, 255, 0.64));
+  border: 1px solid var(--home-ghost-border, rgba(21, 18, 14, 0.44));
+  border-radius: 4px;
+  box-shadow: var(--home-ghost-shadow, inset 0 0 0 1px rgba(255, 255, 255, 0.28));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .packName {
   margin: 0;
@@ -257,7 +272,7 @@
     padding: 22px;
   }
   .packArt {
-    height: 248px;
+    height: 272px;
   }
 }
 
@@ -266,7 +281,7 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .packArt {
-    height: 268px;
+    height: 292px;
   }
 }
 

@@ -1,18 +1,17 @@
-/* Centered EAT THIS brand mark. The wordmark stands free on the header; the
-   link keeps the generous hit area, but adds no plate/pill around the logo. */
 .logo {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translateX(-50%);
-  translate: 0 -50%;
+  transform: translate(-50%, -50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 154px;
-  height: 48px;
+  width: auto;
+  min-width: max-content;
+  height: 52px;
   text-decoration: none;
   z-index: 2;
+  color: #fff;
 }
 
 .logo::before,
@@ -20,200 +19,152 @@
   content: none;
 }
 
-.logoImg {
+.logoWord {
   display: block;
-  height: 40px;
-  width: auto;
-  filter: none;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(32px, 4.4vw, 52px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.82;
+  text-transform: uppercase;
+  white-space: nowrap;
+  -webkit-text-stroke: 0.45px currentColor;
+  text-shadow:
+    0.7px 0 0 currentColor,
+    -0.4px 0 0 currentColor,
+    0 0.7px 0 currentColor;
 }
 
 .mapSticker,
 .menuSticker {
-  overflow: visible;
-  isolation: isolate;
+  isolation: auto;
 }
 
-:global(.navbar-icon-btn).mapSticker {
-  width: auto;
-  min-width: 84px;
-  padding: 8px 12px 9px;
-  gap: 7px;
-  border: 0 !important;
-  border-radius: 0;
-  background: transparent !important;
-  box-shadow: none !important;
-  clip-path: none;
-  color: var(--et-black);
-  transform: none;
+@keyframes navHorrorShiver {
+  0% { transform: translate(0, 0) rotate(0deg) skewX(0deg); }
+  22% { transform: translate(-1px, 1px) rotate(-2deg) skewX(-5deg); }
+  45% { transform: translate(2px, -1px) rotate(1deg) skewX(4deg); }
+  68% { transform: translate(-1px, 0) rotate(-1deg) skewX(-3deg); }
+  100% { transform: translate(0, 0) rotate(0deg) skewX(0deg); }
 }
 
-.mapWord,
-.menuWord {
-  position: relative;
-  z-index: 1;
-  font-family: var(--font-display);
-  font-size: 17px;
-  line-height: 1;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-
-.mapFold {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(3, 8px);
-  width: 24px;
-  height: 18px;
-  color: currentColor;
-  transform: rotate(-2deg);
-}
-
-.mapFold span {
-  display: block;
-  height: 18px;
-  border: 2px solid currentColor;
-  border-right: 0;
-  background:
-    linear-gradient(135deg, transparent 42%, currentColor 43% 50%, transparent 51%);
-}
-
-.mapFold span:nth-child(2) {
-  transform: translateY(2px);
-}
-
-.mapFold span:nth-child(3) {
-  border-right: 2px solid currentColor;
-  transform: translateY(-1px);
-}
-
+:global(.navbar-icon-btn).mapSticker,
 :global(.burger-btn).menuSticker {
-  width: auto;
-  min-width: 88px;
-  padding: 8px 12px 9px;
-  gap: 7px;
+  min-width: auto !important;
+  height: 42px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  padding: 0 !important;
   border: 0 !important;
-  border-radius: 0;
+  border-radius: 0 !important;
   background: transparent !important;
+  color: #fff !important;
+  font-family: var(--menu-condensed, Impact, sans-serif) !important;
+  font-size: clamp(18px, 2vw, 22px) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+  line-height: 0.9 !important;
+  text-transform: uppercase !important;
   box-shadow: none !important;
-  clip-path: none;
-  color: var(--et-black);
-  transform: none;
+  clip-path: none !important;
+  filter: none !important;
+  transform: none !important;
 }
 
 :global(.navbar-icon-btn).mapSticker.active,
 :global(.navbar-icon-btn).mapSticker:hover,
-:global(.burger-btn).menuSticker:hover {
+:global(.navbar-icon-btn).mapSticker:active,
+:global(.navbar-icon-btn).mapSticker:focus-visible,
+:global(.burger-btn).menuSticker:hover,
+:global(.burger-btn).menuSticker:active,
+:global(.burger-btn).menuSticker:focus-visible {
   background: transparent !important;
+  color: #fff !important;
   box-shadow: none !important;
-  color: var(--et-black);
+  outline: 0 !important;
+  transform: none !important;
 }
 
 :global(html[data-theme="dark"]) :global(.navbar-icon-btn).mapSticker,
-:global(html[data-theme="dark"]) :global(.burger-btn).menuSticker,
-:global(html[data-theme="dark"]) :global(.navbar-icon-btn).mapSticker.active,
-:global(html[data-theme="dark"]) :global(.navbar-icon-btn).mapSticker:hover,
-:global(html[data-theme="dark"]) :global(.burger-btn).menuSticker:hover {
-  color: var(--brand-paper, var(--et-cream));
+:global(html[data-theme="dark"]) :global(.burger-btn).menuSticker {
+  background: transparent !important;
+  color: #fff !important;
 }
 
-.menuLines {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  gap: 4px;
-  width: 22px;
+.mapWord,
+.menuWord {
+  display: inline-block;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(24px, 2.4vw, 34px);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: 0;
+  text-transform: uppercase;
 }
 
-.menuLines span {
-  display: block;
-  height: 4px;
-  background: currentColor;
-  border-radius: 999px;
+:global(.navbar-icon-btn).mapSticker:hover .mapWord,
+:global(.navbar-icon-btn).mapSticker:active .mapWord,
+:global(.navbar-icon-btn).mapSticker:focus-visible .mapWord,
+:global(.burger-btn).menuSticker:hover .menuWord,
+:global(.burger-btn).menuSticker:active .menuWord,
+:global(.burger-btn).menuSticker:focus-visible .menuWord {
+  color: #fff;
+  text-shadow: none;
+  animation: navHorrorShiver 220ms steps(2, end);
 }
-
-.menuLines span:nth-child(1) { width: 19px; transform: rotate(-3deg); }
-.menuLines span:nth-child(2) { width: 22px; transform: rotate(2deg); }
-.menuLines span:nth-child(3) { width: 15px; transform: rotate(-2deg); justify-self: end; }
 
 @media (min-width: 1024px) {
   .logo {
-    top: 50%;
-    width: 232px;
-    height: 58px;
+    width: auto;
+    height: 68px;
   }
 
-  .logoImg { height: 52px; }
-
-  :global(.navbar-icon-btn).mapSticker,
-  :global(.burger-btn).menuSticker {
-    height: 40px;
-  }
-
-  :global(.navbar-icon-btn).mapSticker {
-    min-width: 92px;
-    padding-inline: 15px;
-  }
-
-  :global(.burger-btn).menuSticker {
-    min-width: 104px;
-    padding-inline: 15px;
+  .logoWord {
+    font-size: 56px;
+    -webkit-text-stroke-width: 0.55px;
   }
 
   .mapWord,
   .menuWord {
-    font-size: 24px;
-  }
-
-  :global(.navbar-icon-btn).mapSticker:hover {
-    transform: translateY(-2px);
-    box-shadow: none;
-  }
-
-  :global(.burger-btn).menuSticker:hover {
-    transform: translateY(-2px);
-    box-shadow: none;
+    font-size: 34px;
   }
 }
 
-/* On the map (mobile), the navbar collapses to floating chips. Keep the logo
-   freestanding here too — no glass pill, no shadow plate. */
 @media (max-width: 1023.98px) {
   :global(html[data-active-page="map"]) .logo {
-    /* Map keeps its floating-chip layout — undo the absolute centering. */
     position: static;
     transform: none;
-    translate: none;
     width: auto;
     height: 36px;
     padding: 0 4px;
-    justify-content: center;
   }
-  :global(html[data-active-page="map"]) .logoImg {
-    height: 22px;
-  }
-  :global(html[data-theme="dark"][data-active-page="map"]) .logo {
-    background: transparent;
-    box-shadow: none;
+
+  :global(html[data-active-page="map"]) .logoWord {
+    font-size: 26px;
   }
 
   :global(html[data-active-page="map"]) .menuSticker {
-    min-width: 40px;
+    min-width: auto;
     padding: 0;
     gap: 0;
     transform: none;
     clip-path: none;
   }
+}
 
-  :global(html[data-active-page="map"]) .menuWord {
-    display: none;
+@media (max-width: 520px) {
+  :global(.navbar-icon-btn).mapSticker,
+  :global(.burger-btn).menuSticker {
+    min-width: auto !important;
+    width: auto !important;
+    padding: 0 !important;
   }
 
-  :global(html[data-active-page="map"]) .menuLines {
-    width: 20px;
-  }
-
-  :global(html[data-active-page="map"]) .menuLines span {
-    height: 3px;
+  .mapWord,
+  .menuWord,
+  .logoWord {
+    font-size: 24px;
   }
 }

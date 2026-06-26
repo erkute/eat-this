@@ -73,13 +73,15 @@ export default function HubBezirke({ districts }: Props) {
               {d.spots.map((s) => (
                 <Link key={s.slug} href={`/restaurant/${s.slug}`} className={styles.tile}>
                   {i === active && s.image && (
-                    <Image
-                      src={s.image}
-                      alt={normalizeName(s.name)}
-                      fill
-                      sizes="(max-width: 720px) 50vw, 260px"
-                      className={styles.tileImg}
-                    />
+                    <div className={styles.tilePhoto}>
+                      <Image
+                        src={s.image}
+                        alt={normalizeName(s.name)}
+                        fill
+                        sizes="(max-width: 720px) 50vw, (max-width: 1180px) 25vw, 280px"
+                        className={styles.tileImg}
+                      />
+                    </div>
                   )}
                   <div className={styles.tileBody}>
                     {s.category && <p className={styles.tileCat}>{s.category}</p>}

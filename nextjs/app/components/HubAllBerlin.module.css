@@ -1,7 +1,4 @@
-/* HUB All-Berlin — the bold closing CTA: a flat ORANGE menu panel on the
-   near-black home canvas (mirrors the profile's orange hero). Cream Chauncy
-   heading, mono cream eyebrow/copy, flat INK button with a → arrow (orange-on-
-   orange wouldn't read). FLAT: no shadows, no gradients. Theme-independent. */
+/* HUB All-Berlin — bold closing CTA as a white poster split with free pack art. */
 
 .section {
   position: relative;
@@ -12,9 +9,13 @@
   margin: 18px auto 0;
   padding: clamp(30px, 6vw, 60px) clamp(20px, 3vw, 48px);
   overflow: hidden;
-  color: var(--menu-cream);
-  background: var(--menu-orange);
-  border-radius: 6px;
+  color: var(--menu-ink);
+  background:
+    linear-gradient(90deg, #fff 0 44%, #f5f5f0 44%),
+    var(--home-case-bg, #fff);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
   isolation: isolate;
 }
 
@@ -29,18 +30,23 @@
 .kicker {
   justify-self: start;
   margin: 0;
+  padding: 7px 11px 6px;
   font-family: var(--menu-mono);
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.18em;
   line-height: 1;
   text-transform: uppercase;
-  color: var(--menu-cream);
+  color: var(--home-ghost-ink, rgba(21, 18, 14, 0.94));
+  background: var(--home-ghost-bg-strong, rgba(255, 255, 255, 0.78));
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .heading {
   margin: 0;
-  color: var(--menu-cream);
+  color: var(--menu-ink);
   font-family: var(--menu-condensed);
   font-size: clamp(58px, 16vw, 96px);
   font-weight: 400;
@@ -52,7 +58,7 @@
 .copy {
   max-width: 38ch;
   margin: 4px 0 0;
-  color: var(--menu-cream);
+  color: rgba(21, 18, 14, 0.78);
   font-family: var(--menu-mono);
   font-size: 12px;
   font-weight: 500;
@@ -63,7 +69,7 @@
 
 .copy strong {
   font-weight: 700;
-  color: var(--menu-cream);
+  color: var(--menu-ink);
 }
 
 .ctaWrap {
@@ -81,11 +87,11 @@
   justify-content: center;
   gap: 8px;
   padding: 12px 22px;
-  border: 1px solid var(--menu-ink);
-  border-radius: 4px;
-  background: var(--menu-ink);
+  border: 0;
+  border-radius: 0;
+  background: var(--brand-yellow, #ffd35a) !important;
   box-shadow: none;
-  color: var(--menu-cream);
+  color: var(--menu-ink) !important;
   font-family: var(--menu-condensed);
   font-size: clamp(18px, 2vw, 23px);
   font-weight: 400;
@@ -100,7 +106,7 @@
 .cta:global(.homeCta):hover,
 .cta:global(.homeCta):focus-visible {
   background: var(--menu-cream);
-  border-color: var(--menu-cream);
+  border-color: var(--menu-ink);
   color: var(--menu-ink);
 }
 .cta:disabled {
@@ -109,7 +115,7 @@
 
 .error {
   margin: 10px 0 0;
-  color: var(--menu-cream);
+  color: rgba(21, 18, 14, 0.72);
   font-family: var(--menu-mono);
   font-size: 12px;
   font-weight: 500;

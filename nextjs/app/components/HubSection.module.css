@@ -1,127 +1,996 @@
-.collage {
-  --collage-red: var(--et-red, #e84a2a);
-  --collage-orange: var(--et-red-hot, #ff5a30);
-  --collage-yellow: var(--et-yellow-bright, #ffd35a);
-  --collage-paper: var(--et-cream, #fff8ea);
-  --home-surface: var(--et-yellow, #ffeec8);
-  --home-muted: rgba(16, 13, 15, 0.22);
-  --collage-ink: var(--et-black, #100d0f);
-  --home-column: 1180px;
-  --home-section-gap: clamp(26px, 5vw, 64px);
-  --home-card-radius: var(--radius-md, 8px);
-  --home-cta-bg: rgba(255, 248, 234, 0.78);
-  --home-cta-text: var(--color-action, var(--et-red, #e43d18));
-  --home-cta-border: rgba(228, 61, 24, 0.32);
-  --home-cta-shadow: inset 0 -2px 0 rgba(228, 61, 24, 0.1), 0 8px 18px rgba(92, 50, 19, 0.1);
-  --home-cta-hover-bg: var(--et-cream, #f2dfb8);
-  --home-cta-hover-text: var(--color-surface-inverse, var(--et-black, #100d0f));
-  --home-cta-hover-border: var(--color-action, var(--et-red, #e43d18));
-  --home-cta-transition:
-    transform var(--motion-base, 180ms) var(--ease-standard, ease),
-    color var(--motion-base, 180ms) ease, background-color var(--motion-base, 180ms) ease,
-    border-color var(--motion-base, 180ms) ease, box-shadow var(--motion-base, 180ms) ease;
+.page {
+  --home-red: #d9382a;
+  --home-ink: #15120e;
+  --home-paper: #fff;
+  --home-muted: rgba(21, 18, 14, 0.64);
+  --home-line: rgba(21, 18, 14, 0.2);
+  --home-gutter: clamp(14px, 3vw, 44px);
+  width: 100%;
+  min-height: 100svh;
+  color: var(--home-ink);
+  background: var(--home-paper);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  letter-spacing: 0;
+}
+
+.page :where(h1, h2, h3, p) {
+  margin: 0;
+}
+
+.smallCaps,
+.cardNo,
+.trackRow span,
+.heroSpotLabel,
+.listRow span,
+.articleRow em {
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: clamp(10px, 0.85vw, 12px);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.redButton,
+.whiteButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 2px solid var(--home-ink);
+  border-radius: 0;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(20px, 1.8vw, 26px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.9;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.redButton {
+  color: var(--home-paper);
+  background: var(--home-ink);
+}
+
+.whiteButton {
+  color: var(--home-ink);
+  background: var(--home-paper);
+}
+
+.hero,
+.latest,
+.indexBlock,
+.districtSection,
+.magSection {
+  padding-inline: var(--home-gutter);
+}
+
+.hero {
+  min-height: calc(100svh - 74px);
+  display: grid;
+  align-items: center;
+  padding-block: clamp(42px, 7svh, 78px) clamp(34px, 5svh, 56px);
+  background: var(--home-paper);
+}
+
+.heroBody {
   position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  /* Phase 1 home migration: the canvas is the editorial near-black menu page.
-     Flat fill, identical in light + dark (menu look is theme-independent). */
-  background-color: var(--menu-page);
-  background-image: none;
-}
-
-.collage::before,
-.collage::after {
-  content: none;
-}
-
-.collage > :global(section),
-.collage > :global(footer),
-.collage > :global(div) {
-  position: relative;
-  z-index: 1;
-}
-
-/* Hero is a self-managed photo card; keep its section transparent. The other
-   modules now fully control their own surface/heading via their module CSS
-   (cream menu panels with ink Chauncy heads) — no central override here. */
-.collage :global([data-hub-hero]) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(22px, 3vw, 46px);
+  align-items: start;
+  width: min(100%, 1280px);
+  margin: 0 auto;
+  padding: 0 clamp(18px, 3vw, 42px) clamp(18px, 3vw, 42px);
   background: transparent;
 }
 
-.collage :global([data-hub-nearby]),
-.collage :global([data-hub-newonmap]),
-.collage :global([data-hub-dish-poster]),
-.collage :global([data-hub-must-eats]),
-.collage :global([data-hub-magazine]),
-.collage :global([data-hub-categories]),
-.collage :global([data-hub-bezirke]),
-.collage :global([data-hub-allberlin]),
-.collage :global([data-hub-packs]),
-.collage :global([data-hub-faq]) {
-  margin-top: var(--home-section-gap);
+.heroSpotImage img,
+.cardImage img {
+  object-fit: cover;
 }
 
-.collage :global([data-hub-fragremy]),
-.collage :global([data-hub-allberlin]) {
-  margin-top: clamp(34px, 6vw, 76px);
+.heroCopy {
+  align-self: start;
+  display: grid;
+  gap: 0;
+  max-width: 100%;
+  justify-items: center;
+  text-align: center;
 }
 
-.collage :global([data-hub-bezirke] + [data-hub-allberlin]) {
-  margin-top: clamp(18px, 3.6vw, 42px);
-}
-
-.collage :global([data-hub-allberlin] + [data-hub-packs]) {
-  margin-top: clamp(18px, 4vw, 52px);
-}
-
-.collage :global([data-hub-dish-poster]) {
+.heroSpot {
+  display: block;
+  align-self: stretch;
+  justify-self: center;
+  width: min(100%, 840px);
+  min-width: 0;
   margin-top: 0;
+  padding: 0;
+  color: var(--home-ink);
+  background: transparent;
+  border: 0;
 }
 
-.collage :global([data-hub-bezirke]) {
-  border-radius: var(--home-card-radius);
+.heroSpotLabel {
+  display: inline-flex;
+  width: max-content;
+  max-width: 100%;
+  color: var(--home-paper);
+}
+
+.heroSpotImage {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  min-height: clamp(250px, 31vw, 390px);
+  max-height: 390px;
+  overflow: hidden;
+  background: var(--home-ink);
+}
+
+.heroSpotImage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(21, 18, 14, 0.02) 0%, rgba(21, 18, 14, 0.22) 43%, rgba(21, 18, 14, 0.78) 100%),
+    linear-gradient(90deg, rgba(21, 18, 14, 0.5) 0%, rgba(21, 18, 14, 0.12) 48%, rgba(21, 18, 14, 0) 100%);
+}
+
+.heroSpotOverlay {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 2;
+  display: grid;
+  gap: clamp(8px, 1.2vw, 14px);
+  align-content: end;
+  justify-items: start;
+  min-height: 56%;
+  padding: clamp(18px, 2.4vw, 34px);
+  color: var(--home-paper);
+}
+
+.heroSpotOverlayStatic {
+  position: relative;
+  min-height: 300px;
+  background: var(--home-ink);
+}
+
+.heroSpot strong {
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(62px, 8vw, 118px);
+  font-weight: 400;
+  line-height: 0.76;
+  text-transform: uppercase;
+  color: var(--home-paper);
+}
+
+.heroSpot p {
+  max-width: 32ch;
+  color: var(--home-paper);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: clamp(15px, 1.2vw, 18px);
+  font-weight: 750;
+  line-height: 1.18;
+}
+
+.heroSpotActions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.heroSpotActions .redButton,
+.heroSpotActions .whiteButton {
+  min-height: 42px;
+  padding-inline: 12px;
+  font-size: clamp(19px, 1.8vw, 24px);
+}
+
+.heroSpotActions .redButton {
+  color: var(--home-ink);
+  border-color: var(--home-paper);
+  background: var(--home-paper);
+}
+
+.heroSpotActions .whiteButton {
+  color: var(--home-paper);
+  border-color: var(--home-paper);
+  background: transparent;
+}
+
+.heroCopy h2,
+.sectionHead h2,
+.redPanel h2 {
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.78;
+  text-transform: uppercase;
+}
+
+.heroCopy h2 {
+  font-size: clamp(16px, 2.45vw, 34px);
+  max-width: 100%;
+  line-height: 0.92;
+  white-space: nowrap;
+}
+
+.heroCopy p:not(.smallCaps),
+.sectionHead p,
+.redPanel p:not(.smallCaps) {
+  max-width: 34ch;
+  color: var(--home-muted);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: clamp(16px, 1.35vw, 20px);
+  font-weight: 750;
+  line-height: 1.24;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.trackList {
+  grid-column: 1 / -1;
+  display: grid;
+  border-top: 0;
+}
+
+.trackRow,
+.listRow,
+.articleRow {
+  color: var(--home-ink);
+  text-decoration: none;
+}
+
+.trackRow {
+  display: grid;
+  grid-template-columns: minmax(92px, 0.24fr) minmax(0, 1fr);
+  gap: clamp(12px, 2vw, 24px);
+  align-items: center;
+  min-height: 54px;
+  border-bottom: 0;
+}
+
+.trackRow {
+  min-height: clamp(66px, 6.2vw, 86px);
+  padding-block: clamp(10px, 1.4vw, 18px) clamp(8px, 1.2vw, 14px);
+}
+
+.trackRow strong,
+.listRow strong {
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(28px, 4.2vw, 62px);
+  font-weight: 400;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.latest {
+  padding-block: clamp(50px, 8vw, 100px);
+  border-top: 0;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  width: min(100%, 1280px);
+  margin: 0 auto clamp(20px, 3vw, 34px);
+}
+
+.sectionHead h2,
+.redPanel h2 {
+  font-size: clamp(54px, 7vw, 108px);
+}
+
+.latestGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(18px, 2.2vw, 32px);
+  width: min(100%, 1280px);
+  margin: 0 auto;
+  border: 0;
+}
+
+.spotCard {
+  display: grid;
+  grid-template-rows: minmax(180px, 24vw) auto auto;
+  gap: 10px;
+  min-width: 0;
+  padding: 0;
+  color: var(--home-ink);
+  border: 0;
+  text-decoration: none;
+}
+
+.cardImage {
+  position: relative;
+  overflow: hidden;
+  background: var(--home-red);
+}
+
+.spotCard strong {
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(30px, 3.6vw, 52px);
+  font-weight: 400;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.spotCard > span:last-child {
+  color: var(--home-muted);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.indexBlock {
+  display: grid;
+  grid-template-columns: minmax(270px, 0.48fr) minmax(0, 1fr);
+  gap: 0;
+  width: 100%;
+  padding-block: clamp(82px, 11vw, 150px);
+  border-top: 0;
+}
+
+.redPanel {
+  display: grid;
+  align-content: end;
+  gap: 14px;
+  min-height: clamp(520px, 48vw, 680px);
+  padding: clamp(24px, 3vw, 42px);
+  color: var(--home-ink);
+  background: var(--home-red);
+}
+
+.foodStrip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(12px, 1.7vw, 24px) clamp(12px, 2vw, 30px);
+  align-items: center;
+  min-width: 0;
+  min-height: clamp(520px, 48vw, 680px);
+  padding: clamp(28px, 4vw, 56px) clamp(24px, 4vw, 70px);
+  background: var(--home-red);
+}
+
+.foodCard {
+  --dish-shift: 0px;
+  --dish-rotate: 0deg;
+  --label-rotate: 0deg;
+  display: grid;
+  grid-template-rows: auto auto;
+  justify-items: center;
+  align-content: center;
+  gap: clamp(2px, 0.5vw, 7px);
+  min-width: 0;
+  padding: 0;
+  color: var(--home-ink);
+  text-align: center;
+  text-decoration: none;
+  transform: translateY(var(--dish-shift)) rotate(var(--dish-rotate));
+}
+
+.foodImageLink,
+.foodDishLink,
+.foodRestaurantLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.foodImageLink {
+  display: block;
+  width: min(100%, 225px);
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+}
+
+.foodImage {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: visible;
+  transition: transform 180ms cubic-bezier(0.2, 0.82, 0.18, 1);
+  transform-origin: 50% 80%;
+}
+
+.foodImage img {
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+.foodCard:hover .foodImage,
+.foodCard:focus-within .foodImage {
+  transform: translateY(-9px) rotate(-3deg) scale(1.045);
+}
+
+.foodMeta {
+  display: grid;
+  justify-self: center;
+  gap: 0;
+  width: max-content;
+  max-width: min(100%, 240px);
+  min-width: 0;
+  margin-top: -16px;
+  padding: 6px 10px 7px;
+  background: var(--home-paper);
+  border: 2px solid var(--home-ink);
+  text-align: center;
+  transform: rotate(var(--label-rotate));
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.foodMeta strong {
+  display: block;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(23px, 2.15vw, 36px);
+  font-weight: 400;
+  line-height: 0.86;
+  text-transform: uppercase;
+  overflow-wrap: normal;
+  white-space: nowrap;
+}
+
+.foodRestaurantLink {
+  justify-self: center;
+  width: max-content;
+  max-width: 100%;
+  margin-top: 4px;
+  padding: 3px 7px;
+  color: var(--home-paper);
+  background: var(--home-ink);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.foodCard:hover .foodMeta,
+.foodCard:focus-within .foodMeta {
+  color: var(--home-ink);
+  background: var(--home-paper);
+  border-color: var(--home-paper);
+  transform: rotate(var(--label-rotate)) translateY(-2px);
+}
+
+.foodCard:hover .foodRestaurantLink,
+.foodCard:focus-within .foodRestaurantLink {
+  color: var(--home-ink);
+  background: var(--home-red);
+}
+
+.foodCard:nth-child(2) {
+  --dish-shift: -42px;
+  --dish-rotate: 2deg;
+  --label-rotate: -1.6deg;
+}
+
+.foodCard:nth-child(3) {
+  --dish-shift: 22px;
+  --dish-rotate: -2deg;
+  --label-rotate: 1.6deg;
+}
+
+.foodCard:nth-child(4) {
+  --dish-shift: -18px;
+  --dish-rotate: -1deg;
+  --label-rotate: 0.8deg;
+}
+
+.foodCard:nth-child(5) {
+  --dish-shift: 36px;
+  --dish-rotate: 2deg;
+  --label-rotate: -1.6deg;
+}
+
+.foodCard:nth-child(6) {
+  --dish-shift: -32px;
+  --dish-rotate: -2deg;
+  --label-rotate: 1.6deg;
+}
+
+.foodCard:nth-child(8) {
+  --dish-shift: 28px;
+  --dish-rotate: 1deg;
+  --label-rotate: -0.8deg;
+}
+
+.districtSection,
+.magSection {
+  width: min(100%, 1320px);
+  margin: 0 auto;
+  border-top: 0;
+}
+
+.districtSection {
+  padding-block: clamp(48px, 8vw, 96px) clamp(32px, 6vw, 72px);
+}
+
+.magSection {
+  padding-block: clamp(44px, 7vw, 86px) clamp(54px, 8vw, 104px);
+}
+
+.districtRows {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(18px, 2.4vw, 30px);
+  border-top: 0;
+}
+
+.articleRows {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(14px, 2vw, 24px);
+  width: min(100%, 1280px);
+  margin: 0 auto;
+  border-top: 0;
+}
+
+.listRow {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: clamp(12px, 2vw, 28px);
+  align-items: center;
+  min-height: clamp(82px, 8vw, 112px);
+  padding: clamp(12px, 1.6vw, 18px) clamp(12px, 1.8vw, 22px);
+  background: rgba(217, 56, 42, 0.08);
+  border-bottom: 0;
+  border-radius: 6px;
+}
+
+.districtCopy {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.districtName {
+  width: max-content;
+  max-width: 100%;
+  color: var(--home-ink);
+  text-decoration: none;
+}
+
+.districtName strong {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.districtName:hover strong,
+.districtName:focus-visible strong {
+  color: var(--home-red);
+}
+
+.districtSpots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  min-width: 0;
+}
+
+.districtSpotLink {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 26px;
+  padding: 3px 7px 4px;
+  color: var(--home-muted);
+  background: transparent;
+  border: 2px solid rgba(21, 18, 14, 0.28);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: clamp(11px, 1vw, 14px);
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  line-height: 1.15;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
   overflow: hidden;
 }
 
-@media (min-width: 720px) {
-  .collage :global([data-hub-nearby]),
-  .collage :global([data-hub-newonmap]),
-  .collage :global([data-hub-dish-poster]),
-  .collage :global([data-hub-must-eats]),
-  .collage :global([data-hub-magazine]),
-  .collage :global([data-hub-categories]),
-  .collage :global([data-hub-bezirke]),
-  .collage :global([data-hub-packs]),
-  .collage :global([data-hub-allberlin]),
-  .collage :global([data-hub-faq]) {
-    margin-inline: auto;
-    max-width: var(--home-column);
+.districtSpotLink:hover,
+.districtSpotLink:focus-visible {
+  color: var(--home-paper);
+  background: var(--home-ink);
+  border-color: var(--home-ink);
+}
+
+.articleRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.4fr) minmax(0, 1fr);
+  gap: clamp(14px, 2vw, 24px);
+  align-items: center;
+  min-height: 0;
+  padding: clamp(12px, 1.8vw, 20px);
+  border: 0;
+  background: var(--home-paper);
+  color: var(--home-ink);
+  text-decoration: none;
+  box-shadow: 0 12px 28px rgba(21, 18, 14, 0.08);
+}
+
+.articleRow img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center 42%;
+  border: 2px solid var(--home-ink);
+  filter: saturate(1.05) contrast(1.02);
+}
+
+.articleCopy {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: clamp(8px, 1vw, 14px);
+  align-content: stretch;
+  min-height: 0;
+  padding: 0 clamp(6px, 1.2vw, 16px) 0 0;
+}
+
+.articleRow strong {
+  align-self: start;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(42px, 5vw, 78px);
+  font-weight: 400;
+  line-height: 0.88;
+  text-transform: uppercase;
+}
+
+.articleCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: end;
+  justify-self: start;
+  width: max-content;
+  min-height: 38px;
+  margin-top: clamp(4px, 0.7vw, 10px);
+  padding: 0 13px;
+  color: var(--home-paper);
+  background: var(--home-ink);
+  border: 2px solid var(--home-ink);
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(20px, 2vw, 28px);
+  line-height: 0.9;
+  text-transform: uppercase;
+  transform: rotate(-1deg);
+}
+
+.articleRow:hover .articleCta,
+.articleRow:focus-visible .articleCta {
+  color: var(--home-ink);
+  background: var(--home-red);
+}
+
+@media (min-width: 901px) {
+  .indexBlock {
+    grid-template-columns: minmax(230px, 0.34fr) minmax(0, 1fr);
+    padding-block: clamp(48px, 6vw, 84px);
   }
 
-  .collage :global([data-hub-nearby]),
-  .collage :global([data-hub-newonmap]),
-  .collage :global([data-hub-magazine]),
-  .collage :global([data-hub-categories]),
-  .collage :global([data-hub-faq]) {
-    width: calc(100% - var(--space-12, 48px));
+  .redPanel {
+    min-height: clamp(360px, 34vw, 460px);
+    padding: clamp(20px, 2.4vw, 34px);
+  }
+
+  .foodStrip {
+    min-height: clamp(360px, 34vw, 460px);
+    padding: clamp(22px, 3vw, 42px) clamp(22px, 3.4vw, 54px);
+  }
+
+  .foodImageLink {
+    width: min(100%, 168px);
+  }
+
+  .foodMeta {
+    max-width: min(100%, 176px);
+    margin-top: -12px;
+    padding: 5px 8px 6px;
+  }
+
+  .foodMeta strong {
+    font-size: clamp(20px, 1.65vw, 28px);
+  }
+
+  .foodCard:nth-child(2) {
+    --dish-shift: -24px;
+  }
+
+  .foodCard:nth-child(3) {
+    --dish-shift: 14px;
+  }
+
+  .foodCard:nth-child(4) {
+    --dish-shift: -10px;
+  }
+
+  .foodCard:nth-child(5) {
+    --dish-shift: 20px;
+  }
+
+  .foodCard:nth-child(6) {
+    --dish-shift: -18px;
+  }
+
+  .foodCard:nth-child(8) {
+    --dish-shift: 16px;
+  }
+
+  .articleRows {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: clamp(12px, 1.6vw, 20px);
+    padding-top: 14px;
+  }
+
+  .articleRow {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    gap: 10px;
+    height: 100%;
+    padding: 0 0 14px;
+    border: 0;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .articleRow img {
+    aspect-ratio: 5 / 4;
+    border: 0;
+  }
+
+  .articleCopy {
+    height: 100%;
+    gap: 7px;
+    padding: 0 12px;
+  }
+
+  .articleRow strong {
+    font-size: clamp(25px, 2.4vw, 36px);
+    line-height: 0.96;
+  }
+
+  .articleCta {
+    min-height: 30px;
+    margin-top: 2px;
+    padding-inline: 10px;
+    font-size: clamp(16px, 1.5vw, 20px);
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@media (max-width: 900px) {
+  .hero {
+    min-height: 0;
+    padding-top: clamp(38px, 8vw, 68px);
+  }
+
+  .heroBody,
+  .indexBlock {
+    grid-template-columns: 1fr;
+  }
+
+  .latestGrid,
+  .foodStrip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .indexBlock {
+    gap: 0;
+  }
+
+  .redPanel {
+    min-height: 300px;
+  }
+
+  .foodStrip {
+    min-height: 0;
+    padding: clamp(28px, 6vw, 52px) clamp(24px, 5vw, 48px) clamp(44px, 8vw, 72px);
+  }
+
+  .sectionHead {
+    align-items: start;
+    flex-direction: column;
+  }
 }
 
-:global(html[data-theme='dark']) .collage {
-  /* Canvas stays near-black in dark mode too — the menu look is theme-independent. */
-  --collage-paper: var(--menu-page);
-  --home-surface: var(--food-cream, #f1f1ec);
-  --home-muted: rgba(16, 13, 15, 0.22);
-  --collage-ink: var(--food-ink, #171a17);
-  --home-cta-bg: rgba(241, 241, 236, 0.78);
-  --home-cta-text: var(--et-black, #171a17);
-  --home-cta-border: rgba(241, 241, 236, 0.68);
-  --home-cta-shadow: inset 0 -2px 0 rgba(239, 53, 40, 0.14), 0 8px 18px rgba(92, 50, 19, 0.1);
-  --home-cta-hover-bg: var(--et-cream, #f2dfb8);
-  --home-cta-hover-text: var(--et-black, #100d0f);
-  --home-cta-hover-border: var(--et-red-hot, #f03608);
-  background-image: none;
+@media (max-width: 560px) {
+  .hero,
+  .latest,
+  .indexBlock,
+  .districtSection,
+  .magSection {
+    padding-inline: 10px;
+  }
+
+  .heroCopy h2 {
+    font-size: clamp(16px, 4.7vw, 24px);
+  }
+
+  .sectionHead h2,
+  .redPanel h2 {
+    font-size: clamp(44px, 14vw, 68px);
+  }
+
+  .latestGrid,
+  .foodStrip {
+    grid-template-columns: 1fr;
+  }
+
+  .indexBlock {
+    padding-block: clamp(64px, 16vw, 92px);
+  }
+
+  .redPanel {
+    min-height: 300px;
+  }
+
+  .foodStrip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 18px;
+    padding: 24px 20px 52px;
+  }
+
+  .foodCard {
+    grid-template-rows: auto auto;
+    gap: 1px;
+  }
+
+  .foodImageLink {
+    width: min(100%, 178px);
+  }
+
+  .foodMeta {
+    margin-top: -10px;
+  }
+
+  .foodMeta strong {
+    font-size: clamp(20px, 6vw, 26px);
+  }
+
+  .foodRestaurantLink {
+    font-size: 9px;
+  }
+
+  .foodCard:nth-child(2) {
+    --dish-shift: -14px;
+    --dish-rotate: 2deg;
+  }
+
+  .foodCard:nth-child(3) {
+    --dish-shift: 12px;
+    --dish-rotate: -2deg;
+  }
+
+  .foodCard:nth-child(4) {
+    --dish-shift: -8px;
+    --dish-rotate: -1deg;
+  }
+
+  .foodCard:nth-child(5) {
+    --dish-shift: 14px;
+    --dish-rotate: 2deg;
+  }
+
+  .foodCard:nth-child(6) {
+    --dish-shift: -10px;
+    --dish-rotate: -2deg;
+  }
+
+  .foodCard:nth-child(8) {
+    --dish-shift: 10px;
+    --dish-rotate: 1deg;
+  }
+
+  .districtRows {
+    grid-template-columns: 1fr;
+  }
+
+  .listRow {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .districtName strong {
+    font-size: clamp(34px, 11vw, 54px);
+  }
+
+  .districtSpotLink {
+    max-width: 100%;
+    font-size: 10px;
+  }
+
+  .spotCard {
+    grid-template-rows: minmax(260px, 58vw) auto auto;
+  }
+
+  .trackRow {
+    grid-template-columns: 76px minmax(0, 1fr);
+    min-height: 62px;
+  }
+
+  .trackRow strong {
+    font-size: clamp(30px, 11vw, 48px);
+  }
+
+  .heroSpotImage {
+    aspect-ratio: 4 / 5;
+    min-height: 360px;
+    max-height: 520px;
+  }
+
+  .heroSpotOverlay {
+    min-height: 62%;
+    padding: 18px;
+  }
+
+  .heroSpot strong {
+    font-size: clamp(54px, 17vw, 78px);
+  }
+
+  .heroSpot p {
+    font-size: 14px;
+  }
+
+  .heroSpotActions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .articleRow {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    gap: 12px;
+    padding-block: 14px 18px;
+  }
+
+  .articleRow img {
+    aspect-ratio: 4 / 3;
+  }
+
+  .articleCopy {
+    padding-right: 0;
+  }
+
+  .articleRow strong {
+    font-size: clamp(34px, 9vw, 52px);
+  }
+
+  .articleCta {
+    min-height: 34px;
+    font-size: 22px;
+  }
 }

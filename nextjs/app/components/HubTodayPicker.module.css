@@ -22,10 +22,21 @@
 }
 .kicker,
 .resultsKicker {
+  display: inline-flex;
+  width: max-content;
+  max-width: 100%;
+  padding: 7px 11px 6px;
   margin: 0 0 8px;
   font: 800 12px/1 var(--font);
   letter-spacing: .16em;
   text-transform: uppercase;
+  color: var(--home-ghost-ink, rgba(21, 18, 14, 0.94));
+  background: var(--home-ghost-bg, rgba(255, 255, 255, 0.64));
+  border: 1px solid var(--home-ghost-border, rgba(21, 18, 14, 0.44));
+  border-radius: 4px;
+  box-shadow: var(--home-ghost-shadow, inset 0 0 0 1px rgba(255, 255, 255, 0.28));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .heading {
   margin: 0;
@@ -231,8 +242,6 @@ html[data-theme="dark"] .heading {
   text-shadow: none;
 }
 html[data-theme="dark"] .sub,
-html[data-theme="dark"] .kicker,
-html[data-theme="dark"] .resultsKicker,
 html[data-theme="dark"] .choiceRow legend,
 html[data-theme="dark"] .empty {
   color: rgba(242, 223, 184, .76);

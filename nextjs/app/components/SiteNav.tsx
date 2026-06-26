@@ -23,7 +23,7 @@ function pageSlugFromPath(path: string): string {
 }
 
 export default function SiteNav() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
   const activePage = pageSlugFromPath(pathname);
@@ -133,7 +133,7 @@ export default function SiteNav() {
     <>
       <a href="#appPages" className="skip-link">{t('a11y.skip')}</a>
       <nav className="navbar" id="navbar">
-        {/* Left: map sticker */}
+        {/* Left: map text */}
         <div className="navbar-actions" style={{ flex: 1, justifyContent: 'flex-start' }}>
           <MapIntentLink
             href="/map"
@@ -141,30 +141,19 @@ export default function SiteNav() {
             id="navMapBtn"
             aria-label="Map"
           >
-            <span className={styles.mapWord} aria-hidden="true">Map</span>
-            <span className={styles.mapFold} aria-hidden="true">
-              <span />
-              <span />
-              <span />
-            </span>
+            <span className={styles.mapWord}>Map</span>
           </MapIntentLink>
         </div>
         {/* Center: Logo */}
         <div className="navbar-home">
           <Link href="/" className={styles.logo} aria-label="Eat This — Start">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" className={styles.logoImg} />
+            <span className={styles.logoWord}>Eat This</span>
           </Link>
         </div>
-        {/* Right: menu sticker (News lives in the drawer) */}
+        {/* Right: menu text (News lives in the drawer) */}
         <div className="navbar-actions" style={{ flex: 1, justifyContent: 'flex-end' }}>
-          <button className={`burger-btn ${styles.menuSticker}`} id="burgerBtn" aria-label="Menu">
-            <span className={styles.menuLines} aria-hidden="true">
-              <span />
-              <span />
-              <span />
-            </span>
-            <span className={styles.menuWord} aria-hidden="true">Menu</span>
+          <button className={`burger-btn ${styles.menuSticker}`} id="burgerBtn" aria-label={lang === 'de' ? 'Menü' : 'Menu'}>
+            <span className={styles.menuWord}>{lang === 'de' ? 'Menü' : 'Menu'}</span>
           </button>
         </div>
       </nav>

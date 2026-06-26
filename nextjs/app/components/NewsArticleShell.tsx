@@ -1,7 +1,7 @@
 import Image from 'next/image';
-import { PortableTextRenderer, extractHeadings, extractArticleSpots } from '@/lib/PortableTextRenderer';
+import { PortableTextRenderer, extractHeadings } from '@/lib/PortableTextRenderer';
 import { Link } from '@/i18n/navigation';
-import type { NewsArticle, MustEatCardBlock, SpotCardBlock } from '@/lib/types';
+import type { NewsArticle, MustEatCardBlock } from '@/lib/types';
 import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
@@ -27,8 +27,8 @@ function formatDate(iso: string | undefined, locale: string): string {
 }
 
 // Article detail — Chewy magazine feature (mockup-chewy screen 8). Inline
-// must-eat cards, the "Spots im Artikel" grid and the sticky spotrail are driven
-// by mustEatCard reference blocks in the body; TOC + drop-cap come from the body.
+// must-eat cards are driven by mustEatCard reference blocks in the body;
+// TOC + drop-cap come from the body.
 export default function NewsArticleShell({
   article,
   relatedArticles = [],
@@ -52,18 +52,14 @@ export default function NewsArticleShell({
   const showToc = headings.length >= 2;
   const tocLabel = de ? 'In diesem Artikel' : 'In this article';
 
-  const spots = extractArticleSpots(content);
-  const spotsLabel = de ? 'Spots im Artikel' : 'Spots in this story';
-  const toMapLabel = de ? 'Auf die Map →' : 'To the map →';
-
   // Inline "Must Eat" banner — dark poster block in the article column, same
   // sticker language as MapPromoCTA. The image is the full collectible trading
   // card, floating freigestellt with a tilt. The whole banner links to the
   // Must-Eat detail on the map (?me=<id>), mirroring an in-app tap.
   const renderMustEatCard = (block: MustEatCardBlock) => {
     if (!block.dish && !block.dishImage) return null;
-    // "Must Eat" lives in the kicker only — the CTA reuses the canonical map
-    // wording (same as toMapLabel) so the label doesn't repeat itself.
+    // "Must Eat" lives in the kicker only — the CTA uses the canonical map
+    // wording so the label doesn't repeat itself.
     const ctaLabel = de ? 'Auf die Map' : 'To the map';
     const restName = block.restaurantName ? normalizeName(block.restaurantName) : '';
     const description =
@@ -115,49 +111,6 @@ export default function NewsArticleShell({
     );
   };
 
-  // Inline "Spot" card — wide image card in the article column (photo + a
-  // Bezirk·Küche kicker + name + map CTA), same sticker language as the home
-  // tiles. Links to the restaurant detail on the map (?r=<slug>), nofollow
-  // because the map is the noindex tool.
-  const renderSpotCard = (block: SpotCardBlock) => {
-    if (!block.restaurantName) return null;
-    const name = normalizeName(block.restaurantName);
-    const meta = [block.district, block.cuisineType].filter(Boolean).join(' · ');
-    const bg = block.restaurantPhoto
-      ? { backgroundImage: `url(${block.restaurantPhoto})` }
-      : undefined;
-    const inner = (
-      <span className={styles.inlineSpotFoot}>
-        {meta && <span className={styles.inlineSpotMeta}>{meta}</span>}
-        <span className={styles.inlineSpotName}>{name}</span>
-        <span className={styles.inlineSpotCta}>
-          <span>{de ? 'Auf der Map ansehen' : 'View on the map'}</span>
-          <svg
-            width="24" height="15" viewBox="0 0 32 20" fill="none"
-            stroke="currentColor" strokeWidth="3" strokeLinecap="round"
-            strokeLinejoin="round" aria-hidden="true"
-          >
-            <path d="M3 10 L24 10" />
-            <path d="M18 3 L27 10 L18 17" />
-          </svg>
-        </span>
-      </span>
-    );
-    return block.restaurantSlug ? (
-      <Link
-        href={`/map?r=${block.restaurantSlug}`}
-        rel="nofollow"
-        className={styles.inlineSpot}
-        style={bg}
-        aria-label={name}
-      >
-        {inner}
-      </Link>
-    ) : (
-      <div className={styles.inlineSpot} style={bg}>{inner}</div>
-    );
-  };
-
   const homeLabel = de ? 'Start' : 'Home';
   const newsLabel = de ? 'Auf dem Teller' : 'On the Menu';
   const breadcrumbItems: BreadcrumbItem[] = [
@@ -177,7 +130,7 @@ export default function NewsArticleShell({
       data-page="news-article"
       id="newsModal"
     >
-      <article className={`${styles.article}${spots.length > 0 ? ` ${styles.hasSpotrail}` : ''}`}>
+      <article className={styles.article}>
         {article.imageUrl && (
           // Hero = LCP element. fill + the Sanity loader serve a width-matched
           // srcset (mobile no longer downloads the w=1200 desktop file).
@@ -223,43 +176,8 @@ export default function NewsArticleShell({
         )}
 
         <div className={styles.content}>
-          <PortableTextRenderer blocks={content} renderMustEatCard={renderMustEatCard} renderSpotCard={renderSpotCard} />
+          <PortableTextRenderer blocks={content} renderMustEatCard={renderMustEatCard} />
         </div>
-
-        {spots.length > 0 && (
-          <section className={styles.spots} aria-label={spotsLabel}>
-            <h2 className={styles.spotsHeading}>{spotsLabel}</h2>
-            <div className={styles.spotsRow}>
-              {spots.map((s) => {
-                const name = normalizeName(s.name);
-                const meta = [s.district, s.cuisineType].filter(Boolean).join(' · ');
-                const inner = (
-                  <span className={styles.spotCardFoot}>
-                    {meta && <span className={styles.spotMeta}>{meta}</span>}
-                    <span className={styles.spotName}>{name}</span>
-                  </span>
-                );
-                const bg = s.photo ? { backgroundImage: `url(${s.photo})` } : undefined;
-                return s.slug ? (
-                  <Link
-                    key={s.slug}
-                    href={`/map?r=${s.slug}`}
-                    rel="nofollow"
-                    className={styles.spotCard}
-                    style={bg}
-                    aria-label={name}
-                  >
-                    {inner}
-                  </Link>
-                ) : (
-                  <div key={s.name} className={styles.spotCard} style={bg}>
-                    {inner}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        )}
 
         <div className={styles.shareRow}>
           <NewsArticleShare
@@ -299,30 +217,6 @@ export default function NewsArticleShell({
           </section>
         )}
       </article>
-
-      {spots.length > 0 && (
-        <aside className={styles.spotrail} aria-label={spotsLabel}>
-          <div className={styles.spotrailPics}>
-            {spots.slice(0, 3).map((s) => (
-              <span
-                key={s.slug ?? s.name}
-                className={styles.spotrailPic}
-                style={s.photo ? { backgroundImage: `url(${s.photo})` } : undefined}
-                aria-hidden="true"
-              />
-            ))}
-          </div>
-          <div className={styles.spotrailMeta}>
-            <span className={styles.spotrailKicker}>{spotsLabel}</span>
-            <span className={styles.spotrailNames}>
-              {spots.map((s) => normalizeName(s.name)).join(' · ')}
-            </span>
-          </div>
-          <Link href="/map" rel="nofollow" className={styles.spotrailCta}>
-            {toMapLabel}
-          </Link>
-        </aside>
-      )}
 
       <SiteFooter />
     </div>

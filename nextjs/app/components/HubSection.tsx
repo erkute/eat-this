@@ -21,7 +21,6 @@ interface Props {
 const copy = {
   de: {
     nav: ['Spots', 'Must Eats', 'Map'],
-    headline: 'the map for people who care about food',
     heroCta: 'Zur Map',
     spotDay: 'Spot des Tages',
     openSpot: 'Lesen',
@@ -37,7 +36,6 @@ const copy = {
   },
   en: {
     nav: ['Spots', 'Must Eats', 'Map'],
-    headline: 'the map for people who care about food',
     heroCta: 'Open map',
     spotDay: 'Spot of the day',
     openSpot: 'Read',
@@ -127,39 +125,25 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
 
       <section className={styles.hero}>
         <div className={styles.heroBody}>
-          <div className={styles.heroCopy}>
-            <h2>{t.headline}</h2>
-            {!spot && (
+          {!spot && (
+            <div className={styles.heroCopy}>
               <div className={styles.heroActions}>
                 <MapIntentLink href="/map" rel="nofollow" className={styles.redButton}>
                   {t.heroCta}
                 </MapIntentLink>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {spot && (
             <aside className={styles.heroSpot} aria-label={t.spotDay}>
-              {spot.image && (
-                <div className={styles.heroSpotImage}>
-                  <Image src={spot.image} alt="" fill sizes="(min-width: 960px) 860px, 92vw" />
-                  <div className={styles.heroSpotOverlay}>
-                    <span className={styles.heroSpotLabel}>{t.spotDay}</span>
-                    <strong>{normalizeName(spot.name)}</strong>
-                    {spot.sub && <p>{normalizeName(spot.sub)}</p>}
-                    <div className={styles.heroSpotActions}>
-                      <MapIntentLink href={`/map?r=${spot.slug}`} rel="nofollow" className={styles.redButton}>
-                        {t.heroCta}
-                      </MapIntentLink>
-                      <Link href={`/restaurant/${spot.slug}`} className={styles.whiteButton}>
-                        {t.openSpot}
-                      </Link>
-                    </div>
+              <div className={styles.heroSpotFrame}>
+                {spot.image && (
+                  <div className={styles.heroSpotPhoto}>
+                    <Image src={spot.image} alt="" fill sizes="(min-width: 960px) 48vw, 92vw" />
                   </div>
-                </div>
-              )}
-              {!spot.image && (
-                <div className={`${styles.heroSpotOverlay} ${styles.heroSpotOverlayStatic}`}>
+                )}
+                <div className={`${styles.heroSpotOverlay} ${!spot.image ? styles.heroSpotOverlayStatic : ''}`}>
                   <span className={styles.heroSpotLabel}>{t.spotDay}</span>
                   <strong>{normalizeName(spot.name)}</strong>
                   {spot.sub && <p>{normalizeName(spot.sub)}</p>}
@@ -172,7 +156,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                     </Link>
                   </div>
                 </div>
-              )}
+              </div>
             </aside>
           )}
         </div>
@@ -194,7 +178,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                 )}
               </span>
               <strong>{normalizeName(card.name)}</strong>
-              <span>{[card.district, card.category].filter(Boolean).join(' / ')}</span>
+              <span>{card.district || card.category}</span>
             </MapIntentLink>
           ))}
         </div>

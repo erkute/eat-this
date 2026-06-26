@@ -87,7 +87,7 @@
   background: transparent;
 }
 
-.heroSpotImage img,
+.heroSpotPhoto img,
 .cardImage img {
   object-fit: cover;
 }
@@ -105,7 +105,7 @@
   display: block;
   align-self: stretch;
   justify-self: center;
-  width: min(100%, 840px);
+  width: min(100%, 1120px);
   min-width: 0;
   margin-top: 0;
   padding: 0;
@@ -114,69 +114,74 @@
   border: 0;
 }
 
+.heroSpotFrame {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.78fr) minmax(280px, 0.62fr);
+  gap: clamp(16px, 2.6vw, 34px);
+  align-items: stretch;
+}
+
 .heroSpotLabel {
   display: inline-flex;
   width: max-content;
   max-width: 100%;
+  padding: 5px 9px 6px;
   color: var(--home-paper);
+  background: var(--home-ink);
 }
 
-.heroSpotImage {
+.heroSpotPhoto {
   position: relative;
   display: block;
-  aspect-ratio: 16 / 9;
-  min-height: clamp(250px, 31vw, 390px);
-  max-height: 390px;
+  aspect-ratio: 4 / 5;
+  min-height: clamp(440px, 54vw, 680px);
   overflow: hidden;
   background: var(--home-ink);
 }
 
-.heroSpotImage::after {
+.heroSpotPhoto::after {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(21, 18, 14, 0.02) 0%, rgba(21, 18, 14, 0.22) 43%, rgba(21, 18, 14, 0.78) 100%),
-    linear-gradient(90deg, rgba(21, 18, 14, 0.5) 0%, rgba(21, 18, 14, 0.12) 48%, rgba(21, 18, 14, 0) 100%);
+  background: linear-gradient(180deg, transparent 58%, rgba(21, 18, 14, 0.2) 100%);
 }
 
 .heroSpotOverlay {
-  position: absolute;
-  inset: auto 0 0;
-  z-index: 2;
+  position: relative;
   display: grid;
-  gap: clamp(8px, 1.2vw, 14px);
-  align-content: end;
+  gap: clamp(14px, 2vw, 24px);
+  align-content: center;
   justify-items: start;
-  min-height: 56%;
-  padding: clamp(18px, 2.4vw, 34px);
-  color: var(--home-paper);
+  min-height: 100%;
+  padding: clamp(24px, 4vw, 56px);
+  color: var(--home-ink);
+  background: var(--home-red);
 }
 
 .heroSpotOverlayStatic {
   position: relative;
-  min-height: 300px;
-  background: var(--home-ink);
+  min-height: clamp(360px, 42vw, 560px);
+  background: var(--home-red);
 }
 
 .heroSpot strong {
   font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(62px, 8vw, 118px);
+  font-size: clamp(56px, 7vw, 104px);
   font-weight: 400;
-  line-height: 0.76;
+  line-height: 0.84;
   text-transform: uppercase;
-  color: var(--home-paper);
+  color: var(--home-ink);
 }
 
 .heroSpot p {
   max-width: 32ch;
-  color: var(--home-paper);
+  color: var(--home-ink);
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: clamp(15px, 1.2vw, 18px);
-  font-weight: 750;
-  line-height: 1.18;
+  font-size: clamp(16px, 1.35vw, 20px);
+  font-weight: 850;
+  line-height: 1.24;
 }
 
 .heroSpotActions {
@@ -196,14 +201,14 @@
 }
 
 .heroSpotActions .redButton {
-  color: var(--home-ink);
-  border-color: var(--home-paper);
-  background: var(--home-paper);
+  color: var(--home-paper);
+  border-color: var(--home-ink);
+  background: var(--home-ink);
 }
 
 .heroSpotActions .whiteButton {
-  color: var(--home-paper);
-  border-color: var(--home-paper);
+  color: var(--home-ink);
+  border-color: var(--home-ink);
   background: transparent;
 }
 
@@ -309,7 +314,7 @@
 .spotCard {
   display: grid;
   grid-template-rows: minmax(180px, 24vw) auto auto;
-  gap: 10px;
+  gap: 6px;
   min-width: 0;
   padding: 0;
   color: var(--home-ink);
@@ -324,6 +329,7 @@
 }
 
 .spotCard strong {
+  margin-top: 2px;
   font-family: var(--menu-condensed, Impact, sans-serif);
   font-size: clamp(30px, 3.6vw, 52px);
   font-weight: 400;
@@ -332,6 +338,7 @@
 }
 
 .spotCard > span:last-child {
+  margin-top: -2px;
   color: var(--home-muted);
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 11px;
@@ -408,7 +415,7 @@
   height: 100%;
   aspect-ratio: 1 / 1;
   overflow: visible;
-  transition: transform 180ms cubic-bezier(0.2, 0.82, 0.18, 1);
+  transition: transform 220ms cubic-bezier(0.16, 0.92, 0.18, 1);
   transform-origin: 50% 80%;
 }
 
@@ -419,7 +426,7 @@
 
 .foodCard:hover .foodImage,
 .foodCard:focus-within .foodImage {
-  transform: translateY(-9px) rotate(-3deg) scale(1.045);
+  transform: translateY(-12px) rotate(-2deg) scale(1.055);
 }
 
 .foodMeta {
@@ -436,9 +443,8 @@
   text-align: center;
   transform: rotate(var(--label-rotate));
   transition:
-    border-color 160ms ease,
-    color 160ms ease,
-    transform 160ms ease;
+    box-shadow 180ms ease,
+    transform 180ms ease;
 }
 
 .foodMeta strong {
@@ -473,16 +479,14 @@
 
 .foodCard:hover .foodMeta,
 .foodCard:focus-within .foodMeta {
-  color: var(--home-ink);
-  background: var(--home-paper);
-  border-color: var(--home-paper);
-  transform: rotate(var(--label-rotate)) translateY(-2px);
+  box-shadow: 5px 5px 0 var(--home-ink);
+  transform: rotate(var(--label-rotate)) translate(-3px, -5px);
 }
 
 .foodCard:hover .foodRestaurantLink,
 .foodCard:focus-within .foodRestaurantLink {
-  color: var(--home-ink);
-  background: var(--home-red);
+  color: var(--home-paper);
+  background: var(--home-ink);
 }
 
 .foodCard:nth-child(2) {
@@ -798,6 +802,7 @@
   }
 
   .heroBody,
+  .heroSpotFrame,
   .indexBlock {
     grid-template-columns: 1fr;
   }
@@ -824,6 +829,11 @@
     align-items: start;
     flex-direction: column;
   }
+
+  .heroSpotPhoto {
+    min-height: 0;
+    aspect-ratio: 4 / 5;
+  }
 }
 
 @media (max-width: 560px) {
@@ -833,10 +843,6 @@
   .districtSection,
   .magSection {
     padding-inline: 10px;
-  }
-
-  .heroCopy h2 {
-    font-size: clamp(16px, 4.7vw, 24px);
   }
 
   .sectionHead h2,
@@ -945,19 +951,18 @@
     font-size: clamp(30px, 11vw, 48px);
   }
 
-  .heroSpotImage {
+  .heroSpotPhoto {
     aspect-ratio: 4 / 5;
-    min-height: 360px;
-    max-height: 520px;
+    min-height: 0;
   }
 
   .heroSpotOverlay {
-    min-height: 62%;
-    padding: 18px;
+    min-height: 0;
+    padding: 20px;
   }
 
   .heroSpot strong {
-    font-size: clamp(54px, 17vw, 78px);
+    font-size: clamp(46px, 15vw, 72px);
   }
 
   .heroSpot p {

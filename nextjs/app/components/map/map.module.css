@@ -7055,3 +7055,629 @@ html[data-theme="dark"] .mapBurgerLines {
     }
   }
 }
+
+/* ============================================================
+   Map editorial pass — mirrors the current Home system.
+   Flat print surfaces, condensed menu type, mono metadata, crisp rules.
+   ============================================================ */
+
+html .list {
+  background: var(--brand-paper) !important;
+  color: var(--brand-ink);
+}
+
+html[data-theme="dark"] .list {
+  background: var(--brand-ink) !important;
+  color: var(--brand-paper);
+}
+
+html .listScroll {
+  padding: 18px 14px 0;
+}
+
+html .rcardSlot {
+  contain-intrinsic-size: auto 268px;
+  padding: 10px 10px 12px;
+  margin: 0 0 8px;
+}
+
+html .rcardSlot:nth-child(odd) .rcard,
+html .rcardSlot:nth-child(even) .rcard {
+  transform: none;
+}
+
+html .rcard {
+  display: grid;
+  grid-template-rows: minmax(156px, 1fr) auto;
+  aspect-ratio: auto;
+  min-height: 258px;
+  overflow: hidden;
+  background: #fff;
+  border: 0;
+  border-radius: 0;
+  color: var(--brand-ink);
+  transition: transform .16s ease;
+}
+
+html .rcardImg {
+  position: relative;
+  inset: auto;
+  min-height: 166px;
+  background: var(--brand-ink);
+  overflow: hidden;
+}
+
+html .rcardImg img {
+  transition: transform .28s ease;
+}
+
+html .rcard::after {
+  content: none;
+}
+
+html .rcardBody {
+  position: relative;
+  inset: auto;
+  z-index: 2;
+  display: grid;
+  align-content: end;
+  min-height: 92px;
+  padding: 13px 13px 14px;
+  background: #fff;
+  color: var(--brand-ink);
+}
+
+html .rcardName {
+  margin: 0;
+  color: var(--brand-ink);
+  font-family: var(--menu-condensed, var(--font-label), Impact, sans-serif);
+  font-size: clamp(25px, 7.2vw, 36px);
+  font-weight: 400;
+  letter-spacing: .005em;
+  line-height: .84;
+  text-shadow: none;
+}
+
+html .rcardMeta {
+  width: max-content;
+  max-width: 100%;
+  margin: 8px 0 0;
+  padding: 4px 8px 5px;
+  background: var(--home-case-bg, #f5f5f0);
+  color: rgba(21, 18, 14, .88);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html .rcardTime {
+  margin: 7px 0 0;
+  color: rgba(21, 18, 14, .64);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+html .rcardNow {
+  color: #218446;
+}
+
+html .rcardActive {
+  outline: 3px solid var(--brand-action);
+  outline-offset: -3px;
+  border-color: transparent;
+}
+
+html .openPill {
+  top: 10px;
+  left: auto;
+  right: 10px;
+  z-index: 4;
+  width: max-content;
+  max-width: calc(100% - 20px);
+  min-height: 28px;
+  padding: 7px 9px 8px;
+  background: #34a85a;
+  color: #fff;
+  border: 0;
+  border-radius: 0;
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+html .openPillClosed {
+  background: var(--brand-action);
+  color: var(--brand-paper);
+}
+
+html .mustPeek {
+  top: 12px;
+  left: 12px;
+  right: auto;
+  z-index: 4;
+  transform: rotate(-7deg);
+}
+
+@media (hover: hover) {
+  html .rcard:hover {
+    transform: translateY(-3px);
+  }
+
+  html .rcard:hover .rcardImg img {
+    transform: scale(1.04);
+  }
+}
+
+html[data-theme="dark"] .rcard {
+  background: #f5f5f0;
+  color: var(--brand-ink);
+}
+
+html[data-theme="dark"] .rcardBody {
+  background: #f5f5f0;
+  color: var(--brand-ink);
+}
+
+html[data-theme="dark"] .rcardName {
+  color: var(--brand-ink);
+}
+
+html[data-theme="dark"] .rcardMeta {
+  background: #fff;
+  color: rgba(21, 18, 14, .88);
+}
+
+html[data-theme="dark"] .rcardTime {
+  color: rgba(21, 18, 14, .68);
+}
+
+html[data-theme="dark"] .rcardActive {
+  outline-color: var(--brand-action);
+}
+
+html .rdHero {
+  margin: 16px 16px 0;
+  aspect-ratio: 4 / 4.8;
+  border: 0;
+  border-radius: 0;
+  background-color: #f5f5f0;
+}
+
+html .rdHero::after {
+  background: linear-gradient(180deg, rgba(0,0,0,.08) 0%, rgba(0,0,0,0) 34%, rgba(0,0,0,.18) 62%, rgba(0,0,0,.88) 100%);
+}
+
+html .rdOverlay {
+  inset: auto 13px 18px;
+}
+
+html .rdNameOv {
+  font-family: var(--menu-condensed, var(--font-label), Impact, sans-serif);
+  font-weight: 400;
+  line-height: .82;
+  letter-spacing: .004em;
+  text-shadow: none;
+}
+
+html .rdTagsOv {
+  gap: 5px;
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: .09em;
+}
+
+html .rdTag,
+html .rdTagAlt,
+html[data-theme="dark"] .rdTag,
+html[data-theme="dark"] .rdTagAlt {
+  padding: 5px 7px 6px;
+  background: #fff;
+  color: var(--brand-ink);
+  border: 0;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html .rdTagOpen,
+html[data-theme="dark"] .rdTagOpen {
+  background: #34a85a;
+  color: #fff;
+}
+
+html .rdHero .rdHeartToggle,
+html .rdHero .rdCloseGlass,
+html[data-theme="dark"] .rdHero .rdHeartToggle,
+html[data-theme="dark"] .rdHero .rdCloseGlass {
+  background: #fff !important;
+  color: var(--brand-ink) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html .rdHero .rdHeartToggleOn svg,
+html[data-theme="dark"] .rdHero .rdHeartToggleOn svg {
+  color: var(--brand-action) !important;
+}
+
+html .rdHero .rdHeartToggleCount,
+html[data-theme="dark"] .rdHero .rdHeartToggleCount {
+  color: var(--brand-ink) !important;
+  font-family: var(--menu-condensed, var(--font-label), Impact, sans-serif);
+  font-weight: 400;
+}
+
+html .rdPager,
+html[data-theme="dark"] .rdPager {
+  margin: 0 16px;
+  padding: 0;
+  gap: 0;
+  background: transparent;
+  color: currentColor;
+  border-bottom: 1px solid currentColor;
+}
+
+html .rdPagerBtn {
+  min-height: 44px;
+  padding: 10px 0;
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+html .rdPagerBtnRight {
+  border-left: 1px solid currentColor;
+  padding-left: 10px;
+}
+
+html .rdBody {
+  padding: 20px 20px 8px;
+  color: var(--brand-ink);
+  font-size: 16px;
+  font-weight: 560;
+  line-height: 1.5;
+}
+
+html .rdDropCap {
+  font-family: var(--menu-condensed, var(--font-label), Impact, sans-serif);
+  font-size: 82px;
+  font-weight: 400;
+  color: var(--brand-action);
+  padding: 8px 10px 0 0;
+}
+
+html .rdSecH {
+  margin: 24px 20px 10px;
+  padding-top: 12px;
+  border-top: 1px solid currentColor;
+  font-family: var(--menu-condensed, var(--font-label), Impact, sans-serif);
+  font-size: 44px;
+  font-weight: 400;
+  line-height: .86;
+}
+
+html .rdMustGrid {
+  gap: 10px;
+  padding: 0 16px 14px;
+}
+
+html .medish {
+  padding: 8px 6px 12px;
+  background: #fff;
+}
+
+html .medishNm {
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+html .rdFacts {
+  margin: 12px 16px 26px;
+  background: transparent;
+  border: 0 !important;
+  border-top: 1.5px solid currentColor !important;
+  border-radius: 0;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html .rdRow,
+html .rdRowHours {
+  grid-template-columns: minmax(92px, .7fr) minmax(0, 1fr);
+  gap: 12px;
+  padding: 13px 0 14px;
+  border-bottom: 1.5px solid currentColor !important;
+}
+
+html .rdRowHours {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+html .rdK,
+html[data-theme="dark"] .rdK {
+  color: var(--brand-action);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  line-height: 1.2;
+}
+
+html .rdV,
+html[data-theme="dark"] .rdV {
+  color: var(--brand-ink);
+  font-size: 15px;
+  line-height: 1.42;
+}
+
+html .rdHours {
+  grid-template-columns: minmax(70px, .8fr) minmax(0, 1fr);
+  column-gap: 12px;
+}
+
+html .rdHoursD {
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+html .rdHoursT {
+  justify-self: start;
+  text-align: left;
+}
+
+html .rdActs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 4px 16px 24px;
+  gap: 7px;
+}
+
+html .rdActBtn,
+html[data-theme="dark"] .rdActBtn,
+html .btnPackPromo,
+html[data-theme="dark"] .btnPackPromo,
+html .listEndCta,
+html[data-theme="dark"] .listEndCta {
+  border-radius: 0 !important;
+  font-family: var(--menu-condensed, var(--font-label), Impact, sans-serif);
+  font-weight: 400;
+  letter-spacing: .02em;
+}
+
+html .rdActBtn,
+html[data-theme="dark"] .rdActBtn {
+  min-height: 50px;
+  border: 1.5px solid currentColor;
+  font-size: 20px;
+  line-height: .84;
+}
+
+html .rdActPrimary,
+html[data-theme="dark"] .rdActPrimary {
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border-color: var(--brand-action);
+}
+
+html .rdTipp,
+html[data-theme="dark"] .rdTipp,
+html .packPromo,
+html[data-theme="dark"] .packPromo {
+  border-radius: 0;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html .rdTipp,
+html[data-theme="dark"] .rdTipp {
+  margin: 8px 16px 24px;
+  padding: 18px;
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border: 0;
+}
+
+html .rdTippLabel,
+html[data-theme="dark"] .rdTippLabel,
+html .rdTippText,
+html[data-theme="dark"] .rdTippText {
+  color: currentColor;
+}
+
+html .rdTippLabel,
+html[data-theme="dark"] .rdTippLabel {
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+html .packPromo,
+html[data-theme="dark"] .packPromo {
+  margin: 10px 16px 28px;
+  background: #f5f5f0;
+  color: var(--brand-ink);
+  border: 0;
+}
+
+html .packPromoTitle,
+html[data-theme="dark"] .packPromoTitle {
+  font-family: var(--menu-condensed, var(--font-label), Impact, sans-serif);
+  color: var(--brand-action);
+  font-size: 28px;
+  font-weight: 400;
+}
+
+html .packPromoBody,
+html[data-theme="dark"] .packPromoBody {
+  color: rgba(21, 18, 14, .72);
+}
+
+html .detailV13MustEat .detailV13Scroll,
+html[data-theme="dark"] .detailV13MustEat .detailV13Scroll {
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+}
+
+html .detailV13MustEat .fdHeroWrap {
+  padding-top: clamp(20px, 3.2dvh, 34px);
+}
+
+html .detailV13MustEat .fdMid {
+  margin-top: clamp(18px, 3dvh, 30px);
+  padding: 16px 0 14px;
+  border-top: 1.5px solid var(--brand-ink);
+  border-bottom: 1.5px solid var(--brand-ink);
+}
+
+html .detailV13MustEat .fdName {
+  font-family: var(--menu-condensed, var(--font-display), Impact, sans-serif);
+  font-weight: 400;
+  color: var(--brand-action);
+  line-height: .82;
+}
+
+html .detailV13MustEat .fdText,
+html .detailV13MustEat .fdProximitySub {
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: clamp(12px, 3.1vw, 14px);
+  font-weight: 850;
+  letter-spacing: .02em;
+  line-height: 1.35;
+  color: rgba(21, 18, 14, .7);
+}
+
+html .fdProximityHead {
+  font-family: var(--menu-condensed, var(--font-display), Impact, sans-serif);
+  font-weight: 400;
+}
+
+html .fdRest {
+  background: var(--brand-ink);
+  color: var(--brand-paper);
+  border: 0;
+  border-radius: 0;
+  transform: none;
+}
+
+html .detailV13MustEat .fdRest .fdV {
+  font-family: var(--menu-condensed, var(--font-display), Impact, sans-serif);
+  font-weight: 400;
+  color: currentColor;
+}
+
+html .detailV13MustEat .fdRest .fdK {
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  color: rgba(255, 255, 255, .66);
+}
+
+html .ctaPill {
+  background: var(--brand-action);
+  color: var(--brand-paper);
+  border: 0;
+  border-radius: 0;
+  font-family: var(--menu-condensed, var(--font-display), Impact, sans-serif);
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: .02em;
+}
+
+html .fdPager {
+  gap: 8px;
+}
+
+html .fdPagerPrev,
+html .fdPagerNext {
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+html .fdPagerName {
+  font-family: var(--menu-condensed, var(--font-display), Impact, sans-serif);
+  font-weight: 400;
+}
+
+html .fdClose,
+html[data-theme="dark"] .fdClose {
+  color: var(--brand-ink);
+}
+
+html[data-theme="dark"] .rdBody,
+html[data-theme="dark"] .rdDropCap,
+html[data-theme="dark"] .rdSecH,
+html[data-theme="dark"] .rdV,
+html[data-theme="dark"] .rdV a,
+html[data-theme="dark"] .rdHoursT {
+  color: var(--brand-paper);
+}
+
+html[data-theme="dark"] .rdFacts {
+  border-top-color: rgba(255, 255, 255, .72) !important;
+}
+
+html[data-theme="dark"] .rdRow,
+html[data-theme="dark"] .rdRowHours {
+  border-bottom-color: rgba(255, 255, 255, .72) !important;
+}
+
+html[data-theme="dark"] .medish,
+html[data-theme="dark"] .packPromo {
+  background: #f5f5f0;
+  color: var(--brand-ink);
+}
+
+html[data-theme="dark"] .detailV13MustEat .fdMid {
+  border-color: var(--brand-ink);
+}
+
+html[data-theme="dark"] .detailV13MustEat .fdText,
+html[data-theme="dark"] .detailV13MustEat .fdProximitySub {
+  color: rgba(21, 18, 14, .7);
+}
+
+@media (min-width: 1024px) {
+  html .rcard {
+    min-height: 248px;
+  }
+
+  html .rcardImg {
+    min-height: 158px;
+  }
+
+  html .rcardName {
+    font-size: 30px;
+  }
+
+  html .rdNameOv {
+    font-size: clamp(24px, 12vw, min(var(--rd-name-max, 56px), 44px));
+  }
+}
+
+@media (max-width: 420px) {
+  html .rdActs {
+    grid-template-columns: 1fr;
+  }
+
+  html .rdRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  html .rcard {
+    min-height: 242px;
+  }
+}

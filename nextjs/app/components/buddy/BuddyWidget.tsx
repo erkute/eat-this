@@ -150,13 +150,16 @@ const T = {
   de: {
     open: 'Remy öffnen',
     close: 'Schließen',
-    thinking: 'Remy denkt nach',
+    thinking: 'Antwort wird geladen',
     placeholder: 'Schreib Remy…',
+    send: 'Senden',
   },
   en: {
+    open: 'Open Remy',
     close: 'Close',
-    thinking: 'Remy is thinking',
+    thinking: 'Answer loading',
     placeholder: 'Message Remy…',
+    send: 'Send',
   },
 } satisfies Record<Locale, Record<string, string>>
 
@@ -480,11 +483,9 @@ export default function BuddyWidget() {
 
   const title = 'Remy'
 
-  // Expression policy: while Remy is still "thinking" (streaming, but no
-  // answer text yet — the typing-dots phase) he ponders with the O-mouth
-  // still. The mouth flap only runs once answer text is actually appearing,
-  // or when he "speaks" the already-visible greeting. Smile (greeting) and
-  // laugh (happy) stay brief stills.
+  // Expression policy: the mouth flap only runs once answer text is actually
+  // appearing, or when he "speaks" the already-visible greeting. Smile
+  // (greeting) and laugh (happy) stay brief stills.
   const lastMsg = messages[messages.length - 1]
   const answerStarted = lastMsg?.role === 'assistant' && lastMsg.content.length > 0
   const panelMood: BuddyMood = happyBeat
@@ -492,7 +493,7 @@ export default function BuddyWidget() {
     : isStreaming
       ? answerStarted
         ? 'talking'
-        : 'thinking'
+        : 'idle'
       : greetingBeat
         ? 'talking'
         : 'idle'
@@ -515,13 +516,17 @@ export default function BuddyWidget() {
           tabIndex={-1}
         >
           <div className={styles.header}>
-            <BuddyAvatar mood={panelMood} size={48} />
+            <span className={styles.avatarFrame}>
+              <BuddyAvatar mood={panelMood} size={54} />
+            </span>
             <span className={styles.headerTitle}>
               <strong>{title}</strong>
               <span>{locale === 'en' ? 'Food insider' : 'Food-Insider'}</span>
             </span>
             <button className={styles.close} type="button" aria-label={t.close} onClick={closePanel}>
-              ×
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+                <path d="M6 6l12 12M18 6 6 18" />
+              </svg>
             </button>
           </div>
           <div className={styles.log} aria-live="polite">
@@ -590,8 +595,11 @@ export default function BuddyWidget() {
               disabled={isStreaming}
               aria-label={t.placeholder}
             />
-            <button className={styles.send} type="submit" disabled={isStreaming || !draft.trim()} aria-label="Senden">
-              →
+            <button className={styles.send} type="submit" disabled={isStreaming || !draft.trim()} aria-label={t.send}>
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M5 12h13" />
+                <path d="m13 6 6 6-6 6" />
+              </svg>
             </button>
           </form>
         </div>

@@ -67,6 +67,17 @@ describe('PortableTextRenderer links', () => {
     expect(html).toContain('<strong>SOFI</strong>')
   })
 
+  it('auto-links the public contact email in plain text', () => {
+    const html = render([para([span('Mail: hello@eatthisdot.com')])])
+    expect(html).toContain('href="mailto:hello@eatthisdot.com"')
+    expect(html).toContain('Mail: <a href="mailto:hello@eatthisdot.com">hello@eatthisdot.com</a>')
+  })
+
+  it('auto-links the public contact email inside strong text', () => {
+    const html = render([para([span('hello@eatthisdot.com', ['strong'])])])
+    expect(html).toContain('<strong><a href="mailto:hello@eatthisdot.com">hello@eatthisdot.com</a></strong>')
+  })
+
   it('ignores a dangling mark key with no matching markDef', () => {
     const html = render([para([span('text', ['ghost'])], [])])
     expect(html).toContain('text')

@@ -910,6 +910,186 @@ html[data-theme='dark'] .notification-detail {
   }
 }
 
+/* 2026 map/info-layer refresh: clean system toast, no cream paper/sticker frame. */
+.notification {
+  --toast-surface: #fff;
+  --toast-ink: #15120e;
+  --toast-muted: rgba(21, 18, 14, .62);
+  --toast-line: rgba(21, 18, 14, .11);
+  --toast-accent: #d9382a;
+  bottom: calc(86px + env(safe-area-inset-bottom, 0px));
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 11px;
+  width: min(390px, calc(100vw - 28px));
+  min-height: 64px;
+  padding: 11px 14px 12px 12px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--toast-surface);
+  color: var(--toast-ink);
+  box-shadow:
+    0 16px 44px rgba(0, 0, 0, .16),
+    inset 0 0 0 1px var(--toast-line);
+  transform: translate(-50%, calc(100% + 112px));
+  transition: transform .34s cubic-bezier(.22, 1, .36, 1);
+}
+
+.notification.show {
+  transform: translate(-50%, 0);
+}
+
+.notification[data-tone='success'] {
+  --toast-accent: #d9382a;
+}
+
+.notification[data-tone='warning'] {
+  --toast-accent: #15120e;
+}
+
+.notification[data-tone='error'] {
+  --toast-surface: #15120e;
+  --toast-ink: #fff;
+  --toast-muted: rgba(255, 255, 255, .72);
+  --toast-line: rgba(255, 255, 255, .12);
+  --toast-accent: #d9382a;
+}
+
+.notification[data-tone='info'] {
+  --toast-accent: #15120e;
+}
+
+.notification-mark {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--toast-accent);
+  color: #fff;
+  box-shadow: none;
+}
+
+.notification[data-tone='info'] .notification-mark,
+.notification[data-tone='warning'] .notification-mark {
+  background: #15120e;
+  color: #fff;
+}
+
+.notification[data-tone='error'] .notification-mark {
+  border: 0;
+  background: #d9382a;
+  color: #fff;
+  box-shadow: none;
+}
+
+.notification-mark svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.25;
+}
+
+.notification-copy {
+  gap: 3px;
+  align-self: center;
+}
+
+.notification-eyebrow {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 950;
+  letter-spacing: .1em;
+  line-height: 1;
+  color: var(--toast-accent);
+}
+
+.notification[data-tone='error'] .notification-eyebrow {
+  color: #fff;
+}
+
+.notification-title {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: 0;
+  text-transform: none;
+  overflow-wrap: normal;
+}
+
+.notification-detail {
+  max-width: 38ch;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--toast-muted);
+}
+
+.notification[data-tone='error'] .notification-detail {
+  color: var(--toast-muted);
+}
+
+html[data-theme='dark'] .notification {
+  --toast-surface: #15120e;
+  --toast-ink: #fff;
+  --toast-muted: rgba(255, 255, 255, .72);
+  --toast-line: rgba(255, 255, 255, .12);
+  box-shadow:
+    0 18px 46px rgba(0, 0, 0, .36),
+    inset 0 0 0 1px var(--toast-line);
+}
+
+html[data-theme='dark'] .notification[data-tone='info'],
+html[data-theme='dark'] .notification[data-tone='warning'] {
+  --toast-accent: #fff;
+}
+
+html[data-theme='dark'] .notification[data-tone='info'] .notification-mark,
+html[data-theme='dark'] .notification[data-tone='warning'] .notification-mark {
+  background: #fff;
+  color: #15120e;
+}
+
+html[data-theme='dark'] .notification-detail {
+  color: var(--toast-muted);
+}
+
+@media (min-width: 768px) {
+  .notification {
+    bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 420px) {
+  .notification {
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 10px;
+    width: min(362px, calc(100vw - 20px));
+    min-height: 62px;
+    padding: 10px 12px 11px 10px;
+    border: 0;
+    border-radius: 15px;
+  }
+
+  .notification-mark {
+    width: 32px;
+    height: 32px;
+  }
+
+  .notification-mark svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .notification-title {
+    font-size: 14px;
+  }
+
+  .notification-detail {
+    max-width: 28ch;
+    font-size: 11.5px;
+  }
+}
+
 /* Compact home actions. Mirrors the final burger-drawer button language, but
    sized down for section CTAs, chips, pack prices and local controls. */
 .homeCta {

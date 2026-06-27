@@ -35,10 +35,11 @@ describe('HubPacks', () => {
     // returning signed-in visitors before client auth resolves.
     expect(render()).toContain('data-signup-gift')
   })
-  it('renders direct checkout CTAs for category packs and offers gift email signup', () => {
+  it('links category packs to their detail pages and offers gift email signup', () => {
     const html = render()
-    expect(html).toContain('Kaufen · €2,99')
-    expect(html).not.toContain('/pack/breakfast')
+    expect(html).toContain('Pack ansehen')
+    expect(html).toContain('/pack/breakfast')
+    expect(html).not.toContain('Kaufen · €2,99')
     expect(html).toContain('type="email"')
     expect(html).toContain('Anmelden')
   })

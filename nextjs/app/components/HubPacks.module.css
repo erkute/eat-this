@@ -1,5 +1,5 @@
 /* HUB Packs — editorial print-menu cream panel on the near-black home canvas:
-   Chauncy ink heading with an ink underline rule, a scroller of flat cream
+   Chauncy ink heading with a scroller of flat cream
    menu tiles (freigestellt booster art untouched + mono eyebrow + Chauncy ink
    name + mono line + flat orange pack CTA). The Welcome-Pack gift tile carries
    an inline magic-link signup. FLAT: no shadows, no gradients. Theme-independent.
@@ -16,8 +16,6 @@
 }
 .heading {
   margin: 0;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(21, 18, 14, 0.34);
   font-family: var(--menu-condensed);
   font-size: clamp(30px, 6vw, 44px);
   font-weight: 400;
@@ -48,23 +46,18 @@
   padding: 18px 18px 20px;
   color: var(--menu-ink);
   background: rgba(255, 255, 255, 0.68);
-  border: 1px solid rgba(21, 18, 14, 0.22);
+  border: 0;
   border-radius: 8px;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.34);
+  box-shadow: none;
   backdrop-filter: blur(14px) saturate(1.08);
   -webkit-backdrop-filter: blur(14px) saturate(1.08);
   transition:
     transform 0.16s ease,
-    background-color 0.16s ease,
-    border-color 0.16s ease;
+    background-color 0.16s ease;
 }
 .pack:hover {
   background: rgba(255, 255, 255, 0.84);
-  border-color: rgba(21, 18, 14, 0.32);
   transform: translateY(-4px);
-}
-.gift {
-  border-top: 1px solid rgba(21, 18, 14, 0.16);
 }
 .packArt {
   position: relative;
@@ -97,9 +90,9 @@
   text-transform: uppercase;
   color: var(--home-ghost-ink, rgba(21, 18, 14, 0.94));
   background: var(--home-ghost-bg, rgba(255, 255, 255, 0.64));
-  border: 1px solid var(--home-ghost-border, rgba(21, 18, 14, 0.44));
+  border: 0;
   border-radius: 4px;
-  box-shadow: var(--home-ghost-shadow, inset 0 0 0 1px rgba(255, 255, 255, 0.28));
+  box-shadow: none;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
@@ -171,17 +164,6 @@
 .packCta:disabled {
   cursor: progress;
 }
-.packError {
-  margin: 0;
-  font-family: var(--menu-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  line-height: 1.3;
-  text-transform: uppercase;
-  color: var(--menu-orange);
-}
-
 /* Welcome-pack inline magic-link signup. */
 .signup {
   display: grid;

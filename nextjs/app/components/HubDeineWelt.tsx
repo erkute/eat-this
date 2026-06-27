@@ -142,8 +142,8 @@ export default function HubDeineWelt({ initialMapData }: Props) {
                   >
                     <span className={styles.spotImage}>
                       <Image src={spot.photo ?? ''} alt="" fill sizes="120px" />
+                      <span className={styles.spotName}>{normalizeName(spot.name)}</span>
                     </span>
-                    <span className={styles.spotName}>{normalizeName(spot.name)}</span>
                   </MapIntentLink>
                 ))}
               </span>

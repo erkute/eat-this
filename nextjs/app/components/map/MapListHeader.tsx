@@ -161,11 +161,7 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(
           aria-expanded={expanded}
         >
           <span className={styles.filterChipLabel}>{label}</span>
-          {!onReset && (
-            <svg className={styles.filterChipCaret} width="9" height="9" viewBox="0 0 12 12" aria-hidden="true">
-              <path d="M3 4.5l3 3 3-3" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          )}
+          <span className={styles.filterChipCue} aria-hidden="true" />
         </button>
         {onReset && (
           <button
@@ -174,10 +170,7 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(
             onClick={onReset}
             aria-label={`${label} reset`}
           >
-            <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true">
-              <line x1="3" y1="3" x2="9" y2="9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-              <line x1="9" y1="3" x2="3" y2="9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-            </svg>
+            <span aria-hidden="true">×</span>
           </button>
         )}
       </span>

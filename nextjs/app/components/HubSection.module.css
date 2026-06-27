@@ -115,10 +115,7 @@
 }
 
 .heroSpotFrame {
-  display: grid;
-  grid-template-columns: minmax(280px, 0.78fr) minmax(280px, 0.62fr);
-  gap: clamp(16px, 2.6vw, 34px);
-  align-items: stretch;
+  display: block;
 }
 
 .heroSpotLabel {
@@ -151,19 +148,28 @@
 .heroSpotOverlay {
   position: relative;
   display: grid;
+  grid-template-columns: minmax(280px, 0.78fr) minmax(280px, 0.62fr);
   gap: clamp(14px, 2vw, 24px);
-  align-content: center;
-  justify-items: start;
-  min-height: 100%;
-  padding: clamp(24px, 4vw, 56px);
+  align-items: stretch;
+  min-height: clamp(440px, 54vw, 680px);
+  padding: clamp(16px, 2.4vw, 28px);
   color: var(--home-ink);
   background: var(--home-red);
 }
 
 .heroSpotOverlayStatic {
-  position: relative;
+  grid-template-columns: 1fr;
   min-height: clamp(360px, 42vw, 560px);
   background: var(--home-red);
+}
+
+.heroSpotCopy {
+  display: grid;
+  gap: clamp(14px, 2vw, 24px);
+  align-content: center;
+  justify-items: start;
+  min-width: 0;
+  padding: clamp(10px, 2.2vw, 28px);
 }
 
 .heroSpot strong {
@@ -434,42 +440,46 @@
   justify-self: center;
   gap: 0;
   width: max-content;
-  max-width: min(100%, 240px);
+  max-width: min(100%, 250px);
   min-width: 0;
-  margin-top: -16px;
-  padding: 6px 10px 7px;
-  background: var(--home-paper);
-  border: 2px solid var(--home-ink);
+  margin-top: -18px;
+  padding: 0;
+  color: var(--home-paper);
+  background: transparent;
+  border: 0;
   text-align: center;
   transform: rotate(var(--label-rotate));
+  text-shadow: 2px 2px 0 rgba(21, 18, 14, 0.34);
   transition:
-    box-shadow 180ms ease,
-    transform 180ms ease;
+    color 180ms ease,
+    transform 180ms ease,
+    text-shadow 180ms ease;
 }
 
 .foodMeta strong {
   display: block;
   font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(23px, 2.15vw, 36px);
+  font-size: clamp(27px, 2.55vw, 42px);
   font-weight: 400;
-  line-height: 0.86;
+  line-height: 0.82;
   text-transform: uppercase;
-  overflow-wrap: normal;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+  white-space: normal;
 }
 
 .foodRestaurantLink {
   justify-self: center;
   width: max-content;
   max-width: 100%;
-  margin-top: 4px;
-  padding: 3px 7px;
-  color: var(--home-paper);
-  background: var(--home-ink);
+  margin-top: 5px;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.82);
+  background: transparent;
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 900;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.14em;
   line-height: 1.1;
   text-transform: uppercase;
   overflow: hidden;
@@ -479,14 +489,15 @@
 
 .foodCard:hover .foodMeta,
 .foodCard:focus-within .foodMeta {
-  box-shadow: 5px 5px 0 var(--home-ink);
+  color: #fff;
+  text-shadow: 3px 3px 0 rgba(21, 18, 14, 0.42);
   transform: rotate(var(--label-rotate)) translate(-3px, -5px);
 }
 
 .foodCard:hover .foodRestaurantLink,
 .foodCard:focus-within .foodRestaurantLink {
-  color: var(--home-paper);
-  background: var(--home-ink);
+  color: #fff;
+  background: transparent;
 }
 
 .foodCard:nth-child(2) {
@@ -643,16 +654,31 @@
   color: var(--home-ink);
   text-decoration: none;
   box-shadow: 0 12px 28px rgba(21, 18, 14, 0.08);
+  overflow: hidden;
 }
 
-.articleRow img {
+.articleImage {
+  position: relative;
+  display: block;
   width: 100%;
-  height: auto;
   aspect-ratio: 4 / 3;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--home-red);
+}
+
+.articleImage img {
   object-fit: cover;
   object-position: center 42%;
   border: 2px solid var(--home-ink);
   filter: saturate(1.05) contrast(1.02);
+  transform: scale(1);
+  transition: transform 280ms cubic-bezier(0.16, 0.92, 0.18, 1);
+}
+
+.articleRow:hover .articleImage img,
+.articleRow:focus-visible .articleImage img {
+  transform: scale(1.075);
 }
 
 .articleCopy {
@@ -671,6 +697,10 @@
   font-weight: 400;
   line-height: 0.88;
   text-transform: uppercase;
+}
+
+.articleCopy em {
+  font-style: normal;
 }
 
 .articleCta {
@@ -695,8 +725,8 @@
 
 .articleRow:hover .articleCta,
 .articleRow:focus-visible .articleCta {
-  color: var(--home-ink);
-  background: var(--home-red);
+  color: var(--home-paper);
+  background: var(--home-ink);
 }
 
 @media (min-width: 901px) {
@@ -720,13 +750,12 @@
   }
 
   .foodMeta {
-    max-width: min(100%, 176px);
-    margin-top: -12px;
-    padding: 5px 8px 6px;
+    max-width: min(100%, 184px);
+    margin-top: -14px;
   }
 
   .foodMeta strong {
-    font-size: clamp(20px, 1.65vw, 28px);
+    font-size: clamp(24px, 2vw, 32px);
   }
 
   .foodCard:nth-child(2) {
@@ -771,8 +800,12 @@
     overflow: hidden;
   }
 
-  .articleRow img {
-    aspect-ratio: 5 / 4;
+  .articleImage {
+    height: clamp(230px, 22vw, 330px);
+    aspect-ratio: auto;
+  }
+
+  .articleImage img {
     border: 0;
   }
 
@@ -802,7 +835,7 @@
   }
 
   .heroBody,
-  .heroSpotFrame,
+  .heroSpotOverlay,
   .indexBlock {
     grid-template-columns: 1fr;
   }
@@ -879,11 +912,11 @@
   }
 
   .foodMeta {
-    margin-top: -10px;
+    margin-top: -12px;
   }
 
   .foodMeta strong {
-    font-size: clamp(20px, 6vw, 26px);
+    font-size: clamp(23px, 6.2vw, 30px);
   }
 
   .foodRestaurantLink {

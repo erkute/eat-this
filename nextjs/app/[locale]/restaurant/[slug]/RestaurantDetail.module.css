@@ -1565,3 +1565,101 @@ html[data-theme="dark"] .actPrimary {
     grid-template-columns: 1fr;
   }
 }
+
+/* Detail surface pass: poster slabs instead of white boxes with black frames. */
+.tipp {
+  background: var(--detail-red);
+  color: #fff;
+  border: 0;
+  transform: rotate(-.35deg);
+}
+
+.tippLabel {
+  color: rgba(255, 255, 255, .78);
+}
+
+.tippText {
+  color: #fff;
+}
+
+.facts {
+  position: relative;
+  overflow: hidden;
+  padding: 6px 0;
+  border: 0;
+  background: var(--detail-ink);
+  color: #fff;
+}
+
+.facts::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 8px;
+  background: var(--detail-red);
+}
+
+.factsRow {
+  padding: 18px 22px 18px 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, .16);
+}
+
+.factsRow:last-child {
+  border-bottom: 0;
+}
+
+.factsKey {
+  color: #ff5a4e;
+}
+
+.factsVal,
+.factsVal a,
+.hours {
+  color: #fff;
+}
+
+.hoursDay {
+  color: rgba(255, 255, 255, .62);
+}
+
+html[data-theme="dark"] .page {
+  --detail-ink: #f4efe4;
+  --detail-paper: #15120e;
+  --detail-red: #f05243;
+  --detail-muted: rgba(244, 239, 228, .66);
+  --text-primary: var(--detail-ink);
+  --text-secondary: var(--detail-ink);
+  --text-muted: var(--detail-muted);
+  --surface-bg: var(--detail-paper);
+  --surface-card: var(--detail-paper);
+  --border-strong: var(--detail-ink);
+  --accent: var(--detail-red);
+  --brand-ink: var(--detail-ink);
+  --brand-paper: var(--detail-paper);
+  --brand-action: var(--detail-red);
+  background: var(--detail-paper);
+  color: var(--detail-ink);
+}
+
+html[data-theme="dark"] .facts {
+  background: #f3ead8;
+  color: #15120e;
+}
+
+html[data-theme="dark"] .factsRow {
+  border-bottom-color: rgba(21, 18, 14, .14);
+}
+
+html[data-theme="dark"] .factsKey {
+  color: #d9382a;
+}
+
+html[data-theme="dark"] .factsVal,
+html[data-theme="dark"] .factsVal a,
+html[data-theme="dark"] .hours {
+  color: #15120e;
+}
+
+html[data-theme="dark"] .hoursDay {
+  color: rgba(21, 18, 14, .62);
+}

@@ -151,7 +151,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     bezirkNames, bezirkCenters,
     cuisineNames,
     displayedRestaurants, displayedLockedRestaurants,
-  } = useMapFilters({ restaurants, lockedRestaurants, location })
+  } = useMapFilters({ restaurants, lockedRestaurants, mustEats, location })
 
   const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
   const [selectedMustEat,    setSelectedMustEat]    = useState<MapMustEat | null>(null)

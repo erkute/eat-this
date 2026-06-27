@@ -107,6 +107,7 @@ const en = {
       title: 'Booster Packs',
       cat: 'Booster Pack',
       view: 'View pack',
+      viewAria: 'View {name} pack',
       buy: 'Buy · {price}',
       buyAria: 'Buy {name} pack',
       pending: 'Opening Stripe...',
@@ -143,7 +144,7 @@ const en = {
       title: 'New on the map',
     },
     dishPoster: {
-      title: 'This is what to eat.',
+      title: 'This is what to eat?',
     },
     fragRemy: {
       title: 'Ask Remy',
@@ -630,6 +631,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     packs: {
       cat: 'Booster Pack',
       view: 'Pack ansehen',
+      viewAria: '{name}-Pack ansehen',
       buy: 'Kaufen · {price}',
       buyAria: '{name}-Pack kaufen',
       pending: 'Stripe öffnet ...',
@@ -666,7 +668,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       title: 'Neu auf der Map',
     },
     dishPoster: {
-      title: 'Das willst du essen.',
+      title: 'Das willst du essen?',
     },
     fragRemy: {
       title: 'Frag Remy',

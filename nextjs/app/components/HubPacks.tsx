@@ -2,7 +2,7 @@ import Image from 'next/image'
 import { useLocale, useTranslations } from 'next-intl'
 import { CATALOG } from '@/lib/stripe-catalog'
 import { categoryArt } from '@/lib/categoryArt'
-import HubPackBuyButton from './HubPackBuyButton'
+import { Link } from '@/i18n/navigation'
 import HubWelcomePack from './HubWelcomePack'
 import styles from './HubPacks.module.css'
 
@@ -10,14 +10,9 @@ interface Props {
   categoryNames: Record<string, string>
 }
 
-function formatPrice(cents: number): string {
-  return `€${(cents / 100).toFixed(2).replace('.', ',')}`
-}
-
 export default function HubPacks({ categoryNames }: Props) {
   const t = useTranslations('hub.packs')
   const loc: 'de' | 'en' = useLocale() === 'de' ? 'de' : 'en'
-  const ownedHref = loc === 'de' ? '/map' : '/en/map'
   const categoryPacks = Object.values(CATALOG).filter((p) => p.type === 'category' && p.slug)
   return (
     <section className={styles.section} id="hub-packs" data-hub-packs="">
@@ -40,20 +35,13 @@ export default function HubPacks({ categoryNames }: Props) {
                 {p.description[loc]}
               </p>
               <div className={styles.packFoot}>
-                <HubPackBuyButton
-                  packId={p.packId}
-                  packName={p.displayName}
-                  amountCents={p.amountCents}
-                  locale={loc}
-                  label={t('buy', { price: formatPrice(p.amountCents) })}
-                  pendingLabel={t('pending')}
-                  ownedLabel={t('owned')}
-                  ownedHref={ownedHref}
-                  errorLabel={t('error')}
+                <Link
+                  href={`/pack/${slug}`}
                   className={`${styles.packCta} homeCta homeCtaPrimary`}
-                  errorClassName={styles.packError}
-                  ariaLabel={t('buyAria', { name })}
-                />
+                  aria-label={t('viewAria', { name })}
+                >
+                  {t('view')}
+                </Link>
               </div>
             </article>
           )

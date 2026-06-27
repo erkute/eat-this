@@ -221,13 +221,19 @@ export default function MustEatDetailMobile({
           <div className={styles.fdPager} data-detail-pager aria-label="Must Eat wechseln">
             <button type="button" className={styles.fdPagerPrev} disabled={!prevMustEat} onClick={() => pageWithCard('prev')}>
               <span className={styles.fdPagerArrow}><PagerArrowIcon /></span>
-              <span className={styles.fdPagerName}>
-                {prevMustEat ? (prevUnlocked ? normalizeName(prevMustEat.dish ?? '') : t('mustEats.covered')) : ''}
+              <span className={styles.fdPagerCopy}>
+                <span className={styles.fdPagerLabel}>{lang === 'en' ? 'Previous' : 'Zurück'}</span>
+                <span className={styles.fdPagerName}>
+                  {prevMustEat ? (prevUnlocked ? normalizeName(prevMustEat.dish ?? '') : t('mustEats.covered')) : ''}
+                </span>
               </span>
             </button>
             <button type="button" className={styles.fdPagerNext} disabled={!nextMustEat} onClick={() => pageWithCard('next')}>
-              <span className={styles.fdPagerName}>
-                {nextMustEat ? (nextUnlocked ? normalizeName(nextMustEat.dish ?? '') : t('mustEats.covered')) : ''}
+              <span className={styles.fdPagerCopy}>
+                <span className={styles.fdPagerLabel}>{lang === 'en' ? 'Next' : 'Weiter'}</span>
+                <span className={styles.fdPagerName}>
+                  {nextMustEat ? (nextUnlocked ? normalizeName(nextMustEat.dish ?? '') : t('mustEats.covered')) : ''}
+                </span>
               </span>
               <span className={styles.fdPagerArrow}><PagerArrowIcon /></span>
             </button>

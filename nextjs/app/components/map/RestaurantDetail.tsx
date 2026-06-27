@@ -32,22 +32,19 @@ function MustEatMiniCard({
   unlocked,
   onClick,
 }: { mustEat: MapMustEat; unlocked: boolean; onClick: () => void }) {
+  const dish = mustEat.dish ?? 'Must Eat'
+
   return (
     <li>
       <button
         type="button"
         className={styles.medish}
         onClick={onClick}
-        aria-label={unlocked ? mustEat.dish : 'Locked Must Eat'}
+        aria-label={unlocked ? dish : 'Locked Must Eat'}
       >
         <div className={styles.medishPh}>
-          <img src={unlocked ? mustEat.image : '/pics/card-back.webp?v=6'} alt={unlocked ? mustEat.dish : ''} loading="lazy" />
+          <img src={unlocked && mustEat.image ? mustEat.image : '/pics/card-back.webp?v=6'} alt={unlocked ? dish : ''} loading="lazy" />
         </div>
-        {!unlocked && (
-          <div className={styles.medishLbl}>
-            <h4 className={styles.medishNm}>Verdeckt</h4>
-          </div>
-        )}
       </button>
     </li>
   )
@@ -285,14 +282,18 @@ export default function RestaurantDetail({
               {prevRestaurant && (
                 <>
                   <svg className={styles.rdPagerArrow} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg>
-                  <span className={styles.rdPagerName}>{normalizeName(prevRestaurant.name)}</span>
+                  <span className={styles.rdPagerCopy}>
+                    <span className={styles.rdPagerName}>{normalizeName(prevRestaurant.name)}</span>
+                  </span>
                 </>
               )}
             </button>
             <button type="button" className={`${styles.rdPagerBtn} ${styles.rdPagerBtnRight}`} disabled={!nextRestaurant} onClick={onPageNext}>
               {nextRestaurant && (
                 <>
-                  <span className={styles.rdPagerName}>{normalizeName(nextRestaurant.name)}</span>
+                  <span className={styles.rdPagerCopy}>
+                    <span className={styles.rdPagerName}>{normalizeName(nextRestaurant.name)}</span>
+                  </span>
                   <svg className={styles.rdPagerArrow} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
                 </>
               )}
@@ -332,8 +333,10 @@ export default function RestaurantDetail({
 
         {/* MUST EATS — reveal state mirrors the map/list (unlocked OR proximity-revealed) */}
         {mustEats.length > 0 && (
-          <section>
-            <h2 className={styles.rdSecH}>Must Eats</h2>
+          <section className={styles.rdMustSection}>
+            <div className={styles.rdMustHead}>
+              <h2 className={styles.rdSecH}>Must Eats</h2>
+            </div>
             <ol className={styles.rdMustGrid}>
               {mustEats.slice(0, 4).map(m => (
                 <MustEatMiniCard

@@ -57,12 +57,14 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                 <li key={a.slug}>
                   <Link href={`/news/${a.slug}`} className={styles.feat}>
                     {a.imageUrl && (
-                      <div
-                        className={styles.featImg}
-                        style={{ backgroundImage: `url(${a.imageUrl})` }}
-                        role="img"
-                        aria-label={a.alt || title}
-                      />
+                      <div className={styles.featImgFrame}>
+                        <div
+                          className={styles.featImg}
+                          style={{ backgroundImage: `url(${a.imageUrl})` }}
+                          role="img"
+                          aria-label={a.alt || title}
+                        />
+                      </div>
                     )}
                     <div className={styles.featMeta}>
                       {categoryLabel && <span className={styles.featTag}>{categoryLabel}</span>}

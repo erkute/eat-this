@@ -7,7 +7,9 @@ import HubFaq from './HubFaq'
 import HubDeineWelt from './HubDeineWelt'
 import HubFragRemy from './HubFragRemy'
 import HubHashScroll from './HubHashScroll'
+import HubAllBerlin from './HubAllBerlin'
 import HubMustEatsTeaser from './HubMustEatsTeaser'
+import HubPacks from './HubPacks'
 import MapIntentLink from './MapIntentLink'
 import SiteFooter from './SiteFooter'
 import styles from './HubSection.module.css'
@@ -27,7 +29,7 @@ const copy = {
     track: 'Spot',
     latest: 'Neu auf der Map',
     latestSub: 'Neue Spots, frisch auf deiner Map.',
-    eatTitle: 'Das willst du essen.',
+    eatTitle: 'Das willst du essen?',
     eatSub: 'Jede Karte ist ein Gericht, das wir dir ans Herz legen: unsere klare Empfehlung für genau dieses Restaurant.',
     districts: 'Bezirke',
     districtsSub: 'Spots nach Bezirk.',
@@ -42,7 +44,7 @@ const copy = {
     track: 'Spot',
     latest: 'New on the map',
     latestSub: 'New spots, fresh on your map.',
-    eatTitle: 'This is what to eat.',
+    eatTitle: 'This is what to eat?',
     eatSub: 'Every card is a dish we stand behind: our clear recommendation for that exact restaurant.',
     districts: 'Districts',
     districtsSub: 'Spots by district.',
@@ -138,22 +140,24 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
           {spot && (
             <aside className={styles.heroSpot} aria-label={t.spotDay}>
               <div className={styles.heroSpotFrame}>
-                {spot.image && (
-                  <div className={styles.heroSpotPhoto}>
-                    <Image src={spot.image} alt="" fill sizes="(min-width: 960px) 48vw, 92vw" />
-                  </div>
-                )}
                 <div className={`${styles.heroSpotOverlay} ${!spot.image ? styles.heroSpotOverlayStatic : ''}`}>
-                  <span className={styles.heroSpotLabel}>{t.spotDay}</span>
-                  <strong>{normalizeName(spot.name)}</strong>
-                  {spot.sub && <p>{normalizeName(spot.sub)}</p>}
-                  <div className={styles.heroSpotActions}>
-                    <MapIntentLink href={`/map?r=${spot.slug}`} rel="nofollow" className={styles.redButton}>
-                      {t.heroCta}
-                    </MapIntentLink>
-                    <Link href={`/restaurant/${spot.slug}`} className={styles.whiteButton}>
-                      {t.openSpot}
-                    </Link>
+                  {spot.image && (
+                    <div className={styles.heroSpotPhoto}>
+                      <Image src={spot.image} alt="" fill priority sizes="(min-width: 960px) 52vw, 88vw" />
+                    </div>
+                  )}
+                  <div className={styles.heroSpotCopy}>
+                    <span className={styles.heroSpotLabel}>{t.spotDay}</span>
+                    <strong>{normalizeName(spot.name)}</strong>
+                    {spot.sub && <p>{normalizeName(spot.sub)}</p>}
+                    <div className={styles.heroSpotActions}>
+                      <MapIntentLink href={`/map?r=${spot.slug}`} rel="nofollow" className={styles.redButton}>
+                        {t.heroCta}
+                      </MapIntentLink>
+                      <Link href={`/restaurant/${spot.slug}`} className={styles.whiteButton}>
+                        {t.openSpot}
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -185,6 +189,9 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       </section>
 
       <HubMustEatsTeaser initialMapData={initialMapData} />
+
+      <HubAllBerlin />
+      <HubPacks categoryNames={initialData.categoryNames} />
 
       <section className={styles.indexBlock}>
         <div className={styles.redPanel}>
@@ -252,7 +259,11 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
           <div className={styles.articleRows}>
             {articles.map((article) => (
               <Link key={article.slug} href={`/news/${article.slug}`} className={styles.articleRow}>
-                {article.image && <Image src={article.image} alt="" width={440} height={340} />}
+                {article.image && (
+                  <span className={styles.articleImage}>
+                    <Image src={article.image} alt="" fill sizes="(max-width: 900px) 88vw, 31vw" />
+                  </span>
+                )}
                 <span className={styles.articleCopy}>
                   <em>{article.kicker}</em>
                   <strong>{article.title}</strong>

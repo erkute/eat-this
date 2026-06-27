@@ -497,6 +497,25 @@ a.mustEat:hover .mustEatCta svg {
     transparent 64%
   );
 }
+.inlineSpotLabel {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 1;
+  display: inline-flex;
+  max-width: calc(100% - 28px);
+  padding: 7px 10px 8px;
+  background: var(--article-red, #d9382a);
+  color: #fff;
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  line-height: 1;
+  text-transform: uppercase;
+  transform: rotate(-2deg);
+  transition: transform 160ms cubic-bezier(.16, .92, .18, 1);
+}
 .inlineSpotFoot {
   position: absolute;
   left: 18px;
@@ -533,6 +552,32 @@ a.mustEat:hover .mustEatCta svg {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: #fbf8ee;
+}
+.inlineSpotCta svg {
+  flex-shrink: 0;
+  transition: transform 160ms cubic-bezier(.16, .92, .18, 1);
+}
+
+a.inlineSpot:focus-visible {
+  outline: 3px solid var(--brand-yellow);
+  outline-offset: 4px;
+}
+
+a.inlineSpot:hover .inlineSpotLabel,
+a.inlineSpot:focus-visible .inlineSpotLabel {
+  transform: rotate(-2deg) translate(-2px, -2px);
+}
+
+a.inlineSpot:hover .inlineSpotCta svg,
+a.inlineSpot:focus-visible .inlineSpotCta svg {
+  transform: translateX(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inlineSpotLabel,
+  .inlineSpotCta svg {
+    transition: none;
+  }
 }
 
 /* ── Share — single full-width ink button (mockup .art-share) ── */
@@ -1390,8 +1435,73 @@ html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-arti
   margin-bottom: clamp(18px, 2.4vw, 28px);
 }
 
+.page[data-page="news-article"] .breadcrumbWrap {
+  width: min(100%, 800px);
+  margin: 0 auto 10px;
+}
+
+.page[data-page="news-article"] .breadcrumbWrap :global(nav) {
+  width: 100%;
+  margin: 0;
+}
+
+.page[data-page="news-article"] .breadcrumbWrap :global(ol) {
+  display: inline-flex;
+  max-width: 100%;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 10px 8px;
+  overflow: hidden;
+  border: 0;
+  background: var(--article-ink);
+  color: var(--article-paper);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  line-height: 1;
+  text-transform: uppercase;
+  transform: rotate(-.45deg);
+}
+
+.page[data-page="news-article"] .breadcrumbWrap :global(li) {
+  min-width: 0;
+  gap: 8px;
+}
+
+.page[data-page="news-article"] .breadcrumbWrap :global(a),
+.page[data-page="news-article"] .breadcrumbWrap :global(span) {
+  min-width: 0;
+  color: inherit;
+}
+
+.page[data-page="news-article"] .breadcrumbWrap :global(a:hover),
+.page[data-page="news-article"] .breadcrumbWrap :global(a:focus-visible) {
+  color: #fff;
+}
+
+.page[data-page="news-article"] .breadcrumbWrap :global([aria-current="page"]) {
+  max-width: min(46vw, 42ch);
+  overflow: hidden;
+  color: var(--article-red);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.page[data-page="news-article"] .breadcrumbWrap :global([aria-hidden="true"]) {
+  color: var(--article-red);
+}
+
+.page[data-page="news-article"] .heroWrap::after {
+  content: "";
+  position: absolute;
+  inset: 28% 0 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(12, 9, 7, .9), rgba(12, 9, 7, .52) 48%, rgba(12, 9, 7, 0));
+}
+
 .page[data-page="news-article"] .byline,
-.page[data-page="news-article"] .breadcrumbWrap,
 .page[data-page="news-article"] .lede,
 .page[data-page="news-article"] .content,
 .page[data-page="news-article"] .shareRow,
@@ -1403,6 +1513,27 @@ html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-arti
   width: min(100%, 880px);
   font-size: clamp(46px, 6.4vw, 86px);
   line-height: .88;
+}
+
+.page[data-page="news-article"] .heroCopy {
+  position: absolute;
+  right: clamp(16px, 4vw, 42px);
+  bottom: clamp(16px, 3.5vw, 38px);
+  left: clamp(16px, 4vw, 42px);
+  z-index: 2;
+}
+
+.page[data-page="news-article"] .heroTitle {
+  width: min(100%, 14ch);
+  margin: 0;
+  color: #fff;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(44px, 7.2vw, 102px);
+  font-weight: 400;
+  line-height: .82;
+  letter-spacing: 0;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, .5);
+  text-transform: uppercase;
 }
 
 .page[data-page="news-article"] .lede {
@@ -1493,6 +1624,15 @@ html[data-theme="dark"] .page[data-page="news-article"] .heroWrap {
   background: #1d1c19;
 }
 
+html[data-theme="dark"] .page[data-page="news-article"] .breadcrumbWrap :global(ol) {
+  background: var(--article-ink);
+  color: var(--article-paper);
+}
+
+html[data-theme="dark"] .page[data-page="news-article"] .heroTitle {
+  color: #fff;
+}
+
 html[data-theme="dark"] .page[data-page="news-article"] .relatedCard {
   background: transparent;
   color: var(--article-ink);
@@ -1509,8 +1649,39 @@ html[data-theme="dark"] .page[data-page="news-article"] .relatedCard {
     margin-bottom: 24px;
   }
 
+  .page[data-page="news-article"] .breadcrumbWrap {
+    margin-bottom: 8px;
+  }
+
+  .page[data-page="news-article"] .breadcrumbWrap :global(ol) {
+    width: 100%;
+    padding: 7px 9px 8px;
+    font-size: 9px;
+    letter-spacing: .09em;
+    transform: rotate(-.35deg);
+  }
+
+  .page[data-page="news-article"] .breadcrumbWrap :global([aria-current="page"]) {
+    max-width: 20ch;
+  }
+
+  .page[data-page="news-article"] .heroWrap::after {
+    inset: 18% 0 0;
+  }
+
   .page[data-page="news-article"] .title {
     font-size: clamp(42px, 12.5vw, 66px);
+  }
+
+  .page[data-page="news-article"] .heroCopy {
+    right: 14px;
+    bottom: 14px;
+    left: 14px;
+  }
+
+  .page[data-page="news-article"] .heroTitle {
+    max-width: 15ch;
+    font-size: clamp(34px, 11vw, 56px);
   }
 
   .page[data-page="news-article"] .relatedGrid {
@@ -1521,4 +1692,20 @@ html[data-theme="dark"] .page[data-page="news-article"] .relatedCard {
   .page[data-page="news-article"] .relatedHeadline {
     font-size: clamp(30px, 8.5vw, 44px);
   }
+}
+
+.page[data-page="news-article"] .heroWrap .heroTitle {
+  color: #fff;
+}
+
+html[data-theme="dark"] .page[data-page="news-article"] .heroWrap .heroTitle {
+  color: #fff;
+}
+
+html:not([data-active-page="map"]) .page[data-page="news-article"] .heroWrap .heroTitle {
+  color: #fff;
+}
+
+html[data-theme="dark"]:not([data-active-page="map"]) .page[data-page="news-article"] .heroWrap .heroTitle {
+  color: #fff;
 }

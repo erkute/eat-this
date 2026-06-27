@@ -8,6 +8,7 @@ import { buildRestaurantJsonLd } from '@/lib/json-ld'
 import { buildRestaurantTitle, buildOrderPromiseDescription, truncateAtSentence } from '@/lib/seo/restaurantMeta'
 import { siblingWindow } from '@/lib/seo/siblingWindow'
 import { SITE_URL } from '@/lib/constants'
+import { normalizeName } from '@/lib/normalizeName'
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata'
 import { routing } from '@/i18n/routing'
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale'
@@ -145,6 +146,7 @@ export default async function RestaurantPage({ params }: PageProps) {
   const description = pickLocale(r.description, r.descriptionEn, loc) || ''
   const shortDescription = pickLocale(r.shortDescription, r.shortDescriptionEn, loc)
   const tipText = pickLocale(r.tip, r.tipEn, loc)
+  const displayName = normalizeName(r.name)
   const magazine = splitDescriptionForMagazine(description)
   const faqEntries = buildFAQEntries(r, loc)
   const orderItems = (r.whatToOrder ?? []).filter(i => i?.dish?.trim())
@@ -215,8 +217,8 @@ export default async function RestaurantPage({ params }: PageProps) {
             <div className={styles.heroOverlay}>
               <h1 className={styles.heroName}>
                 {(() => {
-                  const parts = r.name.trim().split(/\s+/)
-                  if (parts.length <= 1) return r.name
+                  const parts = displayName.trim().split(/\s+/)
+                  if (parts.length <= 1) return displayName
                   return (
                     <>
                       {parts[0]}
@@ -238,7 +240,7 @@ export default async function RestaurantPage({ params }: PageProps) {
             </div>
           </div>
         ) : (
-          <h1 className={styles.name}>{r.name}</h1>
+          <h1 className={styles.name}>{displayName}</h1>
         )}
 
         {description && (
@@ -373,7 +375,7 @@ export default async function RestaurantPage({ params }: PageProps) {
                           <Image src={s.photo} alt={s.name} fill sizes="33vw" />
                         </div>
                       )}
-                      <span className={styles.sibName}>{s.name}</span>
+                      <span className={styles.sibName}>{normalizeName(s.name)}</span>
                       {s.cuisineType && <span className={styles.sibMeta}>{s.cuisineType}</span>}
                     </IntlLink>
                   ))}
@@ -393,7 +395,7 @@ export default async function RestaurantPage({ params }: PageProps) {
                           <Image src={s.photo} alt={s.name} fill sizes="33vw" />
                         </div>
                       )}
-                      <span className={styles.sibName}>{s.name}</span>
+                      <span className={styles.sibName}>{normalizeName(s.name)}</span>
                       {s.cuisineType && <span className={styles.sibMeta}>{s.cuisineType}</span>}
                     </IntlLink>
                   ))}

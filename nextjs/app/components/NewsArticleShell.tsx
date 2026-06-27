@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { PortableTextRenderer, extractHeadings } from '@/lib/PortableTextRenderer';
 import { Link } from '@/i18n/navigation';
-import type { NewsArticle, MustEatCardBlock } from '@/lib/types';
+import type { NewsArticle, MustEatCardBlock, SpotCardBlock } from '@/lib/types';
 import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
@@ -111,6 +111,41 @@ export default function NewsArticleShell({
     );
   };
 
+  const renderSpotCard = (block: SpotCardBlock) => {
+    if (!block.restaurantName || !block.restaurantSlug) return null;
+    const restName = normalizeName(block.restaurantName);
+    const meta = [block.district, block.cuisineType].filter(Boolean).join(' · ');
+    const label = de ? 'Spot aus dem Artikel' : 'From this article';
+    const cta = de ? 'Auf der Map öffnen' : 'Open on the map';
+
+    return (
+      <Link
+        href={`/map?r=${block.restaurantSlug}`}
+        rel="nofollow"
+        className={styles.inlineSpot}
+        style={block.restaurantPhoto ? { backgroundImage: `url(${block.restaurantPhoto})` } : undefined}
+        aria-label={`${restName} ${cta}`}
+      >
+        <span className={styles.inlineSpotLabel}>{label}</span>
+        <span className={styles.inlineSpotFoot}>
+          {meta && <span className={styles.inlineSpotMeta}>{meta}</span>}
+          <span className={styles.inlineSpotName}>{restName}</span>
+          <span className={styles.inlineSpotCta}>
+            <span>{cta}</span>
+            <svg
+              width="24" height="16" viewBox="0 0 32 20" fill="none"
+              stroke="currentColor" strokeWidth="3" strokeLinecap="round"
+              strokeLinejoin="round" aria-hidden="true"
+            >
+              <path d="M3 10 L24 10" />
+              <path d="M18 3 L27 10 L18 17" />
+            </svg>
+          </span>
+        </span>
+      </Link>
+    );
+  };
+
   const homeLabel = de ? 'Start' : 'Home';
   const newsLabel = de ? 'Auf dem Teller' : 'On the Menu';
   const breadcrumbItems: BreadcrumbItem[] = [
@@ -131,6 +166,13 @@ export default function NewsArticleShell({
       id="newsModal"
     >
       <article className={styles.article}>
+        <div className={styles.breadcrumbWrap}>
+          <Breadcrumbs
+            items={breadcrumbItems}
+            ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
+          />
+        </div>
+
         {article.imageUrl && (
           // Hero = LCP element. fill + the Sanity loader serve a width-matched
           // srcset (mobile no longer downloads the w=1200 desktop file).
@@ -143,6 +185,9 @@ export default function NewsArticleShell({
               sizes="(max-width: 768px) 100vw, 720px"
               className={styles.hero}
             />
+            <div className={styles.heroCopy}>
+              <h1 className={styles.heroTitle}>{title}</h1>
+            </div>
           </div>
         )}
 
@@ -151,16 +196,9 @@ export default function NewsArticleShell({
           {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
         </div>
 
-        <h1 className={styles.title}>{title}</h1>
+        {!article.imageUrl && <h1 className={styles.title}>{title}</h1>}
 
         {excerpt && <p className={styles.lede}>{excerpt}</p>}
-
-        <div className={styles.breadcrumbWrap}>
-          <Breadcrumbs
-            items={breadcrumbItems}
-            ariaLabel={de ? 'Brotkrumen-Navigation' : 'Breadcrumb'}
-          />
-        </div>
 
         {showToc && (
           <nav className={styles.toc} aria-label={tocLabel}>
@@ -176,7 +214,7 @@ export default function NewsArticleShell({
         )}
 
         <div className={styles.content}>
-          <PortableTextRenderer blocks={content} renderMustEatCard={renderMustEatCard} />
+          <PortableTextRenderer blocks={content} renderMustEatCard={renderMustEatCard} renderSpotCard={renderSpotCard} />
         </div>
 
         <div className={styles.shareRow}>

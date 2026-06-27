@@ -497,7 +497,7 @@
   }
 }
 
-/* ── Checkout error toast (unchanged from previous version) ───────── */
+/* ── Checkout error toast — mirrors the global info-layer system. ───────── */
 .toast {
   position: fixed;
   left: 50%;
@@ -508,44 +508,55 @@
   align-items: center;
   gap: 12px;
   max-width: min(420px, calc(100vw - 32px));
-  padding: 14px 16px 14px 18px;
+  min-height: 62px;
+  padding: 12px 14px 12px 16px;
   background: #fff;
-  color: #0a0a0a;
-  border: 2.5px solid var(--brand-red);
-  border-radius: 14px;
-  box-shadow: 6px 6px 0 0 #0a0a0a;
+  color: #15120e;
+  border: 0;
+  border-radius: 16px;
+  box-shadow:
+    0 16px 44px rgba(0, 0, 0, .16),
+    inset 0 0 0 1px rgba(21, 18, 14, .11);
   font-family: var(--font);
   font-size: 14px;
   line-height: 1.4;
   animation: toastIn 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.toastMsg { flex: 1; font-weight: 500; }
+.toastMsg { flex: 1; font-weight: 800; }
 .toastClose {
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
+  background: #15120e;
   border: none;
-  color: #0a0a0a;
-  font-size: 22px;
+  color: #fff;
+  font-size: 20px;
   line-height: 1;
   font-weight: 700;
   cursor: pointer;
-  border-radius: 50%;
+  border-radius: 999px;
   transition: background 120ms ease;
 }
-.toastClose:hover { background: rgba(0, 0, 0, 0.08); }
+.toastClose:hover { background: #d9382a; }
 @keyframes toastIn {
   from { transform: translate(-50%, 24px); }
   to   { transform: translate(-50%, 0); }
 }
 :global([data-theme="dark"]) .toast {
-  background: #1a1a1a;
-  color: #f7f5f0;
-  box-shadow: 6px 6px 0 0 #f7f5f0;
+  background: #15120e;
+  color: #fff;
+  box-shadow:
+    0 18px 46px rgba(0, 0, 0, .36),
+    inset 0 0 0 1px rgba(255, 255, 255, .12);
 }
-:global([data-theme="dark"]) .toastClose { color: #f7f5f0; }
-:global([data-theme="dark"]) .toastClose:hover { background: rgba(255, 255, 255, 0.1); }
+:global([data-theme="dark"]) .toastClose {
+  background: #fff;
+  color: #15120e;
+}
+:global([data-theme="dark"]) .toastClose:hover {
+  background: #d9382a;
+  color: #fff;
+}

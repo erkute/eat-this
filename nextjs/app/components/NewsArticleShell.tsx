@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { PortableTextRenderer, extractHeadings } from '@/lib/PortableTextRenderer';
+import { PortableTextRenderer } from '@/lib/PortableTextRenderer';
 import { Link } from '@/i18n/navigation';
 import type { NewsArticle, MustEatCardBlock, SpotCardBlock } from '@/lib/types';
 import { normalizeName } from '@/lib/normalizeName';
@@ -27,8 +27,7 @@ function formatDate(iso: string | undefined, locale: string): string {
 }
 
 // Article detail — Chewy magazine feature (mockup-chewy screen 8). Inline
-// must-eat cards are driven by mustEatCard reference blocks in the body;
-// TOC + drop-cap come from the body.
+// must-eat cards are driven by mustEatCard reference blocks in the body.
 export default function NewsArticleShell({
   article,
   relatedArticles = [],
@@ -47,10 +46,6 @@ export default function NewsArticleShell({
   const content =
     (de ? article.contentDe : article.content) || article.content || [];
   const dateFormatted = formatDate(article.date, locale);
-
-  const headings = extractHeadings(content);
-  const showToc = headings.length >= 2;
-  const tocLabel = de ? 'In diesem Artikel' : 'In this article';
 
   // Inline "Must Eat" banner — dark poster block in the article column, same
   // sticker language as MapPromoCTA. The image is the full collectible trading
@@ -115,7 +110,6 @@ export default function NewsArticleShell({
     if (!block.restaurantName || !block.restaurantSlug) return null;
     const restName = normalizeName(block.restaurantName);
     const meta = [block.district, block.cuisineType].filter(Boolean).join(' · ');
-    const label = de ? 'Spot aus dem Artikel' : 'From this article';
     const cta = de ? 'Auf der Map öffnen' : 'Open on the map';
 
     return (
@@ -126,7 +120,6 @@ export default function NewsArticleShell({
         style={block.restaurantPhoto ? { backgroundImage: `url(${block.restaurantPhoto})` } : undefined}
         aria-label={`${restName} ${cta}`}
       >
-        <span className={styles.inlineSpotLabel}>{label}</span>
         <span className={styles.inlineSpotFoot}>
           {meta && <span className={styles.inlineSpotMeta}>{meta}</span>}
           <span className={styles.inlineSpotName}>{restName}</span>
@@ -199,19 +192,6 @@ export default function NewsArticleShell({
         {!article.imageUrl && <h1 className={styles.title}>{title}</h1>}
 
         {excerpt && <p className={styles.lede}>{excerpt}</p>}
-
-        {showToc && (
-          <nav className={styles.toc} aria-label={tocLabel}>
-            <p className={styles.tocLabel}>{tocLabel}</p>
-            <ol className={styles.tocList}>
-              {headings.map((h) => (
-                <li key={h.id} className={styles.tocItem}>
-                  <a href={`#${h.id}`} className={styles.tocLink}>{h.text}</a>
-                </li>
-              ))}
-            </ol>
-          </nav>
-        )}
 
         <div className={styles.content}>
           <PortableTextRenderer blocks={content} renderMustEatCard={renderMustEatCard} renderSpotCard={renderSpotCard} />

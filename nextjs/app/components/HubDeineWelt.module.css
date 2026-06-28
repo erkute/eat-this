@@ -5,9 +5,9 @@
   --dock-muted: rgba(21, 18, 14, .64);
   width: 100%;
   box-sizing: border-box;
-  padding: calc(72px + env(safe-area-inset-top, 0px) + clamp(14px, 3vw, 30px)) clamp(14px, 3vw, 44px) clamp(28px, 5vw, 64px);
+  padding: calc(72px + env(safe-area-inset-top, 0px) + clamp(2px, 1vw, 10px)) 0 clamp(16px, 3vw, 34px);
   color: var(--dock-ink);
-  background: var(--dock-paper);
+  background: var(--dock-red);
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
 }
 
@@ -19,12 +19,13 @@
 
 .inner {
   display: grid;
-  grid-template-columns: minmax(0, .68fr) minmax(320px, .62fr);
-  gap: clamp(14px, 2.4vw, 30px);
+  grid-template-columns: minmax(360px, .78fr) minmax(0, 1.22fr);
+  gap: 0;
   align-items: stretch;
-  width: min(100%, 960px);
-  min-height: clamp(360px, 44svh, 470px);
-  margin: 0 auto;
+  width: 100%;
+  min-height: clamp(308px, 36svh, 390px);
+  margin: 0;
+  background: var(--dock-red);
 }
 
 .copy {
@@ -34,9 +35,9 @@
 
 .copy {
   display: grid;
-  align-content: end;
-  gap: clamp(12px, 2vw, 20px);
-  padding: clamp(20px, 3.2vw, 40px);
+  align-content: start;
+  gap: clamp(8px, 1.2vw, 13px);
+  padding: clamp(18px, 2.6vw, 30px);
   position: relative;
   overflow: hidden;
 }
@@ -79,35 +80,36 @@
   font-size: clamp(12px, 1.1vw, 15px);
   font-weight: 900;
   letter-spacing: .04em;
-  line-height: 1.22;
+  line-height: 1.16;
   text-transform: uppercase;
 }
 
 .collectionKicker {
-  color: var(--dock-muted);
+  display: block;
+  color: var(--dock-ink);
   font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(18px, 1.7vw, 25px);
+  font-size: clamp(32px, 3.2vw, 48px);
   font-weight: 400;
   letter-spacing: 0;
-  line-height: .82;
+  line-height: .74;
   text-transform: uppercase;
 }
 
 .actionRow {
   position: relative;
   z-index: 1;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
+  max-width: 430px;
 }
 
 .profileLink,
 .mapActionLink {
   min-height: 44px;
-  border: 0;
+  border: 2px solid var(--dock-ink);
   border-radius: 0;
   font-family: var(--menu-condensed, Impact, sans-serif);
   font-size: clamp(20px, 1.7vw, 26px);
@@ -116,24 +118,40 @@
   line-height: .86;
   text-transform: uppercase;
   text-decoration: none;
-  transition: transform 140ms ease, color 140ms ease;
+  transition: transform 140ms ease, color 140ms ease, background 140ms ease;
 }
 
 .profileLink,
 .mapActionLink {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 0;
+  min-width: 0;
+  padding: 8px 14px 10px;
+}
+
+.profileLink {
+  color: var(--dock-paper);
+  background: var(--dock-ink);
+}
+
+.mapActionLink {
   color: var(--dock-ink);
-  background: transparent;
+  background: var(--dock-paper);
 }
 
 .profileLink:hover,
-.profileLink:focus-visible,
+.profileLink:focus-visible {
+  color: var(--dock-ink);
+  background: var(--dock-paper);
+  transform: translateY(-3px) rotate(-.8deg);
+}
+
 .mapActionLink:hover,
 .mapActionLink:focus-visible {
   color: var(--dock-paper);
+  background: var(--dock-ink);
   transform: translateY(-3px) rotate(-.8deg);
 }
 
@@ -145,14 +163,14 @@
   display: grid;
   align-content: stretch;
   min-width: 0;
-  padding: 0;
-  background: transparent;
+  padding: clamp(14px, 1.8vw, 20px) clamp(18px, 2.2vw, 28px);
+  background: var(--dock-red);
 }
 
 .collectionGrid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: clamp(18px, 2.5vw, 28px);
+  grid-template-columns: minmax(0, .94fr) minmax(260px, .64fr);
+  gap: clamp(10px, 1.2vw, 14px);
   height: 100%;
 }
 
@@ -163,30 +181,32 @@
   gap: 12px;
   min-height: 0;
   min-width: 0;
-  padding: 0;
+  padding-top: 10px;
   overflow: visible;
   color: var(--dock-ink);
   background: transparent;
   border: 0;
+  border-top: 2px solid var(--dock-ink);
   text-decoration: none;
   transition: transform 140ms ease;
 }
 
 .spotCard {
-  min-height: 248px;
+  min-height: 0;
 }
 
 .mustEatCard {
-  min-height: 222px;
-  transform: rotate(-1deg);
+  min-height: 0;
+  transform: none;
 }
 
 .spotStack {
   position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  min-height: 184px;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  min-height: 0;
   z-index: 1;
 }
 
@@ -200,6 +220,13 @@
 
 .spotStack[data-count='3'] {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.spotStack[data-count='4'],
+.spotStack[data-count='5'],
+.spotStack[data-count='6'] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
 }
 
 .spotPhoto {
@@ -226,7 +253,9 @@
 .spotImage {
   position: relative;
   display: block;
-  aspect-ratio: 3 / 4;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
   overflow: hidden;
   background: #f5ead5;
 }
@@ -273,69 +302,60 @@
 
 .mustStack {
   position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
   align-items: center;
-  justify-content: flex-end;
-  min-height: 178px;
-  padding-right: 4px;
+  justify-items: center;
+  gap: 8px 4px;
+  min-height: 0;
   z-index: 1;
 }
 
 .mustThumb {
+  --must-tilt: 8deg;
   position: relative;
-  width: clamp(86px, 7.5vw, 112px);
+  width: min(100%, clamp(58px, 4.8vw, 76px));
   aspect-ratio: 5 / 7;
   display: grid;
   place-items: center;
   color: inherit;
   text-decoration: none;
-  transform: rotate(8deg);
+  transform: rotate(var(--must-tilt));
   transition: transform 140ms ease;
 }
 
 .mustThumb:hover,
 .mustThumb:focus-visible {
-  transform: translateY(-4px) rotate(8deg);
+  transform: translateY(-4px) rotate(var(--must-tilt));
 }
 
 .mustThumb:nth-child(2) {
-  margin-left: clamp(-34px, -2.7vw, -22px);
-  transform: rotate(-7deg);
-}
-
-.mustThumb:nth-child(2):hover,
-.mustThumb:nth-child(2):focus-visible {
-  transform: translateY(-4px) rotate(-7deg);
+  --must-tilt: -7deg;
 }
 
 .mustThumb:nth-child(3) {
-  margin-left: clamp(-34px, -2.7vw, -22px);
-  transform: rotate(4deg);
-}
-
-.mustThumb:nth-child(3):hover,
-.mustThumb:nth-child(3):focus-visible {
-  transform: translateY(-4px) rotate(4deg);
+  --must-tilt: 4deg;
 }
 
 .mustThumb:nth-child(4) {
-  margin-left: clamp(-34px, -2.7vw, -22px);
-  transform: rotate(-3deg);
-}
-
-.mustThumb:nth-child(4):hover,
-.mustThumb:nth-child(4):focus-visible {
-  transform: translateY(-4px) rotate(-3deg);
+  --must-tilt: -3deg;
 }
 
 .mustThumb:nth-child(5) {
-  margin-left: clamp(-34px, -2.7vw, -22px);
-  transform: rotate(6deg);
+  --must-tilt: 6deg;
 }
 
-.mustThumb:nth-child(5):hover,
-.mustThumb:nth-child(5):focus-visible {
-  transform: translateY(-4px) rotate(6deg);
+.mustThumb:nth-child(6) {
+  --must-tilt: -5deg;
+}
+
+.mustThumb:nth-child(7) {
+  --must-tilt: 3deg;
+}
+
+.mustThumb:nth-child(8) {
+  --must-tilt: -8deg;
 }
 
 .mustImg {
@@ -378,56 +398,97 @@
   }
 
   .copy {
-    min-height: clamp(330px, 48svh, 480px);
+    min-height: clamp(230px, 34svh, 330px);
+  }
+
+  .collectionGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, .78fr);
+    align-items: start;
   }
 }
 
 @media (max-width: 620px) {
   .section {
-    padding-inline: 10px;
+    padding: calc(66px + env(safe-area-inset-top, 0px)) 10px 18px;
+    background: var(--dock-paper);
+  }
+
+  .inner {
+    gap: 0;
+    background: var(--dock-red);
   }
 
   .copy,
   .discovery {
-    padding: 20px;
+    background: var(--dock-red);
+  }
+
+  .copy {
+    min-height: 0;
+    align-content: start;
+    gap: 9px;
+    padding: 18px 16px 12px;
+  }
+
+  .discovery {
+    padding: 0 16px 16px;
+  }
+
+  .kicker {
+    font-size: clamp(18px, 5.8vw, 24px);
   }
 
   .title {
-    font-size: clamp(62px, 18vw, 92px);
+    max-width: 8.4ch;
+    font-size: clamp(50px, 15.4vw, 72px);
   }
 
   .collectionGrid {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .actionRow {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
 
   .profileLink,
   .mapActionLink {
     width: 100%;
     justify-content: center;
+    min-height: 38px;
+    font-size: clamp(18px, 6vw, 22px);
   }
 
   .collectionCard {
     min-height: 0;
+    gap: 9px;
+    padding-top: 12px;
+    border-top: 2px solid var(--dock-ink);
   }
 
   .spotCard {
-    min-height: 280px;
+    min-height: 250px;
   }
 
   .mustEatCard {
     min-height: 230px;
-  }
-
-  .spotStack {
-    min-height: 178px;
+    transform: none;
   }
 
   .mustStack {
+    min-height: 150px;
+    gap: 8px 4px;
+  }
+
+  .spotStack {
+    gap: 8px;
     min-height: 172px;
+  }
+
+  .mustThumb {
+    width: min(100%, clamp(48px, 16vw, 68px));
   }
 }

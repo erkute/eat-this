@@ -101,11 +101,11 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   const spotPreviewPool = savedCount > 0 ? savedPreviewPool : dataRestaurants;
   const spotPreviews = spotPreviewPool
     .filter((r, index, all) => r.photo && r.slug && all.findIndex((x) => x.slug === r.slug) === index)
-    .slice(0, savedCount > 0 ? Math.min(savedCount, 3) : 3);
+    .slice(0, savedCount > 0 ? Math.min(savedCount, 6) : 6);
   const mustEatCards = [
     ...(mustEatOpen && mustEatPick?.image ? [mustEatPick] : []),
     ...dataMustEats.filter((m) => m._id !== mustEatPick?._id && faceUp.has(m._id) && m.image),
-  ].slice(0, Math.min(Math.max(faceUpCount, 1), 5));
+  ].slice(0, Math.min(Math.max(faceUpCount, 1), 8));
 
   return (
     <section className={styles.section} data-hub-deinewelt="" data-auth-only="">
@@ -150,7 +150,11 @@ export default function HubDeineWelt({ initialMapData }: Props) {
             </div>
 
             <div className={`${styles.collectionCard} ${styles.mustEatCard}`}>
-              <span className={styles.collectionKicker}>{de ? 'Must Eats' : 'Must Eats'}</span>
+              <span className={styles.collectionKicker}>
+                Must
+                <br />
+                Eats
+              </span>
               <span className={styles.mustStack} data-count={mustEatCards.length}>
                 {mustEatCards.length > 0 ? (
                   mustEatCards.map((m) => (

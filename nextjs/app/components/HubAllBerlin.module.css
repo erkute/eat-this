@@ -208,6 +208,33 @@
   }
 }
 
+@media (max-width: 719px) {
+  .section {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .copyBlock {
+    justify-items: center;
+  }
+
+  .kicker {
+    justify-self: center;
+  }
+
+  .copy {
+    margin-inline: auto;
+  }
+
+  .ctaWrap {
+    margin-inline: auto;
+  }
+
+  .visual {
+    width: 100%;
+  }
+}
+
 @media (max-width: 520px) {
   .section {
     width: calc(100% - 20px);

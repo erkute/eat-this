@@ -30,7 +30,7 @@ const copy = {
     latest: 'Neu auf der Map',
     latestSub: 'Neue Spots, frisch auf deiner Map.',
     eatTitle: 'Das willst du essen?',
-    eatSub: 'Jede Karte ist ein Gericht, das wir dir ans Herz legen: unsere klare Empfehlung für genau dieses Restaurant.',
+    eatSub: 'Wir zeigen dir, was auf dem Teller landet: konkrete Gerichte, klare Empfehlungen, direkt mit dem richtigen Spot verbunden.',
     districts: 'Bezirke',
     districtsSub: 'Spots nach Bezirk.',
     magazine: 'Auf den Teller',
@@ -45,7 +45,7 @@ const copy = {
     latest: 'New on the map',
     latestSub: 'New spots, fresh on your map.',
     eatTitle: 'This is what to eat?',
-    eatSub: 'Every card is a dish we stand behind: our clear recommendation for that exact restaurant.',
+    eatSub: 'We show what actually lands on the plate: specific dishes, clear picks, tied straight to the right spot.',
     districts: 'Districts',
     districtsSub: 'Spots by district.',
     magazine: 'On the plate',
@@ -143,7 +143,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                 <div className={`${styles.heroSpotOverlay} ${!spot.image ? styles.heroSpotOverlayStatic : ''}`}>
                   {spot.image && (
                     <div className={styles.heroSpotPhoto}>
-                      <Image src={spot.image} alt="" fill priority sizes="(min-width: 960px) 52vw, 88vw" />
+                      <Image src={spot.image} alt="" fill priority sizes="(max-width: 560px) 76vw, (min-width: 960px) 52vw, 88vw" />
                     </div>
                   )}
                   <div className={styles.heroSpotCopy}>
@@ -237,6 +237,15 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                   <MapIntentLink href={`/map?bezirk=${district.slug}`} rel="nofollow" className={styles.districtName}>
                     <strong>{district.name}</strong>
                   </MapIntentLink>
+                  <span className={styles.districtPhotos} aria-hidden="true">
+                    {district.spots.slice(0, 3).map((spot) => (
+                      spot.image && (
+                        <span key={spot.slug} className={styles.districtPhoto}>
+                          <Image src={spot.image} alt="" fill sizes="(max-width: 560px) 28vw, 12vw" />
+                        </span>
+                      )
+                    ))}
+                  </span>
                   <span className={styles.districtSpots}>
                     {district.spots.slice(0, 3).map((spot) => (
                       <MapIntentLink key={spot.slug} href={`/map?r=${spot.slug}`} rel="nofollow" className={styles.districtSpotLink}>
@@ -257,15 +266,27 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
             <h2>{t.magazine}</h2>
           </div>
           <div className={styles.articleRows}>
-            {articles.map((article) => (
-              <Link key={article.slug} href={`/news/${article.slug}`} className={styles.articleRow}>
+            {articles.map((article, index) => (
+              <Link
+                key={article.slug}
+                href={`/news/${article.slug}`}
+                className={`${styles.articleRow} ${index === 0 ? styles.articleLead : ''}`}
+              >
                 {article.image && (
                   <span className={styles.articleImage}>
-                    <Image src={article.image} alt="" fill sizes="(max-width: 900px) 88vw, 31vw" />
+                    <Image
+                      src={article.image}
+                      alt=""
+                      fill
+                      sizes={index === 0 ? '(max-width: 900px) 88vw, 52vw' : '(max-width: 900px) 88vw, 31vw'}
+                    />
                   </span>
                 )}
                 <span className={styles.articleCopy}>
-                  <em>{article.kicker}</em>
+                  <span className={styles.articleMeta}>
+                    <em>{article.kicker}</em>
+                    <span>{String(index + 1).padStart(2, '0')}</span>
+                  </span>
                   <strong>{article.title}</strong>
                   <span className={styles.articleCta}>{t.readArticle}</span>
                 </span>

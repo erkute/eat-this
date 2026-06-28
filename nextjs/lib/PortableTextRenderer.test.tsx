@@ -27,6 +27,19 @@ const link = (key: string, href: string, blank = false) => ({ _key: key, _type: 
 const span = (text: string, marks: string[] = []) => ({ _type: 'span', _key: 's' + text, text, marks })
 
 describe('PortableTextRenderer links', () => {
+  it('renders Amato with a plain o', () => {
+    const html = render([
+      para([
+        span('AMATŌ – MATCHA'),
+        span(' und amatō im Text.'),
+      ]),
+    ])
+    expect(html).toContain('AMATO – MATCHA')
+    expect(html).toContain('amato im Text')
+    expect(html).not.toContain('AMATŌ')
+    expect(html).not.toContain('amatō')
+  })
+
   it('renders a link annotation as an anchor with the href', () => {
     const html = render([para([span('SOFI', ['l1']), span(' in Mitte.')], [link('l1', '/map?r=sofi')])])
     expect(html).toContain('href="/map?r=sofi"')

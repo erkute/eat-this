@@ -690,7 +690,7 @@ html[data-auth='1'] [data-guest-only] {
     right: 0;
     bottom: 0;
     height: calc(100lvh + 80px - 100dvh);
-    background: var(--et-yellow); /* drawer panel cream */
+    background: #d9382a; /* matches the red drawer panel */
     z-index: 50; /* above the bottom sheet (z 4) */
     opacity: 0;
     pointer-events: none;
@@ -700,7 +700,7 @@ html[data-auth='1'] [data-guest-only] {
     opacity: 1;
   }
   html[data-theme='dark'] .app-page[data-page='map']::after {
-    background: var(--et-black); /* dark drawer panel */
+    background: #d9382a;
   }
 }
 

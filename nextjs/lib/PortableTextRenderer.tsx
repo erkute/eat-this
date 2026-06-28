@@ -20,6 +20,13 @@ type Block = PortableTextBlock & {
 
 const CONTACT_EMAIL = 'hello@eatthisdot.com'
 
+function normalizeDisplayText(text: string): string {
+  return text
+    .replace(/AMATŌ/g, 'AMATO')
+    .replace(/Amatō/g, 'Amato')
+    .replace(/amatō/g, 'amato')
+}
+
 /** Internal deep-link to the (noindex) map view, e.g. `/map?r=sofi` or
  *  `/en/map?r=sofi`. Such links get rel="nofollow" so the indexable article
  *  doesn't bleed link equity into the map — same policy as the spot cards and
@@ -58,7 +65,8 @@ function renderEmailText(text: string): ReactNode {
 function renderSpan(span: Span, key: number, markDefs: MarkDef[] = []): ReactNode {
   const marks = span.marks ?? []
   const hasExplicitLink = marks.some((mark) => markDefs.some((d) => d._key === mark && d._type === 'link'))
-  let node: ReactNode = hasExplicitLink ? (span.text ?? '') : renderEmailText(span.text ?? '')
+  const text = normalizeDisplayText(span.text ?? '')
+  let node: ReactNode = hasExplicitLink ? text : renderEmailText(text)
   for (const mark of marks) {
     if (mark === 'strong') node = <strong>{node}</strong>
     else if (mark === 'em') node = <em>{node}</em>
@@ -77,7 +85,7 @@ function renderChildren(children: Span[] = [], markDefs: MarkDef[] = []): ReactN
 
 /** Concatenated plain text of a block's spans — used for heading anchors. */
 function headingText(children: Span[] = []): string {
-  return children.map((c) => c.text ?? '').join('')
+  return normalizeDisplayText(children.map((c) => c.text ?? '').join(''))
 }
 
 /** Deterministic ASCII anchor slug. Shared by the renderer (heading ids) and

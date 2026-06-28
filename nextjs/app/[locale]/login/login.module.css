@@ -199,7 +199,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
   min-height: 50px;
   padding: 8px 16px;
@@ -567,61 +567,64 @@
   }
 }
 
-/* 2026 Home-system login modal: Starter Pack first, auth second, no dashboard box. */
+/* 2026 Starter Pack hero modal: pack as reward, auth as fast action. */
 .frameModal {
-  width: min(840px, calc(100vw - 22px));
+  width: min(980px, calc(100vw - 22px));
   height: auto;
   max-height: calc(100svh - 22px);
   overflow: visible;
   border: 0;
-  border-radius: 8px;
+  border-radius: 10px;
   background: transparent;
 }
 
 .frameModal .close {
-  top: -12px;
-  right: -10px;
-  width: 46px;
-  height: 46px;
-  padding: 0 0 3px;
-  color: var(--login-paper);
-  background: var(--login-ink);
+  top: 20px;
+  right: 20px;
+  width: 42px;
+  height: 42px;
+  padding: 0 0 4px;
+  color: var(--login-ink);
+  background: var(--login-paper);
   border: 0;
-  border-radius: 999px;
+  border-radius: 4px;
   box-shadow: none;
-  font-size: 34px;
-  transform: rotate(6deg);
+  font-size: 38px;
+  transform: none;
 }
 
 .frameModal .close:hover,
 .frameModal .close:focus-visible {
-  color: var(--login-ink);
-  background: var(--login-paper);
-  outline: 2px solid var(--login-ink);
+  color: var(--login-paper);
+  background: var(--login-ink);
+  outline: 2px solid var(--login-paper);
   outline-offset: 3px;
-  transform: rotate(-8deg) scale(1.04);
+  transform: translateY(-2px);
 }
 
 .modalSimple {
-  min-height: min(640px, calc(100svh - 22px));
+  height: min(640px, calc(100svh - 22px));
+  min-height: 0;
   display: grid;
-  grid-template-columns: minmax(320px, 0.96fr) minmax(340px, 0.86fr);
-  gap: clamp(16px, 3vw, 30px);
-  padding: clamp(22px, 3.4vw, 38px);
+  grid-template-columns: minmax(360px, 0.95fr) minmax(360px, 1.05fr);
+  gap: 0;
+  padding: 0;
   overflow: hidden;
-  background: var(--login-red);
-  border: 0;
-  border-radius: 8px;
+  background: var(--login-paper);
+  border: 2px solid var(--login-red);
+  border-radius: 10px;
   color: var(--login-ink);
 }
 
 .modalPack {
+  position: relative;
   display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto;
   gap: 10px;
-  padding: 0;
-  overflow: visible;
-  background: transparent;
+  min-height: 0;
+  padding: clamp(24px, 3vw, 34px) clamp(24px, 3.5vw, 42px) clamp(22px, 2.4vw, 26px);
+  overflow: hidden;
+  background: var(--login-red);
 }
 
 .modalBrand {
@@ -629,89 +632,141 @@
   margin: 0;
   padding: 0;
   border: 0;
-  font-size: clamp(52px, 8vw, 86px);
+  color: var(--login-paper);
+  font-size: clamp(48px, 5.8vw, 82px);
   line-height: 0.8;
-  transform: rotate(-2deg);
+  transform: none;
 }
 
 .modalTitle {
-  position: static;
-  width: fit-content;
-  margin: 0;
-  padding: 7px 10px 6px;
+  position: relative;
+  top: auto;
+  left: auto;
+  width: min(100%, 15ch);
+  margin: -6px 0 0;
+  padding: 0;
   color: var(--login-paper);
-  background: var(--login-ink);
+  background: transparent;
   border: 0;
-  border-radius: 4px;
-  font-size: clamp(11px, 1.4vw, 14px);
-  letter-spacing: 0.16em;
-  transform: rotate(1deg);
+  border-radius: 0;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(32px, 4vw, 46px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.86;
+  text-transform: uppercase;
+  transform: none;
 }
 
 .modalPitch {
-  max-width: 28ch;
   margin: 0;
   color: var(--login-ink);
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: clamp(14px, 1.65vw, 18px);
+  font-size: clamp(13px, 1.4vw, 17px);
   font-weight: 900;
-  line-height: 1.18;
-  letter-spacing: 0.01em;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.modalBadge {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 6px 9px 5px;
+  color: var(--login-paper);
+  background: var(--login-ink);
+  border-radius: 4px;
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: clamp(9px, 0.9vw, 10px);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .modalPackHero {
-  align-items: end;
+  align-items: center;
   justify-content: center;
-  min-height: clamp(285px, 46vw, 430px);
-  padding: 0;
+  min-height: 0;
+  max-height: min(334px, 46svh);
+  padding: 8px 0 0;
 }
 
 .modalPackHero img {
-  max-width: min(95%, 350px);
-  max-height: clamp(290px, 48vw, 430px);
-  filter: drop-shadow(14px 18px 0 rgba(21, 18, 14, 0.28));
-  transform: rotate(-2.5deg);
+  max-width: min(96%, 390px);
+  max-height: min(326px, 45svh);
+  filter: none;
+  transform: rotate(-7deg) translateX(-8px);
 }
 
 .modalLogin {
-  align-self: center;
   display: grid;
-  align-content: start;
-  gap: 12px;
-  width: min(100%, 360px);
-  margin: 0 0 0 auto;
-  padding: clamp(18px, 2.8vw, 26px);
+  align-content: center;
+  gap: clamp(18px, 2.4vw, 26px);
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: clamp(48px, 6vw, 76px) clamp(34px, 5vw, 56px);
   background: var(--login-paper);
-  border: 2px solid var(--login-ink);
-  border-radius: 8px;
-  transform: rotate(1deg);
+  border: 0;
+  border-radius: 0;
+  transform: none;
 }
 
-.modalLogin::before {
-  content: "ANMELDEN";
-  width: fit-content;
-  margin-bottom: 4px;
+.modalLoginHead {
+  display: grid;
+  gap: 12px;
+}
+
+.modalEyebrow,
+.fieldLabel,
+.formHint {
+  margin: 0;
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.modalEyebrow {
   color: var(--login-ink);
+  font-size: 12px;
+}
+
+.modalFormTitle {
+  margin: 0;
+  max-width: 10ch;
   font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(34px, 5vw, 54px);
+  font-size: clamp(58px, 6vw, 88px);
   font-weight: 400;
   letter-spacing: 0;
-  line-height: 0.78;
+  line-height: 0.82;
   text-transform: uppercase;
-  transform: rotate(-1.4deg);
 }
 
 .modalForm {
-  gap: 9px;
+  gap: 10px;
   width: 100%;
 }
 
+.fieldLabel {
+  font-size: 12px;
+}
+
+.formHint {
+  color: rgba(21, 18, 14, 0.58);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
 .frameModal .input {
-  min-height: 54px;
+  min-height: 58px;
   padding: 0 16px;
   background: #fff;
   border: 2px solid var(--login-ink);
-  border-radius: 6px;
+  border-radius: 4px;
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: clamp(15px, 1.75vw, 18px);
   font-weight: 900;
@@ -719,11 +774,11 @@
 
 .frameModal .ctaPrimary,
 .frameModal .ctaGoogle {
-  min-height: 54px;
-  padding: 9px 16px;
+  min-height: 58px;
+  padding: 10px 18px;
   border: 2px solid var(--login-ink);
-  border-radius: 6px;
-  font-size: clamp(24px, 3vw, 32px);
+  border-radius: 4px;
+  font-size: clamp(23px, 2.6vw, 30px);
 }
 
 .frameModal .ctaPrimary span,
@@ -732,8 +787,9 @@
 }
 
 .frameModal .ctaPrimary {
-  background: var(--login-ink);
   color: var(--login-paper);
+  background: var(--login-red);
+  border-color: var(--login-red);
 }
 
 .frameModal .ctaGoogle {
@@ -745,8 +801,9 @@
 
 .frameModal .ctaPrimary:hover,
 .frameModal .ctaPrimary:focus-visible {
-  color: var(--login-ink);
-  background: var(--login-red);
+  color: var(--login-paper);
+  background: var(--login-ink);
+  border-color: var(--login-ink);
   outline: 0;
 }
 
@@ -758,9 +815,12 @@
 }
 
 .frameModal .or {
-  display: block;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
   width: 100%;
-  margin: 2px 0;
+  margin: -4px 0;
   text-align: center;
   color: rgba(21, 18, 14, 0.62);
   font-size: 11px;
@@ -768,12 +828,13 @@
 
 .frameModal .or::before,
 .frameModal .or::after {
-  content: none;
+  content: '';
+  border-top: 1px solid rgba(21, 18, 14, 0.3);
 }
 
 .frameModal .legal {
   width: 100%;
-  margin: 0;
+  margin: -4px 0 0;
   color: rgba(21, 18, 14, 0.64);
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 11px;
@@ -789,94 +850,109 @@
 
 @media (max-width: 820px) {
   .frameModal {
-    width: min(430px, calc(100vw - 18px));
+    width: min(440px, calc(100vw - 18px));
     max-height: calc(100svh - 18px);
   }
 
   .modalSimple {
+    height: auto;
     min-height: 0;
     max-height: calc(100svh - 18px);
     grid-template-columns: 1fr;
     grid-template-rows: auto minmax(0, auto);
-    gap: 14px;
-    padding: 18px;
+    gap: 0;
+    padding: 0;
     overflow: auto;
   }
 
-  .modalBrand {
-    padding-right: 48px;
-    font-size: clamp(42px, 13vw, 58px);
+  .modalPack {
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    gap: 8px;
+    padding: 18px;
   }
 
-  .modalPitch {
-    max-width: 30ch;
-    font-size: 13px;
+  .modalBrand {
+    padding-right: 46px;
+    font-size: clamp(38px, 13vw, 54px);
+  }
+
+  .modalTitle {
+    width: min(100%, 13ch);
+    font-size: clamp(31px, 10vw, 42px);
   }
 
   .modalPackHero {
-    min-height: 212px;
+    min-height: 210px;
     justify-content: center;
   }
 
   .modalPackHero img {
-    max-height: min(246px, 32svh);
+    max-height: min(270px, 34svh);
+    transform: rotate(-6deg);
   }
 
   .modalLogin {
     width: 100%;
     margin: 0;
-    padding: 15px;
-    transform: rotate(-0.5deg);
+    padding: 20px 18px 18px;
   }
 
-  .modalLogin::before {
-    font-size: 32px;
+  .modalLoginHead {
+    gap: 8px;
+  }
+
+  .modalFormTitle {
+    max-width: 100%;
+    font-size: 42px;
+  }
+
+  .modalPitch {
+    font-size: 12px;
   }
 
   .frameModal .close {
-    top: -8px;
-    right: -6px;
-    width: 42px;
-    height: 42px;
-    font-size: 31px;
+    top: 14px;
+    right: 14px;
+    width: 38px;
+    height: 38px;
+    font-size: 33px;
   }
 }
 
 @media (max-width: 420px) and (max-height: 740px) {
   .modalSimple {
-    gap: 10px;
-    padding: 14px;
+    gap: 0;
+    padding: 0;
   }
 
   .modalBrand {
-    font-size: clamp(36px, 12vw, 48px);
+    font-size: clamp(34px, 12vw, 46px);
   }
 
   .modalTitle {
-    padding: 6px 8px 5px;
-    font-size: 9px;
+    font-size: clamp(27px, 9vw, 35px);
   }
 
   .modalPitch {
-    font-size: 11px;
-    line-height: 1.14;
+    font-size: 10px;
+    line-height: 1.25;
   }
 
   .modalPackHero {
-    min-height: 148px;
+    min-height: 132px;
   }
 
   .modalPackHero img {
-    max-height: 166px;
+    max-height: 170px;
   }
 
   .modalLogin {
     gap: 8px;
-    padding: 12px;
+    padding: 14px;
   }
 
-  .modalLogin::before {
-    font-size: 27px;
+  .modalFormTitle {
+    font-size: 32px;
   }
 
   .frameModal .input,

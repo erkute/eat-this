@@ -270,6 +270,16 @@
   }
 }
 
+@media (max-width: 719px) {
+  .row {
+    padding-bottom: 12px;
+  }
+
+  .section .foot {
+    margin-top: 0;
+  }
+}
+
 @media (max-width: 560px) {
   .section {
     padding-inline: 10px;

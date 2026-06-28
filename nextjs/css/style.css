@@ -5907,6 +5907,9 @@ html[data-theme="dark"] .burger-drawer.active {
 html .burger-drawer-backdrop,
 html[data-theme="dark"] .burger-drawer-backdrop {
   background: rgba(21, 18, 14, .64) !important;
+  border: 0 !important;
+  padding: 0 !important;
+  cursor: pointer !important;
 }
 
 html .burger-drawer-panel,
@@ -7163,4 +7166,102 @@ html .bd-nav-item.bd-cta:nth-child(n):focus-visible,
 html[data-theme="dark"] .bd-nav-item.bd-cta:nth-child(n):hover,
 html[data-theme="dark"] .bd-nav-item.bd-cta:nth-child(n):focus-visible {
   transform: translateX(-6px) !important;
+}
+
+/* Burger drawer vertical tune: language and close control sit higher, while
+   the menu rows start earlier in the available panel space. */
+html .bd-scroller,
+html[data-theme="dark"] .bd-scroller {
+  row-gap: clamp(10px, 1.55dvh, 18px) !important;
+  padding-top: max(20px, calc(env(safe-area-inset-top, 0px) + 16px)) !important;
+}
+
+html .bd-topbar,
+html[data-theme="dark"] .bd-topbar {
+  min-height: 30px !important;
+  padding: 0 52px 0 0 !important;
+}
+
+html .bd-lang,
+html[data-theme="dark"] .bd-lang {
+  padding: 6px 9px !important;
+  transform: translateY(-5px) !important;
+}
+
+html .burger-drawer-close,
+html[data-theme="dark"] .burger-drawer-close {
+  top: max(14px, calc(env(safe-area-inset-top, 0px) + 10px)) !important;
+  right: clamp(18px, 2.4vw, 26px) !important;
+  width: 38px !important;
+  height: 38px !important;
+  font-size: 35px !important;
+  line-height: .76 !important;
+}
+
+html .bd-logo,
+html[data-theme="dark"] .bd-logo {
+  transform: translateY(-4px) rotate(-2deg) !important;
+}
+
+html .bd-nav,
+html[data-theme="dark"] .bd-nav {
+  justify-content: flex-start !important;
+  gap: clamp(6px, .85dvh, 10px) !important;
+}
+
+html .bd-nav-item,
+html[data-theme="dark"] .bd-nav-item,
+html .bd-nav-item.bd-cta,
+html[data-theme="dark"] .bd-nav-item.bd-cta {
+  min-height: clamp(40px, 5.3dvh, 54px) !important;
+  padding-top: 7px !important;
+  padding-bottom: 8px !important;
+}
+
+html .bd-foot,
+html[data-theme="dark"] .bd-foot {
+  padding-top: 8px !important;
+}
+
+@media (max-width: 767px) {
+  html .bd-scroller,
+  html[data-theme="dark"] .bd-scroller {
+    padding-top: max(46px, calc(env(safe-area-inset-top, 0px) + 42px)) !important;
+    row-gap: clamp(8px, 1dvh, 12px) !important;
+  }
+
+  html .burger-drawer-close,
+  html[data-theme="dark"] .burger-drawer-close {
+    top: max(14px, calc(env(safe-area-inset-top, 0px) + 10px)) !important;
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 34px !important;
+  }
+
+  html .bd-topbar,
+  html[data-theme="dark"] .bd-topbar {
+    min-height: 28px !important;
+  }
+
+  html .burger-drawer .bd-lang,
+  html[data-theme="dark"] .burger-drawer .bd-lang {
+    transform: translateY(-32px) !important;
+  }
+
+  html .bd-nav,
+  html[data-theme="dark"] .bd-nav {
+    justify-content: flex-start !important;
+  }
+}
+
+@media (max-height: 700px) {
+  html .bd-scroller,
+  html[data-theme="dark"] .bd-scroller {
+    padding-top: max(40px, calc(env(safe-area-inset-top, 0px) + 36px)) !important;
+  }
+
+  html .bd-logo,
+  html[data-theme="dark"] .bd-logo {
+    width: clamp(118px, 18dvh, 158px) !important;
+  }
 }

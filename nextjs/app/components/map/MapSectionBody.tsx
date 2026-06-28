@@ -1,5 +1,6 @@
 'use client'
 import { useCallback } from 'react'
+import { useLocale } from 'next-intl'
 import type { Ref, RefObject } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types'
@@ -117,6 +118,8 @@ export type MapSectionBodyProps =
   & MapBodyAria
 
 export default function MapSectionBody(props: MapSectionBodyProps) {
+  const locale = useLocale()
+  const searchLabel = locale === 'en' ? 'Search' : 'Suche'
   const {
     isActive,
     mapRef, handleRef, setHeaderRef, setContentRef, setSheetRef,
@@ -192,7 +195,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   onBlur={() => { if (!search) setSearchOpen(false) }}
                   placeholder="Spot, Kiez, Gericht"
                   className={styles.mapSearchInput}
-                  aria-label="Search"
+                  aria-label={searchLabel}
                   autoComplete="off"
                   autoFocus
                 />
@@ -214,7 +217,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 type="button"
                 className={styles.mapSearchBtn}
                 onClick={() => setSearchOpen(true)}
-                aria-label="Search"
+                aria-label={searchLabel}
               >
                 <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
                   <circle cx="10.8" cy="10.8" r="5.9" fill="none" stroke="currentColor" strokeWidth="2.1" />

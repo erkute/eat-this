@@ -71,7 +71,6 @@ export default function MapListHeader({
           active={!!activeCategoryLabel}
           expanded={openChip === 'category'}
           onClick={() => setOpenChip(prev => prev === 'category' ? null : 'category')}
-          onReset={activeCategoryLabel ? () => onCategoryChange('All') : undefined}
         />
         <FilterChip
           ref={bezirkBtnRef}
@@ -79,7 +78,6 @@ export default function MapListHeader({
           active={!!bezirk}
           expanded={openChip === 'bezirk'}
           onClick={() => setOpenChip(prev => prev === 'bezirk' ? null : 'bezirk')}
-          onReset={bezirk ? () => onBezirk(null) : undefined}
         />
         {cuisineNames.length > 0 && (
           <FilterChip
@@ -88,7 +86,6 @@ export default function MapListHeader({
             active={!!cuisine}
             expanded={openChip === 'cuisine'}
             onClick={() => setOpenChip(prev => prev === 'cuisine' ? null : 'cuisine')}
-            onReset={cuisine ? () => onCuisine(null) : undefined}
           />
         )}
         <button
@@ -146,11 +143,10 @@ interface FilterChipProps {
   active: boolean
   expanded: boolean
   onClick: () => void
-  onReset?: () => void
 }
 
 const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(
-  function FilterChip({ label, active, expanded, onClick, onReset }, ref) {
+  function FilterChip({ label, active, expanded, onClick }, ref) {
     return (
       <span className={styles.filterChipWrap}>
         <button
@@ -161,18 +157,7 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(
           aria-expanded={expanded}
         >
           <span className={styles.filterChipLabel}>{label}</span>
-          <span className={styles.filterChipCue} aria-hidden="true" />
         </button>
-        {onReset && (
-          <button
-            type="button"
-            className={styles.filterChipReset}
-            onClick={onReset}
-            aria-label={`${label} reset`}
-          >
-            <span aria-hidden="true">×</span>
-          </button>
-        )}
       </span>
     )
   },

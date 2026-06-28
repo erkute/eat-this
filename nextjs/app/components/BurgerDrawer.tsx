@@ -7,12 +7,7 @@ import { useAuth, useLoginModal } from '@/lib/auth';
 import { routing } from '@/i18n/routing';
 import { Link, usePathname } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
-
-export interface BurgerCloseDetail {
-  /** Skip the body-scroll restore — for cross-page navigation where the
-   *  destination should start at the top, not the previous page's scrollY. */
-  suppressScroll?: boolean;
-}
+import { closeBurgerDrawer } from './burgerDrawerState';
 
 export default function BurgerDrawer() {
   const { t, lang, setLang } = useTranslation();
@@ -21,43 +16,22 @@ export default function BurgerDrawer() {
   const locale = useLocale();
   const pathname = usePathname();
 
-  // Drawer close + body-scroll unlock. Self-managed inside BurgerDrawer:
-  // close-on-X, close-on-backdrop-click, and close-on-navigation all live
-  // here rather than in SiteNav, so they work on every route.
   const closeBurger = useCallback((restoreScroll: boolean = true) => {
-    const drawer = document.getElementById('burgerDrawer');
-    if (!drawer?.classList.contains('active')) return;
-    drawer.classList.remove('active');
-    // Unlock body scroll (mirror of the open-lock set when the drawer opened).
-    const wasMobile = window.innerWidth < 768;
-    if (wasMobile) {
-      const stored = document.body.dataset.burgerLockY;
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      if (restoreScroll && stored) {
-        const y = parseInt(stored, 10) || 0;
-        requestAnimationFrame(() => window.scrollTo(0, y));
-      }
-      delete document.body.dataset.burgerLockY;
-    } else {
-      document.body.style.overflow = '';
-    }
+    closeBurgerDrawer(restoreScroll);
   }, []);
 
   // Close on navigation — destination page starts at top (suppress scroll restore).
   useEffect(() => { closeBurger(false); }, [pathname, closeBurger]);
 
-  // Wire up X-button + backdrop click handlers to the drawer's DOM children.
+  // Escape is global; visible controls below use React handlers.
   useEffect(() => {
-    const closeBtn = document.getElementById('burgerClose');
-    const backdrop = document.getElementById('burgerBackdrop');
-    const handler = () => closeBurger(true);
-    closeBtn?.addEventListener('click', handler);
-    backdrop?.addEventListener('click', handler);
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeBurger(true);
+    };
+    document.addEventListener('keydown', onKeyDown);
     return () => {
-      closeBtn?.removeEventListener('click', handler);
-      backdrop?.removeEventListener('click', handler);
+      document.removeEventListener('keydown', onKeyDown);
+      closeBurger(false);
     };
   }, [closeBurger]);
 
@@ -78,10 +52,10 @@ export default function BurgerDrawer() {
   }, [closeBurger]);
 
   return (
-    <div className="burger-drawer" id="burgerDrawer">
-      <div className="burger-drawer-backdrop" id="burgerBackdrop"></div>
+    <div className="burger-drawer" id="burgerDrawer" aria-hidden="true">
+      <button className="burger-drawer-backdrop" id="burgerBackdrop" type="button" tabIndex={-1} aria-label="Close menu" onClick={() => closeBurger(true)}></button>
       <div className="burger-drawer-panel" onClick={onPanelClick}>
-        <button className="burger-drawer-close" id="burgerClose" aria-label="Close">×</button>
+        <button className="burger-drawer-close" id="burgerClose" aria-label="Close" onClick={() => closeBurger(true)}>×</button>
 
         <div className="bd-scroller">
           {/* In-flow (not pinned): scrolls with the menu so it never collides

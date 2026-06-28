@@ -4,8 +4,8 @@ import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
 import { Link, useRouter } from '@/i18n/navigation';
-import type { BurgerCloseDetail } from './BurgerDrawer';
 import MapIntentLink from './MapIntentLink';
+import { openBurgerDrawer } from './burgerDrawerState';
 import { preloadMapSurface } from './map/preloadMapSurface';
 import styles from './SiteNav.module.css';
 
@@ -58,77 +58,6 @@ export default function SiteNav() {
     return () => window.clearTimeout(id);
   }, [activePage, router]);
 
-  useEffect(() => {
-    const drawer   = document.getElementById('burgerDrawer');
-    const openBtn  = document.getElementById('burgerBtn');
-    const closeBtn = document.getElementById('burgerClose');
-    const backdrop = document.getElementById('burgerBackdrop');
-    if (!drawer) return;
-
-    let scrollY = 0;
-    // Tracks whether THIS effect locked the body, so a later unlock (or the
-    // cleanup-on-unmount) only undoes what we did and doesn't clobber a lock
-    // owned by a modal or sheet.
-    let lockMode: 'fixed' | 'overflow' | null = null;
-    const isMobile = () => window.innerWidth < 768;
-    const lock = () => {
-      if (isMobile()) {
-        scrollY = window.scrollY;
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${scrollY}px`;
-        document.body.style.width = '100%';
-        lockMode = 'fixed';
-      } else {
-        document.body.style.overflow = 'hidden';
-        lockMode = 'overflow';
-      }
-    };
-    const unlock = (restoreScroll = true) => {
-      if (lockMode === 'fixed') {
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        // Skip the scroll-restore when the close was triggered by navigation
-        // (e.g. user clicked a Link inside the drawer) — the new page should
-        // start at the top, not at the previous page's scroll position.
-        if (restoreScroll) {
-          requestAnimationFrame(() => window.scrollTo(0, scrollY));
-        }
-      } else if (lockMode === 'overflow') {
-        document.body.style.overflow = '';
-      }
-      lockMode = null;
-    };
-
-    const open  = () => { void preloadMapSurface(); drawer.classList.add('active'); lock(); };
-    const close = (restoreScroll = true) => {
-      drawer.classList.remove('active');
-      unlock(restoreScroll);
-    };
-    const onUserClose = () => close(true);
-    // BurgerDrawer dispatches `burger:close` on route change with
-    // `suppressScroll: true` so the destination page starts at the top.
-    const onBurgerCloseEvent = (e: Event) => {
-      const detail = (e as CustomEvent<BurgerCloseDetail>).detail;
-      close(!detail?.suppressScroll);
-    };
-
-    openBtn?.addEventListener('click', open);
-    closeBtn?.addEventListener('click', onUserClose);
-    backdrop?.addEventListener('click', onUserClose);
-    drawer.addEventListener('burger:close', onBurgerCloseEvent);
-    return () => {
-      openBtn?.removeEventListener('click', open);
-      closeBtn?.removeEventListener('click', onUserClose);
-      backdrop?.removeEventListener('click', onUserClose);
-      drawer.removeEventListener('burger:close', onBurgerCloseEvent);
-      // Cross-layout navigation while the drawer is open: our body-lock would
-      // persist and break scrolling on the next page. Undo without restoring
-      // scroll — the new page should start at the top.
-      unlock(false);
-    };
-  }, []);
-
   return (
     <>
       <a href="#appPages" className="skip-link">{t('a11y.skip')}</a>
@@ -152,7 +81,14 @@ export default function SiteNav() {
         </div>
         {/* Right: menu text (News lives in the drawer) */}
         <div className="navbar-actions" style={{ flex: 1, justifyContent: 'flex-end' }}>
-          <button className={`burger-btn ${styles.menuSticker}`} id="burgerBtn" aria-label={lang === 'de' ? 'Menü' : 'Menu'}>
+          <button
+            className={`burger-btn ${styles.menuSticker}`}
+            id="burgerBtn"
+            aria-label={lang === 'de' ? 'Menü' : 'Menu'}
+            aria-controls="burgerDrawer"
+            aria-expanded="false"
+            onClick={openBurgerDrawer}
+          >
             <span className={styles.menuWord}>{lang === 'de' ? 'Menü' : 'Menu'}</span>
           </button>
         </div>

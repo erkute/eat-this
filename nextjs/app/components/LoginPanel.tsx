@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useId, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
@@ -28,6 +28,7 @@ export default function LoginPanel({ onBack, modal = false, mustEatGate = false 
   const [email, setEmail]           = useState('');
   const [googleBusy, setGoogleBusy] = useState(false);
   const authMethod = useRef<'google' | null>(null);
+  const emailInputId = useId();
 
   useEffect(() => {
     trackEvent('login_view', {
@@ -142,27 +143,33 @@ export default function LoginPanel({ onBack, modal = false, mustEatGate = false 
         <div className={styles.modalSimple}>
           <section className={styles.modalPack} aria-labelledby="login-panel-title">
             <p className={styles.modalBrand}>EAT THIS</p>
-            <h1 id="login-panel-title" className={styles.modalTitle}>{t('modals.login.heroH1')}</h1>
-            <p className={styles.modalPitch}>{t('modals.login.heroSub')}</p>
             <div className={styles.modalPackHero} aria-hidden="true">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/pics/booster/booster_free.webp" alt="" loading="eager" decoding="sync" fetchPriority="high" />
             </div>
+            <h1 id="login-panel-title" className={styles.modalTitle}>{t('modals.login.modalTagline')}</h1>
+            <p className={styles.modalBadge}>{t('modals.login.modalBadge')}</p>
           </section>
 
           <section className={styles.modalLogin} aria-label={t('modals.login.heroHeadline')}>
+            <div className={styles.modalLoginHead}>
+              <p className={styles.modalEyebrow}>{t('modals.login.heroH1')}</p>
+              <h2 className={styles.modalFormTitle}>{t('modals.login.heroHeadline')}</h2>
+              <p className={styles.modalPitch}>{t('modals.login.heroSub')}</p>
+            </div>
             <form
               className={styles.modalForm}
               noValidate
               onSubmit={(e) => { e.preventDefault(); sendLink(email); }}
             >
+              <label className={styles.fieldLabel} htmlFor={emailInputId}>{t('modals.login.emailLabel')}</label>
               <input
+                id={emailInputId}
                 className={styles.input}
                 type="email"
                 placeholder={t('modals.login.emailPlaceholder')}
                 required
                 autoComplete="email"
-                aria-label="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -178,6 +185,7 @@ export default function LoginPanel({ onBack, modal = false, mustEatGate = false 
                   <polyline points="12 5 19 12 12 19" />
                 </svg>
               </button>
+              <p className={styles.formHint}>{t('modals.login.magicLinkHint')}</p>
             </form>
 
             <div className={styles.or}><span>{t('modals.login.dividerOr')}</span></div>

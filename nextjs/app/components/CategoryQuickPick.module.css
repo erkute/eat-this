@@ -1,0 +1,33 @@
+.wrap {
+  margin-top: 16px;
+}
+
+.trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--home-quiet);
+  border: none;
+  border-radius: 8px;
+  padding: 13px 16px;
+  cursor: pointer;
+  font-family: var(--font-providence);
+}
+
+.trigger > span:first-child {
+  color: var(--home-muted);
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.grid {
+  display: none;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.grid[data-open] {
+  display: flex;
+}

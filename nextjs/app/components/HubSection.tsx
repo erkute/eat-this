@@ -9,6 +9,7 @@ import HubHashScroll from './HubHashScroll';
 import HubMustEatsTeaser from './HubMustEatsTeaser';
 import HubNearby from './HubNearby';
 import MapIntentLink from './MapIntentLink';
+import CategoryQuickPick from './CategoryQuickPick';
 import SiteFooter from './SiteFooter';
 import styles from './HubSection.module.css';
 
@@ -79,7 +80,10 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
             </MapIntentLink>
           )}
         </div>
-        {/* CategoryQuickPick — Task 5 */}
+        <CategoryQuickPick
+          categoryNames={initialData.categoryNames}
+          placeholder={locale === 'en' ? 'What are you craving?' : 'Worauf hast du Lust?'}
+        />
       </section>
 
       {/* CategoriesRail — Task 6 */}

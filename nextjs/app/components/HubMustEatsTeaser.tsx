@@ -104,7 +104,7 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
                 className={styles.cardLink}
                 aria-label={`${normalizeName(m.dish ?? '')} ${mustEatAria}`}
               >
-                <span className={`hv-photo ${styles.photo}`}>
+                <span className={styles.photo}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     className={styles.card}

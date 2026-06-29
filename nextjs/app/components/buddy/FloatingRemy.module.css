@@ -54,11 +54,10 @@
 }
 
 .face {
-  /* Remy's face fills the circle, with a touch of room around it */
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
+  /* Show the whole Remy, not a cropped circle */
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
   display: block;
   pointer-events: none;
 }

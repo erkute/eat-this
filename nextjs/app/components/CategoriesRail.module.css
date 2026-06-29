@@ -1,15 +1,27 @@
 .card {
   display: block;
-  flex: 0 0 120px;
+  flex: 0 0 132px;
 }
+
+/* Booster packs are full designed artworks — show the WHOLE pack (contain),
+   never crop. Portrait box (~2:3) matches the pack art so letterboxing is
+   minimal; white (not grey) fills any gap. */
 .photo {
-  height: 128px;
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--home-radius-photo);
+  overflow: hidden;
+  background: #fff;
 }
+
+.photo img {
+  object-fit: contain;
+}
+
 @media (max-width: 760px) {
   .card {
-    flex-basis: 108px;
-  }
-  .photo {
-    height: 112px;
+    flex-basis: 116px;
   }
 }

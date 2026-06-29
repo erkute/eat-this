@@ -33,8 +33,8 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
               rel="nofollow"
               className={styles.card}
             >
-              <span className={`hv-photo ${styles.photo}`}>
-                {art && <Image src={art} alt="" fill sizes="120px" />}
+              <span className={styles.photo}>
+                {art && <Image src={art} alt="" fill sizes="132px" />}
               </span>
               <span className="hv-cap">{name}</span>
             </MapIntentLink>

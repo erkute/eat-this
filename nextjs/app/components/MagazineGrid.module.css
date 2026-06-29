@@ -7,7 +7,8 @@
   display: block;
 }
 .leadPhoto {
-  height: 260px;
+  aspect-ratio: 3 / 2;
+  height: auto;
 }
 .secondary {
   display: flex;
@@ -17,14 +18,13 @@
 .secItem {
   display: block;
 }
+.secItemPhoto,
 .secPhoto {
-  height: 122px;
+  aspect-ratio: 3 / 2;
+  height: auto;
 }
 @media (max-width: 760px) {
   .grid {
     grid-template-columns: 1fr;
-  }
-  .leadPhoto {
-    height: 200px;
   }
 }

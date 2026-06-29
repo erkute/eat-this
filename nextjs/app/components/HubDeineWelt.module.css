@@ -1,494 +1,222 @@
-.section {
-  --dock-ink: #15120e;
-  --dock-paper: #fff;
-  --dock-red: #d9382a;
-  --dock-muted: rgba(21, 18, 14, .64);
+/* ── HubDeineWelt — logged-in hero (homeV2 vocabulary) ───────── */
+
+/*
+  The section carries class="homeV2 …" so all .homeV2 .hv-* globals
+  (hv-kicker, hv-btn, hv-link-underline, hv-photo, hv-rail, hv-cap,
+  hv-sub, hv-wrap) apply automatically from css/style.css.
+  This module only adds layout and sizing that the global vocabulary
+  doesn't cover.
+*/
+
+.hero {
   width: 100%;
-  box-sizing: border-box;
-  padding: calc(72px + env(safe-area-inset-top, 0px) + clamp(2px, 1vw, 10px)) 0 clamp(16px, 3vw, 34px);
-  color: var(--dock-ink);
-  background: var(--dock-red);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  padding-top: calc(68px + env(safe-area-inset-top, 0px) + clamp(4px, 1vw, 12px));
+  padding-bottom: clamp(24px, 4vw, 48px);
+  background: var(--home-paper);
+  color: var(--home-ink);
 }
 
-.section *,
-.section *::before,
-.section *::after {
-  box-sizing: border-box;
-}
-
-.inner {
+.heroInner {
   display: grid;
-  grid-template-columns: minmax(360px, .78fr) minmax(0, 1.22fr);
-  gap: 0;
-  align-items: stretch;
-  width: 100%;
-  min-height: clamp(308px, 36svh, 390px);
-  margin: 0;
-  background: var(--dock-red);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: start;
 }
+
+/* ── Copy column ──────────────────────────────────────────────── */
 
 .copy {
-  min-width: 0;
-  background: var(--dock-red);
-}
-
-.copy {
-  display: grid;
-  align-content: start;
-  gap: clamp(8px, 1.2vw, 13px);
-  padding: clamp(18px, 2.6vw, 30px);
-  position: relative;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.4vw, 16px);
 }
 
 .kicker {
-  position: relative;
-  z-index: 1;
-  justify-self: start;
+  /* hv-kicker provides font/size/tracking; we just add spacing */
   margin: 0;
-  padding: 0;
-  color: var(--dock-ink);
-  background: transparent;
-  font-size: clamp(22px, 2.2vw, 34px);
-  font-weight: 900;
-  letter-spacing: .02em;
-  line-height: .9;
-  text-transform: uppercase;
 }
 
-.title {
-  position: relative;
-  z-index: 1;
-  max-width: 9ch;
+.headline {
+  font-family: var(--font-providence);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  font-size: clamp(42px, 6vw, 68px);
   margin: 0;
-  color: var(--dock-ink);
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(52px, 7.4vw, 92px);
+  color: var(--home-ink);
+}
+
+.sub {
+  font-family: var(--font-providence);
   font-weight: 400;
-  letter-spacing: 0;
-  line-height: .78;
-  text-transform: uppercase;
-}
-
-.copyNote {
-  position: relative;
-  z-index: 1;
-  max-width: 34ch;
+  font-size: clamp(12px, 1.1vw, 14px);
+  color: var(--home-muted);
   margin: 0;
-  color: rgba(21, 18, 14, .78);
-  font-size: clamp(12px, 1.1vw, 15px);
-  font-weight: 900;
-  letter-spacing: .04em;
-  line-height: 1.16;
-  text-transform: uppercase;
+  max-width: 38ch;
 }
 
-.collectionKicker {
-  display: block;
-  color: var(--dock-ink);
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(32px, 3.2vw, 48px);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: .74;
-  text-transform: uppercase;
-}
-
-.actionRow {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+.actions {
+  display: flex;
   align-items: center;
-  width: 100%;
-  max-width: 430px;
+  gap: 16px;
+  margin-top: clamp(4px, 0.8vw, 8px);
+  flex-wrap: wrap;
 }
 
-.profileLink,
-.mapActionLink {
-  min-height: 44px;
-  border: 2px solid var(--dock-ink);
-  border-radius: 0;
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(20px, 1.7vw, 26px);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: .86;
-  text-transform: uppercase;
+/* Map button — accent fill (yellow) */
+.mapBtn {
+  background: var(--home-accent) !important;
+  color: var(--home-ink) !important;
+}
+
+/* Profile link — plain underline */
+.profileBtn {
   text-decoration: none;
-  transition: transform 140ms ease, color 140ms ease, background 140ms ease;
 }
 
-.profileLink,
-.mapActionLink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+/* ── Rails column ─────────────────────────────────────────────── */
+
+.rails {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2vw, 24px);
+}
+
+.railBlock {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
-  min-width: 0;
-  padding: 8px 14px 10px;
 }
 
-.profileLink {
-  color: var(--dock-paper);
-  background: var(--dock-ink);
+.railLabel {
+  /* hv-kicker handles font; margin only */
+  margin: 0;
 }
 
-.mapActionLink {
-  color: var(--dock-ink);
-  background: var(--dock-paper);
+.rail {
+  /* hv-rail is flex + horizontal scroll; we fix thumb sizing here */
 }
 
-.profileLink:hover,
-.profileLink:focus-visible {
-  color: var(--dock-ink);
-  background: var(--dock-paper);
-  transform: translateY(-3px) rotate(-.8deg);
-}
-
-.mapActionLink:hover,
-.mapActionLink:focus-visible {
-  color: var(--dock-paper);
-  background: var(--dock-ink);
-  transform: translateY(-3px) rotate(-.8deg);
-}
-
-.actionLabel {
-  transform: translateY(1px);
-}
-
-.discovery {
-  display: grid;
-  align-content: stretch;
-  min-width: 0;
-  padding: clamp(14px, 1.8vw, 20px) clamp(18px, 2.2vw, 28px);
-  background: var(--dock-red);
-}
-
-.collectionGrid {
-  display: grid;
-  grid-template-columns: minmax(0, .94fr) minmax(260px, .64fr);
-  gap: clamp(10px, 1.2vw, 14px);
-  height: 100%;
-}
-
-.collectionCard {
-  position: relative;
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 12px;
-  min-height: 0;
-  min-width: 0;
-  padding-top: 10px;
-  overflow: visible;
-  color: var(--dock-ink);
-  background: transparent;
-  border: 0;
-  border-top: 2px solid var(--dock-ink);
-  text-decoration: none;
+.railPhoto {
+  /* hv-photo provides bg, border-radius, overflow, position:relative */
+  width: clamp(90px, 10vw, 120px);
+  aspect-ratio: 4 / 3;
+  flex-shrink: 0;
   transition: transform 140ms ease;
 }
 
-.spotCard {
-  min-height: 0;
+.railPhoto:hover,
+.railPhoto:focus-visible {
+  transform: translateY(-3px) rotate(-0.6deg);
 }
 
-.mustEatCard {
-  min-height: 0;
-  transform: none;
+/* Must-Eat cards are portrait */
+.mustPhoto {
+  aspect-ratio: 5 / 7;
+  width: clamp(68px, 7vw, 90px);
 }
 
-.spotStack {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  min-height: 0;
-  z-index: 1;
+.railPhotoName {
+  position: absolute;
+  inset: auto 6px 6px;
+  z-index: 2;
+  color: #fff;
+  font-family: var(--font-providence);
+  font-weight: 700;
+  font-size: clamp(10px, 0.9vw, 12px);
+  line-height: 1.1;
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
 }
 
-.spotStack[data-count='1'] {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.spotStack[data-count='2'] {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.spotStack[data-count='3'] {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.spotStack[data-count='4'],
-.spotStack[data-count='5'],
-.spotStack[data-count='6'] {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-}
-
-.spotPhoto {
-  position: relative;
-  display: block;
-  min-height: 0;
-  color: inherit;
-  text-decoration: none;
-  transition: transform 140ms ease, color 140ms ease;
-}
-
-.spotImage::after {
+/* Bottom gradient over photo */
+.railPhoto::after {
   content: '';
   position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 1;
-  height: 48%;
+  inset: 50% 0 0;
+  background: linear-gradient(to top, rgba(21, 18, 14, 0.6), transparent);
   pointer-events: none;
-  background: linear-gradient(to top, rgba(21, 18, 14, .78), rgba(21, 18, 14, 0));
-}
-
-.spotImage {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-  aspect-ratio: auto;
-  overflow: hidden;
-  background: #f5ead5;
-}
-
-.spotPhoto:nth-child(2) {
-  transform: rotate(1.5deg) translateY(5px);
-}
-
-.spotPhoto:nth-child(3) {
-  transform: rotate(-1deg);
-}
-
-.spotImage img {
-  object-fit: cover;
-}
-
-.spotPhoto:hover,
-.spotPhoto:focus-visible {
-  color: var(--dock-red);
-  transform: translateY(-3px) rotate(-.8deg);
-}
-
-.spotName {
-  position: absolute;
-  right: 9px;
-  bottom: 9px;
-  left: 9px;
-  z-index: 2;
-  display: block;
-  min-width: 0;
-  color: #fff;
-  font-size: clamp(11px, 1.05vw, 13px);
-  font-weight: 900;
-  letter-spacing: .03em;
-  line-height: 1.05;
-  overflow-wrap: anywhere;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, .42);
-  text-transform: uppercase;
-}
-
-.mapActionLink::after {
-  content: ' ->';
-}
-
-.mustStack {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-  align-items: center;
-  justify-items: center;
-  gap: 8px 4px;
-  min-height: 0;
   z-index: 1;
 }
 
-.mustThumb {
-  --must-tilt: 8deg;
-  position: relative;
-  width: min(100%, clamp(58px, 4.8vw, 76px));
-  aspect-ratio: 5 / 7;
+.railPhotoEmpty {
+  border: 2px dashed var(--home-line, rgba(21, 18, 14, 0.2));
+  background: var(--home-quiet) !important;
+}
+
+/* No gradient overlay on empty placeholders */
+.railPhotoEmpty::after {
+  display: none;
+}
+
+.railEmptyMark {
+  position: absolute;
+  inset: 0;
   display: grid;
   place-items: center;
-  color: inherit;
-  text-decoration: none;
-  transform: rotate(var(--must-tilt));
-  transition: transform 140ms ease;
 }
 
-.mustThumb:hover,
-.mustThumb:focus-visible {
-  transform: translateY(-4px) rotate(var(--must-tilt));
-}
-
-.mustThumb:nth-child(2) {
-  --must-tilt: -7deg;
-}
-
-.mustThumb:nth-child(3) {
-  --must-tilt: 4deg;
-}
-
-.mustThumb:nth-child(4) {
-  --must-tilt: -3deg;
-}
-
-.mustThumb:nth-child(5) {
-  --must-tilt: 6deg;
-}
-
-.mustThumb:nth-child(6) {
-  --must-tilt: -5deg;
-}
-
-.mustThumb:nth-child(7) {
-  --must-tilt: 3deg;
-}
-
-.mustThumb:nth-child(8) {
-  --must-tilt: -8deg;
-}
-
-.mustImg {
-  object-fit: contain;
-}
-
-.mustThumb[data-open='false'] {
-  border: 2px solid currentColor;
-  background: transparent;
-}
-
-.mustHiddenMark {
-  position: relative;
-  width: 34px;
-  aspect-ratio: 1;
-  border: 2px solid currentColor;
-  border-radius: 50%;
-}
-
-.mustHiddenMark::before,
-.mustHiddenMark::after {
+.railEmptyMark::before,
+.railEmptyMark::after {
   content: '';
   position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 22px;
+  width: 24px;
   height: 2px;
-  background: currentColor;
-  transform: translate(-50%, -50%) rotate(45deg);
+  background: var(--home-muted, rgba(21, 18, 14, 0.4));
 }
 
-.mustHiddenMark::after {
-  transform: translate(-50%, -50%) rotate(-45deg);
+.railEmptyMark::before {
+  transform: rotate(45deg);
 }
 
-@media (max-width: 940px) {
-  .inner {
+.railEmptyMark::after {
+  transform: rotate(-45deg);
+}
+
+.railSub {
+  /* hv-sub provides font/color; we just ensure no extra margin */
+  margin: 0;
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+
+@media (max-width: 760px) {
+  .heroInner {
     grid-template-columns: 1fr;
-    min-height: 0;
+    gap: clamp(20px, 4vw, 32px);
   }
 
-  .copy {
-    min-height: clamp(230px, 34svh, 330px);
+  .headline {
+    font-size: clamp(38px, 12vw, 56px);
   }
 
-  .collectionGrid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, .78fr);
-    align-items: start;
+  .rails {
+    flex-direction: row;
+    gap: clamp(16px, 4vw, 28px);
+    overflow-x: auto;
+  }
+
+  .railBlock {
+    flex: 0 0 auto;
+    min-width: 0;
   }
 }
 
-@media (max-width: 620px) {
-  .section {
-    padding: calc(66px + env(safe-area-inset-top, 0px)) 10px 18px;
-    background: var(--dock-paper);
+@media (max-width: 480px) {
+  .hero {
+    padding-top: calc(60px + env(safe-area-inset-top, 0px));
   }
 
-  .inner {
-    gap: 0;
-    background: var(--dock-red);
+  .rails {
+    flex-direction: column;
   }
 
-  .copy,
-  .discovery {
-    background: var(--dock-red);
-  }
-
-  .copy {
-    min-height: 0;
-    align-content: start;
-    gap: 9px;
-    padding: 18px 16px 12px;
-  }
-
-  .discovery {
-    padding: 0 16px 16px;
-  }
-
-  .kicker {
-    font-size: clamp(18px, 5.8vw, 24px);
-  }
-
-  .title {
-    max-width: 8.4ch;
-    font-size: clamp(50px, 15.4vw, 72px);
-  }
-
-  .collectionGrid {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .actionRow {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-
-  .profileLink,
-  .mapActionLink {
-    width: 100%;
-    justify-content: center;
-    min-height: 38px;
-    font-size: clamp(18px, 6vw, 22px);
-  }
-
-  .collectionCard {
-    min-height: 0;
-    gap: 9px;
-    padding-top: 12px;
-    border-top: 2px solid var(--dock-ink);
-  }
-
-  .spotCard {
-    min-height: 250px;
-  }
-
-  .mustEatCard {
-    min-height: 230px;
-    transform: none;
-  }
-
-  .mustStack {
-    min-height: 150px;
-    gap: 8px 4px;
-  }
-
-  .spotStack {
-    gap: 8px;
-    min-height: 172px;
-  }
-
-  .mustThumb {
-    width: min(100%, clamp(48px, 16vw, 68px));
+  .railBlock {
+    flex: unset;
   }
 }

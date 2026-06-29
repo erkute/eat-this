@@ -100,7 +100,9 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   }));
   const spotPreviewPool = savedCount > 0 ? savedPreviewPool : dataRestaurants;
   const spotPreviews = spotPreviewPool
-    .filter((r, index, all) => r.photo && r.slug && all.findIndex((x) => x.slug === r.slug) === index)
+    .filter(
+      (r, index, all) => r.photo && r.slug && all.findIndex((x) => x.slug === r.slug) === index
+    )
     .slice(0, savedCount > 0 ? Math.min(savedCount, 6) : 6);
   const mustEatCards = [
     ...(mustEatOpen && mustEatPick?.image ? [mustEatPick] : []),
@@ -108,74 +110,118 @@ export default function HubDeineWelt({ initialMapData }: Props) {
   ].slice(0, Math.min(Math.max(faceUpCount, 1), 8));
 
   return (
-    <section className={styles.section} data-hub-deinewelt="" data-auth-only="">
-      <div className={styles.inner}>
+    <section
+      className={`homeV2 ${styles.hero}`}
+      data-hub-deinewelt=""
+      data-auth-only=""
+      aria-label={de ? 'Deine Welt' : 'Your world'}
+    >
+      <div className={`hv-wrap ${styles.heroInner}`}>
+        {/* ── Left: copy + actions ─────────────────────────────── */}
         <div className={styles.copy}>
-          <p className={styles.kicker}>{greeting}</p>
-          <h2 className={styles.title}>{de ? 'Deine Map wartet.' : 'Your map is ready.'}</h2>
-          <p className={styles.copyNote}>
-            {de ? 'Direkt zu deinen gespeicherten Orten und offenen Must Eats.' : 'Jump into your saved spots and open Must Eats.'}
+          <p className={`hv-kicker ${styles.kicker}`}>{greeting}</p>
+          <h2 className={styles.headline}>{de ? 'Deine Map wartet.' : 'Your map is ready.'}</h2>
+          <p className={styles.sub}>
+            {de
+              ? 'Direkt zu deinen gespeicherten Orten und offenen Must Eats.'
+              : 'Jump into your saved spots and open Must Eats.'}
           </p>
 
-          <div className={styles.actionRow} aria-label={t('actionsLabel')}>
-            <Link href="/profile" rel="nofollow" className={styles.profileLink}>
-              <span className={styles.actionLabel}>{t('profileAction')}</span>
-            </Link>
-            <MapIntentLink href="/map" rel="nofollow" className={styles.mapActionLink}>
+          <div className={styles.actions} aria-label={t('actionsLabel')}>
+            <MapIntentLink href="/map" rel="nofollow" className={`hv-btn ${styles.mapBtn}`}>
               {t('mapAction')}
             </MapIntentLink>
+            <Link
+              href="/profile"
+              rel="nofollow"
+              className={`hv-link-underline ${styles.profileBtn}`}
+            >
+              <span>{t('profileAction')}</span>
+            </Link>
           </div>
         </div>
 
-        <div className={styles.discovery}>
-          <div className={styles.collectionGrid} aria-label={de ? 'Deine Sammlung' : 'Your collection'}>
-            <div className={`${styles.collectionCard} ${styles.spotCard}`}>
-              <span className={styles.collectionKicker}>{de ? 'Spots' : 'Spots'}</span>
-              <span className={styles.spotStack} data-count={spotPreviews.length}>
-                {spotPreviews.map((spot) => (
+        {/* ── Right: photo rails ───────────────────────────────── */}
+        <div className={styles.rails} aria-label={de ? 'Deine Sammlung' : 'Your collection'}>
+          {/* Saved spots rail */}
+          <div className={styles.railBlock}>
+            <span className={`hv-kicker ${styles.railLabel}`}>{de ? 'Gespeichert' : 'Saved'}</span>
+            <div className={`hv-rail ${styles.rail}`}>
+              {spotPreviews.length > 0 ? (
+                spotPreviews.map((spot) => (
                   <MapIntentLink
                     href={`/map?r=${spot.slug}`}
                     rel="nofollow"
-                    className={styles.spotPhoto}
+                    className={`hv-photo ${styles.railPhoto}`}
                     key={spot._id}
                     aria-label={`${normalizeName(spot.name)} ${de ? 'auf der Map öffnen' : 'open on the map'}`}
                   >
-                    <span className={styles.spotImage}>
-                      <Image src={spot.photo ?? ''} alt="" fill sizes="120px" />
-                      <span className={styles.spotName}>{normalizeName(spot.name)}</span>
-                    </span>
+                    <Image src={spot.photo ?? ''} alt="" fill sizes="110px" />
+                    <span className={styles.railPhotoName}>{normalizeName(spot.name)}</span>
                   </MapIntentLink>
-                ))}
-              </span>
+                ))
+              ) : (
+                <MapIntentLink
+                  href="/map"
+                  rel="nofollow"
+                  className={`hv-photo ${styles.railPhoto} ${styles.railPhotoEmpty}`}
+                >
+                  <span className={styles.railEmptyMark} />
+                </MapIntentLink>
+              )}
             </div>
+            <span className={`hv-sub ${styles.railSub}`}>
+              {savedCount > 0
+                ? `${savedCount} ${de ? 'Spots' : 'Spots'}`
+                : de
+                  ? 'Noch keine'
+                  : 'None yet'}
+            </span>
+          </div>
 
-            <div className={`${styles.collectionCard} ${styles.mustEatCard}`}>
-              <span className={styles.collectionKicker}>
-                Must
-                <br />
-                Eats
-              </span>
-              <span className={styles.mustStack} data-count={mustEatCards.length}>
-                {mustEatCards.length > 0 ? (
-                  mustEatCards.map((m) => (
-                    <MapIntentLink
-                      href={`/map?me=${m._id}`}
-                      rel="nofollow"
-                      className={styles.mustThumb}
-                      key={m._id}
-                      data-open="true"
-                      aria-label={`${m.dish ? normalizeName(m.dish) : 'Must Eat'} ${de ? 'auf der Map öffnen' : 'open on the map'}`}
-                    >
-                      {m.image && <Image src={m.image} alt="" fill sizes="110px" className={styles.mustImg} />}
-                    </MapIntentLink>
-                  ))
-                ) : (
-                  <MapIntentLink href={mustEatHref} rel="nofollow" className={styles.mustThumb} data-open="false">
-                    <span className={styles.mustHiddenMark} />
+          {/* Must Eats rail */}
+          <div className={styles.railBlock}>
+            <span className={`hv-kicker ${styles.railLabel}`}>Must Eats</span>
+            <div className={`hv-rail ${styles.rail}`}>
+              {mustEatCards.length > 0 ? (
+                mustEatCards.map((m) => (
+                  <MapIntentLink
+                    href={`/map?me=${m._id}`}
+                    rel="nofollow"
+                    className={`hv-photo ${styles.railPhoto} ${styles.mustPhoto}`}
+                    key={m._id}
+                    data-open="true"
+                    aria-label={`${m.dish ? normalizeName(m.dish) : 'Must Eat'} ${de ? 'auf der Map öffnen' : 'open on the map'}`}
+                  >
+                    {m.image && (
+                      <Image
+                        src={m.image}
+                        alt=""
+                        fill
+                        sizes="110px"
+                        style={{ objectFit: 'contain' }}
+                      />
+                    )}
                   </MapIntentLink>
-                )}
-              </span>
+                ))
+              ) : (
+                <MapIntentLink
+                  href={mustEatHref}
+                  rel="nofollow"
+                  className={`hv-photo ${styles.railPhoto} ${styles.mustPhoto} ${styles.railPhotoEmpty}`}
+                  data-open="false"
+                >
+                  <span className={styles.railEmptyMark} />
+                </MapIntentLink>
+              )}
             </div>
+            <span className={`hv-sub ${styles.railSub}`}>
+              {faceUpCount > 0
+                ? `${faceUpCount} ${de ? 'offen' : 'open'}`
+                : de
+                  ? 'Entdecken'
+                  : 'Discover'}
+            </span>
           </div>
         </div>
       </div>

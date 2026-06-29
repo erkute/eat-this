@@ -27,20 +27,6 @@
   justify-content: center;
 }
 
-/* his signature yellow lives here — a big disc behind him */
-.avatarWrap::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  background: var(--home-accent);
-  border-radius: 50%;
-  z-index: 0;
-}
-
 .avatar {
   position: relative;
   z-index: 1;

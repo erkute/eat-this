@@ -20,36 +20,12 @@ interface Props {
 
 const copy = {
   de: {
-    nav: ['Spots', 'Must Eats', 'Map'],
     heroCta: 'Zur Map',
     spotDay: 'Spot des Tages',
-    openSpot: 'Lesen',
-    track: 'Spot',
-    latest: 'Neu auf der Map',
-    latestSub: 'Neue Spots, frisch auf deiner Map.',
-    eatTitle: 'Das willst du essen?',
-    eatSub:
-      'Wir zeigen dir, was auf dem Teller landet: konkrete Gerichte, klare Empfehlungen, direkt mit dem richtigen Spot verbunden.',
-    districts: 'Bezirke',
-    districtsSub: 'Spots nach Bezirk.',
-    magazine: 'Auf den Teller',
-    readArticle: 'Lesen',
   },
   en: {
-    nav: ['Spots', 'Must Eats', 'Map'],
     heroCta: 'Open map',
     spotDay: 'Spot of the day',
-    openSpot: 'Read',
-    track: 'Spot',
-    latest: 'New on the map',
-    latestSub: 'New spots, fresh on your map.',
-    eatTitle: 'This is what to eat?',
-    eatSub:
-      'We show what actually lands on the plate: specific dishes, clear picks, tied straight to the right spot.',
-    districts: 'Districts',
-    districtsSub: 'Spots by district.',
-    magazine: 'On the plate',
-    readArticle: 'Read',
   },
 };
 

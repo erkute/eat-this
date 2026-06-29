@@ -12,6 +12,7 @@ import MapIntentLink from './MapIntentLink';
 import CategoryQuickPick from './CategoryQuickPick';
 import CategoriesRail from './CategoriesRail';
 import DistrictsList from './DistrictsList';
+import MagazineGrid from './MagazineGrid';
 import SiteFooter from './SiteFooter';
 import styles from './HubSection.module.css';
 
@@ -93,7 +94,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       <HubMustEatsTeaser initialMapData={initialMapData} />
       <HubFragRemy />
       <DistrictsList districts={initialData.districts} locale={locale} />
-      {/* MagazineGrid — Task 11 */}
+      <MagazineGrid articles={initialData.magazine} locale={locale} />
       <HubFaq locale={locale} />
       <SiteFooter />
     </div>

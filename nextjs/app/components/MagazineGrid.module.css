@@ -1,0 +1,30 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 14px;
+}
+.lead {
+  display: block;
+}
+.leadPhoto {
+  height: 260px;
+}
+.secondary {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.secItem {
+  display: block;
+}
+.secPhoto {
+  height: 122px;
+}
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .leadPhoto {
+    height: 200px;
+  }
+}

@@ -137,7 +137,7 @@
 }
 
 .heroSpotPhoto::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   z-index: 1;
@@ -802,7 +802,13 @@
   justify-content: space-between;
   gap: 12px;
   color: rgba(21, 18, 14, 0.62);
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0;
@@ -1247,5 +1253,62 @@
   .articleCta {
     min-height: 30px;
     font-size: 16px;
+  }
+}
+
+/* ── homeV2 hero ─────────────────────────────────────────── */
+.hero {
+  padding-top: 28px;
+}
+.heroGrid {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+.heroCopy {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.heroHeadline {
+  font-family: var(--font-providence);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  font-size: clamp(40px, 6vw, 64px);
+  margin: 12px 0 0;
+}
+.heroActions {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-top: 24px;
+}
+.heroPhoto {
+  min-height: 300px;
+}
+.heroPhotoTag {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+}
+.heroPhotoTag strong {
+  font-family: var(--font-providence);
+  font-weight: 700;
+  font-size: 16px;
+}
+@media (max-width: 760px) {
+  .heroGrid {
+    grid-template-columns: 1fr;
+  }
+  .heroPhoto {
+    min-height: 200px;
   }
 }

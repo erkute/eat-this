@@ -1,0 +1,15 @@
+.card {
+  display: block;
+  flex: 0 0 120px;
+}
+.photo {
+  height: 128px;
+}
+@media (max-width: 760px) {
+  .card {
+    flex-basis: 108px;
+  }
+  .photo {
+    height: 112px;
+  }
+}

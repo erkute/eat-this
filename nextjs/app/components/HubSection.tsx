@@ -10,6 +10,7 @@ import HubMustEatsTeaser from './HubMustEatsTeaser';
 import HubNearby from './HubNearby';
 import MapIntentLink from './MapIntentLink';
 import CategoryQuickPick from './CategoryQuickPick';
+import CategoriesRail from './CategoriesRail';
 import SiteFooter from './SiteFooter';
 import styles from './HubSection.module.css';
 
@@ -86,7 +87,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         />
       </section>
 
-      {/* CategoriesRail — Task 6 */}
+      <CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />
       <HubNearby initialMapData={initialMapData} />
       <HubMustEatsTeaser initialMapData={initialMapData} />
       <HubFragRemy />

@@ -5,11 +5,12 @@
 /* ── Rail card sizing ──────────────────────────────────────────────────────── */
 .card {
   display: block;
-  flex: 0 0 220px;
+  flex: 0 0 clamp(240px, 24vw, 300px);
 }
 
 .photo {
-  height: 160px;
+  aspect-ratio: 4 / 3;
+  height: auto;
 }
 
 /* ── Locate button (sits in hv-head as hv-link equivalent) ─────────────────── */

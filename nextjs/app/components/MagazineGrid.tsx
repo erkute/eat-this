@@ -11,7 +11,7 @@ interface Props {
 export default function MagazineGrid({ articles, locale }: Props) {
   if (!articles.length) return null;
   const [lead, ...rest] = articles;
-  const secondary = rest.slice(0, 2);
+  const list = rest.slice(0, 5);
   return (
     <section
       className="homeV2 hv-section hv-wrap"
@@ -22,30 +22,41 @@ export default function MagazineGrid({ articles, locale }: Props) {
           <span className="hv-mk" aria-hidden="true" />
           {locale === 'en' ? 'On the plate' : 'Auf den Teller'}
         </h2>
-        <span className="hv-link">{locale === 'en' ? 'Magazine' : 'Magazin'} →</span>
+        <Link href="/news" className="hv-link">
+          {locale === 'en' ? 'Magazine' : 'Magazin'} →
+        </Link>
       </div>
+
       <div className={styles.grid}>
+        {/* Lead story */}
         <Link href={`/news/${lead.slug}`} className={styles.lead}>
           <span className={`hv-photo ${styles.leadPhoto}`}>
             {lead.image && (
-              <Image src={lead.image} alt="" fill sizes="(max-width:760px) 92vw, 58vw" />
+              <Image src={lead.image} alt="" fill sizes="(max-width:760px) 92vw, 56vw" />
             )}
           </span>
-          {lead.kicker && <span className="hv-sub">{lead.kicker}</span>}
-          <span className="hv-cap">{lead.title}</span>
+          {lead.kicker && <span className={styles.kicker}>{lead.kicker}</span>}
+          <span className={styles.leadTitle}>{lead.title}</span>
         </Link>
-        <div className={styles.secondary}>
-          {secondary.map((a) => (
-            <Link key={a.slug} href={`/news/${a.slug}`} className={styles.secItem}>
-              <span className={`hv-photo ${styles.secPhoto}`}>
-                {a.image && (
-                  <Image src={a.image} alt="" fill sizes="(max-width:760px) 92vw, 30vw" />
-                )}
-              </span>
-              <span className="hv-cap">{a.title}</span>
-            </Link>
-          ))}
-        </div>
+
+        {/* Headline list */}
+        {list.length > 0 && (
+          <ul className={styles.list}>
+            {list.map((a) => (
+              <li key={a.slug}>
+                <Link href={`/news/${a.slug}`} className={styles.row}>
+                  <span className={`hv-photo ${styles.rowThumb}`}>
+                    {a.image && <Image src={a.image} alt="" fill sizes="120px" />}
+                  </span>
+                  <span className={styles.rowText}>
+                    {a.kicker && <span className={styles.kicker}>{a.kicker}</span>}
+                    <span className={styles.rowTitle}>{a.title}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </section>
   );

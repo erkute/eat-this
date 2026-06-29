@@ -6,28 +6,46 @@
   scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
 }
 
-/* ── body: avatar left, copy right ── */
+/* ── body: copy left, BIG Remy right ── */
 .body {
-  display: flex;
-  align-items: flex-start;
-  gap: clamp(20px, 4vw, 48px);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(24px, 4vw, 40px);
+  align-items: center;
 }
 
-/* ── Remy avatar — yellow circle, this is where his colour lives ── */
+/* ── Remy stage — big freigestellt Remy standing on a yellow circle ── */
 .avatarWrap {
-  flex: 0 0 auto;
-  width: clamp(74px, 10vw, 96px);
-  height: clamp(74px, 10vw, 96px);
-  border-radius: 50%;
-  background: var(--home-accent);
-  overflow: hidden;
+  order: 2;
   position: relative;
+  justify-self: center;
+  width: 100%;
+  max-width: clamp(220px, 30vw, 340px);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* his signature yellow lives here — a big disc behind him */
+.avatarWrap::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: var(--home-accent);
+  border-radius: 50%;
+  z-index: 0;
 }
 
 .avatar {
   position: relative;
-  width: 100%;
-  height: 100%;
+  z-index: 1;
+  width: 94%;
+  height: 122%;
   transform-origin: 50% 100%;
   animation: remyBob 3.8s ease-in-out infinite;
 }
@@ -39,7 +57,7 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  object-position: 50% 50%;
+  object-position: 50% 100%;
   display: block;
 }
 
@@ -81,7 +99,7 @@
 
 /* ── copy column ── */
 .copy {
-  flex: 1 1 0;
+  order: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -160,15 +178,17 @@
   outline-offset: 2px;
 }
 
-/* ── desktop: avatar larger, body aligns center ── */
+/* ── desktop: copy left, big Remy right ── */
 @media (min-width: 720px) {
   .body {
+    grid-template-columns: 1.1fr 0.9fr;
     align-items: center;
+    gap: clamp(32px, 5vw, 64px);
   }
 
   .avatarWrap {
-    width: clamp(88px, 8vw, 110px);
-    height: clamp(88px, 8vw, 110px);
+    justify-self: end;
+    max-width: clamp(280px, 32vw, 380px);
   }
 }
 

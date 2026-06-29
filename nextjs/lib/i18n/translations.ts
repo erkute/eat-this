@@ -815,7 +815,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     filterChipCategory: 'Kategorie',
     filterChipBezirk: 'Bezirk',
     filterChipCuisine: 'Küche',
-    filterChipOpen: 'Jetzt geöffnet',
+    filterChipOpen: 'Geöffnet',
     pickerCategoryTitle: 'Kategorie wählen',
     pickerBezirkTitle: 'Bezirk wählen',
     pickerCuisineTitle: 'Küche wählen',

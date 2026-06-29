@@ -7265,3 +7265,165 @@ html[data-theme="dark"] .bd-foot {
     width: clamp(118px, 18dvh, 158px) !important;
   }
 }
+
+/* Burger drawer legal dock: give Impressum/Datenschutz/AGB/Kontakt their own
+   intentional surface instead of a thin afterthought line. */
+html .bd-foot,
+html[data-theme="dark"] .bd-foot {
+  width: min(100%, 560px) !important;
+  margin: clamp(8px, 1.4dvh, 18px) auto 0 !important;
+  padding: 7px !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  background: #15120e !important;
+  border: 2px solid #15120e !important;
+  border-radius: 0 !important;
+  box-shadow: 0 6px 0 rgba(21, 18, 14, .18) !important;
+}
+
+html .bd-foot-link,
+html .bd-foot-link:nth-child(2),
+html .bd-foot-link:nth-child(4),
+html[data-theme="dark"] .bd-foot-link,
+html[data-theme="dark"] .bd-foot-link:nth-child(2),
+html[data-theme="dark"] .bd-foot-link:nth-child(4) {
+  min-height: clamp(34px, 4.6dvh, 42px) !important;
+  padding: 8px 7px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  background: #fff !important;
+  color: #15120e !important;
+  border: 2px solid #15120e !important;
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
+  font-size: clamp(9px, min(1.4vw, 1.35dvh), 12px) !important;
+  font-weight: 950 !important;
+  letter-spacing: .08em !important;
+  line-height: 1.05 !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  text-transform: uppercase !important;
+  overflow-wrap: anywhere !important;
+  transform: translateY(var(--bd-foot-y, 0)) rotate(var(--bd-foot-tilt, 0deg)) !important;
+  transition: background-color 150ms ease, color 150ms ease, transform 150ms ease !important;
+}
+
+html .bd-foot-link:nth-child(2),
+html[data-theme="dark"] .bd-foot-link:nth-child(2) {
+  --bd-foot-y: 2px;
+  --bd-foot-tilt: -.7deg;
+}
+
+html .bd-foot-link:nth-child(3),
+html[data-theme="dark"] .bd-foot-link:nth-child(3) {
+  --bd-foot-tilt: .7deg;
+}
+
+html .bd-foot-link:nth-child(4),
+html[data-theme="dark"] .bd-foot-link:nth-child(4) {
+  --bd-foot-y: 1px;
+  --bd-foot-tilt: -.5deg;
+}
+
+html .bd-foot-link:hover,
+html .bd-foot-link:focus-visible,
+html[data-theme="dark"] .bd-foot-link:hover,
+html[data-theme="dark"] .bd-foot-link:focus-visible {
+  background: #15120e !important;
+  color: #fff !important;
+  outline: 2px solid #fff !important;
+  outline-offset: -5px !important;
+  text-decoration: none !important;
+  transform: translateY(-3px) rotate(calc(var(--bd-foot-tilt, 0deg) * -1)) !important;
+}
+
+@media (max-width: 560px) {
+  html .bd-foot,
+  html[data-theme="dark"] .bd-foot {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: min(100%, 390px) !important;
+    gap: 5px !important;
+  }
+
+  html .bd-foot-link,
+  html .bd-foot-link:nth-child(2),
+  html .bd-foot-link:nth-child(4),
+  html[data-theme="dark"] .bd-foot-link,
+  html[data-theme="dark"] .bd-foot-link:nth-child(2),
+  html[data-theme="dark"] .bd-foot-link:nth-child(4) {
+    min-height: clamp(30px, 4.2dvh, 36px) !important;
+    padding: 7px 8px !important;
+    font-size: clamp(9px, 2.7vw, 11px) !important;
+    letter-spacing: .07em !important;
+  }
+}
+
+@media (max-height: 700px) {
+  html .bd-foot,
+  html[data-theme="dark"] .bd-foot {
+    margin-top: 6px !important;
+    padding: 5px !important;
+    gap: 4px !important;
+  }
+
+  html .bd-foot-link,
+  html .bd-foot-link:nth-child(2),
+  html .bd-foot-link:nth-child(4),
+  html[data-theme="dark"] .bd-foot-link,
+  html[data-theme="dark"] .bd-foot-link:nth-child(2),
+  html[data-theme="dark"] .bd-foot-link:nth-child(4) {
+    min-height: 28px !important;
+    padding: 6px 7px !important;
+    font-size: 9px !important;
+  }
+}
+
+html .bd-foot.bd-legal-dock,
+html[data-theme="dark"] .bd-foot.bd-legal-dock {
+  width: min(100%, 560px) !important;
+  margin: clamp(8px, 1.4dvh, 18px) auto 0 !important;
+  padding: 7px !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  background: #15120e !important;
+  border: 2px solid #15120e !important;
+  border-radius: 0 !important;
+  box-shadow: 0 6px 0 rgba(21, 18, 14, .18) !important;
+}
+
+html .bd-legal-dock .bd-foot-link,
+html .bd-legal-dock .bd-foot-link:nth-child(2),
+html .bd-legal-dock .bd-foot-link:nth-child(4),
+html[data-theme="dark"] .bd-legal-dock .bd-foot-link,
+html[data-theme="dark"] .bd-legal-dock .bd-foot-link:nth-child(2),
+html[data-theme="dark"] .bd-legal-dock .bd-foot-link:nth-child(4) {
+  min-height: clamp(34px, 4.6dvh, 42px) !important;
+  padding: 8px 7px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  background: #fff !important;
+  color: #15120e !important;
+  border: 2px solid #15120e !important;
+  font-size: clamp(9px, min(1.4vw, 1.35dvh), 12px) !important;
+  font-weight: 950 !important;
+  letter-spacing: .08em !important;
+  line-height: 1.05 !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  overflow-wrap: anywhere !important;
+  transform: translateY(var(--bd-foot-y, 0)) rotate(var(--bd-foot-tilt, 0deg)) !important;
+}
+
+@media (max-width: 560px) {
+  html .bd-foot.bd-legal-dock,
+  html[data-theme="dark"] .bd-foot.bd-legal-dock {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: min(100%, 390px) !important;
+    gap: 5px !important;
+  }
+}

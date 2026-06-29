@@ -104,7 +104,7 @@ export default function BurgerDrawer() {
             <Link href="/about" className="bd-nav-item">{t('burger.about')}</Link>
           </nav>
 
-          <div className="bd-foot">
+          <div className="bd-foot bd-legal-dock">
             <Link href="/impressum" className="bd-foot-link" id="openImpressum">{t('burger.impressum')}</Link>
             <Link href="/datenschutz" className="bd-foot-link" id="openDatenschutzFromBurger">{t('modals.datenschutz.title')}</Link>
             <Link href="/agb" className="bd-foot-link" id="openAgbFromBurger">{t('modals.agb.title')}</Link>

@@ -24,7 +24,7 @@ export default function CategoryQuickPick({ categoryNames, placeholder }: Props)
           Map
         </span>
       </button>
-      <div className={styles.grid} data-open={open || undefined} role="listbox">
+      <div className={styles.grid} data-open={open || undefined}>
         {entries.map(([slug, name]) => (
           <MapIntentLink key={slug} href={`/map?cat=${slug}`} rel="nofollow" className="hv-chip">
             {name}

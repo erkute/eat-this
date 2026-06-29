@@ -127,7 +127,7 @@
 
 .dishLink:hover .dish,
 .dishLink:focus-visible .dish {
-  color: var(--home-yellow, #f5c800);
+  color: var(--home-accent);
 }
 
 /* ── Footer row: must-eats CTA + accent commerce CTA ──────────────────────── */
@@ -137,10 +137,6 @@
   align-items: center;
   gap: clamp(10px, 2vw, 18px);
   margin-top: clamp(8px, 1.5vw, 16px);
-}
-
-.mustEatsCta {
-  /* inherits homeCta homeCtaPrimary pill style */
 }
 
 /* ── Mobile ────────────────────────────────────────────────────────────────── */
@@ -158,7 +154,6 @@
     align-items: stretch;
   }
 
-  .mustEatsCta,
   .foot :global(.hv-btn) {
     text-align: center;
     justify-content: center;

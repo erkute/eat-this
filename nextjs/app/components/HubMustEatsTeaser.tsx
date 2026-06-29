@@ -136,7 +136,7 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
       </ul>
 
       <div className={styles.foot}>
-        <MapIntentLink href="/must-eats" className={`${styles.mustEatsCta} homeCta homeCtaPrimary`}>
+        <MapIntentLink href="/must-eats" className="hv-btn">
           {t('mustEats.teaserCta')}
         </MapIntentLink>
         <Link href="/pack/all-berlin" rel="nofollow" className="hv-btn hv-btn--accent">

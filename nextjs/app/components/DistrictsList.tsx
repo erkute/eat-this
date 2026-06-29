@@ -32,7 +32,7 @@ export default function DistrictsList({ districts, locale }: Props) {
           >
             <span className={styles.name}>{normalizeName(d.name)}</span>
             <span className="hv-sub">
-              {d.spots?.length ?? 0} {locale === 'en' ? 'spots' : 'Spots'} →
+              {d.count ?? 0} {locale === 'en' ? 'spots' : 'Spots'} →
             </span>
           </MapIntentLink>
         ))}

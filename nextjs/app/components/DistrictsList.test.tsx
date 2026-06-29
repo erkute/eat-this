@@ -16,6 +16,7 @@ describe('DistrictsList', () => {
     const html = renderToStaticMarkup(<DistrictsList districts={districts} locale="de" />);
     expect(html).toContain('/map?bezirk=kreuzberg');
     expect(html).toContain('Kreuzberg');
+    expect(html).toContain('12');
   });
   it('renders nothing when empty', () => {
     expect(renderToStaticMarkup(<DistrictsList districts={[]} locale="de" />)).toBe('');

@@ -1,59 +1,68 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import Image from 'next/image'
-import { useTranslations } from 'next-intl'
-import { useAuth } from '@/lib/auth'
-import { useMapData } from '@/lib/map'
-import { useUserLocationContext } from '@/lib/map/UserLocationContext'
-import { haversineDistance, formatWalkingTime } from '@/lib/map/distance'
-import { normalizeName } from '@/lib/normalizeName'
-import { nearestRestaurants } from '@/lib/home/nearby'
-import type { InitialMapData } from '@/lib/map/server-initial-map-data'
-import MapIntentLink from './MapIntentLink'
-import styles from './HubNearby.module.css'
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { useTranslations } from 'next-intl';
+import { useAuth } from '@/lib/auth';
+import { useMapData } from '@/lib/map';
+import { useUserLocationContext } from '@/lib/map/UserLocationContext';
+import { haversineDistance, formatWalkingTime } from '@/lib/map/distance';
+import { normalizeName } from '@/lib/normalizeName';
+import { nearestRestaurants } from '@/lib/home/nearby';
+import type { InitialMapData } from '@/lib/map/server-initial-map-data';
+import MapIntentLink from './MapIntentLink';
+import styles from './HubNearby.module.css';
 
-const MITTE = { lat: 52.52, lng: 13.405 }
+const MITTE = { lat: 52.52, lng: 13.405 };
 
 interface Props {
-  initialMapData: InitialMapData
-  mode?: 'guest' | 'auth'
+  initialMapData: InitialMapData;
+  mode?: 'guest' | 'auth';
+  locale?: 'de' | 'en';
 }
 
-export default function HubNearby({ initialMapData, mode = 'guest' }: Props) {
-  const t = useTranslations('hub.nearby')
-  const authMode = mode === 'auth'
-  const { user, loading: authLoading } = useAuth()
-  const uid = user?.uid ?? null
-  const live = useMapData({ uid, authLoading, initialMapData })
-  const { location, loading: locating, error: locError, request } = useUserLocationContext()
+export default function HubNearby({ initialMapData, mode = 'guest', locale = 'de' }: Props) {
+  const t = useTranslations('hub.nearby');
+  const authMode = mode === 'auth';
+  const { user, loading: authLoading } = useAuth();
+  const uid = user?.uid ?? null;
+  const live = useMapData({ uid, authLoading, initialMapData });
+  const { location, loading: locating, error: locError, request } = useUserLocationContext();
   // The first client render must match SSR (anon initialMapData + Mitte). Only
   // after mount switch to live data (which may be the cached signed-in payload)
   // + the resolved geolocation — otherwise the nearby list/distances mismatch
   // on hydrate.
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => { setMounted(true) }, [])
-  const restaurants = mounted ? live.restaurants : initialMapData.restaurants
-  const activeLocation = mounted ? location : null
-  const loc = activeLocation ?? MITTE
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  const restaurants = mounted ? live.restaurants : initialMapData.restaurants;
+  const activeLocation = mounted ? location : null;
+  const loc = activeLocation ?? MITTE;
 
-  const cards = nearestRestaurants(restaurants, loc, authMode ? 2 : 4)
-  if (!authMode && mounted && user) return null
-  if (cards.length === 0) return null
+  const cards = nearestRestaurants(restaurants, loc, authMode ? 2 : 4);
+  if (!authMode && mounted && user) return null;
+  if (cards.length === 0) return null;
+
+  const title = locale === 'en' ? 'Around you' : 'Um dich herum';
+  const locateLabel = locale === 'en' ? 'Locate' : 'Standort';
 
   return (
     <section
-      className={styles.section}
+      className="homeV2 hv-section hv-wrap"
       data-hub-nearby=""
       data-auth-nearby={authMode ? '' : undefined}
       data-auth-only={authMode ? '' : undefined}
       data-guest-only={authMode ? undefined : ''}
     >
-      <div className={styles.head}>
-        <h2 className={styles.heading}>{t('title')}</h2>
+      <div className="hv-head">
+        <h2 className="hv-title">
+          <span className="hv-mk" aria-hidden="true" />
+          {title}
+        </h2>
         <button
           type="button"
-          className={`${styles.locBtn} homeCta homeCtaSmall`}
+          className={styles.locBtn}
           onClick={() => request()}
           disabled={locating}
           aria-label={t('locationAria')}
@@ -66,9 +75,10 @@ export default function HubNearby({ initialMapData, mode = 'guest' }: Props) {
             <line x1="19" y1="12" x2="22" y2="12" />
             <circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none" />
           </svg>
-          <span>{locating ? t('locating') : t('location')}</span>
+          <span>{locating ? t('locating') : locateLabel}</span>
         </button>
       </div>
+
       {/* Geolocation failed → tell the user instead of silently staying on the
           Mitte fallback (denied permission no-ops on every further click). */}
       {mounted && locError && !activeLocation ? (
@@ -76,30 +86,38 @@ export default function HubNearby({ initialMapData, mode = 'guest' }: Props) {
           {locError === 'denied' ? t('errDenied') : t('errRetry')}
         </p>
       ) : (
-        <p className={styles.sub}>
-          {activeLocation ? t('sub') : t('subFallback')}
-        </p>
+        <p className={styles.sub}>{activeLocation ? t('sub') : t('subFallback')}</p>
       )}
 
-      <ul className={styles.row} role="list">
+      <div className={`hv-rail ${styles.rail}`}>
         {cards.map((r) => {
-          const walk = formatWalkingTime(haversineDistance(loc.lat, loc.lng, r.lat, r.lng))
+          const walk = formatWalkingTime(haversineDistance(loc.lat, loc.lng, r.lat, r.lng));
+          const district = r.district ?? r.bezirk?.name ?? r.categories?.[0]?.name;
           return (
-            <li key={r._id} className={styles.cardItem}>
-              <MapIntentLink href={`/map?r=${r.slug}`} rel="nofollow" className={styles.card}>
-                <div className={styles.cardImage}>
-                  {r.photo && <Image src={r.photo} alt={normalizeName(r.name)} fill sizes="168px" />}
-                  {walk && <span className={styles.dist}>{walk}</span>}
-                </div>
-                <div className={styles.cardBody}>
-                  <h3 className={styles.name}>{normalizeName(r.name)}</h3>
-                  {r.district && <p className={styles.meta}>{r.district}</p>}
-                </div>
-              </MapIntentLink>
-            </li>
-          )
+            <MapIntentLink
+              key={r._id}
+              href={`/map?r=${r.slug}`}
+              rel="nofollow"
+              className={styles.card}
+            >
+              <span className={`hv-photo ${styles.photo}`}>
+                {r.photo && (
+                  <Image
+                    src={r.photo}
+                    alt={normalizeName(r.name)}
+                    fill
+                    sizes="(max-width:760px) 78vw, 280px"
+                  />
+                )}
+              </span>
+              <span className="hv-cap">{normalizeName(r.name)}</span>
+              {(walk || district) && (
+                <span className="hv-sub">{[walk, district].filter(Boolean).join(' · ')}</span>
+              )}
+            </MapIntentLink>
+          );
         })}
-        </ul>
+      </div>
     </section>
-  )
+  );
 }

@@ -914,8 +914,8 @@ html[data-theme='dark'] .notification-detail {
 .notification {
   --toast-surface: #fff;
   --toast-ink: #15120e;
-  --toast-muted: rgba(21, 18, 14, .62);
-  --toast-line: rgba(21, 18, 14, .11);
+  --toast-muted: rgba(21, 18, 14, 0.62);
+  --toast-line: rgba(21, 18, 14, 0.11);
   --toast-accent: #d9382a;
   bottom: calc(86px + env(safe-area-inset-bottom, 0px));
   grid-template-columns: 34px minmax(0, 1fr);
@@ -928,10 +928,10 @@ html[data-theme='dark'] .notification-detail {
   background: var(--toast-surface);
   color: var(--toast-ink);
   box-shadow:
-    0 16px 44px rgba(0, 0, 0, .16),
+    0 16px 44px rgba(0, 0, 0, 0.16),
     inset 0 0 0 1px var(--toast-line);
   transform: translate(-50%, calc(100% + 112px));
-  transition: transform .34s cubic-bezier(.22, 1, .36, 1);
+  transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .notification.show {
@@ -949,8 +949,8 @@ html[data-theme='dark'] .notification-detail {
 .notification[data-tone='error'] {
   --toast-surface: #15120e;
   --toast-ink: #fff;
-  --toast-muted: rgba(255, 255, 255, .72);
-  --toast-line: rgba(255, 255, 255, .12);
+  --toast-muted: rgba(255, 255, 255, 0.72);
+  --toast-line: rgba(255, 255, 255, 0.12);
   --toast-accent: #d9382a;
 }
 
@@ -996,7 +996,7 @@ html[data-theme='dark'] .notification-detail {
   font-family: var(--font-body);
   font-size: 9px;
   font-weight: 950;
-  letter-spacing: .1em;
+  letter-spacing: 0.1em;
   line-height: 1;
   color: var(--toast-accent);
 }
@@ -1031,10 +1031,10 @@ html[data-theme='dark'] .notification-detail {
 html[data-theme='dark'] .notification {
   --toast-surface: #15120e;
   --toast-ink: #fff;
-  --toast-muted: rgba(255, 255, 255, .72);
-  --toast-line: rgba(255, 255, 255, .12);
+  --toast-muted: rgba(255, 255, 255, 0.72);
+  --toast-line: rgba(255, 255, 255, 0.12);
   box-shadow:
-    0 18px 46px rgba(0, 0, 0, .36),
+    0 18px 46px rgba(0, 0, 0, 0.36),
     inset 0 0 0 1px var(--toast-line);
 }
 
@@ -1213,6 +1213,24 @@ html[data-theme='dark'][data-active-page='start'] .navbar.scrolled {
   -webkit-backdrop-filter: none !important;
 }
 
+/* HOME V2 — white masthead on the home (/, data-active-page="start").
+   Uses the #navbar id (specificity 1,1,1) so it wins over the red
+   html[data-active-page] .navbar !important rules in the SPA stylesheet,
+   regardless of stylesheet load order. Home only; other pages keep red. */
+html[data-active-page='start'] #navbar,
+html[data-active-page='start'] #navbar.scrolled {
+  background: #fff !important;
+  background-color: #fff !important;
+  color: #15120e !important;
+  border-bottom: 1px solid #e4e1dc !important;
+}
+
+html[data-active-page='start'] #navbar .navbar-home a,
+html[data-active-page='start'] #navbar .navbar-icon-btn,
+html[data-active-page='start'] #navbar .burger-btn {
+  color: #15120e !important;
+}
+
 .navbar::before,
 .navbar::after,
 html[data-theme='dark'] .navbar::before,
@@ -1256,7 +1274,7 @@ html[data-theme='dark'] .bd-foot {
   background: #15120e !important;
   border: 2px solid #15120e !important;
   border-radius: 0 !important;
-  box-shadow: 0 6px 0 rgba(21, 18, 14, .18) !important;
+  box-shadow: 0 6px 0 rgba(21, 18, 14, 0.18) !important;
 }
 
 .bd-foot-link,
@@ -1277,31 +1295,34 @@ html[data-theme='dark'] .bd-foot-link:nth-child(4) {
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
   font-size: clamp(9px, min(1.4vw, 1.35dvh), 12px) !important;
   font-weight: 950 !important;
-  letter-spacing: .08em !important;
+  letter-spacing: 0.08em !important;
   line-height: 1.05 !important;
   text-align: center !important;
   text-decoration: none !important;
   text-transform: uppercase !important;
   overflow-wrap: anywhere !important;
   transform: translateY(var(--bd-foot-y, 0)) rotate(var(--bd-foot-tilt, 0deg)) !important;
-  transition: background-color 150ms ease, color 150ms ease, transform 150ms ease !important;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    transform 150ms ease !important;
 }
 
 .bd-foot-link:nth-child(2),
 html[data-theme='dark'] .bd-foot-link:nth-child(2) {
   --bd-foot-y: 2px;
-  --bd-foot-tilt: -.7deg;
+  --bd-foot-tilt: -0.7deg;
 }
 
 .bd-foot-link:nth-child(3),
 html[data-theme='dark'] .bd-foot-link:nth-child(3) {
-  --bd-foot-tilt: .7deg;
+  --bd-foot-tilt: 0.7deg;
 }
 
 .bd-foot-link:nth-child(4),
 html[data-theme='dark'] .bd-foot-link:nth-child(4) {
   --bd-foot-y: 1px;
-  --bd-foot-tilt: -.5deg;
+  --bd-foot-tilt: -0.5deg;
 }
 
 .bd-foot-link:hover,
@@ -1333,7 +1354,7 @@ html[data-theme='dark'] .bd-foot-link:focus-visible {
     min-height: clamp(30px, 4.2dvh, 36px) !important;
     padding: 7px 8px !important;
     font-size: clamp(9px, 2.7vw, 11px) !important;
-    letter-spacing: .07em !important;
+    letter-spacing: 0.07em !important;
   }
 }
 
@@ -1368,7 +1389,7 @@ html[data-theme='dark'] .bd-foot {
   background: #15120e !important;
   border: 2px solid #15120e !important;
   border-radius: 0 !important;
-  box-shadow: 0 6px 0 rgba(21, 18, 14, .18) !important;
+  box-shadow: 0 6px 0 rgba(21, 18, 14, 0.18) !important;
 }
 
 html .bd-foot-link,
@@ -1389,31 +1410,34 @@ html[data-theme='dark'] .bd-foot-link:nth-child(4) {
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace) !important;
   font-size: clamp(9px, min(1.4vw, 1.35dvh), 12px) !important;
   font-weight: 950 !important;
-  letter-spacing: .08em !important;
+  letter-spacing: 0.08em !important;
   line-height: 1.05 !important;
   text-align: center !important;
   text-decoration: none !important;
   text-transform: uppercase !important;
   overflow-wrap: anywhere !important;
   transform: translateY(var(--bd-foot-y, 0)) rotate(var(--bd-foot-tilt, 0deg)) !important;
-  transition: background-color 150ms ease, color 150ms ease, transform 150ms ease !important;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    transform 150ms ease !important;
 }
 
 html .bd-foot-link:nth-child(2),
 html[data-theme='dark'] .bd-foot-link:nth-child(2) {
   --bd-foot-y: 2px;
-  --bd-foot-tilt: -.7deg;
+  --bd-foot-tilt: -0.7deg;
 }
 
 html .bd-foot-link:nth-child(3),
 html[data-theme='dark'] .bd-foot-link:nth-child(3) {
-  --bd-foot-tilt: .7deg;
+  --bd-foot-tilt: 0.7deg;
 }
 
 html .bd-foot-link:nth-child(4),
 html[data-theme='dark'] .bd-foot-link:nth-child(4) {
   --bd-foot-y: 1px;
-  --bd-foot-tilt: -.5deg;
+  --bd-foot-tilt: -0.5deg;
 }
 
 html .bd-foot-link:hover,
@@ -1445,7 +1469,7 @@ html[data-theme='dark'] .bd-foot-link:focus-visible {
     min-height: clamp(30px, 4.2dvh, 36px) !important;
     padding: 7px 8px !important;
     font-size: clamp(9px, 2.7vw, 11px) !important;
-    letter-spacing: .07em !important;
+    letter-spacing: 0.07em !important;
   }
 }
 
@@ -1480,7 +1504,7 @@ html[data-theme='dark'] .bd-foot.bd-legal-dock {
   background: #15120e !important;
   border: 2px solid #15120e !important;
   border-radius: 0 !important;
-  box-shadow: 0 6px 0 rgba(21, 18, 14, .18) !important;
+  box-shadow: 0 6px 0 rgba(21, 18, 14, 0.18) !important;
 }
 
 html .bd-legal-dock .bd-foot-link,
@@ -1500,7 +1524,7 @@ html[data-theme='dark'] .bd-legal-dock .bd-foot-link:nth-child(4) {
   border: 2px solid #15120e !important;
   font-size: clamp(9px, min(1.4vw, 1.35dvh), 12px) !important;
   font-weight: 950 !important;
-  letter-spacing: .08em !important;
+  letter-spacing: 0.08em !important;
   line-height: 1.05 !important;
   text-align: center !important;
   text-decoration: none !important;

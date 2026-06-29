@@ -298,3 +298,22 @@ html[data-theme='dark'] .footer {
   background: var(--footer-red);
   color: var(--footer-ink);
 }
+
+/* HOME V2 — ink footer on the home (data-active-page="start") to match the
+   white/ink/yellow home. Other pages keep the red footer. Remaps the footer
+   palette vars; the black slogan image is inverted to white; yellow accent. */
+:global(html[data-active-page='start']) .footer,
+:global(html[data-theme='dark'][data-active-page='start']) .footer {
+  --footer-red: #15120e;
+  --footer-ink: #fff;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+:global(html[data-active-page='start']) .tagImg {
+  filter: invert(1);
+}
+
+:global(html[data-active-page='start']) .linksKicker,
+:global(html[data-active-page='start']) .langBtnActive {
+  color: #ffc600;
+}

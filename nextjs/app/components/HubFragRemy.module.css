@@ -1,187 +1,39 @@
+/* HubFragRemy — homeV2 restyled: white section, yellow kept only as Remy's
+   avatar accent (circle background + chip hover). No full yellow band. */
+
 .section {
-  background: #fff;
-  padding: 0 16px 56px;
-  /* Anchor target (#hub-fragremy): clear the fixed navbar so the jump lands on
-     the Remy card headline, not behind the bar — consistent mobile/desktop. */
+  /* Anchor target (#hub-fragremy): clear the fixed navbar. */
   scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
 }
 
-.inner {
-  position: relative;
-  overflow: hidden;
-  border: 0;
-  border-radius: 0;
-  background: #d9382a;
-  box-shadow: none;
-  padding: clamp(30px, 5vw, 74px) clamp(20px, 4vw, 70px) 0;
+/* ── body: avatar left, copy right ── */
+.body {
   display: flex;
-  flex-direction: column;
-  isolation: isolate;
-}
-
-.inner::before {
-  content: none;
-}
-
-/* ── copy column ── */
-.copy {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
   align-items: flex-start;
-}
-.kicker {
-  display: inline-flex;
-  width: max-content;
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: var(--menu-mono);
-  font-size: clamp(15px, 1.15vw, 18px);
-  font-weight: 900;
-  letter-spacing: 0.12em;
-  line-height: 1.1;
-  text-transform: uppercase;
-  color: #15120e;
-  background: transparent;
-}
-.copy .kicker {
-  margin-bottom: clamp(12px, 1.6vw, 18px);
-}
-.headline {
-  margin: 0;
-  font-family: var(--menu-condensed);
-  font-size: clamp(58px, 14vw, 104px);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 0.78;
-  text-transform: uppercase;
-  color: #fff;
-}
-.lead {
-  margin: 0;
-  padding: clamp(16px, 2.6vw, 26px) 0 clamp(22px, 3.8vw, 36px);
-  max-width: 32ch;
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: clamp(16px, 1.45vw, 21px);
-  font-weight: 800;
-  letter-spacing: 0;
-  line-height: 1.16;
-  color: #15120e;
+  gap: clamp(20px, 4vw, 48px);
 }
 
-/* ── actions: quick answers + chat input ── */
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 440px;
-}
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  min-height: 46px;
-  align-content: flex-start;
-}
-.chatin {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-.input {
-  flex: 1;
-  min-width: 0;
-  border: 2px solid #15120e;
-  border-radius: 0;
-  padding: 13px 16px;
-  font-family: var(--menu-mono);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  color: #15120e;
-  background: #fff;
-}
-.input::placeholder {
-  color: rgba(21, 18, 14, 0.58);
-}
-.send {
-  flex: 0 0 auto;
-  min-width: 70px;
-}
-.chip:focus-visible,
-.send:focus-visible,
-.input:focus-visible {
-  outline: 2px solid var(--menu-ink);
-  outline-offset: 3px;
-}
-
-.chip:global(.homeCta) {
-  min-height: 38px;
-  padding: 8px 13px 9px;
-  border: 2px solid #15120e;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  color: #15120e;
-  font-family: var(--menu-mono);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  justify-content: flex-start;
-}
-.chip:global(.homeCta):hover,
-.chip:global(.homeCta):focus-visible {
-  background: #15120e;
-  border-color: #15120e;
-  color: #fff;
-  transform: translateY(-2px);
-}
-
-.send:global(.homeCta) {
-  min-height: 46px;
-  padding: 9px 16px 10px;
-  border: 2px solid #15120e;
-  border-radius: 0;
-  background: #15120e;
-  box-shadow: none;
-  color: #fff;
-  font-family: var(--menu-condensed);
-  font-size: 18px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-.send:global(.homeCta):hover,
-.send:global(.homeCta):focus-visible {
-  background: #d9382a;
-  border-color: #d9382a;
-  color: #fff;
-  transform: translateY(-2px);
-}
-
-/* ── giant Remy bust ── */
+/* ── Remy avatar — yellow circle, this is where his colour lives ── */
 .avatarWrap {
+  flex: 0 0 auto;
+  width: clamp(74px, 10vw, 96px);
+  height: clamp(74px, 10vw, 96px);
+  border-radius: 50%;
+  background: var(--home-accent);
+  overflow: hidden;
   position: relative;
-  z-index: 2;
-  align-self: center;
-  width: min(340px, 92vw);
-  height: 280px;
-  margin-top: 18px;
-  background: transparent;
-  overflow: visible;
 }
+
 .avatar {
   position: relative;
-  width: 112%;
-  height: 112%;
-  left: -6%;
-  top: 4%;
+  width: 140%;
+  height: 140%;
+  left: -20%;
+  top: -10%;
   transform-origin: 50% 100%;
   animation: remyBob 3.8s ease-in-out infinite;
 }
+
 .face,
 .faceOpen {
   position: absolute;
@@ -189,15 +41,18 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 0%;
+  object-position: 50% 10%;
   display: block;
 }
+
 .faceOpen {
   opacity: 0;
 }
+
 .avatar[data-talking] .faceOpen {
   animation: remyFlap 0.46s steps(1) infinite;
 }
+
 @keyframes remyBob {
   0%,
   100% {
@@ -210,6 +65,7 @@
     transform: translateY(-1px) rotate(0.7deg);
   }
 }
+
 @keyframes remyFlap {
   0%,
   40% {
@@ -225,52 +81,96 @@
   }
 }
 
-/* ── desktop: copy left, giant Remy bleeding off the bottom-right ── */
+/* ── copy column ── */
+.copy {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.lead {
+  margin: 0 0 clamp(14px, 2vw, 20px);
+  font-family: var(--font-providence);
+  font-size: clamp(14px, 1.3vw, 17px);
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--home-muted);
+}
+
+/* ── actions: quick answers + chat input ── */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Chip hover: accent yellow tint (state change, not motion — allowed) */
+.chip:global(.hv-chip):hover,
+.chip:global(.hv-chip):focus-visible {
+  background: var(--home-accent);
+  color: var(--home-ink);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--home-ink);
+  outline-offset: 2px;
+}
+
+/* ── free-text input row ── */
+.chatin {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-radius: var(--home-radius-btn);
+  padding: 11px 14px;
+  font-family: var(--font-providence);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--home-ink);
+  background: var(--home-quiet);
+}
+
+.input::placeholder {
+  color: var(--home-muted);
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--home-ink);
+  outline-offset: 2px;
+}
+
+/* Send button — reuses global hv-btn (ink bg, white text); no overrides needed */
+.send {
+  flex: 0 0 auto;
+}
+
+.send:focus-visible {
+  outline: 2px solid var(--home-ink);
+  outline-offset: 2px;
+}
+
+/* ── desktop: avatar larger, body aligns center ── */
 @media (min-width: 720px) {
-  .section {
-    padding: 0 max(22px, calc((100% - 1240px) / 2)) 74px;
+  .body {
+    align-items: center;
   }
-  .inner {
-    min-height: 420px;
-    padding: 56px 58px 54px 76px;
-    justify-content: center;
-  }
-  .copy {
-    max-width: 650px;
-    row-gap: 0;
-  }
-  .copy .kicker {
-    margin-bottom: clamp(14px, 1.5vw, 20px);
-  }
-  .kicker {
-    font-size: clamp(16px, 1.2vw, 20px);
-  }
-  .headline {
-    font-size: clamp(78px, 7vw, 118px);
-    margin-bottom: 0;
-  }
-  .lead {
-    font-size: clamp(18px, 1.55vw, 23px);
-    padding: clamp(20px, 1.9vw, 30px) 0 clamp(30px, 2.8vw, 44px);
-  }
+
   .avatarWrap {
-    position: absolute;
-    right: 24px;
-    bottom: 18px;
-    width: clamp(390px, 38vw, 560px);
-    height: clamp(360px, 34vw, 520px);
-    margin: 0;
-    align-self: auto;
-  }
-  .avatar {
-    width: 116%;
-    height: 116%;
-    left: -8%;
-    top: 5%;
-  }
-  .face,
-  .faceOpen {
-    object-position: 50% 0%;
+    width: clamp(88px, 8vw, 110px);
+    height: clamp(88px, 8vw, 110px);
   }
 }
 
@@ -279,6 +179,7 @@
   .avatar {
     animation: none;
   }
+
   .avatar[data-talking] .faceOpen {
     animation: none;
   }

@@ -1,61 +1,30 @@
-.section {
-  --me-red: #d9382a;
-  --me-ink: #15120e;
-  --me-paper: #fff;
-  --me-muted: rgba(21, 18, 14, 0.64);
-  padding: clamp(54px, 8vw, 104px) clamp(10px, 3vw, 44px);
-  color: var(--me-ink);
-  background: var(--me-paper);
-  border-top: 0;
-}
+/* HubMustEatsTeaser — homeV2 vocabulary.
+   Global hv-section/hv-wrap/hv-head/hv-title/hv-rail/hv-photo/hv-sub/hv-btn
+   handle the shell; this file only covers component-specific sizing, the card
+   tilt/lift variants, dish text, and the footer CTA row. */
 
-.head {
-  display: grid;
-  gap: clamp(8px, 1vw, 14px);
-  width: min(100%, 1280px);
-  margin: 0 auto clamp(26px, 4vw, 52px);
-}
-
-.title {
-  margin: 0;
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(56px, 8vw, 118px);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 0.8;
-  text-transform: uppercase;
-}
-
-.subWrap {
-  width: min(100%, 42ch);
-  max-width: 42ch;
-  margin: 0;
-  padding: 0;
-}
-
-.sub {
-  margin: 0;
-  color: var(--me-ink);
+/* ── Lead line ─────────────────────────────────────────────────────────────── */
+.lead {
+  margin: 0 0 clamp(16px, 2vw, 24px);
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: clamp(15px, 1.3vw, 18px);
-  font-weight: 800;
-  line-height: 1.18;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
+  color: rgba(21, 18, 14, 0.55);
 }
 
-.row {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(12px, 1.8vw, 22px);
-  width: min(100%, 1280px);
-  margin: 0 auto;
-  padding: 0 0 clamp(34px, 4vw, 52px);
+/* ── Rail override: grid instead of flex scroll on wide screens ────────────── */
+.rail {
+  padding: 0 0 clamp(24px, 3vw, 40px);
   list-style: none;
   border: 0;
 }
 
+/* ── Card shell ────────────────────────────────────────────────────────────── */
 .item {
   min-width: 0;
+  flex: 0 0 clamp(140px, 20vw, 200px);
 }
 
 .cardShell {
@@ -67,7 +36,7 @@
   display: grid;
   grid-template-rows: auto auto;
   min-height: 100%;
-  color: var(--me-ink);
+  color: var(--home-ink, #15120e);
   background: transparent;
   border: 0;
   text-decoration: none;
@@ -76,37 +45,29 @@
   transform: translateY(var(--lift));
 }
 
-.cardLink,
-.dishLink,
-.restaurantLink {
+.cardLink {
+  display: block;
   color: inherit;
   text-decoration: none;
 }
 
-.cardLink {
-  display: block;
-}
-
-.cutoutFrame {
-  position: relative;
+/* ── Photo tile (hv-photo provides border-radius + overflow) ───────────────── */
+.photo {
+  min-height: clamp(160px, 18vw, 240px);
   display: grid;
   place-items: center;
-  min-width: 0;
-  min-height: clamp(300px, 25vw, 390px);
-  padding: clamp(10px, 1.8vw, 24px);
-  background: transparent;
-  overflow: visible;
+  padding: clamp(6px, 1vw, 12px);
   transform-style: preserve-3d;
 }
 
 .card {
   display: block;
-  width: min(100%, 270px);
-  height: clamp(280px, 24vw, 380px);
+  width: min(100%, 180px);
+  height: clamp(150px, 17vw, 230px);
   object-fit: contain;
-  filter: none;
   backface-visibility: hidden;
-  transform: rotateX(var(--card-tilt-x)) rotateY(var(--card-tilt-y)) rotateZ(var(--card-tilt-z)) translateZ(18px);
+  transform: rotateX(var(--card-tilt-x)) rotateY(var(--card-tilt-y)) rotateZ(var(--card-tilt-z))
+    translateZ(18px);
   transform-origin: 50% 58%;
   transition: transform 180ms ease;
   will-change: transform;
@@ -117,209 +78,89 @@
   transform: rotateX(1deg) rotateY(4deg) rotateZ(1.3deg) translateZ(30px);
 }
 
-.meta {
-  display: grid;
-  align-content: start;
-  gap: 5px;
-  min-height: 116px;
-  padding: 0 clamp(8px, 1vw, 14px);
-  background: transparent;
-}
-
-.dishLink {
-  display: grid;
-  width: fit-content;
-  gap: 3px;
-}
-
-.dish {
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(34px, 4vw, 62px);
-  font-weight: 400;
-  line-height: 0.9;
-  text-transform: uppercase;
-}
-
-.dishLink:hover .dish,
-.dishLink:focus-visible .dish,
-.restaurantLink:hover .restaurant,
-.restaurantLink:focus-visible .restaurant {
-  color: var(--me-red);
-}
-
-.restaurant {
-  display: inline-block;
-  color: var(--me-muted);
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.restaurantLink {
-  display: grid;
-  width: fit-content;
-  gap: 3px;
-}
-
+/* ── Per-position tilt/lift variants ──────────────────────────────────────── */
 .item:nth-child(2) .cardShell,
 .item:nth-child(5) .cardShell {
-  --lift: 28px;
+  --lift: 20px;
   --card-tilt-x: 3deg;
   --card-tilt-y: 5deg;
   --card-tilt-z: 1.4deg;
 }
 
 .item:nth-child(3) .cardShell {
-  --lift: -18px;
+  --lift: -14px;
   --card-tilt-x: 5deg;
   --card-tilt-y: -2deg;
   --card-tilt-z: -2.2deg;
 }
 
 .item:nth-child(4) .cardShell {
-  --lift: 12px;
+  --lift: 10px;
   --card-tilt-x: 2deg;
   --card-tilt-y: 6deg;
   --card-tilt-z: 2deg;
 }
 
-.foot {
-  width: min(100%, 1280px);
-  margin: 0 auto;
-  text-align: center;
+/* ── Card meta (dish + restaurant) ────────────────────────────────────────── */
+.meta {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 6px 4px 0;
 }
 
-.section .foot {
-  margin-top: clamp(10px, 2vw, 22px);
-}
-
-.cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: clamp(48px, 4.8vw, 64px);
-  padding: 5px clamp(28px, 4.2vw, 52px) 0;
-  color: var(--me-paper);
-  background: var(--me-red);
-  border: 2px solid var(--me-ink);
-  border-radius: 999px;
-  font-family: var(--menu-condensed, Impact, sans-serif);
-  font-size: clamp(25px, 3.3vw, 46px);
-  line-height: 0.78;
+.dishLink,
+.restaurantLink {
+  display: grid;
+  width: fit-content;
+  color: inherit;
   text-decoration: none;
+}
+
+.dish {
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(22px, 2.2vw, 36px);
+  font-weight: 400;
+  line-height: 0.9;
   text-transform: uppercase;
-  box-shadow: 5px 5px 0 var(--me-ink);
-  transform: rotate(-1deg);
 }
 
-@media (max-width: 1000px) {
-  .row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.dishLink:hover .dish,
+.dishLink:focus-visible .dish {
+  color: var(--home-yellow, #f5c800);
 }
 
-@media (min-width: 1001px) {
-  .head {
-    grid-template-columns: minmax(0, 0.95fr) minmax(280px, 0.42fr);
-    align-items: end;
-  }
-
-  .subWrap {
-    justify-self: end;
-  }
-
-  .row {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    align-items: start;
-    gap: clamp(10px, 1.1vw, 16px);
-  }
-
-  .cutoutFrame {
-    min-height: clamp(230px, 19vw, 300px);
-    padding: clamp(8px, 1vw, 14px);
-  }
-
-  .card {
-    width: min(100%, 200px);
-    height: clamp(225px, 18vw, 292px);
-  }
-
-  .meta {
-    min-height: 104px;
-    padding-inline: 4px;
-  }
-
-  .dish {
-    font-size: clamp(27px, 2.35vw, 42px);
-  }
-
-  .item:nth-child(2) .cardShell,
-  .item:nth-child(5) .cardShell {
-    --lift: 18px;
-  }
-
-  .item:nth-child(3) .cardShell {
-    --lift: -10px;
-  }
-
-  .item:nth-child(4) .cardShell {
-    --lift: 10px;
-  }
+/* ── Footer row: must-eats CTA + accent commerce CTA ──────────────────────── */
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(10px, 2vw, 18px);
+  margin-top: clamp(8px, 1.5vw, 16px);
 }
 
-@media (max-width: 719px) {
-  .row {
-    padding-bottom: 12px;
-  }
-
-  .section .foot {
-    margin-top: 0;
-  }
+.mustEatsCta {
+  /* inherits homeCta homeCtaPrimary pill style */
 }
 
+/* ── Mobile ────────────────────────────────────────────────────────────────── */
 @media (max-width: 560px) {
-  .section {
-    padding-inline: 10px;
-  }
-
-  .title {
-    font-size: clamp(44px, 14vw, 68px);
-  }
-
-  .row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-
-  .cardShell {
-    transform: none;
-  }
-
-  .cutoutFrame {
-    min-height: clamp(216px, 54vw, 290px);
-    padding: 5px 2px 8px;
+  .item {
+    flex-basis: min(72vw, 160px);
   }
 
   .card {
-    width: min(100%, 190px);
-    height: clamp(210px, 52vw, 276px);
-    filter: none;
     transform: rotateX(3deg) rotateY(-4deg) rotateZ(-1.2deg) translateZ(12px);
   }
 
-  .meta {
-    min-height: 112px;
-    padding: 0 2px;
+  .foot {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .cta {
-    width: auto;
-    min-height: 50px;
-    padding-inline: 28px;
-    font-size: clamp(27px, 8.8vw, 38px);
-    box-shadow: 4px 4px 0 var(--me-ink);
+  .mustEatsCta,
+  .foot :global(.hv-btn) {
+    text-align: center;
+    justify-content: center;
   }
 }

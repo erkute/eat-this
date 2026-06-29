@@ -28,10 +28,6 @@
 }
 
 .cardShell {
-  --lift: 0px;
-  --card-tilt-x: 4deg;
-  --card-tilt-y: -5deg;
-  --card-tilt-z: -1.6deg;
   position: relative;
   display: grid;
   grid-template-rows: auto auto;
@@ -40,9 +36,6 @@
   background: transparent;
   border: 0;
   text-decoration: none;
-  perspective: 900px;
-  transform-style: preserve-3d;
-  transform: translateY(var(--lift));
 }
 
 .cardLink {
@@ -51,54 +44,26 @@
   text-decoration: none;
 }
 
-/* ── Photo tile (hv-photo provides border-radius + overflow) ───────────────── */
+/* Card tile — flat, full card shown (no 3D tilt/lift that the rail's
+   overflow-x:auto would clip). */
 .photo {
   min-height: clamp(118px, 13vw, 160px);
   display: grid;
   place-items: center;
   padding: clamp(4px, 0.8vw, 8px);
-  transform-style: preserve-3d;
 }
 
 .card {
   display: block;
-  width: min(100%, 140px);
-  height: clamp(112px, 12vw, 150px);
+  width: 100%;
+  height: auto;
   object-fit: contain;
-  backface-visibility: hidden;
-  transform: rotateX(var(--card-tilt-x)) rotateY(var(--card-tilt-y)) rotateZ(var(--card-tilt-z))
-    translateZ(18px);
-  transform-origin: 50% 58%;
   transition: transform 180ms ease;
-  will-change: transform;
 }
 
 .cardShell:hover .card,
 .cardShell:focus-within .card {
-  transform: rotateX(1deg) rotateY(4deg) rotateZ(1.3deg) translateZ(30px);
-}
-
-/* ── Per-position tilt/lift variants ──────────────────────────────────────── */
-.item:nth-child(2) .cardShell,
-.item:nth-child(5) .cardShell {
-  --lift: 20px;
-  --card-tilt-x: 3deg;
-  --card-tilt-y: 5deg;
-  --card-tilt-z: 1.4deg;
-}
-
-.item:nth-child(3) .cardShell {
-  --lift: -14px;
-  --card-tilt-x: 5deg;
-  --card-tilt-y: -2deg;
-  --card-tilt-z: -2.2deg;
-}
-
-.item:nth-child(4) .cardShell {
-  --lift: 10px;
-  --card-tilt-x: 2deg;
-  --card-tilt-y: 6deg;
-  --card-tilt-z: 2deg;
+  transform: translateY(-4px);
 }
 
 /* ── Card meta (dish + restaurant) ────────────────────────────────────────── */
@@ -142,11 +107,7 @@
 /* ── Mobile ────────────────────────────────────────────────────────────────── */
 @media (max-width: 560px) {
   .item {
-    flex-basis: min(72vw, 160px);
-  }
-
-  .card {
-    transform: rotateX(3deg) rotateY(-4deg) rotateZ(-1.2deg) translateZ(12px);
+    flex-basis: min(46vw, 150px);
   }
 
   .foot {

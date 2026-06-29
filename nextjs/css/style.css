@@ -7452,7 +7452,7 @@ html[data-theme="dark"] .bd-legal-dock .bd-foot-link:nth-child(4) {
 .homeV2 .hv-rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px}
 .homeV2 .hv-rail::-webkit-scrollbar{display:none}
 .homeV2 .hv-rail>*{scroll-snap-align:start;flex-grow:0;flex-shrink:0}
-.homeV2 .hv-photo{background:var(--home-photo-rest);border-radius:var(--home-radius-photo);overflow:hidden;position:relative;display:block;width:100%}
+.homeV2 .hv-photo{background:var(--home-photo-rest);border-radius:var(--home-radius-photo);overflow:hidden;position:relative;display:block}
 .homeV2 .hv-photo img{object-fit:cover}
 .homeV2 .hv-cap{font-family:var(--font-providence);font-weight:700;font-size:13px;margin-top:7px;color:var(--home-ink)}
 .homeV2 .hv-sub{font-family:var(--font-providence);font-weight:400;font-size:11px;color:var(--home-muted)}

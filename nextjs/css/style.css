@@ -89,6 +89,16 @@ ul,ol{list-style:none}
   --font-body: var(--font);
   --font-display: var(--font-chewy, 'moonblossom'), sans-serif;
   --font-label: var(--font-poster, var(--font-display));
+  --font-providence: "ff-providence-sans-web-pro-1","ff-providence-sans-web-pro-2",sans-serif;
+  --home-paper: #FFFFFF;
+  --home-ink: #15120E;
+  --home-accent: #FFC600;
+  --home-photo-rest: #ECEAE6;
+  --home-quiet: #F2F1EF;
+  --home-rule: #E4E1DC;
+  --home-muted: #8A857D;
+  --home-radius-photo: 10px;
+  --home-radius-btn: 7px;
   --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-standard: cubic-bezier(.2, .8, .2, 1);

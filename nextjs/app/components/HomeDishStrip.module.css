@@ -1,0 +1,37 @@
+.item {
+  width: 180px;
+  text-align: center;
+}
+
+.dishLink {
+  display: block;
+}
+
+/* Freigestellt: transparent cutout floats on white — no box, no bg, contain */
+.dishImg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 170px;
+}
+
+.dishImg :global(img) {
+  object-fit: contain;
+}
+
+.rest {
+  display: block;
+  font-family: var(--font-providence);
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--home-muted);
+}
+
+@media (max-width: 760px) {
+  .item {
+    width: 150px;
+  }
+  .dishImg {
+    height: 140px;
+  }
+}

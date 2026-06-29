@@ -11,6 +11,7 @@ import HubNearby from './HubNearby';
 import MapIntentLink from './MapIntentLink';
 import CategoryQuickPick from './CategoryQuickPick';
 import CategoriesRail from './CategoriesRail';
+import HomeDishStrip from './HomeDishStrip';
 import DistrictsList from './DistrictsList';
 import MagazineGrid from './MagazineGrid';
 import SiteFooter from './SiteFooter';
@@ -90,6 +91,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       </section>
 
       <CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />
+      <HomeDishStrip locale={locale} />
       <HubNearby initialMapData={initialMapData} locale={locale} />
       <HubMustEatsTeaser initialMapData={initialMapData} />
       <HubFragRemy />

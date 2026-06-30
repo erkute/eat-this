@@ -77,7 +77,7 @@ export default function HomeDishStrip({ locale }: { locale: 'de' | 'en' }) {
         </h2>
         <span className="hv-link">{locale === 'en' ? 'On the map' : 'Auf der Map'} →</span>
       </div>
-      <div className="hv-rail">
+      <div className={styles.grid}>
         {dishes.map((d) => (
           <article key={d.src} className={styles.item}>
             <MapIntentLink

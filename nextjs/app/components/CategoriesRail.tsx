@@ -23,7 +23,7 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
         </h2>
         <span className="hv-link">{locale === 'en' ? 'Categories' : 'Kategorien'} →</span>
       </div>
-      <div className="hv-rail">
+      <div className={styles.grid}>
         {entries.map(([slug, name]) => {
           const art = categoryArt(slug);
           return (

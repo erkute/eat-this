@@ -11,7 +11,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: clamp(24px, 4vw, 40px);
-  align-items: center;
+  align-items: start;
 }
 
 /* ── Remy stage — big freigestellt Remy standing on a yellow circle ── */
@@ -168,13 +168,13 @@
 @media (min-width: 720px) {
   .body {
     grid-template-columns: 1.1fr 0.9fr;
-    align-items: center;
+    align-items: start;
     gap: clamp(32px, 5vw, 64px);
   }
 
   .avatarWrap {
     justify-self: end;
-    max-width: clamp(280px, 32vw, 380px);
+    max-width: clamp(340px, 40vw, 480px);
   }
 }
 

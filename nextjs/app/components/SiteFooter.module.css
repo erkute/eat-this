@@ -5,7 +5,7 @@
   --footer-instagram: #c13584;
   background: var(--footer-red);
   color: var(--footer-ink);
-  padding: clamp(16px, 3vw, 34px) 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  padding: clamp(32px, 5vw, 72px) 16px calc(28px + env(safe-area-inset-bottom, 0px));
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   text-align: center;
   border-top: 0;
@@ -15,7 +15,7 @@
 .top {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: clamp(12px, 2vw, 18px);
+  gap: clamp(22px, 3.2vw, 40px);
   align-items: center;
   justify-items: center;
   max-width: 1180px;
@@ -47,7 +47,7 @@
   display: block;
   width: min(40vw, 170px);
   height: auto;
-  margin-top: 10px;
+  margin-top: 2px;
   margin-inline: auto;
   filter: none;
 }
@@ -105,7 +105,7 @@
 
 .links {
   max-width: 1180px;
-  margin: clamp(12px, 2.4vw, 22px) auto 0;
+  margin: clamp(26px, 4vw, 52px) auto 0;
   padding-top: 0;
   border-top: 0;
   display: grid;
@@ -166,7 +166,7 @@
 
 .legal {
   max-width: 1180px;
-  margin: clamp(12px, 2.4vw, 22px) auto 0;
+  margin: clamp(26px, 4vw, 52px) auto 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -205,7 +205,7 @@
 
 .meta {
   max-width: 1180px;
-  margin: clamp(10px, 2vw, 18px) auto 0;
+  margin: clamp(22px, 3vw, 40px) auto 0;
   display: grid;
   gap: 8px;
   align-items: center;

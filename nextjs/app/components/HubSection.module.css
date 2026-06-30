@@ -6,6 +6,7 @@
   --home-gutter: clamp(14px, 3vw, 44px);
   width: 100%;
   min-height: 100svh;
+  padding-top: clamp(40px, 5vw, 72px);
   color: var(--home-ink);
   background: var(--home-paper);
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
@@ -14,7 +15,7 @@
 
 /* ── homeV2 hero ─────────────────────────────────────────── */
 .hero {
-  padding-top: clamp(24px, 4vw, 56px);
+  margin-top: 0;
 }
 
 .heroGrid {

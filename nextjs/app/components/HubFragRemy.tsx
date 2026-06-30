@@ -79,7 +79,6 @@ export default function HubFragRemy() {
           <span className="hv-mk" aria-hidden="true" />
           {locale === 'de' ? 'Keine Idee? Frag Remy.' : 'No idea? Ask Remy.'}
         </h2>
-        <span className="hv-link">{t('title')}</span>
       </div>
 
       {/* Body: Remy avatar (yellow) left, copy + actions right */}

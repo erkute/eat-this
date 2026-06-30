@@ -28,7 +28,9 @@
 .heroCopy {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* Center the copy block against the tall photo so the CTAs stay anchored to
+     the headline instead of being pushed to the bottom with a void between. */
+  justify-content: center;
 }
 
 .heroHeadline {

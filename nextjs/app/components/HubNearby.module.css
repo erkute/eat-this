@@ -4,8 +4,16 @@
 
 /* ── Rail card sizing ──────────────────────────────────────────────────────── */
 .card {
-  display: block;
+  display: flex;
+  flex-direction: column;
   flex: 0 0 clamp(240px, 24vw, 300px);
+}
+
+/* Name + meta are inline-by-default spans; the flex column above stacks them.
+   Nudge the meta tight under the name so the walk-time/district reads as a
+   caption, not a run-on of the name. */
+.card :global(.hv-sub) {
+  margin-top: 2px;
 }
 
 .photo {

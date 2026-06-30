@@ -83,9 +83,6 @@ export default function HubMustEatsTeaser({ initialMapData }: Props) {
           <span className="hv-mk" aria-hidden="true" />
           {t('mustEats.teaserTitle')}
         </h2>
-        <Link href="/pack/all-berlin" rel="nofollow" className="hv-link">
-          {lang === 'en' ? 'Unlock all Berlin →' : 'All Berlin freischalten →'}
-        </Link>
       </div>
 
       <p className={styles.lead}>

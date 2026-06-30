@@ -40,16 +40,25 @@ export default function SiteNav() {
 
   useEffect(() => {
     if (activePage === 'map') return;
-    const connection = (navigator as Navigator & {
-      connection?: { saveData?: boolean; effectiveType?: string }
-    }).connection;
-    if (connection?.saveData || connection?.effectiveType === 'slow-2g' || connection?.effectiveType === '2g') return;
+    const connection = (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }
+    ).connection;
+    if (
+      connection?.saveData ||
+      connection?.effectiveType === 'slow-2g' ||
+      connection?.effectiveType === '2g'
+    )
+      return;
 
     const warmMap = () => {
-      ;(router.prefetch as (href: string) => void)('/map');
+      (router.prefetch as (href: string) => void)('/map');
       void preloadMapSurface();
     };
-    const ric = window.requestIdleCallback as ((cb: IdleRequestCallback, opts?: IdleRequestOptions) => number) | undefined;
+    const ric = window.requestIdleCallback as
+      | ((cb: IdleRequestCallback, opts?: IdleRequestOptions) => number)
+      | undefined;
     if (ric) {
       const id = ric(warmMap, { timeout: 3500 });
       return () => window.cancelIdleCallback?.(id);
@@ -60,7 +69,9 @@ export default function SiteNav() {
 
   return (
     <>
-      <a href="#appPages" className="skip-link">{t('a11y.skip')}</a>
+      <a href="#appPages" className="skip-link">
+        {t('a11y.skip')}
+      </a>
       <nav className="navbar" id="navbar">
         {/* Left: map text */}
         <div className="navbar-actions" style={{ flex: 1, justifyContent: 'flex-start' }}>
@@ -76,7 +87,15 @@ export default function SiteNav() {
         {/* Center: Logo */}
         <div className="navbar-home">
           <Link href="/" className={styles.logo} aria-label="Eat This — Start">
-            <span className={styles.logoWord}>Eat This</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/pics/eat-this-logo.webp?v=6"
+              alt="Eat This"
+              width="1660"
+              height="667"
+              decoding="async"
+              className={styles.logoImg}
+            />
           </Link>
         </div>
         {/* Right: menu text (News lives in the drawer) */}

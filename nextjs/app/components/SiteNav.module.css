@@ -19,6 +19,12 @@
   content: none;
 }
 
+.logoImg {
+  display: block;
+  height: clamp(30px, 4.2vw, 44px);
+  width: auto;
+}
+
 .logoWord {
   display: block;
   font-family: var(--menu-condensed, Impact, sans-serif);
@@ -41,11 +47,21 @@
 }
 
 @keyframes navHorrorShiver {
-  0% { transform: translate(0, 0) rotate(0deg) skewX(0deg); }
-  22% { transform: translate(-1px, 1px) rotate(-2deg) skewX(-5deg); }
-  45% { transform: translate(2px, -1px) rotate(1deg) skewX(4deg); }
-  68% { transform: translate(-1px, 0) rotate(-1deg) skewX(-3deg); }
-  100% { transform: translate(0, 0) rotate(0deg) skewX(0deg); }
+  0% {
+    transform: translate(0, 0) rotate(0deg) skewX(0deg);
+  }
+  22% {
+    transform: translate(-1px, 1px) rotate(-2deg) skewX(-5deg);
+  }
+  45% {
+    transform: translate(2px, -1px) rotate(1deg) skewX(4deg);
+  }
+  68% {
+    transform: translate(-1px, 0) rotate(-1deg) skewX(-3deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg) skewX(0deg);
+  }
 }
 
 :global(.navbar-icon-btn).mapSticker,
@@ -87,8 +103,8 @@
   transform: none !important;
 }
 
-:global(html[data-theme="dark"]) :global(.navbar-icon-btn).mapSticker,
-:global(html[data-theme="dark"]) :global(.burger-btn).menuSticker {
+:global(html[data-theme='dark']) :global(.navbar-icon-btn).mapSticker,
+:global(html[data-theme='dark']) :global(.burger-btn).menuSticker {
   background: transparent !important;
   color: #fff !important;
 }
@@ -133,7 +149,7 @@
 }
 
 @media (max-width: 1023.98px) {
-  :global(html[data-active-page="map"]) .logo {
+  :global(html[data-active-page='map']) .logo {
     position: static;
     transform: none;
     width: auto;
@@ -141,11 +157,11 @@
     padding: 0 4px;
   }
 
-  :global(html[data-active-page="map"]) .logoWord {
+  :global(html[data-active-page='map']) .logoWord {
     font-size: 26px;
   }
 
-  :global(html[data-active-page="map"]) .menuSticker {
+  :global(html[data-active-page='map']) .menuSticker {
     min-width: auto;
     padding: 0;
     gap: 0;

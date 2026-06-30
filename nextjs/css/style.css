@@ -7464,27 +7464,3 @@ html[data-theme="dark"] .bd-legal-dock .bd-foot-link:nth-child(4) {
   .homeV2 .hv-wrap{padding:0 16px}
   .homeV2 .hv-section{margin-top:40px}
 }
-
-/* ============================================
-   HOME V2 — white masthead navbar on the home (data-active-page="start").
-   Overrides the global !important red-navbar block for the home only;
-   other pages keep their existing navbar.
-   ============================================ */
-html[data-active-page="start"] .navbar,
-html[data-active-page="start"] .navbar.scrolled{
-  background:#fff !important;
-  color:var(--home-ink) !important;
-  border-bottom:1px solid var(--home-rule) !important;
-}
-html[data-active-page="start"] .navbar-home a,
-html[data-active-page="start"] .navbar-icon-btn,
-html[data-active-page="start"] .burger-btn{
-  color:var(--home-ink) !important;
-}
-html[data-active-page="start"] .navbar-icon-btn.active,
-html[data-active-page="start"] .navbar-icon-btn:hover,
-html[data-active-page="start"] .navbar-icon-btn:active,
-html[data-active-page="start"] .burger-btn:hover,
-html[data-active-page="start"] .burger-btn:active{
-  color:var(--home-ink) !important;
-}

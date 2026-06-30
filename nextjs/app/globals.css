@@ -1213,22 +1213,30 @@ html[data-theme='dark'][data-active-page='start'] .navbar.scrolled {
   -webkit-backdrop-filter: none !important;
 }
 
-/* HOME V2 — white masthead on the home (/, data-active-page="start").
+/* HOME V2 — black masthead on the home (/, data-active-page="start"):
+   black/white/yellow, with the footer's bubble logo (white on black).
    Uses the #navbar id (specificity 1,1,1) so it wins over the red
    html[data-active-page] .navbar !important rules in the SPA stylesheet,
    regardless of stylesheet load order. Home only; other pages keep red. */
 html[data-active-page='start'] #navbar,
 html[data-active-page='start'] #navbar.scrolled {
-  background: #fff !important;
-  background-color: #fff !important;
-  color: #15120e !important;
-  border-bottom: 1px solid #e4e1dc !important;
+  background: #15120e !important;
+  background-color: #15120e !important;
+  color: #fff !important;
+  border-bottom: 0 !important;
 }
 
 html[data-active-page='start'] #navbar .navbar-home a,
 html[data-active-page='start'] #navbar .navbar-icon-btn,
 html[data-active-page='start'] #navbar .burger-btn {
-  color: #15120e !important;
+  color: #fff !important;
+}
+
+html[data-active-page='start'] #navbar .navbar-icon-btn:hover,
+html[data-active-page='start'] #navbar .navbar-icon-btn:focus-visible,
+html[data-active-page='start'] #navbar .burger-btn:hover,
+html[data-active-page='start'] #navbar .burger-btn:focus-visible {
+  color: #ffc600 !important;
 }
 
 .navbar::before,

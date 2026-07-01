@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { setRequestLocale, getMessages } from 'next-intl/server';
-import { Schoolbell, Saira_Condensed, Anton } from 'next/font/google';
+import { DM_Sans, Saira_Condensed, Anton } from 'next/font/google';
 import { routing } from '@/i18n/routing';
 import ClientIntlProvider from './ClientIntlProvider';
 import ReferralToastListener from '@/app/components/ReferralToastListener';
@@ -11,20 +11,10 @@ import AnalyticsPageViews from '@/app/components/AnalyticsPageViews';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { SITE_URL } from '@/lib/constants';
 
-// Chewy — rounded, friendly bubble display. The 2026 EAT THIS brand display
-// font, replacing Bowlby One sitewide. Full Latin-1 glyph coverage incl.
-// German umlauts (ä ö ü ß) and accented Latin, so it carries every German
-// heading natively. Used as the universal display font so every section
-// reads as one EAT THIS poster.
-// NOTE: variable kept as `--font-chewy` for now so the downstream aliases
-// (--font-display / --font-poster) and direct var(--font-chewy) refs pick up
-// Schoolbell without touching every file. Rename to --font-schoolbell once the
-// font is signed off.
-const schoolbell = Schoolbell({
-  weight: '400',
+const dmSans = DM_Sans({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-chewy',
+  variable: '--font-dm-sans',
 });
 // Saira Condensed — heavy condensed grotesque used as the editorial-poster
 // display font for the Map list rows + Detail v13. Drives the BAR BASTA-
@@ -57,18 +47,17 @@ export function generateStaticParams() {
 // login-button state plus a data-auth flag on <html> so signed-in-only/anon-only
 // blocks can hide before paint.
 const CRITICAL_BOOTSTRAP = `(function(){
-  var s=localStorage.getItem('theme');
-  var dark=s==='dark'||(!s&&window.matchMedia('(prefers-color-scheme: dark)').matches);
-  document.documentElement.setAttribute('data-theme',dark?'dark':'light');
+  try{localStorage.removeItem('theme');}catch(_){}
+  document.documentElement.setAttribute('data-theme','light');
   var p=location.pathname;
   if(p==='/en'||p.indexOf('/en/')===0)p=p.slice(3)||'/';
   var slug;
-  if(p==='/')slug='home';
+  if(p==='/')slug='start';
   else if(p.indexOf('/news/')===0&&p.length>6)slug='news-article';
   else slug=p.replace(/^\\//,'').split('/')[0];
   document.documentElement.setAttribute('data-active-page',slug);
   if(window.innerWidth<=767&&screen.orientation&&screen.orientation.lock){screen.orientation.lock('portrait').catch(function(){});}
-  try{var ah=JSON.parse(localStorage.getItem('_authHint')||'null');if(ah&&ah.n){document.documentElement.setAttribute('data-auth','1');document.addEventListener('DOMContentLoaded',function(){var lb=document.getElementById('loginBtn');if(!lb)return;lb.classList.add('logged-in');var sp=lb.querySelector('span');if(sp)sp.textContent=ah.n;});}}catch(_){}
+  try{var ah=JSON.parse(localStorage.getItem('_authHint')||'null');if(ah&&ah.n){document.documentElement.setAttribute('data-auth','1');document.addEventListener('DOMContentLoaded',function(){var lb=document.getElementById('loginBtn');if(!lb)return;lb.classList.add('logged-in');var sp=lb.querySelector('span');if(sp)sp.textContent=(location.pathname==='/en'||location.pathname.indexOf('/en/')===0)?'Profile':'Profil';});}}catch(_){}
 }());`;
 
 // Sitewide Organization + WebSite schema. The Organization.logo is the
@@ -120,8 +109,10 @@ export default async function LocaleLayout({
 
   return (
     // suppressHydrationWarning: critical script mutates data-theme before hydration
-    <html lang={locale} data-scroll-behavior="smooth" className={`${schoolbell.variable} ${sairaCondensed.variable} ${anton.variable}`} suppressHydrationWarning>
+    <html lang={locale} data-scroll-behavior="smooth" className={`${dmSans.variable} ${sairaCondensed.variable} ${anton.variable}`} suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
+        <link rel="stylesheet" href="https://use.typekit.net/kgb1lmh.css" />
         {/* Safe: hardcoded constant, no user input */}
         <script dangerouslySetInnerHTML={{ __html: CRITICAL_BOOTSTRAP }} />
         <script

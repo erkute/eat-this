@@ -1,374 +1,243 @@
-.section {
-  position: relative;
-  background: #fbf8ee;
-  padding: 42px 18px 42px;
-  margin-top: 8px;
+/* ── HubDeineWelt — logged-in hero (homeV2 vocabulary) ───────── */
+
+/*
+  The section carries class="homeV2 …" so all .homeV2 .hv-* globals
+  (hv-kicker, hv-btn, hv-link-underline, hv-photo, hv-rail, hv-cap,
+  hv-sub, hv-wrap) apply automatically from css/style.css.
+  This module only adds layout and sizing that the global vocabulary
+  doesn't cover.
+*/
+
+.hero {
+  width: 100%;
+  padding-top: calc(68px + env(safe-area-inset-top, 0px) + clamp(4px, 1vw, 12px));
+  padding-bottom: clamp(24px, 4vw, 48px);
+  background: var(--home-paper);
+  color: var(--home-ink);
 }
 
-.hi {
-  margin-bottom: 26px;
-}
-/* Greeting can carry umlauts (e.g. "Jürgen") → Saira, which has the glyphs. */
-.kicker {
-  font-family: var(--font-ranchers);
-  font-weight: 800;
-  font-size: 17px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--brand-red);
-  margin: 0 0 8px;
-}
-/* "Heute auf deiner Map." has no umlaut → brand display font (Chewy). */
-.name {
-  font-family: var(--font-ranchers);
-  font-size: clamp(40px, 13vw, 58px);
-  line-height: 1.06;
-  text-transform: none;
-  color: var(--text-primary);
-  margin: 0;
-}
-.em {
-  color: var(--brand-yellow);
-  -webkit-text-stroke: 1px var(--text-primary);
-}
-
-/* "Dein Bezirk X" pill — Bezirk names can carry umlauts (Neukölln, Schöneberg)
-   → Saira (the brand display font has no accented glyphs). */
-.here {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-ranchers);
-  font-weight: 800;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  font-size: 12px;
-  color: var(--text-primary);
-  opacity: .75;
-  margin: 12px 0 0;
-}
-.here strong {
-  font-weight: 800;
-  background: var(--brand-yellow);
-  color: #0a0a0a;
-  padding: 4px 9px 5px;
-  border: 2px solid #0a0a0a;
-  letter-spacing: .04em;
-  font-size: 13px;
-  line-height: 1;
-  opacity: 1;
-}
-
-.div {
-  height: 1px;
-  background: var(--text-primary);
-  opacity: .16;
-  margin: 22px 0;
-}
-
-/* "Frisch in <Bezirk>" — two newest spots in the user's district. */
-.fresh { margin: 0; }
-.freshK {
-  font-family: var(--font-ranchers);
-  font-weight: 800;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  font-size: 12px;
-  color: var(--text-primary);
-  opacity: .7;
-  margin: 0 0 12px;
-}
-.freshRow {
+.heroInner {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.freshCard {
-  position: relative;
-  display: grid;
-  grid-template-rows: auto auto auto;
-  background: #fbf8ee;
-  border: 1px solid rgba(10, 10, 10, 0.10);
-  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06);
-  overflow: hidden;
-  text-decoration: none;
-  color: #0a0a0a;
-}
-.freshPill {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  z-index: 2;
-  background: var(--brand-red);
-  color: #fbf8ee;
-  font-family: var(--font-ranchers);
-  font-weight: 800;
-  font-size: 10px;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  padding: 3px 8px 4px;
-  border: 2px solid #0a0a0a;
-  line-height: 1;
-}
-.freshImg {
-  position: relative;
-  display: block;
-  aspect-ratio: 5 / 4;
-  background-color: #14100c;
-  border-bottom: 2px solid #0a0a0a;
-}
-.freshImg img { object-fit: cover; }
-.freshName {
-  font-family: var(--font-ranchers);
-  font-size: 18px;
-  line-height: 1;
-  color: var(--text-primary);
-  text-transform: uppercase;
-  letter-spacing: -.005em;
-  margin: 12px 12px 4px;
-}
-.freshMeta {
-  display: block;
-  font-family: var(--font);
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--brand-red);
-  margin: 0 12px 12px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: start;
 }
 
-/* ── Collection-progress panel ───────────────────────────────────────────
-   Card-back stack + live "X / Y aufgedeckt" stat + progress bar. Links into
-   the profile's collected Must-Eats. Stacks on mobile, goes side-by-side on
-   desktop so it fills the full column width. */
-.collect {
+/* ── Copy column ──────────────────────────────────────────────── */
+
+.copy {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 16px;
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
+  gap: clamp(10px, 1.4vw, 16px);
 }
-.collectCards {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 0 0 auto;
-}
-/* Freigestellt: the card-back image floats — no frame, no dark box. */
-.card {
-  display: block;
-  width: 84px;
-  height: 119px;
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .20));
-}
-.card:nth-child(1) { transform: rotate(-5deg); margin-right: -16px; z-index: 1; }
-.card:nth-child(2) { transform: rotate(0deg); z-index: 3; }
-.card:nth-child(3) { transform: rotate(5deg); margin-left: -16px; z-index: 2; }
 
-.collectStat {
-  min-width: 0;
-}
-.collectK {
-  font-family: var(--font-ranchers);
-  font-weight: 800;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  font-size: 12px;
-  color: var(--text-primary);
-  opacity: .7;
-  margin: 0 0 6px;
-}
-.collectNum {
-  font-family: var(--font-ranchers);
-  color: var(--text-primary);
+.kicker {
+  /* hv-kicker provides font/size/tracking; we just add spacing */
   margin: 0;
-  line-height: 1;
+}
+
+.headline {
+  font-family: var(--font-providence);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  font-size: clamp(42px, 6vw, 68px);
+  margin: 0;
+  color: var(--home-ink);
+}
+
+.sub {
+  font-family: var(--font-providence);
+  font-weight: 400;
+  font-size: clamp(12px, 1.1vw, 14px);
+  color: var(--home-muted);
+  margin: 0;
+  max-width: 38ch;
+}
+
+.actions {
   display: flex;
-  align-items: baseline;
-  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: clamp(4px, 0.8vw, 8px);
+  flex-wrap: wrap;
+}
+
+/* Map button — accent fill (yellow) */
+.mapBtn {
+  background: var(--home-accent) !important;
+  color: var(--home-ink) !important;
+}
+
+/* Profile link — plain underline */
+.profileBtn {
+  text-decoration: none;
+}
+
+/* ── Rails column (right of the copy — now Saved only) ────────── */
+
+.rails {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2vw, 24px);
+}
+
+/* Must Eats sits as a full-width row below the hero grid, so it fills the
+   width instead of stacking under Saved and towering the right column over
+   the copy (which left a big whitespace under the headline). */
+.mustEatsRow {
+  margin-top: clamp(20px, 3vw, 36px);
+}
+
+.railBlock {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
-.collectNum strong {
-  font-size: 44px;
-  font-weight: 800;
+
+.railLabel {
+  /* hv-kicker handles font; margin only */
+  margin: 0;
 }
-.collectTotal {
-  font-size: 22px;
-  opacity: .45;
+
+.rail {
+  /* hv-rail is flex + horizontal scroll; we fix thumb sizing here */
 }
-.collectUnit {
-  font-family: var(--font);
-  font-size: 12px;
-  letter-spacing: .12em;
+
+.railPhoto {
+  /* hv-photo provides bg, border-radius, overflow, position:relative */
+  width: clamp(150px, 15vw, 190px);
+  aspect-ratio: 4 / 3;
+  flex-shrink: 0;
+  transition: transform 140ms ease;
+}
+
+.railPhoto:hover,
+.railPhoto:focus-visible {
+  transform: translateY(-3px) rotate(-0.6deg);
+}
+
+/* Must-Eat cards are portrait */
+.mustPhoto {
+  aspect-ratio: 5 / 7;
+  width: clamp(116px, 12vw, 140px);
+}
+
+.railPhotoName {
+  position: absolute;
+  inset: auto 6px 6px;
+  z-index: 2;
+  color: #fff;
+  font-family: var(--font-providence);
+  font-weight: 700;
+  font-size: clamp(10px, 0.9vw, 12px);
+  line-height: 1.1;
   text-transform: uppercase;
-  color: var(--text-secondary);
-  margin: 6px 0 12px;
-}
-.bar {
-  display: block;
-  height: 9px;
-  width: 100%;
-  max-width: 320px;
-  margin: 0 auto;
-  background: rgba(10, 10, 10, .10);
-  border: 2px solid #0a0a0a;
   overflow: hidden;
-}
-.barFill {
-  display: block;
-  height: 100%;
-  background: var(--brand-yellow);
-}
-.collectCta {
-  display: inline-block;
-  margin-top: 14px;
-  font-family: var(--font-ranchers);
-  font-size: 16px;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  border-bottom: 2px solid var(--brand-yellow);
-  padding-bottom: 1px;
-}
-.collect:hover .collectCta {
-  color: var(--brand-red);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
 }
 
-.pack {
+/* Bottom gradient over photo */
+.railPhoto::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0 0;
+  background: linear-gradient(to top, rgba(21, 18, 14, 0.6), transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.railPhotoEmpty {
+  border: 2px dashed var(--home-line, rgba(21, 18, 14, 0.2));
+  background: var(--home-quiet) !important;
+}
+
+/* No gradient overlay on empty placeholders */
+.railPhotoEmpty::after {
+  display: none;
+}
+
+.railEmptyMark {
+  position: absolute;
+  inset: 0;
   display: grid;
-  grid-template-columns: 84px 1fr;
-  gap: 16px;
-  align-items: center;
-  border-top: 1px solid var(--c-row-rule);
-  margin-top: 26px;
-  padding-top: 22px;
-}
-.packArt {
-  width: 84px;
-  height: auto;
-  transform: rotate(-3deg);
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .22));
-}
-.packBody {
-  min-width: 0;
-}
-.packName {
-  font-family: var(--font-ranchers);
-  font-size: 22px;
-  line-height: 1.0;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  margin: 0 0 4px;
-}
-.packProgress {
-  font-family: var(--font);
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin: 0 0 10px;
-}
-.packCta {
-  display: inline-block;
-  background: var(--brand-yellow);
-  color: #0a0a0a;
-  border: 2px solid #0a0a0a;
-  font-family: var(--font);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  padding: 8px 14px;
-  text-decoration: none;
-}
-.packCta:active {
-  transform: translate(1px, 1px);
+  place-items: center;
 }
 
-/* ── Desktop: full 1120 column (matches the sibling Hub sections), scaled-up
-   greeting, side-by-side collection band + 4-up fresh row. ── */
-@media (min-width: 720px) {
-  .section { padding: 64px max(24px, calc((100% - 1120px) / 2)) 28px; }
-  .kicker { font-size: 20px; }
-  .name { font-size: clamp(58px, 7vw, 80px); }
-  .here { font-size: 13px; margin-top: 16px; }
-  .here strong { font-size: 14px; }
-  /* Collection band goes horizontal and fills the width: card stack left,
-     stat + progress bar + CTA right. */
-  .collect {
-    flex-direction: row;
-    align-items: center;
-    text-align: left;
-    gap: 40px;
+.railEmptyMark::before,
+.railEmptyMark::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 2px;
+  background: var(--home-muted, rgba(21, 18, 14, 0.4));
+}
+
+.railEmptyMark::before {
+  transform: rotate(45deg);
+}
+
+.railEmptyMark::after {
+  transform: rotate(-45deg);
+}
+
+.railSub {
+  /* hv-sub provides font/color; we just ensure no extra margin */
+  margin: 0;
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+
+/* Desktop: rails wrap into rows instead of horizontal swipe (swiping on a wide
+   screen makes no sense). The compound :global(.hv-rail).rail (0,3,0 with
+   .homeV2) beats .homeV2 .hv-rail (0,2,0), so we can also drop its
+   overflow-x:auto — otherwise overflow-y computes to auto too and the card
+   hover-lift/rotate is clipped at the rail's top edge. Nothing overflows
+   horizontally once it wraps, so overflow:visible is safe. */
+@media (min-width: 761px) {
+  :global(.homeV2) :global(.hv-rail).rail {
+    flex-wrap: wrap;
+    overflow: visible;
+    row-gap: clamp(12px, 1.4vw, 18px);
   }
-  .collectStat { flex: 1 1 auto; }
-  .collectNum { justify-content: flex-start; }
-  .collectNum strong { font-size: 58px; }
-  .collectTotal { font-size: 28px; }
-  .bar { margin: 0; max-width: 460px; }
-  .collectCta { font-size: 18px; margin-top: 16px; }
-  .card { width: 124px; height: 176px; }
-  .card:nth-child(1) { margin-right: -22px; }
-  .card:nth-child(3) { margin-left: -22px; }
-  /* Fresh row: 4 across, filling the column. */
-  .freshRow { grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  .freshName { font-size: 20px; }
-  .pack { padding-top: 30px; }
-  .packArt { width: 104px; }
-  .packName { font-size: 26px; }
 }
 
-/* ── Dark mode: dark page, warm-cream ink, red replaces yellow. ── */
-html[data-theme="dark"] .section { background: var(--dk-page); }
-html[data-theme="dark"] .name,
-html[data-theme="dark"] .here,
-html[data-theme="dark"] .freshK,
-html[data-theme="dark"] .freshName,
-html[data-theme="dark"] .collectK,
-html[data-theme="dark"] .collectNum,
-html[data-theme="dark"] .collectUnit,
-html[data-theme="dark"] .collectCta,
-html[data-theme="dark"] .packName { color: var(--dk-ink); }
-html[data-theme="dark"] .collect:hover .collectCta { color: var(--c-coral-bright); }
-/* Progress bar: ink frame → cream, yellow fill → coral */
-html[data-theme="dark"] .bar {
-  background: var(--dk-rule);
-  border-color: var(--dk-ink);
+@media (max-width: 760px) {
+  .heroInner {
+    grid-template-columns: 1fr;
+    gap: clamp(20px, 4vw, 32px);
+  }
+
+  .headline {
+    font-size: clamp(38px, 12vw, 56px);
+  }
+
+  .rails {
+    flex-direction: row;
+    gap: clamp(16px, 4vw, 28px);
+    overflow-x: auto;
+  }
+
+  .railBlock {
+    flex: 0 0 auto;
+    min-width: 0;
+  }
 }
-html[data-theme="dark"] .barFill { background: var(--c-coral); }
-html[data-theme="dark"] .collectCta { border-bottom-color: var(--c-coral); }
-/* "EAT/THIS"-style emphasis: yellow fill → red text accent, ink stroke → cream */
-html[data-theme="dark"] .em {
-  color: var(--c-coral-bright);
-  -webkit-text-stroke: 1px var(--dk-ink);
-}
-/* Dein-Bezirk pill: yellow fill → red, ink border → cream. No offset
-   shadows anywhere in this section (User 2026-06-05) — borders carry. */
-html[data-theme="dark"] .here strong {
-  background: var(--c-coral);
-  color: #fbf8ee;
-  border-color: var(--dk-ink);
-}
-html[data-theme="dark"] .div { background: var(--dk-ink); }
-/* Fresh cards: cream surface → dark card, ink border → cream */
-html[data-theme="dark"] .freshCard {
-  background: var(--dk-card);
-  color: var(--dk-ink);
-  border-color: var(--dk-ink);
-  box-shadow: none;
-}
-html[data-theme="dark"] .freshImg { border-bottom-color: var(--dk-ink); }
-/* Fresh pill stays brand-red; only its ink border flips to cream */
-html[data-theme="dark"] .freshPill { border-color: var(--dk-ink); }
-html[data-theme="dark"] .pack { border-top-color: var(--dk-rule); }
-/* Pack CTA: yellow fill + ink → cream fill + ink (invert on dark surface) */
-html[data-theme="dark"] .packCta {
-  background: var(--dk-ink);
-  color: #0a0a0a;
-  border-color: var(--dk-ink);
+
+@media (max-width: 480px) {
+  .hero {
+    padding-top: calc(60px + env(safe-area-inset-top, 0px));
+  }
+
+  .rails {
+    flex-direction: column;
+  }
+
+  .railBlock {
+    flex: unset;
+  }
 }

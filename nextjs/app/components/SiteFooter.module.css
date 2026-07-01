@@ -1,272 +1,333 @@
 .footer {
-  background: #F5C518;
-  color: #000;
-  padding: 28px 16px 32px;
-  font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
-  position: relative;
+  --footer-ink: #15120e;
+  --footer-paper: #fff;
+  --footer-red: #d9382a;
+  --footer-instagram: #c13584;
+  background: var(--footer-red);
+  color: var(--footer-ink);
+  padding: clamp(32px, 5vw, 72px) 16px calc(28px + env(safe-area-inset-bottom, 0px));
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  text-align: center;
+  border-top: 0;
   overflow: hidden;
-  border-top: 2px solid #000;
 }
-@media (max-width: 767.98px) {
-  /* Slim in-flow apron in the footer's own bg: iOS Safari samples its
-     bottom bar / home-indicator backdrop PAST the document end — pages
-     ending with the footer otherwise show the body-canvas color as a
-     mismatched band under it (black in dark mode). 56px total reads as
-     normal footer bottom padding; safe-area grows it under the home
-     indicator when the bar is minimized. */
-  .footer {
-    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
-  }
+
+.top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(22px, 3.2vw, 40px);
+  align-items: center;
+  justify-items: center;
+  max-width: 1180px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.brand {
+  min-width: 0;
+  display: grid;
+  justify-items: center;
 }
 
 .mega {
-  margin: 0 0 6px;
-  text-align: center;
-  font-weight: 400;
-  /* Hide accessible label text; renders the image instead */
+  margin: 0;
   font-size: 0;
   line-height: 0;
-  color: transparent;
-}
-/* New wordmark is wide (~2.5:1) — sized for a bold but not oversized footer mega. */
-.megaImg {
-  display: block;
-  margin: 0 auto;
-  width: auto;
-  height: auto;
-  max-width: min(68vw, 260px);
-}
-.tagImg {
-  display: block;
-  margin: 10px auto 24px;
-  width: auto;
-  height: auto;
-  max-width: min(60vw, 230px);
 }
 
-.tag {
-  font-family: var(--font-poster);
-  font-size: 22px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #000;
+.megaImg {
+  display: block;
+  width: min(56vw, 230px);
+  height: auto;
+  margin: 0 auto;
+  filter: none;
+}
+
+.tagImg {
+  display: block;
+  width: min(40vw, 170px);
+  height: auto;
+  margin-top: -2px;
+  margin-inline: auto;
+  filter: none;
+}
+
+.remyLink {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(8px, 1.6vw, 14px);
+  width: max-content;
+  max-width: min(100%, 260px);
+  min-height: 0;
+  color: var(--footer-ink);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  text-decoration: none;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  padding: 0;
   text-align: center;
-  margin: 0 0 28px;
+  overflow: visible;
+  cursor: pointer;
+  transform: rotate(-1deg);
+  transition:
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.remyLink::after {
+  content: none;
+}
+
+.remyLink img {
+  display: block;
+  align-self: flex-end;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  object-position: center bottom;
+  transform: translateY(0);
+  transition: transform 140ms ease;
+}
+
+.remyLink span {
+  font-family: var(--menu-condensed);
+  padding-bottom: 7px;
+  font-size: clamp(22px, 6vw, 32px);
+  line-height: 0.86;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-align: center;
 }
 
 .links {
-  text-align: center;
-  margin-bottom: 28px;
+  max-width: 1180px;
+  margin: clamp(26px, 4vw, 52px) auto 0;
+  padding-top: 0;
+  border-top: 0;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  gap: 10px;
 }
 
 .linksKicker {
-  font-family: var(--font-poster);
-  font-size: 13px;
-  letter-spacing: 0.22em;
+  font-family: var(--menu-mono);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #0a0a0a;
-  opacity: 0.6;
-  margin-bottom: 10px;
+  color: var(--footer-ink);
 }
 
 .socialLink {
-  display: block;
-  font-family: var(--font-poster);
-  font-size: 28px;
-  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--menu-condensed);
+  font-size: clamp(26px, 3.7vw, 40px);
+  line-height: 0.86;
   text-transform: uppercase;
-  color: #000;
+  color: var(--footer-paper);
   text-decoration: none;
-  line-height: 1.2;
-  margin: 4px 0;
-  transition: opacity 0.15s ease;
+  text-shadow: 1.5px 1.5px 0 var(--footer-ink);
+  transform: rotate(1deg);
 }
-.socialLink:hover {
-  opacity: 0.55;
+
+.socialLink:hover,
+.remyLink:hover {
+  transform: translateY(-3px) rotate(0.8deg);
+}
+
+.remyLink:hover img,
+.remyLink:focus-visible img {
+  transform: translateY(-4px) rotate(-2deg);
+}
+
+.remyLink:hover::after,
+.remyLink:focus-visible::after {
+  content: none;
+}
+
+.remyLink:hover,
+.remyLink:focus-visible {
+  color: var(--footer-paper);
+  background: transparent;
+  box-shadow: none;
+  outline: 0;
 }
 
 .legal {
+  max-width: 1180px;
+  margin: clamp(26px, 4vw, 52px) auto 0;
   display: flex;
-  gap: 18px;
   flex-wrap: wrap;
   justify-content: center;
-  font-family: var(--font-poster);
-  font-size: 12px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  margin: 26px 0 0;
+  gap: 0 clamp(10px, 1.5vw, 18px);
+  border: 0;
 }
 
 .legalLink {
-  color: #000;
-  text-decoration: none;
-  opacity: 0.75;
-  transition: color 0.15s ease, opacity 0.15s ease;
-}
-.legalLink:hover {
-  opacity: 1;
-}
-/* "Cookies verwalten" renders as a <button> but must read as a legal link —
-   strip the native button chrome and inherit the .legal row's type styling. */
-.legalBtn {
-  background: none;
-  border: 0;
+  min-height: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0;
-  margin: 0;
-  font: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
+  border: 0;
+  color: var(--footer-ink);
+  text-decoration: none;
+  font-family: var(--menu-mono);
+  font-size: clamp(11px, 2.8vw, 13px);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.legalLink:not(:last-child)::after {
+  content: '·';
+  display: inline-block;
+  margin-left: clamp(10px, 1.5vw, 18px);
+  color: var(--footer-paper);
+}
+
+.legalLink:hover {
+  background: transparent;
+  color: var(--footer-paper);
+}
+
+.legalBtn {
+  appearance: none;
+  background: transparent;
   cursor: pointer;
 }
 
 .meta {
-  margin: 22px 0 0;
-  padding: 18px 0 0;
-  display: flex;
-  flex-direction: column;
+  max-width: 1180px;
+  margin: clamp(22px, 3vw, 40px) auto 0;
+  display: grid;
+  gap: 8px;
   align-items: center;
-  gap: 10px;
-  font-family: var(--font-poster);
-  font-size: 11px;
-  letter-spacing: 0.16em;
+  justify-items: center;
+  font-family: var(--menu-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.25;
   text-transform: uppercase;
 }
 
 .copy {
-  color: #000;
-  opacity: 0.6;
-}
-
-/* Dark-mode toggle (iOS-style switch). The footer is brand-yellow in both
-   themes, so the toggle keeps ink colours regardless of theme — only the
-   thumb position + track fill signal the state. */
-.themeToggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: none;
-  border: 0;
-  padding: 4px 6px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.themeTrack {
-  position: relative;
-  width: 44px;
-  height: 22px;
-  background: transparent;
-  border: 1.5px solid #000;
-  border-radius: 999px;
-  flex-shrink: 0;
-  transition: background 0.2s ease;
-}
-.themeThumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 15px;
-  height: 15px;
-  background: #000;
-  border-radius: 50%;
-  transition: left 0.2s ease;
-}
-.themeToggleOn .themeTrack {
-  background: rgba(0, 0, 0, 0.18);
-}
-.themeToggleOn .themeThumb {
-  left: 24px;
-}
-.themeLabel {
-  font-family: var(--font-poster);
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #000;
-  opacity: 0.55;
-  transition: opacity 0.15s ease;
-}
-.themeToggle:hover .themeLabel {
-  opacity: 1;
+  color: var(--footer-ink);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
 }
 
 .lang {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  margin-top: 2px;
+  font-family: var(--menu-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.25;
+  text-transform: uppercase;
 }
 
 .langBtn {
-  background: transparent;
   border: 0;
-  padding: 4px 6px;
-  font-family: var(--font-poster);
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #000;
-  opacity: 0.55;
+  background: transparent;
+  padding: 5px 0;
+  color: var(--footer-ink);
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
   cursor: pointer;
-  transition: color 0.15s ease, opacity 0.15s ease;
 }
-.langBtn:hover {
-  opacity: 1;
-}
+
 .langBtnActive {
-  opacity: 1;
-  color: #0a0a0a;
+  color: var(--footer-paper);
 }
 
 .langSep {
-  color: #000;
-  opacity: 0.3;
+  color: var(--footer-paper);
 }
 
-@media (min-width: 720px) {
+@media (min-width: 740px) {
   .footer {
-    padding: 56px 32px 40px;
+    padding-inline: 32px;
   }
+
+  .top {
+    grid-template-columns: minmax(0, 1fr);
+    justify-content: center;
+    justify-items: center;
+    gap: clamp(14px, 2vw, 22px);
+  }
+
   .megaImg {
-    max-width: 340px;
+    width: min(31vw, 320px);
   }
+
   .tagImg {
-    max-width: 290px;
+    width: min(19vw, 210px);
+    margin-top: 2px;
+  }
+
+  .remyLink {
+    min-height: 68px;
+    max-width: min(100%, 300px);
+  }
+
+  .remyLink img {
+    width: 66px;
+    height: 66px;
+  }
+
+  .meta {
+    grid-template-columns: 1fr;
+  }
+
+  .copy {
+    text-align: center;
   }
 }
 
-@media (min-width: 960px) {
+@media (min-width: 1024px) {
   .footer {
-    padding: 72px 80px 48px;
-  }
-  .megaImg {
-    max-width: 400px;
-  }
-  .tagImg {
-    max-width: 340px;
+    padding-inline: 80px;
   }
 }
 
-/* ── Dark mode: Footer kippt auf Brand-Rot (User-Entscheidung 2026-06-03) ──
-   Cream-Inhalte auf #a02814. Bubble-Logo (cream+ink) liest auf Rot as-is;
-   der schwarze Slogan-Schriftzug wird per invert weiß. */
-html[data-theme="dark"] .footer {
-  background: #a02814;
-  color: #fbf8ee;
-  border-top-color: rgba(0, 0, 0, 0.35);
+html[data-theme='dark'] .footer {
+  background: var(--footer-red);
+  color: var(--footer-ink);
 }
-html[data-theme="dark"] .tagImg { filter: invert(1); }
-html[data-theme="dark"] .tag,
-html[data-theme="dark"] .socialLink,
-html[data-theme="dark"] .legalLink,
-html[data-theme="dark"] .langBtn,
-html[data-theme="dark"] .langSep,
-html[data-theme="dark"] .copy,
-html[data-theme="dark"] .langBtnActive {
-  color: #fbf8ee;
+
+/* HOME V2 — ink footer on the home (data-active-page="start") to match the
+   white/ink/yellow home. Other pages keep the red footer. Remaps the footer
+   palette vars; the black slogan image is inverted to white; yellow accent. */
+:global(html[data-active-page='start']) .footer,
+:global(html[data-theme='dark'][data-active-page='start']) .footer {
+  --footer-red: #15120e;
+  --footer-ink: #fff;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
-html[data-theme="dark"] .linksKicker { color: #fbf8ee; opacity: 0.7; }
-html[data-theme="dark"] .themeTrack { border-color: #fbf8ee; }
-html[data-theme="dark"] .themeThumb { background: #fbf8ee; }
-html[data-theme="dark"] .themeToggleOn .themeTrack { background: rgba(251, 248, 238, 0.25); }
-html[data-theme="dark"] .themeLabel { color: #fbf8ee; }
+
+:global(html[data-active-page='start']) .tagImg {
+  filter: invert(1);
+}
+
+:global(html[data-active-page='start']) .linksKicker,
+:global(html[data-active-page='start']) .langBtnActive {
+  color: #ffc600;
+}

@@ -1,4 +1,6 @@
 'use client'
+import { useCallback } from 'react'
+import { useLocale } from 'next-intl'
 import type { Ref, RefObject } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types'
@@ -11,7 +13,6 @@ import type {
 } from '@/lib/map'
 
 import dynamic from 'next/dynamic'
-import { Link } from '@/i18n/navigation'
 import RestaurantList from './RestaurantList'
 import MapSheetDetail from './MapSheetDetail'
 import MapListHeader from './MapListHeader'
@@ -84,7 +85,6 @@ interface MapBodyFilterState {
 
 /* Map / sheet event handlers (everything not filter-related). */
 interface MapBodyHandlers {
-  onMapMove: (bounds: { north: number; south: number; east: number; west: number }) => void
   onMapClick: () => void
   onRestaurantClick: (r: MapRestaurant, origin?: 'list' | 'map') => void
   onMustEatClick: (m: MapMustEat) => void
@@ -118,6 +118,8 @@ export type MapSectionBodyProps =
   & MapBodyAria
 
 export default function MapSectionBody(props: MapSectionBodyProps) {
+  const locale = useLocale()
+  const searchLabel = locale === 'en' ? 'Search' : 'Suche'
   const {
     isActive,
     mapRef, handleRef, setHeaderRef, setContentRef, setSheetRef,
@@ -130,7 +132,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     cuisine, setCuisine, cuisineNames,
     openOnly, setOpenOnly,
     searchOpen, setSearchOpen,
-    onMapMove, onMapClick, onRestaurantClick, onMustEatClick, onLocateMe, locateLoading,
+    onMapClick, onRestaurantClick, onMustEatClick, onLocateMe, locateLoading,
     onRestaurantClose, onMustEatClose,
     mustEatPagerPrev, mustEatPagerNext, onPageMustEat,
     onViewRestaurantFromMustEat, onUnlock,
@@ -146,6 +148,13 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     setOpenOnly(false)
     onSearchChange('')
   }
+  const handleMapRestaurantClick = useCallback(
+    (r: MapRestaurant) => onRestaurantClick(r, 'map'),
+    [onRestaurantClick],
+  )
+  const openBurgerMenu = useCallback(() => {
+    document.getElementById('burgerBtn')?.click()
+  }, [])
 
   return (
     <div
@@ -161,11 +170,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
           <div className={styles.mapWrap}>
             <MapCanvasLayer
               mapRef={mapRef}
-              onMapMove={onMapMove}
               onMapClick={onMapClick}
               displayedRestaurants={displayedRestaurants}
               selectedRestaurant={selectedRestaurant}
-              onRestaurantClick={(r) => onRestaurantClick(r, 'map')}
+              onRestaurantClick={handleMapRestaurantClick}
               location={location}
             />
 
@@ -176,8 +184,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             {searchOpen || search ? (
               <div className={styles.mapSearchToolbar}>
                 <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <circle cx="10.8" cy="10.8" r="5.9" fill="none" stroke="currentColor" strokeWidth="2.1" />
+                  <path d="M15.2 15.2 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
                 </svg>
                 <input
                   type="search"
@@ -185,9 +193,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   value={search}
                   onChange={e => onSearchChange(e.target.value)}
                   onBlur={() => { if (!search) setSearchOpen(false) }}
-                  placeholder="Suchen in Berlin"
+                  placeholder="Spot, Kiez, Gericht"
                   className={styles.mapSearchInput}
-                  aria-label="Search"
+                  aria-label={searchLabel}
                   autoComplete="off"
                   autoFocus
                 />
@@ -209,11 +217,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 type="button"
                 className={styles.mapSearchBtn}
                 onClick={() => setSearchOpen(true)}
-                aria-label="Search"
+                aria-label={searchLabel}
               >
                 <svg className={styles.mapSearchIcon} viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <circle cx="10.8" cy="10.8" r="5.9" fill="none" stroke="currentColor" strokeWidth="2.1" />
+                  <path d="M15.2 15.2 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
                 </svg>
               </button>
             )}
@@ -226,12 +234,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               className={styles.fab}
             >
               <svg className={styles.fabIcon} viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="12" r="8" />
-                <line x1="12" y1="2"  x2="12" y2="5" />
-                <line x1="12" y1="19" x2="12" y2="22" />
-                <line x1="2"  y1="12" x2="5"  y2="12" />
-                <line x1="19" y1="12" x2="22" y2="12" />
+                <circle cx="12" cy="12" r="6.8" fill="none" stroke="currentColor" strokeWidth="2" />
                 <circle cx="12" cy="12" r="2" fill="currentColor" />
+                <path d="M12 3.8v2.2M12 18v2.2M3.8 12h2.2M18 12h2.2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </button>
 
@@ -240,11 +245,18 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 selected marker stays visible on the map. */}
           </div>
 
-          {/* Home link — top-left of the map (the corner freed up by moving
-              search to the right rail). Uses the square two-line EAT THIS mark
-              (same asset family as the favicon) as a sticker so users can
-              always get back to the start page. */}
-          <Link href="/" className={styles.mapHome} aria-label="EAT THIS — Start" />
+          <button
+            type="button"
+            className={styles.mapBurger}
+            onClick={openBurgerMenu}
+            aria-label="Menu"
+          >
+            <span className={styles.mapBurgerLines} aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </span>
+          </button>
 
           <aside
             ref={setSheetRef}

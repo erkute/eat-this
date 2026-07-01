@@ -27,6 +27,19 @@ const link = (key: string, href: string, blank = false) => ({ _key: key, _type: 
 const span = (text: string, marks: string[] = []) => ({ _type: 'span', _key: 's' + text, text, marks })
 
 describe('PortableTextRenderer links', () => {
+  it('renders Amato with a plain o', () => {
+    const html = render([
+      para([
+        span('AMATŌ – MATCHA'),
+        span(' und amatō im Text.'),
+      ]),
+    ])
+    expect(html).toContain('AMATO – MATCHA')
+    expect(html).toContain('amato im Text')
+    expect(html).not.toContain('AMATŌ')
+    expect(html).not.toContain('amatō')
+  })
+
   it('renders a link annotation as an anchor with the href', () => {
     const html = render([para([span('SOFI', ['l1']), span(' in Mitte.')], [link('l1', '/map?r=sofi')])])
     expect(html).toContain('href="/map?r=sofi"')
@@ -65,6 +78,17 @@ describe('PortableTextRenderer links', () => {
     const html = render([para([span('SOFI', ['strong', 'l1'])], [link('l1', '/map?r=sofi')])])
     expect(html).toContain('href="/map?r=sofi"')
     expect(html).toContain('<strong>SOFI</strong>')
+  })
+
+  it('auto-links the public contact email in plain text', () => {
+    const html = render([para([span('Mail: hello@eatthisdot.com')])])
+    expect(html).toContain('href="mailto:hello@eatthisdot.com"')
+    expect(html).toContain('Mail: <a href="mailto:hello@eatthisdot.com">hello@eatthisdot.com</a>')
+  })
+
+  it('auto-links the public contact email inside strong text', () => {
+    const html = render([para([span('hello@eatthisdot.com', ['strong'])])])
+    expect(html).toContain('<strong><a href="mailto:hello@eatthisdot.com">hello@eatthisdot.com</a></strong>')
   })
 
   it('ignores a dangling mark key with no matching markDef', () => {

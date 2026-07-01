@@ -1,8 +1,3 @@
-/* Centered EAT THIS brand mark in the SiteNav header (replaces the old
-   home icon). Links to home. The navbar container itself is styled by the
-   global .navbar / .navbar-home rules in css/style.css — the logo is pulled
-   out of the left flex slot and absolutely centered over the fixed navbar so
-   it sits dead-centre while the action cluster stays right. */
 .logo {
   position: absolute;
   left: 50%;
@@ -10,38 +5,182 @@
   transform: translate(-50%, -50%);
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: max-content;
+  height: 52px;
   text-decoration: none;
+  z-index: 2;
+  color: #fff;
+}
+
+.logo::before,
+.logo::after {
+  content: none;
 }
 
 .logoImg {
   display: block;
-  height: 48px;
+  height: clamp(30px, 4.2vw, 44px);
   width: auto;
 }
 
-/* On the map (mobile), the navbar collapses to floating glass chips on the
-   right edge. The wide wordmark is presented as a glass pill (round chip can't
-   fit a horizontal logo) at the profile-icon height so they pair visually. */
+.logoWord {
+  display: block;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(32px, 4.4vw, 52px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.82;
+  text-transform: uppercase;
+  white-space: nowrap;
+  -webkit-text-stroke: 0.45px currentColor;
+  text-shadow:
+    0.7px 0 0 currentColor,
+    -0.4px 0 0 currentColor,
+    0 0.7px 0 currentColor;
+}
+
+.mapSticker,
+.menuSticker {
+  isolation: auto;
+}
+
+@keyframes navHorrorShiver {
+  0% {
+    transform: translate(0, 0) rotate(0deg) skewX(0deg);
+  }
+  22% {
+    transform: translate(-1px, 1px) rotate(-2deg) skewX(-5deg);
+  }
+  45% {
+    transform: translate(2px, -1px) rotate(1deg) skewX(4deg);
+  }
+  68% {
+    transform: translate(-1px, 0) rotate(-1deg) skewX(-3deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg) skewX(0deg);
+  }
+}
+
+:global(.navbar-icon-btn).mapSticker,
+:global(.burger-btn).menuSticker {
+  min-width: auto !important;
+  height: 42px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #fff !important;
+  font-family: var(--menu-condensed, Impact, sans-serif) !important;
+  font-size: clamp(18px, 2vw, 22px) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+  line-height: 0.9 !important;
+  text-transform: uppercase !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+:global(.navbar-icon-btn).mapSticker.active,
+:global(.navbar-icon-btn).mapSticker:hover,
+:global(.navbar-icon-btn).mapSticker:active,
+:global(.navbar-icon-btn).mapSticker:focus-visible,
+:global(.burger-btn).menuSticker:hover,
+:global(.burger-btn).menuSticker:active,
+:global(.burger-btn).menuSticker:focus-visible {
+  background: transparent !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  transform: none !important;
+}
+
+:global(html[data-theme='dark']) :global(.navbar-icon-btn).mapSticker,
+:global(html[data-theme='dark']) :global(.burger-btn).menuSticker {
+  background: transparent !important;
+  color: #fff !important;
+}
+
+.mapWord,
+.menuWord {
+  display: inline-block;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(24px, 2.4vw, 34px);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+:global(.navbar-icon-btn).mapSticker:hover .mapWord,
+:global(.navbar-icon-btn).mapSticker:active .mapWord,
+:global(.navbar-icon-btn).mapSticker:focus-visible .mapWord,
+:global(.burger-btn).menuSticker:hover .menuWord,
+:global(.burger-btn).menuSticker:active .menuWord,
+:global(.burger-btn).menuSticker:focus-visible .menuWord {
+  color: #fff;
+  text-shadow: none;
+  animation: navHorrorShiver 220ms steps(2, end);
+}
+
+@media (min-width: 1024px) {
+  .logo {
+    width: auto;
+    height: 68px;
+  }
+
+  .logoWord {
+    font-size: 56px;
+    -webkit-text-stroke-width: 0.55px;
+  }
+
+  .mapWord,
+  .menuWord {
+    font-size: 34px;
+  }
+}
+
 @media (max-width: 1023.98px) {
-  :global(html[data-active-page="map"]) .logo {
-    /* Map keeps its floating-chip layout — undo the absolute centering. */
+  :global(html[data-active-page='map']) .logo {
     position: static;
     transform: none;
     width: auto;
     height: 36px;
-    padding: 0 12px;
-    justify-content: center;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+    padding: 0 4px;
   }
-  :global(html[data-active-page="map"]) .logoImg {
-    height: 16px;
+
+  :global(html[data-active-page='map']) .logoWord {
+    font-size: 26px;
   }
-  :global(html[data-theme="dark"][data-active-page="map"]) .logo {
-    background: rgba(32, 30, 28, 0.96);
-    box-shadow:
-      0 4px 14px rgba(0, 0, 0, 0.5),
-      inset 0 0 0 1px rgba(243, 234, 212, 0.18);
+
+  :global(html[data-active-page='map']) .menuSticker {
+    min-width: auto;
+    padding: 0;
+    gap: 0;
+    transform: none;
+    clip-path: none;
+  }
+}
+
+@media (max-width: 520px) {
+  :global(.navbar-icon-btn).mapSticker,
+  :global(.burger-btn).menuSticker {
+    min-width: auto !important;
+    width: auto !important;
+    padding: 0 !important;
+  }
+
+  .mapWord,
+  .menuWord,
+  .logoWord {
+    font-size: 24px;
   }
 }

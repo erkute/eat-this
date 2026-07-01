@@ -14,9 +14,9 @@ interface Props {
 
 // Map booster pitch — paid-upgrade only. The free Starter (20 cards on
 // sign-up) lives on the landing; once a user is on the map they already
-// redeemed it, so here we only push the next step: a category pack
-// (€2,99) or All Berlin (€20). Click routes to /#hub-packs for
-// signed-in users, /login for the (rare) signed-out visitor.
+// redeemed it, so here we only push the next step: more curated map
+// unlocks. Click routes to /#hub-packs for signed-in users, /login for
+// the (rare) signed-out visitor.
 //
 // Two variants:
 // • 'list'   — editorial poster card matching the map-detail pack-promo

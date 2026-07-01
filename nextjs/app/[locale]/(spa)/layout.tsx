@@ -1,23 +1,27 @@
-import type { Metadata } from 'next'
-import { setRequestLocale } from 'next-intl/server'
-import { notFound } from 'next/navigation'
-import { hasLocale } from 'next-intl'
-import { routing } from '@/i18n/routing'
-import { CSS_VERSION } from '@/lib/constants'
-import { AuthProvider, LoginModalProvider } from '@/lib/auth'
-import SiteNav from '@/app/components/SiteNav'
-import BurgerDrawer from '@/app/components/BurgerDrawer'
-import SearchOverlay from '@/app/components/SearchOverlay'
-import CookieConsent from '@/app/components/CookieConsent'
-import BuddyWidget from '@/app/components/buddy/BuddyWidgetLazy'
-import BridgeAuth from './BridgeAuth'
+import type { Metadata } from 'next';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import { setRequestLocale } from 'next-intl/server';
+import { notFound } from 'next/navigation';
+import { hasLocale } from 'next-intl';
+import { routing } from '@/i18n/routing';
+import { CSS_VERSION } from '@/lib/constants';
+import { AuthProvider, LoginModalProvider } from '@/lib/auth';
+import { UserLocationProvider } from '@/lib/map/UserLocationContext';
+import SiteNav from '@/app/components/SiteNav';
+import BurgerDrawer from '@/app/components/BurgerDrawer';
+import SearchOverlay from '@/app/components/SearchOverlayLazy';
+import CookieConsent from '@/app/components/CookieConsent';
+import BuddyWidget from '@/app/components/buddy/BuddyWidgetLazy';
+import FloatingRemy from '@/app/components/buddy/FloatingRemy';
+import MapBrowserChrome from '@/app/components/MapBrowserChrome';
+import BridgeAuth from './BridgeAuth';
 
-const SITE_URL = 'https://www.eatthisdot.com'
+const SITE_URL = 'https://www.eatthisdot.com';
 
-const TITLE = 'EAT THIS – Berlin Food Guide: Restaurants & Geheimtipps'
+const TITLE = 'EAT THIS – Restaurants & Geheimtipps';
 const DESCRIPTION =
-  'Die kuratierte Food-Map mit Berlins besten Restaurants, Cafés und Bars — plus exklusive Must Eats. Frag Remy, unsere KI-Suche, und finde sofort deinen Spot.'
-const OG_IMAGE = SITE_URL + '/pics/og-card.png?v=4'
+  'Die kuratierte Food-Map mit Berlins besten Restaurants, Cafés und Bars — plus exklusive Must Eats. Frag Remy, unsere KI-Suche, und finde sofort deinen Spot.';
+const OG_IMAGE = SITE_URL + '/pics/og-card.png?v=4';
 
 export const metadata: Metadata = {
   // `absolute` bypasses the root '%s | Eat This Berlin' template — the brand
@@ -33,7 +37,9 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     url: SITE_URL,
-    images: [{ url: OG_IMAGE, width: 1200, height: 1200, alt: 'EAT THIS – We tell you what to eat' }],
+    images: [
+      { url: OG_IMAGE, width: 1200, height: 1200, alt: 'EAT THIS – We tell you what to eat' },
+    ],
     locale: 'de_DE',
   },
   twitter: {
@@ -43,18 +49,18 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     images: [OG_IMAGE],
   },
-}
+};
 
 export default async function SPALayout({
   children,
   params,
 }: {
-  children: React.ReactNode
-  params: Promise<{ locale: string }>
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params
-  if (!hasLocale(routing.locales, locale)) notFound()
-  setRequestLocale(locale)
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) notFound();
+  setRequestLocale(locale);
 
   return (
     <>
@@ -64,12 +70,6 @@ export default async function SPALayout({
       {/* Sanity image CDN only — map/search data flows through same-origin
           /api/map-data, so the browser (almost) never talks to apicdn. */}
       <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
-      {/* Inter is the body font with font-display:optional — without a preload
-          it misses the first-paint window on first visits and the whole session
-          renders the system fallback. latin covers German (umlauts are U+00xx);
-          latin-ext stays lazy. */}
-      <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-
       <link rel="manifest" href="/manifest.json" />
       <link rel="icon" type="image/x-icon" href="/favicon.ico?v=7" />
       <link rel="icon" type="image/png" sizes="192x192" href="/pics/favicon-192.png?v=7" />
@@ -77,17 +77,21 @@ export default async function SPALayout({
 
       <AuthProvider>
         <LoginModalProvider>
-          <BridgeAuth />
-          <SiteNav />
-          <BurgerDrawer />
-          <div className="app-pages" id="appPages">
-            {children}
-          </div>
-          <SearchOverlay />
-          <CookieConsent />
-          <BuddyWidget />
+          <UserLocationProvider>
+            <BridgeAuth />
+            <MapBrowserChrome />
+            <SiteNav />
+            <BurgerDrawer />
+            <div className="app-pages" id="appPages">
+              {children}
+            </div>
+            <SearchOverlay />
+            <CookieConsent />
+            <BuddyWidget />
+            <FloatingRemy />
+          </UserLocationProvider>
         </LoginModalProvider>
       </AuthProvider>
     </>
-  )
+  );
 }

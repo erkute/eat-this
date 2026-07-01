@@ -1,4 +1,3 @@
-import { UserLocationProvider } from '@/lib/map/UserLocationContext'
 import type { InitialMapData } from '@/lib/map/server-initial-map-data'
 import MustEatsGallery from './MustEatsGallery'
 import MustEatsOnboarding from './MustEatsOnboarding'
@@ -42,35 +41,33 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
 
   return (
     <div className="page" style={{ display: 'flow-root' }} data-must-eats="">
-      <UserLocationProvider>
-        <div className={styles.head}>
-          <p className={styles.kicker}>{c.kicker}</p>
-          <h1 className={styles.title}>
-            {c.title[0]}
-            <br />
-            {c.title[1]}
-          </h1>
-          <p className={styles.sub}>{c.sub}</p>
-          <MustEatsOnboarding initialMapData={initialMapData} />
-        </div>
+      <div className={styles.head}>
+        <p className={styles.kicker}>{c.kicker}</p>
+        <h1 className={styles.title}>
+          {c.title[0]}
+          <br />
+          {c.title[1]}
+        </h1>
+        <p className={styles.sub}>{c.sub}</p>
+        <MustEatsOnboarding initialMapData={initialMapData} />
+      </div>
 
-        <MustEatsGallery initialMapData={initialMapData} />
+      <MustEatsGallery initialMapData={initialMapData} />
 
-        <div className={styles.close}>
-          <div className={styles.closeK}>{c.closeKicker}</div>
-          <h2 className={styles.closeTitle}>
-            {c.closeTitle[0]}
-            <br />
-            {c.closeTitle[1]}
-          </h2>
-          <p className={styles.closeBody}>{c.closeBody}</p>
-          <a href={packsHref} className={styles.closeCta}>
-            {c.closeCta}
-          </a>
-        </div>
+      <div className={styles.close}>
+        <div className={styles.closeK}>{c.closeKicker}</div>
+        <h2 className={styles.closeTitle}>
+          {c.closeTitle[0]}
+          <br />
+          {c.closeTitle[1]}
+        </h2>
+        <p className={styles.closeBody}>{c.closeBody}</p>
+        <a href={packsHref} className={styles.closeCta}>
+          {c.closeCta}
+        </a>
+      </div>
 
-        <SiteFooter />
-      </UserLocationProvider>
+      <SiteFooter />
     </div>
   )
 }

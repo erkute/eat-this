@@ -1,20 +1,75 @@
+@font-face {
+  font-family: 'Providence Sans Pro Regular';
+  src: url('https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3')
+    format('woff2');
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
 /* Design tokens — keep in sync with ../css/style.css */
 :root {
-  --black: #000000;
-  --white: #FFFFFF;
-  --off-white: #ffffff;        /* aligned to surface-canvas — 2026 cream direction */
-  --gray-50: #F5F5F5;
-  --gray-100: #E8E8E8;
-  --gray-200: #D4D4D4;
-  --gray-400: #888888;
-  --gray-600: #555555;
+  --black: #171a17;
+  --white: #fff;
+  --off-white: #fff;
+  --gray-50: #fff;
+  --gray-100: #15120e;
+  --gray-200: #15120e;
+  --gray-400: #15120e;
+  --gray-600: #15120e;
   /* Single source of truth, aligned to css/style.css's "mono pivot — was coral".
-     Previously #FF3B00 here vs #0a0a0a there: the same var resolved to a
+     Previously #FF3B00 here vs var(--et-black) there: the same var resolved to a
      different value depending on stylesheet load order. No module consumes
-     --orange/--accent (only style.css does, where it always wins as #0a0a0a),
+     --orange/--accent (only style.css does, where it always wins as var(--et-black)),
      so this only removes the pre-stylesheet red flash — no live colour change. */
-  --orange: #0a0a0a;
-  --darkred: #8B1A1A;
+  --orange: var(--et-black);
+  --darkred: #15120e;
+
+  /* Eat This print palette: 6 colors from the theater-program reference. */
+  --et-poster-red: #d9382a;
+  --et-print-black: #15120e;
+  --et-program-paper: #fff;
+  --et-ticket-grey: #15120e;
+  --et-offset-grey: #15120e;
+  --et-pressed-red: #15120e;
+
+  /* Legacy aliases. Keep names stable while the visual system pivots from
+     yellow/cream to red/black/program-paper. */
+  --et-red: var(--et-poster-red);
+  --et-red-hot: var(--et-poster-red);
+  --et-red-deep: var(--et-pressed-red);
+  --et-yellow: var(--et-program-paper);
+  --et-yellow-bright: var(--et-ticket-grey);
+  --et-cream: var(--et-program-paper);
+  --et-black: var(--et-print-black);
+  --et-dark-card: var(--et-print-black);
+
+  /* Foundation token aliases (EAT-15) — new component work should use the
+     semantic/component names below. Existing --et/--surface/--font tokens stay
+     as compatibility aliases while the CSS modules migrate gradually. */
+  --et-raw-red: var(--et-red);
+  --et-raw-red-hot: var(--et-red-hot);
+  --et-raw-red-deep: var(--et-red-deep);
+  --et-raw-yellow: var(--et-yellow);
+  --et-raw-yellow-bright: var(--et-yellow-bright);
+  --et-raw-cream: var(--et-cream);
+  --et-raw-ink: var(--et-black);
+  --et-raw-dark-card: var(--et-dark-card);
+
+  /* Brand color roles:
+     Red = brand impact and action.
+     Paper = readable program surface.
+     Grey = rules, hierarchy, and secondary information.
+     Ink = contrast, structure, and trust. */
+  --brand-stage: var(--et-raw-cream);
+  --brand-stage-bright: var(--et-raw-red);
+  --brand-action: var(--et-raw-red);
+  --brand-action-hot: var(--et-raw-red-hot);
+  --brand-action-deep: var(--et-raw-red-deep);
+  --brand-paper: var(--et-raw-cream);
+  --brand-ink: var(--et-raw-ink);
+  --brand-night: var(--et-raw-dark-card);
+  --brand-rule: var(--et-ticket-grey);
+  --brand-muted: var(--et-offset-grey);
 
   /* Brand palette — Bar-Basta inspired. Coral-warm red is the primary brand
      mark (CTAs, eyebrows, accents). Pastel pink + sunny yellow are secondary
@@ -26,136 +81,231 @@
      Keine Grautöne mehr. Cream/Paper bleiben als warm-neutrale Surfaces
      (das ist sticker-paper, kein Grau). Token-Namen unverändert für
      einfachen Rollback. */
-  --brand-coral:      #a02814;                  /* dunklerer Brand-Akzent (war #e35433) */
-  --brand-coral-soft: rgba(160, 40, 20, 0.12);
+  --brand-coral: var(--brand-action); /* poster-red */
+  --brand-coral-soft: rgba(217, 56, 42, 0.14);
 
-  --c-cream:        #ffffff;                    /* sticker bg — war warmer cream #f3ead4, jetzt rein weiß */
-  --c-paper:        #ffffff;                    /* paper-tint — auch weiß */
-  --c-mustard:      #ffd84a;                    /* mustard yellow — secondary CTA */
-  --c-mustard-deep: #c89e1f;                    /* mustard hover/pressed */
-  --c-coral:        #a02814;                    /* primary action — dunkles Rot */
-  --c-coral-bright: #d63a2a;                    /* Brand-Rot aufgehellt — Text-Akzent auf dunklen Surfaces (Dark Mode ersetzt Gelb durch Rot) */
-  --accent-warm:    #ff8b42;                    /* helles Warm-Orange — Bezirk/Kategorie-Label auf Foto-Kacheln (lesbarer als Rot, beide Themes) */
-  --c-green:        #0a0a0a;                    /* multi-direction green → schwarz */
-  --c-black:        #0a0a0a;
-  --c-row-rule:     rgba(10, 10, 10, 0.14);
-  --brand-pink:       #ffd84a;                  /* re-purposed to yellow (kein pink mehr) */
-  --brand-yellow:     #ffd84a;                  /* yellow alias */
-  --brand-navy:       #0a0a0a;                  /* navy → schwarz */
-  --brand-red:        #a02814;                  /* dunkler Brand-Akzent */
-  --brand-red-hover:  #7e1f0f;
+  --c-cream: var(--brand-paper);
+  --c-paper: var(--brand-stage);
+  --c-mustard: var(--brand-stage-bright);
+  --c-mustard-deep: var(--brand-rule);
+  --c-coral: var(--brand-action);
+  --c-coral-bright: var(--brand-action-hot);
+  --accent-warm: var(--brand-action);
+  --c-green: var(--brand-ink); /* multi-direction green → schwarz */
+  --c-black: var(--brand-ink);
+  --c-row-rule: rgba(10, 10, 10, 0.14);
+  --brand-pink: var(--brand-paper);
+  --brand-yellow: var(--brand-stage-bright); /* yellow alias */
+  --brand-navy: var(--brand-ink); /* navy → schwarz */
+  --brand-red: var(--brand-action);
+  --brand-red-hover: var(--brand-action-deep);
+  --collage-red: var(--brand-action-hot);
+  --collage-orange: var(--brand-action);
+  --collage-yellow: var(--brand-stage-bright);
+  --collage-paper: var(--brand-stage);
+  --collage-ink: var(--brand-action-deep);
+  --collage-shadow: none;
 
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font: var(--font-dm-sans), 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-chewy:
+    'moonblossom-1', 'moonblossom-2', 'moonblossom', 'Providence Sans Pro Regular', sans-serif;
   /* 2026 EAT THIS-direction: ALL display + section-headline tokens collapsed
-     onto Chewy — a rounded, friendly bubble display that replaces Bowlby One
-     sitewide as the brand wordmark family. Section heads read as a
-     continuation of the brand wordmark, not as a separate display type. Chewy
-     ships full Latin-1 glyph coverage (incl. ä ö ü ß), so German headings
-     render natively — no Saira fallback needed for umlauts.
-     Only Schoolbell (--font-chewy), Saira Condensed and Anton are loaded via
-     next/font; the legacy display families (Bungee/Ranchers/Knewave/Slackey/
+     onto Moonblossom sitewide as the brand display family. Section
+     heads read as a continuation of the brand wordmark, not as a separate
+     display type. Moonblossom and FF Providence Sans Pro are served through the Adobe Fonts web
+     project; Saira Condensed and Anton are loaded via next/font. The legacy
+     display families (Bungee/Ranchers/Knewave/Slackey/
      Archivo Black) were removed — their var names resolve via the html:root
-     remap below. Inter stays the body + eyebrow workhorse. */
-  --font-display: var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  /* --font-script/--font-quote: zero consumers; Caveat/Barlow Condensed are
+     remap below. DM Sans stays the body + eyebrow workhorse. */
+  --font-display: var(--font-chewy, 'moonblossom'), sans-serif;
+  /* --font-script/--font-quote: zero consumers; their old dedicated faces are
      no longer loaded, so the tokens carry pure system fallbacks. */
-  --font-script:  'Bradley Hand', 'Lucida Handwriting', cursive;
-  --font-marker:  var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  --font-poster:  var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  --font-ranchers: var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  --font-slackey:  var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  --font-quote:    'Impact', 'Arial Narrow', sans-serif;
+  --font-script: 'Bradley Hand', 'Lucida Handwriting', cursive;
+  --font-marker: var(--font-chewy, 'moonblossom'), sans-serif;
+  --font-poster: var(--font-chewy, 'moonblossom'), sans-serif;
+  --font-ranchers: var(--font-chewy, 'moonblossom'), sans-serif;
+  --font-slackey: var(--font-chewy, 'moonblossom'), sans-serif;
+  --font-quote: 'Impact', 'Arial Narrow', sans-serif;
+  --font-body: var(--font);
+  --font-label: var(--font-poster);
+
+  /* ── Editorial "menu" design system (home + login) ──
+     Bold orange + cool-white panels on a near-black page, condensed Chauncy
+     headings, monospace dotted-leader lists, handwritten brush accents,
+     FLAT (no shadows/gradients). Mirrors the orange/white/black references. */
+  --menu-page: #0c0b0a;
+  --menu-orange: var(--et-red, #d9382a);
+  --menu-cream: #fff;
+  --menu-cream-2: #fff;
+  --menu-ink: #15120e;
+  --menu-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --menu-condensed: 'chauncy-pro-1', 'chauncy-pro-2', var(--font-anton), sans-serif;
+  --menu-brush: var(--font-display);
+
   --radius: 2px;
+  --radius-none: 0;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-pill: 999px;
+  --radius-circle: 50%;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --motion-fast: 120ms;
+  --motion-base: 180ms;
+  --motion-slow: 320ms;
+  --motion-reveal: 700ms;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-snap: cubic-bezier(0.22, 0.61, 0.36, 1);
 
   /* Semantic surface/text tokens — used by the map UI and newer React components.
      Kept theme-agnostic here via [data-theme] overrides below. */
-  --surface-bg:        var(--off-white);
-  --surface-card:      var(--white);
-  --surface-raised:    var(--white);
-  --surface-overlay:   rgba(255, 255, 255, 0.95);
-  --border-subtle:     var(--gray-100);
-  --border-strong:     var(--gray-200);
-  --text-primary:      var(--black);
-  --text-secondary:    var(--gray-600);
-  --text-muted:        var(--gray-400);
-  --accent:            var(--orange);
-  --accent-soft:       rgba(255, 59, 0, 0.12);
-  --cta-red:           #b71c1c;
-  --shadow-sm:         0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.05);
-  --shadow-md:         0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
-  --shadow-lg:         0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
+  --surface-bg: var(--et-yellow);
+  --surface-card: var(--white);
+  --surface-raised: var(--white);
+  --surface-overlay: rgba(255, 255, 255, 0.95);
+  --border-subtle: var(--gray-100);
+  --border-strong: var(--gray-200);
+  --text-primary: var(--black);
+  --text-secondary: var(--gray-600);
+  --text-muted: var(--gray-400);
+  --accent: var(--brand-action);
+  --accent-soft: rgba(228, 61, 24, 0.14);
+  --cta-red: #b71c1c;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
+  --color-page: var(--surface-bg);
+  --color-surface: var(--surface-card);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-surface-inverse: var(--et-black);
+  --color-text: var(--text-primary);
+  --color-text-muted: var(--text-secondary);
+  --color-text-subtle: var(--text-muted);
+  --color-border: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-action: var(--brand-action);
+  --color-action-hover: var(--brand-action-hot);
+  --color-action-text: var(--brand-paper);
+  --color-warning: var(--brand-stage-bright);
+  --color-success: #34a85a;
+  --color-danger: var(--brand-action);
+  --shadow-none: none;
+  --shadow-soft: 0 10px 24px rgba(16, 13, 15, 0.12);
+  --shadow-lifted: 0 18px 38px rgba(43, 33, 28, 0.16);
+  --shadow-hard-sm: 2px 2px 0 currentColor;
+  --shadow-hard-md: 4px 4px 0 currentColor;
+  --shadow-physical-card: 10px 16px 16px rgba(70, 23, 16, 0.24);
+  --button-primary-bg: var(--color-action);
+  --button-primary-text: var(--color-action-text);
+  --button-primary-border: var(--color-surface-inverse);
+  --button-primary-shadow: var(--shadow-hard-md);
+  --button-secondary-bg: var(--color-surface);
+  --button-secondary-text: var(--color-action);
+  --button-disabled-bg: rgba(16, 13, 15, 0.14);
+  --button-disabled-text: rgba(16, 13, 15, 0.5);
+  --card-bg: var(--color-surface);
+  --card-text: var(--color-text);
+  --card-border: var(--color-border);
+  --card-shadow: var(--shadow-soft);
+  --card-physical-shadow: var(--shadow-physical-card);
+  --chip-bg: var(--color-surface);
+  --chip-text: var(--color-text);
+  --chip-border: var(--color-border-strong);
+  --chip-active-bg: var(--color-action);
+  --chip-active-text: var(--color-action-text);
+  --sheet-bg: var(--color-surface);
+  --sheet-text: var(--color-text);
+  --sheet-border: var(--color-border);
+  --sheet-handle: var(--color-action);
+  --input-bg: var(--color-surface);
+  --input-text: var(--color-text);
+  --input-border: var(--color-border-strong);
+  --input-placeholder: var(--color-text-subtle);
+  --input-focus-ring: var(--color-action);
+  --input-error: var(--color-danger);
 
   /* Landing-page-specific surfaces — warmer/paper palette distinct from the
      cool-toned --surface-bg used elsewhere. The landing uses these to evoke
      a magazine feel: 9 of 12 sections sit on --surface-canvas, two trust-beats
      get the paper tint, decision-moments (Packs) sit on --surface-deep. */
-  --surface-canvas: #ffffff;        /* Site-„weiß" — neutraler Hellgrauton (Cover2-matched). */
-  --surface-paper:  #dcdcdc;        /* einen Tick tiefer für Kontraste, gleiche Familie */
-  --surface-deep:   #0a0a0a;        /* decision-moment — pure ink, no warm cast */
-  --surface-deep-2: #161616;        /* card surface on --surface-deep */
+  --surface-canvas: var(--brand-stage);
+  --surface-paper: var(--brand-paper);
+  --surface-deep: var(--brand-ink);
+  --surface-deep-2: var(--brand-night);
 
   /* ── 2026 Editorial accents — black/white/red/yellow pivot ── */
-  --frame-ink:      #0a0a0a;
-  --accent-mustard: #ffd84a;        /* mustard yellow — secondary hero blocks */
-  --accent-coral:   #a02814;        /* dunkles Rot — pull-quote + accent */
-  --accent-ink:     #0a0a0a;
+  --frame-ink: var(--et-black);
+  --accent-mustard: var(--brand-stage-bright);
+  --accent-coral: var(--brand-action);
+  --accent-ink: var(--brand-ink);
 }
-
 /* The Ranchers/Bungee/Knewave/Slackey/Archivo Black font files are no longer
    loaded via next/font — these definitions are what keeps components that
    reference the variable names directly (e.g. the Hub headlines use
-   var(--font-ranchers)) resolving to Chewy. Kept at html:root (specificity
+   var(--font-ranchers)) resolving to Moonblossom. Kept at html:root (specificity
    0,1,1) from the era when next/font's hashed <html> class competed with a
    plain :root re-point; harmless now and still wins any future collision. */
 html:root {
-  --font-ranchers:      var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  --font-bungee:        var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  --font-knewave:       var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  --font-slackey:       var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
-  --font-archivo-black: var(--font-chewy, 'Chewy'), 'Comic Sans MS', cursive;
+  --font-ranchers: var(--font-chewy, 'moonblossom'), sans-serif;
+  --font-bungee: var(--font-chewy, 'moonblossom'), sans-serif;
+  --font-knewave: var(--font-chewy, 'moonblossom'), sans-serif;
+  --font-slackey: var(--font-chewy, 'moonblossom'), sans-serif;
+  --font-archivo-black: var(--font-chewy, 'moonblossom'), sans-serif;
 }
-
-html[data-theme="dark"] {
+html[data-theme='dark'] {
   --c-row-rule: rgba(240, 232, 208, 0.14);
 
-  --surface-bg:        #0d0d0d;
-  --surface-card:      #1a1a1a;
-  --surface-raised:    #232323;
-  --surface-overlay:   rgba(26, 26, 26, 0.95);
-  --border-subtle:     #2a2a2a;
-  --border-strong:     #3a3a3a;
-  --text-primary:      #f5f5f5;
-  --text-secondary:    #c5c5c5;
-  --text-muted:        #8a8a8a;
-  --accent-soft:       rgba(255, 59, 0, 0.22);
-  --shadow-sm:         0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md:         0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-lg:         0 10px 30px rgba(0, 0, 0, 0.6);
+  --surface-bg: var(--et-black);
+  --surface-card: var(--et-dark-card);
+  --surface-raised: var(--et-print-black);
+  --surface-overlay: rgba(16, 13, 15, 0.95);
+  --border-subtle: color-mix(in srgb, var(--brand-rule) 36%, var(--brand-ink));
+  --border-strong: color-mix(in srgb, var(--brand-rule) 54%, var(--brand-ink));
+  --text-primary: var(--et-cream);
+  --text-secondary: rgba(242, 223, 184, 0.74);
+  --text-muted: rgba(242, 223, 184, 0.52);
+  --accent-soft: rgba(240, 54, 8, 0.22);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.6);
+  --color-surface-inverse: var(--et-cream);
+  --color-action-hover: var(--et-red-hot);
+  --color-action-text: var(--et-black);
+  --color-success: #34a85a;
+  --button-disabled-bg: rgba(242, 223, 184, 0.14);
+  --button-disabled-text: rgba(242, 223, 184, 0.5);
 
   /* Landing surfaces — dark-mode versions stay close-to-black with subtle
      elevation steps so card hierarchy remains readable. */
-  --surface-canvas: #0a0a0a;
-  --surface-paper:  #14141a;
-  --surface-deep:   #050505;
-  --surface-deep-2: #161616;
+  --surface-canvas: var(--et-black);
+  --surface-paper: var(--et-print-black);
+  --surface-deep: var(--et-print-black);
+  --surface-deep-2: var(--et-print-black);
 }
-
 /* ── Dark-Mode-Designsprache (2026-06-03, User-Entscheidung) ──
    ALLE Seiten folgen dem Dark Mode (vorher waren Hub/News/SEO cream gepinnt).
-   Rezept: Seiten-Bg #111110 · Karten/Raised #1d1c19 · Ink #f0e8d0 ·
-   Sub-Ink rgba(240,232,208,.72) · Hairlines rgba(240,232,208,.3) ·
-   Sticker-Borders #f0e8d0 · Akzent ROT statt GELB: Fills var(--c-coral)
-   #a02814 mit #fbf8ee-Text, Text-Akzente var(--c-coral-bright) #d63a2a.
-   Header+Footer kippen auf Brand-Rot. Die Umsetzung liegt in den jeweiligen
-   CSS-Modulen als additive html[data-theme="dark"]-Blöcke. */
-html[data-theme="dark"] {
-  --dk-page: #111110;
-  --dk-card: #1d1c19;
-  --dk-ink:  #f0e8d0;
-  --dk-sub:  rgba(240, 232, 208, 0.72);
-  --dk-rule: rgba(240, 232, 208, 0.3);
+   Rezept: Print Black als Raum, Program Paper als Lesefläche, Poster Red als
+   Handlung und Ticket Grey als Ordnungslinie. Die Umsetzung liegt in den
+   jeweiligen CSS-Modulen als additive html[data-theme="dark"]-Blöcke. */
+html[data-theme='dark'] {
+  --dk-page: var(--et-black);
+  --dk-card: var(--et-dark-card);
+  --dk-ink: var(--et-cream);
+  --dk-sub: rgba(242, 223, 184, 0.72);
+  --dk-rule: rgba(242, 223, 184, 0.28);
 }
-
 *,
 *::before,
 *::after {
@@ -163,7 +313,6 @@ html[data-theme="dark"] {
   padding: 0;
   box-sizing: border-box;
 }
-
 /* A11y: honour the OS "reduce motion" setting site-wide (WCAG 2.3.3). Lives in
    the inline-critical sheet with `!important` so it neutralises every CSS/JS
    transition+animation regardless of which stylesheet declared them, on first
@@ -179,66 +328,228 @@ html[data-theme="dark"] {
     scroll-behavior: auto !important;
   }
 }
-
 /* A11y: a visible keyboard focus ring everywhere (WCAG 2.4.7). :focus-visible
    only fires for keyboard / non-pointer focus, so mouse clicks stay ring-free.
    Profile/login don't load style.css, so this generic rule must live here too;
    style.css re-asserts it (and adds input-specific overrides) for SPA pages
    whose `outline:none` resets would otherwise win the cascade. */
 :focus-visible {
-  outline: 2px solid var(--c-coral, #a02814);
+  outline: 2px solid var(--c-coral, #ef3528);
   outline-offset: 2px;
 }
-
 html {
   /* Native form controls, scrollbars and autofill follow the active theme
      instead of defaulting to the browser's light UI in dark mode. */
   color-scheme: light;
+  font-synthesis-weight: none;
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  /* Cream universal — matches the SEO-page surface (#fbf8ee) so the side
+  /* Cream universal — matches the SEO-page surface (var(--et-yellow)) so the side
      strips that appear on Desktop when .page is centered with max-width
      blend into the page bg instead of showing grey/white body underneath.
      iOS rubber-band overscroll also picks up cream. */
-  background-color: #fbf8ee;
+  background-color: var(--et-yellow);
 }
-html[data-theme="dark"] {
+html[data-theme='dark'] {
   /* Dark-Mode-Rollout 2026-06-03: Seiten folgen jetzt wirklich dem Theme —
      Rubber-Band/Side-Strips müssen dunkel sein, nicht cream. */
   color-scheme: dark;
-  background-color: #111110;
+  background-color: var(--et-black);
 }
-
 body {
   font-family: var(--font);
-  background: #fbf8ee;
+  background-color: var(--collage-paper);
+  background-image: none;
+  background-size: auto;
   color: var(--black);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
 }
-html[data-theme="dark"] body {
-  background: #111110;
+html[data-theme='dark'] body {
+  --collage-paper: #17130f;
+  --collage-ink: #f8f1e5;
+  background-color: var(--collage-paper);
+  background-image: none;
 }
+html[data-active-page='start'],
+html[data-active-page='start'] body {
+  --food-ink: #15120e;
+  --food-paper: #fff;
+  --food-cream: #fff;
+  --food-butter: #d9382a;
+  --food-tomato: var(--et-poster-red);
+  --food-tomato-dark: #15120e;
+  --food-basil: #15120e;
+  --food-olive: #15120e;
 
+  --et-red: var(--food-tomato);
+  --et-red-hot: var(--food-tomato);
+  --et-red-deep: var(--food-tomato-dark);
+  --et-yellow: var(--food-cream);
+  --et-yellow-bright: var(--food-butter);
+  --et-cream: var(--food-paper);
+  --et-black: var(--food-ink);
+  --et-dark-card: var(--food-ink);
+  --surface-bg: var(--food-paper);
+  --surface-canvas: var(--food-paper);
+  --surface-paper: var(--food-cream);
+  --accent-coral: var(--food-tomato);
+  --accent-mustard: var(--food-butter);
+  --accent-warm: var(--food-tomato);
+  --c-coral: var(--food-tomato);
+  --c-coral-bright: var(--food-tomato);
+  --c-mustard: var(--food-butter);
+  --brand-yellow: var(--food-butter);
+  --brand-red: var(--food-tomato);
+  --collage-orange: var(--food-tomato);
+  --collage-yellow: var(--food-butter);
+  --collage-paper: var(--food-paper);
+  --collage-ink: var(--food-ink);
+  --collage-shadow: none;
+
+  background-color: var(--food-paper);
+  background-image: none;
+  color-scheme: light;
+}
+html[data-theme='dark'][data-active-page='start'],
+html[data-theme='dark'][data-active-page='start'] body {
+  --food-ink: #15120e;
+  --food-paper: #fff;
+  --food-cream: #fff;
+  --food-butter: #d9382a;
+  --food-tomato: var(--et-poster-red);
+  --food-tomato-dark: #15120e;
+  --food-basil: #15120e;
+  --food-olive: #15120e;
+
+  --et-red: var(--food-tomato);
+  --et-red-hot: var(--et-poster-red);
+  --et-red-deep: var(--food-tomato-dark);
+  --et-yellow: var(--food-cream);
+  --et-yellow-bright: var(--food-butter);
+  --et-cream: var(--food-paper);
+  --et-black: var(--food-ink);
+  --et-dark-card: var(--food-ink);
+  --surface-bg: var(--food-paper);
+  --surface-canvas: var(--food-paper);
+  --surface-paper: var(--food-cream);
+  --accent-coral: var(--food-tomato);
+  --accent-mustard: var(--food-butter);
+  --accent-warm: var(--food-tomato);
+  --c-coral: var(--food-tomato);
+  --c-coral-bright: var(--et-poster-red);
+  --c-mustard: var(--food-butter);
+  --brand-yellow: var(--food-butter);
+  --brand-red: var(--food-tomato);
+  --collage-orange: var(--food-tomato);
+  --collage-yellow: var(--food-butter);
+  --collage-paper: var(--food-paper);
+  --collage-ink: var(--food-ink);
+  --collage-shadow: none;
+
+  background-color: var(--food-paper);
+  background-image: none;
+  color-scheme: light;
+}
 /* Hub wrapper surface. The section stack has intentional gaps between some
    sections; without a wrapper background those gaps expose the body, which
    style.css paints with --surface-canvas (#fff) — producing a cream→white seam
    between sections. Fill the hub so the gaps read as the cream page surface. */
-[data-hub] { background: #fbf8ee; }
-html[data-theme="dark"] [data-hub] { background: var(--dk-page, #111110); }
-
+[data-hub] {
+  background: var(--et-yellow);
+}
+html[data-theme='dark'] [data-hub] {
+  background: var(--dk-page, var(--et-black));
+}
+/* Home uses a light cassette-table surface; black is reserved for rails,
+   outlines, and media frames rather than the page background. */
+html[data-active-page='start'] [data-hub] {
+  background: var(--food-paper);
+}
+html[data-active-page='start'],
+html[data-active-page='start'] body {
+  background-color: var(--food-paper);
+}
+html[data-theme='dark'][data-active-page='start'],
+html[data-theme='dark'][data-active-page='start'] body {
+  --collage-paper: var(--food-paper);
+  --collage-ink: var(--food-ink);
+  background-color: var(--food-paper);
+  color: var(--food-ink);
+  color-scheme: light;
+}
+html[data-theme='dark'][data-active-page='start'] [data-hub] {
+  background: var(--food-paper);
+}
+/* Sitewide Providence collage language. The map remains a purpose-built
+   full-screen tool; every content page gets the paper/print treatment. */
+html:not([data-active-page='map']) .app-pages,
+html:not([data-active-page='map']) main,
+html:not([data-active-page='map']) .app-page {
+  background-color: transparent;
+}
+html:not([data-active-page='map']) main,
+html:not([data-active-page='map']) .app-page:not([data-page='start']) {
+  position: relative;
+  isolation: isolate;
+}
+/* Legacy brand heading-red. Menu-design surfaces opt out via [data-menu] on
+   their <main> so their own ink/Chauncy headings win. */
+html:not([data-active-page='map']) main:not([data-menu]) h1,
+html:not([data-active-page='map']) main:not([data-menu]) h2,
+html:not([data-active-page='map']) .app-page:not([data-page='start']):not([data-menu]) h1,
+html:not([data-active-page='map']) .app-page:not([data-page='start']):not([data-menu]) h2 {
+  color: var(--collage-red);
+  letter-spacing: -0.025em;
+}
+html:not([data-active-page='map']) main blockquote,
+html:not([data-active-page='map']) .app-page:not([data-page='start']) blockquote {
+  position: relative;
+  background: var(--collage-yellow);
+  color: var(--collage-ink);
+  border: 0;
+  box-shadow: var(--collage-shadow);
+  transform: rotate(-1deg);
+}
+html:not([data-active-page='map']) main blockquote::before,
+html:not([data-active-page='map']) .app-page:not([data-page='start']) blockquote::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 82px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 1px 2px rgba(43, 33, 28, 0.12);
+  transform: translateX(-50%) rotate(3deg);
+}
+html:not([data-active-page='map']) main article img,
+html:not([data-active-page='map']) .app-page:not([data-page='start']) article img {
+  box-shadow: var(--collage-shadow);
+}
+html:not([data-active-page='map']) main button:not([aria-label]),
+html:not([data-active-page='map']) main a[role='button'],
+html:not([data-active-page='map']) .app-page:not([data-page='start']) button:not([aria-label]),
+html:not([data-active-page='map']) .app-page:not([data-page='start']) a[role='button'] {
+  border-radius: 0;
+}
+@media (min-width: 720px) {
+  html:not([data-active-page='map']) main::before,
+  html:not([data-active-page='map']) .app-page:not([data-page='start'])::before {
+    right: 28px;
+    font-size: 13px;
+  }
+}
 img {
   max-width: 100%;
   height: auto;
   display: block;
 }
-
 a {
   text-decoration: none;
   color: inherit;
 }
-
 /* Prevent FOUC flash of overlays that only become visible via a toggled class.
    Lives here (inlined by Next.js) instead of style.min.css so the rule is
    applied before the external stylesheet loads on first paint. */
@@ -247,25 +558,27 @@ a {
 .burger-drawer:not(.active) {
   display: none;
 }
-
 /* Signup-only blocks (e.g. the Welcome Pack gift card) are SSR'd for everyone
    because the server can't know the auth state. The CRITICAL_BOOTSTRAP sets
    data-auth="1" pre-paint from localStorage._authHint, so signed-in visitors
    never see them flash before client-side auth resolves and removes them. */
-html[data-auth="1"] [data-signup-gift] {
+html[data-auth='1'] [data-signup-gift] {
   display: none;
 }
-
 /* The inverse: signed-in-only blocks (e.g. the Deine-Welt hub section) are
    SSR'd as a static shell so they don't pop in / shift the page once client
    auth resolves. Anyone without the pre-paint flag never sees the shell. */
-html:not([data-auth="1"]) [data-auth-only] {
+html:not([data-auth='1']) [data-auth-only] {
   display: none;
 }
-
+/* Logged-out-only Home blocks are SSR'd for everyone for the same reason:
+   the server cannot know auth state. Hide them pre-paint for signed-in
+   visitors once the bootstrap has an auth hint. */
+html[data-auth='1'] [data-guest-only] {
+  display: none;
+}
 /* 2026 EDITORIAL FRAME removed — the dark border-mat read as heavy chrome
    over the editorial-v13 redesign. Navbar + app-pages now go flush. */
-
 /* Map page is position:fixed and owns the full viewport below the top nav.
    Override the generic .app-page padding-bottom (reserved for fixed tab bars)
    so the bottom sheet reaches the bottom of the screen without a gap.
@@ -274,13 +587,12 @@ html:not([data-auth="1"]) [data-auth-only] {
    page overflow when the URL bar is shown, leaving a strip of whitespace
    below the sheet. dvh adjusts as the URL bar shows/hides.
    (See memory feedback_ios_overlay_pattern.md.) */
-.app-page[data-page="map"] {
+.app-page[data-page='map'] {
   padding-bottom: 0 !important;
   /* Map has no navbar (hidden via [data-active-page="map"] .navbar) — the
      canvas claims the full viewport. */
   height: 100dvh !important;
 }
-
 /* Mobile: the navbar goes transparent over the map (see style.css
    [data-active-page="map"] block). Map canvas now claims the full
    viewport including the top 60px the navbar used to reserve. */
@@ -295,69 +607,64 @@ html:not([data-auth="1"]) [data-auth-only] {
      sheet drag preventDefault, list overscroll-behavior contain) so it
      stays at scroll 0 in practice. Sheet snap math anchors to
      window.innerHeight — see useBottomSheet.ts. */
-  [data-active-page="map"] .app-pages {
+  [data-active-page='map'] .app-pages {
     margin-top: 0 !important;
     height: 100dvh !important; /* fallback: browsers without lvh */
     /* +80px apron past lvh — Safari's bar backdrop samples deeper than the
        document end; must match --map-bar-overhang in map.module.css. */
     height: calc(100lvh + 80px) !important;
   }
-  .app-page[data-page="map"] {
+  .app-page[data-page='map'] {
     height: 100dvh !important;
     height: calc(100lvh + 80px) !important;
   }
 }
-
 /* Map redesign: no solid header — a single floating burger (in MapSectionBody)
    sits over the map. Hide the navbar entirely and reclaim its height. SiteNav
    stays mounted so #burgerBtn's open handler keeps working when triggered
    programmatically by the floating burger. */
-[data-active-page="map"] .navbar,
-[data-active-page="map"] header[role="banner"] { display: none !important; }
-
+[data-active-page='map'] .navbar,
+[data-active-page='map'] header[role='banner'] {
+  display: none !important;
+}
 /* No footer below the map page — it would extend the document past the
    page's 100lvh and let the window scroll the whole map UI away; its black
    top edge also peeks into Safari's bottom-bar zone. (style.css has a
    :has()-based copy of this, but only inside the ≥768px block.) */
-[data-active-page="map"] .site-footer { display: none !important; }
-
-/* Burger drawer over the map: Safari composites only IN-FLOW content into
-   the bottom-URL-bar backdrop — the position:fixed drawer can't paint
-   there, so with the drawer open the bar would keep blurring the sheet
-   rows behind it. Mirror the drawer surface in the page's behind-bar zone
-   (the lvh+80px apron) while it's open; fades with the drawer's own
-   0.25s opacity transition (state change, not motion). */
+[data-active-page='map'] .site-footer {
+  display: none !important;
+}
 @media (max-width: 1023.98px) {
-  .app-page[data-page="map"]::after {
+  .app-page[data-page='map']::after {
     content: '';
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
     height: calc(100lvh + 80px - 100dvh);
-    background: #fbf8ee; /* drawer panel cream */
+    background: #d9382a; /* matches the red drawer panel */
     z-index: 50; /* above the bottom sheet (z 4) */
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s;
   }
-  body:has(.burger-drawer.active) .app-page[data-page="map"]::after {
+  body:has(.burger-drawer.active) .app-page[data-page='map']::after {
     opacity: 1;
   }
-  html[data-theme="dark"] .app-page[data-page="map"]::after {
-    background: #111110; /* dark drawer panel */
+  html[data-theme='dark'] .app-page[data-page='map']::after {
+    background: #d9382a;
   }
 }
-
 /* Login modal behind the iOS bottom URL bar: handled by
    app/components/LoginModalBarLock.tsx (inline-style scroll-lock + canvas
    recolor on modal mount) — a stylesheet :has() variant computed correctly
    but did not recolor the bar on device. */
-
 @media (min-width: 1024px) {
-  [data-active-page="map"] .app-pages { margin-top: 0 !important; height: 100dvh !important; }
+  [data-active-page='map'] .app-pages {
+    margin-top: 0 !important;
+    height: 100dvh !important;
+  }
 }
-
 /* User-location marker is purely informational. The avatar must visually
    sit ABOVE every restaurant + must-eat marker (so the figure is never
    hidden behind a card), yet clicks must fall through to whichever
@@ -372,39 +679,483 @@ html:not([data-auth="1"]) [data-auth-only] {
 .user-loc-marker * {
   pointer-events: none !important;
 }
-
 /* ── Notification toast (window.showNotification) ──────────────────────
    Mounted globally in app/[locale]/layout.tsx (NotificationToast.tsx).
    Styled here instead of style.css because /profile and /login don't load
    the SPA stylesheet. Brand motion: slide up from below the viewport edge
-   (transform only — no opacity fade), square sticker box, inverted per
-   theme so it pops on both page backgrounds. */
+   (transform only — no opacity fade), like a small printed receipt sticker. */
 .notification {
+  --toast-paper: var(--brand-paper);
+  --toast-ink: var(--brand-ink);
+  --toast-accent: var(--brand-action);
+  --toast-shadow: rgba(16, 13, 15, 0.16);
   position: fixed;
-  bottom: 100px;
+  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
   left: 50%;
-  /* Parked fully below the viewport edge (own height + the 100px offset). */
-  transform: translate(-50%, calc(100% + 120px));
-  background: #111110;
-  color: #f0e8d0;
-  font-family: var(--font-saira-condensed), sans-serif;
-  font-weight: 800;
-  font-size: 15px;
-  line-height: 1.2; /* ≥1.15 against umlaut clipping in uppercase Saira */
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  text-align: center;
-  padding: 12px 22px;
-  max-width: calc(100vw - 32px);
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  width: min(428px, calc(100vw - 28px));
+  min-height: 76px;
+  padding: 12px 16px 13px 12px;
+  border: 2px solid var(--toast-ink);
+  border-left-width: 8px;
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--toast-accent) 18%, transparent) 0 18px,
+      transparent 18px
+    ),
+    var(--toast-paper);
+  color: var(--toast-ink);
+  box-shadow:
+    0 18px 38px -18px var(--toast-shadow),
+    0 8px 18px -14px rgba(16, 13, 15, 0.14);
+  text-align: left;
+  transform: translate(-50%, calc(100% + 128px)) rotate(1.1deg);
   z-index: 10000; /* above the legacy navbar (9999) */
   pointer-events: none;
-  transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition: transform 0.42s var(--ease-snap);
+}
+.notification.show {
+  transform: translate(-50%, 0) rotate(-0.7deg);
+}
+.notification[data-tone='success'] {
+  --toast-accent: var(--brand-action);
+}
+.notification[data-tone='warning'] {
+  --toast-accent: var(--brand-rule);
+}
+.notification[data-tone='error'] {
+  --toast-paper: var(--brand-action);
+  --toast-ink: var(--brand-paper);
+  --toast-accent: var(--brand-ink);
+  --toast-shadow: rgba(239, 53, 40, 0.32);
+}
+.notification[data-tone='info'] {
+  --toast-accent: var(--brand-ink);
+}
+.notification-mark {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 2px solid var(--toast-ink);
+  border-radius: 50%;
+  background: var(--toast-accent);
+  color: var(--toast-paper);
+  box-shadow: 0 7px 14px -10px rgba(16, 13, 15, 0.38);
+}
+.notification[data-tone='warning'] .notification-mark {
+  color: var(--brand-ink);
+}
+.notification[data-tone='error'] .notification-mark {
+  border-color: var(--brand-paper);
+  background: var(--brand-paper);
+  color: var(--brand-action);
+  box-shadow: 0 7px 14px -10px rgba(16, 13, 15, 0.42);
+}
+.notification-mark svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.notification-mark svg circle,
+.notification-mark svg path:not(:first-child) {
+  fill: none;
+}
+.notification-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.notification-eyebrow {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--toast-accent);
+}
+.notification[data-tone='error'] .notification-eyebrow {
+  color: var(--brand-paper);
+}
+.notification-title {
+  font-family: var(--font-poster);
+  font-size: clamp(22px, 6vw, 28px);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.notification-detail {
+  max-width: 34ch;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.24;
+  color: color-mix(in srgb, var(--toast-ink) 78%, transparent);
+}
+.notification[data-tone='error'] .notification-detail {
+  color: rgba(241, 241, 236, 0.86);
+}
+html[data-theme='dark'] .notification {
+  --toast-paper: var(--brand-ink);
+  --toast-ink: var(--brand-paper);
+  --toast-shadow: rgba(0, 0, 0, 0.48);
+  box-shadow:
+    0 20px 42px -18px var(--toast-shadow),
+    0 8px 20px -14px rgba(0, 0, 0, 0.44);
+}
+html[data-theme='dark'] .notification[data-tone='error'] {
+  --toast-paper: var(--brand-action);
+  --toast-ink: var(--brand-paper);
+  --toast-shadow: rgba(0, 0, 0, 0.5);
+}
+html[data-theme='dark'] .notification[data-tone='info'] {
+  --toast-accent: var(--brand-action);
+}
+html[data-theme='dark'] .notification-detail {
+  color: rgba(241, 241, 236, 0.78);
+}
+@media (min-width: 768px) {
+  .notification {
+    bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  }
+}
+@media (max-width: 420px) {
+  .notification {
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 10px;
+    min-height: 72px;
+    padding: 11px 12px 12px 10px;
+    border-left-width: 7px;
+  }
+  .notification-mark {
+    width: 38px;
+    height: 38px;
+  }
+  .notification-mark svg {
+    width: 20px;
+    height: 20px;
+  }
+  .notification-detail {
+    max-width: 28ch;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .notification {
+    transition-duration: 1ms;
+  }
+}
+/* 2026 map/info-layer refresh: clean system toast, no cream paper/sticker frame. */
+.notification {
+  --toast-surface: #fff;
+  --toast-ink: #15120e;
+  --toast-muted: rgba(21, 18, 14, 0.62);
+  --toast-line: rgba(21, 18, 14, 0.11);
+  --toast-accent: #d9382a;
+  bottom: calc(86px + env(safe-area-inset-bottom, 0px));
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 11px;
+  width: min(390px, calc(100vw - 28px));
+  min-height: 64px;
+  padding: 11px 14px 12px 12px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--toast-surface);
+  color: var(--toast-ink);
+  box-shadow:
+    0 16px 44px rgba(0, 0, 0, 0.16),
+    inset 0 0 0 1px var(--toast-line);
+  transform: translate(-50%, calc(100% + 112px));
+  transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .notification.show {
   transform: translate(-50%, 0);
 }
-html[data-theme="dark"] .notification {
-  background: #f0e8d0;
-  color: #111110;
+.notification[data-tone='success'] {
+  --toast-accent: #d9382a;
 }
-
+.notification[data-tone='warning'] {
+  --toast-accent: #15120e;
+}
+.notification[data-tone='error'] {
+  --toast-surface: #15120e;
+  --toast-ink: #fff;
+  --toast-muted: rgba(255, 255, 255, 0.72);
+  --toast-line: rgba(255, 255, 255, 0.12);
+  --toast-accent: #d9382a;
+}
+.notification[data-tone='info'] {
+  --toast-accent: #15120e;
+}
+.notification-mark {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--toast-accent);
+  color: #fff;
+  box-shadow: none;
+}
+.notification[data-tone='info'] .notification-mark,
+.notification[data-tone='warning'] .notification-mark {
+  background: #15120e;
+  color: #fff;
+}
+.notification[data-tone='error'] .notification-mark {
+  border: 0;
+  background: #d9382a;
+  color: #fff;
+  box-shadow: none;
+}
+.notification-mark svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.25;
+}
+.notification-copy {
+  gap: 3px;
+  align-self: center;
+}
+.notification-eyebrow {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 950;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  color: var(--toast-accent);
+}
+.notification[data-tone='error'] .notification-eyebrow {
+  color: #fff;
+}
+.notification-title {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: 0;
+  text-transform: none;
+  overflow-wrap: normal;
+}
+.notification-detail {
+  max-width: 38ch;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--toast-muted);
+}
+.notification[data-tone='error'] .notification-detail {
+  color: var(--toast-muted);
+}
+html[data-theme='dark'] .notification {
+  --toast-surface: #15120e;
+  --toast-ink: #fff;
+  --toast-muted: rgba(255, 255, 255, 0.72);
+  --toast-line: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 18px 46px rgba(0, 0, 0, 0.36),
+    inset 0 0 0 1px var(--toast-line);
+}
+html[data-theme='dark'] .notification[data-tone='info'],
+html[data-theme='dark'] .notification[data-tone='warning'] {
+  --toast-accent: #fff;
+}
+html[data-theme='dark'] .notification[data-tone='info'] .notification-mark,
+html[data-theme='dark'] .notification[data-tone='warning'] .notification-mark {
+  background: #fff;
+  color: #15120e;
+}
+html[data-theme='dark'] .notification-detail {
+  color: var(--toast-muted);
+}
+@media (min-width: 768px) {
+  .notification {
+    bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+  }
+}
+@media (max-width: 420px) {
+  .notification {
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 10px;
+    width: min(362px, calc(100vw - 20px));
+    min-height: 62px;
+    padding: 10px 12px 11px 10px;
+    border: 0;
+    border-radius: 15px;
+  }
+  .notification-mark {
+    width: 32px;
+    height: 32px;
+  }
+  .notification-mark svg {
+    width: 17px;
+    height: 17px;
+  }
+  .notification-title {
+    font-size: 14px;
+  }
+  .notification-detail {
+    max-width: 28ch;
+    font-size: 11.5px;
+  }
+}
+/* Compact home actions. Mirrors the final burger-drawer button language, but
+   sized down for section CTAs, chips, pack prices and local controls. */
+.homeCta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  min-width: 0;
+  padding: 9px 16px 10px;
+  border: 1px solid rgba(37, 23, 15, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--et-black);
+  box-shadow: 0 9px 20px rgba(92, 50, 19, 0.08);
+  font-family: var(--font-poster);
+  font-size: clamp(19px, 2vw, 25px);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 0.86;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transform: translateX(0);
+  transition:
+    transform 0.14s ease,
+    background-color 0.14s ease,
+    border-color 0.14s ease,
+    color 0.14s ease,
+    box-shadow 0.14s ease;
+}
+.homeCta:hover,
+.homeCta:focus-visible {
+  background: var(--et-black);
+  border-color: var(--et-black);
+  color: var(--et-cream);
+  transform: translateX(-5px);
+}
+.homeCta:active {
+  transform: translateX(-2px);
+}
+.homeCta:disabled,
+.homeCta[aria-disabled='true'] {
+  cursor: progress;
+  opacity: 0.7;
+  transform: none;
+}
+.homeCtaPrimary {
+  background: var(--et-red);
+  border-color: var(--et-red);
+  color: var(--et-cream);
+}
+.homeCtaPrimary:hover,
+.homeCtaPrimary:focus-visible {
+  background: var(--et-black);
+  border-color: var(--et-black);
+  color: var(--et-cream);
+}
+.homeCtaSmall {
+  min-height: 38px;
+  padding: 8px 13px 9px;
+  font-size: clamp(17px, 1.7vw, 22px);
+}
+.homeCtaFull {
+  width: 100%;
+}
+html[data-theme='dark'] .homeCta {
+  background: rgba(255, 255, 255, 0.62);
+  border-color: rgba(37, 23, 15, 0.14);
+  color: var(--et-black);
+}
+html[data-theme='dark'] .homeCta:hover,
+html[data-theme='dark'] .homeCta:focus-visible {
+  background: var(--et-black);
+  border-color: var(--et-black);
+  color: var(--et-cream);
+}
+html[data-theme='dark'] .homeCtaPrimary {
+  background: var(--et-red-hot);
+  border-color: var(--et-red-hot);
+  color: var(--et-black);
+}
+html[data-theme='dark'] .homeCtaPrimary:hover,
+html[data-theme='dark'] .homeCtaPrimary:focus-visible {
+  background: var(--et-black);
+  border-color: var(--et-black);
+  color: var(--et-cream);
+}
+/* Header reset for the cassette home system. Keep global navbar overrides out
+   of CSS Modules so Next's pure selector rules do not reject them. */
+.navbar,
+.navbar.scrolled,
+html[data-theme='dark'] .navbar,
+html[data-theme='dark'] .navbar.scrolled,
+html[data-active-page='start'] .navbar,
+html[data-active-page='start'] .navbar.scrolled,
+html[data-theme='dark'][data-active-page='start'] .navbar,
+html[data-theme='dark'][data-active-page='start'] .navbar.scrolled {
+  height: calc(72px + env(safe-area-inset-top, 0px)) !important;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) clamp(12px, 3vw, 32px) 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  background: #d9382a !important;
+  color: #fff !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+/* HOME V2 — black masthead on the home (/, data-active-page="start"):
+   black/white/yellow, with the footer's bubble logo (white on black).
+   Uses the #navbar id (specificity 1,1,1) so it wins over the red
+   html[data-active-page] .navbar !important rules in the SPA stylesheet,
+   regardless of stylesheet load order. Home only; other pages keep red. */
+html[data-active-page='start'] #navbar,
+html[data-active-page='start'] #navbar.scrolled {
+  background: #15120e !important;
+  background-color: #15120e !important;
+  color: #fff !important;
+  border-bottom: 0 !important;
+}
+html[data-active-page='start'] #navbar .navbar-home a,
+html[data-active-page='start'] #navbar .navbar-icon-btn,
+html[data-active-page='start'] #navbar .burger-btn {
+  color: #fff !important;
+}
+html[data-active-page='start'] #navbar .navbar-icon-btn:hover,
+html[data-active-page='start'] #navbar .navbar-icon-btn:focus-visible,
+html[data-active-page='start'] #navbar .burger-btn:hover,
+html[data-active-page='start'] #navbar .burger-btn:focus-visible {
+  color: #ffc600 !important;
+}
+.navbar::before,
+.navbar::after,
+html[data-theme='dark'] .navbar::before,
+html[data-theme='dark'] .navbar::after {
+  content: none !important;
+}
+@media (max-width: 520px) {
+  .navbar,
+  .navbar.scrolled,
+  html[data-theme='dark'] .navbar,
+  html[data-theme='dark'] .navbar.scrolled {
+    height: calc(64px + env(safe-area-inset-top, 0px)) !important;
+    padding-inline: 10px !important;
+  }
+}

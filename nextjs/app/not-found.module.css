@@ -7,14 +7,15 @@
 
 .page {
   --f-display: var(--font-chewy, "Chewy"), "Comic Sans MS", cursive;
-  --f-body: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  --f-body: var(--font);
   --ink: #0a0a0a;
   --coral: #a02814;
   --yellow: #ffd84a;
   --paper: #fbf8ee;
   --muted: rgba(10, 10, 10, 0.62);
 
-  background: var(--paper);
+  background-color: #f8f6f1;
+  background-image: none;
   color: var(--ink);
   font-family: var(--f-body);
   position: relative;

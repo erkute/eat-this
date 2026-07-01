@@ -24,7 +24,13 @@ function readCachedAvatar(uid: string | null): AvatarChoice | null {
 
 function writeCachedAvatar(uid: string, avatar: AvatarChoice) {
   if (typeof window === 'undefined') return;
-  try { window.localStorage.setItem(CACHE_KEY(uid), String(avatar)); } catch {}
+  try {
+    window.localStorage.setItem(CACHE_KEY(uid), String(avatar));
+    const authHint = JSON.parse(window.localStorage.getItem('_authHint') || 'null') as { n?: string; a?: AvatarChoice } | null;
+    if (authHint?.n) {
+      window.localStorage.setItem('_authHint', JSON.stringify({ ...authHint, a: avatar }));
+    }
+  } catch {}
 }
 
 // Subscribes to the user's profile doc. `avatar: null` means the user

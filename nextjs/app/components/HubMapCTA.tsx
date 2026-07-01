@@ -1,4 +1,4 @@
-import { Link } from '@/i18n/navigation'
+import MapIntentLink from './MapIntentLink'
 import styles from './HubMapCTA.module.css'
 
 interface Props {
@@ -8,29 +8,21 @@ interface Props {
   title: string
   /** Optional sub-line, already localized. */
   subline?: string
-  /** Visual variant. `'chip'` = inline yellow chip with arrow (default).
+  /** Visual variant. `'chip'` = inline CTA (default).
    *  `'block'` = larger block variant used inside the dark Final-CTA section. */
   variant?: 'chip' | 'block'
 }
 
 export default function HubMapCTA({ href, title, subline, variant = 'chip' }: Props) {
   const cls = variant === 'block' ? styles.ctaBlock : styles.ctaChip
+  const homeCls = variant === 'block' ? 'homeCta homeCtaPrimary' : 'homeCta homeCtaPrimary homeCtaSmall'
   return (
     // rel="nofollow" — map deep-links target the noindex /map route, so
     // we don't want Google to enumerate every bezirk/category variant in
     // GSC. See memory feedback_seo_nofollow_into_noindex.md.
-    <Link href={href} rel="nofollow" className={cls} aria-label={title}>
+    <MapIntentLink href={href} rel="nofollow" className={`${cls} ${homeCls}`} aria-label={title}>
       <span className={styles.title}>{title}</span>
       {subline && <span className={styles.subline}>{subline}</span>}
-      <svg
-        className={styles.arrow}
-        width="28" height="18" viewBox="0 0 32 20"
-        fill="none" stroke="currentColor" strokeWidth="3"
-        strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
-      >
-        <path d="M3 10 L24 10" />
-        <path d="M18 3 L27 10 L18 17" />
-      </svg>
-    </Link>
+    </MapIntentLink>
   )
 }

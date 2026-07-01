@@ -1,0 +1,67 @@
+/* Mobile: swipeable rail. Desktop: wraps into rows (grid). */
+.grid {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+.grid::-webkit-scrollbar {
+  display: none;
+}
+
+.item {
+  width: 180px;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  text-align: center;
+}
+
+.dishLink {
+  display: block;
+}
+
+/* Freigestellt: transparent cutout floats on white — no box, no bg, contain */
+.dishImg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 170px;
+}
+
+.dishImg :global(img) {
+  object-fit: contain;
+}
+
+.rest {
+  display: block;
+  font-family: var(--font-providence);
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--home-muted);
+}
+
+@media (min-width: 761px) {
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: clamp(24px, 2.4vw, 44px) clamp(16px, 1.6vw, 28px);
+    overflow: visible;
+  }
+  .item {
+    width: auto;
+  }
+  .dishImg {
+    height: clamp(190px, 16vw, 250px);
+  }
+}
+
+@media (max-width: 760px) {
+  .item {
+    width: 150px;
+  }
+  .dishImg {
+    height: 140px;
+  }
+}

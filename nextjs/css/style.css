@@ -2,24 +2,7 @@
    EAT THIS — Berlin Food Blog
    Design System & Styles
    ============================================ */
-
-/* Self-hosted fonts (latin + latin-ext, variable weight 400-900) */
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 400 900;
-  font-display: optional;
-  src: url('../fonts/inter-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 400 900;
-  font-display: optional;
-  src: url('../fonts/inter-latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
+/* Self-hosted display font (latin + latin-ext) */
 @font-face {
   font-family: 'Silkscreen';
   font-style: normal;
@@ -36,11 +19,9 @@
   src: url('../fonts/silkscreen-700-latin-ext.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
-
 /* A11Y: skip-to-content — hidden off-screen until keyboard focus */
 .skip-link{position:absolute;left:-9999px;top:0;z-index:10000;background:#000;color:#fff;padding:12px 18px;font-weight:700;text-decoration:none;border-radius:0 0 8px 0}
 .skip-link:focus{left:0;outline:3px solid #ff0;outline-offset:2px}
-
 /* RESET */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 /* overflow-x:hidden + position:relative on <html> caused Chrome desktop to drop wheel-scroll on /profile (Safari and mobile worked fine). Both are redundant — body already has overflow-x:hidden and overscroll-behavior:none. Don't move them back. */
@@ -52,27 +33,146 @@ a{text-decoration:none;color:inherit}
 button{cursor:pointer;font-family:inherit;border:none;background:none}
 a,button,input,select,textarea,label{touch-action:manipulation}
 ul,ol{list-style:none}
-
 /* DESIGN TOKENS */
 :root {
-  --black: #000000;
-  --white: #FFFFFF;
-  --off-white: #ffffff;        /* aligned to surface-canvas — 2026 cream direction */
-  --gray-50: #F5F5F5;
-  --gray-100: #E8E8E8;
-  --gray-200: #D4D4D4;
-  --gray-400: #888888;
-  --gray-600: #555555;
-  --orange: #0a0a0a;        /* mono pivot — was coral */
-  --darkred: #8B1A1A;
-  --surface-canvas: #ffffff;        /* duplicated for style.css scope */
-  --accent-ink: #1c1c1c;            /* near-black ink for display headings */
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --black: #15120E;
+  --white: #FFF;
+  --off-white: #FFF;
+  --gray-50: #FFF;
+  --gray-100: #15120E;
+  --gray-200: #15120E;
+  --gray-400: #15120E;
+  --gray-600: #15120E;
+  --orange: var(--et-black);        /* mono pivot — was coral */
+  --darkred: #15120E;
+  --et-poster-red: #D9382A;
+  --et-print-black: #15120E;
+  --et-program-paper: #FFF;
+  --et-ticket-grey: #15120E;
+  --et-offset-grey: #15120E;
+  --et-pressed-red: #15120E;
+  --et-red: var(--et-poster-red);
+  --et-red-hot: var(--et-poster-red);
+  --et-red-deep: var(--et-pressed-red);
+  --et-yellow: var(--et-program-paper);
+  --et-yellow-bright: var(--et-ticket-grey);
+  --et-cream: var(--et-program-paper);
+  --et-black: var(--et-print-black);
+  --et-dark-card: var(--et-print-black);
+  --et-raw-red: var(--et-red);
+  --et-raw-red-hot: var(--et-red-hot);
+  --et-raw-red-deep: var(--et-red-deep);
+  --et-raw-yellow: var(--et-yellow);
+  --et-raw-yellow-bright: var(--et-yellow-bright);
+  --et-raw-cream: var(--et-cream);
+  --et-raw-ink: var(--et-black);
+  --et-raw-dark-card: var(--et-dark-card);
+  /* Brand color roles mirror app/globals.css. Raw colors describe the Eat This
+     palette; roles describe the UX job each color is allowed to do. */
+  --brand-stage: var(--et-raw-cream);
+  --brand-stage-bright: var(--et-raw-red);
+  --brand-action: var(--et-raw-red);
+  --brand-action-hot: var(--et-raw-red-hot);
+  --brand-action-deep: var(--et-raw-red-deep);
+  --brand-paper: var(--et-raw-cream);
+  --brand-ink: var(--et-raw-ink);
+  --brand-night: var(--et-raw-dark-card);
+  --brand-rule: var(--et-ticket-grey);
+  --brand-muted: var(--et-offset-grey);
+  --surface-canvas: var(--brand-stage);
+  --accent-ink: var(--brand-ink);
+  --font: var(--font-dm-sans), 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: var(--font);
+  --font-display: var(--font-chewy, 'moonblossom'), sans-serif;
+  --font-label: var(--font-poster, var(--font-display));
+  --font-providence: "ff-providence-sans-web-pro-1","ff-providence-sans-web-pro-2",sans-serif;
+  --home-paper: #FFFFFF;
+  --home-ink: #15120E;
+  --home-accent: #FFC600;
+  --home-photo-rest: #ECEAE6;
+  --home-quiet: #F2F1EF;
+  --home-rule: #E4E1DC;
+  --home-muted: #8A857D;
+  --home-radius-photo: 10px;
+  --home-radius-btn: 7px;
   --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-standard: cubic-bezier(.2, .8, .2, 1);
+  --ease-snap: cubic-bezier(.22, .61, .36, 1);
   --radius: 2px;
+  --radius-none: 0;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-pill: 999px;
+  --radius-circle: 50%;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --motion-fast: 120ms;
+  --motion-base: 180ms;
+  --motion-slow: 320ms;
+  --motion-reveal: 700ms;
+  --color-page: var(--surface-canvas);
+  --color-surface: var(--brand-paper);
+  --color-surface-raised: var(--brand-paper);
+  --color-surface-overlay: rgba(241, 241, 236, .95);
+  --color-surface-inverse: var(--brand-ink);
+  --color-text: var(--brand-ink);
+  --color-text-muted: rgba(16, 13, 15, .72);
+  --color-text-subtle: rgba(16, 13, 15, .52);
+  --color-border: rgba(16, 13, 15, .14);
+  --color-border-strong: rgba(16, 13, 15, .32);
+  --color-action: var(--brand-action);
+  --color-action-hover: var(--brand-action-hot);
+  --color-action-text: var(--brand-paper);
+  --color-warning: var(--brand-stage-bright);
+  --color-success: #34a85a;
+  --color-danger: var(--brand-action);
+  --shadow-none: none;
+  --shadow-soft: 0 10px 24px rgba(16, 13, 15, .12);
+  --shadow-lifted: 0 18px 38px rgba(43, 33, 28, .16);
+  --shadow-hard-sm: 2px 2px 0 currentColor;
+  --shadow-hard-md: 4px 4px 0 currentColor;
+  --shadow-physical-card: 10px 16px 16px rgba(70, 23, 16, .24);
+  --button-primary-bg: var(--color-action);
+  --button-primary-text: var(--color-action-text);
+  --button-primary-border: var(--color-surface-inverse);
+  --button-primary-shadow: var(--shadow-hard-md);
+  --button-secondary-bg: var(--color-surface);
+  --button-secondary-text: var(--color-action);
+  --button-disabled-bg: rgba(16, 13, 15, .14);
+  --button-disabled-text: rgba(16, 13, 15, .5);
+  --card-bg: var(--color-surface);
+  --card-text: var(--color-text);
+  --card-border: var(--color-border);
+  --card-shadow: var(--shadow-soft);
+  --card-physical-shadow: var(--shadow-physical-card);
+  --chip-bg: var(--color-surface);
+  --chip-text: var(--color-text);
+  --chip-border: var(--color-border-strong);
+  --chip-active-bg: var(--color-action);
+  --chip-active-text: var(--color-action-text);
+  --sheet-bg: var(--color-surface);
+  --sheet-text: var(--color-text);
+  --sheet-border: var(--color-border);
+  --sheet-handle: var(--color-action);
+  --input-bg: var(--color-surface);
+  --input-text: var(--color-text);
+  --input-border: var(--color-border-strong);
+  --input-placeholder: var(--color-text-subtle);
+  --input-focus-ring: var(--color-action);
+  --input-error: var(--color-danger);
 }
-
 body {
   font-family: var(--font);
   background: var(--surface-canvas);
@@ -82,13 +182,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
 }
-
 /* ============================================
    SCROLL ANIMATIONS
    ============================================ */
-
 /* ============================================
-   NAVBAR — thin strip, white in light / black in dark
+   NAVBAR — boxed brand rail with center logo tab
    ============================================ */
 .navbar {
   position: fixed;
@@ -99,24 +197,39 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 17px 16px;
-  /* Brand-yellow header bar. */
-  background: #F5C518;
-  border-bottom: 1px solid rgba(10, 10, 10, 0.12);
+  min-height: 74px;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px;
+  background-color: var(--home-ink);
+  background-image: none;
+  border-bottom: 0;
+  border-top: 0;
+  box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
-[data-theme="dark"] .navbar {
-  /* Dark mode: Header kippt auf Brand-Rot (User-Entscheidung 2026-06-03,
-     Dark-Akzent rot statt gelb). Bubble-Logo (cream+ink) liest auf Rot. */
-  background: #a02814;
-  border-bottom-color: rgba(0, 0, 0, 0.25);
+.navbar::before,
+.navbar::after {
+  content: none;
 }
-/* Schwarze Line-Art-Icons (webp) wären auf Rot zu kontrastarm — invert
-   macht sie weiß. Logo bleibt unangetastet (eigener .navbar-home-Slot). */
+.navbar::before {
+  background: none;
+}
+.navbar::after {
+  background: none;
+}
+[data-active-page="map"] .navbar::before,
+[data-active-page="map"] .navbar::after {
+  display: none;
+}
+[data-theme="dark"] .navbar {
+  background-color: var(--home-ink);
+  background-image: none;
+  border-color: transparent;
+}
+/* Header sits on poster red; nav marks stay black like the program reference. */
 [data-theme="dark"] .navbar-icon-btn img,
 [data-theme="dark"] .burger-btn img {
-  filter: invert(1);
+  filter: none;
 }
 /* Legacy brand-plate slots — kept hidden so old markup paths stay quiet. */
 .navbar-brand,
@@ -124,13 +237,11 @@ body {
 .navbar-brand-spacer,
 .brand-logo,
 .brand-avatar { display: none; }
-
 /* Left side: lone home icon. */
 .navbar-home {
   display: inline-flex;
   align-items: center;
 }
-
 /* Right side: news / map / profile / burger with breathing room. */
 .navbar-actions {
   display: flex;
@@ -142,7 +253,6 @@ body {
 @media (min-width: 1024px) {
   .navbar-actions { gap: 40px; }
 }
-
 /* Minimal icon button — kein Chip, kein Border, kein Shadow, kein Kreis. */
 .navbar-icon-btn {
   position: relative;
@@ -158,16 +268,16 @@ body {
   -webkit-appearance: none;
   appearance: none;
   cursor: pointer;
-  color: #fbf8ee;
+  color: var(--et-black);
   padding: 0;
   box-shadow: none;
   transition: color 140ms ease;
   -webkit-tap-highlight-color: transparent;
 }
-[data-theme="dark"] .navbar-icon-btn { color: #fbf8ee; }
+[data-theme="dark"] .navbar-icon-btn { color: var(--et-black); }
 .navbar-icon-btn:hover,
 .navbar-icon-btn:active,
-.navbar-icon-btn.active { color: #ffffff; }
+.navbar-icon-btn.active { color: var(--et-black); }
 .navbar-icon-btn::after { content: none; }
 /* Active page indicator: hairline coral underline below the icon. */
 .navbar-icon-btn.active::before {
@@ -177,11 +287,10 @@ body {
   bottom: -6px;
   width: 14px;
   height: 2px;
-  background: var(--accent-coral, #a02814);
+  background: var(--brand-ink);
   transform: translateX(-50%);
   border-radius: 2px;
 }
-
 /* ============================================
    LANGUAGE SWITCHER
    ============================================ */
@@ -214,11 +323,9 @@ body {
 .lang-btn:hover:not(.active) {
   color: var(--black);
 }
-
 /* ============================================
    HERO — rules moved to HeroSection.module.css
    ============================================ */
-
 /* Map page on mobile: header is almost gone — Start + Profile chip float
    in the top-right next to the floating search toolbar. Map canvas claims
    the full viewport (see .app-page[data-page="map"] top:0 rule); navbar
@@ -313,8 +420,6 @@ body {
     pointer-events: none;
   }
 }
-
-
 /* ============================================
    SHARED LABELS
    ============================================ */
@@ -326,8 +431,6 @@ body {
   color: var(--orange);
   margin-bottom: 8px;
 }
-
-
 /* ============================================
    NEWS SECTION
    ============================================ */
@@ -363,7 +466,6 @@ body {
 .news-all-link:hover {
   color: var(--black);
 }
-
 /* News Ticker */
 @keyframes ticker-scroll {
   from { transform: translateX(0); }
@@ -391,7 +493,6 @@ body {
   padding: 0 28px;
 }
 .news-ticker-track span::before { content: "— "; }
-
 /* News Grid */
 .news-grid {
   font-size: 13px;
@@ -399,7 +500,6 @@ body {
   color: var(--black);
   letter-spacing: 0.02em;
 }
-
 /* News Grid */
 .news-grid {
   max-width: 1200px;
@@ -469,7 +569,6 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
 @media (min-width: 768px) {
   .news-section { padding: 180px 0 140px; }
   .news-header { padding: 0 48px 64px; }
@@ -483,55 +582,69 @@ body {
 @media (min-width: 1024px) {
   .news-grid { gap: 32px; padding: 0 48px; max-width: 1400px; }
 }
-
-
 /* ============================================
    FOOTER
    ============================================ */
 .footer {
   display: none;
 }
-
-
-/* Cookie Consent — square cream sticker card (2026 brand language).
-   Light: cream surface, 2px ink border, hard offset shadow, yellow CTA.
-   Dark: ink panel, cream border, red CTA (dark accent is red, not yellow).
-   Entry is pure translate — no opacity fade (brand motion rule). */
+/* Cookie Consent — compact brand sticker.
+   It should feel like Eat This UI, not a browser/system banner. Entry remains
+   pure translate — no opacity fade (brand motion rule). */
 .cookie-consent {
   position: fixed;
-  left: 16px;
-  right: 16px;
-  bottom: 16px;
-  margin: 0 auto;
-  max-width: 720px;
-  background: var(--cream, #fbf8ee);
-  color: #000;
-  padding: 18px 20px;
-  border: 2px solid #000;
-  box-shadow: 4px 4px 0 0 #000;
+  left: max(16px, env(safe-area-inset-left, 0px));
+  right: auto;
+  bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  width: min(560px, calc(100vw - 32px));
+  margin: 0;
+  padding: 13px 14px 14px;
+  color: var(--et-black);
+  background: var(--et-cream);
+  border: 1px solid rgba(16, 13, 15, .14);
+  border-radius: 8px;
+  box-shadow: 0 18px 46px rgba(16, 13, 15, .22);
   z-index: 10002;
   transform: translateY(calc(100% + 32px));
   transition: transform 0.46s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cookie-consent::before {
+  content: "Cookies";
+  display: inline-flex;
+  width: max-content;
+  margin: 0 0 8px;
+  padding: 5px 9px 7px;
+  color: var(--et-cream);
+  background: var(--et-red);
+  border-radius: 6px;
+  font-family: var(--font-poster, var(--font));
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: .06em;
+  line-height: .82;
+  text-transform: uppercase;
 }
 .cookie-consent.show {
   transform: translateY(0);
 }
 .cookie-content {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 14px 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
 }
 .cookie-text {
-  flex: 1 1 280px;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 4px 8px;
+  gap: 7px 10px;
   margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
-  color: rgba(0, 0, 0, 0.85);
+  color: rgba(16, 13, 15, .78);
+  font-family: var(--font-poster, var(--font));
+  font-size: clamp(19px, 5vw, 24px);
+  font-weight: 400;
+  letter-spacing: .01em;
+  line-height: .98;
 }
 .cookie-info-trigger {
   background: none;
@@ -539,130 +652,127 @@ body {
   padding: 0;
   cursor: pointer;
   font: inherit;
-  font-weight: 600;
-  color: #000;
+  font-size: .95em;
+  font-weight: 400;
+  color: var(--et-black);
   text-decoration: underline;
-  text-underline-offset: 3px;
+  text-underline-offset: 5px;
   text-decoration-thickness: 1.5px;
 }
 .cookie-info-trigger:hover {
-  color: var(--c-coral, #a02814);
+  color: var(--et-red);
 }
 .cookie-buttons {
-  display: flex;
-  gap: 12px;
-  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 8px;
+  align-items: center;
 }
 .cookie-btn {
-  padding: 12px 20px;
-  font-family: var(--font);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  min-height: 42px;
+  padding: 10px 16px 11px;
+  border: 0;
+  border-radius: 8px;
+  font-family: var(--font-poster, var(--font));
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: .01em;
+  line-height: .9;
   text-transform: uppercase;
-  border: 2px solid #000;
-  border-radius: 0;
   cursor: pointer;
   white-space: nowrap;
-  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+  transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease, color 140ms ease;
 }
 .cookie-btn-accept {
-  background: var(--brand-yellow, #ffd84a);
-  color: #000;
-  box-shadow: 3px 3px 0 0 #000;
+  color: var(--et-black);
+  background: var(--et-red);
+  box-shadow: 0 9px 18px rgba(228, 61, 24, .26);
 }
 .cookie-btn-accept:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 0 #000;
+  transform: translateY(-2px);
+  background: var(--et-red-hot);
+  box-shadow: 0 13px 22px rgba(228, 61, 24, .3);
 }
 .cookie-btn-accept:active {
-  transform: translate(3px, 3px);
-  box-shadow: none;
+  transform: translateY(0);
 }
 .cookie-btn-decline {
-  background: transparent;
-  color: #000;
+  color: rgba(16, 13, 15, .72);
+  background: rgba(16, 13, 15, .08);
 }
 .cookie-btn-decline:hover {
-  background: rgba(0, 0, 0, 0.06);
+  color: var(--et-black);
+  background: rgba(16, 13, 15, .12);
 }
 .cookie-btn-decline:active {
-  transform: translate(1px, 1px);
+  transform: translateY(1px);
 }
-@media (max-width: 560px) {
+@media (max-width: 640px) {
   .cookie-consent {
-    padding: 16px;
+    left: 12px;
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom, 0px));
+    width: auto;
+    padding: 12px;
   }
   .cookie-content {
-    gap: 12px 14px;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
-  /* Full-width 2-up grid — equal, generous tap targets instead of two
-     cramped pills squeezed against the right edge. */
   .cookie-buttons {
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 8px;
   }
   .cookie-btn {
-    padding: 13px 8px;
-    min-height: 48px;
+    min-height: 46px;
+    padding-inline: 10px;
   }
 }
-
-/* Dark mode — mirrors the burger-drawer dark treatment. */
 [data-theme="dark"] .cookie-consent {
-  background: #111110;
-  color: #f0e8d0;
-  border-color: #f0e8d0;
-  box-shadow: 4px 4px 0 0 rgba(240, 232, 208, 0.25);
+  color: var(--et-cream);
+  background: var(--et-dark-card);
+  border-color: rgba(242, 223, 184, .14);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, .34);
 }
 [data-theme="dark"] .cookie-text {
-  color: rgba(240, 232, 208, 0.88);
+  color: rgba(242, 223, 184, .82);
 }
 [data-theme="dark"] .cookie-info-trigger {
-  color: #f0e8d0;
+  color: var(--et-cream);
 }
 [data-theme="dark"] .cookie-info-trigger:hover {
-  color: var(--c-coral-bright, #d63a2a);
-}
-[data-theme="dark"] .cookie-btn {
-  border-color: #f0e8d0;
+  color: var(--et-red-hot);
 }
 [data-theme="dark"] .cookie-btn-accept {
-  background: var(--c-coral, #a02814);
-  color: #fbf8ee;
-  box-shadow: 3px 3px 0 0 rgba(240, 232, 208, 0.25);
+  color: var(--et-black);
+  background: var(--et-red-hot);
+  box-shadow: 0 10px 22px rgba(240, 54, 8, .24);
 }
 [data-theme="dark"] .cookie-btn-accept:hover {
-  box-shadow: 4px 4px 0 0 rgba(240, 232, 208, 0.25);
-}
-[data-theme="dark"] .cookie-btn-accept:active {
-  box-shadow: none;
+  box-shadow: 0 14px 26px rgba(240, 54, 8, .3);
 }
 [data-theme="dark"] .cookie-btn-decline {
-  color: #f0e8d0;
+  color: rgba(242, 223, 184, .76);
+  background: rgba(242, 223, 184, .1);
 }
 [data-theme="dark"] .cookie-btn-decline:hover {
-  background: rgba(240, 232, 208, 0.1);
+  color: var(--et-cream);
+  background: rgba(242, 223, 184, .16);
 }
-
-
 /* ============================================
    NEWS ARTICLE MODAL
    ============================================ */
 /* ── FULL-PAGE ARTICLE ───────────────────────── */
-
 /* Article layout */
 .news-article {
   min-height: 100vh;
 }
-
 /* Prevent browser scroll-anchoring from holding position when content swaps */
 .app-page[data-page="news-article"] {
   overflow-anchor: none;
 }
-
 @keyframes newsArticleFadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -760,7 +870,6 @@ body {
 .share-btn:hover { background: var(--black); border-color: var(--black); color: var(--white); }
 .share-whatsapp:hover { background: #25D366; border-color: #25D366; }
 .share-native:hover { background: var(--orange); border-color: var(--orange); }
-
 /* Standalone article share buttons */
 .news-article-share {
   display: flex;
@@ -793,7 +902,6 @@ body {
   background: var(--black);
   color: var(--white);
 }
-
 /* Standalone article body content */
 .news-article-content {
   font-size: 17px;
@@ -824,7 +932,6 @@ body {
   line-height: 1.65;
 }
 .news-article-content strong { font-weight: 800; }
-
 .news-modal-content {
   font-size: 17px;
   line-height: 1.85;
@@ -856,7 +963,6 @@ body {
   line-height: 1.65;
 }
 .news-modal-content strong { font-weight: 800; }
-
 /* Recommendations */
 .news-article-more {
   border-top: 2px solid var(--black);
@@ -933,7 +1039,6 @@ body {
   color: #fff;
   text-transform: uppercase;
 }
-
 /* ============================================
    UTILITY
    ============================================ */
@@ -945,12 +1050,10 @@ body {
 @media (min-width: 768px) {
   .container { padding: 0 48px; }
 }
-
 /* Safe area for notch — add inset on top of the existing 8px padding. */
 @supports (padding-top: env(safe-area-inset-top)) {
   .navbar { padding-top: calc(8px + env(safe-area-inset-top, 0px)); }
 }
-
 /* ============================================
    APP PAGES CONTAINER
    ============================================ */
@@ -958,7 +1061,6 @@ body {
   display: block;
   height: 100%;
 }
-
 .app-page {
   display: none !important;
   width: 100%;
@@ -967,34 +1069,24 @@ body {
   overflow-x: hidden;
 /*  padding-bottom: max(80px, calc(61px + env(safe-area-inset-bottom)));*/
 }
-
 .app-page.active {
   display: block !important;
 }
-
 .app-page .map-section {
   min-height: 100%;
 }
-
-
 .app-page[data-page="start"] {
   min-height: calc(100vh - 64px);
 }
-
 /* ============================================
    APP FOOTER NAVIGATION (Mobile)
    ============================================ */
-
-
 .app-footer-item.active {
   color: var(--orange);
 }
-
 .app-footer-item.active svg {
   stroke: var(--orange);
 }
-
-
 @media (max-width: 767px) {
   /* Match kino.de/familie.de: html+body need zero CSS constraints for
      Safari to use window scroll and auto-hide the URL bar on scroll. */
@@ -1003,12 +1095,10 @@ body {
     position: static;
     overscroll-behavior: contain;
   }
-
   body {
     overflow-x: unset;
     overscroll-behavior: contain;
   }
-
   /* Natural window scroll so Safari URL bar auto-hides on scroll.
      Use !important — the global rule has overflow-y:auto which the browser
      keeps even when we set overflow-x:clip (clip not reliably supported). */
@@ -1018,7 +1108,6 @@ body {
     height: auto !important;
     overflow: visible !important;
   }
-
   /* Strip on mobile — 64 px + safe-area, white in light, black in dark. */
   .navbar,
   .navbar.scrolled {
@@ -1026,8 +1115,8 @@ body {
     backdrop-filter: none;
     height: calc(64px + env(safe-area-inset-top, 0px));
     min-height: calc(64px + env(safe-area-inset-top, 0px));
-    padding: 14px 16px;
-    padding-top: calc(14px + env(safe-area-inset-top, 0px));
+    padding: 10px 16px;
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
     box-sizing: border-box;
   }
   /* Mobile header: News hidden so the right cluster (Map + Burger) and the
@@ -1046,9 +1135,6 @@ body {
   .app-page[data-page="news"] .news-section {
     background: var(--surface-canvas);
   }
-
-
-  
   .app-page {
     position: relative;
     height: auto !important;
@@ -1060,7 +1146,6 @@ body {
     background: var(--white);
     overscroll-behavior: none;
   }
-
   /* Pages ending with the site footer: let the footer own the bottom
      clearance. Remove app-page padding-bottom here — otherwise 80px of
      page bg show as a dead band UNDER the footer. The footer is the
@@ -1068,11 +1153,9 @@ body {
   .app-page:has(footer[class*="SiteFooter_footer"]) {
     padding-bottom: 0;
   }
-
   .app-page.active {
     z-index: auto;
   }
-
   /* Map page: in-flow + 100lvh tall, so the bottom sheet's last
      (lvh − dvh) px sit behind iOS Safari's translucent bottom URL bar and
      the list rows blur through it while scrolling — same effect as the
@@ -1096,11 +1179,9 @@ body {
     z-index: 9990;
     overflow: hidden !important;
   }
-
   .app-page[data-page="map"].active {
     z-index: 9995;
   }
-
   /* Safari paints the body bg behind the URL bar wherever the sheet's lvh
      overhang doesn't cover it — keep it matched to the sheet surface. The
      html bg (theme cream) shows through the translucent bar at the very
@@ -1115,11 +1196,9 @@ body {
   [data-theme="dark"] body:has(.app-page[data-page="map"].active) {
     background: #1c1c1c;
   }
-  
   .app-page[data-page="start"] {
     background: var(--white);
   }
-
   /* Common header styles for all app pages */
   .app-page[data-page="news"] .news-header {
     padding: 16px 16px 24px;
@@ -1129,7 +1208,6 @@ body {
     margin: 0;
     display: block;
   }
-
   .app-page[data-page="map"] .map-header {
     padding: 18px 16px 14px;
     background: var(--white);
@@ -1149,7 +1227,6 @@ body {
     text-align: left;
     margin-bottom: 2px;
   }
-
   .app-page[data-page="map"] .map-title,
   .app-page[data-page="news"] .news-title {
     font-size: 1.8rem;
@@ -1160,17 +1237,14 @@ body {
     display: block;
     text-transform: uppercase;
   }
-
   .app-page[data-page="map"] .map-subtitle,
   .app-page[data-page="news"] .news-subtitle {
     display: none;
   }
-
   /* Map page mobile */
   .app-page[data-page="map"] {
     overflow: hidden;
   }
-
   .app-page[data-page="map"] .map-section {
     position: absolute;
     inset: 0;
@@ -1179,11 +1253,9 @@ body {
     display: flex;
     flex-direction: column;
   }
-
   .app-page[data-page="map"] .map-filters {
     flex-shrink: 0;
   }
-
   .app-page[data-page="map"] .map-container {
     flex: 1;
     min-height: 0;
@@ -1192,19 +1264,15 @@ body {
     align-items: center;
     justify-content: center;
   }
-
-
   .app-page[data-page="map"] #foodMap {
     height: 100% !important;
     width: 100% !important;
     min-height: 0 !important;
   }
-
   .app-page[data-page="map"] .leaflet-container {
     height: 100% !important;
     width: 100%;
   }
-  
   .app-page[data-page="map"] .map-location-btn-fixed {
     top: 10px;
     left: 10px;
@@ -1212,7 +1280,6 @@ body {
     background: rgba(0,0,0,0.5);
     border: 1px solid rgba(255,255,255,0.18);
   }
-
   /* Hide search/nearby panel until globe intro finishes, to avoid a brief
      flash of the empty search bar before Leaflet is ready. map-init.min.js
      adds .map-ready to .app-page[data-page="map"] when the globe fades out. */
@@ -1233,7 +1300,6 @@ body {
     opacity: 1;
     pointer-events: auto;
   }
-
   /* Fade-out overlay — .map-nearby is already position:absolute so ::after works directly */
   .app-page[data-page="map"] .map-nearby::after {
     content: '';
@@ -1251,22 +1317,18 @@ body {
   .app-page[data-page="map"] .map-nearby-grid {
     padding-bottom: max(120px, calc(72px + env(safe-area-inset-bottom, 0px)));
   }
-
   .app-page[data-page="map"] .map-location-btn-fixed svg {
     stroke: rgba(255,255,255,0.9);
   }
-  
   /* ── News page — Mobile Magazine ── */
   .app-page[data-page="news"] .news-section {
     padding: 0;
     min-height: 0;
     background: var(--white);
   }
-
   .app-page[data-page="news"] .news-ticker {
     display: block;
   }
-
   .app-page[data-page="news"] .news-header {
     padding: 16px 16px 24px;
     background: var(--white);
@@ -1275,11 +1337,9 @@ body {
     margin: 0;
     text-align: center;
   }
-
   .app-page[data-page="news"] .news-header-top {
     margin-bottom: 0;
   }
-
   .app-page[data-page="news"] .section-label {
     font-size: 10px;
     font-weight: 800;
@@ -1291,9 +1351,7 @@ body {
     display: block;
     text-align: center;
   }
-
   .app-page[data-page="news"] .news-subtitle { display: none; }
-
   .app-page[data-page="news"] .news-title {
     font-size: clamp(2.2rem, 10vw, 3.5rem);
     font-weight: 400;
@@ -1305,7 +1363,6 @@ body {
     font-family: var(--font-marker);
     text-align: center;
   }
-
   .app-page[data-page="news"] .news-grid {
     display: flex;
     flex-direction: column;
@@ -1313,7 +1370,6 @@ body {
     background: #000;
     padding: 0;
   }
-
   /* All mobile cards: image fills card, headline overlaid */
   .app-page[data-page="news"] .news-card {
     background: #000;
@@ -1330,7 +1386,6 @@ body {
   .app-page[data-page="news"] .news-card-date { display: none; }
   .app-page[data-page="news"] .news-card-excerpt { display: none; }
   .app-page[data-page="news"] .news-card-top { margin-bottom: 4px; }
-
   .app-page[data-page="news"] .news-card .news-card-img {
     display: block;
     width: 100%;
@@ -1372,13 +1427,10 @@ body {
     -webkit-line-clamp: unset;
     overflow: visible;
   }
-
 }
-
 /* ============================================
    DARK MODE — [data-theme="dark"] overrides
    ============================================ */
-
 /* Body */
 [data-theme="dark"] body {
   background: #000000;
@@ -1387,7 +1439,11 @@ body {
 [data-theme="dark"] html {
   background: #000000;
 }
-
+[data-theme="dark"][data-active-page="start"],
+[data-theme="dark"][data-active-page="start"] body {
+  background: var(--et-black);
+  color: var(--et-cream);
+}
 /* Start section — dark mode */
 [data-theme="dark"] .start-scroll-content {
   background: #0F0A0D;
@@ -1425,9 +1481,7 @@ body {
 [data-theme="dark"] .start-join-section .start-section-body {
   color: rgba(255, 255, 255, 0.6);
 }
-
 /* Navbar dark-mode rules moved to the top navbar block; legacy entries removed. */
-
 /* Language switcher */
 [data-theme="dark"] .lang-switcher,
 [data-theme="dark"] .burger-lang-row .lang-switcher {
@@ -1443,7 +1497,6 @@ body {
 [data-theme="dark"] .lang-btn:hover:not(.active) {
   color: rgba(255, 255, 255, 0.8);
 }
-
 /* News section */
 [data-theme="dark"] .news-card-headline {
   color: #ffffff;
@@ -1464,7 +1517,6 @@ body {
 [data-theme="dark"] .news-article-more-label {
   color: rgba(255, 255, 255, 0.5);
 }
-
 /* Article body */
 [data-theme="dark"] .news-article-content {
   color: rgba(255, 255, 255, 0.85);
@@ -1510,7 +1562,6 @@ body {
   border-color: rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.7);
 }
-
 /* Profile page */
 [data-theme="dark"] .profile-header {
   border-bottom-color: rgba(255, 255, 255, 0.08);
@@ -1554,7 +1605,6 @@ body {
 [data-theme="dark"] .profile-fav-card {
   background: #2a2a2a;
 }
-
 /* Static pages (About, Contact, Press, Impressum) */
 [data-theme="dark"] .static-page {
   background: #0d0d0d;
@@ -1585,13 +1635,11 @@ body {
 [data-theme="dark"] .static-page-body strong {
   color: #ffffff;
 }
-
 /* Dark-mode navbar — handled in the top navbar block. Only burger color
    needs to live here because its base color cascades from .burger-btn. */
 [data-theme="dark"] .burger-btn {
-  color: #fbf8ee;
+  color: var(--et-yellow);
 }
-
 /* Profile settings dark mode */
 [data-theme="dark"] .profile-settings-section-title {
   color: rgba(255, 255, 255, 0.35);
@@ -1643,13 +1691,12 @@ body {
   background: rgba(255, 255, 255, 0.07);
   border-color: rgba(255, 255, 255, 0.4);
 }
-
 /* App page backgrounds — override all media-query white backgrounds */
 [data-theme="dark"] .app-page {
   background: #0d0d0d;
 }
 [data-theme="dark"] .app-page[data-page="start"] {
-  background: #0d0d0d;
+  background: var(--et-black);
 }
 [data-theme="dark"] .app-page .news-header {
   background: #0d0d0d;
@@ -1672,7 +1719,6 @@ body {
 [data-theme="dark"] .news-title {
   color: #ffffff;
 }
-
 /* High-specificity overrides — beat app-page media-query rules (0,3,0) */
 [data-theme="dark"] .app-page[data-page="news"] .news-title {
   color: #ffffff;
@@ -1685,7 +1731,6 @@ body {
 [data-theme="dark"] .news-grid {
   color: rgba(255, 255, 255, 0.85);
 }
-
 /* Map spot detail overlay — dark mode */
 [data-theme="dark"] .map-spot-card {
   background: #1a1a1a;
@@ -1719,12 +1764,9 @@ body {
 [data-theme="dark"] .map-spot-btn--secondary:hover {
   background: #333333;
 }
-
 [data-theme="dark"] .news-article-more-grid {
   background: #111111;
 }
-
-
 /* ============================================
    DESKTOP APP FRAME (≥ 768px)
    ============================================ */
@@ -1732,21 +1774,18 @@ body {
   /* Body bg is theme-aware: line 48 sets #fff for light, line ~2461
      [data-theme="dark"] body sets #000 for dark. The old letterbox frame
      forced #000 on desktop, which leaked black rubber-band on light desktop. */
-
   .navbar {
     left: 0; right: 0; transform: none;
     width: 100%; max-width: none;
-    height: 64px; padding: 0 32px;
+    height: 68px; padding: 0 32px;
     display: flex; align-items: center; justify-content: space-between;
   }
-
   .app-pages {
-    max-width: none; margin: 64px 0 0; box-shadow: none;
-    height: calc(100dvh - 64px);
+    max-width: none; margin: 74px 0 0; box-shadow: none;
+    height: calc(100dvh - 74px);
     overflow-y: auto;
     overflow-x: hidden;
   }
-
   /* SPA scroll-chain lock: on routes that mount .app-pages (the SPA group:
      start/news/map/static), .app-pages is the page scroll container. Lock
      html+body to the viewport so wheel/keyboard scroll past .app-pages's
@@ -1759,7 +1798,6 @@ body {
     height: 100vh;
     overflow: hidden;
   }
-
   /* App pages: natural height so footer follows content */
   .app-page {
     height: auto;
@@ -1769,23 +1807,19 @@ body {
     overflow-y: visible;
     overflow-x: hidden;
   }
-
   /* Map page fills viewport exactly — no external scroll, no footer */
   .app-page[data-page="map"] {
     height: calc(100dvh - 48px);
     min-height: 0;
     overflow: hidden;
   }
-
   .app-page[data-page="start"] {
     background: var(--white);
   }
-
   /* ---- Compact section headers (no large padding) ---- */
   .app-page .news-section {
     padding: 0;
   }
-
   .app-page .map-header {
     padding: 16px 16px 24px;
     background: var(--white);
@@ -1793,7 +1827,6 @@ body {
     margin: 0;
     border: none;
   }
-
   .app-page .news-header {
     padding: 14px 16px 12px;
     background: var(--white);
@@ -1801,7 +1834,6 @@ body {
     margin: 0 auto;
     border-bottom: none;
   }
-
   .app-page .news-title {
     font-size: 1.5rem;
     font-weight: 900;
@@ -1811,7 +1843,6 @@ body {
     display: block;
     text-transform: uppercase;
   }
-
   .app-page:not([data-page="news"]) .section-label {
     font-size: 10px;
     color: var(--orange);
@@ -1820,28 +1851,23 @@ body {
     display: block;
     text-align: left;
   }
-
   .app-page[data-page="map"] .section-label {
     text-align: left;
     margin-bottom: 4px;
   }
-
   .app-page[data-page="news"] .section-label {
     text-align: center;
     margin-bottom: 4px;
   }
-
   .app-page .news-subtitle,
   .app-page .map-subtitle {
     display: none;
   }
-
   /* ---- Map: fill available space, no scroll ---- */
   .app-page[data-page="map"] {
     overflow: hidden;
     position: relative;
   }
-
   .app-page[data-page="map"] .map-section {
     position: absolute;
     inset: 0;
@@ -1851,22 +1877,18 @@ body {
     display: flex;
     flex-direction: column;
   }
-
   .app-page[data-page="map"] .map-header {
     padding: 10px 24px 16px;
     text-align: left;
   }
-
   .app-page[data-page="map"] .section-label {
     margin-top: 0;
     margin-bottom: 2px;
     text-align: left;
   }
-
   .app-page[data-page="map"] .map-subtitle {
     display: none;
   }
-
   .app-page[data-page="map"] .map-title {
     font-size: 1.5rem;
     font-weight: 900;
@@ -1876,31 +1898,24 @@ body {
     display: block;
     text-transform: uppercase;
   }
-
   .app-page[data-page="map"] .map-filters {
     flex-shrink: 0;
     padding-top: 6px;
     padding-bottom: 6px;
   }
-
   .app-page[data-page="map"] .map-container {
     flex: 1;
     min-height: 0;
     margin-top: 0;
   }
-
-
-
   /* ── News: Editorial Magazine Desktop ── */
   .app-page[data-page="news"] .news-section {
     padding: 0;
     background: var(--white);
   }
-
   .app-page[data-page="news"] .news-ticker {
     display: block;
   }
-
   .app-page[data-page="news"] .news-header {
     padding: 16px 24px 24px;
     margin-bottom: 0;
@@ -1908,7 +1923,6 @@ body {
     display: block;
     text-align: center;
   }
-
   .app-page[data-page="news"] .news-title {
     font-size: clamp(1.8rem, 3vw, 2.8rem);
     font-weight: 400;
@@ -1920,7 +1934,6 @@ body {
     font-family: var(--font-marker);
     text-align: center;
   }
-
   .app-page[data-page="news"] .section-label {
     font-size: 8px;
     font-weight: 800;
@@ -1932,7 +1945,6 @@ body {
     text-align: center;
     display: block;
   }
-
   /* Magazine grid: 4 equal columns, 2 rows */
   .app-page[data-page="news"] .news-grid {
     display: grid;
@@ -1944,12 +1956,10 @@ body {
     max-width: none;
     margin: 0;
   }
-
   /* Magazine grid: fixed row heights so images fill cells */
   .app-page[data-page="news"] .news-grid {
     grid-template-rows: 460px 300px;
   }
-
   /* All cards: overlay style — image fills, body sits on top */
   .app-page[data-page="news"] .news-card {
     background: #000;
@@ -2015,7 +2025,6 @@ body {
     overflow: visible;
     text-transform: uppercase;
   }
-
   /* Row 1: Hero spans 2 cols */
   .app-page[data-page="news"] .news-card:nth-child(1) {
     grid-column: 1 / 3;
@@ -2031,13 +2040,11 @@ body {
   }
   .app-page[data-page="news"] .news-card:nth-child(2) { grid-column: 3; grid-row: 1; }
   .app-page[data-page="news"] .news-card:nth-child(3) { grid-column: 4; grid-row: 1; }
-
   /* Row 2: 4 equal cards */
   .app-page[data-page="news"] .news-card:nth-child(4) { grid-column: 1; grid-row: 2; }
   .app-page[data-page="news"] .news-card:nth-child(5) { grid-column: 2; grid-row: 2; }
   .app-page[data-page="news"] .news-card:nth-child(6) { grid-column: 3; grid-row: 2; }
   .app-page[data-page="news"] .news-card:nth-child(7) { grid-column: 4; grid-row: 2; }
-
   /* Cards 8+ overflow: full-width image rows */
   .app-page[data-page="news"] .news-card:nth-child(n+8) {
     grid-column: 1 / -1;
@@ -2048,7 +2055,6 @@ body {
     letter-spacing: -0.03em;
   }
 }
-
 /* Cookie banner inline expand — ink-on-cream content panel that drops
    below the main cookie-content row when the user clicks "Mehr erfahren". */
 .cookie-info-chevron {
@@ -2059,9 +2065,9 @@ body {
   transform: rotate(180deg);
 }
 .cookie-expand {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 2px solid #000;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(16, 13, 15, .14);
   max-height: min(54dvh, 380px);
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -2070,8 +2076,8 @@ body {
 /* Each section sits in its own div inside .cookie-info-body — give them
    strong vertical separation so heading↔text grouping is obvious. */
 .cookie-expand .cookie-info-body > div {
-  padding: 14px 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  padding: 12px 0;
+  border-top: 1px solid rgba(16, 13, 15, .1);
 }
 .cookie-expand .cookie-info-body > div:first-child {
   padding-top: 0;
@@ -2080,20 +2086,21 @@ body {
 .cookie-expand .cookie-info-body > div:last-child {
   padding-bottom: 4px;
 }
-/* Section headings in Inter caps — same voice as the drawer legal foot. */
+/* Section headings in DM Sans caps — same voice as the drawer legal foot. */
 .cookie-expand .cookie-info-body h3 {
-  font-size: 12.5px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #000;
+  color: var(--et-red);
   margin: 0 0 6px;
   line-height: 1.3;
 }
 .cookie-expand .cookie-info-body p {
-  font-size: 13px;
-  line-height: 1.6;
-  color: rgba(0, 0, 0, 0.72);
+  font-size: 12.5px;
+  font-weight: 650;
+  line-height: 1.5;
+  color: rgba(16, 13, 15, .7);
   margin: 0;
 }
 .cookie-expand .cookie-info-body ul {
@@ -2104,9 +2111,10 @@ body {
 .cookie-expand .cookie-info-body ul li {
   position: relative;
   padding-left: 14px;
-  font-size: 13px;
-  line-height: 1.55;
-  color: rgba(0, 0, 0, 0.72);
+  font-size: 12.5px;
+  font-weight: 650;
+  line-height: 1.5;
+  color: rgba(16, 13, 15, .7);
   margin-bottom: 4px;
 }
 /* Square bullet — brand is square/sticker, no circles. */
@@ -2117,39 +2125,39 @@ body {
   top: 8px;
   width: 4px;
   height: 4px;
-  background: #000;
+  background: var(--et-red);
 }
 .cookie-expand .cookie-info-body strong {
-  color: #000;
-  font-weight: 700;
+  color: var(--et-black);
+  font-weight: 900;
 }
 .cookie-expand .cookie-info-body a {
-  color: var(--c-coral, #a02814);
+  color: var(--et-red);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-/* Dark mode — cream ink on #111110, red link accent. */
 [data-theme="dark"] .cookie-expand {
-  border-top-color: rgba(240, 232, 208, 0.4);
+  border-top-color: rgba(242, 223, 184, .16);
 }
 [data-theme="dark"] .cookie-expand .cookie-info-body > div {
-  border-top-color: rgba(240, 232, 208, 0.18);
+  border-top-color: rgba(242, 223, 184, .12);
 }
-[data-theme="dark"] .cookie-expand .cookie-info-body h3,
+[data-theme="dark"] .cookie-expand .cookie-info-body h3 {
+  color: var(--et-red-hot);
+}
 [data-theme="dark"] .cookie-expand .cookie-info-body strong {
-  color: #f0e8d0;
+  color: var(--et-cream);
 }
 [data-theme="dark"] .cookie-expand .cookie-info-body p,
 [data-theme="dark"] .cookie-expand .cookie-info-body ul li {
-  color: rgba(240, 232, 208, 0.75);
+  color: rgba(242, 223, 184, .72);
 }
 [data-theme="dark"] .cookie-expand .cookie-info-body ul li::before {
-  background: rgba(240, 232, 208, 0.6);
+  background: var(--et-red-hot);
 }
 [data-theme="dark"] .cookie-expand .cookie-info-body a {
-  color: var(--c-coral-bright, #d63a2a);
+  color: var(--et-red-hot);
 }
-
 /* ── BURGER MENU ─────────────────────────────────── */
 .burger-btn {
   display: inline-flex;
@@ -2165,7 +2173,7 @@ body {
   appearance: none;
   cursor: pointer;
   padding: 0;
-  color: #fbf8ee;
+  color: var(--et-yellow);
   box-shadow: none;
   transition: color 0.18s ease, transform 0.18s ease;
   -webkit-tap-highlight-color: transparent;
@@ -2195,63 +2203,11 @@ body {
 body:has(.burger-drawer.active) .burger-btn {
   color: var(--accent-ink);
 }
-
 /* Drawer. NOTE: position:fixed layers do NOT composite into iOS Safari's
    bottom-URL-bar backdrop (verified on device — only in-flow document
    content shows up there). Don't try to extend the drawer below the
    viewport; the behind-bar zone is mirrored in-flow instead (see the
    [data-active-page="map"] ::after strip in globals.css). */
-.burger-drawer {
-  position: fixed;
-  inset: 0;
-  z-index: 10002;
-  display: flex;
-  justify-content: flex-end;
-  align-items: stretch;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.25s;
-}
-.burger-drawer.active {
-  opacity: 1;
-  pointer-events: all;
-}
-.burger-drawer-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.35);
-  backdrop-filter: blur(18px) saturate(1.4);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
-}
-.burger-drawer-panel {
-  position: relative;
-  width: 320px;
-  max-width: 88vw;
-  /* Full height — safe area handled via padding inside */
-  height: 100%;
-  background: var(--white);
-  display: flex;
-  flex-direction: column;
-  padding: max(24px, env(safe-area-inset-top, 0px)) 0 0;
-  overflow-y: auto;
-  transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-}
-.burger-drawer.active .burger-drawer-panel {
-  transform: translateX(0);
-}
-.burger-drawer-close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  color: var(--black);
-}
-/* Burger content styles live in the Chewy menu block further down. */
-
 /* Profil-Avatar (Initialen-Kreis) */
 .profile-avatar {
   width: 72px;
@@ -2267,7 +2223,6 @@ body:has(.burger-drawer.active) .burger-btn {
   margin: 0 auto 16px;
   letter-spacing: -0.02em;
 }
-
 /* Profil-Header (kompakt, horizontal) */
 .profile-header {
   display: flex;
@@ -2275,7 +2230,6 @@ body:has(.burger-drawer.active) .burger-btn {
   gap: 14px;
   margin-bottom: 20px;
 }
-
 .profile-header .profile-avatar {
   width: 52px;
   height: 52px;
@@ -2283,11 +2237,9 @@ body:has(.burger-drawer.active) .burger-btn {
   margin: 0;
   flex-shrink: 0;
 }
-
 .profile-info {
   min-width: 0;
 }
-
 .profile-name {
   font-size: 1rem;
   font-weight: 800;
@@ -2297,7 +2249,6 @@ body:has(.burger-drawer.active) .burger-btn {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .profile-email {
   font-size: 0.78rem;
   color: var(--gray-400);
@@ -2306,23 +2257,18 @@ body:has(.burger-drawer.active) .burger-btn {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 /* Gespeicherte Orte — styles live in the desktop block below */
-
 /* Footer-Button eingeloggter Zustand */
 .app-footer-item.logged-in span {
   color: var(--orange);
   font-weight: 700;
 }
-
 .app-footer-item.logged-in svg {
   stroke: var(--orange);
 }
-
 /* ============================================
    START PAGE – SCROLL SECTIONS
    ============================================ */
-
 /* Scroll hint */
 .start-scroll-hint {
   display: none;
@@ -2345,17 +2291,14 @@ body:has(.burger-drawer.active) .burger-btn {
 @media (min-width: 768px) {
   .start-scroll-hint { display: none; }
 }
-
 /* Section wrapper */
 .start-scroll-content { background: #FFFBFC; padding-top: 56px; padding-bottom: 0; }
 @media (min-width: 768px) {
   .start-scroll-content { padding-top: 100px; }
 }
-
 .start-section { padding: 52px 24px; }
 .start-section:has(.start-editorial-row) { padding: 0; }
 .start-section--alt { background: #FDE8EF; }
-
 @media (min-width: 768px) {
   .start-section {
     padding: 72px 48px;
@@ -2363,7 +2306,6 @@ body:has(.burger-drawer.active) .burger-btn {
     margin: 0 auto;
   }
 }
-
 /* Section label */
 .start-section-label {
   display: inline-flex;
@@ -2394,7 +2336,6 @@ body:has(.burger-drawer.active) .burger-btn {
 .start-join-section .start-section-label::before {
   display: none;
 }
-
 /* Heading — editorial scale */
 .start-section-title {
   font-size: clamp(2rem, 4.5vw, 4.8rem);
@@ -2403,7 +2344,6 @@ body:has(.burger-drawer.active) .burger-btn {
   line-height: 1.0;
   margin-bottom: 20px;
 }
-
 /* Body text */
 .start-section-body {
   font-size: 1rem;
@@ -2413,7 +2353,6 @@ body:has(.burger-drawer.active) .burger-btn {
 .start-section-body p + p {
   margin-top: 1em;
 }
-
 .start-join-section .start-section-title {
   margin-top: 4px;
   color: var(--black);
@@ -2423,7 +2362,6 @@ body:has(.burger-drawer.active) .burger-btn {
   margin: 0 auto 32px;
   color: var(--gray-600);
 }
-
 /* Editorial row – mobile: stacked, desktop: side-by-side */
 .start-editorial-row {
   display: flex;
@@ -2437,7 +2375,6 @@ body:has(.burger-drawer.active) .burger-btn {
   flex-direction: column;
   justify-content: center;
 }
-
 @media (min-width: 768px) {
   .start-editorial-row {
     flex-direction: row;
@@ -2453,26 +2390,22 @@ body:has(.burger-drawer.active) .burger-btn {
     justify-content: center;
   }
 }
-
 /* Images */
 .start-img-wrap {
   overflow: hidden;
   border-radius: 0;
   position: relative;
 }
-
 /* Mobile: fixed heights — tall enough to show the full subject */
 .start-img-wrap.tall   { height: 480px; }
 .start-img-wrap.medium { height: 320px; }
 .start-img-wrap.wide   { height: 360px; }
-
 /* Desktop default heights (outside editorial rows) */
 @media (min-width: 768px) {
   .start-img-wrap.tall   { height: 600px; }
   .start-img-wrap.medium { height: 420px; }
   .start-img-wrap.wide   { height: 500px; }
 }
-
 /* Desktop inside editorial row: fixed height, contain = full image visible */
 @media (min-width: 768px) {
   .start-editorial-row .start-img-wrap {
@@ -2493,7 +2426,6 @@ body:has(.burger-drawer.active) .burger-btn {
     will-change: auto;
   }
 }
-
 .start-img {
   width: 100%;
   object-fit: cover;
@@ -2510,18 +2442,15 @@ body:has(.burger-drawer.active) .burger-btn {
   object-position: center center;
   will-change: transform;
 }
-
 /* Fallback heights for images without a wrap */
 .start-img.tall   { height: 380px; }
 .start-img.medium { height: 280px; }
 .start-img.wide   { height: 320px; }
-
 @media (min-width: 768px) {
   .start-img.tall   { height: 520px; }
   .start-img.medium { height: 380px; }
   .start-img.wide   { height: 460px; }
 }
-
 /* Philosophie numbered list */
 .start-philo-list {
   display: flex;
@@ -2566,24 +2495,18 @@ body:has(.burger-drawer.active) .burger-btn {
 /* Mobile: 3×2 grid so all six links sit in equal-width cells. The longest
    word (DATENSCHUTZ) sets the column width, every label centers within its
    cell — both rows have identical total width regardless of word length. */
-
 @media (min-width: 768px) {
   /* Static pages: let app-pages container scroll, no internal scroll */
   .static-page {
     height: auto;
     overflow-y: visible;
   }
-
 }
-
 /* ══════════════════════════════════════════════
    PROFILE PAGE
    ══════════════════════════════════════════════ */
-
-
 /* Profile content (logged-in state) */
 .profile-content { min-height: calc(100dvh - 180px); }
-
 /* Profile header */
 .profile-header {
   display: flex; align-items: center; gap: 16px;
@@ -2597,7 +2520,6 @@ body:has(.burger-drawer.active) .burger-btn {
 }
 .profile-name { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 2px; }
 .profile-email { font-size: 13px; color: var(--gray-600); }
-
 /* Tab navigation */
 .profile-tabs {
   display: flex; border-bottom: 1px solid var(--gray-100);
@@ -2613,11 +2535,9 @@ body:has(.burger-drawer.active) .burger-btn {
   transition: color 0.15s, border-color 0.15s; white-space: nowrap;
 }
 .profile-tab.active { color: var(--orange); border-bottom-color: var(--orange); }
-
 /* Tab panels */
 .profile-tab-panel { padding: 24px 20px; }
 .profile-tab-panel[hidden] { display: none; }
-
 /* ── Profile Deck: Pack Sections ───────────────────────────────────────── */
 #profilePackList {
   display: flex; flex-direction: column; gap: 32px;
@@ -2656,7 +2576,6 @@ body:has(.burger-drawer.active) .burger-btn {
 @media (min-width: 768px) {
   .profile-pack-row { grid-template-columns: repeat(8, 1fr); gap: 5px; }
 }
-
 /* ── Booster Packs Section ──────────────────────────────────────────────── */
 .profile-booster-section {
   margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--gray-100);
@@ -2694,7 +2613,6 @@ body:has(.burger-drawer.active) .burger-btn {
   font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
   cursor: not-allowed; opacity: 0.35; font-family: inherit;
 }
-
 /* Saved/Favs tab — photo card layout */
 /* Gespeicherte Orte */
 .profile-favs-grid {
@@ -2753,7 +2671,6 @@ body:has(.burger-drawer.active) .burger-btn {
   font-size: 14px; color: var(--gray-400);
   text-align: center; padding: 48px 0; line-height: 1.6;
 }
-
 /* Settings tab */
 .profile-settings { display: flex; flex-direction: column; gap: 32px; max-width: 480px; }
 .profile-settings-section { display: flex; flex-direction: column; gap: 14px; }
@@ -2802,7 +2719,6 @@ body:has(.burger-drawer.active) .burger-btn {
 .profile-settings-signout-btn:hover { background: var(--gray-50); border-color: var(--black); }
 .profile-settings-delete-btn { color: #c0392b; border-color: rgba(192,57,43,0.3); }
 .profile-settings-delete-btn:hover { background: rgba(192,57,43,0.06); border-color: #c0392b; }
-
 @media (min-width: 768px) {
   /* ── Hero: constrain start-page content sections to readable width ── */
   .app-page[data-page="start"] .start-section {
@@ -2827,17 +2743,14 @@ body:has(.burger-drawer.active) .burger-btn {
     padding-bottom: 100px;
   }
 }
-
 /* ═══════════════════════════════════════════
    STATIC PAGES (About, Contact, Press, etc.)
    ═══════════════════════════════════════════ */
 .static-page { overflow-y: auto; height: calc(100dvh - 48px); background: var(--white); }
 .static-page-inner { max-width: 760px; margin: 0 auto; padding: 32px 20px 80px; }
-
 @media (min-width: 768px) {
   .static-page-inner { padding: 48px 32px 80px; }
 }
-
 .static-page-back {
   display: inline-flex; align-items: center; gap: 6px;
   background: none; border: none; padding: 0; margin-bottom: 28px;
@@ -2845,13 +2758,13 @@ body:has(.burger-drawer.active) .burger-btn {
   cursor: pointer; font-family: inherit; transition: color 0.15s;
 }
 .static-page-back:hover { color: var(--black); }
-
 .static-page-title {
   font-size: 28px; font-weight: 900; letter-spacing: -0.03em;
   line-height: 1.1; margin-bottom: 32px; text-transform: uppercase;
 }
-@media (min-width: 768px) { .static-page-title { font-size: 40px; } }
-
+@media (min-width: 768px) {
+  .static-page-title { font-size: 40px; }
+}
 .static-page-body { font-size: 15px; line-height: 1.8; color: var(--black); }
 .static-page-body h2 { font-size: 20px; font-weight: 800; margin: 32px 0 12px; letter-spacing: -0.02em; }
 .static-page-body h3 { font-size: 16px; font-weight: 700; margin: 24px 0 8px; }
@@ -2861,27 +2774,20 @@ body:has(.burger-drawer.active) .burger-btn {
 .static-page-body a  { color: var(--orange); text-decoration: underline; }
 .static-page-body strong { color: var(--black); font-weight: 700; }
 .static-page-loading { color: var(--gray-400); font-size: 14px; padding: 20px 0; display: block; }
-
 /* ============================================
    STANDALONE ARTICLE PAGE
    ============================================ */
-
 /* ── Desktop overrides — article hero typography ── */
 @media (min-width: 768px) {
-
   .news-article-hero-no-img {
     padding: 40px 48px 28px;
   }
-
   .news-modal-title {
     font-size: clamp(1.4rem, 3.2vw, 2.6rem);
   }
 }
-
 /* ── Notification toast: styled in app/globals.css (mounted in the root
    locale layout, also on routes that don't load this stylesheet). ── */
-
-
 /* ============================================
    ONBOARDING OVERLAY
    ============================================ */
@@ -2896,7 +2802,6 @@ body:has(.burger-drawer.active) .burger-btn {
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 .ob-overlay[hidden] { display: none; }
-
 .ob-panel {
   background: #fff;
   width: 100%;
@@ -2905,10 +2810,8 @@ body:has(.burger-drawer.active) .burger-btn {
   padding-bottom: 24px;
   overflow: hidden;
 }
-
 .ob-step { padding: 28px 24px 0; text-align: center; }
 .ob-step[hidden] { display: none; }
-
 .ob-name-input {
   width: 100%;
   padding: 12px 16px;
@@ -2929,7 +2832,6 @@ body:has(.burger-drawer.active) .burger-btn {
   border-color: #444;
 }
 [data-theme="dark"] .ob-name-input:focus { border-color: #e05252; }
-
 .ob-step-num {
   font-size: 9px;
   font-weight: 700;
@@ -2950,7 +2852,6 @@ body:has(.burger-drawer.active) .burger-btn {
 }
 .ob-icon svg { width: 28px; height: 28px; stroke: var(--orange); }
 .ob-icon--star { background: color-mix(in srgb, var(--orange) 10%, transparent); }
-
 .ob-title {
   font-size: 20px;
   font-weight: 800;
@@ -2964,7 +2865,6 @@ body:has(.burger-drawer.active) .burger-btn {
   line-height: 1.6;
   margin-bottom: 4px;
 }
-
 .ob-dots {
   display: flex;
   justify-content: center;
@@ -2983,7 +2883,6 @@ body:has(.burger-drawer.active) .burger-btn {
   width: 16px;
   border-radius: 2px;
 }
-
 .ob-footer {
   padding: 0 24px;
   display: flex;
@@ -3013,7 +2912,6 @@ body:has(.burger-drawer.active) .burger-btn {
   font-family: var(--font);
   padding: 4px;
 }
-
 /* Booster pack visual */
 .ob-pack-wrap {
   display: flex;
@@ -3052,7 +2950,7 @@ body:has(.burger-drawer.active) .burger-btn {
   width: 100px;
   height: 149px;
   border-radius: 4px;
-  background: #0a0a0a;
+  background: var(--et-black);
   overflow: hidden;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
 }
@@ -3071,7 +2969,7 @@ body:has(.burger-drawer.active) .burger-btn {
   left: 0;
   right: 0;
   height: 22px;
-  background: #0a0a0a;
+  background: var(--et-black);
   clip-path: polygon(0 100%, 100% 100%, 100% 0);
 }
 .ob-pack-brand {
@@ -3130,7 +3028,6 @@ body:has(.burger-drawer.active) .burger-btn {
   color: #aaa;
   font-weight: 600;
 }
-
 /* ============================================
    WELCOME MODAL — Neukundenakquise (v3)
    ============================================ */
@@ -3162,7 +3059,6 @@ body:has(.burger-drawer.active) .burger-btn {
   overflow: hidden;
   animation: wm-enter 0.32s cubic-bezier(0.22,1,0.36,1) both;
 }
-
 /* ── Full-screen background image ── */
 .wm-hero-img {
   position: absolute;
@@ -3176,7 +3072,6 @@ body:has(.burger-drawer.active) .burger-btn {
   display: block;
   z-index: 0;
 }
-
 /* ── Gradient scrim over photo for legibility ── */
 .wm-dialog::after {
   content: '';
@@ -3193,7 +3088,6 @@ body:has(.burger-drawer.active) .burger-btn {
   );
   pointer-events: none;
 }
-
 /* ── Close button ── */
 .wm-close {
   position: absolute;
@@ -3216,7 +3110,6 @@ body:has(.burger-drawer.active) .burger-btn {
 }
 .wm-close:hover { background: rgba(0,0,0,0.55); }
 .wm-close svg { stroke: #fff; }
-
 /* ── Logo centred top ── */
 .wm-hero-logo-wrap {
   position: absolute;
@@ -3230,7 +3123,6 @@ body:has(.burger-drawer.active) .burger-btn {
   height: auto;
   display: block;
 }
-
 /* ── Landing: headline + 3 CTAs overlaid on photo ── */
 .wm-landing[hidden] { display: none !important; }
 .wm-landing {
@@ -3306,7 +3198,6 @@ body:has(.burger-drawer.active) .burger-btn {
   transition: color 0.18s;
 }
 .wm-cta-text:hover { color: #fff; }
-
 /* ── Form panel (slides in over the photo) ── */
 .wm-form-panel {
   position: absolute;
@@ -3432,7 +3323,6 @@ body:has(.burger-drawer.active) .burger-btn {
   font-family: inherit;
   padding: 0;
 }
-
 /* ── Dark mode ── */
 [data-theme="dark"] .wm-form-panel { background: #111; }
 [data-theme="dark"] .wm-form-title { color: #fff; }
@@ -3449,7 +3339,6 @@ body:has(.burger-drawer.active) .burger-btn {
 [data-theme="dark"] .wm-terms-link { color: rgba(255,255,255,0.5); }
 [data-theme="dark"] .wm-error { color: #ff6b6b; }
 [data-theme="dark"] .wm-success { color: #4cde80; }
-
 /* ── Desktop: centred card ── */
 @media (min-width: 521px) {
   .wm-overlay { align-items: center; justify-content: center; }
@@ -3465,276 +3354,19 @@ body:has(.burger-drawer.active) .burger-btn {
     height: 110%;
   }
 }
-
-/* ══════════════════════════════════════════════
-   BURGER DRAWER — Chewy menu (mockup-chewy.html "menu" screen)
-   Cream sheet, ink hairlines, big Chewy uppercase nav, DE/EN top-left,
-   yellow Anmelden sticker with hard 4px offset shadow. No dark variant.
-   ══════════════════════════════════════════════ */
-.burger-drawer-backdrop {
-  background: rgba(10, 10, 10, 0.5);
-  backdrop-filter: blur(8px) saturate(1.1);
-  -webkit-backdrop-filter: blur(8px) saturate(1.1);
-}
-.burger-drawer-panel {
-  width: 360px;
-  max-width: 92vw;
-  background: var(--cream, #fbf8ee);
-  border-left: 3px solid #000;
-  box-shadow: -10px 0 0 0 #000;
-  padding: 0;
-  overflow: hidden;
-}
 /* Language toggle — first row of the scroller, Chewy caps. In-flow
    (2026-06-04): scrolls with the menu — the old absolute top-left pin
    collided with the logo as soon as the drawer content scrolled. */
 /* Top bar — language toggle (left) + dark-mode toggle (right) on one row. */
-.bd-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  /* Right clearance for the absolutely-positioned close × (42px @ right:16px),
-     so the dark-mode toggle keeps a comfortable gap from it. */
-  padding-right: 68px;
-  margin: 0 0 12px;
-}
-.bd-lang {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
-  font-family: var(--font-poster);
-  font-size: 16px;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-}
 /* Dark-mode toggle — mirrors the SiteFooter switch (track + thumb), Chewy
    caps label. Lives in the burger top bar opposite the language toggle. */
-.bd-theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: none;
-  border: 0;
-  padding: 4px 2px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.bd-theme-label {
-  font-family: var(--font-poster);
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #000;
-  opacity: 0.55;
-  transition: opacity 0.15s ease;
-}
-.bd-theme-toggle:hover .bd-theme-label { opacity: 1; }
-.bd-theme-track {
-  position: relative;
-  width: 44px;
-  height: 22px;
-  background: transparent;
-  border: 1.5px solid #000;
-  border-radius: 999px;
-  flex-shrink: 0;
-  transition: background 0.2s ease;
-}
-.bd-theme-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 15px;
-  height: 15px;
-  background: #000;
-  border-radius: 50%;
-  transition: left 0.2s ease;
-}
-.bd-theme-toggle.on .bd-theme-track { background: rgba(0, 0, 0, 0.18); }
-.bd-theme-toggle.on .bd-theme-thumb { left: 24px; }
-.bd-lang-btn {
-  background: none;
-  border: 0;
-  padding: 0;
-  font: inherit;
-  letter-spacing: inherit;
-  color: #000;
-  opacity: 0.42;
-  cursor: pointer;
-}
-.bd-lang-btn.on {
-  opacity: 1;
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
-  text-decoration-color: var(--brand-yellow);
-}
-.bd-lang-sep { opacity: 0.42; color: #000; }
 /* Close — square ink-bordered × glyph */
-.burger-drawer-close {
-  top: 16px;
-  right: 16px;
-  z-index: 60;
-  width: 42px;
-  height: 42px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid #000;
-  border-radius: 0;
-  background: var(--cream, #fbf8ee);
-  color: #000;
-  font-family: var(--font-poster);
-  font-size: 26px;
-  line-height: 1;
-  padding: 0 0 4px;
-  transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1), background 160ms ease;
-}
-.burger-drawer-close:hover {
-  background: var(--brand-yellow);
-  color: #000;
-  transform: rotate(90deg);
-}
-
 /* Scroller — fills the panel, owns the scroll */
-.bd-scroller {
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  overflow-y: auto;
-  /* Top: clear the notch/status bar (drawer spans the full viewport) — the
-     lang row sits in-flow up here. Spacing is compressed so the full menu
-     (lang/logo/nav/CTA/legal) fits the viewport WITHOUT scrolling on common
-     phones; overflow-y:auto stays as a fallback for very short screens. */
-  padding: max(16px, env(safe-area-inset-top, 0px)) 22px calc(20px + env(safe-area-inset-bottom));
-  display: flex;
-  flex-direction: column;
-}
-.bd-logo {
-  margin-bottom: 18px;
-}
-.bd-logo img {
-  width: 150px;
-  height: auto;
-  display: block;
-}
 /* Primary nav — big Chewy uppercase block list with ink rules */
-.bd-nav {
-  display: flex;
-  flex-direction: column;
-  border-top: 2px solid #000;
-  /* Floor for the gap to .bd-foot when its margin-top:auto collapses to 0
-     (drawer content exactly fills the viewport). */
-  margin-bottom: 18px;
-}
-.bd-nav-item {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  /* Viewport-height-scaled: short phones (SE, 667px) stay at the compact
-     28px/11px so the drawer never scrolls; tall screens grow into the
-     leftover space above .bd-foot instead of leaving a dead cream band. */
-  padding: 11px 0;
-  padding: clamp(11px, 1.9dvh, 16px) 0;
-  border: 0;
-  border-bottom: 2px solid #000;
-  background: transparent;
-  font-family: var(--font-poster);
-  font-size: 28px;
-  font-size: clamp(28px, 4.3dvh, 36px);
-  line-height: 1;
-  letter-spacing: -0.005em;
-  text-transform: uppercase;
-  color: #000;
-  text-decoration: none;
-  text-align: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-.bd-nav-item:hover { background: var(--brand-yellow); }
 /* Anmelden CTA — yellow sticker with hard offset shadow */
-.bd-nav-item.bd-cta {
-  margin: 12px 4px 4px 0;
-  padding: 14px 16px 16px;
-  background: var(--brand-yellow);
-  color: #000;
-  border-bottom: 0;
-  box-shadow: 4px 4px 0 0 #000;
-  transition: transform 140ms ease, box-shadow 140ms ease;
-}
-.bd-nav-item.bd-cta:hover {
-  background: var(--brand-yellow);
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0 0 #000;
-}
-/* Legal foot — 2-col grid, Inter caps. margin-top:auto docks it to the
+/* Legal foot — 2-col grid, DM Sans caps. margin-top:auto docks it to the
    drawer bottom: leftover height collects ABOVE it instead of leaving a
    dead cream band under the links. */
-.bd-foot {
-  margin-top: auto;
-  padding-top: 14px;
-  border-top: 2px solid #000;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px 18px;
-  font-family: var(--font);
-  font-size: 13px;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-}
-.bd-foot-link {
-  color: #000;
-  opacity: 0.72;
-  text-decoration: none;
-}
-.bd-foot-link:hover { opacity: 1; }
-
-/* ── Burger drawer dark mode (2026-06-03): dunkles Panel, Cream-Ink,
-   Akzent rot statt gelb. Bubble-Logo (cream+ink) liest auf dunkel as-is. ── */
-[data-theme="dark"] .burger-drawer-panel {
-  background: #111110;
-  border-left-color: #f0e8d0;
-  /* No offset band — the faint 10px cream shadow read as a second stripe
-     next to the border (User 2026-06-04). The cream border alone is the
-     edge. */
-  box-shadow: none;
-}
-[data-theme="dark"] .bd-lang-btn,
-[data-theme="dark"] .bd-lang-sep { color: #f0e8d0; }
-[data-theme="dark"] .bd-lang-btn.on { text-decoration-color: var(--c-coral-bright); }
-[data-theme="dark"] .bd-theme-label { color: #f0e8d0; }
-[data-theme="dark"] .bd-theme-track { border-color: #f0e8d0; }
-[data-theme="dark"] .bd-theme-thumb { background: #f0e8d0; }
-[data-theme="dark"] .bd-theme-toggle.on .bd-theme-track { background: rgba(240, 232, 208, 0.25); }
-[data-theme="dark"] .burger-drawer-close {
-  background: #111110;
-  border-color: #f0e8d0;
-  color: #f0e8d0;
-}
-[data-theme="dark"] .burger-drawer-close:hover {
-  background: var(--c-coral);
-  color: #fbf8ee;
-}
-[data-theme="dark"] .bd-nav { border-top-color: rgba(240, 232, 208, 0.3); }
-[data-theme="dark"] .bd-nav-item {
-  border-bottom-color: rgba(240, 232, 208, 0.3);
-  color: #f0e8d0;
-}
-[data-theme="dark"] .bd-nav-item:hover { background: var(--c-coral); color: #fbf8ee; }
-[data-theme="dark"] .bd-nav-item.bd-cta {
-  background: var(--c-coral);
-  color: #fbf8ee;
-  box-shadow: 4px 4px 0 0 rgba(240, 232, 208, 0.25);
-}
-[data-theme="dark"] .bd-nav-item.bd-cta:hover {
-  background: var(--c-coral);
-  box-shadow: 5px 5px 0 0 rgba(240, 232, 208, 0.25);
-}
-[data-theme="dark"] .bd-foot { border-top-color: rgba(240, 232, 208, 0.3); }
-[data-theme="dark"] .bd-foot-link { color: #f0e8d0; }
-
 /* ══════════════════════════════════════════════
    SITE FOOTER — editorial restyle (2026)
    Cream surface in light, ink in dark. Heavy top rule mirrors the navbar
@@ -3848,7 +3480,6 @@ body:has(.burger-drawer.active) .burger-btn {
     0 8px 14px -2px rgba(0, 0, 0, 0.6),
     0 16px 30px -8px rgba(0, 0, 0, 0.5);
 }
-
 /* ── A11y: keyboard focus ring (WCAG 2.4.7) ──────────────────────────────
    Placed last so it wins source-order ties against the scattered
    `outline:none` resets above. :focus-visible fires only for keyboard /
@@ -3856,12 +3487,657 @@ body:has(.burger-drawer.active) .burger-btn {
    class+pseudo specificity to override the inputs' own `outline:none`, which a
    bare :focus-visible (0,1,0) can't beat. */
 :focus-visible {
-  outline: 2px solid var(--c-coral, #a02814);
+  outline: 2px solid var(--c-coral, #d9382a);
   outline-offset: 2px;
 }
 .profile-settings-input:focus-visible,
 .ob-name-input:focus-visible,
 .wm-field input:focus-visible {
-  outline: 2px solid var(--c-coral, #a02814);
+  outline: 2px solid var(--c-coral, #d9382a);
   outline-offset: 1px;
+}
+/* Providence collage icon system */
+.navbar-icon-btn,
+.burger-btn {
+  width: 38px;
+  height: 38px;
+  background: var(--brand-paper);
+  border: 2px solid var(--brand-ink);
+  box-shadow: 3px 3px 0 var(--brand-ink);
+  color: var(--brand-ink);
+  transition: transform .14s ease, box-shadow .14s ease, background-color .14s ease;
+}
+.navbar-icon-btn img,
+.burger-btn img {
+  filter: none !important;
+  height: 24px !important;
+}
+.navbar-icon-btn.active { background: var(--brand-action); }
+.navbar-icon-btn.active::before { display: none; }
+@media (hover: hover) {
+  .navbar-icon-btn:hover,
+  .burger-btn:hover {
+    background: var(--brand-paper);
+    color: var(--brand-ink);
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 var(--brand-ink);
+  }
+}
+.navbar-icon-btn:active,
+.burger-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--brand-ink);
+}
+[data-theme="dark"] .navbar-icon-btn,
+[data-theme="dark"] .burger-btn {
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  border-color: var(--brand-ink);
+  box-shadow: 3px 3px 0 var(--brand-ink);
+}
+/* Header controls: typographic paper stickers instead of bitmap icons. */
+.navbar-icon-btn,
+.burger-btn {
+  width: auto;
+  height: 40px;
+  min-width: 42px;
+  border: 0;
+  border-radius: 999px;
+  box-shadow: none;
+  background: transparent;
+  color: var(--brand-ink);
+  clip-path: none;
+  filter: none;
+  transform: none;
+}
+.navbar-icon-btn.active {
+  background: transparent;
+  color: var(--brand-ink);
+}
+@media (hover: hover) {
+  .navbar-icon-btn:hover,
+  .burger-btn:hover {
+    background: transparent;
+    color: var(--brand-ink);
+    transform: translateY(-2px);
+    box-shadow: none;
+  }
+}
+.navbar-icon-btn:active,
+.burger-btn:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+/* EAT THIS zine drawer: oversized brand page with numbered paper scraps. */
+@keyframes bdScrapIn {
+  from { transform: translateX(120%) rotate(8deg); }
+}
+/* Header CI: poster red field, black marks, paper surfaces below. */
+.navbar,
+[data-theme="dark"] .navbar {
+  min-height: 78px;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) clamp(18px, 3vw, 38px) 13px;
+  background-color: var(--home-ink);
+  background-image: none;
+  background-size: auto;
+  border-top: 0;
+  border-bottom: 0;
+  color: var(--et-black);
+  box-shadow: none;
+}
+.navbar::before,
+.navbar::after {
+  content: none;
+}
+.navbar-actions {
+  gap: clamp(16px, 3vw, 38px);
+}
+.navbar-icon-btn,
+.burger-btn,
+[data-theme="dark"] .navbar-icon-btn,
+[data-theme="dark"] .burger-btn {
+  min-height: 38px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--et-black);
+}
+.navbar-icon-btn.active,
+.navbar-icon-btn:hover,
+.navbar-icon-btn:active,
+.burger-btn:hover,
+.burger-btn:active,
+[data-theme="dark"] .navbar-icon-btn.active,
+[data-theme="dark"] .navbar-icon-btn:hover,
+[data-theme="dark"] .navbar-icon-btn:active,
+[data-theme="dark"] .burger-btn:hover,
+[data-theme="dark"] .burger-btn:active {
+  background: transparent;
+  color: var(--et-black);
+  box-shadow: none;
+}
+[data-theme="dark"] .navbar {
+  background-color: var(--home-ink);
+  color: var(--et-black);
+}
+[data-theme="dark"] .navbar-icon-btn,
+[data-theme="dark"] .burger-btn {
+  color: var(--et-black);
+}
+[data-theme="dark"] .navbar-icon-btn.active,
+[data-theme="dark"] .navbar-icon-btn:hover,
+[data-theme="dark"] .navbar-icon-btn:active,
+[data-theme="dark"] .burger-btn:hover,
+[data-theme="dark"] .burger-btn:active {
+  color: var(--et-black);
+}
+/* No hairline/raster treatment on the refreshed header/drawer. */
+.navbar,
+[data-theme="dark"] .navbar {
+  border-bottom: 0;
+}
+[data-theme="dark"] .navbar {
+  background-color: var(--home-ink);
+  background-image: none;
+  border-bottom-color: transparent;
+  color: var(--et-black);
+  box-shadow: none;
+}
+[data-theme="dark"] .navbar-icon-btn,
+[data-theme="dark"] .burger-btn {
+  color: var(--et-black);
+}
+[data-theme="dark"] .navbar-icon-btn.active,
+[data-theme="dark"] .navbar-icon-btn:hover,
+[data-theme="dark"] .navbar-icon-btn:active,
+[data-theme="dark"] .burger-btn:hover,
+[data-theme="dark"] .burger-btn:active {
+  color: var(--et-black);
+}
+/* Keep the full burger menu inside the visible viewport on desktop and mobile.
+   The drawer intentionally avoids internal scrolling for normal viewports, so
+   the logo/nav/footer compress by viewport height instead of clipping. */
+.app-page[data-page="map"] .map-location-btn-fixed,
+[data-theme="dark"] .app-page[data-page="map"] .map-location-btn-fixed {
+  background: var(--et-cream);
+  color: var(--et-red);
+  border: 0;
+  border-radius: 999px;
+  box-shadow: 0 10px 24px rgba(201, 67, 50, .2);
+}
+.app-page[data-page="map"] .map-location-btn-fixed svg,
+[data-theme="dark"] .app-page[data-page="map"] .map-location-btn-fixed svg {
+  stroke: var(--et-red);
+}
+/* Flat controls: the print palette uses line, fill and position. Icon buttons
+   and menu buttons should not carry hard or soft shadows. */
+/* Light drawer: keep the theme switch quiet on cream; the thumb is the accent. */
+/* Dark header mirrors the SiteFooter endpoint palette. */
+[data-theme="dark"] .navbar,
+[data-theme="dark"] .navbar.scrolled {
+  background-color: #5A120F;
+  color: var(--brand-paper, var(--et-cream));
+}
+[data-theme="dark"] .navbar-icon-btn,
+[data-theme="dark"] .burger-btn,
+[data-theme="dark"] .navbar-icon-btn.active,
+[data-theme="dark"] .navbar-icon-btn:hover,
+[data-theme="dark"] .navbar-icon-btn:active,
+[data-theme="dark"] .burger-btn:hover,
+[data-theme="dark"] .burger-btn:active {
+  color: var(--brand-paper, var(--et-cream));
+}
+[data-theme="dark"] .navbar-icon-btn.active::before {
+  background: currentColor;
+}
+/* Burger menu layout repair: keep nav and legal links in normal document flow.
+   Older overrides stretched the nav items to consume remaining height, which
+   made them collide with Impressum/Datenschutz/AGB on shorter viewports. */
+/* 2026-06 home/header reset: one navigation bar, one drawer language. */
+html .navbar,
+html .navbar.scrolled,
+html[data-theme="dark"] .navbar,
+html[data-theme="dark"] .navbar.scrolled,
+html[data-active-page="start"] .navbar,
+html[data-active-page="start"] .navbar.scrolled,
+html[data-theme="dark"][data-active-page="start"] .navbar,
+html[data-theme="dark"][data-active-page="start"] .navbar.scrolled {
+  height: calc(72px + env(safe-area-inset-top, 0px)) !important;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) clamp(12px, 3vw, 32px) 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  background: var(--home-ink) !important;
+  color: #fff !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html .navbar::before,
+html .navbar::after,
+html[data-theme="dark"] .navbar::before,
+html[data-theme="dark"] .navbar::after {
+  content: none !important;
+}
+html .navbar-actions {
+  align-items: center !important;
+  gap: 8px !important;
+}
+html .navbar-icon-btn,
+html .burger-btn,
+html[data-theme="dark"] .navbar-icon-btn,
+html[data-theme="dark"] .burger-btn {
+  min-width: 82px !important;
+  height: 42px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 0 12px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #fff !important;
+  font-family: var(--menu-condensed, Impact, sans-serif) !important;
+  font-size: clamp(18px, 2vw, 22px) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+  line-height: .9 !important;
+  text-transform: uppercase !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  filter: none !important;
+}
+html .navbar-icon-btn.active,
+html .navbar-icon-btn:hover,
+html .navbar-icon-btn:active,
+html .burger-btn:hover,
+html .burger-btn:active,
+html[data-theme="dark"] .navbar-icon-btn.active,
+html[data-theme="dark"] .navbar-icon-btn:hover,
+html[data-theme="dark"] .navbar-icon-btn:active,
+html[data-theme="dark"] .burger-btn:hover,
+html[data-theme="dark"] .burger-btn:active {
+  background: transparent !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+html .navbar-icon-btn.active::before {
+  content: none !important;
+}
+@media (max-width: 520px) {
+  html .navbar,
+  html .navbar.scrolled,
+  html[data-theme="dark"] .navbar,
+  html[data-theme="dark"] .navbar.scrolled {
+    height: calc(64px + env(safe-area-inset-top, 0px)) !important;
+    padding-inline: 10px !important;
+  }
+  html .navbar-icon-btn,
+  html .burger-btn,
+  html[data-theme="dark"] .navbar-icon-btn,
+  html[data-theme="dark"] .burger-btn {
+    min-width: 48px !important;
+    width: 48px !important;
+    padding: 0 !important;
+  }
+}
+/* Drawer footer final fit: keep legal links inside the viewport on desktop. */
+/* Final burger-menu direction: loud red poster, big edible rows, no default drawer chrome. */
+@keyframes bdMenuPunch {
+  from {
+    transform: translateX(46px) rotate(2.5deg);
+  }
+}
+/* Burger menu cleanup: no arrows, no collisions around the close button. */
+/* Burger menu viewport fit: no bottom micro-wordmark, no internal scroll. */
+/* Burger menu spacing pass: remove rule-lines and list-counter strip. */
+/* Burger menu mobile fit: use the full viewport without leaving a dead band. */
+/* Final header color contract: ink bar, white text, no bottom rule. Kept last
+   because this file still contains older navbar repair blocks. */
+html .navbar,
+html .navbar.scrolled,
+html[data-active-page="start"] .navbar,
+html[data-theme="dark"] .navbar,
+html[data-theme="dark"] .navbar.scrolled,
+html[data-theme="dark"][data-active-page="start"] .navbar {
+  background: var(--home-ink) !important;
+  background-color: var(--home-ink) !important;
+  color: #fff !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+html .navbar-icon-btn,
+html .burger-btn,
+html[data-active-page="start"] .navbar-icon-btn,
+html[data-active-page="start"] .burger-btn,
+html[data-theme="dark"] .navbar-icon-btn,
+html[data-theme="dark"] .burger-btn {
+  color: #fff !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+/* Language toggle — quiet Silkscreen micro-label, white on ink, no chip */
+/* Close — white glyph on a faint disc, yellow on hover (matches masthead) */
+/* Logo — cream wordmark sits straight on the ink sheet (drop poster tilt) */
+/* Nav — big white Providence caps as bare words on ink; hover lifts a faint
+   pill + the existing translate. Borderless, modest radius. */
+/* Anmelden / Profil — THE accent button: yellow fill, ink text, borderless */
+/* ══════════════════════════════════════════════════════════════════════
+   BURGER DRAWER  —  single source of truth
+   Full-screen slide-in menu. Ink sheet · white type · ONE yellow accent ·
+   Providence display caps · borderless · modest radius. Mirrors the home
+   masthead (globals.css #navbar) and the ink home footer so header, menu
+   and footer read as one system.
+   Motion: panel + items TRANSLATE in (never opacity — brand rule); the
+   container's opacity only tints the backdrop.
+   ══════════════════════════════════════════════════════════════════════ */
+.burger-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 10002;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.burger-drawer.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.burger-drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px) saturate(1.1);
+  -webkit-backdrop-filter: blur(8px) saturate(1.1);
+  border: 0;
+}
+
+.burger-drawer-panel {
+  position: relative;
+  width: min(100vw, 460px);
+  height: 100dvh;
+  background: var(--home-ink, #15120e);
+  color: #fff;
+  box-shadow: -26px 0 64px rgba(0, 0, 0, 0.32);
+  transform: translateX(100%);
+  transition: transform 0.34s cubic-bezier(0.18, 0.86, 0.26, 1);
+}
+.burger-drawer.active .burger-drawer-panel {
+  transform: translateX(0);
+}
+
+.bd-scroller {
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  row-gap: clamp(12px, 2dvh, 22px);
+  padding: max(20px, calc(env(safe-area-inset-top, 0px) + 16px))
+    clamp(22px, 3vw, 34px) max(18px, env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
+}
+
+/* Top bar — language toggle (left); close sits absolutely top-right */
+.bd-topbar {
+  display: flex;
+  align-items: flex-start;
+  min-height: 30px;
+  padding-right: 52px;
+}
+.bd-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: "Silkscreen", var(--menu-mono, ui-monospace, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.bd-lang-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.55);
+}
+.bd-lang-btn.on,
+.bd-lang-btn:hover,
+.bd-lang-btn:focus-visible {
+  color: var(--home-accent, #ffc600);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.bd-lang-sep {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Close — white glyph on a faint disc, yellow on hover (matches masthead) */
+.burger-drawer-close {
+  position: absolute;
+  top: max(14px, calc(env(safe-area-inset-top, 0px) + 10px));
+  right: clamp(18px, 2.4vw, 26px);
+  z-index: 5;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0 3px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 0;
+  border-radius: 50%;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+.burger-drawer-close:hover,
+.burger-drawer-close:focus-visible {
+  background: var(--home-accent, #ffc600);
+  color: var(--home-ink, #15120e);
+  outline: 0;
+}
+
+/* Logo — cream wordmark, centered on the ink sheet */
+.bd-logo {
+  width: clamp(150px, 46vw, 220px);
+  margin: 0 auto;
+  justify-self: center;
+  transform: translateY(-4px);
+}
+.bd-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Nav — big white Providence caps as bare words; hover = yellow + slide */
+.bd-nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: clamp(2px, 0.7dvh, 8px);
+}
+.bd-nav-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: clamp(40px, 5.3dvh, 54px);
+  padding: 7px 12px 8px;
+  background: transparent;
+  color: #fff;
+  border: 0;
+  border-radius: var(--home-radius-btn, 8px);
+  font-family: var(--font-providence);
+  font-size: clamp(28px, min(4.6dvh, 8vw), 40px);
+  font-weight: 700;
+  line-height: 0.82;
+  text-align: left;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+.bd-nav-item:hover,
+.bd-nav-item:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--home-accent, #ffc600);
+  outline: 0;
+  transform: translateX(-6px);
+}
+/* Anmelden / Profil — THE single accent button, pinned above the nav */
+.bd-nav-item.bd-cta {
+  order: -1;
+  margin-bottom: clamp(14px, 2dvh, 22px);
+  background: var(--home-accent, #ffc600);
+  color: var(--home-ink, #15120e);
+}
+.bd-nav-item.bd-cta:hover,
+.bd-nav-item.bd-cta:focus-visible {
+  background: #fff;
+  color: var(--home-ink, #15120e);
+  transform: translateX(-6px);
+}
+
+/* Legal dock — quiet centered text links, yellow underline on hover */
+.bd-foot {
+  width: min(100%, 560px);
+  margin: clamp(8px, 1.6dvh, 18px) auto 0;
+  padding-top: clamp(12px, 1.8dvh, 18px);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+.bd-foot-link {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.55);
+  font-family: "Silkscreen", var(--menu-mono, ui-monospace, monospace);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.bd-foot-link:hover,
+.bd-foot-link:focus-visible {
+  color: #fff;
+  text-decoration: underline;
+  text-decoration-color: var(--home-accent, #ffc600);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* Entrance stagger — items translate in (no opacity fades, per brand rule) */
+.burger-drawer.active .bd-nav-item {
+  animation: bdItemIn 0.32s cubic-bezier(0.18, 0.86, 0.26, 1) both;
+}
+.burger-drawer.active .bd-nav-item:nth-child(2) {
+  animation-delay: 0.03s;
+}
+.burger-drawer.active .bd-nav-item:nth-child(3) {
+  animation-delay: 0.06s;
+}
+.burger-drawer.active .bd-nav-item:nth-child(4) {
+  animation-delay: 0.09s;
+}
+.burger-drawer.active .bd-nav-item:nth-child(5) {
+  animation-delay: 0.12s;
+}
+.burger-drawer.active .bd-nav-item:nth-child(6) {
+  animation-delay: 0.15s;
+}
+.burger-drawer.active .bd-nav-item:nth-child(7) {
+  animation-delay: 0.18s;
+}
+.burger-drawer.active .bd-nav-item:nth-child(8) {
+  animation-delay: 0.21s;
+}
+@keyframes bdItemIn {
+  from {
+    transform: translateX(26px);
+  }
+}
+
+@media (max-width: 767px) {
+  .burger-drawer-panel {
+    width: 100vw;
+  }
+  .bd-scroller {
+    padding: max(46px, calc(env(safe-area-inset-top, 0px) + 42px)) 16px
+      max(14px, env(safe-area-inset-bottom, 0px));
+    row-gap: clamp(8px, 1.2dvh, 14px);
+  }
+  .bd-logo {
+    width: clamp(156px, 56vw, 232px);
+  }
+  .bd-nav-item,
+  .bd-nav-item.bd-cta {
+    min-height: clamp(38px, 5.2dvh, 50px);
+    font-size: clamp(24px, min(5.2dvh, 8.4vw), 37px);
+    white-space: nowrap;
+  }
+}
+@media (max-height: 700px) {
+  .bd-scroller {
+    row-gap: 8px;
+  }
+  .bd-logo {
+    width: clamp(120px, 20dvh, 160px);
+  }
+  .bd-nav-item,
+  .bd-nav-item.bd-cta {
+    min-height: 36px;
+    font-size: clamp(24px, 4.6dvh, 34px);
+  }
+}
+
+/* ============================================
+   HOME V2 — element vocabulary (scoped to .homeV2)
+   ============================================ */
+.homeV2{background:var(--home-paper);color:var(--home-ink);font-family:var(--font-providence)}
+.homeV2 .hv-wrap{max-width:1360px;margin:0 auto;padding:0 clamp(24px,4vw,56px)}
+.homeV2 .hv-section{margin-top:clamp(72px,8vw,128px)}
+.homeV2 .hv-kicker{font-family:'Silkscreen';font-weight:700;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--home-ink)}
+.homeV2 .hv-mk{display:inline-block;width:9px;height:9px;background:var(--home-accent);margin-right:8px;vertical-align:1px}
+.homeV2 .hv-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:clamp(16px,2vw,28px)}
+.homeV2 .hv-title{font-family:var(--font-providence);font-weight:700;text-transform:uppercase;letter-spacing:-.02em;line-height:.92;font-size:clamp(24px,3.4vw,42px)}
+.homeV2 .hv-link{font-family:'Silkscreen';font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--home-ink)}
+.homeV2 .hv-rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+.homeV2 .hv-rail::-webkit-scrollbar{display:none}
+.homeV2 .hv-rail>*{scroll-snap-align:start;flex-grow:0;flex-shrink:0}
+.homeV2 .hv-photo{background:var(--home-photo-rest);border-radius:var(--home-radius-photo);overflow:hidden;position:relative;display:block}
+.homeV2 .hv-photo img{object-fit:cover}
+.homeV2 .hv-cap{font-family:var(--font-providence);font-weight:700;font-size:clamp(14px,1.1vw,16px);margin-top:8px;color:var(--home-ink)}
+.homeV2 .hv-sub{font-family:var(--font-providence);font-weight:400;font-size:11px;color:var(--home-muted)}
+.homeV2 .hv-btn{font-family:var(--font-providence);font-weight:700;font-size:13px;padding:11px 18px;border-radius:var(--home-radius-btn);display:inline-block;background:var(--home-ink);color:#fff;border:none;cursor:pointer}
+.homeV2 .hv-btn--accent{background:var(--home-accent);color:var(--home-ink)}
+.homeV2 .hv-link-underline{font-weight:700;font-size:13px;color:var(--home-ink);border-bottom:2px solid var(--home-accent);padding-bottom:2px}
+.homeV2 .hv-chip{font-family:var(--font-providence);font-weight:700;font-size:12px;padding:9px 15px;border-radius:7px;background:var(--home-quiet);color:var(--home-ink);border:none;cursor:pointer}
+@media (max-width:760px){
+  .homeV2 .hv-wrap{padding:0 16px}
+  .homeV2 .hv-section{margin-top:64px}
 }

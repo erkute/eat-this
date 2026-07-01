@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { setRequestLocale } from 'next-intl/server'
 import { CATALOG } from '@/lib/stripe-catalog'
+import { Link } from '@/i18n/navigation'
 import { getRestaurantsByCategory, getAllCategories } from '@/lib/sanity.server'
 import { localizedCategoryName } from '@/lib/categories'
 import { categoryArt } from '@/lib/categoryArt'
@@ -213,9 +214,15 @@ export default async function PackDetailPage({ params }: PageProps) {
         {trust}
 
         <div className={styles.upsell}>
-          <a href={allBerlinHref}>
-            {de ? 'Lieber alles auf einmal · All Berlin · 20 €' : 'Rather everything at once · All Berlin · €20'}
-          </a>
+          <Link href={allBerlinHref}>
+            <span className={styles.upsellKicker}>
+              {de ? 'Lieber alles auf einmal' : 'Rather everything at once'}
+            </span>
+            <span className={styles.upsellMain}>
+              <span>All Berlin</span>
+              <strong>{de ? '20 €' : '€20'}</strong>
+            </span>
+          </Link>
         </div>
       </div>
     </main>

@@ -3,8 +3,10 @@
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n';
-import { Link } from '@/i18n/navigation';
-import type { BurgerCloseDetail } from './BurgerDrawer';
+import { Link, useRouter } from '@/i18n/navigation';
+import MapIntentLink from './MapIntentLink';
+import { openBurgerDrawer } from './burgerDrawerState';
+import { preloadMapSurface } from './map/preloadMapSurface';
 import styles from './SiteNav.module.css';
 
 // Strip the optional /en prefix to get the route the SPA cares about.
@@ -21,8 +23,9 @@ function pageSlugFromPath(path: string): string {
 }
 
 export default function SiteNav() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const pathname = usePathname();
+  const router = useRouter();
   const activePage = pageSlugFromPath(pathname);
 
   // Keep the html[data-active-page] attribute in sync with the current
@@ -36,99 +39,76 @@ export default function SiteNav() {
   }, [activePage]);
 
   useEffect(() => {
-    const drawer   = document.getElementById('burgerDrawer');
-    const openBtn  = document.getElementById('burgerBtn');
-    const closeBtn = document.getElementById('burgerClose');
-    const backdrop = document.getElementById('burgerBackdrop');
-    if (!drawer) return;
-
-    let scrollY = 0;
-    // Tracks whether THIS effect locked the body, so a later unlock (or the
-    // cleanup-on-unmount) only undoes what we did and doesn't clobber a lock
-    // owned by a modal or sheet.
-    let lockMode: 'fixed' | 'overflow' | null = null;
-    const isMobile = () => window.innerWidth < 768;
-    const lock = () => {
-      if (isMobile()) {
-        scrollY = window.scrollY;
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${scrollY}px`;
-        document.body.style.width = '100%';
-        lockMode = 'fixed';
-      } else {
-        document.body.style.overflow = 'hidden';
-        lockMode = 'overflow';
+    if (activePage === 'map') return;
+    const connection = (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
       }
-    };
-    const unlock = (restoreScroll = true) => {
-      if (lockMode === 'fixed') {
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        // Skip the scroll-restore when the close was triggered by navigation
-        // (e.g. user clicked a Link inside the drawer) — the new page should
-        // start at the top, not at the previous page's scroll position.
-        if (restoreScroll) {
-          requestAnimationFrame(() => window.scrollTo(0, scrollY));
-        }
-      } else if (lockMode === 'overflow') {
-        document.body.style.overflow = '';
-      }
-      lockMode = null;
-    };
+    ).connection;
+    if (
+      connection?.saveData ||
+      connection?.effectiveType === 'slow-2g' ||
+      connection?.effectiveType === '2g'
+    )
+      return;
 
-    const open  = () => { drawer.classList.add('active'); lock(); };
-    const close = (restoreScroll = true) => {
-      drawer.classList.remove('active');
-      unlock(restoreScroll);
+    const warmMap = () => {
+      (router.prefetch as (href: string) => void)('/map');
+      void preloadMapSurface();
     };
-    const onUserClose = () => close(true);
-    // BurgerDrawer dispatches `burger:close` on route change with
-    // `suppressScroll: true` so the destination page starts at the top.
-    const onBurgerCloseEvent = (e: Event) => {
-      const detail = (e as CustomEvent<BurgerCloseDetail>).detail;
-      close(!detail?.suppressScroll);
-    };
-
-    openBtn?.addEventListener('click', open);
-    closeBtn?.addEventListener('click', onUserClose);
-    backdrop?.addEventListener('click', onUserClose);
-    drawer.addEventListener('burger:close', onBurgerCloseEvent);
-    return () => {
-      openBtn?.removeEventListener('click', open);
-      closeBtn?.removeEventListener('click', onUserClose);
-      backdrop?.removeEventListener('click', onUserClose);
-      drawer.removeEventListener('burger:close', onBurgerCloseEvent);
-      // Cross-layout navigation while the drawer is open: our body-lock would
-      // persist and break scrolling on the next page. Undo without restoring
-      // scroll — the new page should start at the top.
-      unlock(false);
-    };
-  }, []);
+    const ric = window.requestIdleCallback as
+      | ((cb: IdleRequestCallback, opts?: IdleRequestOptions) => number)
+      | undefined;
+    if (ric) {
+      const id = ric(warmMap, { timeout: 3500 });
+      return () => window.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(warmMap, 2200);
+    return () => window.clearTimeout(id);
+  }, [activePage, router]);
 
   return (
     <>
-      <a href="#appPages" className="skip-link">{t('a11y.skip')}</a>
+      <a href="#appPages" className="skip-link">
+        {t('a11y.skip')}
+      </a>
       <nav className="navbar" id="navbar">
-        {/* Left: Map icon */}
+        {/* Left: map text */}
         <div className="navbar-actions" style={{ flex: 1, justifyContent: 'flex-start' }}>
-          <Link href="/map" className={`navbar-icon-btn${activePage === 'map' ? ' active' : ''}`} id="navMapBtn" aria-label="Map">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/icon-map.webp?v=3" alt="" height={30} style={{ display: 'block', height: 30, width: 'auto' }} />
-          </Link>
+          <MapIntentLink
+            href="/map"
+            className={`navbar-icon-btn ${styles.mapSticker}${activePage === 'map' ? ' active' : ''}`}
+            id="navMapBtn"
+            aria-label="Map"
+          >
+            <span className={styles.mapWord}>Map</span>
+          </MapIntentLink>
         </div>
         {/* Center: Logo */}
         <div className="navbar-home">
           <Link href="/" className={styles.logo} aria-label="Eat This — Start">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" className={styles.logoImg} />
+            <img
+              src="/pics/eat-this-logo.webp?v=6"
+              alt="Eat This"
+              width="1660"
+              height="667"
+              decoding="async"
+              className={styles.logoImg}
+            />
           </Link>
         </div>
-        {/* Right: Burger (News lives in the drawer) */}
+        {/* Right: menu text (News lives in the drawer) */}
         <div className="navbar-actions" style={{ flex: 1, justifyContent: 'flex-end' }}>
-          <button className="burger-btn" id="burgerBtn" aria-label="Menu">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/icon-burger.webp?v=3" alt="" height={30} style={{ display: 'block', height: 30, width: 'auto' }} />
+          <button
+            className={`burger-btn ${styles.menuSticker}`}
+            id="burgerBtn"
+            aria-label={lang === 'de' ? 'Menü' : 'Menu'}
+            aria-controls="burgerDrawer"
+            aria-expanded="false"
+            onClick={openBurgerDrawer}
+          >
+            <span className={styles.menuWord}>{lang === 'de' ? 'Menü' : 'Menu'}</span>
           </button>
         </div>
       </nav>

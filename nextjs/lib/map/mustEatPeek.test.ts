@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildPrimaryMustEatMap, resolvePeek } from './mustEatPeek'
+import { buildPeekMustEatMap, buildPrimaryMustEatMap, resolvePeek } from './mustEatPeek'
 import type { MapMustEat } from '@/lib/types'
 
 function me(id: string, restId: string, order: number, image = `img-${id}`): MapMustEat {
@@ -22,6 +22,23 @@ describe('buildPrimaryMustEatMap', () => {
     const m2 = { ...me('y', 'r1', 0), order: undefined }
     const map = buildPrimaryMustEatMap([m1, m2])
     expect(map.get('r1')?._id).toBe('x')
+  })
+})
+
+describe('buildPeekMustEatMap', () => {
+  it('prefers a face-up must-eat over a lower-order covered card', () => {
+    const map = buildPeekMustEatMap(
+      [me('covered-primary', 'r1', 2), me('open-secondary', 'r1', 13)],
+      new Set(['open-secondary']),
+    )
+
+    expect(map.get('r1')?._id).toBe('open-secondary')
+  })
+
+  it('keeps the lowest-order card when none are face-up', () => {
+    const map = buildPeekMustEatMap([me('b', 'r1', 2), me('a', 'r1', 1)], new Set())
+
+    expect(map.get('r1')?._id).toBe('a')
   })
 })
 

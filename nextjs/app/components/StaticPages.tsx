@@ -22,6 +22,7 @@ function StaticPage({ doc }: { doc: StaticPageDoc }) {
   return (
     <div className={styles.page} data-page={doc.slug} id={id}>
       <div className={styles.inner}>
+        <p className={styles.kicker}>{lang === 'de' ? 'Auf dem Teller' : 'On the plate'}</p>
         <h1 className={styles.title} id={`${id}-title`}>{title}</h1>
         <div className={styles.body} id={`${id}-body`}>
           <PortableTextRenderer blocks={body} />

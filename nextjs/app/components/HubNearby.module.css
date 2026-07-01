@@ -1,303 +1,95 @@
-.section {
-  background: #fbf8ee;
-  padding: 20px 0 28px;
+/* HubNearby — homeV2 vocabulary. Global hv-rail/hv-photo/hv-cap/hv-sub handle
+   layout; this file only covers the card flex-basis, photo height, the locate
+   button, error sub-line, and the auth-mode (2-up compact) variant. */
+
+/* ── Rail card sizing ──────────────────────────────────────────────────────── */
+.card {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 clamp(240px, 24vw, 300px);
 }
 
-.head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  margin: 36px 16px 10px;
+/* Name + meta are inline-by-default spans; the flex column above stacks them.
+   Nudge the meta tight under the name so the walk-time/district reads as a
+   caption, not a run-on of the name. */
+.card :global(.hv-sub) {
+  margin-top: 2px;
 }
-/* "Nähe" carries an umlaut → Saira Condensed (the brand display font has no
-   accented glyphs); line-height 1.15 + padding-top guard against clipping. */
-.heading {
-  font-family: var(--font-ranchers);
-  font-size: clamp(34px, 11vw, 44px);
-  line-height: 1.08;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  padding-top: 6px;
-  margin: 0;
+
+.photo {
+  aspect-ratio: 4 / 3;
+  height: auto;
 }
+
+/* ── Locate button (sits in hv-head as hv-link equivalent) ─────────────────── */
 .locBtn {
-  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: var(--brand-yellow);
-  border: 2px solid #0a0a0a;
-  box-shadow: 2px 2px 0 #0a0a0a;
-  color: #0a0a0a;
-  font-family: var(--font);
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: .08em;
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: var(--menu-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 6px 10px;
+  color: inherit;
   cursor: pointer;
-  transition: transform .12s ease, box-shadow .12s ease, background-color .15s ease;
+  line-height: 1;
+}
+.locBtn:disabled {
+  cursor: wait;
 }
 .locIcon {
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   flex: 0 0 auto;
   fill: none;
   stroke: currentColor;
   stroke-width: 2.4;
   stroke-linecap: round;
 }
-.locBtn:hover {
-  background: #ffdf3d;
-  box-shadow: 3px 3px 0 #0a0a0a;
-  transform: translate(-1px, -1px);
-}
-.locBtn:active {
-  box-shadow: 0 0 0 #0a0a0a;
-  transform: translate(2px, 2px);
-}
-.locBtn:disabled {
-  cursor: wait;
-  opacity: .75;
-  box-shadow: 0 0 0 #0a0a0a;
-  transform: translate(2px, 2px);
-}
 
+/* ── Sub / fallback line ───────────────────────────────────────────────────── */
 .sub {
-  margin: 0 16px 14px;
-  font-family: var(--font);
-  font-size: 12px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-}
-/* Geolocation error line (denied/timeout) — same typo, coral for visibility */
-.subError {
-  color: var(--c-coral);
-}
-
-.row {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding: 4px 16px 8px;
-  margin: 0;
-  list-style: none;
-}
-.row::-webkit-scrollbar {
-  display: none;
-}
-.cardItem {
-  flex: 0 0 168px;
-  scroll-snap-align: start;
-  margin: 0;
-}
-.card {
-  display: block;
-  position: relative;
-  aspect-ratio: 4 / 5;
-  border: 1px solid rgba(10, 10, 10, 0.10);
-  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06);
-  overflow: hidden;
-  text-decoration: none;
-  color: #fbf8ee;
-}
-.cardImage {
-  position: absolute;
-  inset: 0;
-  background-color: #14100c;
-}
-.cardImage img {
-  object-fit: cover;
-}
-.card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(11, 8, 6, 0.95) 0%,
-    rgba(11, 8, 6, 0.66) 20%,
-    rgba(11, 8, 6, 0.2) 44%,
-    transparent 66%
-  );
-}
-.dist {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 2;
-  background: var(--brand-yellow);
-  color: #0a0a0a;
-  font-family: var(--font);
+  margin: 0 0 12px;
+  font-family: var(--menu-mono);
   font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .04em;
-  padding: 3px 7px;
-  border: 1.5px solid #0a0a0a;
-}
-.cardBody {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  z-index: 1;
-}
-.name {
-  font-family: var(--font-ranchers);
-  font-size: 22px;
-  line-height: .92;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin: 0;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, .45);
+  color: rgba(21, 18, 14, 0.55);
 }
-.meta {
-  font-family: var(--font);
-  font-size: 10.5px;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--accent-warm);
-  margin: 4px 0 0;
-  font-weight: 700;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+.subError {
+  color: #9b4400;
 }
 
-.meHeading {
-  font-family: var(--font-ranchers);
-  font-size: 17px;
-  line-height: 1.05;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  margin: 30px 16px 2px;
-  padding-top: 4px;
-}
-.meSub {
-  margin: 0 16px 12px;
-  font-family: var(--font);
-  font-size: 12px;
-  letter-spacing: .06em;
-  color: var(--text-secondary);
-}
-.meRow {
-  display: flex;
-  gap: 14px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding: 4px 16px 10px;
-  margin: 0;
-  list-style: none;
-}
-.meRow::-webkit-scrollbar {
-  display: none;
-}
-.meItem {
-  flex: 0 0 168px;
-  scroll-snap-align: start;
-  margin: 0;
-}
-/* Must-eats are freigestellt (cut-out) cards — no frame, no background, just
-   the floating dish with a tilt + drop-shadow (matches the map fan + teaser). */
-.meCard {
-  display: block;
-  position: relative;
-  aspect-ratio: 1539 / 2115;
-  background: transparent;
-}
-.meImg {
-  object-fit: contain;
-}
-.meItem:nth-child(odd) .meCard {
-  transform: rotate(-1.5deg);
-}
-.meItem:nth-child(even) .meCard {
-  transform: rotate(1.5deg);
-}
-.foot {
-  margin: 2px 16px 12px;
-  text-align: right;
-}
-.footLink {
-  font-family: var(--font);
-  font-size: 12px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  border-bottom: 2px solid var(--brand-yellow);
-  padding-bottom: 1px;
-  text-decoration: none;
-}
-
-/* ── Desktop: centered column, scrollers become wrapping grids ── */
-@media (min-width: 720px) {
-  .section { padding-inline: max(16px, calc((100% - 1120px) / 2)); }
-  /* Group the Standort button next to the heading instead of stranding it in
-     the far-right corner across a big empty gap; vertically centered to the
-     headline with comfortable spacing. */
-  .head { margin: 44px 0 14px; justify-content: flex-start; gap: 22px; }
-  .heading { font-size: clamp(44px, 5vw, 56px); }
-  .sub, .meSub { margin-left: 0; margin-right: 0; }
-  .meHeading { margin: 44px 0 4px; font-size: 20px; }
-  /* Restaurant cards: exactly 4 across, filling the full 1120 column (bigger
-     cards, no empty tracks on the right). */
-  .row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    overflow: visible;
-    padding: 6px 0 12px;
-  }
-  /* Nearby Must-Eat cut-outs: bigger and centered as a group rather than
-     left-clustered in an auto-fill grid. */
-  .meRow {
-    display: flex;
+/* ── Desktop: wrap into rows instead of horizontal swipe ───────────────────── */
+/* Compound :global(.hv-rail).rail (0,3,0 with .homeV2) beats .homeV2 .hv-rail
+   (0,2,0), so overflow can go visible — nothing overflows once it wraps. */
+@media (min-width: 761px) {
+  :global(.homeV2) :global(.hv-rail).rail {
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 22px;
     overflow: visible;
-    padding: 8px 0 12px;
+    row-gap: clamp(20px, 2.4vw, 32px);
   }
-  .cardItem { flex: initial; }
-  .meItem { flex: 0 0 200px; }
-  .foot { margin: 12px 0 18px; text-align: center; }
 }
 
-/* ── Dark mode: dark page, warm-cream ink, red replaces yellow. Photos and
-   text-on-photo (cream + shadow) left untouched. ── */
-html[data-theme="dark"] .section { background: var(--dk-page); }
-html[data-theme="dark"] .heading,
-html[data-theme="dark"] .meHeading,
-html[data-theme="dark"] .footLink { color: var(--dk-ink); }
-/* Location button: cream surface → dark, ink border/shadow → cream */
-html[data-theme="dark"] .locBtn {
-  background: var(--c-coral);
-  border-color: var(--dk-ink);
-  box-shadow: 3px 3px 0 var(--dk-rule);
-  color: #fbf8ee;
+/* ── Auth-mode (2-up compact inside HubDeineWelt) ──────────────────────────── */
+.rail[data-auth-rail] .card {
+  flex-basis: 160px;
 }
-html[data-theme="dark"] .locBtn:hover {
-  background: var(--c-coral-bright);
-  box-shadow: 4px 4px 0 var(--dk-rule);
+.rail[data-auth-rail] .photo {
+  height: 120px;
 }
-html[data-theme="dark"] .locBtn:active { box-shadow: 0 0 0 var(--dk-rule); }
-html[data-theme="dark"] .locBtn:disabled { box-shadow: 0 0 0 var(--dk-rule); }
-html[data-theme="dark"] .subError { color: var(--c-coral-bright); }
-/* Photo cards keep their image; frame border → cream */
-html[data-theme="dark"] .card { border-color: var(--dk-ink); }
-/* Distance chip: yellow fill → red, ink → cream label + cream border */
-html[data-theme="dark"] .dist {
-  background: var(--c-coral);
-  color: #fbf8ee;
-  border-color: var(--dk-ink);
+
+/* ── Mobile ────────────────────────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .card {
+    flex-basis: min(78vw, 200px);
+  }
+  .photo {
+    height: 140px;
+  }
 }
-/* Yellow text accents → bright red */
-html[data-theme="dark"] .meta { color: var(--accent-warm); }
-/* Foot link underline: yellow → red */
-html[data-theme="dark"] .footLink { border-bottom-color: var(--c-coral); }

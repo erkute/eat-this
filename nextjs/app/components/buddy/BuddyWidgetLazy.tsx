@@ -4,13 +4,9 @@ import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 
 // BuddyWidget pulls in the whole chat machinery (~108 KB: streaming, message
-// rendering, the buddy hooks) but nothing it renders is needed for first paint
-// — the corner launcher only matters once the page is interactive. Code-split
-// it (ssr: false) and defer the mount to idle so it stays off the critical
-// path. The home-stage handshake (buddy:stage) is unaffected: the "Frag Remy"
-// section is the 4th hub block (below the fold), so its visible:true fires on
-// scroll long after this has mounted; at load the launcher's default (shown)
-// already matches the stage's below-fold visible:false.
+// rendering, the buddy hooks) but it is only needed after the user engages
+// Remy from the home hub. Code-split it (ssr: false) and defer the mount to
+// idle so it stays off the critical path.
 const BuddyWidget = dynamic(() => import('./BuddyWidget'), { ssr: false })
 
 export default function BuddyWidgetLazy() {

@@ -11,13 +11,12 @@
   font-size: 15px;
   line-height: 1;
   letter-spacing: 0.01em;
-  color: #fff;
-  background: rgba(20, 14, 11, 0.52);
-  -webkit-backdrop-filter: blur(7px) saturate(1.1);
-  backdrop-filter: blur(7px) saturate(1.1);
+  color: #14100c;
+  background: #fff;
   padding: 7px 12px;
-  border-radius: 999px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+  border: 2px solid #fff;
+  border-radius: 0;
+  box-shadow: 3px 3px 0 #14100c;
   white-space: nowrap;
 }
 
@@ -27,3 +26,13 @@
   font-size: 14px;
   line-height: 1;
 }
+
+.heartCount {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  clip-path: polygon(3% 10%, 97% 0, 100% 86%, 6% 100%);
+  transform: rotate(-3deg);
+  filter: drop-shadow(0 5px 4px rgba(43, 33, 28, .28));
+}
+.heartCount::before { color: #ef3108; }

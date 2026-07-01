@@ -296,3 +296,116 @@
   border-color: rgba(255, 255, 255, 0.12);
   border-top-color: #E8762A;
 }
+
+/* Providence collage icon treatment */
+.panel {
+  border-radius: 0;
+  border: 3px solid #14100c;
+  box-shadow: 10px 10px 0 #14100c;
+}
+.inputIcon { color: #ef3108; }
+.closeBtn {
+  width: 34px;
+  height: 34px;
+  border: 2px solid #14100c;
+  border-radius: 0;
+  background: #ffd079;
+  color: #14100c;
+  box-shadow: 3px 3px 0 #14100c;
+}
+.closeBtn:hover {
+  background: #ef3108;
+  color: #fff;
+}
+.thumb,
+.thumbPlaceholder {
+  border-radius: 0;
+  border: 3px solid #fff;
+  box-shadow: 3px 3px 0 #14100c;
+}
+.chevron {
+  width: 24px;
+  height: 24px;
+  padding: 4px;
+  color: #14100c;
+  background: #ffd079;
+  border: 1.5px solid #14100c;
+  box-shadow: 2px 2px 0 #14100c;
+}
+:global(html[data-theme="dark"]) .closeBtn,
+:global(html[data-theme="dark"]) .chevron {
+  background: #ef3108;
+  color: #fff;
+  border-color: #f0e8d0;
+  box-shadow: 2px 2px 0 #f0e8d0;
+}
+
+.closeBtn,
+.chevron {
+  background: #fff;
+  color: #14100c;
+  border: 0;
+  box-shadow: none;
+  clip-path: polygon(8% 0, 100% 12%, 88% 100%, 0 86%);
+  filter: drop-shadow(0 4px 4px rgba(43, 33, 28, .24));
+  transform: rotate(3deg);
+}
+.chevron {
+  background: #fff;
+  color: #14100c;
+  transform: rotate(-4deg);
+}
+.item:nth-child(even) .chevron { transform: rotate(4deg); }
+.item:hover .chevron { transform: rotate(0) translateX(3px) scale(1.08); }
+:global(html[data-theme="dark"]) .closeBtn,
+:global(html[data-theme="dark"]) .chevron {
+  background: #fff;
+  color: #14100c;
+  border: 0;
+  box-shadow: none;
+}
+
+/* Map uses a dark canvas, but the search surface should stay paper-white
+   like the map controls instead of turning into a red/dark brand block. */
+:global(html[data-active-page="map"]) .panel,
+:global(html[data-active-page="map"][data-theme="dark"]) .panel {
+  background: #fff;
+  color: #14100c;
+}
+:global(html[data-active-page="map"]) .inputRow,
+:global(html[data-active-page="map"][data-theme="dark"]) .inputRow {
+  background: #fff;
+  border-bottom-color: rgba(20, 16, 12, .1);
+}
+:global(html[data-active-page="map"]) .input,
+:global(html[data-active-page="map"][data-theme="dark"]) .input,
+:global(html[data-active-page="map"]) .inputIcon,
+:global(html[data-active-page="map"][data-theme="dark"]) .inputIcon {
+  color: #14100c;
+}
+:global(html[data-active-page="map"]) .input::placeholder,
+:global(html[data-active-page="map"][data-theme="dark"]) .input::placeholder {
+  color: rgba(20, 16, 12, .45);
+}
+:global(html[data-active-page="map"]) .hint,
+:global(html[data-active-page="map"][data-theme="dark"]) .hint,
+:global(html[data-active-page="map"]) .loadingRow,
+:global(html[data-active-page="map"][data-theme="dark"]) .loadingRow,
+:global(html[data-active-page="map"]) .meta,
+:global(html[data-active-page="map"][data-theme="dark"]) .meta {
+  color: rgba(20, 16, 12, .56);
+}
+:global(html[data-active-page="map"]) .title,
+:global(html[data-active-page="map"][data-theme="dark"]) .title,
+:global(html[data-active-page="map"]) .closeBtn,
+:global(html[data-active-page="map"][data-theme="dark"]) .closeBtn,
+:global(html[data-active-page="map"]) .chevron,
+:global(html[data-active-page="map"][data-theme="dark"]) .chevron {
+  color: #14100c;
+}
+:global(html[data-active-page="map"]) .closeBtn,
+:global(html[data-active-page="map"][data-theme="dark"]) .closeBtn,
+:global(html[data-active-page="map"]) .chevron,
+:global(html[data-active-page="map"][data-theme="dark"]) .chevron {
+  background: #fff;
+}

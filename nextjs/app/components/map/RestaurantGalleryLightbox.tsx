@@ -98,19 +98,13 @@ function Viewer({
         transition={{ duration: 0.2 }}
       />
 
-      <button type="button" className={styles.galleryLbClose} aria-label="Schließen" onClick={onClose}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
-          <path d="M6 6l12 12M18 6L6 18" />
-        </svg>
-      </button>
-
       {count > 1 && (
         <span className={styles.galleryLbCounter}>
           {page + 1} / {count}
         </span>
       )}
 
-      <div className={styles.galleryLbStage} onClick={(e) => e.stopPropagation()}>
+      <div className={styles.galleryLbStage}>
         <AnimatePresence custom={dir} initial={false} mode="sync">
           <motion.div
             key={page}
@@ -129,7 +123,20 @@ function Viewer({
               else if (info.offset.x > SWIPE_THRESHOLD) go(-1)
             }}
           >
-            <img src={img.full} alt={img.alt ?? restaurantName} className={styles.galleryLbImg} draggable={false} />
+            <div className={styles.galleryLbPrint}>
+              <img src={img.full} alt={img.alt ?? restaurantName} className={styles.galleryLbImg} draggable={false} />
+              {img.credit && (
+                <span className={styles.galleryLbCredit}>
+                  {href ? (
+                    <a href={href} target="_blank" rel="noopener noreferrer">
+                      {img.credit}
+                    </a>
+                  ) : (
+                    img.credit
+                  )}
+                </span>
+              )}
+            </div>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -163,17 +170,6 @@ function Viewer({
         </>
       )}
 
-      {img.credit && (
-        <span className={styles.galleryLbCredit} onClick={(e) => e.stopPropagation()}>
-          {href ? (
-            <a href={href} target="_blank" rel="noopener noreferrer">
-              {img.credit}
-            </a>
-          ) : (
-            img.credit
-          )}
-        </span>
-      )}
     </motion.div>
   )
 }

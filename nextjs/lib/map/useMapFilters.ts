@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import type { MapRestaurant, MapCategory } from '@/lib/types'
+import type { MapRestaurant, MapCategory, MapMustEat } from '@/lib/types'
 import { getOpenStatus } from './openingHours'
 import { haversineDistance } from './distance'
 
@@ -13,6 +13,7 @@ interface Args {
   /** Visible-but-not-clickable preview rows — filtered through the same
    *  pipeline so a Pizza-Filter shrinks both unlocked AND locked groups. */
   lockedRestaurants?: MapRestaurant[]
+  mustEats?: MapMustEat[]
   location: { lat: number; lng: number } | null
 }
 
@@ -20,7 +21,11 @@ function districtOf(r: MapRestaurant): string | null {
   return r.bezirk?.name ?? r.district ?? null
 }
 
-export function useMapFilters({ restaurants, lockedRestaurants = [], location }: Args) {
+function includesQuery(value: string | null | undefined, q: string): boolean {
+  return Boolean(value?.toLowerCase().includes(q))
+}
+
+export function useMapFilters({ restaurants, lockedRestaurants = [], mustEats = [], location }: Args) {
   const [category, setCategory] = useState<MapCategory>('All')
   const [search,   setSearch]   = useState('')
   const [bezirk,   setBezirk]   = useState<string | null>(null)
@@ -59,19 +64,33 @@ export function useMapFilters({ restaurants, lockedRestaurants = [], location }:
     return Array.from(set).sort((a, b) => a.localeCompare(b, 'de'))
   }, [restaurants])
 
+  const dishIndexByRestaurantId = useMemo(() => {
+    const index = new Map<string, string>()
+    for (const mustEat of mustEats) {
+      const restaurantId = mustEat.restaurant?._id
+      const dish = mustEat.dish?.trim()
+      if (!restaurantId || !dish) continue
+      index.set(restaurantId, `${index.get(restaurantId) ?? ''} ${dish.toLowerCase()}`)
+    }
+    return index
+  }, [mustEats])
+
   // A non-empty search query overrides all other filters: the user expects to
   // find anything on the map regardless of the active bezirk/category/open
   // selection.
   const filterRestaurant = useCallback((r: MapRestaurant): boolean => {
     const q = search.trim().toLowerCase()
     if (q) {
+      const dishIndex = dishIndexByRestaurantId.get(r._id) ?? ''
       const hit =
-        r.name.toLowerCase().includes(q) ||
-        (districtOf(r) ?? '').toLowerCase().includes(q) ||
+        includesQuery(r.name, q) ||
+        includesQuery(districtOf(r), q) ||
+        includesQuery(r.cuisineType, q) ||
+        dishIndex.includes(q) ||
         r.categories?.some(c =>
-          c.name.toLowerCase().includes(q) ||
-          c.nameEn?.toLowerCase().includes(q) ||
-          c.slug.toLowerCase().includes(q),
+          includesQuery(c.name, q) ||
+          includesQuery(c.nameEn, q) ||
+          includesQuery(c.slug, q),
         )
       return Boolean(hit)
     }
@@ -83,7 +102,7 @@ export function useMapFilters({ restaurants, lockedRestaurants = [], location }:
       if (!getOpenStatus(r.openingHours).isOpen) return false
     }
     return true
-  }, [category, bezirk, cuisine, openOnly, search])
+  }, [category, bezirk, cuisine, openOnly, search, dishIndexByRestaurantId])
 
   const displayedRestaurants = useMemo(() => {
     const filtered = restaurants.filter(filterRestaurant)

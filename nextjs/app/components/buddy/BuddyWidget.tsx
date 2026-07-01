@@ -6,15 +6,14 @@ import BuddyAvatar, { type BuddyMood } from './BuddyAvatar'
 import { useBuddyChat, type BuddyDisplayMessage } from './useBuddyChat'
 import { splitAnswerSegments, extractFollowups } from '@/lib/buddy/stream'
 import { greetingFor } from '@/lib/buddy/greeting'
+import { isNearbyIntent } from '@/lib/buddy/nearbyIntent'
 import {
   BUDDY_ASK_EVENT,
-  BUDDY_STAGE_EVENT,
   type BuddyAskDetail,
-  type BuddyStageDetail,
-  type BuddyStageRect,
 } from '@/lib/buddy/homeStage'
 import { useAuth } from '@/lib/auth'
 import { useFavorites } from '@/lib/map/useFavorites'
+import { useUserLocationContext } from '@/lib/map/UserLocationContext'
 import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements'
 import type { Locale, SpotCandidate, ArticleResult, PackTeaser } from '@/lib/buddy/types'
 import styles from './BuddyWidget.module.css'
@@ -148,8 +147,20 @@ function ArticleCard({ article, locale, onSelect }: { article: ArticleResult; lo
 }
 
 const T = {
-  de: { open: 'Remy öffnen', close: 'Schließen', thinking: 'Remy denkt nach', placeholder: 'Schreib Remy…' },
-  en: { open: 'Open Remy', close: 'Close', thinking: 'Remy is thinking', placeholder: 'Message Remy…' },
+  de: {
+    open: 'Remy öffnen',
+    close: 'Schließen',
+    thinking: 'Antwort wird geladen',
+    placeholder: 'Schreib Remy…',
+    send: 'Senden',
+  },
+  en: {
+    open: 'Open Remy',
+    close: 'Close',
+    thinking: 'Answer loading',
+    placeholder: 'Message Remy…',
+    send: 'Send',
+  },
 } satisfies Record<Locale, Record<string, string>>
 
 // A short line in Remy's voice that hands the pack card over, so it doesn't
@@ -296,7 +307,7 @@ export default function BuddyWidget() {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState('')
   const { messages, isStreaming, send, setGeo } = useBuddyChat()
-  const launcherRef = useRef<HTMLButtonElement>(null)
+  const { location, loading: locating, request: requestLocation } = useUserLocationContext()
   const panelRef = useRef<HTMLDivElement>(null)
 
   // Save a spot to the user's map (Firestore favourites). Anonymous users are
@@ -327,44 +338,46 @@ export default function BuddyWidget() {
     [toggleFav],
   )
 
-  const [scrolling, setScrolling] = useState(false)
   const [happyBeat, setHappyBeat] = useState(false)
   const [greetingBeat, setGreetingBeat] = useState(false)
-  const [locating, setLocating] = useState(false)
   const wasStreaming = useRef(false)
-  const [onStage, setOnStage] = useState(false)
-  // The corner launcher stays hidden until the visitor has actually reached the
-  // hub's "Frag Remy" section and scrolled on past it (or engaged Remy via the
-  // section's CTA) — so he doesn't float in the corner from the top of the page,
-  // before he's been introduced. Once revealed he stays around for the session.
-  const [revealed, setRevealed] = useState(false)
-  const [arrivalBeat, setArrivalBeat] = useState(false)
-  const stageRect = useRef<BuddyStageRect | null>(null)
 
   const closePanel = useCallback(() => {
     setOpen(false)
-    launcherRef.current?.focus()
   }, [])
 
-  // Make Remy "talk" while the page is scrolling — a little sign of life on the
-  // launcher. Goes quiet ~400ms after scrolling stops.
-  // NOTE: capture:true — on desktop the SPA scrolls an inner `.app-pages`
-  // container, not the window. Scroll events don't bubble, but they DO trickle
-  // in the capture phase, so this catches both the inner scroller (desktop) and
-  // the document (mobile).
   useEffect(() => {
-    let t: ReturnType<typeof setTimeout>
-    const onScroll = () => {
-      setScrolling(true)
-      clearTimeout(t)
-      t = setTimeout(() => setScrolling(false), 400)
-    }
-    window.addEventListener('scroll', onScroll, { passive: true, capture: true })
-    return () => {
-      window.removeEventListener('scroll', onScroll, { capture: true })
-      clearTimeout(t)
-    }
-  }, [])
+    setGeo(location)
+  }, [location, setGeo])
+
+  const notifyLocationFailure = useCallback(() => {
+    if (typeof window === 'undefined') return
+    window.showNotification?.(
+      locale === 'en'
+        ? "Couldn't get your location — tell me your district instead."
+        : 'Standort ließ sich nicht ermitteln — sag mir einfach deinen Bezirk.',
+    )
+  }, [locale])
+
+  const sendWithLocationIfNeeded = useCallback(
+    async (text: string) => {
+      const trimmed = text.trim()
+      if (!trimmed || isStreaming || locating) return
+
+      if (isNearbyIntent(trimmed) && !location) {
+        const loc = await requestLocation()
+        if (!loc) {
+          notifyLocationFailure()
+          return
+        }
+        setGeo(loc)
+      }
+
+      setDraft('')
+      void send(trimmed)
+    },
+    [isStreaming, locating, location, notifyLocationFailure, requestLocation, send, setGeo],
+  )
 
   // A short "happy" laugh beat the moment an answer with spot recommendations
   // finishes streaming.
@@ -415,7 +428,7 @@ export default function BuddyWidget() {
     }
   }, [open])
 
-  // Escape closes the panel and returns focus to the launcher.
+  // Escape closes the panel.
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
@@ -439,79 +452,25 @@ export default function BuddyWidget() {
     return () => document.removeEventListener('pointerdown', onPointerDown)
   }, [open, closePanel])
 
-  // ── Home-stage protocol ──
-  // While the hub's "Frag Remy" section is on screen there is only ONE Remy —
-  // the stage one — so the corner launcher hides. When the stage scrolls away,
-  // the launcher flies in from where the stage avatar last stood (FLIP) and
-  // smiles briefly on arrival. See lib/buddy/homeStage.ts.
-  useEffect(() => {
-    const onStageEvent = (e: Event) => {
-      const { visible, rect } = (e as CustomEvent<BuddyStageDetail>).detail
-      stageRect.current = rect ?? null
-      setOnStage(visible)
-    }
-    window.addEventListener(BUDDY_STAGE_EVENT, onStageEvent)
-    return () => window.removeEventListener(BUDDY_STAGE_EVENT, onStageEvent)
-  }, [])
-
-  const wasOnStage = useRef(false)
-  useEffect(() => {
-    const was = wasOnStage.current
-    wasOnStage.current = onStage
-    if (!was || onStage) return
-    // Stage just scrolled away: this is the moment Remy "moves into" the corner.
-    setRevealed(true)
-    const btn = launcherRef.current
-    const from = stageRect.current
-    // No rect (section unmounted) or no WAAPI (jsdom): just appear in place.
-    if (!btn || !from || typeof btn.animate !== 'function') return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const to = btn.getBoundingClientRect()
-    if (to.width === 0) return
-    const dx = from.left + from.width / 2 - (to.left + to.width / 2)
-    const dy = from.top + from.height / 2 - (to.top + to.height / 2)
-    btn.animate(
-      [
-        { transform: `translate(${dx}px, ${dy}px) scale(${from.width / to.width})`, opacity: 0.85 },
-        { transform: 'none', opacity: 1 },
-      ],
-      { duration: 480, easing: 'cubic-bezier(0.22, 0.8, 0.3, 1)' },
-    )
-    setArrivalBeat(true)
-  }, [onStage])
-
-  useEffect(() => {
-    if (!arrivalBeat) return
-    const t = setTimeout(() => setArrivalBeat(false), 1600)
-    return () => clearTimeout(t)
-  }, [arrivalBeat])
-
   // Stage chips / CTA hand-off: open the panel and (optionally) ask right away.
   // `send` self-guards against empty text and concurrent streams.
   useEffect(() => {
     const onAsk = (e: Event) => {
       const { question } = (e as CustomEvent<BuddyAskDetail>).detail ?? {}
       setOpen(true)
-      // Engaging Remy from the section's chips/CTA also "introduces" him, so the
-      // corner launcher should persist once the panel is closed again.
-      setRevealed(true)
-      if (question) void send(question)
+      if (question) void sendWithLocationIfNeeded(question)
     }
     window.addEventListener(BUDDY_ASK_EVENT, onAsk)
     return () => window.removeEventListener(BUDDY_ASK_EVENT, onAsk)
-  }, [send])
+  }, [sendWithLocationIfNeeded])
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const text = draft
-    setDraft('')
-    void send(text)
+    void sendWithLocationIfNeeded(draft)
   }
 
   const ask = (text: string) => {
-    if (isStreaming) return
-    setDraft('')
-    void send(text)
+    void sendWithLocationIfNeeded(text)
   }
 
   // "Near me": locate the user (with visible feedback), then ask. On failure we
@@ -519,43 +478,14 @@ export default function BuddyWidget() {
   const askNearby = () => {
     if (isStreaming || locating) return
     const q = locale === 'en' ? "What's good near me right now?" : 'Was Gutes in meiner Nähe?'
-    const notify = (msg: string) =>
-      typeof window !== 'undefined' && window.showNotification?.(msg)
-    if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      notify(locale === 'en' ? 'Location not available on this device.' : 'Standort auf diesem Gerät nicht verfügbar.')
-      return
-    }
-    setLocating(true)
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLocating(false)
-        setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude })
-        ask(q)
-      },
-      (err) => {
-        setLocating(false)
-        const denied = err.code === err.PERMISSION_DENIED
-        notify(
-          denied
-            ? locale === 'en'
-              ? 'Location access is blocked — allow it, or tell me your district.'
-              : 'Standortzugriff ist blockiert — erlaub ihn oder sag mir deinen Bezirk.'
-            : locale === 'en'
-              ? "Couldn't get your location — tell me your district instead."
-              : 'Standort ließ sich nicht ermitteln — sag mir einfach deinen Bezirk.',
-        )
-      },
-      { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 },
-    )
+    void sendWithLocationIfNeeded(q)
   }
 
   const title = 'Remy'
 
-  // Expression policy: while Remy is still "thinking" (streaming, but no
-  // answer text yet — the typing-dots phase) he ponders with the O-mouth
-  // still. The mouth flap only runs once answer text is actually appearing,
-  // or when he "speaks" the already-visible greeting. Smile (greeting) and
-  // laugh (happy) stay brief stills.
+  // Expression policy: the mouth flap only runs once answer text is actually
+  // appearing, or when he "speaks" the already-visible greeting. Smile
+  // (greeting) and laugh (happy) stay brief stills.
   const lastMsg = messages[messages.length - 1]
   const answerStarted = lastMsg?.role === 'assistant' && lastMsg.content.length > 0
   const panelMood: BuddyMood = happyBeat
@@ -563,40 +493,17 @@ export default function BuddyWidget() {
     : isStreaming
       ? answerStarted
         ? 'talking'
-        : 'thinking'
+        : 'idle'
       : greetingBeat
         ? 'talking'
         : 'idle'
-  const launcherMood: BuddyMood = open
-    ? panelMood
-    : arrivalBeat
-      ? 'greeting'
-      : scrolling
-        ? 'talking'
-        : 'idle'
-
-  // Remy lives ONLY on the home hub — its "Frag Remy" stage hands him off to
-  // this corner widget (see HubFragRemy). On every other route (news, article,
-  // must-eats, map, …) the fixed launcher would just float without context, so
-  // we don't mount it there at all.
+  // Remy lives ONLY on the home hub and opens from the "Frag Remy" section.
+  // There is intentionally no fixed side launcher.
   const pathname = usePathname()
   if ((pathname ?? '/') !== '/') return null
 
   return (
     <>
-      <button
-        ref={launcherRef}
-        className={styles.launcher}
-        data-buddy-launcher
-        data-stage={!revealed || onStage ? 'true' : undefined}
-        aria-label={t.open}
-        aria-expanded={open}
-        aria-controls="buddy-panel"
-        onClick={() => setOpen((v) => !v)}
-      >
-        <BuddyAvatar mood={launcherMood} />
-      </button>
-
       {open && (
         <div
           ref={panelRef}
@@ -609,10 +516,17 @@ export default function BuddyWidget() {
           tabIndex={-1}
         >
           <div className={styles.header}>
-            <BuddyAvatar mood={panelMood} size={48} />
-            <strong>{title}</strong>
+            <span className={styles.avatarFrame}>
+              <BuddyAvatar mood={panelMood} size={54} />
+            </span>
+            <span className={styles.headerTitle}>
+              <strong>{title}</strong>
+              <span>{locale === 'en' ? 'Food insider' : 'Food-Insider'}</span>
+            </span>
             <button className={styles.close} type="button" aria-label={t.close} onClick={closePanel}>
-              ×
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+                <path d="M6 6l12 12M18 6 6 18" />
+              </svg>
             </button>
           </div>
           <div className={styles.log} aria-live="polite">
@@ -681,8 +595,11 @@ export default function BuddyWidget() {
               disabled={isStreaming}
               aria-label={t.placeholder}
             />
-            <button className={styles.send} type="submit" disabled={isStreaming || !draft.trim()} aria-label="Senden">
-              →
+            <button className={styles.send} type="submit" disabled={isStreaming || !draft.trim()} aria-label={t.send}>
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M5 12h13" />
+                <path d="m13 6 6 6-6 6" />
+              </svg>
             </button>
           </form>
         </div>

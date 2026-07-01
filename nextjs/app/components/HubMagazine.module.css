@@ -1,135 +1,272 @@
-.section { background: #fbf8ee; }
+/* HUB Magazine — light editorial rail with compact print cards:
+   no featured-card voids, just image-led article tiles in the same paper system
+   as the rest of the home surface. FLAT: no shadows, no gradients. */
+
+.section {
+  width: min(100% - 28px, 1220px);
+  margin: 18px auto 0;
+  padding: clamp(22px, 3vw, 32px) clamp(20px, 2.6vw, 34px) clamp(24px, 3vw, 36px);
+  color: var(--menu-ink);
+  background: var(--home-case-bg, rgba(247, 247, 243, 0.66));
+  border: 1px solid rgba(21, 18, 14, 0.16);
+  border-radius: 8px;
+}
+
 .heading {
-  font-family: var(--font-ranchers);
-  font-size: clamp(34px, 11vw, 44px);
-  line-height: 1.15;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(21, 18, 14, 0.34);
+  font-family: var(--menu-condensed);
+  font-size: clamp(30px, 6vw, 44px);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1;
   text-transform: uppercase;
-  color: var(--text-primary);
-  margin: 36px 16px 6px;
-  padding-top: 6px;
+  color: var(--menu-ink);
 }
+
 .meta {
-  margin: 0 16px 16px;
-  font-family: var(--font);
-  font-size: 12px;
-  letter-spacing: .14em;
+  margin: 10px 0 14px;
+  font-family: var(--menu-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-primary);
+  color: rgba(21, 18, 14, 0.62);
 }
+/* "ALLE" → mono ink link with a → arrow. */
 .metaLink {
-  color: var(--text-primary);
-  border-bottom: 2px solid var(--text-primary);
-  padding-bottom: 1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: max-content;
+  padding: 5px 9px;
+  color: var(--menu-ink);
+  background: var(--home-ghost-bg, rgba(255, 255, 255, 0.42));
+  border: 1px solid var(--home-ghost-border, rgba(21, 18, 14, 0.2));
+  border-radius: 4px;
+  box-shadow: var(--home-ghost-shadow, inset 0 0 0 1px rgba(255, 255, 255, 0.28));
   text-decoration: none;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: transform 0.14s ease;
 }
+.metaLink::after {
+  content: '→';
+  font-family: var(--menu-mono);
+  font-weight: 700;
+}
+.metaLink:hover,
+.metaLink:focus-visible {
+  color: var(--menu-orange);
+  transform: translateX(3px);
+}
+
 .scroller {
   display: flex;
   align-items: stretch;
   gap: 12px;
   overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding: 4px 16px 22px;
+  -ms-overflow-style: none;
+  padding: 2px 0 4px;
   margin: 0;
   list-style: none;
 }
-.scroller::-webkit-scrollbar { display: none; }
-.item { margin: 0; flex: 0 0 284px; }
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+.item {
+  flex: 0 0 284px;
+  scroll-snap-align: start;
+  margin: 0;
+}
+
+/* Flat cream menu card: lighter surface + thin ink hairline, ink text. */
 .card {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: auto;
   position: relative;
-  background: #0a0a0a;
   overflow: hidden;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(21, 18, 14, 0.22);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.34);
+  backdrop-filter: blur(14px) saturate(1.08);
+  -webkit-backdrop-filter: blur(14px) saturate(1.08);
   text-decoration: none;
-  color: #fbf8ee;
+  color: var(--menu-ink);
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease;
+}
+.card:hover,
+.card:focus-visible {
+  border-color: rgba(21, 18, 14, 0.32);
+  transform: translateY(-4px);
 }
 .cardImage {
   flex: 0 0 auto;
-  aspect-ratio: 3 / 2;
   position: relative;
-  background: #14100c;
-}
-.cardImage img { object-fit: cover; }
-.stamp {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  z-index: 2;
-  background: var(--brand-yellow);
-  color: #0a0a0a;
-  font-family: var(--font-ranchers);
-  font-weight: 700;
-  font-size: 11px;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  padding: 5px 10px 6px;
-}
-/* Body fills the remaining (equalized) card height; the title is clamped to a
-   fixed 2 lines and the read link is pinned to the bottom, so every card is the
-   same height with the CTA aligned — no tall black void, no uneven boxes. */
-.cardBody {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  padding: 16px 18px 18px;
-  background: #0a0a0a;
-}
-.cardName {
-  font-family: var(--font-ranchers);
-  font-size: 21px;
-  line-height: 1.08;
-  text-transform: uppercase;
-  letter-spacing: 0;
-  margin: 0;
-  color: #fbf8ee;
-  /* Reserve exactly two lines so 1- and 2-line titles produce equal-height
-     bodies; longer titles clamp with an ellipsis. */
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  min-height: 2.16em;
+  aspect-ratio: 4 / 3;
+  background-color: #14100c;
   overflow: hidden;
 }
-.read {
-  font-family: var(--font-ranchers);
-  font-size: 12px;
-  letter-spacing: .12em;
+.cardImage img {
+  object-fit: cover;
+  transform: scale(1);
+  transition: transform 280ms cubic-bezier(0.16, 0.92, 0.18, 1);
+}
+.card:hover .cardImage img,
+.card:focus-visible .cardImage img {
+  transform: scale(1.075);
+}
+/* Kicker → transparent mono label, slight tilt. */
+.stamp {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  background: var(--home-ghost-bg-strong, rgba(247, 247, 243, 0.68));
+  color: var(--menu-ink);
+  border: 1px solid var(--home-ghost-border, rgba(21, 18, 14, 0.38));
+  box-shadow: var(--home-ghost-shadow, inset 0 0 0 1px rgba(255, 255, 255, 0.28));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  font-family: var(--menu-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--brand-yellow);
-  margin-top: auto;
-  padding-top: 12px;
+  padding: 4px 9px;
+  border-radius: 4px;
+  transform: rotate(-3deg);
+}
+.cardBody {
+  flex: 0 0 auto;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 118px;
+  padding: 14px 16px 16px;
+}
+.cardName {
+  font-family: var(--menu-condensed);
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  line-height: 0.96;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--menu-ink);
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow-wrap: anywhere;
+}
+.read {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  margin-top: 0;
+  padding-top: 0;
+  color: rgba(21, 18, 14, 0.62);
+  font-family: var(--menu-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  transition:
+    color 0.14s ease,
+    transform 0.14s ease;
+}
+.read::after {
+  content: '→';
+  font-family: var(--menu-mono);
+  font-weight: 700;
+}
+.card:hover .read,
+.card:focus-visible .read {
+  color: rgba(21, 18, 14, 0.62);
+  transform: translateX(3px);
 }
 
-/* ── Desktop: centered column, scroller becomes a 3-up grid ── */
+/* ── Desktop: scroller becomes a wrapping 3-up grid ── */
 @media (min-width: 720px) {
-  .section { padding-inline: max(16px, calc((100% - 1120px) / 2)); }
-  .heading { margin: 48px 0 4px; font-size: clamp(44px, 5vw, 56px); }
-  .meta { margin: 0 0 18px; }
+  .section {
+    padding: clamp(18px, 2.2vw, 26px) clamp(18px, 2.2vw, 28px) clamp(20px, 2.4vw, 30px);
+  }
+
+  .heading {
+    font-size: clamp(34px, 3vw, 44px);
+  }
   .scroller {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    align-items: stretch;
-    gap: 18px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    gap: 16px;
     overflow: visible;
-    padding: 6px 0 36px;
+    padding: 4px 0 6px;
   }
-  .item { flex: initial; }
-  .cardName { font-size: 24px; }
+  .item {
+    flex: initial;
+  }
+  .item:first-child {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .item:not(:first-child) {
+    grid-column: auto;
+  }
+  .item:first-child .card {
+    min-height: 0;
+  }
+  .item:first-child .cardImage,
+  .item:not(:first-child) .card {
+    min-height: 0;
+  }
+  .item:first-child .cardImage,
+  .item:not(:first-child) .cardImage {
+    aspect-ratio: 16 / 9;
+    min-height: 0;
+  }
+  .item:not(:first-child) .cardBody {
+    padding: 12px 13px 14px;
+  }
+  .cardBody {
+    min-height: 96px;
+    padding: 12px 13px 14px;
+  }
+  .cardName {
+    font-size: clamp(20px, 1.8vw, 25px);
+    line-height: 1;
+    -webkit-line-clamp: 3;
+  }
+  .item:not(:first-child) .cardName {
+    font-size: clamp(20px, 1.8vw, 25px);
+    -webkit-line-clamp: 3;
+  }
 }
 
-/* ── Dark mode: dark page + cream ink for the heading/meta; the article cards
-   are already dark (ink bg / cream text / photo) so keep those, only flip the
-   yellow accents to red. ── */
-html[data-theme="dark"] .section { background: var(--dk-page); }
-html[data-theme="dark"] .heading,
-html[data-theme="dark"] .meta,
-html[data-theme="dark"] .metaLink { color: var(--dk-ink); }
-html[data-theme="dark"] .metaLink { border-bottom-color: var(--dk-ink); }
-/* Stamp: yellow fill + ink → red fill + cream label */
-html[data-theme="dark"] .stamp {
-  background: var(--c-coral);
-  color: #fbf8ee;
+@media (min-width: 1080px) {
+  .scroller {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
 }
-/* "Read" link accent: yellow → bright red */
-html[data-theme="dark"] .read { color: var(--c-coral-bright); }
+
+@media (max-width: 520px) {
+  .section {
+    width: calc(100% - 20px);
+    padding: 22px 18px 26px;
+  }
+  .item {
+    flex-basis: 82vw;
+  }
+}

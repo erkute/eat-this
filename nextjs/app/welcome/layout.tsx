@@ -1,19 +1,14 @@
 import type { Metadata } from 'next';
-import { Schoolbell } from 'next/font/google';
+import { DM_Sans } from 'next/font/google';
 
 export const metadata: Metadata = {
   title:   'Anmeldung — Eat This',
   robots:  { index: false, follow: false },
 };
 
-// /welcome has its own root layout (separate <html> tree), so it doesn't get
-// the Schoolbell display font from app/[locale]/layout. Load it here too —
-// next/font dedupes, so this shares the cached face. Exposed as --font-chewy
-// (the legacy variable name the sitewide display aliases still point at).
-const schoolbell = Schoolbell({
-  weight: '400',
+const dmSans = DM_Sans({
   subsets: ['latin'],
-  variable: '--font-chewy',
+  variable: '--font-dm-sans',
   display: 'swap',
 });
 
@@ -23,7 +18,11 @@ export default function AuthActionLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="de" data-scroll-behavior="smooth" className={schoolbell.variable}>
+    <html lang="de" data-scroll-behavior="smooth" className={dmSans.variable}>
+      <head>
+        <link rel="stylesheet" href="https://use.typekit.net/kgb1lmh.css" />
+        <style>{`:root { --font-chewy: 'moonblossom-1', 'moonblossom-2', 'moonblossom', 'Providence Sans Pro Regular', sans-serif; }`}</style>
+      </head>
       <body style={{ margin: 0, padding: 0, backgroundColor: '#fbf8ee' }}>
         {children}
       </body>

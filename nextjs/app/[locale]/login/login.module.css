@@ -1,55 +1,35 @@
-/* ════════════════════════════════════════════════════════════
-   /login + login modal — Chewy (mockup-chewy screen 10 + inbox 11).
-
-   Cream sheet, ink hairlines, Welcome-Pack booster art, big Chewy
-   headline, square fields, black primary CTA, yellow accents. Shared
-   between /login (full page) and BridgeAuth's modal portal; `.frameModal`
-   adds the sticker card chrome on desktop. No dark variant (cream world).
-   ════════════════════════════════════════════════════════════ */
+.page,
+.frame {
+  --login-red: #d9382a;
+  --login-ink: #15120e;
+  --login-paper: #fff;
+  --login-muted: rgba(21, 18, 14, 0.64);
+  --login-control: min(100%, 420px);
+  color: var(--login-ink);
+}
 
 .page {
-  min-height: 100dvh;
-  width: 100%;
-  background: #fbf8ee;
-  display: flex;
-  flex-direction: column;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: var(--login-paper);
 }
 
 .frame {
   position: relative;
-  flex: 1;
-  width: 100%;
-  max-width: 460px;
-  margin: 0 auto;
-  background: #fbf8ee;
-  color: #0a0a0a;
-  padding: 56px 22px max(28px, env(safe-area-inset-bottom, 0px));
-  overflow-y: auto;
+  width: min(1100px, calc(100vw - 28px));
+  background: var(--login-paper);
   isolation: isolate;
 }
 
-/* ── Close (×) — top-right, Chewy glyph ── */
-.close {
-  position: absolute;
-  top: max(14px, env(safe-area-inset-top, 0px));
-  right: 14px;
-  z-index: 60;
-  width: 42px;
-  height: 42px;
-  background: transparent;
-  border: 0;
-  color: #0a0a0a;
-  font-family: var(--font-poster);
-  font-size: 28px;
-  line-height: 1;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-bottom: 4px;
+.frameModal {
+  width: min(900px, calc(100vw - 20px));
+  height: min(560px, calc(100svh - 20px));
+  overflow: hidden;
+  border: 6px solid var(--login-ink);
 }
 
-/* heroHeadline lives in the DOM for SR + SEO; not visible. */
 .headlineSr {
   position: absolute !important;
   width: 1px;
@@ -62,393 +42,932 @@
   border: 0;
 }
 
-/* ── Welcome Pack hero ── */
-.packHero {
-  display: flex;
-  justify-content: center;
-  margin: 6px 0 18px;
-}
-.packHero img {
-  width: 240px;
-  height: auto;
-  transform: rotate(-3deg);
-  filter: drop-shadow(0 18px 24px rgba(17, 13, 9, 0.15));
-}
-
-.kicker {
-  font-family: var(--font-poster);
-  font-size: 13px;
-  letter-spacing: 0.22em;
-  color: #0a0a0a;
-  text-transform: uppercase;
-}
-.h1 {
-  font-family: var(--font-poster);
-  font-size: 44px;
-  line-height: 0.9;
-  text-transform: uppercase;
-  color: #0a0a0a;
-  margin: 0 0 12px;
-  letter-spacing: -0.005em;
-}
-.sub {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #0a0a0a;
-  opacity: .8;
-  margin: 0 0 22px;
-  max-width: 32ch;
-}
-
-/* ── Form ── */
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-.input {
-  height: 50px;
-  padding: 0 14px;
-  border: 2px solid #0a0a0a;
+.close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0 0 2px;
+  color: var(--login-ink);
+  background: var(--login-paper);
+  border: 2px solid var(--login-ink);
   border-radius: 0;
-  background: #fbf8ee;
-  font-size: 16px; /* iOS no-zoom */
-  color: #0a0a0a;
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus-visible {
+  color: var(--login-paper);
+  background: var(--login-ink);
   outline: none;
 }
-.input::placeholder { color: rgba(10, 10, 10, 0.5); }
 
-.ctaPrimary,
-.ctaGoogle {
+.modalSimple,
+.loginGrid {
+  display: grid;
+  grid-template-columns: minmax(380px, 1.08fr) minmax(320px, 0.82fr);
+  height: 100%;
+  min-height: 0;
+  background: var(--login-ink);
+}
+
+.modalPack,
+.coverPanel {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 22px;
+  min-width: 0;
+  overflow: visible;
+  padding: clamp(26px, 3vw, 38px);
+  color: var(--login-ink);
+  background: var(--login-red);
+}
+
+.modalBrand,
+.menuTop span:first-child {
+  margin: 0;
+  padding-right: 52px;
+  padding-bottom: 10px;
+  border-bottom: 4px solid var(--login-ink);
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(58px, 6vw, 84px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.78;
+  text-transform: uppercase;
+}
+
+.modalTitle,
+.kicker,
+.menuTop span:last-child {
+  color: var(--login-ink);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.modalTitle {
+  position: absolute;
+  top: clamp(102px, 9vw, 118px);
+  left: clamp(26px, 3vw, 38px);
+  margin: 0;
+}
+
+.modalPackHero,
+.packHero {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 0;
+  padding-top: 36px;
+  overflow: visible;
+}
+
+.modalPackHero img,
+.packHero img {
+  display: block;
+  width: auto;
+  max-width: min(92%, 380px);
+  height: auto;
+  max-height: min(calc(100% - 8px), clamp(300px, 25vw, 360px));
+  object-fit: contain;
+  transform: none;
+}
+
+.modalLogin,
+.formPanel {
+  display: grid;
+  align-content: center;
+  min-width: 0;
+  padding: clamp(30px, 4vw, 56px);
+  background: var(--login-paper);
+}
+
+.modalForm,
+.form,
+.actions {
+  display: grid;
   gap: 10px;
-  height: 42px;
+  width: var(--login-control);
+}
+
+.modalForm,
+.form {
+  margin: 0;
+}
+
+.input {
+  box-sizing: border-box;
   width: 100%;
+  min-height: 50px;
+  padding: 0 15px;
+  color: var(--login-ink);
+  background: var(--login-paper);
+  border: 2px solid var(--login-ink);
   border-radius: 0;
-  font-family: var(--font-poster);
-  font-size: 13px;
-  letter-spacing: 0.14em;
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+  outline: none;
+}
+
+.input::placeholder {
+  color: rgba(21, 18, 14, 0.46);
+}
+
+.input:focus {
+  border-color: var(--login-red);
+}
+
+.ctaPrimary,
+.ctaGoogle,
+.textlink {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 50px;
+  padding: 8px 16px;
+  border: 2px solid var(--login-ink);
+  border-radius: 0;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(20px, 2vw, 26px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.9;
   text-transform: uppercase;
   cursor: pointer;
 }
+
 .ctaPrimary {
-  background: #0a0a0a;
-  color: #fbf8ee;
-  border: 2px solid #0a0a0a;
-}
-.ctaPrimary:disabled { opacity: 0.55; cursor: not-allowed; }
-.ctaGoogle {
-  background: #fbf8ee;
-  color: #0a0a0a;
-  border: 2px solid #0a0a0a;
-}
-.ctaGoogle:disabled { opacity: 0.55; cursor: not-allowed; }
-.ctaGoogle svg { flex-shrink: 0; }
-
-.error {
-  margin: 0;
-  font-size: 13px;
-  color: var(--brand-red, #a02814);
-  line-height: 1.4;
+  color: var(--login-paper);
+  background: var(--login-ink);
 }
 
-/* ── "oder" divider ── */
+.ctaGoogle,
+.textlink {
+  color: var(--login-ink);
+  background: var(--login-paper);
+}
+
+.ctaPrimary:disabled,
+.ctaGoogle:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .or {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 10px;
   align-items: center;
-  gap: 14px;
-  margin: 8px 0 16px;
-  font-family: var(--font-poster);
-  font-size: 12px;
-  letter-spacing: 0.22em;
+  width: var(--login-control);
+  margin: 14px 0;
+  color: var(--login-muted);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #0a0a0a;
 }
+
 .or::before,
 .or::after {
-  content: "";
-  flex: 1;
-  border-top: 1px solid rgba(17, 13, 9, 0.25);
+  content: '';
+  border-top: 2px solid var(--login-ink);
 }
 
-/* ── Legal ── */
+.legal,
+.sub,
+.spamText {
+  color: var(--login-muted);
+  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-size: clamp(12px, 1vw, 14px);
+  font-weight: 650;
+  line-height: 1.32;
+}
+
 .legal {
-  font-size: 11px;
-  line-height: 1.5;
-  color: #0a0a0a;
-  opacity: 0.6;
+  width: var(--login-control);
   margin: 14px 0 0;
 }
+
 .legalLink {
-  color: #0a0a0a;
-  opacity: 1;
+  color: var(--login-ink);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-/* ── Sent state (inbox-check, screen 11) ── */
-.plane {
-  display: flex;
-  justify-content: center;
-  margin: 6px 0 22px;
-}
-.plane svg {
-  width: 110px;
-  height: auto;
-  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.16));
-}
-.toBlock {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  padding: 14px 16px;
-  background: #0a0a0a;
-  border-left: 4px solid var(--brand-yellow);
-  margin: 0 0 18px;
-}
-.toLabel {
-  font-family: var(--font-poster);
+.error {
+  margin: 0;
+  color: var(--login-red);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 11px;
-  letter-spacing: 0.22em;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
   text-transform: uppercase;
-  color: var(--brand-yellow);
-  flex-shrink: 0;
 }
-.toValue {
-  font-family: var(--font-poster);
-  font-size: 16px;
-  letter-spacing: 0.02em;
-  color: #fbf8ee;
-  word-break: break-all;
-  min-width: 0;
-}
-.spam {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin: 12px 0 22px;
-  padding: 10px 14px;
-  background: #efe9d8;
-  border-left: 3px solid #0a0a0a;
-}
-.spamIcon {
-  width: 18px;
-  height: 18px;
-  background: #0a0a0a;
-  color: var(--brand-yellow);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-poster);
-  font-size: 11px;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-.spamText {
-  font-size: 13px;
-  line-height: 1.4;
-  color: #0a0a0a;
-  opacity: 0.85;
-}
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.textlink {
-  font-family: var(--font-poster);
-  font-size: 12px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #0a0a0a;
-  background: transparent;
-  border: 0;
-  padding: 8px 0 0;
-  cursor: pointer;
-  text-align: center;
-  width: 100%;
-  opacity: 0.82;
-}
-.textlink:hover { opacity: 1; }
 
-/* ── Loading overlay (Google popup + post-auth redirect) ── */
+.loginGrid {
+  min-height: min(700px, calc(100svh - 36px));
+  border: 6px solid var(--login-ink);
+}
+
+.menuTop {
+  display: grid;
+  gap: 14px;
+}
+
+.menuTop span:last-child {
+  display: block;
+}
+
+.slogan {
+  display: none;
+}
+
+.h1 {
+  margin: 0;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(68px, 9vw, 124px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.8;
+  text-transform: uppercase;
+}
+
+.coverPanel {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.coverPanel .h1 {
+  max-width: 7ch;
+}
+
+.packHero {
+  padding-top: 10px;
+}
+
+.formPanel {
+  gap: 18px;
+}
+
+.menuList {
+  display: grid;
+  gap: 0;
+  width: var(--login-control);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--login-ink);
+}
+
+.menuList li {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+  min-height: 42px;
+  border-bottom: 2px solid var(--login-ink);
+}
+
+.menuList span,
+.menuList strong,
+.toLabel {
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.menuList strong {
+  text-align: right;
+}
+
+.menuWord {
+  display: none;
+}
+
+.frameSent {
+  display: grid;
+  justify-items: center;
+  width: min(620px, calc(100vw - 28px));
+  max-height: calc(100svh - 28px);
+  padding: clamp(28px, 5vw, 56px);
+  overflow: auto;
+  border: 6px solid var(--login-ink);
+  background: var(--login-paper);
+  text-align: center;
+}
+
+.plane {
+  width: 76px;
+  margin-bottom: 16px;
+}
+
+.plane svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.kicker {
+  margin-bottom: 8px;
+}
+
+.frameSent .h1 {
+  max-width: 9ch;
+  margin-bottom: 14px;
+  font-size: clamp(56px, 10vw, 92px);
+}
+
+.toBlock,
+.spam {
+  width: var(--login-control);
+  border: 2px solid var(--login-ink);
+}
+
+.toBlock {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 14px;
+  padding: 12px;
+}
+
+.toValue {
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 14px;
+  font-weight: 900;
+  word-break: break-all;
+}
+
+.spam {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 10px;
+  margin: 14px 0;
+  padding: 12px;
+  text-align: left;
+}
+
+.spamIcon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: var(--login-paper);
+  background: var(--login-red);
+  border-radius: 50%;
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .loadingOverlay {
   position: absolute;
   inset: 0;
-  z-index: 70;
-  background: rgba(10, 10, 10, 0.55);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  z-index: 30;
   display: grid;
   place-items: center;
+  background: rgba(255, 255, 255, 0.86);
 }
+
 .spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid rgba(255, 255, 255, 0.22);
-  border-top-color: #fff;
+  width: 34px;
+  height: 34px;
+  border: 3px solid rgba(21, 18, 14, 0.18);
+  border-top-color: var(--login-ink);
   border-radius: 50%;
   animation: loginSpin 0.8s linear infinite;
 }
-@keyframes loginSpin { to { transform: rotate(360deg); } }
 
-/* ── Mobile: pack is the hero, form is secondary ── */
-@media (max-width: 767px) {
-  .packHero img { width: 220px; }
-  .h1 { font-size: 40px; margin-bottom: 8px; }
-  .sub { margin-bottom: 14px; }
-  .kicker { font-size: 12px; }
-}
-
-/* ── Desktop: standalone /login centers the sheet in a tighter column.
-   The sheet must never scroll on desktop: the booster hero is the only
-   flexible block, so its height tracks the viewport (fixed content ≈
-   481px incl. paddings + hero margins; page padding = 64px). On flat
-   windows the hero is dropped entirely instead of shrinking to a stamp. ── */
-@media (min-width: 768px) {
-  .page {
-    align-items: center;
-    justify-content: center;
-    padding: 32px;
-  }
-  .frame {
-    flex: 0 0 auto;
-    width: min(460px, 94vw);
-    max-height: calc(100dvh - 64px);
-    padding-top: 40px;
-  }
-  .packHero img {
-    width: auto;
-    /* −562px = fixed content (≈481px) + page padding (64px) + the extra
-       bounding-box height the −3° rotation adds (≈13–17px). */
-    height: min(calc(100dvh - 562px), 370px);
-  }
-}
-@media (min-width: 768px) and (max-height: 660px) {
-  .packHero {
-    display: none;
+@keyframes loginSpin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-/* ── Modal variant — sticker card on desktop. ── */
-.frameModal {
-  border: 2px solid #0a0a0a;
-  box-shadow: 5px 5px 0 #0a0a0a;
-  background: #fbf8ee;
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
 }
-@media (max-width: 767px) {
-  /* Full-bleed sheet inside the modal overlay on mobile. */
+
+@media (max-width: 820px) {
   .frameModal {
-    border: 0;
-    box-shadow: none;
-    min-height: 100dvh;
+    width: min(430px, calc(100vw - 20px));
+    height: calc(100svh - 20px);
+  }
+
+  .modalSimple,
+  .loginGrid {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(300px, 50%) minmax(0, 1fr);
+  }
+
+  .modalPack,
+  .coverPanel {
+    padding: 14px;
+  }
+
+  .modalBrand,
+  .menuTop span:first-child {
+    padding-right: 52px;
+    padding-bottom: 7px;
+    border-bottom-width: 3px;
+    font-size: clamp(38px, 11vw, 48px);
+  }
+
+  .modalTitle {
+    top: 72px;
+    left: 14px;
+    font-size: 10px;
+  }
+
+  .modalPackHero,
+  .packHero {
+    padding-top: 28px;
+  }
+
+  .modalPackHero img,
+  .packHero img {
+    max-height: min(calc(100% - 8px), clamp(210px, 31svh, 270px));
+  }
+
+  .modalLogin,
+  .formPanel {
+    align-content: center;
+    padding: 14px;
+  }
+
+  .close {
+    top: 18px;
+    right: 18px;
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
   }
 }
 
-/* ══════════════════════════════════════════════
-   DARK MODE — cream sheet flips dark, yellow → red.
-   Shared by /login page + BridgeAuth modal panel.
-   Append-only; light mode above stays pixel-identical.
-   ══════════════════════════════════════════════ */
-html[data-theme="dark"] .page,
-html[data-theme="dark"] .frame {
-  background: #111110;
-}
-html[data-theme="dark"] .frame {
-  color: #f0e8d0;
+@media (max-width: 420px) and (max-height: 720px) {
+  .modalSimple,
+  .loginGrid {
+    grid-template-rows: minmax(240px, 43%) minmax(0, 1fr);
+  }
+
+  .modalPackHero img,
+  .packHero img {
+    max-height: min(calc(100% - 8px), clamp(150px, 24svh, 180px));
+  }
+
+  .modalTitle {
+    top: 64px;
+    font-size: 9px;
+  }
+
+  .input,
+  .ctaPrimary,
+  .ctaGoogle,
+  .textlink {
+    min-height: 40px;
+  }
+
+  .ctaPrimary,
+  .ctaGoogle,
+  .textlink {
+    font-size: 18px;
+  }
+
+  .or {
+    margin: 7px 0;
+  }
+
+  .legal {
+    margin-top: 7px;
+    font-size: 9px;
+    line-height: 1.18;
+  }
 }
 
-html[data-theme="dark"] .close {
-  color: #f0e8d0;
+/* 2026 Starter Pack hero modal: pack as reward, auth as fast action. */
+.frameModal {
+  width: min(980px, calc(100vw - 22px));
+  height: auto;
+  max-height: calc(100svh - 22px);
+  overflow: visible;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
 }
 
-/* Welcome Pack art is freigestellt cut-out → never filter; shadow stays. */
-
-html[data-theme="dark"] .kicker,
-html[data-theme="dark"] .h1,
-html[data-theme="dark"] .sub {
-  color: #f0e8d0;
+.frameModal .close {
+  top: 20px;
+  right: 20px;
+  width: 42px;
+  height: 42px;
+  padding: 0 0 4px;
+  color: var(--login-ink);
+  background: var(--login-paper);
+  border: 0;
+  border-radius: 4px;
+  box-shadow: none;
+  font-size: 38px;
+  transform: none;
 }
 
-/* ── Form ── dark input fields ── */
-html[data-theme="dark"] .input {
-  background: #1d1c19;
-  color: #f0e8d0;
-  border-color: rgba(240, 232, 208, 0.4);
-}
-html[data-theme="dark"] .input::placeholder {
-  color: rgba(240, 232, 208, 0.5);
-}
-
-/* Primary CTA (black + cream) on a now-dark surface → invert to cream + ink. */
-html[data-theme="dark"] .ctaPrimary {
-  background: #f0e8d0;
-  color: #0a0a0a;
-  border-color: #f0e8d0;
-}
-/* Google CTA (cream + ink + ink border) → dark raised card. */
-html[data-theme="dark"] .ctaGoogle {
-  background: #1d1c19;
-  color: #f0e8d0;
-  border-color: #f0e8d0;
+.frameModal .close:hover,
+.frameModal .close:focus-visible {
+  color: var(--login-paper);
+  background: var(--login-ink);
+  outline: 2px solid var(--login-paper);
+  outline-offset: 3px;
+  transform: translateY(-2px);
 }
 
-html[data-theme="dark"] .error {
-  color: var(--c-coral-bright);
+.modalSimple {
+  height: min(640px, calc(100svh - 22px));
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(360px, 0.95fr) minmax(360px, 1.05fr);
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--login-paper);
+  border: 2px solid var(--login-red);
+  border-radius: 10px;
+  color: var(--login-ink);
 }
 
-/* ── "oder" divider ── */
-html[data-theme="dark"] .or {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .or::before,
-html[data-theme="dark"] .or::after {
-  border-top-color: rgba(240, 232, 208, 0.25);
-}
-
-/* ── Legal ── */
-html[data-theme="dark"] .legal,
-html[data-theme="dark"] .legalLink {
-  color: #f0e8d0;
+.modalPack {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto auto auto;
+  gap: 10px;
+  min-height: 0;
+  padding: clamp(24px, 3vw, 34px) clamp(24px, 3.5vw, 42px) clamp(22px, 2.4vw, 26px);
+  overflow: hidden;
+  background: var(--login-red);
 }
 
-/* ── Sent state ── plane art = freigestellt cut-out: leave ── */
-/* .toBlock stays a dark block (already dark); flip its yellow accents → red. */
-html[data-theme="dark"] .toBlock {
-  border-left-color: var(--c-coral);
-}
-html[data-theme="dark"] .toLabel {
-  color: var(--c-coral-bright);
-}
-html[data-theme="dark"] .spam {
-  background: #1d1c19;
-  border-left-color: #f0e8d0;
-}
-html[data-theme="dark"] .spamIcon {
-  background: #f0e8d0;
-  color: var(--c-coral-bright);
-}
-html[data-theme="dark"] .spamText {
-  color: #f0e8d0;
-}
-html[data-theme="dark"] .textlink {
-  color: #f0e8d0;
+.modalBrand {
+  width: fit-content;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--login-paper);
+  font-size: clamp(48px, 5.8vw, 82px);
+  line-height: 0.8;
+  transform: none;
 }
 
-/* ── Modal sticker chrome — ink border/shadow → cream ── */
-html[data-theme="dark"] .frameModal {
-  background: #111110;
+.modalTitle {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: min(100%, 15ch);
+  margin: -6px 0 0;
+  padding: 0;
+  color: var(--login-paper);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(32px, 4vw, 46px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.86;
+  text-transform: uppercase;
+  transform: none;
 }
-/* Sticker border/shadow only on desktop, mirroring the light rule which is
-   stripped on mobile (.frameModal { border:0; box-shadow:none } below 768px).
-   Scoping to the desktop MQ avoids re-adding chrome on the full-bleed mobile
-   sheet via specificity. */
-@media (min-width: 768px) {
-  html[data-theme="dark"] .frameModal {
-    border-color: #f0e8d0;
-    box-shadow: 5px 5px 0 rgba(240, 232, 208, 0.25);
+
+.modalPitch {
+  margin: 0;
+  color: var(--login-ink);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: clamp(13px, 1.4vw, 17px);
+  font-weight: 900;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.modalBadge {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 6px 9px 5px;
+  color: var(--login-paper);
+  background: var(--login-ink);
+  border-radius: 4px;
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: clamp(9px, 0.9vw, 10px);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.modalPackHero {
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  max-height: min(334px, 46svh);
+  padding: 8px 0 0;
+}
+
+.modalPackHero img {
+  max-width: min(96%, 390px);
+  max-height: min(326px, 45svh);
+  filter: none;
+  transform: rotate(-7deg) translateX(-8px);
+}
+
+.modalLogin {
+  display: grid;
+  align-content: center;
+  gap: clamp(18px, 2.4vw, 26px);
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: clamp(48px, 6vw, 76px) clamp(34px, 5vw, 56px);
+  background: var(--login-paper);
+  border: 0;
+  border-radius: 0;
+  transform: none;
+}
+
+.modalLoginHead {
+  display: grid;
+  gap: 12px;
+}
+
+.modalEyebrow,
+.fieldLabel,
+.formHint {
+  margin: 0;
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.modalEyebrow {
+  color: var(--login-ink);
+  font-size: 12px;
+}
+
+.modalFormTitle {
+  margin: 0;
+  max-width: 10ch;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: clamp(58px, 6vw, 88px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.82;
+  text-transform: uppercase;
+}
+
+.modalForm {
+  gap: 10px;
+  width: 100%;
+}
+
+.fieldLabel {
+  font-size: 12px;
+}
+
+.formHint {
+  color: rgba(21, 18, 14, 0.58);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.frameModal .input {
+  min-height: 58px;
+  padding: 0 16px;
+  background: #fff;
+  border: 2px solid var(--login-ink);
+  border-radius: 4px;
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: clamp(15px, 1.75vw, 18px);
+  font-weight: 900;
+}
+
+.frameModal .ctaPrimary,
+.frameModal .ctaGoogle {
+  min-height: 58px;
+  padding: 10px 18px;
+  border: 2px solid var(--login-ink);
+  border-radius: 4px;
+  font-size: clamp(23px, 2.6vw, 30px);
+}
+
+.frameModal .ctaPrimary span,
+.frameModal .ctaGoogle span {
+  white-space: nowrap;
+}
+
+.frameModal .ctaPrimary {
+  color: var(--login-paper);
+  background: var(--login-red);
+  border-color: var(--login-red);
+}
+
+.frameModal .ctaGoogle {
+  justify-content: center;
+  background: #fff;
+  color: var(--login-ink);
+  transform: rotate(-0.6deg);
+}
+
+.frameModal .ctaPrimary:hover,
+.frameModal .ctaPrimary:focus-visible {
+  color: var(--login-paper);
+  background: var(--login-ink);
+  border-color: var(--login-ink);
+  outline: 0;
+}
+
+.frameModal .ctaGoogle:hover,
+.frameModal .ctaGoogle:focus-visible {
+  color: var(--login-paper);
+  background: var(--login-ink);
+  outline: 0;
+}
+
+.frameModal .or {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  margin: -4px 0;
+  text-align: center;
+  color: rgba(21, 18, 14, 0.62);
+  font-size: 11px;
+}
+
+.frameModal .or::before,
+.frameModal .or::after {
+  content: '';
+  border-top: 1px solid rgba(21, 18, 14, 0.3);
+}
+
+.frameModal .legal {
+  width: 100%;
+  margin: -4px 0 0;
+  color: rgba(21, 18, 14, 0.64);
+  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.28;
+}
+
+.frameModal .legalLink {
+  color: var(--login-ink);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 820px) {
+  .frameModal {
+    width: min(440px, calc(100vw - 18px));
+    max-height: calc(100svh - 18px);
+  }
+
+  .modalSimple {
+    height: auto;
+    min-height: 0;
+    max-height: calc(100svh - 18px);
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, auto);
+    gap: 0;
+    padding: 0;
+    overflow: auto;
+  }
+
+  .modalPack {
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    gap: 8px;
+    padding: 18px;
+  }
+
+  .modalBrand {
+    padding-right: 46px;
+    font-size: clamp(38px, 13vw, 54px);
+  }
+
+  .modalTitle {
+    width: min(100%, 13ch);
+    font-size: clamp(31px, 10vw, 42px);
+  }
+
+  .modalPackHero {
+    min-height: 210px;
+    justify-content: center;
+  }
+
+  .modalPackHero img {
+    max-height: min(270px, 34svh);
+    transform: rotate(-6deg);
+  }
+
+  .modalLogin {
+    width: 100%;
+    margin: 0;
+    padding: 20px 18px 18px;
+  }
+
+  .modalLoginHead {
+    gap: 8px;
+  }
+
+  .modalFormTitle {
+    max-width: 100%;
+    font-size: 42px;
+  }
+
+  .modalPitch {
+    font-size: 12px;
+  }
+
+  .frameModal .close {
+    top: 14px;
+    right: 14px;
+    width: 38px;
+    height: 38px;
+    font-size: 33px;
+  }
+}
+
+@media (max-width: 420px) and (max-height: 740px) {
+  .modalSimple {
+    gap: 0;
+    padding: 0;
+  }
+
+  .modalBrand {
+    font-size: clamp(34px, 12vw, 46px);
+  }
+
+  .modalTitle {
+    font-size: clamp(27px, 9vw, 35px);
+  }
+
+  .modalPitch {
+    font-size: 10px;
+    line-height: 1.25;
+  }
+
+  .modalPackHero {
+    min-height: 132px;
+  }
+
+  .modalPackHero img {
+    max-height: 170px;
+  }
+
+  .modalLogin {
+    gap: 8px;
+    padding: 14px;
+  }
+
+  .modalFormTitle {
+    font-size: 32px;
+  }
+
+  .frameModal .input,
+  .frameModal .ctaPrimary,
+  .frameModal .ctaGoogle {
+    min-height: 42px;
+  }
+
+  .frameModal .ctaPrimary,
+  .frameModal .ctaGoogle {
+    font-size: 21px;
+  }
+
+  .frameModal .legal {
+    font-size: 9px;
+    line-height: 1.18;
   }
 }

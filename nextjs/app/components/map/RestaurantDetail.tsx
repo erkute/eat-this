@@ -1,6 +1,6 @@
 'use client'
 import { useMemo, useRef, useState } from 'react'
-import { useRestaurantDetail } from '@/lib/map/useRestaurantDetail'
+import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail'
 import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import {
   abbreviateBezirk,
@@ -25,7 +25,6 @@ import {
 import { normalizeName } from '@/lib/normalizeName'
 import { useSwipePager } from './useSwipePager'
 import RestaurantGallery from './RestaurantGallery'
-import { safeHttpUrl } from './MustEatImageLightbox'
 import { trackEvent } from '@/lib/analytics'
 
 function MustEatMiniCard({
@@ -33,22 +32,19 @@ function MustEatMiniCard({
   unlocked,
   onClick,
 }: { mustEat: MapMustEat; unlocked: boolean; onClick: () => void }) {
+  const dish = mustEat.dish ?? 'Must Eat'
+
   return (
     <li>
       <button
         type="button"
         className={styles.medish}
         onClick={onClick}
-        aria-label={unlocked ? mustEat.dish : 'Locked Must Eat'}
+        aria-label={unlocked ? dish : 'Locked Must Eat'}
       >
         <div className={styles.medishPh}>
-          <img src={unlocked ? mustEat.image : '/pics/card-back.webp?v=6'} alt={unlocked ? mustEat.dish : ''} loading="lazy" />
+          <img src={unlocked && mustEat.image ? mustEat.image : '/pics/card-back.webp?v=6'} alt={unlocked ? dish : ''} loading="lazy" />
         </div>
-        {!unlocked && (
-          <div className={styles.medishLbl}>
-            <h4 className={styles.medishNm}>Verdeckt</h4>
-          </div>
-        )}
       </button>
     </li>
   )
@@ -206,16 +202,48 @@ export default function RestaurantDetail({
     ? (locale === routing.defaultLocale ? '/#hub-packs' : `/${locale}#hub-packs`)
     : (locale === routing.defaultLocale ? '/login' : `/${locale}/login`)
 
+  const galleryImages = useMemo<RestaurantGalleryImage[]>(() => {
+    const images: RestaurantGalleryImage[] = []
+    const seen = new Set<string>()
+
+    const add = (img: RestaurantGalleryImage) => {
+      if (!img.thumb || !img.full) return
+      const key = img.full || img.thumb
+      if (seen.has(key)) return
+      seen.add(key)
+      images.push(img)
+    }
+
+    if (r.photo) {
+      add({
+        _key: 'hero-photo',
+        thumb: r.photo,
+        full: r.photo,
+        alt: displayName,
+        credit: r.photoCredit,
+        creditUrl: r.photoCreditUrl,
+      })
+    }
+
+    for (const img of detail?.gallery ?? []) add(img)
+
+    return images
+  }, [detail?.gallery, displayName, r.photo, r.photoCredit, r.photoCreditUrl])
+
   return (
     <div className={styles.detailV13} role="dialog" aria-label={r.name}>
       <div className={styles.detailV13Scroll} data-detail-scroll ref={scrollWrapRef}>
 
-        {/* HERO — full-bleed photo, back-to-list pill, save bookmark, name. */}
+        {/* HERO — full-bleed photo, save bookmark, name. */}
         <header
           className={styles.rdHero}
           data-detail-hero
           style={r.photo ? { backgroundImage: `url(${r.photo})` } : undefined}
         >
+          <button type="button" className={styles.rdCloseGlass} aria-label={backLabel} onClick={onClose}>
+            <CloseIcon />
+          </button>
+
           {/* Merged heart toggle + public count — one frosted pill, top-left.
               Outline white heart when you haven't hearted it, filled coral when
               you have; the number is the public count (≥ 1). Tapping toggles. */}
@@ -233,27 +261,18 @@ export default function RestaurantDetail({
               )}
             </button>
           )}
-          <button type="button" className={styles.rdCloseGlass} aria-label={backLabel} onClick={onClose}>
-            <CloseIcon />
-          </button>
           <div className={styles.rdOverlay}>
             <h1 className={styles.rdNameOv} style={{ ['--rd-name-max' as string]: `${nameMaxPx}px` }}>{displayName}</h1>
             <div className={styles.rdTagsOv}>
               {district && <span className={styles.rdTag}>{district}</span>}
               {cuisine && <span className={styles.rdTagAlt}>{cuisine}</span>}
-              {hasHours && <span className={styles.rdTagAlt}>{openTag}</span>}
+              {hasHours && (
+                <span className={`${styles.rdTagAlt} ${status.isOpen ? styles.rdTagOpen : ''}`}>
+                  {openTag}
+                </span>
+              )}
             </div>
           </div>
-          {r.photoCredit && (() => {
-            const creditHref = safeHttpUrl(r.photoCreditUrl)
-            return (
-              <span className={styles.rdCredit}>
-                {creditHref
-                  ? <a href={creditHref} target="_blank" rel="noopener noreferrer">{r.photoCredit}</a>
-                  : r.photoCredit}
-              </span>
-            )
-          })()}
         </header>
 
         {/* PAGER — prev/next restaurant in the filtered list */}
@@ -263,14 +282,18 @@ export default function RestaurantDetail({
               {prevRestaurant && (
                 <>
                   <svg className={styles.rdPagerArrow} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg>
-                  <span className={styles.rdPagerName}>{normalizeName(prevRestaurant.name)}</span>
+                  <span className={styles.rdPagerCopy}>
+                    <span className={styles.rdPagerName}>{normalizeName(prevRestaurant.name)}</span>
+                  </span>
                 </>
               )}
             </button>
             <button type="button" className={`${styles.rdPagerBtn} ${styles.rdPagerBtnRight}`} disabled={!nextRestaurant} onClick={onPageNext}>
               {nextRestaurant && (
                 <>
-                  <span className={styles.rdPagerName}>{normalizeName(nextRestaurant.name)}</span>
+                  <span className={styles.rdPagerCopy}>
+                    <span className={styles.rdPagerName}>{normalizeName(nextRestaurant.name)}</span>
+                  </span>
                   <svg className={styles.rdPagerArrow} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
                 </>
               )}
@@ -279,8 +302,8 @@ export default function RestaurantDetail({
         )}
 
         {/* GALLERY — curated Places photos, lazy via the same detail fetch */}
-        {!!detail?.gallery?.length && (
-          <RestaurantGallery images={detail.gallery} restaurantName={displayName} />
+        {!!galleryImages.length && (
+          <RestaurantGallery images={galleryImages} restaurantName={displayName} />
         )}
 
         {/* BODY — story prose with drop cap. While the on-demand detail fetch
@@ -310,8 +333,10 @@ export default function RestaurantDetail({
 
         {/* MUST EATS — reveal state mirrors the map/list (unlocked OR proximity-revealed) */}
         {mustEats.length > 0 && (
-          <section>
-            <h2 className={styles.rdSecH}>Must Eats</h2>
+          <section className={styles.rdMustSection}>
+            <div className={styles.rdMustHead}>
+              <h2 className={styles.rdSecH}>Must Eats</h2>
+            </div>
             <ol className={styles.rdMustGrid}>
               {mustEats.slice(0, 4).map(m => (
                 <MustEatMiniCard
@@ -346,7 +371,7 @@ export default function RestaurantDetail({
             </div>
           )}
           {hasHours && (
-            <div className={styles.rdRow}>
+            <div className={`${styles.rdRow} ${styles.rdRowHours}`}>
               <span className={styles.rdK}>{t('map.openingHours')}</span>
               <div className={`${styles.rdV} ${styles.rdHours}`}>
                 {r.openingHours!.map((slot, i) => (
@@ -367,22 +392,26 @@ export default function RestaurantDetail({
           {r.phone && (
             <div className={styles.rdRow}>
               <span className={styles.rdK}>{t('map.phone')}</span>
-              <span className={styles.rdV}><a href={`tel:${r.phone.replace(/\s+/g, '')}`}>{r.phone}</a></span>
+              <span className={styles.rdV}>
+                <a className={styles.rdContactPlainLink} href={`tel:${r.phone.replace(/\s+/g, '')}`}>
+                  {r.phone}
+                </a>
+              </span>
             </div>
           )}
           {websiteInfo?.kind === 'web' && (
             <div className={styles.rdRow}>
               <span className={styles.rdK}>Website</span>
               <span className={styles.rdV}>
-                <a href={websiteInfo.url} target="_blank" rel="noopener noreferrer">{websiteInfo.display}</a>
+                <a className={styles.rdContactPlainLink} href={websiteInfo.url} target="_blank" rel="noopener noreferrer">{websiteInfo.display}</a>
               </span>
             </div>
           )}
           {igUrl && (
             <div className={styles.rdRow}>
               <span className={styles.rdK}>Instagram</span>
-              <span className={styles.rdV}>
-                <a href={igUrl} target="_blank" rel="noopener noreferrer">{igHandle ? `@${igHandle}` : 'Profil ↗'}</a>
+              <span className={`${styles.rdV} ${styles.rdVHandle}`}>
+                <a className={styles.rdContactPlainLink} href={igUrl} target="_blank" rel="noopener noreferrer">{igHandle ? `@${igHandle}` : 'Profil ↗'}</a>
               </span>
             </div>
           )}
@@ -398,7 +427,7 @@ export default function RestaurantDetail({
               rel="noopener noreferrer"
               onClick={() => trackEvent('restaurant_maps_clicked', { restaurant_id: r._id, restaurant_slug: r.slug })}
             >
-              {t('map.maps')}
+              <span>{t('map.maps')}</span>
             </a>
           )}
           {r.menuUrl && (
@@ -409,7 +438,7 @@ export default function RestaurantDetail({
               rel="noopener nofollow noreferrer"
               onClick={() => trackEvent('restaurant_menu_clicked', { restaurant_id: r._id, restaurant_slug: r.slug })}
             >
-              {locale === 'en' ? 'Menu' : 'Speisekarte'}
+              <span>{locale === 'en' ? 'Menu' : 'Speisekarte'}</span>
             </a>
           )}
           <button
@@ -449,7 +478,7 @@ export default function RestaurantDetail({
               window.setTimeout(() => setShareDone(false), 1800)
             }}
           >
-            {shareDone ? (locale === 'en' ? 'Link copied ✓' : 'Link kopiert ✓') : t('map.share')}
+            <span>{shareDone ? (locale === 'en' ? 'Copied' : 'Kopiert') : t('map.share')}</span>
           </button>
         </div>
 
@@ -486,7 +515,7 @@ export default function RestaurantDetail({
           </section>
         )}
 
-        {/* PACK PROMO — anon + starter only, qualitative (no counts) */}
+        {/* PACK PROMO — anon + starter only, qualitative (no counts/prices) */}
         {showBooster && (
           <section className={styles.packPromo}>
             <div className={styles.packPromoCardWrap} aria-hidden="true">
@@ -509,15 +538,10 @@ export default function RestaurantDetail({
                   <span className={styles.btnPackPromoLbl}>
                     {isAnon ? t('map.starterCta') : t('map.boosterCta')}
                   </span>
-                  {!isAnon && (
-                    <span className={styles.btnPackPromoTag}>
-                      {t('map.boosterPriceTag')}
-                      <svg viewBox="0 0 24 18" aria-hidden="true">
-                        <line x1="2" y1="9" x2="20" y2="9" />
-                        <polyline points="14 3 20 9 14 15" />
-                      </svg>
-                    </span>
-                  )}
+                  <svg className={styles.btnPackPromoIcon} viewBox="0 0 24 18" aria-hidden="true">
+                    <line x1="2" y1="9" x2="20" y2="9" />
+                    <polyline points="14 3 20 9 14 15" />
+                  </svg>
                 </a>
                 {isAnon && (
                   <a href={boosterHref} className={styles.linkPromo}>

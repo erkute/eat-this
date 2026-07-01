@@ -18,6 +18,15 @@ type Block = PortableTextBlock & {
   markDefs?: MarkDef[]
 }
 
+const CONTACT_EMAIL = 'hello@eatthisdot.com'
+
+function normalizeDisplayText(text: string): string {
+  return text
+    .replace(/AMATŌ/g, 'AMATO')
+    .replace(/Amatō/g, 'Amato')
+    .replace(/amatō/g, 'amato')
+}
+
 /** Internal deep-link to the (noindex) map view, e.g. `/map?r=sofi` or
  *  `/en/map?r=sofi`. Such links get rel="nofollow" so the indexable article
  *  doesn't bleed link equity into the map — same policy as the spot cards and
@@ -41,9 +50,24 @@ function renderLink(def: LinkDef, node: ReactNode): ReactNode {
   )
 }
 
+function renderEmailText(text: string): ReactNode {
+  if (!text.includes(CONTACT_EMAIL)) return text
+
+  const parts = text.split(CONTACT_EMAIL)
+  return parts.map((part, index) => (
+    <Fragment key={index}>
+      {part}
+      {index < parts.length - 1 ? <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> : null}
+    </Fragment>
+  ))
+}
+
 function renderSpan(span: Span, key: number, markDefs: MarkDef[] = []): ReactNode {
-  let node: ReactNode = span.text ?? ''
-  for (const mark of span.marks ?? []) {
+  const marks = span.marks ?? []
+  const hasExplicitLink = marks.some((mark) => markDefs.some((d) => d._key === mark && d._type === 'link'))
+  const text = normalizeDisplayText(span.text ?? '')
+  let node: ReactNode = hasExplicitLink ? text : renderEmailText(text)
+  for (const mark of marks) {
     if (mark === 'strong') node = <strong>{node}</strong>
     else if (mark === 'em') node = <em>{node}</em>
     else {
@@ -61,7 +85,7 @@ function renderChildren(children: Span[] = [], markDefs: MarkDef[] = []): ReactN
 
 /** Concatenated plain text of a block's spans — used for heading anchors. */
 function headingText(children: Span[] = []): string {
-  return children.map((c) => c.text ?? '').join('')
+  return normalizeDisplayText(children.map((c) => c.text ?? '').join(''))
 }
 
 /** Deterministic ASCII anchor slug. Shared by the renderer (heading ids) and

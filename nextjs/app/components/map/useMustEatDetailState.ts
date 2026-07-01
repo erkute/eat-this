@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { haversineDistance, type UserLocation } from '@/lib/map'
 import type { MapMustEat } from '@/lib/types'
 import { trackEvent } from '@/lib/analytics'
@@ -96,12 +96,18 @@ export function useMustEatDetailState({ mustEat, userLocation, onUnlock, isAuthe
   // unmounts via onExitComplete). The detail hides the origin card the whole
   // time so it never shows doubled (zoom-clone + static slot card at once).
   const [zoomActive, setZoomActive] = useState(false)
+  const zoomActiveRef = useRef(false)
   const handleCardZoom = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (zoomActiveRef.current) return
+    zoomActiveRef.current = true
     setZoomRect(e.currentTarget.getBoundingClientRect())
     setZoomActive(true)
   }
   const handleZoomClose = () => setZoomRect(null)
-  const handleZoomExitComplete = () => setZoomActive(false)
+  const handleZoomExitComplete = () => {
+    zoomActiveRef.current = false
+    setZoomActive(false)
+  }
 
   return {
     distance,

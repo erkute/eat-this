@@ -1,0 +1,28 @@
+.rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: clamp(14px, 1.8vw, 26px) 0;
+  border-top: 1px solid var(--home-rule);
+}
+
+.row:last-child {
+  border-bottom: 1px solid var(--home-rule);
+}
+
+.name {
+  font-family: var(--font-providence);
+  font-weight: 700;
+  font-size: clamp(18px, 2.6vw, 32px);
+  text-transform: uppercase;
+  color: var(--home-ink);
+}
+
+.row :global(.hv-sub) {
+  font-size: clamp(12px, 1.1vw, 15px);
+}

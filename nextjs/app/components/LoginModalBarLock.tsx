@@ -26,8 +26,7 @@ export default function LoginModalBarLock() {
     b.style.overflow = 'hidden'
     b.style.touchAction = 'none'
     if (mobile) {
-      const dark = de.getAttribute('data-theme') === 'dark'
-      const color = dark ? '#111110' : '#b71c1c' // login frame dark / mobile overlay red
+      const color = '#b71c1c'
       de.style.backgroundColor = color
       b.style.backgroundColor = color
     }

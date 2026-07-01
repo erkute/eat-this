@@ -3,37 +3,72 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements';
-import { CATALOG } from '@/lib/stripe-catalog';
+import { CATALOG, allPackIds } from '@/lib/stripe-catalog';
+import { packUrlSlug } from '@/lib/pack/packDetail';
+import { categoryArt } from '@/lib/categoryArt';
 import styles from './ProfileSlim.module.css';
 
-// Owned packs as chips. Welcome Pack (gift) is always present; bought packs
-// resolve their display name from the Stripe catalog. When nothing beyond the
-// welcome pack is owned, nudge toward the booster index.
+const WELCOME_ART = '/pics/booster/booster_free.webp';
+const ALL_BERLIN_ART = '/pics/booster/booster.webp';
+
+function euro(amountCents: number): string {
+  return `${(amountCents / 100).toFixed(2).replace('.', ',')} €`;
+}
+
+// Booster packs as an editorial menu list: the Welcome Pack (always owned) plus
+// every catalog pack. Owned rows read full-strength with a "dabei/owned" status;
+// not-yet-owned rows are dimmed and show their price as a dotted-leader entry.
 export default function ProfilePacks({ uid }: { uid: string }) {
   const t = useTranslations('profile');
   const owned = useOwnedEntitlements(uid);
-  const names = (owned ? [...owned] : [])
-    .map((id) => CATALOG[id]?.displayName)
-    .filter((n): n is string => !!n);
-  const onlyWelcome = names.length === 0;
+  const ownedSet = owned ?? new Set<string>();
+  const boosters = allPackIds()
+    .map((id) => CATALOG[id])
+    .filter((p): p is NonNullable<typeof p> => !!p);
 
   return (
     <>
-      <div className={styles.section}>
-        <h2 className={styles.sectionHeading}>{t('packsHeading')}</h2>
+      <div className={styles.secHead}>
+        <h3>{t('packsHeading')}</h3>
       </div>
       <div className={styles.packs}>
-        <span className={`${styles.pck} ${styles.pckGift}`}>Welcome Pack</span>
-        {names.map((n) => (
-          <span key={n} className={styles.pck}>{n}</span>
-        ))}
-      </div>
-      {onlyWelcome && (
-        <div className={styles.packHint}>
-          <p className={styles.packLine}>{t('packsLine')}</p>
-          <Link href="/#hub-packs" className={styles.packCta}>{t('packsCta')}</Link>
+        <div className={styles.pack}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={WELCOME_ART} alt="" />
+          <span className={styles.packName}>Welcome Pack</span>
+          <span className={styles.dots} />
+          <span className={styles.packStatus}>{t('packStatusOwned')}</span>
         </div>
-      )}
+        {boosters.map((p) => {
+          const isOwned = ownedSet.has(p.packId);
+          const art = p.slug ? (categoryArt(p.slug) ?? ALL_BERLIN_ART) : ALL_BERLIN_ART;
+          const inner = (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={art} alt="" />
+              <span className={styles.packName}>{p.displayName}</span>
+              <span className={styles.dots} />
+              <span className={styles.packStatus}>
+                {isOwned ? t('packStatusOwned') : euro(p.amountCents)}
+              </span>
+            </>
+          );
+          // Owned → static row; not-yet-owned → link into the pack's buy page.
+          return isOwned ? (
+            <div key={p.packId} className={styles.pack}>
+              {inner}
+            </div>
+          ) : (
+            <Link
+              key={p.packId}
+              href={`/pack/${packUrlSlug(p)}`}
+              className={`${styles.pack} ${styles.packBuy}`}
+            >
+              {inner}
+            </Link>
+          );
+        })}
+      </div>
     </>
   );
 }

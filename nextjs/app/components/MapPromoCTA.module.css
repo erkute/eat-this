@@ -1,26 +1,49 @@
-/* Map-Promo final-CTA — dark block at the bottom of SEO detail pages.
-   Cream-on-ink to contrast the cream page; yellow sticker CTA. Rendered
-   inside the .page scope, so --f-display (Chewy), --ink, --cream, --yellow,
-   --f-body cascade in from the page tokens. */
+/* Map-Promo final-CTA — theme-pinned banner at the bottom of SEO detail pages.
+   It deliberately does not inherit --ink/--cream from parent pages; restaurant
+   and article shells flip those tokens for their own surfaces. */
 .promo {
-  background: var(--ink, #000);
-  color: var(--cream, #fbf8ee);
+  --promo-bg: var(--brand-paper, #f1f1ec);
+  --promo-fg: var(--brand-ink, #171a17);
+  --promo-accent: var(--brand-action, #ef3528);
+  --promo-accent-fg: var(--brand-paper, #f1f1ec);
+
+  position: relative;
+  overflow: hidden;
+  background: var(--promo-bg);
+  color: var(--promo-fg);
   margin: 40px 0 0;
   padding: 40px 22px 44px;
+  border-top: 2px solid var(--promo-fg);
+  border-bottom: 2px solid var(--promo-fg);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 14px;
 }
+.promo::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 9px;
+  background: var(--promo-accent);
+}
 .title {
-  /* color inherits --cream from .promo */
   font-family: var(--f-display);
   font-size: clamp(30px, 8vw, 46px);
   line-height: 1.1;
   text-transform: uppercase;
   margin: 0;
   max-width: 16ch;
+}
+.titleRestaurant {
+  font-size: clamp(22px, 6vw, 64px);
+  line-height: 1.02;
+  max-width: none;
+}
+.titleRestaurant span {
+  display: block;
+  white-space: nowrap;
 }
 .sub {
   font-family: var(--f-body);
@@ -35,8 +58,9 @@
   align-items: center;
   gap: 10px;
   margin-top: 6px;
-  background: var(--yellow, #ffd84a);
-  color: var(--ink, #000);
+  background: var(--promo-accent);
+  color: var(--promo-accent-fg);
+  border: 1.5px solid var(--promo-fg);
   font-family: var(--f-display);
   font-size: 20px;
   letter-spacing: 0.06em;
@@ -52,6 +76,7 @@
 @media (min-width: 720px) {
   .promo { margin-top: 56px; padding: 64px 6vw 68px; gap: 18px; }
   .title { font-size: clamp(44px, 5vw, 68px); }
+  .titleRestaurant { font-size: clamp(44px, 4vw, 50px); }
   .sub { font-size: 17px; max-width: 44ch; }
   .cta { font-size: 24px; padding: 18px 32px 19px; }
 }
@@ -62,8 +87,8 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--yellow, #ffd84a);
-  color: var(--ink, #000);
+  background: var(--brand-action, #ef3528);
+  color: var(--brand-paper, #f1f1ec);
   font-family: var(--f-display);
   font-size: 15px;
   letter-spacing: 0.04em;
@@ -76,16 +101,36 @@
 .chip:hover { transform: translateY(-1px); }
 .chip svg { flex-shrink: 0; width: 22px; height: auto; }
 
-/* ── Dark mode: the promo block stays a dark panel — but the parent page
-   flips --ink/--cream to cream/dark, which would invert .promo. Pin the
-   panel's own surface + text to fixed dark values, then flip the yellow
-   CTA + chip to brand-red with a cream label. ── */
 html[data-theme="dark"] .promo {
-  background: #1d1c19;
-  color: #f0e8d0;
+  --promo-bg: var(--brand-ink, #171a17);
+  --promo-fg: var(--brand-paper, #f1f1ec);
+  --promo-accent: var(--brand-action, #ef3528);
+  --promo-accent-fg: var(--brand-paper, #f1f1ec);
 }
-html[data-theme="dark"] .cta,
 html[data-theme="dark"] .chip {
-  background: var(--c-coral);
-  color: #fbf8ee;
+  background: var(--brand-action, #ef3528);
+  color: var(--brand-paper, #f1f1ec);
+}
+
+/* Poster CTA: no white banner with a black frame. */
+.promo {
+  --promo-bg: var(--brand-ink, #15120e);
+  --promo-fg: #fff;
+  --promo-accent: var(--brand-action, #d9382a);
+  --promo-accent-fg: var(--brand-ink, #15120e);
+
+  border: 0;
+}
+
+.cta {
+  background: #fff;
+  color: var(--promo-accent-fg);
+  border: 0;
+}
+
+html[data-theme="dark"] .promo {
+  --promo-bg: #f3ead8;
+  --promo-fg: #15120e;
+  --promo-accent: var(--brand-action, #d9382a);
+  --promo-accent-fg: #15120e;
 }

@@ -1,8 +1,8 @@
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
-import { Link } from '@/i18n/navigation'
 import { normalizeName } from '@/lib/normalizeName'
 import type { NewOnMapCard } from '@/lib/home/getHomeData'
+import MapIntentLink from './MapIntentLink'
 import styles from './HubNewOnMap.module.css'
 
 interface Props {
@@ -18,7 +18,7 @@ export default function HubNewOnMap({ cards }: Props) {
       <ul className={styles.cards} role="list">
         {cards.map((c) => (
           <li key={c._id} className={styles.cardItem}>
-            <Link href={`/map?r=${c.slug}`} rel="nofollow" className={styles.card}>
+            <MapIntentLink href={`/map?r=${c.slug}`} rel="nofollow" className={styles.card}>
               <div className={styles.cardImage}>
                 {c.image && (
                   <Image src={c.image} alt={normalizeName(c.name)} fill sizes="(max-width: 720px) 50vw, 320px" />
@@ -32,7 +32,7 @@ export default function HubNewOnMap({ cards }: Props) {
                   </p>
                 )}
               </div>
-            </Link>
+            </MapIntentLink>
           </li>
         ))}
       </ul>

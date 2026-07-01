@@ -206,7 +206,7 @@ function AuthActionInner() {
 // Shown to every new account (the sign-in itself already happened).
 function IdentityForm({ user }: { user: User }) {
   const [name,       setName]       = useState('');
-  const [avatarPick, setAvatarPick] = useState<AvatarChoice>(1);
+  const [avatarPick, setAvatarPick] = useState<AvatarChoice>(2);
   const [error,      setError]      = useState('');
   const [busy,       setBusy]       = useState(false);
 
@@ -224,6 +224,10 @@ function IdentityForm({ user }: { user: User }) {
         getDb(),
       ]);
       await setDoc(doc(db, 'users', user.uid), { avatar: avatarPick }, { merge: true });
+      try {
+        localStorage.setItem(`eatthis_avatar_${user.uid}`, String(avatarPick));
+        localStorage.setItem('_authHint', JSON.stringify({ n: name.trim().split(' ')[0] || name.trim(), a: avatarPick }));
+      } catch {}
       hardRedirectToHome();
     } catch {
       setBusy(false);
@@ -268,7 +272,7 @@ function IdentityForm({ user }: { user: User }) {
             >
               <span className={styles.avatarPh}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/pics/avatar/${id}.webp`} alt="" />
+                <img src={`/pics/avatar/${id}.webp?v=3`} alt="" />
               </span>
               <span className={styles.avatarName}>{label}</span>
             </button>

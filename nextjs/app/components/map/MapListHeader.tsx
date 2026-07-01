@@ -71,7 +71,6 @@ export default function MapListHeader({
           active={!!activeCategoryLabel}
           expanded={openChip === 'category'}
           onClick={() => setOpenChip(prev => prev === 'category' ? null : 'category')}
-          onReset={activeCategoryLabel ? () => onCategoryChange('All') : undefined}
         />
         <FilterChip
           ref={bezirkBtnRef}
@@ -79,7 +78,6 @@ export default function MapListHeader({
           active={!!bezirk}
           expanded={openChip === 'bezirk'}
           onClick={() => setOpenChip(prev => prev === 'bezirk' ? null : 'bezirk')}
-          onReset={bezirk ? () => onBezirk(null) : undefined}
         />
         {cuisineNames.length > 0 && (
           <FilterChip
@@ -88,7 +86,6 @@ export default function MapListHeader({
             active={!!cuisine}
             expanded={openChip === 'cuisine'}
             onClick={() => setOpenChip(prev => prev === 'cuisine' ? null : 'cuisine')}
-            onReset={cuisine ? () => onCuisine(null) : undefined}
           />
         )}
         <button
@@ -146,11 +143,10 @@ interface FilterChipProps {
   active: boolean
   expanded: boolean
   onClick: () => void
-  onReset?: () => void
 }
 
 const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(
-  function FilterChip({ label, active, expanded, onClick, onReset }, ref) {
+  function FilterChip({ label, active, expanded, onClick }, ref) {
     return (
       <span className={styles.filterChipWrap}>
         <button
@@ -161,25 +157,7 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(
           aria-expanded={expanded}
         >
           <span className={styles.filterChipLabel}>{label}</span>
-          {!onReset && (
-            <svg className={styles.filterChipCaret} width="9" height="9" viewBox="0 0 12 12" aria-hidden="true">
-              <path d="M3 4.5l3 3 3-3" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          )}
         </button>
-        {onReset && (
-          <button
-            type="button"
-            className={styles.filterChipReset}
-            onClick={onReset}
-            aria-label={`${label} reset`}
-          >
-            <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true">
-              <line x1="3" y1="3" x2="9" y2="9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-              <line x1="9" y1="3" x2="3" y2="9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-            </svg>
-          </button>
-        )}
       </span>
     )
   },

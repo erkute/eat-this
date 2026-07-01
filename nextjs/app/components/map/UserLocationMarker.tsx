@@ -35,7 +35,7 @@ export default function UserLocationMarker({ location }: UserLocationMarkerProps
     >
       <div className={styles.userLoc} aria-label="Your location">
         <img
-          src={`/pics/avatar/${avatarIndex}.webp`}
+          src={`/pics/avatar/${avatarIndex}.webp?v=3`}
           alt=""
           className={styles.userLocAvatar}
           draggable={false}

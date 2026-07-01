@@ -9,6 +9,9 @@ vi.mock('@/lib/auth', () => ({ useAuth: () => ({ user: null }) }))
 vi.mock('@/lib/map/useFavorites', () => ({
   useFavorites: () => ({ favoriteIds: new Set<string>(), toggle: vi.fn() }),
 }))
+vi.mock('@/lib/map/UserLocationContext', () => ({
+  useUserLocationContext: () => ({ location: null, loading: false, error: null, request: vi.fn() }),
+}))
 vi.mock('@/lib/firebase/useOwnedEntitlements', () => ({
   useOwnedEntitlements: () => new Set<string>(),
 }))
@@ -16,14 +19,13 @@ vi.mock('@/lib/firebase/useOwnedEntitlements', () => ({
 import BuddyWidget from './BuddyWidget'
 
 describe('BuddyWidget', () => {
-  it('renders a launcher button (closed by default)', () => {
+  it('renders no floating launcher while closed', () => {
     const html = renderToStaticMarkup(
       <NextIntlClientProvider locale="de" messages={{}}>
         <BuddyWidget />
       </NextIntlClientProvider>,
     )
-    expect(html).toMatch(/data-buddy-launcher/)
-    // panel is not open initially
+    expect(html).not.toMatch(/data-buddy-launcher/)
     expect(html).not.toMatch(/data-buddy-panel="open"/)
   })
 })

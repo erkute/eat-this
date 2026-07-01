@@ -24,7 +24,7 @@ function render(articles: HubArticle[]) {
 describe('HubMagazine', () => {
   it('renders heading, an article title (umlaut) and the kicker stamp', () => {
     const html = render([article()])
-    expect(html).toContain('Im Magazin')
+    expect(html).toContain('Auf den Teller')
     expect(html).toContain('Döner in Berlin')
     expect(html).toContain('Die Kolumne')
   })

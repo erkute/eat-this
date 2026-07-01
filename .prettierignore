@@ -1,3 +1,6 @@
 node_modules/
 studio/
 *.min.js
+*.min.css
+# Hand-authored, intentionally compact stylesheet — keep Prettier off it
+**/css/style.css

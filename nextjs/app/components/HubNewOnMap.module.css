@@ -1,89 +1,161 @@
+/* HUB "Neu auf der Map" — editorial print-menu cream panel on the near-black
+   home canvas: Chauncy ink heading with an ink underline rule, flat photo cards
+   with a dark caption block + cream Chauncy title + mono meta. FLAT: no shadows,
+   no gradients. Theme-independent. */
+
 .section {
-  background: #fbf8ee;
+  width: min(100% - 28px, 1220px);
+  margin: 18px auto 0;
+  padding: clamp(22px, 3vw, 32px) clamp(20px, 2.6vw, 34px) clamp(24px, 3vw, 36px);
+  color: var(--menu-ink);
+  background: var(--home-case-bg, #f5f5f0);
+  border-radius: 0;
 }
 .heading {
-  font-family: var(--font-ranchers);
-  font-size: clamp(34px, 11vw, 44px);
-  line-height: 1.15;
+  margin: 0 0 14px;
+  padding: 0 0 10px clamp(12px, 1.5vw, 18px);
+  border-bottom: 1px solid rgba(21, 18, 14, 0.22);
+  font-family: var(--menu-condensed);
+  font-size: clamp(30px, 6vw, 44px);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1;
   text-transform: uppercase;
-  color: var(--text-primary);
-  margin: 36px 16px 18px;
-  padding-top: 6px;
+  color: var(--menu-ink);
 }
 .cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  padding: 0 14px 14px;
+  gap: clamp(6px, 1vw, 10px);
+  padding: 0;
   margin: 0;
   list-style: none;
 }
-.cardItem { margin: 0; }
+.cardItem {
+  margin: 0;
+}
+
+/* Flat photo card: image fills, thin ink hairline frame, no shadow. */
 .card {
-  display: block;
+  display: grid;
+  grid-template-rows: minmax(160px, 1fr) auto;
   position: relative;
-  aspect-ratio: 4 / 5;
-  border: 1px solid rgba(10, 10, 10, 0.10);
-  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06);
+  min-height: 282px;
+  background: #fff;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
   overflow: hidden;
   text-decoration: none;
-  color: #fbf8ee;
+  color: var(--menu-cream);
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease;
 }
-.cardImage { position: absolute; inset: 0; background-color: #14100c; }
-.cardImage img { object-fit: cover; }
-.card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(11, 8, 6, 0.95) 0%,
-    rgba(11, 8, 6, 0.66) 20%,
-    rgba(11, 8, 6, 0.2) 44%,
-    transparent 66%
-  );
+.card:hover,
+.card:focus-visible {
+  transform: translateY(-4px) rotate(-0.4deg);
+  outline: none;
 }
+.cardImage {
+  position: relative;
+  min-height: 160px;
+  overflow: hidden;
+  background-color: #14100c;
+  border-bottom: 0;
+}
+.cardImage img {
+  object-fit: cover;
+  transition: transform 0.28s ease;
+}
+.card:hover .cardImage img,
+.card:focus-visible .cardImage img {
+  transform: scale(1.04);
+}
+
+/* Flat dark caption block bottom-left — no gradient. */
 .cardBody {
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: 14px;
+  position: static;
   z-index: 1;
+  display: grid;
+  grid-template-rows: auto auto;
+  align-content: end;
+  gap: 5px;
+  box-sizing: border-box;
+  min-height: 88px;
+  padding: 12px 12px 13px;
+  background: #fff;
+  border: 0;
+  border-top: 0;
+  border-radius: 0;
 }
 .cardName {
-  font-family: var(--font-ranchers);
-  font-size: 26px;
-  line-height: 1.02;
+  font-family: var(--menu-condensed);
+  font-size: clamp(20px, 2.1vw, 25px);
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  line-height: 0.9;
   text-transform: uppercase;
   margin: 0;
-  text-shadow: 0 2px 8px rgba(0,0,0,.45);
+  color: var(--menu-ink);
+  display: block;
+  min-height: 0;
+  overflow: visible;
+  overflow-wrap: anywhere;
 }
 .cardMeta {
-  font-family: var(--font);
-  font-size: 10.5px;
-  letter-spacing: .16em;
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  padding: 4px 8px;
+  font-family: var(--menu-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent-warm);
-  margin: 4px 0 0;
-  font-weight: 700;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+  color: var(--home-ghost-ink, rgba(21, 18, 14, 0.88));
+  background: #f5f5f0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── Desktop: centered column, 4-up card grid ── */
 @media (min-width: 720px) {
-  .section { padding-inline: max(14px, calc((100% - 1120px) / 2)); }
-  .heading { margin: 48px 0 22px; font-size: clamp(44px, 5vw, 56px); }
+  .heading {
+    font-size: clamp(40px, 4vw, 54px);
+  }
   .cards {
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
-    padding: 0 0 28px;
   }
-  .cardName { font-size: 30px; }
+  .card {
+    min-height: 306px;
+  }
+  .cardImage {
+    min-height: 205px;
+  }
+  .cardName {
+    font-size: clamp(20px, 1.65vw, 24px);
+  }
 }
 
-/* ── Dark mode: dark page, warm-cream ink, red replaces yellow. Photos and
-   text-on-photo left untouched. ── */
-html[data-theme="dark"] .section { background: var(--dk-page); }
-html[data-theme="dark"] .heading { color: var(--dk-ink); }
-html[data-theme="dark"] .card { border-color: var(--dk-ink); }
-html[data-theme="dark"] .cardMeta { color: var(--accent-warm); }
+@media (max-width: 520px) {
+  .section {
+    width: calc(100% - 20px);
+    padding: 22px 18px 26px;
+  }
+
+  .card {
+    min-height: 268px;
+  }
+
+  .cardImage {
+    min-height: 176px;
+  }
+}

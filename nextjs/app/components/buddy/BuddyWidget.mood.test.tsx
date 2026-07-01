@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // nextjs/app/components/buddy/BuddyWidget.mood.test.tsx
-// Expression policy: thinking (O-mouth still) while streaming with no answer
-// text yet; the mouth flap starts only once text is actually appearing.
+// Expression policy: idle while streaming with no answer text yet; the mouth
+// flap starts only once text is actually appearing.
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, fireEvent, cleanup } from '@testing-library/react'
 import { NextIntlClientProvider } from 'next-intl'
@@ -14,6 +14,9 @@ vi.mock('@/lib/map/useFavorites', () => ({
 }))
 vi.mock('@/lib/firebase/useOwnedEntitlements', () => ({
   useOwnedEntitlements: () => new Set<string>(),
+}))
+vi.mock('@/lib/map/UserLocationContext', () => ({
+  useUserLocationContext: () => ({ location: null, loading: false, error: null, request: vi.fn() }),
 }))
 vi.mock('@/i18n/navigation', () => ({
   usePathname: () => '/',
@@ -46,14 +49,14 @@ const panelMood = () =>
   document.querySelector('#buddy-panel [data-mood]')?.getAttribute('data-mood')
 
 describe('BuddyWidget expression policy', () => {
-  it('ponders (thinking) while streaming with no answer text yet', () => {
+  it('stays idle while streaming with no answer text yet', () => {
     chat.messages = [
       { role: 'user', content: 'Wo gibt’s gute Pizza?' },
       { role: 'assistant', content: '' },
     ]
     chat.isStreaming = true
     renderOpenWidget()
-    expect(panelMood()).toBe('thinking')
+    expect(panelMood()).toBe('idle')
   })
 
   it('talks once answer text is appearing', () => {

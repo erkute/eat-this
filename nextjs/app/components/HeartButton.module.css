@@ -14,23 +14,40 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1.5px solid var(--ink);
+  border: 0;
   background: transparent;
   color: var(--ink);
   cursor: pointer;
-  border-radius: 50%;
-  transition: transform .12s ease, color .12s ease, border-color .12s ease;
+  border-radius: 999px;
+  box-shadow: none;
+  transition: transform .12s ease, color .12s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 .btn:active { transform: scale(.9); }
-.btn svg { width: 22px; height: 22px; }
+.btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+.btn svg {
+  width: 29px;
+  height: 29px;
+  stroke-width: 2.05;
+  filter: drop-shadow(0 2px 2px rgba(43, 33, 28, .24));
+}
 
 .btnActive {
-  color: var(--c-coral);
-  border-color: var(--c-coral);
+  color: var(--collage-red, #ef3108);
+  background: transparent;
 }
 html[data-theme="dark"] .btnActive {
-  color: var(--c-coral-bright);
-  border-color: var(--c-coral-bright);
+  color: var(--collage-red, #ef3108);
+}
+html[data-theme="dark"] .btn {
+  background: transparent;
+  color: var(--brand-paper, #f1f1ec);
+}
+html[data-theme="dark"] .btnActive {
+  color: var(--brand-action, #ef3528);
 }
 
 .label {

@@ -27,15 +27,6 @@ interface Props {
   closeAriaLabel: string
 }
 
-function CheckIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  )
-}
-
 /**
  * Mobile: full-width bottom sheet that slides up over the map list-sheet.
  * Desktop: small anchored popover beneath the chip that opened it.
@@ -45,7 +36,7 @@ function CheckIcon() {
  */
 export default function MapFilterPickerSheet({
   title, items, selectedValue, onSelect, onClose,
-  anchorEl, footer, allLabel, closeAriaLabel,
+  anchorEl, footer, allLabel,
 }: Props) {
   // Callback-ref into state so position + touchmove effects re-run the moment
   // the sheet element actually attaches. The previous useState('mounted') +
@@ -124,22 +115,6 @@ export default function MapFilterPickerSheet({
         aria-modal="true"
         aria-label={title}
       >
-        <div className={styles.pickerHandle} aria-hidden="true" />
-        <div className={styles.pickerHeader}>
-          <span className={styles.pickerTitle}>{title}</span>
-          <button
-            type="button"
-            className={styles.pickerCloseBtn}
-            onClick={onClose}
-            aria-label={closeAriaLabel}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <line x1="6" y1="6" x2="18" y2="18" />
-              <line x1="18" y1="6" x2="6" y2="18" />
-            </svg>
-          </button>
-        </div>
         <div className={styles.pickerList}>
           {allLabel !== undefined && (
             <button
@@ -148,7 +123,6 @@ export default function MapFilterPickerSheet({
               onClick={() => { onSelect(null); onClose() }}
             >
               <span>{allLabel}</span>
-              {selectedValue === null && <CheckIcon />}
             </button>
           )}
           {items.map(item => {
@@ -162,7 +136,6 @@ export default function MapFilterPickerSheet({
               >
                 <span className={styles.pickerItemLabel}>{item.label}</span>
                 {item.sub && <span className={styles.pickerItemSub}>{item.sub}</span>}
-                {active && <CheckIcon />}
               </button>
             )
           })}

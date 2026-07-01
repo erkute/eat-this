@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
@@ -12,13 +13,18 @@ import styles from './SearchOverlay.module.css';
 
 const MAX_RESULTS_PER_GROUP = 8;
 
+interface SearchOverlayProps {
+  openRequestId?: number;
+}
+
 // Self-contained global search. Lives in every layout that wants search
 // (the SPA layout and the profile layout). Opens via clicks on
 // `#burgerSearchTrigger` or any `eatthis:open-search` custom event.
 // Lazy-loads news + restaurants from /api/search-data on first open.
-export default function SearchOverlay() {
+export default function SearchOverlay({ openRequestId = 0 }: SearchOverlayProps) {
   const { t, lang } = useTranslation();
   const locale = useLocale();
+  const router = useRouter();
   const { user, loading: authLoading } = useAuth();
 
   const [open, setOpen] = useState(false);
@@ -50,6 +56,10 @@ export default function SearchOverlay() {
       document.removeEventListener('eatthis:open-search', onTrigger);
     };
   }, []);
+
+  useEffect(() => {
+    if (openRequestId > 0) setOpen(true);
+  }, [openRequestId]);
 
   // On open: close burger, focus input, lock body scroll, lazy-load data.
   useEffect(() => {
@@ -151,17 +161,17 @@ export default function SearchOverlay() {
   const goNews = useCallback(
     (slug: string) => {
       close();
-      window.location.assign(localePath(`/news/${slug}`));
+      router.push(localePath(`/news/${slug}`));
     },
-    [close, localePath],
+    [close, localePath, router],
   );
 
   const goRestaurant = useCallback(
     (slug: string) => {
       close();
-      window.location.assign(localePath(`/map?r=${encodeURIComponent(slug)}`));
+      router.push(localePath(`/map?r=${encodeURIComponent(slug)}`));
     },
-    [close, localePath],
+    [close, localePath, router],
   );
 
   return (

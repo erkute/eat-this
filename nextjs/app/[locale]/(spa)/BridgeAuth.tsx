@@ -19,18 +19,22 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { useLocale } from 'next-intl';
 import { useAuth, useLoginModal } from '@/lib/auth';
+import { useUserProfile } from '@/lib/firebase/useUserProfile';
 import { postLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { useTranslation } from '@/lib/i18n';
-import LoginPanel from '@/app/components/LoginPanel';
 import LoginModalBarLock from '@/app/components/LoginModalBarLock';
 import modalStyles from '@/app/[locale]/@modal/(.)login/modal.module.css';
+
+const LoginPanel = dynamic(() => import('@/app/components/LoginPanel'), { ssr: false });
 
 export default function BridgeAuth() {
   const { user, loading } = useAuth();
   const { t } = useTranslation();
   const { isOpen: loginOpen, close: closeLogin } = useLoginModal();
+  const { profile } = useUserProfile(user?.uid ?? null);
   const router = useRouter();
   const locale = useLocale();
 
@@ -59,11 +63,11 @@ export default function BridgeAuth() {
       const firstName = (user.displayName ?? user.email ?? '')
         .split(' ')[0] || t('footer.signIn');
       loginBtn?.classList.add('logged-in');
-      if (loginSpan) loginSpan.textContent = firstName;
+      if (loginSpan) loginSpan.textContent = t('burger.profile');
       // Keep the pre-paint flag accurate once auth actually resolves (the
       // bootstrap only guesses from the possibly-stale _authHint).
       document.documentElement.setAttribute('data-auth', '1');
-      try { localStorage.setItem('_authHint', JSON.stringify({ n: firstName })); } catch {}
+      try { localStorage.setItem('_authHint', JSON.stringify({ n: firstName, ...(profile.avatar ? { a: profile.avatar } : {}) })); } catch {}
       // Close the modal if the user just signed in.
       closeLogin();
     } else {
@@ -72,7 +76,7 @@ export default function BridgeAuth() {
       document.documentElement.removeAttribute('data-auth');
       try { localStorage.removeItem('_authHint'); } catch {}
     }
-  }, [user, loading, t, closeLogin]);
+  }, [user, loading, profile.avatar, t, closeLogin]);
 
   return loginOpen ? createPortal(
     <div
@@ -86,4 +90,3 @@ export default function BridgeAuth() {
     document.body,
   ) : null;
 }
-

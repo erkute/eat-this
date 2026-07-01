@@ -5,14 +5,13 @@ import type { MapRestaurant, MapMustEat } from '@/lib/types'
 import {
   useMapData,
   useUserLocation,
-  useBounds,
   useUnlockedMustEats,
   useFavorites,
   useMapFilters,
   useMapSheet,
   useMapDeepLinks,
   useUserTier,
-  buildPrimaryMustEatMap,
+  buildPeekMustEatMap,
   resolveUnlockedMustEatIds,
 } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
@@ -152,7 +151,7 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     bezirkNames, bezirkCenters,
     cuisineNames,
     displayedRestaurants, displayedLockedRestaurants,
-  } = useMapFilters({ restaurants, lockedRestaurants, location })
+  } = useMapFilters({ restaurants, lockedRestaurants, mustEats, location })
 
   const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(null)
   const [selectedMustEat,    setSelectedMustEat]    = useState<MapMustEat | null>(null)
@@ -223,20 +222,14 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
     el.scrollTop = listScrollRef.current
   }, [sheetView, contentRef])
 
-  const { updateBounds } = useBounds(displayedRestaurants, location)
-
-  const handleMapMove = useCallback((bounds: Parameters<typeof updateBounds>[0]) => {
-    updateBounds(bounds)
-  }, [updateBounds])
-
   const restaurantMustEats = useMemo(() => {
     if (!selectedRestaurant) return []
     return mustEats.filter(m => m.restaurant._id === selectedRestaurant._id)
   }, [mustEats, selectedRestaurant])
 
   const primaryMustEats = useMemo(
-    () => buildPrimaryMustEatMap(mustEats),
-    [mustEats],
+    () => buildPeekMustEatMap(mustEats, unlockedIds),
+    [mustEats, unlockedIds],
   )
 
   /* ---------- Handlers ---------- */
@@ -746,7 +739,6 @@ export default function MapSection({ isActive = false, initialMapData }: Props) 
       setOpenOnly={setOpenOnly}
       searchOpen={searchOpen}
       setSearchOpen={setSearchOpen}
-      onMapMove={handleMapMove}
       onMapClick={handleMapClick}
       onRestaurantClick={handleRestaurantClick}
       onMustEatClick={handleMustEatClick}

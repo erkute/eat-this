@@ -3,7 +3,7 @@
    /kategorie, /kategorie/[slug].
    Mockup direction: SCREEN 6 — LANDING (SEO).
    Cream-on-ink with Brand-Yellow CTA accents. Anton display,
-   Inter body. Scoped tokens — diese Pages ignorieren das
+   DM Sans body. Scoped tokens — diese Pages ignorieren das
    globale [data-theme="dark"] bewusst, Marketing-Surface
    bleibt brand-cream.
 ============================================================ */
@@ -16,7 +16,7 @@
   --yellow: #ffd84a;
   --muted: #6b5a44;
   --f-display: var(--font-poster, "Chewy"), "Comic Sans MS", cursive;
-  --f-body: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  --f-body: var(--font);
 
   /* Bridge semantic tokens so shared components (Breadcrumbs,
      HubMapCTA, MustEatTeaserSection, DetailPageOutro) rendern
@@ -30,7 +30,7 @@
   --border-strong: var(--ink);
   --accent: var(--yellow);
 
-  background: var(--cream);
+  background: transparent;
   color: var(--ink);
   font-family: var(--f-body);
   min-height: 100vh;
@@ -48,8 +48,12 @@
    HERO BLOCK
 ============================================================ */
 .hero {
-  margin: 8px 0 12px;
+  margin: 8px 0 28px;
+  padding: clamp(24px, 5vw, 52px);
+  background: var(--et-cream);
+  box-shadow: 0 18px 34px rgba(43, 33, 28, .12);
   text-align: left;
+  transform: rotate(-.2deg);
 }
 .kicker {
   font-family: var(--f-display);
@@ -66,7 +70,7 @@
   line-height: 1.0;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--collage-red);
   /* Chewy is far wider/rounder than the old Anton — smaller max + a touch
      more top margin so long names (FRIEDRICHSHAIN) don't overflow and the
      umlaut dots (SÜSSES, KÖPENICK) clear the kicker line above. */
@@ -103,7 +107,8 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  margin: 0 0 30px;
+  margin: 0 0 34px;
+  padding: 0 2px;
 }
 .crossLinksHead {
   font-family: var(--f-body);
@@ -143,7 +148,7 @@
   font-family: var(--f-display);
   font-size: clamp(28px, 7.5vw, 44px);
   line-height: 1.1;
-  color: var(--ink);
+  color: var(--collage-red);
   margin: 0 0 8px;
   text-transform: uppercase;
 }
@@ -168,16 +173,15 @@
 .card {
   display: flex;
   flex-direction: column;
-  background: var(--cream);
-  border: 1.5px solid transparent;
-  border-bottom-color: rgba(0, 0, 0, 0.18);
+  background: #fff;
+  border: 9px solid #fff;
+  box-shadow: var(--collage-shadow);
   text-decoration: none;
   color: inherit;
   transition: border-color 0.15s ease, transform 0.15s ease;
 }
 .card:hover {
-  border-bottom-color: var(--ink);
-  transform: translateY(-1px);
+  transform: rotate(0) translateY(-4px);
 }
 .cardPhoto {
   position: relative;
@@ -193,7 +197,7 @@
   display: block;
 }
 .cardBody {
-  padding: 14px 0 18px;
+  padding: 16px 10px 14px;
 }
 .cardName {
   font-family: var(--f-display);
@@ -202,8 +206,11 @@
   letter-spacing: 0;
   text-transform: uppercase;
   margin: 0 0 8px;
-  color: var(--ink);
+  color: var(--collage-red);
 }
+
+.card:nth-child(odd) { transform: rotate(-.8deg); }
+.card:nth-child(even) { transform: rotate(.8deg); }
 .cardMeta {
   display: flex;
   flex-wrap: wrap;
@@ -381,14 +388,16 @@
   gap: 6px;
   padding: 28px 22px;
   min-height: 130px;
-  background: var(--cream);
-  border: 1.5px solid var(--ink);
+  background: var(--et-cream);
+  border: 0;
+  box-shadow: 0 16px 28px rgba(43, 33, 28, .12);
   text-decoration: none;
   color: var(--ink);
   transition: background 0.15s ease;
 }
 .bezirkCard:hover {
-  background: var(--yellow);
+  background: var(--et-cream);
+  transform: rotate(0) translateY(-4px);
 }
 .bezirkName {
   font-family: var(--f-display);
@@ -512,7 +521,7 @@
      no decoration, just Anton at full presence so the cream column doesn't
      feel empty on wide screens. */
   .hero {
-    margin: 16px 0 40px;
+    margin: 16px 0 46px;
   }
   .kicker {
     font-size: 15px;
@@ -622,10 +631,16 @@ html[data-theme="dark"] .page {
   --accent: var(--c-coral);
 }
 
+html[data-theme="dark"] .hero,
+html[data-theme="dark"] .bezirkCard {
+  background: #181112;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, .32);
+}
+
 /* Cards on now-dark surface — raised tone + cream hairline */
 html[data-theme="dark"] .card {
   background: var(--cream-deep);
-  border-bottom-color: rgba(240, 232, 208, 0.3);
+  border-color: var(--cream-deep);
 }
 html[data-theme="dark"] .card:hover {
   border-bottom-color: #f0e8d0;
@@ -680,4 +695,15 @@ html[data-theme="dark"] .posterFrame img {
 html[data-theme="dark"] .detailOutroWrap :global([data-detail-outro]) {
   background: #111110;
   color: #f0e8d0;
+}
+
+/* iOS Safari alpha-image fallback: prevent the category poster artwork shadow
+   from being rasterized as a rectangular tile on touch WebKit. */
+@supports (-webkit-touch-callout: none) {
+  @media (pointer: coarse) {
+    .posterFrame img,
+    html[data-theme="dark"] .posterFrame img {
+      filter: none;
+    }
+  }
 }

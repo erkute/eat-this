@@ -186,6 +186,42 @@ describe('runBuddyTurn', () => {
     expect(events.filter((e) => e.type === 'pack')).toHaveLength(0)
   })
 
+  it('ignores a model-provided bezirk for nearby searches when geo is present', async () => {
+    const turns = [
+      turnOf([''], [
+        { id: 'tu1', name: 'search_spots', input: { cuisine: 'kaffee', bezirk: 'Mitte', vibe_query: 'guter kaffee in meiner nähe' } },
+      ]),
+      turnOf(['Fertig.']),
+    ]
+    let i = 0
+    const llm: LlmClient = { runTurn: () => turns[i++] }
+    let seenFilters: unknown = null
+
+    await collect(
+      runBuddyTurn(
+        {
+          messages: [{ role: 'user', content: 'Guter Kaffee in meiner Nähe?' }],
+          locale: 'de',
+          geo: { lat: 52.456, lng: 13.322 },
+        },
+        {
+          llm,
+          searchSpots: async (filters) => {
+            seenFilters = filters
+            return []
+          },
+          searchArticles: async () => [],
+        },
+      ),
+    )
+
+    expect(seenFilters).toMatchObject({
+      cuisine: 'kaffee',
+      bezirk: undefined,
+      userGeo: { lat: 52.456, lng: 13.322 },
+    })
+  })
+
   it('stops after MAX rounds without an infinite tool loop', async () => {
     const looping = turnOf(['…'], [{ id: 'x', name: 'search_spots', input: { vibe_query: 'a' } }])
     const llm: LlmClient = { runTurn: () => looping }

@@ -2,8 +2,9 @@
 import { memo, useCallback, useEffect, useRef } from 'react'
 import { useLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
+import { Link } from '@/i18n/navigation'
 import type { MapRestaurant, MapMustEat, OpenStatus } from '@/lib/types'
-import { haversineDistance, formatWalkingTime, getOpenStatus, abbreviateBezirk, resolvePeek, type UserLocation, type UserTier, type Peek } from '@/lib/map'
+import { abbreviateBezirk, getOpenStatus, resolvePeek, type UserLocation, type UserTier, type Peek } from '@/lib/map'
 import { useTranslation } from '@/lib/i18n'
 import { localizedCategoryName } from '@/lib/categories'
 import { normalizeName } from '@/lib/normalizeName'
@@ -15,7 +16,6 @@ import styles from './map.module.css'
 
 interface ItemProps {
   restaurant: MapRestaurant
-  userLocation: UserLocation | null
   isSelected: boolean
   peek: Peek
   /** Visual-only blurred preview row — click routes to the booster/signup
@@ -34,7 +34,7 @@ function peekEqual(a: Peek, b: Peek): boolean {
   return a.kind !== 'open' || b.kind !== 'open' || a.image === b.image
 }
 
-const Item = memo(function Item({ restaurant, userLocation, isSelected, peek, locked, hideBadge, onClick }: ItemProps) {
+const Item = memo(function Item({ restaurant, isSelected, peek, locked, hideBadge, onClick }: ItemProps) {
   const { t, lang } = useTranslation()
   const loc = lang === 'de' ? 'de' : 'en'
   const statusLabels = {
@@ -47,12 +47,7 @@ const Item = memo(function Item({ restaurant, userLocation, isSelected, peek, lo
   }
   const status: OpenStatus = restaurant.openingHours
     ? getOpenStatus(restaurant.openingHours, new Date(), statusLabels)
-    : { isOpen: false, label: '', minutesUntilChange: null }
-
-  const meters = userLocation
-    ? haversineDistance(userLocation.lat, userLocation.lng, restaurant.lat, restaurant.lng)
-    : null
-  const walkingTime = meters !== null ? formatWalkingTime(meters) : null
+    : { isOpen: false, label: t('map.closed'), minutesUntilChange: null }
 
   // Prenzlauer Berg shortens to P'berg so the mustard sticker stays one line.
   const district = abbreviateBezirk(restaurant.bezirk?.name ?? restaurant.district ?? null)
@@ -61,12 +56,7 @@ const Item = memo(function Item({ restaurant, userLocation, isSelected, peek, lo
   const categoryLabel = restaurant.categories?.[0]
     ? localizedCategoryName(restaurant.categories[0], loc)
     : null
-
-  // Status label: `getOpenStatus` returns "Geöffnet · schließt 22:00" /
-  // "Geschlossen · öffnet 9:00". The main word drives the dot-lockup;
-  // the suffix becomes the small `bis 22:00` under it.
-  const [statusMain, ...statusRest] = status.label ? status.label.split(' · ') : []
-  const statusSub = statusRest.join(' · ')
+  const [statusMain] = status.label ? status.label.split(' · ') : []
 
   // Warm the on-demand detail fields once a card scrolls near the viewport —
   // by the time the user taps it, the story text is already cached and the
@@ -147,19 +137,22 @@ const Item = memo(function Item({ restaurant, userLocation, isSelected, peek, lo
       <div className={styles.rcardBody}>
         <h3 className={styles.rcardName}>{normalizeName(restaurant.name)}</h3>
         <p className={styles.rcardMeta}>
-          {[district, categoryLabel].filter(Boolean).join(' · ')}
-        </p>
-        <p className={styles.rcardTime}>
-          {statusSub && <span className={status.isOpen ? styles.rcardNow : undefined}>{statusSub}</span>}
-          {statusSub && walkingTime && <span className={styles.rcardDot} aria-hidden="true" />}
-          {walkingTime && <span>{walkingTime}</span>}
+          {district && (
+            <span className={`${styles.rcardMetaChip} ${styles.rcardMetaDistrict}`}>
+              <span>{district}</span>
+            </span>
+          )}
+          {categoryLabel && (
+            <span className={`${styles.rcardMetaChip} ${styles.rcardMetaCategory}`}>
+              <span>{categoryLabel}</span>
+            </span>
+          )}
         </p>
       </div>
     </button>
   )
 }, (prev, next) =>
   prev.restaurant === next.restaurant &&
-  prev.userLocation === next.userLocation &&
   prev.isSelected === next.isSelected &&
   prev.locked === next.locked &&
   prev.hideBadge === next.hideBadge &&
@@ -187,7 +180,7 @@ interface RestaurantListProps {
 }
 
 export default function RestaurantList({
-  restaurants, lockedRestaurants = [], userLocation, selectedId, uid, userTier, onSelect,
+  restaurants, lockedRestaurants = [], selectedId, uid, userTier, onSelect,
   primaryMustEats, unlockedIds, revealedMustEatIds, onResetFilters, activeBezirk,
 }: RestaurantListProps) {
   const locale = useLocale()
@@ -228,7 +221,6 @@ export default function RestaurantList({
         <div key={r._id} className={styles.rcardSlot}>
           <Item
             restaurant={r}
-            userLocation={userLocation}
             isSelected={selectedId === r._id}
             // Beide Sets werden gebraucht: bei Anon-Nutzern enthält `unlockedIds` die
             // pre-revealed Must-Eat-IDs NICHT, daher prüft `resolvePeek` `revealedMustEatIds`
@@ -239,7 +231,7 @@ export default function RestaurantList({
         </div>
       ))}
       {bezirkLockedOnly ? (
-        <section className={styles.bezirkLocked}>
+        <section className={styles.bezirkLocked} data-sheet-scroll-native>
           <h3 className={styles.bezirkLockedTitle}>{activeBezirk} {t('map.bezirkLockedTitleSuffix')}</h3>
           <p className={styles.bezirkLockedBody}>{t('map.bezirkLockedBodyPre')}{activeBezirk}{t('map.bezirkLockedBodyPost')}</p>
           <a href={allBerlinHref} className={styles.bezirkLockedCta}>
@@ -253,10 +245,9 @@ export default function RestaurantList({
         )
       )}
       {lockedRestaurants.map((r) => (
-        <div key={`locked-${r._id}`} className={styles.rcardSlot}>
+        <div key={`locked-${r._id}`} className={styles.rcardSlot} data-sheet-scroll-native={bezirkLockedOnly ? true : undefined}>
           <Item
             restaurant={r}
-            userLocation={userLocation}
             isSelected={false}
             peek={{ kind: 'covered' }}
             locked
@@ -268,10 +259,22 @@ export default function RestaurantList({
       {showBooster && !bezirkLockedOnly && (
         <div className={styles.listEnd}>
           <h3 className={styles.listEndTitle}>{t('map.listEndTitle')}</h3>
+          <div className={styles.listEndFan} aria-hidden="true">
+            <span className={`${styles.listEndPack} ${styles.listEndPackOne}`} />
+            <span className={`${styles.listEndPack} ${styles.listEndPackTwo}`} />
+            <span className={`${styles.listEndPack} ${styles.listEndPackThree}`} />
+            <span className={`${styles.listEndPack} ${styles.listEndPackFour}`} />
+            <span className={`${styles.listEndPack} ${styles.listEndPackFive}`} />
+            <span className={`${styles.listEndPack} ${styles.listEndPackSix}`} />
+          </div>
+          <p className={styles.listEndSub}>{t('map.listEndSub')}</p>
           <button type="button" className={styles.listEndCta} onClick={() => onUpgradeClick()}>
             <span>{t(uid ? 'map.boosterCta' : 'map.starterCta')}</span>
             <svg viewBox="0 0 14 10" width="15" height="11" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M1 5h11M8 1l4 4-4 4" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </button>
+          {uid && (
+            <Link href="/#hub-packs" className={styles.listEndSecondary}>{t('map.boosterSecondary')}</Link>
+          )}
         </div>
       )}
     </>

@@ -1,10 +1,11 @@
-import { describe, it, expect, vi } from 'vitest'
-import { renderToStaticMarkup } from 'react-dom/server'
-import { NextIntlClientProvider } from 'next-intl'
-import { AppRouterContext } from 'next/dist/shared/lib/app-router-context.shared-runtime'
-import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
-import type { InitialMapData } from '@/lib/map/server-initial-map-data'
-import type { MapMustEat } from '@/lib/types'
+import { describe, it, expect, vi } from 'vitest';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { NextIntlClientProvider } from 'next-intl';
+import { AppRouterContext } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import type { InitialMapData } from '@/lib/map/server-initial-map-data';
+import type { MapMustEat } from '@/lib/types';
+import { translations } from '@/lib/i18n/translations';
 
 // The island pulls in Firebase/auth + browser-only map context. Stub the hooks
 // so the component renders in its pre-mount state (initialMapData, all
@@ -12,20 +13,20 @@ import type { MapMustEat } from '@/lib/types'
 // tests, this test targets the section shell (title + CTA href).
 vi.mock('@/lib/auth', () => ({
   useAuth: () => ({ user: null, loading: false }),
-}))
+}));
 vi.mock('@/lib/map', async () => {
   const actual = await vi.importActual<typeof import('@/lib/map/unlockedMustEats')>(
-    '@/lib/map/unlockedMustEats',
-  )
+    '@/lib/map/unlockedMustEats'
+  );
   return {
     useMapData: ({ initialMapData }: { initialMapData: InitialMapData }) => initialMapData,
     useUnlockedMustEats: () => ({ unlockedIds: new Set<string>() }),
     // Real helper so the pre-mount face-up computation matches production.
     resolveUnlockedMustEatIds: actual.resolveUnlockedMustEatIds,
-  }
-})
+  };
+});
 
-import HubMustEatsTeaser from '@/app/components/HubMustEatsTeaser'
+import HubMustEatsTeaser from '@/app/components/HubMustEatsTeaser';
 
 const me = (o: Partial<MapMustEat> = {}): MapMustEat => ({
   _id: 'm1',
@@ -33,7 +34,7 @@ const me = (o: Partial<MapMustEat> = {}): MapMustEat => ({
   image: 'https://cdn.sanity.io/i.png',
   restaurant: { _id: 'r1', name: 'Bar Basta', slug: 'bar-basta', lat: 52.5, lng: 13.4 },
   ...o,
-})
+});
 
 const data = (mustEats: MapMustEat[]): InitialMapData => ({
   restaurants: [],
@@ -42,13 +43,13 @@ const data = (mustEats: MapMustEat[]): InitialMapData => ({
   categories: [],
   totalCount: 0,
   revealedMustEatIds: [],
-})
+});
 
 /** Helper: same as data() but with all must-eat ids in revealedMustEatIds */
 const dataRevealed = (mustEats: MapMustEat[]): InitialMapData => ({
   ...data(mustEats),
   revealedMustEatIds: mustEats.map((m) => m._id),
-})
+});
 
 // useTranslation() pulls in next-intl's useRouter, which needs the app router
 // context mounted. The test never navigates — a stub is enough.
@@ -59,46 +60,70 @@ const routerStub = {
   forward: vi.fn(),
   refresh: vi.fn(),
   prefetch: vi.fn(),
-} as unknown as AppRouterInstance
+} as unknown as AppRouterInstance;
 
 function render(initialMapData: InitialMapData, locale: 'de' | 'en' = 'de') {
   return renderToStaticMarkup(
     <AppRouterContext.Provider value={routerStub}>
-      <NextIntlClientProvider locale={locale} messages={{}}>
+      <NextIntlClientProvider
+        locale={locale}
+        messages={translations[locale]}
+        timeZone="Europe/Berlin"
+      >
         <HubMustEatsTeaser initialMapData={initialMapData} />
       </NextIntlClientProvider>
-    </AppRouterContext.Provider>,
-  )
+    </AppRouterContext.Provider>
+  );
 }
 
 describe('HubMustEatsTeaser', () => {
-  // messages={{}} → next-intl echoes the key, which is enough to prove the
-  // title/sub/cta are wired to the right i18n keys.
-  it('renders the title + sub via the mustEats teaser keys', () => {
-    const html = render(dataRevealed([me()]))
-    expect(html).toContain('mustEats.teaserTitle')
-    expect(html).toContain('mustEats.teaserSub')
-    expect(html).toContain('mustEats.teaserCta')
-  })
+  it('renders the "Must Eats" header', () => {
+    const html = render(dataRevealed([me()]));
+    expect(html).toContain('Must Eats');
+  });
 
-  it('points the CTA at the standalone /must-eats page', () => {
-    const html = render(dataRevealed([me()]))
-    expect(html).toMatch(/href="\/must-eats"/)
-  })
+  it('renders the title + lead + must-eats CTA via translations/copy', () => {
+    const html = render(dataRevealed([me()]));
+    expect(html).toContain(translations.de.mustEats.teaserTitle);
+    // Lead line is hardcoded design copy (not a translation key)
+    expect(html).toContain('face-down freischalten');
+    expect(html).toContain(translations.de.mustEats.teaserCta);
+  });
 
-  it('locale-prefixes the CTA for en', () => {
-    const html = render(dataRevealed([me()]), 'en')
-    expect(html).toMatch(/href="\/en\/must-eats"/)
-  })
+  it('contains a CTA link to /pack/all-berlin', () => {
+    const html = render(dataRevealed([me()]));
+    expect(html).toMatch(/href="\/pack\/all-berlin"/);
+  });
 
-  it('renders only face-up cards: shows dish image, no card-back', () => {
-    const html = render(dataRevealed([me()]))
-    expect(html).toContain('cdn.sanity.io')
-    expect(html).not.toContain('card-back')
-  })
+  it('locale-prefixes the all-berlin CTA for en', () => {
+    const html = render(dataRevealed([me()]), 'en');
+    expect(html).toMatch(/href="\/en\/pack\/all-berlin"/);
+  });
+
+  it('points the must-eats CTA at the full must-eats page', () => {
+    const html = render(dataRevealed([me()]));
+    expect(html).toMatch(/href="\/must-eats"/);
+  });
+
+  it('locale-prefixes the must-eats CTA for en', () => {
+    const html = render(dataRevealed([me()]), 'en');
+    expect(html).toMatch(/href="\/en\/must-eats"/);
+  });
+
+  it('links dish/card to must-eat map detail and restaurant name to restaurant map detail', () => {
+    const html = render(dataRevealed([me()]));
+    expect(html).toContain('href="/map?me=m1"');
+    expect(html).toContain('href="/map?r=bar-basta"');
+  });
+
+  it('renders face-up cards with their must-eat image', () => {
+    const html = render(dataRevealed([me()]));
+    expect(html).toContain('cdn.sanity.io');
+    expect(html).toContain('Smash Burger');
+  });
 
   it('renders nothing when no card is face-up', () => {
     // revealedMustEatIds is empty → no face-up cards → section should be empty
-    expect(render(data([me()]))).toBe('')
-  })
-})
+    expect(render(data([me()]))).toBe('');
+  });
+});

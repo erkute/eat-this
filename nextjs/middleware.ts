@@ -6,6 +6,7 @@ import { REFERRER_COOKIE, COOKIE_MAX_AGE, UID_SHAPE } from '@/lib/referral/const
 import { GONE_SLUGS, NEWS_REDIRECTS } from '@/lib/seo/legacyRedirects';
 
 const intlMiddleware = createMiddleware(routing);
+const INTERNAL_LOCALE_HEADER = 'x-eat-this-internal-locale';
 
 // 410 body for permanently closed spots. No inline CSS (CSP forbids it) —
 // plain semantic HTML; crawlers read the 410 status, humans get a link home.
@@ -56,6 +57,18 @@ export default function middleware(req: NextRequest) {
     url.protocol = 'https:';
     url.port = '';
     return NextResponse.redirect(url, 308);
+  }
+
+  // Our DE public URLs are unprefixed, but the App Router still needs the
+  // internal `/de` segment. Only internal rewrites carry this private header;
+  // public `/de/...` requests below still get canonicalized to unprefixed URLs.
+  const isInternalDeRewrite = req.headers.get(INTERNAL_LOCALE_HEADER) === 'de';
+  if (isInternalDeRewrite && (pathname === '/de' || pathname.startsWith('/de/'))) {
+    const res = NextResponse.next();
+    if (isStaging) {
+      res.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    }
+    return res;
   }
 
   const legacyLang = searchParams.get('lang');
@@ -116,6 +129,30 @@ export default function middleware(req: NextRequest) {
       url.pathname = `${prefix}${NEWS_REDIRECTS[news[1]]}`;
       return NextResponse.redirect(url, 308);
     }
+  }
+
+  if (pathname === '/de' || pathname.startsWith('/de/')) {
+    const url = req.nextUrl.clone();
+    url.pathname = pathname.slice(3) || '/';
+    const redirect = NextResponse.redirect(url, 308);
+    redirect.cookies.set('NEXT_LOCALE', 'de', { path: '/', maxAge: 60 * 60 * 24 * 365 });
+    return redirect;
+  }
+
+  // The public DE routes are unprefixed (`/`, `/must-eats`, …), but the App
+  // Router page tree lives below `[locale]`. Rewrite DE requests ourselves and
+  // mark the internal pass so `as-needed` canonicalization doesn't loop.
+  if (!pathname.startsWith('/en')) {
+    const url = req.nextUrl.clone();
+    url.pathname = `/${routing.defaultLocale}${pathname === '/' ? '' : pathname}`;
+    const headers = new Headers(req.headers);
+    headers.set(INTERNAL_LOCALE_HEADER, routing.defaultLocale);
+    const res = NextResponse.rewrite(url, { request: { headers } });
+    res.cookies.set('NEXT_LOCALE', routing.defaultLocale, { path: '/', maxAge: 60 * 60 * 24 * 365 });
+    if (isStaging) {
+      res.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    }
+    return res;
   }
 
   const res = intlMiddleware(req);

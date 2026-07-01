@@ -3894,10 +3894,10 @@ html[data-theme="dark"] .burger-btn {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-family: "Silkscreen", var(--menu-mono, ui-monospace, monospace);
-  font-size: 10px;
+  font-family: var(--font-providence);
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #fff;
 }
@@ -4034,10 +4034,10 @@ html[data-theme="dark"] .burger-btn {
   border: 0;
   cursor: pointer;
   color: rgba(255, 255, 255, 0.55);
-  font-family: "Silkscreen", var(--menu-mono, ui-monospace, monospace);
-  font-size: 9px;
+  font-family: var(--font-providence);
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.04em;
   line-height: 1.2;
   text-transform: uppercase;
   text-decoration: none;

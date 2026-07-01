@@ -568,27 +568,27 @@
 }
 
 .frameModal .close {
-  top: 14px;
-  right: 14px;
-  width: 36px;
-  height: 36px;
-  padding: 0 0 3px;
+  top: 16px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  padding: 0 0 4px;
   color: var(--login-ink);
-  background: var(--login-paper);
-  border: 2px solid var(--login-ink);
+  background: transparent;
+  border: 0;
   border-radius: 0;
   box-shadow: none;
-  font-family: var(--font-dm-sans, system-ui, sans-serif);
-  font-size: 30px;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 36px;
   font-weight: 700;
   transform: none;
 }
 
 .frameModal .close:hover,
 .frameModal .close:focus-visible {
-  color: var(--login-paper);
-  background: var(--login-ink);
-  outline: 2px solid var(--login-paper);
+  color: var(--login-red, #d9382a);
+  background: transparent;
+  outline: 2px solid currentColor;
   outline-offset: 3px;
   transform: translateY(-2px);
 }
@@ -611,7 +611,7 @@
   box-sizing: border-box;
   display: grid;
   align-content: center;
-  gap: clamp(16px, 2vw, 24px);
+  gap: clamp(18px, 2.4vw, 30px);
   min-height: 0;
   padding: clamp(34px, 4vw, 52px) clamp(28px, 4vw, 44px);
   overflow: hidden;
@@ -621,31 +621,59 @@
 
 .modalBenefitHead {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(94px, 11vw, 132px);
-  align-items: end;
-  gap: clamp(14px, 2vw, 22px);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(12px, 1.8vw, 20px);
+}
+
+.modalBenefitKicker {
+  grid-column: 1 / -1;
+  max-width: 23ch;
+  margin: 0 0 -6px;
+  color: rgba(255, 255, 255, .76);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(18px, 1.65vw, 23px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
 }
 
 .modalBenefitIntro {
+  max-width: 9ch;
   margin: 0;
   color: var(--login-paper);
-  font-family: var(--font-dm-sans, system-ui, sans-serif);
-  font-size: clamp(20px, 2.15vw, 28px);
-  font-weight: 800;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(32px, 3.5vw, 44px);
+  font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.05;
+  line-height: .9;
+  text-transform: uppercase;
 }
 
 .modalPackArt {
   justify-self: end;
-  width: 100%;
-  transform: rotate(-4deg);
+  width: clamp(124px, 15vw, 178px);
+  margin-top: clamp(-28px, -2vw, -12px);
+  transform: rotate(-6deg);
 }
 
 .modalPackArt img {
   display: block;
   width: 100%;
   height: auto;
+}
+
+.modalBenefitNote {
+  max-width: 30ch;
+  margin: 0;
+  padding-top: clamp(14px, 2vw, 18px);
+  color: rgba(255, 255, 255, .78);
+  border-top: 2px solid rgba(255, 255, 255, .2);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(18px, 1.8vw, 24px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.08;
 }
 
 .modalBenefitList {
@@ -736,11 +764,11 @@
   max-width: none;
   justify-self: start;
   margin: 0;
-  font-family: var(--et-font-display);
-  font-size: clamp(42px, 5.2vw, 66px);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(50px, 6vw, 78px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: .94;
+  line-height: .86;
   text-transform: none;
 }
 
@@ -772,13 +800,15 @@
   background: var(--login-paper);
   border: 2px solid var(--login-ink);
   border-radius: 0;
-  font-family: var(--font-dm-sans, system-ui, sans-serif);
-  font-size: clamp(15px, 1.45vw, 17px);
-  font-weight: 900;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(19px, 1.8vw, 23px);
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
 .frameModal .input::placeholder {
   color: color-mix(in srgb, var(--login-ink) 46%, transparent);
+  font: inherit;
 }
 
 .frameModal .input:focus {
@@ -852,10 +882,11 @@
   width: 100%;
   margin: -2px 0 0;
   color: var(--login-muted);
-  font-family: var(--et-font-mono);
-  font-size: 11px;
-  font-weight: 900;
-  line-height: 1.28;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(14px, 1.25vw, 16px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.18;
 }
 
 .frameModal .legalLink {
@@ -892,17 +923,23 @@
   }
 
   .modalBenefitHead {
-    grid-template-columns: minmax(0, 1fr) clamp(82px, 24vw, 118px);
-    gap: 14px;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .modalBenefitKicker {
+    max-width: 26ch;
+    font-size: 18px;
   }
 
   .modalBenefitIntro {
-    max-width: 26ch;
-    font-size: clamp(20px, 7vw, 28px);
+    max-width: 11ch;
+    font-size: clamp(30px, 9vw, 42px);
   }
 
-  .modalBenefitList li {
-    padding: 12px 0;
+  .modalPackArt {
+    width: clamp(104px, 30vw, 138px);
+    margin-top: -20px;
   }
 
   .modalLogin {
@@ -936,20 +973,20 @@
   }
 
   .modalBenefitHead {
-    grid-template-columns: minmax(0, 1fr) 76px;
+    grid-template-columns: 1fr;
     gap: 10px;
   }
 
+  .modalBenefitKicker {
+    font-size: 16px;
+  }
+
   .modalBenefitIntro {
-    font-size: 20px;
+    font-size: 29px;
   }
 
-  .modalBenefitList li {
-    padding: 9px 0;
-  }
-
-  .modalBenefitList strong {
-    font-size: 15px;
+  .modalBenefitNote {
+    font-size: 16px;
   }
 
   .modalLogin {

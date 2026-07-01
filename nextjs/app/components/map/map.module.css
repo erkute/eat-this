@@ -10979,6 +10979,54 @@ html[data-theme='dark'] .mapSearchToolbar {
   color: var(--et-home-ink, #15120e) !important;
 }
 
+/* Collapsed map search: frame-free, but visually related to the compact
+   black search field through scale, weight, and the same ink colour. */
+html .mapSearchBtn {
+  top: 18px !important;
+  left: 18px !important;
+  right: auto !important;
+  width: 42px !important;
+  min-width: 42px !important;
+  height: 42px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  color: var(--et-home-ink, #15120e) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+html .mapSearchBtn .mapSearchIcon {
+  width: 31px !important;
+  height: 31px !important;
+  color: currentColor !important;
+  stroke: currentColor !important;
+  stroke-width: 2.75px !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  transform: rotate(-7deg) !important;
+  transform-origin: 50% 50% !important;
+}
+
+html .mapSearchBtn:hover,
+html .mapSearchBtn:focus-visible {
+  background: transparent !important;
+  color: var(--et-home-red, #d9382a) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+html .mapSearchBtn:active .mapSearchIcon {
+  transform: rotate(-7deg) scale(.92) !important;
+}
+
+html[data-theme='dark'] .mapSearchBtn {
+  color: #fff !important;
+}
+
 /* Map warning/status notices sit low and centered, just above the sheet. */
 html .mapStatusLayer,
 html .mapStatusLayerError,
@@ -12192,15 +12240,19 @@ html body .listEndKicker {
 }
 
 html body .listEndTitle {
-  max-width: 13ch !important;
+  max-width: none !important;
   margin: 0 !important;
   color: var(--list-end-ink) !important;
   font-family: var(--et-font-display, var(--font-providence), sans-serif) !important;
-  font-size: clamp(36px, 9vw, 46px) !important;
+  font-size: clamp(28px, 6.8vw, 34px) !important;
   font-weight: 800 !important;
   letter-spacing: 0 !important;
-  line-height: .82 !important;
+  line-height: .96 !important;
   text-transform: none !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  hyphens: manual !important;
+  text-wrap: balance !important;
 }
 
 html body .listEndFan {
@@ -12419,4 +12471,117 @@ html[data-theme='dark'] body .esBtnPrimary {
 html[data-theme='dark'] body .esBtnPrimary:hover,
 html[data-theme='dark'] body .esBtnPrimary:focus-visible {
   background: #ffc600 !important;
+}
+
+/* Filter chips: active long labels such as "Charlottenburg" need more room
+   than the default four equal columns, but the rail must still stay inside
+   the side panel. */
+html body .filterChipRow {
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding-inline: 12px !important;
+  overflow: visible !important;
+}
+
+html body .filterChipWrap,
+html body .filterChipRow > .filterChip {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  width: auto !important;
+  max-width: none !important;
+}
+
+html body .filterChipWrap:has(.filterChipActive),
+html body .filterChipWrap:has(.filterChipOpenActive) {
+  flex-grow: 1.72 !important;
+}
+
+html body .filterChip,
+html body .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html body .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+html body .filterChipReset,
+html body .filterChipActive,
+html body .filterChipOpenActive {
+  width: 100% !important;
+  max-width: none !important;
+  overflow: visible !important;
+  padding-inline: clamp(6px, 1vw, 12px) !important;
+}
+
+html body .filterChipLabel,
+html body .filterChipLabelLong {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+html body .filterChipActive .filterChipLabelLong,
+html body .filterChipOpenActive .filterChipLabelLong {
+  font-size: clamp(9px, .86vw, 11px) !important;
+}
+
+html body .filterChipRow > .filterChip,
+html body .filterChipWrap {
+  flex-grow: 1 !important;
+  flex-shrink: 1 !important;
+  flex-basis: 0 !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+html body .filterChipWrap:has(.filterChipActive),
+html body .filterChipWrap:has(.filterChipOpenActive) {
+  flex-grow: 1.72 !important;
+  flex-basis: 0 !important;
+}
+
+html body .filterChipRow > .filterChipOpenActive,
+html body .filterChipRow > .filterChipActive {
+  flex-grow: 1.32 !important;
+  flex-basis: 0 !important;
+}
+
+html body .filterChipRow.filterChipRow > button.filterChip.filterChip {
+  flex: 1 1 0 !important;
+  flex-grow: 1 !important;
+  flex-shrink: 1 !important;
+  flex-basis: 0 !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+@media (max-width: 767.98px) {
+  html body .filterChipRow {
+    gap: 6px !important;
+    padding-inline: 10px !important;
+  }
+
+  html body .filterChipWrap:has(.filterChipActive),
+  html body .filterChipWrap:has(.filterChipOpenActive) {
+    flex-grow: 1.9 !important;
+  }
+
+  html body .filterChip,
+  html body .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+  html body .filterChipWrap .filterChip:not(.filterChipOpenActive):not(.filterChipActive),
+  html body .filterChipReset,
+  html body .filterChipActive,
+  html body .filterChipOpenActive {
+    padding-inline: 5px !important;
+    font-size: clamp(9px, 2.7vw, 11px) !important;
+  }
+
+  html body .filterChipActive .filterChipLabelLong,
+  html body .filterChipOpenActive .filterChipLabelLong {
+    font-size: clamp(7.5px, 2.35vw, 9px) !important;
+  }
 }

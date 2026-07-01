@@ -143,28 +143,18 @@ export default function LoginPanel({ onBack, modal = false, mustEatGate = false 
         <div className={styles.modalSimple}>
           <section className={styles.modalBenefits} aria-label={t('modals.login.heroSub')}>
             <div className={styles.modalBenefitHead}>
-              <p className={styles.modalBenefitIntro}>
-                {t(mustEatGate ? 'modals.login.mustEatGateSub' : 'modals.login.heroSub')}
-              </p>
+              <p className={styles.modalBenefitKicker}>{t('modals.login.heroH1')}</p>
+              <h2 className={styles.modalBenefitIntro}>
+                {t('modals.login.modalTagline')}
+              </h2>
               <div className={styles.modalPackArt} aria-hidden="true">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/pics/booster/booster_free.webp" alt="" loading="eager" decoding="sync" fetchPriority="high" />
               </div>
             </div>
-            <ul className={styles.modalBenefitList}>
-              <li>
-                <span>{t('modals.login.menuSpotsLabel')}</span>
-                <strong>{t('modals.login.menuSpotsText')}</strong>
-              </li>
-              <li>
-                <span>{t('modals.login.menuMustEatsLabel')}</span>
-                <strong>{t('modals.login.menuMustEatsText')}</strong>
-              </li>
-              <li>
-                <span>{t('modals.login.menuProfileLabel')}</span>
-                <strong>{t('modals.login.menuProfileText')}</strong>
-              </li>
-            </ul>
+            <p className={styles.modalBenefitNote}>
+              {t(mustEatGate ? 'modals.login.mustEatGateSub' : 'modals.login.heroSub')}
+            </p>
           </section>
 
           <section className={styles.modalLogin} aria-label={t('modals.login.heroHeadline')}>
